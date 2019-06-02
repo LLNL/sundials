@@ -1,15 +1,15 @@
 # ---------------------------------------------------------------
 # Programmer:  Eddy Banks @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # SUPERLUMT tests for SUNDIALS CMake-based configuration.
 # 
@@ -59,7 +59,9 @@ If(SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "PTHREAD")
       )
 ELSE(SUPERLUMT_THREAD_TYPE_UPPER STREQUAL "OPENMP")
   # add openmp to libraries
-  find_package( OpenMP REQUIRED)
+  if(NOT OPENMP_FOUND)
+    find_package( OpenMP REQUIRED)
+  endif()
   if(OPENMP_FOUND)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")

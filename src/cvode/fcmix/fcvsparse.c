@@ -3,19 +3,15 @@
  * Programmer(s): Daniel R. Reynolds and Ting Yan @ SMU
  *     Carol Woodward @ LLNL
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  */
 
@@ -23,7 +19,7 @@
 #include <stdlib.h>
 #include "fcvode.h"
 #include "cvode_impl.h"
-#include <cvode/cvode_direct.h>
+#include <cvode/cvode_ls.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /* Prototype of the Fortran routine */
@@ -57,7 +53,7 @@ void FCV_SPARSESETJAC(int *ier)
                   "Sparse Fortran users must configure SUNDIALS with 64-bit integers.");
   *ier = 1;
 #else  
-  *ier = CVDlsSetJacFn(CV_cvodemem, FCVSparseJac);
+  *ier = CVodeSetJacFn(CV_cvodemem, FCVSparseJac);
 #endif
 }
 

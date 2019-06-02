@@ -1,37 +1,94 @@
-/*
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ *                David J. Gardner, Carol S. Woodward, and
+ *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for a generic SUNMATRIX package.
  * It contains the implementation of the SUNMatrix operations listed
  * in sundials_matrix.h
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
+ * Create a new empty SUNMatrix object
+ * ----------------------------------------------------------------- */
+
+SUNMatrix SUNMatNewEmpty()
+{
+  SUNMatrix     A;
+  SUNMatrix_Ops ops;
+
+  /* create matrix object */
+  A = NULL;
+  A = (SUNMatrix) malloc(sizeof *A);
+  if (A == NULL) return(NULL);
+
+  /* create matrix ops structure */
+  ops = NULL;
+  ops = (SUNMatrix_Ops) malloc(sizeof *ops);
+  if (ops == NULL) { free(A); return(NULL); }
+
+  /* initialize operations to NULL */
+  ops->getid       = NULL;
+  ops->clone       = NULL;
+  ops->destroy     = NULL;
+  ops->zero        = NULL;
+  ops->copy        = NULL;
+  ops->scaleadd    = NULL;
+  ops->scaleaddi   = NULL;
+  ops->matvecsetup = NULL;
+  ops->matvec      = NULL;
+  ops->space       = NULL;
+
+  /* attach ops and initialize content to NULL */
+  A->ops     = ops;
+  A->content = NULL;
+
+  return(A);
+}
+
+
+/* -----------------------------------------------------------------
+ * Copy a matrix 'ops' structure
+ * -----------------------------------------------------------------*/
+
+int SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
+{
+  /* Check that ops structures exist */
+  if (A == NULL || B == NULL) return(-1);
+  if (A->ops == NULL || B->ops == NULL) return(-1);
+
+  /* Copy ops from A to B */
+  B->ops->getid     = A->ops->getid;
+  B->ops->clone     = A->ops->clone;
+  B->ops->destroy   = A->ops->destroy;
+  B->ops->zero      = A->ops->zero;
+  B->ops->copy      = A->ops->copy;
+  B->ops->scaleadd  = A->ops->scaleadd;
+  B->ops->scaleaddi = A->ops->scaleaddi;
+  B->ops->matvec    = A->ops->matvec;
+  B->ops->space     = A->ops->space;
+
+  return(0);
+}
+
+
+/* -----------------------------------------------------------------
  * Functions in the 'ops' structure
- * -----------------------------------------------------------------
- */
+ * ----------------------------------------------------------------- */
 
 SUNMatrix_ID SUNMatGetID(SUNMatrix A)
 {
@@ -49,8 +106,18 @@ SUNMatrix SUNMatClone(SUNMatrix A)
 
 void SUNMatDestroy(SUNMatrix A)
 {
-  if (A==NULL) return;
-  A->ops->destroy(A);
+  if (A == NULL) return;
+
+  /* if the destroy operation exists use it */
+  if (A->ops)
+    if (A->ops->destroy) { A->ops->destroy(A); return; }
+
+  /* if we reach this point, either ops == NULL or destroy == NULL,
+     try to cleanup by freeing the content, ops, and matrix */
+  if (A->content) { free(A->content); A->content = NULL; }
+  if (A->ops) { free(A->ops); A->ops = NULL; }
+  free(A); A = NULL;
+
   return;
 }
 
@@ -74,6 +141,11 @@ int SUNMatScaleAddI(realtype c, SUNMatrix A)
   return((int) A->ops->scaleaddi(c, A));
 }
 
+int SUNMatMatvecSetup(SUNMatrix A)
+{
+  return((int) A->ops->matvecsetup(A));
+}
+
 int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 {
   return((int) A->ops->matvec(A, x, y));
@@ -83,4 +155,3 @@ int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw)
 {
   return((int) A->ops->space(A, lenrw, leniw));
 }
-

@@ -1,22 +1,15 @@
 C     ----------------------------------------------------------------
 C     Programmer(s): Daniel R. Reynolds @ SMU
 C     ----------------------------------------------------------------
-C     LLNS/SMU Copyright Start
-C     Copyright (c) 2015, Southern Methodist University and 
-C     Lawrence Livermore National Security
-C
-C     This work was performed under the auspices of the U.S. Department 
-C     of Energy by Southern Methodist University and Lawrence Livermore 
-C     National Laboratory under Contract DE-AC52-07NA27344.
-C     Produced at Southern Methodist University and the Lawrence 
-C     Livermore National Laboratory.
-C
+C     SUNDIALS Copyright Start
+C     Copyright (c) 2002-2019, Lawrence Livermore National Security
+C     and Southern Methodist University.
 C     All rights reserved.
-C     For details, see the LICENSE file.
-C     LLNS/SMU Copyright End
-C     Copyright (c) 2013, Southern Methodist University.
-C     All rights reserved.
-C     For details, see the LICENSE file.
+C
+C     See the top-level LICENSE and NOTICE files for details.
+C
+C     SPDX-License-Identifier: BSD-3-Clause
+C     SUNDIALS Copyright End
 C     ----------------------------------------------------------------
 C     Diagonal ODE example.  Stiff case, with diagonal preconditioner.
 C     Uses FARKODE interfaces and FARKBBD interfaces.
@@ -39,7 +32,7 @@ C
       INTEGER*4 LLENRW, LLENIW, LNST, LNST_ATT, LNFE, LNFI, LNSETUP
       INTEGER*4 LNETF, LNNI, LNCF, LLENRWLS, LLENIWLS, LNPE, LNPS, LNLI
       INTEGER*4 LNCFL, JOUT
-      INTEGER*8 NEQ, I, IPAR(3), IOUT(22), MUDQ, MLDQ, MU, ML, NST
+      INTEGER*8 NEQ, I, IPAR(3), IOUT(35), MUDQ, MLDQ, MU, ML, NST
       INTEGER*8 NST_ATT, NFE, NFI, NPSET, NPE, NPS, NNI, NLI, NCFN, NCFL
       INTEGER*8 NETF, LENRW, LENIW, LENRWLS, LENIWLS, LENRWBBD, LENIWBBD
       INTEGER*8 NGEBBD
@@ -50,7 +43,7 @@ C
       DATA ATOL/1.0D-10/, RTOL/1.0D-5/, DTOUT/0.1D0/, NOUT/10/
       DATA LLENRW/1/, LLENIW/2/, LNST/3/, LNST_ATT/6/, LNFE/7/, LNFI/8/, 
      1     LNSETUP/9/, LNETF/10/, LNNI/11/, LNCF/12/, LLENRWLS/14/, 
-     1     LLENIWLS/15/, LNPE/19/, LNPS/20/, LNLI/21/, LNCFL/22/
+     1     LLENIWLS/15/, LNPE/21/, LNPS/22/, LNLI/23/, LNCFL/24/
 C
 C     Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
@@ -144,11 +137,11 @@ C
          STOP
       ENDIF
 C
-C     attach linear solver module to ARKSpils interface
-      CALL FARKSPILSINIT(IER)
+C     attach linear solver module to ARKLs interface
+      CALL FARKLSINIT(IER)
       IF (IER .NE. 0) THEN
          WRITE(6,32) IER
- 32      FORMAT(///' SUNDIALS_ERROR: FARKSPILSINIT returned IER = ', I5)
+ 32      FORMAT(///' SUNDIALS_ERROR: FARKLSINIT returned IER = ', I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF

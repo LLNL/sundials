@@ -1,68 +1,64 @@
 /*-----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * Example problem:
- * 
- * The following test simulates a brusselator problem from chemical 
- * kinetics.  This is an ODE system with 3 components, Y = [u,v,w], 
+ *
+ * The following test simulates a brusselator problem from chemical
+ * kinetics.  This is an ODE system with 3 components, Y = [u,v,w],
  * satisfying the equations,
  *    du/dt = a - (w+1)*u + v*u^2
  *    dv/dt = w*u - v*u^2
  *    dw/dt = (b-w)/ep - w*u
- * for t in the interval [0.0, 10.0], with initial conditions 
- * Y0 = [u0,v0,w0]. 
- * 
+ * for t in the interval [0.0, 10.0], with initial conditions
+ * Y0 = [u0,v0,w0].
+ *
  * We have 3 different testing scenarios:
  *
  * Test 1:  u0=3.9,  v0=1.1,  w0=2.8,  a=1.2,  b=2.5,  ep=1.0e-5
- *    Here, all three components exhibit a rapid transient change 
- *    during the first 0.2 time units, followed by a slow and 
+ *    Here, all three components exhibit a rapid transient change
+ *    during the first 0.2 time units, followed by a slow and
  *    smooth evolution.
  *
  * Test 2:  u0=1.2,  v0=3.1,  w0=3,  a=1,  b=3.5,  ep=5.0e-6
- *    Here, w experiences a fast initial transient, jumping 0.5 
- *    within a few steps.  All values proceed smoothly until 
- *    around t=6.5, when both u and v undergo a sharp transition, 
- *    with u increaseing from around 0.5 to 5 and v decreasing 
+ *    Here, w experiences a fast initial transient, jumping 0.5
+ *    within a few steps.  All values proceed smoothly until
+ *    around t=6.5, when both u and v undergo a sharp transition,
+ *    with u increaseing from around 0.5 to 5 and v decreasing
  *    from around 6 to 1 in less than 0.5 time units.  After this
- *    transition, both u and v continue to evolve somewhat 
+ *    transition, both u and v continue to evolve somewhat
  *    rapidly for another 1.4 time units, and finish off smoothly.
  *
  * Test 3:  u0=3,  v0=3,  w0=3.5,  a=0.5,  b=3,  ep=5.0e-4
- *    Here, all components undergo very rapid initial transients 
- *    during the first 0.3 time units, and all then proceed very 
+ *    Here, all components undergo very rapid initial transients
+ *    during the first 0.3 time units, and all then proceed very
  *    smoothly for the remainder of the simulation.
  *
  * This file is hard-coded to use test 3.
- * 
+ *
  * This program solves the problem with the ARK method, using an
  * accelerated fixed-point iteration for the nonlinear solver.
  *
- * 100 outputs are printed at equal intervals, and run statistics 
+ * 100 outputs are printed at equal intervals, and run statistics
  * are printed at the end.
  *-----------------------------------------------------------------*/
 
 /* Header files */
 #include <stdio.h>
 #include <math.h>
-#include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
-#include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
-#include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
+#include <arkode/arkode_arkstep.h>                  /* prototypes for ARKStep fcts., consts */
+#include <nvector/nvector_serial.h>                 /* serial N_Vector types, fcts., macros */
+#include <sunnonlinsol/sunnonlinsol_fixedpoint.h>   /* access to FP nonlinear solver        */
+#include <sundials/sundials_types.h>                /* def. of type 'realtype'              */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -99,9 +95,10 @@ int main()
   realtype rdata[3];
 
   /* general problem variables */
-  int flag;                      /* reusable error-checking flag */
-  N_Vector y = NULL;             /* empty vector for storing solution */
-  void *arkode_mem = NULL;       /* empty ARKode memory structure */
+  int flag;                       /* reusable error-checking flag */
+  N_Vector y = NULL;              /* empty vector for storing solution */
+  SUNNonlinearSolver NLS = NULL;  /* empty nonlinear solver object */
+  void *arkode_mem = NULL;        /* empty ARKode memory structure */
   FILE *UFID;
   realtype t, tout;
   int iout;
@@ -146,22 +143,24 @@ int main()
   NV_Ith_S(y,0) = u0;               /* Set initial conditions */
   NV_Ith_S(y,1) = v0;
   NV_Ith_S(y,2) = w0;
-  arkode_mem = ARKodeCreate();      /* Create the solver memory */
-  if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ARKStepCreate to initialize the ARK timestepper module and 
-     specify the right-hand side functions in y'=fe(t,y)+fi(t,y), 
+  /* Call ARKStepCreate to initialize the ARK timestepper module and
+     specify the right-hand side functions in y'=fe(t,y)+fi(t,y),
      the inital time T0, and the initial dependent variable vector y. */
-  flag = ARKStepCreate(arkode_mem, fe, fi, T0, y);
-  if (check_flag(&flag, "ARKStepCreate", 1)) return 1;
+  arkode_mem = ARKStepCreate(fe, fi, T0, y);
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
+
+  /* Initialize fixed-point nonlinear solver and attach to ARKStep */
+  NLS = SUNNonlinSol_FixedPoint(y, fp_m);
+  if (check_flag((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return 1;
+  flag = ARKStepSetNonlinearSolver(arkode_mem, NLS);
+  if (check_flag(&flag, "ARKStepSetNonlinearSolver", 1)) return 1;
 
   /* Set routines */
-  flag = ARKodeSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
-  if (check_flag(&flag, "ARKodeSetUserData", 1)) return 1;
-  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
-  if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
-  flag = ARKStepSetFixedPoint(arkode_mem, fp_m);             /* Specify fixed-point solver */
-  if (check_flag(&flag, "ARKStepSetFixedPoint", 1)) return 1;
+  flag = ARKStepSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
   flag = ARKStepSetMaxNonlinIters(arkode_mem, maxcor);       /* Increase default iterations */
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
 
@@ -170,10 +169,10 @@ int main()
   fprintf(UFID,"# t u v w\n");
 
   /* output initial condition to disk */
-  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
-          T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
+  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
+          T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
 
-  /* Main time-stepping loop: calls ARKode to perform the integration, then
+  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
   tout = T0+dTout;
@@ -181,12 +180,12 @@ int main()
   printf("   ----------------------------------------------\n");
   for (iout=0; iout<Nt; iout++) {
 
-    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */
-    if (check_flag(&flag, "ARKode", 1)) break;
+    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */
+    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
     printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n",             /* access/print solution */
            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
-    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
-            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
+    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
+            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     if (flag >= 0) {                                         /* successful solve: update time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -199,8 +198,8 @@ int main()
   fclose(UFID);
 
   /* Print some final statistics */
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1);
+  flag = ARKStepGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKStepGetNumSteps", 1);
   flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
@@ -220,8 +219,9 @@ int main()
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);        /* Free y vector */
-  ARKodeFree(&arkode_mem);     /* Free integrator memory */
+  N_VDestroy(y);               /* Free y vector */
+  ARKStepFree(&arkode_mem);    /* Free integrator memory */
+  SUNNonlinSolFree(NLS);       /* Free NLS object */
   return 0;
 }
 
@@ -272,7 +272,7 @@ static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     opt == 1 means SUNDIALS function returns a flag so check if
              flag >= 0
     opt == 2 means function allocates memory so check if returned
-             NULL pointer  
+             NULL pointer
 */
 static int check_flag(void *flagvalue, const char *funcname, int opt)
 {

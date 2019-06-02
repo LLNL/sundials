@@ -1,18 +1,18 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department
- * of Energy by Lawrence Livermore National Laboratory in part under
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * The C function FIDAPSet is to interface between the IDASPILS
- * modules and the user-supplied preconditioner setup routine FIDAPSET.
+ * The C function FIDAPSet is to interface between the IDALS
+ * module and the user-supplied preconditioner setup routine FIDAPSET.
  * Note the use of the generic name FIDA_PSET below.
  * -----------------------------------------------------------------*/
 
@@ -22,7 +22,7 @@
 #include "fida.h"     /* actual fn. names, prototypes and global vars.*/
 #include "ida_impl.h" /* definition of IDAMem type                    */
 
-#include <ida/ida_spils.h>
+#include <ida/ida_ls.h>
 
 /*************************************************/
 
@@ -46,13 +46,17 @@ extern "C" {
 
 /*************************************************/
 
+/*** DEPRECATED ***/
 void FIDA_SPILSSETPREC(int *flag, int *ier)
+{ FIDA_LSSETPREC(flag, ier); }
+
+void FIDA_LSSETPREC(int *flag, int *ier)
 {
   *ier = 0;
 
   if (*flag == 0) {
 
-    *ier = IDASpilsSetPreconditioner(IDA_idamem, NULL, NULL);
+    *ier = IDASetPreconditioner(IDA_idamem, NULL, NULL);
 
   } else {
 
@@ -64,8 +68,7 @@ void FIDA_SPILSSETPREC(int *flag, int *ier)
       }
     }
 
-    *ier = IDASpilsSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-				     (IDASpilsPrecSolveFn) FIDAPSol);
+    *ier = IDASetPreconditioner(IDA_idamem, FIDAPSet, FIDAPSol);
   }
 
   return;

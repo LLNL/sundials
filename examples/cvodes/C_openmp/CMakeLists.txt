@@ -1,22 +1,15 @@
 # ---------------------------------------------------------------
 # Programmer: Ting Yan @ SMU
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2015, Southern Methodist University and
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Southern Methodist University and Lawrence Livermore
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
-# Copyright (c) 2013, Southern Methodist University.
-# All rights reserved.
-# For details, see the LICENSE file.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for CVODES OpenMP examples
 # ---------------------------------------------------------------
@@ -24,15 +17,10 @@
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-# Only include tests if OpenMP is enabled
-IF(OPENMP_FOUND)
-
-  # Examples using SUNDIALS linear solvers
-  SET(CVODES_examples_OMP
-    "cvsAdvDiff_bnd_omp\;4\;develop"
-    )
-
-ENDIF(OPENMP_FOUND)
+# Examples using SUNDIALS linear solvers
+SET(CVODES_examples_OMP
+  "cvsAdvDiff_bnd_omp\;4\;develop"
+  )
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -67,7 +55,7 @@ FOREACH(example_tuple ${CVODES_examples_OMP})
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    
+
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   ENDIF()

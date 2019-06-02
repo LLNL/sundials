@@ -54,7 +54,7 @@ Krylov example problem:
 
 Final statistics:
 
- number of steps        =   461      number of f evals.     =  598
+ number of steps        =   461      number of f evals.     =  597
  number of prec. setups =    78
  number of prec. evals. =     8      number of prec. solves =  1176
  number of nonl. iters. =   594      number of lin. iters.  =   636

@@ -1,15 +1,15 @@
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for CVODES parallel examples
 # ---------------------------------------------------------------
@@ -23,7 +23,7 @@ SET(CVODES_examples
   "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;develop"
   "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;develop"
   "cvsAdvDiff_non_p\;\;2\;2\;develop"
-  "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;8\;develop"
+  "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;develop"
   "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;develop"
   "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;develop"
   "cvsDiurnal_kry_bbd_p\;\;2\;4\;develop"
@@ -95,7 +95,7 @@ FOREACH(example_tuple ${CVODES_examples})
     EXAMPLE_TYPE ${example_type})
 
   # find all .out files for this example
-  FILE(GLOB example_out ${example}.out*)
+  FILE(GLOB example_out ${example}*.out)
 
   # install example source and .out files
   IF(EXAMPLES_INSTALL)

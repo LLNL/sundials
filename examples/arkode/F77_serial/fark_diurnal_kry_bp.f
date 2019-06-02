@@ -1,22 +1,15 @@
 C     ----------------------------------------------------------------
 C     Programmer(s): Daniel R. Reynolds @ SMU
 C     ----------------------------------------------------------------
-C     LLNS/SMU Copyright Start
-C     Copyright (c) 2015, Southern Methodist University and 
-C     Lawrence Livermore National Security
-C
-C     This work was performed under the auspices of the U.S. Department 
-C     of Energy by Southern Methodist University and Lawrence Livermore 
-C     National Laboratory under Contract DE-AC52-07NA27344.
-C     Produced at Southern Methodist University and the Lawrence 
-C     Livermore National Laboratory.
-C
+C     SUNDIALS Copyright Start
+C     Copyright (c) 2002-2019, Lawrence Livermore National Security
+C     and Southern Methodist University.
 C     All rights reserved.
-C     For details, see the LICENSE file.
-C     LLNS/SMU Copyright End
-C     Copyright (c) 2013, Southern Methodist University.
-C     All rights reserved.
-C     For details, see the LICENSE file.
+C
+C     See the top-level LICENSE and NOTICE files for details.
+C
+C     SPDX-License-Identifier: BSD-3-Clause
+C     SUNDIALS Copyright End
 C     ----------------------------------------------------------------
 C     FARKODE Example Problem: 2D kinetics-transport, 
 C     precond. Krylov solver. 
@@ -59,7 +52,7 @@ C
       INTEGER*4 LNLI, LNPS, LNCFL, LH, LNETF, LLENRW, LLENIW, LLENRWLS
       INTEGER*4 LLENIWLS, METH, IATOL, ITASK, IER, MAXL, JPRETYPE
       INTEGER*4 IGSTYPE, JOUT
-      INTEGER*8 IOUT(22), IPAR(4), NST, NST_ATT, NFE, NFI, NPSET, NPE
+      INTEGER*8 IOUT(35), IPAR(4), NST, NST_ATT, NFE, NFI, NPSET, NPE
       INTEGER*8 NPS, NNI, NLI, NCFN, NCFL, NETF, MU, ML, LENRW, LENIW
       INTEGER*8 LENRWLS, LENIWLS, LENRWBP, LENIWBP, NFEBP, MXSTEPS
       DOUBLE PRECISION ATOL, AVDIM, DELT, FLOOR, RTOL, T, TOUT, TWOHR
@@ -69,7 +62,7 @@ C
      1     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/, MXSTEPS/10000/
       DATA LLENRW/1/, LLENIW/2/, LNST/3/, LNST_ATT/6/, LNFE/7/, LNFI/8/, 
      1     LNETF/10/, LNCF/12/, LNNI/11/, LNSETUP/9/, LLENRWLS/14/, 
-     1     LLENIWLS/15/, LNPE/19/, LNLI/21/, LNPS/20/, LNCFL/22/
+     1     LLENIWLS/15/, LNPE/21/, LNLI/23/, LNPS/22/, LNCFL/24/
       DATA LH/2/
 C
 C Load IPAR, RPAR, and initial values
@@ -124,11 +117,11 @@ C
         STOP
       ENDIF
 C
-C     attach matrix and linear solver modules to ARKSpils interface
-      CALL FARKSPILSINIT(IER)
+C     attach matrix and linear solver modules to ARKLs interface
+      CALL FARKLSINIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FARKSPILSINIT returned IER = ',I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FARKLSINIT returned IER = ',I5)
         CALL FARKFREE
         STOP
       ENDIF

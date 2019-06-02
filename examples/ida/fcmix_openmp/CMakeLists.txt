@@ -1,15 +1,15 @@
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for FIDA opemp examples
 # ---------------------------------------------------------------
@@ -17,15 +17,10 @@
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-# Only include tests if OpenMP is enabled
-IF(OPENMP_FOUND)
-
-  # Examples using SUNDIALS linear solvers
-  SET(FIDA_examples
-    "fidaRoberts_dns_openmp\;\;develop"
-    )
-
-ENDIF(OPENMP_FOUND)
+# Examples using SUNDIALS linear solvers
+SET(FIDA_examples
+  "fidaRoberts_dns_openmp\;\;develop"
+  )
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE

@@ -2,17 +2,17 @@
  * Programmer(s): Scott Cohen, Alan Hindmarsh, Radu Serban,
  *                Aaron Collier, and Slaven Peles @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This header file contains definitions of MPI data types, which 
+ * This header file contains definitions of MPI data types, which
  * are used by MPI parallel vector implementations.
  * -----------------------------------------------------------------*/
 
@@ -21,16 +21,19 @@
 /* define MPI data types */
 
 #if defined(SUNDIALS_SINGLE_PRECISION)
-  #define PVEC_REAL_MPI_TYPE MPI_FLOAT
+  #define MPI_SUNREALTYPE MPI_FLOAT
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  #define PVEC_REAL_MPI_TYPE MPI_DOUBLE
+  #define MPI_SUNREALTYPE MPI_DOUBLE
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-  #define PVEC_REAL_MPI_TYPE MPI_LONG_DOUBLE
+  #define MPI_SUNREALTYPE MPI_LONG_DOUBLE
 #endif
 
 #if defined(SUNDIALS_INT64_T)
-  #define PVEC_INTEGER_MPI_TYPE MPI_INT64_T
+  #define MPI_SUNINDEXTYPE MPI_INT64_T
 #elif defined(SUNDIALS_INT32_T)
-  #define PVEC_INTEGER_MPI_TYPE MPI_INT32_T
+  #define MPI_SUNINDEXTYPE MPI_INT32_T
 #endif
 
+/* define legacy SUNDIALS MPI data types */
+#define PVEC_REAL_MPI_TYPE    MPI_SUNREALTYPE
+#define PVEC_INTEGER_MPI_TYPE MPI_SUNINDEXTYPE

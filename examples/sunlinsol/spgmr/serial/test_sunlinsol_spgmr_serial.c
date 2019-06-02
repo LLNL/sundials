@@ -2,19 +2,15 @@
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the testing routine to check the SUNLinSol SPGMR module 
  * implementation. 
@@ -69,7 +65,7 @@ static realtype urand();
 sunindextype problem_size;
 
 /* ----------------------------------------------------------------------
- * SUNSPGMR Linear Solver Testing Routine
+ * SUNLinSol_SPGMR Linear Solver Testing Routine
  *
  * We run multiple tests to exercise this solver:
  * 1. simple tridiagonal system (no preconditioning)
@@ -152,7 +148,7 @@ int main(int argc, char *argv[])
   printf("  Gram-Schmidt orthogonalization type = %i\n", gstype);
   printf("  Preconditioning type = %i\n", pretype);
   printf("  Maximum Krylov subspace dimension = %i\n", maxl);
-  printf("  Solver Tolerance = %"GSYM"\n", tol);
+  printf("  Solver Tolerance = %g\n", tol);
   printf("  timing output flag = %i\n\n", print_timing);
   
   /* Create vectors */
@@ -178,19 +174,19 @@ int main(int argc, char *argv[])
   N_VConst(FIVE, ProbData.d);
   
   /* Create SPGMR linear solver */
-  LS = SUNSPGMR(x, pretype, maxl);
+  LS = SUNLinSol_SPGMR(x, pretype, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup, PSolve, 0);
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s1, ProbData.s2, 0);
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSpace(LS, 0);
-  fails += SUNSPGMRSetGSType(LS, gstype);  
+  fails += SUNLinSol_SPGMRSetGSType(LS, gstype);  
   if (fails) {
-    printf("FAIL: SUNSPGMR module failed %i initialization tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module failed %i initialization tests\n\n", fails);
     return 1;
   } else {
-    printf("SUCCESS: SUNSPGMR module passed all initialization tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module passed all initialization tests\n\n");
   }
 
   
@@ -208,7 +204,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, PREC_NONE);  
+  fails += SUNLinSol_SPGMRSetPrecType(LS, PREC_NONE);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -218,10 +214,10 @@ int main(int argc, char *argv[])
   
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 1, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 1, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPGMR module, problem 1, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 1, passed all tests\n\n");
   }
 
 
@@ -239,7 +235,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, pretype);  
+  fails += SUNLinSol_SPGMRSetPrecType(LS, pretype);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -249,10 +245,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 2, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 2, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPGMR module, problem 2, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 2, passed all tests\n\n");
   }
   
 
@@ -272,7 +268,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, PREC_NONE);  
+  fails += SUNLinSol_SPGMRSetPrecType(LS, PREC_NONE);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -282,10 +278,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 3, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 3, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPGMR module, problem 3, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 3, passed all tests\n\n");
   }
 
 
@@ -305,7 +301,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, pretype);  
+  fails += SUNLinSol_SPGMRSetPrecType(LS, pretype);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -315,10 +311,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 4, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 4, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPGMR module, problem 4, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 4, passed all tests\n\n");
   }
 
 
@@ -338,7 +334,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPGMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -348,10 +344,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 5, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 5, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPGMR module, problem 5, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 5, passed all tests\n\n");
   }
 
 
@@ -371,7 +367,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, pretype);  
+  fails += SUNLinSol_SPGMRSetPrecType(LS, pretype);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -381,10 +377,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 6, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 6, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPGMR module, problem 6, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 6, passed all tests\n\n");
   }
 
 
@@ -518,7 +514,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
     maxerr = ZERO;
     for(i=0; i < problem_size; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i])/SUNRabs(Xdata[i]), maxerr);
-    printf("check err failure: maxerr = %g (tol = %g)\n",
+    printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
 	   maxerr, FIVE*tol);
     return(1);
   }

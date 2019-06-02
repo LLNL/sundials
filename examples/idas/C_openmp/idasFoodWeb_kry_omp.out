@@ -3,7 +3,7 @@ idasFoodWeb_kry_omp: Predator-prey DAE OpenMP example problem for IDAS
 
 Number of species ns: 2     Mesh dimensions: 20 x 20     System size: 800
 Tolerance parameters:  rtol = 1e-05   atol = 1e-05
-Linear solver: IDASpgmr,  Spgmr parameters maxl = 16
+Linear solver: Spgmr,  Spgmr parameters maxl = 16
 CalcIC called to correct initial predator concentrations.
 
 -----------------------------------------------------------

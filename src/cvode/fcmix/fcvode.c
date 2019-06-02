@@ -3,19 +3,15 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *     Alan C. Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for the Fortran interface to
  * the CVODE package.  See fcvode.h for usage.
@@ -32,8 +28,7 @@
 #include "fcvode.h"                    /* actual function names, prototypes, global vars.*/ 
 #include "cvode_impl.h"                /* definition of CVodeMem type                    */
 #include <sundials/sundials_matrix.h>
-#include <cvode/cvode_direct.h>
-#include <cvode/cvode_spils.h>
+#include <cvode/cvode_ls.h>
 #include <cvode/cvode_diag.h>
 
 
@@ -71,14 +66,14 @@ extern "C" {
 
 /**************************************************************************/
 
-void FCV_MALLOC(realtype *t0, realtype *y0, 
-                int *meth, int *itmeth, int *iatol, 
+void FCV_MALLOC(realtype *t0, realtype *y0,
+                int *meth, int *iatol,
                 realtype *rtol, realtype *atol,
                 long int *iout, realtype *rout,
                 long int *ipar, realtype *rpar,
                 int *ier)
 {
-  int lmm, iter;
+  int lmm;
   N_Vector Vatol;
   FCVUserData CV_userdata;
 
@@ -95,6 +90,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   /* Initialize all pointers to NULL */
   CV_cvodemem = NULL;
   Vatol = NULL;
+  FCVNullNonlinSol();
 
   /* initialize global constants to disable each option */
   CV_nrtfn = 0;
@@ -102,18 +98,10 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   
   /* Create CVODE object */
   lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
-  iter = (*itmeth == 1) ? CV_FUNCTIONAL : CV_NEWTON;
-  CV_cvodemem = CVodeCreate(lmm, iter);
+  CV_cvodemem = CVodeCreate(lmm);
   if (CV_cvodemem == NULL) {
     *ier = -1;
     return;
-  }
-
-  /* If using a functional iteration, initialize NULL F2C_CVODE_linsol 
-     and F2C_CVODE_matrix objects */
-  if (iter == CV_FUNCTIONAL) {
-    FCVNullMatrix();
-    FCVNullLinsol();
   }
   
   /* Set and attach user data */
@@ -288,30 +276,63 @@ void FCV_SETRIN(char key_name[], realtype *rval, int *ier)
 
 /***************************************************************************/
 
-void FCV_DLSINIT(int *ier) {
-  if ( (CV_cvodemem == NULL) || (F2C_CVODE_linsol == NULL) || 
-       (F2C_CVODE_matrix == NULL) ) {
+void FCV_SETVIN(char key_name[], realtype *vval, int *ier)
+{
+  N_Vector Vec;
+
+  *ier = 0;
+
+  if (!strncmp(key_name,"CONSTR_VEC",10)) {
+    Vec = NULL;
+    Vec = N_VCloneEmpty(F2C_CVODE_vec);
+    if (Vec == NULL) {
+      *ier = -1;
+      return;
+    }
+    N_VSetArrayPointer(vval, Vec);
+    CVodeSetConstraints(CV_cvodemem, Vec);
+    N_VDestroy(Vec);
+  }
+  else {
+    *ier = -99;
+    fprintf(stderr, "FCVSETVIN: Unrecognized key. \n\n");
+  }
+
+}
+
+/***************************************************************************/
+
+void FCV_LSINIT(int *ier) {
+  if ( (CV_cvodemem == NULL) || (F2C_CVODE_linsol == NULL) ) {
     *ier = -1;
     return;
   }
-  *ier = CVDlsSetLinearSolver(CV_cvodemem, F2C_CVODE_linsol, 
+  *ier = CVodeSetLinearSolver(CV_cvodemem, F2C_CVODE_linsol, 
                               F2C_CVODE_matrix);
-  CV_ls = CV_LS_DIRECT;
+  CV_ls = CV_LS_STD;
   return;
 }
 
 /***************************************************************************/
 
-void FCV_SPILSINIT(int *ier) {
-  if ( (CV_cvodemem == NULL) || (F2C_CVODE_linsol == NULL) ) {
-    *ier = -1;
-    return;
-  }
-  *ier = CVSpilsSetLinearSolver(CV_cvodemem, F2C_CVODE_linsol);
-  FCVNullMatrix();
-  CV_ls = CV_LS_ITERATIVE;
-  return;
-}
+/* ---DEPRECATED--- */
+void FCV_DLSINIT(int *ier)
+{ FCV_LSINIT(ier); }
+
+/***************************************************************************/
+
+/* ---DEPRECATED--- */
+void FCV_SPILSINIT(int *ier)
+{ FCV_LSINIT(ier); }
+
+/*=============================================================*/
+
+/* ---DEPRECATED--- */
+void FCV_SPILSSETEPSLIN(realtype *eplifac, int *ier)
+{ FCV_LSSETEPSLIN(eplifac, ier); }
+
+void FCV_LSSETEPSLIN(realtype *eplifac, int *ier)
+{ *ier = CVodeSetEpsLin(CV_cvodemem, *eplifac); }
 
 /***************************************************************************/
 
@@ -375,21 +396,17 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     CVodeGetNumGEvals(CV_cvodemem, &CV_iout[11]);         /* NGE     */
   
   switch(CV_ls) {
-  case CV_LS_DIRECT:
-    CVDlsGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LENRWLS,LENIWLS */
-    CVDlsGetLastFlag(CV_cvodemem, &CV_iout[14]);                  /* LSTF */
-    CVDlsGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFELS */
-    CVDlsGetNumJacEvals(CV_cvodemem, &CV_iout[16]);               /* NJE */
-    break;
-  case CV_LS_ITERATIVE:
-    CVSpilsGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]); /* LENRWLS,LENIWLS */
-    CVSpilsGetLastFlag(CV_cvodemem, &CV_iout[14]);                /* LSTF */
-    CVSpilsGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);             /* NFELS */
-    CVSpilsGetNumJtimesEvals(CV_cvodemem, &CV_iout[16]);          /* NJTV */
-    CVSpilsGetNumPrecEvals(CV_cvodemem, &CV_iout[17]);            /* NPE */
-    CVSpilsGetNumPrecSolves(CV_cvodemem, &CV_iout[18]);           /* NPS */
-    CVSpilsGetNumLinIters(CV_cvodemem, &CV_iout[19]);             /* NLI */
-    CVSpilsGetNumConvFails(CV_cvodemem, &CV_iout[20]);            /* NCFL */
+  case CV_LS_STD:
+    CVodeGetLinWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LENRWLS,LENIWLS */
+    CVodeGetLastLinFlag(CV_cvodemem, &CV_iout[14]);                  /* LSTF */
+    CVodeGetNumLinRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFELS */
+    CVodeGetNumJacEvals(CV_cvodemem, &CV_iout[16]);                  /* NJE */
+    CVodeGetNumJTSetupEvals(CV_cvodemem, &CV_iout[17]);              /* NJTS */
+    CVodeGetNumJtimesEvals(CV_cvodemem, &CV_iout[18]);               /* NJTV */
+    CVodeGetNumPrecEvals(CV_cvodemem, &CV_iout[19]);                 /* NPE */
+    CVodeGetNumPrecSolves(CV_cvodemem, &CV_iout[20]);                /* NPS */
+    CVodeGetNumLinIters(CV_cvodemem, &CV_iout[21]);                  /* NLI */
+    CVodeGetNumLinConvFails(CV_cvodemem, &CV_iout[22]);              /* NCFL */
     break;
   case CV_LS_DIAG:
     CVDiagGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LENRWLS,LENIWLS */
@@ -474,6 +491,9 @@ void FCV_FREE ()
     SUNMatDestroy(F2C_CVODE_matrix);
   if (F2C_CVODE_linsol)
     SUNLinSolFree(F2C_CVODE_linsol);
+  if (F2C_CVODE_nonlinsol)
+    SUNNonlinSolFree(F2C_CVODE_nonlinsol);
+  return;
 }
 
 /***************************************************************************/
@@ -499,4 +519,20 @@ int FCVf(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   FCV_FUN(&t, ydata, dydata, CV_userdata->ipar, CV_userdata->rpar, &ier);
 
   return(ier);
+}
+
+/* Fortran interface to C routine CVodeSetNonlinearSolver; see 
+   fcvode.h for further details */
+void FCV_NLSINIT(int *ier) {
+  if ( (CV_cvodemem == NULL) || (F2C_CVODE_nonlinsol == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  if (((CVodeMem) CV_cvodemem)->cv_lsolve == NULL) {
+    FCVNullMatrix();
+    FCVNullLinsol();
+  }
+
+  *ier = CVodeSetNonlinearSolver(CV_cvodemem, F2C_CVODE_nonlinsol);
+  return;
 }

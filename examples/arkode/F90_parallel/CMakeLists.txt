@@ -1,22 +1,15 @@
 # ---------------------------------------------------------------
 # Programmer:  Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2015, Southern Methodist University and
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Southern Methodist University and Lawrence Livermore
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
-# Copyright (c) 2013, Southern Methodist University.
-# All rights reserved.
-# For details, see the LICENSE file.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the ARKODE parallel F90 examples
 # ---------------------------------------------------------------
@@ -25,14 +18,16 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-SET(FARKODE_examples
-  "fark_heat2D\;1\;2\;develop"
-  )
-
-# Auxiliary files to install
-SET(FARKODE_extras
-  plot_heat2D.py
-  )
+IF(SUNDIALS_PRECISION MATCHES "double")
+  # The fark_heat2D only supports double precision
+  SET(FARKODE_examples
+    "fark_heat2D\;1\;2\;develop"
+    )
+  # Auxiliary files to install
+  SET(FARKODE_extras
+    plot_heat2D.py
+    )
+ENDIF()
 
 IF(MPI_Fortran_COMPILER)
   # use MPI wrapper as the compiler
@@ -60,7 +55,6 @@ SET(FARKODE_LIB sundials_farkode_static)
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${FARKODE_LIB} ${ARKODE_LIB} ${FNVECP_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 
-
 # Add the build and install targets for each ARKODE example
 FOREACH(example_tuple ${FARKODE_examples})
 
@@ -73,6 +67,7 @@ FOREACH(example_tuple ${FARKODE_examples})
   ADD_EXECUTABLE(${example} ${example}.f90)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+  SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${example} ${example}

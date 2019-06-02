@@ -15,15 +15,15 @@ function status = IDAInit(fct,t0,yy0,yp0,options)
 %  See also: IDASetOptions, IDAResFn 
 
 % Radu Serban <radu@llnl.gov>
-% LLNS Copyright Start
-% Copyright (c) 2014, Lawrence Livermore National Security
-% This work was performed under the auspices of the U.S. Department 
-% of Energy by Lawrence Livermore National Laboratory in part under 
-% Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-% Produced at the Lawrence Livermore National Laboratory.
+% SUNDIALS Copyright Start
+% Copyright (c) 2002-2019, Lawrence Livermore National Security
+% and Southern Methodist University.
 % All rights reserved.
-% For details, see the LICENSE file.
-% LLNS Copyright End
+%
+% See the top-level LICENSE and NOTICE files for details.
+%
+% SPDX-License-Identifier: BSD-3-Clause
+% SUNDIALS Copyright End
 % $Revision$Date: 2007/12/05 21:58:18 $
 
 mode = 1;

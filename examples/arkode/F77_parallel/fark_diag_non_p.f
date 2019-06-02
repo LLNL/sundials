@@ -1,22 +1,15 @@
 C     ----------------------------------------------------------------
 C     Programmer(s): Daniel R. Reynolds @ SMU
 C     ----------------------------------------------------------------
-C     LLNS/SMU Copyright Start
-C     Copyright (c) 2015, Southern Methodist University and 
-C     Lawrence Livermore National Security
-C
-C     This work was performed under the auspices of the U.S. Department 
-C     of Energy by Southern Methodist University and Lawrence Livermore 
-C     National Laboratory under Contract DE-AC52-07NA27344.
-C     Produced at Southern Methodist University and the Lawrence 
-C     Livermore National Laboratory.
-C
+C     SUNDIALS Copyright Start
+C     Copyright (c) 2002-2019, Lawrence Livermore National Security
+C     and Southern Methodist University.
 C     All rights reserved.
-C     For details, see the LICENSE file.
-C     LLNS/SMU Copyright End
-C     Copyright (c) 2013, Southern Methodist University.
-C     All rights reserved.
-C     For details, see the LICENSE file.
+C
+C     See the top-level LICENSE and NOTICE files for details.
+C
+C     SPDX-License-Identifier: BSD-3-Clause
+C     SUNDIALS Copyright End
 C     ----------------------------------------------------------------
 C     Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
 C     ----------------------------------------------------------------
@@ -32,7 +25,7 @@ C
       INTEGER*4 IER, MYPE, NPES, NOUT, LNST, LNST_ATT, LNFE, LNFI, LNNI
       INTEGER*4 LNCF, LNETF, METH, IATOL, ITASK, JOUT
       INTEGER*8 NEQ, I, NST, NST_ATT, NFE, NFI, NNI, NCFN, NETF
-      INTEGER*8 IOUT(22), IPAR(2)
+      INTEGER*8 IOUT(35), IPAR(2)
       DOUBLE PRECISION Y(128), ROUT(6), RPAR(1)
       DOUBLE PRECISION ATOL, RTOL, DTOUT, T, ALPHA, TOUT
       DOUBLE PRECISION ERMAX, ERRI, GERMAX

@@ -1,21 +1,17 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department
- * of Energy by Southern Methodist University and Lawrence Livermore
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKDLS, for the case
+ * Fortran/C interface routines for ARKODE/ARKLS, for the case
  * of a user-supplied mass-matrix approximation routine.
  *--------------------------------------------------------------*/
 
@@ -23,7 +19,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_direct.h>
+#include <arkode/arkode_arkstep.h>
 #include <sunmatrix/sunmatrix_band.h>
 
 
@@ -48,11 +44,11 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface routine to ARKDlsSetMassFn; see farkode.h
+/* Fortran interface routine to ARKStepSetMassFn; see farkode.h
    for further details */
 void FARK_BANDSETMASS(int *ier)
 {
-  *ier = ARKDlsSetMassFn(ARK_arkodemem, FARKBandMass);
+  *ier = ARKStepSetMassFn(ARK_arkodemem, FARKBandMass);
 }
 
 /*=============================================================*/

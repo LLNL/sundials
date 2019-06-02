@@ -1,19 +1,15 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * Implementation header file for ARKode's root-finding (in time) 
  * utility.
@@ -31,14 +27,14 @@ extern "C" {
 
 
 /*===============================================================
-  ARKODE Root-finding constants
+  ARKode Root-finding constants
   ===============================================================*/
 
 #define ARK_ROOT_LRW   5
 #define ARK_ROOT_LIW  12   /* int, ptr, etc */
   
 /*===============================================================
-  ARKODE Root-finding Data Structure
+  ARKode Root-finding Data Structure
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -72,7 +68,7 @@ typedef struct ARKodeRootMemRec {
 
 
 /*===============================================================
-  ARKODE Root-finding Routines
+  ARKode Root-finding Routines
 ===============================================================*/
 
 int arkRootFree(void* arkode_mem);

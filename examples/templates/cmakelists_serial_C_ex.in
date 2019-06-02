@@ -3,15 +3,15 @@
 # Programmer(s): Radu Serban @ LLNL
 #                David J. Gardner @ LLNL
 # -----------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # -----------------------------------------------------------------
 # CMakeLists.txt for @SOLVER@ serial examples
 #
@@ -65,6 +65,11 @@ FIND_LIBRARY(SUNDIALS_NVEC_LIB
   sundials_nvecserial ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR library")
 
+# Find the NVECTOR ManyVector library
+FIND_LIBRARY(SUNDIALS_MANYVEC_LIB
+  sundials_nvecmanyvector ${SUNDIALS_LIB_DIR}
+  DOC "NVECTOR manyvector library")
+
 # Set an extra link directory if necessary (false if empty)
 IF(EXISTS @EXTRA_LIBS_DIR@)
   LINK_DIRECTORIES(@EXTRA_LIBS_DIR@)
@@ -84,8 +89,10 @@ INCLUDE_DIRECTORIES(@KLU_INCLUDE_DIR@)
 SET(KLU_LIBRARIES @KLU_LIBRARIES@ CACHE STRING "KLU libraries")
 
 # List of Sundials libraries shared across all examples
-SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_EXTRA_LIB})
+SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_MANYVEC_LIB} ${SUNDIALS_EXTRA_LIB})
 
+# Enable testing
+INCLUDE(CTest)
 
 # Build examples with SUNDIALS linear solvers one by one
 FOREACH(example ${examples})
@@ -98,6 +105,9 @@ FOREACH(example ${examples})
 
 ENDFOREACH(example ${examples})
 
+# add the first example to ctest
+LIST(GET examples 0 TEST)
+ADD_TEST(NAME ${TEST} COMMAND ${TEST})
 
 # Build each example with LAPACK linear solvers one by one
 IF(LAPACK_LIBRARIES)

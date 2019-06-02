@@ -1,7 +1,7 @@
 % This is a shared SUNDIALS TEX file with description of
 % the generic nvector abstraction
 %
-The {\sundials} solvers are written in a data-independent manner. 
+The {\sundials} solvers are written in a data-independent manner.
 They all operate on generic vectors (of type \Id{N\_Vector}) through a set of
 operations defined by the particular {\nvector} implementation.
 Users can provide their own specific implementation of the {\nvector}
@@ -9,9 +9,9 @@ module, or use one of the implementations provided with {\sundials}.
 The generic operations are described below and the implementations
 provided with {\sundials} are described in the following sections.
 
-The generic \ID{N\_Vector} type is a pointer to a structure that has an 
-implementation-dependent {\em content} field containing the 
-description and actual data of the vector, and an {\em ops} field 
+The generic \ID{N\_Vector} type is a pointer to a structure that has an
+implementation-dependent {\em content} field containing the
+description and actual data of the vector, and an {\em ops} field
 pointing to a structure with generic vector operations.
 The type \id{N\_Vector} is defined as
 %%
@@ -31,53 +31,65 @@ the various actual vector operations, and is defined as
 %%
 \begin{verbatim}
 struct _generic_N_Vector_Ops {
-  N_Vector_ID (*nvgetvectorid)(N_Vector);
-  N_Vector    (*nvclone)(N_Vector);
-  N_Vector    (*nvcloneempty)(N_Vector);
-  void        (*nvdestroy)(N_Vector);
-  void        (*nvspace)(N_Vector, sunindextype *, sunindextype *);
-  realtype*   (*nvgetarraypointer)(N_Vector);
-  void        (*nvsetarraypointer)(realtype *, N_Vector);
-  void        (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector); 
-  void        (*nvconst)(realtype, N_Vector);
-  void        (*nvprod)(N_Vector, N_Vector, N_Vector);
-  void        (*nvdiv)(N_Vector, N_Vector, N_Vector);
-  void        (*nvscale)(realtype, N_Vector, N_Vector);
-  void        (*nvabs)(N_Vector, N_Vector);
-  void        (*nvinv)(N_Vector, N_Vector);
-  void        (*nvaddconst)(N_Vector, realtype, N_Vector);
-  realtype    (*nvdotprod)(N_Vector, N_Vector);
-  realtype    (*nvmaxnorm)(N_Vector);
-  realtype    (*nvwrmsnorm)(N_Vector, N_Vector);
-  realtype    (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
-  realtype    (*nvmin)(N_Vector);
-  realtype    (*nvwl2norm)(N_Vector, N_Vector);
-  realtype    (*nvl1norm)(N_Vector);
-  void        (*nvcompare)(realtype, N_Vector, N_Vector);
-  booleantype (*nvinvtest)(N_Vector, N_Vector);
-  booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
-  realtype    (*nvminquotient)(N_Vector, N_Vector);
-  int         (*nvlinearcombination)(int, realtype*, N_Vector*, N_Vector);
-  int         (*nvscaleaddmulti)(int, realtype*, N_Vector, N_Vector*, N_Vector*);
-  int         (*nvdotprodmulti)(int, N_Vector, N_Vector*, realtype*);
-  int         (*nvlinearsumvectorarray)(int, realtype, N_Vector*, realtype,
-                                        N_Vector*, N_Vector*);
-  int         (*nvscalevectorarray)(int, realtype*, N_Vector*, N_Vector*);
-  int         (*nvconstvectorarray)(int, realtype, N_Vector*);
-  int         (*nvwrmsnomrvectorarray)(int, N_Vector*, N_Vector*, realtype*);
-  int         (*nvwrmsnomrmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector,
-                                           realtype*);
-  int         (*nvscaleaddmultivectorarray)(int, int, realtype*, N_Vector*,
-                                            N_Vector**, N_Vector**);
-  int         (*nvlinearcombinationvectorarray)(int, int, realtype*, N_Vector**,
-                                                N_Vector*);
+  N_Vector_ID  (*nvgetvectorid)(N_Vector);
+  N_Vector     (*nvclone)(N_Vector);
+  N_Vector     (*nvcloneempty)(N_Vector);
+  void         (*nvdestroy)(N_Vector);
+  void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
+  realtype*    (*nvgetarraypointer)(N_Vector);
+  void         (*nvsetarraypointer)(realtype *, N_Vector);
+  void*        (*nvgetcommunicator)(N_Vector);
+  sunindextype (*nvgetlength)(N_Vector);
+  void         (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector);
+  void         (*nvconst)(realtype, N_Vector);
+  void         (*nvprod)(N_Vector, N_Vector, N_Vector);
+  void         (*nvdiv)(N_Vector, N_Vector, N_Vector);
+  void         (*nvscale)(realtype, N_Vector, N_Vector);
+  void         (*nvabs)(N_Vector, N_Vector);
+  void         (*nvinv)(N_Vector, N_Vector);
+  void         (*nvaddconst)(N_Vector, realtype, N_Vector);
+  realtype     (*nvdotprod)(N_Vector, N_Vector);
+  realtype     (*nvmaxnorm)(N_Vector);
+  realtype     (*nvwrmsnorm)(N_Vector, N_Vector);
+  realtype     (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
+  realtype     (*nvmin)(N_Vector);
+  realtype     (*nvwl2norm)(N_Vector, N_Vector);
+  realtype     (*nvl1norm)(N_Vector);
+  void         (*nvcompare)(realtype, N_Vector, N_Vector);
+  booleantype  (*nvinvtest)(N_Vector, N_Vector);
+  booleantype  (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
+  realtype     (*nvminquotient)(N_Vector, N_Vector);
+  int          (*nvlinearcombination)(int, realtype*, N_Vector*, N_Vector);
+  int          (*nvscaleaddmulti)(int, realtype*, N_Vector, N_Vector*, N_Vector*);
+  int          (*nvdotprodmulti)(int, N_Vector, N_Vector*, realtype*);
+  int          (*nvlinearsumvectorarray)(int, realtype, N_Vector*, realtype,
+                                         N_Vector*, N_Vector*);
+  int          (*nvscalevectorarray)(int, realtype*, N_Vector*, N_Vector*);
+  int          (*nvconstvectorarray)(int, realtype, N_Vector*);
+  int          (*nvwrmsnomrvectorarray)(int, N_Vector*, N_Vector*, realtype*);
+  int          (*nvwrmsnomrmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector,
+                                            realtype*);
+  int          (*nvscaleaddmultivectorarray)(int, int, realtype*, N_Vector*,
+                                             N_Vector**, N_Vector**);
+  int          (*nvlinearcombinationvectorarray)(int, int, realtype*, N_Vector**,
+                                                 N_Vector*);
+  realtype     (*nvdotprodlocal)(N_Vector, N_Vector);
+  realtype     (*nvmaxnormlocal)(N_Vector);
+  realtype     (*nvminlocal)(N_Vector);
+  realtype     (*nvl1normlocal)(N_Vector);
+  booleantype  (*nvinvtestlocal)(N_Vector, N_Vector);
+  booleantype  (*nvconstrmasklocal)(N_Vector, N_Vector, N_Vector);
+  realtype     (*nvminquotientlocal)(N_Vector, N_Vector);
+  realtype     (*nvwsqrsumlocal)(N_Vector, N_Vector);
+  realtype     (*nvwsqrsummasklocal(N_Vector, N_Vector, N_Vector);
+
 };
 \end{verbatim}
 
 
 
 
-The generic {\nvector} module defines and implements the vector operations 
+The generic {\nvector} module defines and implements the vector operations
 acting on an \id{N\_Vector}.
 These routines are nothing but wrappers for the vector operations defined by
 a particular {\nvector} implementation, which are accessed through the {\em ops}
@@ -88,47 +100,68 @@ vector \id{x} by a scalar \id{c}:
 %%
 %%
 \begin{verbatim}
-void N_VScale(realtype c, N_Vector x, N_Vector z) 
+void N_VScale(realtype c, N_Vector x, N_Vector z)
 {
    z->ops->nvscale(c, x, z);
 }
 \end{verbatim}
 %%
 %%
-Table \ref{t:nvecops} contains a complete list of all standard vector operations defined
-by the generic {\nvector} module. Tables \ref{t:nvecfusedops} and \ref{t:nvecarrayops}
-list \textit{optional} fused and vector array operations respectively. These
-operations are intended to increase data reuse, reduce parallel communication on
-distributed memory systems, and lower the number of kernel launches on systems with
-accelerators. If a particular {\nvector} implementation defines one of the fused or
-vector array operations as \id{NULL}, the {\nvector} interface will call one of the
-standard vector operations as necessary.
+Table \ref{t:nvecops} contains a complete list of all standard vector
+operations defined by the generic {\nvector} module. Tables
+\ref{t:nvecfusedops}, \ref{t:nvecarrayops} and \ref{t:nveclocalops}
+list \textit{optional} fused, vector array and local reduction
+operations, respectively.
+
+Fused and vector array operations are intended to increase data reuse, reduce
+parallel communication on distributed memory systems, and lower the number of
+kernel launches on systems with accelerators. If a particular {\nvector}
+implementation defines a fused or vector array operation as \id{NULL}, the
+generic {\nvector} module will automatically call standard vector operations as
+necessary to complete the desired operation.  In all
+{\sundials}-provided {\nvector} implementations, all fused and vector
+array operations are disabled by default.  However, these
+implementations provide additional user-callable functions to enable/disable
+any or all of the fused and vector array operations. See the following sections
+for the implementation specific functions to enable/disable operations.
+
+Local reduction operations are similarly intended to reduce parallel
+communication on distributed memory systems, particularly when
+{\nvector} objects are combined together within a \\
+{\nvecmpimanyvector} object (see Section \ref{ss:nvec_mpimanyvector}).  If a
+particular {\nvector} implementation defines a local reduction
+operation as \id{NULL}, the {\nvecmpimanyvector} module will
+automatically call standard vector reduction operations as necessary
+to complete the desired operation. All {\sundials}-provided {\nvector}
+implementations include these local reduction operations, which may be
+used as templates for user-defined {\nvector} implementations.
 
 Finally, note that the generic {\nvector} module defines the functions
-\ID{N\_VCloneVectorArray} and \ID{N\_VCloneVectorArrayEmpty}.  Both functions
-create (by cloning) an array of \id{count} variables of type \id{N\_Vector}, each
-of the same type as an existing \id{N\_Vector}. Their prototypes are
+\ID{N\_VCloneVectorArray},  \ID{N\_VCloneVectorArrayEmpty}, and
+\ID{N\_VDestroyVectorArray}. Both clone functions create (by cloning) an array
+of \id{count} variables of type \id{N\_Vector}, each of the same type as an
+existing \id{N\_Vector}. Their prototypes are
 \begin{verbatim}
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
 N_Vector *N_VCloneVectorArrayEmpty(int count, N_Vector w);
 \end{verbatim}
 and their definitions are based on the implementation-specific \id{N\_VClone} and
-\id{N\_VCloneEmpty} operations, respectively.
-
-An array of variables of type \id{N\_Vector} can be destroyed by
-calling \ID{N\_VDestroyVectorArray}, whose prototype is
+\id{N\_VCloneEmpty} operations, respectively. An array of variables of
+type \id{N\_Vector} can be destroyed by calling \ID{N\_VDestroyVectorArray},
+whose prototype is
 \begin{verbatim}
 void N_VDestroyVectorArray(N_Vector *vs, int count);
 \end{verbatim}
-and whose definition is based on the implementation-specific \id{N\_VDestroy} operation.
+and whose definition is based on the implementation-specific \id{N\_VDestroy}
+operation.
 
 
 A particular implementation of the {\nvector} module must:
 \begin{itemize}
 \item Specify the {\em content} field of \id{N\_Vector}.
-\item Define and implement the vector operations. 
-  Note that the names of these routines should be unique to that implementation in order 
-  to permit using more than one {\nvector} module (each with different \id{N\_Vector} 
+\item Define and implement the vector operations.
+  Note that the names of these routines should be unique to that implementation in order
+  to permit using more than one {\nvector} module (each with different \id{N\_Vector}
   internal data representations) in the same code.
 \item Define and implement user-callable constructor and destructor
   routines to create and free an \id{N\_Vector} with
@@ -137,13 +170,60 @@ A particular implementation of the {\nvector} module must:
 \item Optionally, define and implement additional user-callable routines
   acting on the newly defined \id{N\_Vector} (e.g., a routine to print
   the content for debugging purposes).
-\item Optionally, provide accessor macros as needed for that particular implementation to 
+\item Optionally, provide accessor macros as needed for that particular implementation to
   be used to access different parts in the {\em content} field of the newly defined \id{N\_Vector}.
 \end{itemize}
 
-Each {\nvector} implementation included in {\sundials} has a unique 
+To aid in the creation of custom {\nvector} modules the generic {\nvector}
+module provides two utility functions \id{N\_VNewEmpty} and \id{N\_VCopyOps}.
+When used in custom {\nvector} constructors and clone routines these functions
+will ease the introduction of any new optional vector operations to the
+{\nvector} API by ensuring only required operations need to be set and all
+operations are copied when cloning a vector.
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{N\_VNewEmpty}
+{
+  v = N\_VNewEmpty();
+}
+{
+  The function \Id{N\_VNewEmpty} allocates a new generic {\nvector} object and
+  initializes its content pointer and the function pointers in the operations
+  structure to \id{NULL}.
+}
+{}
+{
+  This function returns an \id{N\_Vector} object. If an error occurs when
+  allocating the object, then this routine will return \id{NULL}.
+}
+{}
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{N\_VCopyOps}
+{
+  retval = N\_VCopyOps(w, v);
+}
+{
+  The function \Id{N\_VCopyOps} copies the function pointers in the \id{ops}
+  structure of \id{w} into the \id{ops} structure of \id{v}.
+}
+{
+  \begin{args}[w]
+  \item[w] (\id{N\_Vector}) the vector to copy operations from.
+  \item[v] (\id{N\_Vector}) the vector to copy operations to.
+  \end{args}
+}
+{
+  This returns \id{0} if successful and a non-zero value if either of the inputs
+  are \id{NULL} or the \id{ops} structure of either input is \id{NULL}.
+}
+{}
+
+Each {\nvector} implementation included in {\sundials} has a unique
 identifier specified in enumeration and shown in Table \ref{t:vectorIDs}.
-It is recommended that a user-supplied {\nvector} implementation use the 
+It is recommended that a user-supplied {\nvector} implementation use the
 \id{SUNDIALS\_NVEC\_CUSTOM} identifier.
 
 \begin{table}
@@ -155,33 +235,29 @@ It is recommended that a user-supplied {\nvector} implementation use the
 \hline
 {\bf Vector ID} & {\bf Vector type} & {\bf ID Value} \\
 \hline
-SUNDIALS\_NVEC\_SERIAL     & Serial                            & 0 \\ 
-SUNDIALS\_NVEC\_PARALLEL   & Distributed memory parallel (MPI) & 1 \\
-SUNDIALS\_NVEC\_OPENMP     & OpenMP shared memory parallel     & 2 \\
-SUNDIALS\_NVEC\_PTHREADS   & PThreads shared memory parallel   & 3 \\
-SUNDIALS\_NVEC\_PARHYP     & {\hypre} ParHyp parallel vector   & 4 \\ 
-SUNDIALS\_NVEC\_PETSC      & {\petsc} parallel vector          & 5 \\
-SUNDIALS\_NVEC\_CUSTOM     & User-provided custom vector       & 6 \\
+SUNDIALS\_NVEC\_SERIAL        & Serial                                        & 0 \\
+SUNDIALS\_NVEC\_PARALLEL      & Distributed memory parallel (MPI)             & 1 \\
+SUNDIALS\_NVEC\_OPENMP        & OpenMP shared memory parallel                 & 2 \\
+SUNDIALS\_NVEC\_PTHREADS      & PThreads shared memory parallel               & 3 \\
+SUNDIALS\_NVEC\_PARHYP        & {\hypre} ParHyp parallel vector               & 4 \\
+SUNDIALS\_NVEC\_PETSC         & {\petsc} parallel vector                      & 5 \\
+SUNDIALS\_NVEC\_CUDA          & {\cuda} parallel vector                       & 6 \\
+SUNDIALS\_NVEC\_RAJA          & {\raja} parallel vector                       & 7 \\
+SUNDIALS\_NVEC\_OPENMPDEV     & OpenMP parallel vector with device offloading & 8 \\
+SUNDIALS\_NVEC\_TRILINOS      & {\trilinos} Tpetra vector                     & 9 \\
+SUNDIALS\_NVEC\_MANYVECTOR    & ``ManyVector'' vector                         & 10 \\
+SUNDIALS\_NVEC\_MPIMANYVECTOR & MPI-enabled ``ManyVector'' vector             & 11 \\
+SUNDIALS\_NVEC\_MPIPLUSX      & MPI+X vector                                  & 12 \\
+SUNDIALS\_NVEC\_CUSTOM        & User-provided custom vector                   & 13 \\
 \hline
 \end{tabular}
 \end{table}
 
-%% \begin{verbatim}
-%% typedef enum {
-%%   SUNDIALS_NVEC_SERIAL, 
-%%   SUNDIALS_NVEC_PARALLEL, 
-%%   SUNDIALS_NVEC_OPENMP, 
-%%   SUNDIALS_NVEC_PTHREADS, 
-%%   SUNDIALS_NVEC_PARHYP, 
-%%   SUNDIALS_NVEC_PETSC,
-%%   SUNDIALS_NVEC_CUSTOM
-%% } N_Vector_ID; 
-%% \end{verbatim}
 
 %---------------------------------------------------------------------------
 % Table of vector kernels
 %---------------------------------------------------------------------------
-%\newpage
+\newpage
 
 \newlength{\colone}
 \settowidth{\colone}{\id{N\_VGetArrayPointer}}
@@ -198,19 +274,19 @@ SUNDIALS\_NVEC\_CUSTOM     & User-provided custom vector       & 6 \\
 \tablelasttail{\hline}
 \begin{xtabular}{|p{\colone}|p{\coltwo}|}
 %%
-\id{N\_VGetVectorID} & \id{id = N\_VGetVectorID(w);} \\ 
+\id{N\_VGetVectorID} & \id{id = N\_VGetVectorID(w);} \\
 & Returns the vector type identifier for the vector \id{w}. It is used to determine the
-vector implementation type (e.g.~serial, parallel,\ldots) from the abstract 
+vector implementation type (e.g.~serial, parallel,\ldots) from the abstract
 \id{N\_Vector} interface.  Returned values are given in Table \ref{t:vectorIDs}.
 \\[2mm]
 %%
-\id{N\_VClone} & \id{v = N\_VClone(w);} \\ 
+\id{N\_VClone} & \id{v = N\_VClone(w);} \\
 & Creates a new \id{N\_Vector} of the same type as an existing vector \id{w} and sets the
 {\em ops} field.
 It does not copy the vector, but rather allocates storage for the new vector.
 \\[2mm]
 %%
-\id{N\_VCloneEmpty} & \id{v = N\_VCloneEmpty(w);} \\ 
+\id{N\_VCloneEmpty} & \id{v = N\_VCloneEmpty(w);} \\
 & Creates a new \id{N\_Vector} of the same type as an existing vector \id{w} and sets the
 {\em ops} field.
 It does not allocate storage for data.
@@ -249,8 +325,22 @@ solver, hence need not exist in a user-supplied {\nvector} module for a
 parallel environment.
 \\[2mm]
 %%
+\id{N\_VGetCommunicator} & \id{N\_VGetCommunicator(v);} \\
+& Returns a pointer to the \id{MPI\_Comm} object associated with the
+vector (if applicable).  For MPI-unaware vector implementations, this
+should return \id{NULL}.
+\\[2mm]
+%%
+\id{N\_VGetLength} & \id{N\_VGetLength(v);} \\
+& Returns the global length (number of `active' entries) in the
+{\nvector} \id{v}.  This value should be cumulative across all
+processes if the vector is used in a parallel environment.  If \id{v}
+contains additional storage, e.g., for parallel communication, those
+entries should not be included.
+\\[2mm]
+%%
 \id{N\_VLinearSum} & \id{N\_VLinearSum(a, x, b, y, z);} \\
-& Performs the operation $z = a x + b y$, where $a$ and $b$ are \id{realtype} 
+& Performs the operation $z = a x + b y$, where $a$ and $b$ are \id{realtype}
 scalars and $x$ and $y$ are of type \id{N\_Vector}:
 $z_i = a x_i + b y_i, \: i=0,\ldots,n-1$.
 \\[2mm]
@@ -269,13 +359,13 @@ $z_i = x_i y_i,\: i=0,\ldots,n-1$.
 \id{N\_VDiv} & \id{N\_VDiv(x, y, z);} \\
 & Sets the \id{N\_Vector} \id{z} to be the component-wise ratio of the
 \id{N\_Vector} inputs \id{x} and \id{y}:
-$z_i = x_i / y_i,\: i=0,\ldots,n-1$. The $y_i$ may not be tested 
+$z_i = x_i / y_i,\: i=0,\ldots,n-1$. The $y_i$ may not be tested
 for $0$ values. It should only be called with a \id{y} that is
 guaranteed to have all nonzero components.
 \\[2mm]
 %%
 \id{N\_VScale} & \id{N\_VScale(c, x, z);} \\
-& Scales the \id{N\_Vector} \id{x} by the \id{realtype} scalar \id{c} 
+& Scales the \id{N\_Vector} \id{x} by the \id{realtype} scalar \id{c}
 and returns the result in \id{z}:
 $z_i = c x_i , \: i=0,\ldots,n-1$.
 \\[2mm]
@@ -290,12 +380,12 @@ $y_i = | x_i | , \: i=0,\ldots,n-1$.
 & Sets the components of the \id{N\_Vector} \id{z} to be the inverses
 of the components of the \id{N\_Vector} \id{x}:
 $z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$. This routine
-may not check for division by $0$. It should be called only with an 
+may not check for division by $0$. It should be called only with an
 \id{x} which is guaranteed to have all nonzero components.
 \\[2mm]
 %%
 \id{N\_VAddConst} & \id{N\_VAddConst(x, b, z);} \\
-& Adds the \id{realtype} scalar \id{b} to all components of \id{x} 
+& Adds the \id{realtype} scalar \id{b} to all components of \id{x}
 and returns the result in the \id{N\_Vector} \id{z}:
 $z_i = x_i + b , \: i=0,\ldots,n-1$.
 \\[2mm]
@@ -318,14 +408,14 @@ $m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}$.
 %%
 \id{N\_VWrmsNormMask} & \id{m = N\_VWrmsNormMask(x, w, id);} \\
 & Returns the weighted root mean square norm of the \id{N\_Vector} \id{x} with
-\id{realtype} weight vector \id{w} built using only 
+\id{realtype} weight vector \id{w} built using only
 the elements of \id{x} corresponding to
 positive elements of the \id{N\_Vector} \id{id}:\\
 &$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i H(id_i))^2 \right) / n}$,
 where
 $
 H(\alpha) =
-\begin{cases} 
+\begin{cases}
 1 & \alpha > 0 \\
 0 & \alpha \leq 0
 \end{cases}
@@ -339,7 +429,7 @@ $m = \min_i x_i $.
 %%
 \id{N\_VWL2Norm} & \id{m = N\_VWL2Norm(x, w);} \\
 & Returns the weighted Euclidean $\ell_2$ norm of the \id{N\_Vector} \id{x}
-with \id{realtype} weight vector \id{w}: 
+with \id{realtype} weight vector \id{w}:
 $m = \sqrt{\sum_{i=0}^{n-1} (x_i w_i)^2}$.
 \\[2mm]
 %%
@@ -359,9 +449,9 @@ $z_i = 1.0$ if $| x_i | \ge c$ and $z_i = 0.0$ otherwise.
 of the components of the \id{N\_Vector} \id{x}, with prior testing
 for zero values:
 $z_i = 1.0 /  x_i  , \: i=0,\ldots,n-1$.
-This routine returns a boolean assigned to \id{SUNTRUE} if all 
+This routine returns a boolean assigned to \id{SUNTRUE} if all
 components of \id{x} are
-nonzero (successful inversion) and returns \id{SUNFALSE} otherwise.  
+nonzero (successful inversion) and returns \id{SUNFALSE} otherwise.
 \\[2mm]
 %%
 \id{N\_VConstrMask} & \id{t = N\_VConstrMask(c, x, m);} \\
@@ -373,18 +463,18 @@ $x_i < 0$ if $c_i=-2$.
 There is no constraint on $x_i$ if $c_i=0$.
 This routine returns a boolean assigned to \id{SUNFALSE} if any element failed
 the constraint test and assigned to \id{SUNTRUE} if all passed.  It also sets a
-mask vector \id{m}, with elements equal to $1.0$ where the constraint 
+mask vector \id{m}, with elements equal to $1.0$ where the constraint
 test failed, and $0.0$ where the test passed.
 This routine is used only for constraint checking.
 \\[2mm]
 %%
 \id{N\_VMinQuotient} & \id{minq = N\_VMinQuotient(num, denom);} \\
-& This routine returns the minimum of the quotients obtained   
-by term-wise dividing \id{num}$_i$ by \id{denom}$_i$. 
-A zero element in \id{denom} will be skipped. 
-If no such quotients are found, then the large value 
+& This routine returns the minimum of the quotients obtained
+by term-wise dividing \id{num}$_i$ by \id{denom}$_i$.
+A zero element in \id{denom} will be skipped.
+If no such quotients are found, then the large value
 \Id{BIG\_REAL} (defined in the header file \id{sundials\_types.h})
-is returned. 
+is returned.
 \\
 %%
 \end{xtabular}
@@ -409,43 +499,43 @@ is returned.
 \tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
 \tablelasttail{\hline}
 \begin{xtabular}{|p{\coloneb}|p{\coltwob}|}
-
-\id{N\_VLinearCombination} & \id{ier = N\_VLinearCombination(nv, c, X, z);} \\ 
-& This routine computes the linear combination of $nv$ vectors with $n$
+%%
+\id{N\_VLinearCombination} & \id{ier = N\_VLinearCombination(nv, c, X, z);} \\
+& This routine computes the linear combination of $n_v$ vectors with $n$
 elements:
 \begin{equation*}
-z_i = \sum_{j=1}^{nv} c_j x_{j,i}, \quad i=1,\ldots,n,
+z_i = \sum_{j=0}^{n_v-1} c_j x_{j,i}, \quad i=0,\ldots,n-1,
 \end{equation*}
-where $c$ is an array of $nv$ scalars (type \id{realtype}*), $X$ is an array of
-$nv$ vectors (type \id{N\_Vector*}), and $z$ is the output vector (type
+where $c$ is an array of $n_v$ scalars (type \id{realtype}*), $X$ is an array of
+$n_v$ vectors (type \id{N\_Vector*}), and $z$ is the output vector (type
 \id{N\_Vector}). If the output vector $z$ is one of the vectors in $X$, then it
 \textit{must} be the first vector in the vector array. The operation returns
 \id{0} for success and a non-zero value otherwise.
 \\[2mm]
-
-\id{N\_VScaleAddMulti} & \id{ier = N\_VScaleAddMulti(nv, c, x, Y, Z);} \\ 
-& This routine scales and adds one vector to $nv$ vectors with $n$ elements:
+%%
+\id{N\_VScaleAddMulti} & \id{ier = N\_VScaleAddMulti(nv, c, x, Y, Z);} \\
+& This routine scales and adds one vector to $n_v$ vectors with $n$ elements:
 \begin{equation*}
-z_{j,i} = c_j x_i + y_{j,i}, \quad j=1,\ldots,nv \quad i=1,\ldots,n,
+z_{j,i} = c_j x_i + y_{j,i}, \quad j=0,\ldots,n_v-1 \quad i=0,\ldots,n-1,
 \end{equation*}
-where $c$ is an array of $nv$ scalars (type \id{realtype}*), $x$ is the vector
+where $c$ is an array of $n_v$ scalars (type \id{realtype}*), $x$ is the vector
 (type \id{N\_Vector}) to be scaled and added to each vector in the vector array
-of $nv$ vectors $Y$ (type \id{N\_Vector*}), and $Z$ (type \id{N\_Vector*}) is a
-vector array of $nv$ output vectors. The operation returns \id{0} for success and a
+of $n_v$ vectors $Y$ (type \id{N\_Vector*}), and $Z$ (type \id{N\_Vector*}) is a
+vector array of $n_v$ output vectors. The operation returns \id{0} for success and a
 non-zero value otherwise.
 \\[2mm]
-
-\id{N\_VDotProdMulti} & \id{ier = N\_VDotProdMulti(nv, x, Y, d);} \\ 
-& This routine computes the dot product of a vector with $nv$ other vectors:
+%%
+\id{N\_VDotProdMulti} & \id{ier = N\_VDotProdMulti(nv, x, Y, d);} \\
+& This routine computes the dot product of a vector with $n_v$ other vectors:
 \begin{equation*}
-d_j = \sum_{i}^{n} x_i y_{j,i}, \quad j=1,\ldots,nv,
+d_j = \sum_{i=0}^{n-1} x_i y_{j,i}, \quad j=0,\ldots,n_v-1,
 \end{equation*}
-where $d$ (type \id{realtype}*) is an array of $nv$ scalars containing the
-dot products of the vector $x$ (type \id{N\_Vector}) with each of the $nv$
+where $d$ (type \id{realtype}*) is an array of $n_v$ scalars containing the
+dot products of the vector $x$ (type \id{N\_Vector}) with each of the $n_v$
 vectors in the vector array $Y$ (type \id{N\_Vector*}). The operation returns
 \id{0} for success and a non-zero value otherwise.
-\\[2mm]
-
+\\
+%%
 \end{xtabular}
 \bigskip
 
@@ -468,231 +558,223 @@ vectors in the vector array $Y$ (type \id{N\_Vector*}). The operation returns
 \tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
 \tablelasttail{\hline}
 \begin{xtabular}{|p{\colonec}|p{\coltwoc}|}
-
+%%
 \id{N\_VLinearSumVectorArray} & \id{ier = N\_VLinearSumVectorArray(nv, a, X, b, Y, Z);} \\
-& This routine comuptes the linear sum of two vector arrays containing $nv$
+& This routine computes the linear sum of two vector arrays containing $n_v$
 vectors of $n$ elements:
 \begin{equation*}
-z_{j,i} = a x_{j,i} + b y_{j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+z_{j,i} = a x_{j,i} + b y_{j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,n_v-1,
 \end{equation*}
 where $a$ and $b$ are \id{realtype} scalars and $X$, $Y$, and $Z$ are arrays of
-$nv$ vectors (type \id{N\_Vector*}). The operation returns \id{0} for success and
+$n_v$ vectors (type \id{N\_Vector*}). The operation returns \id{0} for success and
 a non-zero value otherwise.
 \\[2mm]
-
+%%
 \id{N\_VScaleVectorArray} & \id{ier = N\_VScaleVectorArray(nv, c, X, Z);} \\
-& This routine scales each vector of $n$ elements in a vector array of $nv$
+& This routine scales each vector of $n$ elements in a vector array of $n_v$
 vectors by a potentially different constant:
 \begin{equation*}
-z_{j,i} = c_j x_{j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+z_{j,i} = c_j x_{j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,n_v-1,
 \end{equation*}
-where $c$ is an array of $nv$ scalars (type \id{realtype}*) and $X$ and $Z$ are
-arrays of $nv$ vectors (type \id{N\_Vector*}). The operation returns \id{0} for
+where $c$ is an array of $n_v$ scalars (type \id{realtype}*) and $X$ and $Z$ are
+arrays of $n_v$ vectors (type \id{N\_Vector*}). The operation returns \id{0} for
 success and a non-zero value otherwise.
 \\[2mm]
-
+%%
 \id{N\_VConstVectorArray} & \id{ier = N\_VConstVectorArray(nv, c, X);} \\
 & This routine sets each element in a vector of $n$ elements in a vector array of
-$nv$ vectors to the same value:
+$n_v$ vectors to the same value:
 \begin{equation*}
-z_{j,i} = c, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+z_{j,i} = c, \quad i=0,\ldots,n-1 \quad j=0,\ldots,n_v-1,
 \end{equation*}
-where $c$ is a \id{realtype} scalar and $X$ is an array of $nv$ vectors (type
+where $c$ is a \id{realtype} scalar and $X$ is an array of $n_v$ vectors (type
 \id{N\_Vector*}). The operation returns \id{0} for success and a non-zero value
 otherwise.
 \\[2mm]
-
+%%
 \id{N\_VWrmsNormVectorArray} & \id{ier = N\_VWrmsNormVectorArray(nv, X, W, m);} \\
-& This routine computes the weighted root mean square norm of $nv$ vectors with
+& This routine computes the weighted root mean square norm of $n_v$ vectors with
 $n$ elements:
 \begin{equation*}
-m_j = \left( \frac1n \sum_{i=1}^{n} \left(x_{j,i} w_{j,i}\right)^2\right)^{1/2}, \quad j=1,\ldots,nvec,
+m_j = \left( \frac1n \sum_{i=0}^{n-1} \left(x_{j,i} w_{j,i}\right)^2\right)^{1/2}, \quad j=0,\ldots,n_v-1,
 \end{equation*}
-where $m$ (type \id{realtype*}) contains the $nv$ norms of the vectors in the
+where $m$ (type \id{realtype*}) contains the $n_v$ norms of the vectors in the
 vector array $X$ (type \id{N\_Vector*}) with corresponding weight vectors $W$
 (type \id{N\_Vector*}). The operation returns \id{0} for success and a non-zero
 value otherwise.
 \\[2mm]
-
+%%
 \id{N\_VWrmsNormMaskVectorArray} & \id{ier = N\_VWrmsNormMaskVectorArray(nv, X, W, id, m);} \\
-& This routine computes the masked weighted root mean square norm of $nv$
+& This routine computes the masked weighted root mean square norm of $n_v$
 vectors with $n$ elements:
 \begin{equation*}
-m_j = \left( \frac1n \sum_{i=1}^{n} \left(x_{j,i} w_{j,i}
-H(id_i)\right)^2 \right)^{1/2}, \quad j=1,\ldots,nvec,
+m_j = \left( \frac1n \sum_{i=0}^{n-1} \left(x_{j,i} w_{j,i}
+H(id_i)\right)^2 \right)^{1/2}, \quad j=0,\ldots,n_v-1,
 \end{equation*}
 $H(id_i)=1$ for $id_i > 0$ and is zero otherwise, $m$ (type \id{realtype*}) contains
-the $nv$ norms of the vectors in the vector array $X$ (type \id{N\_Vector*}) with
+the $n_v$ norms of the vectors in the vector array $X$ (type \id{N\_Vector*}) with
 corresponding weight vectors $W$ (type \id{N\_Vector*}) and mask vector $id$
 (type \id{N\_Vector}). The operation returns \id{0} for success and a non-zero
 value otherwise.
 \\[2mm]
-
-\id{N\_VScaleAddMultiVectorArray} & \id{ier = N\_VScaleAddMultiVectorArray(nv, ns, c, X, YY, ZZ);} \\ 
-& This routine scales and adds a vector in a vector array of $nv$ vectors to
-the corresponding vector in $ns$ vector arrays:
+%%
+\id{N\_VScaleAddMultiVectorArray} & \id{ier = N\_VScaleAddMultiVectorArray(nv, ns, c, X, YY, ZZ);} \\
+& This routine scales and adds a vector in a vector array of $n_v$ vectors to
+the corresponding vector in $n_s$ vector arrays:
 \begin{equation*}
-z_{j,i} = \sum_{k=1}^{ns} c_k x_{k,j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+z_{j,i} = \sum_{k=0}^{n_s-1} c_k x_{k,j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,n_v-1,
 \end{equation*}
-where $c$ is an array of $ns$ scalars (type \id{realtype*}), $X$ is a vector
-array of $nv$ vectors (type id{N\_Vector*}) to be scaled and added to the
-corresponding vector in each of the $ns$ vector arrays in the array of vector
+where $c$ is an array of $n_s$ scalars (type \id{realtype*}), $X$ is a vector
+array of $n_v$ vectors (type id{N\_Vector*}) to be scaled and added to the
+corresponding vector in each of the $n_s$ vector arrays in the array of vector
 arrays $YY$ (type \id{N\_Vector**}) and stored in the output array of vector
 arrays $ZZ$ (type \id{N\_Vector**}). The operation returns \id{0} for success
 and a non-zero value otherwise.
 \\[2mm]
-
-\id{N\_VLinearCombinationVectorArray} & \id{ier = N\_VLinearCombinationVectorArray(nv, ns, c, XX, Z);} \\ 
-& This routine computes the linear combination of $ns$ vector arrays containing
-$nv$ vectors with $n$ elements:
+%%
+\id{N\_VLinearCombinationVectorArray} & \id{ier = N\_VLinearCombinationVectorArray(nv, ns, c, XX, Z);} \\
+& This routine computes the linear combination of $n_s$ vector arrays containing
+$n_v$ vectors with $n$ elements:
 \begin{equation*}
-z_{j,i} = \sum_{k=1}^{ns} c_k x_{k,j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+z_{j,i} = \sum_{k=0}^{n_s-1} c_k x_{k,j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,n_v-1,
 \end{equation*}
-where $c$ is an array of $ns$ scalars (type \id{realtype*}), $XX$
-(type \id{N\_Vector**}) is an array of $ns$ vector arrays each containing $nv$
-vectors to be summed into the output vector array of $nv$ vectors $ZZ$ (type
-\id{N\_Vector*}). If the output vector array $ZZ$ is one of the vector arrays in
+where $c$ is an array of $n_s$ scalars (type \id{realtype*}), $XX$
+(type \id{N\_Vector**}) is an array of $n_s$ vector arrays each containing $n_v$
+vectors to be summed into the output vector array of $n_v$ vectors $Z$ (type
+\id{N\_Vector*}). If the output vector array $Z$ is one of the vector arrays in
 $XX$, then it \textit{must} be the first vector array in $XX$. The operation
 returns \id{0} for success and a non-zero value otherwise.
-\\[2mm]
-
+\\
+%%
 \end{xtabular}
 \bigskip
 
-
 %---------------------------------------------------------------------------
-\section{The NVECTOR\_SERIAL implementation}\label{ss:nvec_ser}
-\input{nvec_serial}
-
+% Table of local reduction operations
 %---------------------------------------------------------------------------
-\section{The NVECTOR\_PARALLEL implementation}\label{ss:nvec_par}
-\input{nvec_parallel}
+%\newpage
 
-%---------------------------------------------------------------------------
-\section{The NVECTOR\_OPENMP implementation}\label{ss:nvec_openmp}
-\input{nvec_openmp}
+\newlength{\coloned}
+\settowidth{\coloned}{\id{N\_VMinQuotientLocal}}
+\newlength{\coltwod}
+\setlength{\coltwod}{\textwidth}
+\addtolength{\coltwod}{-0.4in}
+\addtolength{\coltwod}{-\coloned}
 
-%---------------------------------------------------------------------------
-\section{The NVECTOR\_PTHREADS implementation}\label{ss:nvec_pthreads}
-\input{nvec_pthreads}
-
-%---------------------------------------------------------------------------
-\section{The NVECTOR\_PARHYP implementation}\label{ss:nvec_parhyp}
-\input{nvec_parhyp}
-
-%---------------------------------------------------------------------------
-\section{The NVECTOR\_PETSC implementation}\label{ss:nvec_petsc}
-\input{nvec_petsc}
-
-%---------------------------------------------------------------------------
-\section{The NVECTOR\_CUDA implementation}\label{ss:nvec_cuda}
-\input{nvec_cuda}
-
-%---------------------------------------------------------------------------
-\section{The NVECTOR\_RAJA implementation}\label{ss:nvec_raja}
-\input{nvec_raja}
-
-%---------------------------------------------------------------------------
-
-\section{NVECTOR Examples}\label{ss:nvec_examples}
-
-There are \id{NVector} examples that may be installed for the
-implementations provided with {\sundials}. Each
-implementation makes use of the functions in \id{test\_nvector.c}.
-These example functions show simple usage of the \id{NVector} family
-of functions. The input to the examples are the vector length, number
-of threads (if threaded implementation), and a print timing flag.
-
-\noindent The following is a list of the example functions in \id{test\_nvector.c}:
-\begin{itemize}
-\item \id{Test\_N\_VClone}: Creates clone of vector and checks validity of clone.  
-\item \id{Test\_N\_VCloneEmpty}: Creates clone of empty vector and checks validity of clone.  
-\item \id{Test\_N\_VCloneVectorArray}: Creates clone of vector array and checks validity of cloned array.  
-\item \id{Test\_N\_VCloneVectorArray}: Creates clone of empty vector array and checks validity of cloned array.  
-\item \id{Test\_N\_VGetArrayPointer}: Get array pointer. 
-\item \id{Test\_N\_VSetArrayPointer}: Allocate new vector, set pointer to new vector array, and check values. 
-\item \id{Test\_N\_VLinearSum} Case 1a: Test y =  x + y 
-\item \id{Test\_N\_VLinearSum} Case 1b: Test y = -x + y 
-\item \id{Test\_N\_VLinearSum} Case 1c: Test y = ax + y
-\item \id{Test\_N\_VLinearSum} Case 2a: Test x =  x + y
-\item \id{Test\_N\_VLinearSum} Case 2b: Test x =  x - y
-\item \id{Test\_N\_VLinearSum} Case 2c: Test x =  x + by
-\item \id{Test\_N\_VLinearSum} Case 3:  Test z =  x + y
-\item \id{Test\_N\_VLinearSum} Case 4a: Test z =  x - y
-\item \id{Test\_N\_VLinearSum} Case 4b: Test z = -x + y
-\item \id{Test\_N\_VLinearSum} Case 5a: Test z =  x + by
-\item \id{Test\_N\_VLinearSum} Case 5b: Test z = ax + y
-\item \id{Test\_N\_VLinearSum} Case 6a: Test z = -x + by
-\item \id{Test\_N\_VLinearSum} Case 6b: Test z = ax - y
-\item \id{Test\_N\_VLinearSum} Case 7:  Test z = a(x + y)
-\item \id{Test\_N\_VLinearSum} Case 8:  Test z = a(x - y)
-\item \id{Test\_N\_VLinearSum} Case 9:  Test z = ax + by
-\item \id{Test\_N\_VConst}: Fill vector with constant and check result.
-\item \id{Test\_N\_VProd}: Test vector multiply: z = x * y
-\item \id{Test\_N\_VDiv}: Test vector division: z = x / y
-\item \id{Test\_N\_VScale}: Case 1: scale: x = cx
-\item \id{Test\_N\_VScale}: Case 2: copy: z = x
-\item \id{Test\_N\_VScale}: Case 3: negate: z = -x
-\item \id{Test\_N\_VScale}: Case 4: combination: z = cx
-\item \id{Test\_N\_VAbs}: Create absolute value of vector. 
-\item \id{Test\_N\_VAddConst}: add constant vector: z = c + x
-\item \id{Test\_N\_VDotProd}: Calculate dot product of two vectors.
-\item \id{Test\_N\_VMaxNorm}: Create vector with known values, find and validate the max norm.
-\item \id{Test\_N\_VWrmsNorm}: Create vector of known values, find and validate the weighted root mean square.
-\item \id{Test\_N\_VWrmsNormMask}: Create vector of known values, find and validate the weighted root mean square using all elements except one.
-\item \id{Test\_N\_VMin}: Create vector, find and validate the min.
-\item \id{Test\_N\_VWL2Norm}: Create vector, find and validate the weighted Euclidean L2 norm.
-\item \id{Test\_N\_VL1Norm}: Create vector, find and validate the L1 norm.
-\item \id{Test\_N\_VCompare}: Compare vector with constant returning and validating comparison vector.
-\item \id{Test\_N\_VInvTest}: Test z[i] = 1 / x[i]
-\item \id{Test\_N\_VConstrMask}: Test mask of vector x with vector c.
-\item \id{Test\_N\_VMinQuotient}: Fill two vectors with known values. Calculate and validate minimum quotient.
-\item \id{Test\_N\_VLinearCombination} Case 1a: Test x = a x
-\item \id{Test\_N\_VLinearCombination} Case 1b: Test z = a x
-\item \id{Test\_N\_VLinearCombination} Case 2a: Test x = a x + b y
-\item \id{Test\_N\_VLinearCombination} Case 2b: Test z = a x + b y
-\item \id{Test\_N\_VLinearCombination} Case 3a: Test x = x + a y + b z
-\item \id{Test\_N\_VLinearCombination} Case 3b: Test x = a x + b y + c z
-\item \id{Test\_N\_VLinearCombination} Case 3c: Test w = a x + b y + c z
-\item \id{Test\_N\_VScaleAddMulti} Case 1a: y = a x + y
-\item \id{Test\_N\_VScaleAddMulti} Case 1b: z = a x + y
-\item \id{Test\_N\_VScaleAddMulti} Case 2a: Y[i] = c[i] x + Y[i], i = 1,2,3
-\item \id{Test\_N\_VScaleAddMulti} Case 2b: Z[i] = c[i] x + Y[i], i = 1,2,3
-\item \id{Test\_N\_VDotProdMulti} Case 1: Calculate the dot product of two vectors
-\item \id{Test\_N\_VDotProdMulti} Case 2: Calculate the dot product of one vector with three other vectors in a vector array.
-\item \id{Test\_N\_VLinearSumVectorArray} Case 1: z = a x + b y 
-\item \id{Test\_N\_VLinearSumVectorArray} Case 2a: Z[i] = a X[i] + b Y[i]
-\item \id{Test\_N\_VLinearSumVectorArray} Case 2b: X[i] = a X[i] + b Y[i]
-\item \id{Test\_N\_VLinearSumVectorArray} Case 2c: Y[i] = a X[i] + b Y[i]
-\item \id{Test\_N\_VScaleVectorArray} Case 1a: y = c y
-\item \id{Test\_N\_VScaleVectorArray} Case 1b: z = c y
-\item \id{Test\_N\_VScaleVectorArray} Case 2a: Y[i] = c[i] Y[i]
-\item \id{Test\_N\_VScaleVectorArray} Case 2b: Z[i] = c[i] Y[i]
-\item \id{Test\_N\_VScaleVectorArray} Case 1a: z = c
-\item \id{Test\_N\_VScaleVectorArray} Case 1b: Z[i] = c
-\item \id{Test\_N\_VWrmsNormVectorArray} Case 1a: Create a vector of know values, find and validate the weighted root mean square norm.
-\item \id{Test\_N\_VWrmsNormVectorArray} Case 1b: Create a vector array of three vectors of know values, find and validate the weighted root mean square norm of each.
-\item \id{Test\_N\_VWrmsNormMaskVectorArray} Case 1a: Create a vector of know values, find and validate the weighted root mean square norm using all elements except one.
-\item \id{Test\_N\_VWrmsNormMaskVectorArray} Case 1b: Create a vector array of three vectors of know values, find and validate the weighted root mean square norm of each using all elements except one.
-\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 1a: y = a x + y 
-\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 1b: z = a x + y
-\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 2a: Y[j][0] = a[j] X[0] + Y[j][0]
-\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 2b: Z[j][0] = a[j] X[0] + Y[j][0]
-\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 3a: Y[0][i] = a[0] X[i] + Y[0][i]
-\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 3b: Z[0][i] = a[0] X[i] + Y[0][i]
-\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 4a: Y[j][i] = a[j] X[i] + Y[j][i]
-\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 4b: Z[j][i] = a[j] X[i] + Y[j][i]  
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 1a: x = a x
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 1b: z = a x
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 2a: x = a x + b y 
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 2b: z = a x + b y
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 3a: x = a x + b y + c z
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 3b: w = a x + b y + c z
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 4a: X[0][i] = c[0] X[0][i]
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 4b: Z[i] = c[0] X[0][i]
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 5a: X[0][i] = c[0] X[0][i] + c[1] X[1][i]
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 5b: Z[i] = c[0] X[0][i] + c[1] X[1][i]
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 6a: X[0][i] = X[0][i] + c[1] X[1][i] + c[2] X[2][i]
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 6b: X[0][i] = c[0] X[0][i] + c[1] X[1][i] + c[2] X[2][i]
-\item \id{Test\_N\_VLinearCombinationVectorArray} Case 6c: Z[i] = c[0] X[0][i] + c[1] X[1][i] + c[2] X[2][i]
-\end{itemize}
+\tablecaption{Description of the NVECTOR local reduction operations}\label{t:nveclocalops}
+\tablefirsthead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and Description} \\[3mm] \hline\hline}
+\tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
+           \hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and  Description} \\[3mm] \hline\hline}
+\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tablelasttail{\hline}
+\begin{xtabular}{|p{\coloned}|p{\coltwod}|}
+%%
+\id{N\_VDotProdLocal} & \id{d = N\_VDotProdLocal(x, y);} \\
+& This routine computes the MPI task-local portion of the ordinary dot product of \id{x} and \id{y}:
+\begin{equation*}
+d=\sum_{i=0}^{n_{local}-1} x_i y_i,
+\end{equation*}
+where $n_{local}$ corresponds
+to the number of components in the vector on this MPI task (or
+$n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VMaxNormLocal} & \id{m = N\_VMaxNormLocal(x);} \\
+& This routine computes the MPI task-local portion of the maximum norm of the \id{N\_Vector} \id{x}:
+\begin{equation*}
+m = \max_{0\le i< n_{local}} | x_i |,
+\end{equation*}
+where $n_{local}$ corresponds
+to the number of components in the vector on this MPI task (or
+$n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VMinLocal} & \id{m = N\_VMinLocal(x);} \\
+& This routine computes the smallest element of the MPI task-local portion of
+the \id{N\_Vector} \id{x}:
+\begin{equation*}
+m = \min_{0\le i< n_{local}} x_i,
+\end{equation*}
+where $n_{local}$ corresponds
+to the number of components in the vector on this MPI task (or
+$n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VL1NormLocal} & \id{n = N\_VL1NormLocal(x);} \\
+& This routine computes the MPI task-local portion of the $\ell_1$ norm of the \id{N\_Vector} \id{x}:
+\begin{equation*}
+n = \sum_{i=0}^{n_{local}-1} | x_i |,
+\end{equation*}
+where $n_{local}$ corresponds
+to the number of components in the vector on this MPI task (or
+$n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VWSqrSumLocal} & \id{s = N\_VWSqrSumLocal(x,w);} \\
+& This routine computes the MPI task-local portion of the weighted
+squared sum of the \id{N\_Vector} \id{x} with weight vector \id{w}:
+\begin{equation*}
+s = \sum_{i=0}^{n_{local}-1} (x_i w_i)^2,
+\end{equation*}
+where $n_{local}$ corresponds
+to the number of components in the vector on this MPI task (or
+$n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VWSqrSumMaskLocal} & \id{s = N\_VWSqrSumMaskLocal(x,w,id);} \\
+& This routine computes the MPI task-local portion of the weighted
+squared sum of the \id{N\_Vector} \id{x} with weight
+vector \id{w} built using only the elements of \id{x} corresponding to
+positive elements of the \id{N\_Vector} \id{id}:
+\begin{equation*}
+m = \sum_{i=0}^{n_{local}-1} (x_i w_i H(id_i))^2, \quad \text{where} \quad H(\alpha)
+= \begin{cases} 1 & \alpha > 0 \\ 0 & \alpha \leq 0 \end{cases}
+\end{equation*}
+and
+$n_{local}$ corresponds to the number of components in the vector on
+this MPI task (or $n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VInvTestLocal} & \id{t = N\_VInvTestLocal(x);} \\
+& Sets the MPI task-local components of the \id{N\_Vector} \id{z} to
+be the inverses of the components of the \id{N\_Vector} \id{x}, with
+prior testing for zero values:
+\begin{equation*}
+z_i = 1.0 /  x_i  , \: i=0,\ldots,n_{local}-1,
+\end{equation*}
+where $n_{local}$
+corresponds to the number of components in the vector on this MPI task
+(or $n_{local}=n$ for MPI-unaware applications).  This routine returns
+a boolean assigned to \id{SUNTRUE} if all task-local components of
+\id{x} are nonzero (successful inversion) and returns \id{SUNFALSE}
+otherwise.
+\\[2mm]
+%%
+\id{N\_VConstrMaskLocal} & \id{t = N\_VConstrMaskLocal(c,x,m);} \\
+& Performs the following constraint tests:
+{\begin{align*}
+x_i > 0        & \quad \text{if} \quad c_i=2, \\
+x_i \ge 0      & \quad \text{if} \quad c_i=1, \\
+x_i \le 0      & \quad \text{if} \quad c_i=-1, \\
+x_i < 0        & \quad \text{if} \quad c_i=-2, \text{and} \\
+\text{no test} & \quad \text{if} \quad c_i=0,
+\end{align*}}%
+for all MPI task-local components of the vectors.
+This routine returns a boolean assigned to \id{SUNFALSE} if any
+task-local element failed the constraint test and assigned to
+\id{SUNTRUE} if all passed.  It also sets a mask vector \id{m}, with
+elements equal to $1.0$ where the constraint test failed, and $0.0$
+where the test passed.  This routine is used only for constraint
+checking.
+\\[2mm]
+%%
+\id{N\_VMinQuotientLocal} & \id{minq = N\_VMinQuotientLocal(num,denom);} \\
+& This routine returns the minimum of the quotients obtained
+by term-wise dividing \id{num}$_i$ by \id{denom}$_i$, for all MPI
+task-local components of the vectors.  A zero element in \id{denom}
+will be skipped. If no such quotients are found, then the large value
+\Id{BIG\_REAL} (defined in the header file \id{sundials\_types.h})
+is returned.
+\\
+%%
+\end{xtabular}

@@ -1,19 +1,15 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * The FARKROOT module contains the routines necessary to use
  * the rootfinding feature of the ARKODE module and to interface
@@ -33,8 +29,8 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-  extern void FARK_ROOTFN(realtype *T, realtype *Y, 
-                          realtype *G, long int *IPAR, 
+  extern void FARK_ROOTFN(realtype *T, realtype *Y,
+                          realtype *G, long int *IPAR,
                           realtype *RPAR, int *ier);
 
 #ifdef __cplusplus
@@ -43,42 +39,42 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKodeRootInit; see farkroot.h
+/* Fortran interface to C routine ARKStepRootInit; see farkroot.h
    for further information. */
 void FARK_ROOTINIT(int *nrtfn, int *ier)
 {
-  *ier = ARKodeRootInit(ARK_arkodemem, *nrtfn, 
-                        (ARKRootFn) FARKrootfunc);
+  *ier = ARKStepRootInit(ARK_arkodemem, *nrtfn,
+                         (ARKRootFn) FARKrootfunc);
   ARK_nrtfn = *nrtfn;
   return;
 }
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKodeGetRootInfo; see 
+/* Fortran interface to C routine ARKStepGetRootInfo; see
    farkroot.h for further information. */
 void FARK_ROOTINFO(int *nrtfn, int *info, int *ier)
 {
-  *ier = ARKodeGetRootInfo(ARK_arkodemem, info);
-  return; 
-}
-
-/*=============================================================*/
-
-/* Fortran interface to C routine ARKodeRootInit, used to free 
-   existing memory resources; see farkroot.h for further 
-   information. */
-void FARK_ROOTFREE(void)
-{
-  ARKodeRootInit(ARK_arkodemem, 0, NULL);
+  *ier = ARKStepGetRootInfo(ARK_arkodemem, info);
   return;
 }
 
 /*=============================================================*/
 
-/* C interface to user-supplied routine FARKROOTFN; see 
+/* Fortran interface to C routine ARKStepRootInit, used to free
+   existing memory resources; see farkroot.h for further
+   information. */
+void FARK_ROOTFREE(void)
+{
+  ARKStepRootInit(ARK_arkodemem, 0, NULL);
+  return;
+}
+
+/*=============================================================*/
+
+/* C interface to user-supplied routine FARKROOTFN; see
    farkroot.h for further information. */
-int FARKrootfunc(realtype t, N_Vector y, 
+int FARKrootfunc(realtype t, N_Vector y,
                  realtype *gout, void *user_data)
 {
   int ier;
@@ -87,7 +83,7 @@ int FARKrootfunc(realtype t, N_Vector y,
 
   ydata = N_VGetArrayPointer(y);
   ARK_userdata = (FARKUserData) user_data;
-  FARK_ROOTFN(&t, ydata, gout, ARK_userdata->ipar, 
+  FARK_ROOTFN(&t, ydata, gout, ARK_userdata->ipar,
               ARK_userdata->rpar, &ier);
   return(ier);
 }

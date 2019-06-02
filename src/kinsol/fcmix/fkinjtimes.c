@@ -3,15 +3,15 @@
  *                Radu Serban @ LLNL
  *                David J. Gardner @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * Routines used to interface between KINSOL and a Fortran
  * user-supplied routine FKJTIMES (Jacobian J times vector v).
@@ -23,7 +23,7 @@
 #include "fkinsol.h"
 #include "kinsol_impl.h"
 
-#include <kinsol/kinsol_spils.h>
+#include <kinsol/kinsol_ls.h>
 
 /*------------------------------------------------------------------
   prototype of the user-supplied fortran routine
@@ -40,15 +40,21 @@ extern void FK_JTIMES(realtype* vdata, realtype* Jvdata, int* new_uu,
 #endif
 
 /*------------------------------------------------------------------
-  Function : FKIN_SPILSSETJAC
+  Function : FKIN_LSSETJAC
   ------------------------------------------------------------------*/
-void FKIN_SPILSSETJAC(int *flag, int *ier)
+void FKIN_LSSETJAC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpilsSetJacTimesVecFn(KIN_kinmem, NULL);
-  else              KINSpilsSetJacTimesVecFn(KIN_kinmem, FKINJtimes);
+  if ((*flag) == 0) KINSetJacTimesVecFn(KIN_kinmem, NULL);
+  else              KINSetJacTimesVecFn(KIN_kinmem, FKINJtimes);
 
   return;
 }
+
+/*------------------------------------------------------------------
+  Function : FKIN_SPILSSETJAC -- DEPRECATED
+  ------------------------------------------------------------------*/
+void FKIN_SPILSSETJAC(int *flag, int *ier)
+{ FKIN_LSSETJAC(flag, ier); }
 
 /*------------------------------------------------------------------
   Function : FKINJtimes

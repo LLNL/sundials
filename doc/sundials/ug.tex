@@ -26,8 +26,11 @@
 % External references
 \usepackage{xr}
 
+% show margin lines for debugging
+%\usepackage[showframe]{geometry}
+
 %----- Define some colors
-\definecolor{gray}{rgb}{0.5,0.5,0.5} 
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
 
 %----- Define the warning sign
 
@@ -55,51 +58,61 @@
 \setlength{\topmargin}{0.0in}
 
 %----- VERSIONS AND UCRL NUMBERS OF SUNDIALS CODES
-\newcommand{\sunrelease}{v4.0.0-dev}
 
-\newcommand{\cvrelease}{v4.0.0-dev}
+\newcommand{\sunrelease}{v5.0.0-dev.0}
+
+\newcommand{\cvrelease}{v5.0.0-dev.0}
 \newcommand{\cvucrlug}{UCRL-SM-208108}
 \newcommand{\cvucrlex}{UCRL-SM-208110}
 
-\newcommand{\cvsrelease}{v4.0.0-dev}
+\newcommand{\cvsrelease}{v5.0.0-dev.0}
 \newcommand{\cvsucrlug}{UCRL-SM-208111}
 \newcommand{\cvsucrlex}{UCRL-SM-208115}
 
-\newcommand{\idarelease}{v4.0.0-dev}
+\newcommand{\idarelease}{v5.0.0-dev.0}
 \newcommand{\idaucrlug}{UCRL-SM-208112}
 \newcommand{\idaucrlex}{UCRL-SM-208113}
 
-\newcommand{\idasrelease}{v3.0.0-dev}
+\newcommand{\idasrelease}{v4.0.0-dev.0}
 \newcommand{\idasucrlug}{UCRL-SM-234051}
 \newcommand{\idasucrlex}{LLNL-TR-437091}
 
-\newcommand{\kinrelease}{v4.0.0-dev}
+\newcommand{\kinrelease}{v5.0.0-dev.0}
 \newcommand{\kinucrlug}{UCRL-SM-208116}
 \newcommand{\kinucrlex}{UCRL-SM-208114}
 
-\newcommand{\arkrelease}{v3.0.0-dev}
+\newcommand{\arkrelease}{v4.0.0-dev.0}
 \newcommand{\arkucrlug}{LLNL-SM-668082}
 \newcommand{\arkucrlex}{????-??-??????}
 
 %----- SUNDIALS MODULES
 \newcommand{\sundials}{{\normalfont\scshape sundials}}
 \newcommand{\shared}{{\normalfont\scshape shared}}
+%----- Vectors:
 \newcommand{\nvector}{{\normalfont\scshape nvector}}
 \newcommand{\fnvector}{{\normalfont\scshape fnvector}}
 \newcommand{\nvecs}{{\normalfont\scshape nvector\_serial}}
 \newcommand{\nvecp}{{\normalfont\scshape nvector\_parallel}}
 \newcommand{\nvecopenmp}{{\normalfont\scshape nvector\_openmp}}
+\newcommand{\nvecopenmpdev}{{\normalfont\scshape nvector\_openmpdev}}
 \newcommand{\nvecpthreads}{{\normalfont\scshape nvector\_pthreads}}
 \newcommand{\nvecph}{{\normalfont\scshape nvector\_parhyp}}
 \newcommand{\nvecpetsc}{{\normalfont\scshape nvector\_petsc}}
 \newcommand{\nveccuda}{{\normalfont\scshape nvector\_cuda}}
 \newcommand{\nvecraja}{{\normalfont\scshape nvector\_raja}}
-\newcommand{\nvecspc}{{\normalfont\scshape nvector\_spcparallel}}
+\newcommand{\nvectrilinos}{{\normalfont\scshape nvector\_trilinos}}
+\newcommand{\nvecwrap}{{\normalfont\scshape nvector\_senswrapper}}
+\newcommand{\nvecmanyvector}{{\normalfont\scshape nvector\_manyvector}}
+\newcommand{\nvecmpimanyvector}{{\normalfont\scshape nvector\_mpimanyvector}}
+\newcommand{\nvecmpiplusx}{{\normalfont\scshape nvector\_mpiplusx}}
+%----- Matrices:
 \newcommand{\sunmatrix}{{\normalfont\scshape sunmatrix}}
 \newcommand{\fsunmatrix}{{\normalfont\scshape fsunmatrix}}
 \newcommand{\sunmatband}{{\normalfont\scshape sunmatrix\_band}}
 \newcommand{\sunmatdense}{{\normalfont\scshape sunmatrix\_dense}}
 \newcommand{\sunmatsparse}{{\normalfont\scshape sunmatrix\_sparse}}
+\newcommand{\sunmatslunrloc}{{\normalfont\scshape sunmatrix\_slunrloc}}
+%----- Linear Solvers:
 \newcommand{\sunlinsol}{{\normalfont\scshape sunlinsol}}
 \newcommand{\fsunlinsol}{{\normalfont\scshape fsunlinsol}}
 \newcommand{\sunlinsolband}{{\normalfont\scshape sunlinsol\_band}}
@@ -107,12 +120,19 @@
 \newcommand{\sunlinsollapband}{{\normalfont\scshape sunlinsol\_lapackband}}
 \newcommand{\sunlinsollapdense}{{\normalfont\scshape sunlinsol\_lapackdense}}
 \newcommand{\sunlinsolklu}{{\normalfont\scshape sunlinsol\_klu}}
+\newcommand{\sunlinsolsludist}{{\normalfont\scshape sunlinsol\_superludist}}
 \newcommand{\sunlinsolslumt}{{\normalfont\scshape sunlinsol\_superlumt}}
 \newcommand{\sunlinsolspgmr}{{\normalfont\scshape sunlinsol\_spgmr}}
 \newcommand{\sunlinsolspfgmr}{{\normalfont\scshape sunlinsol\_spfgmr}}
 \newcommand{\sunlinsolspbcgs}{{\normalfont\scshape sunlinsol\_spbcgs}}
 \newcommand{\sunlinsolsptfqmr}{{\normalfont\scshape sunlinsol\_sptfqmr}}
 \newcommand{\sunlinsolpcg}{{\normalfont\scshape sunlinsol\_pcg}}
+%----- Nonlinear Solvers:
+\newcommand{\sunnonlinsol}{{\normalfont\scshape sunnonlinsol}}
+\newcommand{\fsunnonlinsol}{{\normalfont\scshape fsunnonlinsol}}
+\newcommand{\sunnonlinsolnewton}{{\normalfont\scshape sunnonlinsol\_newton}}
+\newcommand{\sunnonlinsolfixedpoint}{{\normalfont\scshape sunnonlinsol\_fixedpoint}}
+%----- Packages:
 \newcommand{\cvode}{{\normalfont\scshape cvode}}
 \newcommand{\pvode}{{\normalfont\scshape pvode}}
 \newcommand{\cvodes}{{\normalfont\scshape cvodes}}
@@ -129,14 +149,20 @@
 \newcommand{\daspk}{{\normalfont\scshape daspk}}
 \newcommand{\daspkadjoint}{{\normalfont\scshape daspkadjoint}}
 \newcommand{\hypre}{\textsl{hypre}}
+\newcommand{\openmp}{{\normalfont OpenMP}}
 \newcommand{\petsc}{{\normalfont\scshape pets}c}
 \newcommand{\cuda}{{\normalfont\scshape cuda}}
 \newcommand{\raja}{{\normalfont\scshape raja}}
+\newcommand{\superludist}{SuperLU\_DIST}
+\newcommand{\trilinos}{Trilinos}
+\newcommand{\tpetra}{Tpetra}
 
 %----- CVODE and CVODES COMPONENTS
+\newcommand{\cvnls}{{\normalfont\scshape cvnls}}
 \newcommand{\cvdls}{{\normalfont\scshape cvdls}}
 \newcommand{\cvsls}{{\normalfont\scshape cvsls}}
 \newcommand{\cvcls}{{\normalfont\scshape cvcls}}
+\newcommand{\cvls}{{\normalfont\scshape cvls}}
 \newcommand{\cvdense}{{\normalfont\scshape cvdense}}
 \newcommand{\cvsparse}{{\normalfont\scshape cvsparse}}
 \newcommand{\cvband}{{\normalfont\scshape cvband}}
@@ -166,6 +192,7 @@
 \newcommand{\kindls}{{\normalfont\scshape kindls}}
 \newcommand{\kincls}{{\normalfont\scshape kincls}}
 \newcommand{\kinsls}{{\normalfont\scshape kinsls}}
+\newcommand{\kinls}{{\normalfont\scshape kinls}}
 \newcommand{\kindense}{{\normalfont\scshape kindense}}
 \newcommand{\kinband}{{\normalfont\scshape kinband}}
 \newcommand{\kinsparse}{{\normalfont\scshape kinsparse}}
@@ -177,9 +204,11 @@
 \newcommand{\fkinsol}{{\normalfont\scshape fkinsol}}
 
 %----- IDA and IDAS COMPONENTS
+\newcommand{\idanls}{{\normalfont\scshape idanls}}
 \newcommand{\idadls}{{\normalfont\scshape idadls}}
 \newcommand{\idacls}{{\normalfont\scshape idacls}}
 \newcommand{\idasls}{{\normalfont\scshape idasls}}
+\newcommand{\idals}{{\normalfont\scshape idals}}
 \newcommand{\idadense}{{\normalfont\scshape idadense}}
 \newcommand{\idasparse}{{\normalfont\scshape idasparse}}
 \newcommand{\idaband}{{\normalfont\scshape idaband}}
@@ -201,13 +230,14 @@
 \newcommand{\sundialsmath}{{\normalfont\scshape sundialsmath}}
 \newcommand{\diag}{{\normalfont\scshape diag}}
 \newcommand{\dense}{{\normalfont\scshape dense}}
-\newcommand{\sparse}{{\normalfont\scshape sparse}}
 \newcommand{\band}{{\normalfont\scshape band}}
-\newcommand{\sls}{{\normalfont\scshape sls}}
 \newcommand{\pcg}{{\normalfont\scshape pcg}}
+\newcommand{\sls}{{\normalfont\scshape sls}}
+\newcommand{\sparse}{{\normalfont\scshape sparse}}
 \newcommand{\spgmr}{{\normalfont\scshape spgmr}}
 \newcommand{\spfgmr}{{\normalfont\scshape spfgmr}}
 \newcommand{\spbcg}{{\normalfont\scshape spbcgs}}
+\newcommand{\spbcgs}{{\normalfont\scshape spbcgs}}
 \newcommand{\sptfqmr}{{\normalfont\scshape sptfqmr}}
 \newcommand{\klu}{{\normalfont\scshape klu}}
 \newcommand{\superlumt}{{\normalfont\scshape superlumt}}
@@ -233,6 +263,7 @@
 \newcommand{\A}{App. }
 
 %------ Index entries
+
 \newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
 %\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}|textbf}}}
 % NOTE: the above version confuses hyperref...
@@ -257,6 +288,8 @@
 \newcommand{\rhomax}{\rho_{\max}}
 
 \newcommand{\cm}{$\checkmark$}
+
+\newcommand{\newlinefill}[1]{\newline\phantom{#1}}
 
 %%------ Specify depths for section numbering and TOC
 
@@ -296,21 +329,21 @@
 {\bf DISCLAIMER}
 \end{center}
 \noindent
-This document was prepared as an account of work sponsored by an agency of 
-the United States government. Neither the United States government nor 
-Lawrence Livermore National Security, LLC, nor any of their employees makes 
-any warranty, expressed or implied, or assumes any legal liability or responsibility 
-for the accuracy, completeness, or usefulness of any information, apparatus, product, 
-or process disclosed, or represents that its use would not infringe privately owned rights. 
-Reference herein to any specific commercial product, process, or service by trade name, 
-trademark, manufacturer, or otherwise does not necessarily constitute or imply its endorsement, 
-recommendation, or favoring by the United States government or Lawrence Livermore National 
+This document was prepared as an account of work sponsored by an agency of
+the United States government. Neither the United States government nor
+Lawrence Livermore National Security, LLC, nor any of their employees makes
+any warranty, expressed or implied, or assumes any legal liability or responsibility
+for the accuracy, completeness, or usefulness of any information, apparatus, product,
+or process disclosed, or represents that its use would not infringe privately owned rights.
+Reference herein to any specific commercial product, process, or service by trade name,
+trademark, manufacturer, or otherwise does not necessarily constitute or imply its endorsement,
+recommendation, or favoring by the United States government or Lawrence Livermore National
 Security, LLC. The views and opinions of authors expressed herein do not necessarily state
-or reflect those of the United States government or Lawrence Livermore National Security, LLC, 
+or reflect those of the United States government or Lawrence Livermore National Security, LLC,
 and shall not be used for advertising or product endorsement purposes.
 
 \vskip2\baselineskip
-\noindent This work was performed under the auspices of the U.S. Department of Energy by Lawrence 
+\noindent This work was performed under the auspices of the U.S. Department of Energy by Lawrence
 Livermore National Laboratory under Contract DE-AC52-07NA27344.
 \vfill
 \begin{center}
@@ -327,7 +360,7 @@ Approved for public release; further dissemination unlimited
 
   %% Start roman numbering
   \pagenumbering{roman}
-  
+
   %% Title page
   \maketitle
   \disclaimer
@@ -339,7 +372,7 @@ Approved for public release; further dissemination unlimited
   \clearemptydoublepage
   \listoffigures
   \clearemptydoublepage
-  
+
   %% Start arabic numbering
   \pagenumbering{arabic}
 
@@ -354,8 +387,8 @@ Approved for public release; further dissemination unlimited
 
   %% Some settings for code listings
   \lstset{
-    language=C, fancyvrb=true, 
-    basicstyle=\footnotesize\ttfamily, 
+    language=C, fancyvrb=true,
+    basicstyle=\footnotesize\ttfamily,
     commentstyle=\color{MidnightBlue},
     keywordstyle=\color{BrickRed},
     stringstyle=\color{OliveGreen},
@@ -379,8 +412,8 @@ Approved for public release; further dissemination unlimited
 
   %% Some settings for code listings
   \lstset{
-    fancyvrb=true, 
-    basicstyle=\footnotesize\ttfamily, 
+    fancyvrb=true,
+    basicstyle=\footnotesize\ttfamily,
     commentstyle=\color{MidnightBlue},
     keywordstyle=\color{BrickRed},
     stringstyle=\color{OliveGreen},
@@ -448,9 +481,91 @@ Approved for public release; further dissemination unlimited
   \begin{Ventry}[Return value]
   \item[Call]{\id{#2}}
   \item[Description]{#3}
-  \item[Arguments]{#4}
-  \item[Return value]{#5}
+  \addArgs{#4}
+  \addRetval{#5}
   \addNotes{#6}
+  \end{Ventry}
+}
+%%----------------------------------------------
+%% User-callable function with a deprecated name
+%%----------------------------------------------
+\newcommand{\ucfunctiond}[7]{
+  \noindent\paragraph{\fbox{\id{#1}}}
+  \begin{Ventry}[Deprecated Name]
+  \item[Call]{\id{#2}}
+  \item[Description]{#3}
+  \addArgs{#4}
+  \addRetval{#5}
+  \addNotes{#6}
+  \addDepName{#7}
+  \end{Ventry}
+}
+%%-----------------------------------------------------
+%% User-callable function with a Fortran 2003 interface
+%%-----------------------------------------------------
+\newcommand{\ucfunctionf}[6]{
+  \noindent\paragraph{\fbox{\id{#1}}}
+  \begin{Ventry}[Return value]
+  \item[Call]{\id{#2}}
+  \item[Description]{#3}
+  \addArgs{#4}
+  \addRetval{#5}
+  \addNotes{#6}
+  \item[F2003 Name]{This function is callable as \id{F#1} when using the Fortran
+  2003 interface module.}
+  \end{Ventry}
+}
+%%-----------------------------------------------------
+%% User-callable function with a deprecated name and
+%% a Fortran 2003 interface
+%%-----------------------------------------------------
+\newcommand{\ucfunctiondf}[7]{
+  \noindent\paragraph{\fbox{\id{#1}}}
+  \begin{Ventry}[Deprecated Name]
+  \item[Call]{\id{#2}}
+  \item[Description]{#3}
+  \addArgs{#4}
+  \addRetval{#5}
+  \addNotes{#6}
+  \addDepName{#7}
+  \item[F2003 Name]{This function is callable as \id{F#1} when using the Fortran
+  2003 interface module.}
+  \end{Ventry}
+}
+%%--------------------------------------------
+%% macro for generic SUNDIALS module functions
+%%--------------------------------------------
+\newcommand{\sunmodfun}[3]{
+  \noindent\paragraph{\fbox{\ID{#1}}}
+  \begin{Ventry}[F2003 Name]
+  \item[Prototype]{\id{#3}}
+  \item[Description]{#2}
+  \end{Ventry}
+}
+%%-------------------------------------------------------
+%% macro for generic overloaded SUNDIALS module functions
+%%-------------------------------------------------------
+\newcommand{\sunmodfuns}[6]{
+  \noindent\paragraph{\fbox{\ID{#1}}}
+  \begin{Ventry}[F2003 Name]
+  \item[\textit{Single-node usage}]{}
+  \item[Prototype]{\id{#4}}
+  \item[Description]{#2#3}
+  \item[\textit{Distributed-memory parallel usage}]{}
+  \item[Prototype]{\id{#6}}
+  \item[Description]{#2#5}
+  \end{Ventry}
+}
+%%--------------------------------------------------------------------------
+%% macro for generic SUNDIALS module functions with a Fortran 2003 interface
+%%--------------------------------------------------------------------------
+\newcommand{\sunmodfunf}[3]{
+  \noindent\paragraph{\fbox{\ID{#1}}}
+  \begin{Ventry}[F2003 Name]
+  \item[Prototype]{\id{#3}}
+  \item[Description]{#2}
+  \item[F2003 Name]{This function is callable as \id{F#1} when using the Fortran
+  2003 interface module.}
   \end{Ventry}
 }
 %%---------------------------------
@@ -468,9 +583,23 @@ Approved for public release; further dissemination unlimited
 }
 %%---------------------------------
 \makeatletter
+\long\def\addArgs#1{\def\@tempa{#1}\ifx\@tempa\empty\item[Arguments]{None}\else\item[Arguments]{#1}\fi}
+\makeatother
+%%---------------------------------
+\makeatletter
+\long\def\addRetval#1{\def\@tempa{#1}\ifx\@tempa\empty\item[Return value]{None}\else\item[Return value]{#1}\fi}
+\makeatother
+%%---------------------------------
+\makeatletter
 \long\def\addNotes#1{\def\@tempa{#1}\ifx\@tempa\empty\else\item[Notes]{#1}\fi}
 \makeatother
-
+%%---------------------------------
+\makeatletter
+\long\def\addDepName#1{\def\@tempa{#1}\ifx\@tempa\empty\item[Deprecated
+  Name]{None}\else\item[Deprecated Name]{For backward compatibility, the wrapper
+  function \id{#1} with idential input and output arguments is also
+  provided.}\fi}
+\makeatother
 
 
 %%---------------------------------
@@ -479,14 +608,13 @@ Approved for public release; further dissemination unlimited
 %% to give it a fighting chance, it MUST be included last.
 
 \usepackage[
-% letterpaper=true, 
-% dvips, 
-% ps2pdf, 
-hyperindex=true, 
+% letterpaper=true,
+% dvips,
+% ps2pdf,
+hyperindex=true,
 linktocpage=true,
-colorlinks=true, 
+colorlinks=true,
 linkcolor=blue,
 citecolor=blue,
 bookmarks=true]
 {hyperref}
-

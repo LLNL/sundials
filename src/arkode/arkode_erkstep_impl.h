@@ -1,28 +1,24 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2018, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's ERK time stepper 
+ * Implementation header file for ARKode's ERK time stepper
  * module.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKODE_ERKSTEP_IMPL_H
 #define _ARKODE_ERKSTEP_IMPL_H
 
-/* #include <arkode/arkode_erkstep.h> */
+#include <arkode/arkode_erkstep.h>
 #include "arkode_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -30,12 +26,12 @@ extern "C" {
 #endif
 
 /*===============================================================
-  ERK time step module constants -- move many items here from 
+  ERK time step module constants -- move many items here from
   arkode_impl.h
   ===============================================================*/
 
 
-  
+
 /*===============================================================
   ERK time step module data structure
   ===============================================================*/
@@ -43,9 +39,9 @@ extern "C" {
 /*---------------------------------------------------------------
   Types : struct ARKodeERKStepMemRec, ARKodeERKStepMem
   ---------------------------------------------------------------
-  The type ARKodeERKStepMem is type pointer to struct 
-  ARKodeERKStepMemRec.  This structure contains fields to 
-  perform an additive Runge-Kutta time step.
+  The type ARKodeERKStepMem is type pointer to struct
+  ARKodeERKStepMemRec.  This structure contains fields to
+  perform an explicit Runge-Kutta time step.
   ---------------------------------------------------------------*/
 typedef struct ARKodeERKStepMemRec {
 
@@ -80,23 +76,19 @@ typedef struct ARKodeERKStepMemRec {
   ERK time step module private function prototypes
   ===============================================================*/
 
-/* Interface routines supplied to ARKode */  
-int erkStep_Init(void* arkode_mem);
-int erkStep_FullRHS(void* arkode_mem, realtype t, 
+/* Interface routines supplied to ARKode */
+int erkStep_Init(void* arkode_mem, int init_type);
+int erkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);
-int erkStep_AdaptiveStep(void* arkode_mem);
-int erkStep_FixedStep(void* arkode_mem);
-int erkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
-                   void *resize_data, sunindextype lrw_diff,
-                   sunindextype liw_diff, N_Vector tmpl);
-void erkStep_PrintMem(void* arkode_mem, FILE* outfile);
-int erkStep_Free(void* arkode_mem);
+int erkStep_TakeStep(void* arkode_mem);
 
-/* Internal utility routines */  
+/* Internal utility routines */
+int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
+                          ARKodeMem *ark_mem, ARKodeERKStepMem *step_mem);
 booleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
-  
+
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
 int erkStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr,
                         realtype dsm);
@@ -107,8 +99,7 @@ int erkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm);
   ===============================================================*/
 
 /* Initialization and I/O error messages */
-#define MSGERKSTEP_NO_MEM     "Time step module memory is NULL."
-#define MSGARKADAPT_NO_MEM    "Adaptivity memory structure not allocated."
+#define MSG_ERKSTEP_NO_MEM    "Time step module memory is NULL."
 
 #ifdef __cplusplus
 }

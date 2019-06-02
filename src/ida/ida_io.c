@@ -6,15 +6,15 @@
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for the optional inputs and     
  * outputs for the IDA solver.                                    
@@ -292,15 +292,21 @@ int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetMaxNonlinIters", MSG_NO_MEM);
-    return (IDA_MEM_NULL);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA",
+                    "IDASetMaxNonlinIters", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
-  IDA_mem->ida_maxcor = maxcor;
+  /* check that the NLS is non-NULL */
+  if (IDA_mem->NLS == NULL) {
+    IDAProcessError(NULL, IDA_MEM_FAIL, "IDA",
+                    "IDASetMaxNonlinIters", MSG_MEM_FAIL);
+    return(IDA_MEM_FAIL);
+  }
 
-  return(IDA_SUCCESS);
+  return(SUNNonlinSolSetMaxIters(IDA_mem->NLS, maxcor));
 }
 
 /*-----------------------------------------------------------------*/
@@ -1004,15 +1010,33 @@ int IDAGetRootInfo(void *ida_mem, int *rootsfound)
 int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 {
   IDAMem IDA_mem;
+  long int nls_iters;
+  int retval;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNumNonlinSolvIters", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA",
+                    "IDAGetNumNonlinSolvIters", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
+  /* get number of iterations for IC calc */
   *nniters = IDA_mem->ida_nni;
+
+  /* check that the NLS is non-NULL */
+  if (IDA_mem->NLS == NULL) {
+    IDAProcessError(NULL, IDA_MEM_FAIL, "IDA",
+                    "IDAGetNumNonlinSolvIters", MSG_MEM_FAIL);
+    return(IDA_MEM_FAIL);
+  }
+
+  /* get number of iterations from the NLS */
+  retval = SUNNonlinSolGetNumIters(IDA_mem->NLS, &nls_iters);
+  if (retval != IDA_SUCCESS) return(retval);
+
+  /* update the number of nonlinear iterations */  
+  *nniters += nls_iters;
 
   return(IDA_SUCCESS);
 }
@@ -1040,9 +1064,12 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
 int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 {
   IDAMem IDA_mem;
+  long int nls_iters;
+  int retval;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNonlinSolvStats", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA",
+                    "IDAGetNonlinSolvStats", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 
@@ -1050,6 +1077,20 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 
   *nniters  = IDA_mem->ida_nni;
   *nncfails = IDA_mem->ida_ncfn;
+
+  /* check that the NLS is non-NULL */
+  if (IDA_mem->NLS == NULL) {
+    IDAProcessError(NULL, IDA_MEM_FAIL, "IDA",
+                    "IDAGetNonlinSolvStats", MSG_MEM_FAIL);
+    return(IDA_MEM_FAIL);
+  }
+
+  /* get number of iterations from the NLS */
+  retval = SUNNonlinSolGetNumIters(IDA_mem->NLS, &nls_iters);
+  if (retval != IDA_SUCCESS) return(retval);
+  
+  /* update the number of nonlinear iterations */
+  *nniters += nls_iters;
 
   return(IDA_SUCCESS);
 }

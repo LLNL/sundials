@@ -25,7 +25,7 @@ Final value of ydot =  -0.276733E-18 -0.110693E-23  0.276734E-18
 
 Final statistics:
 
- No. steps =  542   No. f-s =  755   No. J-s =   11   No. LU-s =  107
+ No. steps =  542   No. f-s =  754   No. J-s =   11   No. LU-s =  107
  No. nonlinear iterations =  751
  No. nonlinear convergence failures =    0
  No. error test failures =   22

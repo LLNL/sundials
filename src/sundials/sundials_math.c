@@ -1,25 +1,20 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for a simple C-language math
  * library.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,46 +49,5 @@ realtype SUNRpowerR(realtype base, realtype exponent)
   return(powf(base, exponent));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   return(powl(base, exponent));
-#endif
-}
-
-realtype SUNRsqrt(realtype x)
-{
-  if (x <= ZERO) return(ZERO);
-
-#if defined(SUNDIALS_USE_GENERIC_MATH)
-  return((realtype) sqrt((double) x));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(sqrt(x));
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return(sqrtf(x));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return(sqrtl(x));
-#endif
-}
-
-realtype SUNRabs(realtype x)
-{
-#if defined(SUNDIALS_USE_GENERIC_MATH)
-  return((realtype) fabs((double) x));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(fabs(x));
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return(fabsf(x));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return(fabsl(x));
-#endif
-}
-
-realtype SUNRexp(realtype x)
-{
-#if defined(SUNDIALS_USE_GENERIC_MATH)
-  return((realtype) exp((double) x));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(exp(x));
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return(expf(x));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return(expl(x));
 #endif
 }

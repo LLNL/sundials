@@ -36,7 +36,7 @@ The initial profiles are proportional to a simple polynomial in $x$
 and a hyperbolic tangent function in $z$.
 
 The solution with {\cvodes} is done with the BDF/GMRES method (i.e.
-using the {\cvspgmr} linear solver) and the block-diagonal part of the 
+using the {\sunlinsolspgmr} linear solver module) and the block-diagonal part of the 
 Newton matrix as a left preconditioner. A copy of the block-diagonal
 part of the Jacobian is saved and conditionally reused within the
 preconditioner setup function.

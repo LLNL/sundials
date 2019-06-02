@@ -5,15 +5,19 @@
 # ---------------------------------------------------------------
 # Acknowledgement: Based on code from Chris White @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
+# LLNS/SMU Copyright Start
+# Copyright (c) 2002-2018, Southern Methodist University and
+# Lawrence Livermore National Security
+#
 # This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# of Energy by Southern Methodist University and Lawrence Livermore
+# National Laboratory under Contract DE-AC52-07NA27344.
+# Produced at Southern Methodist University and the Lawrence
+# Livermore National Laboratory.
+#
 # All rights reserved.
 # For details, see the LICENSE file.
-# LLNS Copyright End
+# LLNS/SMU Copyright End
 # ---------------------------------------------------------------
 # Sundials test runner for CTest. Note examples must be enabled
 # to use the test runner (e.g. EXAMPLES_ENABLE_C=ON). 
@@ -22,7 +26,8 @@
 # <build directory>/Testing/Temporary/LastTest.log
 # ---------------------------------------------------------------
 
-import exceptions
+from __future__ import print_function
+
 import os
 import subprocess
 import sys
@@ -70,15 +75,15 @@ def main():
     args = parser.parse_args()
 
     if(args.verbose):
-        print "testName=%s"%(args.testName)
-        print "executableName=%s"%(args.executableName)
-        print "answerDir=%s"%(args.answerDir)
-        print "answerFile=%s"%(args.answerFile)
-        print "outputDir=%s"%(args.outputDir)
-        print "runCommand=%s"%(args.runCommand)
-        print "runArgs=%s"%(args.runArgs)
-        print "buildDir=%s"%(args.buildDir)
-        print "buildCmd=%s"%(args.buildCmd)
+        print("testName=%s"%(args.testName))
+        print("executableName=%s"%(args.executableName))
+        print("answerDir=%s"%(args.answerDir))
+        print("answerFile=%s"%(args.answerFile))
+        print("outputDir=%s"%(args.outputDir))
+        print("runCommand=%s"%(args.runCommand))
+        print("runArgs=%s"%(args.runArgs))
+        print("buildDir=%s"%(args.buildDir))
+        print("buildCmd=%s"%(args.buildCmd))
 
     # regression test name and output directory 
     testName  = args.testName
@@ -94,10 +99,10 @@ def main():
         answerDir = os.path.join(testDir, "answers")
     
     if(args.verbose):
-        print "testName %s"%testDir
-        print "outDir %s"%outDir
-        print "testDir %s"%testDir
-        print "answerDir %s"%answerDir
+        print("testName %s"%testDir)
+        print("outDir %s"%outDir)
+        print("testDir %s"%testDir)
+        print("answerDir %s"%answerDir)
 
     # create output directory if necessary
     if not os.path.exists(outDir):
@@ -146,7 +151,7 @@ def main():
 
     # exit if configure/build failed
     if not success:
-        print "Test failed."
+        print("Test failed.")
         sys.exit(1)
 
     # get testing information
@@ -155,7 +160,7 @@ def main():
     for testInfo in testInfos:
 
         if(args.verbose):
-            print "testInfo.arguments = ",testInfo.arguments
+            print("testInfo.arguments = ", testInfo.arguments)
 
         # If running under another program (e.g. mpirun)
         if(args.runCommand):
@@ -193,17 +198,17 @@ def main():
             testInfo.integerPercentage=args.integerPercentage
         
         if(args.verbose):
-            print "Starting test..."
-            print "  Floating Point Precision = " + str(testInfo.floatPrecision)
-            print "  Integer Precision = " + str(testInfo.integerPercentage)
-            print "  Command " + ' '.join(testCommand)
-            print "  Answer File = " + answerPath
-            print "  Output File = " + outPath + "\n"
+            print("Starting test...")
+            print("  Floating Point Precision = " + str(testInfo.floatPrecision))
+            print("  Integer Precision = " + str(testInfo.integerPercentage))
+            print("  Command " + ' '.join(testCommand))
+            print("  Answer File = " + answerPath)
+            print("  Output File = " + outPath + "\n")
 
         outFile = open(outPath, 'w')
         try:
             if(args.verbose):
-                print "Running command : " + ' '.join(testCommand)
+                print("Running command : " + ' '.join(testCommand))
                         
             # run the test
             process = subprocess.Popen(testCommand, stdout=outFile, stderr=outFile)
@@ -217,7 +222,7 @@ def main():
             # compare test output against the answer file output
             if (args.CheckDiff):
                 if(args.verbose):
-                    print "Comparing test output to answer file."
+                    print("Comparing test output to answer file.")
 
                 if not os.path.exists(answerPath):
                     error("Answer file did not exist.", answerPath)
@@ -231,9 +236,9 @@ def main():
             outFile.close()
 
     if not success:
-        print "Test failed."
+        print("Test failed.")
         sys.exit(1)
-    print "Test passed."
+    print("Test passed.")
     sys.exit(0)
 
 def compare(outPath, answerPath, testInfo):
@@ -263,7 +268,7 @@ def compare(outPath, answerPath, testInfo):
         answerLine = answerLines[i]
         if not compareLines(outLine, answerLine, testInfo):
             diffCount += 1
-            print "Difference:\n  Output: " + outLine + "\n  Answer: " + answerLine + "\n\n"
+            print("Difference:\n  Output: " + outLine + "\n  Answer: " + answerLine + "\n\n")
     if diffCount != 0:
         error(str(diffCount) + " line differences found.", outPath)
         return False
@@ -273,11 +278,11 @@ def compareLines(outLine, answerLine, testInfo):
     outTokens = tokenizeLine(outLine)
     answerTokens = tokenizeLine(answerLine)
     if len(outTokens) != len(answerTokens):
-        print "DEBUG: number of tokens differs"
-        print answerTokens
-        print "----------"
-        print outTokens
-        print "----------"
+        print("DEBUG: number of tokens differs")
+        print(answerTokens)
+        print("----------")
+        print(outTokens)
+        print("----------")
         return False
     for i, outValue in enumerate(outTokens):
         answerValue = answerTokens[i]
@@ -285,19 +290,19 @@ def compareLines(outLine, answerLine, testInfo):
         if outIsInt:
             answerIsInt, answerInt = isInt(answerValue)
             if answerIsInt and not intCompare(answerInt, outInt, testInfo.integerPercentage):
-                print "DEBUG: int"
+                print("DEBUG: int")
                 return False
         else:
             outIsFloat, outFloat = isFloat(outValue)
             if outIsFloat:
                 answerIsFloat, answerFloat = isFloat(answerValue)
                 if answerIsFloat and not floatCompare(answerFloat, outFloat, testInfo.floatPrecision):
-                    print "DEBUG: float"
+                    print("DEBUG: float")
                     return False
             elif outValue != answerValue:
-                print "DEBUG: str"
-                print "outValue <%s>"%(outValue)
-                print "answerValue <%s>"%(answerValue)
+                print("DEBUG: str")
+                print("outValue <%s>"%(outValue))
+                print("answerValue <%s>"%(answerValue))
                 return False
     return True
 
@@ -305,7 +310,7 @@ def isInt(value):
     # Check if string can be converted to int
     try:
         return True, int(value)
-    except exceptions.ValueError:
+    except ValueError:
         return False, 0
 
 def intCompare(answer, value, percentage):
@@ -316,14 +321,14 @@ def intCompare(answer, value, percentage):
         percentageOff = abs(int(100 - (float(value)/float(answer) * 100)))
         if percentageOff <= percentage:
             return True
-    print "Error: Integer difference found:\n  Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(percentage) + "%"
+    print("Error: Integer difference found:\n  Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(percentage) + "%")
     return False
 
 def isFloat(value):
     # Check if string can be converted to float
     try:
         return True, float(value)
-    except exceptions.ValueError:
+    except ValueError:
         return False, 0
 
 def floatCompare(answer, value, precision):
@@ -333,7 +338,7 @@ def floatCompare(answer, value, precision):
             return True
     elif round(answer, precision) == round(value, precision):
         return True
-    print "Error: Floating point difference found:\n Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(precision) + " decimals"
+    print("Error: Floating point difference found:\n Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(precision) + " decimals")
     return False
 
 def tokenizeLine(line):
@@ -345,9 +350,9 @@ tokenizeLine.pattern = re.compile(r';|,|\s+|=+|:|\|\(|\)')
 
 def error(message, path=""):
     if path:
-        print "Error: " + path + ": " + message
+        print("Error: " + path + ": " + message)
     else:
-        print "Error: " + message
+        print("Error: " + message)
 
 def stripLines(lines):
     strippedLines = []

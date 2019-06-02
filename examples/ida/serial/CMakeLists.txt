@@ -2,15 +2,15 @@
 # Programmer(s): Radu Serban @ LLNL
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for IDA serial examples
 # ---------------------------------------------------------------
@@ -20,12 +20,12 @@
 
 # Examples using SUNDIALS linear solvers
 SET(IDA_examples
+  "idaRoberts_dns\;"
   "idaFoodWeb_bnd\;develop"
+  "idaFoodWeb_kry\;develop"
   "idaHeat2D_bnd\;develop"
   "idaHeat2D_kry\;develop"
-  "idaFoodWeb_kry\;develop"
   "idaKrylovDemo_ls\;develop"
-  "idaRoberts_dns\;"
   "idaSlCrank_dns\;develop"
   )
 
@@ -219,7 +219,7 @@ IF(SUPERLUMT_FOUND)
     # Answer files were generated with int32_t and minor differences in output
     # occur causing a false positive when testing. These tests can be re-enabled
     # when type specific answer files are added.
-    IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+    IF(SUNDIALS_INDEX_SIZE MATCHES "32")
       # add example to regression tests
       SUNDIALS_ADD_TEST(${example} ${example}
         ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}

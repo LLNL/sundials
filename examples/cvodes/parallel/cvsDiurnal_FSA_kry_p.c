@@ -4,6 +4,16 @@
  *                S. D. Cohen, A. C. Hindmarsh, Radu Serban,
  *                and M. R. Wittman @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * Example problem:
  *
  * An ODE system is generated from the following 2-species diurnal
@@ -30,7 +40,7 @@
  * is neq = 2*MX*MY.
  *
  * The solution with CVODES is done with the BDF/GMRES method (i.e.
- * using the SUNSPGMR linear solver) and the block-diagonal part of
+ * using the SUNLinSol_SPGMR linear solver) and the block-diagonal part of
  * the Newton matrix as a left preconditioner. A copy of the
  * block-diagonal part of the Jacobian is saved and conditionally
  * reused within the Precond routine.
@@ -68,8 +78,7 @@
 #include <string.h>
 
 #include <cvodes/cvodes.h>              /* main CVODES header file */
-#include <cvodes/cvodes_spils.h>        /* defs. for CVSPILS fcts. and constants */
-#include <sunlinsol/sunlinsol_spgmr.h>  /* defs. for SUNSPGMR fcts. and constants */
+#include <sunlinsol/sunlinsol_spgmr.h>  /* defs. for SUNLinSol_SPGMR fcts. and constants */
 #include <nvector/nvector_parallel.h>   /* defs of par. NVECTOR fcts. and macros */
 #include <sundials/sundials_dense.h>    /* generic DENSE solver used in prec. */
 #include <sundials/sundials_math.h>     /* contains macros SQR and EXP */
@@ -187,8 +196,9 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         realtype t, N_Vector u);
 static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi); 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static void PrintFinalStats(void *cvode_mem, booleantype sensi,
+                            booleantype err_con, int sensi_meth);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -203,7 +213,7 @@ int main(int argc, char *argv[])
   UserData data;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int iout, flag, my_pe, npes;
+  int iout, retval, my_pe, npes;
   sunindextype neq, local_N;
   MPI_Comm comm;
 
@@ -247,45 +257,45 @@ int main(int argc, char *argv[])
 
   /* Allocate and load user data block; allocate preconditioner block */
   data = (UserData) malloc(sizeof *data);
-  if (check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   data->p = NULL;
   data->p = (realtype *) malloc(NP*sizeof(realtype));
-  if (check_flag((void *)data->p, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)data->p, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, comm, data);
 
   /* Allocate u, and set initial values and tolerances */ 
   u = N_VNew_Parallel(comm, local_N, neq);
-  if (check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
   /* Create CVODES object, set optional input, allocate memory */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
+  cvode_mem = CVodeCreate(CV_BDF);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSetUserData(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if (check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSetMaxNumSteps(cvode_mem, 2000);
-  if (check_flag(&flag, "CVodeSetMaxNumSteps", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetMaxNumSteps(cvode_mem, 2000);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if (check_flag(&flag, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if (check_retval(&retval, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Create SPGMR solver structure -- use left preconditioning 
      and the default Krylov dimension maxl */
-  LS = SUNSPGMR(u, PREC_LEFT, 0);
-  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
   
-  /* Attach linear solver to CVSpils interface */
-  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
-  if (check_flag(&flag, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach linear solver */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
-  if (check_flag(&flag, "CVSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
+  if (check_retval(&retval, "CVodeSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   if(my_pe == 0)
     printf("\n2-species diurnal advection-diffusion problem\n");
@@ -294,33 +304,32 @@ int main(int argc, char *argv[])
   if( sensi) {
 
     plist = (int *) malloc(NS * sizeof(int));
-    if (check_flag((void *)plist, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    if (check_retval((void *)plist, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for (is=0; is<NS; is++) plist[is] = is;
 
     pbar = (realtype *) malloc(NS*sizeof(realtype));
-    if (check_flag((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    if (check_retval((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for (is=0; is<NS; is++) pbar[is] = data->p[plist[is]]; 
 
-    uS = N_VCloneVectorArray_Parallel(NS, u);
-    if (check_flag((void *)uS, "N_VCloneVectorArray_Parallel", 0, my_pe))
-                                                          MPI_Abort(comm, 1);
+    uS = N_VCloneVectorArray(NS, u);
+    if (check_retval((void *)uS, "N_VCloneVectorArray", 0, my_pe)) MPI_Abort(comm, 1);
     for (is = 0; is < NS; is++)
       N_VConst(ZERO,uS[is]);
 
-    flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
-    if (check_flag(&flag, "CVodeSensInit1", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
+    if (check_retval(&retval, "CVodeSensInit1", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVodeSensEEtolerances(cvode_mem);
-    if (check_flag(&flag, "CVodeSensEEtolerances", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeSensEEtolerances(cvode_mem);
+    if (check_retval(&retval, "CVodeSensEEtolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVodeSetSensErrCon(cvode_mem, err_con);
-    if (check_flag(&flag, "CVodeSetSensErrCon", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeSetSensErrCon(cvode_mem, err_con);
+    if (check_retval(&retval, "CVodeSetSensErrCon", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
-    if (check_flag(&flag, "CVodeSetSensDQMethod", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
+    if (check_retval(&retval, "CVodeSetSensDQMethod", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
-    if (check_flag(&flag, "CVodeSetSensParams", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
+    if (check_retval(&retval, "CVodeSetSensParams", 1, my_pe)) MPI_Abort(comm, 1);
 
     if(my_pe == 0) {
       printf("Sensitivity: YES ");
@@ -348,12 +357,12 @@ int main(int argc, char *argv[])
 
   /* In loop over output points, call CVode, print results, test for error */
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if (check_flag(&flag, "CVode", 1, my_pe)) break;
+    retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if (check_retval(&retval, "CVode", 1, my_pe)) break;
     PrintOutput(cvode_mem, my_pe, comm, t, u);
     if (sensi) {
-      flag = CVodeGetSens(cvode_mem, &t, uS);
-      if (check_flag(&flag, "CVodeGetSens", 1, my_pe)) break;
+      retval = CVodeGetSens(cvode_mem, &t, uS);
+      if (check_retval(&retval, "CVodeGetSens", 1, my_pe)) break;
       PrintOutputS(my_pe, comm, uS);
     }
     if (my_pe == 0)
@@ -361,12 +370,12 @@ int main(int argc, char *argv[])
   }
 
   /* Print final statistics */  
-  if (my_pe == 0) PrintFinalStats(cvode_mem, sensi);
+  if (my_pe == 0) PrintFinalStats(cvode_mem, sensi, err_con, sensi_meth);
 
   /* Free memory */
-  N_VDestroy_Parallel(u);
+  N_VDestroy(u);
   if (sensi) {
-    N_VDestroyVectorArray_Parallel(uS, NS);
+    N_VDestroyVectorArray(uS, NS);
     free(plist);
     free(pbar);
   }
@@ -395,8 +404,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype *udata, *dudata;
   UserData data;
 
-  udata = N_VGetArrayPointer_Parallel(u);
-  dudata = N_VGetArrayPointer_Parallel(udot);
+  udata = N_VGetArrayPointer(u);
+  dudata = N_VGetArrayPointer(udot);
   data = (UserData) user_data;
 
   /* Call ucomm to do inter-processor communicaiton */
@@ -418,11 +427,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
-  sunindextype *(*pivot)[MYSUB], ier, nvmxsub, offset;
-  int lx, ly, jx, jy, isubx, isuby;
+  sunindextype *(*pivot)[MYSUB], retval, nvmxsub, offset;
+  int lx, ly, jy, isuby;
   realtype *udata, **a, **j;
   UserData data;
-  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+  realtype Q1, Q2, C3;
 
   /* Make local copies of pointers in user_data, pointer to u's data,
      and PE index pair */
@@ -430,19 +439,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  udata = N_VGetArrayPointer_Parallel(u);
-  isubx = data->isubx;   isuby = data->isuby;
+  udata = N_VGetArrayPointer(u);
+  isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
   /* Load problem coefficients and parameters */
   Q1 = data->p[0];
   Q2 = data->p[1];
   C3 = data->p[2];
-  A3 = data->p[3];
-  A4 = data->p[4];
-  KH = data->p[5];
-  VEL = data->p[6];
-  KV0 = data->p[7];
 
   if (jok) {  /* jok = SUNTRUE: Copy Jbd to P */
 
@@ -469,7 +473,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       cyup = verdco*SUNRexp(RCONST(0.2)*yup);
       diag = -(cydn + cyup + RCONST(2.0)*hordco);
       for (lx = 0; lx < MXSUB; lx++) {
-        jx = lx + isubx*MXSUB;
         offset = lx*NVARS + ly*nvmxsub;
         c1 = udata[offset];
         c2 = udata[offset+1];
@@ -496,8 +499,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       denseAddIdentity(P[lx][ly], NVARS);
-      ier = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
-      if (ier != 0) return(1);
+      retval = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
+      if (retval != 0) return(1);
     }
   }
   
@@ -529,7 +532,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   N_VScale(RCONST(1.0), r, z);
 
   nvmxsub = data->nvmxsub;
-  zdata = N_VGetArrayPointer_Parallel(z);
+  zdata = N_VGetArrayPointer(z);
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
@@ -688,7 +691,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   realtype *udata;
 
   /* Set pointer to data array in vector u */
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
   dx = data->dx;         dy = data->dy;
@@ -731,12 +734,12 @@ static void BSend(MPI_Comm comm, int my_pe, int isubx,
 
   /* If isuby > 0, send data from bottom x-line of u */
   if (isuby != 0)
-    MPI_Send(&udata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
+    MPI_Send(&udata[0], dsizex, MPI_SUNREALTYPE, my_pe-NPEX, 0, comm);
 
   /* If isuby < NPEY-1, send data from top x-line of u */
   if (isuby != NPEY-1) {
     offsetu = (MYSUB-1)*dsizex;
-    MPI_Send(&udata[offsetu], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
+    MPI_Send(&udata[offsetu], dsizex, MPI_SUNREALTYPE, my_pe+NPEX, 0, comm);
   }
 
   /* If isubx > 0, send data from left y-line of u (via bufleft) */
@@ -747,7 +750,7 @@ static void BSend(MPI_Comm comm, int my_pe, int isubx,
       for (i = 0; i < NVARS; i++)
         bufleft[offsetbuf+i] = udata[offsetu+i];
     }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe-1, 0, comm);   
+    MPI_Send(&bufleft[0], dsizey, MPI_SUNREALTYPE, my_pe-1, 0, comm);   
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
@@ -758,7 +761,7 @@ static void BSend(MPI_Comm comm, int my_pe, int isubx,
       for (i = 0; i < NVARS; i++)
         bufright[offsetbuf+i] = udata[offsetu+i];
     }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);   
+    MPI_Send(&bufright[0], dsizey, MPI_SUNREALTYPE, my_pe+1, 0, comm);   
   }
 }
  
@@ -783,25 +786,25 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
 
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
-    MPI_Irecv(&uext[NVARS], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&uext[NVARS], dsizex, MPI_SUNREALTYPE,
               my_pe-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
   if (isuby != NPEY-1) {
     offsetue = NVARS*(1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&uext[offsetue], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&uext[offsetue], dsizex, MPI_SUNREALTYPE,
               my_pe+NPEX, 0, comm, &request[1]);
   }
   
   /* If isubx > 0, receive data for left y-line of uext (via bufleft) */
   if (isubx != 0) {
-    MPI_Irecv(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufleft[0], dsizey, MPI_SUNREALTYPE,
               my_pe-1, 0, comm, &request[2]);
   }
   
   /* If isubx < NPEX-1, receive data for right y-line of uext (via bufright) */
   if (isubx != NPEX-1) {
-    MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufright[0], dsizey, MPI_SUNREALTYPE,
               my_pe+1, 0, comm, &request[3]);
   }
 }
@@ -874,7 +877,7 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
 
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
   comm = data->comm;  my_pe = data->my_pe;
@@ -906,9 +909,9 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
-  int i, lx, ly, jx, jy, isubx, isuby;
+  int i, lx, ly, jy, isubx, isuby;
   sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
-  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+  realtype Q1, Q2, C3, A3, A4;
 
   /* Get subgrid indices, data sizes, extended work array uext */
   isubx = data->isubx;   isuby = data->isuby;
@@ -921,9 +924,6 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
   C3  = data->p[2];
   A3  = data->p[3];
   A4  = data->p[4];
-  KH  = data->p[5];
-  VEL = data->p[6];
-  KV0 = data->p[7];
 
   /* Copy local segment of u vector into the working extended array uext */
   offsetu = 0;
@@ -995,7 +995,6 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
     cydn = verdco*SUNRexp(RCONST(0.2)*ydn);
     cyup = verdco*SUNRexp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
-      jx = lx + isubx*MXSUB;
 
       /* Extract c1 and c2, and set kinetic rate terms */
       offsetue = (lx+1)*NVARS + (ly+1)*nvmxsub2;
@@ -1043,20 +1042,20 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         realtype t, N_Vector u)
 {
   long int nst;
-  int qu, flag;
+  int qu, retval;
   realtype hu, *udata, tempu[2];
   sunindextype npelast, i0, i1;
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Send c at top right mesh point to PE 0 */
   if (my_pe == npelast) {
     i0 = NVARS*MXSUB*MYSUB - 2;
     i1 = i0 + 1;
     if (npelast != 0)
-      MPI_Send(&udata[i0], 2, PVEC_REAL_MPI_TYPE, 0, 0, comm);
+      MPI_Send(&udata[i0], 2, MPI_SUNREALTYPE, 0, 0, comm);
     else {
       tempu[0] = udata[i0];
       tempu[1] = udata[i1];
@@ -1068,14 +1067,14 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
   if (my_pe == 0) {
 
     if (npelast != 0)
-      MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
+      MPI_Recv(&tempu[0], 2, MPI_SUNREALTYPE, npelast, 0, comm, &status);
 
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
-    flag = CVodeGetLastOrder(cvode_mem, &qu);
-    check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
-    flag = CVodeGetLastStep(cvode_mem, &hu);
-    check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
+    retval = CVodeGetNumSteps(cvode_mem, &nst);
+    check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
+    retval = CVodeGetLastOrder(cvode_mem, &qu);
+    check_retval(&retval, "CVodeGetLastOrder", 1, my_pe);
+    retval = CVodeGetLastStep(cvode_mem, &hu);
+    check_retval(&retval, "CVodeGetLastStep", 1, my_pe);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%8.3Le %2d  %8.3Le %5ld\n", t,qu,hu,nst);
@@ -1120,14 +1119,14 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
 
   npelast = NPEX*NPEY - 1;
 
-  sdata = N_VGetArrayPointer_Parallel(uS[0]);
+  sdata = N_VGetArrayPointer(uS[0]);
 
   /* Send s1 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
     i0 = NVARS*MXSUB*MYSUB - 2;
     i1 = i0 + 1;
     if (npelast != 0)
-      MPI_Send(&sdata[i0], 2, PVEC_REAL_MPI_TYPE, 0, 0, comm);
+      MPI_Send(&sdata[i0], 2, MPI_SUNREALTYPE, 0, 0, comm);
     else {
       temps[0] = sdata[i0];
       temps[1] = sdata[i1];
@@ -1137,7 +1136,7 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
   /* On PE 0, receive s1 at top right, then print sampled sensitivity values */ 
   if (my_pe == 0) {
     if (npelast != 0)
-      MPI_Recv(&temps[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
+      MPI_Recv(&temps[0], 2, MPI_SUNREALTYPE, npelast, 0, comm, &status);
     printf("                                ----------------------------------------\n");
     printf("                                Sensitivity 1  ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -1157,14 +1156,14 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
 #endif
   }
 
-  sdata = N_VGetArrayPointer_Parallel(uS[1]);
+  sdata = N_VGetArrayPointer(uS[1]);
 
   /* Send s2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
     i0 = NVARS*MXSUB*MYSUB - 2;
     i1 = i0 + 1;
     if (npelast != 0)
-      MPI_Send(&sdata[i0], 2, PVEC_REAL_MPI_TYPE, 0, 0, comm);
+      MPI_Send(&sdata[i0], 2, MPI_SUNREALTYPE, 0, 0, comm);
     else {
       temps[0] = sdata[i0];
       temps[1] = sdata[i1];
@@ -1174,7 +1173,7 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
   /* On PE 0, receive s2 at top right, then print sampled sensitivity values */ 
   if (my_pe == 0) {
     if (npelast != 0)
-      MPI_Recv(&temps[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
+      MPI_Recv(&temps[0], 2, MPI_SUNREALTYPE, npelast, 0, comm, &status);
     printf("                                ----------------------------------------\n");
     printf("                                Sensitivity 2  ");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -1199,39 +1198,49 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
  * Print final statistics from the CVODES memory.
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi) 
+static void PrintFinalStats(void *cvode_mem, booleantype sensi,
+                            booleantype err_con, int sensi_meth) 
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;
   long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  int flag;
+  int retval;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1, 0);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1, 0);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1, 0);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1, 0);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1, 0);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1, 0);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
   if (sensi) {
-    flag = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
-    check_flag(&flag, "CVodeGetSensNumRhsEvals", 1, 0);
-    flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
-    check_flag(&flag, "CVodeGetNumRhsEvalsSens", 1, 0);
-    flag = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
-    check_flag(&flag, "CVodeGetSensNumLinSolvSetups", 1, 0);
-    flag = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
-    check_flag(&flag, "CVodeGetSensNumErrTestFails", 1, 0);
-    flag = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
-    check_flag(&flag, "CVodeGetSensNumNonlinSolvIters", 1, 0);
-    flag = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
-    check_flag(&flag, "CVodeGetSensNumNonlinSolvConvFails", 1, 0);
+    retval = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
+    check_retval(&retval, "CVodeGetSensNumRhsEvals", 1, 0);
+    retval = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
+    check_retval(&retval, "CVodeGetNumRhsEvalsSens", 1, 0);
+    retval = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
+    check_retval(&retval, "CVodeGetSensNumLinSolvSetups", 1, 0);
+    if (err_con) {
+      retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
+      check_retval(&retval, "CVodeGetSensNumErrTestFails", 1, 0);
+    } else {
+      netfS = 0;
+    }
+    if ((sensi_meth == CV_STAGGERED) || (sensi_meth == CV_STAGGERED1)) {
+      retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
+      check_retval(&retval, "CVodeGetSensNumNonlinSolvIters", 1, 0);
+      retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
+      check_retval(&retval, "CVodeGetSensNumNonlinSolvConvFails", 1, 0);
+    } else {
+      nniS = 0;
+      ncfnS = 0;
+    }
   }
 
   printf("\nFinal Statistics\n\n");
@@ -1253,34 +1262,34 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-	      id, funcname, *errflag);
+              "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+	      id, funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);

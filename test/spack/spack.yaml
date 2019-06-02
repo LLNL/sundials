@@ -1,0 +1,84 @@
+# This is a Spack Environment file.
+#
+# It describes a set of packages to be installed, along with
+# configuration settings.
+spack:
+  packages:
+    all:
+      providers:
+        blas: [openblas, netlib-lapack]
+        mpi: [openmpi, mpich]
+      version: []
+      compiler: []
+      buildable: true
+      modules: {}
+      paths: {}
+    hypre:
+      version: [2.14.0]
+      compiler: []
+      buildable: true
+      modules: {}
+      providers: {}
+      paths: {}
+    netlib-lapack:
+      version: [3.8.0]
+      compiler: []
+      buildable: true
+      modules: {}
+      providers: {}
+      paths: {}
+    openblas:
+      version: [0.3.5]
+      compiler: []
+      buildable: true
+      modules: {}
+      providers: {}
+      paths: {}
+    openmpi:
+      version: [3.1.2]
+      compiler: []
+      buildable: true
+      modules: {}
+      providers: {}
+      paths: {}
+    petsc:
+      version: [3.10.3]
+      compiler: []
+      buildable: true
+      modules: {}
+      providers: {}
+      paths: {}
+    superlu-dist:
+      version: [6.1.1]
+      compiler: []
+      buildable: true
+      modules: {}
+      providers: {}
+      paths: {}
+    trilinos:
+      version: [12.14.1]
+      compiler: []
+      buildable: true
+      modules: {}
+      providers: {}
+      paths: {}
+  # add package specs to the `specs` list
+  specs:
+  - hypre@2.14.0+int64~internal-superlu
+  - hypre@2.14.0~int64~internal-superlu
+  - petsc@3.10.3+double+int64
+  - petsc@3.10.3+double~int64
+  - netlib-lapack@3.8.0
+  - openmpi@3.1.2
+  - openblas@0.3.5+ilp64
+  - openblas@0.3.5~ilp64
+  - suite-sparse@5.3.0
+  - superlu-dist@6.1.1+int64 ^metis+int64
+  - superlu-dist@6.1.1~int64 ^metis~int64
+  - trilinos@12.14.1
+  config: {}
+  mirrors: {}
+  modules:
+    enable: []
+  repos: []
+  upstreams: {}

@@ -1,22 +1,18 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * The C functions FARKPSet and FARKPSol are to interface between 
- * the ARKSPILS module and the user-supplied preconditioner 
+ * the ARKLS module and the user-supplied preconditioner 
  * setup/solve routines FARKPSET and FARKPSOL. Note the use of 
  * the generic names FARK_PSET and FARK_PSOL in the code below.
  *--------------------------------------------------------------*/
@@ -25,7 +21,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_spils.h>
+#include <arkode/arkode_arkstep.h>
 
 /*=============================================================*/
 
@@ -51,15 +47,21 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpilsSetPreconditioner; see 
+/* ---DEPRECATED---
+   Fortran interface to C routine ARKStepSetPreconditioner; see 
    farkode.h for further details */
 void FARK_SPILSSETPREC(int *flag, int *ier)
+{ FARK_LSSETPREC(flag, ier); }
+
+/* Fortran interface to C routine ARKStepSetPreconditioner; see 
+   farkode.h for further details */
+void FARK_LSSETPREC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKSpilsSetPreconditioner(ARK_arkodemem, NULL, NULL);
+    *ier = ARKStepSetPreconditioner(ARK_arkodemem, NULL, NULL);
   } else {
-    *ier = ARKSpilsSetPreconditioner(ARK_arkodemem, 
-                                     FARKPSet, FARKPSol);
+    *ier = ARKStepSetPreconditioner(ARK_arkodemem, 
+                                    FARKPSet, FARKPSol);
   }
   return;
 }
@@ -77,7 +79,7 @@ int FARKPSet(realtype t, N_Vector y, N_Vector fy,
   realtype h;
   FARKUserData ARK_userdata;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
   ydata  = N_VGetArrayPointer(y);
   fydata = N_VGetArrayPointer(fy);
   ARK_userdata = (FARKUserData) user_data;

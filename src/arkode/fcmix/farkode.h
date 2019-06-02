@@ -1,19 +1,15 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department
- * of Energy by Southern Methodist University and Lawrence Livermore
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * This is the header file for FARKODE, the Fortran interface to
  * the ARKODE package.
@@ -42,6 +38,7 @@
 
 /* header files  */
 #include <arkode/arkode.h>
+#include <arkode/arkode_arkstep.h>
 #include <sundials/sundials_linearsolver.h>  /* definition of type SUNLinearSolver */
 #include <sundials/sundials_matrix.h>        /* definition of type SUNMatrix */
 #include <sundials/sundials_nvector.h>       /* definition of type N_Vector */
@@ -71,12 +68,11 @@ extern "C" {
 #define FARK_SETRESTOLERANCE     SUNDIALS_F77_FUNC(farksetrestolerance,     FARKSETRESTOLERANCE)
 #define FARK_SETDIAGNOSTICS      SUNDIALS_F77_FUNC(farksetdiagnostics,      FARKSETDIAGNOSTICS)
 #define FARK_STOPDIAGNOSTICS     SUNDIALS_F77_FUNC(farkstopdiagnostics,     FARKSTOPDIAGNOSTICS)
-#define FARK_DLSINIT             SUNDIALS_F77_FUNC(farkdlsinit,             FARKDLSINIT)
-#define FARK_DLSMASSINIT         SUNDIALS_F77_FUNC(farkdlsmassinit,         FARKDLSMASSINIT)
-#define FARK_SPILSINIT           SUNDIALS_F77_FUNC(farkspilsinit,           FARKSPILSINIT)
-#define FARK_SPILSSETEPSLIN      SUNDIALS_F77_FUNC(farkspilssetepslin,      FARKSPILSSETEPSLIN)
-#define FARK_SPILSMASSINIT       SUNDIALS_F77_FUNC(farkspilsmassinit,       FARKSPILSMASSINIT)
-#define FARK_SPILSSETMASSEPSLIN  SUNDIALS_F77_FUNC(farkspilssetmassepslin,  FARKSPILSSETMASSEPSLIN)
+#define FARK_NLSINIT             SUNDIALS_F77_FUNC(farknlsinit,             FARKNLSINIT)
+#define FARK_LSINIT              SUNDIALS_F77_FUNC(farklsinit,              FARKLSINIT)
+#define FARK_LSSETEPSLIN         SUNDIALS_F77_FUNC(farklssetepslin,         FARKLSSETEPSLIN)
+#define FARK_LSMASSINIT          SUNDIALS_F77_FUNC(farklsmassinit,          FARKLSMASSINIT)
+#define FARK_LSSETMASSEPSLIN     SUNDIALS_F77_FUNC(farklssetmassepslin,     FARKLSSETMASSEPSLIN)
 #define FARK_ARKODE              SUNDIALS_F77_FUNC(farkode,                 FARKODE)
 #define FARK_DKY                 SUNDIALS_F77_FUNC(farkdky,                 FARKDKY)
 #define FARK_GETERRWEIGHTS       SUNDIALS_F77_FUNC(farkgeterrweights,       FARKGETERRWEIGHTS)
@@ -103,19 +99,19 @@ extern "C" {
 #define FARK_SPARSESETMASS       SUNDIALS_F77_FUNC(farksparsesetmass,       FARKSPARSESETMASS)
 #define FARK_SPMASS              SUNDIALS_F77_FUNC(farkspmass,              FARKSPMASS)
 
-#define FARK_SPILSSETJAC         SUNDIALS_F77_FUNC(farkspilssetjac,         FARKSPILSSETJAC)
+#define FARK_LSSETJAC            SUNDIALS_F77_FUNC(farklssetjac,            FARKLSSETJAC)
 #define FARK_JTSETUP             SUNDIALS_F77_FUNC(farkjtsetup,             FARKJTSETUP)
 #define FARK_JTIMES              SUNDIALS_F77_FUNC(farkjtimes,              FARKJTIMES)
 
-#define FARK_SPILSSETPREC        SUNDIALS_F77_FUNC(farkspilssetprec,        FARKSPILSSETPREC)
+#define FARK_LSSETPREC           SUNDIALS_F77_FUNC(farklssetprec,           FARKLSSETPREC)
 #define FARK_PSOL                SUNDIALS_F77_FUNC(farkpsol,                FARKPSOL)
 #define FARK_PSET                SUNDIALS_F77_FUNC(farkpset,                FARKPSET)
 
-#define FARK_SPILSSETMASS        SUNDIALS_F77_FUNC(farkspilssetmass,        FARKSPILSSETMASS)
+#define FARK_LSSETMASS           SUNDIALS_F77_FUNC(farklssetmass,           FARKLSSETMASS)
 #define FARK_MTSETUP             SUNDIALS_F77_FUNC(farkmtsetup,             FARKMTSETUP)
 #define FARK_MTIMES              SUNDIALS_F77_FUNC(farkmtimes,              FARKMTIMES)
 
-#define FARK_SPILSSETMASSPREC    SUNDIALS_F77_FUNC(farkspilssetmassprec,    FARKSPILSSETMASSPREC)
+#define FARK_LSSETMASSPREC       SUNDIALS_F77_FUNC(farklssetmassprec,       FARKLSSETMASSPREC)
 #define FARK_MASSPSOL            SUNDIALS_F77_FUNC(farkmasspsol,            FARKMASSPSOL)
 #define FARK_MASSPSET            SUNDIALS_F77_FUNC(farkmasspset,            FARKMASSPSET)
 
@@ -128,6 +124,19 @@ extern "C" {
 #define FARK_EXPSTABSET          SUNDIALS_F77_FUNC(farkexpstabset,          FARKEXPSTABSET)
 #define FARK_EXPSTAB             SUNDIALS_F77_FUNC(farkexpstab,             FARKEXPSTAB)
 
+/*---DEPRECATED---*/
+#define FARK_DLSINIT             SUNDIALS_F77_FUNC(farkdlsinit,             FARKDLSINIT)
+#define FARK_DLSMASSINIT         SUNDIALS_F77_FUNC(farkdlsmassinit,         FARKDLSMASSINIT)
+#define FARK_SPILSINIT           SUNDIALS_F77_FUNC(farkspilsinit,           FARKSPILSINIT)
+#define FARK_SPILSSETEPSLIN      SUNDIALS_F77_FUNC(farkspilssetepslin,      FARKSPILSSETEPSLIN)
+#define FARK_SPILSMASSINIT       SUNDIALS_F77_FUNC(farkspilsmassinit,       FARKSPILSMASSINIT)
+#define FARK_SPILSSETMASSEPSLIN  SUNDIALS_F77_FUNC(farkspilssetmassepslin,  FARKSPILSSETMASSEPSLIN)
+#define FARK_SPILSSETJAC         SUNDIALS_F77_FUNC(farkspilssetjac,         FARKSPILSSETJAC)
+#define FARK_SPILSSETPREC        SUNDIALS_F77_FUNC(farkspilssetprec,        FARKSPILSSETPREC)
+#define FARK_SPILSSETMASS        SUNDIALS_F77_FUNC(farkspilssetmass,        FARKSPILSSETMASS)
+#define FARK_SPILSSETMASSPREC    SUNDIALS_F77_FUNC(farkspilssetmassprec,    FARKSPILSSETMASSPREC)
+/*----------------*/
+  
 #else
 
 #define FARK_IMP_FUN             farkifun_
@@ -145,12 +154,11 @@ extern "C" {
 #define FARK_SETRESTOLERANCE     farksetrestolerance_
 #define FARK_SETDIAGNOSTICS      farksetdiagnostics_
 #define FARK_STOPDIAGNOSTICS     farkstopdiagnostics_
-#define FARK_DLSINIT             farkdlsinit_
-#define FARK_DLSMASSINIT         farkdlsmassinit_
-#define FARK_SPILSINIT           farkspilsinit_
-#define FARK_SPILSSETEPSLIN      farkspilssetepslin_
-#define FARK_SPILSMASSINIT       farkspilsmassinit_
-#define FARK_SPILSSETMASSEPSLIN  farkspilssetmassepslin_
+#define FARK_NLSINIT             farknlsinit_
+#define FARK_LSINIT              farklsinit_
+#define FARK_LSSETEPSLIN         farklssetepslin_
+#define FARK_LSMASSINIT          farklsmassinit_
+#define FARK_LSSETMASSEPSLIN     farklssetmassepslin_
 #define FARK_ARKODE              farkode_
 #define FARK_DKY                 farkdky_
 #define FARK_GETERRWEIGHTS       farkgeterrweights_
@@ -177,20 +185,19 @@ extern "C" {
 #define FARK_SPARSESETMASS       farksparsesetmass_
 #define FARK_SPMASS              farkspmass_
 
-
-#define FARK_SPILSSETJAC         farkspilssetjac_
+#define FARK_LSSETJAC            farklssetjac_
 #define FARK_JTSETUP             farkjtsetup_
 #define FARK_JTIMES              farkjtimes_
 
-#define FARK_SPILSSETPREC        farkspilssetprec_
+#define FARK_LSSETPREC           farklssetprec_
 #define FARK_PSOL                farkpsol_
 #define FARK_PSET                farkpset_
 
-#define FARK_SPILSSETMASS        farkspilssetmass_
+#define FARK_LSSETMASS           farklssetmass_
 #define FARK_MTSETUP             farkmtsetup_
 #define FARK_MTIMES              farkmtimes_
 
-#define FARK_SPILSSETMASSPREC    farkspilssetmassprec_
+#define FARK_LSSETMASSPREC       farklssetmassprec_
 #define FARK_MASSPSOL            farkmasspsol_
 #define FARK_MASSPSET            farkmasspset_
 
@@ -203,6 +210,19 @@ extern "C" {
 #define FARK_EXPSTABSET          farkexpstabset_
 #define FARK_EXPSTAB             farkexpstab_
 
+/*---DEPRECATED---*/
+#define FARK_DLSINIT             farkdlsinit_
+#define FARK_DLSMASSINIT         farkdlsmassinit_
+#define FARK_SPILSINIT           farkspilsinit_
+#define FARK_SPILSSETEPSLIN      farkspilssetepslin_
+#define FARK_SPILSMASSINIT       farkspilsmassinit_
+#define FARK_SPILSSETMASSEPSLIN  farkspilssetmassepslin_
+#define FARK_SPILSSETJAC         farkspilssetjac_
+#define FARK_SPILSSETPREC        farkspilssetprec_
+#define FARK_SPILSSETMASS        farkspilssetmass_
+#define FARK_SPILSSETMASSPREC    farkspilssetmassprec_
+/*----------------*/
+  
 #endif
 
   /* Type for user data */
@@ -244,15 +264,13 @@ extern "C" {
   void FARK_SETDIAGNOSTICS(char fname[], int *flen, int *ier);
   void FARK_STOPDIAGNOSTICS(int *ier);
 
-  void FARK_DLSINIT(int *ier);
-  void FARK_DLSMASSINIT(int *time_dep, int *ier);
-
-  void FARK_SPILSINIT(int *ier);
-  void FARK_SPILSSETEPSLIN(realtype *eplifac, int *ier);
-
-  void FARK_SPILSMASSINIT(int *time_dep, int *ier);
-  void FARK_SPILSSETMASSEPSLIN(realtype *eplifac, int *ier);
-
+  void FARK_NLSINIT(int *ier);
+  
+  void FARK_LSINIT(int *ier);
+  void FARK_LSSETEPSLIN(realtype *eplifac, int *ier);
+  void FARK_LSMASSINIT(int *time_dep, int *ier);
+  void FARK_LSSETMASSEPSLIN(realtype *eplifac, int *ier);
+  
   void FARK_ARKODE(realtype *tout, realtype *t, realtype *y, 
                    int *itask, int *ier);
   void FARK_DKY(realtype *t, int *k, realtype *dky, int *ier);
@@ -273,16 +291,29 @@ extern "C" {
   void FARK_BANDSETMASS(int *ier);
   void FARK_SPARSESETMASS(int *ier);
 
-
-  void FARK_SPILSSETJAC(int *flag, int *ier);
-  void FARK_SPILSSETPREC(int *flag, int *ier);
-  void FARK_SPILSSETMASS(int *ier);
-  void FARK_SPILSSETMASSPREC(int *flag, int *ier);
+  void FARK_LSSETJAC(int *flag, int *ier);
+  void FARK_LSSETPREC(int *flag, int *ier);
+  void FARK_LSSETMASS(int *ier);
+  void FARK_LSSETMASSPREC(int *flag, int *ier);
 
   void FARK_EWTSET(int *flag, int *ier);
   void FARK_ADAPTSET(int *flag, int *ier);
   void FARK_EXPSTABSET(int *flag, int *ier);
 
+/*---DEPRECATED---*/
+  void FARK_DLSINIT(int *ier);
+  void FARK_DLSMASSINIT(int *time_dep, int *ier);
+  void FARK_SPILSINIT(int *ier);
+  void FARK_SPILSSETEPSLIN(realtype *eplifac, int *ier);
+  void FARK_SPILSMASSINIT(int *time_dep, int *ier);
+  void FARK_SPILSSETMASSEPSLIN(realtype *eplifac, int *ier);
+  void FARK_SPILSSETJAC(int *flag, int *ier);
+  void FARK_SPILSSETPREC(int *flag, int *ier);
+  void FARK_SPILSSETMASS(int *ier);
+  void FARK_SPILSSETMASSPREC(int *flag, int *ier);
+/*----------------*/
+
+  
 
   /* Prototypes: Functions Called by the ARKODE Solver */
   int FARKfe(realtype t, N_Vector y, N_Vector ydot, void *user_data);
@@ -336,31 +367,31 @@ extern "C" {
 
   int FARKAdapt(N_Vector y, realtype t, realtype h1, realtype h2,
                 realtype h3, realtype e1, realtype e2, realtype e3,
-                int q, realtype *hnew, void *user_data);
+                int q, int p, realtype *hnew, void *user_data);
 
   int FARKExpStab(N_Vector y, realtype t, realtype *hstab, void *user_data);
 
   void FARKNullMatrix();
   void FARKNullLinsol();
+  void FARKNullNonlinsol();
   
-  /* Declarations for global variables shared amongst various routines */
-  extern N_Vector F2C_ARKODE_vec;             /* defined in FNVECTOR module */
-  extern SUNMatrix F2C_ARKODE_matrix;         /* defined in FSUNMATRIX module */
-  extern SUNMatrix F2C_ARKODE_mass_matrix;  
-  extern SUNLinearSolver F2C_ARKODE_linsol;   /* defined in FSUNLINSOL module */
-  extern SUNLinearSolver F2C_ARKODE_mass_sol; 
+  /* Declarations for global variables shared amongst various routines; 
+     each of these is defined in the implementation routines for the Fortran
+     interface for their vector/matrix/linear solver/nonlinear solver modules */
+  extern N_Vector F2C_ARKODE_vec;
+  extern SUNMatrix F2C_ARKODE_matrix;
+  extern SUNMatrix F2C_ARKODE_mass_matrix;
+  extern SUNLinearSolver F2C_ARKODE_linsol;
+  extern SUNLinearSolver F2C_ARKODE_mass_sol;
+  extern SUNNonlinearSolver F2C_ARKODE_nonlinsol;
 
-  extern void *ARK_arkodemem;     /* defined in farkode.c */
-  extern long int *ARK_iout;      /* defined in farkode.c */
-  extern realtype *ARK_rout;      /* defined in farkode.c */
-  extern int ARK_nrtfn;           /* defined in farkode.c */
-  extern int ARK_ls;              /* defined in farkode.c */
-  extern int ARK_mass_ls;         /* defined in farkode.c */
-
-  /* Linear solver IDs */
-  enum { ARK_LS_ITERATIVE = 0, 
-         ARK_LS_DIRECT    = 1, 
-         ARK_LS_CUSTOM    = 2 };
+  /* items defined in farkode.c */
+  extern void *ARK_arkodemem;
+  extern long int *ARK_iout;
+  extern realtype *ARK_rout;
+  extern int ARK_nrtfn;
+  extern booleantype ARK_ls;
+  extern booleantype ARK_mass_ls;
 
 #ifdef __cplusplus
 }

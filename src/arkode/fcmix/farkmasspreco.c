@@ -1,32 +1,27 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * The C function FARKPSet is to interface between the 
- * ARKSPILSMASS module and the user-supplied mass matrix 
- * preconditioner setup/solve routines FARKPSET and FARKPSOL. 
- * Note the use of the generic names FARK_PSET and  FARK_PSOL in
- * the code below.
+ * The C function FARKPSet is to interface between the ARKLSMASS 
+ * module and the user-supplied mass matrix preconditioner  
+ * setup/solve routines FARKPSET and FARKPSOL. Note the use of 
+ * the generic names FARK_PSET and  FARK_PSOL in the code below.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_spils.h>
+#include <arkode/arkode_arkstep.h>
 
 /*=============================================================*/
 
@@ -48,15 +43,21 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpilsSetMassPreconditioner; see 
+/* ---DEPRECATED---
+   Fortran interface to C routine ARKStepSetMassPreconditioner; see 
    farkode.h for further details */
 void FARK_SPILSSETMASSPREC(int *flag, int *ier)
+{ FARK_LSSETMASSPREC(flag, ier); }
+
+/* Fortran interface to C routine ARKStepSetMassPreconditioner; see 
+   farkode.h for further details */
+void FARK_LSSETMASSPREC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKSpilsSetMassPreconditioner(ARK_arkodemem, NULL, NULL);
+    *ier = ARKStepSetMassPreconditioner(ARK_arkodemem, NULL, NULL);
   } else {
-    *ier = ARKSpilsSetMassPreconditioner(ARK_arkodemem, 
-                                         FARKMassPSet, FARKMassPSol);
+    *ier = ARKStepSetMassPreconditioner(ARK_arkodemem, 
+                                        FARKMassPSet, FARKMassPSol);
   }
   return;
 }

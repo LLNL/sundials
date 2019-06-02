@@ -2,19 +2,15 @@
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the testing routine to check the SUNLinSol SPGMR module 
  * implementation. 
@@ -73,7 +69,7 @@ static realtype urand();
 sunindextype local_problem_size;
 
 /* ----------------------------------------------------------------------
- * SUNSPGMR Linear Solver Testing Routine
+ * SUNLinSol_SPGMR Linear Solver Testing Routine
  *
  * We run multiple tests to exercise this solver:
  * 1. simple tridiagonal system (no preconditioning)
@@ -168,7 +164,7 @@ int main(int argc, char *argv[])
     printf("  Gram-Schmidt orthogonalization type = %i\n", gstype);
     printf("  Preconditioning type = %i\n", pretype);
     printf("  Maximum Krylov subspace dimension = %i\n", maxl);
-    printf("  Solver Tolerance = %"GSYM"\n", tol);
+    printf("  Solver Tolerance = %g\n", tol);
     printf("  timing output flag = %i\n\n", print_timing);
   }
   
@@ -201,7 +197,7 @@ int main(int argc, char *argv[])
   N_VConst(FIVE, ProbData.d);
   
   /* Create SPGMR linear solver */
-  LS = SUNSPGMR(x, pretype, maxl);
+  LS = SUNLinSol_SPGMR(x, pretype, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 
                                  ProbData.myid);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, ProbData.myid);
@@ -211,12 +207,12 @@ int main(int argc, char *argv[])
                                            ProbData.myid);
   fails += Test_SUNLinSolInitialize(LS, ProbData.myid);
   fails += Test_SUNLinSolSpace(LS, ProbData.myid);
-  fails += SUNSPGMRSetGSType(LS, gstype);  
+  fails += SUNLinSol_SPGMRSetGSType(LS, gstype);  
   if (fails) {
-    printf("FAIL: SUNSPGMR module failed %i initialization tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module failed %i initialization tests\n\n", fails);
     return 1;
   } else if (ProbData.myid == 0)
-    printf("SUCCESS: SUNSPGMR module passed all initialization tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module passed all initialization tests\n\n");
 
   
   /*** Test 1: simple Poisson-like solve (no preconditioning) ***/
@@ -233,7 +229,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, PREC_NONE);  
+  fails += SUNLinSol_SPGMRSetPrecType(LS, PREC_NONE);  
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -243,10 +239,10 @@ int main(int argc, char *argv[])
   
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 1, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 1, failed %i tests\n\n", fails);
     passfail += 1;
   } else if (ProbData.myid == 0) {
-    printf("SUCCESS: SUNSPGMR module, problem 1, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 1, passed all tests\n\n");
   }
 
   
@@ -264,7 +260,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, pretype);  
+  fails += SUNLinSol_SPGMRSetPrecType(LS, pretype);  
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -274,10 +270,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 2, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 2, failed %i tests\n\n", fails);
     passfail += 1;
   } else if (ProbData.myid == 0) {
-    printf("SUCCESS: SUNSPGMR module, problem 2, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 2, passed all tests\n\n");
   }
 
   
@@ -297,7 +293,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, PREC_NONE);  
+  fails += SUNLinSol_SPGMRSetPrecType(LS, PREC_NONE);  
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -307,10 +303,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 3, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 3, failed %i tests\n\n", fails);
     passfail += 1;
   } else if (ProbData.myid == 0) {
-    printf("SUCCESS: SUNSPGMR module, problem 3, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 3, passed all tests\n\n");
   }
 
   
@@ -330,7 +326,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, pretype);  
+  fails += SUNLinSol_SPGMRSetPrecType(LS, pretype);  
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -340,10 +336,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 4, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 4, failed %i tests\n\n", fails);
     passfail += 1;
   } else if (ProbData.myid == 0) {
-    printf("SUCCESS: SUNSPGMR module, problem 4, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 4, passed all tests\n\n");
   }
 
   
@@ -363,7 +359,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPGMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -373,10 +369,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 5, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 5, failed %i tests\n\n", fails);
     passfail += 1;
   } else if (ProbData.myid == 0) {
-    printf("SUCCESS: SUNSPGMR module, problem 5, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 5, passed all tests\n\n");
   }
 
   
@@ -396,7 +392,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPGMRSetPrecType(LS, pretype);  
+  fails += SUNLinSol_SPGMRSetPrecType(LS, pretype);  
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -406,10 +402,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPGMR module, problem 6, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPGMR module, problem 6, failed %i tests\n\n", fails);
     passfail += 1;
   } else if (ProbData.myid == 0) {
-    printf("SUCCESS: SUNSPGMR module, problem 6, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPGMR module, problem 6, passed all tests\n\n");
   }
 
   /* check if any other process failed */
@@ -456,32 +452,23 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   if (check_flag(s2, "N_VGetArrayPointer", 0)) return 1;
   Nloc = ProbData->Nloc;
   
-  /* MPI equivalent of realtype type */
-  #if defined(SUNDIALS_SINGLE_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_FLOAT
-  #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_DOUBLE
-  #elif defined(SUNDIALS_EXTENDED_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_LONG_DOUBLE
-  #endif
-  
   /* send/recv boundary data with neighbors */
   vL = vR = ZERO;
   vsL = v[0]*s2[0];
   vsR = v[Nloc-1]*s2[Nloc-1];
   if (ProbData->myid > 0) {                   /* left neighbor exists */
-    ierr = MPI_Irecv(&vL, 1, REALTYPE_MPI_TYPE, ProbData->myid-1,
+    ierr = MPI_Irecv(&vL, 1, MPI_SUNREALTYPE, ProbData->myid-1,
                      MPI_ANY_TAG, ProbData->comm, &RecvReqL);
     if (ierr != MPI_SUCCESS) return 1;
-    ierr = MPI_Isend(&vsL, 1, REALTYPE_MPI_TYPE, ProbData->myid-1,
+    ierr = MPI_Isend(&vsL, 1, MPI_SUNREALTYPE, ProbData->myid-1,
                      0, ProbData->comm, &SendReqL);
     if (ierr != MPI_SUCCESS) return 1;
   }
   if (ProbData->myid < ProbData->nprocs-1) {  /* right neighbor exists */
-    ierr = MPI_Irecv(&vR, 1, REALTYPE_MPI_TYPE, ProbData->myid+1,
+    ierr = MPI_Irecv(&vR, 1, MPI_SUNREALTYPE, ProbData->myid+1,
                      MPI_ANY_TAG, ProbData->comm, &RecvReqR);
     if (ierr != MPI_SUCCESS) return 1;
-    ierr = MPI_Isend(&vsR, 1, REALTYPE_MPI_TYPE, ProbData->myid+1,
+    ierr = MPI_Isend(&vsR, 1, MPI_SUNREALTYPE, ProbData->myid+1,
                      1, ProbData->comm, &SendReqR);
     if (ierr != MPI_SUCCESS) return 1;
   }
@@ -588,7 +575,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
     maxerr = ZERO;
     for(i=0; i < local_problem_size; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i])/SUNRabs(Xdata[i]), maxerr);
-    printf("check err failure: maxerr = %g (tol = %g)\n",
+    printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
 	   maxerr, FIVE*tol);
     return(1);
   }

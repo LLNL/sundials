@@ -1,10 +1,19 @@
 /* ----------------------------------------------------------------- 
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * Copyright (c) 2005, The Regents of the University of California.
- * Produced at the Lawrence Livermore National Laboratory.
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2002-2018, Southern Methodist University and
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence
+ * Livermore National Laboratory.
+ *
  * All rights reserved.
  * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * SUNDIALS configuration header file
  * -----------------------------------------------------------------*/
@@ -50,6 +59,11 @@
  */
 @INDEX_TYPE@
 
+/* Define the type of vector indices in SUNDIALS 'sunindextype'.
+ * The macro will be defined with a type of the appropriate size.
+ */
+#define SUNDIALS_INDEX_TYPE @SUNDIALS_CINDEX_TYPE@
+
 /* Use generic math functions 
  * If it was decided that generic math functions can be used, then
  *     #define SUNDIALS_USE_GENERIC_MATH
@@ -74,11 +88,33 @@
 #cmakedefine SUNDIALS_SUPERLUMT
 #cmakedefine SUNDIALS_SUPERLUMT_THREAD_TYPE "@SUPERLUMT_THREAD_TYPE@"
 
+/* SUPERLUDIST available
+ * If working libraries for SUPERLUDIST support were found, then
+ *    #define SUNDIALS_SUPERLUDIST
+ */
+#cmakedefine SUNDIALS_SUPERLUDIST
+
 /* KLU available
  * If working libraries for KLU support were found, then
  *     #define SUNDIALS_KLU 
  */
 #cmakedefine SUNDIALS_KLU
+
+/* Trilinos available
+ * If working libraries for Trilinos support were found, then
+ *     #define SUNDIALS_TRILINOS
+ */
+#cmakedefine SUNDIALS_TRILINOS
+
+ /* Trilinos with MPI is available, then
+  *    #define SUNDIALS_TRILINOS_HAVE_MPI
+  */
+#cmakedefine SUNDIALS_TRILINOS_HAVE_MPI
+
+/* Set if SUNDIALS is built with MPI support.
+ * 
+ */
+@IS_MPI_ENABLED@
 
 /* FNVECTOR: Allow user to specify different MPI communicator
  * If it was found that the MPI implementation supports MPI_Comm_f2c, then

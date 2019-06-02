@@ -3,21 +3,17 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * Fortran/C interface routines for CVODE/CVDLS, for the case of 
+ * Fortran/C interface routines for CVODE/CVLS, for the case of 
  * a user-supplied Jacobian approximation routine.                
  * -----------------------------------------------------------------
  */
@@ -28,7 +24,7 @@
 #include "fcvode.h"     /* actual fn. names, prototypes and global vars.*/
 #include "cvode_impl.h" /* definition of CVodeMem type                  */
 
-#include <cvode/cvode_direct.h>
+#include <cvode/cvode_ls.h>
 #include <sunmatrix/sunmatrix_band.h>
 
 /******************************************************************************/
@@ -52,9 +48,9 @@ extern "C" {
 void FCV_BANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = CVDlsSetJacFn(CV_cvodemem, NULL);
+    *ier = CVodeSetJacFn(CV_cvodemem, NULL);
   } else {
-    *ier = CVDlsSetJacFn(CV_cvodemem, FCVBandJac);
+    *ier = CVodeSetJacFn(CV_cvodemem, FCVBandJac);
   }
 }
 

@@ -1,4 +1,14 @@
-C     ----------------------------------------------------------------
+C     --------------------------------------------------------------------
+C     SUNDIALS Copyright Start
+C     Copyright (c) 2002-2019, Lawrence Livermore National Security
+C     and Southern Methodist University.
+C     All rights reserved.
+C
+C     See the top-level LICENSE and NOTICE files for details.
+C
+C     SPDX-License-Identifier: BSD-3-Clause
+C     SUNDIALS Copyright End
+C     --------------------------------------------------------------------
 C     FCVODE Example Problem: 2D kinetics-transport, precond. Krylov
 C     solver. 
 C     
@@ -30,7 +40,7 @@ C     and BLAS routines DCOPY and DSCAL.
 C     
 C     The second and third dimensions of U here must match the values
 C     of MX and MY, for consistency with the output statements below.
-C     ----------------------------------------------------------------
+C     --------------------------------------------------------------------
 C
       IMPLICIT NONE
 C
@@ -39,7 +49,7 @@ C
       INTEGER*4 LENIPAR, LENRPAR
       PARAMETER (LENIPAR=6+2*MX*MY, LENRPAR=12+8*MX*MY)
 C
-      INTEGER*4 METH,ITMETH,IATOL,ITASK,IER,LNCFL,LNPS
+      INTEGER*4 METH,IATOL,ITASK,IER,LNCFL,LNPS
       INTEGER*4 LNST,LNFE,LNSETUP,LNNI,LNCF,LQ,LH,LNPE,LNLI,LNETF
       INTEGER*4 JOUT,JPRETYPE,IGSTYPE,MAXL
 C The following declaration specification should match C type long int.
@@ -52,7 +62,7 @@ C
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
      &     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/
       DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
-     &     LQ/9/, LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
+     &     LQ/9/, LNPE/20/, LNLI/22/, LNPS/21/, LNCFL/23/
       DATA LH/2/
 C
 C     Load problem constants into IPAR, RPAR, and set initial values
@@ -62,7 +72,6 @@ C     Set other input arguments.
       NEQ = 2*MX*MY
       T = 0.0D0
       METH = 2
-      ITMETH = 2
       IATOL = 1
       ATOL = RTOL * FLOOR
       ITASK = 1
@@ -94,7 +103,7 @@ C     Initialize SPGMR linear solver module
       ENDIF
 C     
 C     Initialize CVODE
-      CALL FCVMALLOC(T, U, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVMALLOC(T, U, METH, IATOL, RTOL, ATOL,
      &     IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -102,17 +111,17 @@ C     Initialize CVODE
         STOP
       ENDIF
 C
-C     attach linear solver module to CVSpils interface
-      CALL FCVSPILSINIT(IER)
+C     attach linear solver module to CVLs interface
+      CALL FCVLSINIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FCVSPILSINIT returned IER = ',I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVLSINIT returned IER = ',I5)
         CALL FCVFREE
         STOP
       ENDIF
 C     
-C     attach preconditioner to CVSpils interface
-      CALL FCVSPILSSETPREC(1, IER)
+C     attach preconditioner to CVLs interface
+      CALL FCVLSSETPREC(1, IER)
 C
 C Loop over output points, call FCVODE, print sample solution values.
       TOUT = TWOHR

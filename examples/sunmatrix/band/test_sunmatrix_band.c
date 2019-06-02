@@ -3,19 +3,15 @@
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner @ LLNL
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the testing routine to check the SUNMatrix Band module 
  * implementation. 
@@ -31,6 +27,15 @@
 #include <sundials/sundials_math.h>
 #include "test_sunmatrix.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 /* ----------------------------------------------------------------------
  * Main SUNMatrix Testing Routine
@@ -75,9 +80,15 @@ int main(int argc, char *argv[])
   printf("\nBand matrix test: size %ld, bandwidths %ld %ld\n\n",
          (long int) cols, (long int) uband, (long int) lband);
 
+  /* Initialize vectors and matrices to NULL */
+  x = NULL;
+  y = NULL;
+  A = NULL;
+  I = NULL;
+  
   /* Create matrices and vectors */
-  A = SUNBandMatrix(cols, uband, lband, uband);
-  I = SUNBandMatrix(cols, 0, 0, 0);
+  A = SUNBandMatrix(cols, uband, lband);
+  I = SUNBandMatrix(cols, 0, 0);
   x = N_VNew_Serial(cols);
   y = N_VNew_Serial(cols);
 
@@ -215,7 +226,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     for (i=istart; i<=iend; i++) {
       if (FNEQ(Acolj[i], val, tol)) {
         failure++;
-        printf("j = %li, Acolj[%li] = %g, val = %g\n",
+        printf("j = %li, Acolj[%li] = %"GSYM", val = %"GSYM"\n",
                (long int) j, (long int) i, Acolj[i], val);
       }
     }

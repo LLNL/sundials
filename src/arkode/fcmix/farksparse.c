@@ -1,21 +1,17 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARDLS, for the case
+ * Fortran/C interface routines for ARKODE/ARKLS, for the case
  * of a user-supplied sparse Jacobian routine.
  *--------------------------------------------------------------*/
 
@@ -23,7 +19,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_direct.h>
+#include <arkode/arkode_arkstep.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /*=============================================================*/
@@ -50,7 +46,7 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKDlsSetJacFn; see 
+/* Fortran interface to C routine ARKStepSetJacFn; see 
    farkode.h for further information */
 void FARK_SPARSESETJAC(int *ier)
 {
@@ -60,7 +56,7 @@ void FARK_SPARSESETJAC(int *ier)
                   "Sparse Fortran users must configure SUNDIALS with 64-bit integers.");
   *ier = 1;
 #else  
-  *ier = ARKDlsSetJacFn(ARK_arkodemem, FARKSparseJac);
+  *ier = ARKStepSetJacFn(ARK_arkodemem, FARKSparseJac);
 #endif
 }
 
@@ -79,7 +75,7 @@ int FARKSparseJac(realtype t, N_Vector y, N_Vector fy,
   sunindextype *indexvals, *indexptrs; 
   FARKUserData ARK_userdata;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
   v1data  = N_VGetArrayPointer(vtemp1);

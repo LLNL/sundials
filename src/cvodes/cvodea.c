@@ -5,15 +5,15 @@
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for the CVODEA adjoint integrator.
  * -----------------------------------------------------------------
@@ -159,6 +159,9 @@ int CVodeAdjInit(void *cvode_mem, long int steps, int interp)
   /* Number of steps between check points */
 
   ca_mem->ca_nsteps = steps;
+
+  /* Last index used in CVAfindIndex, initailize to invalid value */
+  ca_mem->ca_ilast = -1;
 
   /* Allocate space for the array of Data Point structures */
 
@@ -553,7 +556,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
  */
 
 
-int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
+int CVodeCreateB(void *cvode_mem, int lmmB, int *which)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -585,7 +588,7 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
 
   /* Create and set a new CVODES object for the backward problem */
 
-  cvodeB_mem = CVodeCreate(lmmB, iterB);
+  cvodeB_mem = CVodeCreate(lmmB);
   if (cvodeB_mem == NULL) {
     cvProcessError(cv_mem, CV_MEM_FAIL, "CVODEA", "CVodeCreateB", MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
@@ -2171,7 +2174,6 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
                         long int *indx, booleantype *newpoint)
 {
   CVadjMem ca_mem;
-  static long int ilast;
   DtpntMem *dt_mem;
   int sign;
   booleantype to_left, to_right;
@@ -2186,21 +2188,21 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
 
   /* If this is the first time we use new data */
   if (ca_mem->ca_IMnewData) {
-    ilast     = ca_mem->ca_np-1;
+    ca_mem->ca_ilast = ca_mem->ca_np-1;
     *newpoint = SUNTRUE;
-    ca_mem->ca_IMnewData   = SUNFALSE;
+    ca_mem->ca_IMnewData = SUNFALSE;
   }
 
   /* Search for indx starting from ilast */
-  to_left  = ( sign*(t - dt_mem[ilast-1]->t) < ZERO);
-  to_right = ( sign*(t - dt_mem[ilast]->t)   > ZERO);
+  to_left  = ( sign*(t - dt_mem[ca_mem->ca_ilast-1]->t) < ZERO);
+  to_right = ( sign*(t - dt_mem[ca_mem->ca_ilast]->t)   > ZERO);
 
   if ( to_left ) {
     /* look for a new indx to the left */
 
     *newpoint = SUNTRUE;
     
-    *indx = ilast;
+    *indx = ca_mem->ca_ilast;
     for(;;) {
       if ( *indx == 0 ) break;
       if ( sign*(t - dt_mem[*indx-1]->t) <= ZERO ) (*indx)--;
@@ -2208,9 +2210,9 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
     }
 
     if ( *indx == 0 )
-      ilast = 1;
+      ca_mem->ca_ilast = 1;
     else
-      ilast = *indx;
+      ca_mem->ca_ilast = *indx;
 
     if ( *indx == 0 ) {
       /* t is beyond leftmost limit. Is it too far? */  
@@ -2224,19 +2226,19 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
 
     *newpoint = SUNTRUE;
 
-    *indx = ilast;
+    *indx = ca_mem->ca_ilast;
     for(;;) {
       if ( sign*(t - dt_mem[*indx]->t) > ZERO) (*indx)++;
       else                                     break;
     }
 
-    ilast = *indx;
+    ca_mem->ca_ilast = *indx;
 
 
   } else {
     /* ilast is still OK */
 
-    *indx = ilast;
+    *indx = ca_mem->ca_ilast;
 
   }
 

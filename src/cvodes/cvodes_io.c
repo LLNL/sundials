@@ -5,15 +5,15 @@
  * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for the optional input and output
  * functions for the CVODES solver.
@@ -28,8 +28,10 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO   RCONST(0.0)
+#define HALF   RCONST(0.5)
+#define ONE    RCONST(1.0)
+#define TWOPT5 RCONST(2.5)
 
 /* 
  * =================================================================
@@ -78,33 +80,6 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_errfp = errfp;
-
-  return(CV_SUCCESS);
-}
-
-/* 
- * CVodeSetIterType
- *
- * Specifies the iteration type (CV_FUNCTIONAL or CV_NEWTON)
- */
-
-int CVodeSetIterType(void *cvode_mem, int iter)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetIterType", MSGCV_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if ((iter != CV_FUNCTIONAL) && (iter != CV_NEWTON)) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetIterType", MSGCV_BAD_ITER);
-    return (CV_ILL_INPUT);
-  }
-
-  cv_mem->cv_iter = iter;
 
   return(CV_SUCCESS);
 }
@@ -426,7 +401,7 @@ int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetMaxNonlinIters
  *
  * Specifies the maximum number of nonlinear iterations during
@@ -436,15 +411,41 @@ int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
 int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
 {
   CVodeMem cv_mem;
+  booleantype sensi_sim;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetMaxNonlinIters", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeSetMaxNonlinIters", MSGCV_NO_MEM);
     return (CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem->cv_maxcor = maxcor;
+  /* Are we computing sensitivities with the simultaneous approach? */
+  sensi_sim = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_SIMULTANEOUS));
+
+  if (sensi_sim) {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLSsim == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                      "CVodeSetMaxNonlinIters", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolSetMaxIters(cv_mem->NLSsim, maxcor));
+
+  } else {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLS == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                      "CVodeSetMaxNonlinIters", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor));
+  }
 
   return(CV_SUCCESS);
 }
@@ -526,6 +527,69 @@ int CVodeSetNoInactiveRootWarn(void *cvode_mem)
   return(CV_SUCCESS);
 }
 
+/*
+ * CVodeSetConstraints
+ *
+ * Setup for constraint handling feature
+ */
+
+int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
+{
+  CVodeMem cv_mem;
+  realtype temptest;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetConstraints", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* If there are no constraints, destroy data structures */
+  if (constraints == NULL) {
+    if (cv_mem->cv_constraintsMallocDone) {
+      N_VDestroy(cv_mem->cv_constraints);
+      cv_mem->cv_lrw -= cv_mem->cv_lrw1;
+      cv_mem->cv_liw -= cv_mem->cv_liw1;
+    }
+    cv_mem->cv_constraintsMallocDone = SUNFALSE;
+    cv_mem->cv_constraintsSet = SUNFALSE;
+    return(CV_SUCCESS);
+  }
+
+  /* Test if required vector ops. are defined */
+
+  if (constraints->ops->nvdiv         == NULL ||
+      constraints->ops->nvmaxnorm     == NULL ||
+      constraints->ops->nvcompare     == NULL ||
+      constraints->ops->nvconstrmask  == NULL ||
+      constraints->ops->nvminquotient == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetConstraints", MSGCV_BAD_NVECTOR);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Check the constraints vector */
+  temptest = N_VMaxNorm(constraints);
+  if ((temptest > TWOPT5) || (temptest < HALF)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetConstraints", MSGCV_BAD_CONSTR);
+    return(CV_ILL_INPUT);
+  }
+
+  if ( !(cv_mem->cv_constraintsMallocDone) ) {
+    cv_mem->cv_constraints = N_VClone(constraints);
+    cv_mem->cv_lrw += cv_mem->cv_lrw1;
+    cv_mem->cv_liw += cv_mem->cv_liw1;
+    cv_mem->cv_constraintsMallocDone = SUNTRUE;
+  }
+
+  /* Load the constraints vector */
+  N_VScale(ONE, constraints, cv_mem->cv_constraints);
+
+  cv_mem->cv_constraintsSet = SUNTRUE;
+
+  return(CV_SUCCESS);
+}
+
 /* 
  * =================================================================
  * Quadrature optional input functions
@@ -602,15 +666,41 @@ int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS)
 int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS)
 {
   CVodeMem cv_mem;
+  booleantype sensi_stg;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetSensMaxNonlinIters", MSGCV_NO_MEM);    
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeSetSensMaxNonlinIters", MSGCV_NO_MEM);
     return (CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem->cv_maxcorS = maxcorS;
+  /* Are we computing sensitivities with a staggered approach? */
+  sensi_stg = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_STAGGERED));
+
+  if (sensi_stg) {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLSstg == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                      "CVodeSetSensMaxNonlinIters", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolSetMaxIters(cv_mem->NLSstg, maxcorS));
+
+  } else {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLSstg1 == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                      "CVodeSetMaxNonlinIters", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolSetMaxIters(cv_mem->NLSstg1, maxcorS));
+  }
 
   return(CV_SUCCESS);
 }
@@ -1127,7 +1217,7 @@ int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
 }
 
 
-/* 
+/*
  * CVodeGetNumNonlinSolvIters
  *
  * Returns the current number of iterations in the nonlinear solver
@@ -1136,15 +1226,42 @@ int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
 int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
 {
   CVodeMem cv_mem;
+  booleantype sensi_sim;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNumNonlinSolvIters", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeGetNumNonlinSolvIters", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = cv_mem->cv_nni;
+  /* are we computing sensitivities with the simultaneous approach? */
+  sensi_sim = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_SIMULTANEOUS));
+
+  /* get number of iterations from the NLS */
+  if (sensi_sim) {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLSsim == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                     "CVodeGetNumNonlinSolvIters", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolGetNumIters(cv_mem->NLSsim, nniters));
+
+  } else {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLS == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                     "CVodeGetNumNonlinSolvIters", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
+  }
 
   return(CV_SUCCESS);
 }
@@ -1172,26 +1289,54 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetNonlinSolvStats
  *
  * Returns nonlinear solver statistics
  */
 
-int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters, 
+int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
                             long int *nncfails)
 {
   CVodeMem cv_mem;
+  booleantype sensi_sim;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetNonlinSolvStats", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeGetNonlinSolvStats", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = cv_mem->cv_nni;
   *nncfails = cv_mem->cv_ncfn;
+
+  /* are we computing sensitivities with the simultaneous approach? */
+  sensi_sim = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_SIMULTANEOUS));
+
+  /* get number of iterations from the NLS */
+  if (sensi_sim) {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLSsim == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                     "CVodeGetNumNonlinSolvIters", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolGetNumIters(cv_mem->NLSsim, nniters));
+
+  } else {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLS == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                     "CVodeGetNumNonlinSolvIters", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
+  }
 
   return(CV_SUCCESS);
 }
@@ -1557,22 +1702,48 @@ int CVodeGetSensStats(void *cvode_mem, long int *nfSevals, long int *nfevalsS,
 int CVodeGetSensNumNonlinSolvIters(void *cvode_mem, long int *nSniters)
 {
   CVodeMem cv_mem;
+  booleantype sensi_stg;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetSensNumNonlinSolvIters", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeGetSensNumNonlinSolvIters", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->cv_sensi==SUNFALSE) {
-    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNumNonlinSolvIters", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES",
+                   "CVodeGetSensNumNonlinSolvIters", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nSniters = cv_mem->cv_nniS;
+  /* Are we computing sensitivities with a staggered approach? */
+  sensi_stg = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_STAGGERED));
 
-  return(CV_SUCCESS);
+  if (sensi_stg) {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLSstg == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                      "CVodeGetSensNumNonlinSolvIters", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolGetNumIters(cv_mem->NLSstg, nSniters));
+
+  } else {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLSstg1 == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                      "CVodeGetSensNumNonlinSolvIters", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolGetNumIters(cv_mem->NLSstg1, nSniters));
+  }
+
 }
 
 /*-----------------------------------------------------------------*/
@@ -1658,21 +1829,49 @@ int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
                                 long int *nSncfails)
 {
   CVodeMem cv_mem;
+  booleantype sensi_stg;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetSensNonlinSolvstats", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeGetSensNonlinSolvstats", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->cv_sensi==SUNFALSE) {
-    cvProcessError(cv_mem, CV_NO_SENS, "CVODES", "CVodeGetSensNonlinSolvStats", MSGCV_NO_SENSI);
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES",
+                   "CVodeGetSensNonlinSolvStats", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nSniters = cv_mem->cv_nniS;
   *nSncfails = cv_mem->cv_ncfnS;
+
+  /* Are we computing sensitivities with a staggered approach? */
+  sensi_stg = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_STAGGERED));
+
+  if (sensi_stg) {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLSstg == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                      "CVodeGetSensNumNonlinSolvStats", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolGetNumIters(cv_mem->NLSstg, nSniters));
+
+  } else {
+
+    /* check that the NLS is non-NULL */
+    if (cv_mem->NLSstg1 == NULL) {
+      cvProcessError(NULL, CV_MEM_FAIL, "CVODES",
+                      "CVodeGetSensNumNonlinSolvStats", MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+
+    return(SUNNonlinSolGetNumIters(cv_mem->NLSstg1, nSniters));
+  }
 
   return(CV_SUCCESS);
 }

@@ -2,15 +2,15 @@
 # Programmer(s): Radu Serban @ LLNL
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for CVODES serial examples
 # ---------------------------------------------------------------
@@ -20,6 +20,12 @@
 
 # Examples using SUNDIALS linear solvers
 SET(CVODES_examples
+  "cvsRoberts_dns\;\;"
+  "cvsRoberts_dns_constraints\;\;develop"
+  "cvsRoberts_dns_uw\;\;develop"
+  "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
+  "cvsRoberts_FSA_dns_Switch\;\;develop"
+  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;develop"
   "cvsAdvDiff_ASAi_bnd\;\;develop"
   "cvsAdvDiff_bnd\;\;develop"
   "cvsAdvDiff_FSA_non\;-sensi stg t\;develop"
@@ -35,9 +41,7 @@ SET(CVODES_examples
   "cvsKrylovDemo_ls\;\;develop"
   "cvsKrylovDemo_prec\;\;develop"
   "cvsRoberts_ASAi_dns\;\;develop"
-  "cvsRoberts_dns\;\;"
-  "cvsRoberts_dns_uw\;\;develop"
-  "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
+  "cvsRoberts_ASAi_dns_constraints\;\;develop"
   )
 
 # Examples using LAPACK linear solvers
@@ -90,7 +94,7 @@ FOREACH(example_tuple ${CVODES_examples})
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    
+
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   ENDIF()
@@ -110,7 +114,7 @@ FOREACH(example_tuple ${CVODES_examples})
     EXAMPLE_TYPE ${example_type})
 
   # find all .out files for this example
-  FILE(GLOB example_out ${example}.out*)
+  FILE(GLOB example_out ${example}*.out)
 
   # install example source and .out files
   IF(EXAMPLES_INSTALL)
@@ -297,12 +301,18 @@ IF(SUPERLUMT_FOUND)
       STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     ENDIF()
 
-    # add example to regression tests
-    SUNDIALS_ADD_TEST(${test_name} ${example}
-      TEST_ARGS ${example_args}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type})
+    # Do not include SuperLUMT examples in testing when the indextype is int32_t.
+    # Answer files were generated with int64_t and minor differences in output
+    # occur causing a false positive when testing. These tests can be re-enabled
+    # when type specific answer files are added.
+    IF(SUNDIALS_INDEX_SIZE MATCHES "64")
+      # add example to regression tests
+      SUNDIALS_ADD_TEST(${test_name} ${example}
+        TEST_ARGS ${example_args}
+        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        ANSWER_FILE ${test_name}.out
+        EXAMPLE_TYPE ${example_type})
+    ENDIF()
 
     # find all .out files for this example
     FILE(GLOB example_out ${example}.out*)

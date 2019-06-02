@@ -2,35 +2,22 @@
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the LAPACK band implementation of the 
- * SUNLINSOL module.
+ * SUNLINSOL module, SUNLINSOL_LAPACKBAND.
  * 
- * Part I contains declarations specific to the LAPACK band 
- * implementation of the supplied SUNLINSOL module.
- * 
- * Part II contains the prototype for the constructor 
- * SUNLapackBand as well as implementation-specific prototypes 
- * for various useful solver operations.
- *
- * Notes:
- *
+ * Note:
  *   - The definition of the generic SUNLinearSolver structure can 
  *     be found in the header file sundials_linearsolver.h.
- *
  * -----------------------------------------------------------------
  */
 
@@ -64,17 +51,9 @@ extern "C" {
 #error  Incompatible sunindextype for LAPACK; disable LAPACK and rebuild
 #endif
 
-/*
- * -----------------------------------------------------------------
- * PART I: LAPACK band implementation of SUNLinearSolver
- *
- * The LAPACK band implementation of the SUNLinearSolver 'content' 
- * structure contains:
- *     N -- size of the linear system
- *     pivots -- index array for partial pivoting in LU factorization
- *     last_flag -- last error return flag from internal setup/solve
- * -----------------------------------------------------------------
- */
+/* ----------------------------------------------
+ * LAPACK band implementation of SUNLinearSolver
+ * ---------------------------------------------- */
   
 struct _SUNLinearSolverContent_LapackBand {
   sunindextype N;
@@ -85,25 +64,15 @@ struct _SUNLinearSolverContent_LapackBand {
 typedef struct _SUNLinearSolverContent_LapackBand *SUNLinearSolverContent_LapackBand;
 
   
-/*
- * -----------------------------------------------------------------
- * PART II: functions exported by sunlinsol_lapackband
- * 
- * CONSTRUCTOR:
- *    SUNLapackBand creates and allocates memory for a LAPACK banded 
- *      matrix solver
- *
- * OTHER:
- * -----------------------------------------------------------------
- */
+/* --------------------------------------------
+ * Exported Functions for SUNLINSOL_LAPACKBAND
+ * -------------------------------------------- */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackBand(N_Vector y,
+                                                     SUNMatrix A);
+  
+/* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A);
-
-/*
- * -----------------------------------------------------------------
- * LAPACK band implementations of required linear solver operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_LapackBand(SUNLinearSolver S);
@@ -115,7 +84,7 @@ SUNDIALS_EXPORT int SUNLinSolSpace_LapackBand(SUNLinearSolver S,
                                               long int *lenrwLS,
                                               long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_LapackBand(SUNLinearSolver S);
-  
+
 #ifdef __cplusplus
 }
 #endif

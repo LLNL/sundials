@@ -1,0 +1,117 @@
+%===============================================================================
+\section{{\trilinos} example problems}\label{s:ex_trilinos}
+%===============================================================================
+
+\subsection{A nonstiff shared memory parallel example:  idaHeat2D\_kry\_tpetra}
+\label{ss:idaHeat2D_kry_tpetra}
+
+This example is the same as \ref{ss:idaHeat2D}, except it uses the
+Tpetra \cite{hoemmen2015tpetra} vector from the {\trilinos} library \cite{Trilinos-Overview}. The Tpetra vector is built on top of the Kokkos
+framework \cite{edwards2014kokkos}, which provides different shared memory parallelism options. The output of the
+two examples is identical. In the following, we will describe only the implementation
+differences between the two. We assume the user is familiar with the {\trilinos} packages
+Kokkos, Teuchos, and Tpetra.
+
+Before Tpetra methods can be called, the Tpetra scope guard needs to be instantiated. 
+\begin{verbatim}
+  /* Start an MPI session */
+  Tpetra::ScopeGuard tpetraScope(&argc, &argv);
+\end{verbatim}
+The scope guard will initialize an MPI session and create a Tpetra communicator
+within the current scope. The scope guard will ensure the MPI session is finalized
+and all related objects are destroyed upon leaving the scope. The user does not need
+to make any MPI calls directly. 
+If Tpetra is built without MPI support, the scope guard will create a dummy
+(serial) communicator.
+
+Once the Tpetra communicator is created, a mapping from global to local vectors
+needs to be created:
+\begin{verbatim}
+  /* Create Tpetra communicator */
+  auto comm = Tpetra::getDefaultComm();
+
+  /* Choose zero-based (C-style) indexing. */
+  const sunindextype index_base = 0;
+
+  /* Construct an MPI Map */
+  Teuchos::RCP<const map_type> mpiMap =
+    Teuchos::rcp(new map_type(global_length, index_base, comm,
+                              Tpetra::GloballyDistributed));
+\end{verbatim}
+The constructor above will create a map that will evenly partition the global vectors
+and assign local vector lengths to each MPI rank. This example is designed to
+run in a shared memory environment on a single MPI rank, so the partitioning is trivial.
+If {\trilinos} is built without MPI support, the Tpetra serial
+communicator will be used and the MPI size will be set to one rank. If {\trilinos} is built
+with MPI support, the user has to run the example with one rank only, otherwise the example
+will exit with an error message. The advantage of this approach is that
+this example can be linked to a Trilinos library built with or without MPI support, without
+changing the example code. 
+Once the communicator and map are set, a Tpetra vector is created as:
+\begin{verbatim}
+  /* Create a Tpetra vector and return refernce counting pointer to it. */
+  Teuchos::RCP<vector_type> rcpuu =
+    Teuchos::rcp(new vector_type(mpiMap));
+\end{verbatim}
+With the Tpetra vector instantiated, the template \verb|N_Vector| is created by 
+invoking
+\begin{verbatim}
+  uu = N_VMake_Trilinos(rcpuu);
+\end{verbatim}
+All other vectors are created by cloning the template vector \verb|uu| to
+ensure they are all of the same size and have the same partitioning. The
+rest of the main body of the example is the same as in the corresponding
+serial example in \ref{ss:idaHeat2D}.
+
+User supplied functions \verb|resHeat| and \verb|PsetupHeat| are implemented
+using Kokkos kernels. They will be executed on the default Kokkos node type.
+Available Kokkos node types in {\trilinos} 12.14 release are serial (single thread),
+OpenMP, Pthread, and {\cuda}. The default node type is selected when building
+the Kokkos package.
+
+
+\subsection{A nonstiff MPI+X parallel example: idaHeat2D\_kry\_p\_tpetra}
+\label{ss:idaHeat2D_kry_p_tpetra}
+
+This example is the same as the one in \ref{ss:idaHeat2D_p}, except 
+it uses the Tpetra vector instead of the native {\sundials} parallel vector 
+implementation. The output of the two examples is identical. In the following, 
+we describe only the implementation differences between the two. 
+
+The template \verb|N_Vector| is created the same way as in
+\ref{ss:idaHeat2D_kry_tpetra}. All other vectors are created by
+cloning the template \verb|N_Vector|. This example is hard-wired to use
+4 MPI partitions, and will return an error if it is not.
+Because of this, the {\sundials} CMake system will build this example only
+if the {\trilinos} library is built with MPI support.
+The Tpetra vector provides different on-node (shared memory)
+parallelization options in addition to MPI (distributed memory) parallelism.
+The \verb|N_Vector_Trilinos| will use the Kokkos default on-node
+parallelism, which is selected when building the Kokkos package. 
+
+This example uses Kokkos 1D views \cite{edwards2014kokkos} as MPI buffers. The internal
+boundaries of the four subgrids in the example are copied to the buffers using custom built
+Kokkos kernels. Each buffer has its host mirror. The buffer data is passed from
+the host (CPU memory) to MPI functions in the same way as described in \ref{ss:idaHeat2D_p}. 
+If the buffer is in CPU memory,
+the buffer and its host mirror are views of the same data. If the buffer is on
+a GPU device, then its host mirror is a copy of the buffer data in CPU memory.
+Before passing the buffer to an MPI call, the host mirror is updated using
+\verb|Kokkos::deep_copy|. If the buffer is
+on the host, the \verb|Kokkos::deep_copy| call to update the buffer host mirror will
+not do anything, and therefore will not create unnecessary overhead.
+
+\paragraph{\bf Notes} 
+           
+\begin{itemize}
+                                        
+\item
+  {\warn}At this point interfaces to {\trilinos} solvers and preconditioners are 
+  not available. They will be added in subsequent {\sundials} releases. 
+
+\end{itemize}
+
+
+
+%-------------------------------------------------------------------------------
+

@@ -3,6 +3,16 @@
  * Programmer(s): S. D. Cohen, A. C. Hindmarsh, M. R. Wittman, and
  *                Radu Serban  @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * Example problem:
  *
  * An ODE system is generated from the following 2-species diurnal
@@ -29,7 +39,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the BDF/GMRES method (i.e. using the
- * SUNSPGMR linear solver) and the block-diagonal part of the
+ * SUNLinSol_SPGMR linear solver) and the block-diagonal part of the
  * Newton matrix as a left preconditioner. A copy of the
  * block-diagonal part of the Jacobian is saved and conditionally
  * reused within the preconditioner routine.
@@ -53,7 +63,6 @@
 #include <nvector/nvector_parallel.h>  /* access to MPI-parallel N_Vector        */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver        */
 #include <sundials/sundials_dense.h>   /* prototypes for small dense fcts.       */
-#include <cvode/cvode_spils.h>         /* access to CVSpils interface            */
 #include <sundials/sundials_types.h>   /* definitions of realtype, booleantype   */
 #include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP    */
 
@@ -173,7 +182,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 
 /***************************** Main Program ******************************/
@@ -185,7 +194,7 @@ int main(int argc, char *argv[])
   UserData data;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int iout, flag, my_pe, npes;
+  int iout, retval, my_pe, npes;
   sunindextype neq, local_N;
   MPI_Comm comm;
 
@@ -216,56 +225,56 @@ int main(int argc, char *argv[])
 
   /* Allocate and load user data block; allocate preconditioner block */
   data = (UserData) malloc(sizeof *data);
-  if (check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, comm, data);
 
   /* Allocate u, and set initial values and tolerances */ 
   u = N_VNew_Parallel(comm, local_N, neq);
-  if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
   /* Call CVodeCreate to create the solver memory and specify the 
-   * Backward Differentiation Formula and the use of a Newton iteration */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
+   * Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
-  flag = CVodeSetUserData(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if (check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if(check_flag(&flag, "CVodeInit", 1, my_pe)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if(check_retval(&retval, "CVodeInit", 1, my_pe)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) return(1);
 
   /* Create SPGMR solver structure with left preconditioning 
      and the default Krylov dimension maxl */
-  LS = SUNSPGMR(u, PREC_LEFT, 0);
-  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
-  /* Attach SPGMR solver structure to CVSpils interface */
-  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
-  if (check_flag(&flag, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach SPGMR solver structure to CVode interface */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set preconditioner setup and solve routines Precond and PSolve, 
      and the pointer to the user-defined block data */
-  flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
-  if (check_flag(&flag, "CVSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
+  if (check_retval(&retval, "CVodeSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0)
     printf("\n2-species diurnal advection-diffusion problem\n\n");
 
   /* In loop over output points, call CVode, print results, test for error */
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if (check_flag(&flag, "CVode", 1, my_pe)) break;
+    retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if (check_retval(&retval, "CVode", 1, my_pe)) break;
     PrintOutput(cvode_mem, my_pe, comm, u, t);
   }
 
@@ -273,7 +282,7 @@ int main(int argc, char *argv[])
   if (my_pe == 0) PrintFinalStats(cvode_mem);
 
   /* Free memory */
-  N_VDestroy_Parallel(u);
+  N_VDestroy(u);
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
@@ -387,7 +396,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
-  int qu, flag;
+  int qu, retval;
   realtype hu, *udata, tempu[2];
   int npelast;
   long int nst;
@@ -402,7 +411,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
     i0 = NVARS*MXSUB*MYSUB - 2;
     i1 = i0 + 1;
     if (npelast != 0)
-      MPI_Send(&udata[i0], 2, PVEC_REAL_MPI_TYPE, 0, 0, comm);
+      MPI_Send(&udata[i0], 2, MPI_SUNREALTYPE, 0, 0, comm);
     else {
       tempu[0] = udata[i0];
       tempu[1] = udata[i1];
@@ -413,13 +422,13 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
      and sampled solution values */ 
   if (my_pe == 0) {
     if (npelast != 0)
-      MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
-    flag = CVodeGetLastOrder(cvode_mem, &qu);
-    check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
-    flag = CVodeGetLastStep(cvode_mem, &hu);
-    check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
+      MPI_Recv(&tempu[0], 2, MPI_SUNREALTYPE, npelast, 0, comm, &status);
+    retval = CVodeGetNumSteps(cvode_mem, &nst);
+    check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
+    retval = CVodeGetLastOrder(cvode_mem, &qu);
+    check_retval(&retval, "CVodeGetLastOrder", 1, my_pe);
+    retval = CVodeGetLastStep(cvode_mem, &hu);
+    check_retval(&retval, "CVodeGetLastStep", 1, my_pe);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n",
@@ -448,35 +457,35 @@ static void PrintFinalStats(void *cvode_mem)
   long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
-  int flag;
+  int retval;
 
-  flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
-  check_flag(&flag, "CVodeGetWorkSpace", 1, 0);
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1, 0);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
+  retval = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
+  check_retval(&retval, "CVodeGetWorkSpace", 1, 0);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1, 0);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1, 0);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1, 0);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1, 0);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1, 0);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "CVSpilsGetWorkSpace", 1, 0);
-  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpilsGetNumLinIters", 1, 0);
-  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpilsGetNumPrecEvals", 1, 0);
-  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpilsGetNumPrecSolves", 1, 0);
-  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpilsGetNumConvFails", 1, 0);
-  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVSpilsGetNumRhsEvals", 1, 0);
+  retval = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_retval(&retval, "CVodeGetLinWorkSpace", 1, 0);
+  retval = CVodeGetNumLinIters(cvode_mem, &nli);
+  check_retval(&retval, "CVodeGetNumLinIters", 1, 0);
+  retval = CVodeGetNumPrecEvals(cvode_mem, &npe);
+  check_retval(&retval, "CVodeGetNumPrecEvals", 1, 0);
+  retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
+  check_retval(&retval, "CVodeGetNumPrecSolves", 1, 0);
+  retval = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
+  check_retval(&retval, "CVodeGetNumLinConvFails", 1, 0);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
@@ -502,12 +511,12 @@ static void BSend(MPI_Comm comm,
 
   /* If isuby > 0, send data from bottom x-line of u */
   if (isuby != 0)
-    MPI_Send(&udata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
+    MPI_Send(&udata[0], dsizex, MPI_SUNREALTYPE, my_pe-NPEX, 0, comm);
 
   /* If isuby < NPEY-1, send data from top x-line of u */
   if (isuby != NPEY-1) {
     offsetu = (MYSUB-1)*dsizex;
-    MPI_Send(&udata[offsetu], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
+    MPI_Send(&udata[offsetu], dsizex, MPI_SUNREALTYPE, my_pe+NPEX, 0, comm);
   }
 
   /* If isubx > 0, send data from left y-line of u (via bufleft) */
@@ -518,7 +527,7 @@ static void BSend(MPI_Comm comm,
       for (i = 0; i < NVARS; i++)
         bufleft[offsetbuf+i] = udata[offsetu+i];
     }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe-1, 0, comm);   
+    MPI_Send(&bufleft[0], dsizey, MPI_SUNREALTYPE, my_pe-1, 0, comm);   
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
@@ -529,7 +538,7 @@ static void BSend(MPI_Comm comm,
       for (i = 0; i < NVARS; i++)
         bufright[offsetbuf+i] = udata[offsetu+i];
     }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);   
+    MPI_Send(&bufright[0], dsizey, MPI_SUNREALTYPE, my_pe+1, 0, comm);   
   }
 }
  
@@ -551,25 +560,25 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
 
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
-    MPI_Irecv(&uext[NVARS], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&uext[NVARS], dsizex, MPI_SUNREALTYPE,
     					 my_pe-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
   if (isuby != NPEY-1) {
     offsetue = NVARS*(1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&uext[offsetue], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&uext[offsetue], dsizex, MPI_SUNREALTYPE,
                                          my_pe+NPEX, 0, comm, &request[1]);
   }
 
   /* If isubx > 0, receive data for left y-line of uext (via bufleft) */
   if (isubx != 0) {
-    MPI_Irecv(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufleft[0], dsizey, MPI_SUNREALTYPE,
                                          my_pe-1, 0, comm, &request[2]);
   }
 
   /* If isubx < NPEX-1, receive data for right y-line of uext (via bufright) */
   if (isubx != NPEX-1) {
-    MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufright[0], dsizey, MPI_SUNREALTYPE,
                                          my_pe+1, 0, comm, &request[3]);
   }
 }
@@ -671,7 +680,7 @@ static void fcalc(realtype t, realtype udata[],
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
-  int i, lx, ly, jx, jy;
+  int i, lx, ly, jy;
   int isubx, isuby;
   sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
 
@@ -752,8 +761,6 @@ static void fcalc(realtype t, realtype udata[],
     cyup = verdco*SUNRexp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
-      jx = lx + isubx*MXSUB;
-
       /* Extract c1 and c2, and set kinetic rate terms */
       offsetue = (lx+1)*NVARS + (ly+1)*nvmxsub2;
       c1 = uext[offsetue];
@@ -822,9 +829,9 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
-  int nvmxsub, ier, offset;
+  int nvmxsub, retval, offset;
   sunindextype *(*pivot)[MYSUB];
-  int lx, ly, jx, jy, isubx, isuby;
+  int lx, ly, jy, isuby;
   realtype *udata, **a, **j;
   UserData data;
 
@@ -835,7 +842,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   Jbd = data->Jbd;
   pivot = data->pivot;
   udata = N_VGetArrayPointer(u);
-  isubx = data->isubx;   isuby = data->isuby;
+  isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
   if (jok) {
@@ -869,7 +876,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       cyup = verdco*SUNRexp(RCONST(0.2)*yup);
       diag = -(cydn + cyup + RCONST(2.0)*hordco);
       for (lx = 0; lx < MXSUB; lx++) {
-        jx = lx + isubx*MXSUB;
         offset = lx*NVARS + ly*nvmxsub;
         c1 = udata[offset];
         c2 = udata[offset+1];
@@ -896,8 +902,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       denseAddIdentity(P[lx][ly], NVARS);
-      ier = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
-      if (ier != 0) return(1);
+      retval = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
+      if (retval != 0) return(1);
     }
   }
 
@@ -946,31 +952,31 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 /* Check function return value...
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
+     opt == 1 means SUNDIALS function returns an integer value so check if
+              retval < 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-	      id, funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+	      id, funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }

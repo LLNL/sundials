@@ -1,22 +1,15 @@
 # ---------------------------------------------------------------
 # Programmer:  Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2015, Southern Methodist University and
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Southern Methodist University and Lawrence Livermore
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
-# Copyright (c) 2013, Southern Methodist University.
-# All rights reserved.
-# For details, see the LICENSE file.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for ARKODE OpenMP examples
 # ---------------------------------------------------------------
@@ -24,20 +17,16 @@
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-# Only include tests if OpenMP is enabled
-IF(OPENMP_FOUND)
+# Examples using SUNDIALS linear solvers
+SET(ARKODE_examples
+  "ark_brusselator1D_omp\;4\;develop"
+  "ark_heat1D_omp\;4\;develop"
+  )
 
-  # Examples using SUNDIALS linear solvers
-  SET(ARKODE_examples
-    "ark_brusselator1D_omp\;4\;develop"
-    )
-
-  # Auxiliary files to install
-  SET(ARKODE_extras_OMP
-    plot_brusselator1D.py
-    )
-
-ENDIF(OPENMP_FOUND)
+# Auxiliary files to install
+SET(ARKODE_extras_OMP
+  plot_brusselator1D.py
+  )
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -55,7 +44,6 @@ SET(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECOMP_LIB} ${EXTRA_LINK_LIBS})
 # update the compilation flags to include OpenMP support
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-
 
 # Add the build and install targets for each ARKODE example
 FOREACH(example_tuple ${ARKODE_examples})

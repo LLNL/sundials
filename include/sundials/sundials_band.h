@@ -1,19 +1,15 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the header file for a generic BAND linear solver
  * package, based on the DlsMat type defined in sundials_direct.h.
@@ -22,9 +18,8 @@
  * this file: one set uses type DlsMat defined below and the
  * other set uses the type realtype ** for band matrix arguments.
  * Routines that work with the type DlsMat begin with "Band".
- * Routines that work with realtype ** begin with "band"
- * -----------------------------------------------------------------
- */
+ * Routines that work with realtype ** begin with "band".
+ * -----------------------------------------------------------------*/
 
 #ifndef _SUNDIALS_BAND_H
 #define _SUNDIALS_BAND_H
@@ -82,8 +77,9 @@ extern "C" {
  */
 
 SUNDIALS_EXPORT sunindextype BandGBTRF(DlsMat A, sunindextype *p);
-SUNDIALS_EXPORT sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindextype ml,
-                                   sunindextype smu, sunindextype *p);
+SUNDIALS_EXPORT sunindextype bandGBTRF(realtype **a, sunindextype n,
+                                       sunindextype mu, sunindextype ml,
+                                       sunindextype smu, sunindextype *p);
 
 /*
  * -----------------------------------------------------------------
@@ -115,16 +111,17 @@ SUNDIALS_EXPORT void bandGBTRS(realtype **a, sunindextype n, sunindextype smu,
  * BandCopy copies the submatrix with upper and lower bandwidths
  * copymu, copyml of the N by N band matrix A into the N by N
  * band matrix B.
- * 
+ *
  * BandCopy is a wrapper around bandCopy which accesses the data
- * in the DlsMat A and DlsMat B (i.e. the fields cols)
+ * in the DlsMat A and DlsMat B (i.e. the fields cols).
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void BandCopy(DlsMat A, DlsMat B, sunindextype copymu, sunindextype copyml);
+SUNDIALS_EXPORT void BandCopy(DlsMat A, DlsMat B, sunindextype copymu,
+                              sunindextype copyml);
 SUNDIALS_EXPORT void bandCopy(realtype **a, realtype **b, sunindextype n,
                               sunindextype a_smu, sunindextype b_smu,
-			      sunindextype copymu, sunindextype copyml);
+                              sunindextype copymu, sunindextype copyml);
 
 /*
  * -----------------------------------------------------------------
@@ -141,7 +138,9 @@ SUNDIALS_EXPORT void bandCopy(realtype **a, realtype **b, sunindextype n,
  */
 
 SUNDIALS_EXPORT void BandScale(realtype c, DlsMat A);
-SUNDIALS_EXPORT void bandScale(realtype c, realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu);
+SUNDIALS_EXPORT void bandScale(realtype c, realtype **a, sunindextype n,
+                               sunindextype mu, sunindextype ml,
+                               sunindextype smu);
 
 /*
  * -----------------------------------------------------------------
@@ -152,26 +151,28 @@ SUNDIALS_EXPORT void bandScale(realtype c, realtype **a, sunindextype n, suninde
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void bandAddIdentity(realtype **a, sunindextype n, sunindextype smu);
+SUNDIALS_EXPORT void bandAddIdentity(realtype **a, sunindextype n,
+                                     sunindextype smu);
 
 
 /*
  * -----------------------------------------------------------------
  * Function: BandMatvec
  * -----------------------------------------------------------------
- * BandMatvec computes the matrix-vector product y = A*x, where A 
- * is an M-by-N band matrix, x is a vector of length N, and y is a 
- * vector of length M.  No error checking is performed on the length 
+ * BandMatvec computes the matrix-vector product y = A*x, where A
+ * is an M-by-N band matrix, x is a vector of length N, and y is a
+ * vector of length M.  No error checking is performed on the length
  * of the arrays x and y.  Only y is modified in this routine.
  *
- * BandMatvec is a wrapper around bandMatvec which performs the 
+ * BandMatvec is a wrapper around bandMatvec which performs the
  * actual product by accessing the data in the DlsMat A.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT void BandMatvec(DlsMat A, realtype *x, realtype *y);
-SUNDIALS_EXPORT void bandMatvec(realtype **a, realtype *x, realtype *y, sunindextype n, 
-		sunindextype mu, sunindextype ml, sunindextype smu);
+SUNDIALS_EXPORT void bandMatvec(realtype **a, realtype *x, realtype *y,
+                                sunindextype n, sunindextype mu,
+                                sunindextype ml, sunindextype smu);
 
 #ifdef __cplusplus
 }

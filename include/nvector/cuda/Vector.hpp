@@ -1,32 +1,29 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
+ * Programmer(s): Slaven Peles, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
- * Programmer(s): Slaven Peles @ LLNL
- * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department
- * of Energy by Lawrence Livermore National Laboratory in part under
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  */
 
 
-/**
+/*
  * Vector class
  *
  * Manages vector data layout for CUDA implementation of N_Vector.
  *
  */
 
-#ifndef _NVECTOR_HPP_
-#define _NVECTOR_HPP_
+#ifndef _NVECTOR_CUDA_HPP_
+#define _NVECTOR_CUDA_HPP_
 
 #include <cstdlib>
 #include <iostream>
@@ -35,6 +32,7 @@
 #include "ThreadPartitioning.hpp"
 
 #include <nvector/nvector_cuda.h>
+#include <sundials/sundials_config.h>
 
 namespace suncudavec
 {
@@ -43,59 +41,114 @@ template <typename T, typename I>
 class Vector : public _N_VectorContent_Cuda
 {
 public:
-  Vector(I N)
+  Vector(I N,
+         bool use_managed_memory = false, bool allocate_data = true,
+         T* const h_vec = nullptr, T* const d_vec = nullptr)
   : size_(N),
     mem_size_(N*sizeof(T)),
-    ownPartitioning_(true)
+    ownPartitioning_(true),
+    ownData_(allocate_data),
+    managed_mem_(use_managed_memory),
+    h_vec_(h_vec),
+    d_vec_(d_vec)
   {
     // Set partitioning
     partStream_ = new StreamPartitioning<T, I>(N, 256);
     partReduce_ = new ReducePartitioning<T, I>(N, 256);
 
-    allocate();
+    // Allocate data arrays
+    if (allocate_data)
+      allocate();
   }
 
-  /// Copy constructor does not copy values
+  Vector(I N, cudaStream_t stream,
+         bool use_managed_memory = false, bool allocate_data = true,
+         T* const h_vec = nullptr, T* const d_vec = nullptr)
+  : size_(N),
+    mem_size_(N*sizeof(T)),
+    ownPartitioning_(true),
+    ownData_(allocate_data),
+    managed_mem_(use_managed_memory),
+    h_vec_(h_vec),
+    d_vec_(d_vec)
+  {
+    // Set partitioning
+    partStream_ = new StreamPartitioning<T, I>(N, 256, stream);
+    partReduce_ = new ReducePartitioning<T, I>(N, 256, stream);
+
+    // Allocate data arrays
+    if (allocate_data)
+      allocate();
+  }
+  
+  // Copy constructor does not copy data array values
   explicit Vector(const Vector& v)
   : size_(v.size()),
     mem_size_(size_*sizeof(T)),
     partStream_(v.partStream_),
     partReduce_(v.partReduce_),
-    ownPartitioning_(false)
+    ownPartitioning_(false),
+    ownData_(true),
+    managed_mem_(v.managed_mem_),
+    h_vec_(nullptr),
+    d_vec_(nullptr)
   {
     allocate();
   }
 
   ~Vector()
   {
-    if (ownPartitioning_)
-    {
+    cudaError_t err;
+    
+    if (ownPartitioning_) {
       delete partReduce_;
       delete partStream_;
     }
-    clear();
+    
+    if (ownData_) {
+      if (!managed_mem_)
+        free(h_vec_);
+      
+      err = cudaFree(d_vec_);
+      if(err != cudaSuccess)
+        std::cerr << "Failed to free device vector (error code " << err << ")!\n";
+    
+      d_vec_ = nullptr;
+      h_vec_ = nullptr;
+    }
   }
-
 
   void allocate()
   {
+    if (managed_mem_) {
+      allocateManaged();
+    } else {
+      allocateUnmanaged();
+    }
+  }
+
+  void allocateManaged()
+  {
     cudaError_t err;
+    err = cudaMallocManaged((void**) &d_vec_, mem_size_);
+    if (err != cudaSuccess)
+      std::cerr << "Failed to allocate managed vector (error code " << err << ")!\n";
+    h_vec_ = d_vec_;
+  }
+
+  void allocateUnmanaged()
+  {
+    cudaError_t err;
+    
     h_vec_ = static_cast<T*>(malloc(mem_size_));
-    if(h_vec_ == NULL)
+    if(h_vec_ == nullptr)
       std::cerr << "Failed to allocate host vector!\n";
+    
     err = cudaMalloc((void**) &d_vec_, mem_size_);
     if(err != cudaSuccess)
       std::cerr << "Failed to allocate device vector (error code " << err << ")!\n";
   }
-
-  void clear()
-  {
-    free(h_vec_);
-    cudaError_t err = cudaFree(d_vec_);
-    if(err != cudaSuccess)
-      std::cerr << "Failed to free device vector (error code " << err << ")!\n";
-  }
-
+  
   int size() const
   {
     return size_;
@@ -121,6 +174,11 @@ public:
     return d_vec_;
   }
 
+  bool isManaged() const
+  {
+    return managed_mem_;
+  }
+
   void copyToDev()
   {
     cudaError_t err = cudaMemcpy(d_vec_, h_vec_, mem_size_, cudaMemcpyHostToDevice);
@@ -135,56 +193,34 @@ public:
       std::cerr << "Failed to copy vector from device to host (error code " << err << ")!\n";
   }
 
-  StreamPartitioning<T, I>& partStream() const
+  ThreadPartitioning<T, I>& partStream() const
   {
     return *partStream_;
   }
 
-  ReducePartitioning<T, I>& partReduce() const
+  ThreadPartitioning<T, I>& partReduce() const
   {
     return *partReduce_;
   }
+
 
 private:
   I size_;
   I mem_size_;
   T* h_vec_;
   T* d_vec_;
-  StreamPartitioning<T, I>* partStream_;
-  ReducePartitioning<T, I>* partReduce_;
+  ThreadPartitioning<T, I>* partStream_;
+  ThreadPartitioning<T, I>* partReduce_;
   bool ownPartitioning_;
+  bool ownData_;
+  bool managed_mem_;
+  
 };
 
-
-
-
-
-// Vector extractor
-template <typename T, typename I>
-inline Vector<T, I> *extract(N_Vector v)
-{ 
-  return static_cast<Vector<T, I>*>(v->content);
-}
-
-// Get Vector device data
-template <typename T, typename I>
-inline T *getDevData(N_Vector v)
-{
-  Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->device();
-}
-
-// Get Vector length
-template <typename T, typename I>
-inline I getSize(N_Vector v)
-{
-  Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->size();
-}
 
 } // namespace suncudavec
 
 
 
 
-#endif // _NVECTOR_HPP_
+#endif // _NVECTOR_CUDA_HPP_

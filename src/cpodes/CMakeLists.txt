@@ -4,15 +4,15 @@
 # ---------------------------------------------------------------
 # Programmer:  Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the CPODES library
 
@@ -101,7 +101,7 @@ IF(BUILD_STATIC_LIBS)
     PROPERTIES OUTPUT_NAME sundials_cpodes CLEAN_DIRECT_OUTPUT 1)
 
   # Install the CPODES library
-  INSTALL(TARGETS sundials_cpodes_static DESTINATION lib)
+  INSTALL(TARGETS sundials_cpodes_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 ENDIF(BUILD_STATIC_LIBS)
 
@@ -121,7 +121,7 @@ IF(BUILD_SHARED_LIBS)
     PROPERTIES VERSION ${cpodeslib_VERSION} SOVERSION ${cpodeslib_SOVERSION})
 
   # Install the CPODES library
-  INSTALL(TARGETS sundials_cpodes_shared DESTINATION lib)
+  INSTALL(TARGETS sundials_cpodes_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 ENDIF(BUILD_SHARED_LIBS)
 

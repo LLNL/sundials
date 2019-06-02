@@ -2,15 +2,15 @@
 # Programmer(s): Radu Serban @ LLNL
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for CVODE serial examples
 # ---------------------------------------------------------------
@@ -20,15 +20,18 @@
 
 # Examples using SUNDIALS linear solvers
 SET(CVODE_examples
+  "cvRoberts_dns\;"
+  "cvRoberts_dns_uw\;develop"
+  "cvRoberts_dns_negsol\;develop"
+  "cvRoberts_dns_constraints\;develop"
   "cvAdvDiff_bnd\;develop"
   "cvDirectDemo_ls\;develop"
   "cvDiurnal_kry_bp\;develop"
   "cvDiurnal_kry\;develop"
+  "cvDisc_dns\;develop"
   "cvKrylovDemo_ls\;develop"
   "cvKrylovDemo_prec\;develop"
-  "cvRoberts_dns\;"
-  "cvRoberts_dns_uw\;develop"
-  #cvAdvDiffReac_kry\;develop"
+  #cvAdvDiffReac_kry\;develop" # not released
   )
 
 # Examples using LAPACK linear solvers
@@ -47,7 +50,7 @@ SET(CVODE_examples_SUPERLUMT
   "cvRoberts_sps\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_static)
@@ -267,8 +270,8 @@ IF(EXAMPLES_INSTALL)
     SET(EXAMPLES_SLUMT "")
   ENDIF()
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -281,11 +284,11 @@ IF(EXAMPLES_INSTALL)
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/cvode/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
@@ -297,8 +300,8 @@ IF(EXAMPLES_INSTALL)
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvode/serial/Makefile_ex 
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial 
+      FILES ${PROJECT_BINARY_DIR}/examples/cvode/serial/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial
       RENAME Makefile
       )
   ENDIF(UNIX)

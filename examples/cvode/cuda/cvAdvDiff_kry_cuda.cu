@@ -1,10 +1,19 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
- * Acknowledgements: This example is based on cvAdvDiff_bnd 
- *                   example by Scott D. Cohen, Alan C. 
+ * Acknowledgements: This example is based on cvAdvDiff_bnd
+ *                   example by Scott D. Cohen, Alan C.
  *                   Hindmarsh and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * Example problem:
  *
@@ -26,16 +35,16 @@
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .1, .2, ..., 1.
  * Run statistics (optional outputs) are printed at the end.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
+#include <cuda_runtime.h>
+
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts. */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver     */
-#include <cvode/cvode_spils.h>         /* access to CVSpils interface */
 #include <sundials/sundials_types.h>   /* definition of type realtype */
 #include <sundials/sundials_math.h>    /* definition of ABS and EXP   */
 
@@ -55,6 +64,23 @@
 #define TWO  RCONST(2.0)
 #define FIVE RCONST(5.0)
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
+#if defined(SUNDIALS_INT64_T)
+#define DSYM "ld"
+#else
+#define DSYM "d"
+#endif
+
+
 /*
  * CUDA kernels
  */
@@ -68,11 +94,11 @@ __global__ void fKernel(const realtype *u, realtype *udot,
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
-  
+
   if (tid < MX*MY) {
     i = tid/MY;
     j = tid%MY;
-    
+
     uij = u[tid];
     udn = (j ==    0) ? ZERO : u[tid - 1];
     uup = (j == MY-1) ? ZERO : u[tid + 1];
@@ -80,7 +106,7 @@ __global__ void fKernel(const realtype *u, realtype *udot,
     urt = (i == MX-1) ? ZERO : u[tid + MY];
 
     /* Set diffusion and advection terms and load into udot */
-    
+
     hdiff = hordc*(ult - TWO*uij + urt);
     hadv  = horac*(urt - ult);
     vdiff = verdc*(uup - TWO*uij + udn);
@@ -97,13 +123,13 @@ __global__ void jtvKernel(const realtype *vdata, realtype *Jvdata,
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
-  
+
   if (tid < MX*MY) {
-      
+
     i = tid/MY;
     j = tid%MY;
-      
-      
+
+
     /* set the tid-th element of Jv */
 
     Jvdata[tid] = -TWO*(verdc+hordc) * vdata[tid];
@@ -141,7 +167,7 @@ static void PrintOutput(realtype t, realtype umax, long int nst);
 static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 
 /*
@@ -157,70 +183,80 @@ int main(int argc, char** argv)
   UserData data;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int iout, flag;
+  int iout, retval;
   long int nst;
+  cudaStream_t stream;
+  cudaError_t cuerr;
 
   u = NULL;
   data = NULL;
   LS = NULL;
   cvode_mem = NULL;
 
+  /* optional: create a cudaStream to use with the CUDA NVector
+     (otherwise the default stream is used) */
+  cuerr = cudaStreamCreate(&stream);
+  if(cuerr != cudaSuccess) { printf("Error: cudaStreamCreate() failed\n"); return(1); }
+
   /* Set model parameters */
   data = SetUserData(argc, argv);
-  if(check_flag((void *)data, "malloc", 2)) return(1);
+  if(check_retval((void *)data, "malloc", 2)) return(1);
 
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
 
   /* Create a CUDA vector with initial values */
   u = N_VNew_Cuda(data->NEQ);  /* Allocate u vector */
-  if(check_flag((void*)u, "N_VNew_Cuda", 0)) return(1);
+  if(check_retval((void*)u, "N_VNew_Cuda", 0)) return(1);
+
+  /* Use a non-default cuda stream for kernel execution */
+  N_VSetCudaStream_Cuda(u, &stream);
 
   SetIC(u, data);  /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the 
-   * Backward Differentiation Formula and the use of a Newton iteration */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+   * Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the initial time T0, and
    * the initial dependent variable vector u. */
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if(check_flag(&flag, "CVodeInit", 1)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if(check_retval(&retval, "CVodeInit", 1)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerance */
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Set the pointer to user-defined data */
-  flag = CVodeSetUserData(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
   /* Create SPGMR solver structure without preconditioning
    * and the maximum Krylov dimension maxl */
-  LS = SUNSPGMR(u, PREC_NONE, 0);
-  if(check_flag(&flag, "SUNSPGMR", 1)) return(1);
+  LS = SUNLinSol_SPGMR(u, PREC_NONE, 0);
+  if(check_retval(&retval, "SUNLinSol_SPGMR", 1)) return(1);
 
-  /* Set CVSpils linear solver to LS */
-  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
-  if(check_flag(&flag, "CVSpilsSetLinearSolver", 1)) return(1);
+  /* Set CVode linear solver to LS */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
-  /* Set the JAcobian-times-vector function */
-  flag = CVSpilsSetJacTimes(cvode_mem, NULL, jtv);
-  if(check_flag(&flag, "CVSpilsSetJacTimesVecFn", 1)) return(1);
+  /* Set the Jacobian-times-vector function */
+  retval = CVodeSetJacTimes(cvode_mem, NULL, jtv);
+  if(check_retval(&retval, "CVodeSetJacTimesVecFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
 
   umax = N_VMaxNorm(u);
   PrintHeader(reltol, abstol, umax, data);
   for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_flag(&flag, "CVode", 1)) break;
+    retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if(check_retval(&retval, "CVode", 1)) break;
     umax = N_VMaxNorm(u);
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    check_flag(&flag, "CVodeGetNumSteps", 1);
+    retval = CVodeGetNumSteps(cvode_mem, &nst);
+    check_retval(&retval, "CVodeGetNumSteps", 1);
     PrintOutput(t, umax, nst);
   }
 
@@ -228,7 +264,11 @@ int main(int argc, char** argv)
 
   N_VDestroy(u);          /* Free the u vector */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
+  SUNLinSolFree(LS);      /* Free linear solver memory */
   free(data);             /* Free the user data */
+  
+  cuerr = cudaStreamDestroy(stream); /* Free and cleanup the CUDA stream */
+  if(cuerr != cudaSuccess) { printf("Error: cudaStreamDestroy() failed\n"); return(1); }
 
   return(0);
 }
@@ -250,7 +290,7 @@ UserData SetUserData(int argc, char *argv[])
 
   /* Allocate user data structure */
   UserData ud = (UserData) malloc(sizeof *ud);
-  if(check_flag((void*) ud, "AllocUserData", 2)) return(NULL);
+  if(check_retval((void*) ud, "AllocUserData", 2)) return(NULL);
 
   ud->MX  = MX;
   ud->MY  = MY;
@@ -370,24 +410,15 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
 /* Print first lines of output (problem description) */
 
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserData data)
+static void PrintHeader(realtype reltol, realtype abstol, realtype umax,
+                        UserData data)
 {
   printf("\n2-D Advection-Diffusion Equation\n");
-  printf("Mesh dimensions = %d X %d\n", data->MX, data->MY);
-  printf("Total system size = %d\n", data->NEQ);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n",
+  printf("Mesh dimensions = %" DSYM " X %" DSYM "\n", data->MX, data->MY);
+  printf("Total system size = %" DSYM "\n", data->NEQ);
+  printf("Tolerance parameters: reltol = %" GSYM "   abstol = %" GSYM "\n\n",
          reltol, abstol);
-  printf("At t = %Lg      max.norm(u) =%14.6Le \n", T0, umax);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n",
-         reltol, abstol);
-  printf("At t = %g      max.norm(u) =%14.6e \n", T0, umax);
-#else
-  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
-  printf("At t = %g      max.norm(u) =%14.6e \n", T0, umax);
-#endif
-
+  printf("At t = %" GSYM "      max.norm(u) =%14.6" ESYM " \n", T0, umax);
   return;
 }
 
@@ -395,14 +426,7 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserDat
 
 static void PrintOutput(realtype t, realtype umax, long int nst)
 {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("At t = %4.2Lf   max.norm(u) =%14.6Le   nst = %4ld\n", t, umax, nst);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("At t = %4.2f   max.norm(u) =%14.6e   nst = %4ld\n", t, umax, nst);
-#else
-  printf("At t = %4.2f   max.norm(u) =%14.6e   nst = %4ld\n", t, umax, nst);
-#endif
-
+  printf("At t = %4.2" FSYM "   max.norm(u) =%14.6" ESYM "   nst = %4ld\n", t, umax, nst);
   return;
 }
 
@@ -414,40 +438,40 @@ static void PrintFinalStats(void *cvode_mem)
   long lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
-  int flag;
+  int retval;
 
-  flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
-  check_flag(&flag, "CVodeGetWorkSpace", 1);
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
+  check_retval(&retval, "CVodeGetWorkSpace", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "CVSpilsGetWorkSpace", 1);
-  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpilsGetNumLinIters", 1);
-  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpilsGetNumPrecEvals", 1);
-  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpilsGetNumPrecSolves", 1);
-  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpilsGetNumConvFails", 1);
-  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVSpilsGetNumRhsEvals", 1);
+  retval = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_retval(&retval, "CVodeGetLinWorkSpace", 1);
+  retval = CVodeGetNumLinIters(cvode_mem, &nli);
+  check_retval(&retval, "CVodeGetNumLinIters", 1);
+  retval = CVodeGetNumPrecEvals(cvode_mem, &npe);
+  check_retval(&retval, "CVodeGetNumPrecEvals", 1);
+  retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
+  check_retval(&retval, "CVodeGetNumPrecSolves", 1);
+  retval = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
+  check_retval(&retval, "CVodeGetNumLinConvFails", 1);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
-  printf("lenrwLS = %5ld     leniwLS = %5ld\n", lenrwLS, leniwLS);
-  printf("nst     = %5ld\n"                  , nst);
+  printf("lenrw   = %5ld     leniw   = %5ld\n"  , lenrw, leniw);
+  printf("lenrwLS = %5ld     leniwLS = %5ld\n"  , lenrwLS, leniwLS);
+  printf("nst     = %5ld\n"                     , nst);
   printf("nfe     = %5ld     nfeLS   = %5ld\n"  , nfe, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
   printf("nsetups = %5ld     netf    = %5ld\n"  , nsetups, netf);
@@ -460,34 +484,34 @@ static void PrintFinalStats(void *cvode_mem)
 /* Check function return value...
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
+     opt == 1 means SUNDIALS function returns an integer value so check if
+              retval >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
 
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
 
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-              funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
 
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1); }

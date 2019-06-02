@@ -1,41 +1,22 @@
-%% This is a shared SUNDIALS TEX file with a description of the
-%% klu sunlinsol implementation
-%%
+% ====================================================================
+\section{The SUNLinearSolver\_KLU implementation}
+\label{ss:sunlinsol_klu}
+% ====================================================================
 
-The {\klu} implementation of the {\sunlinsol} module provided with
-{\sundials}, {\sunlinsolklu}, is designed to be used with the
+This section describes the {\sunlinsol} implementation for solving sparse linear
+systems with KLU. The {\sunlinsolklu} module is designed to be used with the
 corresponding {\sunmatsparse} matrix type, and one of the serial or
-shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp}, or 
-{\nvecpthreads}).  The {\sunlinsolklu} module defines the {\em
-content} field of a \id{SUNLinearSolver} to be the following structure:
-%%
-\begin{verbatim} 
-struct _SUNLinearSolverContent_KLU {
-  long int         last_flag;
-  int              first_factorize;
-  sun_klu_symbolic *symbolic;
-  sun_klu_numeric  *numeric;
-  sun_klu_common   common;
-  sunindextype     (*klu_solver)(sun_klu_symbolic*, sun_klu_numeric*,
-                                 sunindextype, sunindextype,
-                                 double*, sun_klu_common*);
-};
-\end{verbatim}
-%%
-These entries of the \emph{content} field contain the following
-information:
-\begin{description}
-  \item[last\_flag] - last error return flag from internal function evaluations,
-  \item[first\_factorize] - flag indicating whether the factorization
-    has ever been performed, 
-  \item[Symbolic] - {\klu} storage structure for symbolic factorization components,
-  \item[Numeric] - {\klu} storage structure for numeric factorization components,
-  \item[Common] - storage structure for common {\klu} solver components,
-  \item[klu\_solver] -- pointer to the appropriate {\klu} solver function
-    (depending on whether it is using a CSR or CSC sparse matrix).
-\end{description}
+shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp}, or
+{\nvecpthreads}).
 
-{\warn} The {\sunlinsolklu} module is a {\sunlinsol} wrapper for
+The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_klu.h}. The installed module
+library to link to is
+\id{libsundials\_sunlinsolklu.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and
+\id{.a} for static libraries.
+
+The {\sunlinsolklu} module is a {\sunlinsol} wrapper for
 the {\klu} sparse matrix factorization and solver library written by Tim
 Davis \cite{KLU_site,DaPa:10}.  In order to use the
 {\sunlinsolklu} interface to {\klu}, it is assumed that {\klu} has
@@ -46,7 +27,13 @@ wrapper only supports double-precision calculations, and therefore
 cannot be compiled if {\sundials} is configured to have \id{realtype}
 set to either \id{extended} or \id{single} (see Section \ref{s:types}).
 Since the {\klu} library supports both 32-bit and 64-bit integers, this
-interface will be compiled for either of the available \id{sunindextype} options.
+interface will be compiled for either of the available \id{sunindextype}
+options. {\warn}
+
+% ====================================================================
+\subsection{SUNLinearSolver\_KLU description}
+\label{ss:sunlinsol_klu_description}
+% ====================================================================
 
 The {\klu} library has a symbolic factorization routine that computes
 the permutation of the linear system matrix to block triangular form
@@ -81,8 +68,8 @@ following operations:
   $\varepsilon$ is the double-precision unit roundoff), then a new
   factorization is performed.
 \item The module includes the routine \id{SUNKLUReInit}, that 
-  can be called by the user to force a full refactorization at the
-  next ``setup'' call. 
+  can be called by the user to force a full or partial refactorization
+  at the next ``setup'' call. 
 \item The ``solve'' call performs pivoting and forward and
   backward substitution using the stored {\klu} data structures.  We
   note that in this solve {\klu} operates on the native data arrays
@@ -91,20 +78,54 @@ following operations:
 \end{itemize}
 
 
-\noindent The header file to include when using this module 
-is \id{sunlinsol/sunlinsol\_klu.h}. The installed module
-library to link to is
-\id{libsundials\_sunlinsolklu.\textit{lib}}
-where \id{\em.lib} is typically \id{.so} for shared libraries and
-\id{.a} for static libraries. \\
+% ====================================================================
+\subsection{SUNLinearSolver\_KLU functions}
+\label{ss:sunlinsol_klu_functions}
+% ====================================================================
 
-%%
-%%----------------------------------------------
-%%
-
-\noindent The {\sunlinsolklu} module defines implementations of all
-``direct'' linear solver operations listed in
-Table \ref{t:sunlinsolops}:
+The {\sunlinsolklu} module provides the following user-callable constructor
+for creating a \newline \id{SUNLinearSolver} object.
+%
+% --------------------------------------------------------------------
+%
+\ucfunctiondf{SUNLinSol\_KLU}
+{
+  LS = SUNLinSol\_KLU(y, A);
+}
+{
+  The function \ID{SUNLinSol\_KLU} creates and allocates memory for
+  a KLU-based \newline \id{SUNLinearSolver} object.
+}
+{
+  \begin{args}[y]
+  \item[y] (\id{N\_Vector})
+    a template for cloning vectors needed within the solver
+  \item[A] (\id{SUNMatrix})
+    a {\sunmatsparse} matrix template for cloning matrices needed
+    within the solver 
+  \end{args}
+}
+{
+  This returns a \id{SUNLinearSolver} object.  If either \id{A} or
+  \id{y} are incompatible then this routine will return \id{NULL}.
+}
+{
+  This routine will perform consistency checks to ensure that it is
+  called with consistent {\nvector} and {\sunmatrix} implementations.
+  These are currently limited to the {\sunmatsparse} matrix type
+  (using either CSR or CSC storage formats) and the {\nvecs},
+  {\nvecopenmp}, and {\nvecpthreads} vector types.  As additional
+  compatible matrix and vector implementations are added to
+  {\sundials}, these will be included within this compatibility
+  check. 
+}
+{SUNKLU}
+%
+% --------------------------------------------------------------------
+%
+The {\sunlinsolklu} module defines implementations of all
+``direct'' linear solver operations listed in Sections
+\ref{ss:sunlinsol_CoreFn} -- \ref{ss:sunlinsol_GetFn}:
 \begin{itemize}
 \item \id{SUNLinSolGetType\_KLU}
 \item \id{SUNLinSolInitialize\_KLU} -- this sets the
@@ -122,20 +143,59 @@ Table \ref{t:sunlinsolops}:
   space requirements, see the {\klu} documentation.
 \item \id{SUNLinSolFree\_KLU}
 \end{itemize}
-The module {\sunlinsolklu} provides the following additional
-user-callable routines: 
-%%
-\begin{itemize}
+All of the listed operations are callable via the {\F} 2003 interface module
+by prepending an `F' to the function name.
 
-%%--------------------------------------
-
-\item \ID{SUNKLU}
-
-  This constructor function creates and allocates memory for a {\sunlinsolklu}
-  object.  Its arguments are an {\nvector} and {\sunmatrix}, that it
-  uses to determine the linear system size and to assess compatibility
-  with the linear solver implementation. 
-
+The {\sunlinsolklu} module also defines the following additional
+user-callable functions.
+%
+% --------------------------------------------------------------------
+%
+\ucfunctiondf{SUNLinSol\_KLUReInit}
+{
+  retval = SUNLinSol\_KLUReInit(LS, A, nnz, reinit\_type);
+}
+{
+  The function \ID{SUNLinSol\_KLUReInit} reinitializes memory and
+  flags for a new factorization (symbolic and numeric) to be conducted
+  at the next solver setup call.  This routine is useful in the cases
+  where the number of nonzeroes has changed or if the structure of the
+  linear system has changed which would require a new symbolic (and
+  numeric factorization). 
+}
+{
+  \begin{args}[reinit\_type]
+  \item[LS] (\id{SUNLinearSolver})
+    a template for cloning vectors needed within the solver
+  \item[A] (\id{SUNMatrix})
+    a {\sunmatsparse} matrix template for cloning matrices needed
+    within the solver 
+  \item[nnz] (\id{sunindextype})
+    the new number of nonzeros in the matrix
+  \item[reinit\_type] (\id{int})
+    flag governing the level of reinitialization.  The allowed values
+    are:
+    \begin{itemize}
+    \item \id{SUNKLU\_REINIT\_FULL} -- The Jacobian matrix will be
+      destroyed and a new one will be allocated based on the \id{nnz}
+      value passed to this call.  New symbolic and numeric
+      factorizations will be completed at the next solver setup. 
+    \item \id{SUNKLU\_REINIT\_PARTIAL} -- Only symbolic and numeric 
+      factorizations will be completed.  It is assumed that the
+      Jacobian size has not exceeded the size of \id{nnz} given in the
+      sparse matrix provided to the original constructor routine (or
+      the previous \id{SUNLinSol\_KLUReInit} call). 
+    \end{itemize}
+  \end{args}
+}
+{
+  The return values from this function are \id{SUNLS\_MEM\_NULL}
+  (either \id{S} or \id{A} are \id{NULL}), \id{SUNLS\_ILL\_INPUT}
+  (\id{A} does not have type \id{SUNMATRIX\_SPARSE} or
+  \id{reinit\_type} is invalid), \id{SUNLS\_MEM\_FAIL} (reallocation
+  of the sparse matrix failed) or \id{SUNLS\_SUCCESS}.
+}
+{
   This routine will perform consistency checks to ensure that it is
   called with consistent {\nvector} and {\sunmatrix} implementations.
   These are currently limited to the {\sunmatsparse} matrix type
@@ -143,96 +203,291 @@ user-callable routines:
   {\nvecopenmp}, and {\nvecpthreads} vector types.  As additional
   compatible matrix and vector implementations are added to
   {\sundials}, these will be included within this compatibility
-  check. 
+  check.
 
-  If either \id{A} or \id{y} are incompatible then this routine will
-  return \id{NULL}.
-
-  \verb|SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A);|
-
-%%--------------------------------------
-
-\item \ID{SUNKLUReInit}
-
-  This function reinitializes memory and flags for a new factorization
-  (symbolic and numeric) to be conducted at the next solver setup
-  call.  This routine is useful in the cases where the number of
-  nonzeroes has changed or if the structure of the linear system has
-  changed which would require a new symbolic (and numeric
-  factorization). 
-
-  The \id{reinit\_type} argument governs the level of
-  reinitialization.  The allowed values are: 
-  \begin{itemize}
-  \item[1] The Jacobian matrix will be destroyed and a new one will be
-    allocated based on the \id{nnz} value passed to this call.  New
-    symbolic and numeric factorizations will be completed at the next
-    solver setup.
-  \item[2] Only symbolic and numeric factorizations will be completed.
-    It is assumed that the Jacobian size has not exceeded the size of
-    \id{nnz} given in the sparse matrix provided to the original
-    constructor routine (or the previous \id{SUNKLUReInit} call). 
-  \end{itemize}
-  
   This routine assumes no other changes to solver use are necessary.
-
-  The return values from this function are \id{SUNLS\_MEM\_NULL}
-  (either \id{S} or \id{A} are \id{NULL}), \id{SUNLS\_ILL\_INPUT}
-  (\id{A} does not have type \id{SUNMATRIX\_SPARSE} or
-  \id{reinit\_type} is invalid), \id{SUNLS\_MEM\_FAIL} (reallocation
-  of the sparse matrix failed) or \id{SUNLS\_SUCCESS}.
-  
-\begin{verbatim}
-int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A, 
-                 sunindextype nnz, int reinit_type);
-\end{verbatim}
-
-
-%%--------------------------------------
-
-\item \ID{SUNKLUSetOrdering}
-
+}
+{SUNKLUReInit}
+%
+% --------------------------------------------------------------------
+%
+\ucfunctiondf{SUNLinSol\_KLUSetOrdering}
+{
+  retval = SUNLinSol\_KLUSetOrdering(LS, ordering);
+}
+{
   This function sets the ordering used by {\klu} for reducing fill in
-  the linear solve.  Options for \id{ordering\_choice} are:
-  \begin{itemize}
-  \item[0] AMD,
-  \item[1] COLAMD, and
-  \item[2] the natural ordering.
-  \end{itemize}
-  The default is 1 for COLAMD.
-
+  the linear solve.
+}
+{
+  \begin{args}[ordering]
+  \item[LS] (\id{SUNLinearSolver})
+    the {\sunlinsolklu} object
+  \item[ordering] (\id{int})
+    flag indicating the reordering algorithm to use, the options are:
+    \begin{itemize}
+    \item[0] AMD,
+    \item[1] COLAMD, and
+    \item[2] the natural ordering.
+    \end{itemize}
+    The default is 1 for COLAMD.
+  \end{args}
+}
+{
   The return values from this function are \id{SUNLS\_MEM\_NULL}
-  (\id{S} is \id{NULL}), \id{SUNLS\_ILL\_INPUT}
-  (invalid \id{ordering\_choice}), or \id{SUNLS\_SUCCESS}.
-  
-  \verb|int SUNKLUSetOrdering(SUNLinearSolver S, int ordering_choice);|
+  (\id{S} is \id{NULL}), \newline
+  \id{SUNLS\_ILL\_INPUT} (invalid ordering choice), or \id{SUNLS\_SUCCESS}.
+}
+{}
+{SUNKLUSetOrdering}
 
-\end{itemize}
-%%
-%%------------------------------------
-%%
-For solvers that include a Fortran interface module, the
-{\sunlinsolklu} module also includes the Fortran-callable
-function \id{FSUNKLUInit(code, ier)} to initialize this
-{\sunlinsolklu} module for a given {\sundials} solver.  Here \id{code}
-is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
-4 for {\arkode}); \id{ier} is an error return flag equal to 0 for success
-and -1 for failure. Both \id{code} and \id{ier}
-are declared to match C type \id{int}. This
-routine must be called \emph{after} both the {\nvector} and
-{\sunmatrix} objects have been initialized.  Additionally, when using
-{\arkode} with a non-identity mass matrix, the Fortran-callable function
-\id{FSUNMassKLUInit(ier)} initializes this {\sunlinsolklu} module for
-solving mass matrix linear systems.
 
-The \id{SUNKLUReInit} and \ID{SUNKLUSetOrdering} routines also support
-Fortran interfaces for the system and mass matrix solvers:
-\begin{itemize}
-\item \id{FSUNKLUReInit(code, NNZ, reinit\_type, ier)} -- \id{NNZ}
-  should be commensurate with a C \id{long int} and \id{reinit\_type}
-  should be commensurate with a C \id{int}
-\item \id{FSUNMassKLUReInit(NNZ, reinit\_type, ier)}
-\item \id{FSUNKLUSetOrdering(code, ordering, ier)} -- \id{ordering}
-  should be commensurate with a C \id{int}
-\item \id{FSUNMassKLUSetOrdering(ordering, ier)}
-\end{itemize}
+% ====================================================================
+\subsection{SUNLinearSolver\_KLU Fortran interfaces}
+\label{ss:sunlinsol_klu_fortran}
+% ====================================================================
+
+The {\sunlinsolklu} module provides a {\F} 2003 module as well as {\F} 77
+style interface functions for use from {\F} applications.
+
+\subsubsection*{FORTRAN 2003 interface module}
+The \ID{fsunlinsol\_klu\_mod} {\F} module defines interfaces to all
+{\sunlinsolklu} {\CC} functions using the intrinsic \id{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with {\CC}. As
+noted in the {\CC} function descriptions above, the interface functions are
+named after the corresponding {\CC} function, but with a leading `F'. For
+example, the function \id{SUNLinSol\_klu} is interfaced as
+\id{FSUNLinSol\_klu}.
+
+The {\F} 2003 {\sunlinsolklu} interface module can be accessed with the \id{use}
+statement, i.e. \id{use fsunlinsol\_klu\_mod}, and linking to the library
+\id{libsundials\_fsunlinsolklu\_mod}.{\em lib} in addition to the {\CC} library.
+For details on where the library and module file
+\id{fsunlinsol\_klu\_mod.mod} are installed see Appendix \ref{c:install}.
+
+\subsubsection*{FORTRAN 77 interface functions}
+For solvers that include a {\F} 77 interface module, the {\sunlinsolklu}
+module also includes a Fortran-callable function for creating a
+\id{SUNLinearSolver} object.
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{FSUNKLUINIT}
+{
+  FSUNKLUINIT(code, ier)
+}
+{
+  The function \ID{FSUNKLUINIT} can be called for Fortran programs
+  to create a {\sunlinsolklu} object.
+}
+{
+  \begin{args}[code]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+  \end{args}
+}
+{
+  \id{ier} is a return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  This routine must be
+  called \emph{after} both the {\nvector} and {\sunmatrix} objects have
+  been initialized.
+}
+Additionally, when using {\arkode} with a non-identity
+mass matrix, the {\sunlinsolklu} module includes a Fortran-callable
+function for creating a \id{SUNLinearSolver} mass matrix solver
+object.
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{FSUNMASSKLUINIT}
+{
+  FSUNMASSKLUINIT(ier)
+}
+{
+  The function \ID{FSUNMASSKLUINIT} can be called for Fortran programs
+  to create a KLU-based \id{SUNLinearSolver} object for mass matrix linear
+  systems.
+}
+{}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  This routine must be
+  called \emph{after} both the {\nvector} and {\sunmatrix} mass-matrix
+  objects have been initialized.
+}
+The \id{SUNLinSol\_KLUReInit} and \ID{SUNLinSol\_KLUSetOrdering}
+routines also support {\F} interfaces for the system and mass
+matrix solvers:
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{FSUNKLUREINIT}
+{
+  FSUNKLUREINIT(code, nnz, reinit\_type, ier)
+}
+{
+  The function \ID{FSUNKLUREINIT} can be called for Fortran programs
+  to re-initialize a {\sunlinsolklu} object.
+}
+{
+  \begin{args}[reinit\_type]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+  \item[nnz] (\id{sunindextype*})
+    the new number of nonzeros in the matrix
+  \item[reinit\_type] (\id{int*})
+    flag governing the level of reinitialization.  The allowed values
+    are:
+    \begin{itemize}
+    \item[1] -- The Jacobian matrix will be
+      destroyed and a new one will be allocated based on the \id{nnz}
+      value passed to this call.  New symbolic and numeric
+      factorizations will be completed at the next solver setup. 
+    \item[2] -- Only symbolic and numeric 
+      factorizations will be completed.  It is assumed that the
+      Jacobian size has not exceeded the size of \id{nnz} given in the
+      sparse matrix provided to the original constructor routine (or
+      the previous \id{SUNLinSol\_KLUReInit} call). 
+    \end{itemize}
+  \end{args}
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  See \id{SUNLinSol\_KLUReInit} for complete further documentation of
+  this routine. 
+}
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{FSUNMASSKLUREINIT}
+{
+  FSUNMASSKLUREINIT(nnz, reinit\_type, ier)
+}
+{
+  The function \ID{FSUNMASSKLUREINIT} can be called for Fortran programs
+  to re-initialize a {\sunlinsolklu} object for mass matrix linear systems.
+}
+{
+  The arguments are identical to \id{FSUNKLUREINIT} above, except that
+  \id{code} is not needed since mass matrix linear systems only arise
+  in {\arkode}.
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  See \id{SUNLinSol\_KLUReInit} for complete further documentation of
+  this routine. 
+}
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{FSUNKLUSETORDERING}
+{
+  FSUNKLUSETORDERING(code, ordering, ier)
+}
+{
+  The function \ID{FSUNKLUSETORDERING} can be called for Fortran programs
+  to change the reordering algorithm used by {\klu}.
+}
+{
+  \begin{args}[ordering]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+  \item[ordering] (\id{int*})
+    flag indication the reordering algorithm to use.  Options include:
+    \begin{itemize}
+    \item[0] AMD,
+    \item[1] COLAMD, and
+    \item[2] the natural ordering.
+    \end{itemize}
+    The default is 1 for COLAMD.
+  \end{args}
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  See \id{SUNLinSol\_KLUSetOrdering} for complete further documentation of
+  this routine. 
+}
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{FSUNMASSKLUSETORDERING}
+{
+  FSUNMASSKLUSETORDERING(ier)
+}
+{
+  The function \ID{FSUNMASSKLUSETORDERING} can be called for Fortran programs
+  to change the reordering algorithm used by {\klu} for mass matrix linear systems.
+}
+{
+  The arguments are identical to \id{FSUNKLUSETORDERING} above, except that
+  \id{code} is not needed since mass matrix linear systems only arise
+  in {\arkode}.
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  See \id{SUNLinSol\_KLUSetOrdering} for complete further documentation of
+  this routine. 
+}
+
+
+% ====================================================================
+\subsection{SUNLinearSolver\_KLU content}
+\label{ss:sunlinsol_klu_content}
+% ====================================================================
+
+The {\sunlinsolklu} module defines the \textit{content} field of a
+\id{SUNLinearSolver} as the following structure:
+%%
+\begin{verbatim} 
+struct _SUNLinearSolverContent_KLU {
+  long int         last_flag;
+  int              first_factorize;
+  sun_klu_symbolic *symbolic;
+  sun_klu_numeric  *numeric;
+  sun_klu_common   common;
+  sunindextype     (*klu_solver)(sun_klu_symbolic*, sun_klu_numeric*,
+                                 sunindextype, sunindextype,
+                                 double*, sun_klu_common*);
+};
+\end{verbatim}
+%%
+These entries of the \emph{content} field contain the following
+information:
+\begin{args}[first\_factorize]
+  \item[last\_flag] - last error return flag from internal function evaluations,
+  \item[first\_factorize] - flag indicating whether the factorization
+    has ever been performed, 
+  \item[symbolic] - {\klu} storage structure for symbolic factorization components,
+  \item[numeric] - {\klu} storage structure for numeric factorization components,
+  \item[common] - storage structure for common {\klu} solver components,
+  \item[klu\_solver] -- pointer to the appropriate {\klu} solver function
+    (depending on whether it is using a CSR or CSC sparse matrix).
+\end{args}
+

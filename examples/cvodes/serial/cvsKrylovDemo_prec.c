@@ -2,6 +2,16 @@
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * --------------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * --------------------------------------------------------------------
  * Demonstration program for CVODES - Krylov linear solver.
  * ODE system from ns-species interaction PDE in 2 dimensions.
  * 
@@ -45,7 +55,7 @@
  *
  * The resulting ODE system is stiff.
  *
- * The ODE system is solved using Newton iteration and the SUNSPGMR
+ * The ODE system is solved using Newton iteration and the SUNLinSol_SPGMR
  * linear solver (scaled preconditioned GMRES).
  *
  * The preconditioner matrix used is the product of two matrices:
@@ -59,10 +69,10 @@
  * The product preconditoner is applied on the left and on the
  * right. In each case, both the modified and classical Gram-Schmidt
  * options are tested.
- * In the series of runs, CVodeInit, SUNSPGMR, and 
+ * In the series of runs, CVodeInit, SUNLinSol_SPGMR, and 
  * CVDlsSetLinearSolver are called only for the first run, whereas 
- * CVodeReInit, SUNSPGMRSetPrecType, and SUNSPGMRSetGSType are called
- * for each of the remaining three runs.
+ * CVodeReInit, SUNLinSol_SPGMRSetPrecType, and SUNSLinSol_PGMRSetGSType
+ * are called for each of the remaining three runs.
  *
  * A problem description, performance statistics at selected output
  * times, and final statistics are written to standard output.
@@ -82,15 +92,15 @@
  * Matrix Methods in Stiff ODE Systems, J. Appl. Math. & Comp., 31
  * (1989), pp. 40-91.  Also available as Lawrence Livermore National
  * Laboratory Report UCRL-95088, Rev. 1, June 1987.
- * --------------------------------------------------------------------*/
+ * --------------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>                /* main integrator header file                 */
+#include <cvodes/cvodes.h>              /* main integrator header file                 */
 #include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver             */
-#include <cvodes/cvodes_spils.h>          /* access to CVSpils interface                 */
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fct. and macros      */
 #include <sundials/sundials_dense.h>    /* use generic DENSE solver in preconditioning */
 #include <sundials/sundials_types.h>    /* definition of realtype                      */
@@ -137,7 +147,7 @@
 #define RTOL RCONST(1.0e-5)
 #define ATOL RCONST(1.0e-5)
 
-/* Spgmr/SPILS Constants */
+/* Spgmr/CVLS Constants */
 
 #define MAXL 0     /* => use default = MIN(NEQ, 5)            */
 #define DELT ZERO  /* => use default = 0.05                   */
@@ -208,7 +218,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Implementation */
 
@@ -220,7 +230,7 @@ int main()
   SUNLinearSolver LS;
   void *cvode_mem;
   booleantype firstrun;
-  int jpre, gstype, flag;
+  int jpre, gstype, retval;
   int ns, mxns, iout;
 
   c = NULL;
@@ -230,9 +240,9 @@ int main()
 
   /* Initializations */
   c = N_VNew_Serial(NEQ);
-  if(check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)c, "N_VNew_Serial", 0)) return(1);
   wdata = AllocUserData();
-  if(check_flag((void *)wdata, "AllocUserData", 2)) return(1);
+  if(check_retval((void *)wdata, "AllocUserData", 2)) return(1);
   InitUserData(wdata);
   ns = wdata->ns;
   mxns = wdata->mxns;
@@ -243,53 +253,53 @@ int main()
   /* Loop over jpre and gstype (four cases) */
   for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
     for (gstype = MODIFIED_GS; gstype <= CLASSICAL_GS; gstype++) {
-      
+
       /* Initialize c and print heading */
       CInit(c, wdata);
       PrintHeader(jpre, gstype);
 
-      /* Call CVodeInit or CVodeReInit, then SUNSPGMR to set up problem */
-      
+      /* Call CVodeInit or CVodeReInit, then SUNLinSol_SPGMR to set up problem */
+
       firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
-        cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-        if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+        cvode_mem = CVodeCreate(CV_BDF);
+        if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
         wdata->cvode_mem = cvode_mem;
 
-        flag = CVodeSetUserData(cvode_mem, wdata);
-        if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
+        retval = CVodeSetUserData(cvode_mem, wdata);
+        if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
-        flag = CVodeInit(cvode_mem, f, T0, c);
-        if(check_flag(&flag, "CVodeInit", 1)) return(1);
+        retval = CVodeInit(cvode_mem, f, T0, c);
+        if(check_retval(&retval, "CVodeInit", 1)) return(1);
 
-        flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-        if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+        retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+        if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
-        LS = SUNSPGMR(c, jpre, MAXL);
-        if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
+        LS = SUNLinSol_SPGMR(c, jpre, MAXL);
+        if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
-        flag = CVSpilsSetLinearSolver(cvode_mem, LS);
-        if(check_flag(&flag, "CVSpilsSetLinearSolver", 1)) return 1;
+        retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+        if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
-        flag = SUNSPGMRSetGSType(LS, gstype);
-        if(check_flag(&flag, "SUNSPGMRSetGSType", 1)) return(1);
+        retval = SUNLinSol_SPGMRSetGSType(LS, gstype);
+        if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
 
-        flag = CVSpilsSetEpsLin(cvode_mem, DELT);
-        if(check_flag(&flag, "CVSpilsSetEpsLin", 1)) return(1);
+        retval = CVodeSetEpsLin(cvode_mem, DELT);
+        if(check_retval(&retval, "CVodeSetEpsLin", 1)) return(1);
 
-        flag = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
-        if(check_flag(&flag, "CVSpilsSetPreconditioner", 1)) return(1);
+        retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
+        if(check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
 
       } else {
 
-        flag = CVodeReInit(cvode_mem, T0, c);
-        if(check_flag(&flag, "CVodeReInit", 1)) return(1);
+        retval = CVodeReInit(cvode_mem, T0, c);
+        if(check_retval(&retval, "CVodeReInit", 1)) return(1);
 
-        flag = SUNSPGMRSetPrecType(LS, jpre);
-        check_flag(&flag, "SUNSPGMRSetPrecType", 1);
-        flag = SUNSPGMRSetGSType(LS, gstype);
-        if(check_flag(&flag, "SUNSPGMRSetGSType", 1)) return(1);
+        retval = SUNLinSol_SPGMRSetPrecType(LS, jpre);
+        if(check_retval(&retval, "SUNLinSol_SPGMRSetPrecType", 1)) return(1);
+        retval = SUNLinSol_SPGMRSetGSType(LS, gstype);
+        if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
 
       }
       
@@ -299,10 +309,10 @@ int main()
       /* Loop over output points, call CVode, print sample solution values. */
       tout = T1;
       for (iout = 1; iout <= NOUT; iout++) {
-        flag = CVode(cvode_mem, tout, c, &t, CV_NORMAL);
+        retval = CVode(cvode_mem, tout, c, &t, CV_NORMAL);
         PrintOutput(cvode_mem, t);
         if (firstrun && (iout % 3 == 0)) PrintAllSpecies(c, ns, mxns, t);
-        if(check_flag(&flag, "CVode", 1)) break;
+        if(check_retval(&retval, "CVode", 1)) break;
         if (tout > RCONST(0.9)) tout += DTOUT; else tout *= TOUT_MULT; 
       }
       
@@ -544,19 +554,19 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
 static void PrintOutput(void *cvode_mem, realtype t)
 {
   long int nst, nfe, nni;
-  int qu, flag;
+  int qu, retval;
   realtype hu;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetLastOrder(cvode_mem, &qu);
-  check_flag(&flag, "CVodeGetLastOrder", 1);
-  flag = CVodeGetLastStep(cvode_mem, &hu);
-  check_flag(&flag, "CVodeGetLastStep", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  retval = CVodeGetLastOrder(cvode_mem, &qu);
+  check_retval(&retval, "CVodeGetLastOrder", 1);
+  retval = CVodeGetLastStep(cvode_mem, &hu);
+  check_retval(&retval, "CVodeGetLastStep", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("t = %10.2Le  nst = %ld  nfe = %ld  nni = %ld", t, nst, nfe, nni);
@@ -576,42 +586,42 @@ static void PrintFinalStats(void *cvode_mem)
   long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
-  int flag;
+  int retval;
   realtype avdim;
   
-  flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
-  check_flag(&flag, "CVodeGetWorkSpace", 1);
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
+  check_retval(&retval, "CVodeGetWorkSpace", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "CVSpilsGetWorkSpace", 1);
-  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpilsGetNumLinIters", 1);
-  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpilsGetNumPrecEvals", 1);
-  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpilsGetNumPrecSolves", 1);
-  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpilsGetNumConvFails", 1);
-  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVSpilsGetNumRhsEvals", 1);
+  retval = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_retval(&retval, "CVodeGetLinWorkSpace", 1);
+  retval = CVodeGetNumLinIters(cvode_mem, &nli);
+  check_retval(&retval, "CVodeGetNumLinIters", 1);
+  retval = CVodeGetNumPrecEvals(cvode_mem, &npe);
+  check_retval(&retval, "CVodeGetNumPrecEvals", 1);
+  retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
+  check_retval(&retval, "CVodeGetNumPrecSolves", 1);
+  retval = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
+  check_retval(&retval, "CVodeGetNumLinConvFails", 1);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\n\n Final statistics for this run:\n\n");
   printf(" CVode real workspace length           = %4ld \n", lenrw);
   printf(" CVode integer workspace length        = %4ld \n", leniw);
-  printf(" CVSPILS real workspace length         = %4ld \n", lenrwLS);
-  printf(" CVSPILS integer workspace length      = %4ld \n", leniwLS);
+  printf(" CVLS real workspace length            = %4ld \n", lenrwLS);
+  printf(" CVLS integer workspace length         = %4ld \n", leniwLS);
   printf(" Number of steps                       = %4ld \n", nst);
   printf(" Number of f-s                         = %4ld \n", nfe);
   printf(" Number of f-s (SPGMR)                 = %4ld \n", nfeLS);
@@ -750,11 +760,10 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   realtype ***P;
-  int ier;
   sunindextype **pivot;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, flag;
-  sunindextype mp;
+  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, retval;
+  sunindextype mp, denseretval;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
@@ -765,8 +774,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
   cvode_mem = wdata->cvode_mem;
   cdata = N_VGetArrayPointer(c);
   rewt = wdata->rewt;
-  flag = CVodeGetErrWeights(cvode_mem, rewt);
-  if(check_flag(&flag, "CVodeGetErrWeights", 1)) return(1);
+  retval = CVodeGetErrWeights(cvode_mem, rewt);
+  if(check_retval(&retval, "CVodeGetErrWeights", 1)) return(1);
   rewtdata = N_VGetArrayPointer(rewt);
 
   uround = UNIT_ROUNDOFF;
@@ -821,8 +830,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
   
   for (ig = 0; ig < ngrp; ig++) {
     denseAddIdentity(P[ig], mp);
-    ier = denseGETRF(P[ig], mp, mp, pivot[ig]);
-    if (ier != 0) return(1);
+    denseretval = denseGETRF(P[ig], mp, mp, pivot[ig]);
+    if (denseretval != 0) return(1);
   }
   
   *jcurPtr = SUNTRUE;
@@ -1107,31 +1116,31 @@ static void v_zero(realtype u[], int n)
 /* Check function return value...
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
+     opt == 1 means SUNDIALS function returns an integer value so check if
+              retval < 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-              funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1); }

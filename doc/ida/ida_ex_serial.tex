@@ -34,24 +34,23 @@ The \id{ida.h} file provides prototypes for the {\ida}
 functions to be called (excluding the linear solver selection
 function), and also a number of constants that are to be used in
 setting input arguments and testing the return value of \id{IDASolve}.
-The \id{ida\_dense.h} file provides the prototype for the \id{IDADense} function.
 The \id{nvector\_serial.h} file is the header file for the serial
 implementation of the {\nvector} module and includes definitions of the 
 \id{N\_Vector} type, a macro to access vector components, and prototypes 
 for the serial implementation specific machine environment memory allocation
 and freeing functions.
-Finally, note that \id{ida\_dense.h} also includes the \id{sundials\_dense.h}
-file, which provides the definition of the dense matrix type \id{DlsMat (type=1)}
-and a macro for accessing matrix elements.
+Finally, note that the include files \id{sunmatrix\_dense.h} and
+\id{sunlinsol\_dense.h} include definition of the dense matrix and
+linear solver modules, as well as a macro for accessing matrix elements.
 
 This program includes the user-defined accessor macro
 \id{IJth} that is useful in writing the problem functions in a form
 closely matching the mathematical description of the DAE system,
 i.e. with components numbered from 1 instead of from 0.
 The \id{IJth} macro is used to access elements of a dense matrix of
-type \id{DlsMat}. It is defined using the {\dense} accessor macro
-\id{DENSE\_ELEM} which numbers matrix rows and columns starting with
-0. The macro \id{DENSE\_ELEM} is fully described in \ugref{ss:djacFn}.
+type \id{sunmatdense}. It is defined using the accessor macro
+\id{SM\_ELEMENT\_D} which numbers matrix rows and columns starting with
+0. The macro \id{SM\_ELEMENT\_D} is fully described in \ugref{ss:sunmat_dense}.
 
 The program prologue ends with prototypes of the three user-supplied functions 
 that are called by {\ida} and the prototypes of five private functions.
@@ -95,8 +94,10 @@ two such functions.  Specifically, they are set to $y_1 - 0.0001$ and
 $y_3 - 0.01$, respectively.
 See \ugref{ss:idarootinit} for a detailed description of this call.
 
-The calls to \id{IDADense} (see \ugref{sss:lin_solv_init}) and 
-\id{IDADlsSetDenseJacFn} (see \ugref{sss:optin_dls}) specify the {\idadense}
+The calls to \id{SUNDenseMatrix} (see \ugref{ss:sunmat_dense}),
+\id{SUNLinSol\_Dense} (see \ugref{ss:sunlinsol_dense}),
+\id{IDASetLinearSolver} (see \ugref{sss:lin_solv_init})
+and \id{IDASetJacFn} (see \ugref{sss:optin_ls}) specify the {\sunlinsoldense}
 linear solver with an analytic Jacobian supplied by the user-supplied function
 \id{jacrob}.
 
@@ -132,7 +133,7 @@ to free the vectors \id{yy} and \id{yp}.
 
 The function \id{PrintFinalStats} used here is actually suitable for
 general use in applications of {\ida} to any problem with a dense
-Jacobian.  It calls various \id{IDAGet***} and \id{IDADenseGet***}
+Jacobian.  It calls various \id{IDAGet***} 
 functions to obtain the relevant counters, and then prints them.
 Specifically, these are: the cumulative number of steps (\id{nst}), 
 the number of residual evaluations (\id{nre}) (excluding those for
@@ -146,7 +147,7 @@ and the number of \id{grob} (root function) evaluations (\id{nge}).
 These optional outputs are described in \ugref{ss:optional_output}.
 
 The functions \id{resrob} (of type \id{IDAResFn}) and \id{jacrob} (of type
-\id{IDADenseJacFn}) are straightforward expressions of the DAE system
+\id{IDALsJacFn}) are straightforward expressions of the DAE system
 (\ref{e:idaRoberts_DAE}) and its system Jacobian.  The function \id{jacrob}
 makes use of the macro \id{IJth} discussed above.  See \ugref{ss:resFn}
 for detailed specifications of \id{IDAResFn}.  Similarly, the function
@@ -245,12 +246,13 @@ equations, all coupled.
 For this example, we take $p = 1, s = 2$, and $L = 20$.
 The Jacobian is banded, with half-bandwidths \id{mu = ml} $= sL = 40$.
 
-The \id{idaFoodWeb\_bnd.c} program includes the file \id{ida\_band.h} in order
-to use the {\idaband} linear solver. 
-This file contains the prototype for the \id{IDABand} routine,
-the definition for the band matrix type \id{DlsMat (type=2)}, and the
-\id{BAND\_COL} and \id{BAND\_COL\_ELEM} macros for accessing matrix
-elements. See \ugref{ss:band}.
+The \id{idaFoodWeb\_bnd.c} program includes the files
+\id{sunmatrix\_band.h} and \id{sunlinsol\_band.h} in order
+to use the {\sunlinsolband} linear solver. 
+The former of these files contains the definition for the band matrix
+type {\sunmatband}, and the \id{SM\_COLUMN\_B} and
+\id{SM\_COLUMN\_ELEMENT\_B} macros for accessing matrix elements. See
+\ugref{ss:sunmat_band}. 
 The main {\ida} header file \id{ida.h} is included for the prototypes of the
 solver user-callable functions and {\ida} constants, while the file
 \id{nvector\_serial.h} is included for the definition of the serial
@@ -278,9 +280,9 @@ to it, called \id{webdata}, is then passed to \id{IDASetUserData} and as a resul
 it will be passed back to the \id{resweb} function each time it is called.
 
 The \id{main} program is straightforward and very similar to that for \id{idaRoberts\_dns}.
-The differences come from the use of the {\idaband} linear solver and from the
+The differences come from the use of the {\sunlinsolband} linear solver and from the
 use of the consistent initial conditions algorithm in {\ida} to correct the initial
-values. The call to \id{IDABand} includes the half-bandwidths \id{ml} and \id{mu}.
+values. The call to \id{SUNBandMatrix} includes the half-bandwidths \id{ml} and \id{mu}.
 \id{IDACalcIC} is called with the option \id{IDA\_YA\_YDP\_INIT}, meaning
 that {\ida} is to compute the algebraic components of $y$ and differential  
 components of $y'$, given the differential components of $y$.  
@@ -301,7 +303,7 @@ to free the vectors \id{cc}, \id{cp}, and \id{id}, and \id{IDAFree} to free the
 
 The function \id{PrintFinalStats} used here is actually suitable for
 general use in applications of {\ida} to any problem with a banded
-Jacobian.  It calls various \id{IDAGet***} and \id{IDABandGet***}
+Jacobian.  It calls various \id{IDAGet***} 
 functions to obtain the relevant counters, and then prints them.
 Specifically, these are: the cumulative number of steps (\id{nst}), 
 the number of residual evaluations (\id{nre}) (excluding those for
@@ -353,25 +355,29 @@ consists of the values $u(x_j,y_k,t)$ grouped first by $x$, and then
 by $y$.  Each discrete boundary condition becomes an algebraic equation
 within the DAE system.
 
-In this case, \id{ida\_spgmr.h} is included for the definitions of
-constants and function prototypes associated with the {\spgmr} method.
+In this case, \id{sunlinsol\_spgmr.h} is included for the definitions of
+constants and function prototypes associated with the
+{\sunlinsolspgmr} linear solver module.
 
 After various initializations (including a vector of constraints with
 all components set to $1$, imposing all solution components to be
 non-negative), the main program creates and initializes the {\ida}
-memory block and then attaches the {\idaspgmr} linear solver using the
-default \id{MODIFIED\_GS} Gram-Scmidt orthogonalization algorithm.
+memory block.  It then creates the {\sunlinsolspgmr} linear solver
+using the default \id{MODIFIED\_GS} Gram-Scmidt orthogonalization
+algorithm, and updates the number of allowed {\spgmr} restarts to 5.
+It then attaches this linear solver module to {\ida} with a call to
+\id{IDASetLinearSolver}.
 
 The user-supplied preconditioner setup and solve functions, \id{PsetupHeat}
 and \id{PsolveHeat}, and the pointer to user data (\id{data}) are specified
-in a call to \id{IDASpilsSetPreconditioner}.
+in a call to \id{IDASetPreconditioner}.
 %%
 In a loop over the desired output times, \id{IDASolve} is called in \id{IDA\_NORMAL}
 mode and the maximum solution norm is printed.
 Following this, three more counters are printed.
 
 The \id{main} program then re-initializes the {\ida} solver and the
-{\idaspgmr} linear solver and solves the problem again, this time
+{\sunlinsolspgmr} linear solver and solves the problem again, this time
 using the \id{CLASSICAL\_GS} Gramm-Schmidt orthogonalization algorithm.
 %%
 Finally, memory for the {\ida} solver and for the various vectors used is deallocated.
@@ -401,7 +407,7 @@ Sample output from \id{idaHeat2D\_kry} follows.
 \subsection{A sparse direct example: idaHeat2D\_klu}\label{ss:idaHeat2Dklu}
 
 We provide an example of using {\ida} with the KLU sparse direct solver module
-\id{ida\_klu} that solves the same 2D heat PDE problem as \id{idaHeat2D\_kry}
+{\sunlinsolklu} that solves the same 2D heat PDE problem as \id{idaHeat2D\_kry}
 with the same zero Dirichlet boundary conditions and central differencing but
 with no preconditioner. This example is mainly based off of the
 \id{idaHeat2D\_bnd} example program.
@@ -415,7 +421,8 @@ $\geq$ 4, we use the function \id{jacHeat}.
 
 The main program is written in the same way it was written in
 \id{idaHeat2D\_kry} and \id{idaHeat2D\_bnd} but with a few exceptions. In order
-to use the \id{IDAKLU} solver, the user must determine the number of non-zero
+to use the {\sunlinsolklu} solver and associated {\sunmatsparse}
+matrix type, the user must determine the number of non-zero
 (\id{nnz}) variables and there is a conditional statement to check the size of
 \id{MGRID} in order to determine which \id{jacHeat} function to use.
 
@@ -435,9 +442,10 @@ matrix. The structure's pattern was found by splitting the matrix into
 \id{MGRID} blocks and determining the pattern within each block separately for
 each of the datatypes.
 
-The \ida package also includes support for SUPERLU\_MT, the parallel sparse
-direct solver. The \id{idaHeat2D\_sps} example has been included to demonstrate
-SUPERLU\_MT. It is very similar to \id{idaHeat2D\_klu}.
+The {\ida} package also includes support for \id{SUPERLU\_MT}, the
+parallel sparse direct solver. The \id{idaHeat2D\_sps} example has
+been included to demonstrate \id{SUPERLU\_MT}. It is very similar to
+\id{idaHeat2D\_klu}.
 
 Sample output from \id{idaHeat2D\_klu} follows.
 %%

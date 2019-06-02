@@ -3,23 +3,19 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *        Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with IDA, the IDASPILS 
+ * matrix with banded blocks, for use with IDA, the IDASLS 
  * linear solver interface.
  *
  * NOTE: With only one processor in use, a banded matrix results
@@ -32,7 +28,7 @@
 #include <stdlib.h>
 
 #include "idas_impl.h"
-#include "idas_spils_impl.h"
+#include "idas_ls_impl.h"
 #include "idas_bbdpre_impl.h"
 #include <sundials/sundials_math.h>
 #include <nvector/nvector_serial.h>
@@ -82,41 +78,41 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
                    IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
   IDAMem IDA_mem;
-  IDASpilsMem idaspils_mem;
+  IDALsMem idals_mem;
   IBBDPrecData pdata;
   sunindextype muk, mlk, storage_mu, lrw1, liw1;
   long int lrw, liw;
   int flag;
 
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASBBDPRE",
+    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_MEM_NULL);
-    return(IDASPILS_MEM_NULL);
+    return(IDALS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  /* Test if the SPILS linear solver interface has been created */
+  /* Test if the LS linear solver interface has been created */
   if (IDA_mem->ida_lmem == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_LMEM_NULL);
-    return(IDASPILS_LMEM_NULL);
+    return(IDALS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
+  idals_mem = (IDALsMem) IDA_mem->ida_lmem;
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   if(IDA_mem->ida_tempv1->ops->nvgetarraypointer == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_ILL_INPUT, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_BAD_NVECTOR);
-    return(IDASPILS_ILL_INPUT);
+    return(IDALS_ILL_INPUT);
   }
 
   /* Allocate data memory. */
   pdata = NULL;
   pdata = (IBBDPrecData) malloc(sizeof *pdata);
   if (pdata == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL);
+    return(IDALS_MEM_FAIL);
   }
 
   /* Set pointers to glocal and gcomm; load half-bandwidths. */
@@ -135,12 +131,12 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
 
   /* Allocate memory for preconditioner matrix. */
   pdata->PP = NULL;
-  pdata->PP = SUNBandMatrix(Nlocal, muk, mlk, storage_mu);
+  pdata->PP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) { 
     free(pdata); pdata = NULL;
-    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL); 
+    return(IDALS_MEM_FAIL); 
   }
 
   /* Allocate memory for temporary N_Vectors */
@@ -149,9 +145,9 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   if (pdata->zlocal == NULL) {
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASBBDPRE", 
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", 
                     "IDABBDPrecInit", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL);
+    return(IDALS_MEM_FAIL);
   }
   pdata->rlocal = NULL;
   pdata->rlocal = N_VNewEmpty_Serial(Nlocal);
@@ -159,9 +155,9 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->zlocal);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASBBDPRE", 
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", 
                     "IDABBDPrecInit", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL);
+    return(IDALS_MEM_FAIL);
   }
   pdata->tempv1 = NULL;
   pdata->tempv1 = N_VClone(IDA_mem->ida_tempv1); 
@@ -170,9 +166,9 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->zlocal);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL);
+    return(IDALS_MEM_FAIL);
   }
   pdata->tempv2 = NULL;
   pdata->tempv2 = N_VClone(IDA_mem->ida_tempv1); 
@@ -182,9 +178,9 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv1);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL);
+    return(IDALS_MEM_FAIL);
   }
   pdata->tempv3 = NULL;
   pdata->tempv3 = N_VClone(IDA_mem->ida_tempv1); 
@@ -195,9 +191,9 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv2);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL);
+    return(IDALS_MEM_FAIL);
   }
   pdata->tempv4 = NULL;
   pdata->tempv4 = N_VClone(IDA_mem->ida_tempv1); 
@@ -209,14 +205,14 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv3);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL);
+    return(IDALS_MEM_FAIL);
   }
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNBandLinearSolver(pdata->rlocal, pdata->PP);
+  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->PP);
   if (pdata->LS == NULL) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
@@ -226,9 +222,9 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv4);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL);
+    return(IDALS_MEM_FAIL);
   }
 
   /* initialize band linear solver object */
@@ -243,9 +239,9 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->PP);
     SUNLinSolFree(pdata->LS);
     free(pdata); pdata = NULL;
-    IDAProcessError(IDA_mem, IDASPILS_SUNLS_FAIL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDASBBDPRE",
                     "IDABBDPrecInit", MSGBBD_SUNLS_FAIL);
-    return(IDASPILS_SUNLS_FAIL);
+    return(IDALS_SUNLS_FAIL);
   }
  
   /* Set rel_yy based on input value dq_rel_yy (0 implies default). */
@@ -281,19 +277,18 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   pdata->nge = 0;
 
   /* make sure pdata is free from any previous allocations */
-  if (idaspils_mem->pfree) 
-    idaspils_mem->pfree(IDA_mem);
+  if (idals_mem->pfree) 
+    idals_mem->pfree(IDA_mem);
 
-  /* Point to the new pdata field in the SPILS memory */
-  idaspils_mem->pdata = pdata;
+  /* Point to the new pdata field in the LS memory */
+  idals_mem->pdata = pdata;
 
   /* Attach the pfree function */
-  idaspils_mem->pfree = IDABBDPrecFree;
+  idals_mem->pfree = IDABBDPrecFree;
 
   /* Attach preconditioner solve and setup functions */
-  flag = IDASpilsSetPreconditioner(ida_mem,
-                                   IDABBDPrecSetup,
-                                   IDABBDPrecSolve);
+  flag = IDASetPreconditioner(ida_mem, IDABBDPrecSetup,
+                              IDABBDPrecSolve);
 
   return(flag);
 }
@@ -304,32 +299,32 @@ int IDABBDPrecReInit(void *ida_mem, sunindextype mudq,
                      sunindextype mldq, realtype dq_rel_yy)
 {
   IDAMem IDA_mem;
-  IDASpilsMem idaspils_mem;
+  IDALsMem idals_mem;
   IBBDPrecData pdata;
   sunindextype Nlocal;
 
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASBBDPRE",
+    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecReInit", MSGBBD_MEM_NULL);
-    return(IDASPILS_MEM_NULL);
+    return(IDALS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  /* Test if the SPILS linear solver interface has been created */
+  /* Test if the LS linear solver interface has been created */
   if (IDA_mem->ida_lmem == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecReInit", MSGBBD_LMEM_NULL);
-    return(IDASPILS_LMEM_NULL);
+    return(IDALS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
+  idals_mem = (IDALsMem) IDA_mem->ida_lmem;
 
   /* Test if the preconditioner data is non-NULL */
-  if (idaspils_mem->pdata == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_PMEM_NULL, "IDASBBDPRE",
+  if (idals_mem->pdata == NULL) {
+    IDAProcessError(IDA_mem, IDALS_PMEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecReInit", MSGBBD_PMEM_NULL);
-    return(IDASPILS_PMEM_NULL);
+    return(IDALS_PMEM_NULL);
   } 
-  pdata = (IBBDPrecData) idaspils_mem->pdata;
+  pdata = (IBBDPrecData) idals_mem->pdata;
 
   /* Load half-bandwidths. */
   Nlocal = pdata->n_local;
@@ -343,7 +338,7 @@ int IDABBDPrecReInit(void *ida_mem, sunindextype mudq,
   /* Re-initialize nge */
   pdata->nge = 0;
 
-  return(IDASPILS_SUCCESS);
+  return(IDALS_SUCCESS);
 }
 
 
@@ -353,34 +348,34 @@ int IDABBDPrecGetWorkSpace(void *ida_mem,
                            long int *leniwBBDP)
 {
   IDAMem IDA_mem;
-  IDASpilsMem idaspils_mem;
+  IDALsMem idals_mem;
   IBBDPrecData pdata;
 
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASBBDPRE",
+    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecGetWorkSpace", MSGBBD_MEM_NULL);
-    return(IDASPILS_MEM_NULL);
+    return(IDALS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (IDA_mem->ida_lmem == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
-    return(IDASPILS_LMEM_NULL);
+    return(IDALS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
+  idals_mem = (IDALsMem) IDA_mem->ida_lmem;
 
-  if (idaspils_mem->pdata == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_PMEM_NULL, "IDASBBDPRE",
+  if (idals_mem->pdata == NULL) {
+    IDAProcessError(IDA_mem, IDALS_PMEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecGetWorkSpace", MSGBBD_PMEM_NULL);
-    return(IDASPILS_PMEM_NULL);
+    return(IDALS_PMEM_NULL);
   } 
-  pdata = (IBBDPrecData) idaspils_mem->pdata;
+  pdata = (IBBDPrecData) idals_mem->pdata;
 
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(IDASPILS_SUCCESS);
+  return(IDALS_SUCCESS);
 }
 
 
@@ -389,33 +384,33 @@ int IDABBDPrecGetNumGfnEvals(void *ida_mem,
                              long int *ngevalsBBDP)
 {
   IDAMem IDA_mem;
-  IDASpilsMem idaspils_mem;
+  IDALsMem idals_mem;
   IBBDPrecData pdata;
 
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASBBDPRE",
+    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecGetNumGfnEvals", MSGBBD_MEM_NULL);
-    return(IDASPILS_MEM_NULL);
+    return(IDALS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   if (IDA_mem->ida_lmem == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_LMEM_NULL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
-    return(IDASPILS_LMEM_NULL);
+    return(IDALS_LMEM_NULL);
   }
-  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
+  idals_mem = (IDALsMem) IDA_mem->ida_lmem;
 
-  if (idaspils_mem->pdata == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_PMEM_NULL, "IDASBBDPRE",
+  if (idals_mem->pdata == NULL) {
+    IDAProcessError(IDA_mem, IDALS_PMEM_NULL, "IDASBBDPRE",
                     "IDABBDPrecGetNumGfnEvals", MSGBBD_PMEM_NULL);
-    return(IDASPILS_PMEM_NULL);
+    return(IDALS_PMEM_NULL);
   } 
-  pdata = (IBBDPrecData) idaspils_mem->pdata;
+  pdata = (IBBDPrecData) idals_mem->pdata;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(IDASPILS_SUCCESS);
+  return(IDALS_SUCCESS);
 }
 
 
@@ -533,14 +528,14 @@ static int IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
 /*-------------------------------------------------------------*/
 static int IDABBDPrecFree(IDAMem IDA_mem)
 {
-  IDASpilsMem idaspils_mem;
+  IDALsMem idals_mem;
   IBBDPrecData pdata;
   
   if (IDA_mem->ida_lmem == NULL) return(0);
-  idaspils_mem = (IDASpilsMem) IDA_mem->ida_lmem;
+  idals_mem = (IDALsMem) IDA_mem->ida_lmem;
   
-  if (idaspils_mem->pdata == NULL) return(0);
-  pdata = (IBBDPrecData) idaspils_mem->pdata;
+  if (idals_mem->pdata == NULL) return(0);
+  pdata = (IBBDPrecData) idals_mem->pdata;
 
   SUNLinSolFree(pdata->LS);
   N_VDestroy(pdata->rlocal);
@@ -709,25 +704,25 @@ int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
   
   /* Check if ida_mem is allright. */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASBBDPRE",
-                    "IDABBDPrecInitB", MSGS_IDAMEM_NULL);
-    return(IDASPILS_MEM_NULL);
+    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE",
+                    "IDABBDPrecInitB", MSG_LS_IDAMEM_NULL);
+    return(IDALS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
-    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASBBDPRE",
-                    "IDABBDPrecInitB", MSGS_NO_ADJ);
-    return(IDASPILS_NO_ADJ);
+    IDAProcessError(IDA_mem, IDALS_NO_ADJ, "IDASBBDPRE",
+                    "IDABBDPrecInitB", MSG_LS_NO_ADJ);
+    return(IDALS_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
-    IDAProcessError(IDA_mem, IDASPILS_ILL_INPUT, "IDASBBDPRE",
-                    "IDABBDPrecInitB", MSGS_BAD_WHICH);
-    return(IDASPILS_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASBBDPRE",
+                    "IDABBDPrecInitB", MSG_LS_BAD_WHICH);
+    return(IDALS_ILL_INPUT);
   }
 
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */
@@ -750,9 +745,9 @@ int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
   idabbdB_mem = NULL;
   idabbdB_mem = (IDABBDPrecDataB) malloc(sizeof(* idabbdB_mem));
   if (idabbdB_mem == NULL) {
-    IDAProcessError(IDA_mem, IDASPILS_MEM_FAIL, "IDASBBDPRE",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE",
                     "IDABBDPrecInitB", MSGBBD_MEM_FAIL);
-    return(IDASPILS_MEM_FAIL);
+    return(IDALS_MEM_FAIL);
   }
 
   /* set pointers to user-provided functions */
@@ -763,7 +758,7 @@ int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
   IDAB_mem->ida_pmem  = idabbdB_mem;
   IDAB_mem->ida_pfree = IDABBDPrecFreeB;
 
-  return(IDASPILS_SUCCESS);
+  return(IDALS_SUCCESS);
 }
 
 
@@ -779,25 +774,25 @@ int IDABBDPrecReInitB(void *ida_mem, int which, sunindextype mudqB,
   
   /* Check if ida_mem is allright. */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDASPILS_MEM_NULL, "IDASBBDPRE",
-                    "IDABBDPrecReInitB", MSGS_IDAMEM_NULL);
-    return(IDASPILS_MEM_NULL);
+    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE",
+                    "IDABBDPrecReInitB", MSG_LS_IDAMEM_NULL);
+    return(IDALS_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE) {
-    IDAProcessError(IDA_mem, IDASPILS_NO_ADJ, "IDASBBDPRE",
-                    "IDABBDPrecReInitB",  MSGS_NO_ADJ);
-    return(IDASPILS_NO_ADJ);
+    IDAProcessError(IDA_mem, IDALS_NO_ADJ, "IDASBBDPRE",
+                    "IDABBDPrecReInitB",  MSG_LS_NO_ADJ);
+    return(IDALS_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
   /* Check the value of which */
   if ( which >= IDAADJ_mem->ia_nbckpbs ) {
-    IDAProcessError(IDA_mem, IDASPILS_ILL_INPUT, "IDASBBDPRE",
-                    "IDABBDPrecReInitB", MSGS_BAD_WHICH);
-    return(IDASPILS_ILL_INPUT);
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASBBDPRE",
+                    "IDABBDPrecReInitB", MSG_LS_BAD_WHICH);
+    return(IDALS_ILL_INPUT);
   }
 
   /* Find the IDABMem entry in the linked list corresponding to 'which'. */

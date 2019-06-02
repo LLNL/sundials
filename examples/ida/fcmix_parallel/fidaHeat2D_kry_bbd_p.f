@@ -2,19 +2,15 @@ C     ----------------------------------------------------------------
 C     Programmer(s): Daniel R. Reynolds @ SMU
 C                 Radu Serban and Alan C. Hindmarsh @ LLNL      
 C     ----------------------------------------------------------------
-C     LLNS/SMU Copyright Start
-C     Copyright (c) 2017, Southern Methodist University and 
-C     Lawrence Livermore National Security
-C
-C     This work was performed under the auspices of the U.S. Department 
-C     of Energy by Southern Methodist University and Lawrence Livermore 
-C     National Laboratory under Contract DE-AC52-07NA27344.
-C     Produced at Southern Methodist University and the Lawrence 
-C     Livermore National Laboratory.
-C
+C     SUNDIALS Copyright Start
+C     Copyright (c) 2002-2019, Lawrence Livermore National Security
+C     and Southern Methodist University.
 C     All rights reserved.
-C     For details, see the LICENSE file.
-C     LLNS/SMU Copyright End
+C
+C     See the top-level LICENSE and NOTICE files for details.
+C
+C     SPDX-License-Identifier: BSD-3-Clause
+C     SUNDIALS Copyright End
 c     ----------------------------------------------------------------
 c     Example problem for FIDA: 2D heat equation, parallel, GMRES,
 c     IDABBDPRE.
@@ -185,10 +181,10 @@ c
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
-      call fidaspilsinit(ier)
+      call fidalsinit(ier)
       if (ier .ne. 0) then
          write(*,10) ier
- 10       format(///' SUNDIALS_ERROR: FIDASPILSINIT IER = ', i5)
+ 10       format(///' SUNDIALS_ERROR: FIDALSINIT IER = ', i5)
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
@@ -722,8 +718,8 @@ c
       if (thispe .eq. 0) then
          call fidabbdopt(lenrwbbd, leniwbbd, ngebbd)
          write(*,30) tret, umax, iout(9), iout(3), iout(7),
-     &               iout(20), iout(4), iout(16), ngebbd, rout(2),
-     &               iout(18), iout(19)
+     &               iout(22), iout(4), iout(16), ngebbd, rout(2),
+     &               iout(20), iout(21)
  30      format(' ', e10.4, ' ', e13.5, '  ', i1, '  ', i2,
      &          '  ', i3, '  ', i3, '  ', i2,'+',i2, '  ',
      &          i3, '  ', e9.2, '  ', i2, '  ', i3)
@@ -844,7 +840,7 @@ c
 c The following declaration specification should match C type long int.
       integer*8 iout(*)
 c
-      write(*,34) iout(5), iout(6), iout(21)
+      write(*,34) iout(5), iout(6), iout(23)
  34   format(/, 'Error test failures            =', i3, /,
      &     'Nonlinear convergence failures =', i3, /,
      &     'Linear convergence failures    =', i3)

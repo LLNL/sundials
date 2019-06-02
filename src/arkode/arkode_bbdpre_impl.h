@@ -1,19 +1,15 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * Implementation header file for the ARKBBDPRE module.
  *--------------------------------------------------------------*/
@@ -69,14 +65,14 @@ typedef struct ARKBBDPrecDataRec {
  ARKBBDPRE error messages
 ---------------------------------------------------------------*/
 
-#define MSGBBD_MEM_NULL    "Integrator memory is NULL."
-#define MSGBBD_LMEM_NULL   "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
-#define MSGBBD_MEM_FAIL    "A memory request failed."
-#define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBBD_SUNMAT_FAIL "An error arose from a SUNBandMatrix routine."
-#define MSGBBD_SUNLS_FAIL  "An error arose from a SUNBandLinearSolver routine."
-#define MSGBBD_PMEM_NULL   "BBD peconditioner memory is NULL. ARKBBDPrecInit must be called."
-#define MSGBBD_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
+#define MSG_BBD_MEM_NULL    "Integrator memory is NULL."
+#define MSG_BBD_LMEM_NULL   "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
+#define MSG_BBD_MEM_FAIL    "A memory request failed."
+#define MSG_BBD_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSG_BBD_SUNMAT_FAIL "An error arose from a SUNBandMatrix routine."
+#define MSG_BBD_SUNLS_FAIL  "An error arose from a SUNBandLinearSolver routine."
+#define MSG_BBD_PMEM_NULL   "BBD peconditioner memory is NULL. ARKBBDPrecInit must be called."
+#define MSG_BBD_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

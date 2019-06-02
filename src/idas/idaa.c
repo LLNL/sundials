@@ -5,15 +5,15 @@
  * ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for the IDAA adjoint integrator.
  * -----------------------------------------------------------------
@@ -143,6 +143,9 @@ int IDAAdjInit(void *ida_mem, long int steps, int interp)
   /* Initialization of interpolation data. */
   IDAADJ_mem->ia_interpType = interp;
   IDAADJ_mem->ia_nsteps = steps;
+
+  /* Last index used in IDAAfindIndex, initailize to invalid value */
+  IDAADJ_mem->ia_ilast = -1;
 
   /* Allocate space for the array of Data Point structures. */
   if (IDAAdataMalloc(IDA_mem) == SUNFALSE) {
@@ -1077,6 +1080,7 @@ int IDAQuadReInitB(void *ida_mem, int which, N_Vector yQB0)
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
   IDABMem IDAB_mem;
+  void *ida_memB;
   
   /* Is ida_mem valid? */
   if (ida_mem == NULL) {
@@ -1105,8 +1109,9 @@ int IDAQuadReInitB(void *ida_mem, int which, N_Vector yQB0)
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
+  ida_memB = (void *) IDAB_mem->IDA_mem;
 
-  return IDAQuadReInit(ida_mem, yQB0);
+  return IDAQuadReInit(ida_memB, yQB0);
 }
 
 
@@ -3129,7 +3134,6 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
 {
   IDAadjMem IDAADJ_mem;
   IDAMem IDA_mem;
-  static long int ilast;
   DtpntMem *dt_mem;
   int sign;
   booleantype to_left, to_right;
@@ -3145,21 +3149,21 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
 
   /* If this is the first time we use new data */
   if (IDAADJ_mem->ia_newData) {
-    ilast     = IDAADJ_mem->ia_np-1;
+    IDAADJ_mem->ia_ilast     = IDAADJ_mem->ia_np-1;
     *newpoint = SUNTRUE;
     IDAADJ_mem->ia_newData   = SUNFALSE;
   }
 
   /* Search for indx starting from ilast */
-  to_left  = ( sign*(t - dt_mem[ilast-1]->t) < ZERO);
-  to_right = ( sign*(t - dt_mem[ilast]->t)   > ZERO);
+  to_left  = ( sign*(t - dt_mem[IDAADJ_mem->ia_ilast-1]->t) < ZERO);
+  to_right = ( sign*(t - dt_mem[IDAADJ_mem->ia_ilast]->t)   > ZERO);
 
   if ( to_left ) {
     /* look for a new indx to the left */
 
     *newpoint = SUNTRUE;
     
-    *indx = ilast;
+    *indx = IDAADJ_mem->ia_ilast;
     for(;;) {
       if ( *indx == 0 ) break;
       if ( sign*(t - dt_mem[*indx-1]->t) <= ZERO ) (*indx)--;
@@ -3167,9 +3171,9 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
     }
 
     if ( *indx == 0 )
-      ilast = 1;
+      IDAADJ_mem->ia_ilast = 1;
     else
-      ilast = *indx;
+      IDAADJ_mem->ia_ilast = *indx;
 
     if ( *indx == 0 ) {
       /* t is beyond leftmost limit. Is it too far? */  
@@ -3183,18 +3187,18 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
 
     *newpoint = SUNTRUE;
 
-    *indx = ilast;
+    *indx = IDAADJ_mem->ia_ilast;
     for(;;) {
       if ( sign*(t - dt_mem[*indx]->t) > ZERO) (*indx)++;
       else                                     break;
     }
 
-    ilast = *indx;
+    IDAADJ_mem->ia_ilast = *indx;
 
   } else {
     /* ilast is still OK */
 
-    *indx = ilast;
+    *indx = IDAADJ_mem->ia_ilast;
 
   }
   return(IDA_SUCCESS);

@@ -1,36 +1,70 @@
-/*
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ *                David J. Gardner, Carol S. Woodward, and 
+ *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for a generic SUNLINEARSOLVER 
+ * This is the implementation file for a generic SUNLINEARSOLVER
  * package.  It contains the implementation of the SUNLinearSolver
  * operations listed in sundials_linearsolver.h
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <sundials/sundials_linearsolver.h>
 
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
+ * Create a new empty SUNLinearSolver object
+ * ----------------------------------------------------------------- */
+
+SUNLinearSolver SUNLinSolNewEmpty()
+{
+  SUNLinearSolver     LS;
+  SUNLinearSolver_Ops ops;
+
+  /* create linear solver object */
+  LS = NULL;
+  LS = (SUNLinearSolver) malloc(sizeof *LS);
+  if (LS == NULL) return(NULL);
+
+  /* create linear solver ops structure */
+  ops = NULL;
+  ops = (SUNLinearSolver_Ops) malloc(sizeof *ops);
+  if (ops == NULL) { free(LS); return(NULL); }
+
+  /* initialize operations to NULL */
+  ops->gettype           = NULL;
+  ops->setatimes         = NULL;
+  ops->setpreconditioner = NULL;
+  ops->setscalingvectors = NULL;
+  ops->initialize        = NULL;
+  ops->setup             = NULL;
+  ops->solve             = NULL;
+  ops->numiters          = NULL;
+  ops->resnorm           = NULL;
+  ops->resid             = NULL;
+  ops->lastflag          = NULL;
+  ops->space             = NULL;
+  ops->free              = NULL;
+
+  /* attach ops and initialize content to NULL */
+  LS->ops     = ops;
+  LS->content = NULL;
+
+  return(LS);
+}
+
+/* -----------------------------------------------------------------
  * Functions in the 'ops' structure
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S)
 {
@@ -48,7 +82,7 @@ int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
     return SUNLS_SUCCESS;
 }
 
-  
+
 int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
                                PSetupFn Pset, PSolveFn Psol)
 {
@@ -57,7 +91,7 @@ int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
   else
     return SUNLS_SUCCESS;
 }
-  
+
 int SUNLinSolSetScalingVectors(SUNLinearSolver S,
                                N_Vector s1, N_Vector s2)
 {
@@ -66,15 +100,21 @@ int SUNLinSolSetScalingVectors(SUNLinearSolver S,
   else
     return SUNLS_SUCCESS;
 }
-  
+
 int SUNLinSolInitialize(SUNLinearSolver S)
 {
-  return ((int) S->ops->initialize(S));
+  if (S->ops->initialize)
+    return ((int) S->ops->initialize(S));
+  else
+    return SUNLS_SUCCESS;
 }
-  
+
 int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
 {
-  return ((int) S->ops->setup(S, A));
+  if (S->ops->setup)
+    return ((int) S->ops->setup(S, A));
+  else
+    return SUNLS_SUCCESS;
 }
 
 int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
@@ -82,7 +122,7 @@ int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 {
   return ((int) S->ops->solve(S, A, x, b, tol));
 }
-  
+
 int SUNLinSolNumIters(SUNLinearSolver S)
 {
   if (S->ops->numiters)
@@ -129,8 +169,17 @@ int SUNLinSolSpace(SUNLinearSolver S, long int *lenrwLS,
 
 int SUNLinSolFree(SUNLinearSolver S)
 {
-  if (S==NULL) return 0;
-  S->ops->free(S);
-  return 0;
-}
+  if (S == NULL) return SUNLS_SUCCESS;
 
+  /* if the free operation exists use it */
+  if (S->ops)
+    if (S->ops->free) return(S->ops->free(S));
+
+  /* if we reach this point, either ops == NULL or free == NULL,
+     try to cleanup by freeing the content, ops, and solver */
+  if (S->content) { free(S->content); S->content = NULL; }
+  if (S->ops) { free(S->ops); S->ops = NULL; }
+  free(S); S = NULL;
+
+  return(SUNLS_SUCCESS);
+}

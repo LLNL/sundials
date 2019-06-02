@@ -1,15 +1,15 @@
 # ---------------------------------------------------------------
 # Programmer:  Steven Smith @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for MPI nvector examples
 # ---------------------------------------------------------------
@@ -19,22 +19,21 @@
 
 # Examples using SUNDIALS MPI nvector
 SET(nvector_parallel_examples
-  "test_nvector_mpi\;\;\;\;"          # run sequentially
-  "test_nvector_mpi\;1000 0\;\;\;"    # run sequentially with arguments
-  "test_nvector_mpi\;\;1\;4\;"        # run parallel on 4 procs
-  "test_nvector_mpi\;1000 0\;1\;4\;"  # run parallel on 4 procs with arguments
+  "test_nvector_mpi\;1000 0\;\;\;"    # run sequentially
+  "test_nvector_mpi\;1000 0\;1\;4\;"  # run parallel on 4 procs
   )
 
 # Dependencies for nvector examples
 SET(nvector_examples_dependencies
   test_nvector
+  test_mpinvector
   sundials_nvector
   )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(. ..)
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(NVECS_LIB sundials_nvecparallel_static)
@@ -53,7 +52,6 @@ ELSE()
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ENDIF()
 
-
 # Add the build and install targets for each example
 FOREACH(example_tuple ${nvector_parallel_examples})
 
@@ -69,7 +67,9 @@ FOREACH(example_tuple ${nvector_parallel_examples})
   IF(NOT TARGET ${example})
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+      ../test_nvector.c
+      ../test_mpinvector.c
+      ../../../src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
@@ -95,7 +95,7 @@ FOREACH(example_tuple ${nvector_parallel_examples})
     ELSE()
       STRING(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
     ENDIF()
-  ENDIF()  
+  ENDIF()
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${test_name} ${example}
@@ -108,13 +108,13 @@ FOREACH(example_tuple ${nvector_parallel_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c
       ../test_nvector.c
+      ../test_mpinvector.c
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel)
   ENDIF()
 
 ENDFOREACH(example_tuple ${nvector_parallel_examples})
-
 
 IF(EXAMPLES_INSTALL)
 
@@ -127,8 +127,8 @@ IF(EXAMPLES_INSTALL)
   EXAMPLES2STRING(nvector_parallel_examples EXAMPLES)
   EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -144,8 +144,8 @@ IF(EXAMPLES_INSTALL)
     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
@@ -157,7 +157,7 @@ IF(EXAMPLES_INSTALL)
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/parallel/Makefile_ex 
+      FILES ${PROJECT_BINARY_DIR}/examples/nvector/parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel
       RENAME Makefile
       )

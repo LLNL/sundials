@@ -2,6 +2,16 @@
  * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * Example problem:
  *
  * The following is a simple example problem, with the program for
@@ -47,6 +57,7 @@
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
 
 #include <mpi.h>
 
@@ -94,7 +105,7 @@ static void SetICback(N_Vector uB, sunindextype my_base);
 static realtype Xintgr(realtype *z, sunindextype l, realtype dx);
 static realtype Compute_g(N_Vector u, UserData data);
 static void PrintOutput(realtype g_val, N_Vector uB, UserData data);
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -115,8 +126,10 @@ int main(int argc, char *argv[])
   N_Vector uB;
 
   realtype dx, t, g_val;
-  int flag, my_pe, nprocs, npes, ncheck;
+  int retval, my_pe, nprocs, npes, ncheck;
   sunindextype local_N=0, nperpe, nrem, my_base=-1;
+
+  SUNNonlinearSolver NLS, NLSB;
 
   MPI_Comm comm;
 
@@ -164,7 +177,7 @@ int main(int argc, char *argv[])
     Allocate and load user data structure
     -------------------------------------*/
   data = (UserData) malloc(sizeof *data);
-  if (check_flag((void *)data , "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)data , "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   data->p[0] = ONE;
   data->p[1] = RCONST(0.5);
   dx = data->dx = XMAX/((realtype)(MX+1));
@@ -187,29 +200,37 @@ int main(int argc, char *argv[])
 
   /* Allocate and initialize forward variables */
   u = N_VNew_Parallel(comm, local_N, NEQ);
-  if (check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetIC(u, dx, local_N, my_base);
 
   /* Allocate CVODES memory for forward integration */
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
-  if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
+  cvode_mem = CVodeCreate(CV_ADAMS);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSetUserData(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if (check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if (check_flag(&flag, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if (check_retval(&retval, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* create fixed point nonlinear solver object */
+  NLS = SUNNonlinSol_FixedPoint(u, 0);
+  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) MPI_Abort(comm, 1);
+
+  /* attach nonlinear solver object to CVode */
+  retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate combined forward/backward memory */
-  flag = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
-  if (check_flag(&flag, "CVadjInit", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
+  if (check_retval(&retval, "CVadjInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to TOUT and collect check point information */
-  flag = CVodeF(cvode_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
-  if (check_flag(&flag, "CVodeF", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeF(cvode_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
+  if (check_retval(&retval, "CVodeF", 1, my_pe)) MPI_Abort(comm, 1);
 
   /*---------------------------
     Compute and value of g(t_f)
@@ -229,33 +250,44 @@ int main(int argc, char *argv[])
 
     /* Allocate work space */
     data->z1 = (realtype *)malloc(local_N*sizeof(realtype));
-    if (check_flag((void *)data->z1, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    if (check_retval((void *)data->z1, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     data->z2 = (realtype *)malloc(local_N*sizeof(realtype));
-    if (check_flag((void *)data->z2, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    if (check_retval((void *)data->z2, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
   }
 
   /* Allocate and initialize backward variables */
   uB = N_VNew_Parallel(comm, local_N, NEQ+NP);
-  if (check_flag((void *)uB, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)uB, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetICback(uB, my_base);
 
   /* Allocate CVODES memory for the backward integration */
-  flag = CVodeCreateB(cvode_mem, CV_ADAMS, CV_FUNCTIONAL, &indexB);
-  if (check_flag(&flag, "CVodeCreateB", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeSetUserDataB(cvode_mem, indexB, data);
-  if (check_flag(&flag, "CVodeSetUserDataB", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
-  if (check_flag(&flag, "CVodeInitB", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeSStolerancesB(cvode_mem, indexB, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerancesB", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeCreateB(cvode_mem, CV_ADAMS, &indexB);
+  if (check_retval(&retval, "CVodeCreateB", 1, my_pe)) MPI_Abort(comm, 1);
+
+  retval = CVodeSetUserDataB(cvode_mem, indexB, data);
+  if (check_retval(&retval, "CVodeSetUserDataB", 1, my_pe)) MPI_Abort(comm, 1);
+
+  retval = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
+  if (check_retval(&retval, "CVodeInitB", 1, my_pe)) MPI_Abort(comm, 1);
+
+  retval = CVodeSStolerancesB(cvode_mem, indexB, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerancesB", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* create fixed point nonlinear solver object */
+  NLSB = SUNNonlinSol_FixedPoint(uB, 0);
+  if(check_retval((void *)NLSB, "SUNNonlinSol_FixedPoint", 0, my_pe)) MPI_Abort(comm, 1);
+
+  /* attach nonlinear solver object to CVode */
+  retval = CVodeSetNonlinearSolverB(cvode_mem, indexB, NLSB);
+  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to T0 */
-  flag = CVodeB(cvode_mem, T0, CV_NORMAL);
-  if (check_flag(&flag, "CVodeB", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeB(cvode_mem, T0, CV_NORMAL);
+  if (check_retval(&retval, "CVodeB", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeGetB(cvode_mem, indexB, &t, uB);
-  if (check_flag(&flag, "CVodeGetB", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeGetB(cvode_mem, indexB, &t, uB);
+  if (check_retval(&retval, "CVodeGetB", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print results (adjoint states and quadrature variables) */
   PrintOutput(g_val, uB, data);
@@ -264,7 +296,9 @@ int main(int argc, char *argv[])
   /* Free memory */
   N_VDestroy_Parallel(u);
   N_VDestroy_Parallel(uB);
-  CVodeFree(&cvode_mem);  
+  CVodeFree(&cvode_mem);
+  SUNNonlinSolFree(NLS);
+  SUNNonlinSolFree(NLSB);
 
   if (my_pe != npes) {
     free(data->z1);
@@ -293,7 +327,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype hordc, horac, hdiff, hadv;
   realtype *udata, *dudata;
   sunindextype i, my_length;
-  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe, my_last;
+  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;
@@ -320,20 +354,19 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   udata = N_VGetArrayPointer_Parallel(u);
   dudata = N_VGetArrayPointer_Parallel(udot);
   my_length = N_VGetLocalLength_Parallel(u);
-  my_last = my_length - 1;
 
   /* Pass needed data to processes before and after current process. */
    if (my_pe != 0)
-     MPI_Send(&udata[0], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm);
+     MPI_Send(&udata[0], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
    if (my_pe != last_pe)
-     MPI_Send(&udata[my_length-1], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm);   
+     MPI_Send(&udata[my_length-1], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);   
 
   /* Receive needed data from processes before and after current process. */
    if (my_pe != 0)
-     MPI_Recv(&uLeft, 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
+     MPI_Recv(&uLeft, 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
    else uLeft = ZERO;
    if (my_pe != last_pe)
-     MPI_Recv(&uRight, 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm,
+     MPI_Recv(&uRight, 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm,
               &status);   
    else uRight = ZERO;
 
@@ -367,7 +400,7 @@ static int fB(realtype t, N_Vector u,
   realtype dx, hordc, horac, hdiff, hadv;
   realtype *z1, *z2, intgr1, intgr2;
   sunindextype i, my_length;
-  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe, my_last;
+  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
   realtype data_in[2], data_out[2];
   MPI_Status status;
@@ -389,9 +422,9 @@ static int fB(realtype t, N_Vector u,
     duBdata[0] = ZERO;
     duBdata[1] = ZERO;
     for (i=0; i<npes; i++) {
-      MPI_Recv(&intgr1, 1, PVEC_REAL_MPI_TYPE, i, 0, comm, &status); 
+      MPI_Recv(&intgr1, 1, MPI_SUNREALTYPE, i, 0, comm, &status); 
       duBdata[0] += intgr1;
-      MPI_Recv(&intgr2, 1, PVEC_REAL_MPI_TYPE, i, 0, comm, &status); 
+      MPI_Recv(&intgr2, 1, MPI_SUNREALTYPE, i, 0, comm, &status); 
       duBdata[1] += intgr2;
     }
 
@@ -414,25 +447,24 @@ static int fB(realtype t, N_Vector u,
     my_pe_m1 = my_pe - 1;
     my_pe_p1 = my_pe + 1;
     last_pe  = npes - 1;
-    my_last  = my_length - 1;
 
     /* Pass needed data to processes before and after current process. */
     if (my_pe != 0) {
       data_out[0] = udata[0];
       data_out[1] = uBdata[0];
     
-      MPI_Send(data_out, 2, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm);
+      MPI_Send(data_out, 2, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
     }
     if (my_pe != last_pe) {
       data_out[0] = udata[my_length-1];
       data_out[1] = uBdata[my_length-1];
 
-      MPI_Send(data_out, 2, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm);
+      MPI_Send(data_out, 2, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
     }
     
     /* Receive needed data from processes before and after current process. */
     if (my_pe != 0) {
-      MPI_Recv(data_in, 2, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
+      MPI_Recv(data_in, 2, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
       
       uLeft = data_in[0];
       uBLeft = data_in[1];
@@ -441,7 +473,7 @@ static int fB(realtype t, N_Vector u,
       uBLeft = ZERO;
     }
     if (my_pe != last_pe) {
-      MPI_Recv(data_in, 2, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm, &status);
+      MPI_Recv(data_in, 2, MPI_SUNREALTYPE, my_pe_p1, 0, comm, &status);
 
       uRight = data_in[0];
       uBRight = data_in[1];
@@ -478,8 +510,8 @@ static int fB(realtype t, N_Vector u,
     intgr2 = Xintgr(z2, my_length, dx);
 
     /* Send local integrals to 'quadrature' process */
-    MPI_Send(&intgr1, 1, PVEC_REAL_MPI_TYPE, npes, 0, comm);
-    MPI_Send(&intgr2, 1, PVEC_REAL_MPI_TYPE, npes, 0, comm);
+    MPI_Send(&intgr1, 1, MPI_SUNREALTYPE, npes, 0, comm);
+    MPI_Send(&intgr2, 1, MPI_SUNREALTYPE, npes, 0, comm);
 
   }
 
@@ -574,7 +606,7 @@ static realtype Compute_g(N_Vector u, UserData data)
   if (my_pe == npes) {  /* Loop over all other processes and sum */
     intgr = ZERO;
     for (i=0; i<npes; i++) {
-      MPI_Recv(&my_intgr, 1, PVEC_REAL_MPI_TYPE, i, 0, comm, &status); 
+      MPI_Recv(&my_intgr, 1, MPI_SUNREALTYPE, i, 0, comm, &status); 
       intgr += my_intgr;
     }
     return(intgr);
@@ -582,7 +614,7 @@ static realtype Compute_g(N_Vector u, UserData data)
     udata = N_VGetArrayPointer_Parallel(u);
     my_length = N_VGetLocalLength_Parallel(u);
     my_intgr = Xintgr(udata, my_length, dx);
-    MPI_Send(&my_intgr, 1, PVEC_REAL_MPI_TYPE, npes, 0, comm);
+    MPI_Send(&my_intgr, 1, MPI_SUNREALTYPE, npes, 0, comm);
     return(my_intgr);
   }
 }
@@ -623,12 +655,12 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
 #endif
 
     mu = (realtype *)malloc(NEQ*sizeof(realtype));
-    if (check_flag((void *)mu, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    if (check_retval((void *)mu, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
     indx = 0;
     for ( i = 0; i < npes; i++) {
       Ni = ( i < nrem ) ? nperpe+1 : nperpe;
-      MPI_Recv(&mu[indx], Ni, PVEC_REAL_MPI_TYPE, i, 0, comm, &status);
+      MPI_Recv(&mu[indx], Ni, MPI_SUNREALTYPE, i, 0, comm, &status);
       indx += Ni;
     }
 
@@ -649,7 +681,7 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
 
   } else {
 
-    MPI_Send(uBdata, local_N, PVEC_REAL_MPI_TYPE, npes, 0, comm);
+    MPI_Send(uBdata, local_N, MPI_SUNREALTYPE, npes, 0, comm);
 
   }
 
@@ -659,32 +691,32 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns a flag so check if
- *             flag >= 0
+ *    opt == 1 means SUNDIALS function returns an integer value so check if
+ *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-	      id, funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+	      id, funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }

@@ -1,19 +1,19 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles @ LLNL
+# Programmer:  Slaven Peles, and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # Based on CMakeLists.txt in cvode/serial by Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for CVODE raja examples
+# CMakeLists.txt file for CVODE RAJA examples
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;type" where the type is
@@ -22,19 +22,23 @@
 # Examples using SUNDIALS linear solvers
 SET(CVODE_examples
   "cvAdvDiff_kry_raja\;develop"
+  #"cvAdvDiffReac_kry_raja\;develop"
   )
 
+# Set C++ compiler flags to include RAJA flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS}")
+
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc ${RAJA_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(. ${RAJA_INCLUDE_PATH})
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_static)
-  SET(NVECS_LIB sundials_nvecraja_static)
+  SET(NVECS_LIB sundials_nveccudaraja_static)
 ELSE()
   SET(CVODE_LIB sundials_cvode_shared)
-  SET(NVECS_LIB sundials_nvecraja_shared)
+  SET(NVECS_LIB sundials_nveccudaraja_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -63,7 +67,6 @@ FOREACH(example_tuple ${CVODE_examples})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-
   # install example source and out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cu ${example}.out
@@ -91,7 +94,7 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_raja_CUDA_ex.in
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_RAJA_ex.in
     ${PROJECT_BINARY_DIR}/examples/cvode/raja/CMakeLists.txt
     @ONLY
     )
@@ -109,7 +112,7 @@ IF(EXAMPLES_INSTALL)
   IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_raja_CUDA_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_RAJA_ex.in
       ${PROJECT_BINARY_DIR}/examples/cvode/raja/Makefile_ex
       @ONLY
       )

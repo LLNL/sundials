@@ -2,19 +2,15 @@
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the testing routine to check the SUNLinSol KLU module 
  * implementation. 
@@ -33,7 +29,7 @@
 
 
 /* ----------------------------------------------------------------------
- * SUNKLU Linear Solver Testing Routine
+ * SUNLinSol_KLU Linear Solver Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
@@ -112,12 +108,12 @@ int main(int argc, char *argv[])
   }
   
   /* Create KLU linear solver */
-  LS = SUNKLU(x, A);
+  LS = SUNLinSol_KLU(x, A);
   
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, RCONST(1.0e-13), 0);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, 1000*UNIT_ROUNDOFF, 0);
  
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);

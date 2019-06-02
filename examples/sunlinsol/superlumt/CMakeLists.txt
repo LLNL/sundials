@@ -1,19 +1,15 @@
 # ---------------------------------------------------------------
 # Programmer(s): Daniel Reynolds @ SMU
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2017, Southern Methodist University and 
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Southern Methodist University and Lawrence Livermore 
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence 
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for sunlinsol SuperLU_MT examples
 # ---------------------------------------------------------------
@@ -22,11 +18,13 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using the SuperLU_MT linear solver
+# Note: threaded tests are excluded because of a potential bug in
+# SuperLU_MT that causes random test failures
 SET(sunlinsol_superlumt_examples
   "test_sunlinsol_superlumt\;300 0 1 0\;"
   "test_sunlinsol_superlumt\;300 1 1 0\;"
-  "test_sunlinsol_superlumt\;1000 0 3 0\;develop"
-  "test_sunlinsol_superlumt\;1000 1 3 0\;develop"
+  "test_sunlinsol_superlumt\;1000 0 3 0\;exclude"
+  "test_sunlinsol_superlumt\;1000 1 3 0\;exclude"
 )
 
 # Dependencies for nvector examples

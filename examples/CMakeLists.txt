@@ -1,18 +1,26 @@
 # ---------------------------------------------------------------
 # Programmer:  David Gardner and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # examples level CMakeLists.txt for SUNDIALS (for cmake build system)
 # ---------------------------------------------------------------
+
+# The examples will be linked with the library corresponding to the build type.
+# Whenever building shared libraries, use them to link the examples.
+IF(BUILD_SHARED_LIBS)
+  SET(LINK_LIBRARY_TYPE "shared")
+ELSE()
+  SET(LINK_LIBRARY_TYPE "static")
+ENDIF()
 
 # Set variables used in generating CMake and Makefiles for examples
 IF(EXAMPLES_INSTALL)
@@ -21,7 +29,7 @@ IF(EXAMPLES_INSTALL)
   SET(prefix "${CMAKE_INSTALL_PREFIX}")
   SET(exec_prefix "${CMAKE_INSTALL_PREFIX}")
   SET(includedir "${prefix}/include")
-  SET(libdir "${exec_prefix}/lib")
+  SET(libdir "${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
   SET(CPP "${CMAKE_C_COMPILER}")
   SET(CPPFLAGS "${CMAKE_C_FLAGS_RELEASE}")
   SET(CC "${CMAKE_C_COMPILER}")
@@ -111,7 +119,7 @@ IF(EXAMPLES_INSTALL)
       SET(MPI_INC_DIR "${MPI_INCLUDE_PATH}")
       SET(MPI_LIB_DIR ".")
       LIST2STRING(MPI_LIBRARIES MPI_LIBS)
-      
+
       SET(MPIF90 "${CMAKE_Fortran_COMPILER}")
       SET(MPIF90_LNKR "${CMAKE_Fortran_COMPILER}")
       LIST2STRING(MPI_LIBRARIES MPI_LIBS)
@@ -168,3 +176,6 @@ ADD_SUBDIRECTORY(sunmatrix)
 
 # Add the sunlinearsolver examples
 ADD_SUBDIRECTORY(sunlinsol)
+
+# Add the sunnonlinearsolver examples
+ADD_SUBDIRECTORY(sunnonlinsol)

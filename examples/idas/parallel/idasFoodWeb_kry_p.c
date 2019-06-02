@@ -2,13 +2,23 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *      Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * Example program for IDA: Food web, parallel, GMRES, user
  * preconditioner.
  *
- * This example program for IDAS uses SUNSPGMR as the linear solver.
+ * This example program for IDAS uses SUNLinSol_SPGMR as the linear solver.
  * It is written for a parallel computer system and uses a
  * block-diagonal preconditioner (setup and solve routines) for the
- * IDASPILS interface.
+ * IDALS interface.
  *
  * The mathematical problem solved in this example is a DAE system
  * that arises from a system of partial differential equations after
@@ -67,9 +77,9 @@
  * submeshes, processor by processor, with an MXSUB by MYSUB mesh
  * on each of NPEX * NPEY processors.
  *
- * The DAE system is solved by IDAS using the SUNSPGMR linear
+ * The DAE system is solved by IDAS using the SUNLinSol_SPGMR linear
  * solver, which uses the preconditioned GMRES iterative method to
- * solve linear systems. The precondtioner supplied to SUNSPGMR is
+ * solve linear systems. The precondtioner supplied to SUNLinSol_SPGMR is
  * the block-diagonal part of the Jacobian with ns by ns blocks
  * arising from the reaction terms only. Output is printed at
  * t = 0, .001, .01, .1, .4, .7, 1.
@@ -97,7 +107,6 @@
 #include <math.h>
 
 #include <idas/idas.h>
-#include <idas/idas_spils.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_dense.h>
@@ -223,7 +232,7 @@ static void PrintOutput(void *ida_mem, N_Vector cc, realtype time,
 
 static void PrintFinalStats(void *ida_mem);
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -240,7 +249,7 @@ int main(int argc, char *argv[])
   sunindextype SystemSize, local_N;
   realtype rtol, atol, t0, tout, tret;
   N_Vector cc, cp, res, id;
-  int thispe, npes, maxl, iout, flag;
+  int thispe, npes, maxl, iout, retval;
 
   cc = cp = res = id = NULL;
   webdata = NULL;
@@ -271,7 +280,7 @@ int main(int argc, char *argv[])
   /* Set up user data block webdata. */
 
   webdata = AllocUserData(comm, local_N, SystemSize);
-  if (check_flag((void *)webdata, "AllocUserData", 0, thispe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)webdata, "AllocUserData", 0, thispe)) MPI_Abort(comm, 1);
 
   InitUserData(webdata, thispe, npes, comm);
   
@@ -279,16 +288,16 @@ int main(int argc, char *argv[])
      The vector res is used temporarily only.        */
 
   cc  = N_VNew_Parallel(comm, local_N, SystemSize);
-  if (check_flag((void *)cc, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)cc, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   cp  = N_VNew_Parallel(comm, local_N, SystemSize);
-  if (check_flag((void *)cp, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)cp, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   res = N_VNew_Parallel(comm, local_N, SystemSize);
-  if (check_flag((void *)res, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)res, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   id  = N_VNew_Parallel(comm, local_N, SystemSize);
-  if (check_flag((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
   
   SetInitialProfiles(cc, cp, id, res, webdata);
   
@@ -304,46 +313,46 @@ int main(int argc, char *argv[])
      A pointer to IDA problem memory is returned and stored in idamem. */
 
   ida_mem = IDACreate();
-  if (check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDASetUserData(ida_mem, webdata);
-  if (check_flag(&flag, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetUserData(ida_mem, webdata);
+  if (check_retval(&retval, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDASetId(ida_mem, id);
-  if (check_flag(&flag, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetId(ida_mem, id);
+  if (check_retval(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDAInit(ida_mem, resweb, t0, cc, cp);
-  if (check_flag(&flag, "IDAinit", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDAInit(ida_mem, resweb, t0, cc, cp);
+  if (check_retval(&retval, "IDAinit", 1, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDASStolerances(ida_mem, rtol, atol);
-  if (check_flag(&flag, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASStolerances(ida_mem, rtol, atol);
+  if (check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   webdata->ida_mem = ida_mem;
 
-  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver 
+  /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver 
      to IDA, and specify the supplied [left] preconditioner routines 
      (Precondbd & PSolvebd).  maxl (Krylov subspace dim.) is set to 16. */
 
   maxl = 16;
-  LS = SUNSPGMR(cc, PREC_LEFT, maxl);
-  if (check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
-  flag = SUNSPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
-  if(check_flag(&flag, "SUNSPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
+  retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
+  if(check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
 
-  flag = IDASpilsSetLinearSolver(ida_mem, LS);
-  if (check_flag(&flag, "IDASpilsSetLinearSolver", 1, thispe)) 
+  retval = IDASetLinearSolver(ida_mem, LS, NULL);
+  if (check_retval(&retval, "IDASetLinearSolver", 1, thispe)) 
     MPI_Abort(comm, 1);
 
-  flag = IDASpilsSetPreconditioner(ida_mem, Precondbd, PSolvebd);
-  if (check_flag(&flag, "IDASpilsSetPreconditioner", 1, thispe)) 
+  retval = IDASetPreconditioner(ida_mem, Precondbd, PSolvebd);
+  if (check_retval(&retval, "IDASetPreconditioner", 1, thispe)) 
     MPI_Abort(comm, 1);
   
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
-  flag = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, tout);
-  if (check_flag(&flag, "IDACalcIC", 1, thispe)) 
+  retval = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, tout);
+  if (check_retval(&retval, "IDACalcIC", 1, thispe)) 
     MPI_Abort(comm, 1);
 
   /* On PE 0, print heading, basic parameters, initial values. */
@@ -355,8 +364,8 @@ int main(int argc, char *argv[])
 
   for (iout = 1; iout <= NOUT; iout++) {
     
-    flag = IDASolve(ida_mem, tout, &tret, cc, cp, IDA_NORMAL);
-    if (check_flag(&flag, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
+    retval = IDASolve(ida_mem, tout, &tret, cc, cp, IDA_NORMAL);
+    if (check_retval(&retval, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
     PrintOutput(ida_mem, cc, tret, webdata, comm);
     
@@ -370,9 +379,9 @@ int main(int argc, char *argv[])
 
   /* Free memory. */
 
-  N_VDestroy_Parallel(cc);
-  N_VDestroy_Parallel(cp);
-  N_VDestroy_Parallel(id);
+  N_VDestroy(cc);
+  N_VDestroy(cp);
+  N_VDestroy(id);
 
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
@@ -493,8 +502,8 @@ static void FreeUserData(UserData webdata)
   }
 
   destroyMat(webdata->acoef);
-  N_VDestroy_Parallel(webdata->rates);
-  N_VDestroy_Parallel(webdata->ewt);
+  N_VDestroy(webdata->rates);
+  N_VDestroy(webdata->ewt);
   free(webdata);
 
 }
@@ -511,14 +520,13 @@ static void FreeUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector res, UserData webdata)
 {
-  int ixsub, jysub, mxsub, mysub, nsmxsub, np, ix, jy, is;
+  int ixsub, jysub, mxsub, mysub, np, ix, jy, is;
   realtype *cxy, *idxy, *cpxy, dx, dy, xx, yy, xyfactor;
   
   ixsub = webdata->ixsub;
   jysub = webdata->jysub;
   mxsub = webdata->mxsub;
   mysub = webdata->mxsub;
-  nsmxsub = webdata->nsmxsub;
   dx = webdata->dx;
   dy = webdata->dy;
   np = webdata->np;
@@ -574,7 +582,7 @@ static void PrintHeader(sunindextype SystemSize, int maxl,
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: SUNSPGMR     Max. Krylov dimension maxl: %d\n", maxl);
+  printf("Linear solver: SUNLinSol_SPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: block diagonal, block size ns,"); 
   printf(" via difference quotients\n");
   printf("CalcIC called to correct initial predator concentrations \n\n");
@@ -598,17 +606,17 @@ static void PrintOutput(void *ida_mem, N_Vector cc, realtype tt,
   MPI_Status status;
   realtype *cdata, clast[2], hused;
   long int nst;
-  int i, kused, flag, thispe, npelast, ilast;;
+  int i, kused, retval, thispe, npelast, ilast;;
 
   thispe = webdata->thispe; 
   npelast = webdata->npes - 1;
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
   
   /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
   if (thispe == npelast) {
     ilast = NUM_SPECIES*MXSUB*MYSUB - 2;
     if (npelast != 0)
-      MPI_Send(&cdata[ilast], 2, PVEC_REAL_MPI_TYPE, 0, 0, comm);
+      MPI_Send(&cdata[ilast], 2, MPI_SUNREALTYPE, 0, 0, comm);
     else { clast[0] = cdata[ilast]; clast[1] = cdata[ilast+1]; }
   }
   
@@ -618,14 +626,14 @@ static void PrintOutput(void *ida_mem, N_Vector cc, realtype tt,
   if (thispe == 0) {
     
     if (npelast != 0)
-      MPI_Recv(&clast[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
+      MPI_Recv(&clast[0], 2, MPI_SUNREALTYPE, npelast, 0, comm, &status);
     
-    flag = IDAGetLastOrder(ida_mem, &kused);
-    check_flag(&flag, "IDAGetLastOrder", 1, thispe);
-    flag = IDAGetNumSteps(ida_mem, &nst);
-    check_flag(&flag, "IDAGetNumSteps", 1, thispe);
-    flag = IDAGetLastStep(ida_mem, &hused);
-    check_flag(&flag, "IDAGetLastStep", 1, thispe);
+    retval = IDAGetLastOrder(ida_mem, &kused);
+    check_retval(&retval, "IDAGetLastOrder", 1, thispe);
+    retval = IDAGetNumSteps(ida_mem, &nst);
+    check_retval(&retval, "IDAGetNumSteps", 1, thispe);
+    retval = IDAGetLastStep(ida_mem, &hused);
+    check_retval(&retval, "IDAGetLastStep", 1, thispe);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%8.2Le %12.4Le %12.4Le   | %3ld  %1d %12.4Le\n", 
@@ -655,29 +663,29 @@ static void PrintOutput(void *ida_mem, N_Vector cc, realtype tt,
 static void PrintFinalStats(void *ida_mem)
 {
   long int nst, nre, nreLS, netf, ncfn, nni, ncfl, nli, npe, nps;
-  int flag;
+  int retval;
 
-  flag = IDAGetNumSteps(ida_mem, &nst);
-  check_flag(&flag, "IDAGetNumSteps", 1, 0);
-  flag = IDAGetNumResEvals(ida_mem, &nre);
-  check_flag(&flag, "IDAGetNumResEvals", 1, 0);
-  flag = IDAGetNumErrTestFails(ida_mem, &netf);
-  check_flag(&flag, "IDAGetNumErrTestFails", 1, 0);
-  flag = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
-  check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1, 0);
-  flag = IDAGetNumNonlinSolvIters(ida_mem, &nni);
-  check_flag(&flag, "IDAGetNumNonlinSolvIters", 1, 0);
+  retval = IDAGetNumSteps(ida_mem, &nst);
+  check_retval(&retval, "IDAGetNumSteps", 1, 0);
+  retval = IDAGetNumResEvals(ida_mem, &nre);
+  check_retval(&retval, "IDAGetNumResEvals", 1, 0);
+  retval = IDAGetNumErrTestFails(ida_mem, &netf);
+  check_retval(&retval, "IDAGetNumErrTestFails", 1, 0);
+  retval = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
+  check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1, 0);
+  retval = IDAGetNumNonlinSolvIters(ida_mem, &nni);
+  check_retval(&retval, "IDAGetNumNonlinSolvIters", 1, 0);
 
-  flag = IDASpilsGetNumConvFails(ida_mem, &ncfl);
-  check_flag(&flag, "IDASpilsGetNumConvFails", 1, 0);
-  flag = IDASpilsGetNumLinIters(ida_mem, &nli);
-  check_flag(&flag, "IDASpilsGetNumLinIters", 1, 0);
-  flag = IDASpilsGetNumPrecEvals(ida_mem, &npe);
-  check_flag(&flag, "IDASpilsGetNumPrecEvals", 1, 0);
-  flag = IDASpilsGetNumPrecSolves(ida_mem, &nps);
-  check_flag(&flag, "IDASpilsGetNumPrecSolves", 1, 0);
-  flag = IDASpilsGetNumResEvals(ida_mem, &nreLS);
-  check_flag(&flag, "IDASpilsGetNumResEvals", 1, 0);
+  retval = IDAGetNumLinConvFails(ida_mem, &ncfl);
+  check_retval(&retval, "IDAGetNumLinConvFails", 1, 0);
+  retval = IDAGetNumLinIters(ida_mem, &nli);
+  check_retval(&retval, "IDAGetNumLinIters", 1, 0);
+  retval = IDAGetNumPrecEvals(ida_mem, &npe);
+  check_retval(&retval, "IDAGetNumPrecEvals", 1, 0);
+  retval = IDAGetNumPrecSolves(ida_mem, &nps);
+  check_retval(&retval, "IDAGetNumPrecSolves", 1, 0);
+  retval = IDAGetNumLinResEvals(ida_mem, &nreLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1, 0);
 
   printf("-----------------------------------------------------------\n");
   printf("\nFinal statistics: \n\n");
@@ -700,32 +708,32 @@ static void PrintFinalStats(void *ida_mem)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
             id, funcname);
     return(1); 
   } else if (opt == 1) {
-    /* Check if flag < 0 */
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    /* Check if retval < 0 */
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", 
-              id, funcname, *errflag);
+              "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n", 
+              id, funcname, *retval);
       return(1); 
     }
-  } else if (opt == 2 && flagvalue == NULL) {
+  } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
@@ -752,18 +760,18 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
 static int resweb(realtype tt, N_Vector cc, N_Vector cp, 
                   N_Vector res,  void *user_data)
 {
-  int flag;
+  int retval;
   UserData webdata;
   
   webdata = (UserData)user_data;
   
   /* Call rescomm to do inter-processor communication. */
-  flag = rescomm(cc, cp, webdata);
+  retval = rescomm(cc, cp, webdata);
   
   /* Call reslocal to calculate the local portion of residual vector. */
-  flag = reslocal(tt, cc, cp, res, webdata);
+  retval = reslocal(tt, cc, cp, res, webdata);
 
-  return(0);
+  return(retval);
  
 }
 
@@ -787,7 +795,7 @@ static int rescomm(N_Vector cc, N_Vector cp, void *user_data)
   MPI_Request request[4];
   
   webdata = (UserData) user_data;
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
   
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */
   comm = webdata->comm;     thispe = webdata->thispe;
@@ -824,12 +832,12 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
   
   /* If jysub > 0, send data from bottom x-line of cc. */
   if (jysub != 0)
-    MPI_Send(&cdata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
+    MPI_Send(&cdata[0], dsizex, MPI_SUNREALTYPE, my_pe-NPEX, 0, comm);
   
   /* If jysub < NPEY-1, send data from top x-line of cc. */
   if (jysub != NPEY-1) {
     offsetc = (MYSUB-1)*dsizex;
-    MPI_Send(&cdata[offsetc], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
+    MPI_Send(&cdata[offsetc], dsizex, MPI_SUNREALTYPE, my_pe+NPEX, 0, comm);
   }
 
   /* If ixsub > 0, send data from left y-line of cc (via bufleft). */
@@ -840,7 +848,7 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
       for (i = 0; i < NUM_SPECIES; i++)
         bufleft[offsetbuf+i] = cdata[offsetc+i];
     }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe-1, 0, comm);   
+    MPI_Send(&bufleft[0], dsizey, MPI_SUNREALTYPE, my_pe-1, 0, comm);   
   }
 
   /* If ixsub < NPEX-1, send data from right y-line of cc (via bufright). */
@@ -851,7 +859,7 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
       for (i = 0; i < NUM_SPECIES; i++)
         bufright[offsetbuf+i] = cdata[offsetc+i];
     }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);   
+    MPI_Send(&bufright[0], dsizey, MPI_SUNREALTYPE, my_pe+1, 0, comm);   
   }
 
 }
@@ -875,25 +883,25 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
 
   /* If jysub > 0, receive data for bottom x-line of cext. */
   if (jysub != 0)
-    MPI_Irecv(&cext[NUM_SPECIES], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&cext[NUM_SPECIES], dsizex, MPI_SUNREALTYPE,
               my_pe-NPEX, 0, comm, &request[0]);
   
   /* If jysub < NPEY-1, receive data for top x-line of cext. */
   if (jysub != NPEY-1) {
     offsetce = NUM_SPECIES*(1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&cext[offsetce], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&cext[offsetce], dsizex, MPI_SUNREALTYPE,
               my_pe+NPEX, 0, comm, &request[1]);
   }
   
   /* If ixsub > 0, receive data for left y-line of cext (via bufleft). */
   if (ixsub != 0) {
-    MPI_Irecv(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufleft[0], dsizey, MPI_SUNREALTYPE,
               my_pe-1, 0, comm, &request[2]);
   }
   
   /* If ixsub < NPEX-1, receive data for right y-line of cext (via bufright). */
   if (ixsub != NPEX-1) {
-    MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufright[0], dsizey, MPI_SUNREALTYPE,
               my_pe+1, 0, comm, &request[3]);
   }
   
@@ -999,7 +1007,7 @@ static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res,
   webdata = (UserData) user_data;
   
   /* Get data pointers, subgrid data, array sizes, work array cext. */
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
   
   /* Copy local segment of cc vector into the working extended array cext. */
   locc = 0;
@@ -1126,7 +1134,7 @@ static realtype dotprod(int size, realtype *x1, realtype *x2)
 static int Precondbd(realtype tt, N_Vector cc, N_Vector cp, 
                      N_Vector rr, realtype cj, void *user_data)
 {
-  int flag, thispe;
+  int retval, thispe;
   realtype uround;
   realtype xx, yy, *cxy, *ewtxy, cctemp, **Pxy, *ratesxy, *Pxycol, *cpxy;
   realtype inc, sqru, fac, perturb_rates[NUM_SPECIES];
@@ -1143,10 +1151,10 @@ static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
 
   ida_mem = webdata->ida_mem;
   ewt = webdata->ewt;
-  flag = IDAGetErrWeights(ida_mem, ewt);
-  check_flag(&flag, "IDAGetErrWeights", 1, thispe);
-  flag = IDAGetCurrentStep(ida_mem, &hh);
-  check_flag(&flag, "IDAGetCurrentStep", 1, thispe);
+  retval = IDAGetErrWeights(ida_mem, ewt);
+  check_retval(&retval, "IDAGetErrWeights", 1, thispe);
+  retval = IDAGetCurrentStep(ida_mem, &hh);
+  check_retval(&retval, "IDAGetCurrentStep", 1, thispe);
 
   for (jy = 0; jy < mysub; jy++) {
     yy = (jy + jysub*mysub)*dy;

@@ -2,22 +2,18 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Aaron Collier and Radu Serban @ LLNL
  *-----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *-----------------------------------------------------------------
  * The C functions FIDAJTSetup and FIDAJtimes are to interface 
- * between the IDASPILS modules and the user-supplied 
+ * between the IDALS module and the user-supplied 
  * Jacobian-vector product routines FIDAJTSETUP and FIDAJTIMES. 
  * Note the use of the generic names FIDA_JTSETUP and FIDA_JTIMES 
  * below.
@@ -29,7 +25,7 @@
 #include "fida.h"     /* actual fn. names, prototypes and global vars.*/
 #include "ida_impl.h" /* definition of IDAMem type                    */
 
-#include <ida/ida_spils.h>
+#include <ida/ida_ls.h>
 
 /*************************************************/
 
@@ -54,12 +50,17 @@ extern "C" {
 
 /*************************************************/
 
-/* Fortran interface to C routine IDASpilsSetJacTimes; see 
-   fida.h for further information */
+/*** DEPRECATED ***/
 void FIDA_SPILSSETJAC(int *flag, int *ier)
+{ FIDA_LSSETJAC(flag, ier); }
+
+
+/* Fortran interface to C routine IDASetJacTimes; see 
+   fida.h for further information */
+void FIDA_LSSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = IDASpilsSetJacTimes(IDA_idamem, NULL, NULL);
+    *ier = IDASetJacTimes(IDA_idamem, NULL, NULL);
   } else {
     if (F2C_IDA_ewtvec == NULL) {
       F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
@@ -68,7 +69,7 @@ void FIDA_SPILSSETJAC(int *flag, int *ier)
         return;
       }
     }
-    *ier = IDASpilsSetJacTimes(IDA_idamem, FIDAJTSetup, FIDAJtimes);
+    *ier = IDASetJacTimes(IDA_idamem, FIDAJTSetup, FIDAJtimes);
   }
   return;
 }

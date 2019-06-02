@@ -1,18 +1,18 @@
-/* ----------------------------------------------------------------- 
- * Programmer(s): Slaven Peles @ LLNL
+/* -----------------------------------------------------------------
+ * Programmer(s): Slaven Peles, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the NVECTOR CUDA module 
- * implementation. 
+ * This is the testing routine to check the NVECTOR CUDA module
+ * implementation.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -23,19 +23,24 @@
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
 
-#include <nvector/cuda/Vector.hpp>
+/* CUDA vector specific tests */
+int Test_N_VMake_Cuda(N_Vector X, sunindextype length, int myid);
+int Test_N_VMakeManaged_Cuda(N_Vector X, sunindextype length, int myid);
+
+/* CUDA vector can use unmanaged or managed memory */
+enum mem_type { UNMANAGED, MANAGED };
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
-  int          fails = 0;     /* counter for test failures  */
-  sunindextype veclen;        /* vector length              */
-  N_Vector     W, X, Y, Z;    /* test vectors               */
-  int          print_timing;
-  /* sunindextype lrw, liw; */
-
+  int          fails = 0;         /* counter for test failures */
+  int          retval;            /* function return value     */
+  sunindextype length;            /* vector length             */
+  N_Vector     U, V, X, Y, Z;     /* test vectors              */
+  int          print_timing;      /* turn timing on/off        */
+  int          i;
 
   /* check input and set vector length */
   if (argc < 3){
@@ -43,131 +48,364 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  veclen = atol(argv[1]); 
-  if (veclen <= 0) {
+  length = atol(argv[1]);
+  if (length <= 0) {
     printf("ERROR: length of vector must be a positive integer \n");
-    return(-1); 
+    return(-1);
   }
 
   print_timing = atoi(argv[2]);
-  SetTiming(print_timing);
+  SetTiming(print_timing, 0);
+
+  /* test with unmanaged and managed memory */
+  for (i=UNMANAGED; i<=MANAGED; ++i) {
+    if (i==UNMANAGED) {
+      printf("Testing CUDA N_Vector \n");
+    } else {
+      printf("\nTesting CUDA N_Vector with managed memory \n");
+    }
+    printf("Vector length %ld \n\n", (long int) length);
+
+    /* Create new vectors */
+    X = (i==UNMANAGED) ? N_VNew_Cuda(length) : N_VNewManaged_Cuda(length);
+    if (X == NULL) {
+      printf("FAIL: Unable to create a new vector \n\n");
+      return(1);
+    }
+
+    /* Check vector ID */
+    fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_CUDA, 0);
+
+    /* Check vector length */
+    fails += Test_N_VGetLength(X, 0);
+
+    /* Check vector communicator */
+    fails += Test_N_VGetCommunicator(X, NULL, 0);
+
+    /* Test clone functions */
+    fails += Test_N_VCloneEmpty(X, 0);
+    fails += Test_N_VClone(X, length, 0);
+    fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
+    fails += Test_N_VCloneVectorArray(5, X, length, 0);
+
+    /* Clone additional vectors for testing */
+    Y = N_VClone(X);
+    if (Y == NULL) {
+      N_VDestroy(X);
+      printf("FAIL: Unable to create a new vector \n\n");
+      return(1);
+    }
+
+    Z = N_VClone(X);
+    if (Z == NULL) {
+      N_VDestroy(X);
+      N_VDestroy(Y);
+      printf("FAIL: Unable to create a new vector \n\n");
+      return(1);
+    }
+
+    /* Standard vector operation tests */
+    printf("\nTesting standard vector operations:\n\n");
+
+    fails += Test_N_VConst(X, length, 0);
+    fails += Test_N_VLinearSum(X, Y, Z, length, 0);
+    fails += Test_N_VProd(X, Y, Z, length, 0);
+    fails += Test_N_VDiv(X, Y, Z, length, 0);
+    fails += Test_N_VScale(X, Z, length, 0);
+    fails += Test_N_VAbs(X, Z, length, 0);
+    fails += Test_N_VInv(X, Z, length, 0);
+    fails += Test_N_VAddConst(X, Z, length, 0);
+    fails += Test_N_VDotProd(X, Y, length, length, 0);
+    fails += Test_N_VMaxNorm(X, length, 0);
+    fails += Test_N_VWrmsNorm(X, Y, length, 0);
+    fails += Test_N_VWrmsNormMask(X, Y, Z, length, length, 0);
+    fails += Test_N_VMin(X, length, 0);
+    fails += Test_N_VWL2Norm(X, Y, length, length, 0);
+    fails += Test_N_VL1Norm(X, length, length, 0);
+    fails += Test_N_VCompare(X, Z, length, 0);
+    fails += Test_N_VInvTest(X, Z, length, 0);
+    fails += Test_N_VConstrMask(X, Y, Z, length, 0);
+    fails += Test_N_VMinQuotient(X, Y, length, 0);
+
+    /* Fused and vector array operations tests (disabled) */
+    printf("\nTesting fused and vector array operations (disabled):\n\n");
+
+    /* create vector and disable all fused and vector array operations */
+    U = (i==UNMANAGED) ? N_VNew_Cuda(length) : N_VNewManaged_Cuda(length);
+    retval = N_VEnableFusedOps_Cuda(U, SUNFALSE);
+    if (U == NULL || retval != 0) {
+      N_VDestroy(X);
+      N_VDestroy(Y);
+      N_VDestroy(Z);
+      printf("FAIL: Unable to create a new vector \n\n");
+      return(1);
+    }
+
+    /* fused operations */
+    fails += Test_N_VLinearCombination(U, length, 0);
+    fails += Test_N_VScaleAddMulti(U, length, 0);
+    fails += Test_N_VDotProdMulti(U, length, length, 0);
+
+    /* vector array operations */
+    fails += Test_N_VLinearSumVectorArray(U, length, 0);
+    fails += Test_N_VScaleVectorArray(U, length, 0);
+    fails += Test_N_VConstVectorArray(U, length, 0);
+    fails += Test_N_VWrmsNormVectorArray(U, length, 0);
+    fails += Test_N_VWrmsNormMaskVectorArray(U, length, length, 0);
+    fails += Test_N_VScaleAddMultiVectorArray(U, length, 0);
+    fails += Test_N_VLinearCombinationVectorArray(U, length, 0);
+
+    /* Fused and vector array operations tests (enabled) */
+    printf("\nTesting fused and vector array operations (enabled):\n\n");
+
+    /* create vector and enable all fused and vector array operations */
+    V = (i==UNMANAGED) ? N_VNew_Cuda(length) : N_VNewManaged_Cuda(length);
+    retval = N_VEnableFusedOps_Cuda(V, SUNTRUE);
+    if (V == NULL || retval != 0) {
+      N_VDestroy(X);
+      N_VDestroy(Y);
+      N_VDestroy(Z);
+      N_VDestroy(U);
+      printf("FAIL: Unable to create a new vector \n\n");
+      return(1);
+    }
+
+    /* fused operations */
+    fails += Test_N_VLinearCombination(V, length, 0);
+    fails += Test_N_VScaleAddMulti(V, length, 0);
+    fails += Test_N_VDotProdMulti(V, length, length, 0);
+
+    /* vector array operations */
+    fails += Test_N_VLinearSumVectorArray(V, length, 0);
+    fails += Test_N_VScaleVectorArray(V, length, 0);
+    fails += Test_N_VConstVectorArray(V, length, 0);
+    fails += Test_N_VWrmsNormVectorArray(V, length, 0);
+    fails += Test_N_VWrmsNormMaskVectorArray(V, length, length, 0);
+    fails += Test_N_VScaleAddMultiVectorArray(V, length, 0);
+    fails += Test_N_VLinearCombinationVectorArray(V, length, 0);
+
+    /* local reduction operations */
+    printf("\nTesting local reduction operations:\n\n");
+
+    fails += Test_N_VDotProdLocal(X, Y, length, 0);
+    fails += Test_N_VMaxNormLocal(X, length, 0);
+    fails += Test_N_VMinLocal(X, length, 0);
+    fails += Test_N_VL1NormLocal(X, length, 0);
+    fails += Test_N_VWSqrSumLocal(X, Y, length, 0);
+    fails += Test_N_VWSqrSumMaskLocal(X, Y, Z, length, 0);
+    fails += Test_N_VInvTestLocal(X, Z, length, 0);
+    fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
+    fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
 
-  printf("\nRunning with vector length %ld \n\n", (long) veclen);
+    /* CUDA specific tests */
+    if (i==UNMANAGED) {
+      fails += Test_N_VMake_Cuda(X, length, 0);
+    } else {
+      fails += Test_N_VMakeManaged_Cuda(X, length, 0);
+    }
 
-  /* Create vectors */
-  W = N_VNewEmpty_Cuda(veclen);
-  X = N_VNew_Cuda(veclen);
-
-  /* NVector Tests */
-  
-  /* CUDA specific tests */
-  
-  /* Memory allocation tests */
-  fails += Test_N_VCloneEmpty(X, 0);
-  fails += Test_N_VClone(X, veclen, 0);
-  fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
-  fails += Test_N_VCloneVectorArray(5, X, veclen, 0);
-
-  Y = N_VClone_Cuda(X);
-  Z = N_VClone_Cuda(X);
-
-  /* Skipped tests */
-  /*   fails += Test_N_VSetArrayPointer(W, veclen, 0); */
-  /*   fails += Test_N_VGetArrayPointer(X, veclen, 0); */
-  
-  /* Vector operation tests */
-  fails += Test_N_VConst(X, veclen, 0);
-  fails += Test_N_VLinearSum(X, Y, Z, veclen, 0);
-  fails += Test_N_VProd(X, Y, Z, veclen, 0);
-  fails += Test_N_VDiv(X, Y, Z, veclen, 0);
-  fails += Test_N_VScale(X, Z, veclen, 0);
-  fails += Test_N_VAbs(X, Z, veclen, 0);
-  fails += Test_N_VInv(X, Z, veclen, 0);
-  fails += Test_N_VAddConst(X, Z, veclen, 0);
-  fails += Test_N_VDotProd(X, Y, veclen, veclen, 0);
-  fails += Test_N_VMaxNorm(X, veclen, 0);
-  fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);
-  fails += Test_N_VMin(X, veclen, 0);
-  fails += Test_N_VWL2Norm(X, Y, veclen, veclen, 0);
-  fails += Test_N_VL1Norm(X, veclen, veclen, 0);
-  fails += Test_N_VCompare(X, Z, veclen, 0);
-  fails += Test_N_VInvTest(X, Z, veclen, 0);
-  fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
-  fails += Test_N_VMinQuotient(X, Y, veclen, 0);
-
-  /* Fused vector operation tests (optional) */
-  fails += Test_N_VLinearCombination(X, veclen, 0);
-  fails += Test_N_VScaleAddMulti(X, veclen, 0);
-  fails += Test_N_VDotProdMulti(X, veclen, veclen, 0);
-
-  /* Vector array operation tests (optional) */
-  fails += Test_N_VLinearSumVectorArray(X, veclen, 0);
-  fails += Test_N_VScaleVectorArray(X, veclen, 0);
-  fails += Test_N_VConstVectorArray(X, veclen, 0);
-  fails += Test_N_VWrmsNormVectorArray(X, veclen, 0);
-  fails += Test_N_VWrmsNormMaskVectorArray(X, veclen, veclen, 0);
-  fails += Test_N_VScaleAddMultiVectorArray(X, veclen, 0);
-  fails += Test_N_VLinearCombinationVectorArray(X, veclen, 0);
-
-  /*   N_VSpace_Cuda(X, &lrw, &liw);               */
-  /*   printf("lrw = %ld, liw = %ld\n", lrw, liw); */
-  
-  /* Free vectors */
-  N_VDestroy(W);
-  N_VDestroy(X);
-  N_VDestroy(Y);
-  N_VDestroy(Z);
+    /* Free vectors */
+    N_VDestroy(X);
+    N_VDestroy(Y);
+    N_VDestroy(Z);
+    N_VDestroy(U);
+    N_VDestroy(V);
+  }
 
   /* Print result */
   if (fails) {
-    printf("FAIL: NVector module failed %i tests \n \n", fails);
+    printf("FAIL: NVector module failed %i tests \n\n", fails);
   } else {
-    printf("SUCCESS: NVector module passed all tests \n \n");
+    printf("SUCCESS: NVector module passed all tests \n\n");
   }
 
   return(fails);
 }
 
+
 /* ----------------------------------------------------------------------
- * Check vector
+ * CUDA specific tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+
+/* --------------------------------------------------------------------
+ * Test for the CUDA N_Vector N_VMake_Cuda function. Requires N_VConst
+ * to check data.
+ */
+int Test_N_VMake_Cuda(N_Vector X, sunindextype length, int myid)
 {
-  int      failure = 0;
-  sunindextype i;
-  suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
-  realtype *xdata;
-  
-  xv->copyFromDev();
-  
-  xdata = xv->host();
-  /* check vector data */
-  for(i=0; i < local_length; i++){
-    failure += FNEQ(xdata[i], ans);
+  int failure = 0;
+  realtype *h_data, *d_data;
+  N_Vector Y;
+
+  N_VConst(NEG_HALF, X);
+  N_VCopyFromDevice_Cuda(X);
+
+  h_data = N_VGetHostArrayPointer_Cuda(X);
+  d_data = N_VGetDeviceArrayPointer_Cuda(X);
+
+  /* Case 1: h_data and d_data are not null */
+  Y = N_VMake_Cuda(length, h_data, d_data);
+  if (Y == NULL) {
+    printf(">>> FAILED test -- N_VMake_Cuda, Proc %d \n", myid);
+    printf("    Vector is NULL \n \n");
+    return(1);
   }
+
+  if (N_VGetHostArrayPointer_Cuda(Y) == NULL) {
+    printf(">>> FAILED test -- N_VMake_Cuda, Proc %d \n", myid);
+    printf("    Vector host data == NULL \n \n");
+    N_VDestroy(Y);
+    return(1);
+  }
+
+  if (N_VGetDeviceArrayPointer_Cuda(Y) == NULL) {
+    printf(">>> FAILED test -- N_VMake_Cuda, Proc %d \n", myid);
+    printf("    Vector device data -= NULL \n \n");
+    N_VDestroy(Y);
+    return(1);
+  }
+
+  failure += check_ans(NEG_HALF, Y, length);
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VMake_Cuda Case 1, Proc %d \n", myid);
+    printf("    Failed N_VConst check \n \n");
+    N_VDestroy(Y);
+    return(1);
+  }
+
+  if (myid == 0) {
+    printf("PASSED test -- N_VMake_Cuda Case 1 \n");
+  }
+
+  N_VDestroy(Y);
+
+  /* Case 2: data is null */
+  Y = N_VMake_Cuda(length, NULL, NULL);
+  if (Y != NULL) {
+    printf(">>> FAILED test -- N_VMake_Cuda Case 2, Proc %d \n", myid);
+    printf("    Vector is not NULL \n \n");
+    return(1);
+  }
+
+  if (myid == 0) {
+    printf("PASSED test -- N_VMake_Cuda Case 2 \n");
+  }
+
+  N_VDestroy(Y);
+
+  return(failure);
+}
+
+/* --------------------------------------------------------------------
+ * Test for the CUDA N_Vector N_VMakeManaged_Cuda function. Requires
+ * N_VConst to check data. X must be using managed memory.
+ */
+int Test_N_VMakeManaged_Cuda(N_Vector X, sunindextype length, int myid)
+{
+  int failure = 0;
+  realtype *vdata;
+  N_Vector Y;
+
+  if(!N_VIsManagedMemory_Cuda(X)) {
+    printf(">>> FAILED test -- N_VIsManagedMemory_Cuda, Proc %d \n", myid);
+    return(1);
+  }
+
+  N_VConst(NEG_HALF, X);
+
+  vdata = N_VGetHostArrayPointer_Cuda(X);
+
+  /* Case 1: data is not null */
+  Y = N_VMakeManaged_Cuda(length, vdata);
+  if (Y == NULL) {
+    printf(">>> FAILED test -- N_VMakeManaged_Cuda, Proc %d \n", myid);
+    printf("    Vector is NULL \n \n");
+    return(1);
+  }
+
+  failure += check_ans(NEG_HALF, Y, length);
+
+  /* Case 2: data is null */
+  Y = N_VMakeManaged_Cuda(length, NULL);
+  if (Y != NULL) {
+    printf(">>> FAILED test -- N_VMakeManaged_Cuda Case 2, Proc %d \n", myid);
+    printf("    Vector is not NULL \n \n");
+    return(1);
+  }
+
+  if (myid == 0) {
+    printf("PASSED test -- N_VMakeManaged_Cuda Case 2 \n");
+  }
+
+  N_VDestroy(Y);
+
+  return(failure);
+}
+
+
+/* ----------------------------------------------------------------------
+ * Implementation specific utility functions for vector tests
+ * --------------------------------------------------------------------*/
+int check_ans(realtype ans, N_Vector X, sunindextype length)
+{
+  int          failure = 0;
+  sunindextype i;
+  realtype     *Xdata;
+
+  N_VCopyFromDevice_Cuda(X);
+  Xdata = N_VGetHostArrayPointer_Cuda(X);
+
+  /* check vector data */
+  for (i = 0; i < length; i++) {
+    failure += FNEQ(Xdata[i], ans);
+  }
+
   return (failure > ZERO) ? (1) : (0);
 }
 
 booleantype has_data(N_Vector X)
 {
-  suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
-
-  return (xv == NULL ? SUNFALSE : SUNTRUE);
+  /* check if vector content is non-null */
+  return (X->content == NULL ? SUNFALSE : SUNTRUE);
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
-  suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
-  xv->copyFromDev();
-  (xv->host())[i] = val;
-  xv->copyToDev();
+  /* set i-th element of data array */
+  set_element_range(X, i, i, val);
+}
+
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
+                       realtype val)
+{
+  sunindextype i;
+  realtype*    xd;
+
+  /* set elements [is,ie] of the data array */
+  N_VCopyFromDevice_Cuda(X);
+  xd = N_VGetHostArrayPointer_Cuda(X);
+  for(i = is; i <= ie; i++) xd[i] = val;
+  N_VCopyToDevice_Cuda(X);
 }
 
 realtype get_element(N_Vector X, sunindextype i)
 {
-  suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
-  xv->copyFromDev();
-  return (xv->host())[i];
+  /* get i-th element of data array */
+  N_VCopyFromDevice_Cuda(X);
+  return (N_VGetHostArrayPointer_Cuda(X))[i];
+}
+
+double max_time(N_Vector X, double time)
+{
+  /* not running in parallel, just return input time */
+  return(time);
+}
+
+void sync_device()
+{
+  /* sync with GPU */
+  cudaDeviceSynchronize();
+  return;
 }

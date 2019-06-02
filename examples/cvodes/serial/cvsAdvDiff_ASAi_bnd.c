@@ -1,6 +1,16 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * Adjoint sensitivity example problem:
  *
  * The following is a simple example problem with a banded Jacobian,
@@ -16,7 +26,7 @@
  * central differencing, and with boundary values eliminated,
  * leaving an ODE system of size NEQ = MX*MY.
  * This program solves the problem with the BDF method, Newton
- * iteration with the SUNBAND linear solver, and a user-supplied
+ * iteration with the BAND linear solver, and a user-supplied
  * Jacobian routine.
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .1, .2, ..., 1.
@@ -45,7 +55,6 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
 #include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
-#include <cvodes/cvodes_direct.h>      /* access to CVDls interface            */
 #include <sundials/sundials_types.h>   /* definition of type realtype          */
 #include <sundials/sundials_math.h>    /* definition of SUNRabs and SUNRexp    */
 
@@ -105,7 +114,7 @@ static int JacB(realtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB
 
 static void SetIC(N_Vector u, UserData data);
 static void PrintOutput(N_Vector uB, UserData data);
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -129,7 +138,7 @@ int main(int argc, char *argv[])
   realtype reltolB, abstolB;
   N_Vector uB;
   
-  int flag, ncheck;
+  int retval, ncheck;
 
   data = NULL;
   cvode_mem = NULL;
@@ -140,7 +149,7 @@ int main(int argc, char *argv[])
   /* Allocate and initialize user data memory */
 
   data = (UserData) malloc(sizeof *data);
-  if(check_flag((void *)data, "malloc", 2)) return(1);
+  if(check_retval((void *)data, "malloc", 2)) return(1);
 
   dx = data->dx = XMAX/(MX+1);
   dy = data->dy = YMAX/(MY+1);
@@ -154,7 +163,7 @@ int main(int argc, char *argv[])
 
   /* Allocate u vector */
   u = N_VNew_Serial(NEQ);
-  if(check_flag((void *)u, "N_VNew", 0)) return(1);
+  if(check_retval((void *)u, "N_VNew", 0)) return(1);
 
   /* Initialize u vector */
   SetIC(u, data);
@@ -163,45 +172,45 @@ int main(int argc, char *argv[])
 
   printf("\nCreate and allocate CVODES memory for forward runs\n");
 
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  cvode_mem = CVodeCreate(CV_BDF);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
-  flag = CVodeSetUserData(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if(check_flag(&flag, "CVodeInit", 1)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if(check_retval(&retval, "CVodeInit", 1)) return(1);
 
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Create banded SUNMatrix for the forward problem */
-  A = SUNBandMatrix(NEQ, MY, MY, 2*MY);
-  if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
+  A = SUNBandMatrix(NEQ, MY, MY);
+  if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver for the forward problem */
-  LS = SUNBandLinearSolver(u, A);
-  if(check_flag((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Band(u, A);
+  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine for the forward problem */
-  flag = CVDlsSetJacFn(cvode_mem, Jac);
-  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  retval = CVodeSetJacFn(cvode_mem, Jac);
+  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* Allocate global memory */
 
   printf("\nAllocate global memory\n");
 
-  flag = CVodeAdjInit(cvode_mem, NSTEP, CV_HERMITE);
-  if(check_flag(&flag, "CVodeAdjInit", 1)) return(1);
+  retval = CVodeAdjInit(cvode_mem, NSTEP, CV_HERMITE);
+  if(check_retval(&retval, "CVodeAdjInit", 1)) return(1);
 
   /* Perform forward run */
   printf("\nForward integration\n");
-  flag = CVodeF(cvode_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
-  if(check_flag(&flag, "CVodeF", 1)) return(1);
+  retval = CVodeF(cvode_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
+  if(check_retval(&retval, "CVodeF", 1)) return(1);
 
   printf("\nncheck = %d\n", ncheck);
 
@@ -211,7 +220,7 @@ int main(int argc, char *argv[])
 
   /* Allocate uB */
   uB = N_VNew_Serial(NEQ);
-  if(check_flag((void *)uB, "N_VNew", 0)) return(1);
+  if(check_retval((void *)uB, "N_VNew", 0)) return(1);
   /* Initialize uB = 0 */
   N_VConst(ZERO, uB);
 
@@ -219,41 +228,41 @@ int main(int argc, char *argv[])
 
   printf("\nCreate and allocate CVODES memory for backward run\n");
 
-  flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
-  if(check_flag(&flag, "CVodeCreateB", 1)) return(1);
+  retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
+  if(check_retval(&retval, "CVodeCreateB", 1)) return(1);
 
-  flag = CVodeSetUserDataB(cvode_mem, indexB, data);
-  if(check_flag(&flag, "CVodeSetUserDataB", 1)) return(1);
+  retval = CVodeSetUserDataB(cvode_mem, indexB, data);
+  if(check_retval(&retval, "CVodeSetUserDataB", 1)) return(1);
 
-  flag = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
-  if(check_flag(&flag, "CVodeInitB", 1)) return(1);
+  retval = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
+  if(check_retval(&retval, "CVodeInitB", 1)) return(1);
 
-  flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
-  if(check_flag(&flag, "CVodeSStolerancesB", 1)) return(1);
+  retval = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
+  if(check_retval(&retval, "CVodeSStolerancesB", 1)) return(1);
  
   /* Create banded SUNMatrix for the backward problem */
-  AB = SUNBandMatrix(NEQ, MY, MY, 2*MY);
-  if(check_flag((void *)AB, "SUNBandMatrix", 0)) return(1);
+  AB = SUNBandMatrix(NEQ, MY, MY);
+  if(check_retval((void *)AB, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver for the backward problem */
-  LSB = SUNBandLinearSolver(uB, AB);
-  if(check_flag((void *)LSB, "SUNBandLinearSolver", 0)) return(1);
+  LSB = SUNLinSol_Band(uB, AB);
+  if(check_retval((void *)LSB, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  flag = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);
-  if(check_flag(&flag, "CVDlsSetLinearSolverB", 1)) return(1);
+  retval = CVodeSetLinearSolverB(cvode_mem, indexB, LSB, AB);
+  if(check_retval(&retval, "CVodeSetLinearSolverB", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine for the backward problem */
-  flag = CVDlsSetJacFnB(cvode_mem, indexB, JacB);
-  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  retval = CVodeSetJacFnB(cvode_mem, indexB, JacB);
+  if(check_retval(&retval, "CVodeSetJacFnB", 1)) return(1);
 
   /* Perform backward integration */
   printf("\nBackward integration\n");
-  flag = CVodeB(cvode_mem, T0, CV_NORMAL);
-  if(check_flag(&flag, "CVodeB", 1)) return(1);
+  retval = CVodeB(cvode_mem, T0, CV_NORMAL);
+  if(check_retval(&retval, "CVodeB", 1)) return(1);
 
-  flag = CVodeGetB(cvode_mem, indexB, &t, uB);
-  if(check_flag(&flag, "CVodeGetB", 1)) return(1);
+  retval = CVodeGetB(cvode_mem, indexB, &t, uB);
+  if(check_retval(&retval, "CVodeGetB", 1)) return(1);
 
   PrintOutput(uB, data);
 
@@ -541,32 +550,32 @@ static void PrintOutput(N_Vector uB, UserData data)
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns a flag so check if
- *             flag >= 0
+ *    opt == 1 means SUNDIALS function returns an integer value so check if
+ *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+	      funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }

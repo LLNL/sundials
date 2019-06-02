@@ -1,0 +1,33 @@
+#!/usr/bin/env groovy
+pipeline {
+    agent any
+
+    stages {
+        stage('Test') {
+            steps {
+              // print the environment
+              sh("printenv")
+
+              // output for collapse setions plugin
+              echo "END JENKINS SETUP"
+
+              // run regression tests
+              sh("cd test && ./test_driver.sh 1 ${env.BRANCH_NAME} ${env.CHANGE_BRANCH}")
+            }
+        }
+    }
+    post {
+         always {
+                 echo 'Tests Complete'
+         }
+         success {
+                 sh("cd test && ./notify.py success ${env.BRANCH_NAME} ${env.BUILD_URL}")
+         }
+         failure {
+                 sh("cd test && ./notify.py failure ${env.BRANCH_NAME} ${env.BUILD_URL}")
+         }
+         unstable {
+                 sh("cd test && ./notify.py unstable ${env.BRANCH_NAME} ${env.BUILD_URL}")
+         }
+    }
+}

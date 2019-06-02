@@ -69,9 +69,12 @@ with emphasis on the aspects particular to adjoint sensitivity calculations.
 
 The calling program includes the {\cvodes} header files \id{cvodes.h} 
 for {\cvodes} definitions and interface function prototypes,
-the header file \id{cvodes\_dense.h} for the {\cvdense} linear solver module,
 the header file \id{nvector\_serial.h} for the definition of the serial implementation
-of the {\nvector} module, {\nvecs}, and the file \id{sundials\_math.h} for the
+of the {\nvector} module, {\nvecs}, the header files
+\id{sunmatrix\_dense.h} and \id{sunlinsol\_dense.h} for the dense
+{\sunmatrix} and {\sunlinsol} modules, the header file
+\id{sundials\_types.h} for the definition of \id{realtype} and \id{sunindextype},
+and the file \id{sundials\_math.h} for the
 definition of the \id{SUNRabs} macro.
 %% 
 This program also includes two user-defined accessor macros, \id{Ith} and \id{IJth},
@@ -98,15 +101,17 @@ uses its own function to compute the error weights for WRMS norm
 estimates of state solution vectors.
 
 The call to \id{CVodeCreate} creates the main integrator memory block for the 
-forward integration and specifies the \id{CV\_BDF} integration method with 
-\id{CV\_NEWTON} iteration. 
+forward integration and specifies the \id{CV\_BDF} integration method. 
 The call to \id{CVodeInit} initializes the forward integration by specifying the 
 initial conditions.
 The call to \id{CVodeWFtolerances} specifies a function that computes error weights.
 The next call specifies the optional user data pointer \id{data}.
-The linear solver is selected to be {\cvdense} through the call to its 
-initialization routine \id{CVDense}. The user-provided Jacobian routine \id{Jac}
-is specified through a call to \id{CVDlsSetDenseJacFn}.
+The linear solver is selected to be {\sunlinsoldense} through calls to
+create the template Jacobian matrix and dense linear solver objects
+(\id{SUNDenseMatrix} and \id{SUNLinSol\_Dense}), and to attach these
+to the {\cvodes} integrator via the call to
+\id{CVodeSetLinearSolver}. The user-provided Jacobian routine \id{Jac}
+is specified through a call to \id{CVodeSetJacFn}. 
 
 The next code block initializes quadrature computations in the forward phase, by
 allocating {\cvodes} memory for quadrature integration (the call to
@@ -139,10 +144,11 @@ for the backward integration.
 
 The {\cvodes} memory for the backward integration is created and allocated
 by the calls to the interface routines \id{CVodeCreateB} and \id{CVodeInitB} which 
-specify the \id{CV\_BDF} integration method with \id{CV\_NEWTON} iteration, among
-other things.  The dense linear solver {\cvdense} is then initialized by calling
-the \id{CVDenseB} interface routine and specifying a non-\id{NULL} Jacobian routine
-\id{JacB} and user data \id{data}.
+specify the \id{CV\_BDF} integration method, among other things.  The
+dense linear solver is created and initialized by calling the
+\id{SUNDenseMatrix}, \id{SUNLinSol\_Dense} and
+\id{CVodeSetLinearSolverB} routines, and specifying a non-\id{NULL}
+Jacobian routine \id{JacB} and user data \id{data}.
 
 The tolerances for the integration of quadrature variables, \id{reltolB} and
 \id{abstolQB}, are specified through \id{CVodeQuadSStolerancesB}.
@@ -265,7 +271,7 @@ initial conditions.  Therefore, $\mu(t_0,x)$ completely describes $\delta g(t_f)
 for any perturbation $\delta u_0$.
 
 Both the forward and the backward problems are solved with the option for nonstiff systems,
-i.e. using the Adams method with functional iteration for the solution of
+i.e. using the Adams method with fixed-point iteration for the solution of
 the nonlinear systems. The overall structure of the \id{main} function is very
 similar to that of the code \id{cvsRoberts\_ASAi\_dns} discussed previously with 
 differences arising from the use of the parallel {\nvector} module. Unlike 
@@ -396,11 +402,12 @@ and (\ref{e:cvsAtmDisp_ASAi_kry_bbd_p_dGdp}) are simply approximated by their
 Riemann sums, while the time integrals are resolved by appending pure quadrature
 equations to the systems of ODEs.
 
-We use BDF with the {\cvspgmr} linear solver and the {\cvbbdpre} preconditioner for
-both the forward and the backward integration phases. The value of $G$ is computed
-on the forward phase as a quadrature, while the components of the gradient $dG/dp$
-are computed as quadratures during the backward integration phase.  All quadrature
-variables are included in the corresponding error tests.
+We use BDF with the {\sunlinsolspgmr} linear solver module and the
+{\cvbbdpre} preconditioner for both the forward and the backward
+integration phases. The value of $G$ is computed on the forward phase
+as a quadrature, while the components of the gradient $dG/dp$ are
+computed as quadratures during the backward integration phase.  All
+quadrature variables are included in the corresponding error tests.
 
 Communication between processes for the evaluation of the ODE right-hand sides involves
 passing the solution on the local boundaries (lines in 2-D, surfaces in 3-D) to 

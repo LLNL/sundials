@@ -1,21 +1,17 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department
- * of Energy by Southern Methodist University and Lawrence Livermore
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKDLS, for the case
+ * Fortran/C interface routines for ARKODE/ARKLS, for the case
  * of a user-supplied Jacobian approximation routine.
  *--------------------------------------------------------------*/
 
@@ -23,7 +19,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_direct.h>
+#include <arkode/arkode_arkstep.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
 /*=============================================================*/
@@ -46,14 +42,14 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKDlsSetJacFn; see
+/* Fortran interface to C routine ARKStepSetJacFn; see
    farkode.h for additional information */
 void FARK_DENSESETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKDlsSetJacFn(ARK_arkodemem, NULL);
+    *ier = ARKStepSetJacFn(ARK_arkodemem, NULL);
   } else {
-    *ier = ARKDlsSetJacFn(ARK_arkodemem, FARKDenseJac);
+    *ier = ARKStepSetJacFn(ARK_arkodemem, FARKDenseJac);
   }
   return;
 }
@@ -75,7 +71,7 @@ int FARKDenseJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   /* Initialize all pointers to NULL */
   ydata = fydata = jacdata = v1data = v2data = v3data = NULL;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
   v1data  = N_VGetArrayPointer(vtemp1);

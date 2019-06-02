@@ -2,22 +2,15 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2015, Southern Methodist University and
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Southern Methodist University and Lawrence Livermore
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
-# Copyright (c) 2013, Southern Methodist University.
-# All rights reserved.
-# For details, see the LICENSE file.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the FARKODE F90 serial examples
 # ---------------------------------------------------------------
@@ -36,7 +29,7 @@ SET(FARKODE_examples_BL
 
 # Add sparse solvers examples for 64-bit indextype configurations only,
 # not compatible with 32-bit indextype
-IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+IF(SUNDIALS_INDEX_SIZE MATCHES "64")
 
   # Examples using KLU linear solver
   SET(FARKODE_examples_KLU
@@ -85,6 +78,7 @@ FOREACH(example_tuple ${FARKODE_examples})
   ADD_EXECUTABLE(${example} ${example}.f90)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+  SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${example} ${example}
@@ -140,6 +134,7 @@ IF(LAPACK_FOUND)
     ADD_EXECUTABLE(${example} ${example}.f90)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(${example} ${example}
@@ -188,6 +183,7 @@ IF(KLU_FOUND)
     ADD_EXECUTABLE(${example} ${example}.f90)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(${example} ${example}
@@ -241,6 +237,7 @@ IF(SUPERLUMT_FOUND)
     ADD_EXECUTABLE(${example} ${example}.f90)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(${example} ${example}

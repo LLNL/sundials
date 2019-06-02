@@ -1,30 +1,35 @@
 # ---------------------------------------------------------------
 # Programmer(s): Daniel Reynolds @ SMU
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2017, Southern Methodist University and
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Southern Methodist University and Lawrence Livermore
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for sunlinsol SPBCGS examples
 # ---------------------------------------------------------------
+
+# Set tolerance for linear solver test based on Sundials precision
+if(SUNDIALS_PRECISION MATCHES "SINGLE")
+  set(TOL "1e-5")
+elseif(SUNDIALS_PRECISION MATCHES "DOUBLE")
+  set(TOL "1e-13")
+else()
+  set(TOL "1e-16")
+endif()
 
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS SPBCGS linear solver
 SET(sunlinsol_spbcgs_examples
-  "test_sunlinsol_spbcgs_serial\;100 1 100 1e-13 0\;"
-  "test_sunlinsol_spbcgs_serial\;100 2 100 1e-13 0\;"
+  "test_sunlinsol_spbcgs_serial\;100 1 100 ${TOL} 0\;"
+  "test_sunlinsol_spbcgs_serial\;100 2 100 ${TOL} 0\;"
   )
 
 # Dependencies for nvector examples

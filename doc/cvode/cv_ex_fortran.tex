@@ -17,9 +17,9 @@ The main program begins with a call to \id{INITKX}, which sets problem
 parameters, loads these into arrays \id{IPAR} and \id{RPAR} for use by other
 routines, and loads \id{Y} (here called \id{U0}) with its initial values.
 \id{Main} calls \id{FNVINITS}, \id{FSUNSPGMRINIT}, \id{FSUNSPGMRSETGSTYPE}, 
-\id{FCVMALLOC}, \id{FCVSPILSINIT}, and \id{FCVSPILSSETPREC},
+\id{FCVMALLOC}, \id{FCVLSINIT}, and \id{FCVLSSETPREC},
 to initialize the {\nvecs} module, the {\sunlinsolspgmr} module, the
-main solver memory, and the {\cvspils} interface, 
+main solver memory, and the {\cvls} interface, 
 and to specify user-supplied preconditioner setup and solve routines.
 It calls \id{FCVODE} in a loop over \id{TOUT} values, with printing of
 selected solution values and performance data (from the \id{IOUT}  and \id{ROUT}
@@ -70,7 +70,7 @@ module, while \id{FSUNSPGMRINIT} and \id{FSUNSPGMRSETGSTYPE} are
 called to initialize the {\spgmr} {\sunlinsol} module.
 Following the call to \id{FCVMALLOC}, the linear solver and
 preconditioner are attached to {\cvode} with calls to
-\id{FCVSPILSINIT} and \id{FCVBBDINIT}.  In a loop over \id{TOUT} 
+\id{FCVLSINIT} and \id{FCVBBDINIT}.  In a loop over \id{TOUT} 
 values, it calls \id{FCVODE} and prints the step and $f$ evaluation counters.
 After that, it computes and prints the maximum global error, and all the
 relevant performance counters.  Those specific to {\cvbbdpre} are obtained

@@ -1,15 +1,15 @@
 # ---------------------------------------------------------------
-# Programmer:  David Gardner and Slaven Peles @ LLNL
+# Programmer:  David Gardner, Slaven Peles, and Cody Balos @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # examples/nvector level CMakeLists.txt for SUNDIALS (for CMake)
 # ---------------------------------------------------------------
@@ -17,30 +17,47 @@
 # Always add the nvector serial examples
 ADD_SUBDIRECTORY(serial)
 
-IF(MPI_C_FOUND)
+IF(MPI_ENABLE AND MPI_C_FOUND)
   ADD_SUBDIRECTORY(parallel)
+  ADD_SUBDIRECTORY(mpimanyvector)
+  ADD_SUBDIRECTORY(mpiplusx)
 ENDIF()
+ADD_SUBDIRECTORY(manyvector)
 
-IF(HYPRE_FOUND)
+IF(HYPRE_ENABLE AND HYPRE_FOUND)
   ADD_SUBDIRECTORY(parhyp)
 ENDIF()
 
-IF(PTHREADS_FOUND)
+IF(PTHREAD_ENABLE AND PTHREADS_FOUND)
   ADD_SUBDIRECTORY(pthreads)
 ENDIF()
 
-IF(OPENMP_FOUND)
+IF(OPENMP_ENABLE AND OPENMP_FOUND)
   ADD_SUBDIRECTORY(C_openmp)
 ENDIF()
 
-IF(PETSC_FOUND)
+IF(OPENMP_DEVICE_ENABLE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+  ADD_SUBDIRECTORY(openmpdev)
+ENDIF()
+
+IF(PETSC_ENABLE AND PETSC_FOUND)
   ADD_SUBDIRECTORY(petsc)
 ENDIF()
 
-IF(CUDA_FOUND)
+IF(CUDA_ENABLE AND CUDA_FOUND)
   ADD_SUBDIRECTORY(cuda)
+  IF(MPI_ENABLE AND MPI_C_FOUND)
+    ADD_SUBDIRECTORY(mpicuda)
+  ENDIF()
 ENDIF()
 
-IF(RAJA_FOUND)
+IF(RAJA_ENABLE AND RAJA_FOUND)
   ADD_SUBDIRECTORY(raja)
+  IF(MPI_ENABLE AND MPI_C_FOUND)
+    ADD_SUBDIRECTORY(mpiraja)
+  ENDIF()
+ENDIF()
+
+IF(Trilinos_ENABLE AND Trilinos_FOUND)
+  ADD_SUBDIRECTORY(trilinos)
 ENDIF()

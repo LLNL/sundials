@@ -3,19 +3,15 @@
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner @ LLNL
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the testing routine to check the SUNMatrix Dense module 
  * implementation. 
@@ -31,6 +27,15 @@
 #include <sundials/sundials_math.h>
 #include "test_sunmatrix.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 /* ----------------------------------------------------------------------
  * Main SUNMatrix Testing Routine
@@ -70,6 +75,12 @@ int main(int argc, char *argv[])
   square = (matrows == matcols) ? 1 : 0;
   printf("\nDense matrix test: size %ld by %ld\n\n",
          (long int) matrows, (long int) matcols);
+
+  /* Initialize vectors and matrices to NULL */
+  x = NULL;
+  y = NULL;
+  A = NULL;
+  I = NULL;
   
   /* Create vectors and matrices */
   x = N_VNew_Serial(matcols);
@@ -136,8 +147,8 @@ int main(int argc, char *argv[])
   }
 
   /* Free vectors and matrices */
-  N_VDestroy_Serial(x);
-  N_VDestroy_Serial(y);
+  N_VDestroy(x);
+  N_VDestroy(y);
   SUNMatDestroy(A);
   if (square)
     SUNMatDestroy(I);
@@ -199,7 +210,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     printf("Check_matrix_entry failures:\n");
     for(i=0; i < Aldata; i++)
       if (FNEQ(Adata[i], val, tol) != 0)
-        printf("  Adata[%ld] = %g != %g (err = %g)\n", (long int) i,
+        printf("  Adata[%ld] = %"GSYM" != %"GSYM" (err = %"GSYM")\n", (long int) i,
                Adata[i], val, SUNRabs(Adata[i]-val));
   }
   
@@ -221,8 +232,8 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
   ydata = N_VGetArrayPointer(y);
 
   /* check data lengths */
-  xldata = N_VGetLength_Serial(x);
-  yldata = N_VGetLength_Serial(y);
+  xldata = N_VGetLength(x);
+  yldata = N_VGetLength(y);
 
   if (xldata != yldata) {
     printf(">>> ERROR: check_vector: Different data array lengths \n");
@@ -237,7 +248,7 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
     printf("Check_vector failures:\n");
     for(i=0; i < xldata; i++)
       if (FNEQ(xdata[i], ydata[i], tol) != 0)
-        printf("  xdata[%ld] = %g != %g (err = %g)\n", (long int) i,
+        printf("  xdata[%ld] = %"GSYM" != %"GSYM" (err = %"GSYM")\n", (long int) i,
                xdata[i], ydata[i], SUNRabs(xdata[i]-ydata[i]));
   }
   

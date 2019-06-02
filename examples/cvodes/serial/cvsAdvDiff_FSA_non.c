@@ -2,6 +2,16 @@
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, George D. Byrne,
  *              and Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * Example problem:
  *
  * The following is a simple example problem, with the program for
@@ -47,6 +57,7 @@
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
 
 /* Problem Constants */
 #define XMAX  RCONST(2.0)   /* domain boundary           */
@@ -84,9 +95,10 @@ static void WrongArgs(char *name);
 static void SetIC(N_Vector u, realtype dx);
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi);
+static void PrintFinalStats(void *cvode_mem, booleantype sensi,
+                            booleantype err_con, int sensi_meth);
 
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -100,7 +112,7 @@ int main(int argc, char *argv[])
   UserData data;
   realtype dx, reltol, abstol, t, tout;
   N_Vector u;
-  int iout, flag;
+  int iout, retval;
 
   realtype *pbar;
   int is, *plist;
@@ -108,19 +120,23 @@ int main(int argc, char *argv[])
   booleantype sensi, err_con;
   int sensi_meth;
 
+  SUNNonlinearSolver NLS, NLSsens;
+
   cvode_mem = NULL;
   data = NULL;
   u = NULL;
   pbar = NULL;
   plist = NULL;
   uS = NULL;
+  NLS = NULL;
+  NLSsens = NULL;
 
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
 
   /* Set user data */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
-  if(check_flag((void *)data, "malloc", 2)) return(1);
+  if(check_retval((void *)data, "malloc", 2)) return(1);
   data->p = (realtype *) malloc(NP * sizeof(realtype));
   dx = data->dx = XMAX/((realtype)(MX+1));
   data->p[0] = RCONST(1.0);
@@ -128,7 +144,7 @@ int main(int argc, char *argv[])
 
   /* Allocate and set initial states */
   u = N_VNew_Serial(NEQ);
-  if(check_flag((void *)u, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
   SetIC(u, dx);
 
   /* Set integration tolerances */
@@ -136,18 +152,26 @@ int main(int argc, char *argv[])
   abstol = ATOL;
 
   /* Create CVODES object */
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  cvode_mem = CVodeCreate(CV_ADAMS);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
-  flag = CVodeSetUserData(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
   /* Allocate CVODES memory */
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if(check_flag(&flag, "CVodeInit", 1)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if(check_retval(&retval, "CVodeInit", 1)) return(1);
 
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+
+  /* create fixed point nonlinear solver object */
+  NLS = SUNNonlinSol_FixedPoint(u, 0);
+  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+
+  /* attach nonlinear solver object to CVode */
+  retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
 
   printf("\n1-D advection-diffusion equation, mesh size =%3d\n", MX);
 
@@ -155,32 +179,50 @@ int main(int argc, char *argv[])
   if(sensi) {
 
     plist = (int *) malloc(NS * sizeof(int));
-    if(check_flag((void *)plist, "malloc", 2)) return(1);
+    if(check_retval((void *)plist, "malloc", 2)) return(1);
     for(is=0; is<NS; is++) plist[is] = is;
 
     pbar  = (realtype *) malloc(NS * sizeof(realtype));
-    if(check_flag((void *)pbar, "malloc", 2)) return(1);
+    if(check_retval((void *)pbar, "malloc", 2)) return(1);
     for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
 
     uS = N_VCloneVectorArray(NS, u);
-    if(check_flag((void *)uS, "N_VCloneVectorArray", 0)) return(1);
+    if(check_retval((void *)uS, "N_VCloneVectorArray", 0)) return(1);
     for(is=0;is<NS;is++)
       N_VConst(ZERO, uS[is]);
 
-    flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
-    if(check_flag(&flag, "CVodeSensInit1", 1)) return(1);
+    retval = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
+    if(check_retval(&retval, "CVodeSensInit1", 1)) return(1);
 
-    flag = CVodeSensEEtolerances(cvode_mem);
-    if(check_flag(&flag, "CVodeSensEEtolerances", 1)) return(1);
+    retval = CVodeSensEEtolerances(cvode_mem);
+    if(check_retval(&retval, "CVodeSensEEtolerances", 1)) return(1);
 
-    flag = CVodeSetSensErrCon(cvode_mem, err_con);
-    if(check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
+    retval = CVodeSetSensErrCon(cvode_mem, err_con);
+    if(check_retval(&retval, "CVodeSetSensErrCon", 1)) return(1);
 
-    flag = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
-    if(check_flag(&flag, "CVodeSetSensDQMethod", 1)) return(1);
+    retval = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
+    if(check_retval(&retval, "CVodeSetSensDQMethod", 1)) return(1);
 
-    flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
-    if(check_flag(&flag, "CVodeSetSensParams", 1)) return(1);
+    retval = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
+    if(check_retval(&retval, "CVodeSetSensParams", 1)) return(1);
+
+    /* create sensitivity fixed point nonlinear solver object */
+    if (sensi_meth == CV_SIMULTANEOUS)
+      NLSsens = SUNNonlinSol_FixedPointSens(NS+1, u, 0);
+    else if(sensi_meth == CV_STAGGERED)
+      NLSsens = SUNNonlinSol_FixedPointSens(NS, u, 0);
+    else
+      NLSsens = SUNNonlinSol_FixedPoint(u, 0);
+    if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+
+    /* attach nonlinear solver object to CVode */
+    if (sensi_meth == CV_SIMULTANEOUS)
+      retval = CVodeSetNonlinearSolverSensSim(cvode_mem, NLSsens);
+    else if(sensi_meth == CV_STAGGERED)
+      retval = CVodeSetNonlinearSolverSensStg(cvode_mem, NLSsens);
+    else
+      retval = CVodeSetNonlinearSolverSensStg1(cvode_mem, NLSsens);
+    if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
 
     printf("Sensitivity: YES ");
     if(sensi_meth == CV_SIMULTANEOUS)   
@@ -205,19 +247,19 @@ int main(int argc, char *argv[])
   printf("============================================================\n");
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_flag(&flag, "CVode", 1)) break;
+    retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if(check_retval(&retval, "CVode", 1)) break;
     PrintOutput(cvode_mem, t, u);
     if (sensi) {
-      flag = CVodeGetSens(cvode_mem, &t, uS);
-      if(check_flag(&flag, "CVodeGetSens", 1)) break;
+      retval = CVodeGetSens(cvode_mem, &t, uS);
+      if(check_retval(&retval, "CVodeGetSens", 1)) break;
       PrintOutputS(uS);
     } 
     printf("------------------------------------------------------------\n");
   }
 
   /* Print final statistics */
-  PrintFinalStats(cvode_mem, sensi);
+  PrintFinalStats(cvode_mem, sensi, err_con, sensi_meth);
 
   /* Free memory */
   N_VDestroy(u);
@@ -229,6 +271,8 @@ int main(int argc, char *argv[])
   free(data->p);
   free(data);
   CVodeFree(&cvode_mem);
+  SUNNonlinSolFree(NLS);
+  if (sensi) SUNNonlinSolFree(NLSsens);
 
   return(0);
 }
@@ -369,15 +413,15 @@ static void SetIC(N_Vector u, realtype dx)
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
 {
   long int nst;
-  int qu, flag;
+  int qu, retval;
   realtype hu;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetLastOrder(cvode_mem, &qu);
-  check_flag(&flag, "CVodeGetLastOrder", 1);
-  flag = CVodeGetLastStep(cvode_mem, &hu);
-  check_flag(&flag, "CVodeGetLastStep", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetLastOrder(cvode_mem, &qu);
+  check_retval(&retval, "CVodeGetLastOrder", 1);
+  retval = CVodeGetLastStep(cvode_mem, &hu);
+  check_retval(&retval, "CVodeGetLastStep", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%8.3Le %2d  %8.3Le %5ld\n", t, qu, hu ,nst);
@@ -428,39 +472,49 @@ static void PrintOutputS(N_Vector *uS)
  * Print some final statistics located in the CVODES memory
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi)
+static void PrintFinalStats(void *cvode_mem, booleantype sensi,
+                            booleantype err_con, int sensi_meth)
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;
   long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  int flag;
+  int retval;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
   if (sensi) {
-    flag = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
-    check_flag(&flag, "CVodeGetSensNumRhsEvals", 1);
-    flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
-    check_flag(&flag, "CVodeGetNumRhsEvalsSens", 1);
-    flag = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
-    check_flag(&flag, "CVodeGetSensNumLinSolvSetups", 1);
-    flag = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
-    check_flag(&flag, "CVodeGetSensNumErrTestFails", 1);
-    flag = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
-    check_flag(&flag, "CVodeGetSensNumNonlinSolvIters", 1);
-    flag = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
-    check_flag(&flag, "CVodeGetSensNumNonlinSolvConvFails", 1);
+    retval = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
+    check_retval(&retval, "CVodeGetSensNumRhsEvals", 1);
+    retval = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
+    check_retval(&retval, "CVodeGetNumRhsEvalsSens", 1);
+    retval = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
+    check_retval(&retval, "CVodeGetSensNumLinSolvSetups", 1);
+    if (err_con) {
+      retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
+      check_retval(&retval, "CVodeGetSensNumErrTestFails", 1);
+    } else {
+      netfS = 0;
+    }
+    if ((sensi_meth == CV_STAGGERED) || (sensi_meth == CV_STAGGERED1)) {
+      retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
+      check_retval(&retval, "CVodeGetSensNumNonlinSolvIters", 1);
+      retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
+      check_retval(&retval, "CVodeGetSensNumNonlinSolvConvFails", 1);
+    } else {
+      nniS = 0;
+      ncfnS = 0;
+    }
   }
 
   printf("\nFinal Statistics\n\n");
@@ -482,34 +536,34 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
             funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
-              funcname, *errflag);
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
             funcname);

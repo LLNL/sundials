@@ -5,15 +5,15 @@
  * ----------------------------------------------------------------- 
  * Programmers: Radu Serban @ LLNL                              
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the interface file for CVODES derivative calculations
  * using the complex step method.
@@ -41,27 +41,27 @@ extern "C" {
 /*----------------------------------------------------------------*
  *                                                                *
  * Type : RhsCSFn                                                 *
- *----------------------------------------------------------------*        
+ *----------------------------------------------------------------*
  *                                                                *
  * A RhsCSFn f_cs does not have a return value.                   *
  *                                                                *
  *----------------------------------------------------------------*/
 
 typedef void (*RhsCSFn1)(realtype t_re, realtype t_im,
-			 N_Vector y_re, N_Vector y_im, 
-			 N_Vector ydot_re, N_Vector ydot_im,
-			 void *f_data);
+                         N_Vector y_re, N_Vector y_im,
+                         N_Vector ydot_re, N_Vector ydot_im,
+                         void *f_data);
 
 typedef void (*RhsCSFn2)(realtype t_re, realtype t_im,
-			 N_Vector y_re, N_Vector y_im, 
-			 N_Vector ydot_re, N_Vector ydot_im,
-			 void *f_data_re, void *f_data_im);
+                         N_Vector y_re, N_Vector y_im,
+                         N_Vector ydot_re, N_Vector ydot_im,
+                         void *f_data_re, void *f_data_im);
 
 
 /*----------------------------------------------------------------*
  *                                                                *
  * User-callable setup routines                                   *
- *----------------------------------------------------------------*        
+ *----------------------------------------------------------------*
  *                                                                *
  * CVodeSetCSDerivs - enables complex step derivative calculation *
  *                                                                *
@@ -75,12 +75,12 @@ typedef void (*RhsCSFn2)(realtype t_re, realtype t_im,
  *          allocate and initialize to 0.0 all fields in f_data_im*
  *          that are flagged.                                     *
  *                                                                *
- *----------------------------------------------------------------*        
+ *----------------------------------------------------------------*
  *                                                                *
  * CVodeSetCSStep - sets the perturbation del_cs used in the      *
  *                  complex step method (default = unit roundoff) *
  *                                                                *
- *----------------------------------------------------------------*        
+ *----------------------------------------------------------------*
  *                                                                *
  * CVodeSetSensCSRhs - enables complex step calculation of the    *
  *                     sensitivity right hand sides.              *
@@ -89,18 +89,18 @@ typedef void (*RhsCSFn2)(realtype t_re, realtype t_im,
  *           corresponds to the field p in f_data. p_im must be   *
  *           allocated and initialized to 0.0 by the user.        *
  *                                                                *
- *----------------------------------------------------------------*        
+ *----------------------------------------------------------------*
  *                                                                *
  * CVDenseSetCSJac - enables complex step calculation of the      *
  *                   dense Jacobian for use with CVDENSE.         *
  *                                                                *
- *----------------------------------------------------------------*        
+ *----------------------------------------------------------------*
  *                                                                *
  * CVBandSetCSJac - enables complex step calculation of the       *
  *                  band Jacobian approximation for use with      *
  *                  CVBAND.                                       *
  *                                                                *
- *----------------------------------------------------------------*        
+ *----------------------------------------------------------------*
  *                                                                *
  * CVSpgmrSetCSJacTimesVec - enables complex step calculation of  *
  *                  the Jacobian x Vector for use with CVSPGMR.   *
@@ -118,11 +118,11 @@ SUNDIALS_EXPORT int CVSpgmrSetCSJacTimesVec(void *cvode_mem);
 /* SUCCESS */
 enum {CVCS_NO_MEM=-1,   CVCS_MEM_FAIL=-2, CVCS_ILL_INPUT=-3,
       CVCS_NO_CSMEM=-4, CVCS_NO_LMEM=-5                     };
-  
+
 /*----------------------------------------------------------------*
  *                                                                *
  * Complex step approximation routines                            *
- *----------------------------------------------------------------*        
+ *----------------------------------------------------------------*
  *                                                                *
  * CVSensRhsCS     - computes sensitivity right hand side         *
  * CVDenseCSJac    - computes the dense Jacobian                  *
@@ -131,50 +131,50 @@ enum {CVCS_NO_MEM=-1,   CVCS_MEM_FAIL=-2, CVCS_ILL_INPUT=-3,
  *                                                                *
  *----------------------------------------------------------------*/
 
-SUNDIALS_EXPORT void CVSensRhsCS(int Ns, realtype t, 
-				 N_Vector y, N_Vector ydot, 
-				 int iS, N_Vector yS, N_Vector ySdot, 
-				 void *fS_data,
-				 N_Vector tmp1, N_Vector tmp2);
+SUNDIALS_EXPORT void CVSensRhsCS(int Ns, realtype t,
+                                 N_Vector y, N_Vector ydot,
+                                 int iS, N_Vector yS, N_Vector ySdot,
+                                 void *fS_data,
+                                 N_Vector tmp1, N_Vector tmp2);
 
-SUNDIALS_EXPORT void CVDenseCSJac(sunindextype N, DenseMat J, realtype t, 
-				  N_Vector y, N_Vector fy, void *jac_data,
-				  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-  
-SUNDIALS_EXPORT void CVBandCSJac(sunindextype N, sunindextype mupper, 
-				 sunindextype mlower, BandMat J, realtype t, 
-				 N_Vector y, N_Vector fy, void *jac_data,
-				 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+SUNDIALS_EXPORT void CVDenseCSJac(sunindextype N, DenseMat J, realtype t,
+                                  N_Vector y, N_Vector fy, void *jac_data,
+                                  N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-SUNDIALS_EXPORT int CVSpgmrCSJtimes(N_Vector v, N_Vector Jv, realtype t, 
-				    N_Vector y, N_Vector fy,
-				    void *jac_data, N_Vector work);
+SUNDIALS_EXPORT void CVBandCSJac(sunindextype N, sunindextype mupper,
+                                 sunindextype mlower, BandMat J, realtype t,
+                                 N_Vector y, N_Vector fy, void *jac_data,
+                                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+SUNDIALS_EXPORT int CVSpgmrCSJtimes(N_Vector v, N_Vector Jv, realtype t,
+                                    N_Vector y, N_Vector fy,
+                                    void *jac_data, N_Vector work);
 
 /*----------------------------------------------------------------*
  *                                                                *
  * Types : struct CVCSMemRec, CVCSMem                             *
- *----------------------------------------------------------------*        
+ *----------------------------------------------------------------*
  *                                                                *
  *                                                                *
  *----------------------------------------------------------------*/
-  
+
 typedef struct {
-    
+
   booleantype cvcs_type1;
 
   RhsCSFn1 cvcs_f_cs1;
   RhsCSFn2 cvcs_f_cs2;
 
   void *cvcs_f_data_im;
-    
+
   realtype cvcs_del_cs;
 
   realtype *cvcs_p_im;
-    
+
 } CVCSMemRec, *CVCSMem;
-  
+
 #endif
-  
+
 #ifdef __cplusplus
 }
 #endif

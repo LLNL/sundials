@@ -46,7 +46,6 @@
 #include <kinsol/kinsol.h>             /* access to KINSOL func., consts. */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix       */
-#include <kinsol/kinsol_direct.h>      /* access to KINDls interface      */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype */
 #include <sundials/sundials_math.h>    /* access to SUNRexp               */
@@ -137,7 +136,7 @@ int main()
   SetInitialGuess1(u1,data);
   SetInitialGuess2(u2,data);
 
-  N_VConst_Serial(ONE,s); /* no scaling */
+  N_VConst(ONE,s); /* no scaling */
 
   Ith(c,1) =  ZERO;   /* no constraint on x1 */
   Ith(c,2) =  ZERO;   /* no constraint on x2 */
@@ -169,12 +168,12 @@ int main()
   if(check_flag((void *)J, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNDenseLinearSolver(u, J);
-  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(u, J);
+  if(check_flag((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver to KINSOL */
-  flag = KINDlsSetLinearSolver(kmem, LS, J);
-  if(check_flag(&flag, "KINDlsSetLinearSolver", 1)) return(1);
+  flag = KINSetLinearSolver(kmem, LS, J);
+  if(check_flag(&flag, "KINSetLinearSolver", 1)) return(1);
 
   /* Print out the problem size, solution parameters, initial guess. */
   PrintHeader(fnormtol, scsteptol);
@@ -186,28 +185,28 @@ int main()
   printf("  [x1,x2] = ");
   PrintOutput(u1);
 
-  N_VScale_Serial(ONE,u1,u);
+  N_VScale(ONE,u1,u);
   glstr = KIN_NONE;
   mset = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u1,u);
+  N_VScale(ONE,u1,u);
   glstr = KIN_LINESEARCH;
   mset = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u1,u);
+  N_VScale(ONE,u1,u);
   glstr = KIN_NONE;
   mset = 0;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u1,u);
+  N_VScale(ONE,u1,u);
   glstr = KIN_LINESEARCH;
   mset = 0;
   SolveIt(kmem, u, s, glstr, mset);
@@ -221,28 +220,28 @@ int main()
   printf("  [x1,x2] = ");
   PrintOutput(u2);
 
-  N_VScale_Serial(ONE,u2,u);
+  N_VScale(ONE,u2,u);
   glstr = KIN_NONE;
   mset = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u2,u);
+  N_VScale(ONE,u2,u);
   glstr = KIN_LINESEARCH;
   mset = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u2,u);
+  N_VScale(ONE,u2,u);
   glstr = KIN_NONE;
   mset = 0;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u2,u);
+  N_VScale(ONE,u2,u);
   glstr = KIN_LINESEARCH;
   mset = 0;
   SolveIt(kmem, u, s, glstr, mset);
@@ -252,11 +251,11 @@ int main()
 
   /* Free memory */
 
-  N_VDestroy_Serial(u1);
-  N_VDestroy_Serial(u2);
-  N_VDestroy_Serial(u);
-  N_VDestroy_Serial(s);
-  N_VDestroy_Serial(c);
+  N_VDestroy(u1);
+  N_VDestroy(u2);
+  N_VDestroy(u);
+  N_VDestroy(s);
+  N_VDestroy(c);
   KINFree(&kmem);
   SUNLinSolFree(LS);
   SUNMatDestroy(J);
@@ -319,8 +318,8 @@ static int func(N_Vector u, N_Vector f, void *user_data)
   lb = data->lb;
   ub = data->ub;
 
-  udata = N_VGetArrayPointer_Serial(u);
-  fdata = N_VGetArrayPointer_Serial(f);
+  udata = N_VGetArrayPointer(u);
+  fdata = N_VGetArrayPointer(f);
 
   x1 = udata[0];
   x2 = udata[1];
@@ -355,7 +354,7 @@ static void SetInitialGuess1(N_Vector u, UserData data)
   realtype *udata;
   realtype *lb, *ub;
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   lb = data->lb;
   ub = data->ub;
@@ -380,7 +379,7 @@ static void SetInitialGuess2(N_Vector u, UserData data)
   realtype *udata;
   realtype *lb, *ub;
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   lb = data->lb;
   ub = data->ub;
@@ -448,10 +447,10 @@ static void PrintFinalStats(void *kmem)
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
 
-  flag = KINDlsGetNumJacEvals(kmem, &nje);
-  check_flag(&flag, "KINDlsGetNumJacEvals", 1);
-  flag = KINDlsGetNumFuncEvals(kmem, &nfeD);
-  check_flag(&flag, "KINDlsGetNumFuncEvals", 1);
+  flag = KINGetNumJacEvals(kmem, &nje);
+  check_flag(&flag, "KINGetNumJacEvals", 1);
+  flag = KINGetNumLinFuncEvals(kmem, &nfeD);
+  check_flag(&flag, "KINGetNumLinFuncEvals", 1);
 
   printf("Final Statistics:\n");
   printf("  nni = %5ld    nfe  = %5ld \n", nni, nfe);

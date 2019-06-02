@@ -1,32 +1,27 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * The C functions FARKJTSetup and FARKJtimes are to interface 
- * between the ARKSPILS module and the user-supplied 
- * Jacobian-vector product routines FARKJTSETUP and FARKJTIMES. 
- * Note the use of the generic names FARK_JTSETUP and FARK_JTIMES 
- * in the code below.
+ * between the ARKLS module and the user-supplied Jacobian-vector 
+ * product routines FARKJTSETUP and FARKJTIMES. Note use of the
+ * generic names FARK_JTSETUP and FARK_JTIMES in the code below.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_spils.h>
+#include <arkode/arkode_arkstep.h>
 
 /*=============================================================*/
 
@@ -51,14 +46,20 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpilsSetJacTimes; see 
+/* ---DEPRECATED---
+   Fortran interface to C routine ARKStepSetJacTimes; see 
    farkode.h for further information */
 void FARK_SPILSSETJAC(int *flag, int *ier)
+{ FARK_LSSETJAC(flag,ier); }
+
+/* Fortran interface to C routine ARKStepSetJacTimes; see 
+   farkode.h for further information */
+void FARK_LSSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKSpilsSetJacTimes(ARK_arkodemem, NULL, NULL);
+    *ier = ARKStepSetJacTimes(ARK_arkodemem, NULL, NULL);
   } else {
-    *ier = ARKSpilsSetJacTimes(ARK_arkodemem, FARKJTSetup, FARKJtimes);
+    *ier = ARKStepSetJacTimes(ARK_arkodemem, FARKJTSetup, FARKJtimes);
   }
   return;
 }
@@ -77,7 +78,7 @@ int FARKJTSetup(realtype t, N_Vector y, N_Vector fy, void *user_data)
   /* Initialize all pointers to NULL */
   ydata = fydata = NULL;
   
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
   ydata  = N_VGetArrayPointer(y);
   fydata = N_VGetArrayPointer(fy);
   ARK_userdata = (FARKUserData) user_data;
@@ -100,7 +101,7 @@ int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   /* Initialize all pointers to NULL */
   vdata = Jvdata = ydata = fydata = wkdata = NULL;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
 
   vdata  = N_VGetArrayPointer(v);
   Jvdata = N_VGetArrayPointer(Jv);

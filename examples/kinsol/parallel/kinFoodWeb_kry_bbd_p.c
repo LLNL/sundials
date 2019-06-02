@@ -2,6 +2,16 @@
  * Programmer(s): Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * Example problem for KINSOL (parallel machine case) using the BBD
  * preconditioner.
  *
@@ -84,7 +94,6 @@
 
 #include <kinsol/kinsol.h>             /* access to KINSOL func., consts.      */
 #include <nvector/nvector_parallel.h>  /* access to MPI parallel N_Vector      */
-#include <kinsol/kinsol_spils.h>       /* access to KINSpils interface         */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <kinsol/kinsol_bbdpre.h>      /* access to BBD preconditioner         */
 #include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
@@ -272,22 +281,22 @@ int main(int argc, char *argv[])
 
   /* We no longer need the constraints vector since KINSetConstraints
      creates a private copy for KINSOL to use. */
-  N_VDestroy_Parallel(constraints);
+  N_VDestroy(constraints);
 
-  /* Create SUNSPGMR object with right preconditioning and the 
+  /* Create SUNLinSol_SPGMR object with right preconditioning and the 
      maximum Krylov dimension maxl */
   maxl = 20; 
-  LS = SUNSPGMR(cc, PREC_RIGHT, maxl);
-  if(check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(cc, PREC_RIGHT, maxl);
+  if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach the linear solver to KINSOL */
-  flag = KINSpilsSetLinearSolver(kmem, LS);
-  if (check_flag(&flag, "KINSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = KINSetLinearSolver(kmem, LS, NULL);
+  if (check_flag(&flag, "KINSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the maximum number of restarts */
   maxlrst = 2;
-  flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
-  if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
+  if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
   
   /* Call KINBBDPrecInit to initialize and allocate memory for the
      band-block-diagonal preconditioner, and specify the local and
@@ -321,8 +330,8 @@ int main(int argc, char *argv[])
   /* Print final statistics and free memory */
   if (my_pe == 0) PrintFinalStats(kmem);
 
-  N_VDestroy_Parallel(cc);
-  N_VDestroy_Parallel(sc);
+  N_VDestroy(cc);
+  N_VDestroy(sc);
   KINFree(&kmem);
   SUNLinSolFree(LS);
   FreeUserData(data);
@@ -367,7 +376,7 @@ static int ccomm(sunindextype Nlocal, N_Vector cc, void *userdata)
   nsmysub = NUM_SPECIES*MYSUB;
   cext = data->cext;
 
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
 
   /* Start receiving boundary data from neighboring PEs */
   BRecvPost(comm, request, my_pe, isubx, isuby, nsmxsub, nsmysub, cext, buffer);
@@ -395,7 +404,7 @@ static int func_local(sunindextype Nlocal, N_Vector cc, N_Vector fval, void *use
   UserData data;
   
   data = (UserData)user_data;
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
   
   /* Get subgrid indices, data sizes, extended work array cext */
   isubx = data->isubx;   isuby = data->isuby;
@@ -642,7 +651,7 @@ static void FreeUserData(UserData data)
   destroyMat(acoef);
   free(bcoef);
   free(cox); free(coy);
-  N_VDestroy_Parallel(data->rates);
+  N_VDestroy(data->rates);
 
   free(data);
 
@@ -742,13 +751,13 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
   
   npelast = NPEX*NPEY - 1;
   
-  ct = N_VGetArrayPointer_Parallel(cc);
+  ct = N_VGetArrayPointer(cc);
   
   /* Send the cc values (for all species) at the top right mesh point to PE 0 */
   if (my_pe == npelast) {
     i0 = NUM_SPECIES*(MXSUB*MYSUB-1);
     if (npelast!=0)
-      MPI_Send(&ct[i0],NUM_SPECIES,PVEC_REAL_MPI_TYPE,0,0,comm);
+      MPI_Send(&ct[i0],NUM_SPECIES,MPI_SUNREALTYPE,0,0,comm);
     else  /* single processor case */
       for (is = 0; is < NUM_SPECIES; is++) tempc[is]=ct[i0+is];   
   }
@@ -758,7 +767,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
   if (my_pe == 0) {
     
     if (npelast != 0)
-      MPI_Recv(&tempc[0],NUM_SPECIES,PVEC_REAL_MPI_TYPE,npelast,0,comm,&status);
+      MPI_Recv(&tempc[0],NUM_SPECIES,MPI_SUNREALTYPE,npelast,0,comm,&status);
     
     printf("\nAt bottom left:");
     for (is = 0; is < NUM_SPECIES; is++){
@@ -800,16 +809,16 @@ static void PrintFinalStats(void *kmem)
   check_flag(&flag, "KINGetNumNonlinSolvIters", 1, 0);
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1, 0);
-  flag = KINSpilsGetNumLinIters(kmem, &nli);
-  check_flag(&flag, "KINSpilsGetNumLinIters", 1, 0);
-  flag = KINSpilsGetNumPrecEvals(kmem, &npe);
-  check_flag(&flag, "KINSpilsGetNumPrecEvals", 1, 0);
-  flag = KINSpilsGetNumPrecSolves(kmem, &nps);
-  check_flag(&flag, "KINSpilsGetNumPrecSolves", 1, 0);
-  flag = KINSpilsGetNumConvFails(kmem, &ncfl);
-  check_flag(&flag, "KINSpilsGetNumConvFails", 1, 0);
-  flag = KINSpilsGetNumFuncEvals(kmem, &nfeSG);
-  check_flag(&flag, "KINSpilsGetNumFuncEvals", 1, 0);
+  flag = KINGetNumLinIters(kmem, &nli);
+  check_flag(&flag, "KINGetNumLinIters", 1, 0);
+  flag = KINGetNumPrecEvals(kmem, &npe);
+  check_flag(&flag, "KINGetNumPrecEvals", 1, 0);
+  flag = KINGetNumPrecSolves(kmem, &nps);
+  check_flag(&flag, "KINGetNumPrecSolves", 1, 0);
+  flag = KINGetNumLinConvFails(kmem, &ncfl);
+  check_flag(&flag, "KINGetNumLinConvFails", 1, 0);
+  flag = KINGetNumLinFuncEvals(kmem, &nfeSG);
+  check_flag(&flag, "KINGetNumLinFuncEvals", 1, 0);
 
   printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
@@ -832,12 +841,12 @@ static void BSend(MPI_Comm comm, int my_pe,
 
   /* If isuby > 0, send data from bottom x-line of u */
   if (isuby != 0)
-    MPI_Send(&cdata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
+    MPI_Send(&cdata[0], dsizex, MPI_SUNREALTYPE, my_pe-NPEX, 0, comm);
 
   /* If isuby < NPEY-1, send data from top x-line of u */
   if (isuby != NPEY-1) {
     offsetc = (MYSUB-1)*dsizex;
-    MPI_Send(&cdata[offsetc], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
+    MPI_Send(&cdata[offsetc], dsizex, MPI_SUNREALTYPE, my_pe+NPEX, 0, comm);
   }
 
   /* If isubx > 0, send data from left y-line of u (via bufleft) */
@@ -848,7 +857,7 @@ static void BSend(MPI_Comm comm, int my_pe,
       for (i = 0; i < NUM_SPECIES; i++)
         bufleft[offsetbuf+i] = cdata[offsetc+i];
     }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe-1, 0, comm);   
+    MPI_Send(&bufleft[0], dsizey, MPI_SUNREALTYPE, my_pe-1, 0, comm);   
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
@@ -859,7 +868,7 @@ static void BSend(MPI_Comm comm, int my_pe,
       for (i = 0; i < NUM_SPECIES; i++)
         bufright[offsetbuf+i] = cdata[offsetc+i];
     }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);   
+    MPI_Send(&bufright[0], dsizey, MPI_SUNREALTYPE, my_pe+1, 0, comm);   
   }
 }
 
@@ -884,25 +893,25 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
   
   /* If isuby > 0, receive data for bottom x-line of cext */
   if (isuby != 0)
-    MPI_Irecv(&cext[NUM_SPECIES], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&cext[NUM_SPECIES], dsizex, MPI_SUNREALTYPE,
               my_pe-NPEX, 0, comm, &request[0]);
   
   /* If isuby < NPEY-1, receive data for top x-line of cext */
   if (isuby != NPEY-1) {
     offsetce = NUM_SPECIES*(1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&cext[offsetce], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&cext[offsetce], dsizex, MPI_SUNREALTYPE,
               my_pe+NPEX, 0, comm, &request[1]);
   }
   
   /* If isubx > 0, receive data for left y-line of cext (via bufleft) */
   if (isubx != 0) {
-    MPI_Irecv(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufleft[0], dsizey, MPI_SUNREALTYPE,
               my_pe-1, 0, comm, &request[2]);
   }
   
   /* If isubx < NPEX-1, receive data for right y-line of cext (via bufright) */
   if (isubx != NPEX-1) {
-    MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufright[0], dsizey, MPI_SUNREALTYPE,
               my_pe+1, 0, comm, &request[3]);
   } 
 }

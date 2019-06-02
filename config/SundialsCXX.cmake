@@ -1,19 +1,15 @@
 # ---------------------------------------------------------------
-# Programmer:  Daniel R. Reynolds @ SMU
+# Programmer:  Daniel R. Reynolds @ SMU, Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2014, Southern Methodist University and 
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Southern Methodist University and Lawrence Livermore 
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence 
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # C++-related tests for SUNDIALS CMake-based configuration.
 # ---------------------------------------------------------------
@@ -51,3 +47,36 @@ if(CMAKE_BUILD_TYPE)
     mark_as_advanced(CLEAR CMAKE_CXX_FLAGS_RELWITHDEBINFO)
   endif()
 endif()
+
+# Converts a CXX standard number to the flag needed to set it.
+macro(CXX_STD2FLAG std flag_var)
+  set(flag_var "-std=c++${std}")
+endmacro()
+
+# Sets the CMAKE_CXX_STANDARD variable to the ${std} if the compiler
+# supports the flag. E.g. USE_CXX_STD(11) sets CMAKE_CXX_STANDARD=11.
+# If CUDA is enabled, it adds the correct flag to CUDA_NVCC_FLAGS.
+#
+# Requires:
+#   CMake > 3.1.3.
+# Notes: 
+#   If the compiler is not supprted by the CMake version in use, then
+#   the flag will have to be added manually.
+macro(USE_CXX_STD std)
+  if(NOT (CMAKE_CXX_STANDARD EQUAL ${std}))
+    include(CheckCXXCompilerFlag)
+    CXX_STD2FLAG(${std} flag_var)
+    CHECK_CXX_COMPILER_FLAG(${flag_var} COMPILER_SUPPORTS_STDFLAG)
+    if(COMPILER_SUPPORTS_STDFLAG)
+      set(CMAKE_CXX_STANDARD ${std})
+      message(STATUS "Set CMAKE_CXX_STANDARD to ${std}")
+      if(CUDA_ENABLE)
+        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std c++${std}")
+        message(STATUS "Add -std c++${std} to CUDA_NVCC_FLAGS")
+      endif()
+    else()
+      PRINT_WARNING("Could not set CMAKE_CXX_STANDARD to ${std}.")
+    endif()
+  endif()
+endmacro()
+

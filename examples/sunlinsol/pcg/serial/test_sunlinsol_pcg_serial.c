@@ -2,19 +2,15 @@
  * ----------------------------------------------------------------- 
  * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the testing routine to check the SUNLinSol PCG module 
  * implementation. 
@@ -142,7 +138,7 @@ int main(int argc, char *argv[])
   printf("\nPCG linear solver test:\n");
   printf("  Problem size = %ld\n", (long int) ProbData.N);
   printf("  Maximum Krylov subspace dimension = %i\n", maxl);
-  printf("  Solver Tolerance = %"GSYM"\n", tol);
+  printf("  Solver Tolerance = %g\n", tol);
   printf("  timing output flag = %i\n\n", print_timing);
   
   /* Create vectors */
@@ -166,7 +162,7 @@ int main(int argc, char *argv[])
   N_VConst(FIVE, ProbData.d);
   
   /* Create PCG linear solver */
-  LS = SUNPCG(x, PREC_RIGHT, maxl);
+  LS = SUNLinSol_PCG(x, PREC_RIGHT, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup, PSolve, 0);
@@ -174,10 +170,10 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSpace(LS, 0);
   if (fails) {
-    printf("FAIL: SUNPCG module failed %i initialization tests\n\n", fails);
+    printf("FAIL: SUNLinSol_PCG module failed %i initialization tests\n\n", fails);
     return 1;
   } else {
-    printf("SUCCESS: SUNPCG module passed all initialization tests\n\n");
+    printf("SUCCESS: SUNLinSol_PCG module passed all initialization tests\n\n");
   }
 
 
@@ -195,7 +191,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run test with this setup */
-  fails += SUNPCGSetPrecType(LS, PREC_NONE);  
+  fails += SUNLinSol_PCGSetPrecType(LS, PREC_NONE);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -205,10 +201,10 @@ int main(int argc, char *argv[])
   
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNPCG module, problem 1, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_PCG module, problem 1, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNPCG module, problem 1, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_PCG module, problem 1, passed all tests\n\n");
   }
 
   
@@ -225,7 +221,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNPCGSetPrecType(LS, PREC_RIGHT);  
+  fails += SUNLinSol_PCGSetPrecType(LS, PREC_RIGHT);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -235,10 +231,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNPCG module, problem 2, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_PCG module, problem 2, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNPCG module, problem 2, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_PCG module, problem 2, passed all tests\n\n");
   }
 
   
@@ -257,7 +253,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNPCGSetPrecType(LS, PREC_NONE);  
+  fails += SUNLinSol_PCGSetPrecType(LS, PREC_NONE);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -267,10 +263,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNPCG module, problem 3, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_PCG module, problem 3, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNPCG module, problem 3, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_PCG module, problem 3, passed all tests\n\n");
   }
 
   
@@ -289,7 +285,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNPCGSetPrecType(LS, PREC_RIGHT);  
+  fails += SUNLinSol_PCGSetPrecType(LS, PREC_RIGHT);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -299,10 +295,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) { 
-    printf("FAIL: SUNPCG module, problem 4, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_PCG module, problem 4, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNPCG module, problem 4, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_PCG module, problem 4, passed all tests\n\n");
   }
 
   
@@ -435,7 +431,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
     maxerr = ZERO;
     for(i=0; i < problem_size; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i])/SUNRabs(Xdata[i]), maxerr);
-    printf("check err failure: maxerr = %g (tol = %g)\n",
+    printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
 	   maxerr, FIVE*tol);
     return(1);
   }

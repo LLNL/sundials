@@ -1,15 +1,15 @@
 # ---------------------------------------------------------------
 # Programmer:  David Gardner and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # examples/kinsol level CMakeLists.txt for SUNDIALS (for CMake)
 # ---------------------------------------------------------------
@@ -17,19 +17,19 @@
 # C examples
 IF(EXAMPLES_ENABLE_C)
   ADD_SUBDIRECTORY(serial)
-  IF(OPENMP_FOUND)
+  IF(OPENMP_ENABLE AND OPENMP_FOUND)
     # the only example here need special handling from testrunner (not yet implemented)
     ADD_SUBDIRECTORY(C_openmp)
   ENDIF()
-  IF(MPI_C_FOUND)
+  IF(MPI_ENABLE AND MPI_C_FOUND)
     ADD_SUBDIRECTORY(parallel)
   ENDIF()
 ENDIF()
 
 # Fortran examples
-IF(EXAMPLES_ENABLE_F77 AND F77_FOUND)
+IF(F77_INTERFACE_ENABLE AND EXAMPLES_ENABLE_F77 AND F77_FOUND)
   ADD_SUBDIRECTORY(fcmix_serial)
-  IF(MPI_Fortran_FOUND)
+  IF(MPI_ENABLE AND MPI_Fortran_FOUND)
     ADD_SUBDIRECTORY(fcmix_parallel)
   ENDIF()
 ENDIF()

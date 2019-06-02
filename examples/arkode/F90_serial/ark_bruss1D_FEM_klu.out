@@ -48,7 +48,7 @@ ARKStep time step module parameters:
    
  Final Solver Statistics:
     Internal solver steps =                   104  (attempted =                  104 )
-    Total RHS evals:  Fe =                     0   Fi =                  1733
+    Total RHS evals:  Fe =                     0   Fi =                  1732
     Total linear solver setups =                    48
     Total RHS evals for setting up the linear system =                     0
     Total number of Jacobian evaluations =                    11

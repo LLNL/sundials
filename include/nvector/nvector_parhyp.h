@@ -1,29 +1,22 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Jean M. Sexton @ SMU
  *                Slaven Peles @ LLNL
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Based on work by: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                   and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the main header file for the MPI-enabled implementation
+ * This is the main header file for the ParHyp implementation
  * of the NVECTOR module.
- *
- * Part I contains declarations specific to the implementation of
- * the supplied NVECTOR module.
- *
- * Part II contains the prototype for the constructor
- * N_VNew_ParHyp as well as implementation-specific prototypes
- * for various useful vector operations.
  *
  * Notes:
  *
@@ -31,8 +24,8 @@
  *     found in the header file sundials_nvector.h.
  *
  *   - The definition of the type realtype can be found in the
- *     header file sundials_types.h, and it may be changed (at the 
- *     configuration stage) according to the user's needs. 
+ *     header file sundials_types.h, and it may be changed (at the
+ *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
  *     for the type booleantype.
  *
@@ -60,19 +53,12 @@
 extern "C" {
 #endif
 
-
 /*
  * -----------------------------------------------------------------
- * PART I: Implementation of N_Vector wrapper for a HYPRE_ParVector
+ * ParHyp implementation of N_Vector
  * -----------------------------------------------------------------
  */
 
-/* 
- * Implementation of the N_Vector 'content' structure contains the
- * global and local lengths of the vector, the underlying HYPRE
- * vector object, the MPI communicator, and a flag indicating
- * ownership of the HYPRE vector. 
- */
 struct _N_VectorContent_ParHyp {
   sunindextype local_length;  /* local vector length         */
   sunindextype global_length; /* global vector length        */
@@ -87,119 +73,27 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
 
 /*
  * -----------------------------------------------------------------
- * PART II: functions exported by nvector_ParHyp
- * 
- * CONSTRUCTORS:
- *    N_VNewEmpty_ParHyp
- *    N_VMake_ParHyp
- *    N_VCloneVectorArray_ParHyp
- *    N_VCloneVectorArrayEmpty_ParHyp
- * DESTRUCTORS:
- *    N_VDestroy_ParHyp
- *    N_VDestroyVectorArray_ParHyp
- * ACCESSOR FUNCTIONS:
- *    N_VGetVector_ParHyp
- * OTHER:
- *    N_VPrint_ParHyp
- *    N_VPrintFile_ParHyp
+ * Functions exported by nvector_parhyp
  * -----------------------------------------------------------------
  */
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VNewEmpty_ParHyp
- * -----------------------------------------------------------------
- * This function creates a new hypre vector wrapper without the 
- * hypre vector itself.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
                                             sunindextype local_length,
                                             sunindextype global_length);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VMake_ParHyp
- * -----------------------------------------------------------------
- * This function creates a hypre vector wrapper around user-supplied 
- * hypre vector.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector N_VMake_ParHyp(HYPRE_ParVector x);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArray_ParHyp
- * -----------------------------------------------------------------
- * This function creates an array of 'count' N_Vectors by cloning a 
- * given vector w. Both, the wrapper and the underlying hypre vector
- * are cloned.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArrayEmpty_ParHyp
- * -----------------------------------------------------------------
- * This function creates an array of 'count' empty hypre vector
- * wrappers by cloning w.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VDestroyVectorArray_ParHyp
- * -----------------------------------------------------------------
- * This function frees an array of N_Vector created with 
- * N_VCloneVectorArray_ParHyp or N_VCloneVectorArrayEmpty_ParHyp.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetVector_ParHyp
- * -----------------------------------------------------------------
- * Extracts underlying HYPRE vector.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT HYPRE_ParVector N_VGetVector_ParHyp(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrint_ParHyp
- * -----------------------------------------------------------------
- * This function prints the local content of a HYPRE_ParVector to
- * stdout.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT void N_VPrint_ParHyp(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrintFile_ParHyp
- * -----------------------------------------------------------------
- * This function prints the local content of a HYPRE_ParVector to
- * outfile.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VPrintFile_ParHyp(N_Vector v, FILE *outfile);
-
-/*
- * -----------------------------------------------------------------
- * Implementations of the vector operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_ParHyp(N_Vector w);
@@ -208,6 +102,8 @@ SUNDIALS_EXPORT void N_VDestroy_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
+SUNDIALS_EXPORT void *N_VGetCommunicator_ParHyp(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLength_ParHyp(N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
@@ -239,7 +135,7 @@ SUNDIALS_EXPORT int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                                            realtype* dotprods);
 
 /* vector array operations */
-SUNDIALS_EXPORT int N_VLinearSumVectorArray_ParHyp(int nvec, 
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_ParHyp(int nvec,
                                                    realtype a, N_Vector* X,
                                                    realtype b, N_Vector* Y,
                                                    N_Vector* Z);
@@ -261,6 +157,41 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
                                                            realtype* c,
                                                            N_Vector** X,
                                                            N_Vector* Z);
+
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT realtype N_VMaxNormLocal_ParHyp(N_Vector x);
+SUNDIALS_EXPORT realtype N_VMinLocal_ParHyp(N_Vector x);
+SUNDIALS_EXPORT realtype N_VL1NormLocal_ParHyp(N_Vector x);
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w,
+                                                    N_Vector id);
+SUNDIALS_EXPORT booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x,
+                                                      N_Vector m);
+SUNDIALS_EXPORT realtype N_VMinQuotientLocal_ParHyp(N_Vector num,
+                                                    N_Vector denom);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / disable fused vector operations
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearCombination_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_ParHyp(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

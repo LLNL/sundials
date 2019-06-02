@@ -6,16 +6,7 @@
    vectors instead of the stages themselves, as discussed in various
    references as being generally preferred for very stiff problems.
 
-3. Add <solver>Cls interfaces to all integrators for 'custom' linear
-   solvers.  These should:
-   - assume a SUNMatrix object is provided
-   - assume an iterative linear solve is performed
-   - thoroughly test if LS->ops->routine is non-NULL before actually
-     calling specific items.  Perhaps these interfaces should just
-     hold booleantype flags for supported routines (set at
-     initialization), and check these during use??
-
-4. Revisit scaling vectors with PCG (without preconditioning) -- this
+3. Revisit scaling vectors with PCG (without preconditioning) -- this
    seems to work improperly now.  Perhaps it is the testing code, or
    maybe the solver itself.
   
@@ -26,7 +17,7 @@
    added back in? 
   
 6. Revisit the question of the differencing parameter used in the
-   IDADls and IDASDls interfaces.  Previously we had different
+   IDALs and IDASLs interfaces.  Previously we had different
    increments for GMRES than for BiCGStab and TFQMR; currently these
    all use the GMRES value, but that value seems off in general (see
    Alan's email about why it works for GMRES).  Test what happens if

@@ -1,19 +1,15 @@
 C     ----------------------------------------------------------------
 C     Programmer(s): Daniel R. Reynolds @ SMU
 C     ----------------------------------------------------------------
-C     LLNS/SMU Copyright Start
-C     Copyright (c) 2015, Southern Methodist University and 
-C     Lawrence Livermore National Security
-C
-C     This work was performed under the auspices of the U.S. Department 
-C     of Energy by Southern Methodist University and Lawrence Livermore 
-C     National Laboratory under Contract DE-AC52-07NA27344.
-C     Produced at Southern Methodist University and the Lawrence 
-C     Livermore National Laboratory.
-C
+C     SUNDIALS Copyright Start
+C     Copyright (c) 2002-2019, Lawrence Livermore National Security
+C     and Southern Methodist University.
 C     All rights reserved.
-C     For details, see the LICENSE file.
-C     LLNS/SMU Copyright End
+C
+C     See the top-level LICENSE and NOTICE files for details.
+C
+C     SPDX-License-Identifier: BSD-3-Clause
+C     SUNDIALS Copyright End
 C     ----------------------------------------------------------------
 C     FARKODE Example Problem: Robertson kinetics, Lapack linear solver
 C                             with dense user Jacobian.
@@ -51,7 +47,7 @@ C
       INTEGER*4 LNETF, LNJE, LNGE, METH, ITOL, ITASK, JOUT, NOUT
       INTEGER*4 IERROOT, INFO(2)
       INTEGER*4 I, NEQ
-      INTEGER*8 IOUT(22), IPAR, MXSTEPS, MXNLI, PRED, MXETF
+      INTEGER*8 IOUT(35), IPAR, MXSTEPS, MXNLI, PRED, MXETF
       DOUBLE PRECISION RTOL, T, T0, TOUT, H0, NLCONV
       DOUBLE PRECISION Y(3), ATOL(3), ROUT(6), RPAR
 C
@@ -161,11 +157,11 @@ c
          STOP
       ENDIF
 C
-C     attach matrix and linear solver modules to ARKDls interface
-      CALL FARKDLSINIT(IER)
+C     attach matrix and linear solver modules to ARKLs interface
+      CALL FARKLSINIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FARKDLSINIT returned IER = ',I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FARKLSINIT returned IER = ',I5)
         CALL FARKFREE
         STOP
       ENDIF

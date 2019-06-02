@@ -2,19 +2,15 @@
  * Programmer(s): Ting Yan @ SMU
  *      Based on cvsRoberts_FSA_dns.c and modified to use SUPERLU_MT
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department
- * of Energy by Southern Methodist University and Lawrence Livermore
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *-----------------------------------------------------------------
  * Adjoint sensitivity example problem.
  * The following is a simple example problem, with the coding
@@ -28,7 +24,7 @@
  * conditions y1 = 1.0, y2 = y3 = 0. The reaction rates are: p1=0.04,
  * p2=1e4, and p3=3e7. The problem is stiff.
  * This program solves the problem with the BDF method, Newton
- * iteration with the CVODES SUPERLU_MT linear solver, and a
+ * iteration with the SUPERLU_MT linear solver, and a
  * user-supplied Jacobian routine.
  * It uses a scalar relative tolerance and a vector absolute
  * tolerance.
@@ -62,7 +58,6 @@
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h> /* access to SuperLUMT SUNLinearSolver  */
-#include <cvodes/cvodes_direct.h>          /* access to CVDls interface            */
 #include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
 #include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
@@ -120,7 +115,7 @@ static void WrongArgs(char *name);
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi);
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -136,7 +131,7 @@ int main(int argc, char *argv[])
   UserData data;
   realtype t, tout;
   N_Vector y;
-  int iout, flag, nthreads, nnz;
+  int iout, retval, nthreads, nnz;
 
   realtype pbar[NS];
   int is; 
@@ -156,56 +151,56 @@ int main(int argc, char *argv[])
 
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
-  if (check_flag((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) return(1);
   data->p[0] = RCONST(0.04);
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
 
   /* Initial conditions */
   y = N_VNew_Serial(NEQ);
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
 
   Ith(y,1) = Y1;
   Ith(y,2) = Y2;
   Ith(y,3) = Y3;
 
   /* Call CVodeCreate to create the solver memory and specify the 
-     Backward Differentiation Formula and the use of a Newton iteration */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+     Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
      user's right hand side function in y'=f(t,y), the initial time T0, and
      the initial dependent variable vector y. */
-  flag = CVodeInit(cvode_mem, f, T0, y);
-  if (check_flag(&flag, "CVodeInit", 1)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, y);
+  if (check_retval(&retval, "CVodeInit", 1)) return(1);
 
   /* Call CVodeWFtolerances to specify a user-supplied function ewt that sets
      the multiplicative error weights w_i for use in the weighted RMS norm */
-  flag = CVodeWFtolerances(cvode_mem, ewt);
-  if (check_flag(&flag, "CVodeWFtolerances", 1)) return(1);
+  retval = CVodeWFtolerances(cvode_mem, ewt);
+  if (check_retval(&retval, "CVodeWFtolerances", 1)) return(1);
 
   /* Attach user data */
-  flag = CVodeSetUserData(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
   /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ; /* max no. of nonzeros entries in the Jac */
   A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
-  if (check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create SuperLUMT SUNLinearSolver object */
   nthreads = 1; /* no. of threads use when factoring the system */
-  LS = SUNSuperLUMT(y, A, nthreads);
-  if (check_flag((void *)LS, "SUNSuperLUMT", 0)) return(1);
+  LS = SUNLinSol_SuperLUMT(y, A, nthreads);
+  if (check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if (check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the Jacobian routine to Jac (user-supplied) */
-  flag = CVDlsSetJacFn(cvode_mem, Jac);
-  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  retval = CVodeSetJacFn(cvode_mem, Jac);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   printf("\n3-species chemical kinetics problem\n");
 
@@ -219,32 +214,32 @@ int main(int argc, char *argv[])
 
     /* Set sensitivity initial conditions */
     yS = N_VCloneVectorArray(NS, y);
-    if (check_flag((void *)yS, "N_VCloneVectorArray", 0)) return(1);
+    if (check_retval((void *)yS, "N_VCloneVectorArray", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
 
     /* Call CVodeSensInit1 to activate forward sensitivity computations
        and allocate internal memory for COVEDS related to sensitivity
        calculations. Computes the right-hand sides of the sensitivity
        ODE, one at a time */
-    flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, fS, yS);
-    if(check_flag(&flag, "CVodeSensInit", 1)) return(1);
+    retval = CVodeSensInit1(cvode_mem, NS, sensi_meth, fS, yS);
+    if(check_retval(&retval, "CVodeSensInit", 1)) return(1);
 
     /* Call CVodeSensEEtolerances to estimate tolerances for sensitivity 
        variables based on the rolerances supplied for states variables and 
        the scaling factor pbar */
-    flag = CVodeSensEEtolerances(cvode_mem);
-    if(check_flag(&flag, "CVodeSensEEtolerances", 1)) return(1);
+    retval = CVodeSensEEtolerances(cvode_mem);
+    if(check_retval(&retval, "CVodeSensEEtolerances", 1)) return(1);
 
     /* Set sensitivity analysis optional inputs */
     /* Call CVodeSetSensErrCon to specify the error control strategy for 
        sensitivity variables */
-    flag = CVodeSetSensErrCon(cvode_mem, err_con);
-    if (check_flag(&flag, "CVodeSetSensErrCon", 1)) return(1);
+    retval = CVodeSetSensErrCon(cvode_mem, err_con);
+    if (check_retval(&retval, "CVodeSetSensErrCon", 1)) return(1);
 
     /* Call CVodeSetSensParams to specify problem parameter information for 
        sensitivity calculations */
-    flag = CVodeSetSensParams(cvode_mem, NULL, pbar, NULL);
-    if (check_flag(&flag, "CVodeSetSensParams", 1)) return(1);
+    retval = CVodeSetSensParams(cvode_mem, NULL, pbar, NULL);
+    if (check_retval(&retval, "CVodeSetSensParams", 1)) return(1);
 
     printf("Sensitivity: YES ");
     if(sensi_meth == CV_SIMULTANEOUS)   
@@ -273,16 +268,16 @@ int main(int argc, char *argv[])
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
 
-    flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    if (check_flag(&flag, "CVode", 1)) break;
+    retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+    if (check_retval(&retval, "CVode", 1)) break;
 
     PrintOutput(cvode_mem, t, y);
 
     /* Call CVodeGetSens to get the sensitivity solution vector after a
        successful return from CVode */
     if (sensi) {
-      flag = CVodeGetSens(cvode_mem, &t, yS);
-      if (check_flag(&flag, "CVodeGetSens", 1)) break;
+      retval = CVodeGetSens(cvode_mem, &t, yS);
+      if (check_retval(&retval, "CVodeGetSens", 1)) break;
       PrintOutputS(yS);
     } 
     printf("-----------------------------------------");
@@ -521,17 +516,17 @@ static void WrongArgs(char *name)
 static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
 {
   long int nst;
-  int qu, flag;
+  int qu, retval;
   realtype hu, *udata;
   
   udata = N_VGetArrayPointer(u);
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetLastOrder(cvode_mem, &qu);
-  check_flag(&flag, "CVodeGetLastOrder", 1);
-  flag = CVodeGetLastStep(cvode_mem, &hu);
-  check_flag(&flag, "CVodeGetLastStep", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetLastOrder(cvode_mem, &qu);
+  check_retval(&retval, "CVodeGetLastOrder", 1);
+  retval = CVodeGetLastStep(cvode_mem, &hu);
+  check_retval(&retval, "CVodeGetLastStep", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%8.3Le %2d  %8.3Le %5ld\n", t, qu, hu, nst);
@@ -605,38 +600,38 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
   long int nfe, nsetups, nni, ncfn, netf;
   long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
   long int nje;
-  int flag;
+  int retval;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
   if (sensi) {
-    flag = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
-    check_flag(&flag, "CVodeGetSensNumRhsEvals", 1);
-    flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
-    check_flag(&flag, "CVodeGetNumRhsEvalsSens", 1);
-    flag = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
-    check_flag(&flag, "CVodeGetSensNumLinSolvSetups", 1);
-    flag = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
-    check_flag(&flag, "CVodeGetSensNumErrTestFails", 1);
-    flag = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
-    check_flag(&flag, "CVodeGetSensNumNonlinSolvIters", 1);
-    flag = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
-    check_flag(&flag, "CVodeGetSensNumNonlinSolvConvFails", 1);
+    retval = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
+    check_retval(&retval, "CVodeGetSensNumRhsEvals", 1);
+    retval = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
+    check_retval(&retval, "CVodeGetNumRhsEvalsSens", 1);
+    retval = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
+    check_retval(&retval, "CVodeGetSensNumLinSolvSetups", 1);
+    retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
+    check_retval(&retval, "CVodeGetSensNumErrTestFails", 1);
+    retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
+    check_retval(&retval, "CVodeGetSensNumNonlinSolvIters", 1);
+    retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
+    check_retval(&retval, "CVodeGetSensNumNonlinSolvConvFails", 1);
   }
 
-  flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+  retval = CVodeGetNumJacEvals(cvode_mem, &nje);
+  check_retval(&retval, "CVodeGetNumJacEvals", 1);
 
   printf("\nFinal Statistics\n\n");
   printf("nst     = %5ld\n\n", nst);
@@ -660,34 +655,34 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns a flag so check if
- *             flag >= 0
+ *    opt == 1 means SUNDIALS function returns an integer value so check if
+ *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+	      funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);

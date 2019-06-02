@@ -2,35 +2,22 @@
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
  * -----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the band implementation of the 
- * SUNLINSOL module.
- * 
- * Part I contains declarations specific to the band implementation
- * of the supplied SUNLINSOL module.
- * 
- * Part II contains the prototype for the constructor 
- * SUNBandLinearSolver as well as implementation-specific prototypes 
- * for various useful solver operations.
+ * SUNLINSOL module, SUNLINSOL_BAND.
  *
- * Notes:
- *
+ * Note:
  *   - The definition of the generic SUNLinearSolver structure can 
  *     be found in the header file sundials_linearsolver.h.
- *
  * -----------------------------------------------------------------
  */
 
@@ -47,17 +34,9 @@
 extern "C" {
 #endif
 
-/*
- * -----------------------------------------------------------------
- * PART I: Band implementation of SUNLinearSolver
- *
- * The band implementation of the SUNLinearSolver 'content' 
- * structure contains:
- *     N -- size of the linear system
- *     pivots -- index array for partial pivoting in LU factorization
- *     last_flag -- last error return flag from internal setup/solve
- * -----------------------------------------------------------------
- */
+/* ---------------------------------------
+ * Band Implementation of SUNLinearSolver
+ * --------------------------------------- */
   
 struct _SUNLinearSolverContent_Band {
   sunindextype  N;
@@ -68,24 +47,15 @@ struct _SUNLinearSolverContent_Band {
 typedef struct _SUNLinearSolverContent_Band *SUNLinearSolverContent_Band;
 
   
-/*
- * -----------------------------------------------------------------
- * PART II: functions exported by sunlinsol_band
- * 
- * CONSTRUCTOR:
- *    SUNBandLinearSolver creates and allocates memory for a banded
- *    matrix solver
- * -----------------------------------------------------------------
- */
+/* --------------------------------------
+ * Exported Functions for SUNLINSOL_BAND
+ * -------------------------------------- */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A);
+
+/* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNBandLinearSolver(N_Vector y,
                                                     SUNMatrix A);
-
-/*
- * -----------------------------------------------------------------
- * band implementations of various useful linear solver operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_Band(SUNLinearSolver S);
@@ -97,7 +67,7 @@ SUNDIALS_EXPORT int SUNLinSolSpace_Band(SUNLinearSolver S,
                                         long int *lenrwLS,
                                         long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_Band(SUNLinearSolver S);
-  
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,4 +1,14 @@
-C     ----------------------------------------------------------------
+C     --------------------------------------------------------------------
+C     SUNDIALS Copyright Start
+C     Copyright (c) 2002-2019, Lawrence Livermore National Security
+C     and Southern Methodist University.
+C     All rights reserved.
+C
+C     See the top-level LICENSE and NOTICE files for details.
+C
+C     SPDX-License-Identifier: BSD-3-Clause
+C     SUNDIALS Copyright End
+C     --------------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, band linear solver
 C                             with banded user Jacobian.
 C
@@ -18,7 +28,7 @@ C     interface routine package. This solution uses the BDF method,
 C     a user-supplied banded Jacobian routine, and scalar relative and
 C     absolute tolerances. It prints results at t = .1, .2, ..., 1.0.
 C     At the end of the run, various counters of interest are printed.
-C     ----------------------------------------------------------------
+C     --------------------------------------------------------------------
 C
       IMPLICIT NONE
 C
@@ -30,7 +40,7 @@ C
       DATA XMAX/2.0D0/, YMAX/1.0D0/
 C
       INTEGER*4 LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE
-      INTEGER*4 IER, METH, ITMETH, IATOL, ITASK, JOUT
+      INTEGER*4 IER, METH, IATOL, ITASK, JOUT
 C The following declaration specification should match C type long int.
       INTEGER*8 NEQ, IOUT(25), IPAR(2), MU, ML
       DOUBLE PRECISION RTOL, ATOL, T0, T, TOUT, DTOUT, UNORM 
@@ -44,7 +54,6 @@ C
       NEQ = MX*MY
       T0 = 0.0D0
       METH = 2
-      ITMETH = 2
       IATOL = 1
       RTOL = 0.0D0
       ATOL = 1.0D-5
@@ -80,7 +89,7 @@ C     initialize banded linear solver module
         STOP
       ENDIF
 C
-      CALL FCVMALLOC(T0, U, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVMALLOC(T0, U, METH, IATOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -88,11 +97,11 @@ C
         STOP
       ENDIF
 C
-C     attach matrix and linear solver modules to CVDls interface
-      CALL FCVDLSINIT(IER)
+C     attach matrix and linear solver modules to CVLs interface
+      CALL FCVLSINIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FCVDLSINIT returned IER = ',I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVLSINIT returned IER = ',I5)
         CALL FCVFREE
         STOP
       ENDIF

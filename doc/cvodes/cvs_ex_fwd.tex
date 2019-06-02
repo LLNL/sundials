@@ -71,7 +71,7 @@ and
   \end{split}
 \end{equation}
 
-This problem uses the Adams (non-stiff) integration formula and functional iteration.
+This problem uses the Adams (non-stiff) integration formula and fixed-point iteration.
 It is unrealistically simple\footnote{Increasing the number of grid points to better
 resolve the PDE spatially will lead to a stiffer ODE for which the Adams integration
 formula will not be suitable.},
@@ -208,7 +208,7 @@ an array of \id{NP} \id{realtype} values.
 Four user-supplied functions are defined. The function \id{f}, passed to \id{CVodeInit},
 computes the right-hand side of the ODE (\ref{e:cvsRoberts_FSA_dns_ode}), while
 \id{Jac} computes the dense Jacobian of the problem and is attached to the
-dense linear solver module {\cvdense} through a call to \id{CVDlsSetDenseJacFn}.
+dense linear solver module {\sunlinsoldense} through a call to \id{CVodeSetJacFn}.
 The function \id{fS} computes the right-hand side of each sensitivity system
 (\ref{e:cvsRoberts_FSA_dns_sens}) for one parameter at a time and is therefore of type
 \id{SensRhs1}. Finally, the function \id{ewt} computes the error weights for the WRMS norm
@@ -244,8 +244,8 @@ The next block of code is identical to that in \id{cvRoberts\_dns.c} (see \cite{
 and involves allocation and initialization of the state variables, and creation and 
 initialization of \id{cvode\_mem}, the {\cvodes} solver memory. It specifies that
 a user-provided function (\id{ewt}) is to be used for computing the error weights.
-It also attaches {\cvdense}, with a non-\id{NULL} Jacobian function, as the linear solver 
-to be used in the Newton nonlinear iteration.
+It also attaches {\sunlinsoldense}, with a non-\id{NULL} Jacobian
+function, as the linear solver to be used in the Newton nonlinear iteration.
 
 If sensitivity analysis is enabled (through the command line arguments), 
 the main program will then set the scaling parameters
@@ -320,7 +320,7 @@ control (\id{cvsRoberts\_FSA\_dns -sensi sim t}):
 \label{ss:cvsDiurnal_FSA_kry_p}
 
 As an example of using the forward sensitivity capabilities in {\cvodes} 
-with the Krylov linear solver {\cvspgmr} and the {\nvecp} module, we describe
+with the Krylov linear solver {\sunlinsolspgmr} and the {\nvecp} module, we describe
 a test problem (derived from \id{cvDiurnal\_kry\_p}) that solves the
 semi-discrete form of a two-species diurnal kinetics advection-diffusion PDE 
 system in 2-D space, for which we also compute solution sensitivities with respect to 

@@ -1,21 +1,17 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for ARKode's time step 
+ * This is the implementation file for ARKode's time step
  * adaptivity utilities.
  *--------------------------------------------------------------*/
 
@@ -37,12 +33,12 @@
 
 
 /*---------------------------------------------------------------
- arkAdaptInit:
+  arkAdaptInit:
 
- This routine creates and sets default values in an 
- ARKodeHAdaptMem structure.  This returns a non-NULL structure 
- if no errors occurred, or a NULL value otherwise.
----------------------------------------------------------------*/
+  This routine creates and sets default values in an
+  ARKodeHAdaptMem structure.  This returns a non-NULL structure
+  if no errors occurred, or a NULL value otherwise.
+  ---------------------------------------------------------------*/
 ARKodeHAdaptMem arkAdaptInit()
 {
   ARKodeHAdaptMem hadapt_mem;
@@ -78,7 +74,6 @@ ARKodeHAdaptMem arkAdaptInit()
   hadapt_mem->nst_acc     = 0;
   hadapt_mem->nst_exp     = 0;
 
-
   hadapt_mem->expstab     = arkExpStab;
   hadapt_mem->estab_data  = NULL;
   return(hadapt_mem);
@@ -86,11 +81,11 @@ ARKodeHAdaptMem arkAdaptInit()
 
 
 /*---------------------------------------------------------------
- arkPrintAdaptMem
+  arkPrintAdaptMem
 
- This routine outputs the time step adaptivity memory structure 
- to a specified file pointer.
----------------------------------------------------------------*/
+  This routine outputs the time step adaptivity memory structure
+  to a specified file pointer.
+  ---------------------------------------------------------------*/
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
 {
   if (hadapt_mem != NULL) {
@@ -133,24 +128,27 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
 
 
 /*---------------------------------------------------------------
- arkAdapt is the time step adaptivity wrapper function.  This 
- computes and sets the value of ark_eta inside of the ARKodeMem 
- data structure.
----------------------------------------------------------------*/
+  arkAdapt is the time step adaptivity wrapper function.  This
+  computes and sets the value of ark_eta inside of the ARKodeMem
+  data structure.
+  ---------------------------------------------------------------*/
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              N_Vector ycur, realtype tcur, realtype hcur,
-             int k, long int nst)
+             int q, int p, booleantype pq, long int nst)
 {
-  int ier;
+  int ier, k;
   realtype h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "arkAdapt", MSGARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkAdapt", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
+  /* Set k as either p or q, based on pq flag */
+  k = (pq) ? q : p;
+  
   /* Call algorithm-specific error adaptivity method */
   switch (hadapt_mem->imethod) {
   case(0):    /* PID controller */
@@ -172,22 +170,22 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
     ier = arkAdaptImExGus(hadapt_mem, k, nst, hcur, &h_acc);
     break;
   case(-1):   /* user-supplied controller */
-    ier = hadapt_mem->HAdapt(ycur, tcur, 
-                             hadapt_mem->hhist[0], 
-                             hadapt_mem->hhist[1], 
-                             hadapt_mem->hhist[2], 
+    ier = hadapt_mem->HAdapt(ycur, tcur,
+                             hadapt_mem->hhist[0],
+                             hadapt_mem->hhist[1],
+                             hadapt_mem->hhist[2],
                              hadapt_mem->ehist[0],
                              hadapt_mem->ehist[1],
                              hadapt_mem->ehist[2],
-                             k, &h_acc, hadapt_mem->HAdapt_data);
+                             q, p, &h_acc, hadapt_mem->HAdapt_data);
     break;
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",
                     "Illegal imethod.");
     return (ARK_ILL_INPUT);
   }
   if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",
                     "Error in accuracy-based adaptivity function.");
     return (ARK_ILL_INPUT);
   }
@@ -198,17 +196,17 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   /* Call explicit stability function */
   ier = hadapt_mem->expstab(ycur, tcur, &h_cfl, hadapt_mem->estab_data);
   if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkAdapt", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",
                     "Error in explicit stability function.");
     return (ARK_ILL_INPUT);
   }
   if (h_cfl <= 0.0)  h_cfl = RCONST(1.0e30) * SUNRabs(hcur);
 
   /* Solver diagnostics reporting */
-  if (ark_mem->report) 
-    fprintf(ark_mem->diagfp, "  adapt  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  ",
-            hadapt_mem->ehist[0], hadapt_mem->ehist[1], 
-            hadapt_mem->ehist[2], hadapt_mem->hhist[0], 
+  if (ark_mem->report)
+    fprintf(ark_mem->diagfp, "ARKadapt  adapt  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  ",
+            hadapt_mem->ehist[0], hadapt_mem->ehist[1],
+            hadapt_mem->ehist[2], hadapt_mem->hhist[0],
             hadapt_mem->hhist[1], hadapt_mem->hhist[2], h_acc, h_cfl);
 
   /* enforce safety factors */
@@ -222,7 +220,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   h_acc = int_dir * SUNMAX(SUNRabs(h_acc), SUNRabs(ETAMIN*hcur));
 
   /* Solver diagnostics reporting */
-  if (ark_mem->report) 
+  if (ark_mem->report)
     fprintf(ark_mem->diagfp, "%"RSYM"  %"RSYM"  ", h_acc, h_cfl);
 
   /* increment the relevant step counter, set desired step */
@@ -249,7 +247,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                          ark_mem->hmax_inv*ark_mem->eta);
 
   /* Solver diagnostics reporting */
-  if (ark_mem->report) 
+  if (ark_mem->report)
     fprintf(ark_mem->diagfp, "%"RSYM"\n", ark_mem->eta);
 
   return(ier);
@@ -257,8 +255,8 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
 
 
 /*---------------------------------------------------------------
- arkAdaptPID implements a PID time step control algorithm.
----------------------------------------------------------------*/
+  arkAdaptPID implements a PID time step control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
                 realtype *hnew)
 {
@@ -271,7 +269,7 @@ int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
   e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
   e2 = SUNMAX(hadapt_mem->ehist[1], TINY);
   e3 = SUNMAX(hadapt_mem->ehist[2], TINY);
-  
+
   /* compute estimated optimal time step size, set into output */
   h_acc = hcur * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2) * SUNRpowerR(e3,k3);
   *hnew = h_acc;
@@ -281,8 +279,8 @@ int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
 
 
 /*---------------------------------------------------------------
- arkAdaptPI implements a PI time step control algorithm.
----------------------------------------------------------------*/
+  arkAdaptPI implements a PI time step control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
                realtype *hnew)
 {
@@ -293,7 +291,7 @@ int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
   k2 =  hadapt_mem->k2 / k;
   e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
   e2 = SUNMAX(hadapt_mem->ehist[1], TINY);
-  
+
   /* compute estimated optimal time step size, set into output */
   h_acc = hcur * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
   *hnew = h_acc;
@@ -303,8 +301,8 @@ int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
 
 
 /*---------------------------------------------------------------
- arkAdaptI implements an I time step control algorithm.
----------------------------------------------------------------*/
+  arkAdaptI implements an I time step control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
               realtype *hnew)
 {
@@ -313,7 +311,7 @@ int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
   /* set usable time-step adaptivity parameters */
   k1 = -hadapt_mem->k1 / k;
   e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
-  
+
   /* compute estimated optimal time step size, set into output */
   h_acc = hcur * SUNRpowerR(e1,k1);
   *hnew = h_acc;
@@ -323,9 +321,9 @@ int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
 
 
 /*---------------------------------------------------------------
- arkAdaptExpGus implements the explicit Gustafsson time step
- control algorithm.
----------------------------------------------------------------*/
+  arkAdaptExpGus implements the explicit Gustafsson time step
+  control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
                    realtype hcur, realtype *hnew)
 {
@@ -355,9 +353,9 @@ int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
 
 
 /*---------------------------------------------------------------
- arkAdaptImpGus implements the implicit Gustafsson time step 
- control algorithm.
----------------------------------------------------------------*/
+  arkAdaptImpGus implements the implicit Gustafsson time step
+  control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
                    realtype hcur, realtype *hnew)
 {
@@ -388,9 +386,9 @@ int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
 
 
 /*---------------------------------------------------------------
- arkAdaptImExGus implements a combination implicit/explicit 
- Gustafsson time step control algorithm.
----------------------------------------------------------------*/
+  arkAdaptImExGus implements a combination implicit/explicit
+  Gustafsson time step control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
                     realtype hcur, realtype *hnew)
 {
@@ -425,5 +423,5 @@ int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
 
 
 /*===============================================================
-   EOF
-===============================================================*/
+  EOF
+  ===============================================================*/
