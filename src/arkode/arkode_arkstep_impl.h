@@ -45,20 +45,20 @@ extern "C" {
   ---------------------------------------------------------------*/
 typedef struct ARKodeARKStepMemRec {
 
-  /* ARK problem specification */
-  ARKRhsFn     fe;              /* My' = fe(t,y) + fi(t,y)        */
-  ARKRhsFn     fi;
-  booleantype  linear;          /* SUNTRUE if fi is linear        */
-  booleantype  linear_timedep;  /* SUNTRUE if dfi/dy depends on t */
-  booleantype  explicit;        /* SUNTRUE if fe is enabled       */
-  booleantype  implicit;        /* SUNTRUE if fi is enabled       */
+  /* Problem specification: My' = fe(t,y) + fi(t,y) */
+  ARKRhsFn    fe;              /* Explicit Rhs function          */
+  ARKRhsFn    fi;              /* Implicit Rhs function          */
+  booleantype linear;          /* SUNTRUE if fi is linear        */
+  booleantype linear_timedep;  /* SUNTRUE if dfi/dy depends on t */
+  booleantype explicit;        /* SUNTRUE if fe is enabled       */
+  booleantype implicit;        /* SUNTRUE if fi is enabled       */
 
-  /* ARK method storage and parameters */
+  /* Method storage and parameters */
   N_Vector *Fe;           /* explicit RHS at each stage */
   N_Vector *Fi;           /* implicit RHS at each stage */
-  N_Vector  sdata;        /* old stage data in residual */
-  N_Vector  zpred;        /* predicted stage solution   */
-  N_Vector  zcor;         /* stage correction           */
+  N_Vector sdata;         /* old stage data in residual */
+  N_Vector zpred;         /* predicted stage solution   */
+  N_Vector zcor;          /* stage correction           */
   int q;                  /* method order               */
   int p;                  /* embedding order            */
   int istage;             /* current stage              */
@@ -72,12 +72,13 @@ typedef struct ARKodeARKStepMemRec {
   int             maxnef;      /* max error test fails in one step */
 
   /* (Non)Linear solver parameters & data */
-  SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
-  booleantype     ownNLS;   /* flag indicating ownership of NLS      */
-  realtype gamma;        /* gamma = h * A(i,i)                       */
-  realtype gammap;       /* gamma at the last setup call             */
-  realtype gamrat;       /* gamma / gammap                           */
-  realtype dgmax;        /* call lsetup if |gamma/gammap-1| >= dgmax */
+  SUNNonlinearSolver NLS;      /* generic SUNNonlinearSolver object     */
+  booleantype        ownNLS;   /* flag indicating ownership of NLS      */
+
+  realtype gamma;    /* gamma = h * A(i,i)                       */
+  realtype gammap;   /* gamma at the last setup call             */
+  realtype gamrat;   /* gamma / gammap                           */
+  realtype dgmax;    /* call lsetup if |gamma/gammap-1| >= dgmax */
 
   int      predictor;    /* implicit prediction method to use        */
   realtype crdown;       /* nonlinear conv rate estimation constant  */
@@ -105,8 +106,8 @@ typedef struct ARKodeARKStepMemRec {
   ARKLinsolSetupFn lsetup;
   ARKLinsolSolveFn lsolve;
   ARKLinsolFreeFn  lfree;
-  void            *lmem;
-  int lsolve_type;  /* interface type: 0=iterative; 1=direct; 2=custom */
+  void             *lmem;
+  int              lsolve_type;  /* interface type: 0=iterative; 1=direct; 2=custom */
 
   /* Mass matrix solver data */
   ARKMassInitFn   minit;
@@ -115,8 +116,8 @@ typedef struct ARKodeARKStepMemRec {
   ARKMassSolveFn  msolve;
   ARKMassFreeFn   mfree;
   void*           mass_mem;
-  realtype        msetuptime;   /* "t" value at last msetup call */
-  int msolve_type;  /* interface type: 0=iterative; 1=direct; 2=custom */
+  realtype        msetuptime;  /* "t" value at last msetup call */
+  int             msolve_type; /* interface type: 0=iterative; 1=direct; 2=custom */
 
   /* Counters */
   long int nst_attempts;  /* num attempted steps                */
@@ -133,9 +134,9 @@ typedef struct ARKodeARKStepMemRec {
 } *ARKodeARKStepMem;
 
 
-/*===============================================================
-  ARK time step module private function prototypes
-  ===============================================================*/
+/* ===============================================================
+ * ARK time step module private function prototypes
+ * ===============================================================*/
 
 /* Interface routines supplied to ARKode */
 int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
@@ -188,9 +189,9 @@ int arkStep_NlsLSolve(N_Vector yy, N_Vector delta, void* arkode_mem);
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         realtype tol, N_Vector ewt, void* arkode_mem);
 
-/*===============================================================
-  Reusable ARKStep Error Messages
-  ===============================================================*/
+/* ===============================================================
+ * Reusable ARKStep Error Messages
+ * ===============================================================*/
 
 /* Initialization and I/O error messages */
 #define MSG_ARKSTEP_NO_MEM    "Time step module memory is NULL."
