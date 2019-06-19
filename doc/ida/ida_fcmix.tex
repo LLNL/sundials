@@ -1,5 +1,38 @@
 %%==============================================================================
-\chapter{FIDA, an Interface Module for FORTRAN Applications}\label{s:fcmix}
+\chapter{Using IDA for Fortran Applications}\label{s:idafort}
+%%==============================================================================
+
+A Fortran 2003 module (\id{fida\_mod}) as well as a Fortran 77 style interface
+(\fida) are provided to support the use of {\ida}, for the solution of DAE
+systems in a mixed Fortran/{\CC} setting. While {\ida} is written in {\CC}, it is
+assumed here that the user's calling program and user-supplied problem-defining
+routines are written in Fortran. 
+
+%%==============================================================================
+% Fortran 2003 Interfaces.
+%%==============================================================================
+
+\let\sectiontype\subsection
+\section{IDA Fortran 2003 Interface Module}\label{s:idaf2003}
+
+The \ID{fida\_mod} Fortran module defines interfaces to most {\ida} {\CC}
+functions using the intrinsic \id{iso\_c\_binding} module which provides a
+standardized mechanism for interoperating with {\CC}. All interfaced functions
+are named after the corresponding {\CC} function, but with a leading `F'. For
+example, the {\ida} function \id{IDACreate} is interfaced as
+\id{FIDACreate}. Thus, the steps to use {\ida} and the function calls in
+Fortran 2003 are identical (ignoring language differences) to those in {\CC}. The
+{\CC} functions with Fortran 2003 interfaces indicate this in their description in
+Chapter \ref{s:simulation}. The Fortran 2003 {\ida} interface module can be
+accessed by the \id{use} statement, i.e. \id{use fida\_mod}, and linking to the
+library \id{libsundials\_fida\_mod}.{\em lib} in addition to
+\id{libsundials\_ida}.{\em lib}.
+
+% Pull in sections on portability and data types.
+\input{fortran2003}
+
+%%==============================================================================
+\section{FIDA, an Interface Module for FORTRAN Applications}\label{s:fcmix}
 %%==============================================================================
 
 The {\fida} interface module is a package of {\CC} functions which support
@@ -16,7 +49,7 @@ for all supplied serial and parallel {\nvector} implementations.
 \input{fortran}
 
 %%==============================================================================
-\section{FIDA routines}\label{sss:fidaroutines}
+\subsection{FIDA routines}\label{sss:fidaroutines}
 %%==============================================================================
 
 \index{FIDA@{\fida} interface module!user-callable functions|(}
@@ -155,7 +188,7 @@ solvers, the names of all user-supplied routines here are fixed, in
 order to maximize portability for the resulting mixed-language program.
 
 %%==============================================================================
-\section{Usage of the FIDA interface module}\label{ss:fida_usage}
+\subsection{Usage of the FIDA interface module}\label{ss:fida_usage}
 %%==============================================================================
 \index{FIDA@{\fida} interface module!usage|(}
 
@@ -974,7 +1007,7 @@ The error return flag \id{IER} is zero if successful, and negative if there
 was a memory error.
 
 %%==============================================================================
-\section{Usage of the FIDAROOT interface to rootfinding}
+\subsection{Usage of the FIDAROOT interface to rootfinding}
 %%==============================================================================
 \index{FIDA@{\fida} interface module!rootfinding|(}
 \index{Rootfinding}
@@ -1055,7 +1088,7 @@ rootfinding feature.
 
 
 %%==============================================================================
-\section{Usage of the FIDABBD interface to IDABBDPRE}
+\subsection{Usage of the FIDABBD interface to IDABBDPRE}
 %%==============================================================================
 \index{FIDA@{\fida} interface module!interface to the {\idabbdpre} module|(}
 

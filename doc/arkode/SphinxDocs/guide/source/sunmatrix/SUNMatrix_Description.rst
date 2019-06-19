@@ -116,8 +116,8 @@ particular implementation of the SUNMATRIX module must:
   field of the newly defined ``SUNMatrix``. 
 
 To aid in the creation of custom SUNMATRIX modules the generic SUNMATRIX module
-provides two utility functions :c:func:`SUNMatNewEmpty()` and
-:c:func:`SUNMatCopyOps()`. When used in custom SUNMATRIX constructors and clone
+provides three utility functions :c:func:`SUNMatNewEmpty()`,  :c:func:`SUNMatCopyOps()`,
+and :c:func:`SUNMatFreeEmpty`. When used in custom SUNMATRIX constructors and clone
 routines these functions will ease the introduction of any new optional matrix
 operations to the SUNMATRIX API by ensuring only required operations need to be
 set and all operations are copied when cloning a matrix.
@@ -143,6 +143,17 @@ set and all operations are copied when cloning a matrix.
    **Return value:**  If successful, this function returns ``0``. If either of
    the inputs are ``NULL`` or the ``ops`` structure of either input is ``NULL``,
    then is function returns a non-zero value.
+
+.. c:function:: void SUNMatFreeEmpty(SUNMatrix A)
+
+  This routine frees the generic ``SUNMatrix`` object, under the assumption that any
+  implementation-specific data that was allocated within the underlying content structure
+  has already been freed. It will additionally test whether the ops pointer is ``NULL``, 
+  and, if it is not, it will free it as well.
+
+   **Arguments:**
+      * *A* -- a SUNMatrix object
+
   
 Each SUNMATRIX implementation included in SUNDIALS has a unique 
 identifier specified in enumeration and shown in the table below.  

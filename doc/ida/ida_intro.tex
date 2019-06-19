@@ -116,6 +116,11 @@ the {\nvecmpiplusx} module coupled with {\nveccuda} or {\nvecraja} to replace th
 functionality. The necessary changes are minimal and should require few code
 modifications.
 
+A new Fortran 2003 interface to {\ida} was added. This includes Fortran 2003 interfaces
+to all generic {\sundials} types (i.e. {\nvector}, {\sunmatrix}, {\sunlinsol}, {\sunnonlinsol}),
+and many of the module implementations. See Section~\ref{s:idafort} for more details.
+
+
 \subsection*{Changes in v5.0.0-dev.0}
 
 An additional {\nvector} implementation, {\nvecmanyvector}, was

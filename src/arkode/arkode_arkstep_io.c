@@ -1571,7 +1571,7 @@ int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
   ---------------------------------------------------------------*/
 int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
                                int idefault, int pq,
-                               realtype *adapt_params)
+                               realtype adapt_params[3])
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;

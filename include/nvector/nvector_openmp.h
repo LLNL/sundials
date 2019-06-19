@@ -96,11 +96,11 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_thr
 SUNDIALS_EXPORT N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype *v_data,
                                         int num_threads);
 
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_OpenMP(int count, N_Vector w);
+SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w);
 
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w);
+SUNDIALS_EXPORT N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w);
 
-SUNDIALS_EXPORT void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count);
+SUNDIALS_EXPORT void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count);
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_OpenMP(N_Vector v);
 
@@ -144,7 +144,7 @@ SUNDIALS_EXPORT int N_VLinearCombination_OpenMP(int nvec, realtype* c,
 SUNDIALS_EXPORT int N_VScaleAddMulti_OpenMP(int nvec, realtype* a, N_Vector x,
                                             N_Vector* Y, N_Vector* Z);
 SUNDIALS_EXPORT int N_VDotProdMulti_OpenMP(int nvec, N_Vector x,
-                                           N_Vector *Y, realtype* dotprods);
+                                           N_Vector* Y, realtype* dotprods);
 
 /* vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_OpenMP(int nvec,

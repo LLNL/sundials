@@ -14,7 +14,7 @@
 # -----------------------------------------------------------------
 # CMakeLists.txt for @SOLVER@ Fortran 2003 interface examples
 #
-# This file is generated from a template using  various variables
+# This file is generated from a template using various variables
 # set at configuration time. It can be used as a template for
 # other user CMakeLists configuration files.
 # -----------------------------------------------------------------
@@ -28,6 +28,7 @@ MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Set the names of the examples to be built
 SET(examples @EXAMPLES@)
+SET(examples_dependencies @EXAMPLES_DEPENDENCIES@)
 SET(examples_klu @EXAMPLES_KLU@)
 
 # Set cmake variables from template inputsd
@@ -44,7 +45,7 @@ SET(SUNDIALS_INC_DIR
 # Include path to SUNDIALS Fortran module files
 INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR})
 
-# Set search path for SUNDIALS libraries 
+# Set search path for SUNDIALS libraries
 SET(SUNDIALS_LIB_DIR @libdir@)
 
 # Find the SUNDIALS solver's library
@@ -64,7 +65,7 @@ ELSE()
   FIND_LIBRARY(SUNDIALS_NVEC_LIB
     @NVEC_LIB@ ${SUNDIALS_LIB_DIR}
     DOC "NVECTOR library")
-  
+
   # Find the additonal NVECTOR library
   FIND_LIBRARY(SUNDIALS_NVEC_FLIB
     @NVEC_FLIB@ ${SUNDIALS_LIB_DIR}
@@ -78,7 +79,7 @@ ELSE()
   FIND_LIBRARY(SUNDIALS_SUNLS_LIB
     @SUNLS_LIB@ ${SUNDIALS_LIB_DIR}
     DOC "SUNLinearSolver library")
-  
+
   FIND_LIBRARY(SUNDIALS_SUNLS_FLIB
     @SUNLS_FLIB@ ${SUNDIALS_LIB_DIR}
     DOC "SUNLinearSolver library")
@@ -88,23 +89,23 @@ ENDIF()
 SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
 # List of all libraries
-SET(SUNDIALS_LIBS 
-  ${SUNDIALS_SOLVER_LIB} 
-  ${SUNDIALS_SOLVER_FLIB} 
-  ${SUNDIALS_NVEC_LIB} 
-  ${SUNDIALS_NVEC_FLIB} 
-  ${SUNDIALS_SUNLS_LIB}
+SET(SUNDIALS_LIBS
+  ${SUNDIALS_SOLVER_FLIB}
+  ${SUNDIALS_NVEC_FLIB}
   ${SUNDIALS_SUNLS_FLIB}
+  ${SUNDIALS_SOLVER_LIB}
+  ${SUNDIALS_NVEC_LIB}
+  ${SUNDIALS_SUNLS_LIB}
   ${SUNDIALS_EXTRA_LIB})
 
 # Build each example one by one
 FOREACH(example ${examples})
-  
+
   # Keep fortran modules to a unique directory to avoid naming collisions
   set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  ADD_EXECUTABLE(${example} ${example}.f90)
+  ADD_EXECUTABLE(${example} ${example}.f90 ${examples_dependencies})
 
   # libraries to link agaisnt
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -113,7 +114,7 @@ ENDFOREACH(example ${examples})
 
 # Build each example one by one
 FOREACH(example ${examples_klu})
-  
+
   # Keep fortran modules to a unique directory to avoid naming collisions
   set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
@@ -124,4 +125,3 @@ FOREACH(example ${examples_klu})
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${KLU_LIBRARIES})
 
 ENDFOREACH(example ${examples_klu})
-

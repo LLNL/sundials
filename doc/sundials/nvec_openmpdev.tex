@@ -92,16 +92,16 @@ vector.
 % ====================================================================%
 
 The {\nvecopenmpdev} module defines OpenMP device offloading implementations of
-all vector operations listed in Tables \ref{t:nvecops}, \ref{t:nvecfusedops},
-\ref{t:nvecarrayops}, and \ref{t:nveclocalops}, except for \id{N\_VGetArrayPointer} and
+all vector operations listed in Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops},
+\ref{ss:nvecarrayops}, and \ref{ss:nveclocalops}, except for \id{N\_VGetArrayPointer} and
 \id{N\_VSetArrayPointer}. As such, this vector cannot be used with the
 {\sundials} Fortran interfaces, nor with the {\sundials} direct solvers and
 preconditioners. It also provides methods for copying from the host to
 the device and vice versa.
 
 The names of vector operations are obtained from those in Tables
-\ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops}, and
-\ref{t:nveclocalops} by appending the
+\ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}, and
+\ref{ss:nveclocalops} by appending the
 suffix \id{\_OpenMPDEV} (e.g. \id{N\_VDestroy\_OpenMPDEV}). The module
 {\nvecopenmpdev} provides the following additional user-callable routines:
 %%--------------------------------------

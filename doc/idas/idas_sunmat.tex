@@ -42,11 +42,11 @@ interested reader.
 \end{tabular}
 \end{table}
 
-The matrix functions listed in Table \ref{t:sunmatops} with
+The matrix functions listed in Section \ref{ss:sunmatrix_functions} with
 a $\dagger$ symbol are optionally used, in that these are only called
 if they are implemented in the {\sunmatrix} module that is being used
 (i.e.~their function pointers are non-\id{NULL}).  The matrix
-functions listed in Table \ref{t:sunmatops} that are {\em not} used by 
+functions listed in Section \ref{ss:sunmatrix_functions} that are {\em not} used by 
 {\idas} are: \id{SUNMatCopy}, \id{SUNMatClone}, \id{SUNMatScaleAdd},
 \id{SUNMatScaleAddI} and \id{SUNMatMatvec}. Therefore a user-supplied
 {\sunmatrix} module for {\idas} could omit these functions.

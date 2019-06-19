@@ -62,6 +62,21 @@ extern "C" {
 
 /*
  *------------------------------------------------------------------
+ * Macro _SUNDIALS_STRUCT_
+ * The _SUNDIALS_STRUCT_ macro is defined as a `struct` unless
+ * generating the SWIG interfaces - in that case it is defined as
+ * nothing. This is needed to work around a bug in SWIG which prevents
+ * it from properly parsing our generic module structures. 
+ *------------------------------------------------------------------
+ */
+#ifdef SWIG
+#define _SUNDIALS_STRUCT_
+#else
+#define _SUNDIALS_STRUCT_ struct
+#endif
+
+/*
+ *------------------------------------------------------------------
  * Type realtype
  * Macro RCONST
  * Constants BIG_REAL, SMALL_REAL, and UNIT_ROUNDOFF

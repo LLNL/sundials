@@ -49,7 +49,9 @@ interested in constructing a custom ``N_Vector`` module.  We note that
 a number of ``N_Vector`` functions from the section
 :ref:`NVectors.Description` are not listed in the above table.
 Therefore a user-supplied ``N_Vector`` module for ARKode could safely
-omit these functions from their implementation. 
+omit these functions from their implementation (although
+some may be needed by ``SUNNonlinearSolver`` or ``SUNLinearSolver``
+modules).
 
 
 
@@ -65,7 +67,6 @@ N_VCloneEmpty                                                                   
 N_VConst                        X        X        X                                   X
 N_VDestroy                      X        X        X                                   X
 N_VDiv                          X        X
-N_VDotProd                                        X
 N_VGetArrayPointer                                X\ :sup:`1`  X           X          X
 N_VInv                          X        X
 N_VLinearSum                    X        X        X

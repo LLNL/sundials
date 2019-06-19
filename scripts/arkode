@@ -89,6 +89,14 @@ $tar $tarfile $distrobase/src/arkode/fcmix/farkroot.h          || exit 1
 $tar $tarfile $distrobase/src/arkode/fcmix/farksparse.c        || exit 1
 $tar $tarfile $distrobase/src/arkode/fcmix/farksparsemass.c    || exit 1
 
+echo "   --- Add arkode F2003 interface to $tarfile"
+
+$tar $tarfile $distrobase/src/arkode/fmod/CMakeLists.txt || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_arkstep_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_erkstep_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.{c,f90} || exit 1 
+
 echo "   --- Add arkode examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/arkode/CMakeLists.txt || exit 1
@@ -222,3 +230,25 @@ $tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.f90   |
 $tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.out   || exit 1
 $tar $tarfile $distrobase/examples/arkode/F90_serial/plot_brusselator1D_FEM.py || exit 1
 $tar $tarfile $distrobase/examples/arkode/F90_serial/plot_sol.py               || exit 1
+
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/CMakeLists.txt             || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/README                     || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_analytic_f2003.f90     || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/ark_analytic_f2003.out     || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_serial/test_ark_butcher_f2003.f90 || exit 1
+
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/CMakeLists.txt                  || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/README                          || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/ark_analytic_complex_f2003.f90  || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/ark_analytic_complex_f2003.out  || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/ark_brusselator1D_f2003.f90     || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/ark_brusselator1D_f2003.out     || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/fnvector_complex_mod.f90        || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/fnvector_fortran_mod.f90        || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/fsunlinsol_fortran_mod.f90      || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/fsunmatrix_fortran_mod.f90      || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/test_fnvector_complex_mod.f90   || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/test_fnvector_fortran_mod.f90   || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/test_fsunlinsol_fortran_mod.f90 || exit 1
+$tar $tarfile $distrobase/examples/arkode/F2003_custom/test_fsunmatrix_fortran_mod.f90 || exit 1
+

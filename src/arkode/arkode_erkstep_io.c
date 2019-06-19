@@ -919,7 +919,7 @@ int ERKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
   ---------------------------------------------------------------*/
 int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
                                int idefault, int pq,
-                               realtype *adapt_params)
+                               realtype adapt_params[3])
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;

@@ -54,7 +54,6 @@ interested reader.
 \id{N\_VAbs}                          & \cm &     &     &     &     &     \\ \hline
 \id{N\_VInv}                          & \cm &     & \cm &     &     &     \\ \hline
 \id{N\_VAddConst}                     & \cm &     & \cm &     &     &     \\ \hline
-\id{N\_VDotProd}                      &     & \cm &     &     &     &     \\ \hline
 \id{N\_VMaxNorm}                      & \cm &     &     &     &     &     \\ \hline
 \id{N\_VWrmsNorm}                     & \cm & \cm &     & \cm & \cm &     \\ \hline
 \id{N\_VMin}                          & \cm &     &     &     &     &     \\ \hline
@@ -95,10 +94,11 @@ descriptions of these modules in Sections
 \ref{ss:sunlinsol_dense}-\ref{ss:sunlinsol_pcg} for additional detail
 on their {\nvector} requirements.
 
-The remaining operations from Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and
-\ref{t:nvecarrayops} not listed above
+The remaining operations from Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops}, and
+\ref{ss:nvecarrayops} not listed above
 are unused and a user-supplied {\nvector} module for {\cvodes} could
-omit these operations.  The functions \id{N\_MinQuotient},
+omit these operations (although some may be needed by {\sunnonlinsol}
+or {\sunlinsol} modules).  The functions \id{N\_MinQuotient}, 
 \id{N\_VConstrMask}, and \id{N\_VCompare} are only used when
 constraint checking is enabled and may be omitted if this feature is
 not used.

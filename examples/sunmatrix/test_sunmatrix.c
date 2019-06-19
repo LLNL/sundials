@@ -363,7 +363,7 @@ int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
     return(1);
   }
 
-  /* fill vector data */
+  /* perform operation */
   start_time = get_time();
   failure = SUNMatScaleAddI(NEG_ONE, B);
   stop_time = get_time();

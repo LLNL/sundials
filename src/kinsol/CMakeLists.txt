@@ -16,6 +16,11 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall KINSOL\n\")")
 
+# Add F90 module if F2003 interface is enabled
+IF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(fmod)
+ENDIF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable kinsol_SOURCES with the sources for the KINSOL library
 SET(kinsol_SOURCES
   kinsol.c
@@ -32,6 +37,7 @@ SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_band.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c

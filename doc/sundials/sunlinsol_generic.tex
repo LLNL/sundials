@@ -139,7 +139,7 @@ to utilize an updated matrix $A$ \\ \noindent (\Id{SUNLinSolSetup}), and for
 destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
 
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolGetType}
+\ucfunctionf{SUNLinSolGetType}
 {
   type = SUNLinSolGetType(LS);
 }
@@ -185,7 +185,7 @@ destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
  cases corresponding to the linear solver type.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolInitialize}
+\ucfunctionf{SUNLinSolInitialize}
 {
   retval = SUNLinSolInitialize(LS);
 }
@@ -208,7 +208,7 @@ destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolSetup}
+\ucfunctionf{SUNLinSolSetup}
 {
   retval = SUNLinSolSetup(LS, A);
 }
@@ -236,7 +236,7 @@ destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolSolve}
+\ucfunctionf{SUNLinSolSolve}
 {
   retval = SUNLinSolSolve(LS, A, x, b, tol);
 }
@@ -280,7 +280,7 @@ destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
   2-norm.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolFree}
+\ucfunctionf{SUNLinSolFree}
 {
   retval = SUNLinSolFree(LS);
 }
@@ -314,7 +314,7 @@ routine should leave the corresponding function pointer \id{NULL}
 instead of supplying a dummy routine.
 
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolSetATimes}
+\ucfunctionf{SUNLinSolSetATimes}
 {
   retval = SUNLinSolSetATimes(LS, A\_data, ATimes);
 }
@@ -347,7 +347,7 @@ instead of supplying a dummy routine.
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolSetPreconditioner}
+\ucfunctionf{SUNLinSolSetPreconditioner}
 {
   retval = SUNLinSolSetPreconditioner(LS, Pdata, Pset, Psol);
 }
@@ -380,7 +380,7 @@ instead of supplying a dummy routine.
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolSetScalingVectors}
+\ucfunctionf{SUNLinSolSetScalingVectors}
 {
   retval = SUNLinSolSetScalingVectors(LS, s1, s2);
 }
@@ -422,7 +422,7 @@ The following get functions allow {\sundials} packages to retrieve
 results from a linear solve.  All routines are optional.
 
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolNumIters}
+\ucfunctionf{SUNLinSolNumIters}
 {
   its = SUNLinSolNumIters(LS);
 }
@@ -442,7 +442,7 @@ results from a linear solve.  All routines are optional.
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolResNorm}
+\ucfunctionf{SUNLinSolResNorm}
 {
   rnorm = SUNLinSolResNorm(LS);
 }
@@ -462,7 +462,7 @@ results from a linear solve.  All routines are optional.
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolResid}
+\ucfunctionf{SUNLinSolResid}
 {
   rvec = SUNLinSolResid(LS);
 }
@@ -491,7 +491,7 @@ results from a linear solve.  All routines are optional.
   \id{NULL} in the implementation.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolLastFlag}
+\ucfunctionf{SUNLinSolLastFlag}
 {
   lflag = SUNLinSolLastFlag(LS);
 }
@@ -513,7 +513,7 @@ results from a linear solve.  All routines are optional.
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSolSpace}
+\ucfunctionf{SUNLinSolSpace}
 {
   retval = SUNLinSolSpace(LS, \&lrw, \&liw);
 }
@@ -822,12 +822,37 @@ int SUNLinSolInitialize(SUNLinearSolver S)
   return ((int) S->ops->initialize(S));
 }
 \end{verbatim}
+
+The Fortran 2003 interface provides a \id{bind(C)} derived-type for the
+\id{\_generic\_SUNLinearSolver} and the \id{\_generic\_SUNLinearSolver\_Ops} structures.
+Their definition is given below.
 %%
 %%
+\begin{verbatim}
+ type, bind(C), public :: SUNLinearSolver
+  type(C_PTR), public :: content
+  type(C_PTR), public :: ops
+ end type SUNLinearSolver
+
+ type, bind(C), public :: SUNLinearSolver_Ops
+  type(C_FUNPTR), public :: gettype
+  type(C_FUNPTR), public :: setatimes
+  type(C_FUNPTR), public :: setpreconditioner
+  type(C_FUNPTR), public :: setscalingvectors
+  type(C_FUNPTR), public :: initialize
+  type(C_FUNPTR), public :: setup
+  type(C_FUNPTR), public :: solve
+  type(C_FUNPTR), public :: numiters
+  type(C_FUNPTR), public :: resnorm
+  type(C_FUNPTR), public :: lastflag
+  type(C_FUNPTR), public :: space
+  type(C_FUNPTR), public :: resid
+  type(C_FUNPTR), public :: free
+ end type SUNLinearSolver_Ops
+\end{verbatim}
 
 
 \section{Compatibility of \id{SUNLinearSolver} modules}\label{ss:sunlinsol_compatibility}
-
 
 We note that not all {\sunlinsol} types are compatible with all
 {\sunmatrix} and {\nvector} types provided with {\sundials}.  In Table
@@ -889,14 +914,14 @@ allows the {\sundials} package that is using the {\sunlinsol} object
 to know that the associated functionality is not supported.
 
 To aid in the creation of custom {\sunlinsol} modules the generic {\sunlinsol}
-module provides the utility function \id{SUNLinSolNewEmpty}. When used in
-custom {\sunlinsol} constructors this function will ease the introduction of any
-new optional linear solver operations to the {\sunlinsol} API by ensuring only
-required operations need to be set.
+module provides the utility functions \id{SUNLinSolNewEmpty} and \id{SUNLinSolFreeEmpty}.
+When used in custom {\sunlinsol} constructors the function \id{SUNLinSolNewEmpty} will
+ease the introduction of any new optional linear solver operations to the {\sunlinsol}
+API by ensuring only required operations need to be set.
 %
 % --------------------------------------------------------------------
 %
-\ucfunction{SUNLinSolNewEmpty}
+\ucfunctionf{SUNLinSolNewEmpty}
 {
   LS = SUNLinSolNewEmpty();
 }
@@ -911,6 +936,27 @@ required operations need to be set.
   allocating the object, then this routine will return \id{NULL}.
 }
 {}
+%
+% --------------------------------------------------------------------
+%
+\ucfunctionf{SUNLinSolFreeEmpty}
+{
+  SUNLinSolFreeEmpty(LS);
+}
+{
+  This routine frees the generic \id{SUNLinSolFreeEmpty} object, under the assumption that any
+  implementation-specific data that was allocated within the underlying content structure
+  has already been freed. It will additionally test whether the ops pointer is \id{NULL}, 
+  and, if it is not, it will free it as well.
+}
+{
+  \begin{args}[LS]
+  \item[LS] (\id{SUNLinearSolver})
+  \end{args}
+}
+{}
+{}
+
 
 Additionally, a {\sunlinsol} implementation \emph{may} do the
 following:

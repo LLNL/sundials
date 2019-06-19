@@ -58,6 +58,14 @@ files have been removed. Users should use the NVECTOR_MPIPLUSX module coupled wi
 the NVECTOR_CUDA or NVECTOR_RAJA to replace the functionality. The necessary changes
 are minimal and should require few code modifications.
 
+New Fortran 2003 interfaces to ARKODE, IDA, KINSOL, all generic SUNDIALS types
+(i.e. NVECTOR, SUNMATRIX, SUNLINEARSOLVER, SUNNONLINEARSOLVER), and the 
+NVECTOR_PARALLEL were added. These new interfaces were generated with SWIG-Fortran
+and provide a user an idiomatic Fortran 2003 interface to most of the SUNDIALS C API.
+The CVODE interface, and all module implementations with existing Fortran 2003 interfaces
+were updated accordingly. See the section  "Using <SOLVER> for Fortran Applications" in
+the appropriate user guide for more details on how to use the interfaces.
+
 
 Changes to SUNDIALS in release 5.0.0-dev.0
 

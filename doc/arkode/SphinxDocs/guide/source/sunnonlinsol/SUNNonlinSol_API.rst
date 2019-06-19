@@ -561,11 +561,11 @@ A SUNNonlinSol implementation *must* do the following:
   ``SUNNonlinearSolver`` object.
 
 To aid in the creation of custom ``SUNNonlinearSolver`` modules the generic
-``SUNNonlinearSolver`` module provides the utility function
-:c:func:`SUNNonlinSolNewEmpty()`. When used in custom ``SUNNonlinearSolver``
-constructors this function will ease the introduction of any new optional
-nonlinear solver operations to the ``SUNNonlinearSolver`` API by ensuring only
-required operations need to be set.
+``SUNNonlinearSolver`` module provides the utility functions
+:c:func:`SUNNonlinSolNewEmpty()` and :c:func:`SUNNonlinsolFreeEmpty`. When used
+in custom ``SUNNonlinearSolver`` constructors this function will ease the introduction
+of any new optional nonlinear solver operations to the ``SUNNonlinearSolver`` API
+by ensuring only required operations need to be set.
 
 .. c:function:: SUNNonlinearSolver SUNNonlinSolNewEmpty()
                 
@@ -576,7 +576,18 @@ required operations need to be set.
   **Return value:** If successful, this function returns a
   ``SUNNonlinearSolver`` object. If an error occurs when allocating the object,
   then this routine will return ``NULL``. 
-  
+ 
+.. c:function:: void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS)
+
+  This routine frees the generic ``SUNNonlinearSolver`` object, under the assumption that any
+  implementation-specific data that was allocated within the underlying content structure
+  has already been freed. It will additionally test whether the ops pointer is ``NULL``, 
+  and, if it is not, it will free it as well.
+
+   **Arguments:**
+      * *NLS* -- a SUNNonlinearSolver object
+
+ 
 Additionally, a ``SUNNonlinearSolver`` implementation *may* do
 the following:
 

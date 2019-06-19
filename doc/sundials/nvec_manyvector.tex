@@ -86,8 +86,8 @@ The header file to include when using this module is
 % ====================================================================
 
 The {\nvecmanyvector} module implements all vector operations listed 
-in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops},
-and \ref{t:nveclocalops}, except for \id{N\_VGetArrayPointer},
+in Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops},
+and \ref{ss:nveclocalops}, except for \id{N\_VGetArrayPointer},
 \id{N\_VSetArrayPointer}, \id{N\_VScaleAddMultiVectorArray}, and
 \id{N\_VLinearCombinationVectorArray}.  As such, this vector cannot be
 used with the {\sundials} Fortran-77 interfaces, nor with the
@@ -97,8 +97,8 @@ whose data may in turn be accessed according to their {\nvector}
 implementations.
 
 The names of vector operations are obtained from those in Tables
-\ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops}, and
-\ref{t:nveclocalops} by appending the suffix \id{\_ManyVector} 
+\ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}, and
+\ref{ss:nveclocalops} by appending the suffix \id{\_ManyVector} 
 (e.g. \id{N\_VDestroy\_ManyVector}).
 The module {\nvecmanyvector} provides the following additional
 user-callable routines:

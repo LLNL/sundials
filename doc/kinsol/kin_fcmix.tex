@@ -1,5 +1,38 @@
 %%==============================================================================
-\chapter{FKINSOL, an Interface Module for FORTRAN Applications}\label{s:fcmix}
+\chapter{Using KINSOL for Fortran Applications}\label{s:kinfort}
+%%==============================================================================
+
+A Fortran 2003 module (\id{fkinsol\_mod}) as well as a Fortran 77 style interface
+(\fkinsol) are provided to support the use of {\kinsol}, for the solution of
+nonlinear systems $F(u)=0$, in a mixed Fortran/{\CC} setting. While {\kinsol} is
+written in {\CC}, it is assumed here that the user's calling program and
+user-supplied problem-defining routines are written in Fortran. 
+
+%%==============================================================================
+% Fortran 2003 Interfaces.
+%%==============================================================================
+
+\let\sectiontype\subsection
+\section{KINSOL Fortran 2003 Interface Module}\label{s:kinsolf2003}
+
+The \ID{fkinsol\_mod} Fortran module defines interfaces to most {\kinsol} {\CC}
+functions using the intrinsic \id{iso\_c\_binding} module which provides a
+standardized mechanism for interoperating with {\CC}. All interfaced functions
+are named after the corresponding {\CC} function, but with a leading `F'. For
+example, the {\kinsol} function \id{KINCreate} is interfaced as
+\id{FKINCreate}. Thus, the steps to use {\kinsol} and the function calls in
+Fortran 2003 are identical (ignoring language differences) to those in {\CC}. The
+{\CC} functions with Fortran 2003 interfaces indicate this in their description in
+Chapter \ref{c:usage}. The Fortran 2003 {\kinsol} interface module can be
+accessed by the \id{use} statement, i.e. \id{use fkinsol\_mod}, and linking to the
+library \id{libsundials\_fkinsol\_mod}.{\em lib} in addition to
+\id{libsundials\_kinsol}.{\em lib}.
+
+% Pull in sections on portability and data types.
+\input{fortran2003}
+
+%%==============================================================================
+\subsection{FKINSOL, an Interface Module for FORTRAN Applications}\label{s:fcmix}
 %%==============================================================================
 
 The {\fkinsol} interface module is a package of {\CC} functions which support
@@ -42,7 +75,7 @@ serial and parallel {\nvector} implementations.
 %% {\kinsol} and the {\fkinsol} package on 64-bit architectures.
 
 %%==============================================================================
-\section{FKINSOL routines}\label{sss:fkinroutines}
+\subsection{FKINSOL routines}\label{sss:fkinroutines}
 %%==============================================================================
 
 \index{FKINSOL@{\fkinsol} interface module!user-callable functions|(}
@@ -155,7 +188,7 @@ user-supplied routines here are fixed, in order to maximize portability
 for the resulting mixed-language program.
 
 %%==============================================================================
-\section{Usage of the FKINSOL interface module}\label{ss:fkinsol_usage}
+\subsection{Usage of the FKINSOL interface module}\label{ss:fkinsol_usage}
 %%==============================================================================
 \index{FKINSOL@{\fkinsol} interface module!usage|(}
 
@@ -624,7 +657,7 @@ sections of Chapter \ref{s:sunlinsol}.
 
 
 %%==============================================================================
-\section{FKINSOL optional input and output}\label{fkin_opt_inout}
+\subsection{FKINSOL optional input and output}\label{fkin_opt_inout}
 %%==============================================================================
 \index{FKINSOL@{\fkinsol} interface module!optional input and output}
 
@@ -745,7 +778,7 @@ and \S\ref{ss:optional_output}.
 
 
 %%==============================================================================
-\section{Usage of the FKINBBD interface to KINBBDPRE}
+\subsection{Usage of the FKINBBD interface to KINBBDPRE}
 %%==============================================================================
 \index{FKINBBD@{\fkinbbd} interface module!interface to the {\kinbbdpre} module|(}
 

@@ -201,15 +201,15 @@ N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads)
  * Function to create an array of new vectors.
  */
 
-N_Vector *N_VCloneVectorArray_OpenMP(int count, N_Vector w)
+N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
 {
-  N_Vector *vs;
+  N_Vector* vs;
   int j;
 
   if (count <= 0) return(NULL);
 
   vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -228,15 +228,15 @@ N_Vector *N_VCloneVectorArray_OpenMP(int count, N_Vector w)
  * Function to create an array of new vectors with NULL data array.
  */
 
-N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
+N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
 {
-  N_Vector *vs;
+  N_Vector* vs;
   int j;
 
   if (count <= 0) return(NULL);
 
   vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -255,7 +255,7 @@ N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
  * Function to free an array created with N_VCloneVectorArray_OpenMP
  */
 
-void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count)
+void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count)
 {
   int j;
 
@@ -1303,8 +1303,8 @@ int N_VLinearSumVectorArray_OpenMP(int nvec,
   realtype*    yd=NULL;
   realtype*    zd=NULL;
   realtype     c;
-  N_Vector*    V1;
-  N_Vector*    V2;
+  N_Vector*   V1;
+  N_Vector*   V2;
   booleantype  test;
 
   /* invalid number of vectors */
@@ -1603,8 +1603,8 @@ int N_VScaleAddMultiVectorArray_OpenMP(int nvec, int nsum, realtype* a,
   realtype*    zd=NULL;
 
   int          retval;
-  N_Vector*    YY;
-  N_Vector*    ZZ;
+  N_Vector*   YY;
+  N_Vector*   ZZ;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1623,8 +1623,8 @@ int N_VScaleAddMultiVectorArray_OpenMP(int nvec, int nsum, realtype* a,
     }
 
     /* should have called N_VScaleAddMulti */
-    YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
-    ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    YY = (N_Vector*) malloc(nsum * sizeof(N_Vector));
+    ZZ = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (j=0; j<nsum; j++) {
       YY[j] = Y[j][0];
@@ -1711,7 +1711,7 @@ int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
   realtype*    xd=NULL;
 
   realtype*    ctmp;
-  N_Vector*    Y;
+  N_Vector*   Y;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1736,7 +1736,7 @@ int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
     }
 
     /* should have called N_VLinearCombination */
-    Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    Y = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (i=0; i<nsum; i++) {
       Y[i] = X[i][0];

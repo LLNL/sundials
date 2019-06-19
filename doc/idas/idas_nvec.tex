@@ -49,7 +49,6 @@ interested reader.
 \id{N\_VAbs}                          & \cm &     &     &     \\ \hline
 \id{N\_VInv}                          & \cm &     &     &     \\ \hline
 \id{N\_VAddConst}                     & \cm &     &     &     \\ \hline
-\id{N\_VDotProd}                      &     & \cm &     &     \\ \hline
 \id{N\_VMaxNorm}                      & \cm &     &     &     \\ \hline
 \id{N\_VWrmsNorm}                     & \cm & \cm &     &     \\ \hline
 \id{N\_VMin}                          & \cm &     &     &     \\ \hline
@@ -81,17 +80,18 @@ Special cases (numbers match markings in table):
   space requirements for {\idas} modules for user feedback.
 \item The optional function \id{N\_VDotProdMulti} is only used
   when Classical Gram-Schmidt is enabled with {\spgmr} or
-  {\spfgmr}. The remaining operations from Tables \ref{t:nvecfusedops}
-  and \ref{t:nvecarrayops} not listed above are unused and a
+  {\spfgmr}. The remaining operations from Tables \ref{ss:nvecfusedops}
+  and \ref{ss:nvecarrayops} not listed above are unused and a
   user-supplied {\nvector} module for {\idas} could omit these
   operations.
 \end{enumerate}
 
-Of the functions listed in Table \ref{t:nvecops}, \id{N\_VWL2Norm}, 
-\id{N\_VL1Norm}, \id{N\_VInvTest}, \id{N\_VGetCommunicator}, and
-\id{N\_VGetLength} are {\em not} used by 
+Of the functions listed in Table \ref{ss:nvecops}, \id{N\_DotProd},
+\id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VInvTest},
+\id{N\_VGetCommunicator}, and \id{N\_VGetLength} are {\em not} used by 
 {\idas}. Therefore a user-supplied {\nvector} module for {\idas} could
-omit these functions. 
+omit these functions (although some may be needed by {\sunnonlinsol}
+or {\sunlinsol} modules).
 
 %---------------------------------------------------------------------------
 % nvector module sections

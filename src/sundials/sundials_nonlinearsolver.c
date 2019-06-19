@@ -61,6 +61,23 @@ SUNNonlinearSolver SUNNonlinSolNewEmpty()
 }
 
 /* -----------------------------------------------------------------------------
+ * Free a generic SUNNonlinearSolver (assumes content is already empty)
+ * ---------------------------------------------------------------------------*/
+
+void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS)
+{
+  if (NLS == NULL)  return;
+  
+  /* free non-NULL ops structure */
+  if (NLS->ops)  free(NLS->ops);
+  NLS->ops = NULL;
+
+  /* free overall N_Vector object and return */
+  free(NLS);
+  return;
+}
+
+/* -----------------------------------------------------------------------------
  * core functions
  * ---------------------------------------------------------------------------*/
 

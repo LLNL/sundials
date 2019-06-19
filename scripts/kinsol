@@ -52,6 +52,11 @@ $tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c        || exit 1
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h        || exit 1
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinsparse.c     || exit 1
 
+echo "   --- Add kinsol F2003 interface to $tarfile"
+
+$tar $tarfile $distrobase/src/kinsol/fmod/CMakeLists.txt      || exit 1
+$tar $tarfile $distrobase/src/kinsol/fmod/fkinsol_mod.{c,f90} || exit 1
+
 echo "   --- Add kinsol examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/kinsol/CMakeLists.txt || exit 1
@@ -98,3 +103,10 @@ $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/README               ||
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt       || exit 1
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f   || exit 1
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out || exit 1
+
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/README                   || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/CMakeLists.txt           || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinRoboKin_dns_f2003.f90 || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinRoboKin_dns_f2003.out || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_bnd_f2003.f90 || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_bnd_f2003.out || exit 1

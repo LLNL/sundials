@@ -136,7 +136,7 @@ SUNDIALS_EXPORT int ARKStepSetFixedStepBounds(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetAdaptivityMethod(void *arkode_mem,
                                                int imethod,
                                                int idefault, int pq,
-                                               realtype *adapt_params);
+                                               realtype adapt_params[3]);
 SUNDIALS_EXPORT int ARKStepSetAdaptivityFn(void *arkode_mem,
                                            ARKAdaptFn hfun,
                                            void *h_data);

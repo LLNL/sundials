@@ -534,7 +534,12 @@ illustration only.
 :index:`EXAMPLES_ENABLE_F90 <EXAMPLES_ENABLE_F90 (CMake option)>`
    Build the SUNDIALS Fortran90 examples
 
-   Default: ``OFF``
+   Default: ``ON`` (if ``F77_INTERFACE_ENABLE`` is ``ON``)
+
+:index:`EXAMPLES_ENABLE_F2003 <EXAMPLES_ENABLE_F2003 (CMake option)>`
+   Build the SUNDIALS Fortran2003 examples
+
+   Default: ``ON`` (if ``F2003_INTERFACE_ENABLE`` is ``ON``)
 
 :index:`EXAMPLES_INSTALL <EXAMPLES_INSTALL (CMake option)>`
    Install example files
@@ -565,13 +570,13 @@ illustration only.
    .. note:: The actual default value for this option will be an
 	     ``examples`` subdirectory created under ``CMAKE_INSTALL_PREFIX``.
 
-:index:`FCMIX_ENABLE <FCMIX_ENABLE (CMake option)>`
-   Enable Fortran-C support
+:index:`F77_INTERFACE_ENABLE <F77_INTERFACE_ENABLE (CMake option)>`
+   Enable Fortran77-C interface
 
    Default: ``OFF``
 
-:index:`F90_ENABLE <F90_ENABLE (CMake option)>`
-   Flag to enable Fortran 90 ARKode examples (if examples are enabled)
+:index:`F2003_INTERFACE_ENABLE <F2003_INTERFACE_ENABLE (CMake option)>`
+   Enable Fortran2003 interface
 
    Default: ``OFF``
 

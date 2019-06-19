@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Steven Smith @ LLNL
+# Programmer:  Steven Smith, Cody J. Balos  @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -32,7 +32,7 @@ SET(nvector_examples_dependencies
 # If building F2003 tests
 if (F2003_INTERFACE_ENABLE)
   set(nvector_serial_fortran_examples
-    "ftest_nvector_serial\;\;")
+    "test_fnvector_serial_mod\;\;")
 endif()
 
 # Add source directory to include directories
@@ -101,7 +101,7 @@ FOREACH(example_tuple ${nvector_serial_examples})
     INSTALL(FILES ${example}.c
       ../test_nvector.c
       ../test_nvector.h
-      ../../../src/sundials/sundials_nvector.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
   ENDIF()
 
@@ -127,7 +127,11 @@ FOREACH(example_tuple ${nvector_serial_fortran_examples})
   # example source files once for testing with different inputs
   IF(NOT TARGET ${example})
     # example source files
-    ADD_EXECUTABLE(${example} ${example}.f90)
+    ADD_EXECUTABLE(${example} ${example}.f90
+      ${sundials_SOURCE_DIR}/examples/test_utilities.f90
+      ${sundials_SOURCE_DIR}/examples/nvector/test_nvector.f90
+      $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
+      $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")

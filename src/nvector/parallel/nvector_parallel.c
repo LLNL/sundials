@@ -219,15 +219,15 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
  * Function to create an array of new parallel vectors.
  */
 
-N_Vector *N_VCloneVectorArray_Parallel(int count, N_Vector w)
+N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 {
-  N_Vector *vs;
+  N_Vector* vs;
   int j;
 
   if (count <= 0) return(NULL);
 
   vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -247,15 +247,15 @@ N_Vector *N_VCloneVectorArray_Parallel(int count, N_Vector w)
  * (NULL) data array.
  */
 
-N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
+N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
 {
-  N_Vector *vs;
+  N_Vector* vs;
   int j;
 
   if (count <= 0) return(NULL);
 
   vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -274,7 +274,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
  * Function to free an array created with N_VCloneVectorArray_Parallel
  */
 
-void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count)
+void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count)
 {
   int j;
 
@@ -1429,8 +1429,8 @@ int N_VScaleAddMultiVectorArray_Parallel(int nvec, int nsum, realtype* a,
     }
 
     /* should have called N_VScaleAddMulti */
-    YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
-    ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    YY = (N_Vector*) malloc(nsum * sizeof(N_Vector));
+    ZZ = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (j=0; j<nsum; j++) {
       YY[j] = Y[j][0];
@@ -1532,7 +1532,7 @@ int N_VLinearCombinationVectorArray_Parallel(int nvec, int nsum,
     }
 
     /* should have called N_VLinearCombination */
-    Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    Y = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (i=0; i<nsum; i++) {
       Y[i] = X[i][0];

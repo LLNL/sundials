@@ -511,8 +511,24 @@ Approved for public release; further dissemination unlimited
   \addArgs{#4}
   \addRetval{#5}
   \addNotes{#6}
-  \item[F2003 Name]{This function is callable as \id{F#1} when using the Fortran
-  2003 interface module.}
+  \item[F2003 Name]{\id{F#1}}
+  \end{Ventry}
+}
+%%-----------------------------------------------------
+%% User-callable function with a Fortran 2003 interface
+%% and an additional entry on how to call the F2003
+%% function.
+%%-----------------------------------------------------
+\newcommand{\ucfunctionfl}[7]{
+  \noindent\paragraph{\fbox{\id{#1}}}
+  \begin{Ventry}[Return value]
+  \item[Call]{\id{#2}}
+  \item[Description]{#3}
+  \addArgs{#4}
+  \addRetval{#5}
+  \addNotes{#6}
+  \item[F2003 Name]{\id{F#1}}
+  \item[F2003 Call]{\id{#7}}
   \end{Ventry}
 }
 %%-----------------------------------------------------
@@ -528,8 +544,7 @@ Approved for public release; further dissemination unlimited
   \addRetval{#5}
   \addNotes{#6}
   \addDepName{#7}
-  \item[F2003 Name]{This function is callable as \id{F#1} when using the Fortran
-  2003 interface module.}
+  \item[F2003 Name]{\id{F#1}}
   \end{Ventry}
 }
 %%--------------------------------------------

@@ -38,7 +38,7 @@ SET(sunmatrix_sparse_dependencies
 # If building F2003 tests
 if (F2003_INTERFACE_ENABLE)
   set(sunmatrix_sparse_fortran_examples
-    "ftest_sunmatrix_sparse\;\;")
+    "test_fsunmatrix_sparse_mod\;\;")
 endif()
 
 # Add source directory to include directories
@@ -53,6 +53,8 @@ IF(LINK_LIBRARY_TYPE MATCHES "static")
   LIST(APPEND SUNMATS_LIB sundials_sunmatrixsparse_static)
   if (F2003_INTERFACE_ENABLE)
     LIST(APPEND NVECS_LIB sundials_fnvecserial_mod_static)
+    LIST(APPEND SUNMATS_LIB sundials_fsunmatrixdense_mod_static)
+    LIST(APPEND SUNMATS_LIB sundials_fsunmatrixband_mod_static)
     LIST(APPEND SUNMATS_LIB sundials_fsunmatrixsparse_mod_static)
   endif()
 ELSE()
@@ -62,6 +64,8 @@ ELSE()
   LIST(APPEND SUNMATS_LIB sundials_sunmatrixsparse_shared)
   if (F2003_INTERFACE_ENABLE)
     LIST(APPEND NVECS_LIB sundials_fnvecserial_mod_shared)
+    LIST(APPEND SUNMATS_LIB sundials_fsunmatrixdense_mod_shared)
+    LIST(APPEND SUNMATS_LIB sundials_fsunmatrixband_mod_shared)
     LIST(APPEND SUNMATS_LIB sundials_fsunmatrixsparse_mod_shared)
   endif()
 ENDIF()
@@ -91,8 +95,9 @@ FOREACH(example_tuple ${sunmatrix_sparse_examples})
   IF(NOT TARGET ${example})
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c
-      ../test_sunmatrix.c ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_nvector.c)
+      ../test_sunmatrix.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
@@ -119,8 +124,8 @@ FOREACH(example_tuple ${sunmatrix_sparse_examples})
     INSTALL(FILES ${example}.c
       ../test_sunmatrix.c
       ../test_sunmatrix.h
-      ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_nvector.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/sparse)
   ENDIF()
 
@@ -145,8 +150,11 @@ FOREACH(example_tuple ${sunmatrix_sparse_fortran_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   IF(NOT TARGET ${example})
-    # example source files
-    ADD_EXECUTABLE(${example} ${example}.f90)
+    ADD_EXECUTABLE(${example} ${example}.f90
+      ${sundials_SOURCE_DIR}/examples/test_utilities.f90
+      ${sundials_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.f90
+      $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
+      $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")

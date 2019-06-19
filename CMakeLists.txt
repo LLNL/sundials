@@ -273,15 +273,6 @@ ENDIF()
 SET(DOCSTR "Enable Fortran 2003 interfaces")
 OPTION(F2003_INTERFACE_ENABLE "${DOCSTR}" OFF)
 
-# Check that at least one solver with a Fortran 2003 interface is built
-IF(NOT BUILD_CVODE)
-  IF(F2003_INTERFACE_ENABLE)
-    PRINT_WARNING("Enabled packages do not support Fortran 2003 interface" "Disabling F2003 interface")
-    FORCE_VARIABLE(F2003_INTERFACE_ENABLE BOOL "${DOCSTR}" OFF)
-  ENDIF()
-  HIDE_VARIABLE(F2003_INTERFACE_ENABLE)
-ENDIF()
-
 IF(F2003_INTERFACE_ENABLE)
   # F2003 interface only supports double precision
   IF(NOT (SUNDIALS_PRECISION MATCHES "DOUBLE"))
@@ -516,10 +507,11 @@ OPTION(EXAMPLES_ENABLE_C "Build SUNDIALS C examples" ON)
 SET(DOCSTR "Build C++ examples")
 OPTION(EXAMPLES_ENABLE_CXX "${DOCSTR}" ${Trilinos_ENABLE})
 
-# F77 examples (on by default) are an option only if the Fortran
-# interface is enabled
-SET(DOCSTR "Build SUNDIALS Fortran examples")
+# F77/F90 examples (on by default) are an option only if
+# the Fortran 77 interface is enabled.
 IF(F77_INTERFACE_ENABLE)
+
+  SET(DOCSTR "Build SUNDIALS FORTRAN 77 examples")
   SHOW_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" ON)
   # Fortran 77 examples do not support single or extended precision
   IF(EXAMPLES_ENABLE_F77 AND (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
@@ -527,19 +519,8 @@ IF(F77_INTERFACE_ENABLE)
                   "EXAMPLES_ENABLE_F77")
     FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
   ENDIF()
-ELSE()
-  # set back to OFF (in case was ON)
-  IF(EXAMPLES_ENABLE_F77)
-    PRINT_WARNING("EXAMPLES_ENABLE_F77 is ON but F77_INTERFACE_ENABLE is OFF"
-                  "Disabling EXAMPLES_ENABLE_F77")
-    FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
-  ENDIF()
-  HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
-ENDIF()
 
-# F90 examples (on by default) are an option only if a Fortran interface is enabled.
-SET(DOCSTR "Build SUNDIALS F90 examples")
-IF(F77_INTERFACE_ENABLE OR F2003_INTERFACE_ENABLE)
+  SET(DOCSTR "Build SUNDIALS FORTRAN 90 examples")
   SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" ON)
   # Fortran 90 examples do not support extended precision
   IF(EXAMPLES_ENABLE_F90 AND (SUNDIALS_PRECISION MATCHES "EXTENDED"))
@@ -547,14 +528,58 @@ IF(F77_INTERFACE_ENABLE OR F2003_INTERFACE_ENABLE)
                   "Disabling EXAMPLES_ENABLE_F90")
     FORCE_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
   ENDIF()
+
 ELSE()
+
+  # set back to OFF (in case was ON)
+  IF(EXAMPLES_ENABLE_F77)
+    PRINT_WARNING("EXAMPLES_ENABLE_F77 is ON but F77_INTERFACE_ENABLE is OFF"
+                  "Disabling EXAMPLES_ENABLE_F77")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
+  ENDIF()
+  HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
+
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_F90)
-    PRINT_WARNING("EXAMPLES_ENABLE_F90 is ON but both F77 and F2003 interfaces are OFF"
+    PRINT_WARNING("EXAMPLES_ENABLE_F90 is ON but F77_INTERFACE_ENABLE is  OFF"
                   "Disabling EXAMPLES_ENABLE_F90")
     FORCE_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
   ENDIF()
   HIDE_VARIABLE(EXAMPLES_ENABLE_F90)
+
+ENDIF()
+
+# F2003 examples (on by default) are an option only if the
+# Fortran 2003 interface is enabled.
+IF(F2003_INTERFACE_ENABLE)
+
+  SET(DOCSTR "Build SUNDIALS Fortran 2003 examples")
+  SHOW_VARIABLE(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" ON)
+
+  # Fortran 2003 examples only support double precision
+  IF(EXAMPLES_ENABLE_F2003 AND (NOT (SUNDIALS_PRECISION MATCHES "DOUBLE")))
+    PRINT_WARNING("F2003 examples are not compatible with ${SUNDIALS_PRECISION} precision"
+                  "Disabling EXAMPLES_ENABLE_F2003")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" OFF)
+  ENDIF()
+
+  # Fortran 2003 examples only support 64-bit indices
+  IF(EXAMPLES_ENABLE_F2003 AND (NOT (SUNDIALS_INDEX_SIZE MATCHES "64")))
+    PRINT_WARNING("F2003 examples are not compatible with ${SUNDIALS_INDEX_SIZE}-bit indices"
+                  "Disabling EXAMPLES_ENABLE_F2003")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" OFF)
+  ENDIF()
+
+ELSE()
+
+  # set back to OFF (in case was ON)
+  IF(EXAMPLES_ENABLE_F2003)
+    PRINT_WARNING("EXAMPLES_ENABLE_F2003 is ON but F2003_INTERFACE_ENABLE is OFF"
+                  "Disabling EXAMPLES_ENABLE_F2003")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" OFF)
+  ENDIF()
+  HIDE_VARIABLE(EXAMPLES_ENABLE_F2003)
+
 ENDIF()
 
 # CUDA examples (off by default)
@@ -574,6 +599,7 @@ IF(EXAMPLES_ENABLE_C OR
     EXAMPLES_ENABLE_F77 OR
     EXAMPLES_ENABLE_CXX OR
     EXAMPLES_ENABLE_F90 OR
+    EXAMPLES_ENABLE_F2003 OR
     EXAMPLES_ENABLE_CUDA)
   SET(EXAMPLES_ENABLED TRUE)
 ELSE()
@@ -757,19 +783,11 @@ if (EXAMPLES_ENABLE_F90 AND (NOT F90_FOUND))
 endif()
 
 # Ensure that F90 compiler found if F2003 interface is enabled
-if (F2003_INTERFACE_ENABLE AND (NOT F90_FOUND))
-  PRINT_WARNING("Compiler with F90 support not found" "Disabling F2003 Interface")
+if (F2003_INTERFACE_ENABLE AND (NOT F2003_FOUND))
+  PRINT_WARNING("Compiler with F2003 support not found" "Disabling F2003 Interface")
   SET(DOCSTR "Enable Fortran 2003 interfaces")
   FORCE_VARIABLE(F2003_INTERFACE_ENABLE BOOL "${DOCSTR}" OFF)
 endif()
-
-# F2003 interface requires ISO_C_BINDING
-IF(F2003_INTERFACE_ENABLE AND (NOT Fortran_COMPILER_SUPPORTS_ISOCBINDING))
-  PRINT_WARNING("Fortran compiler does not provide ISO_C_BINDING support"
-                "Disabling F2003 interface")
-  SET(DOCSTR "Enable Fortran 2003 interfaces")
-  FORCE_VARIABLE(F2003_INTERFACE_ENABLE BOOL "${DOCSTR}" OFF)
-ENDIF()
 
 
 # ---------------------------------------------------------------

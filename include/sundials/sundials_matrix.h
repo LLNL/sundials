@@ -70,10 +70,10 @@ typedef enum {
  * ----------------------------------------------------------------- */
 
 /* Forward reference for pointer to SUNMatrix_Ops object */
-typedef struct _generic_SUNMatrix_Ops *SUNMatrix_Ops;
+typedef _SUNDIALS_STRUCT_ _generic_SUNMatrix_Ops *SUNMatrix_Ops;
 
 /* Forward reference for pointer to SUNMatrix object */
-typedef struct _generic_SUNMatrix *SUNMatrix;
+typedef _SUNDIALS_STRUCT_ _generic_SUNMatrix *SUNMatrix;
 
 /* Structure containing function pointers to matrix operations  */
 struct _generic_SUNMatrix_Ops {
@@ -94,7 +94,7 @@ struct _generic_SUNMatrix_Ops {
    operations corresponding to that implementation.  */
 struct _generic_SUNMatrix {
   void *content;
-  struct _generic_SUNMatrix_Ops *ops;
+  SUNMatrix_Ops ops;
 };
 
 
@@ -103,7 +103,8 @@ struct _generic_SUNMatrix {
  * ----------------------------------------------------------------- */
 
 SUNDIALS_EXPORT SUNMatrix SUNMatNewEmpty();
-SUNDIALS_EXPORT int SUNMatCopyOps();
+SUNDIALS_EXPORT void SUNMatFreeEmpty(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatCopyOps(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy(SUNMatrix A);

@@ -88,11 +88,11 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Serial(sunindextype vec_length);
 
 SUNDIALS_EXPORT N_Vector N_VMake_Serial(sunindextype vec_length, realtype *v_data);
 
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_Serial(int count, N_Vector w);
+SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w);
 
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w);
+SUNDIALS_EXPORT N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w);
 
-SUNDIALS_EXPORT void N_VDestroyVectorArray_Serial(N_Vector *vs, int count);
+SUNDIALS_EXPORT void N_VDestroyVectorArray_Serial(N_Vector* vs, int count);
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_Serial(N_Vector v);
 
@@ -135,7 +135,7 @@ SUNDIALS_EXPORT int N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector*
 SUNDIALS_EXPORT int N_VScaleAddMulti_Serial(int nvec, realtype* a, N_Vector x,
                                             N_Vector* Y, N_Vector* Z);
 SUNDIALS_EXPORT int N_VDotProdMulti_Serial(int nvec, N_Vector x,
-                                           N_Vector *Y, realtype* dotprods);
+                                           N_Vector* Y, realtype* dotprods);
 
 /* vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_Serial(int nvec, 

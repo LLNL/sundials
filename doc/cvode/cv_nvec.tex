@@ -51,7 +51,6 @@ interested reader.
 \id{N\_VAbs}                          & \cm &     &     &     &     &     \\ \hline
 \id{N\_VInv}                          & \cm &     & \cm &     &     &     \\ \hline
 \id{N\_VAddConst}                     & \cm &     & \cm &     &     &     \\ \hline
-\id{N\_VDotProd}                      &     & \cm &     &     &     &     \\ \hline
 \id{N\_VMaxNorm}                      & \cm &     &     &     &     &     \\ \hline
 \id{N\_VWrmsNorm}                     & \cm & \cm &     & \cm & \cm &     \\ \hline
 \id{N\_VMin}                          & \cm &     &     &     &     &     \\ \hline
@@ -78,7 +77,7 @@ Special cases (numbers match markings in table):
 \item The optional function \id{N\_VDotProdMulti} is only used in the
   {\sunnonlinsolfixedpoint} module, or when Classical Gram-Schmidt is
   enabled with {\spgmr} or {\spfgmr}. The remaining operations from
-  Tables \ref{t:nvecfusedops} and \ref{t:nvecarrayops} not listed above
+  Sections \ref{ss:nvecfusedops} and \ref{ss:nvecarrayops} not listed above
   are unused and a user-supplied {\nvector} module for {\cvode} could
   omit these operations.
 \end{enumerate}
@@ -89,14 +88,13 @@ descriptions of these modules in Sections
 \ref{ss:sunlinsol_dense}-\ref{ss:sunlinsol_pcg} for additional detail
 on their {\nvector} requirements.
 
-The vector functions listed in Table \ref{t:nvecops} that are {\em not} used by
-{\cvode} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm},
-\id{N\_VWrmsNormMask}, \id{N\_VGetCommunicator}, and
-\id{N\_VGetLength}. Therefore, a user-supplied {\nvector} module for
-{\cvode} could omit these functions.
-The functions \id{N\_MinQuotient}, \id{N\_VConstrMask}, and \id{N\_VCompare} are
-only used when constraint checking is enabled and may be omitted if this feature
-is not used.
+The vector functions listed in Section \ref{ss:nvecops} that are {\em not} used by
+{\cvode} are: \id{N\_VWL2Norm}, \id{N\_VDotProd}, \id{N\_VL1Norm}, \id{N\_VWrmsNormMask},
+\id{N\_VGetCommunicator}, and \id{N\_VGetLength}. Therefore, a user-supplied
+{\nvector} module for {\cvode} could omit these functions (although
+some may be needed by {\sunnonlinsol} or {\sunlinsol} modules). The functions
+\id{N\_MinQuotient}, \id{N\_VConstrMask}, and \id{N\_VCompare} are only used
+when constraint checking is enabled and may be omitted if this feature is not used.
 
 %---------------------------------------------------------------------------
 % nvector module sections

@@ -60,10 +60,10 @@ extern "C" {
  * ---------------------------------------------------------------------------*/
 
 /* Forward reference for pointer to SUNNonlinearSolver_Ops object */
-typedef struct _generic_SUNNonlinearSolver_Ops *SUNNonlinearSolver_Ops;
+typedef _SUNDIALS_STRUCT_ _generic_SUNNonlinearSolver_Ops *SUNNonlinearSolver_Ops;
 
 /* Forward reference for pointer to SUNNonlinearSolver object */
-typedef struct _generic_SUNNonlinearSolver *SUNNonlinearSolver;
+typedef _SUNDIALS_STRUCT_ _generic_SUNNonlinearSolver *SUNNonlinearSolver;
 
 
 /* -----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ struct _generic_SUNNonlinearSolver_Ops {
    corresponding to that implementation. */
 struct _generic_SUNNonlinearSolver {
   void *content;
-  struct _generic_SUNNonlinearSolver_Ops *ops;
+  SUNNonlinearSolver_Ops ops;
 };
 
 
@@ -127,8 +127,9 @@ struct _generic_SUNNonlinearSolver {
  * Functions exported by SUNNonlinearSolver module
  * ---------------------------------------------------------------------------*/
 
-/* empty constructor */
+/* empty constructor/destructor */
 SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSolNewEmpty();
+SUNDIALS_EXPORT void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS);
 
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS);

@@ -88,8 +88,8 @@ to access its member variables. Instead, user should use the accessor functions:
 %%--------------------------------------------
 
 The {\nveccuda} module defines implementations of all vector operations listed
-in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops}
-and \ref{t:nveclocalops}, except
+in Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}
+and \ref{ss:nveclocalops}, except
 for \id{N\_VGetArrayPointer} and \id{N\_VSetArrayPointer}.
 As such, this vector cannot be used with the {\sundials} Fortran interfaces,
 nor with the {\sundials} direct solvers and preconditioners. Instead,
@@ -98,8 +98,8 @@ and on the device. It also provides methods for copying from the host to
 the device and vice versa. Usage examples of {\nveccuda} are provided in
 some example programs for {\cvode} \cite{cvode_ex}.
 
-The names of vector operations are obtained from those in Tables \ref{t:nvecops},
-\ref{t:nvecfusedops}, \ref{t:nvecarrayops}, and \ref{t:nveclocalops}
+The names of vector operations are obtained from those in Tables \ref{ss:nvecops},
+\ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}, and \ref{ss:nveclocalops}
 by appending the suffix \id{\_Cuda}
 (e.g. \id{N\_VDestroy\_Cuda}). The module {\nveccuda} provides the following
 functions:
