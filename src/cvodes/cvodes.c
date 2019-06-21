@@ -620,6 +620,7 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_f          = NULL;
   cv_mem->cv_user_data  = NULL;
   cv_mem->cv_itol       = CV_NN;
+  cv_mem->cv_atolmin0   = SUNTRUE;
   cv_mem->cv_user_efun  = SUNFALSE;
   cv_mem->cv_efun       = NULL;
   cv_mem->cv_e_data     = NULL;
@@ -659,6 +660,7 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_fQ         = NULL;
   cv_mem->cv_errconQ    = SUNFALSE;
   cv_mem->cv_itolQ      = CV_NN;
+  cv_mem->cv_atolQmin0  = SUNTRUE;
 
   /* Set default values for sensi. optional inputs */
 
@@ -678,6 +680,7 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_ncfnS1     = NULL;
   cv_mem->cv_nniS1      = NULL;
   cv_mem->cv_itolS      = CV_NN;
+  cv_mem->cv_atolSmin0  = NULL;
 
   /* Set default values for quad. sensi. optional inputs */
 
@@ -687,6 +690,7 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_fQSDQ       = SUNTRUE;
   cv_mem->cv_errconQS    = SUNFALSE;
   cv_mem->cv_itolQS      = CV_NN;
+  cv_mem->cv_atolQSmin0  = NULL;
 
   /* Set default for ASA */
 
@@ -1093,6 +1097,7 @@ int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
   
   cv_mem->cv_reltol = reltol;
   cv_mem->cv_Sabstol = abstol;
+  cv_mem->cv_atolmin0 = (abstol == ZERO);
 
   cv_mem->cv_itol = CV_SS;
 
@@ -1107,6 +1112,7 @@ int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
 int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
 {
   CVodeMem cv_mem;
+  realtype atolmin;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES",
@@ -1129,7 +1135,13 @@ int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
     return(CV_ILL_INPUT);
   }
 
-  if (N_VMin(abstol) < ZERO) {
+  if (abstol->ops->nvmin == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSVtolerances",
+                   "Missing N_VMin routine from N_Vector");
+    return(CV_ILL_INPUT);
+  }
+  atolmin = N_VMin(abstol);
+  if (atolmin < ZERO) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
                    "CVodeSVtolerances", MSGCV_BAD_ABSTOL);
     return(CV_ILL_INPUT);
@@ -1146,6 +1158,7 @@ int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
 
   cv_mem->cv_reltol = reltol;
   N_VScale(ONE, abstol, cv_mem->cv_Vabstol);
+  cv_mem->cv_atolmin0 = (atolmin == ZERO);
 
   cv_mem->cv_itol = CV_SV;
 
@@ -1345,6 +1358,7 @@ int CVodeQuadSStolerances(void *cvode_mem, realtype reltolQ, realtype abstolQ)
 
   cv_mem->cv_reltolQ  = reltolQ;
   cv_mem->cv_SabstolQ = abstolQ;
+  cv_mem->cv_atolQmin0 = (abstolQ == ZERO);
 
   return(CV_SUCCESS);
 }
@@ -1352,6 +1366,7 @@ int CVodeQuadSStolerances(void *cvode_mem, realtype reltolQ, realtype abstolQ)
 int CVodeQuadSVtolerances(void *cvode_mem, realtype reltolQ, N_Vector abstolQ)
 {
   CVodeMem cv_mem;
+  realtype atolmin;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES",
@@ -1382,7 +1397,14 @@ int CVodeQuadSVtolerances(void *cvode_mem, realtype reltolQ, N_Vector abstolQ)
     return(CV_ILL_INPUT);
   }
 
-  if (N_VMin(abstolQ) < ZERO) {
+  if (abstolQ->ops->nvmin == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
+                   "CVodeQuadSVtolerances",
+                   "Missing N_VMin routine from N_Vector");
+    return(CV_ILL_INPUT);
+  }
+  atolmin = N_VMin(abstolQ);
+  if (atolmin < ZERO) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
                    "CVodeQuadSVtolerances", MSGCV_BAD_ABSTOLQ);
     return(CV_ILL_INPUT);
@@ -1402,6 +1424,7 @@ int CVodeQuadSVtolerances(void *cvode_mem, realtype reltolQ, N_Vector abstolQ)
   }
   
   N_VScale(ONE, abstolQ, cv_mem->cv_VabstolQ);
+  cv_mem->cv_atolQmin0 = (atolmin == ZERO);
 
   return(CV_SUCCESS);
 }
@@ -2072,13 +2095,16 @@ int CVodeSensSStolerances(void *cvode_mem, realtype reltolS, realtype *abstolS)
   if ( !(cv_mem->cv_SabstolSMallocDone) ) {
     cv_mem->cv_SabstolS = NULL;
     cv_mem->cv_SabstolS = (realtype *)malloc(cv_mem->cv_Ns*sizeof(realtype));
+    cv_mem->cv_atolSmin0 = (booleantype *)malloc(cv_mem->cv_Ns*sizeof(booleantype));
     cv_mem->cv_lrw += cv_mem->cv_Ns;
     cv_mem->cv_SabstolSMallocDone = SUNTRUE;
   }
 
-  for (is=0; is<cv_mem->cv_Ns; is++)
+  for (is=0; is<cv_mem->cv_Ns; is++) {
     cv_mem->cv_SabstolS[is] = abstolS[is];
-
+    cv_mem->cv_atolSmin0[is] = (abstolS[is] == ZERO);
+  }
+  
   return(CV_SUCCESS);
 }
 
@@ -2086,6 +2112,7 @@ int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS)
 {
   CVodeMem cv_mem;
   int is, retval;
+  realtype *atolmin;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensSVtolerances",
@@ -2116,12 +2143,22 @@ int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS)
     return(CV_ILL_INPUT);
   }
 
-  for (is=0; is<cv_mem->cv_Ns; is++) 
-    if (N_VMin(abstolS[is]) < ZERO) {
+  if (cv_mem->cv_tempv->ops->nvmin == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
+                   "CVodeSensSVtolerances",
+                   "Missing N_VMin routine from N_Vector");
+    return(CV_ILL_INPUT);
+  }
+  atolmin = (realtype *)malloc(cv_mem->cv_Ns*sizeof(realtype));
+  for (is=0; is<cv_mem->cv_Ns; is++) {
+    atolmin[is] = N_VMin(abstolS[is]);
+    if (atolmin[is] < ZERO) {
       cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
                      "CVodeSensSVtolerances", MSGCV_BAD_ABSTOLS);
+      free(atolmin);
       return(CV_ILL_INPUT);
     }
+  }
 
   /* Copy tolerances into memory */
 
@@ -2131,14 +2168,18 @@ int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS)
 
   if ( !(cv_mem->cv_VabstolSMallocDone) ) {
     cv_mem->cv_VabstolS = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv);
+    cv_mem->cv_atolSmin0 = (booleantype *)malloc(cv_mem->cv_Ns*sizeof(booleantype));
     cv_mem->cv_lrw += cv_mem->cv_Ns*cv_mem->cv_lrw1;
     cv_mem->cv_liw += cv_mem->cv_Ns*cv_mem->cv_liw1;
     cv_mem->cv_VabstolSMallocDone = SUNTRUE;
   }
-  
-  for (is=0; is<cv_mem->cv_Ns; is++)
-    cv_mem->cv_cvals[is] = ONE;
 
+  for (is=0; is<cv_mem->cv_Ns; is++) {
+    cv_mem->cv_cvals[is] = ONE;
+    cv_mem->cv_atolSmin0[is] = (atolmin[is] == ZERO);
+  }
+  free(atolmin);
+  
   retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
                                abstolS, cv_mem->cv_VabstolS);
   if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
@@ -2398,13 +2439,16 @@ int CVodeQuadSensSStolerances(void *cvode_mem, realtype reltolQS, realtype *abst
   if ( !(cv_mem->cv_SabstolQSMallocDone) ) {
     cv_mem->cv_SabstolQS = NULL;
     cv_mem->cv_SabstolQS = (realtype *)malloc(cv_mem->cv_Ns*sizeof(realtype));
+    cv_mem->cv_atolQSmin0 = (booleantype *)malloc(cv_mem->cv_Ns*sizeof(booleantype));
     cv_mem->cv_lrw += cv_mem->cv_Ns;
     cv_mem->cv_SabstolQSMallocDone = SUNTRUE;
   }
   
-  for (is=0; is<cv_mem->cv_Ns; is++)
+  for (is=0; is<cv_mem->cv_Ns; is++) {
     cv_mem->cv_SabstolQS[is] = abstolQS[is];
-
+    cv_mem->cv_atolQSmin0[is] = (abstolQS[is] == ZERO);
+  }
+  
   return(CV_SUCCESS);
 }
 
@@ -2412,6 +2456,7 @@ int CVodeQuadSensSVtolerances(void *cvode_mem,  realtype reltolQS, N_Vector *abs
 {
   CVodeMem cv_mem;
   int is, retval;
+  realtype *atolmin;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES",
@@ -2446,17 +2491,27 @@ int CVodeQuadSensSVtolerances(void *cvode_mem,  realtype reltolQS, N_Vector *abs
 
   if (abstolQS == NULL) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
-                   "CVodeSensSVtolerances", MSGCV_NULL_ABSTOLQS);
+                   "CVodeQuadSensSVtolerances", MSGCV_NULL_ABSTOLQS);
     return(CV_ILL_INPUT);
   }
 
-  for (is=0; is<cv_mem->cv_Ns; is++) 
-    if (N_VMin(abstolQS[is]) < ZERO) {
+  if (cv_mem->cv_tempv->ops->nvmin == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
+                   "CVodeQuadSensSVtolerances",
+                   "Missing N_VMin routine from N_Vector");
+    return(CV_ILL_INPUT);
+  }
+  atolmin = (realtype *)malloc(cv_mem->cv_Ns*sizeof(realtype));
+  for (is=0; is<cv_mem->cv_Ns; is++) {
+    atolmin[is] = N_VMin(abstolQS[is]);
+    if (atolmin[is] < ZERO) {
       cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
                      "CVodeQuadSensSVtolerances", MSGCV_BAD_ABSTOLQS);
+      free(atolmin);
       return(CV_ILL_INPUT);
     }
-
+  }
+  
   /* Copy tolerances into memory */
 
   cv_mem->cv_itolQS = CV_SV;
@@ -2465,14 +2520,18 @@ int CVodeQuadSensSVtolerances(void *cvode_mem,  realtype reltolQS, N_Vector *abs
 
   if ( !(cv_mem->cv_VabstolQSMallocDone) ) {
     cv_mem->cv_VabstolQS = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempvQ);
+    cv_mem->cv_atolQSmin0 = (booleantype *)malloc(cv_mem->cv_Ns*sizeof(booleantype));
     cv_mem->cv_lrw += cv_mem->cv_Ns*cv_mem->cv_lrw1Q;
     cv_mem->cv_liw += cv_mem->cv_Ns*cv_mem->cv_liw1Q;
     cv_mem->cv_VabstolQSMallocDone = SUNTRUE;
   }
   
-  for (is=0; is<cv_mem->cv_Ns; is++)
+  for (is=0; is<cv_mem->cv_Ns; is++) {
     cv_mem->cv_cvals[is] = ONE;
-
+    cv_mem->cv_atolQSmin0[is] = (atolmin[is] == ZERO);
+  }
+  free(atolmin);
+  
   retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
                                abstolQS, cv_mem->cv_VabstolQS);
   if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
@@ -4024,8 +4083,7 @@ static booleantype cvCheckNvector(N_Vector tmpl)
      (tmpl->ops->nvinv       == NULL) ||
      (tmpl->ops->nvaddconst  == NULL) ||
      (tmpl->ops->nvmaxnorm   == NULL) ||
-     (tmpl->ops->nvwrmsnorm  == NULL) ||
-     (tmpl->ops->nvmin       == NULL))
+     (tmpl->ops->nvwrmsnorm  == NULL))
     return(SUNFALSE);
   else
     return(SUNTRUE);
@@ -5130,7 +5188,7 @@ static int cvInitialSetup(CVodeMem cv_mem)
  * This routine is responsible for setting the error weight vector ewt,
  * according to tol_type, as follows:
  *
- * (1) ewt[i] = 1 / (reltol * SUNRabs(ycur[i]) + *abstol), i=0,...,neq-1
+ * (1) ewt[i] = 1 / (reltol * SUNRabs(ycur[i]) + abstol), i=0,...,neq-1
  *     if tol_type = CV_SS
  * (2) ewt[i] = 1 / (reltol * SUNRabs(ycur[i]) + abstol[i]), i=0,...,neq-1
  *     if tol_type = CV_SV
@@ -5167,9 +5225,10 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void *data)
  * cvEwtSetSS
  *
  * This routine sets ewt as decribed above in the case tol_type = CV_SS.
- * It tests for non-positive components before inverting. cvEwtSetSS
- * returns 0 if ewt is successfully set to a positive vector
- * and -1 otherwise. In the latter case, ewt is considered undefined.
+ * If the absolute tolerance is zero, it tests for non-positive components
+ * before inverting. cvEwtSetSS returns 0 if ewt is successfully set to a
+ * positive vector and -1 otherwise. In the latter case, ewt is considered
+ * undefined.
  */
 
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
@@ -5177,7 +5236,9 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
   N_VAbs(ycur, cv_mem->cv_tempv);
   N_VScale(cv_mem->cv_reltol, cv_mem->cv_tempv, cv_mem->cv_tempv);
   N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_Sabstol, cv_mem->cv_tempv);
-  if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+  if (cv_mem->cv_atolmin0) {
+    if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+  }
   N_VInv(cv_mem->cv_tempv, weight);
 
   return(0);
@@ -5187,9 +5248,10 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
  * cvEwtSetSV
  *
  * This routine sets ewt as decribed above in the case tol_type = CV_SV.
- * It tests for non-positive components before inverting. cvEwtSetSV
- * returns 0 if ewt is successfully set to a positive vector
- * and -1 otherwise. In the latter case, ewt is considered undefined.
+ * If any absolute tolerance is zero, it tests for non-positive components
+ * before inverting. cvEwtSetSV returns 0 if ewt is successfully set to a
+ * positive vector and -1 otherwise. In the latter case, ewt is considered
+ * undefined.
  */
 
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
@@ -5197,7 +5259,9 @@ static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
   N_VAbs(ycur, cv_mem->cv_tempv);
   N_VLinearSum(cv_mem->cv_reltol, cv_mem->cv_tempv, ONE,
                cv_mem->cv_Vabstol, cv_mem->cv_tempv);
-  if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+  if (cv_mem->cv_atolmin0) {
+    if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+  }
   N_VInv(cv_mem->cv_tempv, weight);
   return(0);
 }
@@ -5234,7 +5298,9 @@ static int cvQuadEwtSetSS(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
   N_VAbs(qcur, cv_mem->cv_tempvQ);
   N_VScale(cv_mem->cv_reltolQ, cv_mem->cv_tempvQ, cv_mem->cv_tempvQ);
   N_VAddConst(cv_mem->cv_tempvQ, cv_mem->cv_SabstolQ, cv_mem->cv_tempvQ);
-  if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
+  if (cv_mem->cv_atolQmin0) {
+    if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
+  }
   N_VInv(cv_mem->cv_tempvQ, weightQ);
 
   return(0);
@@ -5250,7 +5316,9 @@ static int cvQuadEwtSetSV(CVodeMem cv_mem, N_Vector qcur, N_Vector weightQ)
   N_VAbs(qcur, cv_mem->cv_tempvQ);
   N_VLinearSum(cv_mem->cv_reltolQ, cv_mem->cv_tempvQ, ONE,
                cv_mem->cv_VabstolQ, cv_mem->cv_tempvQ);
-  if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
+  if (cv_mem->cv_atolQmin0) {
+    if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
+  }
   N_VInv(cv_mem->cv_tempvQ, weightQ);
 
   return(0);
@@ -5324,7 +5392,9 @@ static int cvSensEwtSetSS(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
     N_VAbs(yScur[is], cv_mem->cv_tempv);
     N_VScale(cv_mem->cv_reltolS, cv_mem->cv_tempv, cv_mem->cv_tempv);
     N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_SabstolS[is], cv_mem->cv_tempv);
-    if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    if (cv_mem->cv_atolSmin0[is]) {
+      if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    }
     N_VInv(cv_mem->cv_tempv, weightS[is]);
   }
   return(0);
@@ -5343,7 +5413,9 @@ static int cvSensEwtSetSV(CVodeMem cv_mem, N_Vector *yScur, N_Vector *weightS)
     N_VAbs(yScur[is], cv_mem->cv_tempv);
     N_VLinearSum(cv_mem->cv_reltolS, cv_mem->cv_tempv, ONE,
                  cv_mem->cv_VabstolS[is], cv_mem->cv_tempv);
-    if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    if (cv_mem->cv_atolSmin0[is]) {
+      if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    }
     N_VInv(cv_mem->cv_tempv, weightS[is]);
   }
 
@@ -5413,7 +5485,9 @@ static int cvQuadSensEwtSetSS(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weigh
     N_VAbs(yQScur[is], cv_mem->cv_tempvQ);
     N_VScale(cv_mem->cv_reltolQS, cv_mem->cv_tempvQ, cv_mem->cv_tempvQ);
     N_VAddConst(cv_mem->cv_tempvQ, cv_mem->cv_SabstolQS[is], cv_mem->cv_tempvQ);
-    if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
+    if (cv_mem->cv_atolQSmin0[is]) {
+      if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
+    }
     N_VInv(cv_mem->cv_tempvQ, weightQS[is]);
   }
 
@@ -5428,7 +5502,9 @@ static int cvQuadSensEwtSetSV(CVodeMem cv_mem, N_Vector *yQScur, N_Vector *weigh
     N_VAbs(yQScur[is], cv_mem->cv_tempvQ);
     N_VLinearSum(cv_mem->cv_reltolQS, cv_mem->cv_tempvQ, ONE,
                  cv_mem->cv_VabstolQS[is], cv_mem->cv_tempvQ);
-    if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
+    if (cv_mem->cv_atolQSmin0[is]) {
+      if (N_VMin(cv_mem->cv_tempvQ) <= ZERO) return(-1);
+    }
     N_VInv(cv_mem->cv_tempvQ, weightQS[is]);
   }
 

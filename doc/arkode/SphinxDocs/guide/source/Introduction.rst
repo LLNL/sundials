@@ -175,6 +175,11 @@ to the ARKStep, ERKStep, and MRIStep time-stepping modules as well as all generi
 types (i.e. NVECTOR, SUNMATRIX, SUNLINEARSOLVER, SUNNONLINEARSOLVER), and many of the module
 implementations. See Section :ref:`FortranInterfaces` for more details.
 
+Removed extraneous calls to :c:func:`N_VMin()` for simulations where
+the scalar valued absolute tolerance, or all entries of the
+vector-valued absolute tolerance array, are strictly positive.  In
+this scenario, ARKode will remove at least one global reduction per
+time step.
 
 Changes in v4.0.0-dev.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

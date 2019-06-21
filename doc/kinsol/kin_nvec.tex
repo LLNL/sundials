@@ -8,18 +8,18 @@
 %---------------------------------------------------------------------------
 \section{NVECTOR functions used by KINSOL}
 
-In Table \ref{t:nvecuse} below, we list the vector functions in the 
+In Table \ref{t:nvecuse} below, we list the vector functions in the
 {\nvector} module used within the {\kinsol} package.
 The table also shows, for each function, which of the code modules uses
 the function. The {\kinsol} column shows function usage within the main
 solver module, while the remaining five columns show function
-usage within each of the {\kinsol} linear solver interfaces, 
+usage within each of the {\kinsol} linear solver interfaces,
 the {\kinbbdpre} preconditioner module, and the {\fkinsol} module.
 Here {\kinls} stands for the generic linear solver interface in {\kinsol}.
 
-At this point, we should emphasize that the {\kinsol} user does not need to know 
-anything about the usage of vector functions by the {\kinsol} code modules in order 
-to use {\kinsol}. The information is presented as an implementation detail for the 
+At this point, we should emphasize that the {\kinsol} user does not need to know
+anything about the usage of vector functions by the {\kinsol} code modules in order
+to use {\kinsol}. The information is presented as an implementation detail for the
 interested reader.
 
 \begin{table}[htb]
@@ -34,6 +34,7 @@ interested reader.
 \begin{sideways}{\fkinsol}   \end{sideways} \\ \hline\hline
 %                           KINSOL   LS   BPRE  FKINSOL
 \id{N\_VGetVectorID}        &     &     &     &     \\ \hline
+\id{N\_VGetLength}          &     &  4  &     &     \\ \hline
 \id{N\_VClone}              & \cm &     & \cm &     \\ \hline
 \id{N\_VCloneEmpty}         &     &     &     & \cm \\ \hline
 \id{N\_VDestroy}            & \cm &     & \cm & \cm \\ \hline
@@ -55,8 +56,8 @@ interested reader.
 \id{N\_VConstrMask}         & \cm &     &     &     \\ \hline
 \id{N\_VMinQuotient}        & \cm &     &     &     \\ \hline
 \hline
-\id{N\_VLinearCombination}  & \cm & \cm &     &     \\ \hline 
-\id{N\_VDotProdMulti}       & \cm &     &     &     \\ \hline 
+\id{N\_VLinearCombination}  & \cm & \cm &     &     \\ \hline
+\id{N\_VDotProdMulti}       & \cm &     &     &     \\ \hline
 \end{tabular}
 \end{table}
 
@@ -70,6 +71,9 @@ Special cases (numbers match markings in table):
 \item These routines are only required if the internal
   difference-quotient routine for approximating the Jacobian-vector
   product is used.
+\item This routine is only used when an iterative {\sunlinsol} module
+  that does not support the \id{SUNLinSolSetScalingVectors} routine is
+  supplied to {\kinsol}.
 \end{enumerate}
 
 Each {\sunlinsol} object may require additional {\nvector} routines
@@ -80,7 +84,7 @@ on their {\nvector} requirements.
 
 The vector functions listed in Table \ref{ss:nvecops} that are {\em not} used by
 {\kinsol} are \id{N\_VAddConst}, \id{N\_VWrmsNorm}, \id{N\_VWrmsNormMask},
-\id{N\_VCompare}, \id{N\_VInvTest}, \id{N\_VGetCommunicator}, and \id{N\_VGetLength}.
+\id{N\_VCompare}, \id{N\_VInvTest}, and \id{N\_VGetCommunicator}.
 Therefore a user-supplied {\nvector} module for {\kinsol} could omit these
 functions.
 

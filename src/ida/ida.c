@@ -289,6 +289,7 @@ void *IDACreate(void)
   IDA_mem->ida_res         = NULL;
   IDA_mem->ida_user_data   = NULL;
   IDA_mem->ida_itol        = IDA_NN;
+  IDA_mem->ida_atolmin0    = SUNTRUE;
   IDA_mem->ida_user_efun   = SUNFALSE;
   IDA_mem->ida_efun        = NULL;
   IDA_mem->ida_edata       = NULL;
@@ -628,6 +629,7 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
 
   IDA_mem->ida_rtol  = reltol;
   IDA_mem->ida_Satol = abstol;
+  IDA_mem->ida_atolmin0 = (abstol == ZERO);
 
   IDA_mem->ida_itol = IDA_SS;
 
@@ -642,6 +644,7 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
 int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
 {
   IDAMem IDA_mem;
+  realtype atolmin;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASVtolerances", MSG_NO_MEM);
@@ -661,7 +664,8 @@ int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
     return(IDA_ILL_INPUT);
   }
 
-  if (N_VMin(abstol) < ZERO) {
+  atolmin = N_VMin(abstol);
+  if (atolmin < ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASVtolerances", MSG_BAD_ATOL);
     return(IDA_ILL_INPUT);
   }
@@ -677,6 +681,7 @@ int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
 
   IDA_mem->ida_rtol = reltol;
   N_VScale(ONE, abstol, IDA_mem->ida_Vatol);
+  IDA_mem->ida_atolmin0 = (atolmin == ZERO);
 
   IDA_mem->ida_itol = IDA_SV;
 
@@ -1726,9 +1731,9 @@ int IDAEwtSet(N_Vector ycur, N_Vector weight, void *data)
  * IDAEwtSetSS
  *
  * This routine sets ewt as decribed above in the case itol=IDA_SS.
- * It tests for non-positive components before inverting. IDAEwtSetSS
- * returns 0 if ewt is successfully set to a positive vector
- * and -1 otherwise. In the latter case, ewt is considered
+ * If the absolute tolerance is zero, it tests for non-positive components
+ * before inverting. IDAEwtSetSS returns 0 if ewt is successfully set to a
+ * positive vector and -1 otherwise. In the latter case, ewt is considered
  * undefined.
  */
 
@@ -1737,7 +1742,9 @@ static int IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
   N_VAbs(ycur, IDA_mem->ida_tempv1);
   N_VScale(IDA_mem->ida_rtol, IDA_mem->ida_tempv1, IDA_mem->ida_tempv1);
   N_VAddConst(IDA_mem->ida_tempv1, IDA_mem->ida_Satol, IDA_mem->ida_tempv1);
-  if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+  if (IDA_mem->ida_atolmin0) {
+    if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+  }
   N_VInv(IDA_mem->ida_tempv1, weight);
   return(0);
 }
@@ -1746,9 +1753,9 @@ static int IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
  * IDAEwtSetSV
  *
  * This routine sets ewt as decribed above in the case itol=IDA_SV.
- * It tests for non-positive components before inverting. IDAEwtSetSV
- * returns 0 if ewt is successfully set to a positive vector
- * and -1 otherwise. In the latter case, ewt is considered
+ * If the absolute tolerance is zero, it tests for non-positive components
+ * before inverting. IDAEwtSetSV returns 0 if ewt is successfully set to a
+ * positive vector and -1 otherwise. In the latter case, ewt is considered
  * undefined.
  */
 
@@ -1757,7 +1764,9 @@ static int IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
   N_VAbs(ycur, IDA_mem->ida_tempv1);
   N_VLinearSum(IDA_mem->ida_rtol, IDA_mem->ida_tempv1, ONE,
                IDA_mem->ida_Vatol, IDA_mem->ida_tempv1);
-  if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+  if (IDA_mem->ida_atolmin0) {
+    if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+  }
   N_VInv(IDA_mem->ida_tempv1, weight);
   return(0);
 }

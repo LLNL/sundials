@@ -33,6 +33,7 @@ interested reader.
 \begin{sideways}{\idaa}      \end{sideways}  \\ \hline\hline
 %                                      IDAS   LS   BBD   IDAA
 \id{N\_VGetVectorID}                  &     &     &     &     \\ \hline
+\id{N\_VGetLength}                    &     &  4  &     &     \\ \hline
 \id{N\_VClone}                        & \cm & \cm & \cm & \cm \\ \hline
 \id{N\_VCloneEmpty}                   &     &  1  &     &     \\ \hline
 \id{N\_VDestroy}                      & \cm & \cm & \cm & \cm \\ \hline
@@ -84,11 +85,13 @@ Special cases (numbers match markings in table):
   and \ref{ss:nvecarrayops} not listed above are unused and a
   user-supplied {\nvector} module for {\idas} could omit these
   operations.
+\item This routine is only used when an iterative or matrix iterative
+  {\sunlinsol} module is supplied to {\idas}.
 \end{enumerate}
 
 Of the functions listed in Table \ref{ss:nvecops}, \id{N\_DotProd},
-\id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VInvTest},
-\id{N\_VGetCommunicator}, and \id{N\_VGetLength} are {\em not} used by 
+\id{N\_VWL2Norm}, \id{N\_VL1Norm}, \id{N\_VInvTest}, and
+\id{N\_VGetCommunicator} are {\em not} used by
 {\idas}. Therefore a user-supplied {\nvector} module for {\idas} could
 omit these functions (although some may be needed by {\sunnonlinsol}
 or {\sunlinsol} modules).

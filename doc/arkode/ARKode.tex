@@ -367,6 +367,12 @@ to the ARKStep, ERKStep, and MRIStep time-stepping modules as well as all generi
 types (i.e. NVECTOR, SUNMATRIX, SUNLINEARSOLVER, SUNNONLINEARSOLVER), and many of the module
 implementations. See Section {\hyperref[ARKode_f_interface/index:fortraninterfaces]{\emph{\DUspan{}{Using ARKode for Fortran Applications}}}} for more details.
 
+Removed extraneous calls to {\hyperref[nvectors/NVector_Operations:c.N_VMin]{\emph{\code{N\_VMin()}}}} for simulations where
+the scalar valued absolute tolerance, or all entries of the
+vector-valued absolute tolerance array, are strictly positive.  In
+this scenario, ARKode will remove at least one global reduction per
+time step.
+
 
 \subsection{Changes in v4.0.0-dev.0}
 \label{Introduction:changes-in-v4-0-0-dev-0}
@@ -30316,6 +30322,11 @@ ARKBBDPRE
 FARKODE
 }\\
 \hline
+N\_GetLength
+ &  &  &
+X
+ &  &  & \\
+\hline
 N\_VAbs
  & 
 X
@@ -30482,6 +30493,10 @@ only be called if provided by the \code{N\_Vector} implementation.
 \item {} 
 The {\hyperref[nvectors/NVector_Operations:c.N_VLinearCombination]{\emph{\code{N\_VLinearCombination()}}}} function is in fact optional;
 if it is not supplied then {\hyperref[nvectors/NVector_Operations:c.N_VLinearSum]{\emph{\code{N\_VLinearSum()}}}} will be used instead.
+
+\item {}
+The {\hyperref[nvectors/NVector_Operations:c.N_VGetLength]{\emph{\code{N\_VGetLength()}}}}
+function is only required when an iterative or matrix iterative \code{SUNLinearSolver} module is used.
 
 \end{enumerate}
 

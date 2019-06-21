@@ -66,6 +66,11 @@ The CVODE interface, and all module implementations with existing Fortran 2003 i
 were updated accordingly. See the section  "Using <SOLVER> for Fortran Applications" in
 the appropriate user guide for more details on how to use the interfaces.
 
+Removed extraneous calls to N_VMin() for simulations where
+the scalar valued absolute tolerance, or all entries of the
+vector-valued absolute tolerance array, are strictly positive.  In
+this scenario, CVODE(S), IDA(S) and ARKode will remove at least one
+global reduction per time step.
 
 Changes to SUNDIALS in release 5.0.0-dev.0
 

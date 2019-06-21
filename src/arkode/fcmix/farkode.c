@@ -166,7 +166,6 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
       return;
     }
     N_VSetArrayPointer(atol, Vatol);
-    if (N_VMin(Vatol) <= ZERO)  N_VConst(abstol, Vatol);
     *ier = ARKStepSVtolerances(ARK_arkodemem, reltol, Vatol);
     N_VDestroy(Vatol);
     break;
@@ -250,7 +249,6 @@ void FARK_REINIT(realtype *t0, realtype *y0, int *imex, int *iatol,
       return;
     }
     N_VSetArrayPointer(atol, Vatol);
-    if (N_VMin(Vatol) <= ZERO)  N_VConst(abstol, Vatol);
     *ier = ARKStepSVtolerances(ARK_arkodemem, reltol, Vatol);
     N_VDestroy(Vatol);
     break;

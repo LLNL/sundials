@@ -60,6 +60,7 @@ modules).
 ==============================  =======  =======  ===========  ==========  =========  =======
 Routine                         ARKSTEP  ERKSTEP  ARKLS        ARKBANDPRE  ARKBBDPRE  FARKODE
 ==============================  =======  =======  ===========  ==========  =========  =======
+N_VGetLength                                      X
 N_VAbs                          X        X
 N_VAddConst                     X        X
 N_VClone                        X        X        X
@@ -87,3 +88,6 @@ N_VLinearCombination\ :sup:`3`  X        X
 
 3. The :c:func:`N_VLinearCombination()` function is in fact optional;
    if it is not supplied then :c:func:`N_VLinearSum()` will be used instead.
+
+4. The :c:func:`N_VGetLength()` function is only required when an iterative or
+   matrix iterative ``SUNLinearSolver`` module is used.

@@ -159,6 +159,12 @@ and to allow users to write more idiomatic Fortran. The update includes new Fort
 {\sundials} module implementations were also redone accordingly. See Section~\ref{s:cvfort}
 for more details.
 
+Removed extraneous calls to \id{N\_VMin} for simulations where
+the scalar valued absolute tolerance, or all entries of the
+vector-valued absolute tolerance array, are strictly positive.  In
+this scenario, {\cvode} will remove at least one global reduction per
+time step.
+
 
 \subsection*{Changes in v5.0.0-dev.0}
 

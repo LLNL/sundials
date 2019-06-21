@@ -77,6 +77,7 @@ typedef struct CVodeMemRec {
   realtype cv_reltol;        /* relative tolerance                            */
   realtype cv_Sabstol;       /* scalar absolute tolerance                     */
   N_Vector cv_Vabstol;       /* vector absolute tolerance                     */
+  booleantype cv_atolmin0;   /* flag indicating that min(abstol) = 0          */    
   booleantype cv_user_efun;  /* SUNTRUE if user sets efun                     */
   CVEwtFn cv_efun;           /* function to set ewt                           */
   void *cv_e_data;           /* user pointer passed to efun                   */

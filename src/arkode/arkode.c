@@ -322,6 +322,9 @@ int arkSStolerances(ARKodeMem ark_mem, realtype reltol, realtype abstol)
     return(ARK_ILL_INPUT);
   }
 
+  /* Set flag indicating whether abstol == 0 */
+  ark_mem->atolmin0 = (abstol == ZERO);
+  
   /* Copy tolerances into memory */
   ark_mem->reltol  = reltol;
   ark_mem->Sabstol = abstol;
@@ -338,6 +341,9 @@ int arkSStolerances(ARKodeMem ark_mem, realtype reltol, realtype abstol)
 
 int arkSVtolerances(ARKodeMem ark_mem, realtype reltol, N_Vector abstol)
 {
+  /* local variables */
+  realtype abstolmin;
+  
   /* Check inputs */
   if (ark_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
@@ -354,12 +360,21 @@ int arkSVtolerances(ARKodeMem ark_mem, realtype reltol, N_Vector abstol)
                     "arkSVtolerances", MSG_ARK_BAD_RELTOL);
     return(ARK_ILL_INPUT);
   }
-  if (N_VMin(abstol) < ZERO) {
+  if (abstol->ops->nvmin == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkSVtolerances",
+                   "Missing N_VMin routine from N_Vector");
+    return(ARK_ILL_INPUT);
+  }
+  abstolmin = N_VMin(abstol);
+  if (abstolmin < ZERO) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                     "arkSVtolerances", MSG_ARK_BAD_ABSTOL);
     return(ARK_ILL_INPUT);
   }
 
+  /* Set flag indicating whether min(abstol) == 0 */
+  ark_mem->atolmin0 = (abstolmin == ZERO);
+  
   /* Copy tolerances into memory */
   if ( !(ark_mem->VabstolMallocDone) ) {
     ark_mem->Vabstol = N_VClone(ark_mem->ewt);
@@ -444,6 +459,9 @@ int arkResStolerance(ARKodeMem ark_mem, realtype rabstol)
     return(ARK_ILL_INPUT);
   }
 
+  /* Set flag indicating whether rabstol == 0 */
+  ark_mem->Ratolmin0 = (rabstol == ZERO);
+  
   /* Allocate space for rwt if necessary */
   if (ark_mem->rwt_is_ewt) {
     ark_mem->rwt_is_ewt = SUNFALSE;
@@ -467,23 +485,35 @@ int arkResStolerance(ARKodeMem ark_mem, realtype rabstol)
 
 int arkResVtolerance(ARKodeMem ark_mem, N_Vector rabstol)
 {
+  /* local variables */
+  realtype rabstolmin;
+  
   /* Check inputs */
   if (ark_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
-                    "arkResVtolerances", MSG_ARK_NO_MEM);
+                    "arkResVtolerance", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   if (ark_mem->MallocDone == SUNFALSE) {
     arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode",
-                    "arkResVtolerances", MSG_ARK_NO_MALLOC);
+                    "arkResVtolerance", MSG_ARK_NO_MALLOC);
     return(ARK_NO_MALLOC);
   }
-  if (N_VMin(rabstol) < ZERO) {
+  if (rabstol->ops->nvmin == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkResVtolerance",
+                   "Missing N_VMin routine from N_Vector");
+    return(ARK_ILL_INPUT);
+  }
+  rabstolmin = N_VMin(rabstol);
+  if (rabstolmin < ZERO) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
-                    "arkResVtolerances", MSG_ARK_BAD_RABSTOL);
+                    "arkResVtolerance", MSG_ARK_BAD_RABSTOL);
     return(ARK_ILL_INPUT);
   }
 
+  /* Set flag indicating whether min(abstol) == 0 */
+  ark_mem->Ratolmin0 = (rabstolmin == ZERO);
+  
   /* Allocate space for rwt if necessary */
   if (ark_mem->rwt_is_ewt) {
     ark_mem->rwt_is_ewt = SUNFALSE;
@@ -1368,8 +1398,7 @@ booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
       (tmpl->ops->nvinv       == NULL) ||
       (tmpl->ops->nvaddconst  == NULL) ||
       (tmpl->ops->nvmaxnorm   == NULL) ||
-      (tmpl->ops->nvwrmsnorm  == NULL) ||
-      (tmpl->ops->nvmin       == NULL))
+      (tmpl->ops->nvwrmsnorm  == NULL))
     return(SUNFALSE);
   else
     return(SUNTRUE);
@@ -1556,11 +1585,25 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
   /* Check that user has supplied an initial step size if fixedstep mode is on */
   if ( (ark_mem->fixedstep) && (ark_mem->hin == ZERO) ) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
-                    "arkInitialSetup",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup",
                     "Fixed step mode enabled, but no step size set");
     return(ARK_ILL_INPUT);
   }
+
+  /* If using a built-in routine for error/residual weights with abstol==0, 
+     ensure that N_VMin is available */
+  if ((!ark_mem->user_efun) && (ark_mem->atolmin0) && (!ark_mem->yn->ops->nvmin)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup",
+                    "N_VMin unimplemented (required by error-weight function)");
+    return(ARK_ILL_INPUT);
+  }
+  if ( (!ark_mem->user_rfun) && (!ark_mem->rwt_is_ewt) &&
+       (ark_mem->Ratolmin0) && (!ark_mem->yn->ops->nvmin) ) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup",
+                    "N_VMin unimplemented (required by residual-weight function)");
+    return(ARK_ILL_INPUT);
+  }
+
 
   /* Set data for efun (if left unspecified) */
   if (ark_mem->user_efun)
@@ -2013,10 +2056,10 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
 
     /* Propose new step size */
     hnew = (yddnrm*hub*hub > TWO) ? SUNRsqrt(TWO/yddnrm) : SUNRsqrt(hg*hub);
-    
+
     /* If last pass, stop now with hnew */
     if (count1 == H0_ITERS) break;
-    
+
     hrat = hnew/hg;
 
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */
@@ -2113,7 +2156,7 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
 
   /* reset ycur to equal yn (unnecessary?) */
   N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
-  
+
   /* compute norm of y'' */
   *yddnrm = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
 
@@ -2259,16 +2302,19 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
   arkEwtSetSS
 
   This routine sets ewt as decribed above in the case tol_type = ARK_SS.
-  It tests for non-positive components before inverting. arkEwtSetSS
-  returns 0 if ewt is successfully set to a positive vector
-  and -1 otherwise. In the latter case, ewt is considered undefined.
+  When the absolute tolerance is zero, it tests for non-positive
+  components before inverting. arkEwtSetSS returns 0 if ewt is
+  successfully set to a positive vector and -1 otherwise. In the
+  latter case, ewt is considered undefined.
   ---------------------------------------------------------------*/
 int arkEwtSetSS(ARKodeMem ark_mem, N_Vector ycur, N_Vector weight)
 {
   N_VAbs(ycur, ark_mem->tempv1);
   N_VScale(ark_mem->reltol, ark_mem->tempv1, ark_mem->tempv1);
   N_VAddConst(ark_mem->tempv1, ark_mem->Sabstol, ark_mem->tempv1);
-  if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+  if (ark_mem->atolmin0) {
+    if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+  }
   N_VInv(ark_mem->tempv1, weight);
   return(0);
 }
@@ -2278,16 +2324,19 @@ int arkEwtSetSS(ARKodeMem ark_mem, N_Vector ycur, N_Vector weight)
   arkEwtSetSV
 
   This routine sets ewt as decribed above in the case tol_type = ARK_SV.
-  It tests for non-positive components before inverting. arkEwtSetSV
-  returns 0 if ewt is successfully set to a positive vector
-  and -1 otherwise. In the latter case, ewt is considered undefined.
+  When any absolute tolerance is zero, it tests for non-positive
+  components before inverting. arkEwtSetSV returns 0 if ewt is
+  successfully set to a positive vector and -1 otherwise. In the
+  latter case, ewt is considered undefined.
   ---------------------------------------------------------------*/
 int arkEwtSetSV(ARKodeMem ark_mem, N_Vector ycur, N_Vector weight)
 {
   N_VAbs(ycur, ark_mem->tempv1);
   N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
                ark_mem->Vabstol, ark_mem->tempv1);
-  if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+  if (ark_mem->atolmin0) {
+    if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+  }
   N_VInv(ark_mem->tempv1, weight);
   return(0);
 }
@@ -2297,16 +2346,19 @@ int arkEwtSetSV(ARKodeMem ark_mem, N_Vector ycur, N_Vector weight)
   arkRwtSetSS
 
   This routine sets rwt as decribed above in the case tol_type = ARK_SS.
-  It tests for non-positive components before inverting. arkRwtSetSS
-  returns 0 if rwt is successfully set to a positive vector
-  and -1 otherwise. In the latter case, rwt is considered undefined.
+  When the absolute tolerance is zero, it tests for non-positive
+  components before inverting. arkRwtSetSS returns 0 if rwt is
+  successfully set to a positive vector and -1 otherwise. In the
+  latter case, rwt is considered undefined.
   ---------------------------------------------------------------*/
 int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 {
   N_VAbs(My, ark_mem->tempv1);
   N_VScale(ark_mem->reltol, ark_mem->tempv1, ark_mem->tempv1);
   N_VAddConst(ark_mem->tempv1, ark_mem->SRabstol, ark_mem->tempv1);
-  if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+  if (ark_mem->Ratolmin0) {
+    if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+  }
   N_VInv(ark_mem->tempv1, weight);
   return(0);
 }
@@ -2316,16 +2368,19 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
   arkRwtSetSV
 
   This routine sets rwt as decribed above in the case tol_type = ARK_SV.
-  It tests for non-positive components before inverting. arkRwtSetSV
-  returns 0 if rwt is successfully set to a positive vector
-  and -1 otherwise. In the latter case, rwt is considered undefined.
+  When any absolute tolerance is zero, it tests for non-positive
+  components before inverting. arkRwtSetSV returns 0 if rwt is
+  successfully set to a positive vector and -1 otherwise. In the
+  latter case, rwt is considered undefined.
   ---------------------------------------------------------------*/
 int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 {
   N_VAbs(My, ark_mem->tempv1);
   N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
                ark_mem->VRabstol, ark_mem->tempv1);
-  if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+  if (ark_mem->Ratolmin0) {
+    if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
+  }
   N_VInv(ark_mem->tempv1, weight);
   return(0);
 }
@@ -2466,9 +2521,9 @@ int arkPredict_CutoffOrder(ARKodeMem ark_mem, realtype tau, N_Vector yguess)
   using a quadratic Hermite interpolating polynomial, based on
   the data {y_n, f(t_n,y_n), f(t_n+hj,z_j)}.
 
-  Note: we assume that ftemp = f(t_n+hj,z_j) can be computed via 
+  Note: we assume that ftemp = f(t_n+hj,z_j) can be computed via
      N_VLinearCombination(nvec, cvals, Xvecs, ftemp),
-  i.e. the inputs cvals[0:nvec-1] and Xvecs[0:nvec-1] may be 
+  i.e. the inputs cvals[0:nvec-1] and Xvecs[0:nvec-1] may be
   combined to form f(t_n+hj,z_j).
   ---------------------------------------------------------------*/
 int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
@@ -2497,7 +2552,7 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
   a2 = tau*tau/TWO/hj;
   a1 = tau - a2;
 
-  /* set arrays for fused vector operation; shift inputs for 
+  /* set arrays for fused vector operation; shift inputs for
      f(t_n+hj,z_j) to end of queue */
   for (i=0; i<nvec; i++) {
     cvals[2+i] = a2*cvals[i];

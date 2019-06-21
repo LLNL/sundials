@@ -120,6 +120,12 @@ A new Fortran 2003 interface to {\ida} was added. This includes Fortran 2003 int
 to all generic {\sundials} types (i.e. {\nvector}, {\sunmatrix}, {\sunlinsol}, {\sunnonlinsol}),
 and many of the module implementations. See Section~\ref{s:idafort} for more details.
 
+Removed extraneous calls to \id{N\_VMin} for simulations where
+the scalar valued absolute tolerance, or all entries of the
+vector-valued absolute tolerance array, are strictly positive.  In
+this scenario, {\ida} will remove at least one global reduction per
+time step.
+
 
 \subsection*{Changes in v5.0.0-dev.0}
 

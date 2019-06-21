@@ -38,6 +38,7 @@ interested reader.
 \begin{sideways}{\cvodea}     \end{sideways} \\ \hline\hline
 %                                      CVODES  LS  DIAG  BPRE   BBD  CVODEA
 \id{N\_VGetVectorID}                  &     &     &     &     &     &     \\ \hline
+\id{N\_VGetLength}                    &     &  4  &     &     &     &     \\ \hline
 \id{N\_VClone}                        & \cm & \cm & \cm &     &     & \cm \\ \hline
 \id{N\_VCloneEmpty}                   &     &  1  &     &     &     &     \\ \hline
 \id{N\_VDestroy}                      & \cm & \cm & \cm &     &     & \cm \\ \hline
@@ -86,6 +87,8 @@ Special cases (numbers match markings in table):
 \item The optional function \id{N\_VDotProdMulti} is only used in the
   {\sunnonlinsolfixedpoint} module, or when Classical Gram-Schmidt is
   enabled with {\spgmr} or {\spfgmr}.
+\item This routine is only used when an iterative or matrix iterative
+  {\sunlinsol} module is supplied to {\cvodes}.
 \end{enumerate}
 
 Each {\sunlinsol} object may require additional {\nvector} routines
