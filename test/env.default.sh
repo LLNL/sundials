@@ -137,7 +137,7 @@ if [ "$indexsize" == "32" ]; then
 else
     METISDIR="$(spack location -i metis+int64~real64 % "$compiler")"
 fi
-METISLIB="${METISDIR}/lib/libmetis.so"e
+METISLIB="${METISDIR}/lib/libmetis.so"
 
 # KLU
 if [ "$realtype" != "double" ]; then

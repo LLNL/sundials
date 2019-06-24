@@ -130,10 +130,10 @@
             SAND80-0180, Sandia National Laboratories, February 1980.
 
 .. [HS2017] A.C. Hindmarsh and R. Serban. User Documentation for CVODE
-            v5.0.0-dev.0. Technical Report UCRL-SM-208108, LLNL, 2019.
+            v5.0.0-dev.1. Technical Report UCRL-SM-208108, LLNL, 2019.
 
 .. [HSR2017] A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-             Programs for CVODE v5.0.0-dev.0. Technical Report
+             Programs for CVODE v5.0.0-dev.1. Technical Report
              UCRL-SM-208110, LLNL, 2019.
 
 .. [HT1998] A.C. Hindmarsh and A.G. Taylor.  PVODE and KINSOL:
