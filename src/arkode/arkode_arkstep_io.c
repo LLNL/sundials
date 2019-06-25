@@ -434,6 +434,20 @@ int ARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
 }
 
 /*---------------------------------------------------------------
+  ARKStepGetCurrentGamma: Returns the current value for gamma
+  ---------------------------------------------------------------*/
+int ARKStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  retval = arkStep_AccessStepMem(arkode_mem, NULL, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+  *gamma = step_mem->gamma;
+  return(retval); 
+}
+
+/*---------------------------------------------------------------
   ARKStepGetTolScaleFactor: Returns a suggested factor for scaling
   tolerances
   ---------------------------------------------------------------*/
