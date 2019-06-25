@@ -434,6 +434,28 @@ int ARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
 }
 
 /*---------------------------------------------------------------
+  ARKStepGetCurrentY: Returns the current value of the
+  dependent variable
+  ---------------------------------------------------------------*/
+int ARKStepGetCurrentY(void *arkode_mem, N_Vector ycur)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetCurrentY", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  if (ycur == NULL) {
+    arkProcessError(NULL, ARK_MEM_FAIL, "ARKode::ARKStep",
+                    "ARKStepGetCurrentY", MSG_ARK_MEM_FAIL);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  N_VScale(ONE, ark_mem->ycur, ycur);
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
   ARKStepGetCurrentGamma: Returns the current value for gamma
   ---------------------------------------------------------------*/
 int ARKStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
