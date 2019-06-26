@@ -1,0 +1,360 @@
+#define BIG_REAL 1.7e38
+
+c      N_VProd
+      subroutine arrayprod(
+     &     CHF_CONST_FRA[x],
+     &     CHF_CONST_FRA[y],
+     &     CHF_FRA[z],
+     &     CHF_BOX[reg])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[z]
+      if(ncomp .ne. CHF_NCOMP[y] .or. ncomp .ne. CHF_NCOMP[x]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      z(CHF_AUTOIX[i],nv) = x(CHF_AUTOIX[i],nv) * y(CHF_AUTOIX[i],nv)
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+c      N_VDiv
+      subroutine arraydiv(
+     &     CHF_CONST_FRA[x],
+     &     CHF_CONST_FRA[y],
+     &     CHF_FRA[z],
+     &     CHF_BOX[reg])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[z]
+      if(ncomp .ne. CHF_NCOMP[y] .or. ncomp .ne. CHF_NCOMP[x]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      z(CHF_AUTOIX[i],nv) = x(CHF_AUTOIX[i],nv) / y(CHF_AUTOIX[i],nv)
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+c      N_VScale
+      subroutine arrayscl(
+     &     CHF_CONST_FRA[x],
+     &     CHF_FRA[z],
+     &     CHF_BOX[reg],
+     &     CHF_CONST_REAL[c])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[z]
+      if(ncomp .ne. CHF_NCOMP[x]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      z(CHF_AUTOIX[i],nv) = c * x(CHF_AUTOIX[i],nv)
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+c       N_VAbs
+       subroutine arrayabs(
+     &     CHF_CONST_FRA[x],
+     &     CHF_FRA[z],
+     &     CHF_BOX[reg])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[z]
+      if(ncomp .ne. CHF_NCOMP[x]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      z(CHF_AUTOIX[i],nv) = abs(x(CHF_AUTOIX[i],nv))
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+c      N_VAddConst
+      subroutine addconst(
+     &     CHF_CONST_FRA[x],
+     &     CHF_FRA[z],
+     &     CHF_BOX[reg],
+     &     CHF_CONST_REAL[b])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[z]
+      if(ncomp .ne. CHF_NCOMP[x]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      z(CHF_AUTOIX[i],nv) = x(CHF_AUTOIX[i],nv) + b
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+c      N_VMaxNorm
+      subroutine arraymaxnorm(
+     &     CHF_CONST_FRA[x],
+     &     CHF_BOX[reg],
+     &     CHF_REAL[m])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[x]
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      m = max(abs(m), abs(x(CHF_AUTOIX[i],nv)))
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+c      N_VMin
+      subroutine arraymin(
+     &     CHF_CONST_FRA[x],
+     &     CHF_BOX[reg],
+     &     CHF_REAL[m])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[x]
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      m = min(m, x(CHF_AUTOIX[i],nv))
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+      subroutine wtdsq(
+     &     CHF_CONST_FRA[x],
+     &     CHF_CONST_FRA[w],
+     &     CHF_BOX[reg],
+     &     CHF_REAL[norm])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[x]
+      if(ncomp .ne. CHF_NCOMP[w]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      norm = norm + 
+     &       (x(CHF_AUTOIX[i],nv)*w(CHF_AUTOIX[i],nv)) * 
+     &       (x(CHF_AUTOIX[i],nv)*w(CHF_AUTOIX[i],nv))
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+      subroutine wtdsignsq(
+     &     CHF_CONST_FRA[x],
+     &     CHF_CONST_FRA[w],
+     &     CHF_CONST_FRA[id],
+     &     CHF_BOX[reg],
+     &     CHF_REAL[norm])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[x]
+      if(ncomp .ne. CHF_NCOMP[w] .or. ncomp .ne. CHF_NCOMP[id]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      norm = norm + 
+     & (x(CHF_AUTOIX[i],nv)*w(CHF_AUTOIX[i],nv)*id(CHF_AUTOIX[i],nv)) * 
+     & (x(CHF_AUTOIX[i],nv)*w(CHF_AUTOIX[i],nv)*id(CHF_AUTOIX[i],nv))
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+c      N_VCompare
+      subroutine arraycomp(
+     &     CHF_CONST_FRA[x],
+     &     CHF_FRA[z],
+     &     CHF_BOX[reg],
+     &     CHF_CONST_REAL[c])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[z]
+      if(ncomp .ne. CHF_NCOMP[x]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      if (x(CHF_AUTOIX[i],nv) .ge. c) then
+      z(CHF_AUTOIX[i],nv) = 1.0
+      else
+      z(CHF_AUTOIX[i],nv) = 0.0;
+      end if
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+c      N_VInvTest
+      subroutine invwchk(
+     &     CHF_CONST_FRA[x],
+     &     CHF_FRA[z],
+     &     CHF_BOX[reg],
+     &     CHF_INT[nonzero])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[z]
+      if(ncomp .ne. CHF_NCOMP[x]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+      if (x(CHF_AUTOIX[i],nv) .ne. 0.0) then
+      z(CHF_AUTOIX[i],nv) = 1./x(CHF_AUTOIX[i],nv)
+      else
+      z(CHF_AUTOIX[i],nv) = BIG_REAL
+      nonzero = 0
+      end if
+      CHF_ENDDO
+      end do
+
+      return
+      end
+
+c      N_VConstrMask
+      subroutine constrchk(
+     &     CHF_CONST_FRA[c],
+     &     CHF_CONST_FRA[x],
+     &     CHF_FRA[m],
+     &     CHF_BOX[reg],
+     &     CHF_INT[allpassed])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+
+      ncomp = CHF_NCOMP[m]
+      if(ncomp .ne. CHF_NCOMP[c] .or. ncomp .ne. CHF_NCOMP[x]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+!       c = 2
+      if (c(CHF_AUTOIX[i],nv) == 2) then
+
+      if (x(CHF_AUTOIX[i],nv) > 0) then
+      m(CHF_AUTOIX[i],nv) = 0.0
+      else
+      m(CHF_AUTOIX[i],nv) = 1.0
+      allpassed = 0
+      end if
+
+!       c = 1
+      else if (c(CHF_AUTOIX[i],nv) == 1) then
+      if (x(CHF_AUTOIX[i],nv) .ge. 0) then
+      m(CHF_AUTOIX[i],nv) = 0.0
+      else
+      m(CHF_AUTOIX[i],nv) = 1.0
+      allpassed = 0
+      end if
+
+!       c = 0
+      else if (c(CHF_AUTOIX[i],nv) == 0) then
+      if (x(CHF_AUTOIX[i],nv) < 0) then
+      m(CHF_AUTOIX[i],nv) = 0.0
+      else
+      m(CHF_AUTOIX[i],nv) = 1.0
+      allpassed = 0
+      end if
+
+      end if
+      CHF_ENDDO
+      end do
+
+
+      return
+      end
+
+c      N_VMinQuotient
+      subroutine minquot(
+     &     CHF_CONST_FRA[x],
+     &     CHF_CONST_FRA[y],
+     &     CHF_BOX[reg],
+     &     CHF_REAL[q],
+     &     CHF_INT[nmin])
+
+      integer CHF_AUTODECL[i]
+      integer nv, ncomp
+      REAL_T frac
+
+      ncomp = CHF_NCOMP[x]
+      if(ncomp .ne. CHF_NCOMP[y]) then
+      CHF_CALL MAYDAY_ERROR()
+      endif
+
+      nmin = 1
+
+      do nv = 0, ncomp-1
+      CHF_AUTOMULTIDO[reg;i]
+
+      if (y(CHF_AUTOIX[i],nv) .ne. 0) then
+      frac = x(CHF_AUTOIX[i],nv) / y(CHF_AUTOIX[i],nv)
+      if (frac == q) then
+      nmin = nmin + 1
+      else if (frac < q) then
+      q = frac
+      nmin = 1
+      end if
+      end if
+      
+      CHF_ENDDO
+      end do
+
+      return
+      end
