@@ -437,7 +437,7 @@ int ARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
   ARKStepGetCurrentY: Returns the current value of the
   dependent variable
   ---------------------------------------------------------------*/
-int ARKStepGetCurrentY(void *arkode_mem, N_Vector ycur)
+int ARKStepGetCurrentState(void *arkode_mem, N_Vector *ycur)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
@@ -445,13 +445,8 @@ int ARKStepGetCurrentY(void *arkode_mem, N_Vector ycur)
                     "ARKStepGetCurrentY", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  if (ycur == NULL) {
-    arkProcessError(NULL, ARK_MEM_FAIL, "ARKode::ARKStep",
-                    "ARKStepGetCurrentY", MSG_ARK_MEM_FAIL);
-    return(ARK_MEM_NULL);
-  }
   ark_mem = (ARKodeMem) arkode_mem;
-  N_VScale(ONE, ark_mem->ycur, ycur);
+  *ycur = ark_mem->ycur;
   return(ARK_SUCCESS);
 }
 
