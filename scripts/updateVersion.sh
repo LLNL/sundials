@@ -229,7 +229,7 @@ fn="../src/arkode/README.md"
 sedi "s/### Version.*/### Version ${ark_ver} (${date})/" $fn
 sedi "s/\"User Documentation for ARKode v.*/\"User Documentation for ARKode v${ark_ver},\" LLNL technical report/" $fn
 sedi "s/LLNL-SM-668082,.*/LLNL-SM-668082, ${date}./" $fn
-sedi "s/\"Example Programs for ARKode v.*/\"Example Programs for ARKode v${cv_ver},\" Technical Report,/" $fn
+sedi "s/\"Example Programs for ARKode v.*/\"Example Programs for ARKode v${ark_ver},\" Technical Report,/" $fn
 sedi "s/Scientific Computation.*/Scientific Computation, ${date}./" $fn
 
 fn="../src/cvode/README.md"
@@ -377,3 +377,12 @@ fn="../doc/arkode/SphinxDocs/examples/source/References.rst"
 sedi "/Programs for CVODE/ s/.*/             Programs for CVODE v${cv_ver}. Technical Report/" $fn
 sedi "/UCRL-SM-208110/ s/.*/             UCRL-SM-208110, LLNL, ${year}./" $fn
 sedi "/LLNL-CODE-667205/ s/.*/           v${ark_ver}. Technical Report LLNL-CODE-667205, LLNL, ${year}./" $fn
+
+# user guide (latex)
+fn="../doc/arkode/ARKode.tex"
+sedi "s/User Documentation for ARKode v.*/User Documentation for ARKode v${ark_ver}\\\\\\\\ /" $fn
+sedi "s/(SUNDIALS v.*)/(SUNDIALS v${sun_ver})/" $fn
+
+# example doc (latex)
+fn="../doc/arkode/ARKode_example.tex"
+sedi "s/release{.*}/release{${ark_ver}}/" $fn
