@@ -159,7 +159,7 @@ int imexgarkStep_TakeStep(void* arkode_mem);
 
 /* Internal utility routines */
 int imexgarkStep_AccessStepMem(void* arkode_mem, const char *fname,
-                               ARKodeMem *ark_mem, ARKodeARKStepMem *step_mem);
+                               ARKodeMem *ark_mem, ARKodeIMEXGARKStepMem *step_mem);
 booleantype imexgarkStep_CheckNVector(N_Vector tmpl);
 int imexgarkStep_SetButcherTables(ARKodeMem ark_mem);
 int imexgarkStep_CheckButcherTables(ARKodeMem ark_mem);
