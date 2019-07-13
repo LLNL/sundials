@@ -32,7 +32,6 @@
 #define RSYM "Lg"
 #else
 #define RSYM "g"
-#define RSYME "11.4e"
 #endif
 
 
@@ -2093,13 +2092,13 @@ int IMEXGARKStepWriteButcher(void *arkode_mem, FILE *fp)
   ARKodeButcherTable_Write(step_mem->Bee, fp);
 
   for (i=0; i<step_mem->stages; i++) {
-    fprintf(fp, "     %"RSYME"",step_mem->Bee->c[i]);
+    fprintf(fp, "     %"RSYM"",step_mem->Bee->c[i]);
     fprintf(fp, " | ");
     for (j=0; j<step_mem->stages; j++)
-      fprintf(fp, " %"RSYME"",step_mem->Bee->A[i][j]);
+      fprintf(fp, " %"RSYM"",step_mem->Bee->A[i][j]);
     fprintf(fp, " | ");
     for (j=0; j<step_mem->stages; j++)
-      fprintf(fp, " %"RSYME"",step_mem->Bei->A[i][j]);
+      fprintf(fp, " %"RSYM"",step_mem->Bei->A[i][j]);
     fprintf(fp, " | ");
     fprintf(fp,"\n");
   }
@@ -2110,13 +2109,13 @@ int IMEXGARKStepWriteButcher(void *arkode_mem, FILE *fp)
   fprintf(fp,"\n");
 
   for (i=0; i<step_mem->stages; i++) {
-    fprintf(fp, "     %"RSYME"",step_mem->Bii->c[i]);
+    fprintf(fp, "     %"RSYM"",step_mem->Bii->c[i]);
     fprintf(fp, " | ");
     for (j=0; j<step_mem->stages; j++)
-      fprintf(fp, " %"RSYME"",step_mem->Bie->A[i][j]);
+      fprintf(fp, " %"RSYM"",step_mem->Bie->A[i][j]);
     fprintf(fp, " | ");
     for (j=0; j<step_mem->stages; j++)
-      fprintf(fp, " %"RSYME"",step_mem->Bii->A[i][j]);
+      fprintf(fp, " %"RSYM"",step_mem->Bii->A[i][j]);
     fprintf(fp, " | ");
     fprintf(fp,"\n");
   }
@@ -2129,10 +2128,10 @@ int IMEXGARKStepWriteButcher(void *arkode_mem, FILE *fp)
   fprintf(fp, "                ");
   fprintf(fp, " | ");
   for (j=0; j<step_mem->stages; j++)
-    fprintf(fp, " %"RSYME"",step_mem->Bee->b[j]);
+    fprintf(fp, " %"RSYM"",step_mem->Bee->b[j]);
   fprintf(fp, " | ");
   for (j=0; j<step_mem->stages; j++)
-    fprintf(fp, " %"RSYME"",step_mem->Bii->b[j]);
+    fprintf(fp, " %"RSYM"",step_mem->Bii->b[j]);
   fprintf(fp, " | ");
   fprintf(fp,"\n");
 
@@ -2140,10 +2139,10 @@ int IMEXGARKStepWriteButcher(void *arkode_mem, FILE *fp)
   fprintf(fp, " | ");
   if (step_mem->Bee->d != NULL) {
     for (j=0; j<step_mem->stages; j++)
-      fprintf(fp, " %"RSYME"",step_mem->Bee->d[j]);
+      fprintf(fp, " %"RSYM"",step_mem->Bee->d[j]);
     fprintf(fp, " | ");
     for (j=0; j<step_mem->stages; j++)
-      fprintf(fp, " %"RSYME"",step_mem->Bii->d[j]);
+      fprintf(fp, " %"RSYM"",step_mem->Bii->d[j]);
     fprintf(fp, " | ");
     fprintf(fp,"\n");
   }
