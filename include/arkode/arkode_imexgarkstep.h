@@ -41,11 +41,31 @@ extern "C" {
 SUNDIALS_EXPORT void* IMEXGARKStepCreate(ARKRhsFn fe, ARKRhsFn fi,
                                          realtype t0, N_Vector y0);
 
-SUNDIALS_EXPORT int IMEXGARKStepReInit(void* arkode_mem, ARKRhsFn fe,
-                                       ARKRhsFn fi, realtype t0, N_Vector y0);
+SUNDIALS_EXPORT int IMEXGARKStepResize(void *arkode_mem, N_Vector ynew,
+                                       realtype hscale, realtype t0,
+                                       ARKVecResizeFn resize,
+                                       void *resize_data);
 
 SUNDIALS_EXPORT int IMEXGARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                                        ARKRhsFn fi, realtype t0, N_Vector y0);
+
+/* Tolerance input functions */
+SUNDIALS_EXPORT int IMEXGARKStepSStolerances(void *arkode_mem,
+                                             realtype reltol,
+                                             realtype abstol);
+SUNDIALS_EXPORT int IMEXGARKStepSVtolerances(void *arkode_mem,
+                                             realtype reltol,
+                                             N_Vector abstol);
+SUNDIALS_EXPORT int IMEXGARKStepWFtolerances(void *arkode_mem,
+                                             ARKEwtFn efun);
+
+/* Resudal tolerance input functions */
+SUNDIALS_EXPORT int IMEXGARKStepResStolerance(void *arkode_mem,
+                                              realtype rabstol);
+SUNDIALS_EXPORT int IMEXGARKStepResVtolerance(void *arkode_mem,
+                                              N_Vector rabstol);
+SUNDIALS_EXPORT int IMEXGARKStepResFtolerance(void *arkode_mem,
+                                              ARKRwtFn rfun);
 
 
 /* Linear solver set functions */
@@ -68,13 +88,13 @@ SUNDIALS_EXPORT int IMEXGARKStepSetNonlinearSolver(void *arkode_mem,
                                                    SUNNonlinearSolver NLS);
 SUNDIALS_EXPORT int IMEXGARKStepSetLinear(void *arkode_mem, int timedepend);
 SUNDIALS_EXPORT int IMEXGARKStepSetNonlinear(void *arkode_mem);
-SUNDIALS_EXPORT int IMEXGARKStepSetButcherTables(void *arkode_mem, int s,
-                                                 int q, int p,
-                                                 realtype *ce, realtype *ci,
-                                                 realtype *Aee, realtype *Aei,
-                                                 realtype *Aie, realtype *Aii,
-                                                 realtype *be, realtype *bi,
-                                                 realtype *de, realtype *di);
+SUNDIALS_EXPORT int IMEXGARKStepSetTables(void *arkode_mem, int s,
+                                          int q, int p,
+                                          realtype *ce, realtype *ci,
+                                          realtype *Aee, realtype *Aei,
+                                          realtype *Aie, realtype *Aii,
+                                          realtype *be, realtype *bi,
+                                          realtype *de, realtype *di);
 SUNDIALS_EXPORT int IMEXGARKStepSetCFLFraction(void *arkode_mem,
                                                realtype cfl_frac);
 SUNDIALS_EXPORT int IMEXGARKStepSetSafetyFactor(void *arkode_mem,
@@ -204,8 +224,6 @@ SUNDIALS_EXPORT int IMEXGARKStepGetCurrentButcherTables(void *arkode_mem,
                                                         ARKodeButcherTable *Bei,
                                                         ARKodeButcherTable *Bie,
                                                         ARKodeButcherTable *Bii);
-SUNDIALS_EXPORT int IMEXGARKStepGetEstLocalErrors(void *arkode_mem,
-                                                  N_Vector ele);
 SUNDIALS_EXPORT int IMEXGARKStepGetEstLocalErrors(void *arkode_mem,
                                                   N_Vector ele);
 SUNDIALS_EXPORT int IMEXGARKStepGetWorkSpace(void *arkode_mem,
