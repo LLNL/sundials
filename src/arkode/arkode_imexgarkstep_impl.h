@@ -51,6 +51,7 @@ typedef struct ARKodeIMEXGARKStepMemRec {
   N_Vector *Fi;           /* implicit RHS at each stage */
   N_Vector sdata;         /* old stage data in residual */
   N_Vector zpred;         /* predicted stage solution   */
+  N_Vector zcor;          /* stage correction           */
   int q;                  /* method order               */
   int p;                  /* embedding order            */
   int istage;             /* current stage              */
@@ -188,8 +189,8 @@ int imexgarkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
  * ===============================================================*/
 
 /* Initialization and I/O error messages */
-#define MSG_IMEXGARK_NO_STEP_MEM   "Time step module memory is NULL."
-#define MSG_NLS_INIT_FAIL     "The nonlinear solver's init routine failed."
+#define MSG_IMEXGARKSTEP_NO_MEM    "Time step module memory is NULL."
+#define MSG_NLS_INIT_FAIL          "The nonlinear solver's init routine failed."
 
 #ifdef __cplusplus
 }

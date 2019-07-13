@@ -3,25 +3,21 @@
  * -----------------------------------------------------------------------------
  * Based on arkode_arkstep_io.c written by Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2018, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
- * -----------------------------------------------------------------------------
- * This is the implementation file for the optional input and 
- * output functions for the ARKODE ARKStep time stepper module.
  *
- * NOTE: many functions currently in arkode_io.c will move here, 
- * with slightly different names.  The code transition will be 
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------------------
+ * This is the implementation file for the optional input and
+ * output functions for the ARKode IMEXGARKStep time stepper module.
+ *
+ * NOTE: many functions currently in arkode_io.c will move here,
+ * with slightly different names.  The code transition will be
  * minimal, but the documentation changes will be significant.
  * ---------------------------------------------------------------------------*/
 
@@ -40,16 +36,588 @@
 #endif
 
 
-/* =============================================================================
- * IMEXGARKStep Optional input functions
- * ===========================================================================*/
+/*===============================================================
+  IMEXGARKStep Optional input functions (wrappers for generic ARKode
+  utility routines)
+  ===============================================================*/
+
+/*---------------------------------------------------------------
+  ARKStepSetDenseOrder: Specifies the polynomial order for dense
+  output.  Positive values are sent to the interpolation module;
+  negative values imply to use the default.
+  ---------------------------------------------------------------*/
+int ARKStepSetDenseOrder(void *arkode_mem, int dord)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetDenseOrder", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetDenseOrder(ark_mem, dord));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetErrHandlerFn: Specifies the error handler function
+  ---------------------------------------------------------------*/
+int ARKStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
+                           void *eh_data)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetErrHandlerFn", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetErrHandlerFn(ark_mem, ehfun, eh_data));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetErrFile: Specifies the FILE pointer for output (NULL
+  means no messages)
+  ---------------------------------------------------------------*/
+int ARKStepSetErrFile(void *arkode_mem, FILE *errfp)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetErrFile", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetErrFile(ark_mem, errfp));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetUserData: Specifies the user data pointer for f
+  ---------------------------------------------------------------*/
+int ARKStepSetUserData(void *arkode_mem, void *user_data)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetUserData", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetUserData(ark_mem, user_data));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetDiagnostics: Specifies to enable solver diagnostics,
+  and specifies the FILE pointer for output (diagfp==NULL
+  disables output)
+  ---------------------------------------------------------------*/
+int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetDiagnostics", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetDiagnostics(ark_mem, diagfp));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetMaxNumSteps: Specifies the maximum number of
+  integration steps
+  ---------------------------------------------------------------*/
+int ARKStepSetMaxNumSteps(void *arkode_mem, long int mxsteps)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetMaxNumSteps", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetMaxNumSteps(ark_mem, mxsteps));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetMaxHnilWarns: Specifies the maximum number of warnings
+  for small h
+  ---------------------------------------------------------------*/
+int ARKStepSetMaxHnilWarns(void *arkode_mem, int mxhnil)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetMaxHnilWarns", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetMaxHnilWarns(ark_mem, mxhnil));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetInitStep: Specifies the initial step size
+  ---------------------------------------------------------------*/
+int ARKStepSetInitStep(void *arkode_mem, realtype hin)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetInitStep", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetInitStep(ark_mem, hin));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetMinStep: Specifies the minimum step size
+  ---------------------------------------------------------------*/
+int ARKStepSetMinStep(void *arkode_mem, realtype hmin)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetMinStep", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetMinStep(ark_mem, hmin));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetMaxStep: Specifies the maximum step size
+  ---------------------------------------------------------------*/
+int ARKStepSetMaxStep(void *arkode_mem, realtype hmax)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetMaxStep", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetMaxStep(ark_mem, hmax));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetStopTime: Specifies the time beyond which the
+  integration is not to proceed.
+  ---------------------------------------------------------------*/
+int ARKStepSetStopTime(void *arkode_mem, realtype tstop)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetStopTime", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetStopTime(ark_mem, tstop));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetFixedStep: Specifies to use a fixed time step size
+  instead of performing any form of temporal adaptivity.  ARKStep
+  will use this step size for all steps (unless tstop is set, in
+  which case it may need to modify that last step approaching
+  tstop.  If any solver failure occurs in the timestepping
+  module, ARKStep will typically immediately return with an error
+  message indicating that the selected step size cannot be used.
+
+  Any nonzero argument will result in the use of that fixed step
+  size; an argument of 0 will re-enable temporal adaptivity.
+  ---------------------------------------------------------------*/
+int ARKStepSetFixedStep(void *arkode_mem, realtype hfixed)
+{
+  ARKodeMem ark_mem;
+  ARKodeIMEXGARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "ARKStepSetFixedStep",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* allocate or free adaptivity memory as needed */
+  if (hfixed != ZERO) {
+    if (step_mem->hadapt_mem != NULL) {
+      free(step_mem->hadapt_mem);
+      step_mem->hadapt_mem = NULL;
+    }
+  } else if (step_mem->hadapt_mem == NULL) {
+    step_mem->hadapt_mem = arkAdaptInit();
+    if (step_mem->hadapt_mem == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep",
+                      "ARKStepSetFixedStep",
+                      "Allocation of Step Adaptivity Structure Failed");
+      return(ARK_MEM_FAIL);
+    }
+  }
+
+  return(arkSetFixedStep(ark_mem, hfixed));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetRootDirection: Specifies the direction of zero-crossings
+  to be monitored.  The default is to monitor both crossings.
+  ---------------------------------------------------------------*/
+int ARKStepSetRootDirection(void *arkode_mem, int *rootdir)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetRootDirection", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetRootDirection(ark_mem, rootdir));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetNoInactiveRootWarn:  Disables issuing a warning if
+  some root function appears to be identically zero at the
+  beginning of the integration
+  ---------------------------------------------------------------*/
+int ARKStepSetNoInactiveRootWarn(void *arkode_mem)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetNoInactiveRootWarn", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetNoInactiveRootWarn(ark_mem));
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetPostprocessStepFn:  Specifies a user-provided step
+  postprocessing function having type ARKPostProcessStepFn.  A
+  NULL input function disables step postprocessing.
+
+  IF THE SUPPLIED FUNCTION MODIFIES ANY OF THE ACTIVE STATE DATA,
+  THEN ALL THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND
+  STABILITY ARE LOST.
+  ---------------------------------------------------------------*/
+int ARKStepSetPostprocessStepFn(void *arkode_mem,
+                                ARKPostProcessStepFn ProcessStep)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetPostprocessStepFn", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetPostprocessStepFn(ark_mem, ProcessStep));
+}
+
+/*---------------------------------------------------------------
+  These wrappers for ARKLs module 'set' routines all are
+  documented in arkode_arkstep.h.
+  ---------------------------------------------------------------*/
+int ARKStepSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
+                           SUNMatrix A) {
+  return(arkLSSetLinearSolver(arkode_mem, LS, A)); }
+int ARKStepSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
+                               SUNMatrix M, booleantype time_dep) {
+  return(arkLSSetMassLinearSolver(arkode_mem, LS, M, time_dep)); }
+int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac) {
+  return(arkLSSetJacFn(arkode_mem, jac)); }
+int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass) {
+  return(arkLSSetMassFn(arkode_mem, mass)); }
+int ARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj) {
+  return(arkLSSetMaxStepsBetweenJac(arkode_mem, msbj)); }
+int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac) {
+  return(arkLSSetEpsLin(arkode_mem, eplifac)); }
+int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac) {
+  return(arkLSSetMassEpsLin(arkode_mem, eplifac)); }
+int ARKStepSetPreconditioner(void *arkode_mem, ARKLsPrecSetupFn psetup,
+                             ARKLsPrecSolveFn psolve) {
+  return(arkLSSetPreconditioner(arkode_mem, psetup, psolve)); }
+int ARKStepSetMassPreconditioner(void *arkode_mem, ARKLsMassPrecSetupFn psetup,
+                                 ARKLsMassPrecSolveFn psolve) {
+  return(arkLSSetMassPreconditioner(arkode_mem, psetup, psolve)); }
+int ARKStepSetJacTimes(void *arkode_mem, ARKLsJacTimesSetupFn jtsetup,
+                       ARKLsJacTimesVecFn jtimes) {
+  return(arkLSSetJacTimes(arkode_mem, jtsetup, jtimes)); }
+int ARKStepSetMassTimes(void *arkode_mem, ARKLsMassTimesSetupFn msetup,
+                        ARKLsMassTimesVecFn mtimes, void *mtimes_data) {
+  return(arkLSSetMassTimes(arkode_mem, msetup, mtimes, mtimes_data)); }
+
+int ARKStepSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys)
+{
+  return(arkLSSetLinSysFn(arkode_mem, linsys));
+}
+
+
+/*===============================================================
+  ARKStep Optional output functions (wrappers for generic ARKode
+  utility routines)
+  ===============================================================*/
+
+/*---------------------------------------------------------------
+  ARKStepGetNumSteps:  Returns the current number of integration
+  steps
+  ---------------------------------------------------------------*/
+int ARKStepGetNumSteps(void *arkode_mem, long int *nsteps)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetNumSteps", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetNumSteps(ark_mem, nsteps));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetActualInitStep: Returns the step size used on the
+  first step
+  ---------------------------------------------------------------*/
+int ARKStepGetActualInitStep(void *arkode_mem, realtype *hinused)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetActualInitStep", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetActualInitStep(ark_mem, hinused));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetLastStep: Returns the step size used on the last
+  successful step
+  ---------------------------------------------------------------*/
+int ARKStepGetLastStep(void *arkode_mem, realtype *hlast)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetLastStep", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetLastStep(ark_mem, hlast));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetCurrentStep: Returns the step size to be attempted on
+  the next step
+  ---------------------------------------------------------------*/
+int ARKStepGetCurrentStep(void *arkode_mem, realtype *hcur)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetCurrentStep", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetCurrentStep(ark_mem, hcur));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetCurrentTime: Returns the current value of the
+  independent variable
+  ---------------------------------------------------------------*/
+int ARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetCurrentTime", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetCurrentTime(ark_mem, tcur));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetTolScaleFactor: Returns a suggested factor for scaling
+  tolerances
+  ---------------------------------------------------------------*/
+int ARKStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetTolScaleFactor", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetTolScaleFactor(ark_mem, tolsfact));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetErrWeights: This routine returns the current error
+  weight vector.
+  ---------------------------------------------------------------*/
+int ARKStepGetErrWeights(void *arkode_mem, N_Vector eweight)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetErrWeights", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetErrWeights(ark_mem, eweight));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetResWeights: This routine returns the current residual
+  weight vector.
+  ---------------------------------------------------------------*/
+int ARKStepGetResWeights(void *arkode_mem, N_Vector rweight)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetResWeights", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetResWeights(ark_mem, rweight));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetWorkSpace: Returns integrator work space requirements
+  ---------------------------------------------------------------*/
+int ARKStepGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetWorkSpace", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetWorkSpace(ark_mem, lenrw, leniw));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetNumGEvals: Returns the current number of calls to g
+  (for rootfinding)
+  ---------------------------------------------------------------*/
+int ARKStepGetNumGEvals(void *arkode_mem, long int *ngevals)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetNumGEvals", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetNumGEvals(ark_mem, ngevals));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetRootInfo: Returns pointer to array rootsfound showing
+  roots found
+  ---------------------------------------------------------------*/
+int ARKStepGetRootInfo(void *arkode_mem, int *rootsfound)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetRootInfo", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetRootInfo(ark_mem, rootsfound));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetStepStats: Returns step statistics
+  ---------------------------------------------------------------*/
+int ARKStepGetStepStats(void *arkode_mem, long int *nsteps,
+                        realtype *hinused, realtype *hlast,
+                        realtype *hcur, realtype *tcur)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetStepStats", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetStepStats(ark_mem, nsteps, hinused, hlast, hcur, tcur));
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetReturnFlagName: translates from return flags IDs to
+  names
+  ---------------------------------------------------------------*/
+char *ARKStepGetReturnFlagName(long int flag)
+{ return(arkGetReturnFlagName(flag)); }
+
+/*---------------------------------------------------------------
+  These wrappers for ARKLs module 'get' routines all are
+  documented in arkode_arkstep.h.
+  ---------------------------------------------------------------*/
+int ARKStepGetLinWorkSpace(void *arkode_mem, long int *lenrwLS, long int *leniwLS) {
+  return(arkLSGetWorkSpace(arkode_mem, lenrwLS, leniwLS)); }
+int ARKStepGetNumJacEvals(void *arkode_mem, long int *njevals) {
+  return(arkLSGetNumJacEvals(arkode_mem, njevals)); }
+int ARKStepGetNumPrecEvals(void *arkode_mem, long int *npevals) {
+  return(arkLSGetNumPrecEvals(arkode_mem, npevals)); }
+int ARKStepGetNumPrecSolves(void *arkode_mem, long int *npsolves) {
+  return(arkLSGetNumPrecSolves(arkode_mem, npsolves)); }
+int ARKStepGetNumLinIters(void *arkode_mem, long int *nliters) {
+  return(arkLSGetNumLinIters(arkode_mem, nliters)); }
+int ARKStepGetNumLinConvFails(void *arkode_mem, long int *nlcfails) {
+  return(arkLSGetNumConvFails(arkode_mem, nlcfails)); }
+int ARKStepGetNumJTSetupEvals(void *arkode_mem, long int *njtsetups) {
+  return(arkLSGetNumJTSetupEvals(arkode_mem, njtsetups)); }
+int ARKStepGetNumJtimesEvals(void *arkode_mem, long int *njvevals) {
+  return(arkLSGetNumJtimesEvals(arkode_mem, njvevals)); }
+int ARKStepGetNumLinRhsEvals(void *arkode_mem, long int *nfevalsLS) {
+  return(arkLSGetNumRhsEvals(arkode_mem, nfevalsLS)); } 
+int ARKStepGetLastLinFlag(void *arkode_mem, long int *flag) {
+  return(arkLSGetLastFlag(arkode_mem, flag)); }
+
+int ARKStepGetMassWorkSpace(void *arkode_mem, long int *lenrwMLS, long int *leniwMLS) {
+  return(arkLSGetMassWorkSpace(arkode_mem, lenrwMLS, leniwMLS)); }
+int ARKStepGetNumMassSetups(void *arkode_mem, long int *nmsetups) {
+  return(arkLSGetNumMassSetups(arkode_mem, nmsetups)); }
+int ARKStepGetNumMassMultSetups(void *arkode_mem, long int *nmvsetups) {
+  return(arkLSGetNumMassMatvecSetups(arkode_mem, nmvsetups)); }
+int ARKStepGetNumMassMult(void *arkode_mem, long int *nmvevals) {
+  return(arkLSGetNumMassMult(arkode_mem, nmvevals)); }
+int ARKStepGetNumMassSolves(void *arkode_mem, long int *nmsolves) {
+  return(arkLSGetNumMassSolves(arkode_mem, nmsolves)); }
+int ARKStepGetNumMassPrecEvals(void *arkode_mem, long int *nmpevals) {
+  return(arkLSGetNumMassPrecEvals(arkode_mem, nmpevals)); }
+int ARKStepGetNumMassPrecSolves(void *arkode_mem, long int *nmpsolves) {
+  return(arkLSGetNumMassPrecSolves(arkode_mem, nmpsolves)); }
+int ARKStepGetNumMassIters(void *arkode_mem, long int *nmiters) {
+  return(arkLSGetNumMassIters(arkode_mem, nmiters)); }
+int ARKStepGetNumMassConvFails(void *arkode_mem, long int *nmcfails) {
+  return(arkLSGetNumMassConvFails(arkode_mem, nmcfails)); }
+int ARKStepGetNumMTSetups(void *arkode_mem, long int *nmtsetups) {
+  return(arkLSGetNumMTSetups(arkode_mem, nmtsetups)); }
+int ARKStepGetLastMassFlag(void *arkode_mem, long int *flag) {
+  return(arkLSGetLastMassFlag(arkode_mem, flag)); }
+
+char *ARKStepGetLinReturnFlagName(long int flag) {
+  return(arkLSGetReturnFlagName(flag)); }
+
+
+
+/*===============================================================
+  ARKStep optional input functions -- stepper-specific
+  ===============================================================*/
 
 /*---------------------------------------------------------------
   IMEXGARKStepSetDefaults:
 
-  Resets all IMEXGARKStep optional inputs to their default values.  
-  Does not change problem-defining function pointers or 
-  user_data pointer.  Also leaves alone any data 
+  Resets all IMEXGARKStep optional inputs to their default values.
+  Does not change problem-defining function pointers or
+  user_data pointer.  Also leaves alone any data
   structures/options related to the ARKode infrastructure itself
   (e.g. root-finding).
   ---------------------------------------------------------------*/
@@ -60,18 +628,18 @@ int IMEXGARKStepSetDefaults(void* mem)
 
   /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
   if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetDefaults", MSGARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "IMEXGARKStepSetDefaults", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   arkode_mem = (ARKodeMem) mem;
   if (arkode_mem->step_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetDefaults", MSG_IMEXGARK_NO_STEP_MEM);
+                    "IMEXGARKStepSetDefaults", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
-  
+
   /* Set default values for integrator optional inputs */
   step_mem->q                = Q_DEFAULT;      /* method order */
   step_mem->p                = 0;              /* embedding order */
@@ -105,9 +673,6 @@ int IMEXGARKStepSetDefaults(void* mem)
   step_mem->rdiv             = RDIV;           /* nonlinear divergence tolerance */
   step_mem->dgmax            = DGMAX;          /* max step change before recomputing J or P */
   step_mem->msbp             = MSBP;           /* max steps between updates to J or P */
-  step_mem->use_fp           = SUNFALSE;       /* use Newton solver */
-  step_mem->fp_m             = FP_ACCEL_M;     /* num Anderson acceleration vectors */
-  step_mem->fp_mem           = NULL;
   step_mem->stages           = 0;              /* no stages */
   step_mem->istage           = 0;              /* current stage */
   step_mem->Bee              = NULL;           /* no Butcher tables */
@@ -119,36 +684,28 @@ int IMEXGARKStepSetDefaults(void* mem)
 /*---------------------------------------------------------------
   IMEXGARKStepSetLinear:
 
-  Specifies that the implicit portion of the problem is linear, 
-  and to tighten the linear solver tolerances while taking only 
-  one Newton iteration.  Not useful when used in combination with
-  the fixed-point solver.  Automatically tightens DeltaGammaMax 
+  Specifies that the implicit portion of the problem is linear,
+  and to tighten the linear solver tolerances while taking only
+  one Newton iteration.  DO NOT USE IN COMBINATION WITH THE
+  FIXED-POINT SOLVER.  Automatically tightens DeltaGammaMax
   to ensure that step size changes cause Jacobian recomputation.
 
-  The argument should be 1 or 0, where 1 indicates that the 
+  The argument should be 1 or 0, where 1 indicates that the
   Jacobian of fi with respect to y depends on time, and
-  0 indicates that it is not time dependent.  Alternately, when 
-  using an iterative linear solver this flag denotes time 
-  dependence of the preconditioner. 
+  0 indicates that it is not time dependent.  Alternately, when
+  using an iterative linear solver this flag denotes time
+  dependence of the preconditioner.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetLinear(void *mem, int timedepend)
+int IMEXGARKStepSetLinear(void *arkode_mem, int timedepend)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetLinear", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetLinear", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetLinear",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set parameters */
   step_mem->linear = SUNTRUE;
@@ -166,24 +723,16 @@ int IMEXGARKStepSetLinear(void *mem, int timedepend)
   Used to undo a previous call to IMEXGARKStepSetLinear.  Automatically
   loosens DeltaGammaMax back to default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetNonlinear(void *mem)
+int IMEXGARKStepSetNonlinear(void *arkode_mem)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetNonlinear", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetNonlinear", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetNonlinear",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set parameters */
   step_mem->linear = SUNFALSE;
@@ -195,96 +744,23 @@ int IMEXGARKStepSetNonlinear(void *mem)
 
 
 /*---------------------------------------------------------------
-  IMEXGARKStepSetFixedPoint:
-
-  Specifies that the implicit portion of the problem should be 
-  solved using the accelerated fixed-point solver instead of the 
-  Newton iteration.  Allowed values for the dimension of the 
-  acceleration space, fp_m, must be non-negative.  Illegal 
-  values imply to use the default.
-  ---------------------------------------------------------------*/
-int IMEXGARKStepSetFixedPoint(void *mem, long int fp_m)
-{
-  ARKodeMem arkode_mem;
-  ARKodeIMEXGARKStepMem step_mem;
-
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetFixedPoint", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetFixedPoint", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
-
-  /* set parameters */
-  step_mem->use_fp = SUNTRUE;
-  if (fp_m < 0) {
-    step_mem->fp_m = FP_ACCEL_M;
-  } else {
-    step_mem->fp_m = fp_m;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  IMEXGARKStepSetNewton:
-
-  Specifies that the implicit portion of the problem should be 
-  solved using the modified Newton solver.  Used to undo a 
-  previous call to IMEXGARKStepSetFixedPoint.
-  ---------------------------------------------------------------*/
-int IMEXGARKStepSetNewton(void *mem)
-{
-  ARKodeMem arkode_mem;
-  ARKodeIMEXGARKStepMem step_mem;
-
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetNewton", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetNewton", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
-
-  /* set parameters */
-  step_mem->use_fp = SUNFALSE;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
   IMEXGARKStepSetARKTables:
 
   Specifies to use customized Butcher tables for the ImEx system
   (automatically calls IMEXGARKStepSetImEx).
 
-  If either b2e == NULL or b2i == NULL, then the method is 
-  automatically flagged as a fixed-step method; a user MUST also 
-  call either ARKodeSetFixedStep or ARKodeSetInitStep to set the 
+  If either b2e == NULL or b2i == NULL, then the method is
+  automatically flagged as a fixed-step method; a user MUST also
+  call either ARKodeSetFixedStep or ARKodeSetInitStep to set the
   desired time step size.
   ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int IMEXGARKStepSetButcherTables(void *mem, int s, 
-                                                 int q, int p, 
-                                                 realtype *ce, realtype *ci,
-                                                 realtype *Aee, realtype *Aei,
-                                                 realtype *Aie, realtype *Aii,
-                                                 realtype *be, realtype *bi,
-                                                 realtype *de, realtype *di)
+SUNDIALS_EXPORT int IMEXGARKStepSetTables(void *mem, int s,
+                                          int q, int p,
+                                          realtype *ce, realtype *ci,
+                                          realtype *Aee, realtype *Aei,
+                                          realtype *Aie, realtype *Aii,
+                                          realtype *be, realtype *bi,
+                                          realtype *de, realtype *di)
 {
   int i, j;
   ARKodeMem arkode_mem;
@@ -292,14 +768,14 @@ SUNDIALS_EXPORT int IMEXGARKStepSetButcherTables(void *mem, int s,
 
   /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
   if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetButcherTables", MSGARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "IMEXGARKStepSetButcherTables", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   arkode_mem = (ARKodeMem) mem;
   if (arkode_mem->step_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetButcherTables", MSG_IMEXGARK_NO_STEP_MEM);
+                    "IMEXGARKStepSetButcherTables", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
@@ -309,8 +785,8 @@ SUNDIALS_EXPORT int IMEXGARKStepSetButcherTables(void *mem, int s,
       (Aee == NULL) || (Aei == NULL) ||
       (Aie == NULL) || (Aii == NULL) ||
       (bi  == NULL) || (be  == NULL)) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetButcherTables", MSGARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "IMEXGARKStepSetButcherTables", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
 
@@ -318,19 +794,19 @@ SUNDIALS_EXPORT int IMEXGARKStepSetButcherTables(void *mem, int s,
   step_mem->stages = 0;
   step_mem->q = 0;
   step_mem->p = 0;
-  FreeButcherTable(step_mem->Bee); step_mem->Bee = NULL;
-  FreeButcherTable(step_mem->Bei); step_mem->Bei = NULL; /* don't need a full Butcher table (only A) */
-  FreeButcherTable(step_mem->Bie); step_mem->Bie = NULL; /* don't need a full Butcher table (only A) */
-  FreeButcherTable(step_mem->Bii); step_mem->Bii = NULL;
+  ARKodeButcherTable_Free(step_mem->Bee); step_mem->Bee = NULL;
+  ARKodeButcherTable_Free(step_mem->Bei); step_mem->Bei = NULL; /* don't need a full Butcher table (only A) */
+  ARKodeButcherTable_Free(step_mem->Bie); step_mem->Bie = NULL; /* don't need a full Butcher table (only A) */
+  ARKodeButcherTable_Free(step_mem->Bii); step_mem->Bii = NULL;
 
   /* set the relevant parameters */
   step_mem->stages = s;
   step_mem->q = q;
   step_mem->p = p;
-  step_mem->Bee = AllocButcherTable(s, (de != NULL));
-  step_mem->Bei = AllocButcherTable(s, (de != NULL)); /* don't need a full Butcher table (only A) */
-  step_mem->Bie = AllocButcherTable(s, (de != NULL)); /* don't need a full Butcher table (only A) */
-  step_mem->Bii = AllocButcherTable(s, (di != NULL));
+  step_mem->Bee = ARKodeButcherTable_Alloc(s, (de != NULL));
+  step_mem->Bei = ARKodeButcherTable_Alloc(s, (de != NULL)); /* don't need a full Butcher table (only A) */
+  step_mem->Bie = ARKodeButcherTable_Alloc(s, (de != NULL)); /* don't need a full Butcher table (only A) */
+  step_mem->Bii = ARKodeButcherTable_Alloc(s, (di != NULL));
   step_mem->Bee->p = p;
   step_mem->Bii->q = q;
   step_mem->Bee->q = q;
@@ -370,40 +846,34 @@ SUNDIALS_EXPORT int IMEXGARKStepSetButcherTables(void *mem, int s,
   IMEXGARKStepSetCFLFraction:
 
   Specifies the safety factor to use on the maximum explicitly-
-  stable step size.  Allowable values must be within the open 
+  stable step size.  Allowable values must be within the open
   interval (0,1).  A non-positive input implies a reset to
   the default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetCFLFraction(void *mem, realtype cfl_frac)
+int IMEXGARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetCFLFraction", MSGARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetCFLFraction", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetCFLFraction",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
                     "IMEXGARKStepSetCFLFraction",
-                    MSG_IMEXGARK_NO_ADAPT_MEM);
+                    MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
 
   /* check for allowable parameters */
   if (cfl_frac >= 1.0) {
-    arkProcessError(arkode_mem, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::IMEXGARKStep",
                     "IMEXGARKStepSetCFLFraction", "Illegal CFL fraction");
     return(ARK_ILL_INPUT);
   }
@@ -414,7 +884,7 @@ int IMEXGARKStepSetCFLFraction(void *mem, realtype cfl_frac)
   } else {
     hadapt_mem->cfl = cfl_frac;
   }
-    
+
   return(ARK_SUCCESS);
 }
 
@@ -422,40 +892,34 @@ int IMEXGARKStepSetCFLFraction(void *mem, realtype cfl_frac)
 /*---------------------------------------------------------------
   IMEXGARKStepSetSafetyFactor:
 
-  Specifies the safety factor to use on the error-based predicted 
-  time step size.  Allowable values must be within the open 
-  interval (0,1).  A non-positive input implies a reset to the 
+  Specifies the safety factor to use on the error-based predicted
+  time step size.  Allowable values must be within the open
+  interval (0,1).  A non-positive input implies a reset to the
   default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetSafetyFactor(void *mem, realtype safety)
+int IMEXGARKStepSetSafetyFactor(void *arkode_mem, realtype safety)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetSafetyFactor", MSGARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetSafetyFactor", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetSafetyFactor",
+                                     &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetSafetyFactoy",MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetSafetyFactoy",MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
 
   /* check for allowable parameters */
   if (safety >= 1.0) {
-    arkProcessError(arkode_mem, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::IMEXGARKStep",
                     "IMEXGARKStepSetSafetyFactor", "Illegal safety factor");
     return(ARK_ILL_INPUT);
   }
@@ -466,7 +930,7 @@ int IMEXGARKStepSetSafetyFactor(void *mem, realtype safety)
   } else {
     hadapt_mem->safety = safety;
   }
-    
+
   return(ARK_SUCCESS);
 }
 
@@ -478,28 +942,22 @@ int IMEXGARKStepSetSafetyFactor(void *mem, realtype safety)
   error control.  Allowable values must be >= 1.0.  Any illegal
   value implies a reset to the default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetErrorBias(void *mem, realtype bias)
+int IMEXGARKStepSetErrorBias(void *arkode_mem, realtype bias)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetErrorBias", MSGARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetErrorBias", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetErrorBias",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetErrorBias", MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "IMEXGARKStepSetErrorBias", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
@@ -510,7 +968,7 @@ int IMEXGARKStepSetErrorBias(void *mem, realtype bias)
   } else {
     hadapt_mem->bias = bias;
   }
-    
+
   return(ARK_SUCCESS);
 }
 
@@ -519,32 +977,26 @@ int IMEXGARKStepSetErrorBias(void *mem, realtype bias)
   IMEXGARKStepSetMaxGrowth:
 
   Specifies the maximum step size growth factor to be allowed
-  between successive integration steps.  Note: the first step uses 
-  a separate maximum growth factor.  Allowable values must be 
+  between successive integration steps.  Note: the first step uses
+  a separate maximum growth factor.  Allowable values must be
   > 1.0.  Any illegal value implies a reset to the default.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetMaxGrowth(void *mem, realtype mx_growth)
+int IMEXGARKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetMaxGrowth", MSGARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxGrowth", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetMaxGrowth",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxGrowth", MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetMaxGrowth", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
@@ -563,32 +1015,26 @@ int IMEXGARKStepSetMaxGrowth(void *mem, realtype mx_growth)
 /*---------------------------------------------------------------
   IMEXGARKStepSetFixedStepBounds:
 
-  Specifies the step size growth interval within which the step 
-  size will remain unchanged.  Allowable values must enclose the 
+  Specifies the step size growth interval within which the step
+  size will remain unchanged.  Allowable values must enclose the
   value 1.0.  Any illegal interval implies a reset to the default.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetFixedStepBounds(void *mem, realtype lb, realtype ub)
+int IMEXGARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetFixedStepBounds", MSGARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetFixedStepBounds", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetFixedStepBounds",
+                                         &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetFixedStepBounds", MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetFixedStepBounds", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
@@ -609,41 +1055,35 @@ int IMEXGARKStepSetFixedStepBounds(void *mem, realtype lb, realtype ub)
 /*---------------------------------------------------------------
   IMEXGARKStepSetAdaptivityMethod:
 
-  Specifies the built-in time step adaptivity algorithm (and 
-  optionally, its associated parameters) to use.  All parameters 
+  Specifies the built-in time step adaptivity algorithm (and
+  optionally, its associated parameters) to use.  All parameters
   will be checked for validity when used by the solver.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetAdaptivityMethod(void *mem, int imethod, 
-                               int idefault, int pq, 
+int IMEXGARKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
+                               int idefault, int pq,
                                realtype *adapt_params)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetAdaptivityMethod", MSGARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetAdaptivityMethod", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetAdaptivityMethod",
+                                     &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetAdaptivityMethod", MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetAdaptivityMethod", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
 
   /* check for allowable parameters */
   if ((imethod > 5) || (imethod < 0)) {
-    arkProcessError(arkode_mem, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::IMEXGARKStep",
                     "IMEXGARKStepSetAdaptivityMethod", "Illegal imethod");
     return(ARK_ILL_INPUT);
   }
@@ -658,7 +1098,7 @@ int IMEXGARKStepSetAdaptivityMethod(void *mem, int imethod,
   if (idefault == 1) {
     switch (hadapt_mem->imethod) {
     case (0):
-      hadapt_mem->k1 = AD0_K1; 
+      hadapt_mem->k1 = AD0_K1;
       hadapt_mem->k2 = AD0_K2;
       hadapt_mem->k3 = AD0_K3; break;
     case (1):
@@ -674,7 +1114,7 @@ int IMEXGARKStepSetAdaptivityMethod(void *mem, int imethod,
       hadapt_mem->k2 = AD4_K2; break;
     case (5):
       hadapt_mem->k1 = AD5_K1;
-      hadapt_mem->k2 = AD5_K2; 
+      hadapt_mem->k2 = AD5_K2;
       hadapt_mem->k3 = AD5_K3; break;
     }
   } else {
@@ -692,29 +1132,23 @@ int IMEXGARKStepSetAdaptivityMethod(void *mem, int imethod,
 
   Specifies the user-provided time step adaptivity function to use.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetAdaptivityFn(void *mem, ARKAdaptFn hfun,
-                           void *h_data)
+int IMEXGARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
+                                void *h_data)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetAdaptivityFn", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetAdaptivityFn", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetAdaptivityFn",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetAdaptivityFn", MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetAdaptivityFn", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
@@ -737,36 +1171,30 @@ int IMEXGARKStepSetAdaptivityFn(void *mem, ARKAdaptFn hfun,
 /*---------------------------------------------------------------
   IMEXGARKStepSetMaxFirstGrowth:
 
-  Specifies the user-provided time step adaptivity constant 
-  etamx1.  Legal values are greater than 1.0.  Illegal values 
-  imply a reset to the default value. 
+  Specifies the user-provided time step adaptivity constant
+  etamx1.  Legal values are greater than 1.0.  Illegal values
+  imply a reset to the default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetMaxFirstGrowth(void *mem, realtype etamx1)
+int IMEXGARKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetMaxFirstGrowth", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxFirstGrowth", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetMaxFirstGrowth",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxFirstGrowth",MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetMaxFirstGrowth",MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
-  
+
   /* if argument legal set it, otherwise set default */
   if (etamx1 <= ONE) {
     hadapt_mem->etamx1 = ETAMX1;
@@ -781,36 +1209,30 @@ int IMEXGARKStepSetMaxFirstGrowth(void *mem, realtype etamx1)
 /*---------------------------------------------------------------
   IMEXGARKStepSetMaxEFailGrowth:
 
-  Specifies the user-provided time step adaptivity constant 
-  etamxf. Legal values are in the interval (0,1].  Illegal values 
-  imply a reset to the default value. 
+  Specifies the user-provided time step adaptivity constant
+  etamxf. Legal values are in the interval (0,1].  Illegal values
+  imply a reset to the default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetMaxEFailGrowth(void *mem, realtype etamxf)
+int IMEXGARKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetMaxEFailGrowth", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxEFailGrowth", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetMaxEFailGrowth",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxEFailGrowth", MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "IMEXGARKStepSetMaxEFailGrowth", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
-  
+
   /* if argument legal set it, otherwise set default */
   if ((etamxf <= ZERO) || (etamxf > ONE)) {
     hadapt_mem->etamxf = ETAMXF;
@@ -826,35 +1248,29 @@ int IMEXGARKStepSetMaxEFailGrowth(void *mem, realtype etamxf)
   IMEXGARKStepSetSmallNumEFails:
 
   Specifies the user-provided time step adaptivity constant
-  small_nef.  Legal values are > 0.  Illegal values 
-  imply a reset to the default value. 
+  small_nef.  Legal values are > 0.  Illegal values
+  imply a reset to the default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetSmallNumEFails(void *mem, int small_nef)
+int IMEXGARKStepSetSmallNumEFails(void *arkode_mem, int small_nef)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetSmallNumEFails", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetSmallNumEFails", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetSmallNumEFails",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetSmallNumEFails", MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetSmallNumEFails", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
-  
+
   /* if argument legal set it, otherwise set default */
   if (small_nef <= 0) {
     hadapt_mem->small_nef = SMALL_NEF;
@@ -870,35 +1286,29 @@ int IMEXGARKStepSetSmallNumEFails(void *mem, int small_nef)
   IMEXGARKStepSetMaxCFailGrowth:
 
   Specifies the user-provided time step adaptivity constant
-  etacf. Legal values are in the interval (0,1].  Illegal values 
-  imply a reset to the default value. 
+  etacf. Legal values are in the interval (0,1].  Illegal values
+  imply a reset to the default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetMaxCFailGrowth(void *mem, realtype etacf)
+int IMEXGARKStepSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetMaxCFailGrowth", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxCFailGrowth", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetMaxCFailGrowth",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxCFailGrowth", MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetMaxCFailGrowth", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
-  
+
   /* if argument legal set it, otherwise set default */
   if ((etacf <= ZERO) || (etacf > ONE)) {
     hadapt_mem->etacf = ETACF;
@@ -914,27 +1324,19 @@ int IMEXGARKStepSetMaxCFailGrowth(void *mem, realtype etacf)
   IMEXGARKStepSetNonlinCRDown:
 
   Specifies the user-provided nonlinear convergence constant
-  crdown.  Legal values are strictly positive; illegal values 
+  crdown.  Legal values are strictly positive; illegal values
   imply a reset to the default.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetNonlinCRDown(void *mem, realtype crdown)
+int IMEXGARKStepSetNonlinCRDown(void *arkode_mem, realtype crdown)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetNonlinCRDown", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetNonlinCRDown", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetNonlinCRDown",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if argument legal set it, otherwise set default */
   if (crdown <= ZERO) {
@@ -951,27 +1353,19 @@ int IMEXGARKStepSetNonlinCRDown(void *mem, realtype crdown)
   IMEXGARKStepSetNonlinRDiv:
 
   Specifies the user-provided nonlinear convergence constant
-  rdiv.  Legal values are strictly positive; illegal values 
+  rdiv.  Legal values are strictly positive; illegal values
   imply a reset to the default.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetNonlinRDiv(void *mem, realtype rdiv)
+int IMEXGARKStepSetNonlinRDiv(void *arkode_mem, realtype rdiv)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetNonlinRDiv", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetNonlinRDiv", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetNonlinRDiv",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if argument legal set it, otherwise set default */
   if (rdiv <= ZERO) {
@@ -988,27 +1382,19 @@ int IMEXGARKStepSetNonlinRDiv(void *mem, realtype rdiv)
   IMEXGARKStepSetDeltaGammaMax:
 
   Specifies the user-provided linear setup decision constant
-  dgmax.  Legal values are strictly positive; illegal values imply 
-  a reset to the default. 
+  dgmax.  Legal values are strictly positive; illegal values imply
+  a reset to the default.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetDeltaGammaMax(void *mem, realtype dgmax)
+int IMEXGARKStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetDeltaGammaMax", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetDeltaGammaMax", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetDeltaGammaMax",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if argument legal set it, otherwise set default */
   if (dgmax <= ZERO) {
@@ -1025,29 +1411,21 @@ int IMEXGARKStepSetDeltaGammaMax(void *mem, realtype dgmax)
   IMEXGARKStepSetMaxStepsBetweenLSet:
 
   Specifies the user-provided linear setup decision constant
-  msbp.  Positive values give the number of time steps to wait 
-  before calling lsetup; negative values imply recomputation of 
-  lsetup at each Newton iteration; a zero value implies a reset 
-  to the default. 
+  msbp.  Positive values give the number of time steps to wait
+  before calling lsetup; negative values imply recomputation of
+  lsetup at each nonlinear solve; a zero value implies a reset
+  to the default.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetMaxStepsBetweenLSet(void *mem, int msbp)
+int IMEXGARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetMaxStepsBetweenLSet", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxStepsBetweenLSet", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetMaxStepsBetweenLSet",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if argument legal set it, otherwise set default */
   if (msbp == 0) {
@@ -1063,28 +1441,20 @@ int IMEXGARKStepSetMaxStepsBetweenLSet(void *mem, int msbp)
 /*---------------------------------------------------------------
   IMEXGARKStepSetPredictorMethod:
 
-  Specifies the method to use for predicting implicit solutions.  
-  Non-default choices are {1,2,3,4}, all others will use default 
+  Specifies the method to use for predicting implicit solutions.
+  Non-default choices are {1,2,3,4}, all others will use default
   (trivial) predictor.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetPredictorMethod(void *mem, int pred_method)
+int IMEXGARKStepSetPredictorMethod(void *arkode_mem, int pred_method)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetPredictorMethod", MSGARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetPredictorMethod", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetPredictorMethod",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set parameters */
   step_mem->predictor = pred_method;
@@ -1096,41 +1466,35 @@ int IMEXGARKStepSetPredictorMethod(void *mem, int pred_method)
 /*---------------------------------------------------------------
   IMEXGARKStepSetStabilityFn:
 
-  Specifies the user-provided explicit time step stability 
+  Specifies the user-provided explicit time step stability
   function to use.  A NULL input function implies a reset to
   the default function (empty).
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetStabilityFn(void *mem, ARKExpStabFn EStab,
-                          void *estab_data)
+int IMEXGARKStepSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab,
+                               void *estab_data)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeIMEXGARKStepMem and ARKodeHAdaptMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetStabilityFn", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetStabilityFn", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IEMXGARKStepSetStabilityFn",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetStabilityFn", MSG_IMEXGARK_NO_ADAPT_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetStabilityFn", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
-  
+
   /* NULL argument sets default, otherwise set inputs */
   if (EStab == NULL) {
     hadapt_mem->expstab    = arkExpStab;
-    hadapt_mem->estab_data = arkode_mem;
+    hadapt_mem->estab_data = ark_mem;
   } else {
     hadapt_mem->expstab    = EStab;
     hadapt_mem->estab_data = estab_data;
@@ -1147,24 +1511,16 @@ int IMEXGARKStepSetStabilityFn(void *mem, ARKExpStabFn EStab,
   step try.  A non-positive input implies a reset to
   the default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetMaxErrTestFails(void *mem, int maxnef)
+int IMEXGARKStepSetMaxErrTestFails(void *arkode_mem, int maxnef)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetMaxErrTestFails", MSGARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxErrTestFails", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetMaxErrTestFails",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* argument <= 0 sets default, otherwise set input */
   if (maxnef <= 0) {
@@ -1180,28 +1536,20 @@ int IMEXGARKStepSetMaxErrTestFails(void *mem, int maxnef)
 /*---------------------------------------------------------------
   IMEXGARKStepSetMaxConvFails:
 
-  Specifies the maximum number of nonlinear convergence failures 
+  Specifies the maximum number of nonlinear convergence failures
   during one step try.  A non-positive input implies a reset to
   the default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetMaxConvFails(void *mem, int maxncf)
+int IMEXGARKStepSetMaxConvFails(void *arkode_mem, int maxncf)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetMaxConvFails", MSGARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxConvFails", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetMaxConvFails",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* argument <= 0 sets default, otherwise set input */
   if (maxncf <= 0) {
@@ -1218,33 +1566,42 @@ int IMEXGARKStepSetMaxConvFails(void *mem, int maxncf)
   IMEXGARKStepSetMaxNonlinIters:
 
   Specifies the maximum number of nonlinear iterations during
-  one solve.  A non-positive input implies a reset to the 
+  one solve.  A non-positive input implies a reset to the
   default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetMaxNonlinIters(void *mem, int maxcor)
+int IMEXGARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetMaxNonlinIters", MSGARK_NO_MEM);
-    return (ARK_MEM_NULL);
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetMaxNonlinIters",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* Return error message if no NLS module is present */
+  if (step_mem->NLS == NULL) {
+    arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetMaxNonlinIters",
+                    "No SUNNonlinearSolver object is present");
+    return(ARK_ILL_INPUT);
   }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetMaxNonlinIters", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
 
   /* argument <= 0 sets default, otherwise set input */
   if (maxcor <= 0) {
     step_mem->maxcor = MAXCOR;
   } else {
     step_mem->maxcor = maxcor;
+  }
+
+  /* send argument to NLS structure */
+  retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
+  if (retval != SUN_NLS_SUCCESS) {
+    arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSetMaxNonlinIters",
+                    "Error setting maxcor in SUNNonlinearSolver object");
+    return(ARK_NLS_OP_ERR);
   }
 
   return(ARK_SUCCESS);
@@ -1257,24 +1614,16 @@ int IMEXGARKStepSetMaxNonlinIters(void *mem, int maxcor)
   Specifies the coefficient in the nonlinear solver convergence
   test.  A non-positive input implies a reset to the default value.
   ---------------------------------------------------------------*/
-int IMEXGARKStepSetNonlinConvCoef(void *mem, realtype nlscoef)
+int IMEXGARKStepSetNonlinConvCoef(void *arkode_mem, realtype nlscoef)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepSetNonlinConvCoef", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepSetNonlinConvCoef", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepSetNonlinConvCoef",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* argument <= 0 sets default, otherwise set input */
   if (nlscoef <= ZERO) {
@@ -1288,7 +1637,7 @@ int IMEXGARKStepSetNonlinConvCoef(void *mem, realtype nlscoef)
 
 
 /*===============================================================
-  ARKODE optional output functions
+  IMEXGARKStep optional output functions -- stepper-specific
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -1296,24 +1645,16 @@ int IMEXGARKStepSetNonlinConvCoef(void *mem, realtype nlscoef)
 
   Returns the current number of stability-limited steps
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetNumExpSteps(void *mem, long int *nsteps)
+int IMEXGARKStepGetNumExpSteps(void *arkode_mem, long int *nsteps)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetNumExpSteps", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetNumExpSteps", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetNumExpSteps",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if step adaptivity structure not allocated, just return 0 */
   if (step_mem->hadapt_mem == NULL) {
@@ -1331,24 +1672,16 @@ int IMEXGARKStepGetNumExpSteps(void *mem, long int *nsteps)
 
   Returns the current number of accuracy-limited steps
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetNumAccSteps(void *mem, long int *nsteps)
+int IMEXGARKStepGetNumAccSteps(void *arkode_mem, long int *nsteps)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetNumAccSteps", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetNumAccSteps", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetNumAccSteps",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if step adaptivity structure not allocated, just return 0 */
   if (step_mem->hadapt_mem == NULL) {
@@ -1366,24 +1699,16 @@ int IMEXGARKStepGetNumAccSteps(void *mem, long int *nsteps)
 
   Returns the current number of steps attempted by the solver
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetNumStepAttempts(void *mem, long int *nsteps)
+int IMEXGARKStepGetNumStepAttempts(void *arkode_mem, long int *nsteps)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetNumStepAttempts", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetNumStepAttempts", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetNumStepAttempts",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* get value from step_mem */
   *nsteps = step_mem->nst_attempts;
@@ -1397,25 +1722,17 @@ int IMEXGARKStepGetNumStepAttempts(void *mem, long int *nsteps)
 
   Returns the current number of calls to fe and fi
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetNumRhsEvals(void *mem, long int *fe_evals,
-                          long int *fi_evals)
+int IMEXGARKStepGetNumRhsEvals(void *arkode_mem, long int *fe_evals,
+                               long int *fi_evals)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetNumRhsEvals", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetNumRhsEvals", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetNumRhsEvals",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* get values from step_mem */
   *fe_evals = step_mem->nfe;
@@ -1430,24 +1747,16 @@ int IMEXGARKStepGetNumRhsEvals(void *mem, long int *fe_evals,
 
   Returns the current number of calls to the lsetup routine
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetNumLinSolvSetups(void *mem, long int *nlinsetups)
+int IMEXGARKStepGetNumLinSolvSetups(void *arkode_mem, long int *nlinsetups)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetNumLinSolvSetups", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetNumLinSolvSetups", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetNumLinSolvSetups",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* get value from step_mem */
   *nlinsetups = step_mem->nsetups;
@@ -1461,24 +1770,16 @@ int IMEXGARKStepGetNumLinSolvSetups(void *mem, long int *nlinsetups)
 
   Returns the current number of error test failures
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetNumErrTestFails(void *mem, long int *netfails)
+int IMEXGARKStepGetNumErrTestFails(void *arkode_mem, long int *netfails)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetNumErrTestFails", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetNumErrTestFails", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetNumErrTestFails",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* get value from step_mem */
   *netfails = step_mem->netf;
@@ -1490,31 +1791,23 @@ int IMEXGARKStepGetNumErrTestFails(void *mem, long int *netfails)
 /*---------------------------------------------------------------
   IMEXGARKStepGetCurrentButcherTables:
 
-  Sets pointers to the explicit and implicit Butcher tables 
+  Sets pointers to the explicit and implicit Butcher tables
   currently in use.
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetCurrentButcherTables(void *mem,
+int IMEXGARKStepGetCurrentButcherTables(void *arkode_mem,
                                         ARKodeButcherTable *Bee,
                                         ARKodeButcherTable *Bei,
                                         ARKodeButcherTable *Bie,
                                         ARKodeButcherTable *Bii)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetCurrentButcherTables", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetCurrentButcherTables", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetCurrentButcherTables",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* get tables from step_mem */
   *Bii = step_mem->Bii;
@@ -1524,33 +1817,25 @@ int IMEXGARKStepGetCurrentButcherTables(void *mem,
 
 
 /*---------------------------------------------------------------
-  IMEXGARKStepGetEstLocalErrors: (updated to the correct vector, but 
-  need to verify that it is unchanged between filling the 
+  IMEXGARKStepGetEstLocalErrors: (updated to the correct vector, but
+  need to verify that it is unchanged between filling the
   estimated error and the end of the time step)
 
   Returns an estimate of the local error
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetEstLocalErrors(void *mem, N_Vector ele)
+int IMEXGARKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetEstLocalErrors", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetEstLocalErrors", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetEstLocalErrors",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* copy vector to output */
-  N_VScale(ONE, arkode_mem->tempv1, ele);
+  N_VScale(ONE, ark_mem->tempv1, ele);
 
   return(ARK_SUCCESS);
 }
@@ -1561,29 +1846,21 @@ int IMEXGARKStepGetEstLocalErrors(void *mem, N_Vector ele)
 
   Returns integrator statistics
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetTimestepperStats(void *mem, long int *expsteps,
-                               long int *accsteps, long int *step_attempts,
-                               long int *fe_evals, long int *fi_evals,
-                               long int *nlinsetups, long int *netfails)
+int IMEXGARKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
+                                    long int *accsteps, long int *step_attempts,
+                                    long int *fe_evals, long int *fi_evals,
+                                    long int *nlinsetups, long int *netfails)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetTimestepperStats", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetTimestepperStats", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetTimestepperStats",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
-  /* if step adaptivity structure not allocated, 
+  /* if step adaptivity structure not allocated,
      just set expsteps and accsteps to 0 */
   if (step_mem->hadapt_mem == NULL) {
     *expsteps = 0;
@@ -1607,29 +1884,32 @@ int IMEXGARKStepGetTimestepperStats(void *mem, long int *expsteps,
 /*---------------------------------------------------------------
   IMEXGARKStepGetNumNonlinSolvIters:
 
-  Returns the current number of nonlinear solver iterations 
+  Returns the current number of nonlinear solver iterations
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetNumNonlinSolvIters(void *mem, long int *nniters)
+int IMEXGARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetNumNonlinSolvIters", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetNumNonlinSolvIters", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetNumNonlinSolvIters",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
-  /* set output from step_mem */
-  *nniters = step_mem->nni;
+  /* if a NLS object is present, set output from that; otherwise
+     we took zero iterations */
+  if (step_mem->NLS) {
+    retval = SUNNonlinSolGetNumIters(step_mem->NLS, nniters);
+    if (retval != SUN_NLS_SUCCESS) {
+      arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::IMEXGARKStep",
+                      "IMEXGARKStepGetNumNonlinSolvIters",
+                      "Error retrieving nniters from SUNNonlinearSolver");
+      return(ARK_NLS_OP_ERR);
+    }
+  } else {
+    *nniters = 0;
+  }
 
   return(ARK_SUCCESS);
 }
@@ -1640,24 +1920,16 @@ int IMEXGARKStepGetNumNonlinSolvIters(void *mem, long int *nniters)
 
   Returns the current number of nonlinear solver convergence fails
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetNumNonlinSolvConvFails(void *mem, long int *nncfails)
+int IMEXGARKStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetNumNonlinSolvConvFails", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetNumNonlinSolvConvFails", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetNumNonlinSolvConvFails",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set output from step_mem */
   *nncfails = step_mem->ncfn;
@@ -1671,29 +1943,33 @@ int IMEXGARKStepGetNumNonlinSolvConvFails(void *mem, long int *nncfails)
 
   Returns nonlinear solver statistics
   ---------------------------------------------------------------*/
-int IMEXGARKStepGetNonlinSolvStats(void *mem, long int *nniters, 
-                              long int *nncfails)
+int IMEXGARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
+                                   long int *nncfails)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepGetNonlinSolvStats", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepGetNonlinSolvStats", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepGetNonlinSolvStats",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
-  /* set outputs from step_mem */
-  *nniters = step_mem->nni;
-  *nncfails = step_mem->ncfn;
+  /* set outputs from NLS module and step_mem structure (if present);
+     otherwise there were zero iterations and no nonlinear failures */
+  if (step_mem->NLS) {
+    retval = SUNNonlinSolGetNumIters(step_mem->NLS, nniters);
+    if (retval != SUN_NLS_SUCCESS) {
+      arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::IMEXGARKStep",
+                      "IMEXGARKStepGetNonlinSolvStats",
+                      "Error retrieving nniters from SUNNonlinearSolver");
+      return(ARK_NLS_OP_ERR);
+    }
+    *nncfails = step_mem->ncfn;
+  } else {
+    *nniters = 0;
+    *nncfails = 0;
+  }
 
   return(ARK_SUCCESS);
 }
@@ -1708,24 +1984,25 @@ int IMEXGARKStepGetNonlinSolvStats(void *mem, long int *nniters,
 
   Outputs all solver parameters to the provided file pointer.
   ---------------------------------------------------------------*/
-int IMEXGARKStepWriteParameters(void *mem, FILE *fp)
+int IMEXGARKStepWriteParameters(void *arkode_mem, FILE *fp)
 {
-  ARKodeMem arkode_mem;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int flag, retval;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "IMEXGARKStepWriteParameters", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepWriteParameters",
+                                      &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* output ARKode infrastructure parameters first */
+  flag = arkWriteParameters(ark_mem, fp);
+  if (flag != ARK_SUCCESS) {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepWriteParameters",
+                    "Error writing ARKode infrastructure parameters");
+    return(flag);
   }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "IMEXGARKStepWriteParameters", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
 
   /* print integrator parameters to file */
   fprintf(fp, "IMEXGARKStep time step module parameters:\n");
@@ -1747,7 +2024,7 @@ int IMEXGARKStepWriteParameters(void *mem, FILE *fp)
     fprintf(fp, "  Minimum error fails before above factor is used = %i\n",
             step_mem->hadapt_mem->small_nef);
     fprintf(fp, "  Step reduction factor on nonlinear convergence failure = %"RSYM"\n",
-            step_mem->hadapt_mem->etacf); 
+            step_mem->hadapt_mem->etacf);
     fprintf(fp, "  Explicit safety factor = %"RSYM"\n",
             step_mem->hadapt_mem->cfl);
     if (step_mem->hadapt_mem->HAdapt == NULL) {
@@ -1790,28 +2067,20 @@ int IMEXGARKStepWriteParameters(void *mem, FILE *fp)
 
   Outputs Butcher tables to the provided file pointer.
   ---------------------------------------------------------------*/
-int IMEXGARKStepWriteButcher(void *mem, FILE *fp)
+int IMEXGARKStepWriteButcher(void *arkode_mem, FILE *fp)
 {
-  int i, j;
-  ARKodeMem arkode_mem;
+  int retval;
+  ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int i, j;
 
-  /* access ARKodeMem and ARKodeIMEXGARKStepMem structures */
-  if (mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "ARKodeWriteButcher", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkode_mem = (ARKodeMem) mem;
-  if (arkode_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "ARKodeWriteButcher", MSG_IMEXGARK_NO_STEP_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepWriteButcher",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   if ( (step_mem->Bee == NULL) || (step_mem->Bii == NULL) ) {
-    arkProcessError(arkode_mem, ARK_ILL_INPUT, "ARKODE",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::IMEXGARKStep",
                     "IMEXGARKStepWriteButcher",
                     "Butcher tables must both be non-NULL");
     return(ARK_ILL_INPUT);
@@ -1820,46 +2089,49 @@ int IMEXGARKStepWriteButcher(void *mem, FILE *fp)
   /* print Butcher tables to file */
   fprintf(fp, "\nIMEXGARKStep Butcher table (stages = %i):\n\n", step_mem->stages);
 
+  fprintf(fp, "  Explicit Butcher table:\n");
+  ARKodeButcherTable_Write(step_mem->Bee, fp);
+
   for (i=0; i<step_mem->stages; i++) {
     fprintf(fp, "     %"RSYME"",step_mem->Bee->c[i]);
     fprintf(fp, " | ");
-    for (j=0; j<step_mem->stages; j++) 
+    for (j=0; j<step_mem->stages; j++)
       fprintf(fp, " %"RSYME"",step_mem->Bee->A[i][j]);
     fprintf(fp, " | ");
-    for (j=0; j<step_mem->stages; j++) 
+    for (j=0; j<step_mem->stages; j++)
       fprintf(fp, " %"RSYME"",step_mem->Bei->A[i][j]);
     fprintf(fp, " | ");
     fprintf(fp,"\n");
   }
 
   fprintf(fp, "      ");
-  for (j=0; j < (step_mem->stages*2)+1; j++) 
+  for (j=0; j < (step_mem->stages*2)+1; j++)
     fprintf(fp, "-----------");
   fprintf(fp,"\n");
 
   for (i=0; i<step_mem->stages; i++) {
     fprintf(fp, "     %"RSYME"",step_mem->Bii->c[i]);
     fprintf(fp, " | ");
-    for (j=0; j<step_mem->stages; j++) 
+    for (j=0; j<step_mem->stages; j++)
       fprintf(fp, " %"RSYME"",step_mem->Bie->A[i][j]);
     fprintf(fp, " | ");
-    for (j=0; j<step_mem->stages; j++) 
+    for (j=0; j<step_mem->stages; j++)
       fprintf(fp, " %"RSYME"",step_mem->Bii->A[i][j]);
     fprintf(fp, " | ");
     fprintf(fp,"\n");
   }
 
   fprintf(fp, "      ");
-  for (j=0; j < (step_mem->stages*2)+1; j++) 
+  for (j=0; j < (step_mem->stages*2)+1; j++)
     fprintf(fp, "-----------");
   fprintf(fp,"\n");
 
   fprintf(fp, "                ");
   fprintf(fp, " | ");
-  for (j=0; j<step_mem->stages; j++) 
+  for (j=0; j<step_mem->stages; j++)
     fprintf(fp, " %"RSYME"",step_mem->Bee->b[j]);
   fprintf(fp, " | ");
-  for (j=0; j<step_mem->stages; j++) 
+  for (j=0; j<step_mem->stages; j++)
     fprintf(fp, " %"RSYME"",step_mem->Bii->b[j]);
   fprintf(fp, " | ");
   fprintf(fp,"\n");
@@ -1867,10 +2139,10 @@ int IMEXGARKStepWriteButcher(void *mem, FILE *fp)
   fprintf(fp, "                ");
   fprintf(fp, " | ");
   if (step_mem->Bee->d != NULL) {
-    for (j=0; j<step_mem->stages; j++) 
+    for (j=0; j<step_mem->stages; j++)
       fprintf(fp, " %"RSYME"",step_mem->Bee->d[j]);
     fprintf(fp, " | ");
-    for (j=0; j<step_mem->stages; j++) 
+    for (j=0; j<step_mem->stages; j++)
       fprintf(fp, " %"RSYME"",step_mem->Bii->d[j]);
     fprintf(fp, " | ");
     fprintf(fp,"\n");

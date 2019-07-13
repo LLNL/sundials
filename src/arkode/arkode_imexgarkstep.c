@@ -73,7 +73,7 @@ void* IMEXGARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   }
 
   /* Test if all required vector operations are implemented */
-  nvectorOK = arkStep_CheckNVector(y0);
+  nvectorOK = imexgarkStep_CheckNVector(y0);
   if (!nvectorOK) {
     arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::IMEXGARKStep",
                     "IMEXGARKStepCreate", MSG_ARK_BAD_NVECTOR);
@@ -218,7 +218,7 @@ void* IMEXGARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   It first resizes the main ARKode infrastructure memory, and
   then resizes its own data.
   ---------------------------------------------------------------*/
-int IMEXGARKStepResize(void* mem, N_Vector y0, realtype hscale,
+int IMEXGARKStepResize(void* arkode_mem, N_Vector y0, realtype hscale,
                        realtype t0, ARKVecResizeFn resize, void* resize_data)
 {
   ARKodeMem ark_mem;
@@ -228,8 +228,8 @@ int IMEXGARKStepResize(void* mem, N_Vector y0, realtype hscale,
   int i, retval;
 
   /* access step memory structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepResize",
-                                 &ark_mem, &step_mem);
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "IMEXGARKStepResize",
+                                      &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* Determing change in vector sizes */
@@ -304,7 +304,7 @@ int IMEXGARKStepResize(void* mem, N_Vector y0, realtype hscale,
     }
 
     /* attach new Newton NLS object to ARKStep */
-    retval = ARKStepSetNonlinearSolver(ark_mem, NLS);
+    retval = IMEXGARKStepSetNonlinearSolver(ark_mem, NLS);
     if (retval != ARK_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::IMEXGARKStep",
                       "IMEXARKStepResize", "Error attaching default Newton solver");
@@ -352,7 +352,7 @@ int IMEXGARKStepReInit(void* arkode_mem, ARKRhsFn fe,
   /* Check for legal input parameters */
   if (y0 == NULL) {
     arkProcessError(arkode_mem, ARK_ILL_INPUT, "ARKode::IMEXGARKStep",
-                    "IMEXGARKStepReInit", MSGARK_NULL_Y0);
+                    "IMEXGARKStepReInit", MSG_ARK_NULL_Y0);
     return(ARK_ILL_INPUT);
   }
 
@@ -787,6 +787,7 @@ int imexgarkStep_AttachLinsol(void* arkode_mem,
 {
   ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
+  int retval;
 
   /* access ARKodeARKStepMem structure */
   retval = imexgarkStep_AccessStepMem(arkode_mem, "imexgarkStep_AttachLinsol",
@@ -819,7 +820,7 @@ int imexgarkStep_AttachLinsol(void* arkode_mem,
   interface routines, data structure, and solver type to the
   ARKStep module.
   ---------------------------------------------------------------*/
-int imexgarkStep_AttachMasssol(void* mem, ARKMassInitFn minit,
+int imexgarkStep_AttachMasssol(void* arkode_mem, ARKMassInitFn minit,
                                ARKMassSetupFn msetup,
                                ARKMassMultFn mmult,
                                ARKMassSolveFn msolve,
@@ -836,7 +837,7 @@ int imexgarkStep_AttachMasssol(void* mem, ARKMassInitFn minit,
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* free any existing mass matrix solver */
-  if (step_mem->mfree != NULL)  step_mem->mfree(arkode_mem);
+  if (step_mem->mfree != NULL)  step_mem->mfree(ark_mem);
 
   /* Attach the provided routines, data structure and solve type */
   step_mem->minit       = minit;
@@ -1057,16 +1058,16 @@ int imexgarkStep_Init(void* arkode_mem, int init_type)
     }
 
     /* note Butcher table space requirements */
-    ButcherTableSpace(step_mem->Bee, &Bliw, &Blrw);
+    ARKodeButcherTable_Space(step_mem->Bee, &Bliw, &Blrw);
     ark_mem->liw += Bliw;
     ark_mem->lrw += Blrw;
-    ButcherTableSpace(step_mem->Bei, &Bliw, &Blrw);
+    ARKodeButcherTable_Space(step_mem->Bei, &Bliw, &Blrw);
     ark_mem->liw += Bliw;
     ark_mem->lrw += Blrw;
-    ButcherTableSpace(step_mem->Bie, &Bliw, &Blrw);
+    ARKodeButcherTable_Space(step_mem->Bie, &Bliw, &Blrw);
     ark_mem->liw += Bliw;
     ark_mem->lrw += Blrw;
-    ButcherTableSpace(step_mem->Bii, &Bliw, &Blrw);
+    ARKodeButcherTable_Space(step_mem->Bii, &Bliw, &Blrw);
     ark_mem->liw += Bliw;
     ark_mem->lrw += Blrw;
 
@@ -1132,7 +1133,7 @@ int imexgarkStep_Init(void* arkode_mem, int init_type)
       retval = step_mem->minit((void *) ark_mem);
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_MASSINIT_FAIL, "ARKode::IMEXGARKStep",
-                        "imexgarkStep_Init", MSGARK_MASSINIT_FAIL);
+                        "imexgarkStep_Init", MSG_ARK_MASSINIT_FAIL);
         return(ARK_MASSINIT_FAIL);
       }
     }
@@ -1143,7 +1144,7 @@ int imexgarkStep_Init(void* arkode_mem, int init_type)
                                 ark_mem->tempv2, ark_mem->tempv3);
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_MASSSETUP_FAIL, "ARKode::IMEXGARKStep",
-                        "imexgarkStep_Init", MSGARK_MASSSETUP_FAIL);
+                        "imexgarkStep_Init", MSG_ARK_MASSSETUP_FAIL);
         return(ARK_MASSSETUP_FAIL);
         step_mem->msetuptime = ark_mem->tcur;
       }
@@ -1162,7 +1163,7 @@ int imexgarkStep_Init(void* arkode_mem, int init_type)
 
   /* Initialize the nonlinear solver object (if it exists) */
   if (step_mem->NLS) {
-    retval = arkStep_NlsInit(ark_mem);
+    retval = imexgarkStep_NlsInit(ark_mem);
     if (retval != ARK_SUCCESS) {
       arkProcessError(ark_mem, ARK_NLS_INIT_FAIL, "ARKode::IMEXGARKStep", "imexgarkStep_Init",
                       "Unable to initialize SUNNonlinearSolver object");
@@ -1238,7 +1239,7 @@ int imexgarkStep_FullRHS(void* arkode_mem, realtype t,
     step_mem->nfe++;
     if (retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::IMEXGARKStep",
-                      "imexgarkStep_FullRHS", MSGARK_RHSFUNC_FAILED, t);
+                      "imexgarkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
       return(ARK_RHSFUNC_FAIL);
     }
 
@@ -1247,7 +1248,7 @@ int imexgarkStep_FullRHS(void* arkode_mem, realtype t,
     step_mem->nfi++;
     if (retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::IMEXGARKStep",
-                      "imexgarkStep_FullRHS", MSGARK_RHSFUNC_FAILED, t);
+                      "imexgarkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
       return(ARK_RHSFUNC_FAIL);
     }
 
@@ -1278,7 +1279,7 @@ int imexgarkStep_FullRHS(void* arkode_mem, realtype t,
       step_mem->nfe++;
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::IMEXGARKStep",
-                        "imexgarkStep_FullRHS", MSGARK_RHSFUNC_FAILED, t);
+                        "imexgarkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
 
@@ -1287,7 +1288,7 @@ int imexgarkStep_FullRHS(void* arkode_mem, realtype t,
       step_mem->nfi++;
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::IMEXGARKStep",
-                        "imexgarkStep_FullRHS", MSGARK_RHSFUNC_FAILED, t);
+                        "imexgarkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
     } else {
@@ -1308,11 +1309,11 @@ int imexgarkStep_FullRHS(void* arkode_mem, realtype t,
   default:
 
     /* call fe if the problem has an explicit component (store in ark_tempv2) */
-    retval = step_mem->fe(t, y, arkode_mem->tempv2, ark_mem->user_data);
+    retval = step_mem->fe(t, y, ark_mem->tempv2, ark_mem->user_data);
     step_mem->nfe++;
     if (retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::IMEXGARKStep",
-                      "imexgarkStep_FullRHS", MSGARK_RHSFUNC_FAILED, t);
+                      "imexgarkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
       return(ARK_RHSFUNC_FAIL);
     }
 
@@ -1321,7 +1322,7 @@ int imexgarkStep_FullRHS(void* arkode_mem, realtype t,
     step_mem->nfi++;
     if (retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::IMEXGARKStep",
-                      "imexgarkStep_FullRHS", MSGARK_RHSFUNC_FAILED, t);
+                      "imexgarkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
       return(ARK_RHSFUNC_FAIL);
     }
 
@@ -1369,8 +1370,8 @@ int imexgarkStep_TakeStep(void* arkode_mem)
   N_Vector zcor0;
 
   /* access step memory structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep",
-                                 &ark_mem, &step_mem);
+  retval = imexgarkStep_AccessStepMem(arkode_mem, "imexgarkStep_TakeStep",
+                                      &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
   ncf = nef = 0;
@@ -1473,7 +1474,7 @@ int imexgarkStep_TakeStep(void* arkode_mem)
 #endif
 
       /* Solver diagnostics reporting */
-      if (arkode_mem->report)
+      if (ark_mem->report)
         fprintf(ark_mem->diagfp, "IMEXGARKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
                 ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
@@ -1620,7 +1621,7 @@ int imexgarkStep_AccessStepMem(void* arkode_mem, const char *fname,
   *ark_mem = (ARKodeMem) arkode_mem;
   if ((*ark_mem)->step_mem==NULL) {
     arkProcessError(*ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
-                    fname, MSG_ARKSTEP_NO_MEM);
+                    fname, MSG_IMEXGARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   *step_mem = (ARKodeIMEXGARKStepMem) (*ark_mem)->step_mem;
@@ -1654,21 +1655,21 @@ booleantype imexgarkStep_CheckNVector(N_Vector tmpl)
   on the desired accuracy and information on whether the problem
   is explicit, implicit or imex.
   ---------------------------------------------------------------*/
-int imexgarkStep_SetButcherTables(ARKodeMem arkode_mem)
+int imexgarkStep_SetButcherTables(ARKodeMem ark_mem)
 {
   ARKodeIMEXGARKStepMem step_mem;
 
   /* access step memory structure */
   if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
-                    "imexgarkStep_SetButcherTables", MSG_IMEXGARK_NO_STEP_MEM);
+                    "imexgarkStep_SetButcherTables", MSG_IMEXGARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeIMEXGARKStepMem) ark_mem->step_mem;
 
   /* at this time tables must be set with IMEXGARKStepSetButcherTables */
   if ( (step_mem->Bee == NULL) || (step_mem->Bii == NULL) ) {
-    arkProcessError(arkode_mem, ARK_ILL_INPUT, "ARKODE::IMEXGARKStep",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::IMEXGARKStep",
                     "imexgarkStep_SetButcherTables",
                     "Butcher tables must be set by calling IMEXGARKStepSetButcherTables");
     return(ARK_ILL_INPUT);
@@ -1702,7 +1703,7 @@ int imexgarkStep_CheckButcherTables(ARKodeMem ark_mem)
   /* access step memory structure */
   if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
-                    "imexgarkStep_CheckButcherTables", MSG_IMEXGARK_NO_STEP_MEM);
+                    "imexgarkStep_CheckButcherTables", MSG_IMEXGARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeIMEXGARKStepMem) ark_mem->step_mem;
@@ -1794,10 +1795,10 @@ int imexgarkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   /* access step memory structure */
   if (ark_mem->step_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
-                    "imexgarkStep_Predict", MSG_IMEXGARK_NO_STEP_MEM);
+                    "imexgarkStep_Predict", MSG_IMEXGARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  step_mem = (ARKodeIMEXGARKStepMem) arkode_mem->step_mem;
+  step_mem = (ARKodeIMEXGARKStepMem) ark_mem->step_mem;
 
   /* verify that interpolation structure is provided */
   if ((ark_mem->interp == NULL) && (step_mem->predictor > 0)) {
@@ -1958,7 +1959,7 @@ int imexgarkStep_StageSetup(ARKodeMem ark_mem)
   /* access step memory structure */
   if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
-                    "imexgarkStep_StageSetup", MSG_IMEXGARK_NO_STEP_MEM);
+                    "imexgarkStep_StageSetup", MSG_IMEXGARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeIMEXGARKStepMem) ark_mem->step_mem;
@@ -2064,7 +2065,7 @@ int imexgarkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
   /* access step memory structure */
   if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
-                    "imexgarkStep_HandleNFlag", MSG_IMEXGARK_NO_STEP_MEM);
+                    "imexgarkStep_HandleNFlag", MSG_IMEXGARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeIMEXGARKStepMem) ark_mem->step_mem;
@@ -2082,7 +2083,7 @@ int imexgarkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
   /* Otherwise, access adaptivity structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep", "imexgarkStep_HandleNFlag",
-                    MSG_IMEXGARK_NO_ADAPT_MEM);
+                    MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
@@ -2137,9 +2138,9 @@ int imexgarkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
   ARKodeIMEXGARKStepMem step_mem;
 
   /* access step memory structure */
-  if (arkode_mem->step_mem==NULL) {
+  if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
-                    "imexgarkStep_ComputeSolutions", MSG_IMEXGARK_NO_STEP_MEM);
+                    "imexgarkStep_ComputeSolutions", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeIMEXGARKStepMem) ark_mem->step_mem;
@@ -2308,16 +2309,16 @@ int imexgarkStep_DoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
   ARKodeIMEXGARKStepMem step_mem;
 
   /* access step memory structure */
-  if (arkode_mem->step_mem==NULL) {
+  if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
-                    "imexgarkStep_DoErrorTest", MSG_IMEXGARK_NO_STEP_MEM);
+                    "imexgarkStep_DoErrorTest", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeIMEXGARKStepMem) ark_mem->step_mem;
 
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::IMEXGARKStep", "imexgarkDoErrorTest",
-                    MSG_IMEXGARK_NO_ADAPT_MEM);
+                    MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   hadapt_mem = step_mem->hadapt_mem;
@@ -2393,7 +2394,7 @@ int imexgarkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
   /* access step memory structure */
   if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
-                    "imexgarkStep_PrepareNextStep", MSG_IMEXGARK_NO_STEP_MEM);
+                    "imexgarkStep_PrepareNextStep", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeIMEXGARKStepMem) ark_mem->step_mem;
