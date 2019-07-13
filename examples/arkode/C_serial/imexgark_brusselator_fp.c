@@ -58,8 +58,9 @@
 #include <math.h>
 #include <arkode/arkode_imexgarkstep.h>             /* prototypes for IMEXGARKStep fcts., consts */
 #include <nvector/nvector_serial.h>                 /* serial N_Vector types, fcts., macros      */
-#include <sunnonlinsol/sunnonlinsol_fixedpoint.h>   /* access to FP nonlinear solver        */
+#include <sunnonlinsol/sunnonlinsol_fixedpoint.h>   /* access to FP nonlinear solver             */
 #include <sundials/sundials_types.h>                /* def. of type 'realtype'                   */
+#include <sundials/sundials_math.h>                 /* def. of 'SUNRsqrt'                        */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
