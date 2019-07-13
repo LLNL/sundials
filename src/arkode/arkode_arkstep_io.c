@@ -23,8 +23,8 @@
 #include <stdlib.h>
 
 #include "arkode_arkstep_impl.h"
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
+#include "sundials/sundials_math.h"
+#include "sundials/sundials_types.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define RSYM "Lg"
