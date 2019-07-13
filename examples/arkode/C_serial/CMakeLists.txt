@@ -30,6 +30,7 @@ SET(ARKODE_examples
   "ark_KrylovDemo_prec\;develop"
   "ark_robertson\;develop"
   "ark_robertson_root\;develop"
+  "imexgark_brusselator_fp\;develop"
   "ark_brusselator_mri\;develop"
   "ark_onewaycouple_mri\;develop"
   "ark_twowaycouple_mri\;develop"

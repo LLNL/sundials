@@ -24,15 +24,3 @@ Final Solver Statistics:
    Total number of fixed-point iterations = 7007
    Total number of nonlinear solver convergence failures = 0
    Total number of error test failures = 0
-
-
-IMEXGARKStep Butcher table (stages = 2):
-
-      0.0000e+00 |   0.0000e+00  0.0000e+00 |   0.0000e+00  0.0000e+00 | 
-      3.4142e+00 |   1.7071e+00  0.0000e+00 |   1.7071e+00  0.0000e+00 | 
-      -------------------------------------------------------
-      2.9289e-01 |   2.9289e-01  0.0000e+00 |   2.9289e-01  0.0000e+00 | 
-      1.0000e+00 |   7.0711e-01  2.9289e-01 |   7.0711e-01  2.9289e-01 | 
-      -------------------------------------------------------
-                 |   7.0711e-01  2.9289e-01 |   7.0711e-01  2.9289e-01 | 
-                 | 
