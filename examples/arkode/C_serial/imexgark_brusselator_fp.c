@@ -99,7 +99,7 @@ int main()
   int stages = 2;
   realtype *Aee, *Aei, *Aie, *Aii;
   realtype *ce, *ci, *be, *bi;
-  realtype gamma = RCONST(1.0) - RCONST(sqrt(2))/RCONST(2.0);
+  realtype gamma = RCONST(1.0) - RCONST(sqrt(2.0))/RCONST(2.0);
 
   /* general problem variables */
   int flag;                       /* reusable error-checking flag */
