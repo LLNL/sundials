@@ -24,7 +24,6 @@
 #include "arkode_impl.h"
 #include "arkode_imexgarkstep_impl.h"
 #include "sundials/sundials_math.h"
-#include "arkode_imexgarkstep_impl.h"
 #include "sunnonlinsol/sunnonlinsol_newton.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -60,7 +59,7 @@ void* IMEXGARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
 
   /* Check that both fe and fi are supplied */
   if (fe == NULL || fi == NULL) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::IMEXGARKStep",
                     "IMEXGARKStepCreate", MSG_ARK_NULL_F);
     return(NULL);
   }
@@ -218,8 +217,8 @@ void* IMEXGARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   It first resizes the main ARKode infrastructure memory, and
   then resizes its own data.
   ---------------------------------------------------------------*/
-int IMEXGARKStepResize(void* arkode_mem, N_Vector y0, realtype hscale,
-                       realtype t0, ARKVecResizeFn resize, void* resize_data)
+int IMEXGARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
+                       realtype t0, ARKVecResizeFn resize, void *resize_data)
 {
   ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
@@ -351,7 +350,7 @@ int IMEXGARKStepReInit(void* arkode_mem, ARKRhsFn fe,
 
   /* Check for legal input parameters */
   if (y0 == NULL) {
-    arkProcessError(arkode_mem, ARK_ILL_INPUT, "ARKode::IMEXGARKStep",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::IMEXGARKStep",
                     "IMEXGARKStepReInit", MSG_ARK_NULL_Y0);
     return(ARK_ILL_INPUT);
   }
@@ -395,84 +394,84 @@ int IMEXGARKStepReInit(void* arkode_mem, ARKRhsFn fe,
 
 
 /*---------------------------------------------------------------
-  ARKStepSStolerances, ARKStepSVtolerances, ARKStepWFtolerances,
-  ARKStepResStolerance, ARKStepResVtolerance, ARKStepResFtolerance:
+  IMEXGARKStepSStolerances, IMEXGARKStepSVtolerances, IMEXGARKStepWFtolerances,
+  IMEXGARKStepResStolerance, IMEXGARKStepResVtolerance, IMEXGARKStepResFtolerance:
 
   These routines set integration tolerances (wrappers for general
   ARKode utility routines)
   ---------------------------------------------------------------*/
-int ARKStepSStolerances(void *arkode_mem, realtype reltol, realtype abstol)
+int IMEXGARKStepSStolerances(void *arkode_mem, realtype reltol, realtype abstol)
 {
   /* unpack ark_mem, call arkSStolerances, and return */
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSStolerances", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSStolerances", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   return(arkSStolerances(ark_mem, reltol, abstol));
 }
 
-int ARKStepSVtolerances(void *arkode_mem, realtype reltol, N_Vector abstol)
+int IMEXGARKStepSVtolerances(void *arkode_mem, realtype reltol, N_Vector abstol)
 {
   /* unpack ark_mem, call arkSVtolerances, and return */
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSVtolerances", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepSVtolerances", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   return(arkSVtolerances(ark_mem, reltol, abstol));
 }
 
-int ARKStepWFtolerances(void *arkode_mem, ARKEwtFn efun)
+int IMEXGARKStepWFtolerances(void *arkode_mem, ARKEwtFn efun)
 {
   /* unpack ark_mem, call arkWFtolerances, and return */
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepWFtolerances", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepWFtolerances", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   return(arkWFtolerances(ark_mem, efun));
 }
 
-int ARKStepResStolerance(void *arkode_mem, realtype rabstol)
+int IMEXGARKStepResStolerance(void *arkode_mem, realtype rabstol)
 {
   /* unpack ark_mem, call arkResStolerance, and return */
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepResStolerance", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepResStolerance", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   return(arkResStolerance(ark_mem, rabstol));
 }
 
-int ARKStepResVtolerance(void *arkode_mem, N_Vector rabstol)
+int IMEXGARKStepResVtolerance(void *arkode_mem, N_Vector rabstol)
 {
   /* unpack ark_mem, call arkResVtolerance, and return */
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepResVtolerance", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepResVtolerance", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   return(arkResVtolerance(ark_mem, rabstol));
 }
 
-int ARKStepResFtolerance(void *arkode_mem, ARKRwtFn rfun)
+int IMEXGARKStepResFtolerance(void *arkode_mem, ARKRwtFn rfun)
 {
   /* unpack ark_mem, call arkResFtolerance, and return */
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepResFtolerance", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepResFtolerance", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -481,18 +480,18 @@ int ARKStepResFtolerance(void *arkode_mem, ARKRwtFn rfun)
 
 
 /*---------------------------------------------------------------
-  ARKStepRootInit:
+  IMEXGARKStepRootInit:
 
   Initialize (attach) a rootfinding problem to the stepper
   (wrappers for general ARKode utility routine)
   ---------------------------------------------------------------*/
-int ARKStepRootInit(void *arkode_mem, int nrtfn, ARKRootFn g)
+int IMEXGARKStepRootInit(void *arkode_mem, int nrtfn, ARKRootFn g)
 {
   /* unpack ark_mem, call arkRootInit, and return */
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepRootInit", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepRootInit", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -501,19 +500,19 @@ int ARKStepRootInit(void *arkode_mem, int nrtfn, ARKRootFn g)
 
 
 /*---------------------------------------------------------------
-  ARKStepEvolve:
+  IMEXGARKStepEvolve:
 
   This is the main time-integration driver (wrappers for general
   ARKode utility routine)
   ---------------------------------------------------------------*/
-int ARKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
-                  realtype *tret, int itask)
+int IMEXGARKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
+                       realtype *tret, int itask)
 {
   /* unpack ark_mem, call arkEvolve, and return */
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepEvolve", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepEvolve", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -522,19 +521,19 @@ int ARKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
 
 
 /*---------------------------------------------------------------
-  ARKStepGetDky:
+  IMEXGARKStepGetDky:
 
   This returns interpolated output of the solution or its
   derivatives over the most-recently-computed step (wrapper for
   generic ARKode utility routine)
   ---------------------------------------------------------------*/
-int ARKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
+int IMEXGARKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
 {
   /* unpack ark_mem, call arkGetDky, and return */
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetDky", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepGetDky", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -542,10 +541,10 @@ int ARKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
 }
 
 
-/*---------------------------------------------------------------------------
+/*---------------------------------------------------------------
   IMEXGARKStepFree frees all ARKStep memory, and then calls an ARKode
   utility routine to free the ARKode infrastructure memory.
-  ---------------------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 void IMEXGARKStepFree(void **arkode_mem)
 {
   int j;
@@ -763,15 +762,15 @@ void IMEXGARKStepPrintMem(void* arkode_mem, FILE* outfile)
 }
 
 
-/* ===========================================================================
- * IEMXGARKStep Private functions
- * ===========================================================================*/
+/*===============================================================
+  IEMXGARKStep Private functions
+  ===============================================================*/
 
 /*---------------------------------------------------------------
   Interface routines supplied to ARKode
   ---------------------------------------------------------------*/
 
-/* --------------------------------------------------------------------------
+/*---------------------------------------------------------------
    imexgarkStep_AttachLinsol:
 
   This routine attaches the various set of system linear solver
@@ -837,7 +836,7 @@ int imexgarkStep_AttachMasssol(void* arkode_mem, ARKMassInitFn minit,
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* free any existing mass matrix solver */
-  if (step_mem->mfree != NULL)  step_mem->mfree(ark_mem);
+  if (step_mem->mfree != NULL)  step_mem->mfree(arkode_mem);
 
   /* Attach the provided routines, data structure and solve type */
   step_mem->minit       = minit;
@@ -1292,10 +1291,8 @@ int imexgarkStep_FullRHS(void* arkode_mem, realtype t,
         return(ARK_RHSFUNC_FAIL);
       }
     } else {
-
       N_VScale(ONE, step_mem->Fe[step_mem->stages-1], step_mem->Fe[0]);
       N_VScale(ONE, step_mem->Fi[step_mem->stages-1], step_mem->Fi[0]);
-
     }
 
     /* combine RHS vector(s) into output */
@@ -1590,7 +1587,7 @@ int imexgarkStep_TakeStep(void* arkode_mem)
 
   /* The step has completed successfully, clean up and
      consider change of step size */
-  retval = imexgarkStep_PrepareNextStep(arkode_mem, dsm);
+  retval = imexgarkStep_PrepareNextStep(ark_mem, dsm);
   if (retval != ARK_SUCCESS)  return(retval);
 
   return(ARK_SUCCESS);
@@ -1937,15 +1934,15 @@ int imexgarkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   gamma, gammap and gamrat.
 
   At the ith stage, we compute the residual vector:
-    r = -M*zi + M*yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
-                     + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
-    r = -M*zp - M*zc + M*yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+    r = -M*z + M*yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+                    + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+    r = -M*(zp + zc) + M*yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
                             + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
-    r = (-M*zc + gamma*Fi(zi)) + (M*yn - M*zp + data)
-  where zi = zp + zc.  In the above form of the residual,
+    r = (-M*zc + gamma*Fi(zi)) + (M*(yn - zp) + data)
+  where z = zp + zc.  In the above form of the residual,
   the first group corresponds to the current solution
   correction, and the second group corresponds to existing data.
-  This routine computes this existing data, (M*yn - M*zp + data)
+  This routine computes this existing data, (M*(yn - zp) + data)
   and stores in step_mem->sdata.
   ---------------------------------------------------------------*/
 int imexgarkStep_StageSetup(ARKodeMem ark_mem)
@@ -2174,11 +2171,9 @@ int imexgarkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
     /*   set arrays for fused vector operation */
     nvec = 0;
     for (j=0; j<step_mem->stages; j++) {
-
         cvals[nvec] = ark_mem->h * step_mem->Bee->b[j];
         Xvecs[nvec] = step_mem->Fe[j];
         nvec += 1;
-
         cvals[nvec] = ark_mem->h * step_mem->Bii->b[j];
         Xvecs[nvec] = step_mem->Fi[j];
         nvec += 1;
@@ -2207,11 +2202,9 @@ int imexgarkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
       /*   set arrays for fused vector operation */
       nvec = 0;
       for (j=0; j<step_mem->stages; j++) {
-
           cvals[nvec] = ark_mem->h * (step_mem->Bee->b[j] - step_mem->Bee->d[j]);
           Xvecs[nvec] = step_mem->Fe[j];
           nvec += 1;
-
           cvals[nvec] = ark_mem->h * (step_mem->Bii->b[j] - step_mem->Bii->d[j]);
           Xvecs[nvec] = step_mem->Fi[j];
           nvec += 1;
@@ -2239,11 +2232,9 @@ int imexgarkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
     Xvecs[0] = ark_mem->yn;
     nvec = 1;
     for (j=0; j<step_mem->stages; j++) {
-
         cvals[nvec] = ark_mem->h * step_mem->Bee->b[j];
         Xvecs[nvec] = step_mem->Fe[j];
         nvec += 1;
-
         cvals[nvec] = ark_mem->h * step_mem->Bii->b[j];
         Xvecs[nvec] = step_mem->Fi[j];
         nvec += 1;
@@ -2259,11 +2250,9 @@ int imexgarkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
       /* set arrays for fused vector operation */
       nvec = 0;
       for (j=0; j<step_mem->stages; j++) {
-
           cvals[nvec] = ark_mem->h * (step_mem->Bee->b[j] - step_mem->Bee->d[j]);
           Xvecs[nvec] = step_mem->Fe[j];
           nvec += 1;
-
           cvals[nvec] = ark_mem->h * (step_mem->Bii->b[j] - step_mem->Bii->d[j]);
           Xvecs[nvec] = step_mem->Fi[j];
           nvec += 1;
@@ -2394,7 +2383,7 @@ int imexgarkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
   /* access step memory structure */
   if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
-                    "imexgarkStep_PrepareNextStep", MSG_ARKADAPT_NO_MEM);
+                    "imexgarkStep_PrepareNextStep", MSG_IMEXGARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeIMEXGARKStepMem) ark_mem->step_mem;
