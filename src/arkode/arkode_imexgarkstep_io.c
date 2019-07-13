@@ -42,11 +42,11 @@
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ARKStepSetDenseOrder: Specifies the polynomial order for dense
+  IMEXGARKStepSetDenseOrder: Specifies the polynomial order for dense
   output.  Positive values are sent to the interpolation module;
   negative values imply to use the default.
   ---------------------------------------------------------------*/
-int ARKStepSetDenseOrder(void *arkode_mem, int dord)
+int IMEXGARKStepSetDenseOrder(void *arkode_mem, int dord)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -59,10 +59,10 @@ int ARKStepSetDenseOrder(void *arkode_mem, int dord)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetErrHandlerFn: Specifies the error handler function
+  IMEXGARKStepSetErrHandlerFn: Specifies the error handler function
   ---------------------------------------------------------------*/
-int ARKStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
-                           void *eh_data)
+int IMEXGARKStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
+                                void *eh_data)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -75,10 +75,10 @@ int ARKStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetErrFile: Specifies the FILE pointer for output (NULL
+  IMEXGARKStepSetErrFile: Specifies the FILE pointer for output (NULL
   means no messages)
   ---------------------------------------------------------------*/
-int ARKStepSetErrFile(void *arkode_mem, FILE *errfp)
+int IMEXGARKStepSetErrFile(void *arkode_mem, FILE *errfp)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -91,9 +91,9 @@ int ARKStepSetErrFile(void *arkode_mem, FILE *errfp)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetUserData: Specifies the user data pointer for f
+  IMEXGARKStepSetUserData: Specifies the user data pointer for f
   ---------------------------------------------------------------*/
-int ARKStepSetUserData(void *arkode_mem, void *user_data)
+int IMEXGARKStepSetUserData(void *arkode_mem, void *user_data)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -106,11 +106,11 @@ int ARKStepSetUserData(void *arkode_mem, void *user_data)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetDiagnostics: Specifies to enable solver diagnostics,
+  IMEXGARKStepSetDiagnostics: Specifies to enable solver diagnostics,
   and specifies the FILE pointer for output (diagfp==NULL
   disables output)
   ---------------------------------------------------------------*/
-int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp)
+int IMEXGARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -123,10 +123,10 @@ int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetMaxNumSteps: Specifies the maximum number of
+  IMEXGARKStepSetMaxNumSteps: Specifies the maximum number of
   integration steps
   ---------------------------------------------------------------*/
-int ARKStepSetMaxNumSteps(void *arkode_mem, long int mxsteps)
+int IMEXGARKStepSetMaxNumSteps(void *arkode_mem, long int mxsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -139,10 +139,10 @@ int ARKStepSetMaxNumSteps(void *arkode_mem, long int mxsteps)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetMaxHnilWarns: Specifies the maximum number of warnings
+  IMEXGARKStepSetMaxHnilWarns: Specifies the maximum number of warnings
   for small h
   ---------------------------------------------------------------*/
-int ARKStepSetMaxHnilWarns(void *arkode_mem, int mxhnil)
+int IMEXGARKStepSetMaxHnilWarns(void *arkode_mem, int mxhnil)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -155,9 +155,9 @@ int ARKStepSetMaxHnilWarns(void *arkode_mem, int mxhnil)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetInitStep: Specifies the initial step size
+  IMEXGARKStepSetInitStep: Specifies the initial step size
   ---------------------------------------------------------------*/
-int ARKStepSetInitStep(void *arkode_mem, realtype hin)
+int IMEXGARKStepSetInitStep(void *arkode_mem, realtype hin)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -170,9 +170,9 @@ int ARKStepSetInitStep(void *arkode_mem, realtype hin)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetMinStep: Specifies the minimum step size
+  IMEXGARKStepSetMinStep: Specifies the minimum step size
   ---------------------------------------------------------------*/
-int ARKStepSetMinStep(void *arkode_mem, realtype hmin)
+int IMEXGARKStepSetMinStep(void *arkode_mem, realtype hmin)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -185,9 +185,9 @@ int ARKStepSetMinStep(void *arkode_mem, realtype hmin)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetMaxStep: Specifies the maximum step size
+  IMEXGARKStepSetMaxStep: Specifies the maximum step size
   ---------------------------------------------------------------*/
-int ARKStepSetMaxStep(void *arkode_mem, realtype hmax)
+int IMEXGARKStepSetMaxStep(void *arkode_mem, realtype hmax)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -200,10 +200,10 @@ int ARKStepSetMaxStep(void *arkode_mem, realtype hmax)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetStopTime: Specifies the time beyond which the
+  IMEXGARKStepSetStopTime: Specifies the time beyond which the
   integration is not to proceed.
   ---------------------------------------------------------------*/
-int ARKStepSetStopTime(void *arkode_mem, realtype tstop)
+int IMEXGARKStepSetStopTime(void *arkode_mem, realtype tstop)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -216,7 +216,7 @@ int ARKStepSetStopTime(void *arkode_mem, realtype tstop)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetFixedStep: Specifies to use a fixed time step size
+  IMEXGARKStepSetFixedStep: Specifies to use a fixed time step size
   instead of performing any form of temporal adaptivity.  ARKStep
   will use this step size for all steps (unless tstop is set, in
   which case it may need to modify that last step approaching
@@ -227,7 +227,7 @@ int ARKStepSetStopTime(void *arkode_mem, realtype tstop)
   Any nonzero argument will result in the use of that fixed step
   size; an argument of 0 will re-enable temporal adaptivity.
   ---------------------------------------------------------------*/
-int ARKStepSetFixedStep(void *arkode_mem, realtype hfixed)
+int IMEXGARKStepSetFixedStep(void *arkode_mem, realtype hfixed)
 {
   ARKodeMem ark_mem;
   ARKodeIMEXGARKStepMem step_mem;
@@ -258,10 +258,10 @@ int ARKStepSetFixedStep(void *arkode_mem, realtype hfixed)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetRootDirection: Specifies the direction of zero-crossings
+  IMEXGARKStepSetRootDirection: Specifies the direction of zero-crossings
   to be monitored.  The default is to monitor both crossings.
   ---------------------------------------------------------------*/
-int ARKStepSetRootDirection(void *arkode_mem, int *rootdir)
+int IMEXGARKStepSetRootDirection(void *arkode_mem, int *rootdir)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -274,11 +274,11 @@ int ARKStepSetRootDirection(void *arkode_mem, int *rootdir)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetNoInactiveRootWarn:  Disables issuing a warning if
+  IMEXGARKStepSetNoInactiveRootWarn:  Disables issuing a warning if
   some root function appears to be identically zero at the
   beginning of the integration
   ---------------------------------------------------------------*/
-int ARKStepSetNoInactiveRootWarn(void *arkode_mem)
+int IMEXGARKStepSetNoInactiveRootWarn(void *arkode_mem)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -291,7 +291,7 @@ int ARKStepSetNoInactiveRootWarn(void *arkode_mem)
 }
 
 /*---------------------------------------------------------------
-  ARKStepSetPostprocessStepFn:  Specifies a user-provided step
+  IMEXGARKStepSetPostprocessStepFn:  Specifies a user-provided step
   postprocessing function having type ARKPostProcessStepFn.  A
   NULL input function disables step postprocessing.
 
@@ -299,8 +299,8 @@ int ARKStepSetNoInactiveRootWarn(void *arkode_mem)
   THEN ALL THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND
   STABILITY ARE LOST.
   ---------------------------------------------------------------*/
-int ARKStepSetPostprocessStepFn(void *arkode_mem,
-                                ARKPostProcessStepFn ProcessStep)
+int IMEXGARKStepSetPostprocessStepFn(void *arkode_mem,
+                                     ARKPostProcessStepFn ProcessStep)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -316,51 +316,51 @@ int ARKStepSetPostprocessStepFn(void *arkode_mem,
   These wrappers for ARKLs module 'set' routines all are
   documented in arkode_arkstep.h.
   ---------------------------------------------------------------*/
-int ARKStepSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
-                           SUNMatrix A) {
+int IMEXGARKStepSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
+                                SUNMatrix A) {
   return(arkLSSetLinearSolver(arkode_mem, LS, A)); }
-int ARKStepSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
-                               SUNMatrix M, booleantype time_dep) {
+int IMEXGARKStepSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
+                                    SUNMatrix M, booleantype time_dep) {
   return(arkLSSetMassLinearSolver(arkode_mem, LS, M, time_dep)); }
-int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac) {
+int IMEXGARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac) {
   return(arkLSSetJacFn(arkode_mem, jac)); }
-int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass) {
+int IMEXGARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass) {
   return(arkLSSetMassFn(arkode_mem, mass)); }
-int ARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj) {
+int IMEXGARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj) {
   return(arkLSSetMaxStepsBetweenJac(arkode_mem, msbj)); }
-int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac) {
+int IMEXGARKStepSetEpsLin(void *arkode_mem, realtype eplifac) {
   return(arkLSSetEpsLin(arkode_mem, eplifac)); }
-int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac) {
+int IMEXGARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac) {
   return(arkLSSetMassEpsLin(arkode_mem, eplifac)); }
-int ARKStepSetPreconditioner(void *arkode_mem, ARKLsPrecSetupFn psetup,
-                             ARKLsPrecSolveFn psolve) {
+int IMEXGARKStepSetPreconditioner(void *arkode_mem, ARKLsPrecSetupFn psetup,
+                                  ARKLsPrecSolveFn psolve) {
   return(arkLSSetPreconditioner(arkode_mem, psetup, psolve)); }
-int ARKStepSetMassPreconditioner(void *arkode_mem, ARKLsMassPrecSetupFn psetup,
-                                 ARKLsMassPrecSolveFn psolve) {
+int IMEXGARKStepSetMassPreconditioner(void *arkode_mem, ARKLsMassPrecSetupFn psetup,
+                                      ARKLsMassPrecSolveFn psolve) {
   return(arkLSSetMassPreconditioner(arkode_mem, psetup, psolve)); }
-int ARKStepSetJacTimes(void *arkode_mem, ARKLsJacTimesSetupFn jtsetup,
-                       ARKLsJacTimesVecFn jtimes) {
+int IMEXGARKStepSetJacTimes(void *arkode_mem, ARKLsJacTimesSetupFn jtsetup,
+                            ARKLsJacTimesVecFn jtimes) {
   return(arkLSSetJacTimes(arkode_mem, jtsetup, jtimes)); }
-int ARKStepSetMassTimes(void *arkode_mem, ARKLsMassTimesSetupFn msetup,
-                        ARKLsMassTimesVecFn mtimes, void *mtimes_data) {
+int IMEXGARKStepSetMassTimes(void *arkode_mem, ARKLsMassTimesSetupFn msetup,
+                             ARKLsMassTimesVecFn mtimes, void *mtimes_data) {
   return(arkLSSetMassTimes(arkode_mem, msetup, mtimes, mtimes_data)); }
 
-int ARKStepSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys)
+int IMEXGARKStepSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys)
 {
   return(arkLSSetLinSysFn(arkode_mem, linsys));
 }
 
 
 /*===============================================================
-  ARKStep Optional output functions (wrappers for generic ARKode
+  IMEXGARKStep Optional output functions (wrappers for generic ARKode
   utility routines)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ARKStepGetNumSteps:  Returns the current number of integration
+  IMEXGARKStepGetNumSteps:  Returns the current number of integration
   steps
   ---------------------------------------------------------------*/
-int ARKStepGetNumSteps(void *arkode_mem, long int *nsteps)
+int IMEXGARKStepGetNumSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -373,10 +373,10 @@ int ARKStepGetNumSteps(void *arkode_mem, long int *nsteps)
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetActualInitStep: Returns the step size used on the
+  IMEXGARKStepGetActualInitStep: Returns the step size used on the
   first step
   ---------------------------------------------------------------*/
-int ARKStepGetActualInitStep(void *arkode_mem, realtype *hinused)
+int IMEXGARKStepGetActualInitStep(void *arkode_mem, realtype *hinused)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -389,10 +389,10 @@ int ARKStepGetActualInitStep(void *arkode_mem, realtype *hinused)
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetLastStep: Returns the step size used on the last
+  IMEXGARKStepGetLastStep: Returns the step size used on the last
   successful step
   ---------------------------------------------------------------*/
-int ARKStepGetLastStep(void *arkode_mem, realtype *hlast)
+int IMEXGARKStepGetLastStep(void *arkode_mem, realtype *hlast)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -405,10 +405,10 @@ int ARKStepGetLastStep(void *arkode_mem, realtype *hlast)
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetCurrentStep: Returns the step size to be attempted on
+  IMEXGARKStepGetCurrentStep: Returns the step size to be attempted on
   the next step
   ---------------------------------------------------------------*/
-int ARKStepGetCurrentStep(void *arkode_mem, realtype *hcur)
+int IMEXGARKStepGetCurrentStep(void *arkode_mem, realtype *hcur)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -421,10 +421,10 @@ int ARKStepGetCurrentStep(void *arkode_mem, realtype *hcur)
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetCurrentTime: Returns the current value of the
+  IMEXGARKStepGetCurrentTime: Returns the current value of the
   independent variable
   ---------------------------------------------------------------*/
-int ARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
+int IMEXGARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -437,10 +437,10 @@ int ARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetTolScaleFactor: Returns a suggested factor for scaling
+  IMEXGARKStepGetTolScaleFactor: Returns a suggested factor for scaling
   tolerances
   ---------------------------------------------------------------*/
-int ARKStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact)
+int IMEXGARKStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -453,10 +453,10 @@ int ARKStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact)
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetErrWeights: This routine returns the current error
+  IMEXGARKStepGetErrWeights: This routine returns the current error
   weight vector.
   ---------------------------------------------------------------*/
-int ARKStepGetErrWeights(void *arkode_mem, N_Vector eweight)
+int IMEXGARKStepGetErrWeights(void *arkode_mem, N_Vector eweight)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -469,10 +469,10 @@ int ARKStepGetErrWeights(void *arkode_mem, N_Vector eweight)
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetResWeights: This routine returns the current residual
+  IMEXGARKStepGetResWeights: This routine returns the current residual
   weight vector.
   ---------------------------------------------------------------*/
-int ARKStepGetResWeights(void *arkode_mem, N_Vector rweight)
+int IMEXGARKStepGetResWeights(void *arkode_mem, N_Vector rweight)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -485,9 +485,9 @@ int ARKStepGetResWeights(void *arkode_mem, N_Vector rweight)
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetWorkSpace: Returns integrator work space requirements
+  IMEXGARKStepGetWorkSpace: Returns integrator work space requirements
   ---------------------------------------------------------------*/
-int ARKStepGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
+int IMEXGARKStepGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -500,10 +500,10 @@ int ARKStepGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetNumGEvals: Returns the current number of calls to g
+  IMEXGARKStepGetNumGEvals: Returns the current number of calls to g
   (for rootfinding)
   ---------------------------------------------------------------*/
-int ARKStepGetNumGEvals(void *arkode_mem, long int *ngevals)
+int IMEXGARKStepGetNumGEvals(void *arkode_mem, long int *ngevals)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -516,10 +516,10 @@ int ARKStepGetNumGEvals(void *arkode_mem, long int *ngevals)
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetRootInfo: Returns pointer to array rootsfound showing
+  IMEXGARKStepGetRootInfo: Returns pointer to array rootsfound showing
   roots found
   ---------------------------------------------------------------*/
-int ARKStepGetRootInfo(void *arkode_mem, int *rootsfound)
+int IMEXGARKStepGetRootInfo(void *arkode_mem, int *rootsfound)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -534,9 +534,9 @@ int ARKStepGetRootInfo(void *arkode_mem, int *rootsfound)
 /*---------------------------------------------------------------
   ARKStepGetStepStats: Returns step statistics
   ---------------------------------------------------------------*/
-int ARKStepGetStepStats(void *arkode_mem, long int *nsteps,
-                        realtype *hinused, realtype *hlast,
-                        realtype *hcur, realtype *tcur)
+int IMEXGARKStepGetStepStats(void *arkode_mem, long int *nsteps,
+                             realtype *hinused, realtype *hlast,
+                             realtype *hcur, realtype *tcur)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -549,61 +549,61 @@ int ARKStepGetStepStats(void *arkode_mem, long int *nsteps,
 }
 
 /*---------------------------------------------------------------
-  ARKStepGetReturnFlagName: translates from return flags IDs to
+  IMEXGARKStepGetReturnFlagName: translates from return flags IDs to
   names
   ---------------------------------------------------------------*/
-char *ARKStepGetReturnFlagName(long int flag)
+char *IMEXGARKStepGetReturnFlagName(long int flag)
 { return(arkGetReturnFlagName(flag)); }
 
 /*---------------------------------------------------------------
   These wrappers for ARKLs module 'get' routines all are
   documented in arkode_arkstep.h.
   ---------------------------------------------------------------*/
-int ARKStepGetLinWorkSpace(void *arkode_mem, long int *lenrwLS, long int *leniwLS) {
+int IMEXGARKStepGetLinWorkSpace(void *arkode_mem, long int *lenrwLS, long int *leniwLS) {
   return(arkLSGetWorkSpace(arkode_mem, lenrwLS, leniwLS)); }
-int ARKStepGetNumJacEvals(void *arkode_mem, long int *njevals) {
+int IMEXGARKStepGetNumJacEvals(void *arkode_mem, long int *njevals) {
   return(arkLSGetNumJacEvals(arkode_mem, njevals)); }
-int ARKStepGetNumPrecEvals(void *arkode_mem, long int *npevals) {
+int IMEXGARKStepGetNumPrecEvals(void *arkode_mem, long int *npevals) {
   return(arkLSGetNumPrecEvals(arkode_mem, npevals)); }
-int ARKStepGetNumPrecSolves(void *arkode_mem, long int *npsolves) {
+int IMEXGARKStepGetNumPrecSolves(void *arkode_mem, long int *npsolves) {
   return(arkLSGetNumPrecSolves(arkode_mem, npsolves)); }
-int ARKStepGetNumLinIters(void *arkode_mem, long int *nliters) {
+int IMEXGARKStepGetNumLinIters(void *arkode_mem, long int *nliters) {
   return(arkLSGetNumLinIters(arkode_mem, nliters)); }
-int ARKStepGetNumLinConvFails(void *arkode_mem, long int *nlcfails) {
+int IMEXGARKStepGetNumLinConvFails(void *arkode_mem, long int *nlcfails) {
   return(arkLSGetNumConvFails(arkode_mem, nlcfails)); }
-int ARKStepGetNumJTSetupEvals(void *arkode_mem, long int *njtsetups) {
+int IMEXGARKStepGetNumJTSetupEvals(void *arkode_mem, long int *njtsetups) {
   return(arkLSGetNumJTSetupEvals(arkode_mem, njtsetups)); }
-int ARKStepGetNumJtimesEvals(void *arkode_mem, long int *njvevals) {
+int IMEXGARKStepGetNumJtimesEvals(void *arkode_mem, long int *njvevals) {
   return(arkLSGetNumJtimesEvals(arkode_mem, njvevals)); }
-int ARKStepGetNumLinRhsEvals(void *arkode_mem, long int *nfevalsLS) {
+int IMEXGARKStepGetNumLinRhsEvals(void *arkode_mem, long int *nfevalsLS) {
   return(arkLSGetNumRhsEvals(arkode_mem, nfevalsLS)); } 
-int ARKStepGetLastLinFlag(void *arkode_mem, long int *flag) {
+int IMEXGARKStepGetLastLinFlag(void *arkode_mem, long int *flag) {
   return(arkLSGetLastFlag(arkode_mem, flag)); }
 
-int ARKStepGetMassWorkSpace(void *arkode_mem, long int *lenrwMLS, long int *leniwMLS) {
+int IMEXGARKStepGetMassWorkSpace(void *arkode_mem, long int *lenrwMLS, long int *leniwMLS) {
   return(arkLSGetMassWorkSpace(arkode_mem, lenrwMLS, leniwMLS)); }
-int ARKStepGetNumMassSetups(void *arkode_mem, long int *nmsetups) {
+int IMEXGARKStepGetNumMassSetups(void *arkode_mem, long int *nmsetups) {
   return(arkLSGetNumMassSetups(arkode_mem, nmsetups)); }
-int ARKStepGetNumMassMultSetups(void *arkode_mem, long int *nmvsetups) {
+int IMEXGARKStepGetNumMassMultSetups(void *arkode_mem, long int *nmvsetups) {
   return(arkLSGetNumMassMatvecSetups(arkode_mem, nmvsetups)); }
-int ARKStepGetNumMassMult(void *arkode_mem, long int *nmvevals) {
+int IMEXGARKStepGetNumMassMult(void *arkode_mem, long int *nmvevals) {
   return(arkLSGetNumMassMult(arkode_mem, nmvevals)); }
-int ARKStepGetNumMassSolves(void *arkode_mem, long int *nmsolves) {
+int IMEXGARKStepGetNumMassSolves(void *arkode_mem, long int *nmsolves) {
   return(arkLSGetNumMassSolves(arkode_mem, nmsolves)); }
-int ARKStepGetNumMassPrecEvals(void *arkode_mem, long int *nmpevals) {
+int IMEXGARKStepGetNumMassPrecEvals(void *arkode_mem, long int *nmpevals) {
   return(arkLSGetNumMassPrecEvals(arkode_mem, nmpevals)); }
-int ARKStepGetNumMassPrecSolves(void *arkode_mem, long int *nmpsolves) {
+int IMEXGARKStepGetNumMassPrecSolves(void *arkode_mem, long int *nmpsolves) {
   return(arkLSGetNumMassPrecSolves(arkode_mem, nmpsolves)); }
-int ARKStepGetNumMassIters(void *arkode_mem, long int *nmiters) {
+int IMEXGARKStepGetNumMassIters(void *arkode_mem, long int *nmiters) {
   return(arkLSGetNumMassIters(arkode_mem, nmiters)); }
-int ARKStepGetNumMassConvFails(void *arkode_mem, long int *nmcfails) {
+int IMEXGARKStepGetNumMassConvFails(void *arkode_mem, long int *nmcfails) {
   return(arkLSGetNumMassConvFails(arkode_mem, nmcfails)); }
-int ARKStepGetNumMTSetups(void *arkode_mem, long int *nmtsetups) {
+int IMEXGARKStepGetNumMTSetups(void *arkode_mem, long int *nmtsetups) {
   return(arkLSGetNumMTSetups(arkode_mem, nmtsetups)); }
-int ARKStepGetLastMassFlag(void *arkode_mem, long int *flag) {
+int IMEXGARKStepGetLastMassFlag(void *arkode_mem, long int *flag) {
   return(arkLSGetLastMassFlag(arkode_mem, flag)); }
 
-char *ARKStepGetLinReturnFlagName(long int flag) {
+char *IMEXGARKStepGetLinReturnFlagName(long int flag) {
   return(arkLSGetReturnFlagName(flag)); }
 
 
