@@ -436,6 +436,37 @@ int IMEXGARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
 }
 
 /*---------------------------------------------------------------
+  IMEXGARKStepGetCurrentY: Returns the current value of the
+  dependent variable
+  ---------------------------------------------------------------*/
+int IMEXGARKStepGetCurrentState(void *arkode_mem, N_Vector *ycur)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::IMEXGARKStep",
+                    "IMEXGARKStepGetCurrentY", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  *ycur = ark_mem->ycur;
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  IMEXGARKStepGetCurrentGamma: Returns the current value for gamma
+  ---------------------------------------------------------------*/
+int IMEXGARKStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeIMEXGARKStepMem step_mem;
+  retval = imexgarkStep_AccessStepMem(arkode_mem, NULL, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+  *gamma = step_mem->gamma;
+  return(retval);
+}
+
+/*---------------------------------------------------------------
   IMEXGARKStepGetTolScaleFactor: Returns a suggested factor for scaling
   tolerances
   ---------------------------------------------------------------*/

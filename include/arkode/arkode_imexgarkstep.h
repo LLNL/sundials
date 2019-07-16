@@ -239,6 +239,10 @@ SUNDIALS_EXPORT int IMEXGARKStepGetCurrentStep(void *arkode_mem,
                                                realtype *hcur);
 SUNDIALS_EXPORT int IMEXGARKStepGetCurrentTime(void *arkode_mem,
                                                realtype *tcur);
+SUNDIALS_EXPORT int IMEXGARKStepGetCurrentState(void *arkode_mem,
+                                                N_Vector *ycur);
+SUNDIALS_EXPORT int IMEXGARKStepGetCurrentGamma(void *arkode_mem,
+                                                realtype *gamma);
 SUNDIALS_EXPORT int IMEXGARKStepGetTolScaleFactor(void *arkode_mem,
                                                   realtype *tolsfac);
 SUNDIALS_EXPORT int IMEXGARKStepGetErrWeights(void *arkode_mem,
