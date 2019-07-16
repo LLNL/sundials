@@ -411,9 +411,13 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Default: ON (if \id{F77\_INTERFACE\_ENABLE} is ON)
 \item[\id{EXAMPLES\_ENABLE\_F90}] -
-  Build the {\sundials} Fortran90/Fortran2003 examples
+  Build the {\sundials} Fortran90 examples
   \\
-  Default: ON (if \id{F77\_INTERFACE\_ENABLE} or \id{F2003\_INTERFACE\_ENABLE} is ON)
+  Default: ON (if \id{F77\_INTERFACE\_ENABLE} is ON)
+\item[\id{EXAMPLES\_ENABLE\_F2003}] -
+  Build the {\sundials} Fortran2003 examples
+  \\
+  Default: ON (if \id{F2003\_INTERFACE\_ENABLE} is ON)
 \item[\id{EXAMPLES\_INSTALL}] -
   Install example files
   \\
@@ -1202,320 +1206,351 @@ are to be used in building a preconditioner.
 {\shared}
  & Libraries    & n/a  & \\
 \cline{2-4}
-& Header files & sundials/sundials\_config.h           & \\
-&              & sundials/sundials\_fconfig.h          & \\
-&              & sundials/sundials\_types.h            & \\
-&              & sundials/sundials\_math.h             & \\
-&              & sundials/sundials\_nvector.h          & \\
-&              & sundials/sundials\_fnvector.h         & \\
-&              & sundials/sundials\_matrix.h           & \\
-&              & sundials/sundials\_linearsolver.h     & \\
-&              & sundials/sundials\_iterative.h        & \\
-&              & sundials/sundials\_direct.h           & \\
-&              & sundials/sundials\_dense.h            & \\
-&              & sundials/sundials\_band.h             & \\
-&              & sundials/sundials\_nonlinearsolver.h  & \\
-&              & sundials/sundials\_version.h          & \\
-&              & sundials/sundials\_mpi\_types.h       & \\
+& Header files & sundials/sundials\_config.h                         &                           \\
+&              & sundials/sundials\_fconfig.h                        &                           \\
+&              & sundials/sundials\_types.h                          &                           \\
+&              & sundials/sundials\_math.h                           &                           \\
+&              & sundials/sundials\_nvector.h                        &                           \\
+&              & sundials/sundials\_fnvector.h                       &                           \\
+&              & sundials/sundials\_matrix.h                         &                           \\
+&              & sundials/sundials\_linearsolver.h                   &                           \\
+&              & sundials/sundials\_iterative.h                      &                           \\
+&              & sundials/sundials\_direct.h                         &                           \\
+&              & sundials/sundials\_dense.h                          &                           \\
+&              & sundials/sundials\_band.h                           &                           \\
+&              & sundials/sundials\_nonlinearsolver.h                &                           \\
+&              & sundials/sundials\_version.h                        &                           \\
+&              & sundials/sundials\_mpi\_types.h                     &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecs}
- & Libraries    & libsundials\_nvecserial.{\em lib}       & \\
- &              & libsundials\_fnvecserial\_mod.{\em lib} & \\ 
- &              & libsundials\_fnvecserial.a              & \\ 
+& Libraries    & libsundials\_nvecserial.{\em lib}                   &                           \\
+&              & libsundials\_fnvecserial\_mod.{\em lib}             &                           \\
+&              & libsundials\_fnvecserial.a                          &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_serial.h               & \\
+& Header files & nvector/nvector\_serial.h                           &                           \\
 \cline{2-4}
- & Module files & fnvector\_serial\_mod.mod               & \\
+& Module files & fnvector\_serial\_mod.mod                           &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecp}
- & Libraries    & libsundials\_nvecparallel.{\em lib} & libsundials\_fnvecparallel.a \\
+& Libraries    & libsundials\_nvecparallel.{\em lib}                 &                           \\
+&              & libsundials\_fnvecparallel.a                        &                           \\
+&              & libsundials\_fnvecparallel\_mod.{\em lib}           &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_parallel.h         & \\
+& Header files & nvector/nvector\_parallel.h                         &                           \\
+\cline{2-4}
+& Module files & fnvector\_parallel\_mod.mod                         &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecmanyvector}
- & Libraries    & libsundials\_nvecmanyvector.{\em lib} & \\
+& Libraries    & libsundials\_nvecmanyvector.{\em lib}               &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_manyvector.h         & \\
+& Header files & nvector/nvector\_manyvector.h                       &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecmpimanyvector}
- & Libraries    & libsundials\_nvecmpimanyvector.{\em lib} & \\
+& Libraries    & libsundials\_nvecmpimanyvector.{\em lib}            &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_mpimanyvector.h         & \\
+& Header files & nvector/nvector\_mpimanyvector.h                    &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecmpiplusx}
- & Libraries    & libsundials\_nvecmpiplusx.{\em lib} & \\
+& Libraries    & libsundials\_nvecmpiplusx.{\em lib}                 &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_mpiplusx.h         & \\
+& Header files & nvector/nvector\_mpiplusx.h                         &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecopenmp}
- & Libraries    & libsundials\_nvecopenmp.{\em lib}        & \\
- &              & libsundials\_fnvecopenmp\_mod.{\em lib}  & \\
- &              & libsundials\_fnvecopenmp.a               & \\
+& Libraries    & libsundials\_nvecopenmp.{\em lib}                   &                           \\
+&              & libsundials\_fnvecopenmp\_mod.{\em lib}             &                           \\
+&              & libsundials\_fnvecopenmp.a                          &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_openmp.h                & \\
+& Header files & nvector/nvector\_openmp.h                           &                           \\
 \cline{2-4}
- & Module files & fnvector\_openmp\_mod.mod                & \\
+& Module files & fnvector\_openmp\_mod.mod                           &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecopenmpdev}
-  & Libraries    & libsundials\_nvecopenmpdev.{\em lib} & \\ 
+& Libraries    & libsundials\_nvecopenmpdev.{\em lib}                &                           \\
 \cline{2-4}
-  & Header files & nvector/nvector\_openmpdev.h         & \\ 
+& Header files & nvector/nvector\_openmpdev.h                        &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecpthreads}
- & Libraries    & libsundials\_nvecpthreads.{\em lib}       & \\
- &              & libsundials\_fnvecpthreads\_mod.{\em lib} & \\
- &              & libsundials\_fnvecpthreads.a              & \\
+& Libraries    & libsundials\_nvecpthreads.{\em lib}                 &                           \\
+&              & libsundials\_fnvecpthreads\_mod.{\em lib}           &                           \\
+&              & libsundials\_fnvecpthreads.a                        &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_pthreads.h               & \\
+& Header files & nvector/nvector\_pthreads.h                         &                           \\
 \cline{2-4}
- & Module files & fnvector\_pthreads\_mod.mod               & \\
+& Module files & fnvector\_pthreads\_mod.mod                         &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecph}
- & Libraries    & libsundials\_nvecparhyp.{\em lib} & \\
+& Libraries    & libsundials\_nvecparhyp.{\em lib}                   &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_parhyp.h         & \\
+& Header files & nvector/nvector\_parhyp.h                           &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecpetsc}
- & Libraries    & libsundials\_nvecpetsc.{\em lib} & \\
+& Libraries    & libsundials\_nvecpetsc.{\em lib}                    &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_petsc.h         & \\
+& Header files & nvector/nvector\_petsc.h                            &                           \\
 \hline
 %% --------------------------------------------------
 {\nveccuda}
- & Libraries    & libsundials\_nveccuda.{\em lib}     & \\
+& Libraries    & libsundials\_nveccuda.{\em lib}                     &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_cuda.h             & \\
- &              & nvector/cuda/ThreadPartitioning.hpp & \\
- &              & nvector/cuda/Vector.hpp             & \\
- &              & nvector/cuda/VectorKernels.cuh      & \\
+& Header files & nvector/nvector\_cuda.h                             &                           \\
+&              & nvector/cuda/ThreadPartitioning.hpp                 &                           \\
+&              & nvector/cuda/Vector.hpp                             &                           \\
+&              & nvector/cuda/VectorKernels.cuh                      &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecraja}
- & Libraries    & libsundials\_nveccudaraja.{\em lib}     & \\
+& Libraries    & libsundials\_nveccudaraja.{\em lib}                 &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_raja.h         & \\
- &              & nvector/raja/Vector.hpp         & \\
+& Header files & nvector/nvector\_raja.h                             &                           \\
+&              & nvector/raja/Vector.hpp                             &                           \\
 \hline
 %% --------------------------------------------------
 {\nvectrilinos}
- & Libraries    & libsundials\_nvectrilinos.{\em lib}    & \\
+& Libraries    & libsundials\_nvectrilinos.{\em lib}                 &                           \\
 \cline{2-4}
- & Header files & nvector/nvector\_trilinos.h                        & \\
- &              & nvector/trilinos/SundialsTpetraVectorInterface.hpp & \\
- &              & nvector/trilinos/SundialsTpetraVectorKernels.hpp   & \\
+& Header files & nvector/nvector\_trilinos.h                         &                           \\
+&              & nvector/trilinos/SundialsTpetraVectorInterface.hpp  &                           \\
+&              & nvector/trilinos/SundialsTpetraVectorKernels.hpp    &                           \\
 \hline
 %% --------------------------------------------------
 {\sunmatband}
- & Libraries    & libsundials\_sunmatrixband.{\em lib}       & \\
- &              & libsundials\_fsunmatrixband\_mod.{\em lib} & \\
- &              & libsundials\_fsunmatrixband.a              & \\
+& Libraries    & libsundials\_sunmatrixband.{\em lib}                &                           \\
+&              & libsundials\_fsunmatrixband\_mod.{\em lib}          &                           \\
+&              & libsundials\_fsunmatrixband.a                       &                           \\
 \cline{2-4}
- & Header files & sunmatrix/sunmatrix\_band.h                & \\
+& Header files & sunmatrix/sunmatrix\_band.h                         &                           \\
 \cline{2-4}
- & Module files & fsunmatrix\_band\_mod.mod                  & \\
+& Module files & fsunmatrix\_band\_mod.mod                           &                           \\
 \hline
 %% --------------------------------------------------
 {\sunmatdense}
- & Libraries    & libsundials\_sunmatrixdense.{\em lib}       & \\
- &              & libsundials\_fsunmatrixdense\_mod.{\em lib} & \\
- &              & libsundials\_fsunmatrixdense.a              & \\
+& Libraries    & libsundials\_sunmatrixdense.{\em lib}               &                           \\
+&              & libsundials\_fsunmatrixdense\_mod.{\em lib}         &                           \\
+&              & libsundials\_fsunmatrixdense.a                      &                           \\
 \cline{2-4}
- & Header files & sunmatrix/sunmatrix\_dense.h                & \\
+& Header files & sunmatrix/sunmatrix\_dense.h                        &                           \\
 \cline{2-4}
- & Module files & fsunmatrix\_dense\_mod.mod                  & \\
+& Module files & fsunmatrix\_dense\_mod.mod                          &                           \\
 \hline
 %% --------------------------------------------------
 {\sunmatsparse}
- & Libraries    & libsundials\_sunmatrixsparse.{\em lib}       & \\
- &              & libsundials\_fsunmatrixsparse\_mod.{\em lib} & \\
- &              & libsundials\_fsunmatrixsparse.a              & \\
+& Libraries    & libsundials\_sunmatrixsparse.{\em lib}              &                           \\
+&              & libsundials\_fsunmatrixsparse\_mod.{\em lib}        &                           \\
+&              & libsundials\_fsunmatrixsparse.a                     &                           \\
 \cline{2-4}
- & Header files & sunmatrix/sunmatrix\_sparse.h                & \\
+& Header files & sunmatrix/sunmatrix\_sparse.h                       &                           \\
 \cline{2-4}
- & Module files & fsunmatrix\_sparse\_mod.mod                  & \\
+& Module files & fsunmatrix\_sparse\_mod.mod                         &                           \\
+\hline
+%% --------------------------------------------------
+{\sunmatslunrloc}
+& Libraries    & libsundials\_sunmatrixslunrloc.{\em lib}            &                           \\
+\cline{2-4}
+& Header files & sunmatrix/sunmatrix\_slunrloc.h                     &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolband}
- & Libraries    & libsundials\_sunlinsolband.{\em lib}        & \\
- &              & libsundials\_fsunlinsolband\_mod.{\em lib}  & \\
- &              & libsundials\_fsunlinsolband.a               & \\
+& Libraries    & libsundials\_sunlinsolband.{\em lib}                &                           \\
+&              & libsundials\_fsunlinsolband\_mod.{\em lib}          &                           \\
+&              & libsundials\_fsunlinsolband.a                       &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_band.h                 & \\
+& Header files & sunlinsol/sunlinsol\_band.h                         &                           \\
 \cline{2-4}
- & Module files & fsunlinsol\_band\_mod.mod                   & \\
+& Module files & fsunlinsol\_band\_mod.mod                           &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsoldense}
- & Libraries    & libsundials\_sunlinsoldense.{\em lib}       & \\
- &              & libsundials\_fsunlinsoldense\_mod.{\em lib} & \\
- &              & libsundials\_fsunlinsoldense.a              & \\
+& Libraries    & libsundials\_sunlinsoldense.{\em lib}               &                           \\
+&              & libsundials\_fsunlinsoldense\_mod.{\em lib}         &                           \\
+&              & libsundials\_fsunlinsoldense.a                      &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_dense.h                & \\
+& Header files & sunlinsol/sunlinsol\_dense.h                        &                           \\
 \cline{2-4}
- & Module files & fsunlinsol\_dense\_mod.mod                  & \\
+& Module files & fsunlinsol\_dense\_mod.mod                          &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolklu}
- & Libraries    & libsundials\_sunlinsolklu.{\em lib}        & \\
- &              & libsundials\_fsunlinsolklu\_mod.{\em lib}  & \\
- &              & libsundials\_fsunlinsolklu.a               & \\
+& Libraries    & libsundials\_sunlinsolklu.{\em lib}                 &                           \\
+&              & libsundials\_fsunlinsolklu\_mod.{\em lib}           &                           \\
+&              & libsundials\_fsunlinsolklu.a                        &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_klu.h                 & \\
+& Header files & sunlinsol/sunlinsol\_klu.h                          &                           \\
 \cline{2-4}
- & Module files & fsunlinsol\_klu\_mod.mod                   & \\
+& Module files & fsunlinsol\_klu\_mod.mod                            &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsollapband}
- & Libraries    & libsundials\_sunlinsollapackband.{\em lib} & \\
- &              & libsundials\_fsunlinsollapackband.a        & \\
+& Libraries    & libsundials\_sunlinsollapackband.{\em lib}          &                           \\
+&              & libsundials\_fsunlinsollapackband.a                 &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_lapackband.h          & \\
+& Header files & sunlinsol/sunlinsol\_lapackband.h                   &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsollapdense}
- & Libraries    & libsundials\_sunlinsollapackdense.{\em lib} & \\
- &              & libsundials\_fsunlinsollapackdense.a        & \\
+& Libraries    & libsundials\_sunlinsollapackdense.{\em lib}         &                           \\
+&              & libsundials\_fsunlinsollapackdense.a                &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_lapackdense.h          & \\
+& Header files & sunlinsol/sunlinsol\_lapackdense.h                  &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolpcg}
- & Libraries    & libsundials\_sunlinsolpcg.{\em lib}        & \\
- &              & libsundials\_fsunlinsolpcg\_mod.{\em lib}  & \\
- &              & libsundials\_fsunlinsolpcg.a               & \\
+& Libraries    & libsundials\_sunlinsolpcg.{\em lib}                 &                           \\
+&              & libsundials\_fsunlinsolpcg\_mod.{\em lib}           &                           \\
+&              & libsundials\_fsunlinsolpcg.a                        &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_pcg.h                 & \\
+& Header files & sunlinsol/sunlinsol\_pcg.h                          &                           \\
 \cline{2-4}
- & Module files & fsunlinsol\_pcg\_mod.mod                   & \\
+& Module files & fsunlinsol\_pcg\_mod.mod                            &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolspbcgs}
- & Libraries    & libsundials\_sunlinsolspbcgs.{\em lib}       & \\
- &              & libsundials\_fsunlinsolspbcgs\_mod.{\em lib} & \\
- &              & libsundials\_fsunlinsolspbcgs.a              & \\
+& Libraries    & libsundials\_sunlinsolspbcgs.{\em lib}              &                           \\
+&              & libsundials\_fsunlinsolspbcgs\_mod.{\em lib}        &                           \\
+&              & libsundials\_fsunlinsolspbcgs.a                     &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_spbcgs.h                & \\
+& Header files & sunlinsol/sunlinsol\_spbcgs.h                       &                           \\
 \cline{2-4}
- & Module files & fsunlinsol\_spbcgs\_mod.mod                  & \\
+& Module files & fsunlinsol\_spbcgs\_mod.mod                         &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolspfgmr}
- & Libraries    & libsundials\_sunlinsolspfgmr.{\em lib}        & \\
- &              & libsundials\_fsunlinsolspfgmr\_mod.{\em lib}  & \\
- &              & libsundials\_fsunlinsolspfgmr.a               & \\
+& Libraries    & libsundials\_sunlinsolspfgmr.{\em lib}              &                           \\
+&              & libsundials\_fsunlinsolspfgmr\_mod.{\em lib}        &                           \\
+&              & libsundials\_fsunlinsolspfgmr.a                     &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_spfgmr.h                 & \\
+& Header files & sunlinsol/sunlinsol\_spfgmr.h                       &                           \\
 \cline{2-4}
- & Module files & fsunlinsol\_spfgmr\_mod.mod                   & \\
+& Module files & fsunlinsol\_spfgmr\_mod.mod                         &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolspgmr}
- & Libraries    & libsundials\_sunlinsolspgmr.{\em lib}        & \\
- &              & libsundials\_fsunlinsolspgmr\_mod.{\em lib}  & \\
- &              & libsundials\_fsunlinsolspgmr.a               & \\
+& Libraries    & libsundials\_sunlinsolspgmr.{\em lib}               &                           \\
+&              & libsundials\_fsunlinsolspgmr\_mod.{\em lib}         &                           \\
+&              & libsundials\_fsunlinsolspgmr.a                      &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_spgmr.h                 & \\
+& Header files & sunlinsol/sunlinsol\_spgmr.h                        &                           \\
 \cline{2-4}
- & Module files & fsunlinsol\_spgmr\_mod.mod                   & \\
+& Module files & fsunlinsol\_spgmr\_mod.mod                          &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolsptfqmr}
- & Libraries    & libsundials\_sunlinsolsptfqmr.{\em lib}       & \\
- &              & libsundials\_fsunlinsolsptfqmr\_mod.{\em lib} & \\
- &              & libsundials\_fsunlinsolsptfqmr.a              & \\
+& Libraries    & libsundials\_sunlinsolsptfqmr.{\em lib}             &                           \\
+&              & libsundials\_fsunlinsolsptfqmr\_mod.{\em lib}       &                           \\
+&              & libsundials\_fsunlinsolsptfqmr.a                    &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_sptfqmr.h                & \\
+& Header files & sunlinsol/sunlinsol\_sptfqmr.h                      &                           \\
 \cline{2-4}
- & Module files & fsunlinsol\_sptfqmr\_mod.mod                  & \\
+& Module files & fsunlinsol\_sptfqmr\_mod.mod                        &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolslumt}
- & Libraries    & libsundials\_sunlinsolsuperlumt.{\em lib} & \\
- &              & libsundials\_fsunlinsolsuperlumt.a        & \\
+& Libraries    & libsundials\_sunlinsolsuperlumt.{\em lib}           &                           \\
+&              & libsundials\_fsunlinsolsuperlumt.a                  &                           \\
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_superlumt.h          & \\
+& Header files & sunlinsol/sunlinsol\_superlumt.h                    &                           \\
+\hline
+{\sunlinsolsludist}
+& Libraries    & libsundials\_sunlinsolsuperludist.{\em lib}         &                           \\
+&              & libsundials\_fsunlinsolsuperludist.a                &                           \\
+\cline{2-4}
+& Header files & sunlinsol/sunlinsol\_superludist.h                  &                           \\
 \hline
 %% --------------------------------------------------
 {\sunnonlinsolnewton}
- & Libraries    & libsundials\_sunnonlinsolnewton.{\em lib}        & \\
- &              & libsundials\_fsunnonlinsolnewton\_mod.{\em lib}  & \\
- &              & libsundials\_fsunnonlinsolnewton.a               & \\
+& Libraries    & libsundials\_sunnonlinsolnewton.{\em lib}           &                           \\
+&              & libsundials\_fsunnonlinsolnewton\_mod.{\em lib}     &                           \\
+&              & libsundials\_fsunnonlinsolnewton.a                  &                           \\
 \cline{2-4}
- & Header files & sunnonlinsol/sunnonlinsol\_newton.h              & \\
+& Header files & sunnonlinsol/sunnonlinsol\_newton.h                 &                           \\
 \cline{2-4}
- & Module files & fsunnonlinsol\_newton\_mod.mod                   &  \\
+& Module files & fsunnonlinsol\_newton\_mod.mod                      &                           \\
 \hline
 %% --------------------------------------------------
 {\sunnonlinsolfixedpoint}
- & Libraries    & libsundials\_sunnonlinsolfixedpoint.{\em lib}       & \\
- &              & libsundials\_fsunnonlinsolfixedpoint.a              & \\
- &              & libsundials\_fsunnonlinsolfixedpoint\_mod.{\em lib} & \\
+& Libraries    & libsundials\_sunnonlinsolfixedpoint.{\em lib}       &                           \\
+&              & libsundials\_fsunnonlinsolfixedpoint.a              &                           \\
+&              & libsundials\_fsunnonlinsolfixedpoint\_mod.{\em lib} &                           \\
 \cline{2-4}
- & Header files & sunnonlinsol/sunnonlinsol\_fixedpoint.h             & \\
+& Header files & sunnonlinsol/sunnonlinsol\_fixedpoint.h             &                           \\
 \cline{2-4}
- & Module files & fsunnonlinsol\_fixedpoint\_mod.mod                  & \\
+& Module files & fsunnonlinsol\_fixedpoint\_mod.mod                  &                           \\
 \hline
 %% --------------------------------------------------
 {\cvode}
- & Libraries    & libsundials\_cvode.{\em lib} & libsundials\_fcvode.a \\
+& Libraries    & libsundials\_cvode.{\em lib}                        &                           \\
+&              & libsundials\_fcvode.a                               &                           \\
+&              & libsundials\_fcvode\_mod.{\em lib}                  &                           \\
 \cline{2-4}
- & Header files & cvode/cvode.h                & cvode/cvode\_impl.h   \\
- &              & cvode/cvode\_direct.h        & cvode/cvode\_ls.h \\
- &              & cvode/cvode\_spils.h         & cvode/cvode\_bandpre.h \\
- &              & cvode/cvode\_bbdpre.h        &  \\
+& Header files & cvode/cvode.h                                       & cvode/cvode\_impl.h       \\
+&              & cvode/cvode\_direct.h                               & cvode/cvode\_ls.h         \\
+&              & cvode/cvode\_spils.h                                & cvode/cvode\_bandpre.h    \\
+&              & cvode/cvode\_bbdpre.h                               &                           \\
 \cline{2-4}
- & Module files & fcvode\_mod.mod               &  \\
+& Module files & fcvode\_mod.mod                                     &                           \\
 \hline
 %% --------------------------------------------------
 {\cvodes}
- & Libraries    & libsundials\_cvodes.{\em lib} & \\
+& Libraries    & libsundials\_cvodes.{\em lib}                       &                           \\
 \cline{2-4}
- & Header files & cvodes/cvodes.h               & cvodes/cvodes\_impl.h   \\
- &              & cvodes/cvodes\_direct.h       & cvodes/cvodes\_ls.h  \\
- &              & cvodes/cvodes\_spils.h        & cvodes/cvodes\_bandpre.h  \\
- &              & cvodes/cvodes\_bbdpre.h       &  \\
+& Header files & cvodes/cvodes.h                                     & cvodes/cvodes\_impl.h     \\
+&              & cvodes/cvodes\_direct.h                             & cvodes/cvodes\_ls.h       \\
+&              & cvodes/cvodes\_spils.h                              & cvodes/cvodes\_bandpre.h  \\
+&              & cvodes/cvodes\_bbdpre.h                             &                           \\
 \hline
 %% --------------------------------------------------
 {\arkode}
- & Libraries    & libsundials\_arkode.{\em lib} & libsundials\_farkode.a \\
+& Libraries    & libsundials\_arkode.{\em lib}                       &                           \\
+&              & libsundials\_farkode.a                              &                           \\
+&              & libsundials\_farkode\_mod.{\em lib}                 &                           \\
 \cline{2-4}
- & Header files & arkode/arkode.h               & arkode/arkode\_impl.h    \\
- &              & arkode/arkode\_ls.h           & arkode/arkode\_bandpre.h \\
- &              & arkode/arkode\_bbdpre.h       &  \\
+& Header files & arkode/arkode.h                                     & arkode/arkode\_impl.h     \\
+&              & arkode/arkode\_ls.h                                 & arkode/arkode\_bandpre.h  \\
+&              & arkode/arkode\_bbdpre.h                             &                           \\
+\cline{2-4}
+& Module files & farkode\_mod.mod                                    & farkode\_arkstep\_mod.mod \\
+&              & farkode\_erkstep\_mod.mod                           & farkode\_mristep\_mod.mod \\
 \hline
 %% --------------------------------------------------
 {\ida}
- & Libraries    & libsundials\_ida.{\em lib} & libsundials\_fida.a \\
+& Libraries    & libsundials\_ida.{\em lib}                          &                           \\
+&              & libsundials\_fida.a                                 &                           \\
+&              & libsundials\_fida\_mod.{\em lib}                    &                           \\
 \cline{2-4}
- & Header files & ida/ida.h                  & ida/ida\_impl.h     \\
- &              & ida/ida\_direct.h          & ida/ida\_ls.h       \\
- &              & ida/ida\_spils.h           & ida/ida\_bbdpre.h   \\
+& Header files & ida/ida.h                                           & ida/ida\_impl.h           \\
+&              & ida/ida\_direct.h                                   & ida/ida\_ls.h             \\
+&              & ida/ida\_spils.h                                    & ida/ida\_bbdpre.h         \\
+\cline{2-4}
+& Module files & fida\_mod.mod                                       &                           \\
 \hline
 %% --------------------------------------------------
 {\idas}
- & Libraries    & libsundials\_idas.{\em lib} & \\
+& Libraries    & libsundials\_idas.{\em lib}                         &                           \\
 \cline{2-4}
- & Header files & idas/idas.h                 & idas/idas\_impl.h   \\
- &              & idas/idas\_direct.h         & idas/idas\_ls.h     \\
- &              & idas/idas\_spils.h          & idas/idas\_bbdpre.h \\
+& Header files & idas/idas.h                                         & idas/idas\_impl.h         \\
+&              & idas/idas\_direct.h                                 & idas/idas\_ls.h           \\
+&              & idas/idas\_spils.h                                  & idas/idas\_bbdpre.h       \\
 \hline
 %% --------------------------------------------------
 {\kinsol}
- & Libraries    & libsundials\_kinsol.{\em lib} & libsundials\_fkinsol.a \\
+& Libraries    & libsundials\_kinsol.{\em lib}                       &                           \\
+&              & libsundials\_fkinsol.a                              &                           \\
+&              & libsundials\_fkinsol\_mod.{\em lib}                 &                           \\
 \cline{2-4}
- & Header files & kinsol/kinsol.h               & kinsol/kinsol\_impl.h   \\
- &              & kinsol/kinsol\_direct.h       & kinsol/kinsol\_ls.h     \\
- &              & kinsol/kinsol\_spils.h        & kinsol/kinsol\_bbdpre.h \\
+& Header files & kinsol/kinsol.h                                     & kinsol/kinsol\_impl.h     \\
+&              & kinsol/kinsol\_direct.h                             & kinsol/kinsol\_ls.h       \\
+&              & kinsol/kinsol\_spils.h                              & kinsol/kinsol\_bbdpre.h   \\
+\cline{2-4}
+& Module files & fkinsol\_mod.mod                                    &                           \\
 \hline
  %% --------------------------------------------------
 \end{xtabular}

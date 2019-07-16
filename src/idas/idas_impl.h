@@ -90,6 +90,7 @@ typedef struct IDAMemRec {
   realtype       ida_rtol;           /* relative tolerance                    */
   realtype       ida_Satol;          /* scalar absolute tolerance             */  
   N_Vector       ida_Vatol;          /* vector absolute tolerance             */  
+  booleantype    ida_atolmin0;       /* flag indicating that min(atol) = 0    */    
   booleantype    ida_user_efun;      /* SUNTRUE if user provides efun         */
   IDAEwtFn       ida_efun;           /* function to set ewt                   */
   void          *ida_edata;          /* user pointer passed to efun           */
@@ -109,6 +110,7 @@ typedef struct IDAMemRec {
   realtype       ida_rtolQ;
   realtype       ida_SatolQ;    /* scalar absolute tolerance for quadratures  */
   N_Vector       ida_VatolQ;    /* vector absolute tolerance for quadratures  */
+  booleantype    ida_atolQmin0; /* flag indicating that min(atolQ) = 0        */    
 
   /*------------------------
     Sensitivity Related Data
@@ -131,9 +133,10 @@ typedef struct IDAMemRec {
   booleantype    ida_errconS;       /* SUNTRUE if sensitivities in err. control  */
 
   int            ida_itolS;
-  realtype       ida_rtolS;         /* relative tolerance for sensitivities   */
-  realtype       *ida_SatolS;       /* scalar absolute tolerances for sensi.  */
-  N_Vector       *ida_VatolS;       /* vector absolute tolerances for sensi.  */
+  realtype       ida_rtolS;         /* relative tolerance for sensitivities    */
+  realtype       *ida_SatolS;       /* scalar absolute tolerances for sensi.   */
+  N_Vector       *ida_VatolS;       /* vector absolute tolerances for sensi.   */
+  booleantype    *ida_atolSmin0;    /* flag indicating that min(atolS[is]) = 0 */    
 
   /*-----------------------------------
     Quadrature Sensitivity Related Data 
@@ -151,6 +154,7 @@ typedef struct IDAMemRec {
   realtype ida_rtolQS;           /* relative tolerance for yQS                */
   realtype *ida_SatolQS;         /* scalar absolute tolerances for yQS        */
   N_Vector *ida_VatolQS;         /* vector absolute tolerances for yQS        */
+  booleantype *ida_atolQSmin0;   /* flag indicating that min(atolQS[is]) = 0  */    
 
   /*-----------------------------------------------
     Divided differences array and associated arrays

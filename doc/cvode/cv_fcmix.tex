@@ -1,33 +1,31 @@
 %%==============================================================================
-\chapter{Using CVODE for FORTRAN Applications}\label{s:cvfort}
+\chapter{Using CVODE for Fortran Applications}\label{s:cvfort}
 %%==============================================================================
 
-A {\F} 2003 module (\id{fcvode\_mod}) as well as a {\F} 77 style interface
+A Fortran 2003 module (\id{fcvode\_mod}) as well as a Fortran 77 style interface
 (\fcvode) are provided to support the use of {\cvode}, for the solution of ODE
-systems $dy/dt = f(t,y)$, in a mixed {\F}/{\CC} setting. While {\cvode} is
+systems $dy/dt = f(t,y)$, in a mixed Fortran/{\CC} setting. While {\cvode} is
 written in {\CC}, it is assumed here that the user's calling program and
-user-supplied problem-defining routines are written in {\F}. 
+user-supplied problem-defining routines are written in Fortran. 
 
 %%==============================================================================
-% FORTRAN 2003 Interfaces.
+% Fortran 2003 Interfaces.
 %%==============================================================================
 
 \let\sectiontype\subsection
-\section{CVODE FORTRAN 2003 Interface Module}\label{s:cvf2003}
+\section{CVODE Fortran 2003 Interface Module}\label{s:cvf2003}
 
-The \ID{fcvode\_mod} {\F} module defines interfaces to most {\cvode} {\CC}
+The \ID{fcvode\_mod} Fortran module defines interfaces to most {\cvode} {\CC}
 functions using the intrinsic \id{iso\_c\_binding} module which provides a
 standardized mechanism for interoperating with {\CC}. All interfaced functions
 are named after the corresponding {\CC} function, but with a leading `F'. For
 example, the {\cvode} function \id{CVodeCreate} is interfaced as
 \id{FCVodeCreate}. Thus, the steps to use {\cvode} and the function calls in
-{\F} 2003 are identical (ignoring language differences) to those in {\CC}. The
-{\CC} functions with {\F} 2003 interfaces indicate this in their description in
-Chapter \ref{s:simulation}.
-
-The {\F} 2003 {\cvode} interface module can be accessed by the \id{use}
-statement, i.e. \id{use fcvode\_mod}, and linking to the library
-\id{libsundials\_fcvode\_mod}.{\em lib} in addition to
+Fortran 2003 are identical (ignoring language differences) to those in {\CC}. The
+{\CC} functions with Fortran 2003 interfaces indicate this in their description in
+Chapter \ref{s:simulation}. The Fortran 2003 {\cvode} interface module can be
+accessed by the \id{use} statement, i.e. \id{use fcvode\_mod}, and linking to the
+library \id{libsundials\_fcvode\_mod}.{\em lib} in addition to
 \id{libsundials\_cvode}.{\em lib}.
 
 % Pull in sections on portability and data types.

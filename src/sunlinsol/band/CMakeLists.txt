@@ -16,9 +16,9 @@
 INSTALL(CODE "MESSAGE(\"\nInstall SUNLINSOL_BAND\n\")")
 
 # Add F90 module if F2003 interface is enabled
-IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
-  ADD_SUBDIRECTORY(F90)
-ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+IF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(fmod)
+ENDIF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
 
 # Add variable sunlinsolband_SOURCES with the sources for the SUNLINSOLBAND lib
 SET(sunlinsolband_SOURCES sunlinsol_band.c)
@@ -46,10 +46,22 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 #  - Set the library name and make sure it is not deleted
 #  - Install the SUNLINSOLBAND library
 IF(BUILD_STATIC_LIBS)
-  ADD_LIBRARY(sundials_sunlinsolband_static STATIC ${sunlinsolband_SOURCES} ${shared_SOURCES})
+
+  ADD_LIBRARY(sundials_sunlinsolband_static
+    STATIC ${sunlinsolband_SOURCES} ${shared_SOURCES})
+
+  # sunlinsolband depends on sunmatrixband
+  TARGET_LINK_LIBRARIES(sundials_sunlinsolband_static
+    PUBLIC sundials_sunmatrixband_static)
+
   SET_TARGET_PROPERTIES(sundials_sunlinsolband_static
-    PROPERTIES OUTPUT_NAME sundials_sunlinsolband CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_sunlinsolband_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    PROPERTIES
+    OUTPUT_NAME sundials_sunlinsolband
+    CLEAN_DIRECT_OUTPUT 1)
+
+  INSTALL(TARGETS sundials_sunlinsolband_static
+    DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
@@ -58,16 +70,24 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Set VERSION and SOVERSION for shared libraries
 #  - Install the SUNLINSOLBAND library
 IF(BUILD_SHARED_LIBS)
-  ADD_LIBRARY(sundials_sunlinsolband_shared SHARED ${sunlinsolband_SOURCES} ${shared_SOURCES})
+
+  ADD_LIBRARY(sundials_sunlinsolband_shared
+    SHARED ${sunlinsolband_SOURCES} ${shared_SOURCES})
 
   # sunlinsolband depends on sunmatrixband
-  TARGET_LINK_LIBRARIES(sundials_sunlinsolband_shared sundials_sunmatrixband_shared)
+  TARGET_LINK_LIBRARIES(sundials_sunlinsolband_shared
+    PUBLIC sundials_sunmatrixband_shared)
 
   SET_TARGET_PROPERTIES(sundials_sunlinsolband_shared
-    PROPERTIES OUTPUT_NAME sundials_sunlinsolband CLEAN_DIRECT_OUTPUT 1)
-  SET_TARGET_PROPERTIES(sundials_sunlinsolband_shared
-    PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-  INSTALL(TARGETS sundials_sunlinsolband_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    PROPERTIES
+    OUTPUT_NAME sundials_sunlinsolband
+    CLEAN_DIRECT_OUTPUT 1
+    VERSION ${sunlinsollib_VERSION}
+    SOVERSION ${sunlinsollib_SOVERSION})
+
+  INSTALL(TARGETS sundials_sunlinsolband_shared
+    DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the SUNLINSOLBAND header files

@@ -33,21 +33,35 @@ SET(sunlinsol_klu_dependencies
   sundials_linearsolver
   )
 
+# If building F2003 tests
+if (F2003_INTERFACE_ENABLE)
+  set(sunlinsol_klu_fortran_examples
+    "test_fsunlinsol_klu_mod\;\;")
+endif()
+
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(. ..)
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(NVEC_LIB sundials_nvecserial_static)
   SET(SUNMAT_LIB sundials_sunmatrixdense_static)
-  LIST(APPEND SUNMAT_LIB sundials_sunmatrixsparse_static)
   SET(SUNLINSOL_LIB sundials_sunlinsolklu_static)
+  if (F2003_INTERFACE_ENABLE)
+    LIST(APPEND NVEC_LIB sundials_fnvecserial_mod_static)
+    LIST(APPEND SUNMAT_LIB sundials_fsunmatrixdense_mod_static)
+    LIST(APPEND SUNLINSOL_LIB sundials_fsunlinsolklu_mod_static)
+  endif()
 ELSE()
   SET(NVEC_LIB sundials_nvecserial_shared)
   SET(SUNMAT_LIB sundials_sunmatrixdense_shared)
-  LIST(APPEND SUNMAT_LIB sundials_sunmatrixsparse_shared)
   SET(SUNLINSOL_LIB sundials_sunlinsolklu_shared)
+  if (F2003_INTERFACE_ENABLE)
+    LIST(APPEND NVEC_LIB sundials_fnvecserial_mod_shared)
+    LIST(APPEND SUNMAT_LIB sundials_fsunmatrixdense_mod_shared)
+    LIST(APPEND SUNLINSOL_LIB sundials_fsunlinsolklu_mod_shared)
+  endif()
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -85,7 +99,7 @@ FOREACH(example_tuple ${sunlinsol_klu_examples})
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against    
+    # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   ENDIF()
 
@@ -106,7 +120,7 @@ FOREACH(example_tuple ${sunlinsol_klu_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c
       ../test_sunlinsol.h
-      ../test_sunlinsol.c 
+      ../test_sunlinsol.c
       ../../../src/sundials/sundials_matrix.c
       ../../../src/sundials/sundials_linearsolver.c
       ../../../src/sundials/sundials_nvector.c
@@ -115,6 +129,56 @@ FOREACH(example_tuple ${sunlinsol_klu_examples})
 
 ENDFOREACH(example_tuple ${sunlinsol_klu_examples})
 
+# Add the build and install targets for each example
+FOREACH(example_tuple ${sunlinsol_klu_fortran_examples})
+
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_args)
+  LIST(GET example_tuple 2 example_type)
+
+  # This is used to get around DLL linkage issue since we are
+  # manually including sundials_nvector.c here, which is normally in
+  # a library that is included.  If this is not set build system
+  # thinks nvector is externally linked.
+  IF(WIN32)
+    ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
+  ENDIF(WIN32)
+
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  IF(NOT TARGET ${example})
+    # example source files
+    ADD_EXECUTABLE(${example} ${example}.f90
+      ${sundials_SOURCE_DIR}/examples/test_utilities.f90
+      ${sundials_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.f90
+      $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
+      $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)
+
+    # folder to organize targets in an IDE
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+    # set fortran module directory to avoid name collisions
+    SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+    # libraries to link against
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+
+    # check if example args are provided and set the test name
+    IF("${example_args}" STREQUAL "")
+      SET(test_name ${example})
+    ELSE()
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    ENDIF()
+
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${test_name} ${example}
+      TEST_ARGS ${example_args}
+      EXAMPLE_TYPE ${example_type}
+      NODIFF)
+  ENDIF()
+
+ENDFOREACH(example_tuple ${sunlinsol_klu_fortran_examples})
 
 IF(EXAMPLES_INSTALL)
 
@@ -132,8 +196,8 @@ IF(EXAMPLES_INSTALL)
   EXAMPLES2STRING(sunlinsol_klu_examples EXAMPLES_KLU)
   EXAMPLES2STRING(sunlinsol_klu_dependencies EXAMPLES_DEPENDENCIES_KLU)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -149,8 +213,8 @@ IF(EXAMPLES_INSTALL)
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/klu
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
@@ -162,7 +226,7 @@ IF(EXAMPLES_INSTALL)
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/klu/Makefile_ex 
+      FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/klu/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/klu
       RENAME Makefile
       )

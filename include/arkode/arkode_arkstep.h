@@ -136,7 +136,7 @@ SUNDIALS_EXPORT int ARKStepSetFixedStepBounds(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetAdaptivityMethod(void *arkode_mem,
                                                int imethod,
                                                int idefault, int pq,
-                                               realtype *adapt_params);
+                                               realtype adapt_params[3]);
 SUNDIALS_EXPORT int ARKStepSetAdaptivityFn(void *arkode_mem,
                                            ARKAdaptFn hfun,
                                            void *h_data);
@@ -265,6 +265,10 @@ SUNDIALS_EXPORT int ARKStepGetCurrentStep(void *arkode_mem,
                                           realtype *hcur);
 SUNDIALS_EXPORT int ARKStepGetCurrentTime(void *arkode_mem,
                                           realtype *tcur);
+SUNDIALS_EXPORT int ARKStepGetCurrentState(void *arkode_mem,
+                                           N_Vector *ycur);
+SUNDIALS_EXPORT int ARKStepGetCurrentGamma(void *arkode_mem,
+                                           realtype *gamma);
 SUNDIALS_EXPORT int ARKStepGetTolScaleFactor(void *arkode_mem,
                                              realtype *tolsfac);
 SUNDIALS_EXPORT int ARKStepGetErrWeights(void *arkode_mem,

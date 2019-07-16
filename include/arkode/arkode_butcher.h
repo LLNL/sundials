@@ -27,7 +27,7 @@ extern "C" {
 /*---------------------------------------------------------------
   Types : struct ARKodeButcherTableMem, ARKodeButcherTable
   ---------------------------------------------------------------*/
-typedef struct ARKodeButcherTableMem {
+struct ARKodeButcherTableMem {
 
   int q;           /* method order of accuracy       */
   int p;           /* embedding order of accuracy    */
@@ -37,7 +37,10 @@ typedef struct ARKodeButcherTableMem {
   realtype *b;     /* root node coefficients         */
   realtype *d;     /* embedding coefficients         */
 
-} *ARKodeButcherTable;
+};
+
+
+typedef _SUNDIALS_STRUCT_ ARKodeButcherTableMem *ARKodeButcherTable;
 
 
 /* Utility routines to allocate/free/output Butcher table structures */

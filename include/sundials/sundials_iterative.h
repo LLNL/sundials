@@ -161,7 +161,7 @@ typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
+SUNDIALS_EXPORT int ModifiedGS(N_Vector* v, realtype **h, int k, int p,
                                realtype *new_vk_norm);
 
 /*
@@ -184,9 +184,9 @@ SUNDIALS_EXPORT int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
+SUNDIALS_EXPORT int ClassicalGS(N_Vector* v, realtype **h, int k, int p,
                                 realtype *new_vk_norm, realtype *stemp,
-                                N_Vector *vtemp);
+                                N_Vector* vtemp);
 
 /*
  * -----------------------------------------------------------------

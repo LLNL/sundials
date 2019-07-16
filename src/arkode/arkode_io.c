@@ -60,7 +60,9 @@ int arkSetDefaults(ARKodeMem ark_mem)
   ark_mem->itol             = ARK_SS;         /* scalar-scalar solution tolerances */
   ark_mem->ritol            = ARK_SS;         /* scalar-scalar residual tolerances */
   ark_mem->Sabstol          = 1.e-9;          /* solution absolute tolerance */
+  ark_mem->atolmin0         = SUNFALSE;       /* min(abstol) > 0 */
   ark_mem->SRabstol         = 1.e-9;          /* residual absolute tolerance */
+  ark_mem->Ratolmin0        = SUNFALSE;       /* min(Rabstol) > 0 */
   ark_mem->user_efun        = SUNFALSE;       /* no user-supplied ewt function */
   ark_mem->efun             = arkEwtSet;      /* built-in ewt function */
   ark_mem->e_data           = NULL;           /* ewt function data */

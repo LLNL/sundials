@@ -63,6 +63,23 @@ SUNLinearSolver SUNLinSolNewEmpty()
 }
 
 /* -----------------------------------------------------------------
+ * Free a generic SUNLinearSolver (assumes content is already empty)
+ * ----------------------------------------------------------------- */
+
+void SUNLinSolFreeEmpty(SUNLinearSolver S)
+{
+  if (S == NULL)  return;
+  
+  /* free non-NULL ops structure */
+  if (S->ops)  free(S->ops);
+  S->ops = NULL;
+
+  /* free overall N_Vector object and return */
+  free(S);
+  return;
+}
+
+/* -----------------------------------------------------------------
  * Functions in the 'ops' structure
  * -----------------------------------------------------------------*/
 

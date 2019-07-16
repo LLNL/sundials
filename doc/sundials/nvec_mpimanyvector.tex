@@ -43,7 +43,7 @@ The {\nvecmpimanyvector} implementation is designed to work with any
 {\nvector} subvectors that implement the minimum \emph{required} set
 of operations, however significant performance benefits may be
 obtained when subvectors additionally implement the optional local
-reduction operations listed in Table \ref{t:nveclocalops}.
+reduction operations listed in Table \ref{ss:nveclocalops}.
 
 Additionally, {\nvecmpimanyvector} sets no limit on the number of
 subvectors that may be attached (aside from the limitations of using
@@ -110,8 +110,8 @@ designed for ManyVector use cases in an MPI-unaware environment.
 % ====================================================================
 
 The {\nvecmpimanyvector} module implements all vector operations listed 
-in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops},
-and \ref{t:nveclocalops}, except for \id{N\_VGetArrayPointer},
+in Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops},
+and \ref{ss:nveclocalops}, except for \id{N\_VGetArrayPointer},
 \id{N\_VSetArrayPointer}, \id{N\_VScaleAddMultiVectorArray}, and
 \id{N\_VLinearCombinationVectorArray}.  As such, this vector cannot be
 used with the {\sundials} Fortran-77 interfaces, nor with the
@@ -121,8 +121,8 @@ whose data may in turn be accessed according to their {\nvector}
 implementations.
 
 The names of vector operations are obtained from those in Tables
-\ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops}, and
-\ref{t:nveclocalops} by appending the suffix \id{\_MPIManyVector} 
+\ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}, and
+\ref{ss:nveclocalops} by appending the suffix \id{\_MPIManyVector} 
 (e.g. \id{N\_VDestroy\_MPIManyVector}).
 The module {\nvecmpimanyvector} provides the following additional
 user-callable routines:

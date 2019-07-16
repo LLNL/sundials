@@ -18,6 +18,11 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
+# Add F90 module if F2003 interface is enabled
+IF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(fmod)
+ENDIF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 SET(sundials_HEADERS
   sundials_band.h
@@ -37,6 +42,39 @@ SET(sundials_HEADERS
 
 # Add prefix with complete path to the SUNDIALS header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
+
+# Create an object library out of the generic sundials modules
+IF(BUILD_STATIC_LIBS)
+  ADD_LIBRARY(sundials_generic_static_obj OBJECT
+    sundials_band.c
+    sundials_dense.c
+    sundials_direct.c
+    sundials_iterative.c
+    sundials_linearsolver.c
+    sundials_math.c
+    sundials_matrix.c
+    sundials_nonlinearsolver.c
+    sundials_nvector.c
+    sundials_nvector_senswrapper.c
+    sundials_version.c)
+ENDIF()
+
+IF(BUILD_SHARED_LIBS)
+  ADD_LIBRARY(sundials_generic_shared_obj OBJECT
+      sundials_band.c
+      sundials_dense.c
+      sundials_direct.c
+      sundials_iterative.c
+      sundials_linearsolver.c
+      sundials_math.c
+      sundials_matrix.c
+      sundials_nonlinearsolver.c
+      sundials_nvector.c
+      sundials_nvector_senswrapper.c
+      sundials_version.c)
+  SET_TARGET_PROPERTIES(sundials_generic_shared_obj PROPERTIES
+                        POSITION_INDEPENDENT_CODE TRUE)
+ENDIF()
 
 # Install the SUNDIALS header files
 INSTALL(FILES ${sundials_HEADERS} DESTINATION include/sundials)

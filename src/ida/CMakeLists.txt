@@ -16,6 +16,11 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall IDA\n\")")
 
+# Add F90 module if F2003 interface is enabled
+IF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(fmod)
+ENDIF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable ida_SOURCES with the sources for the IDA library
 SET(ida_SOURCES
   ida.c
@@ -69,6 +74,7 @@ SET(sunlinsol_SOURCES
 # which will also be included in the IDA library
 SET(sunnonlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c
   )
 
 # Add variable ida_HEADERS with the exported IDA header files

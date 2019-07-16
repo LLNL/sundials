@@ -170,7 +170,16 @@ files have been removed. Users should use the NVECTOR_MPIPLUSX module coupled wi
 the NVECTOR_CUDA or NVECTOR_RAJA to replace the functionality. The necessary changes
 are minimal and should require few code modifications.
 
+A new Fortran 2003 interface to ARKode was added. This includes Fortran 2003 interfaces
+to the ARKStep, ERKStep, and MRIStep time-stepping modules as well as all generic SUNDIALS
+types (i.e. NVECTOR, SUNMATRIX, SUNLINEARSOLVER, SUNNONLINEARSOLVER), and many of the module
+implementations. See Section :ref:`FortranInterfaces` for more details.
 
+Removed extraneous calls to :c:func:`N_VMin()` for simulations where
+the scalar valued absolute tolerance, or all entries of the
+vector-valued absolute tolerance array, are strictly positive.  In
+this scenario, ARKode will remove at least one global reduction per
+time step.
 
 Changes in v4.0.0-dev.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

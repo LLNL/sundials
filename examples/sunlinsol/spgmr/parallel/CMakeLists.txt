@@ -81,8 +81,8 @@ FOREACH(example_tuple ${sunlinsol_spgmr_examples})
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c
       ../../test_sunlinsol.c
-      ../../../../src/sundials/sundials_linearsolver.c
-      ../../../../src/sundials/sundials_nvector.c)
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
@@ -114,8 +114,8 @@ FOREACH(example_tuple ${sunlinsol_spgmr_examples})
     INSTALL(FILES ${example}.c
       ../../test_sunlinsol.h
       ../../test_sunlinsol.c
-      ../../../../src/sundials/sundials_linearsolver.c
-      ../../../../src/sundials/sundials_nvector.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel)
   ENDIF()
 

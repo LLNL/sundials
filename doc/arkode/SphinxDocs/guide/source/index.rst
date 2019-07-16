@@ -60,9 +60,9 @@ B598130 from `Lawrence Livermore National Laboratory
    Mathematics
    Organization
    ARKStep_c_interface/index.rst
-   ARKStep_f_interface/index.rst
    ERKStep_c_interface/index.rst
    MRIStep_c_interface/index.rst
+   ARKode_f_interface/index.rst
    ARKodeButcherTable
    nvectors/index.rst
    sunmatrix/index.rst

@@ -55,7 +55,7 @@ nonlinear solver type (\id{SUNNonlinsSolGetType}) and solve the nonlinear system
 initialization (\id{SUNNonlinSolInitialization}), setup\\ \noindent
 (\id{SUNNonlinSolSetup}), and destruction (\id{SUNNonlinSolFree}) are optional.
 
-\ucfunction{SUNNonlinSolGetType}
+\ucfunctionf{SUNNonlinSolGetType}
 {
   type = SUNNonlinSolGetType(NLS);
 }
@@ -81,7 +81,7 @@ initialization (\id{SUNNonlinSolInitialization}), setup\\ \noindent
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolInitialize}
+\ucfunctionf{SUNNonlinSolInitialize}
 {
   retval = SUNNonlinSolInitialize(NLS);
 }
@@ -108,7 +108,7 @@ initialization (\id{SUNNonlinSolInitialization}), setup\\ \noindent
   to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolSetup}
+\ucfunctionf{SUNNonlinSolSetup}
 {
   retval = SUNNonlinSolSetup(NLS, y, mem);
 }
@@ -136,7 +136,7 @@ initialization (\id{SUNNonlinSolInitialization}), setup\\ \noindent
   this operation to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolSolve}
+\ucfunctionf{SUNNonlinSolSolve}
 {
   retval = SUNNonlinSolSolve(NLS, y0, y, w, tol, callLSetup, mem);
 }
@@ -199,7 +199,7 @@ initialization (\id{SUNNonlinSolInitialization}), setup\\ \noindent
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolFree}
+\ucfunctionf{SUNNonlinSolFree}
 {
   retval = SUNNonlinSolFree(NLS);
 }
@@ -231,7 +231,7 @@ functions defined by the {\sundials} integrators and to modify solver
 parameters. Only the routine for setting the nonlinear system defining function
 (\id{SUNNonlinSolSetSysFn} is required. All other set functions are optional.
 
-\ucfunction{SUNNonlinSolSetSysFn}
+\ucfunctionf{SUNNonlinSolSetSysFn}
 {
   retval = SUNNonlinSolSetSysFn(NLS, SysFn);
 }
@@ -258,7 +258,7 @@ parameters. Only the routine for setting the nonlinear system defining function
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolSetLSetupFn}
+\ucfunctionf{SUNNonlinSolSetLSetupFn}
 {
   retval = SUNNonlinSolSetLSetupFn(NLS, LSetupFn);
 }
@@ -293,7 +293,7 @@ parameters. Only the routine for setting the nonlinear system defining function
   this operation to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolSetLSolveFn}
+\ucfunctionf{SUNNonlinSolSetLSolveFn}
 {
   retval = SUNNonlinSolSetLSolveFn(NLS, LSolveFn);
 }
@@ -325,7 +325,7 @@ parameters. Only the routine for setting the nonlinear system defining function
   this operation to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolSetConvTestFn}
+\ucfunctionf{SUNNonlinSolSetConvTestFn}
 {
   retval = SUNNonlinSolSetConvTestFn(NLS, CTestFn);
 }
@@ -355,7 +355,7 @@ parameters. Only the routine for setting the nonlinear system defining function
   criteria may set this function to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolSetMaxIters}
+\ucfunctionf{SUNNonlinSolSetMaxIters}
 {
   retval = SUNNonlinSolSetMaxIters(NLS, maxiters);
 }
@@ -394,7 +394,7 @@ when using the convergence test provided by the {\sundials} integrator
 or by the {\arkode} and {\cvode} linear solver interfaces.  Otherwise,
 \id{SUNNonlinSolGetCurIter} is optional.
 
-\ucfunction{SUNNonlinSolGetNumIters}
+\ucfunctionf{SUNNonlinSolGetNumIters}
 {
   retval = SUNNonlinSolGetNumIters(NLS, numiters);
 }
@@ -418,7 +418,7 @@ or by the {\arkode} and {\cvode} linear solver interfaces.  Otherwise,
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolGetCurIter}
+\ucfunctionf{SUNNonlinSolGetCurIter}
 {
   retval = SUNNonlinSolGetCurIter(NLS, iter);
 }
@@ -444,7 +444,7 @@ or by the {\arkode} and {\cvode} linear solver interfaces.  Otherwise,
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolGetNumConvFails}
+\ucfunctionf{SUNNonlinSolGetNumConvFails}
 {
   retval = SUNNonlinSolGetNumConvFails(NLS, nconvfails);
 }
@@ -807,6 +807,34 @@ int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
 }
 \end{verbatim}
 
+The Fortran 2003 interface provides a \id{bind(C)} derived-type for the
+\id{\_generic\_SUNNonlinearSolver} and the \id{\_generic\_SUNNonlinearSolver\_Ops} structures.
+Their definition is given below.
+%%
+%%
+\begin{verbatim}
+ type, bind(C), public :: SUNNonlinearSolver
+  type(C_PTR), public :: content
+  type(C_PTR), public :: ops
+ end type SUNNonlinearSolver
+
+ type, bind(C), public :: SUNNonlinearSolver_Ops
+  type(C_FUNPTR), public :: gettype
+  type(C_FUNPTR), public :: initialize
+  type(C_FUNPTR), public :: setup
+  type(C_FUNPTR), public :: solve
+  type(C_FUNPTR), public :: free
+  type(C_FUNPTR), public :: setsysfn
+  type(C_FUNPTR), public :: setlsetupfn
+  type(C_FUNPTR), public :: setlsolvefn
+  type(C_FUNPTR), public :: setctestfn
+  type(C_FUNPTR), public :: setmaxiters
+  type(C_FUNPTR), public :: getnumiters
+  type(C_FUNPTR), public :: getcuriter
+  type(C_FUNPTR), public :: getnumconvfails
+ end type SUNNonlinearSolver_Ops
+\end{verbatim}
+
 
 % ====================================================================
 \subsection{Usage with sensitivity enabled integrators}
@@ -838,7 +866,7 @@ access the {\nvecwrap} module, include the header file \\ \noindent
 \id{sundials/sundials\_nvector\_senswrapper.h}.
 
 The {\nvecwrap} module defines an \id{N\_Vector} implementing all of the
-standard vectors operations defined in Table \ref{t:nvecops} but with some
+standard vectors operations defined in Table \ref{ss:nvecops} but with some
 changes to how operations are computed in order to accommodate operating on a
 collection of vectors.
 \begin{enumerate}
@@ -872,7 +900,7 @@ generic vector operation name.
 
 The {\nvecwrap} module provides the following constructors for creating an
 {\nvecwrap}:
-\ucfunction{N\_VNewEmpty\_SensWrapper}
+\ucfunctionf{N\_VNewEmpty\_SensWrapper}
 {
   w = N\_VNewEmpty\_SensWrapper(count);
 }
@@ -892,7 +920,7 @@ The {\nvecwrap} module provides the following constructors for creating an
 }
 {}
 %
-\ucfunction{N\_VNew\_SensWrapper}
+\ucfunctionf{N\_VNew\_SensWrapper}
 {
   w = N\_VNew\_SensWrapper(count, y);
 }
@@ -969,14 +997,15 @@ the following:
 \end{enumerate}
 
 To aid in the creation of custom {\sunnonlinsol} modules the generic
-{\sunnonlinsol} module provides the utility function \id{SUNNonlinSolNewEmpty}.
-When used in custom {\sunnonlinsol} constructors this function will ease the
-introduction of any new optional nonlinear solver operations to the
-{\sunnonlinsol} API by ensuring only required operations need to be set.
+{\sunnonlinsol} module provides the utility functions \id{SUNNonlinSolNewEmpty}
+and \id{SUNNonlinsolFreeEmpty}. When used in custom {\sunnonlinsol} constructors,
+the function \id{SUNNonlinSolNewEmpty} will ease the introduction of any new
+optional nonlinear solver operations to the {\sunnonlinsol} API by ensuring only
+required operations need to be set.
 %
 % --------------------------------------------------------------------
 %
-\ucfunction{SUNNonlinSolNewEmpty}
+\ucfunctionf{SUNNonlinSolNewEmpty}
 {
   NLS = SUNNonlinSolNewEmpty();
 }
@@ -990,6 +1019,26 @@ introduction of any new optional nonlinear solver operations to the
   This function returns a \id{SUNNonlinearSolver} object. If an error occurs when
   allocating the object, then this routine will return \id{NULL}.
 }
+{}
+%
+% --------------------------------------------------------------------
+%
+\ucfunctionf{SUNNonlinSolFreeEmpty}
+{
+  SUNNonlinSolFreeEmpty(NLS);
+}
+{
+  This routine frees the generic \id{SUNNonlinearSolver} object, under the assumption that any
+  implementation-specific data that was allocated within the underlying content structure
+  has already been freed. It will additionally test whether the ops pointer is \id{NULL}, 
+  and, if it is not, it will free it as well.
+}
+{
+  \begin{args}[NLS]
+  \item[NLS] (\id{SUNNonlinearSolver})
+  \end{args}
+}
+{}
 {}
 
 % ====================================================================

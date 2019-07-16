@@ -16,9 +16,9 @@
 INSTALL(CODE "MESSAGE(\"\nInstall SUNLINSOL_DENSE\n\")")
 
 # Add F90 module if F2003 interface is enabled
-IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
-  ADD_SUBDIRECTORY(F90)
-ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+IF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(fmod)
+ENDIF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
 
 # Add variable sunlinsoldense_SOURCES with the sources for the SUNLINSOLDENSE lib
 SET(sunlinsoldense_SOURCES sunlinsol_dense.c)
@@ -46,10 +46,22 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 #  - Set the library name and make sure it is not deleted
 #  - Install the SUNLINSOLDENSE library
 IF(BUILD_STATIC_LIBS)
-  ADD_LIBRARY(sundials_sunlinsoldense_static STATIC ${sunlinsoldense_SOURCES} ${shared_SOURCES})
+
+  ADD_LIBRARY(sundials_sunlinsoldense_static
+    STATIC ${sunlinsoldense_SOURCES} ${shared_SOURCES})
+
+  # sunlinsoldense depends on sunmatrixdense
+  TARGET_LINK_LIBRARIES(sundials_sunlinsoldense_static
+    PUBLIC sundials_sunmatrixdense_static)
+
   SET_TARGET_PROPERTIES(sundials_sunlinsoldense_static
-    PROPERTIES OUTPUT_NAME sundials_sunlinsoldense CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_sunlinsoldense_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    PROPERTIES
+    OUTPUT_NAME sundials_sunlinsoldense
+    CLEAN_DIRECT_OUTPUT 1)
+
+  INSTALL(TARGETS sundials_sunlinsoldense_static
+    DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
@@ -58,15 +70,24 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Set VERSION and SOVERSION for shared libraries
 #  - Install the SUNLINSOLDENSE library
 IF(BUILD_SHARED_LIBS)
-  ADD_LIBRARY(sundials_sunlinsoldense_shared SHARED ${sunlinsoldense_SOURCES} ${shared_SOURCES})
 
-  TARGET_LINK_LIBRARIES(sundials_sunlinsoldense_shared sundials_sunmatrixdense_shared)
+  ADD_LIBRARY(sundials_sunlinsoldense_shared
+    SHARED ${sunlinsoldense_SOURCES} ${shared_SOURCES})
+
+  # sunlinsoldense depends on sunmatrixdense
+  TARGET_LINK_LIBRARIES(sundials_sunlinsoldense_shared
+    PUBLIC sundials_sunmatrixdense_shared)
 
   SET_TARGET_PROPERTIES(sundials_sunlinsoldense_shared
-    PROPERTIES OUTPUT_NAME sundials_sunlinsoldense CLEAN_DIRECT_OUTPUT 1)
-  SET_TARGET_PROPERTIES(sundials_sunlinsoldense_shared
-    PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-  INSTALL(TARGETS sundials_sunlinsoldense_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    PROPERTIES
+    OUTPUT_NAME sundials_sunlinsoldense
+    CLEAN_DIRECT_OUTPUT 1
+    VERSION ${sunlinsollib_VERSION}
+    SOVERSION ${sunlinsollib_SOVERSION})
+
+  INSTALL(TARGETS sundials_sunlinsoldense_shared
+    DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the SUNLINSOLDENSE header files

@@ -28,9 +28,6 @@
 #define ONE       RCONST(1.0)
 #define TWO       RCONST(2.0)
 
-/* Private function prototypes */
-sunindextype GlobalVectorLength_SuperLUMT(N_Vector y);
-
 /*
  * -----------------------------------------------------------------
  * SuperLUMT solver structure accessibility macros:
@@ -415,26 +412,4 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
   }
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * private functions
- * -----------------------------------------------------------------
- */
-
-/* Inefficient kludge for determining the number of entries in a N_Vector 
-   object (replace if such a routine is ever added to the N_Vector API).
-
-   Returns "-1" on an error. */
-sunindextype GlobalVectorLength_SuperLUMT(N_Vector y)
-{
-  realtype len;
-  N_Vector tmp = NULL;
-  tmp = N_VClone(y);
-  if (tmp == NULL)  return(-1);
-  N_VConst(ONE, tmp);
-  len = N_VDotProd(tmp, tmp);
-  N_VDestroy(tmp);
-  return( (sunindextype) len );
 }

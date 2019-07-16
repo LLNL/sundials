@@ -80,16 +80,25 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     return(ARKLS_ILL_INPUT);
   }
 
+  /* Retrieve the LS type */
+  LSType = SUNLinSolGetType(LS);
+
   /* Test if vector is compatible with LS interface */
   if ( (ark_mem->tempv1->ops->nvconst == NULL) ||
-       (ark_mem->tempv1->ops->nvdotprod == NULL) ) {
+       (ark_mem->tempv1->ops->nvwrmsnorm == NULL) ) {
     arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
                     "arkLSSetLinearSolver", MSG_LS_BAD_NVECTOR);
     return(ARKLS_ILL_INPUT);
   }
 
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(LS);
+  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+    if (ark_mem->tempv1->ops->nvgetlength == NULL) {
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
+                      "arkLSSetLinearSolver", MSG_LS_BAD_NVECTOR);
+      return(ARKLS_ILL_INPUT);
+    }
+  }
 
   /* Check for compatible LS type, matrix and "atimes" support */
   if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
@@ -216,13 +225,10 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     return(ARKLS_MEM_FAIL);
   }
 
-  /* For iterative LS, compute sqrtN from a dot product */
+  /* For iterative LS, compute sqrtN */
   if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
-    N_VConst(ONE, arkls_mem->ytemp);
-    arkls_mem->sqrtN = SUNRsqrt( N_VDotProd(arkls_mem->ytemp,
-                                            arkls_mem->ytemp) );
-  }
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) )
+    arkls_mem->sqrtN = SUNRsqrt( N_VGetLength(arkls_mem->ytemp) );
 
   /* Attach ARKLs interface to time stepper module */
   retval = ark_mem->step_attachlinsol(arkode_mem, arkLsInitialize,
@@ -277,16 +283,25 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     return(ARKLS_ILL_INPUT);
   }
 
+  /* Retrieve the LS type */
+  LSType = SUNLinSolGetType(LS);
+
   /* Test if vector is compatible with LS interface */
   if ( (ark_mem->tempv1->ops->nvconst == NULL) ||
-       (ark_mem->tempv1->ops->nvdotprod == NULL) ){
+       (ark_mem->tempv1->ops->nvwrmsnorm == NULL) ){
     arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
                     "arkLSSetMassLinearSolver", MSG_LS_BAD_NVECTOR);
     return(ARKLS_ILL_INPUT);
   }
 
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(LS);
+  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+    if (ark_mem->tempv1->ops->nvgetlength == NULL) {
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
+                      "arkLSSetLinearSolver", MSG_LS_BAD_NVECTOR);
+      return(ARKLS_ILL_INPUT);
+    }
+  }
 
   /* Check for compatible LS type, matrix and "atimes" support */
   if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
@@ -393,13 +408,10 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     return(ARKLS_MEM_FAIL);
   }
 
-  /* For iterative LS, compute sqrtN from a dot product */
+  /* For iterative LS, compute sqrtN */
   if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
-    N_VConst(ONE, arkls_mem->x);
-    arkls_mem->sqrtN = SUNRsqrt( N_VDotProd(arkls_mem->x,
-                                            arkls_mem->x) );
-  }
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) )
+    arkls_mem->sqrtN = SUNRsqrt( N_VGetLength(arkls_mem->x) );
 
   /* Attach ARKLs interface to time stepper module */
   retval = ark_mem->step_attachmasssol(arkode_mem, arkLsMassInitialize,
@@ -2278,9 +2290,6 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
     delta = ZERO;
   }
 
-  /* Set initial guess x = 0 to LS */
-  N_VConst(ZERO, arkls_mem->x);
-
   /* Set scaling vectors for LS to use (if applicable) */
   if (arkls_mem->LS->ops->setscalingvectors) {
     retval = SUNLinSolSetScalingVectors(arkls_mem->LS,
@@ -2307,15 +2316,18 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
        <=> ewt_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / ewt_mean^2
        <=> || b - A x ||_2 < tol / ewt_mean
-     So we compute ewt_mean = ||ewt||_RMS = ||ewt||_2 / sqrt(n), and scale
-     the desired tolerance accordingly. */
+     So we compute ewt_mean = ||ewt||_RMS and scale the desired tolerance accordingly. */
   } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
               (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
 
-    ewt_mean = SUNRsqrt( N_VDotProd(ark_mem->ewt, ark_mem->ewt) ) / arkls_mem->sqrtN;
+    N_VConst(ONE, arkls_mem->x);
+    ewt_mean = N_VWrmsNorm(ark_mem->ewt, arkls_mem->x);
     delta /= ewt_mean;
 
   }
+
+  /* Set initial guess x = 0 to LS */
+  N_VConst(ZERO, arkls_mem->x);
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkls_mem->nps;
@@ -2711,15 +2723,18 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
        <=> rwt_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / rwt_mean^2
        <=> || b - A x ||_2 < tol / rwt_mean
-     So we compute rwt_mean = ||rwt||_RMS = ||rwt||_2 / sqrt(n), and scale
-     the desired tolerance accordingly. */
+     So we compute rwt_mean = ||rwt||_RMS and scale the desired tolerance accordingly. */
   } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
               (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
 
-    rwt_mean = SUNRsqrt( N_VDotProd(ark_mem->rwt, ark_mem->rwt) ) / arkls_mem->sqrtN;
+    N_VConst(ONE, arkls_mem->x);
+    rwt_mean = N_VWrmsNorm(ark_mem->rwt, arkls_mem->x);
     delta /= rwt_mean;
 
   }
+
+  /* Set initial guess x = 0 for LS */
+  N_VConst(ZERO, arkls_mem->x);
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkls_mem->nps;

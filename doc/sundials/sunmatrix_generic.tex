@@ -18,6 +18,393 @@ implementations provided with {\sundials} follow.
 \label{s:sunmatrix_api}
 % ====================================================================
 
+The {\sunmatrix} API can be grouped into two sets of functions:
+the core matrix operations, and utility functions. Section \ref{ss:sunmatrix_functions}
+lists the core operations, while Section \ref{ss:sunmatrix_utilities} lists
+the utility functions.
+
+%==============================================================================
+\subsection{SUNMatrix core functions}\label{ss:sunmatrix_functions}
+
+The generic \id{SUNMatrix} object defines the following set of core operations:
+
+\ucfunctionf{SUNMatGetID}
+{
+  id = SUNMatGetID(A);
+}
+{
+  Returns the type identifier for the matrix \id{A}. It is used to determine the
+  matrix implementation type (e.g.~dense, banded, sparse,\ldots) from the abstract
+  \id{SUNMatrix} interface.  This is used to assess compatibility with
+  {\sundials}-provided linear solver implementations.
+}
+{
+  \begin{args}[c]
+  \item[A] (\id{SUNMatrix}) a {\sunmatrix} object
+  \end{args}
+}
+{
+  A \id{SUNMATRIX\_ID}, possible values are given in the Table \ref{t:matrixIDs}.
+}
+{}
+
+\ucfunctionfl{SUNMatClone}
+{
+  B = SUNMatClone(A);
+}
+{
+  Creates a new \id{SUNMatrix} of the same type as an existing matrix
+  \id{A} and sets the {\em ops} field. It does not copy the matrix, but
+  rather allocates storage for the new matrix.
+}
+{
+  \begin{args}[c]
+  \item[A] (\id{SUNMatrix}) a {\sunmatrix} object
+  \end{args}
+}
+{
+  \id{SUNMatrix}
+}
+{}
+{
+  type(SUNMatrix), pointer :: B\\
+  B => FSUNMatClone(A)
+}
+
+\ucfunctionf{SUNMatDestroy}
+{
+  SUNMatDestroy(A);
+}
+{
+  Destroys \id{A} and frees memory allocated for its internal data.
+}
+{
+  \begin{args}[c]
+  \item[A] (\id{SUNMatrix}) a {\sunmatrix} object
+  \end{args}
+}
+{}
+{}
+
+\ucfunctionfl{SUNMatSpace}
+{
+  ier = SUNMatSpace(A, \&lrw, \&liw);
+}
+{
+  Returns the storage requirements for the matrix \id{A}. \id{lrw}
+  is a \id{long int} containing the number of realtype words
+  and \id{liw} is a \id{long int} containing the number of integer
+  words.
+}
+{
+  \begin{args}[c]
+  \item[A] (\id{SUNMatrix}) a {\sunmatrix} object
+  \item[lrw] (\id{sunindextype*}) the number of realtype words
+  \item[liw] (\id{sunindextype*}) the number of integer words
+  \end{args}
+}
+{}
+{
+  This function is advisory only, for use in determining a user's total
+  space requirements; it could be a dummy function in a user-supplied
+  {\sunmatrix} module if that information is not of interest.
+}
+{
+  integer(c\_long) :: lrw(1), liw(1)\\
+  ier = FSUNMatSpace(A, lrw, liw)
+}
+
+\ucfunctionf{SUNMatZero}
+{
+  ier = SUNMatZero(A);
+}
+{
+  Performs the operation $A_{ij} = 0$ for all entries of the matrix $A$.
+}
+{
+  \begin{args}[c]
+  \item[A] (\id{SUNMatrix}) a {\sunmatrix} object
+  \end{args}
+}
+{
+  A {\sunmatrix} return code of type \id{int} denoting success/failure
+}
+{}
+
+\ucfunctionf{SUNMatCopy}
+{
+  ier = SUNMatCopy(A,B);
+}
+{
+  Performs the operation $B_{ij} = A_{i,j}$ for all entries of the matrices
+  $A$ and $B$.
+}
+{
+  \begin{args}[c]
+  \item[A] (\id{SUNMatrix}) a {\sunmatrix} object
+  \item[B] (\id{SUNMatrix}) a {\sunmatrix} object
+  \end{args}
+}
+{
+  A {\sunmatrix} return code of type \id{int} denoting success/failure
+}
+{}
+
+\ucfunctionf{SUNMatScaleAdd}
+{
+  ier = SUNMatScaleAdd(c, A, B);
+}
+{
+  Performs the operation $A = cA + B$.
+}
+{
+  \begin{args}[c]
+  \item[c] (\id{realtype}) constant that scales \id{A}
+  \item[A] (\id{SUNMatrix}) a {\sunmatrix} object
+  \item[B] (\id{SUNMatrix}) a {\sunmatrix} object
+  \end{args}
+}
+{
+  A {\sunmatrix} return code of type \id{int} denoting success/failure
+}
+{}
+
+\ucfunctionf{SUNMatScaleAddI}
+{
+  ier = SUNMatScaleAddI(c, A);
+}
+{
+  Performs the operation $A = cA + I$.
+}
+{
+  \begin{args}[c]
+  \item[c] (\id{realtype}) constant that scales \id{A}
+  \item[A] (\id{SUNMatrix}) a {\sunmatrix} object
+  \end{args}
+}
+{
+  A {\sunmatrix} return code of type \id{int} denoting success/failure
+}
+{}
+
+\ucfunctionf{SUNMatMatvecSetup}
+{
+  ier = SUNMatMatvecSetup(A);
+}
+{
+  Performs any setup necessary to perform a matrix-vector product.
+  It is useful for SUNMatrix implementations which need to prepare
+  the matrix itself, or communication structures before performing
+  the matrix-vector product.
+}
+{
+  \begin{args}[A]
+  \item[A] (\id{SUNMatrix}) a {\sunmatrix} object
+  \end{args}
+}
+{
+  A {\sunmatrix} return code of type \id{int} denoting success/failure
+}
+{}
+
+\ucfunctionf{SUNMatMatvec}
+{
+  ier = SUNMatMatvec(A, x, y);
+}
+{
+  Performs the matrix-vector product operation, $y = Ax$. It should
+  only be called with vectors \id{x} and \id{y} that are compatible with
+  the matrix \id{A} -- both in storage type and dimensions.
+}
+{
+  \begin{args}[A]
+  \item[A] (\id{SUNMatrix}) a {\sunmatrix} object
+  \item[x] (\id{N\_Vector}) a {\nvector} object
+  \item{y} (\id{N\_Vector}) an output {\nvector} object
+  \end{args}
+}
+{
+  A {\sunmatrix} return code of type \id{int} denoting success/failure
+}
+{}
+
+
+%==============================================================================
+\subsection{SUNMatrix utility functions}\label{ss:sunmatrix_utilities}
+
+To aid in the creation of custom {\sunmatrix} modules the generic {\sunmatrix}
+module provides two utility functions \id{SUNMatNewEmpty} and
+\id{SUNMatVCopyOps}.
+
+\ucfunctionf{SUNMatNewEmpty}
+{
+  A = SUNMatNewEmpty();
+}
+{
+  The function \Id{SUNMatNewEmpty} allocates a new generic {\sunmatrix} object
+  and initializes its content pointer and the function pointers in the
+  operations structure to \id{NULL}.
+}
+{}
+{
+  This function returns a \id{SUNMatrix} object. If an error occurs when
+  allocating the object, then this routine will return \id{NULL}.
+}
+{}
+
+\ucfunctionf{SUNMatFreeEmpty}
+{
+  SUNMatFreeEmpty(A);
+}
+{
+  This routine frees the generic \id{SUNMatrix} object, under the assumption that any
+  implementation-specific data that was allocated within the underlying content structure
+  has already been freed. It will additionally test whether the ops pointer is \id{NULL}, 
+  and, if it is not, it will free it as well.
+}
+{
+  \begin{args}[A]
+  \item[A] (\id{SUNMatrix}) a \id{SUNMatrix} object
+  \end{args}
+}
+{}
+{}
+
+\ucfunctionf{SUNMatCopyOps}
+{
+  retval = SUNMatCopyOps(A, B);
+}
+{
+  The function \Id{SUNMatCopyOps} copies the function pointers in the \id{ops}
+  structure of \id{A} into the \id{ops} structure of \id{B}.
+}
+{
+  \begin{args}[A]
+  \item[A] (\id{SUNMatrix}) the matrix to copy operations from
+  \item[B] (\id{SUNMatrix}) the matrix to copy operations to
+  \end{args}
+}
+{
+  This returns \id{0} if successful and a non-zero value if either of the inputs
+  are \id{NULL} or the \id{ops} structure of either input is \id{NULL}.
+}
+{}
+
+
+%==============================================================================
+\subsection{SUNMatrix return codes}\label{ss:sunmatrix_ReturnCodes}
+
+The functions provided to {\sunmatrix} modules within the
+{\sundials}-provided {\sunmatrix} implementations utilize a common
+set of return codes, shown in Table \ref{t:sunmatrixerr}. These adhere
+to a common pattern: 0 indicates success, and a negative value
+indicates a failure. The actual values of each return code are
+primarily to provide additional information to the user in case of
+a failure.
+
+\newlength{\AColOne}
+\settowidth{\AColOne}{\id{SUNMAT\_MATVEC\_SETUP\_REQUIRED}}
+\newlength{\AColTwo}
+\settowidth{\AColTwo}{\id{Value}}
+\newlength{\AColThree}
+\setlength{\AColThree}{\textwidth}
+\addtolength{\AColThree}{-0.5in}
+\addtolength{\AColThree}{-\AColOne}
+\addtolength{\AColThree}{-\AColTwo}
+
+\tablecaption{Description of the \id{SUNMatrix} return codes}\label{t:sunmatrixerr}
+\tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
+\tabletail{\hline \multicolumn{3}{|r|}{\small\slshape continued on next page} \\ \hline}
+\begin{xtabular}{|p{\AColOne}|p{\AColTwo}|p{\AColThree}|}
+%%
+\id{SUNMAT\_SUCCESS} & \id{0} & successful call or converged solve
+\\[1mm]
+%%
+\id{SUNMAT\_ILL\_INPUT} & \id{-1} & an illegal input has been provided to the function
+\\[1mm]
+%%
+\id{SUNMAT\_MEM\_FAIL} & \id{-2} & failed memory access or allocation
+\\[1mm]
+%%
+\id{SUNMAT\_OPERATION\_FAIL} & \id{-3} & a SUNMatrix operation returned nonzero
+\\
+%%
+\id{SUNMAT\_MATVEC\_SETUP\_REQUIRED} & \id{-4} & the \id{SUNMatMatvecSetup} routine
+needs to be called before calling \id{SUNMatMatvec}
+\\
+\hline
+\end{xtabular}
+\bigskip
+
+
+%==============================================================================
+\subsection{SUNMatrix identifiers}\label{ss:sunmatrix_identifiers}
+
+Each {\sunmatrix} implementation included in {\sundials} has a unique
+identifier specified in enumeration and shown in Table \ref{t:matrixIDs}.
+It is recommended that a user-supplied {\sunmatrix} implementation use the
+\id{SUNMATRIX\_CUSTOM} identifier.
+
+\begin{table}
+\centering
+\caption{Identifiers associated with matrix kernels supplied with {\sundials}.}
+\label{t:matrixIDs}
+\medskip
+\begin{tabular}{|l|l|c|}
+\hline
+{\bf Matrix ID} & {\bf Matrix type} & {\bf ID Value} \\
+\hline
+SUNMATRIX\_DENSE      & Dense $\id{M} \times \id{N}$ matrix               & 0 \\
+SUNMATRIX\_BAND       & Band $\id{M} \times \id{M}$ matrix                & 1 \\
+SUNMATRIX\_SPARSE     & Sparse (CSR or CSC) $\id{M} \times \id{N}$ matrix & 2 \\
+SUNMATRIX\_SLUNRLOC   & Adapter for the {\superludist} \id{SuperMatrix}   & 3 \\
+SUNMATRIX\_CUSTOM     & User-provided custom matrix                       & 4 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+%==============================================================================
+\subsection{Compatibility of SUNMatrix modules}\label{ss:sunmatrix_compatibility}
+
+We note that not all {\sunmatrix} types are compatible with all
+{\nvector} types provided with {\sundials}.  This is primarily due to
+the need for compatibility within the \id{SUNMatMatvec} routine;
+however, compatibility between {\sunmatrix} and {\nvector}
+implementations is more crucial when considering their interaction
+within {\sunlinsol} objects, as will be described in more detail in
+Chapter \ref{s:sunlinsol}.  More specifically, in Table
+\ref{t:matrix-vector} we show the matrix interfaces available as
+{\sunmatrix} modules, and the compatible vector implementations.
+
+\tablecaption{{\sundials} matrix interfaces and vector
+             implementations that can be used for each.}\label{t:matrix-vector}
+\tablehead{\hline \multicolumn{1}{|p{1.5cm}|}{{Matrix Interface}} &
+                  \multicolumn{1}{p{0.7cm}|}{{Serial}} &
+                  \multicolumn{1}{p{1.1cm}|}{{Parallel (MPI)}} &
+                  \multicolumn{1}{p{1.3cm}|}{{OpenMP}} &
+                  \multicolumn{1}{p{1.3cm}|}{{pThreads}} &
+                  \multicolumn{1}{p{0.9cm}|}{{{\hypre} Vec.}} &
+                  \multicolumn{1}{p{0.9cm}|}{{{\petsc} Vec.}} &
+                  \multicolumn{1}{p{0.8cm}|}{{{\cuda}}} &
+                  \multicolumn{1}{p{0.8cm}|}{{{\raja}}} &
+                  \multicolumn{1}{p{1.1cm}|}{{User Suppl.}} \\ \hline }
+\tabletail{\hline \multicolumn{10}{|r|}{\small\slshape continued on next page} \\ \hline}
+{\renewcommand{\arraystretch}{1.2}
+\begin{xtabular}{|l|c|c|c|c|c|c|c|c|c|}
+    Dense         &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
+    Band          &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
+    Sparse        &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
+    SLUNRloc      &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     &          &          & \cm      \\
+    User supplied &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      & \cm      & \cm      \\
+    \hline
+\end{xtabular}
+}
+\bigskip
+
+
+\subsection{The generic SUNMatrix module implementation}\label{ss:sunmatrix_implmentation}
+
 The generic \ID{SUNMatrix} type has been modeled after the
 object-oriented style of the generic \id{N\_Vector} type.
 Specifically, a generic \ID{SUNMatrix} is a pointer to a structure
@@ -56,8 +443,6 @@ struct _generic_SUNMatrix_Ops {
 \end{verbatim}
 
 
-
-
 The generic {\sunmatrix} module defines and implements the matrix operations
 acting on \id{SUNMatrix} objects.
 These routines are nothing but wrappers for the matrix operations defined by
@@ -77,209 +462,37 @@ int SUNMatZero(SUNMatrix A)
 \end{verbatim}
 %%
 %%
-Table \ref{t:sunmatops} contains a complete list of all matrix operations defined
-by the generic {\sunmatrix} module.
+Section \ref{ss:sunmatrix_functions} contains a complete list of all matrix operations
+defined by the generic {\sunmatrix} module.
 
-Each {\sunmatrix} implementation included in {\sundials} has a unique
-identifier specified in enumeration and shown in Table \ref{t:matrixIDs}.
-It is recommended that a user-supplied {\sunmatrix} implementation use the
-\id{SUNMATRIX\_CUSTOM} identifier.
+The Fortran 2003 interface provides a \id{bind(C)} derived-type for the
+\id{\_generic\_SUNMatrix} and the \id{\_generic\_SUNMatrix\_Ops} structures.
+Their definition is given below.
+%%
+%%
+\begin{verbatim}
+ type, bind(C), public :: SUNMatrix
+  type(C_PTR), public :: content
+  type(C_PTR), public :: ops
+ end type SUNMatrix
 
-\begin{table}
-\centering
-\caption{Identifiers associated with matrix kernels supplied with {\sundials}.}
-\label{t:matrixIDs}
-\medskip
-\begin{tabular}{|l|l|c|}
-\hline
-{\bf Matrix ID} & {\bf Matrix type} & {\bf ID Value} \\
-\hline
-SUNMATRIX\_DENSE      & Dense $\id{M} \times \id{N}$ matrix               & 0 \\
-SUNMATRIX\_BAND       & Band $\id{M} \times \id{M}$ matrix                & 1 \\
-SUNMATRIX\_SPARSE     & Sparse (CSR or CSC) $\id{M} \times \id{N}$ matrix & 2 \\
-SUNMATRIX\_SLUNRLOC   & Adapter for the {\superludist} \id{SuperMatrix}   & 3 \\
-SUNMATRIX\_CUSTOM     & User-provided custom matrix                       & 4 \\
-\hline
-\end{tabular}
-\end{table}
+ type, bind(C), public :: SUNMatrix_Ops
+  type(C_FUNPTR), public :: getid
+  type(C_FUNPTR), public :: clone
+  type(C_FUNPTR), public :: destroy
+  type(C_FUNPTR), public :: zero
+  type(C_FUNPTR), public :: copy
+  type(C_FUNPTR), public :: scaleadd
+  type(C_FUNPTR), public :: scaleaddi
+  type(C_FUNPTR), public :: matvecsetup
+  type(C_FUNPTR), public :: matvec
+  type(C_FUNPTR), public :: space
+ end type SUNMatrix_Ops
+\end{verbatim}
 
-\subsection{SUNMatrix functions}\label{ss:sunmatrix_functions}
-
-%---------------------------------------------------------------------------
-% Table of matrix kernels
-%---------------------------------------------------------------------------
-
-The generic \id{SUNMatrix} object defines the following set of operations:
-
-\newlength{\ColOne}
-\settowidth{\ColOne}{\id{SUNMatMatvecSetup}}
-\newlength{\ColTwo}
-\setlength{\ColTwo}{\textwidth}
-\addtolength{\ColTwo}{-0.5in}
-\addtolength{\ColTwo}{-\ColOne}
-
-\tablecaption{Description of the \id{SUNMatrix} operations}\label{t:sunmatops}
-\tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and  Description} \\[3mm] \hline\hline}
-\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
-\begin{xtabular}{|p{\ColOne}|p{\ColTwo}|}
-%%
-\id{SUNMatGetID} & \id{id = SUNMatGetID(A);} \\
-& Returns the type identifier for the matrix \id{A}. It is used to determine the
-matrix implementation type (e.g.~dense, banded, sparse,\ldots) from the abstract
-\id{SUNMatrix} interface.  This is used to assess compatibility with
-{\sundials}-provided linear solver implementations.  Returned values
-are given in the Table \ref{t:matrixIDs}.
-\\[2mm]
-%%
-\id{SUNMatClone} & \id{B = SUNMatClone(A);} \\
-& Creates a new \id{SUNMatrix} of the same type as an existing matrix \id{A} and sets the
-{\em ops} field.
-It does not copy the matrix, but rather allocates storage for the new matrix.
-\\[2mm]
-%%
-\id{SUNMatDestroy} & \id{SUNMatDestroy(A);} \\
-& Destroys the \id{SUNMatrix} \id{A} and frees memory allocated for its
-internal data.
-\\[2mm]
-%%
-\id{SUNMatSpace} & \id{ier = SUNMatSpace(A, \&lrw, \&liw);} \\
-& Returns the storage requirements for the matrix \id{A}.  \id{lrw}
-is a \id{long int} containing the number of realtype words
-and \id{liw} is a \id{long int} containing the number of integer
-words. The return value is of type int and is a SUNMatrix error code
-denoting success/failure of the operation.
-
-This function is advisory only, for use in determining a user's total
-space requirements; it could be a dummy function in a user-supplied
-{\sunmatrix} module if that information is not of interest.
-\\[2mm]
-%%
-\id{SUNMatZero} & \id{ier = SUNMatZero(A);} \\
-& Performs the operation $A_{ij} = 0$ for all entries of the matrix
-$A$. The return value is of type int and is a SUNMatrix error code
-denoting success/failure of the operation.
-\\[2mm]
-%%
-\id{SUNMatCopy} & \id{ier = SUNMatCopy(A,B);} \\
-& Performs the operation $B_{ij} = A_{i,j}$ for all entries of the matrices
-$A$ and $B$. The return value is of type int and is a SUNMatrix error code
-denoting success/failure of the operation.
-\\[2mm]
-%%
-\id{SUNMatScaleAdd} & \id{ier = SUNMatScaleAdd(c, A, B);} \\
-& Performs the operation $A = cA + B$. The return value is of type int and
-is a SUNMatrix error code denoting success/failure of the operation.
-\\[2mm]
-%%
-\id{SUNMatScaleAddI} & \id{ier = SUNMatScaleAddI(c, A);} \\
-& Performs the operation $A = cA + I$. The return value is of type int and
-is a SUNMatrix error code denoting success/failure of the operation.
-\\[2mm]
-%%
-\id{SUNMatMatvecSetup} & \id{ier = SUNMatMatvecSetup(A);} \\
-& Performs any setup necessary to perform a matrix-vector product.
-The return value is of type int and is a SUNMatrix error code
-denoting success/failure of the operation. It is useful for SUNMatrix
-implementations which need to prepare the matrix itself, or communication
-structures before performing the matrix-vector product.
-\\[2mm]
-%%
-\id{SUNMatMatvec} & \id{ier = SUNMatMatvec(A, x, y);} \\
-& Performs the matrix-vector product operation, $y = Ax$. It should
-only be called with vectors \id{x} and \id{y} that are compatible with
-the matrix \id{A} -- both in storage type and dimensions. The return
-value is of type int and is a SUNMatrix error code denoting success/failure
-of the operation.
-\\[2mm]
-%%
-\end{xtabular}
-\bigskip
-
-\subsection{SUNMatrix error codes}\label{ss:sunmatrix_ErrorCodes}
-
-The functions provided to {\sunmatrix} modules within the
-{\sundials}-provided {\sunmatrix} implementations utilize a common
-set of return codes, shown in Table \ref{t:sunmatrixerr}. These adhere
-to a common pattern: 0 indicates success, and a negative value
-indicates a failure. The actual values of each error code are
-primarily to provide additional information to the user in case of
-a failure.
-
-\newlength{\AColOne}
-\settowidth{\AColOne}{\id{SUNMAT\_MATVEC\_SETUP\_REQUIRED}}
-\newlength{\AColTwo}
-\settowidth{\AColTwo}{\id{Value}}
-\newlength{\AColThree}
-\setlength{\AColThree}{\textwidth}
-\addtolength{\AColThree}{-0.5in}
-\addtolength{\AColThree}{-\AColOne}
-\addtolength{\AColThree}{-\AColTwo}
-
-\tablecaption{Description of the \id{SUNMatrix} error codes}\label{t:sunmatrixerr}
-\tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
-\tabletail{\hline \multicolumn{3}{|r|}{\small\slshape continued on next page} \\ \hline}
-\begin{xtabular}{|p{\AColOne}|p{\AColTwo}|p{\AColThree}|}
-%%
-\id{SUNMAT\_SUCCESS} & \id{0} & successful call or converged solve
-\\[1mm]
-%%
-\id{SUNMAT\_ILL\_INPUT} & \id{-1} & an illegal input has been provided to the function
-\\[1mm]
-%%
-\id{SUNMAT\_MEM\_FAIL} & \id{-2} & failed memory access or allocation
-\\[1mm]
-%%
-\id{SUNMAT\_OPERATION\_FAIL} & \id{-3} & a SUNMatrix operation returned nonzero
-\\
-%%
-\id{SUNMAT\_MATVEC\_SETUP\_REQUIRED} & \id{-4} & the \id{SUNMatMatvecSetup} routine
-needs to be called before calling \id{SUNMatMatvec}
-\\
-\end{xtabular}
-\bigskip
 
 %==============================================================================
-\section{Compatibility of SUNMatrix modules}\label{ss:sunmatrix_compatibility}
-%=============================================================================
-
-We note that not all {\sunmatrix} types are compatible with all
-{\nvector} types provided with {\sundials}.  This is primarily due to
-the need for compatibility within the \id{SUNMatMatvec} routine;
-however, compatibility between {\sunmatrix} and {\nvector}
-implementations is more crucial when considering their interaction
-within {\sunlinsol} objects, as will be described in more detail in
-Chapter \ref{s:sunlinsol}.  More specifically, in Table
-\ref{t:matrix-vector} we show the matrix interfaces available as
-{\sunmatrix} modules, and the compatible vector implementations.
-
-\tablecaption{{\sundials} matrix interfaces and vector
-             implementations that can be used for each.}\label{t:matrix-vector}
-\tablehead{\hline \multicolumn{1}{|p{1.5cm}|}{{Matrix Interface}} &
-                  \multicolumn{1}{p{0.7cm}|}{{Serial}} &
-                  \multicolumn{1}{p{1.1cm}|}{{Parallel (MPI)}} &
-                  \multicolumn{1}{p{1.3cm}|}{{OpenMP}} &
-                  \multicolumn{1}{p{1.3cm}|}{{pThreads}} &
-                  \multicolumn{1}{p{0.9cm}|}{{{\hypre} Vec.}} &
-                  \multicolumn{1}{p{0.9cm}|}{{{\petsc} Vec.}} &
-                  \multicolumn{1}{p{0.8cm}|}{{{\cuda}}} &
-                  \multicolumn{1}{p{0.8cm}|}{{{\raja}}} &
-                  \multicolumn{1}{p{1.1cm}|}{{User Suppl.}} \\ \hline }
-\tabletail{\hline \multicolumn{10}{|r|}{\small\slshape continued on next page} \\ \hline}
-{\renewcommand{\arraystretch}{1.2}
-\begin{xtabular}{|l|c|c|c|c|c|c|c|c|c|}
-    Dense         &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
-    Band          &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
-    Sparse        &  \cm     &           & \cm      &  \cm       &             &          &          &          & \cm      \\
-    SLUNRloc      &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     &          &          & \cm      \\
-    User supplied &  \cm     & \cm       & \cm      &  \cm       & \cm         &  \cm     & \cm      & \cm      & \cm      \\
-    \hline
-\end{xtabular}
-}
-\bigskip
-
-%==============================================================================
-\section{Implementing a custom SUNMatrix}\label{ss:sunmatrix_custom}
-%=============================================================================
+\subsection{Implementing a custom SUNMatrix}\label{ss:sunmatrix_custom}
 
 A particular implementation of the {\sunmatrix} module must:
 \begin{itemize}
@@ -304,49 +517,14 @@ A particular implementation of the {\sunmatrix} module must:
   of the {\em content} field of the newly defined \id{SUNMatrix}.
 \end{itemize}
 
+It is recommended that a user-supplied {\sunmatrix} implementation use the
+\id{SUNMATRIX\_CUSTOM} identifier.
+
 To aid in the creation of custom {\sunmatrix} modules the generic {\sunmatrix}
 module provides two utility functions \id{SUNMatNewEmpty} and
 \id{SUNMatVCopyOps}. When used in custom {\sunmatrix} constructors and clone
 routines these functions will ease the introduction of any new optional matrix
 operations to the {\sunmatrix} API by ensuring only required operations need to
-be set and all operations are copied when cloning a matrix.
-%
-% --------------------------------------------------------------------
-%
-\ucfunction{SUNMatNewEmpty}
-{
-  A = SUNMatNewEmpty();
-}
-{
-  The function \Id{SUNMatNewEmpty} allocates a new generic {\sunmatrix} object
-  and initializes its content pointer and the function pointers in the
-  operations structure to \id{NULL}.
-}
-{}
-{
-  This function returns a \id{SUNMatrix} object. If an error occurs when
-  allocating the object, then this routine will return \id{NULL}.
-}
-{}
-%
-% --------------------------------------------------------------------
-%
-\ucfunction{SUNMatCopyOps}
-{
-  retval = SUNMatCopyOps(A, B);
-}
-{
-  The function \Id{SUNMatCopyOps} copies the function pointers in the \id{ops}
-  structure of \id{A} into the \id{ops} structure of \id{B}.
-}
-{
-  \begin{args}[w]
-  \item[A] (\id{SUNMatrix}) the matrix to copy operations from.
-  \item[B] (\id{SUNMatrix}) the matrix to copy operations to.
-  \end{args}
-}
-{
-  This returns \id{0} if successful and a non-zero value if either of the inputs
-  are \id{NULL} or the \id{ops} structure of either input is \id{NULL}.
-}
-{}
+be set and all operations are copied when cloning a matrix. These functions
+are desrcribed in Section \ref{ss:sunmatrix_utilities}.
+

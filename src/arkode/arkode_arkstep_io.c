@@ -434,6 +434,37 @@ int ARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
 }
 
 /*---------------------------------------------------------------
+  ARKStepGetCurrentY: Returns the current value of the
+  dependent variable
+  ---------------------------------------------------------------*/
+int ARKStepGetCurrentState(void *arkode_mem, N_Vector *ycur)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepGetCurrentY", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  *ycur = ark_mem->ycur;
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepGetCurrentGamma: Returns the current value for gamma
+  ---------------------------------------------------------------*/
+int ARKStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  retval = arkStep_AccessStepMem(arkode_mem, NULL, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+  *gamma = step_mem->gamma;
+  return(retval); 
+}
+
+/*---------------------------------------------------------------
   ARKStepGetTolScaleFactor: Returns a suggested factor for scaling
   tolerances
   ---------------------------------------------------------------*/
@@ -1571,7 +1602,7 @@ int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
   ---------------------------------------------------------------*/
 int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
                                int idefault, int pq,
-                               realtype *adapt_params)
+                               realtype adapt_params[3])
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;

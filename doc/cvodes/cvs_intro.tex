@@ -168,6 +168,13 @@ the {\nvecmpiplusx} module coupled with {\nveccuda} or {\nvecraja} to replace th
 functionality. The necessary changes are minimal and should require few code
 modifications.
 
+Removed extraneous calls to \id{N\_VMin} for simulations where
+the scalar valued absolute tolerance, or all entries of the
+vector-valued absolute tolerance array, are strictly positive.  In
+this scenario, {\cvodes} will remove at least one global reduction per
+time step.
+
+
 \subsection*{Changes in v5.0.0-dev.0}
 
 An additional {\nvector} implementation, {\nvecmanyvector}, was

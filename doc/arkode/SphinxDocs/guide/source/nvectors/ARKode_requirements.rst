@@ -49,7 +49,9 @@ interested in constructing a custom ``N_Vector`` module.  We note that
 a number of ``N_Vector`` functions from the section
 :ref:`NVectors.Description` are not listed in the above table.
 Therefore a user-supplied ``N_Vector`` module for ARKode could safely
-omit these functions from their implementation. 
+omit these functions from their implementation (although
+some may be needed by ``SUNNonlinearSolver`` or ``SUNLinearSolver``
+modules).
 
 
 
@@ -58,6 +60,7 @@ omit these functions from their implementation.
 ==============================  =======  =======  ===========  ==========  =========  =======
 Routine                         ARKSTEP  ERKSTEP  ARKLS        ARKBANDPRE  ARKBBDPRE  FARKODE
 ==============================  =======  =======  ===========  ==========  =========  =======
+N_VGetLength                                      X
 N_VAbs                          X        X
 N_VAddConst                     X        X
 N_VClone                        X        X        X
@@ -65,7 +68,6 @@ N_VCloneEmpty                                                                   
 N_VConst                        X        X        X                                   X
 N_VDestroy                      X        X        X                                   X
 N_VDiv                          X        X
-N_VDotProd                                        X
 N_VGetArrayPointer                                X\ :sup:`1`  X           X          X
 N_VInv                          X        X
 N_VLinearSum                    X        X        X
@@ -86,3 +88,6 @@ N_VLinearCombination\ :sup:`3`  X        X
 
 3. The :c:func:`N_VLinearCombination()` function is in fact optional;
    if it is not supplied then :c:func:`N_VLinearSum()` will be used instead.
+
+4. The :c:func:`N_VGetLength()` function is only required when an iterative or
+   matrix iterative ``SUNLinearSolver`` module is used.

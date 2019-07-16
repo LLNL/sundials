@@ -67,8 +67,8 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvsparse.c        || exit 1
 
 echo "   --- Add cvode F2003 interface to $tarfile"
 
-$tar $tarfile $distrobase/src/cvode/F90/CMakeLists.txt || exit 1
-$tar $tarfile $distrobase/src/cvode/F90/fcvode.f90     || exit 1
+$tar $tarfile $distrobase/src/cvode/fmod/CMakeLists.txt     || exit 1
+$tar $tarfile $distrobase/src/cvode/fmod/fcvode_mod.{c,f90} || exit 1
 
 echo "   --- Add cvode examples to $tarfile"
 
@@ -126,18 +126,18 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_klu.out        
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_sps.f               || exit 1
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_sps.out             || exit 1
 
-$tar $tarfile $distrobase/examples/cvode/F90_serial/README                      || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/CMakeLists.txt              || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_fp.f90          || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_fp.out          || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns.f90     || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns.out     || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns_jac.f90 || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns_jac.out || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_klu.f90     || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_klu.out     || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_brusselator_dns.f90      || exit 1
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_brusselator_dns.out      || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/README                            || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/CMakeLists.txt                    || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_fp_f2003.f90          || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_fp_f2003.out          || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_sys_dns_f2003.f90     || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_sys_dns_f2003.out     || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_sys_dns_jac_f2003.f90 || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_sys_dns_jac_f2003.out || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_sys_klu_f2003.f90     || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_sys_klu_f2003.out     || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_brusselator_dns_f2003.f90      || exit 1
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_brusselator_dns_f2003.out      || exit 1
 
 $tar $tarfile $distrobase/examples/cvode/C_openmp/README                || exit 1
 $tar $tarfile $distrobase/examples/cvode/C_openmp/CMakeLists.txt        || exit 1

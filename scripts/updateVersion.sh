@@ -18,12 +18,12 @@
 # Set the SUNDIALS major, minor, and patch numbers and the label string. For
 # development releases the label string is of the form "-dev.#" and for full
 # releases the label string is "".
-sun_major=5
-sun_minor=0
-sun_patch=0
-sun_label="dev.0"
-month="Mar"
-year="2019"
+sun_major=${1:-5}
+sun_minor=${2:-0}
+sun_patch=${3:-0}
+sun_label=${4:-dev.1}
+month=${5:-$(date +"%b")}
+year=${6:-$(date +"%Y")}
 
 # ------------------------------------------------------------------------------
 # Only update the values below if necessary

@@ -53,7 +53,7 @@ endif()
 # Check if ISO_C_BINDING is supported
 # -----------------------------------------------------------------------------
 if(F2003_INTERFACE_ENABLE)
-  message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports ISO_C_BINDING")
+  message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports F2003")
 
   set(F2003Test_DIR ${PROJECT_BINARY_DIR}/F2003Test_DIR)
   file(MAKE_DIRECTORY ${F2003Test_DIR})
@@ -86,10 +86,10 @@ if(F2003_INTERFACE_ENABLE)
   file(REMOVE_RECURSE ${F2003Test_DIR}/CMakeFiles)
 
   if(FTEST_OK)
-    message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports ISO_C_BINDING -- yes")
-    set(Fortran_COMPILER_SUPPORTS_ISOCBINDING TRUE)
+    message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports F2003 -- yes")
+    set(F2003_FOUND TRUE)
   else()
-    set(Fortran_COMPILER_SUPPORTS_ISOCBINDING FALSE)
+    set(F2003_FOUND FALSE)
   endif()
 endif()
 

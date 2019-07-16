@@ -62,6 +62,24 @@ SUNMatrix SUNMatNewEmpty()
 
 
 /* -----------------------------------------------------------------
+ * Free a generic SUNMatrix (assumes content is already empty)
+ * ----------------------------------------------------------------- */
+
+void SUNMatFreeEmpty(SUNMatrix A)
+{
+  if (A == NULL)  return;
+  
+  /* free non-NULL ops structure */
+  if (A->ops)  free(A->ops);
+  A->ops = NULL;
+
+  /* free overall SUNMatrix object and return */
+  free(A);
+  return;
+}
+
+
+/* -----------------------------------------------------------------
  * Copy a matrix 'ops' structure
  * -----------------------------------------------------------------*/
 

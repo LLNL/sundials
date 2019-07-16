@@ -76,16 +76,25 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
     return(CVLS_ILL_INPUT);
   }
 
+  /* Retrieve the LS type */
+  LSType = SUNLinSolGetType(LS);
+
   /* Test if vector is compatible with LS interface */
   if ( (cv_mem->cv_tempv->ops->nvconst == NULL) ||
-       (cv_mem->cv_tempv->ops->nvdotprod == NULL) ) {
+       (cv_mem->cv_tempv->ops->nvwrmsnorm == NULL) ) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS",
                    "CVodeSetLinearSolver", MSG_LS_BAD_NVECTOR);
     return(CVLS_ILL_INPUT);
   }
 
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(LS);
+  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+    if (cv_mem->cv_tempv->ops->nvgetlength == NULL) {
+      cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS",
+                     "CVodeSetLinearSolver", MSG_LS_BAD_NVECTOR);
+      return(CVLS_ILL_INPUT);
+    }
+  }
 
   /* Check for compatible LS type, matrix and "atimes" support */
   if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
@@ -209,13 +218,10 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
     return(CVLS_MEM_FAIL);
   }
 
-  /* For iterative LS, compute sqrtN from a dot product */
+  /* For iterative LS, compute sqrtN */
   if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
-    N_VConst(ONE, cvls_mem->ytemp);
-    cvls_mem->sqrtN = SUNRsqrt( N_VDotProd(cvls_mem->ytemp,
-                                           cvls_mem->ytemp) );
-  }
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) )
+    cvls_mem->sqrtN = SUNRsqrt( N_VGetLength(cvls_mem->ytemp) );
 
   /* Attach linear solver memory to integrator memory */
   cv_mem->cv_lmem = cvls_mem;
@@ -1431,9 +1437,6 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   cvls_mem->ycur = ynow;
   cvls_mem->fcur = fnow;
 
-  /* Set initial guess x = 0 to LS */
-  N_VConst(ZERO, cvls_mem->x);
-
   /* Set scaling vectors for LS to use (if applicable) */
   if (cvls_mem->LS->ops->setscalingvectors) {
     retval = SUNLinSolSetScalingVectors(cvls_mem->LS,
@@ -1459,15 +1462,18 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
        <=> w_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / w_mean^2
        <=> || b - A x ||_2 < tol / w_mean
-     So we compute w_mean = ||w||_RMS = ||w||_2 / sqrt(n), and scale
-     the desired tolerance accordingly. */
+     So we compute w_mean = ||w||_RMS = ||w||_2 and scale the desired tolerance accordingly. */
   } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
               (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
 
-    w_mean = SUNRsqrt( N_VDotProd(weight, weight) ) / cvls_mem->sqrtN;
+    N_VConst(ONE, cvls_mem->x);
+    w_mean = N_VWrmsNorm(weight, cvls_mem->x);
     delta /= w_mean;
 
   }
+
+  /* Set initial guess x = 0 to LS */
+  N_VConst(ZERO, cvls_mem->x);
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (cvls_mem->jtsetup) {

@@ -36,7 +36,7 @@ SET(sunmatrix_band_dependencies
 # If building F2003 tests
 if (F2003_INTERFACE_ENABLE)
   set(sunmatrix_band_fortran_examples
-    "ftest_sunmatrix_band\;\;")
+    "test_fsunmatrix_band_mod\;\;")
 endif()
 
 # Add source directory to include directories
@@ -84,8 +84,9 @@ FOREACH(example_tuple ${sunmatrix_band_examples})
   IF(NOT TARGET ${example})
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c
-      ../test_sunmatrix.c ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_nvector.c)
+      ../test_sunmatrix.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
@@ -112,8 +113,8 @@ FOREACH(example_tuple ${sunmatrix_band_examples})
     INSTALL(FILES ${example}.c
       ../test_sunmatrix.c
       ../test_sunmatrix.h
-      ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_nvector.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/band)
   ENDIF()
 
@@ -139,10 +140,16 @@ FOREACH(example_tuple ${sunmatrix_band_fortran_examples})
   # example source files once for testing with different inputs
   IF(NOT TARGET ${example})
     # example source files
-    ADD_EXECUTABLE(${example} ${example}.f90)
+    ADD_EXECUTABLE(${example} ${example}.f90
+      ${sundials_SOURCE_DIR}/examples/test_utilities.f90
+      ${sundials_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.f90
+      $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
+      $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+    # set fortran module directory to avoid name collisions
     SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # libraries to link against

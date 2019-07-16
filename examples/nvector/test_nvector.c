@@ -568,7 +568,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
   sync_device();
   stop_time = get_time();
 
-  /* Y should be vector of +1 */
+  /* X should be vector of +1 */
   failure = check_ans(ONE, X, local_length);
 
   if (failure) {
@@ -598,7 +598,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
   sync_device();
   stop_time = get_time();
 
-  /* Y should be vector of -1 */
+  /* X should be vector of -1 */
   failure = check_ans(NEG_ONE, X, local_length);
 
   if (failure) {
@@ -1422,7 +1422,7 @@ int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
   realtype fac;
 
   /* factor used in checking solutions */
-  fac = SUNRsqrt((realtype) (global_length - 1)/(global_length));
+  fac = SUNRsqrt((realtype) (global_length - 1)/(global_length))*HALF*HALF;
 
   /* fill vector data */
   N_VConst(NEG_HALF, X);
@@ -1438,8 +1438,8 @@ int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
   sync_device();
   stop_time = get_time();
 
-  /* ans equals 1/4 (same as wrms norm) */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, fac*HALF*HALF);
+  /* check ans */
+  failure = (ans < ZERO) ? 1 : FNEQ(ans, fac);
 
   if (failure) {
     printf(">>> FAILED test -- N_VWrmsNormMask, Proc %d \n", myid);

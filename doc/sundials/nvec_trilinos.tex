@@ -46,8 +46,8 @@ for static libraries.
 % ====================================================================
 
 The {\nvectrilinos} module defines implementations of all vector operations listed
-in Tables \ref{t:nvecops}, \ref{t:nveclocalops}, and
-\ref{t:nveclocalops}, except for \verb|N_VGetArrayPointer| and
+in Tables \ref{ss:nvecops}, \ref{ss:nveclocalops}, and
+\ref{ss:nveclocalops}, except for \verb|N_VGetArrayPointer| and
 \verb|N_VSetArrayPointer|. As such, this vector cannot be used with
 {\sundials} Fortran interfaces, nor with the {\sundials} direct
 solvers and preconditioners. When access to raw vector data is needed, it is
@@ -56,7 +56,7 @@ methods to access the data. Usage examples of {\nvectrilinos} are provided in
 example programs for {\ida} \cite{ida_ex}.
 
 The names of vector operations are obtained from those in
-Tables \ref{t:nvecops}, \ref{t:nveclocalops}, and \ref{t:nveclocalops} by appending the
+Tables \ref{ss:nvecops}, \ref{ss:nveclocalops}, and \ref{ss:nveclocalops} by appending the
 suffix \id{\_Trilinos} (e.g. \id{N\_VDestroy\_Trilinos}).
 Vector operations call existing \id{Tpetra::Vector} methods when available. Vector
 operations specific to {\sundials} are implemented as standalone functions in the namespace

@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# CMakeLists.txt file for sunnonlinsol fixed point examples
+# CMakeLists.txt file for sunnonlinsol fixedpoint examples
 # ------------------------------------------------------------------------------
 
 # Example lists are tuples "name\;args\;type" where the type is
@@ -22,28 +22,32 @@ SET(examples
   "test_sunnonlinsol_fixedpoint\;\;"
 )
 
-# Dependencies
-SET(dependencies
-  sundials_nvector
-  sundials_nonlinearsolver
-)
-
-SET(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
-)
+# if building F2003 tests
+if (F2003_INTERFACE_ENABLE)
+  SET(fortran_examples
+    "test_fsunnonlinsol_fixedpoint_mod\;\;"
+  )
+endif()
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(SUNDIALS_LIBS sundials_nvecserial_static)
   LIST(APPEND SUNDIALS_LIBS sundials_sunnonlinsolfixedpoint_static)
+  IF(F2003_INTERFACE_ENABLE)
+    LIST(APPEND SUNDIALS_LIBS sundials_fnvecserial_mod_static)
+    LIST(APPEND SUNDIALS_LIBS sundials_fsunnonlinsolfixedpoint_mod_static)
+  ENDIF()
 ELSE()
   SET(SUNDIALS_LIBS sundials_nvecserial_shared)
   LIST(APPEND SUNDIALS_LIBS sundials_sunnonlinsolfixedpoint_shared)
+  IF(F2003_INTERFACE_ENABLE)
+    LIST(APPEND SUNDIALS_LIBS sundials_fnvecserial_mod_shared)
+    LIST(APPEND SUNDIALS_LIBS sundials_fsunnonlinsolfixedpoint_mod_shared)
+  ENDIF()
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -69,8 +73,7 @@ FOREACH(example_tuple ${examples})
   # example source files once for testing with different inputs
   IF(NOT TARGET ${example})
     # example source files
-    ADD_EXECUTABLE(${example}
-      ${shared_SOURCES} ${example}.c)
+    ADD_EXECUTABLE(${example} ${example}.c)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
@@ -93,11 +96,54 @@ FOREACH(example_tuple ${examples})
     NODIFF)
 
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${shared_SOURCES} ${example}.c
+    INSTALL(FILES ${example}.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/fixedpoint)
   ENDIF()
 
 ENDFOREACH(example_tuple ${examples})
+
+# Add the build and install targets for each example
+FOREACH(example_tuple ${fortran_examples})
+
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_args)
+  LIST(GET example_tuple 2 example_type)
+
+  IF(WIN32)
+    ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
+  ENDIF()
+
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  IF(NOT TARGET ${example})
+    # example source files
+    ADD_EXECUTABLE(${example} ${example}.f90
+      ${sundials_SOURCE_DIR}/examples/test_utilities.f90
+      $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
+      $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)
+
+    # folder to organize targets in an IDE
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+
+    # libraries to link against
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  ENDIF()
+
+  # check if example args are provided and set the test name
+  IF("${example_args}" STREQUAL "")
+    SET(test_name ${example})
+  ELSE()
+    STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  ENDIF()
+
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${test_name} ${example}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
+    NODIFF)
+
+ENDFOREACH(example_tuple ${fortran_examples})
 
 
 IF(EXAMPLES_INSTALL)
@@ -109,15 +155,14 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_LIB "sundials_sunnonlinsolfixedpoint")
   SET(LIBS "${LIBS} -lsundials_sunmatrixdense -lsundials_sunlinsoldense")
 
-  # Set the link directory for the dense sunmatrix and linear solver library 
+  # Set the link directory for the dense sunmatrix and linear solver library
   # The generated CMakeLists.txt does not use find_library() locate it
   SET(EXTRA_LIBS_DIR "${libdir}")
 
   EXAMPLES2STRING(examples EXAMPLES)
-  EXAMPLES2STRING(dependencies EXAMPLES_DEPENDENCIES)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -133,8 +178,8 @@ IF(EXAMPLES_INSTALL)
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/fixedpoint
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
@@ -146,7 +191,7 @@ IF(EXAMPLES_INSTALL)
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/fixedpoint/Makefile_ex 
+      FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/fixedpoint/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/fixedpoint
       RENAME Makefile
       )

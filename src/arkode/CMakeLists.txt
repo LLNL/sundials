@@ -15,6 +15,11 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall ARKODE\n\")")
 
+# Add F90 module if F2003 interface is enabled
+IF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(fmod)
+ENDIF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable arkode_SOURCES with the sources for the ARKODE library
 SET(arkode_SOURCES
   arkode.c

@@ -71,16 +71,24 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
     return(IDALS_ILL_INPUT);
   }
 
+  /* Retrieve the LS type */
+  LSType = SUNLinSolGetType(LS);
+
   /* Test if vector is compatible with LS interface */
-  if ( (IDA_mem->ida_tempv1->ops->nvdotprod == NULL) ||
-       (IDA_mem->ida_tempv1->ops->nvconst == NULL) ) {
+  if (IDA_mem->ida_tempv1->ops->nvconst == NULL) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
                     "IDASetLinearSolver", MSG_LS_BAD_NVECTOR);
     return(IDALS_ILL_INPUT);
   }
 
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(LS);
+  if ( ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+         (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) &&
+       ( (IDA_mem->ida_tempv1->ops->nvwrmsnorm == NULL) ||
+         (IDA_mem->ida_tempv1->ops->nvgetlength == NULL) ) ) {
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
+                    "IDASetLinearSolver", MSG_LS_BAD_NVECTOR);
+    return(IDALS_ILL_INPUT);
+  }
 
   /* Check for compatible LS type, matrix and "atimes" support */
   if ( ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
@@ -216,10 +224,10 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
     return(IDALS_MEM_FAIL);
   }
 
-  /* Compute sqrtN from a dot product */
-  N_VConst(ONE, idals_mem->ytemp);
-  idals_mem->sqrtN = SUNRsqrt( N_VDotProd(idals_mem->ytemp,
-                                          idals_mem->ytemp) );
+  /* For iterative LS, compute sqrtN */
+  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) )
+    idals_mem->sqrtN = SUNRsqrt( N_VGetLength(idals_mem->ytemp) );
 
   /* Attach linear solver memory to integrator memory */
   IDA_mem->ida_lmem = idals_mem;
@@ -766,7 +774,6 @@ int idaLsDQJac(realtype t, realtype c_j, N_Vector y, N_Vector yp,
 
   /* Verify that N_Vector supports required operations */
   if (IDA_mem->ida_tempv1->ops->nvcloneempty == NULL ||
-      IDA_mem->ida_tempv1->ops->nvwrmsnorm == NULL ||
       IDA_mem->ida_tempv1->ops->nvlinearsum == NULL ||
       IDA_mem->ida_tempv1->ops->nvdestroy == NULL ||
       IDA_mem->ida_tempv1->ops->nvscale == NULL ||
@@ -1239,8 +1246,8 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                N_Vector ycur, N_Vector ypcur, N_Vector rescur)
 {
   IDALsMem idals_mem;
-  int      nli_inc, retval;
-  realtype tol, w_mean, LSType;
+  int      nli_inc, retval, LSType;
+  realtype tol, w_mean;
 
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL) {
@@ -1271,9 +1278,6 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   idals_mem->ypcur = ypcur;
   idals_mem->rcur  = rescur;
 
-  /* Set initial guess x = 0 to LS */
-  N_VConst(ZERO, idals_mem->x);
-
   /* Set scaling vectors for LS to use (if applicable) */
   if (idals_mem->LS->ops->setscalingvectors) {
     retval = SUNLinSolSetScalingVectors(idals_mem->LS, weight, weight);
@@ -1297,15 +1301,18 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
        <=> w_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / w_mean^2
        <=> || b - A x ||_2 < tol / w_mean
-     So we compute w_mean = ||w||_RMS = ||w||_2 / sqrt(n), and scale
-     the desired tolerance accordingly. */
+     So we compute w_mean = ||w||_RMS and scale the desired tolerance accordingly. */
   } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
               (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
 
-    w_mean = SUNRsqrt( N_VDotProd(weight, weight) ) / idals_mem->sqrtN;
+    N_VConst(ONE, idals_mem->x);
+    w_mean = N_VWrmsNorm(weight, idals_mem->x);
     tol /= w_mean;
 
   }
+
+  /* Set initial guess x = 0 to LS */
+  N_VConst(ZERO, idals_mem->x);
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (idals_mem->jtsetup) {

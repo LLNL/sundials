@@ -111,6 +111,7 @@ typedef struct CVodeMemRec {
   realtype cv_reltol;         /* relative tolerance                            */
   realtype cv_Sabstol;        /* scalar absolute tolerance                     */
   N_Vector cv_Vabstol;        /* vector absolute tolerance                     */
+  booleantype cv_atolmin0;    /* flag indicating that min(abstol) = 0          */    
   booleantype cv_user_efun;   /* SUNTRUE if user sets efun                     */
   CVEwtFn cv_efun;            /* function to set ewt                           */
   void *cv_e_data;            /* user pointer passed to efun                   */
@@ -132,6 +133,7 @@ typedef struct CVodeMemRec {
   realtype cv_reltolQ;        /* relative tolerance for quadratures            */
   realtype cv_SabstolQ;       /* scalar absolute tolerance for quadratures     */
   N_Vector cv_VabstolQ;       /* vector absolute tolerance for quadratures     */
+  booleantype cv_atolQmin0;   /* flag indicating that min(abstolQ) = 0         */    
 
   /*------------------------
     Sensitivity Related Data 
@@ -161,6 +163,7 @@ typedef struct CVodeMemRec {
   realtype cv_reltolS;        /* relative tolerance for sensitivities         */
   realtype *cv_SabstolS;      /* scalar absolute tolerances for sensi.        */
   N_Vector *cv_VabstolS;      /* vector absolute tolerances for sensi.        */
+  booleantype *cv_atolSmin0;  /* flags indicating that min(abstolS[i]) = 0    */    
 
   /*-----------------------------------
     Quadrature Sensitivity Related Data 
@@ -178,6 +181,7 @@ typedef struct CVodeMemRec {
   realtype cv_reltolQS;       /* relative tolerance for yQS                   */
   realtype *cv_SabstolQS;     /* scalar absolute tolerances for yQS           */
   N_Vector *cv_VabstolQS;     /* vector absolute tolerances for yQS           */
+  booleantype *cv_atolQSmin0; /* flags indicating that min(abstolQS[i]) = 0   */    
 
   /*-----------------------
     Nordsieck History Array 

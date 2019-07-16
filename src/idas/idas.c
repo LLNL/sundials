@@ -424,6 +424,7 @@ void *IDACreate(void)
   IDA_mem->ida_res         = NULL;
   IDA_mem->ida_user_data   = NULL;
   IDA_mem->ida_itol        = IDA_NN;
+  IDA_mem->ida_atolmin0    = SUNTRUE;
   IDA_mem->ida_user_efun   = SUNFALSE;
   IDA_mem->ida_efun        = NULL;
   IDA_mem->ida_edata       = NULL;
@@ -461,6 +462,7 @@ void *IDACreate(void)
   IDA_mem->ida_rhsQ       = NULL;
   IDA_mem->ida_errconQ    = SUNFALSE;
   IDA_mem->ida_itolQ      = IDA_NN;
+  IDA_mem->ida_atolQmin0  = SUNTRUE;
 
   /* Set default values for sensi. optional inputs */
   IDA_mem->ida_sensi        = SUNFALSE;
@@ -475,6 +477,7 @@ void *IDACreate(void)
   IDA_mem->ida_errconS      = SUNFALSE;
   IDA_mem->ida_maxcorS      = MAXIT;
   IDA_mem->ida_itolS        = IDA_EE;
+  IDA_mem->ida_atolSmin0    = NULL;
   IDA_mem->ida_ism          = -1;     /* initialize to invalid option */
 
   /* Defaults for sensi. quadr. optional inputs. */
@@ -484,6 +487,7 @@ void *IDACreate(void)
   IDA_mem->ida_rhsQSDQ      = SUNTRUE;
   IDA_mem->ida_errconQS     = SUNFALSE;
   IDA_mem->ida_itolQS       = IDA_EE;
+  IDA_mem->ida_atolQSmin0   = NULL;
 
   /* Set defaults for ASA. */
   IDA_mem->ida_adj     = SUNFALSE;
@@ -852,6 +856,7 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
   /* Copy tolerances into memory */
   IDA_mem->ida_rtol = reltol;
   IDA_mem->ida_Satol = abstol;
+  IDA_mem->ida_atolmin0 = (abstol == ZERO);
 
   IDA_mem->ida_itol = IDA_SS;
 
@@ -866,6 +871,7 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
 int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
 {
   IDAMem IDA_mem;
+  realtype atolmin;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASVtolerances", MSG_NO_MEM);
@@ -885,7 +891,8 @@ int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
     return(IDA_ILL_INPUT);
   }
 
-  if (N_VMin(abstol) < ZERO) {
+  atolmin = N_VMin(abstol);
+  if (atolmin < ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASVtolerances", MSG_BAD_ATOL);
     return(IDA_ILL_INPUT);
   }
@@ -901,6 +908,7 @@ int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
 
   IDA_mem->ida_rtol = reltol;
   N_VScale(ONE, abstol, IDA_mem->ida_Vatol);
+  IDA_mem->ida_atolmin0 = (atolmin == ZERO);
 
   IDA_mem->ida_itol = IDA_SV;
 
@@ -1095,6 +1103,7 @@ int IDAQuadSStolerances(void *ida_mem, realtype reltolQ, realtype abstolQ)
 
   IDA_mem->ida_rtolQ  = reltolQ;
   IDA_mem->ida_SatolQ = abstolQ;
+  IDA_mem->ida_atolQmin0 = (abstolQ == ZERO);
 
 
   return (IDA_SUCCESS);
@@ -1103,7 +1112,8 @@ int IDAQuadSStolerances(void *ida_mem, realtype reltolQ, realtype abstolQ)
 int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vector abstolQ)
 {
   IDAMem IDA_mem;
-
+  realtype atolmin;
+  
   /*Check ida mem*/
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAQuadSVtolerances", MSG_NO_MEM);
@@ -1128,7 +1138,8 @@ int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vector abstolQ)
     return(IDA_ILL_INPUT);
   }
   
-  if (N_VMin(abstolQ)<ZERO) {
+  atolmin = N_VMin(abstolQ);
+  if (atolmin < ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAQuadSVtolerances", MSG_BAD_ATOLQ);
     return(IDA_ILL_INPUT);
   }
@@ -1146,6 +1157,7 @@ int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vector abstolQ)
   }
 
   N_VScale(ONE, abstolQ, IDA_mem->ida_VatolQ);
+  IDA_mem->ida_atolQmin0 = (atolmin == ZERO);
 
   return(IDA_SUCCESS);
 }
@@ -1522,13 +1534,16 @@ int IDASensSStolerances(void *ida_mem, realtype reltolS, realtype *abstolS)
   if ( !(IDA_mem->ida_SatolSMallocDone) ) {
     IDA_mem->ida_SatolS = NULL;
     IDA_mem->ida_SatolS = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
+    IDA_mem->ida_atolSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns;
     IDA_mem->ida_SatolSMallocDone = SUNTRUE;
   }
 
-  for (is=0; is<IDA_mem->ida_Ns; is++)
+  for (is=0; is<IDA_mem->ida_Ns; is++) {
     IDA_mem->ida_SatolS[is] = abstolS[is];
-
+    IDA_mem->ida_atolSmin0[is] = (abstolS[is] == ZERO);
+  }
+    
   return(IDA_SUCCESS);
 }
 
@@ -1537,6 +1552,7 @@ int IDASensSVtolerances(void *ida_mem,  realtype reltolS, N_Vector *abstolS)
 {
   IDAMem IDA_mem;
   int is, retval;
+  realtype *atolmin;
 
   /* Check ida_mem pointer */
   if (ida_mem == NULL) {
@@ -1564,9 +1580,12 @@ int IDASensSVtolerances(void *ida_mem,  realtype reltolS, N_Vector *abstolS)
     return(IDA_ILL_INPUT);
   }
 
+  atolmin = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
   for (is=0; is<IDA_mem->ida_Ns; is++) {
-    if (N_VMin(abstolS[is])<ZERO) {
+    atolmin[is] = N_VMin(abstolS[is]);
+    if (atolmin[is] < ZERO) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASensSStolerances", MSG_BAD_ATOLS);
+      free(atolmin);
       return(IDA_ILL_INPUT);      
     }
   }
@@ -1576,14 +1595,18 @@ int IDASensSVtolerances(void *ida_mem,  realtype reltolS, N_Vector *abstolS)
 
   if ( SUNFALSE == IDA_mem->ida_VatolSMallocDone ) {
     IDA_mem->ida_VatolS = N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_tempv1);
+    IDA_mem->ida_atolSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns*IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_Ns*IDA_mem->ida_liw1;
     IDA_mem->ida_VatolSMallocDone = SUNTRUE;
   }
 
-  for (is=0; is<IDA_mem->ida_Ns; is++)
+  for (is=0; is<IDA_mem->ida_Ns; is++) {
     IDA_mem->ida_cvals[is] = ONE;
-
+    IDA_mem->ida_atolSmin0[is] = (atolmin[is] == ZERO);
+  }
+  free(atolmin);
+  
   retval = N_VScaleVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_cvals,
                                abstolS, IDA_mem->ida_VatolS);
   if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
@@ -1794,13 +1817,16 @@ int IDAQuadSensSStolerances(void *ida_mem, realtype reltolQS, realtype *abstolQS
 
   if ( !(IDA_mem->ida_SatolQSMallocDone) ) {
     IDA_mem->ida_SatolQS = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
+    IDA_mem->ida_atolQSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns;
     IDA_mem->ida_SatolQSMallocDone = SUNTRUE;
   }
 
-  for (is=0; is<IDA_mem->ida_Ns; is++)
+  for (is=0; is<IDA_mem->ida_Ns; is++) {
     IDA_mem->ida_SatolQS[is] = abstolQS[is];
-
+    IDA_mem->ida_atolQSmin0[is] = (abstolQS[is] == ZERO);
+  }
+  
   return(IDA_SUCCESS);
 }
 
@@ -1808,6 +1834,7 @@ int IDAQuadSensSVtolerances(void *ida_mem, realtype reltolQS, N_Vector *abstolQS
 {
   IDAMem IDA_mem; 
   int is, retval;
+  realtype *atolmin;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAQuadSensSVtolerances", MSG_NO_MEM);    
@@ -1839,11 +1866,15 @@ int IDAQuadSensSVtolerances(void *ida_mem, realtype reltolQS, N_Vector *abstolQS
     return(IDA_ILL_INPUT);
   }
 
-  for (is=0; is<IDA_mem->ida_Ns; is++)
-    if (N_VMin(abstolQS[is]) < ZERO) {
+  atolmin = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
+  for (is=0; is<IDA_mem->ida_Ns; is++) {
+    atolmin[is] = N_VMin(abstolQS[is]);    
+    if (atolmin[is] < ZERO) {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAQuadSensSVtolerances", MSG_BAD_ABSTOLQS);
+      free(atolmin);
       return(IDA_ILL_INPUT);
     }
+  }
   
   /* Save data. */
   IDA_mem->ida_itolQS = IDA_SV;
@@ -1851,14 +1882,18 @@ int IDAQuadSensSVtolerances(void *ida_mem, realtype reltolQS, N_Vector *abstolQS
 
   if ( !(IDA_mem->ida_VatolQSMallocDone) ) {
     IDA_mem->ida_VatolQS = N_VCloneVectorArray(IDA_mem->ida_Ns, abstolQS[0]);
+    IDA_mem->ida_atolQSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns*IDA_mem->ida_lrw1Q;
     IDA_mem->ida_liw += IDA_mem->ida_Ns*IDA_mem->ida_liw1Q;
     IDA_mem->ida_VatolQSMallocDone = SUNTRUE;
   }
   
-  for (is=0; is<IDA_mem->ida_Ns; is++)
+  for (is=0; is<IDA_mem->ida_Ns; is++) {
     IDA_mem->ida_cvals[is] = ONE;
-
+    IDA_mem->ida_atolQSmin0[is] = (atolmin[is] == ZERO);
+  }
+  free(atolmin);
+  
   retval = N_VScaleVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_cvals,
                                abstolQS, IDA_mem->ida_VatolQS);
   if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
@@ -4219,9 +4254,9 @@ int IDAEwtSet(N_Vector ycur, N_Vector weight, void *data)
  * IDAEwtSetSS
  *
  * This routine sets ewt as decribed above in the case itol=IDA_SS.
- * It tests for non-positive components before inverting. IDAEwtSetSS
- * returns 0 if ewt is successfully set to a positive vector
- * and -1 otherwise. In the latter case, ewt is considered
+ * If the absolute tolerance is zero, it tests for non-positive components
+ * before inverting. IDAEwtSetSS returns 0 if ewt is successfully set to a
+ * positive vector and -1 otherwise. In the latter case, ewt is considered
  * undefined.
  */
 
@@ -4230,7 +4265,9 @@ static int IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
   N_VAbs(ycur, IDA_mem->ida_tempv1);
   N_VScale(IDA_mem->ida_rtol, IDA_mem->ida_tempv1, IDA_mem->ida_tempv1);
   N_VAddConst(IDA_mem->ida_tempv1, IDA_mem->ida_Satol, IDA_mem->ida_tempv1);
-  if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+  if (IDA_mem->ida_atolmin0) {
+    if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+  }
   N_VInv(IDA_mem->ida_tempv1, weight);
   return(0);
 }
@@ -4239,9 +4276,9 @@ static int IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
  * IDAEwtSetSV
  *
  * This routine sets ewt as decribed above in the case itol=IDA_SV.
- * It tests for non-positive components before inverting. IDAEwtSetSV
- * returns 0 if ewt is successfully set to a positive vector
- * and -1 otherwise. In the latter case, ewt is considered
+ * If the absolute tolerance is zero, it tests for non-positive components
+ * before inverting. IDAEwtSetSV returns 0 if ewt is successfully set to a
+ * positive vector and -1 otherwise. In the latter case, ewt is considered
  * undefined.
  */
 
@@ -4249,7 +4286,9 @@ static int IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
 {
   N_VAbs(ycur, IDA_mem->ida_tempv1);
   N_VLinearSum(IDA_mem->ida_rtol, IDA_mem->ida_tempv1, ONE, IDA_mem->ida_Vatol, IDA_mem->ida_tempv1);
-  if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+  if (IDA_mem->ida_atolmin0) {
+    if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+  }
   N_VInv(IDA_mem->ida_tempv1, weight);
   return(0);
 }
@@ -4291,7 +4330,9 @@ static int IDAQuadEwtSetSS(IDAMem IDA_mem, N_Vector qcur, N_Vector weightQ)
   N_VAbs(qcur, tempvQ);
   N_VScale(IDA_mem->ida_rtolQ, tempvQ, tempvQ);
   N_VAddConst(tempvQ, IDA_mem->ida_SatolQ, tempvQ);
-  if (N_VMin(tempvQ) <= ZERO) return(-1);
+  if (IDA_mem->ida_atolQmin0) {
+    if (N_VMin(tempvQ) <= ZERO) return(-1);
+  }
   N_VInv(tempvQ, weightQ);
 
   return(0);
@@ -4311,7 +4352,9 @@ static int IDAQuadEwtSetSV(IDAMem IDA_mem, N_Vector qcur, N_Vector weightQ)
 
   N_VAbs(qcur, tempvQ);
   N_VLinearSum(IDA_mem->ida_rtolQ, tempvQ, ONE, IDA_mem->ida_VatolQ, tempvQ);
-  if (N_VMin(tempvQ) <= ZERO) return(-1);
+  if (IDA_mem->ida_atolQmin0) {
+    if (N_VMin(tempvQ) <= ZERO) return(-1);
+  }
   N_VInv(tempvQ, weightQ);
 
   return(0);
@@ -4386,7 +4429,9 @@ static int IDASensEwtSetSS(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS)
     N_VAbs(yScur[is], IDA_mem->ida_tempv1);
     N_VScale(IDA_mem->ida_rtolS, IDA_mem->ida_tempv1, IDA_mem->ida_tempv1);
     N_VAddConst(IDA_mem->ida_tempv1, IDA_mem->ida_SatolS[is], IDA_mem->ida_tempv1);
-    if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+    if (IDA_mem->ida_atolSmin0[is]) {
+      if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+    }
     N_VInv(IDA_mem->ida_tempv1, weightS[is]);
   }
   return(0);
@@ -4404,7 +4449,9 @@ static int IDASensEwtSetSV(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS)
   for (is=0; is<IDA_mem->ida_Ns; is++) {
     N_VAbs(yScur[is], IDA_mem->ida_tempv1);
     N_VLinearSum(IDA_mem->ida_rtolS, IDA_mem->ida_tempv1, ONE, IDA_mem->ida_VatolS[is], IDA_mem->ida_tempv1);
-    if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+    if (IDA_mem->ida_atolSmin0[is]) {
+      if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
+    }
     N_VInv(IDA_mem->ida_tempv1, weightS[is]);
   }
 
@@ -4478,7 +4525,9 @@ static int IDAQuadSensEwtSetSS(IDAMem IDA_mem, N_Vector *yQScur, N_Vector *weigh
     N_VAbs(yQScur[is], tempvQ);
     N_VScale(IDA_mem->ida_rtolQS, tempvQ, tempvQ);
     N_VAddConst(tempvQ, IDA_mem->ida_SatolQS[is], tempvQ);
-    if (N_VMin(tempvQ) <= ZERO) return(-1);
+    if (IDA_mem->ida_atolQSmin0[is]) {
+      if (N_VMin(tempvQ) <= ZERO) return(-1);
+    }
     N_VInv(tempvQ, weightQS[is]);
   }
 
@@ -4496,7 +4545,9 @@ static int IDAQuadSensEwtSetSV(IDAMem IDA_mem, N_Vector *yQScur, N_Vector *weigh
   for (is=0; is<IDA_mem->ida_Ns; is++) {
     N_VAbs(yQScur[is], tempvQ);
     N_VLinearSum(IDA_mem->ida_rtolQS, tempvQ, ONE, IDA_mem->ida_VatolQS[is], tempvQ);
-    if (N_VMin(tempvQ) <= ZERO) return(-1);
+    if (IDA_mem->ida_atolQSmin0[is]) {
+      if (N_VMin(tempvQ) <= ZERO) return(-1);
+    }
     N_VInv(tempvQ, weightQS[is]);
   }
 

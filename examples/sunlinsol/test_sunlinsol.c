@@ -178,7 +178,7 @@ int Test_SUNLinSolResid(SUNLinearSolver S, int myid)
   resid = SUNLinSolResid(S);
   stop_time = get_time();   
 
-  /* this test can also fail if the return value is negative */
+  /* this test can also fail if the return value is NULL */
   if (resid == NULL){
     printf(">>> FAILED test -- SUNLinSolResid returned NULL N_Vector on Proc %d \n", 
            myid);

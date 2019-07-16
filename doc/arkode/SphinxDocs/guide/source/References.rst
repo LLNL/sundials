@@ -130,10 +130,10 @@
             SAND80-0180, Sandia National Laboratories, February 1980.
 
 .. [HS2017] A.C. Hindmarsh and R. Serban. User Documentation for CVODE
-            v5.0.0-dev.0. Technical Report UCRL-SM-208108, LLNL, 2019.
+            v5.0.0-dev.1. Technical Report UCRL-SM-208108, LLNL, 2019.
 
 .. [HSR2017] A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-             Programs for CVODE v5.0.0-dev.0. Technical Report
+             Programs for CVODE v5.0.0-dev.1. Technical Report
              UCRL-SM-208110, LLNL, 2019.
 
 .. [HT1998] A.C. Hindmarsh and A.G. Taylor.  PVODE and KINSOL:
@@ -144,6 +144,10 @@
 .. [HK2014] R.D. Hornung and J.A. Keasler.  The RAJA Portability
             Layer: Overview and Status. Technical Report
             LLNL-TR-661403, LLNL, September 2014.
+
+.. [JPE2019] S.R. Johnson, A. Prokopenko, and K. J. Evans. Automated
+             Fortran-C++ bindings for Large-Scale Scientific Applications.
+             arXiv:1904.02546 [cs], Apr. 2019. 
 
 .. [K1995] C.T. Kelley.  Iterative Methods for Solving Linear and
            Nonlinear Equations. SIAM, Philadelphia, 1995.
@@ -156,20 +160,20 @@
             Runge–Kutta schemes for ordinary differential
             equations. *Appl. Numer. Math.*, 136:183-205, 2019.
 
-.. [KLU] `KLU Sparse Matrix Factorization Library
-         <http://faculty.cse.tamu.edu/davis/suitesparse.html>`_.
-
 .. [K2004] A. Kv{\ae}rno. Singly Diagonally Implicit Runge-Kutta
            Methods with an Explicit First Stage. *BIT Numer. Math.*,
            44:489-502, 2004.
 
+.. [KLU] `KLU Sparse Matrix Factorization Library
+         <http://faculty.cse.tamu.edu/davis/suitesparse.html>`_.
+
 .. [L2005] X.S. Li. An Overview of SuperLU: Algorithms,
-           Implementation, and User Interface. *ACM
-           Trans. Math. Soft.*, 31:302-325, 2005.
+           Implementation, and User Interface.
+           *ACM Trans. Math. Soft.*, 31:302-325, 2005.
 
 .. [LD2003] X.S. Li. and J.W. Demmel. A Scalable Distributed-Memory Sparse
-            Direct Solver for Unsymmetric Linear Systems. *ACM
-           Trans. Math. Soft.*, 29:110-140, 2003.
+            Direct Solver for Unsymmetric Linear Systems.
+            *ACM Trans. Math. Soft.*, 29:110-140, 2003.
 
 .. [LWWY2012] P.A. Lott, H.F. Walker, C.S. Woodward and U.M. Yang. An
               Accelerated Picard Method for Nonlinear Systems Related to

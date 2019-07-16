@@ -303,8 +303,10 @@ typedef struct ARKodeMemRec {
   realtype     reltol;     /* relative tolerance                    */
   realtype     Sabstol;    /* scalar absolute solution tolerance    */
   N_Vector     Vabstol;    /* vector absolute solution tolerance    */
+  booleantype  atolmin0;   /* flag indicating that min(abstol) = 0  */
   realtype     SRabstol;   /* scalar absolute residual tolerance    */
   N_Vector     VRabstol;   /* vector absolute residual tolerance    */
+  booleantype  Ratolmin0;  /* flag indicating that min(Rabstol) = 0 */
   booleantype  user_efun;  /* SUNTRUE if user sets efun             */
   ARKEwtFn     efun;       /* function to set ewt                   */
   void        *e_data;     /* user pointer passed to efun           */

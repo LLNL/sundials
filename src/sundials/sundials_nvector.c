@@ -108,6 +108,24 @@ N_Vector N_VNewEmpty()
 
 
 /* -----------------------------------------------------------------
+ * Free a generic N_Vector (assumes content is already empty)
+ * -----------------------------------------------------------------*/
+
+void N_VFreeEmpty(N_Vector v)
+{
+  if (v == NULL)  return;
+  
+  /* free non-NULL ops structure */
+  if (v->ops)  free(v->ops);
+  v->ops = NULL;
+
+  /* free overall N_Vector object and return */
+  free(v);
+  return;
+}
+
+
+/* -----------------------------------------------------------------
  * Copy a vector 'ops' structure
  * -----------------------------------------------------------------*/
 
@@ -178,7 +196,6 @@ int N_VCopyOps(N_Vector w, N_Vector v)
 
   return(0);
 }
-
 
 /* -----------------------------------------------------------------
  * Functions in the 'ops' structure
@@ -517,9 +534,9 @@ int N_VWrmsNormMaskVectorArray(int nvec, N_Vector* X, N_Vector* W, N_Vector id,
 int N_VScaleAddMultiVectorArray(int nvec, int nsum, realtype* a, N_Vector* X,
                                  N_Vector** Y, N_Vector** Z)
 {
-  int       i, j;
-  int       ier=0;
-  realtype  ONE=RCONST(1.0);
+  int        i, j;
+  int        ier=0;
+  realtype   ONE=RCONST(1.0);
   N_Vector* YY=NULL;
   N_Vector* ZZ=NULL;
 
@@ -531,8 +548,8 @@ int N_VScaleAddMultiVectorArray(int nvec, int nsum, realtype* a, N_Vector* X,
   } else if (X[0]->ops->nvscaleaddmulti != NULL ) {
 
     /* allocate arrays of vectors */
-    YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
-    ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    YY = (N_Vector*) malloc(nsum * sizeof(N_Vector));
+    ZZ = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (i=0; i<nvec; i++) {
 
@@ -565,9 +582,9 @@ int N_VScaleAddMultiVectorArray(int nvec, int nsum, realtype* a, N_Vector* X,
 int N_VLinearCombinationVectorArray(int nvec, int nsum, realtype* c,
                                     N_Vector** X, N_Vector* Z)
 {
-  int       i, j;
-  int       ier=0;
-  realtype  ONE=RCONST(1.0);
+  int        i, j;
+  int        ier=0;
+  realtype   ONE=RCONST(1.0);
   N_Vector* Y=NULL;
 
   if (Z[0]->ops->nvlinearcombinationvectorarray != NULL) {
@@ -578,7 +595,7 @@ int N_VLinearCombinationVectorArray(int nvec, int nsum, realtype* c,
   } else if (Z[0]->ops->nvlinearcombination != NULL ) {
 
     /* allocate array of vectors */
-    Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    Y = (N_Vector* ) malloc(nsum * sizeof(N_Vector));
 
     for (i=0; i<nvec; i++) {
 
@@ -663,14 +680,14 @@ realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
  *   N_VDestroyVectorArray
  * -----------------------------------------------------------------*/
 
-N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w)
+N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
 {
-  N_Vector *vs = NULL;
+  N_Vector* vs = NULL;
   int j;
 
   if (count <= 0) return(NULL);
 
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -684,14 +701,14 @@ N_Vector *N_VCloneEmptyVectorArray(int count, N_Vector w)
   return(vs);
 }
 
-N_Vector *N_VCloneVectorArray(int count, N_Vector w)
+N_Vector* N_VCloneVectorArray(int count, N_Vector w)
 {
-  N_Vector *vs = NULL;
+  N_Vector* vs = NULL;
   int j;
 
   if (count <= 0) return(NULL);
 
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -705,7 +722,7 @@ N_Vector *N_VCloneVectorArray(int count, N_Vector w)
   return(vs);
 }
 
-void N_VDestroyVectorArray(N_Vector *vs, int count)
+void N_VDestroyVectorArray(N_Vector* vs, int count)
 {
   int j;
 
@@ -717,3 +734,4 @@ void N_VDestroyVectorArray(N_Vector *vs, int count)
 
   return;
 }
+
