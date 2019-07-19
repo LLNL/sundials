@@ -14,11 +14,10 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module nvector_serial
+//%module nvector_serial
+//%import "../sundials/sundials.i"
 
-%import "../sundials/sundials.i"
-
-%include "../nvector/nvector.i"
+//%include "../nvector/nvector.i"
 %nvector_impl(Serial)
 
 // include the header file in the swig wrapper

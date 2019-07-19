@@ -14,19 +14,26 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module sundials
+%{
+#define SWIG_FILE_WITH_INIT
+%}
+%include "numpy.i"
+%init %{
+import_array();
+%}
 
 
 // Inform SWIG of the SUNDIALS_EXPORT macro
 #define SUNDIALS_EXPORT
 
-// %include <stdint.i>
-// Inform SWIG of the configure-provided types
-// #define SUNDIALS_INT64_T
-// #define SUNDIALS_INDEX_TYPE int64_t
-// #define SUNDIALS_DOUBLE_PRECISION
-// #define booleantype int
 
+// Inform SWIG of the configure-provided types
+#define SUNDIALS_INT64_T
+#define SUNDIALS_INDEX_TYPE int
+#define SUNDIALS_DOUBLE_PRECISION
+#define booleantype int
+
+// Rename generic structs
 %rename(N_Vector) _generic_N_Vector;
 %rename(N_Vector_Ops) _generic_N_Vector_Ops;
 %rename(SUNMatrix) _generic_SUNMatrix;
@@ -37,6 +44,12 @@
 %rename(SUNNonlinearSolver_Ops) _generic_SUNNonlinearSolver_Ops;
 
 
+%apply (int DIM1, double* IN_ARRAY1) {(sunindextype vec_length, realtype *v_data)}
+// %apply (int DIM1, double* INPLACE_ARRAY1) {(sunindextype vec_length, realtype *v_data)}
+// %apply (realtype* IN_ARRAY1, sunindextype DIM1) {(realtype*, sunindextype)}
+// %apply (sunindextype DIM1, realtype* INPLACE_ARRAY1) {(sunindextype, realtype*)}
+// %apply (realtype* INPLACE_ARRAY1, sunindextype DIM1) {(realtype*, sunindextype)}
+
 // Include generic sundials stuff
 %{
 #include "sundials/sundials_types.h"
@@ -46,13 +59,17 @@
 #include "sundials/sundials_linearsolver.h"
 #include "sundials/sundials_nonlinearsolver.h"  
 %}
-
 %include "sundials/sundials_types.h"
 %include "sundials/sundials_nvector.h"
 %include "sundials/sundials_matrix.h"
 %include "sundials/sundials_iterative.h"
 %include "sundials/sundials_linearsolver.h"
 %include "sundials/sundials_nonlinearsolver.h"
+
+
+// Include implementations of generics
+%include "../nvector/nvector.i"
+%include "../nvector/nvector_serial.i"
 
 
 // Insert SUNDIALS copyright into generated C files.

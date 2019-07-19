@@ -14,8 +14,6 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-// Include shared configuration
-%include "../sundials/sundials.i"
 
 // Macro for creating an interface to an N_Vector
 %define %nvector_impl(TYPE)

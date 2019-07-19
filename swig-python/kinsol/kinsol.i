@@ -16,15 +16,15 @@
 
 %module kinsol
 
-%import "../sundials/sundials.i"
+%include "../sundials/sundials.i"
 
-%{
-#include "kinsol/kinsol.h"
-#include "kinsol/kinsol_bbdpre.h"
-#include "kinsol/kinsol_ls.h"
-%}
+// %{
+// #include "kinsol/kinsol.h"
+// #include "kinsol/kinsol_bbdpre.h"
+// #include "kinsol/kinsol_ls.h"
+// %}
 
-// Process definitions from these files
-%include "kinsol/kinsol.h"
-%include "kinsol/kinsol_bbdpre.h"
-%include "kinsol/kinsol_ls.h"
+// // Process definitions from these files
+// %include "kinsol/kinsol.h"
+// %include "kinsol/kinsol_bbdpre.h"
+// %include "kinsol/kinsol_ls.h"

@@ -65,3 +65,6 @@
 
 # swig
 /swig/swig
+
+# python
+__pycache__
