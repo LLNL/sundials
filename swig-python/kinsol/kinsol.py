@@ -90,6 +90,8 @@ class _SwigNonDynamicMeta(type):
     __setattr__ = _swig_setattr_nondynamic_class_variable(type.__setattr__)
 
 
+import weakref
+
 SUNFALSE = _kinsol.SUNFALSE
 SUNTRUE = _kinsol.SUNTRUE
 SUNDIALS_NVEC_SERIAL = _kinsol.SUNDIALS_NVEC_SERIAL
@@ -633,6 +635,9 @@ SUN_NLS_MEM_FAIL = _kinsol.SUN_NLS_MEM_FAIL
 SUN_NLS_ILL_INPUT = _kinsol.SUN_NLS_ILL_INPUT
 SUN_NLS_VECTOROP_ERR = _kinsol.SUN_NLS_VECTOROP_ERR
 
+def N_VGetData(v):
+    return _kinsol.N_VGetData(v)
+
 def N_VNew_Serial(vec_length):
     return _kinsol.N_VNew_Serial(vec_length)
 
@@ -806,5 +811,267 @@ def N_VEnableScaleAddMultiVectorArray_Serial(v, tf):
 
 def N_VEnableLinearCombinationVectorArray_Serial(v, tf):
     return _kinsol.N_VEnableLinearCombinationVectorArray_Serial(v, tf)
+KIN_SUCCESS = _kinsol.KIN_SUCCESS
+KIN_INITIAL_GUESS_OK = _kinsol.KIN_INITIAL_GUESS_OK
+KIN_STEP_LT_STPTOL = _kinsol.KIN_STEP_LT_STPTOL
+KIN_WARNING = _kinsol.KIN_WARNING
+KIN_MEM_NULL = _kinsol.KIN_MEM_NULL
+KIN_ILL_INPUT = _kinsol.KIN_ILL_INPUT
+KIN_NO_MALLOC = _kinsol.KIN_NO_MALLOC
+KIN_MEM_FAIL = _kinsol.KIN_MEM_FAIL
+KIN_LINESEARCH_NONCONV = _kinsol.KIN_LINESEARCH_NONCONV
+KIN_MAXITER_REACHED = _kinsol.KIN_MAXITER_REACHED
+KIN_MXNEWT_5X_EXCEEDED = _kinsol.KIN_MXNEWT_5X_EXCEEDED
+KIN_LINESEARCH_BCFAIL = _kinsol.KIN_LINESEARCH_BCFAIL
+KIN_LINSOLV_NO_RECOVERY = _kinsol.KIN_LINSOLV_NO_RECOVERY
+KIN_LINIT_FAIL = _kinsol.KIN_LINIT_FAIL
+KIN_LSETUP_FAIL = _kinsol.KIN_LSETUP_FAIL
+KIN_LSOLVE_FAIL = _kinsol.KIN_LSOLVE_FAIL
+KIN_SYSFUNC_FAIL = _kinsol.KIN_SYSFUNC_FAIL
+KIN_FIRST_SYSFUNC_ERR = _kinsol.KIN_FIRST_SYSFUNC_ERR
+KIN_REPTD_SYSFUNC_ERR = _kinsol.KIN_REPTD_SYSFUNC_ERR
+KIN_VECTOROP_ERR = _kinsol.KIN_VECTOROP_ERR
+KIN_ETACHOICE1 = _kinsol.KIN_ETACHOICE1
+KIN_ETACHOICE2 = _kinsol.KIN_ETACHOICE2
+KIN_ETACONSTANT = _kinsol.KIN_ETACONSTANT
+KIN_NONE = _kinsol.KIN_NONE
+KIN_LINESEARCH = _kinsol.KIN_LINESEARCH
+KIN_PICARD = _kinsol.KIN_PICARD
+KIN_FP = _kinsol.KIN_FP
+
+def KINCreate():
+    return _kinsol.KINCreate()
+
+def KINSol(kinmem, uu, strategy, u_scale, f_scale):
+    return _kinsol.KINSol(kinmem, uu, strategy, u_scale, f_scale)
+
+def KINSetErrHandlerFn(kinmem, ehfun, eh_data):
+    return _kinsol.KINSetErrHandlerFn(kinmem, ehfun, eh_data)
+
+def KINSetErrFile(kinmem, errfp):
+    return _kinsol.KINSetErrFile(kinmem, errfp)
+
+def KINSetInfoHandlerFn(kinmem, ihfun, ih_data):
+    return _kinsol.KINSetInfoHandlerFn(kinmem, ihfun, ih_data)
+
+def KINSetInfoFile(kinmem, infofp):
+    return _kinsol.KINSetInfoFile(kinmem, infofp)
+
+def KINSetPrintLevel(kinmemm, printfl):
+    return _kinsol.KINSetPrintLevel(kinmemm, printfl)
+
+def KINSetMAA(kinmem, maa):
+    return _kinsol.KINSetMAA(kinmem, maa)
+
+def KINSetNumMaxIters(kinmem, mxiter):
+    return _kinsol.KINSetNumMaxIters(kinmem, mxiter)
+
+def KINSetNoInitSetup(kinmem, noInitSetup):
+    return _kinsol.KINSetNoInitSetup(kinmem, noInitSetup)
+
+def KINSetNoResMon(kinmem, noNNIResMon):
+    return _kinsol.KINSetNoResMon(kinmem, noNNIResMon)
+
+def KINSetMaxSetupCalls(kinmem, msbset):
+    return _kinsol.KINSetMaxSetupCalls(kinmem, msbset)
+
+def KINSetMaxSubSetupCalls(kinmem, msbsetsub):
+    return _kinsol.KINSetMaxSubSetupCalls(kinmem, msbsetsub)
+
+def KINSetEtaForm(kinmem, etachoice):
+    return _kinsol.KINSetEtaForm(kinmem, etachoice)
+
+def KINSetEtaConstValue(kinmem, eta):
+    return _kinsol.KINSetEtaConstValue(kinmem, eta)
+
+def KINSetEtaParams(kinmem, egamma, ealpha):
+    return _kinsol.KINSetEtaParams(kinmem, egamma, ealpha)
+
+def KINSetResMonParams(kinmem, omegamin, omegamax):
+    return _kinsol.KINSetResMonParams(kinmem, omegamin, omegamax)
+
+def KINSetResMonConstValue(kinmem, omegaconst):
+    return _kinsol.KINSetResMonConstValue(kinmem, omegaconst)
+
+def KINSetNoMinEps(kinmem, noMinEps):
+    return _kinsol.KINSetNoMinEps(kinmem, noMinEps)
+
+def KINSetMaxNewtonStep(kinmem, mxnewtstep):
+    return _kinsol.KINSetMaxNewtonStep(kinmem, mxnewtstep)
+
+def KINSetMaxBetaFails(kinmem, mxnbcf):
+    return _kinsol.KINSetMaxBetaFails(kinmem, mxnbcf)
+
+def KINSetRelErrFunc(kinmem, relfunc):
+    return _kinsol.KINSetRelErrFunc(kinmem, relfunc)
+
+def KINSetFuncNormTol(kinmem, fnormtol):
+    return _kinsol.KINSetFuncNormTol(kinmem, fnormtol)
+
+def KINSetScaledStepTol(kinmem, scsteptol):
+    return _kinsol.KINSetScaledStepTol(kinmem, scsteptol)
+
+def KINSetConstraints(kinmem, constraints):
+    return _kinsol.KINSetConstraints(kinmem, constraints)
+
+def KINSetSysFunc(kinmem, func):
+    return _kinsol.KINSetSysFunc(kinmem, func)
+
+def KINGetWorkSpace(kinmem, lenrw, leniw):
+    return _kinsol.KINGetWorkSpace(kinmem, lenrw, leniw)
+
+def KINGetNumNonlinSolvIters(kinmem, nniters):
+    return _kinsol.KINGetNumNonlinSolvIters(kinmem, nniters)
+
+def KINGetNumFuncEvals(kinmem, nfevals):
+    return _kinsol.KINGetNumFuncEvals(kinmem, nfevals)
+
+def KINGetNumBetaCondFails(kinmem, nbcfails):
+    return _kinsol.KINGetNumBetaCondFails(kinmem, nbcfails)
+
+def KINGetNumBacktrackOps(kinmem, nbacktr):
+    return _kinsol.KINGetNumBacktrackOps(kinmem, nbacktr)
+
+def KINGetFuncNorm(kinmem, fnorm):
+    return _kinsol.KINGetFuncNorm(kinmem, fnorm)
+
+def KINGetStepLength(kinmem, steplength):
+    return _kinsol.KINGetStepLength(kinmem, steplength)
+
+def KINGetReturnFlagName(flag):
+    return _kinsol.KINGetReturnFlagName(flag)
+
+def KINFree(kinmem):
+    return _kinsol.KINFree(kinmem)
+KINBBDPRE_SUCCESS = _kinsol.KINBBDPRE_SUCCESS
+KINBBDPRE_PDATA_NULL = _kinsol.KINBBDPRE_PDATA_NULL
+KINBBDPRE_FUNC_UNRECVR = _kinsol.KINBBDPRE_FUNC_UNRECVR
+
+def KINBBDPrecInit(kinmem, Nlocal, mudq, mldq, mukeep, mlkeep, dq_rel_uu, gloc, gcomm):
+    return _kinsol.KINBBDPrecInit(kinmem, Nlocal, mudq, mldq, mukeep, mlkeep, dq_rel_uu, gloc, gcomm)
+
+def KINBBDPrecGetWorkSpace(kinmem, lenrwBBDP, leniwBBDP):
+    return _kinsol.KINBBDPrecGetWorkSpace(kinmem, lenrwBBDP, leniwBBDP)
+
+def KINBBDPrecGetNumGfnEvals(kinmem, ngevalsBBDP):
+    return _kinsol.KINBBDPrecGetNumGfnEvals(kinmem, ngevalsBBDP)
+KINLS_SUCCESS = _kinsol.KINLS_SUCCESS
+KINLS_MEM_NULL = _kinsol.KINLS_MEM_NULL
+KINLS_LMEM_NULL = _kinsol.KINLS_LMEM_NULL
+KINLS_ILL_INPUT = _kinsol.KINLS_ILL_INPUT
+KINLS_MEM_FAIL = _kinsol.KINLS_MEM_FAIL
+KINLS_PMEM_NULL = _kinsol.KINLS_PMEM_NULL
+KINLS_JACFUNC_ERR = _kinsol.KINLS_JACFUNC_ERR
+KINLS_SUNMAT_FAIL = _kinsol.KINLS_SUNMAT_FAIL
+KINLS_SUNLS_FAIL = _kinsol.KINLS_SUNLS_FAIL
+
+def KINSetLinearSolver(kinmem, LS, A):
+    return _kinsol.KINSetLinearSolver(kinmem, LS, A)
+
+def KINSetJacFn(kinmem, jac):
+    return _kinsol.KINSetJacFn(kinmem, jac)
+
+def KINSetPreconditioner(kinmem, psetup, psolve):
+    return _kinsol.KINSetPreconditioner(kinmem, psetup, psolve)
+
+def KINSetJacTimesVecFn(kinmem, jtv):
+    return _kinsol.KINSetJacTimesVecFn(kinmem, jtv)
+
+def KINGetLinWorkSpace(kinmem, lenrwLS, leniwLS):
+    return _kinsol.KINGetLinWorkSpace(kinmem, lenrwLS, leniwLS)
+
+def KINGetNumJacEvals(kinmem, njevals):
+    return _kinsol.KINGetNumJacEvals(kinmem, njevals)
+
+def KINGetNumLinFuncEvals(kinmem, nfevals):
+    return _kinsol.KINGetNumLinFuncEvals(kinmem, nfevals)
+
+def KINGetNumPrecEvals(kinmem, npevals):
+    return _kinsol.KINGetNumPrecEvals(kinmem, npevals)
+
+def KINGetNumPrecSolves(kinmem, npsolves):
+    return _kinsol.KINGetNumPrecSolves(kinmem, npsolves)
+
+def KINGetNumLinIters(kinmem, nliters):
+    return _kinsol.KINGetNumLinIters(kinmem, nliters)
+
+def KINGetNumLinConvFails(kinmem, nlcfails):
+    return _kinsol.KINGetNumLinConvFails(kinmem, nlcfails)
+
+def KINGetNumJtimesEvals(kinmem, njvevals):
+    return _kinsol.KINGetNumJtimesEvals(kinmem, njvevals)
+
+def KINGetLastLinFlag(kinmem, flag):
+    return _kinsol.KINGetLastLinFlag(kinmem, flag)
+
+def KINGetLinReturnFlagName(flag):
+    return _kinsol.KINGetLinReturnFlagName(flag)
+class KINSysPyFn(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+    __swig_destroy__ = _kinsol.delete_KINSysPyFn
+
+    def actual_sysfun(self, y, g, udata):
+        return _kinsol.KINSysPyFn_actual_sysfun(self, y, g, udata)
+
+    def __init__(self):
+        if self.__class__ == KINSysPyFn:
+            _self = None
+        else:
+            _self = self
+        _kinsol.KINSysPyFn_swiginit(self, _kinsol.new_KINSysPyFn(_self, ))
+    def __disown__(self):
+        self.this.disown()
+        _kinsol.disown_KINSysPyFn(self)
+        return weakref.proxy(self)
+
+# Register KINSysPyFn in _kinsol:
+_kinsol.KINSysPyFn_swigregister(KINSysPyFn)
+
+class KINSysFnCaller(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+
+    def __init__(self):
+        _kinsol.KINSysFnCaller_swiginit(self, _kinsol.new_KINSysFnCaller())
+    __swig_destroy__ = _kinsol.delete_KINSysFnCaller
+
+    def cleanup(self):
+        return _kinsol.KINSysFnCaller_cleanup(self)
+
+    def setFn(self, cb):
+        return _kinsol.KINSysFnCaller_setFn(self, cb)
+
+    def setArgs(self, y, g, udata=None):
+        return _kinsol.KINSysFnCaller_setArgs(self, y, g, udata)
+
+    def call(self):
+        return _kinsol.KINSysFnCaller_call(self)
+
+# Register KINSysFnCaller in _kinsol:
+_kinsol.KINSysFnCaller_swigregister(KINSysFnCaller)
+
+
+def KINPyInterfaceSysFn(y, g, user_data):
+    return _kinsol.KINPyInterfaceSysFn(y, g, user_data)
+
+def KINInitPy(kmem, caller, y):
+    return _kinsol.KINInitPy(kmem, caller, y)
+
+def WrapPythonSysFn(user_sysfun):
+  caller = KINSysFnCaller()
+  caller.setFn(KINSysPyFnPyChild(user_sysfun).__disown__())
+  return caller
+
+# inherits from the C++ KinSysPyFn class
+class KINSysPyFnPyChild(KINSysPyFn):
+  def __init__(self, user_sysfun):
+    KINSysPyFn.__init__(self)
+    self.user_sysfun = user_sysfun
+
+  def actual_sysfun(self, y, g, user_data):
+    self.user_sysfun(y, g, user_data)
+    return 0
+
 
 

@@ -19,7 +19,7 @@ kinsol_module = Extension('_kinsol',
                           library_dirs=['/home/balos1/Workspace/SUNDIALS/sundials-install-pykinsol/lib64'],
                           runtime_library_dirs=['/home/balos1/Workspace/SUNDIALS/sundials-install-pykinsol/lib64'],
                           libraries=['sundials_kinsol'],
-                          sources=['kinsol_wrap.c'])
+                          sources=['kinsol_wrap.cxx'])
 
 setup (name='kinsol',
        version     = '0.1.0',

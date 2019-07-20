@@ -14,17 +14,71 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module kinsol
+%module(directors="1") kinsol
+
+%include "stdint.i"
+
+// ----------------------------------
+// numpy swig setup stuff.
+// This must only happen in one file.
+// ----------------------------------
+
+%{
+#define SWIG_FILE_WITH_INIT
+%}
+%include "numpy.i"
+%init %{
+import_array();
+%}
+
+// -------------------------------
+// Bring in shared sundials stuff.
+// -------------------------------
 
 %include "../sundials/sundials.i"
 
-// %{
-// #include "kinsol/kinsol.h"
-// #include "kinsol/kinsol_bbdpre.h"
-// #include "kinsol/kinsol_ls.h"
-// %}
+// ---------------------
+// KINSOL specific stuff
+// --------------------- 
 
-// // Process definitions from these files
-// %include "kinsol/kinsol.h"
-// %include "kinsol/kinsol_bbdpre.h"
-// %include "kinsol/kinsol_ls.h"
+// KINInit cannot be called from Python.
+// Instead, users should call KINInitPy.
+%ignore KINInit;
+
+// We hijack KINSetUserData to pass out director class
+// objects. So, hide the function from users.
+%ignore KINSetUserData;
+
+%{
+#include "kinsol/kinsol.h"
+#include "kinsol/kinsol_bbdpre.h"
+#include "kinsol/kinsol_ls.h"
+#include "callbacks.h"
+%}
+
+%feature("director") KINSysPyFn;
+
+// Process definitions from these files
+%include "kinsol/kinsol.h"
+%include "kinsol/kinsol_bbdpre.h"
+%include "kinsol/kinsol_ls.h"
+%include "callbacks.h"
+
+// Insert helper code for setting sysfn
+%pythoncode
+%{
+def WrapPythonSysFn(user_sysfun):
+  caller = KINSysFnCaller()
+  caller.setFn(KINSysPyFnPyChild(user_sysfun).__disown__())
+  return caller
+
+# inherits from the C++ KinSysPyFn class
+class KINSysPyFnPyChild(KINSysPyFn):
+  def __init__(self, user_sysfun):
+    KINSysPyFn.__init__(self)
+    self.user_sysfun = user_sysfun
+
+  def actual_sysfun(self, y, g, user_data):
+    self.user_sysfun(y, g, user_data)
+    return 0
+%}

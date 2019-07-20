@@ -25,11 +25,11 @@ all: kinsol_swig kinsol
 
 kinsol_swig: $(KINSOL:%:%.i)
 	@for i in ${KINSOL} ; do \
-		echo "${SWIG} -python ${INCLUDES} $${i}"; \
-		${SWIG} -python ${INCLUDES} $${i}; \
+		echo "${SWIG} -python -c++ ${INCLUDES} $${i}"; \
+		${SWIG} -python -c++ ${INCLUDES} $${i}; \
 	done
 
-kinsol: kinsol.py kinsol_wrap.c
+kinsol: kinsol.py kinsol_wrap.cxx
 	python setup.py build_ext --inplace
 
 clean:
