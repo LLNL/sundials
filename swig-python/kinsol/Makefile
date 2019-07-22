@@ -29,20 +29,26 @@ INCLUDES=-I${SUNDIALS_ROOT}/include
 # KINSOL swig interface files
 KINSOL=kinsol.i
 
-.PHONY: kinsol_swig
-all: kinsol_swig kinsol
+.PHONY: generate install
+all: generate kinsol
 
-kinsol_swig: $(KINSOL:%:%.i)
+generate: $(KINSOL:%:%.i)
 	@for i in ${KINSOL} ; do \
 		echo "${SWIG} -python -c++ ${INCLUDES} $${i}"; \
 		${SWIG} -python -c++ ${INCLUDES} $${i}; \
 	done
 
 kinsol: kinsol.py kinsol_wrap.cxx
+	python setup.py build_ext
+
+kinsol_inplace: kinsol.py kinsol_wrap.cxx
 	python setup.py build_ext --inplace
 
+install:
+	python setup.py install
+
 clean:
-	rm *.cxx
-	rm *.so
 	rm -rf build
 	rm -rf __pycache__
+	rm *.cxx
+	rm *.so

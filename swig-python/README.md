@@ -19,6 +19,7 @@ the commands below (in the example below we build the KINSOL interface).
 $ cd kinsol
 $ export SUNDIALS_ROOT=/path/to/sundials-installation
 $ make kinsol
+$ python setup.py install
 ```
 
 ## Using the Interface
@@ -38,5 +39,5 @@ generate the interfaces for a package, run:
 ```bash
 $ cd <package>
 $ export SUNDIALS_ROOT=/path/to/sundials-installation
-$ make <package>_swig
+$ make generate
 ```
