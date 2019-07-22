@@ -56,7 +56,22 @@ import_array();
 #include "callbacks.h"
 %}
 
+// KINSysPyFn is a 'director' class
 %feature("director") KINSysPyFn;
+
+// Apply typemap for Get functions that use an argout variable
+%typemap(in, numinputs=0) realtype* (realtype temp) {
+  $1 = &temp;
+}
+%typemap(argout) realtype* {
+  $result = SWIG_Python_AppendOutput($result, PyFloat_FromDouble(*$1));
+}
+%typemap(in, numinputs=0) long* (long temp) {
+  $1 = &temp;
+}
+%typemap(argout) long* {
+  $result = SWIG_Python_AppendOutput($result, PyLong_FromLong(*$1));
+}
 
 // Process definitions from these files
 %include "kinsol/kinsol.h"

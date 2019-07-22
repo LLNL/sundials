@@ -15113,30 +15113,31 @@ SWIGINTERN PyObject *_wrap_KINGetWorkSpace(PyObject *SWIGUNUSEDPARM(self), PyObj
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject *swig_obj[3] ;
+  long temp2 ;
+  long temp3 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetWorkSpace", 3, 3, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  {
+    arg3 = &temp3;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetWorkSpace" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetWorkSpace" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
-  res3 = SWIG_ConvertPtr(swig_obj[2], &argp3,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "KINGetWorkSpace" "', argument " "3"" of type '" "long *""'"); 
-  }
-  arg3 = reinterpret_cast< long * >(argp3);
   result = (int)KINGetWorkSpace(arg1,arg2,arg3);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg3));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15148,23 +15149,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumNonlinSolvIters(PyObject *SWIGUNUSEDPARM(sel
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumNonlinSolvIters", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumNonlinSolvIters" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumNonlinSolvIters" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumNonlinSolvIters(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15176,23 +15178,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumFuncEvals(PyObject *SWIGUNUSEDPARM(self), Py
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumFuncEvals", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumFuncEvals" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumFuncEvals" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumFuncEvals(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15204,23 +15207,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumBetaCondFails(PyObject *SWIGUNUSEDPARM(self)
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumBetaCondFails", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumBetaCondFails" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumBetaCondFails" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumBetaCondFails(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15232,23 +15236,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumBacktrackOps(PyObject *SWIGUNUSEDPARM(self),
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumBacktrackOps", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumBacktrackOps" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumBacktrackOps" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumBacktrackOps(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15260,23 +15265,24 @@ SWIGINTERN PyObject *_wrap_KINGetFuncNorm(PyObject *SWIGUNUSEDPARM(self), PyObje
   void *arg1 = (void *) 0 ;
   realtype *arg2 = (realtype *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  realtype temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetFuncNorm", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetFuncNorm" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetFuncNorm" "', argument " "2"" of type '" "realtype *""'"); 
-  }
-  arg2 = reinterpret_cast< realtype * >(argp2);
   result = (int)KINGetFuncNorm(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyFloat_FromDouble(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15288,23 +15294,24 @@ SWIGINTERN PyObject *_wrap_KINGetStepLength(PyObject *SWIGUNUSEDPARM(self), PyOb
   void *arg1 = (void *) 0 ;
   realtype *arg2 = (realtype *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  realtype temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetStepLength", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetStepLength" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetStepLength" "', argument " "2"" of type '" "realtype *""'"); 
-  }
-  arg2 = reinterpret_cast< realtype * >(argp2);
   result = (int)KINGetStepLength(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyFloat_FromDouble(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15444,30 +15451,31 @@ SWIGINTERN PyObject *_wrap_KINBBDPrecGetWorkSpace(PyObject *SWIGUNUSEDPARM(self)
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject *swig_obj[3] ;
+  long temp2 ;
+  long temp3 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINBBDPrecGetWorkSpace", 3, 3, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  {
+    arg3 = &temp3;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINBBDPrecGetWorkSpace" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINBBDPrecGetWorkSpace" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
-  res3 = SWIG_ConvertPtr(swig_obj[2], &argp3,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "KINBBDPrecGetWorkSpace" "', argument " "3"" of type '" "long *""'"); 
-  }
-  arg3 = reinterpret_cast< long * >(argp3);
   result = (int)KINBBDPrecGetWorkSpace(arg1,arg2,arg3);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg3));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15479,23 +15487,24 @@ SWIGINTERN PyObject *_wrap_KINBBDPrecGetNumGfnEvals(PyObject *SWIGUNUSEDPARM(sel
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINBBDPrecGetNumGfnEvals", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINBBDPrecGetNumGfnEvals" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINBBDPrecGetNumGfnEvals" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINBBDPrecGetNumGfnEvals(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15632,30 +15641,31 @@ SWIGINTERN PyObject *_wrap_KINGetLinWorkSpace(PyObject *SWIGUNUSEDPARM(self), Py
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject *swig_obj[3] ;
+  long temp2 ;
+  long temp3 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetLinWorkSpace", 3, 3, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  {
+    arg3 = &temp3;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetLinWorkSpace" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetLinWorkSpace" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
-  res3 = SWIG_ConvertPtr(swig_obj[2], &argp3,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "KINGetLinWorkSpace" "', argument " "3"" of type '" "long *""'"); 
-  }
-  arg3 = reinterpret_cast< long * >(argp3);
   result = (int)KINGetLinWorkSpace(arg1,arg2,arg3);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg3));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15667,23 +15677,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumJacEvals(PyObject *SWIGUNUSEDPARM(self), PyO
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumJacEvals", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumJacEvals" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumJacEvals" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumJacEvals(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15695,23 +15706,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumLinFuncEvals(PyObject *SWIGUNUSEDPARM(self),
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumLinFuncEvals", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumLinFuncEvals" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumLinFuncEvals" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumLinFuncEvals(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15723,23 +15735,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumPrecEvals(PyObject *SWIGUNUSEDPARM(self), Py
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumPrecEvals", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumPrecEvals" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumPrecEvals" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumPrecEvals(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15751,23 +15764,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumPrecSolves(PyObject *SWIGUNUSEDPARM(self), P
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumPrecSolves", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumPrecSolves" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumPrecSolves" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumPrecSolves(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15779,23 +15793,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumLinIters(PyObject *SWIGUNUSEDPARM(self), PyO
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumLinIters", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumLinIters" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumLinIters" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumLinIters(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15807,23 +15822,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumLinConvFails(PyObject *SWIGUNUSEDPARM(self),
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumLinConvFails", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumLinConvFails" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumLinConvFails" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumLinConvFails(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15835,23 +15851,24 @@ SWIGINTERN PyObject *_wrap_KINGetNumJtimesEvals(PyObject *SWIGUNUSEDPARM(self), 
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetNumJtimesEvals", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetNumJtimesEvals" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetNumJtimesEvals" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetNumJtimesEvals(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -15863,23 +15880,24 @@ SWIGINTERN PyObject *_wrap_KINGetLastLinFlag(PyObject *SWIGUNUSEDPARM(self), PyO
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject *swig_obj[2] ;
+  long temp2 ;
+  PyObject *swig_obj[1] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "KINGetLastLinFlag", 2, 2, swig_obj)) SWIG_fail;
+  {
+    arg2 = &temp2;
+  }
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
   res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINGetLastLinFlag" "', argument " "1"" of type '" "void *""'"); 
   }
-  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINGetLastLinFlag" "', argument " "2"" of type '" "long *""'"); 
-  }
-  arg2 = reinterpret_cast< long * >(argp2);
   result = (int)KINGetLastLinFlag(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, PyLong_FromLong(*arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -16779,31 +16797,31 @@ static PyMethodDef SwigMethods[] = {
 	 { "KINSetScaledStepTol", _wrap_KINSetScaledStepTol, METH_VARARGS, NULL},
 	 { "KINSetConstraints", _wrap_KINSetConstraints, METH_VARARGS, NULL},
 	 { "KINSetSysFunc", _wrap_KINSetSysFunc, METH_VARARGS, NULL},
-	 { "KINGetWorkSpace", _wrap_KINGetWorkSpace, METH_VARARGS, NULL},
-	 { "KINGetNumNonlinSolvIters", _wrap_KINGetNumNonlinSolvIters, METH_VARARGS, NULL},
-	 { "KINGetNumFuncEvals", _wrap_KINGetNumFuncEvals, METH_VARARGS, NULL},
-	 { "KINGetNumBetaCondFails", _wrap_KINGetNumBetaCondFails, METH_VARARGS, NULL},
-	 { "KINGetNumBacktrackOps", _wrap_KINGetNumBacktrackOps, METH_VARARGS, NULL},
-	 { "KINGetFuncNorm", _wrap_KINGetFuncNorm, METH_VARARGS, NULL},
-	 { "KINGetStepLength", _wrap_KINGetStepLength, METH_VARARGS, NULL},
+	 { "KINGetWorkSpace", _wrap_KINGetWorkSpace, METH_O, NULL},
+	 { "KINGetNumNonlinSolvIters", _wrap_KINGetNumNonlinSolvIters, METH_O, NULL},
+	 { "KINGetNumFuncEvals", _wrap_KINGetNumFuncEvals, METH_O, NULL},
+	 { "KINGetNumBetaCondFails", _wrap_KINGetNumBetaCondFails, METH_O, NULL},
+	 { "KINGetNumBacktrackOps", _wrap_KINGetNumBacktrackOps, METH_O, NULL},
+	 { "KINGetFuncNorm", _wrap_KINGetFuncNorm, METH_O, NULL},
+	 { "KINGetStepLength", _wrap_KINGetStepLength, METH_O, NULL},
 	 { "KINGetReturnFlagName", _wrap_KINGetReturnFlagName, METH_O, NULL},
 	 { "KINFree", _wrap_KINFree, METH_O, NULL},
 	 { "KINBBDPrecInit", _wrap_KINBBDPrecInit, METH_VARARGS, NULL},
-	 { "KINBBDPrecGetWorkSpace", _wrap_KINBBDPrecGetWorkSpace, METH_VARARGS, NULL},
-	 { "KINBBDPrecGetNumGfnEvals", _wrap_KINBBDPrecGetNumGfnEvals, METH_VARARGS, NULL},
+	 { "KINBBDPrecGetWorkSpace", _wrap_KINBBDPrecGetWorkSpace, METH_O, NULL},
+	 { "KINBBDPrecGetNumGfnEvals", _wrap_KINBBDPrecGetNumGfnEvals, METH_O, NULL},
 	 { "KINSetLinearSolver", _wrap_KINSetLinearSolver, METH_VARARGS, NULL},
 	 { "KINSetJacFn", _wrap_KINSetJacFn, METH_VARARGS, NULL},
 	 { "KINSetPreconditioner", _wrap_KINSetPreconditioner, METH_VARARGS, NULL},
 	 { "KINSetJacTimesVecFn", _wrap_KINSetJacTimesVecFn, METH_VARARGS, NULL},
-	 { "KINGetLinWorkSpace", _wrap_KINGetLinWorkSpace, METH_VARARGS, NULL},
-	 { "KINGetNumJacEvals", _wrap_KINGetNumJacEvals, METH_VARARGS, NULL},
-	 { "KINGetNumLinFuncEvals", _wrap_KINGetNumLinFuncEvals, METH_VARARGS, NULL},
-	 { "KINGetNumPrecEvals", _wrap_KINGetNumPrecEvals, METH_VARARGS, NULL},
-	 { "KINGetNumPrecSolves", _wrap_KINGetNumPrecSolves, METH_VARARGS, NULL},
-	 { "KINGetNumLinIters", _wrap_KINGetNumLinIters, METH_VARARGS, NULL},
-	 { "KINGetNumLinConvFails", _wrap_KINGetNumLinConvFails, METH_VARARGS, NULL},
-	 { "KINGetNumJtimesEvals", _wrap_KINGetNumJtimesEvals, METH_VARARGS, NULL},
-	 { "KINGetLastLinFlag", _wrap_KINGetLastLinFlag, METH_VARARGS, NULL},
+	 { "KINGetLinWorkSpace", _wrap_KINGetLinWorkSpace, METH_O, NULL},
+	 { "KINGetNumJacEvals", _wrap_KINGetNumJacEvals, METH_O, NULL},
+	 { "KINGetNumLinFuncEvals", _wrap_KINGetNumLinFuncEvals, METH_O, NULL},
+	 { "KINGetNumPrecEvals", _wrap_KINGetNumPrecEvals, METH_O, NULL},
+	 { "KINGetNumPrecSolves", _wrap_KINGetNumPrecSolves, METH_O, NULL},
+	 { "KINGetNumLinIters", _wrap_KINGetNumLinIters, METH_O, NULL},
+	 { "KINGetNumLinConvFails", _wrap_KINGetNumLinConvFails, METH_O, NULL},
+	 { "KINGetNumJtimesEvals", _wrap_KINGetNumJtimesEvals, METH_O, NULL},
+	 { "KINGetLastLinFlag", _wrap_KINGetLastLinFlag, METH_O, NULL},
 	 { "KINGetLinReturnFlagName", _wrap_KINGetLinReturnFlagName, METH_O, NULL},
 	 { "delete_KINSysPyFn", _wrap_delete_KINSysPyFn, METH_O, NULL},
 	 { "KINSysPyFn_actual_sysfun", _wrap_KINSysPyFn_actual_sysfun, METH_VARARGS, NULL},

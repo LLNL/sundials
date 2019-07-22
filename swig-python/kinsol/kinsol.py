@@ -917,26 +917,26 @@ def KINSetConstraints(kinmem, constraints):
 def KINSetSysFunc(kinmem, func):
     return _kinsol.KINSetSysFunc(kinmem, func)
 
-def KINGetWorkSpace(kinmem, lenrw, leniw):
-    return _kinsol.KINGetWorkSpace(kinmem, lenrw, leniw)
+def KINGetWorkSpace(kinmem):
+    return _kinsol.KINGetWorkSpace(kinmem)
 
-def KINGetNumNonlinSolvIters(kinmem, nniters):
-    return _kinsol.KINGetNumNonlinSolvIters(kinmem, nniters)
+def KINGetNumNonlinSolvIters(kinmem):
+    return _kinsol.KINGetNumNonlinSolvIters(kinmem)
 
-def KINGetNumFuncEvals(kinmem, nfevals):
-    return _kinsol.KINGetNumFuncEvals(kinmem, nfevals)
+def KINGetNumFuncEvals(kinmem):
+    return _kinsol.KINGetNumFuncEvals(kinmem)
 
-def KINGetNumBetaCondFails(kinmem, nbcfails):
-    return _kinsol.KINGetNumBetaCondFails(kinmem, nbcfails)
+def KINGetNumBetaCondFails(kinmem):
+    return _kinsol.KINGetNumBetaCondFails(kinmem)
 
-def KINGetNumBacktrackOps(kinmem, nbacktr):
-    return _kinsol.KINGetNumBacktrackOps(kinmem, nbacktr)
+def KINGetNumBacktrackOps(kinmem):
+    return _kinsol.KINGetNumBacktrackOps(kinmem)
 
-def KINGetFuncNorm(kinmem, fnorm):
-    return _kinsol.KINGetFuncNorm(kinmem, fnorm)
+def KINGetFuncNorm(kinmem):
+    return _kinsol.KINGetFuncNorm(kinmem)
 
-def KINGetStepLength(kinmem, steplength):
-    return _kinsol.KINGetStepLength(kinmem, steplength)
+def KINGetStepLength(kinmem):
+    return _kinsol.KINGetStepLength(kinmem)
 
 def KINGetReturnFlagName(flag):
     return _kinsol.KINGetReturnFlagName(flag)
@@ -950,11 +950,11 @@ KINBBDPRE_FUNC_UNRECVR = _kinsol.KINBBDPRE_FUNC_UNRECVR
 def KINBBDPrecInit(kinmem, Nlocal, mudq, mldq, mukeep, mlkeep, dq_rel_uu, gloc, gcomm):
     return _kinsol.KINBBDPrecInit(kinmem, Nlocal, mudq, mldq, mukeep, mlkeep, dq_rel_uu, gloc, gcomm)
 
-def KINBBDPrecGetWorkSpace(kinmem, lenrwBBDP, leniwBBDP):
-    return _kinsol.KINBBDPrecGetWorkSpace(kinmem, lenrwBBDP, leniwBBDP)
+def KINBBDPrecGetWorkSpace(kinmem):
+    return _kinsol.KINBBDPrecGetWorkSpace(kinmem)
 
-def KINBBDPrecGetNumGfnEvals(kinmem, ngevalsBBDP):
-    return _kinsol.KINBBDPrecGetNumGfnEvals(kinmem, ngevalsBBDP)
+def KINBBDPrecGetNumGfnEvals(kinmem):
+    return _kinsol.KINBBDPrecGetNumGfnEvals(kinmem)
 KINLS_SUCCESS = _kinsol.KINLS_SUCCESS
 KINLS_MEM_NULL = _kinsol.KINLS_MEM_NULL
 KINLS_LMEM_NULL = _kinsol.KINLS_LMEM_NULL
@@ -977,32 +977,32 @@ def KINSetPreconditioner(kinmem, psetup, psolve):
 def KINSetJacTimesVecFn(kinmem, jtv):
     return _kinsol.KINSetJacTimesVecFn(kinmem, jtv)
 
-def KINGetLinWorkSpace(kinmem, lenrwLS, leniwLS):
-    return _kinsol.KINGetLinWorkSpace(kinmem, lenrwLS, leniwLS)
+def KINGetLinWorkSpace(kinmem):
+    return _kinsol.KINGetLinWorkSpace(kinmem)
 
-def KINGetNumJacEvals(kinmem, njevals):
-    return _kinsol.KINGetNumJacEvals(kinmem, njevals)
+def KINGetNumJacEvals(kinmem):
+    return _kinsol.KINGetNumJacEvals(kinmem)
 
-def KINGetNumLinFuncEvals(kinmem, nfevals):
-    return _kinsol.KINGetNumLinFuncEvals(kinmem, nfevals)
+def KINGetNumLinFuncEvals(kinmem):
+    return _kinsol.KINGetNumLinFuncEvals(kinmem)
 
-def KINGetNumPrecEvals(kinmem, npevals):
-    return _kinsol.KINGetNumPrecEvals(kinmem, npevals)
+def KINGetNumPrecEvals(kinmem):
+    return _kinsol.KINGetNumPrecEvals(kinmem)
 
-def KINGetNumPrecSolves(kinmem, npsolves):
-    return _kinsol.KINGetNumPrecSolves(kinmem, npsolves)
+def KINGetNumPrecSolves(kinmem):
+    return _kinsol.KINGetNumPrecSolves(kinmem)
 
-def KINGetNumLinIters(kinmem, nliters):
-    return _kinsol.KINGetNumLinIters(kinmem, nliters)
+def KINGetNumLinIters(kinmem):
+    return _kinsol.KINGetNumLinIters(kinmem)
 
-def KINGetNumLinConvFails(kinmem, nlcfails):
-    return _kinsol.KINGetNumLinConvFails(kinmem, nlcfails)
+def KINGetNumLinConvFails(kinmem):
+    return _kinsol.KINGetNumLinConvFails(kinmem)
 
-def KINGetNumJtimesEvals(kinmem, njvevals):
-    return _kinsol.KINGetNumJtimesEvals(kinmem, njvevals)
+def KINGetNumJtimesEvals(kinmem):
+    return _kinsol.KINGetNumJtimesEvals(kinmem)
 
-def KINGetLastLinFlag(kinmem, flag):
-    return _kinsol.KINGetLastLinFlag(kinmem, flag)
+def KINGetLastLinFlag(kinmem):
+    return _kinsol.KINGetLastLinFlag(kinmem)
 
 def KINGetLinReturnFlagName(flag):
     return _kinsol.KINGetLinReturnFlagName(flag)

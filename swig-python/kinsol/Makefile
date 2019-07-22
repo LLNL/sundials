@@ -12,13 +12,22 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # Makefile to generate SUNDIALS python interfaces with SWIG
+#
+# Must define the environment variable SUNDIALS_ROOT to be the
+# path to the sundials installation.
 # ---------------------------------------------------------------
 
+# SWIG is only needed to re-generate the interfaces, it is not needed to build them.
 SWIG=swig
-PYTHON=python
 
+# The python 3 executable
+PYTHON=python3
+
+# Include directories
+INCLUDES=-I${SUNDIALS_ROOT}/include
+
+# KINSOL swig interface files
 KINSOL=kinsol.i
-INCLUDES=-I../../include
 
 .PHONY: kinsol_swig
 all: kinsol_swig kinsol
@@ -33,7 +42,7 @@ kinsol: kinsol.py kinsol_wrap.cxx
 	python setup.py build_ext --inplace
 
 clean:
-	rm *.c
+	rm *.cxx
 	rm *.so
 	rm -rf build
 	rm -rf __pycache__

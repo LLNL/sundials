@@ -5,19 +5,23 @@ setup.py file for SWIG example
 """
 
 from distutils.core import setup, Extension
-
 import numpy
+import os
+
+# Path to the root of the SUNDIALS installation. SUNDIALS must have been
+# build for double precision and 32-bit indices.
+sundials_root=os.environ['SUNDIALS_ROOT']
 
 try:
     numpy_include = numpy.get_include()
 except AttributeError:
     numpy_include = numpy.get_numpy_include()
-includes = [numpy_include, '/home/balos1/Workspace/SUNDIALS/sundials-install-pykinsol/include']
+includes = [numpy_include, f'{sundials_root}/include']
 
 kinsol_module = Extension('_kinsol',
                           include_dirs=includes,
-                          library_dirs=['/home/balos1/Workspace/SUNDIALS/sundials-install-pykinsol/lib64'],
-                          runtime_library_dirs=['/home/balos1/Workspace/SUNDIALS/sundials-install-pykinsol/lib64'],
+                          library_dirs=[f'{sundials_root}/lib64'],
+                          runtime_library_dirs=[f'{sundials_root}/lib64'],
                           libraries=['sundials_kinsol'],
                           sources=['kinsol_wrap.cxx'])
 
