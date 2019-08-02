@@ -592,7 +592,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
   int       failure;
   SUNMatrix B, C, D;
   N_Vector  w, z;
-  realtype  tol=100*UNIT_ROUNDOFF;
+  realtype  tol=2*100*UNIT_ROUNDOFF;
 
   /* create clones for test */
   B = SUNMatClone(A);
