@@ -28,6 +28,7 @@
 
 from __future__ import print_function
 
+import errno
 import os
 import subprocess
 import sys
@@ -105,8 +106,17 @@ def main():
         print("answerDir %s"%answerDir)
 
     # create output directory if necessary
+    # this might be racy when running multiple tests in parallel
+    # python 3.2 introduced an exist_ok parameter, but as we still need to
+    # support Python 2, just ignore the exception raised when a directory
+    # suddenly started to exist.
+
     if not os.path.exists(outDir):
-        os.makedirs(outDir)
+        try:
+            os.makedirs(outDir)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
     elif not os.path.isdir(outDir):
         error("Output directory exists but is not a directory, it must be deleted.", outDir)
         sys.exit(1)
