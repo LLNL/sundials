@@ -46,6 +46,7 @@ N_Vector N_VNewEmpty()
   ops->nvgetvectorid     = NULL;
   ops->nvclone           = NULL;
   ops->nvcloneempty      = NULL;
+  ops->nvresize          = NULL;
   ops->nvdestroy         = NULL;
   ops->nvspace           = NULL;
   ops->nvgetarraypointer = NULL;
@@ -141,6 +142,7 @@ int N_VCopyOps(N_Vector w, N_Vector v)
   v->ops->nvgetvectorid     = w->ops->nvgetvectorid;
   v->ops->nvclone           = w->ops->nvclone;
   v->ops->nvcloneempty      = w->ops->nvcloneempty;
+  v->ops->nvresize          = w->ops->nvresize;
   v->ops->nvdestroy         = w->ops->nvdestroy;
   v->ops->nvspace           = w->ops->nvspace;
   v->ops->nvgetarraypointer = w->ops->nvgetarraypointer;
@@ -214,6 +216,22 @@ N_Vector N_VClone(N_Vector w)
 N_Vector N_VCloneEmpty(N_Vector w)
 {
   return(w->ops->nvcloneempty(w));
+}
+
+int N_VResize(N_Vector *v, N_Vector w, void* resize_data)
+{
+  if (*v == NULL) return(0);
+
+  if ((*v)->ops->nvresize) {
+    return((*v)->ops->nvresize(v, w, resize_data));
+  } else {
+    N_VDestroy(*v);
+    *v = NULL;
+    *v = N_VClone(w);
+  }
+
+  if (*v == NULL) return(-1);
+  else            return(0);
 }
 
 void N_VDestroy(N_Vector v)

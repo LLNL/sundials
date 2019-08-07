@@ -92,6 +92,7 @@ struct _generic_N_Vector_Ops {
   N_Vector_ID  (*nvgetvectorid)(N_Vector);
   N_Vector     (*nvclone)(N_Vector);
   N_Vector     (*nvcloneempty)(N_Vector);
+  int          (*nvresize)(N_Vector *, N_Vector, void *);
   void         (*nvdestroy)(N_Vector);
   void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
   realtype*    (*nvgetarraypointer)(N_Vector);
@@ -167,6 +168,7 @@ SUNDIALS_EXPORT int N_VCopyOps(N_Vector w, N_Vector v);
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
+SUNDIALS_EXPORT int N_VResize(N_Vector *v, N_Vector w, void *resize_data);
 SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer(N_Vector v);
