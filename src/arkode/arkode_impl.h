@@ -882,7 +882,6 @@ booleantype arkAllocVec(ARKodeMem ark_mem,
                         N_Vector *v);
 void arkFreeVec(ARKodeMem ark_mem, N_Vector *v);
 int arkResizeVec(ARKodeMem ark_mem,
-                 ARKVecResizeFn resize,
                  void *resize_data,
                  sunindextype lrw_diff,
                  sunindextype liw_diff,
@@ -919,8 +918,8 @@ int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My,
 
 
 ARKodeMem arkCreate();
-int arkResize(ARKodeMem ark_mem, N_Vector ynew, realtype hscale,
-              realtype t0, ARKVecResizeFn resize, void *resize_data);
+int arkResize(ARKodeMem ark_mem, realtype t0, N_Vector ynew, realtype hscale,
+              void *resize_data);
 int arkSStolerances(ARKodeMem ark_mem, realtype reltol, realtype abstol);
 int arkSVtolerances(ARKodeMem ark_mem, realtype reltol, N_Vector abstol);
 int arkWFtolerances(ARKodeMem ark_mem, ARKEwtFn efun);
@@ -1069,7 +1068,7 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
 #define MSG_ARK_MISSING_FE     "Cannot specify that method is explicit without providing a function pointer to fe(t,y)."
 #define MSG_ARK_MISSING_FI     "Cannot specify that method is implicit without providing a function pointer to fi(t,y)."
 #define MSG_ARK_MISSING_F      "Cannot specify that method is ImEx without providing function pointers to fi(t,y) and fe(t,y)."
-#define MSG_ARK_RESIZE_FAIL    "Error in user-supplied resize() function."
+#define MSG_ARK_RESIZE_FAIL    "Error in the NVector resize() function."
 #define MSG_ARK_MASSSOLVE_NULL "The mass matrix linear solver object is NULL."
 #define MSG_ARK_MASSINIT_FAIL  "The mass matrix solver's init routine failed."
 #define MSG_ARK_MASSSETUP_FAIL "The mass matrix solver's setup routine failed."

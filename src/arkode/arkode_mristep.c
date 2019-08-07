@@ -86,8 +86,8 @@ void* MRIStepCreate(ARKRhsFn fs, realtype t0, N_Vector y0,
   It first resizes the main ARKode infrastructure memory, and
   then resizes its own data.
   ---------------------------------------------------------------*/
-int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
-                  ARKVecResizeFn resize, void *resize_data)
+int MRIStepResize(void *arkode_mem, realtype t0, N_Vector y0,
+                  void *resize_data)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -109,7 +109,7 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
   ark_mem->liw1 = liw1;
 
   /* resize ARKode infrastructure memory (use hscale = 1.0) */
-  flag = arkResize(ark_mem, y0, RCONST(1.0), t0, resize, resize_data);
+  flag = arkResize(ark_mem, t0, y0, RCONST(1.0), resize_data);
   if (flag != ARK_SUCCESS) {
     arkProcessError(ark_mem, flag, "ARKode::MRIStep", "MRIStepResize",
                     "Unable to resize main ARKode infrastructure");
@@ -118,14 +118,14 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
 
   /* Resize the inner forcing vector */
   if (step_mem->inner_forcing != NULL) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+    retval = arkResizeVec(ark_mem, resize_data, lrw_diff,
                           liw_diff, y0, &step_mem->inner_forcing);
     if (retval != ARK_SUCCESS) return(retval);
   }
 
   /* Resize the RHS vectors */
   for (i=0; i<step_mem->stages; i++) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+    retval = arkResizeVec(ark_mem, resize_data, lrw_diff,
                        liw_diff, y0, &step_mem->F[i]);
     if (retval != ARK_SUCCESS)  return(retval);
   }

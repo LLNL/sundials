@@ -158,8 +158,8 @@ ARKodeMem arkCreate()
   The return value is ARK_SUCCESS = 0 if no errors occurred, or
   a negative value otherwise.
   ---------------------------------------------------------------*/
-int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
-              realtype t0, ARKVecResizeFn resize, void *resize_data)
+int arkResize(ARKodeMem ark_mem, realtype t0, N_Vector y0, realtype hscale,
+              void *resize_data)
 {
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
   int ier;
@@ -219,47 +219,47 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
 
   /* Resize the ARKode vectors */
   /*     Vabstol */
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+  ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->Vabstol);
   if (ier != ARK_SUCCESS)  return(ier);
   /*     VRabstol */
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+  ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->VRabstol);
   if (ier != ARK_SUCCESS)  return(ier);
   /*     ewt */
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+  ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->ewt);
   if (ier != ARK_SUCCESS)  return(ier);
   /*     rwt  */
   if (ark_mem->rwt_is_ewt) {      /* update pointer to ewt */
     ark_mem->rwt = ark_mem->ewt;
   } else {                            /* resize if distinct from ewt */
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+    ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                        liw_diff, y0, &ark_mem->rwt);
     if (ier != ARK_SUCCESS)  return(ier);
   }
   /*     yn */
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+  ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->yn);
   if (ier != ARK_SUCCESS)  return(ier);
   /*     tempv* */
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+  ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->tempv1);
   if (ier != ARK_SUCCESS)  return(ier);
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+  ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->tempv2);
   if (ier != ARK_SUCCESS)  return(ier);
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+  ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->tempv3);
   if (ier != ARK_SUCCESS)  return(ier);
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+  ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->tempv4);
   if (ier != ARK_SUCCESS)  return(ier);
 
 
   /* Resize interpolation structure memory */
   if (ark_mem->interp) {
-    ier = arkInterpResize(ark_mem, ark_mem->interp, resize,
+    ier = arkInterpResize(ark_mem, ark_mem->interp,
                           resize_data, lrw_diff, liw_diff, y0);
     if (ier != ARK_SUCCESS) {
       arkProcessError(ark_mem, ier, "ARKode", "arkResize",
@@ -1456,29 +1456,20 @@ void arkFreeVec(ARKodeMem ark_mem, N_Vector *v)
   arkResizeVec:
 
   This routine resizes a single vector based on a template
-  vector.  If the ARKVecResizeFn function is non-NULL, then it
-  calls that routine to perform the single-vector resize;
-  otherwise it deallocates and reallocates the target vector based
-  on the template vector.  If the resize is successful then this
-  returns SUNTRUE.  This routine also updates the optional outputs
-  lrw and liw, which are (respectively) the lengths of the overall
-  ARKode real and integer work spaces.
+  vector.  If the resize is successful then this returns SUNTRUE.
+  This routine also updates the optional outputs lrw and liw,
+  which are (respectively) the lengths of the overall ARKode real
+  and integer work spaces.
   ---------------------------------------------------------------*/
-int arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
-                 void *resize_data, sunindextype lrw_diff,
-                 sunindextype liw_diff, N_Vector tmpl, N_Vector *v)
+int arkResizeVec(ARKodeMem ark_mem, void *resize_data,
+                 sunindextype lrw_diff, sunindextype liw_diff,
+                 N_Vector tmpl, N_Vector *v)
 {
-  if (*v != NULL) {
-    if (resize == NULL) {
-      N_VDestroy(*v);
-      *v = N_VClone(tmpl);
-    } else {
-      if (resize(*v, tmpl, resize_data)) {
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
-                        "arkResizeVec", MSG_ARK_RESIZE_FAIL);
-        return(ARK_ILL_INPUT);
-      }
-    }
+  if (N_VResize(v, tmpl, resize_data)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkResizeVec", MSG_ARK_RESIZE_FAIL);
+    return(ARK_ILL_INPUT);
+  } else {
     ark_mem->lrw += lrw_diff;
     ark_mem->liw += liw_diff;
   }

@@ -241,7 +241,7 @@ int main() {
     y2 = yt;
 
     /* call ARKStepResize to notify integrator of change in mesh */
-    flag = ARKStepResize(arkode_mem, y, hscale, t, NULL, NULL);
+    flag = ARKStepResize(arkode_mem, t, y, hscale, NULL);
     if (check_flag(&flag, "ARKStepResize", 1)) return 1;
 
     /* destroy and re-allocate linear solver memory; reattach to ARKStep interface */

@@ -66,10 +66,8 @@ extern "C" {
 SUNDIALS_EXPORT void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi,
                                     realtype t0, N_Vector y0);
 
-SUNDIALS_EXPORT int ARKStepResize(void *arkode_mem, N_Vector ynew,
-                                  realtype hscale, realtype t0,
-                                  ARKVecResizeFn resize,
-                                  void *resize_data);
+SUNDIALS_EXPORT int ARKStepResize(void *arkode_mem, realtype t0, N_Vector ynew,
+                                  realtype hscale, void *resize_data);
 
 SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                                   ARKRhsFn fi, realtype t0, N_Vector y0);

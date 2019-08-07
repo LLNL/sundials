@@ -121,9 +121,6 @@ typedef int (*ARKAdaptFn)(N_Vector y, realtype t, realtype h1,
 typedef int (*ARKExpStabFn)(N_Vector y, realtype t,
                             realtype *hstab, void *user_data);
 
-typedef int (*ARKVecResizeFn)(N_Vector y, N_Vector ytemplate,
-                              void *user_data);
-
 typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y,
                                     void *user_data);
 

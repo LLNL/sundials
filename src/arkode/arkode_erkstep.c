@@ -152,8 +152,8 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
   It first resizes the main ARKode infrastructure memory, and
   then resizes its own data.
   ---------------------------------------------------------------*/
-int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
-                  realtype t0, ARKVecResizeFn resize, void *resize_data)
+int ERKStepResize(void *arkode_mem, realtype t0, N_Vector y0, realtype hscale,
+                  void *resize_data)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
@@ -175,7 +175,7 @@ int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   ark_mem->liw1 = liw1;
 
   /* resize ARKode infrastructure memory */
-  retval = arkResize(ark_mem, y0, hscale, t0, resize, resize_data);
+  retval = arkResize(ark_mem, t0, y0, hscale, resize_data);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKode::ERKStep", "ERKStepResize",
                     "Unable to resize main ARKode infrastructure");
@@ -184,8 +184,8 @@ int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
 
   /* Resize the RHS vectors */
   for (i=0; i<step_mem->stages; i++) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &step_mem->F[i]);
+    retval = arkResizeVec(ark_mem, resize_data, lrw_diff,
+                          liw_diff, y0, &step_mem->F[i]);
     if (retval != ARK_SUCCESS)  return(retval);
   }
 

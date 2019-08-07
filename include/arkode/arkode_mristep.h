@@ -47,8 +47,7 @@ SUNDIALS_EXPORT void* MRIStepCreate(ARKRhsFn fs, realtype t0, N_Vector y0,
                                     MRISTEP_ID inner_step_id,
                                     void* inner_step_mem);
 
-SUNDIALS_EXPORT int MRIStepResize(void *arkode_mem, N_Vector ynew,
-                                  realtype t0, ARKVecResizeFn resize,
+SUNDIALS_EXPORT int MRIStepResize(void *arkode_mem, realtype t0, N_Vector ynew,
                                   void *resize_data);
 
 SUNDIALS_EXPORT int MRIStepReInit(void* arkode_mem, ARKRhsFn fs, realtype t0,

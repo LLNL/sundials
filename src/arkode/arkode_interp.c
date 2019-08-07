@@ -110,9 +110,8 @@ ARKodeInterpMem arkInterpCreate(void* arkode_mem)
   structure.
   ---------------------------------------------------------------*/
 int arkInterpResize(void* arkode_mem, ARKodeInterpMem interp_mem,
-                    ARKVecResizeFn resize, void *resize_data,
-                    sunindextype lrw_diff, sunindextype liw_diff,
-                    N_Vector y0)
+                    void *resize_data, sunindextype lrw_diff,
+                    sunindextype liw_diff, N_Vector y0)
 {
   int ier;
   ARKodeMem ark_mem;
@@ -124,27 +123,27 @@ int arkInterpResize(void* arkode_mem, ARKodeInterpMem interp_mem,
   /* resize vectors */
   if (interp_mem == NULL)  return(ARK_SUCCESS);
   if (interp_mem->fold != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+    ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                        liw_diff, y0, &interp_mem->fold);
     if (ier != ARK_SUCCESS)  return(ier);
   }
   if (interp_mem->fnew != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+    ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                        liw_diff, y0, &interp_mem->fnew);
     if (ier != ARK_SUCCESS)  return(ier);
   }
   if (interp_mem->yold != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+    ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                        liw_diff, y0, &interp_mem->yold);
     if (ier != ARK_SUCCESS)  return(ier);
   }
   if (interp_mem->fa != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+    ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                        liw_diff, y0, &interp_mem->fa);
     if (ier != ARK_SUCCESS)  return(ier);
   }
   if (interp_mem->fb != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+    ier = arkResizeVec(ark_mem, resize_data, lrw_diff,
                        liw_diff, y0, &interp_mem->fb);
     if (ier != ARK_SUCCESS)  return(ier);
   }

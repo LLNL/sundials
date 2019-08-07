@@ -69,9 +69,8 @@ typedef struct ARKodeInterpMemRec {
 
 ARKodeInterpMem arkInterpCreate(void* arkode_mem);
 int arkInterpResize(void* arkode_mem, ARKodeInterpMem interp_mem,
-                    ARKVecResizeFn resize, void *resize_data,
-                    sunindextype lrw_diff, sunindextype liw_diff,
-                    N_Vector tmpl);
+                    void *resize_data, sunindextype lrw_diff,
+                    sunindextype liw_diff, N_Vector tmpl);
 void arkInterpFree(ARKodeInterpMem *interp_mem);
 void arkPrintInterpMem(ARKodeInterpMem interp_mem, FILE *outfile);
 int arkInterpInit(void* arkode_mem, ARKodeInterpMem interp_mem,
