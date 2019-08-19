@@ -345,6 +345,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
 
   /* Set mass-matrix routines to NULL */
   arkls_mem->mass    = NULL;
+  arkls_mem->M_data  = NULL;
   arkls_mem->mtsetup = NULL;
   arkls_mem->mtimes  = NULL;
   arkls_mem->mt_data = NULL;
@@ -503,7 +504,9 @@ int arkLSSetMassFn(void *arkode_mem, ARKLsMassFn mass)
   }
 
   /* set mass matrix routine pointer and return */
-  arkls_mem->mass = mass;
+  arkls_mem->mass   = mass;
+  arkls_mem->M_data = ark_mem->user_data;
+
   return(ARKLS_SUCCESS);
 }
 
@@ -672,6 +675,36 @@ int arkLSSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys)
   return(ARKLS_SUCCESS);
 }
 
+
+/* arkLSSetUserData sets user_data pointers in arkLS */
+int arkLSSetUserData(void *arkode_mem, void* user_data)
+{
+  ARKodeMem ark_mem;
+  ARKLsMem  arkls_mem;
+  int       retval;
+
+  /* access ARKLsMem structure */
+  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetUserData",
+                            &ark_mem, &arkls_mem);
+  if (retval != ARKLS_SUCCESS) return(retval);
+
+  /* Set data for Jacobian */
+  if (!arkls_mem->jacDQ)
+    arkls_mem->J_data = user_data;
+
+  /* Set data for Jtimes */
+  if (!arkls_mem->jtimesDQ)
+    arkls_mem->Jt_data = user_data;
+
+  /* Set data for LinSys */
+  if (arkls_mem->user_linsys)
+    arkls_mem->A_data = user_data;
+
+  /* Set data for Preconditioner */
+  arkls_mem->P_data = user_data;
+
+  return(ARKLS_SUCCESS);
+}
 
 /*---------------------------------------------------------------
   arkLSGetWorkSpace returns the length of workspace allocated for
@@ -1083,6 +1116,31 @@ int arkLSSetMassTimes(void *arkode_mem,
                     "Error in calling SUNLinSolSetATimes");
     return(ARKLS_SUNLS_FAIL);
   }
+
+  return(ARKLS_SUCCESS);
+}
+
+
+/* arkLSMassSetUserData sets user_data pointers in arkLSMass */
+int arkLSSetMassUserData(void *arkode_mem, void* user_data)
+{
+  ARKodeMem     ark_mem;
+  ARKLsMassMem  arkls_mem;
+  int           retval;
+
+  /* access ARKLsMem structure */
+  retval = arkLs_AccessMassMem(arkode_mem, "arkLSSetMassUserData",
+                               &ark_mem, &arkls_mem);
+  if (retval != ARKLS_SUCCESS) return(retval);
+
+  /* Set data for mass matrix */
+  if (arkls_mem->mass != NULL)
+    arkls_mem->M_data = user_data;
+
+  /* Data for Mtimes is set in arkLSSetMassTimes */
+
+  /* Set data for Preconditioner */
+  arkls_mem->P_data = user_data;
 
   return(ARKLS_SUCCESS);
 }
@@ -1977,12 +2035,7 @@ int arkLsInitialize(void* arkode_mem)
 
     /* Matrix-based case */
 
-    if (arkls_mem->user_linsys) {
-
-      /* User-supplied linear system function, reset A_data (just in case) */
-      arkls_mem->A_data = ark_mem->user_data;
-
-    } else {
+    if (!arkls_mem->user_linsys) {
 
       /* Internal linear system function, reset pointers (just in case) */
       arkls_mem->linsys = arkLsLinSys;
@@ -2013,12 +2066,6 @@ int arkLsInitialize(void* arkode_mem)
           arkls_mem->last_flag = ARKLS_ILL_INPUT;
           return(ARKLS_ILL_INPUT);
         }
-
-      } else {
-
-        /* User-supplied Jacobian, reset J_data pointer (just in case) */
-        arkls_mem->J_data = ark_mem->user_data;
-
       }
 
       /* Allocate internally saved Jacobian if not already done */
@@ -2091,8 +2138,6 @@ int arkLsInitialize(void* arkode_mem)
     arkls_mem->jtsetup = NULL;
     arkls_mem->jtimes  = arkLsDQJtimes;
     arkls_mem->Jt_data = ark_mem;
-  } else {
-    arkls_mem->Jt_data = ark_mem->user_data;
   }
 
   /* if A is NULL and psetup is not present, then arkLsSetup does
@@ -2609,7 +2654,7 @@ int arkLsMassSetup(void *arkode_mem, N_Vector vtemp1,
     }
 
     retval = arkls_mem->mass(ark_mem->tcur, arkls_mem->M,
-                             ark_mem->user_data,
+                             arkls_mem->M_data,
                              vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       arkProcessError(ark_mem, ARKLS_MASSFUNC_UNRECVR, "ARKLS",

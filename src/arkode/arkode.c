@@ -115,6 +115,10 @@ ARKodeMem arkCreate()
 
   /* No user-supplied step postprocessing function yet */
   ark_mem->ProcessStep = NULL;
+  ark_mem->ps_data     = NULL;
+
+  /* No user_data pointer yet */
+  ark_mem->user_data = NULL;
 
   /* Return pointer to ARKode memory block */
   return(ark_mem);
@@ -412,7 +416,7 @@ int arkWFtolerances(ARKodeMem ark_mem, ARKEwtFn efun)
   ark_mem->itol      = ARK_WF;
   ark_mem->user_efun = SUNTRUE;
   ark_mem->efun      = efun;
-  ark_mem->e_data    = NULL; /* set to user_data in InitialSetup */
+  ark_mem->e_data    = ark_mem->user_data;
 
   return(ARK_SUCCESS);
 }
@@ -567,7 +571,7 @@ int arkResFtolerance(ARKodeMem ark_mem, ARKRwtFn rfun)
   ark_mem->ritol     = ARK_WF;
   ark_mem->user_rfun = SUNTRUE;
   ark_mem->rfun      = rfun;
-  ark_mem->r_data    = NULL; /* set to user_data in InitialSetup */
+  ark_mem->r_data    = ark_mem->user_data;
 
   return(ARK_SUCCESS);
 }
@@ -1604,13 +1608,6 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     return(ARK_ILL_INPUT);
   }
 
-
-  /* Set data for efun (if left unspecified) */
-  if (ark_mem->user_efun)
-    ark_mem->e_data = ark_mem->user_data;
-  else
-    ark_mem->e_data = ark_mem;
-
   /* Load initial error weights */
   ier = ark_mem->efun(ark_mem->yn,
                       ark_mem->ewt,
@@ -1624,12 +1621,6 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
                       "arkInitialSetup", MSG_ARK_BAD_EWT);
     return(ARK_ILL_INPUT);
   }
-
-  /* Set data for rfun (if left unspecified) */
-  if (ark_mem->user_rfun)
-    ark_mem->r_data = ark_mem->user_data;
-  else
-    ark_mem->r_data = ark_mem;
 
   /* Load initial residual weights */
   if (ark_mem->rwt_is_ewt) {      /* update pointer to ewt */
@@ -2195,7 +2186,7 @@ int arkCompleteStep(ARKodeMem ark_mem)
   if (ark_mem->ProcessStep != NULL) {
     retval = ark_mem->ProcessStep(ark_mem->tcur,
                                   ark_mem->ycur,
-                                  ark_mem->user_data);
+                                  ark_mem->ps_data);
     if (retval != 0) return(ARK_POSTPROCESS_FAIL);
   }
 

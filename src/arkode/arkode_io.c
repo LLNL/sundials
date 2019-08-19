@@ -43,7 +43,7 @@
   change problem-defining function pointers fe and fi or
   user_data pointer.  Also leaves alone any data
   structures/options related to root-finding (those can be reset
-  using ARKodeRootInit).
+  using ARKodeRootInit) or post-processing a step (ProcessStep).
   ---------------------------------------------------------------*/
 int arkSetDefaults(ARKodeMem ark_mem)
 {
@@ -65,10 +65,10 @@ int arkSetDefaults(ARKodeMem ark_mem)
   ark_mem->Ratolmin0        = SUNFALSE;       /* min(Rabstol) > 0 */
   ark_mem->user_efun        = SUNFALSE;       /* no user-supplied ewt function */
   ark_mem->efun             = arkEwtSet;      /* built-in ewt function */
-  ark_mem->e_data           = NULL;           /* ewt function data */
+  ark_mem->e_data           = ark_mem;        /* ewt function data */
   ark_mem->user_rfun        = SUNFALSE;       /* no user-supplied rwt function */
   ark_mem->rfun             = arkRwtSet;      /* built-in rwt function */
-  ark_mem->r_data           = NULL;           /* rwt function data */
+  ark_mem->r_data           = ark_mem;        /* rwt function data */
   ark_mem->ehfun            = arkErrHandler;  /* default error handler fn */
   ark_mem->eh_data          = ark_mem;        /* error handler data */
   ark_mem->errfp            = stderr;         /* output stream for errors */
@@ -168,6 +168,23 @@ int arkSetUserData(ARKodeMem ark_mem, void *user_data)
     return(ARK_MEM_NULL);
   }
   ark_mem->user_data = user_data;
+
+  /* Set data for efun */
+  if (ark_mem->user_efun)
+    ark_mem->e_data = user_data;
+
+  /* Set data for rfun */
+  if (ark_mem->user_rfun)
+    ark_mem->r_data = user_data;
+
+  /* Set data for root finding */
+  if (ark_mem->root_mem != NULL)
+    ark_mem->root_mem->root_data = user_data;
+
+  /* Set data for post-processing a step */
+  if (ark_mem->ProcessStep != NULL)
+    ark_mem->ps_data = user_data;
+
   return(ARK_SUCCESS);
 }
 
@@ -488,6 +505,8 @@ int arkSetPostprocessStepFn(ARKodeMem ark_mem,
 
   /* NULL argument sets default, otherwise set inputs */
   ark_mem->ProcessStep = ProcessStep;
+  ark_mem->ps_data     = ark_mem->user_data;
+
   return(ARK_SUCCESS);
 }
 

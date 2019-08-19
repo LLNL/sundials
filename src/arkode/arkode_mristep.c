@@ -197,6 +197,16 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fs, realtype t0, N_Vector y0)
   /* check if inner integrator was attached successfully */
   if (retval != ARK_SUCCESS) return(ARK_INNERSTEP_ATTACH_ERR);
 
+  /* Reattach user data */
+  if (ark_mem->user_data != NULL) {
+    retval = MRIStepSetUserData(arkode_mem, ark_mem->user_data);
+    if (retval != ARK_SUCCESS) {
+      arkProcessError(ark_mem, retval, "ARKode::MRIStep", "MRIStepReInit",
+                      "Unable to re-attach user_data");
+      return(retval);
+    }
+  }
+
   return(ARK_SUCCESS);
 }
 
@@ -482,12 +492,11 @@ void* mriStep_Create(ARKRhsFn fs, realtype t0, N_Vector y0)
 
 int mriStep_AttachARK(void* arkode_mem, void* inner_mem)
 {
-  ARKodeMem         ark_mem;         /* outer ARKode memory        */
-  ARKodeMRIStepMem  step_mem;        /* outer stepper memory       */
-  ARKodeMem         inner_ark_mem;   /* inner ARKode memory        */
-  ARKodeARKStepMem  inner_step_mem;  /* inner stepper memory       */
-  ARKLsMem          inner_arkls_mem; /* inner linear solver memory */
-  int               retval;          /* return value               */
+  ARKodeMem         ark_mem;         /* outer ARKode memory  */
+  ARKodeMRIStepMem  step_mem;        /* outer stepper memory */
+  ARKodeMem         inner_ark_mem;   /* inner ARKode memory  */
+  ARKodeARKStepMem  inner_step_mem;  /* inner stepper memory */
+  int               retval;          /* return value         */
 
   /* Access MRIStep memory */
   retval = mriStep_AccessStepMem(arkode_mem, "mriStep_AttachARK",
@@ -499,16 +508,7 @@ int mriStep_AttachARK(void* arkode_mem, void* inner_mem)
                                  &inner_ark_mem, &inner_step_mem);
   if (retval != ARK_SUCCESS) { MRIStepFree(&arkode_mem); return(-1); }
 
-  /* Access ARKLsMem structure (if implicit or IMEX inner) */
-  if (inner_step_mem->implicit) {
-    retval = arkLs_AccessLMem(inner_mem, "mriStep_AttachARK",
-                              &inner_ark_mem, &inner_arkls_mem);
-    if (retval != ARK_SUCCESS) { MRIStepFree(&arkode_mem); return(-1); }
-  }
-
-  /* Set wrappers to user-supplied inner function as needed */
-
-  /* RHS function wrappers */
+  /* Set RHS function wrappers */
   if (inner_step_mem->explicit) {
     step_mem->ff1      = inner_step_mem->fe;
     inner_step_mem->fe = mriStep_InnerRhsFnForcing;
@@ -521,52 +521,6 @@ int mriStep_AttachARK(void* arkode_mem, void* inner_mem)
     inner_step_mem->fi = mriStep_InnerRhsFnForcing;
   }
 
-  /* EWT function wrapper */
-  if (inner_ark_mem->user_efun) {
-    step_mem->inner_ewtfn = inner_ark_mem->efun;
-    inner_ark_mem->efun   = mriStep_InnerEwtFn;
-  }
-
-  /* Post process step function wrapper */
-  if (inner_ark_mem->ProcessStep) {
-    step_mem->inner_postprocessstepfn = inner_ark_mem->ProcessStep;
-    inner_ark_mem->ProcessStep        = mriStep_InnerPostProcessStepFn;
-  }
-
-  if (inner_step_mem->implicit) {
-
-    /* Jacobian function wrapper */
-    if (!(inner_arkls_mem->jacDQ) && inner_arkls_mem->jac != NULL) {
-      step_mem->inner_jacfn = inner_arkls_mem->jac;
-      inner_arkls_mem->jac  = mriStep_InnerJacFn;
-    }
-
-    /* Jacobian-vector product setup function wrapper */
-    if (!(inner_arkls_mem->jtimesDQ) && inner_arkls_mem->jtsetup != NULL) {
-      step_mem->inner_jactimessetupfn = inner_arkls_mem->jtsetup;
-      inner_arkls_mem->jtsetup        = mriStep_InnerJacTimesSetupFn;
-    }
-
-    /* Jacobian-vector product function wrapper */
-    if (!(inner_arkls_mem->jtimesDQ) && inner_arkls_mem->jtimes != NULL) {
-      step_mem->inner_jactimesvecfn = inner_arkls_mem->jtimes;
-      inner_arkls_mem->jtimes       = mriStep_InnerJacTimesVecFn;
-    }
-
-    /* Preconditioner setup function wrapper */
-    if (inner_arkls_mem->pset != NULL) {
-      step_mem->inner_precsetupfn = inner_arkls_mem->pset;
-      inner_arkls_mem->pset       = mriStep_InnerPrecSetupFn;
-    }
-
-    /* Preconditioner solve function wrapper */
-    if (inner_arkls_mem->psolve != NULL) {
-      step_mem->inner_precsolvefn = inner_arkls_mem->psolve;
-      inner_arkls_mem->psolve     = mriStep_InnerPrecSolveFn;
-    }
-
-  }
-
   /* attach the inner stepper and initialize the inner stepper return flag */
   step_mem->inner_mem        = inner_mem;
   step_mem->inner_stepper_id = MRISTEP_ARKSTEP;
@@ -574,14 +528,7 @@ int mriStep_AttachARK(void* arkode_mem, void* inner_mem)
   step_mem->inner_evolve     = mriStep_EvolveInnerARK;
 
   /* attach outer stepper mem to inner stepper as user data */
-  retval = ARKStepSetUserData(inner_mem, arkode_mem);
-  if (retval != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::MRIStep",
-                    "mriStep_AttachARK",
-                    "Attaching data to inner stepper failed");
-    MRIStepFree(&arkode_mem);
-    return(-1);
-  }
+  inner_ark_mem->user_data = arkode_mem;
 
   return(ARK_SUCCESS);
 }
@@ -1230,39 +1177,11 @@ int mriStep_EvolveInnerARK(void* inner_mem, realtype t0,
   return(ARK_SUCCESS);
 }
 
+
 /*---------------------------------------------------------------
-  Wrappers for inner stepper functions
-
-  Since the outer stepper is attached to the inner stepper as
-  user data these wrappers are needed to extract the user_data
-  pointer from outer stepper memory structure and pass it to the
-  inner stepper.
-
-  Wrappers are provided for the following functions:
-
-  RhsFn             -- with and without forcing.
-  EwtFn             -- when user_efun = TRUE
-  PostProcessStepFn -- when a postprocess != NULL.
-  JacFn             -- when jacDQ = FALSE and jac != NULL
-  JacTimesSetupFn   -- when timesDQ = FALSE and jtsetup != NULL
-  JacTimesVecFn     -- when timesDQ = FALSE and jtimes != NULL
-  PrecSetupFn       -- when non-NULL
-  PrecSolveFn       -- when non-NULL
-
-  Wrappers are NOT provided for the following functions:
-
-  RootFn           -- not supported within the inner stepper.
-  RwtFn            -- mass matrix is not supported at this time.
-  ErrHandlerFn     -- does not take user_data pointer.
-  AdaptFn          -- does not take user_data pointer.
-  ExpStabFn        -- does not take user_data pointer.
-  VecResizeFn      -- does not take user_data pointer.
-  MassFn           -- mass matrix is not supported at this time.
-  MassTimesSetupFn -- mass matrix is not supported at this time.
-  MassTimesVecFn   -- mass matrix is not supported at this time.
-  MassPrecSetupFn  -- mass matrix is not supported at this time.
-  MassPrecSolveFn  -- mass matrix is not supported at this time.
+  Wrappers for inner stepper RHS functions
   ---------------------------------------------------------------*/
+
 
 /* Inner RHS with added forcing */
 int mriStep_InnerRhsFnForcing(realtype t, N_Vector y, N_Vector ydot,
@@ -1359,128 +1278,6 @@ int mriStep_InnerFullRhs(void *arkode_mem, realtype t, N_Vector y,
   /* successfully computed RHS */
   return(ARK_SUCCESS);
 }
-
-
-/* EwtFn wrapper for inner error weight function */
-int mriStep_InnerEwtFn(N_Vector y, N_Vector ewt, void *user_data)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-
-  /* access outer integrator memory */
-  ark_mem  = (ARKodeMem) user_data;
-  step_mem = (ARKodeMRIStepMem) ark_mem->step_mem;
-
-  /* call user function */
-  return(step_mem->inner_ewtfn(y, ewt, ark_mem->user_data));
-}
-
-
-/* PostProcessStepFn wrapper for inner post process function */
-int mriStep_InnerPostProcessStepFn(realtype t, N_Vector y,
-                                   void *user_data)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-
-  /* access outer integrator memory */
-  ark_mem  = (ARKodeMem) user_data;
-  step_mem = (ARKodeMRIStepMem) ark_mem->step_mem;
-
-  /* call user function */
-  return(step_mem->inner_postprocessstepfn(t, y, ark_mem->user_data));
-}
-
-
-/* JacFn wrapper for inner Jacobian function */
-int mriStep_InnerJacFn(realtype t, N_Vector y, N_Vector fy,
-                       SUNMatrix Jac, void *user_data,
-                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-
-  /* access outer integrator memory */
-  ark_mem  = (ARKodeMem) user_data;
-  step_mem = (ARKodeMRIStepMem) ark_mem->step_mem;
-
-  /* call user function */
-  return(step_mem->inner_jacfn(t, y, fy, Jac, ark_mem->user_data,
-                               tmp1, tmp2, tmp3));
-}
-
-/* JacTimesSetupFn wrapper for Jacobian-vector product setup function */
-int mriStep_InnerJacTimesSetupFn(realtype t, N_Vector y,
-                                 N_Vector fy, void *user_data)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-
-  /* access outer integrator memory */
-  ark_mem  = (ARKodeMem) user_data;
-  step_mem = (ARKodeMRIStepMem) ark_mem->step_mem;
-
-  /* call user function */
-  return(step_mem->inner_jactimessetupfn(t, y, fy, ark_mem->user_data));
-}
-
-/* JacTimesVecFn wrapper for Jacobian-verctor product function */
-int mriStep_InnerJacTimesVecFn(N_Vector v, N_Vector Jv,
-                               realtype t, N_Vector y,
-                               N_Vector fy, void *user_data,
-                               N_Vector tmp)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-
-  /* access outer integrator memory */
-  ark_mem  = (ARKodeMem) user_data;
-  step_mem = (ARKodeMRIStepMem) ark_mem->step_mem;
-
-  /* call user function */
-  return(step_mem->inner_jactimesvecfn(v, Jv, t, y, fy, ark_mem->user_data,
-                                       tmp));
-}
-
-
-/* PreSetupFn wrapper for inner preconditioner setup function */
-int mriStep_InnerPrecSetupFn(realtype t, N_Vector y,
-                             N_Vector fy, booleantype jok,
-                             booleantype *jcurPtr,
-                             realtype gamma, void *user_data)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-
-  /* access outer integrator memory */
-  ark_mem  = (ARKodeMem) user_data;
-  step_mem = (ARKodeMRIStepMem) ark_mem->step_mem;
-
-  /* call user function */
-  return(step_mem->inner_precsetupfn(t, y, fy, jok, jcurPtr, gamma,
-                                     ark_mem->user_data));
-}
-
-
-/* PreSolveFn wrapper for inner preconditioner solve function */
-int mriStep_InnerPrecSolveFn(realtype t, N_Vector y,
-                             N_Vector fy, N_Vector r,
-                             N_Vector z, realtype gamma,
-                             realtype delta, int lr,
-                             void *user_data)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-
-  /* access outer integrator memory */
-  ark_mem  = (ARKodeMem) user_data;
-  step_mem = (ARKodeMRIStepMem) ark_mem->step_mem;
-
-  /* call user function */
-  return(step_mem->inner_precsolvefn(t, y, fy, r, z, gamma, delta,
-                                     lr, ark_mem->user_data));
-}
-
 
 /*===============================================================
   EOF

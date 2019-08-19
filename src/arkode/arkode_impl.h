@@ -404,6 +404,7 @@ typedef struct ARKodeMemRec {
 
   /* User-supplied step solution post-processing function */
   ARKPostProcessStepFn ProcessStep;
+  void*                ps_data; /* pointer to user_data */
 
 } *ARKodeMem;
 
