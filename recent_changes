@@ -1,3 +1,11 @@
+Changes to SUNDIALS in release 5.0.0
+
+Fixed a bug in the ARKStep time-stepping module in ARKode that would result in an
+infinite loop if the nonlinear solver failed to converge more than the maximum
+allowed times during a single step.
+
+
+
 Changes to SUNDIALS in release 5.0.0-dev.1
 
 Several new functions were added to aid in creating custom NVECTOR,

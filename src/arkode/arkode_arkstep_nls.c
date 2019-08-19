@@ -270,7 +270,10 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   
   /* on successful solve, reset the jcur flag */
   if (retval == ARK_SUCCESS)  step_mem->jcur = SUNFALSE;
-  
+
+  /* if convergence failure, return ARKode::CONV_FAIL */
+  if (retval == SUN_NLS_CONV_RECVR) return(CONV_FAIL);
+
   return(retval);
 }
 
@@ -353,7 +356,7 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
                             step_mem->eRNrm, nonlin_iter);
 
   if (retval < 0) return(ARK_LSOLVE_FAIL);
-  if (retval > 0) return(retval);
+  if (retval > 0) return(CONV_FAIL);
 
   return(ARK_SUCCESS);
 }

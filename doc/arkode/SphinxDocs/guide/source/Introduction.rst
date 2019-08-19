@@ -107,6 +107,14 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in v4.0.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a bug in the ARKStep time-stepping module that would result in an infinite
+loop if the nonlinear solver failed to converge more than the maximum allowed times
+during a single step.
+
+
 Changes in v4.0.0-dev.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

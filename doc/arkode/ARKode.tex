@@ -300,6 +300,13 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes in v4.0.0}
+\label{Introduction:changes-in-v4-0-0}
+Fixed a bug in the ARKStep time-stepping module that would result in an infinite
+loop if the nonlinear solver failed to converge more than the maximum allowed times
+during a single step.
+
+
 \subsection{Changes in v4.0.0-dev.1}
 \label{Introduction:changes-in-v4-0-0-dev-1}
 Several new functions were added to aid in creating custom NVECTOR, SUNMATRIX,
@@ -3775,18 +3782,18 @@ provide her own error handler function (see the section
 \label{ARKStep_c_interface/User_callable:arkstep-cinterface-initialization}\label{ARKStep_c_interface/User_callable:arkstep-initialization-and-deallocation-functions}\index{ARKStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepCreate}\pysiglinewithargsret{void* \bfcode{ARKStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepCreate}\pysiglinewithargsret{void* \bfcode{ARKStepCreate}}{{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 This function creates an internal memory block for a problem to be
 solved using the ARKStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{fe} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fe} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
 \(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
 \item {} 
-\emph{fi} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fi} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
 \(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
@@ -3940,7 +3947,7 @@ solution component.
 \index{ARKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -3949,7 +3956,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -4584,7 +4591,7 @@ called prior to a continuation call to {\hyperref[ARKStep_c_interface/User_calla
 \index{ARKStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepRootInit}\pysiglinewithargsret{int \bfcode{ARKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepRootInit}\pysiglinewithargsret{int \bfcode{ARKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}}, and before {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}.
@@ -4597,7 +4604,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -5120,7 +5127,7 @@ error messages.
 \index{ARKStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ARKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ARKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -5991,7 +5998,7 @@ none
 \index{ARKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -6402,7 +6409,7 @@ before the \emph{etamxf} parameter from
 \index{ARKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -10093,7 +10100,7 @@ vector.
 \index{ARKStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepReInit}\pysiglinewithargsret{int \bfcode{ARKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepReInit}\pysiglinewithargsret{int \bfcode{ARKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 ARKStep time-stepper module.
 \begin{description}
@@ -10102,12 +10109,12 @@ ARKStep time-stepper module.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{fe} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fe} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
 \(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
 \item {} 
-\emph{fi} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fi} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
 \(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
@@ -10163,7 +10170,7 @@ memory structure should be deleted with a call to
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to ARKStep will be destroyed and re-cloned from the new input
 vector.
@@ -10175,7 +10182,7 @@ rescale the upcoming time step by the specified factor.  If a value
 \index{ARKStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepResize}\pysiglinewithargsret{int \bfcode{ARKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepResize}\pysiglinewithargsret{int \bfcode{ARKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes ARKStep with a different state vector but with
 comparable dynamical time scale.
 \begin{description}
@@ -10197,7 +10204,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -10330,7 +10337,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{ARKStep_c_interface/User_supplied:ode-right-hand-side}\label{ARKStep_c_interface/User_supplied:arkstep-cinterface-oderhs}
-The user must supply at least one function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply at least one function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the explicit and/or implicit portions of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -10387,7 +10394,7 @@ completes a successful stage, in which case ARKStep returns
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetErrFile]{\emph{\code{ARKStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -10431,7 +10438,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-errorweight}\label{ARKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -10523,7 +10530,7 @@ is not satisfied.
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-adaptivityfn}\label{ARKStep_c_interface/User_supplied:time-step-adaptivity-function}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -10590,7 +10597,7 @@ for the explicit portion of the ImEx system, \(f^E(t,y)\).  While
 the accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f^E(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ARKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -10638,7 +10645,7 @@ stability restriction on the time step size.
 \subsection{Rootfinding function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-rootfindingfn}\label{ARKStep_c_interface/User_supplied:rootfinding-function}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -11000,7 +11007,7 @@ error (in which case the step will be retried), or negative for an
 unrecoverable error (in which case the integration is halted).
 
 \textbf{Notes:}    Each call to the Jacobian-vector setup function is
-preceded by a call to the implicit {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user
+preceded by a call to the implicit {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user
 function with the same \((t,y)\) arguments.  Thus, the setup
 function can use any auxiliary data that is computed and saved
 during the evaluation of the implicit ODE right-hand side.
@@ -11152,7 +11159,7 @@ factorization of the resulting approximation to \(A = M -
 \gamma J\).
 
 Each call to the preconditioner setup function is preceded by a
-call to the implicit {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user function with the
+call to the implicit {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user function with the
 same \((t,y)\) arguments.  Thus, the preconditioner setup
 function can use any auxiliary data that is computed and saved
 during the evaluation of the ODE right-hand side.
@@ -11465,7 +11472,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepResize]{\emph{\code{ARKStepResize()}}}} so that all
 internal ARKStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -12704,13 +12711,13 @@ provide her own error handler function (see the section
 \label{ERKStep_c_interface/User_callable:erkstep-cinterface-initialization}\label{ERKStep_c_interface/User_callable:erkstep-initialization-and-deallocation-functions}\index{ERKStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepCreate}\pysiglinewithargsret{void* \bfcode{ERKStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepCreate}\pysiglinewithargsret{void* \bfcode{ERKStepCreate}}{{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 This function allocates and initializes memory for a problem to
 be solved using the ERKStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{f} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{f} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in
 \(\dot{y} = f(t,y)\).
 
@@ -12864,7 +12871,7 @@ solution component.
 \index{ERKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -12873,7 +12880,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -13009,7 +13016,7 @@ called prior to a continuation call to {\hyperref[ERKStep_c_interface/User_calla
 \index{ERKStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepRootInit}\pysiglinewithargsret{int \bfcode{ERKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepRootInit}\pysiglinewithargsret{int \bfcode{ERKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepCreate]{\emph{\code{ERKStepCreate()}}}}, and before {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}}.
@@ -13022,7 +13029,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -13496,7 +13503,7 @@ error messages.
 \index{ERKStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ERKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ERKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -14142,7 +14149,7 @@ none
 \index{ERKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -14518,7 +14525,7 @@ before the \emph{etamxf} parameter from
 \index{ERKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -15785,7 +15792,7 @@ vector.
 \index{ERKStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepReInit}\pysiglinewithargsret{int \bfcode{ERKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepReInit}\pysiglinewithargsret{int \bfcode{ERKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 ERKStep time-stepper module.
 \begin{description}
@@ -15794,7 +15801,7 @@ ERKStep time-stepper module.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{f} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{f} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in \(\dot{y} = f(t,y)\).
 
 \item {} 
@@ -15849,7 +15856,7 @@ memory structure should be deleted with a call to
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to ERKStep will be destroyed and re-cloned from the new input
 vector.
@@ -15861,7 +15868,7 @@ rescale the upcoming time step by the specified factor.  If a value
 \index{ERKStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepResize}\pysiglinewithargsret{int \bfcode{ERKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepResize}\pysiglinewithargsret{int \bfcode{ERKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes ERKStep with a different state vector but with
 comparable dynamical time scale.
 \begin{description}
@@ -15883,7 +15890,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -15969,7 +15976,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-oderhs}\label{ERKStep_c_interface/User_supplied:ode-right-hand-side}
-The user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the right-hand side of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -16022,7 +16029,7 @@ case ERKStep returns \emph{ARK\_FIRST\_RHSFUNC\_ERR}).
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetErrFile]{\emph{\code{ERKStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -16066,7 +16073,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-errorweight}\label{ERKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -16112,7 +16119,7 @@ is not satisfied.
 \label{ERKStep_c_interface/User_supplied:time-step-adaptivity-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-adaptivityfn}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -16179,7 +16186,7 @@ for the explicit Runge Kutta method on this problem.  While the
 accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ERKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -16226,7 +16233,7 @@ stability restriction on the time step size.
 \subsection{Rootfinding function}
 \label{ERKStep_c_interface/User_supplied:rootfinding-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-rootfindingfn}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -16276,7 +16283,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepResize]{\emph{\code{ERKStepResize()}}}} so that all
 internal ERKStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -16739,13 +16746,13 @@ provide her own error handler function (see the section
 \label{MRIStep_c_interface/User_callable:mristep-initialization-and-deallocation-functions}\label{MRIStep_c_interface/User_callable:mristep-cinterface-initialization}\index{MRIStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepCreate}\pysiglinewithargsret{void* \bfcode{MRIStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, realtype\emph{ t0}, N\_Vector\emph{ y0}, MRISTEP\_ID\emph{ inner\_step\_id}, void*\emph{ inner\_step\_mem}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepCreate}\pysiglinewithargsret{void* \bfcode{MRIStepCreate}}{{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, realtype\emph{ t0}, N\_Vector\emph{ y0}, MRISTEP\_ID\emph{ inner\_step\_id}, void*\emph{ inner\_step\_mem}}{}
 This function allocates and initializes memory for a problem to
 be solved using the MRIStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{fs} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fs} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the slow portion of the right-hand side function in
 \(\dot{y} = f_s(t,y) + f_f(t,y)\).
 
@@ -16810,7 +16817,7 @@ called prior to a continuation call to {\hyperref[MRIStep_c_interface/User_calla
 \index{MRIStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepRootInit}\pysiglinewithargsret{int \bfcode{MRIStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepRootInit}\pysiglinewithargsret{int \bfcode{MRIStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}}, and before {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}.
@@ -16823,7 +16830,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -17266,7 +17273,7 @@ error messages.
 \index{MRIStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -18451,7 +18458,7 @@ vector.
 \index{MRIStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepReInit}\pysiglinewithargsret{int \bfcode{MRIStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepReInit}\pysiglinewithargsret{int \bfcode{MRIStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 MRIStep outer (slow) stepper.
 \begin{description}
@@ -18460,12 +18467,12 @@ MRIStep outer (slow) stepper.
 \emph{arkode\_mem} -- pointer to the MRIStep memory block.
 
 \item {} 
-\emph{fs} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fs} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the slow right-hand side function in \(\dot{y} = f_s(t,y) +
 f_f(t,y)\).
 
 \item {} 
-\emph{ff} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{ff} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the fast right-hand side function in \(\dot{y} = f_s(t,y) +
 f_f(t,y)\).
 
@@ -18517,14 +18524,14 @@ MRIStep's internal memory structures to use the new problem size.
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to MRIStep will be destroyed and re-cloned from the new input
 vector.
 \index{MRIStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepResize}\pysiglinewithargsret{int \bfcode{MRIStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepResize}\pysiglinewithargsret{int \bfcode{MRIStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ t0}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes MRIStep with a different state vector.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -18541,7 +18548,7 @@ dependent variable values \(y(t_0)\).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -18600,7 +18607,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{MRIStep_c_interface/User_supplied:mristep-cinterface-oderhs}\label{MRIStep_c_interface/User_supplied:ode-right-hand-side}
-The user must supply two functions of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply two functions of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the right-hand side of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -18647,7 +18654,7 @@ where only a non-negative value is physically meaningful).
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetErrFile]{\emph{\code{MRIStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -18691,7 +18698,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Rootfinding function}
 \label{MRIStep_c_interface/User_supplied:mristep-cinterface-rootfindingfn}\label{MRIStep_c_interface/User_supplied:rootfinding-function}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -18741,7 +18748,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepResize]{\emph{\code{MRIStepResize()}}}} so that all
 internal MRIStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -19920,12 +19927,12 @@ function type
 \hline
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKIFUN]{\emph{\code{FARKIFUN()}}}}
  & 
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
 \\
 \hline
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKEFUN]{\emph{\code{FARKEFUN()}}}}
  & 
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
 \\
 \hline\end{tabulary}
 
@@ -20048,21 +20055,21 @@ FARKODE ``activation'' routine
 \hline
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKEWT]{\emph{\code{FARKEWT()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
  & 
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKEWTSET]{\emph{\code{FARKEWTSET()}}}}
 \\
 \hline
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKADAPT]{\emph{\code{FARKADAPT()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
  & 
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKADAPTSET]{\emph{\code{FARKADAPTSET()}}}}
 \\
 \hline
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKEXPSTAB]{\emph{\code{FARKEXPSTAB()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
  & 
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKEXPSTABSET]{\emph{\code{FARKEXPSTABSET()}}}}
 \\
@@ -20958,7 +20965,7 @@ ARKStep for handling adaptive error control and explicit stability.
 The former of these is designed for advanced users who wish to
 investigate custom step adaptivity approaches as opposed to using any
 of those built-in to ARKStep.  In ARKStep's C/C++ interface, this would be
-provided by a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
+provided by a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
 interface this is provided through the user-supplied function:
 \index{FARKADAPT() (fortran subroutine)|textbf}
 
@@ -21051,7 +21058,7 @@ Similarly, if either an explicit or mixed implicit-explicit
 integration method is to be employed, the user may specify a function
 to provide the maximum explicitly-stable step for their problem.
 Again, in the C/C++ interface this would be a function of type
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
 must be given through the user-supplied function:
 \index{FARKEXPSTAB() (fortran subroutine)|textbf}
 
@@ -30322,8 +30329,8 @@ ARKBBDPRE
 FARKODE
 }\\
 \hline
-N\_GetLength
- &  &  &
+N\_VGetLength
+ &  &  & 
 X
  &  &  & \\
 \hline
@@ -30494,9 +30501,9 @@ only be called if provided by the \code{N\_Vector} implementation.
 The {\hyperref[nvectors/NVector_Operations:c.N_VLinearCombination]{\emph{\code{N\_VLinearCombination()}}}} function is in fact optional;
 if it is not supplied then {\hyperref[nvectors/NVector_Operations:c.N_VLinearSum]{\emph{\code{N\_VLinearSum()}}}} will be used instead.
 
-\item {}
-The {\hyperref[nvectors/NVector_Operations:c.N_VGetLength]{\emph{\code{N\_VGetLength()}}}}
-function is only required when an iterative or matrix iterative \code{SUNLinearSolver} module is used.
+\item {} 
+The {\hyperref[nvectors/NVector_Operations:c.N_VGetLength]{\emph{\code{N\_VGetLength()}}}} function is only required when an iterative or
+matrix iterative \code{SUNLinearSolver} module is used.
 
 \end{enumerate}
 
@@ -43072,6 +43079,23 @@ KINSOL
 \endlastfoot
 
 
+Jun 2019
+ & 
+5.0.0-dev.1
+ & 
+4.0.0-dev.1
+ & 
+5.0.0-dev.1
+ & 
+5.0.0-dev.1
+ & 
+5.0.0-dev.1
+ & 
+4.0.0-dev.1
+ & 
+5.0.0-dev.1
+\\
+\hline
 Mar 2019
  & 
 5.0.0-dev.0
@@ -43732,11 +43756,11 @@ SAND80-0180, Sandia National Laboratories, February 1980.
 }
 \bibitem[HS2017]{HS2017}{\phantomsection\label{References:hs2017} 
 A.C. Hindmarsh and R. Serban. User Documentation for CVODE
-v5.0.0-dev.0. Technical Report UCRL-SM-208108, LLNL, 2019.
+v5.0.0-dev.1. Technical Report UCRL-SM-208108, LLNL, 2019.
 }
 \bibitem[HSR2017]{HSR2017}{\phantomsection\label{References:hsr2017} 
 A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-Programs for CVODE v5.0.0-dev.0. Technical Report
+Programs for CVODE v5.0.0-dev.1. Technical Report
 UCRL-SM-208110, LLNL, 2019.
 }
 \bibitem[HT1998]{HT1998}{\phantomsection\label{References:ht1998} 
