@@ -117,6 +117,14 @@ writing in C|)}
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v5.0.0}
+
+Added new functions, \id{CVodeGetCurrentGamma}, \id{CVodeGetCurrentState},
+\id{CVodeGetCurrentStateSens}, and \id{CVodeGetCurrentSensSolveIndex} which may
+be useful to users who choose to provide their own nonlinear solver
+implementations.
+
+
 \subsection*{Changes in v5.0.0-dev.1}
 
 Several new functions were added to aid in creating custom {\nvector},

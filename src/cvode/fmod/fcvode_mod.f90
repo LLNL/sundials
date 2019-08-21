@@ -102,10 +102,12 @@ module fcvode_mod
  public :: FCVodeGetNumErrTestFails
  public :: FCVodeGetLastOrder
  public :: FCVodeGetCurrentOrder
+ public :: FCVodeGetCurrentGamma
  public :: FCVodeGetNumStabLimOrderReds
  public :: FCVodeGetActualInitStep
  public :: FCVodeGetLastStep
  public :: FCVodeGetCurrentStep
+ public :: FCVodeGetCurrentState
  public :: FCVodeGetCurrentTime
  public :: FCVodeGetTolScaleFactor
  public :: FCVodeGetErrWeights
@@ -499,6 +501,15 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeGetCurrentGamma(farg1, farg2) &
+bind(C, name="_wrap_FCVodeGetCurrentGamma") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeGetNumStabLimOrderReds(farg1, farg2) &
 bind(C, name="_wrap_FCVodeGetNumStabLimOrderReds") &
 result(fresult)
@@ -528,6 +539,15 @@ end function
 
 function swigc_FCVodeGetCurrentStep(farg1, farg2) &
 bind(C, name="_wrap_FCVodeGetCurrentStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetCurrentState(farg1, farg2) &
+bind(C, name="_wrap_FCVodeGetCurrentState") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1540,6 +1560,22 @@ fresult = swigc_FCVodeGetCurrentOrder(farg1, farg2)
 swig_result = fresult
 end function
 
+function FCVodeGetCurrentGamma(cvode_mem, gamma) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: gamma
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = c_loc(gamma(1))
+fresult = swigc_FCVodeGetCurrentGamma(farg1, farg2)
+swig_result = fresult
+end function
+
 function FCVodeGetNumStabLimOrderReds(cvode_mem, nslred) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1601,6 +1637,22 @@ type(C_PTR) :: farg2
 farg1 = cvode_mem
 farg2 = c_loc(hcur(1))
 fresult = swigc_FCVodeGetCurrentStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeGetCurrentState(cvode_mem, y) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(C_PTR) :: y
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = y
+fresult = swigc_FCVodeGetCurrentState(farg1, farg2)
 swig_result = fresult
 end function
 

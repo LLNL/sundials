@@ -859,6 +859,63 @@ the nonlinear solver to the main {\cvodes} integrator.
   \S\ref{ss:nonlin_solv_init}).
 }
 
+The {\cvodes} nonlinear solver interface also provides two optional output
+functions.
+
+\ucfunction{CVodeGetCurrentStateSens}
+{
+  flag = CVodeGetCurrentStateSens(cvode\_mem, \&yS);
+}
+{
+  The function \ID{CVodeGetCurrentStateSens} returns the current sensitivity
+  state vector array.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[yS] ()\id{N\_Vector **})
+    pointer to the vector array that is set to the current sensitivity state vector array
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+
+\ucfunction{CVodeGetCurrentSensSolveIndex}
+{
+  flag = CVodeGetCurrentSensSolveIndex(cvode\_mem, \&index);
+}
+{
+  The function \ID{CVodeGetCurrentSensSolveIndex} returns the index of the
+  current sensitivity solve when using the \id{CV\_STAGGERED1} solver.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[index] ()\id{int *})
+    will be set to the index of the current sensitivity solve
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+
 
 %%
 %%

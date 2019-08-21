@@ -265,6 +265,10 @@ SUNDIALS_EXPORT int ARKStepGetCurrentStep(void *arkode_mem,
                                           realtype *hcur);
 SUNDIALS_EXPORT int ARKStepGetCurrentTime(void *arkode_mem,
                                           realtype *tcur);
+SUNDIALS_EXPORT int ARKStepGetCurrentState(void *arkode_mem,
+                                           N_Vector *ycur);
+SUNDIALS_EXPORT int ARKStepGetCurrentGamma(void *arkode_mem,
+                                           realtype *gamma);
 SUNDIALS_EXPORT int ARKStepGetTolScaleFactor(void *arkode_mem,
                                              realtype *tolsfac);
 SUNDIALS_EXPORT int ARKStepGetErrWeights(void *arkode_mem,

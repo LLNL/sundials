@@ -145,6 +145,8 @@ module farkode_arkstep_mod
  public :: FARKStepGetLastStep
  public :: FARKStepGetCurrentStep
  public :: FARKStepGetCurrentTime
+ public :: FARKStepGetCurrentState
+ public :: FARKStepGetCurrentGamma
  public :: FARKStepGetTolScaleFactor
  public :: FARKStepGetErrWeights
  public :: FARKStepGetResWeights
@@ -980,6 +982,24 @@ end function
 
 function swigc_FARKStepGetCurrentTime(farg1, farg2) &
 bind(C, name="_wrap_FARKStepGetCurrentTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetCurrentState(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetCurrentState") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetCurrentGamma(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetCurrentGamma") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2791,6 +2811,38 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(tcur(1))
 fresult = swigc_FARKStepGetCurrentTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetCurrentState(arkode_mem, ycur) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR) :: ycur
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = ycur
+fresult = swigc_FARKStepGetCurrentState(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetCurrentGamma(arkode_mem, gamma) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: gamma
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(gamma(1))
+fresult = swigc_FARKStepGetCurrentGamma(farg1, farg2)
 swig_result = fresult
 end function
 

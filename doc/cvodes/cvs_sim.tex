@@ -2481,10 +2481,12 @@ No. of calls to linear solver setup function & \id{CVodeGetNumLinSolvSetups} \\
 No. of local error test failures that have occurred & \id{CVodeGetNumErrTestFails} \\
 Order used during the last step & \id{CVodeGetLastOrder} \\
 Order to be attempted on the next step & \id{CVodeGetCurrentOrder} \\
+Current value of the scalar $\gamma$ & \id{CVodeGetCurrentGamma} \\
 No. of order reductions due to stability limit detection & \id{CVodeGetNumStabLimOrderReds} \\
 Actual initial step size used & \id{CVodeGetActualInitStep} \\
 Step size used for the last step & \id{CVodeGetLastStep} \\
 Step size to be attempted on the next step & \id{CVodeGetCurrentStep} \\
+Current state vector & \id{CVodeGetCurrentState} \\
 Current internal time reached by the solver & \id{CVodeGetCurrentTime} \\
 Suggested factor for tolerance scaling  & \id{CVodeGetTolScaleFactor} \\
 Error weight vector for state variables & \id{CVodeGetErrWeights} \\
@@ -2778,6 +2780,35 @@ These optional output functions are described next.
 {}
 %%
 %%
+\ucfunction{CVodeGetCurrentGamma}
+{
+  flag = CVodeGetCurrentGamma(cvode\_mem, \&gamma);
+}
+{
+  The function \ID{CVodeGetCurrentGamma} returns the current
+  value of the scalar $\gamma$.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[gamma] (\id{realtype *})
+      the current value of the scalar $\gamma$ appearing in the
+      Newton equation $M = I - \gamma J$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
 \ucfunction{CVodeGetLastStep}
 {
   flag = CVodeGetLastStep(cvode\_mem, \&hlast);
@@ -2820,6 +2851,33 @@ These optional output functions are described next.
     pointer to the {\cvodes} memory block.
   \item[hcur] (\id{realtype})
     step size to be attempted on the next internal step.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunction{CVodeGetCurrentState}
+{
+  flag = CVodeGetCurrentState(cvode\_mem, \&y);
+}
+{
+  The function \ID{CVodeGetCurrentState} returns the current state vector.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[y] ()\id{N\_Vector *})
+    pointer that is set to the current state vector
   \end{args}
 }
 {

@@ -306,6 +306,10 @@ Fixed a bug in the ARKStep time-stepping module that would result in an infinite
 loop if the nonlinear solver failed to converge more than the maximum allowed times
 during a single step.
 
+Added two new `Get' functions to ARKStep, {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentGamma]{\emph{\code{ARKStepGetCurrentGamma()}}}},
+and {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentState]{\emph{\code{ARKStepGetCurrentState()}}}}, that may be useful to users who choose
+to provide their own nonlinear solver implementation.
+
 
 \subsection{Changes in v4.0.0-dev.1}
 \label{Introduction:changes-in-v4-0-0-dev-1}
@@ -8095,6 +8099,16 @@ Current internal time reached by the solver
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentTime]{\emph{\code{ARKStepGetCurrentTime()}}}}
 \\
 \hline
+Current state vector
+ & 
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentState]{\emph{\code{ARKStepGetCurrentState()}}}}
+\\
+\hline
+Current value of the scalar \(\gamma\)
+ & 
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentGamma]{\emph{\code{ARKStepGetCurrentGamma()}}}}
+\\
+\hline
 Suggested factor for tolerance scaling
  & 
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetTolScaleFactor]{\emph{\code{ARKStepGetTolScaleFactor()}}}}
@@ -8328,6 +8342,64 @@ Returns the current internal time reached by the solver.
 \emph{tcur} -- current internal time reached.
 
 \end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the ARKStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKStepGetCurrentState (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepGetCurrentState}\pysiglinewithargsret{int \bfcode{ARKStepGetCurrentState}}{void*\emph{ arkode\_mem}, N\_Vector*\emph{ y}}{}
+Returns the current state vector
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKStep memory block.
+
+\item {} 
+\emph{y} -- N\_Vector pointer that will get set to the current state vector
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the ARKStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKStepGetCurrentGamma (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepGetCurrentGamma}\pysiglinewithargsret{int \bfcode{ARKStepGetCurrentGamma}}{void*\emph{ arkode\_mem}, realtype*\emph{ gamma}}{}
+Returns the current value of the scalar \(\gamma\)
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKStep memory block.
+
+\item {} 
+\emph{gamma} -- the current value of the scalar \(\gamma\) appearing in the
+
+\end{itemize}
+
+Newton equation \(A = I - \gamma J\) or \(A = M - \gamma J\).
 
 \item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
 \item {} 

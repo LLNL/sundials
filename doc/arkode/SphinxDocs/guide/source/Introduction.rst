@@ -114,6 +114,10 @@ Fixed a bug in the ARKStep time-stepping module that would result in an infinite
 loop if the nonlinear solver failed to converge more than the maximum allowed times
 during a single step.
 
+Added two new 'Get' functions to ARKStep, :c:func:`ARKStepGetCurrentGamma()`,
+and :c:func:`ARKStepGetCurrentState`, that may be useful to users who choose
+to provide their own nonlinear solver implementation.
+
 
 Changes in v4.0.0-dev.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

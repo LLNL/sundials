@@ -932,6 +932,28 @@ int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
   return(CV_SUCCESS);
 }
 
+/*
+ * CVodeGetCurrentGamma
+ *
+ * Returns the value of gamma for the current step.
+ */
+
+int CVodeGetCurrentGamma(void *cvode_mem, realtype *gamma)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetCurrentGamma", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *gamma = cv_mem->cv_gamma;
+
+  return(CV_SUCCESS);
+}
+
 /* 
  * CVodeGetNumStabLimOrderReds
  *
@@ -1020,6 +1042,73 @@ int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur)
   cv_mem = (CVodeMem) cvode_mem;
   
   *hcur = cv_mem->cv_next_h;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeGetCurrentState
+ *
+ * Returns the current state vector
+ */
+
+int CVodeGetCurrentState(void *cvode_mem, N_Vector *y)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetCurrentState", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *y = cv_mem->cv_zn[0];
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeGetCurrentStateSens
+ *
+ * Returns the current sensitivity state vector array
+ */
+
+int CVodeGetCurrentStateSens(void *cvode_mem, N_Vector **yS)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetCurrentStateSens", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *yS = cv_mem->cv_znS[0];
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeGetCurrentSensSolveIndex
+ *
+ * Returns the current index of the sensitivity solve when using
+ * the staggered1 nonlinear solver.
+ */
+
+int CVodeGetCurrentSensSolveIndex(void *cvode_mem, int *index)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetCurrentSensSolveIndex", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *index = cv_mem->sens_solve_idx;
 
   return(CV_SUCCESS);
 }
