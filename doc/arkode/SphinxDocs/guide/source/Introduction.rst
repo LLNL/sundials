@@ -118,6 +118,11 @@ Added two new 'Get' functions to ARKStep, :c:func:`ARKStepGetCurrentGamma()`,
 and :c:func:`ARKStepGetCurrentState`, that may be useful to users who choose
 to provide their own nonlinear solver implementation.
 
+The reinitialization functions :c:func:`ERKStepReInit()`,
+:c:func:`ARKStepReInit()`, and :c:func:`MRIStepReInit()` have been updated to
+retain the minimum and maxiumum step size values from before reinitialization
+rather than resetting them to the default values.
+
 
 Changes in v4.0.0-dev.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

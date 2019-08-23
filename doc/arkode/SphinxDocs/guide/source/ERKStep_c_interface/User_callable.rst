@@ -860,7 +860,7 @@ Specify explicit RK table number   :c:func:`ERKStepSetTableNum()`     internal
 
    No error checking is performed to ensure that either the method order *p* or
    the embedding order *q* specified in the Butcher table structure correctly
-   describe the coefficients in the Butcher table. 
+   describe the coefficients in the Butcher table.
 
    Error checking is performed to ensure that the Butcher table is strictly
    lower-triangular (i.e. that it specifies an ERK method).
@@ -1854,6 +1854,7 @@ To reinitialize the ERKStep module for the solution of a new problem,
 where a prior call to :c:func:`ERKStepCreate()` has been made, the
 user must call the function :c:func:`ERKStepReInit()`.  The new
 problem must have the same size as the previous one.  This routine
+retains the current settings for all ARKstep module options and
 performs the same input checking and initializations that are done in
 :c:func:`ERKStepCreate()`, but it performs no memory allocation as is
 assumes that the existing internal memory is sufficient for the new
@@ -1906,7 +1907,11 @@ vector.
       * *ARK_MEM_FAIL*  if a memory allocation failed
       * *ARK_ILL_INPUT* if an argument has an illegal value.
 
-   **Notes:** If an error occurred, :c:func:`ERKStepReInit()` also
+   **Notes:**
+   All previously set options are retained but may be updated by calling
+   the appropriate "Set" functions.
+
+   If an error occurred, :c:func:`ERKStepReInit()` also
    sends an error message to the error handler function.
 
 

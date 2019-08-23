@@ -8,6 +8,11 @@ Added functions to get the current state and gamma value to CVODE(S) and ARKode.
 These functions may be useful to users who chose to provide their own nonlinear
 solver implementation.
 
+The reinitialization functions ERKStepReInit(), ARKStepReInit(), and
+MRIStepReInit() have been updated to retain the minimum and maxiumum step
+size values from before reinitialization rather than resetting them to the
+default values.
+
 
 Changes to SUNDIALS in release 5.0.0-dev.1
 
@@ -62,7 +67,7 @@ the MPI+X paradigm where X is a type of on-node parallelism (e.g. OpenMP, CUDA).
 The implementation is accompanied by additions to user documentation and SUNDIALS
 examples.
 
-The *_MPICuda and *_MPIRaja functions were removed from the NVECTOR_CUDA and 
+The *_MPICuda and *_MPIRaja functions were removed from the NVECTOR_CUDA and
 NVECTOR_RAJA implementations respectively. Accordingly, the nvector_mpicuda.h,
 nvector_mpiraja.h, libsundials_nvecmpicuda.lib, and libsundials_nvecmpicudaraja.lib
 files have been removed. Users should use the NVECTOR_MPIPLUSX module coupled with
@@ -70,7 +75,7 @@ the NVECTOR_CUDA or NVECTOR_RAJA to replace the functionality. The necessary cha
 are minimal and should require few code modifications.
 
 New Fortran 2003 interfaces to ARKODE, IDA, KINSOL, all generic SUNDIALS types
-(i.e. NVECTOR, SUNMATRIX, SUNLINEARSOLVER, SUNNONLINEARSOLVER), and the 
+(i.e. NVECTOR, SUNMATRIX, SUNLINEARSOLVER, SUNNONLINEARSOLVER), and the
 NVECTOR_PARALLEL were added. These new interfaces were generated with SWIG-Fortran
 and provide a user an idiomatic Fortran 2003 interface to most of the SUNDIALS C API.
 The CVODE interface, and all module implementations with existing Fortran 2003 interfaces
@@ -107,7 +112,7 @@ N_VMinQuotientLocal. If an N_Vector implementation defines any of the local
 operations as NULL, then the NVECTOR_MANYVECTOR will call standard N_Vector
 operations to complete the computation.
 
-A new SUNMatrix and SUNLinearSolver implementation was added to facilitate 
+A new SUNMatrix and SUNLinearSolver implementation was added to facilitate
 the use of the SuperLU_DIST library with SUNDIALS.
 
 A new operation, SUNMatMatvecSetup, was added to the SUNMatrix API. Users

@@ -1411,9 +1411,9 @@ Specify additive RK table numbers  :c:func:`ARKStepSetTableNum()`     internal
    that they specify DIRK and ERK methods, respectively.
 
    If the inputs *Bi* or *Be* do not contain an embedding (when the
-   corresponding explicit or implicit table is non-NULL), the user *must* call 
+   corresponding explicit or implicit table is non-NULL), the user *must* call
    :c:func:`ARKStepSetFixedStep()` to enable fixed-step mode and set the
-   desired time step size. 
+   desired time step size.
 
 
 
@@ -2136,7 +2136,7 @@ Alternatively, a function of type :c:func:`ARKLsLinSysFn()` can be provided to
 evaluate the linear system :math:`M - \gamma J`. By default, ARKLS uses an
 internal linear system function leveraging the SUNMATRIX API to form the system
 :math:`M = I - \gamma J`. To specify a user-supplied linear system function
-*linsys*, ARKStep provides the function :c:func:`ARKStepSetLinSysFn()`. 
+*linsys*, ARKStep provides the function :c:func:`ARKStepSetLinSysFn()`.
 
 The ARKLS interface passes the user data pointer to the Jacobian and linear
 system functions. This allows the user to create an arbitrary structure with
@@ -2190,7 +2190,7 @@ data may be specified through :c:func:`ARKStepSetUserData()`.
 .. c:function:: int ARKStepSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys)
 
    Specifies the linear system approximation routine to be used for the
-   matrix-based solver with the ARKLS interface. 
+   matrix-based solver with the ARKLS interface.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -3861,6 +3861,7 @@ To reinitialize the ARKStep module for the solution of a new problem,
 where a prior call to :c:func:`ARKStepCreate()` has been made, the
 user must call the function :c:func:`ARKStepReInit()`.  The new
 problem must have the same size as the previous one.  This routine
+retains the current settings for all ARKstep module options and
 performs the same input checking and initializations that are done in
 :c:func:`ARKStepCreate()`, but it performs no memory allocation as it
 assumes that the existing internal memory is sufficient for the new
@@ -3924,7 +3925,11 @@ vector.
       * *ARK_MEM_FAIL*  if a memory allocation failed
       * *ARK_ILL_INPUT* if an argument has an illegal value.
 
-   **Notes:** If an error occurred, :c:func:`ARKStepReInit()` also
+   **Notes:**
+   All previously set options are retained but may be updated by calling
+   the appropriate "Set" functions.
+
+   If an error occurred, :c:func:`ARKStepReInit()` also
    sends an error message to the error handler function.
 
 

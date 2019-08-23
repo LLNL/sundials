@@ -1168,10 +1168,8 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   ark_mem->tn   = t0;
 
   /* Set step parameters */
-  ark_mem->hold     = ZERO;
-  ark_mem->tolsf    = ONE;
-  ark_mem->hmin     = ZERO;       /* no minimum step size */
-  ark_mem->hmax_inv = ZERO;       /* no maximum step size */
+  ark_mem->hold  = ZERO;
+  ark_mem->tolsf = ONE;
 
   /* Initialize yn */
   N_VScale(ONE, y0, ark_mem->yn);
@@ -1234,10 +1232,8 @@ int arkReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   ark_mem->tn   = t0;
 
   /* Set step parameters */
-  ark_mem->hold     = ZERO;
-  ark_mem->tolsf    = ONE;
-  ark_mem->hmin     = ZERO;       /* no minimum step size */
-  ark_mem->hmax_inv = ZERO;       /* no maximum step size */
+  ark_mem->hold  = ZERO;
+  ark_mem->tolsf = ONE;
 
   /* Do not reset the linear solver addresses to NULL.  This means
      that if the user does not re-set these manually, we'll re-use

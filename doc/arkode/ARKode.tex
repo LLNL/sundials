@@ -310,6 +310,11 @@ Added two new `Get' functions to ARKStep, {\hyperref[ARKStep_c_interface/User_ca
 and {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentState]{\emph{\code{ARKStepGetCurrentState()}}}}, that may be useful to users who choose
 to provide their own nonlinear solver implementation.
 
+The reinitialization functions {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepReInit]{\emph{\code{ERKStepReInit()}}}},
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepReInit]{\emph{\code{ARKStepReInit()}}}}, and {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} have been updated to
+retain the minimum and maxiumum step size values from before reinitialization
+rather than resetting them to the default values.
+
 
 \subsection{Changes in v4.0.0-dev.1}
 \label{Introduction:changes-in-v4-0-0-dev-1}
@@ -10130,6 +10135,7 @@ To reinitialize the ARKStep module for the solution of a new problem,
 where a prior call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}} has been made, the
 user must call the function {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepReInit]{\emph{\code{ARKStepReInit()}}}}.  The new
 problem must have the same size as the previous one.  This routine
+retains the current settings for all ARKstep module options and
 performs the same input checking and initializations that are done in
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}}, but it performs no memory allocation as it
 assumes that the existing internal memory is sufficient for the new
@@ -10215,7 +10221,11 @@ defining the implicit portion of the right-hand side function in
 
 \end{description}
 
-\textbf{Notes:} If an error occurred, {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepReInit]{\emph{\code{ARKStepReInit()}}}} also
+\textbf{Notes:}
+All previously set options are retained but may be updated by calling
+the appropriate ``Set'' functions.
+
+If an error occurred, {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepReInit]{\emph{\code{ARKStepReInit()}}}} also
 sends an error message to the error handler function.
 
 \end{fulllineitems}
@@ -15829,6 +15839,7 @@ To reinitialize the ERKStep module for the solution of a new problem,
 where a prior call to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepCreate]{\emph{\code{ERKStepCreate()}}}} has been made, the
 user must call the function {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepReInit]{\emph{\code{ERKStepReInit()}}}}.  The new
 problem must have the same size as the previous one.  This routine
+retains the current settings for all ARKstep module options and
 performs the same input checking and initializations that are done in
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepCreate]{\emph{\code{ERKStepCreate()}}}}, but it performs no memory allocation as is
 assumes that the existing internal memory is sufficient for the new
@@ -15901,7 +15912,11 @@ defining the right-hand side function in \(\dot{y} = f(t,y)\).
 
 \end{description}
 
-\textbf{Notes:} If an error occurred, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepReInit]{\emph{\code{ERKStepReInit()}}}} also
+\textbf{Notes:}
+All previously set options are retained but may be updated by calling
+the appropriate ``Set'' functions.
+
+If an error occurred, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepReInit]{\emph{\code{ERKStepReInit()}}}} also
 sends an error message to the error handler function.
 
 \end{fulllineitems}
@@ -18497,6 +18512,7 @@ To reinitialize the MRIStep module for the solution of a new problem,
 where a prior call to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}} has been made, the
 user must call the function {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}}.  The new
 problem must have the same size as the previous one.  This routine
+retains the current settings for all ARKstep module options and
 performs the same input checking and initializations that are done in
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}}, but it performs no memory allocation as is
 assumes that the existing internal memory is sufficient for the new
@@ -18576,6 +18592,9 @@ f_f(t,y)\).
 \textbf{Notes:} If the inner (fast) stepper also needs to be reinitialized, its
 reinitialization function should be called before calling
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} to reinitialize the outer stepper.
+
+All previously set options are retained but may be updated by calling
+the appropriate ``Set'' functions.
 
 If an error occurred, {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} also
 sends an error message to the error handler function.
