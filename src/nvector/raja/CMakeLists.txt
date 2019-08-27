@@ -20,12 +20,6 @@ SET(nvecraja_SOURCES
   nvector_raja.cu
 )
 
-# Tell compiler it is a CUDA source
-set_source_files_properties(${nvecraja_SOURCES} PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
-
-# Set C++ compiler flags to include RAJA flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS}")
-
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECRAJA library
 SET(shared_SOURCES
@@ -38,8 +32,7 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 SET(nvecraja_HEADERS nvector_raja.h)
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nvecraja_HEADERS)
 
-# Add source directory to include directories
-INCLUDE_DIRECTORIES(. ${MPI_CXX_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(${MPI_CXX_INCLUDE_PATH})
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
@@ -49,7 +42,11 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 #  - Set the library name and make sure it is not deleted
 #  - Install the NVECRAJA library
 IF(BUILD_STATIC_LIBS)
-  CUDA_ADD_LIBRARY(sundials_nveccudaraja_static STATIC ${nvecraja_SOURCES} ${shared_SOURCES})
+  ADD_LIBRARY(sundials_nveccudaraja_static STATIC ${nvecraja_SOURCES} ${shared_SOURCES})
+  TARGET_COMPILE_OPTIONS(sundials_nveccudaraja_static PUBLIC
+    $<$<COMPILE_LANGUAGE:CXX>:${RAJA_COMPILE_FLAGS}>
+    $<$<COMPILE_LANGUAGE:CUDA>:${RAJA_NVCC_FLAGS}>)
+  TARGET_LINK_LIBRARIES(sundials_nveccudaraja_static PUBLIC RAJA)
   SET_TARGET_PROPERTIES(sundials_nveccudaraja_static PROPERTIES
                         OUTPUT_NAME sundials_nveccudaraja
                         CLEAN_DIRECT_OUTPUT 1)
@@ -62,7 +59,11 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Set VERSION and SOVERSION for shared libraries
 #  - Install the NVECRAJA library
 IF(BUILD_SHARED_LIBS)
-  CUDA_ADD_LIBRARY(sundials_nveccudaraja_shared SHARED ${nvecraja_SOURCES} ${shared_SOURCES})
+  ADD_LIBRARY(sundials_nveccudaraja_shared SHARED ${nvecraja_SOURCES} ${shared_SOURCES})
+  TARGET_COMPILE_OPTIONS(sundials_nveccudaraja_shared PUBLIC
+    $<$<COMPILE_LANGUAGE:CXX>:${RAJA_COMPILE_FLAGS}>
+    $<$<COMPILE_LANGUAGE:CUDA>:${RAJA_NVCC_FLAGS}>)
+  TARGET_LINK_LIBRARIES(sundials_nveccudaraja_shared PUBLIC RAJA)
   SET_TARGET_PROPERTIES(sundials_nveccudaraja_shared PROPERTIES
                         OUTPUT_NAME sundials_nveccudaraja
                         CLEAN_DIRECT_OUTPUT 1

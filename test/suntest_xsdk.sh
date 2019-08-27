@@ -68,6 +68,10 @@ fi
 # Check inputs
 # ------------------------------------------------------------------------------
 
+# build and install directory names
+builddir=build_xsdk
+installdir=install_xsdk
+
 # set real types to test
 case "$realtype" in
     single|double|extended) ;;
@@ -76,6 +80,8 @@ case "$realtype" in
         exit 1
         ;;
 esac
+builddir=${builddir}_${realtype}
+installdir=${installdir}_${realtype}
 
 # set index sizes to test
 case "$indexsize" in
@@ -85,6 +91,8 @@ case "$indexsize" in
         exit 1
         ;;
 esac
+builddir=${builddir}_${indexsize}
+installdir=${installdir}_${indexsize}
 
 # set library types
 case "$libtype" in
@@ -105,6 +113,9 @@ case "$libtype" in
         exit 1
         ;;
 esac
+builddir=${builddir}_${libtype}
+installdir=${installdir}_${libtype}
+
 
 # set TPL status
 case "$tplstatus" in
@@ -119,6 +130,8 @@ case "$tplstatus" in
         exit 1
         ;;
 esac
+builddir=${builddir}_${tplstatus}
+installdir=${installdir}_${tplstatus}
 
 # which tests to run (if any)
 case "$testtype" in
@@ -148,6 +161,8 @@ case "$testtype" in
         exit 1
         ;;
 esac
+builddir=${builddir}_${testtype}
+installdir=${installdir}_${testtype}
 
 # ------------------------------------------------------------------------------
 # Setup the test environment
@@ -268,15 +283,6 @@ fi
 # ------------------------------------------------------------------------------
 # Setup test directories
 # ------------------------------------------------------------------------------
-
-# build and install directories
-if [ "$TPLs" == "ON" ]; then
-    builddir=build_xsdk_${realtype}_${indexsize}_${libtype}_tpls
-    installdir=install_xsdk_${realtype}_${indexsize}_${libtype}_tpls
-else
-    builddir=build_xsdk_${realtype}_${indexsize}_${libtype}
-    installdir=install_xsdk_${realtype}_${indexsize}_${libtype}
-fi
 
 # remove old build and install directories
 \rm -rf $builddir
@@ -416,7 +422,7 @@ if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 
 # install sundials
 echo "START INSTALL"
-make install 2>&1 | tee install.log
+make -j $buildthread install 2>&1 | tee install.log
 
 # check make install return code
 rc=${PIPESTATUS[0]}

@@ -29,9 +29,6 @@ SET(nvector_examples_dependencies
   sundials_math
 )
 
-# Set C++ compiler flags to include RAJA flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS}")
-
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(. ..)
 
@@ -44,8 +41,7 @@ ELSE()
 ENDIF()
 
 # Set-up linker flags and link libraries
-SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH} -lRAJA)
-
+SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 FOREACH(example_tuple ${nvector_raja_examples})
@@ -69,13 +65,13 @@ FOREACH(example_tuple ${nvector_raja_examples})
   # example source files once for testing with different inputs
   IF(NOT TARGET ${example})
     # example source files
-    CUDA_ADD_EXECUTABLE(${example} ${example}.cu
+    ADD_EXECUTABLE(${example} ${example}.cu
       ../test_nvector.c ../../../src/sundials/sundials_nvector.c
       ../../../src/sundials/sundials_math.c)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
+    TARGET_LINK_LIBRARIES(${example} PRIVATE ${SUNDIALS_LIBS})
   ENDIF()
 
   # check if example args are provided and set the test name

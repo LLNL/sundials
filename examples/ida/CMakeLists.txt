@@ -56,7 +56,7 @@ endif()
 # cuda examples
 if(EXAMPLES_ENABLE_CUDA)
 
-  if(CUDA_ENABLE AND CUDA_FOUND)
+  if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
     add_subdirectory(cuda)
     if(MPI_ENABLE AND MPI_C_FOUND)
       add_subdirectory(mpicuda)

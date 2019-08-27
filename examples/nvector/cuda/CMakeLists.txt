@@ -64,7 +64,7 @@ FOREACH(example_tuple ${nvector_cuda_examples})
   # example source files once for testing with different inputs
   IF(NOT TARGET ${example})
     # example source files
-    CUDA_ADD_EXECUTABLE(${example} ${example}.cu
+    ADD_EXECUTABLE(${example} ${example}.cu
       ../test_nvector.c
       ../../../src/sundials/sundials_nvector.c)
 
@@ -72,7 +72,7 @@ FOREACH(example_tuple ${nvector_cuda_examples})
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
+    TARGET_LINK_LIBRARIES(${example} PRIVATE ${SUNDIALS_LIBS})
   ENDIF()
 
   # check if example args are provided and set the test name

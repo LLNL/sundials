@@ -30,9 +30,6 @@ SET(nvector_examples_dependencies
   sundials_math
   )
 
-# Set C++ compiler flags to include RAJA flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS}")
-
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(. .. ${MPI_CXX_INCLUDE_PATH})
 
@@ -76,14 +73,14 @@ FOREACH(example_tuple ${nvector_raja_examples})
   # example source files once for testing with different inputs
   IF(NOT TARGET ${example})
     # example source files
-    CUDA_ADD_EXECUTABLE(${example} ${example}.cu
+    ADD_EXECUTABLE(${example} ${example}.cu
       ../test_nvector.c
       ../test_mpinvector.c
       ../../../src/sundials/sundials_nvector.c)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES} ${MPI_CXX_LIBRARIES})
+    TARGET_LINK_LIBRARIES(${example} PRIVATE ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
   ENDIF()
 
   # check if example args are provided and set the test name
@@ -116,6 +113,7 @@ FOREACH(example_tuple ${nvector_raja_examples})
       ../test_mpinvector.c
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
+      ../../../src/sundials/sundials_math.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja)
   ENDIF()
 

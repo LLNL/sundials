@@ -47,36 +47,3 @@ if(CMAKE_BUILD_TYPE)
     mark_as_advanced(CLEAR CMAKE_CXX_FLAGS_RELWITHDEBINFO)
   endif()
 endif()
-
-# Converts a CXX standard number to the flag needed to set it.
-macro(CXX_STD2FLAG std flag_var)
-  set(flag_var "-std=c++${std}")
-endmacro()
-
-# Sets the CMAKE_CXX_STANDARD variable to the ${std} if the compiler
-# supports the flag. E.g. USE_CXX_STD(11) sets CMAKE_CXX_STANDARD=11.
-# If CUDA is enabled, it adds the correct flag to CUDA_NVCC_FLAGS.
-#
-# Requires:
-#   CMake > 3.1.3.
-# Notes: 
-#   If the compiler is not supprted by the CMake version in use, then
-#   the flag will have to be added manually.
-macro(USE_CXX_STD std)
-  if(NOT (CMAKE_CXX_STANDARD EQUAL ${std}))
-    include(CheckCXXCompilerFlag)
-    CXX_STD2FLAG(${std} flag_var)
-    CHECK_CXX_COMPILER_FLAG(${flag_var} COMPILER_SUPPORTS_STDFLAG)
-    if(COMPILER_SUPPORTS_STDFLAG)
-      set(CMAKE_CXX_STANDARD ${std})
-      message(STATUS "Set CMAKE_CXX_STANDARD to ${std}")
-      if(CUDA_ENABLE)
-        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std c++${std}")
-        message(STATUS "Add -std c++${std} to CUDA_NVCC_FLAGS")
-      endif()
-    else()
-      PRINT_WARNING("Could not set CMAKE_CXX_STANDARD to ${std}.")
-    endif()
-  endif()
-endmacro()
-

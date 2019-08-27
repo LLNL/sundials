@@ -48,7 +48,7 @@ FOREACH(example_tuple ${IDA_examples})
   set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
   # add example source files
-  CUDA_ADD_EXECUTABLE(${example} ${example}.cu)
+  ADD_EXECUTABLE(${example} ${example}.cu)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
@@ -59,7 +59,8 @@ FOREACH(example_tuple ${IDA_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  TARGET_LINK_LIBRARIES(${example} PRIVATE ${SUNDIALS_LIBS})
+
   # install example source and out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cu ${example}.out

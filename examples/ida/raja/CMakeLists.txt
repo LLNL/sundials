@@ -22,11 +22,8 @@ SET(IDA_examples
     "idaHeat2D_kry_raja\;develop"
    )
 
-# Set C++ compiler flags to include RAJA flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS}")
-
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ${RAJA_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(.)
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -39,7 +36,7 @@ ELSE()
 ENDIF()
 
 # Set-up linker flags and link libraries
-SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH} -lRAJA)
+SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each IDA example
@@ -49,10 +46,8 @@ FOREACH(example_tuple ${IDA_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_type)
 
-  set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
-
   # add example source files
-  CUDA_ADD_EXECUTABLE(${example} ${example}.cu)
+  ADD_EXECUTABLE(${example} ${example}.cu)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
@@ -63,7 +58,8 @@ FOREACH(example_tuple ${IDA_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  TARGET_LINK_LIBRARIES(${example} PRIVATE ${SUNDIALS_LIBS})
+
   # install example source and out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cu ${example}.out

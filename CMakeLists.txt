@@ -20,23 +20,7 @@
 # ---------------------------------------------------------------
 
 # Require a fairly recent cmake version
-cmake_minimum_required(VERSION 3.1.3)
-
-# Libraries linked via full path no longer produce linker search paths
-# Allows examples to build
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
-endif(COMMAND cmake_policy)
-
-# MACOSX_RPATH is enabled by default
-# Fixes dynamic loading on OSX
-if(POLICY CMP0042)
-  cmake_policy(SET CMP0042 NEW) # Added in CMake 3.0
-else()
-  if(APPLE)
-    set(CMAKE_MACOSX_RPATH 1)
-  endif()
-endif()
+cmake_minimum_required(VERSION 3.10.3)
 
 # Project SUNDIALS (initially only C supported)
 # sets PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR variables
@@ -173,7 +157,6 @@ ENDIF()
 # ---------------------------------------------------------------
 # MACRO definitions
 # ---------------------------------------------------------------
-INCLUDE(CMakeParseArguments) # can be removed when CMake 3.5+ is required
 INCLUDE(SundialsCMakeMacros)
 INCLUDE(SundialsAddF2003InterfaceLibrary)
 INCLUDE(SundialsAddTest)
@@ -810,26 +793,12 @@ endif()
 # ---------------------------------------------------------------
 
 if(CUDA_ENABLE)
-  find_package(CUDA)
-  if (CUDA_FOUND)
-    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -lineinfo")
-  else()
-    message(STATUS "Disabling CUDA support, could not find CUDA.")
-    set(CUDA_ENABLE OFF)
-  endif()
+  enable_language(CUDA)
 endif(CUDA_ENABLE)
 
 # ---------------------------------------------------------------
 # Now that all languages are setup, we can configure them more.
 # ---------------------------------------------------------------
-
-# C++11 is needed if:
-#   (a) CUDA is enabled
-# C++11 should not be enabled if
-#   (a) RAJA is enabled (they provide a std flag)
-if (CXX_FOUND AND CUDA_ENABLE AND CUDA_FOUND AND (NOT RAJA_ENABLE))
-  USE_CXX_STD(11)
-endif()
 
 # ---------------------------------------------------------------
 # Decide how to compile MPI codes. We must check for MPI if
@@ -903,21 +872,16 @@ ENDIF(PTHREAD_ENABLE)
 # -------------------------------------------------------------
 
 # disable RAJA if CUDA is not enabled/working
-if(RAJA_ENABLE AND (NOT CUDA_FOUND))
+if(RAJA_ENABLE AND (NOT CMAKE_CUDA_COMPILER))
   PRINT_WARNING("CUDA is required for RAJA support" "Please enable CUDA and RAJA")
   FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
 endif()
 
 if(RAJA_ENABLE)
   # Look for CMake configuration file in RAJA installation
-  find_package(RAJA CONFIG PATHS ${RAJA_DIR} ${RAJA_DIR}/share/raja/cmake)
-  if (RAJA_FOUND)
-    include_directories(${RAJA_INCLUDE_DIR})
-    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${RAJA_NVCC_FLAGS})
-  else()
-    PRINT_WARNING("RAJA configuration not found"
-                  "Please set RAJA_DIR to provide path to RAJA CMake configuration file.")
-  endif()
+  find_package(RAJA CONFIG
+    PATHS ${RAJA_DIR} ${RAJA_DIR}/share/raja/cmake
+    REQUIRED)
 endif(RAJA_ENABLE)
 
 # ===============================================================

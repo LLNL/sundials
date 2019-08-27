@@ -107,8 +107,11 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Increased the minimum required CMake version to 3.10.3.
 
 Fixed a bug in the ARKStep time-stepping module that would result in an infinite
 loop if the nonlinear solver failed to converge more than the maximum allowed times

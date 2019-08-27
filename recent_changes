@@ -1,5 +1,7 @@
 Changes to SUNDIALS in release 5.0.0
 
+Increased the minimum required CMake versiont to 3.10.3.
+
 Fixed a bug in the ARKStep time-stepping module in ARKode that would result in an
 infinite loop if the nonlinear solver failed to converge more than the maximum
 allowed times during a single step.
@@ -12,6 +14,7 @@ The reinitialization functions ERKStepReInit(), ARKStepReInit(), and
 MRIStepReInit() have been updated to retain the minimum and maxiumum step
 size values from before reinitialization rather than resetting them to the
 default values.
+
 
 
 Changes to SUNDIALS in release 5.0.0-dev.1

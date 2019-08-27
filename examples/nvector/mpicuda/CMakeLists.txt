@@ -72,7 +72,7 @@ FOREACH(example_tuple ${nvector_cuda_examples})
   # example source files once for testing with different inputs
   IF(NOT TARGET ${example})
     # example source files
-    CUDA_ADD_EXECUTABLE(${example} ${example}.cu
+    ADD_EXECUTABLE(${example} ${example}.cu
       ../test_nvector.c
       ../test_mpinvector.c
       ../../../src/sundials/sundials_nvector.c)
@@ -81,7 +81,7 @@ FOREACH(example_tuple ${nvector_cuda_examples})
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES} ${MPI_CXX_LIBRARIES})
+    TARGET_LINK_LIBRARIES(${example} PRIVATE ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
   ENDIF()
 
   # check if example args are provided and set the test name
@@ -151,7 +151,7 @@ IF(EXAMPLES_INSTALL)
   IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_CUDA_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/Makefile_ex
       @ONLY
       )
