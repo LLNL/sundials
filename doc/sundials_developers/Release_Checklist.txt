@@ -45,6 +45,10 @@ web pages.
    uploading to the website.
 
 5. Update Internal Drupal Web pages for SUNDIALS:
+
+   Note as of 28 Aug 2019 the addresses below are still vaild but may change
+   from computation to computing in the future.
+
      https://computation-external.llnl.gov/user
 
   a) Modify content (save edits on each page as you go)

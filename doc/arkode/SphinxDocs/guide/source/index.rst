@@ -25,10 +25,10 @@ integration package for stiff, nonstiff and mixed stiff/nonstiff
 systems of ordinary differential equations (ODEs) using Runge-Kutta
 (i.e. one-step, multi-stage) methods.  The ARKode solver is a
 component of the `SUNDIALS
-<https://computation.llnl.gov/casc/sundials/main.html>`_ suite of
+<https://computing.llnl.gov/casc/sundials/main.html>`_ suite of
 nonlinear and differential/algebraic equation solvers. It is designed
 to have a similar user experience to the `CVODE
-<https://computation.llnl.gov/casc/sundials/description/description.html#descr_cvode>`_
+<https://computing.llnl.gov/casc/sundials/description/description.html#descr_cvode>`_
 solver, including user modes to allow adaptive integration to specified
 output times, return after each internal step and root-finding
 capabilities, and for calculations in serial, using shared-memory

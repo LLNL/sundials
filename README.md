@@ -58,12 +58,12 @@ Full user guides for SUNDIALS packages are provided in the [doc](./doc)
 directory along with documentation for example programs.
 
 A list of Frequently Asked Questions on build and installation procedures as
-well as common usage issues is available on the SUNDIALS [FAQ](https://computation.llnl.gov/projects/sundials/faq).
+well as common usage issues is available on the SUNDIALS [FAQ](https://computing.llnl.gov/projects/sundials/faq).
 For dealing with systems with unphysical solutions or discontinuities see the
-SUNDIALS [usage notes](https://computation.llnl.gov/projects/sundials/usage-notes).
+SUNDIALS [usage notes](https://computing.llnl.gov/projects/sundials/usage-notes).
 
 If you have a question not covered in the FAQ or usage notes, please submit
-your question to the SUNDIALS [mailing list](https://computation.llnl.gov/projects/sundials/mailing-list).
+your question to the SUNDIALS [mailing list](https://computing.llnl.gov/projects/sundials/mailing-list).
 
 ## Contributing ##
 

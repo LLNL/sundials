@@ -1246,7 +1246,7 @@ Building with *hypre*
 
 The *hypre* libraries are available for download from the Lawrence
 Livermore National Laboratory website:
-`http://computation.llnl.gov/projects/hypre <http://computation.llnl.gov/projects/hypre>`_.
+`http://computing.llnl.gov/projects/hypre <http://computing.llnl.gov/projects/hypre>`_.
 SUNDIALS has been tested with *hypre* version 2.11.1.
 To enable *hypre*, set  ``HYPRE_ENABLE`` to ``ON``, set ``HYPRE_INCLUDE_DIR``
 to the ``include`` path of the *hypre* installation, and set the variable
