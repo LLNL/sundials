@@ -70,7 +70,7 @@ MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         "--verbose"
         "--testname=${NAME}"
         "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
-        "--outputdir=${CMAKE_BINARY_DIR}/Testing/output"
+        "--outputdir=${TEST_OUTPUT_DIR}"
         )
 
       # do not diff the output and answer files

@@ -29,6 +29,13 @@ IF(SUNDIALS_DEVTESTS)
     ENDIF()
   ENDIF()
 
+  # Directory for test output
+  SET(TEST_OUTPUT_DIR ${PROJECT_BINARY_DIR}/Testing/output)
+
+  IF(NOT EXISTS ${TEST_OUTPUT_DIR})
+    FILE(MAKE_DIRECTORY ${TEST_OUTPUT_DIR})
+  ENDIF()
+
   # look for the testRunner script in the test directory
   FIND_PROGRAM(TESTRUNNER testRunner PATHS test)
   HIDE_VARIABLE(TESTRUNNER)

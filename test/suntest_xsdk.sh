@@ -409,7 +409,7 @@ if [ "$skiptests" = "ON" ]; then exit 0; fi
 
 # test sundials
 echo "START TEST"
-make test 2>&1 | tee test.log
+ctest -j $buildthreads 2>&1 | tee test.log
 
 # check make test return code
 rc=${PIPESTATUS[0]}
@@ -422,7 +422,7 @@ if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 
 # install sundials
 echo "START INSTALL"
-make -j $buildthread install 2>&1 | tee install.log
+make -j $buildthreads install 2>&1 | tee install.log
 
 # check make install return code
 rc=${PIPESTATUS[0]}
