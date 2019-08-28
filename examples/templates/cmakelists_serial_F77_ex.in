@@ -25,6 +25,9 @@ cmake_minimum_required(VERSION 2.8)
 # Specify project name
 PROJECT(F@SOLVER@_serial_examples Fortran)
 
+# Enable testing
+INCLUDE(CTest)
+
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Examples using SUNDIALS linear solvers
@@ -100,6 +103,9 @@ FOREACH(example ${examples})
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
+  # add the example to ctest
+  ADD_TEST(NAME ${example} COMMAND ${example})
+
 ENDFOREACH(example ${examples})
 
 
@@ -139,6 +145,9 @@ IF(LAPACK_LIBRARIES)
       TARGET_LINK_LIBRARIES(${example} ${BLAS_LIBRARIES})
     ENDIF()
 
+    # add the example to ctest
+    ADD_TEST(NAME ${example} COMMAND ${example})
+
   ENDFOREACH(example ${examples_bl})
 ENDIF()
 
@@ -164,6 +173,9 @@ IF(KLU_LIBRARIES)
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_SUNLINSOLKLU_LIB})
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_SUNLINSOLKLU_FLIB})
     TARGET_LINK_LIBRARIES(${example} ${KLU_LIBRARIES})
+
+    # add the example to ctest
+    ADD_TEST(NAME ${example} COMMAND ${example})
 
   ENDFOREACH(example ${examples_klu})
 ENDIF()
@@ -194,6 +206,9 @@ IF(SUPERLUMT_LIBRARIES)
     IF(BLAS_LIBRARIES)
       TARGET_LINK_LIBRARIES(${example} ${BLAS_LIBRARIES})
     ENDIF()
+
+    # add the example to ctest
+    ADD_TEST(NAME ${example} COMMAND ${example})
 
   ENDFOREACH(example ${examples_slumt})
 ENDIF()

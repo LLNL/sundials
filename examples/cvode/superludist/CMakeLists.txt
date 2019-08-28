@@ -137,4 +137,7 @@ IF(EXAMPLES_INSTALL)
       )
   ENDIF(UNIX)
 
+  # add test_install target
+  SUNDIALS_ADD_TEST_INSTALL(cvode superludist)
+
 ENDIF(EXAMPLES_INSTALL)

@@ -24,6 +24,9 @@ cmake_minimum_required(VERSION 2.8)
 # Specify project name
 PROJECT(@SOLVER@_CUDA_cuda_examples)
 
+# Enable testing
+INCLUDE(CTest)
+
 # Use same compilers you used to build SUNDIALS to build examples
 set(CMAKE_C_COMPILER @CMAKE_C_COMPILER@)
 set(CMAKE_CXX_COMPILER @CMAKE_CXX_COMPILER@)
@@ -105,6 +108,9 @@ FOREACH(example ${examples})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} @MPI_CXX_LIBRARIES@)
+
+  # add the example to ctest
+  ADD_TEST(NAME ${example} COMMAND ${example})
 
 ENDFOREACH(example ${examples})
 

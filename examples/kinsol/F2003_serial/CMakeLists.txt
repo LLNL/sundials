@@ -113,4 +113,7 @@ if(EXAMPLES_INSTALL)
       )
   endif(UNIX)
 
+  # add test_install target
+  SUNDIALS_ADD_TEST_INSTALL(kinsol F2003_serial)
+
 endif(EXAMPLES_INSTALL)

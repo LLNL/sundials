@@ -118,4 +118,7 @@ IF(EXAMPLES_INSTALL)
       )
   ENDIF(UNIX)
 
+  # add test_install target
+  SUNDIALS_ADD_TEST_INSTALL(ida raja)
+
 ENDIF(EXAMPLES_INSTALL)

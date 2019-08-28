@@ -43,19 +43,28 @@ IF(SUNDIALS_DEVTESTS)
 ENDIF()
 
 
-# If examples are installed, create post install smoke tests
+# If examples are installed, create post install smoke test targets
 IF(EXAMPLES_INSTALL)
 
-  # Directory for installation testing
+  # Directories for installation testing
   SET(TEST_INSTALL_DIR ${PROJECT_BINARY_DIR}/Testing_Install)
+  SET(TEST_INSTALL_ALL_DIR ${PROJECT_BINARY_DIR}/Testing_Install_All)
 
-  # Create installation testing directory
+  # Create installation testing directories
   IF(NOT EXISTS ${TEST_INSTALL_DIR})
     FILE(MAKE_DIRECTORY ${TEST_INSTALL_DIR})
   ENDIF()
 
-  # Create test_install target for installation smoke test
+  IF(NOT EXISTS ${TEST_INSTALL_ALL_DIR})
+    FILE(MAKE_DIRECTORY ${TEST_INSTALL_ALL_DIR})
+  ENDIF()
+
+  # Create test_install and test_install_all targets
   ADD_CUSTOM_TARGET(test_install
+    ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+    "All installation tests complete.")
+
+  ADD_CUSTOM_TARGET(test_install_all
     ${CMAKE_COMMAND} -E cmake_echo_color --cyan
     "All installation tests complete.")
 

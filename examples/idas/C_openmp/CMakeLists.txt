@@ -69,7 +69,7 @@ FOREACH(example_tuple ${IDAS_examples})
   # ENDIF()
 
   # LEB NOTE: This goes away with TestRunner fix for OpenMP
-  IF(NOT ${example} MATCHES "idasFoodWeb_kry_omp") 
+  IF(NOT ${example} MATCHES "idasFoodWeb_kry_omp")
     # add example to regression tests
     SUNDIALS_ADD_TEST(${example} ${example}
       TEST_ARGS ${example_args}
@@ -139,5 +139,8 @@ IF(EXAMPLES_INSTALL)
       RENAME Makefile
       )
   ENDIF(UNIX)
+
+  # add test_install target
+  SUNDIALS_ADD_TEST_INSTALL(idas C_openmp)
 
 ENDIF(EXAMPLES_INSTALL)

@@ -24,6 +24,9 @@ cmake_minimum_required(VERSION 2.8)
 # Specify project name
 PROJECT(F90@SOLVER@_parallel_examples Fortran)
 
+# Enable testing
+INCLUDE(CTest)
+
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Set the names of the examples to be built
@@ -82,5 +85,8 @@ FOREACH(example ${examples})
 
   # libraries to link agaisnt
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+
+  # add the example to ctest
+  ADD_TEST(NAME ${example} COMMAND ${example})
 
 ENDFOREACH(example ${examples})

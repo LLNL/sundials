@@ -72,7 +72,7 @@ FOREACH(example_tuple ${IDAS_examples})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-    
+
     IF(NOT MPI_C_COMPILER)
       TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
     ENDIF()
@@ -152,5 +152,8 @@ IF(EXAMPLES_INSTALL)
       RENAME Makefile
       )
   ENDIF(UNIX)
+
+  # add test_install target
+  SUNDIALS_ADD_TEST_INSTALL(idas parallel)
 
 ENDIF(EXAMPLES_INSTALL)

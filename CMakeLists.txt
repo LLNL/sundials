@@ -276,7 +276,7 @@ IF(F2003_INTERFACE_ENABLE)
 
   # Allow a user to set where the Fortran modules will be installed
   SET(DOCSTR "Directory where Fortran module files are installed")
-  SHOW_VARIABLE(Fortran_INSTALL_MODDIR DIRECTORY "${DOCSTR}" "fortran")
+  SHOW_VARIABLE(Fortran_INSTALL_MODDIR STRING "${DOCSTR}" "fortran")
 ENDIF()
 
 # ---------------------------------------------------------------

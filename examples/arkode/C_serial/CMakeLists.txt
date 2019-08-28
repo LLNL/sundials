@@ -323,7 +323,6 @@ IF(EXAMPLES_INSTALL)
   ENDIF(UNIX)
 
   # add test_install target
-  SUNDIALS_ADD_TEST_INSTALL(arkode ark_analytic
-    EXAMPLE_DIR ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
+  SUNDIALS_ADD_TEST_INSTALL(arkode C_serial EXECUTABLE ark_analytic)
 
 ENDIF(EXAMPLES_INSTALL)

@@ -154,4 +154,7 @@ IF(EXAMPLES_INSTALL)
       )
   ENDIF(UNIX)
 
+  # add test_install target
+  SUNDIALS_ADD_TEST_INSTALL(cvodes parallel)
+
 ENDIF(EXAMPLES_INSTALL)

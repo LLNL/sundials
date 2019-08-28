@@ -208,10 +208,10 @@ IF(KLU_FOUND)
     IF(NOT TARGET ${example})
       # example source files
       ADD_EXECUTABLE(${example} ${example}.c)
-      
+
       # folder to organize targets in an IDE
       SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-      
+
       # libraries to link against
       TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
     ENDIF()
@@ -274,10 +274,10 @@ IF(SUPERLUMT_FOUND)
     IF(NOT TARGET ${example})
       # example source files
       ADD_EXECUTABLE(${example} ${example}.c)
-      
+
       # folder to organize targets in an IDE
       SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-      
+
       # libraries to link against
       TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
     ENDIF()
@@ -385,7 +385,6 @@ IF(EXAMPLES_INSTALL)
   ENDIF(UNIX)
 
   # add test_install target
-  SUNDIALS_ADD_TEST_INSTALL(idas idasRoberts_dns
-    EXAMPLE_DIR ${EXAMPLES_INSTALL_PATH}/idas/serial)
+  SUNDIALS_ADD_TEST_INSTALL(idas serial EXECUTABLE idasRoberts_dns)
 
 ENDIF(EXAMPLES_INSTALL)
