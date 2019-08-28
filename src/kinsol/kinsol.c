@@ -241,7 +241,7 @@ void *KINCreate(void)
   kin_mem->kin_R_aa             = NULL;
   kin_mem->kin_cv               = NULL;
   kin_mem->kin_Xv               = NULL;
-  kin_mem->kin_m_aa             = ZERO;
+  kin_mem->kin_m_aa             = 0;
   kin_mem->kin_aamem_aa         = 0;
   kin_mem->kin_setstop_aa       = 0;
   kin_mem->kin_constraintsSet   = SUNFALSE;

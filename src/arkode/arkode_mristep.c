@@ -1134,7 +1134,6 @@ int mriStep_EvolveInnerARK(void* inner_mem, realtype t0,
   realtype          hf, hi;          /* time step sizes            */
   realtype          tspan;           /* integration time span      */
   realtype          tret;            /* return time                */
-  int               nstep;           /* number of inner steps      */
   int               retval;          /* return value               */
 
   /* access the inner ARKStep mem structure */
@@ -1152,8 +1151,7 @@ int mriStep_EvolveInnerARK(void* inner_mem, realtype t0,
 
     /* compute inner step size */
     tspan = tout - t0;
-    nstep = ceil(tspan / hf);
-    hi    = tspan / nstep;
+    hi    = tspan / ceil(tspan / hf);
 
     /* set inner time step size */
     retval = ARKStepSetFixedStep(inner_mem, hi);
