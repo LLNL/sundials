@@ -35,7 +35,7 @@ The header file to be included when using this module
 is ``sunlinsol/sunlinsol_klu.h``.  The installed module
 library to link to is ``libsundials_sunlinsolklu`` *.lib*
 where *.lib* is typically ``.so`` for shared libraries and
-``.a`` for static libraries. 
+``.a`` for static libraries.
 
 The module SUNLinSol_KLU provides the following additional
 user-callable routines:
@@ -110,7 +110,39 @@ user-callable routines:
    (invalid ``ordering_choice``), or ``SUNLS_SUCCESS``.
 
 
-   
+.. c:function:: sun_klu_symbolic* SUNLinSol_KLUGetSymbolic(SUNLinearSolver S)
+
+   This function returns a pointer to the KLU symbolic factorization
+   stored in the SUNLinSol_KLU ``content`` structure.
+
+   When SUNDIALS is compiled with 32-bit indices (``SUNDIALS_INDEX_SIZE=32``),
+   ``sun_klu_symbolic`` is mapped to the KLU type ``klu_symbolic``; when
+   SUNDIALS compiled with 64-bit indices (``SUNDIALS_INDEX_SIZE=64``) this is
+   mapped to the KLU type ``klu_l_symbolic``.
+
+
+.. c:function:: sun_klu_numeric* SUNLinSol_KLUGetNumeric(SUNLinearSolver S)
+
+   This function returns a pointer to the KLU numeric factorization
+   stored in the SUNLinSol_KLU ``content`` structure.
+
+   When SUNDIALS is compiled with 32-bit indices (``SUNDIALS_INDEX_SIZE=32``),
+   ``sun_klu_numeric`` is mapped to the KLU type ``klu_numeric``; when
+   SUNDIALS is compiled with 64-bit indices (``SUNDIALS_INDEX_SIZE=64``) this is
+   mapped to the KLU type ``klu_l_numeric``.
+
+
+.. c:function:: sun_klu_common* SUNLinSol_KLUGetCommon(SUNLinearSolver S)
+
+   This function returns a pointer to the KLU common structure
+   stored in the SUNLinSol_KLU ``content`` structure.
+
+   When SUNDIALS is compiled with 32-bit indices (``SUNDIALS_INDEX_SIZE=32``),
+   ``sun_klu_common`` is mapped to the KLU type ``klu_common``; when
+   SUNDIALS is compiled with 64-bit indices  (``SUNDIALS_INDEX_SIZE=64``) this is
+   mapped to the KLU type ``klu_l_common``.
+
+
 For backwards compatibility, we also provide the wrapper functions,
 each with identical input and output arguments to the routines that
 they wrap:
@@ -127,7 +159,7 @@ they wrap:
 
    Wrapper function for :c:func:`SUNLinSol_KLUSetOrdering()`
 
-   
+
 
 For solvers that include a Fortran interface module, the
 SUNLinSol_KLU module also includes the Fortran-callable
@@ -215,7 +247,7 @@ matrix solvers:
    identical to those listed above.
 
 
-   
+
 
 
 .. _SUNLinSol_KLU.Description:
@@ -250,16 +282,23 @@ information:
   has ever been performed,
 
 * ``Symbolic`` - KLU storage structure for symbolic
-  factorization components,
+  factorization components, with underlying type ``klu_symbolic``
+  or ``klu_l_symbolic``, depending on whether SUNDIALS was
+  installed with 32-bit versus 64-bit indices, respectively,
 
 * ``Numeric`` - KLU storage structure for numeric factorization
-  components,
+  components, with underlying type ``klu_numeric``
+  or ``klu_l_numeric``, depending on whether SUNDIALS was
+  installed with 32-bit versus 64-bit indices, respectively,
 
 * ``Common`` - storage structure for common KLU solver
-  components,
+  components, with underlying type ``klu_common``
+  or ``klu_l_common``, depending on whether SUNDIALS was
+  installed with 32-bit versus 64-bit indices, respectively,
 
 * ``klu_solver`` -- pointer to the appropriate KLU solver function
-  (depending on whether it is using a CSR or CSC sparse matrix).
+  (depending on whether it is using a CSR or CSC sparse matrix, and
+  on whether SUNDIALS was installed with 32-bit or 64-bit indices).
 
 
 The SUNLinSol_KLU module is a ``SUNLinearSolver`` wrapper for
@@ -347,4 +386,3 @@ The SUNLinSol_KLU module defines implementations of all
   space requirements, see the KLU documentation.
 
 * ``SUNLinSolFree_KLU``
-

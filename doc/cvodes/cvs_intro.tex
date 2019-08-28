@@ -126,6 +126,12 @@ Added new functions, \id{CVodeGetCurrentGamma}, \id{CVodeGetCurrentState},
 be useful to users who choose to provide their own nonlinear solver
 implementations.
 
+Added three new accessor functions to the {\sunlinsolklu} module,
+\id{SUNLinSol\_KLUGetSymbolic}, \id{SUNLinSol\_KLUGetNumeric}, and
+\id{SUNLinSol\_KLUGetCommon}, to provide user access to the underlying
+{\klu} solver structures.
+
+
 \subsection*{Changes in v5.0.0-dev.1}
 
 Several new functions were added to aid in creating custom {\nvector},
@@ -148,7 +154,7 @@ The SUNLinearSolver API has been updated to make the initialize and setup
 functions optional.
 
 A new linear solver interface function \id{CVLsLinSysFn} was added as an
-alternative method for evaluating the linear system $M = I - \gamma J$. 
+alternative method for evaluating the linear system $M = I - \gamma J$.
 
 The CVLS interface has been updated to only zero the Jacobian matrix before
 calling a user-supplied Jacobian evaluation function when the attached linear
@@ -171,7 +177,7 @@ examples.
 
 The \id{*\_MPICuda} and \id{*\_MPIRaja} functions were removed from the {\nveccuda} and
 {\nvecraja} implementations respectively. Accordingly, the \id{nvector\_mpicuda.h},
-\id{nvector\_mpiraja.h}, \id{libsundials\_nvecmpicuda.lib}, and~ 
+\id{nvector\_mpiraja.h}, \id{libsundials\_nvecmpicuda.lib}, and~
 \id{libsundials\_nvecmpicudaraja.lib} files have been removed. Users should use
 the {\nvecmpiplusx} module coupled with {\nveccuda} or {\nvecraja} to replace the
 functionality. The necessary changes are minimal and should require few code
@@ -216,7 +222,7 @@ If an {\nvector} implementation defines any of the local operations as
 \id{NULL}, then the {\nvecmanyvector} will call standard {\nvector} operations
 to complete the computation.
 
-A new {\sunmatrix} and {\sunlinsol} implementation was added to facilitate 
+A new {\sunmatrix} and {\sunlinsol} implementation was added to facilitate
 the use of the {\superludist} library with SUNDIALS.
 
 A new operation, \id{SUNMatMatvecSetup}, was added to the {\sunmatrix} API. Users

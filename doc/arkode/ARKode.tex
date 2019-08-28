@@ -317,6 +317,11 @@ The reinitialization functions {\hyperref[ERKStep_c_interface/User_callable:c.ER
 retain the minimum and maxiumum step size values from before reinitialization
 rather than resetting them to the default values.
 
+Added three new accessor functions to the SUNLinSol\_KLU module,
+{\hyperref[sunlinsol/SUNLinSol_KLU:c.SUNLinSol_KLUGetSymbolic]{\emph{\code{SUNLinSol\_KLUGetSymbolic()}}}}, {\hyperref[sunlinsol/SUNLinSol_KLU:c.SUNLinSol_KLUGetNumeric]{\emph{\code{SUNLinSol\_KLUGetNumeric()}}}}, and
+{\hyperref[sunlinsol/SUNLinSol_KLU:c.SUNLinSol_KLUGetCommon]{\emph{\code{SUNLinSol\_KLUGetCommon()}}}}, to provide user access to the underlying
+KLU solver structures.
+
 
 \subsection{Changes in v4.0.0-dev.1}
 \label{Introduction:changes-in-v4-0-0-dev-1}
@@ -18591,7 +18596,8 @@ f_f(t,y)\).
 
 \end{description}
 
-\textbf{Notes:} If the inner (fast) stepper also needs to be reinitialized, its
+\textbf{Notes:}
+If the inner (fast) stepper also needs to be reinitialized, its
 reinitialization function should be called before calling
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} to reinitialize the outer stepper.
 
@@ -35157,6 +35163,48 @@ The return values from this function are \code{SUNLS\_MEM\_NULL}
 
 \end{fulllineitems}
 
+\index{SUNLinSol\_KLUGetSymbolic (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_KLU:c.SUNLinSol_KLUGetSymbolic}\pysiglinewithargsret{sun\_klu\_symbolic* \bfcode{SUNLinSol\_KLUGetSymbolic}}{SUNLinearSolver\emph{ S}}{}
+This function returns a pointer to the KLU symbolic factorization
+stored in the SUNLinSol\_KLU \code{content} structure.
+
+When SUNDIALS is compiled with 32-bit indices (\code{SUNDIALS\_INDEX\_SIZE=32}),
+\code{sun\_klu\_symbolic} is mapped to the KLU type \code{klu\_symbolic}; when
+SUNDIALS compiled with 64-bit indices (\code{SUNDIALS\_INDEX\_SIZE=64}) this is
+mapped to the KLU type \code{klu\_l\_symbolic}.
+
+\end{fulllineitems}
+
+\index{SUNLinSol\_KLUGetNumeric (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_KLU:c.SUNLinSol_KLUGetNumeric}\pysiglinewithargsret{sun\_klu\_numeric* \bfcode{SUNLinSol\_KLUGetNumeric}}{SUNLinearSolver\emph{ S}}{}
+This function returns a pointer to the KLU numeric factorization
+stored in the SUNLinSol\_KLU \code{content} structure.
+
+When SUNDIALS is compiled with 32-bit indices (\code{SUNDIALS\_INDEX\_SIZE=32}),
+\code{sun\_klu\_numeric} is mapped to the KLU type \code{klu\_numeric}; when
+SUNDIALS is compiled with 64-bit indices (\code{SUNDIALS\_INDEX\_SIZE=64}) this is
+mapped to the KLU type \code{klu\_l\_numeric}.
+
+\end{fulllineitems}
+
+\index{SUNLinSol\_KLUGetCommon (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_KLU:c.SUNLinSol_KLUGetCommon}\pysiglinewithargsret{sun\_klu\_common* \bfcode{SUNLinSol\_KLUGetCommon}}{SUNLinearSolver\emph{ S}}{}
+This function returns a pointer to the KLU common structure
+stored in the SUNLinSol\_KLU \code{content} structure.
+
+When SUNDIALS is compiled with 32-bit indices (\code{SUNDIALS\_INDEX\_SIZE=32}),
+\code{sun\_klu\_common} is mapped to the KLU type \code{klu\_common}; when
+SUNDIALS is compiled with 64-bit indices  (\code{SUNDIALS\_INDEX\_SIZE=64}) this is
+mapped to the KLU type \code{klu\_l\_common}.
+
+\end{fulllineitems}
+
 
 For backwards compatibility, we also provide the wrapper functions,
 each with identical input and output arguments to the routines that
@@ -35337,19 +35385,26 @@ has ever been performed,
 
 \item {} 
 \code{Symbolic} - KLU storage structure for symbolic
-factorization components,
+factorization components, with underlying type \code{klu\_symbolic}
+or \code{klu\_l\_symbolic}, depending on whether SUNDIALS was
+installed with 32-bit versus 64-bit indices, respectively,
 
 \item {} 
 \code{Numeric} - KLU storage structure for numeric factorization
-components,
+components, with underlying type \code{klu\_numeric}
+or \code{klu\_l\_numeric}, depending on whether SUNDIALS was
+installed with 32-bit versus 64-bit indices, respectively,
 
 \item {} 
 \code{Common} - storage structure for common KLU solver
-components,
+components, with underlying type \code{klu\_common}
+or \code{klu\_l\_common}, depending on whether SUNDIALS was
+installed with 32-bit versus 64-bit indices, respectively,
 
 \item {} 
 \code{klu\_solver} -- pointer to the appropriate KLU solver function
-(depending on whether it is using a CSR or CSC sparse matrix).
+(depending on whether it is using a CSR or CSC sparse matrix, and
+on whether SUNDIALS was installed with 32-bit or 64-bit indices).
 
 \end{itemize}
 

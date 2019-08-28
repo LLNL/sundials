@@ -15,6 +15,11 @@ MRIStepReInit() have been updated to retain the minimum and maxiumum step
 size values from before reinitialization rather than resetting them to the
 default values.
 
+Added three new accessor functions to the SUNLinSol_KLU module,
+SUNLinSol_KLUGetSymbolic(), SUNLinSol_KLUGetNumeric(), and
+SUNLinSol_KLUGetCommon(), to provide user access to the underlying
+KLU solver structures.
+
 
 
 Changes to SUNDIALS in release 5.0.0-dev.1

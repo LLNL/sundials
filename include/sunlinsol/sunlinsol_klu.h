@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- * Based on sundials_klu_impl.h and arkode_klu.h/cvode_klu.h/... 
+ * Based on sundials_klu_impl.h and arkode_klu.h/cvode_klu.h/...
  *     code, written by Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -14,11 +14,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the KLU implementation of the 
+ * This is the header file for the KLU implementation of the
  * SUNLINSOL module, SUNLINSOL_KLU.
- * 
+ *
  * Note:
- *   - The definition of the generic SUNLinearSolver structure can 
+ *   - The definition of the generic SUNLinearSolver structure can
  *     be found in the header file sundials_linearsolver.h.
  * -----------------------------------------------------------------
  */
@@ -87,7 +87,7 @@ extern "C" {
 typedef sunindextype (*KLUSolveFn)(sun_klu_symbolic*, sun_klu_numeric*,
                                    sunindextype, sunindextype,
                                    double*, sun_klu_common*);
- 
+
 struct _SUNLinearSolverContent_KLU {
   long int         last_flag;
   int              first_factorize;
@@ -99,7 +99,7 @@ struct _SUNLinearSolverContent_KLU {
 
 typedef struct _SUNLinearSolverContent_KLU *SUNLinearSolverContent_KLU;
 
-  
+
 /* -------------------------------------
  * Exported Functions for SUNLINSOL_KLU
  * ------------------------------------- */
@@ -119,6 +119,19 @@ SUNDIALS_EXPORT int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
 SUNDIALS_EXPORT int SUNKLUSetOrdering(SUNLinearSolver S,
                                       int ordering_choice);
 
+/* --------------------
+ *  Accessor functions
+ * -------------------- */
+
+SUNDIALS_EXPORT sun_klu_symbolic* SUNLinSol_KLUGetSymbolic(SUNLinearSolver S);
+SUNDIALS_EXPORT sun_klu_numeric* SUNLinSol_KLUGetNumeric(SUNLinearSolver S);
+SUNDIALS_EXPORT sun_klu_common* SUNLinSol_KLUGetCommon(SUNLinearSolver S);
+
+
+/* -----------------------------------------------
+ *  Implementations of SUNLinearSolver operations
+ * ----------------------------------------------- */
+
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A);
@@ -129,7 +142,7 @@ SUNDIALS_EXPORT int SUNLinSolSpace_KLU(SUNLinearSolver S,
                                        long int *lenrwLS,
                                        long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_KLU(SUNLinearSolver S);
-  
+
 
 #ifdef __cplusplus
 }

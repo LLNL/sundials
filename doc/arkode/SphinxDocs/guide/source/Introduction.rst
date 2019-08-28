@@ -126,6 +126,12 @@ The reinitialization functions :c:func:`ERKStepReInit()`,
 retain the minimum and maxiumum step size values from before reinitialization
 rather than resetting them to the default values.
 
+Added three new accessor functions to the SUNLinSol_KLU module,
+:c:func:`SUNLinSol_KLUGetSymbolic()`, :c:func:`SUNLinSol_KLUGetNumeric()`, and
+:c:func:`SUNLinSol_KLUGetCommon()`, to provide user access to the underlying
+KLU solver structures.
+
+
 
 Changes in v4.0.0-dev.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -183,7 +189,7 @@ the MPI+X paradigm, where X is a type of on-node parallelism (e.g. OpenMP, CUDA)
 The implementation is accompanied by additions to user documentation and SUNDIALS
 examples.
 
-The \*_MPICuda and \*_MPIRaja functions were removed from the NVECTOR_CUDA and 
+The \*_MPICuda and \*_MPIRaja functions were removed from the NVECTOR_CUDA and
 NVECTOR_RAJA implementations respectively. Accordingly, the ``nvector_mpicuda.h``,
 ``nvector_mpiraja.h``, ``libsundials_nvecmpicuda.lib``, and ``libsundials_nvecmpicudaraja.lib``
 files have been removed. Users should use the NVECTOR_MPIPLUSX module coupled with
@@ -234,7 +240,7 @@ If an NVECTOR implementation defines any of the local operations as ``NULL``,
 then the NVECTOR_MANYVECTOR will call standard NVECTOR operations to complete
 the computation.
 
-A new SUNMatrix and SUNLinearSolver implementation was added to facilitate 
+A new SUNMatrix and SUNLinearSolver implementation was added to facilitate
 the use of the SuperLU_DIST library with SUNDIALS.
 
 A new operation, ``SUNMatMatvecSetup``, was added to the SUNMatrix API. Users
