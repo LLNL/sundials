@@ -66,14 +66,9 @@ typedef struct ARKodeMRIStepMemRec {
   MRISTEP_ID      inner_stepper_id;   /* inner stepper identifier        */
   MRIEvolveInner  inner_evolve;       /* inner stepper evolve function   */
 
-  /* Wrappers for user-supplied inner stepper functions */
-  ARKEwtFn             inner_ewtfn;
-  ARKPostProcessStepFn inner_postprocessstepfn;
-  ARKLsJacFn           inner_jacfn;
-  ARKLsJacTimesSetupFn inner_jactimessetupfn;
-  ARKLsJacTimesVecFn   inner_jactimesvecfn;
-  ARKLsPrecSetupFn     inner_precsetupfn;
-  ARKLsPrecSolveFn     inner_precsolvefn;
+  /* Wrappers for user-supplied pre and post inner evolve functions */
+  ARKOuterToInnerFn pre_inner_evolve;
+  ARKInnerToOuterFn post_inner_evolve;
 
   /* Counters */
   long int nfs;  /* num fs calls */

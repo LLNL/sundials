@@ -121,6 +121,10 @@ Added two new 'Get' functions to ARKStep, :c:func:`ARKStepGetCurrentGamma()`,
 and :c:func:`ARKStepGetCurrentState`, that may be useful to users who choose
 to provide their own nonlinear solver implementation.
 
+Add two new 'Set' functions to MRIStep, :c:func:`MRIStepSetPreInnerFn()` and
+:c:func:`MRIStepSetPostInnerFn()` for performing communication or memory
+transfers needed before or after the inner integration.
+
 The reinitialization functions :c:func:`ERKStepReInit()`,
 :c:func:`ARKStepReInit()`, and :c:func:`MRIStepReInit()` have been updated to
 retain the minimum and maxiumum step size values from before reinitialization

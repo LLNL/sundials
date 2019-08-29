@@ -87,6 +87,10 @@ SUNDIALS_EXPORT int MRIStepSetDiagnostics(void *arkode_mem,
                                           FILE *diagfp);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessStepFn ProcessStep);
+SUNDIALS_EXPORT int MRIStepSetPreInnerFn(void *arkode_mem,
+                                         ARKOuterToInnerFn prefn);
+SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void *arkode_mem,
+                                          ARKInnerToOuterFn postfn);
 
 
 /* Integrate the ODE over an interval in t */

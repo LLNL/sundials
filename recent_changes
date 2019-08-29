@@ -10,6 +10,10 @@ Added functions to get the current state and gamma value to CVODE(S) and ARKode.
 These functions may be useful to users who chose to provide their own nonlinear
 solver implementation.
 
+Add two new 'Set' functions to MRIStep, MRIStepSetPreInnerFn() and
+MRIStepSetPostInnerFn() for performing communication or memory
+transfers needed before or after the inner integration.
+
 The reinitialization functions ERKStepReInit(), ARKStepReInit(), and
 MRIStepReInit() have been updated to retain the minimum and maxiumum step
 size values from before reinitialization rather than resetting them to the

@@ -511,6 +511,50 @@ int MRIStepSetTableNum(void *arkode_mem, int itable)
   return(ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  MRIStepSetPreInnerFn:
+
+  Sets the user-supplied function called BEFORE the inner evolve
+  ---------------------------------------------------------------*/
+int MRIStepSetPreInnerFn(void *arkode_mem, ARKOuterToInnerFn prefn)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDefaults",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Set pre inner evolve function */
+  step_mem->pre_inner_evolve = prefn;
+
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  MRIStepSetPostInnerFn:
+
+  Sets the user-supplied function called AFTER the inner evolve
+  ---------------------------------------------------------------*/
+int MRIStepSetPostInnerFn(void *arkode_mem, ARKInnerToOuterFn postfn)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDefaults",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Set pre inner evolve function */
+  step_mem->post_inner_evolve = postfn;
+
+  return(ARK_SUCCESS);
+}
+
 
 /*===============================================================
   MRIStep optional output functions -- stepper-specific

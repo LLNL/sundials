@@ -87,7 +87,7 @@ specify the right-hand side of the ODE system:
       situations in which recovery is not possible even if the right-hand side
       function returns a recoverable error flag. One is when this occurs at the
       very first call to the *ARKRhsFn* (in which case MRIStep returns
-      *ARK_FIRST_RHSFUNC_ERR*). 
+      *ARK_FIRST_RHSFUNC_ERR*).
 
 
 
@@ -321,3 +321,58 @@ following form:
    **Notes:**  If this function is not supplied, then MRIStep will
    instead destroy the vector *y* and clone a new vector *y* off of
    *ytemplate*.
+
+.. _MRIStep_CInterface.OuterToInner:
+
+Outer integrator to inner integrator communication function
+------------------------------------------------------------
+
+The user may supply a function of type :c:type:`ARKOuterToInnerFn` that will be
+called *before* each inner integration to perform any communication or
+memory transfers needed for the inner integration.
+
+
+.. c:type:: typedef int (*ARKOuterToInnerFn)(realtype t, N_Vector y, void* user_data)
+
+   **Arguments:**
+      * *t* -- the current value of the independent variable.
+      * *y* -- the current value of the dependent variable vector.
+      * *user_data* -- the `user_data` pointer that was passed to
+        :c:func:`MRIStepSetUserData()`.
+
+   **Return value:**
+   An *ARKOuterToInner* function should return 0 if successful, a positive value
+   if a recoverable error occurred, or a negative value if an unrecoverable
+   error occurred. As the MRIStep module only supports fixed step sizes at this
+   time any non-zero return value will halt the integration.
+
+   **Notes:**
+   The input state vector *must* not be modified by this function.
+
+
+.. _MRIStep_CInterface.InnerToOuter:
+
+Inner integrator to outer integrator communication function
+------------------------------------------------------------
+
+The user may supply a function of type :c:type:`ARKInnerToOuterFn` that will be
+called *after* each inner integration to perform any communication or
+memory transfers needed for the outer integration.
+
+
+.. c:type:: typedef int (*ARKInnerToOuterFn)(realtype t, N_Vector y, void* user_data)
+
+   **Arguments:**
+      * *t* -- the current value of the independent variable.
+      * *y* -- the current value of the dependent variable vector.
+      * *user_data* -- the `user_data` pointer that was passed to
+        :c:func:`MRIStepSetUserData()`.
+
+   **Return value:**
+   An *ARKInnerToOuter* function should return 0 if successful, a positive value
+   if a recoverable error occurred, or a negative value if an unrecoverable
+   error occurred. As the MRIStep module only supports fixed step sizes at this
+   time any non-zero return value will halt the integration.
+
+   **Notes:**
+   The input state vector *must* not be modified by this function.

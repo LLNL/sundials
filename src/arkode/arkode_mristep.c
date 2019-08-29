@@ -473,6 +473,10 @@ void* mriStep_Create(ARKRhsFn fs, realtype t0, N_Vector y0)
   /* Initialize all the counters */
   step_mem->nfs = 0;
 
+  /* Initialize pre and post inner evolve functions */
+  step_mem->pre_inner_evolve  = NULL;
+  step_mem->post_inner_evolve = NULL;
+
   /* Initialize main ARKode infrastructure (allocates vectors) */
   retval = arkInit(ark_mem, t0, y0);
   if (retval != ARK_SUCCESS) {
@@ -816,13 +820,28 @@ int mriStep_TakeStep(void* arkode_mem)
                                     step_mem->inner_forcing);
       if (retval != 0) return(ARK_VECTOROP_ERR);
 
-      /* advance inner method in time */
+      /* initial time for inner integrator */
       t0 = ark_mem->tn + step_mem->B->c[is-1]*ark_mem->h;
 
+      /* pre inner evolve function */
+      if (step_mem->pre_inner_evolve) {
+        retval = step_mem->pre_inner_evolve(t0, ark_mem->ycur,
+                                            ark_mem->user_data);
+        if (retval != 0) return(ARK_OUTERTOINNER_FAIL);
+      }
+
+      /* advance inner method in time */
       step_mem->inner_retval =
         step_mem->inner_evolve(step_mem->inner_mem, t0, ark_mem->ycur,
                                ark_mem->tcur);
       if (step_mem->inner_retval < 0) return(ARK_INNERSTEP_FAIL);
+
+      /* post inner evolve function */
+      if (step_mem->post_inner_evolve) {
+        retval = step_mem->post_inner_evolve(ark_mem->tcur, ark_mem->ycur,
+                                             ark_mem->user_data);
+        if (retval != 0) return(ARK_INNERTOOUTER_FAIL);
+      }
 
       /* compute updated slow RHS */
       retval = step_mem->fs(ark_mem->tcur, ark_mem->ycur,
@@ -840,6 +859,9 @@ int mriStep_TakeStep(void* arkode_mem)
 
     /* Compute time step solution */
 
+    /* set current time for solution */
+    ark_mem->tcur = ark_mem->tn + ark_mem->h;
+
     /* compute forcing vector of inner steps (assumes c[stages-1] != 1) */
     rcdiff = ONE / (ONE - step_mem->B->c[step_mem->stages-1]);
     nvec = 0;
@@ -852,13 +874,28 @@ int mriStep_TakeStep(void* arkode_mem)
     retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->inner_forcing);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
-    /* advance inner method in time */
+    /* initial time for inner integrator */
     t0 = ark_mem->tn + step_mem->B->c[step_mem->stages-1]*ark_mem->h;
 
+    /* pre inner evolve function */
+    if (step_mem->pre_inner_evolve) {
+      retval = step_mem->pre_inner_evolve(t0, ark_mem->ycur,
+                                          ark_mem->user_data);
+      if (retval != 0) return(ARK_OUTERTOINNER_FAIL);
+    }
+
+    /* advance inner method in time */
     step_mem->inner_retval =
       step_mem->inner_evolve(step_mem->inner_mem, t0, ark_mem->ycur,
-                             ark_mem->tn + ark_mem->h);
+                             ark_mem->tcur);
     if (step_mem->inner_retval < 0) return(ARK_INNERSTEP_FAIL);
+
+    /* post inner evolve function */
+    if (step_mem->post_inner_evolve) {
+      retval = step_mem->post_inner_evolve(ark_mem->tcur, ark_mem->ycur,
+                                           ark_mem->user_data);
+      if (retval != 0) return(ARK_INNERTOOUTER_FAIL);
+    }
 
 #ifdef DEBUG_OUTPUT
     printf("error estimate = %"RSYM"\n", dsm);

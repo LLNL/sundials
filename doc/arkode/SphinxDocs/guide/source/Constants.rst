@@ -316,8 +316,17 @@ Shared ARKode output constants
    An error occurred when calling a set/get routine in a SUNNonlinearSolver
    module.
 
-:index:`ARK_INNERSTEP_OP_ERR`  (-34):
-   An error occurred when calling an internal stepper within an ARKode module.
+:index:`ARK_INNERSTEP_ATTACH_ERR`  (-34):
+   An error occurred when attaching the inner stepper module.
+
+:index:`ARK_INNERSTEP_FAIL`  (-35):
+   An error occurred in the inner stepper module.
+
+:index:`ARK_OUTERTOINNER_FAIL`  (-36):
+   An error occurred in the outer integrator to inner integrator communication function.
+
+:index:`ARK_INNERTOOUTER_FAIL`  (-36):
+   An error occurred in the inner integrator to outer integrator communication function.
 
 :index:`ARK_UNRECOGNIZED_ERROR` (-99):
    An unknown error was encountered.
