@@ -129,12 +129,6 @@ typedef int (*ARKVecResizeFn)(N_Vector y, N_Vector ytemplate,
 typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y,
                                     void *user_data);
 
-typedef int (*ARKOuterToInnerFn)(realtype t, N_Vector y,
-                                 void *user_data);
-
-typedef int (*ARKInnerToOuterFn)(realtype t, N_Vector y,
-                                 void *user_data);
-
 #ifdef __cplusplus
 }
 #endif

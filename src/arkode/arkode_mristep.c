@@ -118,15 +118,17 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
 
   /* Resize the inner forcing vector */
   if (step_mem->inner_forcing != NULL) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                          liw_diff, y0, &step_mem->inner_forcing);
-    if (retval != ARK_SUCCESS) return(retval);
+    for (i = 0; i < step_mem->inner_num_forcing; i++) {
+      retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                            liw_diff, y0, &(step_mem->inner_forcing[i]));
+      if (retval != ARK_SUCCESS) return(retval);
+    }
   }
 
   /* Resize the RHS vectors */
   for (i=0; i<step_mem->stages; i++) {
     retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &step_mem->F[i]);
+                          liw_diff, y0, &step_mem->F[i]);
     if (retval != ARK_SUCCESS)  return(retval);
   }
 
@@ -304,8 +306,10 @@ void MRIStepFree(void **arkode_mem)
 
     /* free the inner forcing vector */
     if (step_mem->inner_forcing != NULL) {
-      arkFreeVec(ark_mem, &step_mem->inner_forcing);
-      step_mem->inner_forcing = NULL;
+      for (j = 0; j < step_mem->inner_num_forcing; j++) {
+        arkFreeVec(ark_mem, &(step_mem->inner_forcing[j]));
+        step_mem->inner_forcing[j] = NULL;
+      }
     }
 
     /* free the RHS vectors */
@@ -457,11 +461,8 @@ void* mriStep_Create(ARKRhsFn fs, realtype t0, N_Vector y0)
   }
 
   /* Allocate the general MRI stepper vectors using y0 as a template */
-  /* NOTE: F, cvals and Xvecs will be allocated later on
-     (based on the number of MRI stages) */
-
-  /* Clone input vector to create inner RHS forcing vector */
-  if (!arkAllocVec(ark_mem, y0, &(step_mem->inner_forcing))) return(NULL);
+  /* NOTE: F, inner_forcing, cvals and Xvecs will be allocated later on
+     (based on the MRI method) */
 
   /* Copy the slow RHS function into stepper memory */
   step_mem->fs = fs;
@@ -482,7 +483,6 @@ void* mriStep_Create(ARKRhsFn fs, realtype t0, N_Vector y0)
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKode::MRIStep", "MRIStepCreate",
                     "Unable to initialize main ARKode infrastructure");
-    arkFreeVec(ark_mem, &(step_mem->inner_forcing));
     return(NULL);
   }
 
@@ -609,6 +609,17 @@ int mriStep_Init(void* arkode_mem, int init_type)
       return(ARK_MEM_FAIL);
   }
   ark_mem->liw += step_mem->stages;  /* pointers */
+
+  /* Allocate MRI forcing vectors if needed */
+  step_mem->inner_num_forcing = 1; /* only support 1 forcing vector at this time */
+  if (step_mem->inner_forcing == NULL) {
+    step_mem->inner_forcing = (N_Vector *) calloc(step_mem->inner_num_forcing,
+                                                  sizeof(N_Vector));
+    for (j = 0; j < step_mem->inner_num_forcing; j++) {
+      if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->inner_forcing[j])))
+        return(ARK_MEM_FAIL);
+    }
+  }
 
   /* Allocate reusable arrays for fused vector interface */
   if (step_mem->cvals == NULL) {
@@ -817,7 +828,7 @@ int mriStep_TakeStep(void* arkode_mem)
       }
 
       retval = N_VLinearCombination(nvec, cvals, Xvecs,
-                                    step_mem->inner_forcing);
+                                    step_mem->inner_forcing[0]);
       if (retval != 0) return(ARK_VECTOROP_ERR);
 
       /* initial time for inner integrator */
@@ -825,7 +836,8 @@ int mriStep_TakeStep(void* arkode_mem)
 
       /* pre inner evolve function */
       if (step_mem->pre_inner_evolve) {
-        retval = step_mem->pre_inner_evolve(t0, ark_mem->ycur,
+        retval = step_mem->pre_inner_evolve(t0, step_mem->inner_forcing,
+                                            step_mem->inner_num_forcing,
                                             ark_mem->user_data);
         if (retval != 0) return(ARK_OUTERTOINNER_FAIL);
       }
@@ -871,7 +883,7 @@ int mriStep_TakeStep(void* arkode_mem)
       nvec++;
     }
 
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->inner_forcing);
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->inner_forcing[0]);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* initial time for inner integrator */
@@ -879,7 +891,8 @@ int mriStep_TakeStep(void* arkode_mem)
 
     /* pre inner evolve function */
     if (step_mem->pre_inner_evolve) {
-      retval = step_mem->pre_inner_evolve(t0, ark_mem->ycur,
+      retval = step_mem->pre_inner_evolve(t0, step_mem->inner_forcing,
+                                          step_mem->inner_num_forcing,
                                           ark_mem->user_data);
       if (retval != 0) return(ARK_OUTERTOINNER_FAIL);
     }
@@ -1235,7 +1248,7 @@ int mriStep_InnerRhsFnForcing(realtype t, N_Vector y, N_Vector ydot,
   if (retval != 0) return(retval);
 
   /* add forcing from the outer integrator */
-  N_VLinearSum(ONE, step_mem->inner_forcing, ONE, ydot, ydot);
+  N_VLinearSum(ONE, step_mem->inner_forcing[0], ONE, ydot, ydot);
 
   /* successfully computed RHS */
   return(0);

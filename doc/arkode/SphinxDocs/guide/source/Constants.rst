@@ -322,11 +322,11 @@ Shared ARKode output constants
 :index:`ARK_INNERSTEP_FAIL`  (-35):
    An error occurred in the inner stepper module.
 
-:index:`ARK_OUTERTOINNER_FAIL`  (-36):
-   An error occurred in the outer integrator to inner integrator communication function.
+:index:`ARK_PREINNERFN_FAIL`  (-36):
+   An error occurred in the MRIStep pre inner integrator function.
 
-:index:`ARK_INNERTOOUTER_FAIL`  (-36):
-   An error occurred in the inner integrator to outer integrator communication function.
+:index:`ARK_POSTINNERFN_FAIL`  (-37):
+   An error occurred in the MRIStep post inner integrator function.
 
 :index:`ARK_UNRECOGNIZED_ERROR` (-99):
    An unknown error was encountered.

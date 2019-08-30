@@ -516,7 +516,7 @@ int MRIStepSetTableNum(void *arkode_mem, int itable)
 
   Sets the user-supplied function called BEFORE the inner evolve
   ---------------------------------------------------------------*/
-int MRIStepSetPreInnerFn(void *arkode_mem, ARKOuterToInnerFn prefn)
+int MRIStepSetPreInnerFn(void *arkode_mem, MRIStepPreInnerFn prefn)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -538,7 +538,7 @@ int MRIStepSetPreInnerFn(void *arkode_mem, ARKOuterToInnerFn prefn)
 
   Sets the user-supplied function called AFTER the inner evolve
   ---------------------------------------------------------------*/
-int MRIStepSetPostInnerFn(void *arkode_mem, ARKInnerToOuterFn postfn)
+int MRIStepSetPostInnerFn(void *arkode_mem, MRIStepPostInnerFn postfn)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;

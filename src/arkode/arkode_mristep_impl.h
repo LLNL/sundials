@@ -60,15 +60,16 @@ typedef struct ARKodeMRIStepMemRec {
   ARKodeButcherTable B;   /* MRI Butcher table      */
 
   /* Inner stepper data */
-  void           *inner_mem;          /* inner stepper memory            */
-  N_Vector        inner_forcing;      /* RHS forcing vector              */
-  int             inner_retval;       /* last inner stepper return value */
-  MRISTEP_ID      inner_stepper_id;   /* inner stepper identifier        */
-  MRIEvolveInner  inner_evolve;       /* inner stepper evolve function   */
+  void           *inner_mem;         /* inner stepper memory            */
+  N_Vector       *inner_forcing;     /* RHS forcing vectors             */
+  int             inner_num_forcing; /* number of RHS forcing vectors   */
+  int             inner_retval;      /* last inner stepper return value */
+  MRISTEP_ID      inner_stepper_id;  /* inner stepper identifier        */
+  MRIEvolveInner  inner_evolve;      /* inner stepper evolve function   */
 
   /* Wrappers for user-supplied pre and post inner evolve functions */
-  ARKOuterToInnerFn pre_inner_evolve;
-  ARKInnerToOuterFn post_inner_evolve;
+  MRIStepPreInnerFn  pre_inner_evolve;
+  MRIStepPostInnerFn post_inner_evolve;
 
   /* Counters */
   long int nfs;  /* num fs calls */

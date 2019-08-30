@@ -17622,7 +17622,7 @@ integrator.
 \index{MRIStepSetPreInnerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetPreInnerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetPreInnerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKInnerToOuterFn]{\emph{ARKInnerToOuterFn}}}\emph{ prefn}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetPreInnerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetPreInnerFn}}{void*\emph{ arkode\_mem}, ARKInnerToOuterFn\emph{ prefn}}{}
 Specifies the function called \emph{before} each inner integration.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -17651,7 +17651,7 @@ defining pre inner integration function.
 \index{MRIStepSetPostInnerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetPostInnerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetPostInnerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKOuterToInnerFn]{\emph{ARKOuterToInnerFn}}}\emph{ postfn}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetPostInnerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetPostInnerFn}}{void*\emph{ arkode\_mem}, ARKOuterToInnerFn\emph{ postfn}}{}
 Specifies the function called \emph{after} each inner integration.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -18962,21 +18962,25 @@ instead destroy the vector \emph{y} and clone a new vector \emph{y} off of
 
 
 
-\subsection{Outer integrator to inner integrator communication function}
-\label{MRIStep_c_interface/User_supplied:outer-integrator-to-inner-integrator-communication-function}\label{MRIStep_c_interface/User_supplied:mristep-cinterface-outertoinner}
-The user may supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKOuterToInnerFn]{\emph{\code{ARKOuterToInnerFn}}}} that will be
+\subsection{Pre inner integrator communication function}
+\label{MRIStep_c_interface/User_supplied:pre-inner-integrator-communication-function}\label{MRIStep_c_interface/User_supplied:mristep-cinterface-preinnerfn}
+The user may supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.MRIStepPreInnerFn]{\emph{\code{MRIStepPreInnerFn}}}} that will be
 called \emph{before} each inner integration to perform any communication or
-memory transfers needed for the inner integration.
-\index{ARKOuterToInnerFn (C type)}
+memory transfers of forcing data supplied by the the outer integrator to inner
+integrator for the inner integration.
+\index{MRIStepPreInnerFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_supplied:c.ARKOuterToInnerFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKOuterToInnerFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, void*\emph{ user\_data}}{}~\begin{description}
+\phantomsection\label{MRIStep_c_interface/User_supplied:c.MRIStepPreInnerFn}\pysiglinewithargsret{typedef int \bfcode{(*MRIStepPreInnerFn)}}{realtype\emph{ t}, N\_Vector*\emph{ f}, int\emph{ num\_vecs}, void*\emph{ user\_data}}{}~\begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{t} -- the current value of the independent variable.
 
 \item {} 
-\emph{y} -- the current value of the dependent variable vector.
+\emph{f} -- an \code{N\_Vector} array of outer forcing vectors.
+
+\item {} 
+\emph{num\_vecs} -- the number of vectors in the \code{N\_Vector} array.
 
 \item {} 
 \emph{user\_data} -- the \emph{user\_data} pointer that was passed to
@@ -18987,27 +18991,29 @@ memory transfers needed for the inner integration.
 \end{description}
 
 \textbf{Return value:}
-An \emph{ARKOuterToInner} function should return 0 if successful, a positive value
+An \emph{MRIStepPreInnerFn} function should return 0 if successful, a positive value
 if a recoverable error occurred, or a negative value if an unrecoverable
 error occurred. As the MRIStep module only supports fixed step sizes at this
 time any non-zero return value will halt the integration.
 
 \textbf{Notes:}
-The input state vector \emph{must} not be modified by this function.
+In a heterogeneous computing environment if any data copies between the host
+and device vector data are necessary, this is where that should occur.
 
 \end{fulllineitems}
 
 
 
-\subsection{Inner integrator to outer integrator communication function}
-\label{MRIStep_c_interface/User_supplied:mristep-cinterface-innertoouter}\label{MRIStep_c_interface/User_supplied:inner-integrator-to-outer-integrator-communication-function}
-The user may supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKInnerToOuterFn]{\emph{\code{ARKInnerToOuterFn}}}} that will be
+\subsection{Post inner integrator communication function}
+\label{MRIStep_c_interface/User_supplied:mristep-cinterface-postinnerfn}\label{MRIStep_c_interface/User_supplied:post-inner-integrator-communication-function}
+The user may supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.MRIStepPostInnerFn]{\emph{\code{MRIStepPostInnerFn}}}} that will be
 called \emph{after} each inner integration to perform any communication or
-memory transfers needed for the outer integration.
-\index{ARKInnerToOuterFn (C type)}
+memory transfers of state data supplied by the inner integrator to the
+outer integrator for the outer integration.
+\index{MRIStepPostInnerFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_supplied:c.ARKInnerToOuterFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKInnerToOuterFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, void*\emph{ user\_data}}{}~\begin{description}
+\phantomsection\label{MRIStep_c_interface/User_supplied:c.MRIStepPostInnerFn}\pysiglinewithargsret{typedef int \bfcode{(*MRIStepPostInnerFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, void*\emph{ user\_data}}{}~\begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{t} -- the current value of the independent variable.
@@ -19024,13 +19030,14 @@ memory transfers needed for the outer integration.
 \end{description}
 
 \textbf{Return value:}
-An \emph{ARKInnerToOuter} function should return 0 if successful, a positive value
+An \emph{MRIStepPostInnerFn} function should return 0 if successful, a positive value
 if a recoverable error occurred, or a negative value if an unrecoverable
 error occurred. As the MRIStep module only supports fixed step sizes at this
 time any non-zero return value will halt the integration.
 
 \textbf{Notes:}
-The input state vector \emph{must} not be modified by this function.
+In a heterogeneous computing environment if any data copies between the host
+and device vector data are necessary, this is where that should occur.
 
 \end{fulllineitems}
 
@@ -42298,11 +42305,11 @@ An error occurred when attaching the inner stepper module.
 \item[{\index{ARK\_INNERSTEP\_FAIL}ARK\_INNERSTEP\_FAIL  (-35):}] \leavevmode
 An error occurred in the inner stepper module.
 
-\item[{\index{ARK\_OUTERTOINNER\_FAIL}ARK\_OUTERTOINNER\_FAIL  (-36):}] \leavevmode
-An error occurred in the outer integrator to inner integrator communication function.
+\item[{\index{ARK\_PREINNERFN\_FAIL}ARK\_PREINNERFN\_FAIL  (-36):}] \leavevmode
+An error occurred in the MRIStep pre inner integrator function.
 
-\item[{\index{ARK\_INNERTOOUTER\_FAIL}ARK\_INNERTOOUTER\_FAIL  (-36):}] \leavevmode
-An error occurred in the inner integrator to outer integrator communication function.
+\item[{\index{ARK\_POSTINNERFN\_FAIL}ARK\_POSTINNERFN\_FAIL  (-37):}] \leavevmode
+An error occurred in the MRIStep post inner integrator function.
 
 \item[{\index{ARK\_UNRECOGNIZED\_ERROR}ARK\_UNRECOGNIZED\_ERROR (-99):}] \leavevmode
 An unknown error was encountered.
