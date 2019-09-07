@@ -67,31 +67,19 @@ esac
 # set file permissions (rwxrwxr-x)
 umask 002
 
-# if SPACK_ROOT is not set, check for the shared spack installation
-if [ -z "$SPACK_ROOT" ]; then
-    if [ -d "/usr/casc/sundials/apps/spack" ]; then
-        export SPACK_ROOT=/usr/casc/sundials/apps/spack
-    else
-        echo "ERROR: Could not locate spack installation"
-        return 1
-    fi
-fi
-
-# make sure the spack environment is setup
-source ${SPACK_ROOT}/share/spack/setup-env.sh
-
 # path to libraries not installed through spack
-APPDIR=/usr/casc/sundials/apps/rh6
+APPDIR=/usr/casc/sundials/share/rh7/apps/gcc-4.9.4
 
 # compilers
-export CC="$(spack location -i "$compiler")/bin/gcc"
-export CXX="$(spack location -i "$compiler")/bin/g++"
-export FC="$(spack location -i "$compiler")/bin/gfortran"
+COMPILER_DIR="$(spack location -i "$compiler")"
+export CC="${COMPILER_DIR}/bin/gcc"
+export CXX="${COMPILER_DIR}/bin/g++"
+export FC="${COMPILER_DIR}/bin/gfortran"
 
 # compiler flags (test scripts will append C/C++ standard flags)
-export CFLAGS="-g -Wall -Wpedantic -Werror"
-export CXXFLAGS="-g -Wall -Wpedantic -Werror"
-export FFLAGS="-g -Wall -Wpedantic -ffpe-summary=none"
+export BASE_CFLAGS="-g -Wall -Wpedantic -Werror"
+export BASE_CXXFLAGS="-g -Wall -Wpedantic -Werror"
+export BASE_FFLAGS="-g -Wall -Wpedantic -ffpe-summary=none"
 
 # OpenMP settings
 export OMP_NUM_THREADS=4
@@ -105,23 +93,25 @@ fi
 
 # MPI
 export MPISTATUS=ON
-MPIDIR="$(spack location -i openmpi@3.1.2 % "$compiler")"
+MPIDIR="$(spack location -i openmpi@3.1.4 % "$compiler")"
 export MPICC="${MPIDIR}/bin/mpicc"
 export MPICXX="${MPIDIR}/bin/mpicxx"
 export MPIFC="${MPIDIR}/bin/mpifort"
 export MPIEXEC="${MPIDIR}/bin/mpirun"
 
 # LAPACK / BLAS
-if [ "$realtype" == "extended" ] || [ "$indexsize" == "64" ]; then
-    export BLASSTATUS=OFF
+if [ "$realtype" == "extended" ]; then
     export LAPACKSTATUS=OFF
 else
-    export BLASSTATUS=ON
-    export LAPACKSTATUS=ON
+    if [ "$indexsize" == "32" ]; then
+        export LAPACKSTATUS=ON
+    else
+        export LAPACKSTATUS=OFF
+    fi
+    BLASDIR="$(spack location -i openblas@0.3.7~ilp64 % "$compiler")"
+    export BLASLIBS=${BLASDIR}/lib/libopenblas.so
+    export LAPACKLIBS=${BLASLIBS}
 fi
-BLASDIR="$(spack location -i openblas@0.3.5~ilp64 % "$compiler")"
-export BLASLIBS=${BLASDIR}/lib/libopenblas.so
-export LAPACKLIBS=${BLASLIBS}
 
 # PARMETIS
 if [ "$indexsize" == "32" ]; then
@@ -155,9 +145,9 @@ if [ "$realtype" == "extended" ]; then
 else
     export SLUMTSTATUS=ON
     if [ "$indexsize" == "32" ]; then
-        export SLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_fpic
+        export SLUMTDIR="$(spack location -i superlu-mt@3.1~int64~blas % "$compiler")"
     else
-        export SLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int_fpic
+        export SLUMTDIR="$(spack location -i superlu-mt@3.1+int64~blas % "$compiler")"
     fi
 fi
 
@@ -169,9 +159,9 @@ if [ "$realtype" != "double" ]; then
 else
     export SLUDISTSTATUS=ON
     if [ "$indexsize" == "32" ]; then
-        export SLUDISTDIR="$(spack location -i superlu-dist@develop~int64+openmp % "$compiler")"
+        export SLUDISTDIR="$(spack location -i superlu-dist@6.1.1~int64+openmp % "$compiler")"
     else
-        export SLUDISTDIR="$(spack location -i superlu-dist@develop+int64+openmp % "$compiler")"
+        export SLUDISTDIR="$(spack location -i superlu-dist@6.1.1+int64+openmp % "$compiler")"
     fi
     export SLUDISTLIBS="${BLASLIBS};${PARMETISLIB};${METISLIB};${SLUDISTDIR}/lib/libsuperlu_dist.a"
 fi
@@ -183,9 +173,9 @@ if [ "$realtype" != "double" ]; then
 else
     export HYPRESTATUS=ON
     if [ "$indexsize" == "32" ]; then
-        export HYPREDIR="$(spack location -i hypre@2.14.0~int64 % "$compiler")"
+        export HYPREDIR="$(spack location -i hypre@2.16.0~int64 % "$compiler")"
     else
-        export HYPREDIR="$(spack location -i hypre@2.14.0+int64 % "$compiler")"
+        export HYPREDIR="$(spack location -i hypre@2.16.0+int64 % "$compiler")"
     fi
 fi
 
@@ -196,8 +186,24 @@ if [ "$realtype" != "double" ]; then
 else
     export PETSCSTATUS=ON
     if [ "$indexsize" == "32" ]; then
-        export PETSCDIR="$(spack location -i petsc@3.10.3~int64 % $compiler)"
+        export PETSCDIR="$(spack location -i petsc@3.11.3~int64 % $compiler)"
     else
-        export PETSCDIR="$(spack location -i petsc@3.10.3+int64 % $compiler)"
+        export PETSCDIR="$(spack location -i petsc@3.11.3+int64 % $compiler)"
     fi
+fi
+
+# trilinos
+if [ "$realtype" == "double" ] && [ "$indexsize" == "32" ]; then
+    TRILINOSSTATUS=ON
+    export TRILINOSDIR="$(spack location -i trilinos@12.14.1 % $compiler)"
+else
+    TRILINOSSTATUS=OFF
+fi
+
+# raja
+if [ "$realtype" == "double" ]; then
+    RAJASTATUS=ON
+    export RAJADIR=${APPDIR}/raja-0.9.0
+else
+    RAJASTATUS=OFF
 fi

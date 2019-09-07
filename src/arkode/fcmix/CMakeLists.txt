@@ -63,25 +63,6 @@ SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol/pcg/fsunlinsol_pcg.c
   )
 
-IF(KLU_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol/klu/fsunlinsol_klu.c
-    )
-ENDIF()
-
-IF(SUPERLUMT_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol/superlumt/fsunlinsol_superlumt.c
-    )
-ENDIF()
-
-IF(LAPACK_FOUND)
-  LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol/lapackband/fsunlinsol_lapackband.c
-    ${sundials_SOURCE_DIR}/src/sunlinsol/lapackdense/fsunlinsol_lapackdense.c
-    )
-ENDIF()
-
 # Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
 # which will also be included in the ARKODE library
 SET(sunnonlinsol_SOURCES

@@ -240,21 +240,6 @@ configuration is provide below. Note that the default values shown are for
 a typical configuration on a Linux system and are provided as illustration only.
 
 \begin{description}
-\item[\id{BLAS\_ENABLE}] -
-  Enable BLAS support
-  \\
-  Default: OFF
-  \\
-  Note: Setting this option to ON will trigger additional CMake
-  options. See additional information on building with BLAS enabled
-  in \ref{ss:externallibs}.
-\item[\id{BLAS\_LIBRARIES}] -
-  BLAS library
-  \\
-  Default: /usr/lib/libblas.so
-  \\
-  Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
-  to searching default system paths.
 \item[\id{BUILD\_ARKODE}] -
   Build the ARKODE library
   \\
@@ -350,7 +335,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Note: Fortran support (and all related options) are triggered only if
   either Fortran-C support is enabled (\id{FCMIX\_ENABLE} is ON) or
-  BLAS/LAPACK support is enabled (\id{BLAS\_ENABLE} or \id{LAPACK\_ENABLE} is ON).
+  LAPACK support is enabled (\id{LAPACK\_ENABLE} is ON).
 \item[\id{CMAKE\_Fortran\_FLAGS}] -
   Flags for Fortran compiler
   \\
@@ -643,6 +628,8 @@ a typical configuration on a Linux system and are provided as illustration only.
   Path to SuperLU\_MT header files (typically SRC directory)
 \item[\id{SUPERLUMT\_LIBRARY\_DIR}] -
   Path to SuperLU\_MT installed library files
+\item[\id{SUPERLUMT\_LIBRARIES}] -
+  Semi-colon separated list of libraries needed for SuperLU\_MT
 \item[\id{SUPERLUMT\_THREAD\_TYPE}] -
   Must be set to Pthread or {\openmp}
   \\
@@ -716,21 +703,6 @@ that are replaced. Below is a complete list xSDK options and the
 corresponding {\sundials} options if applicable.
 
 \begin{description}
-\item[\id{TPL\_BLAS\_LIBRARIES}] -
-  BLAS library
-  \\
-  Default: /usr/lib/libblas.so
-  \\
-  {\sundials} equivalent: \id{BLAS\_LIBRARIES}
-  \\
-  Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
-  to searching default system paths.
-\item[\id{TPL\_ENABLE\_BLAS}] -
-  Enable BLAS support
-  \\
-  Default: OFF
-  \\
-  {\sundials} equivalent: \id{BLAS\_ENABLE}
 \item[\id{TPL\_ENABLE\_HYPRE}] -
   Enable {\hypre} support
   \\
@@ -895,44 +867,9 @@ example sources under subdirectories of
 The {\sundials} suite contains many options to enable implementation flexibility
 when developing solutions. The following are some notes addressing specific configurations
 when using the supported third party libraries.
-When building {\sundials} as a shared library external libraries any
+When building {\sundials} as a shared library any external libraries
 used with {\sundials} must also be build as a shared library or as a
 static library compiled with the \id{-fPIC} flag.{\warn}
-
-\subsubsection*{Building with BLAS}
-{\sundials} does not utilize BLAS directly but it may be needed by other
-external libraries that {\sundials} can be built with (e.g. LAPACK,
-{\petsc}, SuperLU\_MT, etc.). To enable BLAS, set the \id{BLAS\_ENABLE}
-option to \id{ON}. If the directory containing the BLAS library is in
-the \id{LD\_LIBRARY\_PATH} environment variable, CMake will set the
-\id{BLAS\_LIBRARIES} variable accordingly, otherwise CMake will
-attempt to find the BLAS library in standard system locations. To
-explicitly tell CMake what libraries to use, the \id{BLAS\_LIBRARIES}
-variable can be set to the desired library. Example:
-\begin{verbatim}
-   % cmake \
-   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
-   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DBLAS_ENABLE=ON \
-   > -DBLAS_LIBRARIES=/myblaspath/lib/libblas.so \
-   > -DSUPERLUMT_ENABLE=ON \
-   > -DSUPERLUMT_INCLUDE_DIR=/mysuperlumtpath/SRC
-   > -DSUPERLUMT_LIBRARY_DIR=/mysuperlumtpath/lib
-   > /home/myname/sundials/solverdir
-   %
-   % make install
-   %
-\end{verbatim}
-{\warn}When allowing CMake to automatically locate the LAPACK library,
-CMake \textit{may} also locate the corresponding BLAS library.
-
-If a working Fortran compiler is not available to infer the Fortran
-name-mangling scheme, the options \id{SUNDIALS\_F77\_FUNC\_CASE} and
-\id{SUNDIALS\_F77\_FUNC\_UNDERSCORES} \textit{must} be set in order to
-bypass the check for a Fortran compiler and define the name-mangling
-scheme. The defaults for these options in earlier versions of
-{\sundials} were \id{lower} and \id{one} respectively.
-
 
 \subsubsection*{Building with LAPACK}
 To enable LAPACK, set the \id{LAPACK\_ENABLE} option to \id{ON}.
@@ -941,24 +878,18 @@ If the directory containing the LAPACK library is in the
 \id{LAPACK\_LIBRARIES} variable accordingly, otherwise CMake will
 attempt to find the LAPACK library in standard system locations. To
 explicitly tell CMake what library to use, the \id{LAPACK\_LIBRARIES}
-variable can be set to the desired libraries. {\warn}When setting
-the LAPACK location explicitly the location of the corresponding BLAS
-library will also need to be set. Example:
+variable can be set to the desired libraries rquired for LAPACK.
 \begin{verbatim}
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DBLAS_ENABLE=ON \
-   > -DBLAS_LIBRARIES=/mylapackpath/lib/libblas.so \
    > -DLAPACK_ENABLE=ON \
-   > -DLAPACK_LIBRARIES=/mylapackpath/lib/liblapack.so \
+   > -DLAPACK_LIBRARIES=/mylapackpath/lib/libblas.so;/mylapackpath/lib/liblapack.so \
    > /home/myname/sundials/solverdir
    %
    % make install
    %
 \end{verbatim}
-{\warn}When allowing CMake to automatically locate the LAPACK library,
-CMake \textit{may} also locate the corresponding BLAS library.
 
 If a working Fortran compiler is not available to infer the Fortran
 name-mangling scheme, the options \id{SUNDIALS\_F77\_FUNC\_CASE} and
@@ -985,7 +916,10 @@ The SuperLU\_MT libraries are available for download from the Lawrence Berkeley 
 To enable SuperLU\_MT, set  \id{SUPERLUMT\_ENABLE} to \id{ON}, set \id{SUPERLUMT\_INCLUDE\_DIR}
 to the \id{SRC} path of the SuperLU\_MT installation, and set the variable
 \newline\id{SUPERLUMT\_LIBRARY\_DIR} to the \id{lib} path of the SuperLU\_MT installation.
-At the same time, the variable
+At the same time, the variable \id{SUPERLUMT\_LIBRARIES} must be set to a
+semi-colon separated list of other libraries SuperLU\_MT depends on. For
+example, if SuperLU\_MT ws build with an external blas library, then include the
+full path to the blas library in this list. Additionally, the variable
 \id{SUPERLUMT\_THREAD\_TYPE} must be set to either \id{Pthread} or \id{{\openmp}}.
 
 \noindent Do not mix thread types when building {\sundials} solvers.

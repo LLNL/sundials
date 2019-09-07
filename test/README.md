@@ -12,7 +12,7 @@ cmake <sundials directory> -DCMAKE_INSTALL_PREFIX=<prefix> -DEXAMPLES_ENABLE_C=O
 make
 make test
 ```
-This will create an out of source build, build sundials and all the C examples,
+This will create an out of source build, build SUNDIALS and all the C examples,
 and run the tests (which are the examples) that return a pass/fail status. All
 output is saved to the file `<build directory>/Testing/Temporary/LastTest.log`.
 
@@ -33,7 +33,7 @@ cmake <sundials directory> -DCMAKE_INSTALL_PREFIX=<prefix> -DEXAMPLES_ENABLE_C=O
 make
 make test
 ```
-This will create an out of source build, build sundials and all the C examples,
+This will create an out of source build, build SUNDIALS and all the C examples,
 and run all the tests (which are the examples). The output from each test is
 saved to `<build directory>/Testing/output`.
 
@@ -81,16 +81,17 @@ CC  = C compiler
 CXX = C++ compiler
 FC  = Fortran compiler
 
-CFLAGS   = C compiler flags
-CXXFLAGS = C++ compiler flags
-FFLAGS   = Fortran compiler flags
+BASE_CFLAGS   = C compiler flags
+BASE_CXXFLAGS = C++ compiler flags
+BASE_FFLAGS   = Fortran compiler flags
 ```
-Note that the test scripts will append the C standard flag (`-std=c90` or
-`-std=c99`) and C++ standard flag (`-std=c++11`) to the compiler flags provided
-by the environment variables.
+Note the `BASE_` prefix is used as the compiler flag variables as the test
+scripts will append the C standard flag (`-std=c90` or `-std=c99`) and C++
+standard flag (`-std=c++11`) to the compiler flags provided by the environment
+variables.
 
 An environment script may optionally set additional environment variables to
-enable or disable third party libraries (TPLs) in the Sundials configuration.
+enable or disable third party libraries (TPLs) in the SUNDIALS configuration.
 Variables of the form `<TPL>STATUS` enable or disable the corresponding TPL when
 set to `ON` or `OFF` respectively. Note `<TPL>STATUS` variables default to `OFF`
 if they are not set. Depending on the particular TPL, a variable of the from
@@ -98,7 +99,7 @@ if they are not set. Depending on the particular TPL, a variable of the from
 full path to the the TPL installation directory or the list of TPL libraries
 respectively. To aid in setting these variables appropriately, the test scripts
 pass the real type (`single`, `double`, or `extended`) and the index size
-(`32` or `64`) Sundials will be configured with as inputs to the environment
+(`32` or `64`) SUNDIALS will be configured with as inputs to the environment
 script.
 
 The currently supported TPL environment variables are as follows:

@@ -73,8 +73,10 @@ macro(SUNDIALS_ADD_TEST_INSTALL PACKAGE TESTDIR)
     WORKING_DIRECTORY ${TEST_INSTALL_ALL_DIR}/${PACKAGE}/${TESTDIR}
     VERBATIM
     COMMAND ${CMAKE_COMMAND} ${EXAMPLES_INSTALL_PATH}/${PACKAGE}/${TESTDIR} > cmake.out
-    COMMAND ${CMAKE_COMMAND} --build ${TEST_INSTALL_ALL_DIR}/${PACKAGE}/${TESTDIR} > make.out
-    COMMAND ${CMAKE_CTEST_COMMAND})
+    COMMAND ${CMAKE_COMMAND} --build ${TEST_INSTALL_ALL_DIR}/${PACKAGE}/${TESTDIR} > make.out)
+  # In the future add "COMMAND ${CMAKE_CTEST_COMMAND}" here to run ctest with
+  # the installed examples. Left out for now as some MPI tests require running
+  # with a specific number of MPI tasks.
 
   # make test_install_all depend on test_install_all_package
   add_dependencies(test_install_all test_install_all_${PACKAGE}_${TESTDIR})

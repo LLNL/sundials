@@ -113,6 +113,12 @@ Changes in v4.0.0
 
 Increased the minimum required CMake version to 3.10.3.
 
+The CMake option ``BLAS_ENABLE`` and the variable ``BLAS_LIBRARIES`` have been
+removed to simplify builds as SUNDIALS packages do not use BLAS directly. For
+third party libraries that require linking to BLAS, the path to the BLAS
+library should be included in the ``_LIBRARIES`` variable for the third party
+library e.g., ``SUPERLUDIST_LIBRARIES`` when enabling SuperLU_DIST.
+
 Fixed a bug in the ARKStep time-stepping module that would result in an infinite
 loop if the nonlinear solver failed to converge more than the maximum allowed times
 during a single step.

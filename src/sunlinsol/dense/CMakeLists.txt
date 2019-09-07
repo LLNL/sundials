@@ -12,115 +12,130 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the dense SUNLinearSolver library
+# ---------------------------------------------------------------
 
-INSTALL(CODE "MESSAGE(\"\nInstall SUNLINSOL_DENSE\n\")")
+install(CODE "MESSAGE(\"\nInstall SUNLINSOL_DENSE\n\")")
 
-# Add F90 module if F2003 interface is enabled
-IF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
-  ADD_SUBDIRECTORY(fmod)
-ENDIF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+# Source files for the library
+set(sunlinsoldense_SOURCES sunlinsol_dense.c)
 
-# Add variable sunlinsoldense_SOURCES with the sources for the SUNLINSOLDENSE lib
-SET(sunlinsoldense_SOURCES sunlinsol_dense.c)
-
-# Add variable shared_SOURCES with the common SUNDIALS sources which will
-# also be included in the SUNLINSOLDENSE library
-SET(shared_SOURCES
+# Common SUNDIALS sources included in the library
+set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
-  )
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c)
 
-# Add variable sunlinsoldense_HEADERS with the exported SUNLINSOLDENSE header files
-SET(sunlinsoldense_HEADERS
-  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_dense.h
-  )
-
-# Add source directory to include directories
-INCLUDE_DIRECTORIES(.)
-
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
+# Exported header files
+set(sunlinsoldense_HEADERS
+  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_dense.h)
 
 # Rules for building and installing the static library:
-#  - Add the build target for the SUNLINSOLDENSE library
+#  - Add the build target for the library
 #  - Set the library name and make sure it is not deleted
-#  - Install the SUNLINSOLDENSE library
-IF(BUILD_STATIC_LIBS)
+#  - Install the library
+if(BUILD_STATIC_LIBS)
 
-  ADD_LIBRARY(sundials_sunlinsoldense_static
+  add_library(sundials_sunlinsoldense_static
     STATIC ${sunlinsoldense_SOURCES} ${shared_SOURCES})
 
-  # sunlinsoldense depends on sunmatrixdense
-  TARGET_LINK_LIBRARIES(sundials_sunlinsoldense_static
-    PUBLIC sundials_sunmatrixdense_static)
-
-  SET_TARGET_PROPERTIES(sundials_sunlinsoldense_static
+  set_target_properties(sundials_sunlinsoldense_static
     PROPERTIES
     OUTPUT_NAME sundials_sunlinsoldense
     CLEAN_DIRECT_OUTPUT 1)
 
-  INSTALL(TARGETS sundials_sunlinsoldense_static
+  # sunlinsoldense depends on sunmatrixdense
+  target_link_libraries(sundials_sunlinsoldense_static
+    PUBLIC sundials_sunmatrixdense_static)
+
+  target_compile_definitions(sundials_sunlinsoldense_static
+    PUBLIC -DBUILD_SUNDIALS_LIBRARY)
+
+  install(TARGETS sundials_sunlinsoldense_static
     DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-ENDIF(BUILD_STATIC_LIBS)
+endif(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
-#  - Add the build target for the SUNLINSOLDENSE library
+#  - Add the build target for the library
 #  - Set the library name and make sure it is not deleted
 #  - Set VERSION and SOVERSION for shared libraries
-#  - Install the SUNLINSOLDENSE library
-IF(BUILD_SHARED_LIBS)
+#  - Install the library
+if(BUILD_SHARED_LIBS)
 
-  ADD_LIBRARY(sundials_sunlinsoldense_shared
+  add_library(sundials_sunlinsoldense_shared
     SHARED ${sunlinsoldense_SOURCES} ${shared_SOURCES})
 
-  # sunlinsoldense depends on sunmatrixdense
-  TARGET_LINK_LIBRARIES(sundials_sunlinsoldense_shared
-    PUBLIC sundials_sunmatrixdense_shared)
-
-  SET_TARGET_PROPERTIES(sundials_sunlinsoldense_shared
+  set_target_properties(sundials_sunlinsoldense_shared
     PROPERTIES
     OUTPUT_NAME sundials_sunlinsoldense
     CLEAN_DIRECT_OUTPUT 1
     VERSION ${sunlinsollib_VERSION}
     SOVERSION ${sunlinsollib_SOVERSION})
 
-  INSTALL(TARGETS sundials_sunlinsoldense_shared
+  # sunlinsoldense depends on sunmatrixdense
+  target_link_libraries(sundials_sunlinsoldense_shared
+    PUBLIC sundials_sunmatrixdense_shared)
+
+  target_compile_definitions(sundials_sunlinsoldense_shared
+    PUBLIC -DBUILD_SUNDIALS_LIBRARY)
+
+  install(TARGETS sundials_sunlinsoldense_shared
     DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-ENDIF(BUILD_SHARED_LIBS)
+endif(BUILD_SHARED_LIBS)
 
-# Install the SUNLINSOLDENSE header files
-INSTALL(FILES ${sunlinsoldense_HEADERS} DESTINATION include/sunlinsol)
+# Install the header files
+install(FILES ${sunlinsoldense_HEADERS} DESTINATION include/sunlinsol)
 
-# If FCMIX is enabled, build and install the FSUNLINSOLDENSE library
-IF(F77_INTERFACE_ENABLE AND F77_FOUND)
-  SET(fsunlinsoldense_SOURCES fsunlinsol_dense.c)
+#
+message(STATUS "Added SUNLINSOL_DENSE module")
 
-  IF(BUILD_STATIC_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsoldense_static STATIC ${fsunlinsoldense_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_static
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsoldense CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fsunlinsoldense_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  ENDIF(BUILD_STATIC_LIBS)
+# If FCMIX is enabled, build and install the Fortran77 library
+if(F77_INTERFACE_ENABLE AND F77_FOUND)
 
-  IF(BUILD_SHARED_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsoldense_shared ${fsunlinsoldense_SOURCES})
+  set(fsunlinsoldense_SOURCES fsunlinsol_dense.c)
 
-    # fsunlinsoldense depends on fnvecserial, fsunmatrixdense, sunlinsoldense
-    TARGET_LINK_LIBRARIES(sundials_fsunlinsoldense_shared
+  if(BUILD_STATIC_LIBS)
+    add_library(sundials_fsunlinsoldense_static
+      STATIC ${fsunlinsoldense_SOURCES})
+    set_target_properties(sundials_fsunlinsoldense_static
+      PROPERTIES
+      OUTPUT_NAME sundials_fsunlinsoldense
+      CLEAN_DIRECT_OUTPUT 1)
+    # depends on fnvecserial, fsunmatrixdense, sunlinsoldense
+    target_link_libraries(sundials_fsunlinsoldense_static
+      PUBLIC
+      sundials_fnvecserial_static
+      sundials_fsunmatrixdense_static
+      sundials_sunlinsoldense_static)
+    install(TARGETS sundials_fsunlinsoldense_static
+      DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  endif(BUILD_STATIC_LIBS)
+
+  if(BUILD_SHARED_LIBS)
+    add_library(sundials_fsunlinsoldense_shared
+      SHARED ${fsunlinsoldense_SOURCES})
+    set_target_properties(sundials_fsunlinsoldense_shared
+      PROPERTIES
+      OUTPUT_NAME sundials_fsunlinsoldense
+      CLEAN_DIRECT_OUTPUT 1
+      VERSION ${sunlinsollib_VERSION}
+      SOVERSION ${sunlinsollib_SOVERSION})
+    # depends on fnvecserial, fsunmatrixdense, sunlinsoldense
+    target_link_libraries(sundials_fsunlinsoldense_shared
+      PUBLIC
       sundials_fnvecserial_shared
       sundials_fsunmatrixdense_shared
       sundials_sunlinsoldense_shared)
+    install(TARGETS sundials_fsunlinsoldense_shared
+      DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  endif(BUILD_SHARED_LIBS)
 
-    SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_shared
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsoldense CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_fsunlinsoldense_shared
-      PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_fsunlinsoldense_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  ENDIF(BUILD_SHARED_LIBS)
+  #
+  message(STATUS "Added SUNLINSOL_DENSE F77 interface")
 
-ENDIF(F77_INTERFACE_ENABLE AND F77_FOUND)
+endif(F77_INTERFACE_ENABLE AND F77_FOUND)
 
-#
-MESSAGE(STATUS "Added SUNLINSOL_DENSE module")
+# Add F90 module if F2003 interface is enabled
+if(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  add_subdirectory(fmod)
+endif(F2003_FOUND AND F2003_INTERFACE_ENABLE)

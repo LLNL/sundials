@@ -21,7 +21,7 @@
 set(OPENMP45_FOUND FALSE)
 set(OPENMP_SUPPORTS_DEVICE_OFFLOADING FALSE)
 
-find_package(OpenMP)
+find_package(OpenMP REQUIRED)
 
 # Work around a bug in setting OpenMP version variables in CMake >= 3.9. The
 # OpenMP version information is not stored in cache variables and is not set
@@ -43,27 +43,18 @@ if(OPENMP_FOUND AND (OPENMP_DEVICE_ENABLE OR SUPERLUDIST_OpenMP))
 
   else()
 
-    # If CMake version is 3.9 or newer, the FindOpenMP module checks the OpenMP version.
-    if((CMAKE_VERSION VERSION_EQUAL 3.9) OR (CMAKE_VERSION VERSION_GREATER 3.9))
+    # Check the OpenMP version
+    message(STATUS "Checking whether OpenMP supports device offloading")
 
-      message(STATUS "Checking whether OpenMP supports device offloading")
-      if((OpenMP_C_VERSION VERSION_EQUAL 4.5) OR (OpenMP_C_VERSION VERSION_GREATER 4.5))
-        message(STATUS "Checking whether OpenMP supports device offloading -- yes")
-        set(OPENMP45_FOUND TRUE)
-        set(OPENMP_SUPPORTS_DEVICE_OFFLOADING TRUE)
-      else()
-        message(STATUS "Checking whether OpenMP supports device offloading -- no")
-        set(OPENMP45_FOUND FALSE)
-        set(OPENMP_SUPPORTS_DEVICE_OFFLOADING FALSE)
-      endif()
-
-    else()
-
-      # CMake OpenMP version check not available. Assume 4.5+ and that offloading is supported.
+    if((OpenMP_C_VERSION VERSION_EQUAL 4.5) OR (OpenMP_C_VERSION VERSION_GREATER 4.5))
+      message(STATUS "Checking whether OpenMP supports device offloading -- yes")
       set(OPENMP45_FOUND TRUE)
       set(OPENMP_SUPPORTS_DEVICE_OFFLOADING TRUE)
-      print_warning("Unable to determine OpenMP offloading support." "SUNDIALS OpenMP functionality dependent on OpenMP 4.5+ is not guaranteed.")
-
+    else()
+      message(STATUS "Checking whether OpenMP supports device offloading -- no")
+      set(OPENMP45_FOUND FALSE)
+      set(OPENMP_SUPPORTS_DEVICE_OFFLOADING FALSE)
+      print_error("The found OpenMP version does not support device offloading.")
     endif()
 
   endif()

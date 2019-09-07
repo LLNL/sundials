@@ -47,6 +47,12 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 #  - Install the NVECPTHREADS library
 IF(BUILD_STATIC_LIBS)
   ADD_LIBRARY(sundials_nvecpthreads_static STATIC ${nvecpthreads_SOURCES} ${shared_SOURCES})
+
+  TARGET_LINK_LIBRARIES(sundials_nvecpthreads_static Threads::Threads)
+  IF(UNIX)
+    TARGET_LINK_LIBRARIES(sundials_nvecpthreads_static m)
+  ENDIF()
+
   SET_TARGET_PROPERTIES(sundials_nvecpthreads_static
     PROPERTIES OUTPUT_NAME sundials_nvecpthreads CLEAN_DIRECT_OUTPUT 1)
   INSTALL(TARGETS sundials_nvecpthreads_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
@@ -60,11 +66,10 @@ ENDIF(BUILD_STATIC_LIBS)
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_nvecpthreads_shared SHARED ${nvecpthreads_SOURCES} ${shared_SOURCES})
 
+  TARGET_LINK_LIBRARIES(sundials_nvecpthreads_shared Threads::Threads)
   IF(UNIX)
     TARGET_LINK_LIBRARIES(sundials_nvecpthreads_shared m)
   ENDIF()
-
-  TARGET_LINK_LIBRARIES(sundials_nvecpthreads_shared pthread)
 
   SET_TARGET_PROPERTIES(sundials_nvecpthreads_shared
     PROPERTIES OUTPUT_NAME sundials_nvecpthreads CLEAN_DIRECT_OUTPUT 1)

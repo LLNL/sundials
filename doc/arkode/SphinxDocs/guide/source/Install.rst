@@ -331,24 +331,6 @@ configuration is provide below.  Note that the default values shown
 are for a typical configuration on a Linux system and are provided as
 illustration only.
 
-:index:`BLAS_ENABLE <BLAS_ENABLE (CMake option)>`
-   Enable BLAS support
-
-   Default: ``OFF``
-
-   .. note:: Setting this option to ON will trigger additional CMake
-             options. See additional information on building with BLAS
-             enabled in :ref:`Installation.CMake.ExternalLibraries`.
-
-:index:`BLAS_LIBRARIES <BLAS_LIBRARIES (CMake option)>`
-   BLAS library
-
-   Default: ``/usr/lib/libblas.so``
-
-   .. note:: CMake will search for libraries in your
-             ``LD_LIBRARY_PATH`` prior to searching default system
-             paths.
-
 :index:`BUILD_ARKODE <BUILD_ARKODE (CMake option)>`
    Build the ARKODE library
 
@@ -466,8 +448,7 @@ illustration only.
 
    .. note:: Fortran support (and all related options) are triggered only if
              either Fortran-C support is (``FCMIX_ENABLE`` is ON) or
-             BLAS/LAPACK support is enabled (``BLAS_ENABLE`` or
-             ``LAPACK_ENABLE`` is ``ON``).
+             LAPACK support is enabled (``LAPACK_ENABLE`` is ``ON``).
 
 :index:`CMAKE_Fortran_FLAGS <CMAKE_Fortran_FLAGS (CMake option)>`
    Flags for Fortran compiler
@@ -857,24 +838,6 @@ activated by setting ``USE_XSDK_DEFAULTS`` to ``ON``.
           xSDK options and the corresponding SUNDIALS options if
           applicable.
 
-:index:`TPL_BLAS_LIBRARIES <TPL_BLAS_LIBRARIES (xSDK CMake option)>`
-   BLAS library
-
-   Default: ``/usr/lib/libblas.so``
-
-   SUNDIALS equivalent: ``BLAS_LIBRARIES``
-
-   .. note:: CMake will search for libraries in your
-             ``LD_LIBRARY_PATH`` prior to searching default system
-             paths.
-
-:index:`TPL_ENABLE_BLAS <TPL_ENABLE_BLAS (xSDK CMake option)>`
-   Enable BLAS support
-
-   Default: ``OFF``
-
-   SUNDIALS equivalent: ``BLAS_ENABLE``
-
 :index:`TPL_ENABLE_HYPRE <TPL_ENABLE_HYPRE (xSDK CMake option)>`
    Enable *hypre* support
 
@@ -1074,50 +1037,6 @@ party libraries.
 
 
 
-.. _Installation.CMake.ExternalLibraries.BLAS:
-
-Building with BLAS
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-SUNDIALS does not utilize BLAS directly but it may be needed by other
-external libraries that SUNDIALS can be build with (e.g. LAPACK,
-PETSc, SuperLU_MT, etc.). To enable BLAS, set the ``BLAS_ENABLE``
-option to ``ON``. If the directory containing the BLAS library is in
-the ``LD_LIBRARY_PATH`` environment variable, CMake will set the
-``BLAS_LIBRARIES`` variable accordingly, otherwise CMake will
-attempt to find the BLAS library in standard system locations. To
-explicitly tell CMake what libraries to use, the ``BLAS_LIBRARIES``
-variable can be set to the desired library. Example:
-
-.. code-block:: bash
-
-   % cmake \
-   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
-   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DBLAS_ENABLE=ON \
-   > -DBLAS_LIBRARIES=/myblaspath/lib/libblas.so \
-   > -DSUPERLUMT_ENABLE=ON \
-   > -DSUPERLUMT_INCLUDE_DIR=/mysuperlumtpath/SRC
-   > -DSUPERLUMT_LIBRARY_DIR=/mysuperlumtpath/lib
-   > /home/myname/sundials/srcdir
-
-   % make install
-
-.. note:: When allowing CMake to automatically locate the LAPACK
-          library, CMake *may* also locate the corresponding BLAS
-          library.
-
-          If a working Fortran compiler is not available to infer the
-          Fortran name-mangling scheme, the options
-          ``SUNDIALS_F77_FUNC_CASE`` and
-          ``SUNDIALS_F77_FUNC_UNDERSCORES`` *must* be set in order to
-          bypass the check for a Fortran compiler and define the
-          name-mangling scheme. The defaults for these options in
-          earlier versions of SUNDIALS were ``lower`` and ``one``,
-          respectively.
-
-
-
 .. _Installation.CMake.ExternalLibraries.LAPACK:
 
 Building with LAPACK
@@ -1129,30 +1048,21 @@ If the directory containing the LAPACK library is in the
 ``LAPACK_LIBRARIES`` variable accordingly, otherwise CMake will
 attempt to find the LAPACK library in standard system locations. To
 explicitly tell CMake what library to use, the ``LAPACK_LIBRARIES``
-variable can be set to the desired libraries.
+variable can be set to the desired libraries required for LAPACK.
 
-.. note:: When setting the LAPACK location explicitly the location of
-          the corresponding BLAS library will also need to be
-          set. Example:
 
 .. code-block:: bash
 
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DBLAS_ENABLE=ON \
-   > -DBLAS_LIBRARIES=/mylapackpath/lib/libblas.so \
    > -DLAPACK_ENABLE=ON \
-   > -DLAPACK_LIBRARIES=/mylapackpath/lib/liblapack.so \
+   > -DLAPACK_LIBRARIES=/mylapackpath/lib/libblas.so;/mylapackpath/lib/liblapack.so \
    > /home/myname/sundials/srcdir
 
    % make install
 
-.. note:: When allowing CMake to automatically locate the LAPACK
-          library, CMake *may* also locate the corresponding BLAS
-          library.
-
-          If a working Fortran compiler is not available to infer the
+.. note:: If a working Fortran compiler is not available to infer the
           Fortran name-mangling scheme, the options
           ``SUNDIALS_F77_FUNC_CASE`` and
           ``SUNDIALS_F77_FUNC_UNDERSCORES`` *must* be set in order to
@@ -1214,7 +1124,11 @@ SUNDIALS has been tested with SuperLU_MT version 3.1.  To enable
 SuperLU_MT, set  ``SUPERLUMT_ENABLE`` to ``ON``, set
 ``SUPERLUMT_INCLUDE_DIR`` to the ``SRC`` path of the SuperLU_MT
 installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the
-``lib`` path of the SuperLU_MT installation.  At the same time, the
+``lib`` path of the SuperLU_MT installation. At the same time, the
+variable ``SUPERLUMT_LIBRARIES`` must be set to a semi-colon separated
+list of other libraries SuperLU_MT depends on. For example, if
+SuperLU_MT was build with an external blas library, then include the
+full path to the blas library in this list. Additionally, the
 variable ``SUPERLUMT_THREAD_TYPE`` must be set to either ``Pthread``
 or ``OpenMP``.
 

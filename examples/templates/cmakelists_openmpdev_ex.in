@@ -24,7 +24,7 @@
 # with "-gpu" compiler wrappers.
 # -----------------------------------------------------------------
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
 # Specify project name
 PROJECT(@SOLVER@_openmpdev_examples C)
@@ -76,7 +76,6 @@ FIND_LIBRARY(SUNDIALS_NVEC_LIB
 SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
 # Set other libraries libraries
-SET(BLAS_LIBRARIES @BLAS_LIBS@ CACHE STRING "Blas libraries")
 SET(LAPACK_LIBRARIES @LAPACK_LIBS@ CACHE STRING "Lapack libraries")
 
 INCLUDE_DIRECTORIES(@SUPERLUMT_INCLUDE_DIR@)
@@ -136,10 +135,6 @@ IF(LAPACK_LIBRARIES)
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_SUNLINSOLLAPACKDENSE_LIB})
     TARGET_LINK_LIBRARIES(${example} ${LAPACK_LIBRARIES})
 
-    IF(BLAS_LIBRARIES)
-      TARGET_LINK_LIBRARIES(${example} ${BLAS_LIBRARIES})
-    ENDIF()
-
     # add the example to ctest
     ADD_TEST(NAME ${example} COMMAND ${example})
 
@@ -187,10 +182,6 @@ IF(SUPERLUMT_LIBRARIES)
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_SUNLINSOLSLUMT_LIB})
     TARGET_LINK_LIBRARIES(${example} ${SUPERLUMT_LIBRARIES})
-
-    IF(BLAS_LIBRARIES)
-      TARGET_LINK_LIBRARIES(${example} ${BLAS_LIBRARIES})
-    ENDIF()
 
     # add the example to ctest
     ADD_TEST(NAME ${example} COMMAND ${example})

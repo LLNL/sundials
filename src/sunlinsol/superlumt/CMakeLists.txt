@@ -12,101 +12,142 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the superlumt SUNLinearSolver library
+# ---------------------------------------------------------------
 
-INSTALL(CODE "MESSAGE(\"\nInstall SUNLINSOL_SUPERLUMT\n\")")
+install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SUPERLUMT\n\")")
 
-# Add variable sunlinsolsuperlumt_SOURCES with the sources for the SUNLINSOLSUPERLUMT lib
-SET(sunlinsolsuperlumt_SOURCES sunlinsol_superlumt.c)
+# Source files for the library
+set(sunlinsolsuperlumt_SOURCES sunlinsol_superlumt.c)
 
-# Add variable shared_SOURCES with the common SUNDIALS sources which will
-# also be included in the SUNLINSOLSUPERLUMT library
-SET(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
-  )
+# Common SUNDIALS sources included in the library
+set(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c)
 
-# Add variable sunlinsolsuperlumt_HEADERS with the exported SUNLINSOLSUPERLUMT header files
-SET(sunlinsolsuperlumt_HEADERS
-  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_superlumt.h
-  )
+# Exported header files
+set(sunlinsolsuperlumt_HEADERS
+  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_superlumt.h)
 
-# Add source directory to include directories
-INCLUDE_DIRECTORIES(.)
-
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
-ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
+# Include OpenMP flags if SuperLU_MT is using OpenMP
+if(SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 
 # Rules for building and installing the static library:
-#  - Add the build target for the SUNLINSOLSUPERLUMT library
+#  - Add the build target for the library
 #  - Set the library name and make sure it is not deleted
-#  - Install the SUNLINSOLSUPERLUMT library
-IF(BUILD_STATIC_LIBS)
-  ADD_LIBRARY(sundials_sunlinsolsuperlumt_static STATIC ${sunlinsolsuperlumt_SOURCES} ${shared_SOURCES})
-  SET_TARGET_PROPERTIES(sundials_sunlinsolsuperlumt_static
-    PROPERTIES OUTPUT_NAME sundials_sunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_sunlinsolsuperlumt_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-ENDIF(BUILD_STATIC_LIBS)
+#  - Install the library
+if(BUILD_STATIC_LIBS)
+
+  add_library(sundials_sunlinsolsuperlumt_static
+    STATIC ${sunlinsolsuperlumt_SOURCES} ${shared_SOURCES})
+
+  set_target_properties(sundials_sunlinsolsuperlumt_static
+    PROPERTIES
+    OUTPUT_NAME sundials_sunlinsolsuperlumt
+    CLEAN_DIRECT_OUTPUT 1)
+
+  # depends on sunmatrixsparse and SuperLU_MT
+  target_link_libraries(sundials_sunlinsolsuperlumt_static
+    PUBLIC sundials_sunmatrixsparse_static SuperLU_MT::SuperLU_MT)
+
+  # link to Pthread library if SuperLU_MT is using Pthreads
+  if(SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+    target_link_libraries(sundials_sunlinsolsuperlumt_static
+      PUBLIC Threads::Threads)
+  endif()
+
+  target_compile_definitions(sundials_sunlinsolsuperlumt_static
+    PUBLIC -DBUILD_SUNDIALS_LIBRARY)
+
+  install(TARGETS sundials_sunlinsolsuperlumt_static
+    DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+endif(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
-#  - Add the build target for the SUNLINSOLSUPERLUMT library
+#  - Add the build target for the library
 #  - Set the library name and make sure it is not deleted
 #  - Set VERSION and SOVERSION for shared libraries
-#  - Install the SUNLINSOLSUPERLUMT library
-IF(BUILD_SHARED_LIBS)
-  ADD_LIBRARY(sundials_sunlinsolsuperlumt_shared SHARED ${sunlinsolsuperlumt_SOURCES} ${shared_SOURCES})
+#  - Install the library
+if(BUILD_SHARED_LIBS)
 
-  # sunlinsolsuperlumt depends on sunmatrixsparse and SuperLU_MT
-  TARGET_LINK_LIBRARIES(sundials_sunlinsolsuperlumt_shared
-    sundials_sunmatrixsparse_shared
-    ${SUPERLUMT_LIBRARIES})
-  
-  # if a blas library is provided, assume SuperLU_MT depends on it
-  IF(BLAS_FOUND)
-    TARGET_LINK_LIBRARIES(sundials_sunlinsolsuperlumt_shared ${BLAS_LIBRARIES})
-  ENDIF()
+  add_library(sundials_sunlinsolsuperlumt_shared
+    SHARED ${sunlinsolsuperlumt_SOURCES} ${shared_SOURCES})
 
-  # if a blas library was not provided but a lapack library was set, assume 
-  # SuperLU_MT depends depends on a blas library provided in LAPACK_LIBRARIES
-  IF((NOT BLAS_FOUND) AND LAPACK_FOUND)
-    TARGET_LINK_LIBRARIES(sundials_sunlinsolsuperlumt_shared ${LAPACK_LIBRARIES})
-  ENDIF()
+  set_target_properties(sundials_sunlinsolsuperlumt_shared
+    PROPERTIES
+    OUTPUT_NAME sundials_sunlinsolsuperlumt
+    CLEAN_DIRECT_OUTPUT 1
+    VERSION ${sunlinsollib_VERSION}
+    SOVERSION ${sunlinsollib_SOVERSION})
 
-  SET_TARGET_PROPERTIES(sundials_sunlinsolsuperlumt_shared
-    PROPERTIES OUTPUT_NAME sundials_sunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
-  SET_TARGET_PROPERTIES(sundials_sunlinsolsuperlumt_shared
-    PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-  INSTALL(TARGETS sundials_sunlinsolsuperlumt_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-ENDIF(BUILD_SHARED_LIBS)
+  # depends on sunmatrixsparse and SuperLU_MT
+  target_link_libraries(sundials_sunlinsolsuperlumt_shared
+    PUBLIC sundials_sunmatrixsparse_shared SuperLU_MT::SuperLU_MT)
 
-# Install the SUNLINSOLSUPERLUMT header files
-INSTALL(FILES ${sunlinsolsuperlumt_HEADERS} DESTINATION include/sunlinsol)
+  # link to Pthread library if SuperLU_MT is using Pthreads
+  if(SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+    target_link_libraries(sundials_sunlinsolsuperlumt_shared
+      PUBLIC Threads::Threads)
+  endif()
 
-IF(F77_INTERFACE_ENABLE AND F77_FOUND)
-  SET(fsunlinsolsuperlumt_SOURCES fsunlinsol_superlumt.c)
+  target_compile_definitions(sundials_sunlinsolsuperlumt_shared
+    PUBLIC -DBUILD_SUNDIALS_LIBRARY)
 
-  IF(BUILD_STATIC_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsolsuperlumt_static STATIC ${fsunlinsolsuperlumt_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_static
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fsunlinsolsuperlumt_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  ENDIF(BUILD_STATIC_LIBS)
+  install(TARGETS sundials_sunlinsolsuperlumt_shared
+    DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-  IF(BUILD_SHARED_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsolsuperlumt_shared ${fsunlinsolsuperlumt_SOURCES})
+endif(BUILD_SHARED_LIBS)
 
-    # fsunlinsolsuperlumt dependes on fnvecserial, fsunmatrixsparse, sunlinsolsuperlumt
-    TARGET_LINK_LIBRARIES(sundials_fsunlinsolsuperlumt_shared
+# Install the header files
+install(FILES ${sunlinsolsuperlumt_HEADERS} DESTINATION include/sunlinsol)
+
+#
+message(STATUS "Added SUNLINSOL_SUPERLUMT module")
+
+# If FCMIX is enabled, build and install the Fortran77 library
+if(F77_INTERFACE_ENABLE AND F77_FOUND)
+
+  set(fsunlinsolsuperlumt_SOURCES fsunlinsol_superlumt.c)
+
+  if(BUILD_STATIC_LIBS)
+    add_library(sundials_fsunlinsolsuperlumt_static
+      STATIC ${fsunlinsolsuperlumt_SOURCES})
+    set_target_properties(sundials_fsunlinsolsuperlumt_static
+      PROPERTIES
+      OUTPUT_NAME sundials_fsunlinsolsuperlumt
+      CLEAN_DIRECT_OUTPUT 1)
+    # depends on fnvecserial, fsunmatrixsparse, sunlinsolsuperlumt
+    target_link_libraries(sundials_fsunlinsolsuperlumt_static
+      PUBLIC
+      sundials_fnvecserial_static
+      sundials_fsunmatrixsparse_static
+      sundials_sunlinsolsuperlumt_static)
+    install(TARGETS sundials_fsunlinsolsuperlumt_static
+      DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  endif(BUILD_STATIC_LIBS)
+
+  if(BUILD_SHARED_LIBS)
+    add_library(sundials_fsunlinsolsuperlumt_shared
+      SHARED ${fsunlinsolsuperlumt_SOURCES})
+    set_target_properties(sundials_fsunlinsolsuperlumt_shared
+      PROPERTIES
+      OUTPUT_NAME sundials_fsunlinsolsuperlumt
+      CLEAN_DIRECT_OUTPUT 1
+      VERSION ${sunlinsollib_VERSION}
+      SOVERSION ${sunlinsollib_SOVERSION})
+    # depends on fnvecserial, fsunmatrixsparse, sunlinsolsuperlumt
+    target_link_libraries(sundials_fsunlinsolsuperlumt_shared
+      PUBLIC
       sundials_fnvecserial_shared
       sundials_fsunmatrixsparse_shared
       sundials_sunlinsolsuperlumt_shared)
+    install(TARGETS sundials_fsunlinsolsuperlumt_shared
+      DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  endif(BUILD_SHARED_LIBS)
 
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_shared
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_shared 
-      PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_fsunlinsolsuperlumt_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  ENDIF(BUILD_SHARED_LIBS)
+  #
+  message(STATUS "Added SUNLINSOL_SUPERLUMT F77 interface")
 
-ENDIF(F77_INTERFACE_ENABLE AND F77_FOUND)
-
-#
-MESSAGE(STATUS "Added SUNLINSOL_SUPERLUMT module")
+endif(F77_INTERFACE_ENABLE AND F77_FOUND)

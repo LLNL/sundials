@@ -508,7 +508,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
                          + c2*(udata->Srecv[i]   + Y[IDX(i,j+1,nxl)])
                          + c3*Y[IDX(i,j,nxl)];
   }
-  if (!udata->HaveBdry[1][1]) {    // West face
+  if (!udata->HaveBdry[1][1]) {    // North face
     j=nyl-1;
     for (i=1; i<nxl-1; i++)
       Ydot[IDX(i,j,nxl)] = c1*(Y[IDX(i-1,j,nxl)] + Y[IDX(i+1,j,nxl)])
@@ -575,10 +575,10 @@ static int J(realtype t, N_Vector y, N_Vector ydot, SUNMatrix Jac,
   if (ierr != 0) return(-1);
 
   // iterate over subdomain interior setting stencil entries
-  is = (udata->HaveBdry[0][0]) ? 1 : 0;
-  ie = (udata->HaveBdry[0][1]) ? nxl-1 : nxl;
-  js = (udata->HaveBdry[1][0]) ? 1 : 0;
-  je = (udata->HaveBdry[1][1]) ? nyl-1 : nyl;
+  is = (udata->HaveBdry[0][0]) ? 1 : 0;       // West face
+  ie = (udata->HaveBdry[0][1]) ? nxl-1 : nxl; // East face
+  js = (udata->HaveBdry[1][0]) ? 1 : 0;       // South face
+  je = (udata->HaveBdry[1][1]) ? nyl-1 : nyl; // North face
   for (iy=js; iy<je; iy++) {
     index[1] = H5PM_ILOWER(Jac)[1] + iy;
     for (ix=is; ix<ie; ix++) {
@@ -1363,7 +1363,7 @@ int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A,
                                         H5PM_IUPPER(A),
                                         N_VGetArrayPointer(b));
   if (ierr != 0)  { HPP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;  return(HPP_LASTFLAG(S)); }
-  ierr = HYPRE_StructVectorAssemble(HPP_X(S));
+  ierr = HYPRE_StructVectorAssemble(HPP_B(S));
   if (ierr != 0)  { HPP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;  return(HPP_LASTFLAG(S)); }
 
   // insert initial guess N_Vector entries into HYPRE vector x and assemble
@@ -1371,7 +1371,7 @@ int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A,
                                         H5PM_IUPPER(A),
                                         N_VGetArrayPointer(x));
   if (ierr != 0)  { HPP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;  return(HPP_LASTFLAG(S)); }
-  ierr = HYPRE_StructVectorAssemble(HPP_B(S));
+  ierr = HYPRE_StructVectorAssemble(HPP_X(S));
   if (ierr != 0)  { HPP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;  return(HPP_LASTFLAG(S)); }
 
   // solve the linear system
@@ -1379,8 +1379,9 @@ int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A,
                               HPP_B(S), HPP_X(S));
   if (ierr == 0) {
     HPP_LASTFLAG(S) = SUNLS_SUCCESS;
-  } else if (ierr == 256) {
+  } else if (ierr == HYPRE_ERROR_CONV) {
     HPP_LASTFLAG(S) = SUNLS_RES_REDUCED;
+    HYPRE_ClearError(HYPRE_ERROR_CONV);
   } else {
     HPP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;  return(HPP_LASTFLAG(S));
   }

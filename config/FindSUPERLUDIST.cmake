@@ -34,7 +34,7 @@
 # Check if SUPERLUDIST_LIBRARIES contains the superlu_dist
 # library as well as TPLs. If so, extract it into the
 # SUPERLUDIST_LIBRARY variable.
-if (SUPERLUDIST_LIBRARIES MATCHES "superlu_dist")
+if(SUPERLUDIST_LIBRARIES MATCHES "superlu_dist")
   foreach(lib ${SUPERLUDIST_LIBRARIES})
     if(lib MATCHES "superlu_dist")
       set(SUPERLUDIST_LIBRARY ${lib})
@@ -42,28 +42,31 @@ if (SUPERLUDIST_LIBRARIES MATCHES "superlu_dist")
   endforeach()
 endif()
 
-# find library with user provided directory path
+# find library
 if(NOT SUPERLUDIST_LIBRARY)
-  find_library(SUPERLUDIST_LIBRARY superlu_dist PATHS ${SUPERLUDIST_LIBRARY_DIR} NO_DEFAULT_PATH)
-  # if user didnt provide path, search anywhere
-  if (NOT (SUPERLUDIST_LIBRARY_DIR OR SUPERLUDIST_LIBRARY))
+  # search user provided directory path
+  find_library(SUPERLUDIST_LIBRARY superlu_dist
+    PATHS ${SUPERLUDIST_LIBRARY_DIR} NO_DEFAULT_PATH)
+  # if user didn't provide a path, search anywhere
+  if(NOT (SUPERLUDIST_LIBRARY_DIR OR SUPERLUDIST_LIBRARY))
     find_library(SUPERLUDIST_LIBRARY superlu_dist)
   endif()
   mark_as_advanced(SUPERLUDIST_LIBRARY)
 endif()
 
-# set the library dir option if it wasnt preset
+# set the library dir option if it wasn't preset
 if(SUPERLUDIST_LIBRARY AND (NOT SUPERLUDIST_LIBRARY_DIR))
   get_filename_component(SUPERLUDIST_LIBRARY_DIR ${SUPERLUDIST_LIBRARY} DIRECTORY)
-  set(SUPERLUDIST_LIBRARY_DIR ${SUPERLUDIST_LIBRARY_DIR} CACHE STRING "" FORCE)
+  set(SUPERLUDIST_LIBRARY_DIR ${SUPERLUDIST_LIBRARY_DIR} CACHE PATH "" FORCE)
 endif()
 
-# set the include dir option if it wasnt preset
+# set the include dir option if it wasn't preset
 if(SUPERLUDIST_LIBRARY AND (NOT SUPERLUDIST_INCLUDE_DIR))
   get_filename_component(SUPERLUDIST_INCLUDE_DIR ${SUPERLUDIST_LIBRARY_DIR} DIRECTORY)
-  set(SUPERLUDIST_INCLUDE_DIR "${SUPERLUDIST_INCLUDE_DIR}/include" CACHE STRING "" FORCE)
+  set(SUPERLUDIST_INCLUDE_DIR "${SUPERLUDIST_INCLUDE_DIR}/include" CACHE PATH "" FORCE)
 endif()
 
+# find the library configuration file
 if(SUPERLUDIST_LIBRARY AND SUPERLUDIST_INCLUDE_DIR)
   find_file(SUPERLUDIST_CONFIG_PATH superlu_dist_config.h PATHS ${SUPERLUDIST_INCLUDE_DIR})
   file(STRINGS ${SUPERLUDIST_CONFIG_PATH} _strings_with_index_size REGEX "XSDK_INDEX_SIZE")
@@ -72,12 +75,28 @@ if(SUPERLUDIST_LIBRARY AND SUPERLUDIST_INCLUDE_DIR)
   mark_as_advanced(FORCE SUPERLUDIST_CONFIG_PATH)
 endif()
 
-# Create target for SuperLU_DIST
-if((NOT TARGET SuperLU_DIST::SuperLU_DIST) AND SUPERLUDIST_LIBRARY)
-  add_library(SuperLU_DIST::SuperLU_DIST UNKNOWN IMPORTED)
-  set_property(TARGET SuperLU_DIST::SuperLU_DIST PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SUPERLUDIST_INCLUDE_DIR})
-  set_property(TARGET SuperLU_DIST::SuperLU_DIST PROPERTY INTERFACE_LINK_LIBRARIES ${SUPERLUDIST_LIBRARIES})
-  set_property(TARGET SuperLU_DIST::SuperLU_DIST PROPERTY IMPORTED_LOCATION ${SUPERLUDIST_LIBRARY})
-endif()
+# set a more informative error message in case the library was not found
+SET(SUPERLUDIST_NOT_FOUND_MESSAGE "\
+************************************************************************\n\
+ERROR: Could not find SuperLU_DIST. Please check the variables:\n\
+       SUPERLUDIST_INCLUDE_DIR and SUPERLUDIST_LIBRARY_DIR\n\
+************************************************************************")
 
-find_package_handle_standard_args(SUPERLUDIST DEFAULT_MSG SUPERLUDIST_LIBRARY SUPERLUDIST_INCLUDE_DIR SUPERLUDIST_INDEX_SIZE)
+# set package variables including SUPERLUDIST_FOUND
+find_package_handle_standard_args(SUPERLUDIST
+  REQUIRED_VARS
+    SUPERLUDIST_LIBRARY
+    SUPERLUDIST_INCLUDE_DIR
+    SUPERLUDIST_INDEX_SIZE
+  FAIL_MESSAGE
+    "${SUPERLUDIST_NOT_FOUND_MESSAGE}"
+  )
+
+# Create target for SuperLU_DIST
+if(SUPERLUDIST_FOUND AND (NOT TARGET SuperLU_DIST::SuperLU_DIST))
+  add_library(SuperLU_DIST::SuperLU_DIST UNKNOWN IMPORTED)
+  set_target_properties(SuperLU_DIST::SuperLU_DIST PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${SUPERLUDIST_INCLUDE_DIR}"
+    INTERFACE_LINK_LIBRARIES "${SUPERLUDIST_LIBRARIES}"
+    IMPORTED_LOCATION "${SUPERLUDIST_LIBRARY}")
+endif()

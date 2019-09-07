@@ -43,9 +43,9 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 #  - Install the NVECRAJA library
 IF(BUILD_STATIC_LIBS)
   ADD_LIBRARY(sundials_nveccudaraja_static STATIC ${nvecraja_SOURCES} ${shared_SOURCES})
+  TARGET_COMPILE_FEATURES(sundials_nveccudaraja_static PUBLIC cxx_std_11)
   TARGET_COMPILE_OPTIONS(sundials_nveccudaraja_static PUBLIC
-    $<$<COMPILE_LANGUAGE:CXX>:${RAJA_COMPILE_FLAGS}>
-    $<$<COMPILE_LANGUAGE:CUDA>:${RAJA_NVCC_FLAGS}>)
+    $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>)
   TARGET_LINK_LIBRARIES(sundials_nveccudaraja_static PUBLIC RAJA)
   SET_TARGET_PROPERTIES(sundials_nveccudaraja_static PROPERTIES
                         OUTPUT_NAME sundials_nveccudaraja
@@ -60,9 +60,9 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Install the NVECRAJA library
 IF(BUILD_SHARED_LIBS)
   ADD_LIBRARY(sundials_nveccudaraja_shared SHARED ${nvecraja_SOURCES} ${shared_SOURCES})
+  TARGET_COMPILE_FEATURES(sundials_nveccudaraja_shared PUBLIC cxx_std_11)
   TARGET_COMPILE_OPTIONS(sundials_nveccudaraja_shared PUBLIC
-    $<$<COMPILE_LANGUAGE:CXX>:${RAJA_COMPILE_FLAGS}>
-    $<$<COMPILE_LANGUAGE:CUDA>:${RAJA_NVCC_FLAGS}>)
+    $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>)
   TARGET_LINK_LIBRARIES(sundials_nveccudaraja_shared PUBLIC RAJA)
   SET_TARGET_PROPERTIES(sundials_nveccudaraja_shared PROPERTIES
                         OUTPUT_NAME sundials_nveccudaraja

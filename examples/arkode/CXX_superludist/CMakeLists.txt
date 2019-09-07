@@ -105,7 +105,7 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "ARKODE")
   STRING(CONCAT SUNDIALS_LIBS "-lsundials_arkode "
     "-lsundials_sunmatrixslunrloc "
-    "-lsundials_sunlinsolsuperludist"
+    "-lsundials_sunlinsolsuperludist "
     "-lsundials_nvecopenmp")
 
   EXAMPLES2STRING(ARKODE_examples EXAMPLES)

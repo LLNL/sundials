@@ -36,16 +36,16 @@ LINKFLAGS = -Wl,-rpath,@libdir@
 
 # -----------------------------------------------------------------------------------------
 
-LIBRARIES_LAPACK = -lsundials_fsunlinsollapackdense -lsundials_fsunlinsollapackband -lsundials_sunlinsollapackdense -lsundials_sunlinsollapackband @LAPACK_LIBS@ @BLAS_LIBS@
-LINKFLAGS_LAPACK = ${LINKFLAGS}:@LAPACK_LIBRARY_DIR@:@BLAS_LIBRARY_DIR@
+LIBRARIES_LAPACK = -lsundials_fsunlinsollapackdense -lsundials_fsunlinsollapackband -lsundials_sunlinsollapackdense -lsundials_sunlinsollapackband @LAPACK_LIBS@
+LINKFLAGS_LAPACK = ${LINKFLAGS}:@LAPACK_LIBRARY_DIR@
 
 INCLUDES_KLU  = @KLU_INCLUDE_DIR@
 LIBRARIES_KLU = -lsundials_fsunlinsolklu -lsundials_sunlinsolklu @KLU_LIBS@
 LINKFLAGS_KLU = ${LINKFLAGS}:@KLU_LIBRARY_DIR@
 
 INCLUDES_SLUMT  = @SUPERLUMT_INCLUDE_DIR@
-LIBRARIES_SLUMT = -lsundials_fsunlinsolsuperlumt -lsundials_sunlinsolsuperlumt @SUPERLUMT_LIBS@ @BLAS_LIBS@
-LINKFLAGS_SLUMT = ${LINKFLAGS}:@SUPERLUMT_LIBRARY_DIR@:@BLAS_LIBRARY_DIR@
+LIBRARIES_SLUMT = -lsundials_fsunlinsolsuperlumt -lsundials_sunlinsolsuperlumt @SUPERLUMT_LIBS@
+LINKFLAGS_SLUMT = ${LINKFLAGS}:@SUPERLUMT_LIBRARY_DIR@
 
 TMP_INCS  = ${includedir} ${INCLUDES_SLUMT} ${INCLUDES_KLU}
 INCLUDES  = $(addprefix -I, ${TMP_INCS})

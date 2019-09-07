@@ -103,6 +103,12 @@ in extended {\F}.
 
 Increased the minimum required CMake version to 3.10.3.
 
+The CMake option \id{BLAS\_ENABLE} and the variable \id{BLAS\_LIBRARIES} have
+been removed to simplify builds as SUNDIALS packages do not use BLAS directly.
+For third party libraries that require linking to BLAS, the path to the BLAS
+library should be included in the \id{\_LIBRARIES} variable for the third party
+library e.g., \id{SUPERLUDIST\_LIBRARIES} when enabling SuperLU\_DIST.
+
 Added two new functions, \id{CVodeGetCurrentGamma} and \id{CVodeGetCurrentState},
 which may be useful to users who choose to provide their own nonlinear solver
 implementations.

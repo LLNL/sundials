@@ -55,17 +55,6 @@ ENDIF()
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${SUNMATS_LIB} ${SUNLINSOLS_LIB} ${EXTRA_LINK_LIBS})
 
-LIST(APPEND SUNDIALS_LIBS ${SUPERLUMT_LIBRARIES})
-
-IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-ENDIF(LAPACK_FOUND)
-
-IF(BLAS_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
-ENDIF(BLAS_FOUND)
-
-
 # Add the build and install targets for each example
 FOREACH(example_tuple ${sunlinsol_superlumt_examples})
 

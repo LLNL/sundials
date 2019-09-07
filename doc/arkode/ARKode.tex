@@ -304,6 +304,12 @@ preconditioner routines.
 \label{Introduction:changes-in-v4-0-0}
 Increased the minimum required CMake version to 3.10.3.
 
+The CMake option \code{BLAS\_ENABLE} and the variable \code{BLAS\_LIBRARIES} have been
+removed to simplify builds as SUNDIALS packages do not use BLAS directly. For
+third party libraries that require linking to BLAS, the path to the BLAS
+library should be included in the \code{\_LIBRARIES} variable for the third party
+library e.g., \code{SUPERLUDIST\_LIBRARIES} when enabling SuperLU\_DIST.
+
 Fixed a bug in the ARKStep time-stepping module that would result in an infinite
 loop if the nonlinear solver failed to converge more than the maximum allowed times
 during a single step.
@@ -40333,28 +40339,6 @@ configuration is provide below.  Note that the default values shown
 are for a typical configuration on a Linux system and are provided as
 illustration only.
 \begin{description}
-\item[{\index{BLAS\_ENABLE (CMake option)}BLAS\_ENABLE}] \leavevmode
-Enable BLAS support
-
-Default: \code{OFF}
-
-\begin{notice}{note}{Note:}
-Setting this option to ON will trigger additional CMake
-options. See additional information on building with BLAS
-enabled in {\hyperref[Install:installation-cmake-externallibraries]{\emph{\DUspan{}{Working with external Libraries}}}}.
-\end{notice}
-
-\item[{\index{BLAS\_LIBRARIES (CMake option)}BLAS\_LIBRARIES}] \leavevmode
-BLAS library
-
-Default: \code{/usr/lib/libblas.so}
-
-\begin{notice}{note}{Note:}
-CMake will search for libraries in your
-\code{LD\_LIBRARY\_PATH} prior to searching default system
-paths.
-\end{notice}
-
 \item[{\index{BUILD\_ARKODE (CMake option)}BUILD\_ARKODE}] \leavevmode
 Build the ARKODE library
 
@@ -40477,8 +40461,7 @@ Default: \code{/usr/bin/gfortran}
 \begin{notice}{note}{Note:}
 Fortran support (and all related options) are triggered only if
 either Fortran-C support is (\code{FCMIX\_ENABLE} is ON) or
-BLAS/LAPACK support is enabled (\code{BLAS\_ENABLE} or
-\code{LAPACK\_ENABLE} is \code{ON}).
+LAPACK support is enabled (\code{LAPACK\_ENABLE} is \code{ON}).
 \end{notice}
 
 \item[{\index{CMAKE\_Fortran\_FLAGS (CMake option)}CMAKE\_Fortran\_FLAGS}] \leavevmode
@@ -40905,26 +40888,6 @@ xSDK options and the corresponding SUNDIALS options if
 applicable.
 \end{notice}
 \begin{description}
-\item[{\index{TPL\_BLAS\_LIBRARIES (xSDK CMake option)}TPL\_BLAS\_LIBRARIES}] \leavevmode
-BLAS library
-
-Default: \code{/usr/lib/libblas.so}
-
-SUNDIALS equivalent: \code{BLAS\_LIBRARIES}
-
-\begin{notice}{note}{Note:}
-CMake will search for libraries in your
-\code{LD\_LIBRARY\_PATH} prior to searching default system
-paths.
-\end{notice}
-
-\item[{\index{TPL\_ENABLE\_BLAS (xSDK CMake option)}TPL\_ENABLE\_BLAS}] \leavevmode
-Enable BLAS support
-
-Default: \code{OFF}
-
-SUNDIALS equivalent: \code{BLAS\_ENABLE}
-
 \item[{\index{TPL\_ENABLE\_HYPRE (xSDK CMake option)}TPL\_ENABLE\_HYPRE}] \leavevmode
 Enable \emph{hypre} support
 
@@ -41119,48 +41082,6 @@ addressing specific configurations when using the supported third
 party libraries.
 
 
-\subsubsection{Building with BLAS}
-\label{Install:building-with-blas}\label{Install:installation-cmake-externallibraries-blas}
-SUNDIALS does not utilize BLAS directly but it may be needed by other
-external libraries that SUNDIALS can be build with (e.g. LAPACK,
-PETSc, SuperLU\_MT, etc.). To enable BLAS, set the \code{BLAS\_ENABLE}
-option to \code{ON}. If the directory containing the BLAS library is in
-the \code{LD\_LIBRARY\_PATH} environment variable, CMake will set the
-\code{BLAS\_LIBRARIES} variable accordingly, otherwise CMake will
-attempt to find the BLAS library in standard system locations. To
-explicitly tell CMake what libraries to use, the \code{BLAS\_LIBRARIES}
-variable can be set to the desired library. Example:
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYGZpc{} cmake \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/instdir/examples \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DBLAS\PYGZus{}ENABLE\PYG{o}{=}ON \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DBLAS\PYGZus{}LIBRARIES\PYG{o}{=}/myblaspath/lib/libblas.so \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DSUPERLUMT\PYGZus{}ENABLE\PYG{o}{=}ON \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DSUPERLUMT\PYGZus{}INCLUDE\PYGZus{}DIR\PYG{o}{=}/mysuperlumtpath/SRC
-\PYGZgt{} \PYGZhy{}DSUPERLUMT\PYGZus{}LIBRARY\PYGZus{}DIR\PYG{o}{=}/mysuperlumtpath/lib
-\PYGZgt{} /home/myname/sundials/srcdir
-
-\PYGZpc{} make install
-\end{Verbatim}
-
-\begin{notice}{note}{Note:}
-When allowing CMake to automatically locate the LAPACK
-library, CMake \emph{may} also locate the corresponding BLAS
-library.
-
-If a working Fortran compiler is not available to infer the
-Fortran name-mangling scheme, the options
-\code{SUNDIALS\_F77\_FUNC\_CASE} and
-\code{SUNDIALS\_F77\_FUNC\_UNDERSCORES} \emph{must} be set in order to
-bypass the check for a Fortran compiler and define the
-name-mangling scheme. The defaults for these options in
-earlier versions of SUNDIALS were \code{lower} and \code{one},
-respectively.
-\end{notice}
-
-
 \subsubsection{Building with LAPACK}
 \label{Install:building-with-lapack}\label{Install:installation-cmake-externallibraries-lapack}
 To enable LAPACK, set the \code{LAPACK\_ENABLE} option to \code{ON}.
@@ -41169,32 +41090,20 @@ If the directory containing the LAPACK library is in the
 \code{LAPACK\_LIBRARIES} variable accordingly, otherwise CMake will
 attempt to find the LAPACK library in standard system locations. To
 explicitly tell CMake what library to use, the \code{LAPACK\_LIBRARIES}
-variable can be set to the desired libraries.
-
-\begin{notice}{note}{Note:}
-When setting the LAPACK location explicitly the location of
-the corresponding BLAS library will also need to be
-set. Example:
-\end{notice}
+variable can be set to the desired libraries required for LAPACK.
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYGZpc{} cmake \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{} \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{} \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/instdir/examples \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DBLAS\PYGZus{}ENABLE\PYG{o}{=}ON \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DBLAS\PYGZus{}LIBRARIES\PYG{o}{=}/mylapackpath/lib/libblas.so \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{} \PYGZhy{}DLAPACK\PYGZus{}ENABLE\PYG{o}{=}ON \PYG{l+s+se}{\PYGZbs{}}
-\PYGZgt{} \PYGZhy{}DLAPACK\PYGZus{}LIBRARIES\PYG{o}{=}/mylapackpath/lib/liblapack.so \PYG{l+s+se}{\PYGZbs{}}
+\PYGZgt{} \PYGZhy{}DLAPACK\PYGZus{}LIBRARIES\PYG{o}{=}/mylapackpath/lib/libblas.so\PYG{p}{;}/mylapackpath/lib/liblapack.so \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{} /home/myname/sundials/srcdir
 
 \PYGZpc{} make install
 \end{Verbatim}
 
 \begin{notice}{note}{Note:}
-When allowing CMake to automatically locate the LAPACK
-library, CMake \emph{may} also locate the corresponding BLAS
-library.
-
 If a working Fortran compiler is not available to infer the
 Fortran name-mangling scheme, the options
 \code{SUNDIALS\_F77\_FUNC\_CASE} and
@@ -41250,7 +41159,11 @@ SUNDIALS has been tested with SuperLU\_MT version 3.1.  To enable
 SuperLU\_MT, set  \code{SUPERLUMT\_ENABLE} to \code{ON}, set
 \code{SUPERLUMT\_INCLUDE\_DIR} to the \code{SRC} path of the SuperLU\_MT
 installation, and set the variable \code{SUPERLUMT\_LIBRARY\_DIR} to the
-\code{lib} path of the SuperLU\_MT installation.  At the same time, the
+\code{lib} path of the SuperLU\_MT installation. At the same time, the
+variable \code{SUPERLUMT\_LIBRARIES} must be set to a semi-colon separated
+list of other libraries SuperLU\_MT depends on. For example, if
+SuperLU\_MT was build with an external blas library, then include the
+full path to the blas library in this list. Additionally, the
 variable \code{SUPERLUMT\_THREAD\_TYPE} must be set to either \code{Pthread}
 or \code{OpenMP}.
 
