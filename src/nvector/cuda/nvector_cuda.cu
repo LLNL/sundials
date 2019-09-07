@@ -37,6 +37,7 @@ using namespace suncudavec;
  */
 
 typedef suncudavec::Vector<realtype, sunindextype> vector_type;
+typedef suncudavec::ThreadPartitioning<realtype, sunindextype> part_type;
 
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
@@ -124,6 +125,10 @@ N_Vector N_VNewManaged_Cuda(sunindextype length)
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
 
+  /* if using managed memory, we can attach an operation for
+     nvgetarraypointer since the host and device pointers are the same */
+  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
+
   /* create suncudavec::Vector with managed memory */
   v->content = new vector_type(length, true);
 
@@ -155,10 +160,33 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata)
   v = NULL;
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
+  
+  /* if using managed memory, we can attach an operation for
+     nvgetarraypointer since the host and device pointers are the same */
+  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
 
-  /* create suncudavec::Vector with managed memory using the user-provided data
-     arrays */
+  /* create suncudavec::Vector with managed memory using the user-provided data arrays */
   v->content = new vector_type(length, true, false, vdata, vdata);
+
+  return(v);
+}
+
+N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length, 
+                                          void* (*allocfn)(size_t),
+                                          void (*freefn)(void*))
+{
+  N_Vector v;
+
+  v = NULL;
+  v = N_VNewEmpty_Cuda();
+  if (v == NULL) return(NULL);
+  
+  /* if using managed memory, we can attach an operation for
+     nvgetarraypointer since the host and device pointers are the same */
+  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
+
+  /* create suncudavec::Vector with a custom allocator/deallocator */
+  v->content = new vector_type(length, allocfn, freefn, true);
 
   return(v);
 }

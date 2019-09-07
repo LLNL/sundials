@@ -753,7 +753,7 @@ inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
   while (n > nmax)
   {
     // Recompute partitioning
-    p.setPartitioning(n, grid, block, shMemSize);
+    p.calcPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
     math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
@@ -788,7 +788,7 @@ inline T maxNorm(const Vector<T,I>& x)
   while (n > nmax)
   {
     // Recompute partitioning
-    p.setPartitioning(n, grid, block, shMemSize);
+    p.calcPartitioning(n, grid, block, shMemSize);
 
     // (Re)run reduction kernel
     math_kernels::maxNormKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
@@ -824,7 +824,7 @@ inline T wL2NormSquareMask(const Vector<T,I>& x, const Vector<T,I>& w, const Vec
   while (n > nmax)
   {
     // Recompute partitioning
-    p.setPartitioning(n, grid, block, shMemSize);
+    p.calcPartitioning(n, grid, block, shMemSize);
 
     // (Re)run reduction kernel
     math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
@@ -861,7 +861,7 @@ inline T findMin(const Vector<T,I>& x)
   while (n > nmax)
   {
     // Recompute partitioning
-    p.setPartitioning(n, grid, block, shMemSize);
+    p.calcPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
     math_kernels::findMinKernel<T,I><<<grid, block, shMemSize, stream>>>(maxVal, p.devBuffer(), p.devBuffer(), n);
@@ -898,7 +898,7 @@ inline T wL2NormSquare(const Vector<T,I>& x, const Vector<T,I>& y)
   while (n > nmax)
   {
     // Recompute partitioning
-    p.setPartitioning(n, grid, block, shMemSize);
+    p.calcPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
     math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
@@ -934,7 +934,7 @@ inline T L1Norm(const Vector<T,I>& x)
   while (n > nmax)
   {
     // Recompute partitioning
-    p.setPartitioning(n, grid, block, shMemSize);
+    p.calcPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
     math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
@@ -970,7 +970,7 @@ inline T invTest(const Vector<T,I>& x, Vector<T,I>& z)
   while (n > nmax)
   {
     // Recompute partitioning
-    p.setPartitioning(n, grid, block, shMemSize);
+    p.calcPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
     math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
@@ -1006,7 +1006,7 @@ inline T constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
   while (n > nmax)
   {
     // Recompute partitioning
-    p.setPartitioning(n, grid, block, shMemSize);
+    p.calcPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
     math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
@@ -1046,7 +1046,7 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
   while (n > nmax)
   {
     // Recompute partitioning
-    p.setPartitioning(n, grid, block, shMemSize);
+    p.calcPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
     math_kernels::findMinKernel<T,I><<<grid, block, shMemSize, stream>>>(maxVal, p.devBuffer(), p.devBuffer(), n);

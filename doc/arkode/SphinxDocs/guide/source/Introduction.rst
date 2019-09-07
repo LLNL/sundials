@@ -111,6 +111,14 @@ Changes from previous versions
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Made performance improvements to the CUDA NVECTOR. Users who utilize a non
+-default stream should no longer see default stream synchronizations after 
+memory transfers.
+
+Added a new constructor to the CUDA NVECTOR that allows a user to provide
+custom allocate and free functions for the vector data array and internal
+reduction buffer.
+
 Increased the minimum required CMake version to 3.10.3.
 
 The CMake option ``BLAS_ENABLE`` and the variable ``BLAS_LIBRARIES`` have been

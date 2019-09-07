@@ -97,17 +97,15 @@ accessor functions:
 
 
 The NVECTOR_CUDA module defines implementations of all standard vector
-operations defined in the sections :ref:`NVectors.Ops`,
-:ref:`NVectors.FusedOps`, :ref:`NVectors.ArrayOps`, and
-:ref:`NVectors.LocalOps`, except for
-``N_VGetArrayPointer`` and ``N_VSetArrayPointer``.  As such, this
-vector cannot be used with SUNDIALS Fortran interfaces, nor with
-SUNDIALS direct solvers and preconditioners. This support will be
-added in subsequent SUNDIALS releases.  The NVECTOR_CUDA module
-provides separate functions to access data on the host and on the
-device. It also provides methods for copying from the host to the
-device and vice versa. Usage examples of NVECTOR_CUDA are provided in
-example programs for CVODE [HSR2017]_.
+operations defined in the sections :ref:`NVectors.Ops`, :ref:`NVectors.FusedOps`,
+:ref:`NVectors.ArrayOps`, and :ref:`NVectors.LocalOps`, except for
+``N_VSetArrayPointer``, and, if using unmanaged memory, ``N_VGetArrayPointer``.
+As such, this vector can only be used with SUNDIALS Fortran interfaces, and the
+SUNDIALS direct solvers and preconditioners when using managed memory.
+The NVECTOR_CUDA module provides separate functions to access data on the host
+and on the device for the unmanaged memory use case. It also provides methods for
+copying from the host to the device and vice versa. Usage examples of NVECTOR_CUDA
+are provided in example programs for CVODE [HSR2017]_.
 
 The names of vector operations are obtained from those in the sections
 :ref:`NVectors.Ops`, :ref:`NVectors.FusedOps`, :ref:`NVectors.ArrayOps`, and
@@ -137,23 +135,30 @@ following additional user-callable routines:
    :c:func:`N_VClone_Cuda()` implementations.
 
 
-.. c:function:: N_Vector N_VMake_Cuda(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata)
+.. c:function:: N_Vector N_VMake_Cuda(sunindextype vec_length, realtype \*h_vdata, realtype \*d_vdata)
 
 
    This function creates a CUDA ``N_Vector`` with user-supplied vector data arrays
    for the host and the device.
 
 
-.. c:function:: N_Vector N_VMakeManaged_Cuda(sunindextype vec_length, realtype *vdata)
+.. c:function:: N_Vector N_VMakeManaged_Cuda(sunindextype vec_length, realtype \*vdata)
 
    This function creates a CUDA ``N_Vector`` with a user-supplied
    managed memory data array.
 
 
+.. c:function:: N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length, void* (\*allocfn)(size_t size), void (\*freefn)(void* ptr))
+
+   This function creates a CUDA ``N_Vector`` with a user-supplied memory allocator.
+   It requires the user to provide a corresponding free function as well.
+   The memory allocated by the allocator function must behave like CUDA managed memory.
+   
+
 
 The module NVECTOR_CUDA also provides the following user-callable routines:
 
-.. c:function:: void N_VSetCudaStream_Cuda(N_Vector v, cudaStream_t *stream)
+.. c:function:: void N_VSetCudaStream_Cuda(N_Vector v, cudaStream_t \*stream)
 
    This function sets the CUDA stream that all vector kernels will be launched on.
    By default an NVECTOR_CUDA uses the default CUDA stream.
@@ -272,7 +277,8 @@ options as the vector they are cloned from while vectors created with
 
 * When there is a need to access components of an ``N_Vector_Cuda``, ``v``,
   it is recommeded to use functions :c:func:`N_VGetDeviceArrayPointer_Cuda()` or
-  :c:func:`N_VGetHostArrayPointer_Cuda()`.
+  :c:func:`N_VGetHostArrayPointer_Cuda()`. However, when using managed memory,
+  the function :c:func:`N_VGetArrayPointer` may also be used.
 
 * To maximize efficiency, vector operations in the NVECTOR_CUDA implementation
   that have more than one ``N_Vector`` argument do not check for

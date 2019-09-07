@@ -101,6 +101,14 @@ in extended {\F}.
 
 \subsection*{Changes in v5.0.0}
 
+Made performance improvements to the {\nveccuda} module. Users who utilize a
+non-default stream should no longer see default stream synchronizations after
+memory transfers.
+
+Added a new constructor to the {\nveccuda} module that allows a user to provide
+custom allocate and free functions for the vector data array and internal
+reduction buffer.
+
 Increased the minimum required CMake version to 3.10.3.
 
 The CMake option \id{BLAS\_ENABLE} and the variable \id{BLAS\_LIBRARIES} have

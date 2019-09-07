@@ -302,6 +302,14 @@ preconditioner routines.
 
 \subsection{Changes in v4.0.0}
 \label{Introduction:changes-in-v4-0-0}
+Made performance improvements to the CUDA NVECTOR. Users who utilize a non
+-default stream should no longer see default stream synchronizations after
+memory transfers.
+
+Added a new constructor to the CUDA NVECTOR that allows a user to provide
+custom allocate and free functions for the vector data array and internal
+reduction buffer.
+
 Increased the minimum required CMake version to 3.10.3.
 
 The CMake option \code{BLAS\_ENABLE} and the variable \code{BLAS\_LIBRARIES} have been
@@ -28381,17 +28389,15 @@ data array is in managed memory or not.
 
 
 The NVECTOR\_CUDA module defines implementations of all standard vector
-operations defined in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
-{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
-{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, except for
-\code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  As such, this
-vector cannot be used with SUNDIALS Fortran interfaces, nor with
-SUNDIALS direct solvers and preconditioners. This support will be
-added in subsequent SUNDIALS releases.  The NVECTOR\_CUDA module
-provides separate functions to access data on the host and on the
-device. It also provides methods for copying from the host to the
-device and vice versa. Usage examples of NVECTOR\_CUDA are provided in
-example programs for CVODE \phantomsection\label{nvectors/NVector_CUDA:id1}{\hyperref[References:hsr2017]{\emph{{[}HSR2017{]}}}}.
+operations defined in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}},
+{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and {\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, except for
+\code{N\_VSetArrayPointer}, and, if using unmanaged memory, \code{N\_VGetArrayPointer}.
+As such, this vector can only be used with SUNDIALS Fortran interfaces, and the
+SUNDIALS direct solvers and preconditioners when using managed memory.
+The NVECTOR\_CUDA module provides separate functions to access data on the host
+and on the device for the unmanaged memory use case. It also provides methods for
+copying from the host to the device and vice versa. Usage examples of NVECTOR\_CUDA
+are provided in example programs for CVODE \phantomsection\label{nvectors/NVector_CUDA:id1}{\hyperref[References:hsr2017]{\emph{{[}HSR2017{]}}}}.
 
 The names of vector operations are obtained from those in the sections
 {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
@@ -28442,6 +28448,16 @@ for the host and the device.
 \phantomsection\label{nvectors/NVector_CUDA:c.N_VMakeManaged_Cuda}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMakeManaged\_Cuda}}{sunindextype\emph{ vec\_length}, realtype\emph{ *vdata}}{}
 This function creates a CUDA \code{N\_Vector} with a user-supplied
 managed memory data array.
+
+\end{fulllineitems}
+
+\index{N\_VMakeWithManagedAllocator\_Cuda (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VMakeWithManagedAllocator_Cuda}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMakeWithManagedAllocator\_Cuda}}{sunindextype\emph{ length}, void* (\emph{*allocfn})(size\_t size), void (*freefn)(void* ptr)}{}
+This function creates a CUDA \code{N\_Vector} with a user-supplied memory allocator.
+It requires the user to provide a corresponding free function as well.
+The memory allocated by the allocator function must behave like CUDA managed memory.
 
 \end{fulllineitems}
 
@@ -28626,7 +28642,8 @@ are \code{NULL}.
 \item {} 
 When there is a need to access components of an \code{N\_Vector\_Cuda}, \code{v},
 it is recommeded to use functions {\hyperref[nvectors/NVector_CUDA:c.N_VGetDeviceArrayPointer_Cuda]{\emph{\code{N\_VGetDeviceArrayPointer\_Cuda()}}}} or
-{\hyperref[nvectors/NVector_CUDA:c.N_VGetHostArrayPointer_Cuda]{\emph{\code{N\_VGetHostArrayPointer\_Cuda()}}}}.
+{\hyperref[nvectors/NVector_CUDA:c.N_VGetHostArrayPointer_Cuda]{\emph{\code{N\_VGetHostArrayPointer\_Cuda()}}}}. However, when using managed memory,
+the function {\hyperref[nvectors/NVector_Operations:c.N_VGetArrayPointer]{\emph{\code{N\_VGetArrayPointer()}}}} may also be used.
 
 \item {} 
 To maximize efficiency, vector operations in the NVECTOR\_CUDA implementation

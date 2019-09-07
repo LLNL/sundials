@@ -65,3 +65,7 @@
 
 # swig
 /swig/swig
+
+# editor files
+.vscode
+

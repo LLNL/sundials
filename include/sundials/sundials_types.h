@@ -54,6 +54,7 @@
 #endif
 
 #include <float.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -151,7 +152,6 @@ typedef SUNDIALS_INDEX_TYPE sunindextype;
 #ifndef SUNTRUE
 #define SUNTRUE 1
 #endif
-
 
 #ifdef __cplusplus
 }

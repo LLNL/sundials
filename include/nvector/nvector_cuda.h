@@ -80,6 +80,10 @@ SUNDIALS_EXPORT N_Vector N_VMake_Cuda(sunindextype length,
 SUNDIALS_EXPORT N_Vector N_VMakeManaged_Cuda(sunindextype length,
                                              realtype *vdata);
 
+SUNDIALS_EXPORT N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length,
+                                                          void* (*allocfn)(size_t),
+                                                          void (*freefn)(void*));
+
 SUNDIALS_EXPORT sunindextype N_VGetLength_Cuda(N_Vector v);
 
 SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_Cuda(N_Vector v);
