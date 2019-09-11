@@ -80,6 +80,7 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_LapackDense;
+  S->ops->getid      = SUNLinSolGetID_LapackDense;
   S->ops->initialize = SUNLinSolInitialize_LapackDense;
   S->ops->setup      = SUNLinSolSetup_LapackDense;
   S->ops->solve      = SUNLinSolSolve_LapackDense;
@@ -117,6 +118,12 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A)
 SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_DIRECT);
+}
+
+
+SUNLinearSolver_ID SUNLinSolGetID_LapackDense(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_LAPACKDENSE);
 }
 
 

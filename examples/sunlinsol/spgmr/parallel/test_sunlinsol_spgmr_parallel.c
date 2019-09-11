@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
   LS = SUNLinSol_SPGMR(x, pretype, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 
                                  ProbData.myid);
+  fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SPGMR, ProbData.myid);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, ProbData.myid);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup,
                                            PSolve, ProbData.myid);

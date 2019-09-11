@@ -100,6 +100,7 @@ SUNDIALS_EXPORT SuperLUStat_t* SUNLinSol_SuperLUDIST_GetSuperLUStat(SUNLinearSol
  */
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SuperLUDIST(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SuperLUDIST(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUDIST(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A,

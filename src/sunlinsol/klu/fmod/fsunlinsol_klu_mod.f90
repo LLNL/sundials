@@ -40,7 +40,28 @@ module fsunlinsol_klu_mod
  public :: FSUNKLU
  public :: FSUNKLUReInit
  public :: FSUNKLUSetOrdering
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
+ type, public :: SWIGTYPE_p_klu_l_symbolic
+  type(SwigClassWrapper), public :: swigdata
+ end type
+ public :: FSUNLinSol_KLUGetSymbolic
+ type, public :: SWIGTYPE_p_klu_l_numeric
+  type(SwigClassWrapper), public :: swigdata
+ end type
+ public :: FSUNLinSol_KLUGetNumeric
+ type, public :: SWIGTYPE_p_klu_l_common
+  type(SwigClassWrapper), public :: swigdata
+ end type
+ public :: FSUNLinSol_KLUGetCommon
  public :: FSUNLinSolGetType_KLU
+ public :: FSUNLinSolGetID_KLU
  public :: FSUNLinSolInitialize_KLU
  public :: FSUNLinSolSetup_KLU
  public :: FSUNLinSolSolve_KLU
@@ -108,8 +129,43 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FSUNLinSol_KLUGetSymbolic(farg1) &
+bind(C, name="_wrap_FSUNLinSol_KLUGetSymbolic") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(C_PTR), value :: farg1
+type(SwigClassWrapper) :: fresult
+end function
+
+function swigc_FSUNLinSol_KLUGetNumeric(farg1) &
+bind(C, name="_wrap_FSUNLinSol_KLUGetNumeric") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(C_PTR), value :: farg1
+type(SwigClassWrapper) :: fresult
+end function
+
+function swigc_FSUNLinSol_KLUGetCommon(farg1) &
+bind(C, name="_wrap_FSUNLinSol_KLUGetCommon") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(C_PTR), value :: farg1
+type(SwigClassWrapper) :: fresult
+end function
+
 function swigc_FSUNLinSolGetType_KLU(farg1) &
 bind(C, name="_wrap_FSUNLinSolGetType_KLU") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNLinSolGetID_KLU(farg1) &
+bind(C, name="_wrap_FSUNLinSolGetID_KLU") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -284,6 +340,45 @@ fresult = swigc_FSUNKLUSetOrdering(farg1, farg2)
 swig_result = fresult
 end function
 
+function FSUNLinSol_KLUGetSymbolic(s) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SWIGTYPE_p_klu_l_symbolic) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+type(SwigClassWrapper) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+fresult = swigc_FSUNLinSol_KLUGetSymbolic(farg1)
+swig_result%swigdata = fresult
+end function
+
+function FSUNLinSol_KLUGetNumeric(s) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SWIGTYPE_p_klu_l_numeric) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+type(SwigClassWrapper) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+fresult = swigc_FSUNLinSol_KLUGetNumeric(farg1)
+swig_result%swigdata = fresult
+end function
+
+function FSUNLinSol_KLUGetCommon(s) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SWIGTYPE_p_klu_l_common) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+type(SwigClassWrapper) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+fresult = swigc_FSUNLinSol_KLUGetCommon(farg1)
+swig_result%swigdata = fresult
+end function
+
 function FSUNLinSolGetType_KLU(s) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -294,6 +389,19 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolGetType_KLU(farg1)
+swig_result = fresult
+end function
+
+function FSUNLinSolGetID_KLU(s) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(SUNLinearSolver_ID) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+fresult = swigc_FSUNLinSolGetID_KLU(farg1)
 swig_result = fresult
 end function
 

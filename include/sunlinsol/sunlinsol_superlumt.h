@@ -107,6 +107,7 @@ SUNDIALS_EXPORT int SUNSuperLUMTSetOrdering(SUNLinearSolver S,
                                             int ordering_choice);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A,

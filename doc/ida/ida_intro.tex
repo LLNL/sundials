@@ -68,6 +68,10 @@ in extended {\F}.
 
 \subsection*{Changes in v5.0.0}
 
+Added a new optional operation to the SUNLINEARSOLVER API, \id{SUNLinSolGetID},
+that returns a \id{SUNLinearSolver\_ID} for identifying the linear solver
+module.
+
 Made performance improvements to the {\nveccuda} module. Users who utilize a
 non-default stream should no longer see default stream synchronizations after
 memory transfers.
@@ -89,6 +93,9 @@ Added three new accessor functions to the {\sunlinsolklu} module,
 \id{SUNLinSol\_KLUGetCommon}, to provide user access to the underlying
 {\klu} solver structures.
 
+A bug was fixed in the IDA linear solver interface where an incorrect
+Jacobian-vector product increment was used with iterative solvers other than
+SPGMR and SPFGMR.
 
 \subsection*{Changes in v5.0.0-dev.1}
 

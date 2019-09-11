@@ -63,7 +63,7 @@ extern "C" {
 
 
 /* -----------------------------------------------------------------
- * Implemented SUNLinearSolver types:
+ * Implemented SUNLinearSolver types and IDs:
  * ----------------------------------------------------------------- */
 
 typedef enum {
@@ -71,6 +71,22 @@ typedef enum {
   SUNLINEARSOLVER_ITERATIVE,
   SUNLINEARSOLVER_MATRIX_ITERATIVE
 } SUNLinearSolver_Type;
+
+typedef enum {
+  SUNLINEARSOLVER_BAND,
+  SUNLINEARSOLVER_DENSE,
+  SUNLINEARSOLVER_KLU,
+  SUNLINEARSOLVER_LAPACKBAND,
+  SUNLINEARSOLVER_LAPACKDENSE,
+  SUNLINEARSOLVER_PCG,
+  SUNLINEARSOLVER_SPBCGS,
+  SUNLINEARSOLVER_SPFGMR,
+  SUNLINEARSOLVER_SPGMR,
+  SUNLINEARSOLVER_SPTFQMR,
+  SUNLINEARSOLVER_SUPERLUDIST,
+  SUNLINEARSOLVER_SUPERLUMT,
+  SUNLINEARSOLVER_CUSTOM
+} SUNLinearSolver_ID;
 
 
 /* -----------------------------------------------------------------
@@ -86,6 +102,7 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNLinearSolver *SUNLinearSolver;
 /* Structure containing function pointers to linear solver operations */
 struct _generic_SUNLinearSolver_Ops {
   SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
+  SUNLinearSolver_ID   (*getid)(SUNLinearSolver);
   int                  (*setatimes)(SUNLinearSolver, void*, ATimesFn);
   int                  (*setpreconditioner)(SUNLinearSolver, void*,
                                             PSetupFn, PSolveFn);
@@ -121,6 +138,8 @@ SUNDIALS_EXPORT SUNLinearSolver SUNLinSolNewEmpty();
 SUNDIALS_EXPORT void SUNLinSolFreeEmpty(SUNLinearSolver S);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
+
+SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S);
 
 SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
                                        ATimesFn ATimes);

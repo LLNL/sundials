@@ -79,6 +79,7 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl)
 
   /* Attach operations */
   S->ops->gettype           = SUNLinSolGetType_PCG;
+  S->ops->getid             = SUNLinSolGetID_PCG;
   S->ops->setatimes         = SUNLinSolSetATimes_PCG;
   S->ops->setpreconditioner = SUNLinSolSetPreconditioner_PCG;
   S->ops->setscalingvectors = SUNLinSolSetScalingVectors_PCG;
@@ -184,6 +185,13 @@ SUNLinearSolver_Type SUNLinSolGetType_PCG(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_ITERATIVE);
 }
+
+
+SUNLinearSolver_ID SUNLinSolGetID_PCG(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_PCG);
+}
+
 
 int SUNLinSolInitialize_PCG(SUNLinearSolver S)
 {

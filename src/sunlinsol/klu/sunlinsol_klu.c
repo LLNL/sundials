@@ -105,6 +105,7 @@ SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_KLU;
+  S->ops->getid      = SUNLinSolGetID_KLU;
   S->ops->initialize = SUNLinSolInitialize_KLU;
   S->ops->setup      = SUNLinSolSetup_KLU;
   S->ops->solve      = SUNLinSolSolve_KLU;
@@ -238,6 +239,12 @@ sun_klu_common* SUNLinSol_KLUGetCommon(SUNLinearSolver S)
 SUNLinearSolver_Type SUNLinSolGetType_KLU(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_DIRECT);
+}
+
+
+SUNLinearSolver_ID SUNLinSolGetID_KLU(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_KLU);
 }
 
 

@@ -87,6 +87,7 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_Band;
+  S->ops->getid      = SUNLinSolGetID_Band;
   S->ops->initialize = SUNLinSolInitialize_Band;
   S->ops->setup      = SUNLinSolSetup_Band;
   S->ops->solve      = SUNLinSolSolve_Band;
@@ -123,6 +124,11 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A)
 SUNLinearSolver_Type SUNLinSolGetType_Band(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_DIRECT);
+}
+
+SUNLinearSolver_ID SUNLinSolGetID_Band(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_BAND);
 }
 
 int SUNLinSolInitialize_Band(SUNLinearSolver S)

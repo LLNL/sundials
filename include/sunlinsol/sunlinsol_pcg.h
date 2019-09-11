@@ -83,6 +83,7 @@ SUNDIALS_EXPORT int SUNPCGSetPrecType(SUNLinearSolver S, int pretype);
 SUNDIALS_EXPORT int SUNPCGSetMaxl(SUNLinearSolver S, int maxl);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_PCG(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetATimes_PCG(SUNLinearSolver S, void* A_data,
                                            ATimesFn ATimes);

@@ -172,6 +172,7 @@ int main(int argc, char *argv[])
   /* Create SPTFQMR linear solver */
   LS = SUNLinSol_SPTFQMR(x, pretype, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0);
+  fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SPTFQMR, 0);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup, PSolve, 0);
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s1, ProbData.s2, 0);

@@ -178,6 +178,13 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
+enum {
+    SWIG_MEM_OWN = 0x01,
+    SWIG_MEM_RVALUE = 0x02,
+    SWIG_MEM_CONST = 0x04
+};
+
+
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -207,6 +214,20 @@
 
 
 #include "sunlinsol/sunlinsol_klu.h"  
+
+
+typedef struct {
+    void* cptr;
+    int cmemflags;
+} SwigClassWrapper;
+
+
+SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+    SwigClassWrapper result;
+    result.cptr = NULL;
+    result.cmemflags = 0;
+    return result;
+}
 
 SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_KLU(N_Vector farg1, SUNMatrix farg2) {
   SUNLinearSolver fresult ;
@@ -300,6 +321,45 @@ SWIGEXPORT int _wrap_FSUNKLUSetOrdering(SUNLinearSolver farg1, int const *farg2)
 }
 
 
+SWIGEXPORT SwigClassWrapper _wrap_FSUNLinSol_KLUGetSymbolic(SUNLinearSolver farg1) {
+  SwigClassWrapper fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  klu_l_symbolic *result = 0 ;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  result = (klu_l_symbolic *)SUNLinSol_KLUGetSymbolic(arg1);
+  fresult.cptr = result;
+  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
+  return fresult;
+}
+
+
+SWIGEXPORT SwigClassWrapper _wrap_FSUNLinSol_KLUGetNumeric(SUNLinearSolver farg1) {
+  SwigClassWrapper fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  klu_l_numeric *result = 0 ;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  result = (klu_l_numeric *)SUNLinSol_KLUGetNumeric(arg1);
+  fresult.cptr = result;
+  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
+  return fresult;
+}
+
+
+SWIGEXPORT SwigClassWrapper _wrap_FSUNLinSol_KLUGetCommon(SUNLinearSolver farg1) {
+  SwigClassWrapper fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  klu_l_common *result = 0 ;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  result = (klu_l_common *)SUNLinSol_KLUGetCommon(arg1);
+  fresult.cptr = result;
+  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNLinSolGetType_KLU(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
@@ -307,6 +367,18 @@ SWIGEXPORT int _wrap_FSUNLinSolGetType_KLU(SUNLinearSolver farg1) {
   
   arg1 = (SUNLinearSolver)(farg1);
   result = (SUNLinearSolver_Type)SUNLinSolGetType_KLU(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNLinSolGetID_KLU(SUNLinearSolver farg1) {
+  int fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  SUNLinearSolver_ID result;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  result = (SUNLinearSolver_ID)SUNLinSolGetID_KLU(arg1);
   fresult = (int)(result);
   return fresult;
 }

@@ -101,6 +101,10 @@ in extended {\F}.
 
 \subsection*{Changes in v5.0.0}
 
+Added a new optional operation to the SUNLINEARSOLVER API, \id{SUNLinSolGetID},
+that returns a \id{SUNLinearSolver\_ID} for identifying the linear solver
+module.
+
 Made performance improvements to the {\nveccuda} module. Users who utilize a
 non-default stream should no longer see default stream synchronizations after
 memory transfers.

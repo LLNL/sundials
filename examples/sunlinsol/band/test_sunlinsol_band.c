@@ -147,6 +147,7 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, 0);
  
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
+  fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_BAND, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolSpace(LS, 0);
 

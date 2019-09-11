@@ -302,6 +302,9 @@ preconditioner routines.
 
 \subsection{Changes in v4.0.0}
 \label{Introduction:changes-in-v4-0-0}
+Added a new optional operation to the SUNLINEARSOLVER API, \code{SUNLinSolGetID},
+that returns a \code{SUNLinearSolver\_ID} for identifying the linear solver module.
+
 Made performance improvements to the CUDA NVECTOR. Users who utilize a non
 -default stream should no longer see default stream synchronizations after
 memory transfers.
@@ -33368,11 +33371,13 @@ functions are defined in the header file
 \label{sunlinsol/SUNLinSol_API:sunlinsol-corefn}\label{sunlinsol/SUNLinSol_API:sunlinearsolver-core-functions}
 The core linear solver functions consist of two required functions to get the
 linear solver type ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolGetType]{\emph{\code{SUNLinSolGetType()}}}}) and solve the linear system
-\(Ax=b\) ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSolve]{\emph{\code{SUNLinSolSolve()}}}}). The remaining three functions for
-initializing the linear solver object once all solver-specific options have been
-set ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolInitialize]{\emph{\code{SUNLinSolInitialize()}}}}), setting up the linear solver object to
-utilize an updated matrix \(A\) ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSetup]{\emph{\code{SUNLinSolSetup()}}}}), and for
-destroying the linear solver object ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolFree]{\emph{\code{SUNLinSolFree()}}}}) are optional.
+\(Ax=b\)
+({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSolve]{\emph{\code{SUNLinSolSolve()}}}}). The remaining functions are for
+getting the solver ID ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolGetID]{\emph{\code{SUNLinSolGetID()}}}}), initializing the linear solver
+object once all solver-specific options have been set
+({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolInitialize]{\emph{\code{SUNLinSolInitialize()}}}}), setting up the linear solver object to utilize
+an updated matrix \(A\) ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSetup]{\emph{\code{SUNLinSolSetup()}}}}), and for destroying the
+linear solver object ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolFree]{\emph{\code{SUNLinSolFree()}}}}) are optional.
 \index{SUNLinSolGetType (C function)}
 
 \begin{fulllineitems}
@@ -33420,6 +33425,22 @@ Usage:
 
 Notes: See section {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-intended]{\emph{\DUspan{}{Intended use cases}}}} for more information
 on intended use cases corresponding to the linear solver type.
+
+\end{fulllineitems}
+
+\index{SUNLinSolGetID (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_API:c.SUNLinSolGetID}\pysiglinewithargsret{SUNLinearSolver\_ID \bfcode{SUNLinSolGetID}}{SUNLinearSolver\emph{ LS}}{}
+Returns the identifier for the linear solver \emph{LS}. It is recommended that a
+user-supplied \code{SUNLinearSolver} implementation return the
+\code{SUNLINEARSOLVER\_CUSTOM} identifier.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{id} \PYG{o}{=} \PYG{n}{SUNLinSolGetID}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
 
 \end{fulllineitems}
 
@@ -33873,6 +33894,7 @@ structure is defined as
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}SUNLinearSolver\PYGZus{}Ops} \PYG{p}{\PYGZob{}}
   \PYG{n}{SUNLinearSolver\PYGZus{}Type} \PYG{p}{(}\PYG{o}{*}\PYG{n}{gettype}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNLinearSolver}\PYG{p}{)}\PYG{p}{;}
+  \PYG{n}{SUNLinearSolver\PYGZus{}ID}   \PYG{p}{(}\PYG{o}{*}\PYG{n}{getid}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNLinearSolver}\PYG{p}{)}\PYG{p}{;}
   \PYG{k+kt}{int}                  \PYG{p}{(}\PYG{o}{*}\PYG{n}{setatimes}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNLinearSolver}\PYG{p}{,} \PYG{k+kt}{void}\PYG{o}{*}\PYG{p}{,} \PYG{n}{ATimesFn}\PYG{p}{)}\PYG{p}{;}
   \PYG{k+kt}{int}                  \PYG{p}{(}\PYG{o}{*}\PYG{n}{setpreconditioner}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNLinearSolver}\PYG{p}{,} \PYG{k+kt}{void}\PYG{o}{*}\PYG{p}{,}
                                             \PYG{n}{PSetupFn}\PYG{p}{,} \PYG{n}{PSolveFn}\PYG{p}{)}\PYG{p}{;}

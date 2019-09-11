@@ -164,6 +164,7 @@ int main(int argc, char *argv[])
   /* Create PCG linear solver */
   LS = SUNLinSol_PCG(x, PREC_RIGHT, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0);
+  fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_PCG, 0);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup, PSolve, 0);
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s, NULL, 0);

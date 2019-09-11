@@ -79,6 +79,7 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_Dense;
+  S->ops->getid      = SUNLinSolGetID_Dense;
   S->ops->initialize = SUNLinSolInitialize_Dense;
   S->ops->setup      = SUNLinSolSetup_Dense;
   S->ops->solve      = SUNLinSolSolve_Dense;
@@ -115,6 +116,11 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A)
 SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_DIRECT);
+}
+
+SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_DENSE);
 }
 
 int SUNLinSolInitialize_Dense(SUNLinearSolver S)

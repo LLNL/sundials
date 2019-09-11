@@ -22,6 +22,7 @@
 #include "ida_impl.h"
 #include "ida_ls_impl.h"
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_linearsolver.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>
@@ -1044,14 +1045,18 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   N_Vector y_tmp, yp_tmp;
   realtype sig, siginv;
   int      iter, retval;
+  SUNLinearSolver_ID LSID;
 
   /* access IDALsMem structure */
   retval = idaLs_AccessLMem(ida_mem, "idaLsDQJtimes",
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
 
-  sig = idals_mem->sqrtN * idals_mem->dqincfac;  /* GMRES */
-  /*sig = idals_mem->dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);*/  /* BiCGStab/TFQMR */
+  LSID = SUNLinSolGetID(idals_mem->LS);
+  if (LSID == SUNLINEARSOLVER_SPGMR || LSID == SUNLINEARSOLVER_SPFGMR)
+    sig = idals_mem->sqrtN * idals_mem->dqincfac;
+  else
+    sig = idals_mem->dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);
 
   /* Rename work1 and work2 for readibility */
   y_tmp  = work1;

@@ -80,6 +80,7 @@ SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_LapackBand;
+  S->ops->getid      = SUNLinSolGetID_LapackBand;
   S->ops->initialize = SUNLinSolInitialize_LapackBand;
   S->ops->setup      = SUNLinSolSetup_LapackBand;
   S->ops->solve      = SUNLinSolSolve_LapackBand;
@@ -117,6 +118,12 @@ SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A)
 SUNLinearSolver_Type SUNLinSolGetType_LapackBand(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_DIRECT);
+}
+
+
+SUNLinearSolver_ID SUNLinSolGetID_LapackBand(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_LAPACKBAND);
 }
 
 

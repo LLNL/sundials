@@ -40,11 +40,12 @@ SUNLinearSolver core functions
 
 The core linear solver functions consist of two required functions to get the
 linear solver type (:c:func:`SUNLinSolGetType`) and solve the linear system
-:math:`Ax=b` (:c:func:`SUNLinSolSolve`). The remaining three functions for
-initializing the linear solver object once all solver-specific options have been
-set (:c:func:`SUNLinSolInitialize`), setting up the linear solver object to
-utilize an updated matrix :math:`A` (:c:func:`SUNLinSolSetup`), and for
-destroying the linear solver object (:c:func:`SUNLinSolFree`) are optional.
+:math:`Ax=b` (:c:func:`SUNLinSolSolve`). The remaining functions are for
+getting the solver ID (:c:func:`SUNLinSolGetID`), initializing the linear solver
+object once all solver-specific options have been set
+(:c:func:`SUNLinSolInitialize`), setting up the linear solver object to utilize
+an updated matrix :math:`A` (:c:func:`SUNLinSolSetup`), and for destroying the
+linear solver object (:c:func:`SUNLinSolFree`) are optional.
 
 
 .. c:function:: SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver LS)
@@ -87,6 +88,18 @@ destroying the linear solver object (:c:func:`SUNLinSolFree`) are optional.
 
    Notes: See section :ref:`SUNLinSol.Intended` for more information
    on intended use cases corresponding to the linear solver type.
+
+.. c:function:: SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver LS)
+
+   Returns the identifier for the linear solver *LS*. It is recommended that a
+   user-supplied ``SUNLinearSolver`` implementation return the
+   ``SUNLINEARSOLVER_CUSTOM`` identifier.
+
+   Usage:
+
+   .. code-block:: c
+
+      id = SUNLinSolGetID(LS);
 
 
 .. c:function:: int SUNLinSolInitialize(SUNLinearSolver LS)
@@ -492,6 +505,7 @@ structure is defined as
 
    struct _generic_SUNLinearSolver_Ops {
      SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
+     SUNLinearSolver_ID   (*getid)(SUNLinearSolver);
      int                  (*setatimes)(SUNLinearSolver, void*, ATimesFn);
      int                  (*setpreconditioner)(SUNLinearSolver, void*,
                                                PSetupFn, PSolveFn);

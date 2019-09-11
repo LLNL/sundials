@@ -193,6 +193,7 @@ int main(int argc, char *argv[])
   LS = SUNLinSol_SPTFQMR(x, pretype, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE,
                                  ProbData.myid);
+  fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SPTFQMR, ProbData.myid);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, ProbData.myid);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup,
                                            PSolve, ProbData.myid);

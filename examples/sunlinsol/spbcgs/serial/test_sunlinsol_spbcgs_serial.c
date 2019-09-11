@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
   /* Create SPBCGS linear solver */
   LS = SUNLinSol_SPBCGS(x, pretype, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0);
+  fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SPBCGS, 0);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup, PSolve, 0);
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s1, ProbData.s2, 0);

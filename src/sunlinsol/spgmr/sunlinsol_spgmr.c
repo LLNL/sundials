@@ -88,6 +88,7 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl)
 
   /* Attach operations */
   S->ops->gettype           = SUNLinSolGetType_SPGMR;
+  S->ops->getid             = SUNLinSolGetID_SPGMR;
   S->ops->setatimes         = SUNLinSolSetATimes_SPGMR;
   S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPGMR;
   S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPGMR;
@@ -213,6 +214,12 @@ SUNDIALS_EXPORT int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_ITERATIVE);
+}
+
+
+SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_SPGMR);
 }
 
 

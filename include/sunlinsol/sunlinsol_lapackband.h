@@ -75,6 +75,7 @@ SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackBand(N_Vector y,
 SUNDIALS_EXPORT SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_LapackBand(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A,

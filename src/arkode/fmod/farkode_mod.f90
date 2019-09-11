@@ -75,6 +75,8 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_NLS_OP_ERR = -33_C_INT
  integer(C_INT), parameter, public :: ARK_INNERSTEP_ATTACH_ERR = -34_C_INT
  integer(C_INT), parameter, public :: ARK_INNERSTEP_FAIL = -35_C_INT
+ integer(C_INT), parameter, public :: ARK_OUTERTOINNER_FAIL = -36_C_INT
+ integer(C_INT), parameter, public :: ARK_INNERTOOUTER_FAIL = -37_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  public :: FARKBandPrecInit
  public :: FARKBandPrecGetWorkSpace

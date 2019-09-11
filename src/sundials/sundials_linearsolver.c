@@ -42,6 +42,7 @@ SUNLinearSolver SUNLinSolNewEmpty()
 
   /* initialize operations to NULL */
   ops->gettype           = NULL;
+  ops->getid             = NULL;
   ops->setatimes         = NULL;
   ops->setpreconditioner = NULL;
   ops->setscalingvectors = NULL;
@@ -85,9 +86,15 @@ void SUNLinSolFreeEmpty(SUNLinearSolver S)
 
 SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S)
 {
-  SUNLinearSolver_Type type;
-  type = S->ops->gettype(S);
-  return(type);
+  return(S->ops->gettype(S));
+}
+
+SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S)
+{
+  if (S->ops->getid)
+    return(S->ops->getid(S));
+  else
+    return(SUNLINEARSOLVER_CUSTOM);
 }
 
 int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,

@@ -132,11 +132,11 @@ solver statistics. All of these functions are defined in the header file
 
 The core linear solver functions consist of two required functions to get the
 linear solver type \\ \noindent (\Id{SUNLinSolGetType}) and solve the linear
-system $Ax=b$ (\Id{SUNLinSolSolve}). The remaining three functions for
-initializing the linear solver object once all solver-specific options have been
-set \\ \noindent (\Id{SUNLinSolInitialize}), setting up the linear solver object
-to utilize an updated matrix $A$ \\ \noindent (\Id{SUNLinSolSetup}), and for
-destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
+system $Ax=b$ (\Id{SUNLinSolSolve}). The remaining functions are for getting the
+solver ID (\Id{SUNLinSolGetID}), initializing the linear solver object once all
+solver-specific options have been set (\Id{SUNLinSolInitialize}), setting up the
+linear solver object to utilize an updated matrix $A$ (\Id{SUNLinSolSetup}), and
+for destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
 
 % --------------------------------------------------------------------
 \ucfunctionf{SUNLinSolGetType}
@@ -183,6 +183,29 @@ destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
 {
  See section \ref{ss:sunlinsol_intended} for more information on intended use
  cases corresponding to the linear solver type.
+}
+% --------------------------------------------------------------------
+\ucfunctionf{SUNLinSolGetID}
+{
+  id = SUNLinSolGetID(LS);
+}
+{
+  The \textit{optional} function \Id{SUNLinSolGetID} returns the
+  identifier for the linear solver \id{LS}.
+}
+{
+  \begin{args}[LS]
+  \item[LS] (\id{SUNLinearSolver})
+    a {\sunlinsol} object.
+  \end{args}
+}
+{
+  The return value \id{id} (of type \id{int}) will be a non-negative value
+  defined by the enumeration \id{SUNLinearSolver\_ID}.
+}
+{
+  It is recommended that a user-supplied \id{SUNLinearSolver} return the\\
+  \noindent \id{SUNLINEARSOLVER\_CUSTOM} identifier.
 }
 % --------------------------------------------------------------------
 \ucfunctionf{SUNLinSolInitialize}
@@ -785,6 +808,7 @@ structure is defined as
 \begin{verbatim}
 struct _generic_SUNLinearSolver_Ops {
   SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
+  SUNLinearSolver_ID   (*getid)(SUNLinearSolver);
   int                  (*setatimes)(SUNLinearSolver, void*, ATimesFn);
   int                  (*setpreconditioner)(SUNLinearSolver, void*,
                                             PSetupFn, PSolveFn);

@@ -350,13 +350,14 @@ int main(int argc, char *argv[])
   }
 
   /* Run Tests */
-  fails += Test_SUNLinSolInitialize(LS, 0);
-  fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, 0);
+  fails += Test_SUNLinSolInitialize(LS, grid.iam);
+  fails += Test_SUNLinSolSetup(LS, A, grid.iam);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, grid.iam);
 
-  fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
-  fails += Test_SUNLinSolLastFlag(LS, 0);
-  fails += Test_SUNLinSolSpace(LS, 0);
+  fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, grid.iam);
+  fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SUPERLUDIST, grid.iam);
+  fails += Test_SUNLinSolLastFlag(LS, grid.iam);
+  fails += Test_SUNLinSolSpace(LS, grid.iam);
 
   /* Print result */
   if (fails) {

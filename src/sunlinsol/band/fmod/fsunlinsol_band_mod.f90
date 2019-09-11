@@ -34,6 +34,7 @@ module fsunlinsol_band_mod
  public :: FSUNLinSol_Band
  public :: FSUNBandLinearSolver
  public :: FSUNLinSolGetType_Band
+ public :: FSUNLinSolGetID_Band
  public :: FSUNLinSolInitialize_Band
  public :: FSUNLinSolSetup_Band
  public :: FSUNLinSolSolve_Band
@@ -63,6 +64,14 @@ end function
 
 function swigc_FSUNLinSolGetType_Band(farg1) &
 bind(C, name="_wrap_FSUNLinSolGetType_Band") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNLinSolGetID_Band(farg1) &
+bind(C, name="_wrap_FSUNLinSolGetID_Band") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -171,6 +180,19 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolGetType_Band(farg1)
+swig_result = fresult
+end function
+
+function FSUNLinSolGetID_Band(s) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(SUNLinearSolver_ID) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+fresult = swigc_FSUNLinSolGetID_Band(farg1)
 swig_result = fresult
 end function
 

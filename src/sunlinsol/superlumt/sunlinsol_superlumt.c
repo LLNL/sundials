@@ -100,6 +100,7 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_SuperLUMT;
+  S->ops->getid      = SUNLinSolGetID_SuperLUMT;
   S->ops->initialize = SUNLinSolInitialize_SuperLUMT;
   S->ops->setup      = SUNLinSolSetup_SuperLUMT;
   S->ops->solve      = SUNLinSolSolve_SuperLUMT;
@@ -200,6 +201,12 @@ int SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
 SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_DIRECT);
+}
+
+
+SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_SUPERLUMT);
 }
 
 

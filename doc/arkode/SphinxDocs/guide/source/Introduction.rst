@@ -111,6 +111,9 @@ Changes from previous versions
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Added a new optional operation to the SUNLINEARSOLVER API, ``SUNLinSolGetID``,
+that returns a ``SUNLinearSolver_ID`` for identifying the linear solver module.
+
 Made performance improvements to the CUDA NVECTOR. Users who utilize a non
 -default stream should no longer see default stream synchronizations after 
 memory transfers.
