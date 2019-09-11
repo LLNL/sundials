@@ -66,13 +66,18 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 /* Integrator memory structure */
 typedef struct IntegratorMemRec {
+  N_Vector y0;
+  N_Vector ycur;
+  N_Vector ycor;
+  N_Vector w;
   N_Vector x;
   SUNMatrix A;
   SUNLinearSolver LS;
 } *IntegratorMem;
 
 /* Linear solver setup interface function */
-static int LSetup(N_Vector y, N_Vector f, booleantype jbad, booleantype* jcur, void* mem);
+static int LSetup(N_Vector y, N_Vector f, booleantype jbad, booleantype* jcur,
+                  void* mem);
 
 /* Linear solver solve interface function */
 static int LSolve(N_Vector y, N_Vector b, void* mem);
@@ -84,61 +89,62 @@ static int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 /* -----------------------------------------------------------------------------
  * Main testing routine
  * ---------------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
-  int                retval = 0;
-  N_Vector           x, y0, y, w;
-  SUNMatrix          A;
-  SUNLinearSolver    LS;
-  SUNNonlinearSolver NLS;
-  IntegratorMem      Imem;
-  long int           niters;
-  
-  /* create integrator memory */
+
+  IntegratorMem      Imem;       /* proxy for integrator memory */
+  SUNNonlinearSolver NLS;        /* nonlinear solver object     */
+  long int           niters;     /* number of nonlinear iters   */
+  int                retval = 0; /* return value                */
+
+  /* create proxy for integrator memory */
   Imem = (IntegratorMem) malloc(sizeof(struct IntegratorMemRec));
 
   /* create vector */
-  x  = N_VNew_Serial(NEQ);
-  if (check_retval((void *)x, "N_VNew_Serial", 0)) return(1);
+  Imem->y0 = N_VNew_Serial(NEQ);
+  if (check_retval((void *)Imem->y0, "N_VNew_Serial", 0)) return(1);
 
-  y0 = N_VClone(x);
-  if (check_retval((void *)y0, "N_VNew_Serial", 0)) return(1);
+  Imem->ycur = N_VClone(Imem->y0);
+  if (check_retval((void *)Imem->ycur, "N_VClone", 0)) return(1);
 
-  y  = N_VClone(x);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  Imem->ycor = N_VClone(Imem->y0);
+  if (check_retval((void *)Imem->ycor, "N_VClone", 0)) return(1);
 
-  w  = N_VClone(x);
-  if (check_retval((void *)w, "N_VNew_Serial", 0)) return(1);
+  Imem->w = N_VClone(Imem->y0);
+  if (check_retval((void *)Imem->w, "N_VClone", 0)) return(1);
 
-  /* set initial guess */
-  NV_Ith_S(y0,0) = HALF;
-  NV_Ith_S(y0,1) = HALF;
-  NV_Ith_S(y0,2) = HALF;
+  Imem->x = N_VClone(Imem->y0);
+  if (check_retval((void *)Imem->x, "N_VClone", 0)) return(1);
 
-  /* set weights */
-  NV_Ith_S(w,0) = ONE;
-  NV_Ith_S(w,1) = ONE;
-  NV_Ith_S(w,2) = ONE;
-  
+  /* set initial guess for the state */
+  NV_Ith_S(Imem->y0,0) = HALF;
+  NV_Ith_S(Imem->y0,1) = HALF;
+  NV_Ith_S(Imem->y0,2) = HALF;
+
+  /* set initial guess for the correction */
+  NV_Ith_S(Imem->ycor,0) = ZERO;
+  NV_Ith_S(Imem->ycor,1) = ZERO;
+  NV_Ith_S(Imem->ycor,2) = ZERO;
+
+  /* set weights for norm */
+  NV_Ith_S(Imem->w,0) = ONE;
+  NV_Ith_S(Imem->w,1) = ONE;
+  NV_Ith_S(Imem->w,2) = ONE;
+
   /* create dense matrix */
-  A = SUNDenseMatrix(NEQ, NEQ);
-  if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  Imem->A = SUNDenseMatrix(NEQ, NEQ);
+  if (check_retval((void *)Imem->A, "SUNDenseMatrix", 0)) return(1);
 
   /* create dense linear solver */
-  LS  = SUNLinSol_Dense(y, A);
-  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  Imem->LS = SUNLinSol_Dense(Imem->y0, Imem->A);
+  if (check_retval((void *)Imem->LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* initialize the linear solver */
-  retval = SUNLinSolInitialize(LS);
+  retval = SUNLinSolInitialize(Imem->LS);
   if (check_retval(&retval, "SUNLinSolInitialize", 1)) return(1);
 
-  /* set integrator memory */
-  Imem->x  = x;
-  Imem->A  = A;
-  Imem->LS = LS;
-
   /* create nonlinear solver */
-  NLS = SUNNonlinSol_Newton(y);
+  NLS = SUNNonlinSol_Newton(Imem->y0);
   if (check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
 
   /* set the nonlinear residual function */
@@ -160,20 +166,24 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "SUNNonlinSolSetMaxIters", 1)) return(1);
 
   /* solve the nonlinear system */
-  retval = SUNNonlinSolSolve(NLS, y0, y, w, TOL, SUNTRUE, Imem);
+  retval = SUNNonlinSolSolve(NLS, Imem->y0, Imem->ycor, Imem->w, TOL, SUNTRUE,
+                             Imem);
   if (check_retval(&retval, "SUNNonlinSolSolve", 1)) return(1);
+
+  /* update the initial guess with the final correction */
+  N_VLinearSum(ONE, Imem->y0, ONE, Imem->ycor, Imem->ycur);
 
   /* print the solution */
   printf("Solution:\n");
-  printf("y1 = %"GSYM"\n",NV_Ith_S(y,0));
-  printf("y2 = %"GSYM"\n",NV_Ith_S(y,1));
-  printf("y3 = %"GSYM"\n",NV_Ith_S(y,2));
+  printf("y1 = %"GSYM"\n",NV_Ith_S(Imem->ycur, 0));
+  printf("y2 = %"GSYM"\n",NV_Ith_S(Imem->ycur, 1));
+  printf("y3 = %"GSYM"\n",NV_Ith_S(Imem->ycur, 2));
 
   /* print the solution error */
   printf("Solution Error:\n");
-  printf("e1 = %"GSYM"\n",NV_Ith_S(y,0) - Y1);
-  printf("e2 = %"GSYM"\n",NV_Ith_S(y,1) - Y2);
-  printf("e3 = %"GSYM"\n",NV_Ith_S(y,2) - Y3);
+  printf("e1 = %"GSYM"\n",NV_Ith_S(Imem->ycur, 0) - Y1);
+  printf("e2 = %"GSYM"\n",NV_Ith_S(Imem->ycur, 1) - Y2);
+  printf("e3 = %"GSYM"\n",NV_Ith_S(Imem->ycur, 2) - Y3);
 
   /* get the number of linear iterations */
   retval = SUNNonlinSolGetNumIters(NLS, &niters);
@@ -182,12 +192,13 @@ int main(int argc, char *argv[])
   printf("Number of nonlinear iterations: %ld\n",niters);
 
   /* Free vector, matrix, linear solver, and nonlinear solver */
-  N_VDestroy(x);
-  N_VDestroy(y0);
-  N_VDestroy(y);
-  N_VDestroy(w);
-  SUNMatDestroy(A);
-  SUNLinSolFree(LS);
+  N_VDestroy(Imem->y0);
+  N_VDestroy(Imem->ycur);
+  N_VDestroy(Imem->ycor);
+  N_VDestroy(Imem->w);
+  N_VDestroy(Imem->x);
+  SUNMatDestroy(Imem->A);
+  SUNLinSolFree(Imem->LS);
   SUNNonlinSolFree(NLS);
   free(Imem);
 
@@ -203,7 +214,7 @@ int main(int argc, char *argv[])
 
 
 /* Proxy for integrator lsetup function */
-int LSetup(N_Vector y, N_Vector f, booleantype jbad, booleantype* jcur, void* mem)
+int LSetup(N_Vector ycor, N_Vector f, booleantype jbad, booleantype* jcur, void* mem)
 {
   int retval;
   IntegratorMem Imem;
@@ -214,8 +225,11 @@ int LSetup(N_Vector y, N_Vector f, booleantype jbad, booleantype* jcur, void* me
   }
   Imem = (IntegratorMem) mem;
 
+  /* update state based on current correction */
+  N_VLinearSum(ONE, Imem->y0, ONE, ycor, Imem->ycur);
+
   /* compute the Jacobian */
-  retval = Jac(ZERO, y, NULL, Imem->A, NULL, NULL, NULL, NULL);
+  retval = Jac(ZERO, Imem->ycur, NULL, Imem->A, NULL, NULL, NULL, NULL);
   if (retval != 0) return(retval);
 
   /* update Jacobian status */
@@ -255,7 +269,7 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
 
   /* compute the norm of the correction */
   delnrm = N_VWrmsNorm(del, ewt);
-  
+
   if (delnrm <= tol) return(SUN_NLS_SUCCESS);  /* success       */
   else               return(SUN_NLS_CONTINUE); /* not converged */
 }
@@ -269,18 +283,31 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
  * f3(x,y,z) = 3x^2 - 4y + z^2     = 0
  *
  * ---------------------------------------------------------------------------*/
-int Res(N_Vector y, N_Vector f, void *mem)
+int Res(N_Vector ycor, N_Vector f, void *mem)
 {
+  IntegratorMem Imem;
   realtype y1, y2, y3;
 
-  y1 = NV_Ith_S(y,0);
-  y2 = NV_Ith_S(y,1);
-  y3 = NV_Ith_S(y,2);
+  if (mem == NULL) {
+    printf("ERROR: Integrator memory is NULL");
+    return(-1);
+  }
+  Imem = (IntegratorMem) mem;
 
+  /* update state based on current correction */
+  N_VLinearSum(ONE, Imem->y0, ONE, Imem->ycor, Imem->ycur);
+
+  /* get vector components */
+  y1 = NV_Ith_S(Imem->ycur,0);
+  y2 = NV_Ith_S(Imem->ycur,1);
+  y3 = NV_Ith_S(Imem->ycur,2);
+
+  /* compute the residual function */
   NV_Ith_S(f,0) = y1*y1 + y2*y2 + y3*y3 - ONE;
   NV_Ith_S(f,1) = TWO * y1*y1 + y2*y2 - FOUR * y3;
   NV_Ith_S(f,2) = THREE * (y1*y1) - FOUR * y2 + y3*y3;
 
+  /* return success */
   return(0);
 }
 
@@ -288,9 +315,9 @@ int Res(N_Vector y, N_Vector f, void *mem)
 /* -----------------------------------------------------------------------------
  * Jacobian of the nonlinear residual function
  *
- *            ( 2x  2y  2z ) 
+ *            ( 2x  2y  2z )
  * J(x,y,z) = ( 4x  2y  -4 )
- *            ( 6x  -4  2z )  
+ *            ( 6x  -4  2z )
  *
  * ---------------------------------------------------------------------------*/
 int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
@@ -306,7 +333,7 @@ int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   SM_ELEMENT_D(J,0,1) = TWO*y2;
   SM_ELEMENT_D(J,0,2) = TWO*y3;
 
-  SM_ELEMENT_D(J,1,0) = FOUR*y1; 
+  SM_ELEMENT_D(J,1,0) = FOUR*y1;
   SM_ELEMENT_D(J,1,1) = TWO*y2;
   SM_ELEMENT_D(J,1,2) = -FOUR;
 

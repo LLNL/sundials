@@ -135,8 +135,8 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (IDA_mem->simMallocDone == SUNFALSE) {
 
-    IDA_mem->ycor0Sim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
-    if (IDA_mem->ycor0Sim == NULL) {
+    IDA_mem->ypredictSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
+    if (IDA_mem->ypredictSim == NULL) {
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensSim", MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
@@ -144,7 +144,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 
     IDA_mem->ycorSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
     if (IDA_mem->ycorSim == NULL) {
-      N_VDestroy(IDA_mem->ycor0Sim);
+      N_VDestroy(IDA_mem->ypredictSim);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensSim", MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
@@ -152,7 +152,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 
     IDA_mem->ewtSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
     if (IDA_mem->ewtSim == NULL) {
-      N_VDestroy(IDA_mem->ycor0Sim);
+      N_VDestroy(IDA_mem->ypredictSim);
       N_VDestroy(IDA_mem->ycorSim);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensSim", MSG_MEM_FAIL);
@@ -163,14 +163,14 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   }
 
   /* attach vectors to vector wrappers */
-  NV_VEC_SW(IDA_mem->ycor0Sim, 0) = IDA_mem->ida_delta;
-  NV_VEC_SW(IDA_mem->ycorSim,  0) = IDA_mem->ida_ee;
-  NV_VEC_SW(IDA_mem->ewtSim,   0) = IDA_mem->ida_ewt;
+  NV_VEC_SW(IDA_mem->ypredictSim, 0) = IDA_mem->ida_yypredict;
+  NV_VEC_SW(IDA_mem->ycorSim,     0) = IDA_mem->ida_ee;
+  NV_VEC_SW(IDA_mem->ewtSim,      0) = IDA_mem->ida_ewt;
 
   for (is=0; is < IDA_mem->ida_Ns; is++) {
-    NV_VEC_SW(IDA_mem->ycor0Sim, is+1) = IDA_mem->ida_deltaS[is];
-    NV_VEC_SW(IDA_mem->ycorSim,  is+1) = IDA_mem->ida_eeS[is];
-    NV_VEC_SW(IDA_mem->ewtSim,   is+1) = IDA_mem->ida_ewtS[is];
+    NV_VEC_SW(IDA_mem->ypredictSim, is+1) = IDA_mem->ida_yySpredict[is];
+    NV_VEC_SW(IDA_mem->ycorSim,     is+1) = IDA_mem->ida_eeS[is];
+    NV_VEC_SW(IDA_mem->ewtSim,      is+1) = IDA_mem->ida_ewtS[is];
   }
 
   return(IDA_SUCCESS);

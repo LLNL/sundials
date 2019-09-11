@@ -6,9 +6,11 @@ web pages.
 
 0. Create release branch from trunk in the Git repository
 
-1. Update the "Changes in ..." sections in all user guides.
+1. Regenerate the Fortran 2003 interfaces. It is possible nothing will be updated.
 
-2. Update version numbers and release date information using the updateVerson.sh
+2. Update the "Changes in ..." sections in all user guides.
+
+3. Update version numbers and release date information using the updateVerson.sh
    script. This will update the following files:
      CMakeLists.txt
      README.md
@@ -35,16 +37,16 @@ web pages.
      html/main.html (This is no longer maintained as of at least 2016)
      sundialsTB/install_STB.m (This is no longer maintained as of 2016)
 
-3. Update version numbers of third party libraries in Install Guide
+4. Update version numbers of third party libraries in Install Guide
    in doc directory.
 
-4. Create the tarballs
+5. Create the tarballs
    Create the new distribution tarballs using the "tarscript" shell script
    under scripts/.  This also compiles the documents (user guides and example
    docs) and creates all tarballs in their final form, appropriate for
    uploading to the website.
 
-5. Update Internal Drupal Web pages for SUNDIALS:
+6. Update Internal Drupal Web pages for SUNDIALS:
 
    Note as of 28 Aug 2019 the addresses below are still vaild but may change
    from computation to computing in the future.
@@ -83,10 +85,10 @@ web pages.
       required review then Save.  This must be done for each page and is the
       final action before pages are uploaded for external release.
 
-6. After final push, ensure web content and behavior is as expected:
+7. After final push, ensure web content and behavior is as expected:
        + Main Page: http://computation.llnl.gov/projects/sundials
 
-7. Tag the release
+8. Tag the release
 
 
 

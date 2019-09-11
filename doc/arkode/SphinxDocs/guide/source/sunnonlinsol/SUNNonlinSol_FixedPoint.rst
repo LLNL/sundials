@@ -17,6 +17,7 @@
 
 .. _SUNNonlinSol_FixedPoint:
 
+==================================================
 The SUNNonlinearSolver_FixedPoint implementation
 ==================================================
 

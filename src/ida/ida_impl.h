@@ -76,7 +76,7 @@ typedef struct IDAMemRec {
   realtype       ida_rtol;           /* relative tolerance                    */
   realtype       ida_Satol;          /* scalar absolute tolerance             */
   N_Vector       ida_Vatol;          /* vector absolute tolerance             */
-  booleantype    ida_atolmin0;       /* flag indicating that min(atol) = 0    */    
+  booleantype    ida_atolmin0;       /* flag indicating that min(atol) = 0    */
   booleantype    ida_user_efun;      /* SUNTRUE if user provides efun         */
   IDAEwtFn       ida_efun;           /* function to set ewt                   */
   void          *ida_edata;          /* user pointer passed to efun           */

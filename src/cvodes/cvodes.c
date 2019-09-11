@@ -733,14 +733,14 @@ void *CVodeCreate(int lmm)
 
   cv_mem->NLSsim        = NULL;
   cv_mem->ownNLSsim     = SUNFALSE;
-  cv_mem->ycor0Sim      = NULL;
+  cv_mem->zn0Sim        = NULL;
   cv_mem->ycorSim       = NULL;
   cv_mem->ewtSim        = NULL;
   cv_mem->simMallocDone = SUNFALSE;
 
   cv_mem->NLSstg        = NULL;
   cv_mem->ownNLSstg     = SUNFALSE;
-  cv_mem->ycor0Stg      = NULL;
+  cv_mem->zn0Stg        = NULL;
   cv_mem->ycorStg       = NULL;
   cv_mem->ewtStg        = NULL;
   cv_mem->stgMallocDone = SUNFALSE;
@@ -3992,9 +3992,9 @@ void CVodeSensFree(void *cvode_mem)
 
   if(cv_mem->cv_SensMallocDone) {
     if (cv_mem->cv_stgr1alloc) {
-      free(cv_mem->cv_ncfS1);  cv_mem->cv_ncfS1 = NULL;
+      free(cv_mem->cv_ncfS1);  cv_mem->cv_ncfS1  = NULL;
       free(cv_mem->cv_ncfnS1); cv_mem->cv_ncfnS1 = NULL;
-      free(cv_mem->cv_nniS1);  cv_mem->cv_nniS1 = NULL;
+      free(cv_mem->cv_nniS1);  cv_mem->cv_nniS1  = NULL;
       cv_mem->cv_stgr1alloc = SUNFALSE;
     }
     cvSensFreeVectors(cv_mem);
@@ -4004,15 +4004,15 @@ void CVodeSensFree(void *cvode_mem)
 
   /* free any vector wrappers */
   if (cv_mem->simMallocDone) {
-    N_VDestroy(cv_mem->ycor0Sim); cv_mem->ycor0Sim = NULL;
-    N_VDestroy(cv_mem->ycorSim);  cv_mem->ycorSim  = NULL;
-    N_VDestroy(cv_mem->ewtSim);   cv_mem->ewtSim   = NULL;
+    N_VDestroy(cv_mem->zn0Sim);  cv_mem->zn0Sim  = NULL;
+    N_VDestroy(cv_mem->ycorSim); cv_mem->ycorSim = NULL;
+    N_VDestroy(cv_mem->ewtSim);  cv_mem->ewtSim  = NULL;
     cv_mem->simMallocDone = SUNFALSE;
   }
   if (cv_mem->stgMallocDone) {
-    N_VDestroy(cv_mem->ycor0Stg); cv_mem->ycor0Stg = NULL;
-    N_VDestroy(cv_mem->ycorStg);  cv_mem->ycorStg  = NULL;
-    N_VDestroy(cv_mem->ewtStg);   cv_mem->ewtStg   = NULL;
+    N_VDestroy(cv_mem->zn0Stg);  cv_mem->zn0Stg  = NULL;
+    N_VDestroy(cv_mem->ycorStg); cv_mem->ycorStg = NULL;
+    N_VDestroy(cv_mem->ewtStg);  cv_mem->ewtStg  = NULL;
     cv_mem->stgMallocDone = SUNFALSE;
   }
 
@@ -6483,16 +6483,16 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
   /* initial guess for the correction to the predictor */
   if (do_sensi_sim)
-    N_VConst(ZERO, cv_mem->ycor0Sim);
+    N_VConst(ZERO, cv_mem->ycorSim);
   else
-    N_VConst(ZERO, cv_mem->cv_tempv);
+    N_VConst(ZERO, cv_mem->cv_acor);
 
   /* call nonlinear solver setup if it exists */
   if ((cv_mem->NLS)->ops->setup) {
     if (do_sensi_sim)
-      flag = SUNNonlinSolSetup(cv_mem->NLS, cv_mem->ycor0Sim, cv_mem);
+      flag = SUNNonlinSolSetup(cv_mem->NLS, cv_mem->ycorSim, cv_mem);
     else
-      flag = SUNNonlinSolSetup(cv_mem->NLS, cv_mem->cv_tempv, cv_mem);
+      flag = SUNNonlinSolSetup(cv_mem->NLS, cv_mem->cv_acor, cv_mem);
 
     if (flag < 0) return(CV_NLS_SETUP_FAIL);
     if (flag > 0) return(SUN_NLS_CONV_RECVR);
@@ -6500,10 +6500,10 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
   /* solve the nonlinear system */
   if (do_sensi_sim)
-    flag = SUNNonlinSolSolve(cv_mem->NLSsim, cv_mem->ycor0Sim, cv_mem->ycorSim,
+    flag = SUNNonlinSolSolve(cv_mem->NLSsim, cv_mem->zn0Sim, cv_mem->ycorSim,
                              cv_mem->ewtSim, cv_mem->cv_tq[4], callSetup, cv_mem);
   else
-    flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_tempv, cv_mem->cv_acor,
+    flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                              cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
 
   /* update the state based on the final correction from the nonlinear solver */
@@ -6692,10 +6692,10 @@ static int cvStgrNls(CVodeMem cv_mem)
     cv_mem->cv_crateS = ONE;
 
   /* initial guess for the correction to the predictor */
-  N_VConst(ZERO, cv_mem->ycor0Stg);
+  N_VConst(ZERO, cv_mem->ycorStg);
 
   /* solve the nonlinear system */
-  flag = SUNNonlinSolSolve(cv_mem->NLSstg, cv_mem->ycor0Stg, cv_mem->ycorStg,
+  flag = SUNNonlinSolSolve(cv_mem->NLSstg, cv_mem->zn0Stg, cv_mem->ycorStg,
                            cv_mem->ewtStg, cv_mem->cv_tq[4], callSetup, cv_mem);
 
   /* update the sensitivities based on the final correction from the nonlinear solver */
@@ -6733,11 +6733,11 @@ static int cvStgr1Nls(CVodeMem cv_mem, int is)
     cv_mem->cv_crateS = ONE;
 
   /* initial guess for the correction to the predictor */
-  N_VConst(ZERO, cv_mem->cv_tempvS[is]);
+  N_VConst(ZERO, cv_mem->cv_acorS[is]);
 
   /* solve the nonlinear system */
   flag = SUNNonlinSolSolve(cv_mem->NLSstg1,
-                           cv_mem->cv_tempvS[is], cv_mem->cv_acorS[is],
+                           cv_mem->cv_znS[0][is], cv_mem->cv_acorS[is],
                            cv_mem->cv_ewtS[is], cv_mem->cv_tq[4], callSetup, cv_mem);
 
   /* update the sensitivity with the final correction from the nonlinear solver */

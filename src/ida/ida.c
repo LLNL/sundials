@@ -2308,18 +2308,18 @@ static int IDANls(IDAMem IDA_mem)
   }
 
   /* initial guess for the correction to the predictor */
-  N_VConst(ZERO, IDA_mem->ida_delta);
+  N_VConst(ZERO, IDA_mem->ida_ee);
 
   /* call nonlinear solver setup if it exists */
   if ((IDA_mem->NLS)->ops->setup) {
-    retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_delta, IDA_mem);
+    retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_ee, IDA_mem);
     if (retval < 0) return(IDA_NLS_SETUP_FAIL);
     if (retval > 0) return(IDA_NLS_SETUP_RECVR);
   }
 
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(IDA_mem->NLS,
-                             IDA_mem->ida_delta, IDA_mem->ida_ee,
+                             IDA_mem->ida_yypredict, IDA_mem->ida_ee,
                              IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
                              callLSetup, IDA_mem);
 
@@ -3317,6 +3317,48 @@ static int IDARootfind(IDAMem IDA_mem)
       IDA_mem->ida_iroots[i] = IDA_mem->ida_glo[i] > 0 ? -1:1;
   }
   return(RTFOUND);
+}
+
+/*
+ * IDAComputeY
+ * 
+ * Computes y based on the current prediction and given correction.
+ */
+int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAComputeY", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYp
+ * 
+ * Computes y' based on the current prediction and given correction.
+ */
+int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAComputeYp", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp);
+
+  return(IDA_SUCCESS);
 }
 
 /*

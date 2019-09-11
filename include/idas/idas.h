@@ -232,6 +232,12 @@ SUNDIALS_EXPORT int IDASetNoInactiveRootWarn(void *ida_mem);
 SUNDIALS_EXPORT int IDASolve(void *ida_mem, realtype tout, realtype *tret,
                              N_Vector yret, N_Vector ypret, int itask);
 
+/* Utility functions to update/compute y and yp based on ycor */
+SUNDIALS_EXPORT int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y);
+SUNDIALS_EXPORT int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp);
+SUNDIALS_EXPORT int IDAComputeYSens(void *ida_mem, N_Vector *ycor, N_Vector *yyS);
+SUNDIALS_EXPORT int IDAComputeYpSens(void *ida_mem, N_Vector *ycor, N_Vector *ypS);
+
 /* Dense output function */
 SUNDIALS_EXPORT int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky);
 
@@ -247,6 +253,11 @@ SUNDIALS_EXPORT int IDAGetConsistentIC(void *ida_mem, N_Vector yy0_mod,
                                        N_Vector yp0_mod);
 SUNDIALS_EXPORT int IDAGetLastOrder(void *ida_mem, int *klast);
 SUNDIALS_EXPORT int IDAGetCurrentOrder(void *ida_mem, int *kcur);
+SUNDIALS_EXPORT int IDAGetCurrentCj(void *ida_mem, realtype *cj);
+SUNDIALS_EXPORT int IDAGetCurrentY(void *ida_mem, N_Vector *ycur);
+SUNDIALS_EXPORT int IDAGetCurrentYSens(void *ida_mem, N_Vector **yS);
+SUNDIALS_EXPORT int IDAGetCurrentYp(void *ida_mem, N_Vector *ypcur);
+SUNDIALS_EXPORT int IDAGetCurrentYpSens(void *ida_mem, N_Vector **ypS);
 SUNDIALS_EXPORT int IDAGetActualInitStep(void *ida_mem, realtype *hinused);
 SUNDIALS_EXPORT int IDAGetLastStep(void *ida_mem, realtype *hlast);
 SUNDIALS_EXPORT int IDAGetCurrentStep(void *ida_mem, realtype *hcur);

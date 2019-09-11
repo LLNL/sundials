@@ -833,7 +833,7 @@ int CVodeGetCurrentState(void *cvode_mem, N_Vector *y)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *y = cv_mem->cv_zn[0];
+  *y = cv_mem->cv_y;
 
   return(CV_SUCCESS);
 }

@@ -60,9 +60,9 @@ int IDASetNonlinearSolver(void *ida_mem, SUNNonlinearSolver NLS)
   }
 
   /* check for required nonlinear solver functions */
-  if ( NLS->ops->gettype    == NULL ||
-       NLS->ops->solve      == NULL ||
-       NLS->ops->setsysfn   == NULL ) {
+  if ( NLS->ops->gettype  == NULL ||
+       NLS->ops->solve    == NULL ||
+       NLS->ops->setsysfn == NULL ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
                     "IDASetNonlinearSolver",
                     "NLS does not support required operations");
@@ -186,10 +186,10 @@ static int idaNlsLSetup(N_Vector ycor, N_Vector res, booleantype jbad,
   *jcur = SUNTRUE;
 
   /* update convergence test constants */
-  IDA_mem->ida_cjold = IDA_mem->ida_cj;
+  IDA_mem->ida_cjold   = IDA_mem->ida_cj;
   IDA_mem->ida_cjratio = ONE;
-  IDA_mem->ida_ss = TWENTY;
-  IDA_mem->ida_ssS = TWENTY;
+  IDA_mem->ida_ss      = TWENTY;
+  IDA_mem->ida_ssS     = TWENTY;
 
   if (retval < 0) return(IDA_LSETUP_FAIL);
   if (retval > 0) return(IDA_LSETUP_RECVR);
@@ -209,7 +209,8 @@ static int idaNlsLSolve(N_Vector ycor, N_Vector delta, void* ida_mem)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  retval = IDA_mem->ida_lsolve(IDA_mem, delta, IDA_mem->ida_ewt, IDA_mem->ida_yy, IDA_mem->ida_yp,
+  retval = IDA_mem->ida_lsolve(IDA_mem, delta, IDA_mem->ida_ewt,
+                               IDA_mem->ida_yy, IDA_mem->ida_yp,
                                IDA_mem->ida_savres);
 
   if (retval < 0) return(IDA_LSOLVE_FAIL);

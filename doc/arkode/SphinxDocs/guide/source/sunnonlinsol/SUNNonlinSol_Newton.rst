@@ -17,6 +17,7 @@
 
 .. _SUNNonlinSol_Newton:
 
+==============================================
 The SUNNonlinearSolver_Newton implementation
 ==============================================
 

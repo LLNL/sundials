@@ -2792,8 +2792,6 @@ Actual initial time step size used                   :c:func:`ARKStepGetActualIn
 Step size used for the last successful step          :c:func:`ARKStepGetLastStep()`
 Step size to be attempted on the next step           :c:func:`ARKStepGetCurrentStep()`
 Current internal time reached by the solver          :c:func:`ARKStepGetCurrentTime()`
-Current state vector                                 :c:func:`ARKStepGetCurrentState()`
-Current value of the scalar :math:`\gamma`           :c:func:`ARKStepGetCurrentGamma()`
 Suggested factor for tolerance scaling               :c:func:`ARKStepGetTolScaleFactor()`
 Error weight vector for state variables              :c:func:`ARKStepGetErrWeights()`
 Residual weight vector                               :c:func:`ARKStepGetResWeights()`
@@ -2905,30 +2903,7 @@ Single accessor to many statistics at once           :c:func:`ARKStepGetTimestep
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-.. c:function:: int ARKStepGetCurrentState(void* arkode_mem, N_Vector* y)
 
-   Returns the current state vector
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *y* -- N_Vector pointer that will get set to the current state vector
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
-
-.. c:function:: int ARKStepGetCurrentGamma(void* arkode_mem, realtype* gamma)
-
-   Returns the current value of the scalar :math:`\gamma`
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *gamma* -- the current value of the scalar :math:`\gamma` appearing in the
-      Newton equation :math:`A = I - \gamma J` or :math:`A = M - \gamma J`.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
 .. c:function:: int ARKStepGetTolScaleFactor(void* arkode_mem, realtype* tolsfac)
 

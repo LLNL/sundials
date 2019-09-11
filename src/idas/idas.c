@@ -523,14 +523,14 @@ void *IDACreate(void)
 
   IDA_mem->NLSsim        = NULL;
   IDA_mem->ownNLSsim     = SUNFALSE;
-  IDA_mem->ycor0Sim      = NULL;
+  IDA_mem->ypredictSim   = NULL;
   IDA_mem->ycorSim       = NULL;
   IDA_mem->ewtSim        = NULL;
   IDA_mem->simMallocDone = SUNFALSE;
 
   IDA_mem->NLSstg        = NULL;
   IDA_mem->ownNLSstg     = SUNFALSE;
-  IDA_mem->ycor0Stg      = NULL;
+  IDA_mem->ypredictStg   = NULL;
   IDA_mem->ycorStg       = NULL;
   IDA_mem->ewtStg        = NULL;
   IDA_mem->stgMallocDone = SUNFALSE;
@@ -2552,6 +2552,95 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   return(istate);    
 }
 
+/*
+ * IDAComputeY
+ * 
+ * Computes y based on the current prediction and given correction.
+ */
+int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeY", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYp
+ * 
+ * Computes y' based on the current prediction and given correction.
+ */
+int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYp", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYSens
+ * 
+ * Computes yS based on the current prediction and given correction.
+ */
+int IDAComputeYSens(void *ida_mem, N_Vector *ycorS, N_Vector *yyS)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYSens", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSumVectorArray(IDA_mem->ida_Ns,
+                          ONE, IDA_mem->ida_yySpredict,
+                          ONE, ycorS, yyS);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYpSens
+ * 
+ * Computes yS' based on the current prediction and given correction.
+ */
+int IDAComputeYpSens(void *ida_mem, N_Vector *ycorS, N_Vector *ypS)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYpSens", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSumVectorArray(IDA_mem->ida_Ns,
+                          ONE, IDA_mem->ida_ypSpredict,
+                          IDA_mem->ida_cj, ycorS, ypS);
+
+  return(IDA_SUCCESS);
+}
+
+
 /* 
  * -----------------------------------------------------------------
  * Interpolated output and extraction functions
@@ -3327,15 +3416,15 @@ void IDASensFree(void *ida_mem)
 
   /* free any vector wrappers */
   if (IDA_mem->simMallocDone) {
-    N_VDestroy(IDA_mem->ycor0Sim); IDA_mem->ycor0Sim = NULL;
-    N_VDestroy(IDA_mem->ycorSim);  IDA_mem->ycorSim  = NULL;
-    N_VDestroy(IDA_mem->ewtSim);   IDA_mem->ewtSim   = NULL;
+    N_VDestroy(IDA_mem->ypredictSim); IDA_mem->ypredictSim = NULL;
+    N_VDestroy(IDA_mem->ycorSim);     IDA_mem->ycorSim  = NULL;
+    N_VDestroy(IDA_mem->ewtSim);      IDA_mem->ewtSim   = NULL;
     IDA_mem->simMallocDone = SUNFALSE;
   }
   if (IDA_mem->stgMallocDone) {
-    N_VDestroy(IDA_mem->ycor0Stg); IDA_mem->ycor0Stg = NULL;
-    N_VDestroy(IDA_mem->ycorStg);  IDA_mem->ycorStg  = NULL;
-    N_VDestroy(IDA_mem->ewtStg);   IDA_mem->ewtStg   = NULL;
+    N_VDestroy(IDA_mem->ypredictStg); IDA_mem->ypredictStg = NULL;
+    N_VDestroy(IDA_mem->ycorStg);     IDA_mem->ycorStg  = NULL;
+    N_VDestroy(IDA_mem->ewtStg);      IDA_mem->ewtStg   = NULL;
     IDA_mem->stgMallocDone = SUNFALSE;
   }
 
@@ -5335,16 +5424,16 @@ static int IDANls(IDAMem IDA_mem)
 
   /* initial guess for the correction to the predictor */
   if (sensi_sim)
-    N_VConst(ZERO, IDA_mem->ycor0Sim);
+    N_VConst(ZERO, IDA_mem->ycorSim);
   else
-    N_VConst(ZERO, IDA_mem->ida_delta);
+    N_VConst(ZERO, IDA_mem->ida_ee);
 
   /* call nonlinear solver setup if it exists */
   if ((IDA_mem->NLS)->ops->setup) {
     if (sensi_sim)
-      retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ycor0Sim, IDA_mem);
+      retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ycorSim, IDA_mem);
     else
-      retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_delta, IDA_mem);
+      retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_ee, IDA_mem);
 
     if (retval < 0) return(IDA_NLS_SETUP_FAIL);
     if (retval > 0) return(IDA_NLS_SETUP_RECVR);
@@ -5353,12 +5442,12 @@ static int IDANls(IDAMem IDA_mem)
   /* solve the nonlinear system */
   if (sensi_sim)
     retval = SUNNonlinSolSolve(IDA_mem->NLSsim,
-                               IDA_mem->ycor0Sim, IDA_mem->ycorSim,
+                               IDA_mem->ypredictSim, IDA_mem->ycorSim,
                                IDA_mem->ewtSim, IDA_mem->ida_epsNewt,
                                callLSetup, IDA_mem);
   else
     retval = SUNNonlinSolSolve(IDA_mem->NLS,
-                               IDA_mem->ida_delta, IDA_mem->ida_ee,
+                               IDA_mem->ida_yypredict, IDA_mem->ida_ee,
                                IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
                                callLSetup, IDA_mem);
 
@@ -5510,11 +5599,11 @@ static int IDASensNls(IDAMem IDA_mem)
   callLSetup = SUNFALSE;
 
   /* initial guess for the correction to the predictor */
-  N_VConst(ZERO, IDA_mem->ycor0Stg);
+  N_VConst(ZERO, IDA_mem->ycorStg);
 
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(IDA_mem->NLSstg,
-                             IDA_mem->ycor0Stg, IDA_mem->ycorStg,
+                             IDA_mem->ypredictStg, IDA_mem->ycorStg,
                              IDA_mem->ewtStg, IDA_mem->ida_epsNewt,
                              callLSetup, IDA_mem);
 

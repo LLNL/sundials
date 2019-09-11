@@ -16,13 +16,7 @@
 
 .. _SUNNonlinSol:
 
-=================================
-Nonlinear Solver Data Structures
-=================================
-
-
-.. _SUNNonlinSol.Description:
-
+===============================================
 Description of the SUNNonlinearSolver Module
 ===============================================
 
@@ -30,7 +24,12 @@ SUNDIALS time integration packages are written in terms of generic nonlinear
 solver operations defined by the SUNNonlinSol API and implemented by a
 particular SUNNonlinSol module of type ``SUNNonlinearSolver``.
 Users can supply their own SUNNonlinSol module, or use one of the modules
-provided with SUNDIALS.
+provided with SUNDIALS. Depending on the package, nonlinear solver modules
+can either target system presented in a rootfinding (:math:`F(y) = 0`) or
+fixed-point (:math:`G(y) = y`) formulation. For more information on the
+formulation of the nonlinear system(s) see the :ref:`SUNNonlinSol.ARKode`
+section.
+
 
 The time integrators in SUNDIALS specify a default nonlinear solver module
 and as such this chapter is intended for users that wish to use a non-default
@@ -63,5 +62,6 @@ SUNDIALS as a template for supplying custom nonlinear solver modules.
    :maxdepth: 1
 
    SUNNonlinSol_API
+   ARKode_Interface
    SUNNonlinSol_Newton
    SUNNonlinSol_FixedPoint

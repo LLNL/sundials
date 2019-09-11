@@ -1006,6 +1006,96 @@ int IDAGetCurrentOrder(void *ida_mem, int *kcur)
 
 /*-----------------------------------------------------------------*/
 
+int IDAGetCurrentCj(void *ida_mem, realtype *cj)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetCurrentCjRatio", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *cj = IDA_mem->ida_cj;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetCurrentY(void *ida_mem, N_Vector *ycur)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetCurrentY", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *ycur = IDA_mem->ida_yy;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetCurrentYSens(void *ida_mem, N_Vector **yS)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetCurrentYSens", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *yS = IDA_mem->ida_yyS;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetCurrentYp(void *ida_mem, N_Vector *ypcur)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetCurrentYp", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *ypcur = IDA_mem->ida_yp;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
+int IDAGetCurrentYpSens(void *ida_mem, N_Vector **ypS)
+{
+  IDAMem IDA_mem;
+  
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetCurrentYpSens", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *ypS = IDA_mem->ida_ypS;
+
+  return(IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
 int IDAGetActualInitStep(void *ida_mem, realtype *hinused)
 {
   IDAMem IDA_mem;
@@ -1983,4 +2073,3 @@ char *IDAGetReturnFlagName(long int flag)
 
   return(name);
 }
-

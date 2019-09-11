@@ -147,8 +147,8 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (cv_mem->simMallocDone == SUNFALSE) {
 
-    cv_mem->ycor0Sim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1);
-    if (cv_mem->ycor0Sim == NULL) {
+    cv_mem->zn0Sim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1);
+    if (cv_mem->zn0Sim == NULL) {
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
                      "CVodeSetNonlinearSolverSensSim", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
@@ -156,7 +156,7 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
 
     cv_mem->ycorSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1);
     if (cv_mem->ycorSim == NULL) {
-      N_VDestroy(cv_mem->ycor0Sim);
+      N_VDestroy(cv_mem->zn0Sim);
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
                      "CVodeSetNonlinearSolverSensSim", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
@@ -164,7 +164,7 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
 
     cv_mem->ewtSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1);
     if (cv_mem->ewtSim == NULL) {
-      N_VDestroy(cv_mem->ycor0Sim);
+      N_VDestroy(cv_mem->zn0Sim);
       N_VDestroy(cv_mem->ycorSim);
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
                      "CVodeSetNonlinearSolverSensSim", MSGCV_MEM_FAIL);
@@ -175,14 +175,14 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   }
 
   /* attach vectors to vector wrappers */
-  NV_VEC_SW(cv_mem->ycor0Sim, 0) = cv_mem->cv_tempv;
-  NV_VEC_SW(cv_mem->ycorSim,  0) = cv_mem->cv_acor;
-  NV_VEC_SW(cv_mem->ewtSim,   0) = cv_mem->cv_ewt;
+  NV_VEC_SW(cv_mem->zn0Sim,  0) = cv_mem->cv_zn[0];
+  NV_VEC_SW(cv_mem->ycorSim, 0) = cv_mem->cv_acor;
+  NV_VEC_SW(cv_mem->ewtSim,  0) = cv_mem->cv_ewt;
 
   for (is=0; is < cv_mem->cv_Ns; is++) {
-    NV_VEC_SW(cv_mem->ycor0Sim, is+1) = cv_mem->cv_tempvS[is];
-    NV_VEC_SW(cv_mem->ycorSim,  is+1) = cv_mem->cv_acorS[is];
-    NV_VEC_SW(cv_mem->ewtSim,   is+1) = cv_mem->cv_ewtS[is];
+    NV_VEC_SW(cv_mem->zn0Sim,  is+1) = cv_mem->cv_znS[0][is];
+    NV_VEC_SW(cv_mem->ycorSim, is+1) = cv_mem->cv_acorS[is];
+    NV_VEC_SW(cv_mem->ewtSim,  is+1) = cv_mem->cv_ewtS[is];
   }
 
   return(CV_SUCCESS);

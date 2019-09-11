@@ -17,6 +17,7 @@
 
 .. _SUNNonlinSol.API:
 
+===============================
 The SUNNonlinearSolver API
 ===============================
 
@@ -98,16 +99,21 @@ initialization (``SUNNonlinSolInitialization``), setup
    require setup may set this operation to ``NULL``.
 
 
-.. c:function:: int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w, realtype tol, booleantype callLSetup, void *mem)
+.. c:function:: int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor, N_Vector w, realtype tol, booleantype callLSetup, void *mem)
 
    The *required* function :c:func:`SUNNonlinSolSolve()` solves the
    nonlinear system :math:`F(y)=0` or :math:`G(y)=y`.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object
-      * *y0* -- the initial iterate for the nonlinear solve.  This
-        *must* remain unchanged throughout the solution process.
-      * *y* -- the solution to the nonlinear system.
+      * *y0* -- the predicted value for the new solution state. This
+        *must* remain unchanged throughout the solution process. See the
+        :ref:`SUNNonlinSol.ARKode` section for more detail on the nonlinear
+        system formulation.
+      * *ycor* -- on input the initial guess for the correction to the predicted
+        state (zero) and on output the final correction to the predicted
+        state. See the :ref:`SUNNonlinSol.ARKode` section for more detail on the
+        nonlinear system formulation.
       * *w* -- the solution error weight vector used for computing weighted error norms.
       * *tol* -- the requested solution tolerance in the weighted root-mean-squared norm.
       * *callLSetup* -- a flag indicating that the integrator
@@ -333,16 +339,18 @@ module are defined in the header file
 ``sundials/sundials_nonlinearsolver.h``, and are described below.
 
 
-.. c:type:: typedef int (*SUNNonlinSolSysFn)(N_Vector y, N_Vector F, void* mem)
+.. c:type:: typedef int (*SUNNonlinSolSysFn)(N_Vector ycor, N_Vector F, void* mem)
 
    These functions evaluate the nonlinear system :math:`F(y)`
    for ``SUNNONLINEARSOLVER_ROOTFIND`` type modules or :math:`G(y)`
    for ``SUNNONLINEARSOLVER_FIXEDPOINT`` type modules. Memory
    for *F* must by be allocated prior to calling this function. The
-   vector *y* **must** be left unchanged.
+   vector *ycor* will be left unchanged.
 
    **Arguments:**
-      * *y* -- is the state vector at which the nonlinear system should be evaluated.
+      * *ycor* -- is the current correction to the predicted state at which the
+        nonlinear system should be evaluated. See the :ref:`SUNNonlinSol.ARKode`
+        section for more detail on the nonlinear system function.
       * *F* -- is the output vector containing :math:`F(y)` or
         :math:`G(y)`, depending on the solver type.
       * *mem* -- is the SUNDIALS integrator memory structure.
@@ -404,7 +412,7 @@ module are defined in the header file
    may ignore these functions.
 
 
-.. c:type:: int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol, N_Vector ewt, void* mem)
+.. c:type:: int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del, realtype tol, N_Vector ewt, void* mem)
 
    These functions are SUNDIALS integrator-specific convergence tests for
    nonlinear solvers and are typically supplied by each SUNDIALS integrator,
@@ -412,7 +420,7 @@ module are defined in the header file
 
    **Arguments:**
       * *NLS* -- is the SUNNonlinSol object.
-      * *y* -- is the current nonlinear iterate.
+      * *ycor* -- is the current correction (nonlinear iterate).
       * *del* -- is the difference between the current and prior nonlinear iterates.
       * *tol* -- is the nonlinear solver tolerance.
       * *ewt* -- is the weight vector used in computing weighted norms.

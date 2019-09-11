@@ -325,8 +325,8 @@ Fixed a bug in the ARKStep time-stepping module that would result in an infinite
 loop if the nonlinear solver failed to converge more than the maximum allowed times
 during a single step.
 
-Added two new `Get' functions to ARKStep, {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentGamma]{\emph{\code{ARKStepGetCurrentGamma()}}}},
-and {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentState]{\emph{\code{ARKStepGetCurrentState()}}}}, that may be useful to users who choose
+Added two new `Get' functions to ARKStep, {\hyperref[sunnonlinsol/ARKode_Interface:c.ARKStepGetCurrentGamma]{\emph{\code{ARKStepGetCurrentGamma()}}}},
+and {\hyperref[sunnonlinsol/ARKode_Interface:c.ARKStepGetCurrentState]{\emph{\code{ARKStepGetCurrentState()}}}}, that may be useful to users who choose
 to provide their own nonlinear solver implementation.
 
 Add two new `Set' functions to MRIStep, {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetPreInnerFn]{\emph{\code{MRIStepSetPreInnerFn()}}}} and
@@ -588,7 +588,7 @@ SUNDIALS integrators have been updated to utilize generic nonlinear solver
 modules defined through the SUNNONLINSOL API. This API will ease the addition of
 new nonlinear solver options and allow for external or user-supplied nonlinear
 solvers. The SUNNONLINSOL API and SUNDIALS provided modules are described in
-{\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} and follow the same object oriented design and
+{\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Description of the SUNNonlinearSolver Module}}}} and follow the same object oriented design and
 implementation used by the NVector, SUNMatrix, and SUNLinSol modules. Currently
 two SUNNONLINSOL implementations are provided, SUNNonlinSol\_Newton and
 SUNNonlinSol\_FixedPoint. These replicate the previous integrator specific
@@ -3106,7 +3106,7 @@ modified Newton iteration.  If using a non-default nonlinear solver
 module, or when interacting with a SUNNONLINSOL module directly, the
 calling program must also include a SUNNONLINSOL header file, of the
 form \code{sunnonlinsol/sunnonlinsol\_***.h} where \code{***} is the name of
-the nonlinear solver module (see the section {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} for
+the nonlinear solver module (see the section {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Description of the SUNNonlinearSolver Module}}}} for
 more information).  This file in turn includes the header file
 \code{sundials\_nonlinearsolver.h} which defines the abstract
 \code{SUNNonlinearSolver} data type.
@@ -3222,7 +3222,7 @@ program) for the integration of an ODE IVP using the ARKStep module.
 Most of the steps are independent of the NVECTOR, SUNMATRIX, SUNLINSOL
 and SUNNONLINSOL implementations used.  For the steps that are not,
 refer to the sections {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}}, {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}},
-{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}, and  {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} for the specific name of
+{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}, and  {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Description of the SUNNonlinearSolver Module}}}} for the specific name of
 the function to be called or macro to be referenced.
 
 \index{User main program}\begin{enumerate}
@@ -3444,7 +3444,7 @@ then the desired nonlinear solver object must be created by using
 the appropriate functions defined by the particular SUNNONLINSOL
 implementation (e.g., \code{NLS = SUNNonlinSol\_***(...);} where
 \code{***} is the name of the nonlinear solver (see the section
-{\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} for details).
+{\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Description of the SUNNonlinearSolver Module}}}} for details).
 
 For the SUNDIALS-supplied SUNNONLINSOL implementations, the
 nonlinear solver object may be created using a call of the form
@@ -3478,7 +3478,7 @@ solver module to change optional inputs specific to that nonlinear
 solver.  These \emph{must} be called after attaching the nonlinear
 solver to ARKStep, otherwise the optional inputs will be
 overridden by ARKStep defaults.  See the section
-{\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} for more information on optional inputs.
+{\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Description of the SUNNonlinearSolver Module}}}} for more information on optional inputs.
 
 \item {} 
 Specify rootfinding problem
@@ -8132,16 +8132,6 @@ Current internal time reached by the solver
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentTime]{\emph{\code{ARKStepGetCurrentTime()}}}}
 \\
 \hline
-Current state vector
- & 
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentState]{\emph{\code{ARKStepGetCurrentState()}}}}
-\\
-\hline
-Current value of the scalar \(\gamma\)
- & 
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentGamma]{\emph{\code{ARKStepGetCurrentGamma()}}}}
-\\
-\hline
 Suggested factor for tolerance scaling
  & 
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetTolScaleFactor]{\emph{\code{ARKStepGetTolScaleFactor()}}}}
@@ -8375,64 +8365,6 @@ Returns the current internal time reached by the solver.
 \emph{tcur} -- current internal time reached.
 
 \end{itemize}
-
-\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{ARK\_SUCCESS} if successful
-
-\item {} 
-\emph{ARK\_MEM\_NULL} if the ARKStep memory was \code{NULL}
-
-\end{itemize}
-
-\end{description}
-
-\end{fulllineitems}
-
-\index{ARKStepGetCurrentState (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepGetCurrentState}\pysiglinewithargsret{int \bfcode{ARKStepGetCurrentState}}{void*\emph{ arkode\_mem}, N\_Vector*\emph{ y}}{}
-Returns the current state vector
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{arkode\_mem} -- pointer to the ARKStep memory block.
-
-\item {} 
-\emph{y} -- N\_Vector pointer that will get set to the current state vector
-
-\end{itemize}
-
-\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{ARK\_SUCCESS} if successful
-
-\item {} 
-\emph{ARK\_MEM\_NULL} if the ARKStep memory was \code{NULL}
-
-\end{itemize}
-
-\end{description}
-
-\end{fulllineitems}
-
-\index{ARKStepGetCurrentGamma (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepGetCurrentGamma}\pysiglinewithargsret{int \bfcode{ARKStepGetCurrentGamma}}{void*\emph{ arkode\_mem}, realtype*\emph{ gamma}}{}
-Returns the current value of the scalar \(\gamma\)
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{arkode\_mem} -- pointer to the ARKStep memory block.
-
-\item {} 
-\emph{gamma} -- the current value of the scalar \(\gamma\) appearing in the
-
-\end{itemize}
-
-Newton equation \(A = I - \gamma J\) or \(A = M - \gamma J\).
 
 \item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -19126,7 +19058,7 @@ section {\hyperref[ARKode_f_interface/F2003Module:fortran2003-datatypes]{\emph{\
 Further information on the Fortran 2003 interfaces specific to modules is given
 in the NVECTOR, SUNMatrix, SUNLinearSolver, and SUNNonlinearSolver sections
 alongside the C documentation (chapters {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}}, {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}},
-{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}, and {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} respectively). For details on where
+{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}, and {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Description of the SUNNonlinearSolver Module}}}} respectively). For details on where
 the Fortran 2003 module (\code{.mod}) files and libraries are installed see Appendix
 {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}.
 
@@ -20604,7 +20536,7 @@ of the form
 \end{Verbatim}
 
 in which the specific arguments are as described in the
-appropriate section of the Chapter {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}}.
+appropriate section of the Chapter {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Description of the SUNNonlinearSolver Module}}}}.
 
 Once one of these has been initialized, its solver parameters may be
 modified using a call to the functions
@@ -20615,7 +20547,7 @@ modified using a call to the functions
 \end{Verbatim}
 
 where again the call sequences are described in the appropriate
-sections of the Chapter {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}}.
+sections of the Chapter {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Description of the SUNNonlinearSolver Module}}}}.
 
 
 \paragraph{Problem specification}
@@ -30580,7 +30512,7 @@ requirements that are not listed here.  In addition, specific
 \code{SUNNonlinearSolver} modules attached to ARKode may have additional
 \code{N\_Vector} requirements.  For additional requirements by specific
 \code{SUNLinearSolver} and \code{SUNNonlinearSolver} modules, please see the
-accompanying sections {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}} and {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}}.
+accompanying sections {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}} and {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Description of the SUNNonlinearSolver Module}}}}.
 
 At this point, we should emphasize that the user does not need to know
 anything about ARKode's usage of vector functions in order to use
@@ -38675,16 +38607,17 @@ after \code{Test\_SUNLinSolSolve}.  These are called in the appropriate
 order in all of the example problems.
 
 
-\chapter{Nonlinear Solver Data Structures}
-\label{sunnonlinsol/index::doc}\label{sunnonlinsol/index:nonlinear-solver-data-structures}\label{sunnonlinsol/index:sunnonlinsol}
-
-\section{Description of the SUNNonlinearSolver Module}
-\label{sunnonlinsol/index:description-of-the-sunnonlinearsolver-module}\label{sunnonlinsol/index:sunnonlinsol-description}
+\chapter{Description of the SUNNonlinearSolver Module}
+\label{sunnonlinsol/index:description-of-the-sunnonlinearsolver-module}\label{sunnonlinsol/index::doc}\label{sunnonlinsol/index:sunnonlinsol}
 SUNDIALS time integration packages are written in terms of generic nonlinear
 solver operations defined by the SUNNonlinSol API and implemented by a
 particular SUNNonlinSol module of type \code{SUNNonlinearSolver}.
 Users can supply their own SUNNonlinSol module, or use one of the modules
-provided with SUNDIALS.
+provided with SUNDIALS. Depending on the package, nonlinear solver modules
+can either target system presented in a rootfinding (\(F(y) = 0\)) or
+fixed-point (\(G(y) = y\)) formulation. For more information on the
+formulation of the nonlinear system(s) see the {\hyperref[sunnonlinsol/ARKode_Interface:sunnonlinsol-arkode]{\emph{\DUspan{}{ARKode SUNNonlinearSolver interface}}}}
+section.
 
 The time integrators in SUNDIALS specify a default nonlinear solver module
 and as such this chapter is intended for users that wish to use a non-default
@@ -38710,7 +38643,7 @@ are encouraged to use the SUNNonlinSol implementations provided with
 SUNDIALS as a template for supplying custom nonlinear solver modules.
 
 
-\subsection{The SUNNonlinearSolver API}
+\section{The SUNNonlinearSolver API}
 \label{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-api}\label{sunnonlinsol/SUNNonlinSol_API:the-sunnonlinearsolver-api}\label{sunnonlinsol/SUNNonlinSol_API::doc}
 The SUNNonlinSol API defines several nonlinear solver operations that enable
 SUNDIALS integrators to utilize any SUNNonlinSol implementation that
@@ -38723,7 +38656,7 @@ solver statistics. All of these functions are defined in the header file
 \code{sundials/sundials\_nonlinearsolver.h}.
 
 
-\subsubsection{SUNNonlinearSolver core functions}
+\subsection{SUNNonlinearSolver core functions}
 \label{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-corefn}\label{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-core-functions}
 The core nonlinear solver functions consist of two required functions to get the
 nonlinear solver type (\code{SUNNonlinsSolGetType}) and solve the nonlinear system
@@ -38819,7 +38752,7 @@ require setup may set this operation to \code{NULL}.
 \index{SUNNonlinSolSolve (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolSolve}\pysiglinewithargsret{int \bfcode{SUNNonlinSolSolve}}{SUNNonlinearSolver\emph{ NLS}, N\_Vector\emph{ y0}, N\_Vector\emph{ y}, N\_Vector\emph{ w}, realtype\emph{ tol}, booleantype\emph{ callLSetup}, void\emph{ *mem}}{}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolSolve}\pysiglinewithargsret{int \bfcode{SUNNonlinSolSolve}}{SUNNonlinearSolver\emph{ NLS}, N\_Vector\emph{ y0}, N\_Vector\emph{ ycor}, N\_Vector\emph{ w}, realtype\emph{ tol}, booleantype\emph{ callLSetup}, void\emph{ *mem}}{}
 The \emph{required} function {\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolSolve]{\emph{\code{SUNNonlinSolSolve()}}}} solves the
 nonlinear system \(F(y)=0\) or \(G(y)=y\).
 \begin{description}
@@ -38828,11 +38761,16 @@ nonlinear system \(F(y)=0\) or \(G(y)=y\).
 \emph{NLS} -- a SUNNonlinSol object
 
 \item {} 
-\emph{y0} -- the initial iterate for the nonlinear solve.  This
-\emph{must} remain unchanged throughout the solution process.
+\emph{y0} -- the predicted value for the new solution state. This
+\emph{must} remain unchanged throughout the solution process. See the
+{\hyperref[sunnonlinsol/ARKode_Interface:sunnonlinsol-arkode]{\emph{\DUspan{}{ARKode SUNNonlinearSolver interface}}}} section for more detail on the nonlinear
+system formulation.
 
 \item {} 
-\emph{y} -- the solution to the nonlinear system.
+\emph{ycor} -- on input the initial guess for the correction to the predicted
+state (zero) and on output the final correction to the predicted
+state. See the {\hyperref[sunnonlinsol/ARKode_Interface:sunnonlinsol-arkode]{\emph{\DUspan{}{ARKode SUNNonlinearSolver interface}}}} section for more detail on the
+nonlinear system formulation.
 
 \item {} 
 \emph{w} -- the solution error weight vector used for computing weighted error norms.
@@ -38881,7 +38819,7 @@ to \code{NULL}.
 
 
 
-\subsubsection{SUNNonlinearSolver set functions}
+\subsection{SUNNonlinearSolver set functions}
 \label{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-set-functions}\label{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-setfn}
 The following set functions are used to supply nonlinear solver modules with
 functions defined by the SUNDIALS integrators and to modify solver
@@ -39045,7 +38983,7 @@ successful call, and a negative value for a failure
 
 
 
-\subsubsection{SUNNonlinearSolver get functions}
+\subsection{SUNNonlinearSolver get functions}
 \label{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-get-functions}\label{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-getfn}
 The following get functions allow SUNDIALS integrators to retrieve nonlinear
 solver statistics. The routines to get the current total number of
@@ -39135,7 +39073,7 @@ successful call, and a negative value for a failure.
 
 
 
-\subsubsection{Functions provided by SUNDIALS integrators}
+\subsection{Functions provided by SUNDIALS integrators}
 \label{sunnonlinsol/SUNNonlinSol_API:functions-provided-by-sundials-integrators}\label{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-sunsuppliedfn}
 To interface with SUNNonlinSol modules, the SUNDIALS integrators
 supply a variety of routines for evaluating the nonlinear system,
@@ -39149,16 +39087,18 @@ module are defined in the header file
 \index{SUNNonlinSolSysFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolSysFn}\pysiglinewithargsret{typedef int \bfcode{(*SUNNonlinSolSysFn)}}{N\_Vector\emph{ y}, N\_Vector\emph{ F}, void*\emph{ mem}}{}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolSysFn}\pysiglinewithargsret{typedef int \bfcode{(*SUNNonlinSolSysFn)}}{N\_Vector\emph{ ycor}, N\_Vector\emph{ F}, void*\emph{ mem}}{}
 These functions evaluate the nonlinear system \(F(y)\)
 for \code{SUNNONLINEARSOLVER\_ROOTFIND} type modules or \(G(y)\)
 for \code{SUNNONLINEARSOLVER\_FIXEDPOINT} type modules. Memory
 for \emph{F} must by be allocated prior to calling this function. The
-vector \emph{y} \textbf{must} be left unchanged.
+vector \emph{ycor} will be left unchanged.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{y} -- is the state vector at which the nonlinear system should be evaluated.
+\emph{ycor} -- is the current correction to the predicted state at which the
+nonlinear system should be evaluated. See the {\hyperref[sunnonlinsol/ARKode_Interface:sunnonlinsol-arkode]{\emph{\DUspan{}{ARKode SUNNonlinearSolver interface}}}}
+section for more detail on the nonlinear system function.
 
 \item {} 
 \emph{F} -- is the output vector containing \(F(y)\) or
@@ -39260,7 +39200,7 @@ may ignore these functions.
 \index{SUNNonlinSolConvTestFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolConvTestFn}\pysiglinewithargsret{int \bfcode{(*SUNNonlinSolConvTestFn)}}{SUNNonlinearSolver\emph{ NLS}, N\_Vector\emph{ y}, N\_Vector\emph{ del}, realtype\emph{ tol}, N\_Vector\emph{ ewt}, void*\emph{ mem}}{}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolConvTestFn}\pysiglinewithargsret{int \bfcode{(*SUNNonlinSolConvTestFn)}}{SUNNonlinearSolver\emph{ NLS}, N\_Vector\emph{ ycor}, N\_Vector\emph{ del}, realtype\emph{ tol}, N\_Vector\emph{ ewt}, void*\emph{ mem}}{}
 These functions are SUNDIALS integrator-specific convergence tests for
 nonlinear solvers and are typically supplied by each SUNDIALS integrator,
 but users may supply custom problem-specific versions as desired.
@@ -39270,7 +39210,7 @@ but users may supply custom problem-specific versions as desired.
 \emph{NLS} -- is the SUNNonlinSol object.
 
 \item {} 
-\emph{y} -- is the current nonlinear iterate.
+\emph{ycor} -- is the current correction (nonlinear iterate).
 
 \item {} 
 \emph{del} -- is the difference between the current and prior nonlinear iterates.
@@ -39314,7 +39254,7 @@ their own convergence criteria may ignore these functions.
 
 
 
-\subsubsection{SUNNonlinearSolver return codes}
+\subsection{SUNNonlinearSolver return codes}
 \label{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-returncodes}\label{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-return-codes}
 The functions provided to SUNNonlinSol modules by each SUNDIALS
 integrator, and functions within the SUNDIALS-provided SUNNonlinSol
@@ -39380,7 +39320,7 @@ an illegal input option was provided
 
 
 
-\subsubsection{The generic SUNNonlinearSolver module}
+\subsection{The generic SUNNonlinearSolver module}
 \label{sunnonlinsol/SUNNonlinSol_API:the-generic-sunnonlinearsolver-module}\label{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-generic}
 SUNDIALS integrators interact with specific SUNNonlinSol
 implementations through the generic SUNNonlinSol module on which all
@@ -39444,7 +39384,7 @@ denoting a successful or failed solve:
 \end{Verbatim}
 
 
-\subsubsection{Implementing a Custom SUNNonlinearSolver Module}
+\subsection{Implementing a Custom SUNNonlinearSolver Module}
 \label{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-custom}\label{sunnonlinsol/SUNNonlinSol_API:implementing-a-custom-sunnonlinearsolver-module}
 A SUNNonlinSol implementation \emph{must} do the following:
 \begin{itemize}
@@ -39525,7 +39465,108 @@ statistics.
 \end{itemize}
 
 
-\subsection{The SUNNonlinearSolver\_Newton implementation}
+\section{ARKode SUNNonlinearSolver interface}
+\label{sunnonlinsol/ARKode_Interface:sunnonlinsol-arkode}\label{sunnonlinsol/ARKode_Interface:arkode-sunnonlinearsolver-interface}\label{sunnonlinsol/ARKode_Interface::doc}
+As discussed in {\hyperref[Mathematics:mathematics]{\emph{\DUspan{}{Mathematical Considerations}}}} integration steps often require the
+(approximate) solution of a nonlinear system. This system can be formulated as
+the rootfinding problem
+\begin{gather}
+\begin{split}G(z_i) \equiv M z_i - M y_n - \gamma f(t_i, z_i) - a_i = 0\end{split}\notag
+\end{gather}
+or, when \(M=I\), as the fixed-point problem
+\begin{gather}
+\begin{split}z_i = y_n + \gamma f(t_i, z_i) + a_i\end{split}\notag
+\end{gather}
+where \(z_i\) is the i-th stage at time \(t_i\) and \(a_i\) is known
+data that depends on the integration method.
+
+Rather than solving the above nonlinear systems for the stage value \(z_i\)
+ARKode modules solve for the correction \(z_{cor}\) to the predicted stage
+value \(z_{pred}\) so that \(z_i = z_{pred} + z_{cor}\). The nonlinear
+systems rewritten in terms of \(z_{cor}\) are
+\begin{gather}
+\begin{split}G(z_{cor}) \equiv M z_{cor} + M z_{pred} - M y_n - \gamma f(t_i, z_{cor} + z_{pred}) - a_i = 0\end{split}\notag
+\end{gather}
+for the rootfinding problem and
+\begin{gather}
+\begin{split}z_{cor} = y_n - z_{pred} - G\left( z_{cor} + z{pred} \right) + a_i\end{split}\notag
+\end{gather}
+for the fixed-point problem.
+
+The nonlinear system functions provided by ARKode modules to the nonlinear
+solver module internally update the current value of the stage based on the
+input correction vector. The updated vector is used when calling the ODE
+right-hand side function and when setting up linear solves (e.g., updating the
+Jacobian or preconditioner).
+
+ARKode modules also provide several advanced function that will not be needed by
+most users, but might be useful for users who choose to provide their own
+implementation of the SUNNonlinearSolver API. For example, such a user might
+need access to the current value of \(\gamma\) to comput Jacboian data.
+
+
+\subsection{ARKStep advanced output functions}
+\label{sunnonlinsol/ARKode_Interface:arkstep-advanced-output-functions}\index{ARKStepGetCurrentState (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunnonlinsol/ARKode_Interface:c.ARKStepGetCurrentState}\pysiglinewithargsret{int \bfcode{ARKStepGetCurrentState}}{void*\emph{ arkode\_mem}, N\_Vector*\emph{ y}}{}
+Returns the current state vector
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKStep memory block.
+
+\item {} 
+\emph{y} -- N\_Vector pointer that will get set to the current state vector
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the ARKStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKStepGetCurrentGamma (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunnonlinsol/ARKode_Interface:c.ARKStepGetCurrentGamma}\pysiglinewithargsret{int \bfcode{ARKStepGetCurrentGamma}}{void*\emph{ arkode\_mem}, realtype*\emph{ gamma}}{}
+Returns the current value of the scalar \(\gamma\)
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKStep memory block.
+
+\item {} 
+\emph{gamma} -- the current value of the scalar \(\gamma\) appearing in the
+
+\end{itemize}
+
+Newton equation \(A = I - \gamma J\) or \(A = M - \gamma J\).
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the ARKStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+
+
+\section{The SUNNonlinearSolver\_Newton implementation}
 \label{sunnonlinsol/SUNNonlinSol_Newton:the-sunnonlinearsolver-newton-implementation}\label{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinsol-newton}\label{sunnonlinsol/SUNNonlinSol_Newton::doc}
 This section describes the SUNNonlinSol implementation of Newton's method. To
 access the SUNNonlinSol\_Newton module, include the header file
@@ -39534,7 +39575,7 @@ module is accessible from SUNDIALS integrators \emph{without} separately
 linking to the \code{libsundials\_sunnonlinsolnewton} module library.
 
 
-\subsubsection{SUNNonlinearSolver\_Newton description}
+\subsection{SUNNonlinearSolver\_Newton description}
 \label{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinearsolver-newton-description}\label{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinsolnewton-math}
 To find the solution to
 \phantomsection\label{sunnonlinsol/SUNNonlinSol_Newton:equation-e:newton_sys}\begin{gather}
@@ -39596,7 +39637,7 @@ user by calling the {\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolSetMa
 SUNNonlinSol\_Newton object to the integrator.
 
 
-\subsubsection{SUNNonlinearSolver\_Newton functions}
+\subsection{SUNNonlinearSolver\_Newton functions}
 \label{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinearsolver-newton-functions}\label{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinsolnewton-functions}
 The SUNNonlinSol\_Newton module provides the following constructor
 for creating the \code{SUNNonlinearSolver} object.
@@ -39667,7 +39708,7 @@ calls to \emph{SysFn}.
 
 
 
-\subsubsection{SUNNonlinearSolver\_Newton content}
+\subsection{SUNNonlinearSolver\_Newton content}
 \label{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinsolnewton-content}\label{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinearsolver-newton-content}
 The \emph{content} field of the SUNNonlinSol\_Newton module is the
 following structure.
@@ -39728,7 +39769,7 @@ all solves.
 \end{itemize}
 
 
-\subsubsection{SUNNonlinearSolver\_Newton Fortran interface}
+\subsection{SUNNonlinearSolver\_Newton Fortran interface}
 \label{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinearsolver-newton-fortran-interface}\label{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinsolnewton-fortran}
 For SUNDIALS integrators that include a Fortran interface, the
 SUNNonlinSol\_Newton module also includes a Fortran-callable
@@ -39763,7 +39804,7 @@ of failure.
 
 
 
-\subsection{The SUNNonlinearSolver\_FixedPoint implementation}
+\section{The SUNNonlinearSolver\_FixedPoint implementation}
 \label{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsol-fixedpoint}\label{sunnonlinsol/SUNNonlinSol_FixedPoint:the-sunnonlinearsolver-fixedpoint-implementation}\label{sunnonlinsol/SUNNonlinSol_FixedPoint::doc}
 This section describes the SUNNonlinSol implementation of a fixed point
 (functional) iteration with optional Anderson acceleration. To access the
@@ -39774,7 +39815,7 @@ SUNNonlinSol\_FixedPoint module is accessible from SUNDIALS integrators
 \code{libsundials\_sunnonlinsolfixedpoint} module library.
 
 
-\subsubsection{SUNNonlinearSolver\_FixedPoint description}
+\subsection{SUNNonlinearSolver\_FixedPoint description}
 \label{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsolfixedpoint-math}\label{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinearsolver-fixedpoint-description}
 To find the solution to
 \phantomsection\label{sunnonlinsol/SUNNonlinSol_FixedPoint:equation-e:fixed_point_sys}\begin{gather}
@@ -39838,7 +39879,7 @@ convergence test function may be modified by the user by calling
 SUNNonlinSol\_FixedPoint object to the integrator.
 
 
-\subsubsection{SUNNonlinearSolver\_FixedPoint functions}
+\subsection{SUNNonlinearSolver\_FixedPoint functions}
 \label{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinearsolver-fixedpoint-functions}\label{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsolfixedpoint-functions}
 The SUNNonlinSol\_FixedPoint module provides the following constructor
 for creating the \code{SUNNonlinearSolver} object.
@@ -39915,7 +39956,7 @@ calls to \emph{SysFn}.
 
 
 
-\subsubsection{SUNNonlinearSolver\_FixedPoint content}
+\subsection{SUNNonlinearSolver\_FixedPoint content}
 \label{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsolfixedpoint-content}\label{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinearsolver-fixedpoint-content}
 The \emph{content} field of the SUNNonlinSol\_FixedPoint module is the
 following structure.
@@ -40021,7 +40062,7 @@ allocated within the \emph{content} field:
 \end{itemize}
 
 
-\subsubsection{SUNNonlinearSolver\_FixedPoint Fortran interface}
+\subsection{SUNNonlinearSolver\_FixedPoint Fortran interface}
 \label{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinearsolver-fixedpoint-fortran-interface}\label{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsolfixedpoint-fortran}
 For SUNDIALS integrators that include a Fortran interface, the
 SUNNonlinSol\_FixedPoint module also includes a Fortran-callable

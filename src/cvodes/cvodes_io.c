@@ -1063,7 +1063,7 @@ int CVodeGetCurrentState(void *cvode_mem, N_Vector *y)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *y = cv_mem->cv_zn[0];
+  *y = cv_mem->cv_y;
 
   return(CV_SUCCESS);
 }
@@ -1085,7 +1085,7 @@ int CVodeGetCurrentStateSens(void *cvode_mem, N_Vector **yS)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *yS = cv_mem->cv_znS[0];
+  *yS = cv_mem->cv_yS;
 
   return(CV_SUCCESS);
 }

@@ -103,6 +103,8 @@ module fida_mod
  public :: FIDASetRootDirection
  public :: FIDASetNoInactiveRootWarn
  public :: FIDASolve
+ public :: FIDAComputeY
+ public :: FIDAComputeYp
  public :: FIDAGetDky
  public :: FIDAGetWorkSpace
  public :: FIDAGetNumSteps
@@ -113,6 +115,9 @@ module fida_mod
  public :: FIDAGetConsistentIC
  public :: FIDAGetLastOrder
  public :: FIDAGetCurrentOrder
+ public :: FIDAGetCurrentCj
+ public :: FIDAGetCurrentY
+ public :: FIDAGetCurrentYp
  public :: FIDAGetActualInitStep
  public :: FIDAGetLastStep
  public :: FIDAGetCurrentStep
@@ -483,6 +488,26 @@ integer(C_INT), intent(in) :: farg6
 integer(C_INT) :: fresult
 end function
 
+function swigc_FIDAComputeY(farg1, farg2, farg3) &
+bind(C, name="_wrap_FIDAComputeY") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAComputeYp(farg1, farg2, farg3) &
+bind(C, name="_wrap_FIDAComputeYp") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FIDAGetDky(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FIDAGetDky") &
 result(fresult)
@@ -570,6 +595,33 @@ end function
 
 function swigc_FIDAGetCurrentOrder(farg1, farg2) &
 bind(C, name="_wrap_FIDAGetCurrentOrder") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetCurrentCj(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetCurrentCj") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetCurrentY(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetCurrentY") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDAGetCurrentYp(farg1, farg2) &
+bind(C, name="_wrap_FIDAGetCurrentYp") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1509,6 +1561,44 @@ fresult = swigc_FIDASolve(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
+function FIDAComputeY(ida_mem, ycor, y) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+type(N_Vector), target, intent(inout) :: ycor
+type(N_Vector), target, intent(inout) :: y
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = ida_mem
+farg2 = c_loc(ycor)
+farg3 = c_loc(y)
+fresult = swigc_FIDAComputeY(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FIDAComputeYp(ida_mem, ycor, yp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+type(N_Vector), target, intent(inout) :: ycor
+type(N_Vector), target, intent(inout) :: yp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = ida_mem
+farg2 = c_loc(ycor)
+farg3 = c_loc(yp)
+fresult = swigc_FIDAComputeYp(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
 function FIDAGetDky(ida_mem, t, k, dky) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1678,6 +1768,54 @@ type(C_PTR) :: farg2
 farg1 = ida_mem
 farg2 = c_loc(kcur(1))
 fresult = swigc_FIDAGetCurrentOrder(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetCurrentCj(ida_mem, cj) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: cj
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = c_loc(cj(1))
+fresult = swigc_FIDAGetCurrentCj(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetCurrentY(ida_mem, ycur) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+type(C_PTR) :: ycur
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = ycur
+fresult = swigc_FIDAGetCurrentY(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDAGetCurrentYp(ida_mem, ypcur) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+type(C_PTR) :: ypcur
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = ypcur
+fresult = swigc_FIDAGetCurrentYp(farg1, farg2)
 swig_result = fresult
 end function
 
