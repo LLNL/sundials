@@ -59,7 +59,6 @@ FOREACH(example_tuple ${IDA_examples})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} PRIVATE ${SUNDIALS_LIBS})
-
   # install example source and out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cu ${example}.out

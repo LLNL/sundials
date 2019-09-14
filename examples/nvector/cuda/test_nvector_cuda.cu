@@ -267,7 +267,7 @@ int Test_N_VMake_Cuda(N_Vector X, sunindextype length, int myid)
 
   h_data = N_VGetHostArrayPointer_Cuda(X);
   d_data = N_VGetDeviceArrayPointer_Cuda(X);
-  
+
   /* Case 1: h_data and d_data are not null */
   Y = N_VMake_Cuda(length, h_data, d_data);
   if (Y == NULL) {

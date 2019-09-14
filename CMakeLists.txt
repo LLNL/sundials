@@ -816,7 +816,17 @@ endif()
 # ---------------------------------------------------------------
 
 if(CUDA_ENABLE)
-  enable_language(CUDA)
+   # If a user did not provide the host compiler, then we
+   # assume that they want to use the CXX compiler that was set.
+   if(NOT (DEFINED CMAKE_CUDA_HOST_COMPILER))
+     set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER} CACHE FILEPATH "NVCC host compiler")
+     mark_as_advanced(CMAKE_CUDA_HOST_COMPILER)
+   endif()
+   enable_language(CUDA)
+   message(STATUS "The CUDA host compiler is: ${CMAKE_CUDA_HOST_COMPILER}")
+  # Need this as long as CUDA libraries like cuSOLVER are not
+  # available through some other way.
+  find_package(CUDA REQUIRED)
 endif(CUDA_ENABLE)
 
 # ---------------------------------------------------------------

@@ -1,0 +1,166 @@
+%% This is a shared SUNDIALS TEX file with a description of the
+%% cusolversp batch QR sunlinsol implementation
+%%
+\section{The SUNLinearSolver\_cuSolverSp\_batchQR implementation}\label{ss:sunlinsol_cuspbqr}
+
+The \id{SUNLinearSolver\_cuSolverSp\_batchQR} implementation of the {\sunlinsol} API is
+designed to be used with the {\sunmatsparse} matrix type, and the {\nveccuda} vector type
+\textit{with managed memory}. The header file to include when using this module is
+\id{sunlinsol/sunlinsol\_cusolversp\_batchqr.h}. The installed library to link to
+is \id{libsundials\_sunlinsolcusolversp.\textit{lib}} where \id{\em.lib} is typically
+\id{.so} for shared libraries and \id{.a} for static libraries.
+\newline
+\newline
+{\warn} The \id{SUNLinearSolver\_cuSolverSp\_batchQR} module is experimental and subject to change.
+
+% --------------------------------------------------------------------
+\subsection{SUNLinearSolver\_cuSolverSp\_batchQR description}\label{ss:sunlinsol_cuspbqr_description}
+
+The \id{SUNLinearSolver\_cuSolverSp\_batchQR} implementation provides an interface to
+the batched sparse QR factorization method provided by the NVIDIA cuSOLVER library
+\cite{cuSOLVER_site}. The module is designed for solving block diagonal linear systems
+of the form
+\begin{equation*}
+  \mathbf{A} =
+  \begin{bmatrix}
+    \mathbf{A_1} & 0 & \cdots & 0\\
+    0 & \mathbf{A_2} & \cdots & 0\\
+    \vdots & \vdots & \ddots & \vdots\\
+    0 & 0 & \cdots & \mathbf{A_n}\\
+  \end{bmatrix}
+\end{equation*}
+where all block matrices $\mathbf{A_j}$ share the same sparsisty pattern. The matrix
+must be in the CSR storage format. For further details about the method itself,
+review the NVIDIA documentation.
+
+
+% % --------------------------------------------------------------------
+\subsection{SUNLinearSolver\_cuSolverSp\_batchQR functions}\label{ss:sunlinsol_cuspbqr_functions}
+
+The \id{SUNLinearSolver\_cuSolverSp\_batchQR} module defines implementations of
+all ``direct'' linear solver operations listed in
+Sections \ref{ss:sunlinsol_CoreFn}-\ref{ss:sunlinsol_GetFn}:
+%%
+%%
+\begin{itemize}
+\item \id{SUNLinSolGetType\_cuSolverSp\_batchQR}
+\item \id{SUNLinSolInitialize\_cuSolverSp\_batchQR} -- this sets the
+  \id{first\_factorize} flag to 1
+\item \id{SUNLinSolSetup\_cuSolverSp\_batchQR} -- this always copies the
+  relevant {\sunmatsparse} data to the GPU; if this is the first setup
+  it will perform symbolic analysis on the system 
+\item \id{SUNLinSolSolve\_cuSolverSp\_batchQR} -- this calls the 
+  \id{cusolverSpXcsrqrsvBatched} routine to perform factorization
+\item \id{SUNLinSolLastFlag\_cuSolverSp\_batchQR}
+\item \id{SUNLinSolFree\_cuSolverSp\_batchQR}
+\end{itemize}
+%%
+%%
+In addition, the module provides the following user-callable routines: 
+%%
+%%
+\ucfunction{SUNLinSol\_cuSolverSp\_batchQR}
+{
+  LS = SUNLinSol\_cuSolverSp\_batchQR(y, A, nsubsys, subsys\_size, subsys\_nnz);
+}
+{
+  The function \ID{SUNLinSol\_cuSolverSp\_batchQR} creates and allocates memory for a
+  {\sunlinsol} object.
+}
+{
+  \begin{args}[subsys\_size]
+  \item[y] (\id{N\_Vector})
+    a {\nveccuda} vector for checking compatibility with the solver
+  \item[A] (\id{SUNMatrix})
+    a {\sunmatsparse} matrix for checking compatibility with the solver
+  \item[nsubsys] (\id{int})
+    the number of subsystems, i.e., the number of blocks in the matrix
+  \item[subsys\_size] (\id{int})
+    the number of rows/columns in a block
+  \item[subsys\_nnz] (\id{int})
+    the number of nonzeros in a block
+  \end{args}
+}
+{
+  This returns a \id{SUNLinearSolver} object.  If either \id{A} or
+  \id{y} are incompatible then this routine will return \id{NULL}.
+}
+{
+  This routine analyzes the input matrix and vector to determine the
+  linear system size and to assess compatibility with the solver.
+
+  This routine will perform consistency checks to ensure that it is
+  called with consistent {\nvector} and {\sunmatrix} implementations.
+  These are currently limited to the {\sunmatsparse} matrix type
+  and the {\nveccuda} vector type. Since the {\sunmatsparse} matrix
+  type is only compatible with the {\nveccuda} when using managed memory,
+  the restriction is also in place for the linear solver. As additional
+  compatible matrix and vector implementations are added to {\sundials},
+  these will be included within this compatibility check.
+}
+%
+%
+\ucfunction{SUNLinSol\_cuSolverSp\_batchQR\_GetDescription}
+{
+  SUNLinSol\_cuSolverSp\_batchQR\_GetDescription(LS, \&desc);
+}
+{
+  The function \ID{SUNLinSol\_cuSolverSp\_batchQR\_GetDescription}
+  accesses the string description of the object (empty by default).
+}
+{
+  \begin{args}[options]
+  \item[LS] (\id{SUNLinearSolver})
+    a \id{SUNLinSol\_cuSolverSp\_batchQR} object
+  \item[desc] (\id{char **})
+    the string description of the linear solver
+  \end{args}
+}
+{ None }
+{}
+%%
+%%
+\ucfunction{SUNLinSol\_cuSolverSp\_batchQR\_SetDescription}
+{
+  SUNLinSol\_cuSolverSp\_batchQR\_SetDescription(LS, desc);
+}
+{
+  The function \ID{SUNLinSol\_cuSolverSp\_batchQR\_SetDescription}
+  sets the string description of the object (empty by default).
+}
+{
+  \begin{args}[options]
+  \item[LS] (\id{SUNLinearSolver})
+    a \id{SUNLinSol\_cuSolverSp\_batchQR} object
+  \item[desc] (\id{const char *})
+    the string description of the linear solver
+  \end{args}
+}
+{ None }
+{}
+
+% --------------------------------------------------------------------
+\subsection{SUNLinearSolver\_cuSolverSp\_batchQR content}\label{ss:sunlinsol_cuspbqr_content}
+
+The \id{SUNLinearSolver\_cuSolverSp\_batchQR} module defines the
+{\em content} field of a \id{SUNLinearSolver} to be the following structure:
+%%
+\begin{verbatim} 
+struct _SUNLinearSolverContent_cuSolverSp_batchQR {
+  int                nsubsys;            /* number of subsystems                                 */
+  int                subsys_size;        /* size of each subsystem                               */
+  int                subsys_nnz;         /* number of nonzeros per subsystem                     */
+  int                last_flag;          /* last return flag                                     */
+  booleantype        first_factorize;    /* is this the first factorization?                     */
+  size_t             internal_size;      /* size of cusolver internal buffer for Q and R         */
+  size_t             workspace_size;     /* size of cusolver memory block for num. factorization */
+  cusolverSpHandle_t cusolver_handle;    /* cuSolverSp context                                   */
+  cusparseMatDescr_t system_description; /* matrix description                                   */
+  realtype*          d_values;           /* device array of matrix A values                      */
+  int*               d_rowptr;           /* device array of rowptrs for a subsystem              */
+  int*               d_colind;           /* device array of column indices for a subsystem       */
+  csrqrInfo_t        info;               /* opaque cusolver data structure                       */
+  void*              workspace;          /* memory block used by cusolver                        */
+  const char*        desc;               /* description of this linear solver                    */
+};  
+\end{verbatim}

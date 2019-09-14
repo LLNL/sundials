@@ -67,6 +67,7 @@ sunlinsol_spgmr.tex \
 sunlinsol_sptfqmr.tex \
 sunlinsol_superludist.tex \
 sunlinsol_superlumt.tex \
+sunlinsol_cusolversp.tex \
 sunlinsol_examples.tex \
 sunnonlinsol_generic.tex \
 sunnonlinsol_newton.tex \

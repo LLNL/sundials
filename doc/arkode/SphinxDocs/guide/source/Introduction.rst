@@ -108,14 +108,14 @@ Changes from previous versions
 --------------------------------
 
 
-Changes in v4.0.0
+Changes in v4.0.0-dev.2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Added a new optional operation to the SUNLINEARSOLVER API, ``SUNLinSolGetID``,
 that returns a ``SUNLinearSolver_ID`` for identifying the linear solver module.
 
 Made performance improvements to the CUDA NVECTOR. Users who utilize a non
--default stream should no longer see default stream synchronizations after 
+-default stream should no longer see default stream synchronizations after
 memory transfers.
 
 Added a new constructor to the CUDA NVECTOR that allows a user to provide
@@ -146,6 +146,10 @@ The reinitialization functions :c:func:`ERKStepReInit()`,
 :c:func:`ARKStepReInit()`, and :c:func:`MRIStepReInit()` have been updated to
 retain the minimum and maxiumum step size values from before reinitialization
 rather than resetting them to the default values.
+
+Added a new SUNLinearSolver implementation, ``SUNLinearSolver_cuSolverSp_batchQR``,
+which leverages the NVIDIA cuSOLVER sparse batched QR method for efficiently
+solving block diagonal linear systems on NVIDIA GPUs.
 
 Added three new accessor functions to the SUNLinSol_KLU module,
 :c:func:`SUNLinSol_KLUGetSymbolic()`, :c:func:`SUNLinSol_KLUGetNumeric()`, and

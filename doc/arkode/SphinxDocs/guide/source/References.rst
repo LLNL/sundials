@@ -67,6 +67,9 @@
 .. [CGM2014] J. Cheng, M. Grossman and T. McKercher. Professional Cuda
              C Programming.  John Wiley & Sons, 2014.
 
+.. [cuSOLVER] `NVIDIA cuSOLVER Documentation
+               <https://docs.nvidia.com/cuda/cusolver/index.html>`_.
+
 .. [DP1980] J.R. Dormand and P.J. Prince. A family of embedded
             Runge-Kutta formulae, *J. Comput. Appl. Math.* 6:19–26, 1980.
 

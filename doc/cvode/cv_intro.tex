@@ -125,6 +125,10 @@ Added two new functions, \id{CVodeGetCurrentGamma} and \id{CVodeGetCurrentState}
 which may be useful to users who choose to provide their own nonlinear solver
 implementations.
 
+Added a new SUNLinearSolver implementation, \id{SUNLinearSolver\_cuSolverSp\_batchQR},
+which leverages the NVIDIA cuSOLVER sparse batched QR method for efficiently
+solving block diagonal linear systems on NVIDIA GPUs.
+
 Added three new accessor functions to the {\sunlinsolklu} module,
 \id{SUNLinSol\_KLUGetSymbolic}, \id{SUNLinSol\_KLUGetNumeric}, and
 \id{SUNLinSol\_KLUGetCommon}, to provide user access to the underlying

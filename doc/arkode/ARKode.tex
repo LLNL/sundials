@@ -55,7 +55,7 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v4.0.0-dev.1\\ 
+\title{User Documentation for ARKode v4.0.0-dev.1\\
        (SUNDIALS v5.0.0-dev.1)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
@@ -300,8 +300,8 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
-\subsection{Changes in v4.0.0}
-\label{Introduction:changes-in-v4-0-0}
+\subsection{Changes in v4.0.0-dev.2}
+\label{Introduction:changes-in-v4-0-0-dev-2}
 Added a new optional operation to the SUNLINEARSOLVER API, \code{SUNLinSolGetID},
 that returns a \code{SUNLinearSolver\_ID} for identifying the linear solver module.
 
@@ -337,6 +337,10 @@ The reinitialization functions {\hyperref[ERKStep_c_interface/User_callable:c.ER
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepReInit]{\emph{\code{ARKStepReInit()}}}}, and {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} have been updated to
 retain the minimum and maxiumum step size values from before reinitialization
 rather than resetting them to the default values.
+
+Added a new SUNLinearSolver implementation, \code{SUNLinearSolver\_cuSolverSp\_batchQR},
+which leverages the NVIDIA cuSOLVER sparse batched QR method for efficiently
+solving block diagonal linear systems on NVIDIA GPUs.
 
 Added three new accessor functions to the SUNLinSol\_KLU module,
 {\hyperref[sunlinsol/SUNLinSol_KLU:c.SUNLinSol_KLUGetSymbolic]{\emph{\code{SUNLinSol\_KLUGetSymbolic()}}}}, {\hyperref[sunlinsol/SUNLinSol_KLU:c.SUNLinSol_KLUGetNumeric]{\emph{\code{SUNLinSol\_KLUGetNumeric()}}}}, and
@@ -32753,9 +32757,10 @@ Within the \code{SUNMatMatvec\_Sparse} routine, internal
 consistency checks are performed to ensure that the matrix
 is called with consistent \code{N\_Vector} implementations.
 These are currently limited to: NVECTOR\_SERIAL,
-NVECTOR\_OPENMP, and NVECTOR\_PTHREADS.  As additional
-compatible vector implementations are added to SUNDIALS,
-these will be included within this compatibility check.
+NVECTOR\_OPENMP, NVECTOR\_PTHREADS, and NVECTOR\_CUDA when using
+managed memory. As additional compatible vector implementations
+are added to SUNDIALS, these will be included within this
+compatibility check.
 \end{notice}
 
 For solvers that include a Fortran interface module, the SUNMATRIX\_SPARSE
@@ -33303,8 +33308,7 @@ functions are defined in the header file
 \label{sunlinsol/SUNLinSol_API:sunlinsol-corefn}\label{sunlinsol/SUNLinSol_API:sunlinearsolver-core-functions}
 The core linear solver functions consist of two required functions to get the
 linear solver type ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolGetType]{\emph{\code{SUNLinSolGetType()}}}}) and solve the linear system
-\(Ax=b\)
-({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSolve]{\emph{\code{SUNLinSolSolve()}}}}). The remaining functions are for
+\(Ax=b\) ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSolve]{\emph{\code{SUNLinSolSolve()}}}}). The remaining functions are for
 getting the solver ID ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolGetID]{\emph{\code{SUNLinSolGetID()}}}}), initializing the linear solver
 object once all solver-specific options have been set
 ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolInitialize]{\emph{\code{SUNLinSolInitialize()}}}}), setting up the linear solver object to utilize
@@ -36251,6 +36255,137 @@ space requirements, see the SuperLU\_MT documentation.
 \code{SUNLinSolFree\_SuperLUMT}
 
 \end{itemize}
+
+
+\section{The SUNLinSol\_cuSolverSp\_batchQR Module}
+\label{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr}\label{sunlinsol/SUNLinSol_cuSolverSp::doc}\label{sunlinsol/SUNLinSol_cuSolverSp:the-sunlinsol-cusolversp-batchqr-module}
+The \code{SUNLinearSolver\_cuSolverSp\_batchQR} implementation of the SUNLinearSolver API is
+designed to be used with the SUNMATRIX\_SPARSE matrix type, and the NVECTOR\_CUDA vector type
+\emph{with managed memory}. The header file to include when using this module is
+\code{sunlinsol/sunlinsol\_cusolversp\_batchqr.h\}}. The installed library to link to
+is \code{libsundials\_sunlinsolcusolversp.lib} where \code{.lib} is typically
+\code{.so} for shared libraries and \code{.a} for static libraries.
+
+\textbf{The SUNLinearSolver\_cuSolverSp\_batchQR module is experimental and subject to change.}
+
+
+\subsection{SUNLinSol\_cuSolverSp\_batchQR description}
+\label{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr-description}\label{sunlinsol/SUNLinSol_cuSolverSp:id1}
+The SUNLinearSolver\_cuSolverSp\_batchQR implementation provides an interface to
+the batched sparse QR factorization method provided by the NVIDIA cuSOLVER library (\phantomsection\label{sunlinsol/SUNLinSol_cuSolverSp:id2}{\hyperref[References:cusolver]{\emph{{[}cuSOLVER{]}}}}).
+The module is designed for solving block diagonal linear systems of the form
+\begin{gather}
+\begin{split}\mathbf{A} =
+\begin{bmatrix}
+   \mathbf{A_1} & 0 & \cdots & 0\\
+   0 & \mathbf{A_2} & \cdots & 0\\
+   \vdots & \vdots & \ddots & \vdots\\
+   0 & 0 & \cdots & \mathbf{A_n}\\
+\end{bmatrix}\end{split}\notag
+\end{gather}
+where all block matrices \(\mathbf{A_j}\) share the same sparsisty pattern. The matrix
+must be in the CSR storage format. For further details about the method itself,
+review the NVIDIA documentation.
+
+
+\subsection{SUNLinSol\_cuSolverSp\_batchQR functions}
+\label{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr-functions}\label{sunlinsol/SUNLinSol_cuSolverSp:id3}
+The \code{SUNLinearSolver\_cuSolverSp\_batchQR} module defines implementations of
+all ``direct'' linear solver operations listed in {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-api]{\emph{\DUspan{}{The SUNLinearSolver API}}}}:
+\begin{itemize}
+\item {} 
+\code{SUNLinSolGetType\_cuSolverSp\_batchQR}
+
+\item {} 
+\code{SUNLinSolInitialize\_cuSolverSp\_batchQR} -- this sets the
+\code{first\_factorize} flag to 1
+
+\item {} 
+\code{SUNLinSolSetup\_cuSolverSp\_batchQR} -- this always copies the
+relevant SUNMATRIX\_SPARSE data to the GPU; if this is the first setup
+it will perform symbolic analysis on the system
+
+\item {} 
+\code{SUNLinSolSolve\_cuSolverSp\_batchQR} -- this calls the
+\code{cusolverSpXcsrqrsvBatched} routine to perform factorization
+
+\item {} 
+\code{SUNLinSolLastFlag\_cuSolverSp\_batchQR}
+
+\item {} 
+\code{SUNLinSolFree\_cuSolverSp\_batchQR}
+
+\end{itemize}
+
+In addition, the module provides the following user-callable routines:
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{SUNLinearSolver~SUNLinSol\_cuSolverSp\_batchQR(N\_Vector~y,~SUNMatrix~A,~int~nsubsys,~int~subsys\_size,~int~subsys\_nnz);}}
+The function \code{SUNLinSol\_cuSolverSp\_batchQR} creates and allocates
+memory for a SUNLinearSolver object.
+
+This returns a SUNLinearSolver object.  If either \code{A} or
+\code{y} are incompatible then this routine will return \code{NULL}.
+
+This routine analyzes the input matrix and vector to determine the
+linear system size and to assess compatibility with the solver.
+
+This routine will perform consistency checks to ensure that it is
+called with consistent \code{N\_Vector}  and \code{SUNMatrix}  implementations.
+These are currently limited to the SUNMATRIX\_SPARSE matrix type
+and the NVECTOR\_CUDA vector type. Since the SUNMATRIX\_SPARSE matrix
+type is only compatible with the NVECTOR\_CUDA  when using managed memory,
+the restriction is also in place for the linear solver. As additional
+compatible matrix and vector implementations are added to SUNDIALS,
+these will be included within this compatibility check.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{void~SUNLinSol\_cuSolverSp\_batchQR\_GetDescription(SUNLinearSolver~LS,~char~**desc);}}
+The function \code{SUNLinSol\_cuSolverSp\_batchQR\_GetDescription}
+accesses the string description of the object (empty by default).
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{void~SUNLinSol\_cuSolverSp\_batchQR\_SetDescription(SUNLinearSolver~LS,~const~char~*desc);}}
+The function \code{SUNLinSol\_cuSolverSp\_batchQR\_SetDescription}
+sets the string description of the object (empty by default).
+
+\end{fulllineitems}
+
+
+
+\subsection{SUNLinSol\_cuSolverSp\_batchQR content}
+\label{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr-content}\label{sunlinsol/SUNLinSol_cuSolverSp:id4}
+The SUNLinSol\_cuSolverSp\_batchQR module defines the \emph{content} field of a
+\code{SUNLinearSolver} to be the following structure:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}SUNLinearSolverContent\PYGZus{}cuSolverSp\PYGZus{}batchQR} \PYG{p}{\PYGZob{}}
+\PYG{k+kt}{int}                \PYG{n}{nsubsys}\PYG{p}{;}            \PYG{c+cm}{/* number of subsystems                                 */}
+\PYG{k+kt}{int}                \PYG{n}{subsys\PYGZus{}size}\PYG{p}{;}        \PYG{c+cm}{/* size of each subsystem                               */}
+\PYG{k+kt}{int}                \PYG{n}{subsys\PYGZus{}nnz}\PYG{p}{;}         \PYG{c+cm}{/* number of nonzeros per subsystem                     */}
+\PYG{k+kt}{int}                \PYG{n}{last\PYGZus{}flag}\PYG{p}{;}          \PYG{c+cm}{/* last return flag                                     */}
+\PYG{n}{booleantype}        \PYG{n}{first\PYGZus{}factorize}\PYG{p}{;}    \PYG{c+cm}{/* is this the first factorization?                     */}
+\PYG{k+kt}{size\PYGZus{}t}             \PYG{n}{internal\PYGZus{}size}\PYG{p}{;}      \PYG{c+cm}{/* size of cusolver internal buffer for Q and R         */}
+\PYG{k+kt}{size\PYGZus{}t}             \PYG{n}{workspace\PYGZus{}size}\PYG{p}{;}     \PYG{c+cm}{/* size of cusolver memory block for num. factorization */}
+\PYG{n}{cusolverSpHandle\PYGZus{}t} \PYG{n}{cusolver\PYGZus{}handle}\PYG{p}{;}    \PYG{c+cm}{/* cuSolverSp context                                   */}
+\PYG{n}{cusparseMatDescr\PYGZus{}t} \PYG{n}{system\PYGZus{}description}\PYG{p}{;} \PYG{c+cm}{/* matrix description                                   */}
+\PYG{n}{realtype}\PYG{o}{*}          \PYG{n}{d\PYGZus{}values}\PYG{p}{;}           \PYG{c+cm}{/* device array of matrix A values                      */}
+\PYG{k+kt}{int}\PYG{o}{*}               \PYG{n}{d\PYGZus{}rowptr}\PYG{p}{;}           \PYG{c+cm}{/* device array of rowptrs for a subsystem              */}
+\PYG{k+kt}{int}\PYG{o}{*}               \PYG{n}{d\PYGZus{}colind}\PYG{p}{;}           \PYG{c+cm}{/* device array of column indices for a subsystem       */}
+\PYG{n}{csrqrInfo\PYGZus{}t}        \PYG{n}{info}\PYG{p}{;}               \PYG{c+cm}{/* opaque cusolver data structure                       */}
+\PYG{k+kt}{void}\PYG{o}{*}              \PYG{n}{workspace}\PYG{p}{;}          \PYG{c+cm}{/* memory block used by cusolver                        */}
+\PYG{k}{const} \PYG{k+kt}{char}\PYG{o}{*}        \PYG{n}{desc}\PYG{p}{;}               \PYG{c+cm}{/* description of this linear solver                    */}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
 
 
 \section{The SUNLinSol\_SPGMR Module}
@@ -41844,6 +41979,34 @@ Header files
 \code{sunlinsol/sunlinsol\_superlumt.h}
 \\
 \hline
+SUNLINSOL\_SUPERLUDIST
+ & 
+Libraries
+ & 
+\code{libsundials\_sunlinsolsuperludist.LIB},
+\\
+\hline
+SUNLINSOL\_SUPERLUDIST
+ & 
+Header files
+ & 
+\code{sunlinsol/sunlinsol\_superludist.h}
+\\
+\hline
+SUNLINSOL\_CUSOLVERSP\_BATCHQR
+ & 
+Libraries
+ & 
+\code{libsundials\_sunlinsolcusolversp.LIB},
+\\
+\hline
+SUNLINSOL\_CUSOLVERSP\_BATCHQR
+ & 
+Header files
+ & 
+\code{sunlinsol/sunlinsol\_cusolversp\_batchqr.h}
+\\
+\hline
 SUNNONLINSOL\_NEWTON
  & 
 Libraries
@@ -43982,6 +44145,9 @@ right-hand sides, \emph{ACM Trans. Math. Soft.},
 \bibitem[CGM2014]{CGM2014}{\phantomsection\label{References:cgm2014} 
 J. Cheng, M. Grossman and T. McKercher. Professional Cuda
 C Programming.  John Wiley \& Sons, 2014.
+}
+\bibitem[cuSOLVER]{cuSOLVER}{\phantomsection\label{References:cusolver} 
+\href{https://docs.nvidia.com/cuda/cusolver/index.html}{NVIDIA cuSOLVER Documentation}.
 }
 \bibitem[DP1980]{DP1980}{\phantomsection\label{References:dp1980} 
 J.R. Dormand and P.J. Prince. A family of embedded

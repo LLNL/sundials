@@ -89,8 +89,8 @@ to access its member variables. Instead, user should use the accessor functions:
 
 The {\nveccuda} module defines implementations of all vector operations listed
 in Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}
-and \ref{ss:nveclocalops}, except for \id{N\_VSetArrayPointer}, and, 
-if using unmanaged memory, \id{N\_VGetArrayPointer}. 
+and \ref{ss:nveclocalops}, except for \id{N\_VSetArrayPointer}, and,
+if using unmanaged memory, \id{N\_VGetArrayPointer}.
 As such, this vector can only be used with the {\sundials} Fortran interfaces,
 and the {\sundials} direct solvers and preconditioners when using managed memory.
 The {\nveccuda} module provides separate functions to access data on the host

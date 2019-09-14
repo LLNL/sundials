@@ -89,7 +89,7 @@ N_Vector N_VNewEmpty_Cuda()
   v->ops->nvcompare      = N_VCompare_Cuda;
 
   /* fused and vector array operations are disabled (NULL) by default */
-  
+
   /* local reduction operations */
   v->ops->nvdotprodlocal     = N_VDotProd_Cuda;
   v->ops->nvmaxnormlocal     = N_VMaxNorm_Cuda;
@@ -160,7 +160,7 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata)
   v = NULL;
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
-  
+
   /* if using managed memory, we can attach an operation for
      nvgetarraypointer since the host and device pointers are the same */
   v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
@@ -171,7 +171,7 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata)
   return(v);
 }
 
-N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length, 
+N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length,
                                           void* (*allocfn)(size_t),
                                           void (*freefn)(void*))
 {
@@ -180,7 +180,7 @@ N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length,
   v = NULL;
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
-  
+
   /* if using managed memory, we can attach an operation for
      nvgetarraypointer since the host and device pointers are the same */
   v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
@@ -572,7 +572,7 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
   err = dotProdMulti(nvec, Xv, Yv, dotprods);
 
   delete[] Yv;
-  
+
   return err == cudaSuccess ? 0 : -1;
 }
 
@@ -661,7 +661,7 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   const vector_type* xvec = static_cast<vector_type*>(X[0]->content);
   vector_type** Xv;
   vector_type** Wv;
-  
+
   sunindextype N = xvec->size();
 
   Xv = new vector_type*[nvec];
@@ -694,7 +694,7 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   vector_type** Xv;
   vector_type** Wv;
   vector_type*  IDv;
-  
+
   sunindextype N = xvec->size();
 
   Xv = new vector_type*[nvec];

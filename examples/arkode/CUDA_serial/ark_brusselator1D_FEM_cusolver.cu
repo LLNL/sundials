@@ -1,6 +1,8 @@
 /*---------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU and
- *                Cody J. Balos @ LLNL
+ * Programmer(s): Cody J. Balos @ LLNL
+ *---------------------------------------------------------------
+ * Based on example problem ark_brusselator1D_FEM by
+ * Daniel R. Reynolds @ SMU.
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -51,7 +53,8 @@
  * and the mass matrix, M.
  *
  * This program solves the problem with the DIRK method, using a
- * Newton iteration with the SuperLU_MT SUNLinearSolver.
+ * Newton iteration with the SUNLinSol_cuSolverSp_batchQR linear
+ * solver.
  *
  * 100 outputs are printed at equal time intervals, and run
  * statistics are printed at the end.
@@ -61,12 +64,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode_arkstep.h>          /* prototypes for ARKStep fcts., consts */
-#include <nvector/nvector_serial.h>         /* serial N_Vector types, fcts., macros */
-#include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
-#include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLU_MT SUNLinearSolver */
-#include <sundials/sundials_types.h>        /* defs. of realtype, sunindextype, etc */
-#include <sundials/sundials_math.h>         /* def. of SUNRsqrt, etc.               */
+#include <arkode/arkode_arkstep.h>                    /* prototypes for ARKStep fcts., consts     */
+#include <nvector/nvector_cuda.h>                     /* cuda N_Vector types, fcts., macros     */
+#include <sunmatrix/sunmatrix_sparse.h>               /* access to the sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_cusolversp_batchqr.h>   /* access to cuSolverSp SUNLinearSolver     */
+#include <sundials/sundials_types.h>                  /* defs. of realtype, sunindextype, etc     */
+#include <sundials/sundials_math.h>                   /* def. of SUNRsqrt, etc.                   */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -116,7 +119,6 @@ typedef struct {
   realtype dv;      /* diffusion coeff for v   */
   realtype dw;      /* diffusion coeff for w   */
   realtype ep;      /* stiffness parameter     */
-  N_Vector tmp;     /* temporary vector        */
   SUNMatrix R;      /* temporary storage       */
 } *UserData;
 
@@ -129,6 +131,20 @@ static int MassMatrix(realtype t, SUNMatrix M, void *user_data,
                       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+/* Kernels for user-supplied functions */
+__global__
+static void f_rx_left(realtype* Ydata, realtype* RHSdata, realtype* x,
+                      sunindextype N, realtype a, realtype b, realtype ep);
+__global__
+static void f_rx_right(realtype* Ydata, realtype* RHSdata, realtype* x,
+                       sunindextype N, realtype a, realtype b, realtype ep);
+__global__
+static void f_diff_left(realtype* Ydata, realtype* RHSdata, realtype *x,
+                        sunindextype N, realtype du, realtype dv, realtype dw);
+__global__
+static void f_diff_right(realtype* Ydata, realtype* RHSdata, realtype *x,
+                         sunindextype N, realtype du, realtype dv, realtype dw);
 
 /* Private helper functions  */
 static int LaplaceMatrix(SUNMatrix Jac, UserData udata);
@@ -157,7 +173,6 @@ int main(int argc, char *argv[]) {
   realtype reltol = RCONST(1.0e-6);     /* tolerances */
   realtype abstol = RCONST(1.0e-10);
   sunindextype i, NEQ, NNZ;
-  int num_threads;
 
   /* general problem variables */
   int retval;                 /* reusable error-checking retval */
@@ -169,6 +184,7 @@ int main(int argc, char *argv[]) {
   SUNMatrix M = NULL;         /* empty mass matrix object */
   SUNLinearSolver LS = NULL;  /* empty linear solver object */
   SUNLinearSolver MLS = NULL; /* empty mass matrix solver object */
+  cudaError_t cuerr;
   void *arkode_mem = NULL;
   FILE *FID, *UFID, *VFID, *WFID;
   realtype h, z, t, dTout, tout, u, v, w, pi;
@@ -176,16 +192,10 @@ int main(int argc, char *argv[]) {
   long int nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn;
   long int netf, nmset, nms, nMv;
 
-  /* if a command-line argument was supplied, set num_threads */
-  num_threads = 1;
-  if (argc > 1)
-    num_threads = strtol(argv[1], NULL, 0);
-
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
   udata->x = NULL;
   udata->R = NULL;
-  udata->tmp = NULL;
   if (check_retval((void *)udata, "malloc", 2)) return(1);
 
   /* store the inputs in the UserData structure */
@@ -203,7 +213,6 @@ int main(int argc, char *argv[]) {
   /* Initial problem output */
   printf("\n1D FEM Brusselator PDE test problem:\n");
   printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
-  printf("    num_threads = %i\n", num_threads);
   printf("    problem parameters:  a = %" GSYM ",  b = %" GSYM ",  ep = %" GSYM "\n",
          udata->a, udata->b, udata->ep);
   printf("    diffusion coefficients:  du = %" GSYM ",  dv = %" GSYM ",  dw = %" GSYM "\n",
@@ -211,29 +220,25 @@ int main(int argc, char *argv[]) {
   printf("    reltol = %.1" ESYM ",  abstol = %.1" ESYM "\n\n", reltol, abstol);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  y = N_VNewManaged_Cuda(NEQ);      /* Create cuda vector for solution */
+  if (check_retval((void *)y, "N_VNewManaged_Cuda", 0)) return(1);
 
   data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
   if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
 
-  umask = N_VNew_Serial(NEQ);       /* Create serial vector masks */
-  if (check_retval((void *)umask, "N_VNew_Serial", 0)) return(1);
+  umask = N_VNewManaged_Cuda(NEQ);  /* Create vector masks */
+  if (check_retval((void *)umask, "N_VNewManaged_Cuda", 0)) return(1);
 
-  vmask = N_VNew_Serial(NEQ);
-  if (check_retval((void *)vmask, "N_VNew_Serial", 0)) return(1);
+  vmask = N_VNewManaged_Cuda(NEQ);
+  if (check_retval((void *)vmask, "N_VNewManaged_Cuda", 0)) return(1);
 
-  wmask = N_VNew_Serial(NEQ);
-  if (check_retval((void *)wmask, "N_VNew_Serial", 0)) return(1);
-
-  /* temporary N_Vector inside udata */
-  udata->tmp = N_VNew_Serial(NEQ);
-  if (check_retval((void *) udata->tmp, "N_VNew_Serial", 0)) return(1);
+  wmask = N_VNewManaged_Cuda(NEQ);
+  if (check_retval((void *)wmask, "N_VNewManaged_Cuda", 0)) return(1);
 
   /* allocate and set up spatial mesh; this [arbitrarily] clusters
      more intervals near the end points of the interval */
-  udata->x = (realtype *) malloc(N*sizeof(realtype));
-  if (check_retval((void *)udata->x, "malloc", 2)) return(1);
+  cuerr = cudaMallocManaged(&udata->x, N*sizeof(realtype));
+  if (cuerr != cudaSuccess) return(1);
   h = RCONST(10.0)/(N-1);
   for (i=0; i<N; i++) {
     z = -RCONST(5.0) + h*i;
@@ -292,14 +297,16 @@ int main(int argc, char *argv[]) {
   A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSR_MAT);
   if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
-  LS = SUNLinSol_SuperLUMT(y, A, num_threads);
-  if (check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
+  LS = SUNLinSol_cuSolverSp_batchQR(y, A, 1, NEQ, NNZ);
+  SUNLinSol_cuSolverSp_batchQR_SetDescription(LS, "Newton system solver");
+  if (check_retval((void *)LS, "SUNLinSol_cuSolverSp_batchQR", 0)) return(1);
 
   M = SUNMatClone(A);
   if (check_retval((void *)M, "SUNSparseMatrix", 0)) return(1);
 
-  MLS = SUNLinSol_SuperLUMT(y, M, num_threads);
-  if (check_retval((void *)MLS, "SUNLinSol_SuperLUMT", 0)) return(1);
+  MLS = SUNLinSol_cuSolverSp_batchQR(y, M, 1, NEQ, NNZ);
+  SUNLinSol_cuSolverSp_batchQR_SetDescription(MLS, "Mass system solver");
+  if (check_retval((void *)MLS, "SUNLinSol_cuSolverSp_batchQR", 0)) return(1);
 
   /* Attach the matrix, linear solver, and Jacobian construction routine to ARKStep */
 
@@ -423,15 +430,15 @@ int main(int argc, char *argv[]) {
   N_VDestroy(umask);
   N_VDestroy(vmask);
   N_VDestroy(wmask);
-  SUNMatDestroy(udata->R);         /* Free user data */
-  N_VDestroy(udata->tmp);
-  free(udata->x);
-  free(udata);
   ARKStepFree(&arkode_mem);        /* Free integrator memory */
   SUNLinSolFree(LS);               /* Free linear solvers */
   SUNLinSolFree(MLS);
   SUNMatDestroy(A);                /* Free matrices */
   SUNMatDestroy(M);
+  SUNMatDestroy(udata->R);         /* Free user data */
+  cudaFree(udata->x);
+  free(udata);
+
   return 0;
 }
 
@@ -476,25 +483,46 @@ static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype dv = udata->dv;
   realtype dw = udata->dw;
 
-  /* local variables */
-  sunindextype i;
-  realtype ul, ur, vl, vr, wl, wr;
-  realtype xl, xr, f1;
-  booleantype left, right;
-  realtype *Ydata, *RHSdata;
-
   /* access data arrays */
+  realtype *Ydata, *RHSdata;
   Ydata = N_VGetArrayPointer(y);
   if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
   RHSdata = N_VGetArrayPointer(ydot);
   if (check_retval((void *)RHSdata, "N_VGetArrayPointer", 0)) return 1;
 
-  /* iterate over intervals, filling in residual function */
-  for (i=0; i<N-1; i++) {
+  /* launch the left and right kernels */
+  int block_size = 32;
+  int grid_size  = (N + block_size - 1) / block_size;
 
-    /* set booleans to determine whether equations exist on the left/right */
-    left  = (i==0)     ? SUNFALSE : SUNTRUE;
-    right = (i==(N-2)) ? SUNFALSE : SUNTRUE;
+  cudaDeviceSynchronize();
+  f_diff_left<<<grid_size, block_size>>>(Ydata, RHSdata, udata->x, N, du, dv, dw);
+  cudaDeviceSynchronize();
+  f_diff_right<<<grid_size, block_size>>>(Ydata, RHSdata, udata->x, N, du, dv, dw);
+  cudaDeviceSynchronize();
+
+  cudaError_t cuerr = cudaGetLastError();
+  if (cuerr != cudaSuccess) {
+    fprintf(stderr,
+            ">>> Error in f_diff_kernel (cuda error: %s)\n",
+            cudaGetErrorName(cuerr));
+    return 1;
+  }
+
+  return 0;
+}
+
+__global__
+static void f_diff_left(realtype* Ydata, realtype* RHSdata, realtype* x,
+                        sunindextype N, realtype du, realtype dv, realtype dw)
+{
+  /* local variables */
+  sunindextype i;
+  realtype ul, ur, vl, vr, wl, wr;
+  realtype xl, xr, f1;
+
+  i = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (i>0 && i<N-1) {
 
     /* set nodal value shortcuts (interval index aligns with left node) */
     ul = Ydata[IDX(i,0)];
@@ -505,49 +533,67 @@ static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     wr = Ydata[IDX(i+1,2)];
 
     /* set mesh shortcuts */
-    xl = udata->x[i];
-    xr = udata->x[i+1];
+    xl = x[i];
+    xr = x[i+1];
 
-    /* evaluate L*y on this subinterval
-       NOTE: all f values are the same since constant on interval */
-    /*    left test function */
-    if (left) {
-      /*  u */
-      f1 = -du * Eval_x(ul,ur,xl,xr) * ChiL_x(xl,xr);
-      RHSdata[IDX(i,0)] += Quad(f1,f1,f1,xl,xr);
+    /*  u */
+    f1 = -du * Eval_x(ul,ur,xl,xr) * ChiL_x(xl,xr);
+    RHSdata[IDX(i,0)] += Quad(f1,f1,f1,xl,xr);
 
-      /*  v */
-      f1 = -dv * Eval_x(vl,vr,xl,xr) * ChiL_x(xl,xr);
-      RHSdata[IDX(i,1)] += Quad(f1,f1,f1,xl,xr);
+    /*  v */
+    f1 = -dv * Eval_x(vl,vr,xl,xr) * ChiL_x(xl,xr);
+    RHSdata[IDX(i,1)] += Quad(f1,f1,f1,xl,xr);
 
-      /*  w */
-      f1 = -dw * Eval_x(wl,wr,xl,xr) * ChiL_x(xl,xr);
-      RHSdata[IDX(i,2)] += Quad(f1,f1,f1,xl,xr);
-    }
-    /*    right test function */
-    if (right) {
-      /*  u */
-      f1 = -du * Eval_x(ul,ur,xl,xr) * ChiR_x(xl,xr);
-      RHSdata[IDX(i+1,0)] += Quad(f1,f1,f1,xl,xr);
+    /*  w */
+    f1 = -dw * Eval_x(wl,wr,xl,xr) * ChiL_x(xl,xr);
+    RHSdata[IDX(i,2)] += Quad(f1,f1,f1,xl,xr);
 
-      /*  v */
-      f1 = -dv * Eval_x(vl,vr,xl,xr) * ChiR_x(xl,xr);
-      RHSdata[IDX(i+1,1)] += Quad(f1,f1,f1,xl,xr);
-
-      /*  w */
-      f1 = -dw * Eval_x(wl,wr,xl,xr) * ChiR_x(xl,xr);
-      RHSdata[IDX(i+1,2)] += Quad(f1,f1,f1,xl,xr);
-    }
   }
-
-  return 0;
 }
 
+__global__
+static void f_diff_right(realtype* Ydata, realtype* RHSdata, realtype* x,
+                         sunindextype N, realtype du, realtype dv, realtype dw)
+{
+  /* local variables */
+  sunindextype i;
+  realtype ul, ur, vl, vr, wl, wr;
+  realtype xl, xr, f1;
 
+  i = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (i<N-2) {
+
+    /* set nodal value shortcuts (interval index aligns with left node) */
+    ul = Ydata[IDX(i,0)];
+    vl = Ydata[IDX(i,1)];
+    wl = Ydata[IDX(i,2)];
+    ur = Ydata[IDX(i+1,0)];
+    vr = Ydata[IDX(i+1,1)];
+    wr = Ydata[IDX(i+1,2)];
+
+    /* set mesh shortcuts */
+    xl = x[i];
+    xr = x[i+1];
+
+    /*  u */
+    f1 = -du * Eval_x(ul,ur,xl,xr) * ChiR_x(xl,xr);
+    RHSdata[IDX(i+1,0)] += Quad(f1,f1,f1,xl,xr);
+
+    /*  v */
+    f1 = -dv * Eval_x(vl,vr,xl,xr) * ChiR_x(xl,xr);
+    RHSdata[IDX(i+1,1)] += Quad(f1,f1,f1,xl,xr);
+
+    /*  w */
+    f1 = -dw * Eval_x(wl,wr,xl,xr) * ChiR_x(xl,xr);
+    RHSdata[IDX(i+1,2)] += Quad(f1,f1,f1,xl,xr);
+
+  }
+}
 
 /* Routine to compute the reaction portion of the ODE RHS function f(t,y). */
-static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
-
+static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+{
   /* problem data */
   UserData udata = (UserData) user_data;
 
@@ -557,25 +603,47 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   realtype b  = udata->b;
   realtype ep = udata->ep;
 
-  /* local variables */
-  sunindextype i;
-  realtype ul, ur, vl, vr, wl, wr;
-  realtype u, v, w, xl, xr, f1, f2, f3;
-  booleantype left, right;
-  realtype *Ydata, *RHSdata;
-
   /* access data arrays */
+  realtype *Ydata, *RHSdata;
   Ydata = N_VGetArrayPointer(y);
   if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
   RHSdata = N_VGetArrayPointer(ydot);
   if (check_retval((void *)RHSdata, "N_VGetArrayPointer", 0)) return 1;
 
-  /* iterate over intervals, filling in residual function */
-  for (i=0; i<N-1; i++) {
+  /* launch the left and right kernels */
+  int block_size = 32;
+  int grid_size  = (N + block_size - 1) / block_size;
 
-    /* set booleans to determine whether equations exist on the left/right */
-    left  = (i==0)     ? SUNFALSE : SUNTRUE;
-    right = (i==(N-2)) ? SUNFALSE : SUNTRUE;
+  cudaDeviceSynchronize();
+  f_rx_left<<<grid_size, block_size>>>(Ydata, RHSdata, udata->x, N, a, b, ep);
+  cudaDeviceSynchronize();
+  f_rx_right<<<grid_size, block_size>>>(Ydata, RHSdata, udata->x, N, a, b, ep);
+  cudaDeviceSynchronize();
+
+  cudaError_t cuerr = cudaGetLastError();
+  if (cuerr != cudaSuccess) {
+    fprintf(stderr,
+            ">>> Error in f_rx_kernel (cuda error: %s)\n",
+            cudaGetErrorName(cuerr));
+    return 1;
+  }
+
+  return 0;
+}
+
+__global__
+static void f_rx_left(realtype* Ydata, realtype* RHSdata, realtype* x,
+                      sunindextype N, realtype a, realtype b, realtype ep)
+{
+  /* local variables */
+  sunindextype i;
+  realtype ul, ur, vl, vr, wl, wr;
+  realtype u, v, w, xl, xr, f1, f2, f3;
+
+  i = blockDim.x * blockIdx.x + threadIdx.x;
+
+  /* iterate over intervals, filling in residual function */
+  if (i>0 && i<N-1) {
 
     /* set nodal value shortcuts (interval index aligns with left node) */
     ul = Ydata[IDX(i,0)];
@@ -586,110 +654,130 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
     wr = Ydata[IDX(i+1,2)];
 
     /* set mesh shortcuts */
-    xl = udata->x[i];
-    xr = udata->x[i+1];
+    xl = x[i];
+    xr = x[i+1];
 
-    /* evaluate R(y) on this subinterval */
-    /*    left test function */
-    if (left) {
-      /*  u */
-      u = Eval(ul,ur,xl,xr,X1(xl,xr));
-      v = Eval(vl,vr,xl,xr,X1(xl,xr));
-      w = Eval(wl,wr,xl,xr,X1(xl,xr));
-      f1 = (a - (w+ONE)*u + v*u*u) * ChiL(xl,xr,X1(xl,xr));
-      u = Eval(ul,ur,xl,xr,X2(xl,xr));
-      v = Eval(vl,vr,xl,xr,X2(xl,xr));
-      w = Eval(wl,wr,xl,xr,X2(xl,xr));
-      f2 = (a - (w+ONE)*u + v*u*u) * ChiL(xl,xr,X2(xl,xr));
-      u = Eval(ul,ur,xl,xr,X3(xl,xr));
-      v = Eval(vl,vr,xl,xr,X3(xl,xr));
-      w = Eval(wl,wr,xl,xr,X3(xl,xr));
-      f3 = (a - (w+ONE)*u + v*u*u) * ChiL(xl,xr,X3(xl,xr));
-      RHSdata[IDX(i,0)] += Quad(f1,f2,f3,xl,xr);
+    /*  u */
+    u = Eval(ul,ur,xl,xr,X1(xl,xr));
+    v = Eval(vl,vr,xl,xr,X1(xl,xr));
+    w = Eval(wl,wr,xl,xr,X1(xl,xr));
+    f1 = (a - (w+ONE)*u + v*u*u) * ChiL(xl,xr,X1(xl,xr));
+    u = Eval(ul,ur,xl,xr,X2(xl,xr));
+    v = Eval(vl,vr,xl,xr,X2(xl,xr));
+    w = Eval(wl,wr,xl,xr,X2(xl,xr));
+    f2 = (a - (w+ONE)*u + v*u*u) * ChiL(xl,xr,X2(xl,xr));
+    u = Eval(ul,ur,xl,xr,X3(xl,xr));
+    v = Eval(vl,vr,xl,xr,X3(xl,xr));
+    w = Eval(wl,wr,xl,xr,X3(xl,xr));
+    f3 = (a - (w+ONE)*u + v*u*u) * ChiL(xl,xr,X3(xl,xr));
+    RHSdata[IDX(i,0)] += Quad(f1,f2,f3,xl,xr);
 
-      /*  v */
-      u = Eval(ul,ur,xl,xr,X1(xl,xr));
-      v = Eval(vl,vr,xl,xr,X1(xl,xr));
-      w = Eval(wl,wr,xl,xr,X1(xl,xr));
-      f1 = (w*u - v*u*u) * ChiL(xl,xr,X1(xl,xr));
-      u = Eval(ul,ur,xl,xr,X2(xl,xr));
-      v = Eval(vl,vr,xl,xr,X2(xl,xr));
-      w = Eval(wl,wr,xl,xr,X2(xl,xr));
-      f2 = (w*u - v*u*u) * ChiL(xl,xr,X2(xl,xr));
-      u = Eval(ul,ur,xl,xr,X3(xl,xr));
-      v = Eval(vl,vr,xl,xr,X3(xl,xr));
-      w = Eval(wl,wr,xl,xr,X3(xl,xr));
-      f3 = (w*u - v*u*u) * ChiL(xl,xr,X3(xl,xr));
-      RHSdata[IDX(i,1)] += Quad(f1,f2,f3,xl,xr);
+    /*  v */
+    u = Eval(ul,ur,xl,xr,X1(xl,xr));
+    v = Eval(vl,vr,xl,xr,X1(xl,xr));
+    w = Eval(wl,wr,xl,xr,X1(xl,xr));
+    f1 = (w*u - v*u*u) * ChiL(xl,xr,X1(xl,xr));
+    u = Eval(ul,ur,xl,xr,X2(xl,xr));
+    v = Eval(vl,vr,xl,xr,X2(xl,xr));
+    w = Eval(wl,wr,xl,xr,X2(xl,xr));
+    f2 = (w*u - v*u*u) * ChiL(xl,xr,X2(xl,xr));
+    u = Eval(ul,ur,xl,xr,X3(xl,xr));
+    v = Eval(vl,vr,xl,xr,X3(xl,xr));
+    w = Eval(wl,wr,xl,xr,X3(xl,xr));
+    f3 = (w*u - v*u*u) * ChiL(xl,xr,X3(xl,xr));
+    RHSdata[IDX(i,1)] += Quad(f1,f2,f3,xl,xr);
 
-      /*  w */
-      u = Eval(ul,ur,xl,xr,X1(xl,xr));
-      v = Eval(vl,vr,xl,xr,X1(xl,xr));
-      w = Eval(wl,wr,xl,xr,X1(xl,xr));
-      f1 = ((b-w)/ep - w*u) * ChiL(xl,xr,X1(xl,xr));
-      u = Eval(ul,ur,xl,xr,X2(xl,xr));
-      v = Eval(vl,vr,xl,xr,X2(xl,xr));
-      w = Eval(wl,wr,xl,xr,X2(xl,xr));
-      f2 = ((b-w)/ep - w*u) * ChiL(xl,xr,X2(xl,xr));
-      u = Eval(ul,ur,xl,xr,X3(xl,xr));
-      v = Eval(vl,vr,xl,xr,X3(xl,xr));
-      w = Eval(wl,wr,xl,xr,X3(xl,xr));
-      f3 = ((b-w)/ep - w*u) * ChiL(xl,xr,X3(xl,xr));
-      RHSdata[IDX(i,2)] += Quad(f1,f2,f3,xl,xr);
-    }
-    /*    right test function */
-    if (right) {
-      /*  u */
-      u = Eval(ul,ur,xl,xr,X1(xl,xr));
-      v = Eval(vl,vr,xl,xr,X1(xl,xr));
-      w = Eval(wl,wr,xl,xr,X1(xl,xr));
-      f1 = (a - (w+ONE)*u + v*u*u) * ChiR(xl,xr,X1(xl,xr));
-      u = Eval(ul,ur,xl,xr,X2(xl,xr));
-      v = Eval(vl,vr,xl,xr,X2(xl,xr));
-      w = Eval(wl,wr,xl,xr,X2(xl,xr));
-      f2 = (a - (w+ONE)*u + v*u*u) * ChiR(xl,xr,X2(xl,xr));
-      u = Eval(ul,ur,xl,xr,X3(xl,xr));
-      v = Eval(vl,vr,xl,xr,X3(xl,xr));
-      w = Eval(wl,wr,xl,xr,X3(xl,xr));
-      f3 = (a - (w+ONE)*u + v*u*u) * ChiR(xl,xr,X3(xl,xr));
-      RHSdata[IDX(i+1,0)] += Quad(f1,f2,f3,xl,xr);
+    /*  w */
+    u = Eval(ul,ur,xl,xr,X1(xl,xr));
+    v = Eval(vl,vr,xl,xr,X1(xl,xr));
+    w = Eval(wl,wr,xl,xr,X1(xl,xr));
+    f1 = ((b-w)/ep - w*u) * ChiL(xl,xr,X1(xl,xr));
+    u = Eval(ul,ur,xl,xr,X2(xl,xr));
+    v = Eval(vl,vr,xl,xr,X2(xl,xr));
+    w = Eval(wl,wr,xl,xr,X2(xl,xr));
+    f2 = ((b-w)/ep - w*u) * ChiL(xl,xr,X2(xl,xr));
+    u = Eval(ul,ur,xl,xr,X3(xl,xr));
+    v = Eval(vl,vr,xl,xr,X3(xl,xr));
+    w = Eval(wl,wr,xl,xr,X3(xl,xr));
+    f3 = ((b-w)/ep - w*u) * ChiL(xl,xr,X3(xl,xr));
+    RHSdata[IDX(i,2)] += Quad(f1,f2,f3,xl,xr);
 
-      /*  v */
-      u = Eval(ul,ur,xl,xr,X1(xl,xr));
-      v = Eval(vl,vr,xl,xr,X1(xl,xr));
-      w = Eval(wl,wr,xl,xr,X1(xl,xr));
-      f1 = (w*u - v*u*u) * ChiR(xl,xr,X1(xl,xr));
-      u = Eval(ul,ur,xl,xr,X2(xl,xr));
-      v = Eval(vl,vr,xl,xr,X2(xl,xr));
-      w = Eval(wl,wr,xl,xr,X2(xl,xr));
-      f2 = (w*u - v*u*u) * ChiR(xl,xr,X2(xl,xr));
-      u = Eval(ul,ur,xl,xr,X3(xl,xr));
-      v = Eval(vl,vr,xl,xr,X3(xl,xr));
-      w = Eval(wl,wr,xl,xr,X3(xl,xr));
-      f3 = (w*u - v*u*u) * ChiR(xl,xr,X3(xl,xr));
-      RHSdata[IDX(i+1,1)] += Quad(f1,f2,f3,xl,xr);
-
-      /*  w */
-      u = Eval(ul,ur,xl,xr,X1(xl,xr));
-      v = Eval(vl,vr,xl,xr,X1(xl,xr));
-      w = Eval(wl,wr,xl,xr,X1(xl,xr));
-      f1 = ((b-w)/ep - w*u) * ChiR(xl,xr,X1(xl,xr));
-      u = Eval(ul,ur,xl,xr,X2(xl,xr));
-      v = Eval(vl,vr,xl,xr,X2(xl,xr));
-      w = Eval(wl,wr,xl,xr,X2(xl,xr));
-      f2 = ((b-w)/ep - w*u) * ChiR(xl,xr,X2(xl,xr));
-      u = Eval(ul,ur,xl,xr,X3(xl,xr));
-      v = Eval(vl,vr,xl,xr,X3(xl,xr));
-      w = Eval(wl,wr,xl,xr,X3(xl,xr));
-      f3 = ((b-w)/ep - w*u) * ChiR(xl,xr,X3(xl,xr));
-      RHSdata[IDX(i+1,2)] += Quad(f1,f2,f3,xl,xr);
-    }
   }
-
-  return 0;
 }
 
+__global__
+static void f_rx_right(realtype* Ydata, realtype* RHSdata, realtype* x,
+                       sunindextype N, realtype a, realtype b, realtype ep)
+{
+  /* local variables */
+  sunindextype i;
+  realtype ul, ur, vl, vr, wl, wr;
+  realtype u, v, w, xl, xr, f1, f2, f3;
 
+  i = blockDim.x * blockIdx.x + threadIdx.x;
+
+  /* iterate over intervals, filling in residual function */
+  if (i<N-2) {
+
+    /* set nodal value shortcuts (interval index aligns with left node) */
+    ul = Ydata[IDX(i,0)];
+    vl = Ydata[IDX(i,1)];
+    wl = Ydata[IDX(i,2)];
+    ur = Ydata[IDX(i+1,0)];
+    vr = Ydata[IDX(i+1,1)];
+    wr = Ydata[IDX(i+1,2)];
+
+    /* set mesh shortcuts */
+    xl = x[i];
+    xr = x[i+1];
+
+    /*  u */
+    u = Eval(ul,ur,xl,xr,X1(xl,xr));
+    v = Eval(vl,vr,xl,xr,X1(xl,xr));
+    w = Eval(wl,wr,xl,xr,X1(xl,xr));
+    f1 = (a - (w+ONE)*u + v*u*u) * ChiR(xl,xr,X1(xl,xr));
+    u = Eval(ul,ur,xl,xr,X2(xl,xr));
+    v = Eval(vl,vr,xl,xr,X2(xl,xr));
+    w = Eval(wl,wr,xl,xr,X2(xl,xr));
+    f2 = (a - (w+ONE)*u + v*u*u) * ChiR(xl,xr,X2(xl,xr));
+    u = Eval(ul,ur,xl,xr,X3(xl,xr));
+    v = Eval(vl,vr,xl,xr,X3(xl,xr));
+    w = Eval(wl,wr,xl,xr,X3(xl,xr));
+    f3 = (a - (w+ONE)*u + v*u*u) * ChiR(xl,xr,X3(xl,xr));
+    RHSdata[IDX(i+1,0)] += Quad(f1,f2,f3,xl,xr);
+
+    /*  v */
+    u = Eval(ul,ur,xl,xr,X1(xl,xr));
+    v = Eval(vl,vr,xl,xr,X1(xl,xr));
+    w = Eval(wl,wr,xl,xr,X1(xl,xr));
+    f1 = (w*u - v*u*u) * ChiR(xl,xr,X1(xl,xr));
+    u = Eval(ul,ur,xl,xr,X2(xl,xr));
+    v = Eval(vl,vr,xl,xr,X2(xl,xr));
+    w = Eval(wl,wr,xl,xr,X2(xl,xr));
+    f2 = (w*u - v*u*u) * ChiR(xl,xr,X2(xl,xr));
+    u = Eval(ul,ur,xl,xr,X3(xl,xr));
+    v = Eval(vl,vr,xl,xr,X3(xl,xr));
+    w = Eval(wl,wr,xl,xr,X3(xl,xr));
+    f3 = (w*u - v*u*u) * ChiR(xl,xr,X3(xl,xr));
+    RHSdata[IDX(i+1,1)] += Quad(f1,f2,f3,xl,xr);
+
+    /*  w */
+    u = Eval(ul,ur,xl,xr,X1(xl,xr));
+    v = Eval(vl,vr,xl,xr,X1(xl,xr));
+    w = Eval(wl,wr,xl,xr,X1(xl,xr));
+    f1 = ((b-w)/ep - w*u) * ChiR(xl,xr,X1(xl,xr));
+    u = Eval(ul,ur,xl,xr,X2(xl,xr));
+    v = Eval(vl,vr,xl,xr,X2(xl,xr));
+    w = Eval(wl,wr,xl,xr,X2(xl,xr));
+    f2 = ((b-w)/ep - w*u) * ChiR(xl,xr,X2(xl,xr));
+    u = Eval(ul,ur,xl,xr,X3(xl,xr));
+    v = Eval(vl,vr,xl,xr,X3(xl,xr));
+    w = Eval(wl,wr,xl,xr,X3(xl,xr));
+    f3 = ((b-w)/ep - w*u) * ChiR(xl,xr,X3(xl,xr));
+    RHSdata[IDX(i+1,2)] += Quad(f1,f2,f3,xl,xr);
+
+  }
+}
 
 /* Interface routine to compute the Jacobian of the full RHS function, f(y) */
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
@@ -738,6 +826,8 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
     printf("Jac: error in adding sparse matrices = %i!\n",ier);
     return 1;
   }
+
+  cudaDeviceSynchronize();
 
   return 0;
 }
@@ -1085,6 +1175,7 @@ static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata)
   realtype Ju[9], Jv[9], Jw[9];
 
   /* access data arrays */
+  cudaDeviceSynchronize();
   realtype *Ydata = N_VGetArrayPointer(y);
   if (check_retval((void *) Ydata, "N_VGetArrayPointer", 0)) return(1);
 

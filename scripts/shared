@@ -101,19 +101,20 @@ $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h     || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h    || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_slunrloc.h  || exit 1
 
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_band.h        || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_dense.h       || exit 1
-#$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_diagonal.h   || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_klu.h         || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackband.h  || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackdense.h || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_pcg.h         || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spbcgs.h      || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spfgmr.h      || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spgmr.h       || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_sptfqmr.h     || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superlumt.h   || exit 1
-$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superludist.h || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_cusolversp_batchqr.h || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_band.h               || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_dense.h              || exit 1
+#$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_diagonal.h          || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_klu.h                || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackband.h         || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackdense.h        || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_pcg.h                || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spbcgs.h             || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spfgmr.h             || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spgmr.h              || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_sptfqmr.h            || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superlumt.h          || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superludist.h        || exit 1
 
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_newton.h       || exit 1
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_fixedpoint.h   || exit 1
@@ -266,6 +267,11 @@ $tar $tarfile $distrobase/src/sunlinsol/band/fsunlinsol_band.h                ||
 $tar $tarfile $distrobase/src/sunlinsol/band/fsunlinsol_band.c                || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/band/fmod/CMakeLists.txt              || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/band/fmod/fsunlinsol_band_mod.{c,f90} || exit 1
+
+echo "   --- Add sunlinsol/cusolversp module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol/cusolversp/CMakeLists.txt                   || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/cusolversp/sunlinsol_cusolversp_batchqr.cu  || exit 1
 
 echo "   --- Add sunlinsol/dense module to $tarfile"
 
@@ -457,6 +463,8 @@ $tar $tarfile $distrobase/examples/sunlinsol/test_sunlinsol.h   || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/band/test_sunlinsol_band.c                            || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/band/test_fsunlinsol_band_mod.f90                     || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/band/CMakeLists.txt                                   || exit 1
+$tar $tarfile $distrobase/examples/sunlinsol/cusolversp/test_sunlinsol_cusolversp_batchqr.cu       || exit 1
+$tar $tarfile $distrobase/examples/sunlinsol/cusolversp/CMakeLists.txt                             || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/dense/test_sunlinsol_dense.c                          || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/dense/test_fsunlinsol_dense_mod.f90                   || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/dense/CMakeLists.txt                                  || exit 1
