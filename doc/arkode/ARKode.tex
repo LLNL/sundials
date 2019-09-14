@@ -34302,40 +34302,35 @@ If the SUNLinSol identifies as having type
 then the SUNLinSol object solves a
 linear system \emph{defined} by a SUNMATRIX object. ARKLS will update the
 matrix information infrequently according to the strategies outlined in
-the section {\hyperref[Mathematics:mathematics-linear-setup]{\emph{\DUspan{}{Updating the linear solver}}}}. When solving a linear
-system
+the section {\hyperref[Mathematics:mathematics-linear-setup]{\emph{\DUspan{}{Updating the linear solver}}}}.  To this end, we
+differentiate between the \emph{desired} linear system
+\(\mathcal A x = b\) with \(\mathcal A = (M-\gamma J)\)
+and the \emph{actual} linear system
 \begin{gather}
-\begin{split}\tilde{\mathcal A} \tilde{x} = b \quad\Leftrightarrow\quad (M-\tilde{\gamma} J)\tilde{x} = b\end{split}\notag
+\begin{split}\tilde{\mathcal A} \tilde{x} = b \quad\Leftrightarrow\quad (M-\tilde{\gamma} J)\tilde{x} = b.\end{split}\notag
 \end{gather}
-it is likely that the value \(\tilde{\gamma}\) used to construct
-\(\tilde{\mathcal A}\) differs from the current value of
-\(\gamma\) in the RK method, since \(\tilde{\mathcal A}\) is
-updated infrequently.  Therefore, after calling the SUNLinSol-provided
-{\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSolve]{\emph{\code{SUNLinSolSolve()}}}} routine, we test whether \(\gamma /
-\tilde{\gamma} \ne 1\), and if this is the case we scale the solution
-\(\tilde{x}\) to obtain the desired linear system solution
-\(x\) via
+Since ARKLS updates the SUNMATRIX object infrequently, it is likely
+that \(\gamma\ne\tilde{\gamma}\), and in turn \(\mathcal
+A\ne\tilde{\mathcal A}\).  Therefore, after calling the
+SUNLinSol-provided {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSolve]{\emph{\code{SUNLinSolSolve()}}}} routine, we test whether
+\(\gamma / \tilde{\gamma} \ne 1\), and if this is the case we
+scale the solution \(\tilde{x}\) to obtain the desired linear
+system solution \(x\) via
 \phantomsection\label{sunlinsol/ARKode_requirements:equation-eq:rescaling}\begin{gather}
 \begin{split}x = \frac{2}{1 + \gamma / \tilde{\gamma}} \tilde{x}.\end{split}\label{sunlinsol/ARKode_requirements-eq:rescaling}
 \end{gather}
-For values of \(\gamma/\tilde{\gamma}\) that are ``close'' to 1, this
-rescaling approximately solves the original linear system, as
-discussed below.  We first note that the equation \eqref{sunlinsol/ARKode_requirements-eq:rescaling}
-is equivalent to
-\begin{gather}
-\begin{split}\tilde{x} = \frac12 x + \frac{\gamma}{\tilde{\gamma}}x.\end{split}\notag
-\end{gather}
-Adding the two equations \((M-\gamma J)x=b\) and
-\((M-\tilde{\gamma}J)\tilde{x}=b\), and inserting the above
-relationship, we have
-\begin{gather}
-\begin{split}2b &= (M-\gamma J)x + (M-\tilde{\gamma}J) \\
-   &= Mx - \gamma Jx + M\tilde{x} - J\left(\tilde{\gamma}\tilde{x}\right)\\
-   &= \frac32\left(M - \gamma J\right)x + \frac12\left(\frac{\gamma}{\tilde{\gamma}}M - \tilde{\gamma} J\right)x\\
-   &= \frac32 b + \frac12\left(\frac{\gamma}{\tilde{\gamma}}M - \tilde{\gamma} J\right)x.\end{split}\notag
-\end{gather}
-When \(\gamma/\tilde{\gamma}\approx 1\), this latter term is
-approximately equal to \(\frac12 b\).
+The motivation for this selection of the scaling factor
+\(c = 2/(1 + \gamma/\tilde{\gamma})\) follows the derivation in
+\phantomsection\label{sunlinsol/ARKode_requirements:id1}{\hyperref[References:bbh1989]{\emph{{[}BBH1989{]}}}} and \phantomsection\label{sunlinsol/ARKode_requirements:id2}{\hyperref[References:h2000]{\emph{{[}H2000{]}}}}.  In short, if we consider a stationary
+iteration for the linear system as consisting of a solve with
+\(\tilde{\mathcal A}\) followed by scaling by \(c\),
+then for a linear constant-coefficient problem, the error in the
+solution vector will be reduced at each iteration by the error matrix
+\(E = I - c \tilde{\mathcal A}^{-1} \mathcal A\), with a
+convergence rate given by the spectral radius of \(E\).  Assuming
+that stiff systems have a spectrum spread widely over the left
+half-plane, \(c\) is chosen to minimize the magnitude of the
+eigenvalues of \(E\).
 
 
 \subsection{Iterative linear solver tolerance}
@@ -44113,6 +44108,11 @@ P.N. Brown. A local convergence theory for combined
 inexact-Newton/finite difference projection
 methods. \emph{SIAM J. Numer. Anal.}, 24:407-434, 1987.
 }
+\bibitem[BBH1989]{BBH1989}{\phantomsection\label{References:bbh1989} 
+P.N. Brown, G.D. Byrne and A.C. Hindmarsh.  VODE, a
+Variable-Coefficient ODE
+Solver. \emph{SIAM J. Sci. Stat. Comput.}, 10:1038-1051, 1989.
+}
 \bibitem[BH1989]{BH1989}{\phantomsection\label{References:bh1989} 
 P.N. Brown and A.C. Hindmarsh. Reduced Storage
 Matrix Methods in Stiff ODE Systems. \emph{J. Appl. Math. \&
@@ -44226,6 +44226,10 @@ National Bureau of Standards}, 49:409-436, 1952.
 K.L. Hiebert and L.F. Shampine.  Implicitly Defined Output
 Points for Solutions of ODEs.  Technical Report
 SAND80-0180, Sandia National Laboratories, February 1980.
+}
+\bibitem[H2000]{H2000}{\phantomsection\label{References:h2000} 
+A.C. Hindmarsh. The PVODE and IDA Algorithms. Technical
+Report UCRL-ID-141558, LLNL, 2000.
 }
 \bibitem[HS2017]{HS2017}{\phantomsection\label{References:hs2017} 
 A.C. Hindmarsh and R. Serban. User Documentation for CVODE

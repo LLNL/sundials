@@ -190,6 +190,10 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
   if ( (FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL) )
     return(SUN_NLS_MEM_NULL);
 
+  /* check that all required function pointers have been set */
+  if ( (FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL) )
+    return(SUN_NLS_MEM_NULL);
+
   /* set local shortcut variables */
   yprev = FP_CONTENT(NLS)->yprev;
   gy    = FP_CONTENT(NLS)->gy;
