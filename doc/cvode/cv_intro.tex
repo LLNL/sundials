@@ -134,6 +134,10 @@ Added three new accessor functions to the {\sunlinsolklu} module,
 \id{SUNLinSol\_KLUGetCommon}, to provide user access to the underlying
 {\klu} solver structures.
 
+Fixed a bug in the {\cvode} nonlinear solver interface where the norm of the
+accumulated correction was not updated when using a non-default convergence
+test function.
+
 \subsection*{Changes in v5.0.0-dev.1}
 
 Several new functions were added to aid in creating custom {\nvector},

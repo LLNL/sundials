@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
  * -----------------------------------------------------------------
@@ -18,8 +14,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the main CVODE integrator.
  * It is independent of the CVODE linear solver in use.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 /*=================================================================*/
 /*             Import Header Files                                 */
@@ -709,7 +704,7 @@ int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
   cv_mem->cv_reltol = reltol;
   cv_mem->cv_Sabstol = abstol;
   cv_mem->cv_atolmin0 = (abstol == ZERO);
-  
+
   cv_mem->cv_itol = CV_SS;
 
   cv_mem->cv_user_efun = SUNFALSE;
@@ -1717,7 +1712,7 @@ static int cvInitialSetup(CVodeMem cv_mem)
     return(CV_ILL_INPUT);
   }
 
-  /* If using a built-in routine for error weights with abstol==0, 
+  /* If using a built-in routine for error weights with abstol==0,
      ensure that N_VMin is available */
   if ((!cv_mem->cv_user_efun) && (cv_mem->cv_atolmin0) && (!cv_mem->cv_tempv->ops->nvmin)) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup",
@@ -1879,10 +1874,10 @@ static int cvHin(CVodeMem cv_mem, realtype tout)
 
     /* Propose new step size */
     hnew = (yddnrm*hub*hub > TWO) ? SUNRsqrt(TWO/yddnrm) : SUNRsqrt(hg*hub);
-    
+
     /* If last pass, stop now with hnew */
     if (count1 == MAX_ITERS) break;
-    
+
     hrat = hnew/hg;
 
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */
@@ -2591,15 +2586,22 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                            cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
 
-  /* update the state based on the final correction from the nonlinear solver */
-  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
-
   /* if the solve failed return */
   if (flag != CV_SUCCESS) return(flag);
 
-  /* solve successful, update Jacobian status and check constraints */
+  /* solve successful */
+
+  /* update the state based on the final correction from the nonlinear solver */
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
+
+  /* compute acnrm if is was not already done by the nonlinear solver */
+  if (!cv_mem->cv_acnrmcur)
+    cv_mem->cv_acnrm = N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
+
+  /* update Jacobian status */
   cv_mem->cv_jcur = SUNFALSE;
 
+  /* check inequality constraints */
   if (cv_mem->cv_constraintsSet)
     flag = cvCheckConstraints(cv_mem);
 

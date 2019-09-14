@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -16,8 +12,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * Implementation header file for the main CVODES integrator.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _CVODES_IMPL_H
 #define _CVODES_IMPL_H
@@ -290,8 +285,10 @@ typedef struct CVodeMemRec {
   realtype cv_crateS;          /* est. corrector conv. rate in NlsStgr        */
   realtype cv_delp;            /* norm of previous nonlinear solver update    */
   realtype cv_acnrm;           /* | acor |                                    */
+  booleantype cv_acnrmcur;     /* is | acor | current?                        */
   realtype cv_acnrmQ;          /* | acorQ |                                   */
   realtype cv_acnrmS;          /* | acorS |                                   */
+  booleantype cv_acnrmScur;    /* is | acorS | current?                       */
   realtype cv_acnrmQS;         /* | acorQS |                                  */
   realtype cv_nlscoef;         /* coeficient in nonlinear convergence test    */
   int  *cv_ncfS1;              /* Array of Ns local counters for conv.  

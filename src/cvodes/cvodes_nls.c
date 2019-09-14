@@ -16,6 +16,7 @@
 
 #include "cvodes_impl.h"
 #include "sundials/sundials_math.h"
+#include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
 #define ONE RCONST(1.0)
@@ -105,6 +106,9 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
                    "Setting maximum number of nonlinear iterations failed");
     return(CV_ILL_INPUT);
   }
+  
+  /* Reset the acnrmcur flag to SUNFALSE */
+  cv_mem->cv_acnrmcur = SUNFALSE;
 
   return(CV_SUCCESS);
 }
@@ -245,6 +249,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
 
   if (dcon <= ONE) {
     cv_mem->cv_acnrm = (m==0) ? del : N_VWrmsNorm(ycor, cv_mem->cv_ewt);
+    cv_mem->cv_acnrmcur = SUNTRUE;
     return(CV_SUCCESS); /* Nonlinear system was solved successfully */
   }
 

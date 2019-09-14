@@ -156,6 +156,7 @@ typedef struct CVodeMemRec {
   realtype cv_crate;            /* estimated corrector convergence rate       */
   realtype cv_delp;             /* norm of previous nonlinear solver update   */
   realtype cv_acnrm;            /* | acor | wrms                              */
+  booleantype cv_acnrmcur;      /* is | acor | wrms current?                  */
   realtype cv_nlscoef;          /* coeficient in nonlinear convergence test   */
 
   /*------

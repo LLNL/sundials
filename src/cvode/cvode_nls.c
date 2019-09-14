@@ -116,6 +116,9 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
     return(CV_ILL_INPUT);
   }
 
+  /* Reset the acnrmcur flag to SUNFALSE */
+  cv_mem->cv_acnrmcur = SUNFALSE;
+
   return(CV_SUCCESS);
 }
 
@@ -253,6 +256,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
 
   if (dcon <= ONE) {
     cv_mem->cv_acnrm = (m==0) ? del : N_VWrmsNorm(ycor, ewt);
+    cv_mem->cv_acnrmcur = SUNTRUE;
     return(CV_SUCCESS); /* Nonlinear system was solved successfully */
   }
 

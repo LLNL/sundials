@@ -185,6 +185,9 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
     NV_VEC_SW(cv_mem->ewtSim,  is+1) = cv_mem->cv_ewtS[is];
   }
 
+  /* Reset the acnrmcur flag to SUNFALSE */
+  cv_mem->cv_acnrmcur = SUNFALSE;
+
   return(CV_SUCCESS);
 }
 
@@ -378,6 +381,7 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
       cv_mem->cv_acnrm = (cv_mem->cv_errconS) ?
         N_VWrmsNorm(ycorSim, ewtSim) : N_VWrmsNorm(ycor, ewt);
     }
+    cv_mem->cv_acnrmcur = SUNTRUE;
     return(CV_SUCCESS);
   }
 

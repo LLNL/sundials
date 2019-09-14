@@ -50,6 +50,9 @@ A bug was fixed in the IDA(S) linear solver interface where an incorrect
 Jacobian-vector product increment was used with iterative solvers other than
 SPGMR and SPFGMR.
 
+Fixed a bug in the CVODE(S) nonlinear solver interface where the norm of the
+accumulated correction was not updated when using a non-default convergence
+test function.
 
 Changes to SUNDIALS in release 5.0.0-dev.1
 

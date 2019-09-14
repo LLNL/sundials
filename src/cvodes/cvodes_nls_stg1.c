@@ -134,6 +134,9 @@ int CVodeSetNonlinearSolverSensStg1(void *cvode_mem, SUNNonlinearSolver NLS)
     return(CV_ILL_INPUT);
   }
 
+  /* Reset the acnrmScur flag to SUNFALSE (always false for stg1) */
+  cv_mem->cv_acnrmScur = SUNFALSE;
+
   return(CV_SUCCESS);
 }
 
