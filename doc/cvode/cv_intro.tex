@@ -99,7 +99,7 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in v5.0.0}
+\subsection*{Changes in v5.0.0-dev.2}
 
 Added a new optional operation to the SUNLINEARSOLVER API, \id{SUNLinSolGetID},
 that returns a \id{SUNLinearSolver\_ID} for identifying the linear solver
@@ -113,7 +113,8 @@ Added a new constructor to the {\nveccuda} module that allows a user to provide
 custom allocate and free functions for the vector data array and internal
 reduction buffer.
 
-Increased the minimum required CMake version to 3.10.3.
+Increased the minimum required CMake version to 3.5 for most SUNDIALS configurations,
+and 3.10 when CUDA or OpenMP with device offloading are enabled.
 
 The CMake option \id{BLAS\_ENABLE} and the variable \id{BLAS\_LIBRARIES} have
 been removed to simplify builds as SUNDIALS packages do not use BLAS directly.
