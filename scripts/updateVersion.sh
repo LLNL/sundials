@@ -21,7 +21,7 @@
 sun_major=${1:-5}
 sun_minor=${2:-0}
 sun_patch=${3:-0}
-sun_label=${4:-dev.1}
+sun_label=${4:-dev.2}
 month=${5:-$(date +"%b")}
 year=${6:-$(date +"%Y")}
 

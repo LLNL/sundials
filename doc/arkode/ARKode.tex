@@ -55,8 +55,8 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v4.0.0-dev.1\\
-       (SUNDIALS v5.0.0-dev.1)}
+\title{User Documentation for ARKode v4.0.0-dev.2\\ 
+       (SUNDIALS v5.0.0-dev.2)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -313,7 +313,8 @@ Added a new constructor to the CUDA NVECTOR that allows a user to provide
 custom allocate and free functions for the vector data array and internal
 reduction buffer.
 
-Increased the minimum required CMake version to 3.10.3.
+Increased the minimum required CMake version to 3.5 for most SUNDIALS configurations,
+and 3.10 when CUDA or OpenMP with device offloading are enabled.
 
 The CMake option \code{BLAS\_ENABLE} and the variable \code{BLAS\_LIBRARIES} have been
 removed to simplify builds as SUNDIALS packages do not use BLAS directly. For
@@ -43544,6 +43545,23 @@ KINSOL
 \endlastfoot
 
 
+Sep 2019
+ & 
+5.0.0-dev.2
+ & 
+4.0.0-dev.2
+ & 
+5.0.0-dev.2
+ & 
+5.0.0-dev.2
+ & 
+5.0.0-dev.2
+ & 
+4.0.0-dev.2
+ & 
+5.0.0-dev.2
+\\
+\hline
 Jun 2019
  & 
 5.0.0-dev.1
@@ -44233,11 +44251,11 @@ Report UCRL-ID-141558, LLNL, 2000.
 }
 \bibitem[HS2017]{HS2017}{\phantomsection\label{References:hs2017} 
 A.C. Hindmarsh and R. Serban. User Documentation for CVODE
-v5.0.0-dev.1. Technical Report UCRL-SM-208108, LLNL, 2019.
+v5.0.0-dev.2. Technical Report UCRL-SM-208108, LLNL, 2019.
 }
 \bibitem[HSR2017]{HSR2017}{\phantomsection\label{References:hsr2017} 
 A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-Programs for CVODE v5.0.0-dev.1. Technical Report
+Programs for CVODE v5.0.0-dev.2. Technical Report
 UCRL-SM-208110, LLNL, 2019.
 }
 \bibitem[HT1998]{HT1998}{\phantomsection\label{References:ht1998} 
