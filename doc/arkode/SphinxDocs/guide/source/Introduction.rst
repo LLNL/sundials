@@ -122,7 +122,8 @@ Added a new constructor to the CUDA NVECTOR that allows a user to provide
 custom allocate and free functions for the vector data array and internal
 reduction buffer.
 
-Increased the minimum required CMake version to 3.10.3.
+Increased the minimum required CMake version to 3.5 for most SUNDIALS configurations,
+and 3.10 when CUDA or OpenMP with device offloading are enabled.
 
 The CMake option ``BLAS_ENABLE`` and the variable ``BLAS_LIBRARIES`` have been
 removed to simplify builds as SUNDIALS packages do not use BLAS directly. For

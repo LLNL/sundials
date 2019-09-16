@@ -929,7 +929,7 @@ then SuperLU\_MT should be set to use the same threading type.{\warn}
 \subsubsection*{Building with {\superludist}}
 The {\superludist} libraries are available for download from the Lawrence Berkeley National Laboratory website:
 {\tt http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_dist}.
-{\sundials} has been tested with {\superludist} greater than 6.1.
+{\sundials} has been tested with {\superludist} 6.1.1.
 To enable {\superludist}, set \id{SUPERLUDIST\_ENABLE} to \id{ON}, set \id{SUPERLUDIST\_INCLUDE\_DIR}
 to the include directory of the {\superludist} installation (typically \id{SRC}), and set the variable
 \newline\id{SUPERLUDIST\_LIBRARY\_DIR} to the path to library directory of the {\superludist} installation (typically \id{lib}). At the same time, the variable
@@ -961,8 +961,8 @@ to the \id{include} path of the {\hypre} installation, and set the variable
 \id{HYPRE\_LIBRARY\_DIR} to the \id{lib} path of the {\hypre} installation.
 
 \subsubsection*{Building with CUDA}
-{\sundials} {\cuda} modules and examples have been tested with version 9.0 of the
-{\cuda} toolkit. To build them, you need to install the Toolkit and compatible
+{\sundials} {\cuda} modules and examples have been tested with versions 9 through 10.1
+of the {\cuda} toolkit. To build them, you need to install the Toolkit and compatible
 NVIDIA drivers. Both are available for download from the NVIDIA website:
 {\tt https://developer.nvidia.com/cuda-downloads}. To enable {\cuda},
 set \id{CUDA\_ENABLE} to \id{ON}. If {\cuda} is installed in a
@@ -974,7 +974,7 @@ path. To enable {\cuda} examples, set \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
 {\raja} is a performance portability layer developed by Lawrence
 Livermore National Laboratory and can be obtained from {\tt https://github.com/LLNL/RAJA}.
 {\sundials} {\raja} modules and examples have been tested with {\raja}
-version 0.6. Building {\sundials} {\raja} modules requires a
+up to version 0.9. Building {\sundials} {\raja} modules requires a
 {\cuda}-enabled {\raja} installation. To enable {\raja}, set
 \id{CUDA\_ENABLE} and \id{RAJA\_ENABLE} to \id{ON}. If {\raja} is
 installed in a nonstandard location you will be prompted to set the
@@ -986,7 +986,7 @@ configuration file. To enable building the {\raja} examples set
 {\trilinos} is a suite of numerical libraries developed by Sandia National
 Laboratories. It can be obtained at {\tt https://github.com/trilinos/Trilinos}.
 {\sundials} {\trilinos} modules and examples have been tested with {\trilinos}
-version 12.14. To enable {\trilinos}, set
+version 12.14.1. To enable {\trilinos}, set
 \id{Trilinos\_ENABLE} to \id{ON}. If {\trilinos} is
 installed in a nonstandard location you will be prompted to set the
 variable \id{Trilinos\_DIR} with the path to the {\trilinos} CMake
