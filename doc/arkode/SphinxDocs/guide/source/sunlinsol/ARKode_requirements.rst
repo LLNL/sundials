@@ -86,45 +86,38 @@ If the SUNLinSol identifies as having type
 then the SUNLinSol object solves a
 linear system *defined* by a SUNMATRIX object. ARKLS will update the
 matrix information infrequently according to the strategies outlined in
-the section :ref:`Mathematics.Linear.Setup`. When solving a linear
-system
+the section :ref:`Mathematics.Linear.Setup`.  To this end, we
+differentiate between the *desired* linear system
+:math:`\mathcal A x = b` with :math:`\mathcal A = (M-\gamma J)` 
+and the *actual* linear system
 
 .. math::
-   \tilde{\mathcal A} \tilde{x} = b \quad\Leftrightarrow\quad (M-\tilde{\gamma} J)\tilde{x} = b
+   \tilde{\mathcal A} \tilde{x} = b \quad\Leftrightarrow\quad (M-\tilde{\gamma} J)\tilde{x} = b.
 
-it is likely that the value :math:`\tilde{\gamma}` used to construct
-:math:`\tilde{\mathcal A}` differs from the current value of
-:math:`\gamma` in the RK method, since :math:`\tilde{\mathcal A}` is
-updated infrequently.  Therefore, after calling the SUNLinSol-provided
-:c:func:`SUNLinSolSolve()` routine, we test whether :math:`\gamma /
-\tilde{\gamma} \ne 1`, and if this is the case we scale the solution
-:math:`\tilde{x}` to obtain the desired linear system solution
-:math:`x` via
+Since ARKLS updates the SUNMATRIX object infrequently, it is likely
+that :math:`\gamma\ne\tilde{\gamma}`, and in turn :math:`\mathcal
+A\ne\tilde{\mathcal A}`.  Therefore, after calling the
+SUNLinSol-provided :c:func:`SUNLinSolSolve()` routine, we test whether
+:math:`\gamma / \tilde{\gamma} \ne 1`, and if this is the case we
+scale the solution :math:`\tilde{x}` to obtain the desired linear
+system solution :math:`x` via
 
 .. math::
    x = \frac{2}{1 + \gamma / \tilde{\gamma}} \tilde{x}.
    :label: eq:rescaling
 
-For values of :math:`\gamma/\tilde{\gamma}` that are "close" to 1, this
-rescaling approximately solves the original linear system, as
-discussed below.  We first note that the equation :eq:`eq:rescaling`
-is equivalent to
-
-.. math::
-   \tilde{x} = \frac12 x + \frac{\gamma}{\tilde{\gamma}}x.
-
-Adding the two equations :math:`(M-\gamma J)x=b` and
-:math:`(M-\tilde{\gamma}J)\tilde{x}=b`, and inserting the above
-relationship, we have
-
-.. math::
-   2b &= (M-\gamma J)x + (M-\tilde{\gamma}J) \\
-      &= Mx - \gamma Jx + M\tilde{x} - J\left(\tilde{\gamma}\tilde{x}\right)\\
-      &= \frac32\left(M - \gamma J\right)x + \frac12\left(\frac{\gamma}{\tilde{\gamma}}M - \tilde{\gamma} J\right)x\\
-      &= \frac32 b + \frac12\left(\frac{\gamma}{\tilde{\gamma}}M - \tilde{\gamma} J\right)x.
-
-When :math:`\gamma/\tilde{\gamma}\approx 1`, this latter term is
-approximately equal to :math:`\frac12 b`.
+The motivation for this selection of the scaling factor
+:math:`c = 2/(1 + \gamma/\tilde{\gamma})` follows the derivation in
+[BBH1989]_ and [H2000]_.  In short, if we consider a stationary
+iteration for the linear system as consisting of a solve with
+:math:`\tilde{\mathcal A}` followed by scaling by :math:`c`,
+then for a linear constant-coefficient problem, the error in the
+solution vector will be reduced at each iteration by the error matrix
+:math:`E = I - c \tilde{\mathcal A}^{-1} \mathcal A`, with a
+convergence rate given by the spectral radius of :math:`E`.  Assuming
+that stiff systems have a spectrum spread widely over the left
+half-plane, :math:`c` is chosen to minimize the magnitude of the
+eigenvalues of :math:`E`.
 
 
 .. _SUNLinSol.Iterative_Tolerance:
