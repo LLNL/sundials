@@ -79,7 +79,7 @@ foreach(example_tuple ${nvector_openmpdev_examples})
   endif()
 
   # add example to regression tests
-  SUNDIALS_ADD_TEST(${test_name} ${example}
+  sundials_add_test(${test_name} ${example}
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
@@ -104,8 +104,8 @@ if(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER_LIB "sundials_nvecopenmpdev")
 
-  EXAMPLES2STRING(nvector_openmpdev_examples EXAMPLES)
-  EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
+  examples2string(nvector_openmpdev_examples EXAMPLES)
+  examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
@@ -130,13 +130,13 @@ if(EXAMPLES_INSTALL)
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
-    CONFIGURE_FILE(
+    configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmpdev_ex.in
       ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
-    INSTALL(
+    install(
       FILES ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev
       RENAME Makefile

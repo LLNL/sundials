@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Programmer:  Eddy Banks @ LLNL
+# Programmer(s): Eddy Banks @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security

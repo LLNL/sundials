@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer: David J. Gardner @ LLNL
+# Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -62,7 +62,7 @@ if(BUILD_SHARED_LIBS)
   add_library(sundials_nvecopenmpdev_shared SHARED ${nvecopenmpdev_SOURCES} ${shared_SOURCES})
 
   if(UNIX)
-    TARGET_LINK_LIBRARIES(sundials_nvecopenmpdev_shared m)
+    target_link_libraries(sundials_nvecopenmpdev_shared m)
   endif()
 
   set_target_properties(sundials_nvecopenmpdev_shared
@@ -74,7 +74,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # Install the NVECOPENMPDEV header files
-INSTALL(FILES ${nvecopenmpdev_HEADERS} DESTINATION include/nvector)
+install(FILES ${nvecopenmpdev_HEADERS} DESTINATION include/nvector)
 
 #
-MESSAGE(STATUS "Added NVECTOR_OPENMPDEV module")
+message(STATUS "Added NVECTOR_OPENMPDEV module")

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  David J. Gardner @ LLNL
+# Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -24,50 +24,50 @@
 # ---------------------------------------------------------------
 
 # always show the option to turn on xSDK defaults
-OPTION(USE_XSDK_DEFAULTS "Enable default xSDK settings" OFF)
+option(USE_XSDK_DEFAULTS "Enable default xSDK settings" OFF)
 
 # ---------------------------------------------------------------
 # Set default values for some xSDK variables
 # ---------------------------------------------------------------
 
-IF(USE_XSDK_DEFAULTS)
-  MESSAGE(STATUS "Enabling xSDK defaults")
+if(USE_XSDK_DEFAULTS)
+  message(STATUS "Enabling xSDK defaults")
 
   # set the CMake build type, SUNDIALS does not set a build type by default
-  IF(NOT CMAKE_BUILD_TYPE)
-    MESSAGE("Setting build type to Debug")
-    SET(DOCSTR "Choose the type of build: None Debug Release RelWithDebInfo MinSizeRel")
-    FORCE_VARIABLE(CMAKE_BUILD_TYPE STRING "${DOCSTR}" "Debug")
-  ENDIF()
+  if(NOT CMAKE_BUILD_TYPE)
+    message("Setting build type to Debug")
+    set(DOCSTR "Choose the type of build: None Debug Release RelWithDebInfo MinSizeRel")
+    force_variable(CMAKE_BUILD_TYPE STRING "${DOCSTR}" "Debug")
+  endif()
 
   # set build precision, SUNDIALS_PRECISION defaults to double
-  SHOW_VARIABLE(XSDK_PRECISION STRING "single, double, or quad" "double")
+  show_variable(XSDK_PRECISION STRING "single, double, or quad" "double")
 
   # set build index size, SUNDIALS_INDEX_SIZE defaults to int64_t
-  SHOW_VARIABLE(XSDK_INDEX_SIZE STRING "32 or 64" "32")
+  show_variable(XSDK_INDEX_SIZE STRING "32 or 64" "32")
 
   # disable Fortran-C interface, defaults to OFF
-  SHOW_VARIABLE(XSDK_ENABLE_FORTRAN BOOL "Enable Fortran-C support" OFF)
+  show_variable(XSDK_ENABLE_FORTRAN BOOL "Enable Fortran-C support" OFF)
 
   # disable CUDA by default
-  SHOW_VARIABLE(XSDK_ENABLE_CUDA BOOL "Enable CUDA support" OFF)
+  show_variable(XSDK_ENABLE_CUDA BOOL "Enable CUDA support" OFF)
 
   # disable LAPACK by default
-  SHOW_VARIABLE(TPL_ENABLE_LAPACK BOOL "Enable LAPACK support" OFF)
+  show_variable(TPL_ENABLE_LAPACK BOOL "Enable LAPACK support" OFF)
 
   # disable KLU by default
-  SHOW_VARIABLE(TPL_ENABLE_KLU BOOL "Enable KLU support" OFF)
+  show_variable(TPL_ENABLE_KLU BOOL "Enable KLU support" OFF)
 
   # disable PETSc by default
-  SHOW_VARIABLE(TPL_ENABLE_PETSC BOOL "Enable PETSc support" OFF)
+  show_variable(TPL_ENABLE_PETSC BOOL "Enable PETSc support" OFF)
 
   # disable hypre by default
-  SHOW_VARIABLE(TPL_ENABLE_HYPRE BOOL "Enable hypre support" OFF)
+  show_variable(TPL_ENABLE_HYPRE BOOL "Enable hypre support" OFF)
 
   # disable Trilinos by default
-  SHOW_VARIABLE(TPL_ENABLE_TRILINOS BOOL "Enable Trilinos support" OFF)
+  show_variable(TPL_ENABLE_TRILINOS BOOL "Enable Trilinos support" OFF)
 
-ENDIF()
+endif()
 
 # ---------------------------------------------------------------
 # hide (make advanced) and overwrite equivalent SUNDIALS variables
@@ -78,114 +78,114 @@ ENDIF()
 # ---------------------------------------------------------------
 
 # XSDK_PRECISION => SUNDIALS_PRECISION
-IF(XSDK_PRECISION)
-  MESSAGE("Replacing SUNDIALS_PRECISION with XSDK_PRECISION")
-  SET(DOCSTR "single, double, or extended")
+if(XSDK_PRECISION)
+  message("Replacing SUNDIALS_PRECISION with XSDK_PRECISION")
+  set(DOCSTR "single, double, or extended")
 
-  IF(XSDK_PRECISION MATCHES "quad")
-    FORCE_VARIABLE(SUNDIALS_PRECISION STRING "${DOCSTR}" "extended")
-  ELSE()
-    FORCE_VARIABLE(SUNDIALS_PRECISION STRING "${DOCSTR}" "${XSDK_PRECISION}")
-  ENDIF()
+  if(XSDK_PRECISION MATCHES "quad")
+    force_variable(SUNDIALS_PRECISION STRING "${DOCSTR}" "extended")
+  else()
+    force_variable(SUNDIALS_PRECISION STRING "${DOCSTR}" "${XSDK_PRECISION}")
+  endif()
 
-  MARK_AS_ADVANCED(FORCE SUNDIALS_PRECISION)
-ENDIF()
+  mark_as_advanced(FORCE SUNDIALS_PRECISION)
+endif()
 
 # XSDK_INDEX_SIZE => SUNDIALS_INDEX_SIZE
-IF(XSDK_INDEX_SIZE)
-  MESSAGE("Replacing SUNDIALS_INDEX_SIZE with XSDK_INDEX_SIZE")
-  SET(DOCSTR "Signed 64-bit (64) or signed 32-bit (32) integer")
-  FORCE_VARIABLE(SUNDIALS_INDEX_SIZE STRING "${DOCSTR}" ${XSDK_INDEX_SIZE})
-  MARK_AS_ADVANCED(FORCE SUNDIALS_INDEX_SIZE)
-ENDIF()
+if(XSDK_INDEX_SIZE)
+  message("Replacing SUNDIALS_INDEX_SIZE with XSDK_INDEX_SIZE")
+  set(DOCSTR "Signed 64-bit (64) or signed 32-bit (32) integer")
+  force_variable(SUNDIALS_INDEX_SIZE STRING "${DOCSTR}" ${XSDK_INDEX_SIZE})
+  mark_as_advanced(FORCE SUNDIALS_INDEX_SIZE)
+endif()
 
 # XSDK_FORTRAN_ENABLE => F77_INTERFACE_ENABLE/F2003_INTERFACE_ENABLE
-IF(DEFINED XSDK_ENABLE_FORTRAN)
-  MESSAGE("Replacing F77_INTERFACE_ENABLE and F2003_INTERFACE_ENABLE with XSDK_ENABLE_FORTRAN")
-  SET(DOCSTR "Enable Fortran-C support")
+if(DEFINED XSDK_ENABLE_FORTRAN)
+  message("Replacing F77_INTERFACE_ENABLE and F2003_INTERFACE_ENABLE with XSDK_ENABLE_FORTRAN")
+  set(DOCSTR "Enable Fortran-C support")
 
   # check that at least one solver with a Fortran interface is built
-  IF(NOT BUILD_ARKODE AND NOT BUILD_CVODE AND NOT BUILD_IDA AND NOT BUILD_KINSOL)
-    IF(XSDK_ENABLE_FORTRAN)
-      PRINT_WARNING("Enabled packages do not support Fortran"
+  if(NOT BUILD_ARKODE AND NOT BUILD_CVODE AND NOT BUILD_IDA AND NOT BUILD_KINSOL)
+    if(XSDK_ENABLE_FORTRAN)
+      print_warning("Enabled packages do not support Fortran"
                     "Disabeling XSDK_ENABLE_FORTRAN")
-      FORCE_VARIABLE(XSDK_ENABLE_FORTRAN BOOL "${DOCSTR}" OFF)
-    ENDIF()
-    HIDE_VARIABLE(F77_INTERFACE_ENABLE)
-    HIDE_VARIABLE(F2003_INTERFACE_ENABLE)
-    HIDE_VARIABLE(XSDK_ENABLE_FORTRAN)
-  ENDIF()
+      force_variable(XSDK_ENABLE_FORTRAN BOOL "${DOCSTR}" OFF)
+    endif()
+    hide_variable(F77_INTERFACE_ENABLE)
+    hide_variable(F2003_INTERFACE_ENABLE)
+    hide_variable(XSDK_ENABLE_FORTRAN)
+  endif()
 
-  FORCE_VARIABLE(F77_INTERFACE_ENABLE BOOL "${DOCSTR}" "${XSDK_ENABLE_FORTRAN}")
-  MARK_AS_ADVANCED(FORCE F77_INTERFACE_ENABLE)
+  force_variable(F77_INTERFACE_ENABLE BOOL "${DOCSTR}" "${XSDK_ENABLE_FORTRAN}")
+  mark_as_advanced(FORCE F77_INTERFACE_ENABLE)
 
-  FORCE_VARIABLE(F2003_INTERFACE_ENABLE BOOL "${DOCSTR}" "${XSDK_ENABLE_FORTRAN}")
-  MARK_AS_ADVANCED(FORCE F2003_INTERFACE_ENABLE)
-ENDIF()
+  force_variable(F2003_INTERFACE_ENABLE BOOL "${DOCSTR}" "${XSDK_ENABLE_FORTRAN}")
+  mark_as_advanced(FORCE F2003_INTERFACE_ENABLE)
+endif()
 
 # XSDK_ENABLE_CUDA => CUDA_ENABLE
-IF(DEFINED XSDK_ENABLE_CUDA)
-  MESSAGE("Replacing CUDA_ENABLE with XSDK_ENABLE_CUDA")
-  SET(DOCSTR "Enable CUDA support")
+if(DEFINED XSDK_ENABLE_CUDA)
+  message("Replacing CUDA_ENABLE with XSDK_ENABLE_CUDA")
+  set(DOCSTR "Enable CUDA support")
 
-  FORCE_VARIABLE(CUDA_ENABLE BOOL "${DOCSTR}" "${XSDK_ENABLE_CUDA}")
-  MARK_AS_ADVANCED(FORCE CUDA_ENABLE)
-ENDIF()
+  force_variable(CUDA_ENABLE BOOL "${DOCSTR}" "${XSDK_ENABLE_CUDA}")
+  mark_as_advanced(FORCE CUDA_ENABLE)
+endif()
 
 # ---------------------------------------------------------------
 # LAPACK
 # ---------------------------------------------------------------
 
 # TPL_ENABLE_LAPACK => LAPACK_ENABLE
-IF(DEFINED TPL_ENABLE_LAPACK)
-  MESSAGE("Replacing LAPACK_ENABLE with TPL_ENABLE_LAPACK")
-  SET(DOCSTR "Enable Lapack support")
+if(DEFINED TPL_ENABLE_LAPACK)
+  message("Replacing LAPACK_ENABLE with TPL_ENABLE_LAPACK")
+  set(DOCSTR "Enable Lapack support")
 
-  FORCE_VARIABLE(LAPACK_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_LAPACK}")
-  MARK_AS_ADVANCED(FORCE LAPACK_ENABLE)
-ENDIF()
+  force_variable(LAPACK_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_LAPACK}")
+  mark_as_advanced(FORCE LAPACK_ENABLE)
+endif()
 
 # TPL_LAPACK_LIBRARIES => LAPACK_LIBRARIES
-IF(TPL_ENABLE_LAPACK)
-  MESSAGE("Replacing LAPACK_LIBRARIES with TPL_LAPACK_LIBRARIES")
-  SET(DOCSTR "Lapack library")
+if(TPL_ENABLE_LAPACK)
+  message("Replacing LAPACK_LIBRARIES with TPL_LAPACK_LIBRARIES")
+  set(DOCSTR "Lapack library")
 
-  SHOW_VARIABLE(TPL_LAPACK_LIBRARIES STRING "${DOCSTR}" "${TPL_LAPACK_LIBRARIES}")
-  FORCE_VARIABLE(LAPACK_LIBRARIES STRING "${DOCSTR}" "${TPL_LAPACK_LIBRARIES}")
-  MARK_AS_ADVANCED(FORCE LAPACK_LIBRARIES)
-ENDIF()
+  show_variable(TPL_LAPACK_LIBRARIES STRING "${DOCSTR}" "${TPL_LAPACK_LIBRARIES}")
+  force_variable(LAPACK_LIBRARIES STRING "${DOCSTR}" "${TPL_LAPACK_LIBRARIES}")
+  mark_as_advanced(FORCE LAPACK_LIBRARIES)
+endif()
 
 # ---------------------------------------------------------------
 # KLU
 # ---------------------------------------------------------------
 
 # TPL_ENABLE_KLU => KLU_ENABLE
-IF(DEFINED TPL_ENABLE_KLU)
-  MESSAGE("Replacing KLU_ENABLE with TPL_ENABLE_KLU")
-  SET(DOCSTR "Enable KLU support")
+if(DEFINED TPL_ENABLE_KLU)
+  message("Replacing KLU_ENABLE with TPL_ENABLE_KLU")
+  set(DOCSTR "Enable KLU support")
 
-  FORCE_VARIABLE(KLU_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_KLU}")
-  MARK_AS_ADVANCED(FORCE KLU_ENABLE)
-ENDIF()
+  force_variable(KLU_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_KLU}")
+  mark_as_advanced(FORCE KLU_ENABLE)
+endif()
 
 # TPL_KLU_INCLUDE_DIRS => KLU_INCLUDE_DIR
 # TPL_KLU_LIBRARIES    => KLU_LIBRARY     => KLU_LIBRARIES
-IF(TPL_ENABLE_KLU)
-  MESSAGE("Replacing KLU_INCLUDE_DIR with TPL_KLU_INCLUDE_DIRS")
-  SET(DOCSTR "KLU include directory")
+if(TPL_ENABLE_KLU)
+  message("Replacing KLU_INCLUDE_DIR with TPL_KLU_INCLUDE_DIRS")
+  set(DOCSTR "KLU include directory")
 
-  SHOW_VARIABLE(TPL_KLU_INCLUDE_DIRS STRING "${DOCSTR}" "${TPL_KLU_INCLUDE_DIRS}")
-  FORCE_VARIABLE(KLU_INCLUDE_DIR STRING "${DOCSTR}" "${TPL_KLU_INCLUDE_DIRS}")
-  MARK_AS_ADVANCED(FORCE KLU_INCLUDE_DIR)
+  show_variable(TPL_KLU_INCLUDE_DIRS STRING "${DOCSTR}" "${TPL_KLU_INCLUDE_DIRS}")
+  force_variable(KLU_INCLUDE_DIR STRING "${DOCSTR}" "${TPL_KLU_INCLUDE_DIRS}")
+  mark_as_advanced(FORCE KLU_INCLUDE_DIR)
 
-  MESSAGE("Replacing KLU_LIBRARY with TPL_KLU_LIBRARIES")
-  SET(DOCSTR "KLU library")
+  message("Replacing KLU_LIBRARY with TPL_KLU_LIBRARIES")
+  set(DOCSTR "KLU library")
 
-  SHOW_VARIABLE(TPL_KLU_LIBRARIES STRING "${DOCSTR}" "${TPL_KLU_LIBRARIES}")
-  FORCE_VARIABLE(KLU_LIBRARY STRING "${DOCSTR}" "${TPL_KLU_LIBRARIES}")
-  MARK_AS_ADVANCED(FORCE KLU_LIBRARY)
-  MARK_AS_ADVANCED(FORCE KLU_LIBRARY_DIR)
-ENDIF()
+  show_variable(TPL_KLU_LIBRARIES STRING "${DOCSTR}" "${TPL_KLU_LIBRARIES}")
+  force_variable(KLU_LIBRARY STRING "${DOCSTR}" "${TPL_KLU_LIBRARIES}")
+  mark_as_advanced(FORCE KLU_LIBRARY)
+  mark_as_advanced(FORCE KLU_LIBRARY_DIR)
+endif()
 
 
 # ---------------------------------------------------------------
@@ -193,32 +193,32 @@ ENDIF()
 # ---------------------------------------------------------------
 
 # TPL_ENABLE_HYPRE => HYPRE_ENABLE
-IF(DEFINED TPL_ENABLE_HYPRE)
-  MESSAGE("Replacing HYPRE_ENABLE with TPL_ENABLE_HYPRE")
-  SET(DOCSTR "Enable hypre support")
+if(DEFINED TPL_ENABLE_HYPRE)
+  message("Replacing HYPRE_ENABLE with TPL_ENABLE_HYPRE")
+  set(DOCSTR "Enable hypre support")
 
-  FORCE_VARIABLE(HYPRE_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_HYPRE}")
-  MARK_AS_ADVANCED(FORCE HYPRE_ENABLE)
-ENDIF()
+  force_variable(HYPRE_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_HYPRE}")
+  mark_as_advanced(FORCE HYPRE_ENABLE)
+endif()
 
 # TPL_HYPRE_INCLUDE_DIRS => HYPRE_INCLUDE_DIR
 # TPL_HYPRE_LIBRARIES    => HYPRE_LIBRARY     => HYPRE_LIBRARIES
-IF(TPL_ENABLE_HYPRE)
-  MESSAGE("Replacing HYPRE_INCLUDE_DIR with TPL_HYPRE_INCLUDE_DIRS")
-  SET(DOCSTR "hypre include directory")
+if(TPL_ENABLE_HYPRE)
+  message("Replacing HYPRE_INCLUDE_DIR with TPL_HYPRE_INCLUDE_DIRS")
+  set(DOCSTR "hypre include directory")
 
-  SHOW_VARIABLE(TPL_HYPRE_INCLUDE_DIRS STRING "${DOCSTR}" "${TPL_HYPRE_INCLUDE_DIRS}")
-  FORCE_VARIABLE(HYPRE_INCLUDE_DIR STRING "${DOCSTR}" "${TPL_HYPRE_INCLUDE_DIRS}")
-  MARK_AS_ADVANCED(FORCE HYPRE_INCLUDE_DIR)
+  show_variable(TPL_HYPRE_INCLUDE_DIRS STRING "${DOCSTR}" "${TPL_HYPRE_INCLUDE_DIRS}")
+  force_variable(HYPRE_INCLUDE_DIR STRING "${DOCSTR}" "${TPL_HYPRE_INCLUDE_DIRS}")
+  mark_as_advanced(FORCE HYPRE_INCLUDE_DIR)
 
-  MESSAGE("Replacing HYPRE_LIBRARY with TPL_HYPRE_LIBRARIES")
-  SET(DOCSTR "hypre library")
+  message("Replacing HYPRE_LIBRARY with TPL_HYPRE_LIBRARIES")
+  set(DOCSTR "hypre library")
 
-  SHOW_VARIABLE(TPL_HYPRE_LIBRARIES STRING "${DOCSTR}" "${TPL_HYPRE_LIBRARIES}")
-  FORCE_VARIABLE(HYPRE_LIBRARY STRING "${DOCSTR}" "${TPL_HYPRE_LIBRARIES}")
-  MARK_AS_ADVANCED(FORCE HYPRE_LIBRARY)
-  MARK_AS_ADVANCED(FORCE HYPRE_LIBRARY_DIR)
-ENDIF()
+  show_variable(TPL_HYPRE_LIBRARIES STRING "${DOCSTR}" "${TPL_HYPRE_LIBRARIES}")
+  force_variable(HYPRE_LIBRARY STRING "${DOCSTR}" "${TPL_HYPRE_LIBRARIES}")
+  mark_as_advanced(FORCE HYPRE_LIBRARY)
+  mark_as_advanced(FORCE HYPRE_LIBRARY_DIR)
+endif()
 
 
 # ---------------------------------------------------------------
@@ -226,42 +226,42 @@ ENDIF()
 # ---------------------------------------------------------------
 
 # TPL_ENABLE_PETSC => PETSC_ENABLE
-IF(DEFINED TPL_ENABLE_PETSC)
-  MESSAGE("Replacing PETSC_ENABLE with TPL_ENABLE_PETSC")
-  SET(DOCSTR "Enable petsc support")
+if(DEFINED TPL_ENABLE_PETSC)
+  message("Replacing PETSC_ENABLE with TPL_ENABLE_PETSC")
+  set(DOCSTR "Enable petsc support")
 
-  FORCE_VARIABLE(PETSC_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_PETSC}")
-  MARK_AS_ADVANCED(FORCE PETSC_ENABLE)
-ENDIF()
+  force_variable(PETSC_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_PETSC}")
+  mark_as_advanced(FORCE PETSC_ENABLE)
+endif()
 
 # TPL_PETSC_INCLUDE_DIRS => PETSC_INCLUDE_DIR
 # TPL_PETSC_LIBRARIES    => PETSC_LIBRARY     => PETSC_LIBRARIES
-IF(TPL_ENABLE_PETSC)
-  MESSAGE("Replacing PETSC_INCLUDE_DIR with TPL_PETSC_INCLUDE_DIRS")
-  SET(DOCSTR "PETSc include directory")
+if(TPL_ENABLE_PETSC)
+  message("Replacing PETSC_INCLUDE_DIR with TPL_PETSC_INCLUDE_DIRS")
+  set(DOCSTR "PETSc include directory")
 
-  SHOW_VARIABLE(TPL_PETSC_INCLUDE_DIRS STRING "${DOCSTR}" "${TPL_PETSC_INCLUDE_DIRS}")
-  FORCE_VARIABLE(PETSC_INCLUDE_DIR STRING "${DOCSTR}" "${TPL_PETSC_INCLUDE_DIRS}")
-  MARK_AS_ADVANCED(FORCE PETSC_INCLUDE_DIR)
+  show_variable(TPL_PETSC_INCLUDE_DIRS STRING "${DOCSTR}" "${TPL_PETSC_INCLUDE_DIRS}")
+  force_variable(PETSC_INCLUDE_DIR STRING "${DOCSTR}" "${TPL_PETSC_INCLUDE_DIRS}")
+  mark_as_advanced(FORCE PETSC_INCLUDE_DIR)
 
-  MESSAGE("Replacing PETSC_LIBRARY with TPL_PETSC_LIBRARIES")
-  SET(DOCSTR "PETSc library")
+  message("Replacing PETSC_LIBRARY with TPL_PETSC_LIBRARIES")
+  set(DOCSTR "PETSc library")
 
-  SHOW_VARIABLE(TPL_PETSC_LIBRARIES STRING "${DOCSTR}" "${TPL_PETSC_LIBRARIES}")
-  FORCE_VARIABLE(PETSC_LIBRARY STRING "${DOCSTR}" "${TPL_PETSC_LIBRARIES}")
-  MARK_AS_ADVANCED(FORCE PETSC_LIBRARY)
-  MARK_AS_ADVANCED(FORCE PETSC_LIBRARY_DIR)
-ENDIF()
+  show_variable(TPL_PETSC_LIBRARIES STRING "${DOCSTR}" "${TPL_PETSC_LIBRARIES}")
+  force_variable(PETSC_LIBRARY STRING "${DOCSTR}" "${TPL_PETSC_LIBRARIES}")
+  mark_as_advanced(FORCE PETSC_LIBRARY)
+  mark_as_advanced(FORCE PETSC_LIBRARY_DIR)
+endif()
 
 # ---------------------------------------------------------------
 # Trilinos
 # ---------------------------------------------------------------
 
 # TPL_ENABLE_TRILINOS => Trilinos_ENABLE
-IF(DEFINED TPL_ENABLE_TRILINOS)
-  MESSAGE("Replacing Trilinos_ENABLE with TPL_ENABLE_TRILINOS")
-  SET(DOCSTR "Enable Trilinos support")
+if(DEFINED TPL_ENABLE_TRILINOS)
+  message("Replacing Trilinos_ENABLE with TPL_ENABLE_TRILINOS")
+  set(DOCSTR "Enable Trilinos support")
 
-  FORCE_VARIABLE(Trilinos_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_TRILINOS}")
-  MARK_AS_ADVANCED(FORCE Trilinos_ENABLE)
-ENDIF()
+  force_variable(Trilinos_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_TRILINOS}")
+  mark_as_advanced(FORCE Trilinos_ENABLE)
+endif()

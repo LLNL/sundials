@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Eddy Banks @ LLNL
+# Programmer(s): Eddy Banks @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,15 +12,15 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # PETSc tests for SUNDIALS CMake-based configuration.
-# 
+# ---------------------------------------------------------------
 
 ### This is only set if running GUI - simply return first time enabled
-IF(PETSC_DISABLED)
-  SET(PETSC_DISABLED FALSE CACHE INTERNAL "GUI - now enabled" FORCE)
-  RETURN()
-ENDIF()
+if(PETSC_DISABLED)
+  set(PETSC_DISABLED FALSE CACHE INTERNAL "GUI - now enabled" FORCE)
+  return()
+endif()
 
-SET(PETSC_FOUND FALSE)
+set(PETSC_FOUND FALSE)
 
 # set PETSC_LIBRARIES
 include(FindPETSc)
@@ -31,7 +31,7 @@ if(PETSC_LIBRARIES)
   # Create the PETSCTest directory
   set(PETSCTest_DIR ${PROJECT_BINARY_DIR}/PETSCTest)
   file(MAKE_DIRECTORY ${PETSCTest_DIR})
-  # Create a CMakeLists.txt file 
+  # Create a CMakeLists.txt file
   file(WRITE ${PETSCTest_DIR}/CMakeLists.txt
     "CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)\n"
     "PROJECT(ltest C)\n"
@@ -45,19 +45,19 @@ if(PETSC_LIBRARIES)
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
     "INCLUDE_DIRECTORIES(${PETSC_INCLUDE_DIR})\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
-    "TARGET_LINK_LIBRARIES(ltest ${PETSC_LIBRARIES})\n")    
+    "TARGET_LINK_LIBRARIES(ltest ${PETSC_LIBRARIES})\n")
   # Create a C source file which calls a PETSC function
   file(WRITE ${PETSCTest_DIR}/ltest.c
     "\#include \"petscvec.h\"\n"
     "int main(){\n"
     "Vec x;\n"
-    "VecCreate(PETSC_COMM_WORLD, &x);\n" 
+    "VecCreate(PETSC_COMM_WORLD, &x);\n"
     "return(0);\n"
     "}\n")
   # Attempt to link the "ltest" executable
   try_compile(LTEST_OK ${PETSCTest_DIR} ${PETSCTest_DIR} ltest OUTPUT_VARIABLE MY_OUTPUT)
-      
-  # To ensure we do not use stuff from the previous attempts, 
+
+  # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${PETSCTest_DIR}/CMakeFiles)
   # Process test result
@@ -68,6 +68,6 @@ if(PETSC_LIBRARIES)
     message(STATUS "Checking if PETSc works... FAILED")
   endif(LTEST_OK)
 else(PETSC_LIBRARIES)
-  PRINT_WARNING("PETSC LIBRARIES NOT Found. Please check library path" "${PETSC_LIBRARY_DIR} ")
+  print_warning("PETSC LIBRARIES NOT Found. Please check library path" "${PETSC_LIBRARY_DIR} ")
   message(STATUS "Looking for PETSc libraries... FAILED")
 endif(PETSC_LIBRARIES)

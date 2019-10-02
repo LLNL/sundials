@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Cody J. Balos @ LLNL
+# Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security

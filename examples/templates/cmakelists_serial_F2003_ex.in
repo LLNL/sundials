@@ -1,6 +1,5 @@
-# -*- mode: cmake -*-
 # -----------------------------------------------------------------
-# Programmer: Cody J. Balos @ LLNL
+# Programmer(s): Cody J. Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -22,77 +21,77 @@
 cmake_minimum_required(VERSION 3.5)
 
 # Specify project name
-PROJECT(F2003_@SOLVER@ Fortran)
+project(F2003_@SOLVER@ Fortran)
 
 # Enable testing
-INCLUDE(CTest)
+include(CTest)
 
-MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
+mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Set the names of the examples to be built
-SET(examples @EXAMPLES@)
-SET(examples_dependencies @EXAMPLES_DEPENDENCIES@)
-SET(examples_klu @EXAMPLES_KLU@)
+set(examples @EXAMPLES@)
+set(examples_dependencies @EXAMPLES_DEPENDENCIES@)
+set(examples_klu @EXAMPLES_KLU@)
 
 # Set cmake variables from template inputsd
-SET(NVEC_LIB  "@NVEC_LIB@"  CACHE STRING "NVECTOR library")
-SET(SUNLS_LIB "@SUNLS_LIB@" CACHE STRING "SUNLinearSolver library")
-SET(KLU_LIBRARIES "@KLU_LIBRARIES@")
+set(NVEC_LIB  "@NVEC_LIB@"  CACHE STRING "NVECTOR library")
+set(SUNLS_LIB "@SUNLS_LIB@" CACHE STRING "SUNLinearSolver library")
+set(KLU_LIBRARIES "@KLU_LIBRARIES@")
 
 # Specify path to the Fortran module files
-SET(SUNDIALS_INC_DIR
+set(SUNDIALS_INC_DIR
   @CMAKE_INSTALL_PREFIX@/@Fortran_INSTALL_MODDIR@
   CACHE STRING
   "Location of SUNDIALS Fortran module files")
 
 # Include path to SUNDIALS Fortran module files
-INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR})
+include_directories(${SUNDIALS_INC_DIR})
 
 # Set search path for SUNDIALS libraries
-SET(SUNDIALS_LIB_DIR @libdir@)
+set(SUNDIALS_LIB_DIR @libdir@)
 
 # Find the SUNDIALS solver's library
-FIND_LIBRARY(SUNDIALS_SOLVER_LIB
+find_library(SUNDIALS_SOLVER_LIB
   @SOLVER_LIB@ ${SUNDIALS_LIB_DIR}
   DOC "@SOLVER@ library")
 
-FIND_LIBRARY(SUNDIALS_SOLVER_FLIB
+find_library(SUNDIALS_SOLVER_FLIB
   @SOLVER_FLIB@ ${SUNDIALS_LIB_DIR}
   DOC "@SOLVER@ library")
 
 # Find the NVECTOR library
-IF("${NVEC_LIB}" STREQUAL "")
+if("${NVEC_LIB}" STREQUAL "")
   # No additional NVECTOR library necessary
-ELSE()
+else()
   # Find the additonal NVECTOR library
-  FIND_LIBRARY(SUNDIALS_NVEC_LIB
+  find_library(SUNDIALS_NVEC_LIB
     @NVEC_LIB@ ${SUNDIALS_LIB_DIR}
     DOC "NVECTOR library")
 
   # Find the additonal NVECTOR library
-  FIND_LIBRARY(SUNDIALS_NVEC_FLIB
+  find_library(SUNDIALS_NVEC_FLIB
     @NVEC_FLIB@ ${SUNDIALS_LIB_DIR}
     DOC "NVECTOR library")
-ENDIF()
+endif()
 
-IF("${SUNLS_LIB}" STREQUAL "")
+if("${SUNLS_LIB}" STREQUAL "")
   # No additional SUNLinearSolver library necessary
-ELSE()
+else()
   # Find the additional SUNLinearSolver library
-  FIND_LIBRARY(SUNDIALS_SUNLS_LIB
+  find_library(SUNDIALS_SUNLS_LIB
     @SUNLS_LIB@ ${SUNDIALS_LIB_DIR}
     DOC "SUNLinearSolver library")
 
-  FIND_LIBRARY(SUNDIALS_SUNLS_FLIB
+  find_library(SUNDIALS_SUNLS_FLIB
     @SUNLS_FLIB@ ${SUNDIALS_LIB_DIR}
     DOC "SUNLinearSolver library")
-ENDIF()
+endif()
 
 # Set additional libraries
-SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
+set(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
 # List of all libraries
-SET(SUNDIALS_LIBS
+set(SUNDIALS_LIBS
   ${SUNDIALS_SOLVER_FLIB}
   ${SUNDIALS_NVEC_FLIB}
   ${SUNDIALS_SUNLS_FLIB}
@@ -102,35 +101,35 @@ SET(SUNDIALS_LIBS
   ${SUNDIALS_EXTRA_LIB})
 
 # Build each example one by one
-FOREACH(example ${examples})
+foreach(example ${examples})
 
   # Keep fortran modules to a unique directory to avoid naming collisions
   set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  ADD_EXECUTABLE(${example} ${example}.f90 ${examples_dependencies})
+  add_executable(${example} ${example}.f90 ${examples_dependencies})
 
   # libraries to link agaisnt
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS})
 
   # add the example to ctest
-  ADD_TEST(NAME ${example} COMMAND ${example})
+  add_test(NAME ${example} COMMAND ${example})
 
-ENDFOREACH(example ${examples})
+endforeach(example ${examples})
 
 # Build each example one by one
-FOREACH(example ${examples_klu})
+foreach(example ${examples_klu})
 
   # Keep fortran modules to a unique directory to avoid naming collisions
   set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  ADD_EXECUTABLE(${example} ${example}.f90)
+  add_executable(${example} ${example}.f90)
 
   # libraries to link agaisnt
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${KLU_LIBRARIES})
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${KLU_LIBRARIES})
 
   # add the example to ctest
-  ADD_TEST(NAME ${example} COMMAND ${example})
+  add_test(NAME ${example} COMMAND ${example})
 
-ENDFOREACH(example ${examples_klu})
+endforeach(example ${examples_klu})

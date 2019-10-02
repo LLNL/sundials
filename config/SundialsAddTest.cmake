@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Author: Steven Smith and David J. Gardner @ LLNL
+# Programmer(s): Steven Smith and David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -32,11 +32,11 @@
 #  -D SUNDIALS_DEVTESTS_INTEGER_PRECISION=<% difference>
 # ---------------------------------------------------------------
 
-MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
+macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   # macro options
   # NODIFF = do not diff the test output against an answer file
-  SET(options "NODIFF")
+  set(options "NODIFF")
 
   # macro keyword inputs followed by a single value
   # MPI_NPROCS         = number of mpi tasks to use in parallel tests
@@ -45,15 +45,15 @@ MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # ANSWER_DIR         = path to the directory containing the test answer file
   # ANSWER_FILE        = name of test answer file
   # EXAMPLE_TYPE       = release or develop examples
-  SET(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PERCENTAGE"
+  set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PERCENTAGE"
     "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
 
   # macro keyword inputs followed by multiple values
   # TEST_ARGS = command line arguments to pass to the test executable
-  SET(multiValueArgs "TEST_ARGS")
+  set(multiValueArgs "TEST_ARGS")
 
   # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>
-  CMAKE_PARSE_ARGUMENTS(SUNDIALS_ADD_TEST
+  cmake_parse_arguments(SUNDIALS_ADD_TEST
     "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   # SGS add check to make sure parallel is integer
@@ -63,10 +63,10 @@ MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   if(NOT ("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude"))
 
     # add test using the dev test runner
-    IF(SUNDIALS_DEVTESTS)
+    if(SUNDIALS_DEVTESTS)
 
       # command line arguments for the test runner script
-      SET(TEST_ARGS
+      set(TEST_ARGS
         "--verbose"
         "--testname=${NAME}"
         "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
@@ -74,75 +74,75 @@ MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         )
 
       # do not diff the output and answer files
-      IF(SUNDIALS_ADD_TEST_NODIFF)
-        LIST(APPEND TEST_ARGS "--nodiff")
-      ENDIF()
+      if(SUNDIALS_ADD_TEST_NODIFF)
+        list(APPEND TEST_ARGS "--nodiff")
+      endif()
 
       # check if this test is run with MPI and set the MPI run command
-      IF(NOT ("${SUNDIALS_ADD_TEST_MPI_NPROCS}" STREQUAL "") AND
+      if(NOT ("${SUNDIALS_ADD_TEST_MPI_NPROCS}" STREQUAL "") AND
           NOT ("${MPIEXEC_EXECUTABLE}" STREQUAL ""))
 
-        IF(MPIEXEC_EXECUTABLE MATCHES "srun")
-          SET(RUN_COMMAND "srun -N1 -n${SUNDIALS_ADD_TEST_MPI_NPROCS} -ppdebug")
-        ELSE()
-          SET(RUN_COMMAND "${MPIEXEC_EXECUTABLE} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS}")
-        ENDIF()
+        if(MPIEXEC_EXECUTABLE MATCHES "srun")
+          set(RUN_COMMAND "srun -N1 -n${SUNDIALS_ADD_TEST_MPI_NPROCS} -ppdebug")
+        else()
+          set(RUN_COMMAND "${MPIEXEC_EXECUTABLE} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS}")
+        endif()
 
-        LIST(APPEND TEST_ARGS "--runcommand=\"${RUN_COMMAND}\"")
+        list(APPEND TEST_ARGS "--runcommand=\"${RUN_COMMAND}\"")
 
-      ENDIF()
+      endif()
 
       # set the test input args
-      IF(NOT ("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL ""))
-        STRING (REPLACE ";" " " USER_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
-        LIST(APPEND TEST_ARGS "--runargs=\"${USER_ARGS}\"")
-      ENDIF()
+      if(NOT ("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL ""))
+        string (REPLACE ";" " " USER_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+        list(APPEND TEST_ARGS "--runargs=\"${USER_ARGS}\"")
+      endif()
 
       # set the test answer directory name (default is test/answers)
-      IF(NOT ("${SUNDIALS_ADD_TEST_ANSWER_DIR}" STREQUAL ""))
-        LIST(APPEND TEST_ARGS "--answerdir=${SUNDIALS_ADD_TEST_ANSWER_DIR}")
-      ENDIF()
+      if(NOT ("${SUNDIALS_ADD_TEST_ANSWER_DIR}" STREQUAL ""))
+        list(APPEND TEST_ARGS "--answerdir=${SUNDIALS_ADD_TEST_ANSWER_DIR}")
+      endif()
 
       # set the test answer file name (default is test_name_test_agrs)
-      IF(NOT ("${SUNDIALS_ADD_TEST_ANSWER_FILE}" STREQUAL ""))
-        LIST(APPEND TEST_ARGS "--answerfile=${SUNDIALS_ADD_TEST_ANSWER_FILE}")
-      ENDIF()
+      if(NOT ("${SUNDIALS_ADD_TEST_ANSWER_FILE}" STREQUAL ""))
+        list(APPEND TEST_ARGS "--answerfile=${SUNDIALS_ADD_TEST_ANSWER_FILE}")
+      endif()
 
       # set the precision for floating point failure comparison (number of digits, default 4)
-      IF(SUNDIALS_DEVTESTS_FLOAT_PRECISION)
-        LIST(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_DEVTESTS_FLOAT_PRECISION}")
-      ELSEIF(NOT ("${SUNDIALS_ADD_TEST_FLOAT_PRECISION}" STREQUAL ""))
-        LIST(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_ADD_TEST_FLOAT_PRECISION}")
-      ENDIF()
+      if(SUNDIALS_DEVTESTS_FLOAT_PRECISION)
+        list(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_DEVTESTS_FLOAT_PRECISION}")
+      elseif(NOT ("${SUNDIALS_ADD_TEST_FLOAT_PRECISION}" STREQUAL ""))
+        list(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_ADD_TEST_FLOAT_PRECISION}")
+      endif()
 
       # set the integer percentage difference for failure comparison (default 10%)
-      IF(SUNDIALS_DEVTESTS_INTEGER_PRECISION)
-        LIST(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_DEVTESTS_INTEGER_PRECISION}")
-      ELSEIF(NOT ("${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}" STREQUAL ""))
-        LIST(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}")
-      ENDIF()
+      if(SUNDIALS_DEVTESTS_INTEGER_PRECISION)
+        list(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_DEVTESTS_INTEGER_PRECISION}")
+      elseif(NOT ("${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}" STREQUAL ""))
+        list(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}")
+      endif()
 
       # create test case with the corresponding test runner command and arguments
       # all tests are added during development and only unlabeled tests when released
-      ADD_TEST(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS})
+      add_test(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS})
 
     elseif("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "")
 
       # convert string to list
-      IF(NOT ("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL ""))
-        STRING(REPLACE " " ";" TEST_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
-      ENDIF()
+      if(NOT ("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL ""))
+        string(REPLACE " " ";" TEST_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+      endif()
 
       # check if this test is run with MPI and add the test run command
       if(NOT ("${SUNDIALS_ADD_TEST_MPI_NPROCS}" STREQUAL "") AND
           NOT ("${MPIEXEC_EXECUTABLE}" STREQUAL ""))
-        ADD_TEST(NAME ${NAME} COMMAND ${MPIEXEC_EXECUTABLE} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS} $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
+        add_test(NAME ${NAME} COMMAND ${MPIEXEC_EXECUTABLE} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS} $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
       else()
-        ADD_TEST(NAME ${NAME} COMMAND $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
+        add_test(NAME ${NAME} COMMAND $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
       endif()
 
     endif()
 
   endif()
 
-ENDMACRO()
+endmacro()

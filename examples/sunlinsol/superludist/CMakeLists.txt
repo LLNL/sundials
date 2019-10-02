@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Programmer:  Cody J. Balos @ LLNL
+# Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -18,7 +18,7 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using the SuperLU_MT linear solver
-SET(sunlinsol_superludist_examples
+set(sunlinsol_superludist_examples
   "test_sunlinsol_superludist\;100 1 1 0\;1\;"
   "test_sunlinsol_superludist\;400 1 2 0\;2\;"
   "test_sunlinsol_superludist\;900 3 1 0\;3\;"
@@ -26,140 +26,140 @@ SET(sunlinsol_superludist_examples
 )
 
 # Dependencies for nvector examples
-SET(sunlinsol_superludist_dependencies
+set(sunlinsol_superludist_dependencies
   test_sunlinsol
   sundials_nvector
   sundials_matrix
   sundials_linearsolver
 )
 
-IF(MPI_C_COMPILER AND MPI_CXX_COMPILER)
-  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-ENDIF()
+if(MPI_C_COMPILER AND MPI_CXX_COMPILER)
+  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+endif()
 
-IF(SUPERLUDIST_OpenMP)
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-ENDIF()
+if(SUPERLUDIST_OpenMP)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ..)
+include_directories(. ..)
 
 # Add the build and install targets for each example
-FOREACH(example_tuple ${sunlinsol_superludist_examples})
+foreach(example_tuple ${sunlinsol_superludist_examples})
 
   # parse the example tuple
-  LIST(GET example_tuple 0 example)
-  LIST(GET example_tuple 1 example_args)
-  LIST(GET example_tuple 2 number_of_nodes)
-  LIST(GET example_tuple 3 example_type)
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 number_of_nodes)
+  list(GET example_tuple 3 example_type)
 
   # This is used to get around DLL linkage issue since we are
   # manually including sundials_nvector.c here, which is normally in
   # a library that is included.  If this is not set build system
   # thinks nvector is externally linked.
-  IF(WIN32)
-    ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
-  ENDIF(WIN32)
+  if(WIN32)
+    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
+  endif(WIN32)
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
-  IF(NOT TARGET ${example})
+  if(NOT TARGET ${example})
     # example source files
-    ADD_EXECUTABLE(${example} ${example}.cpp
+    add_executable(${example} ${example}.cpp
       ../test_sunlinsol.c
       ../../../src/sundials/sundials_matrix.c
       ../../../src/sundials/sundials_linearsolver.c
       ../../../src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    IF (LINK_LIBRARY_TYPE MATCHES "static")
-      TARGET_LINK_LIBRARIES(${example}
+    if (LINK_LIBRARY_TYPE MATCHES "static")
+      target_link_libraries(${example}
         PRIVATE
           sundials_sunlinsolsuperludist_static
           sundials_sunmatrixslunrloc_static
           sundials_sunmatrixdense_static
           sundials_nvecparallel_static
           sundials_nvecserial_static)
-    ELSE()
-      TARGET_LINK_LIBRARIES(${example}
+    else()
+      target_link_libraries(${example}
         PRIVATE
           sundials_sunlinsolsuperludist_shared
           sundials_sunmatrixslunrloc_shared
           sundials_sunmatrixdense_shared
           sundials_nvecparallel_shared
           sundials_nvecserial_shared)
-    ENDIF()
+    endif()
 
-  ENDIF()
+  endif()
 
   # check if example args are provided and set the test name
-  IF("${example_args}" STREQUAL "")
-    IF("${number_of_nodes}" STREQUAL "")
-      SET(test_name ${example})
-    ELSE()
-      STRING(REGEX REPLACE " " "_" test_name ${example}_${number_of_nodes})
-    ENDIF()
-  ELSE()
-    IF("${number_of_nodes}" STREQUAL "")
-      STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    ELSE()
-      STRING(REGEX REPLACE " " "_" test_name ${example}_${number_of_nodes}_${example_args})
-    ENDIF()
-  ENDIF()
+  if("${example_args}" STREQUAL "")
+    if("${number_of_nodes}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_nodes})
+    endif()
+  else()
+    if("${number_of_nodes}" STREQUAL "")
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_nodes}_${example_args})
+    endif()
+  endif()
 
   # add example to regression tests
-  SUNDIALS_ADD_TEST(${test_name} ${example}
+  sundials_add_test(${test_name} ${example}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_nodes}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.cpp
+  if(EXAMPLES_INSTALL)
+    install(FILES ${example}.cpp
       ../test_sunlinsol.h
       ../test_sunlinsol.c
       ../../../src/sundials/sundials_matrix.c
       ../../../src/sundials/sundials_linearsolver.c
       ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superludist)
-  ENDIF()
+  endif()
 
-ENDFOREACH(example_tuple ${sunlinsol_superludist_examples})
+endforeach(example_tuple ${sunlinsol_superludist_examples})
 
 
-IF(EXAMPLES_INSTALL)
+if(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superludist)
+  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superludist)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER "SUNMatrix_SLUNRloc")
-  STRING(CONCAT SUNDIALS_LIBS "-lsundials_cvode "
+  set(SOLVER "SUNMatrix_SLUNRloc")
+  string(CONCAT SUNDIALS_LIBS "-lsundials_cvode "
     "-lsundials_nvecparallel "
     "-lsundials_sunmatrixslunrloc "
     "-lsundials_sunlinsolsuperludist")
 
-  EXAMPLES2STRING(sunlinsol_superludist_examples EXAMPLES)
-  EXAMPLES2STRING(sunlinsol_superludist_dependencies EXAMPLES_DEPENDENCIES)
+  examples2string(sunlinsol_superludist_examples EXAMPLES)
+  examples2string(sunlinsol_superludist_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
-  CONFIGURE_FILE(
+  configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_superludist_CXX_ex.in
     ${PROJECT_BINARY_DIR}/examples/sunlinsol/superludist/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
-  INSTALL(
+  install(
     FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/superludist/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superludist
     )
@@ -168,19 +168,19 @@ IF(EXAMPLES_INSTALL)
   # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
-  IF(UNIX)
+  if(UNIX)
     # generate Makefile and place it in the binary dir
-    CONFIGURE_FILE(
+    configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_superludist_CXX_ex.in
       ${PROJECT_BINARY_DIR}/examples/sunlinsol/superludist/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
-    INSTALL(
+    install(
       FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/superludist/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superludist
       RENAME Makefile
       )
-  ENDIF(UNIX)
+  endif(UNIX)
 
-ENDIF(EXAMPLES_INSTALL)
+endif(EXAMPLES_INSTALL)

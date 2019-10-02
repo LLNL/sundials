@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Daniel R. Reynolds, Ashley Crawford @ SMU
+# Programmer(s): Daniel R. Reynolds and Ashley Crawford @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security

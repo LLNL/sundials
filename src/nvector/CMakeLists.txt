@@ -57,7 +57,6 @@ if(RAJA_ENABLE AND RAJA_FOUND)
   add_subdirectory(raja)
 endif(RAJA_ENABLE AND RAJA_FOUND)
 
-IF(Trilinos_ENABLE AND Trilinos_FOUND)
-  ADD_SUBDIRECTORY(trilinos)
-ENDIF(Trilinos_ENABLE AND Trilinos_FOUND)
-
+if(Trilinos_ENABLE AND Trilinos_FOUND)
+  add_subdirectory(trilinos)
+endif(Trilinos_ENABLE AND Trilinos_FOUND)

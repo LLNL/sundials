@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
-# Programmer:  Daniel R. Reynolds @ SMU, Cody J. Balos @ LLNL
+# Programmer(s): Daniel R. Reynolds @ SMU
+#                Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Eddy Banks and David J. Gardner @ LLNL
+# Programmer(s): Eddy Banks and David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -102,7 +102,7 @@ if(SUPERLUMT_LIBRARY AND (NOT SUPERLUMT_INCLUDE_DIR))
 endif()
 
 # set a more informative error message in case the library was not found
-SET(SUPERLUMT_NOT_FOUND_MESSAGE "\
+set(SUPERLUMT_NOT_FOUND_MESSAGE "\
 ************************************************************************\n\
 ERROR: Could not find SuperLU_MT. Please check the variables:\n\
        SUPERLUMT_INCLUDE_DIR and SUPERLUMT_LIBRARY_DIR\n\

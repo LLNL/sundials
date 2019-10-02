@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles @ LLNL
+# Programmer(s): Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -18,33 +18,33 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-SET(IDA_examples
+set(IDA_examples
   "idaHeat2D_kry_p_mpicuda\;1\;4\;develop")
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ${MPI_CXX_INCLUDE_PATH})
+include_directories(. ${MPI_CXX_INCLUDE_PATH})
 
-IF(MPI_C_COMPILER)
+if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-ENDIF()
+  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+endif()
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(IDA_LIB sundials_ida_static)
-  SET(NVECS_LIB sundials_nvecmpiplusx_static sundials_nveccuda_static)
-ELSE()
-  SET(IDA_LIB sundials_ida_shared)
-  SET(NVECS_LIB sundials_nvecmpiplusx_shared sundials_nveccuda_shared)
-ENDIF()
+if(LINK_LIBRARY_TYPE MATCHES "static")
+  set(IDA_LIB sundials_ida_static)
+  set(NVECS_LIB sundials_nvecmpiplusx_static sundials_nveccuda_static)
+else()
+  set(IDA_LIB sundials_ida_shared)
+  set(NVECS_LIB sundials_nvecmpiplusx_shared sundials_nveccuda_shared)
+endif()
 
 # Set-up linker flags and link libraries
-SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each IDA example
-FOREACH(example_tuple ${IDA_examples})
+foreach(example_tuple ${IDA_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
@@ -55,54 +55,54 @@ FOREACH(example_tuple ${IDA_examples})
   set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
   # add example source files
-  ADD_EXECUTABLE(${example} ${example}.cu)
+  add_executable(${example} ${example}.cu)
 
-  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example}
+  sundials_add_test(${example} ${example}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} PRIVATE ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
+  target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
 
   # install example source and out files
-  IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.cu ${example}.out
+  if(EXAMPLES_INSTALL)
+    install(FILES ${example}.cu ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpicuda)
-  ENDIF()
+  endif()
 
-ENDFOREACH(example_tuple ${IDA_examples})
+endforeach(example_tuple ${IDA_examples})
 
 
 # create Makfile and CMakeLists.txt for examples
-IF(EXAMPLES_INSTALL)
+if(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpicuda)
+  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpicuda)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER "IDA")
-  SET(SOLVER_LIB "sundials_ida")
+  set(SOLVER "IDA")
+  set(SOLVER_LIB "sundials_ida")
 
-  EXAMPLES2STRING(IDA_examples EXAMPLES)
+  examples2string(IDA_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
-  CONFIGURE_FILE(
+  configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_CUDA_ex.in
     ${PROJECT_BINARY_DIR}/examples/ida/mpicuda/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
-  INSTALL(
+  install(
     FILES ${PROJECT_BINARY_DIR}/examples/ida/mpicuda/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpicuda
     )
@@ -111,22 +111,22 @@ IF(EXAMPLES_INSTALL)
   # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
-  IF(UNIX)
+  if(UNIX)
     # generate Makefile and place it in the binary dir
-    CONFIGURE_FILE(
+    configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/ida/mpicuda/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
-    INSTALL(
+    install(
       FILES ${PROJECT_BINARY_DIR}/examples/ida/mpicuda/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpicuda
       RENAME Makefile
       )
-  ENDIF(UNIX)
+  endif(UNIX)
 
   # add test_install target
-  SUNDIALS_ADD_TEST_INSTALL(ida mpicuda)
+  sundials_add_test_install(ida mpicuda)
 
-ENDIF(EXAMPLES_INSTALL)
+endif(EXAMPLES_INSTALL)

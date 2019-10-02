@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): David Gardner, Slaven Peles, and
+# Programmer(s): David J. Gardner, Slaven Peles, and
 #                Shelby Lockhart @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
@@ -12,7 +12,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# examples/cvode level CMakeLists.txt for SUNDIALS (for CMake)
+# examples/cvode level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
 # C examples
@@ -64,4 +64,3 @@ if(EXAMPLES_ENABLE_CUDA)
   endif()
 
 endif(EXAMPLES_ENABLE_CUDA)
-

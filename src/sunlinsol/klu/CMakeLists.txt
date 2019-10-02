@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Daniel R. Reynolds @ SMU
+# Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -139,4 +139,3 @@ endif(F77_INTERFACE_ENABLE AND F77_FOUND)
 if(F2003_FOUND AND F2003_INTERFACE_ENABLE)
   add_subdirectory(fmod)
 endif(F2003_FOUND AND F2003_INTERFACE_ENABLE)
-

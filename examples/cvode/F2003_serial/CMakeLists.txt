@@ -64,7 +64,7 @@ foreach(example_tuple ${FCVODE_examples})
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example}
+  sundials_add_test(${example} ${example}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
@@ -109,7 +109,7 @@ if(KLU_FOUND)
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example}
+    sundials_add_test(${example} ${example}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${example}.out
       EXAMPLE_TYPE ${example_type})
@@ -138,10 +138,10 @@ if(EXAMPLES_INSTALL)
   set(SOLVER_LIB "sundials_cvode")
   set(SOLVER_FLIB "sundials_fcvode_mod")
 
-  EXAMPLES2STRING(FCVODE_examples EXAMPLES)
+  examples2string(FCVODE_examples EXAMPLES)
 
   if(KLU_FOUND)
-    EXAMPLES2STRING(FCVODE_examples_KLU EXAMPLES_KLU)
+    examples2string(FCVODE_examples_KLU EXAMPLES_KLU)
     set(SUNLS_LIB "sundials_sunlinsolklu")
     set(SUNLS_FLIB "sundials_fsunlinsolklu_mod")
   else()
@@ -153,7 +153,7 @@ if(EXAMPLES_INSTALL)
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
-  CONFIGURE_FILE(
+  configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F2003_ex.in
     ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/CMakeLists.txt
     @ONLY
@@ -171,7 +171,7 @@ if(EXAMPLES_INSTALL)
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
-    CONFIGURE_FILE(
+    configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_F2003_ex.in
       ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/Makefile_ex
       @ONLY
@@ -185,6 +185,6 @@ if(EXAMPLES_INSTALL)
   endif(UNIX)
 
   # add test_install target
-  SUNDIALS_ADD_TEST_INSTALL(cvode F2003_serial)
+  sundials_add_test_install(cvode F2003_serial)
 
 endif(EXAMPLES_INSTALL)

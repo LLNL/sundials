@@ -1,6 +1,5 @@
-# -*- mode: cmake -*-
 # -----------------------------------------------------------------
-# Programmer: Slaven Peles, and Cody Balos @ LLNL
+# Programmer(s): Slaven Peles and Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -22,10 +21,10 @@
 cmake_minimum_required(VERSION 3.5)
 
 # Specify project name
-PROJECT(@SOLVER@_CUDA_cuda_examples)
+project(@SOLVER@_CUDA_cuda_examples)
 
 # Enable testing
-INCLUDE(CTest)
+include(CTest)
 
 # Use same compilers you used to build SUNDIALS to build examples
 set(CMAKE_C_COMPILER @CMAKE_C_COMPILER@)
@@ -41,76 +40,75 @@ find_package(CUDA)
 # Use C++11
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std c++11")
 
-MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
+mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Set the names of the examples to be built
-SET(examples @EXAMPLES@)
-LIST(REMOVE_DUPLICATES examples)
+set(examples @EXAMPLES@)
+list(REMOVE_DUPLICATES examples)
 
 # Set names of examples specific dependency source files
-SET(examples_dependencies @EXAMPLES_DEPENDENCIES@)
+set(examples_dependencies @EXAMPLES_DEPENDENCIES@)
 
 # Specify path to SUNDIALS header files
-SET(SUNDIALS_INC_DIR
+set(SUNDIALS_INC_DIR
   @includedir@
   CACHE STRING
   "Location of SUNDIALS header files")
 
 # Add path to SUNDIALS header files
-INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR} @MPI_CXX_INCLUDE_PATH@)
+include_directories(${SUNDIALS_INC_DIR} @MPI_CXX_INCLUDE_PATH@)
 
 # Set search path for SUNDIALS libraries
-SET(SUNDIALS_LIB_DIR @libdir@)
+set(SUNDIALS_LIB_DIR @libdir@)
 
 # Find the SUNDIALS solver's library
-FIND_LIBRARY(SUNDIALS_SOLVER_LIB
+find_library(SUNDIALS_SOLVER_LIB
   @SOLVER_LIB@ ${SUNDIALS_LIB_DIR}
   DOC "@SOLVER@ library")
 
-IF(NOT SUNDIALS_SOLVER_LIB)
-  SET(SUNDIALS_SOLVER_LIB "")
-ENDIF()
+if(NOT SUNDIALS_SOLVER_LIB)
+  set(SUNDIALS_SOLVER_LIB "")
+endif()
 
 # Find the NVECTOR library
-FIND_LIBRARY(SUNDIALS_NVECPAR_LIB
+find_library(SUNDIALS_NVECPAR_LIB
   sundials_nvecparallel ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR parallel library")
 
-FIND_LIBRARY(SUNDIALS_NVECCUDA_LIB
+find_library(SUNDIALS_NVECCUDA_LIB
   sundials_nveccuda ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR cuda library")
 
-FIND_LIBRARY(SUNDIALS_NVECSER_LIB
+find_library(SUNDIALS_NVECSER_LIB
   sundials_nvecserial ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR serial library")
 
-FIND_LIBRARY(SUNDIALS_MANYVEC_LIB
+find_library(SUNDIALS_MANYVEC_LIB
   sundials_nvecmpimanyvector ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR mpimanyvector library")
 
-FIND_LIBRARY(SUNDIALS_MPIPLUSX_LIB
+find_library(SUNDIALS_MPIPLUSX_LIB
   sundials_nvecmpiplusx ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR mpiplusx library")
 
 # Set additional libraries
-SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
+set(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
 # List of all libraries
-SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVECPAR_LIB} ${SUNDIALS_NVECSER_LIB}
+set(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVECPAR_LIB} ${SUNDIALS_NVECSER_LIB}
                   ${SUNDIALS_NVECCUDA_LIB} ${SUNDIALS_MANYVEC_LIB} ${SUNDIALS_MPIPLUSX_LIB}
                   ${SUNDIALS_EXTRA_LIB})
 
 # Build each example one by one
-FOREACH(example ${examples})
+foreach(example ${examples})
 
   # example source files
-  CUDA_ADD_EXECUTABLE(${example} ${example}.cu ${examples_dependencies})
+  cuda_add_executable(${example} ${example}.cu ${examples_dependencies})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} @MPI_CXX_LIBRARIES@)
+  target_link_libraries(${example} ${SUNDIALS_LIBS} @MPI_CXX_LIBRARIES@)
 
   # add the example to ctest
-  ADD_TEST(NAME ${example} COMMAND ${example})
+  add_test(NAME ${example} COMMAND ${example})
 
-ENDFOREACH(example ${examples})
-
+endforeach(example ${examples})

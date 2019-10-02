@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles, and Cody J. Balos @ LLNL
+# Programmer(s): Slaven Peles and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,58 +12,59 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the cuda NVECTOR library
+# ---------------------------------------------------------------
 
-INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_CUDA\n\")")
+install(CODE "MESSAGE(\"\nInstall NVECTOR_CUDA\n\")")
 
 # Add variable nveccuda_SOURCES with the sources for the NVECUDA lib
-SET(nveccuda_SOURCES nvector_cuda.cu)
+set(nveccuda_SOURCES nvector_cuda.cu)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECCUDA library
-SET(shared_SOURCES
+set(shared_SOURCES
   sundials_nvector.c
   sundials_math.c
 )
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+add_prefix(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
 # Add variable nveccuda_HEADERS with the exported NVECUDA header files
-SET(nveccuda_HEADERS nvector_cuda.h)
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nveccuda_HEADERS)
+set(nveccuda_HEADERS nvector_cuda.h)
+add_prefix(${sundials_SOURCE_DIR}/include/nvector/ nveccuda_HEADERS)
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
+add_definitions(-DBUILD_SUNDIALS_LIBRARY)
 
 # Rules for building and installing the static library:
 #  - Add the build target for the NVECCUDA library
 #  - Set the library name and make sure it is not deleted
 #  - Install the NVECUDA library
-IF(BUILD_STATIC_LIBS)
-  ADD_LIBRARY(sundials_nveccuda_static STATIC ${nveccuda_SOURCES} ${shared_SOURCES})
-  TARGET_COMPILE_FEATURES(sundials_nveccuda_static PUBLIC cxx_std_11)
-  SET_TARGET_PROPERTIES(sundials_nveccuda_static PROPERTIES
+if(BUILD_STATIC_LIBS)
+  add_library(sundials_nveccuda_static STATIC ${nveccuda_SOURCES} ${shared_SOURCES})
+  target_compile_features(sundials_nveccuda_static PUBLIC cxx_std_11)
+  set_target_properties(sundials_nveccuda_static PROPERTIES
                         OUTPUT_NAME sundials_nveccuda
                         CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_nveccuda_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-ENDIF(BUILD_STATIC_LIBS)
+  install(TARGETS sundials_nveccuda_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
 #  - Add the build target for the NVECUDA library
 #  - Set the library name and make sure it is not deleted
 #  - Set VERSION and SOVERSION for shared libraries
 #  - Install the NVECUDA library
-IF(BUILD_SHARED_LIBS)
-  ADD_LIBRARY(sundials_nveccuda_shared SHARED ${nveccuda_SOURCES} ${shared_SOURCES})
-  TARGET_COMPILE_FEATURES(sundials_nveccuda_shared PUBLIC cxx_std_11)
-  SET_TARGET_PROPERTIES(sundials_nveccuda_shared PROPERTIES
+if(BUILD_SHARED_LIBS)
+  add_library(sundials_nveccuda_shared SHARED ${nveccuda_SOURCES} ${shared_SOURCES})
+  target_compile_features(sundials_nveccuda_shared PUBLIC cxx_std_11)
+  set_target_properties(sundials_nveccuda_shared PROPERTIES
                         OUTPUT_NAME sundials_nveccuda
                         CLEAN_DIRECT_OUTPUT 1
                         VERSION ${nveclib_VERSION}
                         SOVERSION ${nveclib_SOVERSION})
-  INSTALL(TARGETS sundials_nveccuda_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-ENDIF(BUILD_SHARED_LIBS)
+  install(TARGETS sundials_nveccuda_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif(BUILD_SHARED_LIBS)
 
 # Install the CUDA NVector header files
-INSTALL(FILES ${nveccuda_HEADERS} DESTINATION include/nvector)
-INSTALL(DIRECTORY ${sundials_SOURCE_DIR}/include/nvector/cuda DESTINATION include/nvector)
+install(FILES ${nveccuda_HEADERS} DESTINATION include/nvector)
+install(DIRECTORY ${sundials_SOURCE_DIR}/include/nvector/cuda DESTINATION include/nvector)
 
-MESSAGE(STATUS "Added NVECTOR_CUDA module")
+message(STATUS "Added NVECTOR_CUDA module")

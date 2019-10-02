@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  David Gardner and Slaven Peles @ LLNL
+# Programmer(s): David J. Gardner and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -11,47 +11,47 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# examples/sunlinsol level CMakeLists.txt for SUNDIALS (for CMake)
+# examples/sunlinsol level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
 # Always add the serial sunlinearsolver dense/band/spils examples
-ADD_SUBDIRECTORY(band)
-ADD_SUBDIRECTORY(dense)
+add_subdirectory(band)
+add_subdirectory(dense)
 
-IF(KLU_ENABLE AND KLU_FOUND)
-  ADD_SUBDIRECTORY(klu)
-ENDIF(KLU_ENABLE AND KLU_FOUND)
+if(KLU_ENABLE AND KLU_FOUND)
+  add_subdirectory(klu)
+endif(KLU_ENABLE AND KLU_FOUND)
 
-IF(SUPERLUMT_ENABLE AND SUPERLUMT_FOUND)
-  ADD_SUBDIRECTORY(superlumt)
-ENDIF(SUPERLUMT_ENABLE AND SUPERLUMT_FOUND)
+if(SUPERLUMT_ENABLE AND SUPERLUMT_FOUND)
+  add_subdirectory(superlumt)
+endif(SUPERLUMT_ENABLE AND SUPERLUMT_FOUND)
 
-IF(MPI_ENABLE AND MPI_C_FOUND AND MPI_CXX_FOUND AND SUNDIALS_SUPERLUDIST)
-  ADD_SUBDIRECTORY(superludist)
-ENDIF()
+if(MPI_ENABLE AND MPI_C_FOUND AND MPI_CXX_FOUND AND SUNDIALS_SUPERLUDIST)
+  add_subdirectory(superludist)
+endif()
 
-IF(LAPACK_ENABLE AND LAPACK_FOUND)
-  ADD_SUBDIRECTORY(lapackband)
-  ADD_SUBDIRECTORY(lapackdense)
-ENDIF(LAPACK_ENABLE AND LAPACK_FOUND)
+if(LAPACK_ENABLE AND LAPACK_FOUND)
+  add_subdirectory(lapackband)
+  add_subdirectory(lapackdense)
+endif(LAPACK_ENABLE AND LAPACK_FOUND)
 
-IF(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
-  IF(SUNDIALS_INDEX_SIZE MATCHES "32")
-    ADD_SUBDIRECTORY(cusolversp)
-  ENDIF()
-ENDIF(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+  if(SUNDIALS_INDEX_SIZE MATCHES "32")
+    add_subdirectory(cusolversp)
+  endif()
+endif(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
 
 # Always add serial sunlinearsolver iterative examples
-ADD_SUBDIRECTORY(spgmr/serial)
-ADD_SUBDIRECTORY(spfgmr/serial)
-ADD_SUBDIRECTORY(spbcgs/serial)
-ADD_SUBDIRECTORY(sptfqmr/serial)
-ADD_SUBDIRECTORY(pcg/serial)
+add_subdirectory(spgmr/serial)
+add_subdirectory(spfgmr/serial)
+add_subdirectory(spbcgs/serial)
+add_subdirectory(sptfqmr/serial)
+add_subdirectory(pcg/serial)
 
-IF(MPI_ENABLE AND MPI_C_FOUND)
-  ADD_SUBDIRECTORY(spgmr/parallel)
-  ADD_SUBDIRECTORY(spfgmr/parallel)
-  ADD_SUBDIRECTORY(spbcgs/parallel)
-  ADD_SUBDIRECTORY(sptfqmr/parallel)
+if(MPI_ENABLE AND MPI_C_FOUND)
+  add_subdirectory(spgmr/parallel)
+  add_subdirectory(spfgmr/parallel)
+  add_subdirectory(spbcgs/parallel)
+  add_subdirectory(sptfqmr/parallel)
   #ADD_SUBDIRECTORY(pcg/parallel)
-ENDIF()
+endif()

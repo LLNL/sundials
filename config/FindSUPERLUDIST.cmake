@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Cody Balos @ LLNL
+# Programmer(s): Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -76,7 +76,7 @@ if(SUPERLUDIST_LIBRARY AND SUPERLUDIST_INCLUDE_DIR)
 endif()
 
 # set a more informative error message in case the library was not found
-SET(SUPERLUDIST_NOT_FOUND_MESSAGE "\
+set(SUPERLUDIST_NOT_FOUND_MESSAGE "\
 ************************************************************************\n\
 ERROR: Could not find SuperLU_DIST. Please check the variables:\n\
        SUPERLUDIST_INCLUDE_DIR and SUPERLUDIST_LIBRARY_DIR\n\

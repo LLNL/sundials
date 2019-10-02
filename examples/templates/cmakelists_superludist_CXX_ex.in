@@ -1,6 +1,5 @@
-# -*- mode: cmake -*-
 # -----------------------------------------------------------------
-# Programmer: Cody J. Balos @ LLNL
+# Programmer(s): Cody J. Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -22,67 +21,67 @@
 cmake_minimum_required(VERSION 3.5)
 
 # Specify project name
-PROJECT(@SOLVER@_CXX_superludist_examples C CXX)
+project(@SOLVER@_CXX_superludist_examples C CXX)
 
 # Enable testing
-INCLUDE(CTest)
+include(CTest)
 
-MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
+mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Set the names of the examples to be built
-SET(examples @EXAMPLES@)
-SET(examples_dependencies @EXAMPLES_DEPENDENCIES@)
+set(examples @EXAMPLES@)
+set(examples_dependencies @EXAMPLES_DEPENDENCIES@)
 
 # Set name of MPI compiler to be used (CXX or MPICXX)
-SET(CMAKE_C_COMPILER @MPI_C_COMPILER@)
-SET(CMAKE_CXX_COMPILER @MPI_CXX_COMPILER@)
-SET(CMAKE_C_FLAGS "@CMAKE_C_FLAGS@")
-SET(CMAKE_CXX_FLAGS "@CMAKE_CXX_FLAGS@")
+set(CMAKE_C_COMPILER @MPI_C_COMPILER@)
+set(CMAKE_CXX_COMPILER @MPI_CXX_COMPILER@)
+set(CMAKE_C_FLAGS "@CMAKE_C_FLAGS@")
+set(CMAKE_CXX_FLAGS "@CMAKE_CXX_FLAGS@")
 
 # Specify path to SUNDIALS header files
-SET(SUNDIALS_INCLUDE_DIR
+set(SUNDIALS_INCLUDE_DIR
   @includedir@
   CACHE STRING
   "Location of SUNDIALS header files")
 
-# Set search path for SUNDIALS libraries 
-SET(SUNDIALS_LIBRARY_DIR
+# Set search path for SUNDIALS libraries
+set(SUNDIALS_LIBRARY_DIR
   @libdir@
   CACHE STRING
   "Location of SUNDIALS libraries")
 
-SET(SUPERLUDIST_INCLUDE_DIR
+set(SUPERLUDIST_INCLUDE_DIR
   @SUPERLUDIST_INCLUDE_DIR@
   CACHE STRING
   "Location of SuperLU_DIST header files")
 
-SET(SUPERLUDIST_LIBRARIES
+set(SUPERLUDIST_LIBRARIES
   "@SUPERLUDIST_LIBRARIES@;@SUPERLUDIST_LIBRARY@"
   CACHE STRING
   "List of libraries needed for SuperLU_DIST")
 
 # Add path to SUNDIALS header files
-INCLUDE_DIRECTORIES(${SUNDIALS_INCLUDE_DIR} ${SUPERLUDIST_INCLUDE_DIR})
+include_directories(${SUNDIALS_INCLUDE_DIR} ${SUPERLUDIST_INCLUDE_DIR})
 
 # Add path toe SUNDIALS libraries
-LINK_DIRECTORIES(${SUNDIALS_LIBRARY_DIR})
+link_directories(${SUNDIALS_LIBRARY_DIR})
 
 # List of all libraries
-SET(SUNDIALS_LIBS @SUNDIALS_LIBS@)
+set(SUNDIALS_LIBS @SUNDIALS_LIBS@)
 
 # Set additional libraries
-SET(SUNDIALS_EXTRA_LIBS @LIBS@ CACHE STRING "Additional libraries")
+set(SUNDIALS_EXTRA_LIBS @LIBS@ CACHE STRING "Additional libraries")
 
 # Build each example one by one
-FOREACH(example ${examples})
+foreach(example ${examples})
 
   # example source files
-  ADD_EXECUTABLE(${example} ${example}.cpp ${examples_dependencies})
+  add_executable(${example} ${example}.cpp ${examples_dependencies})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUPERLUDIST_LIBRARIES} ${SUNDIALS_EXTRA_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUPERLUDIST_LIBRARIES} ${SUNDIALS_EXTRA_LIBS})
 
   # add the example to ctest
-  ADD_TEST(NAME ${example} COMMAND ${example})
+  add_test(NAME ${example} COMMAND ${example})
 
-ENDFOREACH(example ${examples})
+endforeach(example ${examples})

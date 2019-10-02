@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Daniel R. Reynolds @ SMU
+# Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -133,5 +133,3 @@ if(F77_INTERFACE_ENABLE AND F77_FOUND)
   message(STATUS "Added SUNLINSOL_LAPACKDENSE F77 interface")
 
 endif(F77_INTERFACE_ENABLE AND F77_FOUND)
-
-

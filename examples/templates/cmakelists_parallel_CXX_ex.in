@@ -1,4 +1,3 @@
-# -*- mode: cmake -*-
 # -----------------------------------------------------------------
 # Programmer: Daniel R. Reynolds @ SMU
 # -----------------------------------------------------------------
@@ -22,71 +21,71 @@
 cmake_minimum_required(VERSION 3.5)
 
 # Specify project name
-PROJECT(@SOLVER@_CXX_parallel_examples CXX)
+project(@SOLVER@_CXX_parallel_examples CXX)
 
 # Enable testing
-INCLUDE(CTest)
+include(CTest)
 
-MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
+mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
 # Set the names of the examples to be built
-SET(examples @EXAMPLES@)
+set(examples @EXAMPLES@)
 
 # Set name of MPI compiler to be used (CXX or MPICXX)
-SET(MPI_MPICXX @MPICXX@ CACHE STRING "MPICXX compiler script")
-SET(CMAKE_CXX_COMPILER ${MPI_MPICXX})
+set(MPI_MPICXX @MPICXX@ CACHE STRING "MPICXX compiler script")
+set(CMAKE_CXX_COMPILER ${MPI_MPICXX})
 
 # Specify path to SUNDIALS header files
-SET(SUNDIALS_INC_DIR
+set(SUNDIALS_INC_DIR
   @includedir@
   CACHE STRING
   "Location of SUNDIALS header files")
 
 # Add path to SUNDIALS header files
-INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR})
+include_directories(${SUNDIALS_INC_DIR})
 
-# Set search path for SUNDIALS libraries 
-SET(SUNDIALS_LIB_DIR @libdir@)
+# Set search path for SUNDIALS libraries
+set(SUNDIALS_LIB_DIR @libdir@)
 
 # Find the SUNDIALS solver's library
-FIND_LIBRARY(SUNDIALS_SOLVER_LIB
+find_library(SUNDIALS_SOLVER_LIB
   @SOLVER_LIB@ ${SUNDIALS_LIB_DIR}
   DOC "@SOLVER@ library")
 
 # Find the NVECTOR library
-FIND_LIBRARY(SUNDIALS_NVECPAR_LIB
+find_library(SUNDIALS_NVECPAR_LIB
   sundials_nvecparallel ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR parallel library")
 
-FIND_LIBRARY(SUNDIALS_NVECSER_LIB
+find_library(SUNDIALS_NVECSER_LIB
   sundials_nvecserial ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR serial library")
 
-FIND_LIBRARY(SUNDIALS_MANYVEC_LIB
+find_library(SUNDIALS_MANYVEC_LIB
   sundials_nvecmpimanyvector ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR mpimanyvector library")
 
-FIND_LIBRARY(SUNDIALS_MPIPLUSX_LIB
+find_library(SUNDIALS_MPIPLUSX_LIB
   sundials_nvecmpiplusx ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR mpiplusx library")
 
 # Set additional libraries
-SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
+set(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
 # List of all libraries
-SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVECPAR_LIB} ${SUNDIALS_NVECSER_LIB}
+set(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVECPAR_LIB} ${SUNDIALS_NVECSER_LIB}
                   ${SUNDIALS_MANYVEC_LIB} ${SUNDIALS_MPIPLUSX_LIB} ${SUNDIALS_EXTRA_LIB})
 
 # Build each example one by one
-FOREACH(example ${examples})
+foreach(example ${examples})
 
   # example source files
-  ADD_EXECUTABLE(${example} ${example}.cpp)
+  add_executable(${example} ${example}.cpp)
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS})
 
   # add the example to ctest
-  ADD_TEST(NAME ${example} COMMAND ${example})
+  add_test(NAME ${example} COMMAND ${example})
 
-ENDFOREACH(example ${examples})
+endforeach(example ${examples})

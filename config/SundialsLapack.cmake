@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
+# Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,8 +12,9 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # BLAS/LAPACK tests for SUNDIALS CMake-based configuration.
+# ---------------------------------------------------------------
 
-SET(LAPACK_FOUND FALSE)
+set(LAPACK_FOUND FALSE)
 
 # If LAPACK libraries are undefined, try to find them (if we have
 # a working Fortran compiler) or look for them in the most
@@ -31,8 +32,8 @@ if(NOT LAPACK_LIBRARIES)
 
   # If the xSDK flag is used, set it to what was found
   if(LAPACK_LIBRARIES AND TPL_ENABLE_LAPACK)
-    SET(DOCSTR "Lapack library")
-    FORCE_VARIABLE(TPL_LAPACK_LIBRARIES STRING "${DOCSTR}" "${LAPACK_LIBRARIES}")
+    set(DOCSTR "Lapack library")
+    force_variable(TPL_LAPACK_LIBRARIES STRING "${DOCSTR}" "${LAPACK_LIBRARIES}")
   endif()
 endif()
 
@@ -44,7 +45,7 @@ if(LAPACK_LIBRARIES)
   set(LapackTest_DIR ${PROJECT_BINARY_DIR}/LapackTest)
   file(MAKE_DIRECTORY ${LapackTest_DIR})
 
-  # Create a CMakeLists.txt file 
+  # Create a CMakeLists.txt file
   file(WRITE ${LapackTest_DIR}/CMakeLists.txt
     "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
     "PROJECT(ltest C)\n"
@@ -77,7 +78,7 @@ if(LAPACK_LIBRARIES)
   try_compile(LTEST_OK ${LapackTest_DIR} ${LapackTest_DIR}
     ltest OUTPUT_VARIABLE MY_OUTPUT)
 
-  # To ensure we do not use stuff from the previous attempts, 
+  # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${LapackTest_DIR}/CMakeFiles)
 

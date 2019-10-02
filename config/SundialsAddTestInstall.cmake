@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Author: David J. Gardner @ LLNL
+# Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security

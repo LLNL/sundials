@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Programmer: Cody J. Balos and Slaven Peles @ LLNL
+# Programmer(s): Cody J. Balos and Slaven Peles @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,7 +12,7 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 # Trilinos configuration and tests for SUNDIALS CMake-based configuration.
-# 
+#
 # This also creates the variables:
 #     Trilinos_INTERFACE_C_COMPILER
 #     Trilinos_INTERFACE_CXX_COMPILER
@@ -26,7 +26,7 @@
 #     Trilinos_INTERFACE_CXX_COMPILER_FLAGS
 # are created. The variables should be used to set the compiler flags
 # when building targets that use Trilinos.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Find Trilinos
 include(FindTrilinos)
@@ -41,35 +41,35 @@ if(Trilinos_FOUND AND TARGET Trilinos::Trilinos)
 
   if(USE_XSDK_DEFAULTS)
     if(Trilinos_MPI AND MPI_CXX_FOUND)
-      SHOW_VARIABLE(Trilinos_INTERFACE_CXX_COMPILER     STRING "C++ compiler for Trilinos interface" "${MPI_CXX_COMPILER}")
+      show_variable(Trilinos_INTERFACE_CXX_COMPILER     STRING "C++ compiler for Trilinos interface" "${MPI_CXX_COMPILER}")
       set(Trilinos_INTERFACE_MPI_CXX_FOUND ${Trilinos_MPI} CACHE INTERNAL "Is Trilinos interface C++ compiler MPI")
     else()
-      SHOW_VARIABLE(Trilinos_INTERFACE_CXX_COMPILER     STRING "C compiler for Trilinos interface" "${CMAKE_CXX_COMPILER}")
+      show_variable(Trilinos_INTERFACE_CXX_COMPILER     STRING "C compiler for Trilinos interface" "${CMAKE_CXX_COMPILER}")
       set(Trilinos_INTERFACE_MPI_CXX_FOUND FALSE CACHE INTERNAL "Is Trilinos interface C++ compiler MPI")
     endif()
     if(Trilinos_MPI AND MPI_C_FOUND)
-      SHOW_VARIABLE(Trilinos_INTERFACE_C_COMPILER       STRING "C compiler for Trilinos interface" "${MPI_C_COMPILER}")
+      show_variable(Trilinos_INTERFACE_C_COMPILER       STRING "C compiler for Trilinos interface" "${MPI_C_COMPILER}")
       set(Trilinos_INTERFACE_MPI_C_FOUND ${Trilinos_MPI} CACHE INTERNAL "Is Trilinos interface C compiler MPI")
     else()
-      SHOW_VARIABLE(Trilinos_INTERFACE_C_COMPILER       STRING "C compiler for Trilinos interface" "${CMAKE_C_COMPILER}")
+      show_variable(Trilinos_INTERFACE_C_COMPILER       STRING "C compiler for Trilinos interface" "${CMAKE_C_COMPILER}")
       set(Trilinos_INTERFACE_MPI_C_FOUND FALSE CACHE INTERNAL "Is Trilinos interface C compiler MPI")
     endif()
-    SHOW_VARIABLE(Trilinos_INTERFACE_CXX_COMPILER_FLAGS STRING "C++ compiler flags specific to Trilinos interface" "")
-    SHOW_VARIABLE(Trilinos_INTERFACE_C_COMPILER_FLAGS   STRING "C compiler flags specific to Trilinos interface" "")
-    SHOW_VARIABLE(Trilinos_INTERFACE_MPIEXEC            STRING "MPI executable for Trilinos interface" "${MPIEXEC_EXECUTABLE}")
+    show_variable(Trilinos_INTERFACE_CXX_COMPILER_FLAGS STRING "C++ compiler flags specific to Trilinos interface" "")
+    show_variable(Trilinos_INTERFACE_C_COMPILER_FLAGS   STRING "C compiler flags specific to Trilinos interface" "")
+    show_variable(Trilinos_INTERFACE_MPIEXEC            STRING "MPI executable for Trilinos interface" "${MPIEXEC_EXECUTABLE}")
   else()
-    SHOW_VARIABLE(Trilinos_INTERFACE_CXX_COMPILER       STRING "C++ compiler for Trilinos interface" "${Trilinos_CXX_COMPILER}")
-    SHOW_VARIABLE(Trilinos_INTERFACE_C_COMPILER         STRING "C compiler for Trilinos interface" "${Trilinos_C_COMPILER}")
-    SHOW_VARIABLE(Trilinos_INTERFACE_CXX_COMPILER_FLAGS STRING "C++ compiler flags for Trilinos interface" "${Trilinos_CXX_COMPILER_FLAGS}")
-    SHOW_VARIABLE(Trilinos_INTERFACE_C_COMPILER_FLAGS   STRING "C compiler flags for Trilinos interface" "${Trilinos_C_COMPILER_FLAGS}")
-    SHOW_VARIABLE(Trilinos_INTERFACE_MPIEXEC            STRING "MPI executable for Trilinos interface" "${Trilinos_MPI_EXEC}")
+    show_variable(Trilinos_INTERFACE_CXX_COMPILER       STRING "C++ compiler for Trilinos interface" "${Trilinos_CXX_COMPILER}")
+    show_variable(Trilinos_INTERFACE_C_COMPILER         STRING "C compiler for Trilinos interface" "${Trilinos_C_COMPILER}")
+    show_variable(Trilinos_INTERFACE_CXX_COMPILER_FLAGS STRING "C++ compiler flags for Trilinos interface" "${Trilinos_CXX_COMPILER_FLAGS}")
+    show_variable(Trilinos_INTERFACE_C_COMPILER_FLAGS   STRING "C compiler flags for Trilinos interface" "${Trilinos_C_COMPILER_FLAGS}")
+    show_variable(Trilinos_INTERFACE_MPIEXEC            STRING "MPI executable for Trilinos interface" "${Trilinos_MPI_EXEC}")
     set(Trilinos_INTERFACE_MPI_CXX_FOUND ${Trilinos_MPI} CACHE INTERNAL "Is Trilinos interface C++ compiler MPI")
     set(Trilinos_INTERFACE_MPI_C_FOUND ${Trilinos_MPI} CACHE INTERNAL "Is Trilinos interface C compiler MPI")
   endif()
 
   mark_as_advanced(FORCE Trilinos_INTERFACE_CXX_COMPILER
                          Trilinos_INTERFACE_C_COMPILER
-                         Trilinos_INTERFACE_CXX_COMPILER_FLAGS 
+                         Trilinos_INTERFACE_CXX_COMPILER_FLAGS
                          Trilinos_INTERFACE_C_COMPILER_FLAGS
                          Trilinos_INTERFACE_MPIEXEC)
 
@@ -119,8 +119,7 @@ if(Trilinos_FOUND AND TARGET Trilinos::Trilinos)
     set(SUNDIALS_TRILINOS_HAVE_MPI ${Trilinos_INTERFACE_MPI_CXX_FOUND})
   else(LTEST_OK)
     message(STATUS "Testing Trilinos libraries... FAILED")
-    PRINT_ERROR("Trilinos not functional - support cannot be provided.")
+    print_error("Trilinos not functional - support cannot be provided.")
   endif(LTEST_OK)
 
 endif()
-

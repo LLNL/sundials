@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Cody J. Balos @ LLNL
+# Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,6 +12,7 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the cuda cuSolverSp SUNLinearSolver
+# ---------------------------------------------------------------
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_CUSOLVERSP\n\")")
 

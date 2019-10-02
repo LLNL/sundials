@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Cody J. Balos @ LLNL
+# Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -38,4 +38,3 @@ if(BUILD_SHARED_LIBS)
     POSITION_INDEPENDENT_CODE TRUE
     Fortran_MODULE_DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_SHARED)
 endif()
-
