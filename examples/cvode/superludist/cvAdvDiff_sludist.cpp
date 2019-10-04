@@ -267,15 +267,11 @@ int main(int argc, char *argv[])
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
   free(data);                    /* Free user data */
 
-  /* Free the underlying data of A */
-  free(matdata);
-  free(colind);
-  free(rowptr);
-
   /* Free the SuperLU_DIST structures */
   PStatFree(&stat);
   ScalePermstructFree(&scaleperm);
   LUstructFree(&LUstruct);
+  Destroy_CompRowLoc_Matrix_dist(&Asuper);
   superlu_gridexit(&grid);
 
   MPI_Finalize();

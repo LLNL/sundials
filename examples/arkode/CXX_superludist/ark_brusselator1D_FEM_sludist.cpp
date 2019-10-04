@@ -516,15 +516,13 @@ int main(int argc, char *argv[]) {
   free(udata->x);
   free(udata);
 
-  /* free matrix underlying data */
-  free(Adata);   free(Mdata);   free(Rdata);
-  free(Acolind); free(Mcolind); free(Rcolind);
-  free(Arowptr); free(Mrowptr); free(Rrowptr);
-
   /* Free the SuperLU_DIST structures */
   PStatFree(&Astat); PStatFree(&Mstat);
   ScalePermstructFree(&Ascaleperm); ScalePermstructFree(&Mscaleperm);
   LUstructFree(&Alu); LUstructFree(&Mlu);
+  Destroy_CompRowLoc_Matrix_dist(&Asuper);
+  Destroy_CompRowLoc_Matrix_dist(&Msuper);
+  Destroy_CompRowLoc_Matrix_dist(&Rsuper);
   superlu_gridexit(&grid);
 
   MPI_Finalize();
