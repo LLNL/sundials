@@ -117,6 +117,12 @@ writing in C|)}
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v5.0.0}
+
+Fixed a bug in the {\cvodes} \id{cvRescale} function where the loops to compute
+the array of scalars for the fused vector scale operation stopped one iteration
+early.
+
 \subsection*{Changes in v5.0.0-dev.2}
 
 Added a new optional operation to the SUNLINEARSOLVER API, \id{SUNLinSolGetID},

@@ -1,5 +1,11 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 5.0.0
+
+Fixed a bug in the CVODES `cvRescale` function where the loops to compute the
+array of scalars for the fused vector scale operation stopped one iteration
+early.
+
 ## Changes to SUNDIALS in release 5.0.0-dev.2
 
 Added a new optional operation to the SUNLINEARSOLVER API, `SUNLinSolGetID`,

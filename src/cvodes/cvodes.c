@@ -6089,7 +6089,7 @@ static void cvRescale(CVodeMem cv_mem)
 
   /* compute scaling factors */
   cv_mem->cv_cvals[0] = cv_mem->cv_eta;
-  for (j=1; j < cv_mem->cv_q; j++)
+  for (j=1; j <= cv_mem->cv_q; j++)
     cv_mem->cv_cvals[j] = cv_mem->cv_eta * cv_mem->cv_cvals[j-1];
 
   (void) N_VScaleVectorArray(cv_mem->cv_q, cv_mem->cv_cvals,
@@ -6103,7 +6103,7 @@ static void cvRescale(CVodeMem cv_mem)
   if (cv_mem->cv_sensi || cv_mem->cv_quadr_sensi) {
     for (is=0; is<cv_mem->cv_Ns; is++)
       cv_mem->cv_cvals[is] = cv_mem->cv_eta;
-    for (j=1; j < cv_mem->cv_q; j++)
+    for (j=1; j <= cv_mem->cv_q; j++)
       for (is=0; is<cv_mem->cv_Ns; is++)
         cv_mem->cv_cvals[j*cv_mem->cv_Ns+is] =
           cv_mem->cv_eta * cv_mem->cv_cvals[(j-1)*cv_mem->cv_Ns+is];
