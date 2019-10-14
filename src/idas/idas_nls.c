@@ -28,9 +28,8 @@
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidual(N_Vector ycor, N_Vector res, void* ida_mem);
-static int idaNlsLSetup(N_Vector ycor, N_Vector res, booleantype jbad,
-                        booleantype* jcur, void* ida_mem);
-static int idaNlsLSolve(N_Vector ycor, N_Vector delta, void* ida_mem);
+static int idaNlsLSetup(booleantype jbad, booleantype* jcur, void* ida_mem);
+static int idaNlsLSolve(N_Vector delta, void* ida_mem);
 static int idaNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
                           realtype tol, N_Vector ewt, void* ida_mem);
 
@@ -164,8 +163,7 @@ int idaNlsInit(IDAMem IDA_mem)
 }
 
 
-static int idaNlsLSetup(N_Vector ycor, N_Vector res, booleantype jbad,
-                        booleantype* jcur, void* ida_mem)
+static int idaNlsLSetup(booleantype jbad, booleantype* jcur, void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval;
@@ -179,8 +177,9 @@ static int idaNlsLSetup(N_Vector ycor, N_Vector res, booleantype jbad,
   IDA_mem->ida_nsetups++;
   IDA_mem->ida_forceSetup = SUNFALSE;
 
-  retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy, IDA_mem->ida_yp, res,
-                               IDA_mem->ida_tempv1, IDA_mem->ida_tempv2, IDA_mem->ida_tempv3);
+  retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy, IDA_mem->ida_yp,
+                               IDA_mem->ida_savres, IDA_mem->ida_tempv1,
+                               IDA_mem->ida_tempv2, IDA_mem->ida_tempv3);
 
   /* update Jacobian status */
   *jcur = SUNTRUE;
@@ -198,7 +197,7 @@ static int idaNlsLSetup(N_Vector ycor, N_Vector res, booleantype jbad,
 }
 
 
-static int idaNlsLSolve(N_Vector ycor, N_Vector delta, void* ida_mem)
+static int idaNlsLSolve(N_Vector delta, void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval;

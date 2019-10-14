@@ -76,11 +76,10 @@ typedef struct IntegratorMemRec {
 } *IntegratorMem;
 
 /* Linear solver setup interface function */
-static int LSetup(N_Vector y, N_Vector f, booleantype jbad, booleantype* jcur,
-                  void* mem);
+static int LSetup(booleantype jbad, booleantype* jcur, void* mem);
 
 /* Linear solver solve interface function */
-static int LSolve(N_Vector y, N_Vector b, void* mem);
+static int LSolve(N_Vector b, void* mem);
 
 /* Convergence test function */
 static int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
@@ -214,7 +213,7 @@ int main(int argc, char *argv[])
 
 
 /* Proxy for integrator lsetup function */
-int LSetup(N_Vector ycor, N_Vector f, booleantype jbad, booleantype* jcur, void* mem)
+int LSetup(booleantype jbad, booleantype* jcur, void* mem)
 {
   int retval;
   IntegratorMem Imem;
@@ -224,9 +223,6 @@ int LSetup(N_Vector ycor, N_Vector f, booleantype jbad, booleantype* jcur, void*
     return(-1);
   }
   Imem = (IntegratorMem) mem;
-
-  /* update state based on current correction */
-  N_VLinearSum(ONE, Imem->y0, ONE, ycor, Imem->ycur);
 
   /* compute the Jacobian */
   retval = Jac(ZERO, Imem->ycur, NULL, Imem->A, NULL, NULL, NULL, NULL);
@@ -243,7 +239,7 @@ int LSetup(N_Vector ycor, N_Vector f, booleantype jbad, booleantype* jcur, void*
 
 
 /* Proxy for integrator lsolve function */
-int LSolve(N_Vector y, N_Vector b, void* mem)
+int LSolve(N_Vector b, void* mem)
 {
   int retval;
   IntegratorMem Imem;

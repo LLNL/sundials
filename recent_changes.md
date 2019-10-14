@@ -2,6 +2,9 @@
 
 ## Changes to SUNDIALS in release 5.0.0
 
+The definitions of `SUNNonlinSolLSetupFn` and `SUNNonlinSolLSolveFn` in the
+SUNNonlinearSolver API have been updated to remove unused input parameters.
+
 Support for optional inequality constraints on individual components of the
 solution vector has been added the ARKode ERKStep and ARKStep modules. See
 the descriptions of ERKStepSetConstraints and ARKStepSetConstraints for

@@ -55,12 +55,12 @@ initialization (``SUNNonlinSolInitialization``), setup
 
    **Return value:**  the SUNNonlinSol type identifier (of type
    ``int``) will be one of the following:
-   
+
    * ``SUNNONLINEARSOLVER_ROOTFIND`` -- ``0``, the SUNNonlinSol module
      solves :math:`F(y) = 0`.
-        
+
    * ``SUNNONLINEARSOLVER_FIXEDPOINT`` -- ``1``, the SUNNonlinSol
-     module solves :math:`G(y) = y`. 
+     module solves :math:`G(y) = y`.
 
 
 .. c:function:: int SUNNonlinSolInitialize(SUNNonlinearSolver NLS)
@@ -137,7 +137,7 @@ initialization (``SUNNonlinSolInitialization``), setup
    successful call, and a negative value for a failure. SUNNonlinSol
    implementations that do not allocate data may set this operation
    to ``NULL``.
-   
+
 
 
 
@@ -164,7 +164,7 @@ parameters. Only the routine for setting the nonlinear system defining function
       * *NLS* -- a SUNNonlinSol object
       * *SysFn* -- the function defining the nonlinear system. See the
         section :ref:`SUNNonlinSol.SUNSuppliedFn` for the definition of
-        :c:type:`SUNNonlinSolSysFn()`. 
+        :c:type:`SUNNonlinSolSysFn()`.
 
    **Return value:**  the return value should be zero for a
    successful call, and a negative value for a failure.
@@ -174,7 +174,7 @@ parameters. Only the routine for setting the nonlinear system defining function
 
    The *optional* function :c:func:`SUNNonlinSolLSetupFn()` is called
    by SUNDIALS integrators to provide the nonlinear solver with access
-   to its linear solver setup function. 
+   to its linear solver setup function.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object
@@ -196,19 +196,19 @@ parameters. Only the routine for setting the nonlinear system defining function
    that do not require setup may set this operation to ``NULL``.
 
 
-  
+
 .. c:function:: int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn SolveFn)
 
    The *optional* function :c:func:`SUNNonlinSolSetLSolveFn()` is
    called by SUNDIALS integrators to provide the nonlinear solver with
-   access to its linear solver solve function. 
+   access to its linear solver solve function.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object
       * *SolveFn* -- a wrapper function to the SUNDIALS integrator's
         linear solver solve function. See the section
         :ref:`SUNNonlinSol.SUNSuppliedFn` for the definition of
-        :c:type:`SUNNonlinSolLSolveFn()`. 
+        :c:type:`SUNNonlinSolLSolveFn()`.
 
    **Return value:**  the return value should be zero for a
    successful call, and a negative value for a failure.
@@ -221,7 +221,7 @@ parameters. Only the routine for setting the nonlinear system defining function
    solvers may set this operation to ``NULL``.
 
 
-  
+
 .. c:function:: int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
 
    The *optional* function :c:func:`SUNNonlinSolSetConvTestFn()` is
@@ -244,13 +244,13 @@ parameters. Only the routine for setting the nonlinear system defining function
    convergence test criteria may set this function to ``NULL``.
 
 
-  
+
 .. c:function:: int SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS, int maxiters)
 
    The *optional* function :c:func:`SUNNonlinSolSetMaxIters()` sets
    the maximum number of nonlinear solver iterations. This is
    typically called by SUNDIALS integrators to define their default
-   iteration limit, but may be adjusted by the user. 
+   iteration limit, but may be adjusted by the user.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object
@@ -274,15 +274,15 @@ iterations (``SUNNonlinSolGetNumIters``) and number of convergence failures are
 optional. The routine to get the current nonlinear solver iteration
 (``SUNNonlinSolGetCurIter``) is required when using the convergence test
 provided by the SUNDIALS integrator or when using a SUNLinSol spils linear
-solver otherwise, ``SUNNonlinSolGetCurIter`` is optional. 
+solver otherwise, ``SUNNonlinSolGetCurIter`` is optional.
 
-  
+
 .. c:function:: int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
 
    The *optional* function :c:func:`SUNNonlinSolGetNumIters()` returns
    the total number of nonlinear solver iterations. This is typically
    called by the SUNDIALS integrator to store the nonlinear solver
-   statistics, but may also be called by the user. 
+   statistics, but may also be called by the user.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object
@@ -291,14 +291,14 @@ solver otherwise, ``SUNNonlinSolGetCurIter`` is optional.
    **Return value:**  the return value should be zero for a
    successful call, and a negative value for a failure.
 
-  
+
 .. c:function:: int SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int *iter)
 
    The function :c:func:`SUNNonlinSolGetCurIter()` returns the
    iteration index of the current nonlinear solve. This function is
    *required* when using SUNDIALS integrator-provided convergence
    tests or when using a SUNLinSol spils linear solver; otherwise it
-   is *optional*. 
+   is *optional*.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object
@@ -313,7 +313,7 @@ solver otherwise, ``SUNNonlinSolGetCurIter`` is optional.
    The *optional* function :c:func:`SUNNonlinSolGetNumConvFails()` returns
    the total number of nonlinear solver convergence failures. This may be
    called by the SUNDIALS integrator to store the nonlinear solver
-   statistics, but may also be called by the user. 
+   statistics, but may also be called by the user.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object
@@ -359,15 +359,21 @@ module are defined in the header file
    successul solve, a positive value for a recoverable error, and a
    negative value for an unrecoverable error.
 
+   As discussed in section :ref:`SUNNonlinSol.ARKode`, SUNDIALS integrators
+   formulate nonlinear systems as a function of the correction to the predicted
+   solution. On each call to the nonlinear system function the integrator will
+   compute and store the current solution based on the input correction.
+   Additionally, the residual will store the value of the ODE right-hand side
+   function or DAE residual used in computing the nonlinear system. These stored
+   values are then directly used in the integrator-supplied linear solver setup
+   and solve functions as applicable.
 
-.. c:type:: typedef int (*SUNNonlinSolLSetupFn)(N_Vector y, N_Vector F, booleantype jbad, booleantype* jcur, void* mem)
+.. c:type:: typedef int (*SUNNonlinSolLSetupFn)(booleantype jbad, booleantype* jcur, void* mem)
 
    These functions are wrappers to the SUNDIALS integrator's function
    for setting up linear solves with SUNLinSol modules.
 
    **Arguments:**
-      * *y* -- is the state vector at which the linear system should be setup.
-      * *F* -- is the value of the nonlinear system function at ``y``.
       * *jbad* -- is an input indicating whether the nonlinear solver
         believes that :math:`A` has gone stale (``SUNTRUE``) or not (``SUNFALSE``).
       * *jcur* -- is an output indicating whether the routine has updated the
@@ -388,14 +394,19 @@ module are defined in the header file
    utilize SUNLinSol linear solvers, or use SUNLinSol linear solvers
    that do not require setup may ignore these functions.
 
+   As discussed in the description of :c:type:`SUNNonlinSolSysFn()`, the linear
+   solver setup function assumes that the nonlinear system function has been
+   called prior to the linear solver setup function as the setup will utilize
+   saved values from the nonlinear system evaluation (e.g., the updated
+   solution).
 
-.. c:type:: typedef int (*SUNNonlinSolLSolveFn)(N_Vector y, N_Vector b, void* mem)
+
+.. c:type:: typedef int (*SUNNonlinSolLSolveFn)(N_Vector b, void* mem)
 
    These functions are wrappers to the SUNDIALS integrator's function
    for solving linear systems with SUNLinSol modules.
 
    **Arguments:**
-      * *y* -- is the input vector containing the current nonlinear iteration.
       * *b* -- contains the right-hand side vector for the linear
         solve on input and the solution to the linear system on output.
       * *mem* -- is the SUNDIALS integrator memory structure.
@@ -410,6 +421,12 @@ module are defined in the header file
    function :math:`F(y) = 0`. SUNNonlinSol implementations that do not
    require solving this system or do not use SUNLinSol linear solvers
    may ignore these functions.
+
+   As discussed in the description of :c:type:`SUNNonlinSolSysFn()`, the linear
+   solver solve function assumes that the nonlinear system function has been
+   called prior to the linear solver solve function as the setup may utilize
+   saved values from the nonlinear system evaluation (e.g., the updated
+   solution).
 
 
 .. c:type:: int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del, realtype tol, N_Vector ewt, void* mem)
@@ -431,12 +448,12 @@ module are defined in the header file
    following:
 
    * ``SUN_NLS_SUCCESS`` -- the iteration is converged.
-        
+
    * ``SUN_NLS_CONTINUE`` -- the iteration has not converged, keep
      iterating.
-        
+
    * ``SUN_NLS_CONV_RECVR`` -- the iteration appears to be
-     diverging, try to recover. 
+     diverging, try to recover.
 
    **Notes:**  The tolerance passed to this routine by SUNDIALS
    integrators is the tolerance in a weighted root-mean-squared norm
@@ -455,7 +472,7 @@ integrator, and functions within the SUNDIALS-provided SUNNonlinSol
 implementations utilize a common set of return codes, shown in the
 table below.  Here, negative values correspond to non-recoverable
 failures, positive values to recoverable failures, and zero to a
-successful call. 
+successful call.
 
 Description of the ``SUNNonlinearSolver`` return codes:
 
@@ -537,7 +554,7 @@ operation from the generic SUNNonlinSol module, namely
 denoting a successful or failed solve:
 
 .. code-block:: c
-                
+
    int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
                          N_Vector y0, N_Vector y,
                          N_Vector w, realtype tol,
@@ -559,12 +576,12 @@ A SUNNonlinSol implementation *must* do the following:
 
 * Define and implement the required nonlinear solver operations
   defined in Sections :ref:`SUNNonlinSol.CoreFn` through
-  :ref:`SUNNonlinSol.GetFn`. Note that the names of the module 
+  :ref:`SUNNonlinSol.GetFn`. Note that the names of the module
   routines should be unique to that implementation in order to permit
   using more than one SUNNonlinSol module (each with different
   ``SUNNonlinearSolver`` internal data representations) in
   the same code.
-  
+
 * Define and implement a user-callable constructor to create a
   ``SUNNonlinearSolver`` object.
 
@@ -576,26 +593,26 @@ of any new optional nonlinear solver operations to the ``SUNNonlinearSolver`` AP
 by ensuring only required operations need to be set.
 
 .. c:function:: SUNNonlinearSolver SUNNonlinSolNewEmpty()
-                
+
   This function allocates a new generic ``SUNNonlinearSolver`` object and
   initializes its content pointer and the function pointers in the operations
   structure to ``NULL``.
 
   **Return value:** If successful, this function returns a
   ``SUNNonlinearSolver`` object. If an error occurs when allocating the object,
-  then this routine will return ``NULL``. 
- 
+  then this routine will return ``NULL``.
+
 .. c:function:: void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS)
 
   This routine frees the generic ``SUNNonlinearSolver`` object, under the assumption that any
   implementation-specific data that was allocated within the underlying content structure
-  has already been freed. It will additionally test whether the ops pointer is ``NULL``, 
+  has already been freed. It will additionally test whether the ops pointer is ``NULL``,
   and, if it is not, it will free it as well.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinearSolver object
 
- 
+
 Additionally, a ``SUNNonlinearSolver`` implementation *may* do
 the following:
 
@@ -603,7 +620,7 @@ the following:
   acting on the ``SUNNonlinearSolver`` object, e.g., for setting
   various configuration options to tune the performance of the
   nonlinear solve algorithm.
-  
+
 * Provide additional user-callable "get" routines acting on the
   ``SUNNonlinearSolver`` object, e.g., for returning various solve
-  statistics. 
+  statistics.

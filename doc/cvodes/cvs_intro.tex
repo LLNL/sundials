@@ -119,6 +119,9 @@ writing in C|)}
 
 \subsection*{Changes in v5.0.0}
 
+The definitions of \id{SUNNonlinSolLSetupFn} and \id{SUNNonlinSolLSolveFn} in
+the SUNNonlinearSolver API have been updated to remove unused input parameters.
+
 Fixed a bug in the {\cvodes} constraint handling where the step size could be
 set below the minimum step size.
 

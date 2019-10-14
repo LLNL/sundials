@@ -135,7 +135,7 @@ contains
 
   end function unit_tests
 
-  integer(C_INT) function LSetup(ycor, f, jbad, jcur, mem) &
+  integer(C_INT) function LSetup(jbad, jcur, mem) &
     result(retval) bind(C)
     use, intrinsic :: iso_c_binding
     use fsundials_linearsolver_mod
@@ -143,7 +143,6 @@ contains
 
     implicit none
 
-    type(N_Vector)               :: ycor, f
     type(N_Vector), pointer      :: fy, tmp1, tmp2, tmp3
     integer(C_INT), value        :: jbad
     integer(C_INT), dimension(*) :: jcur
@@ -159,9 +158,6 @@ contains
     ! get the Integrator memory Fortran type out
     call c_f_pointer(mem, Imem)
 
-    ! update the state based on the current correction
-    call FN_VLinearSum(ONE, Imem%y0, ONE, ycor, Imem%ycur)
-
     ! compute the Jacobian
     retval = Jac(0.d0, Imem%ycur, fy, Imem%A, C_NULL_PTR, tmp1, tmp2, tmp3)
     if (retval /= 0) return
@@ -173,7 +169,7 @@ contains
 
   end function
 
-  integer(C_INT) function LSolve(y, b, mem) &
+  integer(C_INT) function LSolve(b, mem) &
     result(retval) bind(C)
     use, intrinsic :: iso_c_binding
     use fsundials_linearsolver_mod
@@ -181,7 +177,7 @@ contains
 
     implicit none
 
-    type(N_Vector)               :: y, b
+    type(N_Vector)               :: b
     type(C_PTR),         value   :: mem
     type(IntegratorMem), pointer :: Imem
 

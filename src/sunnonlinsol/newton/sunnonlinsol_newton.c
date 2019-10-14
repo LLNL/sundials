@@ -219,7 +219,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
     /* if indicated, setup the linear system */
     if (callLSetup) {
-      retval = NEWTON_CONTENT(NLS)->LSetup(ycor, delta, jbad,
+      retval = NEWTON_CONTENT(NLS)->LSetup(jbad,
                                            &(NEWTON_CONTENT(NLS)->jcur),
                                            mem);
       if (retval != SUN_NLS_SUCCESS) break;
@@ -238,7 +238,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       N_VScale(-ONE, delta, delta);
 
       /* solve the linear system to get Newton update delta */
-      retval = NEWTON_CONTENT(NLS)->LSolve(ycor, delta, mem);
+      retval = NEWTON_CONTENT(NLS)->LSolve(delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
       /* update the Newton iterate */

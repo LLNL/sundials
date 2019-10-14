@@ -302,6 +302,10 @@ preconditioner routines.
 
 \subsection{Changes in v4.0.0}
 \label{Introduction:changes-in-v4-0-0}
+The definitions of \code{SUNNonlinSolLSetupFn()} and
+\code{SUNNonlinSolLSolveFn()} in the SUNNonlinearSolver API have been updated
+to remove unused input parameters.
+
 Support for optional inequality constraints on individual components of the
 solution vector has been added the ARKode ERKStep and ARKStep modules. See
 the descriptions of {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetConstraints]{\emph{\code{ERKStepSetConstraints()}}}} and
@@ -39647,22 +39651,25 @@ section for more detail on the nonlinear system function.
 successul solve, a positive value for a recoverable error, and a
 negative value for an unrecoverable error.
 
+As discussed in section {\hyperref[sunnonlinsol/ARKode_Interface:sunnonlinsol-arkode]{\emph{\DUspan{}{ARKode SUNNonlinearSolver interface}}}}, SUNDIALS integrators
+formulate nonlinear systems as a function of the correction to the predicted
+solution. On each call to the nonlinear system function the integrator will
+compute and store the current solution based on the input correction.
+Additionally, the residual will store the value of the ODE right-hand side
+function or DAE residual used in computing the nonlinear system. These stored
+values are then directly used in the integrator-supplied linear solver setup
+and solve functions as applicable.
+
 \end{fulllineitems}
 
 \index{SUNNonlinSolLSetupFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolLSetupFn}\pysiglinewithargsret{typedef int \bfcode{(*SUNNonlinSolLSetupFn)}}{N\_Vector\emph{ y}, N\_Vector\emph{ F}, booleantype\emph{ jbad}, booleantype*\emph{ jcur}, void*\emph{ mem}}{}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolLSetupFn}\pysiglinewithargsret{typedef int \bfcode{(*SUNNonlinSolLSetupFn)}}{booleantype\emph{ jbad}, booleantype*\emph{ jcur}, void*\emph{ mem}}{}
 These functions are wrappers to the SUNDIALS integrator's function
 for setting up linear solves with SUNLinSol modules.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{y} -- is the state vector at which the linear system should be setup.
-
-\item {} 
-\emph{F} -- is the value of the nonlinear system function at \code{y}.
-
 \item {} 
 \emph{jbad} -- is an input indicating whether the nonlinear solver
 believes that \(A\) has gone stale (\code{SUNTRUE}) or not (\code{SUNFALSE}).
@@ -39692,19 +39699,22 @@ implementations that do not require solving this system, do not
 utilize SUNLinSol linear solvers, or use SUNLinSol linear solvers
 that do not require setup may ignore these functions.
 
+As discussed in the description of \code{SUNNonlinSolSysFn()}, the linear
+solver setup function assumes that the nonlinear system function has been
+called prior to the linear solver setup function as the setup will utilize
+saved values from the nonlinear system evaluation (e.g., the updated
+solution).
+
 \end{fulllineitems}
 
 \index{SUNNonlinSolLSolveFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolLSolveFn}\pysiglinewithargsret{typedef int \bfcode{(*SUNNonlinSolLSolveFn)}}{N\_Vector\emph{ y}, N\_Vector\emph{ b}, void*\emph{ mem}}{}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolLSolveFn}\pysiglinewithargsret{typedef int \bfcode{(*SUNNonlinSolLSolveFn)}}{N\_Vector\emph{ b}, void*\emph{ mem}}{}
 These functions are wrappers to the SUNDIALS integrator's function
 for solving linear systems with SUNLinSol modules.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{y} -- is the input vector containing the current nonlinear iteration.
-
 \item {} 
 \emph{b} -- contains the right-hand side vector for the linear
 solve on input and the solution to the linear system on output.
@@ -39726,6 +39736,12 @@ F}{\partial y}\) is the linearization of the nonlinear residual
 function \(F(y) = 0\). SUNNonlinSol implementations that do not
 require solving this system or do not use SUNLinSol linear solvers
 may ignore these functions.
+
+As discussed in the description of \code{SUNNonlinSolSysFn()}, the linear
+solver solve function assumes that the nonlinear system function has been
+called prior to the linear solver solve function as the setup may utilize
+saved values from the nonlinear system evaluation (e.g., the updated
+solution).
 
 \end{fulllineitems}
 

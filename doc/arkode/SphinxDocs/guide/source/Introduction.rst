@@ -107,6 +107,13 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in v4.0.0
+^^^^^^^^^^^^^^^^^^
+
+The definitions of :c:type:`SUNNonlinSolLSetupFn()` and
+:c:type:`SUNNonlinSolLSolveFn()` in the SUNNonlinearSolver API have been updated
+to remove unused input parameters.
+
 
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

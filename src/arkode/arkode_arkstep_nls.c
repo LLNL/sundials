@@ -273,8 +273,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   This routine wraps the ARKode linear solver interface 'setup'
   routine for use by the nonlinear solver object.
   ---------------------------------------------------------------*/
-int arkStep_NlsLSetup(N_Vector zcor, N_Vector res, booleantype jbad,
-                      booleantype* jcur, void* arkode_mem)
+int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -319,7 +318,7 @@ int arkStep_NlsLSetup(N_Vector zcor, N_Vector res, booleantype jbad,
   This routine wraps the ARKode linear solver interface 'solve'
   routine for use by the nonlinear solver object.
   ---------------------------------------------------------------*/
-int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
+int arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;

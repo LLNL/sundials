@@ -434,7 +434,7 @@ or by the {\arkode} and {\cvode} linear solver interfaces.  Otherwise,
   The function \ID{SUNNonlinSolGetCurIter} returns the iteration index
   of the current nonlinear solve. This function is \textit{required}
   when using {\sundials} integrator-provided convergence tests or
-  when using a {\sunlinsol} spils linear solver; otherwise it is 
+  when using a {\sunlinsol} spils linear solver; otherwise it is
   \textit{optional}.
 }
 {
@@ -540,13 +540,21 @@ module are defined in the header file
   %% prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or
   %% {\idas}, and \id{ARK} for {\arkode}).
 }
-{}
+{
+  As discussed in section \ref{s:sunnonlinsol_interface}, {\sundials}
+  integrators formulate nonlinear systems as a function of the correction to the
+  predicted solution. On each call to the nonlinear system function the
+  integrator will compute and store the current solution based on the input
+  correction. Additionally, the residual will store the value of the ODE
+  right-hand side function or DAE residual used in computing the nonlinear
+  system residual. These stored values are then directly used in the
+  integrator-supplied linear solver setup and solve functions as applicable.
+}
 % --------------------------------------------------------------------
 \usfunction{SUNNonlinSolLSetupFn}
 {
-  typedef int (*SUNNonlinSolLSetupFn)(&N\_Vector y, N\_Vector F,\\
-                                      &booleantype jbad, \\
-                                      &booleantype* jcur, void* mem);
+  typedef int (*SUNNonlinSolLSetupFn)(&booleantype jbad, booleantype* jcur,\\
+                                      &void* mem);
 }
 {
   These functions are wrappers to the {\sundials} integrator's function
@@ -554,10 +562,6 @@ module are defined in the header file
 }
 {
   \begin{args}[jcur]
-  \item[y]
-    is the state vector at which the linear system should be setup.
-  \item[F]
-    is the value of the nonlinear system function at \id{y}.
   \item[jbad]
     is an input indicating whether the nonlinear solver believes that
     $A$ has gone stale (\id{SUNTRUE}) or not (\id{SUNFALSE}).
@@ -572,21 +576,6 @@ module are defined in the header file
   The return value \id{retval} (of type \id{int}) is zero for a
   successul solve, a positive value for a recoverable error, and a
   negative value for an unrecoverable error.
-  %% The return value \id{retval} (of type \id{int}) will be one of the
-  %% following:
-  %% \begin{args}[*\_LSETUP\_RECVR]
-  %% \item[\id{*\_SUCCESS}]
-  %%   the linear solver setup was successful
-  %% \item[\id{*\_LSETUP\_RECVR}]
-  %%   the linear solver setup function returned a recoverable error
-  %% \item[\id{*\_LSETUP\_FAIL}]
-  %%   the linear solver setup function returned an unrecoverable error
-  %% \item[\id{*\_MEM\_NULL}]
-  %%   the {\sundials} package memory was \id{NULL}
-  %% \end{args}
-  %% In the above return codes \id{*} is a {\sundials} package-specific
-  %% prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or
-  %% {\idas}, and \id{ARK} for {\arkode}).
 }
 {
   The \id{SUNNonlinLSetupFn} function sets up the linear system $Ax=b$ where
@@ -597,11 +586,16 @@ module are defined in the header file
   do not require solving this system, do not utilize {\sunlinsol} linear
   solvers, or use {\sunlinsol} linear solvers that do not require setup may
   ignore these functions.
+
+  As discussed in the description of \id{SUNNonlinSolSysFn}, the linear solver
+  setup function assumes that the nonlinear system function has been called
+  prior to the linear solver setup function as the setup will utilize saved
+  values from the nonlinear system evaluation (e.g., the updated solution).
 }
 % --------------------------------------------------------------------
 \usfunction{SUNNonlinSolLSolveFn}
 {
-  typedef int (*SUNNonlinSolLSolveFn)(N\_Vector y, N\_Vector b, void* mem);
+  typedef int (*SUNNonlinSolLSolveFn)(N\_Vector b, void* mem);
 }
 {
   These functions are wrappers to the {\sundials} integrator's function
@@ -609,8 +603,6 @@ module are defined in the header file
 }
 {
   \begin{args}[mem]
-  \item[y]
-    is the input vector containing the current nonlinear iteration.
   \item[b]
     contains the right-hand side vector for the linear solve on input
     and the solution to the linear system on output.
@@ -622,21 +614,6 @@ module are defined in the header file
   The return value \id{retval} (of type \id{int}) is zero for a
   successul solve, a positive value for a recoverable error, and a
   negative value for an unrecoverable error.
-  %% The return value \id{retval} (of type \id{int}) will be one of the
-  %% following:
-  %% \begin{args}[*\_LSOLVE\_RECVR]
-  %% \item[\id{*\_SUCCESS}]
-  %%   the linear solve was successful
-  %% \item[\id{*\_LSOLVE\_RECVR}]
-  %%   the linear solver solve function returned a recoverable error
-  %% \item[\id{*\_LSOLVE\_FAIL}]
-  %%   the linear solver solve function returned an unrecoverable error
-  %% \item[\id{*\_MEM\_NULL}]
-  %%   the {\sundials} package memory was \id{NULL}
-  %% \end{args}
-  %% In the above return codes \id{*} is a {\sundials} package-specific
-  %% prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or
-  %% {\idas}, and \id{ARK} for {\arkode}).
 }
 {
   The \id{SUNNonlinLSolveFn} function solves the linear system $Ax=b$ where
@@ -644,6 +621,11 @@ module are defined in the header file
   residual function $F(y) = 0$. {\sunnonlinsol} implementations that do not
   require solving this system or do not use {\sunlinsol} linear solvers may
   ignore these functions.
+
+  As discussed in the description of \id{SUNNonlinSolSysFn}, the linear solver
+  solve function assumes that the nonlinear system function has been called
+  prior to the linear solver solve function as the solve may utilize saved
+  values from the nonlinear system evaluation (e.g., the updated solution).
 }
 % --------------------------------------------------------------------
 \usfunction{SUNNonlinSolConvTestFn}
@@ -753,7 +735,7 @@ failures, and zero to a successful call.
 
 {\sundials} integrators interact with specific {\sunnonlinsol}
 implementations through the generic {\sunnonlinsol} module on which all
-other {\sunnonlinsol} implementations are built. The \\ \noindent 
+other {\sunnonlinsol} implementations are built. The \\ \noindent
 \id{SUNNonlinearSolver} type is a pointer to a structure containing an
 implementation-dependent \textit{content} field and an \textit{ops}
 field. The type \id{SUNNonlinearSolver} is defined as follows:
@@ -864,7 +846,7 @@ wrapper is provided so users do not need to interact directly with the
 {\nvecwrap} module. These constructors follow the naming
 convention \id{SUNNonlinSol\_***Sens(count,...)} where \id{***} is the name of
 the {\sunnonlinsol} module, \id{count} is the size of the vector wrapper,
-and \id{...} are the module-specific constructor arguments. 
+and \id{...} are the module-specific constructor arguments.
 
 % ====================================================================
 \subsubsection*{The NVECTOR\_SENSWRAPPER module}
@@ -957,7 +939,7 @@ the \textit{content} field of the \id{N\_Vector} to be a structure containing
 an \id{N\_Vector} array, the number of vectors in the vector array, and a
 boolean flag indicating ownership of the vectors in the vector array.
 %
-\begin{verbatim} 
+\begin{verbatim}
 struct _N_VectorContent_SensWrapper {
   N_Vector* vecs;
   int nvecs;
@@ -1040,7 +1022,7 @@ required operations need to be set.
 {
   This routine frees the generic \id{SUNNonlinearSolver} object, under the assumption that any
   implementation-specific data that was allocated within the underlying content structure
-  has already been freed. It will additionally test whether the ops pointer is \id{NULL}, 
+  has already been freed. It will additionally test whether the ops pointer is \id{NULL},
   and, if it is not, it will free it as well.
 }
 {
@@ -1050,4 +1032,3 @@ required operations need to be set.
 }
 {}
 {}
-

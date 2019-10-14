@@ -72,10 +72,10 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNNonlinearSolver *SUNNonlinearSolver;
 
 typedef int (*SUNNonlinSolSysFn)(N_Vector y, N_Vector F, void* mem);
 
-typedef int (*SUNNonlinSolLSetupFn)(N_Vector y, N_Vector F, booleantype jbad,
-                                    booleantype* jcur, void* mem);
+typedef int (*SUNNonlinSolLSetupFn)(booleantype jbad, booleantype* jcur,
+                                    void* mem);
 
-typedef int (*SUNNonlinSolLSolveFn)(N_Vector y, N_Vector b, void* mem);
+typedef int (*SUNNonlinSolLSolveFn)(N_Vector b, void* mem);
 
 typedef int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y,
                                       N_Vector del, realtype tol, N_Vector ewt,

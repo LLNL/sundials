@@ -29,9 +29,9 @@
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidualSensSim(N_Vector ycor, N_Vector res, void* ida_mem);
-static int idaNlsLSetupSensSim(N_Vector ycor, N_Vector res, booleantype jbad,
-                               booleantype* jcur, void* ida_mem);
-static int idaNlsLSolveSensSim(N_Vector ycor, N_Vector delta, void* ida_mem);
+static int idaNlsLSetupSensSim(booleantype jbad, booleantype* jcur,
+                               void* ida_mem);
+static int idaNlsLSolveSensSim(N_Vector delta, void* ida_mem);
 static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
                                  realtype tol, N_Vector ewt, void* ida_mem);
 
@@ -222,13 +222,11 @@ int idaNlsInitSensSim(IDAMem IDA_mem)
 }
 
 
-static int idaNlsLSetupSensSim(N_Vector ycorSim, N_Vector resSim,
-                               booleantype jbad, booleantype* jcur,
+static int idaNlsLSetupSensSim(booleantype jbad, booleantype* jcur,
                                void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval;
-  N_Vector res;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS",
@@ -237,14 +235,12 @@ static int idaNlsLSetupSensSim(N_Vector ycorSim, N_Vector resSim,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  /* extract residual vector from the vector wrapper */
-  res = NV_VEC_SW(resSim,0);
-
   IDA_mem->ida_nsetups++;
   IDA_mem->ida_forceSetup = SUNFALSE;
 
-  retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy, IDA_mem->ida_yp, res,
-                               IDA_mem->ida_tempv1, IDA_mem->ida_tempv2, IDA_mem->ida_tempv3);
+  retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy, IDA_mem->ida_yp,
+                               IDA_mem->ida_savres, IDA_mem->ida_tempv1,
+                               IDA_mem->ida_tempv2, IDA_mem->ida_tempv3);
 
   /* update Jacobian status */
   *jcur = SUNTRUE;
@@ -262,7 +258,7 @@ static int idaNlsLSetupSensSim(N_Vector ycorSim, N_Vector resSim,
 }
 
 
-static int idaNlsLSolveSensSim(N_Vector ycorSim, N_Vector deltaSim, void* ida_mem)
+static int idaNlsLSolveSensSim(N_Vector deltaSim, void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval, is;
