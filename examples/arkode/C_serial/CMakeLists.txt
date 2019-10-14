@@ -29,6 +29,7 @@ set(ARKODE_examples
   "ark_heat1D_adapt\;develop"
   "ark_KrylovDemo_prec\;develop"
   "ark_robertson\;develop"
+  "ark_robertson_constraints\;develop"
   "ark_robertson_root\;develop"
   "ark_brusselator_mri\;develop"
   "ark_onewaycouple_mri\;develop"

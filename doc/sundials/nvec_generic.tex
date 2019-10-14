@@ -631,12 +631,12 @@ for the implementation specific functions to enable/disable operations.
 }
 {
   \begin{args}[nv]
-  \item[nv] (\id{int}) the number of vectors in the linear combination 
+  \item[nv] (\id{int}) the number of vectors in the linear combination
   \item[c] (\id{realtype*}) an array of $n_v$ scalars used to scale
     the corresponding vector in \id{X}
-  \item[X] (\id{N\_Vector*}) an array of $n_v$ {\nvector} objects 
+  \item[X] (\id{N\_Vector*}) an array of $n_v$ {\nvector} objects
     to be scaled and combined
-  \item[z] (\id{N\_Vector}) a {\nvector} object containing the result 
+  \item[z] (\id{N\_Vector}) a {\nvector} object containing the result
   \end{args}
 }
 {
@@ -674,7 +674,7 @@ for the implementation specific functions to enable/disable operations.
     vector in \id{Y}
   \item[Y] (\id{N\_Vector*}) an array of $n_v$ {\nvector} objects where each vector
     $j$ will have the vector \id{x} scaled by \id{c\_j} added to it
-  \item[Z] (\id{N\_Vector}) an output array of $n_v$ {\nvector} objects 
+  \item[Z] (\id{N\_Vector}) an output array of $n_v$ {\nvector} objects
   \end{args}
 }
 {
@@ -707,7 +707,7 @@ for the implementation specific functions to enable/disable operations.
     with each of the vectors in \id{Y}
   \item[Y] (\id{N\_Vector*}) an array of $n_v$ {\nvector} objects to use
     in a dot product with \id{x}
-  \item[d] (\id{realtype*}) an output array of $n_v$ dot products 
+  \item[d] (\id{realtype*}) an output array of $n_v$ dot products
   \end{args}
 }
 {
@@ -849,7 +849,7 @@ for the implementation specific functions to enable/disable operations.
   \item[nv] (\id{int}) the number of vectors in the vector arrays
   \item[X] (\id{N\_Vector*}) an array of $n_v$ {\nvector} objects
   \item[W] (\id{N\_Vector*}) an array of $n_v$ {\nvector} objects
-  \item[id] (\id{N\_Vector}) the mask vector 
+  \item[id] (\id{N\_Vector}) the mask vector
   \item[m] (\id{realtype*}) an output array of $n_v$ norms
   \end{args}
 }
@@ -906,7 +906,7 @@ for the implementation specific functions to enable/disable operations.
   \id{N\_Vector*}). If the output vector array $Z$ is one of the vector arrays in
   $XX$, then it \textit{must} be the first vector array in $XX$.
 }
-{ 
+{
  \begin{args}[nv]
   \item[nv] (\id{int}) the number of vectors in the vector arrays
   \item[ns] (\id{int}) the number of scalars in \id{c} and vector arrays
@@ -1076,7 +1076,7 @@ used as templates for user-defined {\nvector} implementations.
   \begin{args}[x]
   \item[x] (\id{N\_Vector}) a {\nvector} object
   \item[w] (\id{N\_Vector}) a {\nvector} object containing weights
-  \item[id] (\id{N\_Vector}) a {\nvector} object used as a mask 
+  \item[id] (\id{N\_Vector}) a {\nvector} object used as a mask
   \end{args}
 }
 {
@@ -1227,7 +1227,7 @@ also provides the utility functions \ID{N\_VCloneVectorArray},
 {
   This routine frees the generic \id{N\_Vector} object, under the assumption that any
   implementation-specific data that was allocated within the underlying content structure
-  has already been freed. It will additionally test whether the ops pointer is \id{NULL}, 
+  has already been freed. It will additionally test whether the ops pointer is \id{NULL},
   and, if it is not, it will free it as well.
 }
 {
@@ -1496,7 +1496,7 @@ Their definition is given below.
   type(C_FUNPTR), public :: nvminquotientlocal
   type(C_FUNPTR), public :: nvwsqrsumlocal
   type(C_FUNPTR), public :: nvwsqrsummasklocal
- end type N_Vector_Ops 
+ end type N_Vector_Ops
 \end{verbatim}
 
 % =====================================================================
@@ -1547,11 +1547,11 @@ this end, we provide the following guidance:
 \begin{itemize}
 \item \id{N\_VMin} and \id{N\_VMinLocal} should return the minimum of
   all \emph{real} components of the vector, i.e.,  $m = \min_i
-  \operatorname{real}(x_i) $. 
+  \operatorname{real}(x_i) $.
 
 \item \id{N\_VConst} (and similarly \id{N\_VConstVectorArray}) should
   set the real components of the vector to the input constant, and set
-  all imaginary components to zero, i.e., 
+  all imaginary components to zero, i.e.,
   $z_i = c + 0 j,\: i=0,\ldots,n-1$.
 
 \item \id{N\_VAddConst} should only update the real components of the
@@ -1561,7 +1561,7 @@ this end, we provide the following guidance:
 \item \id{N\_VWrmsNorm}, \id{N\_VWrmsNormMask}, \id{N\_VWSqrSumLocal}
   and \id{N\_VWSqrSumMaskLocal} should assume that all entries of the
   weight vector \id{w} and the mask vector \id{id} are real-valued.
-  
+
 \item \id{N\_VDotProd} should mathematically return a complex number
   for complex-valued vectors; as this is not possible with
   {\sundials}' current \id{realtype}, this routine should
@@ -1572,7 +1572,7 @@ this end, we provide the following guidance:
   are ill-defined due to the lack of a clear ordering in the
   complex plane.  These routines should be set to \id{NULL}
   in the custom {\nvector} implementation.
-  
+
 \end{itemize}
 
 While many {\sundials} solver modules may be utilized on
@@ -1591,16 +1591,17 @@ Similarly, although each package's linear solver interface (e.g.,
 user should provide a custom {\sunlinsol} (and optionally a custom
 {\sunmatrix}) implementation for solving linear systems, and then
 attach this module as normal to the package's linear solver
-interface. 
+interface.
 
 Finally, constraint-handling features of each package cannot be used
-for complex-valued data, due to the issue of 
+for complex-valued data, due to the issue of
 ordering in the complex plane discussed above with
 \id{N\_VCompare}, \id{N\_VConstrMask}, \id{N\_VMinQuotient},
 \id{N\_VConstrMaskLocal} and \id{N\_VMinQuotientLocal}.
 
 We provide a simple example of a complex-valued example problem,
 including a custom complex-valued Fortran 2003 {\nvector} module, in the
-files \id{examples/arkode/F2003\_custom/ark\_analytic\_complex\_f2003.f90},
-\id{examples/arkode/F2003\_custom/fnvector\_complex\_mod.f90}, and
-\id{examples/arkode/F2003\_custom/test\_fnvector\_complex\_mod.f90}.
+files
+\newline\noindent\id{examples/arkode/F2003\_custom/ark\_analytic\_complex\_f2003.f90},
+\newline\noindent\id{examples/arkode/F2003\_custom/fnvector\_complex\_mod.f90}, and
+\newline\noindent\id{examples/arkode/F2003\_custom/test\_fnvector\_complex\_mod.f90}.

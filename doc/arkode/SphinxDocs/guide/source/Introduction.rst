@@ -111,6 +111,14 @@ Changes from previous versions
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Support for optional inequality constraints on individual components of the
+solution vector has been added the ARKode ERKStep and ARKStep modules. See
+the descriptions of :c:func:`ERKStepSetConstraints()` and
+:c:func:`ARKStepSetConstraints()` for more details. Note that enabling
+constraint handling requires the NVECTOR operations :c:func:`N_VMinQuotient()`,
+:c:func:`N_VConstrMask()`, and :c:func:`N_VCompare()` that were not previously
+required by ARKode.
+
 Fixed a bug that would result in a "too much accuracy requested" error when
 using fixed time step sizes with explicit methods in some cases.
 

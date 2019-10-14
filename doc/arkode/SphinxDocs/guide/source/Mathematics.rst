@@ -388,7 +388,7 @@ corresponds to the following algorithm for a single step:
 #. Set :math:`z_1 = y_{n-1}`
 #. For :math:`i = 2,\ldots,s+1`
 
-   #. Let :math:`v(t^S_{n,i-1}) = z_{i-1}` 
+   #. Let :math:`v(t^S_{n,i-1}) = z_{i-1}`
 
    #. Compute :math:`r = \frac{1}{c^S_i - c^S_{i-1}} \sum_{j=1}^{i-1}
       (A^S_{i,j} - A^S_{i-1,j}) f^S(t^S_{n,j}, z_j)`
@@ -1748,3 +1748,24 @@ module assumes that the entire set of root defining functions
 cases the vector :math:`y` is distributed across tasks, it is the
 user's responsibility to perform any necessary inter-task
 communication to ensure that :math:`g_i(t,y)` is identical on each task.
+
+
+.. _Mathematics.InequalityConstraints:
+Inequality Constraints
+=======================
+
+ARKode permits the user to impose optional inequality constraints on individual
+components of the solution vector :math:`y`. Any of the following four
+constraints can be imposed: :math:`y_i > 0`, :math:`y_i < 0`,
+:math:`y_i \geq 0`, or :math:`y_i \leq 0`. The constraint satisfaction is tested
+after a successful step and before the error test. If any constraint fails, the
+step size is reduced and a flag is set to update the Jacobian or preconditioner
+if applicable. Rather than cutting the step size by some arbitrary factor,
+ARKode estimates a new step size :math:`h'` using a linear approximation of the
+components in :math:`y` that failed the constraint test (including a safety
+factor of 0.9 to cover the strict inequality case). If a step fails to satisfy
+the constraints 10 times (a value which may be modified by the user) within a
+step attempt or fails with the minimum step size then the integration is halted
+and an error is returned. In this case the user may need to employ other
+strategies as discussed in :ref:`ARKStep_CInterface.Tolerances` and
+:ref:`ERKStep_CInterface.Tolerances` to satisfy the inequality constraints.

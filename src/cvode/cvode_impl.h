@@ -77,7 +77,7 @@ typedef struct CVodeMemRec {
   realtype cv_reltol;        /* relative tolerance                            */
   realtype cv_Sabstol;       /* scalar absolute tolerance                     */
   N_Vector cv_Vabstol;       /* vector absolute tolerance                     */
-  booleantype cv_atolmin0;   /* flag indicating that min(abstol) = 0          */    
+  booleantype cv_atolmin0;   /* flag indicating that min(abstol) = 0          */
   booleantype cv_user_efun;  /* SUNTRUE if user sets efun                     */
   CVEwtFn cv_efun;           /* function to set ewt                           */
   void *cv_e_data;           /* user pointer passed to efun                   */
@@ -111,8 +111,7 @@ typedef struct CVodeMemRec {
   N_Vector cv_vtemp2;  /* temporary storage vector                            */
   N_Vector cv_vtemp3;  /* temporary storage vector                            */
 
- N_Vector cv_mm;          /* mask vector in constraints tests                    */
- N_Vector cv_constraints; /* vector of inequality constraint options             */
+  N_Vector cv_constraints; /* vector of inequality constraint options             */
 
   /*-----------------
     Tstop information
@@ -248,7 +247,7 @@ typedef struct CVodeMemRec {
   int cv_indx_acor;            /* index of the zn vector with saved acor      */
 
   booleantype cv_VabstolMallocDone;
-  booleantype cv_MallocDone;  
+  booleantype cv_MallocDone;
   booleantype cv_constraintsMallocDone;
 
   /*-------------------------------------------

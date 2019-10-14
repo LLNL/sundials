@@ -266,8 +266,12 @@ Shared ARKode output constants
 :index:`ARK_MASSFREE_FAIL`  (-17):
    The mass matrix linear solver's memory deallocation function failed.
 
-:index:`ARK_MASSMULT_FAIL`  (-17):
+:index:`ARK_MASSMULT_FAIL`  (-18):
    The mass matrix-vector product function failed.
+
+:index:`ARK_CONSTR_FAIL`  (-19):
+   The inequality constraint test failed repeatedly or failed with the minimum
+   step size.
 
 :index:`ARK_MEM_FAIL`  (-20):
    A memory allocation failed.
@@ -307,11 +311,11 @@ Shared ARKode output constants
 
 :index:`ARK_NLS_SETUP_FAIL`  (-31):
    A non-recoverable error occurred when setting up a
-   SUNNonlinearSolver module. 
+   SUNNonlinearSolver module.
 
 :index:`ARK_NLS_SETUP_RECVR`  (-32):
    A recoverable error occurred when setting up a SUNNonlinearSolver module.
-   
+
 :index:`ARK_NLS_OP_ERR`  (-33):
    An error occurred when calling a set/get routine in a SUNNonlinearSolver
    module.

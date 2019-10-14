@@ -83,22 +83,26 @@ ARKodeMem arkCreate()
   }
 
   /* Initialize time step module to NULL */
-  ark_mem->step_attachlinsol = NULL;
-  ark_mem->step_attachmasssol = NULL;
-  ark_mem->step_disablelsetup = NULL;
-  ark_mem->step_disablemsetup = NULL;
-  ark_mem->step_getlinmem = NULL;
-  ark_mem->step_getmassmem = NULL;
+  ark_mem->step_attachlinsol   = NULL;
+  ark_mem->step_attachmasssol  = NULL;
+  ark_mem->step_disablelsetup  = NULL;
+  ark_mem->step_disablemsetup  = NULL;
+  ark_mem->step_getlinmem      = NULL;
+  ark_mem->step_getmassmem     = NULL;
   ark_mem->step_getimplicitrhs = NULL;
-  ark_mem->step_mmult = NULL;
-  ark_mem->step_getgammas = NULL;
-  ark_mem->step_init = NULL;
-  ark_mem->step_fullrhs = NULL;
-  ark_mem->step = NULL;
-  ark_mem->step_mem = NULL;
+  ark_mem->step_mmult          = NULL;
+  ark_mem->step_getgammas      = NULL;
+  ark_mem->step_init           = NULL;
+  ark_mem->step_fullrhs        = NULL;
+  ark_mem->step                = NULL;
+  ark_mem->step_mem            = NULL;
 
   /* Initialize root finding variables */
   ark_mem->root_mem = NULL;
+
+  /* Initialize inequality constraints variables */
+  ark_mem->constraintsSet = SUNFALSE;
+  ark_mem->constraints    = NULL;
 
   /* Initialize diagnostics reporting variables */
   ark_mem->report  = SUNFALSE;
@@ -109,9 +113,10 @@ ARKodeMem arkCreate()
   ark_mem->liw = 39;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
 
   /* No mallocs have been done yet */
-  ark_mem->VabstolMallocDone  = SUNFALSE;
-  ark_mem->VRabstolMallocDone = SUNFALSE;
-  ark_mem->MallocDone         = SUNFALSE;
+  ark_mem->VabstolMallocDone     = SUNFALSE;
+  ark_mem->VRabstolMallocDone    = SUNFALSE;
+  ark_mem->MallocDone            = SUNFALSE;
+  ark_mem->ConstraintsMallocDone = SUNFALSE;
 
   /* No user-supplied step postprocessing function yet */
   ark_mem->ProcessStep = NULL;
@@ -1281,6 +1286,11 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   fprintf(outfile, "ark_tn = %" RSYM"\n", ark_mem->tn);
   fprintf(outfile, "ark_hold = %" RSYM"\n", ark_mem->hold);
 
+  /* output inequality constraints quantities */
+  fprintf(outfile, "ark_constraintsSet = %i\n", ark_mem->constraintsSet);
+  fprintf(outfile, "ark_ConstraintsDone = %i\n", ark_mem->ConstraintsMallocDone);
+  fprintf(outfile, "ark_maxconstrfails = %i\n", ark_mem->maxconstrfails);
+
   /* output root-finding quantities */
   if (ark_mem->root_mem != NULL)
     (void) arkPrintRootMem((void*) ark_mem, outfile);
@@ -1326,6 +1336,10 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   if (ark_mem->tempv4 != NULL) {
     fprintf(outfile, "ark_tempv4:\n");
     N_VPrint_Serial(ark_mem->tempv4);
+  }
+  if (ark_mem->constraints != NULL) {
+    fprintf(outfile, "ark_constraints:\n");
+    N_VPrint_Serial(ark_mem->constraints);
   }
 #endif
 
@@ -1520,6 +1534,8 @@ void arkFreeVectors(ARKodeMem ark_mem)
   arkFreeVec(ark_mem, &ark_mem->tempv4);
   arkFreeVec(ark_mem, &ark_mem->yn);
   arkFreeVec(ark_mem, &ark_mem->Vabstol);
+  if (ark_mem->ConstraintsMallocDone)
+    arkFreeVec(ark_mem, &ark_mem->constraints);
 }
 
 
@@ -1537,6 +1553,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 {
   int retval, hflag, istate, ier;
   realtype tout_hin, rh;
+  booleantype conOK;
 
   /* Temporarily set ark_h */
   ark_mem->h = SUNRabs(tout - ark_mem->tcur);
@@ -1574,6 +1591,15 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup",
                     "N_VMin unimplemented (required by residual-weight function)");
     return(ARK_ILL_INPUT);
+  }
+
+  /* Check to see if y0 satisfies constraints */
+  if (ark_mem->constraintsSet) {
+    conOK = N_VConstrMask(ark_mem->constraints, ark_mem->yn, ark_mem->tempv1);
+    if (!conOK) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup", MSG_ARK_Y0_FAIL_CONSTR);
+      return(ARK_ILL_INPUT);
+    }
   }
 
   /* Load initial error weights */
@@ -2229,6 +2255,9 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_TOO_CLOSE, "ARKode", "ARKode",
                     MSG_ARK_TOO_CLOSE);
     break;
+  case ARK_CONSTR_FAIL:
+    arkProcessError(ark_mem, ARK_CONSTR_FAIL, "ARKode", "ARKode",
+                    MSG_ARK_FAILED_CONSTR, ark_mem->tcur);
   case ARK_MASSSOLVE_FAIL:
     arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKode", "ARKode",
                     MSG_ARK_MASSSOLVE_FAIL);
@@ -2553,6 +2582,57 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
 
   /* call fused vector operation to compute prediction */
   return(N_VLinearCombination(nvec+2, cvals, Xvecs, yguess));
+}
+
+
+/*---------------------------------------------------------------
+  arkCheckConstraints
+
+  This routine determines if the constraints of the problem
+  are satisfied by the proposed step
+
+  Returns ARK_SUCCESS if successful, otherwise CONSTR_RECVR
+  --------------------------------------------------------------*/
+int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
+{
+  booleantype constraintsPassed;
+  N_Vector mm  = ark_mem->tempv4;
+  N_Vector tmp = ark_mem->tempv1;
+
+  /* Check constraints and get mask vector mm for where constraints failed */
+  constraintsPassed = N_VConstrMask(ark_mem->constraints, ark_mem->ycur, mm);
+  if (constraintsPassed) return(ARK_SUCCESS);
+
+  /* Constraints not met */
+
+  /* Update total fails and fails in current step */
+  ark_mem->nconstrfails++;
+  (*constrfails)++;
+
+  /* Return with error if reached max fails in a step */
+  if (*constrfails == ark_mem->maxconstrfails) return(ARK_CONSTR_FAIL);
+
+  /* Return with error if using fixed step sizes */
+  if (ark_mem->fixedstep) return(ARK_CONSTR_FAIL);
+
+  /* Return with error if |h| == hmin */
+  if (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM) return(ARK_CONSTR_FAIL);
+
+  /* Reduce h by computing eta = h'/h */
+  N_VLinearSum(ONE, ark_mem->yn, -ONE, ark_mem->ycur, tmp);
+  N_VProd(mm, tmp, tmp);
+  ark_mem->eta = PT9*N_VMinQuotient(ark_mem->yn, tmp);
+  ark_mem->eta = SUNMAX(ark_mem->eta, TENTH);
+  ark_mem->eta = SUNMAX(ark_mem->eta,
+                        ark_mem->hmin / SUNRabs(ark_mem->h));
+  ark_mem->h *= ark_mem->eta;
+  ark_mem->next_h = ark_mem->h;
+
+  /* Signal for Jacobian setup if nflag was provided */
+  if (nflag) *nflag = PREV_CONV_FAIL;
+
+  /* Reattempt step with new step size */
+  return(CONSTR_RECVR);
 }
 
 

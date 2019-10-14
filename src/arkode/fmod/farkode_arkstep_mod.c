@@ -933,6 +933,20 @@ SWIGEXPORT int _wrap_FARKStepSetNonlinConvCoef(void *farg1, double const *farg2)
 }
 
 
+SWIGEXPORT int _wrap_FARKStepSetConstraints(void *farg1, N_Vector farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (N_Vector)(farg2);
+  result = (int)ARKStepSetConstraints(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetMaxNumSteps(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1026,6 +1040,20 @@ SWIGEXPORT int _wrap_FARKStepSetFixedStep(void *farg1, double const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)ARKStepSetFixedStep(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetMaxNumConstrFails(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ARKStepSetMaxNumConstrFails(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1612,6 +1640,20 @@ SWIGEXPORT int _wrap_FARKStepGetRootInfo(void *farg1, int *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)ARKStepGetRootInfo(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepGetNumConstrFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)ARKStepGetNumConstrFails(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

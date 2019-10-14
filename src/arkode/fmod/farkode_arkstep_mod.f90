@@ -105,6 +105,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetMaxNonlinIters
  public :: FARKStepSetMaxConvFails
  public :: FARKStepSetNonlinConvCoef
+ public :: FARKStepSetConstraints
  public :: FARKStepSetMaxNumSteps
  public :: FARKStepSetMaxHnilWarns
  public :: FARKStepSetInitStep
@@ -112,6 +113,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetMaxStep
  public :: FARKStepSetStopTime
  public :: FARKStepSetFixedStep
+ public :: FARKStepSetMaxNumConstrFails
  public :: FARKStepSetRootDirection
  public :: FARKStepSetNoInactiveRootWarn
  public :: FARKStepSetErrHandlerFn
@@ -152,6 +154,7 @@ module farkode_arkstep_mod
  public :: FARKStepGetResWeights
  public :: FARKStepGetNumGEvals
  public :: FARKStepGetRootInfo
+ public :: FARKStepGetNumConstrFails
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
@@ -616,6 +619,15 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKStepSetConstraints(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetConstraints") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKStepSetMaxNumSteps(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetMaxNumSteps") &
 result(fresult)
@@ -676,6 +688,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetMaxNumConstrFails(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetMaxNumConstrFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1045,6 +1066,15 @@ end function
 
 function swigc_FARKStepGetRootInfo(farg1, farg2) &
 bind(C, name="_wrap_FARKStepGetRootInfo") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetNumConstrFails(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetNumConstrFails") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2135,6 +2165,22 @@ fresult = swigc_FARKStepSetNonlinConvCoef(farg1, farg2)
 swig_result = fresult
 end function
 
+function FARKStepSetConstraints(arkode_mem, constraints) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(N_Vector), target, intent(inout) :: constraints
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(constraints)
+fresult = swigc_FARKStepSetConstraints(farg1, farg2)
+swig_result = fresult
+end function
+
 function FARKStepSetMaxNumSteps(arkode_mem, mxsteps) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2244,6 +2290,22 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = hfixed
 fresult = swigc_FARKStepSetFixedStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetMaxNumConstrFails(arkode_mem, maxfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: maxfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = maxfails
+fresult = swigc_FARKStepSetMaxNumConstrFails(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2923,6 +2985,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(rootsfound(1))
 fresult = swigc_FARKStepGetRootInfo(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetNumConstrFails(arkode_mem, nconstrfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nconstrfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(nconstrfails(1))
+fresult = swigc_FARKStepGetNumConstrFails(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -26,7 +26,8 @@
  * This program solves the problem with one of the solvers, ERK,
  * DIRK or ARK.  For DIRK and ARK, implicit subsystems are solved
  * using a Newton iteration with the dense SUNLinearSolver, and a
- * user-supplied Jacobian routine.
+ * user-supplied Jacobian routine. The constraint y_i >= 0 is
+ * posed for all components.
  *
  * 100 outputs are printed at equal intervals, and run statistics
  * are printed at the end.
@@ -65,6 +66,8 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
 /* Main Program */
 int main()
 {
+  realtype ONE = RCONST(1.0);
+
   /* general problem parameters */
   realtype T0 = RCONST(0.0);     /* initial time */
   realtype Tf = RCONST(1.e11);   /* final time */
@@ -75,20 +78,21 @@ int main()
   /* general problem variables */
   int flag;                      /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
+  N_Vector constraints = NULL;   /* empty vector for storing constraints */
   SUNMatrix A = NULL;            /* empty matrix for linear solver */
   SUNLinearSolver LS = NULL;     /* empty linear solver object */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
   FILE *UFID;
   realtype t, tout;
   int iout;
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf, nctf;
 
   /* set up the initial conditions, tolerances, initial time step size */
   realtype u0 = RCONST(1.0);
   realtype v0 = RCONST(0.0);
   realtype w0 = RCONST(0.0);
-  realtype reltol = 1.e-4;
-  realtype abstol = 1.e-11;
+  realtype reltol = 1.e-3;
+  realtype abstol = 1.e-7;
   realtype h0 = 1.e-4 * reltol;
 
   /* Initial problem output */
@@ -101,6 +105,11 @@ int main()
   NV_Ith_S(y,0) = u0;             /* Set initial conditions into y */
   NV_Ith_S(y,1) = v0;
   NV_Ith_S(y,2) = w0;
+
+  constraints = N_VNew_Serial(NEQ);
+  if (check_flag((void *) constraints, "N_VNew_Serial", 0)) return 1;
+  /* Set constraints to all 1's for nonnegative solution values. */
+  N_VConst(ONE, constraints);
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
@@ -124,6 +133,8 @@ int main()
   if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);   /* Specify tolerances */
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  flag = ARKStepSetConstraints(arkode_mem, constraints);    /* Set constraints */
+  if (check_flag(&flag, "ARKStepSetConstraints", 1)) return 1;
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ);
@@ -191,6 +202,8 @@ int main()
   check_flag(&flag, "ARKStepGetNumJacEvals", 1);
   flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
   check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
+  flag = ARKStepGetNumConstrFails(arkode_mem, &nctf);
+  check_flag(&flag, "ARKStepGetNumConstrFails", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n",
@@ -202,12 +215,14 @@ int main()
   printf("   Total number of Newton iterations = %li\n", nni);
   printf("   Total number of nonlinear solver convergence failures = %li\n", ncfn);
   printf("   Total number of error test failures = %li\n", netf);
+  printf("   Total number of constraint test failures = %li\n", nctf);
 
   /* check the solution error */
   flag = check_ans(y, t, reltol, abstol);
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
+  N_VDestroy(constraints);     /* Free constraints vector */
   ARKStepFree(&arkode_mem);    /* Free integrator memory */
   SUNLinSolFree(LS);           /* Free linear solver */
   SUNMatDestroy(A);            /* Free A matrix */

@@ -168,6 +168,8 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.c 
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.out || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.c                || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.out              || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_constraints.c    || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_constraints.out  || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.c           || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.out         || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_twowaycouple_mri.c         || exit 1

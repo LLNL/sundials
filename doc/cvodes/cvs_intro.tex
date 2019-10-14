@@ -119,6 +119,9 @@ writing in C|)}
 
 \subsection*{Changes in v5.0.0}
 
+Fixed a bug in the {\cvodes} constraint handling where the step size could be
+set below the minimum step size.
+
 Fixed a bug in the {\cvodes} \id{cvRescale} function where the loops to compute
 the array of scalars for the fused vector scale operation stopped one iteration
 early.

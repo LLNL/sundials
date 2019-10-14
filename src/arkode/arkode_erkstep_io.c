@@ -309,6 +309,37 @@ int ERKStepSetNoInactiveRootWarn(void *arkode_mem)
 }
 
 /*---------------------------------------------------------------
+  ERKStepSetConstraints: Setup for constriant handling feature
+  ---------------------------------------------------------------*/
+int ERKStepSetConstraints(void *arkode_mem, N_Vector constraints)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
+                    "ERKStepSetConstraints", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetConstraints(ark_mem, constraints));
+}
+
+/*---------------------------------------------------------------
+  ERKStepSetMaxNumConstrFails: Set max number of allowed
+  constraint failures in a step before returning an error
+  ---------------------------------------------------------------*/
+int ERKStepSetMaxNumConstrFails(void *arkode_mem, int maxfails)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
+                    "ERKStepSetMaxNumConstrFails", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetMaxNumConstrFails(ark_mem, maxfails));
+}
+
+/*---------------------------------------------------------------
   ERKStepSetPostprocessStepFn:  Specifies a user-provided step
   postprocessing function having type ARKPostProcessStepFn.  A
   NULL input function disables step postprocessing.
@@ -511,6 +542,22 @@ int ERKStepGetStepStats(void *arkode_mem, long int *nsteps,
   }
   ark_mem = (ARKodeMem) arkode_mem;
   return(arkGetStepStats(ark_mem, nsteps, hinused, hlast, hcur, tcur));
+}
+
+/*---------------------------------------------------------------
+  ERKStepGetNumConstrFails: Returns the current number of
+  constraint fails
+  ---------------------------------------------------------------*/
+int ERKStepGetNumConstrFails(void *arkode_mem, long int *nconstrfails)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
+                    "ERKStepGetNumConstrFails", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetNumConstrFails(ark_mem, nconstrfails));
 }
 
 /*---------------------------------------------------------------

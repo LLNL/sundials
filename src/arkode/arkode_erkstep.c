@@ -678,7 +678,9 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
 int erkStep_TakeStep(void* arkode_mem)
 {
   realtype dsm;
-  int retval, nef, is, eflag, js, nvec;
+  int retval, is, js, nvec;
+  int eflag;
+  int nef, constrfails;
   realtype* cvals;
   N_Vector* Xvecs;
   ARKodeMem ark_mem;
@@ -693,7 +695,7 @@ int erkStep_TakeStep(void* arkode_mem)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-  nef = 0;
+  nef = constrfails = 0;
   eflag = ARK_SUCCESS;
 
   /* Looping point for attempts to take a step */
@@ -762,6 +764,13 @@ int erkStep_TakeStep(void* arkode_mem)
  printf("updated solution:\n");
  N_VPrint_Serial(ark_mem->ycur);
 #endif
+
+    /* check inequality constraints */
+    if (ark_mem->constraintsSet) {
+      retval = arkCheckConstraints(ark_mem, &constrfails, NULL);
+      if (retval == ARK_CONSTR_FAIL) return(ARK_CONSTR_FAIL);
+      if (retval == CONSTR_RECVR) continue;
+    }
 
     /* Solver diagnostics reporting */
     if (ark_mem->report)

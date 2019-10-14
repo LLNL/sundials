@@ -81,6 +81,7 @@ int arkSetDefaults(ARKodeMem ark_mem)
   ark_mem->tstop            = ZERO;           /* no fixed stop time */
   ark_mem->diagfp           = NULL;           /* no solver diagnostics file */
   ark_mem->report           = SUNFALSE;       /* don't report solver diagnostics */
+  ark_mem->maxconstrfails   = MAXCONSTRFAILS; /* max number of constraint fails */
   return(ARK_SUCCESS);
 }
 
@@ -511,6 +512,86 @@ int arkSetPostprocessStepFn(ARKodeMem ark_mem,
 }
 
 
+/*---------------------------------------------------------------
+  arkSetConstraints:
+
+  Actuvates or Deactivates inequality constraint checking.
+  ---------------------------------------------------------------*/
+int arkSetConstraints(ARKodeMem ark_mem, N_Vector constraints)
+{
+  realtype temptest;
+
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkSetConstraints", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+
+  /* If there are no constarints, destroy data structures */
+  if (constraints == NULL) {
+    if (ark_mem->ConstraintsMallocDone) {
+      N_VDestroy(ark_mem->constraints);
+      ark_mem->lrw -= ark_mem->lrw1;
+      ark_mem->liw -= ark_mem->liw1;
+    }
+    ark_mem->ConstraintsMallocDone = SUNFALSE;
+    ark_mem->constraintsSet = SUNFALSE;
+    return(ARK_SUCCESS);
+  }
+
+  /* Test if required vector ops. are defined */
+  if (constraints->ops->nvdiv         == NULL ||
+      constraints->ops->nvmaxnorm     == NULL ||
+      constraints->ops->nvcompare     == NULL ||
+      constraints->ops->nvconstrmask  == NULL ||
+      constraints->ops->nvminquotient == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetConstraints", MSG_ARK_BAD_NVECTOR);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* Check the constraints vector */
+  temptest = N_VMaxNorm(constraints);
+  if ((temptest > TWOPT5) || (temptest < HALF)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetConstraints", MSG_ARK_BAD_CONSTR);
+    return(ARK_ILL_INPUT);
+  }
+
+  if ( !(ark_mem->ConstraintsMallocDone) ) {
+    ark_mem->constraints = N_VClone(constraints);
+    ark_mem->lrw += ark_mem->lrw1;
+    ark_mem->liw += ark_mem->liw1;
+    ark_mem->ConstraintsMallocDone = SUNTRUE;
+  }
+
+  /* Load the constraints vector */
+  N_VScale(ONE, constraints, ark_mem->constraints);
+
+  ark_mem->constraintsSet = SUNTRUE;
+
+  return(ARK_SUCCESS);
+}
+
+
+int arkSetMaxNumConstrFails(ARKodeMem ark_mem, int maxfails)
+{
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkSetMaxNumConstrFails", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+
+  /* Passing maxfails = 0 sets the default, otherwise set to input */
+  if (maxfails <= 0)
+    ark_mem->maxconstrfails = MAXCONSTRFAILS;
+  else
+    ark_mem->maxconstrfails = maxfails;
+
+  return(ARK_SUCCESS);
+}
+
+
 /*===============================================================
   ARKode optional output utility functions
   ===============================================================*/
@@ -742,6 +823,23 @@ int arkGetStepStats(ARKodeMem ark_mem, long int *nsteps,
   *hlast   = ark_mem->hold;
   *hcur    = ark_mem->next_h;
   *tcur    = ark_mem->tcur;
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkGetNumConstrFails:
+
+  Returns the current number of constraint fails
+  ---------------------------------------------------------------*/
+int arkGetNumConstrFails(ARKodeMem ark_mem, long int *nconstrfails)
+{
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkGetNumSteps", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  *nconstrfails = ark_mem->nconstrfails;
   return(ARK_SUCCESS);
 }
 

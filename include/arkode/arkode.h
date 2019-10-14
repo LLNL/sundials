@@ -72,6 +72,7 @@ extern "C" {
 #define ARK_MASSFREE_FAIL        -17
 #define ARK_MASSMULT_FAIL        -18
 
+#define ARK_CONSTR_FAIL          -19
 #define ARK_MEM_FAIL             -20
 #define ARK_MEM_NULL             -21
 #define ARK_ILL_INPUT            -22

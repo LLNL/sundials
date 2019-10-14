@@ -31,7 +31,7 @@ IOUT and ROUT arrays
 In the Fortran interface, the optional outputs from the
 :f:func:`FARKODE()` solver are accessed not through individual
 functions, but rather through a pair of user-allocated arrays, *IOUT*
-(having ``long int`` type) of dimension at least 35, and *ROUT*
+(having ``long int`` type) of dimension at least 36, and *ROUT*
 (having ``realtype`` type) of dimension at least 6.  These arrays must
 be allocated by the user program that calls :f:func:`FARKODE()`, that
 passes them through the Fortran interface as arguments to
@@ -56,7 +56,7 @@ the sections :ref:`ARKStep_CInterface.OptionalInputs` and
 .. _FInterface.IOUTTable:
 
 Table: Optional FARKODE integer outputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------
 
 .. cssclass:: table-bordered
 
@@ -83,7 +83,7 @@ Table: Optional FARKODE integer outputs
 .. _FInterface.ROUTTable:
 
 Table: Optional FARKODE real outputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------
 
 .. cssclass:: table-bordered
 
@@ -103,7 +103,7 @@ Table: Optional FARKODE real outputs
 .. _FInterface.LsIOUTTable:
 
 Table: Optional ARKLS interface outputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------
 
 .. cssclass:: table-bordered
 
@@ -128,7 +128,7 @@ Table: Optional ARKLS interface outputs
 .. _FInterface.LsMassIOUTTable:
 
 Table: Optional ARKLS mass interface outputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------------
 
 .. cssclass:: table-bordered
 
@@ -148,6 +148,20 @@ Table: Optional ARKLS mass interface outputs
 35              NMCFL            :c:func:`ARKLsGetNumMassConvFails()`
 ==============  ===============  ===================================================
 
+
+
+.. _FInterface.ConstrIOUTTable:
+
+Table: Optional ARKode constraints outputs
+-------------------------------------------
+
+.. cssclass:: table-bordered
+
+==============  ===============  ===================================================
+*IOUT* Index    Optional output  ARKStep function
+==============  ===============  ===================================================
+36              CONSTRFAILS      :c:func:`ARKStepGetNumConstrFails()`
+==============  ===============  ===================================================
 
 
 

@@ -169,6 +169,8 @@ SUNDIALS_EXPORT int ARKStepSetMaxConvFails(void *arkode_mem,
                                            int maxncf);
 SUNDIALS_EXPORT int ARKStepSetNonlinConvCoef(void *arkode_mem,
                                              realtype nlscoef);
+SUNDIALS_EXPORT int ARKStepSetConstraints(void *arkode_mem,
+                                          N_Vector constraints);
 SUNDIALS_EXPORT int ARKStepSetMaxNumSteps(void *arkode_mem,
                                           long int mxsteps);
 SUNDIALS_EXPORT int ARKStepSetMaxHnilWarns(void *arkode_mem,
@@ -183,6 +185,8 @@ SUNDIALS_EXPORT int ARKStepSetStopTime(void *arkode_mem,
                                        realtype tstop);
 SUNDIALS_EXPORT int ARKStepSetFixedStep(void *arkode_mem,
                                         realtype hfixed);
+SUNDIALS_EXPORT int ARKStepSetMaxNumConstrFails(void *arkode_mem,
+                                                int maxfails);
 
 SUNDIALS_EXPORT int ARKStepSetRootDirection(void *arkode_mem,
                                             int *rootdir);
@@ -279,6 +283,8 @@ SUNDIALS_EXPORT int ARKStepGetNumGEvals(void *arkode_mem,
                                         long int *ngevals);
 SUNDIALS_EXPORT int ARKStepGetRootInfo(void *arkode_mem,
                                        int *rootsfound);
+SUNDIALS_EXPORT int ARKStepGetNumConstrFails(void *arkode_mem,
+                                             long int *nconstrfails);
 SUNDIALS_EXPORT char *ARKStepGetReturnFlagName(long int flag);
 
 SUNDIALS_EXPORT int ARKStepWriteParameters(void *arkode_mem, FILE *fp);

@@ -2,6 +2,16 @@
 
 ## Changes to SUNDIALS in release 5.0.0
 
+Support for optional inequality constraints on individual components of the
+solution vector has been added the ARKode ERKStep and ARKStep modules. See
+the descriptions of ERKStepSetConstraints and ARKStepSetConstraints for
+more details. Note that enabling constraint handling requires the NVECTOR
+operations N_VMinQuotient, N_VConstrMask, and N_VCompare that were not
+previously required by ARKode.
+
+Fixed a bug in the CVODE and CVODES constraint handling where the step size
+could be set below the minimum step size.
+
 Fixed a bug in ARKode that would result in a "too much accuracy requested" error
 when using fixed time step sizes with explicit methods in some cases.
 

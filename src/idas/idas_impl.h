@@ -184,7 +184,6 @@ typedef struct IDAMemRec {
   N_Vector ida_ee;           /* accumulated corrections to y vector, but
                                 set equal to estimated local errors upon
                                 successful return                             */
-  N_Vector ida_mm;           /* mask vector in constraints tests (= tempv2)   */
   N_Vector ida_tempv1;       /* work space vector                             */
   N_Vector ida_tempv2;       /* work space vector                             */
   N_Vector ida_tempv3;       /* work space vector                             */

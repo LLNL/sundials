@@ -44,6 +44,7 @@ realtype *ARK_rout;
 int       ARK_nrtfn;
 int       ARK_ls;
 int       ARK_mass_ls;
+int       ARK_constr;
 
 /*=============================================================*/
 
@@ -105,6 +106,7 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
   ARK_nrtfn = 0;
   ARK_ls = SUNFALSE;
   ARK_mass_ls = SUNFALSE;
+  ARK_constr = SUNFALSE;
 
   /* Set data in F2C_ARKODE_vec to y0 */
   N_VSetArrayPointer(y0, F2C_ARKODE_vec);
@@ -358,6 +360,8 @@ void FARK_SETIIN(char key_name[], long int *ival, int *ier) {
     *ier = ARKStepSetSmallNumEFails(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "LSETUP_MSBP", 11))
     *ier = ARKStepSetMaxStepsBetweenLSet(ARK_arkodemem, (int) *ival);
+  else if (!strncmp(key_name, "MAX_CONSTR_FAIL", 15))
+    *ier = ARKStepSetMaxNumConstrFails(ARK_arkodemem, (int) *ival);
   else {
     *ier = -99;
     fprintf(stderr, "FARKSETIIN: Unrecognized key.\n\n");
@@ -411,6 +415,32 @@ void FARK_SETRIN(char key_name[], realtype *rval, int *ier) {
   return;
 }
 
+/*=============================================================*/
+
+void FARK_SETVIN(char key_name[], realtype *vval, int *ier)
+{
+  N_Vector Vec;
+
+  *ier = 0;
+
+  if (!strncmp(key_name,"CONSTR_VEC",10)) {
+    Vec = NULL;
+    Vec = N_VCloneEmpty(F2C_ARKODE_vec);
+    if (Vec == NULL) {
+      *ier = -1;
+      return;
+    }
+    N_VSetArrayPointer(vval, Vec);
+    *ier = ARKStepSetConstraints(ARK_arkodemem, Vec);
+    ARK_constr = SUNTRUE;
+    N_VDestroy(Vec);
+  }
+  else {
+    *ier = -99;
+    fprintf(stderr, "FARKSETVIN: Unrecognized key. \n\n");
+  }
+
+}
 /*=============================================================*/
 
 /* Fortran interface to C routine ARKStepSetAdaptivityMethod;
@@ -622,7 +652,7 @@ void FARK_LSMASSINIT(int *time_dep, int *ier) {
   }
   *ier = ARKStepSetMassLinearSolver(ARK_arkodemem,
                                     F2C_ARKODE_mass_sol,
-                                    F2C_ARKODE_mass_matrix, 
+                                    F2C_ARKODE_mass_matrix,
                                     *time_dep);
   ARK_mass_ls = SUNTRUE;
   return;
@@ -696,7 +726,7 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
     ARKStepGetNumLinIters(ARK_arkodemem,     &ARK_iout[22]);            /* NLI   */
     ARKStepGetNumLinConvFails(ARK_arkodemem, &ARK_iout[23]);            /* NCFL  */
   }
-  
+
   /* Attach mass matrix linear solver outputs */
   if(ARK_mass_ls) {
     ARKStepGetMassWorkSpace(ARK_arkodemem, &ARK_iout[24], &ARK_iout[25]); /* LENRWMS, LENIWMS */
@@ -709,6 +739,11 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
     ARKStepGetNumMassPrecSolves(ARK_arkodemem, &ARK_iout[32]);            /* NMPS   */
     ARKStepGetNumMassIters(ARK_arkodemem,      &ARK_iout[33]);            /* NMLI   */
     ARKStepGetNumMassConvFails(ARK_arkodemem,  &ARK_iout[34]);            /* NMCFL  */
+  }
+
+  /* Attach constraints output */
+  if(ARK_constr) {
+    ARKStepGetNumConstrFails(ARK_arkodemem, &ARK_iout[35]);
   }
   return;
 }

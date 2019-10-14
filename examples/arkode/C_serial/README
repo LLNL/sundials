@@ -14,7 +14,8 @@ List of serial ARKODE C examples
   ark_robertson             : stiff chemical kinetics ODE system  (DIRK/DENSE)
   ark_robertson_root        : stiff chemical kinetics ODE system 
                               with root-finding                   (DIRK/DENSE)
-
+  ark_robertson_constraints : stiff chemical kinetics ODE system  (DIRKDENSE)
+                              with constraints
 
 The following CMake command was used to configure SUNDIALS:
 

@@ -59,6 +59,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_MASSSOLVE_FAIL = -16_C_INT
  integer(C_INT), parameter, public :: ARK_MASSFREE_FAIL = -17_C_INT
  integer(C_INT), parameter, public :: ARK_MASSMULT_FAIL = -18_C_INT
+ integer(C_INT), parameter, public :: ARK_CONSTR_FAIL = -19_C_INT
  integer(C_INT), parameter, public :: ARK_MEM_FAIL = -20_C_INT
  integer(C_INT), parameter, public :: ARK_MEM_NULL = -21_C_INT
  integer(C_INT), parameter, public :: ARK_ILL_INPUT = -22_C_INT
