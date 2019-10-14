@@ -237,11 +237,22 @@ int ERKStepSetFixedStep(void *arkode_mem, realtype hfixed)
 
   /* allocate or free adaptivity memory as needed */
   if (hfixed != ZERO) {
+
     if (step_mem->hadapt_mem != NULL) {
       free(step_mem->hadapt_mem);
       step_mem->hadapt_mem = NULL;
     }
+
+    /* if using an internal error weight funciton, enforce use of
+       arkEwtSmallReal with explicit methods and fixed step sizes */
+    if (!ark_mem->user_efun) {
+      ark_mem->user_efun = SUNFALSE;
+      ark_mem->efun      = arkEwtSetSmallReal;
+      ark_mem->e_data    = ark_mem;
+    }
+
   } else if (step_mem->hadapt_mem == NULL) {
+
     step_mem->hadapt_mem = arkAdaptInit();
     if (step_mem->hadapt_mem == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ERKStep",
@@ -249,6 +260,16 @@ int ERKStepSetFixedStep(void *arkode_mem, realtype hfixed)
                       "Allocation of Step Adaptivity Structure Failed");
       return(ARK_MEM_FAIL);
     }
+
+    /* re-attach internal error weight functions if necessary */
+    if (!ark_mem->user_efun) {
+      if (ark_mem->itol == ARK_SV && ark_mem->Vabstol != NULL)
+        retval = arkSVtolerances(ark_mem, ark_mem->reltol, ark_mem->Vabstol);
+      else
+        retval = arkSStolerances(ark_mem, ark_mem->reltol, ark_mem->Sabstol);
+      if (retval != ARK_SUCCESS) return(retval);
+    }
+
   }
 
   return(arkSetFixedStep(ark_mem, hfixed));

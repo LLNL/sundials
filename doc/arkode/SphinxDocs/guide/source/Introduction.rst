@@ -108,6 +108,13 @@ Changes from previous versions
 --------------------------------
 
 
+Changes in v4.0.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a bug that would result in a "too much accuracy requested" error when
+using fixed time step sizes with explicit methods in some cases.
+
+
 Changes in v4.0.0-dev.2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

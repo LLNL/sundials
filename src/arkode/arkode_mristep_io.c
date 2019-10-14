@@ -216,6 +216,20 @@ int MRIStepSetFixedStep(void *arkode_mem, realtype hsfixed)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
+
+  if (hsfixed == ZERO) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
+                    "MRIStepSetFixedStep",
+                    "MIRStep does not support adaptive steps at this time.");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* using an explicit method with fixed step sizes, enforce use of
+     arkEwtSmallReal to compute error weight vector */
+  ark_mem->user_efun = SUNFALSE;
+  ark_mem->efun      = arkEwtSetSmallReal;
+  ark_mem->e_data    = ark_mem;
+
   return(arkSetFixedStep(ark_mem, hsfixed));
 }
 

@@ -2,6 +2,9 @@
 
 ## Changes to SUNDIALS in release 5.0.0
 
+Fixed a bug in ARKode that would result in a "too much accuracy requested" error
+when using fixed time step sizes with explicit methods in some cases.
+
 Fixed a bug in the KINSOL linear solver interface where the auxiliary scalar
 `sJpnorm` was not computed when necessary with the Picard iteration and the
 auxiliary scalar `sFdotJp` was unnecessarily computed in some cases.

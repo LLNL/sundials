@@ -468,8 +468,8 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
 /*---------------------------------------------------------------
   erkStep_Init:
 
-  This routine is called just prior to performing internal time 
-  steps (after all user "set" routines have been called) from 
+  This routine is called just prior to performing internal time
+  steps (after all user "set" routines have been called) from
   within arkInitialSetup (init_type == 0) or arkPostResizeSetup
   (init_type == 1).
 
@@ -489,7 +489,7 @@ int erkStep_Init(void* arkode_mem, int init_type)
 
   /* immediately return if init_type == 1 */
   if (init_type == 1)  return(ARK_SUCCESS);
-  
+
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "erkStep_Init",
                                  &ark_mem, &step_mem);

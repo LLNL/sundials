@@ -846,9 +846,6 @@ typedef struct ARKodeMemRec {
   ARKode PROTOTYPE FUNCTIONS (MAY BE REPLACED BY USER)
   ===============================================================*/
 
-/* Prototype of internal ewtSet function */
-int arkEwtSet(N_Vector ycur, N_Vector weight, void *data);
-
 /* Prototype of internal rwtSet function */
 int arkRwtSet(N_Vector ycur, N_Vector weight, void *data);
 
@@ -909,10 +906,9 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg,
 int arkCompleteStep(ARKodeMem ark_mem);
 int arkHandleFailure(ARKodeMem ark_mem,int flag);
 
-int arkEwtSetSS(ARKodeMem ark_mem, N_Vector ycur,
-                N_Vector weight);
-int arkEwtSetSV(ARKodeMem ark_mem, N_Vector ycur,
-                N_Vector weight);
+int arkEwtSetSS(N_Vector ycur, N_Vector weight, void* arkode_mem);
+int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem);
+int arkEwtSetSmallReal(N_Vector ycur, N_Vector weight, void* arkode_mem);
 int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My,
                 N_Vector weight);
 int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My,
