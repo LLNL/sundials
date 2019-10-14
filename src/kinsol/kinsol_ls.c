@@ -1224,43 +1224,39 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
     return(retval);
   }
 
-  /* SUNLinSolSolve returned SUNLS_SUCCESS or SUNLS_RES_REDUCED
+  /* SUNLinSolSolve returned SUNLS_SUCCESS or SUNLS_RES_REDUCED */
 
-     Compute auxiliary values for use in the linesearch and in KINForcingTerm.
+  /* Compute auxiliary values for use in the linesearch and in KINForcingTerm.
      These will be subsequently corrected if the step is reduced by constraints
      or the linesearch. */
+  if (kin_mem->kin_globalstrategy != KIN_FP) {
 
-
-  /* sJpnorm is the norm of the scaled product (scaled by fscale) of the
-     current Jacobian matrix J and the step vector p (= solution vector xx).
-
-     Only compute this if KINForcingTerm will eventually be called */
-  if ( (kin_mem->kin_globalstrategy != KIN_PICARD) &&
-       (kin_mem->kin_globalstrategy != KIN_FP) &&
-       (kin_mem->kin_callForcingTerm) ) {
-
-    retval = kinLsATimes(kin_mem, xx, bb);
-    if (retval > 0) {
-      kinls_mem->last_flag = SUNLS_ATIMES_FAIL_REC;
-      return(1);
+    /* sJpnorm is the norm of the scaled product (scaled by fscale) of the
+       current Jacobian matrix J and the step vector p (= solution vector xx) */
+    if (kin_mem->kin_inexact_ls && kin_mem->kin_etaflag == KIN_ETACHOICE1) {
+      retval = kinLsATimes(kin_mem, xx, bb);
+      if (retval > 0) {
+        kinls_mem->last_flag = SUNLS_ATIMES_FAIL_REC;
+        return(1);
+      }
+      else if (retval < 0) {
+        kinls_mem->last_flag = SUNLS_ATIMES_FAIL_UNREC;
+        return(-1);
+      }
+      *sJpnorm = N_VWL2Norm(bb, kin_mem->kin_fscale);
     }
-    else if (retval < 0) {
-      kinls_mem->last_flag = SUNLS_ATIMES_FAIL_UNREC;
-      return(-1);
-    }
-    *sJpnorm = N_VWL2Norm(bb, kin_mem->kin_fscale);
 
+    /* sFdotJp is the dot product of the scaled f vector and the scaled
+       vector J*p, where the scaling uses fscale */
+    if ((kin_mem->kin_inexact_ls && kin_mem->kin_etaflag == KIN_ETACHOICE1) ||
+        kin_mem->kin_globalstrategy == KIN_LINESEARCH) {
+      N_VProd(bb, kin_mem->kin_fscale, bb);
+      N_VProd(bb, kin_mem->kin_fscale, bb);
+      *sFdotJp = N_VDotProd(kin_mem->kin_fval, bb);
+    }
   }
 
-  /* sFdotJp is the dot product of the scaled f vector and the scaled
-     vector J*p, where the scaling uses fscale */
-  N_VProd(bb, kin_mem->kin_fscale, bb);
-  N_VProd(bb, kin_mem->kin_fscale, bb);
-  *sFdotJp = N_VDotProd(kin_mem->kin_fval, bb);
-
-  if ( ((LSType == SUNLINEARSOLVER_ITERATIVE) ||
-        (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
-       (kin_mem->kin_printfl > 2) )
+  if (kin_mem->kin_inexact_ls && kin_mem->kin_printfl > 2)
     KINPrintInfo(kin_mem, PRNT_EPS, "KINLS", "kinLsSolve",
                  INFO_EPS, res_norm, kin_mem->kin_eps);
 

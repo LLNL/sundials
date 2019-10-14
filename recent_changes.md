@@ -2,6 +2,10 @@
 
 ## Changes to SUNDIALS in release 5.0.0
 
+Fixed a bug in the KINSOL linear solver interface where the auxiliary scalar
+`sJpnorm` was not computed when necessary with the Picard iteration and the
+auxiliary scalar `sFdotJp` was unnecessarily computed in some cases.
+
 Fixed a bug in the CVODES `cvRescale` function where the loops to compute the
 array of scalars for the fused vector scale operation stopped one iteration
 early.

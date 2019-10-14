@@ -109,6 +109,12 @@ interfacing the solver to applications written in {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v5.0.0}
+
+Fixed a bug in the {\kinsol} linear solver interface where the auxiliary scalar
+\id{sJpnorm} was not computed when necessary with the Picard iteration and the
+auxiliary scalar \id{sFdotJp} was unnecessarily computed in some cases.
+
 \subsection*{Changes in v5.0.0-dev.2}
 
 Added a new optional operation to the SUNLINEARSOLVER API, \id{SUNLinSolGetID},
