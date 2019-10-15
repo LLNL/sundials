@@ -740,6 +740,11 @@ struct CVadjMemRec {
   booleantype ca_tstopCVodeFcall;
   realtype ca_tstopCVodeF;
 
+  /* Flag if CVodeF was called in CV_NORMAL_MODE and encountered a
+     root after tout */
+  booleantype ca_rootret;
+  realtype ca_troot;
+
   /* ----------------------
    * Backward problems data
    * ---------------------- */

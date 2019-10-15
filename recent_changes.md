@@ -32,6 +32,12 @@ Fixed a bug in the CVODES `cvRescale` function where the loops to compute the
 array of scalars for the fused vector scale operation stopped one iteration
 early.
 
+Fixed a bug in CVODES and IDAS where CVodeF and IDASolveF would return the wrong
+flag under certain cirumstances.
+
+Fixed a bug in CVODES and IDAS where CVodeF and IDASolveF would not return a
+root in NORMAL_STEP mode if the root occurred after the desired output time.
+
 ## Changes to SUNDIALS in release 5.0.0-dev.2
 
 Added a new optional operation to the SUNLINEARSOLVER API, `SUNLinSolGetID`,

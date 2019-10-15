@@ -738,6 +738,11 @@ struct IDAadjMemRec {
   booleantype ia_tstopIDAFcall;
   realtype ia_tstopIDAF;
 
+  /* Flag if IDASolveF was called in IDA_NORMAL_MODE and encountered
+     a root after tout */
+  booleantype ia_rootret;
+  realtype ia_troot;
+
   /* ----------------------
    * Backward problems data
    * ---------------------- */
