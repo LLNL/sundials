@@ -1186,6 +1186,9 @@ int mriStep_EvolveInnerARK(void* inner_mem, realtype t0,
   realtype          tret;            /* return time                */
   int               retval;          /* return value               */
 
+  /* initialize hf to avoid compiler warning */
+  hf = ZERO;
+  
   /* access the inner ARKStep mem structure */
   retval = arkStep_AccessStepMem(inner_mem,
                                  "mriStep_EvolveInnerARK",

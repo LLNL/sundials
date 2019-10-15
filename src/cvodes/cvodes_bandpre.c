@@ -492,6 +492,9 @@ static int cvBandPrecDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   realtype *y_data, *ytemp_data, *cns_data;
   int retval;
 
+  /* initialize cns_data to avoid compiler warning */
+  cns_data = NULL;
+
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */

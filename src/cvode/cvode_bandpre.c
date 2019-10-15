@@ -490,6 +490,9 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   realtype *y_data, *ytemp_data, *cns_data;
   int retval;
 
+  /* initialize cns_data to avoid compiler warning */
+  cns_data = NULL;
+
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Obtain pointers to the data for various vectors */
@@ -499,7 +502,7 @@ static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   y_data     = N_VGetArrayPointer(y);
   ytemp_data = N_VGetArrayPointer(ytemp);
   if (cv_mem->cv_constraintsSet)
-    cns_data  = N_VGetArrayPointer(cv_mem->cv_constraints);
+    cns_data = N_VGetArrayPointer(cv_mem->cv_constraints);
 
   /* Load ytemp with y = predicted y vector. */
   N_VScale(ONE, y, ytemp);

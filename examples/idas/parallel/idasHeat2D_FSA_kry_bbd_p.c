@@ -150,7 +150,8 @@ int main(int argc, char *argv[])
   data = NULL;
   uu = up = constraints = id = res = NULL;
   uuS = upS = NULL;
-
+  pbar = NULL;
+  
   /* Get processor number and total number of pe's. */
 
   MPI_Init(&argc, &argv);

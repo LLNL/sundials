@@ -142,6 +142,8 @@ int main(int argc, char *argv[])
   pbar = NULL;
   plist = NULL;
   uS = NULL;
+  NLS = NULL;
+  NLSsens = NULL;
 
   /* Get processor number, total number of pe's, and my_pe. */
   MPI_Init(&argc, &argv);

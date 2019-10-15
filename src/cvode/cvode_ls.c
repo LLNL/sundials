@@ -867,6 +867,9 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   CVLsMem cvls_mem;
   int retval = 0;
 
+  /* initialize cns_data to avoid compiler warning */
+  cns_data = NULL;
+
   /* access LsMem interface structure */
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
@@ -949,6 +952,9 @@ int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   sunindextype N, mupper, mlower;
   CVLsMem cvls_mem;
   int retval = 0;
+
+  /* initialize cns_data to avoid compiler warning */
+  cns_data = NULL;
 
   /* access LsMem interface structure */
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;

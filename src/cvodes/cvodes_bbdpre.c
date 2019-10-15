@@ -629,6 +629,9 @@ static int cvBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
   realtype *ytemp_data, *col_j, *cns_data;
   int retval;
 
+  /* initialize cns_data to avoid compiler warning */
+  cns_data = NULL;
+
   cv_mem = (CVodeMem) pdata->cvode_mem;
 
   /* Load ytemp with y = predicted solution vector */
