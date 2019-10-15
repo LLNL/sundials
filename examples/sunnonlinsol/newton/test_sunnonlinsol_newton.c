@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   retval = SUNNonlinSolSetLSolveFn(NLS, LSolve);
   if (check_retval(&retval, "SUNNonlinSolSetSolveFn", 1)) return(1);
 
-  retval = SUNNonlinSolSetConvTestFn(NLS, ConvTest);
+  retval = SUNNonlinSolSetConvTestFn(NLS, ConvTest, NULL);
   if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) return(1);
 
   /* set the maximum number of nonlinear iterations */

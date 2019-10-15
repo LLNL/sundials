@@ -65,12 +65,27 @@ contains
     call FN_VConst(1.0d0, w)
 
     ! create and test NLS
-    NLS    => FSUNNonlinsol_FixedPoint(y, 0)
-    retval = FSUNNonlinSolSetSysFn(NLS, c_funloc(FPFunction))
-    retval = FSUNNonlinSolSetConvTestFn(NLS, c_funloc(ConvTest))
-    retval = FSUNNonlinSolSetMaxIters(NLS, MAXIT)
-    retval = FSUNNonlinSolSolve(NLS, y0, y, w, TOL, 1, c_loc(x))
+    NLS => FSUNNonlinsol_FixedPoint(y, 0)
 
+    retval = FSUNNonlinSolSetSysFn(NLS, c_funloc(FPFunction))
+    if (retval /= 0) then
+      write(*,'(A,I0)') '   >>> FAIL: FSUNNonlinSolSetSysFn returned ', retval
+      return
+    end if
+
+    retval = FSUNNonlinSolSetConvTestFn(NLS, c_funloc(ConvTest), c_null_ptr)
+    if (retval /= 0) then
+      write(*,'(A,I0)') '   >>> FAIL: FSUNNonlinSolSetConvTestFn returned ', retval
+      return
+    end if
+
+    retval = FSUNNonlinSolSetMaxIters(NLS, MAXIT)
+    if (retval /= 0) then
+      write(*,'(A,I0)') '   >>> FAIL: FSUNNonlinSolSetMaxIters returned ', retval
+      return
+    end if
+
+    retval = FSUNNonlinSolSolve(NLS, y0, y, w, TOL, 1, c_loc(x))
     if (retval /= 0) then
       write(*,'(A,I0)') '   >>> FAIL: FSUNNonlinSolSolve returned ', retval
       return
@@ -90,6 +105,11 @@ contains
     write(*,'(A,E14.7)') 'e3 = ', ydata(3) - Y3
 
     retval = FSUNNonlinSolGetNumIters(NLS, niters)
+    if (retval /= 0) then
+      write(*,'(A,I0)') '   >>> FAIL: FSUNNonlinSolGetNumIters returned ', retval
+      return
+    end if
+
     write(*,'(A,I0)') 'Number of nonlinear iterations:', niters(1)
 
     ! cleanup

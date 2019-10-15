@@ -67,7 +67,7 @@ SUNNonlinearSolver SUNNonlinSolNewEmpty()
 void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS)
 {
   if (NLS == NULL)  return;
-  
+
   /* free non-NULL ops structure */
   if (NLS->ops)  free(NLS->ops);
   NLS->ops = NULL;
@@ -156,10 +156,12 @@ int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn LSolveF
 }
 
 /* set the convergence test function (optional) */
-int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
+int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
+                              SUNNonlinSolConvTestFn CTestFn,
+                              void* ctest_data)
 {
   if (NLS->ops->setctestfn)
-    return((int) NLS->ops->setctestfn(NLS, CTestFn));
+    return((int) NLS->ops->setctestfn(NLS, CTestFn, ctest_data));
   else
     return(SUN_NLS_SUCCESS);
 }

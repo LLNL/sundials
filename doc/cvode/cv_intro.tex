@@ -101,6 +101,12 @@ in extended {\F}.
 
 \subsection*{Changes in v5.0.0}
 
+To facilitate the use of user supplied nonlinear solver convergence test
+functions the \id{SUNNonlinSolSetConvTestFn} function in the SUNNonlinearSolver
+API has been updated to take a \id{void*} data pointer as input. The supplied
+data pointer will be passed to the nonlinear solver convergence test function on
+each call.
+
 The definitions of \id{SUNNonlinSolLSetupFn} and \id{SUNNonlinSolLSolveFn} in
 the SUNNonlinearSolver API have been updated to remove unused input parameters.
 

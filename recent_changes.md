@@ -2,6 +2,12 @@
 
 ## Changes to SUNDIALS in release 5.0.0
 
+To facilitate the use of user supplied nonlinear solver convergence test
+functions the `SUNNonlinSolSetConvTestFn` function in the SUNNonlinearSolver API
+has been updated to take a `void*` data pointer as input. The supplied data
+pointer will be passed to the nonlinear solver convergence test function on each
+call.
+
 The definitions of `SUNNonlinSolLSetupFn` and `SUNNonlinSolLSolveFn` in the
 SUNNonlinearSolver API have been updated to remove unused input parameters.
 

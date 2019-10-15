@@ -190,7 +190,7 @@ example, the function \id{SUNNonlinSol\_Newton} is interfaced as
 The {\F} 2003 {\sunnonlinsolnewton} interface module can be accessed with the \id{use}
 statement, i.e. \id{use fsunnonlinsol\_newton\_mod}, and linking to the library \newline
 \id{libsundials\_fsunnonlinsolnewton\_mod}.{\em lib} in addition to the {\CC}
-library. For details on where the library and module file 
+library. For details on where the library and module file
 \id{fsunnonlinsol\_newton\_mod.mod} are installed see Appendix \ref{c:install}.
 We note that the module is accessible from the {\F} 2003 {\sundials} integrators
 \textit{without} separately linking to the
@@ -252,26 +252,28 @@ struct _SUNNonlinearSolverContent_Newton {
   int         maxiters;
   long int    niters;
   long int    nconvfails;
+  void*       ctest_data;
 };
 \end{verbatim}
 %%
 %%
 These entries of the \emph{content} field contain the following
 information:
-\begin{args}[nconvfails]
-  \item[Sys]        - the function for evaluating the nonlinear system,
-  \item[LSetup]     - the package-supplied function for setting up the linear solver,
-  \item[LSolve]     - the package-supplied function for performing a linear solve,
-  \item[CTest]      - the function for checking convergence of the Newton
-                      iteration,
-  \item[delta]      - the Newton iteration update vector,
-  \item[jcur]       - the Jacobian status (\id{SUNTRUE} = current,
-                      \id{SUNFALSE} = stale),
-  \item[curiter]    - the current number of iterations in the solve attempt,
-  \item[maxiters]   - the maximum number of Newton iterations allowed in
-                      a solve, and
-  \item[niters]     - the total number of nonlinear iterations across all
-                      solves.
-  \item[nconvfails] - the total number of nonlinear convergence failures across
-                      all solves.
+\begin{args}[ctest\_data]
+  \item[Sys]         - the function for evaluating the nonlinear system,
+  \item[LSetup]      - the package-supplied function for setting up the linear solver,
+  \item[LSolve]      - the package-supplied function for performing a linear solve,
+  \item[CTest]       - the function for checking convergence of the Newton
+                       iteration,
+  \item[delta]       - the Newton iteration update vector,
+  \item[jcur]        - the Jacobian status (\id{SUNTRUE} = current,
+                       \id{SUNFALSE} = stale),
+  \item[curiter]     - the current number of iterations in the solve attempt,
+  \item[maxiters]    - the maximum number of Newton iterations allowed in
+                       a solve,
+  \item[niters]      - the total number of nonlinear iterations across all
+                       solves,
+  \item[nconvfails]  - the total number of nonlinear convergence failures across
+                       all solves, and
+  \item[ctest\_data] - the data pointer passed to the convergence test function.
 \end{args}

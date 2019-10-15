@@ -115,7 +115,8 @@ int CVodeSetNonlinearSolverSensStg1(void *cvode_mem, SUNNonlinearSolver NLS)
   }
 
   /* set convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(cv_mem->NLSstg1, cvNlsConvTestSensStg1);
+  retval = SUNNonlinSolSetConvTestFn(cv_mem->NLSstg1, cvNlsConvTestSensStg1,
+                                     cvode_mem);
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
                    "CVodeSetNonlinearSolverSensStg1",

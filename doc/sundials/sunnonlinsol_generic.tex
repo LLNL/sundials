@@ -156,7 +156,7 @@ initialization (\id{SUNNonlinSolInitialization}), setup\\ \noindent
     remain unchanged throughout the solution process. See section
     \ref{s:sunnonlinsol_interface} for more detail on the nonlinear system
     formulation.
-  \item[y] (\id{N\_Vector})
+  \item[ycor] (\id{N\_Vector})
     on input the initial guess for the correction to the predicted state (zero)
     and on output the final correction to the predicted state. See section
     \ref{s:sunnonlinsol_interface} for more detail on the nonlinear system
@@ -173,37 +173,11 @@ initialization (\id{SUNNonlinSolInitialization}), setup\\ \noindent
   \end{args}
 }
 {
-  The return value \id{retval} (of type \id{int}) is zero for a
-  successul solve, a positive value for a recoverable error, and a
-  negative value for an unrecoverable error.
-  %% \begin{args}[SUN\_NLS\_CONV\_RECVR]
-  %% \item[\Id{SUN\_NLS\_SUCCESS}]
-  %%   the solve was successful.
-  %% \item[\Id{SUN\_NLS\_CONV\_RECVR}]
-  %%   the solve failed to converge and the integrator should attempt to
-  %%   recover.
-  %% \item[\id{*\_RHSFUNC\_RECVR}]
-  %%   the ODE right-hand side function returned a recoverable error
-  %% \item[\id{*\_RES\_RECVR}]
-  %%   the DAE residual function returned a recoverable error
-  %% \item[\id{*\_LSETUP\_RECVR}]
-  %%   the linear solver setup function returned a recoverable error
-  %% \item[\id{*\_LSOLVE\_RECVR}]
-  %%   the linear solver solve function returned a recoverable error
-  %% \item[\id{*\_MEM\_NULL}]
-  %%   the {\sundials} package memory was \id{NULL}
-  %% \item[\id{*\_RHSFUNC\_FAIL}]
-  %%   the ODE right-hand side function returned an unrecoverable error
-  %% \item[\id{*\_RES\_FAIL}]
-  %%   the DAE residual function returned an unrecoverable error
-  %% \item[\id{*\_LSETUP\_FAIL}]
-  %%   the linear solver setup function returned an unrecoverable error
-  %% \item[\id{*\_LSOLVE\_FAIL}]
-  %%   the linear solver solve function returned an unrecoverable error
-  %% \end{args}
-  %% In the above return codes, \id{*} is a {\sundials} integrator-specific
-  %% prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or
-  %% {\idas}, and \id{ARK} for {\arkode}).
+  The return value \id{retval} (of type \id{int}) is zero for a successul solve,
+  a positive value for a recoverable error (i.e., the solve failed and the
+  integrator should reduce the step size and reattempt the step), and a negative
+  value for an unrecoverable error (i.e., the solve failed and the integrator
+  should halt and return an error to the user).
 }
 {}
 % --------------------------------------------------------------------
@@ -335,7 +309,7 @@ parameters. Only the routine for setting the nonlinear system defining function
 % --------------------------------------------------------------------
 \ucfunctionf{SUNNonlinSolSetConvTestFn}
 {
-  retval = SUNNonlinSolSetConvTestFn(NLS, CTestFn);
+  retval = SUNNonlinSolSetConvTestFn(NLS, CTestFn, ctest\_data);
 }
 {
   The \textit{optional} function \ID{SUNNonlinSolSetConvTestFn} is used to
@@ -345,13 +319,15 @@ parameters. Only the routine for setting the nonlinear system defining function
   by the user.
 }
 {
-  \begin{args}[CTestFn]
+  \begin{args}[ctest\_data]
   \item[NLS] (\id{SUNNonlinearSolver})
     a {\sunnonlinsol} object.
   \item[CTestFn] (\id{SUNNonlineSolConvTestFn})
     a {\sundials} integrator's nonlinear solver convergence test function. See
     section \ref{ss:sunnonlinsol_sunsuppliedfn} for the definition of\\ \noindent
     \id{SUNNonlinSolConvTestFn}.
+  \item[ctest\_data] (\id{void*})
+    is a data pointer passed to \id{CTestFn} every time it is called.
   \end{args}
 }
 {
@@ -632,7 +608,7 @@ module are defined in the header file
 {
   typedef int (*SUNNonlinSolConvTestFn)(&SUNNonlinearSolver NLS, N\_Vector ycor,\\
                                         &N\_Vector del, realtype tol,\\
-                                        &N\_Vector ewt, void* mem);
+                                        &N\_Vector ewt, void* ctest\_data);
 }
 {
   These functions are {\sundials} integrator-specific convergence tests for
@@ -640,7 +616,7 @@ module are defined in the header file
   but users may supply custom problem-specific versions as desired.
 }
 {
-  \begin{args}[ycor]
+  \begin{args}[ctest\_data]
   \item[NLS]
     is the {\sunnonlinsol} object.
   \item[ycor]
@@ -651,8 +627,8 @@ module are defined in the header file
     is the nonlinear solver tolerance.
   \item[ewt]
     is the weight vector used in computing weighted norms.
-  \item[mem]
-    is the {\sundials} integrator memory structure.
+  \item[ctest\_data]
+    is the data pointer provided to \id{SUNNonlinSolSetConvTestFn}.
   \end{args}
 }
 {
@@ -724,6 +700,7 @@ failures, and zero to a successful call.
 %%
 \id{SUN\_NLS\_ILL\_INPUT}  & \id{-3} & an illegal input option was provided
 \\
+\hline
 \end{xtabular}
 \bigskip
 
@@ -768,7 +745,8 @@ struct _generic_SUNNonlinearSolver_Ops {
   int                     (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
   int                     (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
   int                     (*setlsolvefn)(SUNNonlinearSolver, SUNNonlinSolLSolveFn);
-  int                     (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn);
+  int                     (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn,
+                                        void*);
   int                     (*setmaxiters)(SUNNonlinearSolver, int);
   int                     (*getnumiters)(SUNNonlinearSolver, long int*);
   int                     (*getcuriter)(SUNNonlinearSolver, int*);

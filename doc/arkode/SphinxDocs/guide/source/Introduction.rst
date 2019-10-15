@@ -110,13 +110,15 @@ Changes from previous versions
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^
 
+To facilitate the use of user supplied nonlinear solver convergence test
+functions the :c:func:`SUNNonlinSolSetConvTestFn` function in the
+SUNNonlinearSolver API has been updated to take a ``void*`` data pointer as
+input. The supplied data pointer will be passed to the nonlinear solver
+convergence test function on each call.
+
 The definitions of :c:type:`SUNNonlinSolLSetupFn()` and
 :c:type:`SUNNonlinSolLSolveFn()` in the SUNNonlinearSolver API have been updated
 to remove unused input parameters.
-
-
-Changes in v4.0.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Support for optional inequality constraints on individual components of the
 solution vector has been added the ARKode ERKStep and ARKStep modules. See

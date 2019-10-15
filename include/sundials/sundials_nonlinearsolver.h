@@ -107,7 +107,7 @@ struct _generic_SUNNonlinearSolver_Ops {
   int (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
   int (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
   int (*setlsolvefn)(SUNNonlinearSolver, SUNNonlinSolLSolveFn);
-  int (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn);
+  int (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn, void*);
   int (*setmaxiters)(SUNNonlinearSolver, int);
   int (*getnumiters)(SUNNonlinearSolver, long int*);
   int (*getcuriter)(SUNNonlinearSolver, int*);
@@ -157,7 +157,8 @@ SUNDIALS_EXPORT int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS,
                                             SUNNonlinSolLSolveFn SolveFn);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
-                                              SUNNonlinSolConvTestFn CTestFn);
+                                              SUNNonlinSolConvTestFn CTestFn,
+                                              void* ctest_data);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS,
                                             int maxiters);

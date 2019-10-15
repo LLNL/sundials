@@ -94,6 +94,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
   content->maxiters   = 3;
   content->niters     = 0;
   content->nconvfails = 0;
+  content->ctest_data = NULL;
 
   /* Fill allocatable content */
   retval = AllocateContent(NLS, y);
@@ -228,7 +229,8 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
     N_VLinearSum(ONE, ycor, -ONE, yprev, delta);
 
     /* test for convergence */
-    retval = FP_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w, mem);
+    retval = FP_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
+                                    FP_CONTENT(NLS)->ctest_data);
 
     /* return if successful */
     if (retval == SUN_NLS_SUCCESS)  return(SUN_NLS_SUCCESS);
@@ -292,7 +294,9 @@ int SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn Sy
   return(SUN_NLS_SUCCESS);
 }
 
-int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
+int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
+                                         SUNNonlinSolConvTestFn CTestFn,
+                                         void* ctest_data)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL)
@@ -303,6 +307,10 @@ int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolCon
     return(SUN_NLS_ILL_INPUT);
 
   FP_CONTENT(NLS)->CTest = CTestFn;
+
+  /* attach convergence test data */
+  FP_CONTENT(NLS)->ctest_data = ctest_data;
+
   return(SUN_NLS_SUCCESS);
 }
 

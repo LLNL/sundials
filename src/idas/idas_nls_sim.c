@@ -115,7 +115,8 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   }
 
   /* set convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(IDA_mem->NLSsim, idaNlsConvTestSensSim);
+  retval = SUNNonlinSolSetConvTestFn(IDA_mem->NLSsim, idaNlsConvTestSensSim,
+                                     ida_mem);
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
                     "IDASetNonlinearSolverSensSim",

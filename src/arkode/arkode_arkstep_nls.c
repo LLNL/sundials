@@ -100,7 +100,8 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   }
 
   /* set convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(step_mem->NLS, arkStep_NlsConvTest);
+  retval = SUNNonlinSolSetConvTestFn(step_mem->NLS, arkStep_NlsConvTest,
+                                     arkode_mem);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                     "ARKStepSetNonlinearSolver",

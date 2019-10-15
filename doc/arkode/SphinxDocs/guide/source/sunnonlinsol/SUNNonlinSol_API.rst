@@ -120,9 +120,11 @@ initialization (``SUNNonlinSolInitialization``), setup
         recommends for the linear solver setup function to be called.
       * *mem* -- the SUNDIALS integrator memory structure.
 
-   **Return value:**  the return value is zero for a
-   successul solve, a positive value for a recoverable error, and a
-   negative value for an unrecoverable error.
+   **Return value:**  the return value is zero for a successul solve, a positive
+   value for a recoverable error (i.e., the solve failed and the integrator
+   should reduce the step size and reattempt the step), and a negative value for
+   an unrecoverable error (i.e., the solve failed the and the integrator should
+   halt and return an error to the user).
 
 
 .. c:function:: int SUNNonlinSolFree(SUNNonlinearSolver NLS)
@@ -222,7 +224,7 @@ parameters. Only the routine for setting the nonlinear system defining function
 
 
 
-.. c:function:: int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
+.. c:function:: int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn, void* ctest_data)
 
    The *optional* function :c:func:`SUNNonlinSolSetConvTestFn()` is
    used to provide the nonlinear solver with a function for
@@ -236,6 +238,8 @@ parameters. Only the routine for setting the nonlinear system defining function
         convergence test function. See the section
         :ref:`SUNNonlinSol.SUNSuppliedFn` for the definition of
         :c:type:`SUNNonlinSolConvTestFn()`.
+      * *ctest_data* -- is a data pointer passed to *CTestFn* every time it is
+        called.
 
    **Return value:**  the return value should be zero for a
    successful call, and a negative value for a failure.
@@ -429,7 +433,7 @@ module are defined in the header file
    solution).
 
 
-.. c:type:: int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del, realtype tol, N_Vector ewt, void* mem)
+.. c:type:: int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del, realtype tol, N_Vector ewt, void* ctest_data)
 
    These functions are SUNDIALS integrator-specific convergence tests for
    nonlinear solvers and are typically supplied by each SUNDIALS integrator,
@@ -441,7 +445,8 @@ module are defined in the header file
       * *del* -- is the difference between the current and prior nonlinear iterates.
       * *tol* -- is the nonlinear solver tolerance.
       * *ewt* -- is the weight vector used in computing weighted norms.
-      * *mem* -- is the SUNDIALS integrator memory structure.
+      * *ctest_data* -- is the data pointer provided to
+        :c:func:`SUNNonlinSolSetConvTestFn()`.
 
    **Return value:** The return value of this routine will be a
    negative value if an unrecoverable error occurred or one of the
@@ -535,7 +540,8 @@ structure is defined as
      int                     (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
      int                     (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
      int                     (*setlsolvefn)(SUNNonlinearSolver, SUNNonlinSolLSolveFn);
-     int                     (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn);
+     int                     (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn,
+                                           void*);
      int                     (*setmaxiters)(SUNNonlinearSolver, int);
      int                     (*getnumiters)(SUNNonlinearSolver, long int*);
      int                     (*getcuriter)(SUNNonlinearSolver, int*);
