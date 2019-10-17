@@ -29,11 +29,6 @@
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
-/* Error Message */
-#define BAD_N1 "N_VNew_ParHyp -- Sum of local vector lengths differs from "
-#define BAD_N2 "input global length. \n\n"
-#define BAD_N   BAD_N1 BAD_N2
-
 /*
  * -----------------------------------------------------------------
  * Simplifying macros NV_CONTENT_PH, NV_DATA_PH, NV_LOCLENGTH_PH,
@@ -205,7 +200,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   v->ops->nvminquotientlocal = N_VMinQuotientLocal_ParHyp;
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ParHyp;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ParHyp;
-  
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_ParHyp) malloc(sizeof *content);
@@ -234,10 +229,10 @@ N_Vector N_VMake_ParHyp(HYPRE_ParVector x)
 {
   N_Vector v;
   MPI_Comm comm = hypre_ParVectorComm(x);
-  HYPRE_Int global_length = hypre_ParVectorGlobalSize(x);
-  HYPRE_Int local_begin = hypre_ParVectorFirstIndex(x);
-  HYPRE_Int local_end = hypre_ParVectorLastIndex(x);
-  HYPRE_Int local_length = local_end - local_begin + 1;
+  sunindextype global_length = (sunindextype) hypre_ParVectorGlobalSize(x);
+  sunindextype local_begin   = (sunindextype) hypre_ParVectorFirstIndex(x);
+  sunindextype local_end     = (sunindextype) hypre_ParVectorLastIndex(x);
+  sunindextype local_length  = local_end - local_begin + 1;
 
   v = NULL;
   v = N_VNewEmpty_ParHyp(comm, local_length, global_length);
@@ -392,7 +387,7 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
 
   /* Attach operations */
   if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
-  
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_ParHyp) malloc(sizeof *content);
@@ -752,7 +747,7 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
   xd = NV_DATA_PH(x);
 
   max = ZERO;
-  for (i = 0; i < N; i++) 
+  for (i = 0; i < N; i++)
     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
   return(max);
 }

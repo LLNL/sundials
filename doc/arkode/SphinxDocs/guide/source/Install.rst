@@ -1166,6 +1166,10 @@ To enable *hypre*, set  ``HYPRE_ENABLE`` to ``ON``, set ``HYPRE_INCLUDE_DIR``
 to the ``include`` path of the *hypre* installation, and set the variable
 ``HYPRE_LIBRARY_DIR`` to the ``lib`` path of the *hypre* installation.
 
+Note: SUNDIALS must be configured so that ``SUNDIALS_INDEX_SIZE`` (or
+equivalently, ``XSDK_INDEX_SIZE``) equals the precision of
+``HYPRE_BigInt`` in the corresponding *hypre* installation.
+
 
 .. _Installation.CMake.ExternalLibraries.CUDA:
 

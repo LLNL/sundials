@@ -960,6 +960,11 @@ To enable {\hypre}, set  \id{HYPRE\_ENABLE} to \id{ON}, set \id{HYPRE\_INCLUDE\_
 to the \id{include} path of the {\hypre} installation, and set the variable
 \id{HYPRE\_LIBRARY\_DIR} to the \id{lib} path of the {\hypre} installation.
 
+Note: {\sundials} must be configured so that \id{SUNDIALS\_INDEX\_SIZE} (or
+equivalently, \id{XSDK\_INDEX\_SIZE}) equals the precision of
+\id{HYPRE\_BigInt} in the corresponding {\hypre} installation.
+
+
 \subsubsection*{Building with CUDA}
 {\sundials} {\cuda} modules and examples have been tested with versions 9 through 10.1
 of the {\cuda} toolkit. To build them, you need to install the Toolkit and compatible
