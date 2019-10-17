@@ -1,10 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
- *                Slaven Peles @ LLNL
+ * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
- * Based on PETSc TS example 15 and a SUNDIALS example by
- * Allan Taylor, Alan Hindmarsh and Radu Serban
+ * Based on PETSc TS example 15 and idaHeat2D_petsc_spgmr.c by
+ * Slaven Peles @ LLNL and Daniel Reynolds @ SMU.
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -34,16 +33,19 @@
  * processor, with an MXSUB by MYSUB mesh on each of NPEX * NPEY
  * processors.
  *
- * The system is solved with IDA using the Krylov linear solver
- * SUNLinSol_SPGMR. The preconditioner uses the diagonal elements of the
- * Jacobian only. Routines for preconditioning, required by
- * SUNLinSol_SPGMR, are supplied here. The constraints u >= 0 are posed
- * for all components. Local error testing on the boundary values
- * is suppressed. Output is taken at t = 0, .01, .02, .04,
- * ..., 10.24.
+ * The system is solved with IDA using the SUNNonlinearSolver
+ * interface to PETSc SNES. By default it uses the SNES "newtonls"
+ * solver with  the KSP GMRES linear solver. The '-pre' runtime
+ * option can be used to toggle on/off user-supplied routines for
+ * preconditioning. The preconditioner uses the diagonal elements
+ * of the Jacobian only. The '-jac' runtime option can be used to
+ * toggle on/off a user-supplied Jacobian routine.
  *
- * The example uses PETSc vector and data management functions to
- * generate mesh and handle MPI communication.
+ * Local error testing on the boundary values is suppressed.
+ * Output is taken at t = 0, .01, .02, .04, ..., 10.24.
+ *
+ * The example also uses the PETSc data management functions to generate
+ * the mesh and handle MPI communication.
  * -----------------------------------------------------------------
  */
 
@@ -52,14 +54,20 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_petsc.h>
+#include <sunnonlinsol/sunnonlinsol_petscsnes.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
 #include <mpi.h>
 #include <petscdm.h>
 #include <petscdmda.h>
+
+#if defined(SUNDIALS_INT64_T)
+#define DSYM "ld"
+#else
+#define DSYM "d"
+#endif
 
 #define ZERO  RCONST(0.0)
 #define ONE   RCONST(1.0)
@@ -78,22 +86,21 @@
                                     /* Spatial mesh is MX by MY */
 
 typedef struct {
-  N_Vector pp;    /* vector of diagonal preconditioner elements */
-  DM       da;    /* PETSc data management object */
+  N_Vector pp;      /* vector of diagonal preconditioner elements */
+  DM       da;      /* PETSc data management object */
+  void*    ida_mem; /* IDA integrator memory */
 } *UserData;
 
 /* User-supplied residual function */
 
 int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, void *user_data);
+int jacHeat(SNES snes, Vec x, Mat Jpre, Mat J, void *user_data);
 
 /* User-supplied preconditioner routines */
 
-int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp,
-               N_Vector rr, realtype c_j, void *user_data);
+int PsetupHeat(PC pc);
 
-int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
-               N_Vector rr, N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data);
+int PsolveHeat(PC pc, Vec x, Vec y);
 
 /* Private function to check function return values */
 
@@ -102,9 +109,9 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 
 static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol);
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu);
+static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu, SNES snes);
 
-static void PrintFinalStats(void *ida_mem);
+static void PrintFinalStats(void *ida_mem, SNES snes);
 
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
@@ -117,23 +124,24 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 int main(int argc, char *argv[])
 {
   MPI_Comm comm;
-  void *ida_mem;
-  SUNLinearSolver LS;
-  UserData data;
   int iout, thispe, retval, npes;
-  sunindextype Neq;
   realtype rtol, atol, t0, t1, tout, tret;
+  sunindextype Neq;
+  PetscBool pre, jac;
+  /* declare SUNDIALS data structures */
+  void *ida_mem;
+  SUNNonlinearSolver NLS;
   N_Vector uu, up, constraints, id, res;
-  PetscErrorCode ierr;                  /* PETSc error code  */
+  UserData data;
+  /* declare PETSc data structures */
+  PetscErrorCode ierr;
+  SNES snes;
+  KSP ksp;
+  PC pc;
+  Mat J;
   Vec uvec;
 
-  ida_mem = NULL;
-  LS = NULL;
-  data = NULL;
-  uu = up = constraints = id = res = NULL;
-
   /* Get processor number and total number of pe's. */
-
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
@@ -152,8 +160,17 @@ int main(int argc, char *argv[])
   Neq = MX * MY;
 
   /* Initialize PETSc */
-  ierr = PetscInitializeNoArguments();
-  CHKERRQ(ierr);
+  ierr = PetscInitialize(&argc, &argv, (char*)0, NULL);
+
+  /* Initialize user application context */
+  ierr = PetscOptionsBegin(PETSC_COMM_WORLD, NULL, "Heat2D options", "");
+  {
+    jac = PETSC_FALSE;
+    pre = PETSC_FALSE;
+    ierr = PetscOptionsBool("-jac", "Utilize user-supplied Jacobian", "", jac, &jac, NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsBool("-pre", "Utilize user-supplied preconditioner", "", pre, &pre, NULL); CHKERRQ(ierr);
+  }
+  ierr = PetscOptionsEnd(); CHKERRQ(ierr);
 
   /* Allocate and initialize the data structure and N-vectors. */
   data = (UserData) malloc(sizeof *data);
@@ -190,45 +207,50 @@ int main(int argc, char *argv[])
     MPI_Abort(comm, 1);
 
   up = N_VClone(uu);
-  if(check_retval((void *)up, "N_VNew_Petsc", 0, thispe))
+  if(check_retval((void *)up, "N_VClone", 0, thispe))
     MPI_Abort(comm, 1);
 
   res = N_VClone(uu);
-  if(check_retval((void *)res, "N_VNew_Petsc", 0, thispe))
+  if(check_retval((void *)res, "N_VClone", 0, thispe))
     MPI_Abort(comm, 1);
 
   constraints = N_VClone(uu);
-  if(check_retval((void *)constraints, "N_VNew_Petsc", 0, thispe))
+  if(check_retval((void *)constraints, "N_VClone", 0, thispe))
     MPI_Abort(comm, 1);
 
   id = N_VClone(uu);
-  if(check_retval((void *)id, "N_VNew_Petsc", 0, thispe))
+  if(check_retval((void *)id, "N_VClone", 0, thispe))
     MPI_Abort(comm, 1);
 
   /* An N-vector to hold preconditioner. */
   data->pp = N_VClone(uu);
-  if(check_retval((void *)data->pp, "N_VNew_Petsc", 0, thispe))
+  if(check_retval((void *)data->pp, "N_VClone", 0, thispe))
     MPI_Abort(comm, 1);
 
   /* Initialize the uu, up, id, and res profiles. */
-
   SetInitialProfile(uu, up, id, res, data);
 
   /* Set constraints to all 1's for nonnegative solution values. */
-
   N_VConst(ONE, constraints);
-
   t0 = ZERO; t1 = RCONST(0.01);
 
   /* Scalar relative and absolute tolerance. */
-
   rtol = ZERO;
-  atol = RCONST(1.0e-3);
+  atol = RCONST(1.0e-4);
 
-  /* Call IDACreate and IDAMalloc to initialize solution. */
+  /*
+   * Call IDACreate and IDAInit, set integration tolerances, then set optional inputs
+   */
 
   ida_mem = IDACreate();
   if(check_retval((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  data->ida_mem = ida_mem;
+
+  retval = IDAInit(ida_mem, resHeat, t0, uu, up);
+  if(check_retval(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
+
+  retval = IDASStolerances(ida_mem, rtol, atol);
+  if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetUserData(ida_mem, data);
   if(check_retval(&retval, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
@@ -243,47 +265,70 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy_Petsc(constraints);
 
-  retval = IDAInit(ida_mem, resHeat, t0, uu, up);
-  if(check_retval(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
+  /*
+   * Create SNES context, then wrap the SNES context in a SUNNonlinsol_PetscSNES
+   * object and set options. Finally, tell IDA to use it.
+   */
 
-  retval = IDASStolerances(ida_mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+  ierr = SNESCreate(comm, &snes); CHKERRQ(ierr);
 
-  /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
+  /* Wrap the SNES context in a SUNNonlinsol_PetscSNES object */
+  NLS = SUNNonlinSol_PetscSNES(uu, snes);  /* This will call SNESSetFunction appropriately */
+  if(check_retval((void*)NLS, "SUNNonlinsol_PetscSNES", 0, thispe)) MPI_Abort(comm, 1);
 
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  ierr = SNESSetDM(snes, data->da); CHKERRQ(ierr);
 
-  retval = IDASetLinearSolver(ida_mem, LS, NULL);
-  if(check_retval(&retval, "IDASetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+  if (jac) {
+    ierr = DMSetMatType(data->da, MATAIJ);
+    ierr = DMCreateMatrix(data->da, &J); CHKERRQ(ierr);
+    ierr = SNESSetJacobian(snes, J, J, jacHeat, data); CHKERRQ(ierr);
+  } else {
+    /* Tell SNES to use the matrix-free finite difference scheme for both
+      the preconditioner matrix and the Jacobian. */
+    ierr = MatCreateSNESMF(snes, &J); CHKERRQ(ierr);
+    ierr = SNESSetJacobian(snes, J, J, MatMFFDComputeJacobian, NULL); CHKERRQ(ierr);
+  }
 
-  retval = IDASetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
-  if(check_retval(&retval, "IDASetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
+  /* Setup the preconditioner if it is turned on */
+  if (pre) {
+    SNESGetKSP(snes, &ksp);
+    KSPGetPC(ksp, &pc);
+    PCSetType(pc, PCSHELL);
+    PCShellSetSetUp(pc, PsetupHeat);
+    PCShellSetApply(pc, PsolveHeat);
+    PCShellSetContext(pc, (void *) data);
+  }
+
+  /* Set SNES/KSP/PC runtime options, these will override the defaults set */
+  ierr = SNESSetFromOptions(snes); CHKERRQ(ierr);
+
+  /* Tell ida to use the SUNNonlinsol_PetscSNES nonlinear solver */
+  retval = IDASetNonlinearSolver(ida_mem, NLS);
+  if(check_retval(&retval, "IDASetNonlinearSolver", 0, thispe)) MPI_Abort(comm, 1);
+
+  /*
+   * Solve the problem, printing output at the desired points in time
+   */
 
   /* Print output heading (on processor 0 only) and intial solution  */
-
   if (thispe == 0) PrintHeader(Neq, rtol, atol);
-  PrintOutput(thispe, ida_mem, t0, uu);
+  PrintOutput(thispe, ida_mem, t0, uu, snes);
 
   /* Loop over tout, call IDASolve, print output. */
-
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
-
     retval = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_retval(&retval, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
-
-    PrintOutput(thispe, ida_mem, tret, uu);
-
+    PrintOutput(thispe, ida_mem, tret, uu, snes);
   }
 
   /* Print remaining counters. */
+  if (thispe == 0) PrintFinalStats(ida_mem, snes);
 
-  if (thispe == 0) PrintFinalStats(ida_mem);
-
-  /* Free memory */
+  /*
+   * Free memory
+   */
 
   IDAFree(&ida_mem);
-  SUNLinSolFree(LS);
 
   N_VDestroy_Petsc(id);
   N_VDestroy_Petsc(res);
@@ -291,16 +336,18 @@ int main(int argc, char *argv[])
   N_VDestroy_Petsc(uu);
 
   N_VDestroy_Petsc(data->pp);
-  ierr = DMDestroy(&data->da);
-  CHKERRQ(ierr);
+  DMDestroy(&data->da);
   free(data);
 
-  ierr = VecDestroy(&uvec);
-  CHKERRQ(ierr);
+  VecDestroy(&uvec);
+  MatDestroy(&J);
+  SNESDestroy(&snes);
+
+  /*
+   * Finalize and exit
+   */
 
   ierr = PetscFinalize();
-  CHKERRQ(ierr);
-
   MPI_Finalize();
 
   return(0);
@@ -410,6 +457,72 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   PetscFunctionReturn(0);
 }
 
+/*
+ * jacHeat: Heat equation system Jacobian matrix.
+ *
+ * The optional user-supplied functions jacHeat provides Jacobian
+ * matrix
+ *        J = dF/du + cj*dF/du'
+ * where the DAE system is F(t,u,u') = 0.
+ *
+ */
+int jacHeat(SNES snes, Vec x, Mat Jpre, Mat J, void *user_data)
+{
+  PetscErrorCode ierr;
+  PetscInt       i, j, Mx , My, xs, ys, xm, ym, nc;
+  UserData       data = (UserData) user_data;
+  DM             da   = (DM) data->da;
+  MatStencil     col[5], row;
+  PetscScalar    vals[5], hx, hy, sx, sy, cj;
+
+  PetscFunctionBeginUser;
+  ierr = DMDAGetInfo(da,
+                     PETSC_IGNORE,
+                     &Mx,
+                     &My,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE,
+                     PETSC_IGNORE);
+  ierr = DMDAGetCorners(da, &xs, &ys, NULL, &xm, &ym, NULL); CHKERRQ(ierr);
+
+  hx = 1.0/(PetscReal)(Mx-1); sx = 1.0/(hx*hx);
+  hy = 1.0/(PetscReal)(My-1); sy = 1.0/(hy*hy);
+
+  ierr = IDAGetCurrentCj(data->ida_mem, &cj);
+
+  for (j=ys; j<ys+ym; j++) {
+    for (i=xs; i<xs+xm; i++) {
+      nc    = 0;
+      row.j = j; row.i = i;
+      if ((i == 0 || i == Mx-1 || j == 0 || j == My-1)) { /* Dirichlet BC */
+        col[nc].j = j; col[nc].i = i; vals[nc++] = 1.0;
+      } else {   /* Interior */
+        col[nc].j = j-1; col[nc].i = i;   vals[nc++] = -sy;
+        col[nc].j = j;   col[nc].i = i-1; vals[nc++] = -sx;
+        col[nc].j = j;   col[nc].i = i;   vals[nc++] = 2.0*(sx + sy) + cj;
+        col[nc].j = j;   col[nc].i = i+1; vals[nc++] = -sx;
+        col[nc].j = j+1; col[nc].i = i;   vals[nc++] = -sy;
+      }
+      ierr = MatSetValuesStencil(Jpre, 1, &row, nc, col, vals, INSERT_VALUES); CHKERRQ(ierr);
+    }
+  }
+
+  ierr = MatAssemblyBegin(Jpre,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
+  ierr = MatAssemblyEnd(Jpre,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
+  if (J != Jpre) {
+    ierr = MatAssemblyBegin(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+    ierr = MatAssemblyEnd(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+  }
+
+  PetscFunctionReturn(0);
+}
 
 /*
  * PsetupHeat: setup for diagonal preconditioner for heatsk.
@@ -429,17 +542,21 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
  *
  */
 
-int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp,
-               N_Vector rr, realtype c_j, void *user_data)
+int PsetupHeat(PC pc)
 {
   PetscErrorCode ierr;
   PetscInt    i, j, Mx, My, xs, ys, xm, ym;
-  PetscReal   hx,hy,sx,sy;
+  PetscReal   hx,hy,sx,sy,c_j;
   PetscScalar pelinv;
   PetscScalar **ppv;
-  UserData data = (UserData) user_data;
+  UserData data;
+
+  /* Get the user data out of the PC object */
+  PCShellGetContext(pc, (void **) &data);
+
   DM da = (DM) data->da;
   Vec ppvec = N_VGetVector_Petsc((data->pp));
+  IDAGetCurrentCj(data->ida_mem, &c_j);
 
   PetscFunctionBeginUser;
   ierr = DMDAGetInfo(da,
@@ -491,20 +608,19 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp,
  * computed in PsetupHeat), returning the result in zvec.
  */
 
-int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
-               N_Vector rr, N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data)
+int PsolveHeat(PC pc, Vec r, Vec z)
 {
   UserData data;
 
-  data = (UserData) user_data;
+  PetscFunctionBeginUser;
 
-  N_VProd(data->pp, rvec, zvec);
+  /* Get the user data out of the PC object */
+  PCShellGetContext(pc, (void **) &data);
+  /* Multiply r by pp and store in z */
+  VecPointwiseMult(z, N_VGetVector_Petsc(data->pp), r);
 
-  return(0);
-
+  PetscFunctionReturn(0);
 }
-
 
 /*
  *--------------------------------------------------------------------
@@ -602,45 +718,49 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 
 static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
 {
-  printf("\nidaHeat2D_kry_petsc: Heat equation, parallel example problem for IDA\n");
-  printf("            Discretized heat equation on 2D unit square.\n");
-  printf("            Zero boundary conditions,");
-  printf(" polynomial initial conditions.\n");
-  printf("            Mesh dimensions: %d x %d", MX, MY);
-  printf("        Total system size: %ld\n\n", (long int) Neq);
-  printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
-  printf("        Processor array: %d x %d\n", NPEX, NPEY);
+  printf("\nidaHeat2D_kry_petscsnes: Heat equation, parallel example problem for IDA\n");
+  printf("                         Discretized heat equation on 2D unit square.\n");
+  printf("                         Zero boundary conditions, polynomial initial conditions.\n");
+  printf("                         Mesh dimensions: %d x %d", MX, MY);
+  printf("\tTotal system size: %ld\n", (long int) Neq);
+  printf("                         Subgrid dimensions: %d x %d", MXSUB, MYSUB);
+  printf("\tProcessor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+  printf("                         Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+  printf("                         Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #else
-  printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+  printf("                         Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Constraints set to force all solution components >= 0. \n");
-  printf("SUPPRESSALG = SUNTRUE to suppress local error testing on ");
-  printf("all boundary components. \n");
-  printf("Linear solver: SUNLinSol_SPGMR  ");
-  printf("Preconditioner: diagonal elements only.\n");
-  printf("This example uses PETSc vector.\n");
+  printf("\nConstraints set to force all solution components >= 0.\n");
+  printf("SUPPRESSALG = SUNTRUE to suppress local error testing on all boundary components.\n");
+  printf("Linear solver: PETSc KSP GMRES.\n");
+  printf("Preconditioner: user-supplied, diagonal elements only.\n");
+  printf("This example uses the PETSc SNES nonlinear solver interface.\n");
+  printf("Use the SNES command line options to override defaults.\n");
 
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nli   nre   nreLS    h      npe nps\n");
-  printf("----------------------------------------------------------------------\n");
+  printf("  time     umax       k  nst  nni  nli   nre     h      \n");
+  printf("--------------------------------------------------------\n");
 }
 
 /*
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
+static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu, SNES snes)
 {
   realtype hused, umax;
-  long int nst, nni, nje, nre, nreLS, nli, npe, nps;
-  int kused, retval;
+  long int nst, nni, njve, nre, nreLS, npe, nps;
+  int kused;
+  PetscInt nli;
+  int retval;
+  KSP ksp;
 
+  nst = nni = njve = nre = nreLS = nli = npe = nps = -99;
   umax = N_VMaxNorm(uu);
+  SNESGetKSP(snes, &ksp);
 
   if (id == 0) {
 
@@ -648,32 +768,23 @@ static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
     check_retval(&retval, "IDAGetLastOrder", 1, id);
     retval = IDAGetNumSteps(ida_mem, &nst);
     check_retval(&retval, "IDAGetNumSteps", 1, id);
-    retval = IDAGetNumNonlinSolvIters(ida_mem, &nni);
-    check_retval(&retval, "IDAGetNumNonlinSolvIters", 1, id);
-    retval = IDAGetNumResEvals(ida_mem, &nre);
-    check_retval(&retval, "IDAGetNumResEvals", 1, id);
     retval = IDAGetLastStep(ida_mem, &hused);
     check_retval(&retval, "IDAGetLastStep", 1, id);
-    retval = IDAGetNumJtimesEvals(ida_mem, &nje);
-    check_retval(&retval, "IDAGetNumJtimesEvals", 1, id);
-    retval = IDAGetNumLinIters(ida_mem, &nli);
-    check_retval(&retval, "IDAGetNumLinIters", 1, id);
-    retval = IDAGetNumLinResEvals(ida_mem, &nreLS);
-    check_retval(&retval, "IDAGetNumLinResEvals", 1, id);
-    retval = IDAGetNumPrecEvals(ida_mem, &npe);
-    check_retval(&retval, "IDAGetNumPrecEvals", 1, id);
-    retval = IDAGetNumPrecSolves(ida_mem, &nps);
-    check_retval(&retval, "IDAGetNumPrecSolves", 1, id);
+    retval = IDAGetNumResEvals(ida_mem, &nre);
+    check_retval(&retval, "IDAGetNumResEvals", 1, id);
+    retval = IDAGetNumNonlinSolvIters(ida_mem, &nni);
+    check_retval(&retval, "IDAGetNumNonlinSolvIters", 1, id);
+    retval = KSPGetTotalIterations(ksp, &nli); CHKERRV(retval);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
-           t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
+    printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3"DSYM"  %4ld  %9.2Le \n",
+           t, umax, kused, nst, nni, nli, nre, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
-           t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3"DSYM"  %4ld   %9.2e  \n",
+           t, umax, kused, nst, nni, nli, nre, hused);
 #else
-    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
-           t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3"DSYM"  %4ld   %9.2e  \n",
+           t, umax, kused, nst, nni, nli, nre, hused);
 #endif
 
   }
@@ -683,17 +794,20 @@ static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
  * Print some final integrator statistics
  */
 
-static void PrintFinalStats(void *ida_mem)
+static void PrintFinalStats(void *ida_mem, SNES snes)
 {
-  long int netf, ncfn, ncfl;
+  long int netf, ncfn;
+  PetscInt ncfl;
+
+  netf = ncfn = ncfl = -99;
 
   IDAGetNumErrTestFails(ida_mem, &netf);
   IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
-  IDAGetNumLinConvFails(ida_mem, &ncfl);
+  SNESGetLinearSolveFailures(snes, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);
-  printf("Linear convergence failures    = %ld\n", ncfl);
+  printf("Linear convergence failures    = %"DSYM"\n", ncfl);
 }
 
 /*

@@ -58,9 +58,6 @@ if(USE_XSDK_DEFAULTS)
   # disable KLU by default
   show_variable(TPL_ENABLE_KLU BOOL "Enable KLU support" OFF)
 
-  # disable PETSc by default
-  show_variable(TPL_ENABLE_PETSC BOOL "Enable PETSc support" OFF)
-
   # disable hypre by default
   show_variable(TPL_ENABLE_HYPRE BOOL "Enable hypre support" OFF)
 
@@ -218,39 +215,6 @@ if(TPL_ENABLE_HYPRE)
   force_variable(HYPRE_LIBRARY STRING "${DOCSTR}" "${TPL_HYPRE_LIBRARIES}")
   mark_as_advanced(FORCE HYPRE_LIBRARY)
   mark_as_advanced(FORCE HYPRE_LIBRARY_DIR)
-endif()
-
-
-# ---------------------------------------------------------------
-# PETSC
-# ---------------------------------------------------------------
-
-# TPL_ENABLE_PETSC => PETSC_ENABLE
-if(DEFINED TPL_ENABLE_PETSC)
-  message("Replacing PETSC_ENABLE with TPL_ENABLE_PETSC")
-  set(DOCSTR "Enable petsc support")
-
-  force_variable(PETSC_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_PETSC}")
-  mark_as_advanced(FORCE PETSC_ENABLE)
-endif()
-
-# TPL_PETSC_INCLUDE_DIRS => PETSC_INCLUDE_DIR
-# TPL_PETSC_LIBRARIES    => PETSC_LIBRARY     => PETSC_LIBRARIES
-if(TPL_ENABLE_PETSC)
-  message("Replacing PETSC_INCLUDE_DIR with TPL_PETSC_INCLUDE_DIRS")
-  set(DOCSTR "PETSc include directory")
-
-  show_variable(TPL_PETSC_INCLUDE_DIRS STRING "${DOCSTR}" "${TPL_PETSC_INCLUDE_DIRS}")
-  force_variable(PETSC_INCLUDE_DIR STRING "${DOCSTR}" "${TPL_PETSC_INCLUDE_DIRS}")
-  mark_as_advanced(FORCE PETSC_INCLUDE_DIR)
-
-  message("Replacing PETSC_LIBRARY with TPL_PETSC_LIBRARIES")
-  set(DOCSTR "PETSc library")
-
-  show_variable(TPL_PETSC_LIBRARIES STRING "${DOCSTR}" "${TPL_PETSC_LIBRARIES}")
-  force_variable(PETSC_LIBRARY STRING "${DOCSTR}" "${TPL_PETSC_LIBRARIES}")
-  mark_as_advanced(FORCE PETSC_LIBRARY)
-  mark_as_advanced(FORCE PETSC_LIBRARY_DIR)
 endif()
 
 # ---------------------------------------------------------------

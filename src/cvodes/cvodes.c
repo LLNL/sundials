@@ -1,4 +1,5 @@
-/* -----------------------------------------------------------------
+/*
+ * -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -6807,6 +6808,9 @@ static int cvStgr1Nls(CVodeMem cv_mem, int is)
  * If it failed due to an unrecoverable failure in sensi rhs, then we return
  * the value CV_SRHSFUNC_FAIL.
  *
+ * If it failed due to an unrecoverable failure in sensi quad rhs, then we
+ * return the value CV_QSRHSFUNC_FAIL.
+ *
  * Otherwise, a recoverable failure occurred when solving the
  * nonlinear system (cvNls returned nflag = SUN_NLS_CONV_RECVT, RHSFUNC_RECVR,
  * or SRHSFUNC_RECVR).
@@ -6833,7 +6837,15 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   cvRestore(cv_mem, saved_t);
 
   /* Return if failed unrecoverably */
-  if (nflag < 0) return(nflag);
+  if (nflag < 0) {
+    if (nflag == CV_LSETUP_FAIL)         return(CV_LSETUP_FAIL);
+    else if (nflag == CV_LSOLVE_FAIL)    return(CV_LSOLVE_FAIL);
+    else if (nflag == CV_RHSFUNC_FAIL)   return(CV_RHSFUNC_FAIL);
+    else if (nflag == CV_QRHSFUNC_FAIL)  return(CV_QRHSFUNC_FAIL);
+    else if (nflag == CV_SRHSFUNC_FAIL)  return(CV_SRHSFUNC_FAIL);
+    else if (nflag == CV_QSRHSFUNC_FAIL) return(CV_QSRHSFUNC_FAIL);
+    else                                 return(CV_NLS_FAIL);
+  }
 
   /* At this point, nflag = SUN_NLS_CONV_RECVR, CONSTR_RECVR, RHSFUNC_RECVR,
      or SRHSFUNC_RECVR; increment ncf */
@@ -7493,8 +7505,14 @@ static int cvHandleFailure(CVodeMem cv_mem, int flag)
   case CV_CONSTR_FAIL:
     cvProcessError(cv_mem, CV_CONSTR_FAIL, "CVODES", "CVode",
                    MSGCV_FAILED_CONSTR, cv_mem->cv_tn);
+  case CV_NLS_FAIL:
+    cvProcessError(cv_mem, CV_NLS_FAIL, "CVODES", "CVode",
+                   MSGCV_NLS_FAIL, cv_mem->cv_tn);
+    break;
   default:
-    return(CV_SUCCESS);
+    cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, "CVODES", "CVode",
+                   "CVODES encountered an unrecognized error. Please report this to the Sundials developers at sundials-users@llnl.gov");
+    return (CV_UNRECOGNIZED_ERR);
   }
 
   return(flag);

@@ -4881,6 +4881,30 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
       IDAProcessError(IDA_mem, IDA_RES_FAIL, "IDAS", "IDASolve", MSG_RES_NONRECOV, IDA_mem->ida_tn);
       return(IDA_RES_FAIL);
 
+    case IDA_REP_QRHS_ERR:
+      IDAProcessError(IDA_mem, IDA_REP_QRHS_ERR, "IDAS", "IDASolve", MSG_QRHSFUNC_REPTD, IDA_mem->ida_tn);
+      return(IDA_REP_QRHS_ERR);
+
+    case IDA_QRHS_FAIL:
+      IDAProcessError(IDA_mem, IDA_QRHS_FAIL, "IDAS", "IDASolve", MSG_QRHSFUNC_FAILED, IDA_mem->ida_tn);
+      return(IDA_QRHS_FAIL);
+
+    case IDA_REP_SRES_ERR:
+      IDAProcessError(IDA_mem, IDA_REP_SRES_ERR, "IDAS", "IDASolve", MSG_SRES_REPTD, IDA_mem->ida_tn);
+      return(IDA_REP_SRES_ERR);
+
+    case IDA_SRES_FAIL:
+      IDAProcessError(IDA_mem, IDA_SRES_FAIL, "IDAS", "IDASolve", MSG_SRES_FAILED, IDA_mem->ida_tn);
+      return(IDA_SRES_FAIL);
+
+    case IDA_REP_QSRHS_ERR:
+      IDAProcessError(IDA_mem, IDA_REP_QSRHS_ERR, "IDAS", "IDASolve", MSG_QSRHSFUNC_REPTD, IDA_mem->ida_tn);
+      return(IDA_REP_QSRHS_ERR);
+
+    case IDA_QSRHS_FAIL:
+      IDAProcessError(IDA_mem, IDA_QSRHS_FAIL, "IDAS", "IDASolve", MSG_QSRHSFUNC_FAILED, IDA_mem->ida_tn);
+      return(IDA_QSRHS_FAIL);
+
     case IDA_CONSTR_FAIL:
       IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, "IDAS", "IDASolve", MSG_FAILED_CONSTR, IDA_mem->ida_tn);
       return(IDA_CONSTR_FAIL);
@@ -4898,6 +4922,10 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
       IDAProcessError(IDA_mem, IDA_NLS_SETUP_FAIL, "IDA", "IDASolve",
                       MSG_NLS_SETUP_FAILED, IDA_mem->ida_tn);
       return(IDA_NLS_SETUP_FAIL);
+    case IDA_NLS_FAIL:
+      IDAProcessError(IDA_mem, IDA_NLS_FAIL, "IDA", "IDASolve",
+                      MSG_NLS_FAIL, IDA_mem->ida_tn);
+      return(IDA_NLS_FAIL);
   }
 
   /* This return should never happen */
@@ -6209,7 +6237,13 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
 
     if (nflag < 0) {  /* nonrecoverable failure */
 
-      return(nflag);
+      if (nflag == IDA_LSOLVE_FAIL)      return(IDA_LSOLVE_FAIL);
+      else if (nflag == IDA_LSETUP_FAIL) return(IDA_LSETUP_FAIL);
+      else if (nflag == IDA_RES_FAIL)    return(IDA_RES_FAIL);
+      else if (nflag == IDA_QRHS_FAIL)   return(IDA_QRHS_FAIL);
+      else if (nflag == IDA_SRES_FAIL)   return(IDA_SRES_FAIL);
+      else if (nflag == IDA_QSRHS_FAIL)  return(IDA_QSRHS_FAIL);
+      else                               return(IDA_NLS_FAIL);
 
     } else {          /* recoverable failure    */
 
@@ -6221,8 +6255,8 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       /* Test if there were too many convergence failures */
       if (*ncfPtr < IDA_mem->ida_maxncf)  return(PREDICT_AGAIN);
       else if (nflag == IDA_RES_RECVR)    return(IDA_REP_RES_ERR);
-      else if (nflag == IDA_SRES_RECVR)   return(IDA_REP_SRES_ERR);
       else if (nflag == IDA_QRHS_RECVR)   return(IDA_REP_QRHS_ERR);
+      else if (nflag == IDA_SRES_RECVR)   return(IDA_REP_SRES_ERR);
       else if (nflag == IDA_QSRHS_RECVR)  return(IDA_REP_QSRHS_ERR);
       else if (nflag == IDA_CONSTR_RECVR) return(IDA_CONSTR_FAIL);
       else                                return(IDA_CONV_FAIL);

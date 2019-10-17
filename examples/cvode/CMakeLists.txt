@@ -31,6 +31,9 @@ if(EXAMPLES_ENABLE_C)
   if(HYPRE_ENABLE AND HYPRE_FOUND)
     add_subdirectory(parhyp)
   endif()
+  if(PETSC_ENABLE AND PETSC_FOUND)
+    add_subdirectory(petsc)
+  endif()
 endif()
 
 # CXX examples

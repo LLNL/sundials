@@ -54,10 +54,10 @@ module fsundials_matrix_mod
  public :: FSUNMatMatvec
  public :: FSUNMatSpace
  integer(C_INT), parameter, public :: SUNMAT_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: SUNMAT_ILL_INPUT = -1_C_INT
- integer(C_INT), parameter, public :: SUNMAT_MEM_FAIL = -2_C_INT
- integer(C_INT), parameter, public :: SUNMAT_OPERATION_FAIL = -3_C_INT
- integer(C_INT), parameter, public :: SUNMAT_MATVEC_SETUP_REQUIRED = -4_C_INT
+ integer(C_INT), parameter, public :: SUNMAT_ILL_INPUT = -701_C_INT
+ integer(C_INT), parameter, public :: SUNMAT_MEM_FAIL = -702_C_INT
+ integer(C_INT), parameter, public :: SUNMAT_OPERATION_FAIL = -703_C_INT
+ integer(C_INT), parameter, public :: SUNMAT_MATVEC_SETUP_REQUIRED = -704_C_INT
 
 ! WRAPPER DECLARATIONS
 interface

@@ -170,7 +170,7 @@ if(LAPACK_FOUND)
       EXAMPLE_TYPE ${example_type})
 
     # find all .out files for this example
-    file(GLOB example_out ${example}.out*)
+    file(GLOB example_out ${example}*.out)
 
     # install example source and .out files
     if(EXAMPLES_INSTALL)
@@ -231,7 +231,7 @@ if(KLU_FOUND)
       EXAMPLE_TYPE ${example_type})
 
     # find all .out files for this example
-    file(GLOB example_out ${example}.out*)
+    file(GLOB example_out ${example}*.out)
 
     # install example source and .out files
     if(EXAMPLES_INSTALL)
@@ -305,7 +305,7 @@ if(SUPERLUMT_FOUND)
     endif(SUNDIALS_INDEX_SIZE MATCHES "32")
 
     # find all .out files for this example
-    file(GLOB example_out ${example}.out*)
+    file(GLOB example_out ${example}*.out)
 
     # install example source and .out files
     if(EXAMPLES_INSTALL)

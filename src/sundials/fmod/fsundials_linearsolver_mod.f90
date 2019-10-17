@@ -100,24 +100,24 @@ module fsundials_linearsolver_mod
  public :: FSUNLinSolSpace
  public :: FSUNLinSolFree
  integer(C_INT), parameter, public :: SUNLS_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: SUNLS_MEM_NULL = -1_C_INT
- integer(C_INT), parameter, public :: SUNLS_ILL_INPUT = -2_C_INT
- integer(C_INT), parameter, public :: SUNLS_MEM_FAIL = -3_C_INT
- integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_UNREC = -4_C_INT
- integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_UNREC = -5_C_INT
- integer(C_INT), parameter, public :: SUNLS_PSOLVE_FAIL_UNREC = -6_C_INT
- integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_UNREC = -7_C_INT
- integer(C_INT), parameter, public :: SUNLS_GS_FAIL = -8_C_INT
- integer(C_INT), parameter, public :: SUNLS_QRSOL_FAIL = -9_C_INT
- integer(C_INT), parameter, public :: SUNLS_VECTOROP_ERR = -10_C_INT
- integer(C_INT), parameter, public :: SUNLS_RES_REDUCED = 1_C_INT
- integer(C_INT), parameter, public :: SUNLS_CONV_FAIL = 2_C_INT
- integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_REC = 3_C_INT
- integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_REC = 4_C_INT
- integer(C_INT), parameter, public :: SUNLS_PSOLVE_FAIL_REC = 5_C_INT
- integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_REC = 6_C_INT
- integer(C_INT), parameter, public :: SUNLS_QRFACT_FAIL = 7_C_INT
- integer(C_INT), parameter, public :: SUNLS_LUFACT_FAIL = 8_C_INT
+ integer(C_INT), parameter, public :: SUNLS_MEM_NULL = -801_C_INT
+ integer(C_INT), parameter, public :: SUNLS_ILL_INPUT = -802_C_INT
+ integer(C_INT), parameter, public :: SUNLS_MEM_FAIL = -803_C_INT
+ integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_UNREC = -804_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_UNREC = -805_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSOLVE_FAIL_UNREC = -806_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_UNREC = -807_C_INT
+ integer(C_INT), parameter, public :: SUNLS_GS_FAIL = -808_C_INT
+ integer(C_INT), parameter, public :: SUNLS_QRSOL_FAIL = -809_C_INT
+ integer(C_INT), parameter, public :: SUNLS_VECTOROP_ERR = -810_C_INT
+ integer(C_INT), parameter, public :: SUNLS_RES_REDUCED = 801_C_INT
+ integer(C_INT), parameter, public :: SUNLS_CONV_FAIL = 802_C_INT
+ integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_REC = 803_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_REC = 804_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSOLVE_FAIL_REC = 805_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_REC = 806_C_INT
+ integer(C_INT), parameter, public :: SUNLS_QRFACT_FAIL = 807_C_INT
+ integer(C_INT), parameter, public :: SUNLS_LUFACT_FAIL = 808_C_INT
 
 ! WRAPPER DECLARATIONS
 interface

@@ -259,7 +259,7 @@ module provides two utility functions \id{SUNMatNewEmpty} and
 {
   This routine frees the generic \id{SUNMatrix} object, under the assumption that any
   implementation-specific data that was allocated within the underlying content structure
-  has already been freed. It will additionally test whether the ops pointer is \id{NULL}, 
+  has already been freed. It will additionally test whether the ops pointer is \id{NULL},
   and, if it is not, it will free it as well.
 }
 {
@@ -320,16 +320,16 @@ a failure.
 \id{SUNMAT\_SUCCESS} & \id{0} & successful call or converged solve
 \\[1mm]
 %%
-\id{SUNMAT\_ILL\_INPUT} & \id{-1} & an illegal input has been provided to the function
+\id{SUNMAT\_ILL\_INPUT} & \id{-701} & an illegal input has been provided to the function
 \\[1mm]
 %%
-\id{SUNMAT\_MEM\_FAIL} & \id{-2} & failed memory access or allocation
+\id{SUNMAT\_MEM\_FAIL} & \id{-702} & failed memory access or allocation
 \\[1mm]
 %%
-\id{SUNMAT\_OPERATION\_FAIL} & \id{-3} & a SUNMatrix operation returned nonzero
+\id{SUNMAT\_OPERATION\_FAIL} & \id{-703} & a SUNMatrix operation returned nonzero
 \\
 %%
-\id{SUNMAT\_MATVEC\_SETUP\_REQUIRED} & \id{-4} & the \id{SUNMatMatvecSetup} routine
+\id{SUNMAT\_MATVEC\_SETUP\_REQUIRED} & \id{-704} & the \id{SUNMatMatvecSetup} routine
 needs to be called before calling \id{SUNMatMatvec}
 \\
 \hline

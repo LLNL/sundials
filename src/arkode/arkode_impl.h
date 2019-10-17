@@ -1090,6 +1090,8 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *nflag, int *constrfails);
 #define MSG_ARK_MASSSETUP_FAIL "The mass matrix solver's setup routine failed."
 #define MSG_ARK_MASSSOLVE_FAIL "The mass matrix solver failed."
 #define MSG_ARK_MASSFREE_FAIL  "The mass matrixsolver's free routine failed."
+#define MSG_ARK_NLS_FAIL       "At " MSG_TIME " the nonlinear solver failed in an unrecoverable manner."
+
 
 #define MSG_ARKADAPT_NO_MEM    "Adaptivity memory structure not allocated."
 #define MSG_ARK_VECTOROP_ERR      "At " MSG_TIME ", a vector operation failed."

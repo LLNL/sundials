@@ -166,33 +166,38 @@ $tar $tarfile $distrobase/examples/cvode/superludist/cvAdvDiff_sludist.cpp    ||
 $tar $tarfile $distrobase/examples/cvode/superludist/cvAdvDiff_sludist_32.out || exit 1
 $tar $tarfile $distrobase/examples/cvode/superludist/cvAdvDiff_sludist_64.out || exit 1
 
-$tar $tarfile $distrobase/examples/cvode/parhyp/README               || exit 1 
-$tar $tarfile $distrobase/examples/cvode/parhyp/CMakeLists.txt       || exit 1 
-$tar $tarfile $distrobase/examples/cvode/parhyp/cvAdvDiff_non_ph.c   || exit 1 
-$tar $tarfile $distrobase/examples/cvode/parhyp/cvAdvDiff_non_ph.out || exit 1 
+$tar $tarfile $distrobase/examples/cvode/parhyp/README               || exit 1
+$tar $tarfile $distrobase/examples/cvode/parhyp/CMakeLists.txt       || exit 1
+$tar $tarfile $distrobase/examples/cvode/parhyp/cvAdvDiff_non_ph.c   || exit 1
+$tar $tarfile $distrobase/examples/cvode/parhyp/cvAdvDiff_non_ph.out || exit 1
+
+$tar $tarfile $distrobase/examples/cvode/petsc/README                  || exit 1
+$tar $tarfile $distrobase/examples/cvode/petsc/CMakeLists.txt          || exit 1
+$tar $tarfile $distrobase/examples/cvode/petsc/cv_petsc_ex7.{c,out}    || exit 1
+$tar $tarfile $distrobase/examples/cvode/petsc/cvAdvDiff_petsc.{c,out} || exit 1
 
 $tar $tarfile $distrobase/examples/cvode/C_mpimanyvector/README                       || exit 1
 $tar $tarfile $distrobase/examples/cvode/C_mpimanyvector/CMakeLists.txt               || exit 1
 $tar $tarfile $distrobase/examples/cvode/C_mpimanyvector/cvDiurnal_kry_mpimanyvec.c   || exit 1
 $tar $tarfile $distrobase/examples/cvode/C_mpimanyvector/cvDiurnal_kry_mpimanyvec.out || exit 1
 
-$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/README                || exit 1 
-$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/CMakeLists.txt        || exit 1 
-$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_non_p.f       || exit 1 
-$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_non_p.out     || exit 1 
-$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_bbd_p.f   || exit 1 
-$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_bbd_p.out || exit 1 
-$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.f       || exit 1 
-$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.out     || exit 1 
+$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/README                || exit 1
+$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/CMakeLists.txt        || exit 1
+$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_non_p.f       || exit 1
+$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_non_p.out     || exit 1
+$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_bbd_p.f   || exit 1
+$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_bbd_p.out || exit 1
+$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.f       || exit 1
+$tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.out     || exit 1
 
-$tar $tarfile $distrobase/examples/cvode/cuda/README                         || exit 1 
-$tar $tarfile $distrobase/examples/cvode/cuda/CMakeLists.txt                 || exit 1 
-$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.cu          || exit 1 
-$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.out         || exit 1 
-$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.cu  || exit 1 
-$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.out || exit 1 
+$tar $tarfile $distrobase/examples/cvode/cuda/README                         || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/CMakeLists.txt                 || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.cu          || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.out         || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.cu  || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.out || exit 1
 
-$tar $tarfile $distrobase/examples/cvode/raja/README                 || exit 1 
-$tar $tarfile $distrobase/examples/cvode/raja/CMakeLists.txt         || exit 1 
-$tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.cu  || exit 1 
-$tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.out || exit 1 
+$tar $tarfile $distrobase/examples/cvode/raja/README                 || exit 1
+$tar $tarfile $distrobase/examples/cvode/raja/CMakeLists.txt         || exit 1
+$tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.cu  || exit 1
+$tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.out || exit 1

@@ -75,6 +75,7 @@ extern "C" {
 #define CV_NLS_INIT_FAIL        -13
 #define CV_NLS_SETUP_FAIL       -14
 #define CV_CONSTR_FAIL          -15
+#define CV_NLS_FAIL             -16
 
 #define CV_MEM_FAIL             -20
 #define CV_MEM_NULL             -21
@@ -105,6 +106,9 @@ extern "C" {
 #define CV_FIRST_QSRHSFUNC_ERR  -52
 #define CV_REPTD_QSRHSFUNC_ERR  -53
 #define CV_UNREC_QSRHSFUNC_ERR  -54
+
+
+#define CV_UNRECOGNIZED_ERR     -99
 
 /* adjoint return values */
 

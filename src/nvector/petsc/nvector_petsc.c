@@ -310,6 +310,15 @@ Vec N_VGetVector_Petsc(N_Vector v)
 }
 
 /* ----------------------------------------------------------------
+ * Function to set the PETSc vector
+ */
+
+void N_VSetVector_Petsc(N_Vector v, Vec p)
+{
+  NV_PVEC_PTC(v) = p;
+}
+
+/* ----------------------------------------------------------------
  * Function to print the global data in a PETSc vector to stdout
  */
 

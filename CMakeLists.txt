@@ -474,14 +474,20 @@ endif()
 # ---------------------------------------------------------------
 # Enable PETSc support?
 # ---------------------------------------------------------------
-option(PETSC_ENABLE "Enable PETSc support" OFF)
+sundials_option(PETSC_ENABLE BOOL "Enable PETSc support" OFF
+                XSDK_NAME TPL_ENABLE_PETSC)
 
-# Using PETSc requires building with MPI enabled
-if(PETSC_ENABLE AND NOT MPI_ENABLE)
-  print_warning("MPI not enabled - Disabling PETSc"
-                "Set MPI_ENABLE to ON to use PETSc")
-  force_variable(PETSC_ENABLE BOOL "Enable PETSc support" OFF)
-endif()
+sundials_option(PETSC_DIR PATH "Path to the root of a PETSc installation" "${PETSC_DIR}"
+                DEPENDS_ON PETSC_ENABLE
+                XSDK_NAME TPL_PETSC_DIR)
+
+sundials_option(PETSC_LIBRARIES STRING "Semi-colon separated list of PETSc link libraries" "${PETSC_LIBRARIES}"
+                DEPENDS_ON PETSC_ENABLE
+                ADVANCED)
+
+sundials_option(PETSC_INCLUDES STRING "Semi-colon separated list of PETSc include directories" "${PETSC_INCLUDES}"
+                DEPENDS_ON PETSC_ENABLE
+                ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable Trilinos support?
@@ -1012,33 +1018,10 @@ endif()
 # Find (and test) the PETSc libraries
 # ---------------------------------------------------------------
 
-# >>>>>>> NOTE: Need to add check for PETSc precision and integer type
-
 if(PETSC_ENABLE)
-  show_variable(PETSC_INCLUDE_DIR PATH "PETSc include directory"
-    "${PETSC_INCLUDE_DIR}")
-  show_variable(PETSC_LIBRARY_DIR PATH
-    "PETSc library directory" "${PETSC_LIBRARY_DIR}")
-
   include(SundialsPETSc)
-
-  if(PETSC_FOUND)
-    # sundials_config.h symbol
-    set(SUNDIALS_PETSC TRUE)
-    include_directories(${PETSC_INCLUDE_DIR})
-  endif(PETSC_FOUND)
-
-  if(PETSC_LIBRARIES AND NOT PETSC_FOUND)
-    print_warning("PETSC not functional - support will not be provided"
-                  "Double check spelling specified libraries (search is case sensitive)")
-  endif(PETSC_LIBRARIES AND NOT PETSC_FOUND)
-
 else()
-
-  hide_variable(PETSC_LIBRARY_DIR)
-  hide_variable(PETSC_INCLUDE_DIR)
-  set (PETSC_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
-
+  set(PETSC_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 endif()
 
 # -------------------------------------------------------------

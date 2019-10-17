@@ -108,7 +108,10 @@ Changes from previous versions
 --------------------------------
 
 Changes in v4.0.0
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Added a new ``SUNNonlinearSolver`` implementation, ``SUNNonlinsol_PetscSNES``,
+which interfaces to the PETSc SNES nonlinear solver API.
 
 To facilitate the use of user supplied nonlinear solver convergence test
 functions the :c:func:`SUNNonlinSolSetConvTestFn` function in the

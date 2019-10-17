@@ -72,6 +72,7 @@ sunlinsol_examples.tex \
 sunnonlinsol_generic.tex \
 sunnonlinsol_newton.tex \
 sunnonlinsol_fixedpoint.tex \
+sunnonlinsol_petscsnes.tex \
 types.tex \
 ug.tex \
 biblio.bib

@@ -368,8 +368,7 @@ time cmake \
     -D TPL_HYPRE_LIBRARIES="${HYPREDIR}/lib/libHYPRE.so" \
     \
     -D TPL_ENABLE_PETSC="${PETSCSTATUS}" \
-    -D TPL_PETSC_INCLUDE_DIRS="${PETSCDIR}/include" \
-    -D TPL_PETSC_LIBRARIES="${PETSCDIR}/lib/libpetsc.so" \
+    -D TPL_PETSC_DIR="${PETSCDIR}" \
     \
     -D TPL_ENABLE_SUPERLUMT="${SLUMTSTATUS}" \
     -D TPL_SUPERLUMT_INCLUDE_DIRS="${SLUMTDIR}/include" \

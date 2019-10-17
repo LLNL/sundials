@@ -664,7 +664,7 @@ correspond to non-recoverable failures, positive values to recoverable
 failures, and zero to a successful call.
 
 \newlength{\ColumnOneA}
-\settowidth{\ColumnOneA}{\id{SUN\_NLS\_CONV\_RECVR}}
+\settowidth{\ColumnOneA}{\id{SUN\_NLS\_VECTOROP\_ERR}}
 \newlength{\ColumnTwoA}
 \settowidth{\ColumnTwoA}{\id{Value}}
 \newlength{\ColumnThreeA}
@@ -681,24 +681,28 @@ failures, and zero to a successful call.
 \tabletail{\hline \multicolumn{3}{|r|}{\small\slshape continued on next page} \\ \hline}
 \begin{xtabular}{|p{\ColumnOneA}|p{\ColumnTwoA}|p{\ColumnThreeA}|}
 %%
-\id{SUN\_NLS\_SUCCESS}     & \id{0}  & successful call or converged solve
+\id{SUN\_NLS\_SUCCESS}        & \id{0}  & successful call or converged solve
 \\[1mm]
 %%
-\id{SUN\_NLS\_CONTINUE}    & \id{1}  & the nonlinear solver is not
-                                      converged, keep iterating
+\id{SUN\_NLS\_CONTINUE}       & \id{901}  & the nonlinear solver is not
+                                            converged, keep iterating
 \\[1mm]
 %%
-\id{SUN\_NLS\_CONV\_RECVR} & \id{2}  & the nonlinear solver appears to
-                                       be diverging, try to recover
+\id{SUN\_NLS\_CONV\_RECVR}    & \id{902}  & the nonlinear solver appears to
+                                            be diverging, try to recover
 \\[1mm]
 %%
-\id{SUN\_NLS\_MEM\_NULL}   & \id{-1} & a memory argument is \id{NULL}
+\id{SUN\_NLS\_MEM\_NULL}      & \id{-901} & a memory argument is \id{NULL}
 \\[1mm]
 %%
-\id{SUN\_NLS\_MEM\_FAIL}   & \id{-2} & a memory access or allocation failed
+\id{SUN\_NLS\_MEM\_FAIL}      & \id{-902} & a memory access or allocation failed
 \\[1mm]
 %%
-\id{SUN\_NLS\_ILL\_INPUT}  & \id{-3} & an illegal input option was provided
+\id{SUN\_NLS\_ILL\_INPUT}     & \id{-903} & an illegal input option was provided
+\\
+\id{SUN\_NLS\_VECTOROP\_ERR}  & \id{-904} & a {\nvector} operation failed
+\\
+\id{SUN\_NLS\_EXT\_FAIL}      & \id{-905} & an external library call returned an error
 \\
 \hline
 \end{xtabular}

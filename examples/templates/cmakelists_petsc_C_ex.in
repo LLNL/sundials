@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------
-# Programmer(s): Radu Serban @ LLNL
+# Programmer: Radu Serban, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -60,6 +60,12 @@ find_library(SUNDIALS_NVEC_LIB
   sundials_nvecpetsc ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR library")
 
+# Find the SUNNonlinearSolver PETSC library
+FIND_LIBRARY(SUNDIALS_NLS_LIB
+  sundials_sunnonlinsolpetscsnes ${SUNDIALS_LIB_DIR}
+  DOC "SUNNonlinearSolver library")
+
+
 # Set additional libraries
 set(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
@@ -68,7 +74,7 @@ include_directories(@PETSC_INCLUDE_DIR@)
 set(PETSC_LIBRARIES @PETSC_LIBRARIES@ CACHE STRING "PETSC libraries")
 
 # List of all libraries
-set(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_EXTRA_LIB})
+set(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_NLS_LIB} ${SUNDIALS_EXTRA_LIB})
 
 # Build each example one by one
 foreach(example ${examples})

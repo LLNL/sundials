@@ -111,7 +111,7 @@ typedef struct CVodeMemRec {
   N_Vector cv_vtemp2;  /* temporary storage vector                            */
   N_Vector cv_vtemp3;  /* temporary storage vector                            */
 
-  N_Vector cv_constraints; /* vector of inequality constraint options             */
+  N_Vector cv_constraints; /* vector of inequality constraint options         */
 
   /*-----------------
     Tstop information
@@ -547,8 +547,9 @@ int cvNlsInit(CVodeMem cv_mem);
 #define MSGCV_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCV_BAD_TSTOP "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME " in the direction of integration."
 #define MSGCV_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
-#define MSGCV_NLS_SETUP_FAILED "At " MSG_TIME "the nonlinear solver setup failed unrecoverably."
-#define MSGCV_NLS_INPUT_NULL "At " MSG_TIME "the nonlinear solver was passed a NULL input."
+#define MSGCV_NLS_SETUP_FAILED "At " MSG_TIME ", the nonlinear solver setup failed unrecoverably."
+#define MSGCV_NLS_INPUT_NULL "At " MSG_TIME ", the nonlinear solver was passed a NULL input."
+#define MSGCV_NLS_FAIL "At " MSG_TIME ", the nonlinear solver failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

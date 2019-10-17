@@ -340,29 +340,29 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
-  cv_mem->cv_f          = NULL;
-  cv_mem->cv_user_data  = NULL;
-  cv_mem->cv_itol       = CV_NN;
-  cv_mem->cv_atolmin0   = SUNTRUE;
-  cv_mem->cv_user_efun  = SUNFALSE;
-  cv_mem->cv_efun       = NULL;
-  cv_mem->cv_e_data     = NULL;
-  cv_mem->cv_ehfun      = cvErrHandler;
-  cv_mem->cv_eh_data    = cv_mem;
-  cv_mem->cv_errfp      = stderr;
-  cv_mem->cv_qmax       = maxord;
-  cv_mem->cv_mxstep     = MXSTEP_DEFAULT;
-  cv_mem->cv_mxhnil     = MXHNIL_DEFAULT;
-  cv_mem->cv_sldeton    = SUNFALSE;
-  cv_mem->cv_hin        = ZERO;
-  cv_mem->cv_hmin       = HMIN_DEFAULT;
-  cv_mem->cv_hmax_inv   = HMAX_INV_DEFAULT;
-  cv_mem->cv_tstopset   = SUNFALSE;
-  cv_mem->cv_maxnef     = MXNEF;
-  cv_mem->cv_maxncf     = MXNCF;
-  cv_mem->cv_nlscoef    = CORTES;
-  cv_mem->convfail      = CV_NO_FAILURES;
-  cv_mem->cv_constraints = NULL;
+  cv_mem->cv_f              = NULL;
+  cv_mem->cv_user_data      = NULL;
+  cv_mem->cv_itol           = CV_NN;
+  cv_mem->cv_atolmin0       = SUNTRUE;
+  cv_mem->cv_user_efun      = SUNFALSE;
+  cv_mem->cv_efun           = NULL;
+  cv_mem->cv_e_data         = NULL;
+  cv_mem->cv_ehfun          = cvErrHandler;
+  cv_mem->cv_eh_data        = cv_mem;
+  cv_mem->cv_errfp          = stderr;
+  cv_mem->cv_qmax           = maxord;
+  cv_mem->cv_mxstep         = MXSTEP_DEFAULT;
+  cv_mem->cv_mxhnil         = MXHNIL_DEFAULT;
+  cv_mem->cv_sldeton        = SUNFALSE;
+  cv_mem->cv_hin            = ZERO;
+  cv_mem->cv_hmin           = HMIN_DEFAULT;
+  cv_mem->cv_hmax_inv       = HMAX_INV_DEFAULT;
+  cv_mem->cv_tstopset       = SUNFALSE;
+  cv_mem->cv_maxnef         = MXNEF;
+  cv_mem->cv_maxncf         = MXNCF;
+  cv_mem->cv_nlscoef        = CORTES;
+  cv_mem->convfail          = CV_NO_FAILURES;
+  cv_mem->cv_constraints    = NULL;
   cv_mem->cv_constraintsSet = SUNFALSE;
 
   /* Initialize root finding variables */
@@ -2716,7 +2716,12 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   cvRestore(cv_mem, saved_t);
 
   /* Return if failed unrecoverably */
-  if (nflag < 0) return(nflag);
+  if (nflag < 0) {
+    if (nflag == CV_LSETUP_FAIL)       return(CV_LSETUP_FAIL);
+    else if (nflag == CV_LSOLVE_FAIL)  return(CV_LSOLVE_FAIL);
+    else if (nflag == CV_RHSFUNC_FAIL) return(CV_RHSFUNC_FAIL);
+    else                               return(CV_NLS_FAIL);
+  }
 
   /* At this point, nflag = SUN_NLS_CONV_RECVR or RHSFUNC_RECVR; increment ncf */
 
@@ -3123,8 +3128,15 @@ static int cvHandleFailure(CVodeMem cv_mem, int flag)
     cvProcessError(cv_mem, CV_CONSTR_FAIL, "CVODE", "CVode", MSGCV_FAILED_CONSTR,
                    cv_mem->cv_tn);
     break;
+  case CV_NLS_FAIL:
+    cvProcessError(cv_mem, CV_NLS_FAIL, "CVODE", "CVode",
+                   MSGCV_NLS_FAIL, cv_mem->cv_tn);
+    break;
   default:
-    return(CV_SUCCESS);
+    /* This return should never happen */
+    cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, "CVODE", "CVode",
+                   "CVODE encountered an unrecognized error. Please report this to the Sundials developers at sundials-users@llnl.gov");
+    return (CV_UNRECOGNIZED_ERR);
   }
 
   return(flag);

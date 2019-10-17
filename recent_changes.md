@@ -2,6 +2,9 @@
 
 ## Changes to SUNDIALS in release 5.0.0
 
+Added a new `SUNNonlinearSolver` implementation, `SUNNonlinsol_PetscSNES`,
+which interfaces to the PETSc SNES nonlinear solver API.
+
 To facilitate the use of user supplied nonlinear solver convergence test
 functions the `SUNNonlinSolSetConvTestFn` function in the SUNNonlinearSolver API
 has been updated to take a `void*` data pointer as input. The supplied data

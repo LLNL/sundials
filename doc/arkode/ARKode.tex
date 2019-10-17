@@ -302,6 +302,9 @@ preconditioner routines.
 
 \subsection{Changes in v4.0.0}
 \label{Introduction:changes-in-v4-0-0}
+Added a new \code{SUNNonlinearSolver} implementation, \code{SUNNonlinsol\_PetscSNES},
+which interfaces to the PETSc SNES nonlinear solver API.
+
 To facilitate the use of user supplied nonlinear solver convergence test
 functions the {\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolSetConvTestFn]{\emph{\code{SUNNonlinSolSetConvTestFn()}}}} function in the
 SUNNonlinearSolver API has been updated to take a \code{void*} data pointer as
@@ -4032,7 +4035,7 @@ solution component.
 \index{ARKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -4041,7 +4044,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -6186,7 +6189,7 @@ none
 \index{ARKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -6597,7 +6600,7 @@ before the \emph{etamxf} parameter from
 \index{ARKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -10664,7 +10667,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-errorweight}\label{ARKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -10756,7 +10759,7 @@ is not satisfied.
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-adaptivityfn}\label{ARKStep_c_interface/User_supplied:time-step-adaptivity-function}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -10823,7 +10826,7 @@ for the explicit portion of the ImEx system, \(f^E(t,y)\).  While
 the accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f^E(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ARKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -13097,7 +13100,7 @@ solution component.
 \index{ERKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -13106,7 +13109,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -14478,7 +14481,7 @@ none
 \index{ERKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -14854,7 +14857,7 @@ before the \emph{etamxf} parameter from
 \index{ERKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -16440,7 +16443,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-errorweight}\label{ERKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -16486,7 +16489,7 @@ is not satisfied.
 \label{ERKStep_c_interface/User_supplied:time-step-adaptivity-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-adaptivityfn}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -16553,7 +16556,7 @@ for the explicit Runge Kutta method on this problem.  While the
 accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ERKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -20580,21 +20583,21 @@ FARKODE ``activation'' routine
 \hline
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKEWT]{\emph{\code{FARKEWT()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
  & 
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKEWTSET]{\emph{\code{FARKEWTSET()}}}}
 \\
 \hline
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKADAPT]{\emph{\code{FARKADAPT()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
  & 
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKADAPTSET]{\emph{\code{FARKADAPTSET()}}}}
 \\
 \hline
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKEXPSTAB]{\emph{\code{FARKEXPSTAB()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
  & 
 {\hyperref[ARKode_f_interface/Usage:f/_/FARKEXPSTABSET]{\emph{\code{FARKEXPSTABSET()}}}}
 \\
@@ -21538,7 +21541,7 @@ ARKStep for handling adaptive error control and explicit stability.
 The former of these is designed for advanced users who wish to
 investigate custom step adaptivity approaches as opposed to using any
 of those built-in to ARKStep.  In ARKStep's C/C++ interface, this would be
-provided by a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
+provided by a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
 interface this is provided through the user-supplied function:
 \index{FARKADAPT() (fortran subroutine)|textbf}
 
@@ -21631,7 +21634,7 @@ Similarly, if either an explicit or mixed implicit-explicit
 integration method is to be employed, the user may specify a function
 to provide the maximum explicitly-stable step for their problem.
 Again, in the C/C++ interface this would be a function of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
 must be given through the user-supplied function:
 \index{FARKEXPSTAB() (fortran subroutine)|textbf}
 
@@ -34164,55 +34167,55 @@ the user in case of a linear solver failure.
 \code{SUNLS\_SUCCESS} (0) -- successful call or converged solve
 
 \item {} 
-\code{SUNLS\_MEM\_NULL} (-1) -- the memory argument to the function is \code{NULL}
+\code{SUNLS\_MEM\_NULL} (-801) -- the memory argument to the function is \code{NULL}
 
 \item {} 
-\code{SUNLS\_ILL\_INPUT} (-2) -- an illegal input has been provided to the function
+\code{SUNLS\_ILL\_INPUT} (-802) -- an illegal input has been provided to the function
 
 \item {} 
-\code{SUNLS\_MEM\_FAIL} (-3) -- failed memory access or allocation
+\code{SUNLS\_MEM\_FAIL} (-803) -- failed memory access or allocation
 
 \item {} 
-\code{SUNLS\_ATIMES\_FAIL\_UNREC} (-4) -- an unrecoverable failure occurred in the \code{ATimes} routine
+\code{SUNLS\_ATIMES\_FAIL\_UNREC} (-804) -- an unrecoverable failure occurred in the \code{ATimes} routine
 
 \item {} 
-\code{SUNLS\_PSET\_FAIL\_UNREC} (-5) -- an unrecoverable failure occurred in the \code{Pset} routine
+\code{SUNLS\_PSET\_FAIL\_UNREC} (-805) -- an unrecoverable failure occurred in the \code{Pset} routine
 
 \item {} 
-\code{SUNLS\_PSOLVE\_FAIL\_UNREC} (-6) -- an unrecoverable failure occurred in the \code{Psolve} routine
+\code{SUNLS\_PSOLVE\_FAIL\_UNREC} (-806) -- an unrecoverable failure occurred in the \code{Psolve} routine
 
 \item {} 
-\code{SUNLS\_PACKAGE\_FAIL\_UNREC} (-7) -- an unrecoverable failure occurred in an external linear solver package
+\code{SUNLS\_PACKAGE\_FAIL\_UNREC} (-807) -- an unrecoverable failure occurred in an external linear solver package
 
 \item {} 
-\code{SUNLS\_GS\_FAIL} (-8) -- a failure occurred during Gram-Schmidt orthogonalization (SPGMR/SPFGMR)
+\code{SUNLS\_GS\_FAIL} (-808) -- a failure occurred during Gram-Schmidt orthogonalization (SPGMR/SPFGMR)
 
 \item {} 
-\code{SUNLS\_QRSOL\_FAIL} (-9) -- a singular \$R\$ matrix was encountered in a QR factorization (SPGMR/SPFGMR)
+\code{SUNLS\_QRSOL\_FAIL} (-809) -- a singular \$R\$ matrix was encountered in a QR factorization (SPGMR/SPFGMR)
 
 \item {} 
-\code{SUNLS\_RES\_REDUCED} (1) -- an iterative solver reduced the residual, but did not converge to the desired tolerance
+\code{SUNLS\_RES\_REDUCED} (801) -- an iterative solver reduced the residual, but did not converge to the desired tolerance
 
 \item {} 
-\code{SUNLS\_CONV\_FAIL} (2) -- an iterative solver did not converge (and the residual was not reduced)
+\code{SUNLS\_CONV\_FAIL} (802) -- an iterative solver did not converge (80and the residual was not reduced)
 
 \item {} 
-\code{SUNLS\_ATIMES\_FAIL\_REC} (3) -- a recoverable failure occurred in the \code{ATimes} routine
+\code{SUNLS\_ATIMES\_FAIL\_REC} (803) -- a recoverable failure occurred in the \code{ATimes} routine
 
 \item {} 
-\code{SUNLS\_PSET\_FAIL\_REC} (4) -- a recoverable failure occurred in the \code{Pset} routine
+\code{SUNLS\_PSET\_FAIL\_REC} (804) -- a recoverable failure occurred in the \code{Pset} routine
 
 \item {} 
-\code{SUNLS\_PSOLVE\_FAIL\_REC} (5) -- a recoverable failure occurred in the \code{Psolve} routine
+\code{SUNLS\_PSOLVE\_FAIL\_REC} (805) -- a recoverable failure occurred in the \code{Psolve} routine
 
 \item {} 
-\code{SUNLS\_PACKAGE\_FAIL\_REC} (6) -- a recoverable failure occurred in an external linear solver package
+\code{SUNLS\_PACKAGE\_FAIL\_REC} (806) -- a recoverable failure occurred in an external linear solver package
 
 \item {} 
-\code{SUNLS\_QRFACT\_FAIL} (7) -- a singular matrix was encountered during a QR factorization (SPGMR/SPFGMR)
+\code{SUNLS\_QRFACT\_FAIL} (807) -- a singular matrix was encountered during a QR factorization (SPGMR/SPFGMR)
 
 \item {} 
-\code{SUNLS\_LUFACT\_FAIL} (8) -- a singular matrix was encountered during a LU factorization
+\code{SUNLS\_LUFACT\_FAIL} (808) -- a singular matrix was encountered during a LU factorization
 
 \end{itemize}
 
@@ -39845,37 +39848,51 @@ successful call or converged solve
 \hline
 SUN\_NLS\_CONTINUE
  & 
-1
+901
  & 
 the nonlinear solver is not converged, keep iterating
 \\
 \hline
 SUN\_NLS\_CONV\_RECVR
  & 
-2
+902
  & 
 the nonlinear solver appears to be diverging, try to recover
 \\
 \hline
 SUN\_NLS\_MEM\_NULL
  & 
--1
+-901
  & 
 a memory argument is \code{NULL}
 \\
 \hline
 SUN\_NLS\_MEM\_FAIL
  & 
--2
+-902
  & 
 a memory access or allocation failed
 \\
 \hline
 SUN\_NLS\_ILL\_INPUT
  & 
--3
+-903
  & 
 an illegal input option was provided
+\\
+\hline
+SUN\_NLS\_VECTOROP\_ERR
+ & 
+-904
+ & 
+a NVECTOR operation failed
+\\
+\hline
+SUN\_NLS\_EXT\_FAIL
+ & 
+-905
+ & 
+an external library call returned an error
 \\
 \hline\end{tabulary}
 
@@ -40670,6 +40687,237 @@ of failure.
 
 
 
+\section{The SUNNonlinearSolver\_PetscSNES implementation}
+\label{sunnonlinsol/SUNNonlinSol_PetscSNES:sunonlinsol-petscsnes}\label{sunnonlinsol/SUNNonlinSol_PetscSNES::doc}\label{sunnonlinsol/SUNNonlinSol_PetscSNES:the-sunnonlinearsolver-petscsnes-implementation}
+This section describes the SUNNonlinSol interface to the PETSc SNES nonlinear
+solver(s).To enable the SUNonlinSol\_PetscSNES module, SUNDIALS must be
+configured to use PETSc. Instructions on how to do thus are given in Chapter
+{\hyperref[Install:installation-cmake-externallibraries-petsc]{\emph{\DUspan{}{Building with PETSc}}}}. To access the
+SUNNonlinSol\_PetscSNES module, include the header file
+\code{sunnonlinsol/sunnonlinsol\_petscsnes.h}. The library to link to is
+\code{libsundials\_sunnonlinsolpetsc.lib} where \code{.lib} is typically \code{.so} for
+shared libaries and \code{.a} for static libraries. Users of the
+\code{SUNNonlinearSolver\_PetscSNES} should also see the section
+{\hyperref[nvectors/NVector_PETSc:nvectors-nvpetsc]{\emph{\DUspan{}{The NVECTOR\_PETSC Module}}}} which discusses the NVECTOR interface to the PETSc Vec
+API.
+
+
+\subsection{SUNNonlinearSolver\_PetscSNES description}
+\label{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinsolpetscsnes-description}\label{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinearsolver-petscsnes-description}
+The \code{SUNNonlinearSolver\_PetscSNES} implementation allows users to utilize a
+PETSc SNES nonlinear solver to solve the nonlinear systems that arise in the
+SUNDIALS integrators. Since SNES uses the KSP linear solver interface underneath
+it, the \code{SUNNonlinearSolver\_PetscSNES} implementation does not interface with
+SUNDIALS linear solvers. Instead, users should set nonlinear solver options,
+linear solver options, and preconditioner options through the PETSc SNES, KSP,
+and PC APIs.
+
+\emph{Important usage notes for the {}`{}`SUNNonlinearSolver\_PetscSNES{}`{}` implementation
+are provided below:}
+\begin{itemize}
+\item {} 
+The \code{SUNNonlinearSolver\_PetscSNES} implementation handles calling
+\code{SNESSetFunction} at construction. The actual residual function \(F(y)\)
+is set by the SUNDIALS integrator when the \code{SUNNonlinearSolver\_PetscSNES}
+object is attached to it. Therefore, a user should not call \code{SNESSetFunction}
+on a \code{SNES} object that is being used with \code{SUNNonlinearSolver\_PetscSNES}.
+For these reasons, it is recommended, although not always necessary, that the
+user calls \code{SUNNonlinSol\_PetscSNES} with the new \code{SNES} object immediately
+after calling \code{SNESCreate}.
+
+\item {} 
+The number of nonlinear iterations is tracked by SUNDIALS separately from the
+count kept by SNES. As such, the function \code{SUNNonlinSolGetNumIters} reports
+the cumulative number of iterations across the lifetime of the
+\code{SUNNonlinearSolver} object.
+
+\item {} 
+Some ``converged'' and ``diverged'' convergence reasons returned by SNES are
+treated as recoverable convergence failures by SUNDIALS. Therefore, the count of
+convergence failures returned by \code{SUNNonlinSolGetNumConvFails} will reflect
+the number of recoverable convergence failures as determined by SUNDIALS, and
+may differ from the count returned by \code{SNESGetNonlinearStepFailures}.
+
+\item {} 
+The \code{SUNNonlinearSolver\_PetscSNES} module is not currently compatible with
+the CVODES or IDAS staggered or simultaneous sensitivity strategies.
+
+\end{itemize}
+
+
+\subsection{SUNNonlinearSolver\_PetscSNES functions}
+\label{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinearsolver-petscsnes-functions}\label{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinsolpetscsnes-functions}
+The \code{SUNNonlinearSolver\_PetscSNES} module provides the following constructor
+for creating a \code{SUNNonlinearSolver} object.
+\index{SUNNonlinSol\_PetscSNES (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_PetscSNES:c.SUNNonlinSol_PetscSNES}\pysiglinewithargsret{SUNNonlinearSolver \bfcode{SUNNonlinSol\_PetscSNES}}{N\_Vector\emph{ y}, SNES\emph{ snes}}{}
+The function \code{SUNNonlinSol\_PetscSNES} creates a \code{SUNNonlinearSolver}
+object that wraps a PETSc \code{SNES} object for use with SUNDIALS. This
+will call \code{SNESSetFunction} on the provided \code{SNES} object.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{snes} -- a PETSc \code{SNES} object
+
+\item {} 
+\emph{y} -- a \code{N\_Vector} object of type NVECTOR\_PETSC that is used as a template
+for the residual vector
+
+\end{itemize}
+
+\item[{\textbf{Return value:} a SUNNonlinSol object if the constructor exits}] \leavevmode
+successfully, otherwise it will be \code{NULL}.
+
+\end{description}
+
+\emph{This function calls {}`{}`SNESSetFunction{}`{}` and will overwrite whatever
+function was previously set. Users should not call {}`{}`SNESSetFunction{}`{}`
+on the {}`{}`SNES{}`{}` object provided to the constructor.}
+
+\end{fulllineitems}
+
+
+The \code{SUNNonlinSol\_PetscSNES} module implements all of the functions defined in
+sections {\hyperref[sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-corefn]{\emph{\DUspan{}{SUNNonlinearSolver core functions}}}} through {\hyperref[sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-getfn]{\emph{\DUspan{}{SUNNonlinearSolver get functions}}}} except for
+\code{SUNNonlinSolSetup}, \code{SUNNonlinSolSetLSetupFn}, \code{SUNNonlinSolSetLSolveFn},
+\code{SUNNonlinSolSetConvTestFn}, and \code{SUNNonlinSolSetMaxIters}.
+
+The \code{SUNNonlinSol\_PetscSNES} functions have the same names as those defined by
+the generic \code{SUNNonlinearSolver} API with \code{\_PetscSNES} appended to the
+function name. Unless using the \code{SUNNonlinSol\_PetscSNES} module as a
+standalone nonlinear solver the generic functions defined in sections
+{\hyperref[sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-corefn]{\emph{\DUspan{}{SUNNonlinearSolver core functions}}}} through {\hyperref[sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-getfn]{\emph{\DUspan{}{SUNNonlinearSolver get functions}}}} should be called in
+favor of the \code{SUNNonlinSol\_PetscSNES} specific implementations.
+
+The \code{SUNNonlinSol\_PetscSNES} module also defines the following additional
+user-callable functions.
+\index{SUNNonlinSolGetSNES\_PetscSNES (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_PetscSNES:c.SUNNonlinSolGetSNES_PetscSNES}\pysiglinewithargsret{int \bfcode{SUNNonlinSolGetSNES\_PetscSNES}}{SUNNonlinearSolver\emph{ NLS}, SNES*\emph{ snes}}{}
+The function \code{SUNNonlinSolGetSNES\_PetscSNES} gets the \code{SNES} object that
+was wrapped.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{NLS} -- a \code{SUNNonlinearSolver} object
+
+\item {} 
+\emph{snes} -- a pointer to a PETSc \code{SNES} object that will be set upon return
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:} The return value (of type \code{int}) should be zero
+for a successful call, and a negative value for a failure.
+
+\end{fulllineitems}
+
+\index{SUNNonlinSolGetPetscError\_PetscSNES (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_PetscSNES:c.SUNNonlinSolGetPetscError_PetscSNES}\pysiglinewithargsret{int \bfcode{SUNNonlinSolGetPetscError\_PetscSNES}}{SUNNonlinearSolver\emph{ NLS}, PestcErrorCode*\emph{ error}}{}
+The function \code{SUNNonlinSolGetPetscError\_PetscSNES} gets the last error code
+returned by the last internal call to a PETSc API function.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{NLS} -- a \code{SUNNonlinearSolver} object
+
+\item {} 
+\emph{error} -- a pointer to a PETSc error integer that will be set upon return
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:} The return value (of type \code{int}) should be zero
+for a successful call, and a negative value for a failure.
+
+\end{fulllineitems}
+
+\index{SUNNonlinSolGetSysFn\_PetscSNES (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_PetscSNES:c.SUNNonlinSolGetSysFn_PetscSNES}\pysiglinewithargsret{int \bfcode{SUNNonlinSolGetSysFn\_PetscSNES}}{SUNNonlinearSolver\emph{ NLS}, {\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolSysFn]{\emph{SUNNonlinSolSysFn}}}*\emph{ SysFn}}{}
+The function \code{SUNNonlinSolGetSysFn\_PetscSNES} returns the residual
+function that defines the nonlinear system.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{NLS} -- a \code{SUNNonlinearSolver} object
+
+\item {} 
+\emph{SysFn} -- the function defining the nonlinear system
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:} The return value (of type \code{int}) should be zero
+for a successful call, and a negative value for a failure.
+
+\end{fulllineitems}
+
+
+
+\subsection{SUNNonlinearSolver\_PetscSNES content}
+\label{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinearsolver-petscsnes-content}\label{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinsolpetscsnes-content}
+The \emph{content} field of the SUNNonlinSol\_Newton module is the following
+structure.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}SUNNonlinearSolverContent\PYGZus{}PetscSNES} \PYG{p}{\PYGZob{}}
+  \PYG{k+kt}{int} \PYG{n}{sysfn\PYGZus{}last\PYGZus{}err}\PYG{p}{;}
+  \PYG{n}{PetscErrorCode} \PYG{n}{petsc\PYGZus{}last\PYGZus{}err}\PYG{p}{;}
+  \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{nconvfails}\PYG{p}{;}
+  \PYG{k+kt}{long} \PYG{k+kt}{int} \PYG{n}{nni}\PYG{p}{;}
+  \PYG{k+kt}{void} \PYG{o}{*}\PYG{n}{imem}\PYG{p}{;}
+  \PYG{n}{SNES} \PYG{n}{snes}\PYG{p}{;}
+  \PYG{n}{Vec} \PYG{n}{r}\PYG{p}{;}
+  \PYG{n}{N\PYGZus{}Vector} \PYG{n}{y}\PYG{p}{,} \PYG{n}{f}\PYG{p}{;}
+  \PYG{n}{SUNNonlinSolSysFn} \PYG{n}{Sys}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+These entries of the \emph{content} field contain the following information:
+\begin{itemize}
+\item {} 
+\code{sysfn\_last\_err}  -- last error returned by the system defining function,
+
+\item {} 
+\code{petsc\_last\_err}  -- last error returned by PETSc
+
+\item {} 
+\code{nconvfails}      -- number of nonlinear converge failures (recoverable or not),
+
+\item {} 
+\code{nni}             -- number of nonlinear iterations,
+
+\item {} 
+\code{imem}            -- SUNDIALS integrator memory,
+
+\item {} 
+\code{snes}            -- PETSc \code{SNES} object,
+
+\item {} 
+\code{r}               -- the nonlinear residual,
+
+\item {} 
+\code{y}               -- wrapper for PETSc vectors used in the system function,
+
+\item {} 
+\code{f}               -- wrapper for PETSc vectors used in the system function,
+
+\item {} 
+\code{Sys}             -- nonlinear system definining function.
+
+\end{itemize}
+
+
 \chapter{ARKode Installation Procedure}
 \label{Install:installation}\label{Install:arkode-installation-procedure}\label{Install::doc}
 The installation of any SUNDIALS package is accomplished by installing
@@ -41360,13 +41608,22 @@ See additional information on building with
 PETSc enabled in {\hyperref[Install:installation-cmake-externallibraries]{\emph{\DUspan{}{Working with external Libraries}}}}.
 \end{notice}
 
-\item[{\index{PETSC\_INCLUDE\_DIR (CMake option)}PETSC\_INCLUDE\_DIR}] \leavevmode
-Path to PETSc header files
+\item[{\index{PETSC\_DIR (CMake option)}PETSC\_DIR}] \leavevmode
+Path to PETSc installation
 
 Default: none
 
-\item[{\index{PETSC\_LIBRARY\_DIR (CMake option)}PETSC\_LIBRARY\_DIR}] \leavevmode
-Path to PETSc installed library files
+\item[{\index{PETSC\_LIBRARIES (CMake option)}PETSC\_LIBRARIES (advanced option)}] \leavevmode
+Semi-colon separated list of PETSc link libraries. Unless provided by the
+user, this is autopopulated based on the PETSc installation found in
+\code{PETSC\_DIR}.
+
+Default: none
+
+\item[{\index{PETSC\_INCLUDES (CMake option)}PETSC\_INCLUDES (advanced option)}] \leavevmode
+Semi-colon separated list of PETSc include directroies. Unless provided by
+the user, this is autopopulated based on the PETSc installation found in
+\code{PETSC\_DIR}.
 
 Default: none
 
@@ -41612,15 +41869,10 @@ CMake will search for libraries in your
 \code{LD\_LIBRARY\_PATH} prior to searching default system paths.
 \end{notice}
 
-\item[{\index{TPL\_PETSC\_INCLUDE\_DIRS (xSDK CMake option)}TPL\_PETSC\_INCLUDE\_DIRS}] \leavevmode
-Path to PETSc header files
+\item[{\index{TPL\_PETSC\_DIR (xSDK CMake option)}TPL\_PETSC\_DIR}] \leavevmode
+Path to PETSc installtion
 
-SUNDIALS equivalent: \code{PETSC\_INCLUDE\_DIR}
-
-\item[{\index{TPL\_PETSC\_LIBRARIES (xSDK CMake option)}TPL\_PETSC\_LIBRARIES}] \leavevmode
-PETSc library
-
-SUNDIALS equivalent: N/A
+SUNDIALS equivalent: \code{PETSC\_DIR}
 
 \item[{\index{TPL\_SUPERLUDIST\_INCLUDE\_DIRS (xSDK CMake option)}TPL\_SUPERLUDIST\_INCLUDE\_DIRS}] \leavevmode
 Path to SuperLU\_DIST header files
@@ -41829,10 +42081,9 @@ The PETSc libraries are available for download from the Argonne
 National Laboratory website:
 \href{http://www.mcs.anl.gov/petsc}{http://www.mcs.anl.gov/petsc} .
 
-SUNDIALS has been tested with PETSc version 3.7.2.  To enable PETSc,
-set \code{PETSC\_ENABLE} to \code{ON}, set \code{PETSC\_INCLUDE\_DIR} to the
-\code{include} path of the PETSc installation, and set the variable
-\code{PETSC\_LIBRARY\_DIR} to the \code{lib} path of the PETSc installation.
+SUNDIALS has been tested with PETSc version 3.10.0 - 3.12.0.  To enable
+PETSc, set \code{PETSC\_ENABLE} to \code{ON}, and set \code{PETSC\_DIR} to the
+path of the PETSc installation.
 
 
 \subsubsection{Building with \emph{hypre}}
@@ -42470,6 +42721,20 @@ SUNNONLINSOL\_FIXEDPOINT
 Header files
  & 
 \code{sunnonlinsol/sunnonlinsol\_fixedpoint.h}
+\\
+\hline
+SUNNONLINSOL\_PETSCSNES
+ & 
+Libraries
+ & 
+\code{libsundials\_sunnonlinsolpetscsnes.LIB},
+\\
+\hline
+SUNNONLINSOL\_PETSCSNES
+ & 
+Header files
+ & 
+\code{sunnonlinsol/sunnonlinsol\_petscsnes.h}
 \\
 \hline
 CVODE

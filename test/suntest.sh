@@ -360,8 +360,7 @@ time cmake \
     -D HYPRE_LIBRARY_DIR="${HYPREDIR}/lib" \
     \
     -D PETSC_ENABLE="${PETSCSTATUS}" \
-    -D PETSC_INCLUDE_DIR="${PETSCDIR}/include" \
-    -D PETSC_LIBRARY_DIR="${PETSCDIR}/lib" \
+    -D PETSC_DIR="${PETSCDIR}" \
     \
     -D SUPERLUMT_ENABLE="${SLUMTSTATUS}" \
     -D SUPERLUMT_INCLUDE_DIR="${SLUMTDIR}/include" \

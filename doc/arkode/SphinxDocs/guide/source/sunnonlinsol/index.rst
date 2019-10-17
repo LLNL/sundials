@@ -46,7 +46,7 @@ beginning with the definition of SUNNonlinSol functions in the
 sections :ref:`SUNNonlinSol.CoreFn`, :ref:`SUNNonlinSol.SetFn` and
 :ref:`SUNNonlinSol.GetFn`. This is followed by the definition of
 functions supplied to a nonlinear solver implementation in the section
-:ref:`SUNNonlinSol.SUNSuppliedFn`.  The nonlinear solver return 
+:ref:`SUNNonlinSol.SUNSuppliedFn`.  The nonlinear solver return
 codes are given in the section :ref:`SUNNonlinSol.ReturnCodes`. The
 ``SUNNonlinearSolver`` type and the generic SUNNonlinSol module are defined
 in the section :ref:`SUNNonlinSol.Generic`. Finally, the section
@@ -65,3 +65,4 @@ SUNDIALS as a template for supplying custom nonlinear solver modules.
    ARKode_Interface
    SUNNonlinSol_Newton
    SUNNonlinSol_FixedPoint
+   SUNNonlinSol_PetscSNES

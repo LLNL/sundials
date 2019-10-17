@@ -67,6 +67,7 @@ module fcvode_mod
  integer(C_INT), parameter, public :: CV_BAD_DKY = -26_C_INT
  integer(C_INT), parameter, public :: CV_TOO_CLOSE = -27_C_INT
  integer(C_INT), parameter, public :: CV_VECTOROP_ERR = -28_C_INT
+ integer(C_INT), parameter, public :: CV_UNRECOGNIZED_ERR = -99_C_INT
  public :: FCVodeCreate
  public :: FCVodeInit
  public :: FCVodeReInit

@@ -30,6 +30,9 @@ if(EXAMPLES_ENABLE_C)
   if(HYPRE_ENABLE AND HYPRE_FOUND)
     add_subdirectory(C_parhyp)
   endif()
+  if(PETSC_ENABLE AND PETSC_FOUND)
+    add_subdirectory(C_petsc)
+  endif()
 endif()
 
 # C++ examples

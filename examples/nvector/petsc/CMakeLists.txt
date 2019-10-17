@@ -45,8 +45,6 @@ endif()
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
-list(APPEND SUNDIALS_LIBS ${PETSC_LIBRARIES})
-
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
   set(CMAKE_C_COMPILER ${MPI_C_COMPILER})

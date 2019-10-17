@@ -670,13 +670,22 @@ illustration only.
    .. note:: See additional information on building with
              PETSc enabled in :ref:`Installation.CMake.ExternalLibraries`.
 
-:index:`PETSC_INCLUDE_DIR <PETSC_INCLUDE_DIR (CMake option)>`
-   Path to PETSc header files
+:index:`PETSC_DIR <PETSC_DIR (CMake option)>`
+   Path to PETSc installation
 
    Default: none
 
-:index:`PETSC_LIBRARY_DIR <PETSC_LIBRARY_DIR (CMake option)>`
-   Path to PETSc installed library files
+:index:`PETSC_LIBRARIES <PETSC_LIBRARIES (CMake option)>` (advanced option)
+   Semi-colon separated list of PETSc link libraries. Unless provided by the
+   user, this is autopopulated based on the PETSc installation found in
+   ``PETSC_DIR``.
+
+   Default: none
+
+:index:`PETSC_INCLUDES <PETSC_INCLUDES (CMake option)>` (advanced option)
+   Semi-colon separated list of PETSc include directroies. Unless provided by
+   the user, this is autopopulated based on the PETSc installation found in
+   ``PETSC_DIR``.
 
    Default: none
 
@@ -910,15 +919,10 @@ activated by setting ``USE_XSDK_DEFAULTS`` to ``ON``.
    .. note:: CMake will search for libraries in your
              ``LD_LIBRARY_PATH`` prior to searching default system paths.
 
-:index:`TPL_PETSC_INCLUDE_DIRS <TPL_PETSC_INCLUDE_DIRS (xSDK CMake option)>`
-   Path to PETSc header files
+:index:`TPL_PETSC_DIR <TPL_PETSC_DIR (xSDK CMake option)>`
+   Path to PETSc installtion
 
-   SUNDIALS equivalent: ``PETSC_INCLUDE_DIR``
-
-:index:`TPL_PETSC_LIBRARIES <TPL_PETSC_LIBRARIES (xSDK CMake option)>`
-   PETSc library
-
-   SUNDIALS equivalent: N/A
+   SUNDIALS equivalent: ``PETSC_DIR``
 
 :index:`TPL_SUPERLUDIST_INCLUDE_DIRS <TPL_SUPERLUDIST_INCLUDE_DIRS (xSDK CMake option)>`
    Path to SuperLU_DIST header files
@@ -1147,10 +1151,9 @@ The PETSc libraries are available for download from the Argonne
 National Laboratory website:
 http://www.mcs.anl.gov/petsc .
 
-SUNDIALS has been tested with PETSc version 3.7.2.  To enable PETSc,
-set ``PETSC_ENABLE`` to ``ON``, set ``PETSC_INCLUDE_DIR`` to the
-``include`` path of the PETSc installation, and set the variable
-``PETSC_LIBRARY_DIR`` to the ``lib`` path of the PETSc installation.
+SUNDIALS has been tested with PETSc version 3.10.0 - 3.12.0.  To enable
+PETSc, set ``PETSC_ENABLE`` to ``ON``, and set ``PETSC_DIR`` to the
+path of the PETSc installation.
 
 
 .. _Installation.CMake.ExternalLibraries.hypre:
@@ -1501,6 +1504,10 @@ Table: SUNDIALS libraries and header files
 |                              |              | ``libsundials_fsunnonlinsolfixedpoint.a``    |
 +------------------------------+--------------+----------------------------------------------+
 | SUNNONLINSOL_FIXEDPOINT      | Header files | ``sunnonlinsol/sunnonlinsol_fixedpoint.h``   |
++------------------------------+--------------+----------------------------------------------+
+| SUNNONLINSOL_PETSCSNES       | Libraries    | ``libsundials_sunnonlinsolpetscsnes.LIB``,   |
++------------------------------+--------------+----------------------------------------------+
+| SUNNONLINSOL_PETSCSNES       | Header files | ``sunnonlinsol/sunnonlinsol_petscsnes.h``    |
 +------------------------------+--------------+----------------------------------------------+
 | CVODE                        | Libraries    | ``libsundials_cvode.LIB``,                   |
 |                              |              | ``libsundials_fcvode.a``                     |

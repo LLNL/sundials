@@ -2021,6 +2021,10 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
       IDAProcessError(IDA_mem, IDA_NLS_SETUP_FAIL, "IDA", "IDASolve",
                       MSG_NLS_SETUP_FAILED, IDA_mem->ida_tn);
       return(IDA_NLS_SETUP_FAIL);
+    case IDA_NLS_FAIL:
+      IDAProcessError(IDA_mem, IDA_NLS_FAIL, "IDA", "IDASolve",
+                      MSG_NLS_FAIL, IDA_mem->ida_tn);
+      return(IDA_NLS_FAIL);
   }
 
   /* This return should never happen */
@@ -2556,7 +2560,10 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
 
     if (nflag < 0) {  /* nonrecoverable failure */
 
-      return(nflag);
+      if (nflag == IDA_LSOLVE_FAIL)      return(IDA_LSOLVE_FAIL);
+      else if (nflag == IDA_LSETUP_FAIL) return(IDA_LSETUP_FAIL);
+      else if (nflag == IDA_RES_FAIL)    return(IDA_RES_FAIL);
+      else                               return(IDA_NLS_FAIL);
 
     } else {          /* recoverable failure    */
 

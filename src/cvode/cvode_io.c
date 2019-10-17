@@ -1192,6 +1192,9 @@ char *CVodeGetReturnFlagName(long int flag)
   case CV_NLS_SETUP_FAIL:
     sprintf(name,"CV_NLS_SETUPT_FAIL");
     break;
+  case CV_NLS_FAIL:
+    sprintf(name,"CV_NLS_FAIL");
+    break;
   default:
     sprintf(name,"NONE");
   }

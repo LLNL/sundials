@@ -2275,6 +2275,10 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, "ARKode", "ARKode",
                     MSG_ARK_INNERSTEP_FAILED, ark_mem->tcur);
     break;
+  case ARK_NLS_OP_ERR:
+    arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode", "ARKode",
+                    MSG_ARK_NLS_FAIL, ark_mem->tcur);
+    break;
   default:
     /* This return should never happen */
     arkProcessError(ark_mem, ARK_UNRECOGNIZED_ERROR, "ARKode", "ARKode",

@@ -113,7 +113,7 @@ system of the form (\ref{e:DAE_Newtoncorr}) (e.g., the default Newton
 iteration), a linear solver module header file is also required.
 \index{IDAS@{\idas} linear solvers!header files}
 The header files corresponding to the various {\sundials}-provided
-linear solver modules available for use with {\idas} are: 
+linear solver modules available for use with {\idas} are:
 %%
 \begin{itemize}
 \item Direct linear solvers:
@@ -824,7 +824,7 @@ question, as described in Chapters \ref{s:sunmatrix} and
 \ref{s:sunlinsol}.
 
 Once this solver object has been constructed, the user should attach
-it to {\idas} via a call to \Id{IDASetLinearSolver}.  The first argument 
+it to {\idas} via a call to \Id{IDASetLinearSolver}.  The first argument
 passed to this function is the {\idas} memory pointer returned by
 \id{IDACreate}; the second argument is the desired {\sunlinsol} object
 to use for solving systems.  The third argument is an optional
@@ -845,7 +845,7 @@ choice of linear solver.
   The function \ID{IDASetLinearSolver} attaches a generic {\sunlinsol}
   object \id{LS} and corresponding template Jacobian {\sunmatrix}
   object \id{J} (if applicable) to {\idas}, initializing the {\idals}
-  linear solver interface. 
+  linear solver interface.
 }
 {
   \begin{args}[ida\_mem]
@@ -1245,7 +1245,7 @@ But these modes are modified if the user has set a stop time (with
   \id{IDASolve} returns the solution at \id{tstop}. Once the integrator returns
   at a stop time, any future testing for \id{tstop} is disabled (and can be
   reenabled only though a new call to \id{IDASetStopTime}).
-  
+
   All failure return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{IDASolve} failures.
 
@@ -1952,24 +1952,24 @@ The pointer \id{user\_data} may be specified through \id{IDASetUserData}.
 When using matrix-free linear solver modules, the {\idals} solver
 interface requires a function to compute an approximation to the
 product between the Jacobian matrix $J(t,y)$ and a vector $v$. The
-user can supply a Jacobian-times-vector approximation function, 
+user can supply a Jacobian-times-vector approximation function,
 or use the default internal difference quotient function
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
 that comes with the {\idals} solver interface.  A user-defined
-Jacobian-vector function must be of type \id{IDALsJacTimesVecFn} 
+Jacobian-vector function must be of type \id{IDALsJacTimesVecFn}
 and can be specified through a call to \id{IDASetJacTimes}
 (see \S\ref{ss:jtimesFn} for specification details).
 The evaluation and processing of any Jacobian-related data needed by
 the user's Jacobian-times-vector function may be done in the optional
 user-supplied function \id{jtsetup} (see \S\ref{ss:jtsetupFn} for
 specification details).
-%% 
+%%
 The pointer \id{user\_data} received through \id{IDASetUserData} (or a
 pointer to \id{NULL} if \id{user\_data} was not specified)
 is passed to the Jacobian-times-vector setup and product functions, \id{jtsetup} and
 \id{jtimes}, each time they are called.  This allows the user to
 create an arbitrary structure with relevant problem data and access it
-during the execution of the user-supplied preconditioner functions 
+during the execution of the user-supplied preconditioner functions
 without using global data in the program.
 %%
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
@@ -3545,7 +3545,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   the {\sunlinsol} object attached to it.  The template Jacobian
   matrix allocated by the user outside of {\idals} is not included in
   this report.
-  
+
   The previous routines \Id{IDADlsGetWorkspace} and
   \Id{IDASpilsGetWorkspace} are now wrappers for this routine, and may
   still be used for backward-compatibility.  However, these will be
@@ -3887,7 +3887,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 
   If the {\idals} solve function failed (\id{IDASolve} returned
   \id{IDA\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
-  the {\sunlinsol} object, which will be one of: \\ \noindent 
+  the {\sunlinsol} object, which will be one of: \\ \noindent
   \id{SUNLS\_MEM\_NULL}, indicating that the {\sunlinsol} memory is \id{NULL};
   \\ \noindent \id{SUNLS\_ATIMES\_FAIL\_UNREC}, indicating an
   unrecoverable failure in the $J*v$ function;
@@ -3918,12 +3918,12 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The only argument, of type \id{long int}, is a return flag from an
-  {\idals} function. 
+  {\idals} function.
 }
 {
   The return value is a string containing the name of the
   corresponding constant.
-  
+
   If $1 \leq $ \id{lsflag} $ \leq N$ (LU factorization failed), this
   function returns ``NONE''.
 }
@@ -4453,7 +4453,7 @@ the default is a difference quotient approximation to these products.
   \\ \noindent \id{IDALsJacTimesVecFn}, and may still be used for
   backward-compatibility. However, this will be deprecated in future
   releases, so we recommend that users transition to the new function
-  type name soon. 
+  type name soon.
 }
 
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
@@ -5593,7 +5593,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   Note that the user should not overwrite the preconditioner setup function
   or solve function through calls to id{IDASetPreconditioner}
   optional input function.
-  
+
 \item \label{i:bbdpre_init}
   {\bf Initialize the {\idabbdpre} preconditioner module}
 

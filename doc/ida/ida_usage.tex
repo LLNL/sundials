@@ -1242,7 +1242,7 @@ But these modes are modified if the user has set a stop time (with
   \id{IDASolve} returns the solution at \id{tstop}. Once the integrator returns
   at a stop time, any future testing for \id{tstop} is disabled (and can be
   reenabled only though a new call to \id{IDASetStopTime}).
-  
+
   All failure return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{IDASolve} failures.
 
@@ -1252,6 +1252,7 @@ But these modes are modified if the user has set a stop time (with
   On all other error returns, these values are left unchanged from the
   previous \id{IDASolve} return.
 }
+
 
 %%===================================================================================
 

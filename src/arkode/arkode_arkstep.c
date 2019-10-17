@@ -2246,9 +2246,12 @@ int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
   hadapt_mem = step_mem->hadapt_mem;
 
   /* Return if lsetup, lsolve, or rhs failed unrecoverably */
-  if (nflag == ARK_LSETUP_FAIL)  return(ARK_LSETUP_FAIL);
-  if (nflag == ARK_LSOLVE_FAIL)  return(ARK_LSOLVE_FAIL);
-  if (nflag == ARK_RHSFUNC_FAIL) return(ARK_RHSFUNC_FAIL);
+  if (nflag < 0) {
+    if (nflag == ARK_LSETUP_FAIL)       return(ARK_LSETUP_FAIL);
+    else if (nflag == ARK_LSOLVE_FAIL)  return(ARK_LSOLVE_FAIL);
+    else if (nflag == ARK_RHSFUNC_FAIL) return(ARK_RHSFUNC_FAIL);
+    else                                return(ARK_NLS_OP_ERR);
+  }
 
   /* At this point, nflag = CONV_FAIL or RHSFUNC_RECVR; increment ncf */
   (*ncfPtr)++;

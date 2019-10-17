@@ -84,10 +84,13 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count);
 
 SUNDIALS_EXPORT Vec N_VGetVector_Petsc(N_Vector v);
 
+SUNDIALS_EXPORT void N_VSetVector_Petsc(N_Vector v, Vec p);
+
 SUNDIALS_EXPORT void N_VPrint_Petsc(N_Vector v);
 
 SUNDIALS_EXPORT void N_VPrintFile_Petsc(N_Vector v, const char fname[]);
 
+/* nvector API functions */
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Petsc(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Petsc(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Petsc(N_Vector w);
