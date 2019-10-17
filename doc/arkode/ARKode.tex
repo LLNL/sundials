@@ -3097,27 +3097,27 @@ SUNDIALS libraries have been compiled using the same precision (for
 details see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
 
 
-\subsection{Integer types used for vector and matrix indices}
-\label{ARKStep_c_interface/General:integer-types-used-for-vector-and-matrix-indices}
-The type \code{sunindextype} can be either a 32- or 64-bit \emph{signed} integer.
-The default is the portable \code{int64\_t} type, and the user can change it
-to \code{int32\_t} at the configuration stage. The configuration system
-will detect if the compiler does not support portable types, and will
-replace \code{int32\_t} and \code{int64\_t} with \code{int} and \code{long int},
-respectively, to ensure use of the desired sizes on Linux, Mac OS X, and Windows
-platforms. SUNDIALS currently does not support \emph{unsigned} integer types
-for vector and matrix indices, although these could be added in the future if there
-is sufficient demand.
+\subsection{Integer types used for indexing}
+\label{ARKStep_c_interface/General:integer-types-used-for-indexing}
+The type \code{sunindextype} is used for indexing array entries in SUNDIALS modules
+(\emph{e.g.}, vectors lengths and matrix sizes) as well as for storing the total
+problem size. During configuration \code{sunindextype} may be selected to be either
+a 32- or 64-bit \emph{signed} integer with the default being 64-bit. See the section
+{\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}} for the configuration option to select the desired size of
+\code{sunindextype}. When using a 32-bit integer the total problem size is limited
+to \(2^{31}-1\) and with 64-bit integers the limit is \(2^{63}-1\). For
+users with problem sizes that exceed the 64-bit limit an advanced configuration
+option is available to specify the type used for \code{sunindextype}.
 
-A user program which uses \code{sunindextype} to handle vector and matrix indices
-will work with both index storage types except for any calls to index storage-specific
-external libraries. (Our \code{C} and \code{C++} example programs use \code{sunindextype}.)
-Users can, however, use any one of \code{int}, \code{long int}, \code{int32\_t}, \code{int64\_t} or
-\code{long long int} in their code, assuming that this usage is consistent with the typedef
-for \code{sunindextype} on their architecture. Thus, a previously existing piece of ANSI
-C code can use SUNDIALS without modifying the code to use \code{sunindextype},
-so long as the SUNDIALS libraries use the appropriate index storage type (for details
-see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
+A user program which uses \code{sunindextype} to handle indices will work with both
+index storage types except for any calls to index storage-specific external
+libraries. Our C and C++ example programs use \code{sunindextype}. Users can,
+however, use any compatible type (\emph{e.g.},  \code{int}, \code{long int}, \code{int32\_t},
+\code{int64\_t} or \code{long long int}) in their code, assuming that this usage is
+consistent with the typedef for \code{sunindextype} on their architecture. Thus, a
+previously existing piece of ANSI C code can use SUNDIALS without modifying the
+code to use \code{sunindextype}, so long as the SUNDIALS libraries use the
+appropriate index storage type (for details {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
 
 
 \section{Header Files}
@@ -39488,7 +39488,7 @@ convergence test function. See the section
 \code{SUNNonlinSolConvTestFn()}.
 
 \item {} 
-\emph{ctest\_data} -- is a data pointer passed to \code{CTestFn} every time it is
+\emph{ctest\_data} -- is a data pointer passed to \emph{CTestFn} every time it is
 called.
 
 \end{itemize}
