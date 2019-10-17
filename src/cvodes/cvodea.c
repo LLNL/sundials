@@ -239,6 +239,8 @@ int CVodeAdjInit(void *cvode_mem, long int steps, int interp)
 
   ca_mem->ca_firstCVodeBcall = SUNTRUE;
 
+  ca_mem->ca_rootret = SUNFALSE;
+
   /* ---------------------------------------------
    * ASA initialized and allocated
    * --------------------------------------------- */
@@ -462,7 +464,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
        not reported and return an interpolated solution. No changes to ck_mem
        or dt_mem are needed. */
 
-    /* flag to singal if an early return is needed */
+    /* flag to signal if an early return is needed */
     earlyret = SUNFALSE;
 
     /* if a root needs to be reported compare tout to troot otherwise compare
@@ -470,7 +472,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
     ttest = (ca_mem->ca_rootret) ? ca_mem->ca_troot : cv_mem->cv_tn;
 
     if ((ttest - tout)*cv_mem->cv_h >= ZERO) {
-      /* troot is after tout, interpolate to tout */
+      /* ttest is after tout, interpolate to tout */
       *tret = tout;
       flag = CVodeGetDky(cv_mem, tout, 0, yout);
       earlyret = SUNTRUE;
@@ -506,7 +508,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
 
     if ( cv_mem->cv_nst % ca_mem->ca_nsteps == 0 ) {
 
-      ca_mem->ck_mem->ck_t1 = *tret;
+      ca_mem->ck_mem->ck_t1 = cv_mem->cv_tn;
 
       /* Create a new check point, load it, and append it to the list */
       tmp = CVAckpntNew(cv_mem);
@@ -527,7 +529,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
     } else {
 
       /* Load next point in dt_mem */
-      dt_mem[cv_mem->cv_nst % ca_mem->ca_nsteps]->t = *tret;
+      dt_mem[cv_mem->cv_nst % ca_mem->ca_nsteps]->t = cv_mem->cv_tn;
       ca_mem->ca_IMstore(cv_mem, dt_mem[cv_mem->cv_nst % ca_mem->ca_nsteps]);
 
     }
@@ -535,10 +537,10 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
     /* Set t1 field of the current ckeck point structure
        for the case in which there will be no future
        check points */
-    ca_mem->ck_mem->ck_t1 = *tret;
+    ca_mem->ck_mem->ck_t1 = cv_mem->cv_tn;
 
-    /* tfinal is now set to *tret */
-    ca_mem->ca_tfinal = *tret;
+    /* tfinal is now set to tn */
+    ca_mem->ca_tfinal = cv_mem->cv_tn;
 
     /* Return if in CV_ONE_STEP mode */
     if (itask == CV_ONE_STEP) break;

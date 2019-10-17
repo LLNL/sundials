@@ -193,10 +193,13 @@ int IDAAdjInit(void *ida_mem, long int steps, int interp)
   IDAADJ_mem->ia_bckpbCrt = NULL;
   IDAADJ_mem->ia_nbckpbs = 0;
 
-  /* Flags for tracking the first calls to IDASolveF and IDASolveF. */
+  /* IDASolveF and IDASolveB not called yet. */
   IDAADJ_mem->ia_firstIDAFcall = SUNTRUE;
   IDAADJ_mem->ia_tstopIDAFcall = SUNFALSE;
+
   IDAADJ_mem->ia_firstIDABcall = SUNTRUE;
+
+  IDAADJ_mem->ia_rootret = SUNFALSE;
 
   /* Adjoint module initialized and allocated. */
   IDA_mem->ida_adj = SUNTRUE;
@@ -445,7 +448,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
        not reported and return an interpolated solution. No changes to ck_mem
        or dt_mem are needed. */
 
-    /* flag to singal if an early return is needed */
+    /* flag to signal if an early return is needed */
     earlyret = SUNFALSE;
 
     /* if a root needs to be reported compare tout to troot otherwise compare
@@ -453,7 +456,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
     ttest = (IDAADJ_mem->ia_rootret) ? IDAADJ_mem->ia_troot : IDA_mem->ida_tn;
 
     if ((ttest - tout)*IDA_mem->ida_hh >= ZERO) {
-      /* troot is after tout, interpolate to tout */
+      /* ttest is after tout, interpolate to tout */
       *tret = tout;
       flag = IDAGetSolution(IDA_mem, tout, yret, ypret);
       earlyret = SUNTRUE;
@@ -489,7 +492,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
 
     if ( IDA_mem->ida_nst % IDAADJ_mem->ia_nsteps == 0 ) {
 
-      IDAADJ_mem->ck_mem->ck_t1 = *tret;
+      IDAADJ_mem->ck_mem->ck_t1 = IDA_mem->ida_tn;
 
       /* Create a new check point, load it, and append it to the list */
       tmp = IDAAckpntNew(IDA_mem);
@@ -511,7 +514,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
     } else {
 
       /* Load next point in dt_mem */
-      dt_mem[IDA_mem->ida_nst%IDAADJ_mem->ia_nsteps]->t = *tret;
+      dt_mem[IDA_mem->ida_nst%IDAADJ_mem->ia_nsteps]->t = IDA_mem->ida_tn;
       IDAADJ_mem->ia_storePnt(IDA_mem, dt_mem[IDA_mem->ida_nst % IDAADJ_mem->ia_nsteps]);
 
     }
@@ -519,10 +522,10 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
     /* Set t1 field of the current ckeck point structure
        for the case in which there will be no future
        check points */
-    IDAADJ_mem->ck_mem->ck_t1 = *tret;
+    IDAADJ_mem->ck_mem->ck_t1 = IDA_mem->ida_tn;
 
-    /* tfinal is now set to *t */
-    IDAADJ_mem->ia_tfinal = *tret;
+    /* tfinal is now set to tn */
+    IDAADJ_mem->ia_tfinal = IDA_mem->ida_tn;
 
     /* Return if in IDA_ONE_STEP mode */
     if (itask == IDA_ONE_STEP) break;
