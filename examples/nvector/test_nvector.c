@@ -1301,12 +1301,15 @@ int Test_N_VAddConst(N_Vector X, N_Vector Z, sunindextype local_length, int myid
 /* ----------------------------------------------------------------------
  * N_VDotProd Test
  * --------------------------------------------------------------------*/
-int Test_N_VDotProd(N_Vector X, N_Vector Y,
-                    sunindextype local_length, sunindextype global_length, int myid)
+int Test_N_VDotProd(N_Vector X, N_Vector Y, sunindextype local_length, int myid)
 {
-  int      fails = 0, failure = 0;
-  double   start_time, stop_time, maxt;
-  realtype ans;
+  int          fails = 0, failure = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype global_length;
+  realtype     ans;
+
+  /* get global length */
+  global_length = N_VGetLength(X);
 
   /* fill vector data */
   N_VConst(TWO, X);
@@ -1414,12 +1417,16 @@ int Test_N_VWrmsNorm(N_Vector X, N_Vector W, sunindextype local_length, int myid
  * N_VWrmsNormMask Test
  * --------------------------------------------------------------------*/
 int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
-			 sunindextype local_length, sunindextype global_length, int myid)
+                         sunindextype local_length, int myid)
 {
-  int      fails = 0, failure = 0;
-  double   start_time, stop_time, maxt;
-  realtype ans;
-  realtype fac;
+  int          fails = 0, failure = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype global_length;
+  realtype     ans;
+  realtype     fac;
+
+  /* get global length */
+  global_length = N_VGetLength(X);
 
   /* factor used in checking solutions */
   fac = SUNRsqrt((realtype) (global_length - 1)/(global_length))*HALF*HALF;
@@ -1498,12 +1505,15 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VWL2Norm Test
  * --------------------------------------------------------------------*/
-int Test_N_VWL2Norm(N_Vector X, N_Vector W,
-                    sunindextype local_length, sunindextype global_length, int myid)
+int Test_N_VWL2Norm(N_Vector X, N_Vector W, sunindextype local_length, int myid)
 {
-  int      fails = 0, failure = 0;
-  double   start_time, stop_time, maxt;
-  realtype ans;
+  int          fails = 0, failure = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype global_length;
+  realtype     ans;
+
+  /* get global length */
+  global_length = N_VGetLength(X);
 
   /* fill vector data */
   N_VConst(NEG_HALF, X);
@@ -1535,12 +1545,15 @@ int Test_N_VWL2Norm(N_Vector X, N_Vector W,
 /* ----------------------------------------------------------------------
  * N_VL1Norm Test
  * --------------------------------------------------------------------*/
-int Test_N_VL1Norm(N_Vector X, sunindextype local_length,
-                   sunindextype global_length, int myid)
+int Test_N_VL1Norm(N_Vector X, sunindextype local_length, int myid)
 {
-  int      fails = 0, failure = 0;
-  double   start_time, stop_time, maxt;
-  realtype ans;
+  int          fails = 0, failure = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype global_length;
+  realtype     ans;
+
+  /* get global length */
+  global_length = N_VGetLength(X);
 
   /* fill vector data */
   N_VConst(NEG_ONE, X);
@@ -2451,14 +2464,17 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VDotProdMulti Test
  * --------------------------------------------------------------------*/
-int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length,
-                         sunindextype global_length, int myid)
+int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int myid)
 {
   int      fails = 0, failure = 0, ierr = 0;
   double   start_time, stop_time, maxt;
 
-  N_Vector *V;
-  realtype dotprods[3];
+  sunindextype  global_length;
+  N_Vector     *V;
+  realtype      dotprods[3];
+
+  /* get global length */
+  global_length = N_VGetLength(X);
 
   /* create vectors for testing */
   V = N_VCloneVectorArray(3, X);
@@ -3589,15 +3605,19 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length, int myid)
  * N_VWrmsNormMaskVectorArray Test
  * --------------------------------------------------------------------*/
 int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
-                                    sunindextype global_length, int myid)
+                                    int myid)
 {
-  int      fails = 0, failure = 0, ierr = 0;
-  double   start_time, stop_time, maxt;
+  int          fails = 0, failure = 0, ierr = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype global_length;
 
   realtype fac;
   realtype nrm[3];
   N_Vector *Z;
   N_Vector *W;
+
+  /* get global length */
+  global_length = N_VGetLength(X);
 
   /* factor used in checking solutions */
   fac = SUNRsqrt((realtype) (global_length - 1)/(global_length));

@@ -79,16 +79,14 @@ extern "C" {
   int Test_N_VAbs(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
   int Test_N_VInv(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
   int Test_N_VAddConst(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
-  int Test_N_VDotProd(N_Vector X, N_Vector Y,
-                      sunindextype local_length, sunindextype global_length, int myid);
+  int Test_N_VDotProd(N_Vector X, N_Vector Y, sunindextype local_length, int myid);
   int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int myid);
   int Test_N_VWrmsNorm(N_Vector X, N_Vector W, sunindextype local_length, int myid);
   int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
-                           sunindextype local_length, sunindextype global_length, int myid);
+                           sunindextype local_length, int myid);
   int Test_N_VMin(N_Vector X, sunindextype local_length, int myid);
-  int Test_N_VWL2Norm(N_Vector X, N_Vector W,
-                      sunindextype local_length, sunindextype global_length, int myid);
-  int Test_N_VL1Norm(N_Vector X, sunindextype local_length, sunindextype global_length, int myid);
+  int Test_N_VWL2Norm(N_Vector X, N_Vector W, sunindextype local_length, int myid);
+  int Test_N_VL1Norm(N_Vector X, sunindextype local_length, int myid);
   int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
   int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
   int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
@@ -98,16 +96,14 @@ extern "C" {
   /* Fused vector operation tests */
   int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid);
   int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid);
-  int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length,
-                           sunindextype global_length, int myid);
+  int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int myid);
 
   /* Vector array operation tests */
   int Test_N_VLinearSumVectorArray(N_Vector X, sunindextype local_length, int myid);
   int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length, int myid);
   int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length, int myid);
   int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length, int myid);
-  int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
-                                      sunindextype global_length, int myid);
+  int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length, int myid);
   int Test_N_VScaleAddMultiVectorArray(N_Vector X, sunindextype local_length, int myid);
   int Test_N_VLinearCombinationVectorArray(N_Vector X, sunindextype local_length, int myid);
 
