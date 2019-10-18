@@ -59,6 +59,7 @@ module fida_mod
  integer(C_INT), parameter, public :: IDA_NO_RECOVERY = -14_C_INT
  integer(C_INT), parameter, public :: IDA_NLS_INIT_FAIL = -15_C_INT
  integer(C_INT), parameter, public :: IDA_NLS_SETUP_FAIL = -16_C_INT
+ integer(C_INT), parameter, public :: IDA_NLS_FAIL = -17_C_INT
  integer(C_INT), parameter, public :: IDA_MEM_NULL = -20_C_INT
  integer(C_INT), parameter, public :: IDA_MEM_FAIL = -21_C_INT
  integer(C_INT), parameter, public :: IDA_ILL_INPUT = -22_C_INT

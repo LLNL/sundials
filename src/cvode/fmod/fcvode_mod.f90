@@ -58,6 +58,7 @@ module fcvode_mod
  integer(C_INT), parameter, public :: CV_NLS_INIT_FAIL = -13_C_INT
  integer(C_INT), parameter, public :: CV_NLS_SETUP_FAIL = -14_C_INT
  integer(C_INT), parameter, public :: CV_CONSTR_FAIL = -15_C_INT
+ integer(C_INT), parameter, public :: CV_NLS_FAIL = -16_C_INT
  integer(C_INT), parameter, public :: CV_MEM_FAIL = -20_C_INT
  integer(C_INT), parameter, public :: CV_MEM_NULL = -21_C_INT
  integer(C_INT), parameter, public :: CV_ILL_INPUT = -22_C_INT

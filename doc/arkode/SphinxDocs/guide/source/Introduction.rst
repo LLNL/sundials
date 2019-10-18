@@ -110,6 +110,13 @@ Changes from previous versions
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Added Fortran 2003 interfaces to the ``NVECTOR_MANYVECTOR``,
+``NVECTOR_MPIMANYVECTOR`` and ``NVECTOR_MPIPLUSX``.
+
+Added three new utility N_Vector functions, ``FN_VGetVecAtIndexVectorArray``,
+``FN_VSetVecAtIndexVectorArray``, and ``FN_VNewVectorArray``, that are for working
+with N_Vector arrays when using the Fortran 2003 interfaces.
+
 Added a new ``SUNNonlinearSolver`` implementation, ``SUNNonlinsol_PetscSNES``,
 which interfaces to the PETSc SNES nonlinear solver API.
 

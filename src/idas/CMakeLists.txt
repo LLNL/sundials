@@ -17,6 +17,11 @@
 
 install(CODE "MESSAGE(\"\nInstall IDAS\n\")")
 
+# Add F90 module if F2003 interface is enabled
+if(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  add_subdirectory(fmod)
+endif(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable idas_SOURCES with the sources for the IDAS library
 set(idas_SOURCES
   idas.c
@@ -74,6 +79,7 @@ set(sunlinsol_SOURCES
 # which will also be included in the IDAS library
 set(sunnonlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c
   )
 
 # Add variable idas_HEADERS with the exported IDAS header files

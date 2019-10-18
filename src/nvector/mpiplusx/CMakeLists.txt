@@ -16,6 +16,11 @@
 
 install(CODE "MESSAGE(\"\nInstall NVECTOR_MPIPLUSX\n\")")
 
+# Add F90 module if F2003 interface is enabled
+if(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  add_subdirectory(fmod)
+endif(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+
 if(MPI_C_FOUND AND MPI_C_COMPILER)
   # use MPI wrapper as the compiler
   set(CMAKE_C_COMPILER ${MPI_C_COMPILER})

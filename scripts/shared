@@ -215,13 +215,18 @@ $tar $tarfile $distrobase/src/nvector/trilinos/nvector_trilinos.cpp || exit 1
 
 echo "   --- Add nvector/manyvector module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvector/manyvector/CMakeLists.txt       || exit 1
-$tar $tarfile $distrobase/src/nvector/manyvector/nvector_manyvector.c || exit 1
+$tar $tarfile $distrobase/src/nvector/manyvector/CMakeLists.txt                          || exit 1
+$tar $tarfile $distrobase/src/nvector/manyvector/nvector_manyvector.c                    || exit 1
+$tar $tarfile $distrobase/src/nvector/manyvector/fmod/CMakeLists.txt                     || exit 1
+$tar $tarfile $distrobase/src/nvector/manyvector/fmod/fnvector_manyvector_mod.{c,f90}    || exit 1
+$tar $tarfile $distrobase/src/nvector/manyvector/fmod/fnvector_mpimanyvector_mod.{c,f90} || exit 1
 
 echo "   --- Add nvector/mpiplusx module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvector/mpiplusx/CMakeLists.txt     || exit 1
-$tar $tarfile $distrobase/src/nvector/mpiplusx/nvector_mpiplusx.c || exit 1
+$tar $tarfile $distrobase/src/nvector/mpiplusx/CMakeLists.txt                     || exit 1
+$tar $tarfile $distrobase/src/nvector/mpiplusx/nvector_mpiplusx.c                 || exit 1
+$tar $tarfile $distrobase/src/nvector/mpiplusx/fmod/CMakeLists.txt                || exit 1
+$tar $tarfile $distrobase/src/nvector/mpiplusx/fmod/fnvector_mpiplusx_mod.{c,f90} || exit 1
 
 echo "   --- Add sunmatrix modules to $tarfile"
 
@@ -432,12 +437,15 @@ $tar $tarfile $distrobase/examples/nvector/mpiraja/CMakeLists.txt               
 $tar $tarfile $distrobase/examples/nvector/trilinos/test_nvector_trilinos.cpp                   || exit 1
 $tar $tarfile $distrobase/examples/nvector/trilinos/CMakeLists.txt                              || exit 1
 $tar $tarfile $distrobase/examples/nvector/manyvector/test_nvector_manyvector.c                 || exit 1
+$tar $tarfile $distrobase/examples/nvector/manyvector/test_fnvector_manyvector_mod.f90          || exit 1
 $tar $tarfile $distrobase/examples/nvector/manyvector/CMakeLists.txt                            || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_serial.c    || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_parallel1.c || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_parallel2.c || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_fnvector_mpimanyvector_mod.f90    || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpimanyvector/CMakeLists.txt                         || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpiplusx/test_nvector_mpiplusx.c                     || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpiplusx/test_fnvector_mpiplusx_mod.f90              || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpiplusx/CMakeLists.txt                              || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c                                       || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_nvector.h                                       || exit 1

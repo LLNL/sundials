@@ -328,7 +328,7 @@ allocated by a call to the function \id{IDAAdjInit}.
 The form of the call to this function is
 %%
 %%
-\ucfunction{IDAAdjInit}
+\ucfunctionf{IDAAdjInit}
 {
   flag = IDAAdjInit(ida\_mem, Nd, interpType);
 }
@@ -375,7 +375,7 @@ The form of the call to this function is
 }
 %%
 %%
-\ucfunction{IDAAdjReInit}
+\ucfunctionf{IDAAdjReInit}
 {
   flag = IDAAdjReInit(ida\_mem);
 }
@@ -418,7 +418,7 @@ The form of the call to this function is
 
 %%
 %%
-\ucfunction{IDAAdjFree}
+\ucfunctionf{IDAAdjFree}
 {
   IDAAdjFree(ida\_mem);
 }
@@ -454,7 +454,7 @@ At any time during the integration of the forward problem, the user
 can disable the checkpointing of the forward sensitivities by calling
 the following function:
 
-\ucfunction{IDAAdjSetNoSensi}
+\ucfunctionf{IDAAdjSetNoSensi}
 {
   flag = IDAAdjSetNoSensi(ida\_mem);
 }
@@ -500,7 +500,7 @@ Analysis; for that, see Chapter \ref{s:forward}.
 %%
 The call to this function has the form
 %%
-\ucfunction{IDASolveF}
+\ucfunctionf{IDASolveF}
 {
   flag = IDASolveF(ida\_mem, tout, \&tret, yret, ypret, itask, \&ncheck);
 }
@@ -607,7 +607,7 @@ called in the order listed. They instantiate an {\idas} solver object, provide p
 and solution specifications, and allocate internal memory for the backward problem.
 %%
 %%
-\ucfunction{IDACreateB}
+\ucfunctionf{IDACreateB}
 {
   flag = IDACreateB(ida\_mem, \&which);
 }
@@ -648,7 +648,7 @@ The function \id{IDAInitB} initializes the backward problem when it does not
 depend on the forward sensitivities.  It is essentially wrapper for \id{IDAInit}
 with some particularization for backward integration, as described below.
 
-\ucfunction{IDAInitB}
+\ucfunctionf{IDAInitB}
 {
   flag = IDAInitB(ida\_mem, which, resB, tB0, yB0, ypB0);
 }
@@ -704,7 +704,7 @@ For the case when backward problem also depends on the forward sensitivities, us
 must call \id{IDAInitBS} instead of \id{IDAInitB}. Only the third argument of each
 function differs between these functions.
 
-\ucfunction{IDAInitBS}
+\ucfunctionf{IDAInitBS}
 {
   flag = IDAInitBS(ida\_mem, which, resBS, tB0, yB0, ypB0);
 }
@@ -770,7 +770,7 @@ previous backward problem.
 The call to the \id{IDAReInitB} function has the form
 %%
 %%
-\ucfunction{IDAReInitB}
+\ucfunctionf{IDAReInitB}
 {
   flag = IDAReInitB(ida\_mem, which, tB0, yB0, ypB0)
 }
@@ -823,7 +823,7 @@ One of the following two functions must be called to specify the integration
 tolerances for the backward problem. Note that this call must be made after the 
 call to \id{IDAInitB} or \id{IDAInitBS}.
 %%
-\ucfunction{IDASStolerancesB}
+\ucfunctionf{IDASStolerancesB}
 {
   flag = IDASStolerances(ida\_mem, which, reltolB, abstolB);
 }
@@ -862,7 +862,7 @@ call to \id{IDAInitB} or \id{IDAInitBS}.
 {}
 %%
 %%
-\ucfunction{IDASVtolerancesB}
+\ucfunctionf{IDASVtolerancesB}
 {
   flag = IDASVtolerancesB(ida\_mem, which, reltolB, abstolB);
 }
@@ -917,7 +917,7 @@ for the forward problem then attached to the memory structure for the backward
 problem using the following function.
 
 \index{IDAS@{\idas} linear solver interface!IDALS@{\idals}}
-\ucfunction{IDASetLinearSolverB}
+\ucfunctionf{IDASetLinearSolverB}
 {
   flag = IDASetLinearSolverB(ida\_mem, which, LS, A);
 }
@@ -1000,7 +1000,7 @@ was previously called to specify the differential and algebraic components.
 Both functions require forward solutions at the final time \id{tB0}.
 \id{IDACalcICBS} also needs forward sensitivities at the final time \id{tB0}.
 
-\ucfunction{IDACalcICB}
+\ucfunctionf{IDACalcICB}
 {
   flag = IDACalcICB(ida\_mem, which, tBout1, N\_Vector yfin, N\_Vector ypfin);
 }
@@ -1049,7 +1049,7 @@ Both functions require forward solutions at the final time \id{tB0}.
 In the case where the backward problem also depends on the forward sensitivities, 
 user must call the following function to correct the initial conditions:
 
-\ucfunction{IDACalcICBS}
+\ucfunctionf{IDACalcICBS}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
   flag = IDACalcICBS(&ida\_mem, which, tBout1, N\_Vector yfin, N\_Vector ypfin, \\
@@ -1136,7 +1136,7 @@ by first calling \id{IDARootInit} with \id{nrtfn} = 0.
 
 The call to \id{IDASolveB} has the form
 %%
-\ucfunction{IDASolveB}
+\ucfunctionf{IDASolveB}
 {
   flag = IDASolveB(ida\_mem, tBout, itaskB);
 }
@@ -1219,7 +1219,7 @@ The call to \id{IDASolveB} has the form
 To obtain the solution \id{yB} to the backward problem, call the function
 \id{IDAGetB} as follows:
 %%
-\ucfunction{IDAGetB}
+\ucfunctionf{IDAGetB}
 {
   flag = IDAGetB(ida\_mem, which, \&tret, yB, ypB);
 }
@@ -1313,7 +1313,7 @@ This can be attached through a call to either \id{IDASetJacFnB} or
 depends on the forward sensitivities. 
 %%
 \index{Jacobian approximation function!user-supplied (backward)}
-\ucfunction{IDASetJacFnB}
+\ucfunctionf{IDASetJacFnB}
 {
   flag = IDASetJacFnB(ida\_mem, which, jacB);
 }
@@ -1356,7 +1356,7 @@ depends on the forward sensitivities.
   users transition to the new routine name soon.
 }
 %%
-\ucfunction{IDASetJacFnBS}
+\ucfunctionf{IDASetJacFnBS}
 {
   flag = IDASetJacFnBS(ida\_mem, which, jacBS);
 }
@@ -1412,7 +1412,7 @@ difference-quotient approximation, or it may be supplied by the user
 by calling one of the following two functions:
 %%
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
-\ucfunction{IDASetJacTimesB}
+\ucfunctionf{IDASetJacTimesB}
 {
   flag = IDASetJacTimesB(ida\_mem, which, jsetupB, jtimesB);
 }
@@ -1458,7 +1458,7 @@ by calling one of the following two functions:
   users transition to the new routine name soon.
 }
 %%
-\ucfunction{IDASetJacTimesBS}
+\ucfunctionf{IDASetJacTimesBS}
 {
   flag = IDASetJacTimesBS(ida\_mem, which, jsetupBS, jtimesBS);
 }
@@ -1512,7 +1512,7 @@ to the Jacobian-vector product for the backward problem, the user may
 specify the factor to use in setting increments for the
 finite-difference approximation, via a call to \Id{IDASetIncrementFactorB}:
 %%
-\ucfunction{IDASetIncrementFactorB}
+\ucfunctionf{IDASetIncrementFactorB}
 {
   flag = IDASetIncrementFactorB(ida\_mem, which, dqincfacB);
 }
@@ -1573,7 +1573,7 @@ iterative linear solver.  These may be accomplished through calling
 the following functions:
 %%
 \index{preconditioning!user-supplied|(}
-\ucfunction{IDASetPreconditionerB}
+\ucfunctionf{IDASetPreconditionerB}
 {
   flag = IDASetPreconditionerB(ida\_mem, which, psetupB, psolveB);
 }
@@ -1621,7 +1621,7 @@ the following functions:
   name soon. 
 }
 %%
-\ucfunction{IDASetPreconditionerBS}
+\ucfunctionf{IDASetPreconditionerBS}
 {
   flag = IDASetPreconditionerBS(ida\_mem, which, psetupBS, psolveBS);
 }
@@ -1673,7 +1673,7 @@ the following functions:
 \index{preconditioning!user-supplied|)}
 %%
 %%
-\ucfunction{IDASetEpsLinB}
+\ucfunctionf{IDASetEpsLinB}
 {
   flag = IDASetEpsLinB(ida\_mem, which, eplifacB);
 }
@@ -1747,7 +1747,7 @@ pointer to the {\idas} memory block for the backward problem. In order
 to call any of these functions, the user must first call the following
 function to obtain this pointer:
 %%
-\ucfunction{IDAGetAdjIDABmem}
+\ucfunctionf{IDAGetAdjIDABmem}
 {
   ida\_memB = IDAGetAdjIDABmem(ida\_mem, which);
 }
@@ -1783,7 +1783,7 @@ equal to that at which the backward solution has just been obtained with
 \id{IDAGetB}.  In any case, it must be within the last checkpoint interval
 used by \id{IDASolveB}.
 
-\ucfunction{IDAGetAdjY}
+\ucfunctionf{IDAGetAdjY}
 {
   flag = IDAGetAdjY(ida\_mem, t, y, yp);
 }
@@ -1816,7 +1816,7 @@ used by \id{IDASolveB}.
   {\warn} The user must allocate space for \id{y} and \id{yp}.
 }
 
-\ucfunction{IDAGetAdjCheckPointsInfo}
+\ucfunctionf{IDAGetAdjCheckPointsInfo}
 {
   flag = IDAGetAdjCheckPointsInfo(ida\_mem, IDAadjCheckPointRec *ckpnt);
 }
@@ -1856,7 +1856,7 @@ used by \id{IDASolveB}.
 \index{optional output!backward initial condition calculation|(}
 %%
 
-\ucfunction{IDAGetConsistentICB}
+\ucfunctionf{IDAGetConsistentICB}
 {
   flag = IDAGetConsistentICB(ida\_mem, which, yB0\_mod, ypB0\_mod);
 }
@@ -1919,7 +1919,7 @@ integration of quadrature equations that do not depende on forward sensititvitie
 It has the following form:
 %%
 %%
-\ucfunction{IDAQuadInitB}
+\ucfunctionf{IDAQuadInitB}
 {
 flag = IDAQuadInitB(ida\_mem, which, rhsQB, yQB0);
 }
@@ -1965,7 +1965,7 @@ The function \id{IDAQuadInitBS} initializes and allocates memory for the backwar
 integration of quadrature equations that depend on the forward sensitivities.
 %%
 %%
-\ucfunction{IDAQuadInitBS}
+\ucfunctionf{IDAQuadInitBS}
 {
 flag = IDAQuadInitBS(ida\_mem, which, rhsQBS, yQBS0);
 }
@@ -2013,7 +2013,7 @@ previous backward problem.
 
 %%
 %%
-\ucfunction{IDAQuadReInitB}
+\ucfunctionf{IDAQuadReInitB}
 {
   flag = IDAQuadReInitB(ida\_mem, which, yQB0);
 }
@@ -2060,7 +2060,7 @@ of \id{IDASolveB}, {\idas} provides a wrapper for the function \ID{IDAGetQuad}
 (see \S\ref{ss:quad_get}). The call to this function has the form
 %%
 %%
-\ucfunction{IDAGetQuadB}
+\ucfunctionf{IDAGetQuadB}
 {
   flag = IDAGetQuadB(ida\_mem, which, \&tret, yQB);
 }
@@ -3168,7 +3168,7 @@ been attached to {\idas} by calling \Id{IDASetLinearSolverB} (see
 \S\ref{sss:lin_solv_b}).  
 %%
 %%
-\ucfunction{IDABBDPrecInitB}
+\ucfunctionf{IDABBDPrecInitB}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
     flag = IDABBDPrecInitB(&ida\_mem, which, NlocalB, mudqB, mldqB,\\
@@ -3232,7 +3232,7 @@ To reinitialize the {\idabbdpre} preconditioner module for the backward problem,
 possibly with a change in \id{mudqB}, \id{mldqB}, or \id{dqrelyB}, call the
 following function:
 %%
-\ucfunction{IDABBDPrecReInitB}
+\ucfunctionf{IDABBDPrecReInitB}
 {
   flag = IDABBDPrecReInitB(ida\_mem, which, mudqB, mldqB, dqrelyB);
 }

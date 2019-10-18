@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     }
 
     /* Create the MPI+X vector */
-    plusX = N_VMake_MPIPlusX(&comm, X);
+    plusX = N_VMake_MPIPlusX(comm, X);
     if (plusX == NULL) {
       N_VDestroy(X);
       if (myid == 0) printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
     }
 
     /* create the MPIPlusX vector */
-    plusU = N_VMake_MPIPlusX(&comm, U);
+    plusU = N_VMake_MPIPlusX(comm, U);
     if (U == NULL || retval != 0) {
       N_VDestroy(X);
       N_VDestroy(U);
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
     }
 
     /* create the MPIPlusX vector */
-    plusV = N_VMake_MPIPlusX(&comm, V);
+    plusV = N_VMake_MPIPlusX(comm, V);
     if (V == NULL || retval != 0) {
       N_VDestroy(X);
       N_VDestroy(U);

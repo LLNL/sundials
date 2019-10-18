@@ -50,7 +50,7 @@ SUNDIALS Fortran 2003 Interface Modules
 
 All of the generic SUNDIALS modules provide Fortran 2003 interface modules.
 Many of the generic module implementations provide Fortran 2003 interfaces
-(a complete list of modules with Fortran 2003 interfaces is given in 
+(a complete list of modules with Fortran 2003 interfaces is given in
 :ref:`Fortran2003.InterfacesTable`. A module can be accessed with the ``use``
 statement, e.g. ``use fnvector_openmp_mod``, and linking to the Fortran
 2003 library in addition to the C library, e.g.
@@ -92,9 +92,9 @@ NVECTOR_PARHYP           Not interfaced
 NVECTOR_PETSC            Not interfaced
 NVECTOR_CUDA             Not interfaced
 NVECTOR_RAJA             Not interfaced
-NVECTOR_MANVECTOR        Not interfaced
-NVECTOR_MPIMANVECTOR     Not interfaced
-NVECTOR_MPIPLUSX         Not interfaced
+NVECTOR_MANVECTOR        ``fnvector_manyvector_mod``
+NVECTOR_MPIMANVECTOR     ``fnvector_mpimanyvector_mod``
+NVECTOR_MPIPLUSX         ``fnvector_mpiplusx_mod``
 SUNMATRIX                ``fsundials_matrix_mod``
 SUNMATRIX_BAND           ``fsunmatrix_band_mod``
 SUNMATRIX_DENSE          ``fsunmatrix_dense_mod``
@@ -212,7 +212,7 @@ Notable Fortran/C usage differences
 
 While the Fortran 2003 interface to SUNDIALS closely follows the C API,
 some differences are inevitable due to the differences between Fortran and C.
-In this section, we note the most critical differences. Additionally, section 
+In this section, we note the most critical differences. Additionally, section
 :ref:`Fortran2003.DataTypes` discusses equivalencies of data types in the
 two languages.
 
@@ -337,7 +337,7 @@ Fortran code:
    ierr = FARKStepSetUserData(arkode_mem, c_loc(udata))
 
 On the other hand, Fortran users may instead choose to store problem-specific data, e.g.
-problem parameters, within modules, and thus do not need the SUNDIALS-provided ``user_data`` 
+problem parameters, within modules, and thus do not need the SUNDIALS-provided ``user_data``
 pointers to pass such data back to user-supplied functions. These users should supply the
 ``c_null_ptr`` input for user_data arguments to the relevant SUNDIALS functions.
 
@@ -380,12 +380,55 @@ Fortran code:
    ! pass a c_null_ptr, rather we pass a disassociated A.
    ierr = FSUNLinSolSolve(LS, A, x, b)
 
+.. _Fortran2003.Differences.NVectorArrays:
+
+Working with ``N_Vector`` arrays
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Arrays of ``N_Vector`` objects are interfaced to Fortran 2003 as opaque
+``type(c_ptr)``.  As such, it is not possible to directly index an array of
+``N_Vector`` objects returned by the ``N_Vector`` "VectorArray" operations, or
+packages with sensitivity capabilities.  Instead, SUNDIALS provides a utility
+function ``FN_VGetVecAtIndexVectorArray`` that can be called for accessing a
+vector in a vector array. The example below demonstrates this:
+
+C code:
+
+.. sourcecode:: c
+
+   N_Vector x;
+   N_Vector* vecs;
+
+   vecs = N_VCloneVectorArray(count, x);
+   for (int i=0; i < count; ++i)
+   N_VConst(vecs[i]);
+
+Fortran code:
+
+.. sourcecode:: Fortran
+
+   type(N_Vector), pointer :: x, xi
+   type(c_ptr)             :: vecs
+
+   vecs = FN_VCloneVectorArray(count, x)
+   do index, count
+   xi => FN_VGetVecAtIndexVectorArray(vecs, index)
+   call FN_VConst(xi)
+   enddo
+
+SUNDIALS also provides the functions ``FN_VSetVecAtIndexVectorArray`` and
+``FN_VNewVectorArray`` for working with ``N_Vector`` arrays. These functions are
+particularly useful for users of the Fortran interface to the ``NVECTOR_MANYVECTOR``
+or ``NVECTOR_MPIMANYVECTOR`` when creating the subvector array.  Both of these
+functions along with ``FN_VGetVecAtIndexVectorArray`` are further described in Chapter
+:ref:`NVectors.utilities`.
+
 
 Providing file pointers
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Expert SUNDIALS users may notice that there are a few advanced functions in the SUNDIALS C
-API which take a ``FILE *`` argument. Since there is no portable way to convert between a 
+API which take a ``FILE *`` argument. Since there is no portable way to convert between a
 Fortran file descriptor and a C file pointer, a user will need to allocate the ``FILE *``
 in C. The code example below demonstrates one way of doing this.
 

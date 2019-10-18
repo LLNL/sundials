@@ -311,7 +311,7 @@ Activation of forward sensitivity computation is done by calling
 \id{IDASensInit}.
 The form of the call to this routine is as follows:
 %%
-\ucfunction{IDASensInit}
+\ucfunctionf{IDASensInit}
 {
   flag = IDASensInit(ida\_mem, Ns, ism, resS, yS0, ypS0);
 }
@@ -396,7 +396,7 @@ The number \id{Ns} of sensitivities is assumed to be unchanged since the call to
 %%
 The call to the \id{IDASensReInit} function has the form:
 %%
-\ucfunction{IDASensReInit}
+\ucfunctionf{IDASensReInit}
 {
   flag = IDASensReInit(ida\_mem, ism, yS0, ypS0);
 }
@@ -450,7 +450,7 @@ The call to the \id{IDASensReInit} function has the form:
 To deallocate all forward sensitivity-related memory (allocated in a prior call
 to \id{IDASensInit}), the user must call
 %%
-\ucfunction{IDASensFree}
+\ucfunctionf{IDASensFree}
 {
   IDASensFree(ida\_mem);
 }
@@ -476,7 +476,7 @@ to \id{IDASensInit}), the user must call
 To activate and deactivate forward sensitivity calculations for successive {\idas} runs,
 without having to allocate and deallocate memory, the following function is provided:
 %%
-\ucfunction{IDASensToggleOff}
+\ucfunctionf{IDASensToggleOff}
 {
   IDASensToggleOff(ida\_mem);
 }
@@ -513,7 +513,7 @@ One of the following three functions must be called to specify the
 integration tolerances for sensitivities. Note that this call must be made after
 the call to \id{IDASensInit}.
 %%
-\ucfunction{IDASensSStolerances}
+\ucfunctionf{IDASensSStolerances}
 {
   flag = IDASensSStolerances(ida\_mem, reltolS, abstolS);
 }
@@ -549,7 +549,7 @@ the call to \id{IDASensInit}.
 {}
 %%
 %%
-\ucfunction{IDASensSVtolerances}
+\ucfunctionf{IDASensSVtolerances}
 {
   flag = IDASensSVtolerances(ida\_mem, reltolS, abstolS);
 }
@@ -589,7 +589,7 @@ the call to \id{IDASensInit}.
 }
 %%
 %%
-\ucfunction{IDASensEEtolerances}
+\ucfunctionf{IDASensEEtolerances}
 {
   flag = IDASensEEtolerances(ida\_mem);
 }
@@ -651,7 +651,7 @@ the nonlinear solver to the main {\idas} integrator. We note that at present,
 the {\sunnonlinsol} object \emph{must be of type}
 \id{SUNNONLINEARSOLVER\_ROOTFIND}.
 
-\ucfunction{IDASetNonlinearSolverSensSim}
+\ucfunctionf{IDASetNonlinearSolverSensSim}
 {
   flag = IDASetNonlinearSolverSensSim(ida\_mem, NLS);
 }
@@ -685,7 +685,7 @@ the {\sunnonlinsol} object \emph{must be of type}
 {}
 
 
-\ucfunction{IDASetNonlinearSolverSensStg}
+\ucfunctionf{IDASetNonlinearSolverSensStg}
 {
   flag = IDASetNonlinearSolverSensStg(ida\_mem, NLS);
 }
@@ -774,7 +774,7 @@ $y$ and $\dot{y}$ in \id{yret} and \id{ypret}, respectively.  Solution
 sensitivities can be obtained through one of the following functions:
 %%
 %%
-\ucfunction{IDAGetSens}
+\ucfunctionf{IDAGetSens}
 {
   flag = IDAGetSens(ida\_mem, \&tret, yS);
 }
@@ -817,7 +817,7 @@ polynomials for the sensitivity variables at time \id{t}.
 This function is called by \id{IDAGetSens} with \id{k} $= 0$, but may also be called
 directly by the user.
 %%
-\ucfunction{IDAGetSensDky}
+\ucfunctionf{IDAGetSensDky}
 {
   flag = IDAGetSensDky(ida\_mem, t, k, dkyS);
 }
@@ -863,7 +863,7 @@ directly by the user.
 Forward sensitivity solution vectors can also be extracted separately for
 each parameter in turn through the functions \id{IDAGetSens1} and
 \id{IDAGetSensDky1}, defined as follows:
-\ucfunction{IDAGetSens1}
+\ucfunctionf{IDAGetSens1}
 {
   flag = IDAGetSens1(ida\_mem, \&tret, is, yS);
 }
@@ -906,7 +906,7 @@ each parameter in turn through the functions \id{IDAGetSens1} and
 }
 %%
 %%
-\ucfunction{IDAGetSensDky1}
+\ucfunctionf{IDAGetSensDky1}
 {
   flag = IDAGetSensDky1(ida\_mem, t, k, is, dkyS);
 }
@@ -982,7 +982,7 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 4 \\
 \end{table}
 %%
 %%
-\ucfunction{IDASetSensParams}
+\ucfunctionf{IDASetSensParams}
 {
   flag = IDASetSensParams(ida\_mem, p, pbar, plist);
 }
@@ -1028,7 +1028,7 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 4 \\
 }
 %%
 %%
-\ucfunction{IDASetSensDQMethod}
+\ucfunctionf{IDASetSensDQMethod}
 {
   flag = IDASetSensDQMethod(ida\_mem, DQtype, DQrhomax);
 }
@@ -1073,7 +1073,7 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 4 \\
 }
 %%
 %%
-\ucfunction{IDASetSensErrCon}
+\ucfunctionf{IDASetSensErrCon}
 {
   flag = IDASetSensErrCon(ida\_mem, errconS);
 }
@@ -1109,7 +1109,7 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 4 \\
 }
 %%
 %%
-\ucfunction{IDASetSensMaxNonlinIters}
+\ucfunctionf{IDASetSensMaxNonlinIters}
 {
   flag = IDASetSensMaxNonlinIters(ida\_mem, maxcorS);
 }
@@ -1176,7 +1176,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 \end{table}
 %%
 %%
-\ucfunction{IDAGetSensNumResEvals}
+\ucfunctionf{IDAGetSensNumResEvals}
 {
   flag = IDAGetSensNumResEvals(ida\_mem, \&nfSevals);
 }
@@ -1206,7 +1206,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 {}
 %%
 %%
-\ucfunction{IDAGetNumResEvalsSens}
+\ucfunctionf{IDAGetNumResEvalsSens}
 {
   flag = IDAGetNumResEvalsSens(ida\_mem, \&nfevalsS);
 }
@@ -1240,7 +1240,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 }
 %%
 %%
-\ucfunction{IDAGetSensNumErrTestFails}
+\ucfunctionf{IDAGetSensNumErrTestFails}
 {
   flag = IDAGetSensNumErrTestFails(ida\_mem, \&nSetfails);
 }
@@ -1275,7 +1275,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 }
 %%
 %%
-\ucfunction{IDAGetSensNumLinSolvSetups}
+\ucfunctionf{IDAGetSensNumLinSolvSetups}
 {
   flag = IDAGetSensNumLinSolvSetups(ida\_mem, \&nlinsetupsS);
 }
@@ -1310,7 +1310,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 }
 %%
 %%
-\ucfunction{IDAGetSensStats}
+\ucfunctionf{IDAGetSensStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
     flag = IDAGetSensStats(&ida\_mem, \&nfSevals, \&nfevalsS, \&nSetfails,\\
@@ -1349,7 +1349,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 {}
 %%
 %%
-\ucfunction{IDAGetSensErrWeights}
+\ucfunctionf{IDAGetSensErrWeights}
 {
   flag = IDAGetSensErrWeights(ida\_mem, eSweight);
 }
@@ -1382,7 +1382,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 }
 %%
 %%
-\ucfunction{IDAGetSensNumNonlinSolvIters}
+\ucfunctionf{IDAGetSensNumNonlinSolvIters}
 {
   flag = IDAGetSensNumNonlinSolvIters(ida\_mem, \&nSniters);
 }
@@ -1418,7 +1418,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 }
 %%
 %%
-\ucfunction{IDAGetSensNumNonlinSolvConvFails}
+\ucfunctionf{IDAGetSensNumNonlinSolvConvFails}
 {
   flag = IDAGetSensNumNonlinSolvConvFails(ida\_mem, \&nSncfails);
 }
@@ -1452,7 +1452,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 }
 %%
 %%
-\ucfunction{IDAGetSensNonlinSolvStats}
+\ucfunctionf{IDAGetSensNonlinSolvStats}
 {
   flag = IDAGetSensNonlinSolvStats(ida\_mem, \&nSniters, \&nSncfails);
 }
@@ -1496,7 +1496,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
 The sensitivity consistent initial conditions found by {\idas} (after a successful
 call to \id{IDACalcIC}) can be obtained by calling the following function:
 
-\ucfunction{IDAGetSensConsistentIC}
+\ucfunctionf{IDAGetSensConsistentIC}
 {
   flag = IDAGetSensConsistentIC(ida\_mem, yyS0\_mod, ypS0\_mod);
 }
@@ -1787,7 +1787,7 @@ $\bar q_i = (\partial q / \partial y) s_i + (\partial q / \partial \dot{y}) \dot
  \partial q / \partial p_i$, in the notation of (\ref{e:QUAD}).
 The form of the call to this function is as follows:
 %%
-\ucfunction{IDAQuadSensInit}
+\ucfunctionf{IDAQuadSensInit}
 {
 flag = IDAQuadSensInit(ida\_mem, rhsQS, yQS0);
 }
@@ -1851,7 +1851,7 @@ quadratures as well as the number \id{Ns} of sensitivities are assumed to be
 unchanged from the prior call to \id{IDAQuadSensInit}.
 The call to the \id{IDAQuadSensReInit} function has the form:
 %%
-\ucfunction{IDAQuadSensReInit}
+\ucfunctionf{IDAQuadSensReInit}
 {
   flag = IDAQuadSensReInit(ida\_mem, yQS0);
 }
@@ -1890,7 +1890,7 @@ The call to the \id{IDAQuadSensReInit} function has the form:
 }
 %%
 %%
-\ucfunction{IDAQuadSensFree}
+\ucfunctionf{IDAQuadSensFree}
 {
   IDAQuadSensFree(ida\_mem);
 }
@@ -1941,7 +1941,7 @@ sensitivities, and quadratures depending on sensitivities at time \id{t}. Howeve
 quadratures can be obtained using one of the following functions:
 %%
 %%
-\ucfunction{IDAGetQuadSens}
+\ucfunctionf{IDAGetQuadSens}
 {
   flag = IDAGetQuadSens(ida\_mem, \&tret, yQS);
 }
@@ -1984,7 +1984,7 @@ polynomials for the sensitivity-dependent quadrature variables at time \id{t}.
 This function is called by \id{IDAGetQuadSens} with \id{k = 0}, but may also be called
 directly by the user.
 %%
-\ucfunction{IDAGetQuadSensDky}
+\ucfunctionf{IDAGetQuadSensDky}
 {
   flag = IDAGetQuadSensDky(ida\_mem, t, k, dkyQS);
 }
@@ -2032,7 +2032,7 @@ directly by the user.
 Quadrature sensitivity solution vectors can also be extracted separately for
 each parameter in turn through the functions \id{IDAGetQuadSens1} and
 \id{IDAGetQuadSensDky1}, defined as follows:
-\ucfunction{IDAGetQuadSens1}
+\ucfunctionf{IDAGetQuadSens1}
 {
   flag = IDAGetQuadSens1(ida\_mem, \&tret, is, yQS);
 }
@@ -2073,7 +2073,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
 {}
 %%
 %%
-\ucfunction{IDAGetQuadSensDky1}
+\ucfunctionf{IDAGetQuadSensDky1}
 {
   flag = IDAGetQuadSensDky1(ida\_mem, t, k, is, dkyQS);
 }
@@ -2135,7 +2135,7 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
 of sensitivity-dependent quadrature equations.
 %%
 %%
-\ucfunction{IDASetQuadSensErrCon}
+\ucfunctionf{IDASetQuadSensErrCon}
 {
  flag = IDASetQuadSensErrCon(ida\_mem, errconQS)
 }
@@ -2180,7 +2180,7 @@ If the quadrature variables are part of the step size control mechanism,
 one of the following functions must be called to specify the
 integration tolerances for quadrature variables.
 
-\ucfunction{IDAQuadSensSStolerances}
+\ucfunctionf{IDAQuadSensSStolerances}
 {
  flag = IDAQuadSensSVtolerances(ida\_mem, reltolQS, abstolQS);
 }
@@ -2217,7 +2217,7 @@ integration tolerances for quadrature variables.
 }
 {}
 
-\ucfunction{IDAQuadSensSVtolerances}
+\ucfunctionf{IDAQuadSensSVtolerances}
 {
  flag = IDAQuadSensSVtolerances(ida\_mem, reltolQS, abstolQS);
 }
@@ -2257,7 +2257,7 @@ integration tolerances for quadrature variables.
 }
 {}
 
-\ucfunction{IDAQuadSensEEtolerances}
+\ucfunctionf{IDAQuadSensEEtolerances}
 {
   flag = IDAQuadSensEEtolerances(ida\_mem);
 }
@@ -2306,7 +2306,7 @@ integration tolerances for quadrature variables.
 {\idas} provides the following functions that can be used to obtain solver
 performance information related to quadrature integration.
 
-\ucfunction{IDAGetQuadSensNumRhsEvals}
+\ucfunctionf{IDAGetQuadSensNumRhsEvals}
 {
   flag = IDAGetQuadSensNumRhsEvals(ida\_mem, \&nrhsQSevals);
 }
@@ -2336,7 +2336,7 @@ performance information related to quadrature integration.
 {}
 %%
 %%
-\ucfunction{IDAGetQuadSensNumErrTestFails}
+\ucfunctionf{IDAGetQuadSensNumErrTestFails}
 {
   flag = IDAGetQuadSensNumErrTestFails(ida\_mem, \&nQSetfails);
 }
@@ -2366,7 +2366,7 @@ performance information related to quadrature integration.
 {}
 %%
 %%
-\ucfunction{IDAGetQuadSensErrWeights}
+\ucfunctionf{IDAGetQuadSensErrWeights}
 {
   flag = IDAGetQuadSensErrWeights(ida\_mem, eQSweight);
 }
@@ -2402,7 +2402,7 @@ performance information related to quadrature integration.
 }
 %%
 %%
-\ucfunction{IDAGetQuadSensStats}
+\ucfunctionf{IDAGetQuadSensStats}
 {
   flag = IDAGetQuadSensStats(ida\_mem, \&nrhsQSevals, \&nQSetfails);
 }

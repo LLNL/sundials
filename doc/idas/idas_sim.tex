@@ -492,7 +492,7 @@ The following three functions must be called in the order listed. The last one
 is to be called only after the DAE solution is complete, as it frees the {\idas}
 memory block created and allocated by the first two calls.
 %%
-\ucfunction{IDACreate}
+\ucfunctionf{IDACreate}
 {
   ida\_mem = IDACreate();
 }
@@ -509,7 +509,7 @@ memory block created and allocated by the first two calls.
 {}
 %%
 %%
-\ucfunction{IDAInit}
+\ucfunctionf{IDAInit}
 {
   flag = IDAInit(ida\_mem, res, t0, y0, yp0);
 }
@@ -553,7 +553,7 @@ memory block created and allocated by the first two calls.
 }
 %%
 %%
-\ucfunction{IDAFree}
+\ucfunctionf{IDAFree}
 {
   IDAFree(\&ida\_mem);
 }
@@ -579,7 +579,7 @@ integration tolerances (or directly specify the weights used in
 evaluating WRMS vector norms).  Note that this call must be made after
 the call to \id{IDAInit}.
 %%
-\ucfunction{IDASStolerances}
+\ucfunctionf{IDASStolerances}
 {
   flag = IDASStolerances(ida\_mem, reltol, abstol);
 }
@@ -614,7 +614,7 @@ the call to \id{IDAInit}.
 {}
 %%
 %%
-\ucfunction{IDASVtolerances}
+\ucfunctionf{IDASVtolerances}
 {
   flag = IDASVtolerances(ida\_mem, reltol, abstol);
 }
@@ -653,7 +653,7 @@ the call to \id{IDAInit}.
 }
 %%
 %%
-\ucfunction{IDAWFtolerances}
+\ucfunctionf{IDAWFtolerances}
 {
   flag = IDAWFtolerances(ida\_mem, efun);
 }
@@ -837,7 +837,7 @@ choice of linear solver.
 \index{IDAS@{\idas} linear solvers!selecting one|)}
 %%
 \index{IDAS@{\idas} linear solver interface!IDALS@{\idals}}
-\ucfunction{IDASetLinearSolver}
+\ucfunctionf{IDASetLinearSolver}
 {
   flag = IDASetLinearSolver(ida\_mem, LS, J);
 }
@@ -921,7 +921,7 @@ A call to this function attaches the nonlinear solver to the main {\idas}
 integrator. We note that at present, the {\sunnonlinsol} object
 \emph{must be of type} \id{SUNNONLINEARSOLVER\_ROOTFIND}.
 
-\ucfunction{IDASetNonlinearSolver}
+\ucfunctionf{IDASetNonlinearSolver}
 {
   flag = IDASetNonlinearSolver(ida\_mem, NLS);
 }
@@ -979,7 +979,7 @@ successful call to the linear system solver specification function.
 The call to \id{IDACalcIC} should precede the call(s) to \id{IDASolve}
 for the given problem.
 %
-\ucfunction{IDACalcIC}
+\ucfunctionf{IDACalcIC}
 {
   flag = IDACalcIC(ida\_mem, icopt, tout1);
 }
@@ -1088,7 +1088,7 @@ problem is to be changed during the solution, \id{IDARootInit} can also
 be called prior to a continuation call to \id{IDASolve}.
 %%
 %%
-\ucfunction{IDARootInit}
+\ucfunctionf{IDARootInit}
 {
   flag = IDARootInit(ida\_mem, nrtfn, g);
 }
@@ -1137,7 +1137,7 @@ specifies one of two modes as to where {\idas} is to return a solution.
 But these modes are modified if the user has set a stop time (with
 \id{IDASetStopTime}) or requested rootfinding.
 %
-\ucfunction{IDASolve}
+\ucfunctionf{IDASolve}
 {
   flag = IDASolve(ida\_mem, tout, \&tret, yret, ypret, itask);
 }
@@ -1331,7 +1331,7 @@ take effect for any later error message.
 %%
 %%
 \index{error messages!redirecting}
-\ucfunction{IDASetErrFile}
+\ucfunctionf{IDASetErrFile}
 {
 flag = IDASetErrFile(ida\_mem, errfp);
 }
@@ -1371,7 +1371,7 @@ flag = IDASetErrFile(ida\_mem, errfp);
 %%
 %%
 \index{error messages!user-defined handler}
-\ucfunction{IDASetErrHandlerFn}
+\ucfunctionf{IDASetErrHandlerFn}
 {
 flag = IDASetErrHandlerFn(ida\_mem, ehfun, eh\_data);
 }
@@ -1404,7 +1404,7 @@ flag = IDASetErrHandlerFn(ida\_mem, ehfun, eh\_data);
 }
 %%
 %%
-\ucfunction{IDASetUserData}
+\ucfunctionf{IDASetUserData}
 {
   flag = IDASetUserData(ida\_mem, user\_data);
 }
@@ -1439,7 +1439,7 @@ flag = IDASetErrHandlerFn(ida\_mem, ehfun, eh\_data);
 }
 %%
 %%
-\ucfunction{IDASetMaxOrd}
+\ucfunctionf{IDASetMaxOrd}
 {
 flag = IDASetMaxOrd(ida\_mem, maxord);
 }
@@ -1475,7 +1475,7 @@ flag = IDASetMaxOrd(ida\_mem, maxord);
 }
 %%
 %%
-\ucfunction{IDASetMaxNumSteps}
+\ucfunctionf{IDASetMaxNumSteps}
 {
 flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
 }
@@ -1508,7 +1508,7 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
 }
 %%
 %%
-\ucfunction{IDASetInitStep}
+\ucfunctionf{IDASetInitStep}
 {
 flag = IDASetInitStep(ida\_mem, hin);
 }
@@ -1542,7 +1542,7 @@ flag = IDASetInitStep(ida\_mem, hin);
 %%
 \index{step size bounds|(}
 %%
-\ucfunction{IDASetMaxStep}
+\ucfunctionf{IDASetMaxStep}
 {
 flag = IDASetMaxStep(ida\_mem, hmax);
 }
@@ -1576,7 +1576,7 @@ flag = IDASetMaxStep(ida\_mem, hmax);
 \index{step size bounds|)}
 %%
 %%
-\ucfunction{IDASetStopTime}
+\ucfunctionf{IDASetStopTime}
 {
 flag = IDASetStopTime(ida\_mem, tstop);
 }
@@ -1612,7 +1612,7 @@ flag = IDASetStopTime(ida\_mem, tstop);
 }
 %%
 %%
-\ucfunction{IDASetMaxErrTestFails}
+\ucfunctionf{IDASetMaxErrTestFails}
 {
 flag = IDASetMaxErrTestFails(ida\_mem, maxnef);
 }
@@ -1642,7 +1642,7 @@ flag = IDASetMaxErrTestFails(ida\_mem, maxnef);
 }
 %%
 %%
-\ucfunction{IDASetMaxNonlinIters}
+\ucfunctionf{IDASetMaxNonlinIters}
 {
 flag = IDASetMaxNonlinIters(ida\_mem, maxcor);
 }
@@ -1674,7 +1674,7 @@ flag = IDASetMaxNonlinIters(ida\_mem, maxcor);
 }
 %%
 %%
-\ucfunction{IDASetMaxConvFails}
+\ucfunctionf{IDASetMaxConvFails}
 {
 flag = IDASetMaxConvFails(ida\_mem, maxncf);
 }
@@ -1705,7 +1705,7 @@ flag = IDASetMaxConvFails(ida\_mem, maxncf);
 }
 %%
 %%
-\ucfunction{IDASetNonlinConvCoef}
+\ucfunctionf{IDASetNonlinConvCoef}
 {
 flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
 }
@@ -1738,7 +1738,7 @@ flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
 }
 %%
 %%
-\ucfunction{IDASetSuppressAlg}
+\ucfunctionf{IDASetSuppressAlg}
 {
 flag = IDASetSuppressAlg(ida\_mem, suppressalg);
 }
@@ -1777,7 +1777,7 @@ flag = IDASetSuppressAlg(ida\_mem, suppressalg);
 }
 %%
 %%
-\ucfunction{IDASetId}
+\ucfunctionf{IDASetId}
 {
 flag = IDASetId(ida\_mem, id);
 }
@@ -1811,7 +1811,7 @@ flag = IDASetId(ida\_mem, id);
 }
 %%
 %%
-\ucfunction{IDASetConstraints}
+\ucfunctionf{IDASetConstraints}
 {
 flag = IDASetConstraints(ida\_mem, constraints);
 }
@@ -1897,7 +1897,7 @@ using global data in the program.
 The pointer \id{user\_data} may be specified through \id{IDASetUserData}.
 %%
 \index{Jacobian approximation function!user-supplied}
-\ucfunction{IDASetJacFn}
+\ucfunctionf{IDASetJacFn}
 {
   flag = IDASetJacFn(ida\_mem, jac);
 }
@@ -1973,7 +1973,7 @@ during the execution of the user-supplied preconditioner functions
 without using global data in the program.
 %%
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
-\ucfunction{IDASetJacTimes}
+\ucfunctionf{IDASetJacTimes}
 {
   flag = IDASetJacTimes(ida\_mem, jsetup, jtimes);
 }
@@ -2033,7 +2033,7 @@ to the Jacobian-vector product, the user may specify the factor to
 use in setting increments for the finite-difference approximation, via
 a call to \Id{IDASetIncrementFactor}:
 
-\ucfunction{IDASetIncrementFactor}
+\ucfunctionf{IDASetIncrementFactor}
 {
   flag = IDASetIncrementFactor(ida\_mem, dqincfac);
 }
@@ -2121,7 +2121,7 @@ the \id{IDASetEpsLin} function.
 \index{IDALS@{\idals} linear solver interface!preconditioner setup function}
 %%
 %%
-\ucfunction{IDASetPreconditioner}
+\ucfunctionf{IDASetPreconditioner}
 {
   flag = IDASetPreconditioner(ida\_mem, psetup, psolve);
 }
@@ -2174,7 +2174,7 @@ the \id{IDASetEpsLin} function.
 %%
 %%
 \index{IDALS@{\idals} linear solver interface!convergence test}
-\ucfunction{IDASetEpsLin}
+\ucfunctionf{IDASetEpsLin}
 {
   flag = IDASetEpsLin(ida\_mem, eplifac);
 }
@@ -2236,7 +2236,7 @@ the \id{IDASetEpsLin} function.
 The following functions can be called just prior to calling \id{IDACalcIC}
 to set optional inputs controlling the initial condition calculation.
 %%
-\ucfunction{IDASetNonlinConvCoefIC}
+\ucfunctionf{IDASetNonlinConvCoefIC}
 {
 flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
 }
@@ -2272,7 +2272,7 @@ flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
   system Jacobian.
 }
 %%
-\ucfunction{IDASetMaxNumStepsIC}
+\ucfunctionf{IDASetMaxNumStepsIC}
 {
 flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
 }
@@ -2306,7 +2306,7 @@ flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
 }
 %%
 %%
-\ucfunction{IDASetMaxNumJacsIC}
+\ucfunctionf{IDASetMaxNumJacsIC}
 {
 flag = IDASetMaxNumJacsIC(ida\_mem, maxnj);
 }
@@ -2339,7 +2339,7 @@ flag = IDASetMaxNumJacsIC(ida\_mem, maxnj);
 }
 %%
 %%
-\ucfunction{IDASetMaxNumItersIC}
+\ucfunctionf{IDASetMaxNumItersIC}
 {
 flag = IDASetMaxNumItersIC(ida\_mem, maxnit);
 }
@@ -2372,7 +2372,7 @@ flag = IDASetMaxNumItersIC(ida\_mem, maxnit);
 }
 %%
 %%
-\ucfunction{IDASetMaxBacksIC}
+\ucfunctionf{IDASetMaxBacksIC}
 {
 flag = IDASetMaxBacksIC(ida\_mem, maxbacks);
 }
@@ -2409,7 +2409,7 @@ flag = IDASetMaxBacksIC(ida\_mem, maxbacks);
 }
 %%
 %%
-\ucfunction{IDASetLineSearchOffIC}
+\ucfunctionf{IDASetLineSearchOffIC}
 {
 flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
 }
@@ -2440,7 +2440,7 @@ flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
 }
 %%
 %%
-\ucfunction{IDASetStepToleranceIC}
+\ucfunctionf{IDASetStepToleranceIC}
 {
 flag = IDASetStepToleranceIC(ida\_mem, steptol);
 }
@@ -2482,7 +2482,7 @@ flag = IDASetStepToleranceIC(ida\_mem, steptol);
 The following functions can be called to set optional inputs to control the
 rootfinding algorithm.
 %%
-\ucfunction{IDASetRootDirection}
+\ucfunctionf{IDASetRootDirection}
 {
 flag = IDASetRootDirection(ida\_mem, rootdir);
 }
@@ -2518,7 +2518,7 @@ flag = IDASetRootDirection(ida\_mem, rootdir);
 }
 %%
 %%
-\ucfunction{IDASetNoInactiveRootWarn}
+\ucfunctionf{IDASetNoInactiveRootWarn}
 {
 flag = IDASetNoInactiveRootWarn(ida\_mem);
 }
@@ -2566,7 +2566,7 @@ for any value of $t$ in the last internal step taken by {\idas}.
 
 The call to the \id{IDAGetDky} function has the following form:
 %%
-\ucfunction{IDAGetDky}
+\ucfunctionf{IDAGetDky}
 {
   flag = IDAGetDky(ida\_mem, t, k, dky);
 }
@@ -2724,7 +2724,7 @@ outputs in groups.
 These optional output functions are described next.
 %%
 %%
-\ucfunction{IDAGetWorkSpace}
+\ucfunctionf{IDAGetWorkSpace}
 {
   flag = IDAGetWorkSpace(ida\_mem, \&lenrw, \&leniw);
 }
@@ -2788,7 +2788,7 @@ These optional output functions are described next.
   for more details.
 }
 %%
-\ucfunction{IDAGetNumSteps}
+\ucfunctionf{IDAGetNumSteps}
 {
   flag = IDAGetNumSteps(ida\_mem, \&nsteps);
 }
@@ -2816,7 +2816,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNumResEvals}
+\ucfunctionf{IDAGetNumResEvals}
 {
   flag = IDAGetNumResEvals(ida\_mem, \&nrevals);
 }
@@ -2848,7 +2848,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{IDAGetNumLinSolvSetups}
+\ucfunctionf{IDAGetNumLinSolvSetups}
 {
   flag = IDAGetNumLinSolvSetups(ida\_mem, \&nlinsetups);
 }
@@ -2877,7 +2877,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNumErrTestFails}
+\ucfunctionf{IDAGetNumErrTestFails}
 {
   flag = IDAGetNumErrTestFails(ida\_mem, \&netfails);
 }
@@ -2906,7 +2906,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetLastOrder}
+\ucfunctionf{IDAGetLastOrder}
 {
   flag = IDAGetLastOrder(ida\_mem, \&klast);
 }
@@ -2934,7 +2934,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetCurrentOrder}
+\ucfunctionf{IDAGetCurrentOrder}
 {
   flag = IDAGetCurrentOrder(ida\_mem, \&kcur);
 }
@@ -2962,7 +2962,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetLastStep}
+\ucfunctionf{IDAGetLastStep}
 {
   flag = IDAGetLastStep(ida\_mem, \&hlast);
 }
@@ -2992,7 +2992,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetCurrentStep}
+\ucfunctionf{IDAGetCurrentStep}
 {
   flag = IDAGetCurrentStep(ida\_mem, \&hcur);
 }
@@ -3020,7 +3020,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetActualInitStep}
+\ucfunctionf{IDAGetActualInitStep}
 {
   flag = IDAGetActualInitStep(ida\_mem, \&hinused);
 }
@@ -3054,7 +3054,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{IDAGetCurrentTime}
+\ucfunctionf{IDAGetCurrentTime}
 {
   flag = IDAGetCurrentTime(ida\_mem, \&tcur);
 }
@@ -3082,7 +3082,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetTolScaleFactor}
+\ucfunctionf{IDAGetTolScaleFactor}
 {
   flag = IDAGetTolScaleFactor(ida\_mem, \&tolsfac);
 }
@@ -3112,7 +3112,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetErrWeights}
+\ucfunctionf{IDAGetErrWeights}
 {
   flag = IDAGetErrWeights(ida\_mem, eweight);
 }
@@ -3143,7 +3143,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{IDAGetEstLocalErrors}
+\ucfunctionf{IDAGetEstLocalErrors}
 {
   flag = IDAGetEstLocalErrors(ida\_mem, ele);
 }
@@ -3184,7 +3184,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{IDAGetIntegratorStats}
+\ucfunctionf{IDAGetIntegratorStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
     flag = IDAGetIntegratorStats(&ida\_mem, \&nsteps, \&nrevals, \&nlinsetups, \\
@@ -3234,7 +3234,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNumNonlinSolvIters}
+\ucfunctionf{IDAGetNumNonlinSolvIters}
 {
   flag = IDAGetNumNonlinSolvIters(ida\_mem, \&nniters);
 }
@@ -3264,7 +3264,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNumNonlinSolvConvFails}
+\ucfunctionf{IDAGetNumNonlinSolvConvFails}
 {
   flag = IDAGetNumNonlinSolvConvFails(ida\_mem, \&nncfails);
 }
@@ -3292,7 +3292,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNonlinSolvStats}
+\ucfunctionf{IDAGetNonlinSolvStats}
 {
   flag = IDAGetNonlinSolvStats(ida\_mem, \&nniters, \&nncfails);
 }
@@ -3323,7 +3323,7 @@ These optional output functions are described next.
 }
 {}
 %%
-\ucfunction{IDAGetReturnFlagName}
+\ucfunctionf{IDAGetReturnFlagName}
 {
   name = IDAGetReturnFlagName(flag);
 }
@@ -3347,7 +3347,7 @@ These optional output functions are described next.
 \label{sss:optout_iccalc}
 \index{optional output!initial condition calculation|(}
 %%
-\ucfunction{IDAGetNumBcktrackOps}
+\ucfunctionf{IDAGetNumBcktrackOps}
 {
   flag = IDAGetNumBacktrackOps(ida\_mem, \&nbacktr);
 }
@@ -3374,7 +3374,7 @@ These optional output functions are described next.
 }
 {}
 %%
-\ucfunction{IDAGetConsistentIC}
+\ucfunctionf{IDAGetConsistentIC}
 {
   flag = IDAGetConsistentIC(ida\_mem, yy0\_mod, yp0\_mod);
 }
@@ -3420,7 +3420,7 @@ These optional output functions are described next.
 There are two optional output functions associated with rootfinding.
 %%
 %%
-\ucfunction{IDAGetRootInfo}
+\ucfunctionf{IDAGetRootInfo}
 {
   flag = IDAGetRootInfo(ida\_mem, rootsfound);
 }
@@ -3457,7 +3457,7 @@ There are two optional output functions associated with rootfinding.
 }
 %%
 %%
-\ucfunction{IDAGetNumGEvals}
+\ucfunctionf{IDAGetNumGEvals}
 {
   flag = IDAGetNumGEvals(ida\_mem, \&ngevals);
 }
@@ -3510,7 +3510,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 \index{IDALS@{\idals} linear solver interface!memory requirements}
 \index{memory requirements!IDALS@{\idals} linear solver interface}
 
-\ucfunction{IDAGetLinWorkSpace}
+\ucfunctionf{IDAGetLinWorkSpace}
 {
   flag = IDAGetLinWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
 }
@@ -3554,7 +3554,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumJacEvals}
+\ucfunctionf{IDAGetNumJacEvals}
 {
   flag = IDAGetNumJacEvals(ida\_mem, \&njevals);
 }
@@ -3590,7 +3590,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumLinResEvals}
+\ucfunctionf{IDAGetNumLinResEvals}
 {
   flag = IDAGetNumLinResEvals(ida\_mem, \&nrevalsLS);
 }
@@ -3631,7 +3631,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumLinIters}
+\ucfunctionf{IDAGetNumLinIters}
 {
   flag = IDAGetNumLinIters(ida\_mem, \&nliters);
 }
@@ -3666,7 +3666,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumLinConvFails}
+\ucfunctionf{IDAGetNumLinConvFails}
 {
   flag = IDAGetNumLinConvFails(ida\_mem, \&nlcfails);
 }
@@ -3701,7 +3701,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumPrecEvals}
+\ucfunctionf{IDAGetNumPrecEvals}
 {
   flag = IDAGetNumPrecEvals(ida\_mem, \&npevals);
 }
@@ -3737,7 +3737,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumPrecSolves}
+\ucfunctionf{IDAGetNumPrecSolves}
 {
   flag = IDAGetNumPrecSolves(ida\_mem, \&npsolves);
 }
@@ -3773,7 +3773,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumJTSetupEvals}
+\ucfunctionf{IDAGetNumJTSetupEvals}
 {
   flag = IDAGetNumJTSetupEvals(ida\_mem, \&njtsetup);
 }
@@ -3809,7 +3809,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumJtimesEvals}
+\ucfunctionf{IDAGetNumJtimesEvals}
 {
   flag = IDAGetNumJtimesEvals(ida\_mem, \&njvevals);
 }
@@ -3845,7 +3845,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetLastLinFlag}
+\ucfunctionf{IDAGetLastLinFlag}
 {
   flag = IDAGetLastLinFlag(ida\_mem, \&lsflag);
 }
@@ -3908,7 +3908,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetLinReturnFlagName}
+\ucfunctionf{IDAGetLinReturnFlagName}
 {
   name = IDAGetLinReturnFlagName(lsflag);
 }
@@ -3985,7 +3985,7 @@ is to be a jump in the dependent variable vector.
 
 %%
 %%
-\ucfunction{IDAReInit}
+\ucfunctionf{IDAReInit}
 {
   flag = IDAReInit(ida\_mem, t0, y0, yp0);
 }
@@ -4802,7 +4802,7 @@ The function \id{IDAQuadInit} activates integration of quadrature equations
 and allocates internal memory related to these calculations.
 The form of the call to this function is as follows:
 %%
-\ucfunction{IDAQuadInit}
+\ucfunctionf{IDAQuadInit}
 {
 flag = IDAQuadInit(ida\_mem, rhsQ, yQ0);
 }
@@ -4859,7 +4859,7 @@ a call to \id{IDAReInit}).  The number \id{Nq} of quadratures is
 assumed to be unchanged from the prior call to \id{IDAQuadInit}.  The
 call to the \id{IDAQuadReInit} function has the following form:
 %%
-\ucfunction{IDAQuadReInit}
+\ucfunctionf{IDAQuadReInit}
 {
   flag = IDAQuadReInit(ida\_mem, yQ0);
 }
@@ -4893,7 +4893,7 @@ call to the \id{IDAQuadReInit} function has the following form:
 }
 %%
 %%
-\ucfunction{IDAQuadFree}
+\ucfunctionf{IDAQuadFree}
 {
   IDAQuadFree(ida\_mem);
 }
@@ -4941,7 +4941,7 @@ and quadratures at time \id{t}. However, \id{IDASolve} will still return only th
 $y$ in \id{y}. Solution quadratures can be obtained using the following function:
 %%
 %%
-\ucfunction{IDAGetQuad}
+\ucfunctionf{IDAGetQuad}
 {
   flag = IDAGetQuad(ida\_mem, \&tret, yQ);
 }
@@ -4982,7 +4982,7 @@ This function is called by \id{IDAGetQuad} with \id{k = 0} and with the current
 time at which \id{IDASolve} has returned, but may also be called
 directly by the user.
 %%
-\ucfunction{IDAGetQuadDky}
+\ucfunctionf{IDAGetQuadDky}
 {
   flag = IDAGetQuadDky(ida\_mem, t, k, dkyQ);
 }
@@ -5032,7 +5032,7 @@ directly by the user.
 {\idas} provides the following optional input functions to control the integration
 of quadrature equations.
 %%
-\ucfunction{IDASetQuadErrCon}
+\ucfunctionf{IDASetQuadErrCon}
 {
  flag = IDASetQuadErrCon(ida\_mem, errconQ);
 }
@@ -5075,7 +5075,7 @@ If the quadrature variables are part of the step size control mechanism,
 one of the following functions must be called to specify the
 integration tolerances for quadrature variables.
 
-\ucfunction{IDAQuadSStolerances}
+\ucfunctionf{IDAQuadSStolerances}
 {
  flag = IDAQuadSVtolerances(ida\_mem, reltolQ, abstolQ);
 }
@@ -5109,7 +5109,7 @@ integration tolerances for quadrature variables.
 }
 {}
 
-\ucfunction{IDAQuadSVtolerances}
+\ucfunctionf{IDAQuadSVtolerances}
 {
  flag = IDAQuadSVtolerances(ida\_mem, reltolQ, abstolQ);
 }
@@ -5154,7 +5154,7 @@ integration tolerances for quadrature variables.
 {\idas} provides the following functions that can be used to obtain solver
 performance information related to quadrature integration.
 
-\ucfunction{IDAGetQuadNumRhsEvals}
+\ucfunctionf{IDAGetQuadNumRhsEvals}
 {
   flag = IDAGetQuadNumRhsEvals(ida\_mem, \&nrhsQevals);
 }
@@ -5184,7 +5184,7 @@ performance information related to quadrature integration.
 {}
 %%
 %%
-\ucfunction{IDAGetQuadNumErrTestFails}
+\ucfunctionf{IDAGetQuadNumErrTestFails}
 {
   flag = IDAGetQuadNumErrTestFails(ida\_mem, \&nQetfails);
 }
@@ -5214,7 +5214,7 @@ performance information related to quadrature integration.
 {}
 %%
 %%
-\ucfunction{IDAGetQuadErrWeights}
+\ucfunctionf{IDAGetQuadErrWeights}
 {
   flag = IDAGetQuadErrWeights(ida\_mem, eQweight);
 }
@@ -5250,7 +5250,7 @@ performance information related to quadrature integration.
 }
 %%
 %%
-\ucfunction{IDAGetQuadStats}
+\ucfunctionf{IDAGetQuadStats}
 {
   flag = IDAGetQuadStats(ida\_mem, \&nrhsQevals, \&nQetfails);
 }
@@ -5664,7 +5664,7 @@ above) or re-initialize the {\idabbdpre} preconditioner module are
 described next.
 %%
 \index{half-bandwidths}
-\ucfunction{IDABBDPrecInit}
+\ucfunctionf{IDABBDPrecInit}
 {
    \begin{tabular}[t]{@{}r@{}l@{}}
      flag = IDABBDPrecInit(&ida\_mem, Nlocal, mudq, mldq, \\
@@ -5753,7 +5753,7 @@ also be made (in the proper order).
 %%
 %%
 %%
-\ucfunction{IDABBDPrecReInit}
+\ucfunctionf{IDABBDPrecReInit}
 {
   flag = IDABBDPrecReInit(ida\_mem, mudq, mldq, dq\_rel\_yy);
 }
@@ -5804,7 +5804,7 @@ The following two optional output functions are available for use with
 the {\idabbdpre} module:
 %%
 \index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner}
-\ucfunction{IDABBDPrecGetWorkSpace}
+\ucfunctionf{IDABBDPrecGetWorkSpace}
 {
   flag = IDABBDPrecGetWorkSpace(ida\_mem, \&lenrwBBDP, \&leniwBBDP);
 }
@@ -5850,7 +5850,7 @@ the {\idabbdpre} module:
 }
 %%
 %%
-\ucfunction{IDABBDPrecGetNumGfnEvals}
+\ucfunctionf{IDABBDPrecGetNumGfnEvals}
 {
   flag = IDABBDPrecGetNumGfnEvals(ida\_mem, \&ngevalsBBDP);
 }

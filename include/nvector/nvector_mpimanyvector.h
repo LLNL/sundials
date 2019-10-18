@@ -64,7 +64,7 @@ typedef struct _N_VectorContent_MPIManyVector *N_VectorContent_MPIManyVector;
    functions exported by ManyVector
    ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT N_Vector N_VMake_MPIManyVector(MPI_Comm *comm,
+SUNDIALS_EXPORT N_Vector N_VMake_MPIManyVector(MPI_Comm comm,
                                                sunindextype num_subvectors,
                                                N_Vector *vec_array);
 

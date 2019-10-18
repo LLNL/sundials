@@ -1196,20 +1196,29 @@ are to be used in building a preconditioner.
 %% --------------------------------------------------
 {\nvecmanyvector}
 & Libraries    & libsundials\_nvecmanyvector.{\em lib}               &                           \\
+&              & libsundials\_nvecmanyvector\_mod.{\em lib}          &                           \\
 \cline{2-4}
 & Header files & nvector/nvector\_manyvector.h                       &                           \\
+\cline{2-4}
+& Module files & fnvector\_manyvector\_mod.mod                       &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecmpimanyvector}
 & Libraries    & libsundials\_nvecmpimanyvector.{\em lib}            &                           \\
+&              & libsundials\_nvecmpimanyvector\_mod.{\em lib}       &                           \\
 \cline{2-4}
 & Header files & nvector/nvector\_mpimanyvector.h                    &                           \\
+\cline{2-4}
+& Module files & fnvector\_mpimanyvector\_mod.mod                    &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecmpiplusx}
 & Libraries    & libsundials\_nvecmpiplusx.{\em lib}                 &                           \\
+&              & libsundials\_nvecmpiplusx\_mod.{\em lib}            &                           \\
 \cline{2-4}
 & Header files & nvector/nvector\_mpiplusx.h                         &                           \\
+\cline{2-4}
+& Module files & fnvector\_mpiplusx\_mod.mod                         &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecopenmp}
@@ -1464,11 +1473,14 @@ are to be used in building a preconditioner.
 %% --------------------------------------------------
 {\cvodes}
 & Libraries    & libsundials\_cvodes.{\em lib}                       &                           \\
+&              & libsundials\_fcvodes\_mod.{\em lib}                 &                           \\
 \cline{2-4}
 & Header files & cvodes/cvodes.h                                     & cvodes/cvodes\_impl.h     \\
 &              & cvodes/cvodes\_direct.h                             & cvodes/cvodes\_ls.h       \\
 &              & cvodes/cvodes\_spils.h                              & cvodes/cvodes\_bandpre.h  \\
 &              & cvodes/cvodes\_bbdpre.h                             &                           \\
+\cline{2-4}
+& Module files & fcvodes\_mod.mod                                    &                           \\
 \hline
 %% --------------------------------------------------
 {\arkode}
@@ -1498,10 +1510,13 @@ are to be used in building a preconditioner.
 %% --------------------------------------------------
 {\idas}
 & Libraries    & libsundials\_idas.{\em lib}                         &                           \\
+&              & libsundials\_fidas\_mod.{\em lib}                   &                           \\
 \cline{2-4}
 & Header files & idas/idas.h                                         & idas/idas\_impl.h         \\
 &              & idas/idas\_direct.h                                 & idas/idas\_ls.h           \\
 &              & idas/idas\_spils.h                                  & idas/idas\_bbdpre.h       \\
+\cline{2-4}
+& Module files & fidas\_mod.mod                                      &                           \\
 \hline
 %% --------------------------------------------------
 {\kinsol}

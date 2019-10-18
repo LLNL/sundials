@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-SUNDIALS_EXPORT N_Vector N_VMake_MPIPlusX(MPI_Comm *comm, N_Vector X);
+SUNDIALS_EXPORT N_Vector N_VMake_MPIPlusX(MPI_Comm comm, N_Vector X);
 
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_MPIPlusX(N_Vector v);
 

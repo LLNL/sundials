@@ -17,6 +17,11 @@
 
 install(CODE "MESSAGE(\"\nInstall CVODES\n\")")
 
+# Add F90 module if F2003 interface is enabled
+if(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  add_subdirectory(fmod)
+endif(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable cvodes_SOURCES with the sources for the CVODES library
 set(cvodes_SOURCES
   cvodea.c

@@ -302,6 +302,13 @@ preconditioner routines.
 
 \subsection{Changes in v4.0.0}
 \label{Introduction:changes-in-v4-0-0}
+Added Fortran 2003 interfaces to the \code{NVECTOR\_MANYVECTOR},
+\code{NVECTOR\_MPIMANYVECTOR} and \code{NVECTOR\_MPIPLUSX}.
+
+Added three new utility N\_Vector functions, \code{FN\_VGetVecAtIndexVectorArray},
+\code{FN\_VSetVecAtIndexVectorArray}, and \code{FN\_VNewVectorArray}, that are for working
+with N\_Vector arrays when using the Fortran 2003 interfaces.
+
 Added a new \code{SUNNonlinearSolver} implementation, \code{SUNNonlinsol\_PetscSNES},
 which interfaces to the PETSc SNES nonlinear solver API.
 
@@ -3100,27 +3107,27 @@ SUNDIALS libraries have been compiled using the same precision (for
 details see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
 
 
-\subsection{Integer types used for vector and matrix indices}
-\label{ARKStep_c_interface/General:integer-types-used-for-vector-and-matrix-indices}
-The type \code{sunindextype} can be either a 32- or 64-bit \emph{signed} integer.
-The default is the portable \code{int64\_t} type, and the user can change it
-to \code{int32\_t} at the configuration stage. The configuration system
-will detect if the compiler does not support portable types, and will
-replace \code{int32\_t} and \code{int64\_t} with \code{int} and \code{long int},
-respectively, to ensure use of the desired sizes on Linux, Mac OS X, and Windows
-platforms. SUNDIALS currently does not support \emph{unsigned} integer types
-for vector and matrix indices, although these could be added in the future if there
-is sufficient demand.
+\subsection{Integer types used for indexing}
+\label{ARKStep_c_interface/General:integer-types-used-for-indexing}
+The type \code{sunindextype} is used for indexing array entries in SUNDIALS modules
+(\emph{e.g.}, vectors lengths and matrix sizes) as well as for storing the total
+problem size. During configuration \code{sunindextype} may be selected to be either
+a 32- or 64-bit \emph{signed} integer with the default being 64-bit. See the section
+{\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}} for the configuration option to select the desired size of
+\code{sunindextype}. When using a 32-bit integer the total problem size is limited
+to \(2^{31}-1\) and with 64-bit integers the limit is \(2^{63}-1\). For
+users with problem sizes that exceed the 64-bit limit an advanced configuration
+option is available to specify the type used for \code{sunindextype}.
 
-A user program which uses \code{sunindextype} to handle vector and matrix indices
-will work with both index storage types except for any calls to index storage-specific
-external libraries. (Our \code{C} and \code{C++} example programs use \code{sunindextype}.)
-Users can, however, use any one of \code{int}, \code{long int}, \code{int32\_t}, \code{int64\_t} or
-\code{long long int} in their code, assuming that this usage is consistent with the typedef
-for \code{sunindextype} on their architecture. Thus, a previously existing piece of ANSI
-C code can use SUNDIALS without modifying the code to use \code{sunindextype},
-so long as the SUNDIALS libraries use the appropriate index storage type (for details
-see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
+A user program which uses \code{sunindextype} to handle indices will work with both
+index storage types except for any calls to index storage-specific external
+libraries. Our C and C++ example programs use \code{sunindextype}. Users can,
+however, use any compatible type (\emph{e.g.},  \code{int}, \code{long int}, \code{int32\_t},
+\code{int64\_t} or \code{long long int}) in their code, assuming that this usage is
+consistent with the typedef for \code{sunindextype} on their architecture. Thus, a
+previously existing piece of ANSI C code can use SUNDIALS without modifying the
+code to use \code{sunindextype}, so long as the SUNDIALS libraries use the
+appropriate index storage type (for details {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
 
 
 \section{Header Files}
@@ -19460,17 +19467,17 @@ Not interfaced
 \hline
 NVECTOR\_MANVECTOR
  & 
-Not interfaced
+\code{fnvector\_manyvector\_mod}
 \\
 \hline
 NVECTOR\_MPIMANVECTOR
  & 
-Not interfaced
+\code{fnvector\_mpimanyvector\_mod}
 \\
 \hline
 NVECTOR\_MPIPLUSX
  & 
-Not interfaced
+\code{fnvector\_mpiplusx\_mod}
 \\
 \hline
 SUNMATRIX
@@ -19999,6 +20006,47 @@ Fortran code:
 \PYG{c}{! pass a c\PYGZus{}null\PYGZus{}ptr, rather we pass a disassociated A.}
 \PYG{n}{ierr} \PYG{o}{=} \PYG{n}{FSUNLinSolSolve}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{A}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{b}\PYG{p}{)}
 \end{Verbatim}
+
+
+\subsubsection{Working with \texttt{N\_Vector} arrays}
+\label{ARKode_f_interface/F2003Module:working-with-n-vector-arrays}\label{ARKode_f_interface/F2003Module:fortran2003-differences-nvectorarrays}
+Arrays of \code{N\_Vector} objects are interfaced to Fortran 2003 as opaque
+\code{type(c\_ptr)}.  As such, it is not possible to directly index an array of
+\code{N\_Vector} objects returned by the \code{N\_Vector} ``VectorArray'' operations, or
+packages with sensitivity capabilities.  Instead, SUNDIALS provides a utility
+function \code{FN\_VGetVecAtIndexVectorArray} that can be called for accessing a
+vector in a vector array. The example below demonstrates this:
+
+C code:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}Vector} \PYG{n}{x}\PYG{p}{;}
+\PYG{n}{N\PYGZus{}Vector}\PYG{o}{*} \PYG{n}{vecs}\PYG{p}{;}
+
+\PYG{n}{vecs} \PYG{o}{=} \PYG{n}{N\PYGZus{}VCloneVectorArray}\PYG{p}{(}\PYG{n}{count}\PYG{p}{,} \PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
+\PYG{k}{for} \PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{i}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{;} \PYG{n}{i} \PYG{o}{\PYGZlt{}} \PYG{n}{count}\PYG{p}{;} \PYG{o}{+}\PYG{o}{+}\PYG{n}{i}\PYG{p}{)}
+\PYG{n}{N\PYGZus{}VConst}\PYG{p}{(}\PYG{n}{vecs}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+Fortran code:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{type}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{,} \PYG{k}{pointer} \PYG{k+kd}{::} \PYG{n}{x}\PYG{p}{,} \PYG{n}{xi}
+\PYG{k}{type}\PYG{p}{(}\PYG{k+kt}{c\PYGZus{}ptr}\PYG{p}{)}             \PYG{k+kd}{::} \PYG{n}{vecs}
+
+\PYG{n}{vecs} \PYG{o}{=} \PYG{n}{FN\PYGZus{}VCloneVectorArray}\PYG{p}{(}\PYG{n+nb}{count}\PYG{p}{,} \PYG{n}{x}\PYG{p}{)}
+\PYG{k}{do }\PYG{n+nb}{index}\PYG{p}{,} \PYG{n+nb}{count}
+\PYG{n}{xi} \PYG{o}{=}\PYG{o}{\PYGZgt{}} \PYG{n}{FN\PYGZus{}VGetVecAtIndexVectorArray}\PYG{p}{(}\PYG{n}{vecs}\PYG{p}{,} \PYG{n+nb}{index}\PYG{p}{)}
+\PYG{k}{call }\PYG{n}{FN\PYGZus{}VConst}\PYG{p}{(}\PYG{n}{xi}\PYG{p}{)}
+\PYG{n}{enddo}
+\end{Verbatim}
+
+SUNDIALS also provides the functions \code{FN\_VSetVecAtIndexVectorArray} and
+\code{FN\_VNewVectorArray} for working with \code{N\_Vector} arrays. These functions are
+particularly useful for users of the Fortran interface to the \code{NVECTOR\_MANYVECTOR}
+or \code{NVECTOR\_MPIMANYVECTOR} when creating the subvector array.  Both of these
+functions along with \code{FN\_VGetVecAtIndexVectorArray} are further described in Chapter
+{\hyperref[nvectors/NVector_Description:nvectors-utilities]{\emph{\DUspan{}{NVECTOR Utility Functions}}}}.
 
 
 \subsubsection{Providing file pointers}
@@ -25063,7 +25111,10 @@ to complete the desired operation. All SUNDIALS-provided NVECTOR
 implementations include these local reduction operations, which may be
 used as templates for user-defined NVECTOR implementations.
 
-Finally, we note that the generic NVECTOR module defines the functions
+
+\subsection{NVECTOR Utility Functions}
+\label{nvectors/NVector_Description:nvector-utility-functions}\label{nvectors/NVector_Description:nvectors-utilities}
+The generic NVECTOR module also defines the utility functions
 \code{N\_VCloneVectorArray}, \code{N\_VCloneVectorArrayEmpty}, and
 \code{N\_VDestroyVectorArray}. Both clone functions create (by cloning) an array of
 \emph{count} variables of type \code{N\_Vector}, each of the same type as an existing
@@ -25086,106 +25137,17 @@ by calling \code{N\_VDestroyVectorArray}, whose prototype is
 and whose definition is based on the implementation-specific
 \code{N\_VDestroy} operation.
 
-A particular implementation of the NVECTOR module \textbf{must}:
-\begin{itemize}
-\item {} 
-Specify the \emph{content} field of the \code{N\_Vector}.
+Finally, we note that users of the Fortran 2003 interface may be interested in
+the additional utility functions \code{N\_NewVectorArray}, \code{N\_VGetVecAtIndexVectorArray},
+and \code{N\_VSetVecAtIndexVectorArray}. These functions allow a Fortran 2003 user to
+create an empty vector array, get a vector at an index, and set a vector at an
+index. There prototypes are given below:
 
-\item {} 
-Define and implement the necessary vector operations. Note that the
-names of these routines should be unique to that implementation in
-order to permit using more than one NVECTOR module (each with
-different \code{N\_Vector} internal data representations) in the same
-code.
-
-\item {} 
-Define and implement user-callable constructor and destructor
-routines to create and free a \code{N\_Vector} with the new \emph{content}
-field and with \emph{ops} pointing to the new vector operations.
-
-\item {} 
-Optionally, define and implement additional user-callable routines
-acting on the newly defined \code{N\_Vector} (e.g., a routine to print the
-\emph{content} for debugging purposes).
-
-\item {} 
-Optionally, provide accessor macros as needed for that particular
-implementation to be used to access different parts in the content
-field of the newly defined \code{N\_Vector}.
-
-\end{itemize}
-
-To aid in the creation of custom NVECTOR modules the generic NVECTOR module
-provides two utility functions {\hyperref[nvectors/NVector_Description:c.N_VNewEmpty]{\emph{\code{N\_VNewEmpty()}}}} and
-{\hyperref[nvectors/NVector_Description:c.N_VCopyOps]{\emph{\code{N\_VCopyOps()}}}}. When used in custom NVECTOR constructors and clone
-routines these functions will ease the introduction of any new optional vector
-operations to the NVECTOR API by ensuring only required operations need to be
-set and all operations are copied when cloning a vector.
-\index{N\_VNewEmpty (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Description:c.N_VNewEmpty}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty}}{}{}
-This allocates a new generic \code{N\_Vector} object and initializes its content
-pointer and the function pointers in the operations structure to \code{NULL}.
-
-\textbf{Return value:} If successful, this function returns an \code{N\_Vector}
-object. If an error occurs when allocating the object, then this routine will
-return \code{NULL}.
-
-\end{fulllineitems}
-
-\index{N\_VFreeEmpty (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Description:c.N_VFreeEmpty}\pysiglinewithargsret{void \bfcode{N\_VFreeEmpty}}{N\_Vector\emph{ v}}{}
-This routine frees the generic \code{N\_Vector} object, under the assumption that any
-implementation-specific data that was allocated within the underlying content structure
-has already been freed. It will additionally test whether the ops pointer is \code{NULL},
-and, if it is not, it will free it as well.
-\begin{quote}
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{v} -- an N\_Vector object
-
-\end{itemize}
-
-\end{description}
-\end{quote}
-
-\end{fulllineitems}
-
-\index{N\_VCopyOps (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Description:c.N_VCopyOps}\pysiglinewithargsret{int \bfcode{N\_VCopyOps}}{N\_Vector\emph{ w}, N\_Vector\emph{ v}}{}
-This function copies the function pointers in the \code{ops} structure of \code{w}
-into the \code{ops} structure of \code{v}.
-\begin{quote}
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{w} -- the vector to copy operations from
-
-\item {} 
-\emph{v} -- the vector to copy operations to
-
-\end{itemize}
-
-\end{description}
-
-\textbf{Return value:}  If successful, this function returns \code{0}. If either of
-the inputs are \code{NULL} or the \code{ops} structure of either input is \code{NULL},
-then is function returns a non-zero value.
-\end{quote}
-
-\end{fulllineitems}
-
-
-Each NVECTOR implementation included in SUNDIALS has a unique
-identifier specified in enumeration and shown in the table below.
-It is recommended that a user supplied NVECTOR implementation use the
-\code{SUNDIALS\_NVEC\_CUSTOM} identifier.
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VNewVectorArray}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VGetVecAtIndexVectorArray}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{o}{*} \PYG{n}{vs}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{index}\PYG{p}{)}\PYG{p}{;}
+\PYG{k+kt}{void} \PYG{n}{N\PYGZus{}VSetVecAtIndexVectorArray}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{o}{*} \PYG{n}{vs}\PYG{p}{,} \PYG{k+kt}{int} \PYG{n}{index}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}
+\end{Verbatim}
 
 
 \subsection{Vector Identifications associated with vector kernels supplied with SUNDIALS}
@@ -25332,15 +25294,77 @@ newly defined \code{N\_Vector}.
 
 \end{itemize}
 
-It is recommended that a user-supplied NVECTOR implementation returns the
-\code{SUNDIALS\_NVEC\_CUSTOM} identifier from the \code{N\_VGetVectorID} function.
+To aid in the creation of custom NVECTOR modules the generic NVECTOR module
+provides two utility functions {\hyperref[nvectors/NVector_Description:c.N_VNewEmpty]{\emph{\code{N\_VNewEmpty()}}}} and
+{\hyperref[nvectors/NVector_Description:c.N_VCopyOps]{\emph{\code{N\_VCopyOps()}}}}. When used in custom NVECTOR constructors and clone
+routines these functions will ease the introduction of any new optional vector
+operations to the NVECTOR API by ensuring only required operations need to be
+set and all operations are copied when cloning a vector.
+\index{N\_VNewEmpty (C function)}
 
-To aid in the creation of custom NVECTOR modules the generic NVECTOR
-module provides two utility functions \code{N\_VNewEmpty} and \code{N\_VCopyOps}.
-When used in custom NVECTOR constructors and clone routines these functions
-will ease the introduction of any new optional vector operations to the
-NVECTOR API by ensuring only required operations need to be set and all
-operations are copied when cloning a vector.
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Description:c.N_VNewEmpty}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty}}{}{}
+This allocates a new generic \code{N\_Vector} object and initializes its content
+pointer and the function pointers in the operations structure to \code{NULL}.
+
+\textbf{Return value:} If successful, this function returns an \code{N\_Vector}
+object. If an error occurs when allocating the object, then this routine will
+return \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VFreeEmpty (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Description:c.N_VFreeEmpty}\pysiglinewithargsret{void \bfcode{N\_VFreeEmpty}}{N\_Vector\emph{ v}}{}
+This routine frees the generic \code{N\_Vector} object, under the assumption that any
+implementation-specific data that was allocated within the underlying content structure
+has already been freed. It will additionally test whether the ops pointer is \code{NULL},
+and, if it is not, it will free it as well.
+\begin{quote}
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{v} -- an N\_Vector object
+
+\end{itemize}
+
+\end{description}
+\end{quote}
+
+\end{fulllineitems}
+
+\index{N\_VCopyOps (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Description:c.N_VCopyOps}\pysiglinewithargsret{int \bfcode{N\_VCopyOps}}{N\_Vector\emph{ w}, N\_Vector\emph{ v}}{}
+This function copies the function pointers in the \code{ops} structure of \code{w}
+into the \code{ops} structure of \code{v}.
+\begin{quote}
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{w} -- the vector to copy operations from
+
+\item {} 
+\emph{v} -- the vector to copy operations to
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}  If successful, this function returns \code{0}. If either of
+the inputs are \code{NULL} or the \code{ops} structure of either input is \code{NULL},
+then is function returns a non-zero value.
+\end{quote}
+
+\end{fulllineitems}
+
+
+Each NVECTOR implementation included in SUNDIALS has a unique
+identifier specified in enumeration and shown in the table below.
+It is recommended that a user supplied NVECTOR implementation use the
+\code{SUNDIALS\_NVEC\_CUSTOM} identifier.
 
 
 \subsubsection{Support for complex-valued vectors}
@@ -29871,6 +29895,12 @@ Upon successful completion, the new ManyVector is returned;
 otherwise this routine returns \code{NULL} (e.g., a memory allocation
 failure occurred).
 
+Users of the Fortran 2003 interface to this function will first need to use
+the generic \code{N\textbackslash{}\_Vector} utility functions \code{N\_VNewVectorArray}, and
+\code{N\_VSetVecAtIndexVectorArray} to create the \code{N\_Vector*} argument.  This is
+further explained in Chapter {\hyperref[ARKode_f_interface/F2003Module:fortran2003-differences-nvectorarrays]{\emph{\DUspan{}{Working with N\_Vector arrays}}}},
+and the functions are documented in Chapter {\hyperref[nvectors/NVector_Description:nvectors-utilities]{\emph{\DUspan{}{NVECTOR Utility Functions}}}}.
+
 \end{fulllineitems}
 
 \index{N\_VGetSubvector\_ManyVector (C function)}
@@ -29922,19 +29952,18 @@ and {\hyperref[nvectors/NVector_Operations:c.N_VWrmsNormMaskVectorArray]{\emph{\
 default. The following additional user-callable routines are provided
 to enable or disable fused and vector array operations for a specific
 vector. To ensure consistency across vectors it is recommended to
-first create a vector with {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} or
-\code{N\_VMake\_ManyVector()}, enable/disable the desired operations
+first create a vector with {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}},
+enable/disable the desired operations
 for that vector with the functions below, and create any additional
 vectors from that vector using {\hyperref[nvectors/NVector_Operations:c.N_VClone]{\emph{\code{N\_VClone()}}}}. This guarantees
 that the new vectors will have the same operations enabled/disabled,
 since cloned vectors inherit those configuration options from the
 vector they are cloned from, while vectors created with
-{\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} and \code{N\_VMake\_ManyVector()} will
+{\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} will
 have the default settings for the NVECTOR\_MANYVECTOR module.  We note
 that these routines \emph{do not} call the corresponding routines on
 subvectors, so those should be set up as desired \emph{before} attaching
-them to the ManyVector in {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} or
-\code{N\_VMake\_ManyVector()}.
+them to the ManyVector in {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}}.
 \index{N\_VEnableFusedOps\_ManyVector (C function)}
 
 \begin{fulllineitems}
@@ -30032,7 +30061,7 @@ norm operation for vector arrays in the manyvector vector. The return value is
 \textbf{Notes}
 \begin{itemize}
 \item {} 
-{\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} and \code{N\_VMake\_ManyVector()} set
+{\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} sets
 the field \code{own\_data = SUNFALSE}.
 \code{N\_VDestroy\_ManyVector()} will not attempt to call
 {\hyperref[nvectors/NVector_Operations:c.N_VDestroy]{\emph{\code{N\_VDestroy()}}}} on any subvectors contained in the
@@ -30199,41 +30228,34 @@ Upon successful completion, the new MPIManyVector is returned;
 otherwise this routine returns \code{NULL} (e.g., if two MPI-aware
 subvectors use different MPI communicators).
 
+Users of the Fortran 2003 interface to this function will first need to use
+the generic \code{N\textbackslash{}\_Vector} utility functions \code{N\_VNewVectorArray}, and
+\code{N\_VSetVecAtIndexVectorArray} to create the \code{N\_Vector*} argument.  This is
+further explained in Chapter {\hyperref[ARKode_f_interface/F2003Module:fortran2003-differences-nvectorarrays]{\emph{\DUspan{}{Working with N\_Vector arrays}}}},
+and the functions are documented in Chapter {\hyperref[nvectors/NVector_Description:nvectors-utilities]{\emph{\DUspan{}{NVECTOR Utility Functions}}}}.
+
 \end{fulllineitems}
 
 \index{N\_VMake\_MPIManyVector (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VMake_MPIManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_MPIManyVector}}{MPI\_Comm\emph{ *comm}, sunindextype\emph{ num\_subvectors}, N\_Vector\emph{ *vec\_array}}{}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VMake_MPIManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_MPIManyVector}}{MPI\_Comm\emph{ comm}, sunindextype\emph{ num\_subvectors}, N\_Vector\emph{ *vec\_array}}{}
 This function creates a MPIManyVector from a set of existing NVECTOR
 objects, and a user-created MPI communicator that ``connects'' these
 subvectors.  Any MPI-aware subvectors may use different MPI
 communicators than the input \emph{comm}.  We note that this routine
 is designed to support any combination of the use cases above.
 
-The input \emph{comm} should be the memory reference to this
-user-created MPI communicator.  We note that since many MPI
-implementations \code{\#define}  \code{MPI\_COMM\_WORLD} to be a specific
-integer \emph{value} (that has no memory reference), users who wish
-to supply \code{MPI\_COMM\_WORLD} to this routine should first
-set a specific \code{MPI\_Comm} variable to \code{MPI\_COMM\_WORLD} before
-passing in the reference, e.g.
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
-\PYG{n}{comm} \PYG{o}{=} \PYG{n}{MPI\PYGZus{}COMM\PYGZus{}WORLD}\PYG{p}{;}
-\PYG{n}{N\PYGZus{}Vector} \PYG{n}{x}\PYG{p}{;}
-\PYG{n}{x} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMake\PYGZus{}MPIManyVector}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{comm}\PYG{p}{,} \PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
+The input \emph{comm} should be this user-created MPI communicator.
 This routine will internally call \code{MPI\_Comm\_dup} to create a
 copy of the input \code{comm}, so the user-supplied \code{comm} argument
 need not be retained after the call to
 {\hyperref[nvectors/NVector_MPIManyVector:c.N_VMake_MPIManyVector]{\emph{\code{N\_VMake\_MPIManyVector()}}}}.
 
 If all subvectors are MPI-unaware, then the input \emph{comm} argument
-should be \code{NULL}, although in this case, it would be simpler to
-call {\hyperref[nvectors/NVector_MPIManyVector:c.N_VNew_MPIManyVector]{\emph{\code{N\_VNew\_MPIManyVector()}}}} instead.
+should be \code{MPI\_COMM\_NULL}, although in this case, it would be
+simpler to call {\hyperref[nvectors/NVector_MPIManyVector:c.N_VNew_MPIManyVector]{\emph{\code{N\_VNew\_MPIManyVector()}}}} instead, or to just
+use the NVECTOR\_MANYVECTOR module.
 
 This routine will copy all \code{N\_Vector} pointers from the input
 \emph{vec\_array}, so the user may modify/free that pointer array
@@ -30480,33 +30502,19 @@ user-callable routines:
 \index{N\_VMake\_MPIPlusX (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_MPIPlusX:c.N_VMake_MPIPlusX}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_MPIPlusX}}{MPI\_Comm\emph{ *comm}, N\_Vector\emph{ *local\_vector}}{}
+\phantomsection\label{nvectors/NVector_MPIPlusX:c.N_VMake_MPIPlusX}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_MPIPlusX}}{MPI\_Comm\emph{ comm}, N\_Vector\emph{ *local\_vector}}{}
 This function creates a MPIPlusX vector from an exisiting local
 (i.e. on node) NVECTOR object, and a user-created MPI communicator.
 
-The input \emph{comm} should be the memory reference to this
-user-created MPI communicator.  We note that since many MPI
-implementations \code{\#define}  \code{MPI\_COMM\_WORLD} to be a specific
-integer \emph{value} (that has no memory reference), users who wish
-to supply \code{MPI\_COMM\_WORLD} to this routine should first
-set a specific \code{MPI\_Comm} variable to \code{MPI\_COMM\_WORLD} before
-passing in the reference, e.g.
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
-\PYG{n}{comm} \PYG{o}{=} \PYG{n}{MPI\PYGZus{}COMM\PYGZus{}WORLD}\PYG{p}{;}
-\PYG{n}{N\PYGZus{}Vector} \PYG{n}{x}\PYG{p}{;}
-\PYG{n}{x} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMake\PYGZus{}MPIPlusX}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{comm}\PYG{p}{,} \PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
+The input \emph{comm} should be this user-created MPI communicator.
 This routine will internally call \code{MPI\_Comm\_dup} to create a
 copy of the input \code{comm}, so the user-supplied \code{comm} argument
 need not be retained after the call to
 {\hyperref[nvectors/NVector_MPIPlusX:c.N_VMake_MPIPlusX]{\emph{\code{N\_VMake\_MPIPlusX()}}}}.
 
 This routine will copy the NVECTOR pointer to the input
-\code{local\_vector}, so the underlying NVECTOR object should not be
-destroyed before the mpiplusx that contains it.
+\code{local\_vector}, so the underlying local NVECTOR object
+should not be destroyed before the mpiplusx that contains it.
 
 Upon successful completion, the new MPIPlusX is returned;
 otherwise this routine returns \code{NULL} (e.g., if the input
@@ -42095,6 +42103,10 @@ SUNDIALS has been tested with \emph{hypre} version 2.11.1.
 To enable \emph{hypre}, set  \code{HYPRE\_ENABLE} to \code{ON}, set \code{HYPRE\_INCLUDE\_DIR}
 to the \code{include} path of the \emph{hypre} installation, and set the variable
 \code{HYPRE\_LIBRARY\_DIR} to the \code{lib} path of the \emph{hypre} installation.
+
+Note: SUNDIALS must be configured so that \code{SUNDIALS\_INDEX\_SIZE} (or
+equivalently, \code{XSDK\_INDEX\_SIZE}) equals the precision of
+\code{HYPRE\_BigInt} in the corresponding \emph{hypre} installation.
 
 
 \subsubsection{Building with CUDA}

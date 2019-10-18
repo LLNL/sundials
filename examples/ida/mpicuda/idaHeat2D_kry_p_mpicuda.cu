@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
   if(check_flag((void *)uulocal, "N_VNew_Cuda", 0, thispe))
     MPI_Abort(comm, 1);
 
-  uu = N_VMake_MPIPlusX(&comm, uulocal);
+  uu = N_VMake_MPIPlusX(comm, uulocal);
   if(check_flag((void *)uu, "N_VMake_MPIPlusX", 0, thispe))
     MPI_Abort(comm, 1);
 

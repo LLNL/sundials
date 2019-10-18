@@ -119,6 +119,16 @@ writing in C|)}
 
 \subsection*{Changes in v5.0.0}
 
+Added Fortran 2003 interfaces to the {\nvecmanyvector}, {\nvecmpimanyvector}
+and {\nvecmpiplusx}.
+
+Added three new utility \id{N\_Vector} functions, \id{FN\_VGetVecAtIndexVectorArray},
+\id{FN\_VSetVecAtIndexVectorArray}, and \id{FN\_VNewVectorArray}, that are for
+working with \id{N\_Vector} arrays when using the Fortran 2003 interfaces.
+
+Created a Fortran 2003 interface to {\cvodes}. Users interested in using
+{\cvodes} from Fortran should see Chapter~\ref{s:cvsfort}.
+
 Added a new \id{SUNNonlinearSolver} implementation, \id{SUNNonlinsol\_PetscSNES},
 which interfaces to the PETSc SNES nonlinear solver API.
 

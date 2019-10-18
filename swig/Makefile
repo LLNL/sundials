@@ -16,19 +16,21 @@
 
 ARKODE=farkode_mod farkode_arkstep_mod farkode_erkstep_mod farkode_mristep_mod
 CVODE=fcvode_mod
+CVODES=fcvodes_mod
 IDA=fida_mod
+IDAS=fidas_mod
 KINSOL=fkinsol_mod
 GENERIC=fsundials_types_mod fsundials_nvector_mod fsundials_matrix_mod fsundials_linearsolver_mod fsundials_nonlinearsolver_mod
-NVECTOR=openmp pthreads serial parallel
+NVECTOR=openmp pthreads serial parallel manyvector mpiplusx
 SUNMATRIX=band dense sparse
 SUNLINSOL=band dense klu spbcgs spfgmr spgmr sptfqmr pcg
 SUNNONLINSOL=newton fixedpoint
 
 INCLUDES=-I../include
 
-.PHONY: generic arkode cvode ida kinsol nvector sunmatrix sunlinsol sunnonlinsol
+.PHONY: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol
 
-all: generic arkode cvode ida kinsol nvector sunmatrix sunlinsol sunnonlinsol
+all: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol
 
 arkode: $(ARKODE:%:arkode/%.i)
 	@for i in ${ARKODE} ; do \
@@ -42,10 +44,22 @@ cvode: $(CVODE:%:cvode/%.i)
 		swig/swig -fortran -outdir ../src/cvode/fmod -o ../src/cvode/fmod/$${i}.c ${INCLUDES} cvode/$${i}.i ; \
 	done
 
+cvodes: $(CVODE:%:cvodes/%.i)
+	@for i in ${CVODES} ; do \
+		echo "swig/swig -fortran -outdir ../src/cvodes/fmod -o ../src/cvodes/fmod/$${i}.c ${INCLUDES} cvodes/$${i}.i" ; \
+		swig/swig -fortran -outdir ../src/cvodes/fmod -o ../src/cvodes/fmod/$${i}.c ${INCLUDES} cvodes/$${i}.i ; \
+	done
+
 ida: $(IDA:%:ida/%.i)
 	@for i in ${IDA} ; do \
 		echo "swig/swig -fortran -outdir ../src/ida/fmod -o ../src/ida/fmod/$${i}.c ${INCLUDES} ida/$${i}.i" ; \
 		swig/swig -fortran -outdir ../src/ida/fmod -o ../src/ida/fmod/$${i}.c ${INCLUDES} ida/$${i}.i ; \
+	done
+
+idas: $(IDAS:%:idas/%.i)
+	@for i in ${IDAS} ; do \
+		echo "swig/swig -fortran -outdir ../src/idas/fmod -o ../src/idas/fmod/$${i}.c ${INCLUDES} idas/$${i}.i" ; \
+		swig/swig -fortran -outdir ../src/idas/fmod -o ../src/idas/fmod/$${i}.c ${INCLUDES} idas/$${i}.i ; \
 	done
 
 kinsol: $(KINSOL:%:kinsol/%.i)
@@ -60,11 +74,15 @@ generic: $(GENERIC:%:sundials/%.i)
 		swig/swig -fortran -outdir ../src/sundials/fmod -o ../src/sundials/fmod/$${i}.c ${INCLUDES} sundials/$${i}.i ; \
 	done
 
-nvector: $(NVECTOR:%:nvector/fnvector_%_mod.i)
+nvector: $(NVECTOR:%:nvector/fnvector_%_mod.i) mpimanyvector
 	@for i in ${NVECTOR} ; do \
 		echo "swig/swig -fortran -outdir ../src/nvector/$${i}/fmod -o ../src/nvector/$${i}/fmod ${INCLUDES} nvector/fnvector_$${i}_mod.i" ; \
 		swig/swig -fortran -outdir ../src/nvector/$${i}/fmod -o ../src/nvector/$${i}/fmod/fnvector_$${i}_mod.c ${INCLUDES} nvector/fnvector_$${i}_mod.i ; \
 	done
+
+mpimanyvector: nvector/fnvector_mpimanyvector_mod.i
+	@echo "swig/swig -fortran -outdir ../src/nvector/manyvector/fmod -o ../src/nvector/manyvector/fmod ${INCLUDES} nvector/fnvector_mpimanyvector_mod.i" ; \
+	swig/swig -fortran -outdir ../src/nvector/manyvector/fmod -o ../src/nvector/manyvector/fmod/fnvector_mpimanyvector_mod.c ${INCLUDES} nvector/fnvector_mpimanyvector_mod.i ; \
 
 sunmatrix: $(SUNMATRIX:%:sunmatrix/fsunmatrix_%_mod.i)
 	@for i in ${SUNMATRIX} ; do \

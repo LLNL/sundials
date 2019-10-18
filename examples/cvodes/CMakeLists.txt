@@ -24,3 +24,7 @@ if(EXAMPLES_ENABLE_C)
     add_subdirectory(C_openmp)
   endif()
 endif()
+
+if(F2003_INTERFACE_ENABLE AND EXAMPLES_ENABLE_F2003 AND F2003_FOUND)
+  add_subdirectory(F2003_serial)
+endif()

@@ -71,34 +71,20 @@ vector implementation.
 The module NVECTOR_MPIPLUSX provides the following additional
 user-callable routines:
 
-.. c:function:: N_Vector N_VMake_MPIPlusX(MPI_Comm *comm, N_Vector *local_vector)
+.. c:function:: N_Vector N_VMake_MPIPlusX(MPI_Comm comm, N_Vector *local_vector)
 
    This function creates a MPIPlusX vector from an exisiting local
    (i.e. on node) NVECTOR object, and a user-created MPI communicator.
 
-   The input *comm* should be the memory reference to this
-   user-created MPI communicator.  We note that since many MPI
-   implementations ``#define``  ``MPI_COMM_WORLD`` to be a specific
-   integer *value* (that has no memory reference), users who wish
-   to supply ``MPI_COMM_WORLD`` to this routine should first
-   set a specific ``MPI_Comm`` variable to ``MPI_COMM_WORLD`` before
-   passing in the reference, e.g.
-
-   .. code-block:: c
-
-      MPI_Comm comm;
-      comm = MPI_COMM_WORLD;
-      N_Vector x;
-      x = N_VMake_MPIPlusX(&comm, ...);
-
+   The input *comm* should be this user-created MPI communicator.
    This routine will internally call ``MPI_Comm_dup`` to create a
    copy of the input ``comm``, so the user-supplied ``comm`` argument
    need not be retained after the call to
    :c:func:`N_VMake_MPIPlusX()`.
 
    This routine will copy the NVECTOR pointer to the input
-   ``local_vector``, so the underlying NVECTOR object should not be
-   destroyed before the mpiplusx that contains it.
+   ``local_vector``, so the underlying local NVECTOR object 
+   should not be destroyed before the mpiplusx that contains it.
 
    Upon successful completion, the new MPIPlusX is returned;
    otherwise this routine returns ``NULL`` (e.g., if the input

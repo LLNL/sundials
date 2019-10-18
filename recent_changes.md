@@ -2,6 +2,16 @@
 
 ## Changes to SUNDIALS in release 5.0.0
 
+Added Fortran 2003 interfaces to CVODES and IDAS.
+
+Added Fortran 2003 interfaces to the `NVECTOR_MANYVECTOR`,
+`NVECTOR_MPIMANYVECTOR` and `NVECTOR_MPIPLUSX` `N\_Vector`
+implementations.
+
+Added three new utility N_Vector functions, `FN_VAtIndexVectorArray`,
+`FN_VSetAtIndexVectorArray`, and `FN_VNewVectorArray`, that are for working
+with N_Vector arrays when using the Fortran 2003 interfaces.
+
 Added a new `SUNNonlinearSolver` implementation, `SUNNonlinsol_PetscSNES`,
 which interfaces to the PETSc SNES nonlinear solver API.
 

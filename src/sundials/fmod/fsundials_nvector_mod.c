@@ -842,6 +842,18 @@ SWIGEXPORT double _wrap_FN_VMinQuotientLocal(N_Vector farg1, N_Vector farg2) {
 }
 
 
+SWIGEXPORT void * _wrap_FN_VNewVectorArray(int const *farg1) {
+  void * fresult ;
+  int arg1 ;
+  N_Vector *result = 0 ;
+  
+  arg1 = (int)(*farg1);
+  result = (N_Vector *)N_VNewVectorArray(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
 SWIGEXPORT void * _wrap_FN_VCloneEmptyVectorArray(int const *farg1, N_Vector farg2) {
   void * fresult ;
   int arg1 ;
@@ -877,6 +889,32 @@ SWIGEXPORT void _wrap_FN_VDestroyVectorArray(void *farg1, int const *farg2) {
   arg1 = (N_Vector *)(farg1);
   arg2 = (int)(*farg2);
   N_VDestroyVectorArray(arg1,arg2);
+}
+
+
+SWIGEXPORT N_Vector _wrap_FN_VGetVecAtIndexVectorArray(void *farg1, int const *farg2) {
+  N_Vector fresult ;
+  N_Vector *arg1 = (N_Vector *) 0 ;
+  int arg2 ;
+  N_Vector result;
+  
+  arg1 = (N_Vector *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (N_Vector)N_VGetVecAtIndexVectorArray(arg1,arg2);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_FN_VSetVecAtIndexVectorArray(void *farg1, int const *farg2, N_Vector farg3) {
+  N_Vector *arg1 = (N_Vector *) 0 ;
+  int arg2 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  
+  arg1 = (N_Vector *)(farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (N_Vector)(farg3);
+  N_VSetVecAtIndexVectorArray(arg1,arg2,arg3);
 }
 
 

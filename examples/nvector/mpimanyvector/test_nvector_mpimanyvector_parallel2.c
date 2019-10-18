@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
   }
 
   /* Make a ManyVector, where intercommunicator is specified */
-  X = N_VMake_MPIManyVector(&comm, 2, Xsub);
+  X = N_VMake_MPIManyVector(comm, 2, Xsub);
   if (X == NULL) {
     N_VDestroy(Xsub[0]);
     N_VDestroy(Xsub[1]);

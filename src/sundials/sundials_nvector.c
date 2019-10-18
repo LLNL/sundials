@@ -114,7 +114,7 @@ N_Vector N_VNewEmpty()
 void N_VFreeEmpty(N_Vector v)
 {
   if (v == NULL)  return;
-  
+
   /* free non-NULL ops structure */
   if (v->ops)  free(v->ops);
   v->ops = NULL;
@@ -675,10 +675,22 @@ realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
 
 /* -----------------------------------------------------------------
  * Additional functions exported by the generic NVECTOR:
+ *   N_VNewVectorArray
  *   N_VCloneEmptyVectorArray
  *   N_VCloneVectorArray
  *   N_VDestroyVectorArray
  * -----------------------------------------------------------------*/
+N_Vector* N_VNewVectorArray(int count)
+{
+  N_Vector* vs = NULL;
+
+  if (count <= 0) return(NULL);
+
+  vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
+  if(vs == NULL) return(NULL);
+
+  return(vs);
+}
 
 N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
 {
@@ -735,3 +747,17 @@ void N_VDestroyVectorArray(N_Vector* vs, int count)
   return;
 }
 
+/* These function are really only for users of the Fortran interface */
+N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
+{
+  if (vs==NULL)       return NULL;
+  else if (index < 0) return NULL;
+  else                return vs[index];
+}
+
+void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
+{
+  if (vs==NULL)       return;
+  else if (index < 0) return;
+  else                vs[index] = w;
+}

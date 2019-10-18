@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create a new MPIPlusX */
-  X = N_VMake_MPIPlusX(&comm, Xlocal);
+  X = N_VMake_MPIPlusX(comm, Xlocal);
   if (X == NULL) {
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new MPIPlusX vector, Proc %d\n\n", myid);

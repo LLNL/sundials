@@ -16,6 +16,11 @@
 
 install(CODE "MESSAGE(\"\nInstall NVECTOR_MANYVECTOR\n\")")
 
+# Add F90 module if F2003 interface is enabled
+if(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  add_subdirectory(fmod)
+endif(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable nvecmanyvector_SOURCES with the sources for the NVECMANYVECTOR lib
 set(nvecmanyvector_SOURCES nvector_manyvector.c)
 

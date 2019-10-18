@@ -66,13 +66,12 @@ static int SubvectorMPIRank(N_Vector w);
 /* This function creates an MPIManyVector from a set of existing
    N_Vector objects, along with a user-created MPI (inter/intra)communicator
    that couples all subvectors together. */
-N_Vector N_VMake_MPIManyVector(MPI_Comm *comm, sunindextype num_subvectors,
+N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
                                N_Vector *vec_array)
 {
   N_Vector v;
   N_VectorContent_MPIManyVector content;
   sunindextype i, local_length;
-  MPI_Comm *vcomm;
   int rank, retval;
 
   /* Check that input N_Vectors are non-NULL */
@@ -158,12 +157,9 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm *comm, sunindextype num_subvectors,
     content->subvec_array[i] = vec_array[i];
 
   /* duplicate input communicator (if non-NULL) */
-  if (comm != NULL) {
-    vcomm = (MPI_Comm *) comm;
-    if (*vcomm != MPI_COMM_NULL) {
-      retval = MPI_Comm_dup(*vcomm, &(content->comm));
-      if (retval != MPI_SUCCESS) { N_VDestroy(v); return(NULL); }
-    }
+  if (comm != MPI_COMM_NULL) {
+    retval = MPI_Comm_dup(comm, &(content->comm));
+    if (retval != MPI_SUCCESS) { N_VDestroy(v); return(NULL); }
   }
 
   /* Determine overall MPIManyVector length: sum contributions from all
@@ -233,7 +229,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
       if (retval != MPI_SUCCESS)  return(NULL);
       nocommfound = SUNFALSE;
 
-      /* otherwise, verify that vcomm matches stored comm */
+    /* otherwise, verify that vcomm matches stored comm */
     } else {
 
       retval = MPI_Comm_compare(*vcomm, comm, &comparison);
@@ -244,12 +240,8 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
   }
 
   /* Create vector using "Make" routine and shared communicator (if non-NULL) */
-  if (comm == MPI_COMM_NULL) {
-    v = N_VMake_MPIManyVector(NULL, num_subvectors, vec_array);
-  } else {
-    v = N_VMake_MPIManyVector(&comm, num_subvectors, vec_array);
-    MPI_Comm_free(&comm);
-  }
+  v = N_VMake_MPIManyVector(comm, num_subvectors, vec_array);
+  if (comm != MPI_COMM_NULL)  MPI_Comm_free(&comm);
   return(v);
 }
 #else

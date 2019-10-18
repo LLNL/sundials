@@ -1297,6 +1297,73 @@ also provides the utility functions \ID{N\_VCloneVectorArray},
 {}
 {}
 
+\ucfunctionf{N\_VNewVectorArray}
+{
+  vecarray = N\_VNewVectorArray(count);
+}
+{
+  Returns an empty \id{N\_Vector} array large enough to hold \id{count}
+  \id{N\_Vector} objects. This function is primarily meant for users of
+  the Fortran 2003 interface.
+}
+{
+  \begin{args}[count]
+  \item[count] (\id{int}) the size of the vector array
+  \end{args}
+}
+{
+  Returns a \id{N\_Vector*} if successful, Returns \id{NULL} if an error occurred.
+}
+{
+  Users of the Fortran 2003 interface to the \id{N\_VManyVector} or
+  \id{N\_VMPIManyVector} will need this to create an array to hold
+  the subvectors. Note that this function does restrict the the max
+  number of subvectors usable with the \id{N\_VManyVector} and
+  \id{N\_VMPIManyVector} to the max size of an \id{int} despite the
+  ManyVector implementations accepting a subvector count larger than
+  this value.
+}
+
+\ucfunctionf{N\_VGetVecAtIndexVectorArray}
+{
+  v = N\_VGetVecAtIndexVectorArray(vecs, index);
+}
+{
+  Returns the \id{N\_Vector} object stored in the vector array at the 
+  provided index. This function is primarily meant for users of the
+  Fortran 2003 interface.
+}
+{
+  \begin{args}[count]
+  \item[vecs] (\id{N\_Vector}*) the array of vectors to index
+  \item[index] (\id{int}) the index of the vector to return
+  \end{args}
+}
+{
+  Returns the \id{N\_Vector} object stored in the vector array at the 
+  provided index. Returns \id{NULL} if an error occurred.
+}
+{}
+
+\ucfunctionf{N\_VSetVecAtIndexVectorArray}
+{
+  N\_VSetVecAtIndexVectorArray(vecs, index, v);
+}
+{
+  Sets the \id{N\_Vector} object stored in the vector array at the 
+  provided index. This function is primarily meant for users of the
+  Fortran 2003 interface.
+}
+{
+  \begin{args}[count]
+  \item[vecs] (\id{N\_Vector}*) the array of vectors to index
+  \item[index] (\id{int}) the index of the vector to return
+  \item[v] (\id{N\_Vector}) the vector to store at the index
+  \end{args}
+}
+{}
+{}
+
 
 % ====================================================================
 \subsection{NVECTOR identifiers}

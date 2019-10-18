@@ -134,9 +134,12 @@ module fsundials_nvector_mod
  public :: FN_VInvTestLocal
  public :: FN_VConstrMaskLocal
  public :: FN_VMinQuotientLocal
+ public :: FN_VNewVectorArray
  public :: FN_VCloneEmptyVectorArray
  public :: FN_VCloneVectorArray
  public :: FN_VDestroyVectorArray
+ public :: FN_VGetVecAtIndexVectorArray
+ public :: FN_VSetVecAtIndexVectorArray
 
 ! WRAPPER DECLARATIONS
 interface
@@ -562,6 +565,14 @@ type(C_PTR), value :: farg2
 real(C_DOUBLE) :: fresult
 end function
 
+function swigc_FN_VNewVectorArray(farg1) &
+bind(C, name="_wrap_FN_VNewVectorArray") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR) :: fresult
+end function
+
 function swigc_FN_VCloneEmptyVectorArray(farg1, farg2) &
 bind(C, name="_wrap_FN_VCloneEmptyVectorArray") &
 result(fresult)
@@ -585,6 +596,23 @@ bind(C, name="_wrap_FN_VDestroyVectorArray")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
+end subroutine
+
+function swigc_FN_VGetVecAtIndexVectorArray(farg1, farg2) &
+bind(C, name="_wrap_FN_VGetVecAtIndexVectorArray") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_FN_VSetVecAtIndexVectorArray(farg1, farg2, farg3) &
+bind(C, name="_wrap_FN_VSetVecAtIndexVectorArray")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+type(C_PTR), value :: farg3
 end subroutine
 
 end interface
@@ -1356,6 +1384,19 @@ fresult = swigc_FN_VMinQuotientLocal(farg1, farg2)
 swig_result = fresult
 end function
 
+function FN_VNewVectorArray(count) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(C_INT), intent(in) :: count
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+
+farg1 = count
+fresult = swigc_FN_VNewVectorArray(farg1)
+swig_result = fresult
+end function
+
 function FN_VCloneEmptyVectorArray(count, w) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1398,6 +1439,37 @@ integer(C_INT) :: farg2
 farg1 = vs
 farg2 = count
 call swigc_FN_VDestroyVectorArray(farg1, farg2)
+end subroutine
+
+function FN_VGetVecAtIndexVectorArray(vs, index) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), pointer :: swig_result
+type(C_PTR) :: vs
+integer(C_INT), intent(in) :: index
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = vs
+farg2 = index
+fresult = swigc_FN_VGetVecAtIndexVectorArray(farg1, farg2)
+call c_f_pointer(fresult, swig_result)
+end function
+
+subroutine FN_VSetVecAtIndexVectorArray(vs, index, w)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: vs
+integer(C_INT), intent(in) :: index
+type(N_Vector), target, intent(inout) :: w
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = vs
+farg2 = index
+farg3 = c_loc(w)
+call swigc_FN_VSetVecAtIndexVectorArray(farg1, farg2, farg3)
 end subroutine
 
 

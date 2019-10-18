@@ -111,6 +111,13 @@ interfacing the solver to applications written in {\F}.
 
 \subsection*{Changes in v5.0.0}
 
+Added Fortran 2003 interfaces to the {\nvecmanyvector}, {\nvecmpimanyvector}
+and {\nvecmpiplusx}.
+
+Added three new utility \id{N\_Vector} functions, \id{FN\_VGetVecAtIndexVectorArray},
+\id{FN\_VSetVecAtIndexVectorArray}, and \id{FN\_VNewVectorArray}, that are for
+working with \id{N\_Vector} arrays when using the Fortran 2003 interfaces.
+
 Fixed a bug in the {\kinsol} linear solver interface where the auxiliary scalar
 \id{sJpnorm} was not computed when necessary with the Picard iteration and the
 auxiliary scalar \id{sFdotJp} was unnecessarily computed in some cases.
