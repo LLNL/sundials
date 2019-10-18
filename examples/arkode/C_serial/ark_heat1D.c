@@ -43,7 +43,6 @@
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
 #include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -99,7 +98,7 @@ int main() {
   udata = (UserData) malloc(sizeof(*udata));
   udata->N = N;
   udata->k = k;
-  udata->dx = RCONST(1.0)/(1.0*N-1.0);     /* mesh spacing */
+  udata->dx = RCONST(1.0)/(N-1);     /* mesh spacing */
 
   /* Initial problem output */
   printf("\n1D Heat PDE test problem:\n");
@@ -129,7 +128,7 @@ int main() {
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
-  LS = SUNLinSol_PCG(y, 0, N);
+  LS = SUNLinSol_PCG(y, 0, (int) N);
   if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
@@ -162,12 +161,12 @@ int main() {
   tout = T0+dTout;
   printf("        t      ||u||_rms\n");
   printf("   -------------------------\n");
-  printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
+  printf("  %10.6"FSYM"  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);         /* call integrator */
     if (check_flag(&flag, "ARKStepEvolve", 1)) break;
-    printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));   /* print solution stats */
+    printf("  %10.6"FSYM"  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));   /* print solution stats */
     if (flag >= 0) {                                            /* successful solve: update output time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;

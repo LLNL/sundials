@@ -1586,7 +1586,7 @@ int Test_N_VL1Norm(N_Vector X, sunindextype local_length, int myid)
  * --------------------------------------------------------------------*/
 int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 {
-  int          mask, fails = 0, failure = 0;
+  int          fails = 0, failure = 0;
   double       start_time, stop_time, maxt;
   sunindextype i;
 
@@ -1600,8 +1600,7 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   for(i=0; i < local_length; i++){
     set_element(Z, i, NEG_ONE);
 
-    mask = i % 3;
-    switch(mask) {
+    switch(i % 3) {
 
     case 0 :
       /* abs(X[i]) < c */
@@ -1627,9 +1626,8 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   /* check return vector */
   for(i=0; i < local_length; i++){
-    mask = i % 3;
 
-    switch(mask) {
+    switch(i % 3) {
 
     case 0 :
       /* Z[i] == 0 */
@@ -1671,7 +1669,7 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
  * --------------------------------------------------------------------*/
 int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 {
-  int          mask, fails = 0, failure = 0;
+  int          fails = 0, failure = 0;
   double       start_time, stop_time, maxt;
   sunindextype i;
   booleantype  test;
@@ -1719,8 +1717,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   /* fill vector data */
   N_VConst(ZERO, Z);
   for(i=0; i < local_length; i++){
-    mask = i % 2;
-    if (mask)
+    if (i % 2)
       set_element(X, i, HALF);
     else
       set_element(X, i, ZERO);
@@ -1733,9 +1730,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   /* check return vector */
   for(i=0; i < local_length; i++){
-    mask = i % 2;
-
-    if (mask) {
+    if (i % 2) {
       if (get_element(Z, i) != TWO)
         failure = 1;
     } else {
@@ -1765,7 +1760,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
                        sunindextype local_length, int myid)
 {
-  int          mask, fails = 0, failure = 0;
+  int          fails = 0, failure = 0;
   double       start_time, stop_time, maxt;
   sunindextype i;
   booleantype  test;
@@ -1784,8 +1779,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
   for(i=0; i < local_length; i++){
     set_element(M, i, NEG_ONE);
 
-    mask = i % 7;
-    switch(mask) {
+    switch(i % 7) {
     case 0 :
       /* c = -2, test for < 0*/
       set_element(C, i, NEG_TWO);
@@ -1860,8 +1854,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
   for(i=0; i < local_length; i++){
     set_element(M, i, NEG_ONE);
 
-    mask = i % 5;
-    switch(mask) {
+    switch(i % 5) {
     case 0 :
       /* c = -2, test for < 0*/
       set_element(C, i, NEG_TWO);
@@ -1901,9 +1894,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
 
   /* check mask vector */
   for(i=0; i < local_length; i++){
-    mask = i % 5;
-
-    if (mask == 2){
+    if ((i % 5) == 2){
       if (get_element(M, i) != ZERO)
         failure = 1;
     } else {
@@ -5143,7 +5134,7 @@ int Test_N_VConstrMaskLocal(N_Vector C, N_Vector X, N_Vector M,
   /* check mask vector */
   for (i=0; i < local_length; i++) {
 
-    if (i%5 == 2){
+    if (i % 5 == 2){
       if (get_element(M, i) != ZERO)
         failure = 1;
     } else {

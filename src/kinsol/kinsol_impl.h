@@ -35,7 +35,7 @@ extern "C" {
  */
 
 /* KINSOL default constants */
- 
+
 #define PRINTFL_DEFAULT    0
 #define MXITER_DEFAULT     200
 #define MXNBCF_DEFAULT     10
@@ -58,45 +58,45 @@ extern "C" {
 
 typedef struct KINMemRec {
 
-  realtype kin_uround;        /* machine epsilon (or unit roundoff error) 
-				 (defined in sundials_types.h)                */
+  realtype kin_uround;        /* machine epsilon (or unit roundoff error)
+                                 (defined in sundials_types.h)                */
 
   /* problem specification data */
 
   KINSysFn kin_func;           /* nonlinear system function implementation     */
   void *kin_user_data;         /* work space available to func routine         */
   realtype kin_fnormtol;       /* stopping tolerance on L2-norm of function
-				  value                                        */
+                                  value                                        */
   realtype kin_scsteptol;      /* scaled step length tolerance                 */
   int kin_globalstrategy;      /* choices are KIN_NONE, KIN_LINESEARCH
-				  KIN_PICARD and KIN_FP                        */
+                                  KIN_PICARD and KIN_FP                        */
   int kin_printfl;             /* level of verbosity of output                 */
   long int kin_mxiter;         /* maximum number of nonlinear iterations       */
   long int kin_msbset;         /* maximum number of nonlinear iterations that
-				  may be performed between calls to the
-				  linear solver setup routine (lsetup)         */
+                                  may be performed between calls to the
+                                  linear solver setup routine (lsetup)         */
   long int kin_msbset_sub;     /* subinterval length for residual monitoring   */
   long int kin_mxnbcf;         /* maximum number of beta condition failures    */
   int kin_etaflag;             /* choices are KIN_ETACONSTANT, KIN_ETACHOICE1
-				  and KIN_ETACHOICE2                           */
+                                  and KIN_ETACHOICE2                           */
   booleantype kin_noMinEps;    /* flag controlling whether or not the value
-				  of eps is bounded below                      */
+                                  of eps is bounded below                      */
   booleantype kin_constraintsSet; /* flag indicating if constraints are being
-				     used                                      */
-  booleantype kin_jacCurrent;     /* flag indicating if the Jacobian info. 
-				     used by the linear solver is current      */
+                                     used                                      */
+  booleantype kin_jacCurrent;     /* flag indicating if the Jacobian info.
+                                     used by the linear solver is current      */
   booleantype kin_callForcingTerm; /* flag set if using either KIN_ETACHOICE1
-				      or KIN_ETACHOICE2                        */
+                                      or KIN_ETACHOICE2                        */
   booleantype kin_noResMon;         /* flag indicating if the nonlinear
-				       residual monitoring scheme should be
-				       used                                    */
+                                       residual monitoring scheme should be
+                                       used                                    */
   booleantype kin_retry_nni;        /* flag indicating if nonlinear iteration
-				       should be retried (set by residual
-				       monitoring algorithm)                   */
+                                       should be retried (set by residual
+                                       monitoring algorithm)                   */
   booleantype kin_update_fnorm_sub; /* flag indicating if the fnorm associated
-				       with the subinterval needs to be
-				       updated (set by residual monitoring
-				       algorithm)                              */
+                                       with the subinterval needs to be
+                                       updated (set by residual monitoring
+                                       algorithm)                              */
 
   realtype kin_mxnewtstep;     /* maximum allowable scaled step length         */
   realtype kin_mxnstepin;      /* input (or preset) value for mxnewtstep       */
@@ -106,93 +106,93 @@ typedef struct KINMemRec {
   realtype kin_eps;            /* current value of eps                         */
   realtype kin_eta;            /* current value of eta                         */
   realtype kin_eta_gamma;      /* gamma value used in eta calculation
-				  (choice #2)                                  */
+                                  (choice #2)                                  */
   realtype kin_eta_alpha;      /* alpha value used in eta calculation
-				  (choice #2)                                  */
+                                  (choice #2)                                  */
   booleantype kin_noInitSetup; /* flag controlling whether or not the KINSol
-				  routine makes an initial call to the
-				  linear solver setup routine (lsetup)         */
-  realtype kin_sthrsh;         /* threshold value for calling the linear   
-				  solver setup routine                         */
+                                  routine makes an initial call to the
+                                  linear solver setup routine (lsetup)         */
+  realtype kin_sthrsh;         /* threshold value for calling the linear
+                                  solver setup routine                         */
 
   /* counters */
 
   long int kin_nni;            /* number of nonlinear iterations               */
   long int kin_nfe;            /* number of calls made to func routine         */
   long int kin_nnilset;        /* value of nni counter when the linear solver
-				  setup was last called                        */
+                                  setup was last called                        */
   long int kin_nnilset_sub;    /* value of nni counter when the linear solver
-				  setup was last called (subinterval)          */
-  long int kin_nbcf;           /* number of times the beta-condition could not 
-				  be met in KINLineSearch                      */
+                                  setup was last called (subinterval)          */
+  long int kin_nbcf;           /* number of times the beta-condition could not
+                                  be met in KINLineSearch                      */
   long int kin_nbktrk;         /* number of backtracks performed by
-				  KINLineSearch                                */
+                                  KINLineSearch                                */
   long int kin_ncscmx;         /* number of consecutive steps of size
-				  mxnewtstep taken                             */
+                                  mxnewtstep taken                             */
 
   /* vectors */
 
   N_Vector kin_uu;          /* solution vector/current iterate (initially
-			       contains initial guess, but holds approximate
-			       solution upon completion if no errors occurred) */
+                               contains initial guess, but holds approximate
+                               solution upon completion if no errors occurred) */
   N_Vector kin_unew;        /* next iterate (unew = uu+pp)                     */
   N_Vector kin_fval;        /* vector containing result of nonlinear system
-			       function evaluated at a given iterate
-			       (fval = func(uu))                               */
-  N_Vector kin_gval;        /* vector containing result of the fixed point 
-			       function evaluated at a given iterate; 
-			       used in KIN_PICARD strategy only.
-			       (gval = uu - L^{-1}fval(uu))                    */
+                               function evaluated at a given iterate
+                               (fval = func(uu))                               */
+  N_Vector kin_gval;        /* vector containing result of the fixed point
+                               function evaluated at a given iterate;
+                               used in KIN_PICARD strategy only.
+                               (gval = uu - L^{-1}fval(uu))                    */
   N_Vector kin_uscale;      /* iterate scaling vector                          */
   N_Vector kin_fscale;      /* fval scaling vector                             */
   N_Vector kin_pp;          /* incremental change vector (pp = unew-uu)        */
-  N_Vector kin_constraints; /* constraints vector                              */ 
+  N_Vector kin_constraints; /* constraints vector                              */
   N_Vector kin_vtemp1;      /* scratch vector #1                               */
   N_Vector kin_vtemp2;      /* scratch vector #2                               */
 
-  /* space requirements for AA, Broyden and NLEN */ 
-  N_Vector kin_fold_aa;	    /* vector needed for AA, Broyden, and NLEN */
-  N_Vector kin_gold_aa;	    /* vector needed for AA, Broyden, and NLEN */
-  N_Vector *kin_df_aa;	    /* vector array needed for AA, Broyden, and NLEN */
-  N_Vector *kin_dg_aa;	    /* vector array needed for AA, Broyden and NLEN */
-  N_Vector *kin_q_aa;	    /* vector array needed for AA */
+  /* space requirements for AA, Broyden and NLEN */
+  N_Vector kin_fold_aa;     /* vector needed for AA, Broyden, and NLEN */
+  N_Vector kin_gold_aa;     /* vector needed for AA, Broyden, and NLEN */
+  N_Vector *kin_df_aa;      /* vector array needed for AA, Broyden, and NLEN */
+  N_Vector *kin_dg_aa;      /* vector array needed for AA, Broyden and NLEN */
+  N_Vector *kin_q_aa;       /* vector array needed for AA */
   realtype *kin_gamma_aa;   /* array of size maa used in AA */
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
-  int      *kin_ipt_map;    /* array of size maa used in AA */
-  sunindextype kin_m_aa;    /* parameter for AA, Broyden or NLEN */
+  long int *kin_ipt_map;    /* array of size maa used in AA */
+  long int  kin_m_aa;       /* parameter for AA, Broyden or NLEN */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
   realtype *kin_cv;         /* scalar array for fused vector operations */
   N_Vector *kin_Xv;         /* vector array for fused vector operations */
 
-  /* space requirements for vector storage */ 
+  /* space requirements for vector storage */
 
   sunindextype kin_lrw1;    /* number of realtype-sized memory blocks needed
-			       for a single N_Vector                           */ 
+                               for a single N_Vector                           */
   sunindextype kin_liw1;    /* number of int-sized memory blocks needed for
-			       a single N_Vecotr                               */ 
+                               a single N_Vecotr                               */
   long int kin_lrw;         /* total number of realtype-sized memory blocks
-			       needed for all KINSOL work vectors              */
+                               needed for all KINSOL work vectors              */
   long int kin_liw;         /* total number of int-sized memory blocks needed
-			       for all KINSOL work vectors                     */
+                               for all KINSOL work vectors                     */
 
   /* linear solver data */
- 
+
   /* function prototypes (pointers) */
 
   int (*kin_linit)(struct KINMemRec *kin_mem);
 
   int (*kin_lsetup)(struct KINMemRec *kin_mem);
 
-  int (*kin_lsolve)(struct KINMemRec *kin_mem, N_Vector xx, N_Vector bb, 
-		    realtype *sJpnorm, realtype *sFdotJp);
+  int (*kin_lsolve)(struct KINMemRec *kin_mem, N_Vector xx, N_Vector bb,
+                    realtype *sJpnorm, realtype *sFdotJp);
 
   int (*kin_lfree)(struct KINMemRec *kin_mem);
 
   booleantype kin_inexact_ls; /* flag set by the linear solver module
-				 (in linit) indicating whether this is an
-				 iterative linear solver (SUNTRUE), or a direct
-				 linear solver (SUNFALSE)                       */
+                                 (in linit) indicating whether this is an
+                                 iterative linear solver (SUNTRUE), or a direct
+                                 linear solver (SUNFALSE)                       */
 
   void *kin_lmem;         /* pointer to linear solver memory block             */
 
@@ -206,13 +206,13 @@ typedef struct KINMemRec {
   realtype kin_fnorm_sub; /* value of L2-norm of fscale*fval (subinterval)     */
   booleantype kin_eval_omega; /* flag indicating that omega must be evaluated. */
   realtype kin_omega;     /* constant value for real scalar used in test to
-			     determine if reduction of norm of nonlinear
-			     residual is sufficient. Unless a valid constant 
+                             determine if reduction of norm of nonlinear
+                             residual is sufficient. Unless a valid constant
                              value is specified by the user, omega is estimated
                              from omega_min and omega_max at each iteration.    */
   realtype kin_omega_min; /* lower bound on omega                               */
   realtype kin_omega_max; /* upper bound on omega                               */
-  
+
   /*
    * -----------------------------------------------------------------
    * Note: The KINLineSearch subroutine scales the values of the
@@ -231,11 +231,11 @@ typedef struct KINMemRec {
    */
 
   booleantype kin_MallocDone; /* flag indicating if KINMalloc has been
-				 called yet                                    */
+                                 called yet                                    */
 
   /* message files */
   /*-------------------------------------------
-    Error handler function and error ouput file 
+    Error handler function and error ouput file
     -------------------------------------------*/
 
   KINErrHandlerFn kin_ehfun;   /* Error messages are handled by ehfun          */
@@ -338,7 +338,7 @@ typedef struct KINMemRec {
  * -----------------------------------------------------------------
  * kin_lfree is called by KINFree and should free (deallocate) all
  * system memory resources allocated for the linear solver module
- * (see KINSpgmrFree/KINSpbcgFree).  It should return 0 upon 
+ * (see KINSpgmrFree/KINSpbcgFree).  It should return 0 upon
  * success, nonzero on failure.
  *
  *  kinmem  pointer to an internal memory block allocated during
@@ -355,26 +355,26 @@ typedef struct KINMemRec {
 
 /* High level error handler */
 
-void KINProcessError(KINMem kin_mem, 
-		     int error_code, const char *module, const char *fname, 
-		     const char *msgfmt, ...);
+void KINProcessError(KINMem kin_mem,
+                     int error_code, const char *module, const char *fname,
+                     const char *msgfmt, ...);
 
 /* Prototype of internal errHandler function */
 
-void KINErrHandler(int error_code, const char *module, const char *function, 
-		   char *msg, void *user_data);
+void KINErrHandler(int error_code, const char *module, const char *function,
+                   char *msg, void *user_data);
 
 
 /* High level info handler */
 
-void KINPrintInfo(KINMem kin_mem, 
-		  int info_code, const char *module, const char *fname, 
-		  const char *msgfmt, ...);
+void KINPrintInfo(KINMem kin_mem,
+                  int info_code, const char *module, const char *fname,
+                  const char *msgfmt, ...);
 
 /* Prototype of internal infoHandler function */
 
-void KINInfoHandler(const char *module, const char *function, 
-		    char *msg, void *user_data);
+void KINInfoHandler(const char *module, const char *function,
+                    char *msg, void *user_data);
 
 /*
  * =================================================================

@@ -44,7 +44,7 @@ extern PetscErrorCode MySNESMonitor(SNES,PetscInt,PetscReal,PetscViewerAndFormat
 
 /* f - computes f(t,x); this interfaces FormFunction to the CVODE expected format */
 extern int f(PetscReal t, N_Vector x, N_Vector xdot, void *ptr);
-extern PetscErrorCode MyCVodeMonitor(PetscInt,PetscReal,Vec,void*);
+extern PetscErrorCode MyCVodeMonitor(long int,PetscReal,Vec,void*);
 
 /* private helper function for checking return value from SUNDIALS calls */
 static int check_retval(void *value, const char *funcname, int opt);
@@ -321,7 +321,7 @@ PetscErrorCode FormInitialSolution(DM da,Vec U)
   PetscFunctionReturn(0);
 }
 
-PetscErrorCode MyCVodeMonitor(PetscInt step,PetscReal ptime,Vec v,void *ctx)
+PetscErrorCode MyCVodeMonitor(long int step,PetscReal ptime,Vec v,void *ctx)
 {
   PetscErrorCode ierr;
   PetscReal      norm;

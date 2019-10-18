@@ -55,7 +55,7 @@ int main (int argc, char *argv[])
     return -1;
   }
 
-  const sunindextype local_length = atol(argv[1]);
+  const sunindextype local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myRank == 0)
       printf("ERROR: local vector length must be a positive integer \n");

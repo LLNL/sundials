@@ -421,7 +421,6 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
                            booleantype jok, booleantype *jcurPtr,
                            realtype gamma, void *bbd_data)
 {
-  sunindextype ier;
   ARKBBDPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
@@ -489,8 +488,8 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   }
 
   /* Do LU factorization of matrix and return error flag */
-  ier = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
-  return(ier);
+  retval = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
+  return(retval);
 }
 
 

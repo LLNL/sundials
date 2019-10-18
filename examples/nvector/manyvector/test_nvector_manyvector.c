@@ -44,13 +44,13 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  len1 = atol(argv[1]);
+  len1 = (sunindextype) atol(argv[1]);
   if (len1 <= 0) {
     printf("ERROR: length of subvector 1 must be a positive integer \n");
     return(-1);
   }
 
-  len2 = atol(argv[2]);
+  len2 = (sunindextype) atol(argv[2]);
   if (len2 <= 0) {
     printf("ERROR: length of subvector 2 must be a positive integer \n");
     return(-1);

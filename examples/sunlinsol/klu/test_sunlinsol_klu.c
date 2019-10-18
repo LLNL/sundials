@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  N = atol(argv[1]);
+  N = (sunindextype) atol(argv[1]);
   if (N <= 0) {
     printf("ERROR: matrix size must be a positive integer \n");
     return(-1);

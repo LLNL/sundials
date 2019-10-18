@@ -586,7 +586,7 @@ struct CkpntMemRec {
   /* Step data */
   long int     ck_nst;
   realtype     ck_tretlast;
-  long int     ck_ns;
+  int          ck_ns;
   int          ck_kk;
   int          ck_kused;
   int          ck_knew;

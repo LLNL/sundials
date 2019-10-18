@@ -436,7 +436,6 @@ int IDABBDPrecGetNumGfnEvals(void *ida_mem,
 static int IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
                            N_Vector rr, realtype c_j, void *bbd_data)
 {
-  sunindextype ier;
   IBBDPrecData pdata;
   IDAMem IDA_mem;
   int retval;
@@ -459,8 +458,8 @@ static int IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
   }
 
   /* Do LU factorization of matrix and return error flag */
-  ier = SUNLinSolSetup_Band(pdata->LS, pdata->PP);
-  return(ier);
+  retval = SUNLinSolSetup_Band(pdata->LS, pdata->PP);
+  return(retval);
 }
 
 

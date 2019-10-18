@@ -1446,10 +1446,8 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
   nnid = IDA_mem->ida_nni - idals_mem->nni0;
   if (nstd == 0 || nnid == 0) return(0);
 
-  rcfn = (realtype) ( (IDA_mem->ida_ncfn - idals_mem->ncfn0) /
-                      ((realtype) nstd) );
-  rcfl = (realtype) ( (idals_mem->ncfl - idals_mem->ncfl0) /
-                      ((realtype) nnid) );
+  rcfn = ((realtype) (IDA_mem->ida_ncfn - idals_mem->ncfn0)) / ((realtype) nstd);
+  rcfl = ((realtype) (idals_mem->ncfl - idals_mem->ncfl0)) / ((realtype) nnid);
   lcfn = (rcfn > PT9);
   lcfl = (rcfl > PT9);
   if (!(lcfn || lcfl)) return(0);

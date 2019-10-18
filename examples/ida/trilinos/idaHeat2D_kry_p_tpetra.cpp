@@ -40,7 +40,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <string.h>
 #include <vector>
 
@@ -53,7 +53,6 @@
 #include <nvector/nvector_trilinos.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
 #include <sundials/sundials_mpi_types.h>
 
 #define ZERO  RCONST(0.0)

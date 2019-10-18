@@ -63,14 +63,14 @@ int main(int argc, char *argv[])
     MPI_Abort(comm, -1);
   }
 
-  loclen1 = atol(argv[1]);
+  loclen1 = (sunindextype) atol(argv[1]);
   if (loclen1 < 1) {
     if (myid == 0)
       printf("ERROR: local subvector 1 length must be a positive integer \n");
     MPI_Abort(comm, -1);
   }
 
-  loclen2 = atol(argv[2]);
+  loclen2 = (sunindextype) atol(argv[2]);
   if (loclen2 < 1) {
     if (myid == 0)
       printf("ERROR: local subvector 2 length must be a positive integer \n");

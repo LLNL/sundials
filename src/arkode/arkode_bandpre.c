@@ -319,7 +319,6 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   ARKBandPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
-  sunindextype ier;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (ARKBandPrecData) bp_data;
@@ -386,8 +385,8 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   }
 
   /* Do LU factorization of matrix and return error flag */
-  ier = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
-  return(ier);
+  retval = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
+  return(retval);
 }
 
 

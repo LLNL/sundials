@@ -62,9 +62,13 @@
 #include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver  */
 #include <arkode/arkode_bbdpre.h>       /* access to ARKBBDPRE module       */
 #include <sundials/sundials_types.h>    /* SUNDIALS type definitions        */
-#include <sundials/sundials_math.h>     /* definition of macros SUNSQR, EXP */
 #include <mpi.h>                        /* MPI constants and types          */
 
+/* helpful macros */
+
+#ifndef SQR
+#define SQR(A) ((A)*(A))
+#endif
 
 /* Problem Constants */
 #define ZERO         RCONST(0.0)
@@ -301,9 +305,9 @@ static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/((realtype)(MX-1));
   data->dy = (YMAX-YMIN)/((realtype)(MY-1));
-  data->hdco = KH/SUNSQR(data->dx);
+  data->hdco = KH/SQR(data->dx);
   data->haco = VEL/(RCONST(2.0)*data->dx);
-  data->vdco = (RCONST(1.0)/SUNSQR(data->dy))*KV0;
+  data->vdco = (RCONST(1.0)/SQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -344,13 +348,13 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + isuby*MYSUB;
     y = YMIN + jy*dy;
-    cy = SUNSQR(RCONST(0.1)*(y - ymid));
-    cy = RCONST(1.0) - cy + RCONST(0.5)*SUNSQR(cy);
+    cy = SQR(RCONST(0.1)*(y - ymid));
+    cy = RCONST(1.0) - cy + RCONST(0.5)*SQR(cy);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
       x = XMIN + jx*dx;
-      cx = SUNSQR(RCONST(0.1)*(x - xmid));
-      cx = RCONST(1.0) - cx + RCONST(0.5)*SUNSQR(cx);
+      cx = SQR(RCONST(0.1)*(x - xmid));
+      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
       uarray[offset  ] = C1_SCALE*cx*cy;
       uarray[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;
@@ -494,12 +498,12 @@ static void BSend(MPI_Comm comm,
 
   /* If isuby > 0, send data from bottom x-line of u */
   if (isuby != 0)
-    MPI_Send(&uarray[0], dsizex, MPI_SUNREALTYPE, my_pe-NPEX, 0, comm);
+    MPI_Send(&uarray[0], (int) dsizex, MPI_SUNREALTYPE, my_pe-NPEX, 0, comm);
 
   /* If isuby < NPEY-1, send data from top x-line of u */
   if (isuby != NPEY-1) {
     offsetu = (MYSUB-1)*dsizex;
-    MPI_Send(&uarray[offsetu], dsizex, MPI_SUNREALTYPE, my_pe+NPEX, 0, comm);
+    MPI_Send(&uarray[offsetu], (int) dsizex, MPI_SUNREALTYPE, my_pe+NPEX, 0, comm);
   }
 
   /* If isubx > 0, send data from left y-line of u (via bufleft) */
@@ -510,7 +514,7 @@ static void BSend(MPI_Comm comm,
       for (i = 0; i < NVARS; i++)
         bufleft[offsetbuf+i] = uarray[offsetu+i];
     }
-    MPI_Send(&bufleft[0], dsizey, MPI_SUNREALTYPE, my_pe-1, 0, comm);
+    MPI_Send(&bufleft[0], (int) dsizey, MPI_SUNREALTYPE, my_pe-1, 0, comm);
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
@@ -521,7 +525,7 @@ static void BSend(MPI_Comm comm,
       for (i = 0; i < NVARS; i++)
         bufright[offsetbuf+i] = uarray[offsetu+i];
     }
-    MPI_Send(&bufright[0], dsizey, MPI_SUNREALTYPE, my_pe+1, 0, comm);
+    MPI_Send(&bufright[0], (int) dsizey, MPI_SUNREALTYPE, my_pe+1, 0, comm);
   }
 }
 
@@ -542,26 +546,26 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
 
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
-    MPI_Irecv(&uext[NVARS], dsizex, MPI_SUNREALTYPE,
-                                         my_pe-NPEX, 0, comm, &request[0]);
+    MPI_Irecv(&uext[NVARS], (int) dsizex, MPI_SUNREALTYPE,
+              my_pe-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
   if (isuby != NPEY-1) {
     offsetue = NVARS*(1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&uext[offsetue], dsizex, MPI_SUNREALTYPE,
-                                         my_pe+NPEX, 0, comm, &request[1]);
+    MPI_Irecv(&uext[offsetue], (int) dsizex, MPI_SUNREALTYPE,
+              my_pe+NPEX, 0, comm, &request[1]);
   }
 
   /* If isubx > 0, receive data for left y-line of uext (via bufleft) */
   if (isubx != 0) {
-    MPI_Irecv(&bufleft[0], dsizey, MPI_SUNREALTYPE,
-                                         my_pe-1, 0, comm, &request[2]);
+    MPI_Irecv(&bufleft[0], (int) dsizey, MPI_SUNREALTYPE,
+              my_pe-1, 0, comm, &request[2]);
   }
 
   /* If isubx < NPEX-1, receive data for right y-line of uext (via bufright) */
   if (isubx != NPEX-1) {
-    MPI_Irecv(&bufright[0], dsizey, MPI_SUNREALTYPE,
-                                         my_pe+1, 0, comm, &request[3]);
+    MPI_Irecv(&bufright[0], (int) dsizey, MPI_SUNREALTYPE,
+              my_pe+1, 0, comm, &request[3]);
   }
 }
 
@@ -749,8 +753,8 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
 
   s = sin((data->om)*t);
   if (s > ZERO) {
-    q3 = SUNRexp(-A3/s);
-    q4coef = SUNRexp(-A4/s);
+    q3 = exp(-A3/s);
+    q4coef = exp(-A4/s);
   } else {
     q3 = ZERO;
     q4coef = ZERO;
@@ -766,8 +770,8 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*SUNRexp(RCONST(0.2)*ydn);
-    cyup = verdco*SUNRexp(RCONST(0.2)*yup);
+    cydn = verdco*exp(RCONST(0.2)*ydn);
+    cyup = verdco*exp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
       /* Extract c1 and c2, and set kinetic rate terms */

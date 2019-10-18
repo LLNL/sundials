@@ -758,7 +758,8 @@ static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu, SNES sne
   int retval;
   KSP ksp;
 
-  nst = nni = njve = nre = nreLS = nli = npe = nps = -99;
+  nst = nni = njve = nre = nreLS = npe = nps = -99;
+  nli = -99;
   umax = N_VMaxNorm(uu);
   SNESGetKSP(snes, &ksp);
 

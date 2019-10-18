@@ -100,16 +100,24 @@ equal to 1.0.  The macro call ``RCONST(1.0)`` automatically expands to
 to ``1.0L`` if ``realtype`` is ``long double``. SUNDIALS uses the ``RCONST``
 macro internally to declare all of its floating-point constants.
 
-A user program which uses the type ``realtype`` and the ``RCONST`` macro
-to handle floating-point constants is precision-independent, except for
-any calls to precision-specific standard math library functions.
-Users can, however, use the types ``double``, ``float``, or ``long
-double`` in their code (assuming that this usage is consistent with
-the size of ``realtype`` values that are passed to and from SUNDIALS).
-Thus, a previously existing piece of ANSI C code can use SUNDIALS
-without modifying the code to use ``realtype``, so long as the
-SUNDIALS libraries have been compiled using the same precision (for
-details see the section :ref:`Installation`).
+Additionally, SUNDIALS defines several macros for common mathematical
+functions *e.g.*}, ``fabs``, ``sqrt``, ``exp``, etc. in ``sundials_math.h``. The
+macros are prefixed with ``SUNR`` and expand to the appropriate C function based
+on the ``realtype``. For example, the macro ``SUNRabs`` expands to the C
+function ``fabs`` when ``realtype`` is ``double``, ``fabsf`` when ``realtype``
+is ``float``, and ``fabsl`` when ``realtype`` is ``long double``.
+
+A user program which uses the type ``realtype``, the ``RCONST`` macro, and the
+``SUNR`` mathematical function macros is precision-independent except for any
+calls to precision-specific library functions. Our example programs use
+``realtype``, ``RCONST``, and the ``SUNR`` macros. Users can, however, use the
+type ``double``, ``float``, or ``long double`` in their code (assuming that this
+usage is consistent with the typedef for ``realtype``) and call the appropriate
+math library functions directly. Thus, a previously existing piece of ANSI C
+code can use SUNDIALS without modifying the code to use ``realtype``,
+``RCONST``, or the ``SUNR`` macros so long as the SUNDIALS libraries use
+the correct precision (for details see :ref:`Installation`).
+
 
 
 

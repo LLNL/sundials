@@ -64,7 +64,7 @@ int main()
   realtype Tf = RCONST(2.0);     /* final time */
   realtype dTout = RCONST(0.1);  /* time between outputs */
   sunindextype NEQ = 3;          /* number of dependent vars. */
-  int Nt = ceil(Tf/dTout);       /* number of output times */
+  int Nt = (int) ceil(Tf/dTout); /* number of output times */
   realtype hs = RCONST(0.001);   /* slow step size */
   realtype hf = RCONST(0.00002); /* fast step size */
   realtype u0, v0, w0;           /* initial conditions */

@@ -201,6 +201,7 @@ if [ "$TPLs" == "ON" ]; then
     # C and C++ standard flags to append
     CSTD="-std=c99"
     CXXSTD="-std=c++11"
+    C90MATH=OFF
 
     # CUDA
     CUDASTATUS=${CUDASTATUS:-"OFF"}
@@ -273,6 +274,7 @@ else
     # C and C++ standard flags to append
     CSTD="-std=c90"
     CXXSTD="-std=c++11"
+    C90MATH=ON
 
     # disable all TPLs
     MPISTATUS=OFF
@@ -380,6 +382,8 @@ time cmake \
     \
     -D RAJA_ENABLE="${RAJASTATUS}" \
     -D RAJA_DIR="${RAJADIR}" \
+    \
+    -D USE_GENERIC_MATH="${C90MATH}" \
     \
     -D SUNDIALS_DEVTESTS="${devtests}" \
     \

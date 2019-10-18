@@ -50,22 +50,22 @@ void FNV_INITPTS(int *code, long int *N, int *num_threads, int *ier)
   switch(*code) {
   case FCMIX_CVODE:
     F2C_CVODE_vec = NULL;
-    F2C_CVODE_vec = N_VNewEmpty_Pthreads(*N, *num_threads);
+    F2C_CVODE_vec = N_VNewEmpty_Pthreads((sunindextype)(*N), *num_threads);
     if (F2C_CVODE_vec == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_vec = NULL;
-    F2C_IDA_vec = N_VNewEmpty_Pthreads(*N, *num_threads);
+    F2C_IDA_vec = N_VNewEmpty_Pthreads((sunindextype)(*N), *num_threads);
     if (F2C_IDA_vec == NULL) *ier = -1;
     break;
   case FCMIX_KINSOL:
     F2C_KINSOL_vec = NULL;
-    F2C_KINSOL_vec = N_VNewEmpty_Pthreads(*N, *num_threads);
+    F2C_KINSOL_vec = N_VNewEmpty_Pthreads((sunindextype)(*N), *num_threads);
     if (F2C_KINSOL_vec == NULL) *ier = -1;
     break;
   case FCMIX_ARKODE:
     F2C_ARKODE_vec = NULL;
-    F2C_ARKODE_vec = N_VNewEmpty_Pthreads(*N, *num_threads);
+    F2C_ARKODE_vec = N_VNewEmpty_Pthreads((sunindextype)(*N), *num_threads);
     if (F2C_ARKODE_vec == NULL) *ier = -1;
     break;
   default:
@@ -80,12 +80,12 @@ void FNV_INITPTS_Q(int *code, long int *Nq, int *num_threads, int *ier)
   switch(*code) {
   case FCMIX_CVODE:
     F2C_CVODE_vecQ = NULL;
-    F2C_CVODE_vecQ = N_VNewEmpty_Pthreads(*Nq, *num_threads);
+    F2C_CVODE_vecQ = N_VNewEmpty_Pthreads((sunindextype)(*Nq), *num_threads);
     if (F2C_CVODE_vecQ == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_vecQ = NULL;
-    F2C_IDA_vecQ = N_VNewEmpty_Pthreads(*Nq, *num_threads);
+    F2C_IDA_vecQ = N_VNewEmpty_Pthreads((sunindextype)(*Nq), *num_threads);
     if (F2C_IDA_vecQ == NULL) *ier = -1;
     break;
   default:
@@ -100,12 +100,12 @@ void FNV_INITPTS_B(int *code, long int *NB, int *num_threads, int *ier)
   switch(*code) {
   case FCMIX_CVODE:
     F2C_CVODE_vecB = NULL;
-    F2C_CVODE_vecB = N_VNewEmpty_Pthreads(*NB, *num_threads);
+    F2C_CVODE_vecB = N_VNewEmpty_Pthreads((sunindextype)(*NB), *num_threads);
     if (F2C_CVODE_vecB == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_vecB = NULL;
-    F2C_IDA_vecB = N_VNewEmpty_Pthreads(*NB, *num_threads);
+    F2C_IDA_vecB = N_VNewEmpty_Pthreads((sunindextype)(*NB), *num_threads);
     if (F2C_IDA_vecB == NULL) *ier = -1;
     break;
   default:
@@ -120,12 +120,12 @@ void FNV_INITPTS_QB(int *code, long int *NqB, int *num_threads, int *ier)
   switch(*code) {
   case FCMIX_CVODE:
     F2C_CVODE_vecQB = NULL;
-    F2C_CVODE_vecQB = N_VNewEmpty_Pthreads(*NqB, *num_threads);
+    F2C_CVODE_vecQB = N_VNewEmpty_Pthreads((sunindextype)(*NqB), *num_threads);
     if (F2C_CVODE_vecQB == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     F2C_IDA_vecQB = NULL;
-    F2C_IDA_vecQB = N_VNewEmpty_Pthreads(*NqB, *num_threads);
+    F2C_IDA_vecQB = N_VNewEmpty_Pthreads((sunindextype)(*NqB), *num_threads);
     if (F2C_IDA_vecQB == NULL) *ier = -1;
     break;
   default:

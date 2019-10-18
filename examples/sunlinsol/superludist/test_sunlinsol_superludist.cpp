@@ -19,13 +19,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <cmath>
 #include <sundials/sundials_types.h>
+#include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_superludist.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_slunrloc.h>
 #include <nvector/nvector_parallel.h>
 #include <nvector/nvector_serial.h>
-#include <sundials/sundials_math.h>
 #include "test_sunlinsol.h"
 
 /* 1 --> print extended output from each process to a file instead
@@ -93,15 +94,15 @@ int main(int argc, char *argv[])
     return(1);
   }
 
-  N = atol(argv[1]);
+  N = (sunindextype) atol(argv[1]);
   if (N <= 0) {
     if (rank == 0)
       printf("ERROR: matrix size must be a positive integer \n");
     return(1);
   }
 
-  nprow = atol(argv[2]);
-  npcol = atol(argv[3]);
+  nprow = atoi(argv[2]);
+  npcol = atoi(argv[3]);
   if (nprow <= 0 || npcol <= 0) {
     if (rank == 0)
       printf("ERROR: nprow and npcol must be positive integers \n");
@@ -178,7 +179,7 @@ int main(int argc, char *argv[])
     N_VScale(ONE, gx, gy);
 
     matdata = NULL; rowptrs = NULL; colind  = NULL;
-    fails = csr_from_dense(D, ZERO, &matdata, &colind, &rowptrs); 
+    fails = csr_from_dense(D, ZERO, &matdata, &colind, &rowptrs);
     if (fails != 0) {
       printf(">>> FAIL: csr_from_dense failure \n");
       return(1);
@@ -428,8 +429,8 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
     maxerr = ZERO;
     maxloc = -1;
     for(i=0; i < local_length; i++) {
-      if (SUNRabs(Xdata[i]-Ydata[i]) >  maxerr) {
-        maxerr = SUNRabs(Xdata[i]-Ydata[i]);
+      if (std::abs(Xdata[i]-Ydata[i]) >  maxerr) {
+        maxerr = std::abs(Xdata[i]-Ydata[i]);
         maxloc = i;
       }
     }
@@ -451,7 +452,7 @@ int csr_from_dense(SUNMatrix Ad, realtype droptol, realtype **matdata,
     return -1;
   if (SUNMatGetID(Ad) != SUNMATRIX_DENSE)
     return -1;
-  
+
   /* set size of new matrix */
   M = SUNDenseMatrix_Rows(Ad);
   N = SUNDenseMatrix_Columns(Ad);
@@ -460,26 +461,25 @@ int csr_from_dense(SUNMatrix Ad, realtype droptol, realtype **matdata,
   nnz = 0;
   for (j=0; j<N; j++)
     for (i=0; i<M; i++)
-      nnz += (SUNRabs(SM_ELEMENT_D(Ad,i,j)) > droptol);
-  
+      nnz += (std::abs(SM_ELEMENT_D(Ad,i,j)) > droptol);
+
   /* allocate */
   (*matdata) = (realtype*) malloc(nnz*sizeof(realtype));
   (*colind)  = (sunindextype*) malloc(nnz*sizeof(sunindextype));
   (*rowptrs) = (sunindextype*) malloc((M+1)*sizeof(sunindextype));
-    
+
   /* copy nonzeros from Ad into As, based on CSR/CSC type */
   nnz = 0;
   for (i=0; i<M; i++) {
     (*rowptrs)[i] = nnz;
     for (j=0; j<N; j++) {
-      if ( SUNRabs(SM_ELEMENT_D(Ad,i,j)) > droptol ) { 
+      if ( std::abs(SM_ELEMENT_D(Ad,i,j)) > droptol ) {
         (*colind)[nnz] = j;
         (*matdata)[nnz++] = SM_ELEMENT_D(Ad,i,j);
       }
     }
   }
   (*rowptrs)[M] = nnz;
-    
+
   return 0;
 }
-

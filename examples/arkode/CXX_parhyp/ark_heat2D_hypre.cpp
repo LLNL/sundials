@@ -54,7 +54,7 @@
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <arkode/arkode_arkstep.h>           // prototypes for ARKStep fcts., consts.
 #include "nvector/nvector_parallel.h"        // parallel N_Vector types, fcts., macros
 #include <sundials/sundials_linearsolver.h>  // definition of generic SUNLinearSolver object
@@ -169,7 +169,7 @@ typedef struct _HyprePcgPfmgContent {
   realtype           resnorm;
   int                PCGits;
   int                PFMGits;
-  long int           last_flag;
+  int                last_flag;
 } *HyprePcgPfmgContent;
 
 #define HPP_CONTENT(S)  ( (HyprePcgPfmgContent)(S->content) )
@@ -948,7 +948,7 @@ static int FreeUserData(UserData *udata)
 //     a(t) = (1 - exp(-(kx+4*ky)*pi^2*t)) / ((kx+4*ky)*pi^2).
 static int AnalyticalSolution(N_Vector ytrue, realtype t, UserData *udata)
 {
-  long int i, j;
+  sunindextype i, j;
   realtype *y, at;
 
   // set time-dependent portion

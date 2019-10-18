@@ -2331,7 +2331,9 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   ARKLsMem    arkls_mem;
   realtype    gamma, gamrat, delta, deltar, ewt_mean;
   booleantype dgamma_fail, *jcur;
-  int         nli_inc, nps_inc, retval, LSType;
+  long int    nps_inc;
+  int         nli_inc, retval, LSType;
+
 
   /* access ARKLsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "arkLsSolve",
@@ -2455,7 +2457,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   /* Log solver statistics to diagnostics file (if requested) */
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "ARKLS  kry  %"RSYM"  %"RSYM"  %i  %i\n",
-            bnorm, resnorm, nli_inc, (int) arkls_mem->nps - nps_inc);
+            bnorm, resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
 
   /* Interpret solver return value  */
   arkls_mem->last_flag = retval;
@@ -2751,7 +2753,8 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
   realtype     resnorm, delta, rwt_mean;
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
-  int          nli_inc, nps_inc, retval, LSType;
+  long int     nps_inc;
+  int          nli_inc, retval, LSType;
 
   /* access ARKLsMassMem structure */
   retval = arkLs_AccessMassMem(arkode_mem, "arkLsMassSolve",
@@ -2837,7 +2840,7 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
   /* Log solver statistics to diagnostics file (if requested) */
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "ARKLS  mass  %"RSYM"  %i  %i\n",
-            resnorm, nli_inc, (int) arkls_mem->nps - nps_inc);
+            resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
 
   /* Interpret solver return value  */
   arkls_mem->last_flag = retval;

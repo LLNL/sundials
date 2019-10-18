@@ -319,9 +319,9 @@ endif(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
 
 if(UNIX)
   option(USE_GENERIC_MATH "Use generic (std-c) math libraries" ON)
+  # executables will be linked against -lm
+  set(EXTRA_LINK_LIBS -lm)
   if(USE_GENERIC_MATH)
-    # executables will be linked against -lm
-    set(EXTRA_LINK_LIBS -lm)
     # prepare substitution variable for sundials_config.h
     set(SUNDIALS_USE_GENERIC_MATH TRUE)
   endif(USE_GENERIC_MATH)

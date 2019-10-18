@@ -15,7 +15,7 @@
  * -----------------------------------------------------------------
  * This module contains the routines necessary to interface with the
  * CVBANDPRE module and user-supplied Fortran routines.
- * The routines here call the generically named routines and provide 
+ * The routines here call the generically named routines and provide
  * a standard interface to the C code of the CVBANDPRE package.
  * -----------------------------------------------------------------
  */
@@ -32,13 +32,16 @@
 
 void FCV_BPINIT(long int *N, long int *mu, long int *ml, int *ier)
 {
-  /* 
+  /*
      Call CVBandPrecInit to initialize the CVBANDPRE module:
      N      is the vector size
      mu, ml are the half-bandwidths of the retained preconditioner blocks
   */
 
-  *ier = CVBandPrecInit(CV_cvodemem, *N, *mu, *ml);
+  *ier = CVBandPrecInit(CV_cvodemem,
+                        (sunindextype)(*N),
+                        (sunindextype)(*mu),
+                        (sunindextype)(*ml));
 
   return;
 }

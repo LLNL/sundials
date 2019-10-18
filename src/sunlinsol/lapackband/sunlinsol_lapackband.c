@@ -131,7 +131,7 @@ int SUNLinSolInitialize_LapackBand(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  return(SUNLS_SUCCESS);
 }
 
 
@@ -146,7 +146,7 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
   /* Ensure that A is a band matrix */
   if (SUNMatGetID(A) != SUNMATRIX_BAND) {
     LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return(LASTFLAG(S));
+    return(SUNLS_ILL_INPUT);
   }
 
   /* Call LAPACK to do LU factorization of A */
@@ -182,8 +182,8 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* access x data array */
   xdata = N_VGetArrayPointer(x);
   if (xdata == NULL) {
-    LASTFLAG(S) = 1;
-    return(LASTFLAG(S));
+    LASTFLAG(S) = SUNLS_MEM_FAIL;
+    return(SUNLS_MEM_FAIL);
   }
 
   /* Call LAPACK to solve the linear system */
@@ -199,7 +199,7 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     return(SUNLS_PACKAGE_FAIL_UNREC);
 
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  return(SUNLS_SUCCESS);
 }
 
 

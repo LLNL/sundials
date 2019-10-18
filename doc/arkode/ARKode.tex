@@ -3100,16 +3100,23 @@ equal to 1.0.  The macro call \code{RCONST(1.0)} automatically expands to
 to \code{1.0L} if \code{realtype} is \code{long double}. SUNDIALS uses the \code{RCONST}
 macro internally to declare all of its floating-point constants.
 
-A user program which uses the type \code{realtype} and the \code{RCONST} macro
-to handle floating-point constants is precision-independent, except for
-any calls to precision-specific standard math library functions.
-Users can, however, use the types \code{double}, \code{float}, or \code{long
-double} in their code (assuming that this usage is consistent with
-the size of \code{realtype} values that are passed to and from SUNDIALS).
-Thus, a previously existing piece of ANSI C code can use SUNDIALS
-without modifying the code to use \code{realtype}, so long as the
-SUNDIALS libraries have been compiled using the same precision (for
-details see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
+Additionally, SUNDIALS defines several macros for common mathematical
+functions \emph{e.g.}\}, \code{fabs}, \code{sqrt}, \code{exp}, etc. in \code{sundials\_math.h}. The
+macros are prefixed with \code{SUNR} and expand to the appropriate C function based
+on the \code{realtype}. For example, the macro \code{SUNRabs} expands to the C
+function \code{fabs} when \code{realtype} is \code{double}, \code{fabsf} when \code{realtype}
+is \code{float}, and \code{fabsl} when \code{realtype} is \code{long double}.
+
+A user program which uses the type \code{realtype}, the \code{RCONST} macro, and the
+\code{SUNR} mathematical function macros is precision-independent except for any
+calls to precision-specific library functions. Our example programs use
+\code{realtype}, \code{RCONST}, and the \code{SUNR} macros. Users can, however, use the
+type \code{double}, \code{float}, or \code{long double} in their code (assuming that this
+usage is consistent with the typedef for \code{realtype}) and call the appropriate
+math library functions directly. Thus, a previously existing piece of ANSI C
+code can use SUNDIALS without modifying the code to use \code{realtype},
+\code{RCONST}, or the \code{SUNR} macros so long as the SUNDIALS libraries use
+the correct precision (for details see {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
 
 
 \subsection{Integer types used for indexing}

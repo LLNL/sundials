@@ -51,7 +51,6 @@
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
 
 #include <mpi.h>
 
@@ -112,7 +111,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 
 static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol);
 
-static void PrintCase(int case_number, int mudq, int mukeep);
+static void PrintCase(int case_number, sunindextype mudq, sunindextype mukeep);
 
 static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu);
 
@@ -453,7 +452,7 @@ static int reslocal(sunindextype Nlocal, realtype tres,
   if (ixsub == npex-1) ixend--;
   if (jysub == 0) jybegin++;
   if (jysub == npey-1) jyend--;
-  
+
   /* Loop over all grid points in local subgrid. */
 
   for (ly = jybegin; ly <=jyend; ly++) {
@@ -742,11 +741,11 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
  * Print case and table header
  */
 
-static void PrintCase(int case_number, int mudq, int mukeep)
+static void PrintCase(int case_number, sunindextype mudq, sunindextype mukeep)
 {
   printf("\n\nCase %1d. \n", case_number);
-  printf("   Difference quotient half-bandwidths = %d",mudq);
-  printf("   Retained matrix half-bandwidths = %d \n",mukeep);
+  printf("   Difference quotient half-bandwidths = %ld", (long int) mudq);
+  printf("   Retained matrix half-bandwidths = %ld \n", (long int) mukeep);
 
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");

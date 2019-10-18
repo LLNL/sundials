@@ -112,9 +112,14 @@
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
 
 #include <mpi.h>
+
+/* helpful macros */
+
+#ifndef MAX
+#define MAX(A, B) ((A) > (B) ? (A) : (B))
+#endif
 
 /* Problem Constants. */
 
@@ -799,10 +804,13 @@ static int rescomm(N_Vector cc, N_Vector cp, void *user_data)
   cdata = N_VGetArrayPointer(cc);
 
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */
-  comm = webdata->comm;     thispe = webdata->thispe;
-  ixsub = webdata->ixsub;   jysub = webdata->jysub;
-  cext = webdata->cext;
-  nsmxsub = webdata->nsmxsub; nsmysub = (webdata->ns)*(webdata->mysub);
+  comm    = webdata->comm;
+  thispe  = webdata->thispe;
+  ixsub   = webdata->ixsub;
+  jysub   = webdata->jysub;
+  cext    = webdata->cext;
+  nsmxsub = webdata->nsmxsub;
+  nsmysub = ((int)(webdata->ns))*(webdata->mysub);
 
   /* Start receiving boundary data from neighboring PEs. */
   BRecvPost(comm, request, thispe, ixsub, jysub, nsmxsub, nsmysub,
@@ -1136,10 +1144,11 @@ static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
                      N_Vector rr, realtype cj, void *user_data)
 {
   int retval, thispe;
+  sunindextype ret;
   realtype uround;
   realtype xx, yy, *cxy, *ewtxy, cctemp, **Pxy, *ratesxy, *Pxycol, *cpxy;
   realtype inc, sqru, fac, perturb_rates[NUM_SPECIES];
-  int is, js, ix, jy, ret;
+  int is, js, ix, jy;
   UserData webdata;
   void *ida_mem;
   N_Vector ewt;
@@ -1147,7 +1156,7 @@ static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
 
   webdata = (UserData)user_data;
   uround = UNIT_ROUNDOFF;
-  sqru = SUNRsqrt(uround);
+  sqru = sqrt(uround);
   thispe = webdata->thispe;
 
   ida_mem = webdata->ida_mem;
@@ -1169,7 +1178,7 @@ static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
       ratesxy = IJ_Vptr(rates,ix,jy);
 
       for (js = 0; js < ns; js++) {
-        inc = sqru*(SUNMAX(SUNRabs(cxy[js]), SUNMAX(hh*SUNRabs(cpxy[js]), ONE/ewtxy[js])));
+        inc = sqru*(MAX(fabs(cxy[js]), MAX(hh*fabs(cpxy[js]), ONE/ewtxy[js])));
         cctemp = cxy[js];  /* Save the (js,ix,jy) element of cc. */
         cxy[js] += inc;    /* Perturb the (js,ix,jy) element of cc. */
         fac = -ONE/inc;

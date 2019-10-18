@@ -120,7 +120,7 @@ typedef struct CVLsMemRec {
   CVLsLinSysFn linsys;
   void* A_data;
 
-  long int last_flag; /* last error flag returned by any function */
+  int last_flag; /* last error flag returned by any function */
 
 } *CVLsMem;
 

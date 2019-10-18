@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  length = atol(argv[1]);
+  length = (sunindextype) atol(argv[1]);
   if (length <= 0) {
     printf("ERROR: length of vector must be a positive integer \n");
     return(-1);

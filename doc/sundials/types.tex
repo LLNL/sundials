@@ -39,16 +39,25 @@ if \id{realtype} is \id{double}, to \id{1.0F} if \id{realtype} is \id{float},
 or to \id{1.0L} if \id{realtype} is \id{long double}.  {\sundials} uses the
 \id{RCONST} macro internally to declare all of its floating-point constants.
 
-A user program which uses the type \id{realtype} and the \id{RCONST} macro
-to handle floating-point constants is precision-independent except for
-any calls to precision-specific standard math library
-functions.  (Our example programs use both \id{realtype} and
-\id{RCONST}.)  Users can, however, use the type \id{double}, \id{float}, or
-\id{long double} in their code (assuming that this usage is consistent
-with the typedef for \id{realtype}).  Thus, a previously existing
-piece of ANSI {\CC} code can use {\sundials} without modifying the code
-to use \id{realtype}, so long as the {\sundials} libraries use the
-correct precision (for details see \S\ref{ss:configuration_options_nix}).
+Additionally, {\sundials} defines several macros for common mathematical
+functions \textit{e.g.}, \id{fabs}, \id{sqrt}, \id{exp}, etc. in
+\id{sundials\_math.h}. The macros are prefixed with \id{SUNR} and expand to the
+appropriate \id{C} function based on the \id{realtype}. For example, the macro
+\id{SUNRabs} expands to the \id{C} function \id{fabs} when \id{realtype} is
+\id{double}, \id{fabsf} when \id{realtype} is \id{float}, and \id{fabsl} when
+\id{realtype} is \id{long double}.
+
+A user program which uses the type \id{realtype}, the \id{RCONST} macro, and the
+\id{SUNR} mathematical function macros is precision-independent except for any
+calls to  precision-specific library functions. Our example programs use
+\id{realtype}, \id{RCONST}, and the \id{SUNR} macros. Users can, however, use
+the type \id{double}, \id{float}, or \id{long double} in their code (assuming
+that this usage is consistent with the typedef for \id{realtype}) and call the
+appropriate math library functions directly. Thus, a previously existing piece
+of ANSI {\CC} code can use {\sundials} without modifying the code to use
+\id{realtype}, \id{RCONST}, or the \id{SUNR} macros so long as the {\sundials}
+libraries use the correct precision (for details see
+\S\ref{ss:configuration_options_nix}).
 
 
 \subsection{Integer types used for indexing}

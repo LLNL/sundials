@@ -64,5 +64,3 @@ sunindextype N_VGetLocalLength_MPIPlusX(N_Vector v)
 {
   return N_VGetLength(MPIPLUSX_LOCAL_VECTOR(v));
 }
-
-

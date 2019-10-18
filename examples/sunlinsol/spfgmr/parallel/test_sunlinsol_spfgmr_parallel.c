@@ -1,5 +1,5 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -12,8 +12,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the SUNLinSol SPFGMR module 
- * implementation. 
+ * This is the testing routine to check the SUNLinSol SPFGMR module
+ * implementation.
  * -----------------------------------------------------------------
  */
 
@@ -79,23 +79,23 @@ sunindextype local_problem_size;
  * 5. tridiagonal system w/ scale vector s2 (no preconditioning)
  * 6. tridiagonal system w/ scale vector s2 (Jacobi preconditioning)
  *
- * Note: We construct a tridiagonal matrix Ahat, a random solution xhat, 
- *       and a corresponding rhs vector bhat = Ahat*xhat, such that each 
- *       of these is unit-less.  To test row/column scaling, we use the 
- *       matrix A = S1-inverse Ahat S2, rhs vector b = S1-inverse bhat, 
- *       and solution vector x = (S2-inverse) xhat; hence the linear 
- *       system has rows scaled by S1-inverse and columns scaled by S2, 
- *       where S1 and S2 are the diagonal matrices with entries from the 
- *       vectors s1 and s2, the 'scaling' vectors supplied to SPFGMR 
- *       having strictly positive entries.  When this is combined with 
- *       preconditioning, assume that Phat is the desired preconditioner 
+ * Note: We construct a tridiagonal matrix Ahat, a random solution xhat,
+ *       and a corresponding rhs vector bhat = Ahat*xhat, such that each
+ *       of these is unit-less.  To test row/column scaling, we use the
+ *       matrix A = S1-inverse Ahat S2, rhs vector b = S1-inverse bhat,
+ *       and solution vector x = (S2-inverse) xhat; hence the linear
+ *       system has rows scaled by S1-inverse and columns scaled by S2,
+ *       where S1 and S2 are the diagonal matrices with entries from the
+ *       vectors s1 and s2, the 'scaling' vectors supplied to SPFGMR
+ *       having strictly positive entries.  When this is combined with
+ *       preconditioning, assume that Phat is the desired preconditioner
  *       for Ahat, then our preconditioning matrix P \approx A should be
  *         left prec:  P-inverse \approx S1-inverse Ahat-inverse S1
  *         right prec:  P-inverse \approx S2-inverse Ahat-inverse S2.
- *       Here we use a diagonal preconditioner D, so the S*-inverse 
+ *       Here we use a diagonal preconditioner D, so the S*-inverse
  *       and S* in the product cancel one another.
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   int             fails=0;          /* counter for test failures */
   int             passfail=0;       /* overall pass/fail flag    */
@@ -126,26 +126,26 @@ int main(int argc, char *argv[])
     printf("  timing output flag should be 0 or 1 \n");
     return 1;
   }
-  ProbData.Nloc = atol(argv[1]);
+  ProbData.Nloc = (sunindextype) atol(argv[1]);
   local_problem_size = ProbData.Nloc;
   if (ProbData.Nloc <= 0) {
     printf("ERROR: local problem size must be a positive integer\n");
-    return 1; 
+    return 1;
   }
   gstype = atoi(argv[2]);
   if ((gstype < 1) || (gstype > 2)) {
     printf("ERROR: Gram-Schmidt orthogonalization type must be either 1 or 2\n");
-    return 1; 
+    return 1;
   }
   maxl = atoi(argv[3]);
   if (maxl <= 0) {
     printf("ERROR: Maximum Krylov subspace dimension must be a positive integer\n");
-    return 1; 
+    return 1;
   }
   tol = atof(argv[4]);
   if (tol <= ZERO) {
     printf("ERROR: Solver tolerance must be a positive real number\n");
-    return 1; 
+    return 1;
   }
   print_timing = atoi(argv[5]);
   SetTiming(print_timing);
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
     printf("  Solver Tolerance = %g\n", tol);
     printf("  timing output flag = %i\n\n", print_timing);
   }
-  
+
   /* Create vectors */
   x = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
                       ProbData.nprocs * ProbData.Nloc);
@@ -183,12 +183,12 @@ int main(int argc, char *argv[])
 
   /* Fill xhat vector with uniform random data in [1,2] */
   vecdata = N_VGetArrayPointer(xhat);
-  for (i=0; i<ProbData.Nloc; i++) 
+  for (i=0; i<ProbData.Nloc; i++)
     vecdata[i] = ONE + urand();
 
   /* Fill Jacobi vector with matrix diagonal */
   N_VConst(FIVE, ProbData.d);
-  
+
   /* Create SPFGMR linear solver */
   LS = SUNLinSol_SPFGMR(x, PREC_RIGHT, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE,
@@ -201,14 +201,14 @@ int main(int argc, char *argv[])
                                            ProbData.myid);
   fails += Test_SUNLinSolInitialize(LS, ProbData.myid);
   fails += Test_SUNLinSolSpace(LS, ProbData.myid);
-  fails += SUNLinSol_SPFGMRSetGSType(LS, gstype);  
+  fails += SUNLinSol_SPFGMRSetGSType(LS, gstype);
   if (fails) {
     printf("FAIL: SUNLinSol_SPFGMR module failed %i initialization tests\n\n", fails);
     return 1;
   } else if (ProbData.myid == 0)
     printf("SUCCESS: SUNLinSol_SPFGMR module passed all initialization tests\n\n");
 
-  
+
   /*** Test 1: simple Poisson-like solve (no preconditioning) ***/
 
   /* set scaling vectors */
@@ -223,14 +223,14 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPFGMRSetPrecType(LS, PREC_NONE);  
+  fails += SUNLinSol_SPFGMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
   fails += Test_SUNLinSolNumIters(LS, ProbData.myid);
   fails += Test_SUNLinSolResNorm(LS, ProbData.myid);
   fails += Test_SUNLinSolResid(LS, ProbData.myid);
-  
+
   /* Print result */
   if (fails) {
     printf("FAIL: SUNLinSol_SPFGMR module, problem 1, failed %i tests\n\n", fails);
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: SUNLinSol_SPFGMR module, problem 1, passed all tests\n\n");
   }
 
-  
+
   /*** Test 2: simple Poisson-like solve (Jacobi preconditioning) ***/
 
   /* set scaling vectors */
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPFGMRSetPrecType(LS, PREC_RIGHT);  
+  fails += SUNLinSol_SPFGMRSetPrecType(LS, PREC_RIGHT);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: SUNLinSol_SPFGMR module, problem 2, passed all tests\n\n");
   }
 
-  
+
   /*** Test 3: Poisson-like solve w/ scaled rows (no preconditioning) ***/
 
   /* set scaling vectors */
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPFGMRSetPrecType(LS, PREC_NONE);  
+  fails += SUNLinSol_SPFGMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: SUNLinSol_SPFGMR module, problem 3, passed all tests\n\n");
   }
 
-  
+
   /*** Test 4: Poisson-like solve w/ scaled rows (Jacobi preconditioning) ***/
 
   /* set scaling vectors */
@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPFGMRSetPrecType(LS, PREC_RIGHT);  
+  fails += SUNLinSol_SPFGMRSetPrecType(LS, PREC_RIGHT);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: SUNLinSol_SPFGMR module, problem 4, passed all tests\n\n");
   }
 
-  
+
   /*** Test 5: Poisson-like solve w/ scaled columns (no preconditioning) ***/
 
   /* set scaling vectors */
@@ -369,7 +369,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: SUNLinSol_SPFGMR module, problem 5, passed all tests\n\n");
   }
 
-  
+
   /*** Test 6: Poisson-like solve w/ scaled columns (Jacobi preconditioning) ***/
 
   /* set scaling vector, Jacobi solver vector */
@@ -386,7 +386,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPFGMRSetPrecType(LS, PREC_RIGHT);  
+  fails += SUNLinSol_SPFGMRSetPrecType(LS, PREC_RIGHT);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, ProbData.myid);
   fails += Test_SUNLinSolLastFlag(LS, ProbData.myid);
@@ -404,7 +404,7 @@ int main(int argc, char *argv[])
 
   /* check if any other process failed */
   (void) MPI_Allreduce(&passfail, &fails, 1, MPI_INT, MPI_MAX, ProbData.comm);
-  
+
   /* Free solver and vectors */
   SUNLinSolFree(LS);
   N_VDestroy(x);
@@ -433,7 +433,7 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   UserData *ProbData;
   MPI_Request SendReqL, SendReqR, RecvReqL, RecvReqR;
   MPI_Status stat;
-  
+
   /* access user data structure and vector data */
   ProbData = (UserData *) Data;
   v = N_VGetArrayPointer(v_vec);
@@ -445,7 +445,7 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   s2 = N_VGetArrayPointer(ProbData->s2);
   if (check_flag(s2, "N_VGetArrayPointer", 0)) return 1;
   Nloc = ProbData->Nloc;
-  
+
   /* send/recv boundary data with neighbors */
   vL = vR = ZERO;
   vsL = v[0]*s2[0];
@@ -466,10 +466,10 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
                      1, ProbData->comm, &SendReqR);
     if (ierr != MPI_SUCCESS) return 1;
   }
-    
-  
+
+
   /* iterate through interior of local domain, performing product */
-  for (i=1; i<Nloc-1; i++) 
+  for (i=1; i<Nloc-1; i++)
     z[i] = (-v[i-1]*s2[i-1] + FIVE*v[i]*s2[i] - v[i+1]*s2[i+1])/s1[i];
 
   /* wait on neighbor data to arrive */
@@ -481,18 +481,18 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
     ierr = MPI_Wait(&RecvReqR, &stat);
     if (ierr != MPI_SUCCESS) return 1;
   }
-  
+
   /* perform product at subdomain boundaries (note: vL/vR are zero at boundary)*/
   z[0] = (-vL + FIVE*v[0]*s2[0] - v[1]*s2[1])/s1[0];
   z[Nloc-1] = (-v[Nloc-2]*s2[Nloc-2] + FIVE*v[Nloc-1]*s2[Nloc-1] - vR)/s1[Nloc-1];
-  
+
   /* return with success */
   return 0;
 }
-  
+
 /* preconditioner setup -- nothing to do here since everything is already stored */
 int PSetup(void* Data) { return 0; }
-  
+
 /* preconditioner solve */
 int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
 {
@@ -500,7 +500,7 @@ int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
   realtype *r, *z, *d;
   sunindextype i;
   UserData *ProbData;
-  
+
   /* access user data structure and vector data */
   ProbData = (UserData *) Data;
   r = N_VGetArrayPointer(r_vec);
@@ -509,9 +509,9 @@ int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
   if (check_flag(z, "N_VGetArrayPointer", 0)) return 1;
   d = N_VGetArrayPointer(ProbData->d);
   if (check_flag(d, "N_VGetArrayPointer", 0)) return 1;
-  
+
   /* iterate through domain, performing Jacobi solve */
-  for (i=0; i<ProbData->Nloc; i++) 
+  for (i=0; i<ProbData->Nloc; i++)
     z[i] = r[i] / d[i];
 
   /* return with success */
@@ -557,10 +557,10 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   int      failure = 0;
   sunindextype i;
   realtype *Xdata, *Ydata, maxerr;
-  
+
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);
-  
+
   /* check vector data */
   for(i=0; i<local_problem_size; i++)
     failure += FNEQ(Xdata[i], Ydata[i], FIVE*tol*SUNRabs(Xdata[i]));
@@ -576,5 +576,3 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   else
     return(0);
 }
-
-

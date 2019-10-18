@@ -83,9 +83,7 @@ $tar $tarfile $distrobase/include/nvector/nvector_pthreads.h                    
 $tar $tarfile $distrobase/include/nvector/nvector_openmp.h                            || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_openmpdev.h                         || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_cuda.h                              || exit 1
-$tar $tarfile $distrobase/include/nvector/nvector_mpicuda.h                           || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_raja.h                              || exit 1
-$tar $tarfile $distrobase/include/nvector/nvector_mpiraja.h                           || exit 1
 $tar $tarfile $distrobase/include/nvector/cuda/ThreadPartitioning.hpp                 || exit 1
 $tar $tarfile $distrobase/include/nvector/cuda/Vector.hpp                             || exit 1
 $tar $tarfile $distrobase/include/nvector/cuda/VectorKernels.cuh                      || exit 1

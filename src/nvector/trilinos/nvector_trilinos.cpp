@@ -218,7 +218,7 @@ void N_VSpace_Trilinos(N_Vector x, sunindextype *lrw, sunindextype *liw)
   const Teuchos::RCP<const Teuchos::Comm<int> >& comm = xv->getMap()->getComm();
   int npes = comm->getSize();
 
-  *lrw = xv->getGlobalLength();
+  *lrw = (sunindextype)(xv->getGlobalLength());
   *liw = 2*npes;
 }
 
@@ -624,4 +624,3 @@ realtype N_VMinQuotientLocal_Trilinos(N_Vector num, N_Vector denom)
 
   return TpetraVector::minQuotientLocal(*numv, *denv);
 }
-

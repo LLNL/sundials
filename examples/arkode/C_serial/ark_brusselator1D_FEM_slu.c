@@ -66,7 +66,6 @@
 #include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLU_MT SUNLinearSolver */
 #include <sundials/sundials_types.h>        /* defs. of realtype, sunindextype, etc */
-#include <sundials/sundials_math.h>         /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -179,7 +178,7 @@ int main(int argc, char *argv[]) {
   /* if a command-line argument was supplied, set num_threads */
   num_threads = 1;
   if (argc > 1)
-    num_threads = strtol(argv[1], NULL, 0);
+    num_threads = (int) strtol(argv[1], NULL, 0);
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
@@ -354,11 +353,11 @@ int main(int argc, char *argv[]) {
     retval = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);  /* call integrator */
     if (check_retval(&retval, "ARKStepEvolve", 1)) break;
     u = N_VWL2Norm(y,umask);                               /* access/print solution statistics */
-    u = SUNRsqrt(u*u/N);
+    u = sqrt(u*u/N);
     v = N_VWL2Norm(y,vmask);
-    v = SUNRsqrt(v*v/N);
+    v = sqrt(v*v/N);
     w = N_VWL2Norm(y,wmask);
-    w = SUNRsqrt(w*w/N);
+    w = sqrt(w*w/N);
     printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "\n", t, u, v, w);
     if (retval >= 0) {                                     /* successful solve: update output time */
       tout += dTout;

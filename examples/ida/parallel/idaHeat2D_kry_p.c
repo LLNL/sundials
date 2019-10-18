@@ -49,7 +49,6 @@
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
 
 #include <mpi.h>
 
@@ -551,7 +550,7 @@ static int BSend(MPI_Comm comm, int thispe,
     for (lx = 0; lx < mxsub; ++lx) {
       bufbottom[lx] = uarray[lx];
     }
-    MPI_Send(bufbottom, mxsub, MPI_SUNREALTYPE, thispe-npex, 0, comm);
+    MPI_Send(bufbottom, (int) mxsub, MPI_SUNREALTYPE, thispe-npex, 0, comm);
   }
 
   /* If jysub < NPEY-1, send data from top x-line of u. (via buftop) */
@@ -560,7 +559,7 @@ static int BSend(MPI_Comm comm, int thispe,
     for (lx = 0; lx < mxsub; ++lx) {
       buftop[lx] = uarray[(mysub-1)*mxsub + lx];
     }
-    MPI_Send(buftop, mxsub, MPI_SUNREALTYPE, thispe+npex, 0, comm);
+    MPI_Send(buftop, (int) mxsub, MPI_SUNREALTYPE, thispe+npex, 0, comm);
   }
 
   /* If ixsub > 0, send data from left y-line of u (via bufleft). */
@@ -569,7 +568,7 @@ static int BSend(MPI_Comm comm, int thispe,
     for (ly = 0; ly < mysub; ly++) {
       bufleft[ly] = uarray[ly*mxsub];
     }
-    MPI_Send(bufleft, mysub, MPI_SUNREALTYPE, thispe-1, 0, comm);
+    MPI_Send(bufleft, (int) mysub, MPI_SUNREALTYPE, thispe-1, 0, comm);
   }
 
   /* If ixsub < NPEX-1, send data from right y-line of u (via bufright). */
@@ -578,7 +577,7 @@ static int BSend(MPI_Comm comm, int thispe,
     for (ly = 0; ly < mysub; ly++) {
       bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
     }
-    MPI_Send(bufright, mysub, MPI_SUNREALTYPE, thispe+1, 0, comm);
+    MPI_Send(bufright, (int) mysub, MPI_SUNREALTYPE, thispe+1, 0, comm);
   }
 
   return(0);
@@ -608,25 +607,25 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0) {
-    MPI_Irecv(bufbottom, mxsub, MPI_SUNREALTYPE,
+    MPI_Irecv(bufbottom, (int) mxsub, MPI_SUNREALTYPE,
               thispe-npex, 0, comm, &request[0]);
   }
 
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
   if (jysub != npey-1) {
-    MPI_Irecv(buftop, mxsub, MPI_SUNREALTYPE,
+    MPI_Irecv(buftop, (int) mxsub, MPI_SUNREALTYPE,
               thispe+npex, 0, comm, &request[1]);
   }
 
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
   if (ixsub != 0) {
-    MPI_Irecv(&bufleft[0], mysub, MPI_SUNREALTYPE,
+    MPI_Irecv(&bufleft[0], (int) mysub, MPI_SUNREALTYPE,
               thispe-1, 0, comm, &request[2]);
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
   if (ixsub != npex-1) {
-    MPI_Irecv(&bufright[0], mysub, MPI_SUNREALTYPE,
+    MPI_Irecv(&bufright[0], (int) mysub, MPI_SUNREALTYPE,
               thispe+1, 0, comm, &request[3]);
   }
 

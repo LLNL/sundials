@@ -81,6 +81,11 @@ export BASE_CFLAGS="-g -Wall -Wpedantic -Werror"
 export BASE_CXXFLAGS="-g -Wall -Wpedantic -Werror"
 export BASE_FFLAGS="-g -Wall -Wpedantic -ffpe-summary=none"
 
+if [[ "$realtype" == "double" && "$indexsize" == "32" ]]; then
+    export BASE_CFLAGS="${BASE_CFLAGS} -Wconversion -Wno-sign-conversion"
+    export BASE_CXXFLAGS="${BASE_CXXFLAGS} -Wconversion -Wno-sign-conversion"
+fi
+
 # OpenMP settings
 export OMP_NUM_THREADS=4
 

@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     MPI_Abort(comm, -1);
   }
 
-  local_length = atol(argv[1]);
+  local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myid == 0)
       printf("ERROR: local vector length must be a positive integer \n");

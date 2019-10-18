@@ -1,5 +1,5 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -13,7 +13,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the testing routine to check the SUNLinSol SuperLUMT
- * module implementation. 
+ * module implementation.
  * -----------------------------------------------------------------
  */
 
@@ -31,7 +31,7 @@
 /* ----------------------------------------------------------------------
  * SUNLinSol_SuperLUMT Linear Solver Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   int             fails = 0;          /* counter for test failures  */
   sunindextype    N;                  /* matrix columns, rows       */
@@ -48,25 +48,25 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  N = atol(argv[1]); 
+  N = (sunindextype) atol(argv[1]);
   if (N <= 0) {
     printf("ERROR: matrix size must be a positive integer \n");
-    return(-1); 
+    return(-1);
   }
 
   mattype = atoi(argv[2]);
   if ((mattype != 0) && (mattype != 1)) {
     printf("ERROR: matrix type must be 0 or 1 \n");
-    return(-1); 
+    return(-1);
   }
   mattype = (mattype == 0) ? CSC_MAT : CSR_MAT;
-  
+
   num_threads = atoi(argv[3]);
   if (num_threads <= 0) {
     printf("ERROR: number_threads must be a positive integer \n");
-    return(-1); 
+    return(-1);
   }
-  
+
   print_timing = atoi(argv[4]);
   SetTiming(print_timing);
 
@@ -112,15 +112,15 @@ int main(int argc, char *argv[])
     printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
     return(1);
   }
-  
+
   /* Create SuperLUMT linear solver */
   LS = SUNLinSol_SuperLUMT(x, A, num_threads);
-  
+
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
   fails += Test_SUNLinSolSolve(LS, A, x, b, 1000*UNIT_ROUNDOFF, 0);
- 
+
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SUPERLUMT, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -159,11 +159,11 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   int failure = 0;
   sunindextype i, local_length, maxloc;
   realtype *Xdata, *Ydata, maxerr;
-  
+
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);
   local_length = N_VGetLength_Serial(X);
-  
+
   /* check vector data */
   for(i=0; i < local_length; i++)
     failure += FNEQ(Xdata[i], Ydata[i], tol);

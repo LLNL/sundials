@@ -113,7 +113,7 @@ typedef struct ARKLsMemRec {
   ARKLsLinSysFn linsys;
   void* A_data;
 
-  long int last_flag; /* last error flag returned by any function */
+  int last_flag; /* last error flag returned by any function */
 
 } *ARKLsMem;
 
@@ -169,7 +169,7 @@ typedef struct ARKLsMassMemRec {
   ARKLsMassTimesVecFn mtimes;
   void *mt_data;
 
-  long int last_flag; /* last error flag returned by any function    */
+  int last_flag; /* last error flag returned by any function    */
 
 } *ARKLsMassMem;
 

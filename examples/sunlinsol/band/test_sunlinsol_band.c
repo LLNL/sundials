@@ -1,5 +1,5 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -12,8 +12,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the SUNLinSol Band module 
- * implementation. 
+ * This is the testing routine to check the SUNLinSol Band module
+ * implementation.
  * -----------------------------------------------------------------
  */
 
@@ -40,7 +40,7 @@
 /* ----------------------------------------------------------------------
  * SUNLinSol_Band Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   int             fails = 0;          /* counter for test failures  */
   sunindextype    cols, uband, lband; /* matrix columns, bandwidths */
@@ -57,22 +57,22 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  cols = atol(argv[1]); 
+  cols = (sunindextype) atol(argv[1]);
   if (cols <= 0) {
     printf("ERROR: number of matrix columns must be a positive integer \n");
-    return(-1); 
+    return(-1);
   }
 
-  uband = atol(argv[2]); 
+  uband = (sunindextype) atol(argv[2]);
   if ((uband <= 0) || (uband >= cols)){
     printf("ERROR: matrix upper bandwidth must be a positive integer, less than number of columns \n");
-    return(-1); 
+    return(-1);
   }
 
-  lband = atol(argv[3]); 
+  lband = (sunindextype) atol(argv[3]);
   if ((lband <= 0) || (lband >= cols)){
     printf("ERROR: matrix lower bandwidth must be a positive integer, less than number of columns \n");
-    return(-1); 
+    return(-1);
   }
 
   print_timing = atoi(argv[4]);
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
   /* Fill matrix and x vector with uniform random data in [0,1] */
   xdata = N_VGetArrayPointer(x);
   for (j=0; j<cols; j++) {
-    
+
     /* A matrix column */
     colj = SUNBandMatrix_Column(A, j);
     kstart = (j<uband) ? -j : -uband;
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
     /* x entry */
     xdata[j] = (realtype) rand() / (realtype) RAND_MAX;
-    
+
   }
 
   /* Scale/shift matrix to ensure diagonal dominance */
@@ -137,15 +137,15 @@ int main(int argc, char *argv[])
 
     return(1);
   }
-  
+
   /* Create banded linear solver */
   LS = SUNLinSol_Band(x, A);
-  
+
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
   fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, 0);
- 
+
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_BAND, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -185,7 +185,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   int failure = 0;
   sunindextype i, local_length;
   realtype *Xdata, *Ydata, maxerr;
-  
+
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);
   local_length = N_VGetLength_Serial(X);
