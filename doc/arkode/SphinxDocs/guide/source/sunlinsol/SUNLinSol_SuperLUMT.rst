@@ -101,7 +101,7 @@ and
 
    Wrapper for :c:func:`SUNLinSol_SuperLUMTSetOrdering()`.
 
-   
+
 For solvers that include a Fortran interface module, the
 SUNLinSol_SuperLUMT module also includes the Fortran-callable
 function :f:func:`FSUNSuperLUMTInit()` to initialize this
@@ -165,7 +165,7 @@ interfaces for the system and mass matrix solvers:
    **Arguments:** all should have type ``int`` and have meanings
    identical to those listed above
 
-   
+
 
 
 .. _SUNLinSol_SuperLUMT.Description:
@@ -179,7 +179,7 @@ The SUNLinSol_SuperLUMT module defines the *content* field of a
 .. code-block:: c
 
    struct _SUNLinearSolverContent_SuperLUMT {
-     long int     last_flag;
+     int          last_flag;
      int          first_factorize;
      SuperMatrix  *A, *AC, *L, *U, *B;
      Gstat_t      *Gstat;
@@ -288,5 +288,3 @@ The SUNLinSol_SuperLUMT module defines implementations of all
   space requirements, see the SuperLU_MT documentation.
 
 * ``SUNLinSolFree_SuperLUMT``
-
-

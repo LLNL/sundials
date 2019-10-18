@@ -400,9 +400,10 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 }
 
 
-long int SUNLinSolLastFlag_KLU(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_KLU(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
+  if (S == NULL) return(-1);
   return(LASTFLAG(S));
 }
 

@@ -134,10 +134,10 @@ SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, int nsubsy
 
   content = NULL;
   content = (SUNLinearSolverContent_cuSolverSp_batchQR) malloc(sizeof *content);
-  if (S == NULL) { 
+  if (S == NULL) {
     cudaFree(d_rowptr); cudaFree(d_colind); cudaFree(d_values);
-    SUNLinSolFree(S); 
-    return(NULL); 
+    SUNLinSolFree(S);
+    return(NULL);
   }
 
   /* Attach content */
@@ -352,8 +352,9 @@ int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,
   return(SUN_CUSP_LASTFLAG(S));
 }
 
-long int SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S)
 {
+  if (S == NULL) return(-1);
   return(SUN_CUSP_LASTFLAG(S));
 }
 

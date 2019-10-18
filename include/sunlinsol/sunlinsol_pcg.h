@@ -12,12 +12,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the PCG implementation of the 
+ * This is the header file for the PCG implementation of the
  * SUNLINSOL module, SUNLINSOL_PCG.  The PCG algorithm is based
  * on the Preconditioned Conjugate Gradient.
  *
  * Note:
- *   - The definition of the generic SUNLinearSolver structure can 
+ *   - The definition of the generic SUNLinearSolver structure can
  *     be found in the header file sundials_linearsolver.h.
  * -----------------------------------------------------------------
  */
@@ -39,13 +39,13 @@ extern "C" {
 /* --------------------------------------
  * PCG Implementation of SUNLinearSolver
  * -------------------------------------- */
- 
+
 struct _SUNLinearSolverContent_PCG {
   int maxl;
   int pretype;
   int numiters;
   realtype resnorm;
-  long int last_flag;
+  int last_flag;
 
   ATimesFn ATimes;
   void* ATData;
@@ -62,7 +62,7 @@ struct _SUNLinearSolverContent_PCG {
 
 typedef struct _SUNLinearSolverContent_PCG *SUNLinearSolverContent_PCG;
 
-  
+
 /* -------------------------------------
  * Exported Functions for SUNLINSOL_PCG
  * ------------------------------------- */
@@ -100,9 +100,9 @@ SUNDIALS_EXPORT int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul,
 SUNDIALS_EXPORT int SUNLinSolNumIters_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_PCG(SUNLinearSolver S);
-SUNDIALS_EXPORT long int SUNLinSolLastFlag_PCG(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_PCG(SUNLinearSolver S, 
-                                       long int *lenrwLS, 
+SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_PCG(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolSpace_PCG(SUNLinearSolver S,
+                                       long int *lenrwLS,
                                        long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_PCG(SUNLinearSolver S);
 

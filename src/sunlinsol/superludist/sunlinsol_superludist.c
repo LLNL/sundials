@@ -244,8 +244,9 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A,
   return(SLU_LASTFLAG(S));
 }
 
-long int SUNLinSolLastFlag_SuperLUDIST(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_SuperLUDIST(SUNLinearSolver S)
 {
+  if (S == NULL) return(-1);
   return(SLU_LASTFLAG(S));
 }
 

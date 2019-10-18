@@ -321,7 +321,7 @@ results from a linear solve.  All routines are optional.
    this purpose, then this function pointer should be set to ``NULL``
    in the implementation.
 
-.. c:function:: long int SUNLinSolLastFlag(SUNLinearSolver LS)
+.. c:function:: sunindextype SUNLinSolLastFlag(SUNLinearSolver LS)
 
    This *optional* routine should return the last error flag
    encountered within the linear solver. This is not called by the
@@ -517,7 +517,7 @@ structure is defined as
                                    N_Vector, realtype);
      int                  (*numiters)(SUNLinearSolver);
      realtype             (*resnorm)(SUNLinearSolver);
-     long int             (*lastflag)(SUNLinearSolver);
+     sunindextype         (*lastflag)(SUNLinearSolver);
      int                  (*space)(SUNLinearSolver, long int*, long int*);
      N_Vector             (*resid)(SUNLinearSolver);
      int                  (*free)(SUNLinearSolver);

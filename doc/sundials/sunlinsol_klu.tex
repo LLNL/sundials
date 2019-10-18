@@ -552,7 +552,7 @@ The {\sunlinsolklu} module defines the \textit{content} field of a
 %%
 \begin{verbatim}
 struct _SUNLinearSolverContent_KLU {
-  long int         last_flag;
+  int              last_flag;
   int              first_factorize;
   sun_klu_symbolic *symbolic;
   sun_klu_numeric  *numeric;

@@ -4,13 +4,13 @@
  LLNS/SMU Copyright Start
  Copyright (c) 2018, Southern Methodist University and
  Lawrence Livermore National Security
- 
+
  This work was performed under the auspices of the U.S. Department
  of Energy by Southern Methodist University and Lawrence Livermore
  National Laboratory under Contract DE-AC52-07NA27344.
  Produced at Southern Methodist University and the Lawrence
  Livermore National Laboratory.
- 
+
  All rights reserved.
  For details, see the LICENSE file.
  LLNS/SMU Copyright End
@@ -188,11 +188,11 @@ SUNLinearSolver HyprePcgPfmg(SUNMatrix A, int PCGmaxit, int PFMGmaxit,
 SUNLinearSolver_Type HyprePcgPfmg_GetType(SUNLinearSolver S);
 int HyprePcgPfmg_Initialize(SUNLinearSolver S);
 int HyprePcgPfmg_Setup(SUNLinearSolver S, SUNMatrix A);
-int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A, 
+int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A,
                        N_Vector x, N_Vector b, realtype tol);
 int HyprePcgPfmg_NumIters(SUNLinearSolver S);
 realtype HyprePcgPfmg_ResNorm(SUNLinearSolver S);
-long int HyprePcgPfmg_LastFlag(SUNLinearSolver S);
+sunindextype HyprePcgPfmg_LastFlag(SUNLinearSolver S);
 int HyprePcgPfmg_Free(SUNLinearSolver S);
 
 
@@ -1076,7 +1076,7 @@ SUNMatrix_ID Hypre5ptMatrix_GetID(SUNMatrix A) {
 }
 
 SUNMatrix Hypre5ptMatrix_Clone(SUNMatrix A) {
-  SUNMatrix B = Hypre5ptMatrix(H5PM_COMM(A), H5PM_ILOWER(A)[0], H5PM_IUPPER(A)[0], 
+  SUNMatrix B = Hypre5ptMatrix(H5PM_COMM(A), H5PM_ILOWER(A)[0], H5PM_IUPPER(A)[0],
                                H5PM_ILOWER(A)[1], H5PM_IUPPER(A)[1]);
   return(B);
 }
@@ -1422,7 +1422,7 @@ realtype HyprePcgPfmg_ResNorm(SUNLinearSolver S) {
 }
 
 
-long int HyprePcgPfmg_LastFlag(SUNLinearSolver S) {
+sunindextype HyprePcgPfmg_LastFlag(SUNLinearSolver S) {
   // return the stored 'last_flag' value
   if (S == NULL) return(-1);
   return (HPP_LASTFLAG(S));

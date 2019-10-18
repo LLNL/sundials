@@ -119,6 +119,10 @@ writing in C|)}
 
 \subsection*{Changes in v5.0.0}
 
+The return type of the SUNLinearSolver API function \id{SUNLinSolLastFlag} has
+changed from \id{long int} to \id{sunindextype} to be consistent with the type
+used to store row indices in dense and banded linear solver modules.
+
 Added Fortran 2003 interfaces to the {\nvecmanyvector}, {\nvecmpimanyvector}
 and {\nvecmpiplusx}.
 

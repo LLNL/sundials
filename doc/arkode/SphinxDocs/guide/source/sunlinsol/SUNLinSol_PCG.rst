@@ -29,14 +29,14 @@ user-supplied) that supports a minimal subset of operations
 :c:func:`N_VLinearSum()`, :c:func:`N_VProd()`, and
 :c:func:`N_VDestroy()`).  Unlike the SPGMR and SPFGMR algorithms, PCG
 requires a fixed amount of memory that does not increase with the
-number of allowed iterations. 
+number of allowed iterations.
 
 Unlike all of the other iterative linear solvers supplied with
 SUNDIALS, PCG should only be used on *symmetric* linear
 systems (e.g. mass matrix linear systems encountered in
 ARKode). As a result, the explanation of the role of scaling and
 preconditioning matrices given in general must be modified in this
-scenario.  The PCG algorithm solves a linear system :math:`Ax = b` where  
+scenario.  The PCG algorithm solves a linear system :math:`Ax = b` where
 :math:`A` is a symmetric (:math:`A^T=A`), real-valued matrix.  Preconditioning is
 allowed, and is applied in a symmetric fashion on both the right and
 left.  Scaling is also allowed and is applied symmetrically.  We
@@ -51,11 +51,11 @@ that provide :math:`A` and :math:`P^{-1}` as operators are required.  The diagon
 of the matrix :math:`S` is held in a single ``N_Vector``, supplied by the user.
 
 In this notation, PCG applies the underlying CG algorithm to the
-equivalent transformed system 
+equivalent transformed system
 
 .. math::
    :label: eq:transformed_linear_systemPCG
-   
+
    \tilde{A} \tilde{x} = \tilde{b}
 
 where
@@ -82,19 +82,19 @@ scaled preconditioned residual:
    &\| P^{-1} b - P^{-1} A x \|_S  <  \delta
 
 where :math:`\| v \|_S = \sqrt{v^T S^T S v}`, with an input tolerance
-:math:`\delta`. 
+:math:`\delta`.
 
 .. _SUNLinSol_PCG.Usage:
 
 SUNLinSol_PCG Usage
 ---------------------
 
-The header file to be included when using this module 
-is ``sunlinsol/sunlinsol_pcg.h``.  The SUNLinSol_PCG module 
+The header file to be included when using this module
+is ``sunlinsol/sunlinsol_pcg.h``.  The SUNLinSol_PCG module
 is accessible from all SUNDIALS solvers *without*
 linking to the ``libsundials_sunlinsolpcg`` module library.
 
-The module SUNLinSol_PCG provides the following user-callable routines: 
+The module SUNLinSol_PCG provides the following user-callable routines:
 
 
 .. c:function:: SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl)
@@ -102,7 +102,7 @@ The module SUNLinSol_PCG provides the following user-callable routines:
    This constructor function creates and allocates memory for a PCG
    ``SUNLinearSolver``.  Its arguments are an ``N_Vector``, a flag
    indicating to use preconditioning, and the number of linear
-   iterations to allow. 
+   iterations to allow.
 
    This routine will perform consistency checks to ensure that it is
    called with a consistent ``N_Vector`` implementation (i.e. that it
@@ -135,12 +135,12 @@ The module SUNLinSol_PCG provides the following user-callable routines:
    This routine will return with one of the error codes
    ``SUNLS_ILL_INPUT`` (illegal ``pretype``), ``SUNLS_MEM_NULL``
    (``S`` is ``NULL``), or ``SUNLS_SUCCESS``.
-  
+
 
 .. c:function:: int SUNLinSol_PCGSetMaxl(SUNLinearSolver S, int maxl)
 
    This function updates the number of linear solver iterations to
-   allow. 
+   allow.
 
    A ``maxl`` argument that is :math:`\le0` will result in the default
    value (5).
@@ -148,7 +148,7 @@ The module SUNLinSol_PCG provides the following user-callable routines:
    This routine will return with one of the error codes
    ``SUNLS_MEM_NULL`` (``S`` is ``NULL``) or ``SUNLS_SUCCESS``.
 
-   
+
 For backwards compatibility, we also provide the wrapper functions,
 each with identical input and output arguments to the routines that
 they wrap:
@@ -165,8 +165,8 @@ they wrap:
 
    Wrapper function for :c:func:`SUNLinSol_PCGSetMaxl()`
 
-   
-   
+
+
 For solvers that include a Fortran interface module, the
 SUNLinSol_PCG module also includes the Fortran-callable
 function :f:func:`FSUNPCGInit()` to initialize
@@ -175,11 +175,11 @@ this SUNLinSol_PCG module for a given SUNDIALS solver.
 .. f:subroutine:: FSUNPCGInit(CODE, PRETYPE, MAXL, IER)
 
    Initializes a PCG ``SUNLinearSolver`` structure for
-   use in a SUNDIALS package. 
+   use in a SUNDIALS package.
 
    This routine must be called *after* the ``N_Vector`` object has
-   been initialized. 
-                  
+   been initialized.
+
    **Arguments:**
       * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
         this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
@@ -189,7 +189,7 @@ this SUNLinSol_PCG module for a given SUNDIALS solver.
       * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
 
 Additionally, when using ARKode with a non-identity
-mass matrix, the Fortran-callable function 
+mass matrix, the Fortran-callable function
 :f:func:`FSUNMassPCGInit()` initializes this
 SUNLinSol_PCG module for solving mass matrix linear systems.
 
@@ -199,8 +199,8 @@ SUNLinSol_PCG module for solving mass matrix linear systems.
    use in solving mass matrix systems in ARKode.
 
    This routine must be called *after* the ``N_Vector`` object has
-   been initialized. 
-                  
+   been initialized.
+
    **Arguments:**
       * *PRETYPE* (``int``, input) -- flag denoting whether to use
         symmetric preconditioning: no=0, yes=1.
@@ -212,51 +212,51 @@ routines also support Fortran interfaces for the system and mass
 matrix solvers:
 
 .. f:subroutine:: FSUNPCGSetPrecType(CODE, PRETYPE, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_PCGSetPrecType()` for system
-   linear solvers.  
+   linear solvers.
 
    This routine must be called *after* :f:func:`FSUNPCGInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 .. f:subroutine:: FSUNMassPCGSetPrecType(PRETYPE, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_PCGSetPrecType()` for mass matrix
    linear solvers in ARKode.
 
    This routine must be called *after* :f:func:`FSUNMassPCGInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 .. f:subroutine:: FSUNPCGSetMaxl(CODE, MAXL, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_PCGSetMaxl()` for system
-   linear solvers.  
+   linear solvers.
 
    This routine must be called *after* :f:func:`FSUNPCGInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 .. f:subroutine:: FSUNMassPCGSetMaxl(MAXL, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_PCGSetMaxl()` for mass matrix
    linear solvers in ARKode.
 
    This routine must be called *after* :f:func:`FSUNMassPCGInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 
-   
+
 .. _SUNLinSol_PCG.Description:
 
 SUNLinSol_PCG Description
@@ -273,7 +273,7 @@ The SUNLinSol_PCG module defines the *content* field of a
      int pretype;
      int numiters;
      realtype resnorm;
-     long int last_flag;
+     int last_flag;
      ATimesFn ATimes;
      void* ATData;
      PSetupFn Psetup;
@@ -316,22 +316,22 @@ information:
 
 * ``r`` - a ``N_Vector`` which holds the preconditioned linear system
   residual,
-  
+
 * ``p, z, Ap`` - ``N_Vector`` used for workspace by the
-  PCG algorithm. 
+  PCG algorithm.
 
 
 This solver is constructed to perform the following operations:
 
-* During construction all ``N_Vector`` solver data is allocated, with 
-  vectors cloned from a template ``N_Vector`` that is input, and 
+* During construction all ``N_Vector`` solver data is allocated, with
+  vectors cloned from a template ``N_Vector`` that is input, and
   default solver parameters are set.
 
 * User-facing "set" routines may be called to modify default
   solver parameters.
 
 * Additional "set" routines are called by the SUNDIALS solver
-  that interfaces with SUNLinSol_PCG to supply the 
+  that interfaces with SUNLinSol_PCG to supply the
   ``ATimes``, ``PSetup``, and ``Psolve`` function pointers and
   ``s`` scaling vector.
 
@@ -349,7 +349,7 @@ This solver is constructed to perform the following operations:
 
 The SUNLinSol_PCG module defines implementations of all
 "iterative" linear solver operations listed in the section
-:ref:`SUNLinSol.API`: 
+:ref:`SUNLinSol.API`:
 
 * ``SUNLinSolGetType_PCG``
 
@@ -359,9 +359,9 @@ The SUNLinSol_PCG module defines implementations of all
 
 * ``SUNLinSolSetPreconditioner_PCG``
 
-* ``SUNLinSolSetScalingVectors_PCG`` -- since PCG only supports 
+* ``SUNLinSolSetScalingVectors_PCG`` -- since PCG only supports
   symmetric scaling, the second ``N_Vector`` argument to this function
-  is ignored 
+  is ignored
 
 * ``SUNLinSolSetup_PCG``
 
@@ -378,4 +378,3 @@ The SUNLinSol_PCG module defines implementations of all
 * ``SUNLinSolSpace_PCG``
 
 * ``SUNLinSolFree_PCG``
-

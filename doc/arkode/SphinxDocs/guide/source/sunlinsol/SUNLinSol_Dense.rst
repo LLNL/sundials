@@ -33,11 +33,11 @@ SUNLinSol_Dense Usage
 
 The header file to be included when using this module is
 ``sunlinsol/sunlinsol_dense.h``.  The SUNLinSol_Dense module is
-accessible from all SUNDIALS solvers *without* 
+accessible from all SUNDIALS solvers *without*
 linking to the ``libsundials_sunlinsoldense`` module library.
 
 
-The module SUNLinSol_Dense provides the following user-callable constructor routine: 
+The module SUNLinSol_Dense provides the following user-callable constructor routine:
 
 
 .. c:function:: SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A)
@@ -65,7 +65,7 @@ For backwards compatibility, we also provide the wrapper function,
    Wrapper function for :c:func:`SUNLinSol_Dense()`, with identical input and
    output arguments
 
-                
+
 For solvers that include a Fortran interface module, the
 SUNLinSol_Dense module also includes the Fortran-callable
 function :f:func:`FSUNDenseLinSolInit()` to initialize
@@ -74,11 +74,11 @@ this SUNLinSol_Dense module for a given SUNDIALS solver.
 .. f:subroutine:: FSUNDenseLinSolInit(CODE, IER)
 
    Initializes a dense ``SUNLinearSolver`` structure for
-   use in a SUNDIALS package. 
+   use in a SUNDIALS package.
 
    This routine must be called *after* both the ``N_Vector`` and
    ``SUNMatrix`` objects have been initialized.
-                  
+
    **Arguments:**
       * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
         this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
@@ -87,16 +87,16 @@ this SUNLinSol_Dense module for a given SUNDIALS solver.
 Additionally, when using ARKode with a non-identity mass matrix, the
 Fortran-callable function :f:func:`FSUNMassDenseLinSolInit()`
 initializes this SUNLinSol_Dense module for solving mass matrix linear
-systems. 
+systems.
 
 .. f:subroutine:: FSUNMassDenseLinSolInit(IER)
 
    Initializes a dense ``SUNLinearSolver`` structure for
-   use in solving mass matrix systems in ARKode. 
+   use in solving mass matrix systems in ARKode.
 
    This routine must be called *after* both the ``N_Vector`` and
    ``SUNMatrix`` objects have been initialized.
-                  
+
    **Arguments:**
       * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
 
@@ -109,14 +109,14 @@ SUNLinSol_Dense Description
 
 
 The SUNLinSol_Dense module defines the *content*
-field of a ``SUNLinearSolver`` to be the following structure: 
+field of a ``SUNLinearSolver`` to be the following structure:
 
 .. code-block:: c
 
    struct _SUNLinearSolverContent_Dense {
      sunindextype N;
      sunindextype *pivots;
-     long int last_flag;
+     sunindextype last_flag;
    };
 
 These entries of the *content* field contain the following
@@ -147,7 +147,7 @@ This solver is constructed to perform the following operations:
 
 The SUNLinSol_Dense module defines dense implementations of all
 "direct" linear solver operations listed in the section
-:ref:`SUNLinSol.API`: 
+:ref:`SUNLinSol.API`:
 
 * ``SUNLinSolGetType_Dense``
 
@@ -166,4 +166,3 @@ The SUNLinSol_Dense module defines dense implementations of all
   for ``N``, ``last_flag``, and ``pivots``.
 
 * ``SUNLinSolFree_Dense``
-

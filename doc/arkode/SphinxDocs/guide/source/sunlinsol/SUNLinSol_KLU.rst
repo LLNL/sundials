@@ -262,7 +262,7 @@ field of a ``SUNLinearSolver`` to be the following structure:
 .. code-block:: c
 
    struct _SUNLinearSolverContent_KLU {
-     long int         last_flag;
+     int              last_flag;
      int              first_factorize;
      sun_klu_symbolic *symbolic;
      sun_klu_numeric  *numeric;

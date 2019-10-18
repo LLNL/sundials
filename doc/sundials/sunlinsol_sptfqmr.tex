@@ -418,7 +418,7 @@ struct _SUNLinearSolverContent_SPTFQMR {
   int pretype;
   int numiters;
   realtype resnorm;
-  long int last_flag;
+  int last_flag;
   ATimesFn ATimes;
   void* ATData;
   PSetupFn Psetup;
@@ -463,4 +463,3 @@ information:
     SPTFQMR algorithm,
   \item[vtemp1, vtemp2, vtemp3] - temporary vector storage.
 \end{args}
-

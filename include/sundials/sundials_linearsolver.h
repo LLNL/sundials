@@ -115,7 +115,7 @@ struct _generic_SUNLinearSolver_Ops {
                                 N_Vector, realtype);
   int                  (*numiters)(SUNLinearSolver);
   realtype             (*resnorm)(SUNLinearSolver);
-  long int             (*lastflag)(SUNLinearSolver);
+  sunindextype         (*lastflag)(SUNLinearSolver);
   int                  (*space)(SUNLinearSolver, long int*, long int*);
   N_Vector             (*resid)(SUNLinearSolver);
   int                  (*free)(SUNLinearSolver);
@@ -164,7 +164,7 @@ SUNDIALS_EXPORT realtype SUNLinSolResNorm(SUNLinearSolver S);
 
 SUNDIALS_EXPORT N_Vector SUNLinSolResid(SUNLinearSolver S);
 
-SUNDIALS_EXPORT long int SUNLinSolLastFlag(SUNLinearSolver S);
+SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag(SUNLinearSolver S);
 
 SUNDIALS_EXPORT int SUNLinSolSpace(SUNLinearSolver S, long int *lenrwLS,
                                    long int *leniwLS);

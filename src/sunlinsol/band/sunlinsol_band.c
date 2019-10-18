@@ -211,9 +211,10 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   return(LASTFLAG(S));
 }
 
-long int SUNLinSolLastFlag_Band(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_Band(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
+  if (S == NULL) return(-1);
   return(LASTFLAG(S));
 }
 

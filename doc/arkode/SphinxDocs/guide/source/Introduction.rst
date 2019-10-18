@@ -110,6 +110,11 @@ Changes from previous versions
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The return type of the SUNLinearSolver API function
+:c:func:`SUNLinSolLastFlag()` has changed from ``long int`` to ``sunindextype``
+to be consistent with the type used to store row indices in dense and
+banded linear solver modules.
+
 Added Fortran 2003 interfaces to the ``NVECTOR_MANYVECTOR``,
 ``NVECTOR_MPIMANYVECTOR`` and ``NVECTOR_MPIPLUSX``.
 

@@ -12,11 +12,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the band implementation of the 
+ * This is the header file for the band implementation of the
  * SUNLINSOL module, SUNLINSOL_BAND.
  *
  * Note:
- *   - The definition of the generic SUNLinearSolver structure can 
+ *   - The definition of the generic SUNLinearSolver structure can
  *     be found in the header file sundials_linearsolver.h.
  * -----------------------------------------------------------------
  */
@@ -37,16 +37,16 @@ extern "C" {
 /* ---------------------------------------
  * Band Implementation of SUNLinearSolver
  * --------------------------------------- */
-  
+
 struct _SUNLinearSolverContent_Band {
   sunindextype  N;
   sunindextype *pivots;
-  long int last_flag;
+  sunindextype last_flag;
 };
 
 typedef struct _SUNLinearSolverContent_Band *SUNLinearSolverContent_Band;
 
-  
+
 /* --------------------------------------
  * Exported Functions for SUNLINSOL_BAND
  * -------------------------------------- */
@@ -63,7 +63,7 @@ SUNDIALS_EXPORT int SUNLinSolInitialize_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A,
                                         N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT long int SUNLinSolLastFlag_Band(SUNLinearSolver S);
+SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_Band(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_Band(SUNLinearSolver S,
                                         long int *lenrwLS,
                                         long int *leniwLS);

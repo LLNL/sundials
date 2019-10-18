@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- * Based on code sundials_spbcgs.h by: Peter Brown and 
+ * Based on code sundials_spbcgs.h by: Peter Brown and
  *     Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -14,12 +14,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the SPBCGS implementation of the 
+ * This is the header file for the SPBCGS implementation of the
  * SUNLINSOL module, SUNLINSOL_SPBCGS.  The SPBCGS algorithm is based
  * on the Scaled Preconditioned Bi-CG-Stabilized method.
  *
  * Note:
- *   - The definition of the generic SUNLinearSolver structure can 
+ *   - The definition of the generic SUNLinearSolver structure can
  *     be found in the header file sundials_linearsolver.h.
  * -----------------------------------------------------------------
  */
@@ -41,13 +41,13 @@ extern "C" {
 /* -----------------------------------------
  * SPBCGS Implementation of SUNLinearSolver
  * ---------------------------------------- */
-  
+
 struct _SUNLinearSolverContent_SPBCGS {
   int maxl;
   int pretype;
   int numiters;
   realtype resnorm;
-  long int last_flag;
+  int last_flag;
 
   ATimesFn ATimes;
   void* ATData;
@@ -68,7 +68,7 @@ struct _SUNLinearSolverContent_SPBCGS {
 
 typedef struct _SUNLinearSolverContent_SPBCGS *SUNLinearSolverContent_SPBCGS;
 
-  
+
 /* ---------------------------------------
  *Exported Functions for SUNLINSOL_SPBCGS
  * --------------------------------------- */
@@ -106,9 +106,9 @@ SUNDIALS_EXPORT int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A,
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPBCGS(SUNLinearSolver S);
-SUNDIALS_EXPORT long int SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_SPBCGS(SUNLinearSolver S, 
-                                          long int *lenrwLS, 
+SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolSpace_SPBCGS(SUNLinearSolver S,
+                                          long int *lenrwLS,
                                           long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPBCGS(SUNLinearSolver S);
 

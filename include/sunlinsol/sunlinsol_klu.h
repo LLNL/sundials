@@ -89,7 +89,7 @@ typedef sunindextype (*KLUSolveFn)(sun_klu_symbolic*, sun_klu_numeric*,
                                    double*, sun_klu_common*);
 
 struct _SUNLinearSolverContent_KLU {
-  long int         last_flag;
+  int              last_flag;
   int              first_factorize;
   sun_klu_symbolic *symbolic;
   sun_klu_numeric  *numeric;
@@ -138,7 +138,7 @@ SUNDIALS_EXPORT int SUNLinSolInitialize_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A,
                                        N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT long int SUNLinSolLastFlag_KLU(SUNLinearSolver S);
+SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_KLU(SUNLinearSolver S,
                                        long int *lenrwLS,
                                        long int *leniwLS);

@@ -283,7 +283,7 @@ for creating a \id{SUNLinearSolver} object.
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the {\CC} function \newline \ID{SUNLinSol\_SPFGMR}. 
+  the {\CC} function \newline \ID{SUNLinSol\_SPFGMR}.
 }
 Additionally, when using {\arkode} with a non-identity
 mass matrix, the {\sunlinsolspfgmr} module includes a Fortran-callable
@@ -318,7 +318,7 @@ object.
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the {\CC} function \newline \ID{SUNLinSol\_SPFGMR}. 
+  the {\CC} function \newline \ID{SUNLinSol\_SPFGMR}.
 }
 % --------------------------------------------------------------------
 %
@@ -510,7 +510,7 @@ struct _SUNLinearSolverContent_SPFGMR {
   int max_restarts;
   int numiters;
   realtype resnorm;
-  long int last_flag;
+  int last_flag;
   ATimesFn ATimes;
   void* ATData;
   PSetupFn Psetup;
@@ -581,4 +581,3 @@ information:
     used to hold ``short'' vectors (e.g. $y$ and $g$),
   \item[vtemp] - temporary vector storage.
 \end{args}
-

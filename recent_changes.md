@@ -2,6 +2,10 @@
 
 ## Changes to SUNDIALS in release 5.0.0
 
+The return type of the SUNLinearSolver API function `SUNLinSolLastFlag` has
+changed from `long int` to `sunindextype` to be consistent with the type
+used to store row indices in dense and banded linear solver modules.
+
 Added Fortran 2003 interfaces to CVODES and IDAS.
 
 Added Fortran 2003 interfaces to the `NVECTOR_MANYVECTOR`,

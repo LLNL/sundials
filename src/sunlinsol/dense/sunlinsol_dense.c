@@ -195,9 +195,10 @@ int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   return(LASTFLAG(S));
 }
 
-long int SUNLinSolLastFlag_Dense(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
+  if (S == NULL) return(-1);
   return(LASTFLAG(S));
 }
 

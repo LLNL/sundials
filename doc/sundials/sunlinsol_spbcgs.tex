@@ -247,7 +247,7 @@ for creating a \id{SUNLinearSolver} object.
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the {\CC} function \newline \ID{SUNLinSol\_SPBCGS}. 
+  the {\CC} function \newline \ID{SUNLinSol\_SPBCGS}.
 }
 Additionally, when using {\arkode} with a non-identity
 mass matrix, the {\sunlinsolspbcgs} module includes a Fortran-callable
@@ -282,7 +282,7 @@ object.
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the {\CC} function \newline \ID{SUNLinSol\_SPBCGS}. 
+  the {\CC} function \newline \ID{SUNLinSol\_SPBCGS}.
 }
 %
 % --------------------------------------------------------------------
@@ -418,7 +418,7 @@ struct _SUNLinearSolverContent_SPBCGS {
   int pretype;
   int numiters;
   realtype resnorm;
-  long int last_flag;
+  int last_flag;
   ATimesFn ATimes;
   void* ATData;
   PSetupFn Psetup;
@@ -459,4 +459,3 @@ information:
   \item[p, q, u, Ap, vtemp] - {\nvector}s used for workspace by the
     {\spbcgs} algorithm.
 \end{args}
-

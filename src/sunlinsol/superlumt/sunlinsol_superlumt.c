@@ -178,7 +178,7 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
 
 int SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
 {
-  /* Check for legal ordering_choice */ 
+  /* Check for legal ordering_choice */
   if ((ordering_choice < 0) || (ordering_choice > 3))
     return(SUNLS_ILL_INPUT);
 
@@ -217,7 +217,7 @@ int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S)
 
   /* Initialize statistics variables */
   StatInit(SIZE(S), NUMTHREADS(S), GSTAT(S));
-  
+
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
@@ -232,7 +232,7 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
   trans_t trans;
   yes_no_t refact, usepr;
   void *work;
-  
+
   /* Set option values for SuperLU_MT */
   panel_size = sp_ienv(1);
   relax = sp_ienv(2);
@@ -246,15 +246,15 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
   /* free and reallocate sparse matrix */
   if (SM_A(S)->Store)
     SUPERLU_FREE(SM_A(S)->Store);
-  xCreate_CompCol_Matrix(SM_A(S), SUNSparseMatrix_Rows(A), 
+  xCreate_CompCol_Matrix(SM_A(S), SUNSparseMatrix_Rows(A),
 			 SUNSparseMatrix_Columns(A),
-                         SUNSparseMatrix_NNZ(A), 
-                         SUNSparseMatrix_Data(A), 
-                         (int_t*) SUNSparseMatrix_IndexValues(A), 
-                         (int_t*) SUNSparseMatrix_IndexPointers(A), 
+                         SUNSparseMatrix_NNZ(A),
+                         SUNSparseMatrix_Data(A),
+                         (int_t*) SUNSparseMatrix_IndexValues(A),
+                         (int_t*) SUNSparseMatrix_IndexPointers(A),
 			 SLU_NC, SLU_D, SLU_GE);
 
-  /* On first decomposition, set up reusable pieces */ 
+  /* On first decomposition, set up reusable pieces */
   if (FIRSTFACTORIZE(S)) {
 
     /* Get column permutation vector perm_c[], according to ordering */
@@ -265,17 +265,17 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
   } else {
 
     /* Re-initialize statistics variables */
-    StatInit(SIZE(S), NUMTHREADS(S), GSTAT(S)); 
+    StatInit(SIZE(S), NUMTHREADS(S), GSTAT(S));
     Destroy_CompCol_Permuted(SM_AC(S));
     refact = YES;
-    
+
   }
 
-  /* Initialize the option structure using the user-input parameters. 
-     Subsequent calls will re-initialize options.  Apply perm_c to 
+  /* Initialize the option structure using the user-input parameters.
+     Subsequent calls will re-initialize options.  Apply perm_c to
      columns of original A to form AC */
-  pxgstrf_init(NUMTHREADS(S), fact, trans, refact, panel_size, relax, 
-	       DIAGPIVOTTHRESH(S), usepr, drop_tol, (int_t *) PERMC(S), (int_t *) PERMR(S), 
+  pxgstrf_init(NUMTHREADS(S), fact, trans, refact, panel_size, relax,
+	       DIAGPIVOTTHRESH(S), usepr, drop_tol, (int_t *) PERMC(S), (int_t *) PERMR(S),
                work, lwork, SM_A(S), SM_AC(S), OPTIONS(S), GSTAT(S));
 
   /* Compute the LU factorization of A.
@@ -283,24 +283,24 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
   pxgstrf(OPTIONS(S), SM_AC(S), (int_t *) PERMR(S), SM_L(S), SM_U(S),
           GSTAT(S), &retval);
   if (retval != 0) {
-    LASTFLAG(S) = (retval < 0) ? 
+    LASTFLAG(S) = (retval < 0) ?
       SUNLS_PACKAGE_FAIL_UNREC : SUNLS_PACKAGE_FAIL_REC;
     return(LASTFLAG(S));
   }
-  
+
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
 
-int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
+int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                              N_Vector b, realtype tol)
 {
   int_t retval;
   realtype *xdata;
   DNformat *Bstore;
   trans_t trans;
-  
+
   /* copy b into x */
   N_VScale(ONE, b, x);
 
@@ -313,7 +313,7 @@ int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   Bstore = (DNformat *) (SM_B(S)->Store);
   Bstore->nzval = xdata;
-  
+
   /* Call SuperLUMT to solve the linear system using L and U */
   trans = (SUNSparseMatrix_SparseType(A) == CSC_MAT) ? NOTRANS : TRANS;
   xgstrs(trans, SM_L(S), SM_U(S), (int_t *) PERMR(S), (int_t *) PERMC(S), SM_B(S), GSTAT(S), &retval);
@@ -321,24 +321,25 @@ int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
     return(LASTFLAG(S));
   }
-  
+
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(LASTFLAG(S));
 }
 
 
-long int SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
+  if (S == NULL) return(-1);
   return(LASTFLAG(S));
 }
 
 
-int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S, 
-                             long int *lenrwLS, 
+int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S,
+                             long int *lenrwLS,
                              long int *leniwLS)
 {
-  /* since the SuperLU_MT structures are opaque objects, we 
+  /* since the SuperLU_MT structures are opaque objects, we
      omit those from these results */
   *leniwLS = 5 + 2*SIZE(S);
   *lenrwLS = 1;
@@ -349,7 +350,7 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
 {
   /* return with success if already freed */
   if (S == NULL) return(SUNLS_SUCCESS);
-  
+
   /* delete items from the contents structure (if it exists) */
   if (S->content) {
     if (OPTIONS(S) && SM_AC(S)) {
@@ -408,13 +409,13 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
       free(SM_U(S));
       SM_U(S) = NULL;
     }
-    free(S->content);  
+    free(S->content);
     S->content = NULL;
   }
-  
+
   /* delete generic structures */
   if (S->ops) {
-    free(S->ops);  
+    free(S->ops);
     S->ops = NULL;
   }
   free(S); S = NULL;

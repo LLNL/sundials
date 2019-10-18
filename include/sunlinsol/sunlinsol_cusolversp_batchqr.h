@@ -93,7 +93,7 @@ SUNDIALS_EXPORT int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S,
                                                       N_Vector b,
                                                       realtype tol);
 
-SUNDIALS_EXPORT long int SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S);
+SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S);
 
 SUNDIALS_EXPORT int SUNLinSolSpace_cuSolverSp_batchQR(SUNLinearSolver S,
                                                       long int* lenrwLS,
@@ -109,7 +109,7 @@ SUNDIALS_EXPORT int SUNLinSolFree_cuSolverSp_batchQR(SUNLinearSolver S);
  */
 
 SUNDIALS_EXPORT void SUNLinSol_cuSolverSp_batchQR_GetDescription(SUNLinearSolver S,
-                                                                 char** desc); 
+                                                                 char** desc);
 
 SUNDIALS_EXPORT void SUNLinSol_cuSolverSp_batchQR_SetDescription(SUNLinearSolver S,
                                                                  const char* desc);

@@ -22,7 +22,7 @@ The SUNLinSol_SuperLUDIST Module
 
 The SuperLU_DIST implementation of the SUNLinearSolver module provided with SUNDIALS,
 SUNLinsol_SuperLUDIST, is designed to be used with the SUNMatrix_SLUNRloc SUNMatrix,
-and one of the serial, threaded or parallel N_Vector implementations (NVECTOR_SERIAL, 
+and one of the serial, threaded or parallel N_Vector implementations (NVECTOR_SERIAL,
 NVECTOR_OPENMP, NVECTOR_PTHREADS, NVECTOR_PARALLEL, NVECTOR_PARHYP).
 
 .. _SUNLinSol_SuperLUDIST.Usage:
@@ -51,7 +51,7 @@ The module SUNLinSol_SuperLUDIST provides the following user-callable routines:
    This routine will perform consistency checks to ensure that it is called with
    consistent N_Vector and SUNMatrix implementations. These are currently limited
    to the SUNMatrix_SLUNRloc matrix type and the NVECTOR_SERIAL, NVECTOR_OPENMP,
-   NVECTOR_PTHREADS, NVECTOR_PARALLEL, and NVECTOR_PARHYP vector types. As 
+   NVECTOR_PTHREADS, NVECTOR_PARALLEL, and NVECTOR_PARHYP vector types. As
    additional compatible matrix and vector implementations are added to SUNDIALS,
    these will be included within this compatibility check.
 
@@ -124,7 +124,7 @@ The SUNLinSol_SuperLUDIST module defines the *content* field of a
 
    struct _SUNLinearSolverContent_SuperLUDIST {
      booleantype             first_factorize;
-     long int                last_flag;
+     int                     last_flag;
      realtype                berr;
      gridinfo_t              *grid;
      LUstruct_t              *lu;
@@ -213,8 +213,8 @@ constructed to perform the following operations:
   called prior, "solve" will skip to the triangular solve step. We
   note that in this solve SuperLU_DIST operates on the native data arrays
   for the right-hand side and solution vectors, without requiring costly data copies.
-  
-  
+
+
 The SUNLinSol_SuperLUDIST module defines implementations of all
 "direct" linear solver operations listed in the section
 :ref:`SUNLinSol.API`:
@@ -243,4 +243,3 @@ The SUNLinSol_SuperLUDIST module defines implementations of all
   space requirements, see the SuperLU_DIST documentation.
 
 * ``SUNLinSolFree_SuperLUDIST``
-

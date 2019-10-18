@@ -93,17 +93,21 @@ int Test_SUNLinSolGetID(SUNLinearSolver S, SUNLinearSolver_ID sunid, int myid)
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolLastFlag(SUNLinearSolver S, int myid)
 {
-  double   start_time, stop_time;
-  long int lastflag;
+  double       start_time, stop_time;
+  sunindextype lastflag;
 
-  /* the only way to fail this test is if the function is NULL,
-     which will cause a seg-fault */
+  /* the only way for this test to fail is if S is NULL */
+  if (S == NULL) {
+    printf(">>> FAILED test -- SUNLinSolLastFlag, Proc %d \n", myid);
+    return(1);
+  }
+
   start_time = get_time();
   lastflag = SUNLinSolLastFlag(S);
   stop_time = get_time();
 
   if (myid == 0) {
-    printf("    PASSED test -- SUNLinSolLastFlag (%ld) \n", lastflag);
+    printf("    PASSED test -- SUNLinSolLastFlag (%ld) \n", (long int) lastflag);
     PRINT_TIME("    SUNLinSolLastFlag Time: %22.15e \n \n", stop_time - start_time);
   }
 

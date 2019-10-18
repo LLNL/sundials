@@ -728,7 +728,7 @@ N_Vector SUNLinSolResid_SPTFQMR(SUNLinearSolver S)
 }
 
 
-long int SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
   if (S == NULL) return(-1);

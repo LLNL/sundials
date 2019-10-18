@@ -10,7 +10,7 @@ corresponding {\sunmatslunrloc} matrix type, and one of the serial, threaded
 or parallel {\nvector} implementations ({\nvecs}, {\nvecopenmp}, {\nvecpthreads},
 {\nvecp}, or {\nvecph}).
 
-The header file to include when using this module 
+The header file to include when using this module
 is \id{sunlinsol/sunlinsol\_superludist.h}. The installed module
 library to link to is
 \id{libsundials\_sunlinsolsuperludist.\textit{lib}}
@@ -96,7 +96,7 @@ The {\sunlinsolsludist} module defines implementations of all
 \item \id{SUNLinSolFree\_SuperLUDIST}
 \end{itemize}
 
-In addition, the module {\sunlinsolsludist} provides the following user-callable routines: 
+In addition, the module {\sunlinsolsludist} provides the following user-callable routines:
 %%
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSol\_SuperLUDIST}
@@ -113,7 +113,7 @@ In addition, the module {\sunlinsolsludist} provides the following user-callable
     a template for cloning vectors needed within the solver
   \item[A] (\id{SUNMatrix})
     a {\sunmatslunrloc} matrix template for cloning matrices needed
-    within the solver 
+    within the solver
   \item[grid] (\id{gridinfo\_t*})
   \item[lu] (\id{LUstruct\_t*})
   \item[scaleperm] (\id{ScalePermstruct\_t*})
@@ -249,7 +249,7 @@ In addition, the module {\sunlinsolsludist} provides the following user-callable
   \end{args}
 }
 {
-  \id{ScalePermstruct\_t*} 
+  \id{ScalePermstruct\_t*}
 }
 {
 }
@@ -271,7 +271,7 @@ In addition, the module {\sunlinsolsludist} provides the following user-callable
   \end{args}
 }
 {
-  \id{SOLVEstruct\_t*} 
+  \id{SOLVEstruct\_t*}
 }
 {
 }
@@ -293,7 +293,7 @@ In addition, the module {\sunlinsolsludist} provides the following user-callable
   \end{args}
 }
 {
-  \id{SuperLUStat\_t*} 
+  \id{SuperLUStat\_t*}
 }
 {
 }
@@ -305,10 +305,10 @@ In addition, the module {\sunlinsolsludist} provides the following user-callable
 The {\sunlinsolsludist} module defines the {\em
 content} field of a \id{SUNLinearSolver} to be the following structure:
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _SUNLinearSolverContent_SuperLUDIST {
   booleantype             first_factorize;
-  long int                last_flag;
+  int                     last_flag;
   realtype                berr;
   gridinfo_t              *grid;
   LUstruct_t              *lu;
@@ -338,4 +338,3 @@ information:
     and flop count,
   \item[N] - the number of equations in the system
 \end{description}
-

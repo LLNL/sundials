@@ -51,7 +51,7 @@ extern "C" {
 
 struct _SUNLinearSolverContent_SuperLUDIST {
   booleantype             first_factorize;
-  long int                last_flag;
+  int                     last_flag;
   realtype                berr;
   gridinfo_t              *grid;
   LUstruct_t              *lu;
@@ -105,7 +105,7 @@ SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUDIST(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A,
                                                N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT long int SUNLinSolLastFlag_SuperLUDIST(SUNLinearSolver S);
+SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SuperLUDIST(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SuperLUDIST(SUNLinearSolver S,
                                               long int *lenrwLS,
                                               long int *leniwLS);

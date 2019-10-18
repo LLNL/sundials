@@ -109,7 +109,7 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl)
 
   /* Attach content */
   S->content = content;
-  
+
   /* Fill content */
   content->last_flag    = 0;
   content->maxl         = maxl;
@@ -704,7 +704,7 @@ N_Vector SUNLinSolResid_SPGMR(SUNLinearSolver S)
 }
 
 
-long int SUNLinSolLastFlag_SPGMR(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_SPGMR(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
   if (S == NULL) return(-1);

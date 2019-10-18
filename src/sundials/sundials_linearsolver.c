@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David J. Gardner, Carol S. Woodward, and 
+ *                David J. Gardner, Carol S. Woodward, and
  *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -70,7 +70,7 @@ SUNLinearSolver SUNLinSolNewEmpty()
 void SUNLinSolFreeEmpty(SUNLinearSolver S)
 {
   if (S == NULL)  return;
-  
+
   /* free non-NULL ops structure */
   if (S->ops)  free(S->ops);
   S->ops = NULL;
@@ -171,10 +171,10 @@ N_Vector SUNLinSolResid(SUNLinearSolver S)
     return NULL;
 }
 
-long int SUNLinSolLastFlag(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag(SUNLinearSolver S)
 {
   if (S->ops->lastflag)
-    return ((long int) S->ops->lastflag(S));
+    return ((sunindextype) S->ops->lastflag(S));
   else
     return SUNLS_SUCCESS;
 }

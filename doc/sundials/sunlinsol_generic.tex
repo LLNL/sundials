@@ -532,7 +532,7 @@ results from a linear solve.  All routines are optional.
   \end{args}
 }
 {
-  \id{long int} containing the most recent error flag
+  \id{sunindextype} containing the most recent error flag
 }
 {}
 % --------------------------------------------------------------------
@@ -820,7 +820,7 @@ struct _generic_SUNLinearSolver_Ops {
                                 N_Vector, realtype);
   int                  (*numiters)(SUNLinearSolver);
   realtype             (*resnorm)(SUNLinearSolver);
-  long int             (*lastflag)(SUNLinearSolver);
+  sunindxetype         (*lastflag)(SUNLinearSolver);
   int                  (*space)(SUNLinearSolver, long int*, long int*);
   N_Vector             (*resid)(SUNLinearSolver);
   int                  (*free)(SUNLinearSolver);

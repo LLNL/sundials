@@ -67,7 +67,7 @@ For backwards compatibility, we also provide the wrapper function,
    Wrapper function for :c:func:`SUNLinSol_LapackDense()`, with
    identical input and output arguments.
 
-   
+
 For solvers that include a Fortran interface module, the
 SUNLinSol_LapackDense module also includes the Fortran-callable
 function :f:func:`FSUNLapackDenseInit()` to initialize
@@ -102,7 +102,7 @@ linear systems.
    **Arguments:**
       * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
 
-        
+
 
 .. _SUNLinSol_LapackDense.Description:
 
@@ -119,7 +119,7 @@ structure:
    struct _SUNLinearSolverContent_Dense {
      sunindextype N;
      sunindextype *pivots;
-     long int last_flag;
+     sunindextype last_flag;
    };
 
 These entries of the *content* field contain the following
@@ -190,4 +190,3 @@ The SUNLinSol_LapackDense module defines dense implementations of all
   for ``N``, ``last_flag``, and ``pivots``.
 
 * ``SUNLinSolFree_LapackDense``
-
