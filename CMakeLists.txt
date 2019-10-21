@@ -63,37 +63,37 @@ mark_as_advanced(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-set(arkodelib_VERSION "4.0.0-dev.2")
+set(arkodelib_VERSION "4.0.0")
 set(arkodelib_SOVERSION "4")
 
-set(cvodelib_VERSION "5.0.0-dev.2")
+set(cvodelib_VERSION "5.0.0")
 set(cvodelib_SOVERSION "5")
 
-set(cvodeslib_VERSION "5.0.0-dev.2")
+set(cvodeslib_VERSION "5.0.0")
 set(cvodeslib_SOVERSION "5")
 
-set(idalib_VERSION "5.0.0-dev.2")
+set(idalib_VERSION "5.0.0")
 set(idalib_SOVERSION "5")
 
-set(idaslib_VERSION "4.0.0-dev.2")
+set(idaslib_VERSION "4.0.0")
 set(idaslib_SOVERSION "4")
 
-set(kinsollib_VERSION "5.0.0-dev.2")
+set(kinsollib_VERSION "5.0.0")
 set(kinsollib_SOVERSION "5")
 
 set(cpodeslib_VERSION "0.0.0")
 set(cpodeslib_SOVERSION "0")
 
-set(nveclib_VERSION "5.0.0-dev.2")
+set(nveclib_VERSION "5.0.0")
 set(nveclib_SOVERSION "5")
 
-set(sunmatrixlib_VERSION "3.0.0-dev.2")
+set(sunmatrixlib_VERSION "3.0.0")
 set(sunmatrixlib_SOVERSION "3")
 
-set(sunlinsollib_VERSION "3.0.0-dev.2")
+set(sunlinsollib_VERSION "3.0.0")
 set(sunlinsollib_SOVERSION "3")
 
-set(sunnonlinsollib_VERSION "2.0.0-dev.2")
+set(sunnonlinsollib_VERSION "2.0.0")
 set(sunnonlinsollib_SOVERSION "2")
 
 # Specify the location of additional CMAKE modules
