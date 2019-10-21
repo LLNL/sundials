@@ -526,7 +526,7 @@ inline cudaError_t dotProdMulti(int nvec, Vector<T,I>* x, Vector<T,I>** Y,
 
   for (int k=0; k<nvec; k++) {
     dots[k] = h_buff[k*n];
-    for (int i=1; i<n; i++){
+    for (unsigned i=1; i<n; i++){
       dots[k] += h_buff[i + k*n];
     }
   }
@@ -799,7 +799,7 @@ inline cudaError_t wL2NormSquareVectorArray(int nvec, Vector<T,I>** X,
 
   for (int k=0; k<nvec; k++) {
     nrm[k] = h_buff[k*n];
-    for (int i=1; i<n; i++){
+    for (unsigned i=1; i<n; i++){
       nrm[k] += h_buff[i + k*n];
     }
   }
@@ -897,7 +897,7 @@ inline cudaError_t wL2NormSquareMaskVectorArray(int nvec, Vector<T,I>** X,
 
   for (int k=0; k<nvec; k++) {
     nrm[k] = h_buff[k*n];
-    for (int i=1; i<n; i++){
+    for (unsigned i=1; i<n; i++){
       nrm[k] += h_buff[i + k*n];
     }
   }

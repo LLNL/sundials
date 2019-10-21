@@ -27,11 +27,9 @@ static int cvNlsResidualSensStg(N_Vector ycorStg, N_Vector resStg,
 static int cvNlsFPFunctionSensStg(N_Vector ycorStg, N_Vector resStg,
                                   void* cvode_mem);
 
-static int cvNlsLSetupSensStg(N_Vector ycorStg, N_Vector resStg,
-                              booleantype jbad, booleantype* jcur,
+static int cvNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
                               void* cvode_mem);
-static int cvNlsLSolveSensStg(N_Vector ycorStg, N_Vector deltaStg,
-                              void* cvode_mem);
+static int cvNlsLSolveSensStg(N_Vector deltaStg, void* cvode_mem);
 static int cvNlsConvTestSensStg(SUNNonlinearSolver NLS,
                                 N_Vector ycorStg, N_Vector delStg,
                                 realtype tol, N_Vector ewtStg, void* cvode_mem);
@@ -63,9 +61,7 @@ int CVodeSetNonlinearSolverSensStg(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* check for required nonlinear solver functions */
   if ( NLS->ops->gettype    == NULL ||
-       NLS->ops->initialize == NULL ||
        NLS->ops->solve      == NULL ||
-       NLS->ops->free       == NULL ||
        NLS->ops->setsysfn   == NULL ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
                    "CVodeSetNonlinearSolverSensStg",
@@ -120,7 +116,8 @@ int CVodeSetNonlinearSolverSensStg(void *cvode_mem, SUNNonlinearSolver NLS)
   }
 
   /* set convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(cv_mem->NLSstg, cvNlsConvTestSensStg);
+  retval = SUNNonlinSolSetConvTestFn(cv_mem->NLSstg, cvNlsConvTestSensStg,
+                                     cvode_mem);
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
                    "CVodeSetNonlinearSolverSensStg",
@@ -140,8 +137,8 @@ int CVodeSetNonlinearSolverSensStg(void *cvode_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (cv_mem->stgMallocDone == SUNFALSE) {
 
-    cv_mem->ycor0Stg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns);
-    if (cv_mem->ycor0Stg == NULL) {
+    cv_mem->zn0Stg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns);
+    if (cv_mem->zn0Stg == NULL) {
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
                      "CVodeSetNonlinearSolverSensStg", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
@@ -149,7 +146,7 @@ int CVodeSetNonlinearSolverSensStg(void *cvode_mem, SUNNonlinearSolver NLS)
 
     cv_mem->ycorStg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns);
     if (cv_mem->ycorStg == NULL) {
-      N_VDestroy(cv_mem->ycor0Stg);
+      N_VDestroy(cv_mem->zn0Stg);
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
                      "CVodeSetNonlinearSolverSensStg", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
@@ -157,7 +154,7 @@ int CVodeSetNonlinearSolverSensStg(void *cvode_mem, SUNNonlinearSolver NLS)
 
     cv_mem->ewtStg = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns);
     if (cv_mem->ewtStg == NULL) {
-      N_VDestroy(cv_mem->ycor0Stg);
+      N_VDestroy(cv_mem->zn0Stg);
       N_VDestroy(cv_mem->ycorStg);
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
                      "CVodeSetNonlinearSolverSensStg", MSGCV_MEM_FAIL);
@@ -169,10 +166,13 @@ int CVodeSetNonlinearSolverSensStg(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* attach vectors to vector wrappers */
   for (is=0; is < cv_mem->cv_Ns; is++) {
-    NV_VEC_SW(cv_mem->ycor0Stg, is) = cv_mem->cv_tempvS[is];
-    NV_VEC_SW(cv_mem->ycorStg,  is) = cv_mem->cv_acorS[is];
-    NV_VEC_SW(cv_mem->ewtStg,   is) = cv_mem->cv_ewtS[is];
+    NV_VEC_SW(cv_mem->zn0Stg,  is) = cv_mem->cv_znS[0][is];
+    NV_VEC_SW(cv_mem->ycorStg, is) = cv_mem->cv_acorS[is];
+    NV_VEC_SW(cv_mem->ewtStg,  is) = cv_mem->cv_ewtS[is];
   }
+
+  /* Reset the acnrmScur flag to SUNFALSE */
+  cv_mem->cv_acnrmScur = SUNFALSE;
 
   return(CV_SUCCESS);
 }
@@ -224,8 +224,7 @@ int cvNlsInitSensStg(CVodeMem cvode_mem)
 }
 
 
-static int cvNlsLSetupSensStg(N_Vector ycorStg, N_Vector resStg,
-                              booleantype jbad, booleantype* jcur,
+static int cvNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
                               void* cvode_mem)
 {
   CVodeMem cv_mem;
@@ -266,7 +265,7 @@ static int cvNlsLSetupSensStg(N_Vector ycorStg, N_Vector resStg,
 }
 
 
-static int cvNlsLSolveSensStg(N_Vector ycorStg, N_Vector deltaStg, void* cvode_mem)
+static int cvNlsLSolveSensStg(N_Vector deltaStg, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int retval, is;
@@ -343,8 +342,10 @@ static int cvNlsConvTestSensStg(SUNNonlinearSolver NLS,
 
   /* check if nonlinear system was solved successfully */
   if (dcon <= ONE) {
-    if (cv_mem->cv_errconS)
+    if (cv_mem->cv_errconS) {
       cv_mem->cv_acnrmS = (m==0) ? Del : cvSensNorm(cv_mem, ycorS, ewtS);
+      cv_mem->cv_acnrmScur = SUNTRUE;
+    }
     return(CV_SUCCESS);
   }
 

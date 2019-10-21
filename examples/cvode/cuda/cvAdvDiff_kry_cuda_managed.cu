@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: This example is based on cvAdvDiff_bnd
@@ -36,8 +35,7 @@
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .1, .2, ..., 1.
  * Run statistics (optional outputs) are printed at the end.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,6 +63,23 @@
 #define ONE  RCONST(1.0)
 #define TWO  RCONST(2.0)
 #define FIVE RCONST(5.0)
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
+#if defined(SUNDIALS_INT64_T)
+#define DSYM "ld"
+#else
+#define DSYM "d"
+#endif
+
 
 /*
  * CUDA kernels
@@ -250,6 +265,7 @@ int main(int argc, char** argv)
 
   N_VDestroy(u);          /* Free the u vector */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
+  SUNLinSolFree(LS);      /* Free linear solver memory */
   free(data);             /* Free the user data */
   
   cuerr = cudaStreamDestroy(stream); /* Free and cleanup the CUDA stream */
@@ -394,24 +410,15 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
 /* Print first lines of output (problem description) */
 
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserData data)
+static void PrintHeader(realtype reltol, realtype abstol, realtype umax,
+                        UserData data)
 {
   printf("\n2-D Advection-Diffusion Equation\n");
-  printf("Mesh dimensions = %d X %d\n", data->MX, data->MY);
-  printf("Total system size = %d\n", data->NEQ);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n",
+  printf("Mesh dimensions = %" DSYM " X %" DSYM "\n", data->MX, data->MY);
+  printf("Total system size = %" DSYM "\n", data->NEQ);
+  printf("Tolerance parameters: reltol = %" GSYM "   abstol = %" GSYM "\n\n",
          reltol, abstol);
-  printf("At t = %Lg      max.norm(u) =%14.6Le \n", T0, umax);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n",
-         reltol, abstol);
-  printf("At t = %g      max.norm(u) =%14.6e \n", T0, umax);
-#else
-  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
-  printf("At t = %g      max.norm(u) =%14.6e \n", T0, umax);
-#endif
-
+  printf("At t = %" GSYM "      max.norm(u) =%14.6" ESYM " \n", T0, umax);
   return;
 }
 
@@ -419,14 +426,7 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserDat
 
 static void PrintOutput(realtype t, realtype umax, long int nst)
 {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("At t = %4.2Lf   max.norm(u) =%14.6Le   nst = %4ld\n", t, umax, nst);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("At t = %4.2f   max.norm(u) =%14.6e   nst = %4ld\n", t, umax, nst);
-#else
-  printf("At t = %4.2f   max.norm(u) =%14.6e   nst = %4ld\n", t, umax, nst);
-#endif
-
+  printf("At t = %4.2" FSYM "   max.norm(u) =%14.6" ESYM "   nst = %4ld\n", t, umax, nst);
   return;
 }
 

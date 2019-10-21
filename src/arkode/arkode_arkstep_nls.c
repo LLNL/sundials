@@ -65,9 +65,7 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
 
   /* check for required nonlinear solver functions */
   if ( (NLS->ops->gettype    == NULL) ||
-       (NLS->ops->initialize == NULL) ||
        (NLS->ops->solve      == NULL) ||
-       (NLS->ops->free       == NULL) ||
        (NLS->ops->setsysfn   == NULL) ) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                     "ARKStepSetNonlinearSolver",
@@ -102,7 +100,8 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   }
 
   /* set convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(step_mem->NLS, arkStep_NlsConvTest);
+  retval = SUNNonlinSolSetConvTestFn(step_mem->NLS, arkStep_NlsConvTest,
+                                     arkode_mem);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                     "ARKStepSetNonlinearSolver",
@@ -124,7 +123,7 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
 
 
 /*---------------------------------------------------------------
-  Utility routines called by ARKStep 
+  Utility routines called by ARKStep
   ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
@@ -133,7 +132,7 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   This routine attaches the linear solver 'setup' and 'solve'
   routines to the nonlinear solver object, and then initializes
   the nonlinear solver object itself.  This should only be
-  called at the start of a simulation, after a re-init, or after 
+  called at the start of a simulation, after a re-init, or after
   a re-size.
   ---------------------------------------------------------------*/
 int arkStep_NlsInit(ARKodeMem ark_mem)
@@ -205,7 +204,6 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 {
   ARKodeARKStepMem step_mem;
   booleantype callLSetup;
-  N_Vector zcor0;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -216,7 +214,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
-  /* If a linear solver 'setup' is supplied, set various flags for 
+  /* If a linear solver 'setup' is supplied, set various flags for
      determining whether it should be called */
   if (step_mem->lsetup) {
 
@@ -227,7 +225,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
       step_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
         ARK_NO_FAILURES : ARK_FAIL_OTHER;
     }
-    
+
     /* Decide whether to recommend call to lsetup within nonlinear solver */
     callLSetup = (ark_mem->firststage) || (step_mem->msbp < 0) ||
       (SUNRabs(step_mem->gamrat-ONE) > step_mem->dgmax);
@@ -242,37 +240,26 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
     step_mem->crate = ONE;
     callLSetup = SUNFALSE;
   }
-  
-  /* call nonlinear solver based on method type:
-     FP methods solve for the updated solution directly, but
-     Newton uses predictor-corrector form */
-  if (SUNNonlinSolGetType(step_mem->NLS) == SUNNONLINEARSOLVER_FIXEDPOINT) {
-    
-    /* solve the nonlinear system, place solution directly in ycur */
-    retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, ark_mem->ycur, ark_mem->ewt,
-                               step_mem->nlscoef, callLSetup, ark_mem);
-    
-  } else {
-    
-    /* set a zero guess for correction */
-    zcor0 = ark_mem->tempv4;
-    N_VConst(ZERO, zcor0);
-    
-    /* Reset the stored residual norm (for iterative linear solvers) */
-    step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
-    
-    /* solve the nonlinear system for the actual correction */
-    retval = SUNNonlinSolSolve(step_mem->NLS, zcor0, step_mem->zcor, ark_mem->ewt,
-                               step_mem->nlscoef, callLSetup, ark_mem);
-    
-    /* apply the correction to construct ycur */
-    N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
-    
-  }
-  
+
+  /* set a zero guess for correction */
+  N_VConst(ZERO, step_mem->zcor);
+
+  /* Reset the stored residual norm (for iterative linear solvers) */
+  step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
+
+  /* solve the nonlinear system for the actual correction */
+  retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor, ark_mem->ewt,
+                             step_mem->nlscoef, callLSetup, ark_mem);
+
+  /* apply the correction to construct ycur */
+  N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
+
   /* on successful solve, reset the jcur flag */
   if (retval == ARK_SUCCESS)  step_mem->jcur = SUNFALSE;
-  
+
+  /* if convergence failure, return ARKode::CONV_FAIL */
+  if (retval == SUN_NLS_CONV_RECVR) return(CONV_FAIL);
+
   return(retval);
 }
 
@@ -287,8 +274,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   This routine wraps the ARKode linear solver interface 'setup'
   routine for use by the nonlinear solver object.
   ---------------------------------------------------------------*/
-int arkStep_NlsLSetup(N_Vector zcor, N_Vector res, booleantype jbad,
-                      booleantype* jcur, void* arkode_mem)
+int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -333,7 +319,7 @@ int arkStep_NlsLSetup(N_Vector zcor, N_Vector res, booleantype jbad,
   This routine wraps the ARKode linear solver interface 'solve'
   routine for use by the nonlinear solver object.
   ---------------------------------------------------------------*/
-int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
+int arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -355,7 +341,7 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
                             step_mem->eRNrm, nonlin_iter);
 
   if (retval < 0) return(ARK_LSOLVE_FAIL);
-  if (retval > 0) return(retval);
+  if (retval > 0) return(CONV_FAIL);
 
   return(ARK_SUCCESS);
 }
@@ -364,10 +350,10 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
 /*---------------------------------------------------------------
   arkStep_NlsResidual:
 
-  This routine evaluates the nonlinear residual for the additive 
-  Runge-Kutta method.  It assumes that any data from previous 
-  time steps/stages is contained in step_mem, and merely combines 
-  this old data with the current implicit ODE RHS vector to 
+  This routine evaluates the nonlinear residual for the additive
+  Runge-Kutta method.  It assumes that any data from previous
+  time steps/stages is contained in step_mem, and merely combines
+  this old data with the current implicit ODE RHS vector to
   compute the nonlinear residual r.
 
   At the ith stage, we compute the residual vector:
@@ -447,27 +433,26 @@ int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
                                               + Ai(i,j)*Fi(j) )
   <=>
      z = yn + gamma*Fi(z) + data
-  Our fixed-point problem is z=g(z), so the FP function is just:
-     g(z) = yn + gamma*Fi(z) + data
   <=>
-     g(z) = zp - zp + gamma*Fi(z) + yn + data
-  <=>
-     g(z) = zp + gamma*Fi(z) + (yn - zp + data)
+     zc = -zp + yn + gamma*Fi(zp+zc) + data
+  Where zp is the predicted stage and zc is the correction to
+  the prediction.
+
+  Our fixed-point problem is zc=g(zc), so the FP function is just:
+     g(z) = gamma*Fi(z) + (yn - zp + data)
   where the current nonlinear guess is z = zp + zc, and where
-     z is stored in the input, z,
+     z is stored in the ycur,
      zp is stored in step_mem->zpred,
      (yn-zp+data) is stored in step_mem->sdata,
   so we really just compute:
      Fi(z) (store in step_mem->Fi[step_mem->istage])
-     g = zp + gamma*Fi(z) + step_mem->sdata
+     g = gamma*Fi(z) + step_mem->sdata
   ---------------------------------------------------------------*/
-int arkStep_NlsFPFunction(N_Vector z, N_Vector g, void* arkode_mem)
+int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  realtype c[3];
-  N_Vector X[3];
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -475,23 +460,21 @@ int arkStep_NlsFPFunction(N_Vector z, N_Vector g, void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  /* update 'ycur' value as stored predictor + current corrector */
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+
   /* compute implicit RHS and save for later */
-  retval = step_mem->fi(ark_mem->tcur, z,
+  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
                         step_mem->Fi[step_mem->istage],
                         ark_mem->user_data);
   step_mem->nfi++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  /* combine parts:  g = zpred + sdata + gamma*Fi(z) */
-  c[0] = ONE;
-  X[0] = step_mem->zpred;
-  c[1] = ONE;
-  X[1] = step_mem->sdata;
-  c[2] = step_mem->gamma;
-  X[2] = step_mem->Fi[step_mem->istage];
-  retval = N_VLinearCombination(3, c, X, g);
-  if (retval != 0)  return(ARK_VECTOROP_ERR);
+  /* combine parts:  g = gamma*Fi(z) + sdata */
+  N_VLinearSum(step_mem->gamma, step_mem->Fi[step_mem->istage],
+               ONE, step_mem->sdata, g);
+
   return(ARK_SUCCESS);
 }
 

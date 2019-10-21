@@ -76,75 +76,72 @@ N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v)
 N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_OpenMP content;
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  ops->nvgetvectorid     = N_VGetVectorID_OpenMP;
-  ops->nvclone           = N_VClone_OpenMP;
-  ops->nvcloneempty      = N_VCloneEmpty_OpenMP;
-  ops->nvdestroy         = N_VDestroy_OpenMP;
-  ops->nvspace           = N_VSpace_OpenMP;
-  ops->nvgetarraypointer = N_VGetArrayPointer_OpenMP;
-  ops->nvsetarraypointer = N_VSetArrayPointer_OpenMP;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid     = N_VGetVectorID_OpenMP;
+  v->ops->nvclone           = N_VClone_OpenMP;
+  v->ops->nvcloneempty      = N_VCloneEmpty_OpenMP;
+  v->ops->nvdestroy         = N_VDestroy_OpenMP;
+  v->ops->nvspace           = N_VSpace_OpenMP;
+  v->ops->nvgetarraypointer = N_VGetArrayPointer_OpenMP;
+  v->ops->nvsetarraypointer = N_VSetArrayPointer_OpenMP;
+  v->ops->nvgetlength       = N_VGetLength_OpenMP;
 
   /* standard vector operations */
-  ops->nvlinearsum    = N_VLinearSum_OpenMP;
-  ops->nvconst        = N_VConst_OpenMP;
-  ops->nvprod         = N_VProd_OpenMP;
-  ops->nvdiv          = N_VDiv_OpenMP;
-  ops->nvscale        = N_VScale_OpenMP;
-  ops->nvabs          = N_VAbs_OpenMP;
-  ops->nvinv          = N_VInv_OpenMP;
-  ops->nvaddconst     = N_VAddConst_OpenMP;
-  ops->nvdotprod      = N_VDotProd_OpenMP;
-  ops->nvmaxnorm      = N_VMaxNorm_OpenMP;
-  ops->nvwrmsnormmask = N_VWrmsNormMask_OpenMP;
-  ops->nvwrmsnorm     = N_VWrmsNorm_OpenMP;
-  ops->nvmin          = N_VMin_OpenMP;
-  ops->nvwl2norm      = N_VWL2Norm_OpenMP;
-  ops->nvl1norm       = N_VL1Norm_OpenMP;
-  ops->nvcompare      = N_VCompare_OpenMP;
-  ops->nvinvtest      = N_VInvTest_OpenMP;
-  ops->nvconstrmask   = N_VConstrMask_OpenMP;
-  ops->nvminquotient  = N_VMinQuotient_OpenMP;
+  v->ops->nvlinearsum    = N_VLinearSum_OpenMP;
+  v->ops->nvconst        = N_VConst_OpenMP;
+  v->ops->nvprod         = N_VProd_OpenMP;
+  v->ops->nvdiv          = N_VDiv_OpenMP;
+  v->ops->nvscale        = N_VScale_OpenMP;
+  v->ops->nvabs          = N_VAbs_OpenMP;
+  v->ops->nvinv          = N_VInv_OpenMP;
+  v->ops->nvaddconst     = N_VAddConst_OpenMP;
+  v->ops->nvdotprod      = N_VDotProd_OpenMP;
+  v->ops->nvmaxnorm      = N_VMaxNorm_OpenMP;
+  v->ops->nvwrmsnormmask = N_VWrmsNormMask_OpenMP;
+  v->ops->nvwrmsnorm     = N_VWrmsNorm_OpenMP;
+  v->ops->nvmin          = N_VMin_OpenMP;
+  v->ops->nvwl2norm      = N_VWL2Norm_OpenMP;
+  v->ops->nvl1norm       = N_VL1Norm_OpenMP;
+  v->ops->nvcompare      = N_VCompare_OpenMP;
+  v->ops->nvinvtest      = N_VInvTest_OpenMP;
+  v->ops->nvconstrmask   = N_VConstrMask_OpenMP;
+  v->ops->nvminquotient  = N_VMinQuotient_OpenMP;
 
-  /* fused vector operations (optional, NULL means disabled by default) */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
+  /* fused and vector array operations are disabled (NULL) by default */
 
-  /* vector array operations (optional, NULL means disabled by default) */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
-
+  /* local reduction kernels */
+  v->ops->nvdotprodlocal     = N_VDotProd_OpenMP;
+  v->ops->nvmaxnormlocal     = N_VMaxNorm_OpenMP;
+  v->ops->nvminlocal         = N_VMin_OpenMP;
+  v->ops->nvl1normlocal      = N_VL1Norm_OpenMP;
+  v->ops->nvinvtestlocal     = N_VInvTest_OpenMP;
+  v->ops->nvconstrmasklocal  = N_VConstrMask_OpenMP;
+  v->ops->nvminquotientlocal = N_VMinQuotient_OpenMP;
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_OpenMP;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_OpenMP;
+  
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_OpenMP) malloc(sizeof(struct _N_VectorContent_OpenMP));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_OpenMP) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
-  content->length   = length;
-  content->num_threads = num_threads;
-  content->own_data = SUNFALSE;
-  content->data     = NULL;
-
-  /* Attach content and ops */
+  /* Attach content */
   v->content = content;
-  v->ops     = ops;
+
+  /* Initialize content */
+  content->length      = length;
+  content->num_threads = num_threads;
+  content->own_data    = SUNFALSE;
+  content->data        = NULL;
 
   return(v);
 }
@@ -204,15 +201,15 @@ N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads)
  * Function to create an array of new vectors.
  */
 
-N_Vector *N_VCloneVectorArray_OpenMP(int count, N_Vector w)
+N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
 {
-  N_Vector *vs;
+  N_Vector* vs;
   int j;
 
   if (count <= 0) return(NULL);
 
   vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -231,15 +228,15 @@ N_Vector *N_VCloneVectorArray_OpenMP(int count, N_Vector w)
  * Function to create an array of new vectors with NULL data array.
  */
 
-N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
+N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
 {
-  N_Vector *vs;
+  N_Vector* vs;
   int j;
 
   if (count <= 0) return(NULL);
 
   vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -258,7 +255,7 @@ N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
  * Function to free an array created with N_VCloneVectorArray_OpenMP
  */
 
-void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count)
+void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count)
 {
   int j;
 
@@ -327,77 +324,31 @@ void N_VPrintFile_OpenMP(N_Vector x, FILE *outfile)
 N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_OpenMP content;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
-
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-
-  /* standard vector operations */
-  ops->nvlinearsum    = w->ops->nvlinearsum;
-  ops->nvconst        = w->ops->nvconst;
-  ops->nvprod         = w->ops->nvprod;
-  ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale;
-  ops->nvabs          = w->ops->nvabs;
-  ops->nvinv          = w->ops->nvinv;
-  ops->nvaddconst     = w->ops->nvaddconst;
-  ops->nvdotprod      = w->ops->nvdotprod;
-  ops->nvmaxnorm      = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
-  ops->nvmin          = w->ops->nvmin;
-  ops->nvwl2norm      = w->ops->nvwl2norm;
-  ops->nvl1norm       = w->ops->nvl1norm;
-  ops->nvcompare      = w->ops->nvcompare;
-  ops->nvinvtest      = w->ops->nvinvtest;
-  ops->nvconstrmask   = w->ops->nvconstrmask;
-  ops->nvminquotient  = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
-
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
+  
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_OpenMP) malloc(sizeof(struct _N_VectorContent_OpenMP));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_OpenMP) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
-  content->length   = NV_LENGTH_OMP(w);
-  content->num_threads   = NV_NUM_THREADS_OMP(w);
-  content->own_data = SUNFALSE;
-  content->data     = NULL;
-
-  /* Attach content and ops */
+  /* Attach content */
   v->content = content;
-  v->ops     = ops;
+
+  /* Initialize content */
+  content->length      = NV_LENGTH_OMP(w);
+  content->num_threads = NV_NUM_THREADS_OMP(w);
+  content->own_data    = SUNFALSE;
+  content->data        = NULL;
 
   return(v);
 }
@@ -443,12 +394,21 @@ N_Vector N_VClone_OpenMP(N_Vector w)
 
 void N_VDestroy_OpenMP(N_Vector v)
 {
-  if (NV_OWN_DATA_OMP(v) == SUNTRUE) {
-    free(NV_DATA_OMP(v));
-    NV_DATA_OMP(v) = NULL;
+  if (v == NULL) return;
+
+  /* free content */
+  if (v->content != NULL) {
+    /* free data array if it's owned by the vector */
+    if (NV_OWN_DATA_OMP(v) && NV_DATA_OMP(v) != NULL) {
+      free(NV_DATA_OMP(v));
+      NV_DATA_OMP(v) = NULL;
+    }
+    free(v->content);
+    v->content = NULL;
   }
-  free(v->content); v->content = NULL;
-  free(v->ops); v->ops = NULL;
+
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
   free(v); v = NULL;
 
   return;
@@ -827,23 +787,7 @@ realtype N_VMaxNorm_OpenMP(N_Vector x)
 
 realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w)
 {
-  sunindextype i, N;
-  realtype sum, *xd, *wd;
-
-  sum = ZERO;
-  xd = wd = NULL;
-
-  N  = NV_LENGTH_OMP(x);
-  xd = NV_DATA_OMP(x);
-  wd = NV_DATA_OMP(w);
-
-#pragma omp parallel for default(none) private(i) shared(N,xd,wd) \
-  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
-  for (i = 0; i < N; i++) {
-    sum += SUNSQR(xd[i]*wd[i]);
-  }
-
-  return(SUNRsqrt(sum/N));
+  return(SUNRsqrt(N_VWSqrSumLocal_OpenMP(x, w)/(NV_LENGTH_OMP(x))));
 }
 
 
@@ -853,26 +797,7 @@ realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNormMask_OpenMP(N_Vector x, N_Vector w, N_Vector id)
 {
-  sunindextype i, N;
-  realtype sum, *xd, *wd, *idd;
-
-  sum = ZERO;
-  xd = wd = idd = NULL;
-
-  N  = NV_LENGTH_OMP(x);
-  xd  = NV_DATA_OMP(x);
-  wd  = NV_DATA_OMP(w);
-  idd = NV_DATA_OMP(id);
-
-#pragma omp parallel for default(none) private(i) shared(N,xd,wd,idd) \
-  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
-  for (i = 0; i < N; i++) {
-    if (idd[i] > ZERO) {
-      sum += SUNSQR(xd[i]*wd[i]);
-    }
-  }
-
-  return(SUNRsqrt(sum / N));
+  return(SUNRsqrt(N_VWSqrSumMaskLocal_OpenMP(x, w, id)/(NV_LENGTH_OMP(x))));
 }
 
 
@@ -1102,6 +1027,61 @@ realtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom)
 }
 
 
+/* ----------------------------------------------------------------------------
+ * Computes weighted square sum of a vector
+ */
+
+realtype N_VWSqrSumLocal_OpenMP(N_Vector x, N_Vector w)
+{
+  sunindextype i, N;
+  realtype sum, *xd, *wd;
+
+  sum = ZERO;
+  xd = wd = NULL;
+
+  N  = NV_LENGTH_OMP(x);
+  xd = NV_DATA_OMP(x);
+  wd = NV_DATA_OMP(w);
+
+#pragma omp parallel for default(none) private(i) shared(N,xd,wd) \
+  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
+  for (i = 0; i < N; i++) {
+    sum += SUNSQR(xd[i]*wd[i]);
+  }
+
+  return(sum);
+}
+
+
+/* ----------------------------------------------------------------------------
+ * Computes weighted square sum of a masked vector
+ */
+
+realtype N_VWSqrSumMaskLocal_OpenMP(N_Vector x, N_Vector w, N_Vector id)
+{
+  sunindextype i, N;
+  realtype sum, *xd, *wd, *idd;
+
+  sum = ZERO;
+  xd = wd = idd = NULL;
+
+  N   = NV_LENGTH_OMP(x);
+  xd  = NV_DATA_OMP(x);
+  wd  = NV_DATA_OMP(w);
+  idd = NV_DATA_OMP(id);
+
+#pragma omp parallel for default(none) private(i) shared(N,xd,wd,idd) \
+  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
+  for (i = 0; i < N; i++) {
+    if (idd[i] > ZERO) {
+      sum += SUNSQR(xd[i]*wd[i]);
+    }
+  }
+
+  return(sum);
+}
+
+
 /*
  * -----------------------------------------------------------------
  * fused vector operations
@@ -1323,8 +1303,8 @@ int N_VLinearSumVectorArray_OpenMP(int nvec,
   realtype*    yd=NULL;
   realtype*    zd=NULL;
   realtype     c;
-  N_Vector*    V1;
-  N_Vector*    V2;
+  N_Vector*   V1;
+  N_Vector*   V2;
   booleantype  test;
 
   /* invalid number of vectors */
@@ -1623,8 +1603,8 @@ int N_VScaleAddMultiVectorArray_OpenMP(int nvec, int nsum, realtype* a,
   realtype*    zd=NULL;
 
   int          retval;
-  N_Vector*    YY;
-  N_Vector*    ZZ;
+  N_Vector*   YY;
+  N_Vector*   ZZ;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1643,8 +1623,8 @@ int N_VScaleAddMultiVectorArray_OpenMP(int nvec, int nsum, realtype* a,
     }
 
     /* should have called N_VScaleAddMulti */
-    YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
-    ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    YY = (N_Vector*) malloc(nsum * sizeof(N_Vector));
+    ZZ = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (j=0; j<nsum; j++) {
       YY[j] = Y[j][0];
@@ -1731,7 +1711,7 @@ int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
   realtype*    xd=NULL;
 
   realtype*    ctmp;
-  N_Vector*    Y;
+  N_Vector*   Y;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1756,7 +1736,7 @@ int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
     }
 
     /* should have called N_VLinearCombination */
-    Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    Y = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (i=0; i<nsum; i++) {
       Y[i] = X[i][0];

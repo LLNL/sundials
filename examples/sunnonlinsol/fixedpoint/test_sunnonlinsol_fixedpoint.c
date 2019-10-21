@@ -23,6 +23,16 @@
 #include "nvector/nvector_serial.h"
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 #define NEQ   3                /* number of equations        */
 #define TOL   RCONST(1.0e-4)   /* nonlinear solver tolerance */
 #define MAXIT 10               /* max nonlinear iterations   */
@@ -60,7 +70,7 @@ static int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 /* -----------------------------------------------------------------------------
  * Main testing routine
  * ---------------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   int                retval = 0;
   N_Vector           x, y0, y, w;
@@ -70,7 +80,7 @@ int main(int argc, char *argv[])
   /* create vectors */
   x  = N_VNew_Serial(NEQ);
   if (check_retval((void *)x, "N_VNew_Serial", 0)) return(1);
-  
+
   y0 = N_VClone(x);
   if (check_retval((void *)y0, "N_VNew_Serial", 0)) return(1);
 
@@ -99,7 +109,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) return(1);
 
   /* set the convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(NLS, ConvTest);
+  retval = SUNNonlinSolSetConvTestFn(NLS, ConvTest, NULL);
   if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) return(1);
 
   /* set the maximum number of nonlinear iterations */
@@ -112,15 +122,15 @@ int main(int argc, char *argv[])
 
   /* print the solution */
   printf("Solution:\n");
-  printf("y1 = %g\n",NV_Ith_S(y,0));
-  printf("y2 = %g\n",NV_Ith_S(y,1));
-  printf("y3 = %g\n",NV_Ith_S(y,2));
+  printf("y1 = %"GSYM"\n",NV_Ith_S(y,0));
+  printf("y2 = %"GSYM"\n",NV_Ith_S(y,1));
+  printf("y3 = %"GSYM"\n",NV_Ith_S(y,2));
 
   /* print the solution error */
   printf("Solution Error:\n");
-  printf("e1 = %g\n",NV_Ith_S(y,0) - Y1);
-  printf("e2 = %g\n",NV_Ith_S(y,1) - Y2);
-  printf("e3 = %g\n",NV_Ith_S(y,2) - Y3);
+  printf("e1 = %"GSYM"\n",NV_Ith_S(y,0) - Y1);
+  printf("e2 = %"GSYM"\n",NV_Ith_S(y,1) - Y2);
+  printf("e3 = %"GSYM"\n",NV_Ith_S(y,2) - Y3);
 
   /* get the number of linear iterations */
   retval = SUNNonlinSolGetNumIters(NLS, &niters);
@@ -153,7 +163,7 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
 
   /* compute the norm of the correction */
   delnrm = N_VMaxNorm(del);
-  
+
   if (delnrm <= tol) return(SUN_NLS_SUCCESS);  /* success       */
   else               return(SUN_NLS_CONTINUE); /* not converged */
 }

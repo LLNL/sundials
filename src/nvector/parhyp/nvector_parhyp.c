@@ -23,17 +23,11 @@
 
 #include <nvector/nvector_parhyp.h>
 #include <sundials/sundials_math.h>
-#include <sundials/sundials_mpi.h>
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
-
-/* Error Message */
-#define BAD_N1 "N_VNew_ParHyp -- Sum of local vector lengths differs from "
-#define BAD_N2 "input global length. \n\n"
-#define BAD_N   BAD_N1 BAD_N2
 
 /*
  * -----------------------------------------------------------------
@@ -153,66 +147,67 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
                             sunindextype global_length)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_ParHyp content;
 
-  /* Create vector */
+  /* Create an empty vector object */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  ops->nvgetvectorid     = N_VGetVectorID_ParHyp;
-  ops->nvclone           = N_VClone_ParHyp;
-  ops->nvcloneempty      = N_VCloneEmpty_ParHyp;
-  ops->nvdestroy         = N_VDestroy_ParHyp;
-  ops->nvspace           = N_VSpace_ParHyp;
-  ops->nvgetarraypointer = N_VGetArrayPointer_ParHyp;
-  ops->nvsetarraypointer = N_VSetArrayPointer_ParHyp;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid     = N_VGetVectorID_ParHyp;
+  v->ops->nvclone           = N_VClone_ParHyp;
+  v->ops->nvcloneempty      = N_VCloneEmpty_ParHyp;
+  v->ops->nvdestroy         = N_VDestroy_ParHyp;
+  v->ops->nvspace           = N_VSpace_ParHyp;
+  v->ops->nvgetarraypointer = N_VGetArrayPointer_ParHyp;
+  v->ops->nvsetarraypointer = N_VSetArrayPointer_ParHyp;
+  v->ops->nvgetcommunicator = N_VGetCommunicator_ParHyp;
+  v->ops->nvgetlength       = N_VGetLength_ParHyp;
 
   /* standard vector operations */
-  ops->nvlinearsum    = N_VLinearSum_ParHyp;
-  ops->nvconst        = N_VConst_ParHyp;
-  ops->nvprod         = N_VProd_ParHyp;
-  ops->nvdiv          = N_VDiv_ParHyp;
-  ops->nvscale        = N_VScale_ParHyp;
-  ops->nvabs          = N_VAbs_ParHyp;
-  ops->nvinv          = N_VInv_ParHyp;
-  ops->nvaddconst     = N_VAddConst_ParHyp;
-  ops->nvdotprod      = N_VDotProd_ParHyp;
-  ops->nvmaxnorm      = N_VMaxNorm_ParHyp;
-  ops->nvwrmsnormmask = N_VWrmsNormMask_ParHyp;
-  ops->nvwrmsnorm     = N_VWrmsNorm_ParHyp;
-  ops->nvmin          = N_VMin_ParHyp;
-  ops->nvwl2norm      = N_VWL2Norm_ParHyp;
-  ops->nvl1norm       = N_VL1Norm_ParHyp;
-  ops->nvcompare      = N_VCompare_ParHyp;
-  ops->nvinvtest      = N_VInvTest_ParHyp;
-  ops->nvconstrmask   = N_VConstrMask_ParHyp;
-  ops->nvminquotient  = N_VMinQuotient_ParHyp;
+  v->ops->nvlinearsum    = N_VLinearSum_ParHyp;
+  v->ops->nvconst        = N_VConst_ParHyp;
+  v->ops->nvprod         = N_VProd_ParHyp;
+  v->ops->nvdiv          = N_VDiv_ParHyp;
+  v->ops->nvscale        = N_VScale_ParHyp;
+  v->ops->nvabs          = N_VAbs_ParHyp;
+  v->ops->nvinv          = N_VInv_ParHyp;
+  v->ops->nvaddconst     = N_VAddConst_ParHyp;
+  v->ops->nvdotprod      = N_VDotProd_ParHyp;
+  v->ops->nvmaxnorm      = N_VMaxNorm_ParHyp;
+  v->ops->nvwrmsnormmask = N_VWrmsNormMask_ParHyp;
+  v->ops->nvwrmsnorm     = N_VWrmsNorm_ParHyp;
+  v->ops->nvmin          = N_VMin_ParHyp;
+  v->ops->nvwl2norm      = N_VWL2Norm_ParHyp;
+  v->ops->nvl1norm       = N_VL1Norm_ParHyp;
+  v->ops->nvcompare      = N_VCompare_ParHyp;
+  v->ops->nvinvtest      = N_VInvTest_ParHyp;
+  v->ops->nvconstrmask   = N_VConstrMask_ParHyp;
+  v->ops->nvminquotient  = N_VMinQuotient_ParHyp;
 
-  /* fused vector operations (optional, NULL means disabled by default) */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
+  /* fused and vector array operations are disabled (NULL) by default */
 
-  /* vector array operations (optional, NULL means disabled by default) */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
+  /* local reduction operations */
+  v->ops->nvdotprodlocal     = N_VDotProdLocal_ParHyp;
+  v->ops->nvmaxnormlocal     = N_VMaxNormLocal_ParHyp;
+  v->ops->nvminlocal         = N_VMinLocal_ParHyp;
+  v->ops->nvl1normlocal      = N_VL1NormLocal_ParHyp;
+  v->ops->nvinvtestlocal     = N_VInvTestLocal_ParHyp;
+  v->ops->nvconstrmasklocal  = N_VConstrMaskLocal_ParHyp;
+  v->ops->nvminquotientlocal = N_VMinQuotientLocal_ParHyp;
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ParHyp;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ParHyp;
 
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_ParHyp) malloc(sizeof(struct _N_VectorContent_ParHyp));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_ParHyp) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
+
+  /* Attach content */
+  v->content = content;
 
   /* Attach lengths and communicator */
   content->local_length  = local_length;
@@ -220,10 +215,6 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   content->comm          = comm;
   content->own_parvector = SUNFALSE;
   content->x             = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -238,10 +229,10 @@ N_Vector N_VMake_ParHyp(HYPRE_ParVector x)
 {
   N_Vector v;
   MPI_Comm comm = hypre_ParVectorComm(x);
-  HYPRE_Int global_length = hypre_ParVectorGlobalSize(x);
-  HYPRE_Int local_begin = hypre_ParVectorFirstIndex(x);
-  HYPRE_Int local_end = hypre_ParVectorLastIndex(x);
-  HYPRE_Int local_length = local_end - local_begin + 1;
+  sunindextype global_length = (sunindextype) hypre_ParVectorGlobalSize(x);
+  sunindextype local_begin   = (sunindextype) hypre_ParVectorFirstIndex(x);
+  sunindextype local_end     = (sunindextype) hypre_ParVectorLastIndex(x);
+  sunindextype local_length  = local_end - local_begin + 1;
 
   v = NULL;
   v = N_VNewEmpty_ParHyp(comm, local_length, global_length);
@@ -385,84 +376,32 @@ void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_ParHyp content;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Added variables for hypre_parhyp intialization */
-  int nprocs, myid;
-  MPI_Comm_size(NV_COMM_PH(w), &nprocs);
-  MPI_Comm_rank(NV_COMM_PH(w), &myid);
-
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
-
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-
-  /* standard vector operations */
-  ops->nvlinearsum    = w->ops->nvlinearsum;
-  ops->nvconst        = w->ops->nvconst;
-  ops->nvprod         = w->ops->nvprod;
-  ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale;
-  ops->nvabs          = w->ops->nvabs;
-  ops->nvinv          = w->ops->nvinv;
-  ops->nvaddconst     = w->ops->nvaddconst;
-  ops->nvdotprod      = w->ops->nvdotprod;
-  ops->nvmaxnorm      = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
-  ops->nvmin          = w->ops->nvmin;
-  ops->nvwl2norm      = w->ops->nvwl2norm;
-  ops->nvl1norm       = w->ops->nvl1norm;
-  ops->nvcompare      = w->ops->nvcompare;
-  ops->nvinvtest      = w->ops->nvinvtest;
-  ops->nvconstrmask   = w->ops->nvconstrmask;
-  ops->nvminquotient  = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_ParHyp) malloc(sizeof(struct _N_VectorContent_ParHyp));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_ParHyp) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
-  /* Attach lengths and communicator */
+  /* Attach content */
+  v->content = content;
+
+  /* Initialize content */
   content->local_length  = NV_LOCLENGTH_PH(w);
   content->global_length = NV_GLOBLENGTH_PH(w);
   content->comm          = NV_COMM_PH(w);
   content->own_parvector = SUNFALSE;
   content->x             = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -479,8 +418,7 @@ N_Vector N_VClone_ParHyp(N_Vector w)
 
   v = NULL;
   v = N_VCloneEmpty_ParHyp(w);
-  if (v==NULL)
-    return(NULL);
+  if (v==NULL) return(NULL);
 
   vx = hypre_ParVectorCreate(wx->comm, wx->global_size, wx->partitioning);
   hypre_ParVectorInitialize(vx);
@@ -490,19 +428,28 @@ N_Vector N_VClone_ParHyp(N_Vector w)
   hypre_SeqVectorSetDataOwner(hypre_ParVectorLocalVector(vx), 1);
 
   NV_HYPRE_PARVEC_PH(v) = vx;
-  NV_OWN_PARVEC_PH(v) = SUNTRUE;
+  NV_OWN_PARVEC_PH(v)   = SUNTRUE;
 
   return(v);
 }
 
 void N_VDestroy_ParHyp(N_Vector v)
 {
-  if ((NV_OWN_PARVEC_PH(v) == SUNTRUE)) {
-    hypre_ParVectorDestroy(NV_HYPRE_PARVEC_PH(v));
+  if (v == NULL) return;
+
+  /* free content */
+  if (v->content != NULL) {
+    /* free the hypre parvector if it's owned by the vector wrapper */
+    if (NV_OWN_PARVEC_PH(v) && NV_HYPRE_PARVEC_PH(v) != NULL) {
+      hypre_ParVectorDestroy(NV_HYPRE_PARVEC_PH(v));
+      NV_HYPRE_PARVEC_PH(v) = NULL;
+    }
+    free(v->content);
+    v->content = NULL;
   }
 
-  free(v->content); v->content = NULL;
-  free(v->ops); v->ops = NULL;
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
   free(v); v = NULL;
 
   return;
@@ -543,6 +490,17 @@ realtype *N_VGetArrayPointer_ParHyp(N_Vector v)
 void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v)
 {
   /* Not implemented for Hypre vector */
+}
+
+
+void *N_VGetCommunicator_ParHyp(N_Vector v)
+{
+  return((void *) &(NV_COMM_PH(v)));
+}
+
+sunindextype N_VGetLength_ParHyp(N_Vector v)
+{
+  return(NV_GLOBLENGTH_PH(v));
 }
 
 /*
@@ -757,9 +715,22 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   return;
 }
 
+realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
+{
+  sunindextype i, N;
+  realtype sum, *xd, *yd;
+  N  = NV_LOCLENGTH_PH(x);
+  xd = NV_DATA_PH(x);
+  yd = NV_DATA_PH(y);
+
+  sum = ZERO;
+  for (i = 0; i < N; i++)
+    sum += xd[i]*yd[i];
+  return(sum);
+}
+
 realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y)
 {
-
   HYPRE_Real gsum;
   HYPRE_ParVectorInnerProd( (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(x),
                             (HYPRE_ParVector) NV_HYPRE_PARVEC_PH(y), &gsum);
@@ -767,155 +738,133 @@ realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y)
   return(gsum);
 }
 
-realtype N_VMaxNorm_ParHyp(N_Vector x)
+realtype N_VMaxNormLocal_ParHyp(N_Vector x)
 {
   sunindextype i, N;
-  realtype max, *xd, gmax;
-  MPI_Comm comm;
-
-  xd = NULL;
+  realtype max, *xd;
 
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
-  comm = NV_COMM_PH(x);
 
   max = ZERO;
-
-  for (i = 0; i < N; i++) {
+  for (i = 0; i < N; i++)
     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
-  }
+  return(max);
+}
 
-  gmax = SUNMPI_Allreduce_scalar(max, 2, comm);
-
+realtype N_VMaxNorm_ParHyp(N_Vector x)
+{
+  realtype lmax, gmax;
+  lmax = N_VMaxNormLocal_ParHyp(x);
+  MPI_Allreduce(&lmax, &gmax, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PH(x));
   return(gmax);
 }
 
-realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w)
+realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
 {
-  sunindextype i, N, N_global;
-  realtype sum, prodi, *xd, *wd, gsum;
-  MPI_Comm comm;
+  sunindextype i, N;
+  realtype sum, prodi, *xd, *wd;
+
+  N  = NV_LOCLENGTH_PH(x);
+  xd = NV_DATA_PH(x);
+  wd = NV_DATA_PH(w);
 
   sum = ZERO;
-  xd = wd = NULL;
-
-  N        = NV_LOCLENGTH_PH(x);
-  N_global = NV_GLOBLENGTH_PH(x);
-  xd       = NV_DATA_PH(x);
-  wd       = NV_DATA_PH(w);
-  comm     = NV_COMM_PH(x);
-
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
     sum += SUNSQR(prodi);
   }
-
-  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
-
-  return(SUNRsqrt(gsum/N_global));
+  return(sum);
 }
 
-realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w, N_Vector id)
+realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w)
 {
-  sunindextype i, N, N_global;
-  realtype sum, prodi, *xd, *wd, *idd, gsum;
-  MPI_Comm comm;
+  realtype lsum, gsum;
+  lsum = N_VWSqrSumLocal_ParHyp(x, w);
+  MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
+  return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PH(x))));
+}
+
+realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
+{
+  sunindextype i, N;
+  realtype sum, prodi, *xd, *wd, *idd;
+
+  N   = NV_LOCLENGTH_PH(x);
+  xd  = NV_DATA_PH(x);
+  wd  = NV_DATA_PH(w);
+  idd = NV_DATA_PH(id);
 
   sum = ZERO;
-  xd = wd = idd = NULL;
-
-  N        = NV_LOCLENGTH_PH(x);
-  N_global = NV_GLOBLENGTH_PH(x);
-  xd       = NV_DATA_PH(x);
-  wd       = NV_DATA_PH(w);
-  idd      = NV_DATA_PH(id);
-  comm = NV_COMM_PH(x);
-
   for (i = 0; i < N; i++) {
     if (idd[i] > ZERO) {
       prodi = xd[i]*wd[i];
       sum += SUNSQR(prodi);
     }
   }
+  return(sum);
+}
 
-  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
+realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w, N_Vector id)
+{
+  realtype lsum, gsum;
+  lsum = N_VWSqrSumMaskLocal_ParHyp(x, w, id);
+  MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
+  return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PH(x))));
+}
 
-  return(SUNRsqrt(gsum/N_global));
+realtype N_VMinLocal_ParHyp(N_Vector x)
+{
+  sunindextype i, N;
+  realtype min, *xd;
+
+  xd  = NULL;
+  N   = NV_LOCLENGTH_PH(x);
+  min = BIG_REAL;
+
+  if (N > 0) {
+    xd = NV_DATA_PH(x);
+    min = xd[0];
+    for (i = 1; i < N; i++)
+      if (xd[i] < min) min = xd[i];
+  }
+  return(min);
 }
 
 realtype N_VMin_ParHyp(N_Vector x)
 {
-  sunindextype i, N;
-  realtype min, *xd, gmin;
-  MPI_Comm comm;
-
-  xd = NULL;
-
-  N  = NV_LOCLENGTH_PH(x);
-  comm = NV_COMM_PH(x);
-
-  min = BIG_REAL;
-
-  if (N > 0) {
-
-    xd = NV_DATA_PH(x);
-
-    min = xd[0];
-
-    for (i = 1; i < N; i++) {
-      if (xd[i] < min)
-        min = xd[i];
-    }
-
-  }
-
-  gmin = SUNMPI_Allreduce_scalar(min, 3, comm);
-
+  realtype lmin, gmin;
+  lmin = N_VMinLocal_ParHyp(x);
+  MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(x));
   return(gmin);
 }
 
 realtype N_VWL2Norm_ParHyp(N_Vector x, N_Vector w)
 {
-  sunindextype i, N;
-  realtype sum, prodi, *xd, *wd, gsum;
-  MPI_Comm comm;
-
-  sum = ZERO;
-  xd = wd = NULL;
-
-  N  = NV_LOCLENGTH_PH(x);
-  xd = NV_DATA_PH(x);
-  wd = NV_DATA_PH(w);
-  comm = NV_COMM_PH(x);
-
-  for (i = 0; i < N; i++) {
-    prodi = xd[i]*wd[i];
-    sum += SUNSQR(prodi);
-  }
-
-  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
-
+  realtype lsum, gsum;
+  lsum = N_VWSqrSumLocal_ParHyp(x, w);
+  MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
   return(SUNRsqrt(gsum));
+}
+
+realtype N_VL1NormLocal_ParHyp(N_Vector x)
+{
+  sunindextype i, N;
+  realtype sum, *xd;
+
+  N   = NV_LOCLENGTH_PH(x);
+  xd  = NV_DATA_PH(x);
+  sum = ZERO;
+
+  for (i = 0; i<N; i++)  sum += SUNRabs(xd[i]);
+  return(sum);
 }
 
 realtype N_VL1Norm_ParHyp(N_Vector x)
 {
-  sunindextype i, N;
-  realtype sum, gsum, *xd;
-  MPI_Comm comm;
-
-  sum = ZERO;
-  xd = NULL;
-
-  N  = NV_LOCLENGTH_PH(x);
-  xd = NV_DATA_PH(x);
-  comm = NV_COMM_PH(x);
-
-  for (i = 0; i<N; i++)
-    sum += SUNRabs(xd[i]);
-
-  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
-
+  realtype lsum, gsum;
+  lsum = N_VL1NormLocal_ParHyp(x);
+  MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
   return(gsum);
 }
 
@@ -937,18 +886,14 @@ void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z)
   return;
 }
 
-booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
+booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd, *zd, val, gval;
-  MPI_Comm comm;
-
-  xd = zd = NULL;
+  realtype *xd, *zd, val;
 
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
-  comm = NV_COMM_PH(x);
 
   val = ONE;
   for (i = 0; i < N; i++) {
@@ -957,30 +902,34 @@ booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
     else
       zd[i] = ONE/xd[i];
   }
+  if (val == ZERO)
+    return(SUNFALSE);
+  else
+    return(SUNTRUE);
+}
 
-  gval = SUNMPI_Allreduce_scalar(val, 3, comm);
-
+booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
+{
+  realtype val, gval;
+  val = (N_VInvTestLocal_ParHyp(x, z)) ? ONE : ZERO;
+  MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(x));
   if (gval == ZERO)
     return(SUNFALSE);
   else
     return(SUNTRUE);
 }
 
-booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
+booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i, N;
   realtype temp;
   realtype *cd, *xd, *md;
   booleantype test;
-  MPI_Comm comm;
-
-  cd = xd = md = NULL;
 
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
   cd = NV_DATA_PH(c);
   md = NV_DATA_PH(m);
-  comm = NV_COMM_PH(x);
 
   temp = ZERO;
 
@@ -999,26 +948,29 @@ booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
     }
   }
 
-  /* Find max temp across all MPI ranks */
-  temp = SUNMPI_Allreduce_scalar(temp, 2, comm);
-
   /* Return false if any constraint was violated */
   return (temp == ONE) ? SUNFALSE : SUNTRUE;
 }
 
-realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
+booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
+{
+  realtype temp, temp2;
+  temp = (N_VConstrMaskLocal_ParHyp(c, x, m)) ? ZERO : ONE;
+  MPI_Allreduce(&temp, &temp2, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PH(x));
+  return (temp2 == ONE) ? SUNFALSE : SUNTRUE;
+}
+
+realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce;
   sunindextype i, N;
   realtype *nd, *dd, min;
-  MPI_Comm comm;
 
   nd = dd = NULL;
 
   N  = NV_LOCLENGTH_PH(num);
   nd = NV_DATA_PH(num);
   dd = NV_DATA_PH(denom);
-  comm = NV_COMM_PH(num);
 
   notEvenOnce = SUNTRUE;
   min = BIG_REAL;
@@ -1033,8 +985,15 @@ realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
       }
     }
   }
+  return(min);
+}
 
-  return(SUNMPI_Allreduce_scalar(min, 3, comm));
+realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
+{
+  realtype lmin, gmin;
+  lmin = N_VMinQuotientLocal_ParHyp(num, denom);
+  MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(num));
+  return(gmin);
 }
 
 
@@ -1168,7 +1127,7 @@ int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
 
 int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
 {
-  int          i;
+  int          i, retval;
   sunindextype j, N;
   realtype*    xd=NULL;
   realtype*    yd=NULL;
@@ -1196,9 +1155,9 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods
       dotprods[i] += xd[j] * yd[j];
     }
   }
-  SUNMPI_Allreduce(dotprods, nvec, 1, comm);
+  retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
-  return(0);
+  return retval == MPI_SUCCESS ? 0 : -1;
 }
 
 
@@ -1325,7 +1284,7 @@ int N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
 
 int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
 {
-  int          i;
+  int          i, retval;
   sunindextype j, Nl, Ng;
   realtype*    wd=NULL;
   realtype*    xd=NULL;
@@ -1354,19 +1313,19 @@ int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* 
       nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  SUNMPI_Allreduce(nrm, nvec, 1, comm);
+  retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
 
-  return(0);
+  return retval == MPI_SUCCESS ? 0 : -1;
 }
 
 
 int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
                                         N_Vector id, realtype* nrm)
 {
-  int          i;
+  int          i, retval;
   sunindextype j, Nl, Ng;
   realtype*    wd=NULL;
   realtype*    xd=NULL;
@@ -1398,12 +1357,12 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
         nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  SUNMPI_Allreduce(nrm, nvec, 1, comm);
+  retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
 
-  return(0);
+  return retval == MPI_SUCCESS ? 0 : -1;
 }
 
 

@@ -165,7 +165,7 @@
      sparse row] matrix with storage for NNZ nonzeros, stored in the arrays 
      JDATA (nonzero values), JRVALS (row [or column] indices for each nonzero), 
      JCOLPTRS (indices for start of each column [or row]), with the Jacobian 
-     matrix at the current (y) in CSC [or CSR] form (see sundials_sparse.h for 
+     matrix at the current (y) in CSC [or CSR] form (see sunmatrix_sparse.h for
      more information).
 
      The arguments are:

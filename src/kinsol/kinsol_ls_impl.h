@@ -69,7 +69,7 @@ typedef struct KINLsMemRec {
                           reevaluated (meant to be used by a
                           user-supplied jtimes function                 */
 
-  long int last_flag;  /* last error return flag                        */
+  int last_flag;       /* last error return flag                        */
 
   /* Preconditioner computation
      (a) user-provided:

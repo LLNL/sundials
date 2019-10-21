@@ -70,62 +70,56 @@ N_Vector_ID N_VGetVectorID_Trilinos(N_Vector v)
 N_Vector N_VNewEmpty_Trilinos()
 {
   N_Vector v;
-  N_Vector_Ops ops;
 
-  /* Create vector */
+  /* Create an empty vector object */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  ops->nvgetvectorid     = N_VGetVectorID_Trilinos;
-  ops->nvclone           = N_VClone_Trilinos;
-  ops->nvcloneempty      = N_VCloneEmpty_Trilinos;
-  ops->nvdestroy         = N_VDestroy_Trilinos;
-  ops->nvspace           = N_VSpace_Trilinos;
-  ops->nvgetarraypointer = NULL;
-  ops->nvsetarraypointer = NULL;
-  ops->nvlinearsum       = N_VLinearSum_Trilinos;
-  ops->nvconst           = N_VConst_Trilinos;
-  ops->nvprod            = N_VProd_Trilinos;
-  ops->nvdiv             = N_VDiv_Trilinos;
-  ops->nvscale           = N_VScale_Trilinos;
-  ops->nvabs             = N_VAbs_Trilinos;
-  ops->nvinv             = N_VInv_Trilinos;
-  ops->nvaddconst        = N_VAddConst_Trilinos;
-  ops->nvdotprod         = N_VDotProd_Trilinos;
-  ops->nvmaxnorm         = N_VMaxNorm_Trilinos;
-  ops->nvwrmsnorm        = N_VWrmsNorm_Trilinos;
-  ops->nvwrmsnormmask    = N_VWrmsNormMask_Trilinos;
-  ops->nvmin             = N_VMin_Trilinos;
-  ops->nvwl2norm         = N_VWL2Norm_Trilinos;
-  ops->nvl1norm          = N_VL1Norm_Trilinos;
-  ops->nvcompare         = N_VCompare_Trilinos;
-  ops->nvinvtest         = N_VInvTest_Trilinos;
-  ops->nvconstrmask      = N_VConstrMask_Trilinos;
-  ops->nvminquotient     = N_VMinQuotient_Trilinos;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid     = N_VGetVectorID_Trilinos;
+  v->ops->nvclone           = N_VClone_Trilinos;
+  v->ops->nvcloneempty      = N_VCloneEmpty_Trilinos;
+  v->ops->nvdestroy         = N_VDestroy_Trilinos;
+  v->ops->nvspace           = N_VSpace_Trilinos;
+  v->ops->nvgetcommunicator = N_VGetCommunicator_Trilinos;
+  v->ops->nvgetlength       = N_VGetLength_Trilinos;
 
-  /* fused vector operations */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
+  /* standard vector operations */
+  v->ops->nvlinearsum       = N_VLinearSum_Trilinos;
+  v->ops->nvconst           = N_VConst_Trilinos;
+  v->ops->nvprod            = N_VProd_Trilinos;
+  v->ops->nvdiv             = N_VDiv_Trilinos;
+  v->ops->nvscale           = N_VScale_Trilinos;
+  v->ops->nvabs             = N_VAbs_Trilinos;
+  v->ops->nvinv             = N_VInv_Trilinos;
+  v->ops->nvaddconst        = N_VAddConst_Trilinos;
+  v->ops->nvdotprod         = N_VDotProd_Trilinos;
+  v->ops->nvmaxnorm         = N_VMaxNorm_Trilinos;
+  v->ops->nvwrmsnorm        = N_VWrmsNorm_Trilinos;
+  v->ops->nvwrmsnormmask    = N_VWrmsNormMask_Trilinos;
+  v->ops->nvmin             = N_VMin_Trilinos;
+  v->ops->nvwl2norm         = N_VWL2Norm_Trilinos;
+  v->ops->nvl1norm          = N_VL1Norm_Trilinos;
+  v->ops->nvcompare         = N_VCompare_Trilinos;
+  v->ops->nvinvtest         = N_VInvTest_Trilinos;
+  v->ops->nvconstrmask      = N_VConstrMask_Trilinos;
+  v->ops->nvminquotient     = N_VMinQuotient_Trilinos;
 
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
+  /* fused and vector array operations are disabled (NULL) by default */
 
-  /* Attach ops and set content to NULL */
-  v->content = NULL;
-  v->ops     = ops;
+  /* local reduction operations */
+  v->ops->nvdotprodlocal     = N_VDotProdLocal_Trilinos;
+  v->ops->nvmaxnormlocal     = N_VMaxNormLocal_Trilinos;
+  v->ops->nvminlocal         = N_VMinLocal_Trilinos;
+  v->ops->nvl1normlocal      = N_VL1NormLocal_Trilinos;
+  v->ops->nvinvtestlocal     = N_VInvTestLocal_Trilinos;
+  v->ops->nvconstrmasklocal  = N_VConstrMaskLocal_Trilinos;
+  v->ops->nvminquotientlocal = N_VMinQuotientLocal_Trilinos;
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Trilinos;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Trilinos;
 
   return(v);
 }
@@ -144,16 +138,11 @@ N_Vector N_VMake_Trilinos(Teuchos::RCP<vector_type> vec)
 
   // Create an N_Vector with operators attached and empty content
   v = N_VNewEmpty_Trilinos();
-  if (v == NULL)
-     return(NULL);
+  if (v == NULL) return(NULL);
 
   // Create vector content using a pointer to Tpetra vector
   v->content = new Sundials::TpetraVectorInterface(vec);
-  if (v->content == NULL) {
-    free(v->ops);
-    free(v);
-    return NULL;
-  }
+  if (v->content == NULL) { N_VDestroy(v); return NULL; }
 
   return(v);
 }
@@ -168,67 +157,16 @@ N_Vector N_VMake_Trilinos(Teuchos::RCP<vector_type> vec)
 N_Vector N_VCloneEmpty_Trilinos(N_Vector w)
 {
   N_Vector v;
-  N_Vector_Ops ops;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) {
-    free(v);
-    return(NULL);
-  }
-
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvlinearsum       = w->ops->nvlinearsum;
-  ops->nvconst           = w->ops->nvconst;
-  ops->nvprod            = w->ops->nvprod;
-  ops->nvdiv             = w->ops->nvdiv;
-  ops->nvscale           = w->ops->nvscale;
-  ops->nvabs             = w->ops->nvabs;
-  ops->nvinv             = w->ops->nvinv;
-  ops->nvaddconst        = w->ops->nvaddconst;
-  ops->nvdotprod         = w->ops->nvdotprod;
-  ops->nvmaxnorm         = w->ops->nvmaxnorm;
-  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
-  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
-  ops->nvmin             = w->ops->nvmin;
-  ops->nvwl2norm         = w->ops->nvwl2norm;
-  ops->nvl1norm          = w->ops->nvl1norm;
-  ops->nvcompare         = w->ops->nvcompare;
-  ops->nvinvtest         = w->ops->nvinvtest;
-  ops->nvconstrmask      = w->ops->nvconstrmask;
-  ops->nvminquotient     = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
-
-  /* Attach ops and set content to NULL */
-  v->content = NULL;
-  v->ops     = ops;
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
   return(v);
 }
@@ -236,8 +174,7 @@ N_Vector N_VCloneEmpty_Trilinos(N_Vector w)
 N_Vector N_VClone_Trilinos(N_Vector w)
 {
   N_Vector v = N_VCloneEmpty_Trilinos(w);
-  if (v == NULL)
-    return(NULL);
+  if (v == NULL) return(NULL);
 
   // Get raw pointer to Tpetra vector
   Teuchos::RCP<vector_type> wvec = N_VGetVector_Trilinos(w);
@@ -248,17 +185,15 @@ N_Vector N_VClone_Trilinos(N_Vector w)
 
   // Create vector content using the raw pointer to the cloned Tpetra vector
   v->content = new Sundials::TpetraVectorInterface(tvec);
-  if (v->content == NULL) {
-    free(v->ops);
-    free(v);
-    return NULL;
-  }
+  if (v->content == NULL) { N_VDestroy(v); return NULL; }
 
   return(v);
 }
 
 void N_VDestroy_Trilinos(N_Vector v)
 {
+  if (v == NULL) return;
+
   if(v->content != NULL) {
     Sundials::TpetraVectorInterface* iface =
       reinterpret_cast<Sundials::TpetraVectorInterface*>(v->content);
@@ -268,11 +203,11 @@ void N_VDestroy_Trilinos(N_Vector v)
       v->content = NULL;
   }
 
-  free(v->ops);
-  v->ops = NULL;
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
+  free(v); v = NULL;
 
-  free(v);
-  v = NULL;
+  return;
 }
 
 void N_VSpace_Trilinos(N_Vector x, sunindextype *lrw, sunindextype *liw)
@@ -283,8 +218,38 @@ void N_VSpace_Trilinos(N_Vector x, sunindextype *lrw, sunindextype *liw)
   const Teuchos::RCP<const Teuchos::Comm<int> >& comm = xv->getMap()->getComm();
   int npes = comm->getSize();
 
-  *lrw = xv->getGlobalLength();
+  *lrw = (sunindextype)(xv->getGlobalLength());
   *liw = 2*npes;
+}
+
+/*
+ * MPI communicator accessor
+ */
+void *N_VGetCommunicator_Trilinos(N_Vector x)
+{
+  using namespace Sundials;
+
+#ifdef SUNDIALS_TRILINOS_HAVE_MPI
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  /* Access Teuchos::Comm* (which is actually a Teuchos::MpiComm*) */
+  auto comm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(xv->getMap()->getComm());
+
+  return((void*) comm->getRawMpiComm().get());   /* extract raw pointer to MPI_Comm */
+#else
+  return(NULL);
+#endif
+}
+
+/*
+ * Global vector length accessor
+ */
+sunindextype N_VGetLength_Trilinos(N_Vector x)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+
+  return ((sunindextype) xv->getGlobalLength());
 }
 
 /*
@@ -517,7 +482,7 @@ booleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z)
 
 /*
  * Checks constraint violations for vector x. Constraints are defined in
- * vector c, and constrain violation flags are stored in vector m.
+ * vector c, and constraint violation flags are stored in vector m.
  */
 booleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x, N_Vector m)
 {
@@ -541,4 +506,121 @@ realtype N_VMinQuotient_Trilinos(N_Vector num, N_Vector denom)
   Teuchos::RCP<const vector_type> denv = N_VGetVector_Trilinos(denom);
 
   return TpetraVector::minQuotient(*numv, *denv);
+}
+
+/*
+ * MPI task-local dot product
+ */
+realtype N_VDotProdLocal_Trilinos(N_Vector x, N_Vector y)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<const vector_type> yv = N_VGetVector_Trilinos(y);
+
+  return TpetraVector::dotProdLocal(*xv, *yv);
+}
+
+/*
+ * MPI task-local maximum norm
+ */
+realtype N_VMaxNormLocal_Trilinos(N_Vector x)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+
+  return TpetraVector::maxNormLocal(*xv);
+}
+
+/*
+ * MPI task-local minimum element
+ */
+realtype N_VMinLocal_Trilinos(N_Vector x)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+
+  return TpetraVector::minLocal(*xv);
+}
+
+/*
+ * MPI task-local L1 norm
+ */
+realtype N_VL1NormLocal_Trilinos(N_Vector x)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+
+  return TpetraVector::L1NormLocal(*xv);
+}
+
+/*
+ * MPI task-local weighted squared sum
+ */
+realtype N_VWSqrSumLocal_Trilinos(N_Vector x, N_Vector w)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<const vector_type> wv = N_VGetVector_Trilinos(w);
+
+  return TpetraVector::WSqrSumLocal(*xv, *wv);
+}
+
+/*
+ * MPI task-local weighted masked squared sum
+ */
+realtype N_VWSqrSumMaskLocal_Trilinos(N_Vector x, N_Vector w, N_Vector id)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv  = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<const vector_type> wv  = N_VGetVector_Trilinos(w);
+  Teuchos::RCP<const vector_type> idv = N_VGetVector_Trilinos(id);
+
+  return TpetraVector::WSqrSumMaskLocal(*xv, *wv, *idv);
+}
+
+/*
+ * MPI task-local elementwise inverse with zero checking: z[i] = 1/x[i], x[i] != 0
+ */
+booleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<vector_type> zv = N_VGetVector_Trilinos(z);
+
+  return TpetraVector::invTestLocal(*xv, *zv) ? SUNTRUE : SUNFALSE;
+}
+
+/*
+ * MPI task-local constraint checking for vector x. Constraints are defined in
+ * vector c, and constraint violation flags are stored in vector m.
+ */
+booleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector x, N_Vector m)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> cv = N_VGetVector_Trilinos(c);
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<vector_type> mv       = N_VGetVector_Trilinos(m);
+
+  return TpetraVector::constraintMaskLocal(*cv, *xv, *mv) ? SUNTRUE : SUNFALSE;
+}
+
+/*
+ * MPI task-local minimum quotient: minq  = min ( num[i]/denom[i]), denom[i] != 0.
+ */
+realtype N_VMinQuotientLocal_Trilinos(N_Vector num, N_Vector denom)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> numv = N_VGetVector_Trilinos(num);
+  Teuchos::RCP<const vector_type> denv = N_VGetVector_Trilinos(denom);
+
+  return TpetraVector::minQuotientLocal(*numv, *denv);
 }

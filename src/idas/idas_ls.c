@@ -22,6 +22,7 @@
 #include "idas_impl.h"
 #include "idas_ls_impl.h"
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_linearsolver.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>
@@ -92,10 +93,8 @@ static int idaLsJacTimesVecBS(realtype tt, N_Vector yyB,
 
 
 /*---------------------------------------------------------------
-  IDASLS Exported functions -- Required
+  IDASetLinearSolver specifies the linear solver
   ---------------------------------------------------------------*/
-
-/* IDASetLinearSolver specifies the linear solver */
 int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 {
   IDAMem   IDA_mem;
@@ -117,27 +116,31 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if solver is compatible with LS interface */
-  if ( (LS->ops->gettype == NULL) ||
-       (LS->ops->initialize == NULL) ||
-       (LS->ops->setup == NULL) ||
-       (LS->ops->solve == NULL) ) {
+  if ( (LS->ops->gettype == NULL) || (LS->ops->solve == NULL) ) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS",
                    "IDASetLinearSolver",
                    "LS object is missing a required operation");
     return(IDALS_ILL_INPUT);
   }
 
-  /* Test if vector is compatible with LS */
-  if ( (IDA_mem->ida_tempv1->ops->nvdotprod == NULL) ||
-       (IDA_mem->ida_tempv1->ops->nvconst == NULL) ) {
+  /* Retrieve the LS type */
+  LSType = SUNLinSolGetType(LS);
+
+  /* Test if vector is compatible with LS interface */
+  if (IDA_mem->ida_tempv1->ops->nvconst == NULL) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS",
                     "IDASetLinearSolver", MSG_LS_BAD_NVECTOR);
     return(IDALS_ILL_INPUT);
   }
 
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(LS);
-
+  if ( ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+         (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) &&
+       ( (IDA_mem->ida_tempv1->ops->nvwrmsnorm == NULL) ||
+         (IDA_mem->ida_tempv1->ops->nvgetlength == NULL) ) ) {
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
+                    "IDASetLinearSolver", MSG_LS_BAD_NVECTOR);
+    return(IDALS_ILL_INPUT);
+  }
 
   /* Check for compatible LS type, matrix and "atimes" support */
   if ( ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
@@ -221,7 +224,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   idals_mem->dqincfac  = ONE;
   idals_mem->last_flag = IDALS_SUCCESS;
 
-  /* Attach default IDALs interface routines to LS object */
+  /* If LS supports ATimes, attach IDALs routine */
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, IDA_mem, idaLsATimes);
     if (retval != SUNLS_SUCCESS) {
@@ -232,6 +235,8 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
       return(IDALS_SUNLS_FAIL);
     }
   }
+
+  /* If LS supports preconditioning, initialize pset/psol to NULL */
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, IDA_mem, NULL, NULL);
     if (retval != SUNLS_SUCCESS) {
@@ -271,10 +276,10 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
     return(IDALS_MEM_FAIL);
   }
 
-  /* Compute sqrtN from a dot product */
-  N_VConst(ONE, idals_mem->ytemp);
-  idals_mem->sqrtN = SUNRsqrt( N_VDotProd(idals_mem->ytemp,
-                                          idals_mem->ytemp) );
+  /* For iterative LS, compute sqrtN */
+  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) )
+    idals_mem->sqrtN = SUNRsqrt( N_VGetLength(idals_mem->ytemp) );
 
   /* Attach linear solver memory to integrator memory */
   IDA_mem->ida_lmem = idals_mem;
@@ -283,9 +288,10 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 }
 
 
-/*---------------------------------------------------------------
-  IDASLS Exported functions -- Optional input/output
-  ---------------------------------------------------------------*/
+/*===============================================================
+  Optional input/output routines
+  ===============================================================*/
+
 
 /* IDASetJacFn specifies the Jacobian function */
 int IDASetJacFn(void *ida_mem, IDALsJacFn jac)
@@ -819,7 +825,6 @@ int idaLsDQJac(realtype t, realtype c_j, N_Vector y, N_Vector yp,
 
   /* Verify that N_Vector supports required operations */
   if (IDA_mem->ida_tempv1->ops->nvcloneempty == NULL ||
-      IDA_mem->ida_tempv1->ops->nvwrmsnorm == NULL ||
       IDA_mem->ida_tempv1->ops->nvlinearsum == NULL ||
       IDA_mem->ida_tempv1->ops->nvdestroy == NULL ||
       IDA_mem->ida_tempv1->ops->nvscale == NULL ||
@@ -885,7 +890,7 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
   ewt_data = N_VGetArrayPointer(IDA_mem->ida_ewt);
   y_data   = N_VGetArrayPointer(yy);
   yp_data  = N_VGetArrayPointer(yp);
-  if(IDA_mem->ida_constraints!=NULL)
+  if(IDA_mem->ida_constraintsSet)
     cns_data = N_VGetArrayPointer(IDA_mem->ida_constraints);
 
   srur = SUNRsqrt(IDA_mem->ida_uround);
@@ -910,7 +915,7 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
     inc = (yj + inc) - yj;
 
     /* Adjust sign(inc) again if y_j has an inequality constraint. */
-    if (IDA_mem->ida_constraints != NULL) {
+    if (IDA_mem->ida_constraintsSet) {
       conj = cns_data[j];
       if (SUNRabs(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
       else if (SUNRabs(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
@@ -989,7 +994,7 @@ int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
   rtemp_data  = N_VGetArrayPointer(rtemp);
   ytemp_data  = N_VGetArrayPointer(ytemp);
   yptemp_data = N_VGetArrayPointer(yptemp);
-  if (IDA_mem->ida_constraints != NULL)
+  if (IDA_mem->ida_constraintsSet)
     cns_data = N_VGetArrayPointer(IDA_mem->ida_constraints);
 
   /* Initialize ytemp and yptemp. */
@@ -1019,7 +1024,7 @@ int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
         inc = (yj + inc) - yj;
 
         /* Adjust sign(inc) again if yj has an inequality constraint. */
-        if (IDA_mem->ida_constraints != NULL) {
+        if (IDA_mem->ida_constraintsSet) {
           conj = cns_data[j];
           if (SUNRabs(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
           else if (SUNRabs(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
@@ -1049,7 +1054,7 @@ int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
                     ONE/ewtj );
       if (IDA_mem->ida_hh*ypj < ZERO)  inc = -inc;
       inc = (yj + inc) - yj;
-      if (IDA_mem->ida_constraints != NULL) {
+      if (IDA_mem->ida_constraintsSet) {
         conj = cns_data[j];
         if (SUNRabs(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
         else if (SUNRabs(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
@@ -1090,14 +1095,18 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   N_Vector y_tmp, yp_tmp;
   realtype sig, siginv;
   int      iter, retval;
+  SUNLinearSolver_ID LSID;
 
   /* access IDALsMem structure */
   retval = idaLs_AccessLMem(ida_mem, "idaLsDQJtimes",
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
 
-  sig = idals_mem->sqrtN * idals_mem->dqincfac;  /* GMRES */
-  /*sig = idals_mem->dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);*/  /* BiCGStab/TFQMR */
+  LSID = SUNLinSolGetID(idals_mem->LS);
+  if (LSID == SUNLINEARSOLVER_SPGMR || LSID == SUNLINEARSOLVER_SPFGMR)
+    sig = idals_mem->sqrtN * idals_mem->dqincfac;
+  else
+    sig = idals_mem->dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);
 
   /* Rename work1 and work2 for readibility */
   y_tmp  = work1;
@@ -1244,13 +1253,15 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
     /* Increment nje counter. */
     idals_mem->nje++;
 
-    /* Zero out J; call Jacobian routine jac; return if it failed. */
-    retval = SUNMatZero(idals_mem->J);
-    if (retval != 0) {
-      IDAProcessError(IDA_mem, IDALS_SUNMAT_FAIL, "IDASLS",
-                      "idaLsSetup", MSG_LS_MATZERO_FAILED);
-      idals_mem->last_flag = IDALS_SUNMAT_FAIL;
-      return(idals_mem->last_flag);
+    /* Clear the linear system matrix if necessary */
+    if (SUNLinSolGetType(idals_mem->LS) == SUNLINEARSOLVER_DIRECT) {
+      retval = SUNMatZero(idals_mem->J);
+      if (retval != 0) {
+        IDAProcessError(IDA_mem, IDALS_SUNMAT_FAIL, "IDASLS",
+                        "idaLsSetup", MSG_LS_MATZERO_FAILED);
+        idals_mem->last_flag = IDALS_SUNMAT_FAIL;
+        return(idals_mem->last_flag);
+      }
     }
 
     /* Call Jacobian routine */
@@ -1322,9 +1333,6 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   idals_mem->ypcur = ypcur;
   idals_mem->rcur  = rescur;
 
-  /* Set initial guess x = 0 to LS */
-  N_VConst(ZERO, idals_mem->x);
-
   /* Set scaling vectors for LS to use (if applicable) */
   if (idals_mem->LS->ops->setscalingvectors) {
     retval = SUNLinSolSetScalingVectors(idals_mem->LS, weight, weight);
@@ -1348,15 +1356,18 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
        <=> w_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / w_mean^2
        <=> || b - A x ||_2 < tol / w_mean
-     So we compute w_mean = ||w||_RMS = ||w||_2 / sqrt(n), and scale
-     the desired tolerance accordingly. */
+     So we compute w_mean = ||w||_RMS and scale the desired tolerance accordingly. */
   } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
               (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
 
-    w_mean = SUNRsqrt( N_VDotProd(weight, weight) ) / idals_mem->sqrtN;
+    N_VConst(ONE, idals_mem->x);
+    w_mean = N_VWrmsNorm(weight, idals_mem->x);
     tol /= w_mean;
 
   }
+
+  /* Set initial guess x = 0 to LS */
+  N_VConst(ZERO, idals_mem->x);
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (idals_mem->jtsetup) {
@@ -1485,10 +1496,8 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
   nnid = IDA_mem->ida_nni - idals_mem->nni0;
   if (nstd == 0 || nnid == 0) return(0);
 
-  rcfn = (realtype) ( (IDA_mem->ida_ncfn - idals_mem->ncfn0) /
-                      ((realtype) nstd) );
-  rcfl = (realtype) ( (idals_mem->ncfl - idals_mem->ncfl0) /
-                      ((realtype) nnid) );
+  rcfn = ((realtype) (IDA_mem->ida_ncfn - idals_mem->ncfn0)) / ((realtype) nstd);
+  rcfl = ((realtype) (idals_mem->ncfl - idals_mem->ncfl0)) / ((realtype) nnid);
   lcfn = (rcfn > PT9);
   lcfl = (rcfl > PT9);
   if (!(lcfn || lcfl)) return(0);

@@ -29,9 +29,9 @@
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidualSensSim(N_Vector ycor, N_Vector res, void* ida_mem);
-static int idaNlsLSetupSensSim(N_Vector ycor, N_Vector res, booleantype jbad,
-                               booleantype* jcur, void* ida_mem);
-static int idaNlsLSolveSensSim(N_Vector ycor, N_Vector delta, void* ida_mem);
+static int idaNlsLSetupSensSim(booleantype jbad, booleantype* jcur,
+                               void* ida_mem);
+static int idaNlsLSolveSensSim(N_Vector delta, void* ida_mem);
 static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
                                  realtype tol, N_Vector ewt, void* ida_mem);
 
@@ -62,9 +62,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 
   /* check for required nonlinear solver functions */
   if ( NLS->ops->gettype    == NULL ||
-       NLS->ops->initialize == NULL ||
        NLS->ops->solve      == NULL ||
-       NLS->ops->free       == NULL ||
        NLS->ops->setsysfn   == NULL ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
                     "IDASetNonlinearSolverSensSim",
@@ -117,7 +115,8 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   }
 
   /* set convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(IDA_mem->NLSsim, idaNlsConvTestSensSim);
+  retval = SUNNonlinSolSetConvTestFn(IDA_mem->NLSsim, idaNlsConvTestSensSim,
+                                     ida_mem);
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
                     "IDASetNonlinearSolverSensSim",
@@ -137,8 +136,8 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (IDA_mem->simMallocDone == SUNFALSE) {
 
-    IDA_mem->ycor0Sim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
-    if (IDA_mem->ycor0Sim == NULL) {
+    IDA_mem->ypredictSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
+    if (IDA_mem->ypredictSim == NULL) {
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensSim", MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
@@ -146,7 +145,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 
     IDA_mem->ycorSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
     if (IDA_mem->ycorSim == NULL) {
-      N_VDestroy(IDA_mem->ycor0Sim);
+      N_VDestroy(IDA_mem->ypredictSim);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensSim", MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
@@ -154,7 +153,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 
     IDA_mem->ewtSim = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns+1);
     if (IDA_mem->ewtSim == NULL) {
-      N_VDestroy(IDA_mem->ycor0Sim);
+      N_VDestroy(IDA_mem->ypredictSim);
       N_VDestroy(IDA_mem->ycorSim);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensSim", MSG_MEM_FAIL);
@@ -165,14 +164,14 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   }
 
   /* attach vectors to vector wrappers */
-  NV_VEC_SW(IDA_mem->ycor0Sim, 0) = IDA_mem->ida_delta;
-  NV_VEC_SW(IDA_mem->ycorSim,  0) = IDA_mem->ida_ee;
-  NV_VEC_SW(IDA_mem->ewtSim,   0) = IDA_mem->ida_ewt;
+  NV_VEC_SW(IDA_mem->ypredictSim, 0) = IDA_mem->ida_yypredict;
+  NV_VEC_SW(IDA_mem->ycorSim,     0) = IDA_mem->ida_ee;
+  NV_VEC_SW(IDA_mem->ewtSim,      0) = IDA_mem->ida_ewt;
 
   for (is=0; is < IDA_mem->ida_Ns; is++) {
-    NV_VEC_SW(IDA_mem->ycor0Sim, is+1) = IDA_mem->ida_deltaS[is];
-    NV_VEC_SW(IDA_mem->ycorSim,  is+1) = IDA_mem->ida_eeS[is];
-    NV_VEC_SW(IDA_mem->ewtSim,   is+1) = IDA_mem->ida_ewtS[is];
+    NV_VEC_SW(IDA_mem->ypredictSim, is+1) = IDA_mem->ida_yySpredict[is];
+    NV_VEC_SW(IDA_mem->ycorSim,     is+1) = IDA_mem->ida_eeS[is];
+    NV_VEC_SW(IDA_mem->ewtSim,      is+1) = IDA_mem->ida_ewtS[is];
   }
 
   return(IDA_SUCCESS);
@@ -224,13 +223,11 @@ int idaNlsInitSensSim(IDAMem IDA_mem)
 }
 
 
-static int idaNlsLSetupSensSim(N_Vector ycorSim, N_Vector resSim,
-                               booleantype jbad, booleantype* jcur,
+static int idaNlsLSetupSensSim(booleantype jbad, booleantype* jcur,
                                void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval;
-  N_Vector res;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS",
@@ -239,14 +236,12 @@ static int idaNlsLSetupSensSim(N_Vector ycorSim, N_Vector resSim,
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  /* extract residual vector from the vector wrapper */
-  res = NV_VEC_SW(resSim,0);
-
   IDA_mem->ida_nsetups++;
   IDA_mem->ida_forceSetup = SUNFALSE;
 
-  retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy, IDA_mem->ida_yp, res,
-                               IDA_mem->ida_tempv1, IDA_mem->ida_tempv2, IDA_mem->ida_tempv3);
+  retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy, IDA_mem->ida_yp,
+                               IDA_mem->ida_savres, IDA_mem->ida_tempv1,
+                               IDA_mem->ida_tempv2, IDA_mem->ida_tempv3);
 
   /* update Jacobian status */
   *jcur = SUNTRUE;
@@ -264,7 +259,7 @@ static int idaNlsLSetupSensSim(N_Vector ycorSim, N_Vector resSim,
 }
 
 
-static int idaNlsLSolveSensSim(N_Vector ycorSim, N_Vector deltaSim, void* ida_mem)
+static int idaNlsLSolveSensSim(N_Vector deltaSim, void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval, is;

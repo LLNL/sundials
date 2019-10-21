@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------------
- * Programmer(s): David Gardner @ LLNL
+ * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -18,6 +18,64 @@
 
 #include <stdlib.h>
 #include <sundials/sundials_nonlinearsolver.h>
+
+/* -----------------------------------------------------------------------------
+ * Create a new empty SUNLinearSolver object
+ * ---------------------------------------------------------------------------*/
+
+SUNNonlinearSolver SUNNonlinSolNewEmpty()
+{
+  SUNNonlinearSolver     NLS;
+  SUNNonlinearSolver_Ops ops;
+
+  /* create nonlinear solver object */
+  NLS = NULL;
+  NLS = (SUNNonlinearSolver) malloc(sizeof *NLS);
+  if (NLS == NULL) return(NULL);
+
+  /* create nonlinear solver ops structure */
+  ops = NULL;
+  ops = (SUNNonlinearSolver_Ops) malloc(sizeof *ops);
+  if (ops == NULL) { free(NLS); return(NULL); }
+
+  /* initialize operations to NULL */
+  ops->gettype         = NULL;
+  ops->initialize      = NULL;
+  ops->setup           = NULL;
+  ops->solve           = NULL;
+  ops->free            = NULL;
+  ops->setsysfn        = NULL;
+  ops->setlsetupfn     = NULL;
+  ops->setlsolvefn     = NULL;
+  ops->setctestfn      = NULL;
+  ops->setmaxiters     = NULL;
+  ops->getnumiters     = NULL;
+  ops->getcuriter      = NULL;
+  ops->getnumconvfails = NULL;
+
+  /* attach ops and initialize content to NULL */
+  NLS->ops     = ops;
+  NLS->content = NULL;
+
+  return(NLS);
+}
+
+/* -----------------------------------------------------------------------------
+ * Free a generic SUNNonlinearSolver (assumes content is already empty)
+ * ---------------------------------------------------------------------------*/
+
+void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS)
+{
+  if (NLS == NULL)  return;
+
+  /* free non-NULL ops structure */
+  if (NLS->ops)  free(NLS->ops);
+  NLS->ops = NULL;
+
+  /* free overall N_Vector object and return */
+  free(NLS);
+  return;
+}
 
 /* -----------------------------------------------------------------------------
  * core functions
@@ -55,25 +113,18 @@ int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
 int SUNNonlinSolFree(SUNNonlinearSolver NLS)
 {
   if (NLS == NULL) return(SUN_NLS_SUCCESS);
-  if (NLS->ops == NULL) return(SUN_NLS_SUCCESS);
 
-  if (NLS->ops->free) {
-    return(NLS->ops->free(NLS));
-  } else {
-    /* free the content structure */
-    if (NLS->content) {
-      free(NLS->content);
-      NLS->content = NULL;
-    }
-    /* free the ops structure */
-    if (NLS->ops) {
-      free(NLS->ops);
-      NLS->ops = NULL;
-    }
-    /* free the nonlinear solver */
-    free(NLS);
-    return(SUN_NLS_SUCCESS);
-  }
+  /* if the free operation exists use it */
+  if (NLS->ops)
+    if (NLS->ops->free) return(NLS->ops->free(NLS));
+
+  /* if we reach this point, either ops == NULL or free == NULL,
+     try to cleanup by freeing the content, ops, and solver */
+  if (NLS->content) { free(NLS->content); NLS->content = NULL; }
+  if (NLS->ops) { free(NLS->ops); NLS->ops = NULL; }
+  free(NLS); NLS = NULL;
+
+  return(SUN_NLS_SUCCESS);
 }
 
 /* -----------------------------------------------------------------------------
@@ -105,10 +156,12 @@ int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn LSolveF
 }
 
 /* set the convergence test function (optional) */
-int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
+int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
+                              SUNNonlinSolConvTestFn CTestFn,
+                              void* ctest_data)
 {
   if (NLS->ops->setctestfn)
-    return((int) NLS->ops->setctestfn(NLS, CTestFn));
+    return((int) NLS->ops->setctestfn(NLS, CTestFn, ctest_data));
   else
     return(SUN_NLS_SUCCESS);
 }

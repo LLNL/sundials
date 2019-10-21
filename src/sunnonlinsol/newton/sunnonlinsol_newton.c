@@ -27,6 +27,7 @@
 #define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_Newton)(S->content) )
 
 /* Constant macros */
+#define ZERO RCONST(0.0) /* real 0.0 */
 #define ONE  RCONST(1.0) /* real 1.0 */
 
 /*==============================================================================
@@ -36,7 +37,6 @@
 SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
 {
   SUNNonlinearSolver NLS;
-  SUNNonlinearSolver_Ops ops;
   SUNNonlinearSolverContent_Newton content;
 
   /* Check that the supplied N_Vector is non-NULL */
@@ -49,57 +49,51 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
        (y->ops->nvlinearsum == NULL) )
     return(NULL);
 
-  /* Create nonlinear linear solver */
+  /* Create an empty nonlinear linear solver object */
   NLS = NULL;
-  NLS = (SUNNonlinearSolver) malloc(sizeof *NLS);
+  NLS = SUNNonlinSolNewEmpty();
   if (NLS == NULL) return(NULL);
 
-  /* Create linear solver operation structure */
-  ops = NULL;
-  ops = (SUNNonlinearSolver_Ops) malloc(sizeof *ops);
-  if (ops == NULL) { free(NLS); return(NULL); }
-
   /* Attach operations */
-  ops->gettype         = SUNNonlinSolGetType_Newton;
-  ops->initialize      = SUNNonlinSolInitialize_Newton;
-  ops->setup           = NULL; /* no setup needed */
-  ops->solve           = SUNNonlinSolSolve_Newton;
-  ops->free            = SUNNonlinSolFree_Newton;
-  ops->setsysfn        = SUNNonlinSolSetSysFn_Newton;
-  ops->setlsetupfn     = SUNNonlinSolSetLSetupFn_Newton;
-  ops->setlsolvefn     = SUNNonlinSolSetLSolveFn_Newton;
-  ops->setctestfn      = SUNNonlinSolSetConvTestFn_Newton;
-  ops->setmaxiters     = SUNNonlinSolSetMaxIters_Newton;
-  ops->getnumiters     = SUNNonlinSolGetNumIters_Newton;
-  ops->getcuriter      = SUNNonlinSolGetCurIter_Newton;
-  ops->getnumconvfails = SUNNonlinSolGetNumConvFails_Newton;
+  NLS->ops->gettype         = SUNNonlinSolGetType_Newton;
+  NLS->ops->initialize      = SUNNonlinSolInitialize_Newton;
+  NLS->ops->solve           = SUNNonlinSolSolve_Newton;
+  NLS->ops->free            = SUNNonlinSolFree_Newton;
+  NLS->ops->setsysfn        = SUNNonlinSolSetSysFn_Newton;
+  NLS->ops->setlsetupfn     = SUNNonlinSolSetLSetupFn_Newton;
+  NLS->ops->setlsolvefn     = SUNNonlinSolSetLSolveFn_Newton;
+  NLS->ops->setctestfn      = SUNNonlinSolSetConvTestFn_Newton;
+  NLS->ops->setmaxiters     = SUNNonlinSolSetMaxIters_Newton;
+  NLS->ops->getnumiters     = SUNNonlinSolGetNumIters_Newton;
+  NLS->ops->getcuriter      = SUNNonlinSolGetCurIter_Newton;
+  NLS->ops->getnumconvfails = SUNNonlinSolGetNumConvFails_Newton;
 
   /* Create content */
   content = NULL;
   content = (SUNNonlinearSolverContent_Newton) malloc(sizeof *content);
-  if (content == NULL) { free(ops); free(NLS); return(NULL); }
+  if (content == NULL) { SUNNonlinSolFree(NLS); return(NULL); }
 
   /* Initialize all components of content to 0/NULL */
   memset(content, 0, sizeof(struct _SUNNonlinearSolverContent_Newton));
 
-  /* Fill content */
+  /* Attach content */
+  NLS->content = content;
+
+  /* Fill general content */
   content->Sys        = NULL;
   content->LSetup     = NULL;
   content->LSolve     = NULL;
   content->CTest      = NULL;
-  content->delta      = N_VClone(y);
   content->jcur       = SUNFALSE;
   content->curiter    = 0;
   content->maxiters   = 3;
   content->niters     = 0;
   content->nconvfails = 0;
+  content->ctest_data = NULL;
 
-  /* check if clone was successful */
-  if (content->delta == NULL) { free(ops); free(NLS); return(NULL); }
-
-  /* Attach content and ops */
-  NLS->content = content;
-  NLS->ops     = ops;
+  /* Fill allocatable content */
+  content->delta = N_VClone(y);
+  if (content->delta == NULL) { SUNNonlinSolFree(NLS); return(NULL); }
 
   return(NLS);
 }
@@ -183,7 +177,7 @@ int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
   the Sys, LSetup, and LSolve functions provided to the nonlinear solver.
   ----------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
-                             N_Vector y0, N_Vector y,
+                             N_Vector y0, N_Vector ycor,
                              N_Vector w, realtype tol,
                              booleantype callLSetup, void* mem)
 {
@@ -193,12 +187,20 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   N_Vector delta;
 
   /* check that the inputs are non-null */
-  if ( (NLS == NULL) ||
-       (y0  == NULL) ||
-       (y   == NULL) ||
-       (w   == NULL) ||
-       (mem == NULL) )
+  if ( (NLS  == NULL) ||
+       (y0   == NULL) ||
+       (ycor == NULL) ||
+       (w    == NULL) ||
+       (mem  == NULL) )
     return(SUN_NLS_MEM_NULL);
+
+  /* check that all required function pointers have been set */
+  if ( (NEWTON_CONTENT(NLS)->Sys    == NULL) ||
+       (NEWTON_CONTENT(NLS)->LSolve == NULL) ||
+       (callLSetup && (NEWTON_CONTENT(NLS)->LSetup == NULL)) ||
+       (NEWTON_CONTENT(NLS)->CTest  == NULL) ) {
+    return(SUN_NLS_MEM_NULL);
+  }
 
   /* set local shortcut variables */
   delta = NEWTON_CONTENT(NLS)->delta;
@@ -213,12 +215,12 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   for(;;) {
 
     /* compute the nonlinear residual, store in delta */
-    retval = NEWTON_CONTENT(NLS)->Sys(y0, delta, mem);
+    retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);
     if (retval != SUN_NLS_SUCCESS) break;
 
     /* if indicated, setup the linear system */
     if (callLSetup) {
-      retval = NEWTON_CONTENT(NLS)->LSetup(y0, delta, jbad,
+      retval = NEWTON_CONTENT(NLS)->LSetup(jbad,
                                            &(NEWTON_CONTENT(NLS)->jcur),
                                            mem);
       if (retval != SUN_NLS_SUCCESS) break;
@@ -226,9 +228,6 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
     /* initialize counter curiter */
     NEWTON_CONTENT(NLS)->curiter = 0;
-
-    /* load prediction into y */
-    N_VScale(ONE, y0, y);
 
     /* looping point for Newton iteration. Break out on any error. */
     for(;;) {
@@ -240,14 +239,15 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       N_VScale(-ONE, delta, delta);
 
       /* solve the linear system to get Newton update delta */
-      retval = NEWTON_CONTENT(NLS)->LSolve(y, delta, mem);
+      retval = NEWTON_CONTENT(NLS)->LSolve(delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
       /* update the Newton iterate */
-      N_VLinearSum(ONE, y, ONE, delta, y);
+      N_VLinearSum(ONE, ycor, ONE, delta, ycor);
 
       /* test for convergence */
-      retval = NEWTON_CONTENT(NLS)->CTest(NLS, y, delta, tol, w, mem);
+      retval = NEWTON_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
+                                          NEWTON_CONTENT(NLS)->ctest_data);
 
       /* if successful update Jacobian status and return */
       if (retval == SUN_NLS_SUCCESS) {
@@ -266,7 +266,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       }
 
       /* compute the nonlinear residual, store in delta */
-      retval = NEWTON_CONTENT(NLS)->Sys(y, delta, mem);
+      retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
     } /* end of Newton iteration loop */
@@ -274,13 +274,14 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
     /* all errors go here */
 
     /* If there is a recoverable convergence failure and the Jacobian-related
-       data appears not to be current, increment the convergence failure count
-       and loop again with a call to lsetup in which jbad is TRUE. Otherwise
-       break out and return. */
+       data appears not to be current, increment the convergence failure count,
+       reset the initial correction to zero, and loop again with a call to
+       lsetup in which jbad is TRUE. Otherwise break out and return. */
     if ((retval > 0) && !(NEWTON_CONTENT(NLS)->jcur) && (NEWTON_CONTENT(NLS)->LSetup)) {
       NEWTON_CONTENT(NLS)->nconvfails++;
       callLSetup = SUNTRUE;
       jbad = SUNTRUE;
+      N_VConst(ZERO, ycor);
       continue;
     } else {
       break;
@@ -371,7 +372,9 @@ int SUNNonlinSolSetLSolveFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn 
 }
 
 
-int SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
+int SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS,
+                                     SUNNonlinSolConvTestFn CTestFn,
+                                     void* ctest_data)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL)
@@ -382,6 +385,10 @@ int SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolConvTes
     return(SUN_NLS_ILL_INPUT);
 
   NEWTON_CONTENT(NLS)->CTest = CTestFn;
+
+  /* attach convergence test data */
+  NEWTON_CONTENT(NLS)->ctest_data = ctest_data;
+
   return(SUN_NLS_SUCCESS);
 }
 

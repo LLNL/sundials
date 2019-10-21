@@ -64,7 +64,7 @@ typedef struct CVLsMemRec {
   SUNMatrix A;        /* A = I - gamma * df/dy                        */
   SUNMatrix savedJ;   /* savedJ = old Jacobian                        */
   N_Vector ytemp;     /* temp vector passed to jtimes and psolve      */
-  N_Vector x;         /* temp vector used by CVLsSolve             */
+  N_Vector x;         /* temp vector used by CVLsSolve                */
   N_Vector ycur;      /* CVODE current y vector in Newton Iteration   */
   N_Vector fcur;      /* fcur = f(tn, ycur)                           */
 
@@ -105,7 +105,18 @@ typedef struct CVLsMemRec {
   CVLsJacTimesVecFn jtimes;
   void *jt_data;
 
-  long int last_flag; /* last error flag returned by any function */
+  /* Linear system setup function
+   * (a) user-provided linsys function:
+   *     - user_linsys = SUNTRUE
+   *     - A_data      = user_data
+   * (b) internal linsys function:
+   *     - user_linsys = SUNFALSE
+   *     - A_data      = cvode_mem */
+  booleantype user_linsys;
+  CVLsLinSysFn linsys;
+  void* A_data;
+
+  int last_flag; /* last error flag returned by any function */
 
 } *CVLsMem;
 

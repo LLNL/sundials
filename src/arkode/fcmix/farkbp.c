@@ -30,7 +30,10 @@
 void FARK_BPINIT(long int *N, long int *mu,
                  long int *ml, int *ier)
 {
-  *ier = ARKBandPrecInit(ARK_arkodemem, *N, *mu, *ml);
+  *ier = ARKBandPrecInit(ARK_arkodemem,
+                         (sunindextype)(*N),
+                         (sunindextype)(*mu),
+                         (sunindextype)(*ml));
   return;
 }
 

@@ -46,7 +46,7 @@ static int VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vect
 static int VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
 static int VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
 static int VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
-static int VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y);                   /* Y <- aX+Y */
+static int VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y);                    /* Y <- aX+Y */
 
 /*
  * -----------------------------------------------------------------
@@ -70,74 +70,71 @@ N_Vector_ID N_VGetVectorID_Serial(N_Vector v)
 N_Vector N_VNewEmpty_Serial(sunindextype length)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_Serial content;
 
-  /* Create vector */
+  /* Create an empty vector object */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  ops->nvgetvectorid     = N_VGetVectorID_Serial;
-  ops->nvclone           = N_VClone_Serial;
-  ops->nvcloneempty      = N_VCloneEmpty_Serial;
-  ops->nvdestroy         = N_VDestroy_Serial;
-  ops->nvspace           = N_VSpace_Serial;
-  ops->nvgetarraypointer = N_VGetArrayPointer_Serial;
-  ops->nvsetarraypointer = N_VSetArrayPointer_Serial;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid     = N_VGetVectorID_Serial;
+  v->ops->nvclone           = N_VClone_Serial;
+  v->ops->nvcloneempty      = N_VCloneEmpty_Serial;
+  v->ops->nvdestroy         = N_VDestroy_Serial;
+  v->ops->nvspace           = N_VSpace_Serial;
+  v->ops->nvgetarraypointer = N_VGetArrayPointer_Serial;
+  v->ops->nvsetarraypointer = N_VSetArrayPointer_Serial;
+  v->ops->nvgetlength       = N_VGetLength_Serial;
 
   /* standard vector operations */
-  ops->nvlinearsum    = N_VLinearSum_Serial;
-  ops->nvconst        = N_VConst_Serial;
-  ops->nvprod         = N_VProd_Serial;
-  ops->nvdiv          = N_VDiv_Serial;
-  ops->nvscale        = N_VScale_Serial;
-  ops->nvabs          = N_VAbs_Serial;
-  ops->nvinv          = N_VInv_Serial;
-  ops->nvaddconst     = N_VAddConst_Serial;
-  ops->nvdotprod      = N_VDotProd_Serial;
-  ops->nvmaxnorm      = N_VMaxNorm_Serial;
-  ops->nvwrmsnormmask = N_VWrmsNormMask_Serial;
-  ops->nvwrmsnorm     = N_VWrmsNorm_Serial;
-  ops->nvmin          = N_VMin_Serial;
-  ops->nvwl2norm      = N_VWL2Norm_Serial;
-  ops->nvl1norm       = N_VL1Norm_Serial;
-  ops->nvcompare      = N_VCompare_Serial;
-  ops->nvinvtest      = N_VInvTest_Serial;
-  ops->nvconstrmask   = N_VConstrMask_Serial;
-  ops->nvminquotient  = N_VMinQuotient_Serial;
+  v->ops->nvlinearsum    = N_VLinearSum_Serial;
+  v->ops->nvconst        = N_VConst_Serial;
+  v->ops->nvprod         = N_VProd_Serial;
+  v->ops->nvdiv          = N_VDiv_Serial;
+  v->ops->nvscale        = N_VScale_Serial;
+  v->ops->nvabs          = N_VAbs_Serial;
+  v->ops->nvinv          = N_VInv_Serial;
+  v->ops->nvaddconst     = N_VAddConst_Serial;
+  v->ops->nvdotprod      = N_VDotProd_Serial;
+  v->ops->nvmaxnorm      = N_VMaxNorm_Serial;
+  v->ops->nvwrmsnormmask = N_VWrmsNormMask_Serial;
+  v->ops->nvwrmsnorm     = N_VWrmsNorm_Serial;
+  v->ops->nvmin          = N_VMin_Serial;
+  v->ops->nvwl2norm      = N_VWL2Norm_Serial;
+  v->ops->nvl1norm       = N_VL1Norm_Serial;
+  v->ops->nvcompare      = N_VCompare_Serial;
+  v->ops->nvinvtest      = N_VInvTest_Serial;
+  v->ops->nvconstrmask   = N_VConstrMask_Serial;
+  v->ops->nvminquotient  = N_VMinQuotient_Serial;
 
-  /* fused vector operations (optional, NULL means disabled by default) */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
+  /* fused and vector array operations are disabled (NULL) by default */
 
-  /* vector array operations (optional, NULL means disabled by default) */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
+  /* local reduction operations */
+  v->ops->nvdotprodlocal     = N_VDotProd_Serial;
+  v->ops->nvmaxnormlocal     = N_VMaxNorm_Serial;
+  v->ops->nvminlocal         = N_VMin_Serial;
+  v->ops->nvl1normlocal      = N_VL1Norm_Serial;
+  v->ops->nvinvtestlocal     = N_VInvTest_Serial;
+  v->ops->nvconstrmasklocal  = N_VConstrMask_Serial;
+  v->ops->nvminquotientlocal = N_VMinQuotient_Serial;
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Serial;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Serial;
 
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_Serial) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
+  /* Attach content */
+  v->content = content;
+
+  /* Initialize content */
   content->length   = length;
   content->own_data = SUNFALSE;
   content->data     = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -197,15 +194,15 @@ N_Vector N_VMake_Serial(sunindextype length, realtype *v_data)
  * Function to create an array of new serial vectors.
  */
 
-N_Vector *N_VCloneVectorArray_Serial(int count, N_Vector w)
+N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w)
 {
-  N_Vector *vs;
+  N_Vector* vs;
   int j;
 
   if (count <= 0) return(NULL);
 
   vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -224,15 +221,15 @@ N_Vector *N_VCloneVectorArray_Serial(int count, N_Vector w)
  * Function to create an array of new serial vectors with NULL data array.
  */
 
-N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
+N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
 {
-  N_Vector *vs;
+  N_Vector* vs;
   int j;
 
   if (count <= 0) return(NULL);
 
   vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -251,7 +248,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
  * Function to free an array created with N_VCloneVectorArray_Serial
  */
 
-void N_VDestroyVectorArray_Serial(N_Vector *vs, int count)
+void N_VDestroyVectorArray_Serial(N_Vector* vs, int count)
 {
   int j;
 
@@ -316,76 +313,30 @@ void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
 N_Vector N_VCloneEmpty_Serial(N_Vector w)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_Serial content;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
-
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-
-  /* standard vector operations */
-  ops->nvlinearsum    = w->ops->nvlinearsum;
-  ops->nvconst        = w->ops->nvconst;
-  ops->nvprod         = w->ops->nvprod;
-  ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale;
-  ops->nvabs          = w->ops->nvabs;
-  ops->nvinv          = w->ops->nvinv;
-  ops->nvaddconst     = w->ops->nvaddconst;
-  ops->nvdotprod      = w->ops->nvdotprod;
-  ops->nvmaxnorm      = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
-  ops->nvmin          = w->ops->nvmin;
-  ops->nvwl2norm      = w->ops->nvwl2norm;
-  ops->nvl1norm       = w->ops->nvl1norm;
-  ops->nvcompare      = w->ops->nvcompare;
-  ops->nvinvtest      = w->ops->nvinvtest;
-  ops->nvconstrmask   = w->ops->nvconstrmask;
-  ops->nvminquotient  = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_Serial) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
+  /* Attach content */
+  v->content = content;
+
+  /* Initialize content */
   content->length   = NV_LENGTH_S(w);
   content->own_data = SUNFALSE;
   content->data     = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -421,12 +372,21 @@ N_Vector N_VClone_Serial(N_Vector w)
 
 void N_VDestroy_Serial(N_Vector v)
 {
-  if (NV_OWN_DATA_S(v) == SUNTRUE) {
-    free(NV_DATA_S(v));
-    NV_DATA_S(v) = NULL;
+  if (v == NULL) return;
+
+  /* free content */
+  if (v->content != NULL) {
+    /* free data array if it's owned by the vector */
+    if (NV_OWN_DATA_S(v) && NV_DATA_S(v) != NULL) {
+      free(NV_DATA_S(v));
+      NV_DATA_S(v) = NULL;
+    }
+    free(v->content);
+    v->content = NULL;
   }
-  free(v->content); v->content = NULL;
-  free(v->ops); v->ops = NULL;
+
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
   free(v); v = NULL;
 
   return;
@@ -706,6 +666,11 @@ realtype N_VMaxNorm_Serial(N_Vector x)
 
 realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 {
+  return(SUNRsqrt(N_VWSqrSumLocal_Serial(x, w)/(NV_LENGTH_S(x))));
+}
+
+realtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w)
+{
   sunindextype i, N;
   realtype sum, prodi, *xd, *wd;
 
@@ -721,10 +686,15 @@ realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
     sum += SUNSQR(prodi);
   }
 
-  return(SUNRsqrt(sum/N));
+  return(sum);
 }
 
 realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
+{
+  return(SUNRsqrt(N_VWSqrSumMaskLocal_Serial(x, w, id) / (NV_LENGTH_S(x))));
+}
+
+realtype N_VWSqrSumMaskLocal_Serial(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i, N;
   realtype sum, prodi, *xd, *wd, *idd;
@@ -744,7 +714,7 @@ realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
     }
   }
 
-  return(SUNRsqrt(sum / N));
+  return(sum);
 }
 
 realtype N_VMin_Serial(N_Vector x)
@@ -1085,8 +1055,8 @@ int N_VLinearSumVectorArray_Serial(int nvec,
   realtype*    yd=NULL;
   realtype*    zd=NULL;
   realtype     c;
-  N_Vector*    V1;
-  N_Vector*    V2;
+  N_Vector*   V1;
+  N_Vector*   V2;
   booleantype  test;
 
   /* invalid number of vectors */
@@ -1330,8 +1300,8 @@ int N_VScaleAddMultiVectorArray_Serial(int nvec, int nsum, realtype* a,
   realtype*    zd=NULL;
 
   int          retval;
-  N_Vector*    YY;
-  N_Vector*    ZZ;
+  N_Vector*   YY;
+  N_Vector*   ZZ;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1350,8 +1320,8 @@ int N_VScaleAddMultiVectorArray_Serial(int nvec, int nsum, realtype* a,
     }
 
     /* should have called N_VScaleAddMulti */
-    YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
-    ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    YY = (N_Vector*) malloc(nsum * sizeof(N_Vector));
+    ZZ = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (j=0; j<nsum; j++) {
       YY[j] = Y[j][0];
@@ -1427,7 +1397,7 @@ int N_VLinearCombinationVectorArray_Serial(int nvec, int nsum, realtype* c,
 
   int          retval;
   realtype*    ctmp;
-  N_Vector*    Y;
+  N_Vector*   Y;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1452,7 +1422,7 @@ int N_VLinearCombinationVectorArray_Serial(int nvec, int nsum, realtype* c,
     }
 
     /* should have called N_VLinearCombination */
-    Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    Y = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (i=0; i<nsum; i++) {
       Y[i] = X[i][0];

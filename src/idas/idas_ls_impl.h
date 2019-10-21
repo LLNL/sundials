@@ -69,7 +69,7 @@ typedef struct IDALsMemRec {
   long int ncfl0;     /* ncfl0 = saved ncfl (for performance monitor) */
   long int nwarn;     /* nwarn = no. of warnings (for perf. monitor)  */
 
-  long int last_flag; /* last error return flag                       */
+  int last_flag;      /* last error return flag                       */
 
   /* Preconditioner computation
      (a) user-provided:

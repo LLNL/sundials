@@ -1,8 +1,7 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner @ LLNL
- * Based on code sundials_dense.c by: Scott D. Cohen, 
+ * Based on code sundials_dense.c by: Scott D. Cohen,
  *     Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -15,10 +14,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for the dense implementation of 
+ * This is the implementation file for the dense implementation of
  * the SUNMATRIX package.
- * -----------------------------------------------------------------
- */ 
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,58 +46,50 @@ static booleantype SMCompatible2_Dense(SUNMatrix A, N_Vector x, N_Vector y);
 SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N)
 {
   SUNMatrix A;
-  SUNMatrix_Ops ops;
   SUNMatrixContent_Dense content;
   sunindextype j;
 
   /* return with NULL matrix on illegal dimension input */
   if ( (M <= 0) || (N <= 0) ) return(NULL);
 
-  /* Create matrix */
+  /* Create an empty matrix object */
   A = NULL;
-  A = (SUNMatrix) malloc(sizeof *A);
+  A = SUNMatNewEmpty();
   if (A == NULL) return(NULL);
-  
-  /* Create matrix operation structure */
-  ops = NULL;
-  ops = (SUNMatrix_Ops) malloc(sizeof(struct _generic_SUNMatrix_Ops));
-  if (ops == NULL) { free(A); return(NULL); }
 
   /* Attach operations */
-  ops->getid       = SUNMatGetID_Dense;
-  ops->clone       = SUNMatClone_Dense;
-  ops->destroy     = SUNMatDestroy_Dense;
-  ops->zero        = SUNMatZero_Dense;
-  ops->copy        = SUNMatCopy_Dense;
-  ops->scaleadd    = SUNMatScaleAdd_Dense;
-  ops->scaleaddi   = SUNMatScaleAddI_Dense;
-  ops->matvec      = SUNMatMatvec_Dense;
-  ops->space       = SUNMatSpace_Dense;
+  A->ops->getid     = SUNMatGetID_Dense;
+  A->ops->clone     = SUNMatClone_Dense;
+  A->ops->destroy   = SUNMatDestroy_Dense;
+  A->ops->zero      = SUNMatZero_Dense;
+  A->ops->copy      = SUNMatCopy_Dense;
+  A->ops->scaleadd  = SUNMatScaleAdd_Dense;
+  A->ops->scaleaddi = SUNMatScaleAddI_Dense;
+  A->ops->matvec    = SUNMatMatvec_Dense;
+  A->ops->space     = SUNMatSpace_Dense;
 
   /* Create content */
   content = NULL;
-  content = (SUNMatrixContent_Dense) malloc(sizeof(struct _SUNMatrixContent_Dense));
-  if (content == NULL) { free(ops); free(A); return(NULL); }
+  content = (SUNMatrixContent_Dense) malloc(sizeof *content);
+  if (content == NULL) { SUNMatDestroy(A); return(NULL); }
+
+  /* Attach content */
+  A->content = content;
 
   /* Fill content */
-  content->M = M;
-  content->N = N;
+  content->M     = M;
+  content->N     = N;
   content->ldata = M*N;
-  content->data = NULL;
+  content->data  = NULL;
+  content->cols  = NULL;
+
+  /* Allocate content */
   content->data = (realtype *) calloc(M * N, sizeof(realtype));
-  if (content->data == NULL) {
-    free(content); free(ops); free(A); return(NULL);
-  }
-  content->cols = NULL;
+  if (content->data == NULL) { SUNMatDestroy(A); return(NULL); }
+
   content->cols = (realtype **) malloc(N * sizeof(realtype *));
-  if (content->cols == NULL) {
-    free(content->data); free(content); free(ops); free(A); return(NULL);
-  }
+  if (content->cols == NULL) { SUNMatDestroy(A); return(NULL); }
   for (j=0; j<N; j++) content->cols[j] = content->data + j * M;
-  
-  /* Attach content and ops */
-  A->content = content;
-  A->ops     = ops;
 
   return(A);
 }
@@ -146,7 +136,7 @@ sunindextype SUNDenseMatrix_Rows(SUNMatrix A)
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_ROWS_D(A);
   else
-    return -1;
+    return SUNMAT_ILL_INPUT;
 }
 
 sunindextype SUNDenseMatrix_Columns(SUNMatrix A)
@@ -154,7 +144,7 @@ sunindextype SUNDenseMatrix_Columns(SUNMatrix A)
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_COLUMNS_D(A);
   else
-    return -1;
+    return SUNMAT_ILL_INPUT;
 }
 
 sunindextype SUNDenseMatrix_LData(SUNMatrix A)
@@ -162,7 +152,7 @@ sunindextype SUNDenseMatrix_LData(SUNMatrix A)
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_LDATA_D(A);
   else
-    return -1;
+    return SUNMAT_ILL_INPUT;
 }
 
 realtype* SUNDenseMatrix_Data(SUNMatrix A)
@@ -209,12 +199,29 @@ SUNMatrix SUNMatClone_Dense(SUNMatrix A)
 
 void SUNMatDestroy_Dense(SUNMatrix A)
 {
-  /* perform operation */
-  free(SM_DATA_D(A));  SM_DATA_D(A) = NULL;
-  free(SM_CONTENT_D(A)->cols);  SM_CONTENT_D(A)->cols = NULL;
-  free(A->content);  A->content = NULL;
-  free(A->ops);  A->ops = NULL;
+  if (A == NULL) return;
+
+  /* free content */
+  if (A->content != NULL) {
+    /* free data array */
+    if (SM_DATA_D(A) != NULL) {
+      free(SM_DATA_D(A));
+      SM_DATA_D(A) = NULL;
+    }
+    /* free column pointers */
+    if (SM_CONTENT_D(A)->cols != NULL) {
+      free(SM_CONTENT_D(A)->cols);
+      SM_CONTENT_D(A)->cols = NULL;
+    }
+    /* free content struct */
+    free(A->content);
+    A->content = NULL;
+  }
+
+  /* free ops and matrix */
+  if (A->ops) { free(A->ops); A->ops = NULL; }
   free(A); A = NULL;
+
   return;
 }
 
@@ -227,7 +234,7 @@ int SUNMatZero_Dense(SUNMatrix A)
   Adata = SM_DATA_D(A);
   for (i=0; i<SM_LDATA_D(A); i++)
     Adata[i] = ZERO;
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
@@ -236,13 +243,13 @@ int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
 
   /* Verify that A and B are compatible */
   if (!SMCompatible_Dense(A, B))
-    return 1;
+    return SUNMAT_ILL_INPUT;
 
   /* Perform operation */
   for (j=0; j<SM_COLUMNS_D(A); j++)
     for (i=0; i<SM_ROWS_D(A); i++)
       SM_ELEMENT_D(B,i,j) = SM_ELEMENT_D(A,i,j);
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
@@ -256,7 +263,7 @@ int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
       if (i == j) 
         SM_ELEMENT_D(A,i,j) += ONE;
     }
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B)
@@ -265,13 +272,13 @@ int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B)
 
   /* Verify that A and B are compatible */
   if (!SMCompatible_Dense(A, B))
-    return 1;
+    return SUNMAT_ILL_INPUT;
 
   /* Perform operation */
   for (j=0; j<SM_COLUMNS_D(A); j++)
     for (i=0; i<SM_ROWS_D(A); i++)
       SM_ELEMENT_D(A,i,j) = c*SM_ELEMENT_D(A,i,j) + SM_ELEMENT_D(B,i,j);
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
@@ -281,13 +288,13 @@ int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   
   /* Verify that A, x and y are compatible */
   if (!SMCompatible2_Dense(A, x, y))
-    return 1;
+    return SUNMAT_ILL_INPUT;
 
   /* access vector data (return if failure) */
   xd = N_VGetArrayPointer(x);
   yd = N_VGetArrayPointer(y);
   if ((xd == NULL) || (yd == NULL) || (xd == yd))
-    return 1;
+    return SUNMAT_MEM_FAIL;
 
   /* Perform operation */
   for (i=0; i<SM_ROWS_D(A); i++)
@@ -297,14 +304,14 @@ int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
     for (i=0; i<SM_ROWS_D(A); i++)
       yd[i] += col_j[i]*xd[j];
   }
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatSpace_Dense(SUNMatrix A, long int *lenrw, long int *leniw)
 {
   *lenrw = SM_LDATA_D(A);
   *leniw = 3 + SM_COLUMNS_D(A);
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 

@@ -55,7 +55,7 @@ int main (int argc, char *argv[])
     return -1;
   }
 
-  const sunindextype local_length = atol(argv[1]);
+  const sunindextype local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myRank == 0)
       printf("ERROR: local vector length must be a positive integer \n");
@@ -102,6 +102,17 @@ int main (int argc, char *argv[])
   /* Check vector ID */
   fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_TRILINOS, myRank);
 
+  /* Check vector length */
+  fails += Test_N_VGetLength(X, myRank);
+
+  /* Check vector communicator */
+#ifdef SUNDIALS_TRILINOS_HAVE_MPI
+  auto mpicomm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(comm);
+  fails += Test_N_VGetCommunicatorMPI(X, (MPI_Comm *) mpicomm->getRawMpiComm().get(), myRank);
+#else
+  fails += Test_N_VGetCommunicator(X, NULL, myRank);
+#endif
+
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, myRank);
   fails += Test_N_VClone(X, local_length, myRank);
@@ -137,17 +148,30 @@ int main (int argc, char *argv[])
   fails += Test_N_VAbs(X, Z, local_length, myRank);
   fails += Test_N_VInv(X, Z, local_length, myRank);
   fails += Test_N_VAddConst(X, Z, local_length, myRank);
-  fails += Test_N_VDotProd(X, Y, local_length, global_length, myRank);
+  fails += Test_N_VDotProd(X, Y, local_length, myRank);
   fails += Test_N_VMaxNorm(X, local_length, myRank);
   fails += Test_N_VWrmsNorm(X, Y, local_length, myRank);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, local_length, global_length, myRank);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, local_length, myRank);
   fails += Test_N_VMin(X, local_length, myRank);
-  fails += Test_N_VWL2Norm(X, Y, local_length, global_length, myRank);
-  fails += Test_N_VL1Norm(X, local_length, global_length, myRank);
+  fails += Test_N_VWL2Norm(X, Y, local_length, myRank);
+  fails += Test_N_VL1Norm(X, local_length, myRank);
   fails += Test_N_VCompare(X, Z, local_length, myRank);
   fails += Test_N_VInvTest(X, Z, local_length, myRank);
   fails += Test_N_VConstrMask(X, Y, Z, local_length, myRank);
   fails += Test_N_VMinQuotient(X, Y, local_length, myRank);
+
+  /* local reduction operations */
+  if (myRank == 0) printf("\nTesting local reduction operations:\n\n");
+
+  fails += Test_N_VDotProdLocal(X, Y, local_length, myRank);
+  fails += Test_N_VMaxNormLocal(X, local_length, myRank);
+  fails += Test_N_VMinLocal(X, local_length, myRank);
+  fails += Test_N_VL1NormLocal(X, local_length, myRank);
+  fails += Test_N_VWSqrSumLocal(X, Y, local_length, myRank);
+  fails += Test_N_VWSqrSumMaskLocal(X, Y, Z, local_length, myRank);
+  fails += Test_N_VInvTestLocal(X, Z, local_length, myRank);
+  fails += Test_N_VConstrMaskLocal(X, Y, Z, local_length, myRank);
+  fails += Test_N_VMinQuotientLocal(X, Y, local_length, myRank);
 
   /* Free vectors */
   N_VDestroy(X);
@@ -164,7 +188,7 @@ int main (int argc, char *argv[])
 
   /* Print global result */
   if (myRank == 0) {
-    if (fails)
+    if (globfails)
       printf("FAIL: NVector module failed total of %i tests across all processes \n \n", globfails);
     else
       printf("SUCCESS: NVector module passed all tests on all processes \n \n");
@@ -221,6 +245,15 @@ booleantype has_data(N_Vector X)
  */
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
+  set_element_range(X, i, i, val);
+}
+
+/*
+ * Sets elements [is, ie] of vector X to val
+ */
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
+                       realtype val)
+{
   typedef Sundials::TpetraVectorInterface::vector_type vector_type;
   typedef vector_type::node_type::memory_space memory_space;
 
@@ -232,7 +265,9 @@ void set_element(N_Vector X, sunindextype i, realtype val)
   const auto x_1d = Kokkos::subview(x_2d, Kokkos::ALL(), 0);
 
   xv->modify<Kokkos::HostSpace>();
-  x_1d(i) = val;
+
+  sunindextype i;
+  for(i = is; i <= ie; i++) x_1d(i) = val;
 
   /* Sync the device with the host */
   xv->sync<memory_space>();
@@ -269,4 +304,3 @@ void sync_device()
 {
   /* Kokkos should take care of this */
 }
-

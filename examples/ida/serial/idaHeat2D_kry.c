@@ -175,7 +175,7 @@ int main()
   retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);
   if(check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
 
-  /* Attach the linear sovler */
+  /* Attach the linear solver */
   retval = IDASetLinearSolver(mem, LS, NULL);
   if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 

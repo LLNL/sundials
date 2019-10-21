@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * Example program for IDA: Food web problem, OpenMP, GMRES, 
+ * Example program for IDA: Food web problem, OpenMP, GMRES,
  * user-supplied preconditioner
  *
  * This example program uses the SPGMR as the linear
@@ -97,7 +97,12 @@
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
 #include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
 #include <sundials/sundials_types.h>   /* definition of type realtype          */
-#include <sundials/sundials_math.h>    /* macros SUNRabs, SUNRsqrt, etc.       */
+
+/* helpful macros */
+
+#ifndef MAX
+#define MAX(A, B) ((A) > (B) ? (A) : (B))
+#endif
 
 /* Problem Constants. */
 
@@ -171,7 +176,7 @@ static int PSolve(realtype tt,
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol);
+static void PrintHeader(int maxl, realtype rtol, realtype atol);
 static void PrintOutput(void *mem, N_Vector c, realtype t);
 static void PrintFinalStats(void *mem);
 static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
@@ -192,7 +197,7 @@ int main()
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, jx, jy, retval;
-  sunindextype maxl;
+  int maxl;
   realtype rtol, atol, t0, tout, tret;
   SUNLinearSolver LS;
 
@@ -386,10 +391,11 @@ static int Precond(realtype tt,
 		   realtype cj, void *user_data)
 {
   int retval;
+  sunindextype ret;
   realtype uround, xx, yy, del_x, del_y;
   realtype **Pxy, *ratesxy, *Pxycol, *cxy, *cpxy, *ewtxy, cctmp;
   realtype inc, fac, sqru, perturb_rates[NUM_SPECIES];
-  int is, js, jx, jy, ret;
+  int is, js, jx, jy;
   void *mem;
   N_Vector ewt;
   realtype hh;
@@ -400,7 +406,7 @@ static int Precond(realtype tt,
   del_y = webdata->dy;
 
   uround = UNIT_ROUNDOFF;
-  sqru = SUNRsqrt(uround);
+  sqru = sqrt(uround);
 
   mem = webdata->ida_mem;
   ewt = webdata->ewt;
@@ -421,7 +427,7 @@ static int Precond(realtype tt,
       ratesxy = IJ_Vptr((webdata->rates), jx, jy);
 
       for (js = 0; js < NUM_SPECIES; js++) {
-	inc = sqru*(SUNMAX(SUNRabs(cxy[js]), SUNMAX(hh*SUNRabs(cpxy[js]), ONE/ewtxy[js])));
+	inc = sqru*(MAX(fabs(cxy[js]), MAX(hh*fabs(cpxy[js]), ONE/ewtxy[js])));
 	cctmp = cxy[js];
 	cxy[js] += inc;
 	fac = -ONE/inc;
@@ -491,7 +497,7 @@ static int PSolve(realtype tt,
 
 static void InitUserData(UserData webdata)
 {
-  int i, j, np;
+  sunindextype i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   webdata->mx = MX;
@@ -593,7 +599,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol)
+static void PrintHeader(int maxl, realtype rtol, realtype atol)
 {
   printf("\nidaFoodWeb_kry: Predator-prey DAE serial example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
@@ -606,7 +612,7 @@ static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: SPGMR,  SPGMR parameters maxl = %ld\n",(long int) maxl);
+  printf("Linear solver: SPGMR,  SPGMR parameters maxl = %d\n", maxl);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");

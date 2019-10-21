@@ -1,9 +1,9 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): David J. Gardner and Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
- * Acknowledgements: This NVECTOR module is based on the NVECTOR 
- *                   Serial module by Scott D. Cohen, Alan C. 
- *                   Hindmarsh, Radu Serban, and Aaron Collier 
+ * Acknowledgements: This NVECTOR module is based on the NVECTOR
+ *                   Serial module by Scott D. Cohen, Alan C.
+ *                   Hindmarsh, Radu Serban, and Aaron Collier
  *                   @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -25,8 +25,8 @@
  *     in the header file sundials_nvector.h.
  *
  *   - The definition of the type 'realtype' can be found in the
- *     header file sundials_types.h, and it may be changed (at the 
- *     configuration stage) according to the user's needs. 
+ *     header file sundials_types.h, and it may be changed (at the
+ *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
  *     for the type 'booleantype'.
  *
@@ -96,11 +96,11 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_thr
 SUNDIALS_EXPORT N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype *v_data,
                                         int num_threads);
 
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_OpenMP(int count, N_Vector w);
+SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w);
 
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w);
+SUNDIALS_EXPORT N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w);
 
-SUNDIALS_EXPORT void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count);
+SUNDIALS_EXPORT void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count);
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_OpenMP(N_Vector v);
 
@@ -144,10 +144,10 @@ SUNDIALS_EXPORT int N_VLinearCombination_OpenMP(int nvec, realtype* c,
 SUNDIALS_EXPORT int N_VScaleAddMulti_OpenMP(int nvec, realtype* a, N_Vector x,
                                             N_Vector* Y, N_Vector* Z);
 SUNDIALS_EXPORT int N_VDotProdMulti_OpenMP(int nvec, N_Vector x,
-                                           N_Vector *Y, realtype* dotprods);
+                                           N_Vector* Y, realtype* dotprods);
 
 /* vector array operations */
-SUNDIALS_EXPORT int N_VLinearSumVectorArray_OpenMP(int nvec, 
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_OpenMP(int nvec,
                                                    realtype a, N_Vector* X,
                                                    realtype b, N_Vector* Y,
                                                    N_Vector* Z);
@@ -169,6 +169,12 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
                                                            realtype* c,
                                                            N_Vector** X,
                                                            N_Vector* Z);
+
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_OpenMP(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_OpenMP(N_Vector x, N_Vector w,
+                                                    N_Vector id);
+
 
 /*
  * -----------------------------------------------------------------

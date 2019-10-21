@@ -36,7 +36,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 
 #include <Tpetra_Core.hpp>
 #include <Tpetra_Vector.hpp>

@@ -37,6 +37,16 @@
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver          */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype          */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* Problem Constants */
 #define MXSTEPS 2000            /* max number of steps */
 #define NEQ     3               /* number of equations */
@@ -466,7 +476,8 @@ static void PrintHeader(UserData data)
   }
 
   /* Print current problem parameters */
-  printf("Parameters: [%8.4e  %8.4e  %8.4e]\n",data->p[0], data->p[1], data->p[2]);
+  printf("Parameters: [%8.4"ESYM"  %8.4"ESYM"  %8.4"ESYM"]\n",
+         data->p[0], data->p[1], data->p[2]);
 }
 
 /*

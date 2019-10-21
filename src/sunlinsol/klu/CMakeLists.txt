@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Daniel R. Reynolds @ SMU
+# Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,96 +12,130 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the klu SUNLinearSolver library
+# ---------------------------------------------------------------
 
-INSTALL(CODE "MESSAGE(\"\nInstall SUNLINSOL_KLU\n\")")
+install(CODE "MESSAGE(\"\nInstall SUNLINSOL_KLU\n\")")
 
-# Add F90 module if F2003 interface is enabled
-IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
-  ADD_SUBDIRECTORY(F90)
-ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+# Source files for the library
+set(sunlinsolklu_SOURCES sunlinsol_klu.c)
 
-# Add variable sunlinsolklu_SOURCES with the sources for the SUNLINSOLKLU lib
-SET(sunlinsolklu_SOURCES sunlinsol_klu.c)
-
-# Add variable shared_SOURCES with the common SUNDIALS sources which will
-# also be included in the SUNLINSOLKLU library
-SET(shared_SOURCES
+# Common SUNDIALS sources included in the library
+set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
-  )
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c)
 
-# Add variable sunlinsolklu_HEADERS with the exported SUNLINSOLKLU header files
-SET(sunlinsolklu_HEADERS
-  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_klu.h
-  )
-
-# Add source directory to include directories
-INCLUDE_DIRECTORIES(.)
-
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
+# Exported header files
+set(sunlinsolklu_HEADERS
+  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_klu.h)
 
 # Rules for building and installing the static library:
-#  - Add the build target for the SUNLINSOLKLU library
+#  - Add the build target for the library
 #  - Set the library name and make sure it is not deleted
-#  - Install the SUNLINSOLKLU library
-IF(BUILD_STATIC_LIBS)
-  ADD_LIBRARY(sundials_sunlinsolklu_static STATIC ${sunlinsolklu_SOURCES} ${shared_SOURCES})
-  SET_TARGET_PROPERTIES(sundials_sunlinsolklu_static
-    PROPERTIES OUTPUT_NAME sundials_sunlinsolklu CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_sunlinsolklu_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-ENDIF(BUILD_STATIC_LIBS)
+#  - Install the library
+if(BUILD_STATIC_LIBS)
+
+  add_library(sundials_sunlinsolklu_static
+    STATIC ${sunlinsolklu_SOURCES} ${shared_SOURCES})
+
+  set_target_properties(sundials_sunlinsolklu_static
+    PROPERTIES
+    OUTPUT_NAME sundials_sunlinsolklu
+    CLEAN_DIRECT_OUTPUT 1)
+
+  # depends on sunmatrixsparse and KLU
+  target_link_libraries(sundials_sunlinsolklu_static
+    PUBLIC sundials_sunmatrixsparse_static ${KLU_LIBRARIES})
+
+  target_compile_definitions(sundials_sunlinsolklu_static
+    PUBLIC -DBUILD_SUNDIALS_LIBRARY)
+
+  install(TARGETS sundials_sunlinsolklu_static
+    DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+endif(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
-#  - Add the build target for the SUNLINSOLKLU library
+#  - Add the build target for the library
 #  - Set the library name and make sure it is not deleted
 #  - Set VERSION and SOVERSION for shared libraries
-#  - Install the SUNLINSOLKLU library
-IF(BUILD_SHARED_LIBS)
-  ADD_LIBRARY(sundials_sunlinsolklu_shared SHARED ${sunlinsolklu_SOURCES} ${shared_SOURCES})
+#  - Install the library
+if(BUILD_SHARED_LIBS)
 
-  # sunlinsolklu depends on sunmatrixsparse and KLU
-  TARGET_LINK_LIBRARIES(sundials_sunlinsolklu_shared
-    sundials_sunmatrixsparse_shared
-    ${KLU_LIBRARIES})
+  add_library(sundials_sunlinsolklu_shared
+    SHARED ${sunlinsolklu_SOURCES} ${shared_SOURCES})
 
-  SET_TARGET_PROPERTIES(sundials_sunlinsolklu_shared
-    PROPERTIES OUTPUT_NAME sundials_sunlinsolklu CLEAN_DIRECT_OUTPUT 1)
-  SET_TARGET_PROPERTIES(sundials_sunlinsolklu_shared
-    PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-  INSTALL(TARGETS sundials_sunlinsolklu_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-ENDIF(BUILD_SHARED_LIBS)
+  set_target_properties(sundials_sunlinsolklu_shared
+    PROPERTIES
+    OUTPUT_NAME sundials_sunlinsolklu
+    CLEAN_DIRECT_OUTPUT 1
+    VERSION ${sunlinsollib_VERSION}
+    SOVERSION ${sunlinsollib_SOVERSION})
 
-# Install the SUNLINSOLKLU header files
-INSTALL(FILES ${sunlinsolklu_HEADERS} DESTINATION include/sunlinsol)
+  # depends on sunmatrixsparse and KLU
+  target_link_libraries(sundials_sunlinsolklu_shared
+    PUBLIC sundials_sunmatrixsparse_shared ${KLU_LIBRARIES})
 
-IF(F77_INTERFACE_ENABLE AND F77_FOUND)
-  SET(fsunlinsolklu_SOURCES fsunlinsol_klu.c)
+  target_compile_definitions(sundials_sunlinsolklu_shared
+    PUBLIC -DBUILD_SUNDIALS_LIBRARY)
 
-  IF(BUILD_STATIC_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsolklu_static STATIC ${fsunlinsolklu_SOURCES})
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_static
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fsunlinsolklu_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  ENDIF(BUILD_STATIC_LIBS)
+  install(TARGETS sundials_sunlinsolklu_shared
+    DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-  IF(BUILD_SHARED_LIBS)
-    ADD_LIBRARY(sundials_fsunlinsolklu_shared ${fsunlinsolklu_SOURCES})
+endif(BUILD_SHARED_LIBS)
 
-    # fsunlinsolklu depends on fnvecserial, fsunmatrixsparse, sunlinsolklu
-    TARGET_LINK_LIBRARIES(sundials_fsunlinsolklu_shared
+# Install the header files
+install(FILES ${sunlinsolklu_HEADERS} DESTINATION include/sunlinsol)
+
+#
+message(STATUS "Added SUNLINSOL_KLU module")
+
+# If FCMIX is enabled, build and install the Fortran77 library
+if(F77_INTERFACE_ENABLE AND F77_FOUND)
+
+  set(fsunlinsolklu_SOURCES fsunlinsol_klu.c)
+
+  if(BUILD_STATIC_LIBS)
+    add_library(sundials_fsunlinsolklu_static
+      STATIC ${fsunlinsolklu_SOURCES})
+    set_target_properties(sundials_fsunlinsolklu_static
+      PROPERTIES
+      OUTPUT_NAME sundials_fsunlinsolklu
+      CLEAN_DIRECT_OUTPUT 1)
+    # depends on fnvecserial, fsunmatrixsparse, sunlinsolklu
+    target_link_libraries(sundials_fsunlinsolklu_static
+      PUBLIC
+      sundials_fnvecserial_static
+      sundials_fsunmatrixsparse_static
+      sundials_sunlinsolklu_static)
+    install(TARGETS sundials_fsunlinsolklu_static
+      DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  endif(BUILD_STATIC_LIBS)
+
+  if(BUILD_SHARED_LIBS)
+    add_library(sundials_fsunlinsolklu_shared
+      SHARED ${fsunlinsolklu_SOURCES})
+    set_target_properties(sundials_fsunlinsolklu_shared
+      PROPERTIES
+      OUTPUT_NAME sundials_fsunlinsolklu
+      CLEAN_DIRECT_OUTPUT 1
+      VERSION ${sunlinsollib_VERSION}
+      SOVERSION ${sunlinsollib_SOVERSION})
+    # depends on fnvecserial, fsunmatrixsparse, sunlinsolklu
+    target_link_libraries(sundials_fsunlinsolklu_shared
+      PUBLIC
       sundials_fnvecserial_shared
       sundials_fsunmatrixsparse_shared
       sundials_sunlinsolklu_shared)
+    install(TARGETS sundials_fsunlinsolklu_shared
+      DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  endif(BUILD_SHARED_LIBS)
 
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared
-      PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared
-      PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_fsunlinsolklu_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  ENDIF(BUILD_SHARED_LIBS)
+  #
+  message(STATUS "Added SUNLINSOL_KLU F77 interface")
 
-ENDIF(F77_INTERFACE_ENABLE AND F77_FOUND)
+endif(F77_INTERFACE_ENABLE AND F77_FOUND)
 
-#
-MESSAGE(STATUS "Added SUNLINSOL_KLU module")
+# Add F90 module if F2003 interface is enabled
+if(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  add_subdirectory(fmod)
+endif(F2003_FOUND AND F2003_INTERFACE_ENABLE)

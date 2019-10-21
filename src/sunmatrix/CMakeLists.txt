@@ -19,3 +19,6 @@ add_subdirectory(band)
 add_subdirectory(dense)
 add_subdirectory(sparse)
 
+if(SUPERLUDIST_ENABLE AND SUPERLUDIST_FOUND)
+  add_subdirectory(slunrloc)
+endif(SUPERLUDIST_ENABLE AND SUPERLUDIST_FOUND)

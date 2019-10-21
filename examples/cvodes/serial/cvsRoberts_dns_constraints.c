@@ -44,6 +44,16 @@
 #include <cvodes/cvodes_direct.h>      /* access to CVDls interface            */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* User-defined vector and matrix accessor macros: Ith, IJth */
 
 /* These macros are defined in order to write code which exactly matches
@@ -441,7 +451,7 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol)
   passfail = (err < ONE) ? 0 : 1; 
 
   if (passfail) {
-    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);
   }
 
   /* Free vectors */

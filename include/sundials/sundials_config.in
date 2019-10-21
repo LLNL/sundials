@@ -88,11 +88,28 @@
 #cmakedefine SUNDIALS_SUPERLUMT
 #cmakedefine SUNDIALS_SUPERLUMT_THREAD_TYPE "@SUPERLUMT_THREAD_TYPE@"
 
+/* SUPERLUDIST available
+ * If working libraries for SUPERLUDIST support were found, then
+ *    #define SUNDIALS_SUPERLUDIST
+ */
+#cmakedefine SUNDIALS_SUPERLUDIST
+
 /* KLU available
  * If working libraries for KLU support were found, then
  *     #define SUNDIALS_KLU 
  */
 #cmakedefine SUNDIALS_KLU
+
+/* Trilinos available
+ * If working libraries for Trilinos support were found, then
+ *     #define SUNDIALS_TRILINOS
+ */
+#cmakedefine SUNDIALS_TRILINOS
+
+ /* Trilinos with MPI is available, then
+  *    #define SUNDIALS_TRILINOS_HAVE_MPI
+  */
+#cmakedefine SUNDIALS_TRILINOS_HAVE_MPI
 
 /* Set if SUNDIALS is built with MPI support.
  * 

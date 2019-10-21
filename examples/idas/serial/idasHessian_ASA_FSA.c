@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
   void *ida_mem;
   UserData data;
   realtype time, ti, tf;
-  int retval, nckp, indexB1, indexB2;
+  int retval, nckp, indexB1, indexB2, is;
   realtype G, Gm, Gp, dp1, dp2, grdG_fwd[2], grdG_bck[2], grdG_cntr[2], H11, H22;
   realtype rtolFD, atolFD;
   SUNMatrix A, AB1, AB2;
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
   N_VConst(ZERO, ypS[0]); N_VConst(ZERO, ypS[1]);
 
   qS = N_VCloneVectorArray(NP, q);
-  N_VConst(ZERO, qS[0]);
+  for(is=0; is<NP; is++) N_VConst(ZERO, qS[is]);
 
   ida_mem = IDACreate();
 

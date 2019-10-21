@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Slaven Peles @ LLNL
+ * Programmer(s): Slaven Peles, Cody J. Balos @ LLNL 
  * -----------------------------------------------------------------
  * Based on work by Daniel R. Reynolds @ SMU
  *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
@@ -39,8 +39,9 @@
 #include <string.h>
 
 #include <ida/ida.h>
-#include <nvector/nvector_mpicuda.h>
 #include <ida/ida_spils.h>
+#include <nvector/nvector_cuda.h>
+#include <nvector/nvector_mpiplusx.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_mpi_types.h>
@@ -331,14 +332,14 @@ int main(int argc, char *argv[])
   SUNLinearSolver LS;
   UserData data;
   int iout, thispe, ier, npes;
-  sunindextype Neq, local_N;
+  sunindextype local_N;
   realtype rtol, atol, t0, t1, tout, tret;
-  N_Vector uu, up, constraints, id, res;
+  N_Vector uulocal, uu, up, constraints, id, res;
 
   ida_mem = NULL;
   LS = NULL;
   data = NULL;
-  uu = up = constraints = id = res = NULL;
+  uulocal = uu = up = constraints = id = res = NULL;
 
   /* Get processor number and total number of pe's. */
 
@@ -365,15 +366,17 @@ int main(int argc, char *argv[])
     return(1);
   }
 
-  /* Set local length local_N and global length Neq. */
-
+  /* Set local length local_N */
   local_N = data->mxsub * data->mysub;
-  Neq     = data->mx * data->my;
 
   /* Allocate and initialize N-vectors. */
 
-  uu = N_VNew_Cuda(comm, local_N, Neq);
-  if(check_flag((void *)uu, "N_VNew_Parallel", 0, thispe))
+  uulocal = N_VNew_Cuda(local_N);
+  if(check_flag((void *)uulocal, "N_VNew_Cuda", 0, thispe))
+    MPI_Abort(comm, 1);
+
+  uu = N_VMake_MPIPlusX(comm, uulocal);
+  if(check_flag((void *)uu, "N_VMake_MPIPlusX", 0, thispe))
     MPI_Abort(comm, 1);
 
   up = N_VClone(uu);
@@ -551,7 +554,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   const int npey  = data->npey;
   const sunindextype mxsub = data->mxsub;
   const sunindextype mysub = data->mysub;
-  realtype *ppv = N_VGetDeviceArrayPointer_Cuda(data->pp);
+  realtype *ppv = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(data->pp));
 
   /* Calculate the value for the inverse element of the diagonal preconditioner */
   const realtype pelinv = ONE/(c_j + data->coeffxy);
@@ -625,7 +628,7 @@ static int rescomm(N_Vector uu, N_Vector up, void* user_data)
   realtype *dev_recv_buff  = data->dev_recv_buff;
 
   /* Get solution vector data. */
-  const realtype *uarray = N_VGetDeviceArrayPointer_Cuda(uu);
+  const realtype *uarray = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(uu));
 
   /* Set array of MPI requests */
   MPI_Request request[4];
@@ -666,9 +669,9 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   const realtype coeffxy = data->coeffxy;
 
   /* Vector data arrays, extended work array uext. */
-  const realtype *uuv = N_VGetDeviceArrayPointer_Cuda(uu);
-  const realtype *upv = N_VGetDeviceArrayPointer_Cuda(up);
-  realtype *resv = N_VGetDeviceArrayPointer_Cuda(rr);
+  const realtype *uuv = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(uu));
+  const realtype *upv = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(up));
+  realtype *resv = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(rr));
   realtype *uext = data->uext;
 
   sunindextype ibc, i0, jbc, j0;
@@ -710,10 +713,11 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
 static int BSend(MPI_Comm comm, int thispe,
                  int ixsub, int jysub, int npex, int npey,
                  sunindextype mxsub, sunindextype mysub,
-                 const realtype *uarray, realtype *dev_send_buff, realtype *host_send_buff)
+                 const realtype *uarray, realtype *dev_send_buff,
+                 realtype *host_send_buff)
 {
   cudaError_t err;
-  //const sunindextype zero = 0;
+
   /* Have left, right, top and bottom device buffers use the same dev_send_buff. */
   realtype *d_bufleft   = dev_send_buff;
   realtype *d_bufright  = dev_send_buff + mysub;
@@ -735,14 +739,14 @@ static int BSend(MPI_Comm comm, int thispe,
     CopyToBottomBuffer<<<grid, block>>>(uarray, d_bufbottom, mxsub);
 
     // Copy buffer to the host
-    err = cudaMemcpy(h_bufbottom, d_bufbottom, mxsub*sizeof(realtype), cudaMemcpyDeviceToHost);
+    err = cudaMemcpy(h_bufbottom, d_bufbottom, mxsub*sizeof(realtype),
+                     cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
       printf("Bottom buffer: Copy from device to host failed with code %d... \n", err);
-      printf("%ld %ld\n", h_bufbottom, d_bufbottom);
       return -1;
     }
     // MPI send buffer
-    MPI_Send(h_bufbottom, mxsub, PVEC_REAL_MPI_TYPE, thispe-npex, 0, comm);
+    MPI_Send(h_bufbottom, mxsub, MPI_SUNREALTYPE, thispe-npex, 0, comm);
   }
 
   /* If jysub < NPEY-1, send data from top x-line of u. (via buftop) */
@@ -760,7 +764,7 @@ static int BSend(MPI_Comm comm, int thispe,
       return -1;
     }
     // MPI send buffer
-    MPI_Send(h_buftop, mxsub, PVEC_REAL_MPI_TYPE, thispe+npex, 0, comm);
+    MPI_Send(h_buftop, mxsub, MPI_SUNREALTYPE, thispe+npex, 0, comm);
   }
 
   /* If ixsub > 0, send data from left y-line of u (via bufleft). */
@@ -778,7 +782,7 @@ static int BSend(MPI_Comm comm, int thispe,
       return -1;
     }
     // MPI send buffer
-    MPI_Send(h_bufleft, mysub, PVEC_REAL_MPI_TYPE, thispe-1, 0, comm);
+    MPI_Send(h_bufleft, mysub, MPI_SUNREALTYPE, thispe-1, 0, comm);
   }
 
   /* If ixsub < NPEX-1, send data from right y-line of u (via bufright). */
@@ -796,7 +800,7 @@ static int BSend(MPI_Comm comm, int thispe,
       return -1;
     }
     // MPI send buffer
-    MPI_Send(h_bufright, mysub, PVEC_REAL_MPI_TYPE, thispe+1, 0, comm);
+    MPI_Send(h_bufright, mysub, MPI_SUNREALTYPE, thispe+1, 0, comm);
   }
 
   return(0);
@@ -826,25 +830,25 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0) {
-    MPI_Irecv(bufbottom, mxsub, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(bufbottom, mxsub, MPI_SUNREALTYPE,
               thispe-npex, 0, comm, &request[0]);
   }
 
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
   if (jysub != npey-1) {
-    MPI_Irecv(buftop, mxsub, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(buftop, mxsub, MPI_SUNREALTYPE,
               thispe+npex, 0, comm, &request[1]);
   }
 
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
   if (ixsub != 0) {
-    MPI_Irecv(&bufleft[0], mysub, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufleft[0], mysub, MPI_SUNREALTYPE,
               thispe-1, 0, comm, &request[2]);
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
   if (ixsub != npex-1) {
-    MPI_Irecv(&bufright[0], mysub, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufright[0], mysub, MPI_SUNREALTYPE,
               thispe+1, 0, comm, &request[3]);
   }
 
@@ -1087,8 +1091,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   /* Initialize uu. */
 
   // Get host pointer
-  realtype *uudata = N_VGetHostArrayPointer_Cuda(uu);
-  realtype *iddata = N_VGetHostArrayPointer_Cuda(id);
+  realtype *uudata = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(uu));
+  realtype *iddata = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(id));
 
   /* Set mesh spacings and subgrid indices for this PE. */
   const realtype dx = data->dx;
@@ -1124,8 +1128,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   }
 
   // Synchronize data from the host to the device for uu and id vectors
-  N_VCopyToDevice_Cuda(uu);
-  N_VCopyToDevice_Cuda(id);
+  N_VCopyToDevice_Cuda(N_VGetLocalVector_MPIPlusX(uu));
+  N_VCopyToDevice_Cuda(N_VGetLocalVector_MPIPlusX(id));
 
   /* Initialize up. */
 

@@ -45,7 +45,6 @@
 #include <cvode/cvode_diag.h>             /* prototypes for CVODE diagonal solver */
 #include <nvector/nvector_parallel.h>     /* access to MPI-parallel N_Vector     */
 #include <sundials/sundials_types.h>      /* definition of type realtype         */
-#include <sundials/sundials_math.h>       /* definition of ABS and EXP           */
 
 #include <mpi.h> /* MPI constants and types */
 
@@ -186,7 +185,7 @@ int main(int argc, char *argv[])
   if (my_pe == 0)
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
-  N_VDestroy_Parallel(u);        /* Free the u vector */
+  N_VDestroy(u);                 /* Free the u vector */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
   free(data);                    /* Free user data */
 
@@ -215,7 +214,7 @@ static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
   for (i=1; i<=my_length; i++) {
     iglobal = my_base + i;
     x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
+    udata[i-1] = x*(XMAX - x)*exp(RCONST(2.0)*x);
   }
 }
 
@@ -277,8 +276,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;
-  int i;
-  int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe;
+  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
+  sunindextype i, my_length;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;
@@ -309,16 +308,16 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   /* Pass needed data to processes before and after current process. */
    if (my_pe != 0)
-     MPI_Send(&z[1], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm);
+     MPI_Send(&z[1], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
    if (my_pe != last_pe)
-     MPI_Send(&z[my_length], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm);
+     MPI_Send(&z[my_length], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
 
   /* Receive needed data from processes before and after current process. */
    if (my_pe != 0)
-     MPI_Recv(&z[0], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
+     MPI_Recv(&z[0], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
    else z[0] = ZERO;
    if (my_pe != last_pe)
-     MPI_Recv(&z[my_length+1], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm,
+     MPI_Recv(&z[my_length+1], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm,
               &status);
    else z[my_length + 1] = ZERO;
 

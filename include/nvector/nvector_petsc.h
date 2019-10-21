@@ -1,4 +1,4 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the main header file for the PETSc vector wrapper 
+ * This is the main header file for the PETSc vector wrapper
  * for NVECTOR module.
  *
  * Notes:
@@ -20,8 +20,8 @@
  *     found in the header file sundials_nvector.h.
  *
  *   - The definition of the type realtype can be found in the
- *     header file sundials_types.h, and it may be changed (at the 
- *     build configuration stage) according to the user's needs. 
+ *     header file sundials_types.h, and it may be changed (at the
+ *     build configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
  *     for the type booleantype.
  *
@@ -48,7 +48,7 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * PETSc implementation of N_Vector               
+ * PETSc implementation of N_Vector
  * -----------------------------------------------------------------
  */
 
@@ -68,7 +68,7 @@ typedef struct _N_VectorContent_Petsc *N_VectorContent_Petsc;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, 
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
                                            sunindextype local_length,
                                            sunindextype global_length);
 
@@ -84,16 +84,21 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count);
 
 SUNDIALS_EXPORT Vec N_VGetVector_Petsc(N_Vector v);
 
+SUNDIALS_EXPORT void N_VSetVector_Petsc(N_Vector v, Vec p);
+
 SUNDIALS_EXPORT void N_VPrint_Petsc(N_Vector v);
 
 SUNDIALS_EXPORT void N_VPrintFile_Petsc(N_Vector v, const char fname[]);
 
+/* nvector API functions */
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Petsc(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Petsc(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Petsc(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Petsc(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Petsc(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Petsc(realtype *v_data, N_Vector v);
+SUNDIALS_EXPORT void *N_VGetCommunicator_Petsc(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLength_Petsc(N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
@@ -125,7 +130,7 @@ SUNDIALS_EXPORT int N_VDotProdMulti_Petsc(int nvec, N_Vector x, N_Vector* Y,
                                           realtype* dotprods);
 
 /* vector array operations */
-SUNDIALS_EXPORT int N_VLinearSumVectorArray_Petsc(int nvec, 
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_Petsc(int nvec,
                                                   realtype a, N_Vector* X,
                                                   realtype b, N_Vector* Y,
                                                   N_Vector* Z);
@@ -147,6 +152,21 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
                                                           realtype* c,
                                                           N_Vector** X,
                                                           N_Vector* Z);
+
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype N_VDotProdLocal_Petsc(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT realtype N_VMaxNormLocal_Petsc(N_Vector x);
+SUNDIALS_EXPORT realtype N_VMinLocal_Petsc(N_Vector x);
+SUNDIALS_EXPORT realtype N_VL1NormLocal_Petsc(N_Vector x);
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Petsc(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Petsc(N_Vector x, N_Vector w,
+                                                   N_Vector id);
+SUNDIALS_EXPORT booleantype N_VInvTestLocal_Petsc(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_Petsc(N_Vector c, N_Vector x,
+                                                     N_Vector m);
+SUNDIALS_EXPORT realtype N_VMinQuotientLocal_Petsc(N_Vector num,
+                                                   N_Vector denom);
+
 
 /*
  * -----------------------------------------------------------------

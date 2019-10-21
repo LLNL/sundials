@@ -34,9 +34,8 @@
 static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem);
 static int cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem);
 
-static int cvNlsLSetup(N_Vector ycor, N_Vector res, booleantype jbad,
-                       booleantype* jcur, void* cvode_mem);
-static int cvNlsLSolve(N_Vector ycor, N_Vector delta, void* cvode_mem);
+static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem);
+static int cvNlsLSolve(N_Vector delta, void* cvode_mem);
 static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
                          realtype tol, N_Vector ewt, void* cvode_mem);
 
@@ -65,9 +64,7 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* check for required nonlinear solver functions */
   if ( NLS->ops->gettype    == NULL ||
-       NLS->ops->initialize == NULL ||
        NLS->ops->solve      == NULL ||
-       NLS->ops->free       == NULL ||
        NLS->ops->setsysfn   == NULL ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetNonlinearSolver",
                    "NLS does not support required operations");
@@ -103,7 +100,7 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
   }
 
   /* set convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(cv_mem->NLS, cvNlsConvTest);
+  retval = SUNNonlinSolSetConvTestFn(cv_mem->NLS, cvNlsConvTest, cvode_mem);
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetNonlinearSolver",
                    "Setting convergence test function failed");
@@ -117,6 +114,9 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
                    "Setting maximum number of nonlinear iterations failed");
     return(CV_ILL_INPUT);
   }
+
+  /* Reset the acnrmcur flag to SUNFALSE */
+  cv_mem->cv_acnrmcur = SUNFALSE;
 
   return(CV_SUCCESS);
 }
@@ -168,8 +168,7 @@ int cvNlsInit(CVodeMem cvode_mem)
 }
 
 
-static int cvNlsLSetup(N_Vector ycor, N_Vector res, booleantype jbad,
-                       booleantype* jcur, void* cvode_mem)
+static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int      retval;
@@ -205,7 +204,7 @@ static int cvNlsLSetup(N_Vector ycor, N_Vector res, booleantype jbad,
 }
 
 
-static int cvNlsLSolve(N_Vector ycor, N_Vector delta, void* cvode_mem)
+static int cvNlsLSolve(N_Vector delta, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int      retval;
@@ -255,6 +254,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
 
   if (dcon <= ONE) {
     cv_mem->cv_acnrm = (m==0) ? del : N_VWrmsNorm(ycor, ewt);
+    cv_mem->cv_acnrmcur = SUNTRUE;
     return(CV_SUCCESS); /* Nonlinear system was solved successfully */
   }
 

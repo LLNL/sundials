@@ -39,8 +39,8 @@
  *     is legal.
  * -----------------------------------------------------------------*/
 
-#ifndef _NVECTOR_OPENMP_H
-#define _NVECTOR_OPENMP_H
+#ifndef _NVECTOR_OPENMPDEV_H
+#define _NVECTOR_OPENMPDEV_H
 
 #include <stdio.h>
 #include <sundials/sundials_nvector.h>
@@ -174,6 +174,12 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum
                                                              N_Vector** X,
                                                              N_Vector* Z);
 
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_OpenMPDEV(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_OpenMPDEV(N_Vector x, N_Vector w,
+                                                       N_Vector id);
+
+  
 /*
  * -----------------------------------------------------------------
  * Enable / disable fused vector operations

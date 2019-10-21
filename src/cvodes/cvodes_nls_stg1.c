@@ -26,11 +26,9 @@ static int cvNlsResidualSensStg1(N_Vector ycor, N_Vector res,
 static int cvNlsFPFunctionSensStg1(N_Vector ycor, N_Vector res,
                                    void* cvode_mem);
 
-static int cvNlsLSetupSensStg1(N_Vector ycor, N_Vector res,
-                               booleantype jbad, booleantype* jcur,
+static int cvNlsLSetupSensStg1(booleantype jbad, booleantype* jcur,
                                void* cvode_mem);
-static int cvNlsLSolveSensStg1(N_Vector ycor, N_Vector delta,
-                               void* cvode_mem);
+static int cvNlsLSolveSensStg1(N_Vector delta, void* cvode_mem);
 static int cvNlsConvTestSensStg1(SUNNonlinearSolver NLS,
                                  N_Vector ycor, N_Vector del,
                                  realtype tol, N_Vector ewt, void* cvode_mem);
@@ -62,9 +60,7 @@ int CVodeSetNonlinearSolverSensStg1(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* check for required nonlinear solver functions */
   if ( NLS->ops->gettype    == NULL ||
-       NLS->ops->initialize == NULL ||
        NLS->ops->solve      == NULL ||
-       NLS->ops->free       == NULL ||
        NLS->ops->setsysfn   == NULL ) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
                    "CVodeSetNonlinearSolverSensStg1",
@@ -119,7 +115,8 @@ int CVodeSetNonlinearSolverSensStg1(void *cvode_mem, SUNNonlinearSolver NLS)
   }
 
   /* set convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(cv_mem->NLSstg1, cvNlsConvTestSensStg1);
+  retval = SUNNonlinSolSetConvTestFn(cv_mem->NLSstg1, cvNlsConvTestSensStg1,
+                                     cvode_mem);
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES",
                    "CVodeSetNonlinearSolverSensStg1",
@@ -135,6 +132,9 @@ int CVodeSetNonlinearSolverSensStg1(void *cvode_mem, SUNNonlinearSolver NLS)
                    "Setting maximum number of nonlinear iterations failed");
     return(CV_ILL_INPUT);
   }
+
+  /* Reset the acnrmScur flag to SUNFALSE (always false for stg1) */
+  cv_mem->cv_acnrmScur = SUNFALSE;
 
   return(CV_SUCCESS);
 }
@@ -174,7 +174,7 @@ int cvNlsInitSensStg1(CVodeMem cvode_mem)
   }
 
   /* initialize nonlinear solver */
-  retval = SUNNonlinSolInitialize(cvode_mem->NLSstg1); 
+  retval = SUNNonlinSolInitialize(cvode_mem->NLSstg1);
 
   if (retval != CV_SUCCESS) {
     cvProcessError(cvode_mem, CV_ILL_INPUT, "CVODES", "cvNlsInitSensStg1",
@@ -189,8 +189,7 @@ int cvNlsInitSensStg1(CVodeMem cvode_mem)
 }
 
 
-static int cvNlsLSetupSensStg1(N_Vector ycor, N_Vector res,
-                               booleantype jbad, booleantype* jcur,
+static int cvNlsLSetupSensStg1(booleantype jbad, booleantype* jcur,
                                void* cvode_mem)
 {
   CVodeMem cv_mem;
@@ -231,7 +230,7 @@ static int cvNlsLSetupSensStg1(N_Vector ycor, N_Vector res,
 }
 
 
-static int cvNlsLSolveSensStg1(N_Vector ycor, N_Vector delta, void* cvode_mem)
+static int cvNlsLSolveSensStg1(N_Vector delta, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int retval, is;

@@ -63,6 +63,7 @@ typedef struct ARKodeRootMemRec {
   long int     nge;         /* counter for g evaluations                    */
   booleantype *gactive;     /* array with active/inactive event functions   */
   int          mxgnull;     /* num. warning messages about possible g==0    */
+  void        *root_data;   /* pointer to user_data                         */
 
 } *ARKodeRootMem;
 

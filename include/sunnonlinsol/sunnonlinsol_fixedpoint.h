@@ -59,6 +59,7 @@ struct _SUNNonlinearSolverContent_FixedPoint {
   int       maxiters;   /* maximum number of iterations per solve attempt */
   long int  niters;     /* total number of iterations across all solves   */
   long int  nconvfails; /* total number of convergence failures           */
+  void*     ctest_data; /* data to pass to convergence test function      */
 };
 
 typedef struct _SUNNonlinearSolverContent_FixedPoint *SUNNonlinearSolverContent_FixedPoint;
@@ -88,7 +89,8 @@ SUNDIALS_EXPORT int SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS,
                                                     SUNNonlinSolSysFn SysFn);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
-                                                         SUNNonlinSolConvTestFn CTestFn);
+                                                         SUNNonlinSolConvTestFn CTestFn,
+                                                         void* ctest_data);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS,
                                                        int maxiters);

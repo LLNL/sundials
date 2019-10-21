@@ -61,15 +61,16 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
                       MSG_ARK_ARKMEM_FAIL);
       return(ARK_MEM_FAIL);
     }
-    ark_mem->root_mem->glo     = NULL;
-    ark_mem->root_mem->ghi     = NULL;
-    ark_mem->root_mem->grout   = NULL;
-    ark_mem->root_mem->iroots  = NULL;
-    ark_mem->root_mem->rootdir = NULL;
-    ark_mem->root_mem->gfun    = NULL;
-    ark_mem->root_mem->nrtfn   = 0;
-    ark_mem->root_mem->gactive = NULL;
-    ark_mem->root_mem->mxgnull = 1;
+    ark_mem->root_mem->glo       = NULL;
+    ark_mem->root_mem->ghi       = NULL;
+    ark_mem->root_mem->grout     = NULL;
+    ark_mem->root_mem->iroots    = NULL;
+    ark_mem->root_mem->rootdir   = NULL;
+    ark_mem->root_mem->gfun      = NULL;
+    ark_mem->root_mem->nrtfn     = 0;
+    ark_mem->root_mem->gactive   = NULL;
+    ark_mem->root_mem->mxgnull   = 1;
+    ark_mem->root_mem->root_data = ark_mem->user_data;
 
     ark_mem->lrw += ARK_ROOT_LRW;
     ark_mem->liw += ARK_ROOT_LIW;
@@ -328,7 +329,7 @@ int arkRootCheck1(void* arkode_mem)
 
   /* Evaluate g at initial t and check for zero values. */
   retval = rootmem->gfun(rootmem->tlo, ark_mem->yn,
-                         rootmem->glo, ark_mem->user_data);
+                         rootmem->glo, rootmem->root_data);
   rootmem->nge = 1;
   if (retval != 0) return(ARK_RTFUNC_FAIL);
 
@@ -348,7 +349,7 @@ int arkRootCheck1(void* arkode_mem)
   N_VLinearSum(ONE, ark_mem->yn, smallh,
                ark_mem->interp->fold, ark_mem->ycur);
   retval = rootmem->gfun(tplus, ark_mem->ycur, rootmem->ghi,
-                         ark_mem->user_data);
+                         rootmem->root_data);
   rootmem->nge++;
   if (retval != 0) return(ARK_RTFUNC_FAIL);
 
@@ -407,7 +408,7 @@ int arkRootCheck2(void* arkode_mem)
 
   /* Evaluate root-finding function: glo = g(tlo, y(tlo)) */
   retval = rootmem->gfun(rootmem->tlo, ark_mem->ycur,
-                         rootmem->glo, ark_mem->user_data);
+                         rootmem->glo, rootmem->root_data);
   rootmem->nge++;
   if (retval != 0) return(ARK_RTFUNC_FAIL);
 
@@ -444,7 +445,7 @@ int arkRootCheck2(void* arkode_mem)
   }
   /*     set ghi = g(tplus,y(tplus)) */
   retval = rootmem->gfun(tplus, ark_mem->ycur, rootmem->ghi,
-                         ark_mem->user_data);
+                         rootmem->root_data);
   rootmem->nge++;
   if (retval != 0) return(ARK_RTFUNC_FAIL);
 
@@ -509,7 +510,7 @@ int arkRootCheck3(void* arkode_mem)
 
   /* Set rootmem->ghi = g(thi) and call arkRootfind to search (tlo,thi) for roots. */
   retval = rootmem->gfun(rootmem->thi, ark_mem->ycur,
-                         rootmem->ghi, ark_mem->user_data);
+                         rootmem->ghi, rootmem->root_data);
   rootmem->nge++;
   if (retval != 0) return(ARK_RTFUNC_FAIL);
 
@@ -709,7 +710,7 @@ int arkRootfind(void* arkode_mem)
 
     (void) arkGetDky(ark_mem, tmid, 0, ark_mem->ycur);
     retval = rootmem->gfun(tmid, ark_mem->ycur, rootmem->grout,
-                           ark_mem->user_data);
+                           rootmem->root_data);
     rootmem->nge++;
     if (retval != 0) return(ARK_RTFUNC_FAIL);
 

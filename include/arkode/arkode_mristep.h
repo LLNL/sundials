@@ -29,26 +29,38 @@ extern "C" {
  * MRIStep Constants
  * ----------------- */
 
-/* Default Butcher tables for each order */
+/* Inner stepper module identifiers */
+typedef enum {
+  MRISTEP_ARKSTEP
+} MRISTEP_ID;
 
-#define DEFAULT_MRI_STABLE_3  KNOTH_WOLKE_3_3
-#define DEFAULT_MRI_FTABLE_3  KNOTH_WOLKE_3_3
+/* Default slow (outer) Butcher tables for each order */
+#define DEFAULT_MRI_TABLE_3  KNOTH_WOLKE_3_3
 
+/* ------------------------------
+ * User-Supplied Function Types
+ * ------------------------------ */
+
+typedef int (*MRIStepPreInnerFn)(realtype t, N_Vector *f, int nvecs,
+                                 void *user_data);
+
+typedef int (*MRIStepPostInnerFn)(realtype t, N_Vector y, void *user_data);
 
 /* -------------------
  * Exported Functions
  * ------------------- */
 
 /* Create, Resize, and Reinitialization functions */
-SUNDIALS_EXPORT void* MRIStepCreate(ARKRhsFn fs, ARKRhsFn ff,
-                                    realtype t0, N_Vector y0);
+SUNDIALS_EXPORT void* MRIStepCreate(ARKRhsFn fs, realtype t0, N_Vector y0,
+                                    MRISTEP_ID inner_step_id,
+                                    void* inner_step_mem);
 
 SUNDIALS_EXPORT int MRIStepResize(void *arkode_mem, N_Vector ynew,
                                   realtype t0, ARKVecResizeFn resize,
                                   void *resize_data);
 
-SUNDIALS_EXPORT int MRIStepReInit(void* arkode_mem, ARKRhsFn fs, ARKRhsFn ff,
-                                  realtype t0, N_Vector y0);
+SUNDIALS_EXPORT int MRIStepReInit(void* arkode_mem, ARKRhsFn fs, realtype t0,
+                                  N_Vector y0);
 
 /* Rootfinding initialization */
 SUNDIALS_EXPORT int MRIStepRootInit(void *arkode_mem, int nrtfn,
@@ -57,12 +69,10 @@ SUNDIALS_EXPORT int MRIStepRootInit(void *arkode_mem, int nrtfn,
 /* Optional input functions -- must be called AFTER MRIStepCreate */
 SUNDIALS_EXPORT int MRIStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int MRIStepSetDenseOrder(void *arkode_mem, int dord);
-SUNDIALS_EXPORT int MRIStepSetTables(void *arkode_mem,
-                                     int q,
-                                     ARKodeButcherTable Bs,
-                                     ARKodeButcherTable Bf);
-SUNDIALS_EXPORT int MRIStepSetTableNum(void *arkode_mem, int istable,
-                                       int iftable);
+SUNDIALS_EXPORT int MRIStepSetTable(void *arkode_mem, int q,
+                                    ARKodeButcherTable B);
+SUNDIALS_EXPORT int MRIStepSetTableNum(void *arkode_mem,
+                                       int itable);
 SUNDIALS_EXPORT int MRIStepSetMaxNumSteps(void *arkode_mem,
                                           long int mxsteps);
 SUNDIALS_EXPORT int MRIStepSetMaxHnilWarns(void *arkode_mem,
@@ -70,8 +80,7 @@ SUNDIALS_EXPORT int MRIStepSetMaxHnilWarns(void *arkode_mem,
 SUNDIALS_EXPORT int MRIStepSetStopTime(void *arkode_mem,
                                        realtype tstop);
 SUNDIALS_EXPORT int MRIStepSetFixedStep(void *arkode_mem,
-                                        realtype hsfixed,
-                                        realtype hffixed);
+                                        realtype hsfixed);
 SUNDIALS_EXPORT int MRIStepSetRootDirection(void *arkode_mem,
                                             int *rootdir);
 SUNDIALS_EXPORT int MRIStepSetNoInactiveRootWarn(void *arkode_mem);
@@ -86,6 +95,10 @@ SUNDIALS_EXPORT int MRIStepSetDiagnostics(void *arkode_mem,
                                           FILE *diagfp);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessStepFn ProcessStep);
+SUNDIALS_EXPORT int MRIStepSetPreInnerFn(void *arkode_mem,
+                                         MRIStepPreInnerFn prefn);
+SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void *arkode_mem,
+                                          MRIStepPostInnerFn postfn);
 
 
 /* Integrate the ODE over an interval in t */
@@ -99,16 +112,14 @@ SUNDIALS_EXPORT int MRIStepGetDky(void *arkode_mem, realtype t,
 
 /* Optional output functions */
 SUNDIALS_EXPORT int MRIStepGetNumRhsEvals(void *arkode_mem,
-                                          long int *nfs_evals,
-                                          long int *nff_evals);
+                                          long int *nfs_evals);
 SUNDIALS_EXPORT int MRIStepGetCurrentButcherTables(void *arkode_mem,
-                                                   ARKodeButcherTable *Bs,
-                                                   ARKodeButcherTable *Bf);
+                                                   ARKodeButcherTable *B);
 SUNDIALS_EXPORT int MRIStepGetWorkSpace(void *arkode_mem,
                                         long int *lenrw,
                                         long int *leniw);
 SUNDIALS_EXPORT int MRIStepGetNumSteps(void *arkode_mem,
-                                       long int *nssteps, long int *nfsteps);
+                                       long int *nssteps);
 SUNDIALS_EXPORT int MRIStepGetLastStep(void *arkode_mem,
                                        realtype *hlast);
 SUNDIALS_EXPORT int MRIStepGetCurrentTime(void *arkode_mem,

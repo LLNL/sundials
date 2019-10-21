@@ -1,6 +1,7 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ *                David Gardner, Carol Woodward, Slaven Peles,
+ *                Cody Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -56,9 +57,10 @@ extern "C" {
  * ----------------------------------------------------------------- */
 
 typedef enum {
-  SUNMATRIX_DENSE,
-  SUNMATRIX_BAND,
+  SUNMATRIX_DENSE, 
+  SUNMATRIX_BAND, 
   SUNMATRIX_SPARSE,
+  SUNMATRIX_SLUNRLOC,
   SUNMATRIX_CUSTOM
 } SUNMatrix_ID;
 
@@ -68,10 +70,10 @@ typedef enum {
  * ----------------------------------------------------------------- */
 
 /* Forward reference for pointer to SUNMatrix_Ops object */
-typedef struct _generic_SUNMatrix_Ops *SUNMatrix_Ops;
+typedef _SUNDIALS_STRUCT_ _generic_SUNMatrix_Ops *SUNMatrix_Ops;
 
 /* Forward reference for pointer to SUNMatrix object */
-typedef struct _generic_SUNMatrix *SUNMatrix;
+typedef _SUNDIALS_STRUCT_ _generic_SUNMatrix *SUNMatrix;
 
 /* Structure containing function pointers to matrix operations  */
 struct _generic_SUNMatrix_Ops {
@@ -82,6 +84,7 @@ struct _generic_SUNMatrix_Ops {
   int          (*copy)(SUNMatrix, SUNMatrix);
   int          (*scaleadd)(realtype, SUNMatrix, SUNMatrix);
   int          (*scaleaddi)(realtype, SUNMatrix);
+  int          (*matvecsetup)(SUNMatrix);
   int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
   int          (*space)(SUNMatrix, long int*, long int*);
 };
@@ -91,7 +94,7 @@ struct _generic_SUNMatrix_Ops {
    operations corresponding to that implementation.  */
 struct _generic_SUNMatrix {
   void *content;
-  struct _generic_SUNMatrix_Ops *ops;
+  SUNMatrix_Ops ops;
 };
 
 
@@ -99,6 +102,9 @@ struct _generic_SUNMatrix {
  * Functions exported by SUNMatrix module
  * ----------------------------------------------------------------- */
 
+SUNDIALS_EXPORT SUNMatrix SUNMatNewEmpty();
+SUNDIALS_EXPORT void SUNMatFreeEmpty(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatCopyOps(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy(SUNMatrix A);
@@ -106,9 +112,21 @@ SUNDIALS_EXPORT int SUNMatZero(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatMatvecSetup(SUNMatrix A); 
 SUNDIALS_EXPORT int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw,
-                                long int *leniw);
+SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw);
+
+/*
+ * -----------------------------------------------------------------
+ * IV. SUNMatrix error codes
+ * ---------------------------------------------------------------
+ */
+
+#define SUNMAT_SUCCESS                      0  /* function successfull          */
+#define SUNMAT_ILL_INPUT                 -701  /* illegal function input        */
+#define SUNMAT_MEM_FAIL                  -702  /* failed memory access/alloc    */
+#define SUNMAT_OPERATION_FAIL            -703  /* a SUNMatrix operation returned nonzero */
+#define SUNMAT_MATVEC_SETUP_REQUIRED     -704  /* the SUNMatMatvecSetup routine needs to be called */
 
 #ifdef __cplusplus
 }

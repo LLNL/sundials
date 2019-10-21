@@ -45,9 +45,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <arkode/arkode_mristep.h>    /* prototypes for MRIStep fcts., consts */
+#include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -84,7 +84,7 @@ int main() {
   realtype T0 = RCONST(0.0);     /* initial time */
   realtype Tf = RCONST(3.0);     /* final time */
   realtype dTout = RCONST(0.1);  /* time between outputs */
-  int Nt = ceil(Tf/dTout);       /* number of output times */
+  int Nt = (int) ceil(Tf/dTout); /* number of output times */
   realtype hs = RCONST(0.001);   /* slow step size */
   realtype hf = RCONST(0.00002); /* fast step size */
   UserData udata = NULL;         /* user data */
@@ -99,10 +99,11 @@ int main() {
   int retval;                    /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
+  void *inner_arkode_mem = NULL; /* empty ARKode memory structure */
   FILE *FID, *UFID;
   realtype t, tout;
   int iout;
-  long int nsts, nstf, nfs, nff;
+  long int nsts, nstf, nfs, nff, tmp;
 
   /*
    * Initialization
@@ -113,7 +114,7 @@ int main() {
   udata->N   = N;
   udata->dx  = L / (RCONST(1.0)*N - RCONST(1.0));
   udata->k   = RCONST(1e-4)/ep;
-  udata->lam = RCONST(0.5)*SUNRsqrt(RCONST(2.0) * ep * RCONST(1e4));
+  udata->lam = RCONST(0.5)*sqrt(RCONST(2.0) * ep * RCONST(1e4));
 
   /* Initial problem output */
   printf("\n1D reaction-diffusion PDE test problem:\n");
@@ -127,23 +128,40 @@ int main() {
   retval = SetInitialCondition(y, udata);
   if (check_retval(&retval, "SetInitialCondition", 1)) return 1;
 
-  /* Call MRIStepCreate to initialize the MRI timestepper module and
-     specify the right-hand side function in y'=f(t,y), the inital time
-     T0, and the initial dependent variable vector y.  Note: since this
-     problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = MRIStepCreate(fs, ff, T0, y);
-  if (check_retval((void *) arkode_mem, "MRIStepCreate", 0)) return 1;
+  /*
+   * Create the slow integrator and set options
+   */
+
+  /* Initialize the fast integrator. Specify the fast right-hand side
+     function in y'=fs(t,y)+ff(t,y), the inital time T0, and the
+     initial dependent variable vector y. */
+  inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y);
+  if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+
+  /* Set the fast method */
+  retval = ARKStepSetTableNum(inner_arkode_mem, -1, KNOTH_WOLKE_3_3);
+  if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
+
+  /* Set the fast step size */
+  retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
+  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
 
   /*
-   * Set integrator options
+   * Create the slow integrator and set options
    */
+
+  /* Initialize the slow integrator. Specify the slow right-hand side
+     function in y'=fs(t,y)+ff(t,y), the inital time T0, the
+     initial dependent variable vector y, and the fast integrator. */
+  arkode_mem = MRIStepCreate(fs, T0, y, MRISTEP_ARKSTEP, inner_arkode_mem);
+  if (check_retval((void *) arkode_mem, "MRIStepCreate", 0)) return 1;
 
   /* Pass udata to user functions */
   retval = MRIStepSetUserData(arkode_mem, (void *) udata);
   if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
 
-  /* Specify slow and fast step sizes */
-  retval = MRIStepSetFixedStep(arkode_mem, hs, hf);
+  /* Set the slow step size */
+  retval = MRIStepSetFixedStep(arkode_mem, hs);
   if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
 
   /* Increase max num steps  */
@@ -174,7 +192,7 @@ int main() {
   tout = T0+dTout;
   printf("        t      ||u||_rms\n");
   printf("   -------------------------\n");
-  printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
+  printf("  %10.6"FSYM"  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));
   for (iout=0; iout<Nt; iout++) {
 
     /* call integrator */
@@ -182,7 +200,7 @@ int main() {
     if (check_retval(&retval, "MRIStepEvolve", 1)) break;
 
     /* print solution stats and output results to disk */
-    printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
+    printf("  %10.6"FSYM"  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));
     for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
     fprintf(UFID,"\n");
 
@@ -193,19 +211,27 @@ int main() {
   printf("   -------------------------\n");
   fclose(UFID);
 
-  /* Print some final statistics */
-  retval = MRIStepGetNumSteps(arkode_mem, &nsts, &nstf);
+  /* Get some slow integrator statistics */
+  retval = MRIStepGetNumSteps(arkode_mem, &nsts);
+  check_retval(&retval, "MRIStepGetNumSteps", 1);
+  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfs);
+  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+
+  /* Get some fast integrator statistics */
+  retval = ARKStepGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKStepGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfs, &nff);
+  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nff, &tmp);
   check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
 
+  /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");
   printf("   Steps: nsts = %li, nstf = %li\n", nsts, nstf);
   printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfs, nff);
 
   /* Clean up and return */
-  N_VDestroy(y);            /* Free y vector */
-  MRIStepFree(&arkode_mem); /* Free integrator memory */
+  N_VDestroy(y);                  /* Free y vector */
+  ARKStepFree(&inner_arkode_mem); /* Free integrator memory */
+  MRIStepFree(&arkode_mem);       /* Free integrator memory */
   free(udata);              /* Free user data */
 
   return 0;
@@ -296,7 +322,7 @@ static int SetInitialCondition(N_Vector y, UserData user_data)
 
   /* set initial condition */
   for (i = 0; i < N; i++)
-    Y[i] = RCONST(1.0)/(1 + SUNRexp(lam*(i*dx-RCONST(1.0))));
+    Y[i] = RCONST(1.0)/(1 + exp(lam*(i*dx-RCONST(1.0))));
 
   /* Return with success */
   return 0;

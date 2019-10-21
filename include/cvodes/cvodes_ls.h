@@ -77,6 +77,10 @@ typedef int (*CVLsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
                                  N_Vector y, N_Vector fy,
                                  void *user_data, N_Vector tmp);
 
+typedef int (*CVLsLinSysFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
+                            booleantype jok, booleantype *jcur, realtype gamma,
+                            void *user_data, N_Vector tmp1, N_Vector tmp2,
+                            N_Vector tmp3);
 
 /*=================================================================
   CVLS Exported functions
@@ -101,6 +105,7 @@ SUNDIALS_EXPORT int CVodeSetPreconditioner(void *cvode_mem,
 SUNDIALS_EXPORT int CVodeSetJacTimes(void *cvode_mem,
                                      CVLsJacTimesSetupFn jtsetup,
                                      CVLsJacTimesVecFn jtimes);
+SUNDIALS_EXPORT int CVodeSetLinSysFn(void *cvode_mem, CVLsLinSysFn linsys);
 
 /*-----------------------------------------------------------------
   Optional outputs from the CVLS linear solver interface
@@ -187,6 +192,16 @@ typedef int (*CVLsJacTimesVecFnBS)(N_Vector vB, N_Vector JvB,
                                    N_Vector yB, N_Vector fyB,
                                    void *jac_dataB, N_Vector tmpB);
 
+typedef int (*CVLsLinSysFnB)(realtype t, N_Vector y, N_Vector yB, N_Vector fyB,
+                             SUNMatrix AB, booleantype jokB, booleantype *jcurB,
+                             realtype gammaB, void *user_dataB, N_Vector tmp1B,
+                             N_Vector tmp2B, N_Vector tmp3B);
+
+typedef int (*CVLsLinSysFnBS)(realtype t, N_Vector y, N_Vector* yS,
+                              N_Vector yB, N_Vector fyB, SUNMatrix AB,
+                              booleantype jokB, booleantype *jcurB,
+                              realtype gammaB, void *user_dataB, N_Vector tmp1B,
+                              N_Vector tmp2B, N_Vector tmp3B);
 
 /*=================================================================
   CVLS Exported functions
@@ -225,6 +240,11 @@ SUNDIALS_EXPORT int CVodeSetJacTimesB(void *cvode_mem, int which,
 SUNDIALS_EXPORT int CVodeSetJacTimesBS(void *cvode_mem, int which,
                                        CVLsJacTimesSetupFnBS jtsetupBS,
                                        CVLsJacTimesVecFnBS jtimesBS);
+
+SUNDIALS_EXPORT int CVodeSetLinSysFnB(void *cvode_mem, int which,
+                                      CVLsLinSysFnB linsys);
+SUNDIALS_EXPORT int CVodeSetLinSysFnBS(void *cvode_mem, int which,
+                                       CVLsLinSysFnBS linsys);
 
 
 #ifdef __cplusplus

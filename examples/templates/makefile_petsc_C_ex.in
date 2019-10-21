@@ -1,6 +1,6 @@
 # -*- mode: makefile -*-
 # -----------------------------------------------------------------
-# Programmer(s): Radu Serban @ LLNL
+# Programmer(s): Radu Serban, Cody Balos @ LLNL
 #                Daniel R. Reynolds @ SMU
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
@@ -44,13 +44,14 @@ MPI_FLAGS   = @MPI_FLAGS@
 
 # -----------------------------------------------------------------------------------------
 
+PETSC_LIBRARIES = @PETSC_LIBRARIES@
 INCLUDES_PETSC  = @PETSC_INCLUDE_DIR@
-LIBRARIES_PETSC = @PETSC_LIBRARIES@
+LIBRARIES_PETSC = $(subst ;, , ${PETSC_LIBRARIES})
 LINKFLAGS_PETSC = ${LINKFLAGS}:@PETSC_LIBRARY_DIR@
 
 TMP_INCS = ${includedir} ${MPI_INC_DIR} ${INCLUDES_PETSC}
 INCLUDES = $(addprefix -I, ${TMP_INCS})
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecpetsc ${LIBS} ${LIBRARIES_PETSC}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecpetsc -lsundials_sunnonlinsolpetscsnes ${LIBS} ${LIBRARIES_PETSC}
 
 # -----------------------------------------------------------------------------------------
 

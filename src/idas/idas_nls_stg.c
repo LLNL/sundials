@@ -29,9 +29,9 @@
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidualSensStg(N_Vector ycor, N_Vector res, void* ida_mem);
-static int idaNlsLSetupSensStg(N_Vector ycor, N_Vector res, booleantype jbad,
-                               booleantype* jcur, void* ida_mem);
-static int idaNlsLSolveSensStg(N_Vector ycor, N_Vector delta, void* ida_mem);
+static int idaNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
+                               void* ida_mem);
+static int idaNlsLSolveSensStg(N_Vector delta, void* ida_mem);
 static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
                                  realtype tol, N_Vector ewt, void* ida_mem);
 
@@ -62,9 +62,7 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
 
   /* check for required nonlinear solver functions */
   if ( NLS->ops->gettype    == NULL ||
-       NLS->ops->initialize == NULL ||
        NLS->ops->solve      == NULL ||
-       NLS->ops->free       == NULL ||
        NLS->ops->setsysfn   == NULL ) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
                     "IDASetNonlinearSolverSensStg",
@@ -117,7 +115,8 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
   }
 
   /* set convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(IDA_mem->NLSstg, idaNlsConvTestSensStg);
+  retval = SUNNonlinSolSetConvTestFn(IDA_mem->NLSstg, idaNlsConvTestSensStg,
+                                     ida_mem);
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
                     "IDASetNonlinearSolverSensStg",
@@ -137,8 +136,8 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (IDA_mem->stgMallocDone == SUNFALSE) {
 
-    IDA_mem->ycor0Stg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns);
-    if (IDA_mem->ycor0Stg == NULL) {
+    IDA_mem->ypredictStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns);
+    if (IDA_mem->ypredictStg == NULL) {
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensStg", MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
@@ -146,7 +145,7 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
 
     IDA_mem->ycorStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns);
     if (IDA_mem->ycorStg == NULL) {
-      N_VDestroy(IDA_mem->ycor0Stg);
+      N_VDestroy(IDA_mem->ypredictStg);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensStg", MSG_MEM_FAIL);
       return(IDA_MEM_FAIL);
@@ -154,7 +153,7 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
 
     IDA_mem->ewtStg = N_VNewEmpty_SensWrapper(IDA_mem->ida_Ns);
     if (IDA_mem->ewtStg == NULL) {
-      N_VDestroy(IDA_mem->ycor0Stg);
+      N_VDestroy(IDA_mem->ypredictStg);
       N_VDestroy(IDA_mem->ycorStg);
       IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS",
                       "IDASetNonlinearSolverSensStg", MSG_MEM_FAIL);
@@ -166,9 +165,9 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
 
   /* attach vectors to vector wrappers */
   for (is=0; is < IDA_mem->ida_Ns; is++) {
-    NV_VEC_SW(IDA_mem->ycor0Stg, is) = IDA_mem->ida_deltaS[is];
-    NV_VEC_SW(IDA_mem->ycorStg,  is) = IDA_mem->ida_eeS[is];
-    NV_VEC_SW(IDA_mem->ewtStg,   is) = IDA_mem->ida_ewtS[is];
+    NV_VEC_SW(IDA_mem->ypredictStg, is) = IDA_mem->ida_yySpredict[is];
+    NV_VEC_SW(IDA_mem->ycorStg,     is) = IDA_mem->ida_eeS[is];
+    NV_VEC_SW(IDA_mem->ewtStg,      is) = IDA_mem->ida_ewtS[is];
   }
 
   return(IDA_SUCCESS);
@@ -220,8 +219,8 @@ int idaNlsInitSensStg(IDAMem IDA_mem)
 }
 
 
-static int idaNlsLSetupSensStg(N_Vector ycorStg, N_Vector resStg, booleantype jbad,
-                               booleantype* jcur, void* ida_mem)
+static int idaNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
+                               void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval;
@@ -253,7 +252,7 @@ static int idaNlsLSetupSensStg(N_Vector ycorStg, N_Vector resStg, booleantype jb
 }
 
 
-static int idaNlsLSolveSensStg(N_Vector ycorStg, N_Vector deltaStg, void* ida_mem)
+static int idaNlsLSolveSensStg(N_Vector deltaStg, void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval, is;

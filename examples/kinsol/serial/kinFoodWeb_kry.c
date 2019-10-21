@@ -227,7 +227,7 @@ int main(void)
 
   /* We no longer need the constraints vector since KINSetConstraints
      creates a private copy for KINSOL to use. */
-  N_VDestroy_Serial(constraints);
+  N_VDestroy(constraints);
 
 
   /* Create SUNLinSol_SPGMR object with right preconditioning and the 
@@ -266,8 +266,8 @@ int main(void)
   /* Print final statistics and free memory */  
   PrintFinalStats(kmem);
 
-  N_VDestroy_Serial(cc);
-  N_VDestroy_Serial(sc);
+  N_VDestroy(cc);
+  N_VDestroy(sc);
   KINFree(&kmem);
   SUNLinSolFree(LS);
   FreeUserData(data);
@@ -590,7 +590,7 @@ static void FreeUserData(UserData data)
   free(bcoef);
   free(cox);
   free(coy);
-  N_VDestroy_Serial(data->rates);
+  N_VDestroy(data->rates);
   free(data);
 }
 

@@ -58,7 +58,8 @@ namespace Sundials
                                   const vector_type& y,
                                   vector_type& z)
     {
-      const local_ordinal_type N = x.getLocalLength();
+      const local_ordinal_type N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -88,7 +89,8 @@ namespace Sundials
                          scalar_type b,
                          vector_type& z)
     {
-      const local_ordinal_type N = x.getLocalLength();
+      const local_ordinal_type N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -116,7 +118,8 @@ namespace Sundials
                         const vector_type& x,
                         vector_type& z)
     {
-      const local_ordinal_type N = x.getLocalLength();
+      const local_ordinal_type N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -148,8 +151,10 @@ namespace Sundials
                              const vector_type& w)
     {
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
-      const global_ordinal_type Nglob = x.getGlobalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      const global_ordinal_type Nglob =
+        static_cast<global_ordinal_type>(x.getGlobalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -180,8 +185,10 @@ namespace Sundials
                                  const vector_type& id)
     {
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
-      const global_ordinal_type Nglob = x.getGlobalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      const global_ordinal_type Nglob =
+        static_cast<global_ordinal_type>(x.getGlobalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -217,7 +224,8 @@ namespace Sundials
       using namespace Kokkos;
 
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -245,7 +253,8 @@ namespace Sundials
                             const vector_type& w)
     {
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -277,7 +286,8 @@ namespace Sundials
       using namespace Kokkos;
 
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -319,7 +329,8 @@ namespace Sundials
                                vector_type& m)
     {
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (c.need_sync<memory_space>())
         const_cast<vector_type&>(c).sync<memory_space>();
@@ -335,18 +346,18 @@ namespace Sundials
 
       m.modify<memory_space>();
 
-      scalar_type sum = zero;
+      mag_type sum = zero;
       Kokkos::parallel_reduce ("constraintMask", Kokkos::RangePolicy<execution_space>(0, N),
-        KOKKOS_LAMBDA (const local_ordinal_type &i, scalar_type &local_sum)
+        KOKKOS_LAMBDA (const local_ordinal_type &i, mag_type &local_sum)
         {
-          const bool test = (abs(c_1d(i)) > onept5 && c_1d(i)*x_1d(i) <= zero) ||
-                            (abs(c_1d(i)) > half   && c_1d(i)*x_1d(i) <  zero);
+          const bool test = (std::abs(c_1d(i)) > onept5 && c_1d(i)*x_1d(i) <= zero) ||
+                            (std::abs(c_1d(i)) > half   && c_1d(i)*x_1d(i) <  zero);
           m_1d(i) = test ? one : zero;
           local_sum += m_1d(i);
         }, sum);
 
-      scalar_type globalSum = zero;
-      reduceAll<int, scalar_type>(*comm, REDUCE_SUM, sum, outArg(globalSum));
+      mag_type globalSum = zero;
+      reduceAll<int, mag_type>(*comm, REDUCE_SUM, sum, outArg(globalSum));
       return (globalSum < half);
     }
 
@@ -358,7 +369,8 @@ namespace Sundials
       using namespace Kokkos;
 
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = num.getMap()->getComm();
-      const local_ordinal_type  N = num.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(num.getLocalLength());
 
       if (num.need_sync<memory_space>())
         const_cast<vector_type&>(num).sync<memory_space>();
@@ -383,6 +395,276 @@ namespace Sundials
       scalar_type globalMin;
       reduceAll<int, scalar_type>(*comm, REDUCE_MIN, minimum, outArg(globalMin));
       return globalMin;
+    }
+
+
+    /// MPI task-local dot-product
+    inline scalar_type dotProdLocal(const vector_type& x,
+                                    const vector_type& y)
+    {
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      if (x.need_sync<memory_space>())
+        const_cast<vector_type&>(x).sync<memory_space>();
+      if (y.need_sync<memory_space>())
+        const_cast<vector_type&>(y).sync<memory_space>();
+
+      auto x_2d = x.getLocalView<memory_space>();
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto y_2d = y.getLocalView<memory_space>();
+      auto y_1d = Kokkos::subview (y_2d, Kokkos::ALL(), 0);
+
+      scalar_type sum = zero;
+      Kokkos::parallel_reduce ("dotProdLocal", Kokkos::RangePolicy<execution_space>(0, N),
+        KOKKOS_LAMBDA (const local_ordinal_type &i, scalar_type &local_sum)
+        {
+          local_sum += x_1d(i)*y_1d(i);
+        }, sum);
+
+      return sum;
+    }
+
+
+    /// MPI task-local maximum norm of a vector
+    inline mag_type maxNormLocal(const vector_type& x)
+    {
+      using namespace Kokkos;
+
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      if (x.need_sync<memory_space>())
+        const_cast<vector_type&>(x).sync<memory_space>();
+
+      auto x_2d = x.getLocalView<memory_space>();
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+
+      mag_type maximum;
+      Max<mag_type> max_reducer(maximum);
+
+      Kokkos::parallel_reduce ("maxNormLocal", Kokkos::RangePolicy<execution_space>(0, N),
+        KOKKOS_LAMBDA (const local_ordinal_type &i, mag_type &local_max)
+        {
+          max_reducer.join(local_max, std::abs(x_1d(i)));
+        }, max_reducer);
+
+      return maximum;
+    }
+
+
+    /// MPI task-local minimum element in the vector
+    inline scalar_type minLocal(const vector_type& x)
+    {
+      using namespace Kokkos;
+
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      if (x.need_sync<memory_space>())
+        const_cast<vector_type&>(x).sync<memory_space>();
+
+      auto x_2d = x.getLocalView<memory_space>();
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+
+      scalar_type minimum;
+      Min<scalar_type> min_reducer(minimum);
+
+      Kokkos::parallel_reduce ("minElement", Kokkos::RangePolicy<execution_space>(0, N),
+        KOKKOS_LAMBDA (const local_ordinal_type &i, scalar_type &local_min)
+        {
+          min_reducer.join(local_min, x_1d(i));
+        }, min_reducer);
+
+      return minimum;
+    }
+
+
+    /// MPI task-local L1 norm of a vector
+    inline mag_type L1NormLocal(const vector_type& x)
+    {
+      using namespace Kokkos;
+
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      if (x.need_sync<memory_space>())
+        const_cast<vector_type&>(x).sync<memory_space>();
+
+      auto x_2d = x.getLocalView<memory_space>();
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+
+      mag_type sum = zero;
+      Kokkos::parallel_reduce ("L1NormLocal", Kokkos::RangePolicy<execution_space>(0, N),
+        KOKKOS_LAMBDA (const local_ordinal_type &i, mag_type &local_sum)
+        {
+          local_sum += std::abs(x_1d(i));
+        }, sum);
+
+      return sum;
+    }
+
+
+    /// MPI task-local weighted squared sum
+    inline mag_type WSqrSumLocal(const vector_type& x,
+                                 const vector_type& w)
+    {
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      if (x.need_sync<memory_space>())
+        const_cast<vector_type&>(x).sync<memory_space>();
+      if (w.need_sync<memory_space>())
+        const_cast<vector_type&>(w).sync<memory_space>();
+
+      auto x_2d = x.getLocalView<memory_space>();
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto w_2d = w.getLocalView<memory_space>();
+      auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
+
+      mag_type sum = zero;
+      Kokkos::parallel_reduce ("WSqrSumLocal", Kokkos::RangePolicy<execution_space>(0, N),
+        KOKKOS_LAMBDA (const local_ordinal_type &i, mag_type &local_sum)
+        {
+          local_sum += x_1d(i)*w_1d(i)*(x_1d(i)*w_1d(i));
+        }, sum);
+
+      return sum;
+    }
+
+
+    /// MPI task-local weighted squared masked sum
+    inline mag_type WSqrSumMaskLocal(const vector_type& x,
+                                     const vector_type& w,
+                                     const vector_type& id)
+    {
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      if (x.need_sync<memory_space>())
+        const_cast<vector_type&>(x).sync<memory_space>();
+      if (w.need_sync<memory_space>())
+        const_cast<vector_type&>(w).sync<memory_space>();
+      if (id.need_sync<memory_space>())
+        const_cast<vector_type&>(id).sync<memory_space>();
+
+      auto x_2d = x.getLocalView<memory_space>();
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto w_2d = w.getLocalView<memory_space>();
+      auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
+      auto id_2d = id.getLocalView<memory_space>();
+      auto id_1d = Kokkos::subview (id_2d, Kokkos::ALL(), 0);
+
+      mag_type sum = zero;
+      Kokkos::parallel_reduce ("WSqrSumMaskLocal", Kokkos::RangePolicy<execution_space>(0, N),
+        KOKKOS_LAMBDA (const local_ordinal_type &i, mag_type &local_sum)
+        {
+          if (id_1d(i) > zero)
+            local_sum += x_1d(i)*w_1d(i)*(x_1d(i)*w_1d(i));
+        }, sum);
+
+      return sum;
+    }
+
+
+    /// MPI task-local elementwise inverse, return false if any denominator is zero.
+    inline bool invTestLocal(const vector_type& x,
+                             vector_type& z)
+    {
+      using namespace Kokkos;
+
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      if (x.need_sync<memory_space>())
+        const_cast<vector_type&>(x).sync<memory_space>();
+
+      auto x_2d = x.getLocalView<memory_space>();
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto z_2d = z.getLocalView<memory_space>();
+      auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
+
+      scalar_type minimum;
+      Min<scalar_type> min_reducer(minimum);
+
+      z.modify<memory_space>();
+
+      Kokkos::parallel_reduce ("invTestLocal", Kokkos::RangePolicy<execution_space>(0, N),
+        KOKKOS_LAMBDA (const local_ordinal_type &i, scalar_type &local_min)
+        {
+          static constexpr scalar_type zero   = 0;
+          static constexpr scalar_type one    = 1.0;
+          if (x_1d(i) == zero)
+          {
+            min_reducer.join(local_min, zero);
+          }
+          else
+          {
+            z_1d(i) = one/x_1d(i);
+          }
+        }, min_reducer);
+
+      return (minimum > half);
+    }
+
+
+    /// MPI task-local constraint violation check
+    inline bool constraintMaskLocal(const vector_type& c,
+                                    const vector_type& x,
+                                    vector_type& m)
+    {
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      if (c.need_sync<memory_space>())
+        const_cast<vector_type&>(c).sync<memory_space>();
+      if (x.need_sync<memory_space>())
+        const_cast<vector_type&>(x).sync<memory_space>();
+
+      auto c_2d = c.getLocalView<memory_space>();
+      auto c_1d = Kokkos::subview (c_2d, Kokkos::ALL(), 0);
+      auto x_2d = x.getLocalView<memory_space>();
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto m_2d = m.getLocalView<memory_space>();
+      auto m_1d = Kokkos::subview (m_2d, Kokkos::ALL(), 0);
+
+      m.modify<memory_space>();
+
+      mag_type sum = zero;
+      Kokkos::parallel_reduce ("constraintMaskLocal", Kokkos::RangePolicy<execution_space>(0, N),
+        KOKKOS_LAMBDA (const local_ordinal_type &i, mag_type &local_sum)
+        {
+          const bool test = (std::abs(c_1d(i)) > onept5 && c_1d(i)*x_1d(i) <= zero) ||
+                            (std::abs(c_1d(i)) > half   && c_1d(i)*x_1d(i) <  zero);
+          m_1d(i) = test ? one : zero;
+          local_sum += m_1d(i);
+        }, sum);
+
+      return (sum < half);
+    }
+
+
+    /// MPI task-local minimum quotient: min_i(num(i)/den(i))
+    inline scalar_type minQuotientLocal(const vector_type& num,
+                                        const vector_type& den)
+    {
+      using namespace Kokkos;
+
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(num.getLocalLength());
+      if (num.need_sync<memory_space>())
+        const_cast<vector_type&>(num).sync<memory_space>();
+      if (den.need_sync<memory_space>())
+        const_cast<vector_type&>(den).sync<memory_space>();
+
+      auto num_2d = num.getLocalView<memory_space>();
+      auto num_1d = Kokkos::subview (num_2d, Kokkos::ALL(), 0);
+      auto den_2d = den.getLocalView<memory_space>();
+      auto den_1d = Kokkos::subview (den_2d, Kokkos::ALL(), 0);
+
+      scalar_type minimum;
+      Min<scalar_type> min_reducer(minimum);
+
+      Kokkos::parallel_reduce ("minQuotient", Kokkos::RangePolicy<execution_space>(0, N),
+        KOKKOS_LAMBDA (const local_ordinal_type &i, scalar_type &local_min)
+        {
+          if (den_1d(i) != zero)
+            min_reducer.join(local_min, num_1d(i)/den_1d(i));
+        }, min_reducer);
+
+      return minimum;
     }
 
 

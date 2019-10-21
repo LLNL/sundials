@@ -72,6 +72,7 @@ extern "C" {
 #define ARK_MASSFREE_FAIL        -17
 #define ARK_MASSMULT_FAIL        -18
 
+#define ARK_CONSTR_FAIL          -19
 #define ARK_MEM_FAIL             -20
 #define ARK_MEM_NULL             -21
 #define ARK_ILL_INPUT            -22
@@ -89,7 +90,10 @@ extern "C" {
 #define ARK_NLS_SETUP_RECVR      -32
 #define ARK_NLS_OP_ERR           -33
 
-#define ARK_INNERSTEP_FAIL       -34
+#define ARK_INNERSTEP_ATTACH_ERR -34
+#define ARK_INNERSTEP_FAIL       -35
+#define ARK_OUTERTOINNER_FAIL    -36
+#define ARK_INNERTOOUTER_FAIL    -37
 
 #define ARK_UNRECOGNIZED_ERROR   -99
 
@@ -125,7 +129,6 @@ typedef int (*ARKVecResizeFn)(N_Vector y, N_Vector ytemplate,
 
 typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y,
                                     void *user_data);
-
 
 #ifdef __cplusplus
 }

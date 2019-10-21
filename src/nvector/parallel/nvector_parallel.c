@@ -21,7 +21,6 @@
 
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_math.h>
-#include <sundials/sundials_mpi.h>
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -79,86 +78,83 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
                               sunindextype global_length)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_Parallel content;
   sunindextype n, Nsum;
 
   /* Compute global length as sum of local lengths */
   n = local_length;
-  MPI_Allreduce(&n, &Nsum, 1, PVEC_INTEGER_MPI_TYPE, MPI_SUM, comm);
+  MPI_Allreduce(&n, &Nsum, 1, MPI_SUNINDEXTYPE, MPI_SUM, comm);
   if (Nsum != global_length) {
     fprintf(stderr, BAD_N);
     return(NULL);
   }
 
-  /* Create vector */
+  /* Create an empty vector object */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  ops->nvgetvectorid     = N_VGetVectorID_Parallel;
-  ops->nvclone           = N_VClone_Parallel;
-  ops->nvcloneempty      = N_VCloneEmpty_Parallel;
-  ops->nvdestroy         = N_VDestroy_Parallel;
-  ops->nvspace           = N_VSpace_Parallel;
-  ops->nvgetarraypointer = N_VGetArrayPointer_Parallel;
-  ops->nvsetarraypointer = N_VSetArrayPointer_Parallel;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid     = N_VGetVectorID_Parallel;
+  v->ops->nvclone           = N_VClone_Parallel;
+  v->ops->nvcloneempty      = N_VCloneEmpty_Parallel;
+  v->ops->nvdestroy         = N_VDestroy_Parallel;
+  v->ops->nvspace           = N_VSpace_Parallel;
+  v->ops->nvgetarraypointer = N_VGetArrayPointer_Parallel;
+  v->ops->nvsetarraypointer = N_VSetArrayPointer_Parallel;
+  v->ops->nvgetcommunicator = N_VGetCommunicator_Parallel;
+  v->ops->nvgetlength       = N_VGetLength_Parallel;
 
   /* standard vector operations */
-  ops->nvlinearsum    = N_VLinearSum_Parallel;
-  ops->nvconst        = N_VConst_Parallel;
-  ops->nvprod         = N_VProd_Parallel;
-  ops->nvdiv          = N_VDiv_Parallel;
-  ops->nvscale        = N_VScale_Parallel;
-  ops->nvabs          = N_VAbs_Parallel;
-  ops->nvinv          = N_VInv_Parallel;
-  ops->nvaddconst     = N_VAddConst_Parallel;
-  ops->nvdotprod      = N_VDotProd_Parallel;
-  ops->nvmaxnorm      = N_VMaxNorm_Parallel;
-  ops->nvwrmsnormmask = N_VWrmsNormMask_Parallel;
-  ops->nvwrmsnorm     = N_VWrmsNorm_Parallel;
-  ops->nvmin          = N_VMin_Parallel;
-  ops->nvwl2norm      = N_VWL2Norm_Parallel;
-  ops->nvl1norm       = N_VL1Norm_Parallel;
-  ops->nvcompare      = N_VCompare_Parallel;
-  ops->nvinvtest      = N_VInvTest_Parallel;
-  ops->nvconstrmask   = N_VConstrMask_Parallel;
-  ops->nvminquotient  = N_VMinQuotient_Parallel;
+  v->ops->nvlinearsum    = N_VLinearSum_Parallel;
+  v->ops->nvconst        = N_VConst_Parallel;
+  v->ops->nvprod         = N_VProd_Parallel;
+  v->ops->nvdiv          = N_VDiv_Parallel;
+  v->ops->nvscale        = N_VScale_Parallel;
+  v->ops->nvabs          = N_VAbs_Parallel;
+  v->ops->nvinv          = N_VInv_Parallel;
+  v->ops->nvaddconst     = N_VAddConst_Parallel;
+  v->ops->nvdotprod      = N_VDotProd_Parallel;
+  v->ops->nvmaxnorm      = N_VMaxNorm_Parallel;
+  v->ops->nvwrmsnormmask = N_VWrmsNormMask_Parallel;
+  v->ops->nvwrmsnorm     = N_VWrmsNorm_Parallel;
+  v->ops->nvmin          = N_VMin_Parallel;
+  v->ops->nvwl2norm      = N_VWL2Norm_Parallel;
+  v->ops->nvl1norm       = N_VL1Norm_Parallel;
+  v->ops->nvcompare      = N_VCompare_Parallel;
+  v->ops->nvinvtest      = N_VInvTest_Parallel;
+  v->ops->nvconstrmask   = N_VConstrMask_Parallel;
+  v->ops->nvminquotient  = N_VMinQuotient_Parallel;
 
-  /* fused vector operations (optional, NULL means disabled by default) */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
+  /* fused and vector array operations are disabled (NULL) by default */
 
-  /* vector array operations (optional, NULL means disabled by default) */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
-
+  /* local reduction operations */
+  v->ops->nvdotprodlocal     = N_VDotProdLocal_Parallel;
+  v->ops->nvmaxnormlocal     = N_VMaxNormLocal_Parallel;
+  v->ops->nvminlocal         = N_VMinLocal_Parallel;
+  v->ops->nvl1normlocal      = N_VL1NormLocal_Parallel;
+  v->ops->nvinvtestlocal     = N_VInvTestLocal_Parallel;
+  v->ops->nvconstrmasklocal  = N_VConstrMaskLocal_Parallel;
+  v->ops->nvminquotientlocal = N_VMinQuotientLocal_Parallel;
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Parallel;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Parallel;
+  
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_Parallel) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
-  /* Attach lengths and communicator */
+  /* Attach content */
+  v->content = content;
+
+  /* Initialize content */
   content->local_length  = local_length;
   content->global_length = global_length;
   content->comm          = comm;
   content->own_data      = SUNFALSE;
   content->data          = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -223,15 +219,15 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
  * Function to create an array of new parallel vectors.
  */
 
-N_Vector *N_VCloneVectorArray_Parallel(int count, N_Vector w)
+N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 {
-  N_Vector *vs;
+  N_Vector* vs;
   int j;
 
   if (count <= 0) return(NULL);
 
   vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -251,15 +247,15 @@ N_Vector *N_VCloneVectorArray_Parallel(int count, N_Vector w)
  * (NULL) data array.
  */
 
-N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
+N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
 {
-  N_Vector *vs;
+  N_Vector* vs;
   int j;
 
   if (count <= 0) return(NULL);
 
   vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
   if(vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
@@ -278,7 +274,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
  * Function to free an array created with N_VCloneVectorArray_Parallel
  */
 
-void N_VDestroyVectorArray_Parallel(N_Vector *vs, int count)
+void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count)
 {
   int j;
 
@@ -353,79 +349,32 @@ void N_VPrintFile_Parallel(N_Vector x, FILE* outfile)
 N_Vector N_VCloneEmpty_Parallel(N_Vector w)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_Parallel content;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
-
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-
-  /* standard vector operations */
-  ops->nvlinearsum    = w->ops->nvlinearsum;
-  ops->nvconst        = w->ops->nvconst;
-  ops->nvprod         = w->ops->nvprod;
-  ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale;
-  ops->nvabs          = w->ops->nvabs;
-  ops->nvinv          = w->ops->nvinv;
-  ops->nvaddconst     = w->ops->nvaddconst;
-  ops->nvdotprod      = w->ops->nvdotprod;
-  ops->nvmaxnorm      = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
-  ops->nvmin          = w->ops->nvmin;
-  ops->nvwl2norm      = w->ops->nvwl2norm;
-  ops->nvl1norm       = w->ops->nvl1norm;
-  ops->nvcompare      = w->ops->nvcompare;
-  ops->nvinvtest      = w->ops->nvinvtest;
-  ops->nvconstrmask   = w->ops->nvconstrmask;
-  ops->nvminquotient  = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
-
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
+  
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_Parallel) malloc(sizeof(struct _N_VectorContent_Parallel));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_Parallel) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
-  /* Attach lengths and communicator */
+  /* Attach content */
+  v->content = content;
+
+  /* Initialize content */
   content->local_length  = NV_LOCLENGTH_P(w);
   content->global_length = NV_GLOBLENGTH_P(w);
   content->comm          = NV_COMM_P(w);
   content->own_data      = SUNFALSE;
   content->data          = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -460,12 +409,20 @@ N_Vector N_VClone_Parallel(N_Vector w)
 
 void N_VDestroy_Parallel(N_Vector v)
 {
-  if ((NV_OWN_DATA_P(v) == SUNTRUE) && (NV_DATA_P(v) != NULL)) {
-    free(NV_DATA_P(v));
-    NV_DATA_P(v) = NULL;
+  if (v == NULL) return;
+
+  /* free content */
+  if (v->content != NULL) {
+    if (NV_OWN_DATA_P(v) && NV_DATA_P(v) != NULL) {
+      free(NV_DATA_P(v));
+      NV_DATA_P(v) = NULL;
+    }
+    free(v->content);
+    v->content = NULL;
   }
-  free(v->content); v->content = NULL;
-  free(v->ops); v->ops = NULL;
+
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
   free(v); v = NULL;
 
   return;
@@ -495,6 +452,11 @@ void N_VSetArrayPointer_Parallel(realtype *v_data, N_Vector v)
   if (NV_LOCLENGTH_P(v) > 0) NV_DATA_P(v) = v_data;
 
   return;
+}
+
+void *N_VGetCommunicator_Parallel(N_Vector v)
+{
+  return((void *) &(NV_COMM_P(v)));
 }
 
 void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
@@ -712,11 +674,10 @@ void N_VAddConst_Parallel(N_Vector x, realtype b, N_Vector z)
   return;
 }
 
-realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
+realtype N_VDotProdLocal_Parallel(N_Vector x, N_Vector y)
 {
   sunindextype i, N;
-  realtype sum, *xd, *yd, gsum;
-  MPI_Comm comm;
+  realtype sum, *xd, *yd;
 
   sum = ZERO;
   xd = yd = NULL;
@@ -724,126 +685,49 @@ realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   yd = NV_DATA_P(y);
-  comm = NV_COMM_P(x);
 
   for (i = 0; i < N; i++) sum += xd[i]*yd[i];
+  return(sum);
+}
 
-  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
-
+realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
+{
+  realtype lsum, gsum;
+  lsum = N_VDotProdLocal_Parallel(x,y);
+  MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x));
   return(gsum);
 }
 
-realtype N_VMaxNorm_Parallel(N_Vector x)
+realtype N_VMaxNormLocal_Parallel(N_Vector x)
 {
   sunindextype i, N;
-  realtype max, *xd, gmax;
-  MPI_Comm comm;
+  realtype max, *xd;
 
   xd = NULL;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
-  comm = NV_COMM_P(x);
 
   max = ZERO;
 
-  for (i = 0; i < N; i++) {
+  for (i = 0; i < N; i++) 
     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
-  }
 
-  gmax = SUNMPI_Allreduce_scalar(max, 2, comm);
+  return(max);
+}
 
+realtype N_VMaxNorm_Parallel(N_Vector x)
+{
+  realtype lmax, gmax;
+  lmax = N_VMaxNormLocal_Parallel(x);
+  MPI_Allreduce(&lmax, &gmax, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_P(x));
   return(gmax);
 }
 
-realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
-{
-  sunindextype i, N, N_global;
-  realtype sum, prodi, *xd, *wd, gsum;
-  MPI_Comm comm;
-
-  sum = ZERO;
-  xd = wd = NULL;
-
-  N        = NV_LOCLENGTH_P(x);
-  N_global = NV_GLOBLENGTH_P(x);
-  xd       = NV_DATA_P(x);
-  wd       = NV_DATA_P(w);
-  comm     = NV_COMM_P(x);
-
-  for (i = 0; i < N; i++) {
-    prodi = xd[i]*wd[i];
-    sum += SUNSQR(prodi);
-  }
-
-  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
-
-  return(SUNRsqrt(gsum/N_global));
-}
-
-realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
-{
-  sunindextype i, N, N_global;
-  realtype sum, prodi, *xd, *wd, *idd, gsum;
-  MPI_Comm comm;
-
-  sum = ZERO;
-  xd = wd = idd = NULL;
-
-  N        = NV_LOCLENGTH_P(x);
-  N_global = NV_GLOBLENGTH_P(x);
-  xd       = NV_DATA_P(x);
-  wd       = NV_DATA_P(w);
-  idd      = NV_DATA_P(id);
-  comm = NV_COMM_P(x);
-
-  for (i = 0; i < N; i++) {
-    if (idd[i] > ZERO) {
-      prodi = xd[i]*wd[i];
-      sum += SUNSQR(prodi);
-    }
-  }
-
-  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
-
-  return(SUNRsqrt(gsum/N_global));
-}
-
-realtype N_VMin_Parallel(N_Vector x)
+realtype N_VWSqrSumLocal_Parallel(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
-  realtype min, *xd, gmin;
-  MPI_Comm comm;
-
-  xd = NULL;
-
-  N  = NV_LOCLENGTH_P(x);
-  comm = NV_COMM_P(x);
-
-  min = BIG_REAL;
-
-  if (N > 0) {
-
-    xd = NV_DATA_P(x);
-
-    min = xd[0];
-
-    for (i = 1; i < N; i++) {
-      if (xd[i] < min) min = xd[i];
-    }
-
-  }
-
-  gmin = SUNMPI_Allreduce_scalar(min, 3, comm);
-
-  return(gmin);
-}
-
-realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
-{
-  sunindextype i, N;
-  realtype sum, prodi, *xd, *wd, gsum;
-  MPI_Comm comm;
+  realtype sum, prodi, *xd, *wd;
 
   sum = ZERO;
   xd = wd = NULL;
@@ -851,36 +735,108 @@ realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   wd = NV_DATA_P(w);
-  comm = NV_COMM_P(x);
 
   for (i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
     sum += SUNSQR(prodi);
   }
 
-  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
+  return(sum);
+}
 
+realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
+{
+  realtype lsum, gsum;
+  lsum = N_VWSqrSumLocal_Parallel(x, w);
+  MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x));
+  return(SUNRsqrt(gsum/(NV_GLOBLENGTH_P(x))));
+}
+
+realtype N_VWSqrSumMaskLocal_Parallel(N_Vector x, N_Vector w, N_Vector id)
+{
+  sunindextype i, N;
+  realtype sum, prodi, *xd, *wd, *idd;
+
+  sum = ZERO;
+  xd = wd = idd = NULL;
+
+  N   = NV_LOCLENGTH_P(x);
+  xd  = NV_DATA_P(x);
+  wd  = NV_DATA_P(w);
+  idd = NV_DATA_P(id);
+
+  for (i = 0; i < N; i++) {
+    if (idd[i] > ZERO) {
+      prodi = xd[i]*wd[i];
+      sum += SUNSQR(prodi);
+    }
+  }
+  return(sum);
+}
+
+realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
+{
+  realtype lsum, gsum;
+  lsum = N_VWSqrSumMaskLocal_Parallel(x, w, id);
+  MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x));
+  return(SUNRsqrt(gsum/(NV_GLOBLENGTH_P(x))));
+}
+
+realtype N_VMinLocal_Parallel(N_Vector x)
+{
+  sunindextype i, N;
+  realtype min, *xd;
+
+  xd  = NULL;
+  N   = NV_LOCLENGTH_P(x);
+  min = BIG_REAL;
+
+  if (N > 0) {
+    xd = NV_DATA_P(x);
+    min = xd[0];
+    for (i = 1; i < N; i++) 
+      if (xd[i] < min) min = xd[i];
+  }
+  return(min);
+}
+
+realtype N_VMin_Parallel(N_Vector x)
+{
+  realtype lmin, gmin;
+  lmin = N_VMinLocal_Parallel(x);
+  MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_P(x));
+  return(gmin);
+}
+
+realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
+{
+  realtype lsum, gsum;
+  lsum = N_VWSqrSumLocal_Parallel(x, w);
+  MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x));
   return(SUNRsqrt(gsum));
+}
+
+realtype N_VL1NormLocal_Parallel(N_Vector x)
+{
+  sunindextype i, N;
+  realtype sum, *xd;
+
+  sum = ZERO;
+  xd  = NULL;
+  N   = NV_LOCLENGTH_P(x);
+  xd  = NV_DATA_P(x);
+
+  for (i = 0; i<N; i++)
+    sum += SUNRabs(xd[i]);
+  
+  return(sum);
 }
 
 realtype N_VL1Norm_Parallel(N_Vector x)
 {
-  sunindextype i, N;
-  realtype sum, gsum, *xd;
-  MPI_Comm comm;
-
-  sum = ZERO;
-  xd = NULL;
-
-  N  = NV_LOCLENGTH_P(x);
-  xd = NV_DATA_P(x);
-  comm = NV_COMM_P(x);
-
-  for (i = 0; i<N; i++)
-    sum += SUNRabs(xd[i]);
-
-  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
-
+  realtype lsum, gsum;
+  lsum = N_VL1NormLocal_Parallel(x);
+  MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x));
   return(gsum);
 }
 
@@ -902,18 +858,16 @@ void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z)
   return;
 }
 
-booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
+booleantype N_VInvTestLocal_Parallel(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd, *zd, val, gval;
-  MPI_Comm comm;
+  realtype *xd, *zd, val;
 
   xd = zd = NULL;
 
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
   zd = NV_DATA_P(z);
-  comm = NV_COMM_P(x);
 
   val = ONE;
   for (i = 0; i < N; i++) {
@@ -923,21 +877,29 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
       zd[i] = ONE/xd[i];
   }
 
-  gval = SUNMPI_Allreduce_scalar(val, 3, comm);
+  if (val == ZERO)
+    return(SUNFALSE);
+  else
+    return(SUNTRUE);
+}
 
+booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
+{
+  realtype val, gval;
+  val = (N_VInvTestLocal_Parallel(x, z)) ? ONE : ZERO;
+  MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_P(x));
   if (gval == ZERO)
     return(SUNFALSE);
   else
     return(SUNTRUE);
 }
 
-booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
+booleantype N_VConstrMaskLocal_Parallel(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i, N;
   realtype temp;
   realtype *cd, *xd, *md;
   booleantype test;
-  MPI_Comm comm;
 
   cd = xd = md = NULL;
 
@@ -945,7 +907,6 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
   xd = NV_DATA_P(x);
   cd = NV_DATA_P(c);
   md = NV_DATA_P(m);
-  comm = NV_COMM_P(x);
 
   temp = ZERO;
 
@@ -964,26 +925,29 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
     }
   }
 
-  /* Find max temp across all MPI ranks */
-  temp = SUNMPI_Allreduce_scalar(temp, 2, comm);
-
   /* Return false if any constraint was violated */
   return (temp == ONE) ? SUNFALSE : SUNTRUE;
 }
 
-realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
+booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
+{
+  realtype temp, temp2;
+  temp = (N_VConstrMaskLocal_Parallel(c, x, m)) ? ZERO : ONE;
+  MPI_Allreduce(&temp, &temp2, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_P(x));
+  return (temp2 == ONE) ? SUNFALSE : SUNTRUE;
+}
+
+realtype N_VMinQuotientLocal_Parallel(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce;
   sunindextype i, N;
   realtype *nd, *dd, min;
-  MPI_Comm comm;
 
   nd = dd = NULL;
 
   N  = NV_LOCLENGTH_P(num);
   nd = NV_DATA_P(num);
   dd = NV_DATA_P(denom);
-  comm = NV_COMM_P(num);
 
   notEvenOnce = SUNTRUE;
   min = BIG_REAL;
@@ -998,8 +962,15 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
       }
     }
   }
+  return(min);
+}
 
-  return(SUNMPI_Allreduce_scalar(min, 3, comm));
+realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
+{
+  realtype lmin, gmin;
+  lmin = N_VMinQuotientLocal_Parallel(num, denom);
+  MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_P(num));
+  return(gmin);
 }
 
 
@@ -1131,7 +1102,7 @@ int N_VScaleAddMulti_Parallel(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_
 
 int N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
 {
-  int          i;
+  int          i, retval;
   sunindextype j, N;
   realtype*    xd=NULL;
   realtype*    yd=NULL;
@@ -1159,9 +1130,9 @@ int N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y, realtype* dotpro
       dotprods[i] += xd[j] * yd[j];
     }
   }
-  SUNMPI_Allreduce(dotprods, nvec, 1, comm);
+  retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
-  return(0);
+  return retval == MPI_SUCCESS ? 0 : -1;
 }
 
 
@@ -1346,7 +1317,7 @@ int N_VConstVectorArray_Parallel(int nvec, realtype c, N_Vector* Z)
 
 int N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
 {
-  int          i;
+  int          i, retval;
   sunindextype j, Nl, Ng;
   realtype*    wd=NULL;
   realtype*    xd=NULL;
@@ -1375,19 +1346,19 @@ int N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W, realtype
       nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  SUNMPI_Allreduce(nrm, nvec, 1, comm);
+  retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
 
-  return(0);
+  return retval == MPI_SUCCESS ? 0 : -1;
 }
 
 
 int N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
                                         N_Vector id, realtype* nrm)
 {
-  int          i;
+  int          i, retval;
   sunindextype j, Nl, Ng;
   realtype*    wd=NULL;
   realtype*    xd=NULL;
@@ -1419,12 +1390,12 @@ int N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
         nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  SUNMPI_Allreduce(nrm, nvec, 1, comm);
+  retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
 
-  return(0);
+  return retval == MPI_SUCCESS ? 0 : -1;
 }
 
 
@@ -1458,8 +1429,8 @@ int N_VScaleAddMultiVectorArray_Parallel(int nvec, int nsum, realtype* a,
     }
 
     /* should have called N_VScaleAddMulti */
-    YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
-    ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    YY = (N_Vector*) malloc(nsum * sizeof(N_Vector));
+    ZZ = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (j=0; j<nsum; j++) {
       YY[j] = Y[j][0];
@@ -1561,7 +1532,7 @@ int N_VLinearCombinationVectorArray_Parallel(int nvec, int nsum,
     }
 
     /* should have called N_VLinearCombination */
-    Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    Y = (N_Vector*) malloc(nsum * sizeof(N_Vector));
 
     for (i=0; i<nsum; i++) {
       Y[i] = X[i][0];

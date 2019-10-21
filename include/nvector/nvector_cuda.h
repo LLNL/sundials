@@ -80,6 +80,10 @@ SUNDIALS_EXPORT N_Vector N_VMake_Cuda(sunindextype length,
 SUNDIALS_EXPORT N_Vector N_VMakeManaged_Cuda(sunindextype length,
                                              realtype *vdata);
 
+SUNDIALS_EXPORT N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length,
+                                                          void* (*allocfn)(size_t),
+                                                          void (*freefn)(void*));
+
 SUNDIALS_EXPORT sunindextype N_VGetLength_Cuda(N_Vector v);
 
 SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_Cuda(N_Vector v);
@@ -152,6 +156,11 @@ SUNDIALS_EXPORT int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X,
 SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X,
                                                     N_Vector* W, N_Vector id,
                                                     realtype* nrm);
+
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Cuda(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Cuda(N_Vector x, N_Vector w, N_Vector id);
+
 
 /*
  * -----------------------------------------------------------------
