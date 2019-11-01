@@ -21,16 +21,16 @@ The SUNLinSol_SPBCGS Module
 ======================================
 
 The SPBCGS (Scaled, Preconditioned, Bi-Conjugate Gradient,
-Stabilized [V1992]_) implementation of the ``SUNLinearSolver`` module 
+Stabilized [V1992]_) implementation of the ``SUNLinearSolver`` module
 provided with SUNDIALS, SUNLinSol_SPBCGS, is an iterative linear
 solver that is designed to be compatible with any ``N_Vector``
 implementation (serial, threaded, parallel, and user-supplied) that
-supports a minimal subset of operations (:c:func:`N_VClone()`, 
+supports a minimal subset of operations (:c:func:`N_VClone()`,
 :c:func:`N_VDotProd()`, :c:func:`N_VScale()`,
 :c:func:`N_VLinearSum()`, :c:func:`N_VProd()`, :c:func:`N_VDiv()`, and
 :c:func:`N_VDestroy()`).  Unlike the SPGMR and SPFGMR algorithms,
 SPBCGS requires a fixed amount of memory that does not increase with
-the number of allowed iterations. 
+the number of allowed iterations.
 
 
 .. _SUNLinSol_SPBCGS.Usage:
@@ -38,14 +38,14 @@ the number of allowed iterations.
 SUNLinSol_SPBCGS Usage
 ------------------------
 
-The header file to be included when using this module 
+The header file to be included when using this module
 is ``sunlinsol/sunlinsol_spbcgs.h``.  The SUNLinSol_SPBCGS module
 is accessible from all SUNDIALS solvers *without*
 linking to the ``libsundials_sunlinsolspbcgs`` module library.
 
 
-The module SUNLinSol_SPBCGS provides the following 
-user-callable routines: 
+The module SUNLinSol_SPBCGS provides the following
+user-callable routines:
 
 
 .. c:function:: SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl)
@@ -77,23 +77,23 @@ user-callable routines:
 
    This function updates the type of preconditioning to use.  Supported
    values are ``PREC_NONE`` (0), ``PREC_LEFT`` (1),
-   ``PREC_RIGHT`` (2), and ``PREC_BOTH`` (3).  
+   ``PREC_RIGHT`` (2), and ``PREC_BOTH`` (3).
 
    This routine will return with one of the error codes
    ``SUNLS_ILL_INPUT`` (illegal ``pretype``), ``SUNLS_MEM_NULL``
    (``S`` is ``NULL``), or ``SUNLS_SUCCESS``.
-  
+
 
 .. c:function:: int SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl)
 
-   This function updates the number of linear solver iterations to allow.  
+   This function updates the number of linear solver iterations to allow.
 
    A ``maxl`` argument that is :math:`\le0` will result in the default
    value (5).
 
    This routine will return with one of the error codes
    ``SUNLS_MEM_NULL`` (``S`` is ``NULL``) or ``SUNLS_SUCCESS``.
-  
+
 
 
 For backwards compatibility, we also provide the wrapper functions,
@@ -113,8 +113,8 @@ they wrap:
    Wrapper function for :c:func:`SUNLinSol_SPBCGSSetMaxl()`
 
 
-   
-  
+
+
 For solvers that include a Fortran interface module, the
 SUNLinSol_SPBCGS module also includes the Fortran-callable
 function :f:func:`FSUNSPBCGSInit()` to initialize this
@@ -123,11 +123,11 @@ SUNLinSol_SPBCGS module for a given SUNDIALS solver.
 .. f:subroutine:: FSUNSPBCGSInit(CODE, PRETYPE, MAXL, IER)
 
    Initializes a SPBCGS ``SUNLinearSolver`` structure for
-   use in a SUNDIALS package. 
+   use in a SUNDIALS package.
 
    This routine must be called *after* the ``N_Vector`` object has
-   been initialized. 
-                  
+   been initialized.
+
    **Arguments:**
       * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
         this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
@@ -146,8 +146,8 @@ this SUNLinSol_SPBCGS module for solving mass matrix linear systems.
    solving mass matrix systems in ARKode.
 
    This routine must be called *after* the ``N_Vector`` object has
-   been initialized. 
-                  
+   been initialized.
+
    **Arguments:**
       * *PRETYPE* (``int``, input) -- flag denoting type of
         preconditioning to use: none=0, left=1, right=2, both=3.
@@ -159,55 +159,55 @@ routines also support Fortran interfaces for the system and mass
 matrix solvers:
 
 .. f:subroutine:: FSUNSPBCGSSetPrecType(CODE, PRETYPE, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_SPBCGSSetPrecType()` for system
-   linear solvers.  
+   linear solvers.
 
    This routine must be called *after* :f:func:`FSUNSPBCGSInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 
 .. f:subroutine:: FSUNMassSPBCGSSetPrecType(PRETYPE, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_SPBCGSSetPrecType()` for mass matrix
    linear solvers in ARKode.
 
    This routine must be called *after* :f:func:`FSUNMassSPBCGSInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
-   
+
 .. f:subroutine:: FSUNSPBCGSSetMaxl(CODE, MAXL, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_SPBCGSSetMaxl()` for system
-   linear solvers.  
+   linear solvers.
 
    This routine must be called *after* :f:func:`FSUNSPBCGSInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 
 .. f:subroutine:: FSUNMassSPBCGSSetMaxl(MAXL, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_SPBCGSSetMaxl()` for mass matrix
    linear solvers in ARKode.
 
    This routine must be called *after* :f:func:`FSUNMassSPBCGSInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 
 
-   
+
 .. _SUNLinSol_SPBCGS.Description:
 
 SUNLinSol_SPBCGS Description
@@ -223,7 +223,7 @@ The SUNLinSol_SPBCGS module defines the *content* field of a
      int pretype;
      int numiters;
      realtype resnorm;
-     long int last_flag;
+     int last_flag;
      ATimesFn ATimes;
      void* ATData;
      PSetupFn Psetup;
@@ -247,7 +247,7 @@ information:
 
 * ``pretype`` - flag for type of preconditioning to employ
   (default is none),
-  
+
 * ``numiters`` - number of iterations from the most-recent solve,
 
 * ``resnorm`` - final linear residual norm from the most-recent
@@ -268,20 +268,20 @@ information:
 
 * ``s1, s2`` - vector pointers for supplied scaling matrices
   (default is ``NULL``),
-  
+
 * ``r`` - a ``N_Vector`` which holds the current scaled,
   preconditioned linear system residual,
-  
+
 * ``r_star`` - a ``N_Vector`` which holds the initial scaled,
   preconditioned linear system residual,
-  
+
 * ``p, q, u, Ap, vtemp`` - ``N_Vector`` used for workspace by the
   SPBCGS algorithm.
 
 
 This solver is constructed to perform the following operations:
 
-* During construction all ``N_Vector`` solver data is allocated, with 
+* During construction all ``N_Vector`` solver data is allocated, with
   vectors cloned from a template ``N_Vector`` that is input, and
   default solver parameters are set.
 
@@ -289,14 +289,14 @@ This solver is constructed to perform the following operations:
   solver parameters.
 
 * Additional "set" routines are called by the SUNDIALS solver
-  that interfaces with SUNLinSol_SPBCGS to supply the ``ATimes``, 
+  that interfaces with SUNLinSol_SPBCGS to supply the ``ATimes``,
   ``PSetup``, and ``Psolve`` function pointers and ``s1`` and ``s2``
-  scaling vectors. 
+  scaling vectors.
 
 * In the "initialize" call, the solver parameters are checked
   for validity.
 
-* In the "setup" call, any non-``NULL`` ``PSetup`` function is 
+* In the "setup" call, any non-``NULL`` ``PSetup`` function is
   called.  Typically, this is provided by the SUNDIALS solver itself,
   that translates between the generic ``PSetup`` function and the
   solver-specific routine (solver-supplied or user-supplied).
@@ -307,7 +307,7 @@ This solver is constructed to perform the following operations:
 
 The SUNLinSol_SPBCGS module defines implementations of all
 "iterative" linear solver operations listed in the section
-:ref:`SUNLinSol.API`: 
+:ref:`SUNLinSol.API`:
 
 * ``SUNLinSolGetType_SPBCGS``
 
@@ -334,4 +334,3 @@ The SUNLinSol_SPBCGS module defines implementations of all
 * ``SUNLinSolSpace_SPBCGS``
 
 * ``SUNLinSolFree_SPBCGS``
-

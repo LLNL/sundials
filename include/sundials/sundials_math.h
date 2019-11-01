@@ -34,17 +34,19 @@ extern "C" {
  * -----------------------------------------------------------------
  * Macros
  * -----------------------------------------------------------------
- * MIN(A,B) returns the minimum of A and B
+ * SUNMIN(A,B) returns the minimum of A and B
  *
- * MAX(A,B) returns the maximum of A and B
+ * SUNMAX(A,B) returns the maximum of A and B
  *
- * SQR(A) returns A^2
+ * SUNSQR(A) returns A^2
  *
  * SUNRsqrt calls the appropriate version of sqrt
  *
  * SUNRabs calls the appropriate version of abs
  *
  * SUNRexp calls the appropriate version of exp
+ *
+ * SUNRceil calls the appropriate version of ceil
  * -----------------------------------------------------------------
  */
 
@@ -127,6 +129,29 @@ extern "C" {
 #define SUNRexp(x) (expf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRexp(x) (expl((x)))
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRceil
+ * -----------------------------------------------------------------
+ * Usage : realtype ceil_x;
+ *         ceil_x = SUNRceil(x);
+ * -----------------------------------------------------------------
+ * SUNRceil(x) returns the smallest integer value not less than x.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRceil
+#if defined(SUNDIALS_USE_GENERIC_MATH)
+#define SUNRceil(x) ((realtype) ceil((double) (x)))
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRceil(x) (ceil((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRceil(x) (ceilf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRceil(x) (ceill((x)))
 #endif
 #endif
 

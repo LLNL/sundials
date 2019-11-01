@@ -248,9 +248,14 @@ SUNDIALS_EXPORT realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom);
  * Additional functions exported by NVECTOR module
  * ----------------------------------------------------------------- */
 
+SUNDIALS_EXPORT N_Vector* N_VNewVectorArray(int count);
 SUNDIALS_EXPORT N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w);
 SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray(int count, N_Vector w);
 SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector* vs, int count);
+
+/* These function are really only for users of the Fortran interface */
+SUNDIALS_EXPORT N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index);
+SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w);
 
 #ifdef __cplusplus
 }

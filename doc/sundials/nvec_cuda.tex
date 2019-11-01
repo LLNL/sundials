@@ -89,14 +89,14 @@ to access its member variables. Instead, user should use the accessor functions:
 
 The {\nveccuda} module defines implementations of all vector operations listed
 in Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}
-and \ref{ss:nveclocalops}, except
-for \id{N\_VGetArrayPointer} and \id{N\_VSetArrayPointer}.
-As such, this vector cannot be used with the {\sundials} Fortran interfaces,
-nor with the {\sundials} direct solvers and preconditioners. Instead,
-the {\nveccuda} module provides separate functions to access data on the host
-and on the device. It also provides methods for copying from the host to
-the device and vice versa. Usage examples of {\nveccuda} are provided in
-some example programs for {\cvode} \cite{cvode_ex}.
+and \ref{ss:nveclocalops}, except for \id{N\_VSetArrayPointer}, and,
+if using unmanaged memory, \id{N\_VGetArrayPointer}.
+As such, this vector can only be used with the {\sundials} Fortran interfaces,
+and the {\sundials} direct solvers and preconditioners when using managed memory.
+The {\nveccuda} module provides separate functions to access data on the host
+and on the device for the unmanaged memory use case. It also provides methods
+for copying from the host to the device and vice versa. Usage examples of
+{\nveccuda} are provided in some example programs for {\cvode} \cite{cvode_ex}.
 
 The names of vector operations are obtained from those in Tables \ref{ss:nvecops},
 \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}, and \ref{ss:nveclocalops}
@@ -151,7 +151,18 @@ functions:
 {
   N\_Vector N\_VMakeManaged\_Cuda(sunindextype length, realtype *vdata)
 }
-
+%%--------------------------------------
+\sunmodfun{N\_VMakeWithManagedAllocator\_Cuda}
+{
+  This function creates an {\nveccuda} with a user-supplied memory allocator.
+  It requires the user to provide a corresponding free function as well.
+  The memory allocated by the allocator function must behave like CUDA managed memory.
+}
+{
+  N\_Vector N\_VMakeWithManagedAllocator\_Cuda(sunindextype length,
+                                               void* (*allocfn)(size\_t size),
+                                               void (*freefn)(void* ptr));
+}
 
 The module {\nveccuda} also provides the following user-callable routines:
 %%--------------------------------------
@@ -340,7 +351,8 @@ options as the vector they are cloned from while vectors created with
 \item
   When there is a need to access components of an \id{N\_Vector\_Cuda}, \id{v},
   it is recommeded to use functions \id{N\_VGetDeviceArrayPointer\_Cuda} or
-  \id{N\_VGetHostArrayPointer\_Cuda}.
+  \id{N\_VGetHostArrayPointer\_Cuda}. However, when using managed memory, the
+  function \id{N\_VGetArrayPointer} may also be used.
 
 \item
   {\warn}To maximize efficiency, vector operations in the {\nveccuda} implementation

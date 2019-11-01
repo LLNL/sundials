@@ -26,18 +26,19 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-CC      	  = @CMAKE_C_COMPILER@
+CC      	  = @MPI_C_COMPILER@
 CFLAGS      = @CMAKE_C_FLAGS@
-CXX         = @CMAKE_CXX_COMPILER@
-LDFLAGS     = @LDFLAGS@ -Wl,-rpath,${libdir}:${CUDALIBDIR}
-LIBS        = @LIBS@
+CXX         = @MPI_CXX_COMPILER@
+NVCC        = @CMAKE_CUDA_COMPILER@
+NVCCFLAGS   = $(subst ;, ,@CMAKE_CUDA_FLAGS@)
+MPI_LIBS    = $(subst ;, ,@MPI_CXX_LIBRARIES@)
 MPI_INC_DIR = @MPI_CXX_INCLUDE_PATH@
-NVCC        = @CUDA_NVCC_EXECUTABLE@
-NVCCFLAGS   = $(subst ;, ,@CUDA_NVCC_FLAGS@)
-CUDALIBS    = @CUDA_CUDART_LIBRARY@
-CUDALIBDIR  = $(dir ${CUDALIBS})
+LD          = ${NVCC}
+LDFLAGS     = @LDFLAGS@ -Xcompiler \"-Wl,-rpath,${libdir}\"
+LIBS        = @LIBS@ ${MPI_LIBS}
 RAJA_INC_DIR= @RAJA_INCLUDE_PATH@
 RAJA_LIB_DIR= @RAJA_LIB_DIR@
+RAJAFLAGS   = $(subst ;, ,@RAJA_NVCC_FLAGS@)
 RAJALIBS    = -lRAJA
 
 TMP_INCS 		 = ${includedir} ${RAJA_INC_DIR}
@@ -67,14 +68,14 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 	${CC} ${CFLAGS} ${INCLUDES} -c $<
 
 .cu.o :
-	${NVCC} ${NVCCFLAGS} ${NVCCINCLUDES} -c $<
+	${NVCC} ${NVCCFLAGS} ${RAJAFLAGS} ${NVCCINCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}"; \
-	  ${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}; \
+	  echo "${LD} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}"; \
+	  ${LD} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}; \
 	done
 
 ${OBJECTS}: ${OBJECTS_DEPENDENCIES}

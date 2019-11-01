@@ -314,7 +314,7 @@ Activation of forward sensitivity computation is done by calling
 right-hand side function returns all sensitivities at once or one by one, respectively.
 The form of the call to each of these routines is as follows:
 %%
-\ucfunction{CVodeSensInit}
+\ucfunctionf{CVodeSensInit}
 {
   flag = CVodeSensInit(cvode\_mem, Ns, ism, fS, yS0);
 }
@@ -381,7 +381,7 @@ The form of the call to each of these routines is as follows:
 }
 %%
 %%
-\ucfunction{CVodeSensInit1}
+\ucfunctionf{CVodeSensInit1}
 {
   flag = CVodeSensInit1(cvode\_mem, Ns, ism, fS1, yS0);
 }
@@ -474,7 +474,7 @@ to \Id{CVodeSensInit} or \Id{CVodeSensInit1} (and maybe a call to
 be unchanged since the call to the initialization function.
 The call to the \id{CVodeSensReInit} function has the form:
 %%
-\ucfunction{CVodeSensReInit}
+\ucfunctionf{CVodeSensReInit}
 {
   flag = CVodeSensReInit(cvode\_mem, ism, yS0);
 }
@@ -536,7 +536,7 @@ The call to the \id{CVodeSensReInit} function has the form:
 To deallocate all forward sensitivity-related memory (allocated in a prior call
 to \id{CVodeSensInit} or \id{CVodeSensInit1}), the user must call
 %%
-\ucfunction{CVodeSensFree}
+\ucfunctionf{CVodeSensFree}
 {
   CVodeSensFree(cvode\_mem);
 }
@@ -562,7 +562,7 @@ to \id{CVodeSensInit} or \id{CVodeSensInit1}), the user must call
 To activate and deactivate forward sensitivity calculations for successive {\cvodes} runs,
 without having to allocate and deallocate memory, the following function is provided:
 %%
-\ucfunction{CVodeSensToggleOff}
+\ucfunctionf{CVodeSensToggleOff}
 {
   CVodeSensToggleOff(cvode\_mem);
 }
@@ -603,7 +603,7 @@ One of the following three functions must be called to specify the
 integration tolerances for sensitivities. Note that this call must be made after 
 the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
 %%
-\ucfunction{CVodeSensSStolerances}
+\ucfunctionf{CVodeSensSStolerances}
 {
   flag = CVodeSensSStolerances(cvode\_mem, reltolS, abstolS);
 }
@@ -640,7 +640,7 @@ the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
 {}
 %%
 %%
-\ucfunction{CVodeSensSVtolerances}
+\ucfunctionf{CVodeSensSVtolerances}
 {
   flag = CVodeSensSVtolerances(cvode\_mem, reltolS, abstolS);
 }
@@ -680,7 +680,7 @@ the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
 }
 %%
 %%
-\ucfunction{CVodeSensEEtolerances}
+\ucfunctionf{CVodeSensEEtolerances}
 {
   flag = CVodeSensEEtolerances(cvode\_mem);
 }
@@ -745,7 +745,7 @@ solving the nonlinear systems (\ref{e:nonlinear}) or
 (\ref{e:nonlinear_fixedpoint}). A call to this function attaches
 the nonlinear solver to the main {\cvodes} integrator.
 
-\ucfunction{CVodeSetNonlinearSolverSensSim}
+\ucfunctionf{CVodeSetNonlinearSolverSensSim}
 {
   flag = CVodeSetNonlinearSolverSensSim(cvode\_mem, NLS);
 }
@@ -780,7 +780,7 @@ the nonlinear solver to the main {\cvodes} integrator.
 {}
 
 
-\ucfunction{CVodeSetNonlinearSolverSensStg}
+\ucfunctionf{CVodeSetNonlinearSolverSensStg}
 {
   flag = CVodeSetNonlinearSolverSensStg(cvode\_mem, NLS);
 }
@@ -820,7 +820,7 @@ the nonlinear solver to the main {\cvodes} integrator.
 }
 
 
-\ucfunction{CVodeSetNonlinearSolverSensStg1}
+\ucfunctionf{CVodeSetNonlinearSolverSensStg1}
 {
   flag = CVodeSetNonlinearSolverSensStg1(cvode\_mem, NLS);
 }
@@ -858,7 +858,6 @@ the nonlinear solver to the main {\cvodes} integrator.
   variable correction use \Id{CVodeSetNonlinearSolver} (see
   \S\ref{ss:nonlin_solv_init}).
 }
-
 
 %%
 %%
@@ -899,7 +898,7 @@ following functions:
 
 %%
 %%
-\ucfunction{CVodeGetSens}
+\ucfunctionf{CVodeGetSens}
 {
   flag = CVodeGetSens(cvode\_mem, \&tret, yS);
 }
@@ -942,7 +941,7 @@ polynomials for the sensitivity variables at time \id{t}.
 This function is called by \id{CVodeGetSens} with \id{k} $= 0$, but may also be called 
 directly by the user.
 %%
-\ucfunction{CVodeGetSensDky}
+\ucfunctionf{CVodeGetSensDky}
 {
   flag = CVodeGetSensDky(cvode\_mem, t, k, dkyS);
 }
@@ -987,7 +986,7 @@ directly by the user.
 Forward sensitivity solution vectors can also be extracted separately for 
 each parameter in turn through the functions \id{CVodeGetSens1} and
 \id{CVodeGetSensDky1}, defined as follows:
-\ucfunction{CVodeGetSens1}
+\ucfunctionf{CVodeGetSens1}
 {
   flag = CVodeGetSens1(cvode\_mem, \&tret, is, yS);
 }
@@ -1031,7 +1030,7 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
 }
 %%
 %%
-\ucfunction{CVodeGetSensDky1}
+\ucfunctionf{CVodeGetSensDky1}
 {
   flag = CVodeGetSensDky1(cvode\_mem, t, k, is, dkyS);
 }
@@ -1106,7 +1105,7 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 \end{table}
 %%
 %%
-\ucfunction{CVodeSetSensParams}
+\ucfunctionf{CVodeSetSensParams}
 {
   flag = CVodeSetSensParams(cvode\_mem, p, pbar, plist);
 }
@@ -1152,7 +1151,7 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 }
 %%
 %%
-\ucfunction{CVodeSetSensDQMethod}
+\ucfunctionf{CVodeSetSensDQMethod}
 {
   flag = CVodeSetSensDQMethod(cvode\_mem, DQtype, DQrhomax);
 }
@@ -1197,7 +1196,7 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 }
 %%
 %%
-\ucfunction{CVodeSetSensErrCon}
+\ucfunctionf{CVodeSetSensErrCon}
 {
   flag = CVodeSetSensErrCon(cvode\_mem, errconS);
 }
@@ -1233,7 +1232,7 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 }
 %%
 %%
-\ucfunction{CVodeSetSensMaxNonlinIters}
+\ucfunctionf{CVodeSetSensMaxNonlinIters}
 {
   flag = CVodeSetSensMaxNonlinIters(cvode\_mem, maxcorS);
 }
@@ -1298,7 +1297,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 \end{table}
 %%
 %%
-\ucfunction{CVodeGetSensNumRhsEvals}
+\ucfunctionf{CVodeGetSensNumRhsEvals}
 {
   flag = CVodeGetSensNumRhsEvals(cvode\_mem, \&nfSevals);
 }
@@ -1335,7 +1334,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 %%
 %%
-\ucfunction{CVodeGetNumRhsEvalsSens}
+\ucfunctionf{CVodeGetNumRhsEvalsSens}
 {
   flag = CVodeGetNumRhsEvalsSens(cvode\_mem, \&nfevalsS);
 }
@@ -1370,7 +1369,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 %%
 %%
-\ucfunction{CVodeGetSensNumErrTestFails}
+\ucfunctionf{CVodeGetSensNumErrTestFails}
 {
   flag = CVodeGetSensNumErrTestFails(cvode\_mem, \&nSetfails);
 }
@@ -1405,7 +1404,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 %%
 %%
-\ucfunction{CVodeGetSensNumLinSolvSetups}
+\ucfunctionf{CVodeGetSensNumLinSolvSetups}
 {
   flag = CVodeGetSensNumLinSolvSetups(cvode\_mem, \&nlinsetupsS);
 }
@@ -1440,7 +1439,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 %%
 %%
-\ucfunction{CVodeGetSensStats}
+\ucfunctionf{CVodeGetSensStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
     flag = CVodeGetSensStats(&cvode\_mem, \&nfSevals, \&nfevalsS, \&nSetfails,\\
@@ -1480,7 +1479,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {}
 %%
 %%
-\ucfunction{CVodeGetSensErrWeights}
+\ucfunctionf{CVodeGetSensErrWeights}
 {
   flag = CVodeGetSensErrWeights(cvode\_mem, eSweight);
 }
@@ -1513,7 +1512,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 %%
 %%
-\ucfunction{CVodeGetSensNumNonlinSolvIters}
+\ucfunctionf{CVodeGetSensNumNonlinSolvIters}
 {
   flag = CVodeGetSensNumNonlinSolvIters(cvode\_mem, \&nSniters);
 }
@@ -1554,7 +1553,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 %%
 %%
-\ucfunction{CVodeGetSensNumNonlinSolvConvFails}
+\ucfunctionf{CVodeGetSensNumNonlinSolvConvFails}
 {
   flag = CVodeGetSensNumNonlinSolvConvFails(cvode\_mem, \&nSncfails);
 }
@@ -1593,7 +1592,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 %%
 %%
-\ucfunction{CVodeGetSensNonlinSolvStats}
+\ucfunctionf{CVodeGetSensNonlinSolvStats}
 {
   flag = CVodeGetSensNonlinSolvStats(cvode\_mem, \&nSniters, \&nSncfails);
 }
@@ -1627,7 +1626,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {}
 %%
 %%
-\ucfunction{CVodeGetStgrSensNumNonlinSolvIters}
+\ucfunctionf{CVodeGetStgrSensNumNonlinSolvIters}
 {
   flag = CVodeGetStgrSensNumNonlinSolvIters(cvode\_mem, nSTGR1niters);
 }
@@ -1661,7 +1660,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 %%
 %%
-\ucfunction{CVodeGetStgrSensNumNonlinSolvConvFails}
+\ucfunctionf{CVodeGetStgrSensNumNonlinSolvConvFails}
 {
   flag = CVodeGetStgrSensNumNonlinSolvConvFails(cvode\_mem, nSTGR1ncfails);
 }
@@ -2023,7 +2022,7 @@ approximations to the functions $\bar{q}_i = q_y s_i + q_{p_i}$, in the
 notation of (\ref{e:QUAD}).
 The form of the call to this function is as follows:
 %%
-\ucfunction{CVodeQuadSensInit}
+\ucfunctionf{CVodeQuadSensInit}
 {
 flag = CVodeQuadSensInit(cvode\_mem, rhsQS, yQS0);
 }
@@ -2087,7 +2086,7 @@ quadratures as well as the number \id{Ns} of sensitivities are assumed to be
 unchanged from the prior call to \id{CVodeQuadSensInit}.
 The call to the \id{CVodeQuadSensReInit} function has the form:
 %%
-\ucfunction{CVodeQuadSensReInit}
+\ucfunctionf{CVodeQuadSensReInit}
 {
   flag = CVodeQuadSensReInit(cvode\_mem, yQS0);
 }
@@ -2126,7 +2125,7 @@ The call to the \id{CVodeQuadSensReInit} function has the form:
 }
 %%
 %%
-\ucfunction{CVodeQuadSensFree}
+\ucfunctionf{CVodeQuadSensFree}
 {
   CVodeQuadSensFree(cvode\_mem);
 }
@@ -2178,7 +2177,7 @@ $y$. Sensitivity-dependent quadratures can be obtained using
 one of the following functions:
 %%
 %%
-\ucfunction{CVodeGetQuadSens}
+\ucfunctionf{CVodeGetQuadSens}
 {
   flag = CVodeGetQuadSens(cvode\_mem, \&tret, yQS);
 }
@@ -2221,7 +2220,7 @@ polynomials for the sensitivity-dependent quadrature variables at time \id{t}.
 This function is called by \id{CVodeGetQuadSens} with \id{k = 0}, but may also be called 
 directly by the user.
 %%
-\ucfunction{CVodeGetQuadSensDky}
+\ucfunctionf{CVodeGetQuadSensDky}
 {
   flag = CVodeGetQuadSensDky(cvode\_mem, t, k, dkyQS);
 }
@@ -2267,7 +2266,7 @@ directly by the user.
 Quadrature sensitivity solution vectors can also be extracted separately for 
 each parameter in turn through the functions \id{CVodeGetQuadSens1} and
 \id{CVodeGetQuadSensDky1}, defined as follows:
-\ucfunction{CVodeGetQuadSens1}
+\ucfunctionf{CVodeGetQuadSens1}
 {
   flag = CVodeGetQuadSens1(cvode\_mem, \&tret, is, yQS);
 }
@@ -2308,7 +2307,7 @@ each parameter in turn through the functions \id{CVodeGetQuadSens1} and
 {}
 %%
 %%
-\ucfunction{CVodeGetQuadSensDky1}
+\ucfunctionf{CVodeGetQuadSensDky1}
 {
   flag = CVodeGetQuadSensDky1(cvode\_mem, t, k, is, dkyQS);
 }
@@ -2368,7 +2367,7 @@ each parameter in turn through the functions \id{CVodeGetQuadSens1} and
 of sensitivity-dependent quadrature equations.
 %%
 %%
-\ucfunction{CVodeSetQuadSensErrCon}
+\ucfunctionf{CVodeSetQuadSensErrCon}
 {
  flag = CVodeSetQuadSensErrCon(cvode\_mem, errconQS)
 }
@@ -2414,7 +2413,7 @@ If the quadrature variables are part of the step size control mechanism,
 one of the following functions must be called to specify the
 integration tolerances for quadrature variables. 
 
-\ucfunction{CVodeQuadSensSStolerances}
+\ucfunctionf{CVodeQuadSensSStolerances}
 {
  flag = CVodeQuadSensSVtolerances(cvode\_mem, reltolQS, abstolQS);
 }
@@ -2451,7 +2450,7 @@ integration tolerances for quadrature variables.
 }
 {}
 
-\ucfunction{CVodeQuadSensSVtolerances}
+\ucfunctionf{CVodeQuadSensSVtolerances}
 {
  flag = CVodeQuadSensSVtolerances(cvode\_mem, reltolQS, abstolQS);
 }
@@ -2491,7 +2490,7 @@ integration tolerances for quadrature variables.
 }
 {}
 
-\ucfunction{CVodeQuadSensEEtolerances}
+\ucfunctionf{CVodeQuadSensEEtolerances}
 {
   flag = CVodeQuadSensEEtolerances(cvode\_mem);
 }
@@ -2540,7 +2539,7 @@ integration tolerances for quadrature variables.
 {\cvodes} provides the following functions that can be used to obtain solver
 performance information related to quadrature integration.
 
-\ucfunction{CVodeGetQuadSensNumRhsEvals}
+\ucfunctionf{CVodeGetQuadSensNumRhsEvals}
 {
   flag = CVodeGetQuadSensNumRhsEvals(cvode\_mem, \&nrhsQSevals);
 }
@@ -2570,7 +2569,7 @@ performance information related to quadrature integration.
 {}
 %%
 %%
-\ucfunction{CVodeGetQuadSensNumErrTestFails}
+\ucfunctionf{CVodeGetQuadSensNumErrTestFails}
 {
   flag = CVodeGetQuadSensNumErrTestFails(cvode\_mem, \&nQSetfails);
 }
@@ -2600,7 +2599,7 @@ performance information related to quadrature integration.
 {}
 %%
 %%
-\ucfunction{CVodeGetQuadSensErrWeights}
+\ucfunctionf{CVodeGetQuadSensErrWeights}
 {
   flag = CVodeGetQuadSensErrWeights(cvode\_mem, eQSweight);
 }
@@ -2636,7 +2635,7 @@ performance information related to quadrature integration.
 }
 %%
 %%
-\ucfunction{CVodeGetQuadSensStats}
+\ucfunctionf{CVodeGetQuadSensStats}
 {
   flag = CVodeGetQuadSensStats(cvode\_mem, \&nrhsQSevals, \&nQSetfails);
 }

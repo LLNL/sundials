@@ -45,7 +45,12 @@
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <cvode/cvode_bandpre.h>       /* access to CVBANDPRE module           */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>    /* contains the macros ABS, SUNSQR, EXP */
+
+/* helpful macros */
+
+#ifndef SQR
+#define SQR(A) ((A)*(A))
+#endif
 
 /* Problem Constants */
 
@@ -57,7 +62,7 @@
 #define KH           RCONST(4.0e-6)    /* horizontal diffusivity Kh */
 #define VEL          RCONST(0.001)     /* advection velocity V      */
 #define KV0          RCONST(1.0e-8)    /* coefficient in Kv(y)      */
-#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */ 
+#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */
 #define Q2           RCONST(4.66e-16)
 #define C3           RCONST(3.7e16)
 #define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
@@ -69,13 +74,13 @@
 #define NOUT         12                  /* number of output times */
 #define TWOHR        RCONST(7200.0)      /* number of seconds in two hours  */
 #define HALFDAY      RCONST(4.32e4)      /* number of seconds in a half day */
-#define PI       RCONST(3.1415926535898) /* pi */ 
+#define PI       RCONST(3.1415926535898) /* pi */
 
 #define XMIN         ZERO                /* grid boundaries in x  */
-#define XMAX         RCONST(20.0)           
+#define XMAX         RCONST(20.0)
 #define YMIN         RCONST(30.0)        /* grid boundaries in y  */
 #define YMAX         RCONST(50.0)
-#define XMID         RCONST(10.0)        /* grid midpoints in x,y */          
+#define XMID         RCONST(10.0)        /* grid midpoints in x,y */
 #define YMID         RCONST(40.0)
 
 #define MX           10             /* MX = number of x mesh points */
@@ -97,12 +102,12 @@
    mathematical 3-dimensional structure of the dependent variable vector
    to the underlying 1-dimensional storage. IJth is defined in order to
    write code which indexes into small dense matrices with a (row,column)
-   pair, where 1 <= row, column <= NUM_SPECIES.   
-   
+   pair, where 1 <= row, column <= NUM_SPECIES.
+
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MY-1. The vdata array is obtained via
-   the call vdata = N_VGetArrayPointer(v), where v is an N_Vector. 
+   the call vdata = N_VGetArrayPointer(v), where v is an N_Vector.
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
@@ -114,7 +119,7 @@
 #define IJKth(vdata,i,j,k) (vdata[i-1 + (j)*NUM_SPECIES + (k)*NSMX])
 #define IJth(a,i,j)        (a[j-1][i-1])
 
-/* Type : UserData 
+/* Type : UserData
    contains preconditioner blocks, pivot arrays, and problem constants */
 
 typedef struct {
@@ -157,17 +162,17 @@ int main()
   LS = NULL;
   cvode_mem = NULL;
 
-  /* Allocate and initialize u, and set problem data and tolerances */ 
+  /* Allocate and initialize u, and set problem data and tolerances */
   u = N_VNew_Serial(NEQ);
   if(check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
   data = (UserData) malloc(sizeof *data);
   if(check_retval((void *)data, "malloc", 2)) return(1);
   InitUserData(data);
   SetInitialProfiles(u, data->dx, data->dy);
-  abstol = ATOL; 
+  abstol = ATOL;
   reltol = RTOL;
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -187,7 +192,7 @@ int main()
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
-  /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR 
+  /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR
    * with left preconditioning and the default Krylov dimension */
   LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
@@ -206,13 +211,13 @@ int main()
   /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
 
   for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
-    
+
     /* On second run, re-initialize u, the solver, and SPGMR */
-    
+
     if (jpre == PREC_RIGHT) {
-      
+
       SetInitialProfiles(u, data->dx, data->dy);
-      
+
       retval = CVodeReInit(cvode_mem, T0, u);
       if(check_retval(&retval, "CVodeReInit", 1)) return(1);
 
@@ -225,12 +230,12 @@ int main()
       printf("\n\n-------------------------------------------------------");
       printf("------------\n");
     }
-    
+
     printf("\n\nPreconditioner type is:  jpre = %s\n\n",
            (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
-    
+
     /* In loop over output points, call CVode, print results, test for error */
-    
+
     for (iout = 1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
       retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
       check_retval(&retval, "CVode", 1);
@@ -239,11 +244,11 @@ int main()
         break;
       }
     }
-    
+
     /* Print final statistics */
-    
+
     PrintFinalStats(cvode_mem);
-    
+
   } /* End of jpre loop */
 
   /* Free memory */
@@ -268,9 +273,9 @@ static void InitUserData(UserData data)
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/(MX-1);
   data->dy = (YMAX-YMIN)/(MY-1);
-  data->hdco = KH/SUNSQR(data->dx);
+  data->hdco = KH/SQR(data->dx);
   data->haco = VEL/(TWO*data->dx);
-  data->vdco = (ONE/SUNSQR(data->dy))*KV0;
+  data->vdco = (ONE/SQR(data->dy))*KV0;
 }
 
 /* Set initial conditions in u */
@@ -289,13 +294,13 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 
   for (jy=0; jy < MY; jy++) {
     y = YMIN + jy*dy;
-    cy = SUNSQR(RCONST(0.1)*(y - YMID));
-    cy = ONE - cy + RCONST(0.5)*SUNSQR(cy);
+    cy = SQR(RCONST(0.1)*(y - YMID));
+    cy = ONE - cy + RCONST(0.5)*SQR(cy);
     for (jx=0; jx < MX; jx++) {
       x = XMIN + jx*dx;
-      cx = SUNSQR(RCONST(0.1)*(x - XMID));
-      cx = ONE - cx + RCONST(0.5)*SUNSQR(cx);
-      IJKth(udata,1,jx,jy) = C1_SCALE*cx*cy; 
+      cx = SQR(RCONST(0.1)*(x - XMID));
+      cx = ONE - cx + RCONST(0.5)*SQR(cx);
+      IJKth(udata,1,jx,jy) = C1_SCALE*cx*cy;
       IJKth(udata,2,jx,jy) = C2_SCALE*cx*cy;
     }
   }
@@ -472,8 +477,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   s = sin(data->om*t);
   if (s > ZERO) {
-    q3 = SUNRexp(-A3/s);
-    data->q4 = SUNRexp(-A4/s);
+    q3 = exp(-A3/s);
+    data->q4 = exp(-A4/s);
   } else {
     q3 = ZERO;
     data->q4 = ZERO;
@@ -495,15 +500,15 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*SUNRexp(RCONST(0.2)*ydn);
-    cyup = verdco*SUNRexp(RCONST(0.2)*yup);
+    cydn = verdco*exp(RCONST(0.2)*ydn);
+    cyup = verdco*exp(RCONST(0.2)*yup);
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
 
       /* Extract c1 and c2, and set kinetic rate terms. */
 
-      c1 = IJKth(udata,1,jx,jy); 
+      c1 = IJKth(udata,1,jx,jy);
       c2 = IJKth(udata,2,jx,jy);
       qq1 = Q1*c1*C3;
       qq2 = Q2*c1*c2;
@@ -525,7 +530,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
       ileft = (jx == 0) ? 1 : -1;
       iright =(jx == MX-1) ? -1 : 1;
-      c1lt = IJKth(udata,1,jx+ileft,jy); 
+      c1lt = IJKth(udata,1,jx+ileft,jy);
       c2lt = IJKth(udata,2,jx+ileft,jy);
       c1rt = IJKth(udata,1,jx+iright,jy);
       c2rt = IJKth(udata,2,jx+iright,jy);
@@ -536,7 +541,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
       /* Load all terms into udot. */
 
-      IJKth(dudata, 1, jx, jy) = vertd1 + hord1 + horad1 + rkin1; 
+      IJKth(dudata, 1, jx, jy) = vertd1 + hord1 + horad1 + rkin1;
       IJKth(dudata, 2, jx, jy) = vertd2 + hord2 + horad2 + rkin2;
     }
   }

@@ -37,6 +37,7 @@ using namespace suncudavec;
  */
 
 typedef suncudavec::Vector<realtype, sunindextype> vector_type;
+typedef suncudavec::ThreadPartitioning<realtype, sunindextype> part_type;
 
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
@@ -88,7 +89,7 @@ N_Vector N_VNewEmpty_Cuda()
   v->ops->nvcompare      = N_VCompare_Cuda;
 
   /* fused and vector array operations are disabled (NULL) by default */
-  
+
   /* local reduction operations */
   v->ops->nvdotprodlocal     = N_VDotProd_Cuda;
   v->ops->nvmaxnormlocal     = N_VMaxNorm_Cuda;
@@ -124,6 +125,10 @@ N_Vector N_VNewManaged_Cuda(sunindextype length)
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
 
+  /* if using managed memory, we can attach an operation for
+     nvgetarraypointer since the host and device pointers are the same */
+  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
+
   /* create suncudavec::Vector with managed memory */
   v->content = new vector_type(length, true);
 
@@ -156,9 +161,32 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata)
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
 
-  /* create suncudavec::Vector with managed memory using the user-provided data
-     arrays */
+  /* if using managed memory, we can attach an operation for
+     nvgetarraypointer since the host and device pointers are the same */
+  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
+
+  /* create suncudavec::Vector with managed memory using the user-provided data arrays */
   v->content = new vector_type(length, true, false, vdata, vdata);
+
+  return(v);
+}
+
+N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length,
+                                          void* (*allocfn)(size_t),
+                                          void (*freefn)(void*))
+{
+  N_Vector v;
+
+  v = NULL;
+  v = N_VNewEmpty_Cuda();
+  if (v == NULL) return(NULL);
+
+  /* if using managed memory, we can attach an operation for
+     nvgetarraypointer since the host and device pointers are the same */
+  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
+
+  /* create suncudavec::Vector with a custom allocator/deallocator */
+  v->content = new vector_type(length, allocfn, freefn, true);
 
   return(v);
 }
@@ -544,7 +572,7 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
   err = dotProdMulti(nvec, Xv, Yv, dotprods);
 
   delete[] Yv;
-  
+
   return err == cudaSuccess ? 0 : -1;
 }
 
@@ -633,7 +661,7 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   const vector_type* xvec = static_cast<vector_type*>(X[0]->content);
   vector_type** Xv;
   vector_type** Wv;
-  
+
   sunindextype N = xvec->size();
 
   Xv = new vector_type*[nvec];
@@ -666,7 +694,7 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   vector_type** Xv;
   vector_type** Wv;
   vector_type*  IDv;
-  
+
   sunindextype N = xvec->size();
 
   Xv = new vector_type*[nvec];

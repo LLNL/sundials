@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Steven Smith @ LLNL
+# Programmer(s): Steven Smith @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -18,7 +18,7 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS pthread nvector
-SET(nvector_pthreads_examples
+set(nvector_pthreads_examples
   "test_nvector_pthreads\;1000 1 0\;"
   "test_nvector_pthreads\;1000 2 0\;"
   "test_nvector_pthreads\;1000 4 0\;"
@@ -28,7 +28,7 @@ SET(nvector_pthreads_examples
   )
 
 # Dependencies for nvector examples
-SET(nvector_examples_dependencies
+set(nvector_examples_dependencies
   test_nvector
   sundials_nvector
   )
@@ -40,152 +40,152 @@ if (F2003_INTERFACE_ENABLE)
 endif()
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ..)
+include_directories(. ..)
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(NVECS_LIB sundials_nvecpthreads_static)
+if(LINK_LIBRARY_TYPE MATCHES "static")
+  set(NVECS_LIB sundials_nvecpthreads_static)
   if (F2003_INTERFACE_ENABLE)
-    LIST(APPEND NVECS_LIB sundials_fnvecpthreads_mod_static)
+    list(APPEND NVECS_LIB sundials_fnvecpthreads_mod_static)
   endif()
-ELSE()
-  SET(NVECS_LIB sundials_nvecpthreads_shared)
+else()
+  set(NVECS_LIB sundials_nvecpthreads_shared)
   if (F2003_INTERFACE_ENABLE)
-    LIST(APPEND NVECS_LIB sundials_fnvecpthreads_mod_shared)
+    list(APPEND NVECS_LIB sundials_fnvecpthreads_mod_shared)
   endif()
-ENDIF()
+endif()
 
 # Set-up linker flags and link libraries
-SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-FOREACH(example_tuple ${nvector_pthreads_examples})
+foreach(example_tuple ${nvector_pthreads_examples})
 
   # parse the example tuple
-  LIST(GET example_tuple 0 example)
-  LIST(GET example_tuple 1 example_args)
-  LIST(GET example_tuple 2 example_type)
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 example_type)
 
   # This is used to get around DLL linkage issue since we are
   # manually including sundials_nvector.c here, which is normally in
   # a library that is included.  If this is not set build system
   # thinks nvector is externally linked.
-  IF(WIN32)
-    ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
-  ENDIF(WIN32)
+  if(WIN32)
+    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
+  endif(WIN32)
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
-  IF(NOT TARGET ${example})
+  if(NOT TARGET ${example})
     # example source files
-    ADD_EXECUTABLE(${example} ${example}.c
+    add_executable(${example} ${example}.c
       ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-  ENDIF()
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+  endif()
 
   # check if example args are provided and set the test name
-  IF("${example_args}" STREQUAL "")
-    SET(test_name ${example})
-  ELSE()
-    STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  ENDIF()
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
 
   # add example to regression tests
-  SUNDIALS_ADD_TEST(${test_name} ${example}
+  sundials_add_test(${test_name} ${example}
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
   # install example source files
-  IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c
+  if(EXAMPLES_INSTALL)
+    install(FILES ${example}.c
       ../test_nvector.c
       ../test_nvector.h
       ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
-  ENDIF()
+  endif()
 
-ENDFOREACH(example_tuple ${nvector_pthreads_examples})
+endforeach(example_tuple ${nvector_pthreads_examples})
 
 # Add the build and install targets for each example
-FOREACH(example_tuple ${nvector_pthreads_fortran_examples})
+foreach(example_tuple ${nvector_pthreads_fortran_examples})
 
   # parse the example tuple
-  LIST(GET example_tuple 0 example)
-  LIST(GET example_tuple 1 example_args)
-  LIST(GET example_tuple 2 example_type)
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 example_type)
 
   # This is used to get around DLL linkage issue since we are
   # manually including sundials_nvector.c here, which is normally in
   # a library that is included.  If this is not set build system
   # thinks nvector is externally linked.
-  IF(WIN32)
-    ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
-  ENDIF(WIN32)
+  if(WIN32)
+    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
+  endif(WIN32)
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
-  IF(NOT TARGET ${example})
+  if(NOT TARGET ${example})
     # example source files
-    ADD_EXECUTABLE(${example} ${example}.f90
+    add_executable(${example} ${example}.f90
       ${sundials_SOURCE_DIR}/examples/test_utilities.f90
       ${sundials_SOURCE_DIR}/examples/nvector/test_nvector.f90
       $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
       $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)
 
     # folder to organize targets in an IDE
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # libraries to link against
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-  ENDIF()
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+  endif()
 
   # check if example args are provided and set the test name
-  IF("${example_args}" STREQUAL "")
-    SET(test_name ${example})
-  ELSE()
-    STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  ENDIF()
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
 
   # add example to regression tests
-  SUNDIALS_ADD_TEST(${test_name} ${example}
+  sundials_add_test(${test_name} ${example}
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-ENDFOREACH(example_tuple ${nvector_pthreads_fortran_examples})
+endforeach(example_tuple ${nvector_pthreads_fortran_examples})
 
-IF(EXAMPLES_INSTALL)
+if(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
+  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER_LIB "sundials_nvecpthreads")
+  set(SOLVER_LIB "sundials_nvecpthreads")
 
-  EXAMPLES2STRING(nvector_pthreads_examples EXAMPLES)
-  EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
+  examples2string(nvector_pthreads_examples EXAMPLES)
+  examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
-  CONFIGURE_FILE(
+  configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_pthreads_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
-  INSTALL(
+  install(
     FILES ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads
     )
@@ -194,19 +194,19 @@ IF(EXAMPLES_INSTALL)
   # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
-  IF(UNIX)
+  if(UNIX)
     # generate Makefile and place it in the binary dir
-    CONFIGURE_FILE(
+    configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_pthreads_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
-    INSTALL(
+    install(
       FILES ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads
       RENAME Makefile
       )
-  ENDIF(UNIX)
+  endif(UNIX)
 
-ENDIF(EXAMPLES_INSTALL)
+endif(EXAMPLES_INSTALL)

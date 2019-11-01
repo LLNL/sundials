@@ -11,9 +11,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for the band implementation of 
+ * This is the implementation file for the band implementation of
  * the SUNLINSOL package.
- * -----------------------------------------------------------------*/ 
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +27,7 @@
 
 /*
  * -----------------------------------------------------------------
- * Band solver structure accessibility macros: 
+ * Band solver structure accessibility macros:
  * -----------------------------------------------------------------
  */
 
@@ -87,6 +87,7 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_Band;
+  S->ops->getid      = SUNLinSolGetID_Band;
   S->ops->initialize = SUNLinSolInitialize_Band;
   S->ops->setup      = SUNLinSolSetup_Band;
   S->ops->solve      = SUNLinSolSolve_Band;
@@ -125,11 +126,16 @@ SUNLinearSolver_Type SUNLinSolGetType_Band(SUNLinearSolver S)
   return(SUNLINEARSOLVER_DIRECT);
 }
 
+SUNLinearSolver_ID SUNLinSolGetID_Band(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_BAND);
+}
+
 int SUNLinSolInitialize_Band(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  return(SUNLS_SUCCESS);
 }
 
 int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
@@ -138,15 +144,15 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
   sunindextype *pivots;
 
   /* check for valid inputs */
-  if ( (A == NULL) || (S == NULL) ) 
+  if ( (A == NULL) || (S == NULL) )
     return(SUNLS_MEM_NULL);
-  
+
   /* Ensure that A is a band matrix */
   if (SUNMatGetID(A) != SUNMATRIX_BAND) {
     LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return(LASTFLAG(S));
+    return(SUNLS_ILL_INPUT);
   }
-  
+
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
   pivots = NULL;
@@ -154,35 +160,35 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
   pivots = PIVOTS(S);
   if ( (A_cols == NULL) || (pivots == NULL) ) {
     LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return(LASTFLAG(S));
+    return(SUNLS_MEM_FAIL);
   }
 
   /* ensure that storage upper bandwidth is sufficient for fill-in */
   if (SM_SUBAND_B(A) < SUNMIN(SM_COLUMNS_B(A)-1, SM_UBAND_B(A) + SM_LBAND_B(A))) {
     LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return(LASTFLAG(S));
+    return(SUNLS_MEM_FAIL);
   }
-  
+
   /* perform LU factorization of input matrix */
   LASTFLAG(S) = bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
-			  SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
-  
+                          SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
+
   /* store error flag (if nonzero, that row encountered zero-valued pivod) */
   if (LASTFLAG(S) > 0)
     return(SUNLS_LUFACT_FAIL);
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
+int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                         N_Vector b, realtype tol)
 {
   realtype **A_cols, *xdata;
   sunindextype *pivots;
-  
+
   /* check for valid inputs */
-  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) ) 
+  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )
     return(SUNLS_MEM_NULL);
-  
+
   /* copy b into x */
   N_VScale(ONE, b, x);
 
@@ -195,24 +201,25 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   pivots = PIVOTS(S);
   if ( (A_cols == NULL) || (xdata == NULL)  || (pivots == NULL) ) {
     LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return(LASTFLAG(S));
+    return(SUNLS_MEM_FAIL);
   }
 
   /* solve using LU factors */
-  bandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A), 
+  bandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A),
             SM_LBAND_B(A), pivots, xdata);
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  return(SUNLS_SUCCESS);
 }
 
-long int SUNLinSolLastFlag_Band(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_Band(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
+  if (S == NULL) return(-1);
   return(LASTFLAG(S));
 }
 
-int SUNLinSolSpace_Band(SUNLinearSolver S, 
-                        long int *lenrwLS, 
+int SUNLinSolSpace_Band(SUNLinearSolver S,
+                        long int *lenrwLS,
                         long int *leniwLS)
 {
   *leniwLS = 2 + BAND_CONTENT(S)->N;
@@ -231,11 +238,11 @@ int SUNLinSolFree_Band(SUNLinearSolver S)
       free(PIVOTS(S));
       PIVOTS(S) = NULL;
     }
-    free(S->content);  
+    free(S->content);
     S->content = NULL;
   }
   if (S->ops) {
-    free(S->ops);  
+    free(S->ops);
     S->ops = NULL;
   }
   free(S); S = NULL;

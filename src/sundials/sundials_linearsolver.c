@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David J. Gardner, Carol S. Woodward, and 
+ *                David J. Gardner, Carol S. Woodward, and
  *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -42,6 +42,7 @@ SUNLinearSolver SUNLinSolNewEmpty()
 
   /* initialize operations to NULL */
   ops->gettype           = NULL;
+  ops->getid             = NULL;
   ops->setatimes         = NULL;
   ops->setpreconditioner = NULL;
   ops->setscalingvectors = NULL;
@@ -69,7 +70,7 @@ SUNLinearSolver SUNLinSolNewEmpty()
 void SUNLinSolFreeEmpty(SUNLinearSolver S)
 {
   if (S == NULL)  return;
-  
+
   /* free non-NULL ops structure */
   if (S->ops)  free(S->ops);
   S->ops = NULL;
@@ -85,9 +86,15 @@ void SUNLinSolFreeEmpty(SUNLinearSolver S)
 
 SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S)
 {
-  SUNLinearSolver_Type type;
-  type = S->ops->gettype(S);
-  return(type);
+  return(S->ops->gettype(S));
+}
+
+SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S)
+{
+  if (S->ops->getid)
+    return(S->ops->getid(S));
+  else
+    return(SUNLINEARSOLVER_CUSTOM);
 }
 
 int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
@@ -164,10 +171,10 @@ N_Vector SUNLinSolResid(SUNLinearSolver S)
     return NULL;
 }
 
-long int SUNLinSolLastFlag(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag(SUNLinearSolver S)
 {
   if (S->ops->lastflag)
-    return ((long int) S->ops->lastflag(S));
+    return ((sunindextype) S->ops->lastflag(S));
   else
     return SUNLS_SUCCESS;
 }

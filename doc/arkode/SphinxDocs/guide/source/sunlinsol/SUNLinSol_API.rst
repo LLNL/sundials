@@ -40,11 +40,12 @@ SUNLinearSolver core functions
 
 The core linear solver functions consist of two required functions to get the
 linear solver type (:c:func:`SUNLinSolGetType`) and solve the linear system
-:math:`Ax=b` (:c:func:`SUNLinSolSolve`). The remaining three functions for
-initializing the linear solver object once all solver-specific options have been
-set (:c:func:`SUNLinSolInitialize`), setting up the linear solver object to
-utilize an updated matrix :math:`A` (:c:func:`SUNLinSolSetup`), and for
-destroying the linear solver object (:c:func:`SUNLinSolFree`) are optional.
+:math:`Ax=b` (:c:func:`SUNLinSolSolve`). The remaining functions are for
+getting the solver ID (:c:func:`SUNLinSolGetID`), initializing the linear solver
+object once all solver-specific options have been set
+(:c:func:`SUNLinSolInitialize`), setting up the linear solver object to utilize
+an updated matrix :math:`A` (:c:func:`SUNLinSolSetup`), and for destroying the
+linear solver object (:c:func:`SUNLinSolFree`) are optional.
 
 
 .. c:function:: SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver LS)
@@ -87,6 +88,18 @@ destroying the linear solver object (:c:func:`SUNLinSolFree`) are optional.
 
    Notes: See section :ref:`SUNLinSol.Intended` for more information
    on intended use cases corresponding to the linear solver type.
+
+.. c:function:: SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver LS)
+
+   Returns the identifier for the linear solver *LS*. It is recommended that a
+   user-supplied ``SUNLinearSolver`` implementation return the
+   ``SUNLINEARSOLVER_CUSTOM`` identifier.
+
+   Usage:
+
+   .. code-block:: c
+
+      id = SUNLinSolGetID(LS);
 
 
 .. c:function:: int SUNLinSolInitialize(SUNLinearSolver LS)
@@ -308,7 +321,7 @@ results from a linear solve.  All routines are optional.
    this purpose, then this function pointer should be set to ``NULL``
    in the implementation.
 
-.. c:function:: long int SUNLinSolLastFlag(SUNLinearSolver LS)
+.. c:function:: sunindextype SUNLinSolLastFlag(SUNLinearSolver LS)
 
    This *optional* routine should return the last error flag
    encountered within the linear solver. This is not called by the
@@ -421,39 +434,39 @@ the user in case of a linear solver failure.
 
 * ``SUNLS_SUCCESS`` (0) -- successful call or converged solve
 
-* ``SUNLS_MEM_NULL`` (-1) -- the memory argument to the function is ``NULL``
+* ``SUNLS_MEM_NULL`` (-801) -- the memory argument to the function is ``NULL``
 
-* ``SUNLS_ILL_INPUT`` (-2) -- an illegal input has been provided to the function
+* ``SUNLS_ILL_INPUT`` (-802) -- an illegal input has been provided to the function
 
-* ``SUNLS_MEM_FAIL`` (-3) -- failed memory access or allocation
+* ``SUNLS_MEM_FAIL`` (-803) -- failed memory access or allocation
 
-* ``SUNLS_ATIMES_FAIL_UNREC`` (-4) -- an unrecoverable failure occurred in the ``ATimes`` routine
+* ``SUNLS_ATIMES_FAIL_UNREC`` (-804) -- an unrecoverable failure occurred in the ``ATimes`` routine
 
-* ``SUNLS_PSET_FAIL_UNREC`` (-5) -- an unrecoverable failure occurred in the ``Pset`` routine
+* ``SUNLS_PSET_FAIL_UNREC`` (-805) -- an unrecoverable failure occurred in the ``Pset`` routine
 
-* ``SUNLS_PSOLVE_FAIL_UNREC`` (-6) -- an unrecoverable failure occurred in the ``Psolve`` routine
+* ``SUNLS_PSOLVE_FAIL_UNREC`` (-806) -- an unrecoverable failure occurred in the ``Psolve`` routine
 
-* ``SUNLS_PACKAGE_FAIL_UNREC`` (-7) -- an unrecoverable failure occurred in an external linear solver package
+* ``SUNLS_PACKAGE_FAIL_UNREC`` (-807) -- an unrecoverable failure occurred in an external linear solver package
 
-* ``SUNLS_GS_FAIL`` (-8) -- a failure occurred during Gram-Schmidt orthogonalization (SPGMR/SPFGMR)
+* ``SUNLS_GS_FAIL`` (-808) -- a failure occurred during Gram-Schmidt orthogonalization (SPGMR/SPFGMR)
 
-* ``SUNLS_QRSOL_FAIL`` (-9) -- a singular $R$ matrix was encountered in a QR factorization (SPGMR/SPFGMR)
+* ``SUNLS_QRSOL_FAIL`` (-809) -- a singular $R$ matrix was encountered in a QR factorization (SPGMR/SPFGMR)
 
-* ``SUNLS_RES_REDUCED`` (1) -- an iterative solver reduced the residual, but did not converge to the desired tolerance
+* ``SUNLS_RES_REDUCED`` (801) -- an iterative solver reduced the residual, but did not converge to the desired tolerance
 
-* ``SUNLS_CONV_FAIL`` (2) -- an iterative solver did not converge (and the residual was not reduced)
+* ``SUNLS_CONV_FAIL`` (802) -- an iterative solver did not converge (80and the residual was not reduced)
 
-* ``SUNLS_ATIMES_FAIL_REC`` (3) -- a recoverable failure occurred in the ``ATimes`` routine
+* ``SUNLS_ATIMES_FAIL_REC`` (803) -- a recoverable failure occurred in the ``ATimes`` routine
 
-* ``SUNLS_PSET_FAIL_REC`` (4) -- a recoverable failure occurred in the ``Pset`` routine
+* ``SUNLS_PSET_FAIL_REC`` (804) -- a recoverable failure occurred in the ``Pset`` routine
 
-* ``SUNLS_PSOLVE_FAIL_REC`` (5) -- a recoverable failure occurred in the ``Psolve`` routine
+* ``SUNLS_PSOLVE_FAIL_REC`` (805) -- a recoverable failure occurred in the ``Psolve`` routine
 
-* ``SUNLS_PACKAGE_FAIL_REC`` (6) -- a recoverable failure occurred in an external linear solver package
+* ``SUNLS_PACKAGE_FAIL_REC`` (806) -- a recoverable failure occurred in an external linear solver package
 
-* ``SUNLS_QRFACT_FAIL`` (7) -- a singular matrix was encountered during a QR factorization (SPGMR/SPFGMR)
+* ``SUNLS_QRFACT_FAIL`` (807) -- a singular matrix was encountered during a QR factorization (SPGMR/SPFGMR)
 
-* ``SUNLS_LUFACT_FAIL`` (8) -- a singular matrix was encountered during a LU factorization
+* ``SUNLS_LUFACT_FAIL`` (808) -- a singular matrix was encountered during a LU factorization
 
 
 
@@ -492,6 +505,7 @@ structure is defined as
 
    struct _generic_SUNLinearSolver_Ops {
      SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
+     SUNLinearSolver_ID   (*getid)(SUNLinearSolver);
      int                  (*setatimes)(SUNLinearSolver, void*, ATimesFn);
      int                  (*setpreconditioner)(SUNLinearSolver, void*,
                                                PSetupFn, PSolveFn);
@@ -503,7 +517,7 @@ structure is defined as
                                    N_Vector, realtype);
      int                  (*numiters)(SUNLinearSolver);
      realtype             (*resnorm)(SUNLinearSolver);
-     long int             (*lastflag)(SUNLinearSolver);
+     sunindextype         (*lastflag)(SUNLinearSolver);
      int                  (*space)(SUNLinearSolver, long int*, long int*);
      N_Vector             (*resid)(SUNLinearSolver);
      int                  (*free)(SUNLinearSolver);
@@ -604,20 +618,20 @@ solver operations to the ``SUNLinearSolver`` API by ensuring only required
 operations need to be set.
 
 .. c:function:: SUNLinearSolver SUNLinSolNewEmpty()
-                
+
   This function allocates a new generic ``SUNLinearSolver`` object and
   initializes its content pointer and the function pointers in the operations
   structure to ``NULL``.
 
   **Return value:** If successful, this function returns a ``SUNLinearSolver``
   object. If an error occurs when allocating the object, then this routine will
-  return ``NULL``. 
+  return ``NULL``.
 
 .. c:function:: void SUNLinSolFreeEmpty(SUNLinearSolver LS)
 
   This routine frees the generic ``SUNLinearSolver`` object, under the assumption that any
   implementation-specific data that was allocated within the underlying content structure
-  has already been freed. It will additionally test whether the ops pointer is ``NULL``, 
+  has already been freed. It will additionally test whether the ops pointer is ``NULL``,
   and, if it is not, it will free it as well.
 
    **Arguments:**

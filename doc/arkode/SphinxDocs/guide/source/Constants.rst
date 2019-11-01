@@ -266,8 +266,12 @@ Shared ARKode output constants
 :index:`ARK_MASSFREE_FAIL`  (-17):
    The mass matrix linear solver's memory deallocation function failed.
 
-:index:`ARK_MASSMULT_FAIL`  (-17):
+:index:`ARK_MASSMULT_FAIL`  (-18):
    The mass matrix-vector product function failed.
+
+:index:`ARK_CONSTR_FAIL`  (-19):
+   The inequality constraint test failed repeatedly or failed with the minimum
+   step size.
 
 :index:`ARK_MEM_FAIL`  (-20):
    A memory allocation failed.
@@ -307,17 +311,26 @@ Shared ARKode output constants
 
 :index:`ARK_NLS_SETUP_FAIL`  (-31):
    A non-recoverable error occurred when setting up a
-   SUNNonlinearSolver module. 
+   SUNNonlinearSolver module.
 
 :index:`ARK_NLS_SETUP_RECVR`  (-32):
    A recoverable error occurred when setting up a SUNNonlinearSolver module.
-   
+
 :index:`ARK_NLS_OP_ERR`  (-33):
    An error occurred when calling a set/get routine in a SUNNonlinearSolver
    module.
 
-:index:`ARK_INNERSTEP_OP_ERR`  (-34):
-   An error occurred when calling an internal stepper within an ARKode module.
+:index:`ARK_INNERSTEP_ATTACH_ERR`  (-34):
+   An error occurred when attaching the inner stepper module.
+
+:index:`ARK_INNERSTEP_FAIL`  (-35):
+   An error occurred in the inner stepper module.
+
+:index:`ARK_PREINNERFN_FAIL`  (-36):
+   An error occurred in the MRIStep pre inner integrator function.
+
+:index:`ARK_POSTINNERFN_FAIL`  (-37):
+   An error occurred in the MRIStep post inner integrator function.
 
 :index:`ARK_UNRECOGNIZED_ERROR` (-99):
    An unknown error was encountered.

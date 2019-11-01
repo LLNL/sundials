@@ -350,7 +350,7 @@ support Fortran interfaces for the system and mass matrix solvers.
 }
 {
   See \id{SUNLinSol\_SPGMRSetGSType} for complete further documentation of
-  this routine. 
+  this routine.
 }
 %
 % --------------------------------------------------------------------
@@ -508,7 +508,7 @@ struct _SUNLinearSolverContent_SPGMR {
   int max_restarts;
   int numiters;
   realtype resnorm;
-  long int last_flag;
+  int last_flag;
   ATimesFn ATimes;
   void* ATData;
   PSetupFn Psetup;
@@ -575,4 +575,3 @@ information:
     used to hold ``short'' vectors (e.g. $y$ and $g$),
   \item[vtemp] - temporary vector storage.
 \end{args}
-

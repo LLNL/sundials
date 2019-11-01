@@ -1592,6 +1592,7 @@ static void IDAFreeVectors(IDAMem IDA_mem)
 
   if (IDA_mem->ida_constraintsMallocDone) {
     N_VDestroy(IDA_mem->ida_constraints);
+    IDA_mem->ida_constraints = NULL;
     IDA_mem->ida_lrw -= IDA_mem->ida_lrw1;
     IDA_mem->ida_liw -= IDA_mem->ida_liw1;
   }
@@ -2020,6 +2021,10 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
       IDAProcessError(IDA_mem, IDA_NLS_SETUP_FAIL, "IDA", "IDASolve",
                       MSG_NLS_SETUP_FAILED, IDA_mem->ida_tn);
       return(IDA_NLS_SETUP_FAIL);
+    case IDA_NLS_FAIL:
+      IDAProcessError(IDA_mem, IDA_NLS_FAIL, "IDA", "IDASolve",
+                      MSG_NLS_FAIL, IDA_mem->ida_tn);
+      return(IDA_NLS_FAIL);
   }
 
   /* This return should never happen */
@@ -2286,6 +2291,7 @@ static int IDANls(IDAMem IDA_mem)
   int retval;
   booleantype constraintsPassed, callLSetup;
   realtype temp1, temp2, vnorm;
+  N_Vector mm, tmp;
 
   callLSetup = SUNFALSE;
 
@@ -2308,18 +2314,18 @@ static int IDANls(IDAMem IDA_mem)
   }
 
   /* initial guess for the correction to the predictor */
-  N_VConst(ZERO, IDA_mem->ida_delta);
+  N_VConst(ZERO, IDA_mem->ida_ee);
 
   /* call nonlinear solver setup if it exists */
   if ((IDA_mem->NLS)->ops->setup) {
-    retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_delta, IDA_mem);
+    retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_ee, IDA_mem);
     if (retval < 0) return(IDA_NLS_SETUP_FAIL);
     if (retval > 0) return(IDA_NLS_SETUP_RECVR);
   }
 
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(IDA_mem->NLS,
-                             IDA_mem->ida_delta, IDA_mem->ida_ee,
+                             IDA_mem->ida_yypredict, IDA_mem->ida_ee,
                              IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
                              callLSetup, IDA_mem);
 
@@ -2332,44 +2338,46 @@ static int IDANls(IDAMem IDA_mem)
 
   /* If otherwise successful, check and enforce inequality constraints. */
 
-  if (IDA_mem->ida_constraintsSet){  /* Check constraints and get mask vector mm,
-                                        set where constraints failed */
-    IDA_mem->ida_mm = IDA_mem->ida_tempv2;
-    constraintsPassed = N_VConstrMask(IDA_mem->ida_constraints,
-                                      IDA_mem->ida_yy, IDA_mem->ida_mm);
-    if (constraintsPassed) return(IDA_SUCCESS);
-    else {
-      N_VCompare(ONEPT5, IDA_mem->ida_constraints, IDA_mem->ida_tempv1);
-      /* a , where a[i] =1. when |c[i]| = 2 ,  c the vector of constraints */
-      N_VProd(IDA_mem->ida_tempv1, IDA_mem->ida_constraints,
-              IDA_mem->ida_tempv1);                            /* a * c */
-      N_VDiv(IDA_mem->ida_tempv1, IDA_mem->ida_ewt,
-             IDA_mem->ida_tempv1);                             /* a * c * wt */
-      N_VLinearSum(ONE, IDA_mem->ida_yy, -PT1,
-                   IDA_mem->ida_tempv1, IDA_mem->ida_tempv1);  /* y - 0.1 * a * c * wt */
-      N_VProd(IDA_mem->ida_tempv1, IDA_mem->ida_mm,
-              IDA_mem->ida_tempv1);                            /*  v = mm*(y-.1*a*c*wt) */
-      vnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_tempv1,
-                          IDA_mem->ida_ewt, SUNFALSE);            /*  ||v|| */
+  if (IDA_mem->ida_constraintsSet) {
 
-      /* If vector v of constraint corrections is small
-         in norm, correct and accept this step */
-      if (vnorm <= IDA_mem->ida_epsNewt){
-        N_VLinearSum(ONE, IDA_mem->ida_ee, -ONE,
-                     IDA_mem->ida_tempv1, IDA_mem->ida_ee);    /* ee <- ee - v */
-        return(IDA_SUCCESS);
-      }
-      else {
-        /* Constraints not met -- reduce h by computing rr = h'/h */
-        N_VLinearSum(ONE, IDA_mem->ida_phi[0], -ONE, IDA_mem->ida_yy,
-                     IDA_mem->ida_tempv1);
-        N_VProd(IDA_mem->ida_mm, IDA_mem->ida_tempv1, IDA_mem->ida_tempv1);
-        IDA_mem->ida_rr = PT9*N_VMinQuotient(IDA_mem->ida_phi[0], IDA_mem->ida_tempv1);
-        IDA_mem->ida_rr = SUNMAX(IDA_mem->ida_rr,PT1);
-        return(IDA_CONSTR_RECVR);
-      }
+    /* shortcut names for temporary work vectors */
+    mm  = IDA_mem->ida_tempv2;
+    tmp = IDA_mem->ida_tempv1;
+
+    /* Get mask vector mm, set where constraints failed */
+    constraintsPassed = N_VConstrMask(IDA_mem->ida_constraints,
+                                      IDA_mem->ida_yy, mm);
+    if (constraintsPassed) return(IDA_SUCCESS);
+
+    /* Constraints not met */
+
+    /* Compute correction to satisfy constraints */
+    N_VCompare(ONEPT5, IDA_mem->ida_constraints, tmp);  /* a[i] =1 when |c[i]| = 2 */
+    N_VProd(tmp, IDA_mem->ida_constraints, tmp);        /* a * c                   */
+    N_VDiv(tmp, IDA_mem->ida_ewt, tmp);                 /* a * c * wt              */
+    N_VLinearSum(ONE, IDA_mem->ida_yy, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt    */
+    N_VProd(tmp, mm, tmp);                              /* v = mm*(y-.1*a*c*wt)    */
+
+    vnorm = IDAWrmsNorm(IDA_mem, tmp, IDA_mem->ida_ewt, SUNFALSE); /* ||v|| */
+
+    /* If vector v of constraint corrections is small in norm, correct and
+       accept this step */
+    if (vnorm <= IDA_mem->ida_epsNewt) {
+      N_VLinearSum(ONE, IDA_mem->ida_ee,
+                   -ONE, tmp, IDA_mem->ida_ee); /* ee <- ee - v */
+      return(IDA_SUCCESS);
     }
+
+    /* Constraints correction is too large, reduce h by computing rr = h'/h */
+    N_VLinearSum(ONE, IDA_mem->ida_phi[0], -ONE, IDA_mem->ida_yy, tmp);
+    N_VProd(mm, tmp, tmp);
+    IDA_mem->ida_rr = PT9*N_VMinQuotient(IDA_mem->ida_phi[0], tmp);
+    IDA_mem->ida_rr = SUNMAX(IDA_mem->ida_rr, PT1);
+
+    /* Reattempt step with new step size */
+    return(IDA_CONSTR_RECVR);
   }
+
   return(IDA_SUCCESS);
 }
 
@@ -2552,7 +2560,10 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
 
     if (nflag < 0) {  /* nonrecoverable failure */
 
-      return(nflag);
+      if (nflag == IDA_LSOLVE_FAIL)      return(IDA_LSOLVE_FAIL);
+      else if (nflag == IDA_LSETUP_FAIL) return(IDA_LSETUP_FAIL);
+      else if (nflag == IDA_RES_FAIL)    return(IDA_RES_FAIL);
+      else                               return(IDA_NLS_FAIL);
 
     } else {          /* recoverable failure    */
 
@@ -3317,6 +3328,48 @@ static int IDARootfind(IDAMem IDA_mem)
       IDA_mem->ida_iroots[i] = IDA_mem->ida_glo[i] > 0 ? -1:1;
   }
   return(RTFOUND);
+}
+
+/*
+ * IDAComputeY
+ *
+ * Computes y based on the current prediction and given correction.
+ */
+int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAComputeY", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYp
+ *
+ * Computes y' based on the current prediction and given correction.
+ */
+int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAComputeYp", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp);
+
+  return(IDA_SUCCESS);
 }
 
 /*

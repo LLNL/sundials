@@ -62,7 +62,7 @@ the beginning of the array of subvectors, and a boolean flag
 \id{own\_data} indicating ownership of the subvectors that populate
 \id{subvec\_array}.
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _N_VectorContent_ManyVector {
   sunindextype  num_subvectors;  /* number of vectors attached      */
   sunindextype  global_length;   /* overall manyvector length       */
@@ -85,7 +85,7 @@ The header file to include when using this module is
 \label{ss:nvec_manyvector_functions}
 % ====================================================================
 
-The {\nvecmanyvector} module implements all vector operations listed 
+The {\nvecmanyvector} module implements all vector operations listed
 in Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops},
 and \ref{ss:nveclocalops}, except for \id{N\_VGetArrayPointer},
 \id{N\_VSetArrayPointer}, \id{N\_VScaleAddMultiVectorArray}, and
@@ -98,12 +98,12 @@ implementations.
 
 The names of vector operations are obtained from those in Tables
 \ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}, and
-\ref{ss:nveclocalops} by appending the suffix \id{\_ManyVector} 
+\ref{ss:nveclocalops} by appending the suffix \id{\_ManyVector}
 (e.g. \id{N\_VDestroy\_ManyVector}).
 The module {\nvecmanyvector} provides the following additional
 user-callable routines:
 %%--------------------------------------
-\sunmodfun{N\_VNew\_ManyVector}
+\sunmodfunf{N\_VNew\_ManyVector}
 {
   This function creates a ManyVector from a set of existing {\nvector}
   objects.
@@ -118,6 +118,13 @@ user-callable routines:
   Upon successful completion, the new ManyVector is returned;
   otherwise this routine returns \id{NULL} (e.g., a memory allocation
   failure occurred).
+
+  Users of the Fortran 2003 interface to this function will first need
+  to use the generic \id{N\_Vector} utility functions
+  \id{N\_VNewVectorArray}, and \id{N\_VSetVecAtIndexVectorArray} to create
+  the \id{N\_Vector*} argument. This is further explained in 
+  Chapter~\ref{sss:fortran2003_nvarrays}, and the functions are documented
+  in Chapter~\ref{ss:nvecutils}.
 }
 {
   N\_Vector N\_VNew\_ManyVector(sunindextype num\_subvectors,
@@ -125,7 +132,7 @@ user-callable routines:
   N\_Vector *vec\_array);
 }
 %%--------------------------------------
-\sunmodfun{N\_VGetSubvector\_ManyVector}
+\sunmodfunf{N\_VGetSubvector\_ManyVector}
 {
   This function returns the \id{vec\_num} subvector from the {\nvector}
   array.
@@ -134,7 +141,7 @@ user-callable routines:
   N\_Vector N\_VGetSubvector\_ManyVector(N\_Vector v, sunindextype vec\_num);
 }
 %%--------------------------------------
-\sunmodfun{N\_VGetSubvectorArrayPointer\_ManyVector}
+\sunmodfunf{N\_VGetSubvectorArrayPointer\_ManyVector}
 {
   This function returns the data array pointer for the \id{vec\_num}
   subvector from the {\nvector} array.
@@ -146,7 +153,7 @@ user-callable routines:
   realtype *N\_VGetSubvectorArrayPointer\_ManyVector(N\_Vector v, sunindextype vec\_num);
 }
 %%--------------------------------------
-\sunmodfun{N\_VSetSubvectorArrayPointer\_ManyVector}
+\sunmodfunf{N\_VSetSubvectorArrayPointer\_ManyVector}
 {
   This function sets the data array pointer for the \id{vec\_num}
   subvector from the {\nvector} array.
@@ -159,7 +166,7 @@ user-callable routines:
   int N\_VSetSubvectorArrayPointer\_ManyVector(realtype *v\_data, N\_Vector v, sunindextype vec\_num);
 }
 %%--------------------------------------
-\sunmodfun{N\_VGetNumSubvectors\_ManyVector}
+\sunmodfunf{N\_VGetNumSubvectors\_ManyVector}
 {
   This function returns the overall number of subvectors in the
   ManyVector object.
@@ -174,20 +181,20 @@ module, except for \id{N\_VWrmsNormVectorArray} and
 following additional user-callable routines are provided to enable or
 disable fused and vector array operations for a specific vector. To
 ensure consistency across vectors it is recommended to first create a
-vector with \id{N\_VNew\_ManyVector} or \id{N\_VMake\_ManyVector},
+vector with \id{N\_VNew\_ManyVector},
 enable/disable the desired operations for that vector with the
 functions below, and create any additional vectors from that vector
 using \id{N\_VClone}. This guarantees that the new vectors will have
 the same operations enabled/disabled, since cloned vectors inherit
 those configuration options from the vector they are cloned from, while
-vectors created with \id{N\_VNew\_ManyVector} and
-\id{N\_VMake\_ManyVector} will have the default settings for the
-{\nvecmanyvector} module.  We note that these routines \emph{do not} 
+vectors created with \id{N\_VNew\_ManyVector}
+will have the default settings for the
+{\nvecmanyvector} module.  We note that these routines \emph{do not}
 call the corresponding routines on subvectors, so those should be set up
 as desired \emph{before} attaching them to the ManyVector in
-\id{N\_VNew\_ManyVector} or \id{N\_VMake\_ManyVector}.
+\id{N\_VNew\_ManyVector}.
 %%--------------------------------------
-\sunmodfun{N\_VEnableFusedOps\_ManyVector}
+\sunmodfunf{N\_VEnableFusedOps\_ManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
   vector array operations in the ManyVector. The return value is \id{0} for
@@ -197,7 +204,7 @@ as desired \emph{before} attaching them to the ManyVector in
   int N\_VEnableFusedOps\_ManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableLinearCombination\_ManyVector}
+\sunmodfunf{N\_VEnableLinearCombination\_ManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
   combination fused operation in the ManyVector. The return value is \id{0} for
@@ -207,7 +214,7 @@ as desired \emph{before} attaching them to the ManyVector in
   int N\_VEnableLinearCombination\_ManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableScaleAddMulti\_ManyVector}
+\sunmodfunf{N\_VEnableScaleAddMulti\_ManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
   add a vector to multiple vectors fused operation in the ManyVector. The
@@ -218,7 +225,7 @@ as desired \emph{before} attaching them to the ManyVector in
   int N\_VEnableScaleAddMulti\_ManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableDotProdMulti\_ManyVector}
+\sunmodfunf{N\_VEnableDotProdMulti\_ManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
   dot products fused operation in the ManyVector. The return value is \id{0}
@@ -229,7 +236,7 @@ as desired \emph{before} attaching them to the ManyVector in
   int N\_VEnableDotProdMulti\_ManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableLinearSumVectorArray\_ManyVector}
+\sunmodfunf{N\_VEnableLinearSumVectorArray\_ManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
   operation for vector arrays in the ManyVector. The return value is \id{0} for
@@ -239,7 +246,7 @@ as desired \emph{before} attaching them to the ManyVector in
   int N\_VEnableLinearSumVectorArray\_ManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableScaleVectorArray\_ManyVector}
+\sunmodfunf{N\_VEnableScaleVectorArray\_ManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
   operation for vector arrays in the ManyVector. The return value is \id{0} for
@@ -249,7 +256,7 @@ as desired \emph{before} attaching them to the ManyVector in
   int N\_VEnableScaleVectorArray\_ManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableConstVectorArray\_ManyVector}
+\sunmodfunf{N\_VEnableConstVectorArray\_ManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
   operation for vector arrays in the ManyVector. The return value is \id{0} for
@@ -259,7 +266,7 @@ as desired \emph{before} attaching them to the ManyVector in
   int N\_VEnableConstVectorArray\_ManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableWrmsNormVectorArray\_ManyVector}
+\sunmodfunf{N\_VEnableWrmsNormVectorArray\_ManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
   operation for vector arrays in the ManyVector. The return value is \id{0} for
@@ -269,7 +276,7 @@ as desired \emph{before} attaching them to the ManyVector in
   int N\_VEnableWrmsNormVectorArray\_ManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableWrmsNormMaskVectorArray\_ManyVector}
+\sunmodfunf{N\_VEnableWrmsNormMaskVectorArray\_ManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
   norm operation for vector arrays in the ManyVector. The return value is
@@ -282,10 +289,10 @@ as desired \emph{before} attaching them to the ManyVector in
 %%
 %%------------------------------------
 %%
-\paragraph{\bf Notes} 
-           
+\paragraph{\bf Notes}
+
 \begin{itemize}
-                                        
+
 \item
   {\warn}\id{N\_VNew\_ManyVector} sets the field {\em own\_data} $=$
   \id{SUNFALSE}.  \id{N\_VDestroy\_ManyVector} will not attempt to call

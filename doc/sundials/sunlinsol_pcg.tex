@@ -462,7 +462,7 @@ struct _SUNLinearSolverContent_PCG {
   int pretype;
   int numiters;
   realtype resnorm;
-  long int last_flag;
+  int last_flag;
   ATimesFn ATimes;
   void* ATData;
   PSetupFn Psetup;
@@ -496,4 +496,3 @@ information:
   \item[p, z, Ap] - {\nvector}s used for workspace by the
     {\pcg} algorithm.
 \end{args}
-

@@ -41,6 +41,10 @@
            inexact-Newton/finite difference projection
            methods. *SIAM J. Numer. Anal.*, 24:407-434, 1987.
 
+.. [BBH1989] P.N. Brown, G.D. Byrne and A.C. Hindmarsh.  VODE, a
+             Variable-Coefficient ODE
+             Solver. *SIAM J. Sci. Stat. Comput.*, 10:1038-1051, 1989.  
+
 .. [BH1989] P.N. Brown and A.C. Hindmarsh. Reduced Storage
             Matrix Methods in Stiff ODE Systems. *J. Appl. Math. &
             Comp.*, 31:49-91, 1989.
@@ -66,6 +70,9 @@
 
 .. [CGM2014] J. Cheng, M. Grossman and T. McKercher. Professional Cuda
              C Programming.  John Wiley & Sons, 2014.
+
+.. [cuSOLVER] `NVIDIA cuSOLVER Documentation
+               <https://docs.nvidia.com/cuda/cusolver/index.html>`_.
 
 .. [DP1980] J.R. Dormand and P.J. Prince. A family of embedded
             Runge-Kutta formulae, *J. Comput. Appl. Math.* 6:19–26, 1980.
@@ -129,11 +136,14 @@
             Points for Solutions of ODEs.  Technical Report
             SAND80-0180, Sandia National Laboratories, February 1980.
 
+.. [H2000] A.C. Hindmarsh. The PVODE and IDA Algorithms. Technical
+           Report UCRL-ID-141558, LLNL, 2000.
+
 .. [HS2017] A.C. Hindmarsh and R. Serban. User Documentation for CVODE
-            v5.0.0-dev.1. Technical Report UCRL-SM-208108, LLNL, 2019.
+            v5.0.0. Technical Report UCRL-SM-208108, LLNL, 2019.
 
 .. [HSR2017] A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-             Programs for CVODE v5.0.0-dev.1. Technical Report
+             Programs for CVODE v5.0.0. Technical Report
              UCRL-SM-208110, LLNL, 2019.
 
 .. [HT1998] A.C. Hindmarsh and A.G. Taylor.  PVODE and KINSOL:

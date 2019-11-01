@@ -79,6 +79,7 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_Dense;
+  S->ops->getid      = SUNLinSolGetID_Dense;
   S->ops->initialize = SUNLinSolInitialize_Dense;
   S->ops->setup      = SUNLinSolSetup_Dense;
   S->ops->solve      = SUNLinSolSolve_Dense;
@@ -117,28 +118,33 @@ SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNLinearSolver S)
   return(SUNLINEARSOLVER_DIRECT);
 }
 
+SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_DENSE);
+}
+
 int SUNLinSolInitialize_Dense(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  return(SUNLS_SUCCESS);
 }
 
 int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 {
   realtype **A_cols;
   sunindextype *pivots;
-  
+
   /* check for valid inputs */
-  if ( (A == NULL) || (S == NULL) ) 
+  if ( (A == NULL) || (S == NULL) )
     return(SUNLS_MEM_NULL);
-  
+
   /* Ensure that A is a dense matrix */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE) {
     LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return(LASTFLAG(S));
+    return(SUNLS_ILL_INPUT);
   }
-  
+
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
   pivots = NULL;
@@ -146,9 +152,9 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
   pivots = PIVOTS(S);
   if ( (A_cols == NULL) || (pivots == NULL) ) {
     LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return(LASTFLAG(S));
+    return(SUNLS_MEM_FAIL);
   }
-  
+
   /* perform LU factorization of input matrix */
   LASTFLAG(S) = denseGETRF(A_cols, SUNDenseMatrix_Rows(A),
                            SUNDenseMatrix_Columns(A), pivots);
@@ -159,15 +165,15 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
-                        N_Vector b, realtype tol)
+int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                         N_Vector b, realtype tol)
 {
   realtype **A_cols, *xdata;
   sunindextype *pivots;
-  
-  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) ) 
+
+  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )
     return(SUNLS_MEM_NULL);
-  
+
   /* copy b into x */
   N_VScale(ONE, b, x);
 
@@ -180,23 +186,24 @@ int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   pivots = PIVOTS(S);
   if ( (A_cols == NULL) || (xdata == NULL)  || (pivots == NULL) ) {
     LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return(LASTFLAG(S));
+    return(SUNLS_MEM_FAIL);
   }
-  
+
   /* solve using LU factors */
   denseGETRS(A_cols, SUNDenseMatrix_Rows(A), pivots, xdata);
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  return(SUNLS_SUCCESS);
 }
 
-long int SUNLinSolLastFlag_Dense(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
+  if (S == NULL) return(-1);
   return(LASTFLAG(S));
 }
 
-int SUNLinSolSpace_Dense(SUNLinearSolver S, 
-                         long int *lenrwLS, 
+int SUNLinSolSpace_Dense(SUNLinearSolver S,
+                         long int *lenrwLS,
                          long int *leniwLS)
 {
   *leniwLS = 2 + DENSE_CONTENT(S)->N;

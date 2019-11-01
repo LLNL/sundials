@@ -26,6 +26,7 @@ idas_org.tex \
 idas_sim.tex \
 idas_fwd.tex \
 idas_adj.tex \
+idas_fcmix.tex \
 idas_nvec.tex \
 idas_newlinsolv.tex \
 idas_sunlinsol.tex \

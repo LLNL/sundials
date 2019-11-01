@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban and David Gardner @ LLNL
+# Programmer(s): Radu Serban and David Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -81,7 +81,7 @@ if(F2003_INTERFACE_ENABLE)
   try_compile(FTEST_OK ${F2003Test_DIR} ${F2003Test_DIR}
     ftest OUTPUT_VARIABLE MY_OUTPUT)
 
-  # To ensure we do not use stuff from the previous attempts, 
+  # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${F2003Test_DIR}/CMakeFiles)
 
@@ -336,4 +336,3 @@ if(NEED_FORTRAN_NAME_MANGLING)
   endif(FTEST_OK)
 
 endif()
-

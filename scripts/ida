@@ -104,12 +104,15 @@ $tar $tarfile $distrobase/examples/ida/C_openmp/idaFoodWeb_bnd_omp.out || exit 1
 $tar $tarfile $distrobase/examples/ida/C_openmp/idaFoodWeb_kry_omp.c   || exit 1
 $tar $tarfile $distrobase/examples/ida/C_openmp/idaFoodWeb_kry_omp.out || exit 1
 
-$tar $tarfile $distrobase/examples/ida/petsc/README                    || exit 1
-$tar $tarfile $distrobase/examples/ida/petsc/CMakeLists.txt            || exit 1
-# $tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_jac_petsc.c   || exit 1
-# $tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_jac_petsc.out || exit 1
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_kry_petsc.c     || exit 1
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_kry_petsc.out   || exit 1
+$tar $tarfile $distrobase/examples/ida/petsc/README                             || exit 1
+$tar $tarfile $distrobase/examples/ida/petsc/CMakeLists.txt                     || exit 1
+$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_spgmr.c            || exit 1
+$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_spgmr.out          || exit 1
+$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_snes.c             || exit 1
+$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_snes.out           || exit 1
+$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_snes_-pre.out      || exit 1
+$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_snes_-jac.out      || exit 1
+$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_snes_-jac_-pre.out || exit 1
 
 $tar $tarfile $distrobase/examples/ida/parallel/README                   || exit 1
 $tar $tarfile $distrobase/examples/ida/parallel/CMakeLists.txt           || exit 1

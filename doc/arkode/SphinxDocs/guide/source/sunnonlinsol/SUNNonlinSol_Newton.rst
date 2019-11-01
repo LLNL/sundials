@@ -17,6 +17,7 @@
 
 .. _SUNNonlinSol_Newton:
 
+==============================================
 The SUNNonlinearSolver_Newton implementation
 ==============================================
 
@@ -37,7 +38,7 @@ To find the solution to
 .. math::
    F(y) = 0
    :label: e:newton_sys
-           
+
 given an initial guess :math:`y^{(0)}`, Newton's method computes a series of
 approximate solutions
 
@@ -64,7 +65,7 @@ method [B1987]_, [BS1990]_, [DES1982]_, [DS1996]_, [K1995]_. When used
 with a direct linear solver, the Jacobian matrix :math:`A` is held
 constant during the Newton iteration, resulting in a Modified Newton
 method. With a matrix-free iterative linear solver, the iteration is
-an Inexact Newton method. 
+an Inexact Newton method.
 
 In both cases, calls to the integrator-supplied :c:type:`SUNNonlinSolLSetupFn()`
 function are made infrequently to amortize the increased cost of
@@ -75,12 +76,12 @@ solvers).  Specifically, SUNNonlinSol_Newton will call the
 
 (a) when requested by the integrator (the input ``callLSetSetup`` is
     ``SUNTRUE``) before attempting the Newton iteration, or
-    
+
 (b) when reattempting the nonlinear solve after a recoverable failure
     occurs in the Newton iteration with stale Jacobian information
     (``jcur`` is ``SUNFALSE``).  In this case, SUNNonlinSol_Newton
     will set ``jbad`` to ``SUNTRUE`` before calling the
-    :c:type:`SUNNonlinSolLSetupFn()` function. 
+    :c:type:`SUNNonlinSolLSetupFn()` function.
 
 Whether the Jacobian matrix :math:`A` is fully or partially updated depends
 on logic unique to each integrator-supplied :c:type:`SUNNonlinSolSetupFn()`
@@ -110,7 +111,7 @@ for creating the ``SUNNonlinearSolver`` object.
    The function :c:func:`SUNNonlinSol_Newton()` creates a
    ``SUNNonlinearSolver`` object for use with SUNDIALS integrators to
    solve nonlinear systems of the form :math:`F(y) = 0` using Newton's
-   method. 
+   method.
 
    **Arguments:**
       * *y* -- a template for cloning vectors needed within the solver.
@@ -128,7 +129,7 @@ appended to the function name. Unless using the SUNNonlinSol_Newton
 module as a standalone nonlinear solver the generic functions defined
 in sections :ref:`SUNNonlinSol.CoreFn` through
 :ref:`SUNNonlinSol.GetFn` should be called in favor of the
-SUNNonlinSol_Newton-specific implementations. 
+SUNNonlinSol_Newton-specific implementations.
 
 The SUNNonlinSol_Newton module also defines the following additional
 user-callable function.
@@ -150,10 +151,10 @@ user-callable function.
    evaluate the nonlinear residual in a custom convergence test
    function for the SUNNonlinSol_Newton module.  We note that
    SUNNonlinSol_Newton will not leverage the results from any user
-   calls to *SysFn*. 
-   
+   calls to *SysFn*.
 
-   
+
+
 
 .. _SUNNonlinSolNewton.Content:
 
@@ -164,20 +165,21 @@ The *content* field of the SUNNonlinSol_Newton module is the
 following structure.
 
 .. code-block:: c
-                
+
    struct _SUNNonlinearSolverContent_Newton {
-   
+
      SUNNonlinSolSysFn      Sys;
      SUNNonlinSolLSetupFn   LSetup;
      SUNNonlinSolLSolveFn   LSolve;
      SUNNonlinSolConvTestFn CTest;
-   
+
      N_Vector    delta;
      booleantype jcur;
      int         curiter;
      int         maxiters;
      long int    niters;
      long int    nconvfails;
+     void*       ctest_data;
    };
 
 These entries of the *content* field contain the following
@@ -187,25 +189,27 @@ information:
 
 * ``LSetup`` -- the package-supplied function for setting up the
   linear solver,
-  
+
 * ``LSolve`` -- the package-supplied function for performing a linear
   solve,
-  
+
 * ``CTest`` -- the function for checking convergence of the Newton iteration,
 
 * ``delta`` -- the Newton iteration update vector,
-  
+
 * ``jcur`` -- the Jacobian status (``SUNTRUE`` = current, ``SUNFALSE`` = stale),
 
 * ``curiter``  -- the current number of iterations in the solve attempt,
 
-* ``maxiters`` -- the maximum number of Newton iterations allowed in a solve, and
+* ``maxiters`` -- the maximum number of Newton iterations allowed in a solve,
 
-* ``niters`` -- the total number of nonlinear iterations across all solves.
+* ``niters`` -- the total number of nonlinear iterations across all solves,
 
 * ``nconvfails`` -- the total number of nonlinear convergence failures across
-  all solves.
-  
+  all solves,
+
+* ``ctest_data`` -- the data pointer passed to the convergence test function.
+
 
 .. _SUNNonlinSolNewton.Fortran:
 
@@ -225,8 +229,8 @@ function for creating a ``SUNNonlinearSolver`` object.
    :math:`F(y) = 0` with Newton's method.
 
    This routine must be called *after* the ``N_Vector`` object has
-   been initialized. 
-                  
+   been initialized.
+
    **Arguments:**
       * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
         this matrix will be used for: CVODE=1, IDA=2, ARKode=4.

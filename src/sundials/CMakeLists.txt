@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
+# Programmer(s): Radu Serban and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,19 +12,20 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the generic SUNDIALS modules
+# ---------------------------------------------------------------
 
 # From here we only install the generic SUNDIALS headers.
 # The implementations themselves are incorporated in the individual SUNDIALS solver libraries.
 
-INSTALL(CODE "MESSAGE(\"\nInstall shared components\n\")")
+install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add F90 module if F2003 interface is enabled
-IF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
-  ADD_SUBDIRECTORY(fmod)
-ENDIF(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+if(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  add_subdirectory(fmod)
+endif(F2003_FOUND AND F2003_INTERFACE_ENABLE)
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
-SET(sundials_HEADERS
+set(sundials_HEADERS
   sundials_band.h
   sundials_dense.h
   sundials_direct.h
@@ -41,11 +42,11 @@ SET(sundials_HEADERS
   )
 
 # Add prefix with complete path to the SUNDIALS header files
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
+add_prefix(${sundials_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 # Create an object library out of the generic sundials modules
-IF(BUILD_STATIC_LIBS)
-  ADD_LIBRARY(sundials_generic_static_obj OBJECT
+if(BUILD_STATIC_LIBS)
+  add_library(sundials_generic_static_obj OBJECT
     sundials_band.c
     sundials_dense.c
     sundials_direct.c
@@ -57,10 +58,10 @@ IF(BUILD_STATIC_LIBS)
     sundials_nvector.c
     sundials_nvector_senswrapper.c
     sundials_version.c)
-ENDIF()
+endif()
 
-IF(BUILD_SHARED_LIBS)
-  ADD_LIBRARY(sundials_generic_shared_obj OBJECT
+if(BUILD_SHARED_LIBS)
+  add_library(sundials_generic_shared_obj OBJECT
       sundials_band.c
       sundials_dense.c
       sundials_direct.c
@@ -72,16 +73,16 @@ IF(BUILD_SHARED_LIBS)
       sundials_nvector.c
       sundials_nvector_senswrapper.c
       sundials_version.c)
-  SET_TARGET_PROPERTIES(sundials_generic_shared_obj PROPERTIES
+  set_target_properties(sundials_generic_shared_obj PROPERTIES
                         POSITION_INDEPENDENT_CODE TRUE)
-ENDIF()
+endif()
 
 # Install the SUNDIALS header files
-INSTALL(FILES ${sundials_HEADERS} DESTINATION include/sundials)
+install(FILES ${sundials_HEADERS} DESTINATION include/sundials)
 
 # If Blas/Lapack support was enabled, install the Lapack interface headers
-IF(LAPACK_FOUND)
-  SET(sundials_BL_HEADERS sundials_lapack.h)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/include/sundials/ sundials_BL_HEADERS)
-  INSTALL(FILES ${sundials_BL_HEADERS} DESTINATION include/sundials)
-ENDIF(LAPACK_FOUND)
+if(LAPACK_FOUND)
+  set(sundials_BL_HEADERS sundials_lapack.h)
+  add_prefix(${sundials_SOURCE_DIR}/include/sundials/ sundials_BL_HEADERS)
+  install(FILES ${sundials_BL_HEADERS} DESTINATION include/sundials)
+endif(LAPACK_FOUND)

@@ -68,6 +68,10 @@ fi
 # Check inputs
 # ------------------------------------------------------------------------------
 
+# build and install directory names
+builddir=build_xsdk
+installdir=install_xsdk
+
 # set real types to test
 case "$realtype" in
     single|double|extended) ;;
@@ -76,6 +80,8 @@ case "$realtype" in
         exit 1
         ;;
 esac
+builddir=${builddir}_${realtype}
+installdir=${installdir}_${realtype}
 
 # set index sizes to test
 case "$indexsize" in
@@ -85,6 +91,8 @@ case "$indexsize" in
         exit 1
         ;;
 esac
+builddir=${builddir}_${indexsize}
+installdir=${installdir}_${indexsize}
 
 # set library types
 case "$libtype" in
@@ -105,6 +113,9 @@ case "$libtype" in
         exit 1
         ;;
 esac
+builddir=${builddir}_${libtype}
+installdir=${installdir}_${libtype}
+
 
 # set TPL status
 case "$tplstatus" in
@@ -119,6 +130,8 @@ case "$tplstatus" in
         exit 1
         ;;
 esac
+builddir=${builddir}_${tplstatus}
+installdir=${installdir}_${tplstatus}
 
 # which tests to run (if any)
 case "$testtype" in
@@ -148,6 +161,8 @@ case "$testtype" in
         exit 1
         ;;
 esac
+builddir=${builddir}_${testtype}
+installdir=${installdir}_${testtype}
 
 # ------------------------------------------------------------------------------
 # Setup the test environment
@@ -159,16 +174,16 @@ esac
 
 if [ ! -z "$SUNDIALS_ENV" ]; then
     echo "Setting up environment with $SUNDIALS_ENV"
-    source $SUNDIALS_ENV $realtype $indexsize
+    time source $SUNDIALS_ENV $realtype $indexsize
 elif [ -f env.sh ]; then
     echo "Setting up environment with ./env.sh"
-    source env.sh $realtype $indexsize
+    time source env.sh $realtype $indexsize
 elif [ -f ~/.sundials_config/env.sh ]; then
     echo "Setting up environment with ~/.sundials_config/env.sh"
-    source ~/.sundials_config/env.sh $realtype $indexsize
+    time source ~/.sundials_config/env.sh $realtype $indexsize
 else
     echo "Setting up environment with ./env.default.sh"
-    source env.default.sh $realtype $indexsize
+    time source env.default.sh $realtype $indexsize
 fi
 
 # check return value
@@ -194,13 +209,6 @@ if [ "$TPLs" == "ON" ]; then
     MPISTATUS=${MPISTATUS:-"OFF"}
     if [ "$MPISTATUS" == "ON" ] && [ -z "$MPICC" ]; then
         echo "ERROR: MPISTATUS = ON but MPICC is not set"
-        exit 1
-    fi
-
-    # BLAS
-    BLASSTATUS=${BLASSTATUS:-"OFF"}
-    if [ "$BLASSTATUS" == "ON" ] && [ -z "$BLASLIBS" ]; then
-        echo "ERROR: BLASSTATUS = ON but BLASLIBS is not set"
         exit 1
     fi
 
@@ -246,6 +254,20 @@ if [ "$TPLs" == "ON" ]; then
         exit 1
     fi
 
+    # Trilinos
+    TRILINOSSTATUS=${TRILINOSSTATUS:-"OFF"}
+    if [ "$TRILINOSSTATUS" == "ON" ] && [ -z "$TRILINOSDIR" ]; then
+        echo "ERROR: TRILINOSSTATUS = ON but TRILINOSDIR is not set"
+        exit 1
+    fi
+
+    # RAJA
+    RAJASTATUS=${RAJASTATUS:-"OFF"}
+    if [ "$RAJASTATUS" == "ON" ] && [ -z "$RAJADIR" ]; then
+        echo "ERROR: RAJASTATUS = ON but RAJADIR is not set"
+        exit 1
+    fi
+
 else
 
     # C and C++ standard flags to append
@@ -255,28 +277,20 @@ else
     # disable all TPLs
     MPISTATUS=OFF
     LAPACKSTATUS=OFF
-    BLASSTATUS=OFF
     KLUSTATUS=OFF
     SLUMTSTATUS=OFF
     SLUDISTSTATUS=OFF
     HYPRESTATUS=OFF
     PETSCSTATUS=OFF
     CUDASTATUS=OFF
+    TRILINOSSTATUS=OFF
+    RAJASTATUS=OFF
 
 fi
 
 # ------------------------------------------------------------------------------
 # Setup test directories
 # ------------------------------------------------------------------------------
-
-# build and install directories
-if [ "$TPLs" == "ON" ]; then
-    builddir=build_xsdk_${realtype}_${indexsize}_${libtype}_tpls
-    installdir=install_xsdk_${realtype}_${indexsize}_${libtype}_tpls
-else
-    builddir=build_xsdk_${realtype}_${indexsize}_${libtype}
-    installdir=install_xsdk_${realtype}_${indexsize}_${libtype}
-fi
 
 # remove old build and install directories
 \rm -rf $builddir
@@ -298,7 +312,7 @@ else
 fi
 
 echo "START CMAKE"
-cmake \
+time cmake \
     -D USE_XSDK_DEFAULTS=ON \
     \
     -D CMAKE_INSTALL_PREFIX="../$installdir" \
@@ -328,16 +342,13 @@ cmake \
     -D CMAKE_CXX_COMPILER=$CXX \
     -D CMAKE_Fortran_COMPILER=$FC \
     \
-    -D CMAKE_C_FLAGS="${CFLAGS} ${CSTD}" \
-    -D CMAKE_CXX_FLAGS="${CXXFLAGS} ${CXXSTD}" \
-    -D CMAKE_Fortran_FLAGS="${FFLAGS}" \
-    -D CUDA_NVCC_FLAGS="--compiler-options;-Wall;--compiler-options;-Werror" \
-    -D CUDA_PROPAGATE_HOST_FLAGS=OFF \
+    -D CMAKE_C_FLAGS="${BASE_CFLAGS} ${CSTD}" \
+    -D CMAKE_CXX_FLAGS="${BASE_CXXFLAGS} ${CXXSTD}" \
+    -D CMAKE_Fortran_FLAGS="${BASE_FFLAGS}" \
     \
     -D OPENMP_ENABLE=ON \
     -D PTHREAD_ENABLE=ON \
     -D XSDK_ENABLE_CUDA=${CUDASTATUS} \
-    -D RAJA_ENABLE=OFF \
     \
     -D MPI_ENABLE="${MPISTATUS}" \
     -D MPI_C_COMPILER="${MPICC}" \
@@ -345,11 +356,8 @@ cmake \
     -D MPI_Fortran_COMPILER="${MPIFC}" \
     -D MPIEXEC_EXECUTABLE="${MPIEXEC}" \
     \
-    -D TPL_ENABLE_BLAS="${BLASSTATUS}" \
-    -D TPL_BLAS_LIBRARIES="${BLASLIBS}" \
-    \
     -D TPL_ENABLE_LAPACK="${LAPACKSTATUS}" \
-    -D TPL_LAPACK_LIBRARIES="${LAPACKLIBS}" \
+    -D TPL_LAPACK_LIBRARIES="${BLASLIBS};${LAPACKLIBS}" \
     \
     -D TPL_ENABLE_KLU="${KLUSTATUS}" \
     -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
@@ -360,13 +368,12 @@ cmake \
     -D TPL_HYPRE_LIBRARIES="${HYPREDIR}/lib/libHYPRE.so" \
     \
     -D TPL_ENABLE_PETSC="${PETSCSTATUS}" \
-    -D TPL_PETSC_INCLUDE_DIRS="${PETSCDIR}/include" \
-    -D TPL_PETSC_LIBRARIES="${PETSCDIR}/lib/libpetsc.so" \
+    -D TPL_PETSC_DIR="${PETSCDIR}" \
     \
     -D TPL_ENABLE_SUPERLUMT="${SLUMTSTATUS}" \
-    -D TPL_SUPERLUMT_INCLUDE_DIRS="${SLUMTDIR}/SRC" \
-    -D TPL_SUPERLUMT_LIBRARIES="${SLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
-    -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
+    -D TPL_SUPERLUMT_INCLUDE_DIRS="${SLUMTDIR}/include" \
+    -D TPL_SUPERLUMT_LIBRARIES="${SLUMTDIR}/lib/libblas_PTHREAD.a;${SLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
+    -D TPL_SUPERLUMT_THREAD_TYPE=PTHREAD \
     \
     -D TPL_ENABLE_SUPERLUDIST="${SLUDISTSTATUS}" \
     -D TPL_SUPERLUDIST_INCLUDE_DIRS="${SLUDISTDIR}/include" \
@@ -374,7 +381,16 @@ cmake \
     -D TPL_SUPERLUDIST_OpenMP=ON \
     -D SKIP_OPENMP_DEVICE_CHECK=ON \
     \
+    -D TPL_ENABLE_TRILINOS="${TRILINOSSTATUS}" \
+    -D Trilinos_DIR="${TRILINOSDIR}" \
+    \
+    -D TPL_ENABLE_RAJA="${RAJASTATUS}" \
+    -D RAJA_DIR="${RAJADIR}" \
+    \
     -D SUNDIALS_DEVTESTS="${devtests}" \
+    \
+    -D CMAKE_VERBOSE_MAKEFILE=OFF \
+    \
     ../../. 2>&1 | tee configure.log
 
 # check cmake return code
@@ -387,7 +403,7 @@ if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 # -------------------------------------------------------------------------------
 
 echo "START MAKE"
-make -j $buildthreads 2>&1 | tee make.log
+time make -j $buildthreads 2>&1 | tee make.log
 
 # check make return code
 rc=${PIPESTATUS[0]}
@@ -403,7 +419,7 @@ if [ "$skiptests" = "ON" ]; then exit 0; fi
 
 # test sundials
 echo "START TEST"
-make test 2>&1 | tee test.log
+time ctest -j $buildthreads test 2>&1 | tee test.log
 
 # check make test return code
 rc=${PIPESTATUS[0]}
@@ -416,7 +432,7 @@ if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 
 # install sundials
 echo "START INSTALL"
-make install 2>&1 | tee install.log
+time make -j $buildthreads install 2>&1 | tee install.log
 
 # check make install return code
 rc=${PIPESTATUS[0]}
@@ -429,11 +445,24 @@ if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 
 # smoke test for installation
 echo "START TEST_INSTALL"
-make test_install 2>&1 | tee test_install.log
+time make test_install 2>&1 | tee test_install.log
 
 # check make install return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake test_install returned $rc\n" | tee -a test_install.log
+if [ $rc -ne 0 ]; then cd ..; exit 1; fi
+
+# -------------------------------------------------------------------------------
+# Test SUNDIALS Install All
+# -------------------------------------------------------------------------------
+
+# smoke test for installation
+echo "START TEST_INSTALL_ALL"
+time make test_install_all 2>&1 | tee test_install_all.log
+
+# check make install all return code
+rc=${PIPESTATUS[0]}
+echo -e "\nmake test_install_all returned $rc\n" | tee -a test_install_all.log
 if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 
 # -------------------------------------------------------------------------------

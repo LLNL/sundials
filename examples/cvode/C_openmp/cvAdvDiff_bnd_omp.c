@@ -33,16 +33,16 @@
  * Output is printed at t = .1, .2, ..., 1.
  * Run statistics (optional outputs) are printed at the end.
  *
- * Optionally, we can set the number of threads from environment 
+ * Optionally, we can set the number of threads from environment
  * variable or command line. To check the current value for number
  * of threads from environment:
  *      % echo $OMP_NUM_THREADS
  *
  * Execution:
  *
- * To use the default value or the number of threads from the 
+ * To use the default value or the number of threads from the
  * environment value, run without arguments:
- *      % ./cvAdvDiff_bnd_omp 
+ *      % ./cvAdvDiff_bnd_omp
  * The environment variable can be over-ridden with a command line
  * argument specifying the number of threads to use, e.g:
  *      % ./cvAdvDiff_bnd_omp 5
@@ -59,7 +59,6 @@
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix */
 #include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver */
 #include <sundials/sundials_types.h>   /* definition of type realtype */
-#include <sundials/sundials_math.h>    /* definition of ABS and EXP */
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -88,11 +87,11 @@
 
 /* IJth is defined in order to isolate the translation from the
    mathematical 2-dimensional structure of the dependent variable vector
-   to the underlying 1-dimensional storage. 
+   to the underlying 1-dimensional storage.
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= MX, 1 <= j <= MY.
    The vdata array is obtained via the macro call vdata = NV_DATA_S(v),
-   where v is an N_Vector. 
+   where v is an N_Vector.
    The variables are ordered by the y index j, then by the x index i. */
 
 #define IJth(vdata,i,j) (vdata[(j-1) + (i-1)*MY])
@@ -118,7 +117,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 /* Functions Called by the Solver */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J, 
+static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -151,7 +150,7 @@ int main(int argc, char *argv[])
   num_threads = omp_get_max_threads();  /* Overwrite with OMP_NUM_THREADS environment variable */
 #endif
   if (argc > 1)        /* overwrite with command line value, if supplied */
-    num_threads = strtol(argv[1], NULL, 0);
+    num_threads = (int) strtol(argv[1], NULL, 0);
 
   /* Create an OpenMP vector */
   u = N_VNew_OpenMP(NEQ, num_threads);  /* Allocate u vector */
@@ -171,7 +170,7 @@ int main(int argc, char *argv[])
 
   SetIC(u, data);  /* Initialize u vector */
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -191,7 +190,7 @@ int main(int argc, char *argv[])
   retval = CVodeSetUserData(cvode_mem, data);
   if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
-  /* Create banded SUNMatrix for use in linear solves -- since this will be factored, 
+  /* Create banded SUNMatrix for use in linear solves -- since this will be factored,
      set the storage bandwidth to be the sum of upper and lower bandwidths */
   A = SUNBandMatrix(NEQ, MY, MY);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
@@ -199,7 +198,7 @@ int main(int argc, char *argv[])
   /* Create banded SUNLinearSolver object for use by CVode */
   LS = SUNLinSol_Band(u, A);
   if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
-  
+
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
   if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
@@ -223,7 +222,7 @@ int main(int argc, char *argv[])
 
   PrintFinalStats(cvode_mem);  /* Print some final statistics   */
   printf("num_threads = %i\n\n", num_threads);
-   
+
 
   N_VDestroy(u);          /* Free the u vector */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
@@ -287,14 +286,14 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(realtype t, N_Vector u, N_Vector fu, 
+static int Jac(realtype t, N_Vector u, N_Vector fu,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   sunindextype i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
-  
+
   /*
     The components of f = udot that depend on u(i,j) are
     f(i,j), f(i-1,j), f(i+1,j), f(i,j-1), f(i,j+1), with
@@ -310,7 +309,7 @@ static int Jac(realtype t, N_Vector u, N_Vector fu,
   horac = data->hacoef;
   verdc = data->vdcoef;
 
-#pragma omp parallel for collapse(2) default(shared) private(i, j, k, kthCol) num_threads(data->nthreads) 
+#pragma omp parallel for collapse(2) default(shared) private(i, j, k, kthCol) num_threads(data->nthreads)
   for (j=1; j <= MY; j++) {
     for (i=1; i <= MX; i++) {
       k = j-1 + (i-1)*MY;
@@ -353,14 +352,14 @@ static void SetIC(N_Vector u, UserData data)
   udata = NV_DATA_OMP(u);
 
   /* Load initial profile into u vector */
-#pragma omp parallel for default(shared) private(j, i, y, x)  
+#pragma omp parallel for default(shared) private(j, i, y, x)
   for (j=1; j <= MY; j++) {
     y = j*dy;
     for (i=1; i <= MX; i++) {
       x = i*dx;
-      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(FIVE*x*y);
+      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*exp(FIVE*x*y);
     }
-  }  
+  }
 }
 
 /* Print first lines of output (problem description) */

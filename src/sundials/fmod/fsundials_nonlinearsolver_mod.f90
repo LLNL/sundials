@@ -56,12 +56,13 @@ module fsundials_nonlinearsolver_mod
  public :: FSUNNonlinSolGetCurIter
  public :: FSUNNonlinSolGetNumConvFails
  integer(C_INT), parameter, public :: SUN_NLS_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_CONTINUE = +1_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_CONV_RECVR = +2_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_MEM_NULL = -1_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_MEM_FAIL = -2_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_ILL_INPUT = -3_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_VECTOROP_ERR = -4_C_INT
+ integer(C_INT), parameter, public :: SUN_NLS_CONTINUE = +901_C_INT
+ integer(C_INT), parameter, public :: SUN_NLS_CONV_RECVR = +902_C_INT
+ integer(C_INT), parameter, public :: SUN_NLS_MEM_NULL = -901_C_INT
+ integer(C_INT), parameter, public :: SUN_NLS_MEM_FAIL = -902_C_INT
+ integer(C_INT), parameter, public :: SUN_NLS_ILL_INPUT = -903_C_INT
+ integer(C_INT), parameter, public :: SUN_NLS_VECTOROP_ERR = -904_C_INT
+ integer(C_INT), parameter, public :: SUN_NLS_EXT_FAIL = -905_C_INT
 
 ! WRAPPER DECLARATIONS
 interface
@@ -153,12 +154,13 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNNonlinSolSetConvTestFn(farg1, farg2) &
+function swigc_FSUNNonlinSolSetConvTestFn(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNNonlinSolSetConvTestFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -359,19 +361,22 @@ fresult = swigc_FSUNNonlinSolSetLSolveFn(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNNonlinSolSetConvTestFn(nls, ctestfn) &
+function FSUNNonlinSolSetConvTestFn(nls, ctestfn, ctest_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(C_FUNPTR), intent(in), value :: ctestfn
+type(C_PTR) :: ctest_data
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_FUNPTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(nls)
 farg2 = ctestfn
-fresult = swigc_FSUNNonlinSolSetConvTestFn(farg1, farg2)
+farg3 = ctest_data
+fresult = swigc_FSUNNonlinSolSetConvTestFn(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

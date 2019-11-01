@@ -22,7 +22,7 @@
 
 #define MPIPLUSX_LOCAL_VECTOR(v) ( N_VGetSubvector_MPIManyVector(v, 0) )
 
-N_Vector N_VMake_MPIPlusX(MPI_Comm *comm, N_Vector X)
+N_Vector N_VMake_MPIPlusX(MPI_Comm comm, N_Vector X)
 {
   N_Vector v;
 
@@ -64,5 +64,3 @@ sunindextype N_VGetLocalLength_MPIPlusX(N_Vector v)
 {
   return N_VGetLength(MPIPLUSX_LOCAL_VECTOR(v));
 }
-
-

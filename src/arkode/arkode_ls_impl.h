@@ -113,7 +113,7 @@ typedef struct ARKLsMemRec {
   ARKLsLinSysFn linsys;
   void* A_data;
 
-  long int last_flag; /* last error flag returned by any function */
+  int last_flag; /* last error flag returned by any function */
 
 } *ARKLsMem;
 
@@ -129,6 +129,7 @@ typedef struct ARKLsMassMemRec {
   ARKLsMassFn mass;   /* user-provided mass matrix routine to call   */
   SUNMatrix M;        /* mass matrix structure                       */
   SUNMatrix M_lu;     /* mass matrix structure for LU decomposition  */
+  void* M_data;       /* user data pointer */
 
   /* Iterative solver tolerance */
   realtype sqrtN;     /* sqrt(N)                                     */
@@ -168,7 +169,7 @@ typedef struct ARKLsMassMemRec {
   ARKLsMassTimesVecFn mtimes;
   void *mt_data;
 
-  long int last_flag; /* last error flag returned by any function    */
+  int last_flag; /* last error flag returned by any function    */
 
 } *ARKLsMassMem;
 
@@ -261,6 +262,9 @@ int arkLSSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup,
 int arkLSSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn msetup,
                       ARKLsMassTimesVecFn mtimes, void* mtimes_data);
 int arkLSSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys);
+
+int arkLSSetUserData(void *arkode_mem, void* user_data);
+int arkLSSetMassUserData(void *arkode_mem, void* user_data);
 
 int arkLSGetWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS);
 int arkLSGetNumJacEvals(void* arkode_mem, long int* njevals);

@@ -68,3 +68,7 @@
 
 # python
 __pycache__
+
+# editor files
+.vscode
+

@@ -1,8 +1,5 @@
 # ---------------------------------------------------------------
-# $Revision$
-# $Date$
-# ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
+# Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -15,11 +12,12 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the CPODES library
+# ---------------------------------------------------------------
 
-INSTALL(CODE "MESSAGE(\"\nInstall CPODES\n\")")
+install(CODE "MESSAGE(\"\nInstall CPODES\n\")")
 
 # Add variable cpodes_SOURCES with the sources for the CPODES library
-SET(cpodes_SOURCES
+set(cpodes_SOURCES
   cpodes_band.c
   cpodes_bandpre.c
   cpodes_bbdpre.c
@@ -39,7 +37,7 @@ SET(cpodes_SOURCES
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the CPODES library
-SET(shared_SOURCES
+set(shared_SOURCES
   sundials_nvector.c
   sundials_math.c
   sundials_direct.c
@@ -52,10 +50,10 @@ SET(shared_SOURCES
   )
 
 # Add prefix with complete path to the common SUNDIALS sources
-ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+add_prefix(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
 # Add variable cpodes_HEADERS with the exported CPODES header files
-SET(cpodes_HEADERS
+set(cpodes_HEADERS
   cpodes_band.h
   cpodes_bandpre.h
   cpodes_bbdpre.h
@@ -69,67 +67,67 @@ SET(cpodes_HEADERS
   )
 
 # Add prefix with complete path to the CPODES header files
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/cpodes/ cpodes_HEADERS)
+add_prefix(${sundials_SOURCE_DIR}/include/cpodes/ cpodes_HEADERS)
 
 # If Blas/Lapack support was enabled, set-up additional file lists
-IF(LAPACK_FOUND)
-  SET(cpodes_BL_SOURCES cpodes_lapack.c)
-  SET(cpodes_BL_HEADERS cpodes_lapack.h)
-  ADD_PREFIX(${sundials_SOURCE_DIR}/include/cpodes/ cpodes_BL_HEADERS)
-ELSE(LAPACK_FOUND)
-  SET(cpodes_BL_SOURCES "")
-  SET(cpodes_BL_HEADERS "")
-ENDIF(LAPACK_FOUND)
+if(LAPACK_FOUND)
+  set(cpodes_BL_SOURCES cpodes_lapack.c)
+  set(cpodes_BL_HEADERS cpodes_lapack.h)
+  add_prefix(${sundials_SOURCE_DIR}/include/cpodes/ cpodes_BL_HEADERS)
+else(LAPACK_FOUND)
+  set(cpodes_BL_SOURCES "")
+  set(cpodes_BL_HEADERS "")
+endif(LAPACK_FOUND)
 
 # Add source directories to include directories for access to
 # implementation only header files.
-INCLUDE_DIRECTORIES(.)
-INCLUDE_DIRECTORIES(../sundials)
+include_directories(.)
+include_directories(../sundials)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
-ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
+add_definitions(-DBUILD_SUNDIALS_LIBRARY)
 
 # Build the static library
-IF(BUILD_STATIC_LIBS)
+if(BUILD_STATIC_LIBS)
 
   # Add the build target for the static CPODES library
-  ADD_LIBRARY(sundials_cpodes_static STATIC
+  add_library(sundials_cpodes_static STATIC
     ${cpodes_SOURCES} ${cpodes_BL_SOURCES} ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
-  SET_TARGET_PROPERTIES(sundials_cpodes_static
+  set_target_properties(sundials_cpodes_static
     PROPERTIES OUTPUT_NAME sundials_cpodes CLEAN_DIRECT_OUTPUT 1)
 
   # Install the CPODES library
-  INSTALL(TARGETS sundials_cpodes_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(TARGETS sundials_cpodes_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-ENDIF(BUILD_STATIC_LIBS)
+endif(BUILD_STATIC_LIBS)
 
 # Build the shared library
-IF(BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
 
   # Add the build target for the CPODES library
-  ADD_LIBRARY(sundials_cpodes_shared SHARED
+  add_library(sundials_cpodes_shared SHARED
     ${cpodes_SOURCES} ${cpodes_BL_SOURCES} ${shared_SOURCES})
 
   # Set the library name and make sure it is not deleted
-  SET_TARGET_PROPERTIES(sundials_cpodes_shared
+  set_target_properties(sundials_cpodes_shared
     PROPERTIES OUTPUT_NAME sundials_cpodes CLEAN_DIRECT_OUTPUT 1)
 
   # Set VERSION and SOVERSION for shared libraries
-  SET_TARGET_PROPERTIES(sundials_cpodes_shared
+  set_target_properties(sundials_cpodes_shared
     PROPERTIES VERSION ${cpodeslib_VERSION} SOVERSION ${cpodeslib_SOVERSION})
 
   # Install the CPODES library
-  INSTALL(TARGETS sundials_cpodes_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(TARGETS sundials_cpodes_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-ENDIF(BUILD_SHARED_LIBS)
+endif(BUILD_SHARED_LIBS)
 
 # Install the CPODES header files
-INSTALL(FILES ${cpodes_HEADERS} ${cpodes_BL_HEADERS} DESTINATION include/cpodes)
+install(FILES ${cpodes_HEADERS} ${cpodes_BL_HEADERS} DESTINATION include/cpodes)
 
 # Install the CPODES implementation header file
-INSTALL(FILES cpodes_impl.h DESTINATION include/cpodes)
+install(FILES cpodes_impl.h DESTINATION include/cpodes)
 
 #
-MESSAGE(STATUS "Added CPODES module")
+message(STATUS "Added CPODES module")

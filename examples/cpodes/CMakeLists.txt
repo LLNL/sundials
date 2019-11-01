@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  David Gardner and Slaven Peles @ LLNL
+# Programmer(s): David J. Gardner and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -11,13 +11,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# examples/cpodes level CMakeLists.txt for SUNDIALS (for CMake)
+# examples/cpodes level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
 # C examples
-IF(EXAMPLES_ENABLE_C)
-  ADD_SUBDIRECTORY(serial)
-  IF(MPI_C_FOUND)
-    ADD_SUBDIRECTORY(parallel)
-  ENDIF()
-ENDIF()
+if(EXAMPLES_ENABLE_C)
+  add_subdirectory(serial)
+  if(MPI_C_FOUND)
+    add_subdirectory(parallel)
+  endif()
+endif()

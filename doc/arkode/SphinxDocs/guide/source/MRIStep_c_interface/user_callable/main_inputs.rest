@@ -36,20 +36,22 @@ Optional inputs for MRIStep
 
 .. cssclass:: table-bordered
 
-==================================================  =====================================  ==============
-Optional input                                      Function name                          Default
-==================================================  =====================================  ==============
-Return MRIStep solver parameters to their defaults  :c:func:`MRIStepSetDefaults()`         internal
-Set dense output order                              :c:func:`MRIStepSetDenseOrder()`       3
-Supply a pointer to a diagnostics output file       :c:func:`MRIStepSetDiagnostics()`      ``NULL``
-Supply a pointer to an error output file            :c:func:`MRIStepSetErrFile()`          ``stderr``
-Supply a custom error handler function              :c:func:`MRIStepSetErrHandlerFn()`     internal fn
-Run with fixed-step sizes                           :c:func:`MRIStepSetFixedStep()`        required
-Maximum no. of warnings for :math:`t_n+h = t_n`     :c:func:`MRIStepSetMaxHnilWarns()`     10
-Maximum no. of internal steps before *tout*         :c:func:`MRIStepSetMaxNumSteps()`      500
-Set a value for :math:`t_{stop}`                    :c:func:`MRIStepSetStopTime()`         :math:`\infty`
-Supply a pointer for user data                      :c:func:`MRIStepSetUserData()`         ``NULL``
-==================================================  =====================================  ==============
+=============================================================  =====================================  ==============
+Optional input                                                 Function name                          Default
+=============================================================  =====================================  ==============
+Return MRIStep solver parameters to their defaults             :c:func:`MRIStepSetDefaults()`         internal
+Set dense output order                                         :c:func:`MRIStepSetDenseOrder()`       3
+Supply a pointer to a diagnostics output file                  :c:func:`MRIStepSetDiagnostics()`      ``NULL``
+Supply a pointer to an error output file                       :c:func:`MRIStepSetErrFile()`          ``stderr``
+Supply a custom error handler function                         :c:func:`MRIStepSetErrHandlerFn()`     internal fn
+Run with fixed-step sizes                                      :c:func:`MRIStepSetFixedStep()`        required
+Maximum no. of warnings for :math:`t_n+h = t_n`                :c:func:`MRIStepSetMaxHnilWarns()`     10
+Maximum no. of internal steps before *tout*                    :c:func:`MRIStepSetMaxNumSteps()`      500
+Set a value for :math:`t_{stop}`                               :c:func:`MRIStepSetStopTime()`         :math:`\infty`
+Supply a pointer for user data                                 :c:func:`MRIStepSetUserData()`         ``NULL``
+Supply a function to be called prior to the inner integration  :c:func:`MRIStepSetPreInnerFn()`       ``NULL``
+Supply a function to be called after the inner integration     :c:func:`MRIStepSetPostInnerFn()`      ``NULL``
+=============================================================  =====================================  ==============
 
 .. Functions not currently supported by MRIStep
 .. Supply an initial step size to attempt              :c:func:`MRIStepSetInitStep()`         estimated
@@ -192,7 +194,7 @@ Supply a pointer for user data                      :c:func:`MRIStepSetUserData(
    to ensure :math:`(c^s_{i} -  c^s_{i-1})h_s/h_f` is an integer
    value. Specifically, the fast step for the *i*-th outer stage will be :math:`h
    = \frac{(c^s_{i} - c^s_{i-1}) h_s}{\lceil (c^s_{i} - c^s_{i-1})h_s/h_f
-   \rceil}`. 
+   \rceil}`.
 
    If both :c:func:`MRIStepSetFixedStep()` and
    :c:func:`MRIStepSetStopTime()` are used, then the fixed step size
@@ -350,10 +352,31 @@ Supply a pointer for user data                      :c:func:`MRIStepSetUserData(
    The *user_data* pointer should only be attached to the slow (outer)
    integrator.
 
-   
+.. c:function:: int MRIStepSetPreInnerFn(void* arkode_mem, ARKInnerToOuterFn prefn)
 
+   Specifies the function called *before* each inner integration.
 
+   **Arguments:**
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+      * *prefn* -- the name of the C function (of type :c:func:`ARKOuterToInner()`)
+        defining pre inner integration function.
 
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+.. c:function:: int MRIStepSetPostInnerFn(void* arkode_mem, ARKOuterToInnerFn postfn)
+
+   Specifies the function called *after* each inner integration.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+      * *postfn* -- the name of the C function (of type :c:func:`ARKInnerToOuter()`)
+        defining post inner integration function.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
 ..
    .. c:function:: int MRIStepSetMaxErrTestFails(void* arkode_mem, int maxnef)

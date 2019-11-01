@@ -44,13 +44,13 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  len1 = atol(argv[1]);
+  len1 = (sunindextype) atol(argv[1]);
   if (len1 <= 0) {
     printf("ERROR: length of subvector 1 must be a positive integer \n");
     return(-1);
   }
 
-  len2 = atol(argv[2]);
+  len2 = (sunindextype) atol(argv[2]);
   if (len2 <= 0) {
     printf("ERROR: length of subvector 2 must be a positive integer \n");
     return(-1);
@@ -142,13 +142,13 @@ int main(int argc, char *argv[])
   fails += Test_N_VAbs(X, Z, length, 0);
   fails += Test_N_VInv(X, Z, length, 0);
   fails += Test_N_VAddConst(X, Z, length, 0);
-  fails += Test_N_VDotProd(X, Y, length, length, 0);
+  fails += Test_N_VDotProd(X, Y, length, 0);
   fails += Test_N_VMaxNorm(X, length, 0);
   fails += Test_N_VWrmsNorm(X, Y, length, 0);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, length, length, 0);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, length, 0);
   fails += Test_N_VMin(X, length, 0);
-  fails += Test_N_VWL2Norm(X, Y, length, length, 0);
-  fails += Test_N_VL1Norm(X, length, length, 0);
+  fails += Test_N_VWL2Norm(X, Y, length, 0);
+  fails += Test_N_VL1Norm(X, length, 0);
   fails += Test_N_VCompare(X, Z, length, 0);
   fails += Test_N_VInvTest(X, Z, length, 0);
   fails += Test_N_VConstrMask(X, Y, Z, length, 0);
@@ -172,14 +172,14 @@ int main(int argc, char *argv[])
   /* fused operations */
   fails += Test_N_VLinearCombination(U, length, 0);
   fails += Test_N_VScaleAddMulti(U, length, 0);
-  fails += Test_N_VDotProdMulti(U, length, length, 0);
+  fails += Test_N_VDotProdMulti(U, length, 0);
 
   /* vector array operations */
   fails += Test_N_VLinearSumVectorArray(U, length, 0);
   fails += Test_N_VScaleVectorArray(U, length, 0);
   fails += Test_N_VConstVectorArray(U, length, 0);
   fails += Test_N_VWrmsNormVectorArray(U, length, 0);
-  fails += Test_N_VWrmsNormMaskVectorArray(U, length, length, 0);
+  fails += Test_N_VWrmsNormMaskVectorArray(U, length, 0);
   fails += Test_N_VScaleAddMultiVectorArray(U, length, 0);
   fails += Test_N_VLinearCombinationVectorArray(U, length, 0);
 
@@ -202,14 +202,14 @@ int main(int argc, char *argv[])
   /* fused operations */
   fails += Test_N_VLinearCombination(V, length, 0);
   fails += Test_N_VScaleAddMulti(V, length, 0);
-  fails += Test_N_VDotProdMulti(V, length, length, 0);
+  fails += Test_N_VDotProdMulti(V, length, 0);
 
   /* vector array operations */
   fails += Test_N_VLinearSumVectorArray(V, length, 0);
   fails += Test_N_VScaleVectorArray(V, length, 0);
   fails += Test_N_VConstVectorArray(V, length, 0);
   fails += Test_N_VWrmsNormVectorArray(V, length, 0);
-  fails += Test_N_VWrmsNormMaskVectorArray(V, length, length, 0);
+  fails += Test_N_VWrmsNormMaskVectorArray(V, length, 0);
   fails += Test_N_VScaleAddMultiVectorArray(V, length, 0);
   fails += Test_N_VLinearCombinationVectorArray(V, length, 0);
 

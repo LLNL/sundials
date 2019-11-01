@@ -21,7 +21,7 @@
 sun_major=${1:-5}
 sun_minor=${2:-0}
 sun_patch=${3:-0}
-sun_label=${4:-dev.1}
+sun_label=${4:""}
 month=${5:-$(date +"%b")}
 year=${6:-$(date +"%Y")}
 
@@ -183,11 +183,11 @@ sedi() {
 # ------------------------------------------------------------------------------
 
 fn="../CMakeLists.txt"
-sedi "/SET(PACKAGE_VERSION_MAJOR/ s/MAJOR.*/MAJOR \"${sun_major}\")/" $fn
-sedi "/SET(PACKAGE_VERSION_MINOR/ s/MINOR.*/MINOR \"${sun_minor}\")/" $fn
-sedi "/SET(PACKAGE_VERSION_PATCH/ s/PATCH.*/PATCH \"${sun_patch}\")/" $fn
-sedi "/SET(PACKAGE_VERSION_LABEL/ s/LABEL.*/LABEL \"${sun_label}\")/" $fn
-sedi "/SET(PACKAGE_STRING/        s/STRING.*/STRING \"SUNDIALS ${sun_ver}\")/" $fn
+sedi "/set(PACKAGE_VERSION_MAJOR/ s/MAJOR.*/MAJOR \"${sun_major}\")/" $fn
+sedi "/set(PACKAGE_VERSION_MINOR/ s/MINOR.*/MINOR \"${sun_minor}\")/" $fn
+sedi "/set(PACKAGE_VERSION_PATCH/ s/PATCH.*/PATCH \"${sun_patch}\")/" $fn
+sedi "/set(PACKAGE_VERSION_LABEL/ s/LABEL.*/LABEL \"${sun_label}\")/" $fn
+sedi "/set(PACKAGE_STRING/        s/STRING.*/STRING \"SUNDIALS ${sun_ver}\")/" $fn
 
 sedi "/arkodelib_VERSION.*/   s/VERSION.*/VERSION \"${ark_ver}\")/" $fn
 sedi "/arkodelib_SOVERSION.*/ s/SOVERSION.*/SOVERSION \"${ark_major}\")/" $fn

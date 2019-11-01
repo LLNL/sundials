@@ -82,6 +82,7 @@ SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A, gridinfo_t *grid,
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_SuperLUDIST;
+  S->ops->getid      = SUNLinSolGetID_SuperLUDIST;
   S->ops->initialize = SUNLinSolInitialize_SuperLUDIST;
   S->ops->setup      = SUNLinSolSetup_SuperLUDIST;
   S->ops->solve      = SUNLinSolSolve_SuperLUDIST;
@@ -163,6 +164,11 @@ SUNLinearSolver_Type SUNLinSolGetType_SuperLUDIST(SUNLinearSolver S)
   return(SUNLINEARSOLVER_DIRECT);
 }
 
+SUNLinearSolver_ID SUNLinSolGetID_SuperLUDIST(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_SUPERLUDIST);
+}
+
 int SUNLinSolInitialize_SuperLUDIST(SUNLinearSolver S)
 {
   SLU_FIRSTFACTORIZE(S) = SUNTRUE;
@@ -238,8 +244,9 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A,
   return(SLU_LASTFLAG(S));
 }
 
-long int SUNLinSolLastFlag_SuperLUDIST(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_SuperLUDIST(SUNLinearSolver S)
 {
+  if (S == NULL) return(-1);
   return(SLU_LASTFLAG(S));
 }
 

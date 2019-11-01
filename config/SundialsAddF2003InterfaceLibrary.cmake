@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer: Cody J. Balos @ LLNL
+# Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -31,13 +31,13 @@
 # THE STATIC_OBJECT option generates a STATIC library target
 # with the name <target> and an object library target with
 # the name <target>_obj.
-# 
+#
 # THE SHARED_OBJECT option generates a SHARED library target
 # with the name <target> and an object library target with
 # the name <target>_obj.
 # ---------------------------------------------------------------
 
-MACRO(sundials_add_f2003_interface_library target)
+macro(sundials_add_f2003_interface_library target)
 
   set(options STATIC STATIC_OBJECT SHARED SHARED_OBJECT)
   set(oneValueArgs )
@@ -103,5 +103,4 @@ MACRO(sundials_add_f2003_interface_library target)
   # depend on the C library
   target_link_libraries(${target} PUBLIC ${c_lib_name})
 
-ENDMACRO(sundials_add_f2003_interface_library)
-
+endmacro(sundials_add_f2003_interface_library)

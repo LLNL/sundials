@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     MPI_Abort(comm, -1);
   }
 
-  local_length = atol(argv[1]);
+  local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myid == 0)
       printf("ERROR: local vector length must be a positive integer \n");
@@ -93,8 +93,8 @@ int main(int argc, char *argv[])
     }
 
     /* Create the MPI+X vector */
-    plusX = N_VMake_MPIPlusX(&comm, X);
-    if (plusX == NULL) { 
+    plusX = N_VMake_MPIPlusX(comm, X);
+    if (plusX == NULL) {
       N_VDestroy(X);
       if (myid == 0) printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
       MPI_Abort(comm, 1);
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     fails += Test_N_VClone(plusX, local_length, myid);
     fails += Test_N_VCloneEmptyVectorArray(5, plusX, myid);
     fails += Test_N_VCloneVectorArray(5, plusX, local_length, myid);
-    
+
     /* Clone additional vectors for testing */
     plusY = N_VClone(plusX);
     if (plusY == NULL) {
@@ -144,13 +144,13 @@ int main(int argc, char *argv[])
     fails += Test_N_VAbs(plusX, plusZ, local_length, myid);
     fails += Test_N_VInv(plusX, plusZ, local_length, myid);
     fails += Test_N_VAddConst(plusX, plusZ, local_length, myid);
-    fails += Test_N_VDotProd(plusX, plusY, local_length, global_length, myid);
+    fails += Test_N_VDotProd(plusX, plusY, local_length, myid);
     fails += Test_N_VMaxNorm(plusX, local_length, myid);
     fails += Test_N_VWrmsNorm(plusX, plusY, local_length, myid);
-    fails += Test_N_VWrmsNormMask(plusX, plusY, plusZ, local_length, global_length, myid);
+    fails += Test_N_VWrmsNormMask(plusX, plusY, plusZ, local_length, myid);
     fails += Test_N_VMin(plusX, local_length, myid);
-    fails += Test_N_VWL2Norm(plusX, plusY, local_length, global_length, myid);
-    fails += Test_N_VL1Norm(plusX, local_length, global_length, myid);
+    fails += Test_N_VWL2Norm(plusX, plusY, local_length, myid);
+    fails += Test_N_VL1Norm(plusX, local_length, myid);
     fails += Test_N_VCompare(plusX, plusZ, local_length, myid);
     fails += Test_N_VInvTest(plusX, plusZ, local_length, myid);
     fails += Test_N_VConstrMask(plusX, plusY, plusZ, local_length, myid);
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
     }
 
     /* create the MPIPlusX vector */
-    plusU = N_VMake_MPIPlusX(&comm, U);
+    plusU = N_VMake_MPIPlusX(comm, U);
     if (U == NULL || retval != 0) {
       N_VDestroy(X);
       N_VDestroy(U);
@@ -186,14 +186,14 @@ int main(int argc, char *argv[])
     /* fused operations */
     fails += Test_N_VLinearCombination(plusU, local_length, myid);
     fails += Test_N_VScaleAddMulti(plusU, local_length, myid);
-    fails += Test_N_VDotProdMulti(plusU, local_length, global_length, myid);
+    fails += Test_N_VDotProdMulti(plusU, local_length, myid);
 
     /* vector array operations */
     fails += Test_N_VLinearSumVectorArray(plusU, local_length, myid);
     fails += Test_N_VScaleVectorArray(plusU, local_length, myid);
     fails += Test_N_VConstVectorArray(plusU, local_length, myid);
     fails += Test_N_VWrmsNormVectorArray(plusU, local_length, myid);
-    fails += Test_N_VWrmsNormMaskVectorArray(plusU, local_length, global_length, myid);
+    fails += Test_N_VWrmsNormMaskVectorArray(plusU, local_length, myid);
     fails += Test_N_VScaleAddMultiVectorArray(plusU, local_length, myid);
     fails += Test_N_VLinearCombinationVectorArray(plusU, local_length, myid);
 
@@ -213,9 +213,9 @@ int main(int argc, char *argv[])
       if (myid == 0) printf("FAIL: Unable to create a new CUDA vector \n\n");
       MPI_Abort(comm, 1);
     }
-    
+
     /* create the MPIPlusX vector */
-    plusV = N_VMake_MPIPlusX(&comm, V);
+    plusV = N_VMake_MPIPlusX(comm, V);
     if (V == NULL || retval != 0) {
       N_VDestroy(X);
       N_VDestroy(U);
@@ -231,14 +231,14 @@ int main(int argc, char *argv[])
     /* fused operations */
     fails += Test_N_VLinearCombination(plusV, local_length, myid);
     fails += Test_N_VScaleAddMulti(plusV, local_length, myid);
-    fails += Test_N_VDotProdMulti(plusV, local_length, global_length, myid);
+    fails += Test_N_VDotProdMulti(plusV, local_length, myid);
 
     /* vector array operations */
     fails += Test_N_VLinearSumVectorArray(plusV, local_length, myid);
     fails += Test_N_VScaleVectorArray(plusV, local_length, myid);
     fails += Test_N_VConstVectorArray(plusV, local_length, myid);
     fails += Test_N_VWrmsNormVectorArray(plusV, local_length, myid);
-    fails += Test_N_VWrmsNormMaskVectorArray(plusV, local_length, global_length, myid);
+    fails += Test_N_VWrmsNormMaskVectorArray(plusV, local_length, myid);
     fails += Test_N_VScaleAddMultiVectorArray(plusV, local_length, myid);
     fails += Test_N_VLinearCombinationVectorArray(plusV, local_length, myid);
 

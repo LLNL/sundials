@@ -29,28 +29,25 @@ libdir       = @libdir@
 CC      	  = @CMAKE_C_COMPILER@
 CFLAGS      = @CMAKE_C_FLAGS@
 CXX         = @CMAKE_CXX_COMPILER@
-LDFLAGS     = @LDFLAGS@ -Wl,-rpath,${libdir}:${CUDALIBDIR}
+NVCC        = @CMAKE_CUDA_COMPILER@
+NVCCFLAGS   = $(subst ;, ,@CMAKE_CUDA_FLAGS@)
+LD          = ${NVCC}
+LDFLAGS     = @LDFLAGS@ -Xcompiler \"-Wl,-rpath,${libdir}\"
 LIBS        = @LIBS@
-MPI_INC_DIR = @MPI_CXX_INCLUDE_PATH@
-NVCC        = @CUDA_NVCC_EXECUTABLE@
-NVCCFLAGS   = $(subst ;, ,@CUDA_NVCC_FLAGS@)
-CUDALIBS    = @CUDA_CUDART_LIBRARY@
-CUDALIBDIR  = $(dir ${CUDALIBS})
 RAJA_INC_DIR= @RAJA_INCLUDE_PATH@
 RAJA_LIB_DIR= @RAJA_LIB_DIR@
+RAJAFLAGS   = $(subst ;, ,@RAJA_NVCC_FLAGS@)
 RAJALIBS    = -lRAJA
 
 TMP_INCS 		 = ${includedir} ${RAJA_INC_DIR}
 INCLUDES 		 = $(addprefix -I, ${TMP_INCS})
-TMP_INCS     = ${includedir} ${RAJA_INC_DIR} ${MPI_INC_DIR}
-NVCCINCLUDES = $(addprefix -I, ${TMP_INCS})
 
 TMP_LIBDIRS  = ${libdir} ${RAJA_LIB_DIR}
 LIBDIRS      = $(addprefix -L, ${TMP_LIBDIRS})
 
 TMP_SUNDIALSLIBS = @SOLVER_LIB@ @NVECTOR_LIB@ 
 SUNDIALSLIBS     = $(addprefix -l, ${TMP_SUNDIALSLIBS})
-LIBRARIES = ${SUNDIALSLIBS} ${RAJALIBS} ${CUDALIBS} ${LIBS}
+LIBRARIES = ${SUNDIALSLIBS} ${RAJALIBS} ${LIBS}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
@@ -66,14 +63,14 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 	${CC} ${CFLAGS} ${INCLUDES} -c $<
 
 .cu.o :
-	${NVCC} ${NVCCFLAGS} ${NVCCINCLUDES} -c $<
+	${NVCC} ${NVCCFLAGS} ${RAJAFLAGS} ${INCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}"; \
-	  ${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}; \
+	  echo "${LD} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}"; \
+	  ${LD} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}; \
 	done
 
 ${OBJECTS}: ${OBJECTS_DEPENDENCIES}

@@ -490,7 +490,7 @@ The following three functions must be called in the order listed. The last one
 is to be called only after the IVP solution is complete, as it frees the
 {\cvodes} memory block created and allocated by the first two calls.
 %%
-\ucfunction{CVodeCreate}
+\ucfunctionf{CVodeCreate}
 {
   cvode\_mem = CVodeCreate(lmm);
 }
@@ -519,7 +519,7 @@ is to be called only after the IVP solution is complete, as it frees the
 {}
 %%
 %%
-\ucfunction{CVodeInit}
+\ucfunctionf{CVodeInit}
 {
 flag = CVodeInit(cvode\_mem, f, t0, y0);
 }
@@ -561,7 +561,7 @@ flag = CVodeInit(cvode\_mem, f, t0, y0);
 }
 %%
 %%
-\ucfunction{CVodeFree}
+\ucfunctionf{CVodeFree}
 {
   CVodeFree(\&cvode\_mem);
 }
@@ -586,7 +586,7 @@ One of the following three functions must be called to specify the integration
 tolerances (or directly specify the weights used in evaluating WRMS vector norms).
 Note that this call must be made after the call to \id{CVodeInit}.
 %%
-\ucfunction{CVodeSStolerances}
+\ucfunctionf{CVodeSStolerances}
 {
   flag = CVodeSStolerances(cvode\_mem, reltol, abstol);
 }
@@ -621,7 +621,7 @@ Note that this call must be made after the call to \id{CVodeInit}.
 {}
 %%
 %%
-\ucfunction{CVodeSVtolerances}
+\ucfunctionf{CVodeSVtolerances}
 {
   flag = CVodeSVtolerances(cvode\_mem, reltol, abstol);
 }
@@ -660,7 +660,7 @@ Note that this call must be made after the call to \id{CVodeInit}.
 }
 %%
 %%
-\ucfunction{CVodeWFtolerances}
+\ucfunctionf{CVodeWFtolerances}
 {
   flag = CVodeWFtolerances(cvode\_mem, efun);
 }
@@ -860,7 +860,7 @@ memory pointer returned by \id{CVodeCreate}.
 
 \index{CVODES@{\cvodes} linear solver interfaces!CVLS@{\cvls}}
 \index{CVLS@{\cvls} generic linear solver!SUNLINEARSOLVER@{\sunlinsol} compatibility}
-\ucfunction{CVodeSetLinearSolver}
+\ucfunctionf{CVodeSetLinearSolver}
 {
   flag = CVodeSetLinearSolver(cvode\_mem, LS, J);
 }
@@ -930,7 +930,7 @@ memory pointer returned by \id{CVodeCreate}.
 \index{CVDIAG@{\cvdiag} linear solver!selection of}
 \index{CVDIAG@{\cvdiag} linear solver!Jacobian approximation used by}
 \index{Jacobian approximation function!diagonal!difference quotient}
-\ucfunction{CVDiag}
+\ucfunctionf{CVDiag}
 {
   flag = CVDiag(cvode\_mem);
 }
@@ -991,7 +991,7 @@ the {\sunnonlinsol} object to use for solving the nonlinear system
 A call to this function attaches the nonlinear solver to the main {\cvodes}
 integrator.
 
-\ucfunction{CVodeSetNonlinearSolver}
+\ucfunctionf{CVodeSetNonlinearSolver}
 {
   flag = CVodeSetNonlinearSolver(cvode\_mem, NLS);
 }
@@ -1041,7 +1041,7 @@ problem is to be changed during the solution, \id{CVodeRootInit} can also
 be called prior to a continuation call to \id{CVode}.
 %%
 %%
-\ucfunction{CVodeRootInit}
+\ucfunctionf{CVodeRootInit}
 {
   flag = CVodeRootInit(cvode\_mem, nrtfn, g);
 }
@@ -1091,7 +1091,7 @@ But these modes are modified if the user has set a stop time (with
 \id{CVodeSetStopTime}) or requested rootfinding.
 
 %
-\ucfunction{CVode}
+\ucfunctionf{CVode}
 {
   flag = CVode(cvode\_mem, tout, yout, \&tret, itask);
 }
@@ -1293,7 +1293,7 @@ in order to take effect for any later error message.
 
 %%
 \index{error messages!redirecting}
-\ucfunction{CVodeSetErrFile}
+\ucfunctionf{CVodeSetErrFile}
 {
 flag = CVodeSetErrFile(cvode\_mem, errfp);
 }
@@ -1331,7 +1331,7 @@ flag = CVodeSetErrFile(cvode\_mem, errfp);
 }
 %%
 \index{error messages!user-defined handler}
-\ucfunction{CVodeSetErrHandlerFn}
+\ucfunctionf{CVodeSetErrHandlerFn}
 {
 flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
 }
@@ -1364,7 +1364,7 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
 }
 %%
 %%
-\ucfunction{CVodeSetUserData}
+\ucfunctionf{CVodeSetUserData}
 {
   flag = CVodeSetUserData(cvode\_mem, user\_data);
 }
@@ -1399,7 +1399,7 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
 }
 %%
 %%
-\ucfunction{CVodeSetMaxOrd}
+\ucfunctionf{CVodeSetMaxOrd}
 {
 flag = CVodeSetMaxOrd(cvode\_mem, maxord);
 }
@@ -1439,7 +1439,7 @@ flag = CVodeSetMaxOrd(cvode\_mem, maxord);
 }
 %%
 %%
-\ucfunction{CVodeSetMaxNumSteps}
+\ucfunctionf{CVodeSetMaxNumSteps}
 {
 flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 }
@@ -1472,7 +1472,7 @@ flag = CVodeSetMaxNumSteps(cvode\_mem, mxsteps);
 }
 %%
 %%
-\ucfunction{CVodeSetMaxHnilWarns}
+\ucfunctionf{CVodeSetMaxHnilWarns}
 {
 flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
 }
@@ -1504,7 +1504,7 @@ flag = CVodeSetMaxHnilWarns(cvode\_mem, mxhnil);
 }
 %%
 %%
-\ucfunction{CVodeSetStabLimDet}
+\ucfunctionf{CVodeSetStabLimDet}
 {
 flag = CVodeSetstabLimDet(cvode\_mem, stldet);
 }
@@ -1540,7 +1540,7 @@ flag = CVodeSetstabLimDet(cvode\_mem, stldet);
 }
 %%
 %%
-\ucfunction{CVodeSetInitStep}
+\ucfunctionf{CVodeSetInitStep}
 {
 flag = CVodeSetInitStep(cvode\_mem, hin);
 }
@@ -1573,7 +1573,7 @@ flag = CVodeSetInitStep(cvode\_mem, hin);
 %%
 %%
 \index{step size bounds|(}
-\ucfunction{CVodeSetMinStep}
+\ucfunctionf{CVodeSetMinStep}
 {
 flag = CVodeSetMinStep(cvode\_mem, hmin);
 }
@@ -1605,7 +1605,7 @@ flag = CVodeSetMinStep(cvode\_mem, hmin);
 }
 %%
 %%
-\ucfunction{CVodeSetMaxStep}
+\ucfunctionf{CVodeSetMaxStep}
 {
 flag = CVodeSetMaxStep(cvode\_mem, hmax);
 }
@@ -1638,7 +1638,7 @@ flag = CVodeSetMaxStep(cvode\_mem, hmax);
 \index{step size bounds|)}
 %%
 %%
-\ucfunction{CVodeSetStopTime}
+\ucfunctionf{CVodeSetStopTime}
 {
 flag = CVodeSetStopTime(cvode\_mem, tstop);
 }
@@ -1674,7 +1674,7 @@ flag = CVodeSetStopTime(cvode\_mem, tstop);
 }
 %%
 %%
-\ucfunction{CVodeSetMaxErrTestFails}
+\ucfunctionf{CVodeSetMaxErrTestFails}
 {
 flag = CVodeSetMaxErrTestFails(cvode\_mem, maxnef);
 }
@@ -1704,7 +1704,7 @@ flag = CVodeSetMaxErrTestFails(cvode\_mem, maxnef);
 }
 %%
 %%
-\ucfunction{CVodeSetMaxNonlinIters}
+\ucfunctionf{CVodeSetMaxNonlinIters}
 {
 flag = CVodeSetMaxNonlinIters(cvode\_mem, maxcor);
 }
@@ -1736,7 +1736,7 @@ flag = CVodeSetMaxNonlinIters(cvode\_mem, maxcor);
 }
 %%
 %%
-\ucfunction{CVodeSetMaxConvFails}
+\ucfunctionf{CVodeSetMaxConvFails}
 {
 flag = CVodeSetMaxConvFails(cvode\_mem, maxncf);
 }
@@ -1768,7 +1768,7 @@ flag = CVodeSetMaxConvFails(cvode\_mem, maxncf);
 }
 %%
 %%
-\ucfunction{CVodeSetNonlinConvCoef}
+\ucfunctionf{CVodeSetNonlinConvCoef}
 {
 flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
 }
@@ -1797,7 +1797,7 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
   The default value is $0.1$.
 }
 %%
-\ucfunction{CVodeSetIterType}
+\ucfunctionf{CVodeSetIterType}
 {
 flag = CVodeSetIterType(cvode\_mem, iter);
 }
@@ -1833,7 +1833,7 @@ flag = CVodeSetIterType(cvode\_mem, iter);
 }
 %
 %
-\ucfunction{CVodeSetConstraints}
+\ucfunctionf{CVodeSetConstraints}
 {
 flag = CVodeSetConstraints(cvode\_mem, constraints);
 }
@@ -1916,7 +1916,7 @@ which this setup routine is called may be controlled with the
 
 \index{Jacobian update frequency!optional input}
 \index{Preconditioner update frequency!optional input}
-\ucfunction{CVodeSetMaxStepsBetweenJac}
+\ucfunctionf{CVodeSetMaxStepsBetweenJac}
 {
   retval = CVodeSetMaxStepsBetweenJac(cvode\_mem, msbj);
 }
@@ -1972,7 +1972,7 @@ using global data in the program. The pointer \id{user\_data} may be specified
 through \id{CVodeSetUserData}.
 %%
 \index{Jacobian approximation function!user-supplied}
-\ucfunction{CVodeSetJacFn}
+\ucfunctionf{CVodeSetJacFn}
 {
   flag = CVodeSetJacFn(cvode\_mem, jac);
 }
@@ -2027,7 +2027,7 @@ in the program. The pointer \id{user\_data} may be specified through
 \id{CVodeSetUserData}.
 %%
 \index{Linear system approximation function!user-supplied}
-\ucfunction{CVodeSetLinSysFn}
+\ucfunctionf{CVodeSetLinSysFn}
 {
   flag = CVodeSetLinSysFn(cvode\_mem, linsys);
 }
@@ -2097,7 +2097,7 @@ during the execution of the user-supplied functions
 without using global data in the program.
 %%
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
-\ucfunction{CVodeSetJacTimes}
+\ucfunctionf{CVodeSetJacTimes}
 {
   flag = CVodeSetJacTimes(cvode\_mem, jtsetup, jtimes);
 }
@@ -2186,7 +2186,7 @@ the \id{CVodeSetEpsLin} function.
 
 \index{CVLS@{\cvls} linear solver interface!preconditioner setup function}
 \index{CVLS@{\cvls} linear solver interface!preconditioner solve function}
-\ucfunction{CVodeSetPreconditioner}
+\ucfunctionf{CVodeSetPreconditioner}
 {
   flag = CVodeSetPreconditioner(cvode\_mem, psetup, psolve);
 }
@@ -2240,7 +2240,7 @@ the \id{CVodeSetEpsLin} function.
 %%
 %%
 \index{CVLS@{\cvls} linear solver interface!convergence test}
-\ucfunction{CVodeSetEpsLin}
+\ucfunctionf{CVodeSetEpsLin}
 {
   flag = CVodeSetEpsLin(cvode\_mem, eplifac);
 }
@@ -2297,7 +2297,7 @@ the \id{CVodeSetEpsLin} function.
 The following functions can be called to set optional inputs to control the
 rootfinding algorithm.
 %%
-\ucfunction{CVodeSetRootDirection}
+\ucfunctionf{CVodeSetRootDirection}
 {
 flag = CVodeSetRootDirection(cvode\_mem, rootdir);
 }
@@ -2333,7 +2333,7 @@ flag = CVodeSetRootDirection(cvode\_mem, rootdir);
 }
 %%
 %%
-\ucfunction{CVodeSetNoInactiveRootWarn}
+\ucfunctionf{CVodeSetNoInactiveRootWarn}
 {
 flag = CVodeSetNoInactiveRootWarn(cvode\_mem);
 }
@@ -2380,7 +2380,7 @@ taken by {\cvodes}.
 
 The call to the \id{CVodeGetDky} function has the following form:
 %%
-\ucfunction{CVodeGetDky}
+\ucfunctionf{CVodeGetDky}
 {
   flag = CVodeGetDky(cvode\_mem, t, k, dky);
 }
@@ -2543,7 +2543,7 @@ optional outputs in groups.
 These optional output functions are described next.
 %%
 %%
-\ucfunction{CVodeGetWorkSpace}
+\ucfunctionf{CVodeGetWorkSpace}
 {
   flag = CVodeGetWorkSpace(cvode\_mem, \&lenrw, \&leniw);
 }
@@ -2606,7 +2606,7 @@ These optional output functions are described next.
   for more details.
 }
 %%
-\ucfunction{CVodeGetNumSteps}
+\ucfunctionf{CVodeGetNumSteps}
 {
   flag = CVodeGetNumSteps(cvode\_mem, \&nsteps);
 }
@@ -2634,7 +2634,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetNumRhsEvals}
+\ucfunctionf{CVodeGetNumRhsEvals}
 {
   flag = CVodeGetNumRhsEvals(cvode\_mem, \&nfevals);
 }
@@ -2666,7 +2666,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{CVodeGetNumLinSolvSetups}
+\ucfunctionf{CVodeGetNumLinSolvSetups}
 {
   flag = CVodeGetNumLinSolvSetups(cvode\_mem, \&nlinsetups);
 }
@@ -2694,7 +2694,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetNumErrTestFails}
+\ucfunctionf{CVodeGetNumErrTestFails}
 {
   flag = CVodeGetNumErrTestFails(cvode\_mem, \&netfails);
 }
@@ -2722,7 +2722,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetLastOrder}
+\ucfunctionf{CVodeGetLastOrder}
 {
   flag = CVodeGetLastOrder(cvode\_mem, \&qlast);
 }
@@ -2750,7 +2750,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetCurrentOrder}
+\ucfunctionf{CVodeGetCurrentOrder}
 {
   flag = CVodeGetCurrentOrder(cvode\_mem, \&qcur);
 }
@@ -2778,7 +2778,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetLastStep}
+\ucfunctionf{CVodeGetLastStep}
 {
   flag = CVodeGetLastStep(cvode\_mem, \&hlast);
 }
@@ -2806,7 +2806,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetCurrentStep}
+\ucfunctionf{CVodeGetCurrentStep}
 {
   flag = CVodeGetCurrentStep(cvode\_mem, \&hcur);
 }
@@ -2834,7 +2834,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetActualInitStep}
+\ucfunctionf{CVodeGetActualInitStep}
 {
   flag = CVodeGetActualInitStep(cvode\_mem, \&hinused);
 }
@@ -2868,7 +2868,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{CVodeGetCurrentTime}
+\ucfunctionf{CVodeGetCurrentTime}
 {
   flag = CVodeGetCurrentTime(cvode\_mem, \&tcur);
 }
@@ -2896,7 +2896,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetNumStabLimOrderReds}
+\ucfunctionf{CVodeGetNumStabLimOrderReds}
 {
   flag = CVodeGetNumStabLimOrderReds(cvode\_mem, \&nslred);
 }
@@ -2928,7 +2928,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{CVodeGetTolScaleFactor}
+\ucfunctionf{CVodeGetTolScaleFactor}
 {
   flag = CVodeGetTolScaleFactor(cvode\_mem, \&tolsfac);
 }
@@ -2958,7 +2958,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetErrWeights}
+\ucfunctionf{CVodeGetErrWeights}
 {
   flag = CVodeGetErrWeights(cvode\_mem, eweight);
 }
@@ -2988,7 +2988,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{CVodeGetEstLocalErrors}
+\ucfunctionf{CVodeGetEstLocalErrors}
 {
   flag = CVodeGetEstLocalErrors(cvode\_mem, ele);
 }
@@ -3030,7 +3030,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{CVodeGetIntegratorStats}
+\ucfunctionf{CVodeGetIntegratorStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
     flag = CVodeGetIntegratorStats(&cvode\_mem, \&nsteps, \&nfevals, \\
@@ -3080,7 +3080,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetNumNonlinSolvIters}
+\ucfunctionf{CVodeGetNumNonlinSolvIters}
 {
   flag = CVodeGetNumNonlinSolvIters(cvode\_mem, \&nniters);
 }
@@ -3110,7 +3110,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetNumNonlinSolvConvFails}
+\ucfunctionf{CVodeGetNumNonlinSolvConvFails}
 {
   flag = CVodeGetNumNonlinSolvConvFails(cvode\_mem, \&nncfails);
 }
@@ -3138,7 +3138,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetNonlinSolvStats}
+\ucfunctionf{CVodeGetNonlinSolvStats}
 {
   flag = CVodeGetNonlinSolvStats(cvode\_mem, \&nniters, \&nncfails);
 }
@@ -3170,7 +3170,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetReturnFlagName}
+\ucfunctionf{CVodeGetReturnFlagName}
 {
   name = CVodeGetReturnFlagName(flag);
 }
@@ -3196,7 +3196,7 @@ These optional output functions are described next.
 There are two optional output functions associated with rootfinding.
 %%
 %%
-\ucfunction{CVodeGetRootInfo}
+\ucfunctionf{CVodeGetRootInfo}
 {
   flag = CVodeGetRootInfo(cvode\_mem, rootsfound);
 }
@@ -3233,7 +3233,7 @@ There are two optional output functions associated with rootfinding.
 }
 %%
 %%
-\ucfunction{CVodeGetNumGEvals}
+\ucfunctionf{CVodeGetNumGEvals}
 {
   flag = CVodeGetNumGEvals(cvode\_mem, \&ngevals);
 }
@@ -3282,7 +3282,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 %%
 \index{CVLS@{\cvls} linear solver interface!memory requirements}
 \index{memory requirements!CVLS@{\cvls} linear solver interface}
-\ucfunction{CVodeGetLinWorkSpace}
+\ucfunctionf{CVodeGetLinWorkSpace}
 {
   flag = CVodeGetLinWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
@@ -3326,7 +3326,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetNumJacEvals}
+\ucfunctionf{CVodeGetNumJacEvals}
 {
   flag = CVodeGetNumJacEvals(cvode\_mem, \&njevals);
 }
@@ -3362,7 +3362,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetNumLinRhsEvals}
+\ucfunctionf{CVodeGetNumLinRhsEvals}
 {
   flag = CVodeGetNumLinRhsEvals(cvode\_mem, \&nfevalsLS);
 }
@@ -3403,7 +3403,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetNumLinIters}
+\ucfunctionf{CVodeGetNumLinIters}
 {
   flag = CVodeGetNumLinIters(cvode\_mem, \&nliters);
 }
@@ -3438,7 +3438,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetNumLinConvFails}
+\ucfunctionf{CVodeGetNumLinConvFails}
 {
   flag = CVodeGetNumLinConvFails(cvode\_mem, \&nlcfails);
 }
@@ -3473,7 +3473,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetNumPrecEvals}
+\ucfunctionf{CVodeGetNumPrecEvals}
 {
   flag = CVodeGetNumPrecEvals(cvode\_mem, \&npevals);
 }
@@ -3509,7 +3509,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetNumPrecSolves}
+\ucfunctionf{CVodeGetNumPrecSolves}
 {
   flag = CVodeGetNumPrecSolves(cvode\_mem, \&npsolves);
 }
@@ -3545,7 +3545,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetNumJTSetupEvals}
+\ucfunctionf{CVodeGetNumJTSetupEvals}
 {
   flag = CVodeGetNumJTSetupEvals(cvode\_mem, \&njtsetup);
 }
@@ -3581,7 +3581,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetNumJtimesEvals}
+\ucfunctionf{CVodeGetNumJtimesEvals}
 {
   flag = CVodeGetNumJtimesEvals(cvode\_mem, \&njvevals);
 }
@@ -3617,7 +3617,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetLastLinFlag}
+\ucfunctionf{CVodeGetLastLinFlag}
 {
   flag = CVodeGetLastLinFlag(cvode\_mem, \&lsflag);
 }
@@ -3679,7 +3679,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetLinReturnFlagName}
+\ucfunctionf{CVodeGetLinReturnFlagName}
 {
   name = CVodeGetLinReturnFlagName(lsflag);
 }
@@ -3727,7 +3727,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 %%
 \index{CVDIAG@{\cvdiag} linear solver interface!memory requirements}
 \index{memory requirements!CVDIAG@{\cvdiag} linear solver interface}
-\ucfunction{CVDiagGetWorkSpace}
+\ucfunctionf{CVDiagGetWorkSpace}
 {
   flag = CVDiagGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
@@ -3762,7 +3762,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVDiagGetNumRhsEvals}
+\ucfunctionf{CVDiagGetNumRhsEvals}
 {
   flag = CVDiagGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
 }
@@ -3797,7 +3797,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVDiagGetLastFlag}
+\ucfunctionf{CVDiagGetLastFlag}
 {
   flag = CVDiagGetLastFlag(cvode\_mem, \&lsflag);
 }
@@ -3833,7 +3833,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVDiagGetReturnFlagName}
+\ucfunctionf{CVDiagGetReturnFlagName}
 {
   name = CVDiagGetReturnFlagName(lsflag);
 }
@@ -3900,7 +3900,7 @@ is to be a jump in the dependent variable vector.
 
 %%
 %%
-\ucfunction{CVodeReInit}
+\ucfunctionf{CVodeReInit}
 {
   flag = CVodeReInit(cvode\_mem, t0, y0);
 }
@@ -4778,7 +4778,7 @@ The function \id{CVodeQuadInit} activates integration of quadrature equations
 and allocates internal memory related to these calculations.
 The form of the call to this function is as follows:
 %%
-\ucfunction{CVodeQuadInit}
+\ucfunctionf{CVodeQuadInit}
 {
 flag = CVodeQuadInit(cvode\_mem, fQ, yQ0);
 }
@@ -4834,7 +4834,7 @@ The number \id{Nq} of quadratures is assumed to be unchanged from the prior call
 \id{CVodeQuadInit}.
 The call to the \id{CVodeQuadReInit} function has the following form:
 %%
-\ucfunction{CVodeQuadReInit}
+\ucfunctionf{CVodeQuadReInit}
 {
   flag = CVodeQuadReInit(cvode\_mem, yQ0);
 }
@@ -4869,7 +4869,7 @@ The call to the \id{CVodeQuadReInit} function has the following form:
 %%
 %%
 %%
-\ucfunction{CVodeQuadFree}
+\ucfunctionf{CVodeQuadFree}
 {
   CVodeQuadFree(cvode\_mem);
 }
@@ -4921,7 +4921,7 @@ and quadratures at time \id{t}. However, \id{CVode} will still return only the s
 $y$ in \id{yout}. Solution quadratures can be obtained using the following function:
 %%
 %%
-\ucfunction{CVodeGetQuad}
+\ucfunctionf{CVodeGetQuad}
 {
   flag = CVodeGetQuad(cvode\_mem, \&tret, yQ);
 }
@@ -4965,7 +4965,7 @@ This function is called by \id{CVodeGetQuad} with \id{k = 0} and with the curren
 at which \id{CVode} has returned, but may also be called
 directly by the user.
 %%
-\ucfunction{CVodeGetQuadDky}
+\ucfunctionf{CVodeGetQuadDky}
 {
   flag = CVodeGetQuadDky(cvode\_mem, t, k, dkyQ);
 }
@@ -5018,7 +5018,7 @@ directly by the user.
 of quadrature equations.
 %%
 %%
-\ucfunction{CVodeSetQuadErrCon}
+\ucfunctionf{CVodeSetQuadErrCon}
 {
  flag = CVodeSetQuadErrCon(cvode\_mem, errconQ);
 }
@@ -5061,7 +5061,7 @@ If the quadrature variables are part of the step size control mechanism,
 one of the following functions must be called to specify the
 integration tolerances for quadrature variables.
 
-\ucfunction{CVodeQuadSStolerances}
+\ucfunctionf{CVodeQuadSStolerances}
 {
  flag = CVodeQuadSVtolerances(cvode\_mem, reltolQ, abstolQ);
 }
@@ -5095,7 +5095,7 @@ integration tolerances for quadrature variables.
 }
 {}
 
-\ucfunction{CVodeQuadSVtolerances}
+\ucfunctionf{CVodeQuadSVtolerances}
 {
  flag = CVodeQuadSVtolerances(cvode\_mem, reltolQ, abstolQ);
 }
@@ -5140,7 +5140,7 @@ integration tolerances for quadrature variables.
 {\cvodes} provides the following functions that can be used to obtain solver
 performance information related to quadrature integration.
 
-\ucfunction{CVodeGetQuadNumRhsEvals}
+\ucfunctionf{CVodeGetQuadNumRhsEvals}
 {
   flag = CVodeGetQuadNumRhsEvals(cvode\_mem, \&nfQevals);
 }
@@ -5170,7 +5170,7 @@ performance information related to quadrature integration.
 {}
 %%
 %%
-\ucfunction{CVodeGetQuadNumErrTestFails}
+\ucfunctionf{CVodeGetQuadNumErrTestFails}
 {
   flag = CVodeGetQuadNumErrTestFails(cvode\_mem, \&nQetfails);
 }
@@ -5200,7 +5200,7 @@ performance information related to quadrature integration.
 {}
 %%
 %%
-\ucfunction{CVodeGetQuadErrWeights}
+\ucfunctionf{CVodeGetQuadErrWeights}
 {
   flag = CVodeGetQuadErrWeights(cvode\_mem, eQweight);
 }
@@ -5236,7 +5236,7 @@ performance information related to quadrature integration.
 }
 %%
 %%
-\ucfunction{CVodeGetQuadStats}
+\ucfunctionf{CVodeGetQuadStats}
 {
   flag = CVodeGetQuadStats(cvode\_mem, \&nfQevals, \&nQetfails);
 }
@@ -5466,7 +5466,7 @@ The {\cvbandpre} preconditioner module is initialized and attached
 by calling the following function:
 %%
 \index{half-bandwidths}
-\ucfunction{CVBandPrecInit}
+\ucfunctionf{CVBandPrecInit}
 {
   flag = CVBandPrecInit(cvode\_mem, N, mu, ml);
 }
@@ -5518,7 +5518,7 @@ by calling the following function:
 the {\cvbandpre} module:
 %%
 %%
-\ucfunction{CVBandPrecGetWorkSpace}
+\ucfunctionf{CVBandPrecGetWorkSpace}
 {
   flag = CVBandPrecGetWorkSpace(cvode\_mem, \&lenrwBP, \&leniwBP);
 }
@@ -5556,7 +5556,7 @@ the {\cvbandpre} module:
 }
 %%
 %%
-\ucfunction{CVBandPrecGetNumRhsEvals}
+\ucfunctionf{CVBandPrecGetNumRhsEvals}
 {
   flag = CVBandPrecGetNumRhsEvals(cvode\_mem, \&nfevalsBP);
 }
@@ -5888,7 +5888,7 @@ The user-callable functions that initialize (step \ref{i:bbdpre_init} above) or 
 the {\cvbbdpre} preconditioner module are described next.
 %%
 \index{half-bandwidths}
-\ucfunction{CVBBDPrecInit}
+\ucfunctionf{CVBBDPrecInit}
 {
    \begin{tabular}[t]{@{}r@{}l@{}}
      flag = CVBBDPrecInit(&cvode\_mem, local\_N, mudq, mldq, \\
@@ -5972,7 +5972,7 @@ to the ``Set'' routines provided by the {\sunlinsol} module, and/or
 one or more of the corresponding {\cvls} ``set'' functions, must
 also be made (in the proper order).
 
-\ucfunction{CVBBDPrecReInit}
+\ucfunctionf{CVBBDPrecReInit}
 {
   flag = CVBBDPrecReInit(cvode\_mem, mudq, mldq, dqrely);
 }
@@ -6021,7 +6021,7 @@ also be made (in the proper order).
 The following two optional output functions are available for use with
 the {\cvbbdpre} module:
 %%
-\ucfunction{CVBBDPrecGetWorkSpace}
+\ucfunctionf{CVBBDPrecGetWorkSpace}
 {
   flag = CVBBDPrecGetWorkSpace(cvode\_mem, \&lenrwBBDP, \&leniwBBDP);
 }
@@ -6062,7 +6062,7 @@ the {\cvbbdpre} module:
 }
 %%
 %%
-\ucfunction{CVBBDPrecGetNumGfnEvals}
+\ucfunctionf{CVBBDPrecGetNumGfnEvals}
 {
   flag = CVBBDPrecGetNumGfnEvals(cvode\_mem, \&ngevalsBBDP);
 }

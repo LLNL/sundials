@@ -23,7 +23,7 @@ whether {\sundials} was configured to have \id{realtype} set to
 In order to use the {\sunlinsollapdense} module it is assumed
 that LAPACK has been installed on the system prior to installation of
 {\sundials}, and that {\sundials} has been configured appropriately to
-link with LAPACK (see Appendix \ref{c:install} for details).  
+link with LAPACK (see Appendix \ref{c:install} for details).
 We note that since there do not exist 128-bit floating-point
 factorization and solve routines in LAPACK, this interface cannot be
 compiled when using \id{extended} precision for \id{realtype}.
@@ -77,7 +77,7 @@ for creating a \newline \id{SUNLinearSolver} object.
     a template for cloning vectors needed within the solver
   \item[A] (\id{SUNMatrix})
     a {\sunmatdense} matrix template for cloning matrices needed
-    within the solver 
+    within the solver
   \end{args}
 }
 {
@@ -189,11 +189,11 @@ object.
 The {\sunlinsollapdense} module defines the \textit{content} field of a
 \id{SUNLinearSolver} as the following structure:
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _SUNLinearSolverContent_Dense {
   sunindextype N;
   sunindextype *pivots;
-  long int last_flag;
+  sunindextype last_flag;
 };
 \end{verbatim}
 %%
@@ -204,4 +204,3 @@ information:
   \item[pivots] - index array for partial pivoting in LU factorization,
   \item[last\_flag] - last error return flag from internal function evaluations.
 \end{args}
-

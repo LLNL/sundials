@@ -39,6 +39,7 @@ module fsunlinsol_sptfqmr_mod
  public :: FSUNSPTFQMRSetPrecType
  public :: FSUNSPTFQMRSetMaxl
  public :: FSUNLinSolGetType_SPTFQMR
+ public :: FSUNLinSolGetID_SPTFQMR
  public :: FSUNLinSolInitialize_SPTFQMR
  public :: FSUNLinSolSetATimes_SPTFQMR
  public :: FSUNLinSolSetPreconditioner_SPTFQMR
@@ -112,6 +113,14 @@ end function
 
 function swigc_FSUNLinSolGetType_SPTFQMR(farg1) &
 bind(C, name="_wrap_FSUNLinSolGetType_SPTFQMR") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNLinSolGetID_SPTFQMR(farg1) &
+bind(C, name="_wrap_FSUNLinSolGetID_SPTFQMR") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -345,6 +354,19 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolGetType_SPTFQMR(farg1)
+swig_result = fresult
+end function
+
+function FSUNLinSolGetID_SPTFQMR(s) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(SUNLinearSolver_ID) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+fresult = swigc_FSUNLinSolGetID_SPTFQMR(farg1)
 swig_result = fresult
 end function
 

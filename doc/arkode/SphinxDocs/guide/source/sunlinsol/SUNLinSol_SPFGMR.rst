@@ -28,7 +28,7 @@ implementation (serial, threaded, parallel, and user-supplied) that
 supports a minimal subset of operations (:c:func:`N_VClone()`,
 :c:func:`N_VDotProd()`, :c:func:`N_VScale()`,
 :c:func:`N_VLinearSum()`, :c:func:`N_VProd()`, :c:func:`N_VConst()`,
-:c:func:`N_VDiv()`, and :c:func:`N_VDestroy()`).  Unlike the other 
+:c:func:`N_VDiv()`, and :c:func:`N_VDestroy()`).  Unlike the other
 Krylov iterative linear solvers supplied with SUNDIALS, FGMRES is
 specifically designed to work with a changing preconditioner
 (e.g. from an iterative method).
@@ -39,14 +39,14 @@ specifically designed to work with a changing preconditioner
 SUNLinSol_SPFGMR Usage
 -------------------------
 
-The header file to be included when using this module 
+The header file to be included when using this module
 is ``sunlinsol/sunlinsol_spfgmr.h``.  The SUNLinSol_SPFGMR module is
-accessible from all SUNDIALS solvers *without* 
+accessible from all SUNDIALS solvers *without*
 linking to the ``libsundials_sunlinsolspfgmr`` module library.
 
 
-The module SUNLinSol_SPFGMR provides the following 
-user-callable routines: 
+The module SUNLinSol_SPFGMR provides the following
+user-callable routines:
 
 
 .. c:function:: SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl)
@@ -54,7 +54,7 @@ user-callable routines:
    This constructor function creates and allocates memory for a SPFGMR
    ``SUNLinearSolver``.  Its arguments are an ``N_Vector``, a flag
    indicating to use preconditioning, and the number of Krylov basis
-   vectors to use. 
+   vectors to use.
 
    This routine will perform consistency checks to ensure that it is
    called with a consistent ``N_Vector`` implementation (i.e. that it
@@ -86,7 +86,7 @@ user-callable routines:
 
    This routine will return with one of the error codes
    ``SUNLS_MEM_NULL`` (``S`` is ``NULL``) or ``SUNLS_SUCCESS``.
-  
+
 
 .. c:function:: int SUNLinSol_SPFGMRSetGSType(SUNLinearSolver S, int gstype)
 
@@ -98,11 +98,11 @@ user-callable routines:
    This routine will return with one of the error codes
    ``SUNLS_ILL_INPUT`` (illegal ``gstype``), ``SUNLS_MEM_NULL``
    (``S`` is ``NULL``), or ``SUNLS_SUCCESS``.
-  
+
 
 .. c:function:: int SUNLinSol_SPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 
-   This function sets the number of FGMRES restarts to 
+   This function sets the number of FGMRES restarts to
    allow.  A negative input will result in the default of 0.
 
    This routine will return with one of the error codes
@@ -117,33 +117,33 @@ they wrap:
 .. c:function:: SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl)
 
    Wrapper function for :c:func:`SUNLinSol_SPFGMR()`
-   
+
 .. c:function:: int SUNSPFGMRSetPrecType(SUNLinearSolver S, int pretype)
 
    Wrapper function for :c:func:`SUNLinSol_SPFGMRSetPrecType()`
-   
+
 .. c:function:: int SUNSPFGMRSetGSType(SUNLinearSolver S, int gstype)
 
    Wrapper function for :c:func:`SUNLinSol_SPFGMRSetGSType()`
-   
+
 .. c:function:: int SUNSPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 
    Wrapper function for :c:func:`SUNLinSol_SPFGMRSetMaxRestarts()`
-   
-   
+
+
 For solvers that include a Fortran interface module, the
 SUNLinSol_SPFGMR module also includes the Fortran-callable
 function :f:func:`FSUNSPFGMRInit()` to initialize this
-SUNLinSol_SPFGMR module for a given SUNDIALS solver. 
+SUNLinSol_SPFGMR module for a given SUNDIALS solver.
 
 .. f:subroutine:: FSUNSPFGMRInit(CODE, PRETYPE, MAXL, IER)
 
    Initializes a SPFGMR ``SUNLinearSolver`` structure for
-   use in a SUNDIALS package. 
+   use in a SUNDIALS package.
 
    This routine must be called *after* the ``N_Vector`` object has
-   been initialized. 
-                  
+   been initialized.
+
    **Arguments:**
       * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
         this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
@@ -162,8 +162,8 @@ this SUNLinSol_SPFGMR module for solving mass matrix linear systems.
    solving mass matrix systems in ARKode.
 
    This routine must be called *after* the ``N_Vector`` object has
-   been initialized. 
-                  
+   been initialized.
+
    **Arguments:**
       * *PRETYPE* (``int``, input) -- flag denoting whether to use
         preconditioning: no=0, yes=1.
@@ -176,75 +176,75 @@ and :c:func:`SUNLinSol_SPFGMRSetMaxRestarts()` routines also support Fortran
 interfaces for the system and mass matrix solvers:
 
 .. f:subroutine:: FSUNSPFGMRSetGSType(CODE, GSTYPE, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_SPFGMRSetGSType()` for system
-   linear solvers.  
+   linear solvers.
 
    This routine must be called *after* :f:func:`FSUNSPFGMRInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 .. f:subroutine:: FSUNMassSPFGMRSetGSType(GSTYPE, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_SPFGMRSetGSType()` for mass matrix
    linear solvers in ARKode.
 
    This routine must be called *after* :f:func:`FSUNMassSPFGMRInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 .. f:subroutine:: FSUNSPFGMRSetPrecType(CODE, PRETYPE, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_SPFGMRSetPrecType()` for system
-   linear solvers.  
+   linear solvers.
 
    This routine must be called *after* :f:func:`FSUNSPFGMRInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 .. f:subroutine:: FSUNMassSPFGMRSetPrecType(PRETYPE, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_SPFGMRSetPrecType()` for mass matrix
    linear solvers in ARKode.
 
    This routine must be called *after* :f:func:`FSUNMassSPFGMRInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 
 .. f:subroutine:: FSUNSPFGMRSetMaxRS(CODE, MAXRS, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_SPFGMRSetMaxRS()` for system
-   linear solvers.  
+   linear solvers.
 
    This routine must be called *after* :f:func:`FSUNSPFGMRInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 .. f:subroutine:: FSUNMassSPFGMRSetMaxRS(MAXRS, IER)
-   
+
    Fortran interface to :c:func:`SUNLinSol_SPFGMRSetMaxRS()` for mass matrix
    linear solvers in ARKode.
 
    This routine must be called *after* :f:func:`FSUNMassSPFGMRInit()` has
    been called.
-                  
+
    **Arguments:** all should have type ``int``, and have meanings
    identical to those listed above.
 
 
 
-   
+
 
 .. _SUNLinSol_SPFGMR.Description:
 
@@ -264,7 +264,7 @@ The SUNLinSol_SPFGMR module defines the *content* field of a
      int max_restarts;
      int numiters;
      realtype resnorm;
-     long int last_flag;
+     int last_flag;
      ATimesFn ATimes;
      void* ATData;
      PSetupFn Psetup;
@@ -290,10 +290,10 @@ information:
 
 * ``gstype`` - flag for type of Gram-Schmidt orthogonalization
   (default is modified Gram-Schmidt),
-  
+
 * ``max_restarts`` - number of FGMRES restarts to allow
   (default is 0),
-  
+
 * ``numiters`` - number of iterations from the most-recent solve,
 
 * ``resnorm`` - final linear residual norm from the most-recent
@@ -314,25 +314,25 @@ information:
 
 * ``s1, s2`` - vector pointers for supplied scaling matrices
   (default is ``NULL``),
-  
+
 * ``V`` - the array of Krylov basis vectors
   :math:`v_1, \ldots, v_{\text{maxl}+1}`, stored in
   ``V[0], ..., V[maxl]``. Each :math:`v_i` is a vector of type ``N_Vector``,
-  
+
 * ``Z`` - the array of preconditioned Krylov basis vectors
   :math:`z_1, \ldots, z_{\text{maxl}+1}`, stored in
   ``Z[0], ..., Z[maxl]``. Each :math:`z_i` is a vector of type ``N_Vector``,
-  
+
 * ``Hes`` - the :math:`(\text{maxl}+1)\times\text{maxl}`
   Hessenberg matrix. It is stored row-wise so that the (i,j)th
   element is given by ``Hes[i][j]``,
-  
+
 * ``givens`` - a length :math:`2\,\text{maxl}` array which represents
   the Givens rotation matrices that arise in the FGMRES
-  algorithm. These matrices are :math:`F_0, F_1, \ldots, F_j`, where 
+  algorithm. These matrices are :math:`F_0, F_1, \ldots, F_j`, where
 
   .. math::
-   
+
      F_i = \begin{bmatrix}
         1 &        &   &     &      &   &        &   \\
           & \ddots &   &     &      &   &        &   \\
@@ -347,16 +347,16 @@ information:
   ``givens[0]`` :math:`= c_0`,
   ``givens[1]`` :math:`= s_0`,
   ``givens[2]`` :math:`= c_1`,
-  ``givens[3]`` :math:`= s_1`, :math:`\ldots`, 
+  ``givens[3]`` :math:`= s_1`, :math:`\ldots`,
   ``givens[2j]`` :math:`= c_j`,
   ``givens[2j+1]`` :math:`= s_j`,
-  
+
 * ``xcor`` - a vector which holds the scaled, preconditioned
   correction to the initial guess,
-  
+
 * ``yg`` - a length :math:`(\text{maxl}+1)` array of ``realtype``
   values used to hold "short" vectors (e.g. :math:`y` and :math:`g`),
-  
+
 * ``vtemp`` - temporary vector storage.
 
 
@@ -364,20 +364,20 @@ This solver is constructed to perform the following operations:
 
 * During construction, the ``xcor`` and ``vtemp`` arrays are cloned
   from a template ``N_Vector`` that is input, and default solver
-  parameters are set. 
+  parameters are set.
 
 * User-facing "set" routines may be called to modify default
   solver parameters.
 
 * Additional "set" routines are called by the SUNDIALS solver
-  that interfaces with SUNLinSol_SPFGMR to supply the 
+  that interfaces with SUNLinSol_SPFGMR to supply the
   ``ATimes``, ``PSetup``, and ``Psolve`` function pointers and
   ``s1`` and ``s2`` scaling vectors.
 
 * In the "initialize" call, the remaining solver data is
   allocated (``V``, ``Hes``, ``givens``, and ``yg`` )
 
-* In the "setup" call, any non-``NULL`` ``PSetup`` function is called. 
+* In the "setup" call, any non-``NULL`` ``PSetup`` function is called.
   Typically, this is provided by the SUNDIALS solver itself, that
   translates between the generic ``PSetup`` function and the
   solver-specific routine (solver-supplied or user-supplied).
@@ -388,7 +388,7 @@ This solver is constructed to perform the following operations:
 
 The SUNLinSol_SPFGMR module defines implementations of all
 "iterative" linear solver operations listed in the section
-:ref:`SUNLinSol.API`: 
+:ref:`SUNLinSol.API`:
 
 * ``SUNLinSolGetType_SPFGMR``
 
@@ -415,4 +415,3 @@ The SUNLinSol_SPFGMR module defines implementations of all
 * ``SUNLinSolSpace_SPFGMR``
 
 * ``SUNLinSolFree_SPFGMR``
-

@@ -1,10 +1,15 @@
+% ====================================================================
+\section{The SUNNonlinearSolver\_FixedPoint implementation}
+\label{s:sunnonlinsol_fixedpoint}
+% ====================================================================
+
 This section describes the {\sunnonlinsol} implementation of a fixed point
 (functional) iteration with optional Anderson acceleration. To access the
 {\sunnonlinsolfixedpoint} module, include the header file
 \id{sunnonlinsol/sunnonlinsol\_fixedpoint.h}. We note that the
 {\sunnonlinsolfixedpoint} module is accessible from {\sundials} integrators
 \textit{without} separately linking to the\\
-\noindent\id{libsundials\_sunnonlinsolfixedpoint} module library. 
+\noindent\id{libsundials\_sunnonlinsolfixedpoint} module library.
 
 % ====================================================================
 \subsection{SUNNonlinearSolver\_FixedPoint description}
@@ -13,7 +18,7 @@ This section describes the {\sunnonlinsol} implementation of a fixed point
 
 To find the solution to
 \begin{equation}\label{e:fixed_point_sys}
-  G(y) = y \, 
+  G(y) = y \,
 \end{equation}
 given an initial guess $y^{(0)}$, the fixed point iteration computes a series of
 approximate solutions
@@ -32,9 +37,9 @@ where $m_n = \min\{m,n\}$ and the factors
 \alpha^{(n)} =(\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})
 \end{equation}
 solve the minimization problem $\min_\alpha  \| F_n \alpha^T \|_2$ under the
-constraint that $\sum_{i=0}^{m_n} \alpha_i = 1$ where 
+constraint that $\sum_{i=0}^{m_n} \alpha_i = 1$ where
 \begin{equation}
-F_{n} = (f_{n-m_n}, \ldots, f_{n}) 
+F_{n} = (f_{n-m_n}, \ldots, f_{n})
 \end{equation}
 with $f_i = G(y^{(i)}) - y^{(i)}$. Due to this constraint, in the limit of $m=0$
 the accelerated fixed point iteration formula
@@ -52,7 +57,7 @@ with $\Delta g_i = G(y^{(i+1)}) - G(y^{(i)})$ and where the factors
 \gamma^{(n)} =(\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})
 \end{equation}
 solve the unconstrained minimization problem
- $\min_\gamma \| f_n - \Delta F_n \gamma^T \|_2$ where 
+ $\min_\gamma \| f_n - \Delta F_n \gamma^T \|_2$ where
 \begin{equation}
 \Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1}),
 \end{equation}
@@ -111,7 +116,7 @@ for creating a \newline
   The function \ID{SUNNonlinSol\_FixedPointSens} creates a
   \id{SUNNonlinearSolver} object for use with {\sundials} sensitivity enabled
   integrators ({\cvodes} and {\idas}) to solve nonlinear systems of the form
-  $G(y) = y$. 
+  $G(y) = y$.
 }
 {
   \begin{args}[count]
@@ -148,7 +153,7 @@ appended to the function name.  Unless using the
 {\sunnonlinsolfixedpoint} module as a standalone nonlinear solver the
 generic functions defined in sections \ref{ss:sunnonlinsol_corefn} --
 \ref{ss:sunnonlinsol_getfn} should be called in favor of the
-{\sunnonlinsolfixedpoint}-specific implementations. 
+{\sunnonlinsolfixedpoint}-specific implementations.
 
 The {\sunnonlinsolfixedpoint} module also defines the following additional
 user-callable function.
@@ -275,6 +280,7 @@ struct _SUNNonlinearSolverContent_FixedPoint {
   int       maxiters;
   long int  niters;
   long int  nconvfails;
+  void*     ctest_data;
 };
 \end{verbatim}
 %%
@@ -282,19 +288,20 @@ struct _SUNNonlinearSolverContent_FixedPoint {
 The following entries of the \emph{content} field are always
 allocated:
 \begin{args}[nconvfails]
-  \item[Sys]        - function for evaluating the nonlinear system,
-  \item[CTest]      - function for checking convergence of the fixed point iteration,
-  \item[yprev]      - \id{N\_Vector} used to store previous fixed-point iterate,
-  \item[gy]         - \id{N\_Vector} used to store $G(y)$ in fixed-point algorithm,
-  \item[delta]      - \id{N\_Vector} used to store difference between successive fixed-point iterates,
-  \item[curiter]    - the current number of iterations in the solve attempt,
-  \item[maxiters]   - the maximum number of fixed-point iterations allowed in
-                      a solve, and
-  \item[niters]     - the total number of nonlinear iterations across all
-                      solves.
-  \item[nconvfails] - the total number of nonlinear convergence failures across
-                      all solves.
-  \item[m]          - number of acceleration vectors,
+  \item[Sys]         - function for evaluating the nonlinear system,
+  \item[CTest]       - function for checking convergence of the fixed point iteration,
+  \item[yprev]       - \id{N\_Vector} used to store previous fixed-point iterate,
+  \item[gy]          - \id{N\_Vector} used to store $G(y)$ in fixed-point algorithm,
+  \item[delta]       - \id{N\_Vector} used to store difference between successive fixed-point iterates,
+  \item[curiter]     - the current number of iterations in the solve attempt,
+  \item[maxiters]    - the maximum number of fixed-point iterations allowed in
+                       a solve,
+  \item[niters]      - the total number of nonlinear iterations across all
+                       solves,
+  \item[nconvfails]  - the total number of nonlinear convergence failures across
+                       all solves,
+  \item[ctest\_data] - the data pointer passed to the convergence test function, and
+  \item[m]           - number of acceleration vectors,
 \end{args}
 \vspace{1em}
 
@@ -302,14 +309,14 @@ allocated:
 \ID{SUNNonlinSol\_FixedPoint}), then the following items are also
 allocated within the \emph{content} field:
 \begin{args}[maxiters]
-  \item[imap]  - index array used in acceleration algorithm (length \id{m})
-  \item[R]     - small matrix used in acceleration algorithm (length \id{m*m})
-  \item[gamma] - small vector used in acceleration algorithm (length \id{m})
-  \item[cvals] - small vector used in acceleration algorithm (length \id{m+1})
-  \item[df]    - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m})
-  \item[dg]    - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m})
-  \item[q]     - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m})
-  \item[Xvecs] - \id{N\_Vector} pointer array used in acceleration algorithm (length \id{m+1})
-  \item[fold]  - \id{N\_Vector} used in acceleration algorithm
-  \item[gold]  - \id{N\_Vector} used in acceleration algorithm
+  \item[imap]  - index array used in acceleration algorithm (length \id{m}),
+  \item[R]     - small matrix used in acceleration algorithm (length \id{m*m}),
+  \item[gamma] - small vector used in acceleration algorithm (length \id{m}),
+  \item[cvals] - small vector used in acceleration algorithm (length \id{m+1}),
+  \item[df]    - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m}),
+  \item[dg]    - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m}),
+  \item[q]     - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m}),
+  \item[Xvecs] - \id{N\_Vector} pointer array used in acceleration algorithm (length \id{m+1}),
+  \item[fold]  - \id{N\_Vector} used in acceleration algorithm, and
+  \item[gold]  - \id{N\_Vector} used in acceleration algorithm.
 \end{args}

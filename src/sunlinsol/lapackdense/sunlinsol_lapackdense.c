@@ -80,6 +80,7 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A)
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_LapackDense;
+  S->ops->getid      = SUNLinSolGetID_LapackDense;
   S->ops->initialize = SUNLinSolInitialize_LapackDense;
   S->ops->setup      = SUNLinSolSetup_LapackDense;
   S->ops->solve      = SUNLinSolSolve_LapackDense;
@@ -120,11 +121,17 @@ SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNLinearSolver S)
 }
 
 
+SUNLinearSolver_ID SUNLinSolGetID_LapackDense(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_LAPACKDENSE);
+}
+
+
 int SUNLinSolInitialize_LapackDense(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  return(SUNLS_SUCCESS);
 }
 
 
@@ -139,7 +146,7 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
   /* Ensure that A is a dense matrix */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE) {
     LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return(LASTFLAG(S));
+    return(SUNLS_ILL_INPUT);
   }
 
   /* Call LAPACK to do LU factorization of A */
@@ -170,7 +177,7 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   xdata = N_VGetArrayPointer(x);
   if (xdata == NULL) {
     LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return(LASTFLAG(S));
+    return(SUNLS_MEM_FAIL);
   }
 
   /* Call LAPACK to solve the linear system */
@@ -183,13 +190,14 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     return(SUNLS_PACKAGE_FAIL_UNREC);
 
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(LASTFLAG(S));
+  return(SUNLS_SUCCESS);
 }
 
 
-long int SUNLinSolLastFlag_LapackDense(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_LapackDense(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
+  if (S == NULL) return(-1);
   return(LASTFLAG(S));
 }
 

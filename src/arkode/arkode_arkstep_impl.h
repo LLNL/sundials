@@ -182,9 +182,8 @@ int arkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm);
 /* private functions passed to nonlinear solver */
 int arkStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
 int arkStep_NlsFPFunction(N_Vector yy, N_Vector res, void* arkode_mem);
-int arkStep_NlsLSetup(N_Vector yy, N_Vector res, booleantype jbad,
-                      booleantype* jcur, void* arkode_mem);
-int arkStep_NlsLSolve(N_Vector yy, N_Vector delta, void* arkode_mem);
+int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
+int arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         realtype tol, N_Vector ewt, void* arkode_mem);
 

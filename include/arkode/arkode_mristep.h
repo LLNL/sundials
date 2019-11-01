@@ -37,6 +37,14 @@ typedef enum {
 /* Default slow (outer) Butcher tables for each order */
 #define DEFAULT_MRI_TABLE_3  KNOTH_WOLKE_3_3
 
+/* ------------------------------
+ * User-Supplied Function Types
+ * ------------------------------ */
+
+typedef int (*MRIStepPreInnerFn)(realtype t, N_Vector *f, int nvecs,
+                                 void *user_data);
+
+typedef int (*MRIStepPostInnerFn)(realtype t, N_Vector y, void *user_data);
 
 /* -------------------
  * Exported Functions
@@ -87,6 +95,10 @@ SUNDIALS_EXPORT int MRIStepSetDiagnostics(void *arkode_mem,
                                           FILE *diagfp);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessStepFn ProcessStep);
+SUNDIALS_EXPORT int MRIStepSetPreInnerFn(void *arkode_mem,
+                                         MRIStepPreInnerFn prefn);
+SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void *arkode_mem,
+                                          MRIStepPostInnerFn postfn);
 
 
 /* Integrate the ODE over an interval in t */

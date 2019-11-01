@@ -336,6 +336,18 @@ SWIGEXPORT int _wrap_FSUNLinSolGetType_SPGMR(SUNLinearSolver farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNLinSolGetID_SPGMR(SUNLinearSolver farg1) {
+  int fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  SUNLinearSolver_ID result;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  result = (SUNLinearSolver_ID)SUNLinSolGetID_SPGMR(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNLinSolInitialize_SPGMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;

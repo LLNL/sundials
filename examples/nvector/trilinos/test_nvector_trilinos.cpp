@@ -55,7 +55,7 @@ int main (int argc, char *argv[])
     return -1;
   }
 
-  const sunindextype local_length = atol(argv[1]);
+  const sunindextype local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myRank == 0)
       printf("ERROR: local vector length must be a positive integer \n");
@@ -148,13 +148,13 @@ int main (int argc, char *argv[])
   fails += Test_N_VAbs(X, Z, local_length, myRank);
   fails += Test_N_VInv(X, Z, local_length, myRank);
   fails += Test_N_VAddConst(X, Z, local_length, myRank);
-  fails += Test_N_VDotProd(X, Y, local_length, global_length, myRank);
+  fails += Test_N_VDotProd(X, Y, local_length, myRank);
   fails += Test_N_VMaxNorm(X, local_length, myRank);
   fails += Test_N_VWrmsNorm(X, Y, local_length, myRank);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, local_length, global_length, myRank);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, local_length, myRank);
   fails += Test_N_VMin(X, local_length, myRank);
-  fails += Test_N_VWL2Norm(X, Y, local_length, global_length, myRank);
-  fails += Test_N_VL1Norm(X, local_length, global_length, myRank);
+  fails += Test_N_VWL2Norm(X, Y, local_length, myRank);
+  fails += Test_N_VL1Norm(X, local_length, myRank);
   fails += Test_N_VCompare(X, Z, local_length, myRank);
   fails += Test_N_VInvTest(X, Z, local_length, myRank);
   fails += Test_N_VConstrMask(X, Y, Z, local_length, myRank);

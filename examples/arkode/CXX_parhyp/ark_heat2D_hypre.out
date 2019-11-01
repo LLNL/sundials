@@ -43,7 +43,7 @@ Final Solver Statistics:
    Total linear iterations = 2255
    Total number of Jacobian-vector products = 0
    Total number of Jacobian evaluations = 8
-   Total number of linear solver convergence failures = 0
+   Total number of linear solver convergence failures = 415
    Total number of Nonlinear iterations = 470
    Total number of nonlinear solver convergence failures = 0
    Total number of error test failures = 6

@@ -84,18 +84,50 @@ int MRIStepSetErrFile(void *arkode_mem, FILE *errfp)
 }
 
 /*---------------------------------------------------------------
-  MRIStepSetUserData: Specifies the user data pointer for f
+  MRIStepSetUserData: Specifies the user data pointer
+
+  NOTE: This function assumes that the inner ARKodeMem user_data
+  variable is only passed to the RHS function(s) and that separate
+  variables (e.g., e_data, J_data, etc.) are used to pass the user
+  data to all other user functions. This ensures that re-attaching
+  the outer stepper to the inner user_data variable does not
+  clobber the pointers passed to other user functions.
   ---------------------------------------------------------------*/
 int MRIStepSetUserData(void *arkode_mem, void *user_data)
 {
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetUserData", MSG_ARK_NO_MEM);
+  ARKodeMem         ark_mem;       /* outer ARKode memory  */
+  ARKodeMRIStepMem  step_mem;      /* outer stepper memory */
+  ARKodeMem         inner_ark_mem; /* inner ARKode memory  */
+  int               retval;
+
+  /* Access MRIStep memory */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetUserData",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Check for inner memory */
+  if (step_mem->inner_mem == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::MRIStep",
+                    "MRIStepSetUserData", "The inner stepper memory is NULL");
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetUserData(ark_mem, user_data));
+
+  /* Attach user_data to the outer stepper */
+  retval = arkSetUserData(ark_mem, user_data);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Attach user_data to the inner stepper and re-attach the outer
+     stepper to the inner stepper ARKodeMem user_data pointer. */
+  switch (step_mem->inner_stepper_id) {
+  case MRISTEP_ARKSTEP:
+    retval = ARKStepSetUserData(step_mem->inner_mem, user_data);
+    if (retval != ARK_SUCCESS) return(retval);
+    inner_ark_mem = (ARKodeMem)(step_mem->inner_mem);
+    inner_ark_mem->user_data = arkode_mem;
+    break;
+  }
+
+  return(ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------
@@ -184,6 +216,20 @@ int MRIStepSetFixedStep(void *arkode_mem, realtype hsfixed)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
+
+  if (hsfixed == ZERO) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
+                    "MRIStepSetFixedStep",
+                    "MIRStep does not support adaptive steps at this time.");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* using an explicit method with fixed step sizes, enforce use of
+     arkEwtSmallReal to compute error weight vector */
+  ark_mem->user_efun = SUNFALSE;
+  ark_mem->efun      = arkEwtSetSmallReal;
+  ark_mem->e_data    = ark_mem;
+
   return(arkSetFixedStep(ark_mem, hsfixed));
 }
 
@@ -475,6 +521,50 @@ int MRIStepSetTableNum(void *arkode_mem, int itable)
   step_mem->stages = step_mem->B->stages;
   step_mem->q = step_mem->B->q;
   step_mem->p = step_mem->B->p;
+
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  MRIStepSetPreInnerFn:
+
+  Sets the user-supplied function called BEFORE the inner evolve
+  ---------------------------------------------------------------*/
+int MRIStepSetPreInnerFn(void *arkode_mem, MRIStepPreInnerFn prefn)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDefaults",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Set pre inner evolve function */
+  step_mem->pre_inner_evolve = prefn;
+
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  MRIStepSetPostInnerFn:
+
+  Sets the user-supplied function called AFTER the inner evolve
+  ---------------------------------------------------------------*/
+int MRIStepSetPostInnerFn(void *arkode_mem, MRIStepPostInnerFn postfn)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDefaults",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Set pre inner evolve function */
+  step_mem->post_inner_evolve = postfn;
 
   return(ARK_SUCCESS);
 }

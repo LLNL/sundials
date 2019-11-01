@@ -62,13 +62,12 @@
 /* Header files */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <arkode/arkode_arkstep.h>            /* prototypes for ARKStep fcts., consts     */
 #include <nvector/nvector_openmp.h>           /* serial N_Vector types, fcts., macros     */
 #include <sunmatrix/sunmatrix_slunrloc.h>     /* access to SuperLU SLU_NR_loc SUNMatrix   */
 #include <sunlinsol/sunlinsol_superludist.h>  /* access to SuperLU_DIST SUNLinearSolver   */
 #include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype, etc     */
-#include <sundials/sundials_math.h>           /* def. of SUNRsqrt, etc.                   */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -438,11 +437,11 @@ int main(int argc, char *argv[]) {
     retval = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);  /* call integrator */
     if (check_retval(&retval, "ARKStepEvolve", 1)) break;
     u = N_VWL2Norm(y,umask);                               /* access/print solution statistics */
-    u = SUNRsqrt(u*u/N);
+    u = sqrt(u*u/N);
     v = N_VWL2Norm(y,vmask);
-    v = SUNRsqrt(v*v/N);
+    v = sqrt(v*v/N);
     w = N_VWL2Norm(y,wmask);
-    w = SUNRsqrt(w*w/N);
+    w = sqrt(w*w/N);
     printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "\n", t, u, v, w);
     if (retval >= 0) {                                     /* successful solve: update output time */
       tout += dTout;
@@ -516,15 +515,13 @@ int main(int argc, char *argv[]) {
   free(udata->x);
   free(udata);
 
-  /* free matrix underlying data */
-  free(Adata);   free(Mdata);   free(Rdata);
-  free(Acolind); free(Mcolind); free(Rcolind);
-  free(Arowptr); free(Mrowptr); free(Rrowptr);
-
   /* Free the SuperLU_DIST structures */
   PStatFree(&Astat); PStatFree(&Mstat);
   ScalePermstructFree(&Ascaleperm); ScalePermstructFree(&Mscaleperm);
   LUstructFree(&Alu); LUstructFree(&Mlu);
+  Destroy_CompRowLoc_Matrix_dist(&Asuper);
+  Destroy_CompRowLoc_Matrix_dist(&Msuper);
+  Destroy_CompRowLoc_Matrix_dist(&Rsuper);
   superlu_gridexit(&grid);
 
   MPI_Finalize();

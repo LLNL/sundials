@@ -17,6 +17,7 @@
 
 .. _SUNNonlinSol_FixedPoint:
 
+==================================================
 The SUNNonlinearSolver_FixedPoint implementation
 ==================================================
 
@@ -26,7 +27,7 @@ SUNNonlinSol_FixedPoint module, include the header file
 ``sunnonlinsol/sunnonlinsol_fixedpoint.h``. We note that the
 SUNNonlinSol_FixedPoint module is accessible from SUNDIALS integrators
 *without* separately linking to the
-``libsundials_sunnonlinsolfixedpoint`` module library. 
+``libsundials_sunnonlinsolfixedpoint`` module library.
 
 
 .. _SUNNonlinSolFixedPoint.Math:
@@ -37,7 +38,7 @@ SUNNonlinearSolver_FixedPoint description
 To find the solution to
 
 .. math::
-   G(y) = y \, 
+   G(y) = y \,
    :label: e:fixed_point_sys
 
 given an initial guess :math:`y^{(0)}`, the fixed point iteration
@@ -51,7 +52,7 @@ where :math:`n` is the iteration index. The convergence of this
 iteration may be accelerated using Anderson's method [A1965]_, [WN2011]_,
 [FS2009]_, [LWWY2012]_.  With Anderson acceleration using subspace
 size :math:`m`, the series of approximate solutions can be formulated
-as the linear combination 
+as the linear combination
 
 .. math::
    y^{(n+1)} = \sum_{i=0}^{m_n} \alpha_i^{(n)} G(y^{(n-m_n+i)})
@@ -63,10 +64,10 @@ where :math:`m_n = \min{\{m,n\}}` and the factors
    \alpha^{(n)} =(\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})
 
 solve the minimization problem :math:`\min_\alpha  \| F_n \alpha^T
-\|_2` under the constraint that :math:`\sum_{i=0}^{m_n} \alpha_i = 1` where 
+\|_2` under the constraint that :math:`\sum_{i=0}^{m_n} \alpha_i = 1` where
 
 .. math::
-   F_{n} = (f_{n-m_n}, \ldots, f_{n}) 
+   F_{n} = (f_{n-m_n}, \ldots, f_{n})
 
 with :math:`f_i = G(y^{(i)}) - y^{(i)}`. Due to this constraint, in
 the limit of :math:`m=0` the accelerated fixed point iteration formula
@@ -88,7 +89,7 @@ factors
    \gamma^{(n)} =(\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})
 
 solve the unconstrained minimization problem
-:math:`\min_\gamma \| f_n - \Delta F_n \gamma^T \|_2` where  
+:math:`\min_\gamma \| f_n - \Delta F_n \gamma^T \|_2` where
 
 .. math::
    \Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1}),
@@ -98,7 +99,7 @@ solved by applying a QR factorization to :math:`\Delta F_n = Q_n R_n`
 and solving  :math:`R_n \gamma = Q_n^T f_n`.
 
 The acceleration subspace size :math:`m` is required when constructing
-the SUNNonlinSol_FixedPoint object.  The default maximum number of 
+the SUNNonlinSol_FixedPoint object.  The default maximum number of
 iterations and the stopping criteria for the fixed point iteration are
 supplied by the SUNDIALS integrator when SUNNonlinSol_FixedPoint
 is attached to it.  Both the maximum number of iterations and the
@@ -131,10 +132,10 @@ for creating the ``SUNNonlinearSolver`` object.
    **Return value:**  a SUNNonlinSol object if the constructor exits
    successfully, otherwise it will be ``NULL``.
 
-   
+
 Since the accelerated fixed point iteration
 :eq:`e:fixed_point_iteration` does not require the setup or solution
-of any linear systems, the SUNNonlinSol_FixedPoint module implements 
+of any linear systems, the SUNNonlinSol_FixedPoint module implements
 all of the functions defined in sections :ref:`SUNNonlinSol.CoreFn`
 through :ref:`SUNNonlinSol.GetFn` except for the
 :c:func:`SUNNonlinSolSetup()`, :c:func:`SUNNonlinSolSetLSetupFn()`,
@@ -145,7 +146,7 @@ appended to the function name.  Unless using the
 SUNNonlinSol_FixedPoint module as a standalone nonlinear solver the
 generic functions defined in sections :ref:`SUNNonlinSol.CoreFn`
 through :ref:`SUNNonlinSol.GetFn` should be called in favor of the
-SUNNonlinSol_FixedPoint-specific implementations. 
+SUNNonlinSol_FixedPoint-specific implementations.
 
 The SUNNonlinSol_FixedPoint module also defines the following additional
 user-callable function.
@@ -168,7 +169,7 @@ user-callable function.
    evaluate the fixed-point function in a custom convergence test
    function for the SUNNonlinSol_FixedPoint module. We note that
    SUNNonlinSol_FixedPoint will not leverage the results from any user
-   calls to *SysFn*. 
+   calls to *SysFn*.
 
 
 
@@ -181,12 +182,12 @@ The *content* field of the SUNNonlinSol_FixedPoint module is the
 following structure.
 
 .. code-block:: c
-                
+
    struct _SUNNonlinearSolverContent_FixedPoint {
-   
+
      SUNNonlinSolSysFn      Sys;
      SUNNonlinSolConvTestFn CTest;
-   
+
      int       m;
      int      *imap;
      realtype *R;
@@ -205,6 +206,7 @@ following structure.
      int       maxiters;
      long int  niters;
      long int  nconvfails;
+     void     *ctest_data;
    };
 
 The following entries of the *content* field are always
@@ -217,28 +219,29 @@ allocated:
 * ``delta``      -- ``N_Vector`` used to store difference between successive fixed-point iterates,
 * ``curiter``    -- the current number of iterations in the solve attempt,
 * ``maxiters``   -- the maximum number of fixed-point iterations allowed in
-  a solve, and
+  a solve,
 * ``niters``     -- the total number of nonlinear iterations across all
-  solves.
-* ``nconvfails`` -- the total number of nonlinear convergence failures across all solves.
-* ``m``          -- number of acceleration vectors,
+  solves,
+* ``nconvfails`` -- the total number of nonlinear convergence failures across all solves,
+* ``ctest_data`` -- the data pointer passed to the convergence test function, and
+* ``m``          -- number of acceleration vectors.
 
 If Anderson acceleration is requested (i.e., :math:`m>0` in the call
 to :c:func:`SUNNonlinSol_FixedPoint()`), then the following items are also
 allocated within the *content* field:
 
-* ``imap``  -- index array used in acceleration algorithm (length ``m``)
-* ``R``     -- small matrix used in acceleration algorithm (length ``m*m``)
-* ``gamma`` -- small vector used in acceleration algorithm (length ``m``)
-* ``cvals`` -- small vector used in acceleration algorithm (length ``m+1``)
-* ``df``    -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``)
-* ``dg``    -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``)
-* ``q``     -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``)
-* ``Xvecs`` -- ``N_Vector`` pointer array used in acceleration algorithm (length ``m+1``)
-* ``fold``  -- ``N_Vector`` used in acceleration algorithm
-* ``gold``  -- ``N_Vector`` used in acceleration algorithm
+* ``imap``  -- index array used in acceleration algorithm (length ``m``),
+* ``R``     -- small matrix used in acceleration algorithm (length ``m*m``),
+* ``gamma`` -- small vector used in acceleration algorithm (length ``m``),
+* ``cvals`` -- small vector used in acceleration algorithm (length ``m+1``),
+* ``df``    -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
+* ``dg``    -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
+* ``q``     -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
+* ``Xvecs`` -- ``N_Vector`` pointer array used in acceleration algorithm (length ``m+1``),
+* ``fold``  -- ``N_Vector`` used in acceleration algorithm, and
+* ``gold``  -- ``N_Vector`` used in acceleration algorithm.
 
-  
+
 
 .. _SUNNonlinSolFixedPoint.Fortran:
 
@@ -255,11 +258,11 @@ function for creating a ``SUNNonlinearSolver`` object.
    The function :f:func:`FSUNFixedPointInit()` can be called for
    Fortran programs to create a ``SUNNonlinearSolver`` object for use
    with SUNDIALS integrators to solve nonlinear systems of the form
-   :math:`G(y) = y`. 
+   :math:`G(y) = y`.
 
    This routine must be called *after* the ``N_Vector`` object has
-   been initialized. 
-                  
+   been initialized.
+
    **Arguments:**
       * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
         this matrix will be used for: CVODE=1, IDA=2, ARKode=4.

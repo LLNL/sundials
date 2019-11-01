@@ -356,10 +356,11 @@ Setting optional inputs
 --------------------------------------
 
 Unlike ARKStep's C interface, that provides separate functions for
-setting each optional input, FARKODE uses only two functions, that
+setting each optional input, FARKODE uses only three functions, that
 accept keywords to specify which optional input should be set to the
-provided value.  These routines are :f:func:`FARKSETIIN()` and
-:f:func:`FARKSETRIN()`, and are further described below.
+provided value.  These routines are :f:func:`FARKSETIIN()`,
+:f:func:`FARKSETRIN()`, and :f:func:`FARKSETVIN()` and are further
+described below.
 
 
 .. f:subroutine:: FARKSETIIN(KEY, IVAL, IER)
@@ -378,7 +379,7 @@ provided value.  These routines are :f:func:`FARKSETIIN()` and
 .. _FInterface.IINOptionTable:
 
 Table: Keys for setting FARKODE integer optional inputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------
 
 .. cssclass:: table-bordered
 
@@ -403,6 +404,7 @@ Key                      ARKStep routine
 ``MAX_NITERS``           :c:func:`ARKStepSetMaxNonlinIters()`
 ``ADAPT_SMALL_NEF``      :c:func:`ARKStepSetSmallNumEFails()`
 ``LSETUP_MSBP``          :c:func:`ARKStepSetMaxStepsBetweenLSet()`
+``MAX_CONSTR_FAIL``      :c:func:`ARKStepSetMaxNumConstrFails()`
 =======================  =========================================
 
 *(a)* When setting ``ARK_TABLE_NUM``, pass in *IVAL* as an array of
@@ -428,7 +430,7 @@ section :ref:`Constants`, or in the ARKode header files
 .. _FInterface.RINOptionTable:
 
 Table: Keys for setting FARKODE real optional inputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------------------
 
 .. cssclass:: table-bordered
 
@@ -452,6 +454,33 @@ Key                ARKStep routine
 ``NONLIN_RDIV``    :c:func:`ARKStepSetNonlinRDiv()`
 ``LSETUP_DGMAX``   :c:func:`ARKStepSetDeltaGammaMax()`
 ``FIXED_STEP``     :c:func:`ARKStepSetFixedStep()`
+=================  =========================================
+
+
+.. f:subroutine:: FARKSETVIN(KEY, VVAL, IER)
+
+   Specification routine to pass optional vector inputs
+   to the :f:func:`FARKODE()` solver.
+
+   **Arguments:**
+      * *KEY* (quoted string, input) -- which optional input
+        is set (see :ref:`FInterface.VINOptionTable`).
+      * *VVAL* (``realtype*``, input) -- the input vector of real values to be used.
+      * *IER* (``int``, output) -- return flag (0 success, :math:`\ne 0` failure).
+
+
+
+.. _FInterface.VINOptionTable:
+
+Table: Keys for setting FARKODE vector optional inputs
+-------------------------------------------------------
+
+.. cssclass:: table-bordered
+
+=================  =========================================
+Key                ARKStep routine
+=================  =========================================
+``CONSTR_VEC``     :c:func:`ARKStepSetConstraints()`
 =================  =========================================
 
 
@@ -677,7 +706,7 @@ Nonlinear solver module specification
 To use a non-default nonlinear solver algorithm, then after it has
 been initialized in step :ref:`FInterface.SUNNonlinSol` above, the
 user of FARKODE must attach it to ARKSTEP by calling the
-:f:func:`FARKNLSINIT()` routine: 
+:f:func:`FARKNLSINIT()` routine:
 
 
 .. f:subroutine:: FARKNLSINIT(IER)
@@ -847,7 +876,7 @@ call to :f:func:`FARKLSINIT()`, the user must call the routine
 
 
 When using ARKStep with either the SUNLINSOL_KLU or
-SUNLINSOL_SUPERLUMT sparse direct linear solver modules, the user must 
+SUNLINSOL_SUPERLUMT sparse direct linear solver modules, the user must
 supply a routine that computes a sparse approximation of the system
 Jacobian :math:`J = \frac{\partial f^I}{\partial y}`.  Both the KLU
 and SuperLU_MT solvers allow specification of :math:`J` in either
@@ -1177,7 +1206,7 @@ SUNLINSOL object (and optional SUNMATRIX object) to the mass-matrix
 solver interface, following calls to initialize the SUNLINSOL (and
 SUNMATRIX) object(s) in steps :ref:`FInterface.SUNMatrix` and
 :ref:`FInterface.SUNLinSol` above, the user must call the
-:f:func:`FARKLSMASSINIT()` routine: 
+:f:func:`FARKLSMASSINIT()` routine:
 
 
 .. f:subroutine:: FARKLSMASSINIT(TIME_DEP, IER)
@@ -1194,7 +1223,7 @@ SUNMATRIX) object(s) in steps :ref:`FInterface.SUNMatrix` and
         error occurred, -2 for an illegal input).
 
 
-   
+
 
 Matrix-based mass matrix linear solvers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1775,7 +1804,7 @@ Memory deallocation
 To free the internal memory created by :f:func:`FARKMALLOC()`,
 :f:func:`FARKLSINIT()`, :f:func:`FARKLSMASSINIT()`, and the SUNMATRIX,
 SUNLINSOL and SUNNONLINSOL objects, the user may call
-:f:func:`FARKFREE()`, as follows: 
+:f:func:`FARKFREE()`, as follows:
 
 
 .. f:subroutine:: FARKFREE()

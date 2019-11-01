@@ -70,7 +70,7 @@
  * options are tested.
  * In the series of runs, ARKStepCreate, SUNLinSol_SPGMR and
  * ARKStepSetLinearSolver are called only for the first run, whereas
- * ARKStepReInit, SUNLinSol_SPGMRSetPrecType, and SUNLinSol_SPGMRSetGSType 
+ * ARKStepReInit, SUNLinSol_SPGMRSetPrecType, and SUNLinSol_SPGMRSetGSType
  * are called for each of the remaining three runs.
  *
  * A problem description, performance statistics at selected output
@@ -102,7 +102,16 @@
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fct. and macros      */
 #include <sundials/sundials_dense.h>    /* use generic DENSE solver in preconditioning */
 #include <sundials/sundials_types.h>    /* definition of realtype                      */
-#include <sundials/sundials_math.h>     /* contains the macros ABS and SUNSQR          */
+
+/* helpful macros */
+
+#ifndef MAX
+#define MAX(A, B) ((A) > (B) ? (A) : (B))
+#endif
+
+#ifndef SQR
+#define SQR(A) ((A)*(A))
+#endif
 
 /* Constants */
 
@@ -291,7 +300,7 @@ int main()
 
         flag = ARKStepSetPreconditioner(arkode_mem, Precond, PSolve);
         if(check_flag(&flag, "ARKStepSetPreconditioner", 1)) return(1);
-        
+
       } else {
 
         flag = ARKStepReInit(arkode_mem, NULL, f, T0, c);
@@ -382,8 +391,8 @@ static void InitUserData(WebData wdata)
   dx = wdata->dx = DX;
   dy = wdata->dy = DY;
   for (i = 0; i < ns; i++) {
-    cox[i] = diff[i]/SUNSQR(dx);
-    coy[i] = diff[i]/SUNSQR(dy);
+    cox[i] = diff[i]/SQR(dx);
+    coy[i] = diff[i]/SQR(dy);
   }
 
   /* Set remaining method parameters */
@@ -392,7 +401,7 @@ static void InitUserData(WebData wdata)
   wdata->mq = MQ;
   wdata->mx = MX;
   wdata->my = MY;
-  wdata->srur = SUNRsqrt(UNIT_ROUNDOFF);
+  wdata->srur = sqrt(UNIT_ROUNDOFF);
   wdata->mxmp = MXMP;
   wdata->ngrp = NGRP;
   wdata->ngx = NGX;
@@ -441,15 +450,15 @@ static void CInit(N_Vector c, WebData wdata)
   dx = wdata->dx;
   dy = wdata->dy;
 
-  x_factor = RCONST(4.0)/SUNSQR(AX);
-  y_factor = RCONST(4.0)/SUNSQR(AY);
+  x_factor = RCONST(4.0)/SQR(AX);
+  y_factor = RCONST(4.0)/SQR(AY);
   for (jy = 0; jy < MY; jy++) {
     y = jy*dy;
-    argy = SUNSQR(y_factor*y*(AY-y));
+    argy = SQR(y_factor*y*(AY-y));
     iyoff = mxns*jy;
     for (jx = 0; jx < MX; jx++) {
       x = jx*dx;
-      argx = SUNSQR(x_factor*x*(AX-x));
+      argx = SQR(x_factor*x*(AX-x));
       ioff = iyoff + ns*jx;
       for (i = 1; i <= ns; i++) {
         ici = ioff + i-1;
@@ -761,11 +770,10 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   realtype ***P;
-  int ier;
+  sunindextype ier;
   sunindextype **pivot;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
-  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, flag;
-  sunindextype mp;
+  int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp, flag;
   realtype uround, fac, r, r0, save, srur;
   realtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
@@ -801,7 +809,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
   f1 = N_VGetArrayPointer(wdata->tmp);
 
   fac = N_VWrmsNorm (fc, rewt);
-  r0 = RCONST(1000.0)*SUNRabs(gamma)*uround*NEQ*fac;
+  r0 = RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
   if (r0 == ZERO) r0 = ONE;
 
   for (igy = 0; igy < ngy; igy++) {
@@ -816,7 +824,7 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
         /* Generate the jth column as a difference quotient */
         jj = if0 + j;
         save = cdata[jj];
-        r = SUNMAX(srur*SUNRabs(save),r0/rewtdata[jj]);
+        r = MAX(srur*fabs(save),r0/rewtdata[jj]);
         cdata[jj] += r;
         fac = -gamma/r;
         fblock (t, cdata, jx, jy, f1, wdata);
@@ -873,8 +881,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
 {
   realtype   ***P;
   sunindextype **pivot;
-  int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx;
-  sunindextype mp;
+  int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
   wdata = (WebData) user_data;

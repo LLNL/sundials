@@ -6,13 +6,13 @@
 This section describes the {\sunlinsol} implementation for solving sparse linear
 systems with SuperLU\_MT. The {\superlumt} module is designed to be used with the
 corresponding {\sunmatsparse} matrix type, and one of the serial or
-shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp}, or 
+shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp}, or
 {\nvecpthreads}). While these are compatible, it is not recommended
 to use a threaded vector module with {\sunlinsolslumt} unless it is
 the {\nvecopenmp} module and the {\superlumt} library has also been
 compiled with OpenMP.
 
-The header file to include when using this module 
+The header file to include when using this module
 is \id{sunlinsol/sunlinsol\_superlumt.h}. The installed module
 library to link to is
 \id{libsundials\_sunlinsolsuperlumt.\textit{lib}}
@@ -47,7 +47,7 @@ computes the permutation of the linear system matrix to reduce fill-in
 on subsequent $LU$ factorizations (using COLAMD, minimal degree
 ordering on $A^T*A$, minimal degree ordering on $A^T+A$, or natural
 ordering).  Of these ordering choices, the default value in the
-{\sunlinsolslumt} module is the COLAMD ordering. 
+{\sunlinsolslumt} module is the COLAMD ordering.
 
 Since the linear systems that arise within the context of {\sundials}
 calculations will typically have identical sparsity patterns, the
@@ -56,7 +56,7 @@ following operations:
 \begin{itemize}
 \item The first time that the ``setup'' routine is called, it
   performs the symbolic factorization, followed by an initial
-  numerical factorization.  
+  numerical factorization.
 \item On subsequent calls to the ``setup'' routine, it skips the
   symbolic factorization, and only refactors the input matrix.
 \item The ``solve'' call performs pivoting and forward and
@@ -91,7 +91,7 @@ for creating a \newline \id{SUNLinearSolver} object.
     a template for cloning vectors needed within the solver
   \item[A] (\id{SUNMatrix})
     a {\sunmatsparse} matrix template for cloning matrices needed
-    within the solver 
+    within the solver
   \item[num\_threads] (\id{int})
     desired number of threads (OpenMP or Pthreads, depending on how
     {\superlumt} was installed) to use during the factorization steps
@@ -134,7 +134,7 @@ for creating a \newline \id{SUNLinearSolver} object.
   factorization or refactorization of the input matrix.
 \item \id{SUNLinSolSolve\_SuperLUMT} -- this calls the appropriate
   {\superlumt} solve routine to utilize the $LU$ factors to solve the
-  linear system. 
+  linear system.
 \item \id{SUNLinSolLastFlag\_SuperLUMT}
 \item \id{SUNLinSolSpace\_SuperLUMT} -- this only returns information for
   the storage within the solver \emph{interface}, i.e.~storage for the
@@ -287,7 +287,7 @@ interfaces for the system and mass matrix solvers:
 }
 {
   See \id{SUNLinSol\_SuperLUMTSetOrdering} for complete further
-  documentation of this routine. 
+  documentation of this routine.
 }
 %
 % --------------------------------------------------------------------
@@ -321,7 +321,7 @@ interfaces for the system and mass matrix solvers:
 }
 {
   See \id{SUNLinSol\_SuperLUMTSetOrdering} for complete further
-  documentation of this routine. 
+  documentation of this routine.
 }
 
 
@@ -333,16 +333,16 @@ interfaces for the system and mass matrix solvers:
 The {\sunlinsolslumt} module defines the \textit{content} field of a
 \id{SUNLinearSolver} as the following structure:
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _SUNLinearSolverContent_SuperLUMT {
-  long int     last_flag;
+  int          last_flag;
   int          first_factorize;
   SuperMatrix  *A, *AC, *L, *U, *B;
   Gstat_t      *Gstat;
   sunindextype *perm_r, *perm_c;
   sunindextype N;
   int          num_threads;
-  realtype     diag_pivot_thresh; 
+  realtype     diag_pivot_thresh;
   int          ordering;
   superlumt_options_t *options;
 };
@@ -353,7 +353,7 @@ information:
 \begin{args}[diag\_pivot\_thresh]
   \item[last\_flag] - last error return flag from internal function evaluations,
   \item[first\_factorize] - flag indicating whether the factorization
-    has ever been performed, 
+    has ever been performed,
   \item[A, AC, L, U, B] - \id{SuperMatrix} pointers used in solve,
   \item[Gstat] - \id{GStat\_t} object used in solve,
   \item[perm\_r, perm\_c] - permutation arrays used in solve,
@@ -363,4 +363,3 @@ information:
   \item[ordering] - flag for which reordering algorithm to use,
   \item[options] - pointer to {\superlumt} options structure.
 \end{args}
-

@@ -1255,7 +1255,7 @@ flag = KINSetMaxSubSetupCalls(kin\_mem, msbsetsub);
     The argument \id{msbsetsub} was negative.
   \end{args}
 }
-{  
+{
   The default value for \id{msbsetsub} is \id{MSBSET\_SUB\_DEFAULT} $=5$.
 
   The value of \id{msbset} (see \id{KINSetMaxSetupCalls}) should be a multiple
@@ -1315,7 +1315,7 @@ flag = KINSetEtaForm(kin\_mem, etachoice);
 
   The following safeguards are always applied when using either
   \id{KIN\_ETACHOICE1} or \id{KIN\_ETACHOICE2} so that
-  $\eta_{\text{min}} \leq \eta_n \leq \eta_{\text{max}}$: 
+  $\eta_{\text{min}} \leq \eta_n \leq \eta_{\text{max}}$:
   \begin{align*}
     \eta_n &= \max(\eta_n, \eta_{\text{min}}) \\
     \eta_n &= \min(\eta_n, \eta_{\text{max}})
@@ -2456,7 +2456,7 @@ and last return value from a {\kinls} function.
     The optional output value has been successfully set.
   \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINIS\_LMEM\_NULL}]
+  \item[\Id{KINLS\_LMEM\_NULL}]
     The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }

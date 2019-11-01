@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# Programmer: David J. Gardner @ LLNL
+# Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -283,7 +283,7 @@ if(MPI_C_FOUND)
 
   # Create CMakeLists.txt file for "mpi2test" executable
   if(MPI_C_COMPILER)
-    
+
     file(WRITE ${MPITest_DIR}/CMakeLists.txt
       "CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)\n"
       "PROJECT(mpi2test C)\n"
@@ -336,7 +336,7 @@ if(MPI_C_FOUND)
 
   # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
-  FILE(REMOVE_RECURSE ${MPITest_DIR}/CMakeFiles)
+  file(REMOVE_RECURSE ${MPITest_DIR}/CMakeFiles)
 
   # Interpret test results
   if(MPITEST_OK)

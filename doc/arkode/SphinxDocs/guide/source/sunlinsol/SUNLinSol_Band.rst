@@ -31,13 +31,13 @@ NVECTOR_PTHREADS).
 SUNLinSol_Band Usage
 ---------------------------
 
-The header file to be included when using this module 
-is ``sunlinsol/sunlinsol_band.h``.  The SUNLinSol_Band module 
+The header file to be included when using this module
+is ``sunlinsol/sunlinsol_band.h``.  The SUNLinSol_Band module
 is accessible from all SUNDIALS solvers *without*
 linking to the
 ``libsundials_sunlinsolband`` module library.
 
-The module SUNLinSol_Band provides the following user-callable constructor routine: 
+The module SUNLinSol_Band provides the following user-callable constructor routine:
 
 .. c:function:: SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A)
 
@@ -67,7 +67,7 @@ For backwards compatibility, we also provide the wrapper function,
 
    Wrapper function for :c:func:`SUNLinSol_Band()`, with identical input and
    output arguments.
-   
+
 
 For solvers that include a Fortran interface module, the
 SUNLinSol_Band module also includes the Fortran-callable
@@ -77,11 +77,11 @@ this SUNLinSol_Band module for a given SUNDIALS solver.
 .. f:subroutine:: FSUNBandLinSolInit(CODE, IER)
 
    Initializes a banded ``SUNLinearSolver`` structure for
-   use in a SUNDIALS package. 
+   use in a SUNDIALS package.
 
    This routine must be called *after* both the ``N_Vector`` and
    ``SUNMatrix`` objects have been initialized.
-                  
+
    **Arguments:**
       * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
         this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
@@ -90,16 +90,16 @@ this SUNLinSol_Band module for a given SUNDIALS solver.
 Additionally, when using ARKode with a non-identity mass matrix, the
 Fortran-callable function :f:func:`FSUNMassBandLinSolInit()`
 initializes this SUNLinSol_Band module for solving mass matrix linear
-systems. 
+systems.
 
 .. f:subroutine:: FSUNMassBandLinSolInit(IER)
 
    Initializes a banded ``SUNLinearSolver`` structure for
-   use in solving mass matrix systems in ARKode. 
+   use in solving mass matrix systems in ARKode.
 
    This routine must be called *after* both the ``N_Vector`` and
    ``SUNMatrix`` objects have been initialized.
-                  
+
    **Arguments:**
       * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
 
@@ -112,23 +112,23 @@ SUNLinSol_Band Description
 
 
 The SUNLinSol_Band module defines the *content*
-field of a ``SUNLinearSolver`` to be the following structure: 
+field of a ``SUNLinearSolver`` to be the following structure:
 
 .. code-block:: c
 
    struct _SUNLinearSolverContent_Band {
      sunindextype N;
      sunindextype *pivots;
-     long int last_flag;
+     sunindextype last_flag;
    };
 
 These entries of the *content* field contain the following
 information:
 
 * ``N`` - size of the linear system,
-  
+
 * ``pivots`` - index array for partial pivoting in LU factorization,
-    
+
 * ``last_flag`` - last error return flag from internal function evaluations.
 
 
@@ -155,7 +155,7 @@ This solver is constructed to perform the following operations:
 
 The SUNLinSol_Band module defines band implementations of all
 "direct" linear solver operations listed in the section
-:ref:`SUNLinSol.API`: 
+:ref:`SUNLinSol.API`:
 
 * ``SUNLinSolGetType_Band``
 
@@ -174,4 +174,3 @@ The SUNLinSol_Band module defines band implementations of all
   for ``N``, ``last_flag``, and ``pivots``.
 
 * ``SUNLinSolFree_Band``
-

@@ -94,6 +94,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
   content->maxiters   = 3;
   content->niters     = 0;
   content->nconvfails = 0;
+  content->ctest_data = NULL;
 
   /* Fill allocatable content */
   retval = AllocateContent(NLS, y);
@@ -171,7 +172,7 @@ int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
   by the Sys function provided to the nonlinear solver.
   ---------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
-                                 N_Vector y, N_Vector w, realtype tol,
+                                 N_Vector ycor, N_Vector w, realtype tol,
                                  booleantype callSetup, void* mem)
 {
   /* local variables */
@@ -179,7 +180,15 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
   N_Vector yprev, gy, delta;
 
   /* check that the inputs are non-null */
-  if ( (NLS == NULL) || (y0 == NULL) || (y == NULL) || (w == NULL) || (mem == NULL) )
+  if ( (NLS  == NULL) ||
+       (y0   == NULL) ||
+       (ycor == NULL) ||
+       (w    == NULL) ||
+       (mem  == NULL) )
+    return(SUN_NLS_MEM_NULL);
+
+  /* check that all required function pointers have been set */
+  if ( (FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL) )
     return(SUN_NLS_MEM_NULL);
 
   /* check that all required function pointers have been set */
@@ -191,9 +200,6 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
   gy    = FP_CONTENT(NLS)->gy;
   delta = FP_CONTENT(NLS)->delta;
 
-  /* load prediction into y */
-  N_VScale(ONE, y0, y);
-
   /* Looping point for attempts at solution of the nonlinear system:
        Evaluate fixed-point function (store in gy).
        Performs the accelerated fixed-point iteration.
@@ -203,27 +209,28 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
        FP_CONTENT(NLS)->curiter++ ) {
 
     /* update previous solution guess */
-    N_VScale(ONE, y, yprev);
+    N_VScale(ONE, ycor, yprev);
 
     /* compute fixed-point iteration function, store in gy */
-    retval = FP_CONTENT(NLS)->Sys(y, gy, mem);
+    retval = FP_CONTENT(NLS)->Sys(ycor, gy, mem);
     if (retval != SUN_NLS_SUCCESS) break;
 
     /* perform fixed point update, based on choice of acceleration or not */
     if (FP_CONTENT(NLS)->m == 0) {    /* basic fixed-point solver */
-      N_VScale(ONE, gy, y);
+      N_VScale(ONE, gy, ycor);
     } else {                          /* Anderson-accelerated solver */
-      retval = AndersonAccelerate(NLS, gy, y, yprev, FP_CONTENT(NLS)->curiter);
+      retval = AndersonAccelerate(NLS, gy, ycor, yprev, FP_CONTENT(NLS)->curiter);
     }
 
     /* increment nonlinear solver iteration counter */
     FP_CONTENT(NLS)->niters++;
 
     /* compute change in solution, and call the convergence test function */
-    N_VLinearSum(ONE, y, -ONE, yprev, delta);
+    N_VLinearSum(ONE, ycor, -ONE, yprev, delta);
 
     /* test for convergence */
-    retval = FP_CONTENT(NLS)->CTest(NLS, y, delta, tol, w, mem);
+    retval = FP_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
+                                    FP_CONTENT(NLS)->ctest_data);
 
     /* return if successful */
     if (retval == SUN_NLS_SUCCESS)  return(SUN_NLS_SUCCESS);
@@ -287,7 +294,9 @@ int SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn Sy
   return(SUN_NLS_SUCCESS);
 }
 
-int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
+int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
+                                         SUNNonlinSolConvTestFn CTestFn,
+                                         void* ctest_data)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL)
@@ -298,6 +307,10 @@ int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolCon
     return(SUN_NLS_ILL_INPUT);
 
   FP_CONTENT(NLS)->CTest = CTestFn;
+
+  /* attach convergence test data */
+  FP_CONTENT(NLS)->ctest_data = ctest_data;
+
   return(SUN_NLS_SUCCESS);
 }
 

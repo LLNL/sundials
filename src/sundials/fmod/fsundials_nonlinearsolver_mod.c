@@ -326,15 +326,17 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetLSolveFn(SUNNonlinearSolver farg1, SUNNonli
 }
 
 
-SWIGEXPORT int _wrap_FSUNNonlinSolSetConvTestFn(SUNNonlinearSolver farg1, SUNNonlinSolConvTestFn farg2) {
+SWIGEXPORT int _wrap_FSUNNonlinSolSetConvTestFn(SUNNonlinearSolver farg1, SUNNonlinSolConvTestFn farg2, void *farg3) {
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   SUNNonlinSolConvTestFn arg2 = (SUNNonlinSolConvTestFn) 0 ;
+  void *arg3 = (void *) 0 ;
   int result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (SUNNonlinSolConvTestFn)(farg2);
-  result = (int)SUNNonlinSolSetConvTestFn(arg1,arg2);
+  arg3 = (void *)(farg3);
+  result = (int)SUNNonlinSolSetConvTestFn(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

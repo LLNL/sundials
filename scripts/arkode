@@ -95,7 +95,7 @@ $tar $tarfile $distrobase/src/arkode/fmod/CMakeLists.txt || exit 1
 $tar $tarfile $distrobase/src/arkode/fmod/farkode_mod.{c,f90} || exit 1
 $tar $tarfile $distrobase/src/arkode/fmod/farkode_arkstep_mod.{c,f90} || exit 1
 $tar $tarfile $distrobase/src/arkode/fmod/farkode_erkstep_mod.{c,f90} || exit 1
-$tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.{c,f90} || exit 1 
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.{c,f90} || exit 1
 
 echo "   --- Add arkode examples to $tarfile"
 
@@ -136,6 +136,10 @@ $tar $tarfile $distrobase/examples/arkode/C_parhyp/README                 || exi
 $tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_ph.c   || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_ph.out || exit 1
 
+$tar $tarfile $distrobase/examples/arkode/C_petsc/CMakeLists.txt         || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_petsc/README                 || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_petsc/ark_petsc_ex25.{c,out} || exit 1
+
 $tar $tarfile $distrobase/examples/arkode/C_serial/CMakeLists.txt                 || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/README                         || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic.c                 || exit 1
@@ -168,6 +172,8 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.c 
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.out || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.c                || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.out              || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_constraints.c    || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_constraints.out  || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.c           || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.out         || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_twowaycouple_mri.c         || exit 1
@@ -179,6 +185,11 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D.py               
 $tar $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D_adapt.py           || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol.py                    || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol_log.py                || exit 1
+
+$tar $tarfile $distrobase/examples/arkode/CUDA_serial/CMakeLists.txt                     || exit 1
+$tar $tarfile $distrobase/examples/arkode/CUDA_serial/README                             || exit 1
+$tar $tarfile $distrobase/examples/arkode/CUDA_serial/ark_brusselator1D_FEM_cusolver.cu  || exit 1
+$tar $tarfile $distrobase/examples/arkode/CUDA_serial/ark_brusselator1D_FEM_cusolver.out || exit 1
 
 $tar $tarfile $distrobase/examples/arkode/CXX_parallel/CMakeLists.txt || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parallel/README         || exit 1

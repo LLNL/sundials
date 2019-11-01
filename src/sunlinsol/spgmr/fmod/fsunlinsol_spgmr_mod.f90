@@ -42,6 +42,7 @@ module fsunlinsol_spgmr_mod
  public :: FSUNSPGMRSetGSType
  public :: FSUNSPGMRSetMaxRestarts
  public :: FSUNLinSolGetType_SPGMR
+ public :: FSUNLinSolGetID_SPGMR
  public :: FSUNLinSolInitialize_SPGMR
  public :: FSUNLinSolSetATimes_SPGMR
  public :: FSUNLinSolSetPreconditioner_SPGMR
@@ -133,6 +134,14 @@ end function
 
 function swigc_FSUNLinSolGetType_SPGMR(farg1) &
 bind(C, name="_wrap_FSUNLinSolGetType_SPGMR") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNLinSolGetID_SPGMR(farg1) &
+bind(C, name="_wrap_FSUNLinSolGetID_SPGMR") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -398,6 +407,19 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolGetType_SPGMR(farg1)
+swig_result = fresult
+end function
+
+function FSUNLinSolGetID_SPGMR(s) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(SUNLinearSolver_ID) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+fresult = swigc_FSUNLinSolGetID_SPGMR(farg1)
 swig_result = fresult
 end function
 

@@ -630,6 +630,20 @@ SWIGEXPORT int _wrap_FERKStepSetMaxErrTestFails(void *farg1, int const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FERKStepSetConstraints(void *farg1, N_Vector farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (N_Vector)(farg2);
+  result = (int)ERKStepSetConstraints(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FERKStepSetMaxNumSteps(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -723,6 +737,20 @@ SWIGEXPORT int _wrap_FERKStepSetFixedStep(void *farg1, double const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)ERKStepSetFixedStep(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepSetMaxNumConstrFails(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ERKStepSetMaxNumConstrFails(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1099,6 +1127,20 @@ SWIGEXPORT int _wrap_FERKStepGetRootInfo(void *farg1, int *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)ERKStepGetRootInfo(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepGetNumConstrFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)ERKStepGetNumConstrFails(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

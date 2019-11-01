@@ -54,27 +54,12 @@ direct solvers and preconditioners depends on the local vector implementation.
 The module {\nvecmpiplusx} provides the following additional
 user-callable routines:
 %%--------------------------------------
-\sunmodfun{N\_VMake\_MPIPlusX}
+\sunmodfunf{N\_VMake\_MPIPlusX}
 {
   This function creates an MPIPlusX vector from an existing local
   (i.e. on-node) {\nvector} object, and a user-created MPI communicator.
 
-  The input \id{comm} should be the memory reference to this
-  user-created MPI communicator.  We note that since many {\mpi}
-  implementations \id{\#define} \id{MPI\_COMM\_WORLD} to be a specific
-  integer \emph{value} (that has no memory reference), users who wish
-  to supply \id{MPI\_COMM\_WORLD} to this routine should first
-  set a specific \id{MPI\_Comm} variable to \id{MPI\_COMM\_WORLD}
-  before passing in the reference, e.g.
-
-  \hspace{0.5in} \texttt{MPI\_Comm comm;}\vspace{-0.5em}
-  
-  \hspace{0.5in} \texttt{comm = MPI\_COMM\_WORLD;}\vspace{-0.5em}
-  
-  \hspace{0.5in} \texttt{N\_Vector x;}\vspace{-0.5em}
-  
-  \hspace{0.5in} \texttt{x = N\_VMake\_MPIPlusX(\&comm, ...);}
-
+  The input \id{comm} should be this user-created MPI communicator.
   This routine will internally call \id{MPI\_Comm\_dup} to create a
   copy of the input \id{comm}, so the user-supplied \id{comm} argument
   need not be retained after the call to \id{N\_VMake\_MPIPlusX}.
@@ -88,12 +73,12 @@ user-callable routines:
   \id{local\_vector} is \id{NULL}).
 }
 {
-  N\_Vector N\_VMake\_MPIPlusX(MPI\_Comm *comm, 
+  N\_Vector N\_VMake\_MPIPlusX(MPI\_Comm comm, 
   \newlinefill{N\_Vector N\_VMake\_MPIPlusX}
   N\_Vector *local\_vector);
 }
 %%--------------------------------------
-\sunmodfun{N\_VGetLocalVector\_MPIPlusX}
+\sunmodfunf{N\_VGetLocalVector\_MPIPlusX}
 {
   This function returns the local vector underneath the 
   the MPIPlusX {\nvector}.
@@ -101,7 +86,7 @@ user-callable routines:
 {
   N\_Vector N\_VGetLocalVector\_MPIPlusX(N\_Vector v);
 }
-\sunmodfun{N\_VGetArrayPointer\_MPIPlusX}
+\sunmodfunf{N\_VGetArrayPointer\_MPIPlusX}
 {
   This function returns the data array pointer for the local vector
   if the local vector implements the \id{N\_VGetArrayPointer} operation;
@@ -110,7 +95,7 @@ user-callable routines:
 {
   realtype* N\_VGetLocalVector\_MPIPlusX(N\_Vector v);
 }
-\sunmodfun{N\_VSetArrayPointer\_MPIPlusX}
+\sunmodfunf{N\_VSetArrayPointer\_MPIPlusX}
 {
   This function sets the data array pointer for the local vector
   if the local vector implements the \id{N\_VSetArrayPointer} operation.

@@ -45,7 +45,6 @@
 #include <nvector/nvector_parallel.h>             /* access to MPI-parallel N_Vector              */
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
 #include <sundials/sundials_types.h>              /* definition of type realtype                  */
-#include <sundials/sundials_math.h>               /* definition of ABS and EXP                    */
 
 #include <mpi.h> /* MPI constants and types */
 
@@ -221,7 +220,7 @@ static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
   for (i=1; i<=my_length; i++) {
     iglobal = my_base + i;
     x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
+    udata[i-1] = x*(XMAX - x)*exp(RCONST(2.0)*x);
   }
 }
 
@@ -282,8 +281,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;
-  int i;
-  int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe;
+  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
+  sunindextype i, my_length;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;

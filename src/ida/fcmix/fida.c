@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------- 
+/*-----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Aaron Collier and Radu Serban @ LLNL
  *-----------------------------------------------------------------
@@ -65,7 +65,7 @@ extern "C" {
 
 void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
                  int *iatol, realtype *rtol, realtype *atol,
-                 long int *iout, realtype *rout, 
+                 long int *iout, realtype *rout,
                  long int *ipar, realtype *rpar, int *ier)
 {
   N_Vector Vatol;
@@ -254,7 +254,7 @@ void FIDA_SETIIN(char key_name[], long int *ival, int *ier)
     *ier = IDASetSuppressAlg(IDA_idamem, (booleantype) *ival);
   else if (!strncmp(key_name,"MAX_NSTEPS_IC",13))
     *ier = IDASetMaxNumStepsIC(IDA_idamem, (int) *ival);
-  else if (!strncmp(key_name,"MAX_NITERS_IC",13)) 
+  else if (!strncmp(key_name,"MAX_NITERS_IC",13))
     *ier = IDASetMaxNumItersIC(IDA_idamem, (int) *ival);
   else if (!strncmp(key_name,"MAX_NJE_IC",10))
     *ier = IDASetMaxNumJacsIC(IDA_idamem, (int) *ival);
@@ -307,7 +307,7 @@ void FIDA_SETVIN(char key_name[], realtype *vval, int *ier)
       return;
     }
     N_VSetArrayPointer(vval, Vec);
-    IDASetId(IDA_idamem, Vec);
+    *ier = IDASetId(IDA_idamem, Vec);
     N_VDestroy(Vec);
   } else if (!strncmp(key_name,"CONSTR_VEC",10)) {
     Vec = NULL;
@@ -317,7 +317,7 @@ void FIDA_SETVIN(char key_name[], realtype *vval, int *ier)
       return;
     }
     N_VSetArrayPointer(vval, Vec);
-    IDASetConstraints(IDA_idamem, Vec);
+    *ier = IDASetConstraints(IDA_idamem, Vec);
     N_VDestroy(Vec);
   } else {
     *ier = -99;
@@ -362,14 +362,14 @@ void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier)
 
 /*************************************************/
 
-/* Fortran interface to C routine IDASetLinearSolver; see 
+/* Fortran interface to C routine IDASetLinearSolver; see
    fida.h for further details */
 void FIDA_LSINIT(int *ier) {
   if ( (IDA_idamem == NULL) || (F2C_IDA_linsol == NULL) ) {
     *ier = -1;
     return;
   }
-  *ier = IDASetLinearSolver(IDA_idamem, F2C_IDA_linsol, 
+  *ier = IDASetLinearSolver(IDA_idamem, F2C_IDA_linsol,
                             F2C_IDA_matrix);
   return;
 }
@@ -391,7 +391,7 @@ void FIDA_SPILSINIT(int *ier) {
 
 /*************************************************/
 
-/* Fortran interfaces to C "set" routines for the IDALS solver; 
+/* Fortran interfaces to C "set" routines for the IDALS solver;
    see fida.h for further details */
 void FIDA_LSSETEPSLIN(realtype *eplifac, int *ier) {
   *ier = IDASetEpsLin(IDA_idamem, *eplifac);
@@ -408,7 +408,7 @@ void FIDA_SPILSSETEPSLIN(realtype *eplifac, int *ier)
 { FIDA_LSSETEPSLIN(eplifac, ier); }
 
 /*** DEPRECATED ***/
-void FIDA_SPILSSETINCREMENTFACTOR(realtype *dqincfac, int *ier) 
+void FIDA_SPILSSETINCREMENTFACTOR(realtype *dqincfac, int *ier)
 { FIDA_LSSETINCREMENTFACTOR(dqincfac, ier); }
 
 
@@ -453,11 +453,11 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
   IDAGetNonlinSolvStats(IDA_idamem,
                         &IDA_iout[6],           /* NNI */
                         &IDA_iout[5]);          /* NCFN */
-  IDAGetNumBacktrackOps(IDA_idamem, 
+  IDAGetNumBacktrackOps(IDA_idamem,
                         &IDA_iout[10]);         /* NBCKTRK */
-  IDAGetTolScaleFactor(IDA_idamem,    
+  IDAGetTolScaleFactor(IDA_idamem,
                        &IDA_rout[4]);           /* TOLSFAC */
-  
+
   /* Root finding is on */
   if (IDA_nrtfn != 0)
     IDAGetNumGEvals(IDA_idamem, &IDA_iout[11]); /* NGE */
@@ -595,7 +595,7 @@ int FIDAresfn(realtype t, N_Vector yy, N_Vector yp,
   IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
-  FIDA_RESFUN(&t, yy_data, yp_data, rr_data, 
+  FIDA_RESFUN(&t, yy_data, yp_data, rr_data,
               IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 
   return(ier);
@@ -603,7 +603,7 @@ int FIDAresfn(realtype t, N_Vector yy, N_Vector yp,
 
 /*************************************************/
 
-/* Fortran interface to C routine IDASetNonlinearSolver; see 
+/* Fortran interface to C routine IDASetNonlinearSolver; see
    fida.h for further details */
 void FIDA_NLSINIT(int *ier) {
   if ( (IDA_idamem == NULL) || (F2C_IDA_nonlinsol == NULL) ) {

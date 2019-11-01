@@ -26,6 +26,7 @@ cvs_org.tex \
 cvs_sim.tex \
 cvs_fwd.tex \
 cvs_adj.tex \
+cvs_fcmix.tex \
 cvs_nvec.tex \
 cvs_newlinsolv.tex \
 cvs_sunlinsol.tex \

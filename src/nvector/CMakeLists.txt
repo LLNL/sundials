@@ -49,15 +49,14 @@ if(PETSC_ENABLE AND PETSC_FOUND)
   add_subdirectory(petsc)
 endif(PETSC_ENABLE AND PETSC_FOUND)
 
-if(CUDA_ENABLE AND CUDA_FOUND)
+if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
   add_subdirectory(cuda)
-endif(CUDA_ENABLE AND CUDA_FOUND)
+endif(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
 
 if(RAJA_ENABLE AND RAJA_FOUND)
   add_subdirectory(raja)
 endif(RAJA_ENABLE AND RAJA_FOUND)
 
-IF(Trilinos_ENABLE AND Trilinos_FOUND)
-  ADD_SUBDIRECTORY(trilinos)
-ENDIF(Trilinos_ENABLE AND Trilinos_FOUND)
-
+if(Trilinos_ENABLE AND Trilinos_FOUND)
+  add_subdirectory(trilinos)
+endif(Trilinos_ENABLE AND Trilinos_FOUND)

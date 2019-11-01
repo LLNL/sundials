@@ -64,7 +64,7 @@ user-callable routine:
    If either ``A`` or ``y`` are incompatible then this routine will
    return ``NULL``.
 
-   
+
 For backwards compatibility, we also provide the wrapper function,
 
 .. c:function:: SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
@@ -72,7 +72,7 @@ For backwards compatibility, we also provide the wrapper function,
    Wrapper function for :c:func:`SUNLinSol_LapackBand()`, with
    identical input and output arguments.
 
-                
+
 For solvers that include a Fortran interface module, the
 SUNLinSol_LapackBand module also includes the Fortran-callable
 function :f:func:`FSUNLapackBandInit()` to initialize this
@@ -108,7 +108,7 @@ linear systems.
       * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
 
 
-        
+
 .. _SUNLinSol_LapackBand.Description:
 
 SUNLinSol_LapackBand Description
@@ -123,7 +123,7 @@ SUNLinSol_LapackBand module defines the
    struct _SUNLinearSolverContent_Band {
      sunindextype N;
      sunindextype *pivots;
-     long int last_flag;
+     sunindextype last_flag;
    };
 
 These entries of the *content* field contain the following
@@ -200,4 +200,3 @@ The SUNLinSol_LapackBand module defines band implementations of all
   ``last_flag``, and ``pivots``.
 
 * ``SUNLinSolFree_LapackBand``
-

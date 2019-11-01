@@ -85,6 +85,7 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl)
 
   /* Attach operations */
   S->ops->gettype           = SUNLinSolGetType_SPTFQMR;
+  S->ops->getid             = SUNLinSolGetID_SPTFQMR;
   S->ops->setatimes         = SUNLinSolSetATimes_SPTFQMR;
   S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPTFQMR;
   S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPTFQMR;
@@ -214,6 +215,12 @@ SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
 SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_ITERATIVE);
+}
+
+
+SUNLinearSolver_ID SUNLinSolGetID_SPTFQMR(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_SPTFQMR);
 }
 
 
@@ -721,7 +728,7 @@ N_Vector SUNLinSolResid_SPTFQMR(SUNLinearSolver S)
 }
 
 
-long int SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
   if (S == NULL) return(-1);

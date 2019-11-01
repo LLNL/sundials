@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
-# Programmer:  Daniel R. Reynolds @ SMU
-#              Radu Serban @ LLNL
+# Programmer(s): Daniel R. Reynolds @ SMU
+#                Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -13,11 +13,17 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the IDAS library
+# ---------------------------------------------------------------
 
-INSTALL(CODE "MESSAGE(\"\nInstall IDAS\n\")")
+install(CODE "MESSAGE(\"\nInstall IDAS\n\")")
+
+# Add F90 module if F2003 interface is enabled
+if(F2003_FOUND AND F2003_INTERFACE_ENABLE)
+  add_subdirectory(fmod)
+endif(F2003_FOUND AND F2003_INTERFACE_ENABLE)
 
 # Add variable idas_SOURCES with the sources for the IDAS library
-SET(idas_SOURCES
+set(idas_SOURCES
   idas.c
   idaa.c
   idas_direct.c
@@ -34,7 +40,7 @@ SET(idas_SOURCES
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the IDAS library
-SET(shared_SOURCES
+set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
@@ -51,7 +57,7 @@ SET(shared_SOURCES
 
 # Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
 # also be included in the IDAS library
-SET(sunmatrix_SOURCES
+set(sunmatrix_SOURCES
   ${sundials_SOURCE_DIR}/src/sunmatrix/band/sunmatrix_band.c
   ${sundials_SOURCE_DIR}/src/sunmatrix/dense/sunmatrix_dense.c
   ${sundials_SOURCE_DIR}/src/sunmatrix/sparse/sunmatrix_sparse.c
@@ -59,7 +65,7 @@ SET(sunmatrix_SOURCES
 
 # Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
 # also be included in the IDAS library
-SET(sunlinsol_SOURCES
+set(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol/band/sunlinsol_band.c
   ${sundials_SOURCE_DIR}/src/sunlinsol/dense/sunlinsol_dense.c
   ${sundials_SOURCE_DIR}/src/sunlinsol/spbcgs/sunlinsol_spbcgs.c
@@ -71,12 +77,13 @@ SET(sunlinsol_SOURCES
 
 # Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
 # which will also be included in the IDAS library
-SET(sunnonlinsol_SOURCES
+set(sunnonlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c
   )
 
 # Add variable idas_HEADERS with the exported IDAS header files
-SET(idas_HEADERS
+set(idas_HEADERS
   idas.h
   idas_bbdpre.h
   idas_direct.h
@@ -85,59 +92,59 @@ SET(idas_HEADERS
   )
 
 # Add prefix with complete path to the IDAS header files
-ADD_PREFIX(${sundials_SOURCE_DIR}/include/idas/ idas_HEADERS)
+add_prefix(${sundials_SOURCE_DIR}/include/idas/ idas_HEADERS)
 
 # Add source directories to include directories for access to
 # implementation only header files.
-INCLUDE_DIRECTORIES(.)
+include_directories(.)
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
+add_definitions(-DBUILD_SUNDIALS_LIBRARY)
 
 # Build the static library
-IF(BUILD_STATIC_LIBS)
+if(BUILD_STATIC_LIBS)
 
   # Add the build target for the static IDAS library
-  ADD_LIBRARY(sundials_idas_static STATIC
+  add_library(sundials_idas_static STATIC
     ${idas_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
     ${sunnonlinsol_SOURCES})
 
   # Set the library name and make sure it is not deleted
-  SET_TARGET_PROPERTIES(sundials_idas_static
+  set_target_properties(sundials_idas_static
     PROPERTIES OUTPUT_NAME sundials_idas CLEAN_DIRECT_OUTPUT 1)
 
   # Install the IDA library
-  INSTALL(TARGETS sundials_idas_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(TARGETS sundials_idas_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-ENDIF(BUILD_STATIC_LIBS)
+endif(BUILD_STATIC_LIBS)
 
 # Build the shared library
-IF(BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
 
   # Add the build target for the IDAS library
-  ADD_LIBRARY(sundials_idas_shared SHARED
+  add_library(sundials_idas_shared SHARED
     ${idas_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
     ${sunnonlinsol_SOURCES})
 
-  IF(UNIX)
-    TARGET_LINK_LIBRARIES(sundials_idas_shared m)
-  ENDIF()
+  if(UNIX)
+    target_link_libraries(sundials_idas_shared m)
+  endif()
 
   # Set the library name and make sure it is not deleted
-  SET_TARGET_PROPERTIES(sundials_idas_shared
+  set_target_properties(sundials_idas_shared
     PROPERTIES OUTPUT_NAME sundials_idas CLEAN_DIRECT_OUTPUT 1)
 
   # Set VERSION and SOVERSION for shared libraries
-  SET_TARGET_PROPERTIES(sundials_idas_shared
+  set_target_properties(sundials_idas_shared
     PROPERTIES VERSION ${idaslib_VERSION} SOVERSION ${idaslib_SOVERSION})
 
   # Install the IDAS library
-  INSTALL(TARGETS sundials_idas_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(TARGETS sundials_idas_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-ENDIF(BUILD_SHARED_LIBS)
+endif(BUILD_SHARED_LIBS)
 
 # Install the IDAS header files
-INSTALL(FILES ${idas_HEADERS} DESTINATION include/idas)
+install(FILES ${idas_HEADERS} DESTINATION include/idas)
 
 #
-MESSAGE(STATUS "Added IDAS module")
+message(STATUS "Added IDAS module")

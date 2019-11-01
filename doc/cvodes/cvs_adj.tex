@@ -360,7 +360,7 @@ allocated by a call to the function \id{CVodeAdjInit}.
 The form of the call to this function is
 %%
 %%
-\ucfunction{CVodeAdjInit}
+\ucfunctionf{CVodeAdjInit}
 {
   flag = CVodeAdjInit(cvode\_mem, Nd, interpType);
 }
@@ -407,7 +407,7 @@ The form of the call to this function is
 }
 %%
 %%
-\ucfunction{CVodeAdjReInit}
+\ucfunctionf{CVodeAdjReInit}
 {
   flag = CVodeAdjReInit(cvode\_mem);
 }
@@ -447,7 +447,7 @@ The form of the call to this function is
 }
 %%
 %%
-\ucfunction{CVodeAdjFree}
+\ucfunctionf{CVodeAdjFree}
 {
   CVodeAdjFree(cvode\_mem);
 }
@@ -490,7 +490,7 @@ Analysis; for that, see Chapter \ref{s:forward}.
 %%
 The call to this function has the form
 %%
-\ucfunction{CVodeF}
+\ucfunctionf{CVodeF}
 {
   flag = CVodeF(cvode\_mem, tout, yret, \&tret, itask, \&ncheck);
 }
@@ -595,7 +595,7 @@ called in the order listed. They instantiate a {\cvodes} solver object, provide 
 and solution specifications, and allocate internal memory for the backward problem.
 %%
 %%
-\ucfunction{CVodeCreateB}
+\ucfunctionf{CVodeCreateB}
 {
   flag = CVodeCreateB(cvode\_mem, lmmB, \&which);
 }
@@ -641,7 +641,7 @@ The function \id{CVodeInitB} initializes the backward problem when it does
 not depend on the forward sensitivities.  It is essentially a wrapper for 
 \id{CVodeInit} with some particularization for backward integration, as described below.
 
-\ucfunction{CVodeInitB}
+\ucfunctionf{CVodeInitB}
 {
   flag = CVodeInitB(cvode\_mem, which, rhsB, tB0, yB0);
 }
@@ -695,7 +695,7 @@ sensitivities, user must call \id{CVodeInitBS} instead of \id{CVodeInitB}.
 Only the third argument of each function differs between these two
 functions.
 
-\ucfunction{CVodeInitBS}
+\ucfunctionf{CVodeInitBS}
 {
   flag = CVodeInitBS(cvode\_mem, which, rhsBS, tB0, yB0);
 }
@@ -759,7 +759,7 @@ previous backward problem.
 The call to the \id{CVodeReInitB} function has the form
 %%
 %%
-\ucfunction{CVodeReInitB}
+\ucfunctionf{CVodeReInitB}
 {
   flag = CVodeReInitB(cvode\_mem, which, tB0, yB0)
 }
@@ -810,7 +810,7 @@ One of the following two functions must be called to specify the integration
 tolerances for the backward problem. Note that this call must be made after the 
 call to \id{CVodeInitB} or \id{CVodeInitBS}.
 %%
-\ucfunction{CVodeSStolerancesB}
+\ucfunctionf{CVodeSStolerancesB}
 {
   flag = CVodeSStolerancesB(cvode\_mem, which, reltolB, abstolB);
 }
@@ -849,7 +849,7 @@ call to \id{CVodeInitB} or \id{CVodeInitBS}.
 {}
 %%
 %%
-\ucfunction{CVodeSVtolerancesB}
+\ucfunctionf{CVodeSVtolerancesB}
 {
   flag = CVodeSVtolerancesB(cvode\_mem, which, reltolB, abstolB);
 }
@@ -904,7 +904,7 @@ for the forward problem and then attached to the memory structure for the backwa
 problem using the following functions.
 
 \index{CVODES@{\cvodes} linear solver interface!CVLS@{\cvls}}
-\ucfunction{CVodeSetLinearSolverB}
+\ucfunctionf{CVodeSetLinearSolverB}
 {
   flag = CVodeSetLinearSolverB(cvode\_mem, which, LS, A);
 }
@@ -964,7 +964,7 @@ problem using the following functions.
 %%
 %%
 %%
-\ucfunction{CVDiagB}
+\ucfunctionf{CVDiagB}
 {
   flag = CVDiagB(cvode\_mem, which);
 }
@@ -1031,7 +1031,7 @@ disabled for \id{CVodeB} by first calling \id{CVodeRootInit} with \id{nrtfn} = 0
 The call to \id{CVodeB} has the form
 %%
 %%
-\ucfunction{CVodeB}
+\ucfunctionf{CVodeB}
 {
   flag = CVodeB(cvode\_mem, tBout, itaskB);
 }
@@ -1114,7 +1114,7 @@ The call to \id{CVodeB} has the form
 To obtain the solution \id{yB} to the backward problem, call the function
 \id{CVodeGetB} as follows:
 %%
-\ucfunction{CVodeGetB}
+\ucfunctionf{CVodeGetB}
 {
   flag = CVodeGetB(cvode\_mem, which, \&tret, yB);
 }
@@ -1163,7 +1163,7 @@ To obtain the solution \id{yB} to the backward problem, call the function
 At any time during the integration of the forward problem, the user can disable
 the checkpointing of the forward sensitivities by calling the following function:
 
-\ucfunction{CVodeAdjSetNoSensi}
+\ucfunctionf{CVodeAdjSetNoSensi}
 {
   flag = CVodeAdjSetNoSensi(cvode\_mem);
 }
@@ -1239,7 +1239,7 @@ can be attached through a call to either \id{CVodeSetJacFnB} or
 on the forward sensitivities.
 %%
 \index{Jacobian approximation function!user-supplied (backward)}
-\ucfunction{CVodeSetJacFnB}
+\ucfunctionf{CVodeSetJacFnB}
 {
   flag = CVodeSetJacFnB(cvode\_mem, which, jacB);
 }
@@ -1283,7 +1283,7 @@ on the forward sensitivities.
 }
 %%
 \index{Jacobian approximation function!user-supplied (backward)}
-\ucfunction{CVodeSetJacFnBS}
+\ucfunctionf{CVodeSetJacFnBS}
 {
   flag = CVodeSetJacFnBS(cvode\_mem, which, jacBS);
 }
@@ -1332,7 +1332,7 @@ through a call to either \id{CVodeSetLinSysFnB} or \id{CVodeSetLinSysFnBS}, with
 the second used when the backward problem depends on the forwrad sensitivities.
 %%
 \index{Linear system approximation function!user-supplied (backward)}
-\ucfunction{CVodeSetLinSysFnB}
+\ucfunctionf{CVodeSetLinSysFnB}
 {
   flag = CVodeSetLinSysFnB(cvode\_mem, which, linsysB);
 }
@@ -1371,7 +1371,7 @@ the second used when the backward problem depends on the forwrad sensitivities.
 }
 %%
 \index{Linear system approximation function!user-supplied (backward)}
-\ucfunction{CVodeSetLinSysFnBS}
+\ucfunctionf{CVodeSetLinSysFnBS}
 {
   flag = CVodeSetLinSysFnBS(cvode\_mem, which, linsysBS);
 }
@@ -1416,7 +1416,7 @@ the second used when the backward problem depends on the forwrad sensitivities.
 \index{optional input!matrix-free linear solver|(}
 %%
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
-\ucfunction{CVodeSetJacTimesB}
+\ucfunctionf{CVodeSetJacTimesB}
 {
   flag = CVodeSetJacTimesB(cvode\_mem, which, jsetupB, jtvB);
 }
@@ -1462,7 +1462,7 @@ the second used when the backward problem depends on the forwrad sensitivities.
   users transition to the new routine name soon.
 }
 %%
-\ucfunction{CVodeSetJacTimesBS}
+\ucfunctionf{CVodeSetJacTimesBS}
 {
   flag = CVodeSetJacTimesBS(cvode\_mem, which, jtvBS);
 }
@@ -1517,7 +1517,7 @@ the second used when the backward problem depends on the forwrad sensitivities.
 %%
 %%
 \index{preconditioning!user-supplied|(}
-\ucfunction{CVodeSetPreconditionerB}
+\ucfunctionf{CVodeSetPreconditionerB}
 {
   flag = CVodeSetPreconditionerB(cvode\_mem, which, psetupB, psolveB);
 }
@@ -1564,7 +1564,7 @@ the second used when the backward problem depends on the forwrad sensitivities.
   users transition to the new routine name soon.
 }
 %%
-\ucfunction{CVodeSetPreconditionerBS}
+\ucfunctionf{CVodeSetPreconditionerBS}
 {
   flag = CVodeSetPreconditionerBS(cvode\_mem, which, psetupBS, psolveBS);
 }
@@ -1614,7 +1614,7 @@ the second used when the backward problem depends on the forwrad sensitivities.
 %%
 \index{preconditioning!user-supplied|)}
 %%
-\ucfunction{CVodeSetEpsLinB}
+\ucfunctionf{CVodeSetEpsLinB}
 {
   flag = CVodeSetEpsLinB(cvode\_mem, which, eplifacB);
 }
@@ -1680,7 +1680,7 @@ and for the linear solver modules. The first argument of these \id{CVodeGet*} an
 backward problem. In order to call any of these functions, the user must first 
 call the following function to obtain this pointer.
 %%
-\ucfunction{CVodeGetAdjCVodeBmem}
+\ucfunctionf{CVodeGetAdjCVodeBmem}
 {
   cvode\_memB = CVodeGetAdjCVodeBmem(cvode\_mem, which);
 }
@@ -1715,7 +1715,7 @@ equal to that at which the backward solution has just been obtained with
 \id{CVodeGetB}.  In any case, it must be within the last checkpoint interval
 used by \id{CVodeB}.
 
-\ucfunction{CVodeGetAdjY}
+\ucfunctionf{CVodeGetAdjY}
 {
   flag = CVodeGetAdjY(cvode\_mem, t, y);
 }
@@ -1747,7 +1747,7 @@ used by \id{CVodeB}.
   {\warn} The user must allocate space for \id{y}.
 }
 
-\ucfunction{CVodeGetAdjCheckPointsInfo}
+\ucfunctionf{CVodeGetAdjCheckPointsInfo}
 {
   flag = CVodeGetAdjCheckPointsInfo(cvode\_mem, CVadjCheckPointRec *ckpnt);
 }
@@ -1802,7 +1802,7 @@ integration of quadrature equations that do not depend on forward sensitivities.
 It has the following form:
 %%
 %%
-\ucfunction{CVodeQuadInitB}
+\ucfunctionf{CVodeQuadInitB}
 {
 flag = CVodeQuadInitB(cvode\_mem, which, rhsQB, yQB0);
 }
@@ -1848,7 +1848,7 @@ The function \id{CVodeQuadInitBS} initializes and allocates memory for the backw
 integration of quadrature equations that depends on the forward sensitivities.
 %%
 %%
-\ucfunction{CVodeQuadInitBS}
+\ucfunctionf{CVodeQuadInitBS}
 {
 flag = CVodeQuadInitBS(cvode\_mem, which, rhsQBS, yQBS0);
 }
@@ -1896,7 +1896,7 @@ desired solution extraction functions \id{CVodeGet**} associated with the
 previous backward problem.
 %%
 %%
-\ucfunction{CVodeQuadReInitB}
+\ucfunctionf{CVodeQuadReInitB}
 {
   flag = CVodeQuadReInitB(cvode\_mem, which, yQB0);
 }
@@ -1943,7 +1943,7 @@ of \id{CVodeB}, {\cvodes} provides a wrapper for the function \ID{CVodeGetQuad}
 (see \S\ref{ss:quad_get}). The call to this function has the form
 %%
 %%
-\ucfunction{CVodeGetQuadB}
+\ucfunctionf{CVodeGetQuadB}
 {
   flag = CVodeGetQuadB(cvode\_mem, which, \&tret, yQB);
 }
@@ -3078,7 +3078,7 @@ following call to the {\cvbandpre} module initialization function must be made.
 %%
 %%
 \index{CVBANDPRE@{\cvbandpre} preconditioner!user-callable functions|(}
-\ucfunction{CVBandPrecInitB}
+\ucfunctionf{CVBandPrecInitB}
 {
   flag = CVBandPrecInitB(cvode\_mem, which, nB, muB, mlB);
 }
@@ -3148,7 +3148,7 @@ The {\cvbbdpre} module is initialized by calling the following function,
 attached to {\cvodes} via a call to \Id{CVodeSetLinearSolverB}.
 %%
 %%
-\ucfunction{CVBBDPrecInitB}
+\ucfunctionf{CVBBDPrecInitB}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
     flag = CVBBDPrecInitB(&cvode\_mem, which, NlocalB, mudqB, mldqB,\\
@@ -3211,7 +3211,7 @@ To reinitialize the {\cvbbdpre} preconditioner module for the backward problem,
 possibly with changes in \id{mudqB}, \id{mldqB}, or \id{dqrelyB}, call the following 
 function:
 %%
-\ucfunction{CVBBDPrecReInitB}
+\ucfunctionf{CVBBDPrecReInitB}
 {
   flag = CVBBDPrecReInitB(cvode\_mem, which, mudqB, mldqB, dqrelyB);
 }

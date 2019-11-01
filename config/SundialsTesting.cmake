@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Author: David J. Gardner @ LLNL
+# Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -15,41 +15,57 @@
 # ---------------------------------------------------------------
 
 # Enable testing with 'make test'
-INCLUDE(CTest)
+include(CTest)
 
 
 # If development tests are enabled, Python is needed to use the test runner
-IF(SUNDIALS_DEVTESTS)
+if(SUNDIALS_DEVTESTS)
 
   find_package(PythonInterp)
-  IF(${PYTHON_VERSION_MAJOR} LESS 3)
-    IF(${PYTHON_VERSION_MINOR} LESS 7)
-      PRINT_WARNING("Python version must be 2.7.x or greater to run development tests"
+  if(${PYTHON_VERSION_MAJOR} LESS 3)
+    if(${PYTHON_VERSION_MINOR} LESS 7)
+      print_warning("Python version must be 2.7.x or greater to run development tests"
         "Examples will build but 'make test' will fail.")
-    ENDIF()
-  ENDIF()
+    endif()
+  endif()
+
+  # Directory for test output
+  set(TEST_OUTPUT_DIR ${PROJECT_BINARY_DIR}/Testing/output)
+
+  if(NOT EXISTS ${TEST_OUTPUT_DIR})
+    file(MAKE_DIRECTORY ${TEST_OUTPUT_DIR})
+  endif()
 
   # look for the testRunner script in the test directory
-  FIND_PROGRAM(TESTRUNNER testRunner PATHS test)
-  HIDE_VARIABLE(TESTRUNNER)
+  find_program(TESTRUNNER testRunner PATHS test)
+  hide_variable(TESTRUNNER)
 
-ENDIF()
+endif()
 
 
-# If examples are installed, create post install smoke tests
-IF(EXAMPLES_INSTALL)
+# If examples are installed, create post install smoke test targets
+if(EXAMPLES_INSTALL)
 
-  # Directory for installation testing
-  SET(TEST_INSTALL_DIR ${PROJECT_BINARY_DIR}/Testing_Install)
+  # Directories for installation testing
+  set(TEST_INSTALL_DIR ${PROJECT_BINARY_DIR}/Testing_Install)
+  set(TEST_INSTALL_ALL_DIR ${PROJECT_BINARY_DIR}/Testing_Install_All)
 
-  # Create installation testing directory
-  IF(NOT EXISTS ${TEST_INSTALL_DIR})
-    FILE(MAKE_DIRECTORY ${TEST_INSTALL_DIR})
-  ENDIF()
+  # Create installation testing directories
+  if(NOT EXISTS ${TEST_INSTALL_DIR})
+    file(MAKE_DIRECTORY ${TEST_INSTALL_DIR})
+  endif()
 
-  # Create test_install target for installation smoke test
-  ADD_CUSTOM_TARGET(test_install
+  if(NOT EXISTS ${TEST_INSTALL_ALL_DIR})
+    file(MAKE_DIRECTORY ${TEST_INSTALL_ALL_DIR})
+  endif()
+
+  # Create test_install and test_install_all targets
+  add_custom_target(test_install
     ${CMAKE_COMMAND} -E cmake_echo_color --cyan
     "All installation tests complete.")
 
-ENDIF()
+  add_custom_target(test_install_all
+    ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+    "All installation tests complete.")
+
+endif()

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
+# Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,11 +12,12 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for CPODES serial examples
+# ---------------------------------------------------------------
 
 
 # Add variable CPODES_examples with the names of the serial CPODES examples
 
-SET(CPODES_examples
+set(CPODES_examples
   cpsAdvDiff_bnd
   cpsAdvDiff_non
   cpsNewtCrd_dns
@@ -29,113 +30,113 @@ SET(CPODES_examples
 # Add variable CPODES_examples_BL with the names of the serial CPODES examples
 # that use Lapack
 
-SET(CPODES_examples_BL
+set(CPODES_examples_BL
   cpsAdvDiff_bndL
   cpsAkzoNob_dnsL
   cpsPend_dnsL
   cpsRoberts_dnsL
   )
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 
-IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(CPODES_LIB sundials_cpodes_static)
-  SET(NVECS_LIB sundials_nvecserial_static)
-ELSE(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(CPODES_LIB sundials_cpodes_shared)
-  SET(NVECS_LIB sundials_nvecserial_shared)
-ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
+if(LINK_LIBRARY_TYPE MATCHES "static")
+  set(CPODES_LIB sundials_cpodes_static)
+  set(NVECS_LIB sundials_nvecserial_static)
+else(LINK_LIBRARY_TYPE MATCHES "static")
+  set(CPODES_LIB sundials_cpodes_shared)
+  set(NVECS_LIB sundials_nvecserial_shared)
+endif(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Set-up linker flags and link libraries
 
-SET(SUNDIALS_LIBS ${CPODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-IF(LAPACK_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-ENDIF(LAPACK_FOUND)
+set(SUNDIALS_LIBS ${CPODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+if(LAPACK_FOUND)
+  list(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
+endif(LAPACK_FOUND)
 
-IF(BLAS_FOUND)
-  LIST(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
-ENDIF(BLAS_FOUND)
+if(BLAS_FOUND)
+  list(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
+endif(BLAS_FOUND)
 
 # Add the build and install targets for each CPODES example
 
-FOREACH(example ${CPODES_examples})
-  ADD_EXECUTABLE(${example} ${example}.c)
-  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+foreach(example ${CPODES_examples})
+  add_executable(${example} ${example}.c)
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
   #ADD_TEST(${example} ${TESTRUNNER} ${example})
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-  FILE(GLOB example_out ${example}.out*)
-  IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
-  ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${CPODES_examples})
+  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  file(GLOB example_out ${example}.out*)
+  if(EXAMPLES_INSTALL)
+    install(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
+  endif(EXAMPLES_INSTALL)
+endforeach(example ${CPODES_examples})
 
 # If Lapack support is enabled, add the build and install targets for
 # the examples using Lapack
 
-IF(LAPACK_FOUND)
-  FOREACH(example ${CPODES_examples_BL})
-    ADD_EXECUTABLE(${example} ${example}.c)
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
-    SUNDIALS_ADD_TEST(${example} ${example})
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-    FILE(GLOB example_out ${example}.out*)
-    IF(EXAMPLES_INSTALL)
-      INSTALL(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
-    ENDIF(EXAMPLES_INSTALL)
-  ENDFOREACH(example ${CPODES_examples_BL})
-ENDIF(LAPACK_FOUND)
+if(LAPACK_FOUND)
+  foreach(example ${CPODES_examples_BL})
+    add_executable(${example} ${example}.c)
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    sundials_add_test(${example} ${example})
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    file(GLOB example_out ${example}.out*)
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
+    endif(EXAMPLES_INSTALL)
+  endforeach(example ${CPODES_examples_BL})
+endif(LAPACK_FOUND)
 
-IF(EXAMPLES_INSTALL)
+if(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
+  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER "CPODES")
-  SET(SOLVER_LIB "sundials_cpodes")
-  LIST2STRING(CPODES_examples EXAMPLES)
-  IF(LAPACK_FOUND)
-    LIST2STRING(CPODES_examples_BL EXAMPLES_BL)
-  ELSE(LAPACK_FOUND)
-    SET(EXAMPLES_BL "")
-  ENDIF(LAPACK_FOUND)
+  set(SOLVER "CPODES")
+  set(SOLVER_LIB "sundials_cpodes")
+  list2string(CPODES_examples EXAMPLES)
+  if(LAPACK_FOUND)
+    list2string(CPODES_examples_BL EXAMPLES_BL)
+  else(LAPACK_FOUND)
+    set(EXAMPLES_BL "")
+  endif(LAPACK_FOUND)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
-  CONFIGURE_FILE(
+  configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/cpodes/serial/CMakeLists.txt
       @ONLY
       )
 
   # install CMakelists.txt
-  INSTALL(
+  install(
     FILES ${PROJECT_BINARY_DIR}/examples/cpodes/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
-  
-  IF(UNIX)
+
+  if(UNIX)
     # generate Makefile and place it in the binary dir
-    CONFIGURE_FILE(
+    configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/cpodes/serial/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
-    INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/cpodes/serial/Makefile_ex 
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial 
+    install(
+      FILES ${PROJECT_BINARY_DIR}/examples/cpodes/serial/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial
       RENAME Makefile
       )
-  ENDIF(UNIX)
+  endif(UNIX)
 
-ENDIF(EXAMPLES_INSTALL)
+endif(EXAMPLES_INSTALL)

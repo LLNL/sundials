@@ -70,7 +70,7 @@ static int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 /* -----------------------------------------------------------------------------
  * Main testing routine
  * ---------------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   int                retval = 0;
   N_Vector           x, y0, y, w;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
   /* create vectors */
   x  = N_VNew_Serial(NEQ);
   if (check_retval((void *)x, "N_VNew_Serial", 0)) return(1);
-  
+
   y0 = N_VClone(x);
   if (check_retval((void *)y0, "N_VNew_Serial", 0)) return(1);
 
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) return(1);
 
   /* set the convergence test function */
-  retval = SUNNonlinSolSetConvTestFn(NLS, ConvTest);
+  retval = SUNNonlinSolSetConvTestFn(NLS, ConvTest, NULL);
   if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) return(1);
 
   /* set the maximum number of nonlinear iterations */
@@ -163,7 +163,7 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
 
   /* compute the norm of the correction */
   delnrm = N_VMaxNorm(del);
-  
+
   if (delnrm <= tol) return(SUN_NLS_SUCCESS);  /* success       */
   else               return(SUN_NLS_CONTINUE); /* not converged */
 }

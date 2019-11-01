@@ -65,7 +65,7 @@ for creating a \newline \id{SUNLinearSolver} object.
     a template for cloning vectors needed within the solver
   \item[A] (\id{SUNMatrix})
     a {\sunmatband} matrix template for cloning matrices needed
-    within the solver 
+    within the solver
   \end{args}
 }
 {
@@ -203,11 +203,11 @@ object.
 The {\sunlinsolband} module defines the \textit{content} field of a
 \id{SUNLinearSolver} as the following structure:
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _SUNLinearSolverContent_Band {
   sunindextype N;
   sunindextype *pivots;
-  long int last_flag;
+  sunindextype last_flag;
 };
 \end{verbatim}
 %%
@@ -218,4 +218,3 @@ information:
   \item[pivots] - index array for partial pivoting in LU factorization,
   \item[last\_flag] - last error return flag from internal function evaluations.
 \end{args}
-

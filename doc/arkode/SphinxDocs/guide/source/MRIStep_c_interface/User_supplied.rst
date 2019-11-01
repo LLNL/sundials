@@ -87,7 +87,7 @@ specify the right-hand side of the ODE system:
       situations in which recovery is not possible even if the right-hand side
       function returns a recoverable error flag. One is when this occurs at the
       very first call to the *ARKRhsFn* (in which case MRIStep returns
-      *ARK_FIRST_RHSFUNC_ERR*). 
+      *ARK_FIRST_RHSFUNC_ERR*).
 
 
 
@@ -321,3 +321,63 @@ following form:
    **Notes:**  If this function is not supplied, then MRIStep will
    instead destroy the vector *y* and clone a new vector *y* off of
    *ytemplate*.
+
+.. _MRIStep_CInterface.PreInnerFn:
+
+Pre inner integrator communication function
+--------------------------------------------
+
+The user may supply a function of type :c:type:`MRIStepPreInnerFn` that will be
+called *before* each inner integration to perform any communication or
+memory transfers of forcing data supplied by the the outer integrator to inner
+integrator for the inner integration.
+
+
+.. c:type:: typedef int (*MRIStepPreInnerFn)(realtype t, N_Vector* f, int num_vecs, void* user_data)
+
+   **Arguments:**
+      * *t* -- the current value of the independent variable.
+      * *f* -- an ``N_Vector`` array of outer forcing vectors.
+      * *num_vecs* -- the number of vectors in the ``N_Vector`` array.
+      * *user_data* -- the `user_data` pointer that was passed to
+        :c:func:`MRIStepSetUserData()`.
+
+   **Return value:**
+   An *MRIStepPreInnerFn* function should return 0 if successful, a positive value
+   if a recoverable error occurred, or a negative value if an unrecoverable
+   error occurred. As the MRIStep module only supports fixed step sizes at this
+   time any non-zero return value will halt the integration.
+
+   **Notes:**
+   In a heterogeneous computing environment if any data copies between the host
+   and device vector data are necessary, this is where that should occur.
+
+
+.. _MRIStep_CInterface.PostInnerFn:
+
+Post inner integrator communication function
+---------------------------------------------
+
+The user may supply a function of type :c:type:`MRIStepPostInnerFn` that will be
+called *after* each inner integration to perform any communication or
+memory transfers of state data supplied by the inner integrator to the
+outer integrator for the outer integration.
+
+
+.. c:type:: typedef int (*MRIStepPostInnerFn)(realtype t, N_Vector y, void* user_data)
+
+   **Arguments:**
+      * *t* -- the current value of the independent variable.
+      * *y* -- the current value of the dependent variable vector.
+      * *user_data* -- the `user_data` pointer that was passed to
+        :c:func:`MRIStepSetUserData()`.
+
+   **Return value:**
+   An *MRIStepPostInnerFn* function should return 0 if successful, a positive value
+   if a recoverable error occurred, or a negative value if an unrecoverable
+   error occurred. As the MRIStep module only supports fixed step sizes at this
+   time any non-zero return value will halt the integration.
+
+   **Notes:**
+   In a heterogeneous computing environment if any data copies between the host
+   and device vector data are necessary, this is where that should occur.

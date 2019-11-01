@@ -69,8 +69,8 @@ int main()
   realtype T0 = RCONST(0.0);     /* initial time */
   realtype Tf = RCONST(1.e11);   /* final time */
   realtype dTout = (Tf-T0)/100;  /* time between outputs */
-  int Nt = ceil(Tf/dTout);       /* number of output times */
-  sunindextype NEQ = 3;              /* number of dependent vars. */
+  int Nt = (int) ceil(Tf/dTout); /* number of output times */
+  sunindextype NEQ = 3;          /* number of dependent vars. */
 
   /* general problem variables */
   int flag;                      /* reusable error-checking flag */
@@ -116,7 +116,7 @@ int main()
   if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) return 1;
   flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);           /* Increase max nonlin iters  */
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
-  flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-7);       /* set nonlinear convergence coeff. */
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-7);       /* Set nonlinear convergence coeff. */
   if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
   flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);         /* Increase max num steps */
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;

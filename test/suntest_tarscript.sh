@@ -260,9 +260,9 @@ for tarball in *.tar.gz; do
             for lt in "${libtype[@]}"; do
 
                 # print test label for Jenkins section collapsing
-                echo "TEST: $rt $is $lt $TPLs $testtype"
+                echo "TEST: $rt $is $lt $TPLs $testtype $buildthreads"
 
-                ./suntest.sh $rt $is $lt $TPLs $testtype
+                ./suntest.sh $rt $is $lt $TPLs $testtype $buildthreads
 
                 # check return flag
                 if [ $? -ne 0 ]; then

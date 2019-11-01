@@ -60,7 +60,7 @@ have dimensionless components. If preconditioning is done on the left only
 is a scaling for $P^{-1} b$, and so may also be taken as a scaling for $x$.
 Similarly, if preconditioning is done on the right only ($P_1 = I$ and
 $P_2 = P$), then $S_1$ must be a scaling for $b$, while $S_2$ is a scaling for
-$P x$, and may also be taken as a scaling for $b$. 
+$P x$, and may also be taken as a scaling for $b$.
 
 {\sundials} packages request that iterative linear solvers stop
 based on the 2-norm of the scaled preconditioned residual meeting a
@@ -132,11 +132,11 @@ solver statistics. All of these functions are defined in the header file
 
 The core linear solver functions consist of two required functions to get the
 linear solver type \\ \noindent (\Id{SUNLinSolGetType}) and solve the linear
-system $Ax=b$ (\Id{SUNLinSolSolve}). The remaining three functions for
-initializing the linear solver object once all solver-specific options have been
-set \\ \noindent (\Id{SUNLinSolInitialize}), setting up the linear solver object
-to utilize an updated matrix $A$ \\ \noindent (\Id{SUNLinSolSetup}), and for
-destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
+system $Ax=b$ (\Id{SUNLinSolSolve}). The remaining functions are for getting the
+solver ID (\Id{SUNLinSolGetID}), initializing the linear solver object once all
+solver-specific options have been set (\Id{SUNLinSolInitialize}), setting up the
+linear solver object to utilize an updated matrix $A$ (\Id{SUNLinSolSetup}), and
+for destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
 
 % --------------------------------------------------------------------
 \ucfunctionf{SUNLinSolGetType}
@@ -170,7 +170,7 @@ destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
   system differs from the one encoded in the matrix object (if one is
   provided). As the solver computes the solution only inexactly (or may
   diverge), the linear solver should check for solution convergence/accuracy as
-  appropriate. 
+  appropriate.
   \item \Id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE} -- \id{2}, the {\sunlinsol}
   module requires a matrix, and computes an inexact solution to the linear
   system defined by that matrix using an iterative algorithm. That is it solves
@@ -183,6 +183,29 @@ destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
 {
  See section \ref{ss:sunlinsol_intended} for more information on intended use
  cases corresponding to the linear solver type.
+}
+% --------------------------------------------------------------------
+\ucfunctionf{SUNLinSolGetID}
+{
+  id = SUNLinSolGetID(LS);
+}
+{
+  The \textit{optional} function \Id{SUNLinSolGetID} returns the
+  identifier for the linear solver \id{LS}.
+}
+{
+  \begin{args}[LS]
+  \item[LS] (\id{SUNLinearSolver})
+    a {\sunlinsol} object.
+  \end{args}
+}
+{
+  The return value \id{id} (of type \id{int}) will be a non-negative value
+  defined by the enumeration \id{SUNLinearSolver\_ID}.
+}
+{
+  It is recommended that a user-supplied \id{SUNLinearSolver} return the\\
+  \noindent \id{SUNLINEARSOLVER\_CUSTOM} identifier.
 }
 % --------------------------------------------------------------------
 \ucfunctionf{SUNLinSolInitialize}
@@ -509,7 +532,7 @@ results from a linear solve.  All routines are optional.
   \end{args}
 }
 {
-  \id{long int} containing the most recent error flag
+  \id{sunindextype} containing the most recent error flag
 }
 {}
 % --------------------------------------------------------------------
@@ -689,68 +712,68 @@ the user in case of a linear solver failure.
 \id{SUNLS\_SUCCESS} & \id{0} & successful call or converged solve
 \\[1mm]
 %%
-\id{SUNLS\_MEM\_NULL} & \id{-1} & the memory argument to the function is \id{NULL}
+\id{SUNLS\_MEM\_NULL} & \id{-801} & the memory argument to the function is \id{NULL}
 \\[1mm]
 %%
-\id{SUNLS\_ILL\_INPUT} & \id{-2} & an illegal input has been provided to the function
+\id{SUNLS\_ILL\_INPUT} & \id{-802} & an illegal input has been provided to the function
 \\[1mm]
 %%
-\id{SUNLS\_MEM\_FAIL} & \id{-3} & failed memory access or allocation
+\id{SUNLS\_MEM\_FAIL} & \id{-803} & failed memory access or allocation
 \\[1mm]
 %%
-\id{SUNLS\_ATIMES\_FAIL\_UNREC} & \id{-4} & an unrecoverable failure
+\id{SUNLS\_ATIMES\_FAIL\_UNREC} & \id{-804} & an unrecoverable failure
   occurred in the \id{ATimes} routine
 \\[1mm]
 %%
-\id{SUNLS\_PSET\_FAIL\_UNREC} & \id{-5} & an unrecoverable failure
+\id{SUNLS\_PSET\_FAIL\_UNREC} & \id{-805} & an unrecoverable failure
   occurred in the \id{Pset} routine
 \\[1mm]
 %%
-\id{SUNLS\_PSOLVE\_FAIL\_UNREC} & \id{-6} & an unrecoverable failure
+\id{SUNLS\_PSOLVE\_FAIL\_UNREC} & \id{-806} & an unrecoverable failure
   occurred in the \id{Psolve} routine
 \\[1mm]
 %%
-\id{SUNLS\_PACKAGE\_FAIL\_UNREC} & \id{-7} & an unrecoverable failure
+\id{SUNLS\_PACKAGE\_FAIL\_UNREC} & \id{-807} & an unrecoverable failure
   occurred in an external linear solver package
 \\[1mm]
 %%
-\id{SUNLS\_GS\_FAIL} & \id{-8} & a failure occurred during
+\id{SUNLS\_GS\_FAIL} & \id{-808} & a failure occurred during
   Gram-Schmidt orthogonalization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
 \\[1mm]
 %%
-\id{SUNLS\_QRSOL\_FAIL} & \id{-9} & a singular $R$ matrix was
+\id{SUNLS\_QRSOL\_FAIL} & \id{-809} & a singular $R$ matrix was
   encountered in a QR factorization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
 \\[1mm]
 %%
-\id{SUNLS\_RES\_REDUCED} & \id{1} &  an iterative solver reduced the
+\id{SUNLS\_RES\_REDUCED} & \id{801} &  an iterative solver reduced the
   residual, but did not converge to the desired tolerance
 \\[1mm]
 %%
-\id{SUNLS\_CONV\_FAIL} & \id{2} &  an iterative solver did not
+\id{SUNLS\_CONV\_FAIL} & \id{802} &  an iterative solver did not
 converge (and the residual was not reduced)
 \\[1mm]
 %%
-\id{SUNLS\_ATIMES\_FAIL\_REC} & \id{3} & a recoverable failure occurred
+\id{SUNLS\_ATIMES\_FAIL\_REC} & \id{803} & a recoverable failure occurred
   in the \id{ATimes} routine
 \\[1mm]
 %%
-\id{SUNLS\_PSET\_FAIL\_REC} & \id{4} & a recoverable failure occurred
+\id{SUNLS\_PSET\_FAIL\_REC} & \id{804} & a recoverable failure occurred
   in the \id{Pset} routine
 \\[1mm]
 %%
-\id{SUNLS\_PSOLVE\_FAIL\_REC} & \id{5} & a recoverable failure occurred
+\id{SUNLS\_PSOLVE\_FAIL\_REC} & \id{805} & a recoverable failure occurred
   in the \id{Psolve} routine
 \\[1mm]
 %%
-\id{SUNLS\_PACKAGE\_FAIL\_REC} & \id{6} &  a recoverable failure
+\id{SUNLS\_PACKAGE\_FAIL\_REC} & \id{806} &  a recoverable failure
   occurred in an external linear solver package
 \\[1mm]
 %%
-\id{SUNLS\_QRFACT\_FAIL} & \id{7} & a singular matrix was encountered
+\id{SUNLS\_QRFACT\_FAIL} & \id{807} & a singular matrix was encountered
   during a QR factorization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
 \\[1mm]
 %%
-\id{SUNLS\_LUFACT\_FAIL} & \id{8} & a singular matrix was encountered
+\id{SUNLS\_LUFACT\_FAIL} & \id{808} & a singular matrix was encountered
   during a LU factorization ({\sunlinsoldense}/{\sunlinsolband})
 \\
 \end{xtabular}
@@ -785,6 +808,7 @@ structure is defined as
 \begin{verbatim}
 struct _generic_SUNLinearSolver_Ops {
   SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
+  SUNLinearSolver_ID   (*getid)(SUNLinearSolver);
   int                  (*setatimes)(SUNLinearSolver, void*, ATimesFn);
   int                  (*setpreconditioner)(SUNLinearSolver, void*,
                                             PSetupFn, PSolveFn);
@@ -796,7 +820,7 @@ struct _generic_SUNLinearSolver_Ops {
                                 N_Vector, realtype);
   int                  (*numiters)(SUNLinearSolver);
   realtype             (*resnorm)(SUNLinearSolver);
-  long int             (*lastflag)(SUNLinearSolver);
+  sunindxetype         (*lastflag)(SUNLinearSolver);
   int                  (*space)(SUNLinearSolver, long int*, long int*);
   N_Vector             (*resid)(SUNLinearSolver);
   int                  (*free)(SUNLinearSolver);
@@ -946,7 +970,7 @@ API by ensuring only required operations need to be set.
 {
   This routine frees the generic \id{SUNLinSolFreeEmpty} object, under the assumption that any
   implementation-specific data that was allocated within the underlying content structure
-  has already been freed. It will additionally test whether the ops pointer is \id{NULL}, 
+  has already been freed. It will additionally test whether the ops pointer is \id{NULL},
   and, if it is not, it will free it as well.
 }
 {

@@ -30,7 +30,7 @@
 // RAJA defines
 #define CUDA_BLOCK_SIZE 256
 #define RAJA_NODE_TYPE RAJA::cuda_exec< CUDA_BLOCK_SIZE >
-#define RAJA_REDUCE_TYPE RAJA::cuda_reduce< CUDA_BLOCK_SIZE >
+#define RAJA_REDUCE_TYPE RAJA::cuda_reduce
 #define RAJA_LAMBDA [=] __device__
 
 extern "C" {

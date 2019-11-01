@@ -35,15 +35,15 @@
  * centered differences, with the data distributed over N points
  * on a uniform spatial grid.
  *
- * The data is stored using the ManyVector structure for a 
- * structure-of-arrays format, i.e., each of u, v and w are 
- * stored in separate serial vectors, and are attached together 
+ * The data is stored using the ManyVector structure for a
+ * structure-of-arrays format, i.e., each of u, v and w are
+ * stored in separate serial vectors, and are attached together
  * using the ManyVector infrastructure.
  *
  * This program solves the problem with the ARK method, treating
- * only the reaction terms implicitly (diffusion is treated 
- * explicitly), using a Newton iteration with the SUNSPGMR 
- * iterative linear solver, and a user-supplied 
+ * only the reaction terms implicitly (diffusion is treated
+ * explicitly), using a Newton iteration with the SUNSPGMR
+ * iterative linear solver, and a user-supplied
  * Jacobian-vector-product routine.
  *
  * 100 outputs are printed at equal intervals, and run statistics
@@ -59,7 +59,6 @@
 #include <nvector/nvector_serial.h>    /* serial N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype, etc */
-#include <sundials/sundials_math.h>    /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -121,7 +120,7 @@ int main()
   /* general problem variables */
   int flag;                     /* reusable error-checking flag */
   N_Vector y = NULL;            /* empty manyvector for storing solution */
-  N_Vector u = NULL;            /* empty vectors for storing solution components */ 
+  N_Vector u = NULL;            /* empty vectors for storing solution components */
   N_Vector v = NULL;
   N_Vector w = NULL;
   N_Vector uvw[3];              /* vector array composed of u,v,w component vectors */
@@ -144,7 +143,7 @@ int main()
   userdata->dv = dv;
   userdata->dw = dw;
   userdata->ep = ep;
-    
+
   /* Initial problem output */
   printf("\n1D Brusselator PDE test problem:\n");
   printf("    N = %li\n", (long int) userdata->N);
@@ -163,18 +162,18 @@ int main()
   w = N_VNew_Serial(N);
   if (check_flag((void *) w, "N_VNew_Serial", 0)) return 1;
 
-  /* Create manyvector for solution */  
+  /* Create manyvector for solution */
   uvw[0] = u; uvw[1] = v; uvw[2] = w;
   y = N_VNew_ManyVector(Nvar, uvw);
   if (check_flag((void *)y, "N_VNew_ManyVector", 0)) return 1;
-  
+
   udata = N_VGetArrayPointer(u);     /* Access data array for new NVector u */
   if (check_flag((void *)udata, "N_VGetArrayPointer", 0)) return 1;
   vdata = N_VGetArrayPointer(v);     /* Access data array for new NVector v */
   if (check_flag((void *)vdata, "N_VGetArrayPointer", 0)) return 1;
   wdata = N_VGetArrayPointer(w);     /* Access data array for new NVector w */
   if (check_flag((void *)wdata, "N_VGetArrayPointer", 0)) return 1;
-  
+
   /* Set initial conditions into y */
   pi = RCONST(4.0)*atan(ONE);
   for (i=0; i<N; i++) {
@@ -236,14 +235,14 @@ int main()
     /* call integrator */
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
     if (check_flag(&flag, "ARKStepEvolve", 1)) break;
-    
+
     /* print solution statistics */
     unorm = N_VDotProd(u,u);
-    unorm = SUNRsqrt(unorm/N);
+    unorm = sqrt(unorm/N);
     vnorm = N_VDotProd(v,v);
-    vnorm = SUNRsqrt(vnorm/N);
+    vnorm = sqrt(vnorm/N);
     wnorm = N_VDotProd(w,w);
-    wnorm = SUNRsqrt(wnorm/N);
+    wnorm = sqrt(wnorm/N);
     printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t, unorm, vnorm, wnorm);
 
     /* check integrator flag */
@@ -339,14 +338,14 @@ static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   if (check_flag((void *) y_v, "N_VGetArrayPointer", 0)) return 1;
   y_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 2));
   if (check_flag((void *) y_w, "N_VGetArrayPointer", 0)) return 1;
-  
+
   f_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 0));
   if (check_flag((void *) f_u, "N_VGetArrayPointer", 0)) return 1;
   f_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 1));
   if (check_flag((void *) f_v, "N_VGetArrayPointer", 0)) return 1;
   f_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 2));
   if (check_flag((void *) f_w, "N_VGetArrayPointer", 0)) return 1;
-  
+
   N_VConst(RCONST(0.0), ydot);              /* initialize ydot to zero */
 
   /* iterate over domain, computing all equations */
@@ -390,14 +389,14 @@ static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   if (check_flag((void *) y_v, "N_VGetArrayPointer", 0)) return 1;
   y_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 2));
   if (check_flag((void *) y_w, "N_VGetArrayPointer", 0)) return 1;
-  
+
   f_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 0));
   if (check_flag((void *) f_u, "N_VGetArrayPointer", 0)) return 1;
   f_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 1));
   if (check_flag((void *) f_v, "N_VGetArrayPointer", 0)) return 1;
   f_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 2));
   if (check_flag((void *) f_w, "N_VGetArrayPointer", 0)) return 1;
-  
+
   N_VConst(0.0, ydot);                        /* initialize ydot to zero */
 
   /* iterate over domain, computing all equations */
@@ -438,21 +437,21 @@ static int JacVI(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   if (check_flag((void *) y_v, "N_VGetArrayPointer", 0)) return 1;
   y_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 2));
   if (check_flag((void *) y_w, "N_VGetArrayPointer", 0)) return 1;
-  
+
   v_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(v, 0));
   if (check_flag((void *) v_u, "N_VGetArrayPointer", 0)) return 1;
   v_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(v, 1));
   if (check_flag((void *) v_v, "N_VGetArrayPointer", 0)) return 1;
   v_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(v, 2));
   if (check_flag((void *) v_w, "N_VGetArrayPointer", 0)) return 1;
-  
+
   Ju_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(Jv, 0));
   if (check_flag((void *) Ju_v, "N_VGetArrayPointer", 0)) return 1;
   Jv_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(Jv, 1));
   if (check_flag((void *) Jv_v, "N_VGetArrayPointer", 0)) return 1;
   Jw_v = N_VGetArrayPointer(N_VGetSubvector_ManyVector(Jv, 2));
   if (check_flag((void *) Jw_v, "N_VGetArrayPointer", 0)) return 1;
-  
+
   N_VConst(ZERO, Jv);      /* initialize Jv to zero */
 
   /* iterate over domain, computing Jacobian-vector products */
@@ -466,7 +465,7 @@ static int JacVI(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 
     /* Fill in Jacobian-vector product for Jw*v */
     Jw_v[i] = - v_w[i]/ep - v_w[i]*y_u[i] - y_w[i]*v_u[i];
-    
+
   }
 
   /* enforce stationary boundaries */

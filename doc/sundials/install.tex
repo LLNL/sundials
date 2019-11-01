@@ -1,16 +1,16 @@
 \chapter{SUNDIALS Package Installation Procedure}\label{c:install}
 
 The installation of any {\sundials} package is accomplished by installing the
-{\sundials} suite as a whole, according to the instructions that
-follow. The same procedure applies whether or not the downloaded
-file contains one or all solvers in {\sundials}.
+{\sundials} suite as a whole, according to the instructions that follow. The
+same procedure applies whether or not the downloaded file contains one or all
+solvers in {\sundials}.
 
-The {\sundials} suite (or individual solvers) are distributed as
-compressed archives (\id{.tar.gz}). The name of the distribution
-archive is of the form {\em solver}\id{-x.y.z.tar.gz}, where {\em solver}
-is one of: \id{sundials}, \id{cvode}, \id{cvodes}, \id{arkode}, \id{ida},
-\id{idas}, or \id{kinsol}, and \id{x.y.z} represents the version number
-(of the {\sundials} suite or of the individual solver).
+The {\sundials} suite (or individual solvers) are distributed as compressed
+archives (\id{.tar.gz}). The name of the distribution archive is of the form
+{\em solver}\id{-x.y.z.tar.gz}, where {\em solver} is one of: \id{sundials},
+\id{cvode}, \id{cvodes}, \id{arkode}, \id{ida}, \id{idas}, or \id{kinsol}, and
+\id{x.y.z} represents the version number (of the {\sundials} suite or of the
+individual solver).
 %%
 To begin the installation, first uncompress and expand the sources, by issuing
 \begin{verbatim}
@@ -25,48 +25,43 @@ The explanations of the installation procedure begins with a few common observat
 \begin{itemize}
 
 \item The remainder of this chapter will follow these conventions:
-  \begin{description}
-  \item[{\em solverdir}]
-    is the directory {\em solver}\id{-x.y.z} created above; i.e., the
-    directory containing the {\sundials} sources.
-  \item[{\em builddir}]
-    is the (temporary) directory under which {\sundials} is built.
-  \item[{\em instdir}]
-    is the directory under which the {\sundials} exported header files
-    and libraries will be installed. Typically, header files are exported under a directory
-    {\em instdir}\id{/include} while libraries are installed under {\em instdir}\id{/CMAKE\_INSTALL\_LIBDIR},
-    with {\em instdir} and\\
-    \id{CMAKE\_INSTALL\_LIBDIR} specified at configuration time.
+  \begin{description} \item[{\em solverdir}] is the directory {\em
+    solver}\id{-x.y.z} created above; i.e., the directory containing the
+    {\sundials} sources.  \item[{\em builddir}] is the (temporary) directory
+    under which {\sundials} is built.  \item[{\em instdir}] is the directory
+    under which the {\sundials} exported header files and libraries will be
+    installed. Typically, header files are exported under a directory {\em
+    instdir}\id{/include} while libraries are installed under {\em
+  instdir}\id{/CMAKE\_INSTALL\_LIBDIR}, with {\em instdir} and\\
+  \id{CMAKE\_INSTALL\_LIBDIR} specified at configuration time.
   \end{description}
 
-\item For {\sundials} CMake-based installation, in-source builds are prohibited; in other words, the
-  build directory {\em builddir} can {\bf not} be the same as {\em solverdir}
-  and such an attempt will lead to an error. This
-  prevents ``polluting'' the source tree and allows efficient builds
-  for different configurations and/or options.
+\item For {\sundials} CMake-based installation, in-source builds are prohibited;
+  in other words, the build directory {\em builddir} can {\bf not} be the same
+  as {\em solverdir} and such an attempt will lead to an error. This prevents
+  ``polluting'' the source tree and allows efficient builds for different
+  configurations and/or options.
 
-\item {\warn}The installation directory {\em instdir} can {\bf not} be the same as
-  the source directory {\em solverdir}.
+\item {\warn}The installation directory {\em instdir} can {\bf not} be the same
+  as the source directory {\em solverdir}.
 
-\item By default, only the libraries and header files are exported to the installation
-  directory {\em instdir}.  If enabled by the user (with the
-  appropriate toggle for CMake), the
-  examples distributed with {\sundials} will be built together with
-  the solver libraries but the installation step will result in
-  exporting (by default in a subdirectory of the installation
-  directory) the example sources and sample outputs together with
-  automatically generated configuration files that reference the {\em
-  installed} {\sundials} headers and libraries.  As such, these
-  configuration files for the {\sundials} examples can be used as
-  ``templates'' for your own problems. CMake installs \id{CMakeLists.txt} files and also
-  (as an option available only under Unix/Linux) \id{Makefile} files. Note this
-  installation approach also allows the option of building the
-  {\sundials} examples without having to install them.  (This can be
-  used as a sanity check for the freshly built libraries.)
+\item By default, only the libraries and header files are exported to the
+  installation directory {\em instdir}.  If enabled by the user (with the
+  appropriate toggle for CMake), the examples distributed with {\sundials} will
+  be built together with the solver libraries but the installation step will
+  result in exporting (by default in a subdirectory of the installation
+  directory) the example sources and sample outputs together with automatically
+  generated configuration files that reference the {\em installed} {\sundials}
+  headers and libraries.  As such, these configuration files for the {\sundials}
+  examples can be used as ``templates'' for your own problems. CMake installs
+  \id{CMakeLists.txt} files and also (as an option available only under
+  Unix/Linux) \id{Makefile} files. Note this installation approach also allows
+  the option of building the {\sundials} examples without having to install
+  them.  (This can be used as a sanity check for the freshly built libraries.)
 
 \item Even if generation of shared libraries is enabled, only static libraries
-  are created for the FCMIX modules.  (Because of the use of fixed names for
-  the Fortran user-provided subroutines, FCMIX shared libraries would result in
+  are created for the FCMIX modules.  (Because of the use of fixed names for the
+  Fortran user-provided subroutines, FCMIX shared libraries would result in
   ``undefined symbol'' errors at link time.)
 
 \end{itemize}
@@ -76,43 +71,44 @@ The explanations of the installation procedure begins with a few common observat
 \section{CMake-based installation}\label{s:cmake_inst}
 %%===============================================================================
 
-CMake-based installation provides a platform-independent build system. CMake can generate
-Unix and Linux Makefiles, as well as KDevelop, Visual Studio, and
-(Apple) XCode project files from the same configuration file.
-In addition, CMake also provides a GUI front end and which allows an interactive build and
+CMake-based installation provides a platform-independent build system. CMake can
+generate Unix and Linux Makefiles, as well as KDevelop, Visual Studio, and
+(Apple) XCode project files from the same configuration file.  In addition,
+CMake also provides a GUI front end and which allows an interactive build and
 installation process.
 
-The {\sundials} build process requires CMake version \id{3.1.3} or
-higher and a working {\CC} compiler.  On Unix-like operating systems, it
-also requires Make (and \id{curses}, including its development libraries,
-for the GUI front end to CMake, \id{ccmake}), while on Windows it
-requires Visual Studio. CMake is continually adding new features, and
-the latest version can be downloaded from {\tt http://www.cmake.org}. Build instructions for CMake
-(only necessary for Unix-like systems) can be found on the CMake website.
-Once CMake is installed, Linux/Unix users will be able to use \id{ccmake},
-while Windows users will be able to use \id{CMakeSetup}.
+The {\sundials} build process requires CMake version \id{3.1.3} or higher and a
+working {\CC} compiler.  On Unix-like operating systems, it also requires Make
+(and \id{curses}, including its development libraries, for the GUI front end to
+CMake, \id{ccmake}), while on Windows it requires Visual Studio. CMake is
+continually adding new features, and the latest version can be downloaded from
+{\tt http://www.cmake.org}. Build instructions for CMake (only necessary for
+Unix-like systems) can be found on the CMake website.  Once CMake is installed,
+Linux/Unix users will be able to use \id{ccmake}, while Windows users will be
+able to use \id{CMakeSetup}.
 
-As previously noted, when using CMake to configure, build and install {\sundials}, it is always
-required to use a separate build directory. While in-source builds are possible, they are
-explicitly prohibited by the {\sundials} CMake scripts (one of the reasons being that, unlike
-autotools, CMake does not provide a \id{make distclean} procedure and it is therefore
-difficult to clean-up the source tree after an in-source build). By ensuring a separate build
-directory, it is an easy task for the user to clean-up all traces of the build by simply removing
-the build directory. CMake does generate a \id{make clean} which will remove files generated by the
-compiler and linker.
+As previously noted, when using CMake to configure, build and install
+{\sundials}, it is always required to use a separate build directory. While
+in-source builds are possible, they are explicitly prohibited by the {\sundials}
+CMake scripts (one of the reasons being that, unlike autotools, CMake does not
+provide a \id{make distclean} procedure and it is therefore difficult to
+clean-up the source tree after an in-source build). By ensuring a separate build
+directory, it is an easy task for the user to clean-up all traces of the build
+by simply removing the build directory. CMake does generate a \id{make clean}
+which will remove files generated by the compiler and linker.
 
 \subsection{Configuring, building, and installing on Unix-like systems}
 
-The default CMake configuration will build all included solvers and
-associated examples and will build static and shared libraries. The
-{\em instdir} defaults to \id{/usr/local} and can be changed by
-setting the \id{CMAKE\_INSTALL\_PREFIX} variable.  Support for FORTRAN
-and all other options are disabled.
+The default CMake configuration will build all included solvers and associated
+examples and will build static and shared libraries. The {\em instdir} defaults
+to \id{/usr/local} and can be changed by setting the \id{CMAKE\_INSTALL\_PREFIX}
+variable.  Support for FORTRAN and all other options are disabled.
 
-CMake can be used from the command line with the \id{cmake} command, or from a \id{curses}-based GUI
-by using the \id{ccmake} command. Examples for using both methods will be presented.
-For the examples shown it is assumed that there is a top level {\sundials} directory
-with appropriate source, build and install directories:
+CMake can be used from the command line with the \id{cmake} command, or from a
+\id{curses}-based GUI by using the \id{ccmake} command. Examples for using both
+methods will be presented.  For the examples shown it is assumed that there is a
+top level {\sundials} directory with appropriate source, build and install
+directories:
 
 \begin{verbatim}
    % mkdir (...)sundials/instdir
@@ -240,21 +236,6 @@ configuration is provide below. Note that the default values shown are for
 a typical configuration on a Linux system and are provided as illustration only.
 
 \begin{description}
-\item[\id{BLAS\_ENABLE}] -
-  Enable BLAS support
-  \\
-  Default: OFF
-  \\
-  Note: Setting this option to ON will trigger additional CMake
-  options. See additional information on building with BLAS enabled
-  in \ref{ss:externallibs}.
-\item[\id{BLAS\_LIBRARIES}] -
-  BLAS library
-  \\
-  Default: /usr/lib/libblas.so
-  \\
-  Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
-  to searching default system paths.
 \item[\id{BUILD\_ARKODE}] -
   Build the ARKODE library
   \\
@@ -350,7 +331,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Note: Fortran support (and all related options) are triggered only if
   either Fortran-C support is enabled (\id{FCMIX\_ENABLE} is ON) or
-  BLAS/LAPACK support is enabled (\id{BLAS\_ENABLE} or \id{LAPACK\_ENABLE} is ON).
+  LAPACK support is enabled (\id{LAPACK\_ENABLE} is ON).
 \item[\id{CMAKE\_Fortran\_FLAGS}] -
   Flags for Fortran compiler
   \\
@@ -548,11 +529,23 @@ a typical configuration on a Linux system and are provided as illustration only.
   Default: OFF
   \\
   Note: See additional information on building with {\petsc} enabled
-  in \ref{ss:externallibs}.
-\item[\id{PETSC\_INCLUDE\_DIR}] -
-  Path to {\petsc} header files
-\item[\id{PETSC\_LIBRARY\_DIR}] -
-  Path to {\petsc} installed library files
+  in \ref{ss:build_with_petsc}.
+\item[\id{PETSC\_DIR}] -
+  Path to {\petsc} installation
+  \\
+  Default:
+\item[\id{PETSC\_LIBRARIES}] - \textbf{advanced option} -
+  Semi-colon separated list of PETSc link libraries. Unless provided by the
+  user, this is autopopulated based on the PETSc installation found in
+  \id{PETSC\_DIR}.
+  \\
+  Default:
+\item[\id{PETSC\_INCLUDES}] - \textbf{advanced option} -
+  Semi-colon separated list of PETSc include directories. Unless provided by the
+  user, this is autopopulated based on the PETSc installation found in
+  \id{PETSC\_DIR}.
+  \\
+  Default:
 \item[\id{PTHREAD\_ENABLE}] -
   Enable Pthreads support (build the Pthreads {\nvector}).
   \\
@@ -643,6 +636,8 @@ a typical configuration on a Linux system and are provided as illustration only.
   Path to SuperLU\_MT header files (typically SRC directory)
 \item[\id{SUPERLUMT\_LIBRARY\_DIR}] -
   Path to SuperLU\_MT installed library files
+\item[\id{SUPERLUMT\_LIBRARIES}] -
+  Semi-colon separated list of libraries needed for SuperLU\_MT
 \item[\id{SUPERLUMT\_THREAD\_TYPE}] -
   Must be set to Pthread or {\openmp}
   \\
@@ -716,21 +711,6 @@ that are replaced. Below is a complete list xSDK options and the
 corresponding {\sundials} options if applicable.
 
 \begin{description}
-\item[\id{TPL\_BLAS\_LIBRARIES}] -
-  BLAS library
-  \\
-  Default: /usr/lib/libblas.so
-  \\
-  {\sundials} equivalent: \id{BLAS\_LIBRARIES}
-  \\
-  Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
-  to searching default system paths.
-\item[\id{TPL\_ENABLE\_BLAS}] -
-  Enable BLAS support
-  \\
-  Default: OFF
-  \\
-  {\sundials} equivalent: \id{BLAS\_ENABLE}
 \item[\id{TPL\_ENABLE\_HYPRE}] -
   Enable {\hypre} support
   \\
@@ -792,14 +772,10 @@ corresponding {\sundials} options if applicable.
   \\
   Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
   to searching default system paths.
-\item[\id{TPL\_PETSC\_INCLUDE\_DIRS}] -
-  Path to {\petsc} header files
+\item[\id{TPL\_PETSC\_DIR}] -
+  Path to {\petsc} installation
   \\
-  {\sundials} equivalent: \id{PETSC\_INCLUDE\_DIR}
-\item[\id{TPL\_PETSC\_LIBRARIES}] -
-  {\petsc} library
-  \\
-  {\sundials} equivalent: N/A
+  {\sundials} equivalent: \id{PETSC\_DIR}
 \item[\id{TPL\_SUPERLUDIST\_INCLUDE\_DIRS}] -
   Path to {\superludist} header files
   \\
@@ -895,44 +871,9 @@ example sources under subdirectories of
 The {\sundials} suite contains many options to enable implementation flexibility
 when developing solutions. The following are some notes addressing specific configurations
 when using the supported third party libraries.
-When building {\sundials} as a shared library external libraries any
+When building {\sundials} as a shared library any external libraries
 used with {\sundials} must also be build as a shared library or as a
 static library compiled with the \id{-fPIC} flag.{\warn}
-
-\subsubsection*{Building with BLAS}
-{\sundials} does not utilize BLAS directly but it may be needed by other
-external libraries that {\sundials} can be built with (e.g. LAPACK,
-{\petsc}, SuperLU\_MT, etc.). To enable BLAS, set the \id{BLAS\_ENABLE}
-option to \id{ON}. If the directory containing the BLAS library is in
-the \id{LD\_LIBRARY\_PATH} environment variable, CMake will set the
-\id{BLAS\_LIBRARIES} variable accordingly, otherwise CMake will
-attempt to find the BLAS library in standard system locations. To
-explicitly tell CMake what libraries to use, the \id{BLAS\_LIBRARIES}
-variable can be set to the desired library. Example:
-\begin{verbatim}
-   % cmake \
-   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
-   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DBLAS_ENABLE=ON \
-   > -DBLAS_LIBRARIES=/myblaspath/lib/libblas.so \
-   > -DSUPERLUMT_ENABLE=ON \
-   > -DSUPERLUMT_INCLUDE_DIR=/mysuperlumtpath/SRC
-   > -DSUPERLUMT_LIBRARY_DIR=/mysuperlumtpath/lib
-   > /home/myname/sundials/solverdir
-   %
-   % make install
-   %
-\end{verbatim}
-{\warn}When allowing CMake to automatically locate the LAPACK library,
-CMake \textit{may} also locate the corresponding BLAS library.
-
-If a working Fortran compiler is not available to infer the Fortran
-name-mangling scheme, the options \id{SUNDIALS\_F77\_FUNC\_CASE} and
-\id{SUNDIALS\_F77\_FUNC\_UNDERSCORES} \textit{must} be set in order to
-bypass the check for a Fortran compiler and define the name-mangling
-scheme. The defaults for these options in earlier versions of
-{\sundials} were \id{lower} and \id{one} respectively.
-
 
 \subsubsection*{Building with LAPACK}
 To enable LAPACK, set the \id{LAPACK\_ENABLE} option to \id{ON}.
@@ -941,24 +882,18 @@ If the directory containing the LAPACK library is in the
 \id{LAPACK\_LIBRARIES} variable accordingly, otherwise CMake will
 attempt to find the LAPACK library in standard system locations. To
 explicitly tell CMake what library to use, the \id{LAPACK\_LIBRARIES}
-variable can be set to the desired libraries. {\warn}When setting
-the LAPACK location explicitly the location of the corresponding BLAS
-library will also need to be set. Example:
+variable can be set to the desired libraries rquired for LAPACK.
 \begin{verbatim}
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DBLAS_ENABLE=ON \
-   > -DBLAS_LIBRARIES=/mylapackpath/lib/libblas.so \
    > -DLAPACK_ENABLE=ON \
-   > -DLAPACK_LIBRARIES=/mylapackpath/lib/liblapack.so \
+   > -DLAPACK_LIBRARIES=/mylapackpath/lib/libblas.so;/mylapackpath/lib/liblapack.so \
    > /home/myname/sundials/solverdir
    %
    % make install
    %
 \end{verbatim}
-{\warn}When allowing CMake to automatically locate the LAPACK library,
-CMake \textit{may} also locate the corresponding BLAS library.
 
 If a working Fortran compiler is not available to infer the Fortran
 name-mangling scheme, the options \id{SUNDIALS\_F77\_FUNC\_CASE} and
@@ -969,91 +904,104 @@ scheme. The defaults for these options in earlier versions of
 
 \subsubsection*{Building with KLU}
 The KLU libraries are part of SuiteSparse, a suite of sparse matrix software,
-available from the Texas A\&M University website: {\tt http://faculty.cse.tamu.edu/davis/suitesparse.html}.
-{\sundials} has been tested with SuiteSparse version 5.3.0.
-To enable KLU, set \id{KLU\_ENABLE} to \id{ON}, set \id{KLU\_INCLUDE\_DIR} to the \id{include}
-path of the KLU installation and set \id{KLU\_LIBRARY\_DIR} to the \id{lib} path of the KLU installation.
-The CMake configure will result in populating the following variables: \id{AMD\_LIBRARY},
-\id{AMD\_LIBRARY\_DIR}, \id{BTF\_LIBRARY}, \id{BTF\_LIBRARY\_DIR},
-\id{COLAMD\_LIBRARY}, \id{COLAMD\_LIBRARY\_DIR}, and
+available from the Texas A\&M University website: {\tt
+http://faculty.cse.tamu.edu/davis/suitesparse.html}.  {\sundials} has been
+tested with SuiteSparse version 5.3.0.  To enable KLU, set \id{KLU\_ENABLE} to
+\id{ON}, set \id{KLU\_INCLUDE\_DIR} to the \id{include} path of the KLU
+installation and set \id{KLU\_LIBRARY\_DIR} to the \id{lib} path of the KLU
+installation.  The CMake configure will result in populating the following
+variables: \id{AMD\_LIBRARY}, \id{AMD\_LIBRARY\_DIR}, \id{BTF\_LIBRARY},
+\id{BTF\_LIBRARY\_DIR}, \id{COLAMD\_LIBRARY}, \id{COLAMD\_LIBRARY\_DIR}, and
 \newline\id{KLU\_LIBRARY}.
 
 \subsubsection*{Building with SuperLU\_MT}
-The SuperLU\_MT libraries are available for download from the Lawrence Berkeley National Laboratory website:
-{\tt http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_mt}.
-{\sundials} has been tested with SuperLU\_MT version 3.1.
-To enable SuperLU\_MT, set  \id{SUPERLUMT\_ENABLE} to \id{ON}, set \id{SUPERLUMT\_INCLUDE\_DIR}
-to the \id{SRC} path of the SuperLU\_MT installation, and set the variable
-\newline\id{SUPERLUMT\_LIBRARY\_DIR} to the \id{lib} path of the SuperLU\_MT installation.
-At the same time, the variable
-\id{SUPERLUMT\_THREAD\_TYPE} must be set to either \id{Pthread} or \id{{\openmp}}.
+The SuperLU\_MT libraries are available for download from the Lawrence Berkeley
+National Laboratory website: {\tt
+http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_mt}.  {\sundials} has
+been tested with SuperLU\_MT version 3.1.  To enable SuperLU\_MT, set
+\id{SUPERLUMT\_ENABLE} to \id{ON}, set \id{SUPERLUMT\_INCLUDE\_DIR} to the
+\id{SRC} path of the SuperLU\_MT installation, and set the variable
+\newline\id{SUPERLUMT\_LIBRARY\_DIR} to the \id{lib} path of the SuperLU\_MT
+installation.  At the same time, the variable \id{SUPERLUMT\_LIBRARIES} must be
+set to a semi-colon separated list of other libraries SuperLU\_MT depends on.
+For example, if SuperLU\_MT ws build with an external blas library, then include
+the full path to the blas library in this list. Additionally, the variable
+\id{SUPERLUMT\_THREAD\_TYPE} must be set to either \id{Pthread} or
+\id{{\openmp}}.
 
-\noindent Do not mix thread types when building {\sundials} solvers.
-If threading is enabled for {\sundials} by having either \id{OPENMP\_ENABLE} or \id{PTHREAD\_ENABLE} set to \id{ON}
-then SuperLU\_MT should be set to use the same threading type.{\warn}
+\noindent Do not mix thread types when building {\sundials} solvers.  If
+threading is enabled for {\sundials} by having either \id{OPENMP\_ENABLE} or
+\id{PTHREAD\_ENABLE} set to \id{ON} then SuperLU\_MT should be set to use the
+same threading type.{\warn}
 
 \subsubsection*{Building with {\superludist}}
-The {\superludist} libraries are available for download from the Lawrence Berkeley National Laboratory website:
-{\tt http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_dist}.
-{\sundials} has been tested with {\superludist} greater than 6.1.
-To enable {\superludist}, set \id{SUPERLUDIST\_ENABLE} to \id{ON}, set \id{SUPERLUDIST\_INCLUDE\_DIR}
-to the include directory of the {\superludist} installation (typically \id{SRC}), and set the variable
-\newline\id{SUPERLUDIST\_LIBRARY\_DIR} to the path to library directory of the {\superludist} installation (typically \id{lib}). At the same time, the variable
-\id{SUPERLUDIST\_LIBRARIES} must be set to a semi-colon separated list of
-other libraries {\superludist} depends on. For example, if {\superludist} was
-built with LAPACK, then include the LAPACK library in this list.
-If {\superludist} was built with {\openmp} support, then you may set \id{SUPERLUDIST\_OPENMP}
-to \id{ON} to utilize the {\openmp} functionality of {\superludist}.
+The {\superludist} libraries are available for download from the Lawrence
+Berkeley National Laboratory website: {\tt
+http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_dist}.  {\sundials}
+has been tested with {\superludist} 6.1.1.  To enable {\superludist}, set
+\id{SUPERLUDIST\_ENABLE} to \id{ON}, set \id{SUPERLUDIST\_INCLUDE\_DIR} to the
+include directory of the {\superludist} installation (typically \id{SRC}), and
+set the variable \newline\id{SUPERLUDIST\_LIBRARY\_DIR} to the path to library
+directory of the {\superludist} installation (typically \id{lib}). At the same
+time, the variable \id{SUPERLUDIST\_LIBRARIES} must be set to a semi-colon
+separated list of other libraries {\superludist} depends on. For example, if
+{\superludist} was built with LAPACK, then include the LAPACK library in this
+list.  If {\superludist} was built with {\openmp} support, then you may set
+\id{SUPERLUDIST\_OPENMP} to \id{ON} to utilize the {\openmp} functionality of
+{\superludist}.
 
-\noindent Do not mix thread types when building {\sundials} solvers.
-If threading is enabled for {\sundials} by having \id{PTHREAD\_ENABLE} set to \id{ON}
-then {\superludist} should not be set to use {\openmp}.{\warn}
+\noindent Do not mix thread types when building {\sundials} solvers.  If
+threading is enabled for {\sundials} by having \id{PTHREAD\_ENABLE} set to
+\id{ON} then {\superludist} should not be set to use {\openmp}.{\warn}
 
 \subsubsection*{Building with PETSc}
-The {\petsc} libraries are available for download from the Argonne National Laboratory website:
-{\tt http://www.mcs.anl.gov/petsc}.
-{\sundials} has been tested with {\petsc} version 3.10.3.
-To enable {\petsc}, set  \id{PETSC\_ENABLE} to \id{ON}, set \id{PETSC\_INCLUDE\_DIR}
-to the \id{include} path of the {\petsc} installation, and set the variable
-\id{PETSC\_LIBRARY\_DIR} to the \id{lib} path of the {\petsc} installation.
+\label{ss:building_with_petsc}
+The {\petsc} libraries are available for download from the Argonne National
+Laboratory website: {\tt http://www.mcs.anl.gov/petsc}. {\sundials} has been
+tested with {\petsc} version 3.10.0--3.12.0. To enable {\petsc}, set
+\id{PETSC\_ENABLE} to \id{ON} and then set \id{PETSC\_DIR} to the path of the
+{\petsc} installation.
 
 
 \subsubsection*{Building with {\hypre}}
 The {\hypre} libraries are available for download from the Lawrence Livermore
-National Laboratory website: {\tt http://computation.llnl.gov/projects/hypre}.
-%{\tt http://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods}.
-{\sundials} has been tested with {\hypre} version 2.14.0.
-To enable {\hypre}, set  \id{HYPRE\_ENABLE} to \id{ON}, set \id{HYPRE\_INCLUDE\_DIR}
-to the \id{include} path of the {\hypre} installation, and set the variable
+National Laboratory website: {\tt http://computing.llnl.gov/projects/hypre}.
+{\sundials} has been tested with {\hypre} version 2.14.0--2.18.0.  To enable
+{\hypre}, set  \id{HYPRE\_ENABLE} to \id{ON}, set \id{HYPRE\_INCLUDE\_DIR} to
+the \id{include} path of the {\hypre} installation, and set the variable
 \id{HYPRE\_LIBRARY\_DIR} to the \id{lib} path of the {\hypre} installation.
 
+Note: {\sundials} must be configured so that \id{SUNDIALS\_INDEX\_SIZE} (or
+equivalently, \id{XSDK\_INDEX\_SIZE}) equals the precision of
+\id{HYPRE\_BigInt} in the corresponding {\hypre} installation.
+
+
 \subsubsection*{Building with CUDA}
-{\sundials} {\cuda} modules and examples have been tested with version 9.0 of the
-{\cuda} toolkit. To build them, you need to install the Toolkit and compatible
-NVIDIA drivers. Both are available for download from the NVIDIA website:
-{\tt https://developer.nvidia.com/cuda-downloads}. To enable {\cuda},
-set \id{CUDA\_ENABLE} to \id{ON}. If {\cuda} is installed in a
+{\sundials} {\cuda} modules and examples have been tested with versions 9
+through 10.1 of the {\cuda} toolkit. To build them, you need to install the
+Toolkit and compatible NVIDIA drivers. Both are available for download from the
+NVIDIA website: {\tt https://developer.nvidia.com/cuda-downloads}. To enable
+{\cuda}, set \id{CUDA\_ENABLE} to \id{ON}. If {\cuda} is installed in a
 nonstandard location, you may be prompted to set the variable
-\id{CUDA\_TOOLKIT\_ROOT\_DIR} with your {\cuda} Toolkit installation
-path. To enable {\cuda} examples, set \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
+\id{CUDA\_TOOLKIT\_ROOT\_DIR} with your {\cuda} Toolkit installation path. To
+enable {\cuda} examples, set \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
 
 \subsubsection*{Building with RAJA}
-{\raja} is a performance portability layer developed by Lawrence
-Livermore National Laboratory and can be obtained from {\tt https://github.com/LLNL/RAJA}.
-{\sundials} {\raja} modules and examples have been tested with {\raja}
-version 0.6. Building {\sundials} {\raja} modules requires a
-{\cuda}-enabled {\raja} installation. To enable {\raja}, set
-\id{CUDA\_ENABLE} and \id{RAJA\_ENABLE} to \id{ON}. If {\raja} is
-installed in a nonstandard location you will be prompted to set the
-variable \id{RAJA\_DIR} with the path to the {\raja} CMake
-configuration file. To enable building the {\raja} examples set
+{\raja} is a performance portability layer developed by Lawrence Livermore
+National Laboratory and can be obtained from {\tt https://github.com/LLNL/RAJA}.
+{\sundials} {\raja} modules and examples have been tested with {\raja} up to
+version 0.9. Building {\sundials} {\raja} modules requires a {\cuda}-enabled
+{\raja} installation. To enable {\raja}, set \id{CUDA\_ENABLE} and
+\id{RAJA\_ENABLE} to \id{ON}. If {\raja} is installed in a nonstandard location
+you will be prompted to set the variable \id{RAJA\_DIR} with the path to the
+{\raja} CMake configuration file. To enable building the {\raja} examples set
 \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
 
 \subsubsection*{Building with Trilinos}
 {\trilinos} is a suite of numerical libraries developed by Sandia National
 Laboratories. It can be obtained at {\tt https://github.com/trilinos/Trilinos}.
 {\sundials} {\trilinos} modules and examples have been tested with {\trilinos}
-version 12.14. To enable {\trilinos}, set
+version 12.14.1. To enable {\trilinos}, set
 \id{Trilinos\_ENABLE} to \id{ON}. If {\trilinos} is
 installed in a nonstandard location you will be prompted to set the
 variable \id{Trilinos\_DIR} with the path to the {\trilinos} CMake
@@ -1093,24 +1041,27 @@ command by running:
 \section{Building and Running Examples}
 %%===============================================================================
 Each of the {\sundials} solvers is distributed with a set of examples
-demonstrating basic usage. To build and install the examples, set at
-least of the \id{EXAMPLES\_ENABLE\_$<$language$>$} options to \id{ON}, and
-set \id{EXAMPLES\_INSTALL} to \id{ON}.
-Specify the installation path for the examples with the variable \id{EXAMPLES\_INSTALL\_PATH}. CMake will generate
-\id{CMakeLists.txt} configuration files (and \id{Makefile} files if on Linux/Unix) that reference the
-{\em installed} {\sundials} headers and libraries.
+demonstrating basic usage. To build and install the examples, set at least of
+the \id{EXAMPLES\_ENABLE\_$<$language$>$} options to \id{ON}, and set
+\id{EXAMPLES\_INSTALL} to \id{ON}.  Specify the installation path for the
+examples with the variable \id{EXAMPLES\_INSTALL\_PATH}. CMake will generate
+\id{CMakeLists.txt} configuration files (and \id{Makefile} files if on
+Linux/Unix) that reference the {\em installed} {\sundials} headers and
+libraries.
 
-Either the \id{CMakeLists.txt} file or the traditional \id{Makefile} may be used to build the examples
-as well as serve as a template for creating user developed solutions.
-To use the supplied \id{Makefile} simply run \id{make} to compile and generate the executables.
-To use CMake from within the installed example directory, run \id{cmake} (or \id{ccmake} to use the GUI)
-followed by \id{make} to compile the example code.
-Note that if CMake is used, it will overwrite the traditional \id{Makefile} with a new CMake-generated \id{Makefile}.
-The resulting output from running the examples can be compared with example output bundled
-in the {\sundials} distribution.
+Either the \id{CMakeLists.txt} file or the traditional \id{Makefile} may be used
+to build the examples as well as serve as a template for creating user developed
+solutions.  To use the supplied \id{Makefile} simply run \id{make} to compile
+and generate the executables.  To use CMake from within the installed example
+directory, run \id{cmake} (or \id{ccmake} to use the GUI) followed by \id{make}
+to compile the example code.  Note that if CMake is used, it will overwrite the
+traditional \id{Makefile} with a new CMake-generated \id{Makefile}.  The
+resulting output from running the examples can be compared with example output
+bundled in the {\sundials} distribution.
 
-\noindent NOTE: There will potentially be differences in the output due to machine architecture, compiler versions,
-use of third party libraries etc.{\warn}
+\noindent NOTE: There will potentially be differences in the output due to
+machine architecture, compiler versions, use of third party libraries
+etc.{\warn}
 
 
 %%===============================================================================
@@ -1245,20 +1196,29 @@ are to be used in building a preconditioner.
 %% --------------------------------------------------
 {\nvecmanyvector}
 & Libraries    & libsundials\_nvecmanyvector.{\em lib}               &                           \\
+&              & libsundials\_nvecmanyvector\_mod.{\em lib}          &                           \\
 \cline{2-4}
 & Header files & nvector/nvector\_manyvector.h                       &                           \\
+\cline{2-4}
+& Module files & fnvector\_manyvector\_mod.mod                       &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecmpimanyvector}
 & Libraries    & libsundials\_nvecmpimanyvector.{\em lib}            &                           \\
+&              & libsundials\_nvecmpimanyvector\_mod.{\em lib}       &                           \\
 \cline{2-4}
 & Header files & nvector/nvector\_mpimanyvector.h                    &                           \\
+\cline{2-4}
+& Module files & fnvector\_mpimanyvector\_mod.mod                    &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecmpiplusx}
 & Libraries    & libsundials\_nvecmpiplusx.{\em lib}                 &                           \\
+&              & libsundials\_nvecmpiplusx\_mod.{\em lib}            &                           \\
 \cline{2-4}
 & Header files & nvector/nvector\_mpiplusx.h                         &                           \\
+\cline{2-4}
+& Module files & fnvector\_mpiplusx\_mod.mod                         &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecopenmp}
@@ -1459,11 +1419,17 @@ are to be used in building a preconditioner.
 \cline{2-4}
 & Header files & sunlinsol/sunlinsol\_superlumt.h                    &                           \\
 \hline
+%% --------------------------------------------------
 {\sunlinsolsludist}
 & Libraries    & libsundials\_sunlinsolsuperludist.{\em lib}         &                           \\
-&              & libsundials\_fsunlinsolsuperludist.a                &                           \\
 \cline{2-4}
 & Header files & sunlinsol/sunlinsol\_superludist.h                  &                           \\
+\hline
+%% --------------------------------------------------
+{\sunlinsolcuspbqr}
+& Libraries    & libsundials\_sunlinsolcusolversp.{\em lib}          &                           \\
+\cline{2-4}
+& Header files & sunlinsol/sunlinsol\_cusolverp\_batchqr.h           &                           \\
 \hline
 %% --------------------------------------------------
 {\sunnonlinsolnewton}
@@ -1486,6 +1452,12 @@ are to be used in building a preconditioner.
 & Module files & fsunnonlinsol\_fixedpoint\_mod.mod                  &                           \\
 \hline
 %% --------------------------------------------------
+{\sunnonlinsolpetsc}
+& Libraries    & libsundials\_sunnonlinsolpetscsnes.{\em lib}        &                           \\
+\cline{2-4}
+& Header files & sunnonlinsol/sunnonlinsol\_petscsnes.h              &                           \\
+\hline
+%% --------------------------------------------------
 {\cvode}
 & Libraries    & libsundials\_cvode.{\em lib}                        &                           \\
 &              & libsundials\_fcvode.a                               &                           \\
@@ -1501,11 +1473,14 @@ are to be used in building a preconditioner.
 %% --------------------------------------------------
 {\cvodes}
 & Libraries    & libsundials\_cvodes.{\em lib}                       &                           \\
+&              & libsundials\_fcvodes\_mod.{\em lib}                 &                           \\
 \cline{2-4}
 & Header files & cvodes/cvodes.h                                     & cvodes/cvodes\_impl.h     \\
 &              & cvodes/cvodes\_direct.h                             & cvodes/cvodes\_ls.h       \\
 &              & cvodes/cvodes\_spils.h                              & cvodes/cvodes\_bandpre.h  \\
 &              & cvodes/cvodes\_bbdpre.h                             &                           \\
+\cline{2-4}
+& Module files & fcvodes\_mod.mod                                    &                           \\
 \hline
 %% --------------------------------------------------
 {\arkode}
@@ -1535,10 +1510,13 @@ are to be used in building a preconditioner.
 %% --------------------------------------------------
 {\idas}
 & Libraries    & libsundials\_idas.{\em lib}                         &                           \\
+&              & libsundials\_fidas\_mod.{\em lib}                   &                           \\
 \cline{2-4}
 & Header files & idas/idas.h                                         & idas/idas\_impl.h         \\
 &              & idas/idas\_direct.h                                 & idas/idas\_ls.h           \\
 &              & idas/idas\_spils.h                                  & idas/idas\_bbdpre.h       \\
+\cline{2-4}
+& Module files & fidas\_mod.mod                                      &                           \\
 \hline
 %% --------------------------------------------------
 {\kinsol}

@@ -37,7 +37,7 @@
  * MX = MXSUB*NPEX and MY = MYSUB*NPEY, and the ODE system size is
  * neq = 2*MX*MY.
  *
- * Each species is stored in its own parallel nvector, and are 
+ * Each species is stored in its own parallel nvector, and are
  * combined together using the MPIManyVector module.
  *
  * The solution is done with the BDF/GMRES method (i.e. using the
@@ -51,7 +51,7 @@
  * on completion.
  *
  * This version uses MPI for user routines.
- * 
+ *
  * Execution: mpirun -np N cvDiurnal_kry_mpimanyvec
  * with N = NPEX*NPEY (see constants below).
  * -----------------------------------------------------------------
@@ -67,8 +67,12 @@
 #include <sunlinsol/sunlinsol_spgmr.h>      /* access to SPGMR SUNLinearSolver          */
 #include <sundials/sundials_dense.h>        /* prototypes for small dense fcts.         */
 #include <sundials/sundials_types.h>        /* definitions of realtype, booleantype     */
-#include <sundials/sundials_math.h>         /* definition of macros SUNSQR and EXP      */
 
+/* helpful macros */
+
+#ifndef SQR
+#define SQR(A) ((A)*(A))
+#endif
 
 /* Problem Constants */
 
@@ -76,7 +80,7 @@
 #define KH           RCONST(4.0e-6)       /* horizontal diffusivity Kh */
 #define VEL          RCONST(0.001)        /* advection velocity V      */
 #define KV0          RCONST(1.0e-8)       /* coefficient in Kv(y)      */
-#define Q1           RCONST(1.63e-16)     /* coefficients q1, q2, c3   */ 
+#define Q1           RCONST(1.63e-16)     /* coefficients q1, q2, c3   */
 #define Q2           RCONST(4.66e-16)
 #define C3           RCONST(3.7e16)
 #define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
@@ -88,10 +92,10 @@
 #define NOUT         12                   /* number of output times */
 #define TWOHR        RCONST(7200.0)       /* number of seconds in two hours  */
 #define HALFDAY      RCONST(4.32e4)       /* number of seconds in a half day */
-#define PI       RCONST(3.1415926535898)  /* pi */ 
+#define PI       RCONST(3.1415926535898)  /* pi */
 
 #define XMIN         RCONST(0.0)          /* grid boundaries in x  */
-#define XMAX         RCONST(20.0)           
+#define XMAX         RCONST(20.0)
 #define YMIN         RCONST(30.0)         /* grid boundaries in y  */
 #define YMAX         RCONST(50.0)
 
@@ -115,7 +119,7 @@
 /* User-defined matrix accessor macro: IJth */
 
 /* IJth is defined in order to write code which indexes into dense
-   matrices with a (row,column) pair, where 1 <= row,column <= NVARS.   
+   matrices with a (row,column) pair, where 1 <= row,column <= NVARS.
 
    IJth(a,i,j) references the (i,j)th entry of the small matrix realtype **a,
    where 1 <= i,j <= NVARS. The small matrix routines in sundials_dense.h
@@ -124,8 +128,8 @@
 
 #define IJth(a,i,j) (a[j-1][i-1])
 
-/* Type : UserData 
-   contains problem constants, preconditioner blocks, pivot arrays, 
+/* Type : UserData
+   contains problem constants, preconditioner blocks, pivot arrays,
    grid constants, and processor indices, as well as data needed
    for the preconditiner */
 
@@ -146,7 +150,7 @@ typedef struct {
   int nvmxsub2;
   MPI_Comm comm;
   MPI_Request request[8];
-  
+
   /* For preconditioner */
   realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
   sunindextype *pivot[MXSUB][MYSUB];
@@ -173,11 +177,11 @@ static void fcalc(realtype t, N_Vector udot, UserData data);
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
-                   booleantype jok, booleantype *jcurPtr, 
+                   booleantype jok, booleantype *jcurPtr,
                    realtype gamma, void *user_data);
 
-static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
-                  N_Vector r, N_Vector z, 
+static int PSolve(realtype tn, N_Vector u, N_Vector fu,
+                  N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
                   int lr, void *user_data);
 
@@ -234,7 +238,7 @@ int main(int argc, char *argv[])
   /* Set local length */
   local_N = MXSUB*MYSUB;
 
-  /* Allocate c[0], c[1], u, and set initial values and tolerances */ 
+  /* Allocate c[0], c[1], u, and set initial values and tolerances */
   c[0] = N_VNew_Parallel(comm, local_N, neq);
   if (check_retval((void *)c[0], "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   c[1] = N_VNew_Parallel(comm, local_N, neq);
@@ -244,7 +248,7 @@ int main(int argc, char *argv[])
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
@@ -264,7 +268,7 @@ int main(int argc, char *argv[])
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) return(1);
 
-  /* Create SPGMR solver structure with left preconditioning 
+  /* Create SPGMR solver structure with left preconditioning
      and the default Krylov dimension maxl */
   LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
   if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
@@ -273,7 +277,7 @@ int main(int argc, char *argv[])
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
   if (check_retval(&retval, "CVodeSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
-  /* Set preconditioner setup and solve routines Precond and PSolve, 
+  /* Set preconditioner setup and solve routines Precond and PSolve,
      and the pointer to the user-defined block data */
   retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
   if (check_retval(&retval, "CVodeSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
@@ -282,7 +286,7 @@ int main(int argc, char *argv[])
     printf("\n2-species diurnal advection-diffusion problem\n\n");
 
   PrintOutput(cvode_mem, my_pe, comm, u, t);
-  
+
   /* In loop over output points, call CVode, print results, test for error */
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
@@ -290,7 +294,7 @@ int main(int argc, char *argv[])
     PrintOutput(cvode_mem, my_pe, comm, u, t);
   }
 
-  /* Print final statistics */  
+  /* Print final statistics */
   if (my_pe == 0) PrintFinalStats(cvode_mem);
 
   /* Free memory */
@@ -320,9 +324,9 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/((realtype)(MX-1));
   data->dy = (YMAX-YMIN)/((realtype)(MY-1));
-  data->hdco = KH/SUNSQR(data->dx);
+  data->hdco = KH/SQR(data->dx);
   data->haco = VEL/(RCONST(2.0)*data->dx);
-  data->vdco = (RCONST(1.0)/SUNSQR(data->dy))*KV0;
+  data->vdco = (RCONST(1.0)/SQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -384,14 +388,14 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + (data->isuby)*MYSUB;
     y = YMIN + jy*(data->dy);
-    cy = SUNSQR(RCONST(0.1)*(y - ymid));
-    cy = RCONST(1.0) - cy + RCONST(0.5)*SUNSQR(cy);
+    cy = SQR(RCONST(0.1)*(y - ymid));
+    cy = RCONST(1.0) - cy + RCONST(0.5)*SQR(cy);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + (data->isubx)*MXSUB;
       x = XMIN + jx*(data->dx);
-      cx = SUNSQR(RCONST(0.1)*(x - xmid));
-      cx = RCONST(1.0) - cx + RCONST(0.5)*SUNSQR(cx);
-      c1data[offset] = C1_SCALE*cx*cy; 
+      cx = SQR(RCONST(0.1)*(x - xmid));
+      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
+      c1data[offset] = C1_SCALE*cx*cy;
       c2data[offset] = C2_SCALE*cx*cy;
       offset++;
     }
@@ -424,7 +428,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
   }
 
   /* On PE 0, receive c1,c2 at top right, then print performance data
-     and sampled solution values */ 
+     and sampled solution values */
   if (my_pe == 0) {
     if (npelast != 0) {
       retval = MPI_Recv(&tempu[0], 2, MPI_SUNREALTYPE, npelast, 0, comm, &status);
@@ -502,9 +506,9 @@ static void PrintFinalStats(void *cvode_mem)
   printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
   printf("nsetups = %5ld     netf    = %5ld\n"  , nsetups, netf);
   printf("npe     = %5ld     nps     = %5ld\n"  , npe, nps);
-  printf("ncfn    = %5ld     ncfl    = %5ld\n\n", ncfn, ncfl); 
+  printf("ncfn    = %5ld     ncfl    = %5ld\n\n", ncfn, ncfl);
 }
- 
+
 /* Routine to start receiving boundary data from neighboring PEs. */
 
 static void BRecvPost(UserData data)
@@ -551,12 +555,12 @@ static void BSend(realtype c1data[], realtype c2data[], UserData data)
   if (data->isuby > 0) {
     for (lx=0; lx<MXSUB; lx++)  data->SendBufferS[lx]       = c1data[lx];
     for (lx=0; lx<MXSUB; lx++)  data->SendBufferS[MXSUB+lx] = c2data[lx];
-   
+
     retval = MPI_Isend(data->SendBufferS, NVARS*MXSUB, MPI_SUNREALTYPE,
                        data->my_pe-NPEX, 1, data->comm, &(data->request[4]));
     if (check_retval(&retval, "MPI_Send", 3, data->my_pe))  MPI_Abort(data->comm,1);
   }
-    
+
   /* If isuby < NPEY-1, send data from top x-line of c1 and c2 */
   if (data->isuby < NPEY-1) {
     offsetu = (MYSUB-1)*MXSUB;
@@ -588,7 +592,7 @@ static void BSend(realtype c1data[], realtype c2data[], UserData data)
     if (check_retval(&retval, "MPI_Send", 3, data->my_pe))  MPI_Abort(data->comm,1);
   }
 }
- 
+
 /* Routine to finish receiving boundary data from neighboring PEs. */
 
 static void BRecvWait(UserData data)
@@ -607,7 +611,7 @@ static void BRecvWait(UserData data)
     for (lx=0; lx<MXSUB; lx++)  data->c1ext[1+lx] = data->RecvBufferS[lx];
     for (lx=0; lx<MXSUB; lx++)  data->c2ext[1+lx] = data->RecvBufferS[MXSUB+lx];
   }
-  
+
   /* If isuby < NPEY-1, wait on communication for top x-line */
   if (data->isuby < NPEY-1) {
     retval = MPI_Wait(&(data->request[1]), &status);
@@ -619,7 +623,7 @@ static void BRecvWait(UserData data)
     for (lx=0; lx<MXSUB; lx++)  data->c1ext[(MYSUB+1)*(MXSUB+2)+1+lx] = data->RecvBufferN[lx];
     for (lx=0; lx<MXSUB; lx++)  data->c2ext[(MYSUB+1)*(MXSUB+2)+1+lx] = data->RecvBufferN[MXSUB+lx];
   }
-  
+
   /* If isubx > 0, wait on communication for left y-line */
   if (data->isubx > 0) {
     retval = MPI_Wait(&(data->request[2]), &status);
@@ -645,11 +649,11 @@ static void BRecvWait(UserData data)
   }
 }
 
-/* PrepareExt routine. 
+/* PrepareExt routine.
    This routine performs all communication between processors of data needed to calculate f.
    It then copies the data from u to the extended work arrays c1ext and c2ext.
-   Then to facilitate homogeneous Neumann boundary conditions, this copies data from the 
-   first interior mesh lines of c1,c2 to c1ext,c2ext for boundary PEs. */ 
+   Then to facilitate homogeneous Neumann boundary conditions, this copies data from the
+   first interior mesh lines of c1,c2 to c1ext,c2ext for boundary PEs. */
 
 static void PrepareExt(N_Vector u, UserData data)
 {
@@ -673,7 +677,7 @@ static void PrepareExt(N_Vector u, UserData data)
   for (ly=0; ly<MYSUB; ly++)
     for (lx=0; lx<MXSUB; lx++)
       data->c2ext[(MXSUB+2)*(1+ly)+1+lx] = c2data[ly*MXSUB+lx];
-  
+
   /* Copy data from the first interior mesh line of c1,c2 to c1ext,c2ext for boundary PEs */
 
   /* If isuby = 0, copy x-line 2 of c1,c2 to c1ext,c2ext */
@@ -702,9 +706,9 @@ static void PrepareExt(N_Vector u, UserData data)
 
   /* If isubx = NPEX-1, copy y-line MXSUB-1 of u to uext */
   if (data->isubx == NPEX-1) {
-    for (ly=0; ly<MYSUB; ly++) 
+    for (ly=0; ly<MYSUB; ly++)
       data->c1ext[(ly+2)*(MXSUB+2)-1] = c1data[(ly+1)*MXSUB-2];
-    for (ly=0; ly<MYSUB; ly++) 
+    for (ly=0; ly<MYSUB; ly++)
       data->c2ext[(ly+2)*(MXSUB+2)-1] = c2data[(ly+1)*MXSUB-2];
   }
 
@@ -727,13 +731,13 @@ static void fcalc(realtype t, N_Vector udot, UserData data)
   /* Access output arrays */
   c1dot = N_VGetSubvectorArrayPointer_MPIManyVector(udot,0);
   c2dot = N_VGetSubvectorArrayPointer_MPIManyVector(udot,1);
-  
-  /* Set diurnal rate coefficients as functions of t, and save q4 in 
+
+  /* Set diurnal rate coefficients as functions of t, and save q4 in
   data block for use by preconditioner evaluation routine */
   s = sin((data->om)*t);
   if (s > RCONST(0.0)) {
-    q3 = SUNRexp(-A3/s);
-    q4coef = SUNRexp(-A4/s);
+    q3 = exp(-A3/s);
+    q4coef = exp(-A4/s);
   } else {
     q3 = RCONST(0.0);
     q4coef = RCONST(0.0);
@@ -749,8 +753,8 @@ static void fcalc(realtype t, N_Vector udot, UserData data)
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn = YMIN + (jy - RCONST(0.5))*(data->dy);
     yup = ydn + data->dy;
-    cydn = (data->vdco)*SUNRexp(RCONST(0.2)*ydn);
-    cyup = (data->vdco)*SUNRexp(RCONST(0.2)*yup);
+    cydn = (data->vdco)*exp(RCONST(0.2)*ydn);
+    cyup = (data->vdco)*exp(RCONST(0.2)*yup);
 
     /* Loop over x-direction */
     for (lx=0; lx<MXSUB; lx++) {
@@ -767,7 +771,7 @@ static void fcalc(realtype t, N_Vector udot, UserData data)
       c2lt = data->c2ext[offset-1];
       c1rt = data->c1ext[offset+1];
       c2rt = data->c2ext[offset+1];
-      
+
       /* Set kinetic rate terms */
       qq1 = Q1*c1*C3;
       qq2 = Q2*c1*c2;
@@ -787,7 +791,7 @@ static void fcalc(realtype t, N_Vector udot, UserData data)
       horad2 = (data->haco)*(c2rt - c2lt);
 
       /* Load all terms into dudata */
-      c1dot[lx+ly*MXSUB] = vertd1 + hord1 + horad1 + rkin1; 
+      c1dot[lx+ly*MXSUB] = vertd1 + hord1 + horad1 + rkin1;
       c2dot[lx+ly*MXSUB] = vertd2 + hord2 + horad2 + rkin2;
     }
   }
@@ -796,8 +800,8 @@ static void fcalc(realtype t, N_Vector udot, UserData data)
 
 /***************** Functions Called by the Solver *************************/
 
-/* f routine.  Evaluate f(t,y).  First call PrepareExt to do communication of 
-   subgrid boundary data and to copy data from u into uext.  
+/* f routine.  Evaluate f(t,y).  First call PrepareExt to do communication of
+   subgrid boundary data and to copy data from u into uext.
    Then calculate f by a call to fcalc. */
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
@@ -808,19 +812,19 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   /* Call fcalc to calculate all right-hand sides */
   fcalc(t, udot, (UserData) user_data);
-  
+
   return(0);
 }
 
 /* Preconditioner setup routine. Generate and preprocess P. */
-static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok, 
+static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
+  sunindextype retval;
   sunindextype *(*pivot)[MYSUB];
   sunindextype lx, ly, jy;
-  int retval;
   realtype *c1data, *c2data, **a, **j;
   UserData data;
 
@@ -844,14 +848,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
   /* jok = SUNFALSE: Generate Jbd from scratch and copy to P, and update jcurPtr */
   else {
 
-    /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
+    /* Compute 2x2 diagonal Jacobian blocks (using q4 values
        computed on the last f call).  Load into P. */
     for (ly=0; ly<MYSUB; ly++) {
       jy = ly + (data->isuby)*MYSUB;
       ydn = YMIN + (jy - RCONST(0.5))*(data->dy);
       yup = ydn + (data->dy);
-      cydn = (data->vdco)*SUNRexp(RCONST(0.2)*ydn);
-      cyup = (data->vdco)*SUNRexp(RCONST(0.2)*yup);
+      cydn = (data->vdco)*exp(RCONST(0.2)*ydn);
+      cyup = (data->vdco)*exp(RCONST(0.2)*yup);
       diag = -(cydn + cyup + RCONST(2.0)*(data->hdco));
       for (lx = 0; lx < MXSUB; lx++) {
         c1 = c1data[lx+ly*MXSUB];
@@ -865,7 +869,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
         denseCopy(j, a, NVARS, NVARS);
       }
     }
-    
+
     *jcurPtr = SUNTRUE;
 
   }

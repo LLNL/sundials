@@ -452,9 +452,10 @@ following additional user-callable routines:
           consistency checks are performed to ensure that the matrix
           is called with consistent ``N_Vector`` implementations.
           These are currently limited to: NVECTOR_SERIAL,
-          NVECTOR_OPENMP, and NVECTOR_PTHREADS.  As additional
-          compatible vector implementations are added to SUNDIALS,
-          these will be included within this compatibility check.  
+          NVECTOR_OPENMP, NVECTOR_PTHREADS, and NVECTOR_CUDA when using
+          managed memory. As additional compatible vector implementations
+          are added to SUNDIALS, these will be included within this
+          compatibility check.  
 
 
 For solvers that include a Fortran interface module, the SUNMATRIX_SPARSE

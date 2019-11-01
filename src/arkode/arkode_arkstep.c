@@ -1204,8 +1204,8 @@ int arkStep_Init(void* arkode_mem, int init_type)
   support it, we may just copy vectors Fe[stages] and Fi[stages]
   to fill f instead of calling fe() and fi().
 
-  Mode 2 is only called for dense output in-between steps, or 
-  when estimating the initial time step size, so we strive to 
+  Mode 2 is only called for dense output in-between steps, or
+  when estimating the initial time step size, so we strive to
   store the intermediate parts so that they do not interfere
   with the other two modes.
   ---------------------------------------------------------------*/
@@ -1330,7 +1330,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
     break;
 
   /*  Mode 2: called for dense output in-between steps or for estimation
-      of the initial time step size, store the intermediate calculations 
+      of the initial time step size, store the intermediate calculations
       in such a way as to not interfere with the other two modes */
   default:
 
@@ -1397,7 +1397,9 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
 int arkStep_TakeStep(void* arkode_mem)
 {
   realtype dsm;
-  int retval, ncf, nef, is, nflag, kflag, eflag;
+  int retval, is;
+  int nflag, kflag, eflag;
+  int ncf, nef, constrfails;
   booleantype implicit_stage;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -1408,7 +1410,7 @@ int arkStep_TakeStep(void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  ncf = nef = 0;
+  ncf = nef = constrfails = 0;
   nflag = FIRST_CALL;
   eflag = ARK_SUCCESS;
   kflag = SOLVE_SUCCESS;
@@ -1575,6 +1577,13 @@ int arkStep_TakeStep(void* arkode_mem)
 #ifdef DEBUG_OUTPUT
  printf("error estimate = %"RSYM"\n", dsm);
 #endif
+
+    /* check inequality constraints */
+    if (ark_mem->constraintsSet) {
+      retval = arkCheckConstraints(ark_mem, &constrfails, &nflag);
+      if (retval == ARK_CONSTR_FAIL) return(ARK_CONSTR_FAIL);
+      if (retval == CONSTR_RECVR) continue;
+    }
 
     /* Solver diagnostics reporting */
     if (ark_mem->report)
@@ -2196,14 +2205,14 @@ int arkStep_StageSetup(ARKodeMem ark_mem)
   If it failed due to an unrecoverable failure in rhs, then we return
   the value ARK_RHSFUNC_FAIL.
 
-  Otherwise, a recoverable failure occurred when solving the
-  nonlinear system (arkNls returned nflag == CONV_FAIL or RHSFUNC_RECVR).
-  In this case, if using fixed time step sizes, or if ncf is now equal
-  to maxncf, or if |h| = hmin, then we return the value ARK_CONV_FAILURE
-  (if nflag=CONV_FAIL) or ARK_REPTD_RHSFUNC_ERR (if nflag=RHSFUNC_RECVR).
-  If not, we set *nflagPtr = PREV_CONV_FAIL and return the value
-  PREDICT_AGAIN, telling arkStep to reattempt the step.
-  ---------------------------------------------------------------*/
+ Otherwise, a recoverable failure occurred when solving the
+ nonlinear system (arkNls returned nflag == CONV_FAIL or RHSFUNC_RECVR).
+ In this case, if using fixed time step sizes, or if ncf is now equal
+ to maxncf, or if |h| = hmin, then we return the value ARK_CONV_FAILURE
+ (if nflag=CONV_FAIL) or ARK_REPTD_RHSFUNC_ERR (if nflag=RHSFUNC_RECVR).
+ If not, we set *nflagPtr = PREV_CONV_FAIL and return the value
+ PREDICT_AGAIN, telling arkStep to reattempt the step.
+---------------------------------------------------------------*/
 int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
 {
   int nflag;
@@ -2237,9 +2246,12 @@ int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
   hadapt_mem = step_mem->hadapt_mem;
 
   /* Return if lsetup, lsolve, or rhs failed unrecoverably */
-  if (nflag == ARK_LSETUP_FAIL)  return(ARK_LSETUP_FAIL);
-  if (nflag == ARK_LSOLVE_FAIL)  return(ARK_LSOLVE_FAIL);
-  if (nflag == ARK_RHSFUNC_FAIL) return(ARK_RHSFUNC_FAIL);
+  if (nflag < 0) {
+    if (nflag == ARK_LSETUP_FAIL)       return(ARK_LSETUP_FAIL);
+    else if (nflag == ARK_LSOLVE_FAIL)  return(ARK_LSOLVE_FAIL);
+    else if (nflag == ARK_RHSFUNC_FAIL) return(ARK_RHSFUNC_FAIL);
+    else                                return(ARK_NLS_OP_ERR);
+  }
 
   /* At this point, nflag = CONV_FAIL or RHSFUNC_RECVR; increment ncf */
   (*ncfPtr)++;

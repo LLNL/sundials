@@ -548,6 +548,34 @@ SWIGEXPORT int _wrap_FMRIStepSetPostprocessStepFn(void *farg1, ARKPostProcessSte
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepSetPreInnerFn(void *farg1, MRIStepPreInnerFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  MRIStepPreInnerFn arg2 = (MRIStepPreInnerFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (MRIStepPreInnerFn)(farg2);
+  result = (int)MRIStepSetPreInnerFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepSetPostInnerFn(void *farg1, MRIStepPostInnerFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  MRIStepPostInnerFn arg2 = (MRIStepPostInnerFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (MRIStepPostInnerFn)(farg2);
+  result = (int)MRIStepSetPostInnerFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepEvolve(void *farg1, double const *farg2, N_Vector farg3, double *farg4, int const *farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;

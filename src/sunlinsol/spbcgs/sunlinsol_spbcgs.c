@@ -87,6 +87,7 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl)
 
   /* Attach operations */
   S->ops->gettype           = SUNLinSolGetType_SPBCGS;
+  S->ops->getid             = SUNLinSolGetID_SPBCGS;
   S->ops->setatimes         = SUNLinSolSetATimes_SPBCGS;
   S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPBCGS;
   S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPBCGS;
@@ -204,6 +205,12 @@ SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl)
 SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S)
 {
   return(SUNLINEARSOLVER_ITERATIVE);
+}
+
+
+SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S)
+{
+  return(SUNLINEARSOLVER_SPBCGS);
 }
 
 
@@ -604,7 +611,7 @@ N_Vector SUNLinSolResid_SPBCGS(SUNLinearSolver S)
 }
 
 
-long int SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S)
+sunindextype SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
   if (S == NULL) return(-1);

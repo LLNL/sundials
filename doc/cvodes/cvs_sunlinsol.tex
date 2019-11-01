@@ -38,11 +38,11 @@ implementation that is being used. Note:
 \caption{List of linear solver function usage in the {\cvls} interface}\label{t:sunlinsoluse}
 \medskip
 \begin{tabular}{|r|c|c|c|} \hline
-                                                    & 
-\begin{sideways}{DIRECT}             \end{sideways} & 
-\begin{sideways}{ITERATIVE}          \end{sideways} & 
+                                                    &
+\begin{sideways}{DIRECT}             \end{sideways} &
+\begin{sideways}{ITERATIVE}          \end{sideways} &
 \begin{sideways}{MATRIX\_ITERATIVE}  \end{sideways} \\ \hline\hline
-%                                  DIRECT       ITER    & MAT-ITER  
+%                                  DIRECT       ITER    & MAT-ITER
 \id{SUNLinSolGetType}           &    \cm    &    \cm    &   \cm     \\ \hline
 \id{SUNLinSolSetATimes}         & $\dagger$ &    \cm    & $\dagger$ \\ \hline
 \id{SUNLinSolSetPreconditioner} & $\dagger$ & $\dagger$ & $\dagger$ \\ \hline
@@ -71,39 +71,32 @@ If the {\sunlinsol} object self-identifies as having type
 \id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE}, then the {\sunlinsol} object solves a
 linear system \emph{defined} by a {\sunmatrix} object. {\cvls} will update the
 matrix information infrequently according to the strategies outlined in
-\S\ref{ss:ivp_sol}. When solving a linear system
+\S\ref{ss:ivp_sol}. To this end, we differentiate between the \emph{desired}
+linear system $Mx=b$ with $M = (I-\gamma J)$, and the \emph{actual}
+linear system
 \[
-  M\bar{x} = b \quad\Leftrightarrow\quad (I-\bar{\gamma} J)\bar{x} = b
+  \bar{M}\bar{x} = b \quad\Leftrightarrow\quad (I-\bar{\gamma} J)\bar{x} = b.
 \]
-it is likely that the value $\bar{\gamma}$ used to construct $M$
-differs from the current value of $\gamma$ in the linear multistep method, since
-$M$ is updated infrequently.  Therefore, after calling the
-{\sunlinsol}-provided \id{SUNLinSolSolve} routine, we test whether
-$\gamma / \bar{\gamma} \ne 1$, and if this is the case we scale
-the solution $\bar{x}$ to obtain the desired linear system
+Since {\cvls} updates the {\sunmatrix} object infrequently, it is
+likely that $\gamma\ne\bar{\gamma}$, and in turn $M\ne\bar{M}$.
+When using a BDF method, after calling the {\sunlinsol}-provided \id{SUNLinSolSolve}
+routine, we test whether $\gamma / \bar{\gamma} \ne 1$, and if this is
+the case we scale the solution $\bar{x}$ to correct the linear system
 solution $x$ via
 \begin{equation}
   \label{eq:rescaling}
   x = \frac{2}{1 + \gamma / \bar{\gamma}} \bar{x}.
 \end{equation}
-For values of $\gamma/\bar{\gamma}$ that are ``close'' to 1, this
-rescaling approximately solves the original linear system, as
-discussed below.  We first note that the equation \eqref{eq:rescaling}
-is equivalent to
-\[
-  \bar{x} = \frac12 \left(1 + \frac{\gamma}{\bar{\gamma}}\right)x.
-\]
-Adding the two equations $(I-\gamma J)x=b$ and
-$(I-\bar{\gamma}J)\bar{x}=b$, and inserting the above relationship, we
-have
-\begin{align*}
-  2b &= (I-\gamma J)x + (I-\bar{\gamma}J) \\
-     &= x - \gamma Jx + \bar{x} - J\left(\bar{\gamma}\bar{x}\right)\\
-     &= \frac32\left(I - \gamma J\right)x + \frac12\left(\frac{\gamma}{\bar{\gamma}}I - \bar{\gamma} J\right)x\\
-     &= \frac32 b + \frac12\left(\frac{\gamma}{\bar{\gamma}}I - \bar{\gamma} J\right)x.
-\end{align*}
-When $\gamma/\bar{\gamma}\approx 1$, this latter term is approximately
-equal to $\frac12 b$.
+The motivation for this selection of the scaling factor $c = 2/(1 +
+\gamma/\bar{\gamma})$ is discussed in detail in \cite{BBH:89,Hin:00}.
+In short, if we consider a stationary iteration for the linear system
+as consisting of a solve with $\bar{M}$ followed by scaling by $c$,
+then for a linear constant-coefficient problem, the error in the
+solution vector will be reduced at each iteration by the error matrix
+$E = I - c \bar{M}^{-1} M$, with a convergence rate given by the
+spectral radius of $E$.  Assuming that stiff systems have a spectrum
+spread widely over the left half-plane, $c$ is chosen to minimize the
+magnitude of the eigenvalues of $E$.
 
 %---------------------------------------------------------------------------
 \subsection{Iterative linear solver tolerance}
@@ -115,13 +108,13 @@ If the {\sunlinsol} object self-identifies as having type
 \id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE} then {\cvls} will set the input
 tolerance \id{delta} as described in \S\ref{ss:ivp_sol}. However, if the
 iterative linear solver does not support scaling matrices (i.e., the \newline
-\id{SUNLinSolSetScalingVectors} routine is \id{NULL}), then {\cvls} will attempt 
+\id{SUNLinSolSetScalingVectors} routine is \id{NULL}), then {\cvls} will attempt
 to adjust the linear solver tolerance to account for this lack of functionality.
 To this end, the following assumptions are made:
 \begin{enumerate}
 \item All solution components have similar magnitude; hence the error
   weight vector $W$ used in the WRMS norm (see \S\ref{ss:ivp_sol})
-  should satisfy the assumption 
+  should satisfy the assumption
   \[
     W_i \approx W_{mean},\quad \text{for}\quad i=0,\ldots,n-1.
   \]
@@ -160,6 +153,7 @@ supplied to the {\sunlinsol} object.
 \input{sunlinsol_klu}
 \input{sunlinsol_superludist}
 \input{sunlinsol_superlumt}
+\input{sunlinsol_cusolversp}
 \input{sunlinsol_spgmr}
 \input{sunlinsol_spfgmr}
 \input{sunlinsol_spbcgs}

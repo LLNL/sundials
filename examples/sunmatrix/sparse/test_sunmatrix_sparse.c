@@ -58,19 +58,19 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  matrows = atol(argv[1]);
+  matrows = (sunindextype) atol(argv[1]);
   if (matrows < 1) {
     printf("ERROR: number of rows must be a positive integer\n");
     return(-1);
   }
 
-  matcols = atol(argv[2]);
+  matcols = (sunindextype) atol(argv[2]);
   if (matcols < 1) {
     printf("ERROR: number of cols must be a positive integer\n");
     return(-1);
   }
 
-  k = atol(argv[3]);
+  k = (sunindextype) atol(argv[3]);
   if ((k != 0) && (k != 1)) {
     printf("ERROR: matrix type must be 0 or 1\n");
     return(-1);

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Cody J. Balos @ LLNL
+# Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,6 +12,7 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 KLU SUNLinearSolver object library
+# ---------------------------------------------------------------
 
 set(sunlinsolklu_SOURCES fsunlinsol_klu_mod.f90 fsunlinsol_klu_mod.c)
 

@@ -100,41 +100,50 @@ equal to 1.0.  The macro call ``RCONST(1.0)`` automatically expands to
 to ``1.0L`` if ``realtype`` is ``long double``. SUNDIALS uses the ``RCONST``
 macro internally to declare all of its floating-point constants.
 
-A user program which uses the type ``realtype`` and the ``RCONST`` macro
-to handle floating-point constants is precision-independent, except for
-any calls to precision-specific standard math library functions.
-Users can, however, use the types ``double``, ``float``, or ``long
-double`` in their code (assuming that this usage is consistent with
-the size of ``realtype`` values that are passed to and from SUNDIALS).
-Thus, a previously existing piece of ANSI C code can use SUNDIALS
-without modifying the code to use ``realtype``, so long as the
-SUNDIALS libraries have been compiled using the same precision (for
-details see the section :ref:`Installation`).
+Additionally, SUNDIALS defines several macros for common mathematical
+functions *e.g.*}, ``fabs``, ``sqrt``, ``exp``, etc. in ``sundials_math.h``. The
+macros are prefixed with ``SUNR`` and expand to the appropriate C function based
+on the ``realtype``. For example, the macro ``SUNRabs`` expands to the C
+function ``fabs`` when ``realtype`` is ``double``, ``fabsf`` when ``realtype``
+is ``float``, and ``fabsl`` when ``realtype`` is ``long double``.
+
+A user program which uses the type ``realtype``, the ``RCONST`` macro, and the
+``SUNR`` mathematical function macros is precision-independent except for any
+calls to precision-specific library functions. Our example programs use
+``realtype``, ``RCONST``, and the ``SUNR`` macros. Users can, however, use the
+type ``double``, ``float``, or ``long double`` in their code (assuming that this
+usage is consistent with the typedef for ``realtype``) and call the appropriate
+math library functions directly. Thus, a previously existing piece of ANSI C
+code can use SUNDIALS without modifying the code to use ``realtype``,
+``RCONST``, or the ``SUNR`` macros so long as the SUNDIALS libraries use
+the correct precision (for details see :ref:`Installation`).
 
 
 
-Integer types used for vector and matrix indices
----------------------------------------------------
 
-The type ``sunindextype`` can be either a 32- or 64-bit *signed* integer.
-The default is the portable ``int64_t`` type, and the user can change it
-to ``int32_t`` at the configuration stage. The configuration system
-will detect if the compiler does not support portable types, and will
-replace ``int32_t`` and ``int64_t`` with ``int`` and ``long int``,
-respectively, to ensure use of the desired sizes on Linux, Mac OS X, and Windows
-platforms. SUNDIALS currently does not support *unsigned* integer types
-for vector and matrix indices, although these could be added in the future if there
-is sufficient demand.
+Integer types used for indexing
+--------------------------------
 
-A user program which uses ``sunindextype`` to handle vector and matrix indices
-will work with both index storage types except for any calls to index storage-specific
-external libraries. (Our ``C`` and ``C++`` example programs use ``sunindextype``.)
-Users can, however, use any one of ``int``, ``long int``, ``int32_t``, ``int64_t`` or
-``long long int`` in their code, assuming that this usage is consistent with the typedef
-for ``sunindextype`` on their architecture. Thus, a previously existing piece of ANSI
-C code can use SUNDIALS without modifying the code to use ``sunindextype``,
-so long as the SUNDIALS libraries use the appropriate index storage type (for details
-see the section :ref:`Installation`).
+The type ``sunindextype`` is used for indexing array entries in SUNDIALS modules
+(*e.g.*, vectors lengths and matrix sizes) as well as for storing the total
+problem size. During configuration ``sunindextype`` may be selected to be either
+a 32- or 64-bit *signed* integer with the default being 64-bit. See the section
+:ref:`Installation` for the configuration option to select the desired size of
+``sunindextype``. When using a 32-bit integer the total problem size is limited
+to :math:`2^{31}-1` and with 64-bit integers the limit is :math:`2^{63}-1`. For
+users with problem sizes that exceed the 64-bit limit an advanced configuration
+option is available to specify the type used for ``sunindextype``.
+
+A user program which uses ``sunindextype`` to handle indices will work with both
+index storage types except for any calls to index storage-specific external
+libraries. Our C and C++ example programs use ``sunindextype``. Users can,
+however, use any compatible type (*e.g.*,  ``int``, ``long int``, ``int32_t``,
+``int64_t`` or ``long long int``) in their code, assuming that this usage is
+consistent with the typedef for ``sunindextype`` on their architecture. Thus, a
+previously existing piece of ANSI C code can use SUNDIALS without modifying the
+code to use ``sunindextype``, so long as the SUNDIALS libraries use the
+appropriate index storage type (for details :ref:`Installation`).
+
 
 
 Header Files
@@ -207,7 +216,7 @@ for use with ARKode are:
 
   - ``sunlinsol/sunlinsol_superlumt.h``,
     which is used with the SuperLU_MT sparse linear solver module,
-    SUNLINSOL_SUPERLUMT; 
+    SUNLINSOL_SUPERLUMT;
 
 - Iterative linear solvers:
 
@@ -257,4 +266,3 @@ preconditioner, etc.  For example, if preconditioning for an iterative
 linear solver were performed using the ARKBBDPRE module, the header
 ``arkode/arkode_bbdpre.h`` is needed to access the preconditioner
 initialization routines.
-

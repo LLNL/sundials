@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------- 
+/*-----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *-----------------------------------------------------------------
- * Implementation file for the deprecated direct linear solver interface in 
+ * Implementation file for the deprecated direct linear solver interface in
  * CVODE; these routines now just wrap the updated CVODE generic
  * linear solver interface in cvode_ls.h.
  *-----------------------------------------------------------------*/
@@ -29,19 +29,19 @@ extern "C" {
 
 int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS, SUNMatrix A)
 { return(CVodeSetLinearSolver(cvode_mem, LS, A)); }
-  
+
 int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac)
 { return(CVodeSetJacFn(cvode_mem, jac)); }
 
 int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS)
 { return(CVodeGetLinWorkSpace(cvode_mem, lenrwLS, leniwLS)); }
-  
+
 int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals)
 { return(CVodeGetNumJacEvals(cvode_mem, njevals)); }
-  
+
 int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
 { return(CVodeGetNumLinRhsEvals(cvode_mem, nfevalsLS)); }
-  
+
 int CVDlsGetLastFlag(void *cvode_mem, long int *flag)
 { return(CVodeGetLastLinFlag(cvode_mem, flag)); }
 
@@ -52,4 +52,3 @@ char *CVDlsGetReturnFlagName(long int flag)
 #ifdef __cplusplus
 }
 #endif
-

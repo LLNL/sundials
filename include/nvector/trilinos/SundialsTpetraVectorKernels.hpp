@@ -48,7 +48,7 @@ namespace Sundials
     static constexpr scalar_type half   = 0.5;
     static constexpr scalar_type one    = 1.0;
     static constexpr scalar_type onept5 = 1.5;
-    
+
     /*----------------------------------------------------------------
      *  Streaming vector kernels
      *---------------------------------------------------------------*/
@@ -58,7 +58,8 @@ namespace Sundials
                                   const vector_type& y,
                                   vector_type& z)
     {
-      const local_ordinal_type N = x.getLocalLength();
+      const local_ordinal_type N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -88,7 +89,8 @@ namespace Sundials
                          scalar_type b,
                          vector_type& z)
     {
-      const local_ordinal_type N = x.getLocalLength();
+      const local_ordinal_type N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -116,7 +118,8 @@ namespace Sundials
                         const vector_type& x,
                         vector_type& z)
     {
-      const local_ordinal_type N = x.getLocalLength();
+      const local_ordinal_type N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -148,8 +151,10 @@ namespace Sundials
                              const vector_type& w)
     {
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
-      const global_ordinal_type Nglob = x.getGlobalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      const global_ordinal_type Nglob =
+        static_cast<global_ordinal_type>(x.getGlobalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -180,8 +185,10 @@ namespace Sundials
                                  const vector_type& id)
     {
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
-      const global_ordinal_type Nglob = x.getGlobalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
+      const global_ordinal_type Nglob =
+        static_cast<global_ordinal_type>(x.getGlobalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -217,7 +224,8 @@ namespace Sundials
       using namespace Kokkos;
 
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -245,7 +253,8 @@ namespace Sundials
                             const vector_type& w)
     {
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -277,7 +286,8 @@ namespace Sundials
       using namespace Kokkos;
 
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
@@ -319,7 +329,8 @@ namespace Sundials
                                vector_type& m)
     {
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = x.getMap()->getComm();
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
 
       if (c.need_sync<memory_space>())
         const_cast<vector_type&>(c).sync<memory_space>();
@@ -358,7 +369,8 @@ namespace Sundials
       using namespace Kokkos;
 
       const Teuchos::RCP<const Teuchos::Comm<int> >& comm = num.getMap()->getComm();
-      const local_ordinal_type  N = num.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(num.getLocalLength());
 
       if (num.need_sync<memory_space>())
         const_cast<vector_type&>(num).sync<memory_space>();
@@ -390,7 +402,8 @@ namespace Sundials
     inline scalar_type dotProdLocal(const vector_type& x,
                                     const vector_type& y)
     {
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (y.need_sync<memory_space>())
@@ -417,7 +430,8 @@ namespace Sundials
     {
       using namespace Kokkos;
 
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
 
@@ -442,7 +456,8 @@ namespace Sundials
     {
       using namespace Kokkos;
 
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
 
@@ -467,13 +482,14 @@ namespace Sundials
     {
       using namespace Kokkos;
 
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
 
       auto x_2d = x.getLocalView<memory_space>();
       auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
-      
+
       mag_type sum = zero;
       Kokkos::parallel_reduce ("L1NormLocal", Kokkos::RangePolicy<execution_space>(0, N),
         KOKKOS_LAMBDA (const local_ordinal_type &i, mag_type &local_sum)
@@ -489,7 +505,8 @@ namespace Sundials
     inline mag_type WSqrSumLocal(const vector_type& x,
                                  const vector_type& w)
     {
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (w.need_sync<memory_space>())
@@ -516,7 +533,8 @@ namespace Sundials
                                      const vector_type& w,
                                      const vector_type& id)
     {
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (w.need_sync<memory_space>())
@@ -549,7 +567,8 @@ namespace Sundials
     {
       using namespace Kokkos;
 
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
 
@@ -587,7 +606,8 @@ namespace Sundials
                                     const vector_type& x,
                                     vector_type& m)
     {
-      const local_ordinal_type  N = x.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(x.getLocalLength());
       if (c.need_sync<memory_space>())
         const_cast<vector_type&>(c).sync<memory_space>();
       if (x.need_sync<memory_space>())
@@ -622,7 +642,8 @@ namespace Sundials
     {
       using namespace Kokkos;
 
-      const local_ordinal_type  N = num.getLocalLength();
+      const local_ordinal_type  N =
+        static_cast<local_ordinal_type>(num.getLocalLength());
       if (num.need_sync<memory_space>())
         const_cast<vector_type&>(num).sync<memory_space>();
       if (den.need_sync<memory_space>())

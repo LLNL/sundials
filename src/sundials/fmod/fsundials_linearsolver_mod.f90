@@ -39,9 +39,32 @@ module fsundials_linearsolver_mod
  end enum
  integer, parameter, public :: SUNLinearSolver_Type = kind(SUNLINEARSOLVER_DIRECT)
  public :: SUNLINEARSOLVER_DIRECT, SUNLINEARSOLVER_ITERATIVE, SUNLINEARSOLVER_MATRIX_ITERATIVE
+ ! typedef enum SUNLinearSolver_ID
+ enum, bind(c)
+  enumerator :: SUNLINEARSOLVER_BAND
+  enumerator :: SUNLINEARSOLVER_DENSE
+  enumerator :: SUNLINEARSOLVER_KLU
+  enumerator :: SUNLINEARSOLVER_LAPACKBAND
+  enumerator :: SUNLINEARSOLVER_LAPACKDENSE
+  enumerator :: SUNLINEARSOLVER_PCG
+  enumerator :: SUNLINEARSOLVER_SPBCGS
+  enumerator :: SUNLINEARSOLVER_SPFGMR
+  enumerator :: SUNLINEARSOLVER_SPGMR
+  enumerator :: SUNLINEARSOLVER_SPTFQMR
+  enumerator :: SUNLINEARSOLVER_SUPERLUDIST
+  enumerator :: SUNLINEARSOLVER_SUPERLUMT
+  enumerator :: SUNLINEARSOLVER_CUSOLVERSP_BATCHQR
+  enumerator :: SUNLINEARSOLVER_CUSTOM
+ end enum
+ integer, parameter, public :: SUNLinearSolver_ID = kind(SUNLINEARSOLVER_BAND)
+ public :: SUNLINEARSOLVER_BAND, SUNLINEARSOLVER_DENSE, SUNLINEARSOLVER_KLU, SUNLINEARSOLVER_LAPACKBAND, &
+    SUNLINEARSOLVER_LAPACKDENSE, SUNLINEARSOLVER_PCG, SUNLINEARSOLVER_SPBCGS, SUNLINEARSOLVER_SPFGMR, SUNLINEARSOLVER_SPGMR, &
+    SUNLINEARSOLVER_SPTFQMR, SUNLINEARSOLVER_SUPERLUDIST, SUNLINEARSOLVER_SUPERLUMT, SUNLINEARSOLVER_CUSOLVERSP_BATCHQR, &
+    SUNLINEARSOLVER_CUSTOM
  ! struct struct _generic_SUNLinearSolver_Ops
  type, bind(C), public :: SUNLinearSolver_Ops
   type(C_FUNPTR), public :: gettype
+  type(C_FUNPTR), public :: getid
   type(C_FUNPTR), public :: setatimes
   type(C_FUNPTR), public :: setpreconditioner
   type(C_FUNPTR), public :: setscalingvectors
@@ -63,6 +86,7 @@ module fsundials_linearsolver_mod
  public :: FSUNLinSolNewEmpty
  public :: FSUNLinSolFreeEmpty
  public :: FSUNLinSolGetType
+ public :: FSUNLinSolGetID
  public :: FSUNLinSolSetATimes
  public :: FSUNLinSolSetPreconditioner
  public :: FSUNLinSolSetScalingVectors
@@ -76,24 +100,24 @@ module fsundials_linearsolver_mod
  public :: FSUNLinSolSpace
  public :: FSUNLinSolFree
  integer(C_INT), parameter, public :: SUNLS_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: SUNLS_MEM_NULL = -1_C_INT
- integer(C_INT), parameter, public :: SUNLS_ILL_INPUT = -2_C_INT
- integer(C_INT), parameter, public :: SUNLS_MEM_FAIL = -3_C_INT
- integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_UNREC = -4_C_INT
- integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_UNREC = -5_C_INT
- integer(C_INT), parameter, public :: SUNLS_PSOLVE_FAIL_UNREC = -6_C_INT
- integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_UNREC = -7_C_INT
- integer(C_INT), parameter, public :: SUNLS_GS_FAIL = -8_C_INT
- integer(C_INT), parameter, public :: SUNLS_QRSOL_FAIL = -9_C_INT
- integer(C_INT), parameter, public :: SUNLS_VECTOROP_ERR = -10_C_INT
- integer(C_INT), parameter, public :: SUNLS_RES_REDUCED = 1_C_INT
- integer(C_INT), parameter, public :: SUNLS_CONV_FAIL = 2_C_INT
- integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_REC = 3_C_INT
- integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_REC = 4_C_INT
- integer(C_INT), parameter, public :: SUNLS_PSOLVE_FAIL_REC = 5_C_INT
- integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_REC = 6_C_INT
- integer(C_INT), parameter, public :: SUNLS_QRFACT_FAIL = 7_C_INT
- integer(C_INT), parameter, public :: SUNLS_LUFACT_FAIL = 8_C_INT
+ integer(C_INT), parameter, public :: SUNLS_MEM_NULL = -801_C_INT
+ integer(C_INT), parameter, public :: SUNLS_ILL_INPUT = -802_C_INT
+ integer(C_INT), parameter, public :: SUNLS_MEM_FAIL = -803_C_INT
+ integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_UNREC = -804_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_UNREC = -805_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSOLVE_FAIL_UNREC = -806_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_UNREC = -807_C_INT
+ integer(C_INT), parameter, public :: SUNLS_GS_FAIL = -808_C_INT
+ integer(C_INT), parameter, public :: SUNLS_QRSOL_FAIL = -809_C_INT
+ integer(C_INT), parameter, public :: SUNLS_VECTOROP_ERR = -810_C_INT
+ integer(C_INT), parameter, public :: SUNLS_RES_REDUCED = 801_C_INT
+ integer(C_INT), parameter, public :: SUNLS_CONV_FAIL = 802_C_INT
+ integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_REC = 803_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_REC = 804_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSOLVE_FAIL_REC = 805_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_REC = 806_C_INT
+ integer(C_INT), parameter, public :: SUNLS_QRFACT_FAIL = 807_C_INT
+ integer(C_INT), parameter, public :: SUNLS_LUFACT_FAIL = 808_C_INT
 
 ! WRAPPER DECLARATIONS
 interface
@@ -160,6 +184,14 @@ end subroutine
 
 function swigc_FSUNLinSolGetType(farg1) &
 bind(C, name="_wrap_FSUNLinSolGetType") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNLinSolGetID(farg1) &
+bind(C, name="_wrap_FSUNLinSolGetID") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -410,6 +442,19 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolGetType(farg1)
+swig_result = fresult
+end function
+
+function FSUNLinSolGetID(s) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(SUNLinearSolver_ID) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+fresult = swigc_FSUNLinSolGetID(farg1)
 swig_result = fresult
 end function
 

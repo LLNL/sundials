@@ -331,24 +331,6 @@ configuration is provide below.  Note that the default values shown
 are for a typical configuration on a Linux system and are provided as
 illustration only.
 
-:index:`BLAS_ENABLE <BLAS_ENABLE (CMake option)>`
-   Enable BLAS support
-
-   Default: ``OFF``
-
-   .. note:: Setting this option to ON will trigger additional CMake
-             options. See additional information on building with BLAS
-             enabled in :ref:`Installation.CMake.ExternalLibraries`.
-
-:index:`BLAS_LIBRARIES <BLAS_LIBRARIES (CMake option)>`
-   BLAS library
-
-   Default: ``/usr/lib/libblas.so``
-
-   .. note:: CMake will search for libraries in your
-             ``LD_LIBRARY_PATH`` prior to searching default system
-             paths.
-
 :index:`BUILD_ARKODE <BUILD_ARKODE (CMake option)>`
    Build the ARKODE library
 
@@ -466,8 +448,7 @@ illustration only.
 
    .. note:: Fortran support (and all related options) are triggered only if
              either Fortran-C support is (``FCMIX_ENABLE`` is ON) or
-             BLAS/LAPACK support is enabled (``BLAS_ENABLE`` or
-             ``LAPACK_ENABLE`` is ``ON``).
+             LAPACK support is enabled (``LAPACK_ENABLE`` is ``ON``).
 
 :index:`CMAKE_Fortran_FLAGS <CMAKE_Fortran_FLAGS (CMake option)>`
    Flags for Fortran compiler
@@ -689,13 +670,22 @@ illustration only.
    .. note:: See additional information on building with
              PETSc enabled in :ref:`Installation.CMake.ExternalLibraries`.
 
-:index:`PETSC_INCLUDE_DIR <PETSC_INCLUDE_DIR (CMake option)>`
-   Path to PETSc header files
+:index:`PETSC_DIR <PETSC_DIR (CMake option)>`
+   Path to PETSc installation
 
    Default: none
 
-:index:`PETSC_LIBRARY_DIR <PETSC_LIBRARY_DIR (CMake option)>`
-   Path to PETSc installed library files
+:index:`PETSC_LIBRARIES <PETSC_LIBRARIES (CMake option)>` (advanced option)
+   Semi-colon separated list of PETSc link libraries. Unless provided by the
+   user, this is autopopulated based on the PETSc installation found in
+   ``PETSC_DIR``.
+
+   Default: none
+
+:index:`PETSC_INCLUDES <PETSC_INCLUDES (CMake option)>` (advanced option)
+   Semi-colon separated list of PETSc include directroies. Unless provided by
+   the user, this is autopopulated based on the PETSc installation found in
+   ``PETSC_DIR``.
 
    Default: none
 
@@ -857,24 +847,6 @@ activated by setting ``USE_XSDK_DEFAULTS`` to ``ON``.
           xSDK options and the corresponding SUNDIALS options if
           applicable.
 
-:index:`TPL_BLAS_LIBRARIES <TPL_BLAS_LIBRARIES (xSDK CMake option)>`
-   BLAS library
-
-   Default: ``/usr/lib/libblas.so``
-
-   SUNDIALS equivalent: ``BLAS_LIBRARIES``
-
-   .. note:: CMake will search for libraries in your
-             ``LD_LIBRARY_PATH`` prior to searching default system
-             paths.
-
-:index:`TPL_ENABLE_BLAS <TPL_ENABLE_BLAS (xSDK CMake option)>`
-   Enable BLAS support
-
-   Default: ``OFF``
-
-   SUNDIALS equivalent: ``BLAS_ENABLE``
-
 :index:`TPL_ENABLE_HYPRE <TPL_ENABLE_HYPRE (xSDK CMake option)>`
    Enable *hypre* support
 
@@ -947,15 +919,10 @@ activated by setting ``USE_XSDK_DEFAULTS`` to ``ON``.
    .. note:: CMake will search for libraries in your
              ``LD_LIBRARY_PATH`` prior to searching default system paths.
 
-:index:`TPL_PETSC_INCLUDE_DIRS <TPL_PETSC_INCLUDE_DIRS (xSDK CMake option)>`
-   Path to PETSc header files
+:index:`TPL_PETSC_DIR <TPL_PETSC_DIR (xSDK CMake option)>`
+   Path to PETSc installtion
 
-   SUNDIALS equivalent: ``PETSC_INCLUDE_DIR``
-
-:index:`TPL_PETSC_LIBRARIES <TPL_PETSC_LIBRARIES (xSDK CMake option)>`
-   PETSc library
-
-   SUNDIALS equivalent: N/A
+   SUNDIALS equivalent: ``PETSC_DIR``
 
 :index:`TPL_SUPERLUDIST_INCLUDE_DIRS <TPL_SUPERLUDIST_INCLUDE_DIRS (xSDK CMake option)>`
    Path to SuperLU_DIST header files
@@ -1074,50 +1041,6 @@ party libraries.
 
 
 
-.. _Installation.CMake.ExternalLibraries.BLAS:
-
-Building with BLAS
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-SUNDIALS does not utilize BLAS directly but it may be needed by other
-external libraries that SUNDIALS can be build with (e.g. LAPACK,
-PETSc, SuperLU_MT, etc.). To enable BLAS, set the ``BLAS_ENABLE``
-option to ``ON``. If the directory containing the BLAS library is in
-the ``LD_LIBRARY_PATH`` environment variable, CMake will set the
-``BLAS_LIBRARIES`` variable accordingly, otherwise CMake will
-attempt to find the BLAS library in standard system locations. To
-explicitly tell CMake what libraries to use, the ``BLAS_LIBRARIES``
-variable can be set to the desired library. Example:
-
-.. code-block:: bash
-
-   % cmake \
-   > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
-   > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DBLAS_ENABLE=ON \
-   > -DBLAS_LIBRARIES=/myblaspath/lib/libblas.so \
-   > -DSUPERLUMT_ENABLE=ON \
-   > -DSUPERLUMT_INCLUDE_DIR=/mysuperlumtpath/SRC
-   > -DSUPERLUMT_LIBRARY_DIR=/mysuperlumtpath/lib
-   > /home/myname/sundials/srcdir
-
-   % make install
-
-.. note:: When allowing CMake to automatically locate the LAPACK
-          library, CMake *may* also locate the corresponding BLAS
-          library.
-
-          If a working Fortran compiler is not available to infer the
-          Fortran name-mangling scheme, the options
-          ``SUNDIALS_F77_FUNC_CASE`` and
-          ``SUNDIALS_F77_FUNC_UNDERSCORES`` *must* be set in order to
-          bypass the check for a Fortran compiler and define the
-          name-mangling scheme. The defaults for these options in
-          earlier versions of SUNDIALS were ``lower`` and ``one``,
-          respectively.
-
-
-
 .. _Installation.CMake.ExternalLibraries.LAPACK:
 
 Building with LAPACK
@@ -1129,30 +1052,21 @@ If the directory containing the LAPACK library is in the
 ``LAPACK_LIBRARIES`` variable accordingly, otherwise CMake will
 attempt to find the LAPACK library in standard system locations. To
 explicitly tell CMake what library to use, the ``LAPACK_LIBRARIES``
-variable can be set to the desired libraries.
+variable can be set to the desired libraries required for LAPACK.
 
-.. note:: When setting the LAPACK location explicitly the location of
-          the corresponding BLAS library will also need to be
-          set. Example:
 
 .. code-block:: bash
 
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DBLAS_ENABLE=ON \
-   > -DBLAS_LIBRARIES=/mylapackpath/lib/libblas.so \
    > -DLAPACK_ENABLE=ON \
-   > -DLAPACK_LIBRARIES=/mylapackpath/lib/liblapack.so \
+   > -DLAPACK_LIBRARIES=/mylapackpath/lib/libblas.so;/mylapackpath/lib/liblapack.so \
    > /home/myname/sundials/srcdir
 
    % make install
 
-.. note:: When allowing CMake to automatically locate the LAPACK
-          library, CMake *may* also locate the corresponding BLAS
-          library.
-
-          If a working Fortran compiler is not available to infer the
+.. note:: If a working Fortran compiler is not available to infer the
           Fortran name-mangling scheme, the options
           ``SUNDIALS_F77_FUNC_CASE`` and
           ``SUNDIALS_F77_FUNC_UNDERSCORES`` *must* be set in order to
@@ -1214,7 +1128,11 @@ SUNDIALS has been tested with SuperLU_MT version 3.1.  To enable
 SuperLU_MT, set  ``SUPERLUMT_ENABLE`` to ``ON``, set
 ``SUPERLUMT_INCLUDE_DIR`` to the ``SRC`` path of the SuperLU_MT
 installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the
-``lib`` path of the SuperLU_MT installation.  At the same time, the
+``lib`` path of the SuperLU_MT installation. At the same time, the
+variable ``SUPERLUMT_LIBRARIES`` must be set to a semi-colon separated
+list of other libraries SuperLU_MT depends on. For example, if
+SuperLU_MT was build with an external blas library, then include the
+full path to the blas library in this list. Additionally, the
 variable ``SUPERLUMT_THREAD_TYPE`` must be set to either ``Pthread``
 or ``OpenMP``.
 
@@ -1233,10 +1151,9 @@ The PETSc libraries are available for download from the Argonne
 National Laboratory website:
 http://www.mcs.anl.gov/petsc .
 
-SUNDIALS has been tested with PETSc version 3.7.2.  To enable PETSc,
-set ``PETSC_ENABLE`` to ``ON``, set ``PETSC_INCLUDE_DIR`` to the
-``include`` path of the PETSc installation, and set the variable
-``PETSC_LIBRARY_DIR`` to the ``lib`` path of the PETSc installation.
+SUNDIALS has been tested with PETSc version 3.10.0 - 3.12.0.  To enable
+PETSc, set ``PETSC_ENABLE`` to ``ON``, and set ``PETSC_DIR`` to the
+path of the PETSc installation.
 
 
 .. _Installation.CMake.ExternalLibraries.hypre:
@@ -1246,11 +1163,15 @@ Building with *hypre*
 
 The *hypre* libraries are available for download from the Lawrence
 Livermore National Laboratory website:
-`http://computation.llnl.gov/projects/hypre <http://computation.llnl.gov/projects/hypre>`_.
+`http://computing.llnl.gov/projects/hypre <http://computing.llnl.gov/projects/hypre>`_.
 SUNDIALS has been tested with *hypre* version 2.11.1.
 To enable *hypre*, set  ``HYPRE_ENABLE`` to ``ON``, set ``HYPRE_INCLUDE_DIR``
 to the ``include`` path of the *hypre* installation, and set the variable
 ``HYPRE_LIBRARY_DIR`` to the ``lib`` path of the *hypre* installation.
+
+Note: SUNDIALS must be configured so that ``SUNDIALS_INDEX_SIZE`` (or
+equivalently, ``XSDK_INDEX_SIZE``) equals the precision of
+``HYPRE_BigInt`` in the corresponding *hypre* installation.
 
 
 .. _Installation.CMake.ExternalLibraries.CUDA:
@@ -1432,211 +1353,223 @@ Table: SUNDIALS libraries and header files
 
 .. cssclass:: table-bordered
 
-+-------------------------+--------------+---------------------------------------------+
-| Shared                  | Header files | ``sundials/sundials_band.h``,               |
-|                         |              | ``sundials/sundials_config.h``,             |
-|                         |              | ``sundials/sundials_dense.h``,              |
-|                         |              | ``sundials/sundials_direct.h``,             |
-|                         |              | ``sundials/sundials_fconfig.h``,            |
-|                         |              | ``sundials/sundials_fnvector.h``,           |
-|                         |              | ``sundials/sundials_iterative.h``,          |
-|                         |              | ``sundials/sundials_linearsolver.h``,       |
-|                         |              | ``sundials/sundials_nonlinearsolver.h``,    |
-|                         |              | ``sundials/sundials_matrix.h``,             |
-|                         |              | ``sundials/sundials_math.h``,               |
-|                         |              | ``sundials/sundials_nvector.h``,            |
-|                         |              | ``sundials/sundials_types.h``,              |
-|                         |              | ``sundials/sundials_version.h``             |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_SERIAL          | Libraries    | ``libsundials_nvecserial.LIB``,             |
-|                         |              | ``libsundials_fnvecserial.a``               |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_SERIAL          | Header files | ``nvector/nvector_serial.h``                |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_PARALLEL        | Libraries    | ``libsundials_nvecparallel.LIB``,           |
-|                         |              | ``libsundials_fnvecparallel.a``             |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_PARALLEL        | Header files | ``nvector/nvector_parallel.h``              |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_OPENMP          | Libraries    | ``libsundials_nvecopenmp.LIB``,             |
-|                         |              | ``libsundials_fnvecopenmp.a``               |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_OPENMP          | Header files | ``nvector/nvector_openmp.h``                |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_PTHREADS        | Libraries    | ``libsundials_nvecpthreads.LIB``,           |
-|                         |              | ``libsundials_fnvecpthreads.a``             |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_PTHREADS        | Header files | ``nvector/nvector_pthreads.h``              |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_PARHYP          | Libraries    | ``libsundials_nvecparhyp.LIB``              |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_PARHYP          | Header files | ``nvector/nvector_parhyp.h``                |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_PETSC           | Libraries    | ``libsundials_nvecpetsc.LIB``               |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_PETSC           | Header files | ``nvector/nvector_petsc.h``                 |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_CUDA            | Libraries    | ``libsundials_nveccuda.LIB``                |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_CUDA            | Header files | ``nvector/nvector_cuda.h``                  |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_RAJA            | Libraries    | ``libsundials_nvecraja.LIB``                |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_RAJA            | Header files | ``nvector/nvector_raja.h``                  |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_MANYVECTOR      | Libraries    | ``libsundials_nvecmanyvector.LIB``          |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_MANYVECTOR      | Header files | ``nvector/nvector_manyvector.h``            |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_MPIMANYVECTOR   | Libraries    | ``libsundials_nvecmpimanyvector.LIB``       |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_MPIMANYVECTOR   | Header files | ``nvector/nvector_mpimanyvector.h``         |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_MPIPLUSX        | Libraries    | ``libsundials_nvecmpiplusx.LIB``            |
-+-------------------------+--------------+---------------------------------------------+
-| NVECTOR_MPIPLUSX        | Header files | ``nvector/nvector_mpiplusx.h``              |
-+-------------------------+--------------+---------------------------------------------+
-| SUNMATRIX_BAND          | Libraries    | ``libsundials_sunmatrixband.LIB``,          |
-|                         |              | ``libsundials_fsunmatrixband.a``            |
-+-------------------------+--------------+---------------------------------------------+
-| SUNMATRIX_BAND          | Header files | ``sunmatrix/sunmatrix_band.h``              |
-+-------------------------+--------------+---------------------------------------------+
-| SUNMATRIX_DENSE         | Libraries    | ``libsundials_sunmatrixdense.LIB``,         |
-|                         |              | ``libsundials_fsunmatrixdense.a``           |
-+-------------------------+--------------+---------------------------------------------+
-| SUNMATRIX_DENSE         | Header files | ``sunmatrix/sunmatrix_dense.h``             |
-+-------------------------+--------------+---------------------------------------------+
-| SUNMATRIX_SPARSE        | Libraries    | ``libsundials_sunmatrixsparse.LIB``,        |
-|                         |              | ``libsundials_fsunmatrixsparse.a``          |
-+-------------------------+--------------+---------------------------------------------+
-| SUNMATRIX_SPARSE        | Header files | ``sunmatrix/sunmatrix_sparse.h``            |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_BAND          | Libraries    | ``libsundials_sunlinsolband.LIB``,          |
-|                         |              | ``libsundials_fsunlinsolband.a``            |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_BAND          | Header files | ``sunlinsol/sunlinsol_band.h``              |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_DENSE         | Libraries    | ``libsundials_sunlinsoldense.LIB``,         |
-|                         |              | ``libsundials_fsunlinsoldense.a``           |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_DENSE         | Header files | ``sunlinsol/sunlinsol_dense.h``             |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_KLU           | Libraries    | ``libsundials_sunlinsolklu.LIB``,           |
-|                         |              | ``libsundials_fsunlinsolklu.a``             |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_KLU           | Header files | ``sunlinsol/sunlinsol_klu.h``               |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_LAPACKBAND    | Libraries    | ``libsundials_sunlinsollapackband.LIB``,    |
-|                         |              | ``libsundials_fsunlinsollapackband.a``      |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_LAPACKBAND    | Header files | ``sunlinsol/sunlinsol_lapackband.h``        |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_LAPACKDENSE   | Libraries    | ``libsundials_sunlinsollapackdense.LIB``,   |
-|                         |              | ``libsundials_fsunlinsollapackdense.a``     |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_LAPACKDENSE   | Header files | ``sunlinsol/sunlinsol_lapackdense.h``       |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_PCG           | Libraries    | ``libsundials_sunlinsolpcg.LIB``,           |
-|                         |              | ``libsundials_fsunlinsolpcg.a``             |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_PCG           | Header files | ``sunlinsol/sunlinsol_pcg.h``               |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_SPBCGS        | Libraries    | ``libsundials_sunlinsolspbcgs.LIB``,        |
-|                         |              | ``libsundials_fsunlinsolspbcgs.a``          |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_SPBCGS        | Header files | ``sunlinsol/sunlinsol_spbcgs.h``            |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_SPFGMR        | Libraries    | ``libsundials_sunlinsolspfgmr.LIB``,        |
-|                         |              | ``libsundials_fsunlinsolspfgmr.a``          |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_SPFGMR        | Header files | ``sunlinsol/sunlinsol_spfgmr.h``            |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_SPGMR         | Libraries    | ``libsundials_sunlinsolspgmr.LIB``,         |
-|                         |              | ``libsundials_fsunlinsolspgmr.a``           |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_SPGMR         | Header files | ``sunlinsol/sunlinsol_spgmr.h``             |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_SPTFQMR       | Libraries    | ``libsundials_sunlinsolsptfqmr.LIB``,       |
-|                         |              | ``libsundials_fsunlinsolsptfqmr.a``         |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_SPTFQMR       | Header files | ``sunlinsol/sunlinsol_sptfqmr.h``           |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_SUPERLUMT     | Libraries    | ``libsundials_sunlinsolsuperlumt.LIB``,     |
-|                         |              | ``libsundials_fsunlinsolsuperlumt.a``       |
-+-------------------------+--------------+---------------------------------------------+
-| SUNLINSOL_SUPERLUMT     | Header files | ``sunlinsol/sunlinsol_superlumt.h``         |
-+-------------------------+--------------+---------------------------------------------+
-| SUNNONLINSOL_NEWTON     | Libraries    | ``libsundials_sunnonlinsolnewton.LIB``,     |
-|                         |              | ``libsundials_fsunnonlinsolnewton.a``       |
-+-------------------------+--------------+---------------------------------------------+
-| SUNNONLINSOL_NEWTON     | Header files | ``sunnonlinsol/sunnonlinsol_newton.h``      |
-+-------------------------+--------------+---------------------------------------------+
-| SUNNONLINSOL_FIXEDPOINT | Libraries    | ``libsundials_sunnonlinsolfixedpoint.LIB``, |
-|                         |              | ``libsundials_fsunnonlinsolfixedpoint.a``   |
-+-------------------------+--------------+---------------------------------------------+
-| SUNNONLINSOL_FIXEDPOINT | Header files | ``sunnonlinsol/sunnonlinsol_fixedpoint.h``  |
-+-------------------------+--------------+---------------------------------------------+
-| CVODE                   | Libraries    | ``libsundials_cvode.LIB``,                  |
-|                         |              | ``libsundials_fcvode.a``                    |
-+-------------------------+--------------+---------------------------------------------+
-| CVODE                   | Header files | ``cvode/cvode.h``,                          |
-|                         |              | ``cvode/cvode_bandpre.h``,                  |
-|                         |              | ``cvode/cvode_bbdpre.h``,                   |
-|                         |              | ``cvode/cvode_diag.h``,                     |
-|                         |              | ``cvode/cvode_direct.h``,                   |
-|                         |              | ``cvode/cvode_impl.h``,                     |
-|                         |              | ``cvode/cvode_ls.h``,                       |
-|                         |              | ``cvode/cvode_spils.h``,                    |
-+-------------------------+--------------+---------------------------------------------+
-| CVODES                  | Libraries    | ``libsundials_cvodes.LIB``                  |
-+-------------------------+--------------+---------------------------------------------+
-| CVODES                  | Header files | ``cvodes/cvodes.h``,                        |
-|                         |              | ``cvodes/cvodes_bandpre.h``,                |
-|                         |              | ``cvodes/cvodes_bbdpre.h``,                 |
-|                         |              | ``cvodes/cvodes_diag.h``,                   |
-|                         |              | ``cvodes/cvodes_direct.h``,                 |
-|                         |              | ``cvodes/cvodes_impl.h``,                   |
-|                         |              | ``cvodes/cvodes_spils.h``,                  |
-+-------------------------+--------------+---------------------------------------------+
-| ARKODE                  | Libraries    | ``libsundials_arkode.LIB``,                 |
-|                         |              | ``libsundials_farkode.a``                   |
-+-------------------------+--------------+---------------------------------------------+
-| ARKODE                  | Header files | ``arkode/arkode.h``,                        |
-|                         |              | ``arkode/arkode_arkstep.h``,                |
-|                         |              | ``arkode/arkode_bandpre.h``,                |
-|                         |              | ``arkode/arkode_bbdpre.h``,                 |
-|                         |              | ``arkode/arkode_butcher.h``,                |
-|                         |              | ``arkode/arkode_butcher_dirk.h``,           |
-|                         |              | ``arkode/arkode_butcher_erk.h``,            |
-|                         |              | ``arkode/arkode_erkstep.h``,                |
-|                         |              | ``arkode/arkode_impl.h``,                   |
-|                         |              | ``arkode/arkode_ls.h``,                     |
-+-------------------------+--------------+---------------------------------------------+
-| IDA                     | Libraries    | ``libsundials_ida.LIB``,                    |
-|                         |              | ``libsundials_fida.a``                      |
-+-------------------------+--------------+---------------------------------------------+
-| IDA                     | Header files | ``ida/ida.h``,                              |
-|                         |              | ``ida/ida_bbdpre.h``,                       |
-|                         |              | ``ida/ida_direct.h``,                       |
-|                         |              | ``ida/ida_impl.h``,                         |
-|                         |              | ``ida/ida_ls.h``,                           |
-|                         |              | ``ida/ida_spils.h``,                        |
-+-------------------------+--------------+---------------------------------------------+
-| IDAS                    | Libraries    | ``libsundials_idas.LIB``                    |
-+-------------------------+--------------+---------------------------------------------+
-| IDAS                    | Header files | ``idas/idas.h``,                            |
-|                         |              | ``idas/idas_bbdpre.h``                      |
-|                         |              | ``idas/idas_direct.h``,                     |
-|                         |              | ``idas/idas_impl.h``,                       |
-|                         |              | ``idas/idas_spils.h``,                      |
-+-------------------------+--------------+---------------------------------------------+
-| KINSOL                  | Libraries    | ``libsundials_kinsol.LIB``,                 |
-|                         |              | ``libsundials_fkinsol.a``                   |
-+-------------------------+--------------+---------------------------------------------+
-| KINSOL                  | Header files | ``kinsol/kinsol.h``,                        |
-|                         |              | ``kinsol/kinsol_bbdpre.h``,                 |
-|                         |              | ``kinsol/kinsol_direct.h``,                 |
-|                         |              | ``kinsol/kinsol_impl.h``,                   |
-|                         |              | ``kinsol/kinsol_ls.h``,                     |
-|                         |              | ``kinsol/kinsol_spils.h``,                  |
-+-------------------------+--------------+---------------------------------------------+
++------------------------------+--------------+----------------------------------------------+
+| Shared                       | Header files | ``sundials/sundials_band.h``,                |
+|                              |              | ``sundials/sundials_config.h``,              |
+|                              |              | ``sundials/sundials_dense.h``,               |
+|                              |              | ``sundials/sundials_direct.h``,              |
+|                              |              | ``sundials/sundials_fconfig.h``,             |
+|                              |              | ``sundials/sundials_fnvector.h``,            |
+|                              |              | ``sundials/sundials_iterative.h``,           |
+|                              |              | ``sundials/sundials_linearsolver.h``,        |
+|                              |              | ``sundials/sundials_nonlinearsolver.h``,     |
+|                              |              | ``sundials/sundials_matrix.h``,              |
+|                              |              | ``sundials/sundials_math.h``,                |
+|                              |              | ``sundials/sundials_nvector.h``,             |
+|                              |              | ``sundials/sundials_types.h``,               |
+|                              |              | ``sundials/sundials_version.h``              |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_SERIAL               | Libraries    | ``libsundials_nvecserial.LIB``,              |
+|                              |              | ``libsundials_fnvecserial.a``                |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_SERIAL               | Header files | ``nvector/nvector_serial.h``                 |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_PARALLEL             | Libraries    | ``libsundials_nvecparallel.LIB``,            |
+|                              |              | ``libsundials_fnvecparallel.a``              |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_PARALLEL             | Header files | ``nvector/nvector_parallel.h``               |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_OPENMP               | Libraries    | ``libsundials_nvecopenmp.LIB``,              |
+|                              |              | ``libsundials_fnvecopenmp.a``                |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_OPENMP               | Header files | ``nvector/nvector_openmp.h``                 |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_PTHREADS             | Libraries    | ``libsundials_nvecpthreads.LIB``,            |
+|                              |              | ``libsundials_fnvecpthreads.a``              |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_PTHREADS             | Header files | ``nvector/nvector_pthreads.h``               |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_PARHYP               | Libraries    | ``libsundials_nvecparhyp.LIB``               |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_PARHYP               | Header files | ``nvector/nvector_parhyp.h``                 |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_PETSC                | Libraries    | ``libsundials_nvecpetsc.LIB``                |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_PETSC                | Header files | ``nvector/nvector_petsc.h``                  |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_CUDA                 | Libraries    | ``libsundials_nveccuda.LIB``                 |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_CUDA                 | Header files | ``nvector/nvector_cuda.h``                   |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_RAJA                 | Libraries    | ``libsundials_nvecraja.LIB``                 |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_RAJA                 | Header files | ``nvector/nvector_raja.h``                   |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_MANYVECTOR           | Libraries    | ``libsundials_nvecmanyvector.LIB``           |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_MANYVECTOR           | Header files | ``nvector/nvector_manyvector.h``             |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_MPIMANYVECTOR        | Libraries    | ``libsundials_nvecmpimanyvector.LIB``        |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_MPIMANYVECTOR        | Header files | ``nvector/nvector_mpimanyvector.h``          |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_MPIPLUSX             | Libraries    | ``libsundials_nvecmpiplusx.LIB``             |
++------------------------------+--------------+----------------------------------------------+
+| NVECTOR_MPIPLUSX             | Header files | ``nvector/nvector_mpiplusx.h``               |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_BAND               | Libraries    | ``libsundials_sunmatrixband.LIB``,           |
+|                              |              | ``libsundials_fsunmatrixband.a``             |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_BAND               | Header files | ``sunmatrix/sunmatrix_band.h``               |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_DENSE              | Libraries    | ``libsundials_sunmatrixdense.LIB``,          |
+|                              |              | ``libsundials_fsunmatrixdense.a``            |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_DENSE              | Header files | ``sunmatrix/sunmatrix_dense.h``              |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_SPARSE             | Libraries    | ``libsundials_sunmatrixsparse.LIB``,         |
+|                              |              | ``libsundials_fsunmatrixsparse.a``           |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_SPARSE             | Header files | ``sunmatrix/sunmatrix_sparse.h``             |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_BAND               | Libraries    | ``libsundials_sunlinsolband.LIB``,           |
+|                              |              | ``libsundials_fsunlinsolband.a``             |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_BAND               | Header files | ``sunlinsol/sunlinsol_band.h``               |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_DENSE              | Libraries    | ``libsundials_sunlinsoldense.LIB``,          |
+|                              |              | ``libsundials_fsunlinsoldense.a``            |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_DENSE              | Header files | ``sunlinsol/sunlinsol_dense.h``              |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_KLU                | Libraries    | ``libsundials_sunlinsolklu.LIB``,            |
+|                              |              | ``libsundials_fsunlinsolklu.a``              |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_KLU                | Header files | ``sunlinsol/sunlinsol_klu.h``                |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_LAPACKBAND         | Libraries    | ``libsundials_sunlinsollapackband.LIB``,     |
+|                              |              | ``libsundials_fsunlinsollapackband.a``       |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_LAPACKBAND         | Header files | ``sunlinsol/sunlinsol_lapackband.h``         |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_LAPACKDENSE        | Libraries    | ``libsundials_sunlinsollapackdense.LIB``,    |
+|                              |              | ``libsundials_fsunlinsollapackdense.a``      |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_LAPACKDENSE        | Header files | ``sunlinsol/sunlinsol_lapackdense.h``        |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_PCG                | Libraries    | ``libsundials_sunlinsolpcg.LIB``,            |
+|                              |              | ``libsundials_fsunlinsolpcg.a``              |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_PCG                | Header files | ``sunlinsol/sunlinsol_pcg.h``                |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SPBCGS             | Libraries    | ``libsundials_sunlinsolspbcgs.LIB``,         |
+|                              |              | ``libsundials_fsunlinsolspbcgs.a``           |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SPBCGS             | Header files | ``sunlinsol/sunlinsol_spbcgs.h``             |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SPFGMR             | Libraries    | ``libsundials_sunlinsolspfgmr.LIB``,         |
+|                              |              | ``libsundials_fsunlinsolspfgmr.a``           |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SPFGMR             | Header files | ``sunlinsol/sunlinsol_spfgmr.h``             |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SPGMR              | Libraries    | ``libsundials_sunlinsolspgmr.LIB``,          |
+|                              |              | ``libsundials_fsunlinsolspgmr.a``            |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SPGMR              | Header files | ``sunlinsol/sunlinsol_spgmr.h``              |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SPTFQMR            | Libraries    | ``libsundials_sunlinsolsptfqmr.LIB``,        |
+|                              |              | ``libsundials_fsunlinsolsptfqmr.a``          |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SPTFQMR            | Header files | ``sunlinsol/sunlinsol_sptfqmr.h``            |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SUPERLUMT          | Libraries    | ``libsundials_sunlinsolsuperlumt.LIB``,      |
+|                              |              | ``libsundials_fsunlinsolsuperlumt.a``        |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SUPERLUMT          | Header files | ``sunlinsol/sunlinsol_superlumt.h``          |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SUPERLUDIST        | Libraries    | ``libsundials_sunlinsolsuperludist.LIB``,    |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_SUPERLUDIST        | Header files | ``sunlinsol/sunlinsol_superludist.h``        |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_CUSOLVERSP_BATCHQR | Libraries    | ``libsundials_sunlinsolcusolversp.LIB``,     |
++------------------------------+--------------+----------------------------------------------+
+| SUNLINSOL_CUSOLVERSP_BATCHQR | Header files | ``sunlinsol/sunlinsol_cusolversp_batchqr.h`` |
++------------------------------+--------------+----------------------------------------------+
+| SUNNONLINSOL_NEWTON          | Libraries    | ``libsundials_sunnonlinsolnewton.LIB``,      |
+|                              |              | ``libsundials_fsunnonlinsolnewton.a``        |
++------------------------------+--------------+----------------------------------------------+
+| SUNNONLINSOL_NEWTON          | Header files | ``sunnonlinsol/sunnonlinsol_newton.h``       |
++------------------------------+--------------+----------------------------------------------+
+| SUNNONLINSOL_FIXEDPOINT      | Libraries    | ``libsundials_sunnonlinsolfixedpoint.LIB``,  |
+|                              |              | ``libsundials_fsunnonlinsolfixedpoint.a``    |
++------------------------------+--------------+----------------------------------------------+
+| SUNNONLINSOL_FIXEDPOINT      | Header files | ``sunnonlinsol/sunnonlinsol_fixedpoint.h``   |
++------------------------------+--------------+----------------------------------------------+
+| SUNNONLINSOL_PETSCSNES       | Libraries    | ``libsundials_sunnonlinsolpetscsnes.LIB``,   |
++------------------------------+--------------+----------------------------------------------+
+| SUNNONLINSOL_PETSCSNES       | Header files | ``sunnonlinsol/sunnonlinsol_petscsnes.h``    |
++------------------------------+--------------+----------------------------------------------+
+| CVODE                        | Libraries    | ``libsundials_cvode.LIB``,                   |
+|                              |              | ``libsundials_fcvode.a``                     |
++------------------------------+--------------+----------------------------------------------+
+| CVODE                        | Header files | ``cvode/cvode.h``,                           |
+|                              |              | ``cvode/cvode_bandpre.h``,                   |
+|                              |              | ``cvode/cvode_bbdpre.h``,                    |
+|                              |              | ``cvode/cvode_diag.h``,                      |
+|                              |              | ``cvode/cvode_direct.h``,                    |
+|                              |              | ``cvode/cvode_impl.h``,                      |
+|                              |              | ``cvode/cvode_ls.h``,                        |
+|                              |              | ``cvode/cvode_spils.h``,                     |
++------------------------------+--------------+----------------------------------------------+
+| CVODES                       | Libraries    | ``libsundials_cvodes.LIB``                   |
++------------------------------+--------------+----------------------------------------------+
+| CVODES                       | Header files | ``cvodes/cvodes.h``,                         |
+|                              |              | ``cvodes/cvodes_bandpre.h``,                 |
+|                              |              | ``cvodes/cvodes_bbdpre.h``,                  |
+|                              |              | ``cvodes/cvodes_diag.h``,                    |
+|                              |              | ``cvodes/cvodes_direct.h``,                  |
+|                              |              | ``cvodes/cvodes_impl.h``,                    |
+|                              |              | ``cvodes/cvodes_spils.h``,                   |
++------------------------------+--------------+----------------------------------------------+
+| ARKODE                       | Libraries    | ``libsundials_arkode.LIB``,                  |
+|                              |              | ``libsundials_farkode.a``                    |
++------------------------------+--------------+----------------------------------------------+
+| ARKODE                       | Header files | ``arkode/arkode.h``,                         |
+|                              |              | ``arkode/arkode_arkstep.h``,                 |
+|                              |              | ``arkode/arkode_bandpre.h``,                 |
+|                              |              | ``arkode/arkode_bbdpre.h``,                  |
+|                              |              | ``arkode/arkode_butcher.h``,                 |
+|                              |              | ``arkode/arkode_butcher_dirk.h``,            |
+|                              |              | ``arkode/arkode_butcher_erk.h``,             |
+|                              |              | ``arkode/arkode_erkstep.h``,                 |
+|                              |              | ``arkode/arkode_impl.h``,                    |
+|                              |              | ``arkode/arkode_ls.h``,                      |
++------------------------------+--------------+----------------------------------------------+
+| IDA                          | Libraries    | ``libsundials_ida.LIB``,                     |
+|                              |              | ``libsundials_fida.a``                       |
++------------------------------+--------------+----------------------------------------------+
+| IDA                          | Header files | ``ida/ida.h``,                               |
+|                              |              | ``ida/ida_bbdpre.h``,                        |
+|                              |              | ``ida/ida_direct.h``,                        |
+|                              |              | ``ida/ida_impl.h``,                          |
+|                              |              | ``ida/ida_ls.h``,                            |
+|                              |              | ``ida/ida_spils.h``,                         |
++------------------------------+--------------+----------------------------------------------+
+| IDAS                         | Libraries    | ``libsundials_idas.LIB``                     |
++------------------------------+--------------+----------------------------------------------+
+| IDAS                         | Header files | ``idas/idas.h``,                             |
+|                              |              | ``idas/idas_bbdpre.h``                       |
+|                              |              | ``idas/idas_direct.h``,                      |
+|                              |              | ``idas/idas_impl.h``,                        |
+|                              |              | ``idas/idas_spils.h``,                       |
++------------------------------+--------------+----------------------------------------------+
+| KINSOL                       | Libraries    | ``libsundials_kinsol.LIB``,                  |
+|                              |              | ``libsundials_fkinsol.a``                    |
++------------------------------+--------------+----------------------------------------------+
+| KINSOL                       | Header files | ``kinsol/kinsol.h``,                         |
+|                              |              | ``kinsol/kinsol_bbdpre.h``,                  |
+|                              |              | ``kinsol/kinsol_direct.h``,                  |
+|                              |              | ``kinsol/kinsol_impl.h``,                    |
+|                              |              | ``kinsol/kinsol_ls.h``,                      |
+|                              |              | ``kinsol/kinsol_spils.h``,                   |
++------------------------------+--------------+----------------------------------------------+

@@ -22,7 +22,6 @@
 // E.g. CVodeCreate -> FCVodeCreate
 %rename("F%s", %$isfunction) "";
 
-
 // Macro for creating the Fortran derived types for the generic SUNDIALS structures
 %define %sundials_generic(TYPE)
   %fortran_struct(_generic_ ## TYPE ## _Ops);
@@ -38,7 +37,6 @@
 %sundials_generic(SUNLinearSolver)
 %sundials_generic(SUNNonlinearSolver)
 %sundials_generic(SUNMatrix)
-
 
 // Treat FILE* as an opaque pointer
 %apply void* { FILE* };

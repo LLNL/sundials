@@ -38,7 +38,6 @@
 #include <sunmatrix/sunmatrix_dense.h>     /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h>     /* access to dense SUNLinearSolver      */
 #include <sundials/sundials_types.h>       /* definition of type realtype          */
-#include <sundials/sundials_math.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -273,9 +272,9 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
   realtype ONE=RCONST(1.0);
 
   /* compute solution error */
-  ans  = atan(t);
-  ewt = ONE / (rtol * SUNRabs(ans) + atol);
-  err = ewt * SUNRabs(NV_Ith_S(y,0) - ans);
+  ans = atan(t);
+  ewt = ONE / (rtol * fabs(ans) + atol);
+  err = ewt * fabs(NV_Ith_S(y,0) - ans);
 
   /* is the solution within the tolerances? */
   passfail = (err < ONE) ? 0 : 1;

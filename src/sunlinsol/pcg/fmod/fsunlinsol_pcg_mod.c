@@ -308,6 +308,18 @@ SWIGEXPORT int _wrap_FSUNLinSolGetType_PCG(SUNLinearSolver farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNLinSolGetID_PCG(SUNLinearSolver farg1) {
+  int fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  SUNLinearSolver_ID result;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  result = (SUNLinearSolver_ID)SUNLinSolGetID_PCG(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNLinSolInitialize_PCG(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;

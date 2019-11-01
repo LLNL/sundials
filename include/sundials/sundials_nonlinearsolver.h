@@ -72,10 +72,10 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNNonlinearSolver *SUNNonlinearSolver;
 
 typedef int (*SUNNonlinSolSysFn)(N_Vector y, N_Vector F, void* mem);
 
-typedef int (*SUNNonlinSolLSetupFn)(N_Vector y, N_Vector F, booleantype jbad,
-                                    booleantype* jcur, void* mem);
+typedef int (*SUNNonlinSolLSetupFn)(booleantype jbad, booleantype* jcur,
+                                    void* mem);
 
-typedef int (*SUNNonlinSolLSolveFn)(N_Vector y, N_Vector b, void* mem);
+typedef int (*SUNNonlinSolLSolveFn)(N_Vector b, void* mem);
 
 typedef int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y,
                                       N_Vector del, realtype tol, N_Vector ewt,
@@ -107,7 +107,7 @@ struct _generic_SUNNonlinearSolver_Ops {
   int (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
   int (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
   int (*setlsolvefn)(SUNNonlinearSolver, SUNNonlinSolLSolveFn);
-  int (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn);
+  int (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn, void*);
   int (*setmaxiters)(SUNNonlinearSolver, int);
   int (*getnumiters)(SUNNonlinearSolver, long int*);
   int (*getcuriter)(SUNNonlinearSolver, int*);
@@ -157,7 +157,8 @@ SUNDIALS_EXPORT int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS,
                                             SUNNonlinSolLSolveFn SolveFn);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
-                                              SUNNonlinSolConvTestFn CTestFn);
+                                              SUNNonlinSolConvTestFn CTestFn,
+                                              void* ctest_data);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS,
                                             int maxiters);
@@ -176,17 +177,18 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
  * SUNNonlinearSolver return values
  * ---------------------------------------------------------------------------*/
 
-#define SUN_NLS_SUCCESS        0  /* successful / converged */
+#define SUN_NLS_SUCCESS          0    /* successful / converged */
 
 /* Recoverable */
-#define SUN_NLS_CONTINUE      +1  /* not converged, keep iterating      */
-#define SUN_NLS_CONV_RECVR    +2  /* convergece failure, try to recover */
+#define SUN_NLS_CONTINUE      +901    /* not converged, keep iterating      */
+#define SUN_NLS_CONV_RECVR    +902    /* convergece failure, try to recover */
 
 /* Unrecoverable */
-#define SUN_NLS_MEM_NULL      -1  /* memory argument is NULL            */
-#define SUN_NLS_MEM_FAIL      -2  /* failed memory access / allocation  */
-#define SUN_NLS_ILL_INPUT     -3  /* illegal function input             */
-#define SUN_NLS_VECTOROP_ERR  -4  /* failed NVector operation           */
+#define SUN_NLS_MEM_NULL      -901    /* memory argument is NULL            */
+#define SUN_NLS_MEM_FAIL      -902    /* failed memory access / allocation  */
+#define SUN_NLS_ILL_INPUT     -903    /* illegal function input             */
+#define SUN_NLS_VECTOROP_ERR  -904    /* failed NVector operation           */
+#define SUN_NLS_EXT_FAIL      -905    /* failed in external library call    */
 
 #ifdef __cplusplus
 }

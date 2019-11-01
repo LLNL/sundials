@@ -12,7 +12,7 @@ pipeline {
               echo "END JENKINS SETUP"
 
               // run regression tests
-              sh("cd test && ./test_driver.sh 1 ${env.BRANCH_NAME} ${env.CHANGE_BRANCH}")
+              sh("cd test && ./test_driver.sh 8 ${env.BRANCH_NAME} ${env.CHANGE_BRANCH}")
             }
         }
     }

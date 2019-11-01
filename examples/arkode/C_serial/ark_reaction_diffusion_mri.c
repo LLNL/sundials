@@ -48,7 +48,6 @@
 #include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -85,7 +84,7 @@ int main() {
   realtype T0 = RCONST(0.0);     /* initial time */
   realtype Tf = RCONST(3.0);     /* final time */
   realtype dTout = RCONST(0.1);  /* time between outputs */
-  int Nt = ceil(Tf/dTout);       /* number of output times */
+  int Nt = (int) ceil(Tf/dTout); /* number of output times */
   realtype hs = RCONST(0.001);   /* slow step size */
   realtype hf = RCONST(0.00002); /* fast step size */
   UserData udata = NULL;         /* user data */
@@ -115,7 +114,7 @@ int main() {
   udata->N   = N;
   udata->dx  = L / (RCONST(1.0)*N - RCONST(1.0));
   udata->k   = RCONST(1e-4)/ep;
-  udata->lam = RCONST(0.5)*SUNRsqrt(RCONST(2.0) * ep * RCONST(1e4));
+  udata->lam = RCONST(0.5)*sqrt(RCONST(2.0) * ep * RCONST(1e4));
 
   /* Initial problem output */
   printf("\n1D reaction-diffusion PDE test problem:\n");
@@ -193,7 +192,7 @@ int main() {
   tout = T0+dTout;
   printf("        t      ||u||_rms\n");
   printf("   -------------------------\n");
-  printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
+  printf("  %10.6"FSYM"  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));
   for (iout=0; iout<Nt; iout++) {
 
     /* call integrator */
@@ -201,7 +200,7 @@ int main() {
     if (check_retval(&retval, "MRIStepEvolve", 1)) break;
 
     /* print solution stats and output results to disk */
-    printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
+    printf("  %10.6"FSYM"  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));
     for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
     fprintf(UFID,"\n");
 
@@ -323,7 +322,7 @@ static int SetInitialCondition(N_Vector y, UserData user_data)
 
   /* set initial condition */
   for (i = 0; i < N; i++)
-    Y[i] = RCONST(1.0)/(1 + SUNRexp(lam*(i*dx-RCONST(1.0))));
+    Y[i] = RCONST(1.0)/(1 + exp(lam*(i*dx-RCONST(1.0))));
 
   /* Return with success */
   return 0;

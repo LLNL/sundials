@@ -163,8 +163,14 @@ user-callable routines:
    otherwise this routine returns ``NULL`` (e.g., if two MPI-aware
    subvectors use different MPI communicators).
 
+   Users of the Fortran 2003 interface to this function will first need to use
+   the generic ``N\_Vector`` utility functions ``N_VNewVectorArray``, and
+   ``N_VSetVecAtIndexVectorArray`` to create the ``N_Vector*`` argument.  This is
+   further explained in Chapter :ref:`Fortran2003.Differences.NVectorArrays`,
+   and the functions are documented in Chapter :ref:`NVectors.utilities`.
 
-.. c:function:: N_Vector N_VMake_MPIManyVector(MPI_Comm *comm, sunindextype num_subvectors, N_Vector *vec_array)
+
+.. c:function:: N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors, N_Vector *vec_array)
 
    This function creates a MPIManyVector from a set of existing NVECTOR
    objects, and a user-created MPI communicator that "connects" these
@@ -172,29 +178,16 @@ user-callable routines:
    communicators than the input *comm*.  We note that this routine
    is designed to support any combination of the use cases above.
 
-   The input *comm* should be the memory reference to this
-   user-created MPI communicator.  We note that since many MPI
-   implementations ``#define``  ``MPI_COMM_WORLD`` to be a specific
-   integer *value* (that has no memory reference), users who wish
-   to supply ``MPI_COMM_WORLD`` to this routine should first
-   set a specific ``MPI_Comm`` variable to ``MPI_COMM_WORLD`` before
-   passing in the reference, e.g.
-
-   .. code-block:: c
-
-      MPI_Comm comm;
-      comm = MPI_COMM_WORLD;
-      N_Vector x;
-      x = N_VMake_MPIManyVector(&comm, ...);
-
+   The input *comm* should be this user-created MPI communicator.
    This routine will internally call ``MPI_Comm_dup`` to create a
    copy of the input ``comm``, so the user-supplied ``comm`` argument
    need not be retained after the call to
    :c:func:`N_VMake_MPIManyVector()`.
 
    If all subvectors are MPI-unaware, then the input *comm* argument
-   should be ``NULL``, although in this case, it would be simpler to
-   call :c:func:`N_VNew_MPIManyVector()` instead.
+   should be ``MPI_COMM_NULL``, although in this case, it would be 
+   simpler to call :c:func:`N_VNew_MPIManyVector()` instead, or to just
+   use the NVECTOR_MANYVECTOR module.
 
    This routine will copy all ``N_Vector`` pointers from the input
    *vec_array*, so the user may modify/free that pointer array

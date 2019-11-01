@@ -88,19 +88,19 @@ void FSUNKLU_REINIT(int *code, long int *NNZ, int *reinit_type, int *ier)
   switch(*code) {
   case FCMIX_CVODE:
     *ier = SUNLinSol_KLUReInit(F2C_CVODE_linsol, F2C_CVODE_matrix,
-                               *NNZ, *reinit_type);
+                               (sunindextype)(*NNZ), *reinit_type);
     break;
   case FCMIX_IDA:
     *ier = SUNLinSol_KLUReInit(F2C_IDA_linsol, F2C_IDA_matrix,
-                               *NNZ, *reinit_type);
+                               (sunindextype)(*NNZ), *reinit_type);
     break;
   case FCMIX_KINSOL:
     *ier = SUNLinSol_KLUReInit(F2C_KINSOL_linsol, F2C_KINSOL_matrix,
-                               *NNZ, *reinit_type);
+                               (sunindextype)(*NNZ), *reinit_type);
     break;
   case FCMIX_ARKODE:
     *ier = SUNLinSol_KLUReInit(F2C_ARKODE_linsol, F2C_ARKODE_matrix,
-                               *NNZ, *reinit_type);
+                               (sunindextype)(*NNZ), *reinit_type);
     break;
   default:
     *ier = -1;
@@ -136,7 +136,7 @@ void FSUNMASSKLU_INIT(int *ier)
   *ier = 0;
   if (F2C_ARKODE_mass_sol)  SUNLinSolFree(F2C_ARKODE_mass_sol);
   F2C_ARKODE_mass_sol = NULL;
-  F2C_ARKODE_mass_sol = SUNLinSol_KLU(F2C_ARKODE_vec, 
+  F2C_ARKODE_mass_sol = SUNLinSol_KLU(F2C_ARKODE_vec,
                                       F2C_ARKODE_mass_matrix);
   if (F2C_ARKODE_mass_sol == NULL) *ier = -1;
 }
@@ -146,7 +146,7 @@ void FSUNMASSKLU_REINIT(long int *NNZ, int *reinit_type, int *ier)
 {
   *ier = 0;
   *ier = SUNLinSol_KLUReInit(F2C_ARKODE_mass_sol, F2C_ARKODE_mass_matrix,
-                             *NNZ, *reinit_type);
+                             (sunindextype)(*NNZ), *reinit_type);
 }
 
 

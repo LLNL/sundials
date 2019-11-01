@@ -66,7 +66,6 @@
 #include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLU_MT SUNLinearSolver */
 #include <sundials/sundials_types.h>        /* defs. of realtype, sunindextype, etc */
-#include <sundials/sundials_math.h>         /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -135,40 +134,40 @@ static int LaplaceMatrix(SUNMatrix Jac, UserData udata);
 static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata);
 
 /* Private function to check function return values */
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Main Program */
 int main(int argc, char *argv[]) {
 
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);    /* initial time */
-  realtype Tf = RCONST(10.0);   /* final time */
-  int Nt = 100;                 /* total number of output times */
-  int Nvar = 3;                 /* number of solution fields */
+  realtype T0 = RCONST(0.0);            /* initial time */
+  realtype Tf = RCONST(10.0);           /* final time */
+  int Nt = 100;                         /* total number of output times */
+  int Nvar = 3;                         /* number of solution fields */
   UserData udata = NULL;
   realtype *data;
-  sunindextype N = 201;         /* spatial mesh size */
-  realtype a = 0.6;             /* problem parameters */
-  realtype b = 2.0;
-  realtype du = 0.025;
-  realtype dv = 0.025;
-  realtype dw = 0.025;
-  realtype ep = 1.0e-5;         /* stiffness parameter */
-  realtype reltol = 1.0e-6;     /* tolerances */
-  realtype abstol = 1.0e-10;
+  sunindextype N = 201;                 /* spatial mesh size */
+  realtype a = RCONST(0.6);             /* problem parameters */
+  realtype b = RCONST(2.0);
+  realtype du = RCONST(0.025);
+  realtype dv = RCONST(0.025);
+  realtype dw = RCONST(0.025);
+  realtype ep = RCONST(1.0e-5);         /* stiffness parameter */
+  realtype reltol = RCONST(1.0e-6);     /* tolerances */
+  realtype abstol = RCONST(1.0e-10);
   sunindextype i, NEQ, NNZ;
   int num_threads;
 
   /* general problem variables */
-  int flag;                     /* reusable error-checking flag */
+  int retval;                 /* reusable error-checking retval */
   N_Vector y = NULL;
   N_Vector umask = NULL;
   N_Vector vmask = NULL;
   N_Vector wmask = NULL;
-  SUNMatrix A = NULL;           /* empty matrix object for solver */
-  SUNMatrix M = NULL;           /* empty mass matrix object */
-  SUNLinearSolver LS = NULL;    /* empty linear solver object */
-  SUNLinearSolver MLS = NULL;   /* empty mass matrix solver object */
+  SUNMatrix A = NULL;         /* empty matrix object for solver */
+  SUNMatrix M = NULL;         /* empty mass matrix object */
+  SUNLinearSolver LS = NULL;  /* empty linear solver object */
+  SUNLinearSolver MLS = NULL; /* empty mass matrix solver object */
   void *arkode_mem = NULL;
   FILE *FID, *UFID, *VFID, *WFID;
   realtype h, z, t, dTout, tout, u, v, w, pi;
@@ -179,14 +178,14 @@ int main(int argc, char *argv[]) {
   /* if a command-line argument was supplied, set num_threads */
   num_threads = 1;
   if (argc > 1)
-    num_threads = strtol(argv[1], NULL, 0);
+    num_threads = (int) strtol(argv[1], NULL, 0);
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
   udata->x = NULL;
-  udata->tmp = NULL;
   udata->R = NULL;
-  if (check_flag((void *)udata, "malloc", 2)) return 1;
+  udata->tmp = NULL;
+  if (check_retval((void *)udata, "malloc", 2)) return(1);
 
   /* store the inputs in the UserData structure */
   udata->N  = N;
@@ -204,34 +203,40 @@ int main(int argc, char *argv[]) {
   printf("\n1D FEM Brusselator PDE test problem:\n");
   printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
   printf("    num_threads = %i\n", num_threads);
-  printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
+  printf("    problem parameters:  a = %" GSYM ",  b = %" GSYM ",  ep = %" GSYM "\n",
          udata->a, udata->b, udata->ep);
-  printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n",
+  printf("    diffusion coefficients:  du = %" GSYM ",  dv = %" GSYM ",  dw = %" GSYM "\n",
          udata->du, udata->dv, udata->dw);
-  printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
+  printf("    reltol = %.1" ESYM ",  abstol = %.1" ESYM "\n\n", reltol, abstol);
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+
   data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+
   umask = N_VNew_Serial(NEQ);       /* Create serial vector masks */
-  if (check_flag((void *)umask, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void *)umask, "N_VNew_Serial", 0)) return(1);
+
   vmask = N_VNew_Serial(NEQ);
-  if (check_flag((void *)vmask, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void *)vmask, "N_VNew_Serial", 0)) return(1);
+
   wmask = N_VNew_Serial(NEQ);
-  if (check_flag((void *)wmask, "N_VNew_Serial", 0)) return 1;
-  udata->tmp = N_VNew_Serial(NEQ);  /* temporary N_Vector inside udata */
-  if (check_flag((void *) udata->tmp, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void *)wmask, "N_VNew_Serial", 0)) return(1);
+
+  /* temporary N_Vector inside udata */
+  udata->tmp = N_VNew_Serial(NEQ);
+  if (check_retval((void *) udata->tmp, "N_VNew_Serial", 0)) return(1);
 
   /* allocate and set up spatial mesh; this [arbitrarily] clusters
      more intervals near the end points of the interval */
   udata->x = (realtype *) malloc(N*sizeof(realtype));
-  if (check_flag((void *)udata->x, "malloc", 2)) return 1;
-  h = 10.0/(N-1);
+  if (check_retval((void *)udata->x, "malloc", 2)) return(1);
+  h = RCONST(10.0)/(N-1);
   for (i=0; i<N; i++) {
-    z = -5.0 + h*i;
-    udata->x[i] = 0.5/atan(5.0)*atan(z) + 0.5;
+    z = -RCONST(5.0) + h*i;
+    udata->x[i] = HALF/atan(RCONST(5.0))*atan(z) + HALF;
   }
 
   /* Set initial conditions into y */
@@ -243,19 +248,19 @@ int main(int argc, char *argv[]) {
   }
 
   /* Set mask array values for each solution component */
-  N_VConst(0.0, umask);
+  N_VConst(ZERO, umask);
   data = N_VGetArrayPointer(umask);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
   for (i=0; i<N; i++)  data[IDX(i,0)] = ONE;
 
-  N_VConst(0.0, vmask);
+  N_VConst(ZERO, vmask);
   data = N_VGetArrayPointer(vmask);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
   for (i=0; i<N; i++)  data[IDX(i,1)] = ONE;
 
-  N_VConst(0.0, wmask);
+  N_VConst(ZERO, wmask);
   data = N_VGetArrayPointer(wmask);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
   for (i=0; i<N; i++)  data[IDX(i,2)] = ONE;
 
 
@@ -264,43 +269,61 @@ int main(int argc, char *argv[]) {
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y);
-  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_retval((void *)arkode_mem, "ARKStepCreate", 0)) return(1);
 
   /* Set routines */
-  flag = ARKStepSetUserData(arkode_mem, (void *) udata);     /* Pass udata to user functions */
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
-  flag = ARKStepResStolerance(arkode_mem, abstol);           /* Specify residual tolerance */
-  if (check_flag(&flag, "ARKStepResStolerance", 1)) return 1;
 
-  /* Initialize sparse matrix data structure and SuperLU_MT solvers (system and mass) */
+  /* Pass udata to user functions */
+  retval = ARKStepSetUserData(arkode_mem, (void *) udata);
+  if (check_retval(&retval, "ARKStepSetUserData", 1)) return(1);
+
+  /* Specify tolerances */
+  retval = ARKStepSStolerances(arkode_mem, reltol, abstol);
+  if (check_retval(&retval, "ARKStepSStolerances", 1)) return(1);
+
+  /* Specify residual tolerance */
+  retval = ARKStepResStolerance(arkode_mem, abstol);
+  if (check_retval(&retval, "ARKStepResStolerance", 1)) return(1);
+
+  /* Initialize sparse matrix data structure and linear solvers (system and mass) */
   NNZ = 15*NEQ;
+
   A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSR_MAT);
-  if (check_flag((void *)A, "SUNSparseMatrix", 0)) return 1;
+  if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
+
   LS = SUNLinSol_SuperLUMT(y, A, num_threads);
-  if (check_flag((void *)LS, "SUNLinSol_SuperLUMT", 0)) return 1;
-  M = SUNSparseMatrix(NEQ, NEQ, NNZ, CSR_MAT);
-  if (check_flag((void *)M, "SUNSparseMatrix", 0)) return 1;
+  if (check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
+
+  M = SUNMatClone(A);
+  if (check_retval((void *)M, "SUNSparseMatrix", 0)) return(1);
+
   MLS = SUNLinSol_SuperLUMT(y, M, num_threads);
-  if (check_flag((void *)MLS, "SUNLinSol_SuperLUMT", 0)) return 1;
+  if (check_retval((void *)MLS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix, linear solver, and Jacobian construction routine to ARKStep */
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and LS */
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
-  flag = ARKStepSetJacFn(arkode_mem, Jac);                 /* Supply Jac routine */
-  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
+
+  /* Attach matrix and LS */
+  retval = ARKStepSetLinearSolver(arkode_mem, LS, A);
+  if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) return(1);
+
+  /* Supply Jac routine */
+  retval = ARKStepSetJacFn(arkode_mem, Jac);
+  if (check_retval(&retval, "ARKStepSetJacFn", 1)) return(1);
 
   /* Attach the mass matrix, linear solver and construction routines to ARKStep;
      notify ARKStep that the mass matrix is not time-dependent */
-  flag = ARKStepSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);   /* Attach matrix and LS */
-  if (check_flag(&flag, "ARKStepSetMassLinearSolver", 1)) return 1;
-  flag = ARKStepSetMassFn(arkode_mem, MassMatrix);                /* Supply M routine */
-  if (check_flag(&flag, "ARKStepSetMassFn", 1)) return 1;
+
+  /* Attach matrix and LS */
+  retval = ARKStepSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);
+  if (check_retval(&retval, "ARKStepSetMassLinearSolver", 1)) return(1);
+
+  /* Supply M routine */
+  retval = ARKStepSetMassFn(arkode_mem, MassMatrix);
+  if (check_retval(&retval, "ARKStepSetMassFn", 1)) return(1);
 
   /* output mesh to disk */
   FID=fopen("bruss_FEM_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->x[i]);
+  for (i=0; i<N; i++)  fprintf(FID,"  %.16" ESYM "\n", udata->x[i]);
   fclose(FID);
 
   /* Open output stream for results, access data arrays */
@@ -308,35 +331,35 @@ int main(int argc, char *argv[]) {
   VFID = fopen("bruss_FEM_v.txt","w");
   WFID = fopen("bruss_FEM_w.txt","w");
   data = N_VGetArrayPointer(y);
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
 
   /* output initial condition to disk */
-  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM, data[IDX(i,0)]);
-  for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM, data[IDX(i,1)]);
-  for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM, data[IDX(i,2)]);
+  for (i=0; i<N; i++)  fprintf(UFID," %.16" ESYM, data[IDX(i,0)]);
+  for (i=0; i<N; i++)  fprintf(VFID," %.16" ESYM, data[IDX(i,1)]);
+  for (i=0; i<N; i++)  fprintf(WFID," %.16" ESYM, data[IDX(i,2)]);
   fprintf(UFID,"\n");
   fprintf(VFID,"\n");
   fprintf(WFID,"\n");
 
   /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
-  t  = T0;
+  t     = T0;
   dTout = Tf/Nt;
-  tout = T0+dTout;
+  tout  = T0+dTout;
   printf("        t      ||u||_rms   ||v||_rms   ||w||_rms\n");
   printf("   ----------------------------------------------\n");
   for (iout=0; iout<Nt; iout++) {
 
-    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);    /* call integrator */
-    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
+    retval = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);  /* call integrator */
+    if (check_retval(&retval, "ARKStepEvolve", 1)) break;
     u = N_VWL2Norm(y,umask);                               /* access/print solution statistics */
-    u = SUNRsqrt(u*u/N);
+    u = sqrt(u*u/N);
     v = N_VWL2Norm(y,vmask);
-    v = SUNRsqrt(v*v/N);
+    v = sqrt(v*v/N);
     w = N_VWL2Norm(y,wmask);
-    w = SUNRsqrt(w*w/N);
-    printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t, u, v, w);
-    if (flag >= 0) {                                       /* successful solve: update output time */
+    w = sqrt(w*w/N);
+    printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "\n", t, u, v, w);
+    if (retval >= 0) {                                     /* successful solve: update output time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
     } else {                                               /* unsuccessful solve: break */
@@ -345,12 +368,13 @@ int main(int argc, char *argv[]) {
     }
 
     /* output results to disk */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM, data[IDX(i,0)]);
-    for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM, data[IDX(i,1)]);
-    for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM, data[IDX(i,2)]);
+    for (i=0; i<N; i++)  fprintf(UFID," %.16" ESYM, data[IDX(i,0)]);
+    for (i=0; i<N; i++)  fprintf(VFID," %.16" ESYM, data[IDX(i,1)]);
+    for (i=0; i<N; i++)  fprintf(WFID," %.16" ESYM, data[IDX(i,2)]);
     fprintf(UFID,"\n");
     fprintf(VFID,"\n");
     fprintf(WFID,"\n");
+
   }
   printf("   ----------------------------------------------\n");
   fclose(UFID);
@@ -358,28 +382,28 @@ int main(int argc, char *argv[]) {
   fclose(WFID);
 
   /* Print some final statistics */
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1);
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
-  flag = ARKStepGetNumMassSetups(arkode_mem, &nmset);
-  check_flag(&flag, "ARKStepGetNumMassSetups", 1);
-  flag = ARKStepGetNumMassSolves(arkode_mem, &nms);
-  check_flag(&flag, "ARKStepGetNumMassSolves", 1);
-  flag = ARKStepGetNumMassMult(arkode_mem, &nMv);
-  check_flag(&flag, "ARKStepGetNumMassMult", 1);
-  flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKStepGetNumJacEvals", 1);
+  retval = ARKStepGetNumSteps(arkode_mem, &nst);
+  check_retval(&retval, "ARKStepGetNumSteps", 1);
+  retval = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
+  check_retval(&retval, "ARKStepGetNumStepAttempts", 1);
+  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_retval(&retval, "ARKStepGetNumLinSolvSetups", 1);
+  retval = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_retval(&retval, "ARKStepGetNumErrTestFails", 1);
+  retval = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_retval(&retval, "ARKStepGetNumNonlinSolvIters", 1);
+  retval = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_retval(&retval, "ARKStepGetNumNonlinSolvConvFails", 1);
+  retval = ARKStepGetNumMassSetups(arkode_mem, &nmset);
+  check_retval(&retval, "ARKStepGetNumMassSetups", 1);
+  retval = ARKStepGetNumMassSolves(arkode_mem, &nms);
+  check_retval(&retval, "ARKStepGetNumMassSolves", 1);
+  retval = ARKStepGetNumMassMult(arkode_mem, &nMv);
+  check_retval(&retval, "ARKStepGetNumMassMult", 1);
+  retval = ARKStepGetNumJacEvals(arkode_mem, &nje);
+  check_retval(&retval, "ARKStepGetNumJacEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
@@ -440,8 +464,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
 
 
 /* Routine to compute the diffusion portion of the ODE RHS function f(t,y). */
-static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
-
+static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+{
   /* problem data */
   UserData udata = (UserData) user_data;
 
@@ -460,9 +484,9 @@ static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
 
   /* access data arrays */
   Ydata = N_VGetArrayPointer(y);
-  if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
   RHSdata = N_VGetArrayPointer(ydot);
-  if (check_flag((void *)RHSdata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)RHSdata, "N_VGetArrayPointer", 0)) return 1;
 
   /* iterate over intervals, filling in residual function */
   for (i=0; i<N-1; i++) {
@@ -541,9 +565,9 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
 
   /* access data arrays */
   Ydata = N_VGetArrayPointer(y);
-  if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
   RHSdata = N_VGetArrayPointer(ydot);
-  if (check_flag((void *)RHSdata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_retval((void *)RHSdata, "N_VGetArrayPointer", 0)) return 1;
 
   /* iterate over intervals, filling in residual function */
   for (i=0; i<N-1; i++) {
@@ -847,13 +871,9 @@ static int MassMatrix(realtype t, SUNMatrix M, void *user_data,
 }
 
 
-
-
-
 /*-------------------------------
  * Private helper functions
  *-------------------------------*/
-
 
 
 /* Routine to compute the Laplace matrix */
@@ -1044,7 +1064,6 @@ static int LaplaceMatrix(SUNMatrix L, UserData udata)
 }
 
 
-
 /* Routine to compute the Jacobian matrix from R(y) */
 static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata)
 {
@@ -1066,7 +1085,7 @@ static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata)
 
   /* access data arrays */
   realtype *Ydata = N_VGetArrayPointer(y);
-  if (check_flag((void *) Ydata, "N_VGetArrayPointer", 0)) return(1);
+  if (check_retval((void *) Ydata, "N_VGetArrayPointer", 0)) return(1);
 
   /* initialize all local variables to zero (to avoid uninitialized variable warnings) */
   ul = uc = ur = vl = vc = vr = wl = wc = wr = xl = xc = xr = 0.0;
@@ -1459,31 +1478,31 @@ static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata)
 /* Check function return value...
     opt == 0 means SUNDIALS function allocates memory so check if
              returned NULL pointer
-    opt == 1 means SUNDIALS function returns a flag so check if
-             flag >= 0
+    opt == 1 means SUNDIALS function returns a retval so check if
+             retval >= 0
     opt == 2 means function allocates memory so check if returned
              NULL pointer
 */
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
   int *errflag;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return 1; }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
+    errflag = (int *) returnvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
               funcname, *errflag);
       return 1; }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return 1; }

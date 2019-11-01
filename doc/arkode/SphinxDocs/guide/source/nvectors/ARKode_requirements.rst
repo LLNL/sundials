@@ -23,7 +23,7 @@ NVECTOR functions required by ARKode
 
 In the table below, we list the vector functions in the ``N_Vector``
 module that are called within the ARKode package.  The table also
-shows, for each function, which ARKode module uses the function.  
+shows, for each function, which ARKode module uses the function.
 The ARKSTEP and ERKSTEP columns show function usage within the main
 time-stepping modules and the shared ARKode infrastructure,  while the
 remaining columns show function usage within the ARKLS linear solver
@@ -40,7 +40,7 @@ requirements that are not listed here.  In addition, specific
 ``SUNNonlinearSolver`` modules attached to ARKode may have additional
 ``N_Vector`` requirements.  For additional requirements by specific
 ``SUNLinearSolver`` and ``SUNNonlinearSolver`` modules, please see the
-accompanying sections :ref:`SUNLinSol` and :ref:`SUNNonlinSol`. 
+accompanying sections :ref:`SUNLinSol` and :ref:`SUNNonlinSol`.
 
 At this point, we should emphasize that the user does not need to know
 anything about ARKode's usage of vector functions in order to use
@@ -78,9 +78,12 @@ N_VSetArrayPointer                                X\ :sup:`1`                   
 N_VSpace\ :sup:`2`              X        X        X            X           X
 N_VWrmsNorm                     X        X        X            X           X
 N_VLinearCombination\ :sup:`3`  X        X
+N_VMinQuotient\ :sup:`5`        X        X
+N_VConstrMask\ :sup:`5`         X        X
+N_VCompare\ :sup:`5`            X        X
 ==============================  =======  =======  ===========  ==========  =========  =======
 
-1. This is only required with dense or band matrix-based linear solver modules, 
+1. This is only required with dense or band matrix-based linear solver modules,
    where the default difference-quotient Jacobian approximation is used.
 
 2. The :c:func:`N_VSpace()` function is only informational, and will
@@ -91,3 +94,7 @@ N_VLinearCombination\ :sup:`3`  X        X
 
 4. The :c:func:`N_VGetLength()` function is only required when an iterative or
    matrix iterative ``SUNLinearSolver`` module is used.
+
+5. The functions :c:func:`N_VMinQuotient`, :c:func:`N_VConstrMask`, and
+   :c:func:`N_VCompare` are only used when inequality constraints are enabled
+   and may be omitted if this feature is not used.

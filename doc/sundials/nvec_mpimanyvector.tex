@@ -33,7 +33,7 @@ implementation:
   each solution component, e.g., in a Navier-Stokes simulation they
   could have separate subvectors for density, velocities and
   pressure, which are combined together into a single
-  {\nvecmpimanyvector} for the overall ``solution''. 
+  {\nvecmpimanyvector} for the overall ``solution''.
 \end{itemize}
 We note that the above use cases are not mutually exclusive, and the
 {\nvecmpimanyvector} implementation should support arbitrary combinations
@@ -79,7 +79,7 @@ the beginning of the array of subvectors, and a boolean flag
 \id{own\_data} indicating ownership of the subvectors that populate
 \id{subvec\_array}.
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _N_VectorContent_MPIManyVector {
   MPI_Comm      comm;            /* overall MPI communicator        */
   sunindextype  num_subvectors;  /* number of vectors attached      */
@@ -109,7 +109,7 @@ designed for ManyVector use cases in an MPI-unaware environment.
 \label{ss:nvec_mpimanyvector_functions}
 % ====================================================================
 
-The {\nvecmpimanyvector} module implements all vector operations listed 
+The {\nvecmpimanyvector} module implements all vector operations listed
 in Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops},
 and \ref{ss:nveclocalops}, except for \id{N\_VGetArrayPointer},
 \id{N\_VSetArrayPointer}, \id{N\_VScaleAddMultiVectorArray}, and
@@ -122,12 +122,12 @@ implementations.
 
 The names of vector operations are obtained from those in Tables
 \ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}, and
-\ref{ss:nveclocalops} by appending the suffix \id{\_MPIManyVector} 
+\ref{ss:nveclocalops} by appending the suffix \id{\_MPIManyVector}
 (e.g. \id{N\_VDestroy\_MPIManyVector}).
 The module {\nvecmpimanyvector} provides the following additional
 user-callable routines:
 %%--------------------------------------
-\sunmodfun{N\_VNew\_MPIManyVector}
+\sunmodfunf{N\_VNew\_MPIManyVector}
 {
   This function creates an MPIManyVector from a set of existing {\nvector}
   objects, under the requirement that all MPI-aware subvectors use the
@@ -146,6 +146,13 @@ user-callable routines:
   Upon successful completion, the new MPIManyVector is returned;
   otherwise this routine returns \id{NULL} (e.g., if two MPI-aware
   subvectors use different MPI communicators).
+
+  Users of the Fortran 2003 interface to this function will first need
+  to use the generic \id{N\_Vector} utility functions
+  \id{N\_VNewVectorArray}, and \id{N\_VSetVecAtIndexVectorArray} to create
+  the \id{N\_Vector*} argument. This is further explained in
+  Chapter~\ref{sss:fortran2003_nvarrays}, and the functions are documented
+  in Chapter~\ref{ss:nvecutils}.
 }
 {
   N\_Vector N\_VNew\_MPIManyVector(sunindextype num\_subvectors,
@@ -153,7 +160,7 @@ user-callable routines:
   N\_Vector *vec\_array);
 }
 %%--------------------------------------
-\sunmodfun{N\_VMake\_MPIManyVector}
+\sunmodfunf{N\_VMake\_MPIManyVector}
 {
   This function creates an MPIManyVector from a set of existing {\nvector}
   objects, and a user-created MPI communicator that ``connects'' these
@@ -161,30 +168,16 @@ user-callable routines:
   communicators than the input \id{comm}.  We note that this routine
   is designed to support any combination of the use cases above.
 
-  The input \id{comm} should be the memory reference to this
-  user-created MPI communicator.  We note that since many {\mpi}
-  implementations \id{\#define} \id{MPI\_COMM\_WORLD} to be a specific
-  integer \emph{value} (that has no memory reference), users who wish
-  to supply \id{MPI\_COMM\_WORLD} to this routine should first
-  set a specific \id{MPI\_Comm} variable to \id{MPI\_COMM\_WORLD}
-  before passing in the reference, e.g.
-
-  \hspace{0.5in} \texttt{MPI\_Comm comm;}\vspace{-0.5em}
-  
-  \hspace{0.5in} \texttt{comm = MPI\_COMM\_WORLD;}\vspace{-0.5em}
-  
-  \hspace{0.5in} \texttt{N\_Vector x;}\vspace{-0.5em}
-  
-  \hspace{0.5in} \texttt{x = N\_VMake\_MPIManyVector(\&comm, ...);}
-
+  The input \id{comm} should be this user-created MPI communicator.
   This routine will internally call \id{MPI\_Comm\_dup} to create a
   copy of the input \id{comm}, so the user-supplied \id{comm} argument
   need not be retained after the call to \id{N\_VMake\_MPIManyVector}.
 
   If all subvectors are MPI-unaware, then the input \id{comm} argument
-  should be \id{NULL}, although in this case, it would be simpler to
-  call \Id{N\_VNew\_MPIManyVector} instead.
-  
+  should be \id{MPI\_COMM\_NULL}, although in this case, it would be
+  simpler to call \Id{N\_VNew\_MPIManyVector} instead, or to just use
+  the {\nvecmanyvector} module.
+
   This routine will copy all \id{N\_Vector} pointers from the input
   \id{vec\_array}, so the user may modify/free that pointer array
   after calling this function.  However, this routine does \emph{not}
@@ -197,13 +190,13 @@ user-callable routines:
   \id{vec\_array} is \id{NULL}).
 }
 {
-  N\_Vector N\_VMake\_MPIManyVector(MPI\_Comm *comm, 
+  N\_Vector N\_VMake\_MPIManyVector(MPI\_Comm comm,
   sunindextype num\_subvectors,
   \newlinefill{N\_Vector N\_VMake\_MPIManyVector}
   N\_Vector *vec\_array);
 }
 %%--------------------------------------
-\sunmodfun{N\_VGetSubvector\_MPIManyVector}
+\sunmodfunf{N\_VGetSubvector\_MPIManyVector}
 {
   This function returns the \id{vec\_num} subvector from the {\nvector}
   array.
@@ -212,7 +205,7 @@ user-callable routines:
   N\_Vector N\_VGetSubvector\_MPIManyVector(N\_Vector v, sunindextype vec\_num);
 }
 %%--------------------------------------
-\sunmodfun{N\_VGetSubvectorArrayPointer\_MPIManyVector}
+\sunmodfunf{N\_VGetSubvectorArrayPointer\_MPIManyVector}
 {
   This function returns the data array pointer for the \id{vec\_num}
   subvector from the {\nvector} array.
@@ -224,7 +217,7 @@ user-callable routines:
   realtype *N\_VGetSubvectorArrayPointer\_MPIManyVector(N\_Vector v, sunindextype vec\_num);
 }
 %%--------------------------------------
-\sunmodfun{N\_VSetSubvectorArrayPointer\_MPIManyVector}
+\sunmodfunf{N\_VSetSubvectorArrayPointer\_MPIManyVector}
 {
   This function sets the data array pointer for the \id{vec\_num}
   subvector from the {\nvector} array.
@@ -237,7 +230,7 @@ user-callable routines:
   int N\_VSetSubvectorArrayPointer\_MPIManyVector(realtype *v\_data, N\_Vector v, sunindextype vec\_num);
 }
 %%--------------------------------------
-\sunmodfun{N\_VGetNumSubvectors\_MPIManyVector}
+\sunmodfunf{N\_VGetNumSubvectors\_MPIManyVector}
 {
   This function returns the overall number of subvectors in the
   MPIManyVector object.
@@ -260,12 +253,12 @@ the same operations enabled/disabled, since cloned vectors inherit
 those configuration options from the vector they are cloned from, while
 vectors created with \id{N\_VNew\_MPIManyVector} and
 \id{N\_VMake\_MPIManyVector} will have the default settings for the
-{\nvecmpimanyvector} module.  We note that these routines \emph{do not} 
+{\nvecmpimanyvector} module.  We note that these routines \emph{do not}
 call the corresponding routines on subvectors, so those should be set up
 as desired \emph{before} attaching them to the MPIManyVector in
 \id{N\_VNew\_MPIManyVector} or \id{N\_VMake\_MPIManyVector}.
 %%--------------------------------------
-\sunmodfun{N\_VEnableFusedOps\_MPIManyVector}
+\sunmodfunf{N\_VEnableFusedOps\_MPIManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
   vector array operations in the MPIManyVector. The return value is \id{0} for
@@ -275,7 +268,7 @@ as desired \emph{before} attaching them to the MPIManyVector in
   int N\_VEnableFusedOps\_MPIManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableLinearCombination\_MPIManyVector}
+\sunmodfunf{N\_VEnableLinearCombination\_MPIManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
   combination fused operation in the MPIManyVector. The return value is \id{0} for
@@ -285,7 +278,7 @@ as desired \emph{before} attaching them to the MPIManyVector in
   int N\_VEnableLinearCombination\_MPIManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableScaleAddMulti\_MPIManyVector}
+\sunmodfunf{N\_VEnableScaleAddMulti\_MPIManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
   add a vector to multiple vectors fused operation in the MPIManyVector. The
@@ -296,7 +289,7 @@ as desired \emph{before} attaching them to the MPIManyVector in
   int N\_VEnableScaleAddMulti\_MPIManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableDotProdMulti\_MPIManyVector}
+\sunmodfunf{N\_VEnableDotProdMulti\_MPIManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
   dot products fused operation in the MPIManyVector. The return value is \id{0}
@@ -307,7 +300,7 @@ as desired \emph{before} attaching them to the MPIManyVector in
   int N\_VEnableDotProdMulti\_MPIManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableLinearSumVectorArray\_MPIManyVector}
+\sunmodfunf{N\_VEnableLinearSumVectorArray\_MPIManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
   operation for vector arrays in the MPIManyVector. The return value is \id{0} for
@@ -317,7 +310,7 @@ as desired \emph{before} attaching them to the MPIManyVector in
   int N\_VEnableLinearSumVectorArray\_MPIManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableScaleVectorArray\_MPIManyVector}
+\sunmodfunf{N\_VEnableScaleVectorArray\_MPIManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
   operation for vector arrays in the MPIManyVector. The return value is \id{0} for
@@ -327,7 +320,7 @@ as desired \emph{before} attaching them to the MPIManyVector in
   int N\_VEnableScaleVectorArray\_MPIManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableConstVectorArray\_MPIManyVector}
+\sunmodfunf{N\_VEnableConstVectorArray\_MPIManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
   operation for vector arrays in the MPIManyVector. The return value is \id{0} for
@@ -337,7 +330,7 @@ as desired \emph{before} attaching them to the MPIManyVector in
   int N\_VEnableConstVectorArray\_MPIManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableWrmsNormVectorArray\_MPIManyVector}
+\sunmodfunf{N\_VEnableWrmsNormVectorArray\_MPIManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
   operation for vector arrays in the MPIManyVector. The return value is \id{0} for
@@ -347,7 +340,7 @@ as desired \emph{before} attaching them to the MPIManyVector in
   int N\_VEnableWrmsNormVectorArray\_MPIManyVector(N\_Vector v, booleantype tf);
 }
 %%--------------------------------------
-\sunmodfun{N\_VEnableWrmsNormMaskVectorArray\_MPIManyVector}
+\sunmodfunf{N\_VEnableWrmsNormMaskVectorArray\_MPIManyVector}
 {
   This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
   norm operation for vector arrays in the MPIManyVector. The return value is
@@ -360,10 +353,10 @@ as desired \emph{before} attaching them to the MPIManyVector in
 %%
 %%------------------------------------
 %%
-\paragraph{\bf Notes} 
-           
+\paragraph{\bf Notes}
+
 \begin{itemize}
-                                        
+
 \item
   {\warn}\id{N\_VNew\_MPIManyVector} and \id{N\_VMake\_MPIManyVector} set
   the field {\em own\_data} $=$ \id{SUNFALSE}.  \\
@@ -382,4 +375,3 @@ as desired \emph{before} attaching them to the MPIManyVector in
   that were all created with the same subvector representations.
 
 \end{itemize}
-

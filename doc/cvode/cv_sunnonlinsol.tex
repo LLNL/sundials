@@ -1,5 +1,111 @@
-%===================================================================================
+%===============================================================================
 \chapter{Description of the SUNNonlinearSolver module}\label{c:sunnonlinsol}
-%===================================================================================
+%===============================================================================
 \index{SUNNonlinearSolver@\texttt{SUNNonlinearSolver} module}
 \input{sunnonlinsol_generic}
+
+%---------------------------------------------------------------------------
+\section{CVODE SUNNonlinearSolver interface}
+\label{s:sunnonlinsol_interface}
+%---------------------------------------------------------------------------
+
+As discussed in Chapter \ref{s:math} each integration step requires the
+(approximate) solution of a nonlinear system. This system can be formulated as
+the rootfinding problem
+\begin{equation}
+  F(y^n) \equiv y^n - h_n \beta_{n,0} f(t_n,y^n) - a_n = 0 \, ,
+\end{equation}
+or as the fixed-point problem
+\begin{equation}
+  G(y^n) \equiv h_n \beta_{n,0} f(t_n,y^n) + a_n = y^n \, ,
+\end{equation}
+where $a_n\equiv\sum_{i>0}(\alpha_{n,i}y^{n-i}+h_n\beta_{n,i} {\dot{y}}^{n-i})$.
+
+Rather than solving the above nonlinear systems for the new state $y^n$
+{\cvode} reformulates the above problems to solve for the correction $y_{cor}$
+to the predicted new state $y_{pred}$ so that $y^n = y_{pred} + y_{cor}$.
+The nonlinear systems rewritten in terms of $y_{cor}$ are
+\begin{equation}
+  F(y_{cor}) \equiv y_{pred} + y_{cor} - h_n \beta_{n,0} f(t_n, y_{pred} + y_{cor}) - a_n = 0 \, ,
+\end{equation}
+for the rootfinding problem and
+\begin{equation}
+  G(y_{cor}) \equiv h_n \beta_{n,0} f(t_n, y_{pred} + y_{cor}) + a_n
+  - y_{pred} = y_{cor} \, .
+\end{equation}
+for the fixed-point problem.
+
+The nonlinear system functions provided by {\cvode} to the nonlinear solver
+module internally update the current value of the new state based on the input
+correction vector. The updated vector is used when calling the ODE right-hand
+side function and when setting up linear solves (e.g., updating the Jacobian or
+preconditioner).
+
+{\cvode} provides several advanced functions that will not be needed by most
+users, but might be useful for users who choose to provide their own
+implementation of the \id{SUNNonlinearSolver} API. For example, such a user
+might need access to the current value of $\gamma$ to compute Jacobian data.
+
+\ucfunctionf{CVodeGetCurrentGamma}
+{
+  flag = CVodeGetCurrentGamma(cvode\_mem, \&gamma);
+}
+{
+  The function \ID{CVodeGetCurrentGamma} returns the current
+  value of the scalar $\gamma$.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[gamma] (\id{realtype *})
+      the current value of the scalar $\gamma$ appearing in the
+      Newton equation $M = I - \gamma J$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeGetCurrentState}
+{
+  flag = CVodeGetCurrentState(cvode\_mem, \&y);
+}
+{
+  The function \ID{CVodeGetCurrentState} returns the current state vector.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[y] (\id{N\_Vector *})
+    pointer that is set to the current state vector
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{}
+
+
+%---------------------------------------------------------------------------
+% sunnonlinsol module sections
+%---------------------------------------------------------------------------
+
+\input{sunnonlinsol_newton}
+\input{sunnonlinsol_fixedpoint}
+\input{sunnonlinsol_petscsnes}

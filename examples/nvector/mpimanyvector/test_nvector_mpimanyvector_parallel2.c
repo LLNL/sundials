@@ -63,14 +63,14 @@ int main(int argc, char *argv[])
     MPI_Abort(comm, -1);
   }
 
-  loclen1 = atol(argv[1]);
+  loclen1 = (sunindextype) atol(argv[1]);
   if (loclen1 < 1) {
     if (myid == 0)
       printf("ERROR: local subvector 1 length must be a positive integer \n");
     MPI_Abort(comm, -1);
   }
 
-  loclen2 = atol(argv[2]);
+  loclen2 = (sunindextype) atol(argv[2]);
   if (loclen2 < 1) {
     if (myid == 0)
       printf("ERROR: local subvector 2 length must be a positive integer \n");
@@ -110,6 +110,10 @@ int main(int argc, char *argv[])
     }
   }
 
+  if (myid == 0) {
+    printf("ManyVector global length %ld\n", (long int) global_length);
+  }
+
   /* Create subvectors */
   Xsub[0] = N_VNew_Serial(loclen1);
   if (Xsub[0] == NULL) {
@@ -124,7 +128,7 @@ int main(int argc, char *argv[])
   }
 
   /* Make a ManyVector, where intercommunicator is specified */
-  X = N_VMake_MPIManyVector(&comm, 2, Xsub);
+  X = N_VMake_MPIManyVector(comm, 2, Xsub);
   if (X == NULL) {
     N_VDestroy(Xsub[0]);
     N_VDestroy(Xsub[1]);
@@ -209,13 +213,13 @@ int main(int argc, char *argv[])
   fails += Test_N_VAbs(X, Z, local_length, myid);
   fails += Test_N_VInv(X, Z, local_length, myid);
   fails += Test_N_VAddConst(X, Z, local_length, myid);
-  fails += Test_N_VDotProd(X, Y, local_length, global_length, myid);
+  fails += Test_N_VDotProd(X, Y, local_length, myid);
   fails += Test_N_VMaxNorm(X, local_length, myid);
   fails += Test_N_VWrmsNorm(X, Y, local_length, myid);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, local_length, global_length, myid);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, local_length, myid);
   fails += Test_N_VMin(X, local_length, myid);
-  fails += Test_N_VWL2Norm(X, Y, local_length, global_length, myid);
-  fails += Test_N_VL1Norm(X, local_length, global_length, myid);
+  fails += Test_N_VWL2Norm(X, Y, local_length, myid);
+  fails += Test_N_VL1Norm(X, local_length, myid);
   fails += Test_N_VCompare(X, Z, local_length, myid);
   fails += Test_N_VInvTest(X, Z, local_length, myid);
   fails += Test_N_VConstrMask(X, Y, Z, local_length, myid);
@@ -241,14 +245,14 @@ int main(int argc, char *argv[])
   /* fused operations */
   fails += Test_N_VLinearCombination(U, local_length, myid);
   fails += Test_N_VScaleAddMulti(U, local_length, myid);
-  fails += Test_N_VDotProdMulti(U, local_length, global_length, myid);
+  fails += Test_N_VDotProdMulti(U, local_length, myid);
 
   /* vector array operations */
   fails += Test_N_VLinearSumVectorArray(U, local_length, myid);
   fails += Test_N_VScaleVectorArray(U, local_length, myid);
   fails += Test_N_VConstVectorArray(U, local_length, myid);
   fails += Test_N_VWrmsNormVectorArray(U, local_length, myid);
-  fails += Test_N_VWrmsNormMaskVectorArray(U, local_length, global_length, myid);
+  fails += Test_N_VWrmsNormMaskVectorArray(U, local_length, myid);
   fails += Test_N_VScaleAddMultiVectorArray(U, local_length, myid);
   fails += Test_N_VLinearCombinationVectorArray(U, local_length, myid);
 
@@ -273,14 +277,14 @@ int main(int argc, char *argv[])
   /* fused operations */
   fails += Test_N_VLinearCombination(V, local_length, myid);
   fails += Test_N_VScaleAddMulti(V, local_length, myid);
-  fails += Test_N_VDotProdMulti(V, local_length, global_length, myid);
+  fails += Test_N_VDotProdMulti(V, local_length, myid);
 
   /* vector array operations */
   fails += Test_N_VLinearSumVectorArray(V, local_length, myid);
   fails += Test_N_VScaleVectorArray(V, local_length, myid);
   fails += Test_N_VConstVectorArray(V, local_length, myid);
   fails += Test_N_VWrmsNormVectorArray(V, local_length, myid);
-  fails += Test_N_VWrmsNormMaskVectorArray(V, local_length, global_length, myid);
+  fails += Test_N_VWrmsNormMaskVectorArray(V, local_length, myid);
   fails += Test_N_VScaleAddMultiVectorArray(V, local_length, myid);
   fails += Test_N_VLinearCombinationVectorArray(V, local_length, myid);
 

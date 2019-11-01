@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------
-# Programmer:  Cody J. Balos @ LLNL
+# Programmer(s): Cody J. Balos @ LLNL
 # ----------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,6 +12,7 @@
 # SUNDIALS Copyright End
 # ----------------------------------------------------------------------
 # CMakeLists.txt file for the F2003 band SUNLinearSolver object library
+# ----------------------------------------------------------------------
 
 set(sunlinsolband_SOURCES fsunlinsol_band_mod.f90 fsunlinsol_band_mod.c)
 

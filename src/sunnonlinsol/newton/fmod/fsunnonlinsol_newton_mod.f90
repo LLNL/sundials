@@ -129,12 +129,13 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNNonlinSolSetConvTestFn_Newton(farg1, farg2) &
+function swigc_FSUNNonlinSolSetConvTestFn_Newton(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNNonlinSolSetConvTestFn_Newton") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -335,19 +336,22 @@ fresult = swigc_FSUNNonlinSolSetLSolveFn_Newton(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNNonlinSolSetConvTestFn_Newton(nls, ctestfn) &
+function FSUNNonlinSolSetConvTestFn_Newton(nls, ctestfn, ctest_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(C_FUNPTR), intent(in), value :: ctestfn
+type(C_PTR) :: ctest_data
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_FUNPTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(nls)
 farg2 = ctestfn
-fresult = swigc_FSUNNonlinSolSetConvTestFn_Newton(farg1, farg2)
+farg3 = ctest_data
+fresult = swigc_FSUNNonlinSolSetConvTestFn_Newton(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

@@ -133,6 +133,12 @@ user-callable routines:
    otherwise this routine returns ``NULL`` (e.g., a memory allocation
    failure occurred).
 
+   Users of the Fortran 2003 interface to this function will first need to use
+   the generic ``N\_Vector`` utility functions ``N_VNewVectorArray``, and
+   ``N_VSetVecAtIndexVectorArray`` to create the ``N_Vector*`` argument.  This is
+   further explained in Chapter :ref:`Fortran2003.Differences.NVectorArrays`,
+   and the functions are documented in Chapter :ref:`NVectors.utilities`.
+
 
 .. c:function:: N_Vector N_VGetSubvector_ManyVector(N_Vector v, sunindextype vec_num)
 
@@ -170,19 +176,18 @@ and :c:func:`N_VWrmsNormMaskVectorArray()`, that are enabled by
 default. The following additional user-callable routines are provided
 to enable or disable fused and vector array operations for a specific
 vector. To ensure consistency across vectors it is recommended to
-first create a vector with :c:func:`N_VNew_ManyVector()` or
-:c:func:`N_VMake_ManyVector()`, enable/disable the desired operations
+first create a vector with :c:func:`N_VNew_ManyVector()`,
+enable/disable the desired operations
 for that vector with the functions below, and create any additional
 vectors from that vector using :c:func:`N_VClone()`. This guarantees
 that the new vectors will have the same operations enabled/disabled,
 since cloned vectors inherit those configuration options from the
 vector they are cloned from, while vectors created with
-:c:func:`N_VNew_ManyVector()` and :c:func:`N_VMake_ManyVector()` will
+:c:func:`N_VNew_ManyVector()` will
 have the default settings for the NVECTOR_MANYVECTOR module.  We note
 that these routines *do not* call the corresponding routines on
 subvectors, so those should be set up as desired *before* attaching
-them to the ManyVector in :c:func:`N_VNew_ManyVector()` or
-:c:func:`N_VMake_ManyVector()`.
+them to the ManyVector in :c:func:`N_VNew_ManyVector()`.
 
 .. c:function:: int N_VEnableFusedOps_ManyVector(N_Vector v, booleantype tf)
 
@@ -244,7 +249,7 @@ them to the ManyVector in :c:func:`N_VNew_ManyVector()` or
 
 **Notes**
 
-* :c:func:`N_VNew_ManyVector()` and :c:func:`N_VMake_ManyVector()` set
+* :c:func:`N_VNew_ManyVector()` sets
   the field ``own_data = SUNFALSE``.
   :c:func:`N_VDestroy_ManyVector()` will not attempt to call
   :c:func:`N_VDestroy()` on any subvectors contained in the

@@ -25,10 +25,10 @@ This is the documentation for the ARKode examples.  ARKode is an
 adaptive step time integration package for stiff, nonstiff and
 multi-rate systems of ordinary differential equations (ODEs).  
 The ARKode solver is a component of the `SUNDIALS
-<https://computation.llnl.gov/casc/sundials/main.html>`_ suite of
+<https://computing.llnl.gov/casc/sundials/main.html>`_ suite of
 nonlinear and differential/algebraic equation solvers. It is designed
 to have a similar user experience to the `CVODE
-<https://computation.llnl.gov/casc/sundials/description/description.html#descr_cvode>`_
+<https://computing.llnl.gov/casc/sundials/description/description.html#descr_cvode>`_
 solver, with user modes to allow adaptive integration to specified
 output times, return after each internal step and root-finding
 capabilities, for calculations both in serial and parallel (via

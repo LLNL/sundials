@@ -345,6 +345,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
 
   /* Set mass-matrix routines to NULL */
   arkls_mem->mass    = NULL;
+  arkls_mem->M_data  = NULL;
   arkls_mem->mtsetup = NULL;
   arkls_mem->mtimes  = NULL;
   arkls_mem->mt_data = NULL;
@@ -503,7 +504,9 @@ int arkLSSetMassFn(void *arkode_mem, ARKLsMassFn mass)
   }
 
   /* set mass matrix routine pointer and return */
-  arkls_mem->mass = mass;
+  arkls_mem->mass   = mass;
+  arkls_mem->M_data = ark_mem->user_data;
+
   return(ARKLS_SUCCESS);
 }
 
@@ -672,6 +675,36 @@ int arkLSSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys)
   return(ARKLS_SUCCESS);
 }
 
+
+/* arkLSSetUserData sets user_data pointers in arkLS */
+int arkLSSetUserData(void *arkode_mem, void* user_data)
+{
+  ARKodeMem ark_mem;
+  ARKLsMem  arkls_mem;
+  int       retval;
+
+  /* access ARKLsMem structure */
+  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetUserData",
+                            &ark_mem, &arkls_mem);
+  if (retval != ARKLS_SUCCESS) return(retval);
+
+  /* Set data for Jacobian */
+  if (!arkls_mem->jacDQ)
+    arkls_mem->J_data = user_data;
+
+  /* Set data for Jtimes */
+  if (!arkls_mem->jtimesDQ)
+    arkls_mem->Jt_data = user_data;
+
+  /* Set data for LinSys */
+  if (arkls_mem->user_linsys)
+    arkls_mem->A_data = user_data;
+
+  /* Set data for Preconditioner */
+  arkls_mem->P_data = user_data;
+
+  return(ARKLS_SUCCESS);
+}
 
 /*---------------------------------------------------------------
   arkLSGetWorkSpace returns the length of workspace allocated for
@@ -1083,6 +1116,31 @@ int arkLSSetMassTimes(void *arkode_mem,
                     "Error in calling SUNLinSolSetATimes");
     return(ARKLS_SUNLS_FAIL);
   }
+
+  return(ARKLS_SUCCESS);
+}
+
+
+/* arkLSMassSetUserData sets user_data pointers in arkLSMass */
+int arkLSSetMassUserData(void *arkode_mem, void* user_data)
+{
+  ARKodeMem     ark_mem;
+  ARKLsMassMem  arkls_mem;
+  int           retval;
+
+  /* access ARKLsMem structure */
+  retval = arkLs_AccessMassMem(arkode_mem, "arkLSSetMassUserData",
+                               &ark_mem, &arkls_mem);
+  if (retval != ARKLS_SUCCESS) return(retval);
+
+  /* Set data for mass matrix */
+  if (arkls_mem->mass != NULL)
+    arkls_mem->M_data = user_data;
+
+  /* Data for Mtimes is set in arkLSSetMassTimes */
+
+  /* Set data for Preconditioner */
+  arkls_mem->P_data = user_data;
 
   return(ARKLS_SUCCESS);
 }
@@ -1656,8 +1714,8 @@ int arkLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
                     ARKLsMem arkls_mem, ARKRhsFn fi,
                     N_Vector tmp1)
 {
-  realtype     fnorm, minInc, inc, inc_inv, yjsaved, srur;
-  realtype    *y_data, *ewt_data;
+  realtype     fnorm, minInc, inc, inc_inv, yjsaved, srur, conj;
+  realtype    *y_data, *ewt_data, *cns_data;
   N_Vector     ftemp, jthCol;
   sunindextype j, N;
   int          retval = 0;
@@ -1671,9 +1729,11 @@ int arkLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   /* Create an empty vector for matrix column calculations */
   jthCol = N_VCloneEmpty(tmp1);
 
-  /* Obtain pointers to the data for ewt, y */
+  /* Obtain pointers to the data for various vectors */
   ewt_data = N_VGetArrayPointer(ark_mem->ewt);
   y_data   = N_VGetArrayPointer(y);
+  if (ark_mem->constraintsSet)
+    cns_data = N_VGetArrayPointer(ark_mem->constraints);
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(ark_mem->uround);
@@ -1688,6 +1748,14 @@ int arkLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
 
     yjsaved = y_data[j];
     inc = SUNMAX(srur*SUNRabs(yjsaved), minInc/ewt_data[j]);
+
+    /* Adjust sign(inc) if y_j has an inequality constraint. */
+    if (ark_mem->constraintsSet) {
+      conj = cns_data[j];
+      if (SUNRabs(conj) == ONE)      {if ((yjsaved+inc)*conj < ZERO)  inc = -inc;}
+      else if (SUNRabs(conj) == TWO) {if ((yjsaved+inc)*conj <= ZERO) inc = -inc;}
+    }
+
     y_data[j] += inc;
 
     retval = fi(t, y, ftemp, ark_mem->user_data);
@@ -1726,8 +1794,9 @@ int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
                    N_Vector tmp1, N_Vector tmp2)
 {
   N_Vector     ftemp, ytemp;
-  realtype     fnorm, minInc, inc, inc_inv, srur;
+  realtype     fnorm, minInc, inc, inc_inv, srur, conj;
   realtype    *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
+  realtype    *cns_data;
   sunindextype group, i, j, width, ngroups, i1, i2;
   sunindextype N, mupper, mlower;
   int          retval = 0;
@@ -1747,6 +1816,8 @@ int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
   ytemp_data = N_VGetArrayPointer(ytemp);
+  if (ark_mem->constraintsSet)
+    cns_data = N_VGetArrayPointer(ark_mem->constraints);
 
   /* Load ytemp with y = predicted y vector */
   N_VScale(ONE, y, ytemp);
@@ -1767,6 +1838,14 @@ int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
     /* Increment all y_j in group */
     for(j=group-1; j < N; j+=width) {
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+
+      /* Adjust sign(inc) if yj has an inequality constraint. */
+      if (ark_mem->constraintsSet) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((ytemp_data[j]+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((ytemp_data[j]+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       ytemp_data[j] += inc;
     }
 
@@ -1780,6 +1859,14 @@ int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
       ytemp_data[j] = y_data[j];
       col_j = SUNBandMatrix_Column(Jac, j);
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+
+      /* Adjust sign(inc) as before. */
+      if (ark_mem->constraintsSet) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((ytemp_data[j]+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((ytemp_data[j]+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-mupper);
       i2 = SUNMIN(j+mlower, N-1);
@@ -1977,12 +2064,7 @@ int arkLsInitialize(void* arkode_mem)
 
     /* Matrix-based case */
 
-    if (arkls_mem->user_linsys) {
-
-      /* User-supplied linear system function, reset A_data (just in case) */
-      arkls_mem->A_data = ark_mem->user_data;
-
-    } else {
+    if (!arkls_mem->user_linsys) {
 
       /* Internal linear system function, reset pointers (just in case) */
       arkls_mem->linsys = arkLsLinSys;
@@ -2013,12 +2095,6 @@ int arkLsInitialize(void* arkode_mem)
           arkls_mem->last_flag = ARKLS_ILL_INPUT;
           return(ARKLS_ILL_INPUT);
         }
-
-      } else {
-
-        /* User-supplied Jacobian, reset J_data pointer (just in case) */
-        arkls_mem->J_data = ark_mem->user_data;
-
       }
 
       /* Allocate internally saved Jacobian if not already done */
@@ -2091,8 +2167,6 @@ int arkLsInitialize(void* arkode_mem)
     arkls_mem->jtsetup = NULL;
     arkls_mem->jtimes  = arkLsDQJtimes;
     arkls_mem->Jt_data = ark_mem;
-  } else {
-    arkls_mem->Jt_data = ark_mem->user_data;
   }
 
   /* if A is NULL and psetup is not present, then arkLsSetup does
@@ -2257,7 +2331,9 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   ARKLsMem    arkls_mem;
   realtype    gamma, gamrat, delta, deltar, ewt_mean;
   booleantype dgamma_fail, *jcur;
-  int         nli_inc, nps_inc, retval, LSType;
+  long int    nps_inc;
+  int         nli_inc, retval, LSType;
+
 
   /* access ARKLsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "arkLsSolve",
@@ -2381,7 +2457,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   /* Log solver statistics to diagnostics file (if requested) */
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "ARKLS  kry  %"RSYM"  %"RSYM"  %i  %i\n",
-            bnorm, resnorm, nli_inc, (int) arkls_mem->nps - nps_inc);
+            bnorm, resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
 
   /* Interpret solver return value  */
   arkls_mem->last_flag = retval;
@@ -2609,7 +2685,7 @@ int arkLsMassSetup(void *arkode_mem, N_Vector vtemp1,
     }
 
     retval = arkls_mem->mass(ark_mem->tcur, arkls_mem->M,
-                             ark_mem->user_data,
+                             arkls_mem->M_data,
                              vtemp1, vtemp2, vtemp3);
     if (retval < 0) {
       arkProcessError(ark_mem, ARKLS_MASSFUNC_UNRECVR, "ARKLS",
@@ -2677,7 +2753,8 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
   realtype     resnorm, delta, rwt_mean;
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
-  int          nli_inc, nps_inc, retval, LSType;
+  long int     nps_inc;
+  int          nli_inc, retval, LSType;
 
   /* access ARKLsMassMem structure */
   retval = arkLs_AccessMassMem(arkode_mem, "arkLsMassSolve",
@@ -2763,7 +2840,7 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
   /* Log solver statistics to diagnostics file (if requested) */
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "ARKLS  mass  %"RSYM"  %i  %i\n",
-            resnorm, nli_inc, (int) arkls_mem->nps - nps_inc);
+            resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
 
   /* Interpret solver return value  */
   arkls_mem->last_flag = retval;

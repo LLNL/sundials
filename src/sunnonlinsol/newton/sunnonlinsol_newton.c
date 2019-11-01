@@ -27,6 +27,7 @@
 #define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_Newton)(S->content) )
 
 /* Constant macros */
+#define ZERO RCONST(0.0) /* real 0.0 */
 #define ONE  RCONST(1.0) /* real 1.0 */
 
 /*==============================================================================
@@ -88,6 +89,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   content->maxiters   = 3;
   content->niters     = 0;
   content->nconvfails = 0;
+  content->ctest_data = NULL;
 
   /* Fill allocatable content */
   content->delta = N_VClone(y);
@@ -175,7 +177,7 @@ int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
   the Sys, LSetup, and LSolve functions provided to the nonlinear solver.
   ----------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
-                             N_Vector y0, N_Vector y,
+                             N_Vector y0, N_Vector ycor,
                              N_Vector w, realtype tol,
                              booleantype callLSetup, void* mem)
 {
@@ -185,11 +187,11 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   N_Vector delta;
 
   /* check that the inputs are non-null */
-  if ( (NLS == NULL) ||
-       (y0  == NULL) ||
-       (y   == NULL) ||
-       (w   == NULL) ||
-       (mem == NULL) )
+  if ( (NLS  == NULL) ||
+       (y0   == NULL) ||
+       (ycor == NULL) ||
+       (w    == NULL) ||
+       (mem  == NULL) )
     return(SUN_NLS_MEM_NULL);
 
   /* check that all required function pointers have been set */
@@ -213,12 +215,12 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   for(;;) {
 
     /* compute the nonlinear residual, store in delta */
-    retval = NEWTON_CONTENT(NLS)->Sys(y0, delta, mem);
+    retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);
     if (retval != SUN_NLS_SUCCESS) break;
 
     /* if indicated, setup the linear system */
     if (callLSetup) {
-      retval = NEWTON_CONTENT(NLS)->LSetup(y0, delta, jbad,
+      retval = NEWTON_CONTENT(NLS)->LSetup(jbad,
                                            &(NEWTON_CONTENT(NLS)->jcur),
                                            mem);
       if (retval != SUN_NLS_SUCCESS) break;
@@ -226,9 +228,6 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
     /* initialize counter curiter */
     NEWTON_CONTENT(NLS)->curiter = 0;
-
-    /* load prediction into y */
-    N_VScale(ONE, y0, y);
 
     /* looping point for Newton iteration. Break out on any error. */
     for(;;) {
@@ -240,14 +239,15 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       N_VScale(-ONE, delta, delta);
 
       /* solve the linear system to get Newton update delta */
-      retval = NEWTON_CONTENT(NLS)->LSolve(y, delta, mem);
+      retval = NEWTON_CONTENT(NLS)->LSolve(delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
       /* update the Newton iterate */
-      N_VLinearSum(ONE, y, ONE, delta, y);
+      N_VLinearSum(ONE, ycor, ONE, delta, ycor);
 
       /* test for convergence */
-      retval = NEWTON_CONTENT(NLS)->CTest(NLS, y, delta, tol, w, mem);
+      retval = NEWTON_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
+                                          NEWTON_CONTENT(NLS)->ctest_data);
 
       /* if successful update Jacobian status and return */
       if (retval == SUN_NLS_SUCCESS) {
@@ -266,7 +266,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       }
 
       /* compute the nonlinear residual, store in delta */
-      retval = NEWTON_CONTENT(NLS)->Sys(y, delta, mem);
+      retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
     } /* end of Newton iteration loop */
@@ -274,13 +274,14 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
     /* all errors go here */
 
     /* If there is a recoverable convergence failure and the Jacobian-related
-       data appears not to be current, increment the convergence failure count
-       and loop again with a call to lsetup in which jbad is TRUE. Otherwise
-       break out and return. */
+       data appears not to be current, increment the convergence failure count,
+       reset the initial correction to zero, and loop again with a call to
+       lsetup in which jbad is TRUE. Otherwise break out and return. */
     if ((retval > 0) && !(NEWTON_CONTENT(NLS)->jcur) && (NEWTON_CONTENT(NLS)->LSetup)) {
       NEWTON_CONTENT(NLS)->nconvfails++;
       callLSetup = SUNTRUE;
       jbad = SUNTRUE;
+      N_VConst(ZERO, ycor);
       continue;
     } else {
       break;
@@ -371,7 +372,9 @@ int SUNNonlinSolSetLSolveFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn 
 }
 
 
-int SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
+int SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS,
+                                     SUNNonlinSolConvTestFn CTestFn,
+                                     void* ctest_data)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL)
@@ -382,6 +385,10 @@ int SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolConvTes
     return(SUN_NLS_ILL_INPUT);
 
   NEWTON_CONTENT(NLS)->CTest = CTestFn;
+
+  /* attach convergence test data */
+  NEWTON_CONTENT(NLS)->ctest_data = ctest_data;
+
   return(SUN_NLS_SUCCESS);
 }
 

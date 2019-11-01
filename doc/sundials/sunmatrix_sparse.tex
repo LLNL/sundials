@@ -422,9 +422,9 @@ user-callable routines:
 {\warn} Within the \id{SUNMatMatvec\_Sparse} routine, internal
 consistency checks are performed to ensure that the matrix is called
 with consistent {\nvector} implementations.  These are currently
-limited to: {\nvecs}, {\nvecopenmp}, and {\nvecpthreads}.  As
-additional compatible vector implementations are added to {\sundials},
-these will be included within this compatibility check. 
+limited to: {\nvecs}, {\nvecopenmp}, {\nvecpthreads}, and {\nveccuda}
+when using managed memory.  As additional compatible vector implementations
+are added to {\sundials}, these will be included within this compatibility check. 
 
 
 % ====================================================================

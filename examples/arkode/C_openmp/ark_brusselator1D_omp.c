@@ -53,7 +53,7 @@
 #include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix */
 #include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver */
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
+
 #ifdef _OPENMP
 #include <omp.h>                      /* OpenMP functions */
 #endif
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
   num_threads = omp_get_max_threads();   /* overwrite with OMP_NUM_THREADS environment variable */
 #endif
   if (argc > 1)                          /* overwrite with command line value, if supplied */
-    num_threads = strtol(argv[1], NULL, 0);
+    num_threads = (int) strtol(argv[1], NULL, 0);
 
   /* store the inputs in the UserData structure */
   udata->N  = N;
@@ -262,11 +262,11 @@ int main(int argc, char *argv[])
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);    /* call integrator */
     if (check_flag(&flag, "ARKStepEvolve", 1)) break;
     u = N_VWL2Norm(y,umask);                               /* access/print solution statistics */
-    u = SUNRsqrt(u*u/N);
+    u = sqrt(u*u/N);
     v = N_VWL2Norm(y,vmask);
-    v = SUNRsqrt(v*v/N);
+    v = sqrt(v*v/N);
     w = N_VWL2Norm(y,wmask);
-    w = SUNRsqrt(w*w/N);
+    w = sqrt(w*w/N);
     printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t, u, v, w);
     if (flag >= 0) {                                       /* successful solve: update output time */
       tout += dTout;

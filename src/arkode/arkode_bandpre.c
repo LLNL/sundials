@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
- * Based off of cvode_bandpre.c by Scott D. Cohen, 
+ * Based off of cvode_bandpre.c by Scott D. Cohen,
  *      Alan C. Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -32,11 +32,11 @@
 
 
 /* Prototypes of ARKBandPrecSetup and ARKBandPrecSolve */
-static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-                            booleantype jok, booleantype *jcurPtr, 
+static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
+                            booleantype jok, booleantype *jcurPtr,
                             realtype gamma, void *bp_data);
-static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                            N_Vector r, N_Vector z, 
+static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                            N_Vector r, N_Vector z,
                             realtype gamma, realtype delta,
                             int lr, void *bp_data);
 
@@ -45,7 +45,7 @@ static int ARKBandPrecFree(ARKodeMem ark_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int ARKBandPDQJac(ARKBandPrecData pdata,
-                         realtype t, N_Vector y, N_Vector fy, 
+                         realtype t, N_Vector y, N_Vector fy,
                          N_Vector ftemp, N_Vector ytemp);
 
 
@@ -53,11 +53,11 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
  Initialization, Free, and Get Functions
  NOTE: The band linear solver assumes a serial implementation
        of the NVECTOR package. Therefore, ARKBandPrecInit will
-       first test for a compatible N_Vector internal 
-       representation by checking that the function 
+       first test for a compatible N_Vector internal
+       representation by checking that the function
        N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
-int ARKBandPrecInit(void *arkode_mem, sunindextype N, 
+int ARKBandPrecInit(void *arkode_mem, sunindextype N,
                     sunindextype mu, sunindextype ml)
 {
   ARKodeMem       ark_mem;
@@ -65,7 +65,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   ARKBandPrecData pdata;
   sunindextype    mup, mlp, storagemu;
   int             retval;
-  
+
   /* access ARKLsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBandPrecInit",
                             &ark_mem, &arkls_mem);
@@ -73,7 +73,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* Test compatibility of NVECTOR package with the BAND preconditioner */
   if(ark_mem->tempv1->ops->nvgetarraypointer == NULL) {
-    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKBANDPRE", 
+    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKBANDPRE",
                     "ARKBandPrecInit", MSG_BP_BAD_NVECTOR);
     return(ARKLS_ILL_INPUT);
   }
@@ -82,7 +82,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   pdata = NULL;
   pdata = (ARKBandPrecData) malloc(sizeof *pdata);
   if (pdata == NULL) {
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE",
                     "ARKBandPrecInit", MSG_BP_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -101,7 +101,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE",
                     "ARKBandPrecInit", MSG_BP_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -113,7 +113,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE",
                     "ARKBandPrecInit", MSG_BP_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -125,11 +125,11 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE",
                     "ARKBandPrecInit", MSG_BP_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
-  
+
   /* allocate memory for temporary N_Vectors */
   pdata->tmp1 = NULL;
   pdata->tmp1 = N_VClone(ark_mem->tempv1);
@@ -138,7 +138,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE",
                     "ARKBandPrecInit", MSG_BP_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -150,7 +150,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
     SUNMatDestroy(pdata->savedJ);
     N_VDestroy(pdata->tmp1);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE",
                     "ARKBandPrecInit", MSG_BP_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -164,11 +164,11 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->tmp2);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKBANDPRE", 
+    arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKBANDPRE",
                     "ARKBandPrecInit", MSG_BP_SUNLS_FAIL);
     return(ARKLS_SUNLS_FAIL);
   }
-  
+
   /* make sure s_P_data is free from any previous allocations */
   if (arkls_mem->pfree)
     arkls_mem->pfree(ark_mem);
@@ -180,14 +180,14 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   arkls_mem->pfree = ARKBandPrecFree;
 
   /* Attach preconditioner solve and setup functions */
-  retval = arkLSSetPreconditioner(arkode_mem, 
-                                  ARKBandPrecSetup, 
+  retval = arkLSSetPreconditioner(arkode_mem,
+                                  ARKBandPrecSetup,
                                   ARKBandPrecSolve);
   return(retval);
 }
 
 
-int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP, 
+int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
                             long int *leniwBP)
 {
   ARKodeMem       ark_mem;
@@ -204,10 +204,10 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
 
   /* Return immediately if ARKBandPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
-    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBANDPRE", 
+    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBANDPRE",
                     "ARKBandPrecGetWorkSpace", MSG_BP_PMEM_NULL);
     return(ARKLS_PMEM_NULL);
-  } 
+  }
   pdata = (ARKBandPrecData) arkls_mem->P_data;
 
   /* sum space requirements for all objects in pdata */
@@ -258,10 +258,10 @@ int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
 
   /* Return immediately if ARKBandPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
-    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBANDPRE", 
+    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBANDPRE",
                     "ARKBandPrecGetNumRhsEvals", MSG_BP_PMEM_NULL);
     return(ARKLS_PMEM_NULL);
-  } 
+  }
   pdata = (ARKBandPrecData) arkls_mem->P_data;
 
   /* set output */
@@ -312,14 +312,13 @@ int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
    0  if successful, or
    1  if the band factorization failed.
 ---------------------------------------------------------------*/
-static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-                           booleantype jok, booleantype *jcurPtr, 
+static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
+                           booleantype jok, booleantype *jcurPtr,
                            realtype gamma, void *bp_data)
 {
   ARKBandPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
-  sunindextype ier;
 
   /* Assume matrix and lpivots have already been allocated. */
   pdata = (ARKBandPrecData) bp_data;
@@ -332,7 +331,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBANDPRE", 
+      arkProcessError(ark_mem, -1, "ARKBANDPRE",
                       "ARKBandPrecSetup", MSG_BP_SUNMAT_FAIL);
       return(-1);
     }
@@ -346,7 +345,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBANDPRE", 
+      arkProcessError(ark_mem, -1, "ARKBANDPRE",
                       "ARKBandPrecSetup", MSG_BP_SUNMAT_FAIL);
       return(-1);
     }
@@ -354,10 +353,10 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
       return(1);
     }
 
-    retval = ARKBandPDQJac(pdata, t, y, fy, 
+    retval = ARKBandPDQJac(pdata, t, y, fy,
                            pdata->tmp1, pdata->tmp2);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBANDPRE", 
+      arkProcessError(ark_mem, -1, "ARKBANDPRE",
                       "ARKBandPrecSetup", MSG_BP_RHSFUNC_FAILED);
       return(-1);
     }
@@ -367,7 +366,7 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBANDPRE", 
+      arkProcessError(ark_mem, -1, "ARKBANDPRE",
                       "ARKBandPrecSetup", MSG_BP_SUNMAT_FAIL);
       return(-1);
     }
@@ -376,18 +375,18 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
     }
 
   }
-  
+
   /* Scale and add identity to get savedP = I - gamma*J. */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
   if (retval) {
-    arkProcessError(ark_mem, -1, "ARKBANDPRE", 
+    arkProcessError(ark_mem, -1, "ARKBANDPRE",
                     "ARKBandPrecSetup", MSG_BP_SUNMAT_FAIL);
     return(-1);
   }
 
   /* Do LU factorization of matrix and return error flag */
-  ier = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
-  return(ier);
+  retval = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
+  return(retval);
 }
 
 
@@ -407,9 +406,9 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
  The value returned by the ARKBandPrecSolve function is always 0,
  indicating success.
----------------------------------------------------------------*/ 
-static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                            N_Vector r, N_Vector z, 
+---------------------------------------------------------------*/
+static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                            N_Vector r, N_Vector z,
                             realtype gamma, realtype delta,
                             int lr, void *bp_data)
 {
@@ -429,7 +428,7 @@ static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
  ARKBandPrecFree:
 
  Frees data associated with the ARKBand preconditioner.
----------------------------------------------------------------*/ 
+---------------------------------------------------------------*/
 static int ARKBandPrecFree(ARKodeMem ark_mem)
 {
   ARKLsMem        arkls_mem;
@@ -467,15 +466,16 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
  of J via the macro BAND_COL and to write a simple for loop to set
  each of the elements of a column in succession.
 ---------------------------------------------------------------*/
-static int ARKBandPDQJac(ARKBandPrecData pdata, 
-                         realtype t, N_Vector y, N_Vector fy, 
+static int ARKBandPDQJac(ARKBandPrecData pdata,
+                         realtype t, N_Vector y, N_Vector fy,
                          N_Vector ftemp, N_Vector ytemp)
 {
   ARKodeMem ark_mem;
   ARKRhsFn fi;
-  realtype fnorm, minInc, inc, inc_inv, srur;
+  realtype fnorm, minInc, inc, inc_inv, yj, srur, conj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
+  realtype *col_j, *ewt_data, *fy_data, *ftemp_data;
+  realtype *y_data, *ytemp_data, *cns_data;
   int retval;
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;
@@ -484,13 +484,15 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
   fi = NULL;
   fi = ark_mem->step_getimplicitrhs((void*) ark_mem);
   if (fi == NULL)  return(-1);
-  
-  /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
+
+  /* Obtain pointers to the data for various vectors */
   ewt_data   = N_VGetArrayPointer(ark_mem->ewt);
   fy_data    = N_VGetArrayPointer(fy);
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
   ytemp_data = N_VGetArrayPointer(ytemp);
+  if (ark_mem->constraintsSet)
+    cns_data = N_VGetArrayPointer(ark_mem->constraints);
 
   /* Load ytemp with y = predicted y vector. */
   N_VScale(ONE, y, ytemp);
@@ -499,18 +501,27 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
   srur = SUNRsqrt(ark_mem->uround);
   fnorm = N_VWrmsNorm(fy, ark_mem->rwt);
   minInc = (fnorm != ZERO) ?
-    (MIN_INC_MULT * SUNRabs(ark_mem->h) * 
+    (MIN_INC_MULT * SUNRabs(ark_mem->h) *
      ark_mem->uround * pdata->N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing. */
   width = pdata->ml + pdata->mu + 1;
   ngroups = SUNMIN(width, pdata->N);
-  
+
   for (group = 1; group <= ngroups; group++) {
-    
+
     /* Increment all y_j in group. */
     for(j = group-1; j < pdata->N; j += width) {
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+      yj = y_data[j];
+
+      /* Adjust sign(inc) again if yj has an inequality constraint. */
+      if (ark_mem->constraintsSet) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       ytemp_data[j] += inc;
     }
 
@@ -521,9 +532,18 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
 
     /* Restore ytemp, then form and load difference quotients. */
     for (j = group-1; j < pdata->N; j += width) {
+      yj = y_data[j];
       ytemp_data[j] = y_data[j];
       col_j = SUNBandMatrix_Column(pdata->savedJ,j);
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+
+      /* Adjust sign(inc) as before. */
+      if (ark_mem->constraintsSet) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-pdata->mu);
       i2 = SUNMIN(j+pdata->ml, pdata->N-1);
@@ -539,4 +559,4 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
 
 /*---------------------------------------------------------------
    EOF
----------------------------------------------------------------*/ 
+---------------------------------------------------------------*/

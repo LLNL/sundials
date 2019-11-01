@@ -39,7 +39,7 @@ the Fortran 2003 module (\id{.mod}) files and libraries are installed see Append
 \medskip
 \begin{tabular}{|l|l|c|}
 \hline
-{\bf Module}                & {\bf Fortran 2003 Module Name}        \\
+{\bf Module}                & {\bf Fortran 2003 Module Name}       \\
 \hline
   NVECTOR                   & \id{fsundials\_nvector\_mod}         \\
   {\nvecs}                  & \id{fnvector\_serial\_mod}           \\
@@ -50,9 +50,9 @@ the Fortran 2003 module (\id{.mod}) files and libraries are installed see Append
   {\nvecpetsc}              & Not interfaced                       \\
   {\nveccuda}               & Not interfaced                       \\
   {\nvecraja}               & Not interfaced                       \\
-  {\nvecmanyvector}         & Not interfaced                       \\
-  {\nvecmpimanyvector}      & Not interfaced                       \\
-  {\nvecmpiplusx}           & Not interfaced                       \\
+  {\nvecmanyvector}         & \id{fnvector\_manyvector\_mod}       \\
+  {\nvecmpimanyvector}      & \id{fnvector\_mpimanyvector\_mod}    \\
+  {\nvecmpiplusx}           & \id{fnvector\_mpiplusx\_mod}         \\
   SUNMatrix                 & \id{fsundials\_matrix\_mod}          \\
   {\sunmatband}             & \id{fsunmatrix\_band\_mod}           \\
   {\sunmatdense}            & \id{fsunmatrix\_dense\_mod}          \\
@@ -289,6 +289,45 @@ A => null()
 ierr = FSUNLinSolSolve(LS, A, x, b)
 \end{verbatim}
 
+\subsubsection{Working with \id{N\_Vector} arrays}
+\label{sss:fortran2003_nvarrays}
+
+Arrays of \id{N\_Vector} objects are interfaced to Fortran 2003 as opaque
+\id{type(c\_ptr)}.  As such, it is not possible to directly index an array of
+\id{N\_Vector} objects returned by the \id{N\_Vector} ``VectorArray''
+operations, or packages with sensitivity capablities.  Instead, {\sundials}
+provides a utility function \id{FN\_VGetVecAtIndexVectorArray} that can be called for
+accessing a vector in a vector array. The example below demonstrates this:
+\\
+\\
+\noindent \emph{{\CC} code}:
+\begin{verbatim}
+N_Vector x;
+N_Vector* vecs;
+
+vecs = N_VCloneVectorArray(count, x);
+for (int i=0; i < count; ++i)
+  N_VConst(vecs[i]);
+\end{verbatim}
+
+\noindent \emph{Fortran code}:
+\begin{verbatim}
+type(N_Vector), pointer :: x, xi
+type(c_ptr)             :: vecs
+
+vecs = FN_VCloneVectorArray(count, x)
+do index, count
+  xi => FN_VGetVecAtIndexVectorArray(vecs, index)
+  call FN_VConst(xi)
+enddo
+\end{verbatim}
+
+{\sundials} also provides the functions \id{FN\_VSetVecAtIndexVectorArray} and
+\id{FN\_VNewVectorArray} for working with \id{N\_Vector} arrays. These functions
+are particularly useful for users of the Fortran interface to the
+{\nvecmanyvector} or {\nvecmpimanyvector} when creating the subvector array.
+Both of these functions along with \id{FN\_VGetVecAtIndexVectorArray} are further
+described in Chapter \ref{ss:nvecutils}.
 
 \subsubsection{Providing file pointers}
 
@@ -335,17 +374,14 @@ program main
 end program
 \end{verbatim}
 
-
-
 % =============================================================================
 \subsection{Important notes on portability}\label{ss:f2003_portability}
 
 The {\sundials} Fortran 2003 interface \textit{should} be compatible with any compiler
 supporting the Fortran 2003 ISO standard. However, it has only been tested and confirmed
-to be working with GNU Fortran 4.9+ and Intel Fortran 18.0.1+. 
+to be working with GNU Fortran 4.9+ and Intel Fortran 18.0.1+.
 
 Upon compilation of {\sundials}, Fortran module (\id{.mod}) files are generated
 for each Fortran 2003 interface. These files are highly compiler specific, and
 thus it is almost always necessary to compile a consuming application with the
 same compiler used to generate the modules.
-
