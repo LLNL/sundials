@@ -38,11 +38,11 @@ implementation that is being used. Note:
 \caption{List of linear solver function usage in the {\cvls} interface}\label{t:sunlinsoluse}
 \medskip
 \begin{tabular}{|r|c|c|c|} \hline
-                                                    & 
-\begin{sideways}{DIRECT}             \end{sideways} & 
-\begin{sideways}{ITERATIVE}          \end{sideways} & 
+                                                    &
+\begin{sideways}{DIRECT}             \end{sideways} &
+\begin{sideways}{ITERATIVE}          \end{sideways} &
 \begin{sideways}{MATRIX\_ITERATIVE}  \end{sideways} \\ \hline\hline
-%                                  DIRECT       ITER    & MAT-ITER  
+%                                  DIRECT       ITER    & MAT-ITER
 \id{SUNLinSolGetType}           &    \cm    &    \cm    &   \cm     \\ \hline
 \id{SUNLinSolSetATimes}         & $\dagger$ &    \cm    & $\dagger$ \\ \hline
 \id{SUNLinSolSetPreconditioner} & $\dagger$ & $\dagger$ & $\dagger$ \\ \hline
@@ -79,7 +79,7 @@ linear system
 \]
 Since {\cvls} updates the {\sunmatrix} object infrequently, it is
 likely that $\gamma\ne\bar{\gamma}$, and in turn $M\ne\bar{M}$.
-Therefore, after calling the {\sunlinsol}-provided \id{SUNLinSolSolve}
+When using a BDF method, after calling the {\sunlinsol}-provided \id{SUNLinSolSolve}
 routine, we test whether $\gamma / \bar{\gamma} \ne 1$, and if this is
 the case we scale the solution $\bar{x}$ to correct the linear system
 solution $x$ via
@@ -109,13 +109,13 @@ If the {\sunlinsol} object self-identifies as having type
 \id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE} then {\cvls} will set the input
 tolerance \id{delta} as described in \S\ref{ss:ivp_sol}. However, if the
 iterative linear solver does not support scaling matrices (i.e., the \newline
-\id{SUNLinSolSetScalingVectors} routine is \id{NULL}), then {\cvls} will attempt 
+\id{SUNLinSolSetScalingVectors} routine is \id{NULL}), then {\cvls} will attempt
 to adjust the linear solver tolerance to account for this lack of functionality.
 To this end, the following assumptions are made:
 \begin{enumerate}
 \item All solution components have similar magnitude; hence the error
   weight vector $W$ used in the WRMS norm (see \S\ref{ss:ivp_sol})
-  should satisfy the assumption 
+  should satisfy the assumption
   \[
     W_i \approx W_{mean},\quad \text{for}\quad i=0,\ldots,n-1.
   \]

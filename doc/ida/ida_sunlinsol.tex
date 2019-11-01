@@ -34,11 +34,11 @@ implementation that is being used. Note:
 \caption{List of linear solver function usage in the {\idals} interface}\label{t:sunlinsoluse}
 \medskip
 \begin{tabular}{|r|c|c|c|} \hline
-                                                    & 
-\begin{sideways}{DIRECT}             \end{sideways} & 
-\begin{sideways}{ITERATIVE}          \end{sideways} & 
+                                                    &
+\begin{sideways}{DIRECT}             \end{sideways} &
+\begin{sideways}{ITERATIVE}          \end{sideways} &
 \begin{sideways}{MATRIX\_ITERATIVE}  \end{sideways} \\ \hline\hline
-%                                  DIRECT       ITER    & MAT-ITER  
+%                                  DIRECT       ITER    & MAT-ITER
 \id{SUNLinSolGetType}           &    \cm    &    \cm    &    \cm    \\ \hline
 \id{SUNLinSolSetATimes}         & $\dagger$ &    \cm    & $\dagger$ \\ \hline
 \id{SUNLinSolSetPreconditioner} & $\dagger$ & $\dagger$ & $\dagger$ \\ \hline
@@ -81,7 +81,7 @@ solution $x$ via
   x = \frac{2}{1 + \alpha / \bar{\alpha}} \bar{x}.
 \end{equation}
 The motivation for this selection of the scaling factor $c = 2/(1 +
-\alpha/\bar{\alpha})$ is discussed in detail in \cite{BBH:89,Hin:00}.
+\alpha/\bar{\alpha})$ is discussed in detail in \cite{BCP:96,Hin:00}.
 In short, if we consider a stationary iteration for the linear system
 as consisting of a solve with $\bar{M}$ followed by scaling by $c$,
 then for a linear constant-coefficient problem, the error in the
@@ -102,13 +102,13 @@ If the {\sunlinsol} object self-identifies as having type
 \id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE} then {\idals} will set the input
 tolerance \id{delta} as described in \S\ref{ss:ivp_sol}. However, if the
 iterative linear solver does not support scaling matrices (i.e., the \newline
-\id{SUNLinSolSetScalingVectors} routine is \id{NULL}), then {\idals} will attempt 
+\id{SUNLinSolSetScalingVectors} routine is \id{NULL}), then {\idals} will attempt
 to adjust the linear solver tolerance to account for this lack of functionality.
 To this end, the following assumptions are made:
 \begin{enumerate}
 \item All solution components have similar magnitude; hence the error
   weight vector $W$ used in the WRMS norm (see \S\ref{ss:ivp_sol})
-  should satisfy the assumption 
+  should satisfy the assumption
   \[
     W_i \approx W_{mean},\quad \text{for}\quad i=0,\ldots,n-1.
   \]
