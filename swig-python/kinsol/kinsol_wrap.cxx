@@ -3129,77 +3129,111 @@ namespace Swig {
 #define SWIGTYPE_p_KINSysFnCaller swig_types[1]
 #define SWIGTYPE_p_KINSysPyFn swig_types[2]
 #define SWIGTYPE_p_N_Vector_ID swig_types[3]
-#define SWIGTYPE_p_SUNLinearSolver swig_types[4]
-#define SWIGTYPE_p_SUNMatrix_ID swig_types[5]
-#define SWIGTYPE_p__generic_N_Vector swig_types[6]
-#define SWIGTYPE_p__generic_N_Vector_Ops swig_types[7]
-#define SWIGTYPE_p__generic_SUNMatrix swig_types[8]
-#define SWIGTYPE_p__generic_SUNMatrix_Ops swig_types[9]
-#define SWIGTYPE_p_char swig_types[10]
-#define SWIGTYPE_p_double swig_types[11]
-#define SWIGTYPE_p_f_N_Vector__p__generic_N_Vector swig_types[12]
-#define SWIGTYPE_p_f_SUNMatrix__p__generic_SUNMatrix swig_types[13]
-#define SWIGTYPE_p_f_double_p__generic_N_Vector__void swig_types[14]
-#define SWIGTYPE_p_f_double_p__generic_N_Vector_double_p__generic_N_Vector_p__generic_N_Vector__void swig_types[15]
-#define SWIGTYPE_p_f_double_p__generic_N_Vector_p__generic_N_Vector__void swig_types[16]
-#define SWIGTYPE_p_f_double_p__generic_SUNMatrix__int swig_types[17]
-#define SWIGTYPE_p_f_double_p__generic_SUNMatrix_p__generic_SUNMatrix__int swig_types[18]
-#define SWIGTYPE_p_f_int_double_p_p__generic_N_Vector__int swig_types[19]
-#define SWIGTYPE_p_f_int_double_p_p__generic_N_Vector_double_p_p__generic_N_Vector_p_p__generic_N_Vector__int swig_types[20]
-#define SWIGTYPE_p_f_int_int_p_double_p_p__generic_N_Vector_p_p_p__generic_N_Vector_p_p_p__generic_N_Vector__int swig_types[21]
-#define SWIGTYPE_p_f_int_int_p_double_p_p_p__generic_N_Vector_p_p__generic_N_Vector__int swig_types[22]
-#define SWIGTYPE_p_f_int_p__generic_N_Vector_p__generic_N_Vector_p_void__int swig_types[23]
-#define SWIGTYPE_p_f_int_p__generic_N_Vector_p_p__generic_N_Vector_p_double__int swig_types[24]
-#define SWIGTYPE_p_f_int_p__generic_N_Vector_p_void__int swig_types[25]
-#define SWIGTYPE_p_f_int_p_double_p__generic_N_Vector_p_p__generic_N_Vector_p_p__generic_N_Vector__int swig_types[26]
-#define SWIGTYPE_p_f_int_p_double_p_p__generic_N_Vector_p__generic_N_Vector__int swig_types[27]
-#define SWIGTYPE_p_f_int_p_double_p_p__generic_N_Vector_p_p__generic_N_Vector__int swig_types[28]
-#define SWIGTYPE_p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p__generic_N_Vector_p_double__int swig_types[29]
-#define SWIGTYPE_p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p_double__int swig_types[30]
-#define SWIGTYPE_p_f_int_p_q_const__char_p_q_const__char_p_char_p_void__void swig_types[31]
-#define SWIGTYPE_p_f_p__generic_N_Vector__N_Vector_ID swig_types[32]
-#define SWIGTYPE_p_f_p__generic_N_Vector__double swig_types[33]
-#define SWIGTYPE_p_f_p__generic_N_Vector__int swig_types[34]
-#define SWIGTYPE_p_f_p__generic_N_Vector__p_double swig_types[35]
-#define SWIGTYPE_p_f_p__generic_N_Vector__p_void swig_types[36]
-#define SWIGTYPE_p_f_p__generic_N_Vector__void swig_types[37]
-#define SWIGTYPE_p_f_p__generic_N_Vector_double_p__generic_N_Vector__void swig_types[38]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector__double swig_types[39]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector__int swig_types[40]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector__void swig_types[41]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector__double swig_types[42]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector__int swig_types[43]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector__void swig_types[44]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p_void__int swig_types[45]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p_void__int swig_types[46]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p_int_p_void__int swig_types[47]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_SUNMatrix_p_void_p__generic_N_Vector_p__generic_N_Vector__int swig_types[48]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int swig_types[49]
-#define SWIGTYPE_p_f_p__generic_N_Vector_p_int_p_int__void swig_types[50]
-#define SWIGTYPE_p_f_p__generic_SUNMatrix__SUNMatrix_ID swig_types[51]
-#define SWIGTYPE_p_f_p__generic_SUNMatrix__int swig_types[52]
-#define SWIGTYPE_p_f_p__generic_SUNMatrix__void swig_types[53]
-#define SWIGTYPE_p_f_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector__int swig_types[54]
-#define SWIGTYPE_p_f_p__generic_SUNMatrix_p__generic_SUNMatrix__int swig_types[55]
-#define SWIGTYPE_p_f_p__generic_SUNMatrix_p_long_p_long__int swig_types[56]
-#define SWIGTYPE_p_f_p_double_p__generic_N_Vector__void swig_types[57]
-#define SWIGTYPE_p_f_p_q_const__char_p_q_const__char_p_char_p_void__void swig_types[58]
-#define SWIGTYPE_p_int swig_types[59]
-#define SWIGTYPE_p_long swig_types[60]
-#define SWIGTYPE_p_long_long swig_types[61]
-#define SWIGTYPE_p_p__generic_N_Vector swig_types[62]
-#define SWIGTYPE_p_p_double swig_types[63]
-#define SWIGTYPE_p_p_p__generic_N_Vector swig_types[64]
-#define SWIGTYPE_p_p_void swig_types[65]
-#define SWIGTYPE_p_short swig_types[66]
-#define SWIGTYPE_p_signed_char swig_types[67]
-#define SWIGTYPE_p_unsigned_char swig_types[68]
-#define SWIGTYPE_p_unsigned_int swig_types[69]
-#define SWIGTYPE_p_unsigned_long_long swig_types[70]
-#define SWIGTYPE_p_unsigned_short swig_types[71]
-#define SWIGTYPE_p_void swig_types[72]
-static swig_type_info *swig_types[74];
-static swig_module_info swig_module = {swig_types, 73, 0, 0, 0, 0};
+#define SWIGTYPE_p_SUNLinearSolver_ID swig_types[4]
+#define SWIGTYPE_p_SUNLinearSolver_Type swig_types[5]
+#define SWIGTYPE_p_SUNMatrix_ID swig_types[6]
+#define SWIGTYPE_p_SUNNonlinearSolver_Type swig_types[7]
+#define SWIGTYPE_p__generic_N_Vector swig_types[8]
+#define SWIGTYPE_p__generic_N_Vector_Ops swig_types[9]
+#define SWIGTYPE_p__generic_SUNLinearSolver swig_types[10]
+#define SWIGTYPE_p__generic_SUNLinearSolver_Ops swig_types[11]
+#define SWIGTYPE_p__generic_SUNMatrix swig_types[12]
+#define SWIGTYPE_p__generic_SUNMatrix_Ops swig_types[13]
+#define SWIGTYPE_p__generic_SUNNonlinearSolver swig_types[14]
+#define SWIGTYPE_p__generic_SUNNonlinearSolver_Ops swig_types[15]
+#define SWIGTYPE_p_char swig_types[16]
+#define SWIGTYPE_p_double swig_types[17]
+#define SWIGTYPE_p_f_N_Vector__p__generic_N_Vector swig_types[18]
+#define SWIGTYPE_p_f_SUNLinearSolver__p__generic_N_Vector swig_types[19]
+#define SWIGTYPE_p_f_SUNMatrix__p__generic_SUNMatrix swig_types[20]
+#define SWIGTYPE_p_f_double_p__generic_N_Vector__void swig_types[21]
+#define SWIGTYPE_p_f_double_p__generic_N_Vector_double_p__generic_N_Vector_p__generic_N_Vector__void swig_types[22]
+#define SWIGTYPE_p_f_double_p__generic_N_Vector_p__generic_N_Vector__void swig_types[23]
+#define SWIGTYPE_p_f_double_p__generic_SUNMatrix__int swig_types[24]
+#define SWIGTYPE_p_f_double_p__generic_SUNMatrix_p__generic_SUNMatrix__int swig_types[25]
+#define SWIGTYPE_p_f_int_double_p_p__generic_N_Vector__int swig_types[26]
+#define SWIGTYPE_p_f_int_double_p_p__generic_N_Vector_double_p_p__generic_N_Vector_p_p__generic_N_Vector__int swig_types[27]
+#define SWIGTYPE_p_f_int_int_p_double_p_p__generic_N_Vector_p_p_p__generic_N_Vector_p_p_p__generic_N_Vector__int swig_types[28]
+#define SWIGTYPE_p_f_int_int_p_double_p_p_p__generic_N_Vector_p_p__generic_N_Vector__int swig_types[29]
+#define SWIGTYPE_p_f_int_p__generic_N_Vector_p__generic_N_Vector_p_void__int swig_types[30]
+#define SWIGTYPE_p_f_int_p__generic_N_Vector_p_p__generic_N_Vector_p_double__int swig_types[31]
+#define SWIGTYPE_p_f_int_p__generic_N_Vector_p_void__int swig_types[32]
+#define SWIGTYPE_p_f_int_p_double_p__generic_N_Vector_p_p__generic_N_Vector_p_p__generic_N_Vector__int swig_types[33]
+#define SWIGTYPE_p_f_int_p_double_p_p__generic_N_Vector_p__generic_N_Vector__int swig_types[34]
+#define SWIGTYPE_p_f_int_p_double_p_p__generic_N_Vector_p_p__generic_N_Vector__int swig_types[35]
+#define SWIGTYPE_p_f_int_p_int_p_void__int swig_types[36]
+#define SWIGTYPE_p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p__generic_N_Vector_p_double__int swig_types[37]
+#define SWIGTYPE_p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p_double__int swig_types[38]
+#define SWIGTYPE_p_f_int_p_q_const__char_p_q_const__char_p_char_p_void__void swig_types[39]
+#define SWIGTYPE_p_f_p__generic_N_Vector__N_Vector_ID swig_types[40]
+#define SWIGTYPE_p_f_p__generic_N_Vector__double swig_types[41]
+#define SWIGTYPE_p_f_p__generic_N_Vector__int swig_types[42]
+#define SWIGTYPE_p_f_p__generic_N_Vector__p_double swig_types[43]
+#define SWIGTYPE_p_f_p__generic_N_Vector__p_void swig_types[44]
+#define SWIGTYPE_p_f_p__generic_N_Vector__void swig_types[45]
+#define SWIGTYPE_p_f_p__generic_N_Vector_double_p__generic_N_Vector__void swig_types[46]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector__double swig_types[47]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector__int swig_types[48]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector__void swig_types[49]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector__double swig_types[50]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector__int swig_types[51]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector__void swig_types[52]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p_void__int swig_types[53]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p_void__int swig_types[54]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p_int_p_void__int swig_types[55]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_SUNMatrix_p_void_p__generic_N_Vector_p__generic_N_Vector__int swig_types[56]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int swig_types[57]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p_int_p_int__void swig_types[58]
+#define SWIGTYPE_p_f_p__generic_N_Vector_p_void__int swig_types[59]
+#define SWIGTYPE_p_f_p__generic_SUNLinearSolver__SUNLinearSolver_ID swig_types[60]
+#define SWIGTYPE_p_f_p__generic_SUNLinearSolver__SUNLinearSolver_Type swig_types[61]
+#define SWIGTYPE_p_f_p__generic_SUNLinearSolver__double swig_types[62]
+#define SWIGTYPE_p_f_p__generic_SUNLinearSolver__int swig_types[63]
+#define SWIGTYPE_p_f_p__generic_SUNLinearSolver_p__generic_N_Vector_p__generic_N_Vector__int swig_types[64]
+#define SWIGTYPE_p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix__int swig_types[65]
+#define SWIGTYPE_p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector_double__int swig_types[66]
+#define SWIGTYPE_p_f_p__generic_SUNLinearSolver_p_long_p_long__int swig_types[67]
+#define SWIGTYPE_p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void__int_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int__int swig_types[68]
+#define SWIGTYPE_p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int__int swig_types[69]
+#define SWIGTYPE_p_f_p__generic_SUNMatrix__SUNMatrix_ID swig_types[70]
+#define SWIGTYPE_p_f_p__generic_SUNMatrix__int swig_types[71]
+#define SWIGTYPE_p_f_p__generic_SUNMatrix__void swig_types[72]
+#define SWIGTYPE_p_f_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector__int swig_types[73]
+#define SWIGTYPE_p_f_p__generic_SUNMatrix_p__generic_SUNMatrix__int swig_types[74]
+#define SWIGTYPE_p_f_p__generic_SUNMatrix_p_long_p_long__int swig_types[75]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver__SUNNonlinearSolver_Type swig_types[76]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver__int swig_types[77]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_int__int swig_types[78]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int swig_types[79]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_double_int_p_void__int swig_types[80]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p_void__int swig_types[81]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_int_p_int_p_void__int__int swig_types[82]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int__int swig_types[83]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p_void__int__int swig_types[84]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int_p_void__int swig_types[85]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_int__int swig_types[86]
+#define SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_long__int swig_types[87]
+#define SWIGTYPE_p_f_p_double_p__generic_N_Vector__void swig_types[88]
+#define SWIGTYPE_p_f_p_q_const__char_p_q_const__char_p_char_p_void__void swig_types[89]
+#define SWIGTYPE_p_f_p_void__int swig_types[90]
+#define SWIGTYPE_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int swig_types[91]
+#define SWIGTYPE_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int swig_types[92]
+#define SWIGTYPE_p_int swig_types[93]
+#define SWIGTYPE_p_long swig_types[94]
+#define SWIGTYPE_p_long_long swig_types[95]
+#define SWIGTYPE_p_p__generic_N_Vector swig_types[96]
+#define SWIGTYPE_p_p_double swig_types[97]
+#define SWIGTYPE_p_p_p__generic_N_Vector swig_types[98]
+#define SWIGTYPE_p_p_void swig_types[99]
+#define SWIGTYPE_p_short swig_types[100]
+#define SWIGTYPE_p_signed_char swig_types[101]
+#define SWIGTYPE_p_unsigned_char swig_types[102]
+#define SWIGTYPE_p_unsigned_int swig_types[103]
+#define SWIGTYPE_p_unsigned_long_long swig_types[104]
+#define SWIGTYPE_p_unsigned_short swig_types[105]
+#define SWIGTYPE_p_void swig_types[106]
+static swig_type_info *swig_types[108];
+static swig_module_info swig_module = {swig_types, 107, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -3324,8 +3358,8 @@ namespace swig {
 #include "sundials/sundials_nvector.h"  
 #include "sundials/sundials_matrix.h"
 #include "sundials/sundials_iterative.h"
-/* #include "sundials/sundials_linearsolver.h" */
-/* #include "sundials/sundials_nonlinearsolver.h" */
+#include "sundials/sundials_linearsolver.h"
+#include "sundials/sundials_nonlinearsolver.h"
 #include "nvector_pyhelp.h"
 
 
@@ -9922,6 +9956,2677 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_gettype_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  SUNLinearSolver_Type (*arg2)(SUNLinearSolver) = (SUNLinearSolver_Type (*)(SUNLinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_gettype_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_gettype_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver__SUNLinearSolver_Type);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_gettype_set" "', argument " "2"" of type '" "SUNLinearSolver_Type (*)(SUNLinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->gettype = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_gettype_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SUNLinearSolver_Type (*result)(SUNLinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_gettype_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (SUNLinearSolver_Type (*)(SUNLinearSolver)) ((arg1)->gettype);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver__SUNLinearSolver_Type);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_getid_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  SUNLinearSolver_ID (*arg2)(SUNLinearSolver) = (SUNLinearSolver_ID (*)(SUNLinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_getid_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_getid_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver__SUNLinearSolver_ID);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_getid_set" "', argument " "2"" of type '" "SUNLinearSolver_ID (*)(SUNLinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->getid = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_getid_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SUNLinearSolver_ID (*result)(SUNLinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_getid_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (SUNLinearSolver_ID (*)(SUNLinearSolver)) ((arg1)->getid);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver__SUNLinearSolver_ID);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_setatimes_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNLinearSolver,void *,ATimesFn) = (int (*)(SUNLinearSolver,void *,ATimesFn)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_setatimes_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_setatimes_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_setatimes_set" "', argument " "2"" of type '" "int (*)(SUNLinearSolver,void *,ATimesFn)""'"); 
+    }
+  }
+  if (arg1) (arg1)->setatimes = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_setatimes_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNLinearSolver,void *,ATimesFn) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_setatimes_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNLinearSolver,void *,ATimesFn)) ((arg1)->setatimes);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_setpreconditioner_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNLinearSolver,void *,PSetupFn,PSolveFn) = (int (*)(SUNLinearSolver,void *,PSetupFn,PSolveFn)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_setpreconditioner_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_setpreconditioner_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void__int_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_setpreconditioner_set" "', argument " "2"" of type '" "int (*)(SUNLinearSolver,void *,PSetupFn,PSolveFn)""'"); 
+    }
+  }
+  if (arg1) (arg1)->setpreconditioner = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_setpreconditioner_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNLinearSolver,void *,PSetupFn,PSolveFn) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_setpreconditioner_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNLinearSolver,void *,PSetupFn,PSolveFn)) ((arg1)->setpreconditioner);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void__int_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_setscalingvectors_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNLinearSolver,N_Vector,N_Vector) = (int (*)(SUNLinearSolver,N_Vector,N_Vector)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_setscalingvectors_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_setscalingvectors_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p__generic_N_Vector_p__generic_N_Vector__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_setscalingvectors_set" "', argument " "2"" of type '" "int (*)(SUNLinearSolver,N_Vector,N_Vector)""'"); 
+    }
+  }
+  if (arg1) (arg1)->setscalingvectors = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_setscalingvectors_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNLinearSolver,N_Vector,N_Vector) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_setscalingvectors_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNLinearSolver,N_Vector,N_Vector)) ((arg1)->setscalingvectors);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p__generic_N_Vector_p__generic_N_Vector__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_initialize_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNLinearSolver) = (int (*)(SUNLinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_initialize_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_initialize_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_initialize_set" "', argument " "2"" of type '" "int (*)(SUNLinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->initialize = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_initialize_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNLinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_initialize_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNLinearSolver)) ((arg1)->initialize);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_setup_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNLinearSolver,SUNMatrix) = (int (*)(SUNLinearSolver,SUNMatrix)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_setup_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_setup_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_setup_set" "', argument " "2"" of type '" "int (*)(SUNLinearSolver,SUNMatrix)""'"); 
+    }
+  }
+  if (arg1) (arg1)->setup = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_setup_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNLinearSolver,SUNMatrix) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_setup_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNLinearSolver,SUNMatrix)) ((arg1)->setup);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_solve_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNLinearSolver,SUNMatrix,N_Vector,N_Vector,realtype) = (int (*)(SUNLinearSolver,SUNMatrix,N_Vector,N_Vector,realtype)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_solve_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_solve_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector_double__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_solve_set" "', argument " "2"" of type '" "int (*)(SUNLinearSolver,SUNMatrix,N_Vector,N_Vector,realtype)""'"); 
+    }
+  }
+  if (arg1) (arg1)->solve = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_solve_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNLinearSolver,SUNMatrix,N_Vector,N_Vector,realtype) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_solve_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNLinearSolver,SUNMatrix,N_Vector,N_Vector,realtype)) ((arg1)->solve);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector_double__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_numiters_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNLinearSolver) = (int (*)(SUNLinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_numiters_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_numiters_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_numiters_set" "', argument " "2"" of type '" "int (*)(SUNLinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->numiters = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_numiters_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNLinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_numiters_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNLinearSolver)) ((arg1)->numiters);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_resnorm_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  realtype (*arg2)(SUNLinearSolver) = (realtype (*)(SUNLinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_resnorm_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_resnorm_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver__double);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_resnorm_set" "', argument " "2"" of type '" "realtype (*)(SUNLinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->resnorm = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_resnorm_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  realtype (*result)(SUNLinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_resnorm_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (realtype (*)(SUNLinearSolver)) ((arg1)->resnorm);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver__double);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_lastflag_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  sunindextype (*arg2)(SUNLinearSolver) = (sunindextype (*)(SUNLinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_lastflag_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_lastflag_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_lastflag_set" "', argument " "2"" of type '" "sunindextype (*)(SUNLinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->lastflag = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_lastflag_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  sunindextype (*result)(SUNLinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_lastflag_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (sunindextype (*)(SUNLinearSolver)) ((arg1)->lastflag);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_space_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNLinearSolver,long *,long *) = (int (*)(SUNLinearSolver,long *,long *)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_space_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_space_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p_long_p_long__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_space_set" "', argument " "2"" of type '" "int (*)(SUNLinearSolver,long *,long *)""'"); 
+    }
+  }
+  if (arg1) (arg1)->space = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_space_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNLinearSolver,long *,long *) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_space_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNLinearSolver,long *,long *)) ((arg1)->space);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver_p_long_p_long__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_resid_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  N_Vector (*arg2)(SUNLinearSolver) = (N_Vector (*)(SUNLinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_resid_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_resid_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_SUNLinearSolver__p__generic_N_Vector);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_resid_set" "', argument " "2"" of type '" "N_Vector (*)(SUNLinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->resid = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_resid_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  N_Vector (*result)(SUNLinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_resid_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (N_Vector (*)(SUNLinearSolver)) ((arg1)->resid);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_SUNLinearSolver__p__generic_N_Vector);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_free_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNLinearSolver) = (int (*)(SUNLinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_Ops_free_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_free_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNLinearSolver__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinearSolver_Ops_free_set" "', argument " "2"" of type '" "int (*)(SUNLinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->free = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_Ops_free_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNLinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_Ops_free_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNLinearSolver)) ((arg1)->free);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNLinearSolver__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_SUNLinearSolver_Ops(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *result = 0 ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "new_SUNLinearSolver_Ops", 0, 0, 0)) SWIG_fail;
+  result = (_generic_SUNLinearSolver_Ops *)new _generic_SUNLinearSolver_Ops();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p__generic_SUNLinearSolver_Ops, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_SUNLinearSolver_Ops(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver_Ops *arg1 = (_generic_SUNLinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver_Ops, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_SUNLinearSolver_Ops" "', argument " "1"" of type '" "_generic_SUNLinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver_Ops * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *SUNLinearSolver_Ops_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!SWIG_Python_UnpackTuple(args, "swigregister", 1, 1, &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p__generic_SUNLinearSolver_Ops, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *SUNLinearSolver_Ops_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  return SWIG_Python_InitShadowInstance(args);
+}
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_content_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver *arg1 = (_generic_SUNLinearSolver *) 0 ;
+  void *arg2 = (void *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_content_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_content_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1],SWIG_as_voidptrptr(&arg2), 0, SWIG_POINTER_DISOWN);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNLinearSolver_content_set" "', argument " "2"" of type '" "void *""'"); 
+  }
+  if (arg1) (arg1)->content = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_content_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver *arg1 = (_generic_SUNLinearSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  void *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_content_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver * >(argp1);
+  result = (void *) ((arg1)->content);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_void, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_ops_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver *arg1 = (_generic_SUNLinearSolver *) 0 ;
+  SUNLinearSolver_Ops arg2 = (SUNLinearSolver_Ops) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinearSolver_ops_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_ops_set" "', argument " "1"" of type '" "_generic_SUNLinearSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p__generic_SUNLinearSolver_Ops, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNLinearSolver_ops_set" "', argument " "2"" of type '" "SUNLinearSolver_Ops""'"); 
+  }
+  arg2 = reinterpret_cast< SUNLinearSolver_Ops >(argp2);
+  if (arg1) (arg1)->ops = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinearSolver_ops_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver *arg1 = (_generic_SUNLinearSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SUNLinearSolver_Ops result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinearSolver_ops_get" "', argument " "1"" of type '" "_generic_SUNLinearSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver * >(argp1);
+  result = (SUNLinearSolver_Ops) ((arg1)->ops);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p__generic_SUNLinearSolver_Ops, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_SUNLinearSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver *result = 0 ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "new_SUNLinearSolver", 0, 0, 0)) SWIG_fail;
+  result = (_generic_SUNLinearSolver *)new _generic_SUNLinearSolver();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p__generic_SUNLinearSolver, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_SUNLinearSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNLinearSolver *arg1 = (_generic_SUNLinearSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_SUNLinearSolver" "', argument " "1"" of type '" "_generic_SUNLinearSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNLinearSolver * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *SUNLinearSolver_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!SWIG_Python_UnpackTuple(args, "swigregister", 1, 1, &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p__generic_SUNLinearSolver, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *SUNLinearSolver_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  return SWIG_Python_InitShadowInstance(args);
+}
+
+SWIGINTERN PyObject *_wrap_SUNLinSolNewEmpty(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinSolNewEmpty", 0, 0, 0)) SWIG_fail;
+  result = (SUNLinearSolver)SUNLinSolNewEmpty();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolFreeEmpty(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolFreeEmpty" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  SUNLinSolFreeEmpty(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolGetType(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SUNLinearSolver_Type result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolGetType" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  result = (SUNLinearSolver_Type)SUNLinSolGetType(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolGetID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SUNLinearSolver_ID result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolGetID" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  result = (SUNLinearSolver_ID)SUNLinSolGetID(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolSetATimes(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *arg2 = (void *) 0 ;
+  ATimesFn arg3 = (ATimesFn) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  PyObject *swig_obj[3] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinSolSetATimes", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolSetATimes" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1],SWIG_as_voidptrptr(&arg2), 0, 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNLinSolSetATimes" "', argument " "2"" of type '" "void *""'"); 
+  }
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[2], (void**)(&arg3), SWIGTYPE_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinSolSetATimes" "', argument " "3"" of type '" "ATimesFn""'"); 
+    }
+  }
+  result = (int)SUNLinSolSetATimes(arg1,arg2,arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolSetPreconditioner(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *arg2 = (void *) 0 ;
+  PSetupFn arg3 = (PSetupFn) 0 ;
+  PSolveFn arg4 = (PSolveFn) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  PyObject *swig_obj[4] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinSolSetPreconditioner", 4, 4, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolSetPreconditioner" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1],SWIG_as_voidptrptr(&arg2), 0, 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNLinSolSetPreconditioner" "', argument " "2"" of type '" "void *""'"); 
+  }
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[2], (void**)(&arg3), SWIGTYPE_p_f_p_void__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinSolSetPreconditioner" "', argument " "3"" of type '" "PSetupFn""'"); 
+    }
+  }
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[3], (void**)(&arg4), SWIGTYPE_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNLinSolSetPreconditioner" "', argument " "4"" of type '" "PSolveFn""'"); 
+    }
+  }
+  result = (int)SUNLinSolSetPreconditioner(arg1,arg2,arg3,arg4);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolSetScalingVectors(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject *swig_obj[3] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinSolSetScalingVectors", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolSetScalingVectors" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p__generic_N_Vector, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNLinSolSetScalingVectors" "', argument " "2"" of type '" "N_Vector""'"); 
+  }
+  arg2 = reinterpret_cast< N_Vector >(argp2);
+  res3 = SWIG_ConvertPtr(swig_obj[2], &argp3,SWIGTYPE_p__generic_N_Vector, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SUNLinSolSetScalingVectors" "', argument " "3"" of type '" "N_Vector""'"); 
+  }
+  arg3 = reinterpret_cast< N_Vector >(argp3);
+  result = (int)SUNLinSolSetScalingVectors(arg1,arg2,arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolInitialize(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolInitialize" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  result = (int)SUNLinSolInitialize(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolSetup(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  SUNMatrix arg2 = (SUNMatrix) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinSolSetup", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolSetup" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p__generic_SUNMatrix, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNLinSolSetup" "', argument " "2"" of type '" "SUNMatrix""'"); 
+  }
+  arg2 = reinterpret_cast< SUNMatrix >(argp2);
+  result = (int)SUNLinSolSetup(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolSolve(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  SUNMatrix arg2 = (SUNMatrix) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  N_Vector arg4 = (N_Vector) 0 ;
+  realtype arg5 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  double val5 ;
+  int ecode5 = 0 ;
+  PyObject *swig_obj[5] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinSolSolve", 5, 5, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolSolve" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p__generic_SUNMatrix, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNLinSolSolve" "', argument " "2"" of type '" "SUNMatrix""'"); 
+  }
+  arg2 = reinterpret_cast< SUNMatrix >(argp2);
+  res3 = SWIG_ConvertPtr(swig_obj[2], &argp3,SWIGTYPE_p__generic_N_Vector, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SUNLinSolSolve" "', argument " "3"" of type '" "N_Vector""'"); 
+  }
+  arg3 = reinterpret_cast< N_Vector >(argp3);
+  res4 = SWIG_ConvertPtr(swig_obj[3], &argp4,SWIGTYPE_p__generic_N_Vector, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SUNLinSolSolve" "', argument " "4"" of type '" "N_Vector""'"); 
+  }
+  arg4 = reinterpret_cast< N_Vector >(argp4);
+  ecode5 = SWIG_AsVal_double(swig_obj[4], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SUNLinSolSolve" "', argument " "5"" of type '" "realtype""'");
+  } 
+  arg5 = static_cast< realtype >(val5);
+  result = (int)SUNLinSolSolve(arg1,arg2,arg3,arg4,arg5);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolNumIters(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolNumIters" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  result = (int)SUNLinSolNumIters(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolResNorm(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  realtype result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolResNorm" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  result = (realtype)SUNLinSolResNorm(arg1);
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolResid(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  N_Vector result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolResid" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  result = (N_Vector)SUNLinSolResid(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p__generic_N_Vector, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolLastFlag(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  sunindextype result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolLastFlag" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  result = (sunindextype)SUNLinSolLastFlag(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolSpace(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject *swig_obj[3] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNLinSolSpace", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolSpace" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNLinSolSpace" "', argument " "2"" of type '" "long *""'"); 
+  }
+  arg2 = reinterpret_cast< long * >(argp2);
+  res3 = SWIG_ConvertPtr(swig_obj[2], &argp3,SWIGTYPE_p_long, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SUNLinSolSpace" "', argument " "3"" of type '" "long *""'"); 
+  }
+  arg3 = reinterpret_cast< long * >(argp3);
+  result = (int)SUNLinSolSpace(arg1,arg2,arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNLinSolFree(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNLinSolFree" "', argument " "1"" of type '" "SUNLinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNLinearSolver >(argp1);
+  result = (int)SUNLinSolFree(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_gettype_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  SUNNonlinearSolver_Type (*arg2)(SUNNonlinearSolver) = (SUNNonlinearSolver_Type (*)(SUNNonlinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_gettype_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_gettype_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver__SUNNonlinearSolver_Type);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_gettype_set" "', argument " "2"" of type '" "SUNNonlinearSolver_Type (*)(SUNNonlinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->gettype = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_gettype_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SUNNonlinearSolver_Type (*result)(SUNNonlinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_gettype_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (SUNNonlinearSolver_Type (*)(SUNNonlinearSolver)) ((arg1)->gettype);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver__SUNNonlinearSolver_Type);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_initialize_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver) = (int (*)(SUNNonlinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_initialize_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_initialize_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_initialize_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->initialize = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_initialize_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_initialize_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver)) ((arg1)->initialize);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setup_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver,N_Vector,void *) = (int (*)(SUNNonlinearSolver,N_Vector,void *)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_setup_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setup_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p_void__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_setup_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver,N_Vector,void *)""'"); 
+    }
+  }
+  if (arg1) (arg1)->setup = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setup_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver,N_Vector,void *) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setup_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver,N_Vector,void *)) ((arg1)->setup);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p_void__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_solve_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver,N_Vector,N_Vector,N_Vector,realtype,int,void *) = (int (*)(SUNNonlinearSolver,N_Vector,N_Vector,N_Vector,realtype,int,void *)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_solve_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_solve_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_double_int_p_void__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_solve_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver,N_Vector,N_Vector,N_Vector,realtype,int,void *)""'"); 
+    }
+  }
+  if (arg1) (arg1)->solve = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_solve_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver,N_Vector,N_Vector,N_Vector,realtype,int,void *) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_solve_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver,N_Vector,N_Vector,N_Vector,realtype,int,void *)) ((arg1)->solve);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_double_int_p_void__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_free_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver) = (int (*)(SUNNonlinearSolver)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_free_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_free_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_free_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver)""'"); 
+    }
+  }
+  if (arg1) (arg1)->free = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_free_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_free_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver)) ((arg1)->free);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setsysfn_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver,SUNNonlinSolSysFn) = (int (*)(SUNNonlinearSolver,SUNNonlinSolSysFn)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_setsysfn_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setsysfn_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_setsysfn_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver,SUNNonlinSolSysFn)""'"); 
+    }
+  }
+  if (arg1) (arg1)->setsysfn = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setsysfn_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver,SUNNonlinSolSysFn) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setsysfn_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver,SUNNonlinSolSysFn)) ((arg1)->setsysfn);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setlsetupfn_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver,SUNNonlinSolLSetupFn) = (int (*)(SUNNonlinearSolver,SUNNonlinSolLSetupFn)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_setlsetupfn_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setlsetupfn_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_int_p_int_p_void__int__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_setlsetupfn_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver,SUNNonlinSolLSetupFn)""'"); 
+    }
+  }
+  if (arg1) (arg1)->setlsetupfn = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setlsetupfn_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver,SUNNonlinSolLSetupFn) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setlsetupfn_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver,SUNNonlinSolLSetupFn)) ((arg1)->setlsetupfn);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_int_p_int_p_void__int__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setlsolvefn_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver,SUNNonlinSolLSolveFn) = (int (*)(SUNNonlinearSolver,SUNNonlinSolLSolveFn)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_setlsolvefn_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setlsolvefn_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p_void__int__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_setlsolvefn_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver,SUNNonlinSolLSolveFn)""'"); 
+    }
+  }
+  if (arg1) (arg1)->setlsolvefn = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setlsolvefn_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver,SUNNonlinSolLSolveFn) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setlsolvefn_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver,SUNNonlinSolLSolveFn)) ((arg1)->setlsolvefn);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p_void__int__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setctestfn_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver,SUNNonlinSolConvTestFn,void *) = (int (*)(SUNNonlinearSolver,SUNNonlinSolConvTestFn,void *)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_setctestfn_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setctestfn_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int_p_void__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_setctestfn_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver,SUNNonlinSolConvTestFn,void *)""'"); 
+    }
+  }
+  if (arg1) (arg1)->setctestfn = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setctestfn_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver,SUNNonlinSolConvTestFn,void *) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setctestfn_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver,SUNNonlinSolConvTestFn,void *)) ((arg1)->setctestfn);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int_p_void__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setmaxiters_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver,int) = (int (*)(SUNNonlinearSolver,int)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_setmaxiters_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setmaxiters_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_int__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_setmaxiters_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver,int)""'"); 
+    }
+  }
+  if (arg1) (arg1)->setmaxiters = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_setmaxiters_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver,int) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_setmaxiters_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver,int)) ((arg1)->setmaxiters);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_int__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_getnumiters_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver,long *) = (int (*)(SUNNonlinearSolver,long *)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_getnumiters_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_getnumiters_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_long__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_getnumiters_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver,long *)""'"); 
+    }
+  }
+  if (arg1) (arg1)->getnumiters = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_getnumiters_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver,long *) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_getnumiters_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver,long *)) ((arg1)->getnumiters);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_long__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_getcuriter_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver,int *) = (int (*)(SUNNonlinearSolver,int *)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_getcuriter_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_getcuriter_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_int__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_getcuriter_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver,int *)""'"); 
+    }
+  }
+  if (arg1) (arg1)->getcuriter = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_getcuriter_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver,int *) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_getcuriter_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver,int *)) ((arg1)->getcuriter);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_int__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_getnumconvfails_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  int (*arg2)(SUNNonlinearSolver,long *) = (int (*)(SUNNonlinearSolver,long *)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_Ops_getnumconvfails_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_getnumconvfails_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_long__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinearSolver_Ops_getnumconvfails_set" "', argument " "2"" of type '" "int (*)(SUNNonlinearSolver,long *)""'"); 
+    }
+  }
+  if (arg1) (arg1)->getnumconvfails = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_Ops_getnumconvfails_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int (*result)(SUNNonlinearSolver,long *) = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_Ops_getnumconvfails_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  result = (int (*)(SUNNonlinearSolver,long *)) ((arg1)->getnumconvfails);
+  resultobj = SWIG_NewFunctionPtrObj((void *)(result), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p_long__int);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_SUNNonlinearSolver_Ops(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *result = 0 ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "new_SUNNonlinearSolver_Ops", 0, 0, 0)) SWIG_fail;
+  result = (_generic_SUNNonlinearSolver_Ops *)new _generic_SUNNonlinearSolver_Ops();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_SUNNonlinearSolver_Ops(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver_Ops *arg1 = (_generic_SUNNonlinearSolver_Ops *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_SUNNonlinearSolver_Ops" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver_Ops *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver_Ops * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *SUNNonlinearSolver_Ops_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!SWIG_Python_UnpackTuple(args, "swigregister", 1, 1, &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *SUNNonlinearSolver_Ops_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  return SWIG_Python_InitShadowInstance(args);
+}
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_content_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver *arg1 = (_generic_SUNNonlinearSolver *) 0 ;
+  void *arg2 = (void *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_content_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_content_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1],SWIG_as_voidptrptr(&arg2), 0, SWIG_POINTER_DISOWN);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNNonlinearSolver_content_set" "', argument " "2"" of type '" "void *""'"); 
+  }
+  if (arg1) (arg1)->content = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_content_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver *arg1 = (_generic_SUNNonlinearSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  void *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_content_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver * >(argp1);
+  result = (void *) ((arg1)->content);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_void, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_ops_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver *arg1 = (_generic_SUNNonlinearSolver *) 0 ;
+  SUNNonlinearSolver_Ops arg2 = (SUNNonlinearSolver_Ops) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinearSolver_ops_set", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_ops_set" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver * >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNNonlinearSolver_ops_set" "', argument " "2"" of type '" "SUNNonlinearSolver_Ops""'"); 
+  }
+  arg2 = reinterpret_cast< SUNNonlinearSolver_Ops >(argp2);
+  if (arg1) (arg1)->ops = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinearSolver_ops_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver *arg1 = (_generic_SUNNonlinearSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SUNNonlinearSolver_Ops result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinearSolver_ops_get" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver * >(argp1);
+  result = (SUNNonlinearSolver_Ops) ((arg1)->ops);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p__generic_SUNNonlinearSolver_Ops, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_SUNNonlinearSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver *result = 0 ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "new_SUNNonlinearSolver", 0, 0, 0)) SWIG_fail;
+  result = (_generic_SUNNonlinearSolver *)new _generic_SUNNonlinearSolver();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p__generic_SUNNonlinearSolver, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_SUNNonlinearSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  _generic_SUNNonlinearSolver *arg1 = (_generic_SUNNonlinearSolver *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_SUNNonlinearSolver" "', argument " "1"" of type '" "_generic_SUNNonlinearSolver *""'"); 
+  }
+  arg1 = reinterpret_cast< _generic_SUNNonlinearSolver * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *SUNNonlinearSolver_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!SWIG_Python_UnpackTuple(args, "swigregister", 1, 1, &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p__generic_SUNNonlinearSolver, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *SUNNonlinearSolver_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  return SWIG_Python_InitShadowInstance(args);
+}
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolNewEmpty(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolNewEmpty", 0, 0, 0)) SWIG_fail;
+  result = (SUNNonlinearSolver)SUNNonlinSolNewEmpty();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolFreeEmpty(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolFreeEmpty" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  SUNNonlinSolFreeEmpty(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolGetType(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  SUNNonlinearSolver_Type result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolGetType" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  result = (SUNNonlinearSolver_Type)SUNNonlinSolGetType(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolInitialize(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolInitialize" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  result = (int)SUNNonlinSolInitialize(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolSetup(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  void *arg3 = (void *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  int res3 ;
+  PyObject *swig_obj[3] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolSetup", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolSetup" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p__generic_N_Vector, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNNonlinSolSetup" "', argument " "2"" of type '" "N_Vector""'"); 
+  }
+  arg2 = reinterpret_cast< N_Vector >(argp2);
+  res3 = SWIG_ConvertPtr(swig_obj[2],SWIG_as_voidptrptr(&arg3), 0, 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SUNNonlinSolSetup" "', argument " "3"" of type '" "void *""'"); 
+  }
+  result = (int)SUNNonlinSolSetup(arg1,arg2,arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolSolve(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  N_Vector arg4 = (N_Vector) 0 ;
+  realtype arg5 ;
+  int arg6 ;
+  void *arg7 = (void *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  double val5 ;
+  int ecode5 = 0 ;
+  int val6 ;
+  int ecode6 = 0 ;
+  int res7 ;
+  PyObject *swig_obj[7] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolSolve", 7, 7, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolSolve" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p__generic_N_Vector, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNNonlinSolSolve" "', argument " "2"" of type '" "N_Vector""'"); 
+  }
+  arg2 = reinterpret_cast< N_Vector >(argp2);
+  res3 = SWIG_ConvertPtr(swig_obj[2], &argp3,SWIGTYPE_p__generic_N_Vector, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SUNNonlinSolSolve" "', argument " "3"" of type '" "N_Vector""'"); 
+  }
+  arg3 = reinterpret_cast< N_Vector >(argp3);
+  res4 = SWIG_ConvertPtr(swig_obj[3], &argp4,SWIGTYPE_p__generic_N_Vector, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SUNNonlinSolSolve" "', argument " "4"" of type '" "N_Vector""'"); 
+  }
+  arg4 = reinterpret_cast< N_Vector >(argp4);
+  ecode5 = SWIG_AsVal_double(swig_obj[4], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SUNNonlinSolSolve" "', argument " "5"" of type '" "realtype""'");
+  } 
+  arg5 = static_cast< realtype >(val5);
+  ecode6 = SWIG_AsVal_int(swig_obj[5], &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "SUNNonlinSolSolve" "', argument " "6"" of type '" "int""'");
+  } 
+  arg6 = static_cast< int >(val6);
+  res7 = SWIG_ConvertPtr(swig_obj[6],SWIG_as_voidptrptr(&arg7), 0, 0);
+  if (!SWIG_IsOK(res7)) {
+    SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "SUNNonlinSolSolve" "', argument " "7"" of type '" "void *""'"); 
+  }
+  result = (int)SUNNonlinSolSolve(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolFree(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  int result;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolFree" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  result = (int)SUNNonlinSolFree(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolSetSysFn(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  SUNNonlinSolSysFn arg2 = (SUNNonlinSolSysFn) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolSetSysFn", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolSetSysFn" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinSolSetSysFn" "', argument " "2"" of type '" "SUNNonlinSolSysFn""'"); 
+    }
+  }
+  result = (int)SUNNonlinSolSetSysFn(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolSetLSetupFn(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  SUNNonlinSolLSetupFn arg2 = (SUNNonlinSolLSetupFn) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolSetLSetupFn", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolSetLSetupFn" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_int_p_int_p_void__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinSolSetLSetupFn" "', argument " "2"" of type '" "SUNNonlinSolLSetupFn""'"); 
+    }
+  }
+  result = (int)SUNNonlinSolSetLSetupFn(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolSetLSolveFn(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  SUNNonlinSolLSolveFn arg2 = (SUNNonlinSolLSolveFn) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolSetLSolveFn", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolSetLSolveFn" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_N_Vector_p_void__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinSolSetLSolveFn" "', argument " "2"" of type '" "SUNNonlinSolLSolveFn""'"); 
+    }
+  }
+  result = (int)SUNNonlinSolSetLSolveFn(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolSetConvTestFn(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  SUNNonlinSolConvTestFn arg2 = (SUNNonlinSolConvTestFn) 0 ;
+  void *arg3 = (void *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res3 ;
+  PyObject *swig_obj[3] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolSetConvTestFn", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolSetConvTestFn" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(swig_obj[1], (void**)(&arg2), SWIGTYPE_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "SUNNonlinSolSetConvTestFn" "', argument " "2"" of type '" "SUNNonlinSolConvTestFn""'"); 
+    }
+  }
+  res3 = SWIG_ConvertPtr(swig_obj[2],SWIG_as_voidptrptr(&arg3), 0, 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SUNNonlinSolSetConvTestFn" "', argument " "3"" of type '" "void *""'"); 
+  }
+  result = (int)SUNNonlinSolSetConvTestFn(arg1,arg2,arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolSetMaxIters(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolSetMaxIters", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolSetMaxIters" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  ecode2 = SWIG_AsVal_int(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SUNNonlinSolSetMaxIters" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (int)SUNNonlinSolSetMaxIters(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolGetNumIters(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  long *arg2 = (long *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolGetNumIters", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolGetNumIters" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNNonlinSolGetNumIters" "', argument " "2"" of type '" "long *""'"); 
+  }
+  arg2 = reinterpret_cast< long * >(argp2);
+  result = (int)SUNNonlinSolGetNumIters(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolGetCurIter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  int *arg2 = (int *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolGetCurIter", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolGetCurIter" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_int, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNNonlinSolGetCurIter" "', argument " "2"" of type '" "int *""'"); 
+  }
+  arg2 = reinterpret_cast< int * >(argp2);
+  result = (int)SUNNonlinSolGetCurIter(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SUNNonlinSolGetNumConvFails(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  long *arg2 = (long *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "SUNNonlinSolGetNumConvFails", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p__generic_SUNNonlinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SUNNonlinSolGetNumConvFails" "', argument " "1"" of type '" "SUNNonlinearSolver""'"); 
+  }
+  arg1 = reinterpret_cast< SUNNonlinearSolver >(argp1);
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p_long, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SUNNonlinSolGetNumConvFails" "', argument " "2"" of type '" "long *""'"); 
+  }
+  arg2 = reinterpret_cast< long * >(argp2);
+  result = (int)SUNNonlinSolGetNumConvFails(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_N_VGetData(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   N_Vector arg1 = (N_Vector) 0 ;
@@ -13120,10 +15825,10 @@ fail:
 SWIGINTERN PyObject *_wrap_KINSetLinearSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   void *arg1 = (void *) 0 ;
-  SUNLinearSolver arg2 ;
+  SUNLinearSolver arg2 = (SUNLinearSolver) 0 ;
   SUNMatrix arg3 = (SUNMatrix) 0 ;
   int res1 ;
-  void *argp2 ;
+  void *argp2 = 0 ;
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
@@ -13135,19 +15840,11 @@ SWIGINTERN PyObject *_wrap_KINSetLinearSolver(PyObject *SWIGUNUSEDPARM(self), Py
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINSetLinearSolver" "', argument " "1"" of type '" "void *""'"); 
   }
-  {
-    res2 = SWIG_ConvertPtr(swig_obj[1], &argp2, SWIGTYPE_p_SUNLinearSolver,  0  | 0);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINSetLinearSolver" "', argument " "2"" of type '" "SUNLinearSolver""'"); 
-    }  
-    if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "KINSetLinearSolver" "', argument " "2"" of type '" "SUNLinearSolver""'");
-    } else {
-      SUNLinearSolver * temp = reinterpret_cast< SUNLinearSolver * >(argp2);
-      arg2 = *temp;
-      if (SWIG_IsNewObj(res2)) delete temp;
-    }
+  res2 = SWIG_ConvertPtr(swig_obj[1], &argp2,SWIGTYPE_p__generic_SUNLinearSolver, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINSetLinearSolver" "', argument " "2"" of type '" "SUNLinearSolver""'"); 
   }
+  arg2 = reinterpret_cast< SUNLinearSolver >(argp2);
   res3 = SWIG_ConvertPtr(swig_obj[2], &argp3,SWIGTYPE_p__generic_SUNMatrix, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "KINSetLinearSolver" "', argument " "3"" of type '" "SUNMatrix""'"); 
@@ -14223,6 +16920,115 @@ static PyMethodDef SwigMethods[] = {
 	 { "ClassicalGS", _wrap_ClassicalGS, METH_VARARGS, NULL},
 	 { "QRfact", _wrap_QRfact, METH_VARARGS, NULL},
 	 { "QRsol", _wrap_QRsol, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_gettype_set", _wrap_SUNLinearSolver_Ops_gettype_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_gettype_get", _wrap_SUNLinearSolver_Ops_gettype_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_getid_set", _wrap_SUNLinearSolver_Ops_getid_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_getid_get", _wrap_SUNLinearSolver_Ops_getid_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_setatimes_set", _wrap_SUNLinearSolver_Ops_setatimes_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_setatimes_get", _wrap_SUNLinearSolver_Ops_setatimes_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_setpreconditioner_set", _wrap_SUNLinearSolver_Ops_setpreconditioner_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_setpreconditioner_get", _wrap_SUNLinearSolver_Ops_setpreconditioner_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_setscalingvectors_set", _wrap_SUNLinearSolver_Ops_setscalingvectors_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_setscalingvectors_get", _wrap_SUNLinearSolver_Ops_setscalingvectors_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_initialize_set", _wrap_SUNLinearSolver_Ops_initialize_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_initialize_get", _wrap_SUNLinearSolver_Ops_initialize_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_setup_set", _wrap_SUNLinearSolver_Ops_setup_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_setup_get", _wrap_SUNLinearSolver_Ops_setup_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_solve_set", _wrap_SUNLinearSolver_Ops_solve_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_solve_get", _wrap_SUNLinearSolver_Ops_solve_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_numiters_set", _wrap_SUNLinearSolver_Ops_numiters_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_numiters_get", _wrap_SUNLinearSolver_Ops_numiters_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_resnorm_set", _wrap_SUNLinearSolver_Ops_resnorm_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_resnorm_get", _wrap_SUNLinearSolver_Ops_resnorm_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_lastflag_set", _wrap_SUNLinearSolver_Ops_lastflag_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_lastflag_get", _wrap_SUNLinearSolver_Ops_lastflag_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_space_set", _wrap_SUNLinearSolver_Ops_space_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_space_get", _wrap_SUNLinearSolver_Ops_space_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_resid_set", _wrap_SUNLinearSolver_Ops_resid_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_resid_get", _wrap_SUNLinearSolver_Ops_resid_get, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_free_set", _wrap_SUNLinearSolver_Ops_free_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_free_get", _wrap_SUNLinearSolver_Ops_free_get, METH_O, NULL},
+	 { "new_SUNLinearSolver_Ops", _wrap_new_SUNLinearSolver_Ops, METH_NOARGS, NULL},
+	 { "delete_SUNLinearSolver_Ops", _wrap_delete_SUNLinearSolver_Ops, METH_O, NULL},
+	 { "SUNLinearSolver_Ops_swigregister", SUNLinearSolver_Ops_swigregister, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_Ops_swiginit", SUNLinearSolver_Ops_swiginit, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_content_set", _wrap_SUNLinearSolver_content_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_content_get", _wrap_SUNLinearSolver_content_get, METH_O, NULL},
+	 { "SUNLinearSolver_ops_set", _wrap_SUNLinearSolver_ops_set, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_ops_get", _wrap_SUNLinearSolver_ops_get, METH_O, NULL},
+	 { "new_SUNLinearSolver", _wrap_new_SUNLinearSolver, METH_NOARGS, NULL},
+	 { "delete_SUNLinearSolver", _wrap_delete_SUNLinearSolver, METH_O, NULL},
+	 { "SUNLinearSolver_swigregister", SUNLinearSolver_swigregister, METH_VARARGS, NULL},
+	 { "SUNLinearSolver_swiginit", SUNLinearSolver_swiginit, METH_VARARGS, NULL},
+	 { "SUNLinSolNewEmpty", _wrap_SUNLinSolNewEmpty, METH_NOARGS, NULL},
+	 { "SUNLinSolFreeEmpty", _wrap_SUNLinSolFreeEmpty, METH_O, NULL},
+	 { "SUNLinSolGetType", _wrap_SUNLinSolGetType, METH_O, NULL},
+	 { "SUNLinSolGetID", _wrap_SUNLinSolGetID, METH_O, NULL},
+	 { "SUNLinSolSetATimes", _wrap_SUNLinSolSetATimes, METH_VARARGS, NULL},
+	 { "SUNLinSolSetPreconditioner", _wrap_SUNLinSolSetPreconditioner, METH_VARARGS, NULL},
+	 { "SUNLinSolSetScalingVectors", _wrap_SUNLinSolSetScalingVectors, METH_VARARGS, NULL},
+	 { "SUNLinSolInitialize", _wrap_SUNLinSolInitialize, METH_O, NULL},
+	 { "SUNLinSolSetup", _wrap_SUNLinSolSetup, METH_VARARGS, NULL},
+	 { "SUNLinSolSolve", _wrap_SUNLinSolSolve, METH_VARARGS, NULL},
+	 { "SUNLinSolNumIters", _wrap_SUNLinSolNumIters, METH_O, NULL},
+	 { "SUNLinSolResNorm", _wrap_SUNLinSolResNorm, METH_O, NULL},
+	 { "SUNLinSolResid", _wrap_SUNLinSolResid, METH_O, NULL},
+	 { "SUNLinSolLastFlag", _wrap_SUNLinSolLastFlag, METH_O, NULL},
+	 { "SUNLinSolSpace", _wrap_SUNLinSolSpace, METH_VARARGS, NULL},
+	 { "SUNLinSolFree", _wrap_SUNLinSolFree, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_gettype_set", _wrap_SUNNonlinearSolver_Ops_gettype_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_gettype_get", _wrap_SUNNonlinearSolver_Ops_gettype_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_initialize_set", _wrap_SUNNonlinearSolver_Ops_initialize_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_initialize_get", _wrap_SUNNonlinearSolver_Ops_initialize_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_setup_set", _wrap_SUNNonlinearSolver_Ops_setup_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_setup_get", _wrap_SUNNonlinearSolver_Ops_setup_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_solve_set", _wrap_SUNNonlinearSolver_Ops_solve_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_solve_get", _wrap_SUNNonlinearSolver_Ops_solve_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_free_set", _wrap_SUNNonlinearSolver_Ops_free_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_free_get", _wrap_SUNNonlinearSolver_Ops_free_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_setsysfn_set", _wrap_SUNNonlinearSolver_Ops_setsysfn_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_setsysfn_get", _wrap_SUNNonlinearSolver_Ops_setsysfn_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_setlsetupfn_set", _wrap_SUNNonlinearSolver_Ops_setlsetupfn_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_setlsetupfn_get", _wrap_SUNNonlinearSolver_Ops_setlsetupfn_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_setlsolvefn_set", _wrap_SUNNonlinearSolver_Ops_setlsolvefn_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_setlsolvefn_get", _wrap_SUNNonlinearSolver_Ops_setlsolvefn_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_setctestfn_set", _wrap_SUNNonlinearSolver_Ops_setctestfn_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_setctestfn_get", _wrap_SUNNonlinearSolver_Ops_setctestfn_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_setmaxiters_set", _wrap_SUNNonlinearSolver_Ops_setmaxiters_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_setmaxiters_get", _wrap_SUNNonlinearSolver_Ops_setmaxiters_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_getnumiters_set", _wrap_SUNNonlinearSolver_Ops_getnumiters_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_getnumiters_get", _wrap_SUNNonlinearSolver_Ops_getnumiters_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_getcuriter_set", _wrap_SUNNonlinearSolver_Ops_getcuriter_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_getcuriter_get", _wrap_SUNNonlinearSolver_Ops_getcuriter_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_getnumconvfails_set", _wrap_SUNNonlinearSolver_Ops_getnumconvfails_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_getnumconvfails_get", _wrap_SUNNonlinearSolver_Ops_getnumconvfails_get, METH_O, NULL},
+	 { "new_SUNNonlinearSolver_Ops", _wrap_new_SUNNonlinearSolver_Ops, METH_NOARGS, NULL},
+	 { "delete_SUNNonlinearSolver_Ops", _wrap_delete_SUNNonlinearSolver_Ops, METH_O, NULL},
+	 { "SUNNonlinearSolver_Ops_swigregister", SUNNonlinearSolver_Ops_swigregister, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_Ops_swiginit", SUNNonlinearSolver_Ops_swiginit, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_content_set", _wrap_SUNNonlinearSolver_content_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_content_get", _wrap_SUNNonlinearSolver_content_get, METH_O, NULL},
+	 { "SUNNonlinearSolver_ops_set", _wrap_SUNNonlinearSolver_ops_set, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_ops_get", _wrap_SUNNonlinearSolver_ops_get, METH_O, NULL},
+	 { "new_SUNNonlinearSolver", _wrap_new_SUNNonlinearSolver, METH_NOARGS, NULL},
+	 { "delete_SUNNonlinearSolver", _wrap_delete_SUNNonlinearSolver, METH_O, NULL},
+	 { "SUNNonlinearSolver_swigregister", SUNNonlinearSolver_swigregister, METH_VARARGS, NULL},
+	 { "SUNNonlinearSolver_swiginit", SUNNonlinearSolver_swiginit, METH_VARARGS, NULL},
+	 { "SUNNonlinSolNewEmpty", _wrap_SUNNonlinSolNewEmpty, METH_NOARGS, NULL},
+	 { "SUNNonlinSolFreeEmpty", _wrap_SUNNonlinSolFreeEmpty, METH_O, NULL},
+	 { "SUNNonlinSolGetType", _wrap_SUNNonlinSolGetType, METH_O, NULL},
+	 { "SUNNonlinSolInitialize", _wrap_SUNNonlinSolInitialize, METH_O, NULL},
+	 { "SUNNonlinSolSetup", _wrap_SUNNonlinSolSetup, METH_VARARGS, NULL},
+	 { "SUNNonlinSolSolve", _wrap_SUNNonlinSolSolve, METH_VARARGS, NULL},
+	 { "SUNNonlinSolFree", _wrap_SUNNonlinSolFree, METH_O, NULL},
+	 { "SUNNonlinSolSetSysFn", _wrap_SUNNonlinSolSetSysFn, METH_VARARGS, NULL},
+	 { "SUNNonlinSolSetLSetupFn", _wrap_SUNNonlinSolSetLSetupFn, METH_VARARGS, NULL},
+	 { "SUNNonlinSolSetLSolveFn", _wrap_SUNNonlinSolSetLSolveFn, METH_VARARGS, NULL},
+	 { "SUNNonlinSolSetConvTestFn", _wrap_SUNNonlinSolSetConvTestFn, METH_VARARGS, NULL},
+	 { "SUNNonlinSolSetMaxIters", _wrap_SUNNonlinSolSetMaxIters, METH_VARARGS, NULL},
+	 { "SUNNonlinSolGetNumIters", _wrap_SUNNonlinSolGetNumIters, METH_VARARGS, NULL},
+	 { "SUNNonlinSolGetCurIter", _wrap_SUNNonlinSolGetCurIter, METH_VARARGS, NULL},
+	 { "SUNNonlinSolGetNumConvFails", _wrap_SUNNonlinSolGetNumConvFails, METH_VARARGS, NULL},
 	 { "N_VGetData", _wrap_N_VGetData, METH_O, NULL},
 	 { "N_VNew_Serial", _wrap_N_VNew_Serial, METH_O, NULL},
 	 { "N_VNewEmpty_Serial", _wrap_N_VNewEmpty_Serial, METH_O, NULL},
@@ -14361,15 +17167,22 @@ static swig_type_info _swigt__p_FILE = {"_p_FILE", "FILE *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_KINSysFnCaller = {"_p_KINSysFnCaller", "KINSysFnCaller *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_KINSysPyFn = {"_p_KINSysPyFn", "KINSysPyFn *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_N_Vector_ID = {"_p_N_Vector_ID", "enum N_Vector_ID *|N_Vector_ID *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_SUNLinearSolver = {"_p_SUNLinearSolver", "SUNLinearSolver *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_SUNLinearSolver_ID = {"_p_SUNLinearSolver_ID", "enum SUNLinearSolver_ID *|SUNLinearSolver_ID *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_SUNLinearSolver_Type = {"_p_SUNLinearSolver_Type", "enum SUNLinearSolver_Type *|SUNLinearSolver_Type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_SUNMatrix_ID = {"_p_SUNMatrix_ID", "enum SUNMatrix_ID *|SUNMatrix_ID *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_SUNNonlinearSolver_Type = {"_p_SUNNonlinearSolver_Type", "enum SUNNonlinearSolver_Type *|SUNNonlinearSolver_Type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p__generic_N_Vector = {"_p__generic_N_Vector", "N_Vector|_generic_N_Vector *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p__generic_N_Vector_Ops = {"_p__generic_N_Vector_Ops", "_generic_N_Vector_Ops *|N_Vector_Ops", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p__generic_SUNLinearSolver = {"_p__generic_SUNLinearSolver", "SUNLinearSolver|_generic_SUNLinearSolver *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p__generic_SUNLinearSolver_Ops = {"_p__generic_SUNLinearSolver_Ops", "_generic_SUNLinearSolver_Ops *|SUNLinearSolver_Ops", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p__generic_SUNMatrix = {"_p__generic_SUNMatrix", "_generic_SUNMatrix *|SUNMatrix", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p__generic_SUNMatrix_Ops = {"_p__generic_SUNMatrix_Ops", "_generic_SUNMatrix_Ops *|SUNMatrix_Ops", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p__generic_SUNNonlinearSolver = {"_p__generic_SUNNonlinearSolver", "SUNNonlinearSolver|_generic_SUNNonlinearSolver *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p__generic_SUNNonlinearSolver_Ops = {"_p__generic_SUNNonlinearSolver_Ops", "_generic_SUNNonlinearSolver_Ops *|SUNNonlinearSolver_Ops", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_double = {"_p_double", "realtype *|double *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_N_Vector__p__generic_N_Vector = {"_p_f_N_Vector__p__generic_N_Vector", "_generic_N_Vector *(*)(N_Vector)|N_Vector (*)(N_Vector)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_SUNLinearSolver__p__generic_N_Vector = {"_p_f_SUNLinearSolver__p__generic_N_Vector", "_generic_N_Vector *(*)(SUNLinearSolver)|N_Vector (*)(SUNLinearSolver)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_SUNMatrix__p__generic_SUNMatrix = {"_p_f_SUNMatrix__p__generic_SUNMatrix", "_generic_SUNMatrix *(*)(SUNMatrix)|SUNMatrix (*)(SUNMatrix)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_double_p__generic_N_Vector__void = {"_p_f_double_p__generic_N_Vector__void", "void (*)(double,_generic_N_Vector *)|void (*)(realtype,N_Vector)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_double_p__generic_N_Vector_double_p__generic_N_Vector_p__generic_N_Vector__void = {"_p_f_double_p__generic_N_Vector_double_p__generic_N_Vector_p__generic_N_Vector__void", "void (*)(realtype,N_Vector,realtype,N_Vector,N_Vector)|void (*)(double,_generic_N_Vector *,double,_generic_N_Vector *,_generic_N_Vector *)", 0, 0, (void*)0, 0};
@@ -14386,6 +17199,7 @@ static swig_type_info _swigt__p_f_int_p__generic_N_Vector_p_void__int = {"_p_f_i
 static swig_type_info _swigt__p_f_int_p_double_p__generic_N_Vector_p_p__generic_N_Vector_p_p__generic_N_Vector__int = {"_p_f_int_p_double_p__generic_N_Vector_p_p__generic_N_Vector_p_p__generic_N_Vector__int", "int (*)(int,double *,_generic_N_Vector *,_generic_N_Vector **,_generic_N_Vector **)|int (*)(int,realtype *,N_Vector,N_Vector *,N_Vector *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_int_p_double_p_p__generic_N_Vector_p__generic_N_Vector__int = {"_p_f_int_p_double_p_p__generic_N_Vector_p__generic_N_Vector__int", "int (*)(int,double *,_generic_N_Vector **,_generic_N_Vector *)|int (*)(int,realtype *,N_Vector *,N_Vector)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_int_p_double_p_p__generic_N_Vector_p_p__generic_N_Vector__int = {"_p_f_int_p_double_p_p__generic_N_Vector_p_p__generic_N_Vector__int", "int (*)(int,double *,_generic_N_Vector **,_generic_N_Vector **)|int (*)(int,realtype *,N_Vector *,N_Vector *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_int_p_int_p_void__int = {"_p_f_int_p_int_p_void__int", "SUNNonlinSolLSetupFn|int (*)(int,int *,void *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p__generic_N_Vector_p_double__int = {"_p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p__generic_N_Vector_p_double__int", "int (*)(int,_generic_N_Vector **,_generic_N_Vector **,_generic_N_Vector *,double *)|int (*)(int,N_Vector *,N_Vector *,N_Vector,realtype *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p_double__int = {"_p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p_double__int", "int (*)(int,_generic_N_Vector **,_generic_N_Vector **,double *)|int (*)(int,N_Vector *,N_Vector *,realtype *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_int_p_q_const__char_p_q_const__char_p_char_p_void__void = {"_p_f_int_p_q_const__char_p_q_const__char_p_char_p_void__void", "void (*)(int,char const *,char const *,char *,void *)|KINErrHandlerFn", 0, 0, (void*)0, 0};
@@ -14406,16 +17220,42 @@ static swig_type_info _swigt__p_f_p__generic_N_Vector_p__generic_N_Vector_p__gen
 static swig_type_info _swigt__p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p_void__int = {"_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p_void__int", "int (*)(_generic_N_Vector *,_generic_N_Vector *,_generic_N_Vector *,_generic_N_Vector *,void *)|KINLsPrecSetupFn", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p_int_p_void__int = {"_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_p_int_p_void__int", "int (*)(_generic_N_Vector *,_generic_N_Vector *,_generic_N_Vector *,int *,void *)|KINLsJacTimesVecFn", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_SUNMatrix_p_void_p__generic_N_Vector_p__generic_N_Vector__int = {"_p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_SUNMatrix_p_void_p__generic_N_Vector_p__generic_N_Vector__int", "int (*)(_generic_N_Vector *,_generic_N_Vector *,_generic_SUNMatrix *,void *,_generic_N_Vector *,_generic_N_Vector *)|KINLsJacFn", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int = {"_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int", "int (*)(_generic_N_Vector *,_generic_N_Vector *,void *)|KINSysFn", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int = {"_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int", "int (*)(_generic_N_Vector *,_generic_N_Vector *,void *)|KINSysFn|SUNNonlinSolSysFn", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p__generic_N_Vector_p_int_p_int__void = {"_p_f_p__generic_N_Vector_p_int_p_int__void", "void (*)(_generic_N_Vector *,int *,int *)|void (*)(N_Vector,sunindextype *,sunindextype *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_N_Vector_p_void__int = {"_p_f_p__generic_N_Vector_p_void__int", "SUNNonlinSolLSolveFn|int (*)(_generic_N_Vector *,void *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNLinearSolver__SUNLinearSolver_ID = {"_p_f_p__generic_SUNLinearSolver__SUNLinearSolver_ID", "enum SUNLinearSolver_ID (*)(_generic_SUNLinearSolver *)|SUNLinearSolver_ID (*)(SUNLinearSolver)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNLinearSolver__SUNLinearSolver_Type = {"_p_f_p__generic_SUNLinearSolver__SUNLinearSolver_Type", "enum SUNLinearSolver_Type (*)(_generic_SUNLinearSolver *)|SUNLinearSolver_Type (*)(SUNLinearSolver)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNLinearSolver__double = {"_p_f_p__generic_SUNLinearSolver__double", "double (*)(_generic_SUNLinearSolver *)|realtype (*)(SUNLinearSolver)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNLinearSolver__int = {"_p_f_p__generic_SUNLinearSolver__int", "int (*)(_generic_SUNLinearSolver *)|int (*)(SUNLinearSolver)|sunindextype (*)(SUNLinearSolver)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNLinearSolver_p__generic_N_Vector_p__generic_N_Vector__int = {"_p_f_p__generic_SUNLinearSolver_p__generic_N_Vector_p__generic_N_Vector__int", "int (*)(SUNLinearSolver,N_Vector,N_Vector)|int (*)(_generic_SUNLinearSolver *,_generic_N_Vector *,_generic_N_Vector *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix__int = {"_p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix__int", "int (*)(_generic_SUNLinearSolver *,_generic_SUNMatrix *)|int (*)(SUNLinearSolver,SUNMatrix)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector_double__int = {"_p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector_double__int", "int (*)(_generic_SUNLinearSolver *,_generic_SUNMatrix *,_generic_N_Vector *,_generic_N_Vector *,double)|int (*)(SUNLinearSolver,SUNMatrix,N_Vector,N_Vector,realtype)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNLinearSolver_p_long_p_long__int = {"_p_f_p__generic_SUNLinearSolver_p_long_p_long__int", "int (*)(_generic_SUNLinearSolver *,long *,long *)|int (*)(SUNLinearSolver,long *,long *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void__int_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int__int = {"_p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void__int_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int__int", "int (*)(_generic_SUNLinearSolver *,void *,int (*)(void *),int (*)(void *,_generic_N_Vector *,_generic_N_Vector *,double,int))|int (*)(SUNLinearSolver,void *,PSetupFn,PSolveFn)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int__int = {"_p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int__int", "int (*)(_generic_SUNLinearSolver *,void *,int (*)(void *,_generic_N_Vector *,_generic_N_Vector *))|int (*)(SUNLinearSolver,void *,ATimesFn)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p__generic_SUNMatrix__SUNMatrix_ID = {"_p_f_p__generic_SUNMatrix__SUNMatrix_ID", "SUNMatrix_ID (*)(SUNMatrix)|enum SUNMatrix_ID (*)(_generic_SUNMatrix *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p__generic_SUNMatrix__int = {"_p_f_p__generic_SUNMatrix__int", "int (*)(SUNMatrix)|int (*)(_generic_SUNMatrix *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p__generic_SUNMatrix__void = {"_p_f_p__generic_SUNMatrix__void", "void (*)(SUNMatrix)|void (*)(_generic_SUNMatrix *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector__int = {"_p_f_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector__int", "int (*)(SUNMatrix,N_Vector,N_Vector)|int (*)(_generic_SUNMatrix *,_generic_N_Vector *,_generic_N_Vector *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p__generic_SUNMatrix_p__generic_SUNMatrix__int = {"_p_f_p__generic_SUNMatrix_p__generic_SUNMatrix__int", "int (*)(SUNMatrix,SUNMatrix)|int (*)(_generic_SUNMatrix *,_generic_SUNMatrix *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p__generic_SUNMatrix_p_long_p_long__int = {"_p_f_p__generic_SUNMatrix_p_long_p_long__int", "int (*)(_generic_SUNMatrix *,long *,long *)|int (*)(SUNMatrix,long *,long *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver__SUNNonlinearSolver_Type = {"_p_f_p__generic_SUNNonlinearSolver__SUNNonlinearSolver_Type", "enum SUNNonlinearSolver_Type (*)(_generic_SUNNonlinearSolver *)|SUNNonlinearSolver_Type (*)(SUNNonlinearSolver)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver__int = {"_p_f_p__generic_SUNNonlinearSolver__int", "int (*)(_generic_SUNNonlinearSolver *)|int (*)(SUNNonlinearSolver)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver_int__int = {"_p_f_p__generic_SUNNonlinearSolver_int__int", "int (*)(_generic_SUNNonlinearSolver *,int)|int (*)(SUNNonlinearSolver,int)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int = {"_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int", "int (*)(_generic_SUNNonlinearSolver *,_generic_N_Vector *,_generic_N_Vector *,double,_generic_N_Vector *,void *)|SUNNonlinSolConvTestFn", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_double_int_p_void__int = {"_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_double_int_p_void__int", "int (*)(SUNNonlinearSolver,N_Vector,N_Vector,N_Vector,realtype,int,void *)|int (*)(_generic_SUNNonlinearSolver *,_generic_N_Vector *,_generic_N_Vector *,_generic_N_Vector *,double,int,void *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p_void__int = {"_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p_void__int", "int (*)(_generic_SUNNonlinearSolver *,_generic_N_Vector *,void *)|int (*)(SUNNonlinearSolver,N_Vector,void *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver_p_f_int_p_int_p_void__int__int = {"_p_f_p__generic_SUNNonlinearSolver_p_f_int_p_int_p_void__int__int", "int (*)(SUNNonlinearSolver,SUNNonlinSolLSetupFn)|int (*)(_generic_SUNNonlinearSolver *,int (*)(int,int *,void *))", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int__int = {"_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int__int", "int (*)(_generic_SUNNonlinearSolver *,int (*)(_generic_N_Vector *,_generic_N_Vector *,void *))|int (*)(SUNNonlinearSolver,SUNNonlinSolSysFn)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p_void__int__int = {"_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p_void__int__int", "int (*)(_generic_SUNNonlinearSolver *,int (*)(_generic_N_Vector *,void *))|int (*)(SUNNonlinearSolver,SUNNonlinSolLSolveFn)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int_p_void__int = {"_p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int_p_void__int", "int (*)(_generic_SUNNonlinearSolver *,int (*)(_generic_SUNNonlinearSolver *,_generic_N_Vector *,_generic_N_Vector *,double,_generic_N_Vector *,void *),void *)|int (*)(SUNNonlinearSolver,SUNNonlinSolConvTestFn,void *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver_p_int__int = {"_p_f_p__generic_SUNNonlinearSolver_p_int__int", "int (*)(_generic_SUNNonlinearSolver *,int *)|int (*)(SUNNonlinearSolver,int *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p__generic_SUNNonlinearSolver_p_long__int = {"_p_f_p__generic_SUNNonlinearSolver_p_long__int", "int (*)(_generic_SUNNonlinearSolver *,long *)|int (*)(SUNNonlinearSolver,long *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_double_p__generic_N_Vector__void = {"_p_f_p_double_p__generic_N_Vector__void", "void (*)(double *,_generic_N_Vector *)|void (*)(realtype *,N_Vector)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_q_const__char_p_q_const__char_p_char_p_void__void = {"_p_f_p_q_const__char_p_q_const__char_p_char_p_void__void", "void (*)(char const *,char const *,char *,void *)|KINInfoHandlerFn", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p_void__int = {"_p_f_p_void__int", "PSetupFn|int (*)(void *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int = {"_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int", "ATimesFn|int (*)(void *,_generic_N_Vector *,_generic_N_Vector *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int = {"_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int", "PSolveFn|int (*)(void *,_generic_N_Vector *,_generic_N_Vector *,double,int)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_int = {"_p_int", "intptr_t *|int *|int_least32_t *|int_fast32_t *|int32_t *|sunindextype *|int_fast16_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_long = {"_p_long", "long *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_long_long = {"_p_long_long", "int_least64_t *|int_fast64_t *|int64_t *|long long *|intmax_t *", 0, 0, (void*)0, 0};
@@ -14436,15 +17276,22 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_KINSysFnCaller,
   &_swigt__p_KINSysPyFn,
   &_swigt__p_N_Vector_ID,
-  &_swigt__p_SUNLinearSolver,
+  &_swigt__p_SUNLinearSolver_ID,
+  &_swigt__p_SUNLinearSolver_Type,
   &_swigt__p_SUNMatrix_ID,
+  &_swigt__p_SUNNonlinearSolver_Type,
   &_swigt__p__generic_N_Vector,
   &_swigt__p__generic_N_Vector_Ops,
+  &_swigt__p__generic_SUNLinearSolver,
+  &_swigt__p__generic_SUNLinearSolver_Ops,
   &_swigt__p__generic_SUNMatrix,
   &_swigt__p__generic_SUNMatrix_Ops,
+  &_swigt__p__generic_SUNNonlinearSolver,
+  &_swigt__p__generic_SUNNonlinearSolver_Ops,
   &_swigt__p_char,
   &_swigt__p_double,
   &_swigt__p_f_N_Vector__p__generic_N_Vector,
+  &_swigt__p_f_SUNLinearSolver__p__generic_N_Vector,
   &_swigt__p_f_SUNMatrix__p__generic_SUNMatrix,
   &_swigt__p_f_double_p__generic_N_Vector__void,
   &_swigt__p_f_double_p__generic_N_Vector_double_p__generic_N_Vector_p__generic_N_Vector__void,
@@ -14461,6 +17308,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_f_int_p_double_p__generic_N_Vector_p_p__generic_N_Vector_p_p__generic_N_Vector__int,
   &_swigt__p_f_int_p_double_p_p__generic_N_Vector_p__generic_N_Vector__int,
   &_swigt__p_f_int_p_double_p_p__generic_N_Vector_p_p__generic_N_Vector__int,
+  &_swigt__p_f_int_p_int_p_void__int,
   &_swigt__p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p__generic_N_Vector_p_double__int,
   &_swigt__p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p_double__int,
   &_swigt__p_f_int_p_q_const__char_p_q_const__char_p_char_p_void__void,
@@ -14483,14 +17331,40 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_SUNMatrix_p_void_p__generic_N_Vector_p__generic_N_Vector__int,
   &_swigt__p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int,
   &_swigt__p_f_p__generic_N_Vector_p_int_p_int__void,
+  &_swigt__p_f_p__generic_N_Vector_p_void__int,
+  &_swigt__p_f_p__generic_SUNLinearSolver__SUNLinearSolver_ID,
+  &_swigt__p_f_p__generic_SUNLinearSolver__SUNLinearSolver_Type,
+  &_swigt__p_f_p__generic_SUNLinearSolver__double,
+  &_swigt__p_f_p__generic_SUNLinearSolver__int,
+  &_swigt__p_f_p__generic_SUNLinearSolver_p__generic_N_Vector_p__generic_N_Vector__int,
+  &_swigt__p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix__int,
+  &_swigt__p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector_double__int,
+  &_swigt__p_f_p__generic_SUNLinearSolver_p_long_p_long__int,
+  &_swigt__p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void__int_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int__int,
+  &_swigt__p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int__int,
   &_swigt__p_f_p__generic_SUNMatrix__SUNMatrix_ID,
   &_swigt__p_f_p__generic_SUNMatrix__int,
   &_swigt__p_f_p__generic_SUNMatrix__void,
   &_swigt__p_f_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector__int,
   &_swigt__p_f_p__generic_SUNMatrix_p__generic_SUNMatrix__int,
   &_swigt__p_f_p__generic_SUNMatrix_p_long_p_long__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver__SUNNonlinearSolver_Type,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver_int__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_double_int_p_void__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p_void__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver_p_f_int_p_int_p_void__int__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p_void__int__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int_p_void__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver_p_int__int,
+  &_swigt__p_f_p__generic_SUNNonlinearSolver_p_long__int,
   &_swigt__p_f_p_double_p__generic_N_Vector__void,
   &_swigt__p_f_p_q_const__char_p_q_const__char_p_char_p_void__void,
+  &_swigt__p_f_p_void__int,
+  &_swigt__p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int,
+  &_swigt__p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int,
   &_swigt__p_int,
   &_swigt__p_long,
   &_swigt__p_long_long,
@@ -14511,15 +17385,22 @@ static swig_cast_info _swigc__p_FILE[] = {  {&_swigt__p_FILE, 0, 0, 0},{0, 0, 0,
 static swig_cast_info _swigc__p_KINSysFnCaller[] = {  {&_swigt__p_KINSysFnCaller, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_KINSysPyFn[] = {  {&_swigt__p_KINSysPyFn, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_N_Vector_ID[] = {  {&_swigt__p_N_Vector_ID, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_SUNLinearSolver[] = {  {&_swigt__p_SUNLinearSolver, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_SUNLinearSolver_ID[] = {  {&_swigt__p_SUNLinearSolver_ID, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_SUNLinearSolver_Type[] = {  {&_swigt__p_SUNLinearSolver_Type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_SUNMatrix_ID[] = {  {&_swigt__p_SUNMatrix_ID, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_SUNNonlinearSolver_Type[] = {  {&_swigt__p_SUNNonlinearSolver_Type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p__generic_N_Vector[] = {  {&_swigt__p__generic_N_Vector, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p__generic_N_Vector_Ops[] = {  {&_swigt__p__generic_N_Vector_Ops, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p__generic_SUNLinearSolver[] = {  {&_swigt__p__generic_SUNLinearSolver, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p__generic_SUNLinearSolver_Ops[] = {  {&_swigt__p__generic_SUNLinearSolver_Ops, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p__generic_SUNMatrix[] = {  {&_swigt__p__generic_SUNMatrix, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p__generic_SUNMatrix_Ops[] = {  {&_swigt__p__generic_SUNMatrix_Ops, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p__generic_SUNNonlinearSolver[] = {  {&_swigt__p__generic_SUNNonlinearSolver, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p__generic_SUNNonlinearSolver_Ops[] = {  {&_swigt__p__generic_SUNNonlinearSolver_Ops, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_double[] = {  {&_swigt__p_double, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_N_Vector__p__generic_N_Vector[] = {  {&_swigt__p_f_N_Vector__p__generic_N_Vector, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_SUNLinearSolver__p__generic_N_Vector[] = {  {&_swigt__p_f_SUNLinearSolver__p__generic_N_Vector, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_SUNMatrix__p__generic_SUNMatrix[] = {  {&_swigt__p_f_SUNMatrix__p__generic_SUNMatrix, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_double_p__generic_N_Vector__void[] = {  {&_swigt__p_f_double_p__generic_N_Vector__void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_double_p__generic_N_Vector_double_p__generic_N_Vector_p__generic_N_Vector__void[] = {  {&_swigt__p_f_double_p__generic_N_Vector_double_p__generic_N_Vector_p__generic_N_Vector__void, 0, 0, 0},{0, 0, 0, 0}};
@@ -14536,6 +17417,7 @@ static swig_cast_info _swigc__p_f_int_p__generic_N_Vector_p_void__int[] = {  {&_
 static swig_cast_info _swigc__p_f_int_p_double_p__generic_N_Vector_p_p__generic_N_Vector_p_p__generic_N_Vector__int[] = {  {&_swigt__p_f_int_p_double_p__generic_N_Vector_p_p__generic_N_Vector_p_p__generic_N_Vector__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_int_p_double_p_p__generic_N_Vector_p__generic_N_Vector__int[] = {  {&_swigt__p_f_int_p_double_p_p__generic_N_Vector_p__generic_N_Vector__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_int_p_double_p_p__generic_N_Vector_p_p__generic_N_Vector__int[] = {  {&_swigt__p_f_int_p_double_p_p__generic_N_Vector_p_p__generic_N_Vector__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_int_p_int_p_void__int[] = {  {&_swigt__p_f_int_p_int_p_void__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p__generic_N_Vector_p_double__int[] = {  {&_swigt__p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p__generic_N_Vector_p_double__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p_double__int[] = {  {&_swigt__p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p_double__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_int_p_q_const__char_p_q_const__char_p_char_p_void__void[] = {  {&_swigt__p_f_int_p_q_const__char_p_q_const__char_p_char_p_void__void, 0, 0, 0},{0, 0, 0, 0}};
@@ -14558,14 +17440,40 @@ static swig_cast_info _swigc__p_f_p__generic_N_Vector_p__generic_N_Vector_p__gen
 static swig_cast_info _swigc__p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_SUNMatrix_p_void_p__generic_N_Vector_p__generic_N_Vector__int[] = {  {&_swigt__p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_SUNMatrix_p_void_p__generic_N_Vector_p__generic_N_Vector__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int[] = {  {&_swigt__p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p__generic_N_Vector_p_int_p_int__void[] = {  {&_swigt__p_f_p__generic_N_Vector_p_int_p_int__void, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_N_Vector_p_void__int[] = {  {&_swigt__p_f_p__generic_N_Vector_p_void__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNLinearSolver__SUNLinearSolver_ID[] = {  {&_swigt__p_f_p__generic_SUNLinearSolver__SUNLinearSolver_ID, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNLinearSolver__SUNLinearSolver_Type[] = {  {&_swigt__p_f_p__generic_SUNLinearSolver__SUNLinearSolver_Type, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNLinearSolver__double[] = {  {&_swigt__p_f_p__generic_SUNLinearSolver__double, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNLinearSolver__int[] = {  {&_swigt__p_f_p__generic_SUNLinearSolver__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNLinearSolver_p__generic_N_Vector_p__generic_N_Vector__int[] = {  {&_swigt__p_f_p__generic_SUNLinearSolver_p__generic_N_Vector_p__generic_N_Vector__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix__int[] = {  {&_swigt__p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector_double__int[] = {  {&_swigt__p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector_double__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNLinearSolver_p_long_p_long__int[] = {  {&_swigt__p_f_p__generic_SUNLinearSolver_p_long_p_long__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void__int_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int__int[] = {  {&_swigt__p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void__int_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int__int[] = {  {&_swigt__p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p__generic_SUNMatrix__SUNMatrix_ID[] = {  {&_swigt__p_f_p__generic_SUNMatrix__SUNMatrix_ID, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p__generic_SUNMatrix__int[] = {  {&_swigt__p_f_p__generic_SUNMatrix__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p__generic_SUNMatrix__void[] = {  {&_swigt__p_f_p__generic_SUNMatrix__void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector__int[] = {  {&_swigt__p_f_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p__generic_SUNMatrix_p__generic_SUNMatrix__int[] = {  {&_swigt__p_f_p__generic_SUNMatrix_p__generic_SUNMatrix__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p__generic_SUNMatrix_p_long_p_long__int[] = {  {&_swigt__p_f_p__generic_SUNMatrix_p_long_p_long__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver__SUNNonlinearSolver_Type[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver__SUNNonlinearSolver_Type, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver_int__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver_int__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_double_int_p_void__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_double_int_p_void__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p_void__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p_void__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver_p_f_int_p_int_p_void__int__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver_p_f_int_p_int_p_void__int__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p_void__int__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p_void__int__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int_p_void__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int_p_void__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver_p_int__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver_p_int__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p__generic_SUNNonlinearSolver_p_long__int[] = {  {&_swigt__p_f_p__generic_SUNNonlinearSolver_p_long__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_double_p__generic_N_Vector__void[] = {  {&_swigt__p_f_p_double_p__generic_N_Vector__void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_q_const__char_p_q_const__char_p_char_p_void__void[] = {  {&_swigt__p_f_p_q_const__char_p_q_const__char_p_char_p_void__void, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p_void__int[] = {  {&_swigt__p_f_p_void__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int[] = {  {&_swigt__p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int[] = {  {&_swigt__p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_int[] = {  {&_swigt__p_int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_long[] = {  {&_swigt__p_long, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_long_long[] = {  {&_swigt__p_long_long, 0, 0, 0},{0, 0, 0, 0}};
@@ -14586,15 +17494,22 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_KINSysFnCaller,
   _swigc__p_KINSysPyFn,
   _swigc__p_N_Vector_ID,
-  _swigc__p_SUNLinearSolver,
+  _swigc__p_SUNLinearSolver_ID,
+  _swigc__p_SUNLinearSolver_Type,
   _swigc__p_SUNMatrix_ID,
+  _swigc__p_SUNNonlinearSolver_Type,
   _swigc__p__generic_N_Vector,
   _swigc__p__generic_N_Vector_Ops,
+  _swigc__p__generic_SUNLinearSolver,
+  _swigc__p__generic_SUNLinearSolver_Ops,
   _swigc__p__generic_SUNMatrix,
   _swigc__p__generic_SUNMatrix_Ops,
+  _swigc__p__generic_SUNNonlinearSolver,
+  _swigc__p__generic_SUNNonlinearSolver_Ops,
   _swigc__p_char,
   _swigc__p_double,
   _swigc__p_f_N_Vector__p__generic_N_Vector,
+  _swigc__p_f_SUNLinearSolver__p__generic_N_Vector,
   _swigc__p_f_SUNMatrix__p__generic_SUNMatrix,
   _swigc__p_f_double_p__generic_N_Vector__void,
   _swigc__p_f_double_p__generic_N_Vector_double_p__generic_N_Vector_p__generic_N_Vector__void,
@@ -14611,6 +17526,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_f_int_p_double_p__generic_N_Vector_p_p__generic_N_Vector_p_p__generic_N_Vector__int,
   _swigc__p_f_int_p_double_p_p__generic_N_Vector_p__generic_N_Vector__int,
   _swigc__p_f_int_p_double_p_p__generic_N_Vector_p_p__generic_N_Vector__int,
+  _swigc__p_f_int_p_int_p_void__int,
   _swigc__p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p__generic_N_Vector_p_double__int,
   _swigc__p_f_int_p_p__generic_N_Vector_p_p__generic_N_Vector_p_double__int,
   _swigc__p_f_int_p_q_const__char_p_q_const__char_p_char_p_void__void,
@@ -14633,14 +17549,40 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_f_p__generic_N_Vector_p__generic_N_Vector_p__generic_SUNMatrix_p_void_p__generic_N_Vector_p__generic_N_Vector__int,
   _swigc__p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int,
   _swigc__p_f_p__generic_N_Vector_p_int_p_int__void,
+  _swigc__p_f_p__generic_N_Vector_p_void__int,
+  _swigc__p_f_p__generic_SUNLinearSolver__SUNLinearSolver_ID,
+  _swigc__p_f_p__generic_SUNLinearSolver__SUNLinearSolver_Type,
+  _swigc__p_f_p__generic_SUNLinearSolver__double,
+  _swigc__p_f_p__generic_SUNLinearSolver__int,
+  _swigc__p_f_p__generic_SUNLinearSolver_p__generic_N_Vector_p__generic_N_Vector__int,
+  _swigc__p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix__int,
+  _swigc__p_f_p__generic_SUNLinearSolver_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector_double__int,
+  _swigc__p_f_p__generic_SUNLinearSolver_p_long_p_long__int,
+  _swigc__p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void__int_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int__int,
+  _swigc__p_f_p__generic_SUNLinearSolver_p_void_p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int__int,
   _swigc__p_f_p__generic_SUNMatrix__SUNMatrix_ID,
   _swigc__p_f_p__generic_SUNMatrix__int,
   _swigc__p_f_p__generic_SUNMatrix__void,
   _swigc__p_f_p__generic_SUNMatrix_p__generic_N_Vector_p__generic_N_Vector__int,
   _swigc__p_f_p__generic_SUNMatrix_p__generic_SUNMatrix__int,
   _swigc__p_f_p__generic_SUNMatrix_p_long_p_long__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver__SUNNonlinearSolver_Type,
+  _swigc__p_f_p__generic_SUNNonlinearSolver__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver_int__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_p__generic_N_Vector_double_int_p_void__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p_void__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver_p_f_int_p_int_p_void__int__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p__generic_N_Vector_p_void__int__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_N_Vector_p_void__int__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver_p_f_p__generic_SUNNonlinearSolver_p__generic_N_Vector_p__generic_N_Vector_double_p__generic_N_Vector_p_void__int_p_void__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver_p_int__int,
+  _swigc__p_f_p__generic_SUNNonlinearSolver_p_long__int,
   _swigc__p_f_p_double_p__generic_N_Vector__void,
   _swigc__p_f_p_q_const__char_p_q_const__char_p_char_p_void__void,
+  _swigc__p_f_p_void__int,
+  _swigc__p_f_p_void_p__generic_N_Vector_p__generic_N_Vector__int,
+  _swigc__p_f_p_void_p__generic_N_Vector_p__generic_N_Vector_double_int__int,
   _swigc__p_int,
   _swigc__p_long,
   _swigc__p_long_long,
@@ -15361,6 +18303,52 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "PREC_BOTH",SWIG_From_int(static_cast< int >(PREC_BOTH)));
   SWIG_Python_SetConstant(d, "MODIFIED_GS",SWIG_From_int(static_cast< int >(MODIFIED_GS)));
   SWIG_Python_SetConstant(d, "CLASSICAL_GS",SWIG_From_int(static_cast< int >(CLASSICAL_GS)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_DIRECT",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_DIRECT)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_ITERATIVE",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_ITERATIVE)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_MATRIX_ITERATIVE",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_MATRIX_ITERATIVE)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_BAND",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_BAND)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_DENSE",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_DENSE)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_KLU",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_KLU)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_LAPACKBAND",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_LAPACKBAND)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_LAPACKDENSE",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_LAPACKDENSE)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_PCG",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_PCG)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_SPBCGS",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_SPBCGS)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_SPFGMR",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_SPFGMR)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_SPGMR",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_SPGMR)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_SPTFQMR",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_SPTFQMR)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_SUPERLUDIST",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_SUPERLUDIST)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_SUPERLUMT",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_SUPERLUMT)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_CUSOLVERSP_BATCHQR",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_CUSOLVERSP_BATCHQR)));
+  SWIG_Python_SetConstant(d, "SUNLINEARSOLVER_CUSTOM",SWIG_From_int(static_cast< int >(SUNLINEARSOLVER_CUSTOM)));
+  SWIG_Python_SetConstant(d, "SUNLS_SUCCESS",SWIG_From_int(static_cast< int >(0)));
+  SWIG_Python_SetConstant(d, "SUNLS_MEM_NULL",SWIG_From_int(static_cast< int >(-801)));
+  SWIG_Python_SetConstant(d, "SUNLS_ILL_INPUT",SWIG_From_int(static_cast< int >(-802)));
+  SWIG_Python_SetConstant(d, "SUNLS_MEM_FAIL",SWIG_From_int(static_cast< int >(-803)));
+  SWIG_Python_SetConstant(d, "SUNLS_ATIMES_FAIL_UNREC",SWIG_From_int(static_cast< int >(-804)));
+  SWIG_Python_SetConstant(d, "SUNLS_PSET_FAIL_UNREC",SWIG_From_int(static_cast< int >(-805)));
+  SWIG_Python_SetConstant(d, "SUNLS_PSOLVE_FAIL_UNREC",SWIG_From_int(static_cast< int >(-806)));
+  SWIG_Python_SetConstant(d, "SUNLS_PACKAGE_FAIL_UNREC",SWIG_From_int(static_cast< int >(-807)));
+  SWIG_Python_SetConstant(d, "SUNLS_GS_FAIL",SWIG_From_int(static_cast< int >(-808)));
+  SWIG_Python_SetConstant(d, "SUNLS_QRSOL_FAIL",SWIG_From_int(static_cast< int >(-809)));
+  SWIG_Python_SetConstant(d, "SUNLS_VECTOROP_ERR",SWIG_From_int(static_cast< int >(-810)));
+  SWIG_Python_SetConstant(d, "SUNLS_RES_REDUCED",SWIG_From_int(static_cast< int >(801)));
+  SWIG_Python_SetConstant(d, "SUNLS_CONV_FAIL",SWIG_From_int(static_cast< int >(802)));
+  SWIG_Python_SetConstant(d, "SUNLS_ATIMES_FAIL_REC",SWIG_From_int(static_cast< int >(803)));
+  SWIG_Python_SetConstant(d, "SUNLS_PSET_FAIL_REC",SWIG_From_int(static_cast< int >(804)));
+  SWIG_Python_SetConstant(d, "SUNLS_PSOLVE_FAIL_REC",SWIG_From_int(static_cast< int >(805)));
+  SWIG_Python_SetConstant(d, "SUNLS_PACKAGE_FAIL_REC",SWIG_From_int(static_cast< int >(806)));
+  SWIG_Python_SetConstant(d, "SUNLS_QRFACT_FAIL",SWIG_From_int(static_cast< int >(807)));
+  SWIG_Python_SetConstant(d, "SUNLS_LUFACT_FAIL",SWIG_From_int(static_cast< int >(808)));
+  SWIG_Python_SetConstant(d, "SUNNONLINEARSOLVER_ROOTFIND",SWIG_From_int(static_cast< int >(SUNNONLINEARSOLVER_ROOTFIND)));
+  SWIG_Python_SetConstant(d, "SUNNONLINEARSOLVER_FIXEDPOINT",SWIG_From_int(static_cast< int >(SUNNONLINEARSOLVER_FIXEDPOINT)));
+  SWIG_Python_SetConstant(d, "SUN_NLS_SUCCESS",SWIG_From_int(static_cast< int >(0)));
+  SWIG_Python_SetConstant(d, "SUN_NLS_CONTINUE",SWIG_From_int(static_cast< int >(+901)));
+  SWIG_Python_SetConstant(d, "SUN_NLS_CONV_RECVR",SWIG_From_int(static_cast< int >(+902)));
+  SWIG_Python_SetConstant(d, "SUN_NLS_MEM_NULL",SWIG_From_int(static_cast< int >(-901)));
+  SWIG_Python_SetConstant(d, "SUN_NLS_MEM_FAIL",SWIG_From_int(static_cast< int >(-902)));
+  SWIG_Python_SetConstant(d, "SUN_NLS_ILL_INPUT",SWIG_From_int(static_cast< int >(-903)));
+  SWIG_Python_SetConstant(d, "SUN_NLS_VECTOROP_ERR",SWIG_From_int(static_cast< int >(-904)));
+  SWIG_Python_SetConstant(d, "SUN_NLS_EXT_FAIL",SWIG_From_int(static_cast< int >(-905)));
   SWIG_Python_SetConstant(d, "KIN_SUCCESS",SWIG_From_int(static_cast< int >(0)));
   SWIG_Python_SetConstant(d, "KIN_INITIAL_GUESS_OK",SWIG_From_int(static_cast< int >(1)));
   SWIG_Python_SetConstant(d, "KIN_STEP_LT_STPTOL",SWIG_From_int(static_cast< int >(2)));

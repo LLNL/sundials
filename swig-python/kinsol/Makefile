@@ -48,7 +48,9 @@ install:
 	python setup.py install
 
 tar:
-	tar czvf py-kinsol.tar.gz callbacks.h nvector_pyhelp.h kin_example.py setup.py README.txt 
+	tar czvf py-kinsol.tar.gz \
+		kin_example.py kinsol.py kinsol_wrap.cxx callbacks.h \
+		kinsol_wrap.h nvector_pyhelp.h setup.py README.txt 
 
 clean:
 	rm -rf build

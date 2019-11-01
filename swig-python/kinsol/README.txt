@@ -16,8 +16,8 @@ $ make install
 Finally, to build the python interfaces for a desired package complete
 the commands below (in the example below we build the KINSOL interface).
 
-$ cd kinsol
+$ tar xvzf py-kinsol.tar.gz
 $ export SUNDIALS_ROOT=/path/to/kinsol-installation
-$ make kinsol
+$ python setup.py build_ext
 $ python setup.py install
 
