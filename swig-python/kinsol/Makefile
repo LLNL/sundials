@@ -47,6 +47,9 @@ kinsol_inplace: kinsol.py kinsol_wrap.cxx
 install:
 	python setup.py install
 
+tar:
+	tar czvf py-kinsol.tar.gz callbacks.h nvector_pyhelp.h kin_example.py setup.py README.txt 
+
 clean:
 	rm -rf build
 	rm -rf __pycache__

@@ -6,8 +6,8 @@ double precision and 32-bit indices**.
 The commands below will build and install a basic configuration of
 KINSOL/SUNDIALS for use with the Python interfaces:
 
-$ tar xvzf kinsol-5.0.0-dev.1.tar.gz
-$ cd kinsol-5.0.0-dev.1
+$ tar xvzf kinsol-5.0.0.tar.gz
+$ cd kinsol-5.0.0
 $ mkdir build && cd build
 $ cmake -DCMAKE_INSTALL_PREFIX=/path/to/kinsol-installation -DCMAKE_BUILD_TYPE=Release -DSUNDIALS_INDEX_SIZE=32 ../
 $ make

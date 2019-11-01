@@ -41,3 +41,7 @@ $ cd <package>
 $ export SUNDIALS_ROOT=/path/to/sundials-installation
 $ make generate
 ```
+
+To package up the interface as a tarball to distribute just run `make tar`
+from the `<package>` directory.
+

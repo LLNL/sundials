@@ -65,6 +65,7 @@
 
 # swig
 /swig/swig
+/swig-python/**/numpy.i
 
 # python
 __pycache__
