@@ -43,16 +43,16 @@
 #include "sundials/sundials_nvector.h"  
 #include "sundials/sundials_matrix.h"
 #include "sundials/sundials_iterative.h"
-#include "sundials/sundials_linearsolver.h"
-#include "sundials/sundials_nonlinearsolver.h"
+/* #include "sundials/sundials_linearsolver.h" */
+/* #include "sundials/sundials_nonlinearsolver.h" */
 #include "nvector_pyhelp.h"
 %}
 %include "sundials/sundials_types.h"
 %include "sundials/sundials_nvector.h"
 %include "sundials/sundials_matrix.h"
 %include "sundials/sundials_iterative.h"
-%include "sundials/sundials_linearsolver.h"
-%include "sundials/sundials_nonlinearsolver.h"
+/* %include "sundials/sundials_linearsolver.h" */
+/* %include "sundials/sundials_nonlinearsolver.h" */
 %include "nvector_pyhelp.h"
 
 // Include implementations of generics

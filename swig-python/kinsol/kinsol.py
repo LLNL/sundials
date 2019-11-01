@@ -330,6 +330,9 @@ def N_VConstrMaskLocal(c, x, m):
 def N_VMinQuotientLocal(num, denom):
     return _kinsol.N_VMinQuotientLocal(num, denom)
 
+def N_VNewVectorArray(count):
+    return _kinsol.N_VNewVectorArray(count)
+
 def N_VCloneEmptyVectorArray(count, w):
     return _kinsol.N_VCloneEmptyVectorArray(count, w)
 
@@ -338,6 +341,12 @@ def N_VCloneVectorArray(count, w):
 
 def N_VDestroyVectorArray(vs, count):
     return _kinsol.N_VDestroyVectorArray(vs, count)
+
+def N_VGetVecAtIndexVectorArray(vs, index):
+    return _kinsol.N_VGetVecAtIndexVectorArray(vs, index)
+
+def N_VSetVecAtIndexVectorArray(vs, index, w):
+    return _kinsol.N_VSetVecAtIndexVectorArray(vs, index, w)
 SUNMATRIX_DENSE = _kinsol.SUNMATRIX_DENSE
 SUNMATRIX_BAND = _kinsol.SUNMATRIX_BAND
 SUNMATRIX_SPARSE = _kinsol.SUNMATRIX_SPARSE
@@ -439,201 +448,6 @@ def QRfact(n, h, q, job):
 
 def QRsol(n, h, q, b):
     return _kinsol.QRsol(n, h, q, b)
-SUNLINEARSOLVER_DIRECT = _kinsol.SUNLINEARSOLVER_DIRECT
-SUNLINEARSOLVER_ITERATIVE = _kinsol.SUNLINEARSOLVER_ITERATIVE
-SUNLINEARSOLVER_MATRIX_ITERATIVE = _kinsol.SUNLINEARSOLVER_MATRIX_ITERATIVE
-class SUNLinearSolver_Ops(object):
-    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
-    __repr__ = _swig_repr
-    gettype = property(_kinsol.SUNLinearSolver_Ops_gettype_get, _kinsol.SUNLinearSolver_Ops_gettype_set)
-    setatimes = property(_kinsol.SUNLinearSolver_Ops_setatimes_get, _kinsol.SUNLinearSolver_Ops_setatimes_set)
-    setpreconditioner = property(_kinsol.SUNLinearSolver_Ops_setpreconditioner_get, _kinsol.SUNLinearSolver_Ops_setpreconditioner_set)
-    setscalingvectors = property(_kinsol.SUNLinearSolver_Ops_setscalingvectors_get, _kinsol.SUNLinearSolver_Ops_setscalingvectors_set)
-    initialize = property(_kinsol.SUNLinearSolver_Ops_initialize_get, _kinsol.SUNLinearSolver_Ops_initialize_set)
-    setup = property(_kinsol.SUNLinearSolver_Ops_setup_get, _kinsol.SUNLinearSolver_Ops_setup_set)
-    solve = property(_kinsol.SUNLinearSolver_Ops_solve_get, _kinsol.SUNLinearSolver_Ops_solve_set)
-    numiters = property(_kinsol.SUNLinearSolver_Ops_numiters_get, _kinsol.SUNLinearSolver_Ops_numiters_set)
-    resnorm = property(_kinsol.SUNLinearSolver_Ops_resnorm_get, _kinsol.SUNLinearSolver_Ops_resnorm_set)
-    lastflag = property(_kinsol.SUNLinearSolver_Ops_lastflag_get, _kinsol.SUNLinearSolver_Ops_lastflag_set)
-    space = property(_kinsol.SUNLinearSolver_Ops_space_get, _kinsol.SUNLinearSolver_Ops_space_set)
-    resid = property(_kinsol.SUNLinearSolver_Ops_resid_get, _kinsol.SUNLinearSolver_Ops_resid_set)
-    free = property(_kinsol.SUNLinearSolver_Ops_free_get, _kinsol.SUNLinearSolver_Ops_free_set)
-
-    def __init__(self):
-        _kinsol.SUNLinearSolver_Ops_swiginit(self, _kinsol.new_SUNLinearSolver_Ops())
-    __swig_destroy__ = _kinsol.delete_SUNLinearSolver_Ops
-
-# Register SUNLinearSolver_Ops in _kinsol:
-_kinsol.SUNLinearSolver_Ops_swigregister(SUNLinearSolver_Ops)
-
-class SUNLinearSolver(object):
-    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
-    __repr__ = _swig_repr
-    content = property(_kinsol.SUNLinearSolver_content_get, _kinsol.SUNLinearSolver_content_set)
-    ops = property(_kinsol.SUNLinearSolver_ops_get, _kinsol.SUNLinearSolver_ops_set)
-
-    def __init__(self):
-        _kinsol.SUNLinearSolver_swiginit(self, _kinsol.new_SUNLinearSolver())
-    __swig_destroy__ = _kinsol.delete_SUNLinearSolver
-
-# Register SUNLinearSolver in _kinsol:
-_kinsol.SUNLinearSolver_swigregister(SUNLinearSolver)
-
-
-def SUNLinSolNewEmpty():
-    return _kinsol.SUNLinSolNewEmpty()
-
-def SUNLinSolFreeEmpty(S):
-    return _kinsol.SUNLinSolFreeEmpty(S)
-
-def SUNLinSolGetType(S):
-    return _kinsol.SUNLinSolGetType(S)
-
-def SUNLinSolSetATimes(S, A_data, ATimes):
-    return _kinsol.SUNLinSolSetATimes(S, A_data, ATimes)
-
-def SUNLinSolSetPreconditioner(S, P_data, Pset, Psol):
-    return _kinsol.SUNLinSolSetPreconditioner(S, P_data, Pset, Psol)
-
-def SUNLinSolSetScalingVectors(S, s1, s2):
-    return _kinsol.SUNLinSolSetScalingVectors(S, s1, s2)
-
-def SUNLinSolInitialize(S):
-    return _kinsol.SUNLinSolInitialize(S)
-
-def SUNLinSolSetup(S, A):
-    return _kinsol.SUNLinSolSetup(S, A)
-
-def SUNLinSolSolve(S, A, x, b, tol):
-    return _kinsol.SUNLinSolSolve(S, A, x, b, tol)
-
-def SUNLinSolNumIters(S):
-    return _kinsol.SUNLinSolNumIters(S)
-
-def SUNLinSolResNorm(S):
-    return _kinsol.SUNLinSolResNorm(S)
-
-def SUNLinSolResid(S):
-    return _kinsol.SUNLinSolResid(S)
-
-def SUNLinSolLastFlag(S):
-    return _kinsol.SUNLinSolLastFlag(S)
-
-def SUNLinSolSpace(S, lenrwLS, leniwLS):
-    return _kinsol.SUNLinSolSpace(S, lenrwLS, leniwLS)
-
-def SUNLinSolFree(S):
-    return _kinsol.SUNLinSolFree(S)
-SUNLS_SUCCESS = _kinsol.SUNLS_SUCCESS
-SUNLS_MEM_NULL = _kinsol.SUNLS_MEM_NULL
-SUNLS_ILL_INPUT = _kinsol.SUNLS_ILL_INPUT
-SUNLS_MEM_FAIL = _kinsol.SUNLS_MEM_FAIL
-SUNLS_ATIMES_FAIL_UNREC = _kinsol.SUNLS_ATIMES_FAIL_UNREC
-SUNLS_PSET_FAIL_UNREC = _kinsol.SUNLS_PSET_FAIL_UNREC
-SUNLS_PSOLVE_FAIL_UNREC = _kinsol.SUNLS_PSOLVE_FAIL_UNREC
-SUNLS_PACKAGE_FAIL_UNREC = _kinsol.SUNLS_PACKAGE_FAIL_UNREC
-SUNLS_GS_FAIL = _kinsol.SUNLS_GS_FAIL
-SUNLS_QRSOL_FAIL = _kinsol.SUNLS_QRSOL_FAIL
-SUNLS_VECTOROP_ERR = _kinsol.SUNLS_VECTOROP_ERR
-SUNLS_RES_REDUCED = _kinsol.SUNLS_RES_REDUCED
-SUNLS_CONV_FAIL = _kinsol.SUNLS_CONV_FAIL
-SUNLS_ATIMES_FAIL_REC = _kinsol.SUNLS_ATIMES_FAIL_REC
-SUNLS_PSET_FAIL_REC = _kinsol.SUNLS_PSET_FAIL_REC
-SUNLS_PSOLVE_FAIL_REC = _kinsol.SUNLS_PSOLVE_FAIL_REC
-SUNLS_PACKAGE_FAIL_REC = _kinsol.SUNLS_PACKAGE_FAIL_REC
-SUNLS_QRFACT_FAIL = _kinsol.SUNLS_QRFACT_FAIL
-SUNLS_LUFACT_FAIL = _kinsol.SUNLS_LUFACT_FAIL
-SUNNONLINEARSOLVER_ROOTFIND = _kinsol.SUNNONLINEARSOLVER_ROOTFIND
-SUNNONLINEARSOLVER_FIXEDPOINT = _kinsol.SUNNONLINEARSOLVER_FIXEDPOINT
-class SUNNonlinearSolver_Ops(object):
-    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
-    __repr__ = _swig_repr
-    gettype = property(_kinsol.SUNNonlinearSolver_Ops_gettype_get, _kinsol.SUNNonlinearSolver_Ops_gettype_set)
-    initialize = property(_kinsol.SUNNonlinearSolver_Ops_initialize_get, _kinsol.SUNNonlinearSolver_Ops_initialize_set)
-    setup = property(_kinsol.SUNNonlinearSolver_Ops_setup_get, _kinsol.SUNNonlinearSolver_Ops_setup_set)
-    solve = property(_kinsol.SUNNonlinearSolver_Ops_solve_get, _kinsol.SUNNonlinearSolver_Ops_solve_set)
-    free = property(_kinsol.SUNNonlinearSolver_Ops_free_get, _kinsol.SUNNonlinearSolver_Ops_free_set)
-    setsysfn = property(_kinsol.SUNNonlinearSolver_Ops_setsysfn_get, _kinsol.SUNNonlinearSolver_Ops_setsysfn_set)
-    setlsetupfn = property(_kinsol.SUNNonlinearSolver_Ops_setlsetupfn_get, _kinsol.SUNNonlinearSolver_Ops_setlsetupfn_set)
-    setlsolvefn = property(_kinsol.SUNNonlinearSolver_Ops_setlsolvefn_get, _kinsol.SUNNonlinearSolver_Ops_setlsolvefn_set)
-    setctestfn = property(_kinsol.SUNNonlinearSolver_Ops_setctestfn_get, _kinsol.SUNNonlinearSolver_Ops_setctestfn_set)
-    setmaxiters = property(_kinsol.SUNNonlinearSolver_Ops_setmaxiters_get, _kinsol.SUNNonlinearSolver_Ops_setmaxiters_set)
-    getnumiters = property(_kinsol.SUNNonlinearSolver_Ops_getnumiters_get, _kinsol.SUNNonlinearSolver_Ops_getnumiters_set)
-    getcuriter = property(_kinsol.SUNNonlinearSolver_Ops_getcuriter_get, _kinsol.SUNNonlinearSolver_Ops_getcuriter_set)
-    getnumconvfails = property(_kinsol.SUNNonlinearSolver_Ops_getnumconvfails_get, _kinsol.SUNNonlinearSolver_Ops_getnumconvfails_set)
-
-    def __init__(self):
-        _kinsol.SUNNonlinearSolver_Ops_swiginit(self, _kinsol.new_SUNNonlinearSolver_Ops())
-    __swig_destroy__ = _kinsol.delete_SUNNonlinearSolver_Ops
-
-# Register SUNNonlinearSolver_Ops in _kinsol:
-_kinsol.SUNNonlinearSolver_Ops_swigregister(SUNNonlinearSolver_Ops)
-
-class SUNNonlinearSolver(object):
-    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
-    __repr__ = _swig_repr
-    content = property(_kinsol.SUNNonlinearSolver_content_get, _kinsol.SUNNonlinearSolver_content_set)
-    ops = property(_kinsol.SUNNonlinearSolver_ops_get, _kinsol.SUNNonlinearSolver_ops_set)
-
-    def __init__(self):
-        _kinsol.SUNNonlinearSolver_swiginit(self, _kinsol.new_SUNNonlinearSolver())
-    __swig_destroy__ = _kinsol.delete_SUNNonlinearSolver
-
-# Register SUNNonlinearSolver in _kinsol:
-_kinsol.SUNNonlinearSolver_swigregister(SUNNonlinearSolver)
-
-
-def SUNNonlinSolNewEmpty():
-    return _kinsol.SUNNonlinSolNewEmpty()
-
-def SUNNonlinSolFreeEmpty(NLS):
-    return _kinsol.SUNNonlinSolFreeEmpty(NLS)
-
-def SUNNonlinSolGetType(NLS):
-    return _kinsol.SUNNonlinSolGetType(NLS)
-
-def SUNNonlinSolInitialize(NLS):
-    return _kinsol.SUNNonlinSolInitialize(NLS)
-
-def SUNNonlinSolSetup(NLS, y, mem):
-    return _kinsol.SUNNonlinSolSetup(NLS, y, mem)
-
-def SUNNonlinSolSolve(NLS, y0, y, w, tol, callLSetup, mem):
-    return _kinsol.SUNNonlinSolSolve(NLS, y0, y, w, tol, callLSetup, mem)
-
-def SUNNonlinSolFree(NLS):
-    return _kinsol.SUNNonlinSolFree(NLS)
-
-def SUNNonlinSolSetSysFn(NLS, SysFn):
-    return _kinsol.SUNNonlinSolSetSysFn(NLS, SysFn)
-
-def SUNNonlinSolSetLSetupFn(NLS, SetupFn):
-    return _kinsol.SUNNonlinSolSetLSetupFn(NLS, SetupFn)
-
-def SUNNonlinSolSetLSolveFn(NLS, SolveFn):
-    return _kinsol.SUNNonlinSolSetLSolveFn(NLS, SolveFn)
-
-def SUNNonlinSolSetConvTestFn(NLS, CTestFn):
-    return _kinsol.SUNNonlinSolSetConvTestFn(NLS, CTestFn)
-
-def SUNNonlinSolSetMaxIters(NLS, maxiters):
-    return _kinsol.SUNNonlinSolSetMaxIters(NLS, maxiters)
-
-def SUNNonlinSolGetNumIters(NLS, niters):
-    return _kinsol.SUNNonlinSolGetNumIters(NLS, niters)
-
-def SUNNonlinSolGetCurIter(NLS, iter):
-    return _kinsol.SUNNonlinSolGetCurIter(NLS, iter)
-
-def SUNNonlinSolGetNumConvFails(NLS, nconvfails):
-    return _kinsol.SUNNonlinSolGetNumConvFails(NLS, nconvfails)
-SUN_NLS_SUCCESS = _kinsol.SUN_NLS_SUCCESS
-SUN_NLS_CONTINUE = _kinsol.SUN_NLS_CONTINUE
-SUN_NLS_CONV_RECVR = _kinsol.SUN_NLS_CONV_RECVR
-SUN_NLS_MEM_NULL = _kinsol.SUN_NLS_MEM_NULL
-SUN_NLS_MEM_FAIL = _kinsol.SUN_NLS_MEM_FAIL
-SUN_NLS_ILL_INPUT = _kinsol.SUN_NLS_ILL_INPUT
-SUN_NLS_VECTOROP_ERR = _kinsol.SUN_NLS_VECTOROP_ERR
 
 def N_VGetData(v):
     return _kinsol.N_VGetData(v)
@@ -850,6 +664,9 @@ def KINSetErrHandlerFn(kinmem, ehfun, eh_data):
 
 def KINSetErrFile(kinmem, errfp):
     return _kinsol.KINSetErrFile(kinmem, errfp)
+
+def KINSetErrFilename(kinmem, filename):
+    return _kinsol.KINSetErrFilename(kinmem, filename)
 
 def KINSetInfoHandlerFn(kinmem, ihfun, ih_data):
     return _kinsol.KINSetInfoHandlerFn(kinmem, ihfun, ih_data)

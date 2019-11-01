@@ -7,13 +7,13 @@
  Based on the example kinRoberts_fp.c by Carol Woodward @ LLNL
  -----------------------------------------------------------------
  Example problem:
- 
+
  The following is a simple example problem, with the coding
- needed for its solution by the accelerated fixed point solver in 
- KINSOL. 
- The problem is from chemical kinetics, and consists of solving 
- the first time step in a Backward Euler solution for the 
- following three rate equations:         
+ needed for its solution by the accelerated fixed point solver in
+ KINSOL.
+ The problem is from chemical kinetics, and consists of solving
+ the first time step in a Backward Euler solution for the
+ following three rate equations:
     dy1/dt = -.04*y1 + 1.e4*y2*y3
     dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e2*(y2)^2
     dy3/dt = 3.e2*(y2)^2
@@ -58,21 +58,21 @@ class Problem:
 
 
 def solve():
-  print("Example problem from chemical kinetics solving") 
+  print("Example problem from chemical kinetics solving")
   print("the first time step in a Backward Euler solution for the")
   print("following three rate equations:")
   print("    dy1/dt = -.04*y1 + 1.e4*y2*y3")
   print("    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e2*(y2)^2")
   print("    dy3/dt = 3.e2*(y2)^2")
   print("on the interval from t = 0.0 to t = 0.1, with initial")
-  print("conditions: y1 = 1.0, y2 = y3 = 0.") 
+  print("conditions: y1 = 1.0, y2 = y3 = 0.")
   print("Solution method: Anderson accelerated fixed point iteration.\n")
 
   # --------------------------------------
   # Create vectors for solution and scales
   # --------------------------------------
 
-  # data arrays 
+  # data arrays
   y = np.zeros(Problem.NEQ)
   scale = np.zeros(Problem.NEQ)
 
@@ -105,6 +105,10 @@ def solve():
   fnormtol = Problem.TOL
   flag = kin.KINSetFuncNormTol(kmem, fnormtol)
   if flag < 0: raise RuntimeError(f'KINSetFuncNormTol returned {flag}')
+
+  flag = kin.KINSetErrFilename(kmem, "error.log")
+  if flag < 0: raise RuntimeError(f'KINSetErrFilename returned {flag}')
+
 
   # -------------
   # Initial guess

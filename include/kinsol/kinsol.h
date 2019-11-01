@@ -99,6 +99,7 @@ SUNDIALS_EXPORT int KINSol(void *kinmem, N_Vector uu, int strategy,
 SUNDIALS_EXPORT int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun,
                                        void *eh_data);
 SUNDIALS_EXPORT int KINSetErrFile(void *kinmem, FILE *errfp);
+SUNDIALS_EXPORT int KINSetErrFilename(void *kinmem, const char* filename);
 SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun,
                                         void *ih_data);
 SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
