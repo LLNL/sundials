@@ -1732,8 +1732,8 @@ int arkLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   /* Obtain pointers to the data for various vectors */
   ewt_data = N_VGetArrayPointer(ark_mem->ewt);
   y_data   = N_VGetArrayPointer(y);
-  if (ark_mem->constraintsSet)
-    cns_data = N_VGetArrayPointer(ark_mem->constraints);
+  cns_data = (ark_mem->constraintsSet) ?
+    N_VGetArrayPointer(ark_mem->constraints) : NULL;
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(ark_mem->uround);
@@ -1816,8 +1816,8 @@ int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
   ytemp_data = N_VGetArrayPointer(ytemp);
-  if (ark_mem->constraintsSet)
-    cns_data = N_VGetArrayPointer(ark_mem->constraints);
+  cns_data = (ark_mem->constraintsSet) ?
+    N_VGetArrayPointer(ark_mem->constraints) : NULL;
 
   /* Load ytemp with y = predicted y vector */
   N_VScale(ONE, y, ytemp);
@@ -2363,7 +2363,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
     }
     delta = deltar * arkls_mem->sqrtN;
   } else {
-    delta = ZERO;
+    delta = bnorm = ZERO;
   }
 
   /* Set scaling vectors for LS to use (if applicable) */

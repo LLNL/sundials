@@ -491,8 +491,8 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
   ytemp_data = N_VGetArrayPointer(ytemp);
-  if (ark_mem->constraintsSet)
-    cns_data = N_VGetArrayPointer(ark_mem->constraints);
+  cns_data = (ark_mem->constraintsSet) ?
+    N_VGetArrayPointer(ark_mem->constraints) : NULL;
 
   /* Load ytemp with y = predicted y vector. */
   N_VScale(ONE, y, ytemp);
