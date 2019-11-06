@@ -1,5 +1,9 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release x.x.x
+
+Fixed a build system bug related to finding LAPACK/BLAS.
+
 ## Changes to SUNDIALS in release 5.0.0
 
 ### Build System

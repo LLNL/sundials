@@ -68,7 +68,7 @@ esac
 umask 002
 
 # path to libraries not installed through spack
-APPDIR=/usr/casc/sundials/share/rh7/apps/gcc-4.9.4
+APPDIR=/usr/casc/sundials/share/sunenv/apps/gcc-4.9.4
 
 # compilers
 COMPILER_DIR="$(spack location -i "$compiler")"
@@ -108,14 +108,13 @@ export MPIEXEC="${MPIDIR}/bin/mpirun"
 if [ "$realtype" == "extended" ]; then
     export LAPACKSTATUS=OFF
 else
+    export LAPACKSTATUS=ON
     if [ "$indexsize" == "32" ]; then
-        export LAPACKSTATUS=ON
+        LAPACKDIR="$(spack location -i openblas@0.3.7~ilp64 % "$compiler")"
     else
-        export LAPACKSTATUS=OFF
+        LAPACKDIR="$(spack location -i openblas@0.3.7+ilp64 % "$compiler")"
     fi
-    BLASDIR="$(spack location -i openblas@0.3.7~ilp64 % "$compiler")"
-    export BLASLIBS=${BLASDIR}/lib/libopenblas.so
-    export LAPACKLIBS=${BLASLIBS}
+    export LAPACKLIBS="${LAPACKDIR}/lib/libopenblas.so"
 fi
 
 # PARMETIS
@@ -154,6 +153,8 @@ else
     else
         export SLUMTDIR="$(spack location -i superlu-mt@3.1+int64~blas % "$compiler")"
     fi
+    export SLUMTLIBS="${SLUMTDIR}/lib/libblas_PTHREAD.a"
+    export SLUMTTYPE="PTHREAD"
 fi
 
 # SuperLU_DIST
@@ -168,6 +169,9 @@ else
     else
         export SLUDISTDIR="$(spack location -i superlu-dist@6.1.1+int64+openmp % "$compiler")"
     fi
+    # built with 32-bit blas
+    BLASDIR="$(spack location -i openblas@0.3.7~ilp64 % "$compiler")"
+    BLASLIBS=${BLASDIR}/lib/libopenblas.so
     export SLUDISTLIBS="${BLASLIBS};${PARMETISLIB};${METISLIB};${SLUDISTDIR}/lib/libsuperlu_dist.a"
 fi
 
@@ -178,9 +182,9 @@ if [ "$realtype" != "double" ]; then
 else
     export HYPRESTATUS=ON
     if [ "$indexsize" == "32" ]; then
-        export HYPREDIR="$(spack location -i hypre@2.16.0~int64 % "$compiler")"
+        export HYPREDIR="$(spack location -i hypre@2.18.2~int64 % "$compiler")"
     else
-        export HYPREDIR="$(spack location -i hypre@2.16.0+int64 % "$compiler")"
+        export HYPREDIR="$(spack location -i hypre@2.18.2+int64 % "$compiler")"
     fi
 fi
 
@@ -191,9 +195,9 @@ if [ "$realtype" != "double" ]; then
 else
     export PETSCSTATUS=ON
     if [ "$indexsize" == "32" ]; then
-        export PETSCDIR="$(spack location -i petsc@3.11.3~int64 % $compiler)"
+        export PETSCDIR="$(spack location -i petsc@3.12.1~int64 % $compiler)"
     else
-        export PETSCDIR="$(spack location -i petsc@3.11.3+int64 % $compiler)"
+        export PETSCDIR="$(spack location -i petsc@3.12.1+int64 % $compiler)"
     fi
 fi
 
@@ -208,7 +212,7 @@ fi
 # raja
 if [ "$realtype" == "double" ]; then
     RAJASTATUS=ON
-    export RAJADIR=${APPDIR}/raja-0.9.0
+    export RAJADIR=${APPDIR}/raja-0.10.0
 else
     RAJASTATUS=OFF
 fi

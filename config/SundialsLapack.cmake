@@ -16,19 +16,9 @@
 
 set(LAPACK_FOUND FALSE)
 
-# If LAPACK libraries are undefined, try to find them (if we have
-# a working Fortran compiler) or look for them in the most
-# obvious place...
+# If LAPACK libraries are undefined, try to find them.
 if(NOT LAPACK_LIBRARIES)
-  if(F77_FOUND)
-    include(FindLAPACK)
-  else(F77_FOUND)
-    find_library(LAPACK_LIBRARIES
-      NAMES lapack
-      PATHS /usr/lib /usr/local/lib
-      "$ENV{ProgramFiles}/LAPACK/Lib"
-      )
-  endif(F77_FOUND)
+  find_package(LAPACK REQUIRED)
 
   # If the xSDK flag is used, set it to what was found
   if(LAPACK_LIBRARIES AND TPL_ENABLE_LAPACK)

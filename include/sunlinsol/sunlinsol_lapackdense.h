@@ -45,12 +45,6 @@ extern "C" {
 #error  Incompatible realtype for LAPACK; disable LAPACK and rebuild
 #endif
 
-/* Catch to disable LAPACK linear solvers with incompatible sunindextype */
-#if defined(SUNDIALS_INT32_T)
-#else  /* incompatible sunindextype for LAPACK */
-#error  Incompatible sunindextype for LAPACK; disable LAPACK and rebuild
-#endif
-
 /* -----------------------------------------------
  * LAPACK dense implementation of SUNLinearSolver
  * ----------------------------------------------- */

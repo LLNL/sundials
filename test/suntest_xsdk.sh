@@ -12,7 +12,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# SUNDIALS regression testing using xSDK options
+# SUNDIALS regression testing script using xSDK options
 #
 # Usage: ./suntest_xsdk.sh <real type> <index size> <library type> <TPL status>
 #                          <test type> <build threads>
@@ -201,6 +201,7 @@ if [ "$TPLs" == "ON" ]; then
     # C and C++ standard flags to append
     CSTD="-std=c99"
     CXXSTD="-std=c++11"
+    C90MATH=OFF
 
     # CUDA
     CUDASTATUS=${CUDASTATUS:-"OFF"}
@@ -273,6 +274,7 @@ else
     # C and C++ standard flags to append
     CSTD="-std=c90"
     CXXSTD="-std=c++11"
+    C90MATH=ON
 
     # disable all TPLs
     MPISTATUS=OFF
@@ -357,7 +359,7 @@ time cmake \
     -D MPIEXEC_EXECUTABLE="${MPIEXEC}" \
     \
     -D TPL_ENABLE_LAPACK="${LAPACKSTATUS}" \
-    -D TPL_LAPACK_LIBRARIES="${BLASLIBS};${LAPACKLIBS}" \
+    -D TPL_LAPACK_LIBRARIES="${LAPACKLIBS}" \
     \
     -D TPL_ENABLE_KLU="${KLUSTATUS}" \
     -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
@@ -372,8 +374,8 @@ time cmake \
     \
     -D TPL_ENABLE_SUPERLUMT="${SLUMTSTATUS}" \
     -D TPL_SUPERLUMT_INCLUDE_DIRS="${SLUMTDIR}/include" \
-    -D TPL_SUPERLUMT_LIBRARIES="${SLUMTDIR}/lib/libblas_PTHREAD.a;${SLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
-    -D TPL_SUPERLUMT_THREAD_TYPE=PTHREAD \
+    -D TPL_SUPERLUMT_LIBRARIES="${SLUMTLIBS};${SLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
+    -D TPL_SUPERLUMT_THREAD_TYPE="${SLUMTTYPE}" \
     \
     -D TPL_ENABLE_SUPERLUDIST="${SLUDISTSTATUS}" \
     -D TPL_SUPERLUDIST_INCLUDE_DIRS="${SLUDISTDIR}/include" \
@@ -386,6 +388,8 @@ time cmake \
     \
     -D TPL_ENABLE_RAJA="${RAJASTATUS}" \
     -D RAJA_DIR="${RAJADIR}" \
+    \
+    -D USE_GENERIC_MATH="${C90MATH}" \
     \
     -D SUNDIALS_DEVTESTS="${devtests}" \
     \

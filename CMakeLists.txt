@@ -390,16 +390,7 @@ option(LAPACK_ENABLE "Enable Lapack support" OFF)
 
 # LAPACK does not support extended precision
 if(LAPACK_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
-  print_warning("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision"
-                "Disabling LAPACK")
-  force_variable(LAPACK_ENABLE BOOL "LAPACK is disabled" OFF)
-endif()
-
-# LAPACK does not support 64-bit integer index types
-if(LAPACK_ENABLE AND SUNDIALS_INDEX_SIZE MATCHES "64")
-  print_warning("LAPACK is not compatible with ${SUNDIALS_INDEX_SIZE} integers"
-                "Disabling LAPACK")
-  set(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
+  print_error("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision")
 endif()
 
 # ---------------------------------------------------------------
