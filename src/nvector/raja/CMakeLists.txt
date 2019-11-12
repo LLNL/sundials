@@ -33,8 +33,6 @@ add_prefix(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 set(nvecraja_HEADERS nvector_raja.h)
 add_prefix(${sundials_SOURCE_DIR}/include/nvector/ nvecraja_HEADERS)
 
-include_directories(${MPI_CXX_INCLUDE_PATH})
-
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 add_definitions(-DBUILD_SUNDIALS_LIBRARY)
 
