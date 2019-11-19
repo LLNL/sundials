@@ -344,8 +344,14 @@ if(EXAMPLES_INSTALL)
 
   if(SUPERLUMT_FOUND)
     examples2string(IDAS_examples_SUPERLUMT EXAMPLES_SLUMT)
+    if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+      set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
+    else()
+      set(THREAD_LIBRARY_SLUMT "")
+    endif()
   else()
     set(EXAMPLES_SLUMTU "")
+    set(THREAD_LIBRARY_SLUMT "")
   endif()
 
   # Regardless of the platform we're on, we will generate and install

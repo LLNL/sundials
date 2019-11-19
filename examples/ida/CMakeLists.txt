@@ -31,7 +31,7 @@ endif()
 
 # C++ examples
 if(EXAMPLES_ENABLE_CXX)
-  if(Trilinos_ENABLE AND Trilinos_FUNCTIONAL)
+  if(Trilinos_ENABLE AND SUNDIALS_TRILINOS)
     add_subdirectory(trilinos)
   endif()
 endif()

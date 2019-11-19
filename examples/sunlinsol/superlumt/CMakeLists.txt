@@ -130,6 +130,12 @@ if(EXAMPLES_INSTALL)
   examples2string(sunlinsol_superlumt_examples EXAMPLES_SLUMT)
   examples2string(sunlinsol_superlumt_dependencies EXAMPLES_DEPENDENCIES_SLUMT)
 
+  if(SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+    set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
+  else()
+    set(THREAD_LIBRARY_SLUMT "")
+  endif()
+
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.

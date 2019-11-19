@@ -139,7 +139,7 @@ if(EXAMPLES_INSTALL)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "SUNMatrix_SLUNRloc")
-  string(CONCAT SUNDIALS_LIBS "-lsundials_cvode "
+  string(CONCAT SUNDIALS_LIBS
     "-lsundials_nvecparallel "
     "-lsundials_sunmatrixslunrloc "
     "-lsundials_sunlinsolsuperludist")

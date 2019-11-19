@@ -28,6 +28,9 @@
 # when building targets that use Trilinos.
 # -----------------------------------------------------------------------------
 
+# Initialize SUNDIALS Trilinos support variable
+set(SUNDIALS_TRILINOS FALSE)
+
 # Find Trilinos
 include(FindTrilinos)
 
@@ -118,6 +121,7 @@ if(Trilinos_FOUND AND TARGET Trilinos::Trilinos)
     set(SUNDIALS_TRILINOS TRUE)
     set(SUNDIALS_TRILINOS_HAVE_MPI ${Trilinos_INTERFACE_MPI_CXX_FOUND})
   else(LTEST_OK)
+    set(SUNDIALS_TRILINOS FALSE)
     message(STATUS "Testing Trilinos libraries... FAILED")
     print_error("Trilinos not functional - support cannot be provided.")
   endif(LTEST_OK)
