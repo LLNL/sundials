@@ -19,7 +19,7 @@ include(CTest)
 
 
 # If development tests are enabled, Python is needed to use the test runner
-if(SUNDIALS_DEVTESTS)
+if(SUNDIALS_TEST_DEVTESTS)
 
   find_package(PythonInterp)
   if(${PYTHON_VERSION_MAJOR} LESS 3)
@@ -29,11 +29,26 @@ if(SUNDIALS_DEVTESTS)
     endif()
   endif()
 
-  # Directory for test output
+  # Default test output directory
   set(TEST_OUTPUT_DIR ${PROJECT_BINARY_DIR}/Testing/output)
 
+  # Create test output directory
   if(NOT EXISTS ${TEST_OUTPUT_DIR})
     file(MAKE_DIRECTORY ${TEST_OUTPUT_DIR})
+  endif()
+
+  # If a non-default output directory was provided make sure it exists
+  if(SUNDIALS_TEST_OUTPUT_DIR)
+    if(NOT EXISTS ${SUNDIALS_TEST_OUTPUT_DIR})
+      file(MAKE_DIRECTORY ${SUNDIALS_TEST_OUTPUT_DIR})
+    endif()
+  endif()
+
+  # If a non-default answer directory was provided make sure it exists
+  if(SUNDIALS_TEST_ANSWER_DIR)
+    if(NOT EXISTS ${SUNDIALS_TEST_ANSWER_DIR})
+      print_error("SUNDIALS_TEST_ANSWER_DIR does not exist!")
+    endif()
   endif()
 
   # look for the testRunner script in the test directory

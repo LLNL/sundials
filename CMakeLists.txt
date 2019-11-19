@@ -693,8 +693,8 @@ endif()
 # produce erroneous failures when run on different systems as the pass/fail
 # status is determined by comparing the output against a saved output file.
 # ------------------------------------------------------------------------------
-option(SUNDIALS_DEVTESTS "Include development tests in make test" OFF)
-mark_as_advanced(FORCE SUNDIALS_DEVTESTS)
+option(SUNDIALS_TEST_DEVTESTS "Include development tests in make test" OFF)
+mark_as_advanced(FORCE SUNDIALS_TEST_DEVTESTS)
 
 # ===============================================================
 # Add any platform specifc settings

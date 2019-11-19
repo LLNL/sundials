@@ -5,7 +5,7 @@ List of parallel ARKODE C++ examples
 Sample results:
 
   The example output was produced by running:
-  
+
       mpiexec -n 4 ./ark_heat2D
 
 
@@ -34,7 +34,6 @@ cmake \
     -DBUILD_ARKODE=ON \
     -DBUILD_KINSOL=OFF \
     -DBUILD_TESTING=ON \
-    -DSUNDIALS_DEVTESTS=ON \
     -DEXAMPLES_ENABLE_CXX=ON \
     \
     -DBLAS_ENABLE=OFF \
@@ -47,8 +46,7 @@ cmake \
 
 
   System Architecture: x86_64
-  Processor Type: Intel(R) Xeon(R) W-2133 CPU @ 3.60GHz   
+  Processor Type: Intel(R) Xeon(R) W-2133 CPU @ 3.60GHz
   Operating System: Red Hat 7.6
   C/Fortran Compilers: gcc/gfortran v4.9.4
   MPI: Open MPI v3.1.2
-
