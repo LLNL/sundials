@@ -23,13 +23,13 @@ nonlinear solver APIs used across SUNDIALS packages.
 
 ## Documentation
 
-See the [IDAS User Guide](./doc/idas/idas_guide.pdf) and
-[IDAS Examples](./doc/idas/idas_examples.pdf) document for more information
+See the [IDAS User Guide](/doc/idas/idas_guide.pdf) and
+[IDAS Examples](/doc/idas/idas_examples.pdf) document for more information
 about IDAS usage and the provided example programs respectively.
 
 ## Installation
 
-For installation instructions see the [INSTALL_GUIDE](./INSTALL_GUIDE.pdf)
+For installation instructions see the [INSTALL_GUIDE](/INSTALL_GUIDE.pdf)
 or the "Installation Procedure" chapter in the IDAS User Guide.
 
 ## Release History

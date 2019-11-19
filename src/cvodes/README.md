@@ -24,13 +24,13 @@ nonlinear solver APIs used across SUNDIALS packages.
 
 ## Documentation
 
-See the [CVODES User Guide](./doc/cvodes/cvs_guide.pdf) and
-[CVODES Examples](./doc/cvodes/cvs_examples.pdf) document for more information
+See the [CVODES User Guide](/doc/cvodes/cvs_guide.pdf) and
+[CVODES Examples](/doc/cvodes/cvs_examples.pdf) document for more information
 about CVODES usage and the provided example programs respectively.
 
 ## Installation
 
-For installation instructions see the [INSTALL_GUIDE](./INSTALL_GUIDE.pdf)
+For installation instructions see the [INSTALL_GUIDE](/INSTALL_GUIDE.pdf)
 or the "Installation Procedure" chapter in the CVODES User Guide.
 
 ## Release History

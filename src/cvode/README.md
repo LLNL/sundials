@@ -28,13 +28,13 @@ calling program and all user-supplied routines are in Fortran.
 
 ## Documentation
 
-See the [CVODE User Guide](./doc/cvode/cv_guide.pdf) and
-[CVODE Examples](./doc/cvode/cv_examples.pdf) document for more information
+See the [CVODE User Guide](/doc/cvode/cv_guide.pdf) and
+[CVODE Examples](/doc/cvode/cv_examples.pdf) document for more information
 about CVODE usage and the provided example programs respectively.
 
 ## Installation
 
-For installation instructions see the [INSTALL_GUIDE](./INSTALL_GUIDE.pdf)
+For installation instructions see the [INSTALL_GUIDE](/INSTALL_GUIDE.pdf)
 or the "Installation Procedure" chapter in the CVODE User Guide.
 
 ## Release History
