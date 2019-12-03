@@ -2455,7 +2455,7 @@ static void *N_VLinearCombination_PT(void *thread_data)
   /*
    * X[0] = c[0] * X[0] + sum{ c[i] * X[i] }, i = 1,...,nvec-1
    */
-  if ((my_data->Y1[0] == my_data->x1)) {
+  if (my_data->Y1[0] == my_data->x1) {
     for (j=start; j<end; j++) {
       zd[j] *= c[0];
     }

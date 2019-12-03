@@ -15,13 +15,14 @@
 # SUNDIALS regression testing script
 #
 # Usage: ./suntest.sh <real type> <index size> <library type> <TPL status>
-#                     <test type> <build threads>
+#                     <test type> <build threads> <compiler spec>
+#                     <build type>
 #
 # Required Inputs:
 #   <real type>  = SUNDIALS real type to build/test with:
 #                    single   : single (32-bit) precision
 #                    double   : double (64-bit) precision
-#                    extended : extended (128-bit) precision
+#                    extended : extended (80-bit) precision
 #   <index size> = SUNDIALS index size to build/test with:
 #                    32       : 32-bit indices
 #                    64       : 64-bit indices
@@ -39,16 +40,22 @@
 #
 # Optional Inputs:
 #   <build threads> = number of threads to use in parallel build (default 1)
+#   <compiler spec> = compiler spec (compiler-name@compiler-version)
+#   <build type>    = debug (dbg) or optimized (opt)
 # ------------------------------------------------------------------------------
 
 # check number of inputs
 if [ "$#" -lt 5 ]; then
     echo "ERROR: FIVE (5) inputs required"
-    echo "real type    : [single|double|extended]"
-    echo "index size   : [32|64]"
-    echo "library type : [static|shared|both]"
-    echo "TPLs         : [ON|OFF]"
-    echo "test type    : [STD|DEV|NONE]"
+    echo "  real type     : [single|double|extended]"
+    echo "  index size    : [32|64]"
+    echo "  library type  : [static|shared|both]"
+    echo "  TPLs          : [ON|OFF]"
+    echo "  test type     : [STD|DEV|NONE]"
+    echo "Optional inputs"
+    echo "  build threads : [number of build threads e.g., 8]"
+    echo "  compiler spec : [compiler spec e.g., gcc@4.9.4]"
+    echo "  build type    : [dbg|opt]"
     exit 1
 fi
 
@@ -57,11 +64,23 @@ indexsize=$2    # integer size for indices
 libtype=$3      # library type to build
 tplstatus=$4    # enable/disable third party libraries
 testtype=$5     # run standard tests, dev tests, or no tests (compile only)
-buildthreads=1  # default number threads for parallel builds
 
-# check if the number of build threads was set
+# set defaults for optional inputs
+buildthreads=1  # number threads for parallel builds
+compiler=""     # compiler spec
+bldtype=""      # build type
+
+# set optional inputs if provided
 if [ "$#" -gt 5 ]; then
     buildthreads=$6
+fi
+
+if [ "$#" -gt 6 ]; then
+    compiler=$7
+fi
+
+if [ "$#" -gt 7 ]; then
+    bldtype=$8
 fi
 
 # ------------------------------------------------------------------------------
@@ -71,6 +90,20 @@ fi
 # build and install directory names
 builddir=build
 installdir=install
+
+# add compiler spec to directory names
+if [ "$compiler" != "" ]; then
+    # replace @ with -
+    compilername=${compiler/@/-}
+    builddir=${builddir}_${compilername}
+    installdir=${installdir}_${compilername}
+fi
+
+# add build type to directory names
+if [ "$bldtype" != "" ]; then
+    builddir=${builddir}_${bldtype}
+    installdir=${installdir}_${bldtype}
+fi
 
 # set real types to test
 case "$realtype" in
@@ -174,16 +207,16 @@ installdir=${installdir}_${testtype}
 
 if [ ! -z "$SUNDIALS_ENV" ]; then
     echo "Setting up environment with $SUNDIALS_ENV"
-    time source $SUNDIALS_ENV $realtype $indexsize
+    time source $SUNDIALS_ENV $realtype $indexsize $compiler $bldtype
 elif [ -f env.sh ]; then
     echo "Setting up environment with ./env.sh"
-    time source env.sh $realtype $indexsize
+    time source env.sh $realtype $indexsize $compiler $bldtype
 elif [ -f ~/.sundials_config/env.sh ]; then
     echo "Setting up environment with ~/.sundials_config/env.sh"
-    time source ~/.sundials_config/env.sh $realtype $indexsize
+    time source ~/.sundials_config/env.sh $realtype $indexsize $compiler $bldtype
 else
     echo "Setting up environment with ./env.default.sh"
-    time source env.default.sh $realtype $indexsize
+    time source env.default.sh $realtype $indexsize $compiler $bldtype
 fi
 
 # check return value
@@ -204,68 +237,68 @@ if [ "$TPLs" == "ON" ]; then
     C90MATH=OFF
 
     # CUDA
-    CUDASTATUS=${CUDASTATUS:-"OFF"}
+    CUDA_STATUS=${CUDA_STATUS:-"OFF"}
 
     # MPI
-    MPISTATUS=${MPISTATUS:-"OFF"}
-    if [ "$MPISTATUS" == "ON" ] && [ -z "$MPICC" ]; then
-        echo "ERROR: MPISTATUS = ON but MPICC is not set"
+    MPI_STATUS=${MPI_STATUS:-"OFF"}
+    if [ "$MPI_STATUS" == "ON" ] && [ -z "$MPICC" ]; then
+        echo "ERROR: MPI_STATUS = ON but MPICC is not set"
         exit 1
     fi
 
     # LAPACK
-    LAPACKSTATUS=${LAPACKSTATUS:-"OFF"}
-    if [ "$LAPACKSTATUS" == "ON" ] && [ -z "$LAPACKLIBS" ]; then
-        echo "ERROR: LAPACKSTATUS = ON but LAPACKLIBS is not set"
+    LAPACK_STATUS=${LAPACK_STATUS:-"OFF"}
+    if [ "$LAPACK_STATUS" == "ON" ] && [ -z "$LAPACKLIBS" ]; then
+        echo "ERROR: LAPACK_STATUS = ON but LAPACKLIBS is not set"
         exit 1
     fi
 
     # KLU
-    KLUSTATUS=${KLUSTATUS:-"OFF"}
-    if [ "$KLUSTATUS" == "ON" ] && [ -z "$KLUDIR" ]; then
-        echo "ERROR: KLUSTATUS = ON but KLUDIR is not set"
+    KLU_STATUS=${KLU_STATUS:-"OFF"}
+    if [ "$KLU_STATUS" == "ON" ] && [ -z "$KLUDIR" ]; then
+        echo "ERROR: KLU_STATUS = ON but KLUDIR is not set"
         exit 1
     fi
 
     # SuperLU_MT
-    SLUMTSTATUS=${SLUMTSTATUS:-"OFF"}
-    if [ "$SLUMTSTATUS" == "ON" ] && [ -z "$SLUMTDIR" ]; then
-        echo "ERROR: SLUMTSTATUS = ON but SLUMTDIR is not set"
+    SLUMT_STATUS=${SLUMT_STATUS:-"OFF"}
+    if [ "$SLUMT_STATUS" == "ON" ] && [ -z "$SLUMTDIR" ]; then
+        echo "ERROR: SLUMT_STATUS = ON but SLUMTDIR is not set"
         exit 1
     fi
 
     # SuperLU_DIST
-    SLUDISTSTATUS=${SLUDISTSTATUS:-"OFF"}
-    if [ "$SLUDISTSTATUS" == "ON" ] && [ -z "$SLUDISTDIR" ]; then
-        echo "ERROR: SLUDISTSTATUS = ON but SLUDISTDIR is not set"
+    SLUDIST_STATUS=${SLUDIST_STATUS:-"OFF"}
+    if [ "$SLUDIST_STATUS" == "ON" ] && [ -z "$SLUDISTDIR" ]; then
+        echo "ERROR: SLUDIST_STATUS = ON but SLUDISTDIR is not set"
         exit 1
     fi
 
     # hypre
-    HYPRESTATUS=${HYPRESTATUS:-"OFF"}
-    if [ "$HYPRESTATUS" == "ON" ] && [ -z "$HYPREDIR" ]; then
-        echo "ERROR: HYPRESTATUS = ON but HYPREDIR is not set"
+    HYPRE_STATUS=${HYPRE_STATUS:-"OFF"}
+    if [ "$HYPRE_STATUS" == "ON" ] && [ -z "$HYPREDIR" ]; then
+        echo "ERROR: HYPRE_STATUS = ON but HYPREDIR is not set"
         exit 1
     fi
 
     # PETSc
-    PETSCSTATUS=${PETSCSTATUS:-"OFF"}
-    if [ "$PETSCSTATUS" == "ON" ] && [ -z "$PETSCDIR" ]; then
-        echo "ERROR: PETSCSTATUS = ON but PETSCDIR is not set"
+    PETSC_STATUS=${PETSC_STATUS:-"OFF"}
+    if [ "$PETSC_STATUS" == "ON" ] && [ -z "$PETSCDIR" ]; then
+        echo "ERROR: PETSC_STATUS = ON but PETSCDIR is not set"
         exit 1
     fi
 
     # Trilinos
-    TRILINOSSTATUS=${TRILINOSSTATUS:-"OFF"}
-    if [ "$TRILINOSSTATUS" == "ON" ] && [ -z "$TRILINOSDIR" ]; then
-        echo "ERROR: TRILINOSSTATUS = ON but TRILINOSDIR is not set"
+    TRILINOS_STATUS=${TRILINOS_STATUS:-"OFF"}
+    if [ "$TRILINOS_STATUS" == "ON" ] && [ -z "$TRILINOSDIR" ]; then
+        echo "ERROR: TRILINOS_STATUS = ON but TRILINOSDIR is not set"
         exit 1
     fi
 
     # RAJA
-    RAJASTATUS=${RAJASTATUS:-"OFF"}
-    if [ "$RAJASTATUS" == "ON" ] && [ -z "$RAJADIR" ]; then
-        echo "ERROR: RAJASTATUS = ON but RAJADIR is not set"
+    RAJA_STATUS=${RAJA_STATUS:-"OFF"}
+    if [ "$RAJA_STATUS" == "ON" ] && [ -z "$RAJADIR" ]; then
+        echo "ERROR: RAJA_STATUS = ON but RAJADIR is not set"
         exit 1
     fi
 
@@ -277,18 +310,35 @@ else
     C90MATH=ON
 
     # disable all TPLs
-    MPISTATUS=OFF
-    LAPACKSTATUS=OFF
-    KLUSTATUS=OFF
-    SLUMTSTATUS=OFF
-    SLUDISTSTATUS=OFF
-    HYPRESTATUS=OFF
-    PETSCSTATUS=OFF
-    CUDASTATUS=OFF
-    TRILINOSSTATUS=OFF
-    RAJASTATUS=OFF
+    MPI_STATUS=OFF
+    LAPACK_STATUS=OFF
+    KLU_STATUS=OFF
+    SLUMT_STATUS=OFF
+    SLUDIST_STATUS=OFF
+    HYPRE_STATUS=OFF
+    PETSC_STATUS=OFF
+    CUDA_STATUS=OFF
+    TRILINOS_STATUS=OFF
+    RAJA_STATUS=OFF
 
 fi
+
+# Ensure OpenMP and PThread options are set (default to OFF)
+OPENMP_STATUS=${OPENMP_STATUS:-"OFF"}
+OPENMPDEV_STATUS=${OPENMPDEV_STATUS:-"OFF"}
+PTHREAD_STATUS=${PTHREAD_STATUS:-"OFF"}
+
+# Ensure Fortran interface options are set (default to OFF)
+F77_STATUS=${F77_STATUS:-"OFF"}
+F03_STATUS=${F03_STATUS:-"OFF"}
+
+# Ensure SUNDIALS package options are set (default to ON)
+ARKODE_STATUS=${ARKODE_STATUS:-"ON"}
+CVODE_STATUS=${CVODE_STATUS:-"ON"}
+CVODES_STATUS=${CVODES_STATUS:-"ON"}
+IDA_STATUS=${IDA_STATUS:-"ON"}
+IDAS_STATUS=${IDAS_STATUS:-"ON"}
+KINSOL_STATUS=${KINSOL_STATUS:-"ON"}
 
 # ------------------------------------------------------------------------------
 # Setup test directories
@@ -313,74 +363,78 @@ time cmake \
     -D BUILD_STATIC_LIBS="${STATIC}" \
     -D BUILD_SHARED_LIBS="${SHARED}" \
     \
-    -D BUILD_ARKODE=ON \
-    -D BUILD_CVODE=ON \
-    -D BUILD_CVODES=ON \
-    -D BUILD_IDA=ON \
-    -D BUILD_IDAS=ON \
-    -D BUILD_KINSOL=ON \
+    -D BUILD_ARKODE="${ARKODE_STATUS}" \
+    -D BUILD_CVODE="${CVODE_STATUS}" \
+    -D BUILD_CVODES="${CVODES_STATUS}" \
+    -D BUILD_IDA="${IDA_STATUS}" \
+    -D BUILD_IDAS="${IDAS_STATUS}" \
+    -D BUILD_KINSOL="${KINSOL_STATUS}" \
     \
     -D SUNDIALS_PRECISION=$realtype \
     -D SUNDIALS_INDEX_SIZE=$indexsize \
     \
-    -D F77_INTERFACE_ENABLE=ON \
-    -D F2003_INTERFACE_ENABLE=ON \
+    -D F77_INTERFACE_ENABLE="${F77_STATUS}" \
+    -D F2003_INTERFACE_ENABLE="${F03_STATUS}" \
     \
     -D EXAMPLES_ENABLE_C=ON \
     -D EXAMPLES_ENABLE_CXX=ON \
-    -D EXAMPLES_ENABLE_F77=ON \
-    -D EXAMPLES_ENABLE_F90=ON \
-    -D EXAMPLES_ENABLE_CUDA=${CUDASTATUS} \
+    -D EXAMPLES_ENABLE_F77="${F77_STATUS}" \
+    -D EXAMPLES_ENABLE_F90="${F77_STATUS}" \
+    -D EXAMPLES_ENABLE_F2003="${F03_STATUS}" \
+    -D EXAMPLES_ENABLE_CUDA="${CUDA_STATUS}" \
     \
     -D CMAKE_C_COMPILER=$CC \
     -D CMAKE_CXX_COMPILER=$CXX \
     -D CMAKE_Fortran_COMPILER=$FC \
     \
-    -D CMAKE_C_FLAGS="${BASE_CFLAGS} ${CSTD}" \
-    -D CMAKE_CXX_FLAGS="${BASE_CXXFLAGS} ${CXXSTD}" \
-    -D CMAKE_Fortran_FLAGS="${BASE_FFLAGS}" \
+    -D CMAKE_C_FLAGS="${CFLAGS} ${CSTD}" \
+    -D CMAKE_CXX_FLAGS="${CXXFLAGS} ${CXXSTD}" \
+    -D CMAKE_Fortran_FLAGS="${FFLAGS}" \
     \
-    -D OPENMP_ENABLE=ON \
-    -D PTHREAD_ENABLE=ON \
-    -D CUDA_ENABLE=${CUDASTATUS} \
+    -D OPENMP_ENABLE="${OPENMP_STATUS}" \
+    -D PTHREAD_ENABLE="${PTHREAD_STATUS}" \
+    -D CUDA_ENABLE="${CUDA_STATUS}" \
     \
-    -D MPI_ENABLE="${MPISTATUS}" \
+    -D OPENMP_DEVICE_ENABLE="${OPENMPDEV_STATUS}" \
+    -D SKIP_OPENMP_DEVICE_CHECK=TURE \
+    \
+    -D MPI_ENABLE="${MPI_STATUS}" \
     -D MPI_C_COMPILER="${MPICC}" \
     -D MPI_CXX_COMPILER="${MPICXX}" \
     -D MPI_Fortran_COMPILER="${MPIFC}" \
     -D MPIEXEC_EXECUTABLE="${MPIEXEC}" \
     \
-    -D LAPACK_ENABLE="${LAPACKSTATUS}" \
+    -D LAPACK_ENABLE="${LAPACK_STATUS}" \
     -D LAPACK_LIBRARIES="${LAPACKLIBS}" \
     \
-    -D KLU_ENABLE="${KLUSTATUS}" \
+    -D KLU_ENABLE="${KLU_STATUS}" \
     -D KLU_INCLUDE_DIR="${KLUDIR}/include" \
     -D KLU_LIBRARY_DIR="${KLUDIR}/lib" \
     \
-    -D HYPRE_ENABLE="${HYPRESTATUS}" \
+    -D HYPRE_ENABLE="${HYPRE_STATUS}" \
     -D HYPRE_INCLUDE_DIR="${HYPREDIR}/include" \
     -D HYPRE_LIBRARY_DIR="${HYPREDIR}/lib" \
     \
-    -D PETSC_ENABLE="${PETSCSTATUS}" \
+    -D PETSC_ENABLE="${PETSC_STATUS}" \
     -D PETSC_DIR="${PETSCDIR}" \
     \
-    -D SUPERLUMT_ENABLE="${SLUMTSTATUS}" \
+    -D SUPERLUMT_ENABLE="${SLUMT_STATUS}" \
     -D SUPERLUMT_INCLUDE_DIR="${SLUMTDIR}/include" \
     -D SUPERLUMT_LIBRARY_DIR="${SLUMTDIR}/lib" \
     -D SUPERLUMT_LIBRARIES="${SLUMTLIBS}" \
     -D SUPERLUMT_THREAD_TYPE="${SLUMTTYPE}" \
     \
-    -D SUPERLUDIST_ENABLE="${SLUDISTSTATUS}" \
+    -D SUPERLUDIST_ENABLE="${SLUDIST_STATUS}" \
     -D SUPERLUDIST_INCLUDE_DIR="${SLUDISTDIR}/include" \
     -D SUPERLUDIST_LIBRARY_DIR="${SLUDISTDIR}/lib" \
     -D SUPERLUDIST_LIBRARIES="${SLUDISTLIBS}" \
     -D SUPERLUDIST_OpenMP=ON \
     -D SKIP_OPENMP_DEVICE_CHECK=ON \
     \
-    -D Trilinos_ENABLE="${TRILINOSSTATUS}" \
+    -D Trilinos_ENABLE="${TRILINOS_STATUS}" \
     -D Trilinos_DIR="${TRILINOSDIR}" \
     \
-    -D RAJA_ENABLE="${RAJASTATUS}" \
+    -D RAJA_ENABLE="${RAJA_STATUS}" \
     -D RAJA_DIR="${RAJADIR}" \
     \
     -D USE_GENERIC_MATH="${C90MATH}" \

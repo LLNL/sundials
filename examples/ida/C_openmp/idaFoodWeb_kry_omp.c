@@ -382,11 +382,13 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
   realtype *resv, *cpv;
   UserData webdata;
 
+  jx = jy = is = 0;
+
   webdata = (UserData)user_data;
 
-  cpv = NV_DATA_OMP(cp);
+  cpv  = NV_DATA_OMP(cp);
   resv = NV_DATA_OMP(res);
-  np = webdata->np;
+  np   = webdata->np;
 
   /* Call Fweb to set res to vector of right-hand sides. */
   Fweb(tt, cc, res, webdata);
@@ -486,8 +488,10 @@ static int PSolve(realtype tt, N_Vector cc, N_Vector cp,
 {
   realtype **Pxy, *zxy;
   sunindextype *pivot;
-  int jx, jy;
+  sunindextype jx, jy;
   UserData webdata;
+
+  jx = jy = 0;
 
   webdata = (UserData) user_data;
 
@@ -737,6 +741,8 @@ static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,
 
   /* Loop over grid points, evaluate interaction vector (length ns),
      form diffusion difference terms, and load crate.                    */
+
+  jx = jy = is = 0;
 
   for (jy = 0; jy < MY; jy++) {
     yy = (webdata->dy) * jy ;

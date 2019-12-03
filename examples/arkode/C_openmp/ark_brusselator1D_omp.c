@@ -349,7 +349,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype dx = udata->dx;
   realtype *Ydata=NULL, *dYdata=NULL;
   realtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
-  sunindextype i;
+  sunindextype i = 0;
 
   /* clear out ydot (to be careful) */
   N_VConst(0.0, ydot);
@@ -424,7 +424,7 @@ static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
 {
   sunindextype N = udata->N;            /* set shortcuts */
   realtype dx = udata->dx;
-  sunindextype i;
+  sunindextype i  = 0;
   realtype uconst = c*udata->du/dx/dx;
   realtype vconst = c*udata->dv/dx/dx;
   realtype wconst = c*udata->dw/dx/dx;
@@ -456,7 +456,7 @@ static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
 {
   sunindextype N = udata->N;                   /* set shortcuts */
   realtype ep = udata->ep;
-  sunindextype i;
+  sunindextype i = 0;
   realtype u, v, w;
   realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;

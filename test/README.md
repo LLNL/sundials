@@ -119,58 +119,83 @@ CC  = C compiler
 CXX = C++ compiler
 FC  = Fortran compiler
 
-BASE_CFLAGS   = C compiler flags
-BASE_CXXFLAGS = C++ compiler flags
-BASE_FFLAGS   = Fortran compiler flags
+CFLAGS   = C compiler flags
+CXXFLAGS = C++ compiler flags
+FFLAGS   = Fortran compiler flags
 ```
-Note the `BASE_` prefix is used as the compiler flag variables as the test
-scripts will append the C standard flag (`-std=c90` or `-std=c99`) and C++
-standard flag (`-std=c++11`) to the compiler flags provided by the environment
-variables.
+Note the test scripts will append the C standard flag (`-std=c90` or `-std=c99`)
+and C++ standard flag (`-std=c++11`) to the compiler flags provided by the
+environment variables.
 
 An environment script may optionally set additional environment variables to
 enable or disable third party libraries (TPLs) in the SUNDIALS configuration.
-Variables of the form `<TPL>STATUS` enable or disable the corresponding TPL when
-set to `ON` or `OFF` respectively. Note `<TPL>STATUS` variables default to `OFF`
-if they are not set. Depending on the particular TPL, a variable of the from
-`<TPL>DIR` or `<TPL>LIBS` must be set when `<TPL>STATUS = ON` to provide the
-full path to the the TPL installation directory or the list of TPL libraries
-respectively. To aid in setting these variables appropriately, the test scripts
-pass the real type (`single`, `double`, or `extended`) and the index size
-(`32` or `64`) SUNDIALS will be configured with as inputs to the environment
-script.
+Variables of the form `<TPL>_STATUS` enable or disable the corresponding TPL
+when set to `ON` or `OFF` respectively. Note `<TPL>_STATUS` variables default to
+`OFF` if they are not set. Depending on the particular TPL, a variable of the
+from `<TPL>DIR` or `<TPL>LIBS` must be set when `<TPL>_STATUS = ON` to provide
+the full path to the the TPL installation directory or the list of TPL libraries
+to link to respectively.
 
 The currently supported TPL environment variables are as follows:
 ```
-CUDASTATUS = ON or OFF
+# Enable/disable MPI support
+MPI_STATUS = ON or OFF
+MPICC      = MPI C compiler wrapper
+MPICXX     = MPI C++ compiler wrapper
+MPIFC      = MPI Fortran compiler wrapper
+MPIEXEC    = executable for launching MPI runs
 
-MPISTATUS = ON or OFF
-MPICC     = MPI C compiler
-MPICXX    = MPI C++ compiler
-MPIFC     = MPI Fortran
-MPIEXEC   = executable for launching MPI runs
+# Enable/disable PThread support
+PTHREAD_STATUS = ON or OFF
 
-BLAUSSTATUS = ON or OFF
-BLASLIBS    = full path to BLAS library
+# Enable/disable OpenMP support
+OPENMP_STATUS = ON or OFF
 
-LAPACKSTATUS = ON or OFF
-LAPACKLIBS   = full path to LAPACK library
+# Enable/disable OpenMP device offloading support
+OPENMPDEV_STATUS = ON or OFF
 
-KLUSTATUS = ON or OFF
-KLUDIR    = full path to KLU installation
+# Enable/disable CUDA support
+CUDA_STATUS = ON or OFF
 
-SLUMTSTATUS = ON or OFF
-SLUMTDIR    = full path to SuperLU_MT installation
+# Enable/disable LAPACK linear solvers
+LAPACK_STATUS = ON or OFF
+LAPACKLIBS    = full path to LAPACK library
 
-SLUDISTSTATUS = ON or OFF
-SLUDISTDIR    = full path to SuperLU_DIST installation
+# Enable/disable KLU linear solver
+KLU_STATUS = ON or OFF
+KLUDIR     = full path to KLU installation
 
-HYPRESTATUS = ON or OFF
-HYPREDIR    = full path to hypre installation
+# Enable/disable SuperLU_MT linear solver
+SLUMT_STATUS = ON or OFF
+SLUMTDIR     = full path to SuperLU_MT installation
 
+# Enable/disable SuperLU_DIST linear solver
+SLUDIST_STATUS = ON or OFF
+SLUDISTDIR     = full path to SuperLU_DIST installation
+
+# Enable/disable hypre support
+HYPRE_STATUS = ON or OFF
+HYPREDIR     = full path to hypre installation
+
+# Enable/disable PETSc support
 PETSCSTATUS = ON or OFF
 PETSCDIR    = full path to PETSc installation
+
+# Enable/disable Trilinos support
+TRILINOS_STATUS = ON or OFF
+TRILINOSDIR     = full path to Trilinos installation
+
+# Enable/disable RAJA support
+RAJA_STATUS = ON or OFF
+RAJADIR     = full path to RAJA installation
 ```
+
+To aid in setting the above variables appropriately, the test scripts pass the
+real type (`single`, `double`, or `extended`) and the index size (`32` or `64`)
+SUNDIALS will be configured with as the first and second inputs to the
+environment script respectively. Additionally, the test scripts may optionally
+pass a compiler spec (e.g., `gcc@4.9.4`) and a build type (e.g., `opt` for an
+optimized build) as the third and fourth inputs respectively.
 
 ## Using Spack to install TPLs
 
