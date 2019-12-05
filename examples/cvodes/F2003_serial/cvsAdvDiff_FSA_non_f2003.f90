@@ -274,7 +274,7 @@ program main
       call FN_VConst(ZERO, uiS)
     end do
 
-    retval = FCVodeSensInit1(cvodes_mem, NS, sensi_meth, c_null_ptr, uS)
+    retval = FCVodeSensInit1(cvodes_mem, NS, sensi_meth, c_null_funptr, uS)
     call check_retval(retval, "FCVodeSensInit1")
 
     retval = FCVodeSensEEtolerances(cvodes_mem)
