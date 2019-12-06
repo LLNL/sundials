@@ -54,6 +54,7 @@ set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_version.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector_senswrapper.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_futils.c
   ${sundials_SOURCE_DIR}/src/nvector/serial/nvector_serial.c
   )
 

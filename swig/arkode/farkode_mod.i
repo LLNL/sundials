@@ -35,9 +35,8 @@
 %import "../sundials/fsundials_nonlinearsolver_mod.i"
 %import "../sundials/fsundials_types_mod.i"
 
-// SWIG will pick up the ARKodeButcherTableMem structure,
-// not the ARKodeButcherTable typedef, so rename it.
-%rename(ARKodeButcherTable) ARKodeButcherTableMem;
+// Treat ARKodeButcherTable as an opaque pointer
+%apply void* { ARKodeButcherTable };
 
 // Process definitions from these files
 %include "arkode/arkode.h"

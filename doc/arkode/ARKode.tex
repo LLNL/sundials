@@ -304,6 +304,13 @@ preconditioner routines.
 \label{Introduction:changes-in-x-x-x}
 Fixed a build system bug related to finding LAPACK/BLAS.
 
+Fixed a bug in the Fortran 2003 interfaces to the ARKode Butcher table routines and structure.
+This includes changing the \code{ARKodeButcherTable} type to be a \code{type(c\_ptr)} in Fortran.
+
+Added two utility functions, \code{SUNDIALSFileOpen} and \code{SUNDIALSFileClose}
+for creating/destroying file pointers that are useful when using the Fortran
+2003 interfaces.
+
 
 \subsection{Changes in v4.0.0}
 \label{Introduction:changes-in-v4-0-0}
@@ -20119,48 +20126,59 @@ functions along with \code{FN\_VGetVecAtIndexVectorArray} are further described 
 \subsubsection{Providing file pointers}
 \label{ARKode_f_interface/F2003Module:providing-file-pointers}
 Expert SUNDIALS users may notice that there are a few advanced functions in the SUNDIALS C
-API which take a \code{FILE *} argument. Since there is no portable way to convert between a
-Fortran file descriptor and a C file pointer, a user will need to allocate the \code{FILE *}
-in C. The code example below demonstrates one way of doing this.
+API which take a \code{FILE*} argument. Since there is no portable way to convert between a
+Fortran file descriptor and a C file pointer, SUNDIALS provides two utility functions
+for creating a \code{FILE*} and destroying it. These functions are defined in the module
+\code{fsundials\_futils\_mod}.
+\index{FSUNDIALSFileOpen() (fortran function)|textbf}
 
-C code:
+\begin{fulllineitems}
+\phantomsection\label{ARKode_f_interface/F2003Module:f/_/FSUNDIALSFileOpen}\pysiglinewithargsret{\strong{function  }\bfcode{FSUNDIALSFileOpen}}{\emph{filename}, \emph{mode}}{}
+The function allocates a \code{FILE*} by calling the C function
+\code{fopen} with the provided filename and I/O mode.
 
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kt}{void} \PYG{n+nf}{allocate\PYGZus{}file\PYGZus{}ptr}\PYG{p}{(}\PYG{k+kt}{FILE} \PYG{o}{*}\PYG{n}{fp}\PYG{p}{)}
-\PYG{p}{\PYGZob{}}
-   \PYG{n}{fp} \PYG{o}{=} \PYG{n}{fopen}\PYG{p}{(}\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
-\PYG{p}{\PYGZcb{}}
+The function argument \code{filename} is the full path to the file and has the type
+\code{character(kind=C\_CHAR, len=*)}.
 
-\PYG{k+kt}{int} \PYG{n+nf}{free\PYGZus{}file\PYGZus{}ptr}\PYG{p}{(}\PYG{k+kt}{FILE} \PYG{o}{*}\PYG{n}{fp}\PYG{p}{)}
-\PYG{p}{\PYGZob{}}
-   \PYG{k}{return} \PYG{n}{fclose}\PYG{p}{(}\PYG{n}{fp}\PYG{p}{)}\PYG{p}{;}
-\PYG{p}{\PYGZcb{}}
-\end{Verbatim}
+The function argument \code{mode} has the type \code{character(kind=C\_CHAR, len=*)}.
+The string begins with one of the following characters:
+\begin{itemize}
+\item {} 
+``r''  - open text file for reading
 
-Fortran code:
+\item {} 
+``r+'' - open text file for reading and writing
 
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{subroutine }\PYG{n}{allocate\PYGZus{}file\PYGZus{}ptr}\PYG{p}{(}\PYG{n}{fp}\PYG{p}{)} \PYG{p}{\PYGZam{}}
-   \PYG{k}{bind}\PYG{p}{(}\PYG{n}{C}\PYG{p}{,}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}allocate\PYGZus{}file\PYGZus{}ptr\PYGZsq{}}\PYG{p}{)}
-   \PYG{k}{use}\PYG{p}{,} \PYG{k}{intrinsic} \PYG{k+kd}{::} \PYG{n+nb}{iso\PYGZus{}c\PYGZus{}binding}
-\PYG{n+nb}{   }\PYG{k}{type}\PYG{p}{(}\PYG{k+kt}{c\PYGZus{}ptr}\PYG{p}{)} \PYG{k+kd}{::} \PYG{n}{fp}
-\PYG{k}{end }\PYG{k}{subroutine}
+\item {} 
+``w''  - truncate text file to zero length or create it for writing
 
-\PYG{k+kt}{integer}\PYG{p}{(}\PYG{k+kt}{C\PYGZus{}INT}\PYG{p}{)} \PYG{k}{function }\PYG{n}{free\PYGZus{}file\PYGZus{}ptr}\PYG{p}{(}\PYG{n}{fp}\PYG{p}{)} \PYG{p}{\PYGZam{}}
-   \PYG{k}{bind}\PYG{p}{(}\PYG{n}{C}\PYG{p}{,}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}free\PYGZus{}file\PYGZus{}ptr\PYGZsq{}}\PYG{p}{)}
-   \PYG{k}{use}\PYG{p}{,} \PYG{k}{intrinsic} \PYG{k+kd}{::} \PYG{n+nb}{iso\PYGZus{}c\PYGZus{}binding}
-\PYG{n+nb}{   }\PYG{k}{type}\PYG{p}{(}\PYG{k+kt}{c\PYGZus{}ptr}\PYG{p}{)} \PYG{k+kd}{::} \PYG{n}{fp}
-\PYG{k}{end }\PYG{k}{function}
+\item {} 
+``w+'' - open text file for reading or writing, create it if it does not exist
 
-\PYG{k}{program }\PYG{n}{main}
-   \PYG{k}{use}\PYG{p}{,} \PYG{k}{intrinsic} \PYG{k+kd}{::} \PYG{n+nb}{iso\PYGZus{}c\PYGZus{}binding}
-\PYG{n+nb}{   }\PYG{k}{type}\PYG{p}{(}\PYG{k+kt}{c\PYGZus{}ptr}\PYG{p}{)}    \PYG{k+kd}{::} \PYG{n}{fp}
-   \PYG{k+kt}{integer}\PYG{p}{(}\PYG{k+kt}{C\PYGZus{}INT}\PYG{p}{)} \PYG{k+kd}{::} \PYG{n}{ierr}
+\item {} 
+``a''  - open for appending, see documentation of \code{fopen} for your system/compiler
 
-   \PYG{k}{call }\PYG{n}{allocate\PYGZus{}file\PYGZus{}ptr}\PYG{p}{(}\PYG{n}{fp}\PYG{p}{)}
-   \PYG{n}{ierr} \PYG{o}{=} \PYG{n}{free\PYGZus{}file\PYGZus{}ptr}\PYG{p}{(}\PYG{n}{fp}\PYG{p}{)}
-\PYG{k}{end }\PYG{k}{program}
-\end{Verbatim}
+\item {} 
+``a+ - open for reading and appending, see documentation for \code{fopen} for your system/compiler
+
+\end{itemize}
+
+The function returns a \code{type(C\_PTR)} which holds a C \code{FILE*}.
+
+\end{fulllineitems}
+
+\index{FSUNDIALSFileClose() (fortran subroutine)|textbf}
+
+\begin{fulllineitems}
+\phantomsection\label{ARKode_f_interface/F2003Module:f/_/FSUNDIALSFileClose}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FSUNDIALSFileClose}}{\emph{fp}}{}
+The function deallocates a C \code{FILE*} by calling the C function \code{fclose}
+with the provided pointer.
+
+The function argument \code{fp} has the type \code{type(c\_ptr)} and should be
+the C \code{FILE*} obtained from \code{fopen}.
+
+\end{fulllineitems}
+
 
 
 \subsection{Important notes on portability}

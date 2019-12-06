@@ -74,6 +74,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_iterative.h           || exi
 $tar $tarfile $distrobase/include/sundials/sundials_version.h             || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.h     || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_nvector_senswrapper.h || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_futils.h              || exit 1
 
 $tar $tarfile $distrobase/include/nvector/nvector_serial.h                            || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_parallel.h                          || exit 1
@@ -134,12 +135,14 @@ $tar $tarfile $distrobase/src/sundials/sundials_iterative.c                     
 $tar $tarfile $distrobase/src/sundials/sundials_version.c                         || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c                 || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c             || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_futils.c                          || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/CMakeLists.txt                        || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.{c,f90}    || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.{c,f90}          || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_nonlinearsolver_mod.{c,f90} || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_nvector_mod.{c,f90}         || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.{c,f90}           || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.{c,f90}          || exit 1
 
 echo "   --- Add nvector modules to $tarfile"
 

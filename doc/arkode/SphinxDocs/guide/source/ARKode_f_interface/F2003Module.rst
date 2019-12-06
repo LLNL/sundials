@@ -428,50 +428,39 @@ Providing file pointers
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Expert SUNDIALS users may notice that there are a few advanced functions in the SUNDIALS C
-API which take a ``FILE *`` argument. Since there is no portable way to convert between a
-Fortran file descriptor and a C file pointer, a user will need to allocate the ``FILE *``
-in C. The code example below demonstrates one way of doing this.
+API which take a ``FILE*`` argument. Since there is no portable way to convert between a
+Fortran file descriptor and a C file pointer, SUNDIALS provides two utility functions
+for creating a ``FILE*`` and destroying it. These functions are defined in the module
+``fsundials_futils_mod``. 
 
-C code:
+.. f:function:: FSUNDIALSFileOpen(filename, mode)
 
-.. sourcecode:: c
+  The function allocates a ``FILE*`` by calling the C function
+  ``fopen`` with the provided filename and I/O mode. 
 
-   void allocate_file_ptr(FILE *fp)
-   {
-      fp = fopen(...);
-   }
+  The function argument ``filename`` is the full path to the file and has the type
+  ``character(kind=C_CHAR, len=*)``.
 
-   int free_file_ptr(FILE *fp)
-   {
-      return fclose(fp);
-   }
+  The function argument ``mode`` has the type ``character(kind=C_CHAR, len=*)``.
+  The string begins with one of the following characters: 
+      
+      * "r"  - open text file for reading
+      * "r+" - open text file for reading and writing
+      * "w"  - truncate text file to zero length or create it for writing
+      * "w+" - open text file for reading or writing, create it if it does not exist
+      * "a"  - open for appending, see documentation of ``fopen`` for your system/compiler
+      * "a+ - open for reading and appending, see documentation for ``fopen`` for your system/compiler
+  
+  The function returns a ``type(C_PTR)`` which holds a C ``FILE*``.
 
-Fortran code:
+.. f:subroutine:: FSUNDIALSFileClose(fp)
 
-.. sourcecode:: Fortran
+  The function deallocates a C ``FILE*`` by calling the C function ``fclose``
+  with the provided pointer.
 
-      subroutine allocate_file_ptr(fp) &
-         bind(C,name='allocate_file_ptr')
-         use, intrinsic :: iso_c_binding
-         type(c_ptr) :: fp
-      end subroutine
-
-      integer(C_INT) function free_file_ptr(fp) &
-         bind(C,name='free_file_ptr')
-         use, intrinsic :: iso_c_binding
-         type(c_ptr) :: fp
-      end function
-
-      program main
-         use, intrinsic :: iso_c_binding
-         type(c_ptr)    :: fp
-         integer(C_INT) :: ierr
-
-         call allocate_file_ptr(fp)
-         ierr = free_file_ptr(fp)
-      end program
-
-
+  The function argument ``fp`` has the type ``type(c_ptr)`` and should be
+  the C ``FILE*`` obtained from ``fopen``.
+  
 
 .. _Fortran2003.Portability:
 

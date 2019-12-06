@@ -112,6 +112,13 @@ Changes in x.x.x
 
 Fixed a build system bug related to finding LAPACK/BLAS.
 
+Fixed a bug in the Fortran 2003 interfaces to the ARKode Butcher table routines and structure.
+This includes changing the ``ARKodeButcherTable`` type to be a ``type(c_ptr)`` in Fortran.
+
+Added two utility functions, ``SUNDIALSFileOpen`` and ``SUNDIALSFileClose``
+for creating/destroying file pointers that are useful when using the Fortran
+2003 interfaces.
+
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

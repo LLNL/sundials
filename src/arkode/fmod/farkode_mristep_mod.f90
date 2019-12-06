@@ -49,14 +49,6 @@ module farkode_mristep_mod
  public :: FMRIStepRootInit
  public :: FMRIStepSetDefaults
  public :: FMRIStepSetDenseOrder
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
  public :: FMRIStepSetTable
  public :: FMRIStepSetTableNum
  public :: FMRIStepSetMaxNumSteps
@@ -161,10 +153,9 @@ function swigc_FMRIStepSetTable(farg1, farg2, farg3) &
 bind(C, name="_wrap_FMRIStepSetTable") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
-type(SwigClassWrapper) :: farg3
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -575,15 +566,15 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
 integer(C_INT), intent(in) :: q
-class(ARKodeButcherTable), intent(in) :: b
+type(C_PTR) :: b
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
-type(SwigClassWrapper) :: farg3 
+type(C_PTR) :: farg3 
 
 farg1 = arkode_mem
 farg2 = q
-farg3 = b%swigdata
+farg3 = b
 fresult = swigc_FMRIStepSetTable(farg1, farg2, farg3)
 swig_result = fresult
 end function

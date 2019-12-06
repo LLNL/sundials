@@ -74,14 +74,6 @@ module farkode_arkstep_mod
  public :: FARKStepSetExplicit
  public :: FARKStepSetImplicit
  public :: FARKStepSetImEx
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
  public :: FARKStepSetTables
  public :: FARKStepSetTableNum
  public :: FARKStepSetCFLFraction
@@ -405,12 +397,11 @@ function swigc_FARKStepSetTables(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FARKStepSetTables") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT), intent(in) :: farg3
-type(SwigClassWrapper) :: farg4
-type(SwigClassWrapper) :: farg5
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -1774,20 +1765,20 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
 integer(C_INT), intent(in) :: q
 integer(C_INT), intent(in) :: p
-class(ARKodeButcherTable), intent(in) :: bi
-class(ARKodeButcherTable), intent(in) :: be
+type(C_PTR) :: bi
+type(C_PTR) :: be
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 integer(C_INT) :: farg3 
-type(SwigClassWrapper) :: farg4 
-type(SwigClassWrapper) :: farg5 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = arkode_mem
 farg2 = q
 farg3 = p
-farg4 = bi%swigdata
-farg5 = be%swigdata
+farg4 = bi
+farg5 = be
 fresult = swigc_FARKStepSetTables(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function

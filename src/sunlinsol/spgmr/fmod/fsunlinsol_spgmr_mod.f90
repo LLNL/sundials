@@ -237,7 +237,7 @@ bind(C, name="_wrap_FSUNLinSolLastFlag_SPGMR") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_LONG) :: fresult
+integer(C_INT64_T) :: fresult
 end function
 
 function swigc_FSUNLinSolSpace_SPGMR(farg1, farg2, farg3) &
@@ -579,9 +579,9 @@ end function
 function FSUNLinSolLastFlag_SPGMR(s) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(C_LONG) :: swig_result
+integer(C_INT64_T) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_LONG) :: fresult 
+integer(C_INT64_T) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)

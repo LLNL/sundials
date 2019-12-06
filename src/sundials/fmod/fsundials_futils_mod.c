@@ -203,146 +203,52 @@
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
-#include "sundials/sundials_linearsolver.h"
+#include "sundials/sundials_futils.h"
 
 
-#include "sunlinsol/sunlinsol_dense.h"
+#include <stdlib.h>
+#ifdef _MSC_VER
+# ifndef strtoull
+#  define strtoull _strtoui64
+# endif
+# ifndef strtoll
+#  define strtoll _strtoi64
+# endif
+#endif
 
-SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_Dense(N_Vector farg1, SUNMatrix farg2) {
-  SUNLinearSolver fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  SUNMatrix arg2 = (SUNMatrix) 0 ;
-  SUNLinearSolver result;
+
+typedef struct {
+    void* data;
+    size_t size;
+} SwigArrayWrapper;
+
+
+SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
+  SwigArrayWrapper result;
+  result.data = NULL;
+  result.size = 0;
+  return result;
+}
+
+SWIGEXPORT void * _wrap_FSUNDIALSFileOpen(SwigArrayWrapper *farg1, SwigArrayWrapper *farg2) {
+  void * fresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  FILE *result = 0 ;
   
-  arg1 = (N_Vector)(farg1);
-  arg2 = (SUNMatrix)(farg2);
-  result = (SUNLinearSolver)SUNLinSol_Dense(arg1,arg2);
+  arg1 = (char *)(farg1->data);
+  arg2 = (char *)(farg2->data);
+  result = (FILE *)SUNDIALSFileOpen((char const *)arg1,(char const *)arg2);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT SUNLinearSolver _wrap_FSUNDenseLinearSolver(N_Vector farg1, SUNMatrix farg2) {
-  SUNLinearSolver fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  SUNMatrix arg2 = (SUNMatrix) 0 ;
-  SUNLinearSolver result;
+SWIGEXPORT void _wrap_FSUNDIALSFileClose(void *farg1) {
+  FILE *arg1 = (FILE *) 0 ;
   
-  arg1 = (N_Vector)(farg1);
-  arg2 = (SUNMatrix)(farg2);
-  result = (SUNLinearSolver)SUNDenseLinearSolver(arg1,arg2);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolGetType_Dense(SUNLinearSolver farg1) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  SUNLinearSolver_Type result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  result = (SUNLinearSolver_Type)SUNLinSolGetType_Dense(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolGetID_Dense(SUNLinearSolver farg1) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  SUNLinearSolver_ID result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  result = (SUNLinearSolver_ID)SUNLinSolGetID_Dense(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolInitialize_Dense(SUNLinearSolver farg1) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  result = (int)SUNLinSolInitialize_Dense(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolSetup_Dense(SUNLinearSolver farg1, SUNMatrix farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  SUNMatrix arg2 = (SUNMatrix) 0 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (SUNMatrix)(farg2);
-  result = (int)SUNLinSolSetup_Dense(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolSolve_Dense(SUNLinearSolver farg1, SUNMatrix farg2, N_Vector farg3, N_Vector farg4, double const *farg5) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  SUNMatrix arg2 = (SUNMatrix) 0 ;
-  N_Vector arg3 = (N_Vector) 0 ;
-  N_Vector arg4 = (N_Vector) 0 ;
-  realtype arg5 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (SUNMatrix)(farg2);
-  arg3 = (N_Vector)(farg3);
-  arg4 = (N_Vector)(farg4);
-  arg5 = (realtype)(*farg5);
-  result = (int)SUNLinSolSolve_Dense(arg1,arg2,arg3,arg4,arg5);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int64_t _wrap_FSUNLinSolLastFlag_Dense(SUNLinearSolver farg1) {
-  int64_t fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  sunindextype result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  result = SUNLinSolLastFlag_Dense(arg1);
-  fresult = (sunindextype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolSpace_Dense(SUNLinearSolver farg1, long *farg2, long *farg3) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  long *arg2 = (long *) 0 ;
-  long *arg3 = (long *) 0 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (long *)(farg2);
-  arg3 = (long *)(farg3);
-  result = (int)SUNLinSolSpace_Dense(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolFree_Dense(SUNLinearSolver farg1) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  result = (int)SUNLinSolFree_Dense(arg1);
-  fresult = (int)(result);
-  return fresult;
+  arg1 = (FILE *)(farg1);
+  SUNDIALSFileClose(arg1);
 }
 
 
