@@ -78,14 +78,14 @@ set(SUNDIALS_LIBRARIES
 
 # ------------------------------------------------------------------------------
 
-# Set PETSc include directory and libraries
-set(PETSC_INCLUDE_DIR
-  @PETSC_INCLUDE_DIR@
-  CACHE PATH "Location of PETSc header files")
+# Set PETSc includes and libraries
+set(PETSC_INCLUDES
+  @PETSC_INCLUDES_@
+  CACHE PATH "List of PETSc include directories")
 
 set(PETSC_LIBRARIES
-  @PETSC_LIBRARIES@
-  CACHE STRING "PETSC libraries")
+  @PETSC_LIBRARIES_@
+  CACHE STRING "List of PETSC libraries")
 
 # Set the names of the examples to be built and their dependencies
 set(examples @EXAMPLES@)
@@ -102,7 +102,7 @@ foreach(example ${examples})
 
   # directories to include
   target_include_directories(${example} PRIVATE ${SUNDIALS_INCLUDE_DIR})
-  target_include_directories(${example} PRIVATE ${PETSC_INCLUDE_DIR})
+  target_include_directories(${example} PRIVATE ${PETSC_INCLUDES})
 
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBRARIES})

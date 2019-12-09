@@ -1151,9 +1151,11 @@ The PETSc libraries are available for download from the Argonne
 National Laboratory website:
 http://www.mcs.anl.gov/petsc .
 
-SUNDIALS has been tested with PETSc version 3.10.0 - 3.12.0.  To enable
-PETSc, set ``PETSC_ENABLE`` to ``ON``, and set ``PETSC_DIR`` to the
-path of the PETSc installation.
+SUNDIALS has been tested with PETSc version 3.10.0 - 3.12.1. To enable PETSc,
+set ``PETSC_ENABLE`` to ``ON``, and set ``PETSC_DIR`` to the path of the PETSc
+installation. Alternatively, a user can provide a list of inlcude paths in
+``PETSC_INCLUDES`` and a list of complete paths to the PETSc libraries in
+``PETSC_LIBRARIES``.
 
 
 .. _Installation.CMake.ExternalLibraries.hypre:

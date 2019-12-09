@@ -958,9 +958,11 @@ threading is enabled for {\sundials} by having \id{PTHREAD\_ENABLE} set to
 \label{ss:building_with_petsc}
 The {\petsc} libraries are available for download from the Argonne National
 Laboratory website: {\tt http://www.mcs.anl.gov/petsc}. {\sundials} has been
-tested with {\petsc} version 3.10.0--3.12.0. To enable {\petsc}, set
+tested with {\petsc} version 3.10.0--3.12.1. To enable {\petsc}, set
 \id{PETSC\_ENABLE} to \id{ON} and then set \id{PETSC\_DIR} to the path of the
-{\petsc} installation.
+{\petsc} installation. Alternatively, a user can provide a list of include paths
+in \id{PETSC\_INCLUDES}, and a list of complete paths to the libraries needed in
+\id{PETSC\_LIBRARIES}.
 
 
 \subsubsection*{Building with {\hypre}}

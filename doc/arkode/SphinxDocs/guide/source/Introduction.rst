@@ -112,6 +112,10 @@ Changes in x.x.x
 
 Fixed a build system bug related to finding LAPACK/BLAS.
 
+Fixed a build system bug related to finding PETSc when using the CMake
+variables ``PETSC_INCLUDES`` and ``PETSC_LIBRARIES`` instead of
+``PETSC_DIR``.
+
 Fixed a bug in the Fortran 2003 interfaces to the ARKode Butcher table routines and structure.
 This includes changing the ``ARKodeButcherTable`` type to be a ``type(c_ptr)`` in Fortran.
 

@@ -465,12 +465,17 @@ endif()
 # ---------------------------------------------------------------
 # Enable PETSc support?
 # ---------------------------------------------------------------
+
 sundials_option(PETSC_ENABLE BOOL "Enable PETSc support" OFF
                 XSDK_NAME TPL_ENABLE_PETSC)
 
 sundials_option(PETSC_DIR PATH "Path to the root of a PETSc installation" "${PETSC_DIR}"
                 DEPENDS_ON PETSC_ENABLE
                 XSDK_NAME TPL_PETSC_DIR)
+
+sundials_option(PETSC_ARCH STRING "PETSc architecture (optional)" "${PETSC_ARCH}"
+                DEPENDS_ON PETSC_ENABLE
+                XSDK_NAME TPL_PETSC_ARCH)
 
 sundials_option(PETSC_LIBRARIES STRING "Semi-colon separated list of PETSc link libraries" "${PETSC_LIBRARIES}"
                 DEPENDS_ON PETSC_ENABLE
@@ -479,6 +484,16 @@ sundials_option(PETSC_LIBRARIES STRING "Semi-colon separated list of PETSc link 
 sundials_option(PETSC_INCLUDES STRING "Semi-colon separated list of PETSc include directories" "${PETSC_INCLUDES}"
                 DEPENDS_ON PETSC_ENABLE
                 ADVANCED)
+
+sundials_option(PETSC_WORKS BOOL "Set to ON to force CMake to accept a given PETSc configuration" OFF
+                DEPENDS_ON PETSC_ENABLE
+                ADVANCED)
+
+# Using PETSc requres building with MPI enabled
+if(PETSC_ENABLE AND NOT MPI_ENABLE)
+  print_error("MPI is required for PETSc support. Set MPI_ENABLE to ON.")
+endif()
+
 
 # ---------------------------------------------------------------
 # Enable Trilinos support?
@@ -1010,7 +1025,7 @@ endif()
 # ---------------------------------------------------------------
 
 if(PETSC_ENABLE)
-  include(SundialsPETSc)
+  include(SundialsPETSC)
 else()
   set(PETSC_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 endif()

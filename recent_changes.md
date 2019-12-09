@@ -4,12 +4,14 @@
 
 Fixed a build system bug related to finding LAPACK/BLAS.
 
+Fixed a build system bug related to finding PETSc when using the CMake
+variables `PETSC_INCLUDES` and `PETSC_LIBRARIES` instead of `PETSC_DIR`.
+
 Fixed a bug in the Fortran 2003 interfaces to the ARKode Butcher table routines and structure.
 This includes changing the `ARKodeButcherTable` type to be a `type(c_ptr)` in Fortran.
 
 Added two utility functions, `SUNDIALSFileOpen` and `SUNDIALSFileClose` for creating/destroying
 file pointers. These are useful when using the Fortran 2003 interfaces.
-
 
 ## Changes to SUNDIALS in release 5.0.0
 
