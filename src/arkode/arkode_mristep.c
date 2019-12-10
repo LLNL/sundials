@@ -579,6 +579,11 @@ int mriStep_Init(void* arkode_mem, int init_type)
     return(ARK_ILL_INPUT);
   }
 
+  /* enforce use of arkEwtSmallReal since using a fixed step size */
+  ark_mem->user_efun = SUNFALSE;
+  ark_mem->efun      = arkEwtSetSmallReal;
+  ark_mem->e_data    = ark_mem;
+
   /* Create Butcher table (if not already set) */
   retval = mriStep_SetButcherTable(ark_mem);
   if (retval != ARK_SUCCESS) {
@@ -765,21 +770,36 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
   mriStep_TakeStep:
 
   This routine serves the primary purpose of the MRIStep module:
-  it performs a single successful MRI step (if possible).
-  Multiple attempts may be taken in this process -- once a step
-  completes with successful (non)linear solves at each stage and
-  passes the error estimate, the routine returns successfully.
-  If it cannot do so, it returns with an appropriate error flag.
+  it performs a single MRI step (with embedding, if possible).
+
+  The output variable dsmPtr should contain estimate of the
+  weighted local error if an embedding is present; otherwise it
+  should be 0.
+
+  The input/output variable nflagPtr is used to gauge convergence
+  of any algebraic solvers within the step.  As this routine
+  currently involves no algebraic solve, it is set to 0 (success).
+
+  The return value from this routine is:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure;
+                 reduce step and retry (if possible)
+           <0 => step encountered unrecoverable failure
   ---------------------------------------------------------------*/
-int mriStep_TakeStep(void* arkode_mem)
+int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
   ARKodeMem         ark_mem;   /* outer ARKode memory   */
   ARKodeMRIStepMem  step_mem;  /* outer stepper memory  */
 
-  realtype dsm, rcdiff, t0;
-  int retval, is, eflag, js, nvec;
+  realtype rcdiff, t0;
+  int retval, is, js, nvec;
   realtype* cvals;
   N_Vector* Xvecs;
+
+  /* initialize algebraic solver convergence flag to success;
+     error estimate to zero */
+  *nflagPtr = ARK_SUCCESS;
+  *dsmPtr = ZERO;
 
   /* access the MRIStep mem structure */
   retval = mriStep_AccessStepMem(arkode_mem, "mriStep_TakeStep",
@@ -790,104 +810,43 @@ int mriStep_TakeStep(void* arkode_mem)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-  dsm   = ZERO;
-  eflag = ARK_SUCCESS;
-
-  /* Looping point for attempts to take a step */
-  for(;;) {
-
 #ifdef DEBUG_OUTPUT
-    printf("stage 0 RHS:\n");
-    N_VPrint_Serial(step_mem->F[0]);
+  printf("stage 0 RHS:\n");
+  N_VPrint_Serial(step_mem->F[0]);
 #endif
 
-    /* Loop over internal stages to the step; since the method is explicit
-       the first stage RHS is just the slow RHS from the start of the step */
-    for (is=1; is<step_mem->stages; is++) {
+  /* Loop over internal stages to the step; since the method is explicit
+     the first stage RHS is just the slow RHS from the start of the step */
+  for (is=1; is<step_mem->stages; is++) {
 
-      /* Set current stage time */
-      ark_mem->tcur = ark_mem->tn + step_mem->B->c[is]*ark_mem->h;
-
-#ifdef DEBUG_OUTPUT
-      printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
-             ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
-#endif
-
-      /* Solver diagnostics reporting */
-      if (ark_mem->report)
-        fprintf(ark_mem->diagfp, "MRIStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
-                ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
-
-      /* compute forcing vector of inner steps (assumes c[is] != c[is-1]) */
-      rcdiff = ONE / (step_mem->B->c[is] - step_mem->B->c[is-1]);
-      nvec = 0;
-      for (js=0; js<is; js++) {
-        cvals[js] = rcdiff * (step_mem->B->A[is][js] - step_mem->B->A[is-1][js]);
-        Xvecs[js] = step_mem->F[js];
-        nvec++;
-      }
-
-      retval = N_VLinearCombination(nvec, cvals, Xvecs,
-                                    step_mem->inner_forcing[0]);
-      if (retval != 0) return(ARK_VECTOROP_ERR);
-
-      /* initial time for inner integrator */
-      t0 = ark_mem->tn + step_mem->B->c[is-1]*ark_mem->h;
-
-      /* pre inner evolve function */
-      if (step_mem->pre_inner_evolve) {
-        retval = step_mem->pre_inner_evolve(t0, step_mem->inner_forcing,
-                                            step_mem->inner_num_forcing,
-                                            ark_mem->user_data);
-        if (retval != 0) return(ARK_OUTERTOINNER_FAIL);
-      }
-
-      /* advance inner method in time */
-      step_mem->inner_retval =
-        step_mem->inner_evolve(step_mem->inner_mem, t0, ark_mem->ycur,
-                               ark_mem->tcur);
-      if (step_mem->inner_retval < 0) return(ARK_INNERSTEP_FAIL);
-
-      /* post inner evolve function */
-      if (step_mem->post_inner_evolve) {
-        retval = step_mem->post_inner_evolve(ark_mem->tcur, ark_mem->ycur,
-                                             ark_mem->user_data);
-        if (retval != 0) return(ARK_INNERTOOUTER_FAIL);
-      }
-
-      /* compute updated slow RHS */
-      retval = step_mem->fs(ark_mem->tcur, ark_mem->ycur,
-                            step_mem->F[is], ark_mem->user_data);
-      step_mem->nfs++;
-      if (retval < 0)  return(ARK_RHSFUNC_FAIL);
-      if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
+    /* Set current stage time */
+    ark_mem->tcur = ark_mem->tn + step_mem->B->c[is]*ark_mem->h;
 
 #ifdef DEBUG_OUTPUT
-      printf("RHS:\n");
-      N_VPrint_Serial(step_mem->F[is]);
+    printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
+           ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
 
-    } /* loop over stages */
+    /* Solver diagnostics reporting */
+    if (ark_mem->report)
+      fprintf(ark_mem->diagfp, "MRIStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
+              ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
-    /* Compute time step solution */
-
-    /* set current time for solution */
-    ark_mem->tcur = ark_mem->tn + ark_mem->h;
-
-    /* compute forcing vector of inner steps (assumes c[stages-1] != 1) */
-    rcdiff = ONE / (ONE - step_mem->B->c[step_mem->stages-1]);
+    /* compute forcing vector of inner steps (assumes c[is] != c[is-1]) */
+    rcdiff = ONE / (step_mem->B->c[is] - step_mem->B->c[is-1]);
     nvec = 0;
-    for (js=0; js<step_mem->stages; js++) {
-      cvals[js] = rcdiff * (step_mem->B->b[js] - step_mem->B->A[step_mem->stages-1][js]);
+    for (js=0; js<is; js++) {
+      cvals[js] = rcdiff * (step_mem->B->A[is][js] - step_mem->B->A[is-1][js]);
       Xvecs[js] = step_mem->F[js];
       nvec++;
     }
 
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->inner_forcing[0]);
+    retval = N_VLinearCombination(nvec, cvals, Xvecs,
+                                  step_mem->inner_forcing[0]);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* initial time for inner integrator */
-    t0 = ark_mem->tn + step_mem->B->c[step_mem->stages-1]*ark_mem->h;
+    t0 = ark_mem->tn + step_mem->B->c[is-1]*ark_mem->h;
 
     /* pre inner evolve function */
     if (step_mem->pre_inner_evolve) {
@@ -910,37 +869,68 @@ int mriStep_TakeStep(void* arkode_mem)
       if (retval != 0) return(ARK_INNERTOOUTER_FAIL);
     }
 
-#ifdef DEBUG_OUTPUT
-    printf("error estimate = %"RSYM"\n", dsm);
-    printf("updated solution:\n");
-    N_VPrint_Serial(ark_mem->ycur);
-#endif
-
-    /* Solver diagnostics reporting */
-    if (ark_mem->report)
-      fprintf(ark_mem->diagfp, "MRIStep  etest  %li  %"RSYM"  %"RSYM"\n",
-              ark_mem->nst, ark_mem->h, dsm);
+    /* compute updated slow RHS */
+    retval = step_mem->fs(ark_mem->tcur, ark_mem->ycur,
+                          step_mem->F[is], ark_mem->user_data);
+    step_mem->nfs++;
+    if (retval < 0)  return(ARK_RHSFUNC_FAIL);
+    if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
 
 #ifdef DEBUG_OUTPUT
-    printf("error test flag = %i\n", eflag);
+    printf("RHS:\n");
+    N_VPrint_Serial(step_mem->F[is]);
 #endif
 
-    /* Restart step attempt (recompute all stages) if error test fails recoverably */
-    if (eflag == TRY_AGAIN)  continue;
+  } /* loop over stages */
 
-    /* Return if error test failed and recovery not possible. */
-    if (eflag != ARK_SUCCESS)  return(eflag);
+  /* set current time for solution */
+  ark_mem->tcur = ark_mem->tn + ark_mem->h;
 
-    /* Error test passed (eflag=ARK_SUCCESS), break from loop */
-    break;
+  /* compute forcing vector of inner steps (assumes c[stages-1] != 1) */
+  rcdiff = ONE / (ONE - step_mem->B->c[step_mem->stages-1]);
+  nvec = 0;
+  for (js=0; js<step_mem->stages; js++) {
+    cvals[js] = rcdiff * (step_mem->B->b[js] - step_mem->B->A[step_mem->stages-1][js]);
+    Xvecs[js] = step_mem->F[js];
+    nvec++;
+  }
 
-  } /* loop over step attempts */
+  retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->inner_forcing[0]);
+  if (retval != 0) return(ARK_VECTOROP_ERR);
 
+  /* initial time for inner integrator */
+  t0 = ark_mem->tn + step_mem->B->c[step_mem->stages-1]*ark_mem->h;
 
-  /* The step has completed successfully, clean up and
-     consider change of step size */
-  retval = mriStep_PrepareNextStep(ark_mem, dsm);
-  if (retval != ARK_SUCCESS)  return(retval);
+  /* pre inner evolve function */
+  if (step_mem->pre_inner_evolve) {
+    retval = step_mem->pre_inner_evolve(t0, step_mem->inner_forcing,
+                                        step_mem->inner_num_forcing,
+                                        ark_mem->user_data);
+    if (retval != 0) return(ARK_OUTERTOINNER_FAIL);
+  }
+
+  /* advance inner method in time */
+  step_mem->inner_retval =
+    step_mem->inner_evolve(step_mem->inner_mem, t0, ark_mem->ycur,
+                           ark_mem->tcur);
+  if (step_mem->inner_retval < 0) return(ARK_INNERSTEP_FAIL);
+
+  /* post inner evolve function */
+  if (step_mem->post_inner_evolve) {
+    retval = step_mem->post_inner_evolve(ark_mem->tcur, ark_mem->ycur,
+                                         ark_mem->user_data);
+    if (retval != 0) return(ARK_INNERTOOUTER_FAIL);
+  }
+
+#ifdef DEBUG_OUTPUT
+  printf("updated solution:\n");
+  N_VPrint_Serial(ark_mem->ycur);
+#endif
+
+  /* Solver diagnostics reporting */
+  if (ark_mem->report)
+    fprintf(ark_mem->diagfp, "MRIStep  etest  %li  %"RSYM"  %"RSYM"\n",
+            ark_mem->nst, ark_mem->h, *dsmPtr);
 
   return(ARK_SUCCESS);
 }
@@ -1146,33 +1136,6 @@ int mriStep_CheckButcherTable(ARKodeMem ark_mem)
 
 
 /*---------------------------------------------------------------
-  mriStep_PrepareNextStep
-
-  This routine handles MRI-specific updates following a successful
-  step: copying the MRI result to the current solution vector,
-  updating the error/step history arrays, and setting the
-  prospective step size, hprime, for the next step.  Along with
-  hprime, it sets the ratio eta=hprime/h.  It also updates other
-  state variables related to a change of step size.
-  ---------------------------------------------------------------*/
-int mriStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
-{
-  /* If fixed time-stepping requested, defer
-     step size changes until next step */
-  if (ark_mem->fixedstep) {
-    ark_mem->hprime = ark_mem->h;
-    ark_mem->eta = ONE;
-    return(ARK_SUCCESS);
-  }
-
-  /* Set hprime value for next step size */
-  ark_mem->hprime = ark_mem->h * ark_mem->eta;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
   Inner stepper evolve functions
   ---------------------------------------------------------------*/
 
@@ -1188,7 +1151,7 @@ int mriStep_EvolveInnerARK(void* inner_mem, realtype t0,
 
   /* initialize hf to avoid compiler warning */
   hf = ZERO;
-  
+
   /* access the inner ARKStep mem structure */
   retval = arkStep_AccessStepMem(inner_mem,
                                  "mriStep_EvolveInnerARK",

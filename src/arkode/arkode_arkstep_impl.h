@@ -27,9 +27,21 @@ extern "C" {
 #endif
 
 /*===============================================================
-  ARK time step module constants -- move many items here from
-  arkode_impl.h
+  ARK time step module constants
   ===============================================================*/
+
+#define MAXCOR    3              /* max number of nonlinear iterations */
+#define CRDOWN    RCONST(0.3)    /* constant to estimate the convergence
+                                    rate for the nonlinear equation */
+#define DGMAX     RCONST(0.2)    /* if |gamma/gammap-1| > DGMAX then call lsetup */
+#define RDIV      RCONST(2.3)    /* declare divergence if ratio del/delp > RDIV */
+#define MSBP      20             /* max no. of steps between lsetup calls */
+
+/* Default solver tolerance factor */
+/* #define NLSCOEF   RCONST(0.003) */  /* Hairer & Wanner constant */
+/* #define NLSCOEF   RCONST(0.2)   */  /* CVODE constant */
+#define NLSCOEF   RCONST(0.1)
+
 
 
 /*===============================================================
@@ -66,11 +78,6 @@ typedef struct ARKodeARKStepMemRec {
   ARKodeButcherTable Be;  /* ERK Butcher table          */
   ARKodeButcherTable Bi;  /* IRK Butcher table          */
 
-  /* Time step adaptivity data */
-  ARKodeHAdaptMem hadapt_mem;  /* time step adaptivity structure   */
-  booleantype     hadapt_pq;   /* choice of using p (0) vs q (1)   */
-  int             maxnef;      /* max error test fails in one step */
-
   /* (Non)Linear solver parameters & data */
   SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
   booleantype     ownNLS;   /* flag indicating ownership of NLS      */
@@ -95,7 +102,6 @@ typedef struct ARKodeARKStepMemRec {
 
   int      maxcor;       /* max num iterations for solving the
                             nonlinear equation                       */
-  int      maxncf;       /* max num nonlin. conv. fails in one step  */
 
   int      convfail;     /* NLS fail flag (for interface routines)   */
   booleantype jcur;      /* is Jacobian info for lin solver current? */
@@ -122,8 +128,6 @@ typedef struct ARKodeARKStepMemRec {
   long int nst_attempts;  /* num attempted steps                */
   long int nfe;           /* num fe calls                       */
   long int nfi;           /* num fi calls                       */
-  long int ncfn;          /* num corrector convergence failures */
-  long int netf;          /* num error test failures            */
   long int nsetups;       /* num setup calls                    */
 
   /* Reusable arrays for fused vector operations */
@@ -160,7 +164,7 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
                       booleantype *dgamma_fail);
 int arkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);
-int arkStep_TakeStep(void* arkode_mem);
+int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int arkStep_AccessStepMem(void* arkode_mem, const char *fname,
@@ -172,12 +176,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
 int arkStep_StageSetup(ARKodeMem ark_mem);
 int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
-int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr);
-
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
-int arkStep_DoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
-                        int *nefPtr, realtype dsm);
-int arkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm);
 
 /* private functions passed to nonlinear solver */
 int arkStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
@@ -194,6 +193,11 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 /* Initialization and I/O error messages */
 #define MSG_ARKSTEP_NO_MEM    "Time step module memory is NULL."
 #define MSG_NLS_INIT_FAIL     "The nonlinear solver's init routine failed."
+
+/* Other error messages */
+#define MSG_ARK_MISSING_FE     "Cannot specify that method is explicit without providing a function pointer to fe(t,y)."
+#define MSG_ARK_MISSING_FI     "Cannot specify that method is implicit without providing a function pointer to fi(t,y)."
+#define MSG_ARK_MISSING_F      "Cannot specify that method is ImEx without providing function pointers to fi(t,y) and fe(t,y)."
 
 #ifdef __cplusplus
 }

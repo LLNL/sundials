@@ -33,6 +33,13 @@ extern "C" {
 #define ARK_INTERP_LRW  2   /* real workspace size */
 #define ARK_INTERP_LIW  5   /* int/ptr workspace size */
 
+/* Numeric constants */
+#define FOURTH RCONST(0.25)     /* real 0.25    */
+#define THREE  RCONST(3.0)      /* real 3.0     */
+#define SIX    RCONST(6.0)      /* real 6.0     */
+#define TWELVE RCONST(12.0)     /* real 12.0    */
+
+
 
 /*===============================================================
   ARKode Temporal Interpolation Data Structure

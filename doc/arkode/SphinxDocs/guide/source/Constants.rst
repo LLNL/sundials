@@ -191,7 +191,7 @@ Shared ARKode output constants
    Successful function return.
 
 :index:`ARK_TSTOP_RETURN`  (1):
-   ARKode succeeded by reachign the specified
+   ARKode succeeded by reaching the specified
    stopping point.
 
 :index:`ARK_ROOT_RETURN`  (2):

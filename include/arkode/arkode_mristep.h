@@ -124,6 +124,8 @@ SUNDIALS_EXPORT int MRIStepGetLastStep(void *arkode_mem,
                                        realtype *hlast);
 SUNDIALS_EXPORT int MRIStepGetCurrentTime(void *arkode_mem,
                                           realtype *tcur);
+SUNDIALS_EXPORT int MRIStepGetCurrentState(void *arkode_mem,
+                                           N_Vector *ycur);
 SUNDIALS_EXPORT int MRIStepGetNumGEvals(void *arkode_mem,
                                         long int *ngevals);
 SUNDIALS_EXPORT int MRIStepGetRootInfo(void *arkode_mem,

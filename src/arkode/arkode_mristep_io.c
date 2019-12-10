@@ -31,57 +31,113 @@
 
 /*===============================================================
   MRIStep Optional input functions (wrappers for generic ARKode
-  utility routines)
+  utility routines).  All are documented in arkode_io.c.
+  ===============================================================*/
+int MRIStepSetDenseOrder(void *arkode_mem, int dord) {
+  return(arkSetDenseOrder(arkode_mem, dord)); }
+int MRIStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
+                           void *eh_data) {
+  return(arkSetErrHandlerFn(arkode_mem, ehfun, eh_data)); }
+int MRIStepSetErrFile(void *arkode_mem, FILE *errfp) {
+  return(arkSetErrFile(arkode_mem, errfp)); }
+int MRIStepSetDiagnostics(void *arkode_mem, FILE *diagfp) {
+  return(arkSetDiagnostics(arkode_mem, diagfp)); }
+int MRIStepSetMaxNumSteps(void *arkode_mem, long int mxsteps) {
+  return(arkSetMaxNumSteps(arkode_mem, mxsteps)); }
+int MRIStepSetMaxHnilWarns(void *arkode_mem, int mxhnil) {
+  return(arkSetMaxHnilWarns(arkode_mem, mxhnil)); }
+int MRIStepSetStopTime(void *arkode_mem, realtype tstop) {
+  return(arkSetStopTime(arkode_mem, tstop)); }
+int MRIStepSetRootDirection(void *arkode_mem, int *rootdir) {
+  return(arkSetRootDirection(arkode_mem, rootdir)); }
+int MRIStepSetNoInactiveRootWarn(void *arkode_mem) {
+  return(arkSetNoInactiveRootWarn(arkode_mem)); }
+int MRIStepSetPostprocessStepFn(void *arkode_mem,
+                                ARKPostProcessStepFn ProcessStep) {
+  return(arkSetPostprocessStepFn(arkode_mem, ProcessStep)); }
+
+
+/*===============================================================
+  MRIStep Optional input functions (customized wrappers for
+  generic ARKode utility routines).  All are documented in
+  arkode_io.c and arkode_ls.c.
+  ===============================================================*/
+
+int MRIStepSetFixedStep(void *arkode_mem, realtype hsfixed)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
+                    "MRIStepSetFixedStep", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  if (hsfixed == ZERO) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
+                    "MRIStepSetFixedStep",
+                    "MIRStep does not support adaptive steps at this time.");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* call generic routine for remaining work */
+  return(arkSetFixedStep(ark_mem, hsfixed));
+}
+
+
+/*===============================================================
+  MRIStep Optional output functions (wrappers for generic ARKode
+  utility routines).  All are documented in arkode_io.c.
+  ===============================================================*/
+int MRIStepGetNumSteps(void *arkode_mem, long int *nssteps) {
+  return(arkGetNumSteps(arkode_mem, nssteps)); }
+int MRIStepGetLastStep(void *arkode_mem, realtype *hlast) {
+  return(arkGetLastStep(arkode_mem, hlast)); }
+int MRIStepGetCurrentTime(void *arkode_mem, realtype *tcur) {
+  return(arkGetCurrentTime(arkode_mem, tcur)); }
+int MRIStepGetCurrentState(void *arkode_mem, N_Vector *ycur) {
+  return(arkGetCurrentState(arkode_mem, ycur)); }
+int MRIStepGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw) {
+  return(arkGetWorkSpace(arkode_mem, lenrw, leniw)); }
+int MRIStepGetNumGEvals(void *arkode_mem, long int *ngevals) {
+  return(arkGetNumGEvals(arkode_mem, ngevals)); }
+int MRIStepGetRootInfo(void *arkode_mem, int *rootsfound) {
+  return(arkGetRootInfo(arkode_mem, rootsfound)); }
+char *MRIStepGetReturnFlagName(long int flag) {
+  return(arkGetReturnFlagName(flag)); }
+
+
+/*===============================================================
+  MRIStep optional input functions -- stepper-specific
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  MRIStepSetDenseOrder: Specifies the polynomial order for dense
-  output.  Positive values are sent to the interpolation module;
-  negative values imply to use the default.
+  MRIStepSetDefaults:
+
+  Resets all MRIStep optional inputs to their default values.
+  Does not change problem-defining function pointers or
+  user_data pointer.
   ---------------------------------------------------------------*/
-int MRIStepSetDenseOrder(void *arkode_mem, int dord)
+int MRIStepSetDefaults(void* arkode_mem)
 {
   ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetDenseOrder", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetDenseOrder(ark_mem, dord));
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDefaults",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Set default values for integrator optional inputs */
+  step_mem->q         = 3;              /* method order */
+  step_mem->p         = 0;              /* embedding order */
+  step_mem->stages    = 0;              /* no stages */
+  step_mem->B         = NULL;           /* no Butcher table */
+
+  return(ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
-  MRIStepSetErrHandlerFn: Specifies the error handler function
-  ---------------------------------------------------------------*/
-int MRIStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
-                           void *eh_data)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetErrHandlerFn", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetErrHandlerFn(ark_mem, ehfun, eh_data));
-}
-
-/*---------------------------------------------------------------
-  MRIStepSetErrFile: Specifies the FILE pointer for output (NULL
-  means no messages)
-  ---------------------------------------------------------------*/
-int MRIStepSetErrFile(void *arkode_mem, FILE *errfp)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetErrFile", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetErrFile(ark_mem, errfp));
-}
 
 /*---------------------------------------------------------------
   MRIStepSetUserData: Specifies the user data pointer
@@ -126,305 +182,6 @@ int MRIStepSetUserData(void *arkode_mem, void *user_data)
     inner_ark_mem->user_data = arkode_mem;
     break;
   }
-
-  return(ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  MRIStepSetDiagnostics: Specifies to enable solver diagnostics,
-  and specifies the FILE pointer for output (diagfp==NULL
-  disables output)
-  ---------------------------------------------------------------*/
-int MRIStepSetDiagnostics(void *arkode_mem, FILE *diagfp)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetDiagnostics", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetDiagnostics(ark_mem, diagfp));
-}
-
-/*---------------------------------------------------------------
-  MRIStepSetMaxNumSteps: Specifies the maximum number of
-  integration steps
-  ---------------------------------------------------------------*/
-int MRIStepSetMaxNumSteps(void *arkode_mem, long int mxsteps)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetMaxNumSteps", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetMaxNumSteps(ark_mem, mxsteps));
-}
-
-/*---------------------------------------------------------------
-  MRIStepSetMaxHnilWarns: Specifies the maximum number of warnings
-  for small h
-  ---------------------------------------------------------------*/
-int MRIStepSetMaxHnilWarns(void *arkode_mem, int mxhnil)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetMaxHnilWarns", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetMaxHnilWarns(ark_mem, mxhnil));
-}
-
-/*---------------------------------------------------------------
-  MRIStepSetStopTime: Specifies the time beyond which the
-  integration is not to proceed.
-  ---------------------------------------------------------------*/
-int MRIStepSetStopTime(void *arkode_mem, realtype tstop)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetStopTime", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetStopTime(ark_mem, tstop));
-}
-
-/*---------------------------------------------------------------
-  MRIStepSetFixedStep: Specifies the fixed time step sizes to use
-  with MRIStep. MRIStep will use this step size for all steps
-  (unless tstop is set, in which case it may need to modify that
-  last step approaching tstop. If any solver failure occurs in the
-  timestepping module, MRIStep will typically immediately return
-  with an error message indicating that the selected step size
-  cannot be used.
-
-  Any nonzero argument will result in the use of that fixed step
-  size.
-  ---------------------------------------------------------------*/
-int MRIStepSetFixedStep(void *arkode_mem, realtype hsfixed)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetFixedStep", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  if (hsfixed == ZERO) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
-                    "MRIStepSetFixedStep",
-                    "MIRStep does not support adaptive steps at this time.");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* using an explicit method with fixed step sizes, enforce use of
-     arkEwtSmallReal to compute error weight vector */
-  ark_mem->user_efun = SUNFALSE;
-  ark_mem->efun      = arkEwtSetSmallReal;
-  ark_mem->e_data    = ark_mem;
-
-  return(arkSetFixedStep(ark_mem, hsfixed));
-}
-
-/*---------------------------------------------------------------
-  MRIStepSetRootDirection: Specifies the direction of zero-crossings
-  to be monitored.  The default is to monitor both crossings.
-  ---------------------------------------------------------------*/
-int MRIStepSetRootDirection(void *arkode_mem, int *rootdir)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetRootDirection", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetRootDirection(ark_mem, rootdir));
-}
-
-/*---------------------------------------------------------------
-  MRIStepSetNoInactiveRootWarn:  Disables issuing a warning if
-  some root function appears to be identically zero at the
-  beginning of the integration
-  ---------------------------------------------------------------*/
-int MRIStepSetNoInactiveRootWarn(void *arkode_mem)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetNoInactiveRootWarn", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetNoInactiveRootWarn(ark_mem));
-}
-
-/*---------------------------------------------------------------
-  MRIStepSetPostprocessStepFn:  Specifies a user-provided step
-  postprocessing function having type ARKPostProcessStepFn.  A
-  NULL input function disables step postprocessing.
-
-  IF THE SUPPLIED FUNCTION MODIFIES ANY OF THE ACTIVE STATE DATA,
-  THEN ALL THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND
-  STABILITY ARE LOST.
-  ---------------------------------------------------------------*/
-int MRIStepSetPostprocessStepFn(void *arkode_mem,
-                                ARKPostProcessStepFn ProcessStep)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetPostprocessStepFn", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetPostprocessStepFn(ark_mem, ProcessStep));
-}
-
-
-/*===============================================================
-  MRIStep Optional output functions (wrappers for generic ARKode
-  utility routines)
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  MRIStepGetNumSteps:  Returns the current number of integration
-  steps
-  ---------------------------------------------------------------*/
-int MRIStepGetNumSteps(void *arkode_mem, long int *nssteps)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepGetNumSteps", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkGetNumSteps(ark_mem, nssteps));
-}
-
-/*---------------------------------------------------------------
-  MRIStepGetLastStep: Returns the step size used on the last
-  successful step
-  ---------------------------------------------------------------*/
-int MRIStepGetLastStep(void *arkode_mem, realtype *hlast)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepGetLastStep", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkGetLastStep(ark_mem, hlast));
-}
-
-/*---------------------------------------------------------------
-  MRIStepGetCurrentTime: Returns the current value of the
-  independent variable
-  ---------------------------------------------------------------*/
-int MRIStepGetCurrentTime(void *arkode_mem, realtype *tcur)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepGetCurrentTime", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkGetCurrentTime(ark_mem, tcur));
-}
-
-/*---------------------------------------------------------------
-  MRIStepGetWorkSpace: Returns integrator work space requirements
-  ---------------------------------------------------------------*/
-int MRIStepGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepGetWorkSpace", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkGetWorkSpace(ark_mem, lenrw, leniw));
-}
-
-/*---------------------------------------------------------------
-  MRIStepGetNumGEvals: Returns the current number of calls to g
-  (for rootfinding)
-  ---------------------------------------------------------------*/
-int MRIStepGetNumGEvals(void *arkode_mem, long int *ngevals)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepGetNumGEvals", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkGetNumGEvals(ark_mem, ngevals));
-}
-
-/*---------------------------------------------------------------
-  MRIStepGetRootInfo: Returns pointer to array rootsfound showing
-  roots found
-  ---------------------------------------------------------------*/
-int MRIStepGetRootInfo(void *arkode_mem, int *rootsfound)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepGetRootInfo", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkGetRootInfo(ark_mem, rootsfound));
-}
-
-/*---------------------------------------------------------------
-  MRIStepGetReturnFlagName: translates from return flags IDs to
-  names
-  ---------------------------------------------------------------*/
-char *MRIStepGetReturnFlagName(long int flag)
-{ return(arkGetReturnFlagName(flag)); }
-
-
-
-/*===============================================================
-  MRIStep optional input functions -- stepper-specific
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  MRIStepSetDefaults:
-
-  Resets all MRIStep optional inputs to their default values.
-  Does not change problem-defining function pointers or
-  user_data pointer.
-  ---------------------------------------------------------------*/
-int MRIStepSetDefaults(void* arkode_mem)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDefaults",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* Set default values for integrator optional inputs */
-  step_mem->q         = 3;              /* method order */
-  step_mem->p         = 0;              /* embedding order */
-  step_mem->stages    = 0;              /* no stages */
-  step_mem->B         = NULL;           /* no Butcher table */
 
   return(ARK_SUCCESS);
 }

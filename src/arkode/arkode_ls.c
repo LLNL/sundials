@@ -233,7 +233,7 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   /* Attach ARKLs interface to time stepper module */
   retval = ark_mem->step_attachlinsol(arkode_mem, arkLsInitialize,
                                       arkLsSetup, arkLsSolve,
-                                      arkLsFree, 2, arkls_mem);
+                                      arkLsFree, LSType, arkls_mem);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKLS", "arkLSSetLinearSolver",
                     "Failed to attach to time stepper module");
@@ -418,7 +418,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   retval = ark_mem->step_attachmasssol(arkode_mem, arkLsMassInitialize,
                                        arkLsMassSetup, arkLsMTimes,
                                        arkLsMassSolve, arkLsMassFree,
-                                       2, arkls_mem);
+                                       LSType, arkls_mem);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKLS", "arkLSSetMassLinearSolver",
                     "Failed to attach to time stepper module");

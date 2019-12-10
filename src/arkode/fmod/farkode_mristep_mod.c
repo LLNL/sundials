@@ -669,6 +669,20 @@ SWIGEXPORT int _wrap_FMRIStepGetCurrentTime(void *farg1, double *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepGetCurrentState(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  N_Vector *arg2 = (N_Vector *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (N_Vector *)(farg2);
+  result = (int)MRIStepGetCurrentState(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepGetNumGEvals(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

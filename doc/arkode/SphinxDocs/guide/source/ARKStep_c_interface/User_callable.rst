@@ -1286,6 +1286,12 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
    call with 0.0 in all components of ``constraints`` will result in an illegal
    input return. A ``NULL`` constraints vector will disable constraint checking.
 
+   Since constraint-handling is performed through cutting time steps that would
+   violate the constraints, it is possible that this feature will cause some
+   problems to fail due to an inability to enforce constraints even at the
+   minimum time step size.  Additionally, the features :c:func:`ARKStepSetConstraints()`
+   and :c:func:`ARKStepSetFixedStep()` are incompatible, and should not be used
+   simultaneously.
 
 
 .. c:function:: int ARKStepSetMaxNumConstrFails(void* arkode_mem, int maxfails)

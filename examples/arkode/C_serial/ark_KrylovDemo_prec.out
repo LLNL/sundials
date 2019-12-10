@@ -360,9 +360,9 @@ Species 6
 
 t =   8.00e+00  nst = 232  nfe = 0  nfi = 3780  nni = 2567  hu =    1.06e-01
 
-t =   9.00e+00  nst = 242  nfe = 0  nfi = 3930  nni = 2652  hu =    8.10e-02
+t =   9.00e+00  nst = 249  nfe = 0  nfi = 4075  nni = 2742  hu =    8.61e-02
 
-t =   1.00e+01  nst = 258  nfe = 0  nfi = 4237  nni = 2839  hu =    1.04e-01
+t =   1.00e+01  nst = 266  nfe = 0  nfi = 4394  nni = 2941  hu =    8.37e-02
 
 c values at t = 10:
 
@@ -391,51 +391,51 @@ Species 3
 1.16347   1.16598   1.17215   1.17964   1.18585   1.18838   
 
 Species 4
-35650.7   35898.7   36418.4   37029.1   37559.5   37817.2   
-35574.6   35799.6   36277     36840.1   37326.5   37559.5   
-35388.4   35572.2   35968.8   36437.6   36840.1   37029.1   
-35163.6   35302     35606.7   35968.8   36277     36418.4   
-34978.7   35076.4   35302     35572.2   35799.6   35898.7   
-34903.4   34978.7   35163.6   35388.4   35574.6   35650.7   
+35650.6   35898.8   36418.4   37029.2   37559.5   37817.3   
+35574.5   35799.5   36277.1   36840     37326.6   37559.5   
+35388.4   35572.3   35968.8   36437.5   36840     37029.2   
+35163.7   35302     35606.7   35968.8   36277.1   36418.4   
+34978.6   35076.5   35302     35572.3   35799.5   35898.8   
+34903.3   34978.6   35163.7   35388.4   35574.5   35650.6   
 
 Species 5
-35650.7   35898.7   36418.4   37029.1   37559.5   37817.2   
-35574.6   35799.6   36277     36840.1   37326.5   37559.5   
-35388.4   35572.2   35968.8   36437.6   36840.1   37029.1   
-35163.6   35302     35606.7   35968.8   36277     36418.4   
-34978.7   35076.4   35302     35572.2   35799.6   35898.7   
-34903.4   34978.7   35163.6   35388.4   35574.6   35650.7   
+35650.6   35898.8   36418.4   37029.2   37559.5   37817.3   
+35574.5   35799.5   36277.1   36840     37326.6   37559.5   
+35388.4   35572.3   35968.8   36437.5   36840     37029.2   
+35163.7   35302     35606.7   35968.8   36277.1   36418.4   
+34978.6   35076.5   35302     35572.3   35799.5   35898.8   
+34903.3   34978.6   35163.7   35388.4   35574.5   35650.6   
 
 Species 6
-35650.7   35898.7   36418.4   37029.1   37559.5   37817.2   
-35574.6   35799.6   36277     36840.1   37326.5   37559.5   
-35388.4   35572.2   35968.8   36437.6   36840.1   37029.1   
-35163.6   35302     35606.7   35968.8   36277     36418.4   
-34978.7   35076.4   35302     35572.2   35799.6   35898.7   
-34903.4   34978.7   35163.6   35388.4   35574.6   35650.7   
+35650.6   35898.8   36418.4   37029.2   37559.5   37817.3   
+35574.5   35799.5   36277.1   36840     37326.6   37559.5   
+35388.4   35572.3   35968.8   36437.5   36840     37029.2   
+35163.7   35302     35606.7   35968.8   36277.1   36418.4   
+34978.6   35076.5   35302     35572.3   35799.5   35898.8   
+34903.3   34978.6   35163.7   35388.4   35574.5   35650.6   
 
 
 
  Final statistics for this run:
 
- ARKStep real workspace length         = 3556 
- ARKStep integer workspace length      =  128 
+ ARKStep real workspace length         = 3537 
+ ARKStep integer workspace length      =  120 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
- Number of steps                       =  258 
+ Number of steps                       =  266 
  Number of f-s (explicit)              =    0 
- Number of f-s (implicit)              = 4237 
- Number of f-s (SPGMR)                 = 8818 
- Number of f-s (TOTAL)                 = 8818 
- Number of setups                      =  109 
- Number of nonlinear iterations        = 2839 
- Number of linear iterations           = 8818 
- Number of preconditioner evaluations  =  109 
- Number of preconditioner solves       = 11560 
- Number of error test failures         =   20 
- Number of nonlinear conv. failures    =    9 
- Number of linear convergence failures =  508 
- Average Krylov subspace dimension     = 3.106 
+ Number of f-s (implicit)              = 4394 
+ Number of f-s (SPGMR)                 = 8980 
+ Number of f-s (TOTAL)                 = 8980 
+ Number of setups                      =  121 
+ Number of nonlinear iterations        = 2941 
+ Number of linear iterations           = 8980 
+ Number of preconditioner evaluations  =  121 
+ Number of preconditioner solves       = 11819 
+ Number of error test failures         =   23 
+ Number of nonlinear conv. failures    =   10 
+ Number of linear convergence failures =  509 
+ Average Krylov subspace dimension     = 3.053 
 
 
 ----------------------------------------------------------------------------
@@ -475,36 +475,36 @@ t =   5.00e+00  nst = 199  nfe = 0  nfi = 3242  nni = 2227  hu =    9.38e-02
 
 t =   6.00e+00  nst = 211  nfe = 0  nfi = 3442  nni = 2352  hu =    1.13e-01
 
-t =   7.00e+00  nst = 220  nfe = 0  nfi = 3612  nni = 2457  hu =    1.11e-01
+t =   7.00e+00  nst = 220  nfe = 0  nfi = 3612  nni = 2457  hu =    1.07e-01
 
-t =   8.00e+00  nst = 230  nfe = 0  nfi = 3751  nni = 2536  hu =    1.01e-01
+t =   8.00e+00  nst = 229  nfe = 0  nfi = 3747  nni = 2537  hu =    1.33e-01
 
-t =   9.00e+00  nst = 247  nfe = 0  nfi = 4059  nni = 2725  hu =    9.38e-02
+t =   9.00e+00  nst = 239  nfe = 0  nfi = 3897  nni = 2622  hu =    8.98e-02
 
-t =   1.00e+01  nst = 264  nfe = 0  nfi = 4355  nni = 2901  hu =    9.24e-02
+t =   1.00e+01  nst = 251  nfe = 0  nfi = 4101  nni = 2746  hu =    7.09e-02
 
 
 
  Final statistics for this run:
 
- ARKStep real workspace length         = 3596 
- ARKStep integer workspace length      =  136 
+ ARKStep real workspace length         = 3577 
+ ARKStep integer workspace length      =  128 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
- Number of steps                       =  264 
+ Number of steps                       =  251 
  Number of f-s (explicit)              =    0 
- Number of f-s (implicit)              = 4355 
- Number of f-s (SPGMR)                 = 9113 
- Number of f-s (TOTAL)                 = 9113 
- Number of setups                      =  106 
- Number of nonlinear iterations        = 2901 
- Number of linear iterations           = 9113 
- Number of preconditioner evaluations  =  106 
- Number of preconditioner solves       = 11919 
- Number of error test failures         =   24 
+ Number of f-s (implicit)              = 4101 
+ Number of f-s (SPGMR)                 = 8880 
+ Number of f-s (TOTAL)                 = 8880 
+ Number of setups                      =   91 
+ Number of nonlinear iterations        = 2746 
+ Number of linear iterations           = 8880 
+ Number of preconditioner evaluations  =   91 
+ Number of preconditioner solves       = 11537 
+ Number of error test failures         =   18 
  Number of nonlinear conv. failures    =    8 
- Number of linear convergence failures =  577 
- Average Krylov subspace dimension     = 3.141 
+ Number of linear convergence failures =  597 
+ Average Krylov subspace dimension     = 3.234 
 
 
 ----------------------------------------------------------------------------
@@ -556,8 +556,8 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5722  nni = 3907  hu =    1.35e-01
 
  Final statistics for this run:
 
- ARKStep real workspace length         = 3636 
- ARKStep integer workspace length      =  144 
+ ARKStep real workspace length         = 3617 
+ ARKStep integer workspace length      =  136 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
  Number of steps                       =  359 
@@ -625,8 +625,8 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5728  nni = 3912  hu =    1.31e-01
 
  Final statistics for this run:
 
- ARKStep real workspace length         = 3676 
- ARKStep integer workspace length      =  152 
+ ARKStep real workspace length         = 3657 
+ ARKStep integer workspace length      =  144 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
  Number of steps                       =  359 

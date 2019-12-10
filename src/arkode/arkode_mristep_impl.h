@@ -92,7 +92,7 @@ void* mriStep_Create(ARKRhsFn fs, realtype t0, N_Vector y0);
 int mriStep_Init(void* arkode_mem, int init_type);
 int mriStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);
-int mriStep_TakeStep(void* arkode_mem);
+int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int mriStep_AccessStepMem(void* arkode_mem, const char *fname,
@@ -100,11 +100,6 @@ int mriStep_AccessStepMem(void* arkode_mem, const char *fname,
 booleantype mriStep_CheckNVector(N_Vector tmpl);
 int mriStep_SetButcherTable(ARKodeMem ark_mem);
 int mriStep_CheckButcherTable(ARKodeMem ark_mem);
-
-int mriStep_ComputeErrorEst(ARKodeMem ark_mem, realtype *dsm);
-int mriStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr,
-                        realtype dsm);
-int mriStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm);
 
 /* Wrappers for user-supplied functions to the inner stepper */
 int mriStep_InnerRhsFn(realtype t, N_Vector y, N_Vector ydot, void *user_data);

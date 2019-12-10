@@ -5801,6 +5801,13 @@ in all components will cause constraint checking to be performed. However, a
 call with 0.0 in all components of \code{constraints} will result in an illegal
 input return. A \code{NULL} constraints vector will disable constraint checking.
 
+Since constraint-handling is performed through cutting time steps that would
+violate the constraints, it is possible that this feature will cause some
+problems to fail due to an inability to enforce constraints even at the
+minimum time step size.  Additionally, the features {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetConstraints]{\emph{\code{ARKStepSetConstraints()}}}}
+and {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetFixedStep]{\emph{\code{ARKStepSetFixedStep()}}}} are incompatible, and should not be used
+simultaneously.
+
 \end{fulllineitems}
 
 \index{ARKStepSetMaxNumConstrFails (C function)}
@@ -40242,6 +40249,37 @@ Newton equation \(A = I - \gamma J\) or \(A = M - \gamma J\).
 
 
 
+\subsection{MRIStep advanced output functions}
+\label{sunnonlinsol/ARKode_Interface:mristep-advanced-output-functions}\index{MRIStepGetCurrentState (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunnonlinsol/ARKode_Interface:c.MRIStepGetCurrentState}\pysiglinewithargsret{int \bfcode{MRIStepGetCurrentState}}{void*\emph{ arkode\_mem}, N\_Vector*\emph{ y}}{}
+Returns the current state vector
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {}
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {}
+\emph{y} -- N\_Vector pointer that will get set to the current state vector
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {}
+\emph{ARK\_SUCCESS} if successful
+
+\item {}
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+
+
 \section{The SUNNonlinearSolver\_Newton implementation}
 \label{sunnonlinsol/SUNNonlinSol_Newton:the-sunnonlinearsolver-newton-implementation}\label{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinsol-newton}\label{sunnonlinsol/SUNNonlinSol_Newton::doc}
 This section describes the SUNNonlinSol implementation of Newton's method. To
@@ -43135,7 +43173,7 @@ Use the default fifth-order ARK method
 Successful function return.
 
 \item[{\index{ARK\_TSTOP\_RETURN}ARK\_TSTOP\_RETURN  (1):}] \leavevmode
-ARKode succeeded by reachign the specified
+ARKode succeeded by reaching the specified
 stopping point.
 
 \item[{\index{ARK\_ROOT\_RETURN}ARK\_ROOT\_RETURN  (2):}] \leavevmode

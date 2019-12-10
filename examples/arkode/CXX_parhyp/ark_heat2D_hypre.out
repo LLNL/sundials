@@ -24,27 +24,27 @@
     0.120000    0.014070   3.05748e-06   3.5e-03
     0.135000    0.014162   3.15094e-06   3.5e-03
     0.150000    0.014216   3.21437e-06   8.1e-03
-    0.165000    0.014249   3.25462e-06   1.0e-02
-    0.180000    0.014268   3.28120e-06   3.1e-03
-    0.195000    0.014280   3.29941e-06   1.3e-02
-    0.210000    0.014287   3.31064e-06   1.2e-02
-    0.225000    0.014291   3.31719e-06   1.2e-02
-    0.240000    0.014293   3.32112e-06   1.2e-02
-    0.255000    0.014295   3.32417e-06   1.2e-02
-    0.270000    0.014295   3.32605e-06   1.2e-02
-    0.285000    0.014296   3.32715e-06   1.2e-02
-    0.300000    0.014296   3.32790e-06   2.0e-02
+    0.165000    0.014249   3.25446e-06   1.0e-02
+    0.180000    0.014268   3.28119e-06   8.2e-03
+    0.195000    0.014280   3.29987e-06   1.3e-02
+    0.210000    0.014287   3.31126e-06   1.2e-02
+    0.225000    0.014291   3.31661e-06   1.7e-02
+    0.240000    0.014293   3.32229e-06   1.7e-02
+    0.255000    0.014295   3.32433e-06   1.5e-02
+    0.270000    0.014295   3.32634e-06   1.6e-02
+    0.285000    0.014296   3.32739e-06   4.8e-03
+    0.300000    0.014296   3.32804e-06   1.5e-02
    ----------------------------------------------
 
 Final Solver Statistics:
-   Internal solver steps = 88 (attempted = 94)
-   Total RHS evals:  Fe = 0,  Fi = 943
-   Total linear solver setups = 28
-   Total linear iterations = 2255
+   Internal solver steps = 100 (attempted = 115)
+   Total RHS evals:  Fe = 0,  Fi = 1153
+   Total linear solver setups = 52
+   Total linear iterations = 2732
    Total number of Jacobian-vector products = 0
-   Total number of Jacobian evaluations = 8
-   Total number of linear solver convergence failures = 415
-   Total number of Nonlinear iterations = 470
+   Total number of Jacobian evaluations = 16
+   Total number of linear solver convergence failures = 465
+   Total number of Nonlinear iterations = 575
    Total number of nonlinear solver convergence failures = 0
-   Total number of error test failures = 6
-   Error: max = 6.87361e-06, rms = 2.90167e-06
+   Total number of error test failures = 15
+   Error: max = 6.86595e-06, rms = 2.90181e-06

@@ -72,6 +72,7 @@ module farkode_mristep_mod
  public :: FMRIStepGetNumSteps
  public :: FMRIStepGetLastStep
  public :: FMRIStepGetCurrentTime
+ public :: FMRIStepGetCurrentState
  public :: FMRIStepGetNumGEvals
  public :: FMRIStepGetRootInfo
  public :: FMRIStepGetLastInnerStepFlag
@@ -356,6 +357,15 @@ end function
 
 function swigc_FMRIStepGetCurrentTime(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepGetCurrentTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepGetCurrentState(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepGetCurrentState") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -946,6 +956,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(tcur(1))
 fresult = swigc_FMRIStepGetCurrentTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepGetCurrentState(arkode_mem, ycur) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR) :: ycur
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = ycur
+fresult = swigc_FMRIStepGetCurrentState(farg1, farg2)
 swig_result = fresult
 end function
 
