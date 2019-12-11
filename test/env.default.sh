@@ -204,7 +204,7 @@ if [ "$realtype" == "extended" ]; then
     export LAPACK_STATUS=OFF
     unset LAPACKLIBS
 else
-    export LAPACKSTATUS=ON
+    export LAPACK_STATUS=ON
     if [ "$indexsize" == "32" ]; then
         LAPACKDIR="$(spack location -i openblas@0.3.7~ilp64 % "$compiler")"
     else
