@@ -95,6 +95,8 @@ extern "C" {
 #define ARK_OUTERTOINNER_FAIL    -36
 #define ARK_INNERTOOUTER_FAIL    -37
 
+#define ARK_USER_PREDICT_FAIL    -38
+  
 #define ARK_UNRECOGNIZED_ERROR   -99
 
 /* ------------------------------

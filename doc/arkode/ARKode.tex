@@ -315,6 +315,13 @@ Added two utility functions, \code{SUNDIALSFileOpen} and \code{SUNDIALSFileClose
 for creating/destroying file pointers that are useful when using the Fortran
 2003 interfaces.
 
+Added support for a user-supplied function to update the prediction for each
+implicit stage solution in ARKStep.  If supplied, this routine will be called
+\emph{after} any existing ARKStep predictor algorithm completes, so that the
+predictor may be modified by the user as desired.  The new user-supplied routine
+has type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKStepStagePredictFn]{\emph{\code{ARKStepStagePredictFn}}}}, and may be set by calling
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetStagePredictFn]{\emph{\code{ARKStepSetStagePredictFn()}}}}.
+
 
 \subsection{Changes in v4.0.0}
 \label{Introduction:changes-in-v4-0-0}
@@ -6805,6 +6812,13 @@ Maximum number of convergence failures
  &
 10
 \\
+\hline
+User-provided implicit stage predictor
+ &
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetStagePredictFn]{\emph{\code{ARKStepSetStagePredictFn()}}}}
+ &
+\code{NULL}
+\\
 \hline\end{tabulary}
 
 \index{ARKStepSetLinear (C function)}
@@ -7126,6 +7140,38 @@ Upon each convergence failure, ARKStep will first call the Jacobian
 setup routine and try again (if a Newton method is used).  If a
 convergence failure still occurs, the time step size is reduced by
 the factor \emph{etacf} (set within {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetMaxCFailGrowth]{\emph{\code{ARKStepSetMaxCFailGrowth()}}}}).
+
+\end{fulllineitems}
+
+\index{ARKStepSetStagePredictFn (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStagePredictFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStagePredictFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKStepStagePredictFn]{\emph{ARKStepStagePredictFn}}}\emph{ PredictStage}}{}
+Sets the user-supplied function to update the implicit stage predictor prior to
+execution of the nonlinear or linear solver algorithms that compute the implicit stage solution.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {}
+\emph{arkode\_mem} -- pointer to the ARKStep memory block.
+
+\item {}
+\emph{PredictStage} -- name of user-supplied predictor function.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {}
+\emph{ARK\_SUCCESS} if successful
+
+\item {}
+\emph{ARK\_MEM\_NULL} if the ARKStep memory is \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} See the section {\hyperref[ARKStep_c_interface/User_supplied:arkstep-cinterface-stagepredictfn]{\emph{\DUspan{}{Implicit stage prediction function}}}} for more information on
+this user-supplied routine.
 
 \end{fulllineitems}
 
@@ -10621,6 +10667,9 @@ a function that handles adaptive time step error control (optional),
 a function that handles explicit time step stability (optional),
 
 \item {}
+a function that updates the implicit stage prediction (optional),
+
+\item {}
 a function that defines the root-finding problem(s) to solve
 (optional),
 
@@ -10958,6 +11007,54 @@ value otherwise.
 \textbf{Notes:}  If this function is not supplied, or if it returns
 \emph{hstab} \(\le 0.0\), then ARKStep will assume that there is no explicit
 stability restriction on the time step size.
+
+\end{fulllineitems}
+
+
+
+\subsection{Implicit stage prediction function}
+\label{ARKStep_c_interface/User_supplied:arkstep-cinterface-stagepredictfn}\label{ARKStep_c_interface/User_supplied:implicit-stage-prediction-function}
+A user may supply a function to update the prediction for each implicit stage solution.
+If supplied, this routine will be called \emph{after} any existing ARKStep predictor
+algorithm completes, so that the predictor may be modified by the user as desired.
+In this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKStepStagePredictFn]{\emph{\code{ARKStepStagePredictFn}}}}
+to provide this implicit predictor to ARKStep.  This function takes as input the
+already-predicted implicit stage solution and the corresponding `time' for that prediction;
+it then updates the prediction vector as desired.
+\index{ARKStepStagePredictFn (C type)}
+
+\begin{fulllineitems}
+\phantomsection\label{ARKStep_c_interface/User_supplied:c.ARKStepStagePredictFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKStepStagePredictFn)}}{realtype\emph{ t}, N\_Vector\emph{ zpred}, void*\emph{ user\_data}}{}
+This function updates the prediction for the implicit stage solution.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {}
+\emph{t} -- the current value of the independent variable.
+
+\item {}
+\emph{zpred} -- the ARKStep-predicted stage solution on input, and the user-modified
+predicted stage solution on output.
+
+\item {}
+\emph{user\_data} -- a pointer to user data, the same as the
+\emph{user\_data} parameter that was passed to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetUserData]{\emph{\code{ARKStepSetUserData()}}}}.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}
+An \emph{ARKStepStagePredictFn} function should return 0 if it
+successfully set the upcoming stable step size, and a non-zero
+value otherwise.
+
+\textbf{Notes:}  This may be useful if there are bound constraints on the solution,
+and these should be enforced prior to beginning the nonlinear or linear implicit solver
+algorithm.
+
+This routine is incompatible with the ``minimum correction predictor'' -- option 5 to the
+routine {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetPredictorMethod]{\emph{\code{ARKStepSetPredictorMethod()}}}}.  If both are selected, then ARKStep will
+override its built-in implicit predictor routine to instead use option 0 (trivial predictor).
 
 \end{fulllineitems}
 

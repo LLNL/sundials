@@ -58,6 +58,13 @@ extern "C" {
 #define DEFAULT_ARK_ITABLE_5    ARK548L2SA_DIRK_8_4_5
 
 
+/* ------------------------------
+ * User-Supplied Function Types
+ * ------------------------------ */
+
+typedef int (*ARKStepStagePredictFn)(realtype t, N_Vector zpred,
+                                     void *user_data);
+  
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -204,6 +211,8 @@ SUNDIALS_EXPORT int ARKStepSetDiagnostics(void *arkode_mem,
 
 SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessStepFn ProcessStep);
+SUNDIALS_EXPORT int ARKStepSetStagePredictFn(void *arkode_mem,
+                                             ARKStepStagePredictFn PredictStage);
 
 /* Linear solver interface optional input functions -- must be called
    AFTER ARKStepSetLinearSolver and/or ARKStepSetMassLinearSolver */

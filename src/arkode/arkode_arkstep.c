@@ -1100,7 +1100,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
       }
     }
 
-  }
+  } /* end (init_type == 0) */
 
   /* Check for consistency between linear system modules
        (e.g., if lsolve is direct, msolve needs to match) */
@@ -1448,6 +1448,14 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (retval != ARK_SUCCESS)  return (retval);
     } else {
       N_VScale(ONE, ark_mem->yn, step_mem->zpred);
+    }
+
+    /* If a user-supplied predictor routine is provided, call that here */
+    if (step_mem->stage_predict) {
+      retval = step_mem->stage_predict(ark_mem->tcur, step_mem->zpred,
+                                       ark_mem->user_data);
+      if (retval < 0)  return(ARK_USER_PREDICT_FAIL);
+      if (retval > 0)  return(TRY_AGAIN);
     }
 
 #ifdef DEBUG_OUTPUT
@@ -1906,14 +1914,14 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 
     /***** Interpolatory Predictor 1 -- all to max order *****/
     retval = arkPredict_MaximumOrder(ark_mem, tau, yguess);
-    if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
+    if (retval != ARK_ILL_INPUT)  return(retval);
     break;
 
   case 2:
 
     /***** Interpolatory Predictor 2 -- decrease order w/ increasing level of extrapolation *****/
     retval = arkPredict_VariableOrder(ark_mem, tau, yguess);
-    if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
+    if (retval != ARK_ILL_INPUT)  return(retval);
     break;
 
   case 3:
@@ -1921,7 +1929,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
     /***** Cutoff predictor: max order interpolatory output for stages "close"
            to previous step, first-order predictor for subsequent stages *****/
     retval = arkPredict_CutoffOrder(ark_mem, tau, yguess);
-    if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
+    if (retval != ARK_ILL_INPUT)  return(retval);
     break;
 
   case 4:
@@ -1966,7 +1974,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 
     /* call predictor routine */
     retval = arkPredict_Bootstrap(ark_mem, h, tau, nvec, cvals, Xvecs, yguess);
-    if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
+    if (retval != ARK_ILL_INPUT)  return(retval);
     break;
 
   case 5:
@@ -2003,7 +2011,6 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
     /* compute predictor */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, yguess);
     if (retval != 0) return(ARK_VECTOROP_ERR);
-
     return(ARK_SUCCESS);
     break;
 
@@ -2064,9 +2071,8 @@ int arkStep_StageSetup(ARKodeMem ark_mem)
 
   } else {
 
-    /* Initialize sdata to ycur - zpred (here: ycur = yn and zpred = zp) */
-    N_VLinearSum(ONE, ark_mem->yn, -ONE, step_mem->zpred,
-                 step_mem->sdata);
+    /* Initialize sdata to yn - zpred (here: zpred = zp) */
+    N_VLinearSum(ONE, ark_mem->yn, -ONE, step_mem->zpred, step_mem->sdata);
 
     /* If M!=I, replace sdata with M*sdata, so that sdata = M*(yn-zpred) */
     if (step_mem->mass_mem != NULL) {

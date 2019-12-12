@@ -999,6 +999,7 @@ char *arkGetReturnFlagName(long int flag);
 #define MSG_ARK_MASSSETUP_FAIL "The mass matrix solver's setup routine failed."
 #define MSG_ARK_MASSSOLVE_FAIL "The mass matrix solver failed."
 #define MSG_ARK_NLS_FAIL       "At " MSG_TIME " the nonlinear solver failed in an unrecoverable manner."
+#define MSG_ARK_USER_PREDICT_FAIL "At " MSG_TIME " the user-supplied predictor failed in an unrecoverable manner."
 #define MSG_ARKADAPT_NO_MEM    "Adaptivity memory structure not allocated."
 #define MSG_ARK_VECTOROP_ERR      "At " MSG_TIME ", a vector operation failed."
 #define MSG_ARK_INNERSTEP_FAILED  "At " MSG_TIME ", the inner stepper failed in an unrecoverable manner."

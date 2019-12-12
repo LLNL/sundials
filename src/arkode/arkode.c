@@ -2394,6 +2394,10 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode", "ARKode",
                     MSG_ARK_NLS_FAIL, ark_mem->tcur);
     break;
+  case ARK_USER_PREDICT_FAIL:
+    arkProcessError(ark_mem, ARK_USER_PREDICT_FAIL, "ARKode", "ARKode",
+                    MSG_ARK_USER_PREDICT_FAIL, ark_mem->tcur);
+    break;
   default:
     /* This return should never happen */
     arkProcessError(ark_mem, ARK_UNRECOGNIZED_ERROR, "ARKode", "ARKode",
@@ -2667,7 +2671,7 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
                          N_Vector *Xvecs, N_Vector yguess)
 {
   realtype a0, a1, a2;
-  int i;
+  int i, retval;
 
   /* verify that ark_mem and interpolation structure are provided */
   if (ark_mem == NULL) {
@@ -2700,7 +2704,9 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
   Xvecs[1] = ark_mem->interp->fnew;
 
   /* call fused vector operation to compute prediction */
-  return(N_VLinearCombination(nvec+2, cvals, Xvecs, yguess));
+  retval = N_VLinearCombination(nvec+2, cvals, Xvecs, yguess);
+  if (retval != 0)  return(ARK_VECTOROP_ERR);
+  return(ARK_SUCCESS);
 }
 
 

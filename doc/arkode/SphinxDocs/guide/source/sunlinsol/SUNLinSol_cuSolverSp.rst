@@ -18,7 +18,7 @@
 .. _SUNLinSol_cuSolverSp_batchQR:
 
 The SUNLinSol_cuSolverSp_batchQR Module
-======================================
+=======================================
 
 The ``SUNLinearSolver_cuSolverSp_batchQR`` implementation of the SUNLinearSolver API is
 designed to be used with the SUNMATRIX_SPARSE matrix type, and the NVECTOR_CUDA vector type

@@ -78,6 +78,9 @@ typedef struct ARKodeARKStepMemRec {
   ARKodeButcherTable Be;  /* ERK Butcher table          */
   ARKodeButcherTable Bi;  /* IRK Butcher table          */
 
+  /* User-supplied stage predictor routine */
+  ARKStepStagePredictFn stage_predict;
+  
   /* (Non)Linear solver parameters & data */
   SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
   booleantype     ownNLS;   /* flag indicating ownership of NLS      */

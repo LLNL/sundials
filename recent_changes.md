@@ -13,6 +13,13 @@ This includes changing the `ARKodeButcherTable` type to be a `type(c_ptr)` in Fo
 Added two utility functions, `SUNDIALSFileOpen` and `SUNDIALSFileClose` for creating/destroying
 file pointers. These are useful when using the Fortran 2003 interfaces.
 
+Added support for a user-supplied function to update the prediction for each
+implicit stage solution in ARKStep.  If supplied, this routine will be called
+*after* any existing ARKStep predictor algorithm completes, so that the
+predictor may be modified by the user as desired.  The new user-supplied routine
+has type `ARKStepStagePredictFn`, and may be set by calling `ARKStepSetStagePredictFn`.
+
+
 ## Changes to SUNDIALS in release 5.0.0
 
 ### Build System

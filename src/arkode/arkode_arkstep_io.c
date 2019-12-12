@@ -140,6 +140,36 @@ int ARKStepSetUserData(void *arkode_mem, void *user_data)
 
 
 /*---------------------------------------------------------------
+  ARKStepSetStagePredictFn:  Specifies a user-provided step
+  predictor function having type ARKStepStagePredictFn.  A
+  NULL input function disables calls to this routine.
+  ---------------------------------------------------------------*/
+int ARKStepSetStagePredictFn(void *arkode_mem,
+                             ARKStepStagePredictFn PredictStage)
+{
+  ARKodeMem        ark_mem;
+  ARKodeARKStepMem step_mem;
+  int              retval;
+
+  /* access ARKodeARKStepMem structure and set function pointer */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetStagePredictFn",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* override predictor method 5 if non-NULL PredictStage is supplied */
+  if ((step_mem->predictor == 5) && (PredictStage != NULL)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetStagePredictFn",
+                    "User-supplied predictor is incompatible with predictor method 5");
+    return(ARK_ILL_INPUT);
+  }
+
+  step_mem->stage_predict = PredictStage;
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   These wrappers for ARKLs module 'set' routines all are
   documented in arkode_arkstep.h.
   ---------------------------------------------------------------*/
@@ -325,6 +355,7 @@ int ARKStepSetDefaults(void* arkode_mem)
   step_mem->NLS              = NULL;           /* no nonlinear solver object */
   step_mem->jcur             = SUNFALSE;
   step_mem->convfail         = ARK_NO_FAILURES;
+  step_mem->stage_predict    = NULL;           /* no user-supplied stage predictor */
   return(ARK_SUCCESS);
 }
 
@@ -1153,7 +1184,15 @@ int ARKStepSetPredictorMethod(void *arkode_mem, int pred_method)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* set parameters */
+  /* return error if pred_method==5 and a non-NULL stage predictor function
+     has been supplied */
+  if ((pred_method == 5) && (step_mem->stage_predict != NULL)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", "ARKStepSetPredictorMethod",
+                    "predictor 5 cannot be combined with user-supplied stage predictor");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* set parameter */
   step_mem->predictor = pred_method;
 
   return(ARK_SUCCESS);

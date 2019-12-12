@@ -1790,10 +1790,6 @@ Explicit stability function                     :c:func:`ARKStepSetStabilityFn()
 
 
 
-
-
-
-
 .. _ARKStep_CInterface.ARKStep_CInterface.ARKStepSolverInputTable:
 
 Optional inputs for implicit stage solves
@@ -1817,6 +1813,7 @@ Coefficient in the nonlinear convergence test  :c:func:`ARKStepSetNonlinConvCoef
 Nonlinear convergence rate constant            :c:func:`ARKStepSetNonlinCRDown()`         0.3
 Nonlinear residual divergence ratio            :c:func:`ARKStepSetNonlinRDiv()`           2.3
 Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()`         10
+User-provided implicit stage predictor         :c:func:`ARKStepSetStagePredictFn()`       ``NULL``
 =============================================  =========================================  ============
 
 
@@ -2005,6 +2002,24 @@ Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()
    setup routine and try again (if a Newton method is used).  If a
    convergence failure still occurs, the time step size is reduced by
    the factor *etacf* (set within :c:func:`ARKStepSetMaxCFailGrowth()`).
+
+
+
+.. c:function:: int ARKStepSetStagePredictFn(void* arkode_mem, ARKStepStagePredictFn PredictStage)
+
+   Sets the user-supplied function to update the implicit stage predictor prior to
+   execution of the nonlinear or linear solver algorithms that compute the implicit stage solution.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *PredictStage* -- name of user-supplied predictor function.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   **Notes:** See the section :ref:`ARKStep_CInterface.StagePredictFn` for more information on
+   this user-supplied routine.
 
 
 
