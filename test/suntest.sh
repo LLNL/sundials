@@ -440,6 +440,7 @@ time cmake \
     -D USE_GENERIC_MATH="${C90MATH}" \
     \
     -D SUNDIALS_TEST_DEVTESTS="${devtests}" \
+    -D SUNDIALS_TEST_UNITTESTS=ON \
     \
     -D CMAKE_VERBOSE_MAKEFILE=OFF \
     \

@@ -222,6 +222,10 @@ int main(int argc, char *argv[])
   inner_arkode_mem = ARKStepCreate(NULL, ff, T0, y);
   if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
 
+  /* Attach user data to fast integrator */
+  retval = ARKStepSetUserData(inner_arkode_mem, (void *) udata);
+  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+
   /* Set the fast method */
   retval = ARKStepSetTableNum(inner_arkode_mem, ARK324L2SA_DIRK_4_2_3, -1);
   if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;

@@ -190,6 +190,17 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   step_mem->nsetups      = 0;
   step_mem->nstlp        = 0;
 
+  /* Initialize fused op work space */
+  step_mem->cvals        = NULL;
+  step_mem->Xvecs        = NULL;
+  step_mem->nfusedopvecs = 0;
+
+  /* Initialize external polynomial forcing data */
+  step_mem->expforcing = SUNFALSE;
+  step_mem->impforcing = SUNFALSE;
+  step_mem->forcing    = NULL;
+  step_mem->nforcing   = 0;
+
   /* Initialize main ARKode infrastructure */
   retval = arkInit(ark_mem, t0, y0);
   if (retval != ARK_SUCCESS) {
@@ -613,13 +624,14 @@ void ARKStepFree(void **arkode_mem)
     if (step_mem->cvals != NULL) {
       free(step_mem->cvals);
       step_mem->cvals = NULL;
-      ark_mem->lrw -= (2*step_mem->stages + 1);
+      ark_mem->lrw -= step_mem->nfusedopvecs;
     }
     if (step_mem->Xvecs != NULL) {
       free(step_mem->Xvecs);
       step_mem->Xvecs = NULL;
-      ark_mem->liw -= (2*step_mem->stages + 1);
+      ark_mem->liw -= step_mem->nfusedopvecs;
     }
+    step_mem->nfusedopvecs = 0;
 
     /* free the time stepper module itself */
     free(ark_mem->step_mem);
@@ -1077,17 +1089,19 @@ int arkStep_Init(void* arkode_mem, int init_type)
       ark_mem->liw += step_mem->stages;  /* pointers */
     }
 
-    /* Allocate reusable arrays for fused vector interface */
-    j = (2*step_mem->stages+1 > 4) ? 2*step_mem->stages+1 : 4;
+    /* Allocate reusable arrays for fused vector operations */
+    step_mem->nfusedopvecs = 2 * step_mem->stages + 2 + step_mem->nforcing;
     if (step_mem->cvals == NULL) {
-      step_mem->cvals = (realtype *) calloc(j, sizeof(realtype));
+      step_mem->cvals = (realtype *) calloc(step_mem->nfusedopvecs,
+                                            sizeof(realtype));
       if (step_mem->cvals == NULL)  return(ARK_MEM_FAIL);
-      ark_mem->lrw += j;
+      ark_mem->lrw += step_mem->nfusedopvecs;
     }
     if (step_mem->Xvecs == NULL) {
-      step_mem->Xvecs = (N_Vector *) calloc(j, sizeof(N_Vector));
+      step_mem->Xvecs = (N_Vector *) calloc(step_mem->nfusedopvecs,
+                                            sizeof(N_Vector));
       if (step_mem->Xvecs == NULL)  return(ARK_MEM_FAIL);
-      ark_mem->liw += j;   /* pointers */
+      ark_mem->liw += step_mem->nfusedopvecs;   /* pointers */
     }
 
     /* Allocate interpolation memory (if unallocated, and needed) */
@@ -1195,13 +1209,20 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int retval;
+  int i, nvec, retval;
+  realtype tau, taui;
   booleantype recomputeRHS;
+  realtype* cvals;
+  N_Vector* Xvecs;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_FullRHS",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  /* local shortcuts for use with fused vector operations */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
 
   /* if the problem involves a non-identity mass matrix and setup is
      required, do so here (use output f as a temporary) */
@@ -1230,6 +1251,25 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
                         "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
+      /* apply external polynomial forcing */
+      if (step_mem->expforcing) {
+        cvals[0] = ONE;
+        Xvecs[0] = step_mem->Fe[0];
+        nvec     = 1;
+        cvals[1] = ONE;
+        Xvecs[1] = step_mem->forcing[0];
+        nvec     = 2;
+        /* compute normalized time tau and initialize tau^i */
+        tau  = (t - step_mem->tshift) / (step_mem->tscale);
+        taui = tau;
+        for (i = 1; i < step_mem->nforcing; i++) {
+          cvals[nvec] = taui;
+          Xvecs[nvec] = step_mem->forcing[i];
+          taui *= tau;
+          nvec += 1;
+        }
+        N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
+      }
     }
 
     /* call fi if the problem has an implicit component */
@@ -1240,6 +1280,25 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
                         "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
+      }
+      /* apply external polynomial forcing */
+      if (step_mem->impforcing) {
+        cvals[0] = ONE;
+        Xvecs[0] = step_mem->Fi[0];
+        nvec     = 1;
+        cvals[1] = ONE;
+        Xvecs[1] = step_mem->forcing[0];
+        nvec     = 2;
+        /* compute normalized time tau and initialize tau^i */
+        tau  = (t - step_mem->tshift) / (step_mem->tscale);
+        taui = tau;
+        for (i = 1; i < step_mem->nforcing; i++) {
+          cvals[nvec] = taui;
+          Xvecs[nvec] = step_mem->forcing[i];
+          taui *= tau;
+          nvec += 1;
+        }
+        N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
       }
     }
 
@@ -1280,6 +1339,25 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
                           "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
           return(ARK_RHSFUNC_FAIL);
         }
+        /* apply external polynomial forcing */
+        if (step_mem->expforcing) {
+          cvals[0] = ONE;
+          Xvecs[0] = step_mem->Fe[0];
+          nvec     = 1;
+          cvals[1] = ONE;
+          Xvecs[1] = step_mem->forcing[0];
+          nvec     = 2;
+          /* compute normalized time tau and initialize tau^i */
+          tau  = (t - step_mem->tshift) / (step_mem->tscale);
+          taui = tau;
+          for (i = 1; i < step_mem->nforcing; i++) {
+            cvals[nvec] = taui;
+            Xvecs[nvec] = step_mem->forcing[i];
+            taui *= tau;
+            nvec += 1;
+          }
+          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
+        }
       }
 
       /* call fi if the problem has an implicit component */
@@ -1290,6 +1368,25 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
                           "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
           return(ARK_RHSFUNC_FAIL);
+        }
+        /* apply external polynomial forcing */
+        if (step_mem->impforcing) {
+          cvals[0] = ONE;
+          Xvecs[0] = step_mem->Fi[0];
+          nvec     = 1;
+          cvals[1] = ONE;
+          Xvecs[1] = step_mem->forcing[0];
+          nvec     = 2;
+          /* compute normalized time tau and initialize tau^i */
+          tau  = (t - step_mem->tshift) / (step_mem->tscale);
+          taui = tau;
+          for (i = 1; i < step_mem->nforcing; i++) {
+            cvals[nvec] = taui;
+            Xvecs[nvec] = step_mem->forcing[i];
+            taui *= tau;
+            nvec += 1;
+          }
+          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
         }
       }
     } else {
@@ -1324,6 +1421,25 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
                         "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
+      /* apply external polynomial forcing */
+      if (step_mem->expforcing) {
+        cvals[0] = ONE;
+        Xvecs[0] = ark_mem->tempv2;
+        nvec     = 1;
+        cvals[1] = ONE;
+        Xvecs[1] = step_mem->forcing[0];
+        nvec     = 2;
+        /* compute normalized time tau and initialize tau^i */
+        tau  = (t - step_mem->tshift) / (step_mem->tscale);
+        taui = tau;
+        for (i = 1; i < step_mem->nforcing; i++) {
+          cvals[nvec] = taui;
+          Xvecs[nvec] = step_mem->forcing[i];
+          taui *= tau;
+          nvec += 1;
+        }
+        N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv2);
+      }
     }
 
     /* call fi if the problem has an implicit component (store in sdata) */
@@ -1334,6 +1450,25 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
                         "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
+      }
+      /* apply external polynomial forcing */
+      if (step_mem->impforcing) {
+        cvals[0] = ONE;
+        Xvecs[0] = step_mem->sdata;
+        nvec     = 1;
+        cvals[1] = ONE;
+        Xvecs[1] = step_mem->forcing[0];
+        nvec     = 2;
+        /* compute normalized time tau and initialize tau^i */
+        tau  = (t - step_mem->tshift) / (step_mem->tscale);
+        taui = tau;
+        for (i = 1; i < step_mem->nforcing; i++) {
+          cvals[nvec] = taui;
+          Xvecs[nvec] = step_mem->forcing[i];
+          taui *= tau;
+          nvec += 1;
+        }
+        N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
       }
     }
 
@@ -1391,16 +1526,23 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
   ---------------------------------------------------------------*/
 int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
-  int retval, is;
+  int retval, is, i, nvec;
+  realtype tau, taui;
   booleantype implicit_stage;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
+  realtype* cvals;
+  N_Vector* Xvecs;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
+
+  /* local shortcuts for use with fused vector operations */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
 
   /* if problem will involve no algebraic solvers, initialize nflagPtr to success */
   if (!step_mem->implicit && (step_mem->mass_mem == NULL))
@@ -1522,15 +1664,54 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       step_mem->nfi++;
       if (retval < 0)  return(ARK_RHSFUNC_FAIL);
       if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
+      /* apply external polynomial forcing */
+      if (step_mem->impforcing) {
+        cvals[0] = ONE;
+        Xvecs[0] = step_mem->Fi[is];
+        nvec     = 1;
+        cvals[1] = ONE;
+        Xvecs[1] = step_mem->forcing[0];
+        nvec     = 2;
+        /* compute normalized time tau and initialize tau^i */
+        tau  = (ark_mem->tcur - step_mem->tshift) / (step_mem->tscale);
+        taui = tau;
+        for (i = 1; i < step_mem->nforcing; i++) {
+          cvals[nvec] = taui;
+          Xvecs[nvec] = step_mem->forcing[i];
+          taui *= tau;
+          nvec += 1;
+        }
+        N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[is]);
+      }
     }
 
     /*    store explicit RHS */
     if (step_mem->explicit) {
-      retval = step_mem->fe(ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
-                            ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
-      step_mem->nfe++;
-      if (retval < 0)  return(ARK_RHSFUNC_FAIL);
-      if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
+        retval = step_mem->fe(ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
+                              ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
+        step_mem->nfe++;
+        if (retval < 0)  return(ARK_RHSFUNC_FAIL);
+        if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
+        /* apply external polynomial forcing */
+        if (step_mem->expforcing) {
+          cvals[0] = ONE;
+          Xvecs[0] = step_mem->Fe[is];
+          nvec     = 1;
+          cvals[1] = ONE;
+          Xvecs[1] = step_mem->forcing[0];
+          nvec     = 2;
+          /* compute normalized time tau and initialize tau^i */
+          tau  = ((ark_mem->tn + step_mem->Be->c[is]*ark_mem->h) -
+                  step_mem->tshift) / (step_mem->tscale);
+          taui = tau;
+          for (i = 1; i < step_mem->nforcing; i++) {
+            cvals[nvec] = taui;
+            Xvecs[nvec] = step_mem->forcing[i];
+            taui *= tau;
+            nvec += 1;
+          }
+          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[is]);
+        }
     }
 
   } /* loop over stages */
@@ -1894,7 +2075,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
     return(ARK_MEM_NULL);
   }
 
-  /* local shortcuts to fused vector operations */
+  /* local shortcuts for use with fused vector operations */
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
@@ -2046,6 +2227,7 @@ int arkStep_StageSetup(ARKodeMem ark_mem)
   /* local data */
   ARKodeARKStepMem step_mem;
   int retval, i, j, nvec;
+  realtype tau, tauj;
   realtype* cvals;
   N_Vector* Xvecs;
 
@@ -2067,7 +2249,24 @@ int arkStep_StageSetup(ARKodeMem ark_mem)
   /* If predictor==5, then sdata=0, otherwise set sdata appropriately */
   if ( (step_mem->predictor == 5) && (step_mem->mass_mem == NULL) ) {
 
-    N_VConst(ZERO, step_mem->sdata);
+    /* apply external polynomial forcing */
+    if (step_mem->impforcing) {
+      cvals[0] = ark_mem->h * step_mem->Bi->A[i][i];
+      Xvecs[0] = step_mem->forcing[0];
+      nvec     = 1;
+      /* compute normalized time tau and initialize tau^j */
+      tau  = (ark_mem->tcur - step_mem->tshift) / (step_mem->tscale);
+      tauj = tau;
+      for (j = 1; j < step_mem->nforcing; j++) {
+        cvals[nvec] = ark_mem->h * step_mem->Bi->A[i][i] * tauj;
+        Xvecs[nvec] = step_mem->forcing[j];
+        tauj *= tau;
+        nvec += 1;
+      }
+      N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
+    } else {
+      N_VConst(ZERO, step_mem->sdata);
+    }
 
   } else {
 
@@ -2098,6 +2297,22 @@ int arkStep_StageSetup(ARKodeMem ark_mem)
         Xvecs[nvec] = step_mem->Fi[j];
         nvec += 1;
       }
+
+    /* apply external polynomial forcing */
+    if (step_mem->impforcing) {
+      cvals[nvec] = ark_mem->h * step_mem->Bi->A[i][i];
+      Xvecs[nvec] = step_mem->forcing[0];
+      nvec += 1;
+      /* compute normalized time tau and initialize tau^j */
+      tau  = (ark_mem->tcur - step_mem->tshift) / (step_mem->tscale);
+      tauj = tau;
+      for (j = 1; j < step_mem->nforcing; j++) {
+        cvals[nvec] = ark_mem->h * step_mem->Bi->A[i][i] * tauj;
+        Xvecs[nvec] = step_mem->forcing[j];
+        tauj *= tau;
+        nvec += 1;
+      }
+    }
 
     /*   call fused vector operation to do the work */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
@@ -2293,6 +2508,100 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
   return(ARK_SUCCESS);
 }
 
+
+/*------------------------------------------------------------------------------
+  arkStep_SetInnerForcing
+
+  Sets an array of coefficient vectors for a time-dependent external polynomial
+  forcing term in the ODE RHS i.e., y' = fe(t,y) + fi(t,y) + p(t). This
+  function is primarily intended for use with multirate integration methods
+  (e.g., MRIStep) where ARKStep is used to solve a modified ODE at a fast time
+  scale. The polynomial is of the form
+
+  p(t) = sum_{i = 0}^{nvecs - 1} forcing[i] * ((t - tshift) / (tscale))^i
+
+  where tshift and tscale are used to normalize the time t (e.g., with MRIGARK
+  methods).
+  ----------------------------------------------------------------------------*/
+
+int arkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,
+                            N_Vector* forcing, int nvecs)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepResize",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  if (nvecs > 0) {
+
+    /* enable forcing */
+    if (step_mem->implicit) {
+      step_mem->expforcing = SUNFALSE;
+      step_mem->impforcing = SUNTRUE;
+    } else {
+      step_mem->expforcing = SUNTRUE;
+      step_mem->impforcing = SUNFALSE;
+    }
+    step_mem->tshift   = tshift;
+    step_mem->tscale   = tscale;
+    step_mem->forcing  = forcing;
+    step_mem->nforcing = nvecs;
+
+    /* If cvals and Xvecs are not allocated then arkStep_Init has not been
+       called and the number of stages has not been set yet. These arrays will
+       be allocated in arkStep_Init and take into account the value of nforcing.
+       On subsequent calls will check if enough space has allocated in case
+       nforcing has increased since the original allocation. */
+    if (step_mem->cvals != NULL && step_mem->Xvecs != NULL) {
+
+      /* check if there are enough reusable arrays for fused operations */
+      if ((step_mem->nfusedopvecs - nvecs) < (2 * step_mem->stages + 2)) {
+
+        /* free current work space */
+        if (step_mem->cvals != NULL) {
+          free(step_mem->cvals);
+          ark_mem->lrw -= step_mem->nfusedopvecs;
+        }
+        if (step_mem->Xvecs != NULL) {
+          free(step_mem->Xvecs);
+          ark_mem->liw -= step_mem->nfusedopvecs;
+        }
+
+        /* allocate reusable arrays for fused vector operations */
+        step_mem->nfusedopvecs = 2 * step_mem->stages + 2 + nvecs;
+
+        step_mem->cvals = NULL;
+        step_mem->cvals = (realtype *) calloc(step_mem->nfusedopvecs,
+                                              sizeof(realtype));
+        if (step_mem->cvals == NULL) return(ARK_MEM_FAIL);
+        ark_mem->lrw += step_mem->nfusedopvecs;
+
+        step_mem->Xvecs = NULL;
+        step_mem->Xvecs = (N_Vector *) calloc(step_mem->nfusedopvecs,
+                                              sizeof(N_Vector));
+        if (step_mem->Xvecs == NULL) return(ARK_MEM_FAIL);
+        ark_mem->liw += step_mem->nfusedopvecs;
+      }
+    }
+
+  } else {
+
+    /* disable forcing */
+    step_mem->expforcing = SUNFALSE;
+    step_mem->impforcing = SUNFALSE;
+    step_mem->tshift     = ZERO;
+    step_mem->tscale     = ONE;
+    step_mem->forcing    = NULL;
+    step_mem->nforcing   = 0;
+
+  }
+
+  return(0);
+}
 
 /*===============================================================
   EOF

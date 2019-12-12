@@ -141,49 +141,17 @@ int MRIStepSetDefaults(void* arkode_mem)
 
 /*---------------------------------------------------------------
   MRIStepSetUserData: Specifies the user data pointer
-
-  NOTE: This function assumes that the inner ARKodeMem user_data
-  variable is only passed to the RHS function(s) and that separate
-  variables (e.g., e_data, J_data, etc.) are used to pass the user
-  data to all other user functions. This ensures that re-attaching
-  the outer stepper to the inner user_data variable does not
-  clobber the pointers passed to other user functions.
   ---------------------------------------------------------------*/
 int MRIStepSetUserData(void *arkode_mem, void *user_data)
 {
-  ARKodeMem         ark_mem;       /* outer ARKode memory  */
-  ARKodeMRIStepMem  step_mem;      /* outer stepper memory */
-  ARKodeMem         inner_ark_mem; /* inner ARKode memory  */
-  int               retval;
-
-  /* Access MRIStep memory */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetUserData",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* Check for inner memory */
-  if (step_mem->inner_mem == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetUserData", "The inner stepper memory is NULL");
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
+                    "MRIStepSetUserData", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-
-  /* Attach user_data to the outer stepper */
-  retval = arkSetUserData(ark_mem, user_data);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* Attach user_data to the inner stepper and re-attach the outer
-     stepper to the inner stepper ARKodeMem user_data pointer. */
-  switch (step_mem->inner_stepper_id) {
-  case MRISTEP_ARKSTEP:
-    retval = ARKStepSetUserData(step_mem->inner_mem, user_data);
-    if (retval != ARK_SUCCESS) return(retval);
-    inner_ark_mem = (ARKodeMem)(step_mem->inner_mem);
-    inner_ark_mem->user_data = arkode_mem;
-    break;
-  }
-
-  return(ARK_SUCCESS);
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetUserData(ark_mem, user_data));
 }
 
 

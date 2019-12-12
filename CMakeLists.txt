@@ -702,14 +702,20 @@ if(SUNDIALS_F77_FUNC_CASE AND (NOT SUNDIALS_F77_FUNC_UNDERSCORES))
 endif()
 
 # ------------------------------------------------------------------------------
-# Include development examples in regression tests?
+# Advanced testing options
 #
 # NOTE: Development examples are currently used for internal testing and may
 # produce erroneous failures when run on different systems as the pass/fail
 # status is determined by comparing the output against a saved output file.
 # ------------------------------------------------------------------------------
+
+# Include development examples in regression tests
 option(SUNDIALS_TEST_DEVTESTS "Include development tests in make test" OFF)
 mark_as_advanced(FORCE SUNDIALS_TEST_DEVTESTS)
+
+# Include unit tests in regression tests
+option(SUNDIALS_TEST_UNITTESTS "Include unit tests in make test" OFF)
+mark_as_advanced(FORCE SUNDIALS_TEST_UNITTESTS)
 
 # ===============================================================
 # Add any platform specifc settings
@@ -1089,6 +1095,11 @@ add_subdirectory(src)
 # Add selected examples to the build
 if(EXAMPLES_ENABLED)
   add_subdirectory(examples)
+endif()
+
+# Add unit tests to the build
+if(SUNDIALS_TEST_UNITTESTS)
+  add_subdirectory(test/unit_tests)
 endif()
 
 # ---------------------------------------------------------------

@@ -592,3 +592,7 @@ $tar $tarfile $distrobase/examples/templates/makefile_superludist_CXX_ex.in || e
 echo "   --- Add testing files to $tarfile"
 
 $tar $tarfile $distrobase/test/testRunner || exit 1
+
+echo "   --- Add unit tests files to $tarfile"
+
+$tar $tarfile $distrobase/test/unit_tests/CMakeLists.txt || exit 1

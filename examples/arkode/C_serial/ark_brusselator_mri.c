@@ -124,6 +124,10 @@ int main()
   inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y);
   if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
 
+  /* Attach user data to fast integrator */
+  retval = ARKStepSetUserData(inner_arkode_mem, (void *) rdata);
+  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+
   /* Set the fast method */
   retval = ARKStepSetTableNum(inner_arkode_mem, -1, KNOTH_WOLKE_3_3);
   if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;

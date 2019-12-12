@@ -322,6 +322,12 @@ predictor may be modified by the user as desired.  The new user-supplied routine
 has type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKStepStagePredictFn]{\emph{\code{ARKStepStagePredictFn}}}}, and may be set by calling
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetStagePredictFn]{\emph{\code{ARKStepSetStagePredictFn()}}}}.
 
+The MRIStep module has been updated to support attaching different user data
+pointers to the inner and outer integrators. If applicable, user codes will
+need to add a call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetUserData]{\emph{\code{ARKStepSetUserData()}}}} to attach their user data
+pointer to the inner integrator memory as {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetUserData]{\emph{\code{MRIStepSetUserData()}}}} will
+not set the pointer for both the inner and outer integrators. The MRIStep
+examples have been updated to reflect this change.
 
 \subsection{Changes in v4.0.0}
 \label{Introduction:changes-in-v4-0-0}
@@ -17159,7 +17165,7 @@ this memory structure. See the section
 {\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-initialization]{\emph{\DUspan{}{ARKStep initialization and deallocation functions}}}} for details.
 
 \item {}
-Configure the fast integrator
+Configure the fast (inner) integrator
 
 Specify tolerances, create and attach matrix and/or solver objects,
 or call \code{ARKStepSet*} functions to configure the fast integrator
@@ -17179,10 +17185,15 @@ fast step a call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetFix
 step otherwise fast integration tolerances should be set in this step as
 described in {\hyperref[ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}}.
 
-If attaching a \emph{user\_data} pointer, it should be attached to the slow
-integrator in the following steps with {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetUserData]{\emph{\code{MRIStepSetUserData()}}}}. This
-pointer will subsequently be passed to user-provided functions during the
-fast integration.
+If a \emph{user\_data} pointer needs to be passed to user functions called by the
+fast (inner) integrator then it should be attached here by calling
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetUserData]{\emph{\code{ARKStepSetUserData()}}}}. This \emph{user\_data} pointer will only be passed
+to user-supplied functions that are attached to the fast (inner) integrator.
+To supply a \emph{user\_data} pointer to user-supplied functions called by the slow
+(outer) integrator the desired pointer should be attached by calling
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetUserData]{\emph{\code{MRIStepSetUserData()}}}} after creating the MRIStep memory below. Note
+the \emph{user\_data} pointers attached to the inner and outer integrators may
+be the same or different depending on what is required by the user code.
 
 Specifying a rootfinding problem for the fast integration is not
 supported. Rootfinding problems should be created and initialized with
@@ -18045,7 +18056,7 @@ Specifies the value of the independent variable
 
 \begin{fulllineitems}
 \phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetUserData}\pysiglinewithargsret{int \bfcode{MRIStepSetUserData}}{void*\emph{ arkode\_mem}, void*\emph{ user\_data}}{}
-Specifies the user data block \emph{user\_data} and
+Specifies the user data block \emph{user\_data} for the outer integrator and
 attaches it to the main MRIStep memory block.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -18072,11 +18083,14 @@ attaches it to the main MRIStep memory block.
 \end{description}
 
 \textbf{Notes:} If specified, the pointer to \emph{user\_data} is passed to all
-user-supplied functions for which it is an argument; otherwise
-\code{NULL} is passed.
+user-supplied functions called by the outer integrator for which it is an
+argument; otherwise \code{NULL} is passed.
 
-The \emph{user\_data} pointer should only be attached to the slow (outer)
-integrator.
+To attach a user data block to the inner integrator call the appropriate
+\emph{SetUserData} function for the inner integrator memory structure (e.g.,
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetUserData]{\emph{\code{ARKStepSetUserData()}}}} if the inner stepper is ARKStep). This pointer
+may be the same as or different from the pointer attached to the outer
+integrator depending on what is required by the user code.
 
 \end{fulllineitems}
 

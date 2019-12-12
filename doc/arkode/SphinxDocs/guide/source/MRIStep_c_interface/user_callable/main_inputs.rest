@@ -333,7 +333,7 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
 
 .. c:function:: int MRIStepSetUserData(void* arkode_mem, void* user_data)
 
-   Specifies the user data block *user_data* and
+   Specifies the user data block *user_data* for the outer integrator and
    attaches it to the main MRIStep memory block.
 
    **Arguments:**
@@ -346,11 +346,14 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** If specified, the pointer to *user_data* is passed to all
-   user-supplied functions for which it is an argument; otherwise
-   ``NULL`` is passed.
+   user-supplied functions called by the outer integrator for which it is an
+   argument; otherwise ``NULL`` is passed.
 
-   The *user_data* pointer should only be attached to the slow (outer)
-   integrator.
+   To attach a user data block to the inner integrator call the appropriate
+   *SetUserData* function for the inner integrator memory structure (e.g.,
+   :c:func:`ARKStepSetUserData()` if the inner stepper is ARKStep). This pointer
+   may be the same as or different from the pointer attached to the outer
+   integrator depending on what is required by the user code.
 
 .. c:function:: int MRIStepSetPreInnerFn(void* arkode_mem, ARKInnerToOuterFn prefn)
 

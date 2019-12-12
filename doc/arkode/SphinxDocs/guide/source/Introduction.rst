@@ -130,7 +130,12 @@ predictor may be modified by the user as desired.  The new user-supplied routine
 has type :c:type:`ARKStepStagePredictFn`, and may be set by calling
 :c:func:`ARKStepSetStagePredictFn()`.
 
-
+The MRIStep module has been updated to support attaching different user data
+pointers to the inner and outer integrators. If applicable, user codes will
+need to add a call to :c:func:`ARKStepSetUserData()` to attach their user data
+pointer to the inner integrator memory as :c:func:`MRIStepSetUserData()` will
+not set the pointer for both the inner and outer integrators. The MRIStep
+examples have been updated to reflect this change.
 
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

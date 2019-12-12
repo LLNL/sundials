@@ -134,8 +134,17 @@ typedef struct ARKodeARKStepMemRec {
   long int nsetups;       /* num setup calls                    */
 
   /* Reusable arrays for fused vector operations */
-  realtype *cvals;
-  N_Vector *Xvecs;
+  realtype *cvals;         /* scalar array for fused ops       */
+  N_Vector *Xvecs;         /* array of vectors for fused ops   */
+  int       nfusedopvecs;  /* length of cvals and Xvecs arrays */
+
+  /* Data for using ARKStep with external polynomial forcing */
+  booleantype expforcing;  /* add forcing to explicit RHS */
+  booleantype impforcing;  /* add forcing to implicit RHS */
+  realtype    tshift;      /* time normalization shift    */
+  realtype    tscale;      /* time normalization scaling  */
+  N_Vector*   forcing;     /* array of forcing vectors    */
+  int         nforcing;    /* number of forcing vectors   */
 
 } *ARKodeARKStepMem;
 
@@ -188,6 +197,10 @@ int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
 int arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         realtype tol, N_Vector ewt, void* arkode_mem);
+
+/* private functions used by MRIStep */
+int arkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,
+                            N_Vector *f, int nvecs);
 
 /*===============================================================
   Reusable ARKStep Error Messages

@@ -199,16 +199,6 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fs, realtype t0, N_Vector y0)
   /* check if inner integrator was attached successfully */
   if (retval != ARK_SUCCESS) return(ARK_INNERSTEP_ATTACH_ERR);
 
-  /* Reattach user data */
-  if (ark_mem->user_data != NULL) {
-    retval = MRIStepSetUserData(arkode_mem, ark_mem->user_data);
-    if (retval != ARK_SUCCESS) {
-      arkProcessError(ark_mem, retval, "ARKode::MRIStep", "MRIStepReInit",
-                      "Unable to re-attach user_data");
-      return(retval);
-    }
-  }
-
   return(ARK_SUCCESS);
 }
 
@@ -310,6 +300,7 @@ void MRIStepFree(void **arkode_mem)
         arkFreeVec(ark_mem, &(step_mem->inner_forcing[j]));
         step_mem->inner_forcing[j] = NULL;
       }
+      free(step_mem->inner_forcing);
     }
 
     /* free the RHS vectors */
@@ -512,27 +503,13 @@ int mriStep_AttachARK(void* arkode_mem, void* inner_mem)
                                  &inner_ark_mem, &inner_step_mem);
   if (retval != ARK_SUCCESS) { MRIStepFree(&arkode_mem); return(-1); }
 
-  /* Set RHS function wrappers */
-  if (inner_step_mem->explicit) {
-    step_mem->ff1      = inner_step_mem->fe;
-    inner_step_mem->fe = mriStep_InnerRhsFnForcing;
-    if (inner_step_mem->implicit) {
-      step_mem->ff2      = inner_step_mem->fi;
-      inner_step_mem->fi = mriStep_InnerRhsFn;
-    }
-  } else {
-    step_mem->ff1      = inner_step_mem->fi;
-    inner_step_mem->fi = mriStep_InnerRhsFnForcing;
-  }
-
   /* attach the inner stepper and initialize the inner stepper return flag */
   step_mem->inner_mem        = inner_mem;
   step_mem->inner_stepper_id = MRISTEP_ARKSTEP;
   step_mem->inner_retval     = ARK_SUCCESS;
+  step_mem->inner_setforcing = arkStep_SetInnerForcing;
   step_mem->inner_evolve     = mriStep_EvolveInnerARK;
-
-  /* attach outer stepper mem to inner stepper as user data */
-  inner_ark_mem->user_data = arkode_mem;
+  step_mem->inner_fullrhs    = arkStep_FullRHS;
 
   return(ARK_SUCCESS);
 }
@@ -676,6 +653,11 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  /* disable inner forcing */
+  step_mem->inner_retval =
+    step_mem->inner_setforcing(step_mem->inner_mem, ZERO, ONE, NULL, 0);
+  if (step_mem->inner_retval != 0) return(ARK_INNERSTEP_FAIL);
+
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
@@ -693,9 +675,10 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
       return(ARK_RHSFUNC_FAIL);
     }
 
-    /* call ff */
-    retval = mriStep_InnerFullRhs(arkode_mem, t, y, f);
-    if (retval != 0) {
+    /* call ff (force new RHS computation) */
+    step_mem->inner_retval =
+      step_mem->inner_fullrhs(step_mem->inner_mem, t, y, f, 2);
+    if (step_mem->inner_retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::MRIStep",
                       "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
       return(ARK_RHSFUNC_FAIL);
@@ -721,9 +704,10 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
       return(ARK_RHSFUNC_FAIL);
     }
 
-    /* call ff */
-    retval = mriStep_InnerFullRhs(arkode_mem, t, y, f);
-    if (retval != 0) {
+    /* call ff (force new RHS computation) */
+    step_mem->inner_retval =
+      step_mem->inner_fullrhs(step_mem->inner_mem, t, y, f, 2);
+    if (step_mem->inner_retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::MRIStep",
                       "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
       return(ARK_RHSFUNC_FAIL);
@@ -748,9 +732,10 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
       return(ARK_RHSFUNC_FAIL);
     }
 
-    /* call ff */
-    retval = mriStep_InnerFullRhs(arkode_mem, t, y, f);
-    if (retval != 0) {
+    /* call ff (force new RHS computation) */
+    step_mem->inner_retval =
+      step_mem->inner_fullrhs(arkode_mem, t, y, f, 2);
+    if (step_mem->inner_retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::MRIStep",
                       "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
       return(ARK_RHSFUNC_FAIL);
@@ -791,10 +776,8 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   ARKodeMem         ark_mem;   /* outer ARKode memory   */
   ARKodeMRIStepMem  step_mem;  /* outer stepper memory  */
 
-  realtype rcdiff, t0;
-  int retval, is, js, nvec;
-  realtype* cvals;
-  N_Vector* Xvecs;
+  realtype cdiff, t0;
+  int retval, is;
 
   /* initialize algebraic solver convergence flag to success;
      error estimate to zero */
@@ -806,18 +789,14 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  /* local shortcuts for fused vector operations */
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
-
 #ifdef DEBUG_OUTPUT
-  printf("stage 0 RHS:\n");
-  N_VPrint_Serial(step_mem->F[0]);
+    printf("stage 0 RHS:\n");
+    N_VPrint_Serial(step_mem->F[0]);
 #endif
 
   /* Loop over internal stages to the step; since the method is explicit
      the first stage RHS is just the slow RHS from the start of the step */
-  for (is=1; is<step_mem->stages; is++) {
+  for (is = 1; is < step_mem->stages; is++) {
 
     /* Set current stage time */
     ark_mem->tcur = ark_mem->tn + step_mem->B->c[is]*ark_mem->h;
@@ -832,21 +811,22 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       fprintf(ark_mem->diagfp, "MRIStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
               ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
-    /* compute forcing vector of inner steps (assumes c[is] != c[is-1]) */
-    rcdiff = ONE / (step_mem->B->c[is] - step_mem->B->c[is-1]);
-    nvec = 0;
-    for (js=0; js<is; js++) {
-      cvals[js] = rcdiff * (step_mem->B->A[is][js] - step_mem->B->A[is-1][js]);
-      Xvecs[js] = step_mem->F[js];
-      nvec++;
-    }
+    /* compute the inner forcing */
+    /* TO DO: Add if cdiff < tiny, then apply correction step */
+    cdiff = step_mem->B->c[is] - step_mem->B->c[is-1];
 
-    retval = N_VLinearCombination(nvec, cvals, Xvecs,
-                                  step_mem->inner_forcing[0]);
-    if (retval != 0) return(ARK_VECTOROP_ERR);
+    retval = mriStep_ComputeInnerForcing(step_mem, is, cdiff);
+    if (retval != 0) return(retval);
 
     /* initial time for inner integrator */
     t0 = ark_mem->tn + step_mem->B->c[is-1]*ark_mem->h;
+
+    /* set the forcing data in the inner stepper */
+    step_mem->inner_retval =
+      step_mem->inner_setforcing(step_mem->inner_mem, t0, cdiff*ark_mem->h,
+                                 step_mem->inner_forcing,
+                                 step_mem->inner_num_forcing);
+    if (step_mem->inner_retval != 0) return(ARK_INNERSTEP_FAIL);
 
     /* pre inner evolve function */
     if (step_mem->pre_inner_evolve) {
@@ -883,23 +863,26 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
   } /* loop over stages */
 
+  /* Compute time step solution */
+
   /* set current time for solution */
   ark_mem->tcur = ark_mem->tn + ark_mem->h;
 
-  /* compute forcing vector of inner steps (assumes c[stages-1] != 1) */
-  rcdiff = ONE / (ONE - step_mem->B->c[step_mem->stages-1]);
-  nvec = 0;
-  for (js=0; js<step_mem->stages; js++) {
-    cvals[js] = rcdiff * (step_mem->B->b[js] - step_mem->B->A[step_mem->stages-1][js]);
-    Xvecs[js] = step_mem->F[js];
-    nvec++;
-  }
+  /* compute the inner forcing */
+  cdiff = ONE - step_mem->B->c[step_mem->stages-1];
 
-  retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->inner_forcing[0]);
-  if (retval != 0) return(ARK_VECTOROP_ERR);
+  retval = mriStep_ComputeInnerForcing(step_mem, step_mem->stages, cdiff);
+  if (retval != 0) return(retval);
 
   /* initial time for inner integrator */
   t0 = ark_mem->tn + step_mem->B->c[step_mem->stages-1]*ark_mem->h;
+
+  /* set the forcing data in the inner stepper */
+  step_mem->inner_retval =
+    step_mem->inner_setforcing(step_mem->inner_mem, t0, cdiff*ark_mem->h,
+                               step_mem->inner_forcing,
+                               step_mem->inner_num_forcing);
+  if (step_mem->inner_retval != 0) return(ARK_INNERSTEP_FAIL);
 
   /* pre inner evolve function */
   if (step_mem->pre_inner_evolve) {
@@ -923,8 +906,9 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   }
 
 #ifdef DEBUG_OUTPUT
-  printf("updated solution:\n");
-  N_VPrint_Serial(ark_mem->ycur);
+    printf("error estimate = %"RSYM"\n", dsm);
+    printf("updated solution:\n");
+    N_VPrint_Serial(ark_mem->ycur);
 #endif
 
   /* Solver diagnostics reporting */
@@ -1136,6 +1120,50 @@ int mriStep_CheckButcherTable(ARKodeMem ark_mem)
 
 
 /*---------------------------------------------------------------
+  mriStep_ComputeInnerForcing
+  ---------------------------------------------------------------*/
+
+int mriStep_ComputeInnerForcing(ARKodeMRIStepMem step_mem, int stage,
+                                realtype cdiff)
+{
+  realtype  rcdiff;
+  int       j, nvec, retval;
+  realtype* cvals;
+  N_Vector* Xvecs;
+
+  /* local shortcuts for fused vector operations */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  /* compute constant inner forcing vector (assumes cdiff != 0) */
+  rcdiff = ONE / cdiff;
+  nvec = 0;
+
+  if (stage < step_mem->stages) {
+    for (j = 0; j < stage; j++) {
+      cvals[j] = rcdiff * (step_mem->B->A[stage][j] -
+                           step_mem->B->A[stage - 1][j]);
+      Xvecs[j] = step_mem->F[j];
+      nvec++;
+    }
+  } else {
+    for (j = 0; j < step_mem->stages; j++) {
+      cvals[j] = rcdiff * (step_mem->B->b[j] -
+                           step_mem->B->A[step_mem->stages - 1][j]);
+      Xvecs[j] = step_mem->F[j];
+      nvec++;
+    }
+  }
+
+  retval = N_VLinearCombination(nvec, cvals, Xvecs,
+                                step_mem->inner_forcing[0]);
+  if (retval != 0) return(ARK_VECTOROP_ERR);
+
+  return(0);
+}
+
+
+/*---------------------------------------------------------------
   Inner stepper evolve functions
   ---------------------------------------------------------------*/
 
@@ -1188,108 +1216,6 @@ int mriStep_EvolveInnerARK(void* inner_mem, realtype t0,
     if (retval != ARK_SUCCESS) return(retval);
   }
 
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  Wrappers for inner stepper RHS functions
-  ---------------------------------------------------------------*/
-
-
-/* Inner RHS with added forcing */
-int mriStep_InnerRhsFnForcing(realtype t, N_Vector y, N_Vector ydot,
-                              void *user_data)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
-
-  /* access outer integrator memory */
-  ark_mem  = (ARKodeMem) user_data;
-  step_mem = (ARKodeMRIStepMem) ark_mem->step_mem;
-
-  /* call user function */
-  retval = step_mem->ff1(t, y, ydot, ark_mem->user_data);
-  if (retval != 0) return(retval);
-
-  /* add forcing from the outer integrator */
-  N_VLinearSum(ONE, step_mem->inner_forcing[0], ONE, ydot, ydot);
-
-  /* successfully computed RHS */
-  return(0);
-}
-
-
-/* Inner RHS without forcing */
-int mriStep_InnerRhsFn(realtype t, N_Vector y, N_Vector ydot,
-                       void *user_data)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-
-  /* access outer integrator memory */
-  ark_mem  = (ARKodeMem) user_data;
-  step_mem = (ARKodeMRIStepMem) ark_mem->step_mem;
-
-  /* call user function */
-  return(step_mem->ff2(t, y, ydot, ark_mem->user_data));
-}
-
-
-/* Inner full RHS without forcing */
-int mriStep_InnerFullRhs(void *arkode_mem, realtype t, N_Vector y,
-                         N_Vector ydot)
-{
-  ARKodeMem         ark_mem;         /* outer ARKode memory   */
-  ARKodeMRIStepMem  step_mem;        /* outer stepper memory  */
-  ARKodeMem         inner_ark_mem;   /* inner ARKode memory   */
-  ARKodeARKStepMem  inner_step_mem;  /* inner stepper memory  */
-  int               retval;          /* return value          */
-
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "mriStep_FullRHS",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* Access ARKStep memory */
-  retval = arkStep_AccessStepMem(step_mem->inner_mem, "mriStep_AttachARK",
-                                 &inner_ark_mem, &inner_step_mem);
-  if (retval != ARK_SUCCESS) { MRIStepFree(&arkode_mem); return(-1); }
-
-  /* call user RHS function */
-  if (inner_step_mem->explicit && inner_step_mem->implicit) {
-
-    /* explicit */
-    retval = step_mem->ff1(t, y, ark_mem->tempv2, ark_mem->user_data);
-    inner_step_mem->nfe++;
-    if (retval != 0) return(retval);
-
-    /* implicit */
-    retval = step_mem->ff2(t, y, ydot, ark_mem->user_data);
-    inner_step_mem->nfi++;
-    if (retval != 0) return(retval);
-
-    /* sum fe and fi */
-    N_VLinearSum(ONE, ark_mem->tempv2, ONE, ydot, ydot);
-
-  } else if (inner_step_mem->explicit) {
-
-    /* explicit */
-    retval = step_mem->ff1(t, y, ydot, ark_mem->user_data);
-    inner_step_mem->nfe++;
-    if (retval != 0) return(retval);
-
-  } else {
-
-    /* implicit */
-    retval = step_mem->ff1(t, y, ydot, ark_mem->user_data);
-    inner_step_mem->nfi++;
-    if (retval != 0) return(retval);
-
-  }
-
-  /* successfully computed RHS */
   return(ARK_SUCCESS);
 }
 
