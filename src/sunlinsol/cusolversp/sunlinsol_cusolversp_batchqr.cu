@@ -134,7 +134,7 @@ SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, int nsubsy
 
   content = NULL;
   content = (SUNLinearSolverContent_cuSolverSp_batchQR) malloc(sizeof *content);
-  if (S == NULL) {
+  if (content == NULL) {
     cudaFree(d_rowptr); cudaFree(d_colind); cudaFree(d_values);
     SUNLinSolFree(S);
     return(NULL);
