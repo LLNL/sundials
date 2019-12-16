@@ -117,6 +117,9 @@ Fixed a build system bug related to finding PETSc when using the CMake
 variables \id{PETSC\_INCLUDES} and \id{PETSC\_LIBRARIES} instead of
 \id{PETSC\_DIR}.
 
+Added a new build system option, \id{CUDA\_ARCH}, that can be used to specify
+the CUDA architecture to compile for.
+
 Added two utility functions, \id{SUNDIALSFileOpen} and \id{SUNDIALSFileClose}
 for creating/destroying file pointers that are useful when using the Fortran
 2003 interfaces.

@@ -116,6 +116,9 @@ Fixed a build system bug related to finding PETSc when using the CMake
 variables ``PETSC_INCLUDES`` and ``PETSC_LIBRARIES`` instead of
 ``PETSC_DIR``.
 
+Added a new build system option, ``CUDA_ARCH``, that can be used to specify
+the CUDA architecture to compile for.
+
 Fixed a bug in the Fortran 2003 interfaces to the ARKode Butcher table routines and structure.
 This includes changing the ``ARKodeButcherTable`` type to be a ``type(c_ptr)`` in Fortran.
 

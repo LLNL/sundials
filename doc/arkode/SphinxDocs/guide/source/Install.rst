@@ -486,9 +486,14 @@ illustration only.
    Default: ``OFF``
 
 :index:`CUDA_ENABLE <CUDA_ENABLE (CMake option)>`
-   Build the SUNDIALS CUDA vector module.
+   Build the SUNDIALS CUDA modules.
 
    Default: ``OFF``
+
+:index:`CUDA_ARCH <CUDA_ARCH (CMake option)>`
+   Specifies the CUDA architecture to compile for.
+
+   Default: ``sm_30``
 
 :index:`EXAMPLES_ENABLE_C <EXAMPLES_ENABLE_C (CMake option)>`
    Build the SUNDIALS C examples

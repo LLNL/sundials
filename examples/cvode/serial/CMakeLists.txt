@@ -43,6 +43,7 @@ set(CVODE_examples_BL
 # Examples using KLU linear solver
 set(CVODE_examples_KLU
   "cvRoberts_klu\;develop"
+  "cvRoberts_block_klu\;develop"
   )
 
 # Examples using SuperLU_MT linear solver

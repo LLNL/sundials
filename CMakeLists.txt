@@ -159,10 +159,6 @@ endif()
 # MACRO definitions
 # ---------------------------------------------------------------
 include(SundialsCMakeMacros)
-include(SundialsAddF2003InterfaceLibrary)
-include(SundialsAddTest)
-include(SundialsAddTestInstall)
-include(SundialsOption)
 
 # ---------------------------------------------------------------
 # Check for deprecated SUNDIALS CMake options/variables
@@ -600,10 +596,10 @@ else()
 
 endif()
 
-# CUDA examples (off by default)
+# CUDA examples
 set(DOCSTR "Build SUNDIALS CUDA examples")
 if(CUDA_ENABLE)
-  option(EXAMPLES_ENABLE_CUDA "${DOCSTR}" OFF)
+  option(EXAMPLES_ENABLE_CUDA "${DOCSTR}" ON)
 else()
   if(EXAMPLES_ENABLE_CUDA)
     print_warning("EXAMPLES_ENABLE_CUDA is ON but CUDA_ENABLE is OFF"
@@ -834,17 +830,28 @@ endif()
 # ---------------------------------------------------------------
 
 if(CUDA_ENABLE)
-   # If a user did not provide the host compiler, then we
-   # assume that they want to use the CXX compiler that was set.
-   if(NOT (DEFINED CMAKE_CUDA_HOST_COMPILER))
-     set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER} CACHE FILEPATH "NVCC host compiler")
-     mark_as_advanced(CMAKE_CUDA_HOST_COMPILER)
-   endif()
-   enable_language(CUDA)
-   message(STATUS "The CUDA host compiler is: ${CMAKE_CUDA_HOST_COMPILER}")
+  # If a user did not provide the host compiler, then we
+  # assume that they want to use the CXX compiler that was set.
+  if(NOT (DEFINED CMAKE_CUDA_HOST_COMPILER))
+    set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER} CACHE FILEPATH "NVCC host compiler")
+    mark_as_advanced(CMAKE_CUDA_HOST_COMPILER)
+  endif()
+  enable_language(CUDA)
+  message(STATUS "The CUDA host compiler is: ${CMAKE_CUDA_HOST_COMPILER}")
+
   # Need this as long as CUDA libraries like cuSOLVER are not
   # available through some other way.
   find_package(CUDA REQUIRED)
+
+  # Allow the user to tell us what CUDA architecture to use
+  if(NOT DEFINED CUDA_ARCH)
+    message(STATUS "CUDA compute architecture set to SUNDIALS default sm_30 since it was not specified")
+    set(CUDA_ARCH "sm_30" CACHE STRING "Set CUDA_ARCH to SUNDIALS default sm_30" FORCE)
+  endif()
+
+  if(CUDA_ARCH)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -arch ${CUDA_ARCH}")
+  endif()
 endif(CUDA_ENABLE)
 
 # ---------------------------------------------------------------

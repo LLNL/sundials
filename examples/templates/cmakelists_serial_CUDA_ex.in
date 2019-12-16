@@ -77,12 +77,22 @@ find_library(SUNDIALS_NVEC_LIB
   sundials_nveccuda ${SUNDIALS_LIBRARY_DIR}
   DOC "NVECTOR_CUDA library")
 
+find_library(SUNDIALS_CUSOLVERSP_LIB
+  sundials_sunlinsolcusolversp
+  ${SUNDIALS_LIBRARY_DIR}
+  DOC "SUNLINSOL_CUSOLVERSP linear solver library")
+
 # Set additional libraries
-set(SUNDIALS_EXTRA_LIBS @LIBS@ CACHE STRING "Additional libraries")
+set(SUNDIALS_EXTRA_LIBS -L${SUNDIALS_LIBRARY_DIR} @SUNMAT_LIB@ @LIBS@ CACHE STRING "Additional libraries")
 
 # For SUNDIALS module examples the solver library is not needed
 if(NOT SUNDIALS_SOLVER_LIB)
   set(SUNDIALS_SOLVER_LIB "")
+endif()
+
+# For some examples the SUNLINSOL_CUSOLVERSP library is not needed
+if(NOT SUNDIALS_CUSOLVERSP_LIB)
+  set(SUNDIALS_CUSOLVERSP_LIB "")
 endif()
 
 # List of SUNDIALS libraries
@@ -123,40 +133,36 @@ endforeach()
 # ------------------------------------------------------------------------------
 
 # Set the names of the examples to be built and their dependencies
-set(examples_cusp @EXAMPLES_CUSP@)
-set(examples_dependencies_cusp @EXAMPLES_DEPENDENCIES_CUSP@)
-if(examples_cusp)
-  list(REMOVE_DUPLICATES examples_cusp)
+set(examples_cusolver @EXAMPLES_CUSOLVER@)
+if(examples_cusolver)
+  list(REMOVE_DUPLICATES examples_cusolver)
 endif()
 
-if(examples_cusp)
+# List of SUNDIALS libraries
+set(SUNDIALS_LIBRARIES
+  ${SUNDIALS_SOLVER_LIB}
+  ${SUNDIALS_NVEC_LIB}
+  ${SUNDIALS_CUSOLVERSP_LIB}
+  ${SUNDIALS_EXTRA_LIBS})
 
-  # Find the linear solver library
-  find_library(SUNDIALS_CUSOLVERSP_BATCHQR_LIB
-    sundials_sunlinsolcusolversp ${SUNDIALS_LIBRARY_DIR}
-    DOC "Sundials cuSolverSp linear solver library")
+# Create targets for each example
+foreach(example ${examples_cusolver})
 
-  # Create targets for each example
-  foreach(example ${examples_cusp})
+  # example source files
+  add_executable(${example} ${example}.cu ${examples_dependencies})
 
-    # example source files
-    add_executable(${example} ${example}.cu ${examples_dependencies_cusp})
+  # set c++11
+  target_compile_features(${example} PRIVATE cxx_std_11)
 
-    # set c++11
-    target_compile_features(${example} PRIVATE cxx_std_11)
+  # directories to include
+  target_include_directories(${example} PRIVATE ${SUNDIALS_INCLUDE_DIR})
 
-    # directories to include
-    target_include_directories(${example} PRIVATE ${SUNDIALS_INCLUDE_DIR})
+  # libraries to link against
+  target_link_libraries(${example} ${SUNDIALS_LIBRARIES})
+  target_link_libraries(${example} ${CUDA_cusolver_LIBRARY})
+  target_link_libraries(${example} ${CUDA_cusparse_LIBRARY})
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBRARIES})
-    target_link_libraries(${example} ${SUNDIALS_CUSOLVERSP_BATCHQR_LIB})
-    target_link_libraries(${example} ${CUDA_cusolver_LIBRARY})
-    target_link_libraries(${example} ${CUDA_cusparse_LIBRARY})
+  # add the example to ctest
+  add_test(NAME ${example} COMMAND ${example})
 
-    # add the example to ctest
-    add_test(NAME ${example} COMMAND ${example})
-
-  endforeach()
-
-endif()
+endforeach()

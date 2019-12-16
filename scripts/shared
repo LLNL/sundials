@@ -36,6 +36,7 @@ $tar $tarfile $distrobase/config/SundialsAddTest.cmake                  || exit 
 $tar $tarfile $distrobase/config/SundialsAddTestInstall.cmake           || exit 1
 $tar $tarfile $distrobase/config/SundialsAddF2003InterfaceLibrary.cmake || exit 1
 $tar $tarfile $distrobase/config/SundialsCMakeMacros.cmake              || exit 1
+$tar $tarfile $distrobase/config/SundialsCudaArchGeq.cmake              || exit 1
 $tar $tarfile $distrobase/config/SundialsCXX.cmake                      || exit 1
 $tar $tarfile $distrobase/config/SundialsDeprecated.cmake               || exit 1
 $tar $tarfile $distrobase/config/SundialsFortran.cmake                  || exit 1

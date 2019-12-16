@@ -115,3 +115,10 @@ macro(EXAMPLES2STRING example_list example_string)
   list(REMOVE_DUPLICATES tmp_list)
   list2string(tmp_list ${example_string})
 endmacro(EXAMPLES2STRING)
+
+# Macros from other files
+include(SundialsAddF2003InterfaceLibrary)
+include(SundialsAddTest)
+include(SundialsAddTestInstall)
+include(SundialsCudaArchGeq)
+include(SundialsOption)

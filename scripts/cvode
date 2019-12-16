@@ -104,6 +104,8 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_negsol.c        ||
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_negsol.out      || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_klu.c               || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_klu.out             || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_block_klu.c         || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_block_klu.out       || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.c               || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.out             || exit 1
 
@@ -190,12 +192,14 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_bbd_p.out ||
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.f       || exit 1
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.out     || exit 1
 
-$tar $tarfile $distrobase/examples/cvode/cuda/README                         || exit 1
-$tar $tarfile $distrobase/examples/cvode/cuda/CMakeLists.txt                 || exit 1
-$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.cu          || exit 1
-$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.out         || exit 1
-$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.cu  || exit 1
-$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.out || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/README                                  || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/CMakeLists.txt                          || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.cu                   || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.out                  || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.cu           || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.out          || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr.cu   || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr.out  || exit 1
 
 $tar $tarfile $distrobase/examples/cvode/raja/README                 || exit 1
 $tar $tarfile $distrobase/examples/cvode/raja/CMakeLists.txt         || exit 1
