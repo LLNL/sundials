@@ -862,6 +862,11 @@ static int MassMatrix(realtype t, SUNMatrix M, void *user_data,
   /* clear out mass matrix */
   SUNMatZero(M);
 
+  /* initialize node value shortcuts */
+  xl = ZERO;
+  xc = ZERO;
+  xr = ZERO;
+
   /* iterate through nodes, filling in matrix by rows */
   for (i=0; i<N; i++) {
 

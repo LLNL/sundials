@@ -122,17 +122,20 @@ int main(int argc, char *argv[])
   }
 
   /* Initialize matrices and vectors to null */
-  D = NULL;
-  A = NULL;
-  I = NULL;
-  x = NULL;
-  y = NULL;
+  D  = NULL;
+  A  = NULL;
+  I  = NULL;
+  x  = NULL;
+  y  = NULL;
+  gx = NULL;
+  gy = NULL;
   matdata = NULL;
   rowptrs = NULL;
   colind  = NULL;
 
   /* Setup global matrix */
   if (grid.iam == 0) {
+
     /* Create the matrix as dense first */
     D = SUNDenseMatrix(M, N);
 
@@ -229,7 +232,9 @@ int main(int argc, char *argv[])
     /* make the local NVectors */
     x = N_VMake_Parallel(grid.comm, M_local, N, xdata);
     y = N_VMake_Parallel(grid.comm, M_local, N, ydata);
+
   } else {
+
     sunindextype shift;
 
     /* recieve number of local nnz */

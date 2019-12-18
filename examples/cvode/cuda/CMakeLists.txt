@@ -57,7 +57,7 @@ if(LINK_LIBRARY_TYPE MATCHES "static")
 else()
   set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
                     sundials_cvode_shared
-                    sundials_nveccuda_static
+                    sundials_nveccuda_shared
                     ${EXTRA_LINK_LIBS})
 endif()
 
