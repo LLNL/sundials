@@ -46,7 +46,6 @@
 #include <nvector/nvector_openmp.h>   /* OpenMP N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
 #include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
 
 #ifdef _OPENMP
 #include <omp.h>                      /* OpenMP function defs.                */
@@ -109,13 +108,13 @@ int main(int argc, char *argv[]) {
   num_threads = omp_get_max_threads();   /* overwrite with OMP_NUM_THREADS environment variable */
 #endif
   if (argc > 1)                          /* overwrite with command line value, if supplied */
-    num_threads = strtol(argv[1], NULL, 0);
+    num_threads = (int) strtol(argv[1], NULL, 0);
 
   /* allocate and fill udata structure */
   udata = (UserData) malloc(sizeof(*udata));
   udata->N = N;
   udata->k = k;
-  udata->dx = RCONST(1.0)/(1.0*N-1.0);     /* mesh spacing */
+  udata->dx = RCONST(1.0)/(N-1);     /* mesh spacing */
   udata->nthreads = num_threads;
 
   /* Initial problem output */
@@ -141,7 +140,7 @@ int main(int argc, char *argv[]) {
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
-  LS = SUNLinSol_PCG(y, 0, N);
+  LS = SUNLinSol_PCG(y, 0, (int) N);
   if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
@@ -174,12 +173,12 @@ int main(int argc, char *argv[]) {
   tout = T0+dTout;
   printf("        t      ||u||_rms\n");
   printf("   -------------------------\n");
-  printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
+  printf("  %10.6"FSYM"  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);         /* call integrator */
     if (check_flag(&flag, "ARKStepEvolve", 1)) break;
-    printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));   /* print solution stats */
+    printf("  %10.6"FSYM"  %10.6f\n", t, sqrt(N_VDotProd(y,y)/N));   /* print solution stats */
     if (flag >= 0) {                                            /* successful solve: update output time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;

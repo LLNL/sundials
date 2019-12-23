@@ -51,7 +51,6 @@
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
 
 #include <mpi.h>
 
@@ -112,7 +111,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 
 static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol);
 
-static void PrintCase(int case_number, int mudq, int mukeep);
+static void PrintCase(int case_number, sunindextype mudq, sunindextype mukeep);
 
 static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu);
 
@@ -215,7 +214,7 @@ int main(int argc, char *argv[])
 
   retval = IDASetConstraints(ida_mem, constraints);
   if(check_retval(&retval, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
-  N_VDestroy_Parallel(constraints);
+  N_VDestroy(constraints);
 
   retval = IDAInit(ida_mem, heatres, t0, uu, up);
   if(check_retval(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
@@ -310,10 +309,10 @@ int main(int argc, char *argv[])
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
   free(data);
-  N_VDestroy_Parallel(id);
-  N_VDestroy_Parallel(res);
-  N_VDestroy_Parallel(up);
-  N_VDestroy_Parallel(uu);
+  N_VDestroy(id);
+  N_VDestroy(res);
+  N_VDestroy(up);
+  N_VDestroy(uu);
 
   MPI_Finalize();
 
@@ -378,7 +377,7 @@ static int rescomm(sunindextype Nlocal, realtype tt,
   MPI_Request request[4];
 
   data = (UserData) user_data;
-  uarray = N_VGetArrayPointer_Parallel(uu);
+  uarray = N_VGetArrayPointer(uu);
 
   /* Get comm, thispe, subgrid indices, data sizes, extended array uext. */
   comm = data->comm;  thispe = data->thispe;
@@ -420,9 +419,9 @@ static int reslocal(sunindextype Nlocal, realtype tres,
 
   data = (UserData) user_data;
   uext = data->uext;
-  uuv = N_VGetArrayPointer_Parallel(uu);
-  upv = N_VGetArrayPointer_Parallel(up);
-  resv = N_VGetArrayPointer_Parallel(res);
+  uuv = N_VGetArrayPointer(uu);
+  upv = N_VGetArrayPointer(up);
+  resv = N_VGetArrayPointer(res);
   ixsub = data->ixsub; jysub = data->jysub;
   mxsub = data->mxsub; mxsub2 = data->mxsub + 2;
   mysub = data->mysub; npex = data->npex; npey = data->npey;
@@ -453,7 +452,7 @@ static int reslocal(sunindextype Nlocal, realtype tres,
   if (ixsub == npex-1) ixend--;
   if (jysub == 0) jybegin++;
   if (jysub == npey-1) jyend--;
-  
+
   /* Loop over all grid points in local subgrid. */
 
   for (ly = jybegin; ly <=jyend; ly++) {
@@ -484,13 +483,13 @@ static int BSend(MPI_Comm comm, int thispe, int ixsub,
   /* If jysub > 0, send data from bottom x-line of u. */
 
   if (jysub != 0)
-    MPI_Send(&uarray[0], dsizex, PVEC_REAL_MPI_TYPE, thispe-NPEX, 0, comm);
+    MPI_Send(&uarray[0], dsizex, MPI_SUNREALTYPE, thispe-NPEX, 0, comm);
 
   /* If jysub < NPEY-1, send data from top x-line of u. */
 
   if (jysub != NPEY-1) {
     offsetu = (MYSUB-1)*dsizex;
-    MPI_Send(&uarray[offsetu], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Send(&uarray[offsetu], dsizex, MPI_SUNREALTYPE,
              thispe+NPEX, 0, comm);
   }
 
@@ -501,7 +500,7 @@ static int BSend(MPI_Comm comm, int thispe, int ixsub,
       offsetu = ly*dsizex;
       bufleft[ly] = uarray[offsetu];
     }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, thispe-1, 0, comm);
+    MPI_Send(&bufleft[0], dsizey, MPI_SUNREALTYPE, thispe-1, 0, comm);
   }
 
   /* If ixsub < NPEX-1, send data from right y-line of u (via bufright). */
@@ -511,7 +510,7 @@ static int BSend(MPI_Comm comm, int thispe, int ixsub,
       offsetu = ly*MXSUB + (MXSUB-1);
       bufright[ly] = uarray[offsetu];
     }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, thispe+1, 0, comm);
+    MPI_Send(&bufright[0], dsizey, MPI_SUNREALTYPE, thispe+1, 0, comm);
   }
 
   return(0);
@@ -539,25 +538,25 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0)
-    MPI_Irecv(&uext[1], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&uext[1], dsizex, MPI_SUNREALTYPE,
               thispe-NPEX, 0, comm, &request[0]);
 
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
   if (jysub != NPEY-1) {
     offsetue = (1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&uext[offsetue], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&uext[offsetue], dsizex, MPI_SUNREALTYPE,
               thispe+NPEX, 0, comm, &request[1]);
   }
 
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
   if (ixsub != 0) {
-    MPI_Irecv(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufleft[0], dsizey, MPI_SUNREALTYPE,
               thispe-1, 0, comm, &request[2]);
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
   if (ixsub != NPEX-1) {
-    MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufright[0], dsizey, MPI_SUNREALTYPE,
               thispe+1, 0, comm, &request[3]);
   }
 
@@ -663,8 +662,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 
   /* Initialize uu. */
 
-  udata = N_VGetArrayPointer_Parallel(uu);
-  iddata = N_VGetArrayPointer_Parallel(id);
+  udata = N_VGetArrayPointer(uu);
+  iddata = N_VGetArrayPointer(id);
 
   /* Set mesh spacings and subgrid indices for this PE. */
   ixsub = data->ixsub;
@@ -742,11 +741,11 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
  * Print case and table header
  */
 
-static void PrintCase(int case_number, int mudq, int mukeep)
+static void PrintCase(int case_number, sunindextype mudq, sunindextype mukeep)
 {
   printf("\n\nCase %1d. \n", case_number);
-  printf("   Difference quotient half-bandwidths = %d",mudq);
-  printf("   Retained matrix half-bandwidths = %d \n",mukeep);
+  printf("   Difference quotient half-bandwidths = %ld", (long int) mudq);
+  printf("   Retained matrix half-bandwidths = %ld \n", (long int) mukeep);
 
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");

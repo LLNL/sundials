@@ -40,7 +40,16 @@
 #define TWO          RCONST(2.0)
 
 /*=================================================================
-  PRIVATE FUNCTION PROTOTYPES
+  PRIVATE FUNCTION PROTOTYPES - forward problems
+  =================================================================*/
+
+static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
+                      booleantype jok, booleantype *jcur, realtype gamma,
+                      void *user_data, N_Vector tmp1, N_Vector tmp2,
+                      N_Vector tmp3);
+
+/*=================================================================
+  PRIVATE FUNCTION PROTOTYPES - backward problems
   =================================================================*/
 
 /* cvLsJacBWrapper and cvLsJacBSWrapper have type CVLsJacFn, and
@@ -96,6 +105,20 @@ static int cvLsJacTimesVecBSWrapper(N_Vector vB, N_Vector JvB, realtype t,
                                     N_Vector yB, N_Vector fyB,
                                     void *cvode_mem, N_Vector tmpB);
 
+/* cvLsLinSysFnBWrapper and cvLsLinSysFnBSWrapper have type CVLsLinSysFn, and
+   wrap around user-provided functions of type CVLsLinSysFnB and CVLsLinSysFnBS,
+   respectively */
+static int cvLsLinSysBWrapper(realtype t, N_Vector yB, N_Vector fyB,
+                              SUNMatrix AB, booleantype jokB,
+                              booleantype *jcurB, realtype gammaB,
+                              void *user_dataB, N_Vector tmp1B, N_Vector tmp2B,
+                              N_Vector tmp3B);
+static int cvLsLinSysBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
+                               SUNMatrix AB, booleantype jokB,
+                               booleantype *jcurB, realtype gammaB,
+                               void *user_dataB, N_Vector tmp1B, N_Vector tmp2B,
+                               N_Vector tmp3);
+
 
 /*================================================================
   PART I - forward problems
@@ -130,26 +153,32 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Test if solver is compatible with LS interface */
-  if ( (LS->ops->gettype == NULL) ||
-       (LS->ops->initialize == NULL) ||
-       (LS->ops->setup == NULL) ||
-       (LS->ops->solve == NULL) ) {
+  if ( (LS->ops->gettype == NULL) || (LS->ops->solve == NULL) ) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSLS",
                    "CVodeSetLinearSolver",
                    "LS object is missing a required operation");
     return(CVLS_ILL_INPUT);
   }
 
+  /* Retrieve the LS type */
+  LSType = SUNLinSolGetType(LS);
+
   /* Test if vector is compatible with LS interface */
   if ( (cv_mem->cv_tempv->ops->nvconst == NULL) ||
-       (cv_mem->cv_tempv->ops->nvdotprod == NULL) ) {
+       (cv_mem->cv_tempv->ops->nvwrmsnorm == NULL) ) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSLS",
                    "CVodeSetLinearSolver", MSG_LS_BAD_NVECTOR);
     return(CVLS_ILL_INPUT);
   }
 
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(LS);
+  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+    if (cv_mem->cv_tempv->ops->nvgetlength == NULL) {
+      cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSLS",
+                     "CVodeSetLinearSolver", MSG_LS_BAD_NVECTOR);
+      return(CVLS_ILL_INPUT);
+    }
+  }
 
   /* Check for compatible LS type, matrix and "atimes" support */
   if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
@@ -200,10 +229,15 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
     cvls_mem->jac    = NULL;
     cvls_mem->J_data = NULL;
   }
+
   cvls_mem->jtimesDQ = SUNTRUE;
   cvls_mem->jtsetup  = NULL;
   cvls_mem->jtimes   = cvLsDQJtimes;
   cvls_mem->jt_data  = cv_mem;
+
+  cvls_mem->user_linsys = SUNFALSE;
+  cvls_mem->linsys      = cvLsLinSys;
+  cvls_mem->A_data      = cv_mem;
 
   /* Set defaults for preconditioner-related fields */
   cvls_mem->pset   = NULL;
@@ -244,23 +278,17 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
     }
   }
 
-  /* When using a non-NULL SUNMatrix object, store pointer to A and create saved_J */
+  /* When using a SUNMatrix object, store pointer to A and initialize savedJ */
   if (A != NULL) {
     cvls_mem->A = A;
-    cvls_mem->savedJ = SUNMatClone(A);
-    if (cvls_mem->savedJ == NULL) {
-      cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSLS",
-                     "CVodeSetLinearSolver", MSG_LS_MEM_FAIL);
-      free(cvls_mem); cvls_mem = NULL;
-      return(CVLS_MEM_FAIL);
-    }
+    cvls_mem->savedJ = NULL; /* allocated in cvLsInitialize */
   }
+
   /* Allocate memory for ytemp and x */
   cvls_mem->ytemp = N_VClone(cv_mem->cv_tempv);
   if (cvls_mem->ytemp == NULL) {
     cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSLS",
                     "CVodeSetLinearSolver", MSG_LS_MEM_FAIL);
-    SUNMatDestroy(cvls_mem->savedJ);
     free(cvls_mem); cvls_mem = NULL;
     return(CVLS_MEM_FAIL);
   }
@@ -269,19 +297,15 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   if (cvls_mem->x == NULL) {
     cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSLS",
                     "CVodeSetLinearSolver", MSG_LS_MEM_FAIL);
-    SUNMatDestroy(cvls_mem->savedJ);
     N_VDestroy(cvls_mem->ytemp);
     free(cvls_mem); cvls_mem = NULL;
     return(CVLS_MEM_FAIL);
   }
 
-  /* For iterative LS, compute sqrtN from a dot product */
+  /* For iterative LS, compute sqrtN */
   if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
-    N_VConst(ONE, cvls_mem->ytemp);
-    cvls_mem->sqrtN = SUNRsqrt( N_VDotProd(cvls_mem->ytemp,
-                                           cvls_mem->ytemp) );
-  }
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) )
+    cvls_mem->sqrtN = SUNRsqrt( N_VGetLength(cvls_mem->ytemp) );
 
   /* Attach linear solver memory to integrator memory */
   cv_mem->cv_lmem = cvls_mem;
@@ -314,7 +338,7 @@ int CVodeSetJacFn(void *cvode_mem, CVLsJacFn jac)
     return(CVLS_ILL_INPUT);
   }
 
-  /* set Jacobian routine pointer, and update relevant flags */
+  /* set the Jacobian routine pointer, and update relevant flags */
   if (jac != NULL) {
     cvls_mem->jacDQ  = SUNFALSE;
     cvls_mem->jac    = jac;
@@ -324,6 +348,11 @@ int CVodeSetJacFn(void *cvode_mem, CVLsJacFn jac)
     cvls_mem->jac    = cvLsDQJac;
     cvls_mem->J_data = cv_mem;
   }
+
+  /* ensure the internal linear system function is used */
+  cvls_mem->user_linsys = SUNFALSE;
+  cvls_mem->linsys      = cvLsLinSys;
+  cvls_mem->A_data      = cv_mem;
 
   return(CVLS_SUCCESS);
 }
@@ -451,6 +480,40 @@ int CVodeSetJacTimes(void *cvode_mem, CVLsJacTimesSetupFn jtsetup,
     cvls_mem->jtsetup  = NULL;
     cvls_mem->jtimes   = cvLsDQJtimes;
     cvls_mem->jt_data  = cv_mem;
+  }
+
+  return(CVLS_SUCCESS);
+}
+
+
+/* CVodeSetLinSysFn specifies the linear system setup function. */
+int CVodeSetLinSysFn(void *cvode_mem, CVLsLinSysFn linsys)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeSetLinSysFn",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS) return(retval);
+
+  /* return with failure if linsys cannot be used */
+  if ((linsys != NULL) && (cvls_mem->A == NULL)) {
+    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSLS", "CVodeSetLinSysFn",
+                   "Linear system setup routine cannot be supplied for NULL SUNMatrix");
+    return(CVLS_ILL_INPUT);
+  }
+
+  /* set the linear system routine pointer, and update relevant flags */
+  if (linsys != NULL) {
+    cvls_mem->user_linsys = SUNTRUE;
+    cvls_mem->linsys      = linsys;
+    cvls_mem->A_data      = cv_mem->cv_user_data;
+  } else {
+    cvls_mem->user_linsys = SUNFALSE;
+    cvls_mem->linsys      = cvLsLinSys;
+    cvls_mem->A_data      = cv_mem;
   }
 
   return(CVLS_SUCCESS);
@@ -894,6 +957,9 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   CVLsMem cvls_mem;
   int retval = 0;
 
+  /* initialize cns_data to avoid compiler warning */
+  cns_data = NULL;
+
   /* access LsMem interface structure */
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
@@ -909,7 +975,7 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   /* Obtain pointers to the data for ewt, y */
   ewt_data = N_VGetArrayPointer(cv_mem->cv_ewt);
   y_data   = N_VGetArrayPointer(y);
-  if (cv_mem->cv_constraints != NULL)
+  if (cv_mem->cv_constraintsSet)
     cns_data = N_VGetArrayPointer(cv_mem->cv_constraints);
 
   /* Set minimum increment based on uround and norm of f */
@@ -927,7 +993,7 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
     inc = SUNMAX(srur*SUNRabs(yjsaved), minInc/ewt_data[j]);
 
     /* Adjust sign(inc) if y_j has an inequality constraint. */
-    if (cv_mem->cv_constraints != NULL) {
+    if (cv_mem->cv_constraintsSet) {
       conj = cns_data[j];
       if (SUNRabs(conj) == ONE)      {if ((yjsaved+inc)*conj < ZERO)  inc = -inc;}
       else if (SUNRabs(conj) == TWO) {if ((yjsaved+inc)*conj <= ZERO) inc = -inc;}
@@ -977,6 +1043,9 @@ int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   CVLsMem cvls_mem;
   int retval = 0;
 
+  /* initialize cns_data to avoid compiler warning */
+  cns_data = NULL;
+
   /* access LsMem interface structure */
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
@@ -995,7 +1064,7 @@ int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
   ytemp_data = N_VGetArrayPointer(ytemp);
-  if (cv_mem->cv_constraints != NULL)
+  if (cv_mem->cv_constraintsSet)
     cns_data = N_VGetArrayPointer(cv_mem->cv_constraints);
 
   /* Load ytemp with y = predicted y vector */
@@ -1019,7 +1088,7 @@ int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
 
       /* Adjust sign(inc) if yj has an inequality constraint. */
-      if (cv_mem->cv_constraints != NULL) {
+      if (cv_mem->cv_constraintsSet) {
         conj = cns_data[j];
         if (SUNRabs(conj) == ONE)      {if ((ytemp_data[j]+inc)*conj < ZERO)  inc = -inc;}
         else if (SUNRabs(conj) == TWO) {if ((ytemp_data[j]+inc)*conj <= ZERO) inc = -inc;}
@@ -1040,7 +1109,7 @@ int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
 
       /* Adjust sign(inc) as before. */
-      if (cv_mem->cv_constraints != NULL) {
+      if (cv_mem->cv_constraintsSet) {
         conj = cns_data[j];
         if (SUNRabs(conj) == ONE)      {if ((ytemp_data[j]+inc)*conj < ZERO)  inc = -inc;}
         else if (SUNRabs(conj) == TWO) {if ((ytemp_data[j]+inc)*conj <= ZERO) inc = -inc;}
@@ -1110,6 +1179,94 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
 
 /*-----------------------------------------------------------------
+  cvLsLinSys
+
+  Setup the linear system A = I - gamma J
+  -----------------------------------------------------------------*/
+static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
+                      booleantype jok, booleantype *jcur, realtype gamma,
+                      void *cvode_mem, N_Vector vtemp1, N_Vector vtemp2,
+                      N_Vector vtemp3)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure */
+  retval = cvLs_AccessLMem(cvode_mem, "cvLsLinSys",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS)  return(retval);
+
+  /* Check if Jacobian needs to be updated */
+  if (jok) {
+
+    /* Use saved copy of J */
+    *jcur = SUNFALSE;
+
+    /* Overwrite linear system matrix with saved J */
+    retval = SUNMatCopy(cvls_mem->savedJ, A);
+    if (retval) {
+      cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
+                     "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+      cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
+      return(cvls_mem->last_flag);
+    }
+
+  } else {
+
+    /* Call jac() routine to update J */
+    *jcur = SUNTRUE;
+
+    /* Clear the linear system matrix if necessary */
+    if (SUNLinSolGetType(cvls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
+      retval = SUNMatZero(A);
+      if (retval) {
+        cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
+                       "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+        cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
+        return(cvls_mem->last_flag);
+      }
+    }
+
+    /* Compute new Jacobian matrix */
+    retval = cvls_mem->jac(t, y, fy, A, cvls_mem->J_data,
+                           vtemp1, vtemp2, vtemp3);
+    if (retval < 0) {
+      cvProcessError(cv_mem, CVLS_JACFUNC_UNRECVR, "CVSLS",
+                     "cvLsSetup",  MSG_LS_JACFUNC_FAILED);
+      cvls_mem->last_flag = CVLS_JACFUNC_UNRECVR;
+      return(-1);
+    }
+    if (retval > 0) {
+      cvls_mem->last_flag = CVLS_JACFUNC_RECVR;
+      return(1);
+    }
+
+    /* Update saved copy of the Jacobian matrix */
+    retval = SUNMatCopy(A, cvls_mem->savedJ);
+    if (retval) {
+      cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
+                     "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+      cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
+      return(cvls_mem->last_flag);
+    }
+
+  }
+
+  /* Perform linear combination A = I - gamma*J */
+  retval = SUNMatScaleAddI(-gamma, A);
+  if (retval) {
+    cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
+                   "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
+    cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
+    return(cvls_mem->last_flag);
+  }
+
+  return(CVLS_SUCCESS);
+}
+
+
+/*-----------------------------------------------------------------
   cvLsInitialize
 
   This routine performs remaining initializations specific
@@ -1129,50 +1286,84 @@ int cvLsInitialize(CVodeMem cv_mem)
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
   /* Test for valid combinations of matrix & Jacobian routines: */
-  if (cvls_mem->A == NULL) {
+  if (cvls_mem->A != NULL) {
 
-    /* If SUNMatrix A is NULL: ensure 'jac' function pointer is NULL */
+    /* Matrix-based case */
+
+    if (cvls_mem->user_linsys) {
+
+      /* User-supplied linear system function, reset A_data (just in case) */
+      cvls_mem->A_data = cv_mem->cv_user_data;
+
+    } else {
+
+      /* Internal linear system function, reset pointers (just in case) */
+      cvls_mem->linsys = cvLsLinSys;
+      cvls_mem->A_data = cv_mem;
+
+      /* Check if an internal or user-supplied Jacobian function is used */
+      if (cvls_mem->jacDQ) {
+
+        /* Internal difference quotient Jacobian. Check that A is dense or band,
+           otherwise return an error */
+        retval = 0;
+        if (cvls_mem->A->ops->getid) {
+
+          if ( (SUNMatGetID(cvls_mem->A) == SUNMATRIX_DENSE) ||
+               (SUNMatGetID(cvls_mem->A) == SUNMATRIX_BAND) ) {
+            cvls_mem->jac    = cvLsDQJac;
+            cvls_mem->J_data = cv_mem;
+          } else {
+            retval++;
+          }
+
+        } else {
+          retval++;
+        }
+        if (retval) {
+          cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSLS", "cvLsInitialize",
+                         "No Jacobian constructor available for SUNMatrix type");
+          cvls_mem->last_flag = CVLS_ILL_INPUT;
+          return(CVLS_ILL_INPUT);
+        }
+
+      } else {
+
+        /* User-supplied Jacobian, reset J_data pointer (just in case) */
+        cvls_mem->J_data = cv_mem->cv_user_data;
+
+      }
+
+      /* Allocate internally saved Jacobian if not already done */
+      if (cvls_mem->savedJ == NULL) {
+        cvls_mem->savedJ = SUNMatClone(cvls_mem->A);
+        if (cvls_mem->savedJ == NULL) {
+          cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVLS", "cvLsInitialize",
+                         MSG_LS_MEM_FAIL);
+          cvls_mem->last_flag = CVLS_MEM_FAIL;
+          return(CVLS_MEM_FAIL);
+        }
+      }
+
+    } /* end matrix-based case */
+
+  } else {
+
+    /* Matrix-free case: ensure 'jac' and `linsys` function pointers are NULL */
     cvls_mem->jacDQ  = SUNFALSE;
     cvls_mem->jac    = NULL;
     cvls_mem->J_data = NULL;
 
-  } else if (cvls_mem->jacDQ) {
+    cvls_mem->user_linsys = SUNFALSE;
+    cvls_mem->linsys      = NULL;
+    cvls_mem->A_data      = NULL;
 
-    /* If A is non-NULL, and 'jac' is not user-supplied:
-       - if A is dense or band, ensure that our DQ approx. is used
-       - otherwise => error */
-    retval = 0;
-    if (cvls_mem->A->ops->getid) {
-
-      if ( (SUNMatGetID(cvls_mem->A) == SUNMATRIX_DENSE) ||
-           (SUNMatGetID(cvls_mem->A) == SUNMATRIX_BAND) ) {
-        cvls_mem->jac    = cvLsDQJac;
-        cvls_mem->J_data = cv_mem;
-      } else {
-        retval++;
-      }
-
-    } else {
-      retval++;
-    }
-    if (retval) {
-      cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSLS", "cvLsInitialize",
-                     "No Jacobian constructor available for SUNMatrix type");
-      cvls_mem->last_flag = CVLS_ILL_INPUT;
-      return(CVLS_ILL_INPUT);
-    }
-
-  } else {
-
-    /* If A is non-NULL, and 'jac' is user-supplied,
-       reset J_data pointer (just in case) */
-    cvls_mem->J_data = cv_mem->cv_user_data;
   }
 
   /* reset counters */
   cvLsInitializeCounters(cvls_mem);
 
-  /* Set Jacobian-related fields, based on jtimesDQ */
+  /* Set Jacobian-vector product related fields, based on jtimesDQ */
   if (cvls_mem->jtimesDQ) {
     cvls_mem->jtsetup = NULL;
     cvls_mem->jtimes  = cvLsDQJtimes;
@@ -1233,70 +1424,41 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     ((convfail == CV_FAIL_BAD_J) && (dgamma < CVLS_DGMAX)) ||
     (convfail == CV_FAIL_OTHER);
 
-  /* If using a NULL SUNMatrix, set jcur to jbad; otherwise update J as appropriate */
-  if (cvls_mem->A == NULL) {
+  /* Setup the linear system if necessary */
+  if (cvls_mem->A != NULL) {
 
-    *jcurPtr = cvls_mem->jbad;
+    /* Update J if appropriate and evaluate A = I - gamma J */
+    retval = cvls_mem->linsys(cv_mem->cv_tn, ypred, fpred, cvls_mem->A,
+                              !(cvls_mem->jbad), jcurPtr, cv_mem->cv_gamma,
+                              cvls_mem->A_data, vtemp1, vtemp2, vtemp3);
+
+    /* Update J eval count and step when J was last updated */
+    if (*jcurPtr) {
+      cvls_mem->nje++;
+      cvls_mem->nstlj = cv_mem->cv_nst;
+    }
+
+    /* Check linsys() return value and return if necessary */
+    if (retval != CVLS_SUCCESS) {
+      if (cvls_mem->user_linsys) {
+        if (retval < 0) {
+          cvProcessError(cv_mem, CVLS_JACFUNC_UNRECVR, "CVSLS",
+                         "cvLsSetup",  MSG_LS_JACFUNC_FAILED);
+          cvls_mem->last_flag = CVLS_JACFUNC_UNRECVR;
+          return(-1);
+        } else {
+          cvls_mem->last_flag = CVLS_JACFUNC_RECVR;
+          return(1);
+        }
+      } else {
+        return(retval);
+      }
+    }
 
   } else {
 
-    /* If jbad = SUNFALSE, use saved copy of J */
-    if (!cvls_mem->jbad) {
-
-      *jcurPtr = SUNFALSE;
-      retval = SUNMatCopy(cvls_mem->savedJ, cvls_mem->A);
-      if (retval) {
-        cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
-                       "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
-        cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
-        return(cvls_mem->last_flag);
-      }
-
-    /* If jbad = SUNTRUE, call jac routine for new J value */
-    } else {
-
-      cvls_mem->nje++;
-      cvls_mem->nstlj = cv_mem->cv_nst;
-      *jcurPtr = SUNTRUE;
-      retval = SUNMatZero(cvls_mem->A);
-      if (retval) {
-        cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
-                       "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
-        cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
-        return(cvls_mem->last_flag);
-      }
-
-      retval = cvls_mem->jac(cv_mem->cv_tn, ypred, fpred, cvls_mem->A,
-                             cvls_mem->J_data, vtemp1, vtemp2, vtemp3);
-      if (retval < 0) {
-        cvProcessError(cv_mem, CVLS_JACFUNC_UNRECVR, "CVSLS",
-                       "cvLsSetup",  MSG_LS_JACFUNC_FAILED);
-        cvls_mem->last_flag = CVLS_JACFUNC_UNRECVR;
-        return(-1);
-      }
-      if (retval > 0) {
-        cvls_mem->last_flag = CVLS_JACFUNC_RECVR;
-        return(1);
-      }
-
-      retval = SUNMatCopy(cvls_mem->A, cvls_mem->savedJ);
-      if (retval) {
-        cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
-                       "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
-        cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
-        return(cvls_mem->last_flag);
-      }
-
-    }
-
-    /* Scale and add I to get A = I - gamma*J */
-    retval = SUNMatScaleAddI(-cv_mem->cv_gamma, cvls_mem->A);
-    if (retval) {
-      cvProcessError(cv_mem, CVLS_SUNMAT_FAIL, "CVSLS",
-                     "cvLsSetup",  MSG_LS_SUNMAT_FAILED);
-      cvls_mem->last_flag = CVLS_SUNMAT_FAIL;
-      return(cvls_mem->last_flag);
-    }
+    /* Matrix-free case, set jcur to jbad */
+    *jcurPtr = cvls_mem->jbad;
 
   }
 
@@ -1304,7 +1466,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
      pass the heuristic suggestions above to the user code(s) */
   cvls_mem->last_flag = SUNLinSolSetup(cvls_mem->LS, cvls_mem->A);
 
-  /* If the SUNMatrix was NULL, update heuristics flags */
+  /* If Matrix-free, update heuristics flags */
   if (cvls_mem->A == NULL) {
 
     /* If user set jcur to SUNTRUE, increment npe and save nst value */
@@ -1385,9 +1547,6 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   cvls_mem->ycur = ynow;
   cvls_mem->fcur = fnow;
 
-  /* Set initial guess x = 0 to LS */
-  N_VConst(ZERO, cvls_mem->x);
-
   /* Set scaling vectors for LS to use (if applicable) */
   if (cvls_mem->LS->ops->setscalingvectors) {
     retval = SUNLinSolSetScalingVectors(cvls_mem->LS,
@@ -1413,15 +1572,18 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
        <=> w_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / w_mean^2
        <=> || b - A x ||_2 < tol / w_mean
-     So we compute w_mean = ||w||_RMS = ||w||_2 / sqrt(n), and scale
-     the desired tolerance accordingly. */
+     So we compute w_mean = ||w||_RMS and scale the desired tolerance accordingly. */
   } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
               (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
 
-    w_mean = SUNRsqrt( N_VDotProd(weight, weight) ) / cvls_mem->sqrtN;
+    N_VConst(ONE, cvls_mem->x);
+    w_mean = N_VWrmsNorm(weight, cvls_mem->x);
     delta /= w_mean;
 
   }
+
+  /* Set initial guess x = 0 to LS */
+  N_VConst(ZERO, cvls_mem->x);
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (cvls_mem->jtsetup) {
@@ -1611,8 +1773,8 @@ int cvLs_AccessLMem(void* cvode_mem, const char *fname,
   CVSLS Exported functions -- Required
   ---------------------------------------------------------------*/
 
-/* CVodeSetLinearSolverB specifies the iterative linear solver
-   for backward integration */
+/* CVodeSetLinearSolverB specifies the linear solver for backward
+   integration */
 int CVodeSetLinearSolverB(void *cvode_mem, int which,
                           SUNLinearSolver LS, SUNMatrix A)
 {
@@ -1895,6 +2057,63 @@ int CVodeSetJacTimesBS(void *cvode_mem, int which,
   return(CVodeSetJacTimes(cvodeB_mem, cvls_jtsetup, cvls_jtimes));
 }
 
+
+int CVodeSetLinSysFnB(void *cvode_mem, int which, CVLsLinSysFnB linsysB)
+{
+  CVodeMem  cv_mem;
+  CVadjMem  ca_mem;
+  CVodeBMem cvB_mem;
+  CVLsMemB  cvlsB_mem;
+  void     *cvodeB_mem;
+  int       retval;
+
+  /* access relevant memory structures */
+  retval = cvLs_AccessLMemB(cvode_mem, which, "CVodeSetLinSysFnB",
+                            &cv_mem, &ca_mem, &cvB_mem, &cvlsB_mem);
+  if (retval != CVLS_SUCCESS)  return(retval);
+
+  /* set linsysB function pointer */
+  cvlsB_mem->linsysB = linsysB;
+
+  /* call corresponding routine for cvodeB_mem structure */
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+  if (linsysB != NULL) {
+    retval = CVodeSetLinSysFn(cvodeB_mem, cvLsLinSysBWrapper);
+  } else {
+    retval = CVodeSetLinSysFn(cvodeB_mem, NULL);
+  }
+
+  return(retval);
+}
+
+
+int CVodeSetLinSysFnBS(void *cvode_mem, int which, CVLsLinSysFnBS linsysBS)
+{
+  CVodeMem  cv_mem;
+  CVadjMem  ca_mem;
+  CVodeBMem cvB_mem;
+  CVLsMemB  cvlsB_mem;
+  void     *cvodeB_mem;
+  int       retval;
+
+  /* access relevant memory structures */
+  retval = cvLs_AccessLMemB(cvode_mem, which, "CVodeSetLinSysFnBS",
+                            &cv_mem, &ca_mem, &cvB_mem, &cvlsB_mem);
+  if (retval != CVLS_SUCCESS)  return(retval);
+
+  /* set linsysB function pointer */
+  cvlsB_mem->linsysBS = linsysBS;
+
+  /* call corresponding routine for cvodeB_mem structure */
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+  if (linsysBS != NULL) {
+    retval = CVodeSetLinSysFn(cvodeB_mem, cvLsLinSysBSWrapper);
+  } else {
+    retval = CVodeSetLinSysFn(cvodeB_mem, NULL);
+  }
+
+  return(retval);
+}
 
 
 /*-----------------------------------------------------------------
@@ -2225,6 +2444,77 @@ static int cvLsJacTimesVecBSWrapper(N_Vector vB, N_Vector JvB, realtype t,
   return(cvlsB_mem->jtimesBS(vB, JvB, t, ca_mem->ca_ytmp,
                              ca_mem->ca_yStmp, yB, fyB,
                              cvB_mem->cv_user_data, tmpB));
+}
+
+
+/* cvLsLinSysBWrapper interfaces to the CVLsLinSysFnB routine provided
+   by the user. cvLsLinSysBWrapper is of type CVLsLinSysFn. */
+static int cvLsLinSysBWrapper(realtype t, N_Vector yB, N_Vector fyB,
+                              SUNMatrix AB, booleantype jokB,
+                              booleantype *jcurB, realtype gammaB,
+                              void *cvode_mem, N_Vector tmp1B, N_Vector tmp2B,
+                              N_Vector tmp3B)
+{
+  CVodeMem  cv_mem;
+  CVadjMem  ca_mem;
+  CVodeBMem cvB_mem;
+  CVLsMemB  cvlsB_mem;
+  int       retval;
+
+  /* access relevant memory structures */
+  retval = cvLs_AccessLMemBCur(cvode_mem, "cvLsLinSysBWrapper",
+                               &cv_mem, &ca_mem, &cvB_mem, &cvlsB_mem);
+  if (retval != CVLS_SUCCESS)  return(retval);
+
+  /* Forward solution from interpolation */
+  retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
+  if (retval != CV_SUCCESS) {
+    cvProcessError(cv_mem, -1, "CVSLS", "cvLsLinSysBWrapper",
+                   MSG_LS_BAD_TINTERP);
+    return(-1);
+  }
+
+  /* Call user's adjoint linsysB routine (of type CVLsLinSysFnB) */
+  return(cvlsB_mem->linsysB(t, ca_mem->ca_ytmp, yB, fyB, AB, jokB, jcurB,
+                            gammaB, cvB_mem->cv_user_data, tmp1B, tmp2B,
+                            tmp3B));
+}
+
+
+/* cvLsLinSysBSWrapper interfaces to the CVLsLinSysFnBS routine provided
+   by the user. cvLsLinSysBSWrapper is of type CVLsLinSysFn. */
+static int cvLsLinSysBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
+                               SUNMatrix AB, booleantype jokB,
+                               booleantype *jcurB, realtype gammaB,
+                               void *cvode_mem, N_Vector tmp1B, N_Vector tmp2B,
+                               N_Vector tmp3B)
+{
+  CVodeMem  cv_mem;
+  CVadjMem  ca_mem;
+  CVodeBMem cvB_mem;
+  CVLsMemB  cvlsB_mem;
+  int       retval;
+
+  /* access relevant memory structures */
+  retval = cvLs_AccessLMemBCur(cvode_mem, "cvLsLinSysBSWrapper",
+                               &cv_mem, &ca_mem, &cvB_mem, &cvlsB_mem);
+  if (retval != CVLS_SUCCESS)  return(retval);
+
+  /* Forward solution from interpolation */
+  if (ca_mem->ca_IMinterpSensi)
+    retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, ca_mem->ca_yStmp);
+  else
+    retval = ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
+  if (retval != CV_SUCCESS) {
+    cvProcessError(cv_mem, -1, "CVSLS", "cvLsLinSysBSWrapper",
+                   MSG_LS_BAD_TINTERP);
+    return(-1);
+  }
+
+  /* Call user's adjoint dense djacBS routine (of type CVLsDenseJacFnBS) */
+  return(cvlsB_mem->linsysBS(t, ca_mem->ca_ytmp, ca_mem->ca_yStmp, yB, fyB,
+                             AB, jokB, jcurB, gammaB, cvB_mem->cv_user_data,
+                             tmp1B, tmp2B, tmp3B));
 }
 
 

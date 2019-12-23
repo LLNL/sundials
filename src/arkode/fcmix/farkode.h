@@ -19,17 +19,17 @@
   FARKODE Interface Package
 
   The FARKODE Interface Package is a package of C functions which
-  support the use of the ARKODE solver in a mixed Fortran/C 
-  setting.  While ARKODE is written in C, it is assumed here that 
-  the user's calling program and user-supplied problem-defining 
-  routines are written in Fortran.  This package provides the 
-  necessary interface to ARKODE for any acceptable NVECTOR 
+  support the use of the ARKODE solver in a mixed Fortran/C
+  setting.  While ARKODE is written in C, it is assumed here that
+  the user's calling program and user-supplied problem-defining
+  routines are written in Fortran.  This package provides the
+  necessary interface to ARKODE for any acceptable NVECTOR
   implementation.
-  
-  While previous versions of this file included relatively 
-  exhaustive documentation of the FARKODE interface, such 
+
+  While previous versions of this file included relatively
+  exhaustive documentation of the FARKODE interface, such
   information is also included in the main ARKode documentation
-  (PDF and HTML formats), so to ease the maintenance burden the 
+  (PDF and HTML formats), so to ease the maintenance burden the
   FARKODE documentation has been removed from this file.
   ===============================================================*/
 
@@ -61,6 +61,7 @@ extern "C" {
 #define FARK_SETDEFAULTS         SUNDIALS_F77_FUNC(farksetdefaults,         FARKSETDEFAULTS)
 #define FARK_SETIIN              SUNDIALS_F77_FUNC(farksetiin,              FARKSETIIN)
 #define FARK_SETRIN              SUNDIALS_F77_FUNC(farksetrin,              FARKSETRIN)
+#define FARK_SETVIN              SUNDIALS_F77_FUNC(farksetvin,              FARKSETVIN)
 #define FARK_SETADAPTMETHOD      SUNDIALS_F77_FUNC(farksetadaptivitymethod, FARKSETADAPTIVITYMETHOD)
 #define FARK_SETERKTABLE         SUNDIALS_F77_FUNC(farkseterktable,         FARKSETERKTABLE)
 #define FARK_SETIRKTABLE         SUNDIALS_F77_FUNC(farksetirktable,         FARKSETIRKTABLE)
@@ -136,7 +137,7 @@ extern "C" {
 #define FARK_SPILSSETMASS        SUNDIALS_F77_FUNC(farkspilssetmass,        FARKSPILSSETMASS)
 #define FARK_SPILSSETMASSPREC    SUNDIALS_F77_FUNC(farkspilssetmassprec,    FARKSPILSSETMASSPREC)
 /*----------------*/
-  
+
 #else
 
 #define FARK_IMP_FUN             farkifun_
@@ -147,6 +148,7 @@ extern "C" {
 #define FARK_SETDEFAULTS         farksetdefaults_
 #define FARK_SETIIN              farksetiin_
 #define FARK_SETRIN              farksetrin_
+#define FARK_SETVIN              farksetvin_
 #define FARK_SETADAPTMETHOD      farksetadaptivitymethod_
 #define FARK_SETERKTABLE         farkseterktable_
 #define FARK_SETIRKTABLE         farksetirktable_
@@ -222,7 +224,7 @@ extern "C" {
 #define FARK_SPILSSETMASS        farkspilssetmass_
 #define FARK_SPILSSETMASSPREC    farkspilssetmassprec_
 /*----------------*/
-  
+
 #endif
 
   /* Type for user data */
@@ -232,9 +234,9 @@ extern "C" {
   } *FARKUserData;
 
   /* Prototypes of exported functions */
-  void FARK_MALLOC(realtype *t0, realtype *y0, int *imex, 
-                   int *iatol, realtype *rtol, realtype *atol, 
-                   long int *iout, realtype *rout, 
+  void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
+                   int *iatol, realtype *rtol, realtype *atol,
+                   long int *iout, realtype *rout,
                    long int *ipar, realtype *rpar, int *ier);
 
   void FARK_REINIT(realtype *t0, realtype *y0, int *imex,
@@ -247,17 +249,18 @@ extern "C" {
   void FARK_SETDEFAULTS(int *ier);
   void FARK_SETIIN(char key_name[], long int *ival, int *ier);
   void FARK_SETRIN(char key_name[], realtype *rval, int *ier);
+  void FARK_SETVIN(char key_name[], realtype *vval, int *ier);
 
-  void FARK_SETADAPTMETHOD(int *imethod, int *idefault, int *ipq, 
+  void FARK_SETADAPTMETHOD(int *imethod, int *idefault, int *ipq,
                            realtype *params, int *ier);
 
-  void FARK_SETERKTABLE(int *s, int *q, int *p, realtype *c, realtype *A, 
+  void FARK_SETERKTABLE(int *s, int *q, int *p, realtype *c, realtype *A,
                         realtype *b, realtype *b2, int *ier);
   void FARK_SETIRKTABLE(int *s, int *q, int *p, realtype *c,
                         realtype *A, realtype *b, realtype *b2, int *ier);
-  void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci, 
-                         realtype *ce, realtype *Ai, realtype *Ae, 
-                         realtype *bi, realtype *be, realtype *b2i, 
+  void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci,
+                         realtype *ce, realtype *Ai, realtype *Ae,
+                         realtype *bi, realtype *be, realtype *b2i,
                          realtype *b2e, int *ier);
 
   void FARK_SETRESTOLERANCE(int *itol, realtype *atol, int *ier);
@@ -265,13 +268,13 @@ extern "C" {
   void FARK_STOPDIAGNOSTICS(int *ier);
 
   void FARK_NLSINIT(int *ier);
-  
+
   void FARK_LSINIT(int *ier);
   void FARK_LSSETEPSLIN(realtype *eplifac, int *ier);
   void FARK_LSMASSINIT(int *time_dep, int *ier);
   void FARK_LSSETMASSEPSLIN(realtype *eplifac, int *ier);
-  
-  void FARK_ARKODE(realtype *tout, realtype *t, realtype *y, 
+
+  void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
                    int *itask, int *ier);
   void FARK_DKY(realtype *t, int *k, realtype *dky, int *ier);
 
@@ -313,54 +316,54 @@ extern "C" {
   void FARK_SPILSSETMASSPREC(int *flag, int *ier);
 /*----------------*/
 
-  
+
 
   /* Prototypes: Functions Called by the ARKODE Solver */
   int FARKfe(realtype t, N_Vector y, N_Vector ydot, void *user_data);
   int FARKfi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-  
-  int FARKDenseJac(realtype t, N_Vector y, N_Vector fy, 
+
+  int FARKDenseJac(realtype t, N_Vector y, N_Vector fy,
                    SUNMatrix J, void *user_data,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-  
+
   int FARKBandJac(realtype t, N_Vector y, N_Vector fy,
                   SUNMatrix J, void *user_data,
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-  
-  int FARKSparseJac(realtype t, N_Vector y, N_Vector fy, 
-                    SUNMatrix J, void *user_data, N_Vector vtemp1, 
+
+  int FARKSparseJac(realtype t, N_Vector y, N_Vector fy,
+                    SUNMatrix J, void *user_data, N_Vector vtemp1,
                     N_Vector vtemp2, N_Vector vtemp3);
 
-  
-  int FARKDenseMass(realtype t, SUNMatrix M, void *user_data, 
+
+  int FARKDenseMass(realtype t, SUNMatrix M, void *user_data,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-  
-  int FARKBandMass(realtype t, SUNMatrix M, void *user_data, 
+
+  int FARKBandMass(realtype t, SUNMatrix M, void *user_data,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-  
-  int FARKSparseMass(realtype t, SUNMatrix M, void *user_data, 
+
+  int FARKSparseMass(realtype t, SUNMatrix M, void *user_data,
                     N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-  
+
 
   int FARKPSet(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
                booleantype *jcurPtr, realtype gamma, void *user_data);
-  
+
   int FARKMassPSet(realtype tn, void *user_data);
-  
-  int FARKPSol(realtype tn, N_Vector y, N_Vector fy, N_Vector r, 
-               N_Vector z, realtype gamma, realtype delta, int lr, 
+
+  int FARKPSol(realtype tn, N_Vector y, N_Vector fy, N_Vector r,
+               N_Vector z, realtype gamma, realtype delta, int lr,
                void *user_data);
-  
-  int FARKMassPSol(realtype tn, N_Vector r, N_Vector z, realtype delta, 
+
+  int FARKMassPSol(realtype tn, N_Vector r, N_Vector z, realtype delta,
                    int lr, void *user_data);
-  
+
   int FARKJTSetup(realtype t, N_Vector y, N_Vector fy, void *user_data);
-  
-  int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y, 
+
+  int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
                  N_Vector fy, void *user_data, N_Vector work);
-  
+
   int FARKMTSetup(realtype t, void *user_data);
-  
+
   int FARKMtimes(N_Vector v, N_Vector Mv, realtype t, void *user_data);
 
   int FARKEwt(N_Vector y, N_Vector ewt, void *user_data);
@@ -374,8 +377,8 @@ extern "C" {
   void FARKNullMatrix();
   void FARKNullLinsol();
   void FARKNullNonlinsol();
-  
-  /* Declarations for global variables shared amongst various routines; 
+
+  /* Declarations for global variables shared amongst various routines;
      each of these is defined in the implementation routines for the Fortran
      interface for their vector/matrix/linear solver/nonlinear solver modules */
   extern N_Vector F2C_ARKODE_vec;

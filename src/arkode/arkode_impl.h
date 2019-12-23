@@ -33,13 +33,14 @@ extern "C" {
   ARKode Private Constants
   ===============================================================*/
 
-/* Basic ARKode constants */
-#define Q_DEFAULT        4       /* default RK order */
-#define MXSTEP_DEFAULT   500     /* mxstep default value */
-#define MAXNEF           7       /* maxnef default value */
-#define MAXNCF           10      /* maxncf default value */
-#define MXHNIL           10      /* mxhnil default value */
-#define MAXCOR           3       /* maxcor default value */
+/* Basic ARKode defaults */
+#define Q_DEFAULT        4      /* method order                       */
+#define MXSTEP_DEFAULT   500    /* max steps between returns          */
+#define MAXNEF           7      /* max number of error failures       */
+#define MAXNCF           10     /* max number of convergence failures */
+#define MAXCONSTRFAILS   10     /* max number of constraint failures  */
+#define MXHNIL           10     /* max number of t+h==h warnings      */
+#define MAXCOR           3      /* max number of nonlinear iterations */
 
 /* Numeric constants */
 #define ZERO   RCONST(0.0)      /* real 0.0     */
@@ -48,8 +49,11 @@ extern "C" {
 #define POINT2 RCONST(0.2)      /* real 0.2     */
 #define FOURTH RCONST(0.25)     /* real 0.25    */
 #define HALF   RCONST(0.5)      /* real 0.5     */
+#define PT9    RCONST(0.9)      /* real 0.9     */
 #define ONE    RCONST(1.0)      /* real 1.0     */
+#define ONEPT5 RCONST(1.5)      /* real 1.5     */
 #define TWO    RCONST(2.0)      /* real 2.0     */
+#define TWOPT5 RCONST(2.5)      /* real 2.5)    */
 #define THREE  RCONST(3.0)      /* real 3.0     */
 #define FOUR   RCONST(4.0)      /* real 4.0     */
 #define FIVE   RCONST(5.0)      /* real 5.0     */
@@ -128,6 +132,7 @@ extern "C" {
 
 #define RHSFUNC_RECVR    +9
 
+#define CONSTR_RECVR     +10
 
 /*---------------------------------------------------------------
   Return values for lower-level rootfinding functions
@@ -290,27 +295,30 @@ typedef struct ARKodeMassMemRec {
   ---------------------------------------------------------------*/
 typedef struct ARKodeMemRec {
 
-  realtype uround;         /* machine unit roundoff */
+  realtype uround;             /* machine unit roundoff */
 
   /* Problem specification data */
-  void        *user_data;  /* user ptr passed to supplied functions */
-  int          itol;       /* itol = ARK_SS (scalar, default),
-                                     ARK_SV (vector),
-                                     ARK_WF (user weight function)  */
-  int          ritol;      /* itol = ARK_SS (scalar, default),
-                                     ARK_SV (vector),
-                                     ARK_WF (user weight function)  */
-  realtype     reltol;     /* relative tolerance                    */
-  realtype     Sabstol;    /* scalar absolute solution tolerance    */
-  N_Vector     Vabstol;    /* vector absolute solution tolerance    */
-  realtype     SRabstol;   /* scalar absolute residual tolerance    */
-  N_Vector     VRabstol;   /* vector absolute residual tolerance    */
-  booleantype  user_efun;  /* SUNTRUE if user sets efun             */
-  ARKEwtFn     efun;       /* function to set ewt                   */
-  void        *e_data;     /* user pointer passed to efun           */
-  booleantype  user_rfun;  /* SUNTRUE if user sets rfun             */
-  ARKRwtFn     rfun;       /* function to set rwt                   */
-  void        *r_data;     /* user pointer passed to rfun           */
+  void        *user_data;      /* user ptr passed to supplied functions */
+  int          itol;           /* itol = ARK_SS (scalar, default),
+                                         ARK_SV (vector),
+                                         ARK_WF (user weight function)  */
+  int          ritol;          /* itol = ARK_SS (scalar, default),
+                                         ARK_SV (vector),
+                                         ARK_WF (user weight function)  */
+  realtype     reltol;         /* relative tolerance                    */
+  realtype     Sabstol;        /* scalar absolute solution tolerance    */
+  N_Vector     Vabstol;        /* vector absolute solution tolerance    */
+  booleantype  atolmin0;       /* flag indicating that min(abstol) = 0  */
+  realtype     SRabstol;       /* scalar absolute residual tolerance    */
+  N_Vector     VRabstol;       /* vector absolute residual tolerance    */
+  booleantype  Ratolmin0;      /* flag indicating that min(Rabstol) = 0 */
+  booleantype  user_efun;      /* SUNTRUE if user sets efun             */
+  ARKEwtFn     efun;           /* function to set ewt                   */
+  void        *e_data;         /* user pointer passed to efun           */
+  booleantype  user_rfun;      /* SUNTRUE if user sets rfun             */
+  ARKRwtFn     rfun;           /* function to set rwt                   */
+  void        *r_data;         /* user pointer passed to rfun           */
+  booleantype  constraintsSet; /* check inequality constraints          */
 
   /* Time stepper module */
   ARKTimestepAttachLinsolFn   step_attachlinsol;
@@ -328,16 +336,18 @@ typedef struct ARKodeMemRec {
   void                       *step_mem;
 
   /* N_Vector storage */
-  N_Vector ewt;     /* error weight vector                               */
-  N_Vector rwt;     /* residual weight vector                            */
-  booleantype rwt_is_ewt;     /* SUNTRUE if rwt is a pointer to ewt      */
-  N_Vector ycur;    /* pointer to user-provided solution memory; used as
-                       evolving solution by the timestepper modules      */
-  N_Vector yn;      /* solution from the last successful step            */
-  N_Vector tempv1;  /* temporary storage vectors (for local use and by   */
-  N_Vector tempv2;  /*    time-stepping modules) */
+  N_Vector ewt;           /* error weight vector                             */
+  N_Vector rwt;           /* residual weight vector                          */
+  booleantype rwt_is_ewt; /* SUNTRUE if rwt is a pointer to ewt              */
+  N_Vector ycur;          /* pointer to user-provided solution memory; used
+                             as evolving solution by the timestepper modules */
+  N_Vector yn;            /* solution from the last successful step          */
+  N_Vector tempv1;        /* temporary storage vectors (for local use and by */
+  N_Vector tempv2;        /* time-stepping modules)                          */
   N_Vector tempv3;
   N_Vector tempv4;
+
+  N_Vector constraints;   /* vector of inequality constraint options         */
 
   /* Temporal interpolation module */
   ARKodeInterpMem interp;
@@ -362,14 +372,16 @@ typedef struct ARKodeMemRec {
 
 
   /* Limits and various solver parameters */
-  long int mxstep;   /* max number of internal steps for one user call */
-  int      mxhnil;   /* max number of warning messages issued to the
-                        user that t+h == t for the next internal step  */
+  long int mxstep;         /* max number of internal steps for one user call */
+  int      mxhnil;         /* max number of warning messages issued to the
+                              user that t+h == t for the next internal step  */
+  int      maxconstrfails; /* max number of constraint check failures        */
 
   /* Counters */
   long int nst;          /* number of internal steps taken             */
   int      nhnil;        /* number of messages issued to the user that
                             t+h == t for the next iternal step         */
+  long int nconstrfails; /* number of constraint failures              */
 
   /* Diagnostic output */
   booleantype report;   /* flag to enable/disable diagnostic output    */
@@ -388,6 +400,7 @@ typedef struct ARKodeMemRec {
   realtype    tolsf;        /* tolerance scale factor (suggestion to user) */
   booleantype VabstolMallocDone;
   booleantype VRabstolMallocDone;
+  booleantype ConstraintsMallocDone;
   booleantype MallocDone;
   booleantype resized;      /* denotes first step after ARKodeResize      */
   booleantype firststage;   /* denotes first stage in simulation          */
@@ -402,6 +415,7 @@ typedef struct ARKodeMemRec {
 
   /* User-supplied step solution post-processing function */
   ARKPostProcessStepFn ProcessStep;
+  void*                ps_data; /* pointer to user_data */
 
 } *ARKodeMem;
 
@@ -744,13 +758,13 @@ typedef struct ARKodeMemRec {
 /*---------------------------------------------------------------
   ARKTimestepInitFn
   ---------------------------------------------------------------
-  This routine is called just prior to performing internal time 
-  steps (after all user "set" routines have been called) from 
+  This routine is called just prior to performing internal time
+  steps (after all user "set" routines have been called) from
   within arkInitialSetup (init_type == 0) or arkPostResizeSetup
-  (init_type == 1).  It should complete initializations for a 
-  specific ARKode time stepping module, such as verifying 
-  compatibility of user-specified linear and nonlinear solver 
-  objects.  
+  (init_type == 1).  It should complete initializations for a
+  specific ARKode time stepping module, such as verifying
+  compatibility of user-specified linear and nonlinear solver
+  objects.
 
   This routine should return 0 if it has successfully initialized
   the ARKode time stepper module and a negative value otherwise.
@@ -843,9 +857,6 @@ typedef struct ARKodeMemRec {
   ARKode PROTOTYPE FUNCTIONS (MAY BE REPLACED BY USER)
   ===============================================================*/
 
-/* Prototype of internal ewtSet function */
-int arkEwtSet(N_Vector ycur, N_Vector weight, void *data);
-
 /* Prototype of internal rwtSet function */
 int arkRwtSet(N_Vector ycur, N_Vector weight, void *data);
 
@@ -906,10 +917,9 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg,
 int arkCompleteStep(ARKodeMem ark_mem);
 int arkHandleFailure(ARKodeMem ark_mem,int flag);
 
-int arkEwtSetSS(ARKodeMem ark_mem, N_Vector ycur,
-                N_Vector weight);
-int arkEwtSetSV(ARKodeMem ark_mem, N_Vector ycur,
-                N_Vector weight);
+int arkEwtSetSS(N_Vector ycur, N_Vector weight, void* arkode_mem);
+int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem);
+int arkEwtSetSmallReal(N_Vector ycur, N_Vector weight, void* arkode_mem);
 int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My,
                 N_Vector weight);
 int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My,
@@ -949,6 +959,8 @@ int arkSetRootDirection(ARKodeMem ark_mem, int *rootdir);
 int arkSetNoInactiveRootWarn(ARKodeMem ark_mem);
 int arkSetPostprocessStepFn(ARKodeMem ark_mem,
                             ARKPostProcessStepFn ProcessStep);
+int arkSetConstraints(ARKodeMem ark_mem, N_Vector constraints);
+int arkSetMaxNumConstrFails(ARKodeMem ark_mem, int maxfails);
 int arkGetWorkSpace(ARKodeMem ark_mem, long int *lenrw, long int *leniw);
 int arkGetNumSteps(ARKodeMem ark_mem, long int *nsteps);
 int arkGetActualInitStep(ARKodeMem ark_mem, realtype *hinused);
@@ -960,6 +972,7 @@ int arkGetErrWeights(ARKodeMem ark_mem, N_Vector eweight);
 int arkGetResWeights(ARKodeMem ark_mem, N_Vector rweight);
 int arkGetNumGEvals(ARKodeMem ark_mem, long int *ngevals);
 int arkGetRootInfo(ARKodeMem ark_mem, int *rootsfound);
+int arkGetNumConstrFails(ARKodeMem ark_mem, long int *nconstrfails);
 int arkGetStepStats(ARKodeMem ark_mem, long int *nsteps,
                     realtype *hinused, realtype *hlast,
                     realtype *hcur, realtype *tcur);
@@ -974,6 +987,7 @@ int arkPredict_CutoffOrder(ARKodeMem ark_mem, realtype tau,
 int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
                          realtype tau, int nvec, realtype *cvals,
                          N_Vector *Xvecs, N_Vector yguess);
+int arkCheckConstraints(ARKodeMem ark_mem, int *nflag, int *constrfails);
 
 
 /*===============================================================
@@ -1007,28 +1021,30 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
 #endif
 
 /* Initialization and I/O error messages */
-#define MSG_ARK_NO_MEM        "arkode_mem = NULL illegal."
-#define MSG_ARK_ARKMEM_FAIL   "Allocation of arkode_mem failed."
-#define MSG_ARK_MEM_FAIL      "A memory request failed."
-#define MSG_ARK_NO_MALLOC     "Attempt to call before ARKodeInit."
-#define MSG_ARK_NEG_MAXORD    "maxord <= 0 illegal."
-#define MSG_ARK_BAD_MAXORD    "Illegal attempt to increase maximum method order."
-#define MSG_ARK_NEG_HMIN      "hmin < 0 illegal."
-#define MSG_ARK_NEG_HMAX      "hmax < 0 illegal."
-#define MSG_ARK_BAD_HMIN_HMAX "Inconsistent step size limits: hmin > hmax."
-#define MSG_ARK_BAD_RELTOL    "reltol < 0 illegal."
-#define MSG_ARK_BAD_ABSTOL    "abstol has negative component(s) (illegal)."
-#define MSG_ARK_NULL_ABSTOL   "abstol = NULL illegal."
-#define MSG_ARK_BAD_RABSTOL   "rabstol has negative component(s) (illegal)."
-#define MSG_ARK_NULL_RABSTOL  "rabstol = NULL illegal."
-#define MSG_ARK_NULL_Y0       "y0 = NULL illegal."
-#define MSG_ARK_NULL_F        "Must specify at least one of fe, fi (both NULL)."
-#define MSG_ARK_NULL_G        "g = NULL illegal."
-#define MSG_ARK_BAD_NVECTOR   "A required vector operation is not implemented."
-#define MSG_ARK_BAD_K         "Illegal value for k."
-#define MSG_ARK_NULL_DKY      "dky = NULL illegal."
-#define MSG_ARK_BAD_T         "Illegal value for t." MSG_TIME_INT
-#define MSG_ARK_NO_ROOT       "Rootfinding was not initialized."
+#define MSG_ARK_NO_MEM         "arkode_mem = NULL illegal."
+#define MSG_ARK_ARKMEM_FAIL    "Allocation of arkode_mem failed."
+#define MSG_ARK_MEM_FAIL       "A memory request failed."
+#define MSG_ARK_NO_MALLOC      "Attempt to call before ARKodeInit."
+#define MSG_ARK_NEG_MAXORD     "maxord <= 0 illegal."
+#define MSG_ARK_BAD_MAXORD     "Illegal attempt to increase maximum method order."
+#define MSG_ARK_NEG_HMIN       "hmin < 0 illegal."
+#define MSG_ARK_NEG_HMAX       "hmax < 0 illegal."
+#define MSG_ARK_BAD_HMIN_HMAX  "Inconsistent step size limits: hmin > hmax."
+#define MSG_ARK_BAD_RELTOL     "reltol < 0 illegal."
+#define MSG_ARK_BAD_ABSTOL     "abstol has negative component(s) (illegal)."
+#define MSG_ARK_NULL_ABSTOL    "abstol = NULL illegal."
+#define MSG_ARK_BAD_RABSTOL    "rabstol has negative component(s) (illegal)."
+#define MSG_ARK_NULL_RABSTOL   "rabstol = NULL illegal."
+#define MSG_ARK_NULL_Y0        "y0 = NULL illegal."
+#define MSG_ARK_Y0_FAIL_CONSTR "y0 fails to satisfy constraints."
+#define MSG_ARK_NULL_F         "Must specify at least one of fe, fi (both NULL)."
+#define MSG_ARK_NULL_G         "g = NULL illegal."
+#define MSG_ARK_BAD_NVECTOR    "A required vector operation is not implemented."
+#define MSG_ARK_BAD_CONSTR     "Illegal values in constraints vector."
+#define MSG_ARK_BAD_K          "Illegal value for k."
+#define MSG_ARK_NULL_DKY       "dky = NULL illegal."
+#define MSG_ARK_BAD_T          "Illegal value for t." MSG_TIME_INT
+#define MSG_ARK_NO_ROOT        "Rootfinding was not initialized."
 
 /* ARKode Error Messages */
 #define MSG_ARK_LSOLVE_NULL    "The linear solver object is NULL."
@@ -1056,6 +1072,7 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
 #define MSG_ARK_CONV_FAILS     "At " MSG_TIME_H ", the solver convergence test failed repeatedly or with |h| = hmin."
 #define MSG_ARK_SETUP_FAILED   "At " MSG_TIME ", the setup routine failed in an unrecoverable manner."
 #define MSG_ARK_SOLVE_FAILED   "At " MSG_TIME ", the solve routine failed in an unrecoverable manner."
+#define MSG_ARK_FAILED_CONSTR  "At " MSG_TIME ", unable to satisfy inequality constraints."
 #define MSG_ARK_RHSFUNC_FAILED "At " MSG_TIME ", the right-hand side routine failed in an unrecoverable manner."
 #define MSG_ARK_RHSFUNC_UNREC  "At " MSG_TIME ", the right-hand side failed in a recoverable manner, but no recovery is possible."
 #define MSG_ARK_RHSFUNC_REPTD  "At " MSG_TIME " repeated recoverable right-hand side function errors."
@@ -1073,6 +1090,8 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
 #define MSG_ARK_MASSSETUP_FAIL "The mass matrix solver's setup routine failed."
 #define MSG_ARK_MASSSOLVE_FAIL "The mass matrix solver failed."
 #define MSG_ARK_MASSFREE_FAIL  "The mass matrixsolver's free routine failed."
+#define MSG_ARK_NLS_FAIL       "At " MSG_TIME " the nonlinear solver failed in an unrecoverable manner."
+
 
 #define MSG_ARKADAPT_NO_MEM    "Adaptivity memory structure not allocated."
 #define MSG_ARK_VECTOROP_ERR      "At " MSG_TIME ", a vector operation failed."

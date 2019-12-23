@@ -195,6 +195,8 @@ int main(void)
 
   N_VDestroy(u);          /* Free the u vector */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
+  SUNLinSolFree(LS);      /* Free linear solver memory  */
+  SUNMatDestroy(A);       /* Free the matrix memory     */
   free(data);             /* Free the user data */
 
   return(0);

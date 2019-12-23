@@ -77,6 +77,7 @@ typedef struct CVodeMemRec {
   realtype cv_reltol;        /* relative tolerance                            */
   realtype cv_Sabstol;       /* scalar absolute tolerance                     */
   N_Vector cv_Vabstol;       /* vector absolute tolerance                     */
+  booleantype cv_atolmin0;   /* flag indicating that min(abstol) = 0          */
   booleantype cv_user_efun;  /* SUNTRUE if user sets efun                     */
   CVEwtFn cv_efun;           /* function to set ewt                           */
   void *cv_e_data;           /* user pointer passed to efun                   */
@@ -110,8 +111,7 @@ typedef struct CVodeMemRec {
   N_Vector cv_vtemp2;  /* temporary storage vector                            */
   N_Vector cv_vtemp3;  /* temporary storage vector                            */
 
- N_Vector cv_mm;          /* mask vector in constraints tests                    */
- N_Vector cv_constraints; /* vector of inequality constraint options             */
+  N_Vector cv_constraints; /* vector of inequality constraint options         */
 
   /*-----------------
     Tstop information
@@ -155,6 +155,7 @@ typedef struct CVodeMemRec {
   realtype cv_crate;            /* estimated corrector convergence rate       */
   realtype cv_delp;             /* norm of previous nonlinear solver update   */
   realtype cv_acnrm;            /* | acor | wrms                              */
+  booleantype cv_acnrmcur;      /* is | acor | wrms current?                  */
   realtype cv_nlscoef;          /* coeficient in nonlinear convergence test   */
 
   /*------
@@ -246,7 +247,7 @@ typedef struct CVodeMemRec {
   int cv_indx_acor;            /* index of the zn vector with saved acor      */
 
   booleantype cv_VabstolMallocDone;
-  booleantype cv_MallocDone;  
+  booleantype cv_MallocDone;
   booleantype cv_constraintsMallocDone;
 
   /*-------------------------------------------
@@ -546,8 +547,9 @@ int cvNlsInit(CVodeMem cv_mem);
 #define MSGCV_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCV_BAD_TSTOP "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME " in the direction of integration."
 #define MSGCV_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
-#define MSGCV_NLS_SETUP_FAILED "At " MSG_TIME "the nonlinear solver setup failed unrecoverably."
-#define MSGCV_NLS_INPUT_NULL "At " MSG_TIME "the nonlinear solver was passed a NULL input."
+#define MSGCV_NLS_SETUP_FAILED "At " MSG_TIME ", the nonlinear solver setup failed unrecoverably."
+#define MSGCV_NLS_INPUT_NULL "At " MSG_TIME ", the nonlinear solver was passed a NULL input."
+#define MSGCV_NLS_FAIL "At " MSG_TIME ", the nonlinear solver failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

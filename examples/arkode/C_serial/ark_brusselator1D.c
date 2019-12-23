@@ -51,7 +51,6 @@
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
 #include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype, etc */
-#include <sundials/sundials_math.h>    /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -244,11 +243,11 @@ int main()
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);    /* call integrator */
     if (check_flag(&flag, "ARKStepEvolve", 1)) break;
     u = N_VWL2Norm(y,umask);                               /* access/print solution statistics */
-    u = SUNRsqrt(u*u/N);
+    u = sqrt(u*u/N);
     v = N_VWL2Norm(y,vmask);
-    v = SUNRsqrt(v*v/N);
+    v = sqrt(v*v/N);
     w = N_VWL2Norm(y,wmask);
-    w = SUNRsqrt(w*w/N);
+    w = sqrt(w*w/N);
     printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t, u, v, w);
     if (flag >= 0) {                                       /* successful solve: update output time */
       tout += dTout;

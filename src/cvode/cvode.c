@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Dan Shumaker @ LLNL
  * -----------------------------------------------------------------
@@ -18,8 +14,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the main CVODE integrator.
  * It is independent of the CVODE linear solver in use.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 /*=================================================================*/
 /*             Import Header Files                                 */
@@ -345,28 +340,29 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
-  cv_mem->cv_f          = NULL;
-  cv_mem->cv_user_data  = NULL;
-  cv_mem->cv_itol       = CV_NN;
-  cv_mem->cv_user_efun  = SUNFALSE;
-  cv_mem->cv_efun       = NULL;
-  cv_mem->cv_e_data     = NULL;
-  cv_mem->cv_ehfun      = cvErrHandler;
-  cv_mem->cv_eh_data    = cv_mem;
-  cv_mem->cv_errfp      = stderr;
-  cv_mem->cv_qmax       = maxord;
-  cv_mem->cv_mxstep     = MXSTEP_DEFAULT;
-  cv_mem->cv_mxhnil     = MXHNIL_DEFAULT;
-  cv_mem->cv_sldeton    = SUNFALSE;
-  cv_mem->cv_hin        = ZERO;
-  cv_mem->cv_hmin       = HMIN_DEFAULT;
-  cv_mem->cv_hmax_inv   = HMAX_INV_DEFAULT;
-  cv_mem->cv_tstopset   = SUNFALSE;
-  cv_mem->cv_maxnef     = MXNEF;
-  cv_mem->cv_maxncf     = MXNCF;
-  cv_mem->cv_nlscoef    = CORTES;
-  cv_mem->convfail      = CV_NO_FAILURES;
-  cv_mem->cv_constraints = NULL;
+  cv_mem->cv_f              = NULL;
+  cv_mem->cv_user_data      = NULL;
+  cv_mem->cv_itol           = CV_NN;
+  cv_mem->cv_atolmin0       = SUNTRUE;
+  cv_mem->cv_user_efun      = SUNFALSE;
+  cv_mem->cv_efun           = NULL;
+  cv_mem->cv_e_data         = NULL;
+  cv_mem->cv_ehfun          = cvErrHandler;
+  cv_mem->cv_eh_data        = cv_mem;
+  cv_mem->cv_errfp          = stderr;
+  cv_mem->cv_qmax           = maxord;
+  cv_mem->cv_mxstep         = MXSTEP_DEFAULT;
+  cv_mem->cv_mxhnil         = MXHNIL_DEFAULT;
+  cv_mem->cv_sldeton        = SUNFALSE;
+  cv_mem->cv_hin            = ZERO;
+  cv_mem->cv_hmin           = HMIN_DEFAULT;
+  cv_mem->cv_hmax_inv       = HMAX_INV_DEFAULT;
+  cv_mem->cv_tstopset       = SUNFALSE;
+  cv_mem->cv_maxnef         = MXNEF;
+  cv_mem->cv_maxncf         = MXNCF;
+  cv_mem->cv_nlscoef        = CORTES;
+  cv_mem->convfail          = CV_NO_FAILURES;
+  cv_mem->cv_constraints    = NULL;
   cv_mem->cv_constraintsSet = SUNFALSE;
 
   /* Initialize root finding variables */
@@ -707,6 +703,7 @@ int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
 
   cv_mem->cv_reltol = reltol;
   cv_mem->cv_Sabstol = abstol;
+  cv_mem->cv_atolmin0 = (abstol == ZERO);
 
   cv_mem->cv_itol = CV_SS;
 
@@ -721,6 +718,7 @@ int CVodeSStolerances(void *cvode_mem, realtype reltol, realtype abstol)
 int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
 {
   CVodeMem cv_mem;
+  realtype atolmin;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSVtolerances", MSGCV_NO_MEM);
@@ -740,7 +738,13 @@ int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
     return(CV_ILL_INPUT);
   }
 
-  if (N_VMin(abstol) < ZERO) {
+  if (abstol->ops->nvmin == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSVtolerances",
+                   "Missing N_VMin routine from N_Vector");
+    return(CV_ILL_INPUT);
+  }
+  atolmin = N_VMin(abstol);
+  if (atolmin < ZERO) {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSVtolerances", MSGCV_BAD_ABSTOL);
     return(CV_ILL_INPUT);
   }
@@ -756,6 +760,7 @@ int CVodeSVtolerances(void *cvode_mem, realtype reltol, N_Vector abstol)
 
   cv_mem->cv_reltol = reltol;
   N_VScale(ONE, abstol, cv_mem->cv_Vabstol);
+  cv_mem->cv_atolmin0 = (atolmin == ZERO);
 
   cv_mem->cv_itol = CV_SV;
 
@@ -1546,8 +1551,7 @@ static booleantype cvCheckNvector(N_Vector tmpl)
      (tmpl->ops->nvinv       == NULL) ||
      (tmpl->ops->nvaddconst  == NULL) ||
      (tmpl->ops->nvmaxnorm   == NULL) ||
-     (tmpl->ops->nvwrmsnorm  == NULL) ||
-     (tmpl->ops->nvmin       == NULL))
+     (tmpl->ops->nvwrmsnorm  == NULL))
     return(SUNFALSE);
   else
     return(SUNTRUE);
@@ -1708,6 +1712,14 @@ static int cvInitialSetup(CVodeMem cv_mem)
     return(CV_ILL_INPUT);
   }
 
+  /* If using a built-in routine for error weights with abstol==0,
+     ensure that N_VMin is available */
+  if ((!cv_mem->cv_user_efun) && (cv_mem->cv_atolmin0) && (!cv_mem->cv_tempv->ops->nvmin)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup",
+                   "Missing N_VMin routine from N_Vector");
+    return(CV_ILL_INPUT);
+  }
+
   /* Set data for efun */
   if (cv_mem->cv_user_efun) cv_mem->cv_e_data = cv_mem->cv_user_data;
   else                      cv_mem->cv_e_data = cv_mem;
@@ -1862,10 +1874,10 @@ static int cvHin(CVodeMem cv_mem, realtype tout)
 
     /* Propose new step size */
     hnew = (yddnrm*hub*hub > TWO) ? SUNRsqrt(TWO/yddnrm) : SUNRsqrt(hg*hub);
-    
+
     /* If last pass, stop now with hnew */
     if (count1 == MAX_ITERS) break;
-    
+
     hrat = hnew/hg;
 
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */
@@ -2561,28 +2573,35 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   }
 
   /* initial guess for the correction to the predictor */
-  N_VConst(ZERO, cv_mem->cv_tempv);
+  N_VConst(ZERO, cv_mem->cv_acor);
 
   /* call nonlinear solver setup if it exists */
   if ((cv_mem->NLS)->ops->setup) {
-    flag = SUNNonlinSolSetup(cv_mem->NLS, cv_mem->cv_tempv, cv_mem);
+    flag = SUNNonlinSolSetup(cv_mem->NLS, cv_mem->cv_acor, cv_mem);
     if (flag < 0) return(CV_NLS_SETUP_FAIL);
     if (flag > 0) return(SUN_NLS_CONV_RECVR);
   }
 
   /* solve the nonlinear system */
-  flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_tempv, cv_mem->cv_acor,
+  flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                            cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
-
-  /* update the state based on the final correction from the nonlinear solver */
-  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
 
   /* if the solve failed return */
   if (flag != CV_SUCCESS) return(flag);
 
-  /* solve successful, update Jacobian status and check constraints */
+  /* solve successful */
+
+  /* update the state based on the final correction from the nonlinear solver */
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
+
+  /* compute acnrm if is was not already done by the nonlinear solver */
+  if (!cv_mem->cv_acnrmcur)
+    cv_mem->cv_acnrm = N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
+
+  /* update Jacobian status */
   cv_mem->cv_jcur = SUNFALSE;
 
+  /* check inequality constraints */
   if (cv_mem->cv_constraintsSet)
     flag = cvCheckConstraints(cv_mem);
 
@@ -2597,53 +2616,56 @@ static int cvNls(CVodeMem cv_mem, int nflag)
  *
  * Possible return values are:
  *
- *   CV_SUCCESS    ---> allows stepping forward
+ *   CV_SUCCESS     ---> allows stepping forward
  *
- *   CONSTR_RECVR  ---> values failed to satisfy constraints
+ *   CONSTR_RECVR   ---> values failed to satisfy constraints
+ *
+ *   CV_CONSTR_FAIL ---> values failed to satisfy constraints with hmin
  */
 
 static int cvCheckConstraints(CVodeMem cv_mem)
 {
   booleantype constraintsPassed;
   realtype vnorm;
-  cv_mem->cv_mm = cv_mem->cv_ftemp;
+  N_Vector mm  = cv_mem->cv_ftemp;
+  N_Vector tmp = cv_mem->cv_tempv;
 
   /* Get mask vector mm, set where constraints failed */
-
-  constraintsPassed = N_VConstrMask(cv_mem->cv_constraints,
-                                    cv_mem->cv_y, cv_mem->cv_mm);
+  constraintsPassed = N_VConstrMask(cv_mem->cv_constraints, cv_mem->cv_y, mm);
   if (constraintsPassed) return(CV_SUCCESS);
-  else {
-    N_VCompare(ONEPT5, cv_mem->cv_constraints, cv_mem->cv_tempv);
-    /* a, where a[i]=1 when |c[i]|=2; c the vector of constraints */
-    N_VProd(cv_mem->cv_tempv, cv_mem->cv_constraints,
-            cv_mem->cv_tempv);                        /* a * c */
-    N_VDiv(cv_mem->cv_tempv, cv_mem->cv_ewt,
-           cv_mem->cv_tempv);                         /* a * c * wt */
-    N_VLinearSum(ONE, cv_mem->cv_y, -PT1,
-                 cv_mem->cv_tempv, cv_mem->cv_tempv); /* y - 0.1 * a * c * wt */
-    N_VProd(cv_mem->cv_tempv, cv_mem->cv_mm,
-            cv_mem->cv_tempv);                        /* v = mm*(y-0.1*a*c*wt) */
 
-    vnorm = N_VWrmsNorm(cv_mem->cv_tempv, cv_mem->cv_ewt); /*  ||v||  */
+  /* Constraints not met */
 
-    /* If vector v of constraint corrections is small in
-       norm, correct and accept this step */
-    if (vnorm <= cv_mem->cv_tq[4]) {
-      N_VLinearSum(ONE, cv_mem->cv_acor, -ONE,
-                   cv_mem->cv_tempv, cv_mem->cv_acor);    /* acor <- acor - v */
-      return(CV_SUCCESS);
-    }
-    else {
-      /* Constraints not met - reduce h by computing eta = h'/h */
-      N_VLinearSum(ONE, cv_mem->cv_zn[0], -ONE, cv_mem->cv_y, cv_mem->cv_tempv);
-      N_VProd(cv_mem->cv_mm, cv_mem->cv_tempv, cv_mem->cv_tempv);
-      cv_mem->cv_eta = PT9*N_VMinQuotient(cv_mem->cv_zn[0], cv_mem->cv_tempv);
-      cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta, PT1);
-      return(CONSTR_RECVR);
-    }
+  /* Compute correction to satisfy constraints */
+  N_VCompare(ONEPT5, cv_mem->cv_constraints, tmp); /* a[i]=1 when |c[i]|=2  */
+  N_VProd(tmp, cv_mem->cv_constraints, tmp);       /* a * c                 */
+  N_VDiv(tmp, cv_mem->cv_ewt, tmp);                /* a * c * wt            */
+  N_VLinearSum(ONE, cv_mem->cv_y, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt  */
+  N_VProd(tmp, mm, tmp);                           /* v = mm*(y-0.1*a*c*wt) */
+
+  vnorm = N_VWrmsNorm(tmp, cv_mem->cv_ewt);        /* ||v|| */
+
+  /* If vector v of constraint corrections is small in norm, correct and
+     accept this step */
+  if (vnorm <= cv_mem->cv_tq[4]) {
+    N_VLinearSum(ONE, cv_mem->cv_acor,
+                 -ONE, tmp, cv_mem->cv_acor);      /* acor <- acor - v */
+    return(CV_SUCCESS);
   }
-  return(CV_SUCCESS);
+
+  /* Return with error if |h| == hmin */
+  if (SUNRabs(cv_mem->cv_h) <= cv_mem->cv_hmin*ONEPSM) return(CV_CONSTR_FAIL);
+
+  /* Constraint correction is too large, reduce h by computing eta = h'/h */
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], -ONE, cv_mem->cv_y, tmp);
+  N_VProd(mm, tmp, tmp);
+  cv_mem->cv_eta = PT9*N_VMinQuotient(cv_mem->cv_zn[0], tmp);
+  cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta, PT1);
+  cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta,
+                          cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+
+  /* Reattempt step with new step size */
+  return(CONSTR_RECVR);
 }
 
 
@@ -2694,7 +2716,12 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   cvRestore(cv_mem, saved_t);
 
   /* Return if failed unrecoverably */
-  if (nflag < 0) return(nflag);
+  if (nflag < 0) {
+    if (nflag == CV_LSETUP_FAIL)       return(CV_LSETUP_FAIL);
+    else if (nflag == CV_LSOLVE_FAIL)  return(CV_LSOLVE_FAIL);
+    else if (nflag == CV_RHSFUNC_FAIL) return(CV_RHSFUNC_FAIL);
+    else                               return(CV_NLS_FAIL);
+  }
 
   /* At this point, nflag = SUN_NLS_CONV_RECVR or RHSFUNC_RECVR; increment ncf */
 
@@ -3101,8 +3128,15 @@ static int cvHandleFailure(CVodeMem cv_mem, int flag)
     cvProcessError(cv_mem, CV_CONSTR_FAIL, "CVODE", "CVode", MSGCV_FAILED_CONSTR,
                    cv_mem->cv_tn);
     break;
+  case CV_NLS_FAIL:
+    cvProcessError(cv_mem, CV_NLS_FAIL, "CVODE", "CVode",
+                   MSGCV_NLS_FAIL, cv_mem->cv_tn);
+    break;
   default:
-    return(CV_SUCCESS);
+    /* This return should never happen */
+    cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, "CVODE", "CVode",
+                   "CVODE encountered an unrecognized error. Please report this to the Sundials developers at sundials-users@llnl.gov");
+    return (CV_UNRECOGNIZED_ERR);
   }
 
   return(flag);
@@ -3946,7 +3980,7 @@ static int cvRootfind(CVodeMem cv_mem)
  * This routine is responsible for setting the error weight vector ewt,
  * according to tol_type, as follows:
  *
- * (1) ewt[i] = 1 / (reltol * SUNRabs(ycur[i]) + *abstol), i=0,...,neq-1
+ * (1) ewt[i] = 1 / (reltol * SUNRabs(ycur[i]) + abstol), i=0,...,neq-1
  *     if tol_type = CV_SS
  * (2) ewt[i] = 1 / (reltol * SUNRabs(ycur[i]) + abstol[i]), i=0,...,neq-1
  *     if tol_type = CV_SV
@@ -3983,9 +4017,10 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void *data)
  * cvEwtSetSS
  *
  * This routine sets ewt as decribed above in the case tol_type = CV_SS.
- * It tests for non-positive components before inverting. cvEwtSetSS
- * returns 0 if ewt is successfully set to a positive vector
- * and -1 otherwise. In the latter case, ewt is considered undefined.
+ * If the absolute tolerance is zero, it tests for non-positive components
+ * before inverting. cvEwtSetSS returns 0 if ewt is successfully set to a
+ * positive vector and -1 otherwise. In the latter case, ewt is considered
+ * undefined.
  */
 
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
@@ -3993,7 +4028,9 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
   N_VAbs(ycur, cv_mem->cv_tempv);
   N_VScale(cv_mem->cv_reltol, cv_mem->cv_tempv, cv_mem->cv_tempv);
   N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_Sabstol, cv_mem->cv_tempv);
-  if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+  if (cv_mem->cv_atolmin0) {
+    if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+  }
   N_VInv(cv_mem->cv_tempv, weight);
   return(0);
 }
@@ -4002,9 +4039,10 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
  * cvEwtSetSV
  *
  * This routine sets ewt as decribed above in the case tol_type = CV_SV.
- * It tests for non-positive components before inverting. cvEwtSetSV
- * returns 0 if ewt is successfully set to a positive vector
- * and -1 otherwise. In the latter case, ewt is considered undefined.
+ * If any absolute tolerance is zero, it tests for non-positive components
+ * before inverting. cvEwtSetSV returns 0 if ewt is successfully set to a
+ * positive vector and -1 otherwise. In the latter case, ewt is considered
+ * undefined.
  */
 
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
@@ -4012,7 +4050,9 @@ static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
   N_VAbs(ycur, cv_mem->cv_tempv);
   N_VLinearSum(cv_mem->cv_reltol, cv_mem->cv_tempv, ONE,
                cv_mem->cv_Vabstol, cv_mem->cv_tempv);
-  if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+  if (cv_mem->cv_atolmin0) {
+    if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+  }
   N_VInv(cv_mem->cv_tempv, weight);
   return(0);
 }

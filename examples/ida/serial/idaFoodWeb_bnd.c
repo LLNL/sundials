@@ -360,7 +360,7 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
 
 static void InitUserData(UserData webdata)
 {
-  int i, j, np;
+  sunindextype i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   webdata->mx = MX;

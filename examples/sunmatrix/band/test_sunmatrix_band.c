@@ -1,5 +1,5 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner @ LLNL
  * -----------------------------------------------------------------
@@ -13,8 +13,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the SUNMatrix Band module 
- * implementation. 
+ * This is the testing routine to check the SUNMatrix Band module
+ * implementation.
  * -----------------------------------------------------------------
  */
 
@@ -27,11 +27,20 @@
 #include <sundials/sundials_math.h>
 #include "test_sunmatrix.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 /* ----------------------------------------------------------------------
  * Main SUNMatrix Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   int          fails = 0;            /* counter for test failures  */
   sunindextype cols, uband, lband;   /* matrix columns, bandwidths */
@@ -47,22 +56,22 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  cols = atol(argv[1]); 
+  cols = (sunindextype) atol(argv[1]);
   if (cols <= 0) {
     printf("ERROR: number of matrix columns must be a positive integer \n");
-    return(-1); 
+    return(-1);
   }
 
-  uband = atol(argv[2]); 
+  uband = (sunindextype) atol(argv[2]);
   if ((uband <= 0) || (uband >= cols)){
     printf("ERROR: matrix upper bandwidth must be a positive integer, less than number of columns \n");
-    return(-1); 
+    return(-1);
   }
 
-  lband = atol(argv[3]); 
+  lband = (sunindextype) atol(argv[3]);
   if ((lband <= 0) || (lband >= cols)){
     printf("ERROR: matrix lower bandwidth must be a positive integer, less than number of columns \n");
-    return(-1); 
+    return(-1);
   }
 
   print_timing = atoi(argv[4]);
@@ -76,7 +85,7 @@ int main(int argc, char *argv[])
   y = NULL;
   A = NULL;
   I = NULL;
-  
+
   /* Create matrices and vectors */
   A = SUNBandMatrix(cols, uband, lband);
   I = SUNBandMatrix(cols, 0, 0);
@@ -87,7 +96,7 @@ int main(int argc, char *argv[])
   xdata = N_VGetArrayPointer(x);
   ydata = N_VGetArrayPointer(y);
   for (j=0; j<cols; j++) {
-    
+
     /* identity matrix */
     colj = SUNBandMatrix_Column(I, j);
     colj[0] = RCONST(1.0);
@@ -168,7 +177,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
     return 1;
   if (SUNBandMatrix_UpperBandwidth(A) != SUNBandMatrix_UpperBandwidth(B))
     return 1;
-  
+
   /* check matrix data */
   for (j=0; j<SUNBandMatrix_Columns(A); j++) {
 
@@ -191,7 +200,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
     SUNBandMatrix_Print(B, stdout);
   }
 
-    
+
   if (failure > ZERO)
     return(1);
   else
@@ -217,7 +226,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     for (i=istart; i<=iend; i++) {
       if (FNEQ(Acolj[i], val, tol)) {
         failure++;
-        printf("j = %li, Acolj[%li] = %g, val = %g\n",
+        printf("j = %li, Acolj[%li] = %"GSYM", val = %"GSYM"\n",
                (long int) j, (long int) i, Acolj[i], val);
       }
     }
@@ -234,7 +243,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   int failure = 0;
   sunindextype i, local_length;
   realtype *Xdata, *Ydata;
-  
+
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);
   local_length = N_VGetLength_Serial(X);
@@ -243,7 +252,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   for(i=0; i < local_length; i++) {
     failure += FNEQ(Xdata[i], Ydata[i], tol);
   }
-  
+
   if (failure > ZERO)
     return(1);
   else
@@ -263,4 +272,3 @@ booleantype is_square(SUNMatrix A)
 {
   return SUNTRUE;
 }
-

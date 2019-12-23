@@ -14,6 +14,10 @@
 # examples/sunnonlinsol level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# Always add the Newton examples
+# Always add the Newton and fixed point examples
 add_subdirectory(newton)
 add_subdirectory(fixedpoint)
+
+if(PETSC_ENABLE AND PETSC_FOUND)
+    add_subdirectory(petsc)
+endif()

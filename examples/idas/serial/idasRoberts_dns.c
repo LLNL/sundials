@@ -42,6 +42,16 @@
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
 #include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* Problem Constants */
 
 #define NEQ   3
@@ -461,7 +471,7 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol)
   passfail = (err < ONE) ? 0 : 1; 
 
   if (passfail) {
-    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);
   }
 
   /* Free vectors */

@@ -43,7 +43,7 @@
   change problem-defining function pointers fe and fi or
   user_data pointer.  Also leaves alone any data
   structures/options related to root-finding (those can be reset
-  using ARKodeRootInit).
+  using ARKodeRootInit) or post-processing a step (ProcessStep).
   ---------------------------------------------------------------*/
 int arkSetDefaults(ARKodeMem ark_mem)
 {
@@ -60,13 +60,15 @@ int arkSetDefaults(ARKodeMem ark_mem)
   ark_mem->itol             = ARK_SS;         /* scalar-scalar solution tolerances */
   ark_mem->ritol            = ARK_SS;         /* scalar-scalar residual tolerances */
   ark_mem->Sabstol          = 1.e-9;          /* solution absolute tolerance */
+  ark_mem->atolmin0         = SUNFALSE;       /* min(abstol) > 0 */
   ark_mem->SRabstol         = 1.e-9;          /* residual absolute tolerance */
+  ark_mem->Ratolmin0        = SUNFALSE;       /* min(Rabstol) > 0 */
   ark_mem->user_efun        = SUNFALSE;       /* no user-supplied ewt function */
-  ark_mem->efun             = arkEwtSet;      /* built-in ewt function */
-  ark_mem->e_data           = NULL;           /* ewt function data */
+  ark_mem->efun             = arkEwtSetSS;    /* built-in scalar-scalar ewt function */
+  ark_mem->e_data           = ark_mem;        /* ewt function data */
   ark_mem->user_rfun        = SUNFALSE;       /* no user-supplied rwt function */
   ark_mem->rfun             = arkRwtSet;      /* built-in rwt function */
-  ark_mem->r_data           = NULL;           /* rwt function data */
+  ark_mem->r_data           = ark_mem;        /* rwt function data */
   ark_mem->ehfun            = arkErrHandler;  /* default error handler fn */
   ark_mem->eh_data          = ark_mem;        /* error handler data */
   ark_mem->errfp            = stderr;         /* output stream for errors */
@@ -79,6 +81,7 @@ int arkSetDefaults(ARKodeMem ark_mem)
   ark_mem->tstop            = ZERO;           /* no fixed stop time */
   ark_mem->diagfp           = NULL;           /* no solver diagnostics file */
   ark_mem->report           = SUNFALSE;       /* don't report solver diagnostics */
+  ark_mem->maxconstrfails   = MAXCONSTRFAILS; /* max number of constraint fails */
   return(ARK_SUCCESS);
 }
 
@@ -166,6 +169,23 @@ int arkSetUserData(ARKodeMem ark_mem, void *user_data)
     return(ARK_MEM_NULL);
   }
   ark_mem->user_data = user_data;
+
+  /* Set data for efun */
+  if (ark_mem->user_efun)
+    ark_mem->e_data = user_data;
+
+  /* Set data for rfun */
+  if (ark_mem->user_rfun)
+    ark_mem->r_data = user_data;
+
+  /* Set data for root finding */
+  if (ark_mem->root_mem != NULL)
+    ark_mem->root_mem->root_data = user_data;
+
+  /* Set data for post-processing a step */
+  if (ark_mem->ProcessStep != NULL)
+    ark_mem->ps_data = user_data;
+
   return(ARK_SUCCESS);
 }
 
@@ -486,6 +506,88 @@ int arkSetPostprocessStepFn(ARKodeMem ark_mem,
 
   /* NULL argument sets default, otherwise set inputs */
   ark_mem->ProcessStep = ProcessStep;
+  ark_mem->ps_data     = ark_mem->user_data;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkSetConstraints:
+
+  Actuvates or Deactivates inequality constraint checking.
+  ---------------------------------------------------------------*/
+int arkSetConstraints(ARKodeMem ark_mem, N_Vector constraints)
+{
+  realtype temptest;
+
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkSetConstraints", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+
+  /* If there are no constarints, destroy data structures */
+  if (constraints == NULL) {
+    if (ark_mem->ConstraintsMallocDone) {
+      N_VDestroy(ark_mem->constraints);
+      ark_mem->lrw -= ark_mem->lrw1;
+      ark_mem->liw -= ark_mem->liw1;
+    }
+    ark_mem->ConstraintsMallocDone = SUNFALSE;
+    ark_mem->constraintsSet = SUNFALSE;
+    return(ARK_SUCCESS);
+  }
+
+  /* Test if required vector ops. are defined */
+  if (constraints->ops->nvdiv         == NULL ||
+      constraints->ops->nvmaxnorm     == NULL ||
+      constraints->ops->nvcompare     == NULL ||
+      constraints->ops->nvconstrmask  == NULL ||
+      constraints->ops->nvminquotient == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetConstraints", MSG_ARK_BAD_NVECTOR);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* Check the constraints vector */
+  temptest = N_VMaxNorm(constraints);
+  if ((temptest > TWOPT5) || (temptest < HALF)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetConstraints", MSG_ARK_BAD_CONSTR);
+    return(ARK_ILL_INPUT);
+  }
+
+  if ( !(ark_mem->ConstraintsMallocDone) ) {
+    ark_mem->constraints = N_VClone(constraints);
+    ark_mem->lrw += ark_mem->lrw1;
+    ark_mem->liw += ark_mem->liw1;
+    ark_mem->ConstraintsMallocDone = SUNTRUE;
+  }
+
+  /* Load the constraints vector */
+  N_VScale(ONE, constraints, ark_mem->constraints);
+
+  ark_mem->constraintsSet = SUNTRUE;
+
+  return(ARK_SUCCESS);
+}
+
+
+int arkSetMaxNumConstrFails(ARKodeMem ark_mem, int maxfails)
+{
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkSetMaxNumConstrFails", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+
+  /* Passing maxfails = 0 sets the default, otherwise set to input */
+  if (maxfails <= 0)
+    ark_mem->maxconstrfails = MAXCONSTRFAILS;
+  else
+    ark_mem->maxconstrfails = maxfails;
+
   return(ARK_SUCCESS);
 }
 
@@ -725,12 +827,29 @@ int arkGetStepStats(ARKodeMem ark_mem, long int *nsteps,
 }
 
 
+/*---------------------------------------------------------------
+  arkGetNumConstrFails:
+
+  Returns the current number of constraint fails
+  ---------------------------------------------------------------*/
+int arkGetNumConstrFails(ARKodeMem ark_mem, long int *nconstrfails)
+{
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkGetNumSteps", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  *nconstrfails = ark_mem->nconstrfails;
+  return(ARK_SUCCESS);
+}
+
+
 /*-----------------------------------------------------------------*/
 
 char *arkGetReturnFlagName(long int flag)
 {
   char *name;
-  name = (char *)malloc(24*sizeof(char));
+  name = (char *)malloc(25*sizeof(char));
 
   switch(flag) {
   case ARK_SUCCESS:
@@ -834,6 +953,9 @@ char *arkGetReturnFlagName(long int flag)
     break;
   case ARK_NLS_OP_ERR:
     sprintf(name,"ARK_NLS_OP_ERR");
+    break;
+  case ARK_INNERSTEP_ATTACH_ERR:
+    sprintf(name,"ARK_INNERSTEP_ATTACH_ERR");
     break;
   case ARK_INNERSTEP_FAIL:
     sprintf(name,"ARK_INNERSTEP_FAIL");

@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  length = atol(argv[1]);
+  length = (sunindextype) atol(argv[1]);
   if (length <= 0) {
     printf("ERROR: length of vector must be a positive integer \n");
-    return(-1); 
+    return(-1);
   }
 
   print_timing = atoi(argv[2]);
@@ -69,6 +69,12 @@ int main(int argc, char *argv[])
 
   /* Check vector ID */
   fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_SERIAL, 0);
+
+  /* Check vector length */
+  fails += Test_N_VGetLength(X, 0);
+
+  /* Check vector communicator */
+  fails += Test_N_VGetCommunicator(X, NULL, 0);
 
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, 0);
@@ -109,13 +115,13 @@ int main(int argc, char *argv[])
   fails += Test_N_VAbs(X, Z, length, 0);
   fails += Test_N_VInv(X, Z, length, 0);
   fails += Test_N_VAddConst(X, Z, length, 0);
-  fails += Test_N_VDotProd(X, Y, length, length, 0);
+  fails += Test_N_VDotProd(X, Y, length, 0);
   fails += Test_N_VMaxNorm(X, length, 0);
   fails += Test_N_VWrmsNorm(X, Y, length, 0);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, length, length, 0);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, length, 0);
   fails += Test_N_VMin(X, length, 0);
-  fails += Test_N_VWL2Norm(X, Y, length, length, 0);
-  fails += Test_N_VL1Norm(X, length, length, 0);
+  fails += Test_N_VWL2Norm(X, Y, length, 0);
+  fails += Test_N_VL1Norm(X, length, 0);
   fails += Test_N_VCompare(X, Z, length, 0);
   fails += Test_N_VInvTest(X, Z, length, 0);
   fails += Test_N_VConstrMask(X, Y, Z, length, 0);
@@ -139,14 +145,14 @@ int main(int argc, char *argv[])
   /* fused operations */
   fails += Test_N_VLinearCombination(U, length, 0);
   fails += Test_N_VScaleAddMulti(U, length, 0);
-  fails += Test_N_VDotProdMulti(U, length, length, 0);
+  fails += Test_N_VDotProdMulti(U, length, 0);
 
   /* vector array operations */
   fails += Test_N_VLinearSumVectorArray(U, length, 0);
   fails += Test_N_VScaleVectorArray(U, length, 0);
   fails += Test_N_VConstVectorArray(U, length, 0);
   fails += Test_N_VWrmsNormVectorArray(U, length, 0);
-  fails += Test_N_VWrmsNormMaskVectorArray(U, length, length, 0);
+  fails += Test_N_VWrmsNormMaskVectorArray(U, length, 0);
   fails += Test_N_VScaleAddMultiVectorArray(U, length, 0);
   fails += Test_N_VLinearCombinationVectorArray(U, length, 0);
 
@@ -169,16 +175,29 @@ int main(int argc, char *argv[])
   /* fused operations */
   fails += Test_N_VLinearCombination(V, length, 0);
   fails += Test_N_VScaleAddMulti(V, length, 0);
-  fails += Test_N_VDotProdMulti(V, length, length, 0);
+  fails += Test_N_VDotProdMulti(V, length, 0);
 
   /* vector array operations */
   fails += Test_N_VLinearSumVectorArray(V, length, 0);
   fails += Test_N_VScaleVectorArray(V, length, 0);
   fails += Test_N_VConstVectorArray(V, length, 0);
   fails += Test_N_VWrmsNormVectorArray(V, length, 0);
-  fails += Test_N_VWrmsNormMaskVectorArray(V, length, length, 0);
+  fails += Test_N_VWrmsNormMaskVectorArray(V, length, 0);
   fails += Test_N_VScaleAddMultiVectorArray(V, length, 0);
   fails += Test_N_VLinearCombinationVectorArray(V, length, 0);
+
+  /* local reduction operations */
+  printf("\nTesting local reduction operations:\n\n");
+
+  fails += Test_N_VDotProdLocal(X, Y, length, 0);
+  fails += Test_N_VMaxNormLocal(X, length, 0);
+  fails += Test_N_VMinLocal(X, length, 0);
+  fails += Test_N_VL1NormLocal(X, length, 0);
+  fails += Test_N_VWSqrSumLocal(X, Y, length, 0);
+  fails += Test_N_VWSqrSumMaskLocal(X, Y, Z, length, 0);
+  fails += Test_N_VInvTestLocal(X, Z, length, 0);
+  fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
+  fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
   /* Free vectors */
   N_VDestroy(W);
@@ -226,7 +245,17 @@ booleantype has_data(N_Vector X)
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
   /* set i-th element of data array */
-  NV_Ith_S(X,i) = val;
+  set_element_range(X, i, i, val);
+}
+
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
+                       realtype val)
+{
+  sunindextype i;
+
+  /* set elements [is,ie] of the data array */
+  realtype* xd = N_VGetArrayPointer(X);
+  for(i = is; i <= ie; i++) xd[i] = val;
 }
 
 realtype get_element(N_Vector X, sunindextype i)

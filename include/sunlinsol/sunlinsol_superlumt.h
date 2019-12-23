@@ -14,21 +14,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the SuperLUMT implementation of the 
- * SUNLINSOL module.
- * 
- * Part I contains declarations specific to the SuperLUMT 
- * implementation of the supplied SUNLINSOL module.
- * 
- * Part II contains the prototype for the constructor 
- * SUNSuperLUMT as well as implementation-specific prototypes 
- * for various useful solver operations.
+ * This is the header file for the SuperLUMT implementation of the
+ * SUNLINSOL module, SUNLINSOL_SUPERLUMT.
  *
- * Notes:
- *
- *   - The definition of the generic SUNLinearSolver structure can 
+ * Note:
+ *   - The definition of the generic SUNLinearSolver structure can
  *     be found in the header file sundials_linearsolver.h.
- *
  * -----------------------------------------------------------------
  */
 
@@ -40,7 +31,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
-/* assume SuperLU_MT library was built with compatible index type */  
+/* Assume SuperLU_MT library was built with compatible index type */
 #if defined(SUNDIALS_INT64_T)
 #define _LONGINT
 #endif
@@ -77,68 +68,30 @@ extern "C" {
 #error  Incompatible realtype for SuperLUMT
 #endif
 
-  
-/*
- * -----------------------------------------------------------------
- * PART I: SuperLUMT implementation of SUNLinearSolver
- *
- * The SuperLUMT implementation of the SUNLinearSolver 'content' 
- * structure contains:
- *     last_flag -- last error return flag from internal setup/solve
- *     first_factorize -- flag indicating whether the factorization 
- *       has ever been performed
- *     A, AC, L, U, B -- SuperMatrix pointers used in solve
- *     Gstat -- GStat_t object used in solve
- *     perm_r, perm_c -- permutation arrays used in solve
- *     N -- size of the linear system
- *     num_threads -- number of OpenMP/Pthreads threads to use
- *     diag_pivot_thresh -- threshold on diagonal pivoting
- *     ordering -- flag for reordering algorithm to use
- *     options -- pointer to SuperLUMT options structure
- * -----------------------------------------------------------------
- */
-  
+
+/* --------------------------------------------
+ * SuperLUMT Implementation of SUNLinearSolver
+ * -------------------------------------------- */
+
 struct _SUNLinearSolverContent_SuperLUMT {
-  long int     last_flag;
+  int          last_flag;
   int          first_factorize;
   SuperMatrix  *A, *AC, *L, *U, *B;
   Gstat_t      *Gstat;
   sunindextype *perm_r, *perm_c;
   sunindextype N;
   int          num_threads;
-  realtype     diag_pivot_thresh; 
+  realtype     diag_pivot_thresh;
   int          ordering;
   superlumt_options_t *options;
 };
 
 typedef struct _SUNLinearSolverContent_SuperLUMT *SUNLinearSolverContent_SuperLUMT;
 
-  
-/*
- * -----------------------------------------------------------------
- * PART II: functions exported by sunlinsol_slumt
- * 
- * CONSTRUCTOR:
- *    SUNLinSol_SuperLUMT creates and allocates memory for a 
- *      SuperLUMT sparse-direct linear solver
- *
- *    SUNSuperLUMT (deprecated) wrapper for SUNLinSol_SuperLUMT
- *
- * OTHER:
- *    SUNLinSol_SuperLUMTSetOrdering sets the ordering used by 
- *      SuperLUMT for reducing fill in the linear solve.  Options 
- *      for ordering_choice are: 
- *         0 for natural ordering
- *         1 for minimal degree ordering on A'*A
- *         2 for minimal degree ordering on A'+A
- *         3 for AMD ordering for unsymmetric matrices
- *      The default used in SUNDIALS is 3 for COLAMD.
- * 
- *    SUNSuperLUMTSetOrdering (deprecated) wrapper for 
- *      SUNLinSol_SuperLUMTSetOrdering
- *
- * -----------------------------------------------------------------
- */
+
+/* -------------------------------------------
+ * Exported Functions for SUNLINSOL_SUPERLUMT
+ * ------------------------------------------- */
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y,
                                                     SUNMatrix A,
@@ -152,24 +105,19 @@ SUNDIALS_EXPORT SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A,
 /* deprecated */
 SUNDIALS_EXPORT int SUNSuperLUMTSetOrdering(SUNLinearSolver S,
                                             int ordering_choice);
-  
-/*
- * -----------------------------------------------------------------
- * SuperLUMT implementations of various useful linear solver operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A,
                                        N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT long int SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S, 
-                                             long int *lenrwLS, 
+SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S,
+                                             long int *lenrwLS,
                                              long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SuperLUMT(SUNLinearSolver S);
-  
+
 
 #ifdef __cplusplus
 }

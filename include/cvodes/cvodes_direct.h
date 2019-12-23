@@ -1,4 +1,4 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * Header file for the deprecated direct linear solver interface in 
+ * Header file for the deprecated direct linear solver interface in
  * CVODES; these routines now just wrap the updated CVODE generic
  * linear solver interface in cvodes_ls.h.
  * -----------------------------------------------------------------*/
@@ -25,17 +25,18 @@
 extern "C" {
 #endif
 
+
 /*=================================================================
   Function Types (typedefs for equivalent types in cvodes_ls.h)
   =================================================================*/
+
 typedef CVLsJacFn CVDlsJacFn;
 typedef CVLsJacFnB CVDlsJacFnB;
 typedef CVLsJacFnBS CVDlsJacFnBS;
-  
 
-/*=================================================================
+/*====================================================================
   Exported Functions (wrappers for equivalent routines in cvodes_ls.h)
-  =================================================================*/
+  ====================================================================*/
 
 int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
                          SUNMatrix A);
@@ -59,6 +60,7 @@ int CVDlsSetLinearSolverB(void *cvode_mem, int which,
 int CVDlsSetJacFnB(void *cvode_mem, int which, CVDlsJacFnB jacB);
 
 int CVDlsSetJacFnBS(void *cvode_mem, int which, CVDlsJacFnBS jacBS);
+
 
 #ifdef __cplusplus
 }

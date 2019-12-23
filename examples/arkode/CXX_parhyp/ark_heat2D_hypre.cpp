@@ -4,13 +4,13 @@
  LLNS/SMU Copyright Start
  Copyright (c) 2018, Southern Methodist University and
  Lawrence Livermore National Security
- 
+
  This work was performed under the auspices of the U.S. Department
  of Energy by Southern Methodist University and Lawrence Livermore
  National Laboratory under Contract DE-AC52-07NA27344.
  Produced at Southern Methodist University and the Lawrence
  Livermore National Laboratory.
- 
+
  All rights reserved.
  For details, see the LICENSE file.
  LLNS/SMU Copyright End
@@ -54,7 +54,7 @@
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <arkode/arkode_arkstep.h>           // prototypes for ARKStep fcts., consts.
 #include "nvector/nvector_parallel.h"        // parallel N_Vector types, fcts., macros
 #include <sundials/sundials_linearsolver.h>  // definition of generic SUNLinearSolver object
@@ -169,7 +169,7 @@ typedef struct _HyprePcgPfmgContent {
   realtype           resnorm;
   int                PCGits;
   int                PFMGits;
-  long int           last_flag;
+  int                last_flag;
 } *HyprePcgPfmgContent;
 
 #define HPP_CONTENT(S)  ( (HyprePcgPfmgContent)(S->content) )
@@ -188,11 +188,11 @@ SUNLinearSolver HyprePcgPfmg(SUNMatrix A, int PCGmaxit, int PFMGmaxit,
 SUNLinearSolver_Type HyprePcgPfmg_GetType(SUNLinearSolver S);
 int HyprePcgPfmg_Initialize(SUNLinearSolver S);
 int HyprePcgPfmg_Setup(SUNLinearSolver S, SUNMatrix A);
-int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A, 
+int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A,
                        N_Vector x, N_Vector b, realtype tol);
 int HyprePcgPfmg_NumIters(SUNLinearSolver S);
 realtype HyprePcgPfmg_ResNorm(SUNLinearSolver S);
-long int HyprePcgPfmg_LastFlag(SUNLinearSolver S);
+sunindextype HyprePcgPfmg_LastFlag(SUNLinearSolver S);
 int HyprePcgPfmg_Free(SUNLinearSolver S);
 
 
@@ -282,11 +282,6 @@ int main(int argc, char* argv[]) {
     cout << "   nxl (proc 0) = " << udata->nxl << "\n";
     cout << "   nyl (proc 0) = " << udata->nyl << "\n\n";
   }
-
-  // open solver diagnostics output file for writing
-  FILE *DFID;
-  if (outproc)
-    DFID=fopen("diags_ark_heat2D_hypre.txt","w");
 
   // Initialize data structures
   N = (udata->nxl)*(udata->nyl);
@@ -513,7 +508,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
                          + c2*(udata->Srecv[i]   + Y[IDX(i,j+1,nxl)])
                          + c3*Y[IDX(i,j,nxl)];
   }
-  if (!udata->HaveBdry[1][1]) {    // West face
+  if (!udata->HaveBdry[1][1]) {    // North face
     j=nyl-1;
     for (i=1; i<nxl-1; i++)
       Ydot[IDX(i,j,nxl)] = c1*(Y[IDX(i-1,j,nxl)] + Y[IDX(i+1,j,nxl)])
@@ -575,11 +570,15 @@ static int J(realtype t, N_Vector y, N_Vector ydot, SUNMatrix Jac,
   HYPRE_Int    ix, iy, is, ie, js, je, index[2];
   int          ierr;
 
+  // zero-out the Jacobian
+  ierr = Hypre5ptMatrix_Zero(Jac);
+  if (ierr != 0) return(-1);
+
   // iterate over subdomain interior setting stencil entries
-  is = (udata->HaveBdry[0][0]) ? 1 : 0;
-  ie = (udata->HaveBdry[0][1]) ? nxl-1 : nxl;
-  js = (udata->HaveBdry[1][0]) ? 1 : 0;
-  je = (udata->HaveBdry[1][1]) ? nyl-1 : nyl;
+  is = (udata->HaveBdry[0][0]) ? 1 : 0;       // West face
+  ie = (udata->HaveBdry[0][1]) ? nxl-1 : nxl; // East face
+  js = (udata->HaveBdry[1][0]) ? 1 : 0;       // South face
+  je = (udata->HaveBdry[1][1]) ? nyl-1 : nyl; // North face
   for (iy=js; iy<je; iy++) {
     index[1] = H5PM_ILOWER(Jac)[1] + iy;
     for (ix=is; ix<ie; ix++) {
@@ -725,15 +724,6 @@ static int Exchange(N_Vector y, UserData *udata)
   realtype *Y = N_VGetArrayPointer(y);
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return -1;
 
-  // MPI equivalent of realtype type
-  #if defined(SUNDIALS_SINGLE_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_FLOAT
-  #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_DOUBLE
-  #elif defined(SUNDIALS_EXTENDED_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_LONG_DOUBLE
-  #endif
-
   // MPI neighborhood information
   ierr = MPI_Cart_get(udata->comm, 2, dims, periods, coords);
   if (ierr != MPI_SUCCESS) {
@@ -779,7 +769,7 @@ static int Exchange(N_Vector y, UserData *udata)
 
   // open Irecv buffers
   if (!udata->HaveBdry[0][0]) {
-    ierr = MPI_Irecv(udata->Wrecv, udata->nyl, REALTYPE_MPI_TYPE, ipW,
+    ierr = MPI_Irecv(udata->Wrecv, udata->nyl, MPI_SUNREALTYPE, ipW,
                    MPI_ANY_TAG, udata->comm, &reqRW);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Irecv = " << ierr << "\n";
@@ -787,7 +777,7 @@ static int Exchange(N_Vector y, UserData *udata)
     }
   }
   if (!udata->HaveBdry[0][1]) {
-    ierr = MPI_Irecv(udata->Erecv, udata->nyl, REALTYPE_MPI_TYPE, ipE,
+    ierr = MPI_Irecv(udata->Erecv, udata->nyl, MPI_SUNREALTYPE, ipE,
                    MPI_ANY_TAG, udata->comm, &reqRE);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Irecv = " << ierr << "\n";
@@ -795,7 +785,7 @@ static int Exchange(N_Vector y, UserData *udata)
     }
   }
   if (!udata->HaveBdry[1][0]) {
-    ierr = MPI_Irecv(udata->Srecv, udata->nxl, REALTYPE_MPI_TYPE, ipS,
+    ierr = MPI_Irecv(udata->Srecv, udata->nxl, MPI_SUNREALTYPE, ipS,
                    MPI_ANY_TAG, udata->comm, &reqRS);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Irecv = " << ierr << "\n";
@@ -803,7 +793,7 @@ static int Exchange(N_Vector y, UserData *udata)
     }
   }
   if (!udata->HaveBdry[1][1]) {
-    ierr = MPI_Irecv(udata->Nrecv, udata->nxl, REALTYPE_MPI_TYPE, ipN,
+    ierr = MPI_Irecv(udata->Nrecv, udata->nxl, MPI_SUNREALTYPE, ipN,
                    MPI_ANY_TAG, udata->comm, &reqRN);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Irecv = " << ierr << "\n";
@@ -814,7 +804,7 @@ static int Exchange(N_Vector y, UserData *udata)
   // send data
   if (!udata->HaveBdry[0][0]) {
     for (i=0; i<nyl; i++)  udata->Wsend[i] = Y[IDX(0,i,nxl)];
-    ierr = MPI_Isend(udata->Wsend, udata->nyl, REALTYPE_MPI_TYPE, ipW, 0,
+    ierr = MPI_Isend(udata->Wsend, udata->nyl, MPI_SUNREALTYPE, ipW, 0,
               udata->comm, &reqSW);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Isend = " << ierr << "\n";
@@ -823,7 +813,7 @@ static int Exchange(N_Vector y, UserData *udata)
   }
   if (!udata->HaveBdry[0][1]) {
     for (i=0; i<nyl; i++)  udata->Esend[i] = Y[IDX(nxl-1,i,nxl)];
-    ierr = MPI_Isend(udata->Esend, udata->nyl, REALTYPE_MPI_TYPE, ipE, 1,
+    ierr = MPI_Isend(udata->Esend, udata->nyl, MPI_SUNREALTYPE, ipE, 1,
               udata->comm, &reqSE);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Isend = " << ierr << "\n";
@@ -832,7 +822,7 @@ static int Exchange(N_Vector y, UserData *udata)
   }
   if (!udata->HaveBdry[1][0]) {
     for (i=0; i<nxl; i++)  udata->Ssend[i] = Y[IDX(i,0,nxl)];
-    ierr = MPI_Isend(udata->Ssend, udata->nxl, REALTYPE_MPI_TYPE, ipS, 2,
+    ierr = MPI_Isend(udata->Ssend, udata->nxl, MPI_SUNREALTYPE, ipS, 2,
               udata->comm, &reqSS);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Isend = " << ierr << "\n";
@@ -841,7 +831,7 @@ static int Exchange(N_Vector y, UserData *udata)
   }
   if (!udata->HaveBdry[1][1]) {
     for (i=0; i<nxl; i++)  udata->Nsend[i] = Y[IDX(i,nyl-1,nxl)];
-    ierr = MPI_Isend(udata->Nsend, udata->nxl, REALTYPE_MPI_TYPE, ipN, 3,
+    ierr = MPI_Isend(udata->Nsend, udata->nxl, MPI_SUNREALTYPE, ipN, 3,
               udata->comm, &reqSN);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Isend = " << ierr << "\n";
@@ -958,7 +948,7 @@ static int FreeUserData(UserData *udata)
 //     a(t) = (1 - exp(-(kx+4*ky)*pi^2*t)) / ((kx+4*ky)*pi^2).
 static int AnalyticalSolution(N_Vector ytrue, realtype t, UserData *udata)
 {
-  long int i, j;
+  sunindextype i, j;
   realtype *y, at;
 
   // set time-dependent portion
@@ -972,6 +962,7 @@ static int AnalyticalSolution(N_Vector ytrue, realtype t, UserData *udata)
       y[IDX(i,j,udata->nxl)] = at * sin(PI*(udata->is+i)*udata->dx)
                                   * sin(TWO*PI*(udata->js+j)*udata->dy);
 
+  return 0;
 }
 
 
@@ -1085,7 +1076,7 @@ SUNMatrix_ID Hypre5ptMatrix_GetID(SUNMatrix A) {
 }
 
 SUNMatrix Hypre5ptMatrix_Clone(SUNMatrix A) {
-  SUNMatrix B = Hypre5ptMatrix(H5PM_COMM(A), H5PM_ILOWER(A)[0], H5PM_IUPPER(A)[0], 
+  SUNMatrix B = Hypre5ptMatrix(H5PM_COMM(A), H5PM_ILOWER(A)[0], H5PM_IUPPER(A)[0],
                                H5PM_ILOWER(A)[1], H5PM_IUPPER(A)[1]);
   return(B);
 }
@@ -1120,7 +1111,7 @@ int Hypre5ptMatrix_Zero(SUNMatrix A) {
 }
 
 int Hypre5ptMatrix_Copy(SUNMatrix A, SUNMatrix B) {
-  int ierr, i;
+  int ierr;
   HYPRE_Int entries[5] = {0,1,2,3,4};
 
   // copy values from A into work array
@@ -1357,7 +1348,7 @@ int HyprePcgPfmg_Setup(SUNLinearSolver S, SUNMatrix A) {
 int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A,
                        N_Vector x, N_Vector b, realtype tol) {
   HYPRE_Real finalresid;
-  HYPRE_Int PCGits, PFMGits, converged;
+  HYPRE_Int PCGits, PFMGits;
   int ierr;
 
   // supply the desired [absolute] linear solve tolerance to HYPRE
@@ -1372,7 +1363,7 @@ int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A,
                                         H5PM_IUPPER(A),
                                         N_VGetArrayPointer(b));
   if (ierr != 0)  { HPP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;  return(HPP_LASTFLAG(S)); }
-  ierr = HYPRE_StructVectorAssemble(HPP_X(S));
+  ierr = HYPRE_StructVectorAssemble(HPP_B(S));
   if (ierr != 0)  { HPP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;  return(HPP_LASTFLAG(S)); }
 
   // insert initial guess N_Vector entries into HYPRE vector x and assemble
@@ -1380,7 +1371,7 @@ int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A,
                                         H5PM_IUPPER(A),
                                         N_VGetArrayPointer(x));
   if (ierr != 0)  { HPP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;  return(HPP_LASTFLAG(S)); }
-  ierr = HYPRE_StructVectorAssemble(HPP_B(S));
+  ierr = HYPRE_StructVectorAssemble(HPP_X(S));
   if (ierr != 0)  { HPP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;  return(HPP_LASTFLAG(S)); }
 
   // solve the linear system
@@ -1388,8 +1379,9 @@ int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A,
                               HPP_B(S), HPP_X(S));
   if (ierr == 0) {
     HPP_LASTFLAG(S) = SUNLS_SUCCESS;
-  } else if (ierr == 256) {
+  } else if (ierr == HYPRE_ERROR_CONV) {
     HPP_LASTFLAG(S) = SUNLS_RES_REDUCED;
+    HYPRE_ClearError(HYPRE_ERROR_CONV);
   } else {
     HPP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;  return(HPP_LASTFLAG(S));
   }
@@ -1430,7 +1422,7 @@ realtype HyprePcgPfmg_ResNorm(SUNLinearSolver S) {
 }
 
 
-long int HyprePcgPfmg_LastFlag(SUNLinearSolver S) {
+sunindextype HyprePcgPfmg_LastFlag(SUNLinearSolver S) {
   // return the stored 'last_flag' value
   if (S == NULL) return(-1);
   return (HPP_LASTFLAG(S));

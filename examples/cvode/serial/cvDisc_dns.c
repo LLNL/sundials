@@ -25,6 +25,16 @@
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver          */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype          */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* Problem Constants */
 #define NEQ  1 /* number of equations */
 
@@ -120,12 +130,12 @@ int main()
   flag = RHS1; /* use -y for RHS */
   t = t0; /* set the integrator start time */
 
-  printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+  printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   while (t<t1) {
     /* advance solver just one internal step */
     ret = CVode(cvode_mem, t1, y, &t, CV_ONE_STEP);
     if (check_flag((void *)&ret, "CVode", 1)) return(1);
-    printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+    printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
   /* Get the number of steps the solver took to get to the discont. */
   ret = CVodeGetNumSteps(cvode_mem, &nst1);
@@ -147,13 +157,13 @@ int main()
   flag = RHS1; /* use -y for RHS */
   t = t1; /* set the integrator start time */
 
-  printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+  printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
 
   while (t<t2) {
     /* advance solver just one internal step */
     ret = CVode(cvode_mem, t2, y, &t, CV_ONE_STEP);
     if (check_flag((void *)&ret, "CVode", 1)) return(1);
-    printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+    printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
 
   /* Get the number of steps the solver took after the discont. */
@@ -192,12 +202,12 @@ int main()
   flag = RHS1; /* use -y for RHS */
   t = t0; /* set the integrator start time */
 
-  printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+  printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   while (t<t1) {
     /* advance solver just one internal step */
     ret = CVode(cvode_mem, t1, y, &t, CV_ONE_STEP);
     if (check_flag((void *)&ret, "CVode", 1)) return(1);
-    printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+    printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
 
   /* Get the number of steps the solver took to get to the discont. */
@@ -219,13 +229,13 @@ int main()
   flag = RHS2; /* use -5y for RHS */
   t = t1; /* set the integrator start time */
 
-  printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+  printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
 
   while (t<t2) {
     /* advance solver just one internal step */
     ret = CVode(cvode_mem, t2, y, &t, CV_ONE_STEP);
     if (check_flag((void *)&ret, "CVode", 1)) return(1);
-    printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+    printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
 
   /* Get the number of steps the solver took after the discont. */
@@ -265,12 +275,12 @@ int main()
   flag = RHS1; /* use -y for RHS */
   t = t0; /* set the integrator start time */
 
-  printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+  printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   while (t<t1) {
     /* advance solver just one internal step */
     ret = CVode(cvode_mem, t1, y, &t, CV_ONE_STEP);
     if (check_flag((void *)&ret, "CVode", 1)) return(1);
-    printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+    printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
 
   /* Get the number of steps the solver took to get to the discont. */
@@ -286,13 +296,13 @@ int main()
   flag = RHS2; /* use -5y for RHS */
   t = t1; /* set the integrator start time */
 
-  printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+  printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
 
   while (t<t2) {
     /* advance solver just one internal step */
     ret = CVode(cvode_mem, t2, y, &t, CV_ONE_STEP);
     if (check_flag((void *)&ret, "CVode", 1)) return(1);
-    printf("%12.8e  %12.8e\n",t,NV_Ith_S(y,0));
+    printf("%12.8"ESYM"  %12.8"ESYM"\n",t,NV_Ith_S(y,0));
   }
 
   /* Get the number of steps the solver took after the discont. */

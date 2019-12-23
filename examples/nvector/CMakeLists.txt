@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
-# Programmer:  David Gardner, Slaven Peles, and Cody Balos @ LLNL
+# Programmer(s): David J. Gardner, Slaven Peles, and
+#                Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -11,47 +12,53 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# examples/nvector level CMakeLists.txt for SUNDIALS (for CMake)
+# examples/nvector level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
 # Always add the nvector serial examples
-ADD_SUBDIRECTORY(serial)
+add_subdirectory(serial)
 
-IF(MPI_C_FOUND)
-  ADD_SUBDIRECTORY(parallel)
-ENDIF()
+if(MPI_ENABLE AND MPI_C_FOUND)
+  add_subdirectory(parallel)
+  add_subdirectory(mpimanyvector)
+  add_subdirectory(mpiplusx)
+endif()
+add_subdirectory(manyvector)
 
-IF(HYPRE_FOUND)
-  ADD_SUBDIRECTORY(parhyp)
-ENDIF()
+if(HYPRE_ENABLE AND HYPRE_FOUND)
+  add_subdirectory(parhyp)
+endif()
 
-IF(PTHREADS_FOUND)
-  ADD_SUBDIRECTORY(pthreads)
-ENDIF()
+if(PTHREAD_ENABLE AND PTHREADS_FOUND)
+  add_subdirectory(pthreads)
+endif()
 
-IF(OPENMP_FOUND)
-  IF(OPENMP_ENABLE)
-    ADD_SUBDIRECTORY(C_openmp)
-  ENDIF()
-  IF(OPENMP_DEVICE_ENABLE)
-    ADD_SUBDIRECTORY(openmpdev)
-  ENDIF()
-ENDIF()
+if(OPENMP_ENABLE AND OPENMP_FOUND)
+  add_subdirectory(C_openmp)
+endif()
 
-IF(PETSC_FOUND)
-  ADD_SUBDIRECTORY(petsc)
-ENDIF()
+if(OPENMP_DEVICE_ENABLE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+  add_subdirectory(openmpdev)
+endif()
 
-IF(CUDA_FOUND)
-  ADD_SUBDIRECTORY(cuda)
-  IF(MPI_C_FOUND)
-    ADD_SUBDIRECTORY(mpicuda)
-  ENDIF()
-ENDIF()
+if(PETSC_ENABLE AND PETSC_FOUND)
+  add_subdirectory(petsc)
+endif()
 
-IF(RAJA_FOUND)
-  ADD_SUBDIRECTORY(raja)
-  IF(MPI_C_FOUND)
-    ADD_SUBDIRECTORY(mpiraja)
-  ENDIF()
-ENDIF()
+if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+  add_subdirectory(cuda)
+  if(MPI_ENABLE AND MPI_C_FOUND)
+    add_subdirectory(mpicuda)
+  endif()
+endif()
+
+if(RAJA_ENABLE AND RAJA_FOUND)
+  add_subdirectory(raja)
+  if(MPI_ENABLE AND MPI_C_FOUND)
+    add_subdirectory(mpiraja)
+  endif()
+endif()
+
+if(Trilinos_ENABLE AND Trilinos_FOUND)
+  add_subdirectory(trilinos)
+endif()

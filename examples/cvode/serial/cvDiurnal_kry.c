@@ -46,7 +46,12 @@
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>    /* contains the macros ABS, SUNSQR, EXP */
+
+/* helpful macros */
+
+#ifndef SQR
+#define SQR(A) ((A)*(A))
+#endif
 
 /* Problem Constants */
 
@@ -58,7 +63,7 @@
 #define KH           RCONST(4.0e-6)    /* horizontal diffusivity Kh */
 #define VEL          RCONST(0.001)     /* advection velocity V      */
 #define KV0          RCONST(1.0e-8)    /* coefficient in Kv(y)      */
-#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */ 
+#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */
 #define Q2           RCONST(4.66e-16)
 #define C3           RCONST(3.7e16)
 #define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
@@ -70,13 +75,13 @@
 #define NOUT         12                   /* number of output times */
 #define TWOHR        RCONST(7200.0)       /* number of seconds in two hours  */
 #define HALFDAY      RCONST(4.32e4)       /* number of seconds in a half day */
-#define PI       RCONST(3.1415926535898)  /* pi */ 
+#define PI       RCONST(3.1415926535898)  /* pi */
 
 #define XMIN         ZERO                 /* grid boundaries in x  */
-#define XMAX         RCONST(20.0)           
+#define XMAX         RCONST(20.0)
 #define YMIN         RCONST(30.0)         /* grid boundaries in y  */
 #define YMAX         RCONST(50.0)
-#define XMID         RCONST(10.0)         /* grid midpoints in x,y */          
+#define XMID         RCONST(10.0)         /* grid midpoints in x,y */
 #define YMID         RCONST(40.0)
 
 #define MX           10             /* MX = number of x mesh points */
@@ -98,12 +103,12 @@
    mathematical 3-dimensional structure of the dependent variable vector
    to the underlying 1-dimensional storage. IJth is defined in order to
    write code which indexes into small dense matrices with a (row,column)
-   pair, where 1 <= row, column <= NUM_SPECIES.   
-   
+   pair, where 1 <= row, column <= NUM_SPECIES.
+
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MY-1. The vdata array is obtained via
-   the call vdata = N_VGetArrayPointer(v), where v is an N_Vector. 
+   the call vdata = N_VGetArrayPointer(v), where v is an N_Vector.
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
@@ -115,7 +120,7 @@
 #define IJKth(vdata,i,j,k) (vdata[i-1 + (j)*NUM_SPECIES + (k)*NSMX])
 #define IJth(a,i,j)        (a[j-1][i-1])
 
-/* Type : UserData 
+/* Type : UserData
    contains preconditioner blocks, pivot arrays, and problem constants */
 
 typedef struct {
@@ -144,7 +149,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
                N_Vector y, N_Vector fy,
                void *user_data, N_Vector tmp);
 
-static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok, 
+static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, void *user_data);
 
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, N_Vector r, N_Vector z,
@@ -171,17 +176,17 @@ int main()
   LS = NULL;
   cvode_mem = NULL;
 
-  /* Allocate memory, and set problem data, initial values, tolerances */ 
+  /* Allocate memory, and set problem data, initial values, tolerances */
   u = N_VNew_Serial(NEQ);
   if(check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
   data = AllocUserData();
   if(check_retval((void *)data, "AllocUserData", 2)) return(1);
   InitUserData(data);
   SetInitialProfiles(u, data->dx, data->dy);
-  abstol = ATOL; 
+  abstol = ATOL;
   reltol = RTOL;
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -201,7 +206,7 @@ int main()
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
-  /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR 
+  /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR
    * with left preconditioning and the default Krylov dimension */
   LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
@@ -270,9 +275,9 @@ static void InitUserData(UserData data)
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/(MX-1);
   data->dy = (YMAX-YMIN)/(MY-1);
-  data->hdco = KH/SUNSQR(data->dx);
+  data->hdco = KH/SQR(data->dx);
   data->haco = VEL/(TWO*data->dx);
-  data->vdco = (ONE/SUNSQR(data->dy))*KV0;
+  data->vdco = (ONE/SQR(data->dy))*KV0;
 }
 
 /* Free data memory */
@@ -308,13 +313,13 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 
   for (jy=0; jy < MY; jy++) {
     y = YMIN + jy*dy;
-    cy = SUNSQR(RCONST(0.1)*(y - YMID));
-    cy = ONE - cy + RCONST(0.5)*SUNSQR(cy);
+    cy = SQR(RCONST(0.1)*(y - YMID));
+    cy = ONE - cy + RCONST(0.5)*SQR(cy);
     for (jx=0; jx < MX; jx++) {
       x = XMIN + jx*dx;
-      cx = SUNSQR(RCONST(0.1)*(x - XMID));
-      cx = ONE - cx + RCONST(0.5)*SUNSQR(cx);
-      IJKth(udata,1,jx,jy) = C1_SCALE*cx*cy; 
+      cx = SQR(RCONST(0.1)*(x - XMID));
+      cx = ONE - cx + RCONST(0.5)*SQR(cx);
+      IJKth(udata,1,jx,jy) = C1_SCALE*cx*cy;
       IJKth(udata,2,jx,jy) = C2_SCALE*cx*cy;
     }
   }
@@ -472,8 +477,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   s = sin(data->om*t);
   if (s > ZERO) {
-    q3 = SUNRexp(-A3/s);
-    data->q4 = SUNRexp(-A4/s);
+    q3 = exp(-A3/s);
+    data->q4 = exp(-A4/s);
   } else {
     q3 = ZERO;
     data->q4 = ZERO;
@@ -495,15 +500,15 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*SUNRexp(RCONST(0.2)*ydn);
-    cyup = verdco*SUNRexp(RCONST(0.2)*yup);
+    cydn = verdco*exp(RCONST(0.2)*ydn);
+    cyup = verdco*exp(RCONST(0.2)*yup);
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
 
       /* Extract c1 and c2, and set kinetic rate terms. */
 
-      c1 = IJKth(udata,1,jx,jy); 
+      c1 = IJKth(udata,1,jx,jy);
       c2 = IJKth(udata,2,jx,jy);
       qq1 = Q1*c1*C3;
       qq2 = Q2*c1*c2;
@@ -525,7 +530,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
       ileft = (jx == 0) ? 1 : -1;
       iright =(jx == MX-1) ? -1 : 1;
-      c1lt = IJKth(udata,1,jx+ileft,jy); 
+      c1lt = IJKth(udata,1,jx+ileft,jy);
       c2lt = IJKth(udata,2,jx+ileft,jy);
       c1rt = IJKth(udata,1,jx+iright,jy);
       c2rt = IJKth(udata,2,jx+iright,jy);
@@ -536,7 +541,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
       /* Load all terms into udot. */
 
-      IJKth(dudata, 1, jx, jy) = vertd1 + hord1 + horad1 + rkin1; 
+      IJKth(dudata, 1, jx, jy) = vertd1 + hord1 + horad1 + rkin1;
       IJKth(dudata, 2, jx, jy) = vertd2 + hord2 + horad2 + rkin2;
     }
   }
@@ -571,7 +576,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
   s = sin(data->om*t);
   if (s > ZERO) {
-    data->q4 = SUNRexp(-A4/s);
+    data->q4 = exp(-A4/s);
   } else {
     data->q4 = ZERO;
   }
@@ -593,8 +598,8 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
     ydn = YMIN + (jy - RCONST(0.5))*dely;
     yup = ydn + dely;
 
-    cydn = verdco*SUNRexp(RCONST(0.2)*ydn);
-    cyup = verdco*SUNRexp(RCONST(0.2)*yup);
+    cydn = verdco*exp(RCONST(0.2)*ydn);
+    cyup = verdco*exp(RCONST(0.2)*yup);
 
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
@@ -606,10 +611,10 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
       /* Extract c1 and c2 at the current location and at neighbors */
 
-      c1 = IJKth(udata,1,jx,jy); 
+      c1 = IJKth(udata,1,jx,jy);
       c2 = IJKth(udata,2,jx,jy);
 
-      v1 = IJKth(vdata,1,jx,jy); 
+      v1 = IJKth(vdata,1,jx,jy);
       v2 = IJKth(vdata,2,jx,jy);
 
       v1dn = IJKth(vdata,1,jx,jy+idn);
@@ -620,16 +625,16 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
       ileft = (jx == 0) ? 1 : -1;
       iright =(jx == MX-1) ? -1 : 1;
 
-      v1lt = IJKth(vdata,1,jx+ileft,jy); 
+      v1lt = IJKth(vdata,1,jx+ileft,jy);
       v2lt = IJKth(vdata,2,jx+ileft,jy);
       v1rt = IJKth(vdata,1,jx+iright,jy);
       v2rt = IJKth(vdata,2,jx+iright,jy);
 
       /* Set kinetic rate terms. */
 
-      /* 
+      /*
 	 rkin1 = -Q1*C3 * c1 - Q2 * c1*c2 + q4coef * c2  + TWO*C3*q3;
-         rkin2 =  Q1*C3 * c1 - Q2 * c1*c2 - q4coef * c2; 
+         rkin2 =  Q1*C3 * c1 - Q2 * c1*c2 - q4coef * c2;
       */
 
       Jv1 += -(Q1*C3 + Q2*c2) * v1  +  (q4coef - Q2*c1) * v2;
@@ -637,7 +642,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
       /* Set vertical diffusion terms. */
 
-      /* 
+      /*
 	 vertd1 = -(cyup+cydn) * c1 + cyup * c1up + cydn * c1dn;
 	 vertd2 = -(cyup+cydn) * c2 + cyup * c2up + cydn * c2dn;
       */
@@ -647,7 +652,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
       /* Set horizontal diffusion and advection terms. */
 
-      /* 
+      /*
 	 hord1 = hordco*(c1rt - TWO*c1 + c1lt);
 	 hord2 = hordco*(c2rt - TWO*c2 + c2lt);
       */
@@ -655,7 +660,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
       Jv1 += hordco*(v1rt - TWO*v1 + v1lt);
       Jv2 += hordco*(v2rt - TWO*v2 + v2lt);
 
-      /* 
+      /*
 	 horad1 = horaco*(c1rt - c1lt);
 	 horad2 = horaco*(c2rt - c2lt);
       */
@@ -665,8 +670,8 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
       /* Load two components of J*v */
 
-      /* 
-	 IJKth(dudata, 1, jx, jy) = vertd1 + hord1 + horad1 + rkin1; 
+      /*
+	 IJKth(dudata, 1, jx, jy) = vertd1 + hord1 + horad1 + rkin1;
 	 IJKth(dudata, 2, jx, jy) = vertd2 + hord2 + horad2 + rkin2;
       */
 
@@ -684,7 +689,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok, 
+static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
                    booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
@@ -693,45 +698,45 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
   int jx, jy;
   realtype *udata, **a, **j;
   UserData data;
-  
+
   /* Make local copies of pointers in user_data, and of pointer to u's data */
-  
+
   data = (UserData) user_data;
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
   udata = N_VGetArrayPointer(u);
-  
+
   if (jok) {
-    
+
     /* jok = SUNTRUE: Copy Jbd to P */
-    
+
     for (jy=0; jy < MY; jy++)
       for (jx=0; jx < MX; jx++)
         denseCopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
-    
+
     *jcurPtr = SUNFALSE;
-    
+
   }
-  
+
   else {
     /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
-    
+
     /* Make local copies of problem variables, for efficiency. */
-    
+
     q4coef = data->q4;
     dely = data->dy;
     verdco = data->vdco;
     hordco  = data->hdco;
-    
-    /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
+
+    /* Compute 2x2 diagonal Jacobian blocks (using q4 values
        computed on the last f call).  Load into P. */
-    
+
     for (jy=0; jy < MY; jy++) {
       ydn = YMIN + (jy - RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*SUNRexp(RCONST(0.2)*ydn);
-      cyup = verdco*SUNRexp(RCONST(0.2)*yup);
+      cydn = verdco*exp(RCONST(0.2)*ydn);
+      cyup = verdco*exp(RCONST(0.2)*yup);
       diag = -(cydn + cyup + TWO*hordco);
       for (jx=0; jx < MX; jx++) {
         c1 = IJKth(udata,1,jx,jy);
@@ -745,19 +750,19 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
         denseCopy(j, a, NUM_SPECIES, NUM_SPECIES);
       }
     }
-    
+
     *jcurPtr = SUNTRUE;
-    
+
   }
-  
+
   /* Scale by -gamma */
-  
+
   for (jy=0; jy < MY; jy++)
     for (jx=0; jx < MX; jx++)
       denseScale(-gamma, P[jx][jy], NUM_SPECIES, NUM_SPECIES);
-  
+
   /* Add identity matrix and do LU decompositions on blocks in place. */
-  
+
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       denseAddIdentity(P[jx][jy], NUM_SPECIES);
@@ -765,7 +770,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
       if (retval != 0) return(1);
     }
   }
-  
+
   return(0);
 }
 
@@ -786,12 +791,12 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu, N_Vector r, N_Vector z,
   P = data->P;
   pivot = data->pivot;
   zdata = N_VGetArrayPointer(z);
-  
+
   N_VScale(ONE, r, z);
-  
+
   /* Solve the block-diagonal system Px = r using LU factors stored
      in P and pivot data in pivot, and return the solution in z. */
-  
+
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       v = &(IJKth(zdata, 1, jx, jy));

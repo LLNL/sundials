@@ -63,15 +63,15 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   kin_mem = (KINMem) kinmem;
 
   /* Test if solver is compatible with LS interface */
-  if ( (LS->ops->gettype == NULL) ||
-       (LS->ops->initialize == NULL) ||
-       (LS->ops->setup == NULL) ||
-       (LS->ops->solve == NULL) ) {
+  if ( (LS->ops->gettype == NULL) || (LS->ops->solve == NULL) ) {
     KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS",
                    "KINSetLinearSolver",
                    "LS object is missing a required operation");
     return(KINLS_ILL_INPUT);
   }
+
+  /* Retrieve the LS type */
+  LSType = SUNLinSolGetType(LS);
 
   /* check for required vector operations for KINLS interface */
   if ( (kin_mem->kin_vtemp1->ops->nvconst == NULL) ||
@@ -81,8 +81,15 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
     return(KINLS_ILL_INPUT);
   }
 
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(LS);
+  if ( ((LSType == SUNLINEARSOLVER_ITERATIVE) ||
+        (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
+       (LS->ops->setscalingvectors == NULL) ) {
+    if (kin_mem->kin_vtemp1->ops->nvgetlength == NULL) {
+      KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS",
+                      "KINSetLinearSolver", MSG_LS_BAD_NVECTOR);
+      return(KINLS_ILL_INPUT);
+    }
+  }
 
   /* Check for compatible LS type, matrix and "atimes" support */
   if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
@@ -1047,17 +1054,15 @@ int kinLsInitialize(KINMem kin_mem)
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / fs_mean^2
        <=> || b - A x ||_2 < tol / fs_mean
        <=> || b - A x ||_2 < tol * tol_fac
-     So we compute tol_fac = 1 / ||fscale||_RMS = sqrt(n) / ||fscale||_2,
-     for scaling desired tolerances */
+     So we compute tol_fac = sqrt(N) / ||fscale||_L2 for scaling desired tolerances */
   if ( ((LSType == SUNLINEARSOLVER_ITERATIVE) ||
         (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
        (kinls_mem->LS->ops->setscalingvectors == NULL) ) {
 
-    /* compute tol_fac = ||1||_2 / ||fscale||_2 */
     N_VConst(ONE, kin_mem->kin_vtemp1);
-    kinls_mem->tol_fac = SUNRsqrt( N_VDotProd(kin_mem->kin_vtemp1,
-                                              kin_mem->kin_vtemp1) )
-      / SUNRsqrt( N_VDotProd(kin_mem->kin_fscale, kin_mem->kin_fscale) );
+    kinls_mem->tol_fac = SUNRsqrt(N_VGetLength(kin_mem->kin_vtemp1))
+                       / N_VWL2Norm(kin_mem->kin_fscale, kin_mem->kin_vtemp1);
+
   } else {
     kinls_mem->tol_fac = ONE;
   }
@@ -1084,20 +1089,21 @@ int kinLsSetup(KINMem kin_mem)
   }
   kinls_mem = (KINLsMem) kin_mem->kin_lmem;
 
-
   /* recompute if J if it is non-NULL */
   if (kinls_mem->J) {
 
     /* Increment nje counter. */
     kinls_mem->nje++;
 
-    /* Zero out J */
-    retval = SUNMatZero(kinls_mem->J);
-    if (retval != 0) {
-      KINProcessError(kin_mem, KINLS_SUNMAT_FAIL, "KINLS",
-                      "kinLsSetup", MSG_LS_MATZERO_FAILED);
-      kinls_mem->last_flag = KINLS_SUNMAT_FAIL;
-      return(kinls_mem->last_flag);
+    /* Clear the linear system matrix if necessary */
+    if (SUNLinSolGetType(kinls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
+      retval = SUNMatZero(kinls_mem->J);
+      if (retval != 0) {
+        KINProcessError(kin_mem, KINLS_SUNMAT_FAIL, "KINLS",
+                        "kinLsSetup", MSG_LS_MATZERO_FAILED);
+        kinls_mem->last_flag = KINLS_SUNMAT_FAIL;
+        return(kinls_mem->last_flag);
+      }
     }
 
     /* Call Jacobian routine */
@@ -1218,43 +1224,39 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
     return(retval);
   }
 
-  /* SUNLinSolSolve returned SUNLS_SUCCESS or SUNLS_RES_REDUCED
+  /* SUNLinSolSolve returned SUNLS_SUCCESS or SUNLS_RES_REDUCED */
 
-     Compute auxiliary values for use in the linesearch and in KINForcingTerm.
+  /* Compute auxiliary values for use in the linesearch and in KINForcingTerm.
      These will be subsequently corrected if the step is reduced by constraints
      or the linesearch. */
+  if (kin_mem->kin_globalstrategy != KIN_FP) {
 
-
-  /* sJpnorm is the norm of the scaled product (scaled by fscale) of the
-     current Jacobian matrix J and the step vector p (= solution vector xx).
-
-     Only compute this if KINForcingTerm will eventually be called */
-  if ( (kin_mem->kin_globalstrategy != KIN_PICARD) &&
-       (kin_mem->kin_globalstrategy != KIN_FP) &&
-       (kin_mem->kin_callForcingTerm) ) {
-
-    retval = kinLsATimes(kin_mem, xx, bb);
-    if (retval > 0) {
-      kinls_mem->last_flag = SUNLS_ATIMES_FAIL_REC;
-      return(1);
+    /* sJpnorm is the norm of the scaled product (scaled by fscale) of the
+       current Jacobian matrix J and the step vector p (= solution vector xx) */
+    if (kin_mem->kin_inexact_ls && kin_mem->kin_etaflag == KIN_ETACHOICE1) {
+      retval = kinLsATimes(kin_mem, xx, bb);
+      if (retval > 0) {
+        kinls_mem->last_flag = SUNLS_ATIMES_FAIL_REC;
+        return(1);
+      }
+      else if (retval < 0) {
+        kinls_mem->last_flag = SUNLS_ATIMES_FAIL_UNREC;
+        return(-1);
+      }
+      *sJpnorm = N_VWL2Norm(bb, kin_mem->kin_fscale);
     }
-    else if (retval < 0) {
-      kinls_mem->last_flag = SUNLS_ATIMES_FAIL_UNREC;
-      return(-1);
-    }
-    *sJpnorm = N_VWL2Norm(bb, kin_mem->kin_fscale);
 
+    /* sFdotJp is the dot product of the scaled f vector and the scaled
+       vector J*p, where the scaling uses fscale */
+    if ((kin_mem->kin_inexact_ls && kin_mem->kin_etaflag == KIN_ETACHOICE1) ||
+        kin_mem->kin_globalstrategy == KIN_LINESEARCH) {
+      N_VProd(bb, kin_mem->kin_fscale, bb);
+      N_VProd(bb, kin_mem->kin_fscale, bb);
+      *sFdotJp = N_VDotProd(kin_mem->kin_fval, bb);
+    }
   }
 
-  /* sFdotJp is the dot product of the scaled f vector and the scaled
-     vector J*p, where the scaling uses fscale */
-  N_VProd(bb, kin_mem->kin_fscale, bb);
-  N_VProd(bb, kin_mem->kin_fscale, bb);
-  *sFdotJp = N_VDotProd(kin_mem->kin_fval, bb);
-
-  if ( ((LSType == SUNLINEARSOLVER_ITERATIVE) ||
-        (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
-       (kin_mem->kin_printfl > 2) )
+  if (kin_mem->kin_inexact_ls && kin_mem->kin_printfl > 2)
     KINPrintInfo(kin_mem, PRNT_EPS, "KINLS", "kinLsSolve",
                  INFO_EPS, res_norm, kin_mem->kin_eps);
 

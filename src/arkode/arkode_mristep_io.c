@@ -58,23 +58,13 @@ int MRIStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
                            void *eh_data)
 {
   ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetErrHandlerFn",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set outer stepper error handler function */
-  retval = arkSetErrHandlerFn(ark_mem, ehfun, eh_data);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set inner stepper error handler function */
-  retval = ARKStepSetErrHandlerFn(step_mem->inner_arkode_mem, ehfun, eh_data);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  return(ARK_SUCCESS);
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
+                    "MRIStepSetErrHandlerFn", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetErrHandlerFn(ark_mem, ehfun, eh_data));
 }
 
 /*---------------------------------------------------------------
@@ -84,38 +74,60 @@ int MRIStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
 int MRIStepSetErrFile(void *arkode_mem, FILE *errfp)
 {
   ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetErrFile",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set outer stepper error file */
-  retval = arkSetErrFile(ark_mem, errfp);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set inner stepper error file */
-  retval = ARKStepSetErrFile(step_mem->inner_arkode_mem, errfp);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  return(ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  MRIStepSetUserData: Specifies the user data pointer for f
-  ---------------------------------------------------------------*/
-int MRIStepSetUserData(void *arkode_mem, void *user_data)
-{
-  ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetUserData", MSG_ARK_NO_MEM);
+                    "MRIStepSetErrFile", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  return(arkSetUserData(ark_mem, user_data));
+  return(arkSetErrFile(ark_mem, errfp));
+}
+
+/*---------------------------------------------------------------
+  MRIStepSetUserData: Specifies the user data pointer
+
+  NOTE: This function assumes that the inner ARKodeMem user_data
+  variable is only passed to the RHS function(s) and that separate
+  variables (e.g., e_data, J_data, etc.) are used to pass the user
+  data to all other user functions. This ensures that re-attaching
+  the outer stepper to the inner user_data variable does not
+  clobber the pointers passed to other user functions.
+  ---------------------------------------------------------------*/
+int MRIStepSetUserData(void *arkode_mem, void *user_data)
+{
+  ARKodeMem         ark_mem;       /* outer ARKode memory  */
+  ARKodeMRIStepMem  step_mem;      /* outer stepper memory */
+  ARKodeMem         inner_ark_mem; /* inner ARKode memory  */
+  int               retval;
+
+  /* Access MRIStep memory */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetUserData",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Check for inner memory */
+  if (step_mem->inner_mem == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::MRIStep",
+                    "MRIStepSetUserData", "The inner stepper memory is NULL");
+    return(ARK_MEM_NULL);
+  }
+
+  /* Attach user_data to the outer stepper */
+  retval = arkSetUserData(ark_mem, user_data);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Attach user_data to the inner stepper and re-attach the outer
+     stepper to the inner stepper ARKodeMem user_data pointer. */
+  switch (step_mem->inner_stepper_id) {
+  case MRISTEP_ARKSTEP:
+    retval = ARKStepSetUserData(step_mem->inner_mem, user_data);
+    if (retval != ARK_SUCCESS) return(retval);
+    inner_ark_mem = (ARKodeMem)(step_mem->inner_mem);
+    inner_ark_mem->user_data = arkode_mem;
+    break;
+  }
+
+  return(ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------
@@ -126,23 +138,13 @@ int MRIStepSetUserData(void *arkode_mem, void *user_data)
 int MRIStepSetDiagnostics(void *arkode_mem, FILE *diagfp)
 {
   ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDiagnostics",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set outer stepper diagnostics file */
-  retval = arkSetDiagnostics(ark_mem, diagfp);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set inner stepper diagnostics file */
-  retval = ARKStepSetDiagnostics(step_mem->inner_arkode_mem, diagfp);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  return(ARK_SUCCESS);
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
+                    "MRIStepSetDiagnostics", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkSetDiagnostics(ark_mem, diagfp));
 }
 
 /*---------------------------------------------------------------
@@ -205,30 +207,30 @@ int MRIStepSetStopTime(void *arkode_mem, realtype tstop)
   Any nonzero argument will result in the use of that fixed step
   size.
   ---------------------------------------------------------------*/
-int MRIStepSetFixedStep(void *arkode_mem, realtype hsfixed, realtype hffixed)
+int MRIStepSetFixedStep(void *arkode_mem, realtype hsfixed)
 {
   ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
+                    "MRIStepSetFixedStep", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
 
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetFixedStep",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
+  if (hsfixed == ZERO) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
+                    "MRIStepSetFixedStep",
+                    "MIRStep does not support adaptive steps at this time.");
+    return(ARK_ILL_INPUT);
+  }
 
-  /* check for valid step sizes */
-  if (SUNRabs(hffixed) > SUNRabs(hsfixed)) return(ARK_ILL_INPUT);
+  /* using an explicit method with fixed step sizes, enforce use of
+     arkEwtSmallReal to compute error weight vector */
+  ark_mem->user_efun = SUNFALSE;
+  ark_mem->efun      = arkEwtSetSmallReal;
+  ark_mem->e_data    = ark_mem;
 
-  /* set outer step size */
-  retval = arkSetFixedStep(ark_mem, hsfixed);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set inner step size */
-  step_mem->hf = hffixed;
-  retval = ARKStepSetFixedStep(step_mem->inner_arkode_mem, hffixed);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  return(ARK_SUCCESS);
+  return(arkSetFixedStep(ark_mem, hsfixed));
 }
 
 /*---------------------------------------------------------------
@@ -296,26 +298,16 @@ int MRIStepSetPostprocessStepFn(void *arkode_mem,
   MRIStepGetNumSteps:  Returns the current number of integration
   steps
   ---------------------------------------------------------------*/
-int MRIStepGetNumSteps(void *arkode_mem, long int *nssteps, long int *nfsteps)
+int MRIStepGetNumSteps(void *arkode_mem, long int *nssteps)
 {
   ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepGetNumSteps",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set outer number of steps */
-  retval = arkGetNumSteps(ark_mem, nssteps);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set inner number of steps */
-  retval = ARKStepGetNumSteps(step_mem->inner_arkode_mem, nfsteps);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  return(ARK_SUCCESS);
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
+                    "MRIStepGetNumSteps", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetNumSteps(ark_mem, nssteps));
 }
 
 /*---------------------------------------------------------------
@@ -356,28 +348,13 @@ int MRIStepGetCurrentTime(void *arkode_mem, realtype *tcur)
 int MRIStepGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
 {
   ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
-  long int tmplenrw, tmpleniw;
-
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepGetWorkSpace",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set outer workspace size */
-  retval = arkGetWorkSpace(ark_mem, lenrw, leniw);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set inner step size */
-  retval = ARKStepGetWorkSpace(step_mem->inner_arkode_mem, &tmplenrw, &tmpleniw);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* total workspace size */
-  *lenrw += tmplenrw;
-  *leniw += tmpleniw;
-
-  return(ARK_SUCCESS);
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
+                    "MRIStepGetWorkSpace", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  return(arkGetWorkSpace(ark_mem, lenrw, leniw));
 }
 
 /*---------------------------------------------------------------
@@ -449,27 +426,17 @@ int MRIStepSetDefaults(void* arkode_mem)
   step_mem->stages    = 0;              /* no stages */
   step_mem->B         = NULL;           /* no Butcher table */
 
-  /* set inner method defaults */
-  retval = ARKStepSetDefaults(step_mem->inner_arkode_mem);
-  if (retval != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetDefaults",
-                    "An error occuer when setting the inner stepper defaults");
-    return(retval);
-  }
-
   return(ARK_SUCCESS);
 }
 
 
 /*---------------------------------------------------------------
-  MRIStepSetTables:
+  MRIStepSetTable:
 
   Specifies to use a customized Butcher table for the explicit
   portion of the system.
   ---------------------------------------------------------------*/
-int MRIStepSetTables(void *arkode_mem, int q,
-                     ARKodeButcherTable Bs, ARKodeButcherTable Bf)
+int MRIStepSetTable(void *arkode_mem, int q, ARKodeButcherTable B)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -481,7 +448,7 @@ int MRIStepSetTables(void *arkode_mem, int q,
   if (retval != ARK_SUCCESS) return(retval);
 
   /* check for illegal inputs */
-  if ((Bs == NULL) && (Bf == NULL)) {
+  if (B == NULL) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::MRIStep",
                     "MRIStepSetTables", MSG_ARK_NO_MEM);
     return(ARK_ILL_INPUT);
@@ -495,25 +462,16 @@ int MRIStepSetTables(void *arkode_mem, int q,
   step_mem->B = NULL;
 
   /* set the relevant parameters */
-  step_mem->stages = Bs->stages;
-  step_mem->q = Bs->q;
+  step_mem->stages = B->stages;
+  step_mem->q = B->q;
   step_mem->p = 0; /* assume fixed stepping */
 
   /* copy the table in step memory */
-  step_mem->B = ARKodeButcherTable_Copy(Bs);
+  step_mem->B = ARKodeButcherTable_Copy(B);
   if (step_mem->B == NULL) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::MRIStep",
                     "MRIStepSetTables", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
-  }
-
-  /* set the inner Butcher table (assume explicit) */
-  retval = ARKStepSetTables(step_mem->inner_arkode_mem, Bf->q, Bf->p, NULL, Bf);
-  if (retval != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetTables",
-                    "An error occuer when setting the inner table");
-    return(retval);
   }
 
   return(ARK_SUCCESS);
@@ -527,7 +485,7 @@ int MRIStepSetTables(void *arkode_mem, int q,
   based on the integer flags passed to ARKodeButcherTable_LoadERK()
   within the file arkode_butcher_erk.c.
   ---------------------------------------------------------------*/
-int MRIStepSetTableNum(void *arkode_mem, int istable, int iftable)
+int MRIStepSetTableNum(void *arkode_mem, int itable)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -539,8 +497,7 @@ int MRIStepSetTableNum(void *arkode_mem, int istable, int iftable)
   if (retval != ARK_SUCCESS) return(retval);
 
   /* check that argument specifies an explicit table (assume explicit) */
-  if (istable < MIN_ERK_NUM || istable > MAX_ERK_NUM ||
-      iftable < MIN_ERK_NUM || iftable > MAX_ERK_NUM ) {
+  if (itable < MIN_ERK_NUM || itable > MAX_ERK_NUM ) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::MRIStep",
                     "MRIStepSetTableNum",
                     "Illegal MRI table number");
@@ -554,7 +511,7 @@ int MRIStepSetTableNum(void *arkode_mem, int istable, int iftable)
   ARKodeButcherTable_Free(step_mem->B);  step_mem->B = NULL;
 
   /* fill in table based on argument */
-  step_mem->B = ARKodeButcherTable_LoadERK(istable);
+  step_mem->B = ARKodeButcherTable_LoadERK(itable);
   if (step_mem->B == NULL) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::MRIStep",
                     "MRIStepSetTableNum",
@@ -565,14 +522,49 @@ int MRIStepSetTableNum(void *arkode_mem, int istable, int iftable)
   step_mem->q = step_mem->B->q;
   step_mem->p = step_mem->B->p;
 
-  /* fill inner table based on argument (assume expicit) */
-  retval = ARKStepSetTableNum(step_mem->inner_arkode_mem, -1, iftable);
-  if (retval != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::MRIStep",
-                    "MRIStepSetTableNum",
-                    "Error setting table with that index");
-    return(ARK_ILL_INPUT);
-  }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  MRIStepSetPreInnerFn:
+
+  Sets the user-supplied function called BEFORE the inner evolve
+  ---------------------------------------------------------------*/
+int MRIStepSetPreInnerFn(void *arkode_mem, MRIStepPreInnerFn prefn)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDefaults",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Set pre inner evolve function */
+  step_mem->pre_inner_evolve = prefn;
+
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  MRIStepSetPostInnerFn:
+
+  Sets the user-supplied function called AFTER the inner evolve
+  ---------------------------------------------------------------*/
+int MRIStepSetPostInnerFn(void *arkode_mem, MRIStepPostInnerFn postfn)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetDefaults",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Set pre inner evolve function */
+  step_mem->post_inner_evolve = postfn;
 
   return(ARK_SUCCESS);
 }
@@ -610,13 +602,11 @@ int MRIStepGetLastInnerStepFlag(void *arkode_mem, int *flag)
 
   Returns the current number of calls to fs and ff
   ---------------------------------------------------------------*/
-int MRIStepGetNumRhsEvals(void *arkode_mem, long int *nfs_evals,
-                          long int *nff_evals)
+int MRIStepGetNumRhsEvals(void *arkode_mem, long int *nfs_evals)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
-  long int tmp;
 
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepGetNumRhsEvals",
@@ -625,13 +615,6 @@ int MRIStepGetNumRhsEvals(void *arkode_mem, long int *nfs_evals,
 
   /* get number of fs evals from step_mem */
   *nfs_evals = step_mem->nfs;
-
-  /* get number of ff evals from inner stepper (assume explicit) */
-  retval = ARKStepGetNumRhsEvals(step_mem->inner_arkode_mem, nff_evals, &tmp);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* add ff evals from outer stepper */
-  *nff_evals += step_mem->nff;
 
   return(ARK_SUCCESS);
 }
@@ -643,27 +626,19 @@ int MRIStepGetNumRhsEvals(void *arkode_mem, long int *nfs_evals,
   Sets pointers to the slow and fast Butcher tables currently in
   use.
   ---------------------------------------------------------------*/
-int MRIStepGetCurrentButcherTables(void *arkode_mem,
-                                   ARKodeButcherTable *Bs,
-                                   ARKodeButcherTable *Bf)
+int MRIStepGetCurrentButcherTables(void *arkode_mem, ARKodeButcherTable *B)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
-  ARKodeButcherTable tmp;
 
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepGetCurrentButcherTable",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  /* get tables from step_mem */
-  *Bs = step_mem->B;
-
-  /* get inner table (assume explicit) */
-  retval = ARKStepGetCurrentButcherTables(step_mem->inner_arkode_mem,
-                                          &tmp, Bf);
-  if (retval != ARK_SUCCESS) return(retval);
+  /* get table from step_mem */
+  *B = step_mem->B;
 
   return(ARK_SUCCESS);
 }
@@ -698,15 +673,6 @@ int MRIStepWriteParameters(void *arkode_mem, FILE *fp)
     return(retval);
   }
 
-  /* print integrator parameters to file */
-  fprintf(fp, "MRIStep time step module parameters:\n");
-  fprintf(fp, "  Method order %i\n",step_mem->q);
-  fprintf(fp, "\n");
-
-  /* write inner stepper parameters */
-  retval = ARKStepWriteParameters(step_mem->inner_arkode_mem, fp);
-  if (retval != ARK_SUCCESS) return(retval);
-
   return(ARK_SUCCESS);
 }
 
@@ -720,7 +686,6 @@ int MRIStepWriteButcher(void *arkode_mem, FILE *fp)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
-  ARKodeButcherTable Bfi, Bfe;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
@@ -740,22 +705,6 @@ int MRIStepWriteButcher(void *arkode_mem, FILE *fp)
   if (step_mem->B != NULL) {
     fprintf(fp, "  Slow Butcher table (stages = %i):\n", step_mem->stages);
     ARKodeButcherTable_Write(step_mem->B, fp);
-  }
-  fprintf(fp, "\n");
-
-  /* initialize the inner Butcher tables to NULL */
-  Bfi = NULL;
-  Bfe = NULL;
-
-  /* get the inner Butcher tables */
-  retval = ARKStepGetCurrentButcherTables(step_mem->inner_arkode_mem,
-                                          &Bfi, &Bfe);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* write inner butcher tables (assume explicit only) */
-  if (Bfe != NULL) {
-    fprintf(fp, "  Fast Butcher table (stages = %i):\n", Bfe->stages);
-    ARKodeButcherTable_Write(Bfe, fp);
   }
   fprintf(fp, "\n");
 

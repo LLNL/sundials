@@ -44,7 +44,7 @@
    to the underlying 1-dimensional storage.
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= NX, 1 <= j <= NY.
-   The vdata array is obtained via the call vdata = N_VGetArrayPointer_Serial(v),
+   The vdata array is obtained via the call vdata = N_VGetArrayPointer(v),
    where v is an N_Vector.
    The variables are ordered by the y index j, then by the x index i. */
 
@@ -159,14 +159,14 @@ int main()
    * Initial guess
    * ------------- */
 
-  N_VConst_Serial(ZERO, y);
+  N_VConst(ZERO, y);
 
   /* ----------------------------
    * Call KINSol to solve problem
    * ---------------------------- */
 
   /* No scaling used */
-  N_VConst_Serial(ONE,scale);
+  N_VConst(ONE,scale);
 
   /* Call main solver */
   flag = KINSol(kmem,           /* KINSol memory block */
@@ -199,8 +199,8 @@ int main()
    * Free memory
    * ----------- */
 
-  N_VDestroy_Serial(y);
-  N_VDestroy_Serial(scale);
+  N_VDestroy(y);
+  N_VDestroy(scale);
   KINFree(&kmem);
   SUNLinSolFree(LS);
   SUNMatDestroy(J);
@@ -232,8 +232,8 @@ static int func(N_Vector u, N_Vector f, void *user_data)
   hdc = ONE/(dx*dx);
   vdc = ONE/(dy*dy);
 
-  udata = N_VGetArrayPointer_Serial(u);
-  fdata = N_VGetArrayPointer_Serial(f);
+  udata = N_VGetArrayPointer(u);
+  fdata = N_VGetArrayPointer(f);
 
   for (j=1; j <= NY; j++) {
     for (i=1; i <= NX; i++) {
@@ -274,7 +274,7 @@ static void PrintOutput(N_Vector u)
   dx = ONE/(NX+1);
   dy = ONE/(NY+1);
 
-  udata =  N_VGetArrayPointer_Serial(u);
+  udata =  N_VGetArrayPointer(u);
 
   printf("            ");
   for (i=1; i<=NX; i+= SKIP) {

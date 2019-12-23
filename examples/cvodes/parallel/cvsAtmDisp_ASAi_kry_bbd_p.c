@@ -53,7 +53,7 @@
 #define YMIN RCONST(0.0)
 #define YMAX RCONST(20.0)
 #define MY   80    /* no. of divisions in y dir. */
-#define NPY  4     /* no. of procs. in y dir.    */
+#define NPY  2     /* no. of procs. in y dir.    */
 
 #ifdef USE3D
 #define ZMIN RCONST(0.0)
@@ -339,8 +339,8 @@ int main(int argc, char *argv[])
   retval = CVodeGetQuad(cvode_mem, &tret, q);
   if(check_retval(&retval, "CVodeGetQuad", 1, myId)) MPI_Abort(comm, 1);
   
-  qdata = N_VGetArrayPointer_Parallel(q);
-  MPI_Allreduce(&qdata[0], &G, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  qdata = N_VGetArrayPointer(q);
+  MPI_Allreduce(&qdata[0], &G, 1, MPI_SUNREALTYPE, MPI_SUM, comm);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   if (myId == 0) printf("  G = %Le\n",G);
 #else
@@ -435,13 +435,20 @@ int main(int argc, char *argv[])
 
   /* Free memory */
 
-  N_VDestroy_Parallel(y);
-  N_VDestroy_Parallel(q);
-  N_VDestroy_Parallel(qB);
-  N_VDestroy_Parallel(yB);
+  N_VDestroy(y);
+  N_VDestroy(q);
+  N_VDestroy(qB);
+  N_VDestroy(yB);
 
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+
+  /* Free ProblemData */
+  N_VDestroy(d->p);
+  free(d->y_ext);
+  free(d->buf_send);
+  free(d->buf_recv);
+  free(d);
 
   MPI_Finalize();
 
@@ -581,7 +588,7 @@ static void SetSource(ProblemData d)
   dx = d->dx;
 
 
-  pdata = N_VGetArrayPointer_Parallel(d->p);
+  pdata = N_VGetArrayPointer(d->p);
 
   for(i[0]=0; i[0]<l_m[0]; i[0]++) {
     x[0] = xmin[0] + (m_start[0]+i[0]) * dx[0];
@@ -652,7 +659,7 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
     l_m[dim] = d->l_m[dim];
   }
   yextdata = d->y_ext;
-  ydata    = N_VGetArrayPointer_Parallel(y);
+  ydata    = N_VGetArrayPointer(y);
   
   /* Calculate required buffer size */
   FOR_DIM {
@@ -709,12 +716,12 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
 	  
         if ( proc_cond[dim] ) {
           /* Send buf_send and receive into buf_recv */
-          MPI_Send(buf_send, c, PVEC_REAL_MPI_TYPE, nbr[dim][dir], 0, comm);
-          MPI_Recv(buf_recv, c, PVEC_REAL_MPI_TYPE, nbr[dim][dir], 0, comm, &stat);
+          MPI_Send(buf_send, c, MPI_SUNREALTYPE, nbr[dim][dir], 0, comm);
+          MPI_Recv(buf_recv, c, MPI_SUNREALTYPE, nbr[dim][dir], 0, comm, &stat);
         } else {
           /* Receive into buf_recv and send buf_send*/
-          MPI_Recv(buf_recv, c, PVEC_REAL_MPI_TYPE, nbr[dim][dir], 0, comm, &stat);
-          MPI_Send(buf_send, c, PVEC_REAL_MPI_TYPE, nbr[dim][dir], 0, comm);
+          MPI_Recv(buf_recv, c, MPI_SUNREALTYPE, nbr[dim][dir], 0, comm, &stat);
+          MPI_Send(buf_send, c, MPI_SUNREALTYPE, nbr[dim][dir], 0, comm);
         }
 
         c=0;
@@ -783,11 +790,11 @@ static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
   } 
 
   /* Get pointers to vector data */
-  dydata = N_VGetArrayPointer_Parallel(ydot);
-  pdata  = N_VGetArrayPointer_Parallel(d->p);
+  dydata = N_VGetArrayPointer(ydot);
+  pdata  = N_VGetArrayPointer(d->p);
 
   /* Copy local segment of y to y_ext */
-  Load_yext(N_VGetArrayPointer_Parallel(y), d);
+  Load_yext(N_VGetArrayPointer(y), d);
   Ydata = d->y_ext;
 
   /* Velocity components in x1 and x2 directions (Poiseuille profile) */
@@ -862,9 +869,9 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
 
   d = (ProblemData) user_data;
 
-  dqdata = N_VGetArrayPointer_Parallel(qdot);
+  dqdata = N_VGetArrayPointer(qdot);
 
-  dqdata[0] = N_VDotProd_Parallel(y,y);
+  dqdata[0] = N_VDotProd(y,y);
   dqdata[0] *= RCONST(0.5) * (d->dOmega);
 
   return(0);
@@ -921,11 +928,11 @@ static int fB_local(sunindextype NlocalB, realtype t,
     nbr_right[dim] = d->nbr_right[dim];
   }
  
-  dyBdata = N_VGetArrayPointer_Parallel(dyB);
-  ydata   = N_VGetArrayPointer_Parallel(y);
+  dyBdata = N_VGetArrayPointer(dyB);
+  ydata   = N_VGetArrayPointer(y);
 
   /* Copy local segment of yB to y_ext */
-  Load_yext(N_VGetArrayPointer_Parallel(yB), d);
+  Load_yext(N_VGetArrayPointer(yB), d);
   YBdata = d->y_ext;
 
   /* Velocity components in x1 and x2 directions (Poiseuille profile) */
@@ -1001,7 +1008,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot,
 
   d = (ProblemData) user_dataB;
 
-  N_VScale_Parallel(-(d->dOmega), yB, qBdot);
+  N_VScale(-(d->dOmega), yB, qBdot);
 
   return(0);
 }
@@ -1155,8 +1162,8 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
   xmin = d->xmin;
   dx = d->dx;
 
-  qBdata = N_VGetArrayPointer_Parallel(qB);
-  pdata  = N_VGetArrayPointer_Parallel(d->p);
+  qBdata = N_VGetArrayPointer(qB);
+  pdata  = N_VGetArrayPointer(d->p);
 
   /* Write matlab files with solutions from each process */
 

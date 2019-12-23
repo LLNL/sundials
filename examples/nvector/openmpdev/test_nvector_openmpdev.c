@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     return(-1);
   }
 
-  length = atol(argv[1]);
+  length = (sunindextype) atol(argv[1]);
   if (length <= 0) {
     printf("ERROR: length of vector must be a positive integer \n");
     return(-1);
@@ -77,6 +77,12 @@ int main(int argc, char *argv[])
 
   /* Check vector ID */
   fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_OPENMPDEV, 0);
+
+  /* Check vector length */
+  fails += Test_N_VGetLength(X, 0);
+
+  /* Check vector communicator */
+  fails += Test_N_VGetCommunicator(X, NULL, 0);
 
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, 0);
@@ -113,13 +119,13 @@ int main(int argc, char *argv[])
   fails += Test_N_VAbs(X, Z, length, 0);
   fails += Test_N_VInv(X, Z, length, 0);
   fails += Test_N_VAddConst(X, Z, length, 0);
-  fails += Test_N_VDotProd(X, Y, length, length, 0);
+  fails += Test_N_VDotProd(X, Y, length, 0);
   fails += Test_N_VMaxNorm(X, length, 0);
   fails += Test_N_VWrmsNorm(X, Y, length, 0);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, length, length, 0);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, length, 0);
   fails += Test_N_VMin(X, length, 0);
-  fails += Test_N_VWL2Norm(X, Y, length, length, 0);
-  fails += Test_N_VL1Norm(X, length, length, 0);
+  fails += Test_N_VWL2Norm(X, Y, length, 0);
+  fails += Test_N_VL1Norm(X, length, 0);
   fails += Test_N_VCompare(X, Z, length, 0);
   fails += Test_N_VInvTest(X, Z, length, 0);
   fails += Test_N_VConstrMask(X, Y, Z, length, 0);
@@ -143,14 +149,14 @@ int main(int argc, char *argv[])
   /* fused operations */
   fails += Test_N_VLinearCombination(U, length, 0);
   fails += Test_N_VScaleAddMulti(U, length, 0);
-  fails += Test_N_VDotProdMulti(U, length, length, 0);
+  fails += Test_N_VDotProdMulti(U, length, 0);
 
   /* vector array operations */
   fails += Test_N_VLinearSumVectorArray(U, length, 0);
   fails += Test_N_VScaleVectorArray(U, length, 0);
   fails += Test_N_VConstVectorArray(U, length, 0);
   fails += Test_N_VWrmsNormVectorArray(U, length, 0);
-  fails += Test_N_VWrmsNormMaskVectorArray(U, length, length, 0);
+  fails += Test_N_VWrmsNormMaskVectorArray(U, length, 0);
   fails += Test_N_VScaleAddMultiVectorArray(U, length, 0);
   fails += Test_N_VLinearCombinationVectorArray(U, length, 0);
 
@@ -173,16 +179,29 @@ int main(int argc, char *argv[])
   /* fused operations */
   fails += Test_N_VLinearCombination(V, length, 0);
   fails += Test_N_VScaleAddMulti(V, length, 0);
-  fails += Test_N_VDotProdMulti(V, length, length, 0);
+  fails += Test_N_VDotProdMulti(V, length, 0);
 
   /* vector array operations */
   fails += Test_N_VLinearSumVectorArray(V, length, 0);
   fails += Test_N_VScaleVectorArray(V, length, 0);
   fails += Test_N_VConstVectorArray(V, length, 0);
   fails += Test_N_VWrmsNormVectorArray(V, length, 0);
-  fails += Test_N_VWrmsNormMaskVectorArray(V, length, length, 0);
+  fails += Test_N_VWrmsNormMaskVectorArray(V, length, 0);
   fails += Test_N_VScaleAddMultiVectorArray(V, length, 0);
   fails += Test_N_VLinearCombinationVectorArray(V, length, 0);
+
+  /* local reduction operations */
+  printf("\nTesting local reduction operations:\n\n");
+
+  fails += Test_N_VDotProdLocal(X, Y, length, 0);
+  fails += Test_N_VMaxNormLocal(X, length, 0);
+  fails += Test_N_VMinLocal(X, length, 0);
+  fails += Test_N_VL1NormLocal(X, length, 0);
+  fails += Test_N_VWSqrSumLocal(X, Y, length, 0);
+  fails += Test_N_VWSqrSumMaskLocal(X, Y, Z, length, 0);
+  fails += Test_N_VInvTestLocal(X, Z, length, 0);
+  fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
+  fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
   /* Free vectors */
   N_VDestroy(U);
@@ -236,23 +255,23 @@ int Test_N_VMake_OpenMPDEV(N_Vector X, sunindextype length, int myid)
     N_VDestroy(Y);
     return(1);
   }
-  
+
   if (N_VGetDeviceArrayPointer_OpenMPDEV(Y) == NULL) {
     printf(">>> FAILED test -- N_VMake_OpenMPDEV, Proc %d \n", myid);
     printf("    Vector device data -= NULL \n \n");
     N_VDestroy(Y);
     return(1);
   }
-  
+
   failure += check_ans(NEG_HALF, Y, length);
- 
+
   if (failure) {
     printf(">>> FAILED test -- N_VMake_OpenMPDEV Case 1, Proc %d \n", myid);
     printf("    Failed N_VConst check \n \n");
     N_VDestroy(Y);
     return(1);
   }
-  
+
   if (myid == 0) {
     printf("PASSED test -- N_VMake_OpenMPDEV Case 1 \n");
   }
@@ -270,7 +289,7 @@ int Test_N_VMake_OpenMPDEV(N_Vector X, sunindextype length, int myid)
   if (myid == 0) {
     printf("PASSED test -- N_VMake_OpenMPDEV Case 2 \n");
   }
-  
+
   N_VDestroy(Y);
 
   return(failure);
@@ -307,14 +326,24 @@ booleantype has_data(N_Vector X)
 
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
-  realtype *xdev;
-  int dev;
+  set_element_range(X, i, i, val);
+}
+
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
+                       realtype val)
+{
+  realtype     *xdev;
+  int           dev;
+  sunindextype  i;
+
   xdev = N_VGetDeviceArrayPointer_OpenMPDEV(X);
   dev = omp_get_default_device();
 
-  #pragma omp target map(to:val) is_device_ptr(xdev) device(dev)
+  /* set elements [is,ie] of the data array */
+#pragma omp target map(to:is,ie,val) is_device_ptr(xdev) device(dev)
+#pragma omp teams distribute parallel for schedule(static, 1)
   {
-    xdev[i] = val;
+    for(i = is; i <= ie; i++) xdev[i] = val;
   }
 }
 

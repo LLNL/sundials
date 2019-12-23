@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban and David Gardner @ LLNL
+# Programmer(s): Radu Serban and David Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -53,7 +53,7 @@ endif()
 # Check if ISO_C_BINDING is supported
 # -----------------------------------------------------------------------------
 if(F2003_INTERFACE_ENABLE)
-  message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports ISO_C_BINDING")
+  message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports F2003")
 
   set(F2003Test_DIR ${PROJECT_BINARY_DIR}/F2003Test_DIR)
   file(MAKE_DIRECTORY ${F2003Test_DIR})
@@ -81,15 +81,15 @@ if(F2003_INTERFACE_ENABLE)
   try_compile(FTEST_OK ${F2003Test_DIR} ${F2003Test_DIR}
     ftest OUTPUT_VARIABLE MY_OUTPUT)
 
-  # To ensure we do not use stuff from the previous attempts, 
+  # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${F2003Test_DIR}/CMakeFiles)
 
   if(FTEST_OK)
-    message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports ISO_C_BINDING -- yes")
-    set(Fortran_COMPILER_SUPPORTS_ISOCBINDING TRUE)
+    message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports F2003 -- yes")
+    set(F2003_FOUND TRUE)
   else()
-    set(Fortran_COMPILER_SUPPORTS_ISOCBINDING FALSE)
+    set(F2003_FOUND FALSE)
   endif()
 endif()
 
@@ -336,4 +336,3 @@ if(NEED_FORTRAN_NAME_MANGLING)
   endif(FTEST_OK)
 
 endif()
-

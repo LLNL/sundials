@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles, Eddy Banks @ LLNL
+# Programmer(s): Slaven Peles, Eddy Banks and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -14,97 +14,117 @@
 # CMakeLists.txt file for IDA PETSc examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;nodes\;tasks\;type" where the
+# Example lists are tuples "name\;args;\nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-SET(IDA_examples
-  #"idaHeat2D_jac_petsc\;1\;4"  # Not to be released in 2.7.0
-  "idaHeat2D_kry_petsc\;1\;4\;develop"
+set(IDA_examples
+  "idaHeat2D_petsc_spgmr\;\;1\;4\;develop"
+  "idaHeat2D_petsc_snes\;\;1\;4\;develop"
+  "idaHeat2D_petsc_snes\;-pre\;1\;4\;develop"
+  "idaHeat2D_petsc_snes\;-jac\;1\;4\;develop"
+  "idaHeat2D_petsc_snes\;-jac -pre\;1\;4\;develop"
   )
 
-IF(MPI_C_COMPILER)
+if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-ELSE()
+  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+else()
   # add MPI_INCLUDE_PATH to include directories
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF()
+  include_directories(${MPI_INCLUDE_PATH})
+endif()
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(IDA_LIB sundials_ida_static)
-  SET(NVECP_LIB sundials_nvecpetsc_static)
-ELSE()
-  SET(IDA_LIB sundials_ida_shared)
-  SET(NVECP_LIB sundials_nvecpetsc_shared)
-ENDIF()
+if(LINK_LIBRARY_TYPE MATCHES "static")
+  set(IDA_LIB sundials_ida_static)
+  set(NVECP_LIB sundials_nvecpetsc_static)
+  set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes_static)
+else()
+  set(IDA_LIB sundials_ida_shared)
+  set(NVECP_LIB sundials_nvecpetsc_shared)
+  set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes_shared)
+endif()
 
 # Set-up linker flags and link libraries
-SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
-
+set(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${SUNNLS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-FOREACH(example_tuple ${IDA_examples})
+foreach(example_tuple ${IDA_examples})
 
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 number_of_nodes)
-  list(GET example_tuple 2 number_of_tasks)
-  list(GET example_tuple 3 example_type)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 number_of_nodes)
+  list(GET example_tuple 3 number_of_tasks)
+  list(GET example_tuple 4 example_type)
 
-  # example source files
-  ADD_EXECUTABLE(${example} ${example}.c)
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  if(NOT TARGET ${example})
+    add_executable(${example} ${example}.c)
 
-  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    # group examples in IDE
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
+
+    if(NOT MPI_C_COMPILER)
+      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+    endif()
+  endif()
+
+  # check if example args are provided and set the test name
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
 
   # add example to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example}
+  sundials_add_test(${test_name} ${example}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${PETSC_LIBRARIES})
-
-  IF(NOT MPI_C_COMPILER)
-    TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  ENDIF()
+  # find all .out files for this example
+  file(GLOB example_out ${example}*.out)
 
   # install example
-  IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ${example}.out
+  if(EXAMPLES_INSTALL)
+    install(FILES ${example}.c ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
-  ENDIF()
+  endif()
 
-ENDFOREACH(example_tuple ${IDA_examples})
+endforeach(example_tuple ${IDA_examples})
 
 
-IF(EXAMPLES_INSTALL)
+if(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
+  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER "IDA")
-  SET(SOLVER_LIB "sundials_ida")
+  set(SOLVER "IDA")
+  set(SOLVER_LIB "sundials_ida")
 
-  EXAMPLES2STRING(IDA_examples EXAMPLES)
+  examples2string(IDA_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
-  CONFIGURE_FILE(
+  configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
-  INSTALL(
+  install(
     FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
     )
@@ -113,19 +133,22 @@ IF(EXAMPLES_INSTALL)
   # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
-  IF(UNIX)
+  if(UNIX)
     # generate Makefile and place it in the binary dir
-    CONFIGURE_FILE(
+    configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_petsc_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
-    INSTALL(
+    install(
       FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
       RENAME Makefile
       )
-  ENDIF(UNIX)
+  endif(UNIX)
 
-ENDIF(EXAMPLES_INSTALL)
+  # add test_install target
+  sundials_add_test_install(ida petsc)
+
+endif(EXAMPLES_INSTALL)

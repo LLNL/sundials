@@ -440,8 +440,8 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "IDAReInitB", 1)) return(1);
 
   /* Also reinitialize quadratures. */
-  retval = IDAQuadInitB(ida_mem, indexB, rhsQB, qB);
-  if (check_retval(&retval, "IDAQuadInitB", 1)) return(1);
+  retval = IDAQuadReInitB(ida_mem, indexB, qB);
+  if (check_retval(&retval, "IDAQuadReInitB", 1)) return(1);
 
   /* Use IDACalcICB to compute consistent initial conditions 
      for this backward problem. */

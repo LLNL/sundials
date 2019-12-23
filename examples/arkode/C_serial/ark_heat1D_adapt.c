@@ -43,7 +43,6 @@
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
 #include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
-#include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -85,7 +84,7 @@ int main() {
   realtype hscale = 1.0;       /* time step change factor on resizes */
   UserData udata = NULL;
   realtype *data;
-  sunindextype N = 21;             /* initial spatial mesh size */
+  sunindextype N = 21;         /* initial spatial mesh size */
   realtype refine = 3.e-3;     /* adaptivity refinement tolerance */
   realtype k = 0.5;            /* heat conductivity */
   sunindextype i;
@@ -110,7 +109,7 @@ int main() {
   udata->k = k;
   udata->refine_tol = refine;
   udata->x = malloc(N * sizeof(realtype));
-  for (i=0; i<N; i++)  udata->x[i] = 1.0*i/(N-1);
+  for (i=0; i<N; i++)  udata->x[i] = RCONST(1.0)*i/(N-1);
 
   /* Initial problem output */
   printf("\n1D adaptive Heat PDE test problem:\n");
@@ -158,7 +157,7 @@ int main() {
   if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
-  LS = SUNLinSol_PCG(y, 0, N);
+  LS = SUNLinSol_PCG(y, 0, (int) N);
   if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
@@ -174,8 +173,8 @@ int main() {
   newdt = 0.0;
   printf("  iout          dt_old                 dt_new               ||u||_rms       N   NNI  NLI\n");
   printf(" ----------------------------------------------------------------------------------------\n");
-  printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2i  %3i\n",
-         iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
+  printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15e  %li   %2i  %3i\n",
+         iout, olddt, newdt, sqrt(N_VDotProd(y,y)/udata->N),
          (long int) udata->N, 0, 0);
   while (t < Tf) {
 
@@ -201,8 +200,8 @@ int main() {
 
     /* print current solution stats */
     iout++;
-    printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2li  %3li\n",
-           iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
+    printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15e  %li   %2li  %3li\n",
+           iout, olddt, newdt, sqrt(N_VDotProd(y,y)/udata->N),
            (long int) udata->N, nni, nli);
     nni_tot += nni;
     nli_tot += nli;
@@ -246,7 +245,7 @@ int main() {
 
     /* destroy and re-allocate linear solver memory; reattach to ARKStep interface */
     SUNLinSolFree(LS);
-    LS = SUNLinSol_PCG(y, 0, N);
+    LS = SUNLinSol_PCG(y, 0, (int) N);
     if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
     flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
     if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
@@ -307,10 +306,10 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* source term */
   for (i=0; i<N-1; i++) {
-    Ydot[i] += 2.0*SUNRexp(-200.0*(x[i]-0.25)*(x[i]-0.25))
-                 - SUNRexp(-400.0*(x[i]-0.7)*(x[i]-0.7))
-                 + SUNRexp(-500.0*(x[i]-0.4)*(x[i]-0.4))
-             - 2.0*SUNRexp(-600.0*(x[i]-0.55)*(x[i]-0.55));
+    Ydot[i] += 2.0*exp(-200.0*(x[i]-0.25)*(x[i]-0.25))
+                 - exp(-400.0*(x[i]-0.7)*(x[i]-0.7))
+                 + exp(-500.0*(x[i]-0.4)*(x[i]-0.4))
+             - 2.0*exp(-600.0*(x[i]-0.55)*(x[i]-0.55));
   }
 
   return 0;                      /* Return with success */

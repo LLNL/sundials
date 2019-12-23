@@ -13,8 +13,8 @@
  *---------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with ARKode, the ARKLS 
- * linear solver interface, and the MPI-parallel implementation 
+ * matrix with banded blocks, for use with ARKode, the ARKLS
+ * linear solver interface, and the MPI-parallel implementation
  * of NVECTOR.
  *--------------------------------------------------------------*/
 
@@ -34,11 +34,11 @@
 
 
 /* Prototypes of functions ARKBBDPrecSetup and ARKBBDPrecSolve */
-static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-                           booleantype jok, booleantype *jcurPtr, 
+static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
+                           booleantype jok, booleantype *jcurPtr,
                            realtype gamma, void *bbd_data);
-static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                           N_Vector r, N_Vector z, 
+static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                           N_Vector r, N_Vector z,
                            realtype gamma, realtype delta,
                            int lr, void *bbd_data);
 
@@ -46,18 +46,18 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 static int ARKBBDPrecFree(ARKodeMem ark_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
-static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t, 
-                       N_Vector y, N_Vector gy, 
+static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
+                       N_Vector y, N_Vector gy,
                        N_Vector ytemp, N_Vector gtemp);
 
 
 /*---------------------------------------------------------------
  User-Callable Functions: initialization, reinit and free
 ---------------------------------------------------------------*/
-int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal, 
+int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
                    sunindextype mudq, sunindextype mldq,
-                   sunindextype mukeep, sunindextype mlkeep, 
-                   realtype dqrely, 
+                   sunindextype mukeep, sunindextype mlkeep,
+                   realtype dqrely,
                    ARKLocalFn gloc, ARKCommFn cfn)
 {
   ARKodeMem      ark_mem;
@@ -74,16 +74,16 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   if(ark_mem->tempv1->ops->nvgetarraypointer == NULL) {
-    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_BAD_NVECTOR);
     return(ARKLS_ILL_INPUT);
   }
 
   /* Allocate data memory */
   pdata = NULL;
-  pdata = (ARKBBDPrecData) malloc(sizeof *pdata);  
+  pdata = (ARKBBDPrecData) malloc(sizeof *pdata);
   if (pdata == NULL) {
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -101,11 +101,11 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
   /* Allocate memory for saved Jacobian */
   pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk);
-  if (pdata->savedJ == NULL) { 
-    free(pdata); pdata = NULL; 
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE", 
+  if (pdata->savedJ == NULL) {
+    free(pdata); pdata = NULL;
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
-    return(ARKLS_MEM_FAIL); 
+    return(ARKLS_MEM_FAIL);
   }
 
   /* Allocate memory for preconditioner matrix */
@@ -115,7 +115,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -127,7 +127,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -138,7 +138,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -150,7 +150,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -163,7 +163,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -177,7 +177,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -194,7 +194,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
@@ -211,13 +211,13 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     SUNMatDestroy(pdata->savedJ);
     SUNLinSolFree(pdata->LS);
     free(pdata); pdata = NULL;
-    arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_SUNLS_FAIL);
     return(ARKLS_SUNLS_FAIL);
   }
-  
+
   /* Set dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? 
+  pdata->dqrely = (dqrely > ZERO) ?
     dqrely : SUNRsqrt(ark_mem->uround);
 
   /* Store Nlocal to be used in ARKBBDPrecSetup */
@@ -254,7 +254,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->nge = 0;
 
   /* make sure P_data is free from any previous allocations */
-  if (arkls_mem->pfree) 
+  if (arkls_mem->pfree)
     arkls_mem->pfree(ark_mem);
 
   /* Point to the new P_data field in the LS memory */
@@ -264,8 +264,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   arkls_mem->pfree = ARKBBDPrecFree;
 
   /* Attach preconditioner solve and setup functions */
-  retval = arkLSSetPreconditioner(arkode_mem, 
-                                  ARKBBDPrecSetup, 
+  retval = arkLSSetPreconditioner(arkode_mem,
+                                  ARKBBDPrecSetup,
                                   ARKBBDPrecSolve);
 
   return(retval);
@@ -273,7 +273,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
 
 /*-------------------------------------------------------------*/
-int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq, 
+int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
                      sunindextype mldq, realtype dqrely)
 {
   ARKodeMem      ark_mem;
@@ -281,7 +281,7 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
   ARKBBDPrecData pdata;
   sunindextype   Nlocal;
   int            retval;
-  
+
   /* access ARKMilsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecReInit",
                             &ark_mem, &arkls_mem);
@@ -289,10 +289,10 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
 
   /* Return immediately ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
-    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBBDPRE",
                     "ARKBBDPrecReInit", MSG_BBD_PMEM_NULL);
     return(ARKLS_PMEM_NULL);
-  } 
+  }
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
 
   /* Load half-bandwidths */
@@ -301,7 +301,7 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
   pdata->mldq = SUNMIN(Nlocal-1, SUNMAX(0,mldq));
 
   /* Set dqrely based on input dqrely (0 implies default). */
-  pdata->dqrely = (dqrely > ZERO) ? 
+  pdata->dqrely = (dqrely > ZERO) ?
     dqrely : SUNRsqrt(ark_mem->uround);
 
   /* Re-initialize nge */
@@ -312,15 +312,15 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
 
 
 /*-------------------------------------------------------------*/
-int ARKBBDPrecGetWorkSpace(void *arkode_mem, 
-                           long int *lenrwBBDP, 
+int ARKBBDPrecGetWorkSpace(void *arkode_mem,
+                           long int *lenrwBBDP,
                            long int *leniwBBDP)
 {
   ARKodeMem      ark_mem;
   ARKLsMem       arkls_mem;
   ARKBBDPrecData pdata;
   int            retval;
-  
+
   /* access ARKMilsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecGetWorkSpace",
                             &ark_mem, &arkls_mem);
@@ -328,10 +328,10 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem,
 
   /* Return immediately ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
-    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBBDPRE",
                     "ARKBBDPrecGetWorkSpace", MSG_BBD_PMEM_NULL);
     return(ARKLS_PMEM_NULL);
-  } 
+  }
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
 
   /* set outputs */
@@ -343,14 +343,14 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem,
 
 
 /*-------------------------------------------------------------*/
-int ARKBBDPrecGetNumGfnEvals(void *arkode_mem, 
+int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
                              long int *ngevalsBBDP)
 {
   ARKodeMem      ark_mem;
   ARKLsMem       arkls_mem;
   ARKBBDPrecData pdata;
   int            retval;
-  
+
   /* access ARKMilsMem structure */
   retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecGetNumGfnEvals",
                             &ark_mem, &arkls_mem);
@@ -358,10 +358,10 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
 
   /* Return immediately if ARKBBDPrecData is NULL */
   if (arkls_mem->P_data == NULL) {
-    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBBDPRE", 
+    arkProcessError(ark_mem, ARKLS_PMEM_NULL, "ARKBBDPRE",
                     "ARKBBDPrecGetNumGfnEvals", MSG_BBD_PMEM_NULL);
     return(ARKLS_PMEM_NULL);
-  } 
+  }
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
 
   /* set output */
@@ -379,7 +379,7 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
  user-supplied gloc and cfn functions. It uses difference
  quotient approximations to the Jacobian elements.
 
- ARKBBDPrecSetup calculates a new J, if necessary, then 
+ ARKBBDPrecSetup calculates a new J, if necessary, then
  calculates P = M - gamma*J, and does an LU factorization of P.
 
  The parameters of ARKBBDPrecSetup used here are as follows:
@@ -417,11 +417,10 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
    0  if successful,
    1  for a recoverable error (step will be retried).
 ---------------------------------------------------------------*/
-static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-                           booleantype jok, booleantype *jcurPtr, 
+static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
+                           booleantype jok, booleantype *jcurPtr,
                            realtype gamma, void *bbd_data)
 {
-  sunindextype ier;
   ARKBBDPrecData pdata;
   ARKodeMem ark_mem;
   int retval;
@@ -435,7 +434,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     *jcurPtr = SUNFALSE;
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBBDPRE", 
+      arkProcessError(ark_mem, -1, "ARKBBDPRE",
                       "ARKBBDPrecSetup", MSG_BBD_SUNMAT_FAIL);
       return(-1);
     }
@@ -445,11 +444,11 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
   /* Otherwise call ARKBBDDQJac for new J value */
   } else {
-    
+
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(pdata->savedJ);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBBDPRE", 
+      arkProcessError(ark_mem, -1, "ARKBBDPRE",
                       "ARKBBDPrecSetup", MSG_BBD_SUNMAT_FAIL);
       return(-1);
     }
@@ -457,10 +456,10 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
       return(1);
     }
 
-    retval = ARKBBDDQJac(pdata, t, y, pdata->tmp1, 
+    retval = ARKBBDDQJac(pdata, t, y, pdata->tmp1,
                          pdata->tmp2, pdata->tmp3);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBBDPRE", "ARKBBDPrecSetup", 
+      arkProcessError(ark_mem, -1, "ARKBBDPRE", "ARKBBDPrecSetup",
                       MSG_BBD_FUNC_FAILED);
       return(-1);
     }
@@ -470,7 +469,7 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
     retval = SUNMatCopy(pdata->savedJ, pdata->savedP);
     if (retval < 0) {
-      arkProcessError(ark_mem, -1, "ARKBBDPRE", 
+      arkProcessError(ark_mem, -1, "ARKBBDPRE",
                       "ARKBBDPrecSetup", MSG_BBD_SUNMAT_FAIL);
       return(-1);
     }
@@ -479,18 +478,18 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
     }
 
   }
-  
+
   /* Scale and add I to get P = I - gamma*J */
   retval = SUNMatScaleAddI(-gamma, pdata->savedP);
   if (retval) {
-    arkProcessError(ark_mem, -1, "ARKBBDPRE", 
+    arkProcessError(ark_mem, -1, "ARKBBDPRE",
                     "ARKBBDPrecSetup", MSG_BBD_SUNMAT_FAIL);
     return(-1);
   }
- 
+
   /* Do LU factorization of matrix and return error flag */
-  ier = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
-  return(ier);
+  retval = SUNLinSolSetup_Band(pdata->LS, pdata->savedP);
+  return(retval);
 }
 
 
@@ -510,11 +509,11 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 
  z is the output vector computed by ARKBBDPrecSolve.
 
- The value returned by the ARKBBDPrecSolve function is the same 
+ The value returned by the ARKBBDPrecSolve function is the same
  as the value returned from the linear solver object.
 ---------------------------------------------------------------*/
-static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-                           N_Vector r, N_Vector z, 
+static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                           N_Vector r, N_Vector z,
                            realtype gamma, realtype delta,
                            int lr, void *bbd_data)
 {
@@ -526,9 +525,9 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
   /* Attach local data arrays for r and z to rlocal and zlocal */
   N_VSetArrayPointer(N_VGetArrayPointer(r), pdata->rlocal);
   N_VSetArrayPointer(N_VGetArrayPointer(z), pdata->zlocal);
-  
+
   /* Call banded solver object to do the work */
-  retval = SUNLinSolSolve(pdata->LS, pdata->savedP, pdata->zlocal, 
+  retval = SUNLinSolSolve(pdata->LS, pdata->savedP, pdata->zlocal,
                           pdata->rlocal, ZERO);
 
   /* Detach local data arrays from rlocal and zlocal */
@@ -545,7 +544,7 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   ARKLsMem       arkls_mem;
   void*          ark_step_lmem;
   ARKBBDPrecData pdata;
-  
+
   /* Return immediately if ARKodeMem, ARKLsMem or ARKBandPrecData are NULL */
   if (ark_mem == NULL) return(0);
   ark_step_lmem = ark_mem->step_getlinmem((void*) ark_mem);
@@ -575,23 +574,24 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
 
  This routine generates a banded difference quotient approximation
  to the local block of the Jacobian of g(t,y). It assumes that a
- band matrix of type SUNMatrix is stored columnwise, and that 
- elements within each column are contiguous. All matrix elements 
- are generated as difference quotients, by way of calls to the 
- user routine gloc.  By virtue of the band structure, the number 
+ band matrix of type SUNMatrix is stored columnwise, and that
+ elements within each column are contiguous. All matrix elements
+ are generated as difference quotients, by way of calls to the
+ user routine gloc.  By virtue of the band structure, the number
  of these calls is bandwidth + 1, where bandwidth = mldq + mudq + 1.
  But the band matrix kept has bandwidth = mlkeep + mukeep + 1.
  This routine also assumes that the local elements of a vector are
  stored contiguously.
 ---------------------------------------------------------------*/
-static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t, 
-                       N_Vector y, N_Vector gy, 
+static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
+                       N_Vector y, N_Vector gy,
                        N_Vector ytemp, N_Vector gtemp)
 {
   ARKodeMem ark_mem;
-  realtype gnorm, minInc, inc, inc_inv;
+  realtype gnorm, minInc, inc, inc_inv, yj, conj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
+  realtype *y_data, *ewt_data, *gy_data, *gtemp_data;
+  realtype *ytemp_data, *col_j, *cns_data;
   int retval;
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;
@@ -605,7 +605,7 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
     if (retval != 0) return(retval);
   }
 
-  retval = pdata->gloc(pdata->n_local, t, ytemp, gy, 
+  retval = pdata->gloc(pdata->n_local, t, ytemp, gy,
                        ark_mem->user_data);
   pdata->nge++;
   if (retval != 0) return(retval);
@@ -616,10 +616,12 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   ewt_data   =  N_VGetArrayPointer(ark_mem->ewt);
   ytemp_data =  N_VGetArrayPointer(ytemp);
   gtemp_data =  N_VGetArrayPointer(gtemp);
+  if (ark_mem->constraintsSet)
+    cns_data =  N_VGetArrayPointer(ark_mem->constraints);
 
   /* Set minimum increment based on uround and norm of g */
   gnorm = N_VWrmsNorm(gy, ark_mem->rwt);
-  minInc = (gnorm != ZERO) ? 
+  minInc = (gnorm != ZERO) ?
     (MIN_INC_MULT * SUNRabs(ark_mem->h) *
      ark_mem->uround * pdata->n_local * gnorm) : ONE;
 
@@ -627,26 +629,43 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
   width = pdata->mldq + pdata->mudq + 1;
   ngroups = SUNMIN(width, pdata->n_local);
 
-  /* Loop over groups */  
+  /* Loop over groups */
   for (group=1; group <= ngroups; group++) {
-    
+
     /* Increment all y_j in group */
     for(j=group-1; j < pdata->n_local; j+=width) {
       inc = SUNMAX(pdata->dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+      yj = y_data[j];
+
+      /* Adjust sign(inc) again if yj has an inequality constraint. */
+      if (ark_mem->constraintsSet) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       ytemp_data[j] += inc;
     }
 
     /* Evaluate g with incremented y */
-    retval = pdata->gloc(pdata->n_local, t, ytemp, gtemp, 
+    retval = pdata->gloc(pdata->n_local, t, ytemp, gtemp,
                          ark_mem->user_data);
     pdata->nge++;
     if (retval != 0) return(retval);
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < pdata->n_local; j+=width) {
+      yj = y_data[j];
       ytemp_data[j] = y_data[j];
       col_j = SUNBandMatrix_Column(pdata->savedJ,j);
       inc = SUNMAX(pdata->dqrely*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+
+      if (ark_mem->constraintsSet) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-pdata->mukeep);
       i2 = SUNMIN(j+pdata->mlkeep, pdata->n_local-1);

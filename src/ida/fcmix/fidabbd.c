@@ -43,7 +43,7 @@ extern "C" {
                           realtype* GLOC, long int* IPAR,
                           realtype* RPAR, int* IER);
   extern void FIDA_COMMFN(long int* NLOC, realtype* T,
-                          realtype* Y, realtype* YP, 
+                          realtype* Y, realtype* YP,
                           long int* IPAR, realtype* RPAR,
                           int* IER);
 
@@ -58,8 +58,13 @@ void FIDA_BBDINIT(long int *Nloc, long int *mudq,
                   long int *ml, realtype *dqrely,
                   int *ier)
 {
-  *ier = IDABBDPrecInit(IDA_idamem, *Nloc, *mudq, 
-                        *mldq, *mu, *ml, *dqrely,
+  *ier = IDABBDPrecInit(IDA_idamem,
+                        (sunindextype)(*Nloc),
+                        (sunindextype)(*mudq),
+                        (sunindextype)(*mldq),
+                        (sunindextype)(*mu),
+                        (sunindextype)(*ml),
+                        *dqrely,
                         (IDABBDLocalFn) FIDAgloc,
                         (IDABBDCommFn) FIDAcfn);
   return;
@@ -71,7 +76,10 @@ void FIDA_BBDREINIT(long int *Nloc, long int *mudq,
                     long int *mldq, realtype *dqrely,
                     int *ier)
 {
-  *ier = IDABBDPrecReInit(IDA_idamem, *mudq, *mldq, *dqrely);
+  *ier = IDABBDPrecReInit(IDA_idamem,
+                          (sunindextype)(*mudq),
+                          (sunindextype)(*mldq),
+                          *dqrely);
   return;
 }
 
@@ -101,7 +109,7 @@ int FIDAgloc(long int Nloc, realtype t, N_Vector yy,
   IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
-  FIDA_GLOCFN(&Nloc, &t, yy_data, yp_data, gval_data, 
+  FIDA_GLOCFN(&Nloc, &t, yy_data, yp_data, gval_data,
               IDA_userdata->ipar, IDA_userdata->rpar, &ier);
   return(ier);
 }
@@ -131,7 +139,7 @@ int FIDAcfn(long int Nloc, realtype t, N_Vector yy, N_Vector yp,
   IDA_userdata = (FIDAUserData) user_data;
 
   /* Call user-supplied routine */
-  FIDA_COMMFN(&Nloc, &t, yy_data, yp_data, 
+  FIDA_COMMFN(&Nloc, &t, yy_data, yp_data,
               IDA_userdata->ipar, IDA_userdata->rpar, &ier);
   return(ier);
 }

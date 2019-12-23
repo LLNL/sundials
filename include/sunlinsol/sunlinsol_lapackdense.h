@@ -12,21 +12,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the LAPACK dense implementation of the 
- * SUNLINSOL module.
- * 
- * Part I contains declarations specific to the LAPACK dense 
- * implementation of the supplied SUNLINSOL module.
- * 
- * Part II contains the prototype for the constructor 
- * SUNLapackDense as well as implementation-specific prototypes 
- * for various useful solver operations.
+ * This is the header file for the LAPACK dense implementation of the
+ * SUNLINSOL module, SUNLINSOL_LINPACKDENSE.
  *
- * Notes:
- *
- *   - The definition of the generic SUNLinearSolver structure can 
+ * Note:
+ *   - The definition of the generic SUNLinearSolver structure can
  *     be found in the header file sundials_linearsolver.h.
- *
  * -----------------------------------------------------------------
  */
 
@@ -60,63 +51,41 @@ extern "C" {
 #error  Incompatible sunindextype for LAPACK; disable LAPACK and rebuild
 #endif
 
-/*
- * -----------------------------------------------------------------
- * PART I: LAPACK dense implementation of SUNLinearSolver
- *
- * The LAPACK dense implementation of the SUNLinearSolver 'content' 
- * structure contains:
- *     N -- size of the linear system
- *     pivots -- index array for partial pivoting in LU factorization
- *     last_flag -- last error return flag from internal setup/solve
- * -----------------------------------------------------------------
- */
-  
+/* -----------------------------------------------
+ * LAPACK dense implementation of SUNLinearSolver
+ * ----------------------------------------------- */
+
 struct _SUNLinearSolverContent_LapackDense {
   sunindextype N;
   sunindextype *pivots;
-  long int last_flag;
+  sunindextype last_flag;
 };
 
 typedef struct _SUNLinearSolverContent_LapackDense *SUNLinearSolverContent_LapackDense;
 
-  
-/*
- * -----------------------------------------------------------------
- * PART II: functions exported by sunlinsol_lapackdense
- * 
- * CONSTRUCTOR:
- *    SUNLinSol_LapackDense creates and allocates memory for a 
- *      LAPACK densematrix solver
- *
- *    SUNLapackDense (deprecated) wrapper for SUNLinSol_LapackDense
- *
- * -----------------------------------------------------------------
- */
+
+/* ---------------------------------------------
+ * Exported Functions for SUNLINSOL_LAPACKDENSE
+ * --------------------------------------------- */
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackDense(N_Vector y,
                                                       SUNMatrix A);
-  
+
 /* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A);
 
-/*
- * -----------------------------------------------------------------
- * LAPACK dense implementations of required linear solver operations
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A,
                                                N_Vector x, N_Vector b, realtype tol);
-SUNDIALS_EXPORT long int SUNLinSolLastFlag_LapackDense(SUNLinearSolver S);
+SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_LapackDense(SUNLinearSolver S,
                                                long int *lenrwLS,
                                                long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_LapackDense(SUNLinearSolver S);
-  
+
 #ifdef __cplusplus
 }
 #endif

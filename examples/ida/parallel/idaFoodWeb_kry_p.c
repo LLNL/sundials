@@ -112,9 +112,14 @@
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
 
 #include <mpi.h>
+
+/* helpful macros */
+
+#ifndef MAX
+#define MAX(A, B) ((A) > (B) ? (A) : (B))
+#endif
 
 /* Problem Constants. */
 
@@ -380,9 +385,9 @@ int main(int argc, char *argv[])
 
   /* Free memory. */
 
-  N_VDestroy_Parallel(cc);
-  N_VDestroy_Parallel(cp);
-  N_VDestroy_Parallel(id);
+  N_VDestroy(cc);
+  N_VDestroy(cp);
+  N_VDestroy(id);
 
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
@@ -503,8 +508,8 @@ static void FreeUserData(UserData webdata)
   }
 
   destroyMat(webdata->acoef);
-  N_VDestroy_Parallel(webdata->rates);
-  N_VDestroy_Parallel(webdata->ewt);
+  N_VDestroy(webdata->rates);
+  N_VDestroy(webdata->ewt);
   free(webdata);
 
 }
@@ -611,13 +616,13 @@ static void PrintOutput(void *ida_mem, N_Vector cc, realtype tt,
 
   thispe = webdata->thispe;
   npelast = webdata->npes - 1;
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
 
   /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
   if (thispe == npelast) {
     ilast = NUM_SPECIES*MXSUB*MYSUB - 2;
     if (npelast != 0)
-      MPI_Send(&cdata[ilast], 2, PVEC_REAL_MPI_TYPE, 0, 0, comm);
+      MPI_Send(&cdata[ilast], 2, MPI_SUNREALTYPE, 0, 0, comm);
     else { clast[0] = cdata[ilast]; clast[1] = cdata[ilast+1]; }
   }
 
@@ -627,7 +632,7 @@ static void PrintOutput(void *ida_mem, N_Vector cc, realtype tt,
   if (thispe == 0) {
 
     if (npelast != 0)
-      MPI_Recv(&clast[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
+      MPI_Recv(&clast[0], 2, MPI_SUNREALTYPE, npelast, 0, comm, &status);
 
     retval = IDAGetLastOrder(ida_mem, &kused);
     check_retval(&retval, "IDAGetLastOrder", 1, thispe);
@@ -796,13 +801,16 @@ static int rescomm(N_Vector cc, N_Vector cp, void *user_data)
   MPI_Request request[4];
 
   webdata = (UserData) user_data;
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
 
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */
-  comm = webdata->comm;     thispe = webdata->thispe;
-  ixsub = webdata->ixsub;   jysub = webdata->jysub;
-  cext = webdata->cext;
-  nsmxsub = webdata->nsmxsub; nsmysub = (webdata->ns)*(webdata->mysub);
+  comm    = webdata->comm;
+  thispe  = webdata->thispe;
+  ixsub   = webdata->ixsub;
+  jysub   = webdata->jysub;
+  cext    = webdata->cext;
+  nsmxsub = webdata->nsmxsub;
+  nsmysub = ((int)(webdata->ns))*(webdata->mysub);
 
   /* Start receiving boundary data from neighboring PEs. */
   BRecvPost(comm, request, thispe, ixsub, jysub, nsmxsub, nsmysub,
@@ -833,12 +841,12 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
 
   /* If jysub > 0, send data from bottom x-line of cc. */
   if (jysub != 0)
-    MPI_Send(&cdata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
+    MPI_Send(&cdata[0], dsizex, MPI_SUNREALTYPE, my_pe-NPEX, 0, comm);
 
   /* If jysub < NPEY-1, send data from top x-line of cc. */
   if (jysub != NPEY-1) {
     offsetc = (MYSUB-1)*dsizex;
-    MPI_Send(&cdata[offsetc], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
+    MPI_Send(&cdata[offsetc], dsizex, MPI_SUNREALTYPE, my_pe+NPEX, 0, comm);
   }
 
   /* If ixsub > 0, send data from left y-line of cc (via bufleft). */
@@ -849,7 +857,7 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
       for (i = 0; i < NUM_SPECIES; i++)
         bufleft[offsetbuf+i] = cdata[offsetc+i];
     }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe-1, 0, comm);
+    MPI_Send(&bufleft[0], dsizey, MPI_SUNREALTYPE, my_pe-1, 0, comm);
   }
 
   /* If ixsub < NPEX-1, send data from right y-line of cc (via bufright). */
@@ -860,7 +868,7 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub,
       for (i = 0; i < NUM_SPECIES; i++)
         bufright[offsetbuf+i] = cdata[offsetc+i];
     }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);
+    MPI_Send(&bufright[0], dsizey, MPI_SUNREALTYPE, my_pe+1, 0, comm);
   }
 
 }
@@ -884,25 +892,25 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
 
   /* If jysub > 0, receive data for bottom x-line of cext. */
   if (jysub != 0)
-    MPI_Irecv(&cext[NUM_SPECIES], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&cext[NUM_SPECIES], dsizex, MPI_SUNREALTYPE,
               my_pe-NPEX, 0, comm, &request[0]);
 
   /* If jysub < NPEY-1, receive data for top x-line of cext. */
   if (jysub != NPEY-1) {
     offsetce = NUM_SPECIES*(1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&cext[offsetce], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&cext[offsetce], dsizex, MPI_SUNREALTYPE,
               my_pe+NPEX, 0, comm, &request[1]);
   }
 
   /* If ixsub > 0, receive data for left y-line of cext (via bufleft). */
   if (ixsub != 0) {
-    MPI_Irecv(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufleft[0], dsizey, MPI_SUNREALTYPE,
               my_pe-1, 0, comm, &request[2]);
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of cext (via bufright). */
   if (ixsub != NPEX-1) {
-    MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufright[0], dsizey, MPI_SUNREALTYPE,
               my_pe+1, 0, comm, &request[3]);
   }
 
@@ -1008,7 +1016,7 @@ static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res,
   webdata = (UserData) user_data;
 
   /* Get data pointers, subgrid data, array sizes, work array cext. */
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
 
   /* Copy local segment of cc vector into the working extended array cext. */
   locc = 0;
@@ -1136,10 +1144,11 @@ static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
                      N_Vector rr, realtype cj, void *user_data)
 {
   int retval, thispe;
+  sunindextype ret;
   realtype uround;
   realtype xx, yy, *cxy, *ewtxy, cctemp, **Pxy, *ratesxy, *Pxycol, *cpxy;
   realtype inc, sqru, fac, perturb_rates[NUM_SPECIES];
-  int is, js, ix, jy, ret;
+  int is, js, ix, jy;
   UserData webdata;
   void *ida_mem;
   N_Vector ewt;
@@ -1147,7 +1156,7 @@ static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
 
   webdata = (UserData)user_data;
   uround = UNIT_ROUNDOFF;
-  sqru = SUNRsqrt(uround);
+  sqru = sqrt(uround);
   thispe = webdata->thispe;
 
   ida_mem = webdata->ida_mem;
@@ -1169,7 +1178,7 @@ static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
       ratesxy = IJ_Vptr(rates,ix,jy);
 
       for (js = 0; js < ns; js++) {
-        inc = sqru*(SUNMAX(SUNRabs(cxy[js]), SUNMAX(hh*SUNRabs(cpxy[js]), ONE/ewtxy[js])));
+        inc = sqru*(MAX(fabs(cxy[js]), MAX(hh*fabs(cpxy[js]), ONE/ewtxy[js])));
         cctemp = cxy[js];  /* Save the (js,ix,jy) element of cc. */
         cxy[js] += inc;    /* Perturb the (js,ix,jy) element of cc. */
         fac = -ONE/inc;

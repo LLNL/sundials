@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
   num_threads = omp_get_max_threads();  /* overwrite with OMP_NUM_THREADS enviroment variable */
 #endif
   if (argc > 1)      /* overwrite with command line value, if supplied */
-    num_threads = strtol(argv[1], NULL, 0);
+    num_threads = (int) strtol(argv[1], NULL, 0);
 
   /* Allocate and initialize user data block webdata. */
 
@@ -391,7 +391,7 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
 
 static void InitUserData(UserData webdata)
 {
-  int i, j, np;
+  sunindextype i, j, np;
   realtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   webdata->mx = MX;
