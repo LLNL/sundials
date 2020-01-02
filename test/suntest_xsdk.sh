@@ -364,10 +364,10 @@ else
 fi
 
 # set Fortran status for xSDK build
-if [[ "${F77_STATUS}" == "ON" || "${F03_STATUS}" == "ON" ]; then
-  FORTRAN_STATUS = ON
+if [[ "${F77_STATUS}" == "ON" || "${F03_STATUS}" == "ON" ]]; then
+    FORTRAN_STATUS=ON
 else
-  FORTRAN_STATUS = OFF
+    FORTRAN_STATUS=OFF
 fi
 
 echo "START CMAKE"
