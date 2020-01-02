@@ -2564,95 +2564,6 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 }
 
 /*
- * IDAComputeY
- *
- * Computes y based on the current prediction and given correction.
- */
-int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeY", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y);
-
-  return(IDA_SUCCESS);
-}
-
-/*
- * IDAComputeYp
- *
- * Computes y' based on the current prediction and given correction.
- */
-int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYp", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp);
-
-  return(IDA_SUCCESS);
-}
-
-/*
- * IDAComputeYSens
- *
- * Computes yS based on the current prediction and given correction.
- */
-int IDAComputeYSens(void *ida_mem, N_Vector *ycorS, N_Vector *yyS)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYSens", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  N_VLinearSumVectorArray(IDA_mem->ida_Ns,
-                          ONE, IDA_mem->ida_yySpredict,
-                          ONE, ycorS, yyS);
-
-  return(IDA_SUCCESS);
-}
-
-/*
- * IDAComputeYpSens
- *
- * Computes yS' based on the current prediction and given correction.
- */
-int IDAComputeYpSens(void *ida_mem, N_Vector *ycorS, N_Vector *ypS)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYpSens", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  N_VLinearSumVectorArray(IDA_mem->ida_Ns,
-                          ONE, IDA_mem->ida_ypSpredict,
-                          IDA_mem->ida_cj, ycorS, ypS);
-
-  return(IDA_SUCCESS);
-}
-
-
-/*
  * -----------------------------------------------------------------
  * Interpolated output and extraction functions
  * -----------------------------------------------------------------
@@ -2764,8 +2675,9 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
   /* Compute sum (c_j(t) * phi(t)) */
 
   /* Sum j=k to j<=IDA_mem->ida_kused */
-  retval = N_VLinearCombination(IDA_mem->ida_kused-k+1, cjk+k, IDA_mem->ida_phi+k, dky);
-  if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+  retval = N_VLinearCombination(IDA_mem->ida_kused-k+1, cjk+k,
+                                IDA_mem->ida_phi+k, dky);
+  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
 
   return(IDA_SUCCESS);
 }
@@ -3317,6 +3229,94 @@ int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
   retval = N_VLinearCombination(IDA_mem->ida_kused-k+1, cjk+k,
                                 IDA_mem->ida_Xvecs, dkyQS);
   if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeY
+ *
+ * Computes y based on the current prediction and given correction.
+ */
+int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeY", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYp
+ *
+ * Computes y' based on the current prediction and given correction.
+ */
+int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYp", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYSens
+ *
+ * Computes yS based on the current prediction and given correction.
+ */
+int IDAComputeYSens(void *ida_mem, N_Vector *ycorS, N_Vector *yyS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYSens", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSumVectorArray(IDA_mem->ida_Ns,
+                          ONE, IDA_mem->ida_yySpredict,
+                          ONE, ycorS, yyS);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYpSens
+ *
+ * Computes yS' based on the current prediction and given correction.
+ */
+int IDAComputeYpSens(void *ida_mem, N_Vector *ycorS, N_Vector *ypS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYpSens", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSumVectorArray(IDA_mem->ida_Ns,
+                          ONE, IDA_mem->ida_ypSpredict,
+                          IDA_mem->ida_cj, ycorS, ypS);
 
   return(IDA_SUCCESS);
 }
@@ -4674,7 +4674,6 @@ static int IDAQuadSensEwtSetSV(IDAMem IDA_mem, N_Vector *yQScur, N_Vector *weigh
   return(0);
 }
 
-
 /*
  * -----------------------------------------------------------------
  * Stopping tests
@@ -5251,79 +5250,6 @@ static int IDAStep(IDAMem IDA_mem)
 
   return(IDA_SUCCESS);
 }
-
-/*
- * IDAGetSolution
- *
- * This routine evaluates y(t) and y'(t) as the value and derivative of
- * the interpolating polynomial at the independent variable t, and stores
- * the results in the vectors yret and ypret.  It uses the current
- * independent variable value, tn, and the method order last used, kused.
- * This function is called by IDASolve with t = tout, t = tn, or t = tstop.
- *
- * If kused = 0 (no step has been taken), or if t = tn, then the order used
- * here is taken to be 1, giving yret = phi[0], ypret = phi[1]/psi[0].
- *
- * The return values are:
- *   IDA_SUCCESS  if t is legal, or
- *   IDA_BAD_T    if t is not within the interval of the last step taken.
- */
-
-int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
-{
-  IDAMem IDA_mem;
-  realtype tfuzz, tp, delt, c, d, gam;
-  int j, kord, retval;
-
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetSolution", MSG_NO_MEM);
-    return (IDA_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  /* Check t for legality.  Here tn - hused is t_{n-1}. */
-
-  tfuzz = HUNDRED * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh));
-  if (IDA_mem->ida_hh < ZERO) tfuzz = - tfuzz;
-  tp = IDA_mem->ida_tn - IDA_mem->ida_hused - tfuzz;
-  if ((t - tp)*IDA_mem->ida_hh < ZERO) {
-    IDAProcessError(IDA_mem, IDA_BAD_T, "IDAS", "IDAGetSolution", MSG_BAD_T,
-                    t, IDA_mem->ida_tn-IDA_mem->ida_hused, IDA_mem->ida_tn);
-    return(IDA_BAD_T);
-  }
-
-  /* Initialize kord = (kused or 1). */
-
-  kord = IDA_mem->ida_kused;
-  if (IDA_mem->ida_kused == 0) kord = 1;
-
-  /* Accumulate multiples of columns phi[j] into yret and ypret. */
-
-  delt = t - IDA_mem->ida_tn;
-  c = ONE; d = ZERO;
-  gam = delt / IDA_mem->ida_psi[0];
-
-  IDA_mem->ida_cvals[0] = c;
-  for (j=1; j <= kord; j++) {
-    d = d*gam + c / IDA_mem->ida_psi[j-1];
-    c = c*gam;
-    gam = (delt + IDA_mem->ida_psi[j-1]) / IDA_mem->ida_psi[j];
-
-    IDA_mem->ida_cvals[j]   = c;
-    IDA_mem->ida_dvals[j-1] = d;
-  }
-
-  retval = N_VLinearCombination(kord+1, IDA_mem->ida_cvals,
-                                IDA_mem->ida_phi,  yret);
-  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
-
-  retval = N_VLinearCombination(kord, IDA_mem->ida_dvals,
-                                IDA_mem->ida_phi+1, ypret);
-  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
-
-  return(IDA_SUCCESS);
-}
-
 
 /*
  * IDASetCoeffs
@@ -6625,6 +6551,84 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
                                    IDA_mem->ida_Xvecs);
   }
 
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Interpolated output
+ * -----------------------------------------------------------------
+ */
+
+/*
+ * IDAGetSolution
+ *
+ * This routine evaluates y(t) and y'(t) as the value and derivative of
+ * the interpolating polynomial at the independent variable t, and stores
+ * the results in the vectors yret and ypret.  It uses the current
+ * independent variable value, tn, and the method order last used, kused.
+ * This function is called by IDASolve with t = tout, t = tn, or t = tstop.
+ *
+ * If kused = 0 (no step has been taken), or if t = tn, then the order used
+ * here is taken to be 1, giving yret = phi[0], ypret = phi[1]/psi[0].
+ *
+ * The return values are:
+ *   IDA_SUCCESS  if t is legal, or
+ *   IDA_BAD_T    if t is not within the interval of the last step taken.
+ */
+
+int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
+{
+  IDAMem IDA_mem;
+  realtype tfuzz, tp, delt, c, d, gam;
+  int j, kord, retval;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetSolution", MSG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* Check t for legality.  Here tn - hused is t_{n-1}. */
+
+  tfuzz = HUNDRED * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh));
+  if (IDA_mem->ida_hh < ZERO) tfuzz = - tfuzz;
+  tp = IDA_mem->ida_tn - IDA_mem->ida_hused - tfuzz;
+  if ((t - tp)*IDA_mem->ida_hh < ZERO) {
+    IDAProcessError(IDA_mem, IDA_BAD_T, "IDAS", "IDAGetSolution", MSG_BAD_T, t,
+                    IDA_mem->ida_tn-IDA_mem->ida_hused, IDA_mem->ida_tn);
+    return(IDA_BAD_T);
+  }
+
+  /* Initialize kord = (kused or 1). */
+
+  kord = IDA_mem->ida_kused;
+  if (IDA_mem->ida_kused == 0) kord = 1;
+
+  /* Accumulate multiples of columns phi[j] into yret and ypret. */
+
+  delt = t - IDA_mem->ida_tn;
+  c = ONE; d = ZERO;
+  gam = delt / IDA_mem->ida_psi[0];
+
+  IDA_mem->ida_cvals[0] = c;
+  for (j=1; j <= kord; j++) {
+    d = d*gam + c / IDA_mem->ida_psi[j-1];
+    c = c*gam;
+    gam = (delt + IDA_mem->ida_psi[j-1]) / IDA_mem->ida_psi[j];
+
+    IDA_mem->ida_cvals[j]   = c;
+    IDA_mem->ida_dvals[j-1] = d;
+  }
+
+  retval = N_VLinearCombination(kord+1, IDA_mem->ida_cvals,
+                                IDA_mem->ida_phi,  yret);
+  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
+
+  retval = N_VLinearCombination(kord, IDA_mem->ida_dvals,
+                                IDA_mem->ida_phi+1, ypret);
+  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
+
+  return(IDA_SUCCESS);
 }
 
 /*

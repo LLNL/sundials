@@ -1237,7 +1237,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
 /*
  * -----------------------------------------------------------------
- * Interpolated output
+ * Interpolated output and extraction functions
  * -----------------------------------------------------------------
  */
 
@@ -1350,6 +1350,48 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
   retval = N_VLinearCombination(IDA_mem->ida_kused-k+1, cjk+k,
                                 IDA_mem->ida_phi+k, dky);
   if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeY
+ *
+ * Computes y based on the current prediction and given correction.
+ */
+int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAComputeY", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYp
+ *
+ * Computes y' based on the current prediction and given correction.
+ */
+int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAComputeYp", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp);
 
   return(IDA_SUCCESS);
 }
@@ -2851,8 +2893,7 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
   /* Check t for legality.  Here tn - hused is t_{n-1}. */
 
   tfuzz = HUNDRED * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh));
-  if (IDA_mem->ida_hh < ZERO)
-    tfuzz = - tfuzz;
+  if (IDA_mem->ida_hh < ZERO) tfuzz = - tfuzz;
   tp = IDA_mem->ida_tn - IDA_mem->ida_hused - tfuzz;
   if ((t - tp)*IDA_mem->ida_hh < ZERO) {
     IDAProcessError(IDA_mem, IDA_BAD_T, "IDA", "IDAGetSolution", MSG_BAD_T, t,
@@ -3372,49 +3413,6 @@ static int IDARootfind(IDAMem IDA_mem)
   }
   return(RTFOUND);
 }
-
-/*
- * IDAComputeY
- *
- * Computes y based on the current prediction and given correction.
- */
-int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAComputeY", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y);
-
-  return(IDA_SUCCESS);
-}
-
-/*
- * IDAComputeYp
- *
- * Computes y' based on the current prediction and given correction.
- */
-int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAComputeYp", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp);
-
-  return(IDA_SUCCESS);
-}
-
 
 /*
  * =================================================================
