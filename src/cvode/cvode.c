@@ -1751,6 +1751,14 @@ static void cvFreeVectors(CVodeMem cv_mem)
   }
 }
 
+
+/*
+ * -----------------------------------------------------------------
+ * Initial setup
+ * -----------------------------------------------------------------
+ */
+
+
 /*
  * cvInitialSetup
  *
@@ -1766,7 +1774,8 @@ static int cvInitialSetup(CVodeMem cv_mem)
 
   /* Did the user specify tolerances? */
   if (cv_mem->cv_itol == CV_NN) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup", MSGCV_NO_TOLS);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup",
+                   MSGCV_NO_TOL);
     return(CV_ILL_INPUT);
   }
 
@@ -1786,7 +1795,8 @@ static int cvInitialSetup(CVodeMem cv_mem)
   if (cv_mem->cv_constraintsSet) {
     conOK = N_VConstrMask(cv_mem->cv_constraints, cv_mem->cv_zn[0], cv_mem->cv_tempv);
     if (!conOK) {
-      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup", MSGCV_Y0_FAIL_CONSTR);
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup",
+                     MSGCV_Y0_FAIL_CONSTR);
       return(CV_ILL_INPUT);
     }
   }
@@ -1795,37 +1805,35 @@ static int cvInitialSetup(CVodeMem cv_mem)
   ier = cv_mem->cv_efun(cv_mem->cv_zn[0], cv_mem->cv_ewt, cv_mem->cv_e_data);
   if (ier != 0) {
     if (cv_mem->cv_itol == CV_WF)
-      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup", MSGCV_EWT_FAIL);
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup",
+                     MSGCV_EWT_FAIL);
     else
-      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup", MSGCV_BAD_EWT);
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup",
+                     MSGCV_BAD_EWT);
     return(CV_ILL_INPUT);
   }
 
-  /* Check if lsolve function exists (if needed) and call linit function (if it exists) */
+  /* Call linit function (if it exists) */
   if (cv_mem->cv_linit != NULL) {
     ier = cv_mem->cv_linit(cv_mem);
     if (ier != 0) {
-      cvProcessError(cv_mem, CV_LINIT_FAIL, "CVODE", "cvInitialSetup", MSGCV_LINIT_FAIL);
+      cvProcessError(cv_mem, CV_LINIT_FAIL, "CVODE", "cvInitialSetup",
+                     MSGCV_LINIT_FAIL);
       return(CV_LINIT_FAIL);
     }
   }
 
-  /* Initialize the nonlinear solver (must occur after linear solver is initialize) so
-   * that lsetup and lsolve pointer have been set */
+  /* Initialize the nonlinear solver (must occur after linear solver is
+     initialized) so that lsetup and lsolve pointer have been set */
   ier = cvNlsInit(cv_mem);
   if (ier != 0) {
-    cvProcessError(cv_mem, CV_NLS_INIT_FAIL, "CVODE", "cvInitialSetup", MSGCV_NLS_INIT_FAIL);
+    cvProcessError(cv_mem, CV_NLS_INIT_FAIL, "CVODE", "cvInitialSetup",
+                   MSGCV_NLS_INIT_FAIL);
     return(CV_NLS_INIT_FAIL);
   }
 
   return(CV_SUCCESS);
 }
-
-/*
- * -----------------------------------------------------------------
- * PRIVATE FUNCTIONS FOR CVODE
- * -----------------------------------------------------------------
- */
 
 
 /*
@@ -2039,7 +2047,6 @@ static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
 
   return(CV_SUCCESS);
 }
-
 
 
 /*

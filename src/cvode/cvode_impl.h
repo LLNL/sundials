@@ -517,7 +517,7 @@ int cvNlsInit(CVodeMem cv_mem);
 
 /* CVode Error Messages */
 
-#define MSGCV_NO_TOLS "No integration tolerances have been specified."
+#define MSGCV_NO_TOL "No integration tolerances have been specified."
 #define MSGCV_LSOLVE_NULL "The linear solver's solve routine is NULL."
 #define MSGCV_YOUT_NULL "yout = NULL illegal."
 #define MSGCV_TRET_NULL "tret = NULL illegal."
