@@ -193,7 +193,7 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   ldim = SUNBandMatrix_LDim(A);
   one = 1;
   xgbtrs_f77("N", &n, &ml, &mu, &one, SUNBandMatrix_Data(A),
-             &ldim, PIVOTS(S), xdata, &n, &ier, 1);
+             &ldim, PIVOTS(S), xdata, &n, &ier);
   LASTFLAG(S) = ier;
   if (ier < 0)
     return(SUNLS_PACKAGE_FAIL_UNREC);

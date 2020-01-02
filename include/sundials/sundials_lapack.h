@@ -122,24 +122,22 @@ extern void sscal_f77(sunindextype *n, const float *alpha, float *x,
 extern void dgemv_f77(const char *trans, sunindextype *m, sunindextype *n,
                       const double *alpha, const double *a, sunindextype *lda,
                       const double *x, sunindextype *inc_x, const double *beta,
-                      double *y, sunindextype *inc_y, sunindextype len_trans);
+                      double *y, sunindextype *inc_y);
 
 extern void dtrsv_f77(const char *uplo, const char *trans, const char *diag,
                       const sunindextype *n, const double *a,
                       const sunindextype *lda, double *x,
-                      const sunindextype *inc_x, sunindextype len_uplo,
-                      sunindextype len_trans, sunindextype len_diag);
+                      const sunindextype *inc_x);
 
 extern void sgemv_f77(const char *trans, sunindextype *m, sunindextype *n,
                       const float *alpha, const float *a, sunindextype *lda,
                       const float *x, sunindextype *inc_x, const float *beta,
-                      float *y, sunindextype *inc_y, sunindextype len_trans);
+                      float *y, sunindextype *inc_y);
 
 extern void strsv_f77(const char *uplo, const char *trans, const char *diag,
                       const sunindextype *n, const float *a,
                       const sunindextype *lda, float *x,
-                      const sunindextype *inc_x, sunindextype len_uplo,
-                      sunindextype len_trans, sunindextype len_diag);
+                      const sunindextype *inc_x);
 
 /* Level-3 BLAS */
 
@@ -147,15 +145,13 @@ extern void dsyrk_f77(const char *uplo, const char *trans,
                       const sunindextype *n, const sunindextype *k,
                       const double *alpha, const double *a,
                       const sunindextype *lda, const double *beta,
-                      const double *c, const sunindextype *ldc,
-                      sunindextype len_uplo, sunindextype len_trans);
+                      const double *c, const sunindextype *ldc);
 
 extern void ssyrk_f77(const char *uplo, const char *trans,
                       const sunindextype *n, const sunindextype *k,
                       const float *alpha, const float *a,
                       const sunindextype *lda, const float *beta,
-                      const float *c, const sunindextype *ldc,
-                      sunindextype len_uplo, sunindextype len_trans);
+                      const float *c, const sunindextype *ldc);
 
 /* LAPACK */
 
@@ -168,8 +164,7 @@ extern void dgbtrs_f77(const char *trans, const sunindextype *n,
                        const sunindextype *kl, const sunindextype *ku,
                        const sunindextype *nrhs, double *ab,
                        const sunindextype *ldab, sunindextype *ipiv,
-                       double *b, const sunindextype *ldb, sunindextype *info,
-                       sunindextype len_trans);
+                       double *b, const sunindextype *ldb, sunindextype *info);
 
 
 extern void dgeqp3_f77(const sunindextype *m, const sunindextype *n, double *a,
@@ -188,8 +183,7 @@ extern void dgetrf_f77(const sunindextype *m, const sunindextype *n, double *a,
 extern void dgetrs_f77(const char *trans, const sunindextype *n,
                        const sunindextype *nrhs, double *a,
                        const sunindextype *lda, sunindextype *ipiv, double *b,
-                       const sunindextype *ldb, sunindextype *info,
-                       sunindextype len_trans);
+                       const sunindextype *ldb, sunindextype *info);
 
 
 extern void dormqr_f77(const char *side, const char *trans,
@@ -197,18 +191,15 @@ extern void dormqr_f77(const char *side, const char *trans,
                        const sunindextype *k, double *a,
                        const sunindextype *lda, double *tau, double *c,
                        const sunindextype *ldc, double *work,
-                       const sunindextype *lwork, sunindextype *info,
-                       sunindextype len_side, sunindextype len_trans);
+                       const sunindextype *lwork, sunindextype *info);
 
 extern void dpotrf_f77(const char *uplo, const sunindextype *n, double *a,
-                       sunindextype *lda, sunindextype *info,
-                       sunindextype len_uplo);
+                       sunindextype *lda, sunindextype *info);
 
 extern void dpotrs_f77(const char *uplo, const sunindextype *n,
                        const sunindextype *nrhs, double *a,
                        const sunindextype *lda, double *b,
-                       const sunindextype *ldb, sunindextype *info,
-                       sunindextype len_uplo);
+                       const sunindextype *ldb, sunindextype *info);
 
 
 extern void sgbtrf_f77(const sunindextype *m, const sunindextype *n,
@@ -220,8 +211,7 @@ extern void sgbtrs_f77(const char *trans, const sunindextype *n,
                        const sunindextype *kl, const sunindextype *ku,
                        const sunindextype *nrhs, float *ab,
                        const sunindextype *ldab, sunindextype *ipiv,
-                       float *b, const sunindextype *ldb, sunindextype *info,
-                       sunindextype len_trans);
+                       float *b, const sunindextype *ldb, sunindextype *info);
 
 
 extern void sgeqp3_f77(const sunindextype *m, const sunindextype *n, float *a,
@@ -240,8 +230,7 @@ extern void sgetrf_f77(const sunindextype *m, const sunindextype *n, float *a,
 extern void sgetrs_f77(const char *trans, const sunindextype *n,
                        const sunindextype *nrhs, float *a,
                        const sunindextype *lda, sunindextype *ipiv,
-                       float *b, const sunindextype *ldb, sunindextype *info,
-                       sunindextype len_trans);
+                       float *b, const sunindextype *ldb, sunindextype *info);
 
 
 extern void sormqr_f77(const char *side, const char *trans,
@@ -249,18 +238,15 @@ extern void sormqr_f77(const char *side, const char *trans,
                        const sunindextype *k, float *a, const sunindextype *lda,
                        float *tau, float *c, const sunindextype *ldc,
                        float *work, const sunindextype *lwork,
-                       sunindextype *info, sunindextype len_side,
-                       sunindextype len_trans);
+                       sunindextype *info);
 
 extern void spotrf_f77(const char *uplo, const sunindextype *n, float *a,
-                       sunindextype *lda, sunindextype *info,
-                       sunindextype len_uplo);
+                       sunindextype *lda, sunindextype *info);
 
 extern void spotrs_f77(const char *uplo, const sunindextype *n,
                        const sunindextype *nrhs, float *a,
                        const sunindextype *lda, float *b,
-                       const sunindextype *ldb, sunindextype *info,
-                       sunindextype len_uplo);
+                       const sunindextype *ldb, sunindextype *info);
 
 
 #ifdef __cplusplus

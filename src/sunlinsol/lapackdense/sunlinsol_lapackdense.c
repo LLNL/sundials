@@ -184,7 +184,7 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   n = SUNDenseMatrix_Rows(A);
   one = 1;
   xgetrs_f77("N", &n, &one, SUNDenseMatrix_Data(A),
-             &n, PIVOTS(S), xdata, &n, &ier, 1);
+             &n, PIVOTS(S), xdata, &n, &ier);
   LASTFLAG(S) = ier;
   if (ier < 0)
     return(SUNLS_PACKAGE_FAIL_UNREC);
