@@ -21,17 +21,14 @@ The overall organization of the {\cvodes} package is shown in Figure
 The basic elements of the structure are a module for
 the basic integration algorithm (including forward sensitivity analysis),
 a module for adjoint sensitivity analysis, and support for the solution
-of nonlinear and linear systems that arise in the case of a stiff system.  
-\begin{figure}[!ht]
+of nonlinear and linear systems that arise in the case of a stiff system.
+\begin{figure}[!htb]
 {\centerline{\includegraphics[width=\textwidth]{cvsorg}}}
 \caption [Overall structure diagram of the {\cvodes} package]
 {Overall structure diagram of the {\cvodes} package.
-  Modules specific to {\cvodes} begin with ``CV'' ({\cvls}, {\cvdiag},
-  {\cvbbdpre}, {\cvbandpre}, and {\cvnls}), all other items correspond
-  to generic solver and auxiliary modules. 
-  Note also that the LAPACK, {\klu} and {\superlumt} support is
-  through interfaces to external packages.  Users will need to
-  download and compile those packages independently.}
+  Modules specific to {\cvodes} begin with ``CV'' ({\cvls}, {\cvnls}, {\cvdiag},
+  {\cvbbdpre}, and {\cvbandpre}), all other items correspond to generic
+  {\sundials} vector, matrix, and solver modules (see Figure \ref{f:sunorg1}).}
 \label{f:cvsorg}
 \end{figure}
 The central integration module, implemented in the files \id{cvode.h},
@@ -48,7 +45,7 @@ arise. For any given user problem, there exists a single nonlinear solver
 interface and, if necessary, one of the linear system solver interfaces is
 specified, and invoked as needed during the integration.
 
-In addition, if forward sensitivity analysis is turned on, the main module 
+In addition, if forward sensitivity analysis is turned on, the main module
 will integrate the forward sensitivity equations simultaneously with the original
 IVP. The sensitivity variables may be included in the local error control
 mechanism of the main integrator.
@@ -61,15 +58,15 @@ sensitivity equations right-hand sides by difference quotients, but the user has
 the option of supplying these right-hand sides directly.
 
 \index{adjoint sensitivity analysis!implementation in {\cvodes}|(}
-The adjoint sensitivity module (file \id{cvodea.c}) provides the infrastructure needed for the 
-backward integration of any system of ODEs which depends on the solution 
+The adjoint sensitivity module (file \id{cvodea.c}) provides the infrastructure needed for the
+backward integration of any system of ODEs which depends on the solution
 of the original IVP, in particular the adjoint system and any quadratures required
 in evaluating the gradient of the objective functional.  This module deals with
 the setup of the checkpoints, the interpolation of the forward solution during
 the backward integration, and the backward integration of the adjoint equations.
 \index{adjoint sensitivity analysis!implementation in {\cvodes}|)}
 
-\index{CVODES@{\cvodes} linear solver interfaces|(} 
+\index{CVODES@{\cvodes} linear solver interfaces|(}
 At present, the package includes two linear solver interfaces.  The
 primary linear solver interface, {\cvls}, supports both direct and
 iterative linear solvers built using the generic {\sunlinsol} API (see
@@ -83,10 +80,10 @@ are developed.
 Additionally, {\cvodes} includes the {\em diagonal} linear solver
 interface, {\cvdiag}, that creates an internally generated diagonal
 approximation to the Jacobian.
-\index{CVODES@{\cvodes} linear solver interfaces|)} 
+\index{CVODES@{\cvodes} linear solver interfaces|)}
 
 For users employing dense or banded Jacobian matrices, {\cvodes}
-includes algorithms for their approximation through difference 
+includes algorithms for their approximation through difference
 quotients, although the user also has the option of supplying a
 routine to compute the Jacobian (or an approximation to it) directly.
 This user-supplied routine is required when using sparse or
@@ -97,25 +94,25 @@ For users employing matrix-free iterative linear solvers,
 includes an algorithm for the approximation by difference quotients of
 the product $Mv$. Again, the user has the option of providing routines
 for this operation, in two phases: setup (preprocessing of Jacobian
-data) and multiplication. 
+data) and multiplication.
 
-For preconditioned iterative methods, \index{preconditioning!setup and solve phases} 
-the preconditioning must be supplied by the user, again in two phases: 
+For preconditioned iterative methods, \index{preconditioning!setup and solve phases}
+the preconditioning must be supplied by the user, again in two phases:
 setup and solve.  While\index{preconditioning!advice on} there is no
 default choice of preconditioner analogous to the difference-quotient
 approximation in the direct case, the references
 \cite{BrHi:89,Byr:92}, together with the example and demonstration
 programs included with {\cvodes}, offer considerable assistance in
-building preconditioners. 
+building preconditioners.
 
-\index{CVODES@{\cvodes} linear solvers!implementation details|(} 
+\index{CVODES@{\cvodes} linear solvers!implementation details|(}
 {\cvodes}' linear solver interface consists of four primary phases,
 devoted to (1) memory allocation and initialization, (2) setup of the
-matrix data involved, (3) solution of the system, and (4) freeing of memory.  
+matrix data involved, (3) solution of the system, and (4) freeing of memory.
 The setup and solution phases are separate because the evaluation of
 Jacobians and preconditioners is done only periodically during the
-integration, and only as required to achieve convergence. 
-\index{CVODES@{\cvodes} linear solvers!implementation details|)} 
+integration, and only as required to achieve convergence.
+\index{CVODES@{\cvodes} linear solvers!implementation details|)}
 
 {\cvodes} also provides two preconditioner modules, for use with any of
 the Krylov iterative linear solvers. The first one, {\cvbandpre},
