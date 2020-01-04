@@ -4,6 +4,8 @@
 
 Fixed a build system bug related to finding LAPACK/BLAS.
 
+Fixed a build system bug related to checking if the KLU library works.
+
 Fixed a build system bug related to finding PETSc when using the CMake
 variables `PETSC_INCLUDES` and `PETSC_LIBRARIES` instead of `PETSC_DIR`.
 
