@@ -229,9 +229,16 @@ void *KINCreate(void)
 
   kin_mem->kin_func             = NULL;
   kin_mem->kin_user_data        = NULL;
-  kin_mem->kin_constraints      = NULL;
+  kin_mem->kin_uu               = NULL;
+  kin_mem->kin_unew             = NULL;
+  kin_mem->kin_fval             = NULL;
+  kin_mem->kin_gval             = NULL;
   kin_mem->kin_uscale           = NULL;
   kin_mem->kin_fscale           = NULL;
+  kin_mem->kin_pp               = NULL;
+  kin_mem->kin_constraints      = NULL;
+  kin_mem->kin_vtemp1           = NULL;
+  kin_mem->kin_vtemp2           = NULL;
   kin_mem->kin_fold_aa          = NULL;
   kin_mem->kin_gold_aa          = NULL;
   kin_mem->kin_df_aa            = NULL;
@@ -239,8 +246,10 @@ void *KINCreate(void)
   kin_mem->kin_q_aa             = NULL;
   kin_mem->kin_gamma_aa         = NULL;
   kin_mem->kin_R_aa             = NULL;
+  kin_mem->kin_ipt_map          = NULL;
   kin_mem->kin_cv               = NULL;
   kin_mem->kin_Xv               = NULL;
+  kin_mem->kin_lmem             = NULL;
   kin_mem->kin_m_aa             = 0;
   kin_mem->kin_aamem_aa         = 0;
   kin_mem->kin_setstop_aa       = 0;
@@ -492,8 +501,15 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
      FPSOL solver instead of kinsol in the future. */
   if ( kin_mem->kin_globalstrategy == KIN_PICARD ) {
 
-    kin_mem->kin_gval = N_VClone(kin_mem->kin_unew);
-    kin_mem->kin_lrw += kin_mem->kin_lrw1;
+    if (kin_mem->kin_gval == NULL) {
+      kin_mem->kin_gval = N_VClone(kin_mem->kin_unew);
+      if (kin_mem->kin_gval == NULL) {
+        KINProcessError(kin_mem, KIN_MEM_FAIL, "KINSOL", "KINSol", MSG_MEM_FAIL);
+        return(KIN_MEM_FAIL);
+      }
+      kin_mem->kin_liw += kin_mem->kin_liw1;
+      kin_mem->kin_lrw += kin_mem->kin_lrw1;
+    }
     ret = KINPicardAA(kin_mem, &(kin_mem->kin_nni), kin_mem->kin_R_aa, kin_mem->kin_gamma_aa, &fmax);
 
     return(ret);
@@ -713,177 +729,247 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
   /* allocate unew, fval, pp, vtemp1 and vtemp2. */
   /* allocate df, dg, q, for Anderson Acceleration, Broyden and EN */
 
-  kin_mem->kin_unew = N_VClone(tmpl);
-  if (kin_mem->kin_unew == NULL) return(SUNFALSE);
+  if (kin_mem->kin_unew == NULL) {
+    kin_mem->kin_unew = N_VClone(tmpl);
+    if (kin_mem->kin_unew == NULL) return(SUNFALSE);
+    kin_mem->kin_liw += kin_mem->kin_liw1;
+    kin_mem->kin_lrw += kin_mem->kin_lrw1;
+  }
 
-  kin_mem->kin_fval = N_VClone(tmpl);
   if (kin_mem->kin_fval == NULL) {
-    N_VDestroy(kin_mem->kin_unew);
-    return(SUNFALSE);
+    kin_mem->kin_fval = N_VClone(tmpl);
+    if (kin_mem->kin_fval == NULL) {
+      N_VDestroy(kin_mem->kin_unew);
+      kin_mem->kin_liw -= kin_mem->kin_liw1;
+      kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+      return(SUNFALSE);
+    }
+    kin_mem->kin_liw += kin_mem->kin_liw1;
+    kin_mem->kin_lrw += kin_mem->kin_lrw1;
   }
 
-  kin_mem->kin_pp = N_VClone(tmpl);
   if (kin_mem->kin_pp == NULL) {
-    N_VDestroy(kin_mem->kin_unew);
-    N_VDestroy(kin_mem->kin_fval);
-    return(SUNFALSE);
+    kin_mem->kin_pp = N_VClone(tmpl);
+    if (kin_mem->kin_pp == NULL) {
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      kin_mem->kin_liw -= 2*kin_mem->kin_liw1;
+      kin_mem->kin_lrw -= 2*kin_mem->kin_lrw1;
+      return(SUNFALSE);
+    }
+    kin_mem->kin_liw += kin_mem->kin_liw1;
+    kin_mem->kin_lrw += kin_mem->kin_lrw1;
   }
 
-  kin_mem->kin_vtemp1 = N_VClone(tmpl);
   if (kin_mem->kin_vtemp1 == NULL) {
-    N_VDestroy(kin_mem->kin_unew);
-    N_VDestroy(kin_mem->kin_fval);
-    N_VDestroy(kin_mem->kin_pp);
-    return(SUNFALSE);
+    kin_mem->kin_vtemp1 = N_VClone(tmpl);
+    if (kin_mem->kin_vtemp1 == NULL) {
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      kin_mem->kin_liw -= 3*kin_mem->kin_liw1;
+      kin_mem->kin_lrw -= 3*kin_mem->kin_lrw1;
+      return(SUNFALSE);
+    }
+    kin_mem->kin_liw += kin_mem->kin_liw1;
+    kin_mem->kin_lrw += kin_mem->kin_lrw1;
   }
 
-  kin_mem->kin_vtemp2 = N_VClone(tmpl);
   if (kin_mem->kin_vtemp2 == NULL) {
-    N_VDestroy(kin_mem->kin_unew);
-    N_VDestroy(kin_mem->kin_fval);
-    N_VDestroy(kin_mem->kin_pp);
-    N_VDestroy(kin_mem->kin_vtemp1);
-    return(SUNFALSE);
+    kin_mem->kin_vtemp2 = N_VClone(tmpl);
+    if (kin_mem->kin_vtemp2 == NULL) {
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      N_VDestroy(kin_mem->kin_vtemp1);
+      kin_mem->kin_liw -= 4*kin_mem->kin_liw1;
+      kin_mem->kin_lrw -= 4*kin_mem->kin_lrw1;
+      return(SUNFALSE);
+    }
+    kin_mem->kin_liw += kin_mem->kin_liw1;
+    kin_mem->kin_lrw += kin_mem->kin_lrw1;
   }
 
-  /* update solver workspace lengths */
-
-  kin_mem->kin_liw += 5*kin_mem->kin_liw1;
-  kin_mem->kin_lrw += 5*kin_mem->kin_lrw1;
+  /* Vectors for Anderson acceleration */
 
   if (kin_mem->kin_m_aa) {
-    kin_mem->kin_R_aa = (realtype *) malloc((kin_mem->kin_m_aa*kin_mem->kin_m_aa) * sizeof(realtype));
+
     if (kin_mem->kin_R_aa == NULL) {
-      KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
-      N_VDestroy(kin_mem->kin_unew);
-      N_VDestroy(kin_mem->kin_fval);
-      N_VDestroy(kin_mem->kin_pp);
-      N_VDestroy(kin_mem->kin_vtemp1);
-      N_VDestroy(kin_mem->kin_vtemp2);
-      return(KIN_MEM_FAIL);
+      kin_mem->kin_R_aa = (realtype *) malloc((kin_mem->kin_m_aa*kin_mem->kin_m_aa) * sizeof(realtype));
+      if (kin_mem->kin_R_aa == NULL) {
+        KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
+        N_VDestroy(kin_mem->kin_unew);
+        N_VDestroy(kin_mem->kin_fval);
+        N_VDestroy(kin_mem->kin_pp);
+        N_VDestroy(kin_mem->kin_vtemp1);
+        N_VDestroy(kin_mem->kin_vtemp2);
+        kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
+        return(KIN_MEM_FAIL);
+      }
     }
-    kin_mem->kin_gamma_aa = (realtype *)malloc(kin_mem->kin_m_aa * sizeof(realtype));
+
     if (kin_mem->kin_gamma_aa == NULL) {
-      KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
-      N_VDestroy(kin_mem->kin_unew);
-      N_VDestroy(kin_mem->kin_fval);
-      N_VDestroy(kin_mem->kin_pp);
-      N_VDestroy(kin_mem->kin_vtemp1);
-      N_VDestroy(kin_mem->kin_vtemp2);
-      free(kin_mem->kin_R_aa);
-      return(KIN_MEM_FAIL);
+      kin_mem->kin_gamma_aa = (realtype *) malloc(kin_mem->kin_m_aa * sizeof(realtype));
+      if (kin_mem->kin_gamma_aa == NULL) {
+        KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
+        N_VDestroy(kin_mem->kin_unew);
+        N_VDestroy(kin_mem->kin_fval);
+        N_VDestroy(kin_mem->kin_pp);
+        N_VDestroy(kin_mem->kin_vtemp1);
+        N_VDestroy(kin_mem->kin_vtemp2);
+        free(kin_mem->kin_R_aa);
+        kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
+        return(KIN_MEM_FAIL);
+      }
     }
-    kin_mem->kin_ipt_map = (long int *)malloc(kin_mem->kin_m_aa * sizeof(long int));
+
     if (kin_mem->kin_ipt_map == NULL) {
-      KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
-      N_VDestroy(kin_mem->kin_unew);
-      N_VDestroy(kin_mem->kin_fval);
-      N_VDestroy(kin_mem->kin_pp);
-      N_VDestroy(kin_mem->kin_vtemp1);
-      N_VDestroy(kin_mem->kin_vtemp2);
-      free(kin_mem->kin_R_aa);
-      free(kin_mem->kin_gamma_aa);
-      return(KIN_MEM_FAIL);
+      kin_mem->kin_ipt_map = (long int *) malloc(kin_mem->kin_m_aa * sizeof(long int));
+      if (kin_mem->kin_ipt_map == NULL) {
+        KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
+        N_VDestroy(kin_mem->kin_unew);
+        N_VDestroy(kin_mem->kin_fval);
+        N_VDestroy(kin_mem->kin_pp);
+        N_VDestroy(kin_mem->kin_vtemp1);
+        N_VDestroy(kin_mem->kin_vtemp2);
+        free(kin_mem->kin_R_aa);
+        free(kin_mem->kin_gamma_aa);
+        kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
+        return(KIN_MEM_FAIL);
+      }
     }
-    kin_mem->kin_cv = (realtype *)malloc((kin_mem->kin_m_aa+1) * sizeof(realtype));
+
     if (kin_mem->kin_cv == NULL) {
-      KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
-      N_VDestroy(kin_mem->kin_unew);
-      N_VDestroy(kin_mem->kin_fval);
-      N_VDestroy(kin_mem->kin_pp);
-      N_VDestroy(kin_mem->kin_vtemp1);
-      N_VDestroy(kin_mem->kin_vtemp2);
-      free(kin_mem->kin_R_aa);
-      free(kin_mem->kin_gamma_aa);
-      free(kin_mem->kin_ipt_map);
-      return(KIN_MEM_FAIL);
+      kin_mem->kin_cv = (realtype *) malloc((kin_mem->kin_m_aa+1) * sizeof(realtype));
+      if (kin_mem->kin_cv == NULL) {
+        KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
+        N_VDestroy(kin_mem->kin_unew);
+        N_VDestroy(kin_mem->kin_fval);
+        N_VDestroy(kin_mem->kin_pp);
+        N_VDestroy(kin_mem->kin_vtemp1);
+        N_VDestroy(kin_mem->kin_vtemp2);
+        free(kin_mem->kin_R_aa);
+        free(kin_mem->kin_gamma_aa);
+        free(kin_mem->kin_ipt_map);
+        kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
+        return(KIN_MEM_FAIL);
+      }
     }
-    kin_mem->kin_Xv = (N_Vector *)malloc((kin_mem->kin_m_aa+1) * sizeof(N_Vector));
+
     if (kin_mem->kin_Xv == NULL) {
-      KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
-      N_VDestroy(kin_mem->kin_unew);
-      N_VDestroy(kin_mem->kin_fval);
-      N_VDestroy(kin_mem->kin_pp);
-      N_VDestroy(kin_mem->kin_vtemp1);
-      N_VDestroy(kin_mem->kin_vtemp2);
-      free(kin_mem->kin_R_aa);
-      free(kin_mem->kin_gamma_aa);
-      free(kin_mem->kin_ipt_map);
-      free(kin_mem->kin_cv);
-      return(KIN_MEM_FAIL);
+      kin_mem->kin_Xv = (N_Vector *) malloc((kin_mem->kin_m_aa+1) * sizeof(N_Vector));
+      if (kin_mem->kin_Xv == NULL) {
+        KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
+        N_VDestroy(kin_mem->kin_unew);
+        N_VDestroy(kin_mem->kin_fval);
+        N_VDestroy(kin_mem->kin_pp);
+        N_VDestroy(kin_mem->kin_vtemp1);
+        N_VDestroy(kin_mem->kin_vtemp2);
+        free(kin_mem->kin_R_aa);
+        free(kin_mem->kin_gamma_aa);
+        free(kin_mem->kin_ipt_map);
+        free(kin_mem->kin_cv);
+        kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
+        return(KIN_MEM_FAIL);
+      }
     }
-  }
 
-  if (kin_mem->kin_m_aa) {
-    kin_mem->kin_fold_aa = N_VClone(tmpl);
     if (kin_mem->kin_fold_aa == NULL) {
-      N_VDestroy(kin_mem->kin_unew);
-      N_VDestroy(kin_mem->kin_fval);
-      N_VDestroy(kin_mem->kin_pp);
-      N_VDestroy(kin_mem->kin_vtemp1);
-      N_VDestroy(kin_mem->kin_vtemp2);
-      free(kin_mem->kin_R_aa);
-      free(kin_mem->kin_gamma_aa);
-      free(kin_mem->kin_ipt_map);
-      free(kin_mem->kin_cv);
-      free(kin_mem->kin_Xv);
-      return(SUNFALSE);
+      kin_mem->kin_fold_aa = N_VClone(tmpl);
+      if (kin_mem->kin_fold_aa == NULL) {
+        N_VDestroy(kin_mem->kin_unew);
+        N_VDestroy(kin_mem->kin_fval);
+        N_VDestroy(kin_mem->kin_pp);
+        N_VDestroy(kin_mem->kin_vtemp1);
+        N_VDestroy(kin_mem->kin_vtemp2);
+        free(kin_mem->kin_R_aa);
+        free(kin_mem->kin_gamma_aa);
+        free(kin_mem->kin_ipt_map);
+        free(kin_mem->kin_cv);
+        free(kin_mem->kin_Xv);
+        kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
+        return(SUNFALSE);
+      }
+      kin_mem->kin_liw += kin_mem->kin_liw1;
+      kin_mem->kin_lrw += kin_mem->kin_lrw1;
     }
-    kin_mem->kin_gold_aa = N_VClone(tmpl);
+
     if (kin_mem->kin_gold_aa == NULL) {
-      N_VDestroy(kin_mem->kin_unew);
-      N_VDestroy(kin_mem->kin_fval);
-      N_VDestroy(kin_mem->kin_pp);
-      N_VDestroy(kin_mem->kin_vtemp1);
-      N_VDestroy(kin_mem->kin_vtemp2);
-      free(kin_mem->kin_R_aa);
-      free(kin_mem->kin_gamma_aa);
-      free(kin_mem->kin_ipt_map);
-      free(kin_mem->kin_cv);
-      free(kin_mem->kin_Xv);
-      N_VDestroy(kin_mem->kin_fold_aa);
-      return(SUNFALSE);
+      kin_mem->kin_gold_aa = N_VClone(tmpl);
+      if (kin_mem->kin_gold_aa == NULL) {
+        N_VDestroy(kin_mem->kin_unew);
+        N_VDestroy(kin_mem->kin_fval);
+        N_VDestroy(kin_mem->kin_pp);
+        N_VDestroy(kin_mem->kin_vtemp1);
+        N_VDestroy(kin_mem->kin_vtemp2);
+        free(kin_mem->kin_R_aa);
+        free(kin_mem->kin_gamma_aa);
+        free(kin_mem->kin_ipt_map);
+        free(kin_mem->kin_cv);
+        free(kin_mem->kin_Xv);
+        N_VDestroy(kin_mem->kin_fold_aa);
+        kin_mem->kin_liw -= 6*kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= 6*kin_mem->kin_lrw1;
+        return(SUNFALSE);
+      }
+      kin_mem->kin_liw += kin_mem->kin_liw1;
+      kin_mem->kin_lrw += kin_mem->kin_lrw1;
     }
-    kin_mem->kin_df_aa = N_VCloneVectorArray((int) kin_mem->kin_m_aa,tmpl);
+
     if (kin_mem->kin_df_aa == NULL) {
-      N_VDestroy(kin_mem->kin_unew);
-      N_VDestroy(kin_mem->kin_fval);
-      N_VDestroy(kin_mem->kin_pp);
-      N_VDestroy(kin_mem->kin_vtemp1);
-      N_VDestroy(kin_mem->kin_vtemp2);
-      free(kin_mem->kin_R_aa);
-      free(kin_mem->kin_gamma_aa);
-      free(kin_mem->kin_ipt_map);
-      free(kin_mem->kin_cv);
-      free(kin_mem->kin_Xv);
-      N_VDestroy(kin_mem->kin_fold_aa);
-      N_VDestroy(kin_mem->kin_gold_aa);
-      return(SUNFALSE);
+      kin_mem->kin_df_aa = N_VCloneVectorArray((int) kin_mem->kin_m_aa,tmpl);
+      if (kin_mem->kin_df_aa == NULL) {
+        N_VDestroy(kin_mem->kin_unew);
+        N_VDestroy(kin_mem->kin_fval);
+        N_VDestroy(kin_mem->kin_pp);
+        N_VDestroy(kin_mem->kin_vtemp1);
+        N_VDestroy(kin_mem->kin_vtemp2);
+        free(kin_mem->kin_R_aa);
+        free(kin_mem->kin_gamma_aa);
+        free(kin_mem->kin_ipt_map);
+        free(kin_mem->kin_cv);
+        free(kin_mem->kin_Xv);
+        N_VDestroy(kin_mem->kin_fold_aa);
+        N_VDestroy(kin_mem->kin_gold_aa);
+        kin_mem->kin_liw -= 7*kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= 7*kin_mem->kin_lrw1;
+        return(SUNFALSE);
+      }
+      kin_mem->kin_liw += kin_mem->kin_m_aa * kin_mem->kin_liw1;
+      kin_mem->kin_lrw += kin_mem->kin_m_aa * kin_mem->kin_lrw1;
     }
-    kin_mem->kin_dg_aa = N_VCloneVectorArray((int) kin_mem->kin_m_aa,tmpl);
+
     if (kin_mem->kin_dg_aa == NULL) {
-      N_VDestroy(kin_mem->kin_unew);
-      N_VDestroy(kin_mem->kin_fval);
-      N_VDestroy(kin_mem->kin_pp);
-      N_VDestroy(kin_mem->kin_vtemp1);
-      N_VDestroy(kin_mem->kin_vtemp2);
-      free(kin_mem->kin_R_aa);
-      free(kin_mem->kin_gamma_aa);
-      free(kin_mem->kin_ipt_map);
-      free(kin_mem->kin_cv);
-      free(kin_mem->kin_Xv);
-      N_VDestroy(kin_mem->kin_fold_aa);
-      N_VDestroy(kin_mem->kin_gold_aa);
-      N_VDestroyVectorArray(kin_mem->kin_df_aa, (int) kin_mem->kin_m_aa);
-      return(SUNFALSE);
+      kin_mem->kin_dg_aa = N_VCloneVectorArray((int) kin_mem->kin_m_aa,tmpl);
+      if (kin_mem->kin_dg_aa == NULL) {
+        N_VDestroy(kin_mem->kin_unew);
+        N_VDestroy(kin_mem->kin_fval);
+        N_VDestroy(kin_mem->kin_pp);
+        N_VDestroy(kin_mem->kin_vtemp1);
+        N_VDestroy(kin_mem->kin_vtemp2);
+        free(kin_mem->kin_R_aa);
+        free(kin_mem->kin_gamma_aa);
+        free(kin_mem->kin_ipt_map);
+        free(kin_mem->kin_cv);
+        free(kin_mem->kin_Xv);
+        N_VDestroy(kin_mem->kin_fold_aa);
+        N_VDestroy(kin_mem->kin_gold_aa);
+        N_VDestroyVectorArray(kin_mem->kin_df_aa, (int) kin_mem->kin_m_aa);
+        kin_mem->kin_liw -= (7 + kin_mem->kin_m_aa) * kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= (7 + kin_mem->kin_m_aa) * kin_mem->kin_lrw1;
+        return(SUNFALSE);
+      }
+      kin_mem->kin_liw += kin_mem->kin_m_aa * kin_mem->kin_liw1;
+      kin_mem->kin_lrw += kin_mem->kin_m_aa * kin_mem->kin_lrw1;
     }
 
-    /* update solver workspace lengths */
-
-    kin_mem->kin_liw += 2*kin_mem->kin_m_aa*kin_mem->kin_liw1+2;
-    kin_mem->kin_lrw += 2*kin_mem->kin_m_aa*kin_mem->kin_lrw1+2;
-
-    if (kin_mem->kin_aamem_aa) {
+    if (kin_mem->kin_q_aa == NULL) {
       kin_mem->kin_q_aa = N_VCloneVectorArray((int) kin_mem->kin_m_aa,tmpl);
       if (kin_mem->kin_q_aa == NULL) {
         N_VDestroy(kin_mem->kin_unew);
@@ -900,12 +986,15 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         N_VDestroy(kin_mem->kin_gold_aa);
         N_VDestroyVectorArray(kin_mem->kin_df_aa, (int) kin_mem->kin_m_aa);
         N_VDestroyVectorArray(kin_mem->kin_dg_aa, (int) kin_mem->kin_m_aa);
+        kin_mem->kin_liw -= (7 + 2 * kin_mem->kin_m_aa) * kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= (7 + 2 * kin_mem->kin_m_aa) * kin_mem->kin_lrw1;
         return(SUNFALSE);
       }
-      kin_mem->kin_liw += kin_mem->kin_m_aa*kin_mem->kin_liw1;
-      kin_mem->kin_lrw += kin_mem->kin_m_aa*kin_mem->kin_lrw1;
+      kin_mem->kin_liw += kin_mem->kin_m_aa * kin_mem->kin_liw1;
+      kin_mem->kin_lrw += kin_mem->kin_m_aa * kin_mem->kin_lrw1;
     }
   }
+
   return(SUNTRUE);
 }
 
@@ -918,44 +1007,111 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 
 static void KINFreeVectors(KINMem kin_mem)
 {
-  if (kin_mem->kin_unew != NULL)   N_VDestroy(kin_mem->kin_unew);
-  if (kin_mem->kin_fval != NULL)   N_VDestroy(kin_mem->kin_fval);
-  if (kin_mem->kin_pp != NULL)     N_VDestroy(kin_mem->kin_pp);
-  if (kin_mem->kin_vtemp1 != NULL) N_VDestroy(kin_mem->kin_vtemp1);
-  if (kin_mem->kin_vtemp2 != NULL) N_VDestroy(kin_mem->kin_vtemp2);
+  if (kin_mem->kin_unew != NULL) {
+    N_VDestroy(kin_mem->kin_unew);
+    kin_mem->kin_unew = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_liw1;
+  }
 
-  if ( (kin_mem->kin_globalstrategy == KIN_PICARD) && (kin_mem->kin_gval != NULL) )
+  if (kin_mem->kin_fval != NULL) {
+    N_VDestroy(kin_mem->kin_fval);
+    kin_mem->kin_fval = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_liw1;
+  }
+
+  if (kin_mem->kin_pp != NULL) {
+    N_VDestroy(kin_mem->kin_pp);
+    kin_mem->kin_pp = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_liw1;
+  }
+
+  if (kin_mem->kin_vtemp1 != NULL) {
+    N_VDestroy(kin_mem->kin_vtemp1);
+    kin_mem->kin_vtemp1 = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_liw1;
+  }
+
+  if (kin_mem->kin_vtemp2 != NULL) {
+    N_VDestroy(kin_mem->kin_vtemp2);
+    kin_mem->kin_vtemp2 = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_liw1;
+  }
+
+  if (kin_mem->kin_gval != NULL) {
     N_VDestroy(kin_mem->kin_gval);
+    kin_mem->kin_gval = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_liw1;
+  }
 
-  if ( ((kin_mem->kin_globalstrategy == KIN_PICARD) || (kin_mem->kin_globalstrategy == KIN_FP)) && (kin_mem->kin_m_aa > 0) ) {
+  if (kin_mem->kin_R_aa != NULL) {
     free(kin_mem->kin_R_aa);
+    kin_mem->kin_R_aa = NULL;
+  }
+
+  if (kin_mem->kin_gamma_aa != NULL) {
     free(kin_mem->kin_gamma_aa);
+    kin_mem->kin_gamma_aa = NULL;
+  }
+
+  if (kin_mem->kin_ipt_map != NULL) {
     free(kin_mem->kin_ipt_map);
+    kin_mem->kin_ipt_map = NULL;
   }
 
-  if (kin_mem->kin_m_aa) {
-
-    if (kin_mem->kin_fold_aa != NULL) N_VDestroy(kin_mem->kin_fold_aa);
-    if (kin_mem->kin_gold_aa != NULL) N_VDestroy(kin_mem->kin_gold_aa);
-    N_VDestroyVectorArray(kin_mem->kin_df_aa, (int) kin_mem->kin_m_aa);
-    N_VDestroyVectorArray(kin_mem->kin_dg_aa, (int) kin_mem->kin_m_aa);
+  if (kin_mem->kin_cv != NULL) {
     free(kin_mem->kin_cv);
-    free(kin_mem->kin_Xv);
-    kin_mem->kin_lrw -= (2*kin_mem->kin_m_aa*kin_mem->kin_lrw1+2);
-    kin_mem->kin_liw -= (2*kin_mem->kin_m_aa*kin_mem->kin_liw1+2);
-    if (kin_mem->kin_aamem_aa)
-    {
-      N_VDestroyVectorArray(kin_mem->kin_q_aa, (int) kin_mem->kin_m_aa);
-      kin_mem->kin_lrw -= kin_mem->kin_m_aa*kin_mem->kin_lrw1;
-      kin_mem->kin_liw -= kin_mem->kin_m_aa*kin_mem->kin_liw1;
-    }
+    kin_mem->kin_cv = NULL;
   }
 
-  kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
-  kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
+  if (kin_mem->kin_Xv != NULL) {
+    free(kin_mem->kin_Xv);
+    kin_mem->kin_Xv = NULL;
+  }
 
-  if (kin_mem->kin_constraintsSet) {
-    if (kin_mem->kin_constraints != NULL) N_VDestroy(kin_mem->kin_constraints);
+  if (kin_mem->kin_fold_aa != NULL) {
+    N_VDestroy(kin_mem->kin_fold_aa);
+    kin_mem->kin_fold_aa = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_liw1;
+  }
+
+  if (kin_mem->kin_gold_aa != NULL) {
+    N_VDestroy(kin_mem->kin_gold_aa);
+    kin_mem->kin_gold_aa = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_liw1;
+  }
+
+  if (kin_mem->kin_df_aa != NULL) {
+    N_VDestroyVectorArray(kin_mem->kin_df_aa, (int) kin_mem->kin_m_aa);
+    kin_mem->kin_df_aa = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_m_aa * kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_m_aa * kin_mem->kin_liw1;
+  }
+
+  if (kin_mem->kin_dg_aa != NULL) {
+    N_VDestroyVectorArray(kin_mem->kin_dg_aa, (int) kin_mem->kin_m_aa);
+    kin_mem->kin_dg_aa = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_m_aa * kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_m_aa * kin_mem->kin_liw1;
+  }
+
+  if (kin_mem->kin_q_aa != NULL) {
+    N_VDestroyVectorArray(kin_mem->kin_q_aa, (int) kin_mem->kin_m_aa);
+    kin_mem->kin_q_aa = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_m_aa * kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_m_aa * kin_mem->kin_liw1;
+  }
+
+  if (kin_mem->kin_constraints != NULL) {
+    N_VDestroy(kin_mem->kin_constraints);
+    kin_mem->kin_constraints = NULL;
     kin_mem->kin_lrw -= kin_mem->kin_lrw1;
     kin_mem->kin_liw -= kin_mem->kin_liw1;
   }
