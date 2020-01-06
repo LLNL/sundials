@@ -42,7 +42,7 @@ function [new_data] = IDAMonitor(call, T, Y, YQ, YS, data)
 
 % Radu Serban <radu@llnl.gov>
 % SUNDIALS Copyright Start
-% Copyright (c) 2002-2019, Lawrence Livermore National Security
+% Copyright (c) 2002-2020, Lawrence Livermore National Security
 % and Southern Methodist University.
 % All rights reserved.
 %

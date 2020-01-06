@@ -6,7 +6,7 @@
 #                     library written by Rob Falgout @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,7 +15,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# Update SUNDIALS GitHub distribution with a commit from sundials release tar 
+# Update SUNDIALS GitHub distribution with a commit from sundials release tar
 # file. Run from any machine that has access to github.
 # ------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ if [ $# -lt 1 ]; then
   exit
 fi
 
-# tag commits by default 
+# tag commits by default
 TAG=true
 
 # parse inputs
