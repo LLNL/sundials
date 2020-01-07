@@ -55,7 +55,7 @@ size :math:`m`, the series of approximate solutions can be formulated
 as the linear combination
 
 .. math::
-   y^{(n+1)} = \sum_{i=0}^{m_n} \alpha_i^{(n)} G(y^{(n-m_n+i)})
+   y^{(n+1)} = \beta \sum_{i=0}^{m_n} \alpha_i^{(n)} G(y^{(n-m_n+i)}) + (1 - \beta) \sum_{i=0}^{m_n} \alpha_i^{(n)} y_{n-m_n+i}
    :label: e:accelerated_fixed_point_iteration
 
 where :math:`m_n = \min{\{m,n\}}` and the factors
@@ -79,7 +79,7 @@ SUNNonlinSol_FixedPoint implementation computes the series of
 approximate solutions as
 
 .. math::
-   y^{(n+1)} = G(y^{(n)})-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i}
+   y^{(n+1)} = G(y^{(n)})-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i} - (1 - \beta) (f(y^{(n)}) - \sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta f_{n-m_n+i})
    :label: e:accelerated_fixed_point_iteration_impl
 
 with :math:`\Delta g_i = G(y^{(i+1)}) - G(y^{(i)})` and where the
@@ -149,7 +149,7 @@ through :ref:`SUNNonlinSol.GetFn` should be called in favor of the
 SUNNonlinSol_FixedPoint-specific implementations.
 
 The SUNNonlinSol_FixedPoint module also defines the following additional
-user-callable function.
+user-callable functions.
 
 
 
@@ -159,10 +159,10 @@ user-callable function.
    the fixed-point function that defines the nonlinear system.
 
    **Arguments:**
-      * *NLS* -- a SUNNonlinSol object
+      * *NLS* -- a SUNNonlinSol object.
       * *SysFn* -- the function defining the nonlinear system.
 
-   **Return value:**  the return value should be zero for a
+   **Return value:**  The return value is zero for a
    successful call, and a negative value for a failure.
 
    **Notes:** This function is intended for users that wish to
@@ -170,6 +170,23 @@ user-callable function.
    function for the SUNNonlinSol_FixedPoint module. We note that
    SUNNonlinSol_FixedPoint will not leverage the results from any user
    calls to *SysFn*.
+
+.. c:function:: int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, realtype beta)
+
+   The function :c:func:`SUNNonlinSolSetDamping_FixedPoint()` sets the damping
+   parameter :math:`\beta` to use with Anderson acceleration. By default damping
+   is disabled i.e., :math:`\beta = 1.0`.
+
+   **Arguments:**
+     * *NLS* -- a SUNNonlinSol object.
+     * *beta* -- the damping parameter :math:`0 < \beta \leq 1`.
+
+   **Return value:** The return value is zero for a successful call,
+   ``SUN_NLS_MEM_NULL`` if ``NLS`` is ``NULL``, or ``SUN_NLS_ILL_INPUT`` if
+   ``beta`` is negative.
+
+   **Notes:** A ``beta`` value should be great than zero and less than one if
+   damping is to be used. A value of one or more will disable damping.
 
 
 
@@ -188,25 +205,27 @@ following structure.
      SUNNonlinSolSysFn      Sys;
      SUNNonlinSolConvTestFn CTest;
 
-     int       m;
-     int      *imap;
-     realtype *R;
-     realtype *gamma;
-     realtype *cvals;
-     N_Vector *df;
-     N_Vector *dg;
-     N_Vector *q;
-     N_Vector *Xvecs;
-     N_Vector  yprev;
-     N_Vector  gy;
-     N_Vector  fold;
-     N_Vector  gold;
-     N_Vector  delta;
-     int       curiter;
-     int       maxiters;
-     long int  niters;
-     long int  nconvfails;
-     void     *ctest_data;
+     int          m;
+     int         *imap;
+     realtype    *R;
+     booleantype  damping
+     realtype     beta
+     realtype    *gamma;
+     realtype    *cvals;
+     N_Vector    *df;
+     N_Vector    *dg;
+     N_Vector    *q;
+     N_Vector    *Xvecs;
+     N_Vector     yprev;
+     N_Vector     gy;
+     N_Vector     fold;
+     N_Vector     gold;
+     N_Vector     delta;
+     int          curiter;
+     int          maxiters;
+     long int     niters;
+     long int     nconvfails;
+     void        *ctest_data;
    };
 
 The following entries of the *content* field are always
@@ -230,16 +249,18 @@ If Anderson acceleration is requested (i.e., :math:`m>0` in the call
 to :c:func:`SUNNonlinSol_FixedPoint()`), then the following items are also
 allocated within the *content* field:
 
-* ``imap``  -- index array used in acceleration algorithm (length ``m``),
-* ``R``     -- small matrix used in acceleration algorithm (length ``m*m``),
-* ``gamma`` -- small vector used in acceleration algorithm (length ``m``),
-* ``cvals`` -- small vector used in acceleration algorithm (length ``m+1``),
-* ``df``    -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
-* ``dg``    -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
-* ``q``     -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
-* ``Xvecs`` -- ``N_Vector`` pointer array used in acceleration algorithm (length ``m+1``),
-* ``fold``  -- ``N_Vector`` used in acceleration algorithm, and
-* ``gold``  -- ``N_Vector`` used in acceleration algorithm.
+* ``imap``    -- index array used in acceleration algorithm (length ``m``),
+* ``damping`` -- a flag indicating if damping is enabled,
+* ``beta``    -- the damping parameter,
+* ``R``       -- small matrix used in acceleration algorithm (length ``m*m``),
+* ``gamma``   -- small vector used in acceleration algorithm (length ``m``),
+* ``cvals``   -- small vector used in acceleration algorithm (length ``m+1``),
+* ``df``      -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
+* ``dg``      -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
+* ``q``       -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
+* ``Xvecs``   -- ``N_Vector`` pointer array used in acceleration algorithm (length ``m+1``),
+* ``fold``    -- ``N_Vector`` used in acceleration algorithm, and
+* ``gold``    -- ``N_Vector`` used in acceleration algorithm.
 
 
 

@@ -24,6 +24,7 @@
 *.nvvp
 *.ptp-sync*
 *~
+\#*
 
 # OS X
 .DS_Store
@@ -68,4 +69,3 @@
 
 # editor files
 .vscode
-

@@ -226,6 +226,21 @@ if [ $? -ne 0 ]; then
 fi
 
 # ------------------------------------------------------------------------------
+# SUNDIALS test settings
+# ------------------------------------------------------------------------------
+
+# Check that only one of SUNDIALS_TEST_OUTPUT_DIR and SUNDIALS_TEST_ANSWER_DIR
+# are set to ensure tests do not pass erronously
+
+if [ -n "${SUNDIALS_TEST_OUTPUT_DIR}" ] && [ -n "${SUNDIALS_TEST_ANSWER_DIR}" ]
+then
+    echo "ERROR: Both SUNDIALS_TEST_OUTPUT_DIR and SUNDIALS_TEST_ANSWER_DIR are set"
+    echo "SUNDIALS_TEST_OUTPUT_DIR = ${SUNDIALS_TEST_OUTPUT_DIR}"
+    echo "SUNDIALS_TEST_ANSWER_DIR = ${SUNDIALS_TEST_ANSWER_DIR}"
+    exit 1
+fi
+
+# ------------------------------------------------------------------------------
 # Check third party library settings
 # ------------------------------------------------------------------------------
 
@@ -305,9 +320,14 @@ if [ "$TPLs" == "ON" ]; then
 else
 
     # C and C++ standard flags to append
-    CSTD="-std=c90"
+    if [ "$realtype" != "double" ]; then
+        CSTD="-std=c99"
+        C90MATH=OFF
+    else
+        CSTD="-std=c90"
+        C90MATH=ON
+    fi
     CXXSTD="-std=c++11"
-    C90MATH=ON
 
     # disable all TPLs
     MPI_STATUS=OFF
@@ -452,6 +472,11 @@ time cmake \
     -D USE_GENERIC_MATH="${C90MATH}" \
     \
     -D SUNDIALS_TEST_DEVTESTS="${devtests}" \
+    -D SUNDIALS_TEST_UNITTESTS=ON \
+    -D SUNDIALS_TEST_OUTPUT_DIR="${SUNDIALS_TEST_OUTPUT_DIR}" \
+    -D SUNDIALS_TEST_ANSWER_DIR="${SUNDIALS_TEST_ANSWER_DIR}" \
+    -D SUNDIALS_TEST_FLOAT_PRECISION="${SUNDIALS_TEST_FLOAT_PRECISION}" \
+    -D SUNDIALS_TEST_INTEGER_PRECISION="${SUNDIALS_TEST_INTEGER_PRECISION}" \
     \
     -D CMAKE_VERBOSE_MAKEFILE=OFF \
     \

@@ -30,9 +30,11 @@ accelerated using Anderson's method \cite{Anderson65, Walker-Ni09, Fang-Saad09,
 LWWY11}. With Anderson acceleration using subspace size $m$, the series of
 approximate solutions can be formulated as the linear combination
 \begin{equation}\label{e:accelerated_fixed_point_iteration}
-  y^{(n+1)} = \sum_{i=0}^{m_n} \alpha_i^{(n)} G(y^{(n-m_n+i)})
+  y^{(n+1)} = \beta \sum_{i=0}^{m_n} \alpha_i^{(n)} G(y^{(n-m_n+i)}) +
+  (1 - \beta) \sum_{i=0}^{m_n} \alpha_i^{(n)} y_{n-m_n+i}
 \end{equation}
-where $m_n = \min\{m,n\}$ and the factors
+where $m_n = \min\{m,n\}$, $\beta$ is a damping parameter ($\beta = 1.0$
+i.e., no damping by default) and the factors
 \begin{equation}
 \alpha^{(n)} =(\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})
 \end{equation}
@@ -50,7 +52,8 @@ Following the recommendations made in \cite{Walker-Ni09}, the
 {\sunnonlinsolfixedpoint} implementation computes the series of approximate
 solutions as
 \begin{equation}\label{e:accelerated_fixed_point_iteration_impl}
-y^{(n+1)} = G(y^{(n)})-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i}
+  y^{(n+1)} = G(y^{(n)})-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i} -
+  (1 - \beta) (f(y^{(n)}) - \sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta f_{n-m_n+i})
 \end{equation}
 with $\Delta g_i = G(y^{(i+1)}) - G(y^{(i)})$ and where the factors
 \begin{equation}
@@ -156,7 +159,7 @@ generic functions defined in sections \ref{ss:sunnonlinsol_corefn} --
 {\sunnonlinsolfixedpoint}-specific implementations.
 
 The {\sunnonlinsolfixedpoint} module also defines the following additional
-user-callable function.
+user-callable functions.
 % --------------------------------------------------------------------
 \ucfunctionf{SUNNonlinSolGetSysFn\_FixedPoint}
 {
@@ -169,7 +172,7 @@ user-callable function.
 {
   \begin{args}[SysFn]
   \item[NLS] (\id{SUNNonlinearSolver})
-    a {\sunnonlinsol} object
+    a {\sunnonlinsol} object.
   \item[SysFn] (\id{SUNNonlinSolSysFn*})
     the function defining the nonlinear system.
   \end{args}
@@ -184,7 +187,33 @@ user-callable function.
   {\sunnonlinsolfixedpoint} module. We note that {\sunnonlinsolfixedpoint}
   will not leverage the results from any user calls to \id{SysFn}.
 }
-
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSolSetDamping\_FixedPoint}
+{
+  retval = SUNNonlinSolSetDamping\_FixedPoint(NLS, beta);
+}
+{
+  The function \id{SUNNonlinSolSetDamping\_FixedPoint} sets the damping
+  parameter $\beta$ to use with Anderson acceleration. By default damping
+  is disabled i.e., $\beta = 1.0$.
+}
+{
+  \begin{args}[beta]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object
+  \item[beta] (\id{realtype})
+    the damping parameter $0 < beta \leq 1$.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) is zero for a successful call,
+  \id{SUN\_NLS\_MEM\_NULL} if \id{NLS} is \id{NULL}, or
+  \id{SUN\_NLS\_ILL\_INPUT} if \id{beta} is negative.
+}
+{
+  A \id{beta} value should be greater than zero and less than one if damping is to
+  be used. A value of one or more will disable damping.
+}
 
 % ====================================================================
 \subsection{SUNNonlinearSolver\_FixedPoint Fortran interfaces}
@@ -309,14 +338,16 @@ allocated:
 \ID{SUNNonlinSol\_FixedPoint}), then the following items are also
 allocated within the \emph{content} field:
 \begin{args}[maxiters]
-  \item[imap]  - index array used in acceleration algorithm (length \id{m}),
-  \item[R]     - small matrix used in acceleration algorithm (length \id{m*m}),
-  \item[gamma] - small vector used in acceleration algorithm (length \id{m}),
-  \item[cvals] - small vector used in acceleration algorithm (length \id{m+1}),
-  \item[df]    - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m}),
-  \item[dg]    - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m}),
-  \item[q]     - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m}),
-  \item[Xvecs] - \id{N\_Vector} pointer array used in acceleration algorithm (length \id{m+1}),
-  \item[fold]  - \id{N\_Vector} used in acceleration algorithm, and
-  \item[gold]  - \id{N\_Vector} used in acceleration algorithm.
+  \item[imap]    - index array used in acceleration algorithm (length \id{m}),
+  \item[damping] - a flag indicating if damping is enabled,
+  \item[beta]    - the damping parameter,
+  \item[R]       - small matrix used in acceleration algorithm (length \id{m*m}),
+  \item[gamma]   - small vector used in acceleration algorithm (length \id{m}),
+  \item[cvals]   - small vector used in acceleration algorithm (length \id{m+1}),
+  \item[df]      - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m}),
+  \item[dg]      - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m}),
+  \item[q]       - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m}),
+  \item[Xvecs]   - \id{N\_Vector} pointer array used in acceleration algorithm (length \id{m+1}),
+  \item[fold]    - \id{N\_Vector} used in acceleration algorithm, and
+  \item[gold]    - \id{N\_Vector} used in acceleration algorithm.
 \end{args}

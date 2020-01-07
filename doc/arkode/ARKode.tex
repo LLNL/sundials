@@ -334,6 +334,10 @@ pointer to the inner integrator memory as {\hyperref[MRIStep_c_interface/User_ca
 not set the pointer for both the inner and outer integrators. The MRIStep
 examples have been updated to reflect this change.
 
+Added support for constant damping to the \code{SUNNonlinearSolver\_FixedPoint} module
+when using Anderson acceleration. See {\hyperref[sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsolfixedpoint-math]{\emph{\DUspan{}{SUNNonlinearSolver\_FixedPoint description}}}}
+and the {\hyperref[sunnonlinsol/SUNNonlinSol_FixedPoint:c.SUNNonlinSolSetDamping_FixedPoint]{\emph{\code{SUNNonlinSolSetDamping\_FixedPoint()}}}} for more details.
+
 
 \subsection{Changes in v4.0.0}
 \label{Introduction:changes-in-v4-0-0}
@@ -40662,7 +40666,7 @@ iteration may be accelerated using Anderson's method \phantomsection\label{sunno
 size \(m\), the series of approximate solutions can be formulated
 as the linear combination
 \phantomsection\label{sunnonlinsol/SUNNonlinSol_FixedPoint:equation-e:accelerated_fixed_point_iteration}\begin{gather}
-\begin{split}y^{(n+1)} = \sum_{i=0}^{m_n} \alpha_i^{(n)} G(y^{(n-m_n+i)})\end{split}\label{sunnonlinsol/SUNNonlinSol_FixedPoint-e:accelerated_fixed_point_iteration}
+\begin{split}y^{(n+1)} = \beta \sum_{i=0}^{m_n} \alpha_i^{(n)} G(y^{(n-m_n+i)}) + (1 - \beta) \sum_{i=0}^{m_n} \alpha_i^{(n)} y_{n-m_n+i}\end{split}\label{sunnonlinsol/SUNNonlinSol_FixedPoint-e:accelerated_fixed_point_iteration}
 \end{gather}
 where \(m_n = \min{\{m,n\}}\) and the factors
 \begin{gather}
@@ -40682,7 +40686,7 @@ Following the recommendations made in \phantomsection\label{sunnonlinsol/SUNNonl
 SUNNonlinSol\_FixedPoint implementation computes the series of
 approximate solutions as
 \phantomsection\label{sunnonlinsol/SUNNonlinSol_FixedPoint:equation-e:accelerated_fixed_point_iteration_impl}\begin{gather}
-\begin{split}y^{(n+1)} = G(y^{(n)})-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i}\end{split}\label{sunnonlinsol/SUNNonlinSol_FixedPoint-e:accelerated_fixed_point_iteration_impl}
+\begin{split}y^{(n+1)} = G(y^{(n)})-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i} - (1 - \beta) (f(y^{(n)}) - \sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta f_{n-m_n+i})\end{split}\label{sunnonlinsol/SUNNonlinSol_FixedPoint-e:accelerated_fixed_point_iteration_impl}
 \end{gather}
 with \(\Delta g_i = G(y^{(i+1)}) - G(y^{(i)})\) and where the
 factors
@@ -40754,7 +40758,7 @@ through {\hyperref[sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-getfn]{\emph{\DUsp
 SUNNonlinSol\_FixedPoint-specific implementations.
 
 The SUNNonlinSol\_FixedPoint module also defines the following additional
-user-callable function.
+user-callable functions.
 \index{SUNNonlinSolGetSysFn\_FixedPoint (C function)}
 
 \begin{fulllineitems}
@@ -40764,7 +40768,7 @@ the fixed-point function that defines the nonlinear system.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{NLS} -- a SUNNonlinSol object
+\emph{NLS} -- a SUNNonlinSol object.
 
 \item {}
 \emph{SysFn} -- the function defining the nonlinear system.
@@ -40773,7 +40777,7 @@ the fixed-point function that defines the nonlinear system.
 
 \end{description}
 
-\textbf{Return value:}  the return value should be zero for a
+\textbf{Return value:}  The return value is zero for a
 successful call, and a negative value for a failure.
 
 \textbf{Notes:} This function is intended for users that wish to
@@ -40781,6 +40785,34 @@ evaluate the fixed-point function in a custom convergence test
 function for the SUNNonlinSol\_FixedPoint module. We note that
 SUNNonlinSol\_FixedPoint will not leverage the results from any user
 calls to \emph{SysFn}.
+
+\end{fulllineitems}
+
+\index{SUNNonlinSolSetDamping\_FixedPoint (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_FixedPoint:c.SUNNonlinSolSetDamping_FixedPoint}\pysiglinewithargsret{int \bfcode{SUNNonlinSolSetDamping\_FixedPoint}}{SUNNonlinearSolver\emph{ NLS}, realtype\emph{ beta}}{}
+The function {\hyperref[sunnonlinsol/SUNNonlinSol_FixedPoint:c.SUNNonlinSolSetDamping_FixedPoint]{\emph{\code{SUNNonlinSolSetDamping\_FixedPoint()}}}} sets the damping
+parameter \(\beta\) to use with Anderson acceleration. By default damping
+is disabled i.e., \(\beta = 1.0\).
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {}
+\emph{NLS} -- a SUNNonlinSol object.
+
+\item {}
+\emph{beta} -- the damping parameter \(0 < \beta \leq 1\).
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:} The return value is zero for a successful call,
+\code{SUN\_NLS\_MEM\_NULL} if \code{NLS} is \code{NULL}, or \code{SUN\_NLS\_ILL\_INPUT} if
+\code{beta} is negative.
+
+\textbf{Notes:} A \code{beta} value should be great than zero and less than one if
+damping is to be used. A value of one or more will disable damping.
 
 \end{fulllineitems}
 
@@ -40797,25 +40829,27 @@ following structure.
   \PYG{n}{SUNNonlinSolSysFn}      \PYG{n}{Sys}\PYG{p}{;}
   \PYG{n}{SUNNonlinSolConvTestFn} \PYG{n}{CTest}\PYG{p}{;}
 
-  \PYG{k+kt}{int}       \PYG{n}{m}\PYG{p}{;}
-  \PYG{k+kt}{int}      \PYG{o}{*}\PYG{n}{imap}\PYG{p}{;}
-  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{R}\PYG{p}{;}
-  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{gamma}\PYG{p}{;}
-  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{cvals}\PYG{p}{;}
-  \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{df}\PYG{p}{;}
-  \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{dg}\PYG{p}{;}
-  \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{q}\PYG{p}{;}
-  \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n}{Xvecs}\PYG{p}{;}
-  \PYG{n}{N\PYGZus{}Vector}  \PYG{n}{yprev}\PYG{p}{;}
-  \PYG{n}{N\PYGZus{}Vector}  \PYG{n}{gy}\PYG{p}{;}
-  \PYG{n}{N\PYGZus{}Vector}  \PYG{n}{fold}\PYG{p}{;}
-  \PYG{n}{N\PYGZus{}Vector}  \PYG{n}{gold}\PYG{p}{;}
-  \PYG{n}{N\PYGZus{}Vector}  \PYG{n}{delta}\PYG{p}{;}
-  \PYG{k+kt}{int}       \PYG{n}{curiter}\PYG{p}{;}
-  \PYG{k+kt}{int}       \PYG{n}{maxiters}\PYG{p}{;}
-  \PYG{k+kt}{long} \PYG{k+kt}{int}  \PYG{n}{niters}\PYG{p}{;}
-  \PYG{k+kt}{long} \PYG{k+kt}{int}  \PYG{n}{nconvfails}\PYG{p}{;}
-  \PYG{k+kt}{void}     \PYG{o}{*}\PYG{n}{ctest\PYGZus{}data}\PYG{p}{;}
+  \PYG{k+kt}{int}          \PYG{n}{m}\PYG{p}{;}
+  \PYG{k+kt}{int}         \PYG{o}{*}\PYG{n}{imap}\PYG{p}{;}
+  \PYG{n}{realtype}    \PYG{o}{*}\PYG{n}{R}\PYG{p}{;}
+  \PYG{n}{booleantype}  \PYG{n}{damping}
+  \PYG{n}{realtype}     \PYG{n}{beta}
+  \PYG{n}{realtype}    \PYG{o}{*}\PYG{n}{gamma}\PYG{p}{;}
+  \PYG{n}{realtype}    \PYG{o}{*}\PYG{n}{cvals}\PYG{p}{;}
+  \PYG{n}{N\PYGZus{}Vector}    \PYG{o}{*}\PYG{n}{df}\PYG{p}{;}
+  \PYG{n}{N\PYGZus{}Vector}    \PYG{o}{*}\PYG{n}{dg}\PYG{p}{;}
+  \PYG{n}{N\PYGZus{}Vector}    \PYG{o}{*}\PYG{n}{q}\PYG{p}{;}
+  \PYG{n}{N\PYGZus{}Vector}    \PYG{o}{*}\PYG{n}{Xvecs}\PYG{p}{;}
+  \PYG{n}{N\PYGZus{}Vector}     \PYG{n}{yprev}\PYG{p}{;}
+  \PYG{n}{N\PYGZus{}Vector}     \PYG{n}{gy}\PYG{p}{;}
+  \PYG{n}{N\PYGZus{}Vector}     \PYG{n}{fold}\PYG{p}{;}
+  \PYG{n}{N\PYGZus{}Vector}     \PYG{n}{gold}\PYG{p}{;}
+  \PYG{n}{N\PYGZus{}Vector}     \PYG{n}{delta}\PYG{p}{;}
+  \PYG{k+kt}{int}          \PYG{n}{curiter}\PYG{p}{;}
+  \PYG{k+kt}{int}          \PYG{n}{maxiters}\PYG{p}{;}
+  \PYG{k+kt}{long} \PYG{k+kt}{int}     \PYG{n}{niters}\PYG{p}{;}
+  \PYG{k+kt}{long} \PYG{k+kt}{int}     \PYG{n}{nconvfails}\PYG{p}{;}
+  \PYG{k+kt}{void}        \PYG{o}{*}\PYG{n}{ctest\PYGZus{}data}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
@@ -40864,34 +40898,40 @@ to {\hyperref[sunnonlinsol/SUNNonlinSol_FixedPoint:c.SUNNonlinSol_FixedPoint]{\e
 allocated within the \emph{content} field:
 \begin{itemize}
 \item {}
-\code{imap}  -- index array used in acceleration algorithm (length \code{m}),
+\code{imap}    -- index array used in acceleration algorithm (length \code{m}),
 
 \item {}
-\code{R}     -- small matrix used in acceleration algorithm (length \code{m*m}),
+\code{damping} -- a flag indicating if damping is enabled,
 
 \item {}
-\code{gamma} -- small vector used in acceleration algorithm (length \code{m}),
+\code{beta}    -- the damping parameter,
 
 \item {}
-\code{cvals} -- small vector used in acceleration algorithm (length \code{m+1}),
+\code{R}       -- small matrix used in acceleration algorithm (length \code{m*m}),
 
 \item {}
-\code{df}    -- array of \code{N\_Vectors} used in acceleration algorithm (length \code{m}),
+\code{gamma}   -- small vector used in acceleration algorithm (length \code{m}),
 
 \item {}
-\code{dg}    -- array of \code{N\_Vectors} used in acceleration algorithm (length \code{m}),
+\code{cvals}   -- small vector used in acceleration algorithm (length \code{m+1}),
 
 \item {}
-\code{q}     -- array of \code{N\_Vectors} used in acceleration algorithm (length \code{m}),
+\code{df}      -- array of \code{N\_Vectors} used in acceleration algorithm (length \code{m}),
 
 \item {}
-\code{Xvecs} -- \code{N\_Vector} pointer array used in acceleration algorithm (length \code{m+1}),
+\code{dg}      -- array of \code{N\_Vectors} used in acceleration algorithm (length \code{m}),
 
 \item {}
-\code{fold}  -- \code{N\_Vector} used in acceleration algorithm, and
+\code{q}       -- array of \code{N\_Vectors} used in acceleration algorithm (length \code{m}),
 
 \item {}
-\code{gold}  -- \code{N\_Vector} used in acceleration algorithm.
+\code{Xvecs}   -- \code{N\_Vector} pointer array used in acceleration algorithm (length \code{m+1}),
+
+\item {}
+\code{fold}    -- \code{N\_Vector} used in acceleration algorithm, and
+
+\item {}
+\code{gold}    -- \code{N\_Vector} used in acceleration algorithm.
 
 \end{itemize}
 

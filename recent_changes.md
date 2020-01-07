@@ -30,6 +30,16 @@ pointer to the inner integrator memory as `MRIStepSetUserData` will
 not set the pointer for both the inner and outer integrators. The MRIStep
 examples have been updated to reflect this change.
 
+Added support for damping when using Anderson acceleration in KINSOL. See the
+mathematical considerations section of the user guide and the description of the
+`KINSetDampingAA` function for more details.
+
+Added support for damping to the `SUNNonlinearSolver_FixedPoint` module when
+using Anderson acceleration. See the `SUNNonlinearSolver_FixedPoint` section in
+the user guides and the description of the `SUNNonlinSolSetDamping_FixedPoint`
+function for more details.
+
+
 ## Changes to SUNDIALS in release 5.0.0
 
 ### Build System

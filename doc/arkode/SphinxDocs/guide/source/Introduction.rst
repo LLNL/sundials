@@ -142,6 +142,10 @@ pointer to the inner integrator memory as :c:func:`MRIStepSetUserData()` will
 not set the pointer for both the inner and outer integrators. The MRIStep
 examples have been updated to reflect this change.
 
+Added support for constant damping to the ``SUNNonlinearSolver_FixedPoint``
+module when using Anderson acceleration. See :ref:`SUNNonlinSolFixedPoint.Math`
+and the :c:func:`SUNNonlinSolSetDamping_FixedPoint()` for more details.
+
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -1125,6 +1125,20 @@ SWIGEXPORT int _wrap_FARKStepSetPostprocessStepFn(void *farg1, ARKPostProcessSte
 }
 
 
+SWIGEXPORT int _wrap_FARKStepSetStagePredictFn(void *farg1, ARKStepStagePredictFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKStepStagePredictFn arg2 = (ARKStepStagePredictFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKStepStagePredictFn)(farg2);
+  result = (int)ARKStepSetStagePredictFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetJacFn(void *farg1, ARKLsJacFn farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

@@ -825,6 +825,7 @@ Scaled-step stopping tolerance & \id{KINSetScaledSteptol} & $\text{uround}^{2/3}
 Inequality constraints on solution & \id{KINSetConstraints} & \id{NULL} \\
 Nonlinear system function & \id{KINSetSysFunc} & none \\
 Anderson Acceleration subspace size & \id{KINSetMAA} & 0 \\
+Anderson Acceleration damping parameter & \id{KINSetDampingAA} & 1.0 \\
 \hline
 \multicolumn{3}{|c|}{\bf KINLS linear solver interface} \\
 \hline
@@ -1788,6 +1789,41 @@ flag = KINSetMAA(kin\_mem, maa);
 
   If the user calls the function KINSetNumMaxIters, that call should be made
   before the call to KINSetMAA, as the latter uses the value of \id{mxiter}.
+}
+%
+%
+\ucfunction{KINSetDampingAA}
+{
+flag = KINSetDampingAA(kin\_mem, beta);
+}
+{
+  The function \ID{KINSetDampingAA} specifies the value of the Anderson
+  acceleration damping paramter.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[beta] (\id{realtype})
+    the damping parameter value $0 < beta \leq 1.0$.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[KIN\_ILL\_INPUT]
+  \item[\Id{KIN\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The argument \id{beta} was zero or negative.
+  \end{args}
+}
+{
+  This function sets the damping parameter value, which needs to be greater than zero
+  and less than one if damping is to be used. A value $\geq 1$ disables damping.
+
+  The default value of \id{beta} is 1.0, indicating no damping.
 }
 %%
 %%

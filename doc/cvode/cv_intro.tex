@@ -116,6 +116,11 @@ Added two utility functions, \id{SUNDIALSFileOpen} and \id{SUNDIALSFileClose}
 for creating/destroying file pointers that are useful when using the Fortran
 2003 interfaces.
 
+Added support for constant damping to the \id{SUNNonlinearSolver\_FixedPoint}
+module when using Anderson acceleration. See Section
+\ref{ss:sunnonlinsolfixedpoint_math} and the
+\id{SUNNonlinSolSetDamping\_FixedPoint} function for more details.
+
 \subsection*{Changes in v5.0.0}
 
 \subsubsection*{Build system changes}

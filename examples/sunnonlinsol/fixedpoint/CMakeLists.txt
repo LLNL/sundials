@@ -20,6 +20,8 @@
 # Example programs
 set(examples
   "test_sunnonlinsol_fixedpoint\;\;"
+  "test_sunnonlinsol_fixedpoint\;2\;"
+  "test_sunnonlinsol_fixedpoint\;2 0.5\;"
 )
 
 # if building F2003 tests
