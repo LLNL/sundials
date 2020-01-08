@@ -445,14 +445,14 @@ SWIGEXPORT N_Vector _wrap_FSUNLinSolResid(SUNLinearSolver farg1) {
 }
 
 
-SWIGEXPORT long _wrap_FSUNLinSolLastFlag(SUNLinearSolver farg1) {
-  long fresult ;
+SWIGEXPORT int64_t _wrap_FSUNLinSolLastFlag(SUNLinearSolver farg1) {
+  int64_t fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  long result;
+  sunindextype result;
   
   arg1 = (SUNLinearSolver)(farg1);
-  result = (long)SUNLinSolLastFlag(arg1);
-  fresult = (long)(result);
+  result = SUNLinSolLastFlag(arg1);
+  fresult = (sunindextype)(result);
   return fresult;
 }
 

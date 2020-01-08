@@ -4,7 +4,7 @@
  *                David Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -588,7 +588,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
   int       failure;
   SUNMatrix B, C, D;
   N_Vector  w, z;
-  realtype  tol=100*UNIT_ROUNDOFF;
+  realtype  tol=200*UNIT_ROUNDOFF;
 
   /* create clones for test */
   B = SUNMatClone(A);
@@ -614,7 +614,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
            failure);
     SUNMatDestroy(B);  N_VDestroy(z);  N_VDestroy(w);  return(1);
   }
-  N_VLinearSum(ONE,x,NEG_ONE,y,w);
+  N_VLinearSum(ONE,x,NEG_ONE,y,w);  /* B x = (I - A) x = x - Ax = x - y = w */
   failure = check_vector(z, w, tol);
   if (failure) {
     printf(">>> FAILED test -- SUNMatScaleAddI2 check 1 \n");

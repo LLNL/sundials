@@ -3,7 +3,7 @@
 #                and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -30,15 +30,15 @@ project(sundials C)
 # Set some variables with info on the SUNDIALS project
 set(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 set(PACKAGE_NAME "SUNDIALS")
-set(PACKAGE_STRING "SUNDIALS 5.0.0-dev.2")
+set(PACKAGE_STRING "SUNDIALS 5.1.0")
 set(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
 # (use "" for the version label if none is needed)
 set(PACKAGE_VERSION_MAJOR "5")
-set(PACKAGE_VERSION_MINOR "0")
+set(PACKAGE_VERSION_MINOR "1")
 set(PACKAGE_VERSION_PATCH "0")
-set(PACKAGE_VERSION_LABEL "dev.2")
+set(PACKAGE_VERSION_LABEL "")
 
 if(PACKAGE_VERSION_LABEL)
   set(PACKAGE_VERSION "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-${PACKAGE_VERSION_LABEL}")
@@ -63,37 +63,37 @@ mark_as_advanced(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-set(arkodelib_VERSION "4.0.0")
+set(arkodelib_VERSION "4.1.0")
 set(arkodelib_SOVERSION "4")
 
-set(cvodelib_VERSION "5.0.0")
+set(cvodelib_VERSION "5.1.0")
 set(cvodelib_SOVERSION "5")
 
-set(cvodeslib_VERSION "5.0.0")
+set(cvodeslib_VERSION "5.1.0")
 set(cvodeslib_SOVERSION "5")
 
-set(idalib_VERSION "5.0.0")
+set(idalib_VERSION "5.1.0")
 set(idalib_SOVERSION "5")
 
-set(idaslib_VERSION "4.0.0")
+set(idaslib_VERSION "4.1.0")
 set(idaslib_SOVERSION "4")
 
-set(kinsollib_VERSION "5.0.0")
+set(kinsollib_VERSION "5.1.0")
 set(kinsollib_SOVERSION "5")
 
 set(cpodeslib_VERSION "0.0.0")
 set(cpodeslib_SOVERSION "0")
 
-set(nveclib_VERSION "5.0.0")
+set(nveclib_VERSION "5.1.0")
 set(nveclib_SOVERSION "5")
 
-set(sunmatrixlib_VERSION "3.0.0")
+set(sunmatrixlib_VERSION "3.1.0")
 set(sunmatrixlib_SOVERSION "3")
 
-set(sunlinsollib_VERSION "3.0.0")
+set(sunlinsollib_VERSION "3.1.0")
 set(sunlinsollib_SOVERSION "3")
 
-set(sunnonlinsollib_VERSION "2.0.0")
+set(sunnonlinsollib_VERSION "2.1.0")
 set(sunnonlinsollib_SOVERSION "2")
 
 # Specify the location of additional CMAKE modules
@@ -159,10 +159,6 @@ endif()
 # MACRO definitions
 # ---------------------------------------------------------------
 include(SundialsCMakeMacros)
-include(SundialsAddF2003InterfaceLibrary)
-include(SundialsAddTest)
-include(SundialsAddTestInstall)
-include(SundialsOption)
 
 # ---------------------------------------------------------------
 # Check for deprecated SUNDIALS CMake options/variables
@@ -390,16 +386,7 @@ option(LAPACK_ENABLE "Enable Lapack support" OFF)
 
 # LAPACK does not support extended precision
 if(LAPACK_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
-  print_warning("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision"
-                "Disabling LAPACK")
-  force_variable(LAPACK_ENABLE BOOL "LAPACK is disabled" OFF)
-endif()
-
-# LAPACK does not support 64-bit integer index types
-if(LAPACK_ENABLE AND SUNDIALS_INDEX_SIZE MATCHES "64")
-  print_warning("LAPACK is not compatible with ${SUNDIALS_INDEX_SIZE} integers"
-                "Disabling LAPACK")
-  set(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
+  print_error("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision")
 endif()
 
 # ---------------------------------------------------------------
@@ -474,12 +461,17 @@ endif()
 # ---------------------------------------------------------------
 # Enable PETSc support?
 # ---------------------------------------------------------------
+
 sundials_option(PETSC_ENABLE BOOL "Enable PETSc support" OFF
                 XSDK_NAME TPL_ENABLE_PETSC)
 
 sundials_option(PETSC_DIR PATH "Path to the root of a PETSc installation" "${PETSC_DIR}"
                 DEPENDS_ON PETSC_ENABLE
                 XSDK_NAME TPL_PETSC_DIR)
+
+sundials_option(PETSC_ARCH STRING "PETSc architecture (optional)" "${PETSC_ARCH}"
+                DEPENDS_ON PETSC_ENABLE
+                XSDK_NAME TPL_PETSC_ARCH)
 
 sundials_option(PETSC_LIBRARIES STRING "Semi-colon separated list of PETSc link libraries" "${PETSC_LIBRARIES}"
                 DEPENDS_ON PETSC_ENABLE
@@ -488,6 +480,16 @@ sundials_option(PETSC_LIBRARIES STRING "Semi-colon separated list of PETSc link 
 sundials_option(PETSC_INCLUDES STRING "Semi-colon separated list of PETSc include directories" "${PETSC_INCLUDES}"
                 DEPENDS_ON PETSC_ENABLE
                 ADVANCED)
+
+sundials_option(PETSC_WORKS BOOL "Set to ON to force CMake to accept a given PETSc configuration" OFF
+                DEPENDS_ON PETSC_ENABLE
+                ADVANCED)
+
+# Using PETSc requres building with MPI enabled
+if(PETSC_ENABLE AND NOT MPI_ENABLE)
+  print_error("MPI is required for PETSc support. Set MPI_ENABLE to ON.")
+endif()
+
 
 # ---------------------------------------------------------------
 # Enable Trilinos support?
@@ -594,10 +596,10 @@ else()
 
 endif()
 
-# CUDA examples (off by default)
+# CUDA examples
 set(DOCSTR "Build SUNDIALS CUDA examples")
 if(CUDA_ENABLE)
-  option(EXAMPLES_ENABLE_CUDA "${DOCSTR}" OFF)
+  option(EXAMPLES_ENABLE_CUDA "${DOCSTR}" ON)
 else()
   if(EXAMPLES_ENABLE_CUDA)
     print_warning("EXAMPLES_ENABLE_CUDA is ON but CUDA_ENABLE is OFF"
@@ -696,14 +698,20 @@ if(SUNDIALS_F77_FUNC_CASE AND (NOT SUNDIALS_F77_FUNC_UNDERSCORES))
 endif()
 
 # ------------------------------------------------------------------------------
-# Include development examples in regression tests?
+# Advanced testing options
 #
 # NOTE: Development examples are currently used for internal testing and may
 # produce erroneous failures when run on different systems as the pass/fail
 # status is determined by comparing the output against a saved output file.
 # ------------------------------------------------------------------------------
-option(SUNDIALS_DEVTESTS "Include development tests in make test" OFF)
-mark_as_advanced(FORCE SUNDIALS_DEVTESTS)
+
+# Include development examples in regression tests
+option(SUNDIALS_TEST_DEVTESTS "Include development tests in make test" OFF)
+mark_as_advanced(FORCE SUNDIALS_TEST_DEVTESTS)
+
+# Include unit tests in regression tests
+option(SUNDIALS_TEST_UNITTESTS "Include unit tests in make test" OFF)
+mark_as_advanced(FORCE SUNDIALS_TEST_UNITTESTS)
 
 # ===============================================================
 # Add any platform specifc settings
@@ -822,17 +830,28 @@ endif()
 # ---------------------------------------------------------------
 
 if(CUDA_ENABLE)
-   # If a user did not provide the host compiler, then we
-   # assume that they want to use the CXX compiler that was set.
-   if(NOT (DEFINED CMAKE_CUDA_HOST_COMPILER))
-     set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER} CACHE FILEPATH "NVCC host compiler")
-     mark_as_advanced(CMAKE_CUDA_HOST_COMPILER)
-   endif()
-   enable_language(CUDA)
-   message(STATUS "The CUDA host compiler is: ${CMAKE_CUDA_HOST_COMPILER}")
+  # If a user did not provide the host compiler, then we
+  # assume that they want to use the CXX compiler that was set.
+  if(NOT (DEFINED CMAKE_CUDA_HOST_COMPILER))
+    set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER} CACHE FILEPATH "NVCC host compiler")
+    mark_as_advanced(CMAKE_CUDA_HOST_COMPILER)
+  endif()
+  enable_language(CUDA)
+  message(STATUS "The CUDA host compiler is: ${CMAKE_CUDA_HOST_COMPILER}")
+
   # Need this as long as CUDA libraries like cuSOLVER are not
   # available through some other way.
   find_package(CUDA REQUIRED)
+
+  # Allow the user to tell us what CUDA architecture to use
+  if(NOT DEFINED CUDA_ARCH)
+    message(STATUS "CUDA compute architecture set to SUNDIALS default sm_30 since it was not specified")
+    set(CUDA_ARCH "sm_30" CACHE STRING "Set CUDA_ARCH to SUNDIALS default sm_30" FORCE)
+  endif()
+
+  if(CUDA_ARCH)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -arch ${CUDA_ARCH}")
+  endif()
 endif(CUDA_ENABLE)
 
 # ---------------------------------------------------------------
@@ -1019,7 +1038,7 @@ endif()
 # ---------------------------------------------------------------
 
 if(PETSC_ENABLE)
-  include(SundialsPETSc)
+  include(SundialsPETSC)
 else()
   set(PETSC_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 endif()
@@ -1083,6 +1102,11 @@ add_subdirectory(src)
 # Add selected examples to the build
 if(EXAMPLES_ENABLED)
   add_subdirectory(examples)
+endif()
+
+# Add unit tests to the build
+if(SUNDIALS_TEST_UNITTESTS)
+  add_subdirectory(test/unit_tests)
 endif()
 
 # ---------------------------------------------------------------

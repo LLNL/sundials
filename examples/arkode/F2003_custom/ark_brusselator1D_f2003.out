@@ -72,13 +72,13 @@
     6.400000    0.329332    3.142342    1.999994
     6.500000    0.328624    3.171259    1.999994
     6.600000    0.328198    3.199888    1.999994
-    6.700000    0.328026    3.228231    1.999994
+    6.700000    0.328025    3.228231    1.999994
     6.800000    0.328083    3.256287    1.999994
     6.900000    0.328348    3.284055    1.999994
     7.000000    0.328803    3.311535    1.999994
     7.100000    0.329431    3.338724    1.999994
     7.200000    0.330219    3.365622    1.999994
-    7.300000    0.331154    3.392225    1.999994
+    7.300000    0.331153    3.392225    1.999994
     7.400000    0.332225    3.418531    1.999994
     7.500000    0.333423    3.444537    1.999994
     7.600000    0.334742    3.470239    1.999994
@@ -109,12 +109,12 @@
     ----------------------------------------------
   
  Final Solver Statistics:
-    Internal solver steps =       407, (attempted =       468)
-    Total RHS evals: Fe =      2811,  Fi =      7741
-    Total linear solver setups    =      169
+    Internal solver steps =       407, (attempted =       504)
+    Total RHS evals: Fe =      3027,  Fi =      8587
+    Total linear solver setups    =      269
     Total RHS evals for setting up the linear system =        0
-    Total number of Jacobian evaluations =       19
-    Total number of Newton iterations =     4930
+    Total number of Jacobian evaluations =       30
+    Total number of Newton iterations =     5560
     Total number of nonlinear solver convergence failures =        0
-    Total number of error test failures =       61
+    Total number of error test failures =       97
   

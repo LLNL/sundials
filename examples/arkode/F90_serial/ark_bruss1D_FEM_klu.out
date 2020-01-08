@@ -4,13 +4,11 @@ ARKode solver parameters:
   Solver absolute tolerance = 1e-11
   Absolute residual tolerance = 1e-11
 
-ARKStep time step module parameters:
-  Method order 4
-  Implicit integrator
   Maximum step increase (first step) = 10000
   Step reduction factor on multiple error fails = 0.3
   Minimum error fails before above factor is used = 2
   Step reduction factor on nonlinear convergence failure = 0.25
+  Explicit safety factor = 0.5
   Time step adaptivity method 0
      Safety factor = 0.96
      Bias factor = 1.5
@@ -23,6 +21,9 @@ ARKStep time step module parameters:
   Default explicit stability function
   Maximum number of error test failures = 7
   Maximum number of convergence test failures = 10
+ARKStep time step module parameters:
+  Method order 4
+  Implicit integrator
   Implicit predictor method = 0
   Implicit solver tolerance coefficient = 0.1
   Maximum number of nonlinear corrections = 3

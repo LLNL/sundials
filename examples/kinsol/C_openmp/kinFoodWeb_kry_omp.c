@@ -3,7 +3,7 @@
  *      Based on kinFoodWeb_kry.c and parallelized with OpenMP
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -408,6 +408,8 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
   sunindextype i, j, jx, jy, ret;
   UserData data;
 
+  i = j = jx = jy = ret = 0;
+
   data = (UserData) user_data;
   delx = data->dx;
   dely = data->dy;
@@ -473,6 +475,8 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
   realtype **Pxy, *vxy;
   sunindextype *piv, jx, jy;
   UserData data;
+
+  jx = jy = 0;
 
   data = (UserData)user_data;
 

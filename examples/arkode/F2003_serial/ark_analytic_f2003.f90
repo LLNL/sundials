@@ -3,7 +3,7 @@
 !                modified by Jean M. Sexton @ LBL
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2019, Lawrence Livermore National Security
+! Copyright (c) 2002-2020, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -113,7 +113,7 @@ program main
   real(c_double) :: tout                     ! output time
   real(c_double) :: tcur(1)                  ! current time
   integer(c_int) :: imethod, idefault, pq    ! time step adaptivity parameters
-  real(c_double), pointer :: adapt_params(:) ! time step adaptivity parameters
+  real(c_double) :: adapt_params(3)          ! time step adaptivity parameters
   integer(c_int) :: ierr                     ! error flag from C functions
   integer(c_int) :: nout                     ! number of outputs
   integer(c_int) :: outstep                  ! output loop counter

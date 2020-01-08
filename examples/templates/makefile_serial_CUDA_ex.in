@@ -3,7 +3,7 @@
 # Programmer: Slaven Peles, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -26,26 +26,27 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-CC      	  = @CMAKE_C_COMPILER@
+CC          = @CMAKE_C_COMPILER@
 CFLAGS      = @CMAKE_C_FLAGS@
 CXX         = @CMAKE_CXX_COMPILER@
+CXXFLAGS    = @CMAKE_CXX_FLAGS@
 NVCC        = @CMAKE_CUDA_COMPILER@
-NVCCFLAGS   = $(subst ;, ,@CMAKE_CUDA_FLAGS@)
+NVCCFLAGS   = -ccbin=${CXX} -std=c++11 @CMAKE_CUDA_FLAGS@
 LD          = ${NVCC}
-LDFLAGS     = @LDFLAGS@ -Xcompiler \"-Wl,-rpath,${libdir}\"
+LDFLAGS     = @LDFLAGS@ ${NVCCFLAGS} -Xcompiler \"-Wl,-rpath,${libdir}\"
 LIBS        = @LIBS@
 
-TMP_INCS 		 = ${includedir}
-INCLUDES 		 = $(addprefix -I, ${TMP_INCS})
+TMP_INCS = ${includedir}
+INCLUDES = $(addprefix -I, ${TMP_INCS})
 
 TMP_LIBDIRS  = ${libdir}
 LIBDIRS      = $(addprefix -L, ${TMP_LIBDIRS})
 
-TMP_SUNDIALSLIBS = @SOLVER_LIB@ @NVECTOR_LIB@ 
+TMP_SUNDIALSLIBS = @SOLVER_LIB@ @NVECTOR_LIB@ @SUNMAT_LIB@ @SUNLS_LIB@
 SUNDIALSLIBS     = $(addprefix -l, ${TMP_SUNDIALSLIBS})
 LIBRARIES = ${SUNDIALSLIBS} ${LIBS}
 
-EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
+EXAMPLES = @EXAMPLES@ @EXAMPLES_CUSOLVER@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
 
 OBJECTS = ${EXAMPLES:=.o}

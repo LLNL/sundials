@@ -3,7 +3,7 @@
 #                Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -48,6 +48,7 @@ set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_version.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector_senswrapper.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_futils.c
   ${sundials_SOURCE_DIR}/src/nvector/serial/nvector_serial.c
   )
 

@@ -2,7 +2,7 @@ C     ----------------------------------------------------------------
 C     Programmer(s): Daniel R. Reynolds @ SMU
 C     ----------------------------------------------------------------
 C     SUNDIALS Copyright Start
-C     Copyright (c) 2002-2019, Lawrence Livermore National Security
+C     Copyright (c) 2002-2020, Lawrence Livermore National Security
 C     and Southern Methodist University.
 C     All rights reserved.
 C
@@ -46,12 +46,12 @@ C
       INTEGER*4 IER, LNST, LNST_ATT, LNFE, LNFI, LNSETUP, LNNI, LNCF
       INTEGER*4 LNETF, LNJE, LNGE, METH, ITOL, ITASK, JOUT, NOUT
       INTEGER*4 IERROOT, INFO(2)
-      INTEGER*4 I, NEQ
-      INTEGER*8 IOUT(35), IPAR, MXSTEPS, MXNLI, PRED, MXETF
+      INTEGER*4 I
+      INTEGER*8 NEQ, IOUT(35), IPAR, MXSTEPS, MXNLI, PRED, MXETF
       DOUBLE PRECISION RTOL, T, T0, TOUT, H0, NLCONV
       DOUBLE PRECISION Y(3), ATOL(3), ROUT(6), RPAR
 C
-      DATA LNST/3/, LNST_ATT/6/, LNFE/7/, LNFI/8/, LNETF/10/, LNCF/12/, 
+      DATA LNST/3/, LNST_ATT/6/, LNFE/7/, LNFI/8/, LNETF/10/, LNCF/12/,
      1     LNNI/11/, LNSETUP/9/, LNGE/13/, LNJE/18/
 C
       NEQ = 3
@@ -202,7 +202,7 @@ C
            ENDIF
            WRITE(6,70) (INFO(I), I = 1, 2)
  70        FORMAT(5X, 'Above is a root, INFO() = ', 2I3)
-        ENDIF                   
+        ENDIF
 C
         IF (IER .EQ. 0) THEN
            TOUT = TOUT * 10.0D0
@@ -222,8 +222,8 @@ C
       WRITE(6,85) Y(1), Y(2), Y(3)
  85   FORMAT(/'Final value of ydot = ', 3E14.6)
 C
-      WRITE(6,90) IOUT(LNST), IOUT(LNST_ATT), IOUT(LNFE), IOUT(LNFI), 
-     1            IOUT(LNJE), IOUT(LNSETUP), IOUT(LNNI), IOUT(LNCF), 
+      WRITE(6,90) IOUT(LNST), IOUT(LNST_ATT), IOUT(LNFE), IOUT(LNFI),
+     1            IOUT(LNJE), IOUT(LNSETUP), IOUT(LNNI), IOUT(LNCF),
      2            IOUT(LNETF), IOUT(LNGE)
  90   FORMAT(//'Final statistics:'//
      1       ' No. steps = ', I4, ', attempted = ', I4/
@@ -298,7 +298,7 @@ C
 
 C     ----------------------------------------------------------------
 
-      SUBROUTINE FARKDJAC(N, T, Y, FY, JAC, H, IPAR, RPAR, 
+      SUBROUTINE FARKDJAC(N, T, Y, FY, JAC, H, IPAR, RPAR,
      1                    V1, V2, V3, IER)
 C Fortran routine for dense user-supplied Jacobian.
       IMPLICIT NONE

@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -137,6 +137,8 @@ if(EXAMPLES_INSTALL)
   set(SOLVER "CVODE")
   set(SOLVER_LIB "sundials_cvode")
   set(SOLVER_FLIB "sundials_fcvode_mod")
+  set(NVEC_LIB "sundials_nvecserial")
+  set(NVEC_FLIB "sundials_fnvecserial_mod")
 
   examples2string(FCVODE_examples EXAMPLES)
 

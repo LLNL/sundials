@@ -3,7 +3,7 @@
 #                Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -31,7 +31,7 @@ endif()
 
 # C++ examples
 if(EXAMPLES_ENABLE_CXX)
-  if(Trilinos_ENABLE AND Trilinos_FUNCTIONAL)
+  if(Trilinos_ENABLE AND SUNDIALS_TRILINOS)
     add_subdirectory(trilinos)
   endif()
 endif()

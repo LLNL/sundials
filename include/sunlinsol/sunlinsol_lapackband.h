@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -43,12 +43,6 @@ extern "C" {
 #define xgbtrs_f77    sgbtrs_f77
 #else
 #error  Incompatible realtype for LAPACK; disable LAPACK and rebuild
-#endif
-
-/* Catch to disable LAPACK linear solvers with incompatible sunindextype */
-#if defined(SUNDIALS_INT32_T)
-#else  /* incompatible sunindextype for LAPACK */
-#error  Incompatible sunindextype for LAPACK; disable LAPACK and rebuild
 #endif
 
 /* ----------------------------------------------

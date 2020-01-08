@@ -1,9 +1,8 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -13,7 +12,6 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for the main IDAS solver.
- * It is independent of the linear solver in use.
  * -----------------------------------------------------------------
  *
  * EXPORTED FUNCTIONS
@@ -35,10 +33,8 @@
  *       IDAQuadSensInit
  *       IDAQuadSensReInit
  *       IDARootInit
- *
  *   Main solver function
  *       IDASolve
- *
  *   Interpolated output and extraction functions
  *       IDAGetDky
  *       IDAGetQuad
@@ -47,7 +43,6 @@
  *       IDAGetSens1
  *       IDAGetSensDky
  *       IDAGetSensDky1
- *
  *   Deallocation functions
  *       IDAFree
  *       IDAQuadFree
@@ -148,7 +143,6 @@
 
 #include "idas_impl.h"
 #include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
 #include <sundials/sundials_nvector_senswrapper.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
@@ -199,22 +193,22 @@
 
 /* IDACompleteStep constants */
 
-#define UNSET    -1
-#define LOWER     1
-#define RAISE     2
-#define MAINTAIN  3
+#define UNSET            -1
+#define LOWER            +1
+#define RAISE            +2
+#define MAINTAIN         +3
 
 /* IDATestError constants */
 
-#define ERROR_TEST_FAIL +7
+#define ERROR_TEST_FAIL  +7
 
 /*
  * Control constants for lower-level rootfinding functions
  * -------------------------------------------------------
  */
 
-#define RTFOUND   1
-#define CLOSERT   3
+#define RTFOUND          +1
+#define CLOSERT          +3
 
 /*
  * Control constants for sensitivity DQ
@@ -238,12 +232,7 @@
 #define MAXNI           10  /* max. Newton iterations in IC calc. */
 #define EPCON RCONST(0.33)  /* Newton convergence test constant */
 #define MAXBACKS       100  /* max backtracks per Newton step in IDACalcIC */
-
-
-/* IDANewtonIter constants */
-
-#define MAXIT 4
-#define XRATE RCONST(0.25) /* constant for updating Jacobian/preconditioner */
+#define XRATE RCONST(0.25)  /* constant for updating Jacobian/preconditioner */
 
 /*
  * =================================================================
@@ -310,7 +299,7 @@ static int IDASensNls(IDAMem IDA_mem);
 static int IDAQuadNls(IDAMem IDA_mem);
 static int IDAQuadSensNls(IDAMem IDA_mem);
 
-/* Error tests */
+/* Error test */
 
 static int IDATestError(IDAMem IDA_mem, realtype ck,
                         realtype *err_k, realtype *err_km1, realtype *err_km2);
@@ -333,6 +322,7 @@ static void IDAReset(IDAMem IDA_mem);
 static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1);
 
 /* Function called to evaluate the solutions y(t) and y'(t) at t. Also used in IDAA */
+
 int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret);
 
 /* Stopping tests and failure handling */
@@ -438,7 +428,6 @@ void *IDACreate(void)
   IDA_mem->ida_epcon       = EPCON;
   IDA_mem->ida_maxnef      = MXNEF;
   IDA_mem->ida_maxncf      = MXNCF;
-  IDA_mem->ida_maxcor      = MAXIT;
   IDA_mem->ida_suppressalg = SUNFALSE;
   IDA_mem->ida_id          = NULL;
   IDA_mem->ida_constraints = NULL;
@@ -475,7 +464,6 @@ void *IDACreate(void)
   IDA_mem->ida_pbar         = NULL;
   IDA_mem->ida_plist        = NULL;
   IDA_mem->ida_errconS      = SUNFALSE;
-  IDA_mem->ida_maxcorS      = MAXIT;
   IDA_mem->ida_itolS        = IDA_EE;
   IDA_mem->ida_atolSmin0    = NULL;
   IDA_mem->ida_ism          = -1;     /* initialize to invalid option */
@@ -498,7 +486,6 @@ void *IDACreate(void)
   IDA_mem->ida_liw = 38;
 
   /* No mallocs have been done yet */
-
   IDA_mem->ida_VatolMallocDone       = SUNFALSE;
   IDA_mem->ida_constraintsMallocDone = SUNFALSE;
   IDA_mem->ida_idMallocDone          = SUNFALSE;
@@ -843,6 +830,7 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
   }
 
   /* Check inputs */
+
   if (reltol < ZERO) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASStolerances", MSG_BAD_RTOL);
     return(IDA_ILL_INPUT);
@@ -854,7 +842,8 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
   }
 
   /* Copy tolerances into memory */
-  IDA_mem->ida_rtol = reltol;
+
+  IDA_mem->ida_rtol  = reltol;
   IDA_mem->ida_Satol = abstol;
   IDA_mem->ida_atolmin0 = (abstol == ZERO);
 
@@ -2110,7 +2099,6 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 }
 
 
-
 /*
  * -----------------------------------------------------------------
  * Main solver function
@@ -2159,12 +2147,13 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
   long int nstloc;
-  int sflag, istate, ier, irfndp, is, ir;
+  int sflag, istate, ier, irfndp, ir, is;
   realtype tdist, troundoff, ypnorm, rh, nrm;
   IDAMem IDA_mem;
   booleantype inactive_roots;
 
   /* Check for legal inputs in all cases. */
+
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASolve", MSG_NO_MEM);
     return(IDA_MEM_NULL);
@@ -2172,12 +2161,14 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   IDA_mem = (IDAMem) ida_mem;
 
   /* Check if problem was malloc'ed */
+
   if (IDA_mem->ida_MallocDone == SUNFALSE) {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDAS", "IDASolve", MSG_NO_MALLOC);
     return(IDA_NO_MALLOC);
   }
 
   /* Check for legal arguments */
+
   if (yret == NULL) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_YRET_NULL);
     return(IDA_ILL_INPUT);
@@ -2200,7 +2191,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     return(IDA_ILL_INPUT);
   }
 
-  if (itask == IDA_NORMAL)  IDA_mem->ida_toutc = tout;
+  if (itask == IDA_NORMAL) IDA_mem->ida_toutc = tout;
   IDA_mem->ida_taskc = itask;
 
   /* Sensitivity-specific tests (if using internal DQ functions) */
@@ -2226,6 +2217,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
   if (IDA_mem->ida_nst == 0) {       /* This is the first call */
 
     /* Check inputs to IDA for correctness and consistency */
+
     if (IDA_mem->ida_SetupDone == SUNFALSE) {
       ier = IDAInitialSetup(IDA_mem);
       if (ier != IDA_SUCCESS) return(ier);
@@ -2267,7 +2259,7 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
         ypnorm = IDAQuadSensWrmsNormUpdate(IDA_mem, ypnorm, IDA_mem->ida_phiQS[1],
                                            IDA_mem->ida_ewtQS);
 
-      if (ypnorm > HALF/IDA_mem->ida_hh) IDA_mem->ida_hh = HALF/ypnorm;
+      if (ypnorm > HALF / IDA_mem->ida_hh) IDA_mem->ida_hh = HALF/ypnorm;
       if (tout < IDA_mem->ida_tn) IDA_mem->ida_hh = -IDA_mem->ida_hh;
     }
 
@@ -2292,15 +2284,18 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     if (IDA_mem->ida_nrtfn > 0) {
       ier = IDARcheck1(IDA_mem);
       if (ier == IDA_RTFUNC_FAIL) {
-        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDAS", "IDARcheck1", MSG_RTFUNC_FAILED, IDA_mem->ida_tn);
+        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDAS", "IDARcheck1",
+                        MSG_RTFUNC_FAILED, IDA_mem->ida_tn);
         return(IDA_RTFUNC_FAIL);
       }
     }
 
-    N_VScale(IDA_mem->ida_hh, IDA_mem->ida_phi[1], IDA_mem->ida_phi[1]);                /* set phi[1] = hh*y' */
+    /* set phi[1] = hh*y' */
+    N_VScale(IDA_mem->ida_hh, IDA_mem->ida_phi[1], IDA_mem->ida_phi[1]);
 
+    /* set phiQ[1] = hh*yQ' */
     if (IDA_mem->ida_quadr)
-      N_VScale(IDA_mem->ida_hh, IDA_mem->ida_phiQ[1], IDA_mem->ida_phiQ[1]);            /* set phiQ[1] = hh*yQ' */
+      N_VScale(IDA_mem->ida_hh, IDA_mem->ida_phiQ[1], IDA_mem->ida_phiQ[1]);
 
     if (IDA_mem->ida_sensi || IDA_mem->ida_quadr_sensi)
       for (is=0; is<IDA_mem->ida_Ns; is++)
@@ -2346,10 +2341,12 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       ier = IDARcheck2(IDA_mem);
 
       if (ier == CLOSERT) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDARcheck2", MSG_CLOSE_ROOTS, IDA_mem->ida_tlo);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDARcheck2",
+                        MSG_CLOSE_ROOTS, IDA_mem->ida_tlo);
         return(IDA_ILL_INPUT);
       } else if (ier == IDA_RTFUNC_FAIL) {
-        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDAS", "IDARcheck2", MSG_RTFUNC_FAILED, IDA_mem->ida_tlo);
+        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDAS", "IDARcheck2",
+                        MSG_RTFUNC_FAILED, IDA_mem->ida_tlo);
         return(IDA_RTFUNC_FAIL);
       } else if (ier == RTFOUND) {
         IDA_mem->ida_tretlast = *tret = IDA_mem->ida_tlo;
@@ -2373,7 +2370,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
           IDA_mem->ida_tretlast = *tret = IDA_mem->ida_tlo;
           return(IDA_ROOT_RETURN);
         } else if (ier == IDA_RTFUNC_FAIL) {  /* g failed */
-          IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDAS", "IDARcheck3", MSG_RTFUNC_FAILED, IDA_mem->ida_tlo);
+          IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDAS", "IDARcheck3",
+                          MSG_RTFUNC_FAILED, IDA_mem->ida_tlo);
           return(IDA_RTFUNC_FAIL);
         }
       }
@@ -2394,7 +2392,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     /* Check for too many steps taken. */
 
     if ( (IDA_mem->ida_mxstep>0) && (nstloc >= IDA_mem->ida_mxstep) ) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_MAX_STEPS, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve",
+                      MSG_MAX_STEPS, IDA_mem->ida_tn);
       istate = IDA_TOO_MUCH_WORK;
       *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tn;
       break; /* Here yy=yret and yp=ypret already have the current solution. */
@@ -2409,23 +2408,30 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     if (IDA_mem->ida_nst > 0) {
 
-      ier = IDA_mem->ida_efun(IDA_mem->ida_phi[0],
-                              IDA_mem->ida_ewt, IDA_mem->ida_edata);
+      ier = IDA_mem->ida_efun(IDA_mem->ida_phi[0], IDA_mem->ida_ewt,
+                              IDA_mem->ida_edata);
+
       if (ier != 0) {
+
         if (IDA_mem->ida_itol == IDA_WF)
-          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_EWT_NOW_FAIL, IDA_mem->ida_tn);
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve",
+                          MSG_EWT_NOW_FAIL, IDA_mem->ida_tn);
         else
-          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_EWT_NOW_BAD, IDA_mem->ida_tn);
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve",
+                          MSG_EWT_NOW_BAD, IDA_mem->ida_tn);
+
         istate = IDA_ILL_INPUT;
         ier = IDAGetSolution(IDA_mem, IDA_mem->ida_tn, yret, ypret);
         *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tn;
         break;
+
       }
 
       if (IDA_mem->ida_quadr && IDA_mem->ida_errconQ) {
         ier = IDAQuadEwtSet(IDA_mem, IDA_mem->ida_phiQ[0], IDA_mem->ida_ewtQ);
         if (ier != 0) {
-          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_EWTQ_NOW_BAD, IDA_mem->ida_tn);
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve",
+                          MSG_EWTQ_NOW_BAD, IDA_mem->ida_tn);
           istate = IDA_ILL_INPUT;
           ier = IDAGetSolution(IDA_mem, IDA_mem->ida_tn, yret, ypret);
           *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tn;
@@ -2436,7 +2442,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       if (IDA_mem->ida_sensi) {
         ier = IDASensEwtSet(IDA_mem, IDA_mem->ida_phiS[0], IDA_mem->ida_ewtS);
         if (ier != 0) {
-          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_EWTS_NOW_BAD, IDA_mem->ida_tn);
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve",
+                          MSG_EWTS_NOW_BAD, IDA_mem->ida_tn);
           istate = IDA_ILL_INPUT;
           ier = IDAGetSolution(IDA_mem, IDA_mem->ida_tn, yret, ypret);
           *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tn;
@@ -2447,7 +2454,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
       if (IDA_mem->ida_quadr_sensi && IDA_mem->ida_errconQS) {
         ier = IDAQuadSensEwtSet(IDA_mem, IDA_mem->ida_phiQS[0], IDA_mem->ida_ewtQS);
         if (ier != 0) {
-          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_EWTQS_NOW_BAD, IDA_mem->ida_tn);
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve",
+                          MSG_EWTQS_NOW_BAD, IDA_mem->ida_tn);
           istate = IDA_ILL_INPUT;
           ier = IDAGetSolution(IDA_mem, IDA_mem->ida_tn, yret, ypret);
           IDA_mem->ida_tretlast = *tret = IDA_mem->ida_tn;
@@ -2459,8 +2467,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     /* Check for too much accuracy requested. */
 
-    nrm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_phi[0],
-                      IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
+    nrm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_phi[0], IDA_mem->ida_ewt,
+                      IDA_mem->ida_suppressalg);
     if (IDA_mem->ida_errconQ)
       nrm = IDAQuadWrmsNormUpdate(IDA_mem, nrm, IDA_mem->ida_phiQ[0],
                                   IDA_mem->ida_ewtQ);
@@ -2474,7 +2482,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
     IDA_mem->ida_tolsf = IDA_mem->ida_uround * nrm;
     if (IDA_mem->ida_tolsf > ONE) {
       IDA_mem->ida_tolsf *= TEN;
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve", MSG_TOO_MUCH_ACC, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDASolve",
+                      MSG_TOO_MUCH_ACC, IDA_mem->ida_tn);
       istate = IDA_TOO_MUCH_ACC;
       *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tn;
       if (IDA_mem->ida_nst > 0) ier = IDAGetSolution(IDA_mem, IDA_mem->ida_tn, yret, ypret);
@@ -2517,7 +2526,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
         IDA_mem->ida_tretlast = *tret = IDA_mem->ida_tlo;
         break;
       } else if (ier == IDA_RTFUNC_FAIL) { /* g failed */
-        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDAS", "IDARcheck3", MSG_RTFUNC_FAILED, IDA_mem->ida_tlo);
+        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDAS", "IDARcheck3",
+                        MSG_RTFUNC_FAILED, IDA_mem->ida_tlo);
         istate = IDA_RTFUNC_FAIL;
         break;
       }
@@ -2536,7 +2546,8 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
           }
         }
         if ((IDA_mem->ida_mxgnull > 0) && inactive_roots) {
-          IDAProcessError(IDA_mem, IDA_WARNING, "IDAS", "IDASolve", MSG_INACTIVE_ROOTS);
+          IDAProcessError(IDA_mem, IDA_WARNING, "IDAS", "IDASolve",
+                          MSG_INACTIVE_ROOTS);
         }
       }
 
@@ -2553,101 +2564,10 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 }
 
 /*
- * IDAComputeY
- *
- * Computes y based on the current prediction and given correction.
- */
-int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeY", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y);
-
-  return(IDA_SUCCESS);
-}
-
-/*
- * IDAComputeYp
- *
- * Computes y' based on the current prediction and given correction.
- */
-int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYp", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp);
-
-  return(IDA_SUCCESS);
-}
-
-/*
- * IDAComputeYSens
- *
- * Computes yS based on the current prediction and given correction.
- */
-int IDAComputeYSens(void *ida_mem, N_Vector *ycorS, N_Vector *yyS)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYSens", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  N_VLinearSumVectorArray(IDA_mem->ida_Ns,
-                          ONE, IDA_mem->ida_yySpredict,
-                          ONE, ycorS, yyS);
-
-  return(IDA_SUCCESS);
-}
-
-/*
- * IDAComputeYpSens
- *
- * Computes yS' based on the current prediction and given correction.
- */
-int IDAComputeYpSens(void *ida_mem, N_Vector *ycorS, N_Vector *ypS)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYpSens", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  N_VLinearSumVectorArray(IDA_mem->ida_Ns,
-                          ONE, IDA_mem->ida_ypSpredict,
-                          IDA_mem->ida_cj, ycorS, ypS);
-
-  return(IDA_SUCCESS);
-}
-
-
-/*
  * -----------------------------------------------------------------
  * Interpolated output and extraction functions
  * -----------------------------------------------------------------
  */
-
-
 
 /*
  * IDAGetDky
@@ -2658,10 +2578,11 @@ int IDAComputeYpSens(void *ida_mem, N_Vector *ycorS, N_Vector *ypS)
  * independent variable value, tn, and the method order last used, kused.
  *
  * The return values are:
- *   IDA_SUCCESS  if t is legal, or
- *   IDA_BAD_T    if t is not within the interval of the last step taken.
- *   IDA_BAD_DKY  if the dky vector is NULL.
- *   IDA_BAD_K    if the requested k is not in the range 0,1,...,order used
+ *   IDA_SUCCESS       if t is legal
+ *   IDA_BAD_T         if t is not within the interval of the last step taken
+ *   IDA_BAD_DKY       if the dky vector is NULL
+ *   IDA_BAD_K         if the requested k is not in the range [0,order used]
+ *   IDA_VECTOROP_ERR  if the fused vector operation fails
  *
  */
 
@@ -2696,8 +2617,8 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
   if (IDA_mem->ida_hh < ZERO) tfuzz = - tfuzz;
   tp = IDA_mem->ida_tn - IDA_mem->ida_hused - tfuzz;
   if ((t - tp)*IDA_mem->ida_hh < ZERO) {
-    IDAProcessError(IDA_mem, IDA_BAD_T, "IDAS", "IDAGetDky", MSG_BAD_T,
-                    t, IDA_mem->ida_tn-IDA_mem->ida_hused, IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_BAD_T, "IDAS", "IDAGetDky", MSG_BAD_T, t,
+                    IDA_mem->ida_tn-IDA_mem->ida_hused, IDA_mem->ida_tn);
     return(IDA_BAD_T);
   }
 
@@ -2753,8 +2674,10 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
 
   /* Compute sum (c_j(t) * phi(t)) */
 
-  retval = N_VLinearCombination(IDA_mem->ida_kused-k+1, cjk+k, IDA_mem->ida_phi+k, dky);
-  if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+  /* Sum j=k to j<=IDA_mem->ida_kused */
+  retval = N_VLinearCombination(IDA_mem->ida_kused-k+1, cjk+k,
+                                IDA_mem->ida_phi+k, dky);
+  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
 
   return(IDA_SUCCESS);
 }
@@ -3311,6 +3234,94 @@ int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
 }
 
 /*
+ * IDAComputeY
+ *
+ * Computes y based on the current prediction and given correction.
+ */
+int IDAComputeY(void *ida_mem, N_Vector ycor, N_Vector y)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeY", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, ycor, y);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYp
+ *
+ * Computes y' based on the current prediction and given correction.
+ */
+int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYp", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, ycor, yp);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYSens
+ *
+ * Computes yS based on the current prediction and given correction.
+ */
+int IDAComputeYSens(void *ida_mem, N_Vector *ycorS, N_Vector *yyS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYSens", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSumVectorArray(IDA_mem->ida_Ns,
+                          ONE, IDA_mem->ida_yySpredict,
+                          ONE, ycorS, yyS);
+
+  return(IDA_SUCCESS);
+}
+
+/*
+ * IDAComputeYpSens
+ *
+ * Computes yS' based on the current prediction and given correction.
+ */
+int IDAComputeYpSens(void *ida_mem, N_Vector *ycorS, N_Vector *ypS)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAComputeYpSens", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  N_VLinearSumVectorArray(IDA_mem->ida_Ns,
+                          ONE, IDA_mem->ida_ypSpredict,
+                          IDA_mem->ida_cj, ycorS, ypS);
+
+  return(IDA_SUCCESS);
+}
+
+/*
  * -----------------------------------------------------------------
  * Deallocation functions
  * -----------------------------------------------------------------
@@ -3343,14 +3354,21 @@ void IDAFree(void **ida_mem)
 
   IDAAdjFree(IDA_mem);
 
+  /* if IDA created the NLS object then free it */
+  if (IDA_mem->ownNLS) {
+    SUNNonlinSolFree(IDA_mem->NLS);
+    IDA_mem->ownNLS = SUNFALSE;
+    IDA_mem->NLS = NULL;
+  }
+
   if (IDA_mem->ida_lfree != NULL)
     IDA_mem->ida_lfree(IDA_mem);
 
   if (IDA_mem->ida_nrtfn > 0) {
-    free(IDA_mem->ida_glo); IDA_mem->ida_glo = NULL;
-    free(IDA_mem->ida_ghi);  IDA_mem->ida_ghi = NULL;
-    free(IDA_mem->ida_grout);  IDA_mem->ida_grout = NULL;
-    free(IDA_mem->ida_iroots); IDA_mem->ida_iroots = NULL;
+    free(IDA_mem->ida_glo);     IDA_mem->ida_glo = NULL;
+    free(IDA_mem->ida_ghi);     IDA_mem->ida_ghi = NULL;
+    free(IDA_mem->ida_grout);   IDA_mem->ida_grout = NULL;
+    free(IDA_mem->ida_iroots);  IDA_mem->ida_iroots = NULL;
     free(IDA_mem->ida_rootdir); IDA_mem->ida_rootdir = NULL;
     free(IDA_mem->ida_gactive); IDA_mem->ida_gactive = NULL;
   }
@@ -3358,13 +3376,6 @@ void IDAFree(void **ida_mem)
   free(IDA_mem->ida_cvals); IDA_mem->ida_cvals = NULL;
   free(IDA_mem->ida_Xvecs); IDA_mem->ida_Xvecs = NULL;
   free(IDA_mem->ida_Zvecs); IDA_mem->ida_Zvecs = NULL;
-
-  /* if IDA created the NLS object then free it */
-  if (IDA_mem->ownNLS) {
-    SUNNonlinSolFree(IDA_mem->NLS);
-    IDA_mem->ownNLS = SUNFALSE;
-    IDA_mem->NLS = NULL;
-  }
 
   free(*ida_mem);
   *ida_mem = NULL;
@@ -3613,8 +3624,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
       N_VDestroy(IDA_mem->ida_tempv1);
       N_VDestroy(IDA_mem->ida_tempv2);
       N_VDestroy(IDA_mem->ida_tempv3);
-      for (i=0; i < j; i++)
-        N_VDestroy(IDA_mem->ida_phi[i]);
+      for (i=0; i < j; i++) N_VDestroy(IDA_mem->ida_phi[i]);
       return(SUNFALSE);
     }
   }
@@ -3639,15 +3649,15 @@ static void IDAFreeVectors(IDAMem IDA_mem)
 {
   int j, maxcol;
 
-  N_VDestroy(IDA_mem->ida_ewt);       IDA_mem->ida_ewt = NULL;
-  N_VDestroy(IDA_mem->ida_ee);        IDA_mem->ida_ee = NULL;
-  N_VDestroy(IDA_mem->ida_delta);     IDA_mem->ida_delta = NULL;
+  N_VDestroy(IDA_mem->ida_ewt);       IDA_mem->ida_ewt       = NULL;
+  N_VDestroy(IDA_mem->ida_ee);        IDA_mem->ida_ee        = NULL;
+  N_VDestroy(IDA_mem->ida_delta);     IDA_mem->ida_delta     = NULL;
   N_VDestroy(IDA_mem->ida_yypredict); IDA_mem->ida_yypredict = NULL;
   N_VDestroy(IDA_mem->ida_yppredict); IDA_mem->ida_yppredict = NULL;
-  N_VDestroy(IDA_mem->ida_savres);    IDA_mem->ida_savres = NULL;
-  N_VDestroy(IDA_mem->ida_tempv1);    IDA_mem->ida_tempv1 = NULL;
-  N_VDestroy(IDA_mem->ida_tempv2);    IDA_mem->ida_tempv2 = NULL;
-  N_VDestroy(IDA_mem->ida_tempv3);    IDA_mem->ida_tempv3 = NULL;
+  N_VDestroy(IDA_mem->ida_savres);    IDA_mem->ida_savres    = NULL;
+  N_VDestroy(IDA_mem->ida_tempv1);    IDA_mem->ida_tempv1    = NULL;
+  N_VDestroy(IDA_mem->ida_tempv2);    IDA_mem->ida_tempv2    = NULL;
+  N_VDestroy(IDA_mem->ida_tempv3);    IDA_mem->ida_tempv3    = NULL;
   maxcol = SUNMAX(IDA_mem->ida_maxord_alloc,3);
   for(j=0; j <= maxcol; j++) {
     N_VDestroy(IDA_mem->ida_phi[j]);
@@ -4090,7 +4100,7 @@ static void IDAQuadSensFreeVectors(IDAMem IDA_mem)
  * It performs all checks on optional inputs and inputs to
  * IDAInit/IDAReInit that could not be done before.
  *
- * If no merror is encountered, IDAInitialSetup returns IDA_SUCCESS.
+ * If no error is encountered, IDAInitialSetup returns IDA_SUCCESS.
  * Otherwise, it returns an error flag and reported to the error
  * handler function.
  */
@@ -4098,24 +4108,27 @@ static void IDAQuadSensFreeVectors(IDAMem IDA_mem)
 int IDAInitialSetup(IDAMem IDA_mem)
 {
   booleantype conOK;
-  int ier, retval;
+  int ier;
 
   /* Test for more vector operations, depending on options */
   if (IDA_mem->ida_suppressalg)
     if (IDA_mem->ida_phi[0]->ops->nvwrmsnormmask == NULL) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_BAD_NVECTOR);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                      MSG_BAD_NVECTOR);
       return(IDA_ILL_INPUT);
   }
 
   /* Test id vector for legality */
   if (IDA_mem->ida_suppressalg && (IDA_mem->ida_id==NULL)){
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_MISSING_ID);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                    MSG_MISSING_ID);
     return(IDA_ILL_INPUT);
   }
 
   /* Did the user specify tolerances? */
   if (IDA_mem->ida_itol == IDA_NN) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_NO_TOLS);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                    MSG_NO_TOLS);
     return(IDA_ILL_INPUT);
   }
 
@@ -4123,28 +4136,32 @@ int IDAInitialSetup(IDAMem IDA_mem)
   if (IDA_mem->ida_user_efun) IDA_mem->ida_edata = IDA_mem->ida_user_data;
   else                        IDA_mem->ida_edata = IDA_mem;
 
-  /* Initial error weight vectors */
+  /* Initial error weight vector */
   ier = IDA_mem->ida_efun(IDA_mem->ida_phi[0], IDA_mem->ida_ewt, IDA_mem->ida_edata);
   if (ier != 0) {
     if (IDA_mem->ida_itol == IDA_WF)
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_FAIL_EWT);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                      MSG_FAIL_EWT);
     else
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_BAD_EWT);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                      MSG_BAD_EWT);
     return(IDA_ILL_INPUT);
   }
 
   if (IDA_mem->ida_quadr) {
 
     /* Evaluate quadrature rhs and set phiQ[1] */
-    retval = IDA_mem->ida_rhsQ(IDA_mem->ida_tn, IDA_mem->ida_phi[0],
-                               IDA_mem->ida_phi[1], IDA_mem->ida_phiQ[1],
-                               IDA_mem->ida_user_data);
+    ier = IDA_mem->ida_rhsQ(IDA_mem->ida_tn, IDA_mem->ida_phi[0],
+                            IDA_mem->ida_phi[1], IDA_mem->ida_phiQ[1],
+                            IDA_mem->ida_user_data);
     IDA_mem->ida_nrQe++;
-    if (retval < 0) {
-      IDAProcessError(IDA_mem, IDA_QRHS_FAIL, "IDAS", "IDAInitialSetup", MSG_QRHSFUNC_FAILED);
+    if (ier < 0) {
+      IDAProcessError(IDA_mem, IDA_QRHS_FAIL, "IDAS", "IDAInitialSetup",
+                      MSG_QRHSFUNC_FAILED);
       return(IDA_QRHS_FAIL);
-    } else if (retval > 0) {
-      IDAProcessError(IDA_mem, IDA_FIRST_QRHS_ERR, "IDAS", "IDAInitialSetup", MSG_QRHSFUNC_FIRST);
+    } else if (ier > 0) {
+      IDAProcessError(IDA_mem, IDA_FIRST_QRHS_ERR, "IDAS", "IDAInitialSetup",
+                      MSG_QRHSFUNC_FIRST);
       return(IDA_FIRST_QRHS_ERR);
     }
 
@@ -4152,14 +4169,16 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
       /* Did the user specify tolerances? */
       if (IDA_mem->ida_itolQ == IDA_NN) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_NO_TOLQ);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                        MSG_NO_TOLQ);
         return(IDA_ILL_INPUT);
       }
 
       /* Load ewtQ */
       ier = IDAQuadEwtSet(IDA_mem, IDA_mem->ida_phiQ[0], IDA_mem->ida_ewtQ);
       if (ier != 0) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_BAD_EWTQ);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                        MSG_BAD_EWTQ);
         return(IDA_ILL_INPUT);
       }
     }
@@ -4171,14 +4190,16 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
     /* Did the user specify tolerances? */
     if (IDA_mem->ida_itolS == IDA_NN) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_NO_TOLS);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                      MSG_NO_TOLS);
       return(IDA_ILL_INPUT);
     }
 
     /* Load ewtS */
     ier = IDASensEwtSet(IDA_mem, IDA_mem->ida_phiS[0], IDA_mem->ida_ewtS);
     if (ier != 0) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_BAD_EWTS);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                      MSG_BAD_EWTS);
       return(IDA_ILL_INPUT);
     }
   } else {
@@ -4188,17 +4209,20 @@ int IDAInitialSetup(IDAMem IDA_mem)
   if (IDA_mem->ida_quadr_sensi) {
 
     /* store the quadrature sensitivity residual. */
-    retval = IDA_mem->ida_rhsQS(IDA_mem->ida_Ns, IDA_mem->ida_tn,
-                                IDA_mem->ida_phi[0], IDA_mem->ida_phi[1],
-                                IDA_mem->ida_phiS[0], IDA_mem->ida_phiS[1],
-                                IDA_mem->ida_phiQ[1], IDA_mem->ida_phiQS[1],
-                                IDA_mem->ida_user_dataQS, IDA_mem->ida_tmpS1, IDA_mem->ida_tmpS2, IDA_mem->ida_tmpS3);
+    ier = IDA_mem->ida_rhsQS(IDA_mem->ida_Ns, IDA_mem->ida_tn,
+                             IDA_mem->ida_phi[0], IDA_mem->ida_phi[1],
+                             IDA_mem->ida_phiS[0], IDA_mem->ida_phiS[1],
+                             IDA_mem->ida_phiQ[1], IDA_mem->ida_phiQS[1],
+                             IDA_mem->ida_user_dataQS, IDA_mem->ida_tmpS1,
+                             IDA_mem->ida_tmpS2, IDA_mem->ida_tmpS3);
     IDA_mem->ida_nrQSe++;
-    if (retval < 0) {
-      IDAProcessError(IDA_mem, IDA_QSRHS_FAIL, "IDAS", "IDAInitialSetup", MSG_QSRHSFUNC_FAILED);
+    if (ier < 0) {
+      IDAProcessError(IDA_mem, IDA_QSRHS_FAIL, "IDAS", "IDAInitialSetup",
+                      MSG_QSRHSFUNC_FAILED);
       return(IDA_QRHS_FAIL);
-    } else if (retval > 0) {
-      IDAProcessError(IDA_mem, IDA_FIRST_QSRHS_ERR, "IDAS", "IDAInitialSetup", MSG_QSRHSFUNC_FIRST);
+    } else if (ier > 0) {
+      IDAProcessError(IDA_mem, IDA_FIRST_QSRHS_ERR, "IDAS", "IDAInitialSetup",
+                      MSG_QSRHSFUNC_FIRST);
       return(IDA_FIRST_QSRHS_ERR);
     }
 
@@ -4209,13 +4233,15 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
       /* Test if quadratures are defined, so we can use fQ */
       if (!IDA_mem->ida_quadr) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_NULL_RHSQ);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                        MSG_NULL_RHSQ);
         return(IDA_ILL_INPUT);
       }
 
       /* Test if we have the problem parameters */
       if (IDA_mem->ida_p == NULL) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_NULL_P);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                        MSG_NULL_P);
         return(IDA_ILL_INPUT);
       }
     }
@@ -4223,20 +4249,23 @@ int IDAInitialSetup(IDAMem IDA_mem)
     if (IDA_mem->ida_errconQS) {
       /* Did the user specify tolerances? */
       if (IDA_mem->ida_itolQS == IDA_NN) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_NO_TOLQS);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                        MSG_NO_TOLQS);
         return(IDA_ILL_INPUT);
       }
 
       /* If needed, did the user provide quadrature tolerances? */
       if ( (IDA_mem->ida_itolQS == IDA_EE) && (IDA_mem->ida_itolQ == IDA_NN) ) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_NO_TOLQ);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                        MSG_NO_TOLQ);
         return(IDA_ILL_INPUT);
       }
 
       /* Load ewtS */
       ier = IDAQuadSensEwtSet(IDA_mem, IDA_mem->ida_phiQS[0], IDA_mem->ida_ewtQS);
       if (ier != 0) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_BAD_EWTQS);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                        MSG_BAD_EWTQS);
         return(IDA_ILL_INPUT);
       }
     }
@@ -4248,22 +4277,25 @@ int IDAInitialSetup(IDAMem IDA_mem)
   if (IDA_mem->ida_constraintsSet) {
 
     if (IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_SIMULTANEOUS)) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_BAD_ISM_CONSTR);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                      MSG_BAD_ISM_CONSTR);
       return(IDA_ILL_INPUT);
     }
 
     conOK = N_VConstrMask(IDA_mem->ida_constraints, IDA_mem->ida_phi[0], IDA_mem->ida_tempv2);
     if (!conOK) {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup", MSG_Y0_FAIL_CONSTR);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS", "IDAInitialSetup",
+                      MSG_Y0_FAIL_CONSTR);
       return(IDA_ILL_INPUT);
     }
   }
 
   /* Call linit function if it exists. */
   if (IDA_mem->ida_linit != NULL) {
-    retval = IDA_mem->ida_linit(IDA_mem);
-    if (retval != 0) {
-      IDAProcessError(IDA_mem, IDA_LINIT_FAIL, "IDAS", "IDAInitialSetup", MSG_LINIT_FAIL);
+    ier = IDA_mem->ida_linit(IDA_mem);
+    if (ier != 0) {
+      IDAProcessError(IDA_mem, IDA_LINIT_FAIL, "IDAS", "IDAInitialSetup",
+                      MSG_LINIT_FAIL);
       return(IDA_LINIT_FAIL);
     }
   }
@@ -4273,29 +4305,26 @@ int IDAInitialSetup(IDAMem IDA_mem)
 
   /* always initialize the DAE NLS in case the user disables sensitivities later */
   ier = idaNlsInit(IDA_mem);
-
   if (ier != IDA_SUCCESS) {
-    IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDAS",
-                    "IDAInitialSetup", MSG_NLS_INIT_FAIL);
+    IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDAS", "IDAInitialSetup",
+                    MSG_NLS_INIT_FAIL);
     return(IDA_NLS_INIT_FAIL);
   }
 
   if (IDA_mem->NLSsim != NULL) {
     ier = idaNlsInitSensSim(IDA_mem);
-
     if (ier != IDA_SUCCESS) {
-      IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDAS",
-                      "IDAInitialSetup", MSG_NLS_INIT_FAIL);
+      IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDAS", "IDAInitialSetup",
+                      MSG_NLS_INIT_FAIL);
       return(IDA_NLS_INIT_FAIL);
     }
   }
 
   if (IDA_mem->NLSstg != NULL) {
     ier = idaNlsInitSensStg(IDA_mem);
-
     if (ier != IDA_SUCCESS) {
-      IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDAS",
-                      "IDAInitialSetup", MSG_NLS_INIT_FAIL);
+      IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDAS", "IDAInitialSetup",
+                      MSG_NLS_INIT_FAIL);
       return(IDA_NLS_INIT_FAIL);
     }
   }
@@ -4375,7 +4404,8 @@ static int IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
 static int IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
 {
   N_VAbs(ycur, IDA_mem->ida_tempv1);
-  N_VLinearSum(IDA_mem->ida_rtol, IDA_mem->ida_tempv1, ONE, IDA_mem->ida_Vatol, IDA_mem->ida_tempv1);
+  N_VLinearSum(IDA_mem->ida_rtol, IDA_mem->ida_tempv1,
+               ONE, IDA_mem->ida_Vatol, IDA_mem->ida_tempv1);
   if (IDA_mem->ida_atolmin0) {
     if (N_VMin(IDA_mem->ida_tempv1) <= ZERO) return(-1);
   }
@@ -4644,7 +4674,6 @@ static int IDAQuadSensEwtSetSV(IDAMem IDA_mem, N_Vector *yQScur, N_Vector *weigh
   return(0);
 }
 
-
 /*
  * -----------------------------------------------------------------
  * Stopping tests
@@ -4858,68 +4887,82 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
   switch (sflag) {
 
     case IDA_ERR_FAIL:
-      IDAProcessError(IDA_mem, IDA_ERR_FAIL, "IDAS", "IDASolve", MSG_ERR_FAILS, IDA_mem->ida_tn, IDA_mem->ida_hh);
+      IDAProcessError(IDA_mem, IDA_ERR_FAIL, "IDAS", "IDASolve",
+                      MSG_ERR_FAILS, IDA_mem->ida_tn, IDA_mem->ida_hh);
       return(IDA_ERR_FAIL);
 
     case IDA_CONV_FAIL:
-      IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDAS", "IDASolve", MSG_CONV_FAILS, IDA_mem->ida_tn, IDA_mem->ida_hh);
+      IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDAS", "IDASolve",
+                      MSG_CONV_FAILS, IDA_mem->ida_tn, IDA_mem->ida_hh);
       return(IDA_CONV_FAIL);
 
     case IDA_LSETUP_FAIL:
-      IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, "IDAS", "IDASolve", MSG_SETUP_FAILED, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, "IDAS", "IDASolve",
+                      MSG_SETUP_FAILED, IDA_mem->ida_tn);
       return(IDA_LSETUP_FAIL);
 
     case IDA_LSOLVE_FAIL:
-      IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, "IDAS", "IDASolve", MSG_SOLVE_FAILED, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, "IDAS", "IDASolve",
+                      MSG_SOLVE_FAILED, IDA_mem->ida_tn);
       return(IDA_LSOLVE_FAIL);
 
     case IDA_REP_RES_ERR:
-      IDAProcessError(IDA_mem, IDA_REP_RES_ERR, "IDAS", "IDASolve", MSG_REP_RES_ERR, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_REP_RES_ERR, "IDAS", "IDASolve",
+                      MSG_REP_RES_ERR, IDA_mem->ida_tn);
       return(IDA_REP_RES_ERR);
 
     case IDA_RES_FAIL:
-      IDAProcessError(IDA_mem, IDA_RES_FAIL, "IDAS", "IDASolve", MSG_RES_NONRECOV, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_RES_FAIL, "IDAS", "IDASolve",
+                      MSG_RES_NONRECOV, IDA_mem->ida_tn);
       return(IDA_RES_FAIL);
 
     case IDA_REP_QRHS_ERR:
-      IDAProcessError(IDA_mem, IDA_REP_QRHS_ERR, "IDAS", "IDASolve", MSG_QRHSFUNC_REPTD, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_REP_QRHS_ERR, "IDAS", "IDASolve",
+                      MSG_QRHSFUNC_REPTD, IDA_mem->ida_tn);
       return(IDA_REP_QRHS_ERR);
 
     case IDA_QRHS_FAIL:
-      IDAProcessError(IDA_mem, IDA_QRHS_FAIL, "IDAS", "IDASolve", MSG_QRHSFUNC_FAILED, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_QRHS_FAIL, "IDAS", "IDASolve",
+                      MSG_QRHSFUNC_FAILED, IDA_mem->ida_tn);
       return(IDA_QRHS_FAIL);
 
     case IDA_REP_SRES_ERR:
-      IDAProcessError(IDA_mem, IDA_REP_SRES_ERR, "IDAS", "IDASolve", MSG_SRES_REPTD, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_REP_SRES_ERR, "IDAS", "IDASolve",
+                      MSG_SRES_REPTD, IDA_mem->ida_tn);
       return(IDA_REP_SRES_ERR);
 
     case IDA_SRES_FAIL:
-      IDAProcessError(IDA_mem, IDA_SRES_FAIL, "IDAS", "IDASolve", MSG_SRES_FAILED, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_SRES_FAIL, "IDAS", "IDASolve",
+                      MSG_SRES_FAILED, IDA_mem->ida_tn);
       return(IDA_SRES_FAIL);
 
     case IDA_REP_QSRHS_ERR:
-      IDAProcessError(IDA_mem, IDA_REP_QSRHS_ERR, "IDAS", "IDASolve", MSG_QSRHSFUNC_REPTD, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_REP_QSRHS_ERR, "IDAS", "IDASolve",
+                      MSG_QSRHSFUNC_REPTD, IDA_mem->ida_tn);
       return(IDA_REP_QSRHS_ERR);
 
     case IDA_QSRHS_FAIL:
-      IDAProcessError(IDA_mem, IDA_QSRHS_FAIL, "IDAS", "IDASolve", MSG_QSRHSFUNC_FAILED, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_QSRHS_FAIL, "IDAS", "IDASolve",
+                      MSG_QSRHSFUNC_FAILED, IDA_mem->ida_tn);
       return(IDA_QSRHS_FAIL);
 
     case IDA_CONSTR_FAIL:
-      IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, "IDAS", "IDASolve", MSG_FAILED_CONSTR, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, "IDAS", "IDASolve",
+                      MSG_FAILED_CONSTR, IDA_mem->ida_tn);
       return(IDA_CONSTR_FAIL);
 
     case IDA_MEM_NULL:
-      IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASolve", MSG_NO_MEM);
+      IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASolve",
+                      MSG_NO_MEM);
       return(IDA_MEM_NULL);
 
     case SUN_NLS_MEM_NULL:
-      IDAProcessError(IDA_mem, IDA_MEM_NULL, "IDA", "IDASolve",
+      IDAProcessError(IDA_mem, IDA_MEM_NULL, "IDAS", "IDASolve",
                       MSG_NLS_INPUT_NULL, IDA_mem->ida_tn);
       return(IDA_MEM_NULL);
 
     case IDA_NLS_SETUP_FAIL:
-      IDAProcessError(IDA_mem, IDA_NLS_SETUP_FAIL, "IDA", "IDASolve",
+      IDAProcessError(IDA_mem, IDA_NLS_SETUP_FAIL, "IDAS", "IDASolve",
                       MSG_NLS_SETUP_FAILED, IDA_mem->ida_tn);
       return(IDA_NLS_SETUP_FAIL);
     case IDA_NLS_FAIL:
@@ -4929,7 +4972,7 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
   }
 
   /* This return should never happen */
-  IDAProcessError(IDA_mem, IDA_UNRECOGNIZED_ERROR, "IDA", "IDASolve",
+  IDAProcessError(IDA_mem, IDA_UNRECOGNIZED_ERROR, "IDAS", "IDASolve",
                   "IDA encountered an unrecognized error. Please report this to the Sundials developers at sundials-users@llnl.gov");
   return (IDA_UNRECOGNIZED_ERROR);
 }
@@ -4985,9 +5028,9 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
  *       order for the problem, maxord, plus 1.
  *
  *       Return values are:
- *       IDA_SUCCESS   IDA_RES_FAIL        LSETUP_ERROR_NONRECVR
+ *       IDA_SUCCESS   IDA_RES_FAIL      LSETUP_ERROR_NONRECVR
  *                     IDA_LSOLVE_FAIL   IDA_ERR_FAIL
- *                     IDA_CONSTR_FAIL               IDA_CONV_FAIL
+ *                     IDA_CONSTR_FAIL   IDA_CONV_FAIL
  *                     IDA_REP_RES_ERR
  */
 
@@ -5209,79 +5252,6 @@ static int IDAStep(IDAMem IDA_mem)
 }
 
 /*
- * IDAGetSolution
- *
- * This routine evaluates y(t) and y'(t) as the value and derivative of
- * the interpolating polynomial at the independent variable t, and stores
- * the results in the vectors yret and ypret.  It uses the current
- * independent variable value, tn, and the method order last used, kused.
- * This function is called by IDASolve with t = tout, t = tn, or t = tstop.
- *
- * If kused = 0 (no step has been taken), or if t = tn, then the order used
- * here is taken to be 1, giving yret = phi[0], ypret = phi[1]/psi[0].
- *
- * The return values are:
- *   IDA_SUCCESS  if t is legal, or
- *   IDA_BAD_T    if t is not within the interval of the last step taken.
- */
-
-int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
-{
-  IDAMem IDA_mem;
-  realtype tfuzz, tp, delt, c, d, gam;
-  int j, kord, retval;
-
-  if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetSolution", MSG_NO_MEM);
-    return (IDA_MEM_NULL);
-  }
-  IDA_mem = (IDAMem) ida_mem;
-
-  /* Check t for legality.  Here tn - hused is t_{n-1}. */
-
-  tfuzz = HUNDRED * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh));
-  if (IDA_mem->ida_hh < ZERO) tfuzz = - tfuzz;
-  tp = IDA_mem->ida_tn - IDA_mem->ida_hused - tfuzz;
-  if ((t - tp)*IDA_mem->ida_hh < ZERO) {
-    IDAProcessError(IDA_mem, IDA_BAD_T, "IDAS", "IDAGetSolution", MSG_BAD_T,
-                    t, IDA_mem->ida_tn-IDA_mem->ida_hused, IDA_mem->ida_tn);
-    return(IDA_BAD_T);
-  }
-
-  /* Initialize kord = (kused or 1). */
-
-  kord = IDA_mem->ida_kused;
-  if (IDA_mem->ida_kused == 0) kord = 1;
-
-  /* Accumulate multiples of columns phi[j] into yret and ypret. */
-
-  delt = t - IDA_mem->ida_tn;
-  c = ONE; d = ZERO;
-  gam = delt / IDA_mem->ida_psi[0];
-
-  IDA_mem->ida_cvals[0] = c;
-  for (j=1; j <= kord; j++) {
-    d = d*gam + c / IDA_mem->ida_psi[j-1];
-    c = c*gam;
-    gam = (delt + IDA_mem->ida_psi[j-1]) / IDA_mem->ida_psi[j];
-
-    IDA_mem->ida_cvals[j]   = c;
-    IDA_mem->ida_dvals[j-1] = d;
-  }
-
-  retval = N_VLinearCombination(kord+1, IDA_mem->ida_cvals,
-                                IDA_mem->ida_phi,  yret);
-  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
-
-  retval = N_VLinearCombination(kord, IDA_mem->ida_dvals,
-                                IDA_mem->ida_phi+1, ypret);
-  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
-
-  return(IDA_SUCCESS);
-}
-
-
-/*
  * IDASetCoeffs
  *
  *  This routine computes the coefficients relevant to the current step.
@@ -5303,13 +5273,13 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
        (IDA_mem->ida_kk != IDA_mem->ida_kused) )
     IDA_mem->ida_ns = 0;
   IDA_mem->ida_ns = SUNMIN(IDA_mem->ida_ns+1, IDA_mem->ida_kused+2);
-  if (IDA_mem->ida_kk+1 >= IDA_mem->ida_ns) {
+  if (IDA_mem->ida_kk + 1 >= IDA_mem->ida_ns) {
     IDA_mem->ida_beta[0] = ONE;
     IDA_mem->ida_alpha[0] = ONE;
     temp1 = IDA_mem->ida_hh;
     IDA_mem->ida_gamma[0] = ZERO;
     IDA_mem->ida_sigma[0] = ONE;
-    for(i=1;i<=IDA_mem->ida_kk;i++){
+    for(i=1; i<=IDA_mem->ida_kk; i++) {
       temp2 = IDA_mem->ida_psi[i-1];
       IDA_mem->ida_psi[i-1] = temp1;
       IDA_mem->ida_beta[i] = IDA_mem->ida_beta[i-1] * IDA_mem->ida_psi[i-1] / temp2;
@@ -5323,7 +5293,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
   /* compute alphas, alpha0 */
   alphas = ZERO;
   alpha0 = ZERO;
-  for(i=0;i<IDA_mem->ida_kk;i++){
+  for(i=0; i<IDA_mem->ida_kk; i++) {
     alphas = alphas - ONE/(i+1);
     alpha0 = alpha0 - IDA_mem->ida_alpha[i];
   }
@@ -5338,8 +5308,9 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
   *ck = SUNMAX(*ck, IDA_mem->ida_alpha[IDA_mem->ida_kk]);
 
   /* change phi to phi-star  */
-  if (IDA_mem->ida_ns <= IDA_mem->ida_kk) {
 
+  /* Scale i=IDA_mem->ida_ns to i<=IDA_mem->ida_kk */
+  if (IDA_mem->ida_ns <= IDA_mem->ida_kk) {
     for(i=IDA_mem->ida_ns; i<=IDA_mem->ida_kk; i++)
       IDA_mem->ida_cvals[i-IDA_mem->ida_ns] = IDA_mem->ida_beta[i];
 
@@ -5449,7 +5420,10 @@ static int IDANls(IDAMem IDA_mem)
     temp2 = ONE/temp1;
     if (IDA_mem->ida_cjratio < temp1 || IDA_mem->ida_cjratio > temp2) callLSetup = SUNTRUE;
     if (IDA_mem->ida_forceSetup) callLSetup = SUNTRUE;
-    if (IDA_mem->ida_cj != IDA_mem->ida_cjlast) {IDA_mem->ida_ss = HUNDRED; IDA_mem->ida_ssS = HUNDRED;}
+    if (IDA_mem->ida_cj != IDA_mem->ida_cjlast) {
+      IDA_mem->ida_ss = HUNDRED;
+      IDA_mem->ida_ssS = HUNDRED;
+    }
   }
 
   /* initial guess for the correction to the predictor */
@@ -5770,7 +5744,7 @@ static void IDAQuadSensPredict(IDAMem IDA_mem, N_Vector *yQS, N_Vector *ypQS)
  * IDATestError
  *
  * This routine estimates errors at orders k, k-1, k-2, decides
- * whether or not to suggest an order reduction, and performs
+ * whether or not to suggest an order decrease, and performs
  * the local error test.
  *
  * IDATestError returns either IDA_SUCCESS or ERROR_TEST_FAIL.
@@ -5783,40 +5757,38 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
   realtype terr_k, terr_km1, terr_km2;      /* local truncation error norms */
 
   /* Compute error for order k. */
-
   enorm_k = IDAWrmsNorm(IDA_mem, IDA_mem->ida_ee, IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
   *err_k = IDA_mem->ida_sigma[IDA_mem->ida_kk] * enorm_k;
-  terr_k = (IDA_mem->ida_kk+1) * (*err_k);
+  terr_k = (IDA_mem->ida_kk + 1) * (*err_k);
 
   IDA_mem->ida_knew = IDA_mem->ida_kk;
 
   if ( IDA_mem->ida_kk > 1 ) {
 
     /* Compute error at order k-1 */
-
     N_VLinearSum(ONE, IDA_mem->ida_phi[IDA_mem->ida_kk], ONE, IDA_mem->ida_ee, IDA_mem->ida_delta);
-    enorm_km1 = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
-    *err_km1 = IDA_mem->ida_sigma[IDA_mem->ida_kk-1] * enorm_km1;
+    enorm_km1 = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta,
+                            IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
+    *err_km1 = IDA_mem->ida_sigma[IDA_mem->ida_kk - 1] * enorm_km1;
     terr_km1 = IDA_mem->ida_kk * (*err_km1);
 
     if ( IDA_mem->ida_kk > 2 ) {
 
       /* Compute error at order k-2 */
+      N_VLinearSum(ONE, IDA_mem->ida_phi[IDA_mem->ida_kk - 1], ONE,
+                   IDA_mem->ida_delta, IDA_mem->ida_delta);
+      enorm_km2 = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta,
+                              IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
+      *err_km2 = IDA_mem->ida_sigma[IDA_mem->ida_kk - 2] * enorm_km2;
+      terr_km2 = (IDA_mem->ida_kk - 1) * (*err_km2);
 
-      N_VLinearSum(ONE, IDA_mem->ida_phi[IDA_mem->ida_kk-1], ONE, IDA_mem->ida_delta, IDA_mem->ida_delta);
-      enorm_km2 = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
-      *err_km2 = IDA_mem->ida_sigma[IDA_mem->ida_kk-2] * enorm_km2;
-      terr_km2 = (IDA_mem->ida_kk-1) * (*err_km2);
-
-      /* Reduce order if errors are reduced */
-
+      /* Decrease order if errors are reduced */
       if (SUNMAX(terr_km1, terr_km2) <= terr_k)
         IDA_mem->ida_knew = IDA_mem->ida_kk - 1;
 
     } else {
 
-      /* Reduce order to 1 if errors are reduced by at least 1/2 */
-
+      /* Decrease order to 1 if errors are reduced by at least 1/2 */
       if (terr_km1 <= (HALF * terr_k) )
         IDA_mem->ida_knew = IDA_mem->ida_kk - 1;
 
@@ -5825,10 +5797,8 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
   }
 
   /* Perform error test */
-
   if (ck * enorm_k > ONE) return(ERROR_TEST_FAIL);
   else                    return(IDA_SUCCESS);
-
 }
 
 /*
@@ -6103,7 +6073,7 @@ static int IDAQuadSensTestError(IDAMem IDA_mem, realtype ck,
 /*
  * IDARestore
  *
- * This routine restores IDA_mem->ida_tn, psi, and phi in the event of a failure.
+ * This routine restores tn, psi, and phi in the event of a failure.
  * It changes back phi-star to phi (changed in IDASetCoeffs)
  */
 
@@ -6118,7 +6088,7 @@ static void IDARestore(IDAMem IDA_mem, realtype saved_t)
 
   if (IDA_mem->ida_ns <= IDA_mem->ida_kk) {
 
-    for(i=IDA_mem->ida_ns; i<=IDA_mem->ida_kk; i++)
+    for(i = IDA_mem->ida_ns; i <= IDA_mem->ida_kk; i++)
       IDA_mem->ida_cvals[i-IDA_mem->ida_ns] = ONE/IDA_mem->ida_beta[i];
 
     (void) N_VScaleVectorArray(IDA_mem->ida_kk - IDA_mem->ida_ns + 1,
@@ -6276,10 +6246,10 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
       /* On first error test failure, keep current order or lower order by one.
          Compute new stepsize based on differences of the solution. */
 
-      err_knew = (IDA_mem->ida_kk==IDA_mem->ida_knew)? err_k : err_km1;
+      err_knew = (IDA_mem->ida_kk == IDA_mem->ida_knew) ? err_k : err_km1;
 
       IDA_mem->ida_kk = IDA_mem->ida_knew;
-      IDA_mem->ida_rr = PT9 * SUNRpowerR( TWO * err_knew + PT0001,(-ONE/(IDA_mem->ida_kk+1)) );
+      IDA_mem->ida_rr = PT9 * SUNRpowerR( TWO * err_knew + PT0001, -ONE/(IDA_mem->ida_kk + 1) );
       IDA_mem->ida_rr = SUNMAX(QUARTER, SUNMIN(PT9,IDA_mem->ida_rr));
       IDA_mem->ida_hh *= IDA_mem->ida_rr;
       return(PREDICT_AGAIN);
@@ -6357,7 +6327,6 @@ static void IDAReset(IDAMem IDA_mem)
  * This routine completes a successful step.  It increments nst,
  * saves the stepsize and order used, makes the final selection of
  * stepsize and order for the next step, and updates the phi array.
- * Its return value is IDA_SUCCESS = 0.
  */
 
 static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
@@ -6373,7 +6342,7 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
   IDA_mem->ida_kused = IDA_mem->ida_kk;
   IDA_mem->ida_hused = IDA_mem->ida_hh;
 
-  if ( (IDA_mem->ida_knew == IDA_mem->ida_kk-1) ||
+  if ( (IDA_mem->ida_knew == IDA_mem->ida_kk - 1) ||
        (IDA_mem->ida_kk == IDA_mem->ida_maxord) )
     IDA_mem->ida_phase = 1;
 
@@ -6401,19 +6370,19 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
 
     /* Set action = LOWER/MAINTAIN/RAISE to specify order decision */
 
-    if (IDA_mem->ida_knew == IDA_mem->ida_kk-1)      {action = LOWER;    goto takeaction;}
-    if (IDA_mem->ida_kk == IDA_mem->ida_maxord)      {action = MAINTAIN; goto takeaction;}
-    if ( (IDA_mem->ida_kk+1 >= IDA_mem->ida_ns ) || (kdiff == 1)) {action = MAINTAIN; goto takeaction;}
+    if (IDA_mem->ida_knew == IDA_mem->ida_kk - 1)  {action = LOWER;    goto takeaction;}
+    if (IDA_mem->ida_kk == IDA_mem->ida_maxord)    {action = MAINTAIN; goto takeaction;}
+    if ( (IDA_mem->ida_kk + 1 >= IDA_mem->ida_ns ) ||
+         (kdiff == 1))                             {action = MAINTAIN; goto takeaction;}
 
     /* Estimate the error at order k+1, unless already decided to
        reduce order, or already using maximum order, or stepsize has not
        been constant, or order was just raised. */
 
     N_VLinearSum(ONE, IDA_mem->ida_ee, -ONE,
-                 IDA_mem->ida_phi[IDA_mem->ida_kk+1],
-                 IDA_mem->ida_tempv1);
-    enorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_tempv1,
-                        IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
+                 IDA_mem->ida_phi[IDA_mem->ida_kk + 1], IDA_mem->ida_tempv1);
+    enorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_tempv1, IDA_mem->ida_ewt,
+                        IDA_mem->ida_suppressalg);
 
     if (IDA_mem->ida_errconQ) {
       tempvQ = IDA_mem->ida_ypQ;
@@ -6443,12 +6412,12 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
       enorm = IDAQuadSensWrmsNormUpdate(IDA_mem, enorm,
                                         IDA_mem->ida_tempvQS, IDA_mem->ida_ewtQS);
     }
-    err_kp1= enorm/(IDA_mem->ida_kk+2);
+    err_kp1= enorm/(IDA_mem->ida_kk + 2);
 
     /* Choose among orders k-1, k, k+1 using local truncation error norms. */
 
-    terr_k   = (IDA_mem->ida_kk+1) * err_k;
-    terr_kp1 = (IDA_mem->ida_kk+2) * err_kp1;
+    terr_k   = (IDA_mem->ida_kk + 1) * err_k;
+    terr_kp1 = (IDA_mem->ida_kk + 2) * err_kp1;
 
     if (IDA_mem->ida_kk == 1) {
       if (terr_kp1 >= HALF * terr_k)         {action = MAINTAIN; goto takeaction;}
@@ -6456,7 +6425,7 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
     } else {
       terr_km1 = IDA_mem->ida_kk * err_km1;
       if (terr_km1 <= SUNMIN(terr_k, terr_kp1)) {action = LOWER;    goto takeaction;}
-      else if (terr_kp1  >= terr_k)          {action = MAINTAIN; goto takeaction;}
+      else if (terr_kp1 >= terr_k)           {action = MAINTAIN; goto takeaction;}
       else                                   {action = RAISE;    goto takeaction;}
     }
 
@@ -6465,14 +6434,14 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
     /* Set the estimated error norm and, on change of order, reset kk. */
     if      (action == RAISE) { IDA_mem->ida_kk++; err_knew = err_kp1; }
     else if (action == LOWER) { IDA_mem->ida_kk--; err_knew = err_km1; }
-    else                      {       err_knew = err_k;   }
+    else                      {                    err_knew = err_k;   }
 
-    /* Compute rr = tentative ratio hnew/hh from error norm.
+    /* Compute rr = tentative ratio hnew/hh from error norm estimate.
        Reduce hh if rr <= 1, double hh if rr >= 2, else leave hh as is.
        If hh is reduced, hnew/hh is restricted to be between .5 and .9. */
 
     hnew = IDA_mem->ida_hh;
-    IDA_mem->ida_rr = SUNRpowerR( (TWO * err_knew + PT0001) , (-ONE/(IDA_mem->ida_kk+1) ) );
+    IDA_mem->ida_rr = SUNRpowerR( TWO * err_knew + PT0001, -ONE/(IDA_mem->ida_kk + 1) );
 
     if (IDA_mem->ida_rr >= TWO) {
       hnew = TWO * IDA_mem->ida_hh;
@@ -6487,11 +6456,9 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
 
   } /* end of phase if block */
 
-  /* Save ee etc. for possible order increase on next step */
-
+  /* Save ee for possible order increase on next step */
   if (IDA_mem->ida_kused < IDA_mem->ida_maxord) {
-
-    N_VScale(ONE, IDA_mem->ida_ee, IDA_mem->ida_phi[IDA_mem->ida_kused+1]);
+    N_VScale(ONE, IDA_mem->ida_ee, IDA_mem->ida_phi[IDA_mem->ida_kused + 1]);
 
     if (IDA_mem->ida_quadr)
       N_VScale(ONE, IDA_mem->ida_eeQ, IDA_mem->ida_phiQ[IDA_mem->ida_kused+1]);
@@ -6584,6 +6551,84 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
                                    IDA_mem->ida_Xvecs);
   }
 
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Interpolated output
+ * -----------------------------------------------------------------
+ */
+
+/*
+ * IDAGetSolution
+ *
+ * This routine evaluates y(t) and y'(t) as the value and derivative of
+ * the interpolating polynomial at the independent variable t, and stores
+ * the results in the vectors yret and ypret.  It uses the current
+ * independent variable value, tn, and the method order last used, kused.
+ * This function is called by IDASolve with t = tout, t = tn, or t = tstop.
+ *
+ * If kused = 0 (no step has been taken), or if t = tn, then the order used
+ * here is taken to be 1, giving yret = phi[0], ypret = phi[1]/psi[0].
+ *
+ * The return values are:
+ *   IDA_SUCCESS  if t is legal, or
+ *   IDA_BAD_T    if t is not within the interval of the last step taken.
+ */
+
+int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
+{
+  IDAMem IDA_mem;
+  realtype tfuzz, tp, delt, c, d, gam;
+  int j, kord, retval;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetSolution", MSG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+  IDA_mem = (IDAMem) ida_mem;
+
+  /* Check t for legality.  Here tn - hused is t_{n-1}. */
+
+  tfuzz = HUNDRED * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh));
+  if (IDA_mem->ida_hh < ZERO) tfuzz = - tfuzz;
+  tp = IDA_mem->ida_tn - IDA_mem->ida_hused - tfuzz;
+  if ((t - tp)*IDA_mem->ida_hh < ZERO) {
+    IDAProcessError(IDA_mem, IDA_BAD_T, "IDAS", "IDAGetSolution", MSG_BAD_T, t,
+                    IDA_mem->ida_tn-IDA_mem->ida_hused, IDA_mem->ida_tn);
+    return(IDA_BAD_T);
+  }
+
+  /* Initialize kord = (kused or 1). */
+
+  kord = IDA_mem->ida_kused;
+  if (IDA_mem->ida_kused == 0) kord = 1;
+
+  /* Accumulate multiples of columns phi[j] into yret and ypret. */
+
+  delt = t - IDA_mem->ida_tn;
+  c = ONE; d = ZERO;
+  gam = delt / IDA_mem->ida_psi[0];
+
+  IDA_mem->ida_cvals[0] = c;
+  for (j=1; j <= kord; j++) {
+    d = d*gam + c / IDA_mem->ida_psi[j-1];
+    c = c*gam;
+    gam = (delt + IDA_mem->ida_psi[j-1]) / IDA_mem->ida_psi[j];
+
+    IDA_mem->ida_cvals[j]   = c;
+    IDA_mem->ida_dvals[j-1] = d;
+  }
+
+  retval = N_VLinearCombination(kord+1, IDA_mem->ida_cvals,
+                                IDA_mem->ida_phi,  yret);
+  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
+
+  retval = N_VLinearCombination(kord, IDA_mem->ida_dvals,
+                                IDA_mem->ida_phi+1, ypret);
+  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
+
+  return(IDA_SUCCESS);
 }
 
 /*
@@ -6747,8 +6792,8 @@ static int IDARcheck1(IDAMem IDA_mem)
   for (i = 0; i < IDA_mem->ida_nrtfn; i++)
     IDA_mem->ida_iroots[i] = 0;
   IDA_mem->ida_tlo = IDA_mem->ida_tn;
-  IDA_mem->ida_ttol = (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh)) *
-    IDA_mem->ida_uround * HUNDRED;
+  IDA_mem->ida_ttol = ((SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh)) *
+                       IDA_mem->ida_uround * HUNDRED);
 
   /* Evaluate g at initial t and check for zero values. */
   retval = IDA_mem->ida_gfun(IDA_mem->ida_tlo, IDA_mem->ida_phi[0], IDA_mem->ida_phi[1],
@@ -6767,7 +6812,7 @@ static int IDARcheck1(IDAMem IDA_mem)
 
   /* Some g_i is zero at t0; look at g at t0+(small increment). */
   hratio = SUNMAX(IDA_mem->ida_ttol / SUNRabs(IDA_mem->ida_hh), PT1);
-  smallh = hratio*IDA_mem->ida_hh;
+  smallh = hratio * IDA_mem->ida_hh;
   tplus = IDA_mem->ida_tlo + smallh;
   N_VLinearSum(ONE, IDA_mem->ida_phi[0], smallh, IDA_mem->ida_phi[1], IDA_mem->ida_yy);
   retval = IDA_mem->ida_gfun(tplus, IDA_mem->ida_yy, IDA_mem->ida_phi[1],
@@ -6778,8 +6823,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   /* We check now only the components of g which were exactly 0.0 at t0
    * to see if we can 'activate' them. */
   for (i = 0; i < IDA_mem->ida_nrtfn; i++) {
-    if (!IDA_mem->ida_gactive[i] &&
-        SUNRabs(IDA_mem->ida_ghi[i]) != ZERO) {
+    if (!IDA_mem->ida_gactive[i] && SUNRabs(IDA_mem->ida_ghi[i]) != ZERO) {
       IDA_mem->ida_gactive[i] = SUNTRUE;
       IDA_mem->ida_glo[i] = IDA_mem->ida_ghi[i];
     }
@@ -6817,9 +6861,8 @@ static int IDARcheck2(IDAMem IDA_mem)
   if (IDA_mem->ida_irfnd == 0) return(IDA_SUCCESS);
 
   (void) IDAGetSolution(IDA_mem, IDA_mem->ida_tlo, IDA_mem->ida_yy, IDA_mem->ida_yp);
-  retval = IDA_mem->ida_gfun(IDA_mem->ida_tlo, IDA_mem->ida_yy,
-                             IDA_mem->ida_yp, IDA_mem->ida_glo,
-                             IDA_mem->ida_user_data);
+  retval = IDA_mem->ida_gfun(IDA_mem->ida_tlo, IDA_mem->ida_yy, IDA_mem->ida_yp,
+                             IDA_mem->ida_glo, IDA_mem->ida_user_data);
   IDA_mem->ida_nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
@@ -6836,13 +6879,14 @@ static int IDARcheck2(IDAMem IDA_mem)
   if (!zroot) return(IDA_SUCCESS);
 
   /* One or more g_i has a zero at tlo.  Check g at tlo+smallh. */
-  IDA_mem->ida_ttol = (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh)) *
-    IDA_mem->ida_uround * HUNDRED;
+  IDA_mem->ida_ttol = ((SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh)) *
+                       IDA_mem->ida_uround * HUNDRED);
   smallh = (IDA_mem->ida_hh > ZERO) ? IDA_mem->ida_ttol : -IDA_mem->ida_ttol;
   tplus = IDA_mem->ida_tlo + smallh;
   if ( (tplus - IDA_mem->ida_tn)*IDA_mem->ida_hh >= ZERO) {
     hratio = smallh/IDA_mem->ida_hh;
-    N_VLinearSum(ONE, IDA_mem->ida_yy, hratio, IDA_mem->ida_phi[1], IDA_mem->ida_yy);
+    N_VLinearSum(ONE, IDA_mem->ida_yy,
+                 hratio, IDA_mem->ida_phi[1], IDA_mem->ida_yy);
   } else {
     (void) IDAGetSolution(IDA_mem, tplus, IDA_mem->ida_yy, IDA_mem->ida_yp);
   }
@@ -6887,11 +6931,10 @@ static int IDARcheck3(IDAMem IDA_mem)
   int i, ier, retval;
 
   /* Set thi = tn or tout, whichever comes first. */
-  if (IDA_mem->ida_taskc == IDA_ONE_STEP)
-    IDA_mem->ida_thi = IDA_mem->ida_tn;
+  if (IDA_mem->ida_taskc == IDA_ONE_STEP) IDA_mem->ida_thi = IDA_mem->ida_tn;
   if (IDA_mem->ida_taskc == IDA_NORMAL) {
-    IDA_mem->ida_thi = ((IDA_mem->ida_toutc - IDA_mem->ida_tn)*IDA_mem->ida_hh >= ZERO) ?
-      IDA_mem->ida_tn : IDA_mem->ida_toutc;
+    IDA_mem->ida_thi = ((IDA_mem->ida_toutc - IDA_mem->ida_tn)*IDA_mem->ida_hh >= ZERO)
+      ? IDA_mem->ida_tn : IDA_mem->ida_toutc;
   }
 
   /* Get y and y' at thi. */
@@ -6905,13 +6948,12 @@ static int IDARcheck3(IDAMem IDA_mem)
   IDA_mem->ida_nge++;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
-  IDA_mem->ida_ttol = (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh)) *
-    IDA_mem->ida_uround * HUNDRED;
+  IDA_mem->ida_ttol = ((SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh)) *
+                       IDA_mem->ida_uround * HUNDRED);
   ier = IDARootfind(IDA_mem);
   if (ier == IDA_RTFUNC_FAIL) return(IDA_RTFUNC_FAIL);
   for(i=0; i<IDA_mem->ida_nrtfn; i++) {
-    if(!IDA_mem->ida_gactive[i] &&
-       IDA_mem->ida_grout[i] != ZERO)
+    if(!IDA_mem->ida_gactive[i] && IDA_mem->ida_grout[i] != ZERO)
       IDA_mem->ida_gactive[i] = SUNTRUE;
   }
   IDA_mem->ida_tlo = IDA_mem->ida_trout;
@@ -7019,13 +7061,13 @@ static int IDARootfind(IDAMem IDA_mem)
   for (i = 0;  i < IDA_mem->ida_nrtfn; i++) {
     if(!IDA_mem->ida_gactive[i]) continue;
     if (SUNRabs(IDA_mem->ida_ghi[i]) == ZERO) {
-      if(IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO) {
+      if(IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO) {
         zroot = SUNTRUE;
       }
     } else {
-      if ( (IDA_mem->ida_glo[i]*IDA_mem->ida_ghi[i] < ZERO) &&
-           (IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO) ) {
-        gfrac = SUNRabs(IDA_mem->ida_ghi[i]/(IDA_mem->ida_ghi[i] - IDA_mem->ida_glo[i]));
+      if ( (IDA_mem->ida_glo[i] * IDA_mem->ida_ghi[i] < ZERO) &&
+           (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO) ) {
+        gfrac = SUNRabs(IDA_mem->ida_ghi[i] / (IDA_mem->ida_ghi[i] - IDA_mem->ida_glo[i]));
         if (gfrac > maxfrac) {
           sgnchg = SUNTRUE;
           maxfrac = gfrac;
@@ -7046,7 +7088,7 @@ static int IDARootfind(IDAMem IDA_mem)
       IDA_mem->ida_iroots[i] = 0;
       if(!IDA_mem->ida_gactive[i]) continue;
       if ( (SUNRabs(IDA_mem->ida_ghi[i]) == ZERO) &&
-           (IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO) )
+           (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO) )
         IDA_mem->ida_iroots[i] = IDA_mem->ida_glo[i] > 0 ? -1:1;
     }
     return(RTFOUND);
@@ -7084,7 +7126,7 @@ static int IDARootfind(IDAMem IDA_mem)
        If tmid is too close to tlo or thi, adjust it inward,
        by a fractional distance that is between 0.1 and 0.5.  */
     tmid = IDA_mem->ida_thi - (IDA_mem->ida_thi - IDA_mem->ida_tlo) *
-      IDA_mem->ida_ghi[imax]/(IDA_mem->ida_ghi[imax] - alph*IDA_mem->ida_glo[imax]);
+      IDA_mem->ida_ghi[imax] / (IDA_mem->ida_ghi[imax] - alph*IDA_mem->ida_glo[imax]);
     if (SUNRabs(tmid - IDA_mem->ida_tlo) < HALF * IDA_mem->ida_ttol) {
       fracint = SUNRabs(IDA_mem->ida_thi - IDA_mem->ida_tlo) / IDA_mem->ida_ttol;
       fracsub = (fracint > FIVE) ? PT1 : HALF/fracint;
@@ -7111,11 +7153,11 @@ static int IDARootfind(IDAMem IDA_mem)
     for (i = 0;  i < IDA_mem->ida_nrtfn; i++) {
       if(!IDA_mem->ida_gactive[i]) continue;
       if (SUNRabs(IDA_mem->ida_grout[i]) == ZERO) {
-        if(IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO)
+        if(IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO)
           zroot = SUNTRUE;
       } else {
-        if ( (IDA_mem->ida_glo[i]*IDA_mem->ida_grout[i] < ZERO) &&
-             (IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO) ) {
+        if ( (IDA_mem->ida_glo[i] * IDA_mem->ida_grout[i] < ZERO) &&
+             (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO) ) {
           gfrac = SUNRabs(IDA_mem->ida_grout[i] /
                           (IDA_mem->ida_grout[i] - IDA_mem->ida_glo[i]));
           if (gfrac > maxfrac) {
@@ -7165,10 +7207,10 @@ static int IDARootfind(IDAMem IDA_mem)
     IDA_mem->ida_iroots[i] = 0;
     if(!IDA_mem->ida_gactive[i]) continue;
     if ( (SUNRabs(IDA_mem->ida_ghi[i]) == ZERO) &&
-         (IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO) )
+         (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO) )
       IDA_mem->ida_iroots[i] = IDA_mem->ida_glo[i] > 0 ? -1:1;
-    if ( (IDA_mem->ida_glo[i]*IDA_mem->ida_ghi[i] < ZERO) &&
-         (IDA_mem->ida_rootdir[i]*IDA_mem->ida_glo[i] <= ZERO) )
+    if ( (IDA_mem->ida_glo[i] * IDA_mem->ida_ghi[i] < ZERO) &&
+         (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO) )
       IDA_mem->ida_iroots[i] = IDA_mem->ida_glo[i] > 0 ? -1:1;
   }
   return(RTFOUND);
@@ -7529,7 +7571,7 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
 
 /*
  * =================================================================
- * IDA Error message handling functions
+ * IDA error message handling functions
  * =================================================================
  */
 

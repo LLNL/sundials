@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -144,7 +144,18 @@ int main(int argc, char *argv[])
       M_loc = N - M_loc*(nprocs-1);
   }
 
+  /* initialize global matrices and vectors */
+  D  = NULL;
+  A  = NULL;
+  x  = NULL;
+  y  = NULL;
+  b  = NULL;
+  gx = NULL;
+  gy = NULL;
+  gb = NULL;
+
   if (grid.iam == 0) {
+
     /* Create matrices and vectors */
     D = SUNDenseMatrix(N, N);
 
@@ -248,7 +259,9 @@ int main(int argc, char *argv[])
     x = N_VMake_Parallel(grid.comm, M_loc, N, xdata);
     y = N_VMake_Parallel(grid.comm, M_loc, N, ydata);
     b = N_VMake_Parallel(grid.comm, M_loc, N, bdata);
+
   } else {
+
     sunindextype shift;
 
     /* recieve number of local nnz */

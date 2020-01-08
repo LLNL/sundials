@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,18 +15,21 @@
 # CMakeLists.txt file for KINSOL serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is
+# Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 set(KINSOL_examples
-  "kinRoberts_fp\;"
-  "kinFerTron_dns\;develop"
-  "kinFoodWeb_kry\;develop"
-  "kinKrylovDemo_ls\;develop"
-  "kinLaplace_bnd\;develop"
-  "kinLaplace_picard_bnd\;develop"
-  "kinRoboKin_dns\;develop"
+  "kinAnalytic_fp\;\;"
+  "kinAnalytic_fp\;2\;"
+  "kinAnalytic_fp\;2 0.5\;develop"
+  "kinFerTron_dns\;\;develop"
+  "kinFoodWeb_kry\;\;develop"
+  "kinKrylovDemo_ls\;\;develop"
+  "kinLaplace_bnd\;\;develop"
+  "kinLaplace_picard_bnd\;\;develop"
+  "kinRoberts_fp\;\;develop"
+  "kinRoboKin_dns\;\;develop"
   )
 
 # Examples using LAPACK linear solvers
@@ -62,21 +65,39 @@ foreach(example_tuple ${KINSOL_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_type)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 example_type)
 
-  # example source files
-  add_executable(${example} ${example}.c)
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  if(NOT TARGET ${example})
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    # example source files
+    add_executable(${example} ${example}.c)
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
+
+  endif()
+
+  # check if example args are provided and set the test name
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(${test_name} ${example}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  # find all .out files for this example
+  file(GLOB example_out ${example}*.out)
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
@@ -259,8 +280,14 @@ if(EXAMPLES_INSTALL)
 
   if(SUPERLUMT_FOUND)
     examples2string(KINSOL_examples_SUPERLUMT EXAMPLES_SLUMT)
+    if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+      set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
+    else()
+      set(THREAD_LIBRARY_SLUMT "")
+    endif()
   else()
     set(EXAMPLES_SLUMT "")
+    set(THREAD_LIBRARY_SLUMT "")
   endif()
 
   # Regardless of the platform we're on, we will generate and install
@@ -300,6 +327,6 @@ if(EXAMPLES_INSTALL)
   endif(UNIX)
 
   # add test_install target
-  sundials_add_test_install(kinsol serial EXECUTABLE kinRoberts_fp)
+  sundials_add_test_install(kinsol serial EXECUTABLE kinAnalytic_fp)
 
 endif(EXAMPLES_INSTALL)

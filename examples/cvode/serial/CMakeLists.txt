@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -43,6 +43,7 @@ set(CVODE_examples_BL
 # Examples using KLU linear solver
 set(CVODE_examples_KLU
   "cvRoberts_klu\;develop"
+  "cvRoberts_block_klu\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
@@ -266,8 +267,14 @@ if(EXAMPLES_INSTALL)
 
   if(SUPERLUMT_FOUND)
     examples2string(CVODE_examples_SUPERLUMT EXAMPLES_SLUMT)
+    if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+      set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
+    else()
+      set(THREAD_LIBRARY_SLUMT "")
+    endif()
   else()
     set(EXAMPLES_SLUMT "")
+    set(THREAD_LIBRARY_SLUMT "")
   endif()
 
   # Regardless of the platform we're on, we will generate and install

@@ -1,9 +1,10 @@
 # ARKode
-### Version 4.0.0 (Oct 2019)
+### Version 4.1.0 (Jan 2020)
 
-**Daniel R. Reynolds and Jean M. Sexton
-  Department of Mathematics, SMU
-  David J. Gardner, Alan C. Hindmarsh, and Carol S. Woodward
+**Daniel R. Reynolds and Jean M. Sexton  
+  Department of Mathematics, SMU**
+
+**David J. Gardner, Alan C. Hindmarsh, and Carol S. Woodward  
   Center for Applied Scientific Computing, LLNL**
 
 ARKode is a package for the solution of stiff, nonstiff, and multirate ordinary
@@ -30,13 +31,13 @@ calling program and all user-supplied routines are in Fortran.
 
 ## Documentation
 
-See the [ARKode User Guide](./doc/arkode/ark_guide.pdf) and
-[ARKode Examples](./doc/arkode/ark_examples.pdf) document for more information
+See the [ARKode User Guide](/doc/arkode/ark_guide.pdf) and
+[ARKode Examples](/doc/arkode/ark_examples.pdf) document for more information
 about ARKode usage and the provided example programs respectively.
 
 ## Installation
 
-For installation instructions see the [INSTALL_GUIDE](./INSTALL_GUIDE.pdf)
+For installation instructions see the [INSTALL_GUIDE](/INSTALL_GUIDE.pdf)
 or "Installation Procedure" chapter in the ARKode User Guide.
 
 ## Release History
@@ -48,8 +49,8 @@ the "SUNDIALS Release History" appendix of the ARKode User Guide.
 ## References
 
 * D. R. Reynolds, D. J. Gardner, A. C. Hindmarsh, C. S. Woodward, and
-  J. M. Sexton, "User Documentation for ARKode v4.0.0," LLNL technical report
-  LLNL-SM-668082, Oct 2019.
+  J. M. Sexton, "User Documentation for ARKode v4.1.0," LLNL technical report
+  LLNL-SM-668082, Jan 2020.
 
-* D. R. Reynolds, "Example Programs for ARKode v4.0.0," Technical Report,
-  Southern Methodist University Center for Scientific Computation, Oct 2019.
+* D. R. Reynolds, "Example Programs for ARKode v4.1.0," Technical Report,
+  Southern Methodist University Center for Scientific Computation, Jan 2020.

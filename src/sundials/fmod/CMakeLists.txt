@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,16 +15,18 @@
 # ---------------------------------------------------------------
 
 set(sundials_SOURCES
-  fsundials_types_mod.f90
-  fsundials_types_mod.c
-  fsundials_nvector_mod.f90
-  fsundials_nvector_mod.c
-  fsundials_matrix_mod.f90
-  fsundials_matrix_mod.c
+  fsundials_futils_mod.f90
+  fsundials_futils_mod.c
   fsundials_linearsolver_mod.f90
   fsundials_linearsolver_mod.c
+  fsundials_matrix_mod.f90
+  fsundials_matrix_mod.c
   fsundials_nonlinearsolver_mod.f90
-  fsundials_nonlinearsolver_mod.c)
+  fsundials_nonlinearsolver_mod.c
+  fsundials_nvector_mod.f90
+  fsundials_nvector_mod.c
+  fsundials_types_mod.f90
+  fsundials_types_mod.c)
 
 if(BUILD_STATIC_LIBS)
   add_library(sundials_fgeneric_static_obj OBJECT ${sundials_SOURCES})

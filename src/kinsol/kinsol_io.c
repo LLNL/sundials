@@ -1,13 +1,9 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -38,18 +34,13 @@
 #define TWO       RCONST(2.0)
 #define TWOPT5    RCONST(2.5)
 
-#define liw  (kin_mem->kin_liw)
-#define lrw  (kin_mem->kin_lrw)
-#define liw1 (kin_mem->kin_liw1)
-#define lrw1 (kin_mem->kin_lrw1)
-
-/* 
+/*
  * =================================================================
  * KINSOL optional input functions
  * =================================================================
  */
 
-/* 
+/*
  * -----------------------------------------------------------------
  * KINSetErrHandlerFn
  * -----------------------------------------------------------------
@@ -122,7 +113,7 @@ int KINSetPrintLevel(void *kinmem, int printfl)
   return(KIN_SUCCESS);
 }
 
-/* 
+/*
  * -----------------------------------------------------------------
  * KINSetInfoHandlerFn
  * -----------------------------------------------------------------
@@ -212,9 +203,45 @@ int KINSetMAA(void *kinmem, long int maa)
 
   if (maa > kin_mem->kin_mxiter) maa = kin_mem->kin_mxiter;
 
-  kin_mem = (KINMem) kinmem;
   kin_mem->kin_m_aa = maa;
   kin_mem->kin_aamem_aa = (maa == 0) ? SUNFALSE : SUNTRUE;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetDampingAA
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDampingAA(void *kinmem, realtype beta)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetMAA", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  /* check for illegal input value */
+  if (beta <= ZERO) {
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetDampingAA",
+                    "beta <= 0 illegal");
+    return(KIN_ILL_INPUT);
+  }
+
+  if (beta < ONE) {
+    /* enable damping */
+    kin_mem->kin_beta_aa    = beta;
+    kin_mem->kin_damping_aa = SUNTRUE;
+  } else {
+    /* disable damping */
+    kin_mem->kin_beta_aa    = ONE;
+    kin_mem->kin_damping_aa = SUNFALSE;
+  }
 
   return(KIN_SUCCESS);
 }
@@ -336,7 +363,7 @@ int KINSetMaxSetupCalls(void *kinmem, long int msbset)
     KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMaxSetupCalls", MSG_BAD_MSBSET);
     return(KIN_ILL_INPUT);
   }
-  
+
   if (msbset == 0)
     kin_mem->kin_msbset = MSBSET_DEFAULT;
   else
@@ -366,7 +393,7 @@ int KINSetMaxSubSetupCalls(void *kinmem, long int msbsetsub)
     KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetMaxSubSetupCalls", MSG_BAD_MSBSETSUB);
     return(KIN_ILL_INPUT);
   }
-  
+
   if (msbsetsub == 0)
     kin_mem->kin_msbset_sub = MSBSET_SUB_DEFAULT;
   else
@@ -392,8 +419,8 @@ int KINSetEtaForm(void *kinmem, int etachoice)
 
   kin_mem = (KINMem) kinmem;
 
-  if ((etachoice != KIN_ETACONSTANT) && 
-      (etachoice != KIN_ETACHOICE1)  && 
+  if ((etachoice != KIN_ETACONSTANT) &&
+      (etachoice != KIN_ETACHOICE1)  &&
       (etachoice != KIN_ETACHOICE2)) {
     KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetEtaForm", MSG_BAD_ETACHOICE);
     return(KIN_ILL_INPUT);
@@ -456,8 +483,8 @@ int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha)
       KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetEtaParams", MSG_BAD_ALPHA);
       return(KIN_ILL_INPUT);
     }
-  
-  if (ealpha == ZERO) 
+
+  if (ealpha == ZERO)
     kin_mem->kin_eta_alpha = TWO;
   else
     kin_mem->kin_eta_alpha = ealpha;
@@ -500,7 +527,7 @@ int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
     return(KIN_ILL_INPUT);
   }
 
-  if (omegamin == ZERO) 
+  if (omegamin == ZERO)
     kin_mem->kin_omega_min = OMEGA_MIN;
   else
     kin_mem->kin_omega_min = omegamin;
@@ -765,8 +792,8 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
   if (constraints == NULL) {
     if (kin_mem->kin_constraintsSet) {
       N_VDestroy(kin_mem->kin_constraints);
-      lrw -= lrw1;
-      liw -= liw1;
+      kin_mem->kin_lrw -= kin_mem->kin_lrw1;
+      kin_mem->kin_liw -= kin_mem->kin_liw1;
     }
     kin_mem->kin_constraintsSet = SUNFALSE;
     return(KIN_SUCCESS);
@@ -775,15 +802,15 @@ int KINSetConstraints(void *kinmem, N_Vector constraints)
   /* Check the constraints vector */
 
   temptest = N_VMaxNorm(constraints);
-  if (temptest > TWOPT5){ 
+  if (temptest > TWOPT5){
     KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetConstraints", MSG_BAD_CONSTRAINTS);
-    return(KIN_ILL_INPUT); 
+    return(KIN_ILL_INPUT);
   }
 
   if (!kin_mem->kin_constraintsSet) {
     kin_mem->kin_constraints = N_VClone(constraints);
-    lrw += lrw1;
-    liw += liw1;
+    kin_mem->kin_lrw += kin_mem->kin_lrw1;
+    kin_mem->kin_liw += kin_mem->kin_liw1;
     kin_mem->kin_constraintsSet = SUNTRUE;
   }
 
@@ -821,24 +848,10 @@ int KINSetSysFunc(void *kinmem, KINSysFn func)
   return(KIN_SUCCESS);
 }
 
-/* 
- * =================================================================
- * Readability constants
- * =================================================================
- */
 
-#define nni (kin_mem->kin_nni)
-#define nfe (kin_mem->kin_nfe)
-#define nbcf (kin_mem->kin_nbcf)  
-#define nbktrk (kin_mem->kin_nbktrk)
-#define stepl (kin_mem->kin_stepl)
-#define fnorm (kin_mem->kin_fnorm)
-#define liw (kin_mem->kin_liw)
-#define lrw (kin_mem->kin_lrw)
-
-/* 
+/*
  * =================================================================
- * KINSOL optional input functions
+ * KINSOL optional output functions
  * =================================================================
  */
 
@@ -859,8 +872,8 @@ int KINGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw)
 
   kin_mem = (KINMem) kinmem;
 
-  *lenrw = lrw;
-  *leniw = liw;
+  *lenrw = kin_mem->kin_lrw;
+  *leniw = kin_mem->kin_liw;
 
   return(KIN_SUCCESS);
 }
@@ -881,7 +894,7 @@ int KINGetNumNonlinSolvIters(void *kinmem, long int *nniters)
   }
 
   kin_mem = (KINMem) kinmem;
-  *nniters = nni;
+  *nniters = kin_mem->kin_nni;
 
   return(KIN_SUCCESS);
 }
@@ -902,7 +915,7 @@ int KINGetNumFuncEvals(void *kinmem, long int *nfevals)
   }
 
   kin_mem = (KINMem) kinmem;
-  *nfevals = nfe;
+  *nfevals = kin_mem->kin_nfe;
 
   return(KIN_SUCCESS);
 }
@@ -923,7 +936,7 @@ int KINGetNumBetaCondFails(void *kinmem, long int *nbcfails)
   }
 
   kin_mem = (KINMem) kinmem;
-  *nbcfails = nbcf;
+  *nbcfails = kin_mem->kin_nbcf;
 
   return(KIN_SUCCESS);
 }
@@ -944,7 +957,7 @@ int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr)
   }
 
   kin_mem = (KINMem) kinmem;
-  *nbacktr = nbktrk;
+  *nbacktr = kin_mem->kin_nbktrk;
 
   return(KIN_SUCCESS);
 }
@@ -986,7 +999,7 @@ int KINGetStepLength(void *kinmem, realtype *steplength)
   }
 
   kin_mem = (KINMem) kinmem;
-  *steplength = stepl;
+  *steplength = kin_mem->kin_stepl;
 
   return(KIN_SUCCESS);
 }

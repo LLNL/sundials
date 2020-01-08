@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -18,27 +18,31 @@
 # type is develop for examples excluded from 'make test' in releases
 
 if(SUNDIALS_INDEX_SIZE MATCHES "32")
-  # Examples using cuSolverSP linear solvers
-  set(ARKODE_examples_cusp
-    "ark_brusselator1D_FEM_cusolver\;\;\;exclude"
-    )
+  sundials_cuda_arch_geq(cuda_arch_ok "sm_60")
+  if(cuda_arch_ok)
+    # Examples using cuSOLVER linear solvers
+    set(ARKODE_examples_cusolver
+      "ark_brusselator1D_FEM_cusolver\;\;\;develop"
+      )
+  else()
+    message(STATUS "ark_brusselator1D_FEM_cusolver example excluded due to insufficient CUDA_ARCH")
+  endif()
 endif()
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(SUNLS_LIB sundials_sunlinsolcusolversp_static)
+  set(SUNDIALS_LIBS sundials_arkode_static
+                    sundials_sunlinsolcusolversp_static
+                    ${EXTRA_LINK_LIBS})
 else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(SUNLS_LIB sundials_sunlinsolcusolversp_shared)
+  set(SUNDIALS_LIBS sundials_arkode_shared
+                    sundials_sunlinsolcusolversp_shared
+                    ${EXTRA_LINK_LIBS})
 endif()
 
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${SUNLS_LIB} ${EXTRA_LINK_LIBS})
-
 # Add the build and install targets for each ARKode example
-foreach(example_tuple ${ARKODE_examples_cusp})
+foreach(example_tuple ${ARKODE_examples_cusolver})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
@@ -80,7 +84,10 @@ if(EXAMPLES_INSTALL)
   set(SOLVER_LIB "sundials_arkode")
   set(NVECTOR_LIB "sundials_nveccuda")
 
-  examples2string(ARKODE_examples_cusp EXAMPLES_CUSP)
+  if(SUNDIALS_INDEX_SIZE MATCHES "32" AND cuda_arch_ok)
+    set(SUNLS_LIB "sundials_sunlinsolcusolversp")
+    examples2string(ARKODE_examples_cusolver EXAMPLES_CUSOLVER)
+  endif()
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then

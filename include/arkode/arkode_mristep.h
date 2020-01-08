@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -124,6 +124,8 @@ SUNDIALS_EXPORT int MRIStepGetLastStep(void *arkode_mem,
                                        realtype *hlast);
 SUNDIALS_EXPORT int MRIStepGetCurrentTime(void *arkode_mem,
                                           realtype *tcur);
+SUNDIALS_EXPORT int MRIStepGetCurrentState(void *arkode_mem,
+                                           N_Vector *ycur);
 SUNDIALS_EXPORT int MRIStepGetNumGEvals(void *arkode_mem,
                                         long int *ngevals);
 SUNDIALS_EXPORT int MRIStepGetRootInfo(void *arkode_mem,

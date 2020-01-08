@@ -5,7 +5,7 @@
  *                   and Dan Shumaker @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -517,7 +517,7 @@ int cvNlsInit(CVodeMem cv_mem);
 
 /* CVode Error Messages */
 
-#define MSGCV_NO_TOLS "No integration tolerances have been specified."
+#define MSGCV_NO_TOL "No integration tolerances have been specified."
 #define MSGCV_LSOLVE_NULL "The linear solver's solve routine is NULL."
 #define MSGCV_YOUT_NULL "yout = NULL illegal."
 #define MSGCV_TRET_NULL "tret = NULL illegal."

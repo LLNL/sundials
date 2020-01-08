@@ -4,7 +4,7 @@
 # Based on CMakeLists.txt in cvode/serial by Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -23,27 +23,49 @@
 set(CVODE_examples
   "cvAdvDiff_kry_cuda\;develop"
   "cvAdvDiff_kry_cuda_managed\;develop"
-  #"cvAdvDiffReac_kry_cuda\;develop"
   )
 
-# Add source directory to include directories
-include_directories(.)
+# Examples using cuSolverSP linear solvers
+set(CVODE_examples_cusolver
+  "cvRoberts_block_cusolversp_batchqr\;develop"
+)
+
+if(SUNDIALS_INDEX_SIZE MATCHES "32")
+  sundials_cuda_arch_geq(cuda_arch_ok "sm_60")
+  if(cuda_arch_ok)
+    set(all_examples "${CVODE_examples_cusolver}")
+    # Specify libraries to link against
+    if(LINK_LIBRARY_TYPE MATCHES "static")
+      set(SUNDIALS_LIBS sundials_sunlinsolcusolversp_static)
+    else()
+      set(SUNDIALS_LIBS sundials_sunlinsolcusolversp_shared)
+    endif()
+  else()
+    message(STATUS "cvRoberts_block_cusolversp_batchqr example excluded due to insufficient CUDA_ARCH")
+  endif()
+endif()
+
+list(APPEND all_examples "${CVODE_examples}")
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODE_LIB sundials_cvode_static)
-  set(NVECS_LIB sundials_nveccuda_static)
+  set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
+                    sundials_cvode_static
+                    sundials_nveccuda_static
+                    ${EXTRA_LINK_LIBS})
 else()
-  set(CVODE_LIB sundials_cvode_shared)
-  set(NVECS_LIB sundials_nveccuda_shared)
+  set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
+                    sundials_cvode_shared
+                    sundials_nveccuda_shared
+                    ${EXTRA_LINK_LIBS})
 endif()
 
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+# Add source directory to include directories
+include_directories(.)
 
 # Add the build and install targets for each CVODE example
-foreach(example_tuple ${CVODE_examples})
+foreach(example_tuple ${all_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
@@ -86,6 +108,11 @@ if(EXAMPLES_INSTALL)
   set(NVECTOR_LIB "sundials_nveccuda")
 
   examples2string(CVODE_examples EXAMPLES)
+
+  if(SUNDIALS_INDEX_SIZE MATCHES "32" AND cuda_arch_ok)
+    set(SUNLS_LIB "sundials_sunlinsolcusolversp")
+    examples2string(CVODE_examples_cusolver EXAMPLES_CUSOLVER)
+  endif()
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then

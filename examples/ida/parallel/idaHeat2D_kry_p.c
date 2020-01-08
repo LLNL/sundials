@@ -4,7 +4,7 @@
  *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -869,7 +869,7 @@ static void PrintHeader(realtype rtol, realtype atol, UserData data)
   printf("            Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
   printf("            Mesh dimensions: %d x %d", (int) data->mx, (int) data->my);
-  printf("        Total system size: %ld\n\n", (long) data->mx * data->my);
+  printf("        Total system size: %ld\n\n", (long) (data->mx * data->my));
   printf("Subgrid dimensions: %d x %d", (int) data->mxsub, (int) data->mysub);
   printf("        Processor array: %d x %d\n", (int) data->npex, (int) data->npey);
 #if defined(SUNDIALS_EXTENDED_PRECISION)

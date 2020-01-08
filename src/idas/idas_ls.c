@@ -3,7 +3,7 @@
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -1935,6 +1935,10 @@ static int idaLsJacBWrapper(realtype tt, realtype c_jB, N_Vector yyB,
   int       retval;
 
   /* access relevant memory structures */
+  IDA_mem = NULL;
+  IDAADJ_mem = NULL;
+  idalsB_mem = NULL;
+  IDAB_mem = NULL;
   retval = idaLs_AccessLMemBCur(ida_mem, "idaLsJacBWrapper", &IDA_mem,
                                 &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
 
@@ -1970,6 +1974,10 @@ static int idaLsJacBSWrapper(realtype tt, realtype c_jB, N_Vector yyB,
   int       retval;
 
   /* access relevant memory structures */
+  IDA_mem = NULL;
+  IDAADJ_mem = NULL;
+  idalsB_mem = NULL;
+  IDAB_mem = NULL;
   retval = idaLs_AccessLMemBCur(ida_mem, "idaLsJacBSWrapper", &IDA_mem,
                                 &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
 
@@ -2010,6 +2018,10 @@ static int idaLsPrecSetupB(realtype tt, N_Vector yyB, N_Vector ypB,
   int       retval;
 
   /* access relevant memory structures */
+  IDA_mem = NULL;
+  IDAADJ_mem = NULL;
+  idalsB_mem = NULL;
+  IDAB_mem = NULL;
   retval = idaLs_AccessLMemBCur(ida_mem, "idaLsPrecSetupB", &IDA_mem,
                                 &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
 
@@ -2043,6 +2055,10 @@ static int idaLsPrecSetupBS(realtype tt, N_Vector yyB, N_Vector ypB,
   int       retval;
 
   /* access relevant memory structures */
+  IDA_mem = NULL;
+  IDAADJ_mem = NULL;
+  idalsB_mem = NULL;
+  IDAB_mem = NULL;
   retval = idaLs_AccessLMemBCur(ida_mem, "idaLsPrecSetupBS", &IDA_mem,
                                 &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
 
@@ -2086,6 +2102,10 @@ static int idaLsPrecSolveB(realtype tt, N_Vector yyB, N_Vector ypB,
   int       retval;
 
   /* access relevant memory structures */
+  IDA_mem = NULL;
+  IDAADJ_mem = NULL;
+  idalsB_mem = NULL;
+  IDAB_mem = NULL;
   retval = idaLs_AccessLMemBCur(ida_mem, "idaLsPrecSolveB", &IDA_mem,
                                 &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
 
@@ -2122,6 +2142,10 @@ static int idaLsPrecSolveBS(realtype tt, N_Vector yyB, N_Vector ypB,
   int       retval;
 
   /* access relevant memory structures */
+  IDA_mem = NULL;
+  IDAADJ_mem = NULL;
+  idalsB_mem = NULL;
+  IDAB_mem = NULL;
   retval = idaLs_AccessLMemBCur(ida_mem, "idaLsPrecSolveBS", &IDA_mem,
                                 &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
 
@@ -2164,6 +2188,10 @@ static int idaLsJacTimesSetupB(realtype tt, N_Vector yyB, N_Vector ypB,
   int       retval;
 
   /* access relevant memory structures */
+  IDA_mem = NULL;
+  IDAADJ_mem = NULL;
+  idalsB_mem = NULL;
+  IDAB_mem = NULL;
   retval = idaLs_AccessLMemBCur(ida_mem, "idaLsJacTimesSetupB", &IDA_mem,
                                 &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
 
@@ -2196,6 +2224,10 @@ static int idaLsJacTimesSetupBS(realtype tt, N_Vector yyB, N_Vector ypB,
   int       retval;
 
   /* access relevant memory structures */
+  IDA_mem = NULL;
+  IDAADJ_mem = NULL;
+  idalsB_mem = NULL;
+  IDAB_mem = NULL;
   retval = idaLs_AccessLMemBCur(ida_mem, "idaLsJacTimesSetupBS", &IDA_mem,
                                 &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
 
@@ -2240,6 +2272,10 @@ static int idaLsJacTimesVecB(realtype tt, N_Vector yyB, N_Vector ypB,
   int       retval;
 
   /* access relevant memory structures */
+  IDA_mem = NULL;
+  IDAADJ_mem = NULL;
+  idalsB_mem = NULL;
+  IDAB_mem = NULL;
   retval = idaLs_AccessLMemBCur(ida_mem, "idaLsJacTimesVecB", &IDA_mem,
                                 &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
 
@@ -2277,6 +2313,10 @@ static int idaLsJacTimesVecBS(realtype tt, N_Vector yyB, N_Vector ypB,
   int       retval;
 
   /* access relevant memory structures */
+  IDA_mem = NULL;
+  IDAADJ_mem = NULL;
+  idalsB_mem = NULL;
+  IDAB_mem = NULL;
   retval = idaLs_AccessLMemBCur(ida_mem, "idaLsJacTimesVecBS", &IDA_mem,
                                 &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
 

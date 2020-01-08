@@ -3,7 +3,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
   if (my_pe == 0)
     printf("\n2-species diurnal advection-diffusion problem\n\n");
 
-  PrintOutput(cvode_mem, my_pe, comm, u, t);
+  PrintOutput(cvode_mem, my_pe, comm, u, T0);
 
   /* In loop over output points, call CVode, print results, test for error */
   for (iout=1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {

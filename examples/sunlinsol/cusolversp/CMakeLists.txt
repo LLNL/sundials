@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -35,15 +35,18 @@ include_directories(. ..)
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(SUNLS_LIB sundials_sunlinsolcusolversp_static)
-  set(SUNMAT_LIB sundials_sunmatrixdense_static)
+  set(SUNDIALS_LIBS sundials_nveccuda_static
+                    sundials_sunmatrixdense_static
+                    sundials_sunmatrixsparse_static
+                    sundials_sunlinsolcusolversp_static
+                    ${EXTRA_LINK_LIBS})
 else()
-  set(SUNLS_LIB sundials_sunlinsolcusolversp_shared)
-  set(SUNMAT_LIB sundials_sunmatrixdense_shared)
+  set(SUNDIALS_LIBS sundials_nveccuda_shared
+                    sundials_sunmatrixdense_shared
+                    sundials_sunmatrixsparse_shared
+                    sundials_sunlinsolcusolversp_shared
+                    ${EXTRA_LINK_LIBS})
 endif()
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${SUNLS_LIB} ${SUNMAT_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_cusolversp_examples})
@@ -104,6 +107,7 @@ foreach(example_tuple ${sunlinsol_cusolversp_examples})
     install(FILES ${example}.cu
       ../test_sunlinsol.c
       ../test_sunlinsol.h
+      ../../../src/sundials/sundials_nvector.c
       ../../../src/sundials/sundials_linearsolver.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/cusolversp)
   endif()
@@ -117,9 +121,12 @@ if(EXAMPLES_INSTALL)
   install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/cusolversp)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
+  set(SOLVER_LIB "")
   set(NVECTOR_LIB "sundials_nveccuda")
+  set(SUNMAT_LIB "sundials_sunmatrixdense sundials_sunmatrixsparse")
+  set(SUNLS_LIB "sundials_sunlinsolcusolversp")
 
-  examples2string(sunlinsol_cusolversp_examples EXAMPLES)
+  examples2string(sunlinsol_cusolversp_examples EXAMPLES_CUSOLVER)
   examples2string(sunlinsol_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install

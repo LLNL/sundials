@@ -3,7 +3,7 @@
  * Based on codes <solver>_lapack.c by: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -137,7 +137,7 @@ int SUNLinSolInitialize_LapackBand(SUNLinearSolver S)
 
 int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
 {
-  int n, ml, mu, ldim, ier;
+  sunindextype n, ml, mu, ldim, ier;
 
   /* check for valid inputs */
   if ( (A == NULL) || (S == NULL) )
@@ -155,9 +155,9 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
   mu = SUNBandMatrix_UpperBandwidth(A);
   ldim = SUNBandMatrix_LDim(A);
   xgbtrf_f77(&n, &n, &ml, &mu, SUNBandMatrix_Data(A),
-	     &ldim, PIVOTS(S), &ier);
+             &ldim, PIVOTS(S), &ier);
 
-  LASTFLAG(S) = (long int) ier;
+  LASTFLAG(S) = ier;
   if (ier > 0)
     return(SUNLS_LUFACT_FAIL);
   if (ier < 0)
@@ -169,7 +169,7 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
 int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                               N_Vector b, realtype tol)
 {
-  int n, ml, mu, ldim, one, ier;
+  sunindextype n, ml, mu, ldim, one, ier;
   realtype *xdata;
 
   /* check for valid inputs */
@@ -193,8 +193,8 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   ldim = SUNBandMatrix_LDim(A);
   one = 1;
   xgbtrs_f77("N", &n, &ml, &mu, &one, SUNBandMatrix_Data(A),
-	     &ldim, PIVOTS(S), xdata, &n, &ier, 1);
-  LASTFLAG(S) = (long int) ier;
+             &ldim, PIVOTS(S), xdata, &n, &ier);
+  LASTFLAG(S) = ier;
   if (ier < 0)
     return(SUNLS_PACKAGE_FAIL_UNREC);
 

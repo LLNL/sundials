@@ -2,10 +2,10 @@
  * Programmer(s): Shelby Lockhart @ LLNL
  *---------------------------------------------------------------
  * Based on the serial code ark_heat1D_adapt.c developed
- * by David R. Reynolds and parallelized with OpenMP 4.5
+ * by Daniel R. Reynolds and parallelized with OpenMP 4.5
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -34,8 +34,8 @@
  * [0, 1], but as the simulation proceeds the mesh is adapted.
  *
  * This program solves the problem with a DIRK method, solved with
- * a Newton iteration and SUNPCG linear solver, with a user-supplied
- * Jacobian-vector product routine.
+ * a Newton iteration and SUNLinSol_PCG linear solver, with a
+ * user-supplied Jacobian-vector product routine.
  *---------------------------------------------------------------*/
 
 /* Header files */
@@ -62,6 +62,20 @@
 #define FSYM "f"
 #endif
 
+/* constants */
+#define ZERO        RCONST(0.0)
+#define PT25        RCONST(0.25)
+#define PT4         RCONST(0.4)
+#define PT5         RCONST(0.5)
+#define PT55        RCONST(0.55)
+#define PT7         RCONST(0.7)
+#define ONE         RCONST(1.0)
+#define TWO         RCONST(2.0)
+#define TWOHUNDRED  RCONST(200.0)
+#define FOURHUNDRED RCONST(400.0)
+#define FIVEHUNDRED RCONST(500.0)
+#define SIXHUNDRED  RCONST(600.0)
+
 /* user data structure */
 typedef struct {
   sunindextype N;       /* current number of intervals */
@@ -86,18 +100,18 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main() {
 
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);   /* initial time */
-  realtype Tf = RCONST(1.0);   /* final time */
-  realtype rtol = 1.e-3;       /* relative tolerance */
-  realtype atol = 1.e-10;      /* absolute tolerance */
-  realtype hscale = 1.0;       /* time step change factor on resizes */
+  realtype T0 = RCONST(0.0);         /* initial time */
+  realtype Tf = RCONST(1.0);         /* final time */
+  realtype rtol = RCONST(1.e-3);     /* relative tolerance */
+  realtype atol = RCONST(1.e-10);    /* absolute tolerance */
+  realtype hscale = RCONST(1.0);     /* time step change factor on resizes */
   UserData udata = NULL;
   realtype *data;
-  sunindextype N = 21;             /* initial spatial mesh size */
-  realtype refine = 3.e-3;     /* adaptivity refinement tolerance */
-  realtype k = 0.5;            /* heat conductivity */
+  sunindextype N = 21;               /* initial spatial mesh size */
+  realtype refine = RCONST(3.0e-3);  /* adaptivity refinement tolerance */
+  realtype k = RCONST(0.5);          /* heat conductivity */
   sunindextype i;
-  long int nni, nni_cur=0, nni_tot=0, nli, nli_tot=0;
+  long int nni, nni_tot=0, nli, nli_tot=0;
   int iout=0;
 
   /* general problem variables */
@@ -106,11 +120,11 @@ int main() {
   N_Vector y2 = NULL;          /* empty vector for storing solution */
   N_Vector yt = NULL;          /* empty vector for swapping */
   SUNLinearSolver LS = NULL;   /* empty linear solver object */
-  void *arkode_mem = NULL;     /* empty ARKStep memory structure */
+  void *arkode_mem = NULL;     /* empty ARKode memory structure */
   FILE *XFID, *UFID;
   realtype t, olddt, newdt;
-  realtype *xnew = NULL;
-  realtype *x_dev_temp = NULL;
+  realtype *xnew_host = NULL;
+  realtype *xnew_dev = NULL;
   sunindextype Nnew;
   int dev, host;
 
@@ -124,9 +138,8 @@ int main() {
   udata->k = k;
   udata->refine_tol = refine;
   udata->x_host = malloc(N * sizeof(realtype));
+  for (i=0; i<N; i++)  udata->x_host[i] = ONE*i/(N-1);
   udata->x_dev = omp_target_alloc(N * sizeof(realtype), dev);
-  for (i=0; i<N; i++)  udata->x_host[i] = 1.0*i/(N-1);
-  /* copy mesh to device */
   omp_target_memcpy(udata->x_dev, udata->x_host, N * sizeof(realtype), 0, 0, dev, host);
 
   /* Initial problem output */
@@ -135,9 +148,9 @@ int main() {
   printf("  initial N = %li\n", (long int) udata->N);
 
   /* Initialize data structures */
-  y = N_VNew_OpenMPDEV(N);     /* Create initial OpenMPDEV vector for solution */
+  y = N_VNew_OpenMPDEV(N);   /* Create initial OpenMPDEV vector for solution */
   if (check_flag((void *) y, "N_VNew_OpenMPDEV", 0)) return 1;
-  N_VConst(0.0, y);           /* Set initial conditions */
+  N_VConst(ZERO, y);  /* Set initial conditions */
 
   /* output mesh to disk */
   XFID=fopen("heat_mesh.txt","w");
@@ -155,7 +168,7 @@ int main() {
   for (i=0; i<udata->N; i++)  fprintf(UFID," %.16"ESYM, data[i]);
   fprintf(UFID,"\n");
 
-  /* Create the solver memory */
+  /* Initialize the ARK timestepper */
   arkode_mem = ARKStepCreate(NULL, f, T0, y);
   if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
@@ -176,24 +189,24 @@ int main() {
   if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
-  LS = SUNLinSol_PCG(y, 0, N);
+  LS = SUNLinSol_PCG(y, 0, (int) N);
   if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);   /* Attach linear solver to ARKStep */
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);        /* Attach linear solver to ARKStep */
   if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
   flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
   if (check_flag(&flag, "ARKStepSetJacTimes", 1)) return 1;
 
-  /* Main time-stepping loop: calls ARKStep to perform the integration, then
+  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
-  olddt = 0.0;
-  newdt = 0.0;
+  olddt = ZERO;
+  newdt = ZERO;
   printf("  iout          dt_old                 dt_new               ||u||_rms       N   NNI  NLI\n");
   printf(" ----------------------------------------------------------------------------------------\n");
   printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2i  %3i\n",
-	 iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
+         iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
          (long int) udata->N, 0, 0);
   while (t < Tf) {
 
@@ -205,7 +218,7 @@ int main() {
 
     /* call integrator */
     flag = ARKStepEvolve(arkode_mem, Tf, y, &t, ARK_ONE_STEP);
-    if (check_flag(&flag, "ARKStep", 1)) return 1;
+    if (check_flag(&flag, "ARKStepEvolve", 1)) return 1;
 
     /* "get" routines */
     flag = ARKStepGetLastStep(arkode_mem, &olddt);
@@ -220,10 +233,9 @@ int main() {
     /* print current solution stats */
     iout++;
     printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2li  %3li\n",
-	   iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
-           (long int) udata->N, nni-nni_cur, nli);
-    nni_cur = nni;
-    nni_tot = nni;
+           iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
+           (long int) udata->N, nni, nli);
+    nni_tot += nni;
     nli_tot += nli;
 
     /* output results and current mesh to disk */
@@ -235,18 +247,19 @@ int main() {
     fprintf(XFID,"\n");
 
     /* adapt the spatial mesh */
-    xnew = adapt_mesh(y, &Nnew, udata);
-    if (check_flag(xnew, "ark_adapt", 0)) return 1;
+    xnew_host = adapt_mesh(y, &Nnew, udata);
+    if (check_flag(xnew_host, "ark_adapt", 0)) return 1;
 
     /* create N_Vector of new length */
     y2 = N_VNew_OpenMPDEV(Nnew);
     if (check_flag((void *) y2, "N_VNew_OpenMPDEV", 0)) return 1;
 
-    x_dev_temp = omp_target_alloc(Nnew * sizeof(realtype), dev);
-    omp_target_memcpy(x_dev_temp, xnew, Nnew*sizeof(realtype), 0, 0, dev, host);
+    /* copy new mesh from host array to device array */
+    xnew_dev = omp_target_alloc(Nnew * sizeof(realtype), dev);
+    omp_target_memcpy(xnew_dev, xnew_host, Nnew*sizeof(realtype), 0, 0, dev, host);
 
     /* project solution onto new mesh */
-    flag = project(udata->N, udata->x_dev, y, Nnew, x_dev_temp, y2);
+    flag = project(udata->N, udata->x_dev, y, Nnew, xnew_dev, y2);
     if (check_flag(&flag, "project", 1)) return 1;
 
     /* delete old vector, old mesh */
@@ -255,11 +268,11 @@ int main() {
     omp_target_free(udata->x_dev, dev);
 
     /* swap x and xnew so that new mesh is stored in udata structure */
-    udata->x_host = xnew;
-    xnew = NULL;
+    udata->x_host = xnew_host;
+    xnew_host = NULL;
     udata->N = Nnew;   /* store size of new mesh */
-    udata->x_dev = x_dev_temp;
-    x_dev_temp = NULL;
+    udata->x_dev = xnew_dev;
+    xnew_dev = NULL;
 
     /* swap y and y2 so that y holds new solution */
     yt = y;
@@ -272,11 +285,11 @@ int main() {
 
     /* destroy and re-allocate linear solver memory; reattach to ARKStep interface */
     SUNLinSolFree(LS);
-    LS = SUNLinSol_PCG(y, 0, N);
+    LS = SUNLinSol_PCG(y, 0, (int) N);
     if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
-    flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);   /* Attach linear solver to ARKStep */
+    flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
     if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
-    flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
+    flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);
     if (check_flag(&flag, "ARKStepSetJacTimes", 1)) return 1;
 
   }
@@ -291,12 +304,12 @@ int main() {
   /* Clean up and return with successful completion */
   fclose(UFID);
   fclose(XFID);
-  N_VDestroy(y);                 /* Free vectors */
-  free(udata->x_host);           /* Free user data */
+  N_VDestroy(y);               /* Free vectors */
+  free(udata->x_host);         /* Free user data */
   omp_target_free(udata->x_dev, dev);
   free(udata);
-  ARKStepFree(&arkode_mem);       /* Free integrator memory */
-  SUNLinSolFree(LS);             /* Free linear solver */
+  ARKStepFree(&arkode_mem);    /* Free integrator memory */
+  SUNLinSolFree(LS);           /* Free linear solver */
 
   return 0;
 }
@@ -319,37 +332,28 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   dev = omp_get_default_device();
 
-  Y = N_VGetDeviceArrayPointer_OpenMPDEV(y);      /* access data arrays */
+  /* access data arrays */
+  Y = N_VGetDeviceArrayPointer_OpenMPDEV(y);
   if (check_flag((void *) Y, "N_VGetDeviceArrayPointer", 0)) return 1;
   Ydot = N_VGetDeviceArrayPointer_OpenMPDEV(ydot);
   if (check_flag((void *) Ydot, "N_VGetDeviceArrayPointer", 0)) return 1;
-  N_VConst(0.0, ydot);                      /* Initialize ydot to zero - also handles boundary conditions */
 
+  /* Initialize ydot to zero - also handles boundary conditions */
+  N_VConst(ZERO, ydot);
+
+  /* iterate over domain interior, computing all equations */
 #pragma omp target map(to:N) is_device_ptr(x, Ydot, Y) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
-  {
-  /* iterate over domain, computing all equations */
   for (i=1; i<N-1; i++) {        /* interior */
     dxL = x[i]-x[i-1];
     dxR = x[i+1]-x[i];
-    Ydot[i] = Y[i-1]*k*2.0/(dxL*(dxL+dxR))
-            - Y[i]*k*2.0/(dxL*dxR)
-            + Y[i+1]*k*2.0/(dxR*(dxL+dxR))
-            + 2.0*SUNRexp(-200.0*(x[i]-0.25)*(x[i]-0.25)) /* source term */
-                 - SUNRexp(-400.0*(x[i]-0.7)*(x[i]-0.7))
-                 + SUNRexp(-500.0*(x[i]-0.4)*(x[i]-0.4))
-             - 2.0*SUNRexp(-600.0*(x[i]-0.55)*(x[i]-0.55));
-  }
-  }
-
-/* source term not iterated over in first loop */
-#pragma omp target is_device_ptr(Ydot,x) device(dev)
-  {
-    Ydot[0] = 2.0*SUNRexp(-200.0*(x[0]-0.25)*(x[0]-0.25))
-                - SUNRexp(-400.0*(x[0]-0.7)*(x[0]-0.7))
-                + SUNRexp(-500.0*(x[0]-0.4)*(x[0]-0.4))
-            - 2.0*SUNRexp(-600.0*(x[0]-0.55)*(x[0]-0.55));
-
+    Ydot[i] = Y[i-1]*k*TWO/(dxL*(dxL+dxR))
+      - Y[i]*k*TWO/(dxL*dxR)
+      + Y[i+1]*k*TWO/(dxR*(dxL+dxR))
+      + TWO*SUNRexp(-TWOHUNDRED*(x[i]-PT25)*(x[i]-PT25)) /* source term */
+      - SUNRexp(-FOURHUNDRED*(x[i]-PT7)*(x[i]-PT7))
+      + SUNRexp(-FIVEHUNDRED*(x[i]-PT4)*(x[i]-PT4))
+      - TWO*SUNRexp(-SIXHUNDRED*(x[i]-PT55)*(x[i]-PT55));
   }
 
   return 0;                      /* Return with success */
@@ -370,11 +374,14 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 
   dev  = omp_get_default_device();
 
-  V = N_VGetDeviceArrayPointer_OpenMPDEV(v);       /* access data arrays */
+  /* access data arrays */
+  V = N_VGetDeviceArrayPointer_OpenMPDEV(v);
   if (check_flag((void *) V, "N_VGetDeviceArrayPointer", 0)) return 1;
   JV = N_VGetDeviceArrayPointer_OpenMPDEV(Jv);
   if (check_flag((void *) JV, "N_VGetDeviceArrayPointer", 0)) return 1;
-  N_VConst(0.0, Jv);               /* initialize Jv product to zero - also handles boundary conditions */
+
+  /* initialize Jv product to zero - also handles boundary conditions */
+  N_VConst(ZERO, Jv);
 
   /* iterate over domain, computing all Jacobian-vector products */
 #pragma omp target map(to:N) is_device_ptr(x, JV, V) device(dev)
@@ -382,9 +389,9 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   for (i=1; i<N-1; i++) {
     dxL = x[i]-x[i-1];
     dxR = x[i+1]-x[i];
-    JV[i] = V[i-1]*k*2.0/(dxL*(dxL+dxR))
-          - V[i]*k*2.0/(dxL*dxR)
-          + V[i+1]*k*2.0/(dxR*(dxL+dxR));
+    JV[i] = V[i-1]*k*TWO/(dxL*(dxL+dxR))
+          - V[i]*k*TWO/(dxL*dxR)
+          + V[i+1]*k*TWO/(dxR*(dxL+dxR));
   }
 
   return 0;                                  /* Return with success */
@@ -402,51 +409,36 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
       Nnew [output] -- the size of the new mesh
       udata [input] -- the current system information
    The return for this function is a pointer to the new mesh. */
-realtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
+realtype* adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
 {
   sunindextype i, j;
-  int *marks=NULL, *marks_dev=NULL;
-  realtype ydd, refine_tol, *xold=NULL, *xnew=NULL, *Y_dev=NULL;
-  sunindextype num_refine, N_new, N;
-  int dev, host;
-
-  dev  = omp_get_default_device();
-  host = omp_get_initial_device();
+  int *marks=NULL;
+  realtype ydd, *xold=NULL, *Y=NULL, *xnew=NULL;
+  sunindextype num_refine, N_new;
 
   /* Access current solution and mesh arrays */
   xold = udata->x_host;
-  Y_dev = N_VGetDeviceArrayPointer_OpenMPDEV(y);
-  if (check_flag((void *) Y_dev, "N_VGetDeviceArrayPointer_OpenMPDEV", 0)) return NULL;
-
-  /*N_VCopyFromDevice_OpenMPDEV(y);*/
+  Y = N_VGetHostArrayPointer_OpenMPDEV(y);  /* assumes copy to host already done */
+  if (check_flag((void *) Y, "N_VGetHostArrayPointer_OpenMPDEV", 0)) return NULL;
 
   /* create marking array */
   marks = calloc(udata->N-1, sizeof(int));
-  marks_dev = omp_target_alloc((udata->N-1) * sizeof(int), dev);
-
-  N = udata->N;
-  refine_tol = udata->refine_tol;
 
   /* perform marking:
       0 -> leave alone
       1 -> refine */
-#pragma omp target map(to:N,refine_tol) is_device_ptr(marks_dev,Y_dev) device(dev)
-#pragma omp teams distribute parallel for schedule(static, 1)
-  {
-    for (i=1; i<N-1; i++) {
+  for (i=1; i<udata->N-1; i++) {
 
-      /* approximate scaled second-derivative */
-      ydd = Y_dev[i-1] - 2.0*Y_dev[i] + Y_dev[i+1];
+    /* approximate scaled second-derivative */
+    ydd = Y[i-1] - TWO*Y[i] + Y[i+1];
 
-      /* check for refinement */
-      if (fabs(ydd) > refine_tol) {
-        marks_dev[i-1] = 1;
-        marks_dev[i] = 1;
-      }
-
+    /* check for refinement */
+    if (fabs(ydd) > udata->refine_tol) {
+      marks[i-1] = 1;
+      marks[i] = 1;
     }
+
   }
-  omp_target_memcpy(marks, marks_dev, (N-1)*sizeof(int), 0, 0, host, dev);
 
   /* allocate new mesh */
   num_refine = 0;
@@ -456,21 +448,22 @@ realtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
   *Nnew = N_new;            /* Store new array length */
   xnew = malloc((N_new) * sizeof(realtype));
 
+
   /* fill new mesh */
   xnew[0] = xold[0];    /* store endpoints */
-  xnew[N_new-1] = xold[N-1];
+  xnew[N_new-1] = xold[udata->N-1];
   j=1;
   /* iterate over old intervals */
-  for (i=0; i<N-1; i++) {
-    /* if mark is not 1, reuse old interval */
-    if (marks[i] != 1) {
+  for (i=0; i<udata->N-1; i++) {
+    /* if mark is 0, reuse old interval */
+    if (marks[i] == 0) {
       xnew[j++] = xold[i+1];
       continue;
     }
 
     /* if mark is 1, refine old interval */
     if (marks[i] == 1) {
-      xnew[j++] = 0.5*(xold[i]+xold[i+1]);
+      xnew[j++] = PT5*(xold[i]+xold[i+1]);
       xnew[j++] = xold[i+1];
       continue;
     }
@@ -486,7 +479,6 @@ realtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
   }
 
   free(marks);              /* Delete marking array */
-  omp_target_free(marks_dev, dev);
   return xnew;              /* Return with success */
 }
 
@@ -500,7 +492,7 @@ realtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
       ynew [output] -- the vector defined over the new mesh
                        (allocated prior to calling project) */
 static int project(sunindextype Nold, realtype *xold, N_Vector yold,
-		   sunindextype Nnew, realtype *xnew, N_Vector ynew)
+                   sunindextype Nnew, realtype *xnew, N_Vector ynew)
 {
   sunindextype iv, i, j;
   realtype *Yold=NULL, *Ynew=NULL;
@@ -509,9 +501,9 @@ static int project(sunindextype Nold, realtype *xold, N_Vector yold,
 
   /* Access data arrays */
   Yold = N_VGetDeviceArrayPointer_OpenMPDEV(yold);    /* access data arrays */
-  if (check_flag((void *) Yold, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *) Yold, "N_VGetDeviceArrayPointer_OpenMPDEV", 0)) return 1;
   Ynew = N_VGetDeviceArrayPointer_OpenMPDEV(ynew);
-  if (check_flag((void *) Ynew, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *) Ynew, "N_VGetDeviceArrayPointer_OpenMPDEV", 0)) return 1;
 
   /* loop over new mesh, finding corresponding interval within old mesh,
      and perform piecewise linear interpolation from yold to ynew */
@@ -524,8 +516,8 @@ static int project(sunindextype Nold, realtype *xold, N_Vector yold,
       /* find old interval, start with previous value since sorted */
       for (j=iv; j<Nold-1; j++) {
         if (xnew[i] >= xold[j] && xnew[i] <= xold[j+1]) {
-	      iv = j;
-	      break;
+          iv = j;
+          break;
         }
         iv = Nold-1;     /* just in case it wasn't found above */
       }
@@ -555,7 +547,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   /* Check if flag < 0 */
@@ -563,13 +555,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              funcname, *errflag);
       return 1; }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   return 0;

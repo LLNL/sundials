@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -31,8 +31,8 @@
  * [0, 1], but as the simulation proceeds the mesh is adapted.
  *
  * This program solves the problem with a DIRK method, solved with
- * a Newton iteration and SUNLinSol_PCG linear solver, with a user-supplied
- * Jacobian-vector product routine.
+ * a Newton iteration and SUNLinSol_PCG linear solver, with a
+ * user-supplied Jacobian-vector product routine.
  *---------------------------------------------------------------*/
 
 /* Header files */
@@ -53,6 +53,20 @@
 #define ESYM "e"
 #define FSYM "f"
 #endif
+
+/* constants */
+#define ZERO        RCONST(0.0)
+#define PT25        RCONST(0.25)
+#define PT4         RCONST(0.4)
+#define PT5         RCONST(0.5)
+#define PT55        RCONST(0.55)
+#define PT7         RCONST(0.7)
+#define ONE         RCONST(1.0)
+#define TWO         RCONST(2.0)
+#define TWOHUNDRED  RCONST(200.0)
+#define FOURHUNDRED RCONST(400.0)
+#define FIVEHUNDRED RCONST(500.0)
+#define SIXHUNDRED  RCONST(600.0)
 
 /* user data structure */
 typedef struct {
@@ -77,16 +91,16 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main() {
 
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);   /* initial time */
-  realtype Tf = RCONST(1.0);   /* final time */
-  realtype rtol = 1.e-3;       /* relative tolerance */
-  realtype atol = 1.e-10;      /* absolute tolerance */
-  realtype hscale = 1.0;       /* time step change factor on resizes */
+  realtype T0 = RCONST(0.0);         /* initial time */
+  realtype Tf = RCONST(1.0);         /* final time */
+  realtype rtol = RCONST(1.e-3);     /* relative tolerance */
+  realtype atol = RCONST(1.e-10);    /* absolute tolerance */
+  realtype hscale = RCONST(1.0);     /* time step change factor on resizes */
   UserData udata = NULL;
   realtype *data;
-  sunindextype N = 21;         /* initial spatial mesh size */
-  realtype refine = 3.e-3;     /* adaptivity refinement tolerance */
-  realtype k = 0.5;            /* heat conductivity */
+  sunindextype N = 21;               /* initial spatial mesh size */
+  realtype refine = RCONST(3.0e-3);  /* adaptivity refinement tolerance */
+  realtype k = RCONST(0.5);          /* heat conductivity */
   sunindextype i;
   long int nni, nni_tot=0, nli, nli_tot=0;
   int iout=0;
@@ -109,7 +123,7 @@ int main() {
   udata->k = k;
   udata->refine_tol = refine;
   udata->x = malloc(N * sizeof(realtype));
-  for (i=0; i<N; i++)  udata->x[i] = RCONST(1.0)*i/(N-1);
+  for (i=0; i<N; i++)  udata->x[i] = ONE*i/(N-1);
 
   /* Initial problem output */
   printf("\n1D adaptive Heat PDE test problem:\n");
@@ -117,9 +131,9 @@ int main() {
   printf("  initial N = %li\n", (long int) udata->N);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(N);       /* Create initial serial vector for solution */
+  y = N_VNew_Serial(N);      /* Create initial serial vector for solution */
   if (check_flag((void *) y, "N_VNew_Serial", 0)) return 1;
-  N_VConst(0.0, y);           /* Set initial conditions */
+  N_VConst(ZERO, y);  /* Set initial conditions */
 
   /* output mesh to disk */
   XFID=fopen("heat_mesh.txt","w");
@@ -169,8 +183,8 @@ int main() {
   /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
-  olddt = 0.0;
-  newdt = 0.0;
+  olddt = ZERO;
+  newdt = ZERO;
   printf("  iout          dt_old                 dt_new               ||u||_rms       N   NNI  NLI\n");
   printf(" ----------------------------------------------------------------------------------------\n");
   printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15e  %li   %2i  %3i\n",
@@ -287,29 +301,27 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype *Y=NULL, *Ydot=NULL;
   realtype dxL, dxR;
   sunindextype i;
-  Y = N_VGetArrayPointer(y);      /* access data arrays */
+
+  /* access data arrays */
+  Y = N_VGetArrayPointer(y);
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
   Ydot = N_VGetArrayPointer(ydot);
   if (check_flag((void *) Ydot, "N_VGetArrayPointer", 0)) return 1;
-  N_VConst(0.0, ydot);                      /* Initialize ydot to zero */
 
-  /* iterate over domain, computing all equations */
-  Ydot[0] = 0.0;                 /* left boundary condition */
+  /* Initialize ydot to zero - also handles boundary conditions */
+  N_VConst(ZERO, ydot);
+
+  /* iterate over domain interior, computing all equations */
   for (i=1; i<N-1; i++) {        /* interior */
     dxL = x[i]-x[i-1];
     dxR = x[i+1]-x[i];
-    Ydot[i] = Y[i-1]*k*2.0/(dxL*(dxL+dxR))
-            - Y[i]*k*2.0/(dxL*dxR)
-            + Y[i+1]*k*2.0/(dxR*(dxL+dxR));
-  }
-  Ydot[N-1] = 0.0;               /* right boundary condition */
-
-  /* source term */
-  for (i=0; i<N-1; i++) {
-    Ydot[i] += 2.0*exp(-200.0*(x[i]-0.25)*(x[i]-0.25))
-                 - exp(-400.0*(x[i]-0.7)*(x[i]-0.7))
-                 + exp(-500.0*(x[i]-0.4)*(x[i]-0.4))
-             - 2.0*exp(-600.0*(x[i]-0.55)*(x[i]-0.55));
+    Ydot[i] = Y[i-1]*k*TWO/(dxL*(dxL+dxR))
+      - Y[i]*k*TWO/(dxL*dxR)
+      + Y[i+1]*k*TWO/(dxR*(dxL+dxR))
+      + TWO*exp(-TWOHUNDRED*(x[i]-PT25)*(x[i]-PT25)) /* source term */
+      - exp(-FOURHUNDRED*(x[i]-PT7)*(x[i]-PT7))
+      + exp(-FIVEHUNDRED*(x[i]-PT4)*(x[i]-PT4))
+      - TWO*exp(-SIXHUNDRED*(x[i]-PT55)*(x[i]-PT55));
   }
 
   return 0;                      /* Return with success */
@@ -326,22 +338,24 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   realtype *V=NULL, *JV=NULL;
   realtype dxL, dxR;
   sunindextype i;
-  V = N_VGetArrayPointer(v);       /* access data arrays */
+
+  /* access data arrays */
+  V = N_VGetArrayPointer(v);
   if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;
   JV = N_VGetArrayPointer(Jv);
   if (check_flag((void *) JV, "N_VGetArrayPointer", 0)) return 1;
-  N_VConst(0.0, Jv);               /* initialize Jv product to zero */
+
+  /* initialize Jv product to zero - also handles boundary conditions */
+  N_VConst(ZERO, Jv);
 
   /* iterate over domain, computing all Jacobian-vector products */
-  JV[0] = 0.0;
   for (i=1; i<N-1; i++) {
     dxL = x[i]-x[i-1];
     dxR = x[i+1]-x[i];
-    JV[i] = V[i-1]*k*2.0/(dxL*(dxL+dxR))
-          - V[i]*k*2.0/(dxL*dxR)
-          + V[i+1]*k*2.0/(dxR*(dxL+dxR));
+    JV[i] = V[i-1]*k*TWO/(dxL*(dxL+dxR))
+          - V[i]*k*TWO/(dxL*dxR)
+          + V[i+1]*k*TWO/(dxR*(dxL+dxR));
   }
-  JV[N-1] = 0.0;
 
   return 0;                                  /* Return with success */
 }
@@ -379,7 +393,7 @@ realtype* adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
   for (i=1; i<udata->N-1; i++) {
 
     /* approximate scaled second-derivative */
-    ydd = Y[i-1] - 2.0*Y[i] + Y[i+1];
+    ydd = Y[i-1] - TWO*Y[i] + Y[i+1];
 
     /* check for refinement */
     if (fabs(ydd) > udata->refine_tol) {
@@ -399,8 +413,8 @@ realtype* adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
 
 
   /* fill new mesh */
-  xnew[0] = udata->x[0];    /* store endpoints */
-  xnew[N_new-1] = udata->x[udata->N-1];
+  xnew[0] = xold[0];    /* store endpoints */
+  xnew[N_new-1] = xold[udata->N-1];
   j=1;
   /* iterate over old intervals */
   for (i=0; i<udata->N-1; i++) {
@@ -412,7 +426,7 @@ realtype* adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
 
     /* if mark is 1, refine old interval */
     if (marks[i] == 1) {
-      xnew[j++] = 0.5*(xold[i]+xold[i+1]);
+      xnew[j++] = PT5*(xold[i]+xold[i+1]);
       xnew[j++] = xold[i+1];
       continue;
     }

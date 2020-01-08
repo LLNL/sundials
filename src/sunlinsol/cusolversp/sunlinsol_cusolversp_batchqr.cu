@@ -4,7 +4,7 @@
  * Based on work by Donald Wilcox @ LBNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -134,7 +134,7 @@ SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, int nsubsy
 
   content = NULL;
   content = (SUNLinearSolverContent_cuSolverSp_batchQR) malloc(sizeof *content);
-  if (S == NULL) {
+  if (content == NULL) {
     cudaFree(d_rowptr); cudaFree(d_colind); cudaFree(d_values);
     SUNLinSolFree(S);
     return(NULL);

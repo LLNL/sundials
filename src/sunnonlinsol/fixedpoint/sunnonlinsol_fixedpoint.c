@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -90,6 +90,8 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
   content->Sys        = NULL;
   content->CTest      = NULL;
   content->m          = m;
+  content->damping    = SUNFALSE;
+  content->beta       = ONE;
   content->curiter    = 0;
   content->maxiters   = 3;
   content->niters     = 0;
@@ -328,6 +330,29 @@ int SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS, int maxiters)
   return(SUN_NLS_SUCCESS);
 }
 
+int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, realtype beta)
+{
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* check that beta is a vaild */
+  if (beta <= ZERO)
+    return(SUN_NLS_ILL_INPUT);
+
+  if (beta < ONE) {
+    /* enable damping */
+    FP_CONTENT(NLS)->beta    = beta;
+    FP_CONTENT(NLS)->damping = SUNTRUE;
+  } else {
+    /* disable damping */
+    FP_CONTENT(NLS)->beta    = ONE;
+    FP_CONTENT(NLS)->damping = SUNFALSE;
+  }
+
+  return(SUN_NLS_SUCCESS);
+}
+
 
 /*==============================================================================
   Get functions
@@ -402,9 +427,10 @@ static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
                               N_Vector x, N_Vector xold, int iter)
 {
   /* local variables */
-  int       nvec, retval, i_pt, i, j, lAA, maa, *ipt_map;
-  realtype  a, b, rtemp, c, s, *cvals, *R, *gamma;
-  N_Vector  fv, vtemp, gold, fold, *df, *dg, *Q, *Xvecs;
+  int         nvec, retval, i_pt, i, j, lAA, maa, *ipt_map;
+  realtype    a, b, rtemp, c, s, beta, onembeta, *cvals, *R, *gamma;
+  N_Vector    fv, vtemp, gold, fold, *df, *dg, *Q, *Xvecs;
+  booleantype damping;
 
   /* local shortcut variables */
   vtemp   = x;    /* use result as temporary vector */
@@ -420,6 +446,8 @@ static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   R       = FP_CONTENT(NLS)->R;
   gamma   = FP_CONTENT(NLS)->gamma;
   fv      = FP_CONTENT(NLS)->delta;
+  damping = FP_CONTENT(NLS)->damping;
+  beta    = FP_CONTENT(NLS)->beta;
 
   /* reset ipt_map, i_pt */
   for (i = 0; i < maa; i++)  ipt_map[i]=0;
@@ -474,7 +502,7 @@ static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
       c = a / rtemp;
       s = b / rtemp;
       R[(i+1)*maa + i] = rtemp;
-      R[(i+1)*maa + i+1] = 0.0;
+      R[(i+1)*maa + i+1] = ZERO;
       if (i < maa-1) {
         for (j = i+2; j < maa; j++) {
           a = R[j*maa + i];
@@ -534,6 +562,19 @@ static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
     nvec += 1;
   }
 
+  /* if enabled, apply damping */
+  if (damping) {
+    onembeta = (ONE - beta);
+    cvals[nvec] = -onembeta;
+    Xvecs[nvec] = fv;
+    nvec += 1;
+    for (i = lAA - 1; i > -1; i--) {
+      cvals[nvec] = onembeta * gamma[i];
+      Xvecs[nvec] = df[ipt_map[i]];
+      nvec += 1;
+    }
+  }
+
   /* update solution */
   retval = N_VLinearCombination(nvec, cvals, Xvecs, x);
   if (retval != 0)  return(SUN_NLS_VECTOROP_ERR);
@@ -577,7 +618,7 @@ static int AllocateContent(SUNNonlinearSolver NLS, N_Vector y)
     if (FP_CONTENT(NLS)->gamma == NULL) {
       FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
 
-    FP_CONTENT(NLS)->cvals = (realtype *) malloc((m+1) * sizeof(realtype));
+    FP_CONTENT(NLS)->cvals = (realtype *) malloc(2*(m+1) * sizeof(realtype));
     if (FP_CONTENT(NLS)->cvals == NULL) {
       FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
 
@@ -593,7 +634,7 @@ static int AllocateContent(SUNNonlinearSolver NLS, N_Vector y)
     if (FP_CONTENT(NLS)->q == NULL) {
       FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
 
-    FP_CONTENT(NLS)->Xvecs = (N_Vector *) malloc((m+1) * sizeof(N_Vector));
+    FP_CONTENT(NLS)->Xvecs = (N_Vector *) malloc(2*(m+1) * sizeof(N_Vector));
     if (FP_CONTENT(NLS)->Xvecs == NULL) {
       FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
   }

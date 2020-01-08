@@ -7,7 +7,7 @@
  *                   @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -128,7 +128,7 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
   v->ops->nvminquotientlocal = N_VMinQuotient_OpenMP;
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_OpenMP;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_OpenMP;
-  
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMP) malloc(sizeof *content);
@@ -335,7 +335,7 @@ N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
 
   /* Attach operations */
   if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
-  
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMP) malloc(sizeof *content);
@@ -461,6 +461,7 @@ void N_VLinearSum_OpenMP(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   N_Vector v1, v2;
   booleantype test;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = yd = zd = NULL;
 
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
@@ -553,6 +554,7 @@ void N_VConst_OpenMP(realtype c, N_Vector z)
   sunindextype i, N;
   realtype *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   zd = NULL;
 
   N  = NV_LENGTH_OMP(z);
@@ -575,6 +577,7 @@ void N_VProd_OpenMP(N_Vector x, N_Vector y, N_Vector z)
   sunindextype i, N;
   realtype *xd, *yd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = yd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -600,6 +603,7 @@ void N_VDiv_OpenMP(N_Vector x, N_Vector y, N_Vector z)
   sunindextype i, N;
   realtype *xd, *yd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = yd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -625,6 +629,7 @@ void N_VScale_OpenMP(realtype c, N_Vector x, N_Vector z)
   sunindextype i, N;
   realtype *xd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = zd = NULL;
 
   if (z == x) {  /* BLAS usage: scale x <- cx */
@@ -660,6 +665,7 @@ void N_VAbs_OpenMP(N_Vector x, N_Vector z)
   sunindextype i, N;
   realtype *xd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -683,6 +689,7 @@ void N_VInv_OpenMP(N_Vector x, N_Vector z)
   sunindextype i, N;
   realtype *xd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -707,6 +714,7 @@ void N_VAddConst_OpenMP(N_Vector x, realtype b, N_Vector z)
   sunindextype i, N;
   realtype *xd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -731,8 +739,9 @@ realtype N_VDotProd_OpenMP(N_Vector x, N_Vector y)
   sunindextype i, N;
   realtype sum, *xd, *yd;
 
+  i   = 0; /* initialize to suppress clang warning */
   sum = ZERO;
-  xd = yd = NULL;
+  xd  = yd = NULL;
 
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
@@ -757,8 +766,9 @@ realtype N_VMaxNorm_OpenMP(N_Vector x)
   sunindextype i, N;
   realtype tmax, max, *xd;
 
+  i   = 0; /* initialize to suppress clang warning */
   max = ZERO;
-  xd = NULL;
+  xd  = NULL;
 
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
@@ -811,6 +821,7 @@ realtype N_VMin_OpenMP(N_Vector x)
   realtype min, *xd;
   realtype tmin;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -847,8 +858,9 @@ realtype N_VWL2Norm_OpenMP(N_Vector x, N_Vector w)
   sunindextype i, N;
   realtype sum, *xd, *wd;
 
+  i   = 0; /* initialize to suppress clang warning */
   sum = ZERO;
-  xd = wd = NULL;
+  xd  = wd = NULL;
 
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
@@ -873,8 +885,9 @@ realtype N_VL1Norm_OpenMP(N_Vector x)
   sunindextype i, N;
   realtype sum, *xd;
 
+  i   = 0; /* initialize to suppress clang warning */
   sum = ZERO;
-  xd = NULL;
+  xd  = NULL;
 
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
@@ -897,6 +910,7 @@ void N_VCompare_OpenMP(realtype c, N_Vector x, N_Vector z)
   sunindextype i, N;
   realtype *xd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -922,6 +936,7 @@ booleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z)
   sunindextype i, N;
   realtype *xd, *zd, val;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -957,6 +972,7 @@ booleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x, N_Vector m)
   realtype *cd, *xd, *md;
   booleantype test;
 
+  i  = 0; /* initialize to suppress clang warning */
   cd = xd = md = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -996,6 +1012,7 @@ realtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom)
   sunindextype i, N;
   realtype *nd, *dd, min, tmin, val;
 
+  i  = 0; /* initialize to suppress clang warning */
   nd = dd = NULL;
 
   N  = NV_LENGTH_OMP(num);
@@ -1036,8 +1053,9 @@ realtype N_VWSqrSumLocal_OpenMP(N_Vector x, N_Vector w)
   sunindextype i, N;
   realtype sum, *xd, *wd;
 
+  i   = 0; /* initialize to suppress clang warning */
   sum = ZERO;
-  xd = wd = NULL;
+  xd  = wd = NULL;
 
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
@@ -1062,8 +1080,9 @@ realtype N_VWSqrSumMaskLocal_OpenMP(N_Vector x, N_Vector w, N_Vector id)
   sunindextype i, N;
   realtype sum, *xd, *wd, *idd;
 
+  i   = 0; /* initialize to suppress clang warning */
   sum = ZERO;
-  xd = wd = idd = NULL;
+  xd  = wd = idd = NULL;
 
   N   = NV_LENGTH_OMP(x);
   xd  = NV_DATA_OMP(x);
@@ -1094,6 +1113,9 @@ int N_VLinearCombination_OpenMP(int nvec, realtype* c, N_Vector* X, N_Vector z)
   sunindextype j, N;
   realtype*    zd=NULL;
   realtype*    xd=NULL;
+
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1188,6 +1210,9 @@ int N_VScaleAddMulti_OpenMP(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Ve
   realtype*    yd=NULL;
   realtype*    zd=NULL;
 
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
+
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
 
@@ -1245,6 +1270,9 @@ int N_VDotProdMulti_OpenMP(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods
   realtype     sum;
   realtype*    xd=NULL;
   realtype*    yd=NULL;
+
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1307,6 +1335,9 @@ int N_VLinearSumVectorArray_OpenMP(int nvec,
   N_Vector*   V2;
   booleantype  test;
 
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
+
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
 
@@ -1352,7 +1383,7 @@ int N_VLinearSumVectorArray_OpenMP(int nvec,
   /*   (1) a == -1.0, b != 1.0, */
   /*   (2) a != 1.0, b == -1.0  */
   if ((test = (a == -ONE)) || (b == -ONE)) {
-    c = test ? b : a;
+    c  = test ? b : a;
     V1 = test ? Y : X;
     V2 = test ? X : Y;
     return(VLin2VectorArray_OpenMP(nvec, c, V1, V2, Z));
@@ -1400,6 +1431,9 @@ int N_VScaleVectorArray_OpenMP(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   sunindextype j, N;
   realtype*    xd=NULL;
   realtype*    zd=NULL;
+
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1456,6 +1490,9 @@ int N_VConstVectorArray_OpenMP(int nvec, realtype c, N_Vector* Z)
   sunindextype j, N;
   realtype*    zd=NULL;
 
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
+
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
 
@@ -1492,6 +1529,9 @@ int N_VWrmsNormVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* W, realtype* 
   realtype     sum;
   realtype*    wd=NULL;
   realtype*    xd=NULL;
+
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1546,6 +1586,9 @@ int N_VWrmsNormMaskVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* W,
   realtype*    wd=NULL;
   realtype*    xd=NULL;
   realtype*    idd=NULL;
+
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1605,6 +1648,9 @@ int N_VScaleAddMultiVectorArray_OpenMP(int nvec, int nsum, realtype* a,
   int          retval;
   N_Vector*   YY;
   N_Vector*   ZZ;
+
+  i = 0; /* initialize to suppress clang warning */
+  k = 0;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1712,6 +1758,9 @@ int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
 
   realtype*    ctmp;
   N_Vector*   Y;
+
+  i = 0; /* initialize to suppress clang warning */
+  k = 0;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1870,6 +1919,7 @@ static void VCopy_OpenMP(N_Vector x, N_Vector z)
   sunindextype i, N;
   realtype *xd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -1894,6 +1944,7 @@ static void VSum_OpenMP(N_Vector x, N_Vector y, N_Vector z)
   sunindextype i, N;
   realtype *xd, *yd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = yd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -1919,6 +1970,7 @@ static void VDiff_OpenMP(N_Vector x, N_Vector y, N_Vector z)
   sunindextype i, N;
   realtype *xd, *yd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = yd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -1944,6 +1996,7 @@ static void VNeg_OpenMP(N_Vector x, N_Vector z)
   sunindextype i, N;
   realtype *xd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -1968,6 +2021,7 @@ static void VScaleSum_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
   sunindextype i, N;
   realtype *xd, *yd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = yd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -1993,6 +2047,7 @@ static void VScaleDiff_OpenMP(realtype c, N_Vector x, N_Vector y, N_Vector z)
   sunindextype i, N;
   realtype *xd, *yd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = yd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -2018,6 +2073,7 @@ static void VLin1_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
   sunindextype i, N;
   realtype *xd, *yd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = yd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -2043,6 +2099,7 @@ static void VLin2_OpenMP(realtype a, N_Vector x, N_Vector y, N_Vector z)
   sunindextype i, N;
   realtype *xd, *yd, *zd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = yd = zd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -2068,6 +2125,7 @@ static void Vaxpy_OpenMP(realtype a, N_Vector x, N_Vector y)
   sunindextype i, N;
   realtype *xd, *yd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = yd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -2108,6 +2166,7 @@ static void VScaleBy_OpenMP(realtype a, N_Vector x)
   sunindextype i, N;
   realtype *xd;
 
+  i  = 0; /* initialize to suppress clang warning */
   xd = NULL;
 
   N  = NV_LENGTH_OMP(x);
@@ -2136,6 +2195,9 @@ static int VSumVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* Y, N_Vector* 
   realtype*    yd=NULL;
   realtype*    zd=NULL;
 
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
+
   N = NV_LENGTH_OMP(X[0]);
 
 #pragma omp parallel default(none) private(i,j,xd,yd,zd) shared(nvec,X,Y,Z,N) \
@@ -2161,6 +2223,9 @@ static int VDiffVectorArray_OpenMP(int nvec, N_Vector* X, N_Vector* Y, N_Vector*
   realtype*    xd=NULL;
   realtype*    yd=NULL;
   realtype*    zd=NULL;
+
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
 
   N = NV_LENGTH_OMP(X[0]);
 
@@ -2188,6 +2253,9 @@ static int VScaleSumVectorArray_OpenMP(int nvec, realtype c, N_Vector* X, N_Vect
   realtype*    yd=NULL;
   realtype*    zd=NULL;
 
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
+
   N = NV_LENGTH_OMP(X[0]);
 
 #pragma omp parallel default(none) private(i,j,xd,yd,zd) shared(nvec,X,Y,Z,N,c) \
@@ -2213,6 +2281,9 @@ static int VScaleDiffVectorArray_OpenMP(int nvec, realtype c, N_Vector* X, N_Vec
   realtype*    xd=NULL;
   realtype*    yd=NULL;
   realtype*    zd=NULL;
+
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
 
   N = NV_LENGTH_OMP(X[0]);
 
@@ -2240,6 +2311,9 @@ static int VLin1VectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector* 
   realtype*    yd=NULL;
   realtype*    zd=NULL;
 
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
+
   N = NV_LENGTH_OMP(X[0]);
 
 #pragma omp parallel default(none) private(i,j,xd,yd,zd) shared(nvec,X,Y,Z,N,a) \
@@ -2266,6 +2340,9 @@ static int VLin2VectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector* 
   realtype*    yd=NULL;
   realtype*    zd=NULL;
 
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
+
   N = NV_LENGTH_OMP(X[0]);
 
 #pragma omp parallel default(none) private(i,j,xd,yd,zd) shared(nvec,X,Y,Z,N,a) \
@@ -2290,6 +2367,9 @@ static int VaxpyVectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector* 
   sunindextype j, N;
   realtype*    xd=NULL;
   realtype*    yd=NULL;
+
+  i = 0; /* initialize to suppress clang warning */
+  j = 0;
 
   N = NV_LENGTH_OMP(X[0]);
 
@@ -2321,7 +2401,7 @@ static int VaxpyVectorArray_OpenMP(int nvec, realtype a, N_Vector* X, N_Vector* 
       }
     }
     return(0);
-  }    
+  }
 
 #pragma omp parallel default(none) private(i,j,xd,yd) shared(nvec,X,Y,N,a) \
   num_threads(NV_NUM_THREADS_OMP(X[0]))

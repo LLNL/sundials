@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -74,14 +74,6 @@ ARKodeMem arkCreate()
   /* Set uround */
   ark_mem->uround = UNIT_ROUNDOFF;
 
-  /* Set default values for integrator optional inputs */
-  iret = arkSetDefaults(ark_mem);
-  if (iret != ARK_SUCCESS) {
-    arkProcessError(NULL, 0, "ARKode", "arkCreate",
-                    "Error setting default solver options");
-    return(NULL);
-  }
-
   /* Initialize time step module to NULL */
   ark_mem->step_attachlinsol   = NULL;
   ark_mem->step_attachmasssol  = NULL;
@@ -124,6 +116,24 @@ ARKodeMem arkCreate()
 
   /* No user_data pointer yet */
   ark_mem->user_data = NULL;
+
+  /* Allocate step adaptivity structure and note storage */
+  ark_mem->hadapt_mem = arkAdaptInit();
+  if (ark_mem->hadapt_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_FAIL, "ARKode", "arkCreate",
+                    "Allocation of step adaptivity structure failed");
+    return(NULL);
+  }
+  ark_mem->lrw += ARK_ADAPT_LRW;
+  ark_mem->liw += ARK_ADAPT_LIW;
+
+  /* Set default values for integrator optional inputs */
+  iret = arkSetDefaults(ark_mem);
+  if (iret != ARK_SUCCESS) {
+    arkProcessError(NULL, 0, "ARKode", "arkCreate",
+                    "Error setting default solver options");
+    return(NULL);
+  }
 
   /* Return pointer to ARKode memory block */
   return(ark_mem);
@@ -242,7 +252,7 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
   /*     rwt  */
   if (ark_mem->rwt_is_ewt) {      /* update pointer to ewt */
     ark_mem->rwt = ark_mem->ewt;
-  } else {                            /* resize if distinct from ewt */
+  } else {                        /* resize if distinct from ewt */
     ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                        liw_diff, y0, &ark_mem->rwt);
     if (ier != ARK_SUCCESS)  return(ier);
@@ -622,7 +632,8 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
   int ewtsetOK;
   realtype troundoff, nrm;
   booleantype inactive_roots;
-
+  realtype dsm;
+  int nflag, ncf, nef, constrfails;
 
   /* Check and process inputs */
 
@@ -692,17 +703,24 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 
 
   /*--------------------------------------------------
-    Looping point for internal steps
+    Looping point for successful internal steps
 
-    - update the ewt vector for the next step
+    - update the ewt/rwt vectors for upcoming step
     - check for errors (too many steps, too much
       accuracy requested, step size too small)
-    - take a new step (via time stepper); stop on error
+    - loop over attempts at a new step:
+      * try to take step (via time stepper module),
+        handle solver convergence or other failures
+      * perform constraint-handling (if selected)
+      * check temporal error
+      * if all of the above pass, complete step by
+        updating current time, solution, error &
+        stepsize history arrays.
     - perform stop tests:
-    - check for root in last step taken
-    - check if tout was passed
-    - check if close to tstop
-    - check if in ONE_STEP mode (must return)
+      * check for root in last step taken
+      * check if tout was passed
+      * check if close to tstop
+      * check if in ONE_STEP mode (must return)
     --------------------------------------------------*/
   nstloc = 0;
   for(;;) {
@@ -797,14 +815,67 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       ark_mem->next_h = ark_mem->h;
     }
 
-    /* Call time stepper module to take a step */
-    kflag = ark_mem->step((void*) ark_mem);
+    /* Looping point for step attempts */
+    dsm = ZERO;
+    ncf = nef = constrfails = 0;
+    nflag = FIRST_CALL;
+    for(;;) {
 
-    /* Process successful step, catch additional errors to send to arkHandleFailure */
-    if (kflag == ARK_SUCCESS)
-      kflag = arkCompleteStep(ark_mem);
+      /* Call time stepper module to attempt a step:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure; reduce step if possible
+           <0 => step encountered unrecoverable failure */
+      kflag = ark_mem->step((void*) ark_mem, &dsm, &nflag);
+      if (kflag < 0)  break;
 
-    /* Process failed step cases, and exit loop */
+      /* handle solver convergence failures */
+      kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
+      if (kflag < 0)  break;
+
+      /* perform constraint-handling (if selected, and if solver check passed) */
+      if (ark_mem->constraintsSet && (kflag == ARK_SUCCESS)) {
+        kflag = arkCheckConstraints(ark_mem, &constrfails, &nflag);
+        if (kflag < 0)  break;
+      }
+
+      /* when fixed time-stepping is enabled, 'success' == successful stage solves
+         (checked in previous block), so just enforce no step size change */
+      if (ark_mem->fixedstep) {
+        ark_mem->eta = ONE;
+        break;
+      }
+
+      /* check temporal error (if checks above passed) */
+      if (kflag == ARK_SUCCESS) {
+        kflag = arkCheckTemporalError(ark_mem, &nflag, &nef, dsm);
+        if (kflag < 0)  break;
+      }
+
+      /* if we've made it here then no nonrecoverable failures occurred; someone above
+         has recommended an 'eta' value for the next step -- enforce bounds on that value
+         and set upcoming step size */
+      ark_mem->eta = SUNMIN(ark_mem->eta, ark_mem->hadapt_mem->etamax);
+      ark_mem->eta = SUNMAX(ark_mem->eta, ark_mem->hmin / SUNRabs(ark_mem->h));
+      ark_mem->eta /= SUNMAX(ONE, SUNRabs(ark_mem->h) * ark_mem->hmax_inv*ark_mem->eta);
+
+      /* break attempt loop on successful step */
+      if (kflag == ARK_SUCCESS)  break;
+
+      /* unsuccessful step, if |h| = hmin, return ARK_ERR_FAILURE */
+      if (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM)  return(ARK_ERR_FAILURE);
+
+      /* update h, hprime and next_h for next iteration */
+      ark_mem->h *= ark_mem->eta;
+      ark_mem->next_h = ark_mem->hprime = ark_mem->h;
+
+    }
+
+    /* If step attempt loop succeeded, complete step (update current time, solution,
+       error stepsize history arrays; call user-supplied step postprocessing function)
+       (added stuff from arkStep_PrepareNextStep -- revisit) */
+    if (kflag == ARK_SUCCESS)  kflag = arkCompleteStep(ark_mem, dsm);
+
+    /* If step attempt loop failed, process flag and return to user */
     if (kflag != ARK_SUCCESS) {
       istate = arkHandleFailure(ark_mem, kflag);
       ark_mem->tretlast = *tret = ark_mem->tcur;
@@ -973,10 +1044,20 @@ void arkFree(void **arkode_mem)
 
   ark_mem = (ARKodeMem) (*arkode_mem);
 
+  /* free vector storage */
   arkFreeVectors(ark_mem);
+
+  /* free the time step adaptivity module */
+  if (ark_mem->hadapt_mem != NULL) {
+    free(ark_mem->hadapt_mem);
+    ark_mem->hadapt_mem = NULL;
+  }
+
+  /* free the interpolation module */
   if (ark_mem->interp != NULL)
     arkInterpFree(&(ark_mem->interp));
 
+  /* free the root-finding module */
   if (ark_mem->root_mem != NULL)
     (void) arkRootFree(*arkode_mem);
 
@@ -1138,6 +1219,9 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   /* Initialize the interpolation structure to NULL */
   ark_mem->interp = NULL;
 
+  /* Set first step growth factor */
+  ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->etamx1;
+
   /* All error checking is complete at this point */
 
   /* Copy the input parameters into ARKode state */
@@ -1154,6 +1238,8 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   /* Initialize all the counters */
   ark_mem->nst   = 0;
   ark_mem->nhnil = 0;
+  ark_mem->ncfn  = 0;
+  ark_mem->netf  = 0;
 
   /* Initialize other integrator optional outputs */
   ark_mem->h0u    = ZERO;
@@ -1219,9 +1305,20 @@ int arkReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   /* Initialize yn */
   N_VScale(ONE, y0, ark_mem->yn);
 
+  /* Reset time step adaptivity structure */
+  ark_mem->hadapt_mem->ehist[0] = ONE;
+  ark_mem->hadapt_mem->ehist[1] = ONE;
+  ark_mem->hadapt_mem->hhist[0] = ZERO;
+  ark_mem->hadapt_mem->hhist[1] = ZERO;
+  ark_mem->hadapt_mem->nst_acc  = 0;
+  ark_mem->hadapt_mem->nst_exp  = 0;
+  ark_mem->hadapt_mem->etamax   = ark_mem->hadapt_mem->etamx1;
+
   /* Initialize all the counters */
   ark_mem->nst   = 0;
   ark_mem->nhnil = 0;
+  ark_mem->ncfn  = 0;
+  ark_mem->netf  = 0;
 
   /* Indicate that problem size is new */
   ark_mem->resized    = SUNTRUE;
@@ -1271,6 +1368,8 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   /* output counters */
   fprintf(outfile, "ark_nhnil = %i\n", ark_mem->nhnil);
   fprintf(outfile, "ark_nst = %li\n", ark_mem->nst);
+  fprintf(outfile," ark_ncfn = %li\n", ark_mem->ncfn);
+  fprintf(outfile," ark_netf = %li\n", ark_mem->netf);
 
   /* output time-stepping values */
   fprintf(outfile, "ark_hin = %" RSYM"\n", ark_mem->hin);
@@ -1285,6 +1384,12 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   fprintf(outfile, "ark_h0u = %" RSYM"\n", ark_mem->h0u);
   fprintf(outfile, "ark_tn = %" RSYM"\n", ark_mem->tn);
   fprintf(outfile, "ark_hold = %" RSYM"\n", ark_mem->hold);
+  fprintf(outfile, "maxnef = %i\n", ark_mem->maxnef);
+  fprintf(outfile, "maxncf = %i\n", ark_mem->maxncf);
+
+  /* output time-stepping adaptivity structure */
+  fprintf(outfile, "timestep adaptivity structure:\n");
+  arkPrintAdaptMem(ark_mem->hadapt_mem, outfile);
 
   /* output inequality constraints quantities */
   fprintf(outfile, "ark_constraintsSet = %i\n", ark_mem->constraintsSet);
@@ -2023,7 +2128,7 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
       /* If successful, we can use ydd */
       if (retval == ARK_SUCCESS) {hgOK = SUNTRUE; break;}
       /* f() failed recoverably; cut step size and test it again */
-      hg *= POINT2;
+      hg *= RCONST(0.2);
     }
 
     /* If f() failed recoverably H0_ITERS times */
@@ -2161,7 +2266,7 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   and tnew, reset the resized flag, allow for user-provided
   postprocessing, and update the interpolation structure.
   ---------------------------------------------------------------*/
-int arkCompleteStep(ARKodeMem ark_mem)
+int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 {
   int retval;
 
@@ -2195,10 +2300,20 @@ int arkCompleteStep(ARKodeMem ark_mem)
   /* update yn to current solution */
   N_VScale(ONE, ark_mem->ycur, ark_mem->yn);
 
+  /* Update step size and error history arrays */
+  ark_mem->hadapt_mem->ehist[1] = ark_mem->hadapt_mem->ehist[0];
+  ark_mem->hadapt_mem->ehist[0] = dsm*ark_mem->hadapt_mem->bias;
+  ark_mem->hadapt_mem->hhist[1] = ark_mem->hadapt_mem->hhist[0];
+  ark_mem->hadapt_mem->hhist[0] = ark_mem->h;
+
   /* update scalar quantities */
   ark_mem->nst++;
-  ark_mem->hold = ark_mem->h;
-  ark_mem->tn   = ark_mem->tcur;
+  ark_mem->hold   = ark_mem->h;
+  ark_mem->tn     = ark_mem->tcur;
+  ark_mem->hprime = ark_mem->h * ark_mem->eta;
+
+  /* Reset growth factor for subsequent time step */
+  ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->growth;
 
   /* turn off flag regarding resized problem */
   ark_mem->resized = SUNFALSE;
@@ -2278,6 +2393,10 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
   case ARK_NLS_OP_ERR:
     arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode", "ARKode",
                     MSG_ARK_NLS_FAIL, ark_mem->tcur);
+    break;
+  case ARK_USER_PREDICT_FAIL:
+    arkProcessError(ark_mem, ARK_USER_PREDICT_FAIL, "ARKode", "ARKode",
+                    MSG_ARK_USER_PREDICT_FAIL, ark_mem->tcur);
     break;
   default:
     /* This return should never happen */
@@ -2552,7 +2671,7 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
                          N_Vector *Xvecs, N_Vector yguess)
 {
   realtype a0, a1, a2;
-  int i;
+  int i, retval;
 
   /* verify that ark_mem and interpolation structure are provided */
   if (ark_mem == NULL) {
@@ -2585,7 +2704,70 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
   Xvecs[1] = ark_mem->interp->fnew;
 
   /* call fused vector operation to compute prediction */
-  return(N_VLinearCombination(nvec+2, cvals, Xvecs, yguess));
+  retval = N_VLinearCombination(nvec+2, cvals, Xvecs, yguess);
+  if (retval != 0)  return(ARK_VECTOROP_ERR);
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkCheckConvergence
+
+  This routine checks the return flag from the time-stepper's
+  "step" routine for algebraic solver convergence issues.
+
+  Returns ARK_SUCCESS (0) if successful, PREDICT_AGAIN (>0)
+  on a recoverable convergence failure, or a relevant
+  nonrecoverable failure flag (<0).
+  --------------------------------------------------------------*/
+int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
+{
+  ARKodeHAdaptMem hadapt_mem;
+
+  if (*nflagPtr == ARK_SUCCESS) return(ARK_SUCCESS);
+
+  /* The nonlinear soln. failed; increment ncfn */
+  ark_mem->ncfn++;
+
+  /* If fixed time stepping, then return with convergence failure */
+  if (ark_mem->fixedstep) return(ARK_CONV_FAILURE);
+
+  /* Otherwise, access adaptivity structure */
+  if (ark_mem->hadapt_mem == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode", "arkCheckConvergence",
+                    MSG_ARKADAPT_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  hadapt_mem = ark_mem->hadapt_mem;
+
+  /* Return if lsetup, lsolve, or rhs failed unrecoverably */
+  if (*nflagPtr < 0) {
+    if (*nflagPtr == ARK_LSETUP_FAIL)       return(ARK_LSETUP_FAIL);
+    else if (*nflagPtr == ARK_LSOLVE_FAIL)  return(ARK_LSOLVE_FAIL);
+    else if (*nflagPtr == ARK_RHSFUNC_FAIL) return(ARK_RHSFUNC_FAIL);
+    else                                    return(ARK_NLS_OP_ERR);
+  }
+
+  /* At this point, nflag = CONV_FAIL or RHSFUNC_RECVR; increment ncf */
+  (*ncfPtr)++;
+  hadapt_mem->etamax = ONE;
+
+  /* If we had maxncf failures, or if |h| = hmin,
+     return ARK_CONV_FAILURE or ARK_REPTD_RHSFUNC_ERR. */
+  if ((*ncfPtr == ark_mem->maxncf) ||
+      (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM)) {
+    if (*nflagPtr == CONV_FAIL)     return(ARK_CONV_FAILURE);
+    if (*nflagPtr == RHSFUNC_RECVR) return(ARK_REPTD_RHSFUNC_ERR);
+  }
+
+  /* Reduce step size due to convergence failure */
+  ark_mem->eta = hadapt_mem->etacf;
+
+  /* Signal for Jacobian/preconditioner setup */
+  *nflagPtr = PREV_CONV_FAIL;
+
+  /* Return to reattempt the step */
+  return(PREDICT_AGAIN);
 }
 
 
@@ -2625,18 +2807,103 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
   /* Reduce h by computing eta = h'/h */
   N_VLinearSum(ONE, ark_mem->yn, -ONE, ark_mem->ycur, tmp);
   N_VProd(mm, tmp, tmp);
-  ark_mem->eta = PT9*N_VMinQuotient(ark_mem->yn, tmp);
+  ark_mem->eta = RCONST(0.9)*N_VMinQuotient(ark_mem->yn, tmp);
   ark_mem->eta = SUNMAX(ark_mem->eta, TENTH);
-  ark_mem->eta = SUNMAX(ark_mem->eta,
-                        ark_mem->hmin / SUNRabs(ark_mem->h));
-  ark_mem->h *= ark_mem->eta;
-  ark_mem->next_h = ark_mem->h;
 
-  /* Signal for Jacobian setup if nflag was provided */
-  if (nflag) *nflag = PREV_CONV_FAIL;
+  /* Signal for Jacobian/preconditioner setup */
+  *nflag = PREV_CONV_FAIL;
 
-  /* Reattempt step with new step size */
+  /* Return to reattempt the step */
   return(CONSTR_RECVR);
+}
+
+
+/*---------------------------------------------------------------
+  arkCheckTemporalError
+
+  This routine performs the local error test for the method.
+  The weighted local error norm dsm is passed in.  This value is
+  used to predict the next step to attempt based on dsm.
+  The test dsm <= 1 is made, and if this fails then additional
+  checks are performed based on the number of successive error
+  test failures.
+
+  Returns ARK_SUCCESS if the test passes.
+
+  If the test fails:
+    - if maxnef error test failures have occurred or if
+      SUNRabs(h) = hmin, we return ARK_ERR_FAILURE.
+    - otherwise: set *nflagPtr to PREV_ERR_FAIL, and
+      return TRY_AGAIN.
+  --------------------------------------------------------------*/
+int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtype dsm)
+{
+  int retval;
+  realtype ttmp;
+  long int nsttmp;
+  ARKodeHAdaptMem hadapt_mem;
+
+  /* Access hadapt_mem structure */
+  if (ark_mem->hadapt_mem == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode", "arkCheckTemporalError",
+                    MSG_ARKADAPT_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  hadapt_mem = ark_mem->hadapt_mem;
+
+  /* consider change of step size for next step attempt (may be
+     larger/smaller than current step, depending on dsm) */
+  ttmp = (dsm < ONE) ? ark_mem->tn + ark_mem->h : ark_mem->tn;
+  nsttmp = (dsm < ONE) ? ark_mem->nst+1 : ark_mem->nst;
+  retval = arkAdapt((void*) ark_mem, hadapt_mem, ark_mem->ycur, ttmp,
+                    ark_mem->h, dsm*ark_mem->hadapt_mem->bias, nsttmp);
+  if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
+
+  /* If est. local error norm dsm passes test, return ARK_SUCCESS */
+  if (dsm <= ONE) return(ARK_SUCCESS);
+
+  /* Test failed; increment counters, set nflag */
+  (*nefPtr)++;
+  ark_mem->netf++;
+  *nflagPtr = PREV_ERR_FAIL;
+
+  /* At maxnef failures, return ARK_ERR_FAILURE */
+  if (*nefPtr == ark_mem->maxnef)  return(ARK_ERR_FAILURE);
+
+  /* Set etamax=1 to prevent step size increase at end of this step */
+  hadapt_mem->etamax = ONE;
+
+  /* Enforce failure bounds on eta, update h, and return for retry of step */
+  if (*nefPtr >= hadapt_mem->small_nef)
+    ark_mem->eta = SUNMIN(ark_mem->eta, hadapt_mem->etamxf);
+  return(TRY_AGAIN);
+}
+
+
+/*---------------------------------------------------------------
+  arkAccessHAdaptMem:
+
+  Shortcut routine to unpack ark_mem and hadapt_mem structures from
+  void* pointer.  If either is missing it returns ARK_MEM_NULL.
+  ---------------------------------------------------------------*/
+int arkAccessHAdaptMem(void* arkode_mem, const char *fname,
+                       ARKodeMem *ark_mem, ARKodeHAdaptMem *hadapt_mem)
+{
+
+  /* access ARKodeMem structure */
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    fname, MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  *ark_mem = (ARKodeMem) arkode_mem;
+  if ((*ark_mem)->hadapt_mem==NULL) {
+    arkProcessError(*ark_mem, ARK_MEM_NULL, "ARKode",
+                    fname, MSG_ARKADAPT_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  *hadapt_mem = (ARKodeHAdaptMem) (*ark_mem)->hadapt_mem;
+  return(ARK_SUCCESS);
 }
 
 
