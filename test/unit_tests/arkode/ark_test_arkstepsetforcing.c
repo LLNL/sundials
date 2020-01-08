@@ -47,8 +47,8 @@
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int J(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-             void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
 
   /* Set Jacobian routine */
-  flag = ARKStepSetJacFn(arkode_mem, J);
+  flag = ARKStepSetJacFn(arkode_mem, Jac);
   if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
 
   /* Set Jacobian routine */
-  flag = ARKStepSetJacFn(arkode_mem, J);
+  flag = ARKStepSetJacFn(arkode_mem, Jac);
   if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
@@ -405,8 +405,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* ODE RHS Jacobian function */
-static int J(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-             void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   SUNMatZero(J);
   return 0;

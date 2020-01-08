@@ -39,7 +39,7 @@ contains
     implicit none
     real(C_DOUBLE) :: a, b, tol
 
-    if (isnan(a)) then
+    if (a /= a) then
       nequal = 1
     else if ((abs(a-b)/abs(b)) > tol) then
       nequal = 1
@@ -53,7 +53,7 @@ contains
     implicit none
     real(C_DOUBLE) :: a, b
 
-    if (isnan(a)) then
+    if (a /= a) then
       nequal = 1
     else if ((abs(a-b)/abs(b)) > (10*UNIT_ROUNDOFF)) then
       nequal = 1

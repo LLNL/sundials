@@ -107,7 +107,7 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
-Changes in x.x.x
+Changes in 4.1.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Fixed a build system bug related to finding LAPACK/BLAS.

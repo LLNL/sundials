@@ -140,11 +140,11 @@
            Report UCRL-ID-141558, LLNL, 2000.
 
 .. [HS2017] A.C. Hindmarsh and R. Serban. User Documentation for CVODE
-            v5.0.0. Technical Report UCRL-SM-208108, LLNL, 2019.
+            v5.1.0. Technical Report UCRL-SM-208108, LLNL, 2020.
 
 .. [HSR2017] A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-             Programs for CVODE v5.0.0. Technical Report
-             UCRL-SM-208110, LLNL, 2019.
+             Programs for CVODE v5.1.0. Technical Report
+             UCRL-SM-208110, LLNL, 2020.
 
 .. [HT1998] A.C. Hindmarsh and A.G. Taylor.  PVODE and KINSOL:
             Parallel Software for Differential and Nonlinear
@@ -191,7 +191,7 @@
 
 .. [R2018] D.R. Reynolds. ARKode Example Documentation. Technical
            Report, Southern Methodist University Center for Scientific
-           Computation, 2019.
+           Computation, 2020.
 
 .. [SS1986] Y. Saad and M.H. Schultz. GMRES: A Generalized Minimal Residual
             Algorithm for Solving Nonsymmetric Linear Systems.
