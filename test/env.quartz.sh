@@ -12,20 +12,135 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -------------------------------------------------------------------------------
-# Script that sets up the environment for the suntest_driver.sh when running on
-# Quartz.
+# Script that sets up the environment for SUNDIALS testing on Quartz.
+#
+# Note the environment variable SUNDIALS_ENV must to set to to env.quartz.sh to
+# use this setup script.
+#
+# Usage: source env.quartz.sh <real type> <index size> <compiler spec> \
+#                             <build type>
+#
+# Required Inputs:
+#   <real type>  = SUNDIALS real type to build/test with:
+#                    single   : single (32-bit) precision
+#                    double   : double (64-bit) precision
+#                    extended : extended (128-bit) precision
+#   <index size> = SUNDIALS index size to build/test with:
+#                    32       : 32-bit indices
+#                    64       : 64-bit indices
+#
+# Optional Inputs:
+#   <compiler spec> = Compiler to build sundials with:
+#                       e.g., gcc@8.1.0, intel@19.0.4, clang@9.0.0, etc.
+#   <build type>    = SUNDIALS build type:
+#                       dbg : debug build
+#                       opt : optimized build
 # -------------------------------------------------------------------------------
 
-# compiler settings
-export CC=/usr/tce/packages/gcc/gcc-7.3.0/bin/gcc
-export FC=/usr/tce/packages/gcc/gcc-7.3.0/bin/gfortran
-export CXX=/usr/tce/packages/gcc/gcc-7.3.0/bin/g++
-export COMPILER_SPEC="gcc@7.3.0"
-export MPIDIR=/usr/tce/packages/mvapich2/mvapich2-2.3-gcc-7.3.0
+# check number of inputs
+if [ "$#" -lt 2 ]; then
+    echo "ERROR: TWO (2) inputs required"
+    echo "real type  : [single|double|extended]"
+    echo "index size : [32|64]"
+    return 1
+fi
+
+# set required inputs
+realtype=$1   # precision for realtypes
+indexsize=$2  # integer size for indices
+
+# set defaults for optional inputs
+compiler="gcc@8.1.0" # compiler spec
+bldtype="dbg"        # build type dbg = debug or opt = optimized
+
+# set optional inputs if provided
+if [ "$#" -gt 2 ]; then
+    compiler=$3
+fi
+
+if [ "$#" -gt 3 ]; then
+    bldtype=$4
+fi
+
+# ------------------------------------------------------------------------------
+# Setup environment
+# ------------------------------------------------------------------------------
+
+# get compiler name and version from spec
+compilername="${compiler%%@*}"
+compilerversion="${compiler##*@}"
+
+# load default cmake module
+module load cmake
+
+# load compiler module
+case "$compilername" in
+    clang)
+        module load clang/${compilerversion}
+        if [ $? -ne 0 ]; then return 1; fi
+        export CC=$(which clang)
+        export CXX=$(which clang++)
+        export FC=""
+        FORTRAN_STATUS=OFF
+        ;;
+    gcc)
+        module load gcc/${compilerversion}
+        if [ $? -ne 0 ]; then return 1; fi
+        export CC=$(which gcc)
+        export CXX=$(which g++)
+        export FC=$(which gfortran)
+        FORTRAN_STATUS=ON
+        ;;
+    intel)
+        module load intel/${compilerversion}
+        if [ $? -ne 0 ]; then return 1; fi
+        export CC=$(which icc)
+        export CXX=$(which icpc)
+        export FC=$(which ifort)
+        FORTRAN_STATUS=ON
+        ;;
+    pgi)
+        module load pgi/${compilerversion}
+        if [ $? -ne 0 ]; then return 1; fi
+        export CC=$(which pgcc)
+        export CXX=$(which pgc++)
+        export FC=$(which pgfortran)
+        FORTRAN_STATUS=ON
+        ;;
+    *)
+        echo "ERROR: Invalid compiler option: $compiler"
+        return 1
+        ;;
+esac
+
+# set compiler flags
+if [ "$bldtype" == "dbg" ]; then
+    export CFLAGS="-g -O0"
+    export CXXFLAGS="-g -O0"
+    export FFLAGS="-g -O0"
+elif [ "$bldtype" == "opt" ]; then
+    export CFLAGS="-g -O3"
+    export CXXFLAGS="-g -O3"
+    export FFLAGS="-g -O3"
+else
+    echo "ERROR: Invalid build type: $bldtype"
+    return 1
+fi
+
+# Fortran settings
+export F77_STATUS=${FORTRAN_STATUS}
+export F03_STATUS=${FORTRAN_STATUS}
+
+# set MPI compiler wrapper
+export MPI_STATUS=ON
+export MPICC=$(which mpicc)
+export MPICXX=$(which mpicxx)
+export MPIFC=$(which mpifort)
 export MPIEXEC=$(which srun)
 
-# number of threads in OpenMP examples
-export OMP_NUM_THREADS=16
+# PThread settings
+export PTHREAD_STATUS=ON
 
-# module loads
-module load gcc/7.3.0 mvapich2/2.3
+# OpenMP settings
+export OPENMP_STATUS=ON
+export OMP_NUM_THREADS=16
