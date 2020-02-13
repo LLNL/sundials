@@ -105,8 +105,6 @@ SUNDIALS_EXPORT int KINGetNumLinConvFails(void *kinmem,
                                           long int *nlcfails);
 SUNDIALS_EXPORT int KINGetNumJtimesEvals(void *kinmem,
                                          long int *njvevals);
-SUNDIALS_EXPORT int KINGetNumLinFuncEvals(void *kinmem,
-                                          long int *nfevals);
 SUNDIALS_EXPORT int KINGetLastLinFlag(void *kinmem,
                                       long int *flag);
 SUNDIALS_EXPORT char *KINGetLinReturnFlagName(long int flag);
