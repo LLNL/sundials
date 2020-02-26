@@ -2264,12 +2264,17 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
 
     *indx = ca_mem->ca_ilast;
     for(;;) {
+      if ( *indx >= ca_mem->ca_nsteps ) break;
       if ( sign*(t - dt_mem[*indx]->t) > ZERO) (*indx)++;
       else                                     break;
     }
 
     ca_mem->ca_ilast = *indx;
-
+    if ( *indx == ca_mem->ca_nsteps - 1 ) {
+      if ( SUNRabs(t - dt_mem[*indx]->t) > FUZZ_FACTOR * cv_mem->cv_uround ) {
+        return(CV_GETY_BADT);
+      }
+    }
 
   } else {
     /* ilast is still OK */
