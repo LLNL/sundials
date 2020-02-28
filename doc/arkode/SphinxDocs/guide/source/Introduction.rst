@@ -107,6 +107,15 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in 4.x
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a build system bug related to the Fortran 2003 interfaces when using the
+IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
+it is recommended to set ``CMAKE_Fortran_COMPILER`` to ``f2003``, ``xlf2003``,
+or ``xlf2003_r``.
+
+
 Changes in 4.1.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

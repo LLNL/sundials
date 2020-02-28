@@ -300,6 +300,14 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes in 4.x}
+\label{Introduction:changes-in-4-x}
+Fixed a build system bug related to the Fortran 2003 interfaces when using the
+IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
+it is recommended to set \code{CMAKE\_Fortran\_COMPILER} to \code{f2003}, \code{xlf2003},
+or \code{xlf2003\_r}.
+
+
 \subsection{Changes in 4.1.0}
 \label{Introduction:changes-in-4-1-0}
 Fixed a build system bug related to finding LAPACK/BLAS.

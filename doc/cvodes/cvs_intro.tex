@@ -117,6 +117,13 @@ writing in C|)}
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v5.x}
+
+Fixed a build system bug related to the Fortran 2003 interfaces when using the
+IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
+it is recommended to set \id{CMAKE\_Fortran\_COMPILER} to \id{f2003},
+\id{xlf2003}, or \id{xlf2003\_r}.
+
 \subsection*{Changes in v5.1.0}
 
 Fixed a build system bug related to finding LAPACK/BLAS.

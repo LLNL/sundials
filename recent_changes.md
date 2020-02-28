@@ -1,5 +1,13 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 5.x
+
+Fixed a build system bug related to the Fortran 2003 interfaces when using the
+IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
+it is recommended to set `CMAKE_Fortran_COMPILER` to `f2003`, `xlf2003`, or
+`xlf2003_r`.
+
+
 ## Changes to SUNDIALS in release 5.1.0
 
 Fixed a build system bug related to finding LAPACK/BLAS.
