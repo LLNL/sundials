@@ -2329,7 +2329,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   realtype    bnorm, resnorm;
   ARKodeMem   ark_mem;
   ARKLsMem    arkls_mem;
-  realtype    gamma, gamrat, delta, deltar, ewt_mean;
+  realtype    gamma, gamrat, delta, deltar, rwt_mean;
   booleantype dgamma_fail, *jcur;
   long int    nps_inc;
   int         nli_inc, retval, LSType;
@@ -2369,8 +2369,8 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   /* Set scaling vectors for LS to use (if applicable) */
   if (arkls_mem->LS->ops->setscalingvectors) {
     retval = SUNLinSolSetScalingVectors(arkls_mem->LS,
-                                        ark_mem->ewt,
-                                        ark_mem->rwt);
+                                        ark_mem->rwt,
+                                        ark_mem->ewt);
     if (retval != SUNLS_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS", "arkLsSolve",
                       "Error in call to SUNLinSolSetScalingVectors");
@@ -2381,24 +2381,23 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   /* If solver is iterative and does not support scaling vectors, update the
      tolerance in an attempt to account for ewt/rwt vectors.  We make the
      following assumptions:
-       1. rwt = ewt (i.e. the units of solution and residual are the same)
-       2. ewt_i = ewt_mean, for i=0,...,n-1 (i.e. the solution units are identical)
-       3. the linear solver uses a basic 2-norm to measure convergence
-     Hence (using the notation from sunlinsol_spgmr.h, with S = diag(ewt)),
+       1. rwt_i = rwt_mean, for i=0,...,n-1 (i.e. the residual units are identical)
+       2. the linear solver uses a basic 2-norm to measure convergence
+     Hence (using the notation from sunlinsol_spgmr.h, with S = diag(rwt)),
            || bbar - Abar xbar ||_2 < tol
        <=> || S b - S A x ||_2 < tol
        <=> || S (b - A x) ||_2 < tol
-       <=> \sum_{i=0}^{n-1} (ewt_i (b - A x)_i)^2 < tol^2
-       <=> ewt_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
-       <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / ewt_mean^2
-       <=> || b - A x ||_2 < tol / ewt_mean
-     So we compute ewt_mean = ||ewt||_RMS and scale the desired tolerance accordingly. */
+       <=> \sum_{i=0}^{n-1} (rwt_i (b - A x)_i)^2 < tol^2
+       <=> rwt_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
+       <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / rwt_mean^2
+       <=> || b - A x ||_2 < tol / rwt_mean
+     So we compute rwt_mean = ||rwt||_RMS and scale the desired tolerance accordingly. */
   } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
               (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
 
     N_VConst(ONE, arkls_mem->x);
-    ewt_mean = N_VWrmsNorm(ark_mem->ewt, arkls_mem->x);
-    delta /= ewt_mean;
+    rwt_mean = N_VWrmsNorm(ark_mem->rwt, arkls_mem->x);
+    delta /= rwt_mean;
 
   }
 

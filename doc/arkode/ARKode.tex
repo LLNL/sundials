@@ -300,12 +300,24 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+
 \subsection{Changes in 4.x}
 \label{Introduction:changes-in-4-x}
+
 Fixed a build system bug related to the Fortran 2003 interfaces when using the
 IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
 it is recommended to set \code{CMAKE\_Fortran\_COMPILER} to \code{f2003}, \code{xlf2003},
 or \code{xlf2003\_r}.
+
+Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver. 
+In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the 
+lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling 
+factor using the error weight vector, \code{ewt}; this fix changes that to the residual weight vector, 
+\code{rwt}, that can differ from \code{ewt} when solving problems with non-identity mass matrix.
+
+Fixed a similar bug in how ARKode interfaces with scaled linear solvers when solving problems 
+with non-identity mass matrices.  Here, the left scaling matrix should correspond with \code{rwt} 
+and the right scaling matrix with \code{ewt}; these were reversed but are now correct.
 
 
 \subsection{Changes in 4.1.0}
@@ -34989,15 +35001,10 @@ for this lack of functionality.  To this end, the following
 assumptions are made:
 \begin{itemize}
 \item {} 
-The units of the IVP solution and linear residual are the same
-(i.e., the error and residual weight vectors in section
-{\hyperref[Mathematics:mathematics-error-norm]{\emph{\DUspan{}{Error norms}}}} are the same); this is automatically
-satisfied with identity mass matrix, \(M=I\), or similar.
-
-\item {} 
-All solution components have similar magnitude; hence the error
+All solution components have similar magnitude; hence the residual
 weight vector \(w\) used in the WRMS norm (see the section
-{\hyperref[Mathematics:mathematics-error-norm]{\emph{\DUspan{}{Error norms}}}}) should satisfy the assumption
+{\hyperref[Mathematics:mathematics-error-norm]{\emph{\DUspan{}{Error norms}}}}), corresponding to the left scaling
+matrix \(S_1\), should satisfy the assumption
 \begin{gather}
 \begin{split}w_i \approx w_{mean},\quad \text{for}\quad i=0,\ldots,n-1.\end{split}\notag
 \end{gather}
@@ -35006,13 +35013,12 @@ The SUNLinSol object uses a standard 2-norm to measure convergence.
 
 \end{itemize}
 
-Under these assumptions, ARKLS uses identical left and right scaling matrices,
-\(S_1 = S_2 = S = \operatorname{diag}(w)\), so the linear solver
-convergence requirement is converted as follows
+Under these assumptions, ARKLS adjusts the linear solver
+convergence requirement as follows
 (using the notation from the beginning of this chapter):
 \begin{gather}
 \begin{split}&\left\| \tilde{b} - \tilde{A} \tilde{x} \right\|_2  <  \text{tol}\\
-\Leftrightarrow \quad & \left\| S P_1^{-1} b - S P_1^{-1} A x \right\|_2  <  \text{tol}\\
+\Leftrightarrow \quad & \left\| S_1 P_1^{-1} b - S_1 P_1^{-1} A x \right\|_2  <  \text{tol}\\
 \Leftrightarrow \quad & \sum_{i=0}^{n-1} \left[w_i \left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \text{tol}^2\\
 \Leftrightarrow \quad & w_{mean}^2 \sum_{i=0}^{n-1} \left[\left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \text{tol}^2\\
 \Leftrightarrow \quad & \sum_{i=0}^{n-1} \left[\left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \left(\frac{\text{tol}}{w_{mean}}\right)^2\\
