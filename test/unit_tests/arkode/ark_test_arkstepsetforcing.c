@@ -238,6 +238,7 @@ int main(int argc, char *argv[])
 
   /* check the solution error */
   flag = compute_error(y, ans, tmp, reltol, abstol);
+  if (flag != 0) return(1);
 
   /* ---------------------------------------------------------------------------
    * implicit test
@@ -307,6 +308,7 @@ int main(int argc, char *argv[])
 
   /* check the solution error */
   flag = compute_error(y, ans, tmp, reltol, abstol);
+  if (flag != 0) return(1);
 
   /* ---------------------------------------------------------------------------
    * imex test
@@ -376,6 +378,7 @@ int main(int argc, char *argv[])
 
   /* check the solution error */
   flag = compute_error(y, ans, tmp, reltol, abstol);
+  if (flag != 0) return(1);
 
   /* ---------------------------------------------------------------------------
    * Clean up and return
@@ -388,7 +391,6 @@ int main(int argc, char *argv[])
   SUNMatDestroy(A);         /* Free A matrix */
 
   N_VDestroyVectorArray(forcing, order + 1);
-
 
   return flag;
 }
