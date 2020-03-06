@@ -299,38 +299,42 @@ Shared ARKode output constants
    The output and initial times are too close to
    each other.
 
-..
-   :index:`ARK_POSTPROCESS_FAIL`  (-28):
-      An error occurred when calling the user-provided ``ARKPostProcessStepFn`` routine.
-
-:index:`ARK_VECTOROP_ERR`  (-29):
+:index:`ARK_VECTOROP_ERR`  (-28):
    An error occurred when calling an NVECTOR routine.
 
-:index:`ARK_NLS_INIT_FAIL`  (-30):
+:index:`ARK_NLS_INIT_FAIL`  (-29):
    An error occurred when initializing a SUNNonlinearSolver module.
 
-:index:`ARK_NLS_SETUP_FAIL`  (-31):
+:index:`ARK_NLS_SETUP_FAIL`  (-30):
    A non-recoverable error occurred when setting up a
    SUNNonlinearSolver module.
 
-:index:`ARK_NLS_SETUP_RECVR`  (-32):
+:index:`ARK_NLS_SETUP_RECVR`  (-31):
    A recoverable error occurred when setting up a SUNNonlinearSolver module.
 
-:index:`ARK_NLS_OP_ERR`  (-33):
+:index:`ARK_NLS_OP_ERR`  (-32):
    An error occurred when calling a set/get routine in a SUNNonlinearSolver
    module.
 
-:index:`ARK_INNERSTEP_ATTACH_ERR`  (-34):
+:index:`ARK_INNERSTEP_ATTACH_ERR`  (-33):
    An error occurred when attaching the inner stepper module.
 
-:index:`ARK_INNERSTEP_FAIL`  (-35):
+:index:`ARK_INNERSTEP_FAIL`  (-34):
    An error occurred in the inner stepper module.
 
-:index:`ARK_PREINNERFN_FAIL`  (-36):
+:index:`ARK_PREINNERFN_FAIL`  (-35):
    An error occurred in the MRIStep pre inner integrator function.
 
-:index:`ARK_POSTINNERFN_FAIL`  (-37):
+:index:`ARK_POSTINNERFN_FAIL`  (-36):
    An error occurred in the MRIStep post inner integrator function.
+
+..
+   :index:`ARK_POSTPROCESS_STEP_FAIL`  (-37):
+      An error occurred when calling the user-provided ``ARKPostProcessStepFn`` routine.
+
+..
+   :index:`ARK_POSTPROCESS_STAGE_FAIL`  (-38):
+      An error occurred when calling the user-provided ``ARKPostProcessStageFn`` routine.
 
 :index:`ARK_UNRECOGNIZED_ERROR` (-99):
    An unknown error was encountered.

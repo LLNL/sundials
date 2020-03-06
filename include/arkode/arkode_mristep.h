@@ -94,7 +94,9 @@ SUNDIALS_EXPORT int MRIStepSetUserData(void *arkode_mem,
 SUNDIALS_EXPORT int MRIStepSetDiagnostics(void *arkode_mem,
                                           FILE *diagfp);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStepFn(void *arkode_mem,
-                                                ARKPostProcessStepFn ProcessStep);
+                                                ARKPostProcessFn ProcessStep);
+SUNDIALS_EXPORT int MRIStepSetPostprocessStageFn(void *arkode_mem,
+                                                 ARKPostProcessFn ProcessStage);
 SUNDIALS_EXPORT int MRIStepSetPreInnerFn(void *arkode_mem,
                                          MRIStepPreInnerFn prefn);
 SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void *arkode_mem,

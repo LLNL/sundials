@@ -210,7 +210,9 @@ SUNDIALS_EXPORT int ARKStepSetDiagnostics(void *arkode_mem,
                                           FILE *diagfp);
 
 SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
-                                                ARKPostProcessStepFn ProcessStep);
+                                                ARKPostProcessFn ProcessStep);
+SUNDIALS_EXPORT int ARKStepSetPostprocessStageFn(void *arkode_mem,
+                                                 ARKPostProcessFn ProcessStage);
 SUNDIALS_EXPORT int ARKStepSetStagePredictFn(void *arkode_mem,
                                              ARKStepStagePredictFn PredictStage);
 

@@ -544,7 +544,7 @@ int arkSetNoInactiveRootWarn(void *arkode_mem)
   arkSetPostprocessStepFn:
 
   Specifies a user-provided step postprocessing function having
-  type ARKPostProcessStepFn.  A NULL input function disables step
+  type ARKPostProcessFn.  A NULL input function disables step
   postprocessing.
 
   IF THE SUPPLIED FUNCTION MODIFIES ANY OF THE ACTIVE STATE DATA,
@@ -552,7 +552,7 @@ int arkSetNoInactiveRootWarn(void *arkode_mem)
   STABILITY ARE LOST.
   ---------------------------------------------------------------*/
 int arkSetPostprocessStepFn(void *arkode_mem,
-                            ARKPostProcessStepFn ProcessStep)
+                            ARKPostProcessFn ProcessStep)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -565,6 +565,35 @@ int arkSetPostprocessStepFn(void *arkode_mem,
   /* NULL argument sets default, otherwise set inputs */
   ark_mem->ProcessStep = ProcessStep;
   ark_mem->ps_data     = ark_mem->user_data;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkSetPostprocessStageFn:
+
+  Specifies a user-provided stage postprocessing function having
+  type ARKPostProcessFn.  A NULL input function disables
+  stage postprocessing.
+
+  IF THE SUPPLIED FUNCTION MODIFIES ANY OF THE ACTIVE STATE DATA,
+  THEN ALL THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND
+  STABILITY ARE LOST.
+  ---------------------------------------------------------------*/
+int arkSetPostprocessStageFn(void *arkode_mem,
+                             ARKPostProcessFn ProcessStage)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkSetPostprocessStageFn", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  /* NULL argument sets default, otherwise set inputs */
+  ark_mem->ProcessStage = ProcessStage;
 
   return(ARK_SUCCESS);
 }
@@ -1556,8 +1585,11 @@ char *arkGetReturnFlagName(long int flag)
   case ARK_TOO_CLOSE:
     sprintf(name,"ARK_TOO_CLOSE");
     break;
-  case ARK_POSTPROCESS_FAIL:
-    sprintf(name,"ARK_POSTPROCESS_FAIL");
+  case ARK_POSTPROCESS_STEP_FAIL:
+    sprintf(name,"ARK_POSTPROCESS_STEP_FAIL");
+    break;
+  case ARK_POSTPROCESS_STAGE_FAIL:
+    sprintf(name,"ARK_POSTPROCESS_STAGE_FAIL");
     break;
   case ARK_VECTOROP_ERR:
     sprintf(name,"ARK_VECTOROP_ERR");

@@ -111,8 +111,11 @@ ARKodeMem arkCreate()
   ark_mem->ConstraintsMallocDone = SUNFALSE;
 
   /* No user-supplied step postprocessing function yet */
-  ark_mem->ProcessStep = NULL;
-  ark_mem->ps_data     = NULL;
+  ark_mem->ProcessStep  = NULL;
+  ark_mem->ps_data      = NULL;
+
+  /* No user-supplied stage postprocessing function yet */
+  ark_mem->ProcessStage = NULL;
 
   /* No user_data pointer yet */
   ark_mem->user_data = NULL;
@@ -2286,7 +2289,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
     retval = ark_mem->ProcessStep(ark_mem->tcur,
                                   ark_mem->ycur,
                                   ark_mem->ps_data);
-    if (retval != 0) return(ARK_POSTPROCESS_FAIL);
+    if (retval != 0) return(ARK_POSTPROCESS_STEP_FAIL);
   }
 
   /* update interpolation structure */
@@ -2397,6 +2400,14 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
   case ARK_USER_PREDICT_FAIL:
     arkProcessError(ark_mem, ARK_USER_PREDICT_FAIL, "ARKode", "ARKode",
                     MSG_ARK_USER_PREDICT_FAIL, ark_mem->tcur);
+    break;
+  case ARK_POSTPROCESS_STEP_FAIL:
+    arkProcessError(ark_mem, ARK_POSTPROCESS_STEP_FAIL, "ARKode", "ARKode",
+                    MSG_ARK_POSTPROCESS_STEP_FAIL, ark_mem->tcur);
+    break;
+  case ARK_POSTPROCESS_STAGE_FAIL:
+    arkProcessError(ark_mem, ARK_POSTPROCESS_STAGE_FAIL, "ARKode", "ARKode",
+                    MSG_ARK_POSTPROCESS_STAGE_FAIL, ark_mem->tcur);
     break;
   default:
     /* This return should never happen */

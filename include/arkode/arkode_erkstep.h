@@ -138,7 +138,9 @@ SUNDIALS_EXPORT int ERKStepSetDiagnostics(void *arkode_mem,
                                           FILE *diagfp);
 
 SUNDIALS_EXPORT int ERKStepSetPostprocessStepFn(void *arkode_mem,
-                                                ARKPostProcessStepFn ProcessStep);
+                                                ARKPostProcessFn ProcessStep);
+SUNDIALS_EXPORT int ERKStepSetPostprocessStageFn(void *arkode_mem,
+                                                 ARKPostProcessFn ProcessStage);
 
 
 /* Integrate the ODE over an interval in t */

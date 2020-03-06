@@ -53,8 +53,11 @@ int MRIStepSetRootDirection(void *arkode_mem, int *rootdir) {
 int MRIStepSetNoInactiveRootWarn(void *arkode_mem) {
   return(arkSetNoInactiveRootWarn(arkode_mem)); }
 int MRIStepSetPostprocessStepFn(void *arkode_mem,
-                                ARKPostProcessStepFn ProcessStep) {
+                                ARKPostProcessFn ProcessStep) {
   return(arkSetPostprocessStepFn(arkode_mem, ProcessStep)); }
+int MRIStepSetPostprocessStageFn(void *arkode_mem,
+                                 ARKPostProcessFn ProcessStage) {
+  return(arkSetPostprocessStageFn(arkode_mem, ProcessStage)); }
 
 
 /*===============================================================

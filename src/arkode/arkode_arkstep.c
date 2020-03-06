@@ -1656,6 +1656,16 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
     }
 
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    /* With internally inconsistent IMEX methods (c_i^E != c_i^I) the value of
+       tcur corresponds to the stage time from the implicit table (c_i^I).     */
+    if (ark_mem->ProcessStage != NULL) {
+      retval = ark_mem->ProcessStage(ark_mem->tcur,
+                                     ark_mem->ycur,
+                                     ark_mem->user_data);
+      if (retval != 0) return(ARK_POSTPROCESS_STAGE_FAIL);
+    }
+
     /* successful stage solve */
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {

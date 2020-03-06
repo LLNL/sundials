@@ -326,8 +326,11 @@ typedef struct ARKodeMemRec {
   ARKodeRootMem root_mem;          /* root-finding structure */
 
   /* User-supplied step solution post-processing function */
-  ARKPostProcessStepFn ProcessStep;
+  ARKPostProcessFn ProcessStep;
   void*                ps_data; /* pointer to user_data */
+
+  /* User-supplied stage solution post-processing function */
+  ARKPostProcessFn ProcessStage;
 
 } *ARKodeMem;
 
@@ -871,7 +874,9 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed);
 int arkSetRootDirection(void *arkode_mem, int *rootdir);
 int arkSetNoInactiveRootWarn(void *arkode_mem);
 int arkSetPostprocessStepFn(void *arkode_mem,
-                            ARKPostProcessStepFn ProcessStep);
+                            ARKPostProcessFn ProcessStep);
+int arkSetPostprocessStageFn(void *arkode_mem,
+                             ARKPostProcessFn ProcessStage);
 int arkSetConstraints(void *arkode_mem, N_Vector constraints);
 int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails);
 int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac);
@@ -1003,6 +1008,8 @@ char *arkGetReturnFlagName(long int flag);
 #define MSG_ARKADAPT_NO_MEM    "Adaptivity memory structure not allocated."
 #define MSG_ARK_VECTOROP_ERR      "At " MSG_TIME ", a vector operation failed."
 #define MSG_ARK_INNERSTEP_FAILED  "At " MSG_TIME ", the inner stepper failed in an unrecoverable manner."
+#define MSG_ARK_POSTPROCESS_STEP_FAIL "At " MSG_TIME ", the step postprocessing routine failed in an unrecoverable manner."
+#define MSG_ARK_POSTPROCESS_STAGE_FAIL "At " MSG_TIME ", the stage postprocessing routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

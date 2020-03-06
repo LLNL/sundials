@@ -714,6 +714,14 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->ycur);
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL) {
+      retval = ark_mem->ProcessStage(ark_mem->tcur,
+                                     ark_mem->ycur,
+                                     ark_mem->user_data);
+      if (retval != 0) return(ARK_POSTPROCESS_STAGE_FAIL);
+    }
+
     /* compute updated RHS */
     retval = step_mem->f(ark_mem->tcur, ark_mem->ycur,
                          step_mem->F[is], ark_mem->user_data);

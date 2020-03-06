@@ -1111,15 +1111,29 @@ SWIGEXPORT int _wrap_FARKStepSetDiagnostics(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetPostprocessStepFn(void *farg1, ARKPostProcessStepFn farg2) {
+SWIGEXPORT int _wrap_FARKStepSetPostprocessStepFn(void *farg1, ARKPostProcessFn farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  ARKPostProcessStepFn arg2 = (ARKPostProcessStepFn) 0 ;
+  ARKPostProcessFn arg2 = (ARKPostProcessFn) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (ARKPostProcessStepFn)(farg2);
+  arg2 = (ARKPostProcessFn)(farg2);
   result = (int)ARKStepSetPostprocessStepFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetPostprocessStageFn(void *farg1, ARKPostProcessFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKPostProcessFn arg2 = (ARKPostProcessFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKPostProcessFn)(farg2);
+  result = (int)ARKStepSetPostprocessStageFn(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

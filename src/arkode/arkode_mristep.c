@@ -849,6 +849,14 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (retval != 0) return(ARK_INNERTOOUTER_FAIL);
     }
 
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL) {
+      retval = ark_mem->ProcessStage(ark_mem->tcur,
+                                     ark_mem->ycur,
+                                     ark_mem->user_data);
+      if (retval != 0) return(ARK_POSTPROCESS_STAGE_FAIL);
+    }
+
     /* compute updated slow RHS */
     retval = step_mem->fs(ark_mem->tcur, ark_mem->ycur,
                           step_mem->F[is], ark_mem->user_data);

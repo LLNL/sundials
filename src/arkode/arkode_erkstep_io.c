@@ -69,8 +69,11 @@ int ERKStepSetConstraints(void *arkode_mem, N_Vector constraints) {
 int ERKStepSetMaxNumConstrFails(void *arkode_mem, int maxfails) {
   return(arkSetMaxNumConstrFails(arkode_mem, maxfails)); }
 int ERKStepSetPostprocessStepFn(void *arkode_mem,
-                                ARKPostProcessStepFn ProcessStep) {
+                                ARKPostProcessFn ProcessStep) {
   return(arkSetPostprocessStepFn(arkode_mem, ProcessStep)); }
+int ERKStepSetPostprocessStageFn(void *arkode_mem,
+                                ARKPostProcessFn ProcessStage) {
+  return(arkSetPostprocessStageFn(arkode_mem, ProcessStage)); }
 int ERKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac) {
   return(arkSetCFLFraction(arkode_mem, cfl_frac)); }
 int ERKStepSetSafetyFactor(void *arkode_mem, realtype safety) {
