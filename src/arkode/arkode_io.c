@@ -58,12 +58,12 @@ int arkSetDefaults(void *arkode_mem)
   /* Set default values for integrator optional inputs */
   ark_mem->dense_q                 = QDENSE_DEF;     /* dense output order */
   ark_mem->fixedstep               = SUNFALSE;       /* default to use adaptive steps */
-  ark_mem->reltol                  = 1.e-4;          /* relative tolerance */
+  ark_mem->reltol                  = RCONST(1.e-4);  /* relative tolerance */
   ark_mem->itol                    = ARK_SS;         /* scalar-scalar solution tolerances */
   ark_mem->ritol                   = ARK_SS;         /* scalar-scalar residual tolerances */
-  ark_mem->Sabstol                 = 1.e-9;          /* solution absolute tolerance */
+  ark_mem->Sabstol                 = RCONST(1.e-9);  /* solution absolute tolerance */
   ark_mem->atolmin0                = SUNFALSE;       /* min(abstol) > 0 */
-  ark_mem->SRabstol                = 1.e-9;          /* residual absolute tolerance */
+  ark_mem->SRabstol                = RCONST(1.e-9);  /* residual absolute tolerance */
   ark_mem->Ratolmin0               = SUNFALSE;       /* min(Rabstol) > 0 */
   ark_mem->user_efun               = SUNFALSE;       /* no user-supplied ewt function */
   ark_mem->efun                    = arkEwtSetSS;    /* built-in scalar-scalar ewt function */
@@ -706,7 +706,7 @@ int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* check for allowable parameters */
-  if (cfl_frac >= 1.0) {
+  if (cfl_frac >= ONE) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                     "arkSetCFLFraction", "Illegal CFL fraction");
     return(ARK_ILL_INPUT);
@@ -741,7 +741,7 @@ int arkSetSafetyFactor(void *arkode_mem, realtype safety)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* check for allowable parameters */
-  if (safety >= 1.0) {
+  if (safety >= ONE) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                     "arkSetSafetyFactor", "Illegal safety factor");
     return(ARK_ILL_INPUT);
@@ -775,7 +775,7 @@ int arkSetErrorBias(void *arkode_mem, realtype bias)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* set allowed value, otherwise set default */
-  if (bias < 1.0) {
+  if (bias < ONE) {
     hadapt_mem->bias = BIAS;
   } else {
     hadapt_mem->bias = bias;
@@ -830,7 +830,7 @@ int arkSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* set allowable interval, otherwise set defaults */
-  if ((lb <= 1.0) && (ub >= 1.0)) {
+  if ((lb <= ONE) && (ub >= ONE)) {
     hadapt_mem->lbound = lb;
     hadapt_mem->ubound = ub;
   } else {

@@ -213,8 +213,8 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
 
   /* Update time-stepping parameters */
   /*   adjust upcoming step size depending on hscale */
-  if (hscale < 0.0)  hscale = 1.0;
-  if (hscale != 1.0) {
+  if (hscale < ZERO)  hscale = ONE;
+  if (hscale != ONE) {
 
     /* Encode hscale into ark_mem structure */
     ark_mem->eta = hscale;

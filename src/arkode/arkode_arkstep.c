@@ -181,7 +181,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   step_mem->msolve_type = -1;
 
   /* Initialize initial error norm  */
-  step_mem->eRNrm = 1.0;
+  step_mem->eRNrm = ONE;
 
   /* Initialize all the counters */
   step_mem->nst_attempts = 0;
@@ -366,7 +366,7 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
   step_mem->fi = fi;
 
   /* Initialize initial error norm  */
-  step_mem->eRNrm = 1.0;
+  step_mem->eRNrm = ONE;
 
   /* ReInitialize main ARKode infrastructure */
   retval = arkReInit(ark_mem, t0, y0);
