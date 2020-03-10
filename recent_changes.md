@@ -7,6 +7,9 @@ IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
 it is recommended to set `CMAKE_Fortran_COMPILER` to `f2003`, `xlf2003`, or
 `xlf2003_r`.
 
+Fixed a linkage bug affecting Windows users that stemmed from dllimport/dllexport
+attribute missing on some SUNDIALS API functions.
+
 Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver. 
 In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the 
 lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling 

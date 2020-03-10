@@ -106,6 +106,10 @@ IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
 it is recommended to set \id{CMAKE\_Fortran\_COMPILER} to \id{f2003},
 \id{xlf2003}, or \id{xlf2003\_r}.
 
+Fixed a linkage bug affecting Windows users that stemmed from dllimport/dllexport
+attributes missing on some SUNDIALS API functions.
+
+
 \subsection*{Changes in v5.1.0}
 
 Fixed a build system bug related to finding LAPACK/BLAS.
