@@ -1225,9 +1225,6 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   /* Initialize the interpolation structure to NULL */
   ark_mem->interp = NULL;
 
-  /* Set first step growth factor */
-  ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->etamx1;
-
   /* All error checking is complete at this point */
 
   /* Copy the input parameters into ARKode state */
@@ -1319,7 +1316,6 @@ int arkReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   ark_mem->hadapt_mem->hhist[1] = ZERO;
   ark_mem->hadapt_mem->nst_acc  = 0;
   ark_mem->hadapt_mem->nst_exp  = 0;
-  ark_mem->hadapt_mem->etamax   = ark_mem->hadapt_mem->etamx1;
 
   /* Initialize all the counters */
   ark_mem->nst_attempts = 0;
@@ -1816,6 +1812,9 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
   /* Set initial time step factors */
   ark_mem->h0u    = ark_mem->h;
   ark_mem->hprime = ark_mem->h;
+
+  /* Set first step growth factor */
+  ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->etamx1;
 
   /* Check for zeros of root function g at and near t0. */
   if (ark_mem->root_mem != NULL)
