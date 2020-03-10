@@ -212,6 +212,8 @@ int ARKStepSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys) {
   ARKStep Optional output functions (wrappers for generic ARKode
   utility routines).  All are documented in arkode_io.c.
   ===============================================================*/
+int ARKStepGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts) {
+  return(arkGetNumStepAttempts(arkode_mem, nstep_attempts)); }
 int ARKStepGetNumSteps(void *arkode_mem, long int *nsteps) {
   return(arkGetNumSteps(arkode_mem, nsteps)); }
 int ARKStepGetActualInitStep(void *arkode_mem, realtype *hinused) {
@@ -1296,29 +1298,6 @@ int ARKStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
 
 
 /*---------------------------------------------------------------
-  ARKStepGetNumStepAttempts:
-
-  Returns the current number of steps attempted by the solver
-  ---------------------------------------------------------------*/
-int ARKStepGetNumStepAttempts(void *arkode_mem, long int *nsteps)
-{
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumStepAttempts",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* get value from step_mem */
-  *nsteps = step_mem->nst_attempts;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
   ARKStepGetNumRhsEvals:
 
   Returns the current number of calls to fe and fi
@@ -1440,8 +1419,8 @@ int ARKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
   *expsteps = ark_mem->hadapt_mem->nst_exp;
   *accsteps = ark_mem->hadapt_mem->nst_acc;
 
-  /* set remaining outputs from step_mem */
-  *step_attempts = step_mem->nst_attempts;
+  /* set remaining outputs */
+  *step_attempts = ark_mem->nst_attempts;
   *fe_evals      = step_mem->nfe;
   *fi_evals      = step_mem->nfi;
   *nlinsetups    = step_mem->nsetups;

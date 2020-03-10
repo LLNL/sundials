@@ -108,6 +108,8 @@ int ERKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
   utility routines). All are documented in arkode_io.c.
   ===============================================================*/
 
+int ERKStepGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts) {
+  return(arkGetNumStepAttempts(arkode_mem, nstep_attempts)); }
 int ERKStepGetNumSteps(void *arkode_mem, long int *nsteps) {
   return(arkGetNumSteps(arkode_mem, nsteps)); }
 int ERKStepGetActualInitStep(void *arkode_mem, realtype *hinused) {
@@ -330,29 +332,6 @@ int ERKStepSetTableNum(void *arkode_mem, int itable)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ERKStepGetNumStepAttempts:
-
-  Returns the current number of steps attempted by the solver
-  ---------------------------------------------------------------*/
-int ERKStepGetNumStepAttempts(void *arkode_mem, long int *nsteps)
-{
-  ARKodeMem ark_mem;
-  ARKodeERKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepGetNumStepAttempts",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* get value from step_mem */
-  *nsteps = step_mem->nst_attempts;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
   ERKStepGetNumRhsEvals:
 
   Returns the current number of calls to fe and fi
@@ -446,7 +425,7 @@ int ERKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
   *accsteps = ark_mem->hadapt_mem->nst_acc;
 
   /* set remaining outputs from step_mem */
-  *attempts = step_mem->nst_attempts;
+  *attempts = ark_mem->nst_attempts;
   *fevals   = step_mem->nfe;
   *netfails = ark_mem->netf;
 

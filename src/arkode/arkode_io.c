@@ -1131,6 +1131,26 @@ int arkSetMaxConvFails(void *arkode_mem, int maxncf)
   ===============================================================*/
 
 /*---------------------------------------------------------------
+  arkGetNumStepAttempts:
+
+   Returns the current number of steps attempted by the solver
+  ---------------------------------------------------------------*/
+int arkGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkGetNumStepAttempts", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  *nstep_attempts = ark_mem->nst_attempts;
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   arkGetNumSteps:
 
   Returns the current number of integration steps

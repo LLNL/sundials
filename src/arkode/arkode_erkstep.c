@@ -119,8 +119,7 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
   ark_mem->lrw += 10;
 
   /* Initialize all the counters */
-  step_mem->nst_attempts = 0;
-  step_mem->nfe          = 0;
+  step_mem->nfe = 0;
 
   /* Initialize main ARKode infrastructure */
   retval = arkInit(ark_mem, t0, y0);
@@ -219,8 +218,7 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
   }
 
   /* Initialize all the counters */
-  step_mem->nst_attempts = 0;
-  step_mem->nfe          = 0;
+  step_mem->nfe = 0;
 
   return(ARK_SUCCESS);
 }
@@ -399,7 +397,6 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile,"ERKStep: stages = %i\n", step_mem->stages);
 
   /* output long integer quantities */
-  fprintf(outfile,"ERKStep: nst_attempts = %li\n", step_mem->nst_attempts);
   fprintf(outfile,"ERKStep: nfe = %li\n", step_mem->nfe);
 
   /* output realtype quantities */
@@ -673,9 +670,6 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   /* local shortcuts for fused vector operations */
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
-
-  /* increment attempt counter */
-  step_mem->nst_attempts++;
 
 #ifdef DEBUG_OUTPUT
   printf("stage 0 RHS:\n");

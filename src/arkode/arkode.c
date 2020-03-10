@@ -824,6 +824,9 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     nflag = FIRST_CALL;
     for(;;) {
 
+      /* increment attempt counter */
+      ark_mem->nst_attempts++;
+
       /* Call time stepper module to attempt a step:
             0 => step completed successfully
            >0 => step encountered recoverable failure; reduce step if possible
@@ -1239,10 +1242,11 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   N_VScale(ONE, y0, ark_mem->yn);
 
   /* Initialize all the counters */
-  ark_mem->nst   = 0;
-  ark_mem->nhnil = 0;
-  ark_mem->ncfn  = 0;
-  ark_mem->netf  = 0;
+  ark_mem->nst_attempts = 0;
+  ark_mem->nst          = 0;
+  ark_mem->nhnil        = 0;
+  ark_mem->ncfn         = 0;
+  ark_mem->netf         = 0;
 
   /* Initialize other integrator optional outputs */
   ark_mem->h0u    = ZERO;
@@ -1318,10 +1322,11 @@ int arkReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   ark_mem->hadapt_mem->etamax   = ark_mem->hadapt_mem->etamx1;
 
   /* Initialize all the counters */
-  ark_mem->nst   = 0;
-  ark_mem->nhnil = 0;
-  ark_mem->ncfn  = 0;
-  ark_mem->netf  = 0;
+  ark_mem->nst_attempts = 0;
+  ark_mem->nst          = 0;
+  ark_mem->nhnil        = 0;
+  ark_mem->ncfn         = 0;
+  ark_mem->netf         = 0;
 
   /* Indicate that problem size is new */
   ark_mem->resized    = SUNTRUE;
@@ -1370,9 +1375,10 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
 
   /* output counters */
   fprintf(outfile, "ark_nhnil = %i\n", ark_mem->nhnil);
+  fprintf(outfile, "ark_nst_attempts = %li\n", ark_mem->nst_attempts);
   fprintf(outfile, "ark_nst = %li\n", ark_mem->nst);
-  fprintf(outfile," ark_ncfn = %li\n", ark_mem->ncfn);
-  fprintf(outfile," ark_netf = %li\n", ark_mem->netf);
+  fprintf(outfile, "ark_ncfn = %li\n", ark_mem->ncfn);
+  fprintf(outfile, "ark_netf = %li\n", ark_mem->netf);
 
   /* output time-stepping values */
   fprintf(outfile, "ark_hin = %" RSYM"\n", ark_mem->hin);

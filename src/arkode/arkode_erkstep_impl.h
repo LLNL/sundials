@@ -56,7 +56,6 @@ typedef struct ARKodeERKStepMemRec {
   ARKodeButcherTable B;   /* ERK Butcher table          */
 
   /* Counters */
-  long int nst_attempts;  /* num attempted steps        */
   long int nfe;           /* num fe calls               */
 
   /* Reusable arrays for fused vector operations */

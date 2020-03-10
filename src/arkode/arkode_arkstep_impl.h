@@ -80,7 +80,7 @@ typedef struct ARKodeARKStepMemRec {
 
   /* User-supplied stage predictor routine */
   ARKStepStagePredictFn stage_predict;
-  
+
   /* (Non)Linear solver parameters & data */
   SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
   booleantype     ownNLS;   /* flag indicating ownership of NLS      */
@@ -128,10 +128,9 @@ typedef struct ARKodeARKStepMemRec {
   int msolve_type;  /* interface type: 0=iterative; 1=direct; 2=custom */
 
   /* Counters */
-  long int nst_attempts;  /* num attempted steps                */
-  long int nfe;           /* num fe calls                       */
-  long int nfi;           /* num fi calls                       */
-  long int nsetups;       /* num setup calls                    */
+  long int nfe;      /* num fe calls    */
+  long int nfi;      /* num fi calls    */
+  long int nsetups;  /* num setup calls */
 
   /* Reusable arrays for fused vector operations */
   realtype *cvals;         /* scalar array for fused ops       */

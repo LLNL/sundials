@@ -288,6 +288,7 @@ typedef struct ARKodeMemRec {
   int      maxncf;         /* max num alg. solver conv. fails in one step    */
 
   /* Counters */
+  long int nst_attempts;  /* number of attempted steps                  */
   long int nst;           /* number of internal steps taken             */
   int      nhnil;         /* number of messages issued to the user that
                              t+h == t for the next iternal step         */
@@ -895,6 +896,7 @@ int arkSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data);
 int arkSetMaxErrTestFails(void *arkode_mem, int maxnef);
 int arkSetMaxConvFails(void *arkode_mem, int maxncf);
 int arkGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw);
+int arkGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts);
 int arkGetNumSteps(void *arkode_mem, long int *nsteps);
 int arkGetActualInitStep(void *arkode_mem, realtype *hinused);
 int arkGetLastStep(void *arkode_mem, realtype *hlast);

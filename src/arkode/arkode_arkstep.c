@@ -184,11 +184,10 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   step_mem->eRNrm = ONE;
 
   /* Initialize all the counters */
-  step_mem->nst_attempts = 0;
-  step_mem->nfe          = 0;
-  step_mem->nfi          = 0;
-  step_mem->nsetups      = 0;
-  step_mem->nstlp        = 0;
+  step_mem->nfe     = 0;
+  step_mem->nfi     = 0;
+  step_mem->nsetups = 0;
+  step_mem->nstlp   = 0;
 
   /* Initialize fused op work space */
   step_mem->cvals        = NULL;
@@ -377,11 +376,10 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
   }
 
   /* Initialize all the counters */
-  step_mem->nst_attempts = 0;
-  step_mem->nfe          = 0;
-  step_mem->nfi          = 0;
-  step_mem->nsetups      = 0;
-  step_mem->nstlp        = 0;
+  step_mem->nfe     = 0;
+  step_mem->nfi     = 0;
+  step_mem->nsetups = 0;
+  step_mem->nstlp   = 0;
 
   return(ARK_SUCCESS);
 }
@@ -682,7 +680,6 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile,"ARKStep: convfail = %i\n", step_mem->convfail);
 
   /* output long integer quantities */
-  fprintf(outfile,"ARKStep: nst_attempts = %li\n", step_mem->nst_attempts);
   fprintf(outfile,"ARKStep: nfe = %li\n", step_mem->nfe);
   fprintf(outfile,"ARKStep: nfi = %li\n", step_mem->nfi);
   fprintf(outfile,"ARKStep: nsetups = %li\n", step_mem->nsetups);
@@ -1547,9 +1544,6 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   /* if problem will involve no algebraic solvers, initialize nflagPtr to success */
   if (!step_mem->implicit && (step_mem->mass_mem == NULL))
     *nflagPtr = ARK_SUCCESS;
-
-  /* increment attempt counter */
-  step_mem->nst_attempts++;
 
   /* call nonlinear solver setup if it exists */
   if (step_mem->NLS)
