@@ -82,6 +82,8 @@ int ERKStepSetErrorBias(void *arkode_mem, realtype bias) {
   return(arkSetErrorBias(arkode_mem, bias)); }
 int ERKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth) {
   return(arkSetMaxGrowth(arkode_mem, mx_growth)); }
+int ERKStepSetMinReduction(void *arkode_mem, realtype eta_min) {
+  return(arkSetMinReduction(arkode_mem, eta_min)); }
 int ERKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub) {
   return(arkSetFixedStepBounds(arkode_mem, lb, ub)); }
 int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,

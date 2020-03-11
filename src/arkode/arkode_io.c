@@ -88,6 +88,7 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->report                  = SUNFALSE;       /* don't report solver diagnostics */
   ark_mem->hadapt_mem->etamx1      = ETAMX1;         /* max change on first step */
   ark_mem->hadapt_mem->etamxf      = ETAMXF;         /* max change on error-failed step */
+  ark_mem->hadapt_mem->etamin      = ETAMIN;         /* min bound on time step reduction */
   ark_mem->hadapt_mem->small_nef   = SMALL_NEF;      /* num error fails before ETAMXF enforced */
   ark_mem->hadapt_mem->etacf       = ETACF;          /* max change on convergence failure */
   ark_mem->hadapt_mem->HAdapt      = NULL;           /* step adaptivity fn */
@@ -803,10 +804,38 @@ int arkSetMaxGrowth(void *arkode_mem, realtype mx_growth)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* set allowed value, otherwise set default */
-  if (mx_growth == ZERO) {
+  if (mx_growth <= ONE) {
     hadapt_mem->growth = GROWTH;
   } else {
     hadapt_mem->growth = mx_growth;
+  }
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkSetMinReduction:
+
+  Specifies the minimum possible step size reduction factor to be
+  allowed between successive integration steps. Allowable values
+  must be > 0.0 and < 1.0. Any illegal value implies a reset to
+  the default.
+  ---------------------------------------------------------------*/
+int arkSetMinReduction(void *arkode_mem, realtype eta_min)
+{
+  int retval;
+  ARKodeHAdaptMem hadapt_mem;
+  ARKodeMem ark_mem;
+  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMinReduction",
+                              &ark_mem, &hadapt_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* set allowed value, otherwise set default */
+  if (eta_min >= ONE || eta_min <= ZERO) {
+    hadapt_mem->etamin = ETAMIN;
+  } else {
+    hadapt_mem->etamin = eta_min;
   }
 
   return(ARK_SUCCESS);

@@ -1051,6 +1051,7 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
    :c:func:`ARKStepSetMaxEFailGrowth()`,
    :c:func:`ARKStepSetMaxFirstGrowth()`,
    :c:func:`ARKStepSetMaxGrowth()`,
+   :c:func:`ARKStepSetMinReduction()`,
    :c:func:`ARKStepSetSafetyFactor()`,
    :c:func:`ARKStepSetSmallNumEFails()` and
    :c:func:`ARKStepSetStabilityFn()`
@@ -1524,22 +1525,23 @@ the code, is provided in the section :ref:`Mathematics.Adaptivity`.
 
 .. cssclass:: table-bordered
 
-==============================================  ======================================  ========
-Optional input                                  Function name                           Default
-==============================================  ======================================  ========
-Set a custom time step adaptivity function      :c:func:`ARKStepSetAdaptivityFn()`      internal
-Choose an existing time step adaptivity method  :c:func:`ARKStepSetAdaptivityMethod()`  0
-Explicit stability safety factor                :c:func:`ARKStepSetCFLFraction()`       0.5
-Time step error bias factor                     :c:func:`ARKStepSetErrorBias()`         1.5
-Bounds determining no change in step size       :c:func:`ARKStepSetFixedStepBounds()`   1.0  1.5
-Maximum step growth factor on convergence fail  :c:func:`ARKStepSetMaxCFailGrowth()`    0.25
-Maximum step growth factor on error test fail   :c:func:`ARKStepSetMaxEFailGrowth()`    0.3
-Maximum first step growth factor                :c:func:`ARKStepSetMaxFirstGrowth()`    10000.0
-Maximum general step growth factor              :c:func:`ARKStepSetMaxGrowth()`         20.0
-Time step safety factor                         :c:func:`ARKStepSetSafetyFactor()`      0.96
-Error fails before MaxEFailGrowth takes effect  :c:func:`ARKStepSetSmallNumEFails()`    2
-Explicit stability function                     :c:func:`ARKStepSetStabilityFn()`       none
-==============================================  ======================================  ========
+========================================================   ======================================  ========
+Optional input                                             Function name                           Default
+========================================================   ======================================  ========
+Set a custom time step adaptivity function                 :c:func:`ARKStepSetAdaptivityFn()`      internal
+Choose an existing time step adaptivity method             :c:func:`ARKStepSetAdaptivityMethod()`  0
+Explicit stability safety factor                           :c:func:`ARKStepSetCFLFraction()`       0.5
+Time step error bias factor                                :c:func:`ARKStepSetErrorBias()`         1.5
+Bounds determining no change in step size                  :c:func:`ARKStepSetFixedStepBounds()`   1.0  1.5
+Maximum step growth factor on convergence fail             :c:func:`ARKStepSetMaxCFailGrowth()`    0.25
+Maximum step growth factor on error test fail              :c:func:`ARKStepSetMaxEFailGrowth()`    0.3
+Maximum first step growth factor                           :c:func:`ARKStepSetMaxFirstGrowth()`    10000.0
+Maximum allowed general step growth factor                 :c:func:`ARKStepSetMaxGrowth()`         20.0
+Minimum allowed step reduction factor on error test fail   :c:func:`ARKStepSetMinReduction()`      0.1
+Time step safety factor                                    :c:func:`ARKStepSetSafetyFactor()`      0.96
+Error fails before MaxEFailGrowth takes effect             :c:func:`ARKStepSetSmallNumEFails()`    2
+Explicit stability function                                :c:func:`ARKStepSetStabilityFn()`       none
+========================================================   ======================================  ========
 
 
 
@@ -1690,7 +1692,7 @@ Explicit stability function                     :c:func:`ARKStepSetStabilityFn()
 
 .. c:function:: int ARKStepSetMaxFirstGrowth(void* arkode_mem, realtype etamx1)
 
-   Specifies the maximum allowed step size change following the very
+   Specifies the maximum allowed growth factor in step size following the very
    first integration step.
 
    **Arguments:**
@@ -1709,12 +1711,12 @@ Explicit stability function                     :c:func:`ARKStepSetStabilityFn()
 
 .. c:function:: int ARKStepSetMaxGrowth(void* arkode_mem, realtype mx_growth)
 
-   Specifies the maximum growth of the step size between consecutive
-   steps in the integration process.
+   Specifies the maximum allowed growth factor in step size between
+   consecutive steps in the integration process.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *growth* -- maximum allowed growth factor between consecutive time steps (default is 20.0).
+      * *mx_growth* -- maximum allowed growth factor between consecutive time steps (default is 20.0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1723,6 +1725,27 @@ Explicit stability function                     :c:func:`ARKStepSetStabilityFn()
 
    **Notes:** Any value :math:`\le 1.0` will imply a reset to the default
    value.
+
+
+
+.. c:function:: int ARKStepSetMinReduction(void* arkode_mem, realtype eta_min)
+
+   Specifies the minimum allowed reduction factor in step size between
+   step attempts, resulting from a temporal error failure in the integration
+   process.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *eta_min* -- minimum allowed reduction factor time step after an error
+        test failure (default is 0.1).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:** Any value :math:`\ge 1.0` or :math:`\le 0.0` will imply a reset to
+   the default value.
 
 
 

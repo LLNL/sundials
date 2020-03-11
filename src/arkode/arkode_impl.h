@@ -884,6 +884,7 @@ int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac);
 int arkSetSafetyFactor(void *arkode_mem, realtype safety);
 int arkSetErrorBias(void *arkode_mem, realtype bias);
 int arkSetMaxGrowth(void *arkode_mem, realtype mx_growth);
+int arkSetMinReduction(void *arkode_mem, realtype eta_min);
 int arkSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub);
 int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                            int pq, realtype adapt_params[3]);

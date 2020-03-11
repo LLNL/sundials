@@ -15,10 +15,10 @@ factor using the error weight vector, `ewt`; this fix changes that to the residu
 Fixed a linkage bug affecting Windows users that stemmed from dllimport/dllexport
 attribute missing on some SUNDIALS API functions.
 
-Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver. 
-In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the 
-lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling 
-factor using the error weight vector, `ewt`; this fix changes that to the residual weight vector, 
+Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver.
+In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the
+lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling
+factor using the error weight vector, `ewt`; this fix changes that to the residual weight vector,
 `rwt`, that can differ from `ewt` when solving problems with non-identity mass matrix.
 
 Fixed a similar bug in how ARKode interfaces with scaled linear solvers when solving problems
@@ -27,6 +27,10 @@ and the right scaling matrix with `ewt`; these were reversed but are now correct
 
 Fixed a bug where a non-default value for the maximum allowed growth factor
 after the first step would be ignored.
+
+Added two new functions, `ARKStepSetMinReduction()` and
+`ERKStepSetMinReduction()` to change the minimum allowed step size reduction factor
+after an error test failure.
 
 
 ## Changes to SUNDIALS in release 5.1.0

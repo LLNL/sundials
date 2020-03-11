@@ -128,6 +128,10 @@ and the right scaling matrix with ``ewt``; these were reversed but are now corre
 Fixed a bug where a non-default value for the maximum allowed growth factor
 after the first step would be ignored.
 
+Added two new functions, :c:func:`ARKStepSetMinReduction()` and
+:c:func:`ERKStepSetMinReduction()`, to change the minimum allowed step size
+reduction factor after an error test failure.
+
 
 Changes in 4.1.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
