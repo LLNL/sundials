@@ -3450,6 +3450,12 @@ void IDASensFree(void *ida_mem)
     IDA_mem->ownNLSstg = SUNFALSE;
     IDA_mem->NLSstg = NULL;
   }
+
+  /* free min atol array if necessary */
+  if (IDA_mem->ida_atolSmin0) {
+    free(IDA_mem->ida_atolSmin0);
+    IDA_mem->ida_atolSmin0 = NULL;
+  }
 }
 
 /*
@@ -3470,6 +3476,12 @@ void IDAQuadSensFree(void* ida_mem)
     IDAQuadSensFreeVectors(IDA_mem);
     IDA_mem->ida_quadSensMallocDone=SUNFALSE;
     IDA_mem->ida_quadr_sensi = SUNFALSE;
+  }
+
+  /* free min atol array if necessary */
+  if (IDA_mem->ida_atolQSmin0) {
+    free(IDA_mem->ida_atolQSmin0);
+    IDA_mem->ida_atolQSmin0 = NULL;
   }
 }
 

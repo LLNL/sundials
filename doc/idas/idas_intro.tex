@@ -97,6 +97,9 @@ it is recommended to set \id{CMAKE\_Fortran\_COMPILER} to \id{f2003},
 Fixed a linkage bug affecting Windows users that stemmed from dllimport/dllexport
 attributes missing on some SUNDIALS API functions.
 
+Fixed a memory leak from not deallocating the \id{atolSmin0} and \id{atolQSmin0}
+arrays.
+
 \subsection*{Changes in v4.1.0}
 
 Fixed a build system bug related to finding LAPACK/BLAS.

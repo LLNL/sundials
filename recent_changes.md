@@ -25,6 +25,9 @@ Fixed a similar bug in how ARKode interfaces with scaled linear solvers when sol
 with non-identity mass matrices.  Here, the left scaling matrix should correspond with `rwt`
 and the right scaling matrix with `ewt`; these were reversed but are now correct.
 
+Fixed a memory leak in CVODES and IDAS from not deallocating the `atolSmin0` and
+`atolQSmin0` arrays.
+
 Fixed a bug where a non-default value for the maximum allowed growth factor
 after the first step would be ignored.
 

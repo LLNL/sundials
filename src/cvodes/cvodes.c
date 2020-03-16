@@ -4005,6 +4005,11 @@ void CVodeSensFree(void *cvode_mem)
     cv_mem->NLSstg1 = NULL;
   }
 
+  /* free min atol array if necessary */
+  if (cv_mem->cv_atolSmin0) {
+    free(cv_mem->cv_atolSmin0);
+    cv_mem->cv_atolSmin0 = NULL;
+  }
 }
 
 /*
@@ -4026,6 +4031,12 @@ void CVodeQuadSensFree(void *cvode_mem)
     cvQuadSensFreeVectors(cv_mem);
     cv_mem->cv_QuadSensMallocDone = SUNFALSE;
     cv_mem->cv_quadr_sensi = SUNFALSE;
+  }
+
+  /* free min atol array if necessary */
+  if (cv_mem->cv_atolQSmin0) {
+    free(cv_mem->cv_atolQSmin0);
+    cv_mem->cv_atolQSmin0 = NULL;
   }
 }
 
