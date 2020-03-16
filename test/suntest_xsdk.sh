@@ -199,13 +199,9 @@ installdir=${installdir}_${testtype}
 
 # ------------------------------------------------------------------------------
 # Setup the test environment
-# 1. User defined environment script
-# 2. User's local environment script
-# 3. User's global environment script
-# 4. Sundials default environment script
 # ------------------------------------------------------------------------------
 
-if [ ! -z "$SUNDIALS_ENV" ]; then
+if [ -n "$SUNDIALS_ENV" ]; then
     echo "Setting up environment with $SUNDIALS_ENV"
     time source $SUNDIALS_ENV $realtype $indexsize $compiler $bldtype
 elif [ -f env.sh ]; then
@@ -214,9 +210,17 @@ elif [ -f env.sh ]; then
 elif [ -f ~/.sundials_config/env.sh ]; then
     echo "Setting up environment with ~/.sundials_config/env.sh"
     time source ~/.sundials_config/env.sh $realtype $indexsize $compiler $bldtype
-else
+elif [ -f env/env.${HOSTNAME}.sh ]; then
+    echo "Setting up environment with env/env.${HOSTNAME}.sh"
+    time source env/env.${HOSTNAME}.sh $realtype $indexsize $compiler $bldtype
+elif [ -f env/env.${HOST}.sh ]; then
+    echo "Setting up environment with env/env.${HOST}.sh"
+    time source env/env.${HOST}.sh $realtype $indexsize $compiler $bldtype
+elif [ -f env/env.default.sh ]; then
     echo "Setting up environment with ./env.default.sh"
-    time source env.default.sh $realtype $indexsize $compiler $bldtype
+    time source env/env.default.sh $realtype $indexsize $compiler $bldtype
+else
+    echo "WARNING: No environment setup script found"
 fi
 
 # check return value
@@ -253,6 +257,9 @@ if [ "$TPLs" == "ON" ]; then
 
     # CUDA
     CUDA_STATUS=${CUDA_STATUS:-"OFF"}
+    if [ "$CUDA_STATUS" == "ON" ] && [ -z "$CUDA_ARCH" ]; then
+        export CUDA_ARCH=sm_30
+    fi
 
     # MPI
     MPI_STATUS=${MPI_STATUS:-"OFF"}
@@ -427,7 +434,9 @@ time cmake \
     \
     -D OPENMP_ENABLE="${OPENMP_STATUS}" \
     -D PTHREAD_ENABLE="${PTHREAD_STATUS}" \
+    \
     -D XSDK_ENABLE_CUDA="${CUDA_STATUS}" \
+    -D CUDA_ARCH="${CUDA_ARCH}" \
     \
     -D OPENMP_DEVICE_ENABLE="${OPENMPDEV_STATUS}" \
     -D SKIP_OPENMP_DEVICE_CHECK=TURE \

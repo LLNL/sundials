@@ -13,9 +13,6 @@
 # SUNDIALS Copyright End
 # -------------------------------------------------------------------------------
 # Script that sets up the environment for the suntest.sh when running on Ray.
-#
-# To use this environment script with suntest.sh, set the environment variable
-# SUNDIALS_ENV to this file (e.g., export SUNDIALS_ENV=./env.ray.sh).
 # -------------------------------------------------------------------------------
 
 module load xl

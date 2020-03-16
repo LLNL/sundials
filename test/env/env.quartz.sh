@@ -14,9 +14,6 @@
 # -------------------------------------------------------------------------------
 # Script that sets up the environment for SUNDIALS testing on Quartz.
 #
-# Note the environment variable SUNDIALS_ENV must to set to to env.quartz.sh to
-# use this setup script.
-#
 # Usage: source env.quartz.sh <real type> <index size> <compiler spec> \
 #                             <build type>
 #
