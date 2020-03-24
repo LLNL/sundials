@@ -15,7 +15,7 @@
 
 # Sphinx
 echo "installing Sphinx"
-pip install -U Sphinx==1.3.1
+pip install -U Sphinx==1.6.7
 
 # Sphinx fortran domain
 echo "installing Sphinx fortran domain"

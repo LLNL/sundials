@@ -878,11 +878,12 @@ Optional inputs for ARKStep
 
 .. cssclass:: table-bordered
 
-==================================================  =======================================  ==============
+==================================================  =======================================  =======================
 Optional input                                      Function name                            Default
-==================================================  =======================================  ==============
+==================================================  =======================================  =======================
 Return ARKStep solver parameters to their defaults  :c:func:`ARKStepSetDefaults()`           internal
-Set dense output order                              :c:func:`ARKStepSetDenseOrder()`         3
+Set dense output interpolation type                 :c:func:`ARKStepSetInterpolantType()`    ``ARK_INTERP_HERMITE``
+Set dense output polynomial degree                  :c:func:`ARKStepSetInterpolantDegree()`  5
 Supply a pointer to a diagnostics output file       :c:func:`ARKStepSetDiagnostics()`        ``NULL``
 Supply a pointer to an error output file            :c:func:`ARKStepSetErrFile()`            ``stderr``
 Supply a custom error handler function              :c:func:`ARKStepSetErrHandlerFn()`       internal fn
@@ -898,7 +899,7 @@ Maximum no. of ARKStep error test failures          :c:func:`ARKStepSetMaxErrTes
 Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalParams()`      internal
 Set inequality constraints on solution              :c:func:`ARKStepSetConstraints()`        ``NULL``
 Set max number of constraint failures               :c:func:`ARKStepSetMaxNumConstrFails()`  10
-==================================================  =======================================  ==============
+==================================================  =======================================  =======================
 
 
 
@@ -924,7 +925,37 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
 
 
 
-.. c:function:: int ARKStepSetDenseOrder(void* arkode_mem, int dord)
+.. c:function:: int ARKStepSetInterpolantType(void* arkode_mem, int itype)
+
+   Specifies use of the Lagrange or Hermite interpolation modules (used for
+   dense output -- interpolation of solution output values and implicit
+   method predictors).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *itype* -- requested interpolant type (``ARK_INTERP_HERMITE`` or ``ARK_INTERP_LAGRANGE``)
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_FAIL* if the interpolation module cannot be allocated
+      * *ARK_ILL_INPUT* if the *itype* argument is not recognized
+
+   **Notes:** The Hermite interpolation module is described in the Section
+   :ref:`Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
+   is described in the Section :ref:`Mathematics.Interpolation.Lagrange`.
+
+   This routine frees any previously-allocated interpolation module, and re-creates
+   one according to the specified argument.  Thus any previous calls to
+   :c:func:`ARKStepSetInterpolantDegree()` will be nullified.
+
+   This routine may only be called *after* the call to :c:func:`ARKStepCreate()`.
+
+   If this routine is not called, the Hermite interpolation module will be used.
+
+
+
+.. c:function:: int ARKStepSetInterpolantDegree(void* arkode_mem, int degree)
 
    Specifies the degree of the polynomial interpolant
    used for dense output (i.e. interpolation of solution output values
@@ -932,15 +963,34 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *dord* -- requested polynomial order of accuracy.
+      * *degree* -- requested polynomial degree.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_NULL* if the ARKStep memory or interpolation module are ``NULL``
+      * *ARK_INTERP_FAIL* if this is called after :c:func:`ARKStepEvolve()`
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
-   **Notes:** Allowed values are between 0 and ``min(q,5)``, where ``q`` is
-   the order of the overall integration method.
+   **Notes:** Allowed values are between 0 and 5.
+
+   This routine should be called *after* :c:func:`ARKStepCreate()` and *before*
+   :c:func:`ARKStepEvolve()`.
+
+   If a user calls both this routine and :c:func:`ARKStepSetInterpolantType()`, then
+   :c:func:`ARKStepSetInterpolantType()` must be called first.
+
+   Since the accuracy of any polynomial interpolant is limited by the accuracy of
+   the time-step solutions on which it is based, the *actual* polynomial degree that
+   is used by ARKStep will be the minimum of :math:`q-1` and the input *degree*,
+   where :math:`q` is the order of accuracy for the time integration method.
+
+
+
+.. c:function:: int ARKStepSetDenseOrder(void* arkode_mem, int dord)
+
+   *This function is deprecated, and will be removed in a future release.
+   Users should transition to calling* :c:func:`ARKStepSetInterpolantDegree()`
+   *instead.*
 
 
 
@@ -2717,10 +2767,10 @@ polynomial model may be evaluated upon request.
    independent variable satisfying :math:`t_n-h_n \le t \le t_n`, with
    :math:`t_n` as current internal time reached, and :math:`h_n` is
    the last internal step size successfully used by the solver.  This
-   routine uses an interpolating polynomial of degree *max(dord, k)*,
-   where *dord* is the argument provided to
-   :c:func:`ARKStepSetDenseOrder()`.  The user may request *k* in the
-   range {0,...,*dord*}.
+   routine uses an interpolating polynomial of degree *max(degree, k)*,
+   where *degree* is the argument provided to
+   :c:func:`ARKStepSetInterpolantDegree()`.  The user may request *k* in the
+   range {0,...,*degree*}.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -2731,7 +2781,7 @@ polynomial model may be evaluated upon request.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_BAD_K* if *k* is not in the range {0,...,*dord*}.
+      * *ARK_BAD_K* if *k* is not in the range {0,...,*degree*}.
       * *ARK_BAD_T* if *t* is not in the interval :math:`[t_n-h_n, t_n]`
       * *ARK_BAD_DKY* if the *dky* vector was ``NULL``
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``

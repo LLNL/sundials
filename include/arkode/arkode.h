@@ -40,10 +40,21 @@ extern "C" {
  * ARKode Constants
  * ----------------- */
 
-/* itask */
+/* usage modes (itask) */
 #define ARK_NORMAL         1
 #define ARK_ONE_STEP       2
 
+  
+/* interpolation module flags */
+
+/*    max allowed degree */  
+#define ARK_INTERP_MAX_DEGREE 5
+
+/*    interpolation module types */  
+#define ARK_INTERP_HERMITE  0
+#define ARK_INTERP_LAGRANGE 1
+  
+  
 /* return values */
 
 #define ARK_SUCCESS                 0
@@ -101,6 +112,7 @@ extern "C" {
 #define ARK_POSTPROCESS_STAGE_FAIL -38
 
 #define ARK_USER_PREDICT_FAIL      -39
+#define ARK_INTERP_FAIL            -40
 
 #define ARK_UNRECOGNIZED_ERROR     -99
 

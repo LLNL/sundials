@@ -35,6 +35,21 @@ Added two new functions, `ARKStepSetMinReduction()` and
 `ERKStepSetMinReduction()` to change the minimum allowed step size reduction factor
 after an error test failure.
 
+Added a new "stiff" interpolation module to ARKode, based on Lagrange polynomial interpolation,
+that is accessible to each of the ARKStep, ERKStep and MRIStep time-stepping modules.
+This module is designed to provide increased interpolation accuracy when integrating
+stiff problems, as opposed to the ARKode-standard Hermite interpolation module that
+can suffer when the IVP right-hand side has large Lipschitz constant.  While the Hermite module 
+remains the default, the new Lagrange module may be enabled using one of the routines
+`ARKStepSetInterpolantType`, `ERKStepSetInterpolantType`, or `MRIStepSetInterpolantType`. 
+The serial example problem ``ark_brusselator.c`` has been converted to use this Lagrange 
+interpolation module.  Created accompanying routines `ARKStepSetInterpolantDegree`,
+`ARKStepSetInterpolantDegree` and `ARKStepSetInterpolantDegree` to provide user control over 
+these interpolating polynomials. While the routines `ARKStepSetDenseOrder`, 
+`ARKStepSetDenseOrder` and `ARKStepSetDenseOrder` still exist, these have been deprecated and 
+will be removed in a future release.
+
+
 
 ## Changes to SUNDIALS in release 5.1.0
 

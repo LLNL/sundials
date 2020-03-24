@@ -448,11 +448,12 @@ Optional inputs for ERKStep
 
 .. cssclass:: table-bordered
 
-==================================================  =======================================  ==============
+==================================================  =======================================  =======================
 Optional input                                      Function name                            Default
-==================================================  =======================================  ==============
+==================================================  =======================================  =======================
 Return ERKStep solver parameters to their defaults  :c:func:`ERKStepSetDefaults()`           internal
-Set dense output order                              :c:func:`ERKStepSetDenseOrder()`         3
+Set dense output interpolation type                 :c:func:`ERKStepSetInterpolantType()`    ``ARK_INTERP_HERMITE``
+Set dense output polynomial degree                  :c:func:`ERKStepSetInterpolantDegree()`  5
 Supply a pointer to a diagnostics output file       :c:func:`ERKStepSetDiagnostics()`        ``NULL``
 Supply a pointer to an error output file            :c:func:`ERKStepSetErrFile()`            ``stderr``
 Supply a custom error handler function              :c:func:`ERKStepSetErrHandlerFn()`       internal fn
@@ -467,7 +468,7 @@ Supply a pointer for user data                      :c:func:`ERKStepSetUserData(
 Maximum no. of ERKStep error test failures          :c:func:`ERKStepSetMaxErrTestFails()`    7
 Set inequality constraints on solution              :c:func:`ERKStepSetConstraints()`        ``NULL``
 Set max number of constraint failures               :c:func:`ERKStepSetMaxNumConstrFails()`  10
-==================================================  =======================================  ==============
+==================================================  =======================================  =======================
 
 
 
@@ -492,22 +493,72 @@ Set max number of constraint failures               :c:func:`ERKStepSetMaxNumCon
 
 
 
-.. c:function:: int ERKStepSetDenseOrder(void* arkode_mem, int dord)
+.. c:function:: int ERKStepSetInterpolantType(void* arkode_mem, int itype)
 
-   Specifies the degree of the polynomial interpolant
-   used for dense output (i.e. interpolation of solution output values).
+   Specifies use of the Lagrange or Hermite interpolation modules (used for
+   dense output -- interpolation of solution output values and implicit
+   method predictors).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *dord* -- requested polynomial order of accuracy.
+      * *itype* -- requested interpolant type (``ARK_INTERP_HERMITE`` or ``ARK_INTERP_LAGRANGE``)
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
+      * *ARK_MEM_FAIL* if the interpolation module cannot be allocated
+      * *ARK_ILL_INPUT* if the *itype* argument is not recognized
+
+   **Notes:** The Hermite interpolation module is described in the Section
+   :ref:`Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
+   is described in the Section :ref:`Mathematics.Interpolation.Lagrange`.
+
+   This routine frees any previously-allocated interpolation module, and re-creates
+   one according to the specified argument.  Thus any previous calls to
+   :c:func:`ERKStepSetInterpolantDegree()` will be nullified.
+
+   This routine must be called *after* the call to :c:func:`ERKStepCreate()`.
+
+   If this routine is not called, the Hermite interpolation module will be used.
+
+
+
+.. c:function:: int ERKStepSetInterpolantDegree(void* arkode_mem, int degree)
+
+   Specifies the degree of the polynomial interpolant
+   used for dense output (i.e. interpolation of solution output values
+   and implicit method predictors).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *degree* -- requested polynomial degree.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ERKStep memory or interpolation module are ``NULL``
+      * *ARK_INTERP_FAIL* if this is called after :c:func:`ERKStepEvolve()`
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
-   **Notes:** Allowed values are between 0 and ``min(q,5)``, where ``q`` is
-   the order of the overall integration method.
+   **Notes:** Allowed values are between 0 and 5.
+
+   This routine should be called *after* :c:func:`ERKStepCreate()`
+   and *before* :c:func:`ERKStepEvolve()`.
+
+   If a user calls both this routine and :c:func:`ERKStepSetInterpolantType()`, then
+   :c:func:`ERKStepSetInterpolantType()` must be called first.
+
+   Since the accuracy of any polynomial interpolant is limited by the accuracy of
+   the time-step solutions on which it is based, the *actual* polynomial degree that
+   is used by ERKStep will be the minimum of :math:`q-1` and the input *degree*,
+   where :math:`q` is the order of accuracy for the time integration method.
+
+
+
+.. c:function:: int ERKStepSetDenseOrder(void* arkode_mem, int dord)
+
+   *This function is deprecated, and will be removed in a future release.
+   Users should transition to calling* :c:func:`ERKStepSetInterpolantDegree()`
+   *instead.*
 
 
 
@@ -1316,10 +1367,10 @@ polynomial model may be evaluated upon request.
    independent variable satisfying :math:`t_n-h_n \le t \le t_n`, with
    :math:`t_n` as current internal time reached, and :math:`h_n` is
    the last internal step size successfully used by the solver.  This
-   routine uses an interpolating polynomial of degree *max(dord, k)*,
-   where *dord* is the argument provided to
-   :c:func:`ERKStepSetDenseOrder()`. The user may request *k* in the
-   range {0,...,*dord*}.
+   routine uses an interpolating polynomial of degree *max(degree, k)*,
+   where *degree* is the argument provided to
+   :c:func:`ERKStepSetInterpolantDegree()`. The user may request *k* in the
+   range {0,...,*degree*}.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
@@ -1330,7 +1381,7 @@ polynomial model may be evaluated upon request.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_BAD_K* if *k* is not in the range {0,...,*dord*}.
+      * *ARK_BAD_K* if *k* is not in the range {0,...,*degree*}.
       * *ARK_BAD_T* if *t* is not in the interval :math:`[t_n-h_n, t_n]`
       * *ARK_BAD_DKY* if the *dky* vector was ``NULL``
       * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
@@ -1731,7 +1782,7 @@ Number of constraint test failures                   :c:func:`ERKStepGetNumConst
 
       } *ARKodeButcherTable;
 
-      For more details see :ref:`ARKodeButcherTable`.
+   For more details see :ref:`ARKodeButcherTable`.
 
 .. c:function:: int ERKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele)
 
@@ -1934,7 +1985,7 @@ To reinitialize the ERKStep module for the solution of a new problem,
 where a prior call to :c:func:`ERKStepCreate()` has been made, the
 user must call the function :c:func:`ERKStepReInit()`.  The new
 problem must have the same size as the previous one.  This routine
-retains the current settings for all ARKstep module options and
+retains the current settings for all ERKstep module options and
 performs the same input checking and initializations that are done in
 :c:func:`ERKStepCreate()`, but it performs no memory allocation as is
 assumes that the existing internal memory is sufficient for the new

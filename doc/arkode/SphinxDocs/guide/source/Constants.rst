@@ -38,6 +38,20 @@ Shared ARKode input constants
    Solver returns after each successful step.
 
 
+Interpolation module input constants
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:index:`ARK_INTERP_MAX_DEGREE` (5):
+   Maximum possible interpolating polynomial degree.
+
+:index:`ARK_INTERP_HERMITE`  (0):
+   Specifies use of the Hermite polynomial interpolation module (for non-stiff problems)
+   
+:index:`ARK_INTERP_LAGRANGE`  (1):
+   Specifies use of the Lagrange polynomial interpolation module (for stiff problems)
+
+
+
 Explicit Butcher table specification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -328,16 +342,19 @@ Shared ARKode output constants
 :index:`ARK_POSTINNERFN_FAIL`  (-36):
    An error occurred in the MRIStep post inner integrator function.
 
+:index:`ARK_INTERP_FAIL`  (-40):
+   An error occurred in the ARKode polynomial interpolation module.
+       
+:index:`ARK_UNRECOGNIZED_ERROR` (-99):
+   An unknown error was encountered.
+
 ..
    :index:`ARK_POSTPROCESS_STEP_FAIL`  (-37):
-      An error occurred when calling the user-provided ``ARKPostProcessStepFn`` routine.
+      An error occurred when calling the user-provided step-based ``ARKPostProcessFn`` routine.
 
 ..
    :index:`ARK_POSTPROCESS_STAGE_FAIL`  (-38):
-      An error occurred when calling the user-provided ``ARKPostProcessStageFn`` routine.
-
-:index:`ARK_UNRECOGNIZED_ERROR` (-99):
-   An unknown error was encountered.
+      An error occurred when calling the user-provided stage-based ``ARKPostProcessFn`` routine.
 
 
 

@@ -115,14 +115,14 @@ IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
 it is recommended to set ``CMAKE_Fortran_COMPILER`` to ``f2003``, ``xlf2003``,
 or ``xlf2003_r``.
 
-Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver.
-In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the
-lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling
-factor using the error weight vector, ``ewt``; this fix changes that to the residual weight vector,
+Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver. 
+In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the 
+lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling 
+factor using the error weight vector, ``ewt``; this fix changes that to the residual weight vector, 
 ``rwt``, that can differ from ``ewt`` when solving problems with non-identity mass matrix.
 
-Fixed a similar bug in how ARKode interfaces with scaled linear solvers when solving problems
-with non-identity mass matrices.  Here, the left scaling matrix should correspond with ``rwt``
+Fixed a similar bug in how ARKode interfaces with scaled linear solvers when solving problems 
+with non-identity mass matrices.  Here, the left scaling matrix should correspond with ``rwt`` 
 and the right scaling matrix with ``ewt``; these were reversed but are now correct.
 
 Fixed a bug where a non-default value for the maximum allowed growth factor
@@ -131,6 +131,22 @@ after the first step would be ignored.
 Added two new functions, :c:func:`ARKStepSetMinReduction()` and
 :c:func:`ERKStepSetMinReduction()`, to change the minimum allowed step size
 reduction factor after an error test failure.
+
+Added a new "stiff" interpolation module, based on Lagrange polynomial interpolation,
+that is accessible to each of the ARKStep, ERKStep and MRIStep time-stepping modules.
+This module is designed to provide increased interpolation accuracy when integrating
+stiff problems, as opposed to the ARKode-standard Hermite interpolation module that
+can suffer when the IVP right-hand side has large Lipschitz constant.  While the
+Hermite module remains the default, the new Lagrange module may be enabled using one
+of the routines :c:func:`ARKStepSetInterpolantType()`, :c:func:`ERKStepSetInterpolantType()`,
+or :c:func:`MRIStepSetInterpolantType()`.  The serial example problem ``ark_brusselator.c``
+has been converted to use this Lagrange interpolation module.  Created accompanying routines
+:c:func:`ARKStepSetInterpolantDegree()`, :c:func:`ARKStepSetInterpolantDegree()` and
+:c:func:`ARKStepSetInterpolantDegree()` to provide user control over these
+interpolating polynomials.  While the routines :c:func:`ARKStepSetDenseOrder()`,
+:c:func:`ARKStepSetDenseOrder()` and :c:func:`ARKStepSetDenseOrder()` still exist,
+these have been deprecated and will be removed in a future release.
+
 
 
 Changes in 4.1.0
@@ -591,34 +607,34 @@ automatically be called as necessary to complete the computation.
 
 Multiple changes to the CUDA NVECTOR were made:
 
-  * Changed the ``N_VMake_Cuda`` function to take a host data pointer and a device
-    data pointer instead of an ``N_VectorContent_Cuda`` object.
+* Changed the ``N_VMake_Cuda`` function to take a host data pointer and a device
+  data pointer instead of an ``N_VectorContent_Cuda`` object.
 
-  * Changed ``N_VGetLength_Cuda`` to return the global vector length instead of
-    the local vector length.
+* Changed ``N_VGetLength_Cuda`` to return the global vector length instead of
+  the local vector length.
 
-  * Added ``N_VGetLocalLength_Cuda`` to return the local vector length.
+* Added ``N_VGetLocalLength_Cuda`` to return the local vector length.
 
-  * Added ``N_VGetMPIComm_Cuda`` to return the MPI communicator used.
+* Added ``N_VGetMPIComm_Cuda`` to return the MPI communicator used.
 
-  * Removed the accessor functions in the namespace ``suncudavec``.
+* Removed the accessor functions in the namespace ``suncudavec``.
 
-  * Added the ability to set the ``cudaStream_t`` used for execution of the CUDA
-    NVECTOR kernels. See the function ``N_VSetCudaStreams_Cuda``.
+* Added the ability to set the ``cudaStream_t`` used for execution of the CUDA
+  NVECTOR kernels. See the function ``N_VSetCudaStreams_Cuda``.
 
-  * Added ``N_VNewManaged_Cuda``, ``N_VMakeManaged_Cuda``, and ``N_VIsManagedMemory_Cuda``
-    functions to accommodate using managed memory with the CUDA NVECTOR.
+* Added ``N_VNewManaged_Cuda``, ``N_VMakeManaged_Cuda``, and ``N_VIsManagedMemory_Cuda``
+  functions to accommodate using managed memory with the CUDA NVECTOR.
 
 Multiple changes to the RAJA NVECTOR were made:
 
-  * Changed ``N_VGetLength_Raja`` to return the global vector length instead of
-    the local vector length.
+* Changed ``N_VGetLength_Raja`` to return the global vector length instead of
+  the local vector length.
 
-  * Added ``N_VGetLocalLength_Raja`` to return the local vector length.
+* Added ``N_VGetLocalLength_Raja`` to return the local vector length.
 
-  * Added ``N_VGetMPIComm_Raja`` to return the MPI communicator used.
+* Added ``N_VGetMPIComm_Raja`` to return the MPI communicator used.
 
-  * Removed the accessor functions in the namespace ``sunrajavec``.
+* Removed the accessor functions in the namespace ``sunrajavec``.
 
 A new NVECTOR implementation for leveraging OpenMP 4.5+ device offloading has
 been added, NVECTOR_OpenMPDEV. See :ref:`NVectors.OpenMPDEV` for more details.

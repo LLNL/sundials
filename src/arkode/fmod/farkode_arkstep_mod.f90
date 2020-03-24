@@ -67,6 +67,8 @@ module farkode_arkstep_mod
  public :: FARKStepSetDefaults
  public :: FARKStepSetOptimalParams
  public :: FARKStepSetOrder
+ public :: FARKStepSetInterpolantType
+ public :: FARKStepSetInterpolantDegree
  public :: FARKStepSetDenseOrder
  public :: FARKStepSetNonlinearSolver
  public :: FARKStepSetLinear
@@ -329,6 +331,24 @@ end function
 
 function swigc_FARKStepSetOrder(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetOrder") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetInterpolantType(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetInterpolantType") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetInterpolantDegree(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetInterpolantDegree") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1675,6 +1695,38 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = maxord
 fresult = swigc_FARKStepSetOrder(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetInterpolantType(arkode_mem, itype) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: itype
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = itype
+fresult = swigc_FARKStepSetInterpolantType(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetInterpolantDegree(arkode_mem, degree) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: degree
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = degree
+fresult = swigc_FARKStepSetInterpolantDegree(farg1, farg2)
 swig_result = fresult
 end function
 

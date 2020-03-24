@@ -267,3 +267,4 @@ echo "   --- Add arkode unit tests to $tarfile"
 
 $tar $tarfile $distrobase/test/unit_tests/arkode/CMakeLists.txt               || exit 1
 $tar $tarfile $distrobase/test/unit_tests/arkode/ark_test_arkstepsetforcing.c || exit 1
+$tar $tarfile $distrobase/test/unit_tests/arkode/ark_interp_check.c           || exit 1

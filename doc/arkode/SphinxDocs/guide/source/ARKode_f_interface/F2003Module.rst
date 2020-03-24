@@ -444,12 +444,12 @@ for creating a ``FILE*`` and destroying it. These functions are defined in the m
   The function argument ``mode`` has the type ``character(kind=C_CHAR, len=*)``.
   The string begins with one of the following characters: 
       
-      * "r"  - open text file for reading
-      * "r+" - open text file for reading and writing
-      * "w"  - truncate text file to zero length or create it for writing
-      * "w+" - open text file for reading or writing, create it if it does not exist
-      * "a"  - open for appending, see documentation of ``fopen`` for your system/compiler
-      * "a+ - open for reading and appending, see documentation for ``fopen`` for your system/compiler
+  * "r"  - open text file for reading
+  * "r+" - open text file for reading and writing
+  * "w"  - truncate text file to zero length or create it for writing
+  * "w+" - open text file for reading or writing, create it if it does not exist
+  * "a"  - open for appending, see documentation of ``fopen`` for your system/compiler
+  * "a+ - open for reading and appending, see documentation for ``fopen`` for your system/compiler
   
   The function returns a ``type(C_PTR)`` which holds a C ``FILE*``.
 

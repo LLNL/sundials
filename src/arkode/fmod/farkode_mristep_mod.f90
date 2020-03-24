@@ -48,6 +48,8 @@ module farkode_mristep_mod
  public :: FMRIStepReInit
  public :: FMRIStepRootInit
  public :: FMRIStepSetDefaults
+ public :: FMRIStepSetInterpolantType
+ public :: FMRIStepSetInterpolantDegree
  public :: FMRIStepSetDenseOrder
  public :: FMRIStepSetTable
  public :: FMRIStepSetTableNum
@@ -139,6 +141,24 @@ bind(C, name="_wrap_FMRIStepSetDefaults") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetInterpolantType(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetInterpolantType") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetInterpolantDegree(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetInterpolantDegree") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -561,6 +581,38 @@ type(C_PTR) :: farg1
 
 farg1 = arkode_mem
 fresult = swigc_FMRIStepSetDefaults(farg1)
+swig_result = fresult
+end function
+
+function FMRIStepSetInterpolantType(arkode_mem, itype) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: itype
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = itype
+fresult = swigc_FMRIStepSetInterpolantType(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepSetInterpolantDegree(arkode_mem, degree) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: degree
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = degree
+fresult = swigc_FMRIStepSetInterpolantDegree(farg1, farg2)
 swig_result = fresult
 end function
 

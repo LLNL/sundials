@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include "arkode_impl.h"
+#include "arkode_interp_impl.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
@@ -56,7 +57,6 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Set default values for integrator optional inputs */
-  ark_mem->dense_q                 = QDENSE_DEF;     /* dense output order */
   ark_mem->fixedstep               = SUNFALSE;       /* default to use adaptive steps */
   ark_mem->reltol                  = RCONST(1.e-4);  /* relative tolerance */
   ark_mem->itol                    = ARK_SS;         /* scalar-scalar solution tolerances */
@@ -111,30 +111,110 @@ int arkSetDefaults(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
-  arkSetDenseOrder:
+  arkSetInterpolantType:
 
-  Specifies the polynomial order for dense output.  Positive
-  values are sent to the interpolation module; negative values
-  imply to use the default.
+  Specifies use of the Lagrange or Hermite interpolation modules.
+    itype == ARK_INTERP_HERMITE specifies the Hermite (nonstiff)
+      interpolation module.
+    itype == ARK_INTERP_LAGRANGE specifies the Lagrange (stiff)
+      interpolation module.
+
+  Return values:
+     ARK_SUCCESS on success.
+     ARK_MEM_NULL on NULL-valued arkode_mem input.
+     ARK_MEM_FAIL if the interpolation module cannot be allocated.
+     ARK_ILL_INPUT if the itype argument is not recognized.
   ---------------------------------------------------------------*/
-int arkSetDenseOrder(void *arkode_mem, int dord)
+int arkSetInterpolantType(void *arkode_mem, int itype)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
-                    "arkSetDenseOrder", MSG_ARK_NO_MEM);
+                    "arkSetInterpolantType", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* set user-provided value, or default, depending on argument */
-  if (dord < 0) {
-    ark_mem->dense_q = QDENSE_DEF;
+  /* check for legal itype input */
+  if ((itype != ARK_INTERP_HERMITE) && (itype != ARK_INTERP_LAGRANGE)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkSetInterpolantType",
+                    "Illegal interpolation type input.");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* do not change type once the module has been initialized */
+  if (ark_mem->initialized) {
+    arkProcessError(ark_mem, ARK_INTERP_FAIL, "ARKode",
+                    "arkSetInterpolantType",
+                    "Type cannot be specified after module initialization.");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* delete any existing interpolation module */
+  if (ark_mem->interp != NULL) {
+    arkInterpFree(ark_mem, ark_mem->interp);
+    ark_mem->interp = NULL;
+  }
+
+  /* create requested interpolation module, initially specifying
+     the maximum possible interpolant degree. */
+  if (itype == ARK_INTERP_HERMITE) {
+    ark_mem->interp = arkInterpCreate_Hermite(arkode_mem, ARK_INTERP_MAX_DEGREE);
   } else {
-    ark_mem->dense_q = dord;
+    ark_mem->interp = arkInterpCreate_Lagrange(arkode_mem, ARK_INTERP_MAX_DEGREE);
+  }
+  if (ark_mem->interp == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode", "arkSetInterpolantType",
+                    "Unable to allocate interpolation structure");
+    return(ARK_MEM_FAIL);
   }
 
   return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkSetInterpolantDegree:
+
+  Specifies the polynomial degree for the dense output
+  interpolation module.
+
+  Return values:
+     ARK_SUCCESS on success.
+     ARK_MEM_NULL on NULL-valued arkode_mem input or nonexistent
+       interpolation module.
+     ARK_INTERP_FAIL if the interpolation module is already
+       initialized.
+     ARK_ILL_INPUT if the degree is illegal.
+  ---------------------------------------------------------------*/
+int arkSetInterpolantDegree(void *arkode_mem, int degree)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkSetInterpolantDegree", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  if (ark_mem->interp == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode",
+                    "arkSetInterpolantDegree",
+                    "Interpolation module is not yet allocated");
+    return(ARK_MEM_NULL);
+  }
+
+  /* do not change degree once the module has been initialized */
+  if (ark_mem->initialized) {
+    arkProcessError(ark_mem, ARK_INTERP_FAIL, "ARKode",
+                    "arkSetInterpolantType",
+                    "Degree cannot be specified after module initialization.");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* pass 'degree' to interpolation module, returning its value */
+  return(arkInterpSetDegree(ark_mem, ark_mem->interp, degree));
 }
 
 
@@ -1544,7 +1624,7 @@ int arkGetNumErrTestFails(void *arkode_mem, long int *netfails)
 char *arkGetReturnFlagName(long int flag)
 {
   char *name;
-  name = (char *)malloc(25*sizeof(char));
+  name = (char *)malloc(27*sizeof(char));
 
   switch(flag) {
   case ARK_SUCCESS:
@@ -1686,7 +1766,6 @@ int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
 
   /* print integrator parameters to file */
   fprintf(fp, "ARKode solver parameters:\n");
-  fprintf(fp, "  Dense output order %i\n",ark_mem->dense_q);
   if (ark_mem->hmin != ZERO)
     fprintf(fp, "  Minimum step size = %" RSYM"\n",ark_mem->hmin);
   if (ark_mem->hmax_inv != ZERO)

@@ -21,6 +21,7 @@
 
 #include "arkode_impl.h"
 #include "arkode_erkstep_impl.h"
+#include "arkode_interp_impl.h"
 #include <sundials/sundials_math.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -101,8 +102,7 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
   /* Set default values for ERKStep optional inputs */
   retval = ERKStepSetDefaults((void *) ark_mem);
   if (retval != ARK_SUCCESS) {
-    arkProcessError(ark_mem, retval, "ARKode::ERKStep",
-                    "ERKStepCreate",
+    arkProcessError(ark_mem, retval, "ARKode::ERKStep", "ERKStepCreate",
                     "Error setting default solver options");
     return(NULL);
   }
@@ -444,13 +444,16 @@ int erkStep_Init(void* arkode_mem, int init_type)
   sunindextype Blrw, Bliw;
   int retval, j;
 
-  /* immediately return if init_type == 1 */
-  if (init_type == 1)  return(ARK_SUCCESS);
-
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "erkStep_Init",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  /* immediately return if init_type == 1 */
+  if (init_type == 1) {
+    ark_mem->call_fullrhs = SUNTRUE;
+    return(ARK_SUCCESS);
+  }
 
   /* enforce use of arkEwtSmallReal if using a fixed step size
      and an internal error weight function */
@@ -513,6 +516,20 @@ int erkStep_Init(void* arkode_mem, int init_type)
     if (step_mem->Xvecs == NULL)  return(ARK_MEM_FAIL);
     ark_mem->liw += (step_mem->stages + 1);   /* pointers */
   }
+
+  /* Limit interpolant degree based on method order (use negative
+     argument to specify update instead of overwrite) */
+  if (ark_mem->interp != NULL) {
+    retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q-1));
+    if (retval != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep", "erkStep_Init",
+                      "Unable to update interpolation polynomial degree");
+      return(ARK_ILL_INPUT);
+    }
+  }
+
+  /* Signal to shared arkode module that fullrhs is required after each step */
+  ark_mem->call_fullrhs = SUNTRUE;
 
   return(ARK_SUCCESS);
 }

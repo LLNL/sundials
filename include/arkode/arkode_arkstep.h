@@ -117,6 +117,8 @@ SUNDIALS_EXPORT int ARKStepRootInit(void *arkode_mem, int nrtfn,
 SUNDIALS_EXPORT int ARKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetOptimalParams(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetOrder(void *arkode_mem, int maxord);
+SUNDIALS_EXPORT int ARKStepSetInterpolantType(void *arkode_mem, int itype);
+SUNDIALS_EXPORT int ARKStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int ARKStepSetDenseOrder(void *arkode_mem, int dord);
 SUNDIALS_EXPORT int ARKStepSetNonlinearSolver(void *arkode_mem,
                                               SUNNonlinearSolver NLS);

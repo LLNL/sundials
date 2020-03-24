@@ -21,7 +21,6 @@
 #include <arkode/arkode.h>
 #include <arkode/arkode_butcher.h>
 #include "arkode_adapt_impl.h"
-#include "arkode_interp_impl.h"
 #include "arkode_root_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -167,6 +166,52 @@ typedef int (*ARKTimestepStepFn)(void* arkode_mem, realtype *dsm,
 
 
 /*===============================================================
+  ARKode interpolation module definition
+  ===============================================================*/
+
+/* Forward reference for pointer to ARKInterp_Ops object */
+typedef struct _generic_ARKInterpOps *ARKInterpOps;
+
+/* Forward reference for pointer to ARKInterp object */
+typedef struct _generic_ARKInterp *ARKInterp;
+
+/* Structure containing function pointers to interpolation operations  */
+struct _generic_ARKInterpOps {
+  int (*resize)(void* arkode_mem, ARKInterp interp,
+                ARKVecResizeFn resize, void *resize_data,
+                sunindextype lrw_diff, sunindextype liw_diff,
+                N_Vector tmpl);
+  void (*free)(void* arkode_mem, ARKInterp interp);
+  void (*print)(ARKInterp interp, FILE *outfile);
+  int (*setdegree)(void *arkode_mem, ARKInterp interp, int degree);
+  int (*init)(void* arkode_mem, ARKInterp interp, realtype tnew);
+  int (*update)(void* arkode_mem, ARKInterp interp, realtype tnew);
+  int (*evaluate)(void* arkode_mem, ARKInterp interp,
+                  realtype tau, int d, int order, N_Vector yout);
+};
+
+/* An interpolation module consists of an implementation-dependent 'content'
+   structure, and a pointer to a structure of implementation-dependent operations. */
+struct _generic_ARKInterp {
+  void *content;
+  ARKInterpOps ops;
+};
+
+/* ARKInterp module functions */
+int arkInterpResize(void* arkode_mem, ARKInterp interp,
+                    ARKVecResizeFn resize, void *resize_data,
+                    sunindextype lrw_diff, sunindextype liw_diff,
+                    N_Vector tmpl);
+void arkInterpFree(void* arkode_mem, ARKInterp interp);
+void arkInterpPrintMem(ARKInterp interp, FILE *outfile);
+int arkInterpSetDegree(void *arkode_mem, ARKInterp interp, int degree);
+int arkInterpInit(void* arkode_mem, ARKInterp interp, realtype tnew);
+int arkInterpUpdate(void* arkode_mem, ARKInterp interp, realtype tnew);
+int arkInterpEvaluate(void* arkode_mem, ARKInterp interp,
+                      realtype tau, int d, int order, N_Vector yout);
+
+
+/*===============================================================
   ARKode data structures
   ===============================================================*/
 
@@ -247,6 +292,7 @@ typedef struct ARKodeMemRec {
   N_Vector ycur;          /* pointer to user-provided solution memory; used
                              as evolving solution by the timestepper modules */
   N_Vector yn;            /* solution from the last successful step          */
+  N_Vector fn;            /* full IVP right-hand side from last step         */
   N_Vector tempv1;        /* temporary storage vectors (for local use and by */
   N_Vector tempv2;        /* time-stepping modules)                          */
   N_Vector tempv3;
@@ -255,8 +301,7 @@ typedef struct ARKodeMemRec {
   N_Vector constraints;   /* vector of inequality constraint options         */
 
   /* Temporal interpolation module */
-  ARKodeInterpMem interp;
-  int dense_q;      /* interpolation order (user request)      */
+  ARKInterp interp;
 
   /* Tstop information */
   booleantype tstopset;
@@ -317,6 +362,8 @@ typedef struct ARKodeMemRec {
   booleantype MallocDone;
   booleantype resized;      /* denotes first step after ARKodeResize      */
   booleantype firststage;   /* denotes first stage in simulation          */
+  booleantype initialized;  /* denotes arkInitialSetup has been done      */
+  booleantype call_fullrhs; /* denotes fn needs updating after each step  */
 
   /* Error handler function and error ouput file */
   ARKErrHandlerFn ehfun;    /* error messages are handled by ehfun        */
@@ -859,6 +906,8 @@ int arkAccessHAdaptMem(void* arkode_mem, const char *fname,
 
 int arkSetDefaults(void *arkode_mem);
 int arkSetDenseOrder(void *arkode_mem, int dord);
+int arkSetInterpolantType(void *arkode_mem, int itype);
+int arkSetInterpolantDegree(void *arkode_mem, int degree);
 int arkSetErrHandlerFn(void *arkode_mem,
                        ARKErrHandlerFn ehfun,
                        void *eh_data);

@@ -21,6 +21,7 @@
 
 #include "arkode_impl.h"
 #include "arkode_arkstep_impl.h"
+#include "arkode_interp_impl.h"
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
@@ -1101,18 +1102,23 @@ int arkStep_Init(void* arkode_mem, int init_type)
       ark_mem->liw += step_mem->nfusedopvecs;   /* pointers */
     }
 
-    /* Allocate interpolation memory (if unallocated, and needed) */
-    if ((ark_mem->interp == NULL) && (step_mem->predictor > 0)) {
-      ark_mem->interp = arkInterpCreate(ark_mem);
-      if (ark_mem->interp == NULL) {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "arkStep_Init",
-                        "Unable to allocate interpolation structure");
-        return(ARK_MEM_FAIL);
+    /* Limit interpolant degree based on method order (use negative 
+       argument to specify update instead of overwrite) */
+    if (ark_mem->interp != NULL) {
+      retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q-1));
+      if (retval != ARK_SUCCESS) {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", "arkStep_Init",
+                        "Unable to update interpolation polynomial degree");
+        return(ARK_ILL_INPUT);
       }
     }
 
   } /* end (init_type == 0) */
 
+  /* If the bootstrap predictor is enabled, signal to shared arkode module that 
+     fullrhs is required after each step */
+  if (step_mem->predictor == 4)  ark_mem->call_fullrhs = SUNTRUE;
+  
   /* Check for consistency between linear system modules
        (e.g., if lsolve is direct, msolve needs to match) */
   if (step_mem->mass_mem != NULL) {  /* M != I */

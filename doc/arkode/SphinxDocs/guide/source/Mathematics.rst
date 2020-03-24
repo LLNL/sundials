@@ -63,7 +63,7 @@ of time-stepping modules supplied with ARKode, including the ARKStep
 module for :ref:`additive Runge-Kutta methods <Mathematics.ARK>`,
 the ERKStep module that is optimized for :ref:`explicit Runge-Kutta
 methods <Mathematics.ERK>`, and the MRIStep module for :ref:`two-rate
-explicit-explicit multirate infinitesimal step methods <Mathematics.MRIStep>`.
+multirate infinitesimal step methods <Mathematics.MRIStep>`.
 We then discuss the :ref:`adaptive temporal error controllers
 <Mathematics.Adaptivity>` shared by the time-stepping modules, including
 discussion of our choice of norms for measuring errors within various components
@@ -152,18 +152,33 @@ Interpolation
 ===============
 
 As mentioned above, the time-stepping modules in ARKode support
-interpolation of solutions :math:`y(t_\text{out})` where
-:math:`t_\text{out}` occurs within a completed time step from
-:math:`t_{n-1} \to t_n`.  Additionally, this module supports
-extrapolation of solutions to :math:`t` outside this interval
-(e.g. to construct predictors for iterative nonlinear and linear
-solvers).  To this end, ARKode currently supports construction of
-polynomial interpolants :math:`p_q(t)` of polynomial order up to
-:math:`q=5`, although this polynomial order may be adjusted by the
-user.
+interpolation of solutions :math:`y(t_\text{out})` and derivatives
+:math:`y^{(d)}(t_\text{out})`, where :math:`t_\text{out}` occurs
+within a completed time step from :math:`t_{n-1} \to t_n`.
+Additionally, this module supports extrapolation of solutions and
+derivatives for :math:`t` outside this interval (e.g. to construct
+predictors for iterative nonlinear and linear solvers).  To this end,
+ARKode currently supports construction of polynomial interpolants
+:math:`p_q(t)` of polynomial degree up to :math:`q=5`, although
+users may select interpolants of lower degree.
 
-These interpolants are either of Lagrange or Hermite form, and
-use the data :math:`\left\{ y_{n-1}, f_{n-1}, y_{n}, f_{n} \right\}`,
+ARKode provides two complementary interpolation approaches,
+both of which are accessible from any of the 
+time-stepping modules: "Hermite" and "Lagrange".  The former approach
+has been included with ARKode since its inception, and is more
+suitable for non-stiff problems; the latter is a new approach that is
+designed to provide increased accuracy when integrating stiff problems.
+Both are described in detail below.
+
+
+.. _Mathematics.Interpolation.Hermite:
+
+Hermite interpolation module
+-----------------------------
+
+For non-stiff problems, polynomial interpolants of Hermite form are provided.
+These interpolants are typically constructed using the data
+:math:`\left\{ y_{n-1}, f_{n-1}, y_{n}, f_{n} \right\}`,
 where here we use the simplified notation :math:`f_{k}` to denote
 :math:`f(t_k,y_k)`.  Defining a normalized "time" variable,
 :math:`\tau`, for the most-recently-computed solution interval
@@ -171,7 +186,7 @@ where here we use the simplified notation :math:`f_{k}` to denote
 
 .. math::
 
-   \tau(t) = \frac{t-t_{n-1}}{h_{n}},
+   \tau(t) = \frac{t-t_{n}}{h_{n}},
 
 we then construct the interpolants :math:`p_q(t)` as follows:
 
@@ -191,20 +206,88 @@ we then construct the interpolants :math:`p_q(t)` as follows:
 
   .. math::
 
-     p_2(\tau) =  \tau^2\,y_{n-1} + (1-\tau^2)\,y_{n} + h(\tau+\tau^2)\,f_{n}.
+     p_2(\tau) =  \tau^2\,y_{n-1} + (1-\tau^2)\,y_{n} + h_n(\tau+\tau^2)\,f_{n}.
 
 * :math:`q=3`: cubic Hermite interpolant
 
   .. math::
 
      p_3(\tau) =  (3\tau^2 + 2\tau^3)\,y_{n-1} +
-     (1-3\tau^2-2\tau^3)\,y_{n} + h(\tau^2+\tau^3)\,f_{n-1} +
-     h(\tau+2\tau^2+\tau^3)\,f_{n}.
+     (1-3\tau^2-2\tau^3)\,y_{n} + h_n(\tau^2+\tau^3)\,f_{n-1} +
+     h_n(\tau+2\tau^2+\tau^3)\,f_{n}.
 
-We note that although interpolants of order :math:`> 5` are possible,
-these are not currently implemented due to their increased computing
-and storage costs.  However, these may be added in future releases.
+* :math:`q=4`: quartic Hermite interpolant
 
+  .. math::
+
+     p_4(\tau) &= (-6\tau^2 - 16\tau^3 - 9\tau^4)\,y_{n-1} +
+     (1 + 6\tau^2 + 16\tau^3 + 9\tau^4)\,y_{n} +
+     \frac{h_n}{4}(-5\tau^2 - 14\tau^3 - 9\tau^4)\,f_{n-1} \\
+     &+ h_n(\tau + 2\tau^2 + \tau^3)\,f_{n} +
+     \frac{27 h_n}{4}(-\tau^4 - 2\tau^3 - \tau^2)\,f_a,
+
+  where :math:`f_a=f\left(t_{n} - \frac{h_n}{3},p_3\left(-\frac13\right)\right)`.
+  We point out that interpolation at this degree requires an additional evaluation
+  of the full right-hand side function :math:`f(t,y)`, thereby increasing its
+  cost in comparison with :math:`p_3(t)`. 
+  
+* :math:`q=5`: quintic Hermite interpolant
+
+  .. math::
+
+     p_5(\tau) &= (54\tau^5 + 135\tau^4 + 110\tau^3 + 30\tau^2)\,y_{n-1} +
+     (1 - 54\tau^5 - 135\tau^4 - 110\tau^3 - 30\tau^2)\,y_{n} \\
+     &+ \frac{h_n}{4}(27\tau^5 + 63\tau^4 + 49\tau^3 + 13\tau^2)\,f_{n-1} +
+     \frac{h_n}{4}(27\tau^5 + 72\tau^4 + 67\tau^3 + 26\tau^2 + \tau)\,f_n \\
+     &+ \frac{h_n}{4}(81\tau^5 + 189\tau^4 + 135\tau^3 + 27\tau^2)\,f_a +
+     \frac{h_n}{4}(81\tau^5 + 216\tau^4 + 189\tau^3 + 54\tau^2)\,f_b,
+
+  where :math:`f_a=f\left(t_{n} - \frac{h_n}{3},p_4\left(-\frac13\right)\right)`
+  and :math:`f_b=f\left(t_{n} - \frac{2h_n}{3},p_4\left(-\frac23\right)\right)`.
+  We point out that interpolation at this degree requires four additional evaluations
+  of the full right-hand side function :math:`f(t,y)`, thereby significantly
+  increasing its cost over :math:`p_4(t)`.
+
+We note that although interpolants of order :math:`q > 5` are possible, these are 
+not currently implemented due to their increased computing and storage costs.
+
+
+.. _Mathematics.Interpolation.Lagrange:
+
+Lagrange interpolation module
+-----------------------------
+
+For stiff problems, polynomial interpolants of Lagrange form are provided.  These
+interpolants are constructed using the data
+:math:`\left\{ y_{n}, y_{n-1}, \ldots, y_{n-\nu} \right\}` where
+:math:`0\le\nu\le5`.  These polynomials have the form
+
+.. math:: 
+
+   p(t) &= \sum_{j=0}^{\nu} y_{n-j} p_j(t),\quad\text{where}\\
+   p_j(t) &= \prod_{l=0, l\ne j}^{\nu} \left(\frac{t-t_l}{t_j-t_l}\right), \quad j=0,\ldots,\nu.
+
+Since we assume that the solutions :math:`y_{n-j}` have length much larger
+than :math:`\nu\le5` in ARKode-based simulations, we evaluate :math:`p` at
+any desired :math:`t\in\mathbb{R}` by first evaluating the Lagrange polynomial
+basis functions at the input value for :math:`t`, and then performing a simple linear
+combination of the vectors :math:`\{y_k\}_{k=0}^{\nu}`.  Derivatives :math:`p^{(d)}(t)`
+may be evaluated similarly as
+
+.. math:: 
+
+   p^{(d)}(t) = \sum_{j=0}^{\nu} y_{n-j}\, p_j^{(d)}(t),
+
+however since the algorithmic complexity involved in evaluating derivatives of the
+Lagrange basis functions increases dramatically as the derivative order grows, our Lagrange
+interpolation module currently only provides derivatives up to :math:`d=3`.
+
+We note that when using this interpolation module, during the first
+:math:`(\nu-1)` steps of integration we do not have sufficient solution history
+to construct the full :math:`\nu`-degree interpolant.  Therefore during these
+initial steps, we construct the highest-degree interpolants that are currently
+available at the moment, achieving the full :math:`\nu`-degree interpolant once
+these initial steps have completed.
 
 
 
@@ -596,8 +679,7 @@ step size :math:`h'` based on the asymptotic local error estimates
 :math:`\varepsilon_{n-1}` and :math:`\varepsilon_{n-2}` as
 
 .. math::
-   \varepsilon_k &\ \equiv \ \|T_k\|
-      \ = \ \beta \|y_k - \tilde{y}_k\|,
+   \varepsilon_k \ \equiv \ \|T_k\| \ = \ \beta \|y_k - \tilde{y}_k\|,
 
 corresponding to the local error estimates for three consecutive
 steps, :math:`t_{n-3} \to t_{n-2} \to t_{n-1} \to t_n`.  These local
@@ -1751,6 +1833,7 @@ communication to ensure that :math:`g_i(t,y)` is identical on each task.
 
 
 .. _Mathematics.InequalityConstraints:
+
 Inequality Constraints
 =======================
 

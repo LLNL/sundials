@@ -37,6 +37,9 @@ module farkode_mod
  ! DECLARATION CONSTRUCTS
  integer(C_INT), parameter, public :: ARK_NORMAL = 1_C_INT
  integer(C_INT), parameter, public :: ARK_ONE_STEP = 2_C_INT
+ integer(C_INT), parameter, public :: ARK_INTERP_MAX_DEGREE = 5_C_INT
+ integer(C_INT), parameter, public :: ARK_INTERP_HERMITE = 0_C_INT
+ integer(C_INT), parameter, public :: ARK_INTERP_LAGRANGE = 1_C_INT
  integer(C_INT), parameter, public :: ARK_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: ARK_TSTOP_RETURN = 1_C_INT
  integer(C_INT), parameter, public :: ARK_ROOT_RETURN = 2_C_INT
@@ -81,6 +84,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_POSTPROCESS_STEP_FAIL = -37_C_INT
  integer(C_INT), parameter, public :: ARK_POSTPROCESS_STAGE_FAIL = -38_C_INT
  integer(C_INT), parameter, public :: ARK_USER_PREDICT_FAIL = -39_C_INT
+ integer(C_INT), parameter, public :: ARK_INTERP_FAIL = -40_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  public :: FARKBandPrecInit
  public :: FARKBandPrecGetWorkSpace
