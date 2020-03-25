@@ -64,7 +64,7 @@ extern "C" {
 
 typedef int (*ARKStepStagePredictFn)(realtype t, N_Vector zpred,
                                      void *user_data);
-  
+
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -224,6 +224,8 @@ SUNDIALS_EXPORT int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac);
 SUNDIALS_EXPORT int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass);
 SUNDIALS_EXPORT int ARKStepSetMaxStepsBetweenJac(void *arkode_mem,
                                                  long int msbj);
+SUNDIALS_EXPORT int ARKStepSetLinearSolutionScaling(void *arkode_mem,
+                                                    booleantype onoff);
 SUNDIALS_EXPORT int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKStepSetPreconditioner(void *arkode_mem,

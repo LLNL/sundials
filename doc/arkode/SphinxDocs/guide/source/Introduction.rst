@@ -128,6 +128,12 @@ and the right scaling matrix with ``ewt``; these were reversed but are now corre
 Fixed a bug where a non-default value for the maximum allowed growth factor
 after the first step would be ignored.
 
+The function :c:func:`ARKStepSetLinearSolutionScaling()` was added to
+enable or disable the scaling applied to linear system solutions with
+matrix-based linear solvers to account for a lagged value of :math:`\gamma` in
+the linear system matrix e.g., :math:`M - \gamma J` or :math:`I - \gamma J`.
+Scaling is enabled by default when using a matrix-based linear solver.
+
 Added two new functions, :c:func:`ARKStepSetMinReduction()` and
 :c:func:`ERKStepSetMinReduction()`, to change the minimum allowed step size
 reduction factor after an error test failure.

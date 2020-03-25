@@ -104,6 +104,8 @@ SUNDIALS_EXPORT int IDASetJacTimes(void *ida_mem,
                                    IDALsJacTimesSetupFn jtsetup,
                                    IDALsJacTimesVecFn jtimes);
 SUNDIALS_EXPORT int IDASetEpsLin(void *ida_mem, realtype eplifac);
+SUNDIALS_EXPORT int IDASetLinearSolutionScaling(void *ida_mem,
+                                                booleantype onoff);
 SUNDIALS_EXPORT int IDASetIncrementFactor(void *ida_mem,
                                           realtype dqincfac);
 
@@ -232,6 +234,8 @@ SUNDIALS_EXPORT int IDASetJacFnBS(void *ida_mem, int which,
 
 SUNDIALS_EXPORT int IDASetEpsLinB(void *ida_mem, int which,
                                   realtype eplifacB);
+SUNDIALS_EXPORT int IDASetLinearSolutionScalingB(void *ida_mem, int which,
+                                                 booleantype onoffB);
 SUNDIALS_EXPORT int IDASetIncrementFactorB(void *ida_mem, int which,
                                            realtype dqincfacB);
 SUNDIALS_EXPORT int IDASetPreconditionerB(void *ida_mem, int which,

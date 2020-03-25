@@ -120,6 +120,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetJacFn
  public :: FARKStepSetMassFn
  public :: FARKStepSetMaxStepsBetweenJac
+ public :: FARKStepSetLinearSolutionScaling
  public :: FARKStepSetEpsLin
  public :: FARKStepSetMassEpsLin
  public :: FARKStepSetPreconditioner
@@ -818,6 +819,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetLinearSolutionScaling(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetLinearSolutionScaling") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2561,6 +2571,22 @@ integer(C_LONG) :: farg2
 farg1 = arkode_mem
 farg2 = msbj
 fresult = swigc_FARKStepSetMaxStepsBetweenJac(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetLinearSolutionScaling(arkode_mem, onoff) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: onoff
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = onoff
+fresult = swigc_FARKStepSetLinearSolutionScaling(farg1, farg2)
 swig_result = fresult
 end function
 

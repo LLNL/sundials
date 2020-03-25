@@ -195,6 +195,8 @@ int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass) {
   return(arkLSSetMassFn(arkode_mem, mass)); }
 int ARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj) {
   return(arkLSSetMaxStepsBetweenJac(arkode_mem, msbj)); }
+int ARKStepSetLinearSolutionScaling(void *arkode_mem, booleantype onoff) {
+  return(arkLSSetLinearSolutionScaling(arkode_mem, onoff)); }
 int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac) {
   return(arkLSSetEpsLin(arkode_mem, eplifac)); }
 int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac) {

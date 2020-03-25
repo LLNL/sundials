@@ -306,7 +306,7 @@ for the specific name of the function to be called or macro to be referenced.
   {\bf Create matrix object}
 
   If a nonlinear solver requiring a linear solve will be used (e.g., the
-  the default Newton iteration) and the linear solver will be a matrix-based linear
+  default Newton iteration) and the linear solver will be a matrix-based linear
   solver, then a template Jacobian matrix must be created by calling the
   appropriate constructor function defined by the particular {\sunmatrix}
   implementation.
@@ -389,7 +389,7 @@ for the specific name of the function to be called or macro to be referenced.
 
   If using a non-default nonlinear solver, then initialize the nonlinear solver
   interface by attaching the nonlinear solver object by calling
-  \id{ier = }\Id{CVodeSetNonlinearSolver}\id{(cvode\_mem, NLS);}  (see
+  \id{ier = }\Id{CVodeSetNonlinearSolver}\id{(cvode\_mem, NLS);} (see
   \S\ref{ss:nonlin_solv_init} for details).
 
 \item
@@ -801,8 +801,8 @@ $P_1$ and $P_2$ (either of which could be the identity matrix), such
 that the product $P_1 P_2$ approximates the matrix $M = I - \gamma J$
 of (\ref{e:Newtonmat}).
 
-The {\cvdiag} linear solver is also a direct linear solver, but it
-only uses a diagonal approximation to $J$.
+The {\cvdiag} linear solver interface supports a direct linear solver,
+that uses only a diagonal approximation to $J$.
 
 \index{CVODES@{\cvodes} linear solvers!selecting one|(}
 To specify a generic linear solver to {\cvodes}, after the call to
@@ -865,10 +865,10 @@ memory pointer returned by \id{CVodeCreate}.
   flag = CVodeSetLinearSolver(cvode\_mem, LS, J);
 }
 {
-  The function \ID{CVodeSetLinearSolver} attaches a generic
-  {\sunlinsol} object \id{LS} and corresponding template Jacobian
-  {\sunmatrix} object \id{J} to {\cvodes}, initializing the {\cvls}
-  linear solver interface. 
+  The function \ID{CVodeSetLinearSolver} attaches a generic {\sunlinsol}
+  object \id{LS} and corresponding template Jacobian {\sunmatrix}
+  object \id{J} (if applicable) to {\cvodes}, initializing the
+  {\cvls} linear solver interface.
 }
 {
   \begin{args}[cvode\_mem]
@@ -884,7 +884,7 @@ memory pointer returned by \id{CVodeCreate}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
+  \begin{args}[CVLS\_SUNLS\_FAIL]
   \item[\Id{CVLS\_SUCCESS}]
     The {\cvls} initialization was successful.
   \item[\Id{CVLS\_MEM\_NULL}]
@@ -960,7 +960,7 @@ memory pointer returned by \id{CVodeCreate}.
 }
 {
   The {\cvdiag} solver is the simplest of all of the available {\cvodes}
-  linear solver interfaces.  The {\cvdiag} solver uses an approximate
+  linear solvers.  The {\cvdiag} solver uses an approximate
   diagonal Jacobian formed by way of a difference quotient. The user
   does {\em not} have the option of supplying a function to compute an
   approximate diagonal Jacobian.
@@ -1157,7 +1157,7 @@ But these modes are modified if the user has set a stop time (with
     very near $t$.
     In any case, the user should see the error message for details.
   \item[\Id{CV\_TOO\_CLOSE}]
-    The initial time $t_0$ and the output time $t_{out}$ are too close to each 
+    The initial time $t_0$ and the output time $t_{out}$ are too close to each
     other and the user did not specify an initial step size.
   \item[\Id{CV\_TOO\_MUCH\_WORK}]
     The solver took \id{mxstep} internal steps but still could not reach \id{tout}.
@@ -1208,7 +1208,7 @@ But these modes are modified if the user has set a stop time (with
   \id{CVode} returns the solution at \id{tstop}. Once the integrator returns
   at a stop time, any future testing for \id{tstop} is disabled (and can be
   reenabled only though a new call to \id{CVodeSetStopTime}).
-  
+
   All failure return values are negative and so the test \id{flag < 0}
   will trap all \id{CVode} failures.
 
@@ -1274,6 +1274,7 @@ Disable rootfinding warnings & \id{CVodeSetNoInactiveRootWarn} & none \\
 Jacobian / preconditioner update frequency & \id{CVodeSetMaxStepsBetweenJac} & 50\\
 Jacobian function & \id{CVodeSetJacFn} & DQ\\
 Linear System function & \id{CVodeSetLinSysFn} & internal\\
+Enable or disable linear solution scaling & \id{CVodeSetLinearSolutionScaling} & on\\
 Jacobian-times-vector functions & \id{CVodeSetJacTimes} & NULL, DQ \\
 Preconditioner functions & \id{CVodeSetPreconditioner} & NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{CVodeSetEpsLin} & 0.05 \\
@@ -1404,7 +1405,7 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
 flag = CVodeSetMaxOrd(cvode\_mem, maxord);
 }
 {
-  The function \ID{CVodeSetMaxOrd} specifies the maximum order of the 
+  The function \ID{CVodeSetMaxOrd} specifies the maximum order of the
   linear multistep method.
 }
 {
@@ -1811,13 +1812,13 @@ flag = CVodeSetIterType(cvode\_mem, iter);
     pointer to the {\cvodes} memory block.
   \item[iter] (\id{int})
     specifies the type of nonlinear solver iteration and may be
-    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}. 
+    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CV\_ILL\_INPUT]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1828,7 +1829,7 @@ flag = CVodeSetIterType(cvode\_mem, iter);
 {
   The nonlinear solver iteration type is initially specified in the call
   to \id{CVodeCreate} (see \S\ref{sss:cvodemalloc}). This function call is
-  needed only if \id{iter} is being changed from its value in the prior call 
+  needed only if \id{iter} is being changed from its value in the prior call
   to \id{CVodeCreate}.
 }
 %
@@ -1857,7 +1858,7 @@ flag = CVodeSetConstraints(cvode\_mem, constraints);
   \end{args}
 }
 {
-  The return value of \id{flag} (of type \id{int}) is one of 
+  The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The optional value has been successfully set.
@@ -1867,7 +1868,7 @@ flag = CVodeSetConstraints(cvode\_mem, constraints);
     The constraints vector contains illegal values or the simultaneous corrector
     option has been selected when doing forward sensitivity analysis.
   \end{args}
-} 
+}
 {
   The presence of a non-\id{NULL} constraints vector that is not $0.0$ in
   all components will cause constraint checking to be performed.
@@ -1879,8 +1880,6 @@ flag = CVodeSetConstraints(cvode\_mem, constraints);
   simultaneous corrector option is currently disallowed and will result in an
   illegal input return.
 }
-
-
 \index{optional input!solver|)}
 
 %%==============================================================================
@@ -1889,7 +1888,6 @@ flag = CVodeSetConstraints(cvode\_mem, constraints);
 %%==============================================================================
 \index{optional input!generic linear solver interface|(}
 \index{CVLS@{\cvls} linear solver interface!optional input|(}
-
 
 The mathematical explanation of the linear solver methods
 available to {\cvodes} is provided in \S\ref{ss:ivp_sol}.  We
@@ -1936,7 +1934,7 @@ which this setup routine is called may be controlled with the
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
+  \begin{args}[CVLS\_LMEM\_NULL]
   \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVLS\_MEM\_NULL}]
@@ -1991,7 +1989,7 @@ through \id{CVodeSetUserData}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
+  \begin{args}[CVLS\_LMEM\_NULL]
   \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVLS\_MEM\_NULL}]
@@ -2045,7 +2043,7 @@ in the program. The pointer \id{user\_data} may be specified through
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
+  \begin{args}[CVLS\_LMEM\_NULL]
   \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVLS\_MEM\_NULL}]
@@ -2065,6 +2063,57 @@ in the program. The pointer \id{user\_data} may be specified through
   the Jacobian. If \id{linsys} is \id{NULL}, this default function is used.
 
   The function type \id{CVLsLinSysFn} is described in \S\ref{ss:linsysFn}.
+}
+%%
+When using a matrix-based linear solver the matrix information will be updated
+infrequently to reduce matrix construction and, with direct solvers,
+factorization costs. As a result the value of $\gamma$ may not be current and,
+with BDF methods, a scaling factor is applied to the solution of the linear
+system to account for the lagged value of $\gamma$. See
+\S\ref{ss:sunlinsol_lagged_matrix} for more details. The function
+\id{CVodeSetLinearSolutionScaling} can be used to disable this scaling when
+necessary, e.g., when providing a custom linear solver that updates the matrix
+using the current $\gamma$ as part of the solve.
+%%
+\index{Linear solution scaling function!user-supplied}
+\ucfunctionf{CVodeSetLinearSolutionScaling}
+{
+  flag = CVodeSetLinearSolutionScaling(cvode\_mem, onoff);
+}
+{
+  The function \ID{CVodeSetLinearSolutionScaling} enables or disables scaling
+  the linear system solution to account for a change in $\gamma$ in the linear
+  system. For more details see \S\ref{ss:sunlinsol_lagged_matrix}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[onoff] (\id{booleantype})
+    flag to enable (\id{SUNTRUE}) or disable (\id{SUNFALSE}) scaling
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}]
+    The flag value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver interface has not been initialized.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The attached linear solver is not matrix-based or the linear multistep
+    method type is not BDF.
+  \end{args}
+}
+{
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolver}.
+
+  By default scaling is enabled with matrix-based linear solvers when using BDF
+  methods.
 }
 %%
 \index{optional input!matrix-based linear solver|)}
@@ -2118,7 +2167,7 @@ without using global data in the program.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVLS\_LMEM\_NULL]
+  \begin{args}[CVLS\_SUNLS\_FAIL]
   \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVLS\_MEM\_NULL}]
@@ -2288,6 +2337,9 @@ the \id{CVodeSetEpsLin} function.
 %%
 %%
 \index{optional input!iterative linear solver|)}
+\index{CVLS@{\cvls} linear solver interface!optional input||)}
+\index{optional input!generic linear solver interface|)}
+
 
 
 %%==============================================================================
@@ -2499,7 +2551,7 @@ Name of constant associated with a return flag & \id{CVodeGetReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVLS linear solver interface} \\
 \hline
-Size of real and integer workspaces & \id{CVodeGetWorkSpace} \\
+Size of real and integer workspaces & \id{CVodeGetLinWorkSpace} \\
 No. of Jacobian evaluations & \id{CVodeGetNumJacEvals} \\
 No. of r.h.s. calls for finite diff. Jacobian[-vector] evals. & \id{CVodeGetNumLinRhsEvals} \\
 No. of linear iterations & \id{CVodeGetNumLinIters} \\
@@ -2579,7 +2631,7 @@ These optional output functions are described next.
   \begin{itemize}
   \item base value: \id{lenrw} $= 96 + ($\id{maxord+5}$)*N_r + 3*$\id{nrtfn};
   \item using \id{CVodeSVtolerances}: \id{lenrw} $=$ \id{lenrw} $+ N_r$;
-  \item with constraint checking (see \id{CVodeSetConstraints});
+  \item with constraint checking (see \id{CVodeSetConstraints}):
     \id{lenrw} $=$ \id{lenrw} $+ N_r$;
   \end{itemize}
   where $N_r$ is the number of real words in one \id{N\_Vector} ($\approx N$).
@@ -2594,7 +2646,7 @@ These optional output functions are described next.
   where $N_i$ is the number of integer words in one \id{N\_Vector}
   (= 1 for {\nvecs} and 2*\id{npes} for {\nvecp} and \id{npes} processors).
 
-  For the default value of \id{maxord}, no rootfinding, no constraints, and 
+  For the default value of \id{maxord}, no rootfinding, no constraints, and
   without using \id{CVodeSVtolerances}, these lengths are given roughly by:
   \begin{itemize}
   \item For the Adams method: \id{lenrw} $= 96 + 17N$ and \id{leniw} $= 57$
@@ -3394,7 +3446,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 {
   The value \id{nfevalsLS} is incremented only if one of the default
   internal difference quotient functions is used.
-  
+
   The previous routines \Id{CVDlsGetNumRhsEvals} and
   \Id{CVSpilsGetNumRhsEvals} are now wrappers for this routine, and may
   still be used for backward-compatibility.  However, these will be
@@ -3622,7 +3674,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
   flag = CVodeGetLastLinFlag(cvode\_mem, \&lsflag);
 }
 {
-  The function \ID{CVodeGetLastFlag} returns the
+  The function \ID{CVodeGetLastLinFlag} returns the
   last return value from a {\cvls} routine.
 }
 {
@@ -3704,6 +3756,8 @@ the name of an optional output from the main solver, a suffix \id{LS}
   deprecated in future releases, so we recommend that users transition
   to the new routine name soon.
 }
+%%
+%%
 \index{CVLS@{\cvls} linear solver interface!optional output|)}
 \index{optional output!generic linear solver interface|)}
 
@@ -4150,7 +4204,9 @@ the user must supply a {\CC} function of type \Id{CVRootFn}, defined as follows:
 
 If a matrix-based linear solver module is used (i.e., a non-\id{NULL}
 {\sunmatrix} object was supplied to \Id{CVodeSetLinearSolver}), the user may
-provide a function of type \Id{CVLsJacFn} defined as follows:
+optionally provide a function of type \Id{CVLsJacFn} for evaluating the Jacobian
+of the ODE right-hand side function (or an approximation of it). \id{CVLsJacFn}
+is defined as follows:
 %%
 \usfunction{CVLsJacFn}
 {
@@ -4414,7 +4470,7 @@ the default is a difference quotient approximation to these products.
 {
   This function must return a value of $J*v$ that uses the {\it current}
   value of $J$, i.e. as evaluated at the current $(t,y)$.
-  \newline
+
   If the user's \id{CVLsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the argument
   list. These include the current step size, the error weights, etc.
@@ -4486,7 +4542,7 @@ defined as follows:
   to\\ \noindent \id{CVLsJacTimesSetupFn}, and may still be used for
   backward-compatibility.  However, this will be deprecated in future
   releases, so we recommend that users transition to the new function
-  type name soon.  
+  type name soon.
 }
 \index{Jacobian approximation function!Jacobian-vector setup|)}
 
@@ -4642,7 +4698,7 @@ user-supplied function of type \Id{CVLsPrecSetupFn}, defined as follows:
   The previous function type \Id{CVSpilsPrecSetupFn} is identical to
   \id{CVLsPrecSetupFn}, and may still be used for backward-compatibility.
   However, this will be deprecated in future releases, so we recommend
-  that users transition to the new function type name soon.  
+  that users transition to the new function type name soon.
 }
 
 %%
@@ -5346,7 +5402,7 @@ a band-block-diagonal preconditioner module {\cvbbdpre}.
 
 This preconditioner provides a band matrix preconditioner for use with
 iterative {\sunlinsol} modules through the {\cvls} linear solver
-interface, in a serial setting. 
+interface, in a serial setting.
 It uses difference quotients of the ODE right-hand side function \id{f} to
 generate a band matrix of bandwidth $m_l + m_u + 1$, where the number of
 super-diagonals ($m_u$, the upper half-bandwidth) and sub-diagonals
@@ -5586,7 +5642,7 @@ the {\cvbandpre} module:
 {
 The counter \id{nfevalsBP} is distinct from the counter \id{nfevalsLS}
 returned by the corresponding function \id{CVodeGetNumLinRhsEvals} and
-\id{nfevals} returned by \\ \noindent \id{CVodeGetNumRhsEvals}.
+\id{nfevals} returned by\\ \noindent \id{CVodeGetNumRhsEvals}.
 The total number of right-hand side function evaluations is the
 sum of all three of these counters.
 }

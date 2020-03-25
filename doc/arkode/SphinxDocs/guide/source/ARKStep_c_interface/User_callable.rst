@@ -2256,13 +2256,14 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
 
 .. cssclass:: table-bordered
 
-==========================  ===============================  =============
-Optional input              Function name                    Default
-==========================  ===============================  =============
-Jacobian function           :c:func:`ARKStepSetJacFn()`      ``DQ``
-Linear system function      :c:func:`ARKStepSetLinSysFn()`   internal
-Mass matrix function        :c:func:`ARKStepSetMassFn()`     none
-==========================  ===============================  =============
+=========================================  ===========================================  =============
+Optional input                             Function name                                Default
+=========================================  ===========================================  =============
+Jacobian function                          :c:func:`ARKStepSetJacFn()`                  ``DQ``
+Linear system function                     :c:func:`ARKStepSetLinSysFn()`               internal
+Mass matrix function                       :c:func:`ARKStepSetMassFn()`                 none
+Enable or disable linear solution scaling  :c:func:`ARKStepSetLinearSolutionScaling()`  on
+=========================================  ===========================================  =============
 
 When using matrix-based linear solver modules, the ARKLS solver interface needs
 a function to compute an approximation to the Jacobian matrix :math:`J(t,y)` or
@@ -2277,7 +2278,15 @@ Alternatively, a function of type :c:func:`ARKLsLinSysFn()` can be provided to
 evaluate the linear system :math:`M - \gamma J`. By default, ARKLS uses an
 internal linear system function leveraging the SUNMATRIX API to form the system
 :math:`M = I - \gamma J`. To specify a user-supplied linear system function
-*linsys*, ARKStep provides the function :c:func:`ARKStepSetLinSysFn()`.
+*linsys*, ARKStep provides the function :c:func:`ARKStepSetLinSysFn()`. In
+either case the matrix information will be updated infrequently to reduce matrix
+construction and, with direct solvers, factorization costs. As a result the
+value of :math:`\gamma` may not be current and a scaling factor is applied to the
+solution of the linear system to account for lagged value of :math:`\gamma`. See
+:ref:`SUNLinSol.Lagged_matrix` for more details. The function
+:c:func:`ARKStepSetLinearSolutionScaling()` can be used to disable this scaling
+when necessary, e.g., when providing a custom linear solver that updates the
+matrix using the current :math:`\gamma` as part of the solve.
 
 The ARKLS interface passes the user data pointer to the Jacobian and linear
 system functions. This allows the user to create an arbitrary structure with
@@ -2380,8 +2389,24 @@ data may be specified through :c:func:`ARKStepSetUserData()`.
    :ref:`ARKStep_CInterface.UserSupplied`.
 
 
+.. c:function:: int ARKStepSetLinearSolutionScaling(void* arkode_mem, booleantype onoff)
 
+   Enables or disables scaling the linear system solution to account for a
+   change in :math:`\gamma` in the linear system. For more details see
+   :ref:`SUNLinSol.Lagged_matrix`.
 
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *onoff* -- flag to enable (``SUNTRUE``) or disable (``SUNFALSE``)
+        scaling
+
+   **Return value:**
+      * *ARKLS_SUCCESS* if successful
+      * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
+      * *ARKLS_ILL_INPUT* if the attached linear solver is not matrix-based
+
+   **Notes:** Linear solution scaling is enabled by default when a matrix-based
+   linear solver is attached.
 
 .. _ARKStep_CInterface.ARKLsInputs.MatrixFree:
 

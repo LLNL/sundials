@@ -100,6 +100,13 @@ attributes missing on some SUNDIALS API functions.
 Fixed a memory leak from not deallocating the \id{atolSmin0} and \id{atolQSmin0}
 arrays.
 
+The functions \id{IDASetLinearSolutionScaling} and
+\id{IDASetLinearSolutionScalingB} were added to enable or disable the scaling
+applied to linear system solutions with matrix-based linear solvers to account
+for a lagged value of $\alpha$ in the linear system matrix
+$\frac{\partial F}{\partial y} + \alpha\frac{\partial F}{\partial \dot{y}}$.
+Scaling is enabled by default when using a matrix-based linear solver.
+
 \subsection*{Changes in v4.1.0}
 
 Fixed a build system bug related to finding LAPACK/BLAS.

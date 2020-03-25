@@ -130,6 +130,13 @@ attributes missing on some SUNDIALS API functions.
 Fixed a memory leak from not deallocating the \id{atolSmin0} and \id{atolQSmin0}
 arrays.
 
+The functions \id{CVodeSetLinearSolutionScaling} and
+\id{CVodeSetLinearSolutionScalingB} were added to enable or disable the scaling
+applied to linear system solutions with matrix-based linear solvers to account
+for a lagged value of $\gamma$ in the linear system matrix $I - \gamma J$.
+Scaling is enabled by default when using a matrix-based linear
+solver with BDF methods.
+
 \subsection*{Changes in v5.1.0}
 
 Fixed a build system bug related to finding LAPACK/BLAS.

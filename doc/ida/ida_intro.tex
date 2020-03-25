@@ -76,6 +76,12 @@ it is recommended to set \id{CMAKE\_Fortran\_COMPILER} to \id{f2003},
 Fixed a linkage bug affecting Windows users that stemmed from dllimport/dllexport
 attributes missing on some SUNDIALS API functions.
 
+The function \id{IDASetLinearSolutionScaling} was added to enable or disable
+the scaling applied to linear system solutions with matrix-based linear solvers
+to account for a lagged value of $\alpha$ in the linear system matrix
+$\frac{\partial F}{\partial y} + \alpha\frac{\partial F}{\partial \dot{y}}$.
+Scaling is enabled by default when using a matrix-based linear solver.
+
 \subsection*{Changes in v5.1.0}
 
 Fixed a build system bug related to finding LAPACK/BLAS.

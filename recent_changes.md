@@ -31,6 +31,10 @@ Fixed a memory leak in CVODES and IDAS from not deallocating the `atolSmin0` and
 Fixed a bug where a non-default value for the maximum allowed growth factor
 after the first step would be ignored.
 
+Functions were added to each of the time integration packages to enable or
+disable the scaling applied to linear system solutions with matrix-based linear solvers
+to account for lagged matrix information.
+
 Added two new functions, `ARKStepSetMinReduction()` and
 `ERKStepSetMinReduction()` to change the minimum allowed step size reduction factor
 after an error test failure.

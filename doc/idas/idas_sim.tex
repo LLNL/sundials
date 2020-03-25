@@ -307,7 +307,7 @@ name of the function to be called or macro to be referenced.
 
   If a nonlinear solver requiring a linear solver will be used (e.g., the
   default Newton iteration) and the linear solver will be a matrix-based linear
-  solver, then a template Jacobian matrix must be created by using the
+  solver, then a template Jacobian matrix must be created by calling the
   appropriate constructor function defined by the particular {\sunmatrix}
   implementation.
 
@@ -834,8 +834,8 @@ A call to this function initializes the {\idals} linear solver
 interface, linking it to the main {\idas} integrator, and allows the
 user to specify additional parameters and routines pertinent to their
 choice of linear solver.
-\index{IDAS@{\idas} linear solvers!selecting one|)}
 %%
+\index{IDAS@{\idas} linear solvers!selecting one|)}
 \index{IDAS@{\idas} linear solver interface!IDALS@{\idals}}
 \ucfunctionf{IDASetLinearSolver}
 {
@@ -1256,6 +1256,7 @@ But these modes are modified if the user has set a stop time (with
   previous \id{IDASolve} return.
 }
 
+
 %%===================================================================================
 
 \subsection{Optional input functions}\label{ss:optional_input}
@@ -1314,6 +1315,7 @@ Lower bound on Newton step & \id{IDASetStepToleranceIC} &  uround$^{2/3}$ \\
 \multicolumn{3}{|c|}{\bf IDALS linear solver interface} \\
 \hline
 Jacobian function & \id{IDASetJacFn} & DQ\\
+Enable or disable linear solution scaling & \id{IDASetLinearSolutionScaling} & on\\
 Jacobian-times-vector function & \id{IDASetJacTimes} & NULL, DQ\\
 Preconditioner functions & \id{IDASetPreconditioner} &NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{IDASetEpsLin} & 0.05 \\
@@ -1882,8 +1884,8 @@ case.
 When using matrix-based linear solver modules, the {\idals} solver
 interface needs a function to compute an approximation to the Jacobian
 matrix $J(t,y,\dot{y})$.  This function must be of type
-\id{IDALsJacFn}.  The user can supply a Jacobian function, or if using a
-dense or banded matrix $J$ can use the default internal difference
+\id{IDALsJacFn}.  The user can supply a Jacobian function, or if using
+a dense or banded matrix $J$ can use the default internal difference
 quotient approximation
 \index{Jacobian approximation function!difference quotient}
 that comes with the {\idals} interface.
@@ -1943,6 +1945,54 @@ The pointer \id{user\_data} may be specified through \id{IDASetUserData}.
   users transition to the new routine name soon.
 }
 %%
+When using a matrix-based linear solver the matrix information will be updated
+infrequently to reduce matrix construction and, with direct solvers,
+factorization costs. As a result the value of $\alpha$ may not be current and
+a scaling factor is applied to the solution of the linear system to account for
+the lagged value of $\alpha$. See \S\ref{ss:sunlinsol_lagged_matrix} for more
+details. The function \id{IDASetLinearSolutionScaling} can be used to disable
+this scaling when necessary, e.g., when providing a custom linear solver that
+updates the matrix using the current $\alpha$ as part of the solve.
+%%
+\index{Linear solution scaling function!user-supplied}
+\ucfunctionf{IDASetLinearSolutionScaling}
+{
+  flag = IDASetLinearSolutionScaling(ida\_mem, onoff);
+}
+{
+  The function \ID{IDASetLinearSolutionScaling} enables or disables scaling
+  the linear system solution to account for a change in $\alpha$ in the linear
+  system. For more details see \S\ref{ss:sunlinsol_lagged_matrix}.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[onoff] (\id{booleantype})
+    flag to enable (\id{SUNTRUE}) or disable (\id{SUNFALSE}) scaling
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}]
+    The flag value has been successfully set.
+  \item[\Id{IDALS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver interface has not been initialized.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The attached linear solver is not matrix-based.
+  \end{args}
+}
+{
+  This function must be called \emph{after} the {\idals} linear solver
+  interface has been initialized through a call to
+  \id{IDASetLinearSolver}.
+
+  By default scaling is enabled with matrix-based linear solvers.
+}
+%%
 \index{optional input!matrix-based linear solver|)}
 %%
 %%
@@ -1969,7 +2019,7 @@ pointer to \id{NULL} if \id{user\_data} was not specified)
 is passed to the Jacobian-times-vector setup and product functions, \id{jtsetup} and
 \id{jtimes}, each time they are called.  This allows the user to
 create an arbitrary structure with relevant problem data and access it
-during the execution of the user-supplied preconditioner functions
+during the execution of the user-supplied functions
 without using global data in the program.
 %%
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
@@ -2089,7 +2139,7 @@ a call to \Id{IDASetIncrementFactor}:
 %%
 %%
 %%
-\index{optional input!iterative-free linear solver|(}
+\index{optional input!iterative linear solver|(}
 \index{preconditioning!user-supplied|(}
 When using an iterative linear solver, the user may supply a
 preconditioning operator to aid in solution of the system.  This
@@ -3509,7 +3559,6 @@ the name of an optional output from the main solver, a suffix \id{LS}
 %%
 \index{IDALS@{\idals} linear solver interface!memory requirements}
 \index{memory requirements!IDALS@{\idals} linear solver interface}
-
 \ucfunctionf{IDAGetLinWorkSpace}
 {
   flag = IDAGetLinWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
@@ -3792,13 +3841,13 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{IDA\_SUCCESS}]
+  \begin{args}[IDALS\_LMEM\_NULL]
+  \item[\Id{IDALS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{IDA\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_LMEM\_NULL}]
-    The {\ida} linear solver has not been initialized.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
   \end{args}
 }
 {
@@ -3828,13 +3877,13 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDA\_LMEM\_NULL]
-  \item[\Id{IDA\_SUCCESS}]
+  \begin{args}[IDALS\_LMEM\_NULL]
+  \item[\Id{IDALS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{IDA\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDA\_LMEM\_NULL}]
-    The {\ida} linear solver has not been initialized.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
   \end{args}
 }
 {
@@ -3914,15 +3963,15 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The function \ID{IDAGetLinReturnFlagName} returns the
-  name of the {\ida} constant corresponding to \id{lsflag}.
+  name of the {\idals} constant corresponding to \id{lsflag}.
 }
 {
   The only argument, of type \id{long int}, is a return flag from an
   {\idals} function.
 }
 {
-  The return value is a string containing the name of the
-  corresponding constant.
+  The return value is a string containing the name of the corresponding
+  constant.
 
   If $1 \leq $ \id{lsflag} $ \leq N$ (LU factorization failed), this
   function returns ``NONE''.
@@ -3934,9 +3983,14 @@ the name of an optional output from the main solver, a suffix \id{LS}
   deprecated in future releases, so we recommend that users transition
   to the new routine name soon.
 }
+%%
+%%
 \index{IDALS@{\idals} linear solver interface!optional output|)}
 \index{optional output!generic linear solver interface|)}
-%%===================================================================================
+
+
+%%==============================================================================
+
 
 \subsection{IDAS reinitialization function}\label{sss:idareinit}
 \index{reinitialization}
@@ -4455,7 +4509,6 @@ the default is a difference quotient approximation to these products.
   releases, so we recommend that users transition to the new function
   type name soon.
 }
-
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
 %%
 %%--------------
@@ -4467,11 +4520,11 @@ If the user's Jacobian-times-vector requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
 user-supplied function of type \Id{IDALsJacTimesSetupFn}, defined as follows:
 %
-\usfunction{IDAJacTimesSetupFn}
+\usfunction{IDALsJacTimesSetupFn}
 {
-  typedef int (*IDAJacTimesSetupFn)(&realtype tt, N\_Vector yy, \\
-                                    &N\_Vector yp, N\_Vector rr, \\
-                                    &realtype cj, void *user\_data);
+  typedef int (*IDALsJacTimesSetupFn)(&realtype tt, N\_Vector yy, \\
+                                      &N\_Vector yp, N\_Vector rr, \\
+                                      &realtype cj, void *user\_data);
 }
 {
   This function preprocesses and/or evaluates Jacobian data needed
