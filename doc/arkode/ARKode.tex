@@ -260,6 +260,13 @@ Added two new functions, {\hyperref[\detokenize{ARKStep_c_interface/User_callabl
 {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetMinReduction}]{\sphinxcrossref{\sphinxcode{ERKStepSetMinReduction()}}}}, to change the minimum allowed step size
 reduction factor after an error test failure.
 
+Added a new \sphinxcode{SUNMatrix} implementation, {\hyperref[\detokenize{sunmatrix/SUNMatrix_cuSparse:sunmatrix-cusparse}]{\sphinxcrossref{\DUrole{std,std-ref}{The SUNMATRIX\_CUSPARSE Module}}}}, that interfaces
+to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
+the {\hyperref[\detokenize{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr}]{\sphinxcrossref{\DUrole{std,std-ref}{The SUNLinSol\_cuSolverSp\_batchQR Module}}}} \sphinxcode{SUNLinearSolver} has been updated to
+use this matrix, as such, users of this module will need to update their code.
+These modules are still considered to be experimental, thus they are subject to
+breaking changes even in minor releases.
+
 Added a new “stiff” interpolation module, based on Lagrange polynomial interpolation,
 that is accessible to each of the ARKStep, ERKStep and MRIStep time-stepping modules.
 This module is designed to provide increased interpolation accuracy when integrating
@@ -647,10 +654,10 @@ routines. For more details see {\hyperref[\detokenize{ARKodeButcherTable:arkodeb
 
 Two changes were made in the initial step size algorithm:
 \begin{itemize}
-\item {}
+\item {} 
 Fixed an efficiency bug where an extra call to the right hand side function was made.
 
-\item {}
+\item {} 
 Changed the behavior of the algorithm if the max-iterations case is hit.
 Before the algorithm would exit with the step size calculated on the
 penultimate iteration. Now it will exit with the step size calculated
@@ -812,7 +819,7 @@ as a backend for RAJA currently.
 
 Several changes were made to the build system:
 \begin{itemize}
-\item {}
+\item {} 
 CMake 3.1.3 is now the minimum required CMake version.
 
 \item {} 
@@ -820,16 +827,16 @@ Deprecate the behavior of the \sphinxcode{SUNDIALS\_INDEX\_TYPE} CMake option an
 added the \sphinxcode{SUNDIALS\_INDEX\_SIZE} CMake option to select the \sphinxcode{sunindextype}
 integer size.
 
-\item {}
+\item {} 
 The native CMake FindMPI module is now used to locate an MPI
 installation.
 
-\item {}
+\item {} 
 If MPI is enabled and MPI compiler wrappers are not set, the build system
 will check if \sphinxcode{CMAKE\_\textless{}language\textgreater{}\_COMPILER} can compile MPI programs before
 trying to locate and use an MPI installation.
 
-\item {}
+\item {} 
 The previous options for setting MPI compiler wrappers and the executable
 for running MPI programs have been have been depreated. The new options that
 align with those used in native CMake FindMPI module are
@@ -845,7 +852,7 @@ scheme needs to be overridden, the advanced options
 be used to manually set the name-mangling scheme and bypass trying to infer
 the scheme.
 
-\item {}
+\item {} 
 Parts of the main CMakeLists.txt file were moved to new files in the
 \sphinxcode{src} and \sphinxcode{example} directories to make the CMake configuration file
 structure more modular.
@@ -940,42 +947,42 @@ linear solver libraries.
 
 Specific changes include:
 \begin{itemize}
-\item {}
+\item {} 
 Added generic SUNMATRIX module with three provided implementations:
 dense, banded and sparse.  These replicate previous SUNDIALS Dls and
 Sls matrix structures in a single object-oriented API.
 
-\item {}
+\item {} 
 Added example problems demonstrating use of generic SUNMATRIX modules.
 
-\item {}
+\item {} 
 Added generic SUNLINEARSOLVER module with eleven provided
 implementations: dense, banded, LAPACK dense, LAPACK band, KLU,
 SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG.  These replicate
 previous SUNDIALS generic linear solvers in a single object-oriented
 API.
 
-\item {}
+\item {} 
 Added example problems demonstrating use of generic SUNLINEARSOLVER modules.
 
-\item {}
+\item {} 
 Expanded package-provided direct linear solver (Dls) interfaces and
 scaled, preconditioned, iterative linear solver (Spils) interfaces
 to utilize generic SUNMATRIX and SUNLINEARSOLVER objects.
 
-\item {}
+\item {} 
 Removed package-specific, linear solver-specific, solver modules
 (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since their functionality
 is entirely replicated by the generic Dls/Spils interfaces and
 SUNLINEARSOLVER/SUNMATRIX modules.  The exception is CVDIAG, a
 diagonal approximate Jacobian solver available to CVODE and CVODES.
 
-\item {}
+\item {} 
 Converted all SUNDIALS example problems to utilize new generic
 SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
 Spils linear solver interfaces.
 
-\item {}
+\item {} 
 Added Spils interface routines to ARKode, CVODE, CVODES, IDA and
 IDAS to allow specification of a user-provided “JTSetup” routine.
 This change supports users who wish to set up data structures for
@@ -1049,31 +1056,31 @@ v1.0.2 release.
 
 The bugfixes include:
 \begin{itemize}
-\item {}
+\item {} 
 For each linear solver, the various solver performance counters are
 now initialized to 0 in both the solver specification function and
 in the solver’s \sphinxcode{linit} function.  This ensures that these solver
 counters are initialized upon linear solver instantiation as well as
 at the beginning of the problem solution.
 
-\item {}
+\item {} 
 The choice of the method vs embedding the Billington and TRBDF2
 explicit Runge-Kutta methods were swapped, since in those the
 lower-order coefficients result in an A-stable method, while the
 higher-order coefficients do not.  This change results in
 significantly improved robustness when using those methods.
 
-\item {}
+\item {} 
 A bug was fixed for the situation where a user supplies a vector of
 absolute tolerances, and also uses the vector Resize() functionality.
 
-\item {}
+\item {} 
 A bug was fixed wherein a user-supplied Butcher table without an
 embedding is supplied, and the user is running with either fixed
 time steps (or they do adaptivity manually); previously this had
 resulted in an error since the embedding order was below 1.
 
-\item {}
+\item {} 
 Numerous aspects of the documentation were fixed and/or clarified.
 
 \end{itemize}
@@ -1090,24 +1097,24 @@ functions and to user documentation.
 Each NVECTOR module now includes a function, \sphinxcode{N\_VGetVectorID},
 that returns the NVECTOR module name.
 
-\item {}
+\item {} 
 A memory leak was fixed in the banded preconditioner and
 banded-block-diagonal preconditioner interfaces.  In addition,
 updates were done to return integers from linear solver and
 preconditioner ‘free’ routines.
 
-\item {}
+\item {} 
 The Krylov linear solver Bi-CGstab was enhanced by removing a
 redundant dot product.  Various additions and corrections were made
 to the interfaces to the sparse solvers KLU and SuperLU\_MT,
 including support for CSR format when using KLU.
 
-\item {}
+\item {} 
 The ARKode implicit predictor algorithms were updated: methods 2 and
 3 were improved slightly, a new predictor approach was added, and
 the default choice was modified.
 
-\item {}
+\item {} 
 The underlying sparse matrix structure was enhanced to allow both
 CSR and CSC matrices, with CSR supported by the KLU linear solver
 interface.  ARKode interfaces to the KLU solver from both C and
@@ -1119,24 +1126,24 @@ The missing \sphinxcode{ARKSpilsGetNumMtimesEvals()} function was added
 \textendash{} this had been included in the previous documentation but had not
 been implemented.
 
-\item {}
+\item {} 
 The handling of integer codes for specifying built-in ARKode Butcher
 tables was enhanced.  While a global numbering system is still used,
 methods now have \#defined names to simplify the user interface and to
 streamline incorporation of new Butcher tables into ARKode.
 
-\item {}
+\item {} 
 The maximum number of Butcher table stages was increased from 8 to
 15 to accommodate very high order methods, and an 8th-order adaptive
 ERK method was added.
 
-\item {}
+\item {} 
 Support was added for the explicit and implicit methods in an
 additive Runge-Kutta method to utilize different stage times,
 solution and embedding coefficients, to support new SSP-ARK
 methods.
 
-\item {}
+\item {} 
 The FARKODE interface was extended to include a routine to set
 scalar/array-valued residual tolerances, to support Fortran
 applications with non-identity mass-matrices.
@@ -1154,16 +1161,16 @@ accommodate both styles.
 
 The structure of this document is as follows:
 \begin{itemize}
-\item {}
+\item {} 
 In the next section we provide a thorough presentation of the
 underlying {\hyperref[\detokenize{Mathematics:mathematics}]{\sphinxcrossref{\DUrole{std,std-ref}{mathematics}}}} used within the ARKode
 family of solvers.
 
-\item {}
+\item {} 
 We follow this with an overview of how the source code for ARKode is
 {\hyperref[\detokenize{Organization:organization}]{\sphinxcrossref{\DUrole{std,std-ref}{organized}}}}.
 
-\item {}
+\item {} 
 The largest section follows, providing a full account of the
 ARKStep module user interface, including a description of all
 user-accessible functions and outlines for usage in serial and
@@ -1171,11 +1178,11 @@ parallel applications. Since ARKode is written in C, we first
 present a section on {\hyperref[\detokenize{ARKStep_c_interface/index:arkstep-cinterface}]{\sphinxcrossref{\DUrole{std,std-ref}{using ARKStep for C and C++ applications}}}}, followed with a separate section on
 {\hyperref[\detokenize{ARKode_f_interface/FARKODE:fortraninterface}]{\sphinxcrossref{\DUrole{std,std-ref}{using ARKode within Fortran applications}}}}.
 
-\item {}
+\item {} 
 The much smaller section describing the ERKStep time-stepping
 module, {\hyperref[\detokenize{ERKStep_c_interface/index:erkstep-cinterface}]{\sphinxcrossref{\DUrole{std,std-ref}{using ERKStep for C and C++ applications}}}}, follows.
 
-\item {}
+\item {} 
 Subsequent sections discuss shared features between ARKode
 and the rest of the SUNDIALS library:
 {\hyperref[\detokenize{nvectors/index:nvectors}]{\sphinxcrossref{\DUrole{std,std-ref}{vector data structures}}}},
@@ -1219,16 +1226,16 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 \begin{itemize}
-\item {}
+\item {} 
 Redistributions of source code must retain the above copyright notice, this
 list of conditions and the following disclaimer.
 
-\item {}
+\item {} 
 Redistributions in binary form must reproduce the above copyright notice,
 this list of conditions and the following disclaimer in the documentation
 and/or other materials provided with the distribution.
 
-\item {}
+\item {} 
 Neither the name of the copyright holder nor the names of its
 contributors may be used to endorse or promote products derived from
 this software without specific prior written permission.
@@ -1448,7 +1455,7 @@ where here we use the simplified notation \(f_{k}\) to denote
 \end{equation*}
 we then construct the interpolants \(p_q(t)\) as follows:
 \begin{itemize}
-\item {}
+\item {} 
 \(q=0\): constant interpolant
 \begin{equation*}
 \begin{split}p_0(\tau) = \frac{y_{n-1} + y_{n}}{2}.\end{split}
@@ -1698,29 +1705,29 @@ Runge-Kutta method where the stage values and the new solution are computed by
 solving an auxiliary ODE with an inner (fast) Runge-Kutta method. This
 corresponds to the following algorithm for a single step:
 \begin{enumerate}
-\item {}
+\item {} 
 Set \(z_1 = y_{n-1}\)
 
-\item {}
+\item {} 
 For \(i = 2,\ldots,s+1\)
 \begin{enumerate}
-\item {}
+\item {} 
 Let \(v(t^S_{n,i-1}) = z_{i-1}\)
 
-\item {}
+\item {} 
 Compute \(r = \frac{1}{c^S_i - c^S_{i-1}} \sum_{j=1}^{i-1}
 (A^S_{i,j} - A^S_{i-1,j}) f^S(t^S_{n,j}, z_j)\)
 
-\item {}
+\item {} 
 For \(\tau \in [t^S_{n,i-1}, t^S_{n,i}]\), solve \(\dot{v}(\tau)
 = f^F(\tau, v) + r\)
 
-\item {}
+\item {} 
 Set \(z_i = v(t^S_{n,i})\),
 
 \end{enumerate}
 
-\item {}
+\item {} 
 Set \(y_{n} = z_{s+1}\),
 
 \end{enumerate}
@@ -2074,14 +2081,14 @@ for problems where the time steps should be chosen based on other
 problem-specific information.  In this mode, all internal time step
 adaptivity is disabled:
 \begin{itemize}
-\item {}
+\item {} 
 temporal error control is disabled,
 
-\item {}
+\item {} 
 nonlinear or linear solver non-convergence will result in an error
 (instead of a step size adjustment),
 
-\item {}
+\item {} 
 no check against an explicit stability condition is performed.
 
 \end{itemize}
@@ -2222,39 +2229,39 @@ sparse matrices, and a \sphinxstyleemphasis{spils} family comprising scaled, pre
 iterative (Krylov) linear solvers.  The methods offered through these
 modules are as follows:
 \begin{itemize}
-\item {}
+\item {} 
 dense direct solvers, using either an internal SUNDIALS
 implementation or a BLAS/LAPACK implementation (serial version
 only),
 
-\item {}
+\item {} 
 band direct solvers, using either an internal SUNDIALS
 implementation or a BLAS/LAPACK implementation (serial version
 only),
 
-\item {}
+\item {} 
 sparse direct solvers, using either the KLU sparse matrix library
 \phantomsection\label{\detokenize{Mathematics:id18}}{\hyperref[\detokenize{References:klu}]{\sphinxcrossref{{[}KLU{]}}}}, or the OpenMP or PThreads-enabled SuperLU\_MT sparse matrix
 library \phantomsection\label{\detokenize{Mathematics:id19}}{\hyperref[\detokenize{References:superlumt}]{\sphinxcrossref{{[}SuperLUMT{]}}}} {[}Note that users will need to download and
 install the KLU or SuperLU\_MT packages independent of ARKode{]},
 
-\item {}
+\item {} 
 SPGMR, a scaled, preconditioned GMRES (Generalized Minimal Residual)
 solver,
 
-\item {}
+\item {} 
 SPFGMR, a scaled, preconditioned FGMRES (Flexible Generalized Minimal
 Residual) solver,
 
-\item {}
+\item {} 
 SPBCGS, a scaled, preconditioned Bi-CGStab (Bi-Conjugate Gradient
 Stable) solver,
 
-\item {}
+\item {} 
 SPTFQMR, a scaled, preconditioned TFQMR (Transpose-free
 Quasi-Minimal Residual) solver, or
 
-\item {}
+\item {} 
 PCG, a preconditioned CG (Conjugate Gradient method) solver for
 symmetric linear systems.
 
@@ -2362,25 +2369,25 @@ In cases where recomputation of the Newton matrix
 these structures will be recomputed only in the
 following circumstances:
 \begin{itemize}
-\item {}
+\item {} 
 when starting the problem,
 
-\item {}
+\item {} 
 when more than 20 steps have been taken since the last update (this
 value may be modified by the user),
 
-\item {}
+\item {} 
 when the value \(\tilde{\gamma}\) of \(\gamma\) at the last
 update satisfies \(\left|\gamma/\tilde{\gamma} - 1\right| >
 0.2\) (this value may be modified by the user),
 
-\item {}
+\item {} 
 when a non-fatal convergence failure just occurred,
 
-\item {}
+\item {} 
 when an error test failure just occurred, or
 
-\item {}
+\item {} 
 if the problem is linearly implicit and \(\gamma\) has
 changed by a factor larger than 100 times machine epsilon.
 
@@ -2394,21 +2401,21 @@ Jacobian were the likely cause of the failure.  More generally, the
 decision is made to re-evaluate \(J\) (or instruct the user to
 update \(P\)) when:
 \begin{itemize}
-\item {}
+\item {} 
 starting the problem,
 
-\item {}
+\item {} 
 more than 50 steps have been taken since the last evaluation,
 
-\item {}
+\item {} 
 a convergence failure occurred with an outdated matrix, and the
 value \(\tilde{\gamma}\) of \(\gamma\) at the last update
 satisfies \(\left|\gamma/\tilde{\gamma} - 1\right| > 0.2\),
 
-\item {}
+\item {} 
 a convergence failure occurred that forced a step size reduction, or
 
-\item {}
+\item {} 
 if the problem is linearly implicit and \(\gamma\) has
 changed by a factor larger than 100 times machine epsilon.
 
@@ -2964,27 +2971,27 @@ structure that exploits that sharing (see the following Figures
 The following is a list of the solver packages presently available, and the
 basic functionality of each:
 \begin{itemize}
-\item {}
+\item {} 
 CVODE, a linear multistep solver for stiff and nonstiff ODE systems
 \(\dot{y} = f(t,y)\) based on Adams and BDF methods;
 
-\item {}
+\item {} 
 CVODES, a linear multistep solver for stiff and nonstiff ODEs with
 sensitivity analysis capabilities;
 
-\item {}
+\item {} 
 ARKode, a Runge-Kutta based solver for stiff, nonstiff, mixed stiff-nonstiff,
 and multirate ODE systems;
 
-\item {}
+\item {} 
 IDA, a linear multistep solver for differential-algebraic systems
 \(F(t,y,\dot{y}) = 0\) based on BDF methods;
 
-\item {}
+\item {} 
 IDAS, a linear multistep solver for differential-algebraic systems with sensitivity
 analysis capabilities;
 
-\item {}
+\item {} 
 KINSOL, a solver for nonlinear algebraic systems \(F(u) = 0\).
 
 \end{itemize}
@@ -3082,16 +3089,16 @@ offer considerable assistance in building simple preconditioners.
 ARKode’s linear solver interface consists of four primary phases,
 devoted to
 \begin{enumerate}
-\item {}
+\item {} 
 memory allocation and initialization,
 
-\item {}
+\item {} 
 setup of the matrix/preconditioner data involved,
 
-\item {}
+\item {} 
 solution of the system, and
 
-\item {}
+\item {} 
 freeing of memory.
 
 \end{enumerate}
@@ -3355,7 +3362,7 @@ solver for systems of the form \(Mx=b\).  The header files
 corresponding to the SUNDIALS-provided linear solver modules available
 for use with ARKode are:
 \begin{itemize}
-\item {}
+\item {} 
 Direct linear solvers:
 \begin{itemize}
 \item {} 
@@ -3390,7 +3397,7 @@ SUNLINSOL\_SUPERLUMT;
 
 \end{itemize}
 
-\item {}
+\item {} 
 Iterative linear solvers:
 \begin{itemize}
 \item {} 
@@ -3468,7 +3475,7 @@ For example, call \sphinxcode{MPI\_Init} to initialize MPI if used, or set
 \sphinxcode{num\_threads}, the number of threads to use within the threaded
 vector functions, if used.
 
-\item {}
+\item {} 
 Set problem dimensions, etc.
 
 This generally includes the problem size, \sphinxcode{N}, and may include
@@ -3479,7 +3486,7 @@ The variables \sphinxcode{N} and \sphinxcode{Nlocal} should be of type
 \sphinxcode{sunindextype}.
 \end{sphinxadmonition}
 
-\item {}
+\item {} 
 Set vector of initial values
 
 To set the vector \sphinxcode{y0} of initial values, use the appropriate
@@ -3555,7 +3562,7 @@ Note that the vector class will allocate memory on both the host
 and device when instantiated.  See the sections
 {\hyperref[\detokenize{nvectors/NVector_CUDA:nvectors-cuda}]{\sphinxcrossref{\DUrole{std,std-ref}{The NVECTOR\_CUDA Module}}}} and {\hyperref[\detokenize{nvectors/NVector_RAJA:nvectors-raja}]{\sphinxcrossref{\DUrole{std,std-ref}{The NVECTOR\_RAJA Module}}}} for details.
 
-\item {}
+\item {} 
 Create ARKStep object
 
 Call \sphinxcode{arkode\_mem = ARKStepCreate(...)} to create the ARKStep memory
@@ -3563,7 +3570,7 @@ block. {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}
 this memory structure. See the section
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-initialization}]{\sphinxcrossref{\DUrole{std,std-ref}{ARKStep initialization and deallocation functions}}}} for details.
 
-\item {}
+\item {} 
 Specify integration tolerances
 
 Call {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSStolerances}]{\sphinxcrossref{\sphinxcode{ARKStepSStolerances()}}}} or
@@ -3582,7 +3589,7 @@ linear) may be specified separately through calls to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepResStolerance}]{\sphinxcrossref{\sphinxcode{ARKStepResStolerance()}}}}, {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepResVtolerance}]{\sphinxcrossref{\sphinxcode{ARKStepResVtolerance()}}}}, or
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepResFtolerance}]{\sphinxcrossref{\sphinxcode{ARKStepResFtolerance()}}}}.
 
-\item {}
+\item {} 
 Create matrix object
 
 If a nonlinear solver requiring a linear solver will be used (e.g.,
@@ -3622,7 +3629,7 @@ implementation.
 NOTE: The dense, banded, and sparse matrix objects are usable only in a
 serial or threaded environment.
 
-\item {}
+\item {} 
 Create linear solver object
 
 If a nonlinear solver requiring a linear solver will be used (e.g.,
@@ -3643,7 +3650,7 @@ where \sphinxcode{*} can be replaced with “Dense”, “SPGMR”, or other
 options, as discussed in the sections
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-linearsolvers}]{\sphinxcrossref{\DUrole{std,std-ref}{Linear solver interface functions}}}} and {\hyperref[\detokenize{sunlinsol/index:sunlinsol}]{\sphinxcrossref{\DUrole{std,std-ref}{Description of the SUNLinearSolver module}}}}.
 
-\item {}
+\item {} 
 Set linear solver optional inputs
 
 Call \sphinxcode{*Set*} functions from the selected linear solver module
@@ -3651,7 +3658,7 @@ to change optional inputs specific to that linear solver.  See the
 documentation for each SUNLINSOL module in the section
 {\hyperref[\detokenize{sunlinsol/index:sunlinsol}]{\sphinxcrossref{\DUrole{std,std-ref}{Description of the SUNLinearSolver module}}}} for details.
 
-\item {}
+\item {} 
 Attach linear solver module
 
 If a linear solver was created above for implicit stage solves,
@@ -3675,14 +3682,14 @@ if applicable) with the call (for details see the section
 \PYG{n}{ier} \PYG{o}{=} \PYG{n}{ARKStepSetMassLinearSolver}\PYG{p}{(}\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\item {}
+\item {} 
 Set optional inputs
 
 Call \sphinxcode{ARKStepSet*} functions to change any optional inputs that
 control the behavior of ARKStep from their default values. See the
 section {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-optionalinputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional input functions}}}} for details.
 
-\item {}
+\item {} 
 Create nonlinear solver object
 
 If the problem involves an implicit component, and if a non-default
@@ -3709,7 +3716,7 @@ or
 \PYG{n}{SUNNonlinearSolver} \PYG{n}{NLS} \PYG{o}{=} \PYG{n}{SUNNonlinSol\PYGZus{}FixedPoint}\PYG{p}{(}\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\item {}
+\item {} 
 Attach nonlinear solver module
 
 If a nonlinear solver object was created above, then it must be
@@ -3721,7 +3728,7 @@ section {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterf
 \PYG{n}{ier} \PYG{o}{=} \PYG{n}{ARKStepSetNonlinearSolver}\PYG{p}{(}\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\item {}
+\item {} 
 Set nonlinear solver optional inputs
 
 Call the appropriate set functions for the selected nonlinear
@@ -3731,7 +3738,7 @@ solver to ARKStep, otherwise the optional inputs will be
 overridden by ARKStep defaults.  See the section
 {\hyperref[\detokenize{sunnonlinsol/index:sunnonlinsol}]{\sphinxcrossref{\DUrole{std,std-ref}{Description of the SUNNonlinearSolver Module}}}} for more information on optional inputs.
 
-\item {}
+\item {} 
 Specify rootfinding problem
 
 Optionally, call {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepRootInit}]{\sphinxcrossref{\sphinxcode{ARKStepRootInit()}}}} to initialize a rootfinding
@@ -3740,7 +3747,7 @@ the section {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cin
 the section {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-optionalinputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional input functions}}}} for relevant optional
 input calls.
 
-\item {}
+\item {} 
 Advance solution in time
 
 For each point at which output is desired, call
@@ -3755,13 +3762,13 @@ Here, \sphinxcode{itask} specifies the return mode. The vector \sphinxcode{yout}
 \(y(t_\text{out})\). See the section
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-integration}]{\sphinxcrossref{\DUrole{std,std-ref}{ARKStep solver function}}}} for details.
 
-\item {}
+\item {} 
 Get optional outputs
 
 Call \sphinxcode{ARKStepGet*} functions to obtain optional output. See
 the section {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-optionaloutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional output functions}}}} for details.
 
-\item {}
+\item {} 
 Deallocate memory for solution vector
 
 Upon completion of the integration, deallocate memory for the
@@ -3772,20 +3779,20 @@ vector \sphinxcode{y} (or \sphinxcode{yout}) by calling the destructor function:
 \PYG{n}{N\PYGZus{}VDestroy}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\item {}
+\item {} 
 Free solver memory
 
 Call \sphinxcode{ARKStepFree(\&arkode\_mem)} to free the memory allocated for
 the ARKStep module (and any nonlinear solver module).
 
-\item {}
+\item {} 
 Free linear solver and matrix memory
 
 Call {\hyperref[\detokenize{sunlinsol/SUNLinSol_API:c.SUNLinSolFree}]{\sphinxcrossref{\sphinxcode{SUNLinSolFree()}}}} and (possibly)
 {\hyperref[\detokenize{sunmatrix/SUNMatrix_Operations:c.SUNMatDestroy}]{\sphinxcrossref{\sphinxcode{SUNMatDestroy()}}}} to free any memory allocated for the
 linear solver and matrix objects created above.
 
-\item {}
+\item {} 
 Finalize MPI, if used
 
 Call \sphinxcode{MPI\_Finalize} to terminate MPI.
@@ -4459,7 +4466,7 @@ which \(M=I\), it is recommended that \sphinxcode{rabstol} be left
 unset, which will default to the already-supplied \sphinxcode{abstol}
 values.
 
-\item {}
+\item {} 
 Finally, it is important to pick all the tolerance values
 conservatively, because they control the error committed on each
 individual step. The final (global) errors are an accumulation of
@@ -4484,14 +4491,14 @@ need to be controlled, not eliminated, but in other cases any value
 that violates a constraint may cause a simulation to halt. For both of
 these scenarios the following pieces of advice are relevant.
 \begin{enumerate}
-\item {}
+\item {} 
 The best way to control the size of unwanted negative computed
 values is with tighter absolute tolerances.  Again this requires
 some knowledge of the noise level of these components, which may
 or may not be different for different components. Some
 experimentation may be needed.
 
-\item {}
+\item {} 
 If output plots or tables are being generated, and it is important
 to avoid having negative numbers appear there (for the sake of
 avoiding a long explanation of them, if nothing else), then
@@ -4512,7 +4519,7 @@ value should be changed to zero or a tiny positive number in a
 temporary variable (not in the input \(y\) vector) for the
 purposes of computing \(f^E(t, y)\) or \(f^I(t, y)\).
 
-\item {}
+\item {} 
 Positivity and non-negativity constraints on components can be
 enforced by use of the recoverable error return feature in the
 user-supplied right-hand side functions, \(f^E\) and
@@ -4721,7 +4728,7 @@ sections {\hyperref[\detokenize{sunmatrix/index:sunmatrix}]{\sphinxcrossref{\DUr
 Note: if the user program includes linear solvers for \sphinxstyleemphasis{both} the
 Newton and mass matrix systems, these must have the same type:
 \begin{itemize}
-\item {}
+\item {} 
 If both are matrix-based, then they must utilize the same
 \sphinxcode{SUNMatrix} type, since these will be added when forming the
 Newton system matrices \({\mathcal A}\).  In this case, both the
@@ -4729,7 +4736,7 @@ Newton and mass matrix linear solver interfaces can use the same
 \sphinxcode{SUNLinearSolver} object, although different solver objects
 (e.g. with different solver parameters) are also allowed.
 
-\item {}
+\item {} 
 If both are matrix-free, then the Newton and mass matrix
 \sphinxcode{SUNLinearSolver} objects must be different.  These may even use
 different solver algorithms (SPGMR, SPBCGS, etc.), if desired.
@@ -5016,21 +5023,21 @@ returned at \sphinxstyleemphasis{tstop}.
 the solver was either illegal or missing.  Details will be
 provided in the error message.  Typical causes of this failure:
 \begin{enumerate}
-\item {}
+\item {} 
 A component of the error weight vector became zero during
 internal time-stepping.
 
-\item {}
+\item {} 
 The linear solver initialization function (called by the
 user after calling {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}]{\sphinxcrossref{\sphinxcode{ARKStepCreate()}}}}) failed to set
 the linear solver-specific \sphinxstyleemphasis{lsolve} field in
 \sphinxstyleemphasis{arkode\_mem}.
 
-\item {}
+\item {} 
 A root of one of the root functions was found both at a
 point \(t\) and also very near \(t\).
 
-\item {}
+\item {} 
 The initial condition violates the inequality constraints.
 
 \end{enumerate}
@@ -5974,19 +5981,19 @@ solution vector \(y\).
 \item {} 
 \sphinxstyleemphasis{constraints} \textendash{} vector of constraint flags. If \sphinxcode{constraints{[}i{]}} is
 \begin{itemize}
-\item {}
+\item {} 
 0.0 then no constraint is imposed on \(y_i\)
 
-\item {}
+\item {} 
 1.0 then \(y_i\) will be constrained to be \(y_i \geq 0.0\)
 
-\item {}
+\item {} 
 -1.0 then \(y_i\) will be constrained to be \(y_i \leq 0.0\)
 
-\item {}
+\item {} 
 2.0 then \(y_i\) will be constrained to be \(y_i > 0.0\)
 
-\item {}
+\item {} 
 -2.0 then \(y_i\) will be constrained to be \(y_i < 0.0\)
 
 \end{itemize}
@@ -7176,26 +7183,26 @@ Specifies the method to use for predicting implicit solutions.
 \item {} 
 \sphinxstyleemphasis{method} \textendash{} method choice (0 \(\le\) \sphinxstyleemphasis{method} \(\le\) 4):
 \begin{itemize}
-\item {}
+\item {} 
 0 is the trivial predictor,
 
-\item {}
+\item {} 
 1 is the maximum order (dense output) predictor,
 
-\item {}
+\item {} 
 2 is the variable order predictor, that decreases the
 polynomial degree for more distant RK stages,
 
-\item {}
+\item {} 
 3 is the cutoff order predictor, that uses the maximum order
 for early RK stages, and a first-order predictor for distant
 RK stages,
 
-\item {}
+\item {} 
 4 is the bootstrap predictor, that uses a second-order
 predictor based on only information within the current step.
 
-\item {}
+\item {} 
 5 is the minimum correction predictor, that uses all
 preceding stage information within the current step for
 prediction.
@@ -7883,23 +7890,23 @@ change in \(\gamma\) in the linear system. For more details see
 {\hyperref[\detokenize{sunlinsol/ARKode_requirements:sunlinsol-lagged-matrix}]{\sphinxcrossref{\DUrole{std,std-ref}{Lagged matrix information}}}}.
 \begin{description}
 \item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
-\item {}
+\item {} 
 \sphinxstyleemphasis{arkode\_mem} \textendash{} pointer to the ARKStep memory block.
 
-\item {}
+\item {} 
 \sphinxstyleemphasis{onoff} \textendash{} flag to enable (\sphinxcode{SUNTRUE}) or disable (\sphinxcode{SUNFALSE})
 scaling
 
 \end{itemize}
 
 \item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
-\item {}
+\item {} 
 \sphinxstyleemphasis{ARKLS\_SUCCESS} if successful
 
-\item {}
+\item {} 
 \sphinxstyleemphasis{ARKLS\_MEM\_NULL} if the ARKStep memory was \sphinxcode{NULL}
 
-\item {}
+\item {} 
 \sphinxstyleemphasis{ARKLS\_ILL\_INPUT} if the attached linear solver is not matrix-based
 
 \end{itemize}
@@ -8562,27 +8569,27 @@ functions {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepGetC
 ARKStep provides an extensive set of functions that can be used to
 obtain solver performance information.  We organize these into groups:
 \begin{enumerate}
-\item {}
+\item {} 
 SUNDIALS version information accessor routines are in the subsection
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-sunversioninfo}]{\sphinxcrossref{\DUrole{std,std-ref}{SUNDIALS version information}}}},
 
-\item {}
+\item {} 
 General ARKStep output routines are in the subsection
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arkstepmainoutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Main solver optional output functions}}}},
 
-\item {}
+\item {} 
 ARKStep implicit solver output routines are in the subsection
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arkstepimplicitsolveroutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Implicit solver optional output functions}}}},
 
-\item {}
+\item {} 
 Output routines regarding root-finding results are in the subsection
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arksteprootoutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding optional output functions}}}},
 
-\item {}
+\item {} 
 Linear solver output routines are in the subsection
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arklsoutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Linear solver interface optional output functions}}}} and
 
-\item {}
+\item {} 
 General usability routines (e.g. to print the current ARKStep
 parameters, or output the current Butcher table(s)) are in the
 subsection {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arkstepextraoutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{General usability functions}}}}.
@@ -8667,7 +8674,7 @@ This routine fills a string with SUNDIALS version information.
 \item {} 
 0 if successful
 
-\item {}
+\item {} 
 -1 if the input string is too short to store the SUNDIALS version
 
 \end{itemize}
@@ -8709,7 +8716,7 @@ release label if applicable.
 \item {} 
 0 if successful
 
-\item {}
+\item {} 
 -1 if the input string is too short to store the SUNDIALS label
 
 \end{itemize}
@@ -11014,55 +11021,55 @@ supplied serial C example problem, \sphinxcode{ark\_heat1D\_adapt.c}.
 \label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-usersupplied}}\label{\detokenize{ARKStep_c_interface/User_supplied:user-supplied-functions}}\label{\detokenize{ARKStep_c_interface/User_supplied::doc}}
 The user-supplied functions for ARKStep consist of:
 \begin{itemize}
-\item {}
+\item {} 
 at least one function defining the ODE (required),
 
-\item {}
+\item {} 
 a function that handles error and warning messages (optional),
 
-\item {}
+\item {} 
 a function that provides the error weight vector (optional),
 
-\item {}
+\item {} 
 a function that provides the residual weight vector (optional),
 
-\item {}
+\item {} 
 a function that handles adaptive time step error control (optional),
 
-\item {}
+\item {} 
 a function that handles explicit time step stability (optional),
 
-\item {}
+\item {} 
 a function that updates the implicit stage prediction (optional),
 
-\item {}
+\item {} 
 a function that defines the root-finding problem(s) to solve
 (optional),
 
-\item {}
+\item {} 
 one or two functions that provide Jacobian-related information for
 the linear solver, if a Newton-based nonlinear iteration is chosen
 (optional),
 
-\item {}
+\item {} 
 one or two functions that define the preconditioner for use in any
 of the Krylov iterative algorithms, if a Newton-based nonlinear
 iteration and iterative linear solver are chosen (optional), and
 
-\item {}
+\item {} 
 if the problem involves a non-identity mass matrix \(M\ne I\):
 \begin{itemize}
-\item {}
+\item {} 
 one or two functions that provide mass-matrix-related information
 for the linear and mass matrix solvers (required),
 
-\item {}
+\item {} 
 one or two functions that define the mass matrix preconditioner
 for use in an iterative mass matrix solver is chosen (optional), and
 
 \end{itemize}
 
-\item {}
+\item {} 
 a function that handles vector resizing operations, if the
 underlying vector structure supports resizing (as opposed to
 deletion/recreation), and if the user plans to call
@@ -12357,7 +12364,7 @@ skeleton program presented in {\hyperref[\detokenize{ARKStep_c_interface/Skeleto
 \item {} 
 \sphinxstyleemphasis{Specify integration tolerances}
 
-\item {}
+\item {} 
 Create iterative linear solver object
 
 When creating the iterative linear solver object, specify the type
@@ -12369,7 +12376,7 @@ of preconditioning (\sphinxcode{PREC\_LEFT} or \sphinxcode{PREC\_RIGHT}) to use.
 \item {} 
 \sphinxstyleemphasis{Attach linear solver module}
 
-\item {}
+\item {} 
 Initialize the ARKBANDPRE preconditioner module
 \begin{quote}
 
@@ -12404,7 +12411,7 @@ preconditioner setup and solve functions.
 \item {} 
 \sphinxstyleemphasis{Advance solution in time}
 
-\item {}
+\item {} 
 Get optional outputs
 
 Additional optional outputs associated with ARKBANDPRE are
@@ -12800,7 +12807,7 @@ that are unchanged from the skeleton program presented in
 \item {} 
 \sphinxstyleemphasis{Specify integration tolerances}
 
-\item {}
+\item {} 
 Create iterative linear solver object
 
 When creating the iterative linear solver object, specify the type
@@ -12812,7 +12819,7 @@ of preconditioning (\sphinxcode{PREC\_LEFT} or \sphinxcode{PREC\_RIGHT}) to use.
 \item {} 
 \sphinxstyleemphasis{Attach linear solver module}
 
-\item {}
+\item {} 
 Initialize the ARKBBDPRE preconditioner module
 
 Specify the upper and lower half-bandwidths for computation
@@ -13312,7 +13319,7 @@ For example, call \sphinxcode{MPI\_Init} to initialize MPI if used, or set
 \sphinxcode{num\_threads}, the number of threads to use within the threaded
 vector functions, if used.
 
-\item {}
+\item {} 
 Set problem dimensions, etc.
 
 This generally includes the problem size, \sphinxcode{N}, and may include
@@ -13323,7 +13330,7 @@ The variables \sphinxcode{N} and \sphinxcode{Nlocal} should be of type
 \sphinxcode{sunindextype}.
 \end{sphinxadmonition}
 
-\item {}
+\item {} 
 Set vector of initial values
 
 To set the vector \sphinxcode{y0} of initial values, use the appropriate
@@ -13399,7 +13406,7 @@ Note that the vector class will allocate memory on both the host
 and device when instantiated.  See the sections
 {\hyperref[\detokenize{nvectors/NVector_CUDA:nvectors-cuda}]{\sphinxcrossref{\DUrole{std,std-ref}{The NVECTOR\_CUDA Module}}}} and {\hyperref[\detokenize{nvectors/NVector_RAJA:nvectors-raja}]{\sphinxcrossref{\DUrole{std,std-ref}{The NVECTOR\_RAJA Module}}}} for details.
 
-\item {}
+\item {} 
 Create ERKStep object
 
 Call \sphinxcode{arkode\_mem = ERKStepCreate(...)} to create the ERKStep memory
@@ -13407,7 +13414,7 @@ block. {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepCreate}
 this memory structure. See the section
 {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-initialization}]{\sphinxcrossref{\DUrole{std,std-ref}{ERKStep initialization and deallocation functions}}}} for details.
 
-\item {}
+\item {} 
 Specify integration tolerances
 
 Call {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSStolerances}]{\sphinxcrossref{\sphinxcode{ERKStepSStolerances()}}}} or
@@ -13419,14 +13426,14 @@ to specify a function which sets directly the weights used in
 evaluating WRMS vector norms. See the section
 {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-tolerances}]{\sphinxcrossref{\DUrole{std,std-ref}{ERKStep tolerance specification functions}}}} for details.
 
-\item {}
+\item {} 
 Set optional inputs
 
 Call \sphinxcode{ERKStepSet*} functions to change any optional inputs that
 control the behavior of ERKStep from their default values. See the
 section {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-optionalinputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional input functions}}}} for details.
 
-\item {}
+\item {} 
 Specify rootfinding problem
 
 Optionally, call {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepRootInit}]{\sphinxcrossref{\sphinxcode{ERKStepRootInit()}}}} to initialize a rootfinding
@@ -13435,7 +13442,7 @@ the section {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cin
 the section {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-optionalinputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional input functions}}}} for relevant optional
 input calls.
 
-\item {}
+\item {} 
 Advance solution in time
 
 For each point at which output is desired, call
@@ -13450,13 +13457,13 @@ Here, \sphinxcode{itask} specifies the return mode. The vector \sphinxcode{yout}
 \(y(t_\text{out})\). See the section
 {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-integration}]{\sphinxcrossref{\DUrole{std,std-ref}{ERKStep solver function}}}} for details.
 
-\item {}
+\item {} 
 Get optional outputs
 
 Call \sphinxcode{ERKStepGet*} functions to obtain optional output. See
 the section {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-optionaloutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional output functions}}}} for details.
 
-\item {}
+\item {} 
 Deallocate memory for solution vector
 
 Upon completion of the integration, deallocate memory for the
@@ -13468,13 +13475,13 @@ function:
 \PYG{n}{N\PYGZus{}VDestroy}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\item {}
+\item {} 
 Free solver memory
 
 Call \sphinxcode{ERKStepFree(\&arkode\_mem)} to free the memory allocated for
 the ERKStep module.
 
-\item {}
+\item {} 
 Finalize MPI, if used
 
 Call \sphinxcode{MPI\_Finalize} to terminate MPI.
@@ -13733,7 +13740,7 @@ because the appropriate noise levels are completely
 problem-dependent. The user or modeler hopefully has some idea as
 to what those noise levels are.
 
-\item {}
+\item {} 
 Finally, it is important to pick all the tolerance values
 conservatively, because they control the error committed on each
 individual step. The final (global) errors are an accumulation of
@@ -13758,14 +13765,14 @@ need to be controlled, not eliminated, but in other cases any value
 that violates a constraint may cause a simulation to halt. For both of
 these scenarios the following pieces of advice are relevant.
 \begin{enumerate}
-\item {}
+\item {} 
 The best way to control the size of unwanted negative computed
 values is with tighter absolute tolerances.  Again this requires
 some knowledge of the noise level of these components, which may
 or may not be different for different components. Some
 experimentation may be needed.
 
-\item {}
+\item {} 
 If output plots or tables are being generated, and it is important
 to avoid having negative numbers appear there (for the sake of
 avoiding a long explanation of them, if nothing else), then
@@ -13786,7 +13793,7 @@ changed to zero or a tiny positive number in a temporary variable
 (not in the input \(y\) vector) for the purposes of computing
 \(f(t, y)\).
 
-\item {}
+\item {} 
 Positivity and non-negativity constraints on components can be
 enforced by use of the recoverable error return feature in the
 user-supplied right-hand side function, \(f\). When a
@@ -13937,15 +13944,15 @@ returned at \sphinxstyleemphasis{tstop}.
 the solver was either illegal or missing.  Details will be
 provided in the error message.  Typical causes of this failure:
 \begin{enumerate}
-\item {}
+\item {} 
 A component of the error weight vector became zero during
 internal time-stepping.
 
-\item {}
+\item {} 
 A root of one of the root functions was found both at a
 point \(t\) and also very near \(t\).
 
-\item {}
+\item {} 
 The initial condition violates the inequality constraints.
 
 \end{enumerate}
@@ -14806,19 +14813,19 @@ solution vector \(y\).
 \item {} 
 \sphinxstyleemphasis{constraints} \textendash{} vector of constraint flags. If \sphinxcode{constraints{[}i{]}} is
 \begin{itemize}
-\item {}
+\item {} 
 0.0 then no constraint is imposed on \(y_i\)
 
-\item {}
+\item {} 
 1.0 then \(y_i\) will be constrained to be \(y_i \geq 0.0\)
 
-\item {}
+\item {} 
 -1.0 then \(y_i\) will be constrained to be \(y_i \leq 0.0\)
 
-\item {}
+\item {} 
 2.0 then \(y_i\) will be constrained to be \(y_i > 0.0\)
 
-\item {}
+\item {} 
 -2.0 then \(y_i\) will be constrained to be \(y_i < 0.0\)
 
 \end{itemize}
@@ -15796,19 +15803,19 @@ functions {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepGetC
 ERKStep provides an extensive set of functions that can be used to
 obtain solver performance information.  We organize these into groups:
 \begin{enumerate}
-\item {}
+\item {} 
 SUNDIALS version information accessor routines are in the subsection
 {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-sunversioninfo}]{\sphinxcrossref{\DUrole{std,std-ref}{SUNDIALS version information}}}},
 
-\item {}
+\item {} 
 General ERKStep output routines are in the subsection
 {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erkstepmainoutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Main solver optional output functions}}}},
 
-\item {}
+\item {} 
 Output routines regarding root-finding results are in the subsection
 {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erksteprootoutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding optional output functions}}}},
 
-\item {}
+\item {} 
 General usability routines (e.g. to print the current ERKStep
 parameters, or output the current Butcher table) are in the
 subsection {\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erkstepextraoutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{General usability functions}}}}.
@@ -15863,7 +15870,7 @@ This routine fills a string with SUNDIALS version information.
 \item {} 
 0 if successful
 
-\item {}
+\item {} 
 -1 if the input string is too short to store the SUNDIALS version
 
 \end{itemize}
@@ -15905,7 +15912,7 @@ release label if applicable.
 \item {} 
 0 if successful
 
-\item {}
+\item {} 
 -1 if the input string is too short to store the SUNDIALS label
 
 \end{itemize}
@@ -17043,26 +17050,26 @@ example problem, \sphinxcode{ark\_heat1D\_adapt.c}.
 \label{\detokenize{ERKStep_c_interface/User_supplied:erkstep-cinterface-usersupplied}}\label{\detokenize{ERKStep_c_interface/User_supplied:user-supplied-functions}}\label{\detokenize{ERKStep_c_interface/User_supplied::doc}}
 The user-supplied functions for ERKStep consist of:
 \begin{itemize}
-\item {}
+\item {} 
 a function that defines the ODE (required),
 
-\item {}
+\item {} 
 a function that handles error and warning messages (optional),
 
-\item {}
+\item {} 
 a function that provides the error weight vector (optional),
 
-\item {}
+\item {} 
 a function that handles adaptive time step error control (optional),
 
-\item {}
+\item {} 
 a function that handles explicit time step stability (optional),
 
-\item {}
+\item {} 
 a function that defines the root-finding problem(s) to solve
 (optional),
 
-\item {}
+\item {} 
 a function that handles vector resizing operations, if the
 underlying vector structure supports resizing (as opposed to
 deletion/recreation), and if the user plans to call
@@ -17609,7 +17616,7 @@ For example, call \sphinxcode{MPI\_Init} to initialize MPI if used, or set
 \sphinxcode{num\_threads}, the number of threads to use within the threaded
 vector functions, if used.
 
-\item {}
+\item {} 
 Set problem dimensions, etc.
 
 This generally includes the problem size, \sphinxcode{N}, and may include
@@ -17620,7 +17627,7 @@ The variables \sphinxcode{N} and \sphinxcode{Nlocal} should be of type
 \sphinxcode{sunindextype}.
 \end{sphinxadmonition}
 
-\item {}
+\item {} 
 Set vector of initial values
 
 To set the vector \sphinxcode{y0} of initial values, use the appropriate
@@ -17696,7 +17703,7 @@ Note that the vector class will allocate memory on both the host
 and device when instantiated.  See the sections
 {\hyperref[\detokenize{nvectors/NVector_CUDA:nvectors-cuda}]{\sphinxcrossref{\DUrole{std,std-ref}{The NVECTOR\_CUDA Module}}}} and {\hyperref[\detokenize{nvectors/NVector_RAJA:nvectors-raja}]{\sphinxcrossref{\DUrole{std,std-ref}{The NVECTOR\_RAJA Module}}}} for details.
 
-\item {}
+\item {} 
 Create an ARKStep object for the fast (inner) integration
 
 Call \sphinxcode{inner\_arkode\_mem = ARKStepCreate(...)} to create the ARKStep memory
@@ -17704,7 +17711,7 @@ block. {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}
 this memory structure. See the section
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-initialization}]{\sphinxcrossref{\DUrole{std,std-ref}{ARKStep initialization and deallocation functions}}}} for details.
 
-\item {}
+\item {} 
 Configure the fast (inner) integrator
 
 Specify tolerances, create and attach matrix and/or solver objects,
@@ -17743,7 +17750,7 @@ for more details.
 The \sphinxcode{ARKStep} module used for the fast time scale must be configured
 with an identity mass matrix.
 
-\item {}
+\item {} 
 Create an MRIStep object for the slow (outer) integration
 
 Call \sphinxcode{arkode\_mem = MRIStepCreate(...)} to create the MRIStep memory
@@ -17751,20 +17758,20 @@ block. {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepCreate}
 this memory structure. See the section
 {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-initialization}]{\sphinxcrossref{\DUrole{std,std-ref}{MRIStep initialization and deallocation functions}}}} for details.
 
-\item {}
+\item {} 
 Set the slow step size
 
 Call {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep}]{\sphinxcrossref{\sphinxcode{MRIStepSetFixedStep()}}}} to specify the slow time step
 size.
 
-\item {}
+\item {} 
 Set optional inputs
 
 Call \sphinxcode{MRIStepSet*} functions to change any optional inputs that
 control the behavior of MRIStep from their default values. See the
 section {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-optionalinputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional input functions}}}} for details.
 
-\item {}
+\item {} 
 Specify rootfinding problem
 
 Optionally, call {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepRootInit}]{\sphinxcrossref{\sphinxcode{MRIStepRootInit()}}}} to initialize a rootfinding
@@ -17773,7 +17780,7 @@ the section {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cin
 the section {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-optionalinputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional input functions}}}} for relevant optional
 input calls.
 
-\item {}
+\item {} 
 Advance solution in time
 
 For each point at which output is desired, call
@@ -17788,7 +17795,7 @@ Here, \sphinxcode{itask} specifies the return mode. The vector \sphinxcode{yout}
 \(y(t_\text{out})\). See the section
 {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-integration}]{\sphinxcrossref{\DUrole{std,std-ref}{MRIStep solver function}}}} for details.
 
-\item {}
+\item {} 
 Get optional outputs
 
 Call \sphinxcode{MRIStepGet*} and/or \sphinxcode{ARKStepGet*} functions to obtain optional
@@ -17796,7 +17803,7 @@ output from the slow or fast integrators respectively. See
 the section {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-optionaloutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional output functions}}}} and
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-optionaloutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional output functions}}}} for details.
 
-\item {}
+\item {} 
 Deallocate memory for solution vector
 
 Upon completion of the integration, deallocate memory for the
@@ -17808,7 +17815,7 @@ function:
 \PYG{n}{N\PYGZus{}VDestroy}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\item {}
+\item {} 
 Free solver memory
 \begin{quote}
 
@@ -17816,7 +17823,7 @@ Call \sphinxcode{ARKStepFree(\&inner\_arkode\_mem)} and \sphinxcode{MRIStepFree(
 free the memory allocated for fast and slow integration modules respectively.
 \end{quote}
 
-\item {}
+\item {} 
 Free linear solver and matrix memory
 \begin{quote}
 
@@ -17825,7 +17832,7 @@ Call {\hyperref[\detokenize{sunlinsol/SUNLinSol_API:c.SUNLinSolFree}]{\sphinxcro
 linear solver and/or matrix objects created above for the fast integrator.
 \end{quote}
 
-\item {}
+\item {} 
 Finalize MPI, if used
 \begin{quote}
 
@@ -18056,11 +18063,11 @@ returned at \sphinxstyleemphasis{tstop}.
 the solver was either illegal or missing.  Details will be
 provided in the error message.  Typical causes of this failure:
 \begin{enumerate}
-\item {}
+\item {} 
 A component of the error weight vector became zero during
 internal time-stepping.
 
-\item {}
+\item {} 
 A root of one of the root functions was found both at a
 point \(t\) and also very near \(t\).
 
@@ -18984,19 +18991,19 @@ functions {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepGetC
 MRIStep provides an extensive set of functions that can be used to
 obtain solver performance information.  We organize these into groups:
 \begin{enumerate}
-\item {}
+\item {} 
 SUNDIALS version information accessor routines are in the subsection
 {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-sunversioninfo}]{\sphinxcrossref{\DUrole{std,std-ref}{SUNDIALS version information}}}},
 
-\item {}
+\item {} 
 General MRIStep output routines are in the subsection
 {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepmainoutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Main solver optional output functions}}}},
 
-\item {}
+\item {} 
 Output routines regarding root-finding results are in the subsection
 {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristeprootoutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding optional output functions}}}},
 
-\item {}
+\item {} 
 General usability routines (e.g. to print the current MRIStep
 parameters, or output the current Butcher tables) are in the
 subsection {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepextraoutputs}]{\sphinxcrossref{\DUrole{std,std-ref}{General usability functions}}}}.
@@ -19046,7 +19053,7 @@ This routine fills a string with SUNDIALS version information.
 \item {} 
 0 if successful
 
-\item {}
+\item {} 
 -1 if the input string is too short to store the SUNDIALS version
 
 \end{itemize}
@@ -19088,7 +19095,7 @@ release label if applicable.
 \item {} 
 0 if successful
 
-\item {}
+\item {} 
 -1 if the input string is too short to store the SUNDIALS label
 
 \end{itemize}
@@ -19778,19 +19785,19 @@ message to the error handler function.
 \label{\detokenize{MRIStep_c_interface/User_supplied:user-supplied-functions}}\label{\detokenize{MRIStep_c_interface/User_supplied::doc}}\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-usersupplied}}
 The user-supplied functions for MRIStep consist of:
 \begin{itemize}
-\item {}
+\item {} 
 functions that defines the ODE (required),
 
-\item {}
+\item {} 
 a function that handles error and warning messages (optional),
 
 \end{itemize}
 \begin{itemize}
-\item {}
+\item {} 
 a function that defines the root-finding problem(s) to solve
 (optional),
 
-\item {}
+\item {} 
 a function that handles vector resizing operations, if the
 underlying vector structure supports resizing (as opposed to
 deletion/recreation), and if the user plans to call
@@ -23912,7 +23919,7 @@ variables on output.
 \item {} 
 1 = normal mode (overshoot \sphinxstyleemphasis{TOUT} and interpolate)
 
-\item {}
+\item {} 
 2 = one-step mode (return after each internal step taken)
 
 \item {} 
@@ -23930,13 +23937,13 @@ goes past \sphinxstyleemphasis{TSTOP}).
 \item {} 
 \sphinxstyleemphasis{IER} (int, output) \textendash{} completion flag:
 \begin{itemize}
-\item {}
+\item {} 
 0 = success,
 
-\item {}
+\item {} 
 1 = tstop return,
 
-\item {}
+\item {} 
 2 = root return,
 
 \item {} 
@@ -24064,10 +24071,10 @@ initial conditions.
 \item {} 
 \sphinxstyleemphasis{HSCALE} (\sphinxcode{realtype}, input) \textendash{} desired step size scale factor:
 \begin{itemize}
-\item {}
+\item {} 
 1.0 is the default,
 
-\item {}
+\item {} 
 any value \textless{}= 0.0 results in the default.
 
 \end{itemize}
@@ -24077,7 +24084,7 @@ any value \textless{}= 0.0 results in the default.
 tolerance and vector of absolute tolerances are supplied in
 the \sphinxstyleemphasis{RTOL} and \sphinxstyleemphasis{ATOL} arguments:
 \begin{itemize}
-\item {}
+\item {} 
 0 = retain the current scalar-valued relative and absolute
 tolerances, or the user-supplied error weight function,
 {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKEWT}]{\sphinxcrossref{\sphinxcode{FARKEWT()}}}}.
@@ -24834,7 +24841,7 @@ are unchanged from the main program described in the section
 \item {} 
 \sphinxstyleemphasis{NVECTOR module initialization}
 
-\item {}
+\item {} 
 SUNLINSOL module initialization
 
 Initialize one of the iterative SUNLINSOL modules, by calling one
@@ -24848,7 +24855,7 @@ SUNLINSOL module should utilize left or right preconditioning.
 \item {} 
 \sphinxstyleemphasis{Set optional inputs}
 
-\item {}
+\item {} 
 Linear solver interface specification
 
 First, initialize the ARKStep linear solver interface by calling {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKLSINIT}]{\sphinxcrossref{\sphinxcode{FARKLSINIT()}}}}.
@@ -24895,7 +24902,7 @@ if a memory failure).
 \item {} 
 \sphinxstyleemphasis{Problem solution}
 
-\item {}
+\item {} 
 ARKBANDPRE optional outputs
 
 Optional outputs for ARKStep’s linear solver interface are listed in
@@ -25042,7 +25049,7 @@ unchanged from the main program described in the section
 \item {} 
 \sphinxstyleemphasis{NVECTOR module initialization}
 
-\item {}
+\item {} 
 SUNLINSOL module initialization
 
 Initialize one of the iterative SUNLINSOL modules, by calling one
@@ -25056,7 +25063,7 @@ SUNLINSOL module should utilize left or right preconditioning.
 \item {} 
 \sphinxstyleemphasis{Set optional inputs}
 
-\item {}
+\item {} 
 Linear solver interface specification
 
 First, initialize ARKStep’s linear solver interface by
@@ -25123,7 +25130,7 @@ if a memory failure).
 \item {} 
 \sphinxstyleemphasis{Problem solution}
 
-\item {}
+\item {} 
 ARKBBDPRE optional outputs
 
 Optional outputs from the ARKStep linear solver interface are
@@ -25162,7 +25169,7 @@ far.
 \item {} 
 \sphinxstyleemphasis{Additional solution output}
 
-\item {}
+\item {} 
 Problem re-initialization
 
 If a sequence of problems of the same size is being solved using
@@ -25201,7 +25208,7 @@ then a call to one of \sphinxcode{FSUNSPGMRINIT()},
 a call to {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKLSINIT}]{\sphinxcrossref{\sphinxcode{FARKLSINIT()}}}} must also be made; in this case
 the linear solver memory is reallocated.
 
-\item {}
+\item {} 
 Problem resizing
 
 If a sequence of problems of different sizes (but with similar
@@ -25242,7 +25249,7 @@ the linear solver memory is reallocated.
 (The memory allocated for the FARKBBD module is deallocated
 automatically by {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKFREE}]{\sphinxcrossref{\sphinxcode{FARKFREE()}}}}).
 
-\item {}
+\item {} 
 User-supplied routines
 
 The following two routines must be supplied for use with the
@@ -26118,24 +26125,24 @@ A particular implementation of the NVECTOR module must:
 \item {} 
 Specify the \sphinxstyleemphasis{content} field of \sphinxcode{N\_Vector}.
 
-\item {}
+\item {} 
 Define and implement the vector operations.  Note that the names of
 these routines should be unique to that implementation in order to
 permit using more than one NVECTOR module (each with different
 \sphinxcode{N\_Vector} internal data representations) in the same code.
 
-\item {}
+\item {} 
 Define and implement user-callable constructor and destructor
 routines to create and free an \sphinxcode{N\_Vector} with
 the new \sphinxstyleemphasis{content} field and with \sphinxstyleemphasis{ops} pointing to the
 new vector operations.
 
-\item {}
+\item {} 
 Optionally, define and implement additional user-callable routines
 acting on the newly defined \sphinxcode{N\_Vector} (e.g., a routine to print
 the content for debugging purposes).
 
-\item {}
+\item {} 
 Optionally, provide accessor macros as needed for that particular implementation to
 be used to access different parts in the \sphinxstyleemphasis{content} field of the
 newly defined \sphinxcode{N\_Vector}.
@@ -27671,7 +27678,7 @@ pointer data for any \sphinxcode{N\_Vector} with \sphinxstyleemphasis{own\_data}
 In such a case, it is the user’s responsibility to deallocate the
 data pointer.
 
-\item {}
+\item {} 
 To maximize efficiency, vector operations in the NVECTOR\_SERIAL
 implementation that have more than one \sphinxcode{N\_Vector} argument do not
 check for consistent internal representation of these vectors. It is
@@ -28120,7 +28127,7 @@ pointer data for any \sphinxcode{N\_Vector} with \sphinxstyleemphasis{own\_data}
 \sphinxcode{SUNFALSE}. In such a case, it is the user’s responsibility to
 deallocate the data pointer.
 
-\item {}
+\item {} 
 To maximize efficiency, vector operations in the NVECTOR\_PARALLEL
 implementation that have more than one \sphinxcode{N\_Vector} argument do not
 check for consistent internal representation of these vectors. It is
@@ -28544,7 +28551,7 @@ pointer data for any \sphinxcode{N\_Vector} with \sphinxstyleemphasis{own\_data}
 In such a case, it is the user’s responsibility to deallocate the
 data pointer.
 
-\item {}
+\item {} 
 To maximize efficiency, vector operations in the NVECTOR\_OPENMP
 implementation that have more than one \sphinxcode{N\_Vector} argument do not
 check for consistent internal representation of these vectors. It is
@@ -28977,7 +28984,7 @@ pointer data for any \sphinxcode{N\_Vector} with \sphinxstyleemphasis{own\_data}
 In such a case, it is the user’s responsibility to deallocate the
 data pointer.
 
-\item {}
+\item {} 
 To maximize efficiency, vector operations in the NVECTOR\_PTHREADS
 implementation that have more than one \sphinxcode{N\_Vector} argument do not
 check for consistent internal representation of these vectors. It is
@@ -29292,7 +29299,7 @@ underlying HYPRE vector for any \sphinxcode{N\_Vector} with \sphinxstyleemphasis
 set to \sphinxcode{SUNFALSE}.  In such a case, it is the user’s responsibility
 to delete the underlying vector.
 
-\item {}
+\item {} 
 To maximize efficiency, vector operations in the NVECTOR\_PARHYP
 implementation that have more than one \sphinxcode{N\_Vector} argument do not
 check for consistent internal representations of these vectors. It is
@@ -29569,7 +29576,7 @@ pointer \sphinxcode{pvec} for any \sphinxcode{N\_Vector} with \sphinxstyleemphas
 \sphinxcode{SUNFALSE}. In such a case, it is the user’s responsibility to
 deallocate the \sphinxcode{pvec} pointer.
 
-\item {}
+\item {} 
 To maximize efficiency, vector operations in the NVECTOR\_PETSC
 implementation that have more than one \sphinxcode{N\_Vector} argument do not
 check for consistent internal representations of these vectors. It is
@@ -29924,7 +29931,7 @@ it is recommeded to use functions {\hyperref[\detokenize{nvectors/NVector_CUDA:c
 {\hyperref[\detokenize{nvectors/NVector_CUDA:c.N_VGetHostArrayPointer_Cuda}]{\sphinxcrossref{\sphinxcode{N\_VGetHostArrayPointer\_Cuda()}}}}. However, when using managed memory,
 the function {\hyperref[\detokenize{nvectors/NVector_Operations:c.N_VGetArrayPointer}]{\sphinxcrossref{\sphinxcode{N\_VGetArrayPointer()}}}} may also be used.
 
-\item {}
+\item {} 
 To maximize efficiency, vector operations in the NVECTOR\_CUDA implementation
 that have more than one \sphinxcode{N\_Vector} argument do not check for
 consistent internal representations of these vectors. It is the user’s
@@ -30193,7 +30200,7 @@ When there is a need to access components of an \sphinxcode{N\_Vector\_Raja}, \s
 it is recommeded to use functions {\hyperref[\detokenize{nvectors/NVector_RAJA:c.N_VGetDeviceArrayPointer_Raja}]{\sphinxcrossref{\sphinxcode{N\_VGetDeviceArrayPointer\_Raja()}}}} or
 {\hyperref[\detokenize{nvectors/NVector_RAJA:c.N_VGetHostArrayPointer_Raja}]{\sphinxcrossref{\sphinxcode{N\_VGetHostArrayPointer\_Raja()}}}}.
 
-\item {}
+\item {} 
 To maximize efficiency, vector operations in the NVECTOR\_RAJA implementation
 that have more than one \sphinxcode{N\_Vector} argument do not check for
 consistent internal representations of these vectors. It is the user’s
@@ -30593,7 +30600,7 @@ pointer data for any \sphinxcode{N\_Vector} with \sphinxstyleemphasis{own\_data}
 In such a case, it is the user’s responsibility to deallocate the
 data pointers.
 
-\item {}
+\item {} 
 To maximize efficiency, vector operations in the NVECTOR\_OPENMPDEV
 implementation that have more than one \sphinxcode{N\_Vector} argument do not
 check for consistent internal representation of these vectors. It is
@@ -31014,7 +31021,7 @@ subvector array for any \sphinxcode{N\_Vector} with \sphinxcode{own\_data} set t
 \sphinxcode{SUNFALSE}. In such a case, it is the user’s responsibility to
 deallocate the subvectors.
 
-\item {}
+\item {} 
 To maximize efficiency, arithmetic vector operations in the
 NVECTOR\_MANYVECTOR implementation that have more than one
 \sphinxcode{N\_Vector} argument do not check for consistent internal
@@ -31383,7 +31390,7 @@ subvector array for any \sphinxcode{N\_Vector} with \sphinxcode{own\_data} set t
 \sphinxcode{SUNFALSE}. In such a case, it is the user’s responsibility to
 deallocate the subvectors.
 
-\item {}
+\item {} 
 To maximize efficiency, arithmetic vector operations in the
 NVECTOR\_MPIMANYVECTOR implementation that have more than one
 \sphinxcode{N\_Vector} argument do not check for consistent internal
@@ -31510,7 +31517,7 @@ local vector.
 local vector. In this a case, it is the user’s responsibility to deallocate
 the local vector.
 
-\item {}
+\item {} 
 To maximize efficiency, arithmetic vector operations in the
 NVECTOR\_MPIPLUSX implementation that have more than one
 \sphinxcode{N\_Vector} argument do not check for consistent internal
@@ -32076,7 +32083,7 @@ X
 \par
 \sphinxattableend\end{savenotes}
 \begin{enumerate}
-\item {}
+\item {} 
 This is only required with dense or band matrix-based linear solver modules,
 where the default difference-quotient Jacobian approximation is used.
 
@@ -32192,7 +32199,7 @@ particular implementation of the SUNMATRIX module must:
 \item {} 
 Specify the \sphinxstyleemphasis{content} field of the \sphinxcode{SUNMatrix} object.
 
-\item {}
+\item {} 
 Define and implement a minimal subset of the matrix operations.
 See the documentation for each SUNDIALS solver to determine which
 SUNMATRIX operations they require.  The list of required
@@ -32204,17 +32211,17 @@ implementation in order to permit using more than one SUNMATRIX
 module (each with different \sphinxcode{SUNMatrix} internal data
 representations) in the same code.
 
-\item {}
+\item {} 
 Define and implement user-callable constructor and destructor
 routines to create and free a \sphinxcode{SUNMatrix} with the new \sphinxstyleemphasis{content}
 field and with \sphinxstyleemphasis{ops} pointing to the new matrix operations.
 
-\item {}
+\item {} 
 Optionally, define and implement additional user-callable routines
 acting on the newly defined \sphinxcode{SUNMatrix} (e.g., a routine to print the
 \sphinxstyleemphasis{content} for debugging purposes).
 
-\item {}
+\item {} 
 Optionally, provide accessor macros as needed for that particular
 implementation to be used to access different parts in the content
 field of the newly defined \sphinxcode{SUNMatrix}.
@@ -32999,7 +33006,7 @@ First obtain the array of column pointers via \sphinxcode{A\_cols = SM\_COLS\_D(
 \sphinxcode{A\_cols = SUNDenseMatrix\_Cols(A)}, and then access
 \sphinxcode{A\_cols{[}j{]}{[}i{]}} within the loop.
 
-\item {}
+\item {} 
 Within a loop over the columns, access the column pointer via
 \sphinxcode{A\_colj = SUNDenseMatrix\_Column(A,j)} and then to access the
 entries within that column using \sphinxcode{A\_colj{[}i{]}} within the loop.
@@ -33576,7 +33583,7 @@ First obtain the array of column pointers via \sphinxcode{A\_cols = SM\_COLS\_B(
 \sphinxcode{A\_cols = SUNBandMatrix\_Cols(A)}, and then
 access \sphinxcode{A\_cols{[}j{]}{[}i{]}} within the loop.
 
-\item {}
+\item {} 
 Within a loop over the columns, access the column pointer via
 \sphinxcode{A\_colj = SUNBandMatrix\_Column(A,j)} and then to access the
 entries within that column using \sphinxcode{SM\_COLUMN\_ELEMENT\_B(A\_colj,i,j)}.
@@ -33659,6 +33666,314 @@ matrix in ARKode.
 
 \end{fulllineitems}
 
+
+
+\section{The SUNMATRIX\_CUSPARSE Module}
+\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:sunmatrix-cusparse}}\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:the-sunmatrix-cusparse-module}}\label{\detokenize{sunmatrix/SUNMatrix_cuSparse::doc}}
+The SUNMATRIX\_CUSPARSE implementation of the \sphinxcode{SUNMatrix} module provided with
+SUNDIALS, is an interface to the NVIDIA cuSPARSE matrix for use on NVIDIA GPUs (\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:id1}}{\hyperref[\detokenize{References:cusparse}]{\sphinxcrossref{{[}cuSPARSE{]}}}}).
+All data stored by this matrix implementation resides on the GPU at all times.
+
+The header file to be included when using this module is \sphinxcode{sunmatrix/sunmatrix\_cusparse.h}.
+The installed library to link to is \sphinxcode{libsundials\_sunmatrixcusparse.lib} where \sphinxcode{.lib} is
+typically \sphinxcode{.so} for shared libraries and \sphinxcode{.a} for static libraries.
+
+
+\subsection{SUNMATRIX\_CUSPARSE Description}
+\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:sunmatrix-cusparse-description}}\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:id2}}
+The implementation currently supports the cuSPARSE CSR matrix format described
+in the cuSPARSE documentation as well as a unique low-storage format for
+block-diagonal matrices of the form
+\begin{equation*}
+\begin{split}\mathbf{A} =
+\begin{bmatrix}
+   \mathbf{A_1} & 0 & \cdots & 0\\
+   0 & \mathbf{A_2} & \cdots & 0\\
+   \vdots & \vdots & \ddots & \vdots\\
+   0 & 0 & \cdots & \mathbf{A_n}\\
+\end{bmatrix}\end{split}
+\end{equation*}
+where all the block matrices \(\mathbf{A_j}\) share the same sparsisty pattern.
+We will refer to this format as BCSR (not to be confused with the canonical BSR format where
+each block is stored as dense). In this format, the CSR column indices and row pointers
+are only stored for the first block and are computed only as necessary for other blocks.
+This can drastically reduce the amount of storage required compared to the regular CSR
+format when there is a large number of blocks. This format is well-suited for, and
+intended to be used with the {\hyperref[\detokenize{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr}]{\sphinxcrossref{\DUrole{std,std-ref}{The SUNLinSol\_cuSolverSp\_batchQR Module}}}}.
+
+\sphinxstylestrong{The SUNMATRIX\_CUSPARSE module is experimental and subject to change.}
+
+
+\subsection{SUNMATRIX\_CUSPARSE Functions}
+\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:sunmatrix-cusparse-functions}}\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:id3}}
+The SUNMATRIX\_CUSPARSE module defines GPU-enabled sparse implementations of all matrix
+operations listed in the section {\hyperref[\detokenize{sunmatrix/SUNMatrix_Operations:sunmatrix-ops}]{\sphinxcrossref{\DUrole{std,std-ref}{Description of the SUNMATRIX operations}}}} except for the \sphinxcode{SUNMatSpace}
+and \sphinxcode{SUNMatMatvecSetup} operations:
+\begin{itemize}
+\item {} 
+\sphinxcode{SUNMatGetID\_cuSparse} \textendash{} returns \sphinxcode{SUNMATRIX\_CUSPARSE}
+
+\item {} 
+\sphinxcode{SUNMatClone\_cuSparse}
+
+\item {} 
+\sphinxcode{SUNMatDestroy\_cuSparse}
+
+\item {} 
+\sphinxcode{SUNMatZero\_cuSparse}
+
+\item {} 
+\sphinxcode{SUNMatCopy\_cuSparse}
+
+\item {} \begin{description}
+\item[{\sphinxcode{SUNMatScaleAdd\_cuSparse} \textendash{} performs \(A = cA + B\), where \(A\) and \(B\)}] \leavevmode
+must have the same sparsity pattern
+
+\end{description}
+
+\item {} 
+\sphinxcode{SUNMatScaleAddI\_cuSparse} \textendash{} performs \(A = cA + I\), where the diagonal of \(A\)
+must be present
+
+\item {} 
+\sphinxcode{SUNMatMatvec\_cuSparse}
+
+\end{itemize}
+
+In addition, the SUNMATRIX\_CUSPARSE module defines the following implementation specific
+functions:
+\index{SUNMatrix\_cuSparse\_NewCSR (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_NewCSR}}\pysiglinewithargsret{SUNMatrix \sphinxbfcode{SUNMatrix\_cuSparse\_NewCSR}}{int\sphinxstyleemphasis{ M}, int\sphinxstyleemphasis{ N}, int\sphinxstyleemphasis{ NNZ}, cusparseHandle\_t\sphinxstyleemphasis{ cusp}}{}
+This constructor function creates and allocates memory for a SUMATRIX\_CUSPARSE
+\sphinxcode{SUNMatrix} that uses the CSR storage format. Its arguments are the
+number of rows and columns of the matrix, \sphinxcode{M} and \sphinxcode{N}, the number of
+nonzeros to be stored in the matrix, \sphinxcode{NNZ}, and a valid \sphinxcode{cusparseHandle\_t}.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\sphinxbfcode{SUNMatrix~SUNMatrix\_cuSparse\_NewBlockCSR(int~nblocks,~int~blockrows,~int~blockcols}}\pysigline{\sphinxbfcode{int~blocknnz,~cusparseHandle\_t~cusp)}}
+This constructor function creates and allocates memory for a SUNMATRIX\_CUSPARSE
+\sphinxcode{SUNMatrix} object that leverages the \sphinxcode{SUNMAT\_CUSPARSE\_BCSR} storage
+format to store a block diagonal matrix where each block shares the same
+sparsity pattern. The blocks must be square. The function arguments are the
+number of blocks,{}`{}`nblocks{}`{}`, the number of rows, \sphinxcode{blockrows}, the number of
+columns, \sphinxcode{blockcols}, the number of nonzeros in each each block, \sphinxcode{blocknnz},
+and a valid cuSPARSE handle.
+
+\sphinxstylestrong{The {}`{}`SUNMAT\_CUSPARSE\_BCSR{}`{}` format currently only supports square matrices.}.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\sphinxbfcode{SUNMatrix~SUNMatrix\_cuSparse\_MakeCSR(cusparseMatDescr\_t~mat\_descr,~int~M,~int~N,~int~NNZ,}}\pysigline{\sphinxbfcode{int~*rowptrs~,~int~*colind~,~realtype~*data,}}\pysigline{\sphinxbfcode{cusparseHandle\_t~cusp)}}
+This constructor function creates a SUNMATRIX\_CUSPARSE \sphinxcode{SUNMatrix}
+object from user provided pointers. Its arguments are a \sphinxcode{cusparseMatDescr\_t}
+that must have index base \sphinxcode{CUSPARSE\_INDEX\_BASE\_ZERO}, the number of rows
+and columns of the matrix, \sphinxcode{M} and \sphinxcode{N}, the number of nonzeros to be stored
+in the matrix, \sphinxcode{NNZ}, and a valid \sphinxcode{cusparseHandle\_t}.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_Rows (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_Rows}}\pysiglinewithargsret{int \sphinxbfcode{SUNMatrix\_cuSparse\_Rows}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns the number of rows in the sparse \sphinxcode{SUNMatrix}.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_Columns (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_Columns}}\pysiglinewithargsret{int \sphinxbfcode{SUNMatrix\_cuSparse\_Columns}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns the number of columns in the sparse \sphinxcode{SUNMatrix}.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_NNZ (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_NNZ}}\pysiglinewithargsret{int \sphinxbfcode{SUNMatrix\_cuSparse\_NNZ}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns the number of entries allocated for nonzero
+storage for the sparse \sphinxcode{SUNMatrix}.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_SparseType (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_SparseType}}\pysiglinewithargsret{int \sphinxbfcode{SUNMatrix\_cuSparse\_SparseType}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns the storage type (\sphinxcode{SUNMAT\_CUSPARSE\_CSR}
+or \sphinxcode{SUNMAT\_CUSPARSE\_BCSR}) for the sparse \sphinxcode{SUNMatrix}.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_Data (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_Data}}\pysiglinewithargsret{realtype* \sphinxbfcode{SUNMatrix\_cuSparse\_Data}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns a pointer to the data array for the
+sparse \sphinxcode{SUNMatrix}.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_IndexValues (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_IndexValues}}\pysiglinewithargsret{int* \sphinxbfcode{SUNMatrix\_cuSparse\_IndexValues}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns a pointer to the index value array for the sparse
+\sphinxcode{SUNMatrix}: for the CSR format this is an array of column indices for
+each nonzero entry. For the BCSR format this is an array of the column indices
+for each nonzero entry in the first block only.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_IndexPointers (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_IndexPointers}}\pysiglinewithargsret{int* \sphinxbfcode{SUNMatrix\_cuSparse\_IndexPointers}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns a pointer to the index pointer array for the
+sparse \sphinxcode{SUNMatrix}: for the CSR format this is an array of the locations
+of the first entry of each row in the \sphinxcode{data} and \sphinxcode{indexvalues} arrays,
+for the BCSR format this is an array of the locations of each row in the
+\sphinxcode{data} and \sphinxcode{indexvalues} arrays in the first block only.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_NumBlocks (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_NumBlocks}}\pysiglinewithargsret{int \sphinxbfcode{SUNMatrix\_cuSparse\_NumBlocks}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns the number of matrix blocks.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_BlockRows (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_BlockRows}}\pysiglinewithargsret{int \sphinxbfcode{SUNMatrix\_cuSparse\_BlockRows}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns the number of rows in a matrix block.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_BlockColumns (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_BlockColumns}}\pysiglinewithargsret{int \sphinxbfcode{SUNMatrix\_cuSparse\_BlockColumns}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns the number of columns in a matrix block.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_BlockNNZ (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_BlockNNZ}}\pysiglinewithargsret{int \sphinxbfcode{SUNMatrix\_cuSparse\_BlockNNZ}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns the number of nonzeros in each
+matrix block.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_BlockData (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_BlockData}}\pysiglinewithargsret{realtype* \sphinxbfcode{SUNMatrix\_cuSparse\_BlockData}}{SUNMatrix\sphinxstyleemphasis{ A}, int\sphinxstyleemphasis{ blockidx}}{}
+This function returns a pointer to the location in the \sphinxcode{data} array
+where the data for the block, \sphinxcode{blockidx}, begins. Thus, \sphinxcode{blockidx}
+must be less than \sphinxcode{SUNMatrix\_cuSparse\_NumBlocks(A)}. The first block
+in the SUNMatrix is index 0, the second block is index 1, and so on.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_MatDescr (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_MatDescr}}\pysiglinewithargsret{cusparseMatDescr\_t \sphinxbfcode{SUNMatrix\_cuSparse\_MatDescr}}{SUNMatrix\sphinxstyleemphasis{ A}}{}
+This function returns the \sphinxcode{cusparseMatDescr\_t} object associated with
+the matrix.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\sphinxbfcode{int~SUNMatrix\_cuSparse\_CopyToDevice(SUNMatrix~A,~realtype*~h\_data,}}\pysigline{\sphinxbfcode{int*~h\_idxptrs,~int*~h\_idxvals)}}
+This functions copies the matrix information to the GPU device from the provided
+host arrays. A user may provide \sphinxcode{NULL} for any of \sphinxcode{h\_data}, \sphinxcode{h\_idxptrs}, or
+\sphinxcode{h\_idxvals} to avoid copying that information.
+
+The function returns \sphinxcode{SUNMAT\_SUCCESS} if the copy operation(s) were successful,
+or a nonzero error code otherwise.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\sphinxbfcode{int~SUNMatrix\_cuSparse\_CopyFromDevice(SUNMatrix~A,~realtype*~h\_data,}}\pysigline{\sphinxbfcode{int*~h\_idxptrs,~int*~h\_idxvals)}}
+This functions copies the matrix information from the GPU device to the provided
+host arrays. A user may provide \sphinxcode{NULL} for any of \sphinxcode{h\_data}, \sphinxcode{h\_idxptrs}, or
+\sphinxcode{h\_idxvals} to avoid copying that information. Otherwise:
+\begin{itemize}
+\item {} 
+The \sphinxcode{h\_data} array must be at least \sphinxcode{SUNMatrix\_cuSparse\_NNZ(A)*sizeof(realtype)}
+bytes.
+
+\item {} 
+The \sphinxcode{h\_idxptrs} array must be at least
+
+\end{itemize}
+
+\sphinxcode{(SUNMatrix\_cuSparse\_BlockDim(A)+1)*sizeof(int)} bytes.
+\begin{itemize}
+\item {} 
+The \sphinxcode{h\_idxvals} array must be at least
+
+\end{itemize}
+
+\sphinxcode{(SUNMatrix\_cuSparse\_BlockNNZ(A))*sizeof(int)} bytes.
+
+The function returns \sphinxcode{SUNMAT\_SUCCESS} if the copy operation(s) were successful,
+or a nonzero error code otherwise.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_cuSparse\_SetFixedPattern (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:c.SUNMatrix_cuSparse_SetFixedPattern}}\pysiglinewithargsret{int \sphinxbfcode{SUNMatrix\_cuSparse\_SetFixedPattern}}{SUNMatrix\sphinxstyleemphasis{ A}, booleantype\sphinxstyleemphasis{ yesno}}{}
+This function changes the behavior of the the \sphinxcode{SUNMatZero} operation on the object
+\sphinxcode{A}.  By default the matrix sparsity pattern is not considered to be fixed, thus,
+the \sphinxcode{SUNMatZero} operation zeros out all \sphinxcode{data} array as well as the \sphinxcode{indexvalues}
+and \sphinxcode{indexpointers} arrays. Providing a value of \sphinxcode{1} or \sphinxcode{SUNTRUE} for the
+\sphinxcode{yesno} argument changes the behavior of \sphinxcode{SUNMatZero} on \sphinxcode{A} so that only the
+data is zeroed out, but not the \sphinxcode{indexvalues} or \sphinxcode{indexpointers} arrays.
+Providing a value of \sphinxcode{0} or \sphinxcode{SUNFALSE} for the \sphinxcode{yesno} argument is equivalent
+to the default behavior.
+
+\end{fulllineitems}
+
+
+
+\subsection{SUNMATRIX\_CUSPARSE Usage Notes}
+\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:sunmatrix-cusparse-notes}}\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:sunmatrix-cusparse-usage-notes}}
+The SUNMATRIX\_CUSPARSE module only supports 32-bit indexing, thus SUNDIALS must be built
+for 32-bit indexing to use this module.
+
+The SUNMATRIX\_CUSPARSE module can be used with CUDA streams by calling the cuSPARSE
+function \sphinxcode{cusparseSetStream} on the the \sphinxcode{cusparseHandle\_t} that is provided to the
+SUNMATRIX\_CUSPARSE constructor.
+
+\sphinxstylestrong{When using the SUNMATRIX\_CUSPARSE module with a SUNDIALS package (e.g. ARKODE), the
+stream given to cuSPARSE should be the same stream used for the NVECTOR object that
+is provided to the package, and the NVECTOR object given to the {}`{}`SUNMatvec{}`{}` operation.
+If different streams are utilized, synchronization issues may occur.}
 
 
 \section{The SUNMATRIX\_SPARSE Module}
@@ -34603,11 +34918,11 @@ SUNMatSpace
 \par
 \sphinxattableend\end{savenotes}
 \begin{enumerate}
-\item {}
+\item {} 
 These matrix functions are only used for problems involving a
 non-identity mass matrix.
 
-\item {}
+\item {} 
 These matrix functions are optionally used, in that these are only
 called if they are implemented in the \sphinxcode{SUNMatrix} module that is
 being used (i.e. their function pointers are non-\sphinxcode{NULL}).  If not
@@ -34670,17 +34985,17 @@ where
 \end{equation}
 and where
 \begin{itemize}
-\item {}
+\item {} 
 \(P_1\) is the left preconditioner,
 
-\item {}
+\item {} 
 \(P_2\) is the right preconditioner,
 
-\item {}
+\item {} 
 \(S_1\) is a diagonal matrix of scale factors for
 \(P_1^{-1} b\),
 
-\item {}
+\item {} 
 \(S_2\) is a diagonal matrix of scale factors for \(P_2 x\).
 
 \end{itemize}
@@ -35424,7 +35739,7 @@ A particular implementation of the \sphinxcode{SUNLinearSolver} module must:
 \item {} 
 Specify the \sphinxstyleemphasis{content} field of the SUNLinSol module.
 
-\item {}
+\item {} 
 Define and implement the required linear solver operations.  See the
 section {\hyperref[\detokenize{sunlinsol/ARKode_requirements:sunlinsol-arkode}]{\sphinxcrossref{\DUrole{std,std-ref}{ARKode SUNLinearSolver interface}}}} to determine which SUNLinSol
 operations are required for this SUNDIALS package.
@@ -35434,7 +35749,7 @@ implementation in order to permit using more than one
 SUNLinSol module (each with different \sphinxcode{SUNLinearSolver}
 internal data representations) in the same code.
 
-\item {}
+\item {} 
 Define and implement user-callable constructor and destructor
 routines to create and free a \sphinxcode{SUNLinearSolver} with
 the new \sphinxstyleemphasis{content} field and with \sphinxstyleemphasis{ops} pointing to the
@@ -35816,7 +36131,7 @@ ARKLS will attempt to adjust the linear solver tolerance to account
 for this lack of functionality.  To this end, the following
 assumptions are made:
 \begin{itemize}
-\item {}
+\item {} 
 All solution components have similar magnitude; hence the residual
 weight vector \(w\) used in the WRMS norm (see the section
 {\hyperref[\detokenize{Mathematics:mathematics-error-norm}]{\sphinxcrossref{\DUrole{std,std-ref}{Error norms}}}}), corresponding to the left scaling
@@ -36185,7 +36500,7 @@ The “solve” call performs pivoting and forward and
 backward substitution using the stored \sphinxcode{pivots} array and the
 \(LU\) factors held in the SUNMATRIX\_BAND object.
 
-\item {}
+\item {} 
 \(A\) must be allocated to accommodate the increase in upper
 bandwidth that occurs during factorization.  More precisely, if \(A\)
 is a band matrix with upper bandwidth \sphinxcode{mu} and lower bandwidth
@@ -36614,7 +36929,7 @@ The “solve” call performs pivoting and forward and
 backward substitution using the stored \sphinxcode{pivots} array and the
 \(LU\) factors held in the SUNMATRIX\_BAND object.
 
-\item {}
+\item {} 
 \(A\) must be allocated to accommodate the increase in upper
 bandwidth that occurs during factorization.  More precisely, if
 \(A\) is a band matrix with upper bandwidth \sphinxcode{mu} and lower
@@ -36714,13 +37029,13 @@ factorization).
 The \sphinxcode{reinit\_type} argument governs the level of
 reinitialization.  The allowed values are:
 \begin{enumerate}
-\item {}
+\item {} 
 The Jacobian matrix will be destroyed and a new one will be
 allocated based on the \sphinxcode{nnz} value passed to this call.  New
 symbolic and numeric factorizations will be completed at the next
 solver setup.
 
-\item {}
+\item {} 
 Only symbolic and numeric factorizations will be completed.
 It is assumed that the Jacobian size has not exceeded the size of
 \sphinxcode{nnz} given in the sparse matrix provided to the original
@@ -36746,13 +37061,13 @@ This function sets the ordering used by KLU for reducing fill in
 the linear solve.  Options for \sphinxcode{ordering\_choice} are:
 \begin{enumerate}
 \setcounter{enumi}{-1}
-\item {}
+\item {} 
 AMD,
 
-\item {}
+\item {} 
 COLAMD, and
 
-\item {}
+\item {} 
 the natural ordering.
 
 \end{enumerate}
@@ -37439,16 +37754,16 @@ This function sets the ordering used by SuperLU\_MT for reducing fill in
 the linear solve.  Options for \sphinxcode{ordering\_choice} are:
 \begin{enumerate}
 \setcounter{enumi}{-1}
-\item {}
+\item {} 
 natural ordering
 
-\item {}
+\item {} 
 minimal degree ordering on \(A^TA\)
 
-\item {}
+\item {} 
 minimal degree ordering on \(A^T+A\)
 
-\item {}
+\item {} 
 COLAMD ordering for unsymmetric matrices
 
 \end{enumerate}
@@ -37727,9 +38042,9 @@ space requirements, see the SuperLU\_MT documentation.
 \section{The SUNLinSol\_cuSolverSp\_batchQR Module}
 \label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp::doc}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:the-sunlinsol-cusolversp-batchqr-module}}
 The \sphinxcode{SUNLinearSolver\_cuSolverSp\_batchQR} implementation of the SUNLinearSolver API is
-designed to be used with the SUNMATRIX\_SPARSE matrix type, and the NVECTOR\_CUDA vector type
-\sphinxstyleemphasis{with managed memory}. The header file to include when using this module is
-\sphinxcode{sunlinsol/sunlinsol\_cusolversp\_batchqr.h\}}. The installed library to link to
+designed to be used with the SUNMATRIX\_CUSPARSE matrix, and the NVECTOR\_CUDA vector.
+The header file to include when using this module is
+\sphinxcode{sunlinsol/sunlinsol\_cusolversp\_batchqr.h}. The installed library to link to
 is \sphinxcode{libsundials\_sunlinsolcusolversp.lib} where \sphinxcode{.lib} is typically
 \sphinxcode{.so} for shared libraries and \sphinxcode{.a} for static libraries.
 
@@ -37742,17 +38057,18 @@ The SUNLinearSolver\_cuSolverSp\_batchQR implementation provides an interface to
 the batched sparse QR factorization method provided by the NVIDIA cuSOLVER library (\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:id2}}{\hyperref[\detokenize{References:cusolver}]{\sphinxcrossref{{[}cuSOLVER{]}}}}).
 The module is designed for solving block diagonal linear systems of the form
 \begin{equation*}
-\begin{split}\mathbf{A} =
-\begin{bmatrix}
+\begin{split}\begin{bmatrix}
    \mathbf{A_1} & 0 & \cdots & 0\\
    0 & \mathbf{A_2} & \cdots & 0\\
    \vdots & \vdots & \ddots & \vdots\\
    0 & 0 & \cdots & \mathbf{A_n}\\
-\end{bmatrix}\end{split}
+\end{bmatrix}
+x_j
+=
+b_j\end{split}
 \end{equation*}
 where all block matrices \(\mathbf{A_j}\) share the same sparsisty pattern. The matrix
-must be in the CSR storage format. For further details about the method itself,
-review the NVIDIA documentation.
+must be the {\hyperref[\detokenize{sunmatrix/SUNMatrix_cuSparse:sunmatrix-cusparse}]{\sphinxcrossref{\DUrole{std,std-ref}{The SUNMATRIX\_CUSPARSE Module}}}}.
 
 
 \subsection{SUNLinSol\_cuSolverSp\_batchQR functions}
@@ -37788,7 +38104,7 @@ In addition, the module provides the following user-callable routines:
 
 
 \begin{fulllineitems}
-\pysigline{\sphinxbfcode{SUNLinearSolver~SUNLinSol\_cuSolverSp\_batchQR(N\_Vector~y,~SUNMatrix~A,~int~nsubsys,~int~subsys\_size,~int~subsys\_nnz);}}
+\pysigline{\sphinxbfcode{SUNLinearSolver~SUNLinSol\_cuSolverSp\_batchQR(N\_Vector~y,~SUNMatrix~A,~cusolverHandle\_t~cusol);}}
 The function \sphinxcode{SUNLinSol\_cuSolverSp\_batchQR} creates and allocates
 memory for a SUNLinearSolver object.
 
@@ -37800,12 +38116,12 @@ linear system size and to assess compatibility with the solver.
 
 This routine will perform consistency checks to ensure that it is
 called with consistent \sphinxcode{N\_Vector}  and \sphinxcode{SUNMatrix}  implementations.
-These are currently limited to the SUNMATRIX\_SPARSE matrix type
-and the NVECTOR\_CUDA vector type. Since the SUNMATRIX\_SPARSE matrix
-type is only compatible with the NVECTOR\_CUDA  when using managed memory,
-the restriction is also in place for the linear solver. As additional
-compatible matrix and vector implementations are added to SUNDIALS,
-these will be included within this compatibility check.
+These are currently limited to the SUNMATRIX\_CUSPARSE matrix type
+and the NVECTOR\_CUDA vector type. Since the SUNMATRIX\_CUSPARSE matrix
+type is only compatible with the NVECTOR\_CUDA the restriction is also
+in place for the linear solver. As additional compatible matrix and
+vector implementations are added to SUNDIALS, these will be included
+within this compatibility check.
 
 \end{fulllineitems}
 
@@ -37829,6 +38145,20 @@ sets the string description of the object (empty by default).
 
 
 
+\begin{fulllineitems}
+\pysigline{\sphinxbfcode{void~SUNLinSol\_cuSolverSp\_batchQR\_GetDeviceSpace(SUNLinearSolver~S,}}\pysigline{\sphinxbfcode{size\_t*~cuSolverInternal,}}\pysigline{\sphinxbfcode{size\_t*~cuSolverWorkspace);}}
+The function \sphinxcode{SUNLinSol\_cuSolverSp\_batchQR\_GetDeviceSpace}
+returns the cuSOLVER batch QR method internal buffer size, in bytes,
+in the argument \sphinxcode{cuSolverInternal} and the cuSOLVER
+batch QR workspace buffer size, in bytes, in the agrument
+\sphinxcode{cuSolverWorkspace}. The size of the internal buffer is
+proportional to the number of matrix blocks while the size
+of the workspace is almost independent of the number of blocks.
+
+\end{fulllineitems}
+
+
+
 \subsection{SUNLinSol\_cuSolverSp\_batchQR content}
 \label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr-content}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:id4}}
 The SUNLinSol\_cuSolverSp\_batchQR module defines the \sphinxstyleemphasis{content} field of a
@@ -37837,18 +38167,11 @@ The SUNLinSol\_cuSolverSp\_batchQR module defines the \sphinxstyleemphasis{conte
 \fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}SUNLinearSolverContent\PYGZus{}cuSolverSp\PYGZus{}batchQR} \PYG{p}{\PYGZob{}}
-\PYG{k+kt}{int}                \PYG{n}{nsubsys}\PYG{p}{;}            \PYG{c+cm}{/* number of subsystems                                 */}
-\PYG{k+kt}{int}                \PYG{n}{subsys\PYGZus{}size}\PYG{p}{;}        \PYG{c+cm}{/* size of each subsystem                               */}
-\PYG{k+kt}{int}                \PYG{n}{subsys\PYGZus{}nnz}\PYG{p}{;}         \PYG{c+cm}{/* number of nonzeros per subsystem                     */}
 \PYG{k+kt}{int}                \PYG{n}{last\PYGZus{}flag}\PYG{p}{;}          \PYG{c+cm}{/* last return flag                                     */}
 \PYG{n}{booleantype}        \PYG{n}{first\PYGZus{}factorize}\PYG{p}{;}    \PYG{c+cm}{/* is this the first factorization?                     */}
 \PYG{k+kt}{size\PYGZus{}t}             \PYG{n}{internal\PYGZus{}size}\PYG{p}{;}      \PYG{c+cm}{/* size of cusolver internal buffer for Q and R         */}
 \PYG{k+kt}{size\PYGZus{}t}             \PYG{n}{workspace\PYGZus{}size}\PYG{p}{;}     \PYG{c+cm}{/* size of cusolver memory block for num. factorization */}
 \PYG{n}{cusolverSpHandle\PYGZus{}t} \PYG{n}{cusolver\PYGZus{}handle}\PYG{p}{;}    \PYG{c+cm}{/* cuSolverSp context                                   */}
-\PYG{n}{cusparseMatDescr\PYGZus{}t} \PYG{n}{system\PYGZus{}description}\PYG{p}{;} \PYG{c+cm}{/* matrix description                                   */}
-\PYG{n}{realtype}\PYG{o}{*}          \PYG{n}{d\PYGZus{}values}\PYG{p}{;}           \PYG{c+cm}{/* device array of matrix A values                      */}
-\PYG{k+kt}{int}\PYG{o}{*}               \PYG{n}{d\PYGZus{}rowptr}\PYG{p}{;}           \PYG{c+cm}{/* device array of rowptrs for a subsystem              */}
-\PYG{k+kt}{int}\PYG{o}{*}               \PYG{n}{d\PYGZus{}colind}\PYG{p}{;}           \PYG{c+cm}{/* device array of column indices for a subsystem       */}
 \PYG{n}{csrqrInfo\PYGZus{}t}        \PYG{n}{info}\PYG{p}{;}               \PYG{c+cm}{/* opaque cusolver data structure                       */}
 \PYG{k+kt}{void}\PYG{o}{*}              \PYG{n}{workspace}\PYG{p}{;}          \PYG{c+cm}{/* memory block used by cusolver                        */}
 \PYG{k}{const} \PYG{k+kt}{char}\PYG{o}{*}        \PYG{n}{desc}\PYG{p}{;}               \PYG{c+cm}{/* description of this linear solver                    */}
@@ -39701,10 +40024,10 @@ allowed, and is applied in a symmetric fashion on both the right and
 left.  Scaling is also allowed and is applied symmetrically.  We
 denote the preconditioner and scaling matrices as follows:
 \begin{itemize}
-\item {}
+\item {} 
 \(P\) is the preconditioner (assumed symmetric),
 
-\item {}
+\item {} 
 \(S\) is a diagonal matrix of scale factors.
 
 \end{itemize}
@@ -41040,10 +41363,10 @@ denoting a successful or failed solve:
 \label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-custom}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:implementing-a-custom-sunnonlinearsolver-module}}
 A SUNNonlinSol implementation \sphinxstyleemphasis{must} do the following:
 \begin{itemize}
-\item {}
+\item {} 
 Specify the content of the SUNNonlinSol module.
 
-\item {}
+\item {} 
 Define and implement the required nonlinear solver operations
 defined in Sections {\hyperref[\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-corefn}]{\sphinxcrossref{\DUrole{std,std-ref}{SUNNonlinearSolver core functions}}}} through
 {\hyperref[\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-getfn}]{\sphinxcrossref{\DUrole{std,std-ref}{SUNNonlinearSolver get functions}}}}. Note that the names of the module
@@ -41052,7 +41375,7 @@ using more than one SUNNonlinSol module (each with different
 \sphinxcode{SUNNonlinearSolver} internal data representations) in
 the same code.
 
-\item {}
+\item {} 
 Define and implement a user-callable constructor to create a
 \sphinxcode{SUNNonlinearSolver} object.
 
@@ -41300,7 +41623,7 @@ solvers).  Specifically, SUNNonlinSol\_Newton will call the
 when requested by the integrator (the input \sphinxcode{callLSetSetup} is
 \sphinxcode{SUNTRUE}) before attempting the Newton iteration, or
 
-\item {}
+\item {} 
 when reattempting the nonlinear solve after a recoverable failure
 occurs in the Newton iteration with stale Jacobian information
 (\sphinxcode{jcur} is \sphinxcode{SUNFALSE}).  In this case, SUNNonlinSol\_Newton
@@ -41874,7 +42197,7 @@ For these reasons, it is recommended, although not always necessary, that the
 user calls \sphinxcode{SUNNonlinSol\_PetscSNES} with the new \sphinxcode{SNES} object immediately
 after calling \sphinxcode{SNESCreate}.
 
-\item {}
+\item {} 
 The number of nonlinear iterations is tracked by SUNDIALS separately from the
 count kept by SNES. As such, the function \sphinxcode{SUNNonlinSolGetNumIters} reports
 the cumulative number of iterations across the lifetime of the
@@ -42095,7 +42418,7 @@ Starting with version 2.6.0 of SUNDIALS, CMake is the only supported
 method of installation.  The explanations of the installation
 procedure begins with a few common observations:
 \begin{itemize}
-\item {}
+\item {} 
 The remainder of this chapter will follow these conventions:
 \begin{description}
 \item[{\sphinxcode{SOLVERDIR}}] \leavevmode
@@ -42125,7 +42448,7 @@ different configurations and/or options.
 The installation directory \sphinxcode{INSTDIR} can not be the same as
 the source directory \sphinxcode{SOLVERDIR}.
 
-\item {}
+\item {} 
 By default, only the libraries and header files are exported to the
 installation directory \sphinxcode{INSTDIR}.  If enabled by the user (with the
 appropriate toggle for CMake), the
@@ -42143,7 +42466,7 @@ allows the option of building the SUNDIALS examples without having
 to install them.  (This can be used as a sanity check for the
 freshly built libraries.)
 
-\item {}
+\item {} 
 Even if generation of shared libraries is enabled, only static
 libraries are created for the FCMIX modules.  Because of the use of
 fixed names for the Fortran user-provided subroutines, FCMIX shared
@@ -42232,16 +42555,16 @@ Using CMake with the \sphinxcode{ccmake} GUI follows the general process:
 \item {} 
 Select and modify values, run configure (\sphinxcode{c} key)
 
-\item {}
+\item {} 
 New values are denoted with an asterisk
 
-\item {}
+\item {} 
 To set a variable, move the cursor to the variable and press enter
 \begin{itemize}
-\item {}
+\item {} 
 If it is a boolean (ON/OFF) it will toggle the value
 
-\item {}
+\item {} 
 If it is string or file, it will allow editing of the string
 
 \item {} 
@@ -42249,11 +42572,11 @@ For file and directories, the \sphinxcode{\textless{}tab\textgreater{}} key can 
 
 \end{itemize}
 
-\item {}
+\item {} 
 Repeat until all values are set as desired and the generate option
 is available (\sphinxcode{g} key)
 
-\item {}
+\item {} 
 Some variables (advanced variables) are not visible right away
 
 \item {} 
@@ -42275,16 +42598,16 @@ The first time you click \sphinxcode{Configure}, make sure to pick the
 appropriate generator (the following will ssume generation of Unix
 Makfiles).
 
-\item {}
+\item {} 
 New values are highlighted in red
 
-\item {}
+\item {} 
 To set a variable, click on or move the cursor to the variable and press enter
 \begin{itemize}
 \item {} 
 If it is a boolean (\sphinxcode{ON/OFF}) it will check/uncheck the box
 
-\item {}
+\item {} 
 If it is string or file, it will allow editing of the string.
 Additionally, an ellipsis button will appear \sphinxcode{...} on the far
 right of the entry.  Clicking this button will bring up the file
@@ -42296,11 +42619,11 @@ complete
 
 \end{itemize}
 
-\item {}
+\item {} 
 Repeat until all values are set as desired and click the
 \sphinxcode{Generate} button
 
-\item {}
+\item {} 
 Some variables (advanced variables) are not visible right away
 
 \item {} 
@@ -43273,7 +43596,7 @@ equivalently, \sphinxcode{XSDK\_INDEX\_SIZE}) equals the precision of
 
 \subsubsection{Building with CUDA}
 \label{\detokenize{Install:installation-cmake-externallibraries-cuda}}\label{\detokenize{Install:building-with-cuda}}
-SUNDIALS CUDA modules and examples have been tested with version 8.0 of the
+SUNDIALS CUDA modules and examples have been tested with version 10.1 of the
 CUDA toolkit. To build them, you need to install the Toolkit and compatible
 NVIDIA drivers. Both are available for download from the NVIDIA website:
 \sphinxurl{https://developer.nvidia.com/cuda-downloads}. To enable CUDA,
@@ -43351,7 +43674,7 @@ machine architecture, compiler versions, use of third party libraries etc.
 CMake can also be used to build SUNDIALS on Windows. To build SUNDIALS
 for use with Visual Studio the following steps should be performed:
 \begin{enumerate}
-\item {}
+\item {} 
 Unzip the downloaded tar file(s) into a directory. This will be the
 \sphinxcode{SOLVERDIR}
 
@@ -43364,24 +43687,24 @@ Open a Visual Studio Command Prompt and cd to \sphinxcode{BUILDDIR}
 \item {} 
 Run \sphinxcode{cmake-gui ../SOLVERDIR}
 \begin{enumerate}
-\item {}
+\item {} 
 Hit Configure
 
-\item {}
+\item {} 
 Check/Uncheck solvers to be built
 
 \item {} 
 Change \sphinxcode{CMAKE\_INSTALL\_PREFIX} to \sphinxcode{INSTDIR}
 
-\item {}
+\item {} 
 Set other options as desired
 
-\item {}
+\item {} 
 Hit Generate
 
 \end{enumerate}
 
-\item {}
+\item {} 
 Back in the VS Command Window:
 \begin{enumerate}
 \item {} 
@@ -43678,6 +44001,34 @@ SUNMATRIX\_SPARSE
 Header files
 &
 \sphinxcode{sunmatrix/sunmatrix\_sparse.h}
+\\
+\hline
+SUNMATRIX\_SLUNRLOC
+&
+Libraries
+&
+\sphinxcode{libsundials\_sunmatrixslunrloc.LIB},
+\\
+\hline
+SUNMATRIX\_SLUNRLOC
+&
+Header files
+&
+\sphinxcode{sunmatrix/sunmatrix\_slunrloc.h}
+\\
+\hline
+SUNMATRIX\_CUSPARSE
+&
+Libraries
+&
+\sphinxcode{libsundials\_sunmatrixcusparse.LIB},
+\\
+\hline
+SUNMATRIX\_CUSPARSE
+&
+Header files
+&
+\sphinxcode{sunmatrix/sunmatrix\_cusparse.h}
 \\
 \hline
 SUNLINSOL\_BAND
@@ -44143,41 +44494,47 @@ Use the default eighth-order ERK method
 
 \subsection{Implicit Butcher table specification}
 \label{\detokenize{Constants:implicit-butcher-table-specification}}\begin{description}
-\item[{\index{SDIRK-2-1-2 method}SDIRK\_2\_1\_2  (12):}] \leavevmode
+\item[{\index{SDIRK-2-1-2 method}SDIRK\_2\_1\_2  (100):}] \leavevmode
 Use the SDIRK-2-1-2 SDIRK method
 
-\item[{\index{Billington-3-3-2 SDIRK method}BILLINGTON\_3\_3\_2  (13):}] \leavevmode
+\item[{\index{Billington-3-3-2 SDIRK method}BILLINGTON\_3\_3\_2  (101):}] \leavevmode
 Use the Billington-3-3-2 SDIRK method
 
-\item[{\index{TRBDF2-3-3-2 ESDIRK method}TRBDF2\_3\_3\_2  (14):}] \leavevmode
+\item[{\index{TRBDF2-3-3-2 ESDIRK method}TRBDF2\_3\_3\_2  (102):}] \leavevmode
 Use the TRBDF2-3-3-2 ESDIRK method
 
-\item[{\index{Kvaerno-4-2-3 ESDIRK method}KVAERNO\_4\_2\_3  (15):}] \leavevmode
+\item[{\index{Kvaerno-4-2-3 ESDIRK method}KVAERNO\_4\_2\_3  (103):}] \leavevmode
 Use the Kvaerno-4-2-3 ESDIRK method
 
-\item[{\index{ARK-4-2-3 ESDIRK method}ARK324L2SA\_DIRK\_4\_2\_3  (16):}] \leavevmode
+\item[{\index{ARK-4-2-3 ESDIRK method}ARK324L2SA\_DIRK\_4\_2\_3  (104):}] \leavevmode
 Use the ARK-4-2-3 ESDIRK method
 
-\item[{\index{Cash-5-2-4 SDIRK method}CASH\_5\_2\_4  (17):}] \leavevmode
+\item[{\index{Cash-5-2-4 SDIRK method}CASH\_5\_2\_4  (105):}] \leavevmode
 Use the Cash-5-2-4 SDIRK method
 
-\item[{\index{Cash-5-3-4 SDIRK method}CASH\_5\_3\_4  (18):}] \leavevmode
+\item[{\index{Cash-5-3-4 SDIRK method}CASH\_5\_3\_4  (106):}] \leavevmode
 Use the Cash-5-3-4 SDIRK method
 
-\item[{\index{SDIRK-5-3-4 method}SDIRK\_5\_3\_4  (19):}] \leavevmode
+\item[{\index{SDIRK-5-3-4 method}SDIRK\_5\_3\_4  (107):}] \leavevmode
 Use the SDIRK-5-3-4 SDIRK method
 
-\item[{\index{Kvaerno-5-3-4 ESDIRK method}KVAERNO\_5\_3\_4  (20):}] \leavevmode
+\item[{\index{Kvaerno-5-3-4 ESDIRK method}KVAERNO\_5\_3\_4  (108):}] \leavevmode
 Use the Kvaerno-5-3-4 ESDIRK method
 
-\item[{\index{ARK-6-3-4 ESDIRK method}ARK436L2SA\_DIRK\_6\_3\_4  (21):}] \leavevmode
+\item[{\index{ARK-6-3-4 ESDIRK method}ARK436L2SA\_DIRK\_6\_3\_4  (109):}] \leavevmode
 Use the ARK-6-3-4 ESDIRK method
 
-\item[{\index{Kvaerno-7-4-5 ESDIRK method}KVAERNO\_7\_4\_5  (22):}] \leavevmode
+\item[{\index{Kvaerno-7-4-5 ESDIRK method}KVAERNO\_7\_4\_5  (110):}] \leavevmode
 Use the Kvaerno-7-4-5 ESDIRK method
 
-\item[{\index{ARK-8-4-5 ESDIRK method}ARK548L2SA\_DIRK\_8\_4\_5  (23):}] \leavevmode
+\item[{\index{ARK-8-4-5 ESDIRK method}ARK548L2SA\_DIRK\_8\_4\_5  (111):}] \leavevmode
 Use the ARK-8-4-5 ESDIRK method
+
+\item[{\index{ARK-7-3-4 ESDIRK method}ARK437L2SA\_DIRK\_7\_3\_4  (112):}] \leavevmode
+Use the ARK-7-3-4 ESDIRK method
+
+\item[{\index{ARK-8-4-5 ESDIRK method}ARK548L2SAb\_DIRK\_8\_4\_5  (113):}] \leavevmode
+Use the ARK-8-4-5b ESDIRK method
 
 \item[{\index{DEFAULT\_DIRK\_2}DEFAULT\_DIRK\_2  (SDIRK\_2\_1\_2):}] \leavevmode
 Use the default second-order DIRK method
@@ -44524,7 +44881,7 @@ In this iteration, we use as initial guess the solution from the
 previous value of \(\theta\), starting with an initial-initial
 guess of \(\eta=0\) for \(\theta=0\).
 
-\item {}
+\item {} 
 We then plot the resulting \(\eta\) values that trace the
 stability region boundary.
 
@@ -45390,31 +45747,31 @@ explicit calculations, ARKode includes methods that have orders 3
 through 5, with embeddings that are of orders 2 through 4.  These
 Butcher table pairs are as follows:
 \begin{itemize}
-\item {}
+\item {} 
 \index{ARK-4-2-3 ARK method}3rd-order pair:
 {\hyperref[\detokenize{Butcher:butcher-ark-4-2-3-e}]{\sphinxcrossref{\DUrole{std,std-ref}{ARK-4-2-3 (explicit)}}}} with {\hyperref[\detokenize{Butcher:butcher-ark-4-2-3-i}]{\sphinxcrossref{\DUrole{std,std-ref}{ARK-4-2-3 (implicit)}}}},
 corresponding to Butcher tables \sphinxcode{ARK324L2SA\_ERK\_4\_2\_3} and
 \sphinxcode{ARK324L2SA\_DIRK\_4\_2\_3} for {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}.
 
-\item {}
+\item {} 
 \index{ARK-6-3-4 ARK method}4th-order pair:
 {\hyperref[\detokenize{Butcher:butcher-ark-6-3-4-e}]{\sphinxcrossref{\DUrole{std,std-ref}{ARK-6-3-4 (explicit)}}}} with {\hyperref[\detokenize{Butcher:butcher-ark-6-3-4-i}]{\sphinxcrossref{\DUrole{std,std-ref}{ARK-6-3-4 (implicit)}}}},
 corresponding to Butcher tables \sphinxcode{ARK436L2SA\_ERK\_6\_3\_4} and
 \sphinxcode{ARK436L2SA\_DIRK\_6\_3\_4} for {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}.
 
-\item {}
+\item {} 
 \index{ARK-7-3-4 ARK method}4th-order pair:
 {\hyperref[\detokenize{Butcher:butcher-ark-7-3-4-e}]{\sphinxcrossref{\DUrole{std,std-ref}{ARK-7-3-4 (explicit)}}}} with {\hyperref[\detokenize{Butcher:butcher-ark-7-3-4-i}]{\sphinxcrossref{\DUrole{std,std-ref}{ARK-7-3-4 (implicit)}}}},
 corresponding to Butcher tables \sphinxcode{ARK437L2SA\_ERK\_7\_3\_4} and
 \sphinxcode{ARK437L2SA\_DIRK\_7\_3\_4} for {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}.
 
-\item {}
+\item {} 
 \index{ARK-8-4-5 ARK method}5th-order pair:
 {\hyperref[\detokenize{Butcher:butcher-ark-8-4-5-e}]{\sphinxcrossref{\DUrole{std,std-ref}{ARK-8-4-5 (explicit)}}}} with {\hyperref[\detokenize{Butcher:butcher-ark-8-4-5-i}]{\sphinxcrossref{\DUrole{std,std-ref}{ARK-8-4-5 (implicit)}}}},
 corresponding to Butcher tables \sphinxcode{ARK548L2SA\_ERK\_8\_4\_5} and
 \sphinxcode{ARK548L2SA\_ERK\_8\_4\_5} for {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}.
 
-\item {}
+\item {} 
 \index{ARK-8-4-5b ARK method}5th-order pair:
 {\hyperref[\detokenize{Butcher:butcher-ark-8-4-5b-e}]{\sphinxcrossref{\DUrole{std,std-ref}{ARK-8-4-5b (explicit)}}}} with {\hyperref[\detokenize{Butcher:butcher-ark-8-4-5b-i}]{\sphinxcrossref{\DUrole{std,std-ref}{ARK-8-4-5b (implicit)}}}},
 corresponding to Butcher tables \sphinxcode{ARK548L2SAb\_ERK\_8\_4\_5} and
@@ -46091,6 +46448,9 @@ C Programming.  John Wiley \& Sons, 2014.
 }
 \bibitem[cuSOLVER]{\detokenize{cuSOLVER}}{\phantomsection\label{\detokenize{References:cusolver}} 
 \sphinxhref{https://docs.nvidia.com/cuda/cusolver/index.html}{NVIDIA cuSOLVER Documentation}.
+}
+\bibitem[cuSPARSE]{\detokenize{cuSPARSE}}{\phantomsection\label{\detokenize{References:cusparse}} 
+\sphinxhref{https://docs.nvidia.com/cuda/cusparse/index.html}{NVIDIA cuSPARSE Documentation}.
 }
 \bibitem[DP1980]{\detokenize{DP1980}}{\phantomsection\label{\detokenize{References:dp1980}} 
 J.R. Dormand and P.J. Prince. A family of embedded

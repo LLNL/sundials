@@ -21,9 +21,9 @@ The SUNLinSol_cuSolverSp_batchQR Module
 =======================================
 
 The ``SUNLinearSolver_cuSolverSp_batchQR`` implementation of the SUNLinearSolver API is
-designed to be used with the SUNMATRIX_SPARSE matrix type, and the NVECTOR_CUDA vector type
-*with managed memory*. The header file to include when using this module is
-``sunlinsol/sunlinsol_cusolversp_batchqr.h}``. The installed library to link to
+designed to be used with the SUNMATRIX_CUSPARSE matrix, and the NVECTOR_CUDA vector.
+The header file to include when using this module is
+``sunlinsol/sunlinsol_cusolversp_batchqr.h``. The installed library to link to
 is ``libsundials_sunlinsolcusolversp.lib`` where ``.lib`` is typically
 ``.so`` for shared libraries and ``.a`` for static libraries.
 
@@ -40,17 +40,18 @@ The module is designed for solving block diagonal linear systems of the form
 
 .. math::
 
-   \mathbf{A} =
    \begin{bmatrix}
       \mathbf{A_1} & 0 & \cdots & 0\\
       0 & \mathbf{A_2} & \cdots & 0\\
       \vdots & \vdots & \ddots & \vdots\\
       0 & 0 & \cdots & \mathbf{A_n}\\
    \end{bmatrix}
+   x_j
+   =
+   b_j
 
 where all block matrices :math:`\mathbf{A_j}` share the same sparsisty pattern. The matrix
-must be in the CSR storage format. For further details about the method itself,
-review the NVIDIA documentation.
+must be the :ref:`SUNMatrix_cuSparse`.
 
 .. _SUNLinSol_cuSolverSp_batchQR.functions:
 
@@ -78,7 +79,7 @@ all "direct" linear solver operations listed in :ref:`SUNLinSol.API`:
 
 In addition, the module provides the following user-callable routines: 
 
-.. c:function:: SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, int nsubsys, int subsys_size, int subsys_nnz);
+.. c:function:: SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverHandle_t cusol);
 
   The function ``SUNLinSol_cuSolverSp_batchQR`` creates and allocates
   memory for a SUNLinearSolver object.
@@ -91,22 +92,36 @@ In addition, the module provides the following user-callable routines:
 
   This routine will perform consistency checks to ensure that it is
   called with consistent ``N_Vector``  and ``SUNMatrix``  implementations.
-  These are currently limited to the SUNMATRIX_SPARSE matrix type
-  and the NVECTOR_CUDA vector type. Since the SUNMATRIX_SPARSE matrix
-  type is only compatible with the NVECTOR_CUDA  when using managed memory,
-  the restriction is also in place for the linear solver. As additional
-  compatible matrix and vector implementations are added to SUNDIALS,
-  these will be included within this compatibility check.
+  These are currently limited to the SUNMATRIX_CUSPARSE matrix type
+  and the NVECTOR_CUDA vector type. Since the SUNMATRIX_CUSPARSE matrix
+  type is only compatible with the NVECTOR_CUDA the restriction is also
+  in place for the linear solver. As additional compatible matrix and
+  vector implementations are added to SUNDIALS, these will be included
+  within this compatibility check.
+
 
 .. c:function:: void SUNLinSol_cuSolverSp_batchQR_GetDescription(SUNLinearSolver LS, char \*\*desc);
   
   The function ``SUNLinSol_cuSolverSp_batchQR_GetDescription``
   accesses the string description of the object (empty by default).
 
+
 .. c:function:: void SUNLinSol_cuSolverSp_batchQR_SetDescription(SUNLinearSolver LS, const char \*desc);
   
   The function ``SUNLinSol_cuSolverSp_batchQR_SetDescription``
   sets the string description of the object (empty by default).
+
+.. c:function:: void SUNLinSol_cuSolverSp_batchQR_GetDeviceSpace(SUNLinearSolver S,
+                                                                 size_t* cuSolverInternal,
+                                                                 size_t* cuSolverWorkspace);                                                                
+
+  The function ``SUNLinSol_cuSolverSp_batchQR_GetDeviceSpace``
+  returns the cuSOLVER batch QR method internal buffer size, in bytes,
+  in the argument ``cuSolverInternal`` and the cuSOLVER
+  batch QR workspace buffer size, in bytes, in the agrument
+  ``cuSolverWorkspace``. The size of the internal buffer is
+  proportional to the number of matrix blocks while the size
+  of the workspace is almost independent of the number of blocks.
 
 
 .. _SUNLinSol_cuSolverSp_batchQR.content:
@@ -120,18 +135,11 @@ The SUNLinSol_cuSolverSp_batchQR module defines the *content* field of a
 .. code-block:: c
 
       struct _SUNLinearSolverContent_cuSolverSp_batchQR {
-      int                nsubsys;            /* number of subsystems                                 */
-      int                subsys_size;        /* size of each subsystem                               */
-      int                subsys_nnz;         /* number of nonzeros per subsystem                     */
       int                last_flag;          /* last return flag                                     */
       booleantype        first_factorize;    /* is this the first factorization?                     */
       size_t             internal_size;      /* size of cusolver internal buffer for Q and R         */
       size_t             workspace_size;     /* size of cusolver memory block for num. factorization */
       cusolverSpHandle_t cusolver_handle;    /* cuSolverSp context                                   */
-      cusparseMatDescr_t system_description; /* matrix description                                   */
-      realtype*          d_values;           /* device array of matrix A values                      */
-      int*               d_rowptr;           /* device array of rowptrs for a subsystem              */
-      int*               d_colind;           /* device array of column indices for a subsystem       */
       csrqrInfo_t        info;               /* opaque cusolver data structure                       */
       void*              workspace;          /* memory block used by cusolver                        */
       const char*        desc;               /* description of this linear solver                    */

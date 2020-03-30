@@ -180,3 +180,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   else
     return(0);
 }
+
+void sync_device()
+{
+}

@@ -110,6 +110,9 @@ SUNDIALS_EXPORT SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A,
                                                   realtype droptol,
                                                   int sparsetype);
 
+SUNDIALS_EXPORT int SUNSparseMatrix_ToCSR(const SUNMatrix A, SUNMatrix* Bout);
+SUNDIALS_EXPORT int SUNSparseMatrix_ToCSC(const SUNMatrix A, SUNMatrix* Bout);
+
 SUNDIALS_EXPORT int SUNSparseMatrix_Realloc(SUNMatrix A);
 
 SUNDIALS_EXPORT int SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ);

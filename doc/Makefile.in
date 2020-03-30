@@ -53,6 +53,7 @@ sunmatrix_band.tex \
 sunmatrix_dense.tex \
 sunmatrix_sparse.tex \
 sunmatrix_slunrloc.tex \
+sunmatrix_cusparse.tex \
 sunmatrix_examples.tex \
 sunlinsol_generic.tex \
 sunlinsol_band.tex \

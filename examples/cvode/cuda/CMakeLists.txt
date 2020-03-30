@@ -31,17 +31,12 @@ set(CVODE_examples_cusolver
 )
 
 if(SUNDIALS_INDEX_SIZE MATCHES "32")
-  sundials_cuda_arch_geq(cuda_arch_ok "sm_60")
-  if(cuda_arch_ok)
-    set(all_examples "${CVODE_examples_cusolver}")
-    # Specify libraries to link against
-    if(LINK_LIBRARY_TYPE MATCHES "static")
-      set(SUNDIALS_LIBS sundials_sunlinsolcusolversp_static)
-    else()
-      set(SUNDIALS_LIBS sundials_sunlinsolcusolversp_shared)
-    endif()
+  set(all_examples "${CVODE_examples_cusolver}")
+  # Specify libraries to link against
+  if(LINK_LIBRARY_TYPE MATCHES "static")
+    set(SUNDIALS_LIBS sundials_sunlinsolcusolversp_static)
   else()
-    message(STATUS "cvRoberts_block_cusolversp_batchqr example excluded due to insufficient CUDA_ARCH")
+    set(SUNDIALS_LIBS sundials_sunlinsolcusolversp_shared)
   endif()
 endif()
 

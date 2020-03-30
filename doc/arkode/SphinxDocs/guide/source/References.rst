@@ -74,6 +74,9 @@
 .. [cuSOLVER] `NVIDIA cuSOLVER Documentation
                <https://docs.nvidia.com/cuda/cusolver/index.html>`_.
 
+.. [cuSPARSE] `NVIDIA cuSPARSE Documentation
+               <https://docs.nvidia.com/cuda/cusparse/index.html>`_.
+
 .. [DP1980] J.R. Dormand and P.J. Prince. A family of embedded
             Runge-Kutta formulae, *J. Comput. Appl. Math.* 6:19–26, 1980.
 

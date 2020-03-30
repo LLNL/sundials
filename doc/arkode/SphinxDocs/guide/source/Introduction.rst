@@ -138,6 +138,13 @@ Added two new functions, :c:func:`ARKStepSetMinReduction()` and
 :c:func:`ERKStepSetMinReduction()`, to change the minimum allowed step size
 reduction factor after an error test failure.
 
+Added a new ``SUNMatrix`` implementation, :ref:`SUNMatrix_cuSparse`, that interfaces
+to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
+the :ref:`SUNLinSol_cuSolverSp_batchQR` ``SUNLinearSolver`` has been updated to
+use this matrix, as such, users of this module will need to update their code.
+These modules are still considered to be experimental, thus they are subject to
+breaking changes even in minor releases.
+
 Added a new "stiff" interpolation module, based on Lagrange polynomial interpolation,
 that is accessible to each of the ARKStep, ERKStep and MRIStep time-stepping modules.
 This module is designed to provide increased interpolation accuracy when integrating

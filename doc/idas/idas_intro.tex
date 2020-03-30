@@ -100,6 +100,13 @@ attributes missing on some SUNDIALS API functions.
 Fixed a memory leak from not deallocating the \id{atolSmin0} and \id{atolQSmin0}
 arrays.
 
+Added a new \id{SUNMatrix} implementation, \id{SUNMATRIX\_CUSPARSE}, that interfaces
+to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
+the \id{SUNLINSOL\_CUSOLVER\_BATCHQR} linear solver has been updated to
+use this matrix, therefore, users of this module will need to update their code.
+These modules are still considered to be experimental, thus they are subject to
+breaking changes even in minor releases.
+
 The functions \id{IDASetLinearSolutionScaling} and
 \id{IDASetLinearSolutionScalingB} were added to enable or disable the scaling
 applied to linear system solutions with matrix-based linear solvers to account

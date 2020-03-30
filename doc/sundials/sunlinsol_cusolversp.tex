@@ -4,14 +4,13 @@
 \section{The SUNLinearSolver\_cuSolverSp\_batchQR implementation}\label{ss:sunlinsol_cuspbqr}
 
 The \id{SUNLinearSolver\_cuSolverSp\_batchQR} implementation of the {\sunlinsol} API is
-designed to be used with the {\sunmatsparse} matrix type, and the {\nveccuda} vector type
-\textit{with managed memory}. The header file to include when using this module is
-\id{sunlinsol/sunlinsol\_cusolversp\_batchqr.h}. The installed library to link to
-is \id{libsundials\_sunlinsolcusolversp.\textit{lib}} where \id{\em.lib} is typically
-\id{.so} for shared libraries and \id{.a} for static libraries.
+designed to be used with the \id{SUNMATRIX\_CUSPARSE} matrix, and the {\nveccuda} vector.
+The header file to include when using this module is \id{sunlinsol/sunlinsol\_cusolversp\_batchqr.h}.
+The installed library to link to is \id{libsundials\_sunlinsolcusolversp.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a} for static libraries.
 \newline
 \newline
-{\warn} The \id{SUNLinearSolver\_cuSolverSp\_batchQR} module is experimental and subject to change.
+{\warn}The \id{SUNLinearSolver\_cuSolverSp\_batchQR} module is experimental and subject to change.
 
 % --------------------------------------------------------------------
 \subsection{SUNLinearSolver\_cuSolverSp\_batchQR description}\label{ss:sunlinsol_cuspbqr_description}
@@ -21,17 +20,18 @@ the batched sparse QR factorization method provided by the NVIDIA cuSOLVER libra
 \cite{cuSOLVER_site}. The module is designed for solving block diagonal linear systems
 of the form
 \begin{equation*}
-  \mathbf{A} =
   \begin{bmatrix}
     \mathbf{A_1} & 0 & \cdots & 0\\
     0 & \mathbf{A_2} & \cdots & 0\\
     \vdots & \vdots & \ddots & \vdots\\
     0 & 0 & \cdots & \mathbf{A_n}\\
   \end{bmatrix}
+  x_j
+  =
+  b_j
 \end{equation*}
 where all block matrices $\mathbf{A_j}$ share the same sparsisty pattern. The matrix
-must be in the CSR storage format. For further details about the method itself,
-review the NVIDIA documentation.
+must be the \id{SUNMATRIX\_CUSPAESE} module.
 
 
 % % --------------------------------------------------------------------
@@ -48,20 +48,20 @@ Sections \ref{ss:sunlinsol_CoreFn}-\ref{ss:sunlinsol_GetFn}:
   \id{first\_factorize} flag to 1
 \item \id{SUNLinSolSetup\_cuSolverSp\_batchQR} -- this always copies the
   relevant {\sunmatsparse} data to the GPU; if this is the first setup
-  it will perform symbolic analysis on the system 
-\item \id{SUNLinSolSolve\_cuSolverSp\_batchQR} -- this calls the 
+  it will perform symbolic analysis on the system
+\item \id{SUNLinSolSolve\_cuSolverSp\_batchQR} -- this calls the
   \id{cusolverSpXcsrqrsvBatched} routine to perform factorization
 \item \id{SUNLinSolLastFlag\_cuSolverSp\_batchQR}
 \item \id{SUNLinSolFree\_cuSolverSp\_batchQR}
 \end{itemize}
 %%
 %%
-In addition, the module provides the following user-callable routines: 
+In addition, the module provides the following user-callable routines:
 %%
 %%
 \ucfunction{SUNLinSol\_cuSolverSp\_batchQR}
 {
-  LS = SUNLinSol\_cuSolverSp\_batchQR(y, A, nsubsys, subsys\_size, subsys\_nnz);
+  LS = SUNLinSol\_cuSolverSp\_batchQR(y, A, cusol);
 }
 {
   The function \ID{SUNLinSol\_cuSolverSp\_batchQR} creates and allocates memory for a
@@ -73,12 +73,7 @@ In addition, the module provides the following user-callable routines:
     a {\nveccuda} vector for checking compatibility with the solver
   \item[A] (\id{SUNMatrix})
     a {\sunmatsparse} matrix for checking compatibility with the solver
-  \item[nsubsys] (\id{int})
-    the number of subsystems, i.e., the number of blocks in the matrix
-  \item[subsys\_size] (\id{int})
-    the number of rows/columns in a block
-  \item[subsys\_nnz] (\id{int})
-    the number of nonzeros in a block
+  \item[cusol] (\id{cusolverHandle\_t}) a valid cuSOLVER handle
   \end{args}
 }
 {
@@ -91,12 +86,10 @@ In addition, the module provides the following user-callable routines:
 
   This routine will perform consistency checks to ensure that it is
   called with consistent {\nvector} and {\sunmatrix} implementations.
-  These are currently limited to the {\sunmatsparse} matrix type
-  and the {\nveccuda} vector type. Since the {\sunmatsparse} matrix
-  type is only compatible with the {\nveccuda} when using managed memory,
-  the restriction is also in place for the linear solver. As additional
-  compatible matrix and vector implementations are added to {\sundials},
-  these will be included within this compatibility check.
+  These are currently limited to the \id{SUNMAT\_CUSPARSE} matrix type
+  and the {\nveccuda} vector type. As additional compatible matrix and
+  vector implementations are added to {\sundials}, these will be included
+  within this compatibility check.
 }
 %
 %
@@ -138,6 +131,33 @@ In addition, the module provides the following user-callable routines:
 }
 { None }
 {}
+%%
+%%
+\ucfunction{SUNLinSol\_cuSolverSp\_batchQR\_GetDeviceSpace}
+{
+  SUNLinSol\_cuSolverSp\_batchQR\_GetDeviceSpace(LS, cuSolverInternal, cuSolverWorkspace);
+}
+{
+  The function \id{SUNLinSol\_cuSolverSp\_batchQR\_GetDeviceSpace}
+  returns the cuSOLVER batch QR method internal buffer size, in bytes,
+  in the argument \id{cuSolverInternal} and the cuSOLVER
+  batch QR workspace buffer size, in bytes, in the agrument
+  \id{cuSolverWorkspace}. The size of the internal buffer is
+  proportional to the number of matrix blocks while the size
+  of the workspace is almost independent of the number of blocks.
+}
+{
+  \begin{args}[options]
+  \item[LS] (\id{SUNLinearSolver})
+    a \id{SUNLinSol\_cuSolverSp\_batchQR} object
+  \item[cuSolverInternal] (\id{size\_t *})
+    output -- the size of the cuSOLVER internal buffer in bytes
+  \item[cuSolverWorkspace] (\id{size\_t *})
+    output -- the size of the cuSOLVER workspace buffer in bytes
+  \end{args}
+}
+{ None }
+{}
 
 % --------------------------------------------------------------------
 \subsection{SUNLinearSolver\_cuSolverSp\_batchQR content}\label{ss:sunlinsol_cuspbqr_content}
@@ -145,22 +165,15 @@ In addition, the module provides the following user-callable routines:
 The \id{SUNLinearSolver\_cuSolverSp\_batchQR} module defines the
 {\em content} field of a \id{SUNLinearSolver} to be the following structure:
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _SUNLinearSolverContent_cuSolverSp_batchQR {
-  int                nsubsys;            /* number of subsystems                                 */
-  int                subsys_size;        /* size of each subsystem                               */
-  int                subsys_nnz;         /* number of nonzeros per subsystem                     */
   int                last_flag;          /* last return flag                                     */
   booleantype        first_factorize;    /* is this the first factorization?                     */
   size_t             internal_size;      /* size of cusolver internal buffer for Q and R         */
   size_t             workspace_size;     /* size of cusolver memory block for num. factorization */
   cusolverSpHandle_t cusolver_handle;    /* cuSolverSp context                                   */
-  cusparseMatDescr_t system_description; /* matrix description                                   */
-  realtype*          d_values;           /* device array of matrix A values                      */
-  int*               d_rowptr;           /* device array of rowptrs for a subsystem              */
-  int*               d_colind;           /* device array of column indices for a subsystem       */
   csrqrInfo_t        info;               /* opaque cusolver data structure                       */
   void*              workspace;          /* memory block used by cusolver                        */
   const char*        desc;               /* description of this linear solver                    */
-};  
+};
 \end{verbatim}

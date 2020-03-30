@@ -186,11 +186,6 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D_adapt.py         
 $tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol.py                    || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol_log.py                || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/CUDA_serial/CMakeLists.txt                     || exit 1
-$tar $tarfile $distrobase/examples/arkode/CUDA_serial/README                             || exit 1
-$tar $tarfile $distrobase/examples/arkode/CUDA_serial/ark_brusselator1D_FEM_cusolver.cu  || exit 1
-$tar $tarfile $distrobase/examples/arkode/CUDA_serial/ark_brusselator1D_FEM_cusolver.out || exit 1
-
 $tar $tarfile $distrobase/examples/arkode/CXX_parallel/CMakeLists.txt || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parallel/README         || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parallel/ark_heat2D.cpp || exit 1

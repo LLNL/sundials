@@ -99,6 +99,7 @@ $tar $tarfile $distrobase/include/nvector/nvector_mpimanyvector.h               
 $tar $tarfile $distrobase/include/nvector/nvector_mpiplusx.h                          || exit 1
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h      || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_cusparse.h  || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h     || exit 1
 #$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h    || exit 1
@@ -137,6 +138,8 @@ $tar $tarfile $distrobase/src/sundials/sundials_version.c                       
 $tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c                 || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c             || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_futils.c                          || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_cuda.h                            || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_debug.h                           || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/CMakeLists.txt                        || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.{c,f90}    || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.{c,f90}          || exit 1
@@ -242,6 +245,12 @@ $tar $tarfile $distrobase/src/sunmatrix/band/fsunmatrix_band.h                ||
 $tar $tarfile $distrobase/src/sunmatrix/band/fsunmatrix_band.c                || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/band/fmod/CMakeLists.txt              || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/band/fmod/fsunmatrix_band_mod.{c,f90} || exit 1
+
+echo "   --- Add sunmatrix/cusparse module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmatrix/cusparse/CMakeLists.txt         || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/cusparse/sunmatrix_cusparse.cu  || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/cusparse/cusparse_kernels.cuh   || exit 1
 
 echo "   --- Add sunmatrix/dense module to $tarfile"
 
@@ -455,12 +464,12 @@ $tar $tarfile $distrobase/examples/nvector/test_mpinvector.c                    
 
 echo "   --- Add sunmatrix examples to $tarfile"
 
-$tar $tarfile $distrobase/examples/sunmatrix/CMakeLists.txt     || exit 1
-$tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.f90 || exit 1
-
+$tar $tarfile $distrobase/examples/sunmatrix/CMakeLists.txt                        || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/band/test_sunmatrix_band.c            || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/band/test_fsunmatrix_band_mod.f90     || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/band/CMakeLists.txt                   || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/cusparse/test_sunmatrix_cusparse.cu   || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/cusparse/CMakeLists.txt               || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/test_sunmatrix_dense.c          || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/test_fsunmatrix_dense_mod.f90   || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/CMakeLists.txt                  || exit 1
@@ -469,6 +478,9 @@ $tar $tarfile $distrobase/examples/sunmatrix/sparse/test_fsunmatrix_sparse_mod.f
 $tar $tarfile $distrobase/examples/sunmatrix/sparse/CMakeLists.txt                 || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/slunrloc/test_sunmatrix_slunrloc.cpp  || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/slunrloc/CMakeLists.txt               || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/dreadrb.c                             || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/dreadrb.h                             || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.f90                    || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.c                      || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.h                      || exit 1
 

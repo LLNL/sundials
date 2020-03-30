@@ -17,11 +17,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <sundials/sundials_types.h>
 #include <sunlinsol/sunlinsol_cusolversp_batchqr.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>
+#include <sunmatrix/sunmatrix_cusparse.h>
 #include <nvector/nvector_cuda.h>
+#include <nvector/nvector_serial.h>
 #include <sundials/sundials_math.h>
 #include "test_sunlinsol.h"
 
@@ -38,11 +41,16 @@ int main(int argc, char *argv[])
   int             block_nnz_max;      /* max nonzeros per block        */
   int             nblocks;            /* number of blocks              */
   SUNLinearSolver LS;                 /* linear solver object          */
-  SUNMatrix       A, B;               /* test matrices                 */
-  N_Vector        x, y, b;            /* test vectors                  */
-  realtype        *matdata, *xdata;
+  SUNMatrix       A, B, dA;           /* test matrices                 */
+  N_Vector        x, b, d_x, d_xref, d_b;/* test vectors                  */
+  realtype        *matdata, *xdata, *xrefdata;
   int             print_timing;
   sunindextype    i, j;
+
+  cusparseStatus_t cusp_status;
+  cusolverStatus_t cusol_status;
+  cusparseHandle_t cusp_handle;
+  cusolverSpHandle_t cusol_handle;
 
   /* check input and set matrix dimensions */
   if (argc < 4){
@@ -73,11 +81,27 @@ int main(int argc, char *argv[])
   printf("\ncuSolverSp linear solver test: size %ld, block size %ld, number of blocks %d\n\n",
     (long int) N, (long int) block_size, (long int) nblocks);
 
+  /* Initialize cuSPARSE */
+  cusp_status = cusparseCreate(&cusp_handle);
+  if (cusp_status != CUSPARSE_STATUS_SUCCESS) {
+    printf("ERROR: could not create cuSPARSE handle\n");
+    return(-1);
+  }
+
+  /* Initialize cuSOLVER */
+  cusol_status = cusolverSpCreate(&cusol_handle);
+  if (cusol_status != CUSOLVER_STATUS_SUCCESS) {
+    printf("ERROR: could not create cuSOLVER handle\n");
+    return(-1);
+  }
+
   /* Create matrices and vectors */
   B = SUNDenseMatrix(N, N);
-  x = N_VNewManaged_Cuda(N);
-  y = N_VNewManaged_Cuda(N);
-  b = N_VNewManaged_Cuda(N);
+  d_x = N_VNew_Cuda(N);
+  d_xref = N_VNew_Cuda(N);
+  d_b = N_VNew_Cuda(N);
+  x = N_VMake_Serial(N, N_VGetHostArrayPointer_Cuda(d_x));
+  b = N_VMake_Serial(N, N_VGetHostArrayPointer_Cuda(d_b));
 
   /* Zero the matrix */
   fails = SUNMatZero(B);
@@ -117,14 +141,34 @@ int main(int argc, char *argv[])
   /* Calculate actual number of nonzeros per block */
   block_nnz = SUNSparseMatrix_NNZ(A) / nblocks;
 
-  /* Fill x vector with uniform random data in [0,1] */
-  xdata = N_VGetHostArrayPointer_Cuda(x);
-  for (i=0; i<N; i++)
-    xdata[i] = (realtype) rand() / (realtype) RAND_MAX;
-  N_VCopyToDevice_Cuda(x);
+  /* Create the device matrix */
+  dA = SUNMatrix_cuSparse_NewBlockCSR(nblocks, block_size, block_size, block_nnz, cusp_handle);
+  if (dA == NULL) {
+    printf("ERROR: could not create dA\n");
+  }
 
-  /* copy x into y to print in case of solver failure */
-  N_VScale(ONE, x, y);
+  /* Copy data to device */
+  fails = SUNMatrix_cuSparse_CopyToDevice(dA, SUNSparseMatrix_Data(A),
+                                          SUNSparseMatrix_IndexPointers(A),
+                                          SUNSparseMatrix_IndexValues(A));
+  if (fails != 0) {
+    printf("ERROR: could not copy A to the device\n");
+    return(-1);
+  }
+
+  /* Fill x vector with uniform random data in [0,1] */
+  xdata = N_VGetHostArrayPointer_Cuda(d_x);
+  xrefdata = N_VGetHostArrayPointer_Cuda(d_xref);
+  for (i=0; i<N; i++) {
+    realtype tmp = (realtype) rand() / (realtype) RAND_MAX;
+    xdata[i]    = tmp;
+    xrefdata[i] = tmp;
+  }
+  N_VCopyToDevice_Cuda(d_x);
+  N_VCopyToDevice_Cuda(d_xref);
+
+  /* Synchronize before peforming dense operation on CPU */
+  cudaDeviceSynchronize();
 
   /* create right-hand side vector for linear solve */
   fails = SUNMatMatvec(A, x, b);
@@ -132,15 +176,12 @@ int main(int argc, char *argv[])
     printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
     return(1);
   }
+  N_VCopyToDevice_Cuda(d_b);
 
   /* Create cuSolverSp linear solver
    * The BatchedQR method allows you to solve many small subsystems in parallel.
    */
-  LS = SUNLinSol_cuSolverSp_batchQR(x,           /* the overall system vector */
-                                    A,           /* the overall system matrix */
-                                    nblocks,     /* number of subsystems */
-                                    block_size,  /* size of a subsystem  */
-                                    block_nnz);  /* number of nonzeros in a subsystem */
+  LS = SUNLinSol_cuSolverSp_batchQR(d_x, dA, cusol_handle);
 
   if (LS == NULL) {
     printf("FAIL: SUNLinSol_cuSolverSp_batchQR returned NULL\n");
@@ -149,8 +190,8 @@ int main(int argc, char *argv[])
 
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
-  fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, 1000*UNIT_ROUNDOFF, 0);
+  fails += Test_SUNLinSolSetup(LS, dA, 0);
+  fails += Test_SUNLinSolSolve(LS, dA, d_x, d_b, 1000*UNIT_ROUNDOFF, 0);
 
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_CUSOLVERSP_BATCHQR, 0);
@@ -160,24 +201,35 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNLinSol module failed %i tests \n \n", fails);
+
+    SUNMatrix_cuSparse_CopyFromDevice(dA, SUNSparseMatrix_Data(A), NULL, NULL);
     printf("\nA =\n");
     SUNSparseMatrix_Print(A,stdout);
-    printf("\nx (original) =\n");
-    N_VPrint_Cuda(y);
-    printf("\nb =\n");
-    N_VPrint_Cuda(b);
-    printf("\nx (computed) =\n");
-    N_VPrint_Cuda(x);
+
+    N_VCopyFromDevice_Cuda(d_xref);
+    printf("x (reference)\n");
+    N_VPrint_Cuda(d_xref);
+
+    N_VCopyFromDevice_Cuda(d_x); /* copy solution from device */
+    printf("x (computed)\n");
+    N_VPrint_Cuda(d_x);
+
+    N_VCopyFromDevice_Cuda(d_b);
+    printf("\nb = Ax (reference)\n");
+    N_VPrint_Cuda(d_b);
   } else {
     printf("SUCCESS: SUNLinSol module passed all tests \n \n");
   }
 
   /* Free solver, matrix and vectors */
   SUNLinSolFree(LS);
-  SUNMatDestroy(A);
-  N_VDestroy(x);
-  N_VDestroy(y);
-  N_VDestroy(b);
+  SUNMatDestroy(A); SUNMatDestroy(dA);
+  N_VDestroy(x); N_VDestroy(d_x); N_VDestroy(d_xref);
+  N_VDestroy(b); N_VDestroy(d_b);
+
+  /* Destroy the cuSOLVER and cuSPARSE handles */
+  cusparseDestroy(cusp_handle);
+  cusolverSpDestroy(cusol_handle);
 
   return(fails);
 }
@@ -192,6 +244,9 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   realtype *Xdata, *Ydata, maxerr;
 
   cudaDeviceSynchronize();
+
+  N_VCopyFromDevice_Cuda(X);
+  N_VCopyFromDevice_Cuda(Y);
 
   Xdata = N_VGetHostArrayPointer_Cuda(X);
   Ydata = N_VGetHostArrayPointer_Cuda(Y);
@@ -216,4 +271,9 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   }
   else
     return(0);
+}
+
+void sync_device()
+{
+  cudaDeviceSynchronize();
 }

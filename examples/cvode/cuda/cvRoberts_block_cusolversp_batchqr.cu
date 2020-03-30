@@ -39,11 +39,11 @@
 
 #include <stdio.h>
 
-#include <cvode/cvode.h>                              /* prototypes for CVODE fcts., consts.          */
-#include <nvector/nvector_cuda.h>                     /* access to cuda N_Vector                      */
-#include <sunmatrix/sunmatrix_sparse.h>               /* access to sparse SUNMatrix                   */
-#include <sunlinsol/sunlinsol_cusolversp_batchqr.h>   /* acess to cuSolverSp batch QR SUNLinearSolver */
-#include <sundials/sundials_types.h>                  /* defs. of realtype, int              */
+#include <cvode/cvode.h>                              /* prototypes for CVODE fcts., consts.           */
+#include <nvector/nvector_cuda.h>                     /* access to cuda N_Vector                       */
+#include <sunmatrix/sunmatrix_cusparse.h>             /* access to cusparse SUNMatrix                  */
+#include <sunlinsol/sunlinsol_cusolversp_batchqr.h>   /* access to cuSolverSp batch QR SUNLinearSolver */
+#include <sundials/sundials_types.h>                  /* defs. of realtype, int                        */
 
 /* Problem Constants */
 
@@ -73,13 +73,19 @@ static void f_kernel(realtype t, realtype* y, realtype* ydot,
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-/* Private functions to output results */
+__global__
+static void j_kernel(int ngroups, int nnzper, realtype* ydata, realtype *Jdata);
+
+/* Private function to initialize the Jacobian sparsity pattern */
+static int JacInit(SUNMatrix J);
+
+/* Private function to output results */
 
 static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
 
 /* Private function to print final statistics */
 
-static void PrintFinalStats(void *cvode_mem);
+static void PrintFinalStats(void *cvode_mem, SUNLinearSolver LS);
 
 /* Private function to check function return values */
 
@@ -105,9 +111,11 @@ int main(int argc, char *argv[])
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int retval, iout, nnz;
+  int retval, iout;
   int neq, ngroups, groupj;
   UserData udata;
+  cusparseHandle_t cusp_handle;
+  cusolverSpHandle_t cusol_handle;
 
   y = abstol = NULL;
   A = NULL;
@@ -118,18 +126,22 @@ int main(int argc, char *argv[])
   if (argc > 1) {
     ngroups = atoi(argv[1]);
   } else {
-    ngroups = 1000;
+    ngroups = 100;
   }
   neq = ngroups * GROUPSIZE;
 
   udata.ngroups = ngroups;
   udata.neq = neq;
 
+  /* Initialize cuSOLVER and cuSPARSE handles */
+  cusparseCreate(&cusp_handle);
+  cusolverSpCreate(&cusol_handle);
+
   /* Create CUDA vector of length neq for I.C. and abstol */
-  y = N_VNewManaged_Cuda(neq);
-  if (check_retval((void *)y, "N_VNewManaged_Cuda", 0)) return(1);
-  abstol = N_VNewManaged_Cuda(neq);
-  if (check_retval((void *)abstol, "N_VNewManaged_Cuda", 0)) return(1);
+  y = N_VNew_Cuda(neq);
+  if (check_retval((void *)y, "N_VNew_Cuda", 0)) return(1);
+  abstol = N_VNew_Cuda(neq);
+  if (check_retval((void *)abstol, "N_VNew_Cuda", 0)) return(1);
 
   ydata = N_VGetHostArrayPointer_Cuda(y);
   abstol_data = N_VGetHostArrayPointer_Cuda(abstol);
@@ -140,6 +152,7 @@ int main(int argc, char *argv[])
     ydata[groupj+1] = Y2;
     ydata[groupj+2] = Y3;
   }
+  N_VCopyToDevice_Cuda(y);
 
   /* Set the scalar relative tolerance */
   reltol = RTOL;
@@ -150,6 +163,7 @@ int main(int argc, char *argv[])
     abstol_data[groupj+1] = ATOL2;
     abstol_data[groupj+2] = ATOL3;
   }
+  N_VCopyToDevice_Cuda(abstol);
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
@@ -172,12 +186,18 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
 
   /* Create sparse SUNMatrix for use in linear solves */
-  nnz = GROUPSIZE * GROUPSIZE * ngroups;
-  A = SUNSparseMatrix(neq, neq, nnz, CSR_MAT);
-  if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
+  A = SUNMatrix_cuSparse_NewBlockCSR(ngroups, GROUPSIZE, GROUPSIZE, GROUPSIZE*GROUPSIZE, cusp_handle);
+  if(check_retval((void *)A, "SUNMatrix_cuSparse_NewBlockCSR", 0)) return(1);
+
+  /* Set the sparsity pattern to be fixed so that the row pointers
+   * and column indicies are not zeroed out by SUNMatZero */
+  retval = SUNMatrix_cuSparse_SetFixedPattern(A, 1);
+
+  /* Initialiize the Jacobian with its fixed sparsity pattern */
+  JacInit(A);
 
   /* Create the SUNLinearSolver object for use by CVode */
-  LS = SUNLinSol_cuSolverSp_batchQR(y, A, ngroups, GROUPSIZE, GROUPSIZE*GROUPSIZE);
+  LS = SUNLinSol_cuSolverSp_batchQR(y, A, cusol_handle);
   if(check_retval((void *)LS, "SUNLinSol_cuSolverSp_batchQR", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
@@ -197,7 +217,8 @@ int main(int argc, char *argv[])
   while(1) {
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
 
-    for (groupj = 0; groupj < 1; groupj++) {
+    N_VCopyFromDevice_Cuda(y);
+    for (groupj = 0; groupj < ngroups; groupj += 10) {
       printf("group %d: ", groupj);
       PrintOutput(t, ydata[GROUPSIZE*groupj],
                      ydata[1+GROUPSIZE*groupj],
@@ -214,7 +235,7 @@ int main(int argc, char *argv[])
   }
 
   /* Print some final statistics */
-  PrintFinalStats(cvode_mem);
+  PrintFinalStats(cvode_mem, LS);
 
   /* Free y and abstol vectors */
   N_VDestroy(y);
@@ -228,6 +249,10 @@ int main(int argc, char *argv[])
 
   /* Free the matrix memory */
   SUNMatDestroy(A);
+
+  /* Destroy the cuSOLVER and cuSPARSE handles */
+  cusparseDestroy(cusp_handle);
+  cusolverSpDestroy(cusol_handle);
 
   return(0);
 }
@@ -256,12 +281,13 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   unsigned grid_size = (udata->neq + block_size - 1) / block_size;
   f_kernel<<<grid_size, block_size>>>(t, ydata, ydotdata, udata->neq, udata->ngroups);
 
+  cudaDeviceSynchronize();
   cudaError_t cuerr = cudaGetLastError();
   if (cuerr != cudaSuccess) {
     fprintf(stderr,
             ">>> ERROR in f: cudaGetLastError returned %s\n",
             cudaGetErrorName(cuerr));
-    return 1;
+    return(-1);
   }
 
   return(0);
@@ -285,65 +311,111 @@ static void f_kernel(realtype t, realtype* ydata, realtype* ydotdata,
   }
 }
 
+
+/*
+ * Jacobian initialization routine. This sets the sparisty pattern of
+ * the blocks of the Jacobian J(t,y) = df/dy. This is performed on the CPU,
+ * and only occurs at the beginning of the simulation.
+ */
+
+static int JacInit(SUNMatrix J)
+{
+  int rowptrs[4], colvals[9];
+
+  /* Zero out the Jacobian */
+  SUNMatZero(J); 
+
+  /* there are 3 entries per row */
+  rowptrs[0] = 0;
+  rowptrs[1] = 3;
+  rowptrs[2] = 6;
+  rowptrs[3] = 9;
+
+  /* first row of block */
+  colvals[0] = 0;
+  colvals[1] = 1;
+  colvals[2] = 2;
+
+  /* second row of block */
+  colvals[3] = 0;
+  colvals[4] = 1;
+  colvals[5] = 2;
+
+  /* third row of block */
+  colvals[6] = 0;
+  colvals[7] = 1;
+  colvals[8] = 2;
+
+  /* copy rowptrs, colvals to the device */
+  SUNMatrix_cuSparse_CopyToDevice(J, NULL, rowptrs, colvals);
+  cudaDeviceSynchronize();
+
+  return(0);
+}
+
 /*
  * Jacobian routine. Compute J(t,y) = df/dy.
- * This is done on the CPU since the SUNSparseMatrix is CPU only.
+ * This is done on the GPU.
  */
 
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData *udata = (UserData*) user_data;
-  int *rowptrs = SUNSparseMatrix_IndexPointers(J);
-  int *colvals = SUNSparseMatrix_IndexValues(J);
-  realtype *data = SUNSparseMatrix_Data(J);
-  realtype *ydata;
+  int nnzper;
+  realtype *Jdata, *ydata;
+  unsigned block_size, grid_size;
+
+  nnzper  = GROUPSIZE * GROUPSIZE;
+  Jdata   = SUNMatrix_cuSparse_Data(J);
+  ydata   = N_VGetDeviceArrayPointer_Cuda(y);
+
+  block_size = 32;
+  grid_size = (udata->neq + block_size - 1) / block_size;
+  j_kernel<<<grid_size, block_size>>>(udata->ngroups, nnzper, ydata, Jdata);
+
+  cudaDeviceSynchronize();
+  cudaError_t cuerr = cudaGetLastError();
+  if (cuerr != cudaSuccess) {
+    fprintf(stderr,
+            ">>> ERROR in Jac: cudaGetLastError returned %s\n",
+            cudaGetErrorName(cuerr));
+    return(-1);
+  }
+
+  return(0);
+}
+
+/* Jacobian evaluation GPU kernel */
+__global__
+static void j_kernel(int ngroups, int nnzper, realtype* ydata, realtype *Jdata)
+{
+  int groupj;
   realtype y2, y3;
-  int groupj, nnzper;
 
-  ydata = N_VGetHostArrayPointer_Cuda(y);
-  nnzper = GROUPSIZE * GROUPSIZE;
-
-  SUNMatZero(J);
-
-  rowptrs[0] = 0;
-  rowptrs = &rowptrs[1];
-  for (groupj = 0; groupj < udata->ngroups; groupj++) {
+  for (groupj = blockIdx.x*blockDim.x + threadIdx.x;
+       groupj < ngroups;
+       groupj += blockDim.x * gridDim.x) 
+  {
     /* get y values */
     y2 = ydata[GROUPSIZE*groupj + 1];
     y3 = ydata[GROUPSIZE*groupj + 2];
 
-    /* there are 3 entries per row */
-    rowptrs[GROUPSIZE*groupj]     = 3 + nnzper*groupj;
-    rowptrs[GROUPSIZE*groupj + 1] = 6 + nnzper*groupj;
-    rowptrs[GROUPSIZE*groupj + 2] = 9 + nnzper*groupj;
-
     /* first row of block */
-    data[nnzper*groupj]     = RCONST(-0.04);
-    data[nnzper*groupj + 1] = RCONST(1.0e4)*y3;
-    data[nnzper*groupj + 2] = RCONST(1.0e4)*y2;
-    colvals[nnzper*groupj]     = GROUPSIZE*groupj;
-    colvals[nnzper*groupj + 1] = GROUPSIZE*groupj + 1;
-    colvals[nnzper*groupj + 2] = GROUPSIZE*groupj + 2;
+    Jdata[nnzper*groupj]       = RCONST(-0.04);
+    Jdata[nnzper*groupj + 1]   = RCONST(1.0e4)*y3;
+    Jdata[nnzper*groupj + 2]   = RCONST(1.0e4)*y2;
 
     /* second row of block */
-    data[nnzper*groupj + 3] = RCONST(0.04);
-    data[nnzper*groupj + 4] = (RCONST(-1.0e4)*y3) - (RCONST(6.0e7)*y2);
-    data[nnzper*groupj + 5] = RCONST(-1.0e4)*y2;
-    colvals[nnzper*groupj + 3] = GROUPSIZE*groupj;
-    colvals[nnzper*groupj + 4] = GROUPSIZE*groupj + 1;
-    colvals[nnzper*groupj + 5] = GROUPSIZE*groupj + 2;
+    Jdata[nnzper*groupj + 3]   = RCONST(0.04);
+    Jdata[nnzper*groupj + 4]   = (RCONST(-1.0e4)*y3) - (RCONST(6.0e7)*y2);
+    Jdata[nnzper*groupj + 5]   = RCONST(-1.0e4)*y2;
 
     /* third row of block */
-    data[nnzper*groupj + 6] = ZERO;
-    data[nnzper*groupj + 7] = RCONST(6.0e7)*y2;
-    data[nnzper*groupj + 8] = ZERO;
-    colvals[nnzper*groupj + 6] = GROUPSIZE*groupj;
-    colvals[nnzper*groupj + 7] = GROUPSIZE*groupj + 1;
-    colvals[nnzper*groupj + 8] = GROUPSIZE*groupj + 2;
+    Jdata[nnzper*groupj + 6]   = ZERO;
+    Jdata[nnzper*groupj + 7]   = RCONST(6.0e7)*y2;
+    Jdata[nnzper*groupj + 8]   = ZERO;
   }
-
-  return(0);
 }
 
 /*
@@ -369,9 +441,10 @@ static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
  * Get and print some final statistics
  */
 
-static void PrintFinalStats(void *cvode_mem)
+static void PrintFinalStats(void *cvode_mem, SUNLinearSolver LS)
 {
   long int nst, nfe, nsetups, nje, nni, ncfn, netf, nge;
+  size_t cuSpInternalSize, cuSpWorkSize;
   int retval;
 
   retval = CVodeGetNumSteps(cvode_mem, &nst);
@@ -393,11 +466,15 @@ static void PrintFinalStats(void *cvode_mem)
   retval = CVodeGetNumGEvals(cvode_mem, &nge);
   check_retval(&retval, "CVodeGetNumGEvals", 1);
 
+  SUNLinSol_cuSolverSp_batchQR_GetDeviceSpace(LS, &cuSpInternalSize, &cuSpWorkSize);
+
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n",
 	 nst, nfe, nsetups, nje);
   printf("nni = %-6ld ncfn = %-6ld netf = %-6ld    nge = %ld\n \n",
-	 nni, ncfn, netf, nge);
+   nni, ncfn, netf, nge);
+  printf("cuSolverSp numerical factorization workspace size (in bytes) = %ld\n", cuSpWorkSize);
+  printf("cuSolverSp internal Q, R buffer size (in bytes) = %ld\n", cuSpInternalSize);
 }
 
 /*

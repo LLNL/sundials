@@ -119,41 +119,47 @@ Explicit Butcher table specification
 Implicit Butcher table specification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:index:`SDIRK_2_1_2 <SDIRK-2-1-2 method>`  (12):
+:index:`SDIRK_2_1_2 <SDIRK-2-1-2 method>`  (100):
    Use the SDIRK-2-1-2 SDIRK method
 
-:index:`BILLINGTON_3_3_2 <Billington-3-3-2 SDIRK method>`  (13):
+:index:`BILLINGTON_3_3_2 <Billington-3-3-2 SDIRK method>`  (101):
    Use the Billington-3-3-2 SDIRK method
 
-:index:`TRBDF2_3_3_2 <TRBDF2-3-3-2 ESDIRK method>`  (14):
+:index:`TRBDF2_3_3_2 <TRBDF2-3-3-2 ESDIRK method>`  (102):
    Use the TRBDF2-3-3-2 ESDIRK method
 
-:index:`KVAERNO_4_2_3 <Kvaerno-4-2-3 ESDIRK method>`  (15):
+:index:`KVAERNO_4_2_3 <Kvaerno-4-2-3 ESDIRK method>`  (103):
    Use the Kvaerno-4-2-3 ESDIRK method
 
-:index:`ARK324L2SA_DIRK_4_2_3 <ARK-4-2-3 ESDIRK method>`  (16):
+:index:`ARK324L2SA_DIRK_4_2_3 <ARK-4-2-3 ESDIRK method>`  (104):
    Use the ARK-4-2-3 ESDIRK method
 
-:index:`CASH_5_2_4 <Cash-5-2-4 SDIRK method>`  (17):
+:index:`CASH_5_2_4 <Cash-5-2-4 SDIRK method>`  (105):
    Use the Cash-5-2-4 SDIRK method
 
-:index:`CASH_5_3_4 <Cash-5-3-4 SDIRK method>`  (18):
+:index:`CASH_5_3_4 <Cash-5-3-4 SDIRK method>`  (106):
    Use the Cash-5-3-4 SDIRK method
 
-:index:`SDIRK_5_3_4 <SDIRK-5-3-4 method>`  (19):
+:index:`SDIRK_5_3_4 <SDIRK-5-3-4 method>`  (107):
    Use the SDIRK-5-3-4 SDIRK method
 
-:index:`KVAERNO_5_3_4 <Kvaerno-5-3-4 ESDIRK method>`  (20):
+:index:`KVAERNO_5_3_4 <Kvaerno-5-3-4 ESDIRK method>`  (108):
    Use the Kvaerno-5-3-4 ESDIRK method
 
-:index:`ARK436L2SA_DIRK_6_3_4 <ARK-6-3-4 ESDIRK method>`  (21):
+:index:`ARK436L2SA_DIRK_6_3_4 <ARK-6-3-4 ESDIRK method>`  (109):
    Use the ARK-6-3-4 ESDIRK method
 
-:index:`KVAERNO_7_4_5 <Kvaerno-7-4-5 ESDIRK method>`  (22):
+:index:`KVAERNO_7_4_5 <Kvaerno-7-4-5 ESDIRK method>`  (110):
    Use the Kvaerno-7-4-5 ESDIRK method
 
-:index:`ARK548L2SA_DIRK_8_4_5 <ARK-8-4-5 ESDIRK method>`  (23):
+:index:`ARK548L2SA_DIRK_8_4_5 <ARK-8-4-5 ESDIRK method>`  (111):
    Use the ARK-8-4-5 ESDIRK method
+
+:index:`ARK437L2SA_DIRK_7_3_4 <ARK-7-3-4 ESDIRK method>`  (112):
+   Use the ARK-7-3-4 ESDIRK method
+
+:index:`ARK548L2SAb_DIRK_8_4_5 <ARK-8-4-5 ESDIRK method>`  (113):
+   Use the ARK-8-4-5b ESDIRK method
 
 
 :index:`DEFAULT_DIRK_2`  (SDIRK_2_1_2):

@@ -1186,7 +1186,7 @@ equivalently, ``XSDK_INDEX_SIZE``) equals the precision of
 Building with CUDA
 ^^^^^^^^^^^^^^^^^^^^^^
 
-SUNDIALS CUDA modules and examples have been tested with version 8.0 of the
+SUNDIALS CUDA modules and examples have been tested with version 10.1 of the
 CUDA toolkit. To build them, you need to install the Toolkit and compatible
 NVIDIA drivers. Both are available for download from the NVIDIA website:
 `https://developer.nvidia.com/cuda-downloads
@@ -1438,6 +1438,14 @@ Table: SUNDIALS libraries and header files
 |                              |              | ``libsundials_fsunmatrixsparse.a``           |
 +------------------------------+--------------+----------------------------------------------+
 | SUNMATRIX_SPARSE             | Header files | ``sunmatrix/sunmatrix_sparse.h``             |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_SLUNRLOC           | Libraries    | ``libsundials_sunmatrixslunrloc.LIB``,       |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_SLUNRLOC           | Header files | ``sunmatrix/sunmatrix_slunrloc.h``           |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_CUSPARSE           | Libraries    | ``libsundials_sunmatrixcusparse.LIB``,       |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_CUSPARSE           | Header files | ``sunmatrix/sunmatrix_cusparse.h``           |
 +------------------------------+--------------+----------------------------------------------+
 | SUNLINSOL_BAND               | Libraries    | ``libsundials_sunlinsolband.LIB``,           |
 |                              |              | ``libsundials_fsunlinsolband.a``             |

@@ -39,18 +39,25 @@ Added two new functions, `ARKStepSetMinReduction()` and
 `ERKStepSetMinReduction()` to change the minimum allowed step size reduction factor
 after an error test failure.
 
+Added a new `SUNMatrix` implementation, `SUNMATRIX_CUSPARSE`, that interfaces
+to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
+the `SUNLINSOL_CUSOLVER_BATCHQR` linear solver has been updated to
+use this matrix, therefore, users of this module will need to update their code.
+These modules are still considered to be experimental, thus they are subject to
+breaking changes even in minor releases.
+
 Added a new "stiff" interpolation module to ARKode, based on Lagrange polynomial interpolation,
 that is accessible to each of the ARKStep, ERKStep and MRIStep time-stepping modules.
 This module is designed to provide increased interpolation accuracy when integrating
 stiff problems, as opposed to the ARKode-standard Hermite interpolation module that
-can suffer when the IVP right-hand side has large Lipschitz constant.  While the Hermite module 
+can suffer when the IVP right-hand side has large Lipschitz constant.  While the Hermite module
 remains the default, the new Lagrange module may be enabled using one of the routines
-`ARKStepSetInterpolantType`, `ERKStepSetInterpolantType`, or `MRIStepSetInterpolantType`. 
-The serial example problem ``ark_brusselator.c`` has been converted to use this Lagrange 
+`ARKStepSetInterpolantType`, `ERKStepSetInterpolantType`, or `MRIStepSetInterpolantType`.
+The serial example problem ``ark_brusselator.c`` has been converted to use this Lagrange
 interpolation module.  Created accompanying routines `ARKStepSetInterpolantDegree`,
-`ARKStepSetInterpolantDegree` and `ARKStepSetInterpolantDegree` to provide user control over 
-these interpolating polynomials. While the routines `ARKStepSetDenseOrder`, 
-`ARKStepSetDenseOrder` and `ARKStepSetDenseOrder` still exist, these have been deprecated and 
+`ARKStepSetInterpolantDegree` and `ARKStepSetInterpolantDegree` to provide user control over
+these interpolating polynomials. While the routines `ARKStepSetDenseOrder`,
+`ARKStepSetDenseOrder` and `ARKStepSetDenseOrder` still exist, these have been deprecated and
 will be removed in a future release.
 
 
