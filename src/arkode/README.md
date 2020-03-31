@@ -1,5 +1,5 @@
 # ARKode
-### Version 4.1.0 (Jan 2020)
+### Version 4.2.0 (Mar 2020)
 
 **Daniel R. Reynolds and Jean M. Sexton  
   Department of Mathematics, SMU**
@@ -49,8 +49,8 @@ the "SUNDIALS Release History" appendix of the ARKode User Guide.
 ## References
 
 * D. R. Reynolds, D. J. Gardner, A. C. Hindmarsh, C. S. Woodward, and
-  J. M. Sexton, "User Documentation for ARKode v4.1.0," LLNL technical report
-  LLNL-SM-668082, Jan 2020.
+  J. M. Sexton, "User Documentation for ARKode v4.2.0," LLNL technical report
+  LLNL-SM-668082, Mar 2020.
 
-* D. R. Reynolds, "Example Programs for ARKode v4.1.0," Technical Report,
-  Southern Methodist University Center for Scientific Computation, Jan 2020.
+* D. R. Reynolds, "Example Programs for ARKode v4.2.0," Technical Report,
+  Southern Methodist University Center for Scientific Computation, Mar 2020.

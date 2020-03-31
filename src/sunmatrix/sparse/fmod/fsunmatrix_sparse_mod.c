@@ -258,6 +258,34 @@ SWIGEXPORT SUNMatrix _wrap_FSUNSparseFromBandMatrix(SUNMatrix farg1, double cons
 }
 
 
+SWIGEXPORT int _wrap_FSUNSparseMatrix_ToCSR(SUNMatrix farg1, void *farg2) {
+  int fresult ;
+  SUNMatrix arg1 = (SUNMatrix) (SUNMatrix)0 ;
+  SUNMatrix *arg2 = (SUNMatrix *) 0 ;
+  int result;
+  
+  arg1 = (SUNMatrix)(farg1);
+  arg2 = (SUNMatrix *)(farg2);
+  result = (int)SUNSparseMatrix_ToCSR(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNSparseMatrix_ToCSC(SUNMatrix farg1, void *farg2) {
+  int fresult ;
+  SUNMatrix arg1 = (SUNMatrix) (SUNMatrix)0 ;
+  SUNMatrix *arg2 = (SUNMatrix *) 0 ;
+  int result;
+  
+  arg1 = (SUNMatrix)(farg1);
+  arg2 = (SUNMatrix *)(farg2);
+  result = (int)SUNSparseMatrix_ToCSC(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNSparseMatrix_Realloc(SUNMatrix farg1) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;

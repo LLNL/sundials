@@ -37,6 +37,7 @@ if(LINK_LIBRARY_TYPE MATCHES "static")
   set(SUNDIALS_LIBS sundials_nvecserial_static
                     sundials_nveccuda_static
                     sundials_sunmatrixdense_static
+                    sundials_sunmatrixsparse_static
                     sundials_sunmatrixcusparse_static
                     ${EXTRA_LINK_LIBS})
 else()

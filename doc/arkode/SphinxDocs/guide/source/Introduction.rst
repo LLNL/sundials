@@ -107,7 +107,7 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
-Changes in 4.x
+Changes in v4.2.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Fixed a build system bug related to the Fortran 2003 interfaces when using the
@@ -162,7 +162,7 @@ these have been deprecated and will be removed in a future release.
 
 
 
-Changes in 4.1.0
+Changes in v4.1.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Fixed a build system bug related to finding LAPACK/BLAS.

@@ -1,5 +1,5 @@
 # KINSOL
-### Version 5.1.0 (Jan 2020)
+### Version 5.2.0 (Mar 2020)
 
 **Aaron Collier, Alan C. Hindmarsh, Radu Serban, and Carol S. Woodward  
   Center for Applied Scientific Computing, LLNL**
@@ -45,11 +45,11 @@ the "SUNDIALS Release History" appendix of the KINSOL User Guide.
 ## References
 
 * A. M. Collier, A. C. Hindmarsh, R. Serban, and C. S. Woodward,
-  "User Documentation for KINSOL v5.1.0," LLNL technical report
-  UCRL-SM-208116, Jan 2020.
+  "User Documentation for KINSOL v5.2.0," LLNL technical report
+  UCRL-SM-208116, Mar 2020.
 
-* A. M. Collier and R. Serban, "Example Programs for KINSOL v5.1.0,"
-  LLNL technical report UCRL-SM-208114, Jan 2020.
+* A. M. Collier and R. Serban, "Example Programs for KINSOL v5.2.0,"
+  LLNL technical report UCRL-SM-208114, Mar 2020.
 
 * A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban,
   D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and

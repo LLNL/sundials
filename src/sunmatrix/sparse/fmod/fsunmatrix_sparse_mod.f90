@@ -33,6 +33,8 @@ module fsunmatrix_sparse_mod
  public :: FSUNSparseMatrix
  public :: FSUNSparseFromDenseMatrix
  public :: FSUNSparseFromBandMatrix
+ public :: FSUNSparseMatrix_ToCSR
+ public :: FSUNSparseMatrix_ToCSC
  public :: FSUNSparseMatrix_Realloc
  public :: FSUNSparseMatrix_Reallocate
  public :: FSUNSparseMatrix_Print
@@ -85,6 +87,24 @@ type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT), intent(in) :: farg3
 type(C_PTR) :: fresult
+end function
+
+function swigc_FSUNSparseMatrix_ToCSR(farg1, farg2) &
+bind(C, name="_wrap_FSUNSparseMatrix_ToCSR") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNSparseMatrix_ToCSC(farg1, farg2) &
+bind(C, name="_wrap_FSUNSparseMatrix_ToCSC") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNSparseMatrix_Realloc(farg1) &
@@ -316,6 +336,38 @@ farg2 = droptol
 farg3 = sparsetype
 fresult = swigc_FSUNSparseFromBandMatrix(farg1, farg2, farg3)
 call c_f_pointer(fresult, swig_result)
+end function
+
+function FSUNSparseMatrix_ToCSR(a, bout) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNMatrix), target, intent(inout) :: a
+type(C_PTR), target, intent(inout) :: bout
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(a)
+farg2 = c_loc(bout)
+fresult = swigc_FSUNSparseMatrix_ToCSR(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNSparseMatrix_ToCSC(a, bout) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNMatrix), target, intent(inout) :: a
+type(C_PTR), target, intent(inout) :: bout
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(a)
+farg2 = c_loc(bout)
+fresult = swigc_FSUNSparseMatrix_ToCSC(farg1, farg2)
+swig_result = fresult
 end function
 
 function FSUNSparseMatrix_Realloc(a) &

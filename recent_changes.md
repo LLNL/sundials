@@ -1,6 +1,6 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 5.x
+## Changes to SUNDIALS in release 5.2.0
 
 Fixed a build system bug related to the Fortran 2003 interfaces when using the
 IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
