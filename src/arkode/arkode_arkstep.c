@@ -21,6 +21,7 @@
 
 #include "arkode_impl.h"
 #include "arkode_arkstep_impl.h"
+#include "arkode_interp_impl.h"
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
@@ -181,14 +182,13 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   step_mem->msolve_type = -1;
 
   /* Initialize initial error norm  */
-  step_mem->eRNrm = 1.0;
+  step_mem->eRNrm = ONE;
 
   /* Initialize all the counters */
-  step_mem->nst_attempts = 0;
-  step_mem->nfe          = 0;
-  step_mem->nfi          = 0;
-  step_mem->nsetups      = 0;
-  step_mem->nstlp        = 0;
+  step_mem->nfe     = 0;
+  step_mem->nfi     = 0;
+  step_mem->nsetups = 0;
+  step_mem->nstlp   = 0;
 
   /* Initialize fused op work space */
   step_mem->cvals        = NULL;
@@ -366,7 +366,7 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
   step_mem->fi = fi;
 
   /* Initialize initial error norm  */
-  step_mem->eRNrm = 1.0;
+  step_mem->eRNrm = ONE;
 
   /* ReInitialize main ARKode infrastructure */
   retval = arkReInit(ark_mem, t0, y0);
@@ -377,11 +377,10 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
   }
 
   /* Initialize all the counters */
-  step_mem->nst_attempts = 0;
-  step_mem->nfe          = 0;
-  step_mem->nfi          = 0;
-  step_mem->nsetups      = 0;
-  step_mem->nstlp        = 0;
+  step_mem->nfe     = 0;
+  step_mem->nfi     = 0;
+  step_mem->nsetups = 0;
+  step_mem->nstlp   = 0;
 
   return(ARK_SUCCESS);
 }
@@ -682,7 +681,6 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile,"ARKStep: convfail = %i\n", step_mem->convfail);
 
   /* output long integer quantities */
-  fprintf(outfile,"ARKStep: nst_attempts = %li\n", step_mem->nst_attempts);
   fprintf(outfile,"ARKStep: nfe = %li\n", step_mem->nfe);
   fprintf(outfile,"ARKStep: nfi = %li\n", step_mem->nfi);
   fprintf(outfile,"ARKStep: nsetups = %li\n", step_mem->nsetups);
@@ -1104,18 +1102,23 @@ int arkStep_Init(void* arkode_mem, int init_type)
       ark_mem->liw += step_mem->nfusedopvecs;   /* pointers */
     }
 
-    /* Allocate interpolation memory (if unallocated, and needed) */
-    if ((ark_mem->interp == NULL) && (step_mem->predictor > 0)) {
-      ark_mem->interp = arkInterpCreate(ark_mem);
-      if (ark_mem->interp == NULL) {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "arkStep_Init",
-                        "Unable to allocate interpolation structure");
-        return(ARK_MEM_FAIL);
+    /* Limit interpolant degree based on method order (use negative 
+       argument to specify update instead of overwrite) */
+    if (ark_mem->interp != NULL) {
+      retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q-1));
+      if (retval != ARK_SUCCESS) {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", "arkStep_Init",
+                        "Unable to update interpolation polynomial degree");
+        return(ARK_ILL_INPUT);
       }
     }
 
   } /* end (init_type == 0) */
 
+  /* If the bootstrap predictor is enabled, signal to shared arkode module that 
+     fullrhs is required after each step */
+  if (step_mem->predictor == 4)  ark_mem->call_fullrhs = SUNTRUE;
+  
   /* Check for consistency between linear system modules
        (e.g., if lsolve is direct, msolve needs to match) */
   if (step_mem->mass_mem != NULL) {  /* M != I */
@@ -1548,9 +1551,6 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   if (!step_mem->implicit && (step_mem->mass_mem == NULL))
     *nflagPtr = ARK_SUCCESS;
 
-  /* increment attempt counter */
-  step_mem->nst_attempts++;
-
   /* call nonlinear solver setup if it exists */
   if (step_mem->NLS)
     if ((step_mem->NLS)->ops->setup) {
@@ -1654,6 +1654,16 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       N_VPrint_Serial(ark_mem->ycur);
 #endif
 
+    }
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    /* With internally inconsistent IMEX methods (c_i^E != c_i^I) the value of
+       tcur corresponds to the stage time from the implicit table (c_i^I).     */
+    if (ark_mem->ProcessStage != NULL) {
+      retval = ark_mem->ProcessStage(ark_mem->tcur,
+                                     ark_mem->ycur,
+                                     ark_mem->user_data);
+      if (retval != 0) return(ARK_POSTPROCESS_STAGE_FAIL);
     }
 
     /* successful stage solve */

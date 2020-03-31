@@ -34,7 +34,12 @@
   utility routines).  All are documented in arkode_io.c.
   ===============================================================*/
 int MRIStepSetDenseOrder(void *arkode_mem, int dord) {
-  return(arkSetDenseOrder(arkode_mem, dord)); }
+  return(MRIStepSetInterpolantDegree(arkode_mem, dord)); }
+int MRIStepSetInterpolantDegree(void *arkode_mem, int degree) {
+  if (degree < 0) degree = ARK_INTERP_MAX_DEGREE;
+  return(arkSetInterpolantDegree(arkode_mem, degree)); }
+int MRIStepSetInterpolantType(void *arkode_mem, int itype) {
+  return(arkSetInterpolantType(arkode_mem, itype)); }
 int MRIStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
                            void *eh_data) {
   return(arkSetErrHandlerFn(arkode_mem, ehfun, eh_data)); }
@@ -53,8 +58,11 @@ int MRIStepSetRootDirection(void *arkode_mem, int *rootdir) {
 int MRIStepSetNoInactiveRootWarn(void *arkode_mem) {
   return(arkSetNoInactiveRootWarn(arkode_mem)); }
 int MRIStepSetPostprocessStepFn(void *arkode_mem,
-                                ARKPostProcessStepFn ProcessStep) {
+                                ARKPostProcessFn ProcessStep) {
   return(arkSetPostprocessStepFn(arkode_mem, ProcessStep)); }
+int MRIStepSetPostprocessStageFn(void *arkode_mem,
+                                 ARKPostProcessFn ProcessStage) {
+  return(arkSetPostprocessStageFn(arkode_mem, ProcessStage)); }
 
 
 /*===============================================================

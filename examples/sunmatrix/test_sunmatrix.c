@@ -39,6 +39,7 @@ static double get_time();
 int print_time = 0;
 int print_all_ranks = 0;
 
+#define FMT "%s Time: %22.15e\n\n"
 #define PRINT_TIME(format, time) if(print_time) printf(format, time)
 
 /* ----------------------------------------------------------------------
@@ -271,9 +272,9 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
   }
 
   /*
-   * Case 2: different sparsity/bandwith patterns
+   * Case 2: different sparsity/bandwidth patterns
    */
-  if (is_square(A)) {
+  if (is_square(A) && SUNMatGetID(A) != SUNMATRIX_CUSPARSE) {
 
     /* protect A and I */
     D = SUNMatClone(A);
@@ -436,6 +437,11 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
   N_Vector  z, w;
   realtype  tol=100*UNIT_ROUNDOFF;
 
+  if (A->ops->matvec == NULL) {
+    TEST_STATUS("    PASSED test -- SUNMatMatvec not implemented\n", myid);
+    return(0);
+  }
+
   /* harder tests for square matrices */
   if (is_square(A)) {
 
@@ -456,15 +462,15 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
       return(1);
     }
 
-    z = N_VClone(y);
-    w = N_VClone(y);
+    z = N_VClone(y); /* will be computed with matvec */
+    w = N_VClone(y); /* will be the reference */
 
     /* Call the Setup function before the Matvec if it exists */
     if (B->ops->matvecsetup)
       SUNMatMatvecSetup(B);
-   
+
     start_time = get_time();
-    failure = SUNMatMatvec(B,x,z);
+    failure = SUNMatMatvec(B,x,z); /* z = (3A+I)x */
     stop_time = get_time();
 
     if (failure) {
@@ -473,20 +479,20 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
       return(1);
     }
 
-    N_VLinearSum(THREE,y,ONE,x,w);
+    N_VLinearSum(THREE,y,ONE,x,w); /* w = 3x + x */
 
     failure = check_vector(w,z,tol);
-    
+
     SUNMatDestroy(B);
     N_VDestroy(z);
     N_VDestroy(w);
 
   } else {
 
-    z = N_VClone(y);
+    z = N_VClone(y); /* will be computed with matvec */
 
     start_time = get_time();
-    failure = SUNMatMatvec(A,x,z);
+    failure = SUNMatMatvec(A,x,z); /* z = Ax */
     stop_time = get_time();
 
     if (failure) {

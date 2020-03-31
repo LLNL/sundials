@@ -3183,6 +3183,20 @@ SWIGEXPORT int _wrap_FIDASetEpsLin(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FIDASetLinearSolutionScaling(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)IDASetLinearSolutionScaling(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FIDASetIncrementFactor(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -3413,6 +3427,22 @@ SWIGEXPORT int _wrap_FIDASetEpsLinB(void *farg1, int const *farg2, double const 
   arg2 = (int)(*farg2);
   arg3 = (realtype)(*farg3);
   result = (int)IDASetEpsLinB(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetLinearSolutionScalingB(void *farg1, int const *farg2, int const *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (int)(*farg3);
+  result = (int)IDASetLinearSolutionScalingB(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

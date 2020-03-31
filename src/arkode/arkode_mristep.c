@@ -21,6 +21,7 @@
 
 #include "arkode_impl.h"
 #include "arkode_mristep_impl.h"
+#include "arkode_interp_impl.h"
 #include <sundials/sundials_math.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -541,13 +542,16 @@ int mriStep_Init(void* arkode_mem, int init_type)
   sunindextype Blrw, Bliw;
   int retval, j;
 
-  /* immediately return if init_type == 1 */
-  if (init_type == 1)  return(ARK_SUCCESS);
-
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(arkode_mem, "mriStep_Init",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  /* immediately return if init_type == 1 */
+  if (init_type == 1) {
+    ark_mem->call_fullrhs = SUNTRUE;
+    return(ARK_SUCCESS);
+  }
 
   /* assume fixed outer step size */
   if (!ark_mem->fixedstep) {
@@ -614,6 +618,20 @@ int mriStep_Init(void* arkode_mem, int init_type)
     if (step_mem->Xvecs == NULL)  return(ARK_MEM_FAIL);
     ark_mem->liw += (step_mem->stages + 1);   /* pointers */
   }
+
+  /* Limit interpolant degree based on method order (use negative
+     argument to specify update instead of overwrite) */
+  if (ark_mem->interp != NULL) {
+    retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q-1));
+    if (retval != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep", "mriStep_Init",
+                      "Unable to update interpolation polynomial degree");
+      return(ARK_ILL_INPUT);
+    }
+  }
+
+  /* Signal to shared arkode module that fullrhs is required after each step */
+  ark_mem->call_fullrhs = SUNTRUE;
 
   return(ARK_SUCCESS);
 }
@@ -847,6 +865,14 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       retval = step_mem->post_inner_evolve(ark_mem->tcur, ark_mem->ycur,
                                            ark_mem->user_data);
       if (retval != 0) return(ARK_INNERTOOUTER_FAIL);
+    }
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL) {
+      retval = ark_mem->ProcessStage(ark_mem->tcur,
+                                     ark_mem->ycur,
+                                     ark_mem->user_data);
+      if (retval != 0) return(ARK_POSTPROCESS_STAGE_FAIL);
     }
 
     /* compute updated slow RHS */

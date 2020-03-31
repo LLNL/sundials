@@ -68,7 +68,7 @@ extern "C" {
 
 /*===============================================================
   ARKode Time Step Adaptivity Data Structure
-===============================================================*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
  Types : struct ARKodeHAdaptMemRec, ARKodeHAdaptMem
@@ -82,6 +82,7 @@ typedef struct ARKodeHAdaptMemRec {
   realtype     etamax;      /* eta <= etamax                              */
   realtype     etamx1;      /* max step size change on first step         */
   realtype     etamxf;      /* h reduction factor on multiple error fails */
+  realtype     etamin;      /* eta >= etamin on error test fail           */
   int          small_nef;   /* bound to determine 'multiple' above        */
   realtype     etacf;       /* h reduction factor on nonlinear conv fail  */
   ARKAdaptFn   HAdapt;      /* function to set the new time step size     */

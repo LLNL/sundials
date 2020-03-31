@@ -21,7 +21,6 @@
 #include <arkode/arkode.h>
 #include <arkode/arkode_butcher.h>
 #include "arkode_adapt_impl.h"
-#include "arkode_interp_impl.h"
 #include "arkode_root_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -167,6 +166,52 @@ typedef int (*ARKTimestepStepFn)(void* arkode_mem, realtype *dsm,
 
 
 /*===============================================================
+  ARKode interpolation module definition
+  ===============================================================*/
+
+/* Forward reference for pointer to ARKInterp_Ops object */
+typedef struct _generic_ARKInterpOps *ARKInterpOps;
+
+/* Forward reference for pointer to ARKInterp object */
+typedef struct _generic_ARKInterp *ARKInterp;
+
+/* Structure containing function pointers to interpolation operations  */
+struct _generic_ARKInterpOps {
+  int (*resize)(void* arkode_mem, ARKInterp interp,
+                ARKVecResizeFn resize, void *resize_data,
+                sunindextype lrw_diff, sunindextype liw_diff,
+                N_Vector tmpl);
+  void (*free)(void* arkode_mem, ARKInterp interp);
+  void (*print)(ARKInterp interp, FILE *outfile);
+  int (*setdegree)(void *arkode_mem, ARKInterp interp, int degree);
+  int (*init)(void* arkode_mem, ARKInterp interp, realtype tnew);
+  int (*update)(void* arkode_mem, ARKInterp interp, realtype tnew);
+  int (*evaluate)(void* arkode_mem, ARKInterp interp,
+                  realtype tau, int d, int order, N_Vector yout);
+};
+
+/* An interpolation module consists of an implementation-dependent 'content'
+   structure, and a pointer to a structure of implementation-dependent operations. */
+struct _generic_ARKInterp {
+  void *content;
+  ARKInterpOps ops;
+};
+
+/* ARKInterp module functions */
+int arkInterpResize(void* arkode_mem, ARKInterp interp,
+                    ARKVecResizeFn resize, void *resize_data,
+                    sunindextype lrw_diff, sunindextype liw_diff,
+                    N_Vector tmpl);
+void arkInterpFree(void* arkode_mem, ARKInterp interp);
+void arkInterpPrintMem(ARKInterp interp, FILE *outfile);
+int arkInterpSetDegree(void *arkode_mem, ARKInterp interp, int degree);
+int arkInterpInit(void* arkode_mem, ARKInterp interp, realtype tnew);
+int arkInterpUpdate(void* arkode_mem, ARKInterp interp, realtype tnew);
+int arkInterpEvaluate(void* arkode_mem, ARKInterp interp,
+                      realtype tau, int d, int order, N_Vector yout);
+
+
+/*===============================================================
   ARKode data structures
   ===============================================================*/
 
@@ -247,6 +292,7 @@ typedef struct ARKodeMemRec {
   N_Vector ycur;          /* pointer to user-provided solution memory; used
                              as evolving solution by the timestepper modules */
   N_Vector yn;            /* solution from the last successful step          */
+  N_Vector fn;            /* full IVP right-hand side from last step         */
   N_Vector tempv1;        /* temporary storage vectors (for local use and by */
   N_Vector tempv2;        /* time-stepping modules)                          */
   N_Vector tempv3;
@@ -255,8 +301,7 @@ typedef struct ARKodeMemRec {
   N_Vector constraints;   /* vector of inequality constraint options         */
 
   /* Temporal interpolation module */
-  ARKodeInterpMem interp;
-  int dense_q;      /* interpolation order (user request)      */
+  ARKInterp interp;
 
   /* Tstop information */
   booleantype tstopset;
@@ -288,6 +333,7 @@ typedef struct ARKodeMemRec {
   int      maxncf;         /* max num alg. solver conv. fails in one step    */
 
   /* Counters */
+  long int nst_attempts;  /* number of attempted steps                  */
   long int nst;           /* number of internal steps taken             */
   int      nhnil;         /* number of messages issued to the user that
                              t+h == t for the next iternal step         */
@@ -316,6 +362,8 @@ typedef struct ARKodeMemRec {
   booleantype MallocDone;
   booleantype resized;      /* denotes first step after ARKodeResize      */
   booleantype firststage;   /* denotes first stage in simulation          */
+  booleantype initialized;  /* denotes arkInitialSetup has been done      */
+  booleantype call_fullrhs; /* denotes fn needs updating after each step  */
 
   /* Error handler function and error ouput file */
   ARKErrHandlerFn ehfun;    /* error messages are handled by ehfun        */
@@ -326,8 +374,11 @@ typedef struct ARKodeMemRec {
   ARKodeRootMem root_mem;          /* root-finding structure */
 
   /* User-supplied step solution post-processing function */
-  ARKPostProcessStepFn ProcessStep;
+  ARKPostProcessFn ProcessStep;
   void*                ps_data; /* pointer to user_data */
+
+  /* User-supplied stage solution post-processing function */
+  ARKPostProcessFn ProcessStage;
 
 } *ARKodeMem;
 
@@ -855,6 +906,8 @@ int arkAccessHAdaptMem(void* arkode_mem, const char *fname,
 
 int arkSetDefaults(void *arkode_mem);
 int arkSetDenseOrder(void *arkode_mem, int dord);
+int arkSetInterpolantType(void *arkode_mem, int itype);
+int arkSetInterpolantDegree(void *arkode_mem, int degree);
 int arkSetErrHandlerFn(void *arkode_mem,
                        ARKErrHandlerFn ehfun,
                        void *eh_data);
@@ -871,13 +924,16 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed);
 int arkSetRootDirection(void *arkode_mem, int *rootdir);
 int arkSetNoInactiveRootWarn(void *arkode_mem);
 int arkSetPostprocessStepFn(void *arkode_mem,
-                            ARKPostProcessStepFn ProcessStep);
+                            ARKPostProcessFn ProcessStep);
+int arkSetPostprocessStageFn(void *arkode_mem,
+                             ARKPostProcessFn ProcessStage);
 int arkSetConstraints(void *arkode_mem, N_Vector constraints);
 int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails);
 int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac);
 int arkSetSafetyFactor(void *arkode_mem, realtype safety);
 int arkSetErrorBias(void *arkode_mem, realtype bias);
 int arkSetMaxGrowth(void *arkode_mem, realtype mx_growth);
+int arkSetMinReduction(void *arkode_mem, realtype eta_min);
 int arkSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub);
 int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                            int pq, realtype adapt_params[3]);
@@ -890,6 +946,7 @@ int arkSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data);
 int arkSetMaxErrTestFails(void *arkode_mem, int maxnef);
 int arkSetMaxConvFails(void *arkode_mem, int maxncf);
 int arkGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw);
+int arkGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts);
 int arkGetNumSteps(void *arkode_mem, long int *nsteps);
 int arkGetActualInitStep(void *arkode_mem, realtype *hinused);
 int arkGetLastStep(void *arkode_mem, realtype *hlast);
@@ -1003,6 +1060,8 @@ char *arkGetReturnFlagName(long int flag);
 #define MSG_ARKADAPT_NO_MEM    "Adaptivity memory structure not allocated."
 #define MSG_ARK_VECTOROP_ERR      "At " MSG_TIME ", a vector operation failed."
 #define MSG_ARK_INNERSTEP_FAILED  "At " MSG_TIME ", the inner stepper failed in an unrecoverable manner."
+#define MSG_ARK_POSTPROCESS_STEP_FAIL "At " MSG_TIME ", the step postprocessing routine failed in an unrecoverable manner."
+#define MSG_ARK_POSTPROCESS_STAGE_FAIL "At " MSG_TIME ", the stage postprocessing routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

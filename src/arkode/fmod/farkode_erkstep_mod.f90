@@ -51,6 +51,8 @@ module farkode_erkstep_mod
  public :: FERKStepRootInit
  public :: FERKStepSetDefaults
  public :: FERKStepSetOrder
+ public :: FERKStepSetInterpolantType
+ public :: FERKStepSetInterpolantDegree
  public :: FERKStepSetDenseOrder
  public :: FERKStepSetTable
  public :: FERKStepSetTableNum
@@ -82,6 +84,7 @@ module farkode_erkstep_mod
  public :: FERKStepSetUserData
  public :: FERKStepSetDiagnostics
  public :: FERKStepSetPostprocessStepFn
+ public :: FERKStepSetPostprocessStageFn
  public :: FERKStepEvolve
  public :: FERKStepGetDky
  public :: FERKStepGetNumExpSteps
@@ -199,6 +202,24 @@ end function
 
 function swigc_FERKStepSetOrder(farg1, farg2) &
 bind(C, name="_wrap_FERKStepSetOrder") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetInterpolantType(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetInterpolantType") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetInterpolantDegree(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetInterpolantDegree") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -484,6 +505,15 @@ end function
 
 function swigc_FERKStepSetPostprocessStepFn(farg1, farg2) &
 bind(C, name="_wrap_FERKStepSetPostprocessStepFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetPostprocessStageFn(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetPostprocessStageFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -921,6 +951,38 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = maxord
 fresult = swigc_FERKStepSetOrder(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetInterpolantType(arkode_mem, itype) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: itype
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = itype
+fresult = swigc_FERKStepSetInterpolantType(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetInterpolantDegree(arkode_mem, degree) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: degree
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = degree
+fresult = swigc_FERKStepSetInterpolantDegree(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -1435,6 +1497,22 @@ type(C_FUNPTR) :: farg2
 farg1 = arkode_mem
 farg2 = processstep
 fresult = swigc_FERKStepSetPostprocessStepFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetPostprocessStageFn(arkode_mem, processstage) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: processstage
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = processstage
+fresult = swigc_FERKStepSetPostprocessStageFn(farg1, farg2)
 swig_result = fresult
 end function
 

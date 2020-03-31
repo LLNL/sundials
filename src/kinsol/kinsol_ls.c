@@ -44,9 +44,11 @@
   ---------------------------------------------------------------*/
 int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
 {
-  KINMem   kin_mem;
-  KINLsMem kinls_mem;
-  int      retval, LSType;
+  KINMem      kin_mem;
+  KINLsMem    kinls_mem;
+  int         retval, LSType;
+  booleantype iterative;    /* is the solver iterative?    */
+  booleantype matrixbased;  /* is a matrix structure used? */
 
   /* Return immediately if either kinmem or LS inputs are NULL */
   if (kinmem == NULL) {
@@ -73,6 +75,10 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   /* Retrieve the LS type */
   LSType = SUNLinSolGetType(LS);
 
+  /* Set flags based on LS type */
+  iterative   = (LSType != SUNLINEARSOLVER_DIRECT);
+  matrixbased = (LSType != SUNLINEARSOLVER_ITERATIVE);
+
   /* check for required vector operations for KINLS interface */
   if ( (kin_mem->kin_vtemp1->ops->nvconst == NULL) ||
        (kin_mem->kin_vtemp1->ops->nvdotprod == NULL) ) {
@@ -81,30 +87,32 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
     return(KINLS_ILL_INPUT);
   }
 
-  if ( ((LSType == SUNLINEARSOLVER_ITERATIVE) ||
-        (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
-       (LS->ops->setscalingvectors == NULL) ) {
-    if (kin_mem->kin_vtemp1->ops->nvgetlength == NULL) {
+  /* Check for compatible LS type, matrix and "atimes" support */
+  if (iterative) {
+
+    if ((LS->ops->setscalingvectors == NULL) &&
+        (kin_mem->kin_vtemp1->ops->nvgetlength == NULL)) {
       KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS",
                       "KINSetLinearSolver", MSG_LS_BAD_NVECTOR);
       return(KINLS_ILL_INPUT);
     }
-  }
 
-  /* Check for compatible LS type, matrix and "atimes" support */
-  if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
-                    "Incompatible inputs: iterative LS must support ATimes routine");
-    return(KINLS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_DIRECT) && (A == NULL)) {
+    if (!matrixbased && (LS->ops->setatimes == NULL)) {
+      KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
+                      "Incompatible inputs: iterative LS must support ATimes routine");
+      return(KINLS_ILL_INPUT);
+    }
+
+    if (matrixbased && A == NULL) {
+      KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
+                      "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
+      return(KINLS_ILL_INPUT);
+    }
+
+  } else if (A == NULL) {
+
     KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
                     "Incompatible inputs: direct LS requires non-NULL matrix");
-    return(KINLS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) && (A == NULL)) {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
-                    "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
     return(KINLS_ILL_INPUT);
   }
 
@@ -112,8 +120,7 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   if (kin_mem->kin_lfree) kin_mem->kin_lfree(kin_mem);
 
   /* Determine if this is an iterative linear solver */
-  kin_mem->kin_inexact_ls = ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-                              (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) );
+  kin_mem->kin_inexact_ls = iterative;
 
   /* Set four main system linear solver function fields in kin_mem */
   kin_mem->kin_linit  = kinLsInitialize;
@@ -935,7 +942,7 @@ int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
 int kinLsInitialize(KINMem kin_mem)
 {
   KINLsMem kinls_mem;
-  int      retval, LSType;
+  int      retval;
 
   /* Access KINLsMem structure */
   if (kin_mem->kin_lmem == NULL) {
@@ -944,9 +951,6 @@ int kinLsInitialize(KINMem kin_mem)
     return(KINLS_LMEM_NULL);
   }
   kinls_mem = (KINLsMem) kin_mem->kin_lmem;
-
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(kinls_mem->LS);
 
   /* Test for valid combinations of matrix & Jacobian routines: */
   if (kinls_mem->J == NULL) {
@@ -1055,14 +1059,10 @@ int kinLsInitialize(KINMem kin_mem)
        <=> || b - A x ||_2 < tol / fs_mean
        <=> || b - A x ||_2 < tol * tol_fac
      So we compute tol_fac = sqrt(N) / ||fscale||_L2 for scaling desired tolerances */
-  if ( ((LSType == SUNLINEARSOLVER_ITERATIVE) ||
-        (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
-       (kinls_mem->LS->ops->setscalingvectors == NULL) ) {
-
+  if (kinls_mem->iterative && kinls_mem->LS->ops->setscalingvectors == NULL) {
     N_VConst(ONE, kin_mem->kin_vtemp1);
     kinls_mem->tol_fac = SUNRsqrt(N_VGetLength(kin_mem->kin_vtemp1))
                        / N_VWL2Norm(kin_mem->kin_fscale, kin_mem->kin_vtemp1);
-
   } else {
     kinls_mem->tol_fac = ONE;
   }
@@ -1138,7 +1138,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
 {
   KINLsMem kinls_mem;
   int      nli_inc, retval;
-  realtype res_norm, tol, LSType;
+  realtype res_norm, tol;
 
   /* Access KINLsMem structure */
   if (kin_mem->kin_lmem == NULL) {
@@ -1147,9 +1147,6 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
     return(KINLS_LMEM_NULL);
   }
   kinls_mem = (KINLsMem) kin_mem->kin_lmem;
-
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(kinls_mem->LS);
 
   /* Set linear solver tolerance as input value times scaling factor
      (to account for possible lack of support for left/right scaling
@@ -1173,9 +1170,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   if (kinls_mem->LS->ops->numiters)
     nli_inc = SUNLinSolNumIters(kinls_mem->LS);
 
-  if ( ((LSType == SUNLINEARSOLVER_ITERATIVE) ||
-        (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
-       (kin_mem->kin_printfl > 2) )
+  if (kinls_mem->iterative && kin_mem->kin_printfl > 2)
     KINPrintInfo(kin_mem, PRNT_NLI, "KINLS", "kinLsSolve",
                  INFO_NLI, nli_inc);
 

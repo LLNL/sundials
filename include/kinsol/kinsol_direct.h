@@ -37,19 +37,19 @@ typedef KINLsJacFn KINDlsJacFn;
   Exported Functions (wrappers for equivalent routines in kinsol_ls.h)
   ===================================================================*/
 
-int KINDlsSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A);
+SUNDIALS_EXPORT int KINDlsSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A);
 
-int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
+SUNDIALS_EXPORT int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
 
-int KINDlsGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
+SUNDIALS_EXPORT int KINDlsGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
 
-int KINDlsGetNumJacEvals(void *kinmem, long int *njevals);
+SUNDIALS_EXPORT int KINDlsGetNumJacEvals(void *kinmem, long int *njevals);
 
-int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals);
+SUNDIALS_EXPORT int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals);
 
-int KINDlsGetLastFlag(void *kinmem, long int *flag);
+SUNDIALS_EXPORT int KINDlsGetLastFlag(void *kinmem, long int *flag);
 
-char *KINDlsGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT char *KINDlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

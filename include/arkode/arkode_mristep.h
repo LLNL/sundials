@@ -68,6 +68,8 @@ SUNDIALS_EXPORT int MRIStepRootInit(void *arkode_mem, int nrtfn,
 
 /* Optional input functions -- must be called AFTER MRIStepCreate */
 SUNDIALS_EXPORT int MRIStepSetDefaults(void* arkode_mem);
+SUNDIALS_EXPORT int MRIStepSetInterpolantType(void *arkode_mem, int itype);
+SUNDIALS_EXPORT int MRIStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int MRIStepSetDenseOrder(void *arkode_mem, int dord);
 SUNDIALS_EXPORT int MRIStepSetTable(void *arkode_mem, int q,
                                     ARKodeButcherTable B);
@@ -94,7 +96,9 @@ SUNDIALS_EXPORT int MRIStepSetUserData(void *arkode_mem,
 SUNDIALS_EXPORT int MRIStepSetDiagnostics(void *arkode_mem,
                                           FILE *diagfp);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStepFn(void *arkode_mem,
-                                                ARKPostProcessStepFn ProcessStep);
+                                                ARKPostProcessFn ProcessStep);
+SUNDIALS_EXPORT int MRIStepSetPostprocessStageFn(void *arkode_mem,
+                                                 ARKPostProcessFn ProcessStage);
 SUNDIALS_EXPORT int MRIStepSetPreInnerFn(void *arkode_mem,
                                          MRIStepPreInnerFn prefn);
 SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void *arkode_mem,

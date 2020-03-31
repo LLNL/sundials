@@ -40,64 +40,81 @@ extern "C" {
  * ARKode Constants
  * ----------------- */
 
-/* itask */
+/* usage modes (itask) */
 #define ARK_NORMAL         1
 #define ARK_ONE_STEP       2
 
+  
+/* interpolation module flags */
+
+/*    max allowed degree */  
+#define ARK_INTERP_MAX_DEGREE 5
+
+/*    interpolation module types */  
+#define ARK_INTERP_HERMITE  0
+#define ARK_INTERP_LAGRANGE 1
+  
+  
 /* return values */
 
-#define ARK_SUCCESS               0
-#define ARK_TSTOP_RETURN          1
-#define ARK_ROOT_RETURN           2
+#define ARK_SUCCESS                 0
+#define ARK_TSTOP_RETURN            1
+#define ARK_ROOT_RETURN             2
 
-#define ARK_WARNING              99
+#define ARK_WARNING                99
 
-#define ARK_TOO_MUCH_WORK        -1
-#define ARK_TOO_MUCH_ACC         -2
-#define ARK_ERR_FAILURE          -3
-#define ARK_CONV_FAILURE         -4
+#define ARK_TOO_MUCH_WORK          -1
+#define ARK_TOO_MUCH_ACC           -2
+#define ARK_ERR_FAILURE            -3
+#define ARK_CONV_FAILURE           -4
 
-#define ARK_LINIT_FAIL           -5
-#define ARK_LSETUP_FAIL          -6
-#define ARK_LSOLVE_FAIL          -7
-#define ARK_RHSFUNC_FAIL         -8
-#define ARK_FIRST_RHSFUNC_ERR    -9
-#define ARK_REPTD_RHSFUNC_ERR    -10
-#define ARK_UNREC_RHSFUNC_ERR    -11
-#define ARK_RTFUNC_FAIL          -12
-#define ARK_LFREE_FAIL           -13
-#define ARK_MASSINIT_FAIL        -14
-#define ARK_MASSSETUP_FAIL       -15
-#define ARK_MASSSOLVE_FAIL       -16
-#define ARK_MASSFREE_FAIL        -17
-#define ARK_MASSMULT_FAIL        -18
+#define ARK_LINIT_FAIL             -5
+#define ARK_LSETUP_FAIL            -6
+#define ARK_LSOLVE_FAIL            -7
+#define ARK_RHSFUNC_FAIL           -8
+#define ARK_FIRST_RHSFUNC_ERR      -9
+#define ARK_REPTD_RHSFUNC_ERR      -10
+#define ARK_UNREC_RHSFUNC_ERR      -11
+#define ARK_RTFUNC_FAIL            -12
+#define ARK_LFREE_FAIL             -13
+#define ARK_MASSINIT_FAIL          -14
+#define ARK_MASSSETUP_FAIL         -15
+#define ARK_MASSSOLVE_FAIL         -16
+#define ARK_MASSFREE_FAIL          -17
+#define ARK_MASSMULT_FAIL          -18
 
-#define ARK_CONSTR_FAIL          -19
-#define ARK_MEM_FAIL             -20
-#define ARK_MEM_NULL             -21
-#define ARK_ILL_INPUT            -22
-#define ARK_NO_MALLOC            -23
-#define ARK_BAD_K                -24
-#define ARK_BAD_T                -25
-#define ARK_BAD_DKY              -26
-#define ARK_TOO_CLOSE            -27
+#define ARK_CONSTR_FAIL            -19
+#define ARK_MEM_FAIL               -20
+#define ARK_MEM_NULL               -21
+#define ARK_ILL_INPUT              -22
+#define ARK_NO_MALLOC              -23
+#define ARK_BAD_K                  -24
+#define ARK_BAD_T                  -25
+#define ARK_BAD_DKY                -26
+#define ARK_TOO_CLOSE              -27
 
-#define ARK_POSTPROCESS_FAIL     -28
-#define ARK_VECTOROP_ERR         -29
+#define ARK_VECTOROP_ERR           -28
 
-#define ARK_NLS_INIT_FAIL        -30
-#define ARK_NLS_SETUP_FAIL       -31
-#define ARK_NLS_SETUP_RECVR      -32
-#define ARK_NLS_OP_ERR           -33
+#define ARK_NLS_INIT_FAIL          -29
+#define ARK_NLS_SETUP_FAIL         -30
+#define ARK_NLS_SETUP_RECVR        -31
+#define ARK_NLS_OP_ERR             -32
 
-#define ARK_INNERSTEP_ATTACH_ERR -34
-#define ARK_INNERSTEP_FAIL       -35
-#define ARK_OUTERTOINNER_FAIL    -36
-#define ARK_INNERTOOUTER_FAIL    -37
+#define ARK_INNERSTEP_ATTACH_ERR   -33
+#define ARK_INNERSTEP_FAIL         -34
+#define ARK_OUTERTOINNER_FAIL      -35
+#define ARK_INNERTOOUTER_FAIL      -36
 
-#define ARK_USER_PREDICT_FAIL    -38
-  
-#define ARK_UNRECOGNIZED_ERROR   -99
+/* ARK_POSTPROCESS_FAIL equals ARK_POSTPROCESS_STEP_FAIL
+   for backwards compatibility */
+#define ARK_POSTPROCESS_FAIL       -37
+#define ARK_POSTPROCESS_STEP_FAIL  -37
+#define ARK_POSTPROCESS_STAGE_FAIL -38
+
+#define ARK_USER_PREDICT_FAIL      -39
+#define ARK_INTERP_FAIL            -40
+
+#define ARK_UNRECOGNIZED_ERROR     -99
 
 /* ------------------------------
  * User-Supplied Function Types
@@ -129,6 +146,11 @@ typedef int (*ARKExpStabFn)(N_Vector y, realtype t,
 typedef int (*ARKVecResizeFn)(N_Vector y, N_Vector ytemplate,
                               void *user_data);
 
+typedef int (*ARKPostProcessFn)(realtype t, N_Vector y,
+                                void *user_data);
+
+/* ARKPostProcessStepFn is now deprecated and will be removed in future
+   releases. It has be replaced with ARKPostProcessFn. */
 typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y,
                                     void *user_data);
 

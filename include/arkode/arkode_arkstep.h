@@ -64,7 +64,7 @@ extern "C" {
 
 typedef int (*ARKStepStagePredictFn)(realtype t, N_Vector zpred,
                                      void *user_data);
-  
+
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -117,6 +117,8 @@ SUNDIALS_EXPORT int ARKStepRootInit(void *arkode_mem, int nrtfn,
 SUNDIALS_EXPORT int ARKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetOptimalParams(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetOrder(void *arkode_mem, int maxord);
+SUNDIALS_EXPORT int ARKStepSetInterpolantType(void *arkode_mem, int itype);
+SUNDIALS_EXPORT int ARKStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int ARKStepSetDenseOrder(void *arkode_mem, int dord);
 SUNDIALS_EXPORT int ARKStepSetNonlinearSolver(void *arkode_mem,
                                               SUNNonlinearSolver NLS);
@@ -210,7 +212,9 @@ SUNDIALS_EXPORT int ARKStepSetDiagnostics(void *arkode_mem,
                                           FILE *diagfp);
 
 SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
-                                                ARKPostProcessStepFn ProcessStep);
+                                                ARKPostProcessFn ProcessStep);
+SUNDIALS_EXPORT int ARKStepSetPostprocessStageFn(void *arkode_mem,
+                                                 ARKPostProcessFn ProcessStage);
 SUNDIALS_EXPORT int ARKStepSetStagePredictFn(void *arkode_mem,
                                              ARKStepStagePredictFn PredictStage);
 
@@ -220,6 +224,8 @@ SUNDIALS_EXPORT int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac);
 SUNDIALS_EXPORT int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass);
 SUNDIALS_EXPORT int ARKStepSetMaxStepsBetweenJac(void *arkode_mem,
                                                  long int msbj);
+SUNDIALS_EXPORT int ARKStepSetLinearSolutionScaling(void *arkode_mem,
+                                                    booleantype onoff);
 SUNDIALS_EXPORT int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKStepSetPreconditioner(void *arkode_mem,

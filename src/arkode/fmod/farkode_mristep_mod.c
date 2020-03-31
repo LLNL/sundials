@@ -319,6 +319,34 @@ SWIGEXPORT int _wrap_FMRIStepSetDefaults(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepSetInterpolantType(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)MRIStepSetInterpolantType(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepSetInterpolantDegree(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)MRIStepSetInterpolantDegree(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepSetDenseOrder(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -503,15 +531,29 @@ SWIGEXPORT int _wrap_FMRIStepSetDiagnostics(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepSetPostprocessStepFn(void *farg1, ARKPostProcessStepFn farg2) {
+SWIGEXPORT int _wrap_FMRIStepSetPostprocessStepFn(void *farg1, ARKPostProcessFn farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  ARKPostProcessStepFn arg2 = (ARKPostProcessStepFn) 0 ;
+  ARKPostProcessFn arg2 = (ARKPostProcessFn) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (ARKPostProcessStepFn)(farg2);
+  arg2 = (ARKPostProcessFn)(farg2);
   result = (int)MRIStepSetPostprocessStepFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepSetPostprocessStageFn(void *farg1, ARKPostProcessFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKPostProcessFn arg2 = (ARKPostProcessFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKPostProcessFn)(farg2);
+  result = (int)MRIStepSetPostprocessStageFn(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

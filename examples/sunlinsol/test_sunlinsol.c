@@ -50,6 +50,7 @@ int Test_SUNLinSolGetType(SUNLinearSolver S, SUNLinearSolver_Type suntype, int m
 
   start_time = get_time();
   mysuntype = SUNLinSolGetType(S);
+  sync_device();
   stop_time = get_time();
 
   if (suntype != mysuntype) {
@@ -74,6 +75,7 @@ int Test_SUNLinSolGetID(SUNLinearSolver S, SUNLinearSolver_ID sunid, int myid)
 
   start_time = get_time();
   mysunid = SUNLinSolGetID(S);
+  sync_device();
   stop_time = get_time();
 
   if (sunid != mysunid) {
@@ -104,6 +106,7 @@ int Test_SUNLinSolLastFlag(SUNLinearSolver S, int myid)
 
   start_time = get_time();
   lastflag = SUNLinSolLastFlag(S);
+  sync_device();
   stop_time = get_time();
 
   if (myid == 0) {
@@ -127,6 +130,7 @@ int Test_SUNLinSolSpace(SUNLinearSolver S, int myid)
   /* call SUNLinSolSpace (failure based on output flag) */
   start_time = get_time();
   failure = SUNLinSolSpace(S, &lenrw, &leniw);
+  sync_device();
   stop_time = get_time();
 
   if (failure) {
@@ -154,6 +158,7 @@ int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid)
      which will cause a seg-fault */
   start_time = get_time();
   numiters = SUNLinSolNumIters(S);
+  sync_device();
   stop_time = get_time();
 
   if (myid == 0) {
@@ -175,6 +180,7 @@ int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid)
   /* this test can fail if the function is NULL, which will cause a seg-fault */
   start_time = get_time();
   resnorm = (double) SUNLinSolResNorm(S);
+  sync_device();
   stop_time = get_time();
 
   /* this test can also fail if the return value is negative */
@@ -203,6 +209,7 @@ int Test_SUNLinSolResid(SUNLinearSolver S, int myid)
   /* this test can fail if the function returns NULL */
   start_time = get_time();
   resid = SUNLinSolResid(S);
+  sync_device();
   stop_time = get_time();
 
   /* this test can also fail if the return value is NULL */
@@ -232,6 +239,7 @@ int Test_SUNLinSolSetATimes(SUNLinearSolver S, void *ATdata,
   /* try calling SetATimes routine: should pass/fail based on expected input */
   start_time = get_time();
   failure = SUNLinSolSetATimes(S, ATdata, ATimes);
+  sync_device();
   stop_time = get_time();
 
   if (failure) {
@@ -260,6 +268,7 @@ int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void *Pdata,
   /* try calling SetPreconditioner routine: should pass/fail based on expected input */
   start_time = get_time();
   failure = SUNLinSolSetPreconditioner(S, Pdata, PSetup, PSolve);
+  sync_device();
   stop_time = get_time();
 
   if (failure) {
@@ -288,6 +297,7 @@ int Test_SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1,
   /* try calling SetScalingVectors routine: should pass/fail based on expected input */
   start_time = get_time();
   failure = SUNLinSolSetScalingVectors(S, s1, s2);
+  sync_device();
   stop_time = get_time();
 
   if (failure) {
@@ -314,6 +324,7 @@ int Test_SUNLinSolInitialize(SUNLinearSolver S, int myid)
 
   start_time = get_time();
   failure = SUNLinSolInitialize(S);
+  sync_device();
   stop_time = get_time();
 
   if (failure) {
@@ -342,6 +353,7 @@ int Test_SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A, int myid)
 
   start_time = get_time();
   failure = SUNLinSolSetup(S, A);
+  sync_device();
   stop_time = get_time();
 
   if (failure) {
@@ -377,9 +389,12 @@ int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   y = N_VClone(x);
   N_VConst(ZERO, y);
 
+  sync_device();
+
   /* perform solve */
   start_time = get_time();
   failure = SUNLinSolSolve(S, A, y, b, tol);
+  sync_device();
   stop_time = get_time();
   if (failure) {
     printf(">>> FAILED test -- SUNLinSolSolve returned %d on Proc %d \n",

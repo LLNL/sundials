@@ -124,9 +124,9 @@ static int cvLsLinSysBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
   PART I - forward problems
   ================================================================*/
 
-/*-----------------------------------------------------------------
+/*===============================================================
   CVSLS Exported functions -- Required
-  -----------------------------------------------------------------*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
   CVodeSetLinearSolver specifies the linear solver
@@ -134,9 +134,11 @@ static int cvLsLinSysBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
 int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
                          SUNMatrix A)
 {
-  CVodeMem cv_mem;
-  CVLsMem  cvls_mem;
-  int      retval, LSType;
+  CVodeMem    cv_mem;
+  CVLsMem     cvls_mem;
+  int         retval, LSType;
+  booleantype iterative;    /* is the solver iterative?    */
+  booleantype matrixbased;  /* is a matrix structure used? */
 
   /* Return immediately if either cvode_mem or LS inputs are NULL */
   if (cvode_mem == NULL) {
@@ -163,6 +165,10 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   /* Retrieve the LS type */
   LSType = SUNLinSolGetType(LS);
 
+  /* Set flags based on LS type */
+  iterative   = (LSType != SUNLINEARSOLVER_DIRECT);
+  matrixbased = (LSType != SUNLINEARSOLVER_ITERATIVE);
+
   /* Test if vector is compatible with LS interface */
   if ( (cv_mem->cv_tempv->ops->nvconst == NULL) ||
        (cv_mem->cv_tempv->ops->nvwrmsnorm == NULL) ) {
@@ -171,30 +177,33 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
     return(CVLS_ILL_INPUT);
   }
 
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  /* Check for compatible LS type, matrix and "atimes" support */
+  if (iterative) {
+
     if (cv_mem->cv_tempv->ops->nvgetlength == NULL) {
       cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSLS",
                      "CVodeSetLinearSolver", MSG_LS_BAD_NVECTOR);
       return(CVLS_ILL_INPUT);
     }
-  }
 
-  /* Check for compatible LS type, matrix and "atimes" support */
-  if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
-    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS", "CVodeSetLinearSolver",
-                    "Incompatible inputs: iterative LS must support ATimes routine");
+    if (!matrixbased && LS->ops->setatimes == NULL) {
+      cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSLS", "CVodeSetLinearSolver",
+                     "Incompatible inputs: iterative LS must support ATimes routine");
+      return(CVLS_ILL_INPUT);
+    }
+
+    if (matrixbased && A == NULL) {
+      cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSLS", "CVodeSetLinearSolver",
+                     "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
+      return(CVLS_ILL_INPUT);
+    }
+
+  } else if (A == NULL) {
+
+    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVSLS", "CVodeSetLinearSolver",
+                   "Incompatible inputs: direct LS requires non-NULL matrix");
     return(CVLS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_DIRECT) && (A == NULL)) {
-    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS", "CVodeSetLinearSolver",
-                    "Incompatible inputs: direct LS requires non-NULL matrix");
-    return(CVLS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) && (A == NULL)) {
-    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS", "CVodeSetLinearSolver",
-                    "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
-    return(CVLS_ILL_INPUT);
+
   }
 
   /* free any existing system solver attached to CVode */
@@ -218,6 +227,10 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
 
   /* set SUNLinearSolver pointer */
   cvls_mem->LS = LS;
+
+  /* Linear solver type information */
+  cvls_mem->iterative   = iterative;
+  cvls_mem->matrixbased = matrixbased;
 
   /* Set defaults for Jacobian-related fields */
   if (A != NULL) {
@@ -303,9 +316,14 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   }
 
   /* For iterative LS, compute sqrtN */
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) )
+  if (iterative)
     cvls_mem->sqrtN = SUNRsqrt( N_VGetLength(cvls_mem->ytemp) );
+
+  /* Check if soltuion scaling should be enabled */
+  if (matrixbased && cv_mem->cv_lmm == CV_BDF)
+    cvls_mem->scalesol = SUNTRUE;
+  else
+    cvls_mem->scalesol = SUNFALSE;
 
   /* Attach linear solver memory to integrator memory */
   cv_mem->cv_lmem = cvls_mem;
@@ -314,9 +332,9 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
 }
 
 
-/*-----------------------------------------------------------------
-  CVSLS Exported functions -- Optional input/output
-  -----------------------------------------------------------------*/
+/*===============================================================
+  Optional input/output routines
+  ===============================================================*/
 
 
 /* CVodeSetJacFn specifies the Jacobian function. */
@@ -397,6 +415,30 @@ int CVodeSetMaxStepsBetweenJac(void *cvode_mem, long int msbj)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
   cvls_mem->msbj = (msbj <= ZERO) ? CVLS_MSBJ : msbj;
+
+  return(CVLS_SUCCESS);
+}
+
+
+/* CVodeSetLinearSolutionScaling enables or disables scaling the
+   linear solver solution to account for changes in gamma. */
+int CVodeSetLinearSolutionScaling(void *cvode_mem, booleantype onoff)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure; store input and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeSetLinearSolutionScaling",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS) return(retval);
+
+  /* check for valid solver and method type */
+  if (!(cvls_mem->matrixbased) || cv_mem->cv_lmm != CV_BDF)
+    return(CVLS_ILL_INPUT);
+
+  /* set solution scaling flag */
+  cvls_mem->scalesol = onoff;
 
   return(CVLS_SUCCESS);
 }
@@ -774,9 +816,9 @@ char *CVodeGetLinReturnFlagName(long int flag)
 }
 
 
-/*-----------------------------------------------------------------
+/*=================================================================
   CVSLS private functions
-  -----------------------------------------------------------------*/
+  =================================================================*/
 
 /*-----------------------------------------------------------------
   cvLsATimes
@@ -1338,7 +1380,7 @@ int cvLsInitialize(CVodeMem cv_mem)
       if (cvls_mem->savedJ == NULL) {
         cvls_mem->savedJ = SUNMatClone(cvls_mem->A);
         if (cvls_mem->savedJ == NULL) {
-          cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVLS", "cvLsInitialize",
+          cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVSLS", "cvLsInitialize",
                          MSG_LS_MEM_FAIL);
           cvls_mem->last_flag = CVLS_MEM_FAIL;
           return(CVLS_MEM_FAIL);
@@ -1496,7 +1538,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 {
   CVLsMem  cvls_mem;
   realtype bnorm, deltar, delta, w_mean;
-  int      curiter, nli_inc, retval, LSType;
+  int      curiter, nli_inc, retval;
   booleantype do_sensi_sim, do_sensi_stg, do_sensi_stg1;
 
   /* access CVLsMem structure */
@@ -1506,9 +1548,6 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     return(CVLS_LMEM_NULL);
   }
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
-
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(cvls_mem->LS);
 
   /* are we computing sensitivities and with which approach? */
   do_sensi_sim  = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_SIMULTANEOUS));
@@ -1528,8 +1567,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   /* If the linear solver is iterative:
      test norm(b), if small, return x = 0 or x = b;
      set linear solver tolerance (in left/right scaled 2-norm) */
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  if (cvls_mem->iterative) {
     deltar = cvls_mem->eplifac * cv_mem->cv_tq[4];
     bnorm = N_VWrmsNorm(b, weight);
     if (bnorm <= deltar) {
@@ -1572,9 +1610,8 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
        <=> w_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / w_mean^2
        <=> || b - A x ||_2 < tol / w_mean
-     So we compute w_mean = ||w||_RMS and scale the desired tolerance accordingly. */
-  } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-              (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+     So we compute w_mean = ||w||_RMS = ||w||_2 and scale the desired tolerance accordingly. */
+  } else if (cvls_mem->iterative) {
 
     N_VConst(ONE, cvls_mem->x);
     w_mean = N_VWrmsNorm(weight, cvls_mem->x);
@@ -1603,17 +1640,12 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* If using a direct or matrix-iterative solver, BDF method, and gamma has changed,
      scale the correction to account for change in gamma */
-  if ( ((LSType == SUNLINEARSOLVER_DIRECT) ||
-        (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
-       (cv_mem->cv_lmm == CV_BDF) &&
-       (cv_mem->cv_gamrat != ONE) )
+  if (cvls_mem->scalesol && cv_mem->cv_gamrat != ONE)
     N_VScale(TWO/(ONE + cv_mem->cv_gamrat), b, b);
 
   /* Retrieve statistics from iterative linear solvers */
   nli_inc = 0;
-  if ( ((LSType == SUNLINEARSOLVER_ITERATIVE) ||
-        (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
-       (cvls_mem->LS->ops->numiters) )
+  if (cvls_mem->iterative && cvls_mem->LS->ops->numiters)
     nli_inc = SUNLinSolNumIters(cvls_mem->LS);
 
   /* Increment counters nli and ncfl */
@@ -1935,6 +1967,27 @@ int CVodeSetEpsLinB(void *cvode_mem, int which, realtype eplifacB)
   /* call corresponding routine for cvodeB_mem structure */
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
   return(CVodeSetEpsLin(cvodeB_mem, eplifacB));
+}
+
+
+int CVodeSetLinearSolutionScalingB(void *cvode_mem, int which,
+                                   booleantype onoffB)
+{
+  CVodeMem  cv_mem;
+  CVadjMem  ca_mem;
+  CVodeBMem cvB_mem;
+  CVLsMemB  cvlsB_mem;
+  void     *cvodeB_mem;
+  int       retval;
+
+  /* access relevant memory structures */
+  retval = cvLs_AccessLMemB(cvode_mem, which, "CVodeSetLinearSolutionScalingB",
+                            &cv_mem, &ca_mem, &cvB_mem, &cvlsB_mem);
+  if (retval != CVLS_SUCCESS) return(retval);
+
+  /* call corresponding routine for cvodeB_mem structure */
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+  return(CVodeSetLinearSolutionScaling(cvodeB_mem, onoffB));
 }
 
 

@@ -37,10 +37,12 @@ if(BUILD_STATIC_LIBS)
   target_link_libraries(sundials_sunlinsolcusolversp_static
                         PUBLIC
                         sundials_nveccuda_static
-                        sundials_sunmatrixsparse_static
-                        PRIVATE
+                        sundials_sunmatrixcusparse_static
                         ${CUDA_cusolver_LIBRARY}
+                        PRIVATE
                         ${CUDA_cusparse_LIBRARY})
+  target_include_directories(sundials_sunlinsolcusolversp_static
+                             PRIVATE . ${sundials_SOURCE_DIR}/src/sundials)
   set_target_properties(sundials_sunlinsolcusolversp_static PROPERTIES
                         OUTPUT_NAME sundials_sunlinsolcusolversp
                         CLEAN_DIRECT_OUTPUT 1)
@@ -52,10 +54,12 @@ if(BUILD_SHARED_LIBS)
   target_link_libraries(sundials_sunlinsolcusolversp_shared
                         PUBLIC
                         sundials_nveccuda_shared
-                        sundials_sunmatrixsparse_shared
-                        PRIVATE
+                        sundials_sunmatrixcusparse_shared
                         ${CUDA_cusolver_LIBRARY}
+                        PRIVATE
                         ${CUDA_cusparse_LIBRARY})
+  target_include_directories(sundials_sunlinsolcusolversp_shared
+                             PRIVATE . ${sundials_SOURCE_DIR}/src/sundials)
   set_target_properties(sundials_sunlinsolcusolversp_shared PROPERTIES
                         OUTPUT_NAME sundials_sunlinsolcusolversp
                         CLEAN_DIRECT_OUTPUT 1

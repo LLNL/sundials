@@ -87,6 +87,7 @@ macro(sundials_add_f2003_interface_library target)
         $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
       )
     set_target_properties(${obj_target} PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_Fortran_MODULE_DIRECTORY}_${libtype}")
+    target_include_directories(${obj_target} PRIVATE ${CMAKE_Fortran_MODULE_DIRECTORY}_${libtype})
   else()
     target_include_directories(${target}
       PUBLIC
@@ -94,6 +95,7 @@ macro(sundials_add_f2003_interface_library target)
         $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
       )
     set_target_properties(${obj_target} PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir")
+    target_include_directories(${obj_target} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir)
   endif()
 
   # get the name of the C library which the fortran library interfaces to

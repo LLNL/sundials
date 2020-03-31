@@ -64,6 +64,7 @@ if(F2003_INTERFACE_ENABLE)
     "PROJECT(ftest Fortran)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
     "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
+    "SET(CMAKE_Fortran_COMPILER \"${CMAKE_Fortran_COMPILER}\")\n"
     "SET(CMAKE_Fortran_FLAGS \"${CMAKE_Fortran_FLAGS}\")\n"
     "SET(CMAKE_Fortran_FLAGS_RELEASE \"${CMAKE_Fortran_FLAGS_RELEASE}\")\n"
     "SET(CMAKE_Fortran_FLAGS_DEBUG \"${CMAKE_Fortran_FLAGS_DEBUG}\")\n"
@@ -162,6 +163,7 @@ if(NEED_FORTRAN_NAME_MANGLING)
     "PROJECT(ftest Fortran)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
     "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
+    "SET(CMAKE_Fortran_COMPILER \"${CMAKE_Fortran_COMPILER}\")\n"
     "SET(CMAKE_Fortran_FLAGS \"${CMAKE_Fortran_FLAGS}\")\n"
     "SET(CMAKE_Fortran_FLAGS_RELEASE \"${CMAKE_Fortran_FLAGS_RELEASE}\")\n"
     "SET(CMAKE_Fortran_FLAGS_DEBUG \"${CMAKE_Fortran_FLAGS_DEBUG}\")\n"
@@ -205,6 +207,7 @@ if(NEED_FORTRAN_NAME_MANGLING)
       "PROJECT(ctest1 C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
       "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
+      "SET(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\")\n"
       "SET(CMAKE_C_FLAGS \"${CMAKE_C_FLAGS}\")\n"
       "SET(CMAKE_C_FLAGS_RELEASE \"${CMAKE_C_FLAGS_RELEASE}\")\n"
       "SET(CMAKE_C_FLAGS_DEBUG \"${CMAKE_C_FLAGS_DEBUG}\")\n"
@@ -226,11 +229,15 @@ if(NEED_FORTRAN_NAME_MANGLING)
       # Get the current list entry (current scheme)
       list(GET options ${iopt} opt)
       # Generate C source which calls the "mysub" function using the current scheme
-      file(WRITE ${FortranTest_DIR}/ctest1.c "int main(){${opt}();return(0);}\n")
+      file(WRITE ${FortranTest_DIR}/ctest1.c
+        "extern void ${opt}();\n"
+        "int main(){${opt}();return(0);}\n")
       # Use TRY_COMPILE to make the "ctest1" executable from the current C source
       # and linking to the previously created "flib" library.
       try_compile(CTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
         ctest1 OUTPUT_VARIABLE MY_OUTPUT)
+      # Write output compiling the test code
+      file(WRITE ${FortranTest_DIR}/ctest1_${opt}.out "${MY_OUTPUT}")
       # To ensure we do not use stuff from the previous attempts,
       # we must remove the CMakeFiles directory.
       file(REMOVE_RECURSE ${FortranTest_DIR}/CMakeFiles)
@@ -253,6 +260,7 @@ if(NEED_FORTRAN_NAME_MANGLING)
       "PROJECT(ctest2 C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
       "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
+      "SET(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\")\n"
       "SET(CMAKE_C_FLAGS \"${CMAKE_C_FLAGS}\")\n"
       "SET(CMAKE_C_FLAGS_RELEASE \"${CMAKE_C_FLAGS_RELEASE}\")\n"
       "SET(CMAKE_C_FLAGS_DEBUG \"${CMAKE_C_FLAGS_DEBUG}\")\n"
@@ -267,9 +275,12 @@ if(NEED_FORTRAN_NAME_MANGLING)
     set(iopt 0)
     while(${iopt} LESS ${imax})
       list(GET options ${iopt} opt)
-      file(WRITE ${FortranTest_DIR}/ctest2.c "int main(){${opt}();return(0);}\n")
+      file(WRITE ${FortranTest_DIR}/ctest2.c
+        "extern void ${opt}();\n"
+        "int main(){${opt}();return(0);}\n")
       try_compile(CTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
         ctest2 OUTPUT_VARIABLE MY_OUTPUT)
+      file(WRITE ${FortranTest_DIR}/ctest2_${opt}.out "${MY_OUTPUT}")
       file(REMOVE_RECURSE ${FortranTest_DIR}/CMakeFiles)
       if(CTEST_OK)
         set(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES ${opt})

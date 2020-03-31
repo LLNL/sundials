@@ -1,5 +1,4 @@
 ARKode solver parameters:
-  Dense output order 3
   Solver relative tolerance = 1e-06
   Solver absolute tolerance = 1e-11
   Absolute residual tolerance = 1e-11

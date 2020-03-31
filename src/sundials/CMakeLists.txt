@@ -45,6 +45,9 @@ set(sundials_HEADERS
 # Add prefix with complete path to the SUNDIALS header files
 add_prefix(${sundials_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
+add_definitions(-DBUILD_SUNDIALS_LIBRARY)
+
 # Create an object library out of the generic sundials modules
 if(BUILD_STATIC_LIBS)
   add_library(sundials_generic_static_obj OBJECT

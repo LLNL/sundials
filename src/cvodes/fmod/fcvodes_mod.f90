@@ -323,6 +323,7 @@ module fcvodes_mod
  public :: FCVodeSetLinearSolver
  public :: FCVodeSetJacFn
  public :: FCVodeSetMaxStepsBetweenJac
+ public :: FCVodeSetLinearSolutionScaling
  public :: FCVodeSetEpsLin
  public :: FCVodeSetPreconditioner
  public :: FCVodeSetJacTimes
@@ -342,6 +343,7 @@ module fcvodes_mod
  public :: FCVodeSetJacFnB
  public :: FCVodeSetJacFnBS
  public :: FCVodeSetEpsLinB
+ public :: FCVodeSetLinearSolutionScalingB
  public :: FCVodeSetPreconditionerB
  public :: FCVodeSetPreconditionerBS
  public :: FCVodeSetJacTimesB
@@ -2114,6 +2116,15 @@ integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeSetLinearSolutionScaling(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetLinearSolutionScaling") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeSetEpsLin(farg1, farg2) &
 bind(C, name="_wrap_FCVodeSetEpsLin") &
 result(fresult)
@@ -2290,6 +2301,16 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetLinearSolutionScalingB(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeSetLinearSolutionScalingB") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT), intent(in) :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -5613,6 +5634,22 @@ fresult = swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2)
 swig_result = fresult
 end function
 
+function FCVodeSetLinearSolutionScaling(cvode_mem, onoff) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: onoff
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = cvode_mem
+farg2 = onoff
+fresult = swigc_FCVodeSetLinearSolutionScaling(farg1, farg2)
+swig_result = fresult
+end function
+
 function FCVodeSetEpsLin(cvode_mem, eplifac) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -5936,6 +5973,25 @@ farg1 = cvode_mem
 farg2 = which
 farg3 = eplifacb
 fresult = swigc_FCVodeSetEpsLinB(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeSetLinearSolutionScalingB(cvode_mem, which, onoffb) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: which
+integer(C_INT), intent(in) :: onoffb
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+integer(C_INT) :: farg3 
+
+farg1 = cvode_mem
+farg2 = which
+farg3 = onoffb
+fresult = swigc_FCVodeSetLinearSolutionScalingB(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

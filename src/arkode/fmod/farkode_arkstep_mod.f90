@@ -67,6 +67,8 @@ module farkode_arkstep_mod
  public :: FARKStepSetDefaults
  public :: FARKStepSetOptimalParams
  public :: FARKStepSetOrder
+ public :: FARKStepSetInterpolantType
+ public :: FARKStepSetInterpolantDegree
  public :: FARKStepSetDenseOrder
  public :: FARKStepSetNonlinearSolver
  public :: FARKStepSetLinear
@@ -113,10 +115,12 @@ module farkode_arkstep_mod
  public :: FARKStepSetUserData
  public :: FARKStepSetDiagnostics
  public :: FARKStepSetPostprocessStepFn
+ public :: FARKStepSetPostprocessStageFn
  public :: FARKStepSetStagePredictFn
  public :: FARKStepSetJacFn
  public :: FARKStepSetMassFn
  public :: FARKStepSetMaxStepsBetweenJac
+ public :: FARKStepSetLinearSolutionScaling
  public :: FARKStepSetEpsLin
  public :: FARKStepSetMassEpsLin
  public :: FARKStepSetPreconditioner
@@ -328,6 +332,24 @@ end function
 
 function swigc_FARKStepSetOrder(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetOrder") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetInterpolantType(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetInterpolantType") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetInterpolantDegree(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetInterpolantDegree") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -755,6 +777,15 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKStepSetPostprocessStageFn(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetPostprocessStageFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKStepSetStagePredictFn(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetStagePredictFn") &
 result(fresult)
@@ -788,6 +819,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetLinearSolutionScaling(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetLinearSolutionScaling") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1668,6 +1708,38 @@ fresult = swigc_FARKStepSetOrder(farg1, farg2)
 swig_result = fresult
 end function
 
+function FARKStepSetInterpolantType(arkode_mem, itype) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: itype
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = itype
+fresult = swigc_FARKStepSetInterpolantType(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetInterpolantDegree(arkode_mem, degree) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: degree
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = degree
+fresult = swigc_FARKStepSetInterpolantDegree(farg1, farg2)
+swig_result = fresult
+end function
+
 function FARKStepSetDenseOrder(arkode_mem, dord) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2422,6 +2494,22 @@ fresult = swigc_FARKStepSetPostprocessStepFn(farg1, farg2)
 swig_result = fresult
 end function
 
+function FARKStepSetPostprocessStageFn(arkode_mem, processstage) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: processstage
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = processstage
+fresult = swigc_FARKStepSetPostprocessStageFn(farg1, farg2)
+swig_result = fresult
+end function
+
 function FARKStepSetStagePredictFn(arkode_mem, predictstage) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2483,6 +2571,22 @@ integer(C_LONG) :: farg2
 farg1 = arkode_mem
 farg2 = msbj
 fresult = swigc_FARKStepSetMaxStepsBetweenJac(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetLinearSolutionScaling(arkode_mem, onoff) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: onoff
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = onoff
+fresult = swigc_FARKStepSetLinearSolutionScaling(farg1, farg2)
 swig_result = fresult
 end function
 

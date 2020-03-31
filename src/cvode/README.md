@@ -1,5 +1,5 @@
 # CVODE
-### Version 5.1.0 (Jan 2020)
+### Version 5.2.0 (Mar 2020)
 
 **Alan C. Hindmarsh and Radu Serban  
   Center for Applied Scientific Computing, LLNL**
@@ -45,11 +45,11 @@ the "SUNDIALS Release History" appendix of the CVODE User Guide.
 
 ## References
 
-* A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v5.1.0,"
-  LLNL technical report UCRL-SM-208108, Jan 2020.
+* A. C. Hindmarsh and R. Serban, "User Documentation for CVODE v5.2.0,"
+  LLNL technical report UCRL-SM-208108, Mar 2020.
 
-* A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v5.1.0,"
-  LLNL technical report UCRL-SM-208110, Jan 2020.
+* A. C. Hindmarsh and R. Serban, "Example Programs for CVODE v5.2.0,"
+  LLNL technical report UCRL-SM-208110, Mar 2020.
 
 * S.D. Cohen and A.C. Hindmarsh, "CVODE, a Stiff/nonstiff ODE Solver in C,"
   Computers in Physics, 10(2), pp. 138-143, 1996.

@@ -53,9 +53,11 @@ static int arkLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
 int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
                          SUNMatrix A)
 {
-  ARKodeMem ark_mem;
-  ARKLsMem  arkls_mem;
-  int       retval, LSType;
+  ARKodeMem   ark_mem;
+  ARKLsMem    arkls_mem;
+  int         retval, LSType;
+  booleantype iterative;    /* is the solver iterative?    */
+  booleantype matrixbased;  /* is a matrix structure used? */
 
   /* Return immediately if either arkode_mem or LS inputs are NULL */
   if (arkode_mem == NULL) {
@@ -83,6 +85,10 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   /* Retrieve the LS type */
   LSType = SUNLinSolGetType(LS);
 
+  /* Set flags based on LS type */
+  iterative   = (LSType != SUNLINEARSOLVER_DIRECT);
+  matrixbased = (LSType != SUNLINEARSOLVER_ITERATIVE);
+
   /* Test if vector is compatible with LS interface */
   if ( (ark_mem->tempv1->ops->nvconst == NULL) ||
        (ark_mem->tempv1->ops->nvwrmsnorm == NULL) ) {
@@ -91,32 +97,34 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     return(ARKLS_ILL_INPUT);
   }
 
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  /* Check for compatible LS type, matrix and "atimes" support */
+  if (iterative) {
+
     if (ark_mem->tempv1->ops->nvgetlength == NULL) {
       arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
                       "arkLSSetLinearSolver", MSG_LS_BAD_NVECTOR);
       return(ARKLS_ILL_INPUT);
     }
-  }
 
-  /* Check for compatible LS type, matrix and "atimes" support */
-  if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
-    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetLinearSolver",
-                    "Incompatible inputs: iterative LS must support ATimes routine");
-    return(ARKLS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_DIRECT) && (A == NULL)) {
+    if (!matrixbased && LS->ops->setatimes == NULL) {
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetLinearSolver",
+                      "Incompatible inputs: iterative LS must support ATimes routine");
+      return(ARKLS_ILL_INPUT);
+    }
+
+    if (matrixbased && A == NULL) {
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetLinearSolver",
+                      "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
+      return(ARKLS_ILL_INPUT);
+    }
+
+  } else if (A == NULL) {
+
     arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetLinearSolver",
                     "Incompatible inputs: direct LS requires non-NULL matrix");
     return(ARKLS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) && (A == NULL)) {
-    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetLinearSolver",
-                    "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
-    return(ARKLS_ILL_INPUT);
-  }
 
+  }
 
   /* Test whether time stepper module is supplied, with required routines */
   if ( (ark_mem->step_attachlinsol == NULL) ||
@@ -141,6 +149,10 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
 
   /* set SUNLinearSolver pointer */
   arkls_mem->LS = LS;
+
+  /* Linear solver type information */
+  arkls_mem->iterative   = iterative;
+  arkls_mem->matrixbased = matrixbased;
 
   /* Set defaults for Jacobian-related fields */
   if (A != NULL) {
@@ -226,9 +238,14 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* For iterative LS, compute sqrtN */
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) )
+  if (iterative)
     arkls_mem->sqrtN = SUNRsqrt( N_VGetLength(arkls_mem->ytemp) );
+
+  /* For matrix-based LS, enable soltuion scaling */
+  if (matrixbased)
+    arkls_mem->scalesol = SUNTRUE;
+  else
+    arkls_mem->scalesol = SUNFALSE;
 
   /* Attach ARKLs interface to time stepper module */
   retval = ark_mem->step_attachlinsol(arkode_mem, arkLsInitialize,
@@ -258,6 +275,8 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
   int          retval, LSType;
+  booleantype  iterative;    /* is the solver iterative?    */
+  booleantype  matrixbased;  /* is a matrix structure used? */
 
   /* Return immediately if either arkode_mem or LS inputs are NULL */
   if (arkode_mem == NULL) {
@@ -286,6 +305,10 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   /* Retrieve the LS type */
   LSType = SUNLinSolGetType(LS);
 
+  /* Set flags based on LS type */
+  iterative   = (LSType != SUNLINEARSOLVER_DIRECT);
+  matrixbased = (LSType != SUNLINEARSOLVER_ITERATIVE);
+
   /* Test if vector is compatible with LS interface */
   if ( (ark_mem->tempv1->ops->nvconst == NULL) ||
        (ark_mem->tempv1->ops->nvwrmsnorm == NULL) ){
@@ -294,30 +317,33 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     return(ARKLS_ILL_INPUT);
   }
 
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  /* Check for compatible LS type, matrix and "atimes" support */
+  if (iterative) {
+
     if (ark_mem->tempv1->ops->nvgetlength == NULL) {
       arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
                       "arkLSSetLinearSolver", MSG_LS_BAD_NVECTOR);
       return(ARKLS_ILL_INPUT);
     }
-  }
 
-  /* Check for compatible LS type, matrix and "atimes" support */
-  if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
-    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetMassLinearSolver",
-                    "Incompatible inputs: iterative LS must support ATimes routine");
-    return(ARKLS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_DIRECT) && (M == NULL)) {
+    if (!matrixbased && LS->ops->setatimes == NULL) {
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetMassLinearSolver",
+                      "Incompatible inputs: iterative LS must support ATimes routine");
+      return(ARKLS_ILL_INPUT);
+    }
+
+    if (matrixbased && M == NULL) {
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetMassLinearSolver",
+                      "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
+      return(ARKLS_ILL_INPUT);
+    }
+
+  } else if (M == NULL) {
+
     arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetMassLinearSolver",
                     "Incompatible inputs: direct LS requires non-NULL matrix");
     return(ARKLS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) && (M == NULL)) {
-    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetMassLinearSolver",
-                    "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
-    return(ARKLS_ILL_INPUT);
+
   }
 
   /* Test whether time stepper module is supplied, with required routines */
@@ -339,8 +365,14 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
   memset(arkls_mem, 0, sizeof(struct ARKLsMassMemRec));
 
-  /* set SUNLinearSolver pointer; flag indicating time-dependence */
+  /* set SUNLinearSolver pointer */
   arkls_mem->LS = LS;
+
+  /* Linear solver type information */
+  arkls_mem->iterative   = iterative;
+  arkls_mem->matrixbased = matrixbased;
+
+  /* Set flag indicating time-dependence */
   arkls_mem->time_dependent = time_dep;
 
   /* Set mass-matrix routines to NULL */
@@ -410,8 +442,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* For iterative LS, compute sqrtN */
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) )
+  if (iterative)
     arkls_mem->sqrtN = SUNRsqrt( N_VGetLength(arkls_mem->x) );
 
   /* Attach ARKLs interface to time stepper module */
@@ -547,6 +578,31 @@ int arkLSSetMaxStepsBetweenJac(void *arkode_mem, long int msbj)
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   arkls_mem->msbj = (msbj <= ZERO) ? ARKLS_MSBJ : msbj;
+
+  return(ARKLS_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkLSSetLinearSolutionScaling enables or disables scaling the
+  linear solver solution to account for changes in gamma.
+  ---------------------------------------------------------------*/
+int arkLSSetLinearSolutionScaling(void *arkode_mem, booleantype onoff)
+{
+  ARKodeMem ark_mem;
+  ARKLsMem  arkls_mem;
+  int       retval;
+
+  /* access ARKLsMem structure; store input and return */
+  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetLinearSolutionScaling",
+                            &ark_mem, &arkls_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* check for valid solver type */
+  if (!(arkls_mem->matrixbased)) return(ARKLS_ILL_INPUT);
+
+  /* set solution scaling flag */
+  arkls_mem->scalesol = onoff;
 
   return(ARKLS_SUCCESS);
 }
@@ -2329,10 +2385,10 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   realtype    bnorm, resnorm;
   ARKodeMem   ark_mem;
   ARKLsMem    arkls_mem;
-  realtype    gamma, gamrat, delta, deltar, ewt_mean;
+  realtype    gamma, gamrat, delta, deltar, rwt_mean;
   booleantype dgamma_fail, *jcur;
   long int    nps_inc;
-  int         nli_inc, retval, LSType;
+  int         nli_inc, retval;
 
 
   /* access ARKLsMem structure */
@@ -2346,14 +2402,10 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   arkls_mem->ycur = ynow;
   arkls_mem->fcur = fnow;
 
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(arkls_mem->LS);
-
   /* If the linear solver is iterative:
      test norm(b), if small, return x = 0 or x = b;
      set linear solver tolerance (in left/right scaled 2-norm) */
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  if (arkls_mem->iterative) {
     deltar = arkls_mem->eplifac * eRNrm;
     bnorm = N_VWrmsNorm(b, ark_mem->rwt);
     if (bnorm <= deltar) {
@@ -2369,8 +2421,8 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   /* Set scaling vectors for LS to use (if applicable) */
   if (arkls_mem->LS->ops->setscalingvectors) {
     retval = SUNLinSolSetScalingVectors(arkls_mem->LS,
-                                        ark_mem->ewt,
-                                        ark_mem->rwt);
+                                        ark_mem->rwt,
+                                        ark_mem->ewt);
     if (retval != SUNLS_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS", "arkLsSolve",
                       "Error in call to SUNLinSolSetScalingVectors");
@@ -2381,24 +2433,22 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   /* If solver is iterative and does not support scaling vectors, update the
      tolerance in an attempt to account for ewt/rwt vectors.  We make the
      following assumptions:
-       1. rwt = ewt (i.e. the units of solution and residual are the same)
-       2. ewt_i = ewt_mean, for i=0,...,n-1 (i.e. the solution units are identical)
-       3. the linear solver uses a basic 2-norm to measure convergence
-     Hence (using the notation from sunlinsol_spgmr.h, with S = diag(ewt)),
+       1. rwt_i = rwt_mean, for i=0,...,n-1 (i.e. the residual units are identical)
+       2. the linear solver uses a basic 2-norm to measure convergence
+     Hence (using the notation from sunlinsol_spgmr.h, with S = diag(rwt)),
            || bbar - Abar xbar ||_2 < tol
        <=> || S b - S A x ||_2 < tol
        <=> || S (b - A x) ||_2 < tol
-       <=> \sum_{i=0}^{n-1} (ewt_i (b - A x)_i)^2 < tol^2
-       <=> ewt_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
-       <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / ewt_mean^2
-       <=> || b - A x ||_2 < tol / ewt_mean
-     So we compute ewt_mean = ||ewt||_RMS and scale the desired tolerance accordingly. */
-  } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-              (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+       <=> \sum_{i=0}^{n-1} (rwt_i (b - A x)_i)^2 < tol^2
+       <=> rwt_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
+       <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / rwt_mean^2
+       <=> || b - A x ||_2 < tol / rwt_mean
+     So we compute rwt_mean = ||rwt||_RMS and scale the desired tolerance accordingly. */
+  } else if (arkls_mem->iterative) {
 
     N_VConst(ONE, arkls_mem->x);
-    ewt_mean = N_VWrmsNorm(ark_mem->ewt, arkls_mem->x);
-    delta /= ewt_mean;
+    rwt_mean = N_VWrmsNorm(ark_mem->rwt, arkls_mem->x);
+    delta /= rwt_mean;
 
   }
 
@@ -2427,8 +2477,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
 
   /* If using a direct or matrix-iterative solver, scale the correction to
      account for change in gamma (this is only beneficial if M==I) */
-  if ( (LSType == SUNLINEARSOLVER_DIRECT) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  if (arkls_mem->scalesol) {
     arkls_mem->last_flag = ark_mem->step_getgammas(arkode_mem, &gamma, &gamrat,
                                                    &jcur, &dgamma_fail);
     if (arkls_mem->last_flag != ARK_SUCCESS) {
@@ -2442,8 +2491,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   /* Retrieve statistics from iterative linear solvers */
   resnorm = ZERO;
   nli_inc = 0;
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  if (arkls_mem->iterative) {
     if (arkls_mem->LS->ops->resnorm)
       resnorm = SUNLinSolResNorm(arkls_mem->LS);
     if (arkls_mem->LS->ops->numiters)
@@ -2754,19 +2802,15 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
   long int     nps_inc;
-  int          nli_inc, retval, LSType;
+  int          nli_inc, retval;
 
   /* access ARKLsMassMem structure */
   retval = arkLs_AccessMassMem(arkode_mem, "arkLsMassSolve",
                                &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(arkls_mem->LS);
-
   /* Set input tolerance for iterative solvers */
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  if (arkls_mem->iterative) {
     delta = arkls_mem->eplifac * nlscoef * arkls_mem->sqrtN;
   } else {
     delta = ZERO;
@@ -2801,8 +2845,7 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / rwt_mean^2
        <=> || b - A x ||_2 < tol / rwt_mean
      So we compute rwt_mean = ||rwt||_RMS and scale the desired tolerance accordingly. */
-  } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-              (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  } else if (arkls_mem->iterative) {
 
     N_VConst(ONE, arkls_mem->x);
     rwt_mean = N_VWrmsNorm(ark_mem->rwt, arkls_mem->x);
@@ -2825,8 +2868,7 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
   /* Retrieve statistics from iterative linear solvers */
   resnorm = ZERO;
   nli_inc = 0;
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  if (arkls_mem->iterative) {
     if (arkls_mem->LS->ops->resnorm)
       resnorm = SUNLinSolResNorm(arkls_mem->LS);
     if (arkls_mem->LS->ops->numiters)

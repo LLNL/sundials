@@ -346,8 +346,7 @@ int arkRootCheck1(void* arkode_mem)
   hratio = SUNMAX(rootmem->ttol/SUNRabs(ark_mem->h), TENTH);
   smallh = hratio*ark_mem->h;
   tplus = rootmem->tlo + smallh;
-  N_VLinearSum(ONE, ark_mem->yn, smallh,
-               ark_mem->interp->fold, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->yn, smallh, ark_mem->fn, ark_mem->ycur);
   retval = rootmem->gfun(tplus, ark_mem->ycur, rootmem->ghi,
                          rootmem->root_data);
   rootmem->nge++;
@@ -437,8 +436,7 @@ int arkRootCheck2(void* arkode_mem)
   /*     update ark_ycur with small explicit Euler step (if tplus is past tn) */
   if ( (tplus - ark_mem->tcur)*ark_mem->h >= ZERO ) {
     /* hratio = smallh/ark_mem->h; */
-    N_VLinearSum(ONE, ark_mem->ycur, smallh,
-                 ark_mem->interp->fold, ark_mem->ycur);
+    N_VLinearSum(ONE, ark_mem->ycur, smallh, ark_mem->fn, ark_mem->ycur);
   } else {
     /*   set ark_ycur = y(tplus) via interpolation */
     (void) arkGetDky(ark_mem, tplus, 0, ark_mem->ycur);

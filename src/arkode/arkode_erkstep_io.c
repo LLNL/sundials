@@ -38,7 +38,12 @@
   utility routines).  All are documented in arkode_io.c.
   ===============================================================*/
 int ERKStepSetDenseOrder(void *arkode_mem, int dord) {
-  return(arkSetDenseOrder(arkode_mem, dord)); }
+  return(ERKStepSetInterpolantDegree(arkode_mem, dord)); }
+int ERKStepSetInterpolantDegree(void *arkode_mem, int degree) {
+  if (degree < 0) degree = ARK_INTERP_MAX_DEGREE;
+  return(arkSetInterpolantDegree(arkode_mem, degree)); }
+int ERKStepSetInterpolantType(void *arkode_mem, int itype) {
+  return(arkSetInterpolantType(arkode_mem, itype)); }
 int ERKStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
                            void *eh_data) {
   return(arkSetErrHandlerFn(arkode_mem, ehfun, eh_data)); }
@@ -69,8 +74,11 @@ int ERKStepSetConstraints(void *arkode_mem, N_Vector constraints) {
 int ERKStepSetMaxNumConstrFails(void *arkode_mem, int maxfails) {
   return(arkSetMaxNumConstrFails(arkode_mem, maxfails)); }
 int ERKStepSetPostprocessStepFn(void *arkode_mem,
-                                ARKPostProcessStepFn ProcessStep) {
+                                ARKPostProcessFn ProcessStep) {
   return(arkSetPostprocessStepFn(arkode_mem, ProcessStep)); }
+int ERKStepSetPostprocessStageFn(void *arkode_mem,
+                                ARKPostProcessFn ProcessStage) {
+  return(arkSetPostprocessStageFn(arkode_mem, ProcessStage)); }
 int ERKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac) {
   return(arkSetCFLFraction(arkode_mem, cfl_frac)); }
 int ERKStepSetSafetyFactor(void *arkode_mem, realtype safety) {
@@ -79,6 +87,8 @@ int ERKStepSetErrorBias(void *arkode_mem, realtype bias) {
   return(arkSetErrorBias(arkode_mem, bias)); }
 int ERKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth) {
   return(arkSetMaxGrowth(arkode_mem, mx_growth)); }
+int ERKStepSetMinReduction(void *arkode_mem, realtype eta_min) {
+  return(arkSetMinReduction(arkode_mem, eta_min)); }
 int ERKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub) {
   return(arkSetFixedStepBounds(arkode_mem, lb, ub)); }
 int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
@@ -105,6 +115,8 @@ int ERKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
   utility routines). All are documented in arkode_io.c.
   ===============================================================*/
 
+int ERKStepGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts) {
+  return(arkGetNumStepAttempts(arkode_mem, nstep_attempts)); }
 int ERKStepGetNumSteps(void *arkode_mem, long int *nsteps) {
   return(arkGetNumSteps(arkode_mem, nsteps)); }
 int ERKStepGetActualInitStep(void *arkode_mem, realtype *hinused) {
@@ -327,29 +339,6 @@ int ERKStepSetTableNum(void *arkode_mem, int itable)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ERKStepGetNumStepAttempts:
-
-  Returns the current number of steps attempted by the solver
-  ---------------------------------------------------------------*/
-int ERKStepGetNumStepAttempts(void *arkode_mem, long int *nsteps)
-{
-  ARKodeMem ark_mem;
-  ARKodeERKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepGetNumStepAttempts",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* get value from step_mem */
-  *nsteps = step_mem->nst_attempts;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
   ERKStepGetNumRhsEvals:
 
   Returns the current number of calls to fe and fi
@@ -443,7 +432,7 @@ int ERKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
   *accsteps = ark_mem->hadapt_mem->nst_acc;
 
   /* set remaining outputs from step_mem */
-  *attempts = step_mem->nst_attempts;
+  *attempts = ark_mem->nst_attempts;
   *fevals   = step_mem->nfe;
   *netfails = ark_mem->netf;
 

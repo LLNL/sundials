@@ -34,6 +34,10 @@ extern "C" {
   -----------------------------------------------------------------*/
 typedef struct IDALsMemRec {
 
+  /* Linear solver type information */
+  booleantype iterative;    /* is the solver iterative?    */
+  booleantype matrixbased;  /* is a matrix structure used? */
+
   /* Jacobian construction & storage */
   booleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx. */
   IDALsJacFn jac;       /* Jacobian routine to be called                 */
@@ -48,6 +52,9 @@ typedef struct IDALsMemRec {
   N_Vector ycur;        /* current y vector in Newton iteration          */
   N_Vector ypcur;       /* current yp vector in Newton iteration         */
   N_Vector rcur;        /* rcur = F(tn, ycur, ypcur)                     */
+
+  /* Matrix-based solver, scale solution to account for change in cj */
+  booleantype scalesol;
 
   /* Iterative solver tolerance */
   realtype sqrtN;     /* sqrt(N)                                      */

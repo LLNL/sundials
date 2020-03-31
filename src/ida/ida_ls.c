@@ -46,9 +46,11 @@
   ---------------------------------------------------------------*/
 int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 {
-  IDAMem   IDA_mem;
-  IDALsMem idals_mem;
-  int      retval, LSType;
+  IDAMem      IDA_mem;
+  IDALsMem    idals_mem;
+  int         retval, LSType;
+  booleantype iterative;    /* is the solver iterative?    */
+  booleantype matrixbased;  /* is a matrix structure used? */
 
   /* Return immediately if any input is NULL */
   if (ida_mem == NULL) {
@@ -75,45 +77,51 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   /* Retrieve the LS type */
   LSType = SUNLinSolGetType(LS);
 
-  /* Test if vector is compatible with LS interface */
-  if (IDA_mem->ida_tempv1->ops->nvconst == NULL) {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
-                    "IDASetLinearSolver", MSG_LS_BAD_NVECTOR);
-    return(IDALS_ILL_INPUT);
-  }
+  /* Set flags based on LS type */
+  iterative   = (LSType != SUNLINEARSOLVER_DIRECT);
+  matrixbased = (LSType != SUNLINEARSOLVER_ITERATIVE);
 
-  if ( ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-         (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) &&
-       ( (IDA_mem->ida_tempv1->ops->nvwrmsnorm == NULL) ||
-         (IDA_mem->ida_tempv1->ops->nvgetlength == NULL) ) ) {
+  /* Test if vector is compatible with LS interface */
+  if (IDA_mem->ida_tempv1->ops->nvconst == NULL ||
+      IDA_mem->ida_tempv1->ops->nvwrmsnorm == NULL) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
                     "IDASetLinearSolver", MSG_LS_BAD_NVECTOR);
     return(IDALS_ILL_INPUT);
   }
 
   /* Check for compatible LS type, matrix and "atimes" support */
-  if ( ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-         (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) &&
-       ( (LS->ops->resid == NULL) ||
-         (LS->ops->numiters == NULL) ) ) {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
-                   "Iterative LS object requires 'resid' and 'numiters' routines");
-    return(IDALS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
-                    "Incompatible inputs: iterative LS must support ATimes routine");
-    return(IDALS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_DIRECT) && (A == NULL)) {
+  if (iterative) {
+
+    if (IDA_mem->ida_tempv1->ops->nvgetlength == NULL) {
+      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
+                      "IDASetLinearSolver", MSG_LS_BAD_NVECTOR);
+      return(IDALS_ILL_INPUT);
+    }
+
+    if (LS->ops->resid == NULL || LS->ops->numiters == NULL) {
+      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
+                      "Iterative LS object requires 'resid' and 'numiters' routines");
+      return(IDALS_ILL_INPUT);
+    }
+
+    if (!matrixbased && LS->ops->setatimes == NULL) {
+      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
+                      "Incompatible inputs: iterative LS must support ATimes routine");
+      return(IDALS_ILL_INPUT);
+    }
+
+    if (matrixbased && A == NULL) {
+      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
+                      "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
+      return(IDALS_ILL_INPUT);
+    }
+
+  } else if (A == NULL) {
+
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
                     "Incompatible inputs: direct LS requires non-NULL matrix");
     return(IDALS_ILL_INPUT);
-  }
-  if ((LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) && (A == NULL)) {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
-                    "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
-    return(IDALS_ILL_INPUT);
+
   }
 
   /* free any existing system solver attached to IDA */
@@ -126,9 +134,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   IDA_mem->ida_lfree  = idaLsFree;
 
   /* Set ida_lperf if using an iterative SUNLinearSolver object */
-  IDA_mem->ida_lperf = ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-                         (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) ?
-    idaLsPerf : NULL;
+  IDA_mem->ida_lperf = (iterative) ? idaLsPerf : NULL;
 
   /* Allocate memory for IDALsMemRec */
   idals_mem = NULL;
@@ -142,6 +148,10 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 
   /* set SUNLinearSolver pointer */
   idals_mem->LS = LS;
+
+  /* Linear solver type information */
+  idals_mem->iterative   = iterative;
+  idals_mem->matrixbased = matrixbased;
 
   /* Set defaults for Jacobian-related fields */
   idals_mem->J = A;
@@ -226,9 +236,14 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   }
 
   /* For iterative LS, compute sqrtN */
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) )
+  if (iterative)
     idals_mem->sqrtN = SUNRsqrt( N_VGetLength(idals_mem->ytemp) );
+
+  /* For matrix-based LS, enable solution scaling */
+  if (matrixbased)
+    idals_mem->scalesol = SUNTRUE;
+  else
+    idals_mem->scalesol = SUNFALSE;
 
   /* Attach linear solver memory to integrator memory */
   IDA_mem->ida_lmem = idals_mem;
@@ -296,6 +311,29 @@ int IDASetEpsLin(void *ida_mem, realtype eplifac)
   }
 
   idals_mem->eplifac = (eplifac == ZERO) ? PT05 : eplifac;
+
+  return(IDALS_SUCCESS);
+}
+
+
+/* IDASetLinearSolutionScaling enables or disables scaling the linear solver
+   solution to account for changes in cj. */
+int IDASetLinearSolutionScaling(void *ida_mem, booleantype onoff)
+{
+  IDAMem   IDA_mem;
+  IDALsMem idals_mem;
+  int      retval;
+
+  /* access IDALsMem structure */
+  retval = idaLs_AccessLMem(ida_mem, "IDASetLinearSolutionScaling",
+                            &IDA_mem, &idals_mem);
+  if (retval != IDALS_SUCCESS) return(retval);
+
+  /* check for valid solver type */
+  if (!(idals_mem->matrixbased)) return(IDALS_ILL_INPUT);
+
+  /* set solution scaling flag */
+  idals_mem->scalesol = onoff;
 
   return(IDALS_SUCCESS);
 }
@@ -1251,7 +1289,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                N_Vector ycur, N_Vector ypcur, N_Vector rescur)
 {
   IDALsMem idals_mem;
-  int      nli_inc, retval, LSType;
+  int      nli_inc, retval;
   realtype tol, w_mean;
 
   /* access IDALsMem structure */
@@ -1262,16 +1300,12 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   }
   idals_mem = (IDALsMem) IDA_mem->ida_lmem;
 
-  /* Retrieve the LS type */
-  LSType = SUNLinSolGetType(idals_mem->LS);
-
   /* If the linear solver is iterative: set convergence test constant tol,
      in terms of the Newton convergence test constant epsNewt and safety
      factors. The factor sqrt(Neq) assures that the convergence test is
      applied to the WRMS norm of the residual vector, rather than the
      weighted L2 norm. */
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  if (idals_mem->iterative) {
     tol = idals_mem->sqrtN * idals_mem->eplifac * IDA_mem->ida_epsNewt;
   } else {
     tol = ZERO;
@@ -1307,8 +1341,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / w_mean^2
        <=> || b - A x ||_2 < tol / w_mean
      So we compute w_mean = ||w||_RMS and scale the desired tolerance accordingly. */
-  } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-              (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  } else if (idals_mem->iterative) {
 
     N_VConst(ONE, idals_mem->x);
     w_mean = N_VWrmsNorm(weight, idals_mem->x);
@@ -1336,8 +1369,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                           idals_mem->x, b, tol);
 
   /* Copy appropriate result to b (depending on solver type) */
-  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
-       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+  if (idals_mem->iterative) {
 
     /* Retrieve solver statistics */
     nli_inc = SUNLinSolNumIters(idals_mem->LS);
@@ -1358,9 +1390,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
   /* If using a direct or matrix-iterative solver, scale the correction to
      account for change in cj */
-  if ( ((LSType == SUNLINEARSOLVER_DIRECT) ||
-        (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
-       (IDA_mem->ida_cjratio != ONE) )
+  if (idals_mem->scalesol && (IDA_mem->ida_cjratio != ONE))
     N_VScale(TWO/(ONE + IDA_mem->ida_cjratio), b, b);
 
   /* Increment ncfl counter */
