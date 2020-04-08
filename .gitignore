@@ -14,5 +14,45 @@
 # /test/
 /test/output
 
+# custom test environment setup script
+/test/env.sh
+
+# directories and files created by testing scripts
+/test/build_*
+/test/install_*
+/test/tarballs
+/test/suntest.log
+
+# OS X
+.DS_Store
+
 # misc
+*.backup
 *.orig
+*.nvvp
+*.ptp-sync*
+*~
+\#*
+
+# files created by latex documentation
+/doc/*/*.aux
+/doc/*/*.bbl
+/doc/*/*.blg
+/doc/*/*.idx
+/doc/*/*.ilg
+/doc/*/*.ind
+/doc/*/*.lof
+/doc/*/*.lot
+/doc/*/*.toc
+/doc/*/*.out
+/doc/*/*.log
+
+# directories created by ARKode's Sphinx documentation system
+/doc/arkode/SphinxDocs/extra_packages/sphinx-bootstrap-theme
+/doc/arkode/SphinxDocs/extra_packages/sphinx-fortran
+/doc/arkode/SphinxDocs/guide/build
+/doc/arkode/SphinxDocs/examples/build
+
+# PDFs of user guides and example docs
+/doc/*/*_guide.pdf
+/doc/*/*_examples.pdf
