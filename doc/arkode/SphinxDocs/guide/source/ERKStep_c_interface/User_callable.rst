@@ -878,6 +878,16 @@ Set max number of constraint failures               :c:func:`ERKStepSetMaxNumCon
    call with 0.0 in all components of ``constraints`` will result in an illegal
    input return. A ``NULL`` constraints vector will disable constraint checking.
 
+   After a call to :c:func:`ERKStepResize()` inequality constraint checking
+   will be disabled and a call to :c:func:`ERKStepSetConstraints()` is
+   required to re-enable constraint checking.
+
+   Since constraint-handling is performed through cutting time steps that would
+   violate the constraints, it is possible that this feature will cause some
+   problems to fail due to an inability to enforce constraints even at the
+   minimum time step size.  Additionally, the features :c:func:`ERKStepSetConstraints()`
+   and :c:func:`ERKStepSetFixedStep()` are incompatible, and should not be used
+   simultaneously.
 
 
 .. c:function:: int ERKStepSetMaxNumConstrFails(void* arkode_mem, int maxfails)
@@ -2110,6 +2120,10 @@ rescale the upcoming time step by the specified factor.  If a value
    **Notes:** If an error occurred, :c:func:`ERKStepResize()` also sends an error
    message to the error handler function.
 
+   If inequality constraint checking is enabled a call to
+   :c:func:`ERKStepResize()` will disable constraint checking. A call
+   to :c:func:`ERKStepSetConstraints()` is required to re-enable constraint
+   checking.
 
 
 Resizing the absolute tolerance array

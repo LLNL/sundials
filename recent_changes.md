@@ -1,5 +1,13 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 5.x
+
+Fixed a bug in ARKode where inequality constraint checking would need to be
+disabled and then re-enabled to update the inequality constraint values after
+resizing a problem. Resizing a problem will now disable constraints and a call
+to `ARKStepSetConstraints` or `ERKStepSetConstraints` is required to re-enable
+constraint checking for the new problem size.
+
 ## Changes to SUNDIALS in release 5.2.0
 
 Fixed a build system bug related to the Fortran 2003 interfaces when using the

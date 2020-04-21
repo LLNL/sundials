@@ -252,37 +252,48 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   }
 
   /* Resize the sdata, zpred and zcor vectors */
-  if (step_mem->sdata != NULL) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                          liw_diff, y0, &step_mem->sdata);
-    if (retval != ARK_SUCCESS)  return(retval);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                    liw_diff, y0, &step_mem->sdata)) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "ARKStepResize",
+                    "Unable to resize vector");
+    return(ARK_MEM_FAIL);
   }
-  if (step_mem->zpred != NULL) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                          liw_diff, y0, &step_mem->zpred);
-    if (retval != ARK_SUCCESS)  return(retval);
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                    liw_diff, y0, &step_mem->zpred)) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "ARKStepResize",
+                    "Unable to resize vector");
+    return(ARK_MEM_FAIL);
   }
-  if (step_mem->zcor != NULL) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                          liw_diff, y0, &step_mem->zcor);
-    if (retval != ARK_SUCCESS)  return(retval);
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                    liw_diff, y0, &step_mem->zcor)) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "ARKStepResize",
+                    "Unable to resize vector");
+    return(ARK_MEM_FAIL);
   }
 
   /* Resize the ARKStep vectors */
   /*     Fe */
   if (step_mem->Fe != NULL) {
     for (i=0; i<step_mem->stages; i++) {
-      retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                            liw_diff, y0, &step_mem->Fe[i]);
-      if (retval != ARK_SUCCESS)  return(retval);
+      if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                        liw_diff, y0, &step_mem->Fe[i])) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "ARKStepResize",
+                        "Unable to resize vector");
+        return(ARK_MEM_FAIL);
+      }
     }
   }
   /*     Fi */
   if (step_mem->Fi != NULL) {
     for (i=0; i<step_mem->stages; i++) {
-      retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                            liw_diff, y0, &step_mem->Fi[i]);
-      if (retval != ARK_SUCCESS)  return(retval);
+      if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                        liw_diff, y0, &step_mem->Fi[i])) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "ARKStepResize",
+                        "Unable to resize vector");
+        return(ARK_MEM_FAIL);
+      }
     }
   }
 

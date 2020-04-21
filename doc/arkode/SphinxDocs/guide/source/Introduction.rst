@@ -107,6 +107,16 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in v4.x
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a bug where inequality constraint checking would need to be disabled and
+then re-enabled to update the inequality constraint values after resizing a
+problem. Resizing a problem will now disable constraints and a call to
+:c:func:`ARKStepSetConstraints()` or :c:func:`ERKStepSetConstraints()` is
+required to re-enable constraint checking for the new problem size.
+
+
 Changes in v4.2.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

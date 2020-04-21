@@ -120,17 +120,23 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
   /* Resize the inner forcing vector */
   if (step_mem->inner_forcing != NULL) {
     for (i = 0; i < step_mem->inner_num_forcing; i++) {
-      retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                            liw_diff, y0, &(step_mem->inner_forcing[i]));
-      if (retval != ARK_SUCCESS) return(retval);
+      if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                        liw_diff, y0, &(step_mem->inner_forcing[i]))) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::MRIStep", "MRIStepResize",
+                        "Unable to resize vector");
+        return(ARK_MEM_FAIL);
+      }
     }
   }
 
   /* Resize the RHS vectors */
   for (i=0; i<step_mem->stages; i++) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                          liw_diff, y0, &step_mem->F[i]);
-    if (retval != ARK_SUCCESS)  return(retval);
+    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                      liw_diff, y0, &step_mem->F[i])) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ERKStep", "ERKStepResize",
+                      "Unable to resize vector");
+      return(ARK_MEM_FAIL);
+    }
   }
 
   return(ARK_SUCCESS);

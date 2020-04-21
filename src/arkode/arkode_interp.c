@@ -191,7 +191,6 @@ int arkInterpResize_Hermite(void* arkode_mem, ARKInterp interp,
                             sunindextype lrw_diff, sunindextype liw_diff,
                             N_Vector y0)
 {
-  int ier;
   ARKodeMem ark_mem;
 
   /* access ARKodeMem structure */
@@ -200,26 +199,22 @@ int arkInterpResize_Hermite(void* arkode_mem, ARKInterp interp,
 
   /* resize vectors */
   if (interp == NULL)  return(ARK_SUCCESS);
-  if (HINT_FOLD(interp) != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &HINT_FOLD(interp));
-    if (ier != ARK_SUCCESS)  return(ier);
-  }
-  if (HINT_YOLD(interp) != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &HINT_YOLD(interp));
-    if (ier != ARK_SUCCESS)  return(ier);
-  }
-  if (HINT_FA(interp) != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &HINT_FA(interp));
-    if (ier != ARK_SUCCESS)  return(ier);
-  }
-  if (HINT_FB(interp) != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &HINT_FB(interp));
-    if (ier != ARK_SUCCESS)  return(ier);
-  }
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                    liw_diff, y0, &HINT_FOLD(interp)))
+    return(ARK_MEM_FAIL);
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                    liw_diff, y0, &HINT_YOLD(interp)))
+    return(ARK_MEM_FAIL);
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                    liw_diff, y0, &HINT_FA(interp)))
+    return(ARK_MEM_FAIL);
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                    liw_diff, y0, &HINT_FB(interp)))
+    return(ARK_MEM_FAIL);
 
   /* update ynew and fnew pointers */
   HINT_YNEW(interp) = ark_mem->yn;
@@ -844,7 +839,7 @@ int arkInterpResize_Lagrange(void* arkode_mem, ARKInterp I,
                              sunindextype lrw_diff, sunindextype liw_diff,
                              N_Vector y0)
 {
-  int ier, i;
+  int i;
   ARKodeMem ark_mem;
 
   /* access ARKodeMem structure */
@@ -855,9 +850,9 @@ int arkInterpResize_Lagrange(void* arkode_mem, ARKInterp I,
   if (I == NULL)  return(ARK_SUCCESS);
   if (LINT_YHIST(I) != NULL) {
     for (i=0; i<LINT_NMAXALLOC(I); i++) {
-      ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                         liw_diff, y0, &(LINT_YJ(I,i)));
-      if (ier != ARK_SUCCESS)  return(ier);
+      if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                        liw_diff, y0, &(LINT_YJ(I,i))))
+        return(ARK_MEM_FAIL);
     }
   }
 
