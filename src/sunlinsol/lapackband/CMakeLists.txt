@@ -74,6 +74,9 @@ if(BUILD_SHARED_LIBS)
   target_link_libraries(sundials_sunlinsollapackband_shared
     PUBLIC sundials_sunmatrixband_shared ${LAPACK_LIBRARIES})
 
+  target_compile_definitions(sundials_sunlinsollapackband_shared
+    PUBLIC -DBUILD_SUNDIALS_LIBRARY)
+
   install(TARGETS sundials_sunlinsollapackband_shared
     DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
