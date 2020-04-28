@@ -2,6 +2,10 @@
 
 ## Changes to SUNDIALS in release 5.x
 
+Fixed a bug in ARKode where the prototypes for `ERKStepSetMinReduction()` and
+`ARKStepSetMinReduction()` were not included in `arkode_erkstep.h` and
+`arkode_arkstep.h` respectively.
+
 Fixed a bug in ARKode where inequality constraint checking would need to be
 disabled and then re-enabled to update the inequality constraint values after
 resizing a problem. Resizing a problem will now disable constraints and a call

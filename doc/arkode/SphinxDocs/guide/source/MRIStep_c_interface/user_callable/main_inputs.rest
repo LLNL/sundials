@@ -12,10 +12,8 @@ arguments for each function are then provided following each table.
 
 The optional inputs are grouped into the following categories:
 
-* General MRIStep options (:ref:`MRIStep_CInterface.MRIStepInputTable`),
-* IVP method solver options (:ref:`MRIStep_CInterface.MRIStepMethodInputTable`),
-..
-   * Step adaptivity solver options (:ref:`MRIStep_CInterface.MRIStepAdaptivityInputTable`),
+* General MRIStep options (:ref:`MRIStep_CInterface.MRIStepInputTable`), and
+* IVP method solver options (:ref:`MRIStep_CInterface.MRIStepMethodInputTable`)
 
 For the most casual use of MRIStep, relying on the default set of
 solver parameters, the reader can skip to the following section,
@@ -29,7 +27,6 @@ arguments for negative values will catch all errors.
 
 
 .. _MRIStep_CInterface.MRIStepInputTable:
-
 
 Optional inputs for MRIStep
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -52,13 +49,9 @@ Set a value for :math:`t_{stop}`                               :c:func:`MRIStepS
 Supply a pointer for user data                                 :c:func:`MRIStepSetUserData()`           ``NULL``
 Supply a function to be called prior to the inner integration  :c:func:`MRIStepSetPreInnerFn()`         ``NULL``
 Supply a function to be called after the inner integration     :c:func:`MRIStepSetPostInnerFn()`        ``NULL``
-=============================================================  ======================================   =======================
+=============================================================  =======================================  =======================
 
-.. Functions not currently supported by MRIStep
-.. Supply an initial step size to attempt              :c:func:`MRIStepSetInitStep()`         estimated
-.. Maximum absolute step size                          :c:func:`MRIStepSetMaxStep()`          :math:`\infty`
-.. Minimum absolute step size                          :c:func:`MRIStepSetMinStep()`          0.0
-.. Maximum no. of MRIStep error test failures          :c:func:`MRIStepSetMaxErrTestFails()`  7
+
 
 
 .. c:function:: int MRIStepSetDefaults(void* arkode_mem)
@@ -110,7 +103,7 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
    If this routine is not called, the Hermite interpolation module will be used.
 
 
-  
+
 .. c:function:: int MRIStepSetInterpolantDegree(void* arkode_mem, int degree)
 
    Specifies the degree of the polynomial interpolant
@@ -127,7 +120,7 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
       * *ARK_INTERP_FAIL* if this is called after :c:func:`MRIStepEvolve()`
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
-   **Notes:** Allowed values are between 0 and 5.  
+   **Notes:** Allowed values are between 0 and 5.
 
    This routine should be called *after* :c:func:`MRIStepCreate()`
    and *before* :c:func:`MRIStepEvolve()`.
@@ -139,9 +132,9 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
    the time-step solutions on which it is based, the *actual* polynomial degree that
    is used by MRIStep will be the minimum of :math:`q-1` and the input *degree*,
    where :math:`q` is the order of accuracy for the time integration method.
-   
 
-   
+
+
 .. c:function:: int MRIStepSetDenseOrder(void* arkode_mem, int dord)
 
    *This function is deprecated, and will be removed in a future release.
@@ -149,7 +142,7 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
    *instead.*
 
 
-   
+
 .. c:function:: int MRIStepSetDiagnostics(void* arkode_mem, FILE* diagfp)
 
    Specifies the file pointer for a diagnostics file where

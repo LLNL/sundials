@@ -110,6 +110,10 @@ Changes from previous versions
 Changes in v4.x
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Fixed a bug in ARKode where the prototypes for :c:func:`ERKStepSetMinReduction()`
+and :c:func:`ARKStepSetMinReduction()` were not included in ``arkode_erkstep.h``
+and ``arkode_arkstep.h`` respectively.
+
 Fixed a bug where inequality constraint checking would need to be disabled and
 then re-enabled to update the inequality constraint values after resizing a
 problem. Resizing a problem will now disable constraints and a call to
@@ -125,14 +129,14 @@ IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
 it is recommended to set ``CMAKE_Fortran_COMPILER`` to ``f2003``, ``xlf2003``,
 or ``xlf2003_r``.
 
-Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver. 
-In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the 
-lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling 
-factor using the error weight vector, ``ewt``; this fix changes that to the residual weight vector, 
+Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver.
+In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the
+lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling
+factor using the error weight vector, ``ewt``; this fix changes that to the residual weight vector,
 ``rwt``, that can differ from ``ewt`` when solving problems with non-identity mass matrix.
 
-Fixed a similar bug in how ARKode interfaces with scaled linear solvers when solving problems 
-with non-identity mass matrices.  Here, the left scaling matrix should correspond with ``rwt`` 
+Fixed a similar bug in how ARKode interfaces with scaled linear solvers when solving problems
+with non-identity mass matrices.  Here, the left scaling matrix should correspond with ``rwt``
 and the right scaling matrix with ``ewt``; these were reversed but are now correct.
 
 Fixed a bug where a non-default value for the maximum allowed growth factor

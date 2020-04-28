@@ -232,6 +232,10 @@ preconditioner routines.
 
 \subsection{Changes in v4.x}
 \label{\detokenize{Introduction:changes-in-v4-x}}
+Fixed a bug in ARKode where the prototypes for {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetMinReduction}]{\sphinxcrossref{\sphinxcode{ERKStepSetMinReduction()}}}}
+and {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetMinReduction}]{\sphinxcrossref{\sphinxcode{ARKStepSetMinReduction()}}}} were not included in \sphinxcode{arkode\_erkstep.h}
+and \sphinxcode{arkode\_arkstep.h} respectively.
+
 Fixed a bug where inequality constraint checking would need to be disabled and
 then re-enabled to update the inequality constraint values after resizing a
 problem. Resizing a problem will now disable constraints and a call to
@@ -18168,10 +18172,10 @@ arguments for each function are then provided following each table.
 The optional inputs are grouped into the following categories:
 \begin{itemize}
 \item {} 
-General MRIStep options ({\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepinputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional inputs for MRIStep}}}}),
+General MRIStep options ({\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepinputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional inputs for MRIStep}}}}), and
 
 \item {} 
-IVP method solver options ({\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepmethodinputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional inputs for IVP method selection}}}}),
+IVP method solver options ({\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepmethodinputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional inputs for IVP method selection}}}})
 
 \end{itemize}
 
@@ -18186,7 +18190,115 @@ arguments for negative values will catch all errors.
 
 
 \subsubsection{Optional inputs for MRIStep}
-\label{\detokenize{MRIStep_c_interface/User_callable:optional-inputs-for-mristep}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepinputtable}}\index{MRIStepSetDefaults (C function)}
+\label{\detokenize{MRIStep_c_interface/User_callable:optional-inputs-for-mristep}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepinputtable}}
+
+\begin{savenotes}\sphinxattablestart
+\centering
+\begin{tabulary}{\linewidth}[t]{|T|T|T|}
+\hline
+\sphinxstylethead{\sphinxstyletheadfamily 
+Optional input
+\unskip}\relax &\sphinxstylethead{\sphinxstyletheadfamily 
+Function name
+\unskip}\relax &\sphinxstylethead{\sphinxstyletheadfamily 
+Default
+\unskip}\relax \\
+\hline
+Return MRIStep solver parameters to their defaults
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetDefaults}]{\sphinxcrossref{\sphinxcode{MRIStepSetDefaults()}}}}
+&
+internal
+\\
+\hline
+Set dense output interpolation type
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetInterpolantType}]{\sphinxcrossref{\sphinxcode{MRIStepSetInterpolantType()}}}}
+&
+\sphinxcode{ARK\_INTERP\_HERMITE}
+\\
+\hline
+Set dense output polynomial degree
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetInterpolantDegree}]{\sphinxcrossref{\sphinxcode{MRIStepSetInterpolantDegree()}}}}
+&
+5
+\\
+\hline
+Supply a pointer to a diagnostics output file
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetDiagnostics}]{\sphinxcrossref{\sphinxcode{MRIStepSetDiagnostics()}}}}
+&
+\sphinxcode{NULL}
+\\
+\hline
+Supply a pointer to an error output file
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetErrFile}]{\sphinxcrossref{\sphinxcode{MRIStepSetErrFile()}}}}
+&
+\sphinxcode{stderr}
+\\
+\hline
+Supply a custom error handler function
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetErrHandlerFn}]{\sphinxcrossref{\sphinxcode{MRIStepSetErrHandlerFn()}}}}
+&
+internal fn
+\\
+\hline
+Run with fixed-step sizes
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep}]{\sphinxcrossref{\sphinxcode{MRIStepSetFixedStep()}}}}
+&
+required
+\\
+\hline
+Maximum no. of warnings for \(t_n+h = t_n\)
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetMaxHnilWarns}]{\sphinxcrossref{\sphinxcode{MRIStepSetMaxHnilWarns()}}}}
+&
+10
+\\
+\hline
+Maximum no. of internal steps before \sphinxstyleemphasis{tout}
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetMaxNumSteps}]{\sphinxcrossref{\sphinxcode{MRIStepSetMaxNumSteps()}}}}
+&
+500
+\\
+\hline
+Set a value for \(t_{stop}\)
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetStopTime}]{\sphinxcrossref{\sphinxcode{MRIStepSetStopTime()}}}}
+&
+\(\infty\)
+\\
+\hline
+Supply a pointer for user data
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetUserData}]{\sphinxcrossref{\sphinxcode{MRIStepSetUserData()}}}}
+&
+\sphinxcode{NULL}
+\\
+\hline
+Supply a function to be called prior to the inner integration
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetPreInnerFn}]{\sphinxcrossref{\sphinxcode{MRIStepSetPreInnerFn()}}}}
+&
+\sphinxcode{NULL}
+\\
+\hline
+Supply a function to be called after the inner integration
+&
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetPostInnerFn}]{\sphinxcrossref{\sphinxcode{MRIStepSetPostInnerFn()}}}}
+&
+\sphinxcode{NULL}
+\\
+\hline
+\end{tabulary}
+\par
+\sphinxattableend\end{savenotes}
+\index{MRIStepSetDefaults (C function)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetDefaults}}\pysiglinewithargsret{int \sphinxbfcode{MRIStepSetDefaults}}{void*\sphinxstyleemphasis{ arkode\_mem}}{}~\begin{quote}
