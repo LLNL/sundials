@@ -32,11 +32,6 @@
 #define RSYM ".16g"
 #endif
 
-#define NO_DEBUG_OUTPUT
-#ifdef DEBUG_OUTPUT
-#include <nvector/nvector_serial.h>
-#endif
-
 
 /*---------------------------------------------------------------
   Section I: generic ARKInterp functions provided by all
@@ -297,31 +292,19 @@ void arkInterpPrintMem_Hermite(ARKInterp interp, FILE *outfile)
     fprintf(outfile, "arkode_interp (Hermite): told = %"RSYM"\n", HINT_TOLD(interp));
     fprintf(outfile, "arkode_interp (Hermite): tnew = %"RSYM"\n", HINT_TNEW(interp));
     fprintf(outfile, "arkode_interp (Hermite): h = %"RSYM"\n", HINT_H(interp));
-#ifdef DEBUG_OUTPUT
-    if (HINT_FOLD(interp) != NULL) {
-      fprintf(outfile, "arkode_interp (Hermite): fold:\n");
-      N_VPrint_Serial(HINT_FOLD(interp));
-    }
-    if (HINT_FNEW(interp) != NULL) {
-      fprintf(outfile, "arkode_interp (Hermite): fnew:\n");
-      N_VPrint_Serial(HINT_FNEW(interp));
-    }
-    if (HINT_YOLD(interp) != NULL) {
-      fprintf(outfile, "arkode_interp (Hermite): yold:\n");
-      N_VPrint_Serial(HINT_YOLD(interp));
-    }
-    if (HINT_YNEW(interp) != NULL) {
-      fprintf(outfile, "arkode_interp (Hermite): ynew:\n");
-      N_VPrint_Serial(HINT_YNEW(interp));
-    }
-    if (HINT_FA(interp) != NULL) {
-      fprintf(outfile, "arkode_interp (Hermite): fa:\n");
-      N_VPrint_Serial(HINT_FA(interp));
-    }
-    if (HINT_FB(interp) != NULL) {
-      fprintf(outfile, "arkode_interp (Hermite): fb:\n");
-      N_VPrint_Serial(HINT_FB(interp));
-    }
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+    fprintf(outfile, "arkode_interp (Hermite): fold:\n");
+    N_VPrintFile(HINT_FOLD(interp), outfile);
+    fprintf(outfile, "arkode_interp (Hermite): fnew:\n");
+    N_VPrintFile(HINT_FNEW(interp), outfile);
+    fprintf(outfile, "arkode_interp (Hermite): yold:\n");
+    N_VPrintFile(HINT_YOLD(interp), outfile);
+    fprintf(outfile, "arkode_interp (Hermite): ynew:\n");
+    N_VPrintFile(HINT_YNEW(interp), outfile);
+    fprintf(outfile, "arkode_interp (Hermite): fa:\n");
+    N_VPrintFile(HINT_FA(interp), outfile);
+    fprintf(outfile, "arkode_interp (Hermite): fb:\n");
+    N_VPrintFile(HINT_FB(interp), outfile);
 #endif
   }
 }
@@ -941,13 +924,11 @@ void arkInterpPrintMem_Lagrange(ARKInterp I, FILE *outfile)
         fprintf(outfile, "  %p",(void*) LINT_YJ(I,i));
       fprintf(outfile, "\n");
     }
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
     if (LINT_YHIST(I) != NULL) {
       for (i=0; i<LINT_NMAX(I); i++) {
-        if (LINT_YJ(I,i) != NULL) {
-          fprintf(outfile, "arkode_interp (Lagrange): yhist[%i]:\n",i);
-          N_VPrint_Serial(LINT_YJ(I,i));
-        }
+        fprintf(outfile, "arkode_interp (Lagrange): yhist[%i]:\n",i);
+        N_VPrintFile(LINT_YJ(I,i), outfile);
       }
     }
 #endif

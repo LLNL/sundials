@@ -30,16 +30,9 @@
 #define RSYM ".16g"
 #endif
 
-#define NO_DEBUG_OUTPUT
-/* #define DEBUG_OUTPUT */
-#ifdef DEBUG_OUTPUT
-#include <nvector/nvector_serial.h>
-#endif
-
 /* constants */
 #define ZERO   RCONST(0.0)
 #define ONE    RCONST(1.0)
-
 
 
 /*===============================================================
@@ -354,6 +347,10 @@ void MRIStepPrintMem(void* arkode_mem, FILE* outfile)
   ARKodeMRIStepMem step_mem;
   int retval;
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  int i;
+#endif
+
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepPrintMem",
                                  &ark_mem, &step_mem);
@@ -375,11 +372,11 @@ void MRIStepPrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile,"MRIStep: Butcher table:\n");
   ARKodeButcherTable_Write(step_mem->B, outfile);
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
   for (i=0; i<step_mem->stages; i++) {
     fprintf(outfile,"MRIStep: F[%i]:\n", i);
-    N_VPrint_Serial(step_mem->F[i]);
+    N_VPrintFile(step_mem->F[i], outfile);
   }
 #endif
 
@@ -813,9 +810,9 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
     printf("stage 0 RHS:\n");
-    N_VPrint_Serial(step_mem->F[0]);
+    N_VPrint(step_mem->F[0]);
 #endif
 
   /* Loop over internal stages to the step; since the method is explicit
@@ -825,7 +822,7 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* Set current stage time */
     ark_mem->tcur = ark_mem->tn + step_mem->B->c[is]*ark_mem->h;
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG
     printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
            ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
@@ -888,9 +885,9 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     if (retval < 0)  return(ARK_RHSFUNC_FAIL);
     if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
     printf("RHS:\n");
-    N_VPrint_Serial(step_mem->F[is]);
+    N_VPrint(step_mem->F[is]);
 #endif
 
   } /* loop over stages */
@@ -937,10 +934,9 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     if (retval != 0) return(ARK_INNERTOOUTER_FAIL);
   }
 
-#ifdef DEBUG_OUTPUT
-    printf("error estimate = %"RSYM"\n", dsm);
+#ifdef SUNDIALS_DEBUG_PRINTVEC
     printf("updated solution:\n");
-    N_VPrint_Serial(ark_mem->ycur);
+    N_VPrint(ark_mem->ycur);
 #endif
 
   /* Solver diagnostics reporting */

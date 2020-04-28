@@ -30,12 +30,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#define NO_DEBUG_OUTPUT
-/* #define DEBUG_OUTPUT */
-#ifdef DEBUG_OUTPUT
-#include <nvector/nvector_serial.h>
-#endif
-
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define RSYM ".32Lg"
 #else
@@ -1399,52 +1393,32 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   /* output interpolation quantities */
   arkInterpPrintMem(ark_mem->interp, outfile);
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
-  if (ark_mem->Vabstol != NULL) {
-    fprintf(outfile, "Vapbsol:\n");
-    N_VPrint_Serial(ark_mem->Vabstol);
-  }
-  if (ark_mem->ewt != NULL) {
-    fprintf(outfile, "ewt:\n");
-    N_VPrint_Serial(ark_mem->ewt);
-  }
-  if (!ark_mem->rwt_is_ewt && ark_mem->rwt != NULL) {
+  fprintf(outfile, "Vapbsol:\n");
+  N_VPrintFile(ark_mem->Vabstol, outfile);
+  fprintf(outfile, "ewt:\n");
+  N_VPrintFile(ark_mem->ewt, outfile);
+  if (!ark_mem->rwt_is_ewt) {
     fprintf(outfile, "rwt:\n");
-    N_VPrint_Serial(ark_mem->rwt);
+    N_VPrintFile(ark_mem->rwt, outfile);
   }
-  if (ark_mem->ycur != NULL) {
-    fprintf(outfile, "ycur:\n");
-    N_VPrint_Serial(ark_mem->ycur);
-  }
-  if (ark_mem->yn != NULL) {
-    fprintf(outfile, "yn:\n");
-    N_VPrint_Serial(ark_mem->yn);
-  }
-  if (ark_mem->fn != NULL) {
-    fprintf(outfile, "fn:\n");
-    N_VPrint_Serial(ark_mem->fn);
-  }
-  if (ark_mem->tempv1 != NULL) {
-    fprintf(outfile, "tempv1:\n");
-    N_VPrint_Serial(ark_mem->tempv1);
-  }
-  if (ark_mem->tempv2 != NULL) {
-    fprintf(outfile, "tempv2:\n");
-    N_VPrint_Serial(ark_mem->tempv2);
-  }
-  if (ark_mem->tempv3 != NULL) {
-    fprintf(outfile, "tempv3:\n");
-    N_VPrint_Serial(ark_mem->tempv3);
-  }
-  if (ark_mem->tempv4 != NULL) {
-    fprintf(outfile, "tempv4:\n");
-    N_VPrint_Serial(ark_mem->tempv4);
-  }
-  if (ark_mem->constraints != NULL) {
-    fprintf(outfile, "constraints:\n");
-    N_VPrint_Serial(ark_mem->constraints);
-  }
+  fprintf(outfile, "ycur:\n");
+  N_VPrintFile(ark_mem->ycur, outfile);
+  fprintf(outfile, "yn:\n");
+  N_VPrintFile(ark_mem->yn, outfile);
+  fprintf(outfile, "fn:\n");
+  N_VPrintFile(ark_mem->fn, outfile);
+  fprintf(outfile, "tempv1:\n");
+  N_VPrintFile(ark_mem->tempv1, outfile);
+  fprintf(outfile, "tempv2:\n");
+  N_VPrintFile(ark_mem->tempv2, outfile);
+  fprintf(outfile, "tempv3:\n");
+  N_VPrintFile(ark_mem->tempv3, outfile);
+  fprintf(outfile, "tempv4:\n");
+  N_VPrintFile(ark_mem->tempv4, outfile);
+  fprintf(outfile, "constraints:\n");
+  N_VPrintFile(ark_mem->constraints, outfile);
 #endif
 
 }

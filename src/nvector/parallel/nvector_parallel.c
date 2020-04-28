@@ -140,7 +140,11 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   v->ops->nvminquotientlocal = N_VMinQuotientLocal_Parallel;
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Parallel;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Parallel;
-  
+
+  /* debugging functions */
+  v->ops->nvprint     = N_VPrint_Parallel;
+  v->ops->nvprintfile = N_VPrintFile_Parallel;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Parallel) malloc(sizeof *content);
@@ -360,7 +364,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
 
   /* Attach operations */
   if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
-  
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Parallel) malloc(sizeof *content);
@@ -710,7 +714,7 @@ realtype N_VMaxNormLocal_Parallel(N_Vector x)
 
   max = ZERO;
 
-  for (i = 0; i < N; i++) 
+  for (i = 0; i < N; i++)
     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
 
   return(max);
@@ -794,7 +798,7 @@ realtype N_VMinLocal_Parallel(N_Vector x)
   if (N > 0) {
     xd = NV_DATA_P(x);
     min = xd[0];
-    for (i = 1; i < N; i++) 
+    for (i = 1; i < N; i++)
       if (xd[i] < min) min = xd[i];
   }
   return(min);
@@ -828,7 +832,7 @@ realtype N_VL1NormLocal_Parallel(N_Vector x)
 
   for (i = 0; i<N; i++)
     sum += SUNRabs(xd[i]);
-  
+
   return(sum);
 }
 
@@ -1221,7 +1225,7 @@ int N_VLinearSumVectorArray_Parallel(int nvec,
   /*   (1) a == other, b == 0.0 - user should have called N_VScale */
   /*   (2) a == 0.0, b == other - user should have called N_VScale */
   /*   (3) a,b == other, a !=b, a != -b                            */
-  
+
   /* get vector length */
   N = NV_LOCLENGTH_P(Z[0]);
 
@@ -1986,7 +1990,7 @@ static int VaxpyVectorArray_Parallel(int nvec, realtype a, N_Vector* X, N_Vector
     }
 
     return(0);
-  }    
+  }
 
   for (i=0; i<nvec; i++) {
     xd = NV_DATA_P(X[i]);
