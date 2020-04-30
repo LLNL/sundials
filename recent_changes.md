@@ -1,6 +1,10 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 5.x
+## Changes to SUNDIALS in release X.X.X
+
+Added the ability to control the CUDA kernel launch parameters for the
+NVECTOR_CUDA and SUNMATRIX_CUSPARSE modules. These modules remain
+experimental and are subject to change from version to version.
 
 Fixed a bug in ARKode where the prototypes for `ERKStepSetMinReduction()` and
 `ARKStepSetMinReduction()` were not included in `arkode_erkstep.h` and

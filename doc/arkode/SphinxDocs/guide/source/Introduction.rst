@@ -107,8 +107,13 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
-Changes in v4.x
+Changes in 4.X.X
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Added the ability to control the CUDA kernel launch parameters for the
+NVECTOR_CUDA and SUNMATRIX_CUSPARSE modules. These modules remain
+experimental and are subject to change from version
+to version.
 
 Fixed a bug in ARKode where the prototypes for :c:func:`ERKStepSetMinReduction()`
 and :c:func:`ARKStepSetMinReduction()` were not included in ``arkode_erkstep.h``

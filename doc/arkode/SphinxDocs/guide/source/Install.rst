@@ -1363,6 +1363,7 @@ Table: SUNDIALS libraries and header files
 +------------------------------+--------------+----------------------------------------------+
 | Shared                       | Header files | ``sundials/sundials_band.h``,                |
 |                              |              | ``sundials/sundials_config.h``,              |
+|                              |              | ``sundials/sundials_cuda_policies.hpp``      |
 |                              |              | ``sundials/sundials_dense.h``,               |
 |                              |              | ``sundials/sundials_direct.h``,              |
 |                              |              | ``sundials/sundials_fconfig.h``,             |

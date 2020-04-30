@@ -59,6 +59,7 @@ $tar $tarfile $distrobase/config/SundialsXSDK.cmake                     || exit 
 echo "   --- Add shared module to $tarfile"
 
 $tar $tarfile $distrobase/include/sundials/sundials_config.in             || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_cuda_policies.hpp     || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_fconfig.in            || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_types.h               || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h           || exit 1
@@ -86,10 +87,6 @@ $tar $tarfile $distrobase/include/nvector/nvector_openmp.h                      
 $tar $tarfile $distrobase/include/nvector/nvector_openmpdev.h                         || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_cuda.h                              || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_raja.h                              || exit 1
-$tar $tarfile $distrobase/include/nvector/cuda/ThreadPartitioning.hpp                 || exit 1
-$tar $tarfile $distrobase/include/nvector/cuda/Vector.hpp                             || exit 1
-$tar $tarfile $distrobase/include/nvector/cuda/VectorKernels.cuh                      || exit 1
-$tar $tarfile $distrobase/include/nvector/cuda/VectorArrayKernels.cuh                 || exit 1
 $tar $tarfile $distrobase/include/nvector/raja/Vector.hpp                             || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_trilinos.h                          || exit 1
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp  || exit 1
@@ -205,8 +202,10 @@ $tar $tarfile $distrobase/src/nvector/pthreads/fmod/fnvector_pthreads_mod.{c,f90
 
 echo "   --- Add nvector/cuda module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvector/cuda/CMakeLists.txt  || exit 1
-$tar $tarfile $distrobase/src/nvector/cuda/nvector_cuda.cu || exit 1
+$tar $tarfile $distrobase/src/nvector/cuda/CMakeLists.txt          || exit 1
+$tar $tarfile $distrobase/src/nvector/cuda/nvector_cuda.cu         || exit 1
+$tar $tarfile $distrobase/src/nvector/cuda/VectorKernels.cuh       || exit 1
+$tar $tarfile $distrobase/src/nvector/cuda/VectorArrayKernels.cuh  || exit 1
 
 echo "   --- Add nvector/raja module to $tarfile"
 

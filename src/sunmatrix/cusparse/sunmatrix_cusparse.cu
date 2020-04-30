@@ -27,14 +27,13 @@
 #include "sundials_debug.h"
 #include "cusparse_kernels.cuh"
 
+
 /* Use the namespace for the kernels */
-using namespace sundials::device::sunmatrix_cusparse;
+using namespace sundials::sunmatrix_cusparse;
 
 /* Constants */
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
-
-#define MAX_THREAD_PER_BLOCK(val) ( (val > 16*CUDA_WARP_SIZE) ? (16*CUDA_WARP_SIZE) : (val) )
 
 /* Private function prototypes */
 static booleantype SMCompatible_cuSparse(SUNMatrix A, SUNMatrix B);
@@ -59,18 +58,68 @@ static SUNMatrix SUNMatrix_cuSparse_NewEmpty();
 #define SMCU_NP_S(A)          ( SMCU_CONTENT_S(A)->NP )
 #define SMCU_SPARSETYPE_S(A)  ( SMCU_CONTENT_S(A)->sparse_type )
 #define SMCU_OWNDATA_S(A)     ( SMCU_CONTENT_S(A)->own_data )
+#define SMCU_OWNEXEC_S(A)     ( SMCU_CONTENT_S(A)->own_exec )
 #define SMCU_DATA_S(A)        ( SMCU_CONTENT_S(A)->data )
 #define SMCU_INDEXVALS_S(A)   ( SMCU_CONTENT_S(A)->colind )
 #define SMCU_INDEXPTRS_S(A)   ( SMCU_CONTENT_S(A)->rowptrs )
 #define SMCU_MATDESCR_S(A)    ( SMCU_CONTENT_S(A)->mat_descr )
 #define SMCU_CUSPHANDLE_S(A)  ( SMCU_CONTENT_S(A)->cusp_handle )
 #define SMCU_FIXEDPATTERN_S(A)( SMCU_CONTENT_S(A)->fixed_pattern )
+#define SMCU_EXECPOLICY_S(A)  ( SMCU_CONTENT_S(A)->exec_policy )
 
+
+/* ------------------------------------------------------------------
+ * Default execution policy definition.
+ * 
+ * This policy tries to help us leverage the structure of the matrix.
+ * It will choose block sizes which are a multiple of the warp size,
+ * and it will choose a grid size to such that all work elements are
+ * covered. 
+ * ------------------------------------------------------------------ */
+
+class SUNCuSparseMatrixExecPolicy : public SUNCudaExecPolicy
+{
+public:
+  SUNCuSparseMatrixExecPolicy(const cudaStream_t stream = 0)
+    : stream_(stream)
+  {}
+
+  SUNCuSparseMatrixExecPolicy(const SUNCuSparseMatrixExecPolicy& ex)
+    : stream_(ex.stream_)
+  {}
+
+  virtual size_t gridSize(size_t numWorkElements, size_t blockDim = 0) const
+  {
+    return (numWorkElements + blockDim - 1)/blockDim;
+  }
+
+  virtual size_t blockSize(size_t numWorkElements = 0, size_t gridDim = 0) const
+  {
+    return max_block_size(CUDA_WARP_SIZE*(numWorkElements + CUDA_WARP_SIZE - 1)/CUDA_WARP_SIZE);
+  }
+
+  virtual cudaStream_t stream() const
+  {
+    return stream_;
+  }
+
+  virtual CudaExecPolicy* clone() const
+  {
+    return static_cast<CudaExecPolicy*>(new SUNCuSparseMatrixExecPolicy(*this));
+  }
+
+  static size_t max_block_size(int val)
+  {
+    return ( (val > MAX_CUDA_BLOCKSIZE) ? MAX_CUDA_BLOCKSIZE : val );
+  }
+
+private:
+  const cudaStream_t stream_;
+};
 
 /* ------------------------------------------------------------------
  * Constructors.
  * ------------------------------------------------------------------ */
-
 
 SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp)
 {
@@ -148,6 +197,12 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
     return NULL;
   }
 
+  cudaStream_t stream;
+  if (!SUNDIALS_CUSPARSE_VERIFY(cusparseGetStream(cusp, &stream)))
+  {
+    return NULL;
+  }
+
   /* Fill the content */
   SMCU_CONTENT_S(A)->M             = M;
   SMCU_CONTENT_S(A)->N             = N;
@@ -157,6 +212,7 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
   SMCU_CONTENT_S(A)->blockcols     = N;
   SMCU_CONTENT_S(A)->blocknnz      = NNZ;
   SMCU_CONTENT_S(A)->own_data      = SUNTRUE;
+  SMCU_CONTENT_S(A)->own_exec      = SUNTRUE;
   SMCU_CONTENT_S(A)->sparse_type   = SUNMAT_CUSPARSE_CSR;
   SMCU_CONTENT_S(A)->colind        = d_colind;
   SMCU_CONTENT_S(A)->rowptrs       = d_rowptr;
@@ -164,6 +220,7 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
   SMCU_CONTENT_S(A)->mat_descr     = mat_descr;
   SMCU_CONTENT_S(A)->cusp_handle   = cusp;
   SMCU_CONTENT_S(A)->fixed_pattern = SUNFALSE;
+  SMCU_CONTENT_S(A)->exec_policy   = new SUNCuSparseMatrixExecPolicy(stream);
 
   return A;
 }
@@ -199,6 +256,12 @@ SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N,
     return NULL;
   }
 
+  cudaStream_t stream;
+  if (!SUNDIALS_CUSPARSE_VERIFY(cusparseGetStream(cusp, &stream)))
+  {
+    return NULL;
+  }
+
   /* Fill content */
   SMCU_CONTENT_S(A)->M             = M;
   SMCU_CONTENT_S(A)->N             = N;
@@ -208,6 +271,7 @@ SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N,
   SMCU_CONTENT_S(A)->blockcols     = N;
   SMCU_CONTENT_S(A)->blocknnz      = NNZ;
   SMCU_CONTENT_S(A)->own_data      = SUNFALSE;
+  SMCU_CONTENT_S(A)->own_exec      = SUNTRUE;
   SMCU_CONTENT_S(A)->sparse_type   = SUNMAT_CUSPARSE_CSR;
   SMCU_CONTENT_S(A)->colind        = colind;
   SMCU_CONTENT_S(A)->rowptrs       = rowptrs;
@@ -215,6 +279,7 @@ SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N,
   SMCU_CONTENT_S(A)->mat_descr     = mat_descr;
   SMCU_CONTENT_S(A)->cusp_handle   = cusp;
   SMCU_CONTENT_S(A)->fixed_pattern = SUNFALSE;
+  SMCU_CONTENT_S(A)->exec_policy   = new SUNCuSparseMatrixExecPolicy(stream);
 
   return A;
 }
@@ -310,6 +375,12 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
     return NULL;
   }
 
+  cudaStream_t stream;
+  if (!SUNDIALS_CUSPARSE_VERIFY(cusparseGetStream(cusp, &stream)))
+  {
+    return NULL;
+  }
+
   /* Fill the content */
   SMCU_CONTENT_S(A)->M             = M;
   SMCU_CONTENT_S(A)->N             = N;
@@ -319,6 +390,7 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
   SMCU_CONTENT_S(A)->blockcols     = blockrows;
   SMCU_CONTENT_S(A)->blocknnz      = blocknnz;
   SMCU_CONTENT_S(A)->own_data      = SUNTRUE;
+  SMCU_CONTENT_S(A)->own_exec      = SUNTRUE;
   SMCU_CONTENT_S(A)->sparse_type   = SUNMAT_CUSPARSE_BCSR;
   SMCU_CONTENT_S(A)->colind        = d_colind;
   SMCU_CONTENT_S(A)->rowptrs       = d_rowptr;
@@ -326,6 +398,7 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
   SMCU_CONTENT_S(A)->mat_descr     = mat_descr;
   SMCU_CONTENT_S(A)->cusp_handle   = cusp;
   SMCU_CONTENT_S(A)->fixed_pattern = SUNFALSE;
+  SMCU_CONTENT_S(A)->exec_policy   = new SUNCuSparseMatrixExecPolicy(stream);
 
   return A;
 }
@@ -457,20 +530,30 @@ int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, booleantype yesno)
   return SUNMAT_SUCCESS;
 }
 
+int SUNMatrix_cuSparse_SetKernelExecPolicy(SUNMatrix A, SUNCudaExecPolicy* exec_policy)
+{
+  if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE || exec_policy == NULL)
+    return SUNMAT_ILL_INPUT;
+
+  if (SMCU_OWNEXEC_S(A)) delete SMCU_EXECPOLICY_S(A);
+  SMCU_EXECPOLICY_S(A) = exec_policy;
+
+  SMCU_OWNEXEC_S(A) = SUNFALSE;
+
+  return SUNMAT_SUCCESS;
+}
 
 int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, realtype* h_data,
                                     int* h_idxptrs, int* h_idxvals)
 {
   cudaError_t cuerr;
   cudaStream_t stream;
-  cusparseStatus_t cusparse_status;
   int nidxvals, nidxptrs;
 
   if (SUNMatGetID(dA) != SUNMATRIX_CUSPARSE)
     return SUNMAT_ILL_INPUT;
 
-  cusparse_status = cusparseGetStream(SMCU_CUSPHANDLE_S(dA), &stream);
-  if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status)) return SUNMAT_OPERATION_FAIL;
+  stream = SMCU_EXECPOLICY_S(dA)->stream();
 
   if (h_data != NULL)
   {
@@ -520,14 +603,12 @@ int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, realtype* h_data,
 {
   cudaError_t cuerr;
   cudaStream_t stream;
-  cusparseStatus_t cusparse_status;
   int nidxvals, nidxptrs;
 
   if (SUNMatGetID(dA) != SUNMATRIX_CUSPARSE)
     return SUNMAT_ILL_INPUT;
 
-  cusparse_status = cusparseGetStream(SMCU_CUSPHANDLE_S(dA), &stream);
-  if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status)) return SUNMAT_OPERATION_FAIL;
+  stream = SMCU_EXECPOLICY_S(dA)->stream();
 
   if (h_data != NULL)
   {
@@ -600,6 +681,7 @@ SUNMatrix SUNMatClone_cuSparse(SUNMatrix A)
   }
 
   SMCU_FIXEDPATTERN_S(B) = SMCU_FIXEDPATTERN_S(A);
+  SMCU_EXECPOLICY_S(B) = SMCU_EXECPOLICY_S(A)->clone();
 
   return B;
 }
@@ -640,6 +722,12 @@ void SUNMatDestroy_cuSparse(SUNMatrix A)
       cusparseDestroyMatDescr(SMCU_MATDESCR_S(A));
     }
 
+    if (SMCU_EXECPOLICY_S(A) && SMCU_OWNEXEC_S(A))
+    {
+      delete SMCU_EXECPOLICY_S(A);
+      SMCU_EXECPOLICY_S(A) = NULL;
+    }
+
     /* free content struct */
     free(A->content);
     A->content = NULL;
@@ -659,7 +747,7 @@ int SUNMatZero_cuSparse(SUNMatrix A)
   cudaError_t cuerr;
   cudaStream_t stream;
 
-  cusparseGetStream(SMCU_CUSPHANDLE_S(A), &stream);
+  stream = SMCU_EXECPOLICY_S(A)->stream();
 
   /* set all data to zero */
   cuerr = cudaMemsetAsync(SMCU_DATA_S(A), 0, SMCU_NNZ_S(A)*sizeof(realtype), stream);
@@ -694,7 +782,7 @@ int SUNMatCopy_cuSparse(SUNMatrix src, SUNMatrix dst)
   if (!SMCompatible_cuSparse(src, dst))
     return SUNMAT_ILL_INPUT;
 
-  cusparseGetStream(SMCU_CUSPHANDLE_S(src), &stream);
+  stream = SMCU_EXECPOLICY_S(src)->stream();
 
   /* Ensure that dst is allocated with at least as
      much memory as we have nonzeros in src */
@@ -736,22 +824,17 @@ int SUNMatCopy_cuSparse(SUNMatrix src, SUNMatrix dst)
 /* Performs A = cA + I. Requires the diagonal to be allocated already. */
 int SUNMatScaleAddI_cuSparse(realtype c, SUNMatrix A)
 {
-  cudaStream_t stream;
-  cusparseStatus_t cusparse_status;
-
-  cusparse_status = cusparseGetStream(SMCU_CUSPHANDLE_S(A), &stream);
-  if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status)) return SUNMAT_OPERATION_FAIL;
-
   unsigned threadsPerBlock, gridSize;
+  cudaStream_t stream = SMCU_EXECPOLICY_S(A)->stream();
+
   switch (SMCU_SPARSETYPE_S(A))
   {
     case SUNMAT_CUSPARSE_CSR:
       /* Choose the grid size to be the number of rows in the matrix,
         and then choose threadsPerBlock to be a multiple of the warp size
         that results in enough threads to have one per 2 columns. */
-        threadsPerBlock = MAX_THREAD_PER_BLOCK(CUDA_WARP_SIZE*(SMCU_COLUMNS_S(A)/2 + CUDA_WARP_SIZE - 1)/CUDA_WARP_SIZE);
-        gridSize = SMCU_ROWS_S(A);
-
+      threadsPerBlock = SMCU_EXECPOLICY_S(A)->blockSize(SMCU_COLUMNS_S(A)/2);
+      gridSize = SMCU_EXECPOLICY_S(A)->gridSize(SMCU_ROWS_S(A)*SMCU_COLUMNS_S(A)/2, threadsPerBlock);
       {
 #ifdef SUNDIALS_CUDA_KERNEL_TIMING
         cudaEvent_t start, stop;
@@ -787,9 +870,8 @@ int SUNMatScaleAddI_cuSparse(realtype c, SUNMatrix A)
       /* Choose the grid size to be the number of blocks in the matrix,
          and then choose threadsPerBlock to be a multiple of the warp size
          that results in enough threads to have one per row of the block. */
-      threadsPerBlock = MAX_THREAD_PER_BLOCK(CUDA_WARP_SIZE*(SMCU_BLOCKROWS_S(A) + CUDA_WARP_SIZE - 1)/CUDA_WARP_SIZE);
-      gridSize = SMCU_NBLOCKS_S(A);
-
+      threadsPerBlock = SMCU_EXECPOLICY_S(A)->blockSize(SMCU_BLOCKROWS_S(A));
+      gridSize = SMCU_EXECPOLICY_S(A)->gridSize(SMCU_NBLOCKS_S(A)*SMCU_BLOCKROWS_S(A), threadsPerBlock);
       {
 #ifdef SUNDIALS_CUDA_KERNEL_TIMING
         cudaEvent_t start, stop;
@@ -840,7 +922,7 @@ int SUNMatScaleAddI_cuSparse(realtype c, SUNMatrix A)
 int SUNMatScaleAdd_cuSparse(realtype c, SUNMatrix A, SUNMatrix B)
 {
   cudaStream_t stream;
-  cusparseStatus_t cusparse_status;
+  unsigned threadsPerBlock, gridSize;
 
   if (!SMCompatible_cuSparse(A, B))
   {
@@ -848,19 +930,16 @@ int SUNMatScaleAdd_cuSparse(realtype c, SUNMatrix A, SUNMatrix B)
     return SUNMAT_ILL_INPUT;
   }
 
-  cusparse_status = cusparseGetStream(SMCU_CUSPHANDLE_S(A), &stream);
-  if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status)) return SUNMAT_OPERATION_FAIL;
+  stream = SMCU_EXECPOLICY_S(A)->stream();
 
-  unsigned threadsPerBlock, gridSize;
   switch (SMCU_SPARSETYPE_S(A))
   {
     case SUNMAT_CUSPARSE_CSR:
       /* Choose the grid size to be the number of rows in the matrix,
         and then choose threadsPerBlock to be a multiple of the warp size
         that results in enough threads to have one per 2 columns. */
-      threadsPerBlock = MAX_THREAD_PER_BLOCK(CUDA_WARP_SIZE*(SMCU_COLUMNS_S(A)/2 + CUDA_WARP_SIZE - 1)/CUDA_WARP_SIZE);
-      gridSize = SMCU_ROWS_S(A);
-     
+      threadsPerBlock = SMCU_EXECPOLICY_S(A)->blockSize(SMCU_COLUMNS_S(A)/2);
+      gridSize = SMCU_EXECPOLICY_S(A)->gridSize(SMCU_ROWS_S(A)*SMCU_COLUMNS_S(A)/2, threadsPerBlock);
       {
 #ifdef SUNDIALS_CUDA_KERNEL_TIMING
         cudaEvent_t start, stop;
@@ -889,15 +968,13 @@ int SUNMatScaleAdd_cuSparse(realtype c, SUNMatrix A, SUNMatrix B)
                 SMCU_NNZ_S(A)*sizeof(realtype)*3/milliseconds/1e6);
 #endif
       }
-
       break;
     case SUNMAT_CUSPARSE_BCSR:
       /* Choose the grid size to be the number of blocks in the matrix,
          and then choose threadsPerBlock to be a multiple of the warp size
          that results in enough threads to have one per row of the block. */
-      threadsPerBlock = MAX_THREAD_PER_BLOCK(CUDA_WARP_SIZE*(SMCU_BLOCKROWS_S(A) + CUDA_WARP_SIZE - 1)/CUDA_WARP_SIZE);
-      gridSize = SMCU_NBLOCKS_S(A);
-
+      threadsPerBlock = SMCU_EXECPOLICY_S(A)->blockSize(SMCU_BLOCKROWS_S(A));
+      gridSize = SMCU_EXECPOLICY_S(A)->gridSize(SMCU_NBLOCKS_S(A)*SMCU_BLOCKROWS_S(A), threadsPerBlock);
       {
 #ifdef SUNDIALS_CUDA_KERNEL_TIMING
         cudaEvent_t start, stop;
@@ -926,7 +1003,6 @@ int SUNMatScaleAdd_cuSparse(realtype c, SUNMatrix A, SUNMatrix B)
                   SMCU_NNZ_S(A)*sizeof(realtype)*3/milliseconds/1e6);
 #endif
       }
-
       break;
     default:
       SUNDIALS_DEBUG_PRINT("ERROR in SUNMatScaleAdd_cuSparse: sparse type not recognized\n");
@@ -1002,18 +1078,15 @@ int SUNMatMatvec_cuSparse(SUNMatrix A, N_Vector x, N_Vector y)
   else if (SMCU_SPARSETYPE_S(A) == SUNMAT_CUSPARSE_BCSR)
   {
     cudaStream_t stream;
-    cusparseStatus_t cusparse_status;
     unsigned gridSize, threadsPerBlock;
 
-    cusparse_status = cusparseGetStream(SMCU_CUSPHANDLE_S(A), &stream);
-    if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status)) return SUNMAT_OPERATION_FAIL;
+    stream = SMCU_EXECPOLICY_S(A)->stream();
 
     /* Choose the grid size to be the number of blocks in the matrix,
        and then choose threadsPerBlock to be a multiple of the warp size
        that results in enough threads to have one per row of the block. */
-    threadsPerBlock = MAX_THREAD_PER_BLOCK(CUDA_WARP_SIZE*(SMCU_BLOCKROWS_S(A) + CUDA_WARP_SIZE - 1)/CUDA_WARP_SIZE);
-    gridSize = SMCU_NBLOCKS_S(A);
-
+    threadsPerBlock = SMCU_EXECPOLICY_S(A)->blockSize(SMCU_COLUMNS_S(A)/2);
+    gridSize = SMCU_EXECPOLICY_S(A)->gridSize(SMCU_ROWS_S(A)*SMCU_COLUMNS_S(A)/2, threadsPerBlock);
     {
 #ifdef SUNDIALS_CUDA_KERNEL_TIMING
         cudaEvent_t start, stop;
@@ -1044,7 +1117,6 @@ int SUNMatMatvec_cuSparse(SUNMatrix A, N_Vector x, N_Vector y)
               "[performance] matvecBCSR effective bandwidth (GB/s): %f\n",
               (SMCU_NNZ_S(A)*(sizeof(realtype)*4 + sizeof(int)) + 2*SMCU_ROWS_S(A)*sizeof(int))/milliseconds/1e6);
 #endif
-
     }
 
 #ifdef SUNDIALS_DEBUG_CUDA_LASTERROR

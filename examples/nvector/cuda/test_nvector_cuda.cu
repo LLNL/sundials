@@ -21,11 +21,7 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 #include <nvector/nvector_cuda.h>
-#include <nvector/cuda/ThreadPartitioning.hpp>
 #include "test_nvector.h"
-
-
-using namespace suncudavec;
 
 /* private custom allocator functions */
 static void* sunalloc(size_t);
@@ -34,6 +30,8 @@ static void sunfree(void* ptr);
 /* CUDA vector specific tests */
 static int Test_N_VMake_Cuda(N_Vector X, sunindextype length, int myid);
 static int Test_N_VMakeManaged_Cuda(N_Vector X, sunindextype length, int myid);
+static int Test_N_VMakeWithManagedAllocator_Cuda(sunindextype length, int myid);
+static int Test_N_VSetKernelExecPolicy_Cuda(N_Vector X, sunindextype length, int myid);
 
 /* CUDA vector can use unmanaged or managed memory */
 enum mem_type { UNMANAGED, MANAGED, CUSTOM };
@@ -227,7 +225,10 @@ int main(int argc, char *argv[])
       fails += Test_N_VMake_Cuda(X, length, 0);
     } else if (i==MANAGED) {
       fails += Test_N_VMakeManaged_Cuda(X, length, 0);
+    } else if (i==CUSTOM) {
+      fails += Test_N_VMakeWithManagedAllocator_Cuda(length, 0);
     }
+    fails += Test_N_VSetKernelExecPolicy_Cuda(X, length, 0);
 
     /* Free vectors */
     N_VDestroy(X);
@@ -349,6 +350,16 @@ int Test_N_VMakeManaged_Cuda(N_Vector X, sunindextype length, int myid)
   }
 
   failure += check_ans(NEG_HALF, Y, length);
+  if (failure) {
+    printf(">>> FAILED test -- N_VMakeManaged_Cuda Case 1, Proc %d \n", myid);
+    printf("    Failed N_VConst check \n \n");
+    N_VDestroy(Y);
+    return(1);
+  }
+
+  if (myid == 0) {
+    printf("PASSED test -- N_VMakeManaged_Cuda Case 1\n");
+  }
 
   /* Case 2: data is null */
   Y = N_VMakeManaged_Cuda(length, NULL);
@@ -367,6 +378,102 @@ int Test_N_VMakeManaged_Cuda(N_Vector X, sunindextype length, int myid)
   return(failure);
 }
 
+/* --------------------------------------------------------------------
+ * Test for the CUDA N_Vector N_VMakeWithManagedAllocator_Cuda function.
+ * Requires N_VConst to check data. X must be using managed memory.
+ */
+int Test_N_VMakeWithManagedAllocator_Cuda(sunindextype length, int myid)
+{
+  int failure = 0;
+  N_Vector Y;
+
+  Y = N_VMakeWithManagedAllocator_Cuda(length, sunalloc, sunfree);
+  if (Y == NULL) {
+    printf(">>> FAILED test -- N_VMakeWithManagedAllocator_Cuda, Proc %d \n", myid);
+    printf("    Vector is NULL \n \n");
+    return(1);
+  }
+
+  N_VConst(NEG_HALF, Y);
+
+  if(!N_VIsManagedMemory_Cuda(Y)) {
+    printf(">>> FAILED test -- N_VMakeWithManagedAllocator_Cuda, Proc %d \n", myid);
+    N_VDestroy(Y);
+    return(1);
+  }
+  
+  failure += check_ans(NEG_HALF, Y, length);
+  if (failure) {
+    printf(">>> FAILED test -- N_VMakeWithManagedAllocator_Cuda, Proc %d \n", myid);
+    printf("    Failed N_VConst check \n \n");
+    N_VDestroy(Y);
+    return(1);
+  }
+
+  if (myid == 0) {
+    printf("PASSED test -- N_VMakeWithManagedAllocator_Cuda\n");
+  }
+ 
+  N_VDestroy(Y);
+ 
+  return(failure);
+}
+
+/* --------------------------------------------------------------------
+ * Test for the CUDA N_Vector N_VSetKernelExecPolicy_Cuda function.
+ * Requires N_VConst to check data. X must be using managed memory.
+ */
+int Test_N_VSetKernelExecPolicy_Cuda(N_Vector X, sunindextype length, int myid)
+{
+  int failure = 0;
+  realtype dot = ZERO;
+  cudaStream_t stream; cudaStreamCreate(&stream);
+
+  SUNCudaStreamingExecPolicy stream_exec_policy(64, stream);
+  SUNCudaReductionExecPolicy reduce_exec_policy(64, stream);
+
+  N_Vector Y = N_VClone(X);
+  if (Y == NULL) {
+    printf(">>> FAILED test -- N_VClone, Proc %d \n", myid);
+    printf("    Vector is NULL \n \n");
+    return(1);
+  }
+  
+  N_VSetKernelExecPolicy_Cuda(Y, &stream_exec_policy, &reduce_exec_policy);
+
+  N_VConst(ONE, Y);
+  failure += check_ans(ONE, Y, length);
+  if (failure) {
+    printf(">>> FAILED test -- N_VSetKernelExecPolicy_Cuda Case 1 (streaming), Proc %d \n", myid);
+    printf("    Failed N_VConst check \n \n");
+    N_VDestroy(Y);
+    return(1);
+  }
+
+  if (myid == 0) {
+    printf("PASSED test -- N_VSetKernelExecPolicy_Cuda Case 1 (streaming)\n");
+  }
+
+  dot = N_VDotProd(Y, Y);
+  failure += FNEQ(dot, length);
+  if (failure) {
+    printf(">>> FAILED test -- N_VSetKernelExecPolicy_Cuda Case 2 (reduction), Proc %d \n", myid);
+    printf("    Failed N_VConst check \n \n");
+    N_VDestroy(Y);
+    return(1);
+  }
+
+  if (myid == 0) {
+    printf("PASSED test -- N_VSetKernelExecPolicy_Cuda Case 2 (reduction)\n");
+  }
+
+  cudaStreamDestroy(stream);
+
+  N_VDestroy(Y);
+
+  return(0);
+}
+ 
 
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
@@ -382,7 +489,9 @@ int check_ans(realtype ans, N_Vector X, sunindextype length)
 
   /* check vector data */
   for (i = 0; i < length; i++) {
-    failure += FNEQ(Xdata[i], ans);
+    if (failure += FNEQ(Xdata[i], ans)) {
+      printf("check_ans fail: Xdata[%d] = %f, expected Xdata[%d] = %f\n", i, Xdata[i], i, ans);
+    }
   }
 
   return (failure > ZERO) ? (1) : (0);
@@ -390,8 +499,11 @@ int check_ans(realtype ans, N_Vector X, sunindextype length)
 
 booleantype has_data(N_Vector X)
 {
-  /* check if vector content is non-null */
-  return (X->content == NULL ? SUNFALSE : SUNTRUE);
+  /* check if vector data is non-null */
+  if ((N_VGetHostArrayPointer_Cuda(X) == NULL) &&
+      (N_VGetDeviceArrayPointer_Cuda(X) == NULL))
+    return SUNFALSE;
+  return SUNTRUE;
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)

@@ -220,12 +220,11 @@ functions:
 
    * The ``h_data`` array must be at least ``SUNMatrix_cuSparse_NNZ(A)*sizeof(realtype)``
      bytes.
-
    * The ``h_idxptrs`` array must be at least
-   ``(SUNMatrix_cuSparse_BlockDim(A)+1)*sizeof(int)`` bytes.
-
+      ``(SUNMatrix_cuSparse_BlockDim(A)+1)*sizeof(int)`` bytes.
    * The ``h_idxvals`` array must be at least
-   ``(SUNMatrix_cuSparse_BlockNNZ(A))*sizeof(int)`` bytes.
+      ``(SUNMatrix_cuSparse_BlockNNZ(A))*sizeof(int)`` bytes.
+
 
    The function returns ``SUNMAT_SUCCESS`` if the copy operation(s) were successful,
    or a nonzero error code otherwise.
@@ -241,6 +240,14 @@ functions:
    data is zeroed out, but not the ``indexvalues`` or ``indexpointers`` arrays.
    Providing a value of ``0`` or ``SUNFALSE`` for the ``yesno`` argument is equivalent
    to the default behavior.
+
+.. c:function:: int SUNMatrix\_cuSparse\_SetKernelExecPolicy(SUNMatrix A, SUNCudaExecPolicy* exec_policy)
+
+   This function sets the execution policies which control the kernel parameters
+   utilized when launching the CUDA kernels. By default the matrix is setup to use
+   a policy which tries to leverage the structure of the matrix. See section
+   :ref:`NVectors.CUDA.SUNCudaExecPolicy` for more information about the ``SUNCudaExecPolicy`` class.
+
 
 .. _SUNMatrix_cuSparse.Notes:
 

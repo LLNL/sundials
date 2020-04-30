@@ -25,6 +25,7 @@
 #include <cuda_runtime.h>
 #include <cusparse.h>
 
+#include <sundials/sundials_cuda_policies.hpp>
 #include <sundials/sundials_matrix.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -49,16 +50,17 @@ struct _SUNMatrix_Content_cuSparse {
   int blocknnz;
   int sparse_type;
   booleantype own_data;
+  booleantype own_exec;
   booleantype fixed_pattern;
   int* colind;
   int* rowptrs;
   realtype* data;
   cusparseMatDescr_t mat_descr;
   cusparseHandle_t cusp_handle;
+  SUNCudaExecPolicy* exec_policy;
 };
 
 typedef struct _SUNMatrix_Content_cuSparse *SUNMatrix_Content_cuSparse;
-
 
 /* ------------------------------------------------------------------
  * Constructors.
@@ -88,6 +90,7 @@ SUNDIALS_EXPORT int* SUNMatrix_cuSparse_IndexValues(SUNMatrix A);
 SUNDIALS_EXPORT realtype* SUNMatrix_cuSparse_Data(SUNMatrix A);
 
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, booleantype yesno);
+SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetKernelExecPolicy(SUNMatrix A, SUNCudaExecPolicy* exec_policy);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_NumBlocks(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_BlockRows(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_BlockColumns(SUNMatrix A);

@@ -27,22 +27,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sundials/sundials_nvector.h>
+#include <sundials/sundials_math.h>
+#include "test_nvector.h"
+
 /* POSIX timers */
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 #include <time.h>
 #include <unistd.h>
 #endif
-
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
-#include "test_nvector.h"
-
-/* private functions */
-static double get_time();
-
-/* private variables */
-static int print_time = 0;
 
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
@@ -51,6 +44,12 @@ static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
                                        based.
                                     */
 #endif
+
+/* private functions */
+static double get_time();
+
+/* private variables */
+static int print_time = 0;
 
 /* macro for printing timings */
 #define FMT "%s Time: %22.15e\n\n"

@@ -443,6 +443,35 @@ functions:
 
 %%--------------------------------------
 %%
+\ucfunction{SUNMatrix\_cuSparse\_SetKernelExecPolicy}
+{
+  retval = SUNMatrix\_cuSparse\_SetKernelExecPolicy(A, exec\_policy);
+}
+{
+  This function sets the execution policies which control the kernel parameters
+  utilized when launching the CUDA kernels. By default the matrix is setup to use
+  a policy which tries to leverage the structure of the matrix. See section
+  \ref{ss:suncudaexecpolicy} for more information about the \id{SUNCudaExecPolicy}
+  class.
+}
+{
+  \begin{args}
+    \item[A] (\id{SUNMatrix})
+    \item[exec\_policy] (\id{SUNCudaExecPolicy*})
+  \end{args}
+}
+{
+  \id{SUNMAT\_SUCCESS} if the operation(s) were successful, or a nonzero error
+  code otherwise.
+}
+{
+  All matrices and vector used in a single instance of a {\sundials} solver must
+  use the same {\cuda} stream, and the {\cuda} stream must be set prior to
+  solver initialization.
+}
+
+%%--------------------------------------
+%%
 \ucfunction{SUNMatrix\_cuSparse\_SetFixedPattern}
 {
   retval = SUNMatrix\_cuSparse\_SetFixedPattern(A, yesno)

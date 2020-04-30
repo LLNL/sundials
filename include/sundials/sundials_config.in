@@ -133,3 +133,8 @@
  * Windows), the SUNDIALS_EXPORT macro is empty
  */
 @SUNDIALS_EXPORT@
+
+
+/* Mark SUNDIALS API functions for deprecation.
+ */
+#define SUNDIALS_DEPRECATED SUNDIALS_EXPORT
