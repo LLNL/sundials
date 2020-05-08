@@ -2,10 +2,6 @@
 
 ## Changes to SUNDIALS in release X.X.X
 
-Added the ability to control the CUDA kernel launch parameters for the
-NVECTOR_CUDA and SUNMATRIX_CUSPARSE modules. These modules remain
-experimental and are subject to change from version to version.
-
 Fixed a bug in ARKode where the prototypes for `ERKStepSetMinReduction()` and
 `ARKStepSetMinReduction()` were not included in `arkode_erkstep.h` and
 `arkode_arkstep.h` respectively.
@@ -15,6 +11,14 @@ disabled and then re-enabled to update the inequality constraint values after
 resizing a problem. Resizing a problem will now disable constraints and a call
 to `ARKStepSetConstraints` or `ERKStepSetConstraints` is required to re-enable
 constraint checking for the new problem size.
+
+Fixed a bug in the iterative linear solver modules where an error is not
+returned if the Atimes function is `NULL` or, if preconditioning is enabled, the
+PSolve function is `NULL`.
+
+Added the ability to control the CUDA kernel launch parameters for the
+NVECTOR_CUDA and SUNMATRIX_CUSPARSE modules. These modules remain
+experimental and are subject to change from version to version.
 
 ## Changes to SUNDIALS in release 5.2.0
 

@@ -235,11 +235,21 @@ int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   /* ensure valid options */
   if (content->max_restarts < 0)
     content->max_restarts = SUNSPGMR_MAXRS_DEFAULT;
+
+  if (content->ATimes == NULL) {
+    LASTFLAG(S) = SUNLS_ATIMES_NULL;
+    return(LASTFLAG(S));
+  }
+
   if ( (content->pretype != PREC_LEFT) &&
        (content->pretype != PREC_RIGHT) &&
        (content->pretype != PREC_BOTH) )
     content->pretype = PREC_NONE;
 
+  if ((content->pretype != PREC_NONE) && (content->Psolve == NULL)) {
+    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
+    return(LASTFLAG(S));
+  }
 
   /* allocate solver-specific memory (where the size depends on the
      choice of maxl) here */
@@ -248,7 +258,6 @@ int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->V == NULL) {
     content->V = N_VCloneVectorArray(content->maxl+1, content->vtemp);
     if (content->V == NULL) {
-      SUNLinSolFree(S);
       content->last_flag = SUNLS_MEM_FAIL;
       return(SUNLS_MEM_FAIL);
     }
@@ -258,7 +267,6 @@ int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->Hes == NULL) {
     content->Hes = (realtype **) malloc((content->maxl+1)*sizeof(realtype *));
     if (content->Hes == NULL) {
-      SUNLinSolFree(S);
       content->last_flag = SUNLS_MEM_FAIL;
       return(SUNLS_MEM_FAIL);
     }
@@ -267,7 +275,6 @@ int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
       content->Hes[k] = NULL;
       content->Hes[k] = (realtype *) malloc(content->maxl*sizeof(realtype));
       if (content->Hes[k] == NULL) {
-        SUNLinSolFree(S);
         content->last_flag = SUNLS_MEM_FAIL;
         return(SUNLS_MEM_FAIL);
       }
@@ -278,7 +285,6 @@ int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->givens == NULL) {
     content->givens = (realtype *) malloc(2*content->maxl*sizeof(realtype));
     if (content->givens == NULL) {
-      SUNLinSolFree(S);
       content->last_flag = SUNLS_MEM_FAIL;
       return(SUNLS_MEM_FAIL);
     }
@@ -288,7 +294,6 @@ int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->yg == NULL) {
     content->yg = (realtype *) malloc((content->maxl+1)*sizeof(realtype));
     if (content->yg == NULL) {
-      SUNLinSolFree(S);
       content->last_flag = SUNLS_MEM_FAIL;
       return(SUNLS_MEM_FAIL);
     }
@@ -298,7 +303,6 @@ int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->cv == NULL) {
     content->cv = (realtype *) malloc((content->maxl+1)*sizeof(realtype));
     if (content->cv == NULL) {
-      SUNLinSolFree(S);
       content->last_flag = SUNLS_MEM_FAIL;
       return(SUNLS_MEM_FAIL);
     }
@@ -308,7 +312,6 @@ int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->Xv == NULL) {
     content->Xv = (N_Vector *) malloc((content->maxl+1)*sizeof(N_Vector));
     if (content->Xv == NULL) {
-      SUNLinSolFree(S);
       content->last_flag = SUNLS_MEM_FAIL;
       return(SUNLS_MEM_FAIL);
     }
@@ -435,13 +438,25 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   *nli = 0;
   converged = SUNFALSE;
 
-  /* set booleantype flags for internal solver options */
+  /* Set booleantype flags for internal solver options */
   preOnLeft  = ( (SPGMR_CONTENT(S)->pretype == PREC_LEFT) ||
                  (SPGMR_CONTENT(S)->pretype == PREC_BOTH) );
   preOnRight = ( (SPGMR_CONTENT(S)->pretype == PREC_RIGHT) ||
                  (SPGMR_CONTENT(S)->pretype == PREC_BOTH) );
   scale1 = (s1 != NULL);
   scale2 = (s2 != NULL);
+
+  /* Check if Atimes function has been set */
+  if (atimes == NULL) {
+    LASTFLAG(S) = SUNLS_ATIMES_NULL;
+    return(LASTFLAG(S));
+  }
+
+  /* If preconditioning, check if psolve has been set */
+  if ((preOnLeft || preOnRight) && psolve == NULL) {
+    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
+    return(LASTFLAG(S));
+  }
 
   /* Set vtemp and V[0] to initial (unscaled) residual r_0 = b - A*x_0 */
   if (N_VDotProd(x, x) == ZERO) {

@@ -181,13 +181,15 @@ SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
 #define SUNLS_MEM_NULL           -801   /* mem argument is NULL          */
 #define SUNLS_ILL_INPUT          -802   /* illegal function input        */
 #define SUNLS_MEM_FAIL           -803   /* failed memory access          */
-#define SUNLS_ATIMES_FAIL_UNREC  -804   /* atimes unrecoverable failure  */
-#define SUNLS_PSET_FAIL_UNREC    -805   /* pset unrecoverable failure    */
-#define SUNLS_PSOLVE_FAIL_UNREC  -806   /* psolve unrecoverable failure  */
-#define SUNLS_PACKAGE_FAIL_UNREC -807   /* external package unrec. fail  */
-#define SUNLS_GS_FAIL            -808   /* Gram-Schmidt failure          */
-#define SUNLS_QRSOL_FAIL         -809   /* QRsol found singular R        */
-#define SUNLS_VECTOROP_ERR       -810   /* vector operation error        */
+#define SUNLS_ATIMES_NULL        -804   /* atimes function is NULL       */
+#define SUNLS_ATIMES_FAIL_UNREC  -805   /* atimes unrecoverable failure  */
+#define SUNLS_PSET_FAIL_UNREC    -806   /* pset unrecoverable failure    */
+#define SUNLS_PSOLVE_NULL        -807   /* psolve function is NULL       */
+#define SUNLS_PSOLVE_FAIL_UNREC  -808   /* psolve unrecoverable failure  */
+#define SUNLS_PACKAGE_FAIL_UNREC -809   /* external package unrec. fail  */
+#define SUNLS_GS_FAIL            -810   /* Gram-Schmidt failure          */
+#define SUNLS_QRSOL_FAIL         -811   /* QRsol found singular R        */
+#define SUNLS_VECTOROP_ERR       -812   /* vector operation error        */
 
 #define SUNLS_RES_REDUCED         801   /* nonconv. solve, resid reduced */
 #define SUNLS_CONV_FAIL           802   /* nonconvergent solve           */

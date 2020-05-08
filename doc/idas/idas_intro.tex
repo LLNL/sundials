@@ -87,7 +87,11 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in X.X.X}
+\subsection*{Changes in v4.3.0}
+
+Fixed a bug in the iterative linear solver modules where an error is not
+returned if the Atimes function is \id{NULL} or, if preconditioning is enabled,
+the PSolve function is \id{NULL}.
 
 Added the ability to control the {\cuda} kernel launch parameters for the
 NVECTOR\_CUDA and SUNMATRIX\_CUSPARSE modules. These modules remain

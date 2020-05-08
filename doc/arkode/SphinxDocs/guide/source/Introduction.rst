@@ -107,13 +107,8 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
-Changes in 4.X.X
+Changes in v4.3.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Added the ability to control the CUDA kernel launch parameters for the
-NVECTOR_CUDA and SUNMATRIX_CUSPARSE modules. These modules remain
-experimental and are subject to change from version
-to version.
 
 Fixed a bug in ARKode where the prototypes for :c:func:`ERKStepSetMinReduction()`
 and :c:func:`ARKStepSetMinReduction()` were not included in ``arkode_erkstep.h``
@@ -124,6 +119,15 @@ then re-enabled to update the inequality constraint values after resizing a
 problem. Resizing a problem will now disable constraints and a call to
 :c:func:`ARKStepSetConstraints()` or :c:func:`ERKStepSetConstraints()` is
 required to re-enable constraint checking for the new problem size.
+
+Fixed a bug in the iterative linear solver modules where an error is not
+returned if the Atimes function is ``NULL`` or, if preconditioning is enabled,
+the PSolve function is ``NULL``.
+
+Added the ability to control the CUDA kernel launch parameters for the
+NVECTOR_CUDA and SUNMATRIX_CUSPARSE modules. These modules remain
+experimental and are subject to change from version
+to version.
 
 
 Changes in v4.2.0

@@ -721,28 +721,37 @@ the user in case of a linear solver failure.
 \id{SUNLS\_MEM\_FAIL} & \id{-803} & failed memory access or allocation
 \\[1mm]
 %%
-\id{SUNLS\_ATIMES\_FAIL\_UNREC} & \id{-804} & an unrecoverable failure
+\id{SUNLS\_ATIMES\_NULL} & \id{-804} & the Atimes function is \id{NULL}
+\\[1mm]
+%%
+\id{SUNLS\_ATIMES\_FAIL\_UNREC} & \id{-805} & an unrecoverable failure
   occurred in the \id{ATimes} routine
 \\[1mm]
 %%
-\id{SUNLS\_PSET\_FAIL\_UNREC} & \id{-805} & an unrecoverable failure
+\id{SUNLS\_PSET\_FAIL\_UNREC} & \id{-806} & an unrecoverable failure
   occurred in the \id{Pset} routine
 \\[1mm]
 %%
-\id{SUNLS\_PSOLVE\_FAIL\_UNREC} & \id{-806} & an unrecoverable failure
+\id{SUNLS\_PSOLVE\_NULL} & \id{-807} & the preconditioner solve function is \id{NULL}
+\\[1mm]
+%%
+\id{SUNLS\_PSOLVE\_FAIL\_UNREC} & \id{-808} & an unrecoverable failure
   occurred in the \id{Psolve} routine
 \\[1mm]
 %%
-\id{SUNLS\_PACKAGE\_FAIL\_UNREC} & \id{-807} & an unrecoverable failure
+\id{SUNLS\_PACKAGE\_FAIL\_UNREC} & \id{-809} & an unrecoverable failure
   occurred in an external linear solver package
 \\[1mm]
 %%
-\id{SUNLS\_GS\_FAIL} & \id{-808} & a failure occurred during
+\id{SUNLS\_GS\_FAIL} & \id{-810} & a failure occurred during
   Gram-Schmidt orthogonalization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
 \\[1mm]
 %%
-\id{SUNLS\_QRSOL\_FAIL} & \id{-809} & a singular $R$ matrix was
+\id{SUNLS\_QRSOL\_FAIL} & \id{-811} & a singular $R$ matrix was
   encountered in a QR factorization ({\sunlinsolspgmr}/{\sunlinsolspfgmr})
+\\[1mm]
+%%
+\id{SUNLS\_VECTOROP\_ERR} & \id{-812} & a vector operation error occurred
 \\[1mm]
 %%
 \id{SUNLS\_RES\_REDUCED} & \id{801} &  an iterative solver reduced the

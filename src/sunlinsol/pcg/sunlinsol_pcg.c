@@ -197,12 +197,24 @@ int SUNLinSolInitialize_PCG(SUNLinearSolver S)
 {
   /* ensure valid options */
   if (S == NULL) return(SUNLS_MEM_NULL);
+
+  if (PCG_CONTENT(S)->maxl <= 0)
+    PCG_CONTENT(S)->maxl = SUNPCG_MAXL_DEFAULT;
+
+  if (PCG_CONTENT(S)->ATimes == NULL) {
+    LASTFLAG(S) = SUNLS_ATIMES_NULL;
+    return(LASTFLAG(S));
+  }
+
   if ( (PRETYPE(S) != PREC_LEFT) &&
        (PRETYPE(S) != PREC_RIGHT) &&
        (PRETYPE(S) != PREC_BOTH) )
     PRETYPE(S) = PREC_NONE;
-  if (PCG_CONTENT(S)->maxl <= 0)
-    PCG_CONTENT(S)->maxl = SUNPCG_MAXL_DEFAULT;
+
+  if ((PRETYPE(S) != PREC_NONE) && (PCG_CONTENT(S)->Psolve == NULL)) {
+    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
+    return(LASTFLAG(S));
+  }
 
   /* no additional memory to allocate */
 
@@ -318,6 +330,18 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
               (pretype == PREC_LEFT) ||
               (pretype == PREC_RIGHT) );
   UseScaling = (w != NULL);
+
+  /* Check if Atimes function has been set */
+  if (atimes == NULL) {
+    LASTFLAG(S) = SUNLS_ATIMES_NULL;
+    return(LASTFLAG(S));
+  }
+
+  /* If preconditioning, check if psolve has been set */
+  if (UsePrec && psolve == NULL) {
+    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
+    return(LASTFLAG(S));
+  }
 
   /* Set r to initial residual r_0 = b - A*x_0 */
   if (N_VDotProd(x, x) == ZERO)  N_VScale(ONE, b, r);

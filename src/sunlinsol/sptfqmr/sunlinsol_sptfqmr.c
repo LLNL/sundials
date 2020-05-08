@@ -233,12 +233,23 @@ int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S)
   content = SPTFQMR_CONTENT(S);
 
   /* ensure valid options */
+  if (content->maxl <= 0)
+    content->maxl = SUNSPTFQMR_MAXL_DEFAULT;
+
+  if (content->ATimes == NULL) {
+    LASTFLAG(S) = SUNLS_ATIMES_NULL;
+    return(LASTFLAG(S));
+  }
+
   if ( (content->pretype != PREC_LEFT) &&
        (content->pretype != PREC_RIGHT) &&
        (content->pretype != PREC_BOTH) )
     content->pretype = PREC_NONE;
-  if (content->maxl <= 0)
-    content->maxl = SUNSPTFQMR_MAXL_DEFAULT;
+
+  if ((content->pretype != PREC_NONE) && (content->Psolve == NULL)) {
+    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
+    return(LASTFLAG(S));
+  }
 
   /* no additional memory to allocate */
 
@@ -373,6 +384,18 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                  (SPTFQMR_CONTENT(S)->pretype == PREC_BOTH) );
   scale_x = (sx != NULL);
   scale_b = (sb != NULL);
+
+  /* Check if Atimes function has been set */
+  if (atimes == NULL) {
+    LASTFLAG(S) = SUNLS_ATIMES_NULL;
+    return(LASTFLAG(S));
+  }
+
+  /* If preconditioning, check if psolve has been set */
+  if ((preOnLeft || preOnRight) && psolve == NULL) {
+    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
+    return(LASTFLAG(S));
+  }
 
   /* Set r_star to initial (unscaled) residual r_star = r_0 = b - A*x_0 */
   /* NOTE: if x == 0 then just set residual to b and continue */
