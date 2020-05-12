@@ -430,6 +430,7 @@ time cmake \
     \
     -D CMAKE_C_FLAGS="${CFLAGS} ${CSTD}" \
     -D CMAKE_CXX_FLAGS="${CXXFLAGS} ${CXXSTD}" \
+    -D CMAKE_CUDA_FLAGS="${CUDAFLAGS}" \
     -D CMAKE_Fortran_FLAGS="${FFLAGS}" \
     \
     -D OPENMP_ENABLE="${OPENMP_STATUS}" \

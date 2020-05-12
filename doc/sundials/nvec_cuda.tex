@@ -160,15 +160,17 @@ The module {\nveccuda} also provides the following user-callable routines:
 {
   This function sets the execution policies which control the kernel parameters
   utilized when launching the streaming and reduction CUDA kernels. By default
-  the vector is setup to use the \id{SUNCudaStreamingExecPolicy} and 
-  \id{SUNCudaReduceExecPolicy}. Any custom execution policy must ensure that
-  the total number of threads (i.e. the grid size multiplied by the block size)
-  is at least equal to the vector length. See section \ref{ss:suncudaexecpolicy}
-  below for more information about the \id{SUNCudaExecPolicy} class.
+  the vector is setup to use the \id{SUNCudaThreadDirectExecPolicy} and 
+  \id{SUNCudaBlockReduceExecPolicy}. Any custom execution policy for reductions
+  must ensure that the grid dimensions (number of thread blocks) is a multiple of
+  the CUDA warp size (32). See section \ref{ss:suncudaexecpolicy} below for more
+  information about the \id{SUNCudaExecPolicy} class.
 
   \textit{Note: All vectors used in a single instance of a {\sundials} solver must
-  use the same {\cuda} stream, and the {\cuda} stream must be set prior to
-  solver initialization.}
+  use the same execution policy. It is \textbf{strongly recommended} that
+  this function is called immediately after constructing the vector, and
+  any subsequent vector be created by cloning to ensure consistent execution
+  policies across vectors.}
 }
 {
   void N\_VSetKernelExecPolicy\_Cuda(N\_Vector v, 
@@ -178,15 +180,17 @@ The module {\nveccuda} also provides the following user-callable routines:
 %%--------------------------------------
 \sunmodfun{N\_VSetCudaStream\_Cuda}
 {
-  \textbf{DEPRECATED:} This function will be removed in the next major release,
+  \textbf{DEPRECATED} This function will be removed in the next major release,
   user should utilize the \id{N\_VSetKernelExecPolicy\_Cuda} function instead.
 
   This function sets the {\cuda} stream that all vector kernels will be launched on.
   By default an {\nveccuda} uses the default {\cuda} stream.\\
 
-  \textit{Note: All vectors used in a single instance of a SUNDIALS solver must
-  use the same {\cuda} stream, and the {\cuda} stream must be set prior to
-  solver initialization.}
+  \textit{Note: All vectors used in a single instance of a {\sundials} solver must
+  use the same {\cuda} stream. It is \textbf{strongly recommended} that
+  this function is called immediately after constructing the vector, and
+  any subsequent vector be created by cloning to ensure consistent execution
+  policies across vectors.}
 }
 {
   void N\_VSetCudaStream\_Cuda(N\_Vector v, cudaStream\_t *stream)
@@ -388,39 +392,38 @@ and is as follows:
 class CudaExecPolicy
 {
 public:
-  virtual size_t gridSize(size_t numWorkElements = 0, size_t blockDim = 0) const = 0;
-  virtual size_t blockSize(size_t numWorkElements = 0, size_t gridDim = 0) const = 0; 
+  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
+  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0; 
   virtual cudaStream_t stream() const = 0;
   virtual CudaExecPolicy* clone() const = 0;
+  virtual ~CudaExecPolicy() {}
 };
 \end{verbatim}
 
 To define a custom execution policy, a user simply needs to create a class that inherits from
-the abstract class and implements the methods. The {\sundials} provided \id{sundials::CudaStreamingExecPolicy}
-class is a good example:
+the abstract class and implements the methods. The {\sundials} provided
+\id{sundials::CudaThreadDirectExecPolicy} (aka in the global namespace as
+\id{SUNCudaThreadDirectExecPolicy}) class is a good example of a what a custom execution policy
+may look like:
 
 \begin{verbatim}
-class CudaStreamingExecPolicy : public CudaExecPolicy
+class CudaThreadDirectExecPolicy : public CudaExecPolicy
 {
 public:
-  CudaStreamingExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
+  CudaThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
     : blockDim_(blockDim), stream_(stream)
   {}
 
-  CudaStreamingExecPolicy(const CudaStreamingExecPolicy& ex)
+  CudaThreadDirectExecPolicy(const CudaThreadDirectExecPolicy& ex)
     : blockDim_(ex.blockDim_), stream_(ex.stream_)
   {} 
 
-  virtual size_t gridSize(size_t numWorkElements = 0, size_t blockDim = 0) const
+  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
   {
-    if (numWorkElements == 0)
-    {
-      return 0;
-    }
-    return (numWorkElements + blockSize() - 1) / blockSize();
+    return (numWorkUnits + blockSize() - 1) / blockSize();
   }
 
-  virtual size_t blockSize(size_t numWorkElements = 0, size_t gridDim = 0) const
+  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
   {
     return blockDim_;
   }
@@ -432,7 +435,7 @@ public:
 
   virtual CudaExecPolicy* clone() const
   {
-    return static_cast<CudaExecPolicy*>(new CudaStreamingExecPolicy(*this));
+    return static_cast<CudaExecPolicy*>(new CudaThreadDirectExecPolicy(*this));
   }
 
 private:
@@ -441,18 +444,34 @@ private:
 };
 \end{verbatim}
 
-A user can also utilize the provided \id{sundials::CudaStreamingExecPolicy}
-(aka globally \id{SUNCudaStreamingExecPolicy}) and \id{sundials::CudaReduceExecPolicy},
-(aka globally \id{SUNCudaReduceExecPolicy}) which allow the the user to set the block size
-(threads per block) and a cuda stream only. These policies than compute the grid size so
-that there are enough threads to have one per each work element. For example, a policy that
-uses 128 threads per block and a user provided stream can be created like so:
+In total, {\sundials} provides 3 execution policies:
+
+\begin{enumerate}
+  \item \id{SUNCudaThreadDirectExecPolicy(const size\_t blockDim, const cudaStream\_t stream = 0)}
+    maps each CUDA thread to a work unit. The number of threads per block (blockDim) can be set
+    to anything. The grid size will be calculated so that there are enough threads for one
+    thread per element. If a CUDA stream is provided, it will be used to execute the kernel.
+
+  \item \id{SUNCudaGridStrideExecPolicy(const size\_t blockDim, const size\_t gridDim, const cudaStream\_t stream = 0)}
+    is for kernels that use grid stride loops. The number of threads per block (blockDim)
+    can be set to anything. The number of blocks (gridDim) can be set to anything. If a
+    CUDA stream is provided, it will be used to execute the kernel.
+
+  \item \id{SUNCudaBlockReduceExecPolicy(const size\_t blockDim, const size\_t gridDim, const cudaStream\_t stream = 0)}
+    is for kernels performing a reduction across individual thread blocks. The number of threads
+    per block (blockDim) can be set to any valid multiple of the CUDA warp size. The grid size
+    (gridDim) can be set to any value greater than 0. If it is set to 0, then the grid size
+    will be chosen so that there is enough threads for one thread per work unit. If a
+    CUDA stream is provided, it will be used to execute the kernel.
+\end{enumerate}
+
+For example, a policy that uses 128 threads per block and a user provided stream can be
+created like so:
 
 \begin{verbatim}
   cudaStream_t stream;
   cudaStreamCreate(&stream);
-  SUNCudaStreamingExecPolicy stream_exec_policy(128, stream);
-  SUNCudaReduceExecPolicy reduce_exec_policy(128, stream);
+  SUNCudaThreadDirectExecPolicy thread_direct(128, stream);
 \end{verbatim}
 
 These default policy objects can be reused for multiple {\sundials} data structures

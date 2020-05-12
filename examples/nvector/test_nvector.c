@@ -1671,7 +1671,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   int          fails = 0, failure = 0;
   double       start_time, stop_time, maxt;
   sunindextype i;
-  booleantype  test;
+  booleantype  ans, exp;
 
   if (local_length < 2) {
     printf("Error Test_N_VInvTest: Local vector length is %ld, length must be >= 2\n",
@@ -1688,14 +1688,17 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   N_VConst(ZERO, Z);
 
   start_time = get_time();
-  test = N_VInvTest(X, Z);
+  ans = N_VInvTest(X, Z);
   sync_device();
   stop_time = get_time();
+
+  /* we expect no zeros */
+  exp = SUNTRUE;
 
   /* Z should be vector of +2 */
   failure = check_ans(TWO, Z, local_length);
 
-  if (failure || !test) {
+  if (failure || (ans != exp)) {
     printf(">>> FAILED test -- N_VInvTest Case 1, Proc %d \n", myid);
     fails++;
   } else if (myid == 0) {
@@ -1716,14 +1719,16 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   /* fill vector data */
   N_VConst(ZERO, Z);
   for(i=0; i < local_length; i++){
-    if (i % 2)
+    if (i % 2) {
       set_element(X, i, HALF);
-    else
+    } else {
+      exp = SUNFALSE;
       set_element(X, i, ZERO);
+    }
   }
 
   start_time = get_time();
-  test = N_VInvTest(X, Z);
+  ans = N_VInvTest(X, Z);
   sync_device();
   stop_time = get_time();
 
@@ -1738,7 +1743,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
     }
   }
 
-  if (failure || test) {
+  if (failure || (ans != exp)) {
     printf(">>> FAILED test -- N_VInvTest Case 2, Proc %d \n", myid);
     fails++;
   } else if (myid == 0) {

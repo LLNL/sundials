@@ -125,10 +125,13 @@ returned if the Atimes function is ``NULL`` or, if preconditioning is enabled,
 the PSolve function is ``NULL``.
 
 Added the ability to control the CUDA kernel launch parameters for the
-NVECTOR_CUDA and SUNMATRIX_CUSPARSE modules. These modules remain
-experimental and are subject to change from version
-to version.
-
+``NVECTOR_CUDA`` and ``SUNMATRIX_CUSPARSE`` modules. These modules remain
+experimental and are subject to change from version to version.
+In addition, the ``NVECTOR_CUDA`` kernels were rewritten to be more flexible.
+Most users should see equivalent performance or some improvement, but a select
+few may observe minor performance degradation with the default settings. Users
+are encouraged to contact the SUNDIALS team about any perfomance changes
+that they notice.
 
 Changes in v4.2.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

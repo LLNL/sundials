@@ -136,6 +136,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c               
 $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c             || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_futils.c                          || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_cuda.h                            || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_cuda_kernels.cuh                  || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_debug.h                           || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/CMakeLists.txt                        || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.{c,f90}    || exit 1

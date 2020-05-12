@@ -415,6 +415,7 @@ time cmake \
     -D CMAKE_Fortran_COMPILER=$FC \
     \
     -D CMAKE_C_FLAGS="${CFLAGS} ${CSTD}" \
+    -D CMAKE_CUDA_FLAGS="${CUDAFLAGS}" \
     -D CMAKE_CXX_FLAGS="${CXXFLAGS} ${CXXSTD}" \
     -D CMAKE_Fortran_FLAGS="${FFLAGS}" \
     \

@@ -131,10 +131,12 @@ if [ "$bldtype" == "dbg" ]; then
     export CFLAGS="-g -O0"
     export CXXFLAGS="-g -O0"
     export FFLAGS="-g -O0"
+    export CUDAFLAGS="-g -O0"
 else
     export CFLAGS="-g -O3"
     export CXXFLAGS="-g -O3"
     export FFLAGS="-g -O3"
+    export CUDAFLAGS="-g -O3"
 fi
 
 # append additional compiler flags

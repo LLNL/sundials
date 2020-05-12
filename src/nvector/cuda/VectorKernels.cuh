@@ -14,12 +14,15 @@
  * -----------------------------------------------------------------
  */
 
-
-#ifndef _VECTOR_KERNELS_CUH_
-#define _VECTOR_KERNELS_CUH_
+#ifndef _NVECTOR_CUDA_KERNELS_CUH_
+#define _NVECTOR_CUDA_KERNELS_CUH_
 
 #include <limits>
 #include <cuda_runtime.h>
+
+#include "sundials_cuda_kernels.cuh"
+
+using namespace sundials::cuda;
 
 namespace sundials
 {
@@ -44,9 +47,7 @@ template <typename T, typename I>
 __global__ void
 setConstKernel(T a, T *X, I n)
 {
-  I i = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (i < n)
+  GRID_STRIDE_XLOOP(I, i, n)
   {
     X[i] = a;
   }
@@ -62,9 +63,7 @@ template <typename T, typename I>
 __global__ void
 linearSumKernel(T a, const T *X, T b, const T *Y, T *Z, I n)
 {
-  I i = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (i < n)
+  GRID_STRIDE_XLOOP(I, i, n)
   {
     Z[i] = a*X[i] + b*Y[i];
   }
@@ -80,9 +79,7 @@ template <typename T, typename I>
 __global__ void
 prodKernel(const T *X, const T *Y, T *Z, I n)
 {
-  I i = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (i < n)
+  GRID_STRIDE_XLOOP(I, i, n)
   {
     Z[i] = X[i]*Y[i];
   }
@@ -98,9 +95,7 @@ template <typename T, typename I>
 __global__ void
 divKernel(const T *X, const T *Y, T *Z, I n)
 {
-  I i = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (i < n)
+  GRID_STRIDE_XLOOP(I, i, n)
   {
     Z[i] = X[i]/Y[i];
   }
@@ -116,9 +111,7 @@ template <typename T, typename I>
 __global__ void
 scaleKernel(T a, const T *X, T *Z, I n)
 {
-  I i = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (i < n)
+  GRID_STRIDE_XLOOP(I, i, n)
   {
     Z[i] = a*X[i];
   }
@@ -134,9 +127,7 @@ template <typename T, typename I>
 __global__ void
 absKernel(const T *X, T *Z, I n)
 {
-  I i = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (i < n)
+  GRID_STRIDE_XLOOP(I, i, n)
   {
     Z[i] = abs(X[i]);
   }
@@ -152,9 +143,7 @@ template <typename T, typename I>
 __global__ void
 invKernel(const T *X, T *Z, I n)
 {
-  I i = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (i < n)
+  GRID_STRIDE_XLOOP(I, i, n)
   {
     Z[i] = 1.0/(X[i]);
   }
@@ -170,9 +159,7 @@ template <typename T, typename I>
 __global__ void
 addConstKernel(T a, const T *X, T *Z, I n)
 {
-  I i = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (i < n)
+  GRID_STRIDE_XLOOP(I, i, n)
   {
     Z[i] = a + X[i];
   }
@@ -188,50 +175,10 @@ template <typename T, typename I>
 __global__ void
 compareKernel(T c, const T *X, T *Z, I n)
 {
-  I i = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (i < n)
+  GRID_STRIDE_XLOOP(I, i, n)
   {
     Z[i] = (abs(X[i]) >= c) ? 1.0 : 0.0;
   }
-}
-
-
-/*
- * Sums all elements of the vector.
- *
- */
-template <typename T, typename I>
-__global__ void
-sumReduceKernel(const T *x, T *out, I n)
-{
-  extern __shared__ T shmem[];
-
-  I tid = threadIdx.x;
-  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
-  T sum = 0.0;
-
-  // First reduction step before storing data in shared memory.
-  if (i < n)
-    sum = x[i];
-  if (i + blockDim.x < n)
-    sum += x[i+blockDim.x];
-  shmem[tid] = sum;
-  __syncthreads();
-
-  // Perform reduction block-wise in shared memory.
-  for (I j = blockDim.x/2; j > 0; j >>= 1) {
-    if (tid < j) {
-      sum += shmem[tid + j];
-      shmem[tid] = sum;
-    }
-    __syncthreads();
-  }
-
-  // Copy reduction result for each block to global memory
-  if (tid == 0)
-    out[blockIdx.x] = sum;
 }
 
 
@@ -243,33 +190,15 @@ template <typename T, typename I>
 __global__ void
 dotProdKernel(const T *x, const T *y, T *out, I n)
 {
-  extern __shared__ T shmem[];
-
-  I tid = threadIdx.x;
-  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
   T sum = 0.0;
-
-  // First reduction step before storing data in shared memory.
-  if (i < n)
-    sum = x[i] * y[i];
-  if (i + blockDim.x < n)
-    sum += ( x[i+blockDim.x] * y[i+blockDim.x]);
-  shmem[tid] = sum;
-  __syncthreads();
-
-  // Perform blockwise reduction in shared memory
-  for (I j = blockDim.x/2; j > 0; j >>= 1) {
-    if (tid < j) {
-      sum += shmem[tid + j];
-      shmem[tid] = sum;
-    }
-    __syncthreads();
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    sum += x[i] * y[i];
   }
+  sum = blockReduce<T, RSUM>(sum, 0.0);
 
   // Copy reduction result for each block to global memory
-  if (tid == 0)
-    out[blockIdx.x] = sum;
+  if (threadIdx.x == 0) atomicAdd(out, sum);
 }
 
 
@@ -281,33 +210,15 @@ template <typename T, typename I>
 __global__ void
 maxNormKernel(const T *x, T *out, I n)
 {
-  extern __shared__ T shmem[];
-
-  I tid = threadIdx.x;
-  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
   T maximum = 0.0;
-
-  // First reduction step before storing data in shared memory.
-  if (i < n)
-    maximum = abs(x[i]);
-  if (i + blockDim.x < n)
-    maximum = max(abs(x[i+blockDim.x]), maximum);
-  shmem[tid] = maximum;
-  __syncthreads();
-
-  // Perform reduction block-wise in shared memory.
-  for (I j = blockDim.x/2; j > 0; j >>= 1) {
-    if (tid < j) {
-      maximum = max(shmem[tid + j], maximum);
-      shmem[tid] = maximum;
-    }
-    __syncthreads();
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    maximum = max(abs(x[i]), maximum);
   }
+  maximum = blockReduce<T, RMAX>(maximum, 0.0); 
 
-  // Copy reduction result for each block to global memory
-  if (tid == 0)
-    out[blockIdx.x] = maximum;
+  // Maximum of reduction result for each block
+  if (threadIdx.x == 0) AtomicMax(out, maximum);
 }
 
 
@@ -319,35 +230,15 @@ template <typename T, typename I>
 __global__ void
 wL2NormSquareKernel(const T *x, const T *w, T *out, I n)
 {
-  extern __shared__ T shmem[];
-
-  I tid = threadIdx.x;
-  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
   T sum = 0.0;
-
-  // First reduction step before storing data in shared memory.
-  if (i < n)
-    sum = x[i] * w[i] * x[i] * w[i];
-  if (i + blockDim.x < n)
-    sum += ( x[i+blockDim.x] * w[i+blockDim.x] * x[i+blockDim.x] * w[i+blockDim.x] );
-
-  shmem[tid] = sum;
-  __syncthreads();
-
-  // Perform reduction block-wise in shared memory.
-  for (I j = blockDim.x/2; j > 0; j >>= 1)
+  GRID_STRIDE_XLOOP(I, i, n)
   {
-    if (tid < j) {
-      sum += shmem[tid + j];
-      shmem[tid] = sum;
-    }
-    __syncthreads();
+    sum += x[i] * w[i] * x[i] * w[i];
   }
+  sum = blockReduce<T, RSUM>(sum, 0.0); 
 
   // Copy reduction result for each block to global memory
-  if (tid == 0)
-    out[blockIdx.x] = sum;
+  if (threadIdx.x == 0) atomicAdd(out, sum);
 }
 
 /*
@@ -358,34 +249,17 @@ template <typename T, typename I>
 __global__ void
 wL2NormSquareMaskKernel(const T *x, const T *w, const T *id, T *out, I n)
 {
-  extern __shared__ T shmem[];
-
-  I tid = threadIdx.x;
-  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
   T sum = 0.0;
-
-  // First reduction step before storing data in shared memory.
-  if (i < n && id[i] > 0.0)
-    sum = x[i] * w[i] * x[i] * w[i];
-  if ((i + blockDim.x < n) && (id[i+blockDim.x] > 0.0))
-    sum += ( x[i+blockDim.x] * w[i+blockDim.x] * x[i+blockDim.x] * w[i+blockDim.x]);
-  shmem[tid] = sum;
-  __syncthreads();
-
-  // Perform reduction block-wise in shared memory.
-  for (I j = blockDim.x/2; j > 0; j >>= 1) {
-    if (tid < j) {
-      sum += shmem[tid + j];
-      shmem[tid] = sum;
-    }
-    __syncthreads();
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    if(id[i] > 0.0) sum += x[i] * w[i] * x[i] * w[i];
   }
+  sum = blockReduce<T, RSUM>(sum, 0.0); 
 
   // Copy reduction result for each block to global memory
-  if (tid == 0)
-    out[blockIdx.x] = sum;
+  if (threadIdx.x == 0) atomicAdd(out, sum);
 }
+
 
 /*
  * Finds min value in the vector.
@@ -395,33 +269,15 @@ template <typename T, typename I>
 __global__ void
 findMinKernel(T MAX_VAL, const T *x, T *out, I n)
 {
-  extern __shared__ T shmem[];
-
-  I tid = threadIdx.x;
-  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
   T minimum = MAX_VAL;
-
-  // First reduction step before storing data in shared memory.
-  if (i < n)
-    minimum = x[i];
-  if (i + blockDim.x < n)
-    minimum = min((x[i+blockDim.x]), minimum);
-  shmem[tid] = minimum;
-  __syncthreads();
-
-  // Perform reduction block-wise in shared memory.
-  for (I j = blockDim.x/2; j > 0; j >>= 1) {
-    if (tid < j) {
-      minimum = min(shmem[tid + j], minimum);
-      shmem[tid] = minimum;
-    }
-    __syncthreads();
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    minimum = min(x[i], minimum);
   }
+  minimum = blockReduce<T, RMIN>(minimum, MAX_VAL); 
 
-  // Copy reduction result for each block to global memory
-  if (tid == 0)
-    out[blockIdx.x] = minimum;
+  // minimum of reduction result for each block
+  if (threadIdx.x == 0) AtomicMin(out, minimum);
 }
 
 
@@ -433,33 +289,15 @@ template <typename T, typename I>
 __global__ void
 L1NormKernel(const T *x, T *out, I n)
 {
-  extern __shared__ T shmem[];
-
-  I tid = threadIdx.x;
-  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
   T sum = 0.0;
-
-  // First reduction step before storing data in shared memory.
-  if (i < n)
-    sum = abs(x[i]);
-  if (i + blockDim.x < n)
-    sum += abs(x[i+blockDim.x]);
-  shmem[tid] = sum;
-  __syncthreads();
-
-  // Perform reduction block-wise in shared memory.
-  for (I j = blockDim.x/2; j > 0; j >>= 1) {
-    if (tid < j) {
-      sum += shmem[tid + j];
-      shmem[tid] = sum;
-    }
-    __syncthreads();
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    sum += abs(x[i]);
   }
+  sum = blockReduce<T, RSUM>(sum, 0.0); 
 
   // Copy reduction result for each block to global memory
-  if (tid == 0)
-    out[blockIdx.x] = sum;
+  if (threadIdx.x == 0) atomicAdd(out, sum);
 }
 
 /*
@@ -471,48 +309,20 @@ template <typename T, typename I>
 __global__ void
 invTestKernel(const T *x, T *z, T *out, I n)
 {
-  extern __shared__ T shmem[];
-
-  I tid = threadIdx.x;
-  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
   T flag = 0.0;
-
-  // First reduction step before storing data in shared memory.
-  if (i < n) {
-    if (x[i] == 0.0) {
-      flag = 1.0;
-    } else {
-      flag = 0.0;
-      z[i] = 1.0/x[i];
-    }
-  }
-
-  if (i + blockDim.x < n) {
-    if (x[i + blockDim.x] == 0.0) {
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    if (x[i] == static_cast<T>(0.0))
       flag += 1.0;
-    } else {
-      z[i + blockDim.x] = 1.0/x[i + blockDim.x];
-    }
+    else
+      z[i] = 1.0/x[i];
   }
-
-  shmem[tid] = flag;
-  __syncthreads();
-
-  // Inverse calculation is done. Perform reduction block-wise in shared
-  // to find if any x[i] = 0.
-  for (I j = blockDim.x/2; j > 0; j >>= 1) {
-    if (tid < j) {
-      flag += shmem[tid + j];
-      shmem[tid] = flag;
-    }
-    __syncthreads();
-  }
+  flag = blockReduce<T, RSUM>(flag, 0.0); 
 
   // Copy reduction result for each block to global memory
-  if (tid == 0)
-    out[blockIdx.x] = flag;
+  if (threadIdx.x == 0) atomicAdd(out, flag);
 }
+
 
 /*
  * Checks if inequality constraints are satisfied. Constraint check
@@ -525,46 +335,21 @@ template <typename T, typename I>
 __global__ void
 constrMaskKernel(const T *c, const T *x, T *m, T *out, I n)
 {
-  extern __shared__ T shmem[];
-
-  I tid = threadIdx.x;
-  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
   T sum = 0.0;
-
-  // First reduction step before storing data in shared memory.
-  if (i < n){
-    // test1 = true if constraints violated
-    bool test1 = (std::abs(c[i]) > 1.5 && c[i]*x[i] <= 0.0) ||
-                 (std::abs(c[i]) > 0.5 && c[i]*x[i] <  0.0);
-    m[i] = test1 ? 1.0 : 0.0;
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    // test = true if constraints violated
+    bool test = (std::abs(c[i]) > 1.5 && c[i]*x[i] <= 0.0) ||
+                (std::abs(c[i]) > 0.5 && c[i]*x[i] <  0.0);
+    m[i] = test ? 1.0 : 0.0;
     sum = m[i];
   }
-
-  if (i + blockDim.x < n) {
-    // test2 = true if constraints violated
-    bool test2 = (std::abs(c[i + blockDim.x]) > 1.5 && c[i + blockDim.x]*x[i + blockDim.x] <= 0.0) ||
-                 (std::abs(c[i + blockDim.x]) > 0.5 && c[i + blockDim.x]*x[i + blockDim.x] <  0.0);
-    m[i+blockDim.x] = test2 ? 1.0 : 0.0;
-    sum += m[i+blockDim.x];
-  }
-
-  shmem[tid] = sum;
-  __syncthreads();
-
-  // Perform reduction block-wise in shared memory.
-  for (I j = blockDim.x/2; j > 0; j >>= 1) {
-    if (tid < j) {
-      sum += shmem[tid + j];
-      shmem[tid] = sum;
-    }
-    __syncthreads();
-  }
+  sum = blockReduce<T, RSUM>(sum, 0.0); 
 
   // Copy reduction result for each block to global memory
-  if (tid == 0)
-    out[blockIdx.x] = sum;
+  if (threadIdx.x == 0) atomicAdd(out, sum);
 }
+
 
 /*
  * Finds minimum component-wise quotient.
@@ -574,42 +359,20 @@ template <typename T, typename I>
 __global__ void
 minQuotientKernel(const T MAX_VAL, const T *num, const T *den, T *min_quotient, I n)
 {
-  extern __shared__ T shmem[];
-
-  I tid = threadIdx.x;
-  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
-  // Initialize "minimum" to maximum floating point value.
   T minimum = MAX_VAL;
-  const T zero = static_cast<T>(0.0);
-
-  // Load vector quotient in the shared memory. Skip if the denominator
-  // value is zero.
-  if (i < n && den[i] != zero)
-    minimum = num[i]/den[i];
-
-  // First level of reduction is upon storing values to shared memory.
-  if (i + blockDim.x < n && den[i + blockDim.x] != zero)
-    minimum = min(num[i+blockDim.x]/den[i+blockDim.x], minimum);
-
-  shmem[tid] = minimum;
-  __syncthreads();
-
-  // Perform reduction block-wise in shared memory.
-  for (I j = blockDim.x/2; j > 0; j >>= 1) {
-    if (tid < j) {
-      minimum = min(shmem[tid + j], minimum);
-      shmem[tid] = minimum;
-    }
-    __syncthreads();
+  T quotient = 0.0;
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    quotient = (den[i] == static_cast<T>(0.0)) ? MAX_VAL : num[i]/den[i];
+    minimum = min(quotient, minimum);
   }
+  minimum = blockReduce<T, RMIN>(minimum, MAX_VAL); 
 
-  // Copy reduction result for each block to global memory
-  if (tid == 0)
-    min_quotient[blockIdx.x] = minimum;
+  // minimum of reduction result for each block
+  if (threadIdx.x == 0) AtomicMin(min_quotient, minimum);
 }
 
 } // namespace nvector_cuda
 } // namespace sundials
 
-#endif // _VECTOR_KERNELS_CUH_
+#endif // _NVECTOR_CUDA_KERNELS_CUH_
