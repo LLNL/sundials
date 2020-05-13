@@ -13,6 +13,9 @@ The sample programs described in the companion document \cite{cvodes_ex}
 may also be helpful.  Those codes may be used as templates (with the removal
 of some lines used in testing) and are included in the {\cvodes} package.
 
+Users with applications written in {\F} should see Chapter \ref{s:cvfort},
+which describes interfacing with {\cvodes} from {\F}.
+
 The user should be aware that not all {\sunlinsol} and {\sunmatrix}
 modules are compatible with all {\nvector} implementations.
 \index{CVODES@{\cvodes} linear solvers!NVECTOR@{\nvector} compatibility}
@@ -1276,6 +1279,7 @@ Jacobian function & \id{CVodeSetJacFn} & DQ\\
 Linear System function & \id{CVodeSetLinSysFn} & internal\\
 Enable or disable linear solution scaling & \id{CVodeSetLinearSolutionScaling} & on\\
 Jacobian-times-vector functions & \id{CVodeSetJacTimes} & NULL, DQ \\
+Jacobian-times-vector DQ RHS function & \id{CVodeSetJacTimesRhsFn} & NULL \\
 Preconditioner functions & \id{CVodeSetPreconditioner} & NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{CVodeSetEpsLin} & 0.05 \\
 \hline
@@ -1798,42 +1802,6 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
   The default value is $0.1$.
 }
 %%
-\ucfunctionf{CVodeSetIterType}
-{
-flag = CVodeSetIterType(cvode\_mem, iter);
-}
-{
-  The function \ID{CVodeSetIterType} resets the nonlinear solver
-  iteration type to \Id{iter}.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[iter] (\id{int})
-    specifies the type of nonlinear solver iteration and may be
-    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CV\_ILL\_INPUT]
-  \item[\Id{CV\_SUCCESS}]
-    The optional value has been successfully set.
-  \item[\Id{CV\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CV\_ILL\_INPUT}]
-    The \id{iter} value passed is neither \Id{CV\_NEWTON} nor \Id{CV\_FUNCTIONAL}.
-  \end{args}
-}
-{
-  The nonlinear solver iteration type is initially specified in the call
-  to \id{CVodeCreate} (see \S\ref{sss:cvodemalloc}). This function call is
-  needed only if \id{iter} is being changed from its value in the prior call
-  to \id{CVodeCreate}.
-}
-%
-%
 \ucfunctionf{CVodeSetConstraints}
 {
 flag = CVodeSetConstraints(cvode\_mem, constraints);
@@ -2128,7 +2096,9 @@ product between the Jacobian matrix $J(t,y)$ and a vector $v$. The
 user can supply a Jacobian-times-vector approximation function or use
 the default internal difference quotient function
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
-that comes with the {\cvls} interface.  A user-defined Jacobian-vector
+that comes with the {\cvls} interface.
+
+A user-defined Jacobian-vector product
 function must be of type \id{CVLsJacTimesVecFn} and
 can be specified through a call to \id{CVodeSetJacTimes} (see
 \S\ref{ss:jtimesFn} for specification details).
@@ -2136,7 +2106,7 @@ The evaluation and processing of any Jacobian-related data needed by
 the user's Jacobian-times-vector function may be done in the optional
 user-supplied function \id{jtsetup} (see \S\ref{ss:jtsetupFn} for
 specification details).
-
+%
 The pointer \id{user\_data} received through \id{CVodeSetUserData} (or
 a pointer to \id{NULL} if \id{user\_data} was not specified)
 is passed to the Jacobian-times-vector setup and product functions, \id{jtsetup} and
@@ -2198,6 +2168,60 @@ without using global data in the program.
   this routine, and may still be used for backward-compatibility.
   However, this will be deprecated in future releases, so we recommend
   that users transition to the new routine name soon.
+}
+%%
+%%
+When using the internal difference quotient the user may optionally supply an
+alternative right-hand side function for use in the Jacobian-vector product
+approximation by calling \id{CVodeSetJacTimesRhsFn}. The alternative right-hand
+side function should compute a suitable (and differentiable) approximation to
+the right-hand side function provided to \id{CVodeInit}. For example, as done in
+\cite{dorr2010numerical}, the alternative function may use lagged values when
+evaluating a nonlinearity in the right-hand side to avoid differencing a
+potentially non-differentiable factor.
+%%
+%%
+\index{Jacobian approximation function!Jacobian times vector!alternative-rhs}
+\ucfunctionf{CVodeSetJacTimesRhsFn}
+{
+  flag = CVodeSetJacTimesRhsFn(cvode\_mem, jtimesRhsFn);
+}
+{
+  The function \ID{CVodeSetJacTimesRhsFn} specifies an alternative ODE
+  right-hand side function for use in the internal Jacobian-vector product
+  difference quotient approximation.
+}
+{
+  \begin{args}[jtimesRhsFn]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[jtimesRhsFn] (\Id{CVRhsFn})
+    is the {\CC} function which computes the alternative ODE right-hand side
+    function to use in Jacobian-vector product difference quotient
+    approximations. This function has the form \id{f(t, y, ydot, user\_data)}
+    (for full details see \S\ref{ss:rhsFn}).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVLS\_SUNLS\_FAIL]
+  \item[\Id{CVLS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The internal difference quotient approximation is disabled.
+  \end{args}
+}
+{
+  The default is to use the right-hand side function provided to \id{CVodeInit}
+  in the internal difference quotient. If the input right-hand side function is
+  \id{NULL}, the default is used.
+
+  This function must be called \emph{after} the {\cvls} linear solver interface
+  has been initialized through a call to \id{CVodeSetLinearSolver}.
 }
 %%
 %%

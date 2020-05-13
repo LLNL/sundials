@@ -82,6 +82,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetSafetyFactor
  public :: FARKStepSetErrorBias
  public :: FARKStepSetMaxGrowth
+ public :: FARKStepSetMinReduction
  public :: FARKStepSetFixedStepBounds
  public :: FARKStepSetAdaptivityMethod
  public :: FARKStepSetAdaptivityFn
@@ -126,6 +127,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetPreconditioner
  public :: FARKStepSetMassPreconditioner
  public :: FARKStepSetJacTimes
+ public :: FARKStepSetJacTimesRhsFn
  public :: FARKStepSetMassTimes
  public :: FARKStepSetLinSysFn
  public :: FARKStepEvolve
@@ -467,6 +469,15 @@ end function
 
 function swigc_FARKStepSetMaxGrowth(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetMaxGrowth") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetMinReduction(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetMinReduction") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -876,6 +887,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
 type(C_FUNPTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetJacTimesRhsFn(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetJacTimesRhsFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1948,6 +1968,22 @@ fresult = swigc_FARKStepSetMaxGrowth(farg1, farg2)
 swig_result = fresult
 end function
 
+function FARKStepSetMinReduction(arkode_mem, eta_min) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: eta_min
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = eta_min
+fresult = swigc_FARKStepSetMinReduction(farg1, farg2)
+swig_result = fresult
+end function
+
 function FARKStepSetFixedStepBounds(arkode_mem, lb, ub) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2676,6 +2712,22 @@ farg1 = arkode_mem
 farg2 = jtsetup
 farg3 = jtimes
 fresult = swigc_FARKStepSetJacTimes(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FARKStepSetJacTimesRhsFn(arkode_mem, jtimesrhsfn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: jtimesrhsfn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = jtimesrhsfn
+fresult = swigc_FARKStepSetJacTimesRhsFn(farg1, farg2)
 swig_result = fresult
 end function
 

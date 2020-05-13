@@ -1317,6 +1317,7 @@ Jacobian-times-vector function & \id{IDASetJacTimes} & NULL, DQ\\
 Preconditioner functions & \id{IDASetPreconditioner} &NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{IDASetEpsLin} & 0.05 \\
 Increment factor used in DQ $Jv$ approx. & \id{IDASetIncrementFactor} & 1.0 \\
+Jacobian-times-vector DQ Res function & \id{IDASetJacTimesResFn} & NULL \\
 \hline
 \end{tabular}
 \end{table}
@@ -1997,7 +1998,9 @@ product between the Jacobian matrix $J(t,y)$ and a vector $v$. The
 user can supply a Jacobian-times-vector approximation function,
 or use the default internal difference quotient function
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
-that comes with the {\idals} solver interface.  A user-defined
+that comes with the {\idals} solver interface.
+
+A user-defined
 Jacobian-vector function must be of type \id{IDALsJacTimesVecFn}
 and can be specified through a call to \id{IDASetJacTimes}
 (see \S\ref{ss:jtimesFn} for specification details).
@@ -2070,11 +2073,12 @@ without using global data in the program.
 }
 %%
 %%
-Alternately, when using the default difference-quotient approximation
-to the Jacobian-vector product, the user may specify the factor to
-use in setting increments for the finite-difference approximation, via
-a call to \Id{IDASetIncrementFactor}:
-
+When using the default difference-quotient approximation to the Jacobian-vector
+product, the user may specify the factor to use in setting increments for the
+finite-difference approximation, via a call to \Id{IDASetIncrementFactor}.
+%%
+%%
+\index{Jacobian approximation function!Jacobian times vector!increment}
 \ucfunctionf{IDASetIncrementFactor}
 {
   flag = IDASetIncrementFactor(ida\_mem, dqincfac);
@@ -2123,6 +2127,60 @@ a call to \Id{IDASetIncrementFactor}:
   this routine, and may still be used for backward-compatibility.
   However, this will be deprecated in future releases, so we recommend
   that users transition to the new routine name soon.
+}
+%%
+%%
+Additionally, when using the internal difference quotient, the user may also
+optionally supply an alternative residual function for use in the
+Jacobian-vector product approximation by calling \id{IDASetJacTimesResFn}. The
+alternative residual function should compute a suitable (and differentiable)
+approximation to the residual function provided to \id{IDAInit}. For example,
+as done in \cite{dorr2010numerical} for an ODE in explicit form, the alternative
+function may use lagged values when evaluating a nonlinearity to avoid
+differencing a potentially non-differentiable factor.
+%%
+%%
+\index{Jacobian approximation function!Jacobian times vector!alternative-res}
+\ucfunctionf{IDASetJacTimesResFn}
+{
+  flag = IDASetJacTimesResFn(ida\_mem, jtimesResFn);
+}
+{
+  The function \ID{IDASetJacTimesResFn} specifies an alternative DAE residual
+  function for use in the internal Jacobian-vector product difference quotient
+  approximation.
+}
+{
+  \begin{args}[jtimesResFn]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[jtimesResFn] (\Id{IDAResFn})
+    is the {\CC} function which computes the alternative DAE residual function
+    to use in Jacobian-vector product difference quotient approximations. This
+    function has the form \id{res(t, yy, yp, resval, user\_data)}. For full
+    details see \S\ref{ss:resFn}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDALS\_SUNLS\_FAIL]
+  \item[\Id{IDALS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{IDALS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The internal difference quotient approximation is disabled.
+  \end{args}
+}
+{
+  The default is to use the residual function provided to \id{IDAInit} in the
+  internal difference quotient. If the input resudual function is \id{NULL},
+  the default is used.
+
+  This function must be called \emph{after} the {\idals} linear solver interface
+  has been initialized through a call to \id{IDASetLinearSolver}.
 }
 %%
 %%
@@ -4122,7 +4180,7 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
   For efficiency reasons, the DAE residual function is not evaluated
   at the converged solution of the nonlinear solver. Therefore, in general, a
   recoverable error in that converged value cannot be corrected.  (It may be
-  detected when the right-hand side function is called the first time during
+  detected when the residual function is called the first time during
   the following integration step, but a successful step cannot be undone.)
 
   Allocation of memory for \id{yp} is handled within {\ida}.

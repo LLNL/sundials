@@ -25,6 +25,12 @@ few may observe minor performance degradation with the default settings. Users
 are encouraged to contact the SUNDIALS team about any perfomance changes
 that they notice.
 
+Added optional set functions to provide an alternative ODE right-hand side
+function (ARKode and CVODE(S)), DAE residual function (IDA(S)), or nonlinear
+system function (KINSOL) for use when computing Jacobian-vector products with
+the internal difference quotient approximation.
+
+
 ## Changes to SUNDIALS in release 5.2.0
 
 Fixed a build system bug related to the Fortran 2003 interfaces when using the

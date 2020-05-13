@@ -102,6 +102,12 @@ few may observe minor performance degradation with the default settings. Users
 are encouraged to contact the {\sundials} team about any perfomance changes
 that they notice.
 
+Added the optional functions \id{IDASetJacTimesResFn} and
+\id{IDASetJacTimesResFnB} to specify an alternative residual function
+for computing Jacobian-vector products with the internal difference quotient
+approximation.
+
+
 \subsection*{Changes in v4.2.0}
 
 Fixed a build system bug related to the Fortran 2003 interfaces when using the

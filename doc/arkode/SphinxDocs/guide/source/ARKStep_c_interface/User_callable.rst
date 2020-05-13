@@ -2423,6 +2423,7 @@ Optional inputs for matrix-free ``SUNLinearSolver`` modules
 Optional input                                      Function name                              Default
 ==================================================  =========================================  ==================
 :math:`Jv` functions (*jtimes* and *jtsetup*)       :c:func:`ARKStepSetJacTimes()`             DQ,  none
+:math:`Jv` DQ rhs function (*jtimesRhsFn*)          :c:func:`ARKStepSetJacTimesRhsFn()`        fi
 :math:`Mv` functions (*mtimes* and *mtsetup*)       :c:func:`ARKStepSetMassTimes()`            none, none
 ==================================================  =========================================  ==================
 
@@ -2434,7 +2435,9 @@ the product between the Jacobian matrix
 :math:`J(t,y)` and a vector :math:`v`. The user can supply a custom
 Jacobian-times-vector approximation function, or use the default
 internal difference quotient function that comes with the ARKLS
-interface.  A user-defined Jacobian-vector function must be of type
+interface.
+
+A user-defined Jacobian-vector function must be of type
 :c:type:`ARKLsJacTimesVecFn` and can be specified through a call
 to :c:func:`ARKStepSetJacTimes()` (see the section
 :ref:`ARKStep_CInterface.UserSupplied` for specification details).  As with the
@@ -2448,21 +2451,6 @@ data structure, *user_data*, specified through
 :c:func:`ARKStepSetUserData()` (or a ``NULL`` pointer otherwise) is
 passed to the Jacobian-times-vector setup and product functions each
 time they are called.
-
-Similarly, if a problem involves a non-identity mass matrix,
-:math:`M\ne I`, then matrix-free solvers require a *mtimes* function
-to compute an approximation to the product between the mass matrix
-:math:`M` and a vector :math:`v`.  This function must be
-user-supplied, since there is no default value.  *mtimes* must be
-of type :c:func:`ARKLsMassTimesVecFn()`, and can be specified
-through a call to the  :c:func:`ARKStepSetMassTimes()` routine.
-As with the user-supplied preconditioner functions, the evaluation and
-processing of any mass matrix-related data needed by the user's
-mass-matrix-times-vector function is done in the optional user-supplied
-function of type :c:type:`ARKLsMassTimesSetupFn` (see the section
-:ref:`ARKStep_CInterface.UserSupplied` for specification details).
-
-
 
 
 .. c:function:: int ARKStepSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup, ARKLsJacTimesVecFn jtimes)
@@ -2496,6 +2484,55 @@ function of type :c:type:`ARKLsMassTimesSetupFn` (see the section
    The function types :c:type:`ARKLsJacTimesSetupFn` and
    :c:type:`ARKLsJacTimesVecFn` are described in the section
    :ref:`ARKStep_CInterface.UserSupplied`.
+
+
+When using the internal difference quotient the user may optionally supply
+an alternative implicit right-hand side function for use in the Jacobian-vector
+product approximation by calling :c:func:`ARKStepSetJacTimesRhsFn()`. The
+alternative implicit right-hand side function should compute a suitable (and
+differentiable) approximation to the :math:`f^I` function provided to
+:c:func:`ARKStepCreate()`. For example, as done in [DFWBT2010]_, the alternative
+function may use lagged values when evaluating a nonlinearity in :math:`f^I` to
+avoid differencing a potentially non-differentiable factor.
+
+
+.. c:function:: int ARKStepSetJacTimesRhsFn(void* arkode_mem, ARKRhsFn jtimesRhsFn)
+
+   Specifies an alternative implicit right-hand side function for use in the
+   internal Jacobian-vector product difference quotient approximation.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *jtimesRhsFn* -- the name of the C function (of type
+        :c:func:`ARKRhsFn()`) defining the alternative right-hand side function.
+
+   **Return value:**
+      * *ARKLS_SUCCESS* if successful.
+      * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``.
+      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``.
+      * *ARKLS_ILL_INPUT* if an input has an illegal value.
+
+   **Notes:** The default is to use the implicit right-hand side function
+   provided to :c:func:`ARKStepCreate()` in the internal difference quotient. If
+   the input implicit right-hand side function is ``NULL``, the default is used.
+
+   This function must be called *after* the ARKLS system solver interface has
+   been initialized through a call to :c:func:`ARKStepSetLinearSolver()`.
+
+
+
+Similarly, if a problem involves a non-identity mass matrix,
+:math:`M\ne I`, then matrix-free solvers require a *mtimes* function
+to compute an approximation to the product between the mass matrix
+:math:`M` and a vector :math:`v`.  This function must be
+user-supplied, since there is no default value.  *mtimes* must be
+of type :c:func:`ARKLsMassTimesVecFn()`, and can be specified
+through a call to the  :c:func:`ARKStepSetMassTimes()` routine.
+As with the user-supplied preconditioner functions, the evaluation and
+processing of any mass matrix-related data needed by the user's
+mass-matrix-times-vector function is done in the optional user-supplied
+function of type :c:type:`ARKLsMassTimesSetupFn` (see the section
+:ref:`ARKStep_CInterface.UserSupplied` for specification details).
 
 
 

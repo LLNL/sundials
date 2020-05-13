@@ -1178,6 +1178,20 @@ SWIGEXPORT void _wrap_FIDAFree(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FIDASetJacTimesResFn(void *farg1, IDAResFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  IDAResFn arg2 = (IDAResFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (IDAResFn)(farg2);
+  result = (int)IDASetJacTimesResFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FIDABBDPrecInit(void *farg1, int64_t const *farg2, int64_t const *farg3, int64_t const *farg4, int64_t const *farg5, int64_t const *farg6, double const *farg7, IDABBDLocalFn farg8, IDABBDCommFn farg9) {
   int fresult ;
   void *arg1 = (void *) 0 ;

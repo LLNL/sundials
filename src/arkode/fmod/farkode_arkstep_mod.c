@@ -679,6 +679,20 @@ SWIGEXPORT int _wrap_FARKStepSetMaxGrowth(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FARKStepSetMinReduction(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)ARKStepSetMinReduction(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetFixedStepBounds(void *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1308,6 +1322,20 @@ SWIGEXPORT int _wrap_FARKStepSetJacTimes(void *farg1, ARKLsJacTimesSetupFn farg2
   arg2 = (ARKLsJacTimesSetupFn)(farg2);
   arg3 = (ARKLsJacTimesVecFn)(farg3);
   result = (int)ARKStepSetJacTimes(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetJacTimesRhsFn(void *farg1, ARKRhsFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKRhsFn arg2 = (ARKRhsFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKRhsFn)(farg2);
+  result = (int)ARKStepSetJacTimesRhsFn(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

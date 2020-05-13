@@ -158,6 +158,7 @@ module fcvodes_mod
  end type
  public :: FCVodeGetReturnFlagName
  public :: FCVodeFree
+ public :: FCVodeSetJacTimesRhsFn
  public :: FCVodeQuadInit
  public :: FCVodeQuadReInit
  public :: FCVodeQuadSStolerances
@@ -280,6 +281,7 @@ module fcvodes_mod
   module procedure swigf_create_CVadjCheckPointRec
  end interface
  public :: FCVodeGetAdjCheckPointsInfo
+ public :: FCVodeSetJacTimesRhsFnB
  public :: FCVodeGetAdjDataPointHermite
  public :: FCVodeGetAdjDataPointPolynomial
  public :: FCVodeGetAdjCurrentCheckPoint
@@ -870,6 +872,15 @@ bind(C, name="_wrap_FCVodeFree")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 end subroutine
+
+function swigc_FCVodeSetJacTimesRhsFn(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetJacTimesRhsFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
 
 function swigc_FCVodeQuadInit(farg1, farg2, farg3) &
 bind(C, name="_wrap_FCVodeQuadInit") &
@@ -1881,6 +1892,16 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(SwigClassWrapper) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetJacTimesRhsFnB(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeSetJacTimesRhsFnB") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+type(C_FUNPTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -3330,6 +3351,22 @@ type(C_PTR) :: farg1
 farg1 = c_loc(cvode_mem)
 call swigc_FCVodeFree(farg1)
 end subroutine
+
+function FCVodeSetJacTimesRhsFn(cvode_mem, jtimesrhsfn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(C_FUNPTR), intent(in), value :: jtimesrhsfn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = jtimesrhsfn
+fresult = swigc_FCVodeSetJacTimesRhsFn(farg1, farg2)
+swig_result = fresult
+end function
 
 function FCVodeQuadInit(cvode_mem, fq, yq0) &
 result(swig_result)
@@ -5179,6 +5216,25 @@ type(SwigClassWrapper) :: farg2
 farg1 = cvode_mem
 farg2 = ckpnt%swigdata
 fresult = swigc_FCVodeGetAdjCheckPointsInfo(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetJacTimesRhsFnB(cvode_mem, which, jtimesrhsfn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: which
+type(C_FUNPTR), intent(in), value :: jtimesrhsfn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(C_FUNPTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = which
+farg3 = jtimesrhsfn
+fresult = swigc_FCVodeSetJacTimesRhsFnB(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

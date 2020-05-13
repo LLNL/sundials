@@ -43,7 +43,7 @@
 
 .. [BBH1989] P.N. Brown, G.D. Byrne and A.C. Hindmarsh.  VODE, a
              Variable-Coefficient ODE
-             Solver. *SIAM J. Sci. Stat. Comput.*, 10:1038-1051, 1989.  
+             Solver. *SIAM J. Sci. Stat. Comput.*, 10:1038-1051, 1989.
 
 .. [BH1989] P.N. Brown and A.C. Hindmarsh. Reduced Storage
             Matrix Methods in Stiff ODE Systems. *J. Appl. Math. &
@@ -76,6 +76,11 @@
 
 .. [cuSPARSE] `NVIDIA cuSPARSE Documentation
                <https://docs.nvidia.com/cuda/cusparse/index.html>`_.
+
+.. [DFWBT2010] M.R. Dorr, J.-L. Fattebert, M.E. Wickett, J.F. Belak and
+               P.E.A Turchi. A numerical algorithm for the solution of a
+               phase-field model of polycrystalline materials.
+               *J. Comput. Phys.*, 229(3):626-641, 2010.
 
 .. [DP1980] J.R. Dormand and P.J. Prince. A family of embedded
             Runge-Kutta formulae, *J. Comput. Appl. Math.* 6:19–26, 1980.
@@ -160,7 +165,7 @@
 
 .. [JPE2019] S.R. Johnson, A. Prokopenko, and K. J. Evans. Automated
              Fortran-C++ bindings for Large-Scale Scientific Applications.
-             arXiv:1904.02546 [cs], Apr. 2019. 
+             arXiv:1904.02546 [cs], Apr. 2019.
 
 .. [K1995] C.T. Kelley.  Iterative Methods for Solving Linear and
            Nonlinear Equations. SIAM, Philadelphia, 1995.

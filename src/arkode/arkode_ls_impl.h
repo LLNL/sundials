@@ -107,7 +107,9 @@ typedef struct ARKLsMemRec {
   booleantype jtimesDQ;
   ARKLsJacTimesSetupFn jtsetup;
   ARKLsJacTimesVecFn jtimes;
+  ARKRhsFn Jt_f;
   void *Jt_data;
+
 
   /* Linear system setup function
    * (a) user-provided linsys function:
@@ -271,6 +273,7 @@ int arkLSSetMassPreconditioner(void* arkode_mem, ARKLsMassPrecSetupFn psetup,
                                ARKLsMassPrecSolveFn psolve);
 int arkLSSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup,
                      ARKLsJacTimesVecFn jtimes);
+int arkLSSetJacTimesRhsFn(void *arkode_mem, ARKRhsFn jtimesRhsFn);
 int arkLSSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn msetup,
                       ARKLsMassTimesVecFn mtimes, void* mtimes_data);
 int arkLSSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys);

@@ -133,6 +133,11 @@ few may observe minor performance degradation with the default settings. Users
 are encouraged to contact the SUNDIALS team about any perfomance changes
 that they notice.
 
+Added the optional function :c:func:`ARKStepSetJacTimesRhsFn()` to specify an
+alternative implicit right-hand side function for computing Jacobian-vector
+products with the internal difference quotient approximation.
+
+
 Changes in v4.2.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

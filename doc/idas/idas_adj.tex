@@ -1549,11 +1549,12 @@ by calling one of the following two functions:
 }
 %%
 %%
-Alternately, when using the default difference-quotient approximation
-to the Jacobian-vector product for the backward problem, the user may
-specify the factor to use in setting increments for the
-finite-difference approximation, via a call to \Id{IDASetIncrementFactorB}:
+When using the default difference-quotient approximation to the Jacobian-vector
+product for the backward problem, the user may specify the factor to use in
+setting increments for the finite-difference approximation, via a call to
+\Id{IDASetIncrementFactorB}.
 %%
+\index{Jacobian approximation function!Jacobian times vector!increment (backward)}
 \ucfunctionf{IDASetIncrementFactorB}
 {
   flag = IDASetIncrementFactorB(ida\_mem, which, dqincfacB);
@@ -1602,6 +1603,68 @@ finite-difference approximation, via a call to \Id{IDASetIncrementFactorB}:
   releases, so we recommend that users transition to the new routine
   name soon.
 }
+%%
+%%
+Additionally, When using the internal difference quotient for the backward
+problem, the user may also optionally supply an alternative residual function
+for use in the Jacobian-vector product approximation by calling
+\id{IDASetJacTimesResFnB}. The alternative residual side function should compute
+a suitable (and differentiable) approximation to the residual function provided
+to \id{IDAInitB} or \id{IDAInitBS}. For example, as done in
+\cite{dorr2010numerical} for the forward integration of an ODE in explicit form
+without sensitivity analysis, the alternative function may use lagged values
+when evaluating a nonlinearity in the right-hand side to avoid differencing a
+potentially non-differentiable factor.
+%%
+%%
+\index{Jacobian approximation function!Jacobian times vector!alternative-res (backward)}
+\ucfunctionf{IDASetJacTimesResFnB}
+{
+  flag = IDASetJacTimesResFnB(ida\_mem, which, jtimesResFn);
+}
+{
+  The function \ID{IDASetJacTimesResFnB} specifies an alternative DAE residual
+  function for use in the internal Jacobian-vector product difference quotient
+  approximation for the backward problem.
+}
+{
+  \begin{args}[jtimesResFn]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[jtimesResFn] (\Id{IDAResFn})
+    is the {\CC} function which computes the alternative DAE residual function
+    to use in Jacobian-vector product difference quotient approximations. This
+    function has the form \id{res(t, yy, yp, resval, user\_data)}. For full
+    details see \S\ref{ss:resFn}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDALS\_SUNLS\_FAIL]
+  \item[\Id{IDALS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{IDALS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier or the internal
+    difference quotient approximation is disabled.
+  \end{args}
+}
+{
+  The default is to use the residual function provided to \id{IDAInit} in the
+  internal difference quotient. If the input resudual function is \id{NULL},
+  the default is used.
+
+  This function must be called \emph{after} the {\idals} linear solver interface
+  has been initialized through a call to \id{IDASetLinearSolverB}.
+}
+%%
 %%
 \index{optional input!matrix-free linear solver|)}
 %%

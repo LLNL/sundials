@@ -192,6 +192,9 @@ SUNDIALS_EXPORT char *CVodeGetReturnFlagName(long int flag);
 /* Free function */
 SUNDIALS_EXPORT void CVodeFree(void **cvode_mem);
 
+/* CVLS interface function that depends on CVRhsFn */
+SUNDIALS_EXPORT int CVodeSetJacTimesRhsFn(void *cvode_mem,
+                                          CVRhsFn jtimesRhsFn);
 
 #ifdef __cplusplus
 }

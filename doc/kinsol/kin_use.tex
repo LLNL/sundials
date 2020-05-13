@@ -833,6 +833,7 @@ Jacobian function & \id{KINSetJacFn} &  DQ \\
 Preconditioner functions and data & \id{KINSetPreconditioner} & \id{NULL}, \id{NULL}, \id{NULL} \\
 Jacobian-times-vector function and data & \id{KINSetJacTimesVecFn} & internal DQ, \\
 &&\id{NULL} \\
+Jacobian-times-vector system function & \id{KINSetJacTimesVecSysFn} & \id{NULL} \\
 \hline
 \end{tabular}
 \end{table}
@@ -1907,11 +1908,13 @@ the product between the Jacobian matrix $J(u)$ and a vector $v$.
 The user can supply his/her own Jacobian-times-vector approximation function,
 or use the internal difference quotient approximation
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
-that comes with the {\kinls} solver interface.  A user-defined Jacobian-vector
+that comes with the {\kinls} solver interface.
+
+A user-defined Jacobian-vector
 function must be of type \id{KINLsJacTimesVecFn} and
 can be specified through a call to \id{KINLsSetJacTimesVecFn}
 (see \S\ref{ss:jtimesFn} for specification details).
-
+%
 The pointer \id{user\_data} received through \id{KINSetUserData} (or a
 pointer to \id{NULL} if \id{user\_data} was not specified) is passed
 to the Jacobian-times-vector function \id{jtimes} each time it is
@@ -1966,6 +1969,61 @@ user-supplied functions without using global data in the program.
   this routine, and may still be used for backward-compatibility.
   However, this will be deprecated in future releases, so we recommend
   that users transition to the new routine name soon.
+}
+%%
+%%
+When using the internal difference quotient the user may optionally supply an
+alternative system function for use in the Jacobian-vector product approximation
+by calling \id{KINSetJacTimesVecSysFn}. The alternative system function should
+compute a suitable (and differentiable) approximation of the system function
+provided to \id{KINInit}. For example, as done in \cite{dorr2010numerical} when
+solving the nonlinear systems that arise in the implicit integration of ordinary
+differential equations, the alternative function may use lagged values when
+evaluating a nonlinearity to avoid differencing a potentially non-differentiable
+factor.
+%%
+%%
+\index{Jacobian approximation function!Jacobian times vector!alternative-sys}
+\ucfunctionf{KINSetJacTimesVecSysFn}
+{
+  flag = KINSetJacTimesVecSysFn(kin\_mem, jtimesSysFn);
+}
+{
+  The function \ID{KINSetJacTimesVecSysFn} specifies an alternative system
+  function for use in the internal Jacobian-vector product difference quotient
+  approximation.
+}
+{
+  \begin{args}[jtimesSysFn]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[jtimesSysFn] (\Id{KINSysFn})
+    is the {\CC} function which computes the alternative system function to use
+    in Jacobian-vector product difference quotient approximations. This function
+    has the form \id{func(u, fval, user\_data)}. (For full details see
+    \S\ref{ss:sysFn}.)
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINLS\_SUNLS\_FAIL]
+  \item[\Id{KINLS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{KINLS\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver has not been initialized.
+  \item[\Id{KINLS\_ILL\_INPUT}]
+    The internal difference quotient approximation is disabled.
+  \end{args}
+}
+{
+  The default is to use the system function provided to \id{KINInit} in the
+  internal difference quotient. If the input system function is \id{NULL},
+  the default is used.
+
+  This function must be called \emph{after} the {\kinls} linear solver interface
+  has been initialized through a call to \id{KINSetLinearSolver}.
 }
 
 

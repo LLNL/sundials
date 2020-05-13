@@ -1117,6 +1117,20 @@ SWIGEXPORT void _wrap_FCVodeFree(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FCVodeSetJacTimesRhsFn(void *farg1, CVRhsFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  CVRhsFn arg2 = (CVRhsFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (CVRhsFn)(farg2);
+  result = (int)CVodeSetJacTimesRhsFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeQuadInit(void *farg1, CVQuadRhsFn farg2, N_Vector farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -2696,6 +2710,22 @@ SWIGEXPORT int _wrap_FCVodeGetAdjCheckPointsInfo(void *farg1, SwigClassWrapper c
   SWIG_check_mutable(*farg2, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVodeGetAdjCheckPointsInfo(void *,CVadjCheckPointRec *)", return 0);
   arg2 = (CVadjCheckPointRec *)(farg2->cptr);
   result = (int)CVodeGetAdjCheckPointsInfo(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetJacTimesRhsFnB(void *farg1, int const *farg2, CVRhsFn farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  CVRhsFn arg3 = (CVRhsFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (CVRhsFn)(farg3);
+  result = (int)CVodeSetJacTimesRhsFnB(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

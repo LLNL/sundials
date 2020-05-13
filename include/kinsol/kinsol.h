@@ -72,7 +72,7 @@ extern "C" {
  * User-Supplied Function Types
  * ------------------------------ */
 
-typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *user_data );
+typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void *user_data);
 
 typedef void (*KINErrHandlerFn)(int error_code,
                                 const char *module, const char *function,
@@ -142,6 +142,8 @@ SUNDIALS_EXPORT char *KINGetReturnFlagName(long int flag);
 /* Free function */
 SUNDIALS_EXPORT void KINFree(void **kinmem);
 
+/* KINLS interface function that depends on KINSysFn */
+SUNDIALS_EXPORT int KINSetJacTimesVecSysFn(void *kinmem, KINSysFn jtimesSysFn);
 
 #ifdef __cplusplus
 }

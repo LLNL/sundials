@@ -503,6 +503,20 @@ SWIGEXPORT int _wrap_FERKStepSetMaxGrowth(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FERKStepSetMinReduction(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)ERKStepSetMinReduction(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FERKStepSetFixedStepBounds(void *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

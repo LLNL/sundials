@@ -126,6 +126,7 @@ module fcvode_mod
  end type
  public :: FCVodeGetReturnFlagName
  public :: FCVodeFree
+ public :: FCVodeSetJacTimesRhsFn
  public :: FCVBandPrecInit
  public :: FCVBandPrecGetWorkSpace
  public :: FCVBandPrecGetNumRhsEvals
@@ -677,6 +678,15 @@ bind(C, name="_wrap_FCVodeFree")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 end subroutine
+
+function swigc_FCVodeSetJacTimesRhsFn(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetJacTimesRhsFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
 
 function swigc_FCVBandPrecInit(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FCVBandPrecInit") &
@@ -1894,6 +1904,22 @@ type(C_PTR) :: farg1
 farg1 = c_loc(cvode_mem)
 call swigc_FCVodeFree(farg1)
 end subroutine
+
+function FCVodeSetJacTimesRhsFn(cvode_mem, jtimesrhsfn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(C_FUNPTR), intent(in), value :: jtimesrhsfn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = jtimesrhsfn
+fresult = swigc_FCVodeSetJacTimesRhsFn(farg1, farg2)
+swig_result = fresult
+end function
 
 function FCVBandPrecInit(cvode_mem, n, mu, ml) &
 result(swig_result)

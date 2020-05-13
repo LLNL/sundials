@@ -60,6 +60,7 @@ module farkode_erkstep_mod
  public :: FERKStepSetSafetyFactor
  public :: FERKStepSetErrorBias
  public :: FERKStepSetMaxGrowth
+ public :: FERKStepSetMinReduction
  public :: FERKStepSetFixedStepBounds
  public :: FERKStepSetAdaptivityMethod
  public :: FERKStepSetAdaptivityFn
@@ -283,6 +284,15 @@ end function
 
 function swigc_FERKStepSetMaxGrowth(farg1, farg2) &
 bind(C, name="_wrap_FERKStepSetMaxGrowth") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetMinReduction(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetMinReduction") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1095,6 +1105,22 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = mx_growth
 fresult = swigc_FERKStepSetMaxGrowth(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetMinReduction(arkode_mem, eta_min) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: eta_min
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = eta_min
+fresult = swigc_FERKStepSetMinReduction(farg1, farg2)
 swig_result = fresult
 end function
 

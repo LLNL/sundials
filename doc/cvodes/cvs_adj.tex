@@ -1553,6 +1553,68 @@ disable solution scaling when using a matrix-based linear solver.
   users transition to the new routine name soon.
 }
 %%
+%%
+When using the internal difference quotient the user may optionally supply an
+alternative right-hand side function for use in the Jacobian-vector product
+approximation for the backward problem by calling \id{CVodeSetJacTimesRhsFnB}.
+The alternative right-hand side function should compute a suitable (and
+differentiable) approximation to the right-hand side function provided to
+\id{CVodeInitB} or \id{CVodeInitBS}. For example, as done in
+\cite{dorr2010numerical} for a forward integration without sensitivity analysis,
+the alternative function may use lagged values when evaluating a nonlinearity in
+the right-hand side to avoid differencing a potentially non-differentiable
+factor.
+%%
+%%
+\index{Jacobian approximation function!Jacobian times vector!alternative-rhs (backward)}
+\ucfunctionf{CVodeSetJacTimesRhsFnB}
+{
+  flag = CVodeSetJacTimesRhsFnB(cvode\_mem, which, jtimesRhsFn);
+}
+{
+  The function \ID{CVodeSetJacTimesRhsFn} specifies an alternative ODE
+  right-hand side function for use in the internal Jacobian-vector product
+  difference quotient approximation.
+}
+{
+  \begin{args}[jtimesRhsFn]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[jtimesRhsFn] (\Id{CVRhsFn})
+    is the {\CC} function which computes the alternative ODE right-hand side
+    function to use in Jacobian-vector product difference quotient
+    approximations. This function has the form \id{f(t, y, ydot, user\_data)}
+    (for full details see \S\ref{ss:rhsFn}).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVLS\_SUNLS\_FAIL]
+  \item[\Id{CVLS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier or the internal
+    difference quotient approximation is disabled.
+  \end{args}
+}
+{
+  The default is to use the right-hand side function provided to \id{CVodeInit}
+  in the internal difference quotient. If the input right-hand side function is
+  \id{NULL}, the default is used.
+
+  This function must be called \emph{after} the {\cvls} linear solver interface
+  has been initialized through a call to \id{CVodeSetLinearSolverB}.
+}
+%%
+%%
 \index{optional input!matrix-free linear solver|)}
 %%
 %%

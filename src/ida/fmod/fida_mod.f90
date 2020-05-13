@@ -138,6 +138,7 @@ module fida_mod
  end type
  public :: FIDAGetReturnFlagName
  public :: FIDAFree
+ public :: FIDASetJacTimesResFn
  public :: FIDABBDPrecInit
  public :: FIDABBDPrecReInit
  public :: FIDABBDPrecGetWorkSpace
@@ -777,6 +778,15 @@ bind(C, name="_wrap_FIDAFree")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 end subroutine
+
+function swigc_FIDASetJacTimesResFn(farg1, farg2) &
+bind(C, name="_wrap_FIDASetJacTimesResFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
 
 function swigc_FIDABBDPrecInit(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9) &
 bind(C, name="_wrap_FIDABBDPrecInit") &
@@ -2104,6 +2114,22 @@ type(C_PTR) :: farg1
 farg1 = c_loc(ida_mem)
 call swigc_FIDAFree(farg1)
 end subroutine
+
+function FIDASetJacTimesResFn(ida_mem, jtimesresfn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+type(C_FUNPTR), intent(in), value :: jtimesresfn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = jtimesresfn
+fresult = swigc_FIDASetJacTimesResFn(farg1, farg2)
+swig_result = fresult
+end function
 
 function FIDABBDPrecInit(ida_mem, nlocal, mudq, mldq, mukeep, mlkeep, dq_rel_yy, gres, gcomm) &
 result(swig_result)

@@ -239,6 +239,8 @@ SUNDIALS_EXPORT int ARKStepSetMassPreconditioner(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetJacTimes(void *arkode_mem,
                                        ARKLsJacTimesSetupFn jtsetup,
                                        ARKLsJacTimesVecFn jtimes);
+SUNDIALS_EXPORT int ARKStepSetJacTimesRhsFn(void *arkode_mem,
+                                            ARKRhsFn jtimesRhsFn);
 SUNDIALS_EXPORT int ARKStepSetMassTimes(void *arkode_mem,
                                         ARKLsMassTimesSetupFn msetup,
                                         ARKLsMassTimesVecFn mtimes,

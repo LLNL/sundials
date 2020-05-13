@@ -918,4 +918,22 @@ SWIGEXPORT void _wrap_FN_VSetVecAtIndexVectorArray(void *farg1, int const *farg2
 }
 
 
+SWIGEXPORT void _wrap_FN_VPrint(N_Vector farg1) {
+  N_Vector arg1 = (N_Vector) 0 ;
+  
+  arg1 = (N_Vector)(farg1);
+  N_VPrint(arg1);
+}
+
+
+SWIGEXPORT void _wrap_FN_VPrintFile(N_Vector farg1, void *farg2) {
+  N_Vector arg1 = (N_Vector) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (FILE *)(farg2);
+  N_VPrintFile(arg1,arg2);
+}
+
+
 
