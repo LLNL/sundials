@@ -16,6 +16,11 @@ Fixed a bug in the iterative linear solver modules where an error is not
 returned if the Atimes function is `NULL` or, if preconditioning is enabled, the
 PSolve function is `NULL`.
 
+Added specialized fused CUDA kernels to CVODE which may offer better
+performance on smaller problems when using CVODE with the `NVECTOR_CUDA`
+module. See the optional input function `CVodeSetUseIntegratorFusedKernels`
+for more information.
+
 Added the ability to control the CUDA kernel launch parameters for the
 `NVECTOR_CUDA` and `SUNMATRIX_CUSPARSE` modules. These modules remain
 experimental and are subject to change from version to version.

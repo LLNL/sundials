@@ -38,7 +38,7 @@ namespace cuda
 typedef enum { RSUM, RMAX, RMIN } BinaryReductionOp;
 
 #if __CUDA_ARCH__ < 600
-__device__
+__forceinline__ __device__
 double atomicAdd(double* address, double val)
 {
   unsigned long long int* address_as_ull = (unsigned long long int*)address;
@@ -61,7 +61,7 @@ double atomicAdd(double* address, double val)
  * "address" is the address of the reference value which might get updated with the maximum
  * "value" is the value that is compared to the reference in order to determine the maximum
  */
-__device__ 
+__forceinline__ __device__ 
 void AtomicMax(double* const address, const double value)
 {
   if (*address >= value)
@@ -88,7 +88,7 @@ void AtomicMax(double* const address, const double value)
  * "address" is the address of the reference value which might get updated with the maximum
  * "value" is the value that is compared to the reference in order to determine the maximum
  */
-__device__ 
+ __forceinline__ __device__ 
 void AtomicMax(float* const address, const float value)
 {
   if (*address >= value)
@@ -115,7 +115,7 @@ void AtomicMax(float* const address, const float value)
  * "address" is the address of the reference value which might get updated with the minimum
  * "value" is the value that is compared to the reference in order to determine the minimum
  */
-__device__ 
+__forceinline__ __device__ 
 void AtomicMin(double* const address, const double value)
 {
   if (*address <= value)
@@ -142,7 +142,7 @@ void AtomicMin(double* const address, const double value)
  * "address" is the address of the reference value which might get updated with the minimum
  * "value" is the value that is compared to the reference in order to determine the minimum
  */
-__device__ 
+__forceinline__ __device__ 
 void AtomicMin(float* const address, const float value)
 {
   if (*address <= value)

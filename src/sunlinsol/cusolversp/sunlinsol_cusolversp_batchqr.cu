@@ -107,7 +107,7 @@ SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverSp
   SUNLinearSolverContent_cuSolverSp_batchQR content;
 
   content = NULL;
-  content = (SUNLinearSolverContent_cuSolverSp_batchQR) malloc(sizeof *content);
+  content = (SUNLinearSolverContent_cuSolverSp_batchQR) malloc(sizeof(*content));
   if (content == NULL)
   {
     SUNLinSolFree(S);

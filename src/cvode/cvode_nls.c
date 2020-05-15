@@ -39,6 +39,15 @@ static int cvNlsLSolve(N_Vector delta, void* cvode_mem);
 static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
                          realtype tol, N_Vector ewt, void* cvode_mem);
 
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+int cvNlsResid_fused(const realtype rl1,
+                     const realtype ngamma,
+                     const N_Vector zn1,
+                     const N_Vector ycor,
+                     const N_Vector ftemp,
+                     N_Vector res);
+#endif
+
 /* -----------------------------------------------------------------------------
  * Exported functions
  * ---------------------------------------------------------------------------*/
@@ -290,8 +299,18 @@ static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res);
-  N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res);
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (cv_mem->cv_usefused)
+  {
+    cvNlsResid_fused(cv_mem->cv_rl1, -cv_mem->cv_gamma, cv_mem->cv_zn[1],
+                     ycor, cv_mem->cv_ftemp, res);
+  }
+  else
+#endif
+  {
+    N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res);
+    N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res);
+  }
 
   return(CV_SUCCESS);
 }

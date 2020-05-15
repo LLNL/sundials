@@ -859,6 +859,17 @@ endif(CUDA_ENABLE)
 # ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
+# Option to use specialized fused kernels in the packages.
+# Currently only available in CVODE.
+# ---------------------------------------------------------------
+
+if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER AND BUILD_CVODE)
+  set(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS FALSE CACHE BOOL "Build specialized fused CUDA kernels")
+else()
+  set(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS FALSE CACHE BOOL "Build specialized fused CUDA kernels" FORCE)
+endif()
+
+# ---------------------------------------------------------------
 # Decide how to compile MPI codes. We must check for MPI if
 # MPI is enabled or if Trilinos is enabled because the Trilinos
 # examples may need MPI without us turning on the MPI SUNDIALS

@@ -237,6 +237,20 @@ static void cvFreeVectors(CVodeMem cv_mem);
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+int cvEwtSetSS_fused(const realtype reltol,
+                     const realtype Sabstol,
+                     const N_Vector ycur,
+                     N_Vector tempv,
+                     N_Vector weight);
+
+int cvEwtSetSV_fused(const realtype reltol,
+                     const N_Vector Vabstol,
+                     const N_Vector ycur,
+                     N_Vector tempv,
+                     N_Vector weight);
+#endif
+
 /* Initial stepsize calculation */
 
 static int cvHin(CVodeMem cv_mem, realtype tout);
@@ -271,6 +285,13 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 static int cvNls(CVodeMem cv_mem, int nflag);
 
 static int cvCheckConstraints(CVodeMem cv_mem);
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+int cvCheckConstraints_fused(const N_Vector c,
+                             const N_Vector ewt,
+                             const N_Vector y,
+                             const N_Vector mm,
+                             N_Vector tempv);
+#endif
 
 static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                          int *ncfPtr);
@@ -306,6 +327,7 @@ static int cvRcheck1(CVodeMem cv_mem);
 static int cvRcheck2(CVodeMem cv_mem);
 static int cvRcheck3(CVodeMem cv_mem);
 static int cvRootfind(CVodeMem cv_mem);
+
 
 /*
  * =================================================================
@@ -416,6 +438,9 @@ void *CVodeCreate(int lmm)
   /* Initialize nonlinear solver variables */
   cv_mem->NLS    = NULL;
   cv_mem->ownNLS = SUNFALSE;
+
+  /* Initialize fused operations variable */
+  cv_mem->cv_usefused = SUNFALSE;
 
   /* Return pointer to CVODE memory block */
 
@@ -2731,11 +2756,24 @@ static int cvCheckConstraints(CVodeMem cv_mem)
   /* Constraints not met */
 
   /* Compute correction to satisfy constraints */
-  N_VCompare(ONEPT5, cv_mem->cv_constraints, tmp); /* a[i]=1 when |c[i]|=2  */
-  N_VProd(tmp, cv_mem->cv_constraints, tmp);       /* a * c                 */
-  N_VDiv(tmp, cv_mem->cv_ewt, tmp);                /* a * c * wt            */
-  N_VLinearSum(ONE, cv_mem->cv_y, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt  */
-  N_VProd(tmp, mm, tmp);                           /* v = mm*(y-0.1*a*c*wt) */
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (cv_mem->cv_usefused)
+  {
+    cvCheckConstraints_fused(cv_mem->cv_constraints,
+                             cv_mem->cv_ewt,
+                             cv_mem->cv_y,
+                             mm,
+                             tmp);
+  }
+  else
+#endif
+  {
+    N_VCompare(ONEPT5, cv_mem->cv_constraints, tmp); /* a[i]=1 when |c[i]|=2  */
+    N_VProd(tmp, cv_mem->cv_constraints, tmp);       /* a * c                 */
+    N_VDiv(tmp, cv_mem->cv_ewt, tmp);                /* a * c * wt            */
+    N_VLinearSum(ONE, cv_mem->cv_y, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt  */
+    N_VProd(tmp, mm, tmp);                           /* v = mm*(y-0.1*a*c*wt) */
+  }
 
   vnorm = N_VWrmsNorm(tmp, cv_mem->cv_ewt);        /* ||v|| */
 
@@ -4135,13 +4173,28 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void *data)
 
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 {
-  N_VAbs(ycur, cv_mem->cv_tempv);
-  N_VScale(cv_mem->cv_reltol, cv_mem->cv_tempv, cv_mem->cv_tempv);
-  N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_Sabstol, cv_mem->cv_tempv);
-  if (cv_mem->cv_atolmin0) {
-    if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (cv_mem->cv_usefused)
+  {
+    /* We compute weight (inverse of tempv) regardless of the component test
+       since it will be thrown away in this case anyways. */
+    cvEwtSetSS_fused(cv_mem->cv_reltol, cv_mem->cv_Sabstol, ycur, cv_mem->cv_tempv, weight);
+    if (cv_mem->cv_atolmin0) {
+      if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    }
   }
-  N_VInv(cv_mem->cv_tempv, weight);
+  else
+#endif
+  {
+    N_VAbs(ycur, cv_mem->cv_tempv);
+    N_VScale(cv_mem->cv_reltol, cv_mem->cv_tempv, cv_mem->cv_tempv);
+    N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_Sabstol, cv_mem->cv_tempv);
+    if (cv_mem->cv_atolmin0) {
+      if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    }
+    N_VInv(cv_mem->cv_tempv, weight);
+  }
+
   return(0);
 }
 
@@ -4157,13 +4210,28 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 {
-  N_VAbs(ycur, cv_mem->cv_tempv);
-  N_VLinearSum(cv_mem->cv_reltol, cv_mem->cv_tempv, ONE,
-               cv_mem->cv_Vabstol, cv_mem->cv_tempv);
-  if (cv_mem->cv_atolmin0) {
-    if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (cv_mem->cv_usefused)
+  {
+    /* We compute weight (inverse of tempv) regardless of the component test
+       since it will be thrown away in this case anyways. */
+    cvEwtSetSV_fused(cv_mem->cv_reltol, cv_mem->cv_Vabstol, ycur, cv_mem->cv_tempv, weight);
+    if (cv_mem->cv_atolmin0) {
+      if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    }
   }
-  N_VInv(cv_mem->cv_tempv, weight);
+  else
+#endif
+  {
+    N_VAbs(ycur, cv_mem->cv_tempv);
+    N_VLinearSum(cv_mem->cv_reltol, cv_mem->cv_tempv, ONE,
+                 cv_mem->cv_Vabstol, cv_mem->cv_tempv);
+    if (cv_mem->cv_atolmin0) {
+      if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    }
+    N_VInv(cv_mem->cv_tempv, weight);
+  }
+
   return(0);
 }
 

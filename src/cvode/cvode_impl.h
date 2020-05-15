@@ -296,6 +296,8 @@ typedef struct CVodeMemRec {
   realtype cv_cvals[L_MAX]; /* array of scalars */
   N_Vector cv_Xvecs[L_MAX]; /* array of vectors */
 
+  booleantype cv_usefused;  /* flag indicating if CVODE specific fused kernels should be used */
+
 } *CVodeMem;
 
 /*

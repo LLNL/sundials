@@ -28,7 +28,7 @@ is as follows:
 
 .. code-block:: c++
 
-   struct _N_VectorContent_Cuda 
+   struct _N_VectorContent_Cuda
    {
      sunindextype       length;
      booleantype        own_data;
@@ -42,10 +42,10 @@ is as follows:
    typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
 
 
-The content members are the vector length (size), a boolean flag that signals if 
+The content members are the vector length (size), a boolean flag that signals if
 the vector owns the data (i.e. it is in charge of freeing the data), pointers to
 vector data on the host and the device, pointers to ``SUNCudaExecPolicy``
-implementations that control how the CUDA kernels are launched for streaming and 
+implementations that control how the CUDA kernels are launched for streaming and
 reduction vector kernels, and a private data structure which holds additonal members
 that should not be accessed directly.
 
@@ -142,28 +142,28 @@ following additional user-callable routines:
    This function creates a CUDA ``N_Vector`` with a user-supplied memory allocator.
    It requires the user to provide a corresponding free function as well.
    The memory allocated by the allocator function must behave like CUDA managed memory.
-   
+
 
 
 The module NVECTOR_CUDA also provides the following user-callable routines:
 
-.. c:function:: void N_VSetKernelExecPolicy_Cuda(N_Vector v, 
+.. c:function:: void N_VSetKernelExecPolicy_Cuda(N_Vector v,
                                                  SUNCudaExecPolicy* stream_exec_policy,
                                                  SUNCudaExecPolicy* reduce_exec_policy)
 
    This function sets the execution policies which control the kernel parameters
    utilized when launching the streaming and reduction CUDA kernels. By default
-   the vector is setup to use the ``SUNCudaThreadDirectExecPolicy`` and 
+   the vector is setup to use the ``SUNCudaThreadDirectExecPolicy`` and
    ``SUNCudaBlockReduceExecPolicy``. Any custom execution policy for reductions
    must ensure that the grid dimensions (number of thread blocks) is a multiple of
    the CUDA warp size (32). See section :ref:`NVectors.CUDA.SUNCudaExecPolicy`
-   below for more information about the ``SUNCudaExecPolicy`` class.     
+   below for more information about the ``SUNCudaExecPolicy`` class.
 
    *Note: All vectors used in a single instance of a {\sundials} solver must
    use the same execution policy. It is **strongly recommended** that
    this function is called immediately after constructing the vector,
    and any subsequent vector be created by cloning to ensure consistent execution
-   policies across vectors*                                   
+   policies across vectors*
 
 
 .. c:function:: void N_VSetCudaStream_Cuda(N_Vector v, cudaStream_t \*stream)
@@ -178,7 +178,7 @@ The module NVECTOR_CUDA also provides the following user-callable routines:
    use the same CUDA stream. It is **strongly recommended** that
    this function is called immediately after constructing the vector,
    and any subsequent vector be created by cloning to ensure consistent execution
-   policies across vectors* 
+   policies across vectors*
 
 
 .. c:function:: realtype* N_VCopyToDevice_Cuda(N_Vector v)
@@ -317,7 +317,7 @@ as follows:
    {
    public:
       virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
-      virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0; 
+      virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
       virtual cudaStream_t stream() const = 0;
       virtual CudaExecPolicy* clone() const = 0;
       virtual ~CudaExecPolicy() {}
@@ -341,7 +341,7 @@ may look like:
 
       CudaThreadDirectExecPolicy(const CudaThreadDirectExecPolicy& ex)
          : blockDim_(ex.blockDim_), stream_(ex.stream_)
-      {} 
+      {}
 
       virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
       {

@@ -560,6 +560,13 @@ a typical configuration on a Linux system and are provided as illustration only.
   Default: OFF
   \\
   Note: You need to enable {\cuda} in order to build the {\raja} vector module.
+\item[\id{SUNDIALS\_BUILD\_PACKAGE\_FUSED\_KERNELS}] -
+  Build specialized fused kernels inside {\cvode}.
+  \\
+  Default: OFF
+  \\
+  Note: This option is currently only available when building with
+  \id{CUDA\_ENABLE = ON}.
 \item[\id{SUNDIALS\_F77\_FUNC\_CASE}] - \textbf{advanced option} -
   Specify the case to use in the Fortran name-mangling scheme, options
   are: \id{lower} or \id{upper}

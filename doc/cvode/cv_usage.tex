@@ -1271,6 +1271,7 @@ Jacobian-times-vector functions & \id{CVodeSetJacTimes} & NULL, DQ \\
 Jacobian-times-vector DQ RHS function & \id{CVodeSetJacTimesRhsFn} & NULL \\
 Preconditioner functions & \id{CVodeSetPreconditioner} & NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{CVodeSetEpsLin} & 0.05 \\
+Instruct CVODE to use specialized fused kernels when possible& \id{CVodeSetUseIntegratorFusedKernels} & {\tt SUNFALSE} \\
 \hline
 \end{tabular}
 \end{table}
@@ -1831,6 +1832,45 @@ flag = CVodeSetConstraints(cvode\_mem, constraints);
   However, a call with $0.0$ in all components of \id{constraints} will
   result in an illegal input return. A \id{NULL} constraints vector will disable
   constraint checking.
+}
+%%
+\ucfunction{CVodeSetUseIntegratorFusedKernels}
+{
+  flag = CVodeSetUseIntegratorFusedKernels(cvode\_mem, onoff);
+}
+{
+  The function \ID{CVodeSetUseIntegratorFusedKernels} informs {\cvode} that it should
+  use specialized fused kernels internally, if available. The specialized
+  kernels may offer performance improvements for small problem sizes. Users
+  should beware that these kernels can cause changes in the behavior of the
+  integrator. \textit{By default, these kernels are not used}.
+  Must be called after \ID{CVodeInit}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[onoff] (\id{booleantype})
+    boolean flag to turn on the specialized kernels (SUNTRUE),
+    or to turn them off (SUNFALSE)
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  \textbf{{\sundials} must be compiled appropriately for specialized kernels to be available}.
+  The CMake option \id{SUNDIALS\_BUILD\_PACKAGE\_FUSED\_KERNELS} must be set to
+  \id{ON} when {\sundials} is compiled. See the entry for this option in
+  section~\ref{ss:configuration_options_nix} for more requirements.
+  Currently, the fused kernels are only supported when using {\cvode}
+  with the {\nveccuda} module~\ref{ss:nvec_cuda}.
 }
 \index{optional input!solver|)}
 

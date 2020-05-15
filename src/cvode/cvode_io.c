@@ -563,6 +563,31 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
   return(CV_SUCCESS);
 }
 
+int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, booleantype onoff)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetUseIntegratorFusedKernels", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (!cv_mem->cv_MallocDone ||
+      N_VGetVectorID(cv_mem->cv_ewt) != SUNDIALS_NVEC_CUDA) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetUseIntegratorFusedKernels", MSGCV_BAD_NVECTOR);
+    return(CV_MEM_NULL);
+  }
+  cv_mem->cv_usefused = onoff;
+  return(CV_SUCCESS);
+#else
+  cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetUseIntegratorFusedKernels", "CVODE was not built with fused integrator kernels enabled");
+  return(CV_ILL_INPUT);
+#endif
+}
+
 /*
  * =================================================================
  * CVODE optional output functions

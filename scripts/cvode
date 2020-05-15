@@ -29,18 +29,21 @@ $tar $tarfile $distrobase/src/cvode/README.md      || exit 1
 $tar $tarfile $distrobase/src/cvode/CMakeLists.txt || exit 1
 
 $tar $tarfile $distrobase/src/cvode/cvode.c              || exit 1
+$tar $tarfile $distrobase/src/cvode/cvode_fused.cu       || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre.c      || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre_impl.h || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre.c       || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre_impl.h  || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_diag.c         || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_diag_impl.h    || exit 1
+$tar $tarfile $distrobase/src/cvode/cvode_diag_fused.cu  || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_direct.c       || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_impl.h         || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_io.c           || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_ls.c           || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_ls_impl.h      || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_nls.c          || exit 1
+$tar $tarfile $distrobase/src/cvode/cvode_nls_fused.cu   || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_spils.c        || exit 1
 
 echo "   --- Add fcvode module to $tarfile"
@@ -194,6 +197,10 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_kry_p.out     ||
 
 $tar $tarfile $distrobase/examples/cvode/cuda/README                                  || exit 1
 $tar $tarfile $distrobase/examples/cvode/cuda/CMakeLists.txt                          || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_diag_cuda.cu                  || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_diag_cuda_0_0.out             || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_diag_cuda_0_1.out             || exit 1
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_diag_cuda_1_1.out             || exit 1
 $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.cu                   || exit 1
 $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.out                  || exit 1
 $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.cu           || exit 1

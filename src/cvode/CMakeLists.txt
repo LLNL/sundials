@@ -53,6 +53,13 @@ set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/nvector/serial/nvector_serial.c
   )
 
+if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  list(APPEND cvode_SOURCES
+    cvode_fused.cu
+    cvode_nls_fused.cu
+    cvode_diag_fused.cu)
+endif()
+
 # Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
 # also be included in the CVODE library
 set(sunmatrix_SOURCES
@@ -109,6 +116,11 @@ if(BUILD_STATIC_LIBS)
     ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} ${sunnonlinsol_SOURCES}
   )
 
+  # If using fused kernels we need the CUDA NVector
+  if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    target_link_libraries(sundials_cvode_static PUBLIC sundials_nveccuda_static)
+  endif()
+
   # Set the library name and make sure it is not deleted
   set_target_properties(sundials_cvode_static
     PROPERTIES OUTPUT_NAME sundials_cvode CLEAN_DIRECT_OUTPUT 1)
@@ -126,7 +138,12 @@ if(BUILD_SHARED_LIBS)
   )
 
   if(UNIX)
-    target_link_libraries(sundials_cvode_shared m)
+    target_link_libraries(sundials_cvode_shared PRIVATE m)
+  endif()
+
+  # If using fused kernels we need the CUDA NVector
+  if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    target_link_libraries(sundials_cvode_shared PUBLIC sundials_nveccuda_shared)
   endif()
 
   # Set the library name and make sure it is not deleted
