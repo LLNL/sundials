@@ -70,8 +70,7 @@ module fcvode_mod
  integer(C_INT), parameter, public :: CV_VECTOROP_ERR = -28_C_INT
  integer(C_INT), parameter, public :: CV_PROJ_MEM_NULL = -29_C_INT
  integer(C_INT), parameter, public :: CV_PROJFUNC_FAIL = -30_C_INT
- integer(C_INT), parameter, public :: CV_PROJ_FAILURE = -31_C_INT
- integer(C_INT), parameter, public :: CV_REPTD_PROJFUNC_ERR = -32_C_INT
+ integer(C_INT), parameter, public :: CV_REPTD_PROJFUNC_ERR = -31_C_INT
  integer(C_INT), parameter, public :: CV_UNRECOGNIZED_ERR = -99_C_INT
  public :: FCVodeCreate
  public :: FCVodeInit
@@ -98,7 +97,6 @@ module fcvode_mod
  public :: FCVodeSetNonlinConvCoef
  public :: FCVodeSetConstraints
  public :: FCVodeSetNonlinearSolver
- public :: FCVodeSetUseIntegratorFusedKernels
  public :: FCVodeRootInit
  public :: FCVodeSetRootDirection
  public :: FCVodeSetNoInactiveRootWarn
@@ -422,15 +420,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetUseIntegratorFusedKernels(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetUseIntegratorFusedKernels") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1532,22 +1521,6 @@ type(C_PTR) :: farg2
 farg1 = cvode_mem
 farg2 = c_loc(nls)
 fresult = swigc_FCVodeSetNonlinearSolver(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetUseIntegratorFusedKernels(cvode_mem, onoff) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_INT), intent(in) :: onoff
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = cvode_mem
-farg2 = onoff
-fresult = swigc_FCVodeSetUseIntegratorFusedKernels(farg1, farg2)
 swig_result = fresult
 end function
 
