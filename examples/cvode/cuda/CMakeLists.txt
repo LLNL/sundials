@@ -118,8 +118,9 @@ if(EXAMPLES_INSTALL)
 
   examples2string(CVODE_examples EXAMPLES)
 
-  if(SUNDIALS_INDEX_SIZE MATCHES "32" AND cuda_arch_ok)
+  if(SUNDIALS_INDEX_SIZE MATCHES "32")
     set(SUNLS_LIB "sundials_sunlinsolcusolversp")
+    set(SUNMAT_LIB "sundials_sunmatrixcusparse")
     examples2string(CVODE_examples_cusolver EXAMPLES_CUSOLVER)
   endif()
 

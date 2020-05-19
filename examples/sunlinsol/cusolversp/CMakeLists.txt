@@ -124,8 +124,8 @@ if(EXAMPLES_INSTALL)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER_LIB "")
-  set(NVECTOR_LIB "sundials_nveccuda")
-  set(SUNMAT_LIB "sundials_sunmatrixdense sundials_sunmatrixsparse")
+  set(NVECTOR_LIB "sundials_nvecserial sundials_nveccuda")
+  set(SUNMAT_LIB "sundials_sunmatrixdense sundials_sunmatrixsparse sundials_sunmatrixcusparse")
   set(SUNLS_LIB "sundials_sunlinsolcusolversp")
 
   examples2string(sunlinsol_cusolversp_examples EXAMPLES_CUSOLVER)
