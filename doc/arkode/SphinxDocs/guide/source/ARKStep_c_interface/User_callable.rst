@@ -858,16 +858,20 @@ The optional inputs are grouped into the following categories:
 * IVP method solver options (:ref:`ARKStep_CInterface.ARKStepMethodInputTable`),
 * Step adaptivity solver options (:ref:`ARKStep_CInterface.ARKStepAdaptivityInputTable`),
 * Implicit stage solver options (:ref:`ARKStep_CInterface.ARKStep_CInterface.ARKStepSolverInputTable`),
-* Linear solver interface options (:ref:`ARKStep_CInterface.ARKLsInputs`),
+* Linear solver interface options (:ref:`ARKStep_CInterface.ARKLsInputs`), and
+* Rootfinding options (:ref:`ARKStep_CInterface.ARKStepRootfindingInputTable`).
 
 For the most casual use of ARKStep, relying on the default set of
 solver parameters, the reader can skip to the following section,
 :ref:`ARKStep_CInterface.UserSupplied`.
 
-We note that, on an error return, all of the optional input functions
-send an error message to the error handler function.  We also note
-that all error return values are negative, so a test on the return
-arguments for negative values will catch all errors.
+We note that, on an error return, all of the optional input functions send an
+error message to the error handler function. All error return values are
+negative, so a test on the return arguments for negative values will catch all
+errors. Finally, a call to an ``ARKStepSet***`` function can generally be made
+from the user's calling program at any time and, if successful, takes effect
+immediately. ``ARKStepSet***`` functions that cannot be called at any time note
+this in the "**Notes**:" section of the function documentation.
 
 
 
@@ -939,7 +943,8 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARK_MEM_FAIL* if the interpolation module cannot be allocated
-      * *ARK_ILL_INPUT* if the *itype* argument is not recognized
+      * *ARK_ILL_INPUT* if the *itype* argument is not recognized or the
+        interpolation module has already been initialized
 
    **Notes:** The Hermite interpolation module is described in the Section
    :ref:`Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
@@ -950,6 +955,8 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
    :c:func:`ARKStepSetInterpolantDegree()` will be nullified.
 
    This routine may only be called *after* the call to :c:func:`ARKStepCreate()`.
+   After the first call to :c:func:`ARKStepEvolve()` the interpolation type may
+   not be changed without first calling :c:func:`ARKStepReInit()`.
 
    If this routine is not called, the Hermite interpolation module will be used.
 
@@ -969,12 +976,15 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory or interpolation module are ``NULL``
       * *ARK_INTERP_FAIL* if this is called after :c:func:`ARKStepEvolve()`
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument has an illegal value or the
+        interpolation module has already been initialized
 
    **Notes:** Allowed values are between 0 and 5.
 
    This routine should be called *after* :c:func:`ARKStepCreate()` and *before*
-   :c:func:`ARKStepEvolve()`.
+   :c:func:`ARKStepEvolve()`. After the first call to :c:func:`ARKStepEvolve()`
+   the interpolation degree may not be changed without first calling
+   :c:func:`ARKStepReInit()`.
 
    If a user calls both this routine and :c:func:`ARKStepSetInterpolantType()`, then
    :c:func:`ARKStepSetInterpolantType()` must be called first.
@@ -2737,7 +2747,7 @@ the user through the :c:func:`ARKStepSetEpsLin()` function.
 
 
 
-
+.. _ARKStep_CInterface.ARKStepRootfindingInputTable:
 
 
 Rootfinding optional input functions

@@ -428,16 +428,20 @@ The optional inputs are grouped into the following categories:
 
 * General ERKStep options (:ref:`ERKStep_CInterface.ERKStepInputTable`),
 * IVP method solver options (:ref:`ERKStep_CInterface.ERKStepMethodInputTable`),
-* Step adaptivity solver options (:ref:`ERKStep_CInterface.ERKStepAdaptivityInputTable`),
+* Step adaptivity solver options (:ref:`ERKStep_CInterface.ERKStepAdaptivityInputTable`), and
+* Rootfinding options (:ref:`ERKStep_CInterface.ERKStepRootfindingInputTable`).
 
 For the most casual use of ERKStep, relying on the default set of
 solver parameters, the reader can skip to the following section,
 :ref:`ERKStep_CInterface.UserSupplied`.
 
-We note that, on an error return, all of the optional input functions
-send an error message to the error handler function.  We also note
-that all error return values are negative, so a test on the return
-arguments for negative values will catch all errors.
+We note that, on an error return, all of the optional input functions send an
+error message to the error handler function. All error return values are
+negative, so a test on the return arguments for negative values will catch all
+errors. Finally, a call to an ``ERKStepSet***`` function can generally be made
+from the user's calling program at any time and, if successful, takes effect
+immediately. ``ERKStepSet***`` functions that cannot be called at any time note
+this in the "**Notes**:" section of the function documentation.
 
 
 
@@ -507,7 +511,8 @@ Set max number of constraint failures               :c:func:`ERKStepSetMaxNumCon
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
       * *ARK_MEM_FAIL* if the interpolation module cannot be allocated
-      * *ARK_ILL_INPUT* if the *itype* argument is not recognized
+      * *ARK_ILL_INPUT* if the *itype* argument is not recognized or the
+        interpolation module has already been initialized
 
    **Notes:** The Hermite interpolation module is described in the Section
    :ref:`Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
@@ -518,6 +523,8 @@ Set max number of constraint failures               :c:func:`ERKStepSetMaxNumCon
    :c:func:`ERKStepSetInterpolantDegree()` will be nullified.
 
    This routine must be called *after* the call to :c:func:`ERKStepCreate()`.
+   After the first call to :c:func:`ERKStepEvolve()` the interpolation type may
+   not be changed without first calling :c:func:`ERKStepReInit()`.
 
    If this routine is not called, the Hermite interpolation module will be used.
 
@@ -537,12 +544,16 @@ Set max number of constraint failures               :c:func:`ERKStepSetMaxNumCon
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory or interpolation module are ``NULL``
       * *ARK_INTERP_FAIL* if this is called after :c:func:`ERKStepEvolve()`
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument has an illegal value or the
+        interpolation module has already been initialized
 
    **Notes:** Allowed values are between 0 and 5.
 
-   This routine should be called *after* :c:func:`ERKStepCreate()`
-   and *before* :c:func:`ERKStepEvolve()`.
+   This routine should be called *after* :c:func:`ERKStepCreate()` and *before*
+   :c:func:`ERKStepEvolve()`. After the first call to :c:func:`ERKStepEvolve()`
+   the interpolation degree may not be changed without first calling
+   :c:func:`ERKStepReInit()`.
+
 
    If a user calls both this routine and :c:func:`ERKStepSetInterpolantType()`, then
    :c:func:`ERKStepSetInterpolantType()` must be called first.
@@ -1203,13 +1214,13 @@ Explicit stability function                                :c:func:`ERKStepSetSt
    process.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *arkode_mem* -- pointer to the ERKStep memory block.
       * *eta_min* -- minimum allowed reduction factor time step after an error
         test failure (default is 0.1).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** Any value :math:`\ge 1.0` or :math:`\le 0.0` will imply a reset to
@@ -1281,7 +1292,7 @@ Explicit stability function                                :c:func:`ERKStepSetSt
 
 
 
-
+.. _ERKStep_CInterface.ERKStepRootfindingInputTable:
 
 
 Rootfinding optional input functions
@@ -1951,8 +1962,8 @@ Output the current Butcher table       :c:func:`ERKStepWriteButcher()`
       * *fp* -- pointer to use for printing the solver parameters.
 
    **Return value:**
-      * *ARKS_SUCCESS* if successful
-      * *ARKS_MEM_NULL* if the ERKStep memory was ``NULL``
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
    **Notes:** The *fp* argument can be ``stdout`` or ``stderr``, or it
    may point to a specific file created using ``fopen``.
@@ -2008,8 +2019,7 @@ solution of the new problem.
 The use of :c:func:`ERKStepReInit()` requires that the number of Runge
 Kutta stages, denoted by *s*, be no larger for the new problem than
 for the previous problem.  This condition is automatically fulfilled
-if the method order *q* and the problem type (explicit, implicit,
-ImEx) are left unchanged.
+if the method order *q* is left unchanged.
 
 One important use of the :c:func:`ERKStepReInit()` function is in the
 treating of jump discontinuities in the RHS function.  Except in cases

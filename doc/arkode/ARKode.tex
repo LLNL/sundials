@@ -1252,7 +1252,7 @@ BSD license anymore.
 
 \subsection{BSD 3-Clause License}
 \label{\detokenize{Introduction:bsd-3-clause-license}}
-Copyright (c) 2002-2019, Lawrence Livermore National Security and Southern
+Copyright (c) 2002-2020, Lawrence Livermore National Security and Southern
 Methodist University.
 
 All rights reserved.
@@ -5181,7 +5181,10 @@ Step adaptivity solver options ({\hyperref[\detokenize{ARKStep_c_interface/User_
 Implicit stage solver options ({\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arkstep-cinterface-arkstepsolverinputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional inputs for implicit stage solves}}}}),
 
 \item {} 
-Linear solver interface options ({\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arklsinputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Linear solver interface optional input functions}}}}),
+Linear solver interface options ({\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arklsinputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Linear solver interface optional input functions}}}}), and
+
+\item {} 
+Rootfinding options ({\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arksteprootfindinginputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding optional input functions}}}}).
 
 \end{itemize}
 
@@ -5189,10 +5192,13 @@ For the most casual use of ARKStep, relying on the default set of
 solver parameters, the reader can skip to the following section,
 {\hyperref[\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-usersupplied}]{\sphinxcrossref{\DUrole{std,std-ref}{User-supplied functions}}}}.
 
-We note that, on an error return, all of the optional input functions
-send an error message to the error handler function.  We also note
-that all error return values are negative, so a test on the return
-arguments for negative values will catch all errors.
+We note that, on an error return, all of the optional input functions send an
+error message to the error handler function. All error return values are
+negative, so a test on the return arguments for negative values will catch all
+errors. Finally, a call to an \sphinxcode{ARKStepSet***} function can generally be made
+from the user’s calling program at any time and, if successful, takes effect
+immediately. \sphinxcode{ARKStepSet***} functions that cannot be called at any time note
+this in the “\sphinxstylestrong{Notes}:” section of the function documentation.
 
 
 \subsubsection{Optional inputs for ARKStep}
@@ -5402,7 +5408,8 @@ method predictors).
 \sphinxstyleemphasis{ARK\_MEM\_FAIL} if the interpolation module cannot be allocated
 
 \item {} 
-\sphinxstyleemphasis{ARK\_ILL\_INPUT} if the \sphinxstyleemphasis{itype} argument is not recognized
+\sphinxstyleemphasis{ARK\_ILL\_INPUT} if the \sphinxstyleemphasis{itype} argument is not recognized or the
+interpolation module has already been initialized
 
 \end{itemize}
 
@@ -5417,6 +5424,8 @@ one according to the specified argument.  Thus any previous calls to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetInterpolantDegree}]{\sphinxcrossref{\sphinxcode{ARKStepSetInterpolantDegree()}}}} will be nullified.
 
 This routine may only be called \sphinxstyleemphasis{after} the call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}]{\sphinxcrossref{\sphinxcode{ARKStepCreate()}}}}.
+After the first call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\sphinxcrossref{\sphinxcode{ARKStepEvolve()}}}} the interpolation type may
+not be changed without first calling {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReInit}]{\sphinxcrossref{\sphinxcode{ARKStepReInit()}}}}.
 
 If this routine is not called, the Hermite interpolation module will be used.
 
@@ -5450,7 +5459,8 @@ and implicit method predictors).
 \sphinxstyleemphasis{ARK\_INTERP\_FAIL} if this is called after {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\sphinxcrossref{\sphinxcode{ARKStepEvolve()}}}}
 
 \item {} 
-\sphinxstyleemphasis{ARK\_ILL\_INPUT} if an argument has an illegal value
+\sphinxstyleemphasis{ARK\_ILL\_INPUT} if an argument has an illegal value or the
+interpolation module has already been initialized
 
 \end{itemize}
 
@@ -5459,7 +5469,9 @@ and implicit method predictors).
 \sphinxstylestrong{Notes:} Allowed values are between 0 and 5.
 
 This routine should be called \sphinxstyleemphasis{after} {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}]{\sphinxcrossref{\sphinxcode{ARKStepCreate()}}}} and \sphinxstyleemphasis{before}
-{\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\sphinxcrossref{\sphinxcode{ARKStepEvolve()}}}}.
+{\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\sphinxcrossref{\sphinxcode{ARKStepEvolve()}}}}. After the first call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\sphinxcrossref{\sphinxcode{ARKStepEvolve()}}}}
+the interpolation degree may not be changed without first calling
+{\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReInit}]{\sphinxcrossref{\sphinxcode{ARKStepReInit()}}}}.
 
 If a user calls both this routine and {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetInterpolantType}]{\sphinxcrossref{\sphinxcode{ARKStepSetInterpolantType()}}}}, then
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetInterpolantType}]{\sphinxcrossref{\sphinxcode{ARKStepSetInterpolantType()}}}} must be called first.
@@ -8478,7 +8490,7 @@ of 0.05.
 
 
 \subsubsection{Rootfinding optional input functions}
-\label{\detokenize{ARKStep_c_interface/User_callable:rootfinding-optional-input-functions}}
+\label{\detokenize{ARKStep_c_interface/User_callable:rootfinding-optional-input-functions}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arksteprootfindinginputtable}}
 The following functions can be called to set optional inputs to
 control the rootfinding algorithm, the mathematics of which are
 described in the section {\hyperref[\detokenize{Mathematics:mathematics-rootfinding}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding}}}}.
@@ -14131,7 +14143,10 @@ General ERKStep options ({\hyperref[\detokenize{ERKStep_c_interface/User_callabl
 IVP method solver options ({\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erkstepmethodinputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional inputs for IVP method selection}}}}),
 
 \item {} 
-Step adaptivity solver options ({\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erkstepadaptivityinputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional inputs for time step adaptivity}}}}),
+Step adaptivity solver options ({\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erkstepadaptivityinputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional inputs for time step adaptivity}}}}), and
+
+\item {} 
+Rootfinding options ({\hyperref[\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erksteprootfindinginputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding optional input functions}}}}).
 
 \end{itemize}
 
@@ -14139,10 +14154,13 @@ For the most casual use of ERKStep, relying on the default set of
 solver parameters, the reader can skip to the following section,
 {\hyperref[\detokenize{ERKStep_c_interface/User_supplied:erkstep-cinterface-usersupplied}]{\sphinxcrossref{\DUrole{std,std-ref}{User-supplied functions}}}}.
 
-We note that, on an error return, all of the optional input functions
-send an error message to the error handler function.  We also note
-that all error return values are negative, so a test on the return
-arguments for negative values will catch all errors.
+We note that, on an error return, all of the optional input functions send an
+error message to the error handler function. All error return values are
+negative, so a test on the return arguments for negative values will catch all
+errors. Finally, a call to an \sphinxcode{ERKStepSet***} function can generally be made
+from the user’s calling program at any time and, if successful, takes effect
+immediately. \sphinxcode{ERKStepSet***} functions that cannot be called at any time note
+this in the “\sphinxstylestrong{Notes}:” section of the function documentation.
 
 
 \subsubsection{Optional inputs for ERKStep}
@@ -14345,7 +14363,8 @@ method predictors).
 \sphinxstyleemphasis{ARK\_MEM\_FAIL} if the interpolation module cannot be allocated
 
 \item {} 
-\sphinxstyleemphasis{ARK\_ILL\_INPUT} if the \sphinxstyleemphasis{itype} argument is not recognized
+\sphinxstyleemphasis{ARK\_ILL\_INPUT} if the \sphinxstyleemphasis{itype} argument is not recognized or the
+interpolation module has already been initialized
 
 \end{itemize}
 
@@ -14360,6 +14379,8 @@ one according to the specified argument.  Thus any previous calls to
 {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetInterpolantDegree}]{\sphinxcrossref{\sphinxcode{ERKStepSetInterpolantDegree()}}}} will be nullified.
 
 This routine must be called \sphinxstyleemphasis{after} the call to {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepCreate}]{\sphinxcrossref{\sphinxcode{ERKStepCreate()}}}}.
+After the first call to {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepEvolve}]{\sphinxcrossref{\sphinxcode{ERKStepEvolve()}}}} the interpolation type may
+not be changed without first calling {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReInit}]{\sphinxcrossref{\sphinxcode{ERKStepReInit()}}}}.
 
 If this routine is not called, the Hermite interpolation module will be used.
 
@@ -14393,7 +14414,8 @@ and implicit method predictors).
 \sphinxstyleemphasis{ARK\_INTERP\_FAIL} if this is called after {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepEvolve}]{\sphinxcrossref{\sphinxcode{ERKStepEvolve()}}}}
 
 \item {} 
-\sphinxstyleemphasis{ARK\_ILL\_INPUT} if an argument has an illegal value
+\sphinxstyleemphasis{ARK\_ILL\_INPUT} if an argument has an illegal value or the
+interpolation module has already been initialized
 
 \end{itemize}
 
@@ -14401,8 +14423,10 @@ and implicit method predictors).
 
 \sphinxstylestrong{Notes:} Allowed values are between 0 and 5.
 
-This routine should be called \sphinxstyleemphasis{after} {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepCreate}]{\sphinxcrossref{\sphinxcode{ERKStepCreate()}}}}
-and \sphinxstyleemphasis{before} {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepEvolve}]{\sphinxcrossref{\sphinxcode{ERKStepEvolve()}}}}.
+This routine should be called \sphinxstyleemphasis{after} {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepCreate}]{\sphinxcrossref{\sphinxcode{ERKStepCreate()}}}} and \sphinxstyleemphasis{before}
+{\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepEvolve}]{\sphinxcrossref{\sphinxcode{ERKStepEvolve()}}}}. After the first call to {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepEvolve}]{\sphinxcrossref{\sphinxcode{ERKStepEvolve()}}}}
+the interpolation degree may not be changed without first calling
+{\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReInit}]{\sphinxcrossref{\sphinxcode{ERKStepReInit()}}}}.
 
 If a user calls both this routine and {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetInterpolantType}]{\sphinxcrossref{\sphinxcode{ERKStepSetInterpolantType()}}}}, then
 {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetInterpolantType}]{\sphinxcrossref{\sphinxcode{ERKStepSetInterpolantType()}}}} must be called first.
@@ -15585,7 +15609,7 @@ process.
 \begin{description}
 \item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstyleemphasis{arkode\_mem} \textendash{} pointer to the ARKStep memory block.
+\sphinxstyleemphasis{arkode\_mem} \textendash{} pointer to the ERKStep memory block.
 
 \item {} 
 \sphinxstyleemphasis{eta\_min} \textendash{} minimum allowed reduction factor time step after an error
@@ -15598,7 +15622,7 @@ test failure (default is 0.1).
 \sphinxstyleemphasis{ARK\_SUCCESS} if successful
 
 \item {} 
-\sphinxstyleemphasis{ARK\_MEM\_NULL} if the ARKStep memory is \sphinxcode{NULL}
+\sphinxstyleemphasis{ARK\_MEM\_NULL} if the ERKStep memory is \sphinxcode{NULL}
 
 \item {} 
 \sphinxstyleemphasis{ARK\_ILL\_INPUT} if an argument has an illegal value
@@ -15728,7 +15752,7 @@ terms.
 
 
 \subsubsection{Rootfinding optional input functions}
-\label{\detokenize{ERKStep_c_interface/User_callable:rootfinding-optional-input-functions}}
+\label{\detokenize{ERKStep_c_interface/User_callable:rootfinding-optional-input-functions}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erksteprootfindinginputtable}}
 The following functions can be called to set optional inputs to
 control the rootfinding algorithm, the mathematics of which are
 described in the section {\hyperref[\detokenize{Mathematics:mathematics-rootfinding}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding}}}}.
@@ -16910,10 +16934,10 @@ Outputs all ERKStep solver parameters to the provided file pointer.
 
 \item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstyleemphasis{ARKS\_SUCCESS} if successful
+\sphinxstyleemphasis{ARK\_SUCCESS} if successful
 
 \item {} 
-\sphinxstyleemphasis{ARKS\_MEM\_NULL} if the ERKStep memory was \sphinxcode{NULL}
+\sphinxstyleemphasis{ARK\_MEM\_NULL} if the ERKStep memory was \sphinxcode{NULL}
 
 \end{itemize}
 
@@ -16984,8 +17008,7 @@ solution of the new problem.
 The use of {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReInit}]{\sphinxcrossref{\sphinxcode{ERKStepReInit()}}}} requires that the number of Runge
 Kutta stages, denoted by \sphinxstyleemphasis{s}, be no larger for the new problem than
 for the previous problem.  This condition is automatically fulfilled
-if the method order \sphinxstyleemphasis{q} and the problem type (explicit, implicit,
-ImEx) are left unchanged.
+if the method order \sphinxstyleemphasis{q} is left unchanged.
 
 One important use of the {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReInit}]{\sphinxcrossref{\sphinxcode{ERKStepReInit()}}}} function is in the
 treating of jump discontinuities in the RHS function.  Except in cases
@@ -18259,16 +18282,22 @@ General MRIStep options ({\hyperref[\detokenize{MRIStep_c_interface/User_callabl
 \item {} 
 IVP method solver options ({\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepmethodinputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Optional inputs for IVP method selection}}}})
 
+\item {} 
+Rootfinding options ({\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristeprootfindinginputtable}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding optional input functions}}}}).
+
 \end{itemize}
 
 For the most casual use of MRIStep, relying on the default set of
 solver parameters, the reader can skip to the following section,
 {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-usersupplied}]{\sphinxcrossref{\DUrole{std,std-ref}{User-supplied functions}}}}.
 
-We note that, on an error return, all of the optional input functions
-send an error message to the error handler function.  We also note
-that all error return values are negative, so a test on the return
-arguments for negative values will catch all errors.
+We note that, on an error return, all of the optional input functions send an
+error message to the error handler function. All error return values are
+negative, so a test on the return arguments for negative values will catch all
+errors. Finally, a call to an \sphinxcode{MRIStepSet***} function can generally be made
+from the user’s calling program at any time and, if successful, takes effect
+immediately. \sphinxcode{MRIStepSet***} functions that cannot be called at any time note
+this in the “\sphinxstylestrong{Notes}:” section of the function documentation.
 
 
 \subsubsection{Optional inputs for MRIStep}
@@ -18444,7 +18473,8 @@ method predictors).
 \sphinxstyleemphasis{ARK\_MEM\_FAIL} if the interpolation module cannot be allocated
 
 \item {} 
-\sphinxstyleemphasis{ARK\_ILL\_INPUT} if the \sphinxstyleemphasis{itype} argument is not recognized
+\sphinxstyleemphasis{ARK\_ILL\_INPUT} if the \sphinxstyleemphasis{itype} argument is not recognized or the
+interpolation module has already been initialized
 
 \end{itemize}
 
@@ -18459,6 +18489,8 @@ one according to the specified argument.  Thus any previous calls to
 {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetInterpolantDegree}]{\sphinxcrossref{\sphinxcode{MRIStepSetInterpolantDegree()}}}} will be nullified.
 
 This routine must be called \sphinxstyleemphasis{after} the call to {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepCreate}]{\sphinxcrossref{\sphinxcode{MRIStepCreate()}}}}.
+After the first call to {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepEvolve}]{\sphinxcrossref{\sphinxcode{MRIStepEvolve()}}}} the interpolation type may
+not be changed without first calling {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReInit}]{\sphinxcrossref{\sphinxcode{MRIStepReInit()}}}}.
 
 If this routine is not called, the Hermite interpolation module will be used.
 
@@ -18492,7 +18524,8 @@ and implicit method predictors).
 \sphinxstyleemphasis{ARK\_INTERP\_FAIL} if this is called after {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepEvolve}]{\sphinxcrossref{\sphinxcode{MRIStepEvolve()}}}}
 
 \item {} 
-\sphinxstyleemphasis{ARK\_ILL\_INPUT} if an argument has an illegal value
+\sphinxstyleemphasis{ARK\_ILL\_INPUT} if an argument has an illegal value or the
+interpolation module has already been initialized
 
 \end{itemize}
 
@@ -18500,8 +18533,10 @@ and implicit method predictors).
 
 \sphinxstylestrong{Notes:} Allowed values are between 0 and 5.
 
-This routine should be called \sphinxstyleemphasis{after} {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepCreate}]{\sphinxcrossref{\sphinxcode{MRIStepCreate()}}}}
-and \sphinxstyleemphasis{before} {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepEvolve}]{\sphinxcrossref{\sphinxcode{MRIStepEvolve()}}}}.
+This routine should be called \sphinxstyleemphasis{after} {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepCreate}]{\sphinxcrossref{\sphinxcode{MRIStepCreate()}}}} and \sphinxstyleemphasis{before}
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepEvolve}]{\sphinxcrossref{\sphinxcode{MRIStepEvolve()}}}}. After the first call to {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepEvolve}]{\sphinxcrossref{\sphinxcode{MRIStepEvolve()}}}}
+the interpolation degree may not be changed without first calling
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReInit}]{\sphinxcrossref{\sphinxcode{MRIStepReInit()}}}}.
 
 If a user calls both this routine and {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetInterpolantType}]{\sphinxcrossref{\sphinxcode{MRIStepSetInterpolantType()}}}}, then
 {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetInterpolantType}]{\sphinxcrossref{\sphinxcode{MRIStepSetInterpolantType()}}}} must be called first.
@@ -18850,7 +18885,7 @@ integrator depending on what is required by the user code.
 \index{MRIStepSetPreInnerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetPreInnerFn}}\pysiglinewithargsret{int \sphinxbfcode{MRIStepSetPreInnerFn}}{void*\sphinxstyleemphasis{ arkode\_mem}, ARKInnerToOuterFn\sphinxstyleemphasis{ prefn}}{}
+\phantomsection\label{\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetPreInnerFn}}\pysiglinewithargsret{int \sphinxbfcode{MRIStepSetPreInnerFn}}{void*\sphinxstyleemphasis{ arkode\_mem}, {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.MRIStepPreInnerFn}]{\sphinxcrossref{MRIStepPreInnerFn}}}\sphinxstyleemphasis{ prefn}}{}
 Specifies the function called \sphinxstyleemphasis{before} each inner integration.
 \begin{description}
 \item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
@@ -18858,7 +18893,7 @@ Specifies the function called \sphinxstyleemphasis{before} each inner integratio
 \sphinxstyleemphasis{arkode\_mem} \textendash{} pointer to the MRIStep memory block.
 
 \item {} 
-\sphinxstyleemphasis{prefn} \textendash{} the name of the C function (of type \sphinxcode{ARKOuterToInner()})
+\sphinxstyleemphasis{prefn} \textendash{} the name of the C function (of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.MRIStepPreInnerFn}]{\sphinxcrossref{\sphinxcode{MRIStepPreInnerFn()}}}})
 defining pre inner integration function.
 
 \end{itemize}
@@ -18879,7 +18914,7 @@ defining pre inner integration function.
 \index{MRIStepSetPostInnerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetPostInnerFn}}\pysiglinewithargsret{int \sphinxbfcode{MRIStepSetPostInnerFn}}{void*\sphinxstyleemphasis{ arkode\_mem}, ARKOuterToInnerFn\sphinxstyleemphasis{ postfn}}{}
+\phantomsection\label{\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetPostInnerFn}}\pysiglinewithargsret{int \sphinxbfcode{MRIStepSetPostInnerFn}}{void*\sphinxstyleemphasis{ arkode\_mem}, {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.MRIStepPostInnerFn}]{\sphinxcrossref{MRIStepPostInnerFn}}}\sphinxstyleemphasis{ postfn}}{}
 Specifies the function called \sphinxstyleemphasis{after} each inner integration.
 \begin{description}
 \item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
@@ -18887,7 +18922,7 @@ Specifies the function called \sphinxstyleemphasis{after} each inner integration
 \sphinxstyleemphasis{arkode\_mem} \textendash{} pointer to the MRIStep memory block.
 
 \item {} 
-\sphinxstyleemphasis{postfn} \textendash{} the name of the C function (of type \sphinxcode{ARKInnerToOuter()})
+\sphinxstyleemphasis{postfn} \textendash{} the name of the C function (of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.MRIStepPostInnerFn}]{\sphinxcrossref{\sphinxcode{MRIStepPostInnerFn()}}}})
 defining post inner integration function.
 
 \end{itemize}
@@ -19029,7 +19064,7 @@ restrictions listed above for {\hyperref[\detokenize{MRIStep_c_interface/User_ca
 
 
 \subsubsection{Rootfinding optional input functions}
-\label{\detokenize{MRIStep_c_interface/User_callable:rootfinding-optional-input-functions}}
+\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristeprootfindinginputtable}}\label{\detokenize{MRIStep_c_interface/User_callable:rootfinding-optional-input-functions}}
 The following functions can be called to set optional inputs to
 control the rootfinding algorithm, the mathematics of which are
 described in the section {\hyperref[\detokenize{Mathematics:mathematics-rootfinding}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding}}}}.
@@ -19894,11 +19929,6 @@ MRIStep outer (slow) stepper.
 \item {} 
 \sphinxstyleemphasis{fs} \textendash{} the name of the C function (of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKRhsFn}]{\sphinxcrossref{\sphinxcode{ARKRhsFn()}}}})
 defining the slow right-hand side function in \(\dot{y} = f_s(t,y) +
-f_f(t,y)\).
-
-\item {} 
-\sphinxstyleemphasis{ff} \textendash{} the name of the C function (of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKRhsFn}]{\sphinxcrossref{\sphinxcode{ARKRhsFn()}}}})
-defining the fast right-hand side function in \(\dot{y} = f_s(t,y) +
 f_f(t,y)\).
 
 \item {} 

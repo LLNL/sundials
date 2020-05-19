@@ -3,13 +3,13 @@
 %===================================================================================
 
 This chapter describes the use of {\cvodes} to compute solution sensitivities using
-forward sensitivity analysis. One of our main guiding principles was to design 
+forward sensitivity analysis. One of our main guiding principles was to design
 the {\cvodes} user interface for forward sensitivity analysis as an extension of
-that for IVP integration. Assuming a user main program and user-defined support 
-routines for IVP integration have already been defined, in order to perform 
-forward sensitivity analysis the user only has to insert a few more calls 
+that for IVP integration. Assuming a user main program and user-defined support
+routines for IVP integration have already been defined, in order to perform
+forward sensitivity analysis the user only has to insert a few more calls
 into the main program and (optionally) define an additional routine which
-computes the right-hand side of the sensitivity systems (\ref{e:sens_eqns}). 
+computes the right-hand side of the sensitivity systems (\ref{e:sens_eqns}).
 The only departure from this philosophy is due to the \id{CVRhsFn} type definition
 (\S\ref{ss:rhsFn}). Without changing the definition of this type, the
 only way to pass values of the problem parameters to the ODE right-hand side
@@ -30,14 +30,14 @@ already described in Chapter \ref{s:simulation}.
 %---------------------------------------------------------------------
 
 The following is a skeleton of the user's main program (or calling
-program) as an application of {\cvodes}. The user program is to have these 
+program) as an application of {\cvodes}. The user program is to have these
 steps in the order indicated, unless otherwise noted.
 For the sake of brevity, we defer many of the details to the later sections.
 As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector},
 {\sunmatrix}, {\sunlinsol}, and {\sunnonlinsol} implementations used.
 For the steps that are not, refer to Chapters \ref{s:nvector},
 \ref{s:sunmatrix}, \ref{s:sunlinsol}, and \ref{c:sunnonlinsol} for the specific
-name of the function to be called or macro to be referenced. 
+name of the function to be called or macro to be referenced.
 
 Differences between the user main program in \S\ref{ss:skeleton_sim} and
 the one below start only at step (\ref{i:fwd_start}).
@@ -51,8 +51,8 @@ forward sensitivity analysis beyond those for IVP solution
 %%
 \index{User main program!forward sensitivity analysis}
 \begin{Steps}
-  
-\item 
+
+\item
   \textcolor{gray}{\bf Initialize parallel or multi-threaded environment,
   if appropriate}
 
@@ -61,7 +61,7 @@ forward sensitivity analysis beyond those for IVP solution
 
 \item
   \textcolor{gray}{\bf Set vector of initial values}
- 
+
 \item
   \textcolor{gray}{\bf Create {\cvodes} object}
 
@@ -107,14 +107,14 @@ forward sensitivity analysis beyond those for IVP solution
 
       Set \id{Ns} $= N_s$, the number of parameters with respect to which sensitivities
       are to be computed.
-  
+
     \item Problem parameters (optional)
 
-      If {\cvodes} is to evaluate the right-hand sides of the sensitivity 
-      systems, set \id{p}, an array of \id{Np} real parameters upon which the IVP 
-      depends. Only parameters with respect to which sensitivities are (potentially) 
-      desired need to be included. 
-      Attach \id{p} to the user data structure \id{user\_data}. 
+      If {\cvodes} is to evaluate the right-hand sides of the sensitivity
+      systems, set \id{p}, an array of \id{Np} real parameters upon which the IVP
+      depends. Only parameters with respect to which sensitivities are (potentially)
+      desired need to be included.
+      Attach \id{p} to the user data structure \id{user\_data}.
       For example, \id{user\_data->p = p;}
 
       If the user provides a function to evaluate the sensitivity right-hand side,
@@ -122,8 +122,8 @@ forward sensitivity analysis beyond those for IVP solution
 
     \item Parameter list (optional)
 
-      If {\cvodes} is to evaluate the right-hand sides of the sensitivity 
-      systems, set \id{plist}, an array of \id{Ns} integers to specify the 
+      If {\cvodes} is to evaluate the right-hand sides of the sensitivity
+      systems, set \id{plist}, an array of \id{Ns} integers to specify the
       parameters \id{p} with respect to which solution sensitivities are to be computed.
       If sensitivities with respect to the $j$-th parameter \id{p[j]} are desired
       $(0 \leq $ \id{j} $ < $ \id{Np}), set
@@ -139,7 +139,7 @@ forward sensitivity analysis beyond those for IVP solution
     \item Parameter scaling factors (optional)
 
       If {\cvodes} is to estimate tolerances for the sensitivity solution vectors (based
-      on tolerances for the state solution vector) or if {\cvodes} is to evaluate 
+      on tolerances for the state solution vector) or if {\cvodes} is to evaluate
       the right-hand sides of the sensitivity systems using the internal difference-quotient
       function, the results will be more accurate if order of magnitude information is provided.
 
@@ -181,8 +181,8 @@ forward sensitivity analysis beyond those for IVP solution
 \item
   {\bf Activate sensitivity calculations}
 
-  Call \id{flag = }\Id{CVodeSensInit} or \Id{CVodeSensInit1} to activate forward 
-  sensitivity computations and allocate internal memory for {\cvodes} related 
+  Call \id{flag = }\Id{CVodeSensInit} or \Id{CVodeSensInit1} to activate forward
+  sensitivity computations and allocate internal memory for {\cvodes} related
   to sensitivity calculations (see \S\ref{ss:sensi_malloc}).
 
 \item
@@ -195,10 +195,10 @@ forward sensitivity analysis beyond those for IVP solution
   {\bf Set sensitivity analysis optional inputs}
 
   Call \id{CVodeSetSens*} routines to change from their default values any
-  optional inputs that control the behavior of {\cvodes} in computing forward 
+  optional inputs that control the behavior of {\cvodes} in computing forward
   sensitivities.  (See \S\ref{ss:sens_optional_input}.)
 
-\item 
+\item
   {\bf Create sensitivity nonlinear solver object} (\textit{optional})
 
   If using a non-default nonlinear solver (see
@@ -256,8 +256,8 @@ forward sensitivity analysis beyond those for IVP solution
 
   After each successful return from \id{CVode}, the solution of the
   original IVP is available in the \id{y} argument of \id{CVode},
-  while the sensitivity solution can be extracted into \id{yS} (which can 
-  be the same as \id{yS0}) by calling one of the routines 
+  while the sensitivity solution can be extracted into \id{yS} (which can
+  be the same as \id{yS0}) by calling one of the routines
   \Id{CVodeGetSens},\Id{CVodeGetSens1}, \Id{CVodeGetSensDky}, or \Id{CVodeGetSensDky1}
   (see \S\ref{ss:sensi_get}).
 
@@ -267,7 +267,7 @@ forward sensitivity analysis beyond those for IVP solution
 \item
   \textcolor{gray}{\bf Deallocate memory for solution vector}
 
-\item 
+\item
   {\bf Deallocate memory for sensitivity vectors}
 
   Upon completion of the integration, deallocate memory for the vectors \id{yS0}
@@ -290,12 +290,12 @@ forward sensitivity analysis beyond those for IVP solution
 \item
   \textcolor{gray}{\bf Free vector specification memory}
 
-\item 
+\item
   \textcolor{gray}{\bf Free linear solver and matrix memory}
 
-\item 
+\item
   \textcolor{gray}{\bf Finalize MPI, if used}
-  
+
 \end{Steps}
 
 %-------------------------------------------------------------------------------
@@ -328,7 +328,7 @@ The form of the call to each of these routines is as follows:
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
 
-  \item[Ns] (\id{int}) 
+  \item[Ns] (\id{int})
     the number of sensitivities to be computed.
   \item[ism] (\id{int})
     \index{forward sensitivity analysis!correction strategies}
@@ -340,16 +340,16 @@ The form of the call to each of these routines is as follows:
       solver is used, this amounts to performing a modified Newton iteration on
       the combined nonlinear system;
     \item In the \ID{CV\_STAGGERED} approach, the correction step for the sensitivity
-      variables takes place at the same time for all sensitivity equations, but only after 
-      the correction of the state variables has converged and the state variables 
-      have passed the local error test; 
+      variables takes place at the same time for all sensitivity equations, but only after
+      the correction of the state variables has converged and the state variables
+      have passed the local error test;
     \end{itemize}
 
   \item[fS] (\Id{CVSensRhsFn})
     is the {\CC} function which computes all sensitivity ODE right-hand sides at the same time.
     For full details see \S\ref{s:user_fct_fwd}.
-  \item[yS0] (\id{N\_Vector *}) 
-    a pointer to an array of \id{Ns} vectors containing the initial 
+  \item[yS0] (\id{N\_Vector *})
+    a pointer to an array of \id{Ns} vectors containing the initial
     values of the sensitivities.
 
   \end{args}
@@ -359,17 +359,17 @@ The form of the call to each of these routines is as follows:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeSensInit} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
-    The {\cvodes} memory block was not initialized through a 
+  \item[\Id{CV\_MEM\_NULL}]
+    The {\cvodes} memory block was not initialized through a
     previous call to \id{CVodeCreate}.
-  \item[\Id{CV\_MEM\_FAIL}] 
+  \item[\Id{CV\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{CV\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}]
     An input argument to \id{CVodeSensInit} has an illegal value.
   \end{args}
 }
 {
-  Passing \id{fS}$=$\id{NULL} indicates using the default internal difference 
+  Passing \id{fS}$=$\id{NULL} indicates using the default internal difference
   quotient sensitivity right-hand side routine.
 
   If an error occurred, \id{CVodeSensInit} also sends an error message to the
@@ -395,12 +395,12 @@ The form of the call to each of these routines is as follows:
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
 
-  \item[Ns] (\id{int}) 
+  \item[Ns] (\id{int})
     the number of sensitivities to be computed.
 
   \item[ism] (\id{int})
     \index{forward sensitivity analysis!correction strategies}
-    a flag used to select the sensitivity solution method. Its value can 
+    a flag used to select the sensitivity solution method. Its value can
     be \id{CV\_SIMULTANEOUS}, \id{CV\_STAGGERED}, or \id{CV\_STAGGERED1}:
     \begin{itemize}
     \item In the \ID{CV\_SIMULTANEOUS} approach, the state and sensitivity
@@ -408,13 +408,13 @@ The form of the call to each of these routines is as follows:
       solver is used, this amounts to performing a modified Newton iteration on
       the combined nonlinear system;
     \item In the \ID{CV\_STAGGERED} approach, the correction step for the sensitivity
-      variables takes place at the same time for all sensitivity equations, but only after 
-      the correction of the state variables has converged and the state variables 
-      have passed the local error test; 
+      variables takes place at the same time for all sensitivity equations, but only after
+      the correction of the state variables has converged and the state variables
+      have passed the local error test;
     \item In the \ID{CV\_STAGGERED1} approach, all corrections are done sequentially, first
       for the state variables and then for the sensitivity variables, one parameter at
-      a time. If the sensitivity variables are not included in the error control, this 
-      approach is equivalent to \id{CV\_STAGGERED}. Note that the \id{CV\_STAGGERED1} approach 
+      a time. If the sensitivity variables are not included in the error control, this
+      approach is equivalent to \id{CV\_STAGGERED}. Note that the \id{CV\_STAGGERED1} approach
       can be used only if the user-provided sensitivity right-hand side function is of type
       \id{CVSensRhs1Fn} (see \S\ref{s:user_fct_fwd}).
     \end{itemize}
@@ -423,8 +423,8 @@ The form of the call to each of these routines is as follows:
     is the {\CC} function which computes the right-hand sides of the sensitivity ODE, one
     at a time. For full details see \S\ref{s:user_fct_fwd}.
 
-  \item[yS0] (\id{N\_Vector *}) 
-    a pointer to an array of \id{Ns} vectors containing the initial 
+  \item[yS0] (\id{N\_Vector *})
+    a pointer to an array of \id{Ns} vectors containing the initial
     values of the sensitivities.
 
   \end{args}
@@ -434,17 +434,17 @@ The form of the call to each of these routines is as follows:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeSensInit1} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
-    The {\cvodes} memory block was not initialized through a 
+  \item[\Id{CV\_MEM\_NULL}]
+    The {\cvodes} memory block was not initialized through a
     previous call to \id{CVodeCreate}.
-  \item[\Id{CV\_MEM\_FAIL}] 
+  \item[\Id{CV\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{CV\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}]
     An input argument to \id{CVodeSensInit1} has an illegal value.
   \end{args}
 }
 {
-  Passing \id{fS1}$=$\id{NULL} indicates using the default internal difference 
+  Passing \id{fS1}$=$\id{NULL} indicates using the default internal difference
   quotient sensitivity right-hand side routine.
 
   If an error occurred, \id{CVodeSensInit1} also sends an error message to the
@@ -453,16 +453,16 @@ The form of the call to each of these routines is as follows:
 %%
 %%
 \index{memory requirements!CVODES@{\cvodes} solver}
-In terms of the problem size $N$, number of sensitivity vectors $N_s$, and maximum method 
+In terms of the problem size $N$, number of sensitivity vectors $N_s$, and maximum method
 order \id{maxord}, the size of the real workspace is increased as follows:
 \begin{itemize}
 \item Base value: \id{lenrw} $=$ \id{lenrw} $+$ (\id{maxord+5})$N_s N$
-\item With \id{CVodeSensSVtolerances}: \id{lenrw} $=$ \id{lenrw} $+ N_s N$ 
+\item With \id{CVodeSensSVtolerances}: \id{lenrw} $=$ \id{lenrw} $+ N_s N$
 \end{itemize}
 the size of the integer workspace is increased as follows:
 \begin{itemize}
 \item Base value: \id{leniw} $=$ \id{leniw} $+$ (\id{maxord+5})$N_s N_i$
-\item With \id{CVodeSensSVtolerances}: \id{leniw} $=$ \id{leniw} $+ N_s N_i$ 
+\item With \id{CVodeSensSVtolerances}: \id{leniw} $=$ \id{leniw} $+ N_s N_i$
 \end{itemize}
 where $N_i$ is the number of integers in one \id{N\_Vector}.
 
@@ -489,11 +489,11 @@ The call to the \id{CVodeSensReInit} function has the form:
 
   \item[ism] (\id{int})
     \index{forward sensitivity analysis!correction strategies}
-    a flag used to select the sensitivity solution method.  Its value can 
+    a flag used to select the sensitivity solution method.  Its value can
     be \id{CV\_SIMULTANEOUS}, \id{CV\_STAGGERED}, or \id{CV\_STAGGERED1}.
 
-  \item[yS0] (\id{N\_Vector *}) 
-    a pointer to an array of \id{Ns} variables of type \id{N\_Vector} containing the 
+  \item[yS0] (\id{N\_Vector *})
+    a pointer to an array of \id{Ns} variables of type \id{N\_Vector} containing the
     initial values of the sensitivities.
 
   \end{args}
@@ -503,15 +503,15 @@ The call to the \id{CVodeSensReInit} function has the form:
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeReInit} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
-    The {\cvodes} memory block was not initialized through a 
+  \item[\Id{CV\_MEM\_NULL}]
+    The {\cvodes} memory block was not initialized through a
     previous call to \id{CVodeCreate}.
   \item[\Id{CV\_NO\_SENS}]
-    Memory space for sensitivity integration was not allocated through a 
+    Memory space for sensitivity integration was not allocated through a
     previous call to \id{CVodeSensInit}.
-  \item[\Id{CV\_ILL\_INPUT}] 
-    An input argument to \id{CVodeSensReInit} has an illegal value.    
-  \item[\Id{CV\_MEM\_FAIL}] 
+  \item[\Id{CV\_ILL\_INPUT}]
+    An input argument to \id{CVodeSensReInit} has an illegal value.
+  \item[\Id{CV\_MEM\_FAIL}]
     A memory allocation request has failed.
   \end{args}
 }
@@ -524,7 +524,7 @@ The call to the \id{CVodeSensReInit} function has the form:
 
   \id{CVodeSensReInit} potentially does some minimal memory allocation (for the
   sensitivity absolute tolerance) and for arrays of counters used by the
-  \id{CV\_STAGGERED1} method. 
+  \id{CV\_STAGGERED1} method.
 
   {\warn}The value of the input argument \id{ism} must be compatible with
   the type of the sensitivity ODE right-hand side function.  Thus
@@ -541,7 +541,7 @@ to \id{CVodeSensInit} or \id{CVodeSensInit1}), the user must call
   CVodeSensFree(cvode\_mem);
 }
 {
-  The function \ID{CVodeSensFree} frees the memory allocated for forward sensitivity 
+  The function \ID{CVodeSensFree} frees the memory allocated for forward sensitivity
   computations by a previous call to \id{CVodeSensInit} or \id{CVodeSensInit1}.
 }
 {
@@ -567,7 +567,7 @@ without having to allocate and deallocate memory, the following function is prov
   CVodeSensToggleOff(cvode\_mem);
 }
 {
-  The function \ID{CVodeSensToggleOff} deactivates forward sensitivity 
+  The function \ID{CVodeSensToggleOff} deactivates forward sensitivity
   calculations. It does {\em not} deallocate sensitivity-related memory.
 }
 {
@@ -579,9 +579,9 @@ without having to allocate and deallocate memory, the following function is prov
 {
   The return value \id{flag} of \id{CVodeSensToggle} is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     \id{CVodeSensToggleOff} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
+  \item[\Id{CV\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
   \end{args}
 }
@@ -600,7 +600,7 @@ without having to allocate and deallocate memory, the following function is prov
 %%==============================================================================
 %%
 One of the following three functions must be called to specify the
-integration tolerances for sensitivities. Note that this call must be made after 
+integration tolerances for sensitivities. Note that this call must be made after
 the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
 %%
 \ucfunctionf{CVodeSensSStolerances}
@@ -627,13 +627,13 @@ the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeSStolerances} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
+  \item[\Id{CV\_MEM\_NULL}]
     The {\cvodes} memory block was not initialized through a previous call to
     \id{CVodeCreate}.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     The sensitivity allocation function (\id{CVodeSensInit} or \id{CVodeSensInit1})
     has not been called.
-  \item[\Id{CV\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}]
     One of the input tolerances was negative.
   \end{args}
 }
@@ -664,19 +664,19 @@ the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeSVtolerances} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
+  \item[\Id{CV\_MEM\_NULL}]
     The {\cvodes} memory block was not initialized through a previous call to
     \id{CVodeCreate}.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     The allocation function for sensitivities has not been called.
-  \item[\Id{CV\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}]
     The relative error tolerance was negative or an absolute tolerance vector
     had a negative component.
   \end{args}
 }
 {
   This choice of tolerances is important when the absolute error tolerance needs to
-  be different for each component of any vector \id{yS[i]}. 
+  be different for each component of any vector \id{yS[i]}.
 }
 %%
 %%
@@ -700,10 +700,10 @@ the call to \id{CVodeSensInit}/\id{CVodeSensInit1}.
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeSensEEtolerances} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
+  \item[\Id{CV\_MEM\_NULL}]
     The {\cvodes} memory block was not initialized through a previous call to
     \id{CVodeCreate}.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     The sensitivity allocation function has not been called.
   \end{args}
 }
@@ -866,7 +866,7 @@ the nonlinear solver to the main {\cvodes} integrator.
 %%
 \subsection{CVODES solver function}
 
-Even if forward sensitivity analysis was enabled, the call to the main solver 
+Even if forward sensitivity analysis was enabled, the call to the main solver
 function \id{CVode} is exactly the same as in \S\ref{sss:cvode}. However, in this
 case the return value \id{flag} can also be one of the following:
 \begin{args}[CV\_FIRST\_SRHSFUNC\_FAIL]
@@ -920,13 +920,13 @@ following functions:
 {
   The return value \id{flag} of \id{CVodeGetSens} is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     \id{CVodeGetSens} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
+  \item[\Id{CV\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     Forward sensitivity analysis was not initialized.
-  \item[\Id{CV\_BAD\_DKY}] 
+  \item[\Id{CV\_BAD\_DKY}]
     \id{yS} is \id{NULL}.
   \end{args}
 }
@@ -936,9 +936,9 @@ following functions:
 }
 %%
 \index{optional output!interpolated sensitivities}
-The function \ID{CVodeGetSensDky} computes the \id{k}-th derivatives of the interpolating 
+The function \ID{CVodeGetSensDky} computes the \id{k}-th derivatives of the interpolating
 polynomials for the sensitivity variables at time \id{t}.
-This function is called by \id{CVodeGetSens} with \id{k} $= 0$, but may also be called 
+This function is called by \id{CVodeGetSens} with \id{k} $= 0$, but may also be called
 directly by the user.
 %%
 \ucfunctionf{CVodeGetSensDky}
@@ -946,7 +946,7 @@ directly by the user.
   flag = CVodeGetSensDky(cvode\_mem, t, k, dkyS);
 }
 {
-  The function \ID{CVodeGetSensDky} returns derivatives of the sensitivity solution 
+  The function \ID{CVodeGetSensDky} returns derivatives of the sensitivity solution
   vectors after a successful return from \id{CVode}.
 }
 {
@@ -954,36 +954,36 @@ directly by the user.
   \item[cvode\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{CVodeInit}.
   \item[t] (\id{realtype})
-    specifies the time at which sensitivity information is 
-    requested. The time \id{t} must fall within the interval defined by the last 
+    specifies the time at which sensitivity information is
+    requested. The time \id{t} must fall within the interval defined by the last
     successful step taken by {\cvodes}.
   \item[k] (\id{int}) order of derivatives.
   \item[dkyS] (\id{N\_Vector *})
     array of \id{Ns} vectors containing the derivatives on output.
-    The space for \id{dkyS} must be allocated by the user. 
+    The space for \id{dkyS} must be allocated by the user.
   \end{args}
 }
 {
   The return value \id{flag} of \id{CVodeGetSensDky} is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     \id{CVodeGetSensDky} succeeded.
-  \item[\Id{CV\_MEM\_NULL}] 
+  \item[\Id{CV\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     Forward sensitivity analysis was not initialized.
-  \item[\Id{CV\_BAD\_DKY}] 
+  \item[\Id{CV\_BAD\_DKY}]
     One of the vectors \id{dkyS} is \id{NULL}.
   \item[\Id{CV\_BAD\_K}]
     \id{k} is not in the range $0, 1, ...,$ \id{qlast}.
-  \item[\Id{CV\_BAD\_T}] 
+  \item[\Id{CV\_BAD\_T}]
     The time \id{t} is not in the allowed range.
   \end{args}
 }
 {}
 %%
 %%
-Forward sensitivity solution vectors can also be extracted separately for 
+Forward sensitivity solution vectors can also be extracted separately for
 each parameter in turn through the functions \id{CVodeGetSens1} and
 \id{CVodeGetSensDky1}, defined as follows:
 \ucfunctionf{CVodeGetSens1}
@@ -1012,15 +1012,15 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
   \begin{args}[CV\_MEM\_NULL]
   \item[\Id{CV\_SUCCESS}]
     \id{CVodeGetSens1} was successful.
-  \item[\Id{CV\_MEM\_NULL}] 
+  \item[\Id{CV\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     Forward sensitivity analysis was not initialized.
   \item[\Id{CV\_BAD\_IS}]
     The index \id{is} is not in the allowed range.
-  \item[\Id{CV\_BAD\_DKY}] 
+  \item[\Id{CV\_BAD\_DKY}]
     \id{yS} is \id{NULL}.
-  \item[\Id{CV\_BAD\_T}] 
+  \item[\Id{CV\_BAD\_T}]
     The time \id{t} is not in the allowed range.
   \end{args}
 }
@@ -1035,7 +1035,7 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
   flag = CVodeGetSensDky1(cvode\_mem, t, k, is, dkyS);
 }
 {
-  The function \ID{CVodeGetSensDky1} returns the \id{k}-th derivative of the 
+  The function \ID{CVodeGetSensDky1} returns the \id{k}-th derivative of the
   \id{is}-th sensitivity solution vector after a successful return from \id{CVode}.
 }
 {
@@ -1043,33 +1043,33 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
   \item[cvode\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{CVodeInit}.
   \item[t] (\id{realtype})
-    specifies the time at which sensitivity information is 
-    requested. The time \id{t} must fall within the interval defined by the last 
+    specifies the time at which sensitivity information is
+    requested. The time \id{t} must fall within the interval defined by the last
     successful step taken by {\cvodes}.
   \item[k] (\id{int}) order of derivative.
   \item[is] (\id{int}) specifies the sensitivity derivative vector to be returned
     ($0\le$\id{is}$< N_s$).
   \item[dkyS] (\id{N\_Vector})
-    the vector containing the derivative. The space for \id{dkyS} must be allocated by 
-    the user. 
+    the vector containing the derivative. The space for \id{dkyS} must be allocated by
+    the user.
   \end{args}
 }
 {
   The return value \id{flag} of \id{CVodeGetSensDky1} is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     \id{CVodeGetQuadDky1} succeeded.
-  \item[\Id{CV\_MEM\_NULL}] 
+  \item[\Id{CV\_MEM\_NULL}]
     The pointer to \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     Forward sensitivity analysis was not initialized.
-  \item[\Id{CV\_BAD\_DKY}] 
+  \item[\Id{CV\_BAD\_DKY}]
     \id{dkyS} or one of the vectors \id{dkyS[i]} is \id{NULL}.
   \item[\Id{CV\_BAD\_IS}]
     The index \id{is} is not in the allowed range.
-  \item[\Id{CV\_BAD\_K}] 
+  \item[\Id{CV\_BAD\_K}]
     \id{k} is not in the range $0, 1, ...,$ \id{qlast}.
-  \item[\Id{CV\_BAD\_T}] 
+  \item[\Id{CV\_BAD\_T}]
     The time \id{t} is not in the allowed range.
   \end{args}
 }
@@ -1083,9 +1083,16 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
 \index{optional input!forward sensitivity|(}
 Optional input variables that control the computation of sensitivities
 can be changed from their default values through calls to \id{CVodeSetSens*}
-functions. Table~\ref{t:optional_input_fwd} lists all forward sensitivity 
-optional input functions in {\cvodes} which are described in detail in the 
-remainder of this section. 
+functions. Table~\ref{t:optional_input_fwd} lists all forward sensitivity
+optional input functions in {\cvodes} which are described in detail in the
+remainder of this section.
+
+We note that, on an error return, all of the optional input functions send an
+error message to the error handler function.
+\index{error messages}
+All error return values are negative, so the test \id{flag < 0} will catch all
+errors. Finally, a call to a \id{CVodeSetSens***} function can be made from the
+user's calling program at any time and, if successful, takes effect immediately.
 %%
 %%
 \begin{table}[b]
@@ -1126,7 +1133,7 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
     an array of \id{Ns} positive scaling factors. If non-\id{NULL}, \id{pbar} must
     have all its components $> 0.0$.
     (See \S\ref{s:forward_usage}).
-  \item[plist] (\id{int *}) 
+  \item[plist] (\id{int *})
     an array of \id{Ns} non-negative indices to specify which components \id{p[i]}
     to use in estimating the sensitivity equations. If non-\id{NULL}, \id{plist} must
     have all components $\ge 0$.
@@ -1136,7 +1143,7 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_ILL\_INPUT]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1192,7 +1199,7 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
   approximation is used otherwise. Note that a value \id{DQrhomax} $< 1.0$ will
   effectively disable switching.   See \S\ref{ss:fwd_sensi} for more details.
 
-  The default value are \id{DQtype}$=$\id{CV\_CENTERED} and \id{DQrhomax}$=0.0$. 
+  The default value are \id{DQtype}$=$\id{CV\_CENTERED} and \id{DQrhomax}$=0.0$.
 }
 %%
 %%
@@ -1216,18 +1223,18 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
-  By default, \id{errconS} is set to \id{SUNFALSE}. 
+  By default, \id{errconS} is set to \id{SUNFALSE}.
   If \id{errconS}$=$\id{SUNTRUE} then both state variables and
-  sensitivity variables are included in the error tests. 
-  If \id{errconS}$=$\id{SUNFALSE} then the sensitivity variables are excluded from the 
-  error tests. Note that, in any event, all variables are considered in the convergence 
+  sensitivity variables are included in the error tests.
+  If \id{errconS}$=$\id{SUNFALSE} then the sensitivity variables are excluded from the
+  error tests. Note that, in any event, all variables are considered in the convergence
   tests.
 }
 %%
@@ -1251,7 +1258,7 @@ Maximum no. of nonlinear iterations & \id{CVodeSetSensMaxNonlinIters} & 3 \\
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1289,9 +1296,9 @@ No. of sensitivity local error test failures & \id{CVodeGetSensNumErrTestFails} 
 No. of calls to lin. solv. setup routine for sens.& \id{CVodeGetSensNumLinSolvSetups} \\
 Error weight vector for sensitivity variables & \id{CVodeGetSensErrWeights} \\
 No. of sens. nonlinear solver iterations& \id{CVodeGetSensNumNonlinSolvIters} \\
-No. of sens. convergence failures& \id{CVodeGetSensNumNonlinSolvConvFails} \\ 
+No. of sens. convergence failures& \id{CVodeGetSensNumNonlinSolvConvFails} \\
 No. of staggered nonlinear solver iterations& \id{CVodeGetStgrSensNumNonlinSolvIters} \\
-No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFails} \\ 
+No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFails} \\
 \hline
 \end{tabular}
 \end{table}
@@ -1316,7 +1323,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1326,8 +1333,8 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 {
   In order to accommodate any of the three possible sensitivity solution methods,
-  the default internal 
-  finite difference quotient functions evaluate the sensitivity right-hand sides 
+  the default internal
+  finite difference quotient functions evaluate the sensitivity right-hand sides
   one at a time. Therefore, \id{nfSevals} will always be a multiple of the
   number of sensitivity parameters (the same as the case in which the user supplies
   a routine of type \id{CVSensRhs1Fn}).
@@ -1355,7 +1362,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1388,7 +1395,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1398,8 +1405,8 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 {
   This counter is incremented only if the sensitivity variables have been included
-  in the error test (see \id{CVodeSetSensErrCon} in \S\ref{ss:sens_optional_input}). 
-  Even in that case, this counter is not incremented if the \id{ism}$=$\id{CV\_SIMULTANEOUS} 
+  in the error test (see \id{CVodeSetSensErrCon} in \S\ref{ss:sens_optional_input}).
+  Even in that case, this counter is not incremented if the \id{ism}$=$\id{CV\_SIMULTANEOUS}
   sensitivity solution method has been used.
 }
 %%
@@ -1423,7 +1430,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1468,7 +1475,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output values have been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1499,7 +1506,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1518,7 +1525,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 {
   The function \ID{CVodeGetSensNumNonlinSolvIters} returns the
-  number of nonlinear iterations performed for 
+  number of nonlinear iterations performed for
   sensitivity calculations.
 }
 {
@@ -1532,7 +1539,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1543,10 +1550,10 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
   \end{args}
 }
 {
-  This counter is incremented only if \id{ism} was \id{CV\_STAGGERED} or 
+  This counter is incremented only if \id{ism} was \id{CV\_STAGGERED} or
   \id{CV\_STAGGERED1} (see \S\ref{ss:sensi_malloc}).
-  
-  In the \id{CV\_STAGGERED1} case, the value of \id{nSniters} is the sum of 
+
+  In the \id{CV\_STAGGERED1} case, the value of \id{nSniters} is the sum of
   the number of nonlinear iterations performed for each sensitivity equation.
   These individual counters can be obtained through a call to
   \id{CVodeGetStgrSensNumNonlinSolvIters} (see below).
@@ -1573,7 +1580,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1582,10 +1589,10 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
   \end{args}
 }
 {
-  This counter is incremented only if \id{ism} was \id{CV\_STAGGERED} or 
+  This counter is incremented only if \id{ism} was \id{CV\_STAGGERED} or
   \id{CV\_STAGGERED1} (see \S\ref{ss:sensi_malloc}).
-  
-  In the \id{CV\_STAGGERED1} case, the value of \id{nSncfails} is the sum of 
+
+  In the \id{CV\_STAGGERED1} case, the value of \id{nSncfails} is the sum of
   the number of nonlinear convergence failures that occurred for each sensitivity equation.
   These individual counters can be obtained through a call to
   \id{CVodeGetStgrSensNumNonlinConvFails} (see below).
@@ -1613,7 +1620,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output values have been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1632,7 +1639,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 }
 {
   The function \ID{CVodeGetStgrSensNumNonlinSolvIters} returns the
-  number of nonlinear iterations performed for 
+  number of nonlinear iterations performed for
   each sensitivity equation separately, in the \id{CV\_STAGGERED1} case.
 }
 {
@@ -1640,14 +1647,14 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[nSTGR1niters] (\id{long int *})
-    an array (of dimension \id{Ns}) which will be set with the number of 
+    an array (of dimension \id{Ns}) which will be set with the number of
     nonlinear iterations performed for each sensitivity system individually.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1681,7 +1688,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -1702,7 +1709,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 
 In addition to the required and optional user-supplied routines described
 in \S\ref{ss:user_fct_sim}, when using {\cvodes} for forward sensitivity analysis,
-the user has the option of providing a routine that calculates the right-hand side 
+the user has the option of providing a routine that calculates the right-hand side
 of the sensitivity equations (\ref{e:sens_eqns}).
 
 By default, {\cvodes} uses difference quotient approximation routines for the right-hand
@@ -1716,14 +1723,14 @@ generated by automatic differentiation).
 \index{right-hand side function!forward sensitivity|(}
 
 If the \Id{CV\_SIMULTANEOUS} or \Id{CV\_STAGGERED} approach was selected in the call to
-\id{CVodeSensInit} or \Id{CVodeSensInit1}, the user may provide the right-hand sides of 
-the sensitivity equations (\ref{e:sens_eqns}), for all sensitivity parameters at once, 
+\id{CVodeSensInit} or \Id{CVodeSensInit1}, the user may provide the right-hand sides of
+the sensitivity equations (\ref{e:sens_eqns}), for all sensitivity parameters at once,
 through a function of type \ID{CVSensRhsFn} defined by:
 %%
 \usfunction{CVSensRhsFn}
 {
   typedef int (*CVSensRhsFn)(&int Ns, realtype t, \\
-                             &N\_Vector y, N\_Vector ydot, \\ 
+                             &N\_Vector y, N\_Vector ydot, \\
                              &N\_Vector *yS, N\_Vector *ySdot, \\
                              &void *user\_data,  \\
                              &N\_Vector tmp1, N\_Vector tmp2);
@@ -1731,8 +1738,8 @@ through a function of type \ID{CVSensRhsFn} defined by:
 {
   This function computes the sensitivity right-hand side for all sensitivity
   equations at once.
-  It must compute the vectors $(\dfdyI) s_i(t) + (\dfdpiI)$ and store them in 
-  \id{ySdot[i]}. 
+  It must compute the vectors $(\dfdyI) s_i(t) + (\dfdpiI)$ and store them in
+  \id{ySdot[i]}.
 }
 {
   \begin{args}[fS\_data]
@@ -1750,7 +1757,7 @@ through a function of type \ID{CVSensRhsFn} defined by:
      is the output of \id{CVSensRhsFn}. On exit it must contain
     the sensitivity right-hand side vectors.
   \item[user\_data]
-    is a pointer to user data, the same as the \Id{user\_data}      
+    is a pointer to user data, the same as the \Id{user\_data}
     parameter passed to \id{CVodeSetUserData}.
   \item[tmp1]
   \item[tmp2]
@@ -1759,7 +1766,7 @@ through a function of type \ID{CVSensRhsFn} defined by:
 }
 {
   A \id{CVSensRhsFn} should return 0 if successful, a positive value if a recoverable
-  error occurred (in which case {\cvodes} will attempt to correct), or a negative 
+  error occurred (in which case {\cvodes} will attempt to correct), or a negative
   value if it failed unrecoverably (in which case the integration is halted and
   \Id{CV\_SRHSFUNC\_FAIL} is returned).
 }
@@ -1778,10 +1785,10 @@ through a function of type \ID{CVSensRhsFn} defined by:
 }
 
 \subsection{Sensitivity equations right-hand side (one at a time)}
-  
+
 Alternatively, the user may provide the sensitivity right-hand sides, one sensitivity
-parameter at a time, through a function of type \ID{CVSensRhs1Fn}. 
-Note that a sensitivity right-hand side function of type \id{CVSensRhs1Fn} is compatible 
+parameter at a time, through a function of type \ID{CVSensRhs1Fn}.
+Note that a sensitivity right-hand side function of type \id{CVSensRhs1Fn} is compatible
 with any valid value of the argument \id{ism} to \id{CVodeSensInit} and \id{CVodeSensInit1},
 and is {\em required} if \id{ism} $=$ \Id{CV\_STAGGERED1} in the call to \id{CVodeSensInit1}.
 The type \id{CVSensRhs1Fn} is defined by
@@ -1789,7 +1796,7 @@ The type \id{CVSensRhs1Fn} is defined by
 \usfunction{CVSensRhs1Fn}
 {
   typedef int (*CVSensRhs1Fn)(&int Ns, realtype t, \\
-                              &N\_Vector y, N\_Vector ydot, \\ 
+                              &N\_Vector y, N\_Vector ydot, \\
                               &int iS, N\_Vector yS, N\_Vector ySdot, \\
                               &void *user\_data,  \\
                               &N\_Vector tmp1, N\_Vector tmp2);
@@ -1797,8 +1804,8 @@ The type \id{CVSensRhs1Fn} is defined by
 {
   This function computes the sensitivity right-hand side for one sensitivity
   equation at a time.
-  It must compute the vector $(\dfdyI) s_i(t) + (\dfdpiI)$ for $i$ = \id{iS} and 
-  store it in \id{ySdot}. 
+  It must compute the vector $(\dfdyI) s_i(t) + (\dfdpiI)$ for $i$ = \id{iS} and
+  store it in \id{ySdot}.
 }
 {
   \begin{args}[fS\_data]
@@ -1819,7 +1826,7 @@ The type \id{CVSensRhs1Fn} is defined by
     is the output of \id{CVSensRhs1Fn}. On exit it must contain
     the \id{iS}-th sensitivity right-hand side vector.
   \item[user\_data]
-    is a pointer to user data, the same as the \Id{user\_data}      
+    is a pointer to user data, the same as the \Id{user\_data}
     parameter passed to \id{CVodeSetUserData}.
   \item[tmp1]
   \item[tmp2]
@@ -1828,7 +1835,7 @@ The type \id{CVSensRhs1Fn} is defined by
 }
 {
   A \id{CVSensRhs1Fn} should return 0 if successful, a positive value if a recoverable
-  error occurred (in which case {\cvodes} will attempt to correct), or a negative 
+  error occurred (in which case {\cvodes} will attempt to correct), or a negative
   value if it failed unrecoverably (in which case the integration is halted and
   \Id{CV\_SRHSFUNC\_FAIL} is returned).
 }
@@ -1854,26 +1861,26 @@ The type \id{CVSensRhs1Fn} is defined by
 %%===================================================================================
 %%
 
-{\cvodes} provides support for integration of quadrature equations that depends not only 
+{\cvodes} provides support for integration of quadrature equations that depends not only
 on the state variables but also on forward sensitivities.
 
-The following is an overview of the sequence of calls in a user's main program in 
-this situation. Steps that are unchanged from the skeleton program presented in 
+The following is an overview of the sequence of calls in a user's main program in
+this situation. Steps that are unchanged from the skeleton program presented in
 \S\ref{s:forward_usage} are grayed out.
 
 \index{User main program!integration of sensitivitiy-dependent quadratures}
 \begin{Steps}
-  
-\item 
+
+\item
   \textcolor{gray}{\bf Initialize parallel or multi-threaded environment,
   if appropriate}
 
 \item
   \textcolor{gray}{\bf Set problem dimensions etc.}
-  
+
 \item
   \textcolor{gray}{\bf Set vectors of initial values}
- 
+
 \item
   \textcolor{gray}{\bf Create {\cvodes} object}
 
@@ -1925,7 +1932,7 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \item
   \textcolor{gray}{\bf Set sensitivity analysis optional inputs}
 
-\item 
+\item
   \textcolor{gray}{\bf Create sensitivity nonlinear solver object}
 
 \item
@@ -1943,15 +1950,15 @@ this situation. Steps that are unchanged from the skeleton program presented in
   {\bf Initialize sensitivity-dependent quadrature integration}
 
   Call \id{CVodeQuadSensInit} to specify the quadrature equation right-hand
-  side function and to allocate internal memory related to quadrature integration. 
+  side function and to allocate internal memory related to quadrature integration.
   See \S\ref{ss:quad_sens_init} for details.
 
 \item\label{i:quad_sens_optional_input}
   {\bf Set optional inputs for sensitivity-dependent quadrature integration}
 
   Call \id{CVodeSetQuadSensErrCon} to indicate whether or not quadrature variables
-  should be used in the step size control mechanism. If so, one of the 
-  \id{CVodeQuadSens*tolerances} functions  must be called to specify the integration 
+  should be used in the step size control mechanism. If so, one of the
+  \id{CVodeQuadSens*tolerances} functions  must be called to specify the integration
   tolerances for quadrature variables.
   See \S\ref{ss:quad_sens_optional_input} for details.
 
@@ -1961,8 +1968,8 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \item
   {\bf Extract sensitivity-dependent quadrature variables}
 
-  Call \id{CVodeGetQuadSens}, \id{CVodeGetQuadSens1}, \id{CVodeGetQuadSensDky} or 
-  \id{CVodeGetQuadSensDky1} to obtain the values of the quadrature variables or their 
+  Call \id{CVodeGetQuadSens}, \id{CVodeGetQuadSens1}, \id{CVodeGetQuadSensDky} or
+  \id{CVodeGetQuadSensDky1} to obtain the values of the quadrature variables or their
   derivatives at the current time. See \S\ref{ss:quad_sens_get} for details.
 
 \item
@@ -1981,7 +1988,7 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \item
   \textcolor{gray}{\bf Deallocate memory for solutions vector}
 
-\item 
+\item
   \textcolor{gray}{\bf Deallocate memory for sensitivity vectors}
 
 \item
@@ -1989,7 +1996,7 @@ this situation. Steps that are unchanged from the skeleton program presented in
 
 \item
   {\bf Free solver memory}
-  
+
 \item
   \textcolor{gray}{\bf Free nonlinear solver memory}
 
@@ -1999,9 +2006,9 @@ this situation. Steps that are unchanged from the skeleton program presented in
 \item
   \textcolor{gray}{\bf Free linear solver and matrix memory}
 
-\item 
+\item
   \textcolor{gray}{\bf Finalize MPI, if used}
-  
+
 \end{Steps}
 %%
 Note: \id{CVodeQuadSensInit} (step \ref{i:quad_sens_init} above) can
@@ -2035,7 +2042,7 @@ flag = CVodeQuadSensInit(cvode\_mem, rhsQS, yQS0);
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block returned by \id{CVodeCreate}.
   \item[rhsQS] (\Id{CVQuadSensRhsFn})
-    is the {\CC} function which computes $f_{QS}$, the right-hand side of the 
+    is the {\CC} function which computes $f_{QS}$, the right-hand side of the
     sensitivity-dependent quadrature equations
     (for full details see \S\ref{ss:user_fct_quad_sens}).
   \item[yQS0] (\id{N\_Vector *})
@@ -2047,18 +2054,18 @@ flag = CVodeQuadSensInit(cvode\_mem, rhsQS, yQS0);
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeQuadSensInit} was successful.
-  \item[\Id{CVODE\_MEM\_NULL}] 
+  \item[\Id{CVODE\_MEM\_NULL}]
     The {\cvodes} memory was not initialized by a prior call to \id{CVodeCreate}.
-  \item[\Id{CVODE\_MEM\_FAIL}] 
+  \item[\Id{CVODE\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     The sensitivities were not initialized by a prior call to \id{CVodeSensInit} or \id{CVodeSensInit1}.
   \item[\Id{CV\_ILL\_INPUT}]
     The parameter \id{yQS0} is \id{NULL}.
   \end{args}
 }
 {
- 
+
  {\warn} Before calling \id{CVodeQuadSensInit}, the user must enable the sensitivites
   by calling \id{CVodeSensInit} or \id{CVodeSensInit1}.
 
@@ -2071,18 +2078,18 @@ In terms of the number of quadrature variables $N_q$ and maximum method order \i
 the size of the real workspace is increased as follows:
 \begin{itemize}
 \item Base value: \id{lenrw} $=$ \id{lenrw} $+$ (\id{maxord+5})$N_q$
-\item If \id{CVodeQuadSensSVtolerances} is called: \id{lenrw} $=$ \id{lenrw} $+ N_q N_s$ 
+\item If \id{CVodeQuadSensSVtolerances} is called: \id{lenrw} $=$ \id{lenrw} $+ N_q N_s$
 \end{itemize}
 and the size of the integer workspace is increased as follows:
 \begin{itemize}
 \item Base value: \id{leniw} $=$ \id{leniw} $+$ (\id{maxord+5})$N_q$
-\item If \id{CVodeQuadSensSVtolerances} is called: \id{leniw} $=$ \id{leniw} $+ N_q N_s$ 
+\item If \id{CVodeQuadSensSVtolerances} is called: \id{leniw} $=$ \id{leniw} $+ N_q N_s$
 \end{itemize}
 
-The function \id{CVodeQuadSensReInit}, useful during the solution of a sequence 
-of problems of same size, reinitializes quadrature-related internal memory 
-and must follow a call to \Id{CVodeQuadSensInit}. The number \id{Nq} of 
-quadratures as well as the number \id{Ns} of sensitivities are assumed to be 
+The function \id{CVodeQuadSensReInit}, useful during the solution of a sequence
+of problems of same size, reinitializes quadrature-related internal memory
+and must follow a call to \Id{CVodeQuadSensInit}. The number \id{Nq} of
+quadratures as well as the number \id{Ns} of sensitivities are assumed to be
 unchanged from the prior call to \id{CVodeQuadSensInit}.
 The call to the \id{CVodeQuadSensReInit} function has the form:
 %%
@@ -2091,7 +2098,7 @@ The call to the \id{CVodeQuadSensReInit} function has the form:
   flag = CVodeQuadSensReInit(cvode\_mem, yQS0);
 }
 {
-  The function \ID{CVodeQuadSensReInit} provides required problem specifications 
+  The function \ID{CVodeQuadSensReInit} provides required problem specifications
   and reinitializes the sensitivity-dependent quadrature integration.
 }
 {
@@ -2107,15 +2114,15 @@ The call to the \id{CVodeQuadSensReInit} function has the form:
   \begin{args}[CV\_NO\_QUADSENS]
   \item[\Id{CV\_SUCCESS}]
     The call to \id{CVodeQuadSensReInit} was successful.
-  \item[\Id{CVODE\_MEM\_NULL}] 
+  \item[\Id{CVODE\_MEM\_NULL}]
     The {\cvodes} memory was not initialized by a prior call to \id{CVodeCreate}.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     Memory space for the sensitivity calculation was not allocated by a prior
     call to \id{CVodeSensInit} or \id{CVodeSensInit1}.
-  \item[\Id{CV\_NO\_QUADSENS}] 
+  \item[\Id{CV\_NO\_QUADSENS}]
     Memory space for the sensitivity quadratures integration was not allocated by a prior
     call to \id{CVodeQuadSensInit}.
-  \item[\Id{CV\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}]
     The parameter \id{yQS0} is \id{NULL}.
   \end{args}
 }
@@ -2130,7 +2137,7 @@ The call to the \id{CVodeQuadSensReInit} function has the form:
   CVodeQuadSensFree(cvode\_mem);
 }
 {
-  The function \ID{CVodeQuadSensFree} frees the memory allocated for sensitivity 
+  The function \ID{CVodeQuadSensFree} frees the memory allocated for sensitivity
   quadrature integration.
 }
 {
@@ -2149,7 +2156,7 @@ The call to the \id{CVodeQuadSensReInit} function has the form:
 
 \subsection{CVODES solver function}
 
-Even if quadrature integration was enabled, the call to the main solver 
+Even if quadrature integration was enabled, the call to the main solver
 function \id{CVode} is exactly the same as in \S\ref{sss:cvode}. However, in this
 case the return value \id{flag} can also be one of the following:
 \begin{args}[CV\_REPTD\_QSRHSFUNC\_ERR]
@@ -2199,15 +2206,15 @@ one of the following functions:
 {
   The return value \id{flag} of \id{CVodeGetQuadSens} is one of:
   \begin{args}[CV\_NO\_QUADSENS]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     \id{CVodeGetQuadSens} was successful.
-  \item[CVODE\_MEM\_NULL] 
+  \item[CVODE\_MEM\_NULL]
     \id{cvode\_mem} was NULL.
   \item[CV\_NO\_SENS]
     Sensitivities were not activated.
-  \item[\Id{CV\_NO\_QUADSENS}] 
+  \item[\Id{CV\_NO\_QUADSENS}]
     Quadratures depending on the sensitivities were not activated.
-  \item[CV\_BAD\_DKY] 
+  \item[CV\_BAD\_DKY]
     \id{yQS} or one of the \id{yQS[i]} is \id{NULL}.
   \end{args}
 }
@@ -2215,9 +2222,9 @@ one of the following functions:
 %%
 %%
 \index{optional output!interpolated sensitivity-dep. quadratures}
-The function \Id{CVodeGetQuadSensDky} computes the \id{k}-th derivatives of the interpolating 
+The function \Id{CVodeGetQuadSensDky} computes the \id{k}-th derivatives of the interpolating
 polynomials for the sensitivity-dependent quadrature variables at time \id{t}.
-This function is called by \id{CVodeGetQuadSens} with \id{k = 0}, but may also be called 
+This function is called by \id{CVodeGetQuadSens} with \id{k = 0}, but may also be called
 directly by the user.
 %%
 \ucfunctionf{CVodeGetQuadSensDky}
@@ -2225,7 +2232,7 @@ directly by the user.
   flag = CVodeGetQuadSensDky(cvode\_mem, t, k, dkyQS);
 }
 {
-  The function \ID{CVodeGetQuadSensDky} returns derivatives of the quadrature sensitivities 
+  The function \ID{CVodeGetQuadSensDky} returns derivatives of the quadrature sensitivities
   solution vectors after a successful return from \id{CVode}.
 }
 {
@@ -2233,12 +2240,12 @@ directly by the user.
   \item[\id{cvode\_mem}] (\id{void *})
     pointer to the memory previously allocated by \id{CVodeInit}.
   \item[\id{t}] (\id{realtype})
-    the time at which information is requested. The time \id{t} must fall within the 
+    the time at which information is requested. The time \id{t} must fall within the
     interval defined by the last successful step taken by {\cvodes}.
   \item[\id{k}] (\id{int}) order of the requested derivative.
   \item[\id{dkyQS}] (\id{N\_Vector *})
     array of \id{Ns} the vector containing the derivatives on output. This vector
-    array must be allocated by the user. 
+    array must be allocated by the user.
   \end{args}
 }
 {
@@ -2250,20 +2257,20 @@ directly by the user.
     The pointer to \id{cvode\_mem} was \id{NULL}.
   \item[CV\_NO\_SENS]
     Sensitivities were not activated.
-  \item[\Id{CV\_NO\_QUADSENS}] 
+  \item[\Id{CV\_NO\_QUADSENS}]
     Quadratures depending on the sensitivities were not activated.
-  \item[\Id{CV\_BAD\_DKY}] 
+  \item[\Id{CV\_BAD\_DKY}]
     \id{dkyQS} or one of the vectors \id{dkyQS[i]} is \id{NULL}.
   \item[\Id{CV\_BAD\_K}]
     \id{k} is not in the range $0, 1, ...,$ \id{qlast}.
-  \item[\Id{CV\_BAD\_T}] 
+  \item[\Id{CV\_BAD\_T}]
     The time \id{t} is not in the allowed range.
   \end{args}
 }
 {}
 %%
 %%
-Quadrature sensitivity solution vectors can also be extracted separately for 
+Quadrature sensitivity solution vectors can also be extracted separately for
 each parameter in turn through the functions \id{CVodeGetQuadSens1} and
 \id{CVodeGetQuadSensDky1}, defined as follows:
 \ucfunctionf{CVodeGetQuadSens1}
@@ -2271,7 +2278,7 @@ each parameter in turn through the functions \id{CVodeGetQuadSens1} and
   flag = CVodeGetQuadSens1(cvode\_mem, \&tret, is, yQS);
 }
 {
-  The function \ID{CVodeGetQuadSens1} returns the \id{is}-th sensitivity 
+  The function \ID{CVodeGetQuadSens1} returns the \id{is}-th sensitivity
   of quadratures after a successful return from \id{CVode}.
 }
 {
@@ -2292,15 +2299,15 @@ each parameter in turn through the functions \id{CVodeGetQuadSens1} and
   \begin{args}[CV\_NO\_QUADSENS]
   \item[\Id{CV\_SUCCESS}]
     \id{CVodeGetQuadSens1} was successful.
-  \item[\Id{CVODE\_MEM\_NULL}] 
+  \item[\Id{CVODE\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     Forward sensitivity analysis was not initialized.
-  \item[\Id{CV\_NO\_QUADSENS}] 
+  \item[\Id{CV\_NO\_QUADSENS}]
     Quadratures depending on the sensitivities were not activated.
   \item[\Id{CV\_BAD\_IS}]
     The index \id{is} is not in the allowed range.
-  \item[\Id{CV\_BAD\_DKY}] 
+  \item[\Id{CV\_BAD\_DKY}]
     \id{yQS} is \id{NULL}.
   \end{args}
 }
@@ -2312,8 +2319,8 @@ each parameter in turn through the functions \id{CVodeGetQuadSens1} and
   flag = CVodeGetQuadSensDky1(cvode\_mem, t, k, is, dkyQS);
 }
 {
-  The function \ID{CVodeGetQuadSensDky1} returns the \id{k}-th derivative of the 
-  \id{is}-th sensitivity solution vector after a successful 
+  The function \ID{CVodeGetQuadSensDky1} returns the \id{k}-th derivative of the
+  \id{is}-th sensitivity solution vector after a successful
   return from \id{CVode}.
 }
 {
@@ -2321,35 +2328,35 @@ each parameter in turn through the functions \id{CVodeGetQuadSens1} and
   \item[cvode\_mem] (\id{void *})
     pointer to the memory previously allocated by \id{CVodeInit}.
   \item[t] (\id{realtype})
-    specifies the time at which sensitivity information is 
-    requested. The time \id{t} must fall within the interval defined by the last 
+    specifies the time at which sensitivity information is
+    requested. The time \id{t} must fall within the interval defined by the last
     successful step taken by {\cvodes}.
   \item[k] (\id{int}) order of derivative.
   \item[is] (\id{int}) specifies the sensitivity derivative vector to be returned
     ($0\le$\id{is}$< N_s$).
   \item[dkyQS] (\id{N\_Vector})
     the vector containing the derivative on output. The space for \id{dkyQS} must be
-    allocated by the user. 
+    allocated by the user.
   \end{args}
 }
 {
   The return value \id{flag} of \id{CVodeGetQuadSensDky1} is one of:
   \begin{args}[CV\_NO\_QUADSENS]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     \id{CVodeGetQuadDky1} succeeded.
-  \item[\Id{CVODE\_MEM\_NULL}] 
+  \item[\Id{CVODE\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CV\_NO\_SENS}] 
+  \item[\Id{CV\_NO\_SENS}]
     Forward sensitivity analysis was not initialized.
-  \item[\Id{CV\_NO\_QUADSENS}] 
+  \item[\Id{CV\_NO\_QUADSENS}]
     Quadratures depending on the sensitivities were not activated.
-  \item[\Id{CV\_BAD\_DKY}] 
+  \item[\Id{CV\_BAD\_DKY}]
     \id{dkyQS} is \id{NULL}.
   \item[\Id{CV\_BAD\_IS}]
     The index \id{is} is not in the allowed range.
-  \item[\Id{CV\_BAD\_K}] 
+  \item[\Id{CV\_BAD\_K}]
     \id{k} is not in the range $0, 1, ...,$ \id{qlast}.
-  \item[\Id{CV\_BAD\_T}] 
+  \item[\Id{CV\_BAD\_T}]
     The time \id{t} is not in the allowed range.
   \end{args}
 }
@@ -2377,7 +2384,7 @@ of sensitivity-dependent quadrature equations.
   mechanism. If they are, the user must call one of the functions
   \id{CVodeQuadSensSStolerances}, \id{CVodeQuadSensSVtolerances}, or
   \id{CVodeQuadSensEEtolerances} to specify the integration tolerances for
-  the quadrature variables.  
+  the quadrature variables.
 }
 {
   \begin{args}[errconQS]
@@ -2385,33 +2392,33 @@ of sensitivity-dependent quadrature equations.
     pointer to the {\cvodes} memory block.
   \item[errconQS] (\id{booleantype})
     specifies whether sensitivity quadrature variables are to be included
-    (\id{SUNTRUE}) or not (\id{SUNFALSE}) in the error control mechanism. 
+    (\id{SUNTRUE}) or not (\id{SUNFALSE}) in the error control mechanism.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_NO\_QUADSENS]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVODE\_MEM\_NULL}]
     \id{cvode\_mem} is \id{NULL}.
   \item[CV\_NO\_SENS]
     Sensitivities were not activated.
-  \item[\Id{CV\_NO\_QUADSENS}] 
+  \item[\Id{CV\_NO\_QUADSENS}]
     Quadratures depending on the sensitivities were not activated.
   \end{args}
 }
 {
-  By default, \id{errconQS} is set to \id{SUNFALSE}. 
+  By default, \id{errconQS} is set to \id{SUNFALSE}.
 
-  {\warn}It is illegal to call \id{CVodeSetQuadSensErrCon} before a call 
+  {\warn}It is illegal to call \id{CVodeSetQuadSensErrCon} before a call
   to \id{CVodeQuadSensInit}.
 }
 
 
-If the quadrature variables are part of the step size control mechanism, 
+If the quadrature variables are part of the step size control mechanism,
 one of the following functions must be called to specify the
-integration tolerances for quadrature variables. 
+integration tolerances for quadrature variables.
 
 \ucfunctionf{CVodeQuadSensSStolerances}
 {
@@ -2429,22 +2436,22 @@ integration tolerances for quadrature variables.
     \index{tolerances}
     is the scalar relative error tolerance.
   \item[abstolQS] (\id{realtype*})
-    is a pointer to an array containing the \id{Ns} scalar absolute 
+    is a pointer to an array containing the \id{Ns} scalar absolute
     error tolerances.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_NO\_QUADSENS]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVODE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[CV\_NO\_SENS]
     Sensitivities were not activated.
-  \item[\Id{CV\_NO\_QUADSENS}] 
+  \item[\Id{CV\_NO\_QUADSENS}]
     Quadratures depending on the sensitivities were not activated.
-  \item[\Id{CV\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}]
     One of the input tolerances was negative.
   \end{args}
 }
@@ -2455,7 +2462,7 @@ integration tolerances for quadrature variables.
  flag = CVodeQuadSensSVtolerances(cvode\_mem, reltolQS, abstolQS);
 }
 {
-  The function \ID{CVodeQuadSensSVtolerances} specifies scalar relative and 
+  The function \ID{CVodeQuadSensSVtolerances} specifies scalar relative and
   vector absolute tolerances.
 }
 {
@@ -2467,14 +2474,14 @@ integration tolerances for quadrature variables.
     is the scalar relative error tolerance.
   \item[abstolQS] (\id{N\_Vector*})
     is an array of \id{Ns} variables of type \id{N\_Vector}. The \id{N\_Vector}
-    \id{abstolS[is]} specifies the vector tolerances for \id{is}-th quadrature 
+    \id{abstolS[is]} specifies the vector tolerances for \id{is}-th quadrature
     sensitivity.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_NO\_QUADSENS]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CV\_NO\_QUAD}]
     Quadrature integration was not initialized.
@@ -2482,9 +2489,9 @@ integration tolerances for quadrature variables.
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[CV\_NO\_SENS]
     Sensitivities were not activated.
-  \item[\Id{CV\_NO\_QUADSENS}] 
+  \item[\Id{CV\_NO\_QUADSENS}]
     Quadratures depending on the sensitivities were not activated.
-  \item[\Id{CV\_ILL\_INPUT}] 
+  \item[\Id{CV\_ILL\_INPUT}]
     One of the input tolerances was negative.
   \end{args}
 }
@@ -2497,7 +2504,7 @@ integration tolerances for quadrature variables.
 {
   A call to the function \ID{CVodeQuadSensEEtolerances} specifies that the
   tolerances for the sensitivity-dependent quadratures should be estimated from
-  those provided for the pure quadrature variables. 
+  those provided for the pure quadrature variables.
 }
 {
   \begin{args}[cvode\_mem]
@@ -2508,22 +2515,22 @@ integration tolerances for quadrature variables.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVODE\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVODE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[CV\_NO\_SENS]
     Sensitivities were not activated.
-  \item[\Id{CV\_NO\_QUADSENS}] 
+  \item[\Id{CV\_NO\_QUADSENS}]
     Quadratures depending on the sensitivities were not activated.
   \end{args}
 }
-{ 
-  When \ID{CVodeQuadSensEEtolerances}  is used, before calling \Id{CVode}, 
+{
+  When \ID{CVodeQuadSensEEtolerances}  is used, before calling \Id{CVode},
   integration of pure quadratures must be initialized (see \ref{ss:quad_malloc})
-  and tolerances for pure quadratures must be also specified 
+  and tolerances for pure quadratures must be also specified
   (see \ref{ss:quad_optional_input}).
-  
+
 }
 %%
 \index{optional input!sensitivity-dependent quadrature integration|)}
@@ -2544,7 +2551,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadSensNumRhsEvals(cvode\_mem, \&nrhsQSevals);
 }
 {
-  The function \ID{CVodeGetQuadSensNumRhsEvals} returns the 
+  The function \ID{CVodeGetQuadSensNumRhsEvals} returns the
   number of calls made to the user's quadrature right-hand side function.
 }
 {
@@ -2558,7 +2565,7 @@ performance information related to quadrature integration.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_NO\_QUADSENS]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CVODE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2588,7 +2595,7 @@ performance information related to quadrature integration.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CV\_NO\_QUADSENS]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CVODE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2604,7 +2611,7 @@ performance information related to quadrature integration.
   flag = CVodeGetQuadSensErrWeights(cvode\_mem, eQSweight);
 }
 {
-  The function \ID{CVodeGetQuadSensErrWeights} returns the quadrature error weights 
+  The function \ID{CVodeGetQuadSensErrWeights} returns the quadrature error weights
   at the current time.
 }
 {
@@ -2618,7 +2625,7 @@ performance information related to quadrature integration.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[CVODE\_MEM\_NULL]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{CVODE\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
@@ -2629,7 +2636,7 @@ performance information related to quadrature integration.
 {
   {\warn}The user must allocate memory for \id{eQSweight}.
 
-  If quadratures were not included in the error control mechanism (through a 
+  If quadratures were not included in the error control mechanism (through a
   call to \id{CVodeSetQuadSensErrCon} with \id{errconQS = SUNTRUE}), then
   this function does not set the \id{eQSweight} array.
 }
@@ -2656,7 +2663,7 @@ performance information related to quadrature integration.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CV\_NO\_QUADSENS]
-  \item[\Id{CV\_SUCCESS}] 
+  \item[\Id{CV\_SUCCESS}]
     the optional output values have been successfully set.
   \item[\Id{CVODE\_MEM\_NULL}]
     the \id{cvode\_mem} pointer is \id{NULL}.
@@ -2702,7 +2709,7 @@ This user function must be of type \Id{CVQuadSensRhsFn} defined as follows:
     is the current value of the independent variable.
   \item[y]
     is the current value of the dependent variable vector, $y(t)$.
-  \item[yS] 
+  \item[yS]
     is an array of \id{Ns} variables of type \id{N\_Vector} containing the
     dependent sensitivity vectors $s_i$.
   \item[yQdot]
@@ -2710,7 +2717,7 @@ This user function must be of type \Id{CVQuadSensRhsFn} defined as follows:
   \item[rhsvalQS]
     array of \id{Ns} vectors to contain the right-hand sides.
   \item[user\_data]
-    is the \Id{user\_data} pointer passed to \id{CVodeSetUserData}.   
+    is the \Id{user\_data} pointer passed to \id{CVodeSetUserData}.
   \item[tmp1]
   \item[tmp2]
     are \id{N\_Vector}s which can be used as temporary storage.
@@ -2718,7 +2725,7 @@ This user function must be of type \Id{CVQuadSensRhsFn} defined as follows:
 }
 {
   A \id{CVQuadSensRhsFn} should return 0 if successful, a positive value if a recoverable
-  error occurred (in which case {\cvodes} will attempt to correct), or a negative 
+  error occurred (in which case {\cvodes} will attempt to correct), or a negative
   value if it failed unrecoverably (in which case the integration is halted and
   \Id{CV\_QRHS\_FAIL} is returned).
 }
@@ -2728,7 +2735,7 @@ This user function must be of type \Id{CVQuadSensRhsFn} defined as follows:
   Here \id{y} is of type \id{N\_Vector} and \id{yS} is a pointer to an array
   containing \id{Ns} vectors of type \id{N\_Vector}.  It is the user's
   responsibility to access the vector data consistently (including the use of the
-  correct accessor macros from each {\nvector} implementation). 
+  correct accessor macros from each {\nvector} implementation).
   For the sake of computational efficiency, the vector functions in
   the two {\nvector} implementations provided with {\cvodes} do not
   perform any consistency checks with respect to their \id{N\_Vector}
@@ -2750,11 +2757,11 @@ This user function must be of type \Id{CVQuadSensRhsFn} defined as follows:
 %%-------------------------------------------------------------------
 %%
 \index{partial error control!explanation of {\cvodes} behavior}
-For some problems, when sensitivities are excluded from the error control test, 
+For some problems, when sensitivities are excluded from the error control test,
 the behavior of {\cvodes} may appear at first glance to be erroneous. One would
 expect that, in such cases, the sensitivity variables would not influence in
-any way the step size selection. A comparison of the solver diagnostics 
-reported for \id{cvsdenx} and the second run of the \id{cvsfwddenx} example 
+any way the step size selection. A comparison of the solver diagnostics
+reported for \id{cvsdenx} and the second run of the \id{cvsfwddenx} example
 in \cite{cvodes_ex} indicates that this may not always be the case.
 
 The short explanation of this behavior is that the step size selection
@@ -2767,11 +2774,11 @@ nonlinear solver.
 
 When using the simultaneous corrector method (\S\ref{ss:fwd_sensi}),
 the nonlinear system that is solved at each step involves both the state
-and sensitivity equations. In this case, it is easy to see how the sensitivity 
+and sensitivity equations. In this case, it is easy to see how the sensitivity
 variables may affect the convergence rate of the nonlinear solver and therefore
-the step size selection. 
-The case of the staggered corrector approach is more subtle. 
-After all, in this case (\id{ism = CV\_STAGGERED} or \id{CV\_STAGGERED1} in the call 
+the step size selection.
+The case of the staggered corrector approach is more subtle.
+After all, in this case (\id{ism = CV\_STAGGERED} or \id{CV\_STAGGERED1} in the call
 to \id{CVodeSensInit}/\id{CVodeSensInit1}), the sensitivity variables at a given step
 are computed only once the solver for the nonlinear state equations has converged.
 However, if the nonlinear system corresponding to the sensitivity equations
@@ -2785,20 +2792,20 @@ preconditioner data in the case of the Krylov solvers). The new Jacobian informa
 will be used by subsequent calls to the nonlinear solver for the state equations
 and, in this way, potentially affect the step size selection.
 
-When using the simultaneous corrector method it is not possible to decide whether 
+When using the simultaneous corrector method it is not possible to decide whether
 nonlinear solver convergence failures or calls to the linear solver setup routine
-have been triggered by convergence problems due to the state or the sensitivity 
+have been triggered by convergence problems due to the state or the sensitivity
 equations.
-When using one of the staggered corrector methods however, these situations can be 
-identified by carefully monitoring the diagnostic information provided through 
+When using one of the staggered corrector methods however, these situations can be
+identified by carefully monitoring the diagnostic information provided through
 optional outputs. If there are no convergence
 failures in the sensitivity nonlinear solver, and none
 of the calls to the linear solver setup routine were made by the sensitivity
 nonlinear solver, then the step size selection is
 not affected by the sensitivity variables.
 
-Finally, the user must be warned that the effect of appending sensitivity 
-equations to a given system of ODEs on the step size selection 
+Finally, the user must be warned that the effect of appending sensitivity
+equations to a given system of ODEs on the step size selection
 (through the mechanisms described above) is problem-dependent and can therefore
 lead to either an increase or decrease of the total number of steps that {\cvodes} takes
 to complete the simulation. At first glance, one would expect that the impact
@@ -2809,6 +2816,6 @@ nonlinear solver can only lead to additional iterations (and therefore a smaller
 final iteration error), or to additional calls to the linear solver setup routine
 (and therefore more up-to-date Jacobian information), both of which will lead
 to larger steps being taken by {\cvodes}. However, this is true only locally.
-Overall, a larger integration step taken at a given time may lead to 
+Overall, a larger integration step taken at a given time may lead to
 step size reductions at later times, due to either nonlinear solver convergence
 failures or error test failures.

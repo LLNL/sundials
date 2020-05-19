@@ -14,15 +14,19 @@ The optional inputs are grouped into the following categories:
 
 * General MRIStep options (:ref:`MRIStep_CInterface.MRIStepInputTable`), and
 * IVP method solver options (:ref:`MRIStep_CInterface.MRIStepMethodInputTable`)
+* Rootfinding options (:ref:`MRIStep_CInterface.MRIStepRootfindingInputTable`).
 
 For the most casual use of MRIStep, relying on the default set of
 solver parameters, the reader can skip to the following section,
 :ref:`MRIStep_CInterface.UserSupplied`.
 
-We note that, on an error return, all of the optional input functions
-send an error message to the error handler function.  We also note
-that all error return values are negative, so a test on the return
-arguments for negative values will catch all errors.
+We note that, on an error return, all of the optional input functions send an
+error message to the error handler function. All error return values are
+negative, so a test on the return arguments for negative values will catch all
+errors. Finally, a call to an ``MRIStepSet***`` function can generally be made
+from the user's calling program at any time and, if successful, takes effect
+immediately. ``MRIStepSet***`` functions that cannot be called at any time note
+this in the "**Notes**:" section of the function documentation.
 
 
 
@@ -88,7 +92,8 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
       * *ARK_MEM_FAIL* if the interpolation module cannot be allocated
-      * *ARK_ILL_INPUT* if the *itype* argument is not recognized
+      * *ARK_ILL_INPUT* if the *itype* argument is not recognized or the
+        interpolation module has already been initialized
 
    **Notes:** The Hermite interpolation module is described in the Section
    :ref:`Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
@@ -99,6 +104,8 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
    :c:func:`MRIStepSetInterpolantDegree()` will be nullified.
 
    This routine must be called *after* the call to :c:func:`MRIStepCreate()`.
+   After the first call to :c:func:`MRIStepEvolve()` the interpolation type may
+   not be changed without first calling :c:func:`MRIStepReInit()`.
 
    If this routine is not called, the Hermite interpolation module will be used.
 
@@ -118,12 +125,16 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory or interpolation module are ``NULL``
       * *ARK_INTERP_FAIL* if this is called after :c:func:`MRIStepEvolve()`
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument has an illegal value or the
+        interpolation module has already been initialized
 
    **Notes:** Allowed values are between 0 and 5.
 
-   This routine should be called *after* :c:func:`MRIStepCreate()`
-   and *before* :c:func:`MRIStepEvolve()`.
+   This routine should be called *after* :c:func:`MRIStepCreate()` and *before*
+   :c:func:`MRIStepEvolve()`. After the first call to :c:func:`MRIStepEvolve()`
+   the interpolation degree may not be changed without first calling
+   :c:func:`MRIStepReInit()`.
+
 
    If a user calls both this routine and :c:func:`MRIStepSetInterpolantType()`, then
    :c:func:`MRIStepSetInterpolantType()` must be called first.
@@ -399,26 +410,26 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
    may be the same as or different from the pointer attached to the outer
    integrator depending on what is required by the user code.
 
-.. c:function:: int MRIStepSetPreInnerFn(void* arkode_mem, ARKInnerToOuterFn prefn)
+.. c:function:: int MRIStepSetPreInnerFn(void* arkode_mem, MRIStepPreInnerFn prefn)
 
    Specifies the function called *before* each inner integration.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *prefn* -- the name of the C function (of type :c:func:`ARKOuterToInner()`)
+      * *prefn* -- the name of the C function (of type :c:func:`MRIStepPreInnerFn()`)
         defining pre inner integration function.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-.. c:function:: int MRIStepSetPostInnerFn(void* arkode_mem, ARKOuterToInnerFn postfn)
+.. c:function:: int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
 
    Specifies the function called *after* each inner integration.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *postfn* -- the name of the C function (of type :c:func:`ARKInnerToOuter()`)
+      * *postfn* -- the name of the C function (of type :c:func:`MRIStepPostInnerFn()`)
         defining post inner integration function.
 
    **Return value:**

@@ -1271,11 +1271,12 @@ Table \ref{t:optional_input} lists all optional input functions in {\idas} which
 are then described in detail in the remainder of this section.
 For the most casual use of {\idas}, the reader can skip to \S\ref{ss:user_fct_sim}.
 
-We note that, on an error return, all these functions also send an error message to
-the error handler function.
+We note that, on an error return, all of the optional input functions also send an
+error message to the error handler function.
 \index{error messages}
-We also note that all error return values are negative,
-so a test \id{flag} $<0$ will catch any error.
+All error return values are negative, so the test \id{flag < 0} will catch all
+errors. Finally, a call to a \id{IDASet***} function can be made from the
+user's calling program at any time and, if successful, takes effect immediately.
 
 \begin{table}
 \centering

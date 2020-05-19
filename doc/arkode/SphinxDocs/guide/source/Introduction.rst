@@ -1092,7 +1092,7 @@ BSD license anymore.
 BSD 3-Clause License
 ^^^^^^^^^^^^^^^^^^^^
 
-Copyright (c) 2002-2019, Lawrence Livermore National Security and Southern
+Copyright (c) 2002-2020, Lawrence Livermore National Security and Southern
 Methodist University.
 
 All rights reserved.

@@ -1238,9 +1238,11 @@ optional inputs.  For the most casual use of {\cvodes}, the reader
 can skip to \S\ref{ss:user_fct_sim}.
 
 We note that, on an error return, all of the optional input functions send an
-error message to the error handler function. \index{error messages}
-We also note that all error return values are negative, so the test \id{flag < 0}
-will catch all errors.
+error message to the error handler function.
+\index{error messages}
+All error return values are negative, so the test \id{flag < 0} will catch all
+errors. Finally, a call to a \id{CVodeSet***} function can be made from the
+user's calling program at any time and, if successful, takes effect immediately.
 
 \begin{table}
 \centering
