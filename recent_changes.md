@@ -30,6 +30,19 @@ few may observe minor performance degradation with the default settings. Users
 are encouraged to contact the SUNDIALS team about any perfomance changes
 that they notice.
 
+Added new capabilities for monitoring the solve phase in the `SUNNONLINSOL_NEWTON`
+and `SUNNONLINSOL_FIXEDPOINT` modules, and the SUNDIALS iterative linear solver
+modules. SUNDIALS must be built with the CMake option
+`SUNDIALS_BUILD_WITH_MONITORING` to use these capabilties.
+
+Added a new function, `CVodeSetMonitorFn`, that takes a user-function
+to be called by CVODE after every `nst` succesfully completed time-steps.
+This is intended to provide a way of monitoring the CVODE statistics
+throughout the simulation.
+
+Added a new function `CVodeGetLinSolveStats` to get the CVODE linear solver
+statistics as a group.
+
 Added optional set functions to provide an alternative ODE right-hand side
 function (ARKode and CVODE(S)), DAE residual function (IDA(S)), or nonlinear
 system function (KINSOL) for use when computing Jacobian-vector products with

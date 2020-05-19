@@ -109,6 +109,57 @@ user-callable routines:
    ``SUNLS_MEM_NULL`` (``S`` is ``NULL``) or ``SUNLS_SUCCESS``.
 
 
+.. c:function:: int SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver LS, FILE* info_file)
+
+   The function :c:func:`SUNLinSolSetInfoFile_SPFGMR()` sets the
+   output file where all informative (non-error) messages should be directed.
+
+   **Arguments:**
+      * *LS* -- a SUNLinSol object
+      * *info_file* -- pointer to output file (``stdout`` by default);
+         a ``NULL`` input will disable output
+
+   **Return value:**
+      * *SUNLS_SUCCESS* if successful
+      * *SUNLS_MEM_NULL* if the SUNLinearSolver memory was ``NULL``
+      * *SUNLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled
+
+   **Notes:**
+   This function is intended for users that wish to monitor the linear
+   solver progress. By default, the file pointer is set to ``stdout``.
+
+   **SUNDIALS must be built with the CMake option
+   ``SUNDIALS_BUILD_WITH_MONITORING``, to utilize this function.**
+   See section :ref:`Installation.CMake.Options` for more information.
+
+
+.. c:function:: int SUNLinSolSetPrintLevel_SPFGMR(SUNLinearSolver LS, int print_level)
+
+   The function :c:func:`SUNLinSolSetPrintLevel_SPFGMR()` specifies the
+   level of verbosity of the output.
+
+   **Arguments:**
+      * *LS* -- a SUNLinSol object
+      * *print_level* -- flag indicating level of verbosity;
+        must be one of:
+
+         * 0, no information is printed (default)
+         * 1, for each linear iteration the residual norm is printed
+
+   **Return value:**
+      * *SUNLS_SUCCESS* if successful
+      * *SUNLS_MEM_NULL* if the SUNLinearSolver memory was ``NULL``
+      * *SUNLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled, or
+        if the print level value was invalid
+
+   **Notes:**
+   This function is intended for users that wish to monitor the linear
+   solver progress. By default, the print level is 0.
+
+   **SUNDIALS must be built with the CMake option
+   ``SUNDIALS_BUILD_WITH_MONITORING``, to utilize this function.**
+   See section :ref:`Installation.CMake.Options` for more information.
+
 
 For backwards compatibility, we also provide the wrapper functions,
 each with identical input and output arguments to the routines that
@@ -279,6 +330,8 @@ The SUNLinSol_SPFGMR module defines the *content* field of a
      N_Vector xcor;
      realtype *yg;
      N_Vector vtemp;
+     int      print_level;
+     FILE*    info_file;
    };
 
 These entries of the *content* field contain the following
@@ -358,6 +411,10 @@ information:
   values used to hold "short" vectors (e.g. :math:`y` and :math:`g`),
 
 * ``vtemp`` - temporary vector storage.
+
+* ``print_level`` - controls the amount of information to be printed to the info file
+
+* ``info_file``   - the file where all informative (non-error) messages will be directed
 
 
 This solver is constructed to perform the following operations:

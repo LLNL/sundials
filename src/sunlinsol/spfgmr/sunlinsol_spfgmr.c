@@ -23,6 +23,8 @@
 #include <sunlinsol/sunlinsol_spfgmr.h>
 #include <sundials/sundials_math.h>
 
+#include "sundials_debug.h"
+
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
@@ -137,6 +139,8 @@ SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl)
   content->yg           = NULL;
   content->cv           = NULL;
   content->Xv           = NULL;
+  content->print_level  = 0;
+  content->info_file    = stdout;
 
   /* Allocate content */
   content->xcor = N_VClone(y);
@@ -458,6 +462,11 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   scale1 = (s1 != NULL);
   scale2 = (s2 != NULL);
 
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  if (SPFGMR_CONTENT(S)->print_level && SPFGMR_CONTENT(S)->info_file)
+    fprintf(SPFGMR_CONTENT(S)->info_file, "SUNLINSOL_SPFGMR:\n");
+#endif
+
   /* Check if Atimes function has been set */
   if (atimes == NULL) {
     LASTFLAG(S) = SUNLS_ATIMES_NULL;
@@ -492,6 +501,17 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Set r_norm = beta to L2 norm of V[0] = s1 r_0, and return if small */
   *res_norm = r_norm = beta = SUNRsqrt(N_VDotProd(V[0], V[0]));
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* print initial residual */
+  if (SPFGMR_CONTENT(S)->print_level && SPFGMR_CONTENT(S)->info_file)
+  {
+    fprintf(SPFGMR_CONTENT(S)->info_file,
+            SUNLS_MSG_RESIDUAL,
+            (long int) 0, *res_norm);
+  }
+#endif
+
   if (r_norm <= delta) {
     LASTFLAG(S) = SUNLS_SUCCESS;
     return(LASTFLAG(S));
@@ -572,6 +592,17 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       /* Update residual norm estimate; break if convergence test passes. */
       rotation_product *= givens[2*l+1];
       *res_norm = rho = SUNRabs(rotation_product*r_norm);
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+      /* print current iteration number and the residual */
+      if (SPFGMR_CONTENT(S)->print_level && SPFGMR_CONTENT(S)->info_file)
+      {
+        fprintf(SPFGMR_CONTENT(S)->info_file,
+                SUNLS_MSG_RESIDUAL,
+                (long int) *nli, *res_norm);
+      }
+#endif
+
       if (rho <= delta) { converged = SUNTRUE; break; }
 
       /* Normalize V[l+1] with norm value from the Gram-Schmidt routine. */
@@ -753,3 +784,44 @@ int SUNLinSolFree_SPFGMR(SUNLinearSolver S)
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
 }
+
+
+int SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver S,
+                                FILE* info_file)
+{
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* check that the linear solver is non-null */
+  if (S == NULL)
+    return(SUNLS_MEM_NULL);
+
+  SPFGMR_CONTENT(S)->info_file = info_file;
+
+  return(SUNLS_SUCCESS);
+#else
+  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetInfoFile_SPFGMR: SUNDIALS was not built with monitoring\n");
+  return(SUNLS_ILL_INPUT);
+#endif
+}
+
+
+int SUNLinSolSetPrintLevel_SPFGMR(SUNLinearSolver S,
+                                  int print_level)
+{
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* check that the linear solver is non-null */
+  if (S == NULL)
+    return(SUNLS_MEM_NULL);
+
+  /* check for valid print level */
+  if (print_level < 0 || print_level > 1)
+    return(SUNLS_ILL_INPUT);
+
+  SPFGMR_CONTENT(S)->print_level = print_level;
+
+  return(SUNLS_SUCCESS);
+#else
+  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetPrintLevel_SPFGMR: SUNDIALS was not built with monitoring\n");
+  return(SUNLS_ILL_INPUT);
+#endif
+}
+

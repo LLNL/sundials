@@ -27,6 +27,8 @@
 #include "sundials/sundials_linearsolver.h"
 %}
 
+%ignore SUNLS_MSG_RESIDUAL;
+
 // Process and wrap functions in the following files
 %include "sundials/sundials_iterative.h"
 %include "sundials/sundials_linearsolver.h"

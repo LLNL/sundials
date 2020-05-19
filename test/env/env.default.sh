@@ -170,6 +170,9 @@ else
     export F03_STATUS=OFF
 fi
 
+# Sundials monitoring
+export MONITOR_STATUS=ON
+
 # ------------------------------------------------------------------------------
 # Third party libraries
 # ------------------------------------------------------------------------------

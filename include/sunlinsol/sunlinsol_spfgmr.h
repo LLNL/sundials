@@ -72,6 +72,9 @@ struct _SUNLinearSolverContent_SPFGMR {
 
   realtype *cv;
   N_Vector *Xv;
+
+  int print_level;
+  FILE* info_file;
 };
 
 typedef struct _SUNLinearSolverContent_SPFGMR *SUNLinearSolverContent_SPFGMR;
@@ -90,14 +93,10 @@ SUNDIALS_EXPORT int SUNLinSol_SPFGMRSetGSType(SUNLinearSolver S,
 SUNDIALS_EXPORT int SUNLinSol_SPFGMRSetMaxRestarts(SUNLinearSolver S,
                                                    int maxrs);
 
-/* deprecated */
-SUNDIALS_EXPORT SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl);
-/* deprecated */
-SUNDIALS_EXPORT int SUNSPFGMRSetPrecType(SUNLinearSolver S, int pretype);
-/* deprecated */
-SUNDIALS_EXPORT int SUNSPFGMRSetGSType(SUNLinearSolver S, int gstype);
-/* deprecated */
-SUNDIALS_EXPORT int SUNSPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
+SUNDIALS_DEPRECATED SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl);
+SUNDIALS_DEPRECATED int SUNSPFGMRSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_DEPRECATED int SUNSPFGMRSetGSType(SUNLinearSolver S, int gstype);
+SUNDIALS_DEPRECATED int SUNSPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
 
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPFGMR(SUNLinearSolver S);
@@ -123,6 +122,10 @@ SUNDIALS_EXPORT int SUNLinSolSpace_SPFGMR(SUNLinearSolver S,
                                           long int *lenrwLS,
                                           long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPFGMR(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver LS,
+                                                FILE* info_file);
+SUNDIALS_EXPORT int SUNLinSolSetPrintLevel_SPFGMR(SUNLinearSolver LS,
+                                                  int print_level);
 
 
 #ifdef __cplusplus

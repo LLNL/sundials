@@ -1394,6 +1394,88 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
 }
 %%
 %%
+\ucfunctionf{CVodeSetMonitorFn}
+{
+  flag = CVodeSetMonitorFn(cvode\_mem, monitorfn);
+}
+{
+  The function \ID{CVodeSetMonitorFn} specifies a user function,
+  \id{monitorfn}, to be called at some interval of successfully
+  completed {\cvode} time steps.
+}
+{
+  \begin{args}[cvode\_data]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[monitorfn] (\id{CVMonitorFn})
+    user-supplied monitor function (\id{NULL} by default); a \id{NULL}
+    input will turn off monitoring
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The frequency with which the monitor function is called can be
+  set with the function \id{CVodeSetMonitorFrequency}.
+
+  {\warn}Modifying the solution in this function will result in
+  undefined behavior. This function is only intended to be used
+  for monitoring the integrator.
+
+  \textbf{{\sundials} must be built with the CMake option
+  \id{SUNDIALS\_BUILD\_WITH\_MONITORING}, to utilize this function.}
+  See section \ref{ss:configuration_options_nix} for more information.
+}
+%%
+%%
+\ucfunctionf{CVodeSetMonitorFrequency}
+{
+  flag = CVodeSetMonitorFrequency(cvode\_mem, nst);
+}
+{
+  The function \ID{CVodeSetMonitorFrequency} specifies the
+  interval, measured in successfully completed {\cvode} time-steps,
+  at which the monitor function should be called.
+}
+{
+  \begin{args}[cvode\_data]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[nst] (\id{long int})
+    number of successful steps inbetween calls to the monitor function (0 by default);
+    a 0 input will turn off monitoring
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The monitor function that will be called can be set with
+  \id{CVodeSetMonitorFn}.
+
+  {\warn}Modifying the solution in this function will result in
+  undefined behavior. This function is only intended to be used
+  for monitoring the integrator.
+
+  \textbf{{\sundials} must be built with the CMake option
+  \id{SUNDIALS\_BUILD\_WITH\_MONITORING}, to utilize this function.}
+  See section \ref{ss:configuration_options_nix} for more information.
+}
+%%
+%%
 \ucfunctionf{CVodeSetMaxOrd}
 {
 flag = CVodeSetMaxOrd(cvode\_mem, maxord);
@@ -2608,6 +2690,7 @@ No. of preconditioner evaluations & \id{CVodeGetNumPrecEvals} \\
 No. of preconditioner solves & \id{CVodeGetNumPrecSolves} \\
 No. of Jacobian-vector setup evaluations & \id{CVodeGetNumJTSetupEvals} \\
 No. of Jacobian-vector product evaluations & \id{CVodeGetNumJtimesEvals} \\
+Get all linear solver statistics in one function call & \id{CVodeGetLinSolvStats} \\
 Last return from a linear solver function & \id{CVodeGetLastLinFlag} \\
 Name of constant associated with a return flag & \id{CVodeGetLinReturnFlagName} \\
 \hline
@@ -3713,6 +3796,48 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
+\ucfunctionf{CVodeGetLinSolvStats}
+{
+  flag = CVodeGetLinSolvStats(cvode\_mem,
+                              \&njevals, \&nfevalsLS,
+                              \&nliters, \&nlcfails,
+                              \&npevals, \&npsolves,
+                              \&njtsetups, \&njtimes);
+}
+{
+  The function \ID{CVodeGetLinSolvStats} returns {\cvode} linear solver
+  statsitics.
+}
+{
+  \begin{args}[cvode\_mem]
+    \item[\id{cvode\_mem}] - (\id{void *}) the \id{CVodeMem} structure
+    \item[\id{njevals}] - (\id{long int*}) the current number of calls to the
+      Jacobian function
+    \item[\id{nfevalsLS}] - (\id{long int*}) the current number of calls made to
+      the user-supplied right-hand side function by the linear solver
+    \item[\id{nliters}] - (\id{long int*}) the current number of linear iterations
+    \item[\id{nlcfails}] - (\id{long int*}) the current number of linear
+      convergence failures
+    \item[\id{npevals}] - (\id{long int*}) the current number of calls to \id{psetup}
+    \item[\id{npsolves}] - (\id{long int*}) the current number of calls to \id{psolve}
+    \item[\id{njtsetup}] - (\id{long int*}) the current number of calls to \id{jtsetup}
+    \item[\id{njtimes}] - (\id{long int*}) the current number of calls to \id{jtimes}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
 \ucfunctionf{CVodeGetLastLinFlag}
 {
   flag = CVodeGetLastLinFlag(cvode\_mem, \&lsflag);
@@ -4148,6 +4273,39 @@ The function type \id{CVErrHandlerFn} is defined as follows:
   \id{error\_code} is negative for errors and positive (\Id{CV\_WARNING}) for warnings.
   If a function that returns a pointer to memory encounters an
   error, it sets \id{error\_code} to 0.
+}
+
+%%==============================================================================
+\subsection{Monitor function}
+\label{ss:monitorfn}
+%%==============================================================================
+\index{monitor}
+A user may provide a function of type \Id{CVMonitorFn} to monitor the
+integrator progress throughout a simulation. For example, a user may
+want to check integrator statistics as a simulation progresses.
+\usfunction{CVMonitorFn}
+{
+  typedef void (*CVMonitorFn)(void* cvode\_mem, void* user\_data);
+}
+{
+  This function is used to monitor the {\cvode} integrator
+  throughout a simulation.
+}
+{
+  \begin{args}[user\_data]
+  \item[cvode\_mem]
+    the {\cvode} memory block
+  \item[user\_data]
+    is a pointer to user data, the same as the \Id{user\_data}
+    parameter passed to \id{CVodeSetUserData}.
+  \end{args}
+}
+{
+  A \id{CVMonitorFn} should return 0 if successful, or a negative value
+  if unsuccessful.
+}
+{
+  {\warn} This function should only be utilized for monitoring the integrator.
 }
 
 %%==============================================================================

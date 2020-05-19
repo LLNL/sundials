@@ -97,7 +97,7 @@ add_prefix(${sundials_SOURCE_DIR}/include/idas/ idas_HEADERS)
 
 # Add source directories to include directories for access to
 # implementation only header files.
-include_directories(.)
+include_directories(. ${sundials_SOURCE_DIR}/src/sundials)
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 add_definitions(-DBUILD_SUNDIALS_LIBRARY)

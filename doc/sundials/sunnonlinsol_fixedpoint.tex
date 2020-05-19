@@ -274,6 +274,77 @@ function for creating a \id{SUNNonlinearSolver} object.
   of failure.
 }
 {}
+% --------------------------------------------------------------------
+\ucfunctionf{SUNNonlinSolSetInfoFile\_FixedPoint}
+{
+  retval = SUNNonlinSolSetInfoFile\_FixedPoint(NLS, info\_file);
+}
+{
+  The function \ID{SUNNonlinSolSetInfoFile\_FixedPoint} sets the
+  output file where all informative (non-error) messages should be directed.
+}
+{
+  \begin{args}[info\_file]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object
+  \item[info\_file] (\id{FILE*}) pointer to output file (\id{stdout} by default);
+    a \id{NULL} input will disable output
+  \end{args}
+}
+{
+  The return value is
+  \begin{itemize}
+    \item \id{SUN\_NLS\_SUCCESS} if successful
+    \item \id{SUN\_NLS\_MEM\_NULL} if the SUNNonlinearSolver memory was \id{NULL}
+    \item \id{SUN\_NLS\_ILL\_INPUT} if {\sundials} was not built with monitoring enabled
+  \end{itemize}
+}
+{
+  This function is intended for users that wish to monitor the nonlinear
+  solver progress. By default, the file pointer is set to \id{stdout}.
+
+  \textbf{{\sundials} must be built with the CMake option
+  \id{SUNDIALS\_BUILD\_WITH\_MONITORING}, to utilize this function.}
+  See section \ref{ss:configuration_options_nix} for more information.
+}
+% --------------------------------------------------------------------
+\ucfunctionf{SUNNonlinSolSetPrintLevel\_FixedPoint}
+{
+  retval = SUNNonlinSolSetPrintLevel\_FixedPoint(NLS, print\_level);
+}
+{
+  The function \ID{SUNNonlinSolSetPrintLevel\_FixedPoint} specifies the
+  level of verbosity of the output.
+}
+{
+  \begin{args}[print\_level]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object
+  \item[print\_level] (\id{int}) flag indicating level of verbosity;
+    must be one of:
+    \begin{itemize}
+      \item 0, no information is printed (default)
+      \item 1, for each nonlinear iteration the residual norm is printed
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value is
+  \begin{itemize}
+    \item \id{SUN\_NLS\_SUCCESS} if successful
+    \item \id{SUN\_NLS\_MEM\_NULL} if the SUNNonlinearSolver memory was \id{NULL}
+    \item \id{SUN\_NLS\_ILL\_INPUT} if {\sundials} was not built with monitoring enabled,
+      or the print level value was invalid
+  \end{itemize}
+}
+{
+  This function is intended for users that wish to monitor the nonlinear
+  solver progress. By default, the print level is 0.
+
+  \textbf{{\sundials} must be built with the CMake option
+  \id{SUNDIALS\_BUILD\_WITH\_MONITORING}, to utilize this function.}
+  See section \ref{ss:configuration_options_nix} for more information.
+}
 
 
 % ====================================================================
@@ -310,27 +381,31 @@ struct _SUNNonlinearSolverContent_FixedPoint {
   long int  niters;
   long int  nconvfails;
   void*     ctest_data;
+  int       print_level;
+  FILE*     info_file;
 };
 \end{verbatim}
 %%
 %%
 The following entries of the \emph{content} field are always
 allocated:
-\begin{args}[nconvfails]
-  \item[Sys]         - function for evaluating the nonlinear system,
-  \item[CTest]       - function for checking convergence of the fixed point iteration,
-  \item[yprev]       - \id{N\_Vector} used to store previous fixed-point iterate,
-  \item[gy]          - \id{N\_Vector} used to store $G(y)$ in fixed-point algorithm,
-  \item[delta]       - \id{N\_Vector} used to store difference between successive fixed-point iterates,
-  \item[curiter]     - the current number of iterations in the solve attempt,
-  \item[maxiters]    - the maximum number of fixed-point iterations allowed in
-                       a solve,
-  \item[niters]      - the total number of nonlinear iterations across all
-                       solves,
-  \item[nconvfails]  - the total number of nonlinear convergence failures across
-                       all solves,
-  \item[ctest\_data] - the data pointer passed to the convergence test function, and
-  \item[m]           - number of acceleration vectors,
+\begin{args}[print\_level]
+  \item[Sys]          - function for evaluating the nonlinear system,
+  \item[CTest]        - function for checking convergence of the fixed point iteration,
+  \item[yprev]        - \id{N\_Vector} used to store previous fixed-point iterate,
+  \item[gy]           - \id{N\_Vector} used to store $G(y)$ in fixed-point algorithm,
+  \item[delta]        - \id{N\_Vector} used to store difference between successive fixed-point iterates,
+  \item[curiter]      - the current number of iterations in the solve attempt,
+  \item[maxiters]     - the maximum number of fixed-point iterations allowed in
+                        a solve,
+  \item[niters]       - the total number of nonlinear iterations across all
+                        solves,
+  \item[nconvfails]   - the total number of nonlinear convergence failures across
+                        all solves,
+  \item[ctest\_data]  - the data pointer passed to the convergence test function, and
+  \item[m]            - number of acceleration vectors,
+  \item[print\_level] - controls the amount of information to be printed to the info file
+  \item[info\_file]   - the file where all informative (non-error) messages will be directed
 \end{args}
 \vspace{1em}
 

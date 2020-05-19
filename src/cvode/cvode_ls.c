@@ -700,6 +700,33 @@ int CVodeGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
 }
 
 
+/* CVodeGetLinSolveStats returns statistics related to the linear solve. */
+int CVodeGetLinSolveStats(void* cvode_mem, long int* njevals, long int* nfevalsLS,
+                          long int* nliters, long int* nlcfails, long int* npevals,
+                          long int* npsolves, long int* njtsetups, long int* njtimes)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure; set output value and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetLinSolveStats",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS)  return(retval);
+
+  *njevals   = cvls_mem->nje;
+  *nfevalsLS = cvls_mem->nfeDQ;
+  *nliters   = cvls_mem->nli;
+  *nlcfails  = cvls_mem->ncfl;
+  *npevals   = cvls_mem->npe;
+  *npsolves  = cvls_mem->nps;
+  *njtsetups = cvls_mem->njtsetup;
+  *njtimes   = cvls_mem->njtimes;
+
+  return(CVLS_SUCCESS);
+}
+
+
 /* CVodeGetLastLinFlag returns the last flag set in a CVLS function */
 int CVodeGetLastLinFlag(void *cvode_mem, long int *flag)
 {

@@ -258,6 +258,11 @@ Added the optional function {\hyperref[\detokenize{ARKStep_c_interface/User_call
 alternative implicit right-hand side function for computing Jacobian-vector
 products with the internal difference quotient approximation.
 
+Added new capabilities for monitoring the solve phase in the \sphinxcode{SUNNONLINSOL\_NEWTON}
+and \sphinxcode{SUNNONLINSOL\_FIXEDPOINT} modules, and the SUNDIALS iterative linear solver
+modules. SUNDIALS must be built with the CMake option
+\sphinxcode{SUNDIALS\_BUILD\_WITH\_MONITORING} to use these capabilties.
+
 
 \subsection{Changes in v4.2.0}
 \label{\detokenize{Introduction:changes-in-v4-2-0}}
@@ -38629,6 +38634,99 @@ This routine will return with one of the error codes
 
 \end{fulllineitems}
 
+\index{SUNLinSolSetInfoFile\_SPGMR (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_SPGMR:c.SUNLinSolSetInfoFile_SPGMR}}\pysiglinewithargsret{int \sphinxbfcode{SUNLinSolSetInfoFile\_SPGMR}}{SUNLinearSolver\sphinxstyleemphasis{ LS}, FILE*\sphinxstyleemphasis{ info\_file}}{}
+The function {\hyperref[\detokenize{sunlinsol/SUNLinSol_SPGMR:c.SUNLinSolSetInfoFile_SPGMR}]{\sphinxcrossref{\sphinxcode{SUNLinSolSetInfoFile\_SPGMR()}}}} sets the
+output file where all informative (non-error) messages should be directed.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{LS} \textendash{} a SUNLinSol object
+
+\item {} \begin{description}
+\item[{\sphinxstyleemphasis{info\_file} \textendash{} pointer to output file (\sphinxcode{stdout} by default);}] \leavevmode
+a \sphinxcode{NULL} input will disable output
+
+\end{description}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUNLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the linear
+solver progress. By default, the file pointer is set to \sphinxcode{stdout}.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
+\index{SUNLinSolSetPrintLevel\_SPGMR (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_SPGMR:c.SUNLinSolSetPrintLevel_SPGMR}}\pysiglinewithargsret{int \sphinxbfcode{SUNLinSolSetPrintLevel\_SPGMR}}{SUNLinearSolver\sphinxstyleemphasis{ LS}, int\sphinxstyleemphasis{ print\_level}}{}
+The function {\hyperref[\detokenize{sunlinsol/SUNLinSol_SPGMR:c.SUNLinSolSetPrintLevel_SPGMR}]{\sphinxcrossref{\sphinxcode{SUNLinSolSetPrintLevel\_SPGMR()}}}} specifies the
+level of verbosity of the output.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{LS} \textendash{} a SUNLinSol object
+
+\item {} 
+\sphinxstyleemphasis{print\_level} \textendash{} flag indicating level of verbosity;
+must be one of:
+\begin{itemize}
+\item {} 
+0, no information is printed (default)
+
+\item {} 
+1, for each linear iteration the residual norm is printed
+
+\end{itemize}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUNLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled, or
+if the print level value was invalid
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the linear
+solver progress. By default, the print level is 0.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
 
 For backwards compatibility, we also provide the wrapper functions,
 each with identical input and output arguments to the routines that
@@ -38856,6 +38954,8 @@ The SUNLinSol\_SPGMR module defines the \sphinxstyleemphasis{content} field of a
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{xcor}\PYG{p}{;}
   \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{yg}\PYG{p}{;}
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{vtemp}\PYG{p}{;}
+  \PYG{k+kt}{int}      \PYG{n}{print\PYGZus{}level}\PYG{p}{;}
+  \PYG{k+kt}{FILE}\PYG{o}{*}    \PYG{n}{info\PYGZus{}file}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{sphinxVerbatim}
 
@@ -38951,6 +39051,12 @@ values used to hold “short” vectors (e.g. \(y\) and \(g\)),
 
 \item {} 
 \sphinxcode{vtemp} - temporary vector storage.
+
+\item {} 
+\sphinxcode{print\_level} - controls the amount of information to be printed to the info file
+
+\item {} 
+\sphinxcode{info\_file}   - the file where all informative (non-error) messages will be directed
 
 \end{itemize}
 
@@ -39130,6 +39236,99 @@ allow.  A negative input will result in the default of 0.
 
 This routine will return with one of the error codes
 \sphinxcode{SUNLS\_MEM\_NULL} (\sphinxcode{S} is \sphinxcode{NULL}) or \sphinxcode{SUNLS\_SUCCESS}.
+
+\end{fulllineitems}
+
+\index{SUNLinSolSetInfoFile\_SPFGMR (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_SPFGMR:c.SUNLinSolSetInfoFile_SPFGMR}}\pysiglinewithargsret{int \sphinxbfcode{SUNLinSolSetInfoFile\_SPFGMR}}{SUNLinearSolver\sphinxstyleemphasis{ LS}, FILE*\sphinxstyleemphasis{ info\_file}}{}
+The function {\hyperref[\detokenize{sunlinsol/SUNLinSol_SPFGMR:c.SUNLinSolSetInfoFile_SPFGMR}]{\sphinxcrossref{\sphinxcode{SUNLinSolSetInfoFile\_SPFGMR()}}}} sets the
+output file where all informative (non-error) messages should be directed.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{LS} \textendash{} a SUNLinSol object
+
+\item {} \begin{description}
+\item[{\sphinxstyleemphasis{info\_file} \textendash{} pointer to output file (\sphinxcode{stdout} by default);}] \leavevmode
+a \sphinxcode{NULL} input will disable output
+
+\end{description}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUNLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the linear
+solver progress. By default, the file pointer is set to \sphinxcode{stdout}.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
+\index{SUNLinSolSetPrintLevel\_SPFGMR (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_SPFGMR:c.SUNLinSolSetPrintLevel_SPFGMR}}\pysiglinewithargsret{int \sphinxbfcode{SUNLinSolSetPrintLevel\_SPFGMR}}{SUNLinearSolver\sphinxstyleemphasis{ LS}, int\sphinxstyleemphasis{ print\_level}}{}
+The function {\hyperref[\detokenize{sunlinsol/SUNLinSol_SPFGMR:c.SUNLinSolSetPrintLevel_SPFGMR}]{\sphinxcrossref{\sphinxcode{SUNLinSolSetPrintLevel\_SPFGMR()}}}} specifies the
+level of verbosity of the output.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{LS} \textendash{} a SUNLinSol object
+
+\item {} 
+\sphinxstyleemphasis{print\_level} \textendash{} flag indicating level of verbosity;
+must be one of:
+\begin{itemize}
+\item {} 
+0, no information is printed (default)
+
+\item {} 
+1, for each linear iteration the residual norm is printed
+
+\end{itemize}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUNLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled, or
+if the print level value was invalid
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the linear
+solver progress. By default, the print level is 0.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
 
 \end{fulllineitems}
 
@@ -39361,6 +39560,8 @@ The SUNLinSol\_SPFGMR module defines the \sphinxstyleemphasis{content} field of 
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{xcor}\PYG{p}{;}
   \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{yg}\PYG{p}{;}
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{vtemp}\PYG{p}{;}
+  \PYG{k+kt}{int}      \PYG{n}{print\PYGZus{}level}\PYG{p}{;}
+  \PYG{k+kt}{FILE}\PYG{o}{*}    \PYG{n}{info\PYGZus{}file}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{sphinxVerbatim}
 
@@ -39459,6 +39660,12 @@ values used to hold “short” vectors (e.g. \(y\) and \(g\)),
 
 \item {} 
 \sphinxcode{vtemp} - temporary vector storage.
+
+\item {} 
+\sphinxcode{print\_level} - controls the amount of information to be printed to the info file
+
+\item {} 
+\sphinxcode{info\_file}   - the file where all informative (non-error) messages will be directed
 
 \end{itemize}
 
@@ -39619,6 +39826,99 @@ value (5).
 
 This routine will return with one of the error codes
 \sphinxcode{SUNLS\_MEM\_NULL} (\sphinxcode{S} is \sphinxcode{NULL}) or \sphinxcode{SUNLS\_SUCCESS}.
+
+\end{fulllineitems}
+
+\index{SUNLinSolSetInfoFile\_SPBCGS (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:c.SUNLinSolSetInfoFile_SPBCGS}}\pysiglinewithargsret{int \sphinxbfcode{SUNLinSolSetInfoFile\_SPBCGS}}{SUNLinearSolver\sphinxstyleemphasis{ LS}, FILE*\sphinxstyleemphasis{ info\_file}}{}
+The function {\hyperref[\detokenize{sunlinsol/SUNLinSol_SPBCGS:c.SUNLinSolSetInfoFile_SPBCGS}]{\sphinxcrossref{\sphinxcode{SUNLinSolSetInfoFile\_SPBCGS()}}}} sets the
+output file where all informative (non-error) messages should be directed.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{LS} \textendash{} a SUNLinSol object
+
+\item {} \begin{description}
+\item[{\sphinxstyleemphasis{info\_file} \textendash{} pointer to output file (\sphinxcode{stdout} by default);}] \leavevmode
+a \sphinxcode{NULL} input will disable output
+
+\end{description}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUNLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the linear
+solver progress. By default, the file pointer is set to \sphinxcode{stdout}.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
+\index{SUNLinSolSetPrintLevel\_SPBCGS (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:c.SUNLinSolSetPrintLevel_SPBCGS}}\pysiglinewithargsret{int \sphinxbfcode{SUNLinSolSetPrintLevel\_SPBCGS}}{SUNLinearSolver\sphinxstyleemphasis{ LS}, int\sphinxstyleemphasis{ print\_level}}{}
+The function {\hyperref[\detokenize{sunlinsol/SUNLinSol_SPBCGS:c.SUNLinSolSetPrintLevel_SPBCGS}]{\sphinxcrossref{\sphinxcode{SUNLinSolSetPrintLevel\_SPBCGS()}}}} specifies the
+level of verbosity of the output.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{LS} \textendash{} a SUNLinSol object
+
+\item {} 
+\sphinxstyleemphasis{print\_level} \textendash{} flag indicating level of verbosity;
+must be one of:
+\begin{itemize}
+\item {} 
+0, no information is printed (default)
+
+\item {} 
+1, for each linear iteration the residual norm is printed
+
+\end{itemize}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUNLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled, or
+if the print level value was invalid
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the linear
+solver progress. By default, the print level is 0.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
 
 \end{fulllineitems}
 
@@ -39810,6 +40110,8 @@ The SUNLinSol\_SPBCGS module defines the \sphinxstyleemphasis{content} field of 
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{u}\PYG{p}{;}
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{Ap}\PYG{p}{;}
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{vtemp}\PYG{p}{;}
+  \PYG{k+kt}{int}      \PYG{n}{print\PYGZus{}level}\PYG{p}{;}
+  \PYG{k+kt}{FILE}\PYG{o}{*}    \PYG{n}{info\PYGZus{}file}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{sphinxVerbatim}
 
@@ -39864,6 +40166,12 @@ preconditioned linear system residual,
 \item {} 
 \sphinxcode{p, q, u, Ap, vtemp} - \sphinxcode{N\_Vector} used for workspace by the
 SPBCGS algorithm.
+
+\item {} 
+\sphinxcode{print\_level} - controls the amount of information to be printed to the info file
+
+\item {} 
+\sphinxcode{info\_file}   - the file where all informative (non-error) messages will be directed
 
 \end{itemize}
 
@@ -40025,6 +40333,99 @@ value (5).
 
 This routine will return with one of the error codes
 \sphinxcode{SUNLS\_MEM\_NULL} (\sphinxcode{S} is \sphinxcode{NULL}) or \sphinxcode{SUNLS\_SUCCESS}.
+
+\end{fulllineitems}
+
+\index{SUNLinSolSetInfoFile\_SPTFQMR (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:c.SUNLinSolSetInfoFile_SPTFQMR}}\pysiglinewithargsret{int \sphinxbfcode{SUNLinSolSetInfoFile\_SPTFQMR}}{SUNLinearSolver\sphinxstyleemphasis{ LS}, FILE*\sphinxstyleemphasis{ info\_file}}{}
+The function {\hyperref[\detokenize{sunlinsol/SUNLinSol_SPTFQMR:c.SUNLinSolSetInfoFile_SPTFQMR}]{\sphinxcrossref{\sphinxcode{SUNLinSolSetInfoFile\_SPTFQMR()}}}} sets the
+output file where all informative (non-error) messages should be directed.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{LS} \textendash{} a SUNLinSol object
+
+\item {} \begin{description}
+\item[{\sphinxstyleemphasis{info\_file} \textendash{} pointer to output file (\sphinxcode{stdout} by default);}] \leavevmode
+a \sphinxcode{NULL} input will disable output
+
+\end{description}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUNLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the linear
+solver progress. By default, the file pointer is set to \sphinxcode{stdout}.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
+\index{SUNLinSolSetPrintLevel\_SPTFQMR (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:c.SUNLinSolSetPrintLevel_SPTFQMR}}\pysiglinewithargsret{int \sphinxbfcode{SUNLinSolSetPrintLevel\_SPTFQMR}}{SUNLinearSolver\sphinxstyleemphasis{ LS}, int\sphinxstyleemphasis{ print\_level}}{}
+The function {\hyperref[\detokenize{sunlinsol/SUNLinSol_SPTFQMR:c.SUNLinSolSetPrintLevel_SPTFQMR}]{\sphinxcrossref{\sphinxcode{SUNLinSolSetPrintLevel\_SPTFQMR()}}}} specifies the
+level of verbosity of the output.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{LS} \textendash{} a SUNLinSol object
+
+\item {} 
+\sphinxstyleemphasis{print\_level} \textendash{} flag indicating level of verbosity;
+must be one of:
+\begin{itemize}
+\item {} 
+0, no information is printed (default)
+
+\item {} 
+1, for each linear iteration the residual norm is printed
+
+\end{itemize}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUNLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled, or
+if the print level value was invalid
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the linear
+solver progress. By default, the print level is 0.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
 
 \end{fulllineitems}
 
@@ -40219,6 +40620,8 @@ The SUNLinSol\_SPTFQMR module defines the \sphinxstyleemphasis{content} field of
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{vtemp1}\PYG{p}{;}
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{vtemp2}\PYG{p}{;}
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{vtemp3}\PYG{p}{;}
+  \PYG{k+kt}{int}      \PYG{n}{print\PYGZus{}level}\PYG{p}{;}
+  \PYG{k+kt}{FILE}\PYG{o}{*}    \PYG{n}{info\PYGZus{}file}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{sphinxVerbatim}
 
@@ -40276,6 +40679,12 @@ SPTFQMR algorithm,
 
 \item {} 
 \sphinxcode{vtemp1, vtemp2, vtemp3} - temporary vector storage.
+
+\item {} 
+\sphinxcode{print\_level} - controls the amount of information to be printed to the info file
+
+\item {} 
+\sphinxcode{info\_file}   - the file where all informative (non-error) messages will be directed
 
 \end{itemize}
 
@@ -40494,6 +40903,99 @@ This routine will return with one of the error codes
 
 \end{fulllineitems}
 
+\index{SUNLinSolSetInfoFile\_PCG (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_PCG:c.SUNLinSolSetInfoFile_PCG}}\pysiglinewithargsret{int \sphinxbfcode{SUNLinSolSetInfoFile\_PCG}}{SUNLinearSolver\sphinxstyleemphasis{ LS}, FILE*\sphinxstyleemphasis{ info\_file}}{}
+The function {\hyperref[\detokenize{sunlinsol/SUNLinSol_PCG:c.SUNLinSolSetInfoFile_PCG}]{\sphinxcrossref{\sphinxcode{SUNLinSolSetInfoFile\_PCG()}}}} sets the
+output file where all informative (non-error) messages should be directed.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{LS} \textendash{} a SUNLinSol object
+
+\item {} \begin{description}
+\item[{\sphinxstyleemphasis{info\_file} \textendash{} pointer to output file (\sphinxcode{stdout} by default);}] \leavevmode
+a \sphinxcode{NULL} input will disable output
+
+\end{description}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUNLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the linear
+solver progress. By default, the file pointer is set to \sphinxcode{stdout}.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
+\index{SUNLinSolSetPrintLevel\_PCG (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_PCG:c.SUNLinSolSetPrintLevel_PCG}}\pysiglinewithargsret{int \sphinxbfcode{SUNLinSolSetPrintLevel\_PCG}}{SUNLinearSolver\sphinxstyleemphasis{ LS}, int\sphinxstyleemphasis{ print\_level}}{}
+The function {\hyperref[\detokenize{sunlinsol/SUNLinSol_PCG:c.SUNLinSolSetPrintLevel_PCG}]{\sphinxcrossref{\sphinxcode{SUNLinSolSetPrintLevel\_PCG()}}}} specifies the
+level of verbosity of the output.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{LS} \textendash{} a SUNLinSol object
+
+\item {} 
+\sphinxstyleemphasis{print\_level} \textendash{} flag indicating level of verbosity;
+must be one of:
+\begin{itemize}
+\item {} 
+0, no information is printed (default)
+
+\item {} 
+1, for each linear iteration the residual norm is printed
+
+\end{itemize}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUNLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUNLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled, or
+if the print level value was invalid
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the linear
+solver progress. By default, the print level is 0.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
 
 For backwards compatibility, we also provide the wrapper functions,
 each with identical input and output arguments to the routines that
@@ -40679,6 +41181,8 @@ The SUNLinSol\_PCG module defines the \sphinxstyleemphasis{content} field of a
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{p}\PYG{p}{;}
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{z}\PYG{p}{;}
   \PYG{n}{N\PYGZus{}Vector} \PYG{n}{Ap}\PYG{p}{;}
+  \PYG{k+kt}{int}      \PYG{n}{print\PYGZus{}level}\PYG{p}{;}
+  \PYG{k+kt}{FILE}\PYG{o}{*}    \PYG{n}{info\PYGZus{}file}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{sphinxVerbatim}
 
@@ -40728,6 +41232,12 @@ residual,
 \item {} 
 \sphinxcode{p, z, Ap} - \sphinxcode{N\_Vector} used for workspace by the
 PCG algorithm.
+
+\item {} 
+\sphinxcode{print\_level} - controls the amount of information to be printed to the info file
+
+\item {} 
+\sphinxcode{info\_file}   - the file where all informative (non-error) messages will be directed
 
 \end{itemize}
 
@@ -42074,6 +42584,99 @@ calls to \sphinxstyleemphasis{SysFn}.
 
 \end{fulllineitems}
 
+\index{SUNNonlinSolSetInfoFile\_Newton (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton:c.SUNNonlinSolSetInfoFile_Newton}}\pysiglinewithargsret{int \sphinxbfcode{SUNNonlinSolSetInfoFile\_Newton}}{SUNNonlinearSolver\sphinxstyleemphasis{ NLS}, FILE*\sphinxstyleemphasis{ info\_file}}{}
+The function {\hyperref[\detokenize{sunnonlinsol/SUNNonlinSol_Newton:c.SUNNonlinSolSetInfoFile_Newton}]{\sphinxcrossref{\sphinxcode{SUNNonlinSolSetInfoFile\_Newton()}}}} sets the
+output file where all informative (non-error) messages should be directed.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{NLS} \textendash{} a SUNNonlinSol object
+
+\item {} \begin{description}
+\item[{\sphinxstyleemphasis{info\_file} \textendash{} pointer to output file (\sphinxcode{stdout} by default);}] \leavevmode
+a \sphinxcode{NULL} input will disable output
+
+\end{description}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_MEM\_NULL} if the SUNNonlinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the nonlinear
+solver progress. By default, the file pointer is set to \sphinxcode{stdout}.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
+\index{SUNNonlinSolSetPrintLevel\_Newton (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton:c.SUNNonlinSolSetPrintLevel_Newton}}\pysiglinewithargsret{int \sphinxbfcode{SUNNonlinSolSetPrintLevel\_Newton}}{SUNNonlinearSolver\sphinxstyleemphasis{ NLS}, int\sphinxstyleemphasis{ print\_level}}{}
+The function {\hyperref[\detokenize{sunnonlinsol/SUNNonlinSol_Newton:c.SUNNonlinSolSetPrintLevel_Newton}]{\sphinxcrossref{\sphinxcode{SUNNonlinSolSetPrintLevel\_Newton()}}}} specifies
+the level of verbosity of the output.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{NLS} \textendash{} a SUNNonlinSol object
+
+\item {} 
+\sphinxstyleemphasis{print\_level} \textendash{} flag indicating level of verbosity;
+must be one of:
+\begin{itemize}
+\item {} 
+0, no information is printed (default)
+
+\item {} 
+1, for each nonlinear iteration the residual norm is printed
+
+\end{itemize}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_MEM\_NULL} if the SUNNonlinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled,
+or the print level value was invalid
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the nonlinear
+solver progress. By default, the print level is 0.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
 
 
 \subsection{SUNNonlinearSolver\_Newton content}
@@ -42097,6 +42700,9 @@ following structure.
   \PYG{k+kt}{long} \PYG{k+kt}{int}    \PYG{n}{niters}\PYG{p}{;}
   \PYG{k+kt}{long} \PYG{k+kt}{int}    \PYG{n}{nconvfails}\PYG{p}{;}
   \PYG{k+kt}{void}\PYG{o}{*}       \PYG{n}{ctest\PYGZus{}data}\PYG{p}{;}
+
+  \PYG{k+kt}{int}         \PYG{n}{print\PYGZus{}level}\PYG{p}{;}
+  \PYG{k+kt}{FILE}\PYG{o}{*}       \PYG{n}{info\PYGZus{}file}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{sphinxVerbatim}
 
@@ -42138,6 +42744,12 @@ all solves,
 
 \item {} 
 \sphinxcode{ctest\_data} \textendash{} the data pointer passed to the convergence test function.
+
+\item {} 
+\sphinxcode{print\_level} - controls the amount of information to be printed to the info file
+
+\item {} 
+\sphinxcode{info\_file}   - the file where all informative (non-error) messages will be directed
 
 \end{itemize}
 
@@ -42359,6 +42971,99 @@ damping is to be used. A value of one or more will disable damping.
 
 \end{fulllineitems}
 
+\index{SUNNonlinSolSetInfoFile\_FixedPoint (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:c.SUNNonlinSolSetInfoFile_FixedPoint}}\pysiglinewithargsret{int \sphinxbfcode{SUNNonlinSolSetInfoFile\_FixedPoint}}{SUNNonlinearSolver\sphinxstyleemphasis{ NLS}, FILE*\sphinxstyleemphasis{ info\_file}}{}
+The function {\hyperref[\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:c.SUNNonlinSolSetInfoFile_FixedPoint}]{\sphinxcrossref{\sphinxcode{SUNNonlinSolSetInfoFile\_FixedPoint()}}}} sets the
+output file where all informative (non-error) messages should be directed.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{NLS} \textendash{} a SUNNonlinSol object
+
+\item {} \begin{description}
+\item[{\sphinxstyleemphasis{info\_file} \textendash{} pointer to output file (\sphinxcode{stdout} by default);}] \leavevmode
+a \sphinxcode{NULL} input will disable output
+
+\end{description}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_MEM\_NULL} if the SUNNonlinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the nonlinear
+solver progress. By default, the file pointer is set to \sphinxcode{stdout}.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
+\index{SUNNonlinSolSetPrintLevel\_FixedPoint (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:c.SUNNonlinSolSetPrintLevel_FixedPoint}}\pysiglinewithargsret{int \sphinxbfcode{SUNNonlinSolSetPrintLevel\_FixedPoint}}{SUNNonlinearSolver\sphinxstyleemphasis{ NLS}, int\sphinxstyleemphasis{ print\_level}}{}
+The function {\hyperref[\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:c.SUNNonlinSolSetPrintLevel_FixedPoint}]{\sphinxcrossref{\sphinxcode{SUNNonlinSolSetPrintLevel\_FixedPoint()}}}} specifies
+the level of verbosity of the output.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{NLS} \textendash{} a SUNNonlinSol object
+
+\item {} 
+\sphinxstyleemphasis{print\_level} \textendash{} flag indicating level of verbosity;
+must be one of:
+\begin{itemize}
+\item {} 
+0, no information is printed (default)
+
+\item {} 
+1, for each nonlinear iteration the residual norm is printed
+
+\end{itemize}
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_MEM\_NULL} if the SUNNonlinearSolver memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{SUN\_NLS\_ILL\_INPUT} if SUNDIALS was not built with monitoring enabled,
+or the print level value was invalid
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+This function is intended for users that wish to monitor the nonlinear
+solver progress. By default, the print level is 0.
+
+\sphinxstylestrong{SUNDIALS must be built with the CMake option
+{}`{}`SUNDIALS\_BUILD\_WITH\_MONITORING{}`{}`, to utilize this function.}
+See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxcrossref{\DUrole{std,std-ref}{Configuration options (Unix/Linux)}}}} for more information.
+
+\end{fulllineitems}
+
 
 
 \subsection{SUNNonlinearSolver\_FixedPoint content}
@@ -42394,6 +43099,8 @@ following structure.
   \PYG{k+kt}{long} \PYG{k+kt}{int}     \PYG{n}{niters}\PYG{p}{;}
   \PYG{k+kt}{long} \PYG{k+kt}{int}     \PYG{n}{nconvfails}\PYG{p}{;}
   \PYG{k+kt}{void}        \PYG{o}{*}\PYG{n}{ctest\PYGZus{}data}\PYG{p}{;}
+  \PYG{k+kt}{int}          \PYG{n}{print\PYGZus{}level}\PYG{p}{;}
+  \PYG{k+kt}{FILE}\PYG{o}{*}        \PYG{n}{info\PYGZus{}file}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{sphinxVerbatim}
 
@@ -42434,6 +43141,12 @@ solves,
 
 \item {} 
 \sphinxcode{m}          \textendash{} number of acceleration vectors.
+
+\item {} 
+\sphinxcode{print\_level} - controls the amount of information to be printed to the info file
+
+\item {} 
+\sphinxcode{info\_file}   - the file where all informative (non-error) messages will be directed
 
 \end{itemize}
 
@@ -43488,6 +44201,15 @@ Default: OFF
 You need to enable CUDA in order to build the RAJA vector
 module.
 \end{sphinxadmonition}
+
+\item[{\index{SUNDIALS\_BUILD\_WITH\_MONITORING (CMake option)}SUNDIALS\_BUILD\_WITH\_MONITORING}] \leavevmode
+Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
+and statistics. This is primarily useful for debugging.
+
+Default: OFF
+
+Note: Building with monitoring may result in minor performance degradation
+even if monitoring is not utilized.
 
 \item[{\index{SUNDIALS\_F77\_FUNC\_CASE (CMake option)}SUNDIALS\_F77\_FUNC\_CASE}] \leavevmode
 Specify the case to use in the Fortran name-mangling scheme,

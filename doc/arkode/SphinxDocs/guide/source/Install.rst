@@ -707,6 +707,15 @@ illustration only.
    .. note:: You need to enable CUDA in order to build the RAJA vector
              module.
 
+:index:`SUNDIALS_BUILD_WITH_MONITORING <SUNDIALS_BUILD_WITH_MONITORING (CMake option)>`
+   Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
+   and statistics. This is primarily useful for debugging.
+
+   Default: OFF
+
+   Note: Building with monitoring may result in minor performance degradation
+   even if monitoring is not utilized.
+
 :index:`SUNDIALS_F77_FUNC_CASE <SUNDIALS_F77_FUNC_CASE (CMake option)>`
    Specify the case to use in the Fortran name-mangling scheme,
    options are: ``lower`` or ``upper``

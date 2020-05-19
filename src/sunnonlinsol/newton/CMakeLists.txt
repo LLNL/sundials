@@ -38,7 +38,7 @@ set(lib_HEADERS
   )
 
 # Add source directory to include directories
-include_directories(.)
+include_directories(. ${sundials_SOURCE_DIR}/src/sundials)
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 add_definitions(-DBUILD_SUNDIALS_LIBRARY)

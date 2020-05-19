@@ -95,6 +95,8 @@ typedef void (*CVErrHandlerFn)(int error_code,
                                const char *module, const char *function,
                                char *msg, void *user_data);
 
+typedef int (*CVMonitorFn)(void *cvode_mem, void *user_data);
+
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -118,6 +120,8 @@ SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun,
                                          void *eh_data);
 SUNDIALS_EXPORT int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 SUNDIALS_EXPORT int CVodeSetUserData(void *cvode_mem, void *user_data);
+SUNDIALS_EXPORT int CVodeSetMonitorFn(void *cvode_mem, CVMonitorFn fn);
+SUNDIALS_EXPORT int CVodeSetMonitorFrequency(void *cvode_mem, long int nst);
 SUNDIALS_EXPORT int CVodeSetMaxOrd(void *cvode_mem, int maxord);
 SUNDIALS_EXPORT int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 SUNDIALS_EXPORT int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);

@@ -114,6 +114,18 @@ few may observe minor performance degradation with the default settings. Users
 are encouraged to contact the {\sundials} team about any perfomance changes
 that they notice.
 
+Added new capabilities for monitoring the solve phase in the {\sunnonlinsolnewton}
+and {\sunnonlinsolfixedpoint} modules, and the {\sundials} iterative linear solver
+modules. {\sundials} must be built with the CMake option
+\id{SUNDIALS\_BUILD\_WITH\_MONITORING} to use these capabilties.
+
+Added a new function, \id{CVodeSetMonitorFn}, that takes a user-function
+to be called by {\cvode} after every $nst$ succesfully completed time-steps.
+This is intended to provide a way of monitoring the {\cvode} statistics
+throughout the simulation.
+
+Added a new function \id{CVodeGetLinSolveStats} to get the {\cvode} linear
+solver statistics as a group.
 
 Added the optional function \id{CVodeSetJacTimesRhsFn} to specify an alternative
 right-hand side function for computing Jacobian-vector products with the

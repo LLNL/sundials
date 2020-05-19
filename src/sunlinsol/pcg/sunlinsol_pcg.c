@@ -22,6 +22,8 @@
 #include <sunlinsol/sunlinsol_pcg.h>
 #include <sundials/sundials_math.h>
 
+#include "sundials_debug.h"
+
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
@@ -102,21 +104,23 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl)
   S->content = content;
 
   /* Fill content */
-  content->last_flag = 0;
-  content->maxl      = maxl;
-  content->pretype   = pretype;
-  content->numiters  = 0;
-  content->resnorm   = ZERO;
-  content->r         = NULL;
-  content->p         = NULL;
-  content->z         = NULL;
-  content->Ap        = NULL;
-  content->s         = NULL;
-  content->ATimes    = NULL;
-  content->ATData    = NULL;
-  content->Psetup    = NULL;
-  content->Psolve    = NULL;
-  content->PData     = NULL;
+  content->last_flag   = 0;
+  content->maxl        = maxl;
+  content->pretype     = pretype;
+  content->numiters    = 0;
+  content->resnorm     = ZERO;
+  content->r           = NULL;
+  content->p           = NULL;
+  content->z           = NULL;
+  content->Ap          = NULL;
+  content->s           = NULL;
+  content->ATimes      = NULL;
+  content->ATData      = NULL;
+  content->Psetup      = NULL;
+  content->Psolve      = NULL;
+  content->PData       = NULL;
+  content->print_level = 0;
+  content->info_file   = stdout;
 
   /* Allocate content */
   content->r = N_VClone(y);
@@ -331,6 +335,11 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
               (pretype == PREC_RIGHT) );
   UseScaling = (w != NULL);
 
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  if (PCG_CONTENT(S)->print_level && PCG_CONTENT(S)->info_file)
+    fprintf(PCG_CONTENT(S)->info_file, "SUNLINSOL_PCG:\n");
+#endif
+
   /* Check if Atimes function has been set */
   if (atimes == NULL) {
     LASTFLAG(S) = SUNLS_ATIMES_NULL;
@@ -359,6 +368,17 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   if (UseScaling)  N_VProd(r, w, Ap);
   else N_VScale(ONE, r, Ap);
   *res_norm = r0_norm = rho = SUNRsqrt(N_VDotProd(Ap, Ap));
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+    /* print initial residual */
+    if (PCG_CONTENT(S)->print_level && PCG_CONTENT(S)->info_file)
+    {
+      fprintf(PCG_CONTENT(S)->info_file,
+              SUNLS_MSG_RESIDUAL,
+              (long int) 0, *res_norm);
+    }
+#endif
+
   if (rho <= delta) {
     LASTFLAG(S) = SUNLS_SUCCESS;
     return(LASTFLAG(S));
@@ -408,6 +428,17 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
     if (UseScaling)  N_VProd(r, w, Ap);
     else N_VScale(ONE, r, Ap);
     *res_norm = rho = SUNRsqrt(N_VDotProd(Ap, Ap));
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+      /* print current iteration number and the residual */
+      if (PCG_CONTENT(S)->print_level && PCG_CONTENT(S)->info_file)
+      {
+        fprintf(PCG_CONTENT(S)->info_file,
+                SUNLS_MSG_RESIDUAL,
+                (long int) *nli, *res_norm);
+      }
+#endif
+
     if (rho <= delta) {
       converged = SUNTRUE;
       break;
@@ -518,4 +549,44 @@ int SUNLinSolFree_PCG(SUNLinearSolver S)
   if (S->ops) { free(S->ops); S->ops = NULL; }
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
+}
+
+
+int SUNLinSolSetInfoFile_PCG(SUNLinearSolver S,
+                             FILE* info_file)
+{
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* check that the linear solver is non-null */
+  if (S == NULL)
+    return(SUNLS_MEM_NULL);
+
+  PCG_CONTENT(S)->info_file = info_file;
+
+  return(SUNLS_SUCCESS);
+#else
+  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetInfoFile_PCG: SUNDIALS was not built with monitoring\n");
+  return(SUNLS_ILL_INPUT);
+#endif
+}
+
+
+int SUNLinSolSetPrintLevel_PCG(SUNLinearSolver S,
+                               int print_level)
+{
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* check that the linear solver is non-null */
+  if (S == NULL)
+    return(SUNLS_MEM_NULL);
+
+  /* check for valid print level */
+  if (print_level < 0 || print_level > 1)
+    return(SUNLS_ILL_INPUT);
+
+  PCG_CONTENT(S)->print_level = print_level;
+
+  return(SUNLS_SUCCESS);
+#else
+  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetPrintLevel_PCG: SUNDIALS was not built with monitoring\n");
+  return(SUNLS_ILL_INPUT);
+#endif
 }

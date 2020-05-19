@@ -560,6 +560,14 @@ a typical configuration on a Linux system and are provided as illustration only.
   Default: OFF
   \\
   Note: You need to enable {\cuda} in order to build the {\raja} vector module.
+\item[\id{SUNDIALS\_BUILD\_WITH\_MONITORING}] -
+  Build {\sundials} with capabilties for fine-grained monitoring of solver progress
+  and statistics. This is primarily useful for debugging.
+  \\
+  Default: OFF
+  \\
+  Note: Building with monitoring may result in minor performance degradation
+  even if monitoring is not utilized.
 \item[\id{SUNDIALS\_BUILD\_PACKAGE\_FUSED\_KERNELS}] -
   Build specialized fused kernels inside {\cvode}.
   \\

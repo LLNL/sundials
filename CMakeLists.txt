@@ -233,6 +233,13 @@ mark_as_advanced(SUNDIALS_INDEX_TYPE)
 include(SundialsIndexSize)
 
 # ---------------------------------------------------------------
+# Option to specify monitoring
+# ---------------------------------------------------------------
+
+set(DOCSTR "Build with simulation monitoring capabilities enabled")
+sundials_option(SUNDIALS_BUILD_WITH_MONITORING BOOL ${DOCSTR} OFF)
+
+# ---------------------------------------------------------------
 # Enable Fortran interface?
 # ---------------------------------------------------------------
 

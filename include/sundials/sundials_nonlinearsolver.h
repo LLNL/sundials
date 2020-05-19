@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------------
- * Programmer(s): David J. Gardner @ LLNL
+ * Programmer(s): David J. Gardner, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -189,6 +189,19 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
 #define SUN_NLS_ILL_INPUT     -903    /* illegal function input             */
 #define SUN_NLS_VECTOROP_ERR  -904    /* failed NVector operation           */
 #define SUN_NLS_EXT_FAIL      -905    /* failed in external library call    */
+
+
+/* -----------------------------------------------------------------------------
+ * SUNNonlinearSolver messages
+ * ---------------------------------------------------------------------------*/
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUN_NLS_MSG_RESIDUAL "\tnonlin. iteration %ld, nonlin. residual: %Lg\n"
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUN_NLS_MSG_RESIDUAL "\tnonlin. iteration %ld, nonlin. residual: %g\n"
+#else
+#define SUN_NLS_MSG_RESIDUAL "\tnonlin. iteration %ld, nonlin. residual: %g\n"
+#endif
 
 #ifdef __cplusplus
 }

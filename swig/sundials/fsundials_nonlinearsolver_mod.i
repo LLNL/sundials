@@ -21,8 +21,10 @@
 %import "../sundials/fsundials_nvector_mod.i"
 
 %{
-#include "sundials/sundials_nonlinearsolver.h"  
+#include "sundials/sundials_nonlinearsolver.h"
 %}
+
+%ignore SUN_NLS_MSG_RESIDUAL;
 
 // Process and wrap functions in the following files
 %include "sundials/sundials_nonlinearsolver.h"

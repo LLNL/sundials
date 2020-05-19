@@ -137,6 +137,11 @@ Added the optional function :c:func:`ARKStepSetJacTimesRhsFn()` to specify an
 alternative implicit right-hand side function for computing Jacobian-vector
 products with the internal difference quotient approximation.
 
+Added new capabilities for monitoring the solve phase in the ``SUNNONLINSOL_NEWTON``
+and ``SUNNONLINSOL_FIXEDPOINT`` modules, and the SUNDIALS iterative linear solver
+modules. SUNDIALS must be built with the CMake option
+``SUNDIALS_BUILD_WITH_MONITORING`` to use these capabilties.
+
 
 Changes in v4.2.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

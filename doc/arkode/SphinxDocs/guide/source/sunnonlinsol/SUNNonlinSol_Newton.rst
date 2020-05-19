@@ -154,6 +154,56 @@ user-callable function.
    calls to *SysFn*.
 
 
+.. c:function:: int SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS, FILE* info_file)
+
+   The function :c:func:`SUNNonlinSolSetInfoFile_Newton()` sets the
+   output file where all informative (non-error) messages should be directed.
+
+   **Arguments:**
+      * *NLS* -- a SUNNonlinSol object
+      * *info_file* -- pointer to output file (``stdout`` by default);
+         a ``NULL`` input will disable output
+
+   **Return value:**
+      * *SUN_NLS_SUCCESS* if successful
+      * *SUN_NLS_MEM_NULL* if the SUNNonlinearSolver memory was ``NULL``
+      * *SUN_NLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled
+
+   **Notes:**
+   This function is intended for users that wish to monitor the nonlinear
+   solver progress. By default, the file pointer is set to ``stdout``.
+
+   **SUNDIALS must be built with the CMake option
+   ``SUNDIALS_BUILD_WITH_MONITORING``, to utilize this function.**
+   See section :ref:`Installation.CMake.Options` for more information.
+
+
+.. c:function:: int SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS, int print_level)
+
+   The function :c:func:`SUNNonlinSolSetPrintLevel_Newton()` specifies
+   the level of verbosity of the output.
+
+   **Arguments:**
+      * *NLS* -- a SUNNonlinSol object
+      * *print_level* -- flag indicating level of verbosity;
+        must be one of:
+
+         * 0, no information is printed (default)
+         * 1, for each nonlinear iteration the residual norm is printed
+
+   **Return value:**
+      * *SUN_NLS_SUCCESS* if successful
+      * *SUN_NLS_MEM_NULL* if the SUNNonlinearSolver memory was ``NULL``
+      * *SUN_NLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled,
+        or the print level value was invalid
+
+   **Notes:**
+   This function is intended for users that wish to monitor the nonlinear
+   solver progress. By default, the print level is 0.
+
+   **SUNDIALS must be built with the CMake option
+   ``SUNDIALS_BUILD_WITH_MONITORING``, to utilize this function.**
+   See section :ref:`Installation.CMake.Options` for more information.
 
 
 .. _SUNNonlinSolNewton.Content:
@@ -180,6 +230,9 @@ following structure.
      long int    niters;
      long int    nconvfails;
      void*       ctest_data;
+
+     int         print_level;
+     FILE*       info_file;
    };
 
 These entries of the *content* field contain the following
@@ -209,6 +262,10 @@ information:
   all solves,
 
 * ``ctest_data`` -- the data pointer passed to the convergence test function.
+
+* ``print_level`` - controls the amount of information to be printed to the info file
+
+* ``info_file``   - the file where all informative (non-error) messages will be directed
 
 
 .. _SUNNonlinSolNewton.Fortran:

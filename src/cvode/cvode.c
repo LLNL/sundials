@@ -383,30 +383,32 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
-  cv_mem->cv_f           = NULL;
-  cv_mem->cv_user_data   = NULL;
-  cv_mem->cv_itol        = CV_NN;
-  cv_mem->cv_atolmin0    = SUNTRUE;
-  cv_mem->cv_user_efun   = SUNFALSE;
-  cv_mem->cv_efun        = NULL;
-  cv_mem->cv_e_data      = NULL;
-  cv_mem->cv_ehfun       = cvErrHandler;
-  cv_mem->cv_eh_data     = cv_mem;
-  cv_mem->cv_errfp       = stderr;
-  cv_mem->cv_qmax        = maxord;
-  cv_mem->cv_mxstep      = MXSTEP_DEFAULT;
-  cv_mem->cv_mxhnil      = MXHNIL_DEFAULT;
-  cv_mem->cv_sldeton     = SUNFALSE;
-  cv_mem->cv_hin         = ZERO;
-  cv_mem->cv_hmin        = HMIN_DEFAULT;
-  cv_mem->cv_hmax_inv    = HMAX_INV_DEFAULT;
-  cv_mem->cv_tstopset    = SUNFALSE;
-  cv_mem->cv_maxnef      = MXNEF;
-  cv_mem->cv_maxncf      = MXNCF;
-  cv_mem->cv_nlscoef     = CORTES;
-  cv_mem->convfail       = CV_NO_FAILURES;
-  cv_mem->cv_constraints = NULL;
-  cv_mem->cv_constraintsSet = SUNFALSE;
+  cv_mem->cv_f                = NULL;
+  cv_mem->cv_user_data        = NULL;
+  cv_mem->cv_itol             = CV_NN;
+  cv_mem->cv_atolmin0         = SUNTRUE;
+  cv_mem->cv_user_efun        = SUNFALSE;
+  cv_mem->cv_efun             = NULL;
+  cv_mem->cv_e_data           = NULL;
+  cv_mem->cv_ehfun            = cvErrHandler;
+  cv_mem->cv_eh_data          = cv_mem;
+  cv_mem->cv_monitorfun       = NULL;
+  cv_mem->cv_monitor_interval = 0;
+  cv_mem->cv_errfp            = stderr;
+  cv_mem->cv_qmax             = maxord;
+  cv_mem->cv_mxstep           = MXSTEP_DEFAULT;
+  cv_mem->cv_mxhnil           = MXHNIL_DEFAULT;
+  cv_mem->cv_sldeton          = SUNFALSE;
+  cv_mem->cv_hin              = ZERO;
+  cv_mem->cv_hmin             = HMIN_DEFAULT;
+  cv_mem->cv_hmax_inv         = HMAX_INV_DEFAULT;
+  cv_mem->cv_tstopset         = SUNFALSE;
+  cv_mem->cv_maxnef           = MXNEF;
+  cv_mem->cv_maxncf           = MXNCF;
+  cv_mem->cv_nlscoef          = CORTES;
+  cv_mem->convfail            = CV_NO_FAILURES;
+  cv_mem->cv_constraints      = NULL;
+  cv_mem->cv_constraintsSet   = SUNFALSE;
 
   /* Initialize root finding variables */
 
@@ -3036,6 +3038,14 @@ static void cvCompleteStep(CVodeMem cv_mem)
     cv_mem->cv_saved_tq5 = cv_mem->cv_tq[5];
     cv_mem->cv_indx_acor = cv_mem->cv_qmax;
   }
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* If user access function was provided, call it now */
+  if (cv_mem->cv_monitorfun != NULL &&
+      !(cv_mem->cv_nst % cv_mem->cv_monitor_interval)) {
+    cv_mem->cv_monitorfun((void*) cv_mem, cv_mem->cv_user_data);
+  }
+#endif
 }
 
 /*

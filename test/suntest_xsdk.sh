@@ -367,6 +367,9 @@ IDA_STATUS=${IDA_STATUS:-"ON"}
 IDAS_STATUS=${IDAS_STATUS:-"ON"}
 KINSOL_STATUS=${KINSOL_STATUS:-"ON"}
 
+# Ensure monitoring is set (default to OFF)
+MONITOR_STATUS=${MONITOR_STATUS:-"OFF"}
+
 # ------------------------------------------------------------------------------
 # Setup test directories
 # ------------------------------------------------------------------------------
@@ -413,6 +416,8 @@ time cmake \
     -D BUILD_IDAS="${IDAS_STATUS}" \
     -D BUILD_KINSOL="${KINSOL_STATUS}" \
     \
+    -D SUNDIALS_BUILD_WITH_MONITORING=${MONITOR_STATUS} \
+    \
     -D XSDK_PRECISION=${xsdk_realtype} \
     -D XSDK_INDEX_SIZE=${indexsize} \
     \
@@ -440,7 +445,7 @@ time cmake \
     -D CUDA_ARCH="${CUDA_ARCH}" \
     \
     -D OPENMP_DEVICE_ENABLE="${OPENMPDEV_STATUS}" \
-    -D SKIP_OPENMP_DEVICE_CHECK=TURE \
+    -D SKIP_OPENMP_DEVICE_CHECK=TRUE \
     \
     -D MPI_ENABLE="${MPI_STATUS}" \
     -D MPI_C_COMPILER="${MPICC}" \

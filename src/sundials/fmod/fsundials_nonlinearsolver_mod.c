@@ -188,7 +188,7 @@
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
-#include "sundials/sundials_nonlinearsolver.h"  
+#include "sundials/sundials_nonlinearsolver.h"
 
 SWIGEXPORT SUNNonlinearSolver _wrap_FSUNNonlinSolNewEmpty() {
   SUNNonlinearSolver fresult ;

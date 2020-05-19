@@ -75,6 +75,12 @@
  */
 #cmakedefine SUNDIALS_HAVE_POSIX_TIMERS
 
+/* Build monitoring code
+ * If it was decided that monitoring code should be built, then
+ *     #define SUNDIALS_BUILD_WITH_MONITORING
+ */
+#cmakedefine SUNDIALS_BUILD_WITH_MONITORING
+
 /* Blas/Lapack available
  * If working libraries for Blas/lapack support were found, then
  *     #define SUNDIALS_BLAS_LAPACK
@@ -139,7 +145,6 @@
  * Windows), the SUNDIALS_EXPORT macro is empty
  */
 @SUNDIALS_EXPORT@
-
 
 /* Mark SUNDIALS API functions for deprecation.
  */

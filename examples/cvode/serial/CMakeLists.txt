@@ -20,19 +20,23 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvRoberts_dns\;"
-  "cvRoberts_dns_uw\;develop"
-  "cvRoberts_dns_negsol\;develop"
-  "cvRoberts_dns_constraints\;develop"
-  "cvAdvDiff_bnd\;develop"
-  "cvDirectDemo_ls\;develop"
-  "cvDiurnal_kry_bp\;develop"
-  "cvDiurnal_kry\;develop"
-  "cvDisc_dns\;develop"
-  "cvKrylovDemo_ls\;develop"
-  "cvKrylovDemo_prec\;develop"
-  #cvAdvDiffReac_kry\;develop" # not released
+  "cvRoberts_dns\;\;"
+  "cvRoberts_dns_uw\;\;develop"
+  "cvRoberts_dns_negsol\;\;develop"
+  "cvRoberts_dns_constraints\;\;develop"
+  "cvAdvDiff_bnd\;\;develop"
+  "cvDirectDemo_ls\;\;develop"
+  "cvDiurnal_kry_bp\;\;develop"
+  "cvDiurnal_kry\;\;develop"
+  "cvDisc_dns\;\;develop"
+  "cvKrylovDemo_ls\;\;develop"
+  "cvKrylovDemo_prec\;\;develop"
+  #cvAdvDiffReac_kry\;\;develop" # not released
   )
+
+if(SUNDIALS_BUILD_WITH_MONITORING)
+  list(APPEND CVODE_examples "cvKrylovDemo_ls\;1\;develop")
+endif()
 
 # Examples using LAPACK linear solvers
 set(CVODE_examples_BL
@@ -70,21 +74,32 @@ foreach(example_tuple ${CVODE_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_type)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 example_type)
 
-  # example source files
-  add_executable(${example} ${example}.c)
+  if (NOT TARGET ${example})
+    # example source files
+    add_executable(${example} ${example}.c)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
+  endif()
+
+  # check if example args are provided and set the test name
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(${test_name} ${example}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
-
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)

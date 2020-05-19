@@ -78,6 +78,8 @@ module fcvode_mod
  public :: FCVodeSetErrHandlerFn
  public :: FCVodeSetErrFile
  public :: FCVodeSetUserData
+ public :: FCVodeSetMonitorFn
+ public :: FCVodeSetMonitorFrequency
  public :: FCVodeSetMaxOrd
  public :: FCVodeSetMaxNumSteps
  public :: FCVodeSetMaxHnilWarns
@@ -92,6 +94,7 @@ module fcvode_mod
  public :: FCVodeSetNonlinConvCoef
  public :: FCVodeSetConstraints
  public :: FCVodeSetNonlinearSolver
+ public :: FCVodeSetUseIntegratorFusedKernels
  public :: FCVodeRootInit
  public :: FCVodeSetRootDirection
  public :: FCVodeSetNoInactiveRootWarn
@@ -174,6 +177,7 @@ module fcvode_mod
  public :: FCVodeGetNumJTSetupEvals
  public :: FCVodeGetNumJtimesEvals
  public :: FCVodeGetNumLinRhsEvals
+ public :: FCVodeGetLinSolveStats
  public :: FCVodeGetLastLinFlag
  public :: FCVodeGetLinReturnFlagName
 
@@ -262,6 +266,24 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMonitorFn(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMonitorFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMonitorFrequency(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMonitorFrequency") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -388,6 +410,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetUseIntegratorFusedKernels(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetUseIntegratorFusedKernels") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -966,6 +997,22 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeGetLinSolveStats(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9) &
+bind(C, name="_wrap_FCVodeGetLinSolveStats") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
+type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
+type(C_PTR), value :: farg8
+type(C_PTR), value :: farg9
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeGetLastLinFlag(farg1, farg2) &
 bind(C, name="_wrap_FCVodeGetLastLinFlag") &
 result(fresult)
@@ -1145,6 +1192,38 @@ type(C_PTR) :: farg2
 farg1 = cvode_mem
 farg2 = user_data
 fresult = swigc_FCVodeSetUserData(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMonitorFn(cvode_mem, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = fn
+fresult = swigc_FCVodeSetMonitorFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMonitorFrequency(cvode_mem, nst) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), intent(in) :: nst
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = cvode_mem
+farg2 = nst
+fresult = swigc_FCVodeSetMonitorFrequency(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -1369,6 +1448,22 @@ type(C_PTR) :: farg2
 farg1 = cvode_mem
 farg2 = c_loc(nls)
 fresult = swigc_FCVodeSetNonlinearSolver(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetUseIntegratorFusedKernels(cvode_mem, onoff) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: onoff
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = cvode_mem
+farg2 = onoff
+fresult = swigc_FCVodeSetUseIntegratorFusedKernels(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2431,6 +2526,43 @@ type(C_PTR) :: farg2
 farg1 = cvode_mem
 farg2 = c_loc(nfevalsls(1))
 fresult = swigc_FCVodeGetNumLinRhsEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeGetLinSolveStats(cvode_mem, njevals, nfevalsls, nliters, nlcfails, npevals, npsolves, njtsetups, njtimes) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: njevals
+integer(C_LONG), dimension(*), target, intent(inout) :: nfevalsls
+integer(C_LONG), dimension(*), target, intent(inout) :: nliters
+integer(C_LONG), dimension(*), target, intent(inout) :: nlcfails
+integer(C_LONG), dimension(*), target, intent(inout) :: npevals
+integer(C_LONG), dimension(*), target, intent(inout) :: npsolves
+integer(C_LONG), dimension(*), target, intent(inout) :: njtsetups
+integer(C_LONG), dimension(*), target, intent(inout) :: njtimes
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
+type(C_PTR) :: farg9 
+
+farg1 = cvode_mem
+farg2 = c_loc(njevals(1))
+farg3 = c_loc(nfevalsls(1))
+farg4 = c_loc(nliters(1))
+farg5 = c_loc(nlcfails(1))
+farg6 = c_loc(npevals(1))
+farg7 = c_loc(npsolves(1))
+farg8 = c_loc(njtsetups(1))
+farg9 = c_loc(njtimes(1))
+fresult = swigc_FCVodeGetLinSolveStats(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9)
 swig_result = fresult
 end function
 

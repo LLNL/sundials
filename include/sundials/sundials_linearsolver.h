@@ -1,6 +1,7 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ *                David Gardner, Carol Woodward,
+ *                Slaven Peles, Cody Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -199,6 +200,18 @@ SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
 #define SUNLS_PACKAGE_FAIL_REC    806   /* external package recov. fail  */
 #define SUNLS_QRFACT_FAIL         807   /* QRfact found singular matrix  */
 #define SUNLS_LUFACT_FAIL         808   /* LUfact found singular matrix  */
+
+/* -----------------------------------------------------------------------------
+ * SUNLinearSolver messages
+ * ---------------------------------------------------------------------------*/
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNLS_MSG_RESIDUAL "\t\tlin. iteration %ld, lin. residual: %Lg\n"
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNLS_MSG_RESIDUAL "\t\tlin. iteration %ld, lin. residual: %g\n"
+#else
+#define SUNLS_MSG_RESIDUAL "\t\tlin. iteration %ld, lin. residual: %g\n"
+#endif
 
 #ifdef __cplusplus
 }

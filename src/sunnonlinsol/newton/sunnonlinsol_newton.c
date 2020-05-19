@@ -23,6 +23,8 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_nvector_senswrapper.h>
 
+#include "sundials_debug.h"
+
 /* Content structure accessibility macros  */
 #define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_Newton)(S->content) )
 
@@ -80,16 +82,18 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   NLS->content = content;
 
   /* Fill general content */
-  content->Sys        = NULL;
-  content->LSetup     = NULL;
-  content->LSolve     = NULL;
-  content->CTest      = NULL;
-  content->jcur       = SUNFALSE;
-  content->curiter    = 0;
-  content->maxiters   = 3;
-  content->niters     = 0;
-  content->nconvfails = 0;
-  content->ctest_data = NULL;
+  content->Sys         = NULL;
+  content->LSetup      = NULL;
+  content->LSolve      = NULL;
+  content->CTest       = NULL;
+  content->jcur        = SUNFALSE;
+  content->curiter     = 0;
+  content->maxiters    = 3;
+  content->niters      = 0;
+  content->nconvfails  = 0;
+  content->ctest_data  = NULL;
+  content->print_level = 0;
+  content->info_file   = stdout;
 
   /* Fill allocatable content */
   content->delta = N_VClone(y);
@@ -229,6 +233,16 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
     /* initialize counter curiter */
     NEWTON_CONTENT(NLS)->curiter = 0;
 
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+    /* print current iteration number and the nonlinear residual */
+    if (NEWTON_CONTENT(NLS)->print_level && NEWTON_CONTENT(NLS)->info_file)
+    {
+      fprintf(NEWTON_CONTENT(NLS)->info_file,
+              "SUNNONLINSOL_NEWTON (nni=%ld):\n",
+              (long int) NEWTON_CONTENT(NLS)->niters);
+    }
+#endif
+
     /* looping point for Newton iteration. Break out on any error. */
     for(;;) {
 
@@ -248,6 +262,17 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       /* test for convergence */
       retval = NEWTON_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
                                           NEWTON_CONTENT(NLS)->ctest_data);
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+      /* print current iteration number and the nonlinear residual */
+      if (NEWTON_CONTENT(NLS)->print_level && NEWTON_CONTENT(NLS)->info_file)
+      {
+        fprintf(NEWTON_CONTENT(NLS)->info_file,
+                SUN_NLS_MSG_RESIDUAL,
+                (long int) NEWTON_CONTENT(NLS)->curiter,
+                N_VWrmsNorm(delta, w));
+      }
+#endif
 
       /* if successful update Jacobian status and return */
       if (retval == SUN_NLS_SUCCESS) {
@@ -457,4 +482,42 @@ int SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn
   /* return the nonlinear system defining function */
   *SysFn = NEWTON_CONTENT(NLS)->Sys;
   return(SUN_NLS_SUCCESS);
+}
+
+int SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS,
+                                   FILE* info_file)
+{
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  NEWTON_CONTENT(NLS)->info_file = info_file;
+
+  return(SUN_NLS_SUCCESS);
+#else
+  SUNDIALS_DEBUG_PRINT("ERROR in SUNNonlinSolSetInfoFile_Newton: SUNDIALS was not built with monitoring\n");
+  return(SUN_NLS_ILL_INPUT);
+#endif
+}
+
+int SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS,
+                                     int print_level)
+{
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* check for valid print level */
+  if (print_level < 0 || print_level > 1)
+    return(SUN_NLS_ILL_INPUT);
+
+  NEWTON_CONTENT(NLS)->print_level = print_level;
+
+  return(SUN_NLS_SUCCESS);
+#else
+  SUNDIALS_DEBUG_PRINT("ERROR in SUNNonlinSolSetPrintLevel_Newton: SUNDIALS was not built with monitoring\n");
+  return(SUN_NLS_ILL_INPUT);
+#endif
 }

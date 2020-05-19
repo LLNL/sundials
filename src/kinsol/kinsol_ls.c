@@ -331,8 +331,8 @@ int KINSetJacTimesVecFn(void *kinmem, KINLsJacTimesVecFn jtv)
 int KINSetJacTimesVecSysFn(void *kinmem, KINSysFn jtimesSysFn)
 {
   int      retval;
-  KINMem   kin_mem;
-  KINLsMem kinls_mem;
+  KINMem   kin_mem = NULL;
+  KINLsMem kinls_mem = NULL;
 
   /* access KINLsMem structure */
   retval = kinLs_AccessLMem(kin_mem, "KINSetJacTimesVecSysFn",
