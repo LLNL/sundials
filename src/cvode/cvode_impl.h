@@ -101,6 +101,39 @@ extern "C" {
 #define CONSTRFUNC_RECVR +12
 #define PROJFUNC_RECVR   +13
 
+
+/*
+ * -----------------------------------------------------------------
+ * Function types for fused integrator kernels
+ * -----------------------------------------------------------------
+ */
+
+typedef int (*CVEwtSSFn)(const realtype reltol,
+                         const realtype abstol,
+                         const N_Vector ycur,
+                         N_Vector tempv,
+                         N_Vector weights);
+
+typedef int (*CVEwtSVFn)(const realtype reltol,
+                         const N_Vector abstol,
+                         const N_Vector ycur,
+                         N_Vector tempv,
+                         N_Vector weights);
+
+typedef int (*CVCheckConstrFn)(const N_Vector c,
+                               const N_Vector ewt,
+                               const N_Vector y,
+                               const N_Vector mm,
+                               N_Vector tempv);
+
+typedef int (*CVResidFn)(const realtype rl1,
+                         const realtype ngamma,
+                         const N_Vector zn1,
+                         const N_Vector ycor,
+                         const N_Vector ftemp,
+                         N_Vector res);
+
+
 /*
  * -----------------------------------------------------------------
  * Types : struct CVodeMemRec, CVodeMem
@@ -360,7 +393,16 @@ typedef struct CVodeMemRec {
   realtype cv_cvals[L_MAX]; /* array of scalars */
   N_Vector cv_Xvecs[L_MAX]; /* array of vectors */
 
+  /*---------------------------
+    Fused Integrator Operations
+    ---------------------------*/
+
   booleantype cv_usefused;  /* flag indicating if CVODE specific fused kernels should be used */
+
+  CVEwtSSFn       EwtSS_fused;
+  CVEwtSVFn       EwtSV_fused;
+  CVCheckConstrFn CheckConstr_fused;
+  CVResidFn       Resid_fused;
 
 } *CVodeMem;
 

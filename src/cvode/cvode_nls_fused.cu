@@ -1,5 +1,5 @@
  /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -16,13 +16,14 @@
  * -----------------------------------------------------------------
  */
 
- #include <cuda_runtime.h>
+#include <cuda_runtime.h>
 
- #include <nvector/nvector_cuda.h>
- #include "sundials_cuda_kernels.cuh"
+#include "cvode_impl.h"
+#include <nvector/nvector_cuda.h>
+#include "sundials_cuda_kernels.cuh"
 
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Compute the nonlinear residual.
  * -----------------------------------------------------------------

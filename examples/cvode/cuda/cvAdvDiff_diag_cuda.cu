@@ -46,6 +46,7 @@
 
 #include <cvode/cvode.h>                  /* prototypes for CVODE fcts., consts.  */
 #include <cvode/cvode_diag.h>             /* prototypes for CVODE diagonal solver */
+#include <cvode/cvode_cuda_kernels.h>
 #include <nvector/nvector_cuda.h>         /* access to cuda N_Vector              */
 #include <sundials/sundials_types.h>      /* definition of type realtype          */
 
@@ -163,8 +164,11 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVDiag", 1)) return(1);
 
   /* Tell CVode to use fused kernels if they are available. */
-  retval = CVodeSetUseIntegratorFusedKernels(cvode_mem, usefused);
-  check_retval(&retval, "CVodeSetUseIntegratorFusedKernels", 1);
+  retval = CVodeSetUseIntegratorFusedKernels_CUDA(cvode_mem, usefused);
+  check_retval(&retval, "CVodeSetUseIntegratorFusedKernels_CUDA", 1);
+
+  retval = CVDiagSetUseFusedKernels_CUDA(cvode_mem, usefused);
+  check_retval(&retval, "CVDiagSetUseFusedKernels_CUDA", 1);
 
   PrintIntro(toltype, usefused);
 

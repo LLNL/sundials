@@ -23,10 +23,15 @@
 set(CVODE_examples
   "cvAdvDiff_kry_cuda\;\;develop"
   "cvAdvDiff_kry_cuda_managed\;\;develop"
-  "cvAdvDiff_diag_cuda\;0 0\;develop"
-  "cvAdvDiff_diag_cuda\;0 1\;develop"
-  "cvAdvDiff_diag_cuda\;1 1\;develop"
   )
+
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  list(APPEND CVODE_examples
+    "cvAdvDiff_diag_cuda\;0 0\;develop"
+    "cvAdvDiff_diag_cuda\;0 1\;develop"
+    "cvAdvDiff_diag_cuda\;1 1\;develop"
+    )
+endif()
 
 # Examples using cuSolverSP linear solvers
 set(CVODE_examples_cusolver
@@ -47,6 +52,15 @@ list(APPEND all_examples "${CVODE_examples}")
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
+
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  if(LINK_LIBRARY_TYPE MATCHES "static")
+    list(APPEND SUNDIALS_LIBS sundials_cvode_cuda_kernels_static)
+  else()
+    list(APPEND SUNDIALS_LIBS sundials_cvode_cuda_kernels_shared)
+  endif()
+endif()
+
 if(LINK_LIBRARY_TYPE MATCHES "static")
   set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
                     sundials_cvode_static

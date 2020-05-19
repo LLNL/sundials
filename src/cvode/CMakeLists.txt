@@ -54,13 +54,6 @@ set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/nvector/serial/nvector_serial.c
   )
 
-if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND cvode_SOURCES
-    cvode_fused.cu
-    cvode_nls_fused.cu
-    cvode_diag_fused.cu)
-endif()
-
 # Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
 # also be included in the CVODE library
 set(sunmatrix_SOURCES
@@ -103,6 +96,18 @@ set(cvode_HEADERS
 # Add prefix with complete path to the CVODE header files
 add_prefix(${sundials_SOURCE_DIR}/include/cvode/ cvode_HEADERS)
 
+if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  set(cvode_cuda_SOURCES
+    cvode_fused.cu
+    cvode_diag_fused.cu)
+
+  set(cvode_cuda_HEADERS
+    cvode_cuda_kernels.h)
+
+  # Add prefix with complete path to the CVODE header files
+  add_prefix(${sundials_SOURCE_DIR}/include/cvode/ cvode_cuda_HEADERS)
+endif()
+
 # Add source directories to include directories for access to
 # implementation only header files.
 include_directories(.)
@@ -118,17 +123,26 @@ if(BUILD_STATIC_LIBS)
     ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} ${sunnonlinsol_SOURCES}
   )
 
-  # If using fused kernels we need the CUDA NVector
-  if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-    target_link_libraries(sundials_cvode_static PUBLIC sundials_nveccuda_static)
-  endif()
-
   # Set the library name and make sure it is not deleted
   set_target_properties(sundials_cvode_static
     PROPERTIES OUTPUT_NAME sundials_cvode CLEAN_DIRECT_OUTPUT 1)
 
   # Install the CVODE library
   install(TARGETS sundials_cvode_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+  # If using fused kernels we need the CUDA NVector
+  if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    add_library(sundials_cvode_cuda_kernels_static STATIC
+      ${cvode_cuda_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} ${sunnonlinsol_SOURCES})
+    target_link_libraries(sundials_cvode_cuda_kernels_static PUBLIC sundials_nveccuda_static)
+
+    # Set the library name and make sure it is not deleted
+    set_target_properties(sundials_cvode_cuda_kernels_static
+      PROPERTIES OUTPUT_NAME sundials_cvode_cuda_kernels CLEAN_DIRECT_OUTPUT 1)
+
+    # Install the CVODE library
+    install(TARGETS sundials_cvode_cuda_kernels_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  endif()
 
 endif(BUILD_STATIC_LIBS)
 
@@ -143,11 +157,6 @@ if(BUILD_SHARED_LIBS)
     target_link_libraries(sundials_cvode_shared PRIVATE m)
   endif()
 
-  # If using fused kernels we need the CUDA NVector
-  if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-    target_link_libraries(sundials_cvode_shared PUBLIC sundials_nveccuda_shared)
-  endif()
-
   # Set the library name and make sure it is not deleted
   set_target_properties(sundials_cvode_shared
     PROPERTIES OUTPUT_NAME sundials_cvode CLEAN_DIRECT_OUTPUT 1)
@@ -159,10 +168,37 @@ if(BUILD_SHARED_LIBS)
   # Install the CVODE library
   install(TARGETS sundials_cvode_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+
+  # If using fused kernels we need the CUDA NVector
+  if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    add_library(sundials_cvode_cuda_kernels_shared SHARED
+      ${cvode_cuda_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} ${sunnonlinsol_SOURCES})
+    target_link_libraries(sundials_cvode_cuda_kernels_shared PUBLIC sundials_nveccuda_shared)
+
+    if(UNIX)
+      target_link_libraries(sundials_cvode_cuda_kernels_shared PRIVATE m)
+    endif()
+
+    # Set the library name and make sure it is not deleted
+    set_target_properties(sundials_cvode_cuda_kernels_shared
+      PROPERTIES OUTPUT_NAME sundials_cvode_cuda_kernels CLEAN_DIRECT_OUTPUT 1)
+
+    # Set VERSION and SOVERSION for shared libraries
+    set_target_properties(sundials_cvode_cuda_kernels_shared
+      PROPERTIES VERSION ${cvodelib_VERSION} SOVERSION ${cvodelib_SOVERSION})
+
+    # Install the CVODE library
+    install(TARGETS sundials_cvode_cuda_kernels_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  endif()
+
 endif(BUILD_SHARED_LIBS)
 
 # Install the CVODE header files
 install(FILES ${cvode_HEADERS} DESTINATION include/cvode)
+
+if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  install(FILES ${cvode_cuda_HEADERS} DESTINATION include/cvode)
+endif()
 
 #
 message(STATUS "Added CVODE module")

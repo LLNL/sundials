@@ -1,5 +1,5 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -18,11 +18,13 @@
 
 #include <cuda_runtime.h>
 
+#include "cvode_impl.h"
+#include "cvode_diag_impl.h"
 #include <nvector/nvector_cuda.h>
 #include "sundials_cuda_kernels.cuh"
 
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Form y with perturbation = FRACT*(func. iter. correction)
  * -----------------------------------------------------------------
@@ -81,7 +83,7 @@ int cvDiagSetup_formY(const realtype h,
   return 0;
 }
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Construct M = I - gamma*J with J = diag(deltaf_i/deltay_i)
  * protecting against deltay_i being at roundoff level.
@@ -110,7 +112,7 @@ void cvDiagSetup_buildM_kernel(const sunindextype length,
     // N_VProd(ftemp, ewt, y);
     M[i] = fract*ftemp[i] - h*(M[i] - fpred[i]);
     y[i] = ftemp[i] * ewt[i];
-        
+
     // N_VCompare(uround, y, bit);
     // N_VAddConst(bit, -ONE, bitcomp);
     bool test = (abs(y[i]) > uround);
@@ -211,4 +213,57 @@ int cvDiagSolve_updateM(const realtype r, N_Vector M)
 #endif
 
   return 0;
+}
+
+
+extern "C"
+int CVDiagSetUseFusedKernels_CUDA(void *cvode_mem, booleantype onoff)
+{
+  CVodeMem cv_mem;
+  CVDiagMem cvdiag_mem;
+
+  if (cvode_mem == NULL)
+  {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE",
+                   "CVDiagSetFusedKernels", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (!cv_mem->cv_MallocDone ||
+      N_VGetVectorID(cv_mem->cv_ewt) != SUNDIALS_NVEC_CUDA) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE",
+                   "CVDiagSetUsedFusedKernels", MSGCV_BAD_NVECTOR);
+    return(CV_MEM_NULL);
+  }
+
+  if (cv_mem->cv_lmem == NULL)
+  {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE",
+                   "CVDiagSetFusedKernels", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cvdiag_mem = (CVDiagMem) (cv_mem->cv_lmem);
+
+  cvdiag_mem->usefused = onoff;
+  if (onoff)
+  {
+    cvdiag_mem->formy_fused   = cvDiagSetup_formY;
+    cvdiag_mem->buildM_fused  = cvDiagSetup_buildM;
+    cvdiag_mem->updateM_fused = cvDiagSolve_updateM;
+  }
+  else
+  {
+    cvdiag_mem->formy_fused   = NULL;
+    cvdiag_mem->buildM_fused  = NULL;
+    cvdiag_mem->updateM_fused = NULL;
+  }
+  return(CV_SUCCESS);
+#else
+  cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE",
+                 "CVodeSetUseIntegratorFusedKernels",
+                 "CVODE was not built with fused integrator kernels enabled");
+  return(CV_ILL_INPUT);
+#endif
 }

@@ -23,29 +23,6 @@
 #include "cvode_diag_impl.h"
 #include "cvode_impl.h"
 
-#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-int cvDiagSetup_formY(const realtype h,
-                      const realtype r,
-                      const N_Vector fpred,
-                      const N_Vector zn1,
-                      const N_Vector ypred,
-                      N_Vector ftemp,
-                      N_Vector y);
-
-int cvDiagSetup_buildM(const realtype fract,
-                       const realtype uround,
-                       const realtype h,
-                       const N_Vector ftemp,
-                       const N_Vector fpred,
-                       const N_Vector ewt,
-                       N_Vector bit,
-                       N_Vector bitcomp,
-                       N_Vector y,
-                       N_Vector M);
-
-int cvDiagSolve_updateM(const realtype r, N_Vector M);
-#endif
-
 /* Other Constants */
 
 #define FRACT RCONST(0.1)
@@ -173,6 +150,11 @@ int CVDiag(void *cvode_mem)
     free(cvdiag_mem); cvdiag_mem = NULL;
     return(CVDIAG_MEM_FAIL);
   }
+
+  cvdiag_mem->usefused      = SUNFALSE;
+  cvdiag_mem->formy_fused   = NULL;
+  cvdiag_mem->buildM_fused  = NULL;
+  cvdiag_mem->updateM_fused = NULL;
 
   /* Attach linear solver memory to integrator memory */
   lmem = cvdiag_mem;
@@ -357,7 +339,8 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
   if (cv_mem->cv_usefused)
   {
-    cvDiagSetup_formY(h, r, fpred, zn[1], ypred, ftemp, y);
+    /* cvDiagSetup_formY */
+    cvdiag_mem->formy_fused(h, r, fpred, zn[1], ypred, ftemp, y);
   }
   else
 #endif
@@ -383,7 +366,8 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
   if (cv_mem->cv_usefused)
   {
-    cvDiagSetup_buildM(FRACT, uround, h, ftemp, fpred, ewt, bit, bitcomp, y, M);
+    /* cvDiagSetup_buildM */
+    cvdiag_mem->buildM_fused(FRACT, uround, h, ftemp, fpred, ewt, bit, bitcomp, y, M);
   }
   else
 #endif
@@ -440,7 +424,8 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
     if (cv_mem->cv_usefused)
     {
-      cvDiagSolve_updateM(r, M);
+      /* cvDiagSolve_update */
+      cvdiag_mem->updateM_fused(r, M);
     }
     else
 #endif

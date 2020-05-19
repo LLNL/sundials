@@ -189,20 +189,6 @@ static void cvFreeVectors(CVodeMem cv_mem);
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 
-#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-int cvEwtSetSS_fused(const realtype reltol,
-                     const realtype Sabstol,
-                     const N_Vector ycur,
-                     N_Vector tempv,
-                     N_Vector weight);
-
-int cvEwtSetSV_fused(const realtype reltol,
-                     const N_Vector Vabstol,
-                     const N_Vector ycur,
-                     N_Vector tempv,
-                     N_Vector weight);
-#endif
-
 /* Initial stepsize calculation */
 
 static int cvHin(CVodeMem cv_mem, realtype tout);
@@ -236,13 +222,6 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 static int cvNls(CVodeMem cv_mem, int nflag);
 
 static int cvCheckConstraints(CVodeMem cv_mem);
-#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-int cvCheckConstraints_fused(const N_Vector c,
-                             const N_Vector ewt,
-                             const N_Vector y,
-                             const N_Vector mm,
-                             N_Vector tempv);
-#endif
 
 static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                          int *ncfPtr);
@@ -395,8 +374,12 @@ void *CVodeCreate(int lmm)
   cv_mem->NLS    = NULL;
   cv_mem->ownNLS = SUNFALSE;
 
-  /* Initialize fused operations variable */
-  cv_mem->cv_usefused = SUNFALSE;
+  /* Initialize fused operations variables */
+  cv_mem->cv_usefused       = SUNFALSE;
+  cv_mem->EwtSS_fused       = NULL;
+  cv_mem->EwtSV_fused       = NULL;
+  cv_mem->CheckConstr_fused = NULL;
+  cv_mem->Resid_fused       = NULL;
 
   /* Return pointer to CVODE memory block */
 
@@ -2781,11 +2764,12 @@ static int cvCheckConstraints(CVodeMem cv_mem)
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
   if (cv_mem->cv_usefused)
   {
-    cvCheckConstraints_fused(cv_mem->cv_constraints,
-                             cv_mem->cv_ewt,
-                             cv_mem->cv_y,
-                             mm,
-                             tmp);
+    /* cvCheckConstraints_fused */
+    cv_mem->CheckConstr_fused(cv_mem->cv_constraints,
+                              cv_mem->cv_ewt,
+                              cv_mem->cv_y,
+                              mm,
+                              tmp);
   }
   else
 #endif
@@ -4228,7 +4212,8 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
   {
     /* We compute weight (inverse of tempv) regardless of the component test
        since it will be thrown away in this case anyways. */
-    cvEwtSetSS_fused(cv_mem->cv_reltol, cv_mem->cv_Sabstol, ycur, cv_mem->cv_tempv, weight);
+    /* cvEwtSetSS_fused */
+    cv_mem->EwtSS_fused(cv_mem->cv_reltol, cv_mem->cv_Sabstol, ycur, cv_mem->cv_tempv, weight);
     if (cv_mem->cv_atolmin0) {
       if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
     }
@@ -4265,7 +4250,8 @@ static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
   {
     /* We compute weight (inverse of tempv) regardless of the component test
        since it will be thrown away in this case anyways. */
-    cvEwtSetSV_fused(cv_mem->cv_reltol, cv_mem->cv_Vabstol, ycur, cv_mem->cv_tempv, weight);
+    /* cvEwtSetSV_fused */
+    cv_mem->EwtSV_fused(cv_mem->cv_reltol, cv_mem->cv_Vabstol, ycur, cv_mem->cv_tempv, weight);
     if (cv_mem->cv_atolmin0) {
       if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
     }

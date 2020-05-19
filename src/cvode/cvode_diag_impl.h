@@ -1,5 +1,5 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -26,6 +26,28 @@
 extern "C" {
 #endif
 
+
+typedef int (*CVDiagFormY)(const realtype h,
+                           const realtype r,
+                           const N_Vector fpred,
+                           const N_Vector zn1,
+                           const N_Vector ypred,
+                           N_Vector ftemp,
+                           N_Vector y);
+
+typedef int (*CVDiagBuildM)(const realtype fract,
+                            const realtype uround,
+                            const realtype h,
+                            const N_Vector ftemp,
+                            const N_Vector fpred,
+                            const N_Vector ewt,
+                            N_Vector bit,
+                            N_Vector bitcomp,
+                            N_Vector y,
+                            N_Vector M);
+
+typedef int(*CVDiagUpdateM)(const realtype r, N_Vector M);
+
 /*
  * -----------------------------------------------------------------
  * Types: CVDiagMemRec, CVDiagMem
@@ -46,10 +68,15 @@ typedef struct {
 
   N_Vector di_bitcomp; /* temporary storage vector                  */
 
-  long int di_nfeDI;   /* no. of calls to f due to difference 
+  long int di_nfeDI;   /* no. of calls to f due to difference
                           quotient diagonal Jacobian approximation  */
 
   long int di_last_flag;    /* last error return flag               */
+
+  booleantype   usefused;
+  CVDiagFormY   formy_fused;
+  CVDiagBuildM  buildM_fused;
+  CVDiagUpdateM updateM_fused;
 
 } CVDiagMemRec, *CVDiagMem;
 
