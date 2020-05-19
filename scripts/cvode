@@ -21,6 +21,7 @@ $tar $tarfile $distrobase/include/cvode/cvode_bbdpre.h  || exit 1
 $tar $tarfile $distrobase/include/cvode/cvode_diag.h    || exit 1
 $tar $tarfile $distrobase/include/cvode/cvode_direct.h  || exit 1
 $tar $tarfile $distrobase/include/cvode/cvode_ls.h      || exit 1
+$tar $tarfile $distrobase/include/cvode/cvode_proj.h    || exit 1
 $tar $tarfile $distrobase/include/cvode/cvode_spils.h   || exit 1
 
 $tar $tarfile $distrobase/src/cvode/LICENSE        || exit 1
@@ -44,6 +45,8 @@ $tar $tarfile $distrobase/src/cvode/cvode_ls.c           || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_ls_impl.h      || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_nls.c          || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_nls_fused.cu   || exit 1
+$tar $tarfile $distrobase/src/cvode/cvode_proj.c         || exit 1
+$tar $tarfile $distrobase/src/cvode/cvode_proj_impl.h    || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_spils.c        || exit 1
 
 echo "   --- Add fcvode module to $tarfile"
@@ -96,6 +99,10 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_ls.out           ||
 $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_ls_1.out         || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_prec.c           || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_prec.out         || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/cvParticle_dns.c              || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/cvParticle_dns.out            || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/cvPendulum_dns.c              || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/cvPendulum_dns.out            || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns.c               || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns.out             || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_constraints.c   || exit 1
@@ -112,6 +119,8 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_block_klu.c         ||
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_block_klu.out       || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.c               || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.out             || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/plot_cvParticle.py            || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/plot_cvPendulum.py            || exit 1
 
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/README                         || exit 1
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/CMakeLists.txt                 || exit 1

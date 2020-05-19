@@ -68,6 +68,10 @@ module fcvode_mod
  integer(C_INT), parameter, public :: CV_BAD_DKY = -26_C_INT
  integer(C_INT), parameter, public :: CV_TOO_CLOSE = -27_C_INT
  integer(C_INT), parameter, public :: CV_VECTOROP_ERR = -28_C_INT
+ integer(C_INT), parameter, public :: CV_PROJ_MEM_NULL = -29_C_INT
+ integer(C_INT), parameter, public :: CV_PROJFUNC_FAIL = -30_C_INT
+ integer(C_INT), parameter, public :: CV_PROJ_FAILURE = -31_C_INT
+ integer(C_INT), parameter, public :: CV_REPTD_PROJFUNC_ERR = -32_C_INT
  integer(C_INT), parameter, public :: CV_UNRECOGNIZED_ERR = -99_C_INT
  public :: FCVodeCreate
  public :: FCVodeInit
@@ -180,6 +184,14 @@ module fcvode_mod
  public :: FCVodeGetLinSolveStats
  public :: FCVodeGetLastLinFlag
  public :: FCVodeGetLinReturnFlagName
+ public :: FCVodeSetProjFn
+ public :: FCVodeSetProjErrEst
+ public :: FCVodeSetProjFrequency
+ public :: FCVodeSetMaxNumProjFails
+ public :: FCVodeSetEpsProj
+ public :: FCVodeSetProjFailEta
+ public :: FCVodeGetNumProjEvals
+ public :: FCVodeGetNumProjFails
 
 ! WRAPPER DECLARATIONS
 interface
@@ -1029,6 +1041,78 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 integer(C_LONG), intent(in) :: farg1
 type(SwigArrayWrapper) :: fresult
+end function
+
+function swigc_FCVodeSetProjFn(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetProjFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetProjErrEst(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetProjErrEst") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetProjFrequency(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetProjFrequency") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMaxNumProjFails(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMaxNumProjFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetEpsProj(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetEpsProj") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetProjFailEta(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetProjFailEta") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetNumProjEvals(farg1, farg2) &
+bind(C, name="_wrap_FCVodeGetNumProjEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetNumProjFails(farg1, farg2) &
+bind(C, name="_wrap_FCVodeGetNumProjFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
 end function
 
 end interface
@@ -2594,6 +2678,134 @@ farg1 = flag
 fresult = swigc_FCVodeGetLinReturnFlagName(farg1)
 call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
+end function
+
+function FCVodeSetProjFn(cvode_mem, pfun) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(C_FUNPTR), intent(in), value :: pfun
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = pfun
+fresult = swigc_FCVodeSetProjFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetProjErrEst(cvode_mem, onoff) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: onoff
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = cvode_mem
+farg2 = onoff
+fresult = swigc_FCVodeSetProjErrEst(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetProjFrequency(cvode_mem, proj_freq) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), intent(in) :: proj_freq
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = cvode_mem
+farg2 = proj_freq
+fresult = swigc_FCVodeSetProjFrequency(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetMaxNumProjFails(cvode_mem, max_fails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: max_fails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = cvode_mem
+farg2 = max_fails
+fresult = swigc_FCVodeSetMaxNumProjFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetEpsProj(cvode_mem, eps) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: eps
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = eps
+fresult = swigc_FCVodeSetEpsProj(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetProjFailEta(cvode_mem, eta) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: eta
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = eta
+fresult = swigc_FCVodeSetProjFailEta(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeGetNumProjEvals(cvode_mem, nproj) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nproj
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = c_loc(nproj(1))
+fresult = swigc_FCVodeGetNumProjEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeGetNumProjFails(cvode_mem, nprf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nprf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = c_loc(nprf(1))
+fresult = swigc_FCVodeGetNumProjFails(farg1, farg2)
+swig_result = fresult
 end function
 
 

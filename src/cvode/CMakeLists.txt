@@ -32,6 +32,7 @@ set(cvode_SOURCES
   cvode_io.c
   cvode_ls.c
   cvode_nls.c
+  cvode_proj.c
   cvode_spils.c
   )
 
@@ -95,6 +96,7 @@ set(cvode_HEADERS
   cvode_diag.h
   cvode_direct.h
   cvode_ls.h
+  cvode_proj.h
   cvode_spils.h
   )
 

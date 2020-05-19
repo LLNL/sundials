@@ -24,6 +24,7 @@
 #include "cvode/cvode_bbdpre.h"
 #include "cvode/cvode_diag.h"
 #include "cvode/cvode_ls.h"
+#include "cvode/cvode_proj.h"
 %}
 
 // Load the typedefs and generate a "use" statements in the module
@@ -39,4 +40,4 @@
 %include "cvode/cvode_bbdpre.h"
 %include "cvode/cvode_diag.h"
 %include "cvode/cvode_ls.h"
-
+%include "cvode/cvode_proj.h"

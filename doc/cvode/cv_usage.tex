@@ -1071,6 +1071,54 @@ be called prior to a continuation call to \id{CVode}.
   \id{CVodeRootInit} with \id{nrtfn}$=0$.
 }
 
+%%==============================================================================
+\subsection{Projection initialization function}\label{ss:cvprojinit}
+\index{Projection}
+
+When solving an IVP with a constraint equation, {\cvode} has the capability to
+project the solution onto the constraint manifold after each time step. To
+activate the projection capability with a user-defined projection function, call
+the following set function:
+%%
+%%
+\ucfunctionf{CVodeSetProjFn}
+{
+  flag = CVodeSetProjFn(cvode\_mem, proj);
+}
+{
+  The function \ID{CVodeSetProjFn} enables or disables projection with a
+  user-defined projection function.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block returned by \id{CVodeCreate}.
+  \item[proj] (\id{CVProjFn})
+    is the {\CC} function which defines the projection. See \S\ref{ss:projFn}
+    for details.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[CV\_SUCCESS]
+    The call to \id{CVodeSetProjFn} was successful.
+  \item[CV\_MEM\_NULL]
+    The \id{cvode\_mem} argument was \id{NULL}.
+  \item[CV\_MEM\_FAIL]
+    A memory allocation failed.
+  \item[CV\_ILL\_INPUT]
+    The projection function is \id{NULL} or the method type is not \id{CV\_BDF}.
+  \end{args}
+}
+{
+  At this time projection is only supported with BDF methods.
+
+  If a new IVP is to be solved with a call to \id{CVodeReInit}, where the new
+  IVP does not have a constraint equation but the prior one did, then call
+  \id{CVodeSetProjFrequency} with an input of \id{0} to disable projection.
+}
+
 
 %%==============================================================================
 \subsection{CVODE solver function}\label{sss:cvode}
@@ -2483,7 +2531,7 @@ rootfinding algorithm.
 %%
 \ucfunctionf{CVodeSetRootDirection}
 {
-flag = CVodeSetRootDirection(cvode\_mem, rootdir);
+  flag = CVodeSetRootDirection(cvode\_mem, rootdir);
 }
 {
   The function \ID{CVodeSetRootDirection} specifies the direction of
@@ -2550,6 +2598,181 @@ flag = CVodeSetNoInactiveRootWarn(cvode\_mem);
 }
 %%
 \index{optional input!rootfinding|)}
+
+%%==============================================================================
+\subsubsection{Projection optional input functions}
+\label{sss:optin_proj}
+\index{optional input!projection|(}
+%%==============================================================================
+%%
+The following functions can be called to set optional inputs to control the
+projection when solving an IVP with constraints.
+%%
+%%
+\ucfunctionf{CVodeSetProjErrEst}
+{
+  flag = CVodeSetProjErrEst(cvode\_mem, onoff);
+}
+{
+  The function \ID{CVodeSetProjErrEst} enables or disables projection of
+  the error estimate by the projection function.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block.
+  \item[onoff] (\id{booleantype})
+    is a flag indicating if error projection should be enabled (\id{SUNTRUE},
+    default) or disabled (\id{SUNFALSE}).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeSetProjFrequency}
+{
+  flag = CVodeSetProjFrequency(cvode\_mem, freq);
+}
+{
+  The function \ID{CVodeSetProjFrequency} specifies the frequency with which the
+  projection is performed.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block.
+  \item[freq] (\id{long int})
+    is the frequency with which to perform the projection. The default is 1
+    (project every step), a value of 0 will disable projection, and a
+    value $< 0$ will restore the default.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeSetMaxNumProjFails}
+{
+  flag = CVodeSetMaxNumProjFails(cvode\_mem, max\_fails);
+}
+{
+  The function \ID{CVodeSetMaxNumProjFails} specifies the maximum number of
+  projection failures in a step attempt before an unrecoverable error is
+  returned.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block.
+  \item[max\_fails] (\id{int})
+    is the maximum number of projection failures. The default is 10 and an
+    input value $< 1$ will restore the default.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeSetEpsProj}
+{
+  flag = CVodeSetEpsProj(cvode\_mem, eps);
+}
+{
+  The function \ID{CVodeSetEpsProj} specifies the tolerance for the nonlinear
+  constrained least squares problem solved by the projection function.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block.
+  \item[eps] (\id{realtype})
+    is the tolerance (default 0.1) for the the nonlinear constrained least
+    squares problem solved by the projection function. A value $\leq 0$ will
+    restore the default.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeSetProjFailEta}
+{
+  flag = CVodeSetProjFailEta(cvode\_mem, eta);
+}
+{
+  The function \ID{CVodeSetProjFailEta} specifies the time step reduction factor
+  to apply on a projection function failure.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block.
+  \item[eps] (\id{realtype})
+    is the time step reduction factor to apply on a projection function failure
+    (default 0.25). A value $\leq 0$ or $> 1$ will restore the default.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\index{optional input!projection|)}
 
 %%==============================================================================
 \subsection{Interpolated output function}\label{ss:optional_dky}
@@ -3373,7 +3596,8 @@ These optional output functions are described next.
 %%==================================================================================
 %%
 \subsubsection{Rootfinding optional output functions}\label{sss:optout_root}
-
+\index{optional output!rootfinding|(}
+%%
 There are two optional output functions associated with rootfinding.
 %%
 %%
@@ -3386,7 +3610,7 @@ There are two optional output functions associated with rootfinding.
   functions were found to have a root.
 }
 {
-  \begin{args}[cvode\_mem]
+  \begin{args}[rootsfound]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[rootsfound] (\id{int *})
@@ -3440,6 +3664,82 @@ There are two optional output functions associated with rootfinding.
   \end{args}
 }
 {}
+%%
+\index{optional output!rootfinding|)}
+
+%%==============================================================================
+\subsubsection{Projection optional output functions}
+\label{sss:optout_proj}
+\index{optional output!projection|(}
+%%==============================================================================
+%%
+The following optional output functions are available for retrieving information
+and statistics related the projection when solving and IVP with constraints.
+%%
+%%
+\ucfunctionf{CVodeGetNumProjEvals}
+{
+  flag = CVodeGetNumProjEvals(cvode\_mem, nproj);
+}
+{
+  The function \ID{CVodeGetNumProjEvals} returns the current total number of
+  projection evaluations.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[nproj] (\id{long int *})
+    the number of calls to the projection function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeGetNumProjFails}
+{
+  flag = CVodeGetNumProjFails(cvode\_mem, npfails);
+}
+{
+  The function \ID{CVodeGetNumProjFails} returns the current total number of
+  projection evaluation failures.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[npfails] (\id{long int *})
+    the number of projection failures.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\index{optional output!projection|)}
 
 %%==============================================================================
 \subsubsection{{\cvls} linear solver interface optional output functions}
@@ -4388,6 +4688,60 @@ the user must supply a {\CC} function of type \Id{CVRootFn}, defined as follows:
 }
 {
   Allocation of memory for \id{gout} is automatically handled within {\cvode}.
+}
+
+%%==============================================================================
+\subsection{Projection function}\label{ss:projFn}
+%%
+When solving an IVP with a constraint equation and providing a user-defined
+projection operation the projection function must have type \Id{CVProjFn},
+defined as follows:
+%%
+\usfunction{CVProjFn}
+{
+  typedef int (*CVProjFn)(realtype t, N\_Vector ycur, N\_Vector corr,\\
+                          realtype epsProj, N\_Vector err, void *user\_data);
+}
+{
+  This function computes the projection of the solution and, if enabled, the
+  error on to the constraint manifold.
+}
+{
+  \begin{args}[user\_data]
+  \item[t]
+    is the current value of the independent variable.
+  \item[ycur]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[corr]
+    is the correction, $c$, to the dependent variable vector so that $y(t) + c$
+    satisfies the constraint equation.
+  \item[epsProj]
+    is the tolerance to use in the nonlinear solver stopping test when solving
+    the nonlinear constrainted least squares problem.
+  \item[err]
+    is on input the current error estimate, if error projection is enabled (the
+    default) then this should be overwritten with the projected error on output.
+    If error projection is disabled then \id{err} is \id{NULL}.
+  \item[user\_data]
+    is a pointer to user data, the same as the \Id{user\_data} parameter passed
+    to \id{CVodeSetUserData}.
+  \end{args}
+}
+{
+  A \id{CVProjFn} should return 0 if successful, a negative value if an
+  unrecoverable error occurred (the integraiton is halted), or a positive value
+  if a recoverable error occurred (the integrator will, in most cases, try to
+  correct and reattempt the step).
+}
+{
+  The tolerance passed to the projection function (\id{epsProj}) is the
+  tolerance on the iteration update in the WRMS norm, i.e., the solve should
+  stop when the WRMS norm of the current iterate update is less than
+  \id{epsProj}.
+
+  If needed by the user's projection routine, the error weight vector can be
+  accessed by calling \id{CVodeGetErrWeights}, and the unit roundoff is
+  available as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 
 

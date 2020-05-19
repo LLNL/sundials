@@ -131,6 +131,12 @@ Added the optional function \id{CVodeSetJacTimesRhsFn} to specify an alternative
 right-hand side function for computing Jacobian-vector products with the
 internal difference quotient approximation.
 
+Added support for integrating IVPs with constraints using BDF methods and
+projecting the solution onto the constraint manifold with a user defined
+projection function. This implementation is accompanied by additions to user
+documentation and {\cvode} examples. See \S\ref{ss:constraints} for more
+information.
+
 \subsection*{Changes in v5.2.0}
 
 Fixed a build system bug related to the Fortran 2003 interfaces when using the

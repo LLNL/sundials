@@ -49,6 +49,12 @@ system function (KINSOL) for use when computing Jacobian-vector products with
 the internal difference quotient approximation.
 
 
+Added support to CVODE for integrating IVPs with constraints using BDF methods
+and projecting the solution onto the constraint manifold with a user defined
+projection function. This implementation is accompanied by additions to the
+CVODE user documentation and examples.
+
+
 ## Changes to SUNDIALS in release 5.2.0
 
 Fixed a build system bug related to the Fortran 2003 interfaces when using the

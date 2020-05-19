@@ -1278,6 +1278,15 @@ char *CVodeGetReturnFlagName(long int flag)
   case CV_NLS_FAIL:
     sprintf(name,"CV_NLS_FAIL");
     break;
+  case CV_PROJ_MEM_NULL:
+    sprintf(name,"CV_PROJ_MEM_NULL");
+    break;
+  case CV_PROJFUNC_FAIL:
+    sprintf(name,"CV_PROJFUNC_FAIL");
+    break;
+  case CV_REPTD_PROJFUNC_ERR:
+    sprintf(name,"CV_REPTD_PROJFUNC_ERR");
+    break;
   default:
     sprintf(name,"NONE");
   }
