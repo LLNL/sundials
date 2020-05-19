@@ -370,6 +370,9 @@ KINSOL_STATUS=${KINSOL_STATUS:-"ON"}
 # Ensure monitoring is set (default to OFF)
 MONITOR_STATUS=${MONITOR_STATUS:-"OFF"}
 
+# Ensure fused kernel status is set (default is OFF)
+FUSED_STATUS=${FUSED_STATUS:-"OFF"}
+
 # ------------------------------------------------------------------------------
 # Setup test directories
 # ------------------------------------------------------------------------------
@@ -474,7 +477,7 @@ time cmake \
     \
     -D USE_GENERIC_MATH="${C90MATH}" \
     \
-    -D SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS=ON \
+    -D SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS="${FUSED_STATUS}" \
     \
     -D SUNDIALS_TEST_DEVTESTS="${devtests}" \
     -D SUNDIALS_TEST_UNITTESTS=ON \

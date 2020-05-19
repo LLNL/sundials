@@ -173,6 +173,9 @@ fi
 # Sundials monitoring
 export MONITOR_STATUS=ON
 
+# Fused kernel status
+export FUSED_STATUS=ON
+
 # ------------------------------------------------------------------------------
 # Third party libraries
 # ------------------------------------------------------------------------------
