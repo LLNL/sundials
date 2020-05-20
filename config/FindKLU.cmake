@@ -17,6 +17,9 @@
 # Set library prefixes for Windows
 if(WIN32)
   set(CMAKE_FIND_LIBRARY_PREFIXES lib ${CMAKE_FIND_LIBRARY_PREFIXES})
+  set(CMAKE_FIND_LIBRARY_SUFFIXES d.lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
+elseif(APPLE)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES d.a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 endif()
 
 ### Find include dir
