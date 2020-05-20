@@ -129,6 +129,11 @@ if(EXAMPLES_INSTALL)
   set(SOLVER "CVODE")
   set(SOLVER_LIB "sundials_cvode")
   set(NVECTOR_LIB "sundials_nveccuda")
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(KERNELS_LIB "sundials_cvode_cuda_kernels")
+  else()
+    set(KERNELS_LIB "")
+  endif()
 
   examples2string(CVODE_examples EXAMPLES)
 

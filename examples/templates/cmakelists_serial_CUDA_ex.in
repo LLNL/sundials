@@ -86,6 +86,10 @@ find_library(SUNDIALS_CUSOLVERSP_LIB
   ${SUNDIALS_LIBRARY_DIR}
   DOC "SUNLINSOL_CUSOLVERSP linear solver library")
 
+find_library(SUNDIALS_SOLVER_KERNELS_LIB
+  @KERNELS_LIB@ ${SUNDIALS_LIBRARY_DIR}
+  DOC "@SOLVER@ CUDA kernels library")
+
 # For SUNDIALS module examples the solver library is not needed
 if(NOT SUNDIALS_SOLVER_LIB)
   set(SUNDIALS_SOLVER_LIB "")
@@ -101,6 +105,12 @@ if(NOT SUNDIALS_CUSOLVERSP_LIB)
   set(SUNDIALS_CUSOLVERSP_LIB "")
 endif()
 
+# For some examples the specialized kernels library is not needed
+if(NOT SUNDIALS_SOLVER_KERNELS_LIB)
+  set(SUNDIALS_SOLVER_KERNELS_LIB "")
+endif()
+
+
 # Set additional libraries
 set(SUNDIALS_EXTRA_LIBS -L${SUNDIALS_LIBRARY_DIR} @LIBS@ CACHE STRING "Additional libraries")
 
@@ -109,6 +119,7 @@ set(SUNDIALS_LIBRARIES
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_LIB}
   ${SUNDIALS_CUSPARSEMAT_LIB}
+  ${SUNDIALS_SOLVER_KERNELS_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # ------------------------------------------------------------------------------
