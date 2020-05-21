@@ -19,7 +19,7 @@
 # development releases the label string is of the form "-dev.#" and for full
 # releases the label string is "".
 sun_major=${1:-5}
-sun_minor=${2:-2}
+sun_minor=${2:-3}
 sun_patch=${3:-0}
 sun_label=${4:""}
 month=${5:-$(date +"%b")}
@@ -380,8 +380,7 @@ sedi "/LLNL-CODE-667205/ s/.*/           v${ark_ver}. Technical Report LLNL-CODE
 
 # user guide (latex)
 fn="../doc/arkode/ARKode.tex"
-sedi "s/User Documentation for ARKode v.*/User Documentation for ARKode v${ark_ver}\\\\\\\\ /" $fn
-sedi "s/(SUNDIALS v.*)/(SUNDIALS v${sun_ver})/" $fn
+sedi "s/User Documentation for ARKode v.*/User Documentation for ARKode v${ark_ver} (SUNDIALS v${sun_ver})\}/" $fn
 
 # example doc (latex)
 fn="../doc/arkode/ARKode_example.tex"

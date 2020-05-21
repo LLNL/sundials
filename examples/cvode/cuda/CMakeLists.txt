@@ -59,6 +59,11 @@ else()
                     ${EXTRA_LINK_LIBS})
 endif()
 
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
+    sundials_cvode_fused_cuda_${LINK_LIBRARY_TYPE})
+endif()
+
 # Add source directory to include directories
 include_directories(.)
 
@@ -115,6 +120,9 @@ if(EXAMPLES_INSTALL)
   set(SOLVER "CVODE")
   set(SOLVER_LIB "sundials_cvode")
   set(NVECTOR_LIB "sundials_nveccuda")
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(LIBS "-lsundials_cvode_fused_cuda ${LIBS}")
+  endif()
 
   examples2string(CVODE_examples EXAMPLES)
 

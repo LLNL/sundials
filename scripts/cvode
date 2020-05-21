@@ -30,21 +30,20 @@ $tar $tarfile $distrobase/src/cvode/README.md      || exit 1
 $tar $tarfile $distrobase/src/cvode/CMakeLists.txt || exit 1
 
 $tar $tarfile $distrobase/src/cvode/cvode.c              || exit 1
-$tar $tarfile $distrobase/src/cvode/cvode_fused.cu       || exit 1
+$tar $tarfile $distrobase/src/cvode/cvode_fused_stubs.c  || exit 1
+$tar $tarfile $distrobase/src/cvode/cvode_fused_cuda.cu  || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre.c      || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre_impl.h || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre.c       || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre_impl.h  || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_diag.c         || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_diag_impl.h    || exit 1
-$tar $tarfile $distrobase/src/cvode/cvode_diag_fused.cu  || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_direct.c       || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_impl.h         || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_io.c           || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_ls.c           || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_ls_impl.h      || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_nls.c          || exit 1
-$tar $tarfile $distrobase/src/cvode/cvode_nls_fused.cu   || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_proj.c         || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_proj_impl.h    || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_spils.c        || exit 1

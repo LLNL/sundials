@@ -19,7 +19,8 @@ PSolve function is `NULL`.
 Added specialized fused CUDA kernels to CVODE which may offer better
 performance on smaller problems when using CVODE with the `NVECTOR_CUDA`
 module. See the optional input function `CVodeSetUseIntegratorFusedKernels`
-for more information.
+for more information. As with other SUNDIALS CUDA features, this is
+feature is experimental and may change from version to version.
 
 Added the ability to control the CUDA kernel launch parameters for the
 `NVECTOR_CUDA` and `SUNMATRIX_CUSPARSE` modules. These modules remain
@@ -47,7 +48,6 @@ Added optional set functions to provide an alternative ODE right-hand side
 function (ARKode and CVODE(S)), DAE residual function (IDA(S)), or nonlinear
 system function (KINSOL) for use when computing Jacobian-vector products with
 the internal difference quotient approximation.
-
 
 Added support to CVODE for integrating IVPs with constraints using BDF methods
 and projecting the solution onto the constraint manifold with a user defined

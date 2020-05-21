@@ -105,6 +105,12 @@ Fixed a bug in the iterative linear solver modules where an error is not
 returned if the Atimes function is \id{NULL} or, if preconditioning is enabled,
 the PSolve function is \id{NULL}.
 
+Added specialized fused {\cuda} kernels to {\cvode} which may offer better
+performance on smaller problems when using {\cvode} with the {\nveccuda}
+module. See the optional input function \id{CVodeSetUseIntegratorFusedKernels}
+for more information. As with other {\sundials} {\cuda} features, this
+capability is considered experimental and may change from version to version.
+
 Added the ability to control the {\cuda} kernel launch parameters for the
 \id{NVECTOR\_CUDA} and \id{SUNMATRIX\_CUSPARSE} modules. These modules remain
 experimental and are subject to change from version to version.

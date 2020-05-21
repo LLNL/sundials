@@ -40,11 +40,17 @@ for rt in "${realtype[@]}"; do
         echo "TEST: ./suntest.sh $rt $is both OFF NONE $bt"
 
         # run tests
-        ./suntest.sh $rt $is both OFF NONE $bt
+        # rt     = real type to build/test
+        # is     = index size to build/test
+        # static = build static libraries
+        # OFF    = disable third party libraries
+        # NONE   = do not run tests (just compile)
+        # bt     = number of parallel build threads
+        ./suntest.sh $rt $is static OFF NONE $bt
 
         # check return flag
         if [ $? -ne 0 ]; then
-            echo "FAILED: ./suntest.sh $rt $is both OFF NONE $bt" | tee -a suntest.log
+            echo "FAILED: ./suntest.sh $rt $is static OFF NONE $bt" | tee -a suntest.log
             exit 1
         else
             echo "PASSED"
@@ -67,11 +73,17 @@ for rt in "${realtype[@]}"; do
         echo "TEST: ./suntest.sh $rt $is both ON DEV $bt"
 
         # run tests
-        ./suntest.sh $rt $is both ON DEV $bt
+        # rt     = real type to build/test
+        # is     = index size to build/test
+        # static = build static libraries
+        # ON     = enable third party libraries
+        # DEV    = run development tests
+        # bt     = number of parallel build threads
+        ./suntest.sh $rt $is static ON DEV $bt
 
         # check return flag
         if [ $? -ne 0 ]; then
-            echo "FAILED: ./suntest.sh $rt $is both ON DEV $bt" | tee -a suntest.log
+            echo "FAILED: ./suntest.sh $rt $is static ON DEV $bt" | tee -a suntest.log
             exit 1
         else
             echo "PASSED"

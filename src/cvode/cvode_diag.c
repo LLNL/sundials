@@ -24,6 +24,7 @@
 #include "cvode_impl.h"
 
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+extern
 int cvDiagSetup_formY(const realtype h,
                       const realtype r,
                       const N_Vector fpred,
@@ -32,6 +33,7 @@ int cvDiagSetup_formY(const realtype h,
                       N_Vector ftemp,
                       N_Vector y);
 
+extern
 int cvDiagSetup_buildM(const realtype fract,
                        const realtype uround,
                        const realtype h,

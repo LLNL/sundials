@@ -44,6 +44,11 @@ else()
   set(FNVECP_LIB sundials_fnvecparallel_shared)
 endif()
 
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  list(APPEND CVODE_LIB
+       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
+endif()
+
 # Only static FCMIX libraries are available
 set(FCVODE_LIB sundials_fcvode_static)
 
@@ -98,6 +103,9 @@ if(EXAMPLES_INSTALL)
   set(SOLVER "CVODE")
   set(SOLVER_LIB "sundials_cvode")
   set(SOLVER_FLIB "sundials_fcvode")
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
+  endif()
 
   examples2string(FCVODE_examples EXAMPLES)
 

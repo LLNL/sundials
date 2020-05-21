@@ -36,6 +36,9 @@ set(cvode_SOURCES
   cvode_spils.c
   )
 
+set(cvode_cuda_SOURCES cvode_fused_cuda.cu)
+set(cvode_stub_SOURCES cvode_fused_stubs.c)
+
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the CVODE library
 set(shared_SOURCES
@@ -53,13 +56,6 @@ set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_futils.c
   ${sundials_SOURCE_DIR}/src/nvector/serial/nvector_serial.c
   )
-
-if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND cvode_SOURCES
-    cvode_fused.cu
-    cvode_nls_fused.cu
-    cvode_diag_fused.cu)
-endif()
 
 # Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
 # also be included in the CVODE library
@@ -115,12 +111,24 @@ add_definitions(-DBUILD_SUNDIALS_LIBRARY)
 if(BUILD_STATIC_LIBS)
   # Add the build target for the static CVODE library
   add_library(sundials_cvode_static STATIC
-    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} ${sunnonlinsol_SOURCES}
+    ${cvode_SOURCES} ${shared_SOURCES}
+    ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
+    ${sunnonlinsol_SOURCES}
   )
 
-  # If using fused kernels we need the CUDA NVector
-  if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-    target_link_libraries(sundials_cvode_static PUBLIC sundials_nveccuda_static)
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    add_library(sundials_cvode_fused_cuda_static STATIC ${cvode_cuda_SOURCES})
+
+    target_link_libraries(sundials_cvode_fused_cuda_static
+      PUBLIC sundials_nveccuda_static)
+
+    set_target_properties(sundials_cvode_fused_cuda_static
+      PROPERTIES OUTPUT_NAME sundials_cvode_fused_cuda CLEAN_DIRECT_OUTPUT 1)
+
+    add_library(sundials_cvode_fused_stubs_static STATIC ${cvode_stub_SOURCES})
+
+    set_target_properties(sundials_cvode_fused_stubs_static
+      PROPERTIES OUTPUT_NAME sundials_cvode_fused_stubs CLEAN_DIRECT_OUTPUT 1)
   endif()
 
   # Set the library name and make sure it is not deleted
@@ -129,6 +137,10 @@ if(BUILD_STATIC_LIBS)
 
   # Install the CVODE library
   install(TARGETS sundials_cvode_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    install(TARGETS sundials_cvode_fused_cuda_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    install(TARGETS sundials_cvode_fused_stubs_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  endif()
 
 endif(BUILD_STATIC_LIBS)
 
@@ -136,16 +148,28 @@ endif(BUILD_STATIC_LIBS)
 if(BUILD_SHARED_LIBS)
   # Add the build target for the shared CVODE library
   add_library(sundials_cvode_shared SHARED
-    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} ${sunnonlinsol_SOURCES}
+    ${cvode_SOURCES} ${shared_SOURCES}
+    ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
+    ${sunnonlinsol_SOURCES}
   )
+
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    add_library(sundials_cvode_fused_cuda_shared SHARED ${cvode_cuda_SOURCES})
+
+    target_link_libraries(sundials_cvode_fused_cuda_shared
+      PUBLIC sundials_nveccuda_shared)
+
+    set_target_properties(sundials_cvode_fused_cuda_shared
+      PROPERTIES OUTPUT_NAME sundials_cvode_fused_cuda CLEAN_DIRECT_OUTPUT 1)
+
+    add_library(sundials_cvode_fused_stubs_shared SHARED ${cvode_stub_SOURCES})
+
+    set_target_properties(sundials_cvode_fused_stubs_shared
+      PROPERTIES OUTPUT_NAME sundials_cvode_fused_stubs CLEAN_DIRECT_OUTPUT 1)
+  endif()
 
   if(UNIX)
     target_link_libraries(sundials_cvode_shared PRIVATE m)
-  endif()
-
-  # If using fused kernels we need the CUDA NVector
-  if(CMAKE_CUDA_COMPILER AND CUDA_ENABLE AND SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-    target_link_libraries(sundials_cvode_shared PUBLIC sundials_nveccuda_shared)
   endif()
 
   # Set the library name and make sure it is not deleted
@@ -158,6 +182,10 @@ if(BUILD_SHARED_LIBS)
 
   # Install the CVODE library
   install(TARGETS sundials_cvode_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    install(TARGETS sundials_cvode_fused_cuda_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    install(TARGETS sundials_cvode_fused_stubs_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  endif()
 
 endif(BUILD_SHARED_LIBS)
 

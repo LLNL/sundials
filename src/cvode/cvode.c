@@ -190,13 +190,17 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-int cvEwtSetSS_fused(const realtype reltol,
+extern
+int cvEwtSetSS_fused(const booleantype atolmin0,
+                     const realtype reltol,
                      const realtype Sabstol,
                      const N_Vector ycur,
                      N_Vector tempv,
                      N_Vector weight);
 
-int cvEwtSetSV_fused(const realtype reltol,
+extern
+int cvEwtSetSV_fused(const booleantype atolmin0,
+                     const realtype reltol,
                      const N_Vector Vabstol,
                      const N_Vector ycur,
                      N_Vector tempv,
@@ -237,6 +241,7 @@ static int cvNls(CVodeMem cv_mem, int nflag);
 
 static int cvCheckConstraints(CVodeMem cv_mem);
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+extern
 int cvCheckConstraints_fused(const N_Vector c,
                              const N_Vector ewt,
                              const N_Vector y,
@@ -4228,7 +4233,9 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
   {
     /* We compute weight (inverse of tempv) regardless of the component test
        since it will be thrown away in this case anyways. */
-    cvEwtSetSS_fused(cv_mem->cv_reltol, cv_mem->cv_Sabstol, ycur, cv_mem->cv_tempv, weight);
+    cvEwtSetSS_fused(cv_mem->cv_atolmin0, cv_mem->cv_reltol,
+                     cv_mem->cv_Sabstol, ycur, cv_mem->cv_tempv,
+                     weight);
     if (cv_mem->cv_atolmin0) {
       if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
     }
@@ -4265,7 +4272,9 @@ static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
   {
     /* We compute weight (inverse of tempv) regardless of the component test
        since it will be thrown away in this case anyways. */
-    cvEwtSetSV_fused(cv_mem->cv_reltol, cv_mem->cv_Vabstol, ycur, cv_mem->cv_tempv, weight);
+    cvEwtSetSV_fused(cv_mem->cv_atolmin0, cv_mem->cv_reltol,
+                     cv_mem->cv_Vabstol, ycur, cv_mem->cv_tempv,
+                     weight);
     if (cv_mem->cv_atolmin0) {
       if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
     }

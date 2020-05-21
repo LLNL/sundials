@@ -31,6 +31,13 @@ fi
 # ==============================================================================
 
 # run tests
+# sundials = make the sundials tarball
+# all      = test all real types
+# both     = test both index sizes
+# each     = test static and shared libraries separately
+# ON       = enable thrid party libraries
+# DEV      = enable development tests
+# bt       = number of parallel build threads
 ./suntest_tarscript.sh sundials all both each ON DEV $bt
 
 # check return flag
@@ -53,6 +60,12 @@ for rt in "${realtype[@]}"; do
         echo "TEST: ./suntest_xsdk.sh $rt $is both ON DEV $bt"
 
         # run tests using xSDK CMake options
+        # rt   = real type to build/test
+        # is   = index size to build/test
+        # both = build both shared and static libraries (shared used in tests)
+        # ON   = enable third party libraries
+        # DEV  = enable development tests
+        # bt   = number of parallel build threads
         ./suntest_xsdk.sh $rt $is both ON DEV $bt
 
         # check return flag

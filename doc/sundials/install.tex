@@ -574,7 +574,11 @@ a typical configuration on a Linux system and are provided as illustration only.
   Default: OFF
   \\
   Note: This option is currently only available when building with
-  \id{CUDA\_ENABLE = ON}.
+  \id{CUDA\_ENABLE = ON}. Building with fused kernels requires
+  linking to either \id{libsundials\_cvode\_fused\_cuda.{\em lib}} or
+  \id{libsundials\_cvode\_fused\_stubs.{\em lib}}, where the latter
+  provides CPU-only placeholders for the fused routines, in
+  addition to \id{libsundials\_cvode.{\em lib}}.
 \item[\id{SUNDIALS\_F77\_FUNC\_CASE}] - \textbf{advanced option} -
   Specify the case to use in the Fortran name-mangling scheme, options
   are: \id{lower} or \id{upper}

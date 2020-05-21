@@ -58,7 +58,7 @@ plt.plot(xt, yt, color='black', linestyle='--')
 plt.scatter(x, y, color='red')
 
 if (args.slim):
-    plt.ylim((args.slim[0], args.slim[1]))
+    plt.xlim((args.slim[0], args.slim[1]))
     plt.ylim((args.slim[0], args.slim[1]))
 
 plt.xlabel('x')
