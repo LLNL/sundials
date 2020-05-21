@@ -114,6 +114,7 @@ typedef struct CVLsMemRec {
   booleantype jtimesDQ;
   CVLsJacTimesSetupFn jtsetup;
   CVLsJacTimesVecFn jtimes;
+  CVRhsFn jt_f;
   void *jt_data;
 
   /* Linear system setup function

@@ -80,6 +80,8 @@ module fsundials_nvector_mod
   type(C_FUNPTR), public :: nvminquotientlocal
   type(C_FUNPTR), public :: nvwsqrsumlocal
   type(C_FUNPTR), public :: nvwsqrsummasklocal
+  type(C_FUNPTR), public :: nvprint
+  type(C_FUNPTR), public :: nvprintfile
  end type N_Vector_Ops
  ! struct struct _generic_N_Vector
  type, bind(C), public :: N_Vector
@@ -140,6 +142,8 @@ module fsundials_nvector_mod
  public :: FN_VDestroyVectorArray
  public :: FN_VGetVecAtIndexVectorArray
  public :: FN_VSetVecAtIndexVectorArray
+ public :: FN_VPrint
+ public :: FN_VPrintFile
 
 ! WRAPPER DECLARATIONS
 interface
@@ -613,6 +617,19 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 type(C_PTR), value :: farg3
+end subroutine
+
+subroutine swigc_FN_VPrint(farg1) &
+bind(C, name="_wrap_FN_VPrint")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+end subroutine
+
+subroutine swigc_FN_VPrintFile(farg1, farg2) &
+bind(C, name="_wrap_FN_VPrintFile")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 end subroutine
 
 end interface
@@ -1470,6 +1487,27 @@ farg1 = vs
 farg2 = index
 farg3 = c_loc(w)
 call swigc_FN_VSetVecAtIndexVectorArray(farg1, farg2, farg3)
+end subroutine
+
+subroutine FN_VPrint(v)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), target, intent(inout) :: v
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(v)
+call swigc_FN_VPrint(farg1)
+end subroutine
+
+subroutine FN_VPrintFile(v, outfile)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), target, intent(inout) :: v
+type(C_PTR) :: outfile
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(v)
+farg2 = outfile
+call swigc_FN_VPrintFile(farg1, farg2)
 end subroutine
 
 

@@ -30,13 +30,13 @@ project(sundials C)
 # Set some variables with info on the SUNDIALS project
 set(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 set(PACKAGE_NAME "SUNDIALS")
-set(PACKAGE_STRING "SUNDIALS 5.2.0")
+set(PACKAGE_STRING "SUNDIALS 5.3.0")
 set(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
 # (use "" for the version label if none is needed)
 set(PACKAGE_VERSION_MAJOR "5")
-set(PACKAGE_VERSION_MINOR "2")
+set(PACKAGE_VERSION_MINOR "3")
 set(PACKAGE_VERSION_PATCH "0")
 set(PACKAGE_VERSION_LABEL "")
 
@@ -63,37 +63,37 @@ mark_as_advanced(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-set(arkodelib_VERSION "4.2.0")
+set(arkodelib_VERSION "4.3.0")
 set(arkodelib_SOVERSION "4")
 
-set(cvodelib_VERSION "5.2.0")
+set(cvodelib_VERSION "5.3.0")
 set(cvodelib_SOVERSION "5")
 
-set(cvodeslib_VERSION "5.2.0")
+set(cvodeslib_VERSION "5.3.0")
 set(cvodeslib_SOVERSION "5")
 
-set(idalib_VERSION "5.2.0")
+set(idalib_VERSION "5.3.0")
 set(idalib_SOVERSION "5")
 
-set(idaslib_VERSION "4.2.0")
+set(idaslib_VERSION "4.3.0")
 set(idaslib_SOVERSION "4")
 
-set(kinsollib_VERSION "5.2.0")
+set(kinsollib_VERSION "5.3.0")
 set(kinsollib_SOVERSION "5")
 
 set(cpodeslib_VERSION "0.0.0")
 set(cpodeslib_SOVERSION "0")
 
-set(nveclib_VERSION "5.2.0")
+set(nveclib_VERSION "5.3.0")
 set(nveclib_SOVERSION "5")
 
-set(sunmatrixlib_VERSION "3.2.0")
+set(sunmatrixlib_VERSION "3.3.0")
 set(sunmatrixlib_SOVERSION "3")
 
-set(sunlinsollib_VERSION "3.2.0")
+set(sunlinsollib_VERSION "3.3.0")
 set(sunlinsollib_SOVERSION "3")
 
-set(sunnonlinsollib_VERSION "2.2.0")
+set(sunnonlinsollib_VERSION "2.3.0")
 set(sunnonlinsollib_SOVERSION "2")
 
 # Specify the location of additional CMAKE modules
@@ -231,6 +231,13 @@ set(DOCSTR "Integer type to use for indices in SUNDIALS")
 show_variable(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "")
 mark_as_advanced(SUNDIALS_INDEX_TYPE)
 include(SundialsIndexSize)
+
+# ---------------------------------------------------------------
+# Option to specify monitoring
+# ---------------------------------------------------------------
+
+set(DOCSTR "Build with simulation monitoring capabilities enabled")
+sundials_option(SUNDIALS_BUILD_WITH_MONITORING BOOL ${DOCSTR} OFF)
 
 # ---------------------------------------------------------------
 # Enable Fortran interface?
@@ -857,6 +864,17 @@ endif(CUDA_ENABLE)
 # ---------------------------------------------------------------
 # Now that all languages are setup, we can configure them more.
 # ---------------------------------------------------------------
+
+# ---------------------------------------------------------------
+# Option to use specialized fused kernels in the packages.
+# Currently only available in CVODE.
+# ---------------------------------------------------------------
+
+if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER AND BUILD_CVODE)
+  set(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS FALSE CACHE BOOL "Build specialized fused CUDA kernels")
+else()
+  set(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS FALSE CACHE BOOL "Build specialized fused CUDA kernels" FORCE)
+endif()
 
 # ---------------------------------------------------------------
 # Decide how to compile MPI codes. We must check for MPI if

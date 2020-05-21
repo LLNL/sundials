@@ -49,6 +49,9 @@ if(BUILD_STATIC_LIBS)
       PRIVATE m)
   endif()
 
+  target_include_directories(sundials_sunlinsolspgmr_static
+    PRIVATE ${sundials_SOURCE_DIR}/src/sundials)
+
   target_compile_definitions(sundials_sunlinsolspgmr_static
     PUBLIC -DBUILD_SUNDIALS_LIBRARY)
 
@@ -78,6 +81,9 @@ if(BUILD_SHARED_LIBS)
     target_link_libraries(sundials_sunlinsolspgmr_shared
       PRIVATE m)
   endif()
+
+  target_include_directories(sundials_sunlinsolspgmr_shared
+    PRIVATE ${sundials_SOURCE_DIR}/src/sundials)
 
   target_compile_definitions(sundials_sunlinsolspgmr_shared
     PUBLIC -DBUILD_SUNDIALS_LIBRARY)

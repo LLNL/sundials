@@ -86,6 +86,8 @@ SUNDIALS_EXPORT int ERKStepSetErrorBias(void *arkode_mem,
                                         realtype bias);
 SUNDIALS_EXPORT int ERKStepSetMaxGrowth(void *arkode_mem,
                                         realtype mx_growth);
+SUNDIALS_EXPORT int ERKStepSetMinReduction(void *arkode_mem,
+                                           realtype eta_min);
 SUNDIALS_EXPORT int ERKStepSetFixedStepBounds(void *arkode_mem,
                                               realtype lb, realtype ub);
 SUNDIALS_EXPORT int ERKStepSetAdaptivityMethod(void *arkode_mem,

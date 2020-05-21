@@ -1,4 +1,4 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Aaron Collier and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
@@ -42,8 +42,8 @@
  */
 @F77_MANGLE_MACRO2@
 
-/* Define precision of SUNDIALS data type 'realtype' 
- * Depending on the precision level, one of the following 
+/* Define precision of SUNDIALS data type 'realtype'
+ * Depending on the precision level, one of the following
  * three macros will be defined:
  *     #define SUNDIALS_SINGLE_PRECISION 1
  *     #define SUNDIALS_DOUBLE_PRECISION 1
@@ -51,8 +51,8 @@
  */
 @PRECISION_LEVEL@
 
-/* Define type of vector indices in SUNDIALS 'sunindextype'. 
- * Depending on user choice of index type, one of the following 
+/* Define type of vector indices in SUNDIALS 'sunindextype'.
+ * Depending on user choice of index type, one of the following
  * two macros will be defined:
  *     #define SUNDIALS_INT64_T 1
  *     #define SUNDIALS_INT32_T 1
@@ -64,7 +64,7 @@
  */
 #define SUNDIALS_INDEX_TYPE @SUNDIALS_CINDEX_TYPE@
 
-/* Use generic math functions 
+/* Use generic math functions
  * If it was decided that generic math functions can be used, then
  *     #define SUNDIALS_USE_GENERIC_MATH
  */
@@ -75,6 +75,12 @@
  */
 #cmakedefine SUNDIALS_HAVE_POSIX_TIMERS
 
+/* Build monitoring code
+ * If it was decided that monitoring code should be built, then
+ *     #define SUNDIALS_BUILD_WITH_MONITORING
+ */
+#cmakedefine SUNDIALS_BUILD_WITH_MONITORING
+
 /* Blas/Lapack available
  * If working libraries for Blas/lapack support were found, then
  *     #define SUNDIALS_BLAS_LAPACK
@@ -83,7 +89,7 @@
 
 /* SUPERLUMT available
  * If working libraries for SUPERLUMT support were found, then
- *     #define SUNDIALS_SUPERLUMT 
+ *     #define SUNDIALS_SUPERLUMT
  */
 #cmakedefine SUNDIALS_SUPERLUMT
 #cmakedefine SUNDIALS_SUPERLUMT_THREAD_TYPE "@SUPERLUMT_THREAD_TYPE@"
@@ -96,7 +102,7 @@
 
 /* KLU available
  * If working libraries for KLU support were found, then
- *     #define SUNDIALS_KLU 
+ *     #define SUNDIALS_KLU
  */
 #cmakedefine SUNDIALS_KLU
 
@@ -112,9 +118,15 @@
 #cmakedefine SUNDIALS_TRILINOS_HAVE_MPI
 
 /* Set if SUNDIALS is built with MPI support.
- * 
+ *
  */
 @IS_MPI_ENABLED@
+
+
+ /* CVODE should use fused kernels if utilizing
+  * the CUDA NVector.
+  */
+#cmakedefine SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
 
 /* FNVECTOR: Allow user to specify different MPI communicator
  * If it was found that the MPI implementation supports MPI_Comm_f2c, then
@@ -133,3 +145,7 @@
  * Windows), the SUNDIALS_EXPORT macro is empty
  */
 @SUNDIALS_EXPORT@
+
+/* Mark SUNDIALS API functions for deprecation.
+ */
+#define SUNDIALS_DEPRECATED SUNDIALS_EXPORT

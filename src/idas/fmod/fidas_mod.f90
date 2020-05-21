@@ -167,6 +167,7 @@ module fidas_mod
  end type
  public :: FIDAGetReturnFlagName
  public :: FIDAFree
+ public :: FIDASetJacTimesResFn
  public :: FIDAQuadInit
  public :: FIDAQuadReInit
  public :: FIDAQuadSStolerances
@@ -289,6 +290,7 @@ module fidas_mod
   module procedure swigf_create_IDAadjCheckPointRec
  end interface
  public :: FIDAGetAdjCheckPointsInfo
+ public :: FIDASetJacTimesResFnB
  public :: FIDAGetAdjDataPointHermite
  public :: FIDAGetAdjDataPointPolynomial
  public :: FIDAGetAdjCurrentCheckPoint
@@ -983,6 +985,15 @@ bind(C, name="_wrap_FIDAFree")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 end subroutine
+
+function swigc_FIDASetJacTimesResFn(farg1, farg2) &
+bind(C, name="_wrap_FIDASetJacTimesResFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
 
 function swigc_FIDAQuadInit(farg1, farg2, farg3) &
 bind(C, name="_wrap_FIDAQuadInit") &
@@ -2009,6 +2020,16 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(SwigClassWrapper) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetJacTimesResFnB(farg1, farg2, farg3) &
+bind(C, name="_wrap_FIDASetJacTimesResFnB") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+type(C_FUNPTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -3575,6 +3596,22 @@ type(C_PTR) :: farg1
 farg1 = c_loc(ida_mem)
 call swigc_FIDAFree(farg1)
 end subroutine
+
+function FIDASetJacTimesResFn(ida_mem, jtimesresfn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+type(C_FUNPTR), intent(in), value :: jtimesresfn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = ida_mem
+farg2 = jtimesresfn
+fresult = swigc_FIDASetJacTimesResFn(farg1, farg2)
+swig_result = fresult
+end function
 
 function FIDAQuadInit(ida_mem, rhsq, yq0) &
 result(swig_result)
@@ -5469,6 +5506,25 @@ type(SwigClassWrapper) :: farg2
 farg1 = ida_mem
 farg2 = ckpnt%swigdata
 fresult = swigc_FIDAGetAdjCheckPointsInfo(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetJacTimesResFnB(ida_mem, which, jtimesresfn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_INT), intent(in) :: which
+type(C_FUNPTR), intent(in), value :: jtimesresfn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(C_FUNPTR) :: farg3 
+
+farg1 = ida_mem
+farg2 = which
+farg3 = jtimesresfn
+fresult = swigc_FIDASetJacTimesResFnB(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

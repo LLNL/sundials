@@ -218,6 +218,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   idals_mem->jtimesDQ = SUNTRUE;
   idals_mem->jtsetup  = NULL;
   idals_mem->jtimes   = idaLsDQJtimes;
+  idals_mem->jt_res   = IDA_mem->ida_res;
   idals_mem->jt_data  = IDA_mem;
 
   /* Set defaults for preconditioner-related fields */
@@ -492,8 +493,40 @@ int IDASetJacTimes(void *ida_mem, IDALsJacTimesSetupFn jtsetup,
     idals_mem->jtimesDQ = SUNTRUE;
     idals_mem->jtsetup  = NULL;
     idals_mem->jtimes   = idaLsDQJtimes;
+    idals_mem->jt_res   = IDA_mem->ida_res;
     idals_mem->jt_data  = IDA_mem;
   }
+
+  return(IDALS_SUCCESS);
+}
+
+
+/* IDASetJacTimesResFn specifies an alternative user-supplied DAE residual
+   function to use in the internal finite difference Jacobian-vector
+   product */
+int IDASetJacTimesResFn(void *ida_mem, IDAResFn jtimesResFn)
+{
+  IDAMem   IDA_mem;
+  IDALsMem idals_mem;
+  int      retval;
+
+  /* access IDALsMem structure */
+  retval = idaLs_AccessLMem(ida_mem, "IDASetJacTimesResFn",
+                            &IDA_mem, &idals_mem);
+  if (retval != IDALS_SUCCESS) return(retval);
+
+  /* check if using internal finite difference approximation */
+  if (!(idals_mem->jtimesDQ)) {
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetJacTimesResFn",
+                    "Internal finite-difference Jacobian-vector product is disabled.");
+    return(IDALS_ILL_INPUT);
+  }
+
+  /* store function pointers for Res function (NULL implies use DAE Res) */
+  if (jtimesResFn != NULL)
+    idals_mem->jt_res = jtimesResFn;
+  else
+    idals_mem->jt_res = IDA_mem->ida_res;
 
   return(IDALS_SUCCESS);
 }
@@ -964,7 +997,7 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
     y_data[j] += inc;
     yp_data[j] += c_j*inc;
 
-    retval = IDA_mem->ida_res(tt, yy, yp, rtemp, IDA_mem->ida_user_data);
+    retval = idals_mem->jt_res(tt, yy, yp, rtemp, IDA_mem->ida_user_data);
     idals_mem->nreDQ++;
     if (retval != 0) break;
 
@@ -1965,6 +1998,26 @@ int IDASetJacTimesBS(void *ida_mem, int which,
   idals_jtsetup = (jtsetupBS == NULL) ? NULL : idaLsJacTimesSetupBS;
   idals_jtimes  = (jtimesBS == NULL)  ? NULL : idaLsJacTimesVecBS;
   return(IDASetJacTimes(ida_memB, idals_jtsetup, idals_jtimes));
+}
+
+
+int IDASetJacTimesResFnB(void *ida_mem, int which, IDAResFn jtimesResFn)
+{
+  IDAadjMem  IDAADJ_mem;
+  IDAMem     IDA_mem;
+  IDABMem    IDAB_mem;
+  IDALsMemB  idalsB_mem;
+  void      *ida_memB;
+  int        retval;
+
+  /* access relevant memory structures */
+  retval = idaLs_AccessLMemB(ida_mem, which, "IDASetJacTimesResFnB", &IDA_mem,
+                             &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
+  if (retval != IDALS_SUCCESS) return(retval);
+
+  /* call corresponding routine for IDAB_mem structure */
+  ida_memB = (void *) IDAB_mem->IDA_mem;
+  return(IDASetJacTimesResFn(ida_memB, jtimesResFn));
 }
 
 

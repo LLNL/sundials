@@ -96,6 +96,7 @@ typedef struct KINLsMemRec {
          - jtimesDQ == SUNTRUE */
   booleantype jtimesDQ;
   KINLsJacTimesVecFn jtimes;
+  KINSysFn jt_func;
   void *jt_data;
 
 } *KINLsMem;

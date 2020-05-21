@@ -31,12 +31,6 @@
 #define RSYM ".16g"
 #endif
 
-#define NO_DEBUG_OUTPUT
-/* #define DEBUG_OUTPUT */
-#ifdef DEBUG_OUTPUT
-#include <nvector/nvector_serial.h>
-#endif
-
 /* constants */
 #define ZERO   RCONST(0.0)
 #define ONE    RCONST(1.0)
@@ -252,37 +246,48 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   }
 
   /* Resize the sdata, zpred and zcor vectors */
-  if (step_mem->sdata != NULL) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                          liw_diff, y0, &step_mem->sdata);
-    if (retval != ARK_SUCCESS)  return(retval);
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                    liw_diff, y0, &step_mem->sdata)) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "ARKStepResize",
+                    "Unable to resize vector");
+    return(ARK_MEM_FAIL);
   }
-  if (step_mem->zpred != NULL) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                          liw_diff, y0, &step_mem->zpred);
-    if (retval != ARK_SUCCESS)  return(retval);
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                    liw_diff, y0, &step_mem->zpred)) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "ARKStepResize",
+                    "Unable to resize vector");
+    return(ARK_MEM_FAIL);
   }
-  if (step_mem->zcor != NULL) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                          liw_diff, y0, &step_mem->zcor);
-    if (retval != ARK_SUCCESS)  return(retval);
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                    liw_diff, y0, &step_mem->zcor)) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "ARKStepResize",
+                    "Unable to resize vector");
+    return(ARK_MEM_FAIL);
   }
 
   /* Resize the ARKStep vectors */
   /*     Fe */
   if (step_mem->Fe != NULL) {
     for (i=0; i<step_mem->stages; i++) {
-      retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                            liw_diff, y0, &step_mem->Fe[i]);
-      if (retval != ARK_SUCCESS)  return(retval);
+      if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                        liw_diff, y0, &step_mem->Fe[i])) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "ARKStepResize",
+                        "Unable to resize vector");
+        return(ARK_MEM_FAIL);
+      }
     }
   }
   /*     Fi */
   if (step_mem->Fi != NULL) {
     for (i=0; i<step_mem->stages; i++) {
-      retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                            liw_diff, y0, &step_mem->Fi[i]);
-      if (retval != ARK_SUCCESS)  return(retval);
+      if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                        liw_diff, y0, &step_mem->Fi[i])) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "ARKStepResize",
+                        "Unable to resize vector");
+        return(ARK_MEM_FAIL);
+      }
     }
   }
 
@@ -656,6 +661,10 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile)
   ARKodeARKStepMem step_mem;
   int retval;
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  int i;
+#endif
+
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepPrintMem",
                                  &ark_mem, &step_mem);
@@ -712,29 +721,23 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile,"ARKStep: rdiv = %"RSYM"\n", step_mem->rdiv);
   fprintf(outfile,"ARKStep: dgmax = %"RSYM"\n", step_mem->dgmax);
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
-  if (step_mem->sdata != NULL) {
-    fprintf(outfile, "ARKStep: sdata:\n");
-    N_VPrint_Serial(step_mem->sdata);
-  }
-  if (step_mem->zpred != NULL) {
-    fprintf(outfile, "ARKStep: zpred:\n");
-    N_VPrint_Serial(step_mem->zpred);
-  }
-  if (step_mem->zcor != NULL) {
-    fprintf(outfile, "ARKStep: zcor:\n");
-    N_VPrint_Serial(step_mem->zcor);
-  }
+  fprintf(outfile, "ARKStep: sdata:\n");
+  N_VPrintFile(step_mem->sdata, outfile);
+  fprintf(outfile, "ARKStep: zpred:\n");
+  N_VPrintFile(step_mem->zpred, outfile);
+  fprintf(outfile, "ARKStep: zcor:\n");
+  N_VPrintFile(step_mem->zcor, outfile);
   if (step_mem->Fe != NULL)
     for (i=0; i<step_mem->stages; i++) {
       fprintf(outfile,"ARKStep: Fe[%i]:\n", i);
-      N_VPrint_Serial(step_mem->Fe[i]);
+      N_VPrintFile(step_mem->Fe[i], outfile);
     }
   if (step_mem->Fi != NULL)
     for (i=0; i<step_mem->stages; i++) {
       fprintf(outfile,"ARKStep: Fi[%i]:\n", i);
-      N_VPrint_Serial(step_mem->Fi[i]);
+      N_VPrintFile(step_mem->Fi[i], outfile);
     }
 #endif
 }
@@ -1102,7 +1105,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
       ark_mem->liw += step_mem->nfusedopvecs;   /* pointers */
     }
 
-    /* Limit interpolant degree based on method order (use negative 
+    /* Limit interpolant degree based on method order (use negative
        argument to specify update instead of overwrite) */
     if (ark_mem->interp != NULL) {
       retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q-1));
@@ -1115,10 +1118,10 @@ int arkStep_Init(void* arkode_mem, int init_type)
 
   } /* end (init_type == 0) */
 
-  /* If the bootstrap predictor is enabled, signal to shared arkode module that 
+  /* If the bootstrap predictor is enabled, signal to shared arkode module that
      fullrhs is required after each step */
   if (step_mem->predictor == 4)  ark_mem->call_fullrhs = SUNTRUE;
-  
+
   /* Check for consistency between linear system modules
        (e.g., if lsolve is direct, msolve needs to match) */
   if (step_mem->mass_mem != NULL) {  /* M != I */
@@ -1573,7 +1576,7 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     else
       ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG
     printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
            ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
@@ -1600,18 +1603,18 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (retval > 0)  return(TRY_AGAIN);
     }
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
     printf("predictor:\n");
-    N_VPrint_Serial(step_mem->zpred);
+    N_VPrint(step_mem->zpred);
 #endif
 
     /* Set up data for evaluation of ARK stage residual (data stored in sdata) */
     retval = arkStep_StageSetup(ark_mem);
     if (retval != ARK_SUCCESS)  return (retval);
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
     printf("rhs data:\n");
-    N_VPrint_Serial(step_mem->sdata);
+    N_VPrint(step_mem->sdata);
 #endif
 
     /* Solver diagnostics reporting */
@@ -1627,9 +1630,9 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       *nflagPtr = arkStep_Nls(ark_mem, *nflagPtr);
       if (*nflagPtr != ARK_SUCCESS)  return(TRY_AGAIN);
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
       printf("nonlinear solution:\n");
-      N_VPrint_Serial(ark_mem->ycur);
+      N_VPrint(ark_mem->ycur);
 #endif
 
     /* otherwise no implicit solve is needed */
@@ -1649,9 +1652,9 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
         N_VLinearSum(ONE, step_mem->sdata, ONE, step_mem->zpred, ark_mem->ycur);
       }
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
       printf("explicit solution:\n");
-      N_VPrint_Serial(ark_mem->ycur);
+      N_VPrint(ark_mem->ycur);
 #endif
 
     }
@@ -1736,7 +1739,7 @@ int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     return(TRY_AGAIN);
   }
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG
   printf("error estimate = %"RSYM"\n", *dsmPtr);
 #endif
 

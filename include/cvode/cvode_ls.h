@@ -124,6 +124,11 @@ SUNDIALS_EXPORT int CVodeGetNumJtimesEvals(void *cvode_mem,
                                            long int *njvevals);
 SUNDIALS_EXPORT int CVodeGetNumLinRhsEvals(void *cvode_mem,
                                            long int *nfevalsLS);
+SUNDIALS_EXPORT int CVodeGetLinSolveStats(void* cvode_mem,
+                                          long int* njevals, long int* nfevalsLS,
+                                          long int* nliters, long int* nlcfails,
+                                          long int* npevals, long int* npsolves,
+                                          long int* njtsetups, long int* njtimes);                                        
 SUNDIALS_EXPORT int CVodeGetLastLinFlag(void *cvode_mem,
                                         long int *flag);
 SUNDIALS_EXPORT char *CVodeGetLinReturnFlagName(long int flag);

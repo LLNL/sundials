@@ -27,6 +27,8 @@
 #ifndef _SUNLINSOL_SPBCGS_H
 #define _SUNLINSOL_SPBCGS_H
 
+#include <stdio.h>
+
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
@@ -64,6 +66,9 @@ struct _SUNLinearSolverContent_SPBCGS {
   N_Vector u;
   N_Vector Ap;
   N_Vector vtemp;
+
+  int print_level;
+  FILE* info_file;
 };
 
 typedef struct _SUNLinearSolverContent_SPBCGS *SUNLinearSolverContent_SPBCGS;
@@ -81,12 +86,9 @@ SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S,
 SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S,
                                             int maxl);
 
-/* deprecated */
-SUNDIALS_EXPORT SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl);
-/* deprecated */
-SUNDIALS_EXPORT int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype);
-/* deprecated */
-SUNDIALS_EXPORT int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl);
+SUNDIALS_DEPRECATED SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl);
+SUNDIALS_DEPRECATED int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_DEPRECATED int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S);
@@ -111,6 +113,11 @@ SUNDIALS_EXPORT int SUNLinSolSpace_SPBCGS(SUNLinearSolver S,
                                           long int *lenrwLS,
                                           long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPBCGS(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver S,
+                                                FILE* info_file);
+SUNDIALS_EXPORT int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver S,
+                                                  int print_level);
+
 
 
 #ifdef __cplusplus

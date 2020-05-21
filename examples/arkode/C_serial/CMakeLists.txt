@@ -15,28 +15,32 @@
 # CMakeLists.txt file for ARKODE serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is
+# Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_analytic\;"
-  "ark_analytic_nonlin\;develop"
-  "ark_brusselator\;develop"
-  "ark_brusselator_fp\;develop"
-  "ark_brusselator1D\;develop"
-  "ark_heat1D\;develop"
-  "ark_heat1D_adapt\;develop"
-  "ark_KrylovDemo_prec\;develop"
-  "ark_robertson\;develop"
-  "ark_robertson_constraints\;develop"
-  "ark_robertson_root\;develop"
-  "ark_brusselator_mri\;develop"
-  "ark_onewaycouple_mri\;develop"
-  "ark_twowaycouple_mri\;develop"
-  "ark_reaction_diffusion_mri\;develop"
-  "ark_brusselator_1D_mri\;develop"
+  "ark_analytic\;\;"
+  "ark_analytic_nonlin\;\;develop"
+  "ark_brusselator\;\;develop"
+  "ark_brusselator_fp\;\;develop"
+  "ark_brusselator1D\;\;develop"
+  "ark_heat1D\;\;develop"
+  "ark_heat1D_adapt\;\;develop"
+  "ark_KrylovDemo_prec\;\;develop"
+  "ark_robertson\;\;develop"
+  "ark_robertson_constraints\;\;develop"
+  "ark_robertson_root\;\;develop"
+  "ark_brusselator_mri\;\;develop"
+  "ark_onewaycouple_mri\;\;develop"
+  "ark_twowaycouple_mri\;\;develop"
+  "ark_reaction_diffusion_mri\;\;develop"
+  "ark_brusselator_1D_mri\;\;develop"
   )
+
+if(SUNDIALS_BUILD_WITH_MONITORING)
+  list(APPEND ARKODE_examples "ark_brusselator_fp\;1\;develop")
+endif()
 
 # Examples using LAPACK linear solvers
 set(ARKODE_examples_BL
@@ -81,21 +85,33 @@ foreach(example_tuple ${ARKODE_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_type)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 example_type)
 
-  # example source files
-  add_executable(${example} ${example}.c)
+  if (NOT TARGET ${example})
+    # example source files
+    add_executable(${example} ${example}.c)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    # folder for IDEs
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
+  endif()
+
+  # check if example args are provided and set the test name
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(${test_name} ${example}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
-
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)

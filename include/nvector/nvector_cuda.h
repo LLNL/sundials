@@ -37,7 +37,9 @@
 #ifndef _NVECTOR_CUDA_H
 #define _NVECTOR_CUDA_H
 
+
 #include <stdio.h>
+#include <sundials/sundials_cuda_policies.hpp>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_config.h>
 
@@ -51,61 +53,62 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-/*
- * CUDA implementation of the N_Vector 'content' is in C++ class
- * Vector. The class inherits from structure _N_VectorContent_Cuda
- * to create C <--> C++ interface.
- */
-
-struct _N_VectorContent_Cuda {};
+struct _N_VectorContent_Cuda 
+{
+    sunindextype       length;
+    booleantype        own_data;
+    realtype*          host_data;
+    realtype*          device_data;
+    SUNCudaExecPolicy* stream_exec_policy;
+    SUNCudaExecPolicy* reduce_exec_policy;
+    void*              priv; /* 'private' data */
+};
 
 typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
 
 /*
  * -----------------------------------------------------------------
- * Functions exported by nvector_cuda
+ * NVECTOR_CUDA implementation specific functions
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT N_Vector N_VNew_Cuda(sunindextype length);
-
 SUNDIALS_EXPORT N_Vector N_VNewManaged_Cuda(sunindextype length);
-
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Cuda();
-
 SUNDIALS_EXPORT N_Vector N_VMake_Cuda(sunindextype length,
                                       realtype *h_vdata,
                                       realtype *d_vdata);
-
 SUNDIALS_EXPORT N_Vector N_VMakeManaged_Cuda(sunindextype length,
                                              realtype *vdata);
-
 SUNDIALS_EXPORT N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length,
                                                           void* (*allocfn)(size_t),
                                                           void (*freefn)(void*));
-
-SUNDIALS_EXPORT sunindextype N_VGetLength_Cuda(N_Vector v);
-
 SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_Cuda(N_Vector v);
-
 SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector v);
-
 SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Cuda(N_Vector x);
-
-SUNDIALS_EXPORT void N_VSetCudaStream_Cuda(N_Vector x, cudaStream_t *stream);
-
+SUNDIALS_EXPORT int N_VSetKernelExecPolicy_Cuda(N_Vector x,
+                                                SUNCudaExecPolicy* stream_exec_policy,
+                                                SUNCudaExecPolicy* reduce_exec_policy);
 SUNDIALS_EXPORT void N_VCopyToDevice_Cuda(N_Vector v);
-
 SUNDIALS_EXPORT void N_VCopyFromDevice_Cuda(N_Vector v);
-
 SUNDIALS_EXPORT void N_VPrint_Cuda(N_Vector v);
-
 SUNDIALS_EXPORT void N_VPrintFile_Cuda(N_Vector v, FILE *outfile);
+
+ /* DEPRECATED (to be removed in SUNDIALS v6): use N_VSetKerrnelExecPolicy_Cuda instead */ 
+SUNDIALS_DEPRECATED void N_VSetCudaStream_Cuda(N_Vector x, cudaStream_t *stream);
+
+
+/*
+ * -----------------------------------------------------------------
+ * NVECTOR API functions
+ * -----------------------------------------------------------------
+ */
 
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Cuda(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Cuda(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Cuda(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Cuda(N_Vector v, sunindextype *lrw, sunindextype *liw);
+SUNDIALS_EXPORT sunindextype N_VGetLength_Cuda(N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_Cuda(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);

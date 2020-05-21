@@ -26,8 +26,6 @@
 
 namespace sundials
 {
-namespace device
-{
 namespace sunmatrix_cusparse
 {
 
@@ -169,7 +167,6 @@ print_kernel(I m, I nnz, I blocknnz, T* A, const I* rowptr, const I* colind)
 #endif
 
 } // namespace sunmatrix_cusparse
-} // namespace device
 } // namespace sundials
 
 #endif

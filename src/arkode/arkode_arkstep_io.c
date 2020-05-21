@@ -210,6 +210,8 @@ int ARKStepSetMassPreconditioner(void *arkode_mem, ARKLsMassPrecSetupFn psetup,
 int ARKStepSetJacTimes(void *arkode_mem, ARKLsJacTimesSetupFn jtsetup,
                        ARKLsJacTimesVecFn jtimes) {
   return(arkLSSetJacTimes(arkode_mem, jtsetup, jtimes)); }
+int ARKStepSetJacTimesRhsFn(void *arkode_mem, ARKRhsFn jtimesRhsFn) {
+  return(arkLSSetJacTimesRhsFn(arkode_mem, jtimesRhsFn)); }
 int ARKStepSetMassTimes(void *arkode_mem, ARKLsMassTimesSetupFn msetup,
                         ARKLsMassTimesVecFn mtimes, void *mtimes_data) {
   return(arkLSSetMassTimes(arkode_mem, msetup, mtimes, mtimes_data)); }

@@ -33,6 +33,35 @@
 
 enum { IDENTITY, RANDOM, RBFILE };
 
+/* Implementation specific test of SUNMatrix_cuSparse_SetKernelExecPolicy */
+int Test_SetKernelExecPolicy(SUNMatrix A, int myid);
+
+class ATestExecPolicy : public SUNCudaExecPolicy
+{
+public:
+  ATestExecPolicy(){}
+
+  virtual size_t gridSize(size_t numWorkElements = 0, size_t blockDim = 0) const
+  {
+    return 1;
+  }
+
+  virtual size_t blockSize(size_t numWorkElements = 0, size_t gridDim = 0) const
+  {
+    return 1;
+  }
+
+  virtual cudaStream_t stream() const
+  {
+    return 0;
+  }
+
+  virtual SUNCudaExecPolicy* clone() const
+  {
+    return static_cast<SUNCudaExecPolicy*>(new ATestExecPolicy());
+  }
+};
+
  /* ----------------------------------------------------------------------
   * Main SUNMatrix Testing Routine
   * --------------------------------------------------------------------*/
@@ -369,7 +398,7 @@ enum { IDENTITY, RANDOM, RBFILE };
    N_VCopyToDevice_Cuda(d_y);
 
    printf("Setup complete\n");
-   printf("Beginning tests\n");
+   printf("Beginning tests\n\n");
 
    /* SUNMatrix Tests */
    fails += Test_SUNMatGetID(dA, SUNMATRIX_CUSPARSE, 0);
@@ -377,10 +406,9 @@ enum { IDENTITY, RANDOM, RBFILE };
    fails += Test_SUNMatCopy(dA, 0);
    fails += Test_SUNMatZero(dA, 0);
    fails += Test_SUNMatScaleAdd(dA, dI, 0);
-   if (square) {
-     fails += Test_SUNMatScaleAddI(dA, dI, 0);
-   }
+   if (square) fails += Test_SUNMatScaleAddI(dA, dI, 0);
    fails += Test_SUNMatMatvec(dA, d_x, d_y, 0);
+   if (square) fails += Test_SetKernelExecPolicy(dI, 0);
 
    /* Print result */
    if (fails) {
@@ -423,6 +451,58 @@ enum { IDENTITY, RANDOM, RBFILE };
 
    return(fails);
  }
+
+ /* ----------------------------------------------------------------------
+  * Test the SUNMatrix_cuSparse_SetKernelExecPolicy function.
+  * --------------------------------------------------------------------*/
+int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
+{
+  printf("HERE\n");
+  int print_all_ranks = 0;
+  realtype  tol = 100*UNIT_ROUNDOFF;
+  SUNMatrix B = SUNMatClone(I);
+
+  /* check cloned matrix */
+  if (B == NULL) {
+    TEST_STATUS(">>> FAILED test -- SetKernelExecPolicy \n", myid);
+    TEST_STATUS("    After SUNMatClone, B == NULL \n \n", myid);
+    return(1);
+  }
+
+  /* copy data */
+  if (SUNMatCopy(I, B)) {
+    TEST_STATUS(">>> FAILED test -- SetKernelExecPolicy \n", myid);
+    TEST_STATUS("    SUNMatCopy returned nonzero \n \n", myid);
+    SUNMatDestroy(B);
+    return(1);
+  }
+
+  /* set kernel exec policy */
+  ATestExecPolicy exec_policy;
+  SUNMatrix_cuSparse_SetKernelExecPolicy(B, &exec_policy);
+
+  /* try out an operation */
+  if (SUNMatScaleAddI(RCONST(-1.0), B)) {
+    TEST_STATUS(">>> FAILED test -- SetKernelExecPolicy \n", myid);
+    TEST_STATUS("    SUNMatScaleAddI returned nonzero \n \n", myid);
+    SUNMatDestroy(B);
+    return(1);
+  }
+
+  /* check matrix */
+  if (check_matrix_entry(B, ZERO, tol)) {
+    TEST_STATUS(">>> FAILED test -- SetKernelExecPolicy \n", myid);
+    TEST_STATUS("    check_matrix_entry returned nonzero \n \n", myid);
+    SUNMatDestroy(B);
+    return(1);
+  }
+
+  TEST_STATUS("    PASSED test -- SetKernelExecPolicy \n", myid);
+
+  SUNMatDestroy(B);
+
+  return 0;
+}
 
  /* ----------------------------------------------------------------------
   * Check matrix

@@ -165,6 +165,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   cvls_mem->jtimesDQ = SUNTRUE;
   cvls_mem->jtsetup  = NULL;
   cvls_mem->jtimes   = cvLsDQJtimes;
+  cvls_mem->jt_f     = cv_mem->cv_f;
   cvls_mem->jt_data  = cv_mem;
 
   cvls_mem->user_linsys = SUNFALSE;
@@ -440,8 +441,40 @@ int CVodeSetJacTimes(void *cvode_mem, CVLsJacTimesSetupFn jtsetup,
     cvls_mem->jtimesDQ = SUNTRUE;
     cvls_mem->jtsetup  = NULL;
     cvls_mem->jtimes   = cvLsDQJtimes;
+    cvls_mem->jt_f     = cv_mem->cv_f;
     cvls_mem->jt_data  = cv_mem;
   }
+
+  return(CVLS_SUCCESS);
+}
+
+
+/* CVodeSetJacTimesRhsFn specifies an alternative user-supplied ODE right-hand
+   side function to use in the internal finite difference Jacobian-vector
+   product */
+int CVodeSetJacTimesRhsFn(void *cvode_mem, CVRhsFn jtimesRhsFn)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeSetJacTimesRhsFn",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS) return(retval);
+
+  /* check if using internal finite difference approximation */
+  if (!(cvls_mem->jtimesDQ)) {
+    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS", "CVodeSetJacTimesRhsFn",
+                   "Internal finite-difference Jacobian-vector product is disabled.");
+    return(CVLS_ILL_INPUT);
+  }
+
+  /* store function pointers for RHS function (NULL implies use ODE RHS) */
+  if (jtimesRhsFn != NULL)
+    cvls_mem->jt_f = jtimesRhsFn;
+  else
+    cvls_mem->jt_f = cv_mem->cv_f;
 
   return(CVLS_SUCCESS);
 }
@@ -663,6 +696,33 @@ int CVodeGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
   *njvevals = cvls_mem->njtimes;
+  return(CVLS_SUCCESS);
+}
+
+
+/* CVodeGetLinSolveStats returns statistics related to the linear solve. */
+int CVodeGetLinSolveStats(void* cvode_mem, long int* njevals, long int* nfevalsLS,
+                          long int* nliters, long int* nlcfails, long int* npevals,
+                          long int* npsolves, long int* njtsetups, long int* njtimes)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure; set output value and return */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeGetLinSolveStats",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS)  return(retval);
+
+  *njevals   = cvls_mem->nje;
+  *nfevalsLS = cvls_mem->nfeDQ;
+  *nliters   = cvls_mem->nli;
+  *nlcfails  = cvls_mem->ncfl;
+  *npevals   = cvls_mem->npe;
+  *npsolves  = cvls_mem->nps;
+  *njtsetups = cvls_mem->njtsetup;
+  *njtimes   = cvls_mem->njtimes;
+
   return(CVLS_SUCCESS);
 }
 
@@ -1113,7 +1173,7 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
     N_VLinearSum(sig, v, ONE, y, work);
 
     /* Set Jv = f(tn, y+sig*v) */
-    retval = cv_mem->cv_f(t, work, Jv, cv_mem->cv_user_data);
+    retval = cvls_mem->jt_f(t, work, Jv, cv_mem->cv_user_data);
     cvls_mem->nfeDQ++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);

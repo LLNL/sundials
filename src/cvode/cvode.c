@@ -54,54 +54,6 @@
 /*=================================================================*/
 
 /*
- * Control constants for lower-level functions used by cvStep
- * ----------------------------------------------------------
- *
- * cvHin return values:
- *    CV_SUCCESS
- *    CV_RHSFUNC_FAIL
- *    CV_TOO_CLOSE
- *
- * cvStep control constants:
- *    DO_ERROR_TEST
- *    PREDICT_AGAIN
- *
- * cvStep return values:
- *    CV_SUCCESS,
- *    CV_LSETUP_FAIL,  CV_LSOLVE_FAIL,
- *    CV_RHSFUNC_FAIL, CV_RTFUNC_FAIL
- *    CV_CONV_FAILURE, CV_ERR_FAILURE,
- *    CV_FIRST_RHSFUNC_ERR
- *
- * cvNls input nflag values:
- *    FIRST_CALL
- *    PREV_CONV_FAIL
- *    PREV_ERR_FAIL
- *
- * cvNls return values:
- *    CV_SUCCESS,
- *    CV_LSETUP_FAIL, CV_LSOLVE_FAIL, CV_RHSFUNC_FAIL,
- *    CONV_FAIL, RHSFUNC_RECVR
- *
- * cvNewtonIteration return values:
- *    CV_SUCCESS,
- *    CV_LSOLVE_FAIL, CV_RHSFUNC_FAIL
- *    CONV_FAIL, RHSFUNC_RECVR,
- *    TRY_AGAIN
- *
- */
-
-#define DO_ERROR_TEST    +2
-#define PREDICT_AGAIN    +3
-
-#define TRY_AGAIN        +5
-#define FIRST_CALL       +6
-#define PREV_CONV_FAIL   +7
-#define PREV_ERR_FAIL    +8
-
-#define CONSTR_RECVR     +10
-
-/*
  * Control constants for lower-level rootfinding functions
  * -------------------------------------------------------
  *
@@ -237,6 +189,24 @@ static void cvFreeVectors(CVodeMem cv_mem);
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+extern
+int cvEwtSetSS_fused(const booleantype atolmin0,
+                     const realtype reltol,
+                     const realtype Sabstol,
+                     const N_Vector ycur,
+                     N_Vector tempv,
+                     N_Vector weight);
+
+extern
+int cvEwtSetSV_fused(const booleantype atolmin0,
+                     const realtype reltol,
+                     const N_Vector Vabstol,
+                     const N_Vector ycur,
+                     N_Vector tempv,
+                     N_Vector weight);
+#endif
+
 /* Initial stepsize calculation */
 
 static int cvHin(CVodeMem cv_mem, realtype tout);
@@ -255,7 +225,6 @@ static void cvAdjustAdams(CVodeMem cv_mem, int deltaq);
 static void cvAdjustBDF(CVodeMem cv_mem, int deltaq);
 static void cvIncreaseBDF(CVodeMem cv_mem);
 static void cvDecreaseBDF(CVodeMem cv_mem);
-static void cvRescale(CVodeMem cv_mem);
 static void cvPredict(CVodeMem cv_mem);
 static void cvSet(CVodeMem cv_mem);
 static void cvSetAdams(CVodeMem cv_mem);
@@ -271,11 +240,17 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 static int cvNls(CVodeMem cv_mem, int nflag);
 
 static int cvCheckConstraints(CVodeMem cv_mem);
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+extern
+int cvCheckConstraints_fused(const N_Vector c,
+                             const N_Vector ewt,
+                             const N_Vector y,
+                             const N_Vector mm,
+                             N_Vector tempv);
+#endif
 
 static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                          int *ncfPtr);
-
-static void cvRestore(CVodeMem cv_mem, realtype saved_t);
 
 /* Error Test */
 
@@ -306,6 +281,7 @@ static int cvRcheck1(CVodeMem cv_mem);
 static int cvRcheck2(CVodeMem cv_mem);
 static int cvRcheck3(CVodeMem cv_mem);
 static int cvRootfind(CVodeMem cv_mem);
+
 
 /*
  * =================================================================
@@ -361,30 +337,32 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
-  cv_mem->cv_f           = NULL;
-  cv_mem->cv_user_data   = NULL;
-  cv_mem->cv_itol        = CV_NN;
-  cv_mem->cv_atolmin0    = SUNTRUE;
-  cv_mem->cv_user_efun   = SUNFALSE;
-  cv_mem->cv_efun        = NULL;
-  cv_mem->cv_e_data      = NULL;
-  cv_mem->cv_ehfun       = cvErrHandler;
-  cv_mem->cv_eh_data     = cv_mem;
-  cv_mem->cv_errfp       = stderr;
-  cv_mem->cv_qmax        = maxord;
-  cv_mem->cv_mxstep      = MXSTEP_DEFAULT;
-  cv_mem->cv_mxhnil      = MXHNIL_DEFAULT;
-  cv_mem->cv_sldeton     = SUNFALSE;
-  cv_mem->cv_hin         = ZERO;
-  cv_mem->cv_hmin        = HMIN_DEFAULT;
-  cv_mem->cv_hmax_inv    = HMAX_INV_DEFAULT;
-  cv_mem->cv_tstopset    = SUNFALSE;
-  cv_mem->cv_maxnef      = MXNEF;
-  cv_mem->cv_maxncf      = MXNCF;
-  cv_mem->cv_nlscoef     = CORTES;
-  cv_mem->convfail       = CV_NO_FAILURES;
-  cv_mem->cv_constraints = NULL;
-  cv_mem->cv_constraintsSet = SUNFALSE;
+  cv_mem->cv_f                = NULL;
+  cv_mem->cv_user_data        = NULL;
+  cv_mem->cv_itol             = CV_NN;
+  cv_mem->cv_atolmin0         = SUNTRUE;
+  cv_mem->cv_user_efun        = SUNFALSE;
+  cv_mem->cv_efun             = NULL;
+  cv_mem->cv_e_data           = NULL;
+  cv_mem->cv_ehfun            = cvErrHandler;
+  cv_mem->cv_eh_data          = cv_mem;
+  cv_mem->cv_monitorfun       = NULL;
+  cv_mem->cv_monitor_interval = 0;
+  cv_mem->cv_errfp            = stderr;
+  cv_mem->cv_qmax             = maxord;
+  cv_mem->cv_mxstep           = MXSTEP_DEFAULT;
+  cv_mem->cv_mxhnil           = MXHNIL_DEFAULT;
+  cv_mem->cv_sldeton          = SUNFALSE;
+  cv_mem->cv_hin              = ZERO;
+  cv_mem->cv_hmin             = HMIN_DEFAULT;
+  cv_mem->cv_hmax_inv         = HMAX_INV_DEFAULT;
+  cv_mem->cv_tstopset         = SUNFALSE;
+  cv_mem->cv_maxnef           = MXNEF;
+  cv_mem->cv_maxncf           = MXNCF;
+  cv_mem->cv_nlscoef          = CORTES;
+  cv_mem->convfail            = CV_NO_FAILURES;
+  cv_mem->cv_constraints      = NULL;
+  cv_mem->cv_constraintsSet   = SUNFALSE;
 
   /* Initialize root finding variables */
 
@@ -397,6 +375,11 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_nrtfn      = 0;
   cv_mem->cv_gactive    = NULL;
   cv_mem->cv_mxgnull    = 1;
+
+  /* Initialize projection variables */
+  cv_mem->proj_mem     = NULL;
+  cv_mem->proj_enabled = SUNFALSE;
+  cv_mem->proj_applied = SUNFALSE;
 
   /* Set the saved value for qmax_alloc */
 
@@ -416,6 +399,9 @@ void *CVodeCreate(int lmm)
   /* Initialize nonlinear solver variables */
   cv_mem->NLS    = NULL;
   cv_mem->ownNLS = SUNFALSE;
+
+  /* Initialize fused operations variable */
+  cv_mem->cv_usefused = SUNFALSE;
 
   /* Return pointer to CVODE memory block */
 
@@ -1832,6 +1818,24 @@ static int cvInitialSetup(CVodeMem cv_mem)
     return(CV_NLS_INIT_FAIL);
   }
 
+  /* Initialize projection data */
+  if (cv_mem->proj_enabled && cv_mem->proj_mem == NULL) {
+    cvProcessError(cv_mem, CV_PROJ_MEM_NULL, "CVODE",
+                   "cvInitialSetup", MSG_CV_PROJ_MEM_NULL);
+    return(CV_PROJ_MEM_NULL);
+  }
+
+  if (cv_mem->proj_mem != NULL) {
+    ier = cvProjInit(cv_mem->proj_mem);
+    if (ier != CV_SUCCESS) {
+      cvProcessError(cv_mem, CV_MEM_FAIL, "CVODE", "cvInitialSetup",
+                     MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+    cv_mem->proj_applied = SUNFALSE;
+  }
+
+  /* Initial setup complete */
   return(CV_SUCCESS);
 }
 
@@ -2076,16 +2080,31 @@ static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
 
 static int cvStep(CVodeMem cv_mem)
 {
-  realtype saved_t, dsm;
-  int ncf, nef;
-  int nflag, kflag, eflag;
+  realtype saved_t;          /* time to restore to if a failure occurs   */
+  realtype dsm;              /* local truncation error estimate          */
+  int ncf;                   /* corrector failures in this step attempt  */
+  int npf;                   /* projection failures in this step attempt */
+  int nef;                   /* error test failures in this step attempt */
+  int nflag, kflag;          /* nonlinear solver flags                   */
+  int pflag;                 /* projection return flag                   */
+  int eflag;                 /* error test return flag                   */
+  booleantype doProjection;  /* flag to apply projection in this step    */
 
   saved_t = cv_mem->cv_tn;
-  ncf = nef = 0;
+  ncf = npf = nef = 0;
   nflag = FIRST_CALL;
+  doProjection = SUNFALSE;
 
-  if ((cv_mem->cv_nst > 0) && (cv_mem->cv_hprime != cv_mem->cv_h))
+  /* If the step size has changed, update the history array */
+  if ((cv_mem->cv_nst > 0) && (cv_mem->cv_hprime != cv_mem->cv_h)) {
     cvAdjustParams(cv_mem);
+  }
+
+  /* Check if this step should be projected */
+  if (cv_mem->proj_enabled)
+    doProjection = cv_mem->proj_mem->freq > 0 &&
+      (cv_mem->cv_nst == 0 || (cv_mem->cv_nst >= cv_mem->proj_mem->nstlprj
+                               + cv_mem->proj_mem->freq));
 
   /* Looping point for attempts to take a step */
   for(;;) {
@@ -2099,8 +2118,23 @@ static int cvStep(CVodeMem cv_mem)
     /* Go back in loop if we need to predict again (nflag=PREV_CONV_FAIL) */
     if (kflag == PREDICT_AGAIN) continue;
 
-    /* Return if nonlinear solve failed and recovery not possible. */
+    /* Return if nonlinear solve failed and recovery is not possible. */
     if (kflag != DO_ERROR_TEST) return(kflag);
+
+    /* Check if a projection needs to be performed */
+    cv_mem->proj_applied = SUNFALSE;
+
+    if (doProjection) {
+
+      /* Perform projection (nflag=CV_SUCCESS) */
+      pflag = cvDoProjection(cv_mem, &nflag, saved_t, &npf);
+
+      /* Go back in loop if we need to predict again (nflag=PREV_PROJ_FAIL) */
+      if (pflag == PREDICT_AGAIN) continue;
+
+      /* Return if projection failed and recovery is not possible */
+      if (pflag != CV_SUCCESS) return(pflag);
+    }
 
     /* Perform error test (nflag=CV_SUCCESS) */
     eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, &nef, &dsm);
@@ -2346,7 +2380,7 @@ static void cvDecreaseBDF(CVodeMem cv_mem)
  * h is rescaled by eta, and hscale is reset to h.
  */
 
-static void cvRescale(CVodeMem cv_mem)
+void cvRescale(CVodeMem cv_mem)
 {
   int j;
 
@@ -2560,7 +2594,15 @@ static realtype cvAltSum(int iend, realtype a[], int k)
  *                                 q-1
  * Lambda(x) = (1 + x / xi*_q) * PRODUCT (1 + x / xi_i) , where
  *                                 i=1
- *  xi_i = [t_n - t_(n-i)] / h.
+ *
+ * The components of the array p (for projections) are the
+ * coefficients of a polynomial Phi(x) = p_0 + p_1 x + ... + p_q x^q,
+ * given by
+ *             q
+ * Phi(x) = PRODUCT (1 + x / xi_i)
+ *            i=1
+ *
+ * Here xi_i = [t_n - t_(n-i)] / h.
  *
  * The array tq is set to test quantities used in the convergence
  * test, the error test, and the selection of h at a new order.
@@ -2575,6 +2617,11 @@ static void cvSetBDF(CVodeMem cv_mem)
   for (i=2; i <= cv_mem->cv_q; i++) cv_mem->cv_l[i] = ZERO;
   alpha0 = alpha0_hat = -ONE;
   hsum = cv_mem->cv_h;
+
+  if (cv_mem->proj_enabled)
+    for (i=0; i <= cv_mem->cv_q; i++)
+      cv_mem->cv_p[i] = cv_mem->cv_l[i];
+
   if (cv_mem->cv_q > 1) {
     for (j=2; j < cv_mem->cv_q; j++) {
       hsum += cv_mem->cv_tau[j-1];
@@ -2590,6 +2637,11 @@ static void cvSetBDF(CVodeMem cv_mem)
     hsum += cv_mem->cv_tau[cv_mem->cv_q-1];
     xi_inv = cv_mem->cv_h / hsum;
     alpha0_hat = -cv_mem->cv_l[1] - xi_inv;
+
+    if (cv_mem->proj_enabled)
+      for (i = cv_mem->cv_q; i >= 1; i--)
+        cv_mem->cv_p[i] = cv_mem->cv_l[i] + cv_mem->cv_p[i-1] * xi_inv;
+
     for (i=cv_mem->cv_q; i >= 1; i--)
       cv_mem->cv_l[i] += cv_mem->cv_l[i-1]*xistar_inv;
   }
@@ -2731,11 +2783,24 @@ static int cvCheckConstraints(CVodeMem cv_mem)
   /* Constraints not met */
 
   /* Compute correction to satisfy constraints */
-  N_VCompare(ONEPT5, cv_mem->cv_constraints, tmp); /* a[i]=1 when |c[i]|=2  */
-  N_VProd(tmp, cv_mem->cv_constraints, tmp);       /* a * c                 */
-  N_VDiv(tmp, cv_mem->cv_ewt, tmp);                /* a * c * wt            */
-  N_VLinearSum(ONE, cv_mem->cv_y, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt  */
-  N_VProd(tmp, mm, tmp);                           /* v = mm*(y-0.1*a*c*wt) */
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (cv_mem->cv_usefused)
+  {
+    cvCheckConstraints_fused(cv_mem->cv_constraints,
+                             cv_mem->cv_ewt,
+                             cv_mem->cv_y,
+                             mm,
+                             tmp);
+  }
+  else
+#endif
+  {
+    N_VCompare(ONEPT5, cv_mem->cv_constraints, tmp); /* a[i]=1 when |c[i]|=2  */
+    N_VProd(tmp, cv_mem->cv_constraints, tmp);       /* a * c                 */
+    N_VDiv(tmp, cv_mem->cv_ewt, tmp);                /* a * c * wt            */
+    N_VLinearSum(ONE, cv_mem->cv_y, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt  */
+    N_VProd(tmp, mm, tmp);                           /* v = mm*(y-0.1*a*c*wt) */
+  }
 
   vnorm = N_VWrmsNorm(tmp, cv_mem->cv_ewt);        /* ||v|| */
 
@@ -2850,7 +2915,7 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
  * the same values as before the call to cvPredict.
  */
 
-static void cvRestore(CVodeMem cv_mem, realtype saved_t)
+void cvRestore(CVodeMem cv_mem, realtype saved_t)
 {
   int j, k;
 
@@ -2992,12 +3057,28 @@ static void cvCompleteStep(CVodeMem cv_mem)
   /* Apply correction to column j of zn: l_j * Delta_n */
   (void) N_VScaleAddMulti(cv_mem->cv_q+1, cv_mem->cv_l, cv_mem->cv_acor,
                           cv_mem->cv_zn, cv_mem->cv_zn);
+
+  /* Apply the projection correction to column j of zn: p_j * Delta_n */
+  if (cv_mem->proj_applied) {
+    (void) N_VScaleAddMulti(cv_mem->cv_q+1,
+                            cv_mem->cv_p, cv_mem->cv_tempv, /* tempv = acorP */
+                            cv_mem->cv_zn, cv_mem->cv_zn);
+  }
+
   cv_mem->cv_qwait--;
   if ((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) {
     N_VScale(ONE, cv_mem->cv_acor, cv_mem->cv_zn[cv_mem->cv_qmax]);
     cv_mem->cv_saved_tq5 = cv_mem->cv_tq[5];
     cv_mem->cv_indx_acor = cv_mem->cv_qmax;
   }
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* If user access function was provided, call it now */
+  if (cv_mem->cv_monitorfun != NULL &&
+      !(cv_mem->cv_nst % cv_mem->cv_monitor_interval)) {
+    cv_mem->cv_monitorfun((void*) cv_mem, cv_mem->cv_user_data);
+  }
+#endif
 }
 
 /*
@@ -3241,6 +3322,18 @@ static int cvHandleFailure(CVodeMem cv_mem, int flag)
   case CV_NLS_FAIL:
     cvProcessError(cv_mem, CV_NLS_FAIL, "CVODE", "CVode",
                    MSGCV_NLS_FAIL, cv_mem->cv_tn);
+    break;
+  case CV_PROJ_MEM_NULL:
+    cvProcessError(cv_mem, CV_PROJ_MEM_NULL, "CVODE", "CVode",
+                   MSG_CV_PROJ_MEM_NULL);
+    break;
+  case CV_PROJFUNC_FAIL:
+    cvProcessError(cv_mem, CV_PROJFUNC_FAIL, "CVODE", "CVode",
+                   MSG_CV_PROJFUNC_FAIL, cv_mem->cv_tn);
+    break;
+  case CV_REPTD_PROJFUNC_ERR:
+    cvProcessError(cv_mem, CV_REPTD_PROJFUNC_ERR, "CVODE", "CVode",
+                   MSG_CV_REPTD_PROJFUNC_ERR, cv_mem->cv_tn);
     break;
   default:
     /* This return should never happen */
@@ -4135,13 +4228,30 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void *data)
 
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 {
-  N_VAbs(ycur, cv_mem->cv_tempv);
-  N_VScale(cv_mem->cv_reltol, cv_mem->cv_tempv, cv_mem->cv_tempv);
-  N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_Sabstol, cv_mem->cv_tempv);
-  if (cv_mem->cv_atolmin0) {
-    if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (cv_mem->cv_usefused)
+  {
+    /* We compute weight (inverse of tempv) regardless of the component test
+       since it will be thrown away in this case anyways. */
+    cvEwtSetSS_fused(cv_mem->cv_atolmin0, cv_mem->cv_reltol,
+                     cv_mem->cv_Sabstol, ycur, cv_mem->cv_tempv,
+                     weight);
+    if (cv_mem->cv_atolmin0) {
+      if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    }
   }
-  N_VInv(cv_mem->cv_tempv, weight);
+  else
+#endif
+  {
+    N_VAbs(ycur, cv_mem->cv_tempv);
+    N_VScale(cv_mem->cv_reltol, cv_mem->cv_tempv, cv_mem->cv_tempv);
+    N_VAddConst(cv_mem->cv_tempv, cv_mem->cv_Sabstol, cv_mem->cv_tempv);
+    if (cv_mem->cv_atolmin0) {
+      if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    }
+    N_VInv(cv_mem->cv_tempv, weight);
+  }
+
   return(0);
 }
 
@@ -4157,13 +4267,30 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 {
-  N_VAbs(ycur, cv_mem->cv_tempv);
-  N_VLinearSum(cv_mem->cv_reltol, cv_mem->cv_tempv, ONE,
-               cv_mem->cv_Vabstol, cv_mem->cv_tempv);
-  if (cv_mem->cv_atolmin0) {
-    if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (cv_mem->cv_usefused)
+  {
+    /* We compute weight (inverse of tempv) regardless of the component test
+       since it will be thrown away in this case anyways. */
+    cvEwtSetSV_fused(cv_mem->cv_atolmin0, cv_mem->cv_reltol,
+                     cv_mem->cv_Vabstol, ycur, cv_mem->cv_tempv,
+                     weight);
+    if (cv_mem->cv_atolmin0) {
+      if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    }
   }
-  N_VInv(cv_mem->cv_tempv, weight);
+  else
+#endif
+  {
+    N_VAbs(ycur, cv_mem->cv_tempv);
+    N_VLinearSum(cv_mem->cv_reltol, cv_mem->cv_tempv, ONE,
+                 cv_mem->cv_Vabstol, cv_mem->cv_tempv);
+    if (cv_mem->cv_atolmin0) {
+      if (N_VMin(cv_mem->cv_tempv) <= ZERO) return(-1);
+    }
+    N_VInv(cv_mem->cv_tempv, weight);
+  }
+
   return(0);
 }
 

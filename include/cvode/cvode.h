@@ -22,6 +22,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_nonlinearsolver.h>
 #include <cvode/cvode_ls.h>
+#include <cvode/cvode_proj.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -76,6 +77,10 @@ extern "C" {
 #define CV_TOO_CLOSE            -27
 #define CV_VECTOROP_ERR         -28
 
+#define CV_PROJ_MEM_NULL        -29
+#define CV_PROJFUNC_FAIL        -30
+#define CV_REPTD_PROJFUNC_ERR   -31
+
 #define CV_UNRECOGNIZED_ERR     -99
 
 
@@ -94,6 +99,8 @@ typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *user_data);
 typedef void (*CVErrHandlerFn)(int error_code,
                                const char *module, const char *function,
                                char *msg, void *user_data);
+
+typedef int (*CVMonitorFn)(void *cvode_mem, void *user_data);
 
 /* -------------------
  * Exported Functions
@@ -118,6 +125,8 @@ SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun,
                                          void *eh_data);
 SUNDIALS_EXPORT int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 SUNDIALS_EXPORT int CVodeSetUserData(void *cvode_mem, void *user_data);
+SUNDIALS_EXPORT int CVodeSetMonitorFn(void *cvode_mem, CVMonitorFn fn);
+SUNDIALS_EXPORT int CVodeSetMonitorFrequency(void *cvode_mem, long int nst);
 SUNDIALS_EXPORT int CVodeSetMaxOrd(void *cvode_mem, int maxord);
 SUNDIALS_EXPORT int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 SUNDIALS_EXPORT int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
@@ -131,9 +140,9 @@ SUNDIALS_EXPORT int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor);
 SUNDIALS_EXPORT int CVodeSetMaxConvFails(void *cvode_mem, int maxncf);
 SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
 SUNDIALS_EXPORT int CVodeSetConstraints(void *cvode_mem, N_Vector constraints);
-
 SUNDIALS_EXPORT int CVodeSetNonlinearSolver(void *cvode_mem,
                                             SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, booleantype onoff);
 
 /* Rootfinding initialization function */
 SUNDIALS_EXPORT int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g);
@@ -192,6 +201,9 @@ SUNDIALS_EXPORT char *CVodeGetReturnFlagName(long int flag);
 /* Free function */
 SUNDIALS_EXPORT void CVodeFree(void **cvode_mem);
 
+/* CVLS interface function that depends on CVRhsFn */
+SUNDIALS_EXPORT int CVodeSetJacTimesRhsFn(void *cvode_mem,
+                                          CVRhsFn jtimesRhsFn);
 
 #ifdef __cplusplus
 }

@@ -22,6 +22,8 @@
 #include <sunlinsol/sunlinsol_sptfqmr.h>
 #include <sundials/sundials_math.h>
 
+#include "sundials_debug.h"
+
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
@@ -108,28 +110,30 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl)
   S->content = content;
 
   /* Fill content */
-  content->last_flag = 0;
-  content->maxl      = maxl;
-  content->pretype   = pretype;
-  content->numiters  = 0;
-  content->resnorm   = ZERO;
-  content->r_star    = NULL;
-  content->q         = NULL;
-  content->d         = NULL;
-  content->v         = NULL;
-  content->p         = NULL;
-  content->r         = NULL;
-  content->u         = NULL;
-  content->vtemp1    = NULL;
-  content->vtemp2    = NULL;
-  content->vtemp3    = NULL;
-  content->s1        = NULL;
-  content->s2        = NULL;
-  content->ATimes    = NULL;
-  content->ATData    = NULL;
-  content->Psetup    = NULL;
-  content->Psolve    = NULL;
-  content->PData     = NULL;
+  content->last_flag   = 0;
+  content->maxl        = maxl;
+  content->pretype     = pretype;
+  content->numiters    = 0;
+  content->resnorm     = ZERO;
+  content->r_star      = NULL;
+  content->q           = NULL;
+  content->d           = NULL;
+  content->v           = NULL;
+  content->p           = NULL;
+  content->r           = NULL;
+  content->u           = NULL;
+  content->vtemp1      = NULL;
+  content->vtemp2      = NULL;
+  content->vtemp3      = NULL;
+  content->s1          = NULL;
+  content->s2          = NULL;
+  content->ATimes      = NULL;
+  content->ATData      = NULL;
+  content->Psetup      = NULL;
+  content->Psolve      = NULL;
+  content->PData       = NULL;
+  content->print_level = 0;
+  content->info_file   = stdout;
 
   /* Allocate content */
   content->r_star = N_VClone(y);
@@ -233,12 +237,23 @@ int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S)
   content = SPTFQMR_CONTENT(S);
 
   /* ensure valid options */
+  if (content->maxl <= 0)
+    content->maxl = SUNSPTFQMR_MAXL_DEFAULT;
+
+  if (content->ATimes == NULL) {
+    LASTFLAG(S) = SUNLS_ATIMES_NULL;
+    return(LASTFLAG(S));
+  }
+
   if ( (content->pretype != PREC_LEFT) &&
        (content->pretype != PREC_RIGHT) &&
        (content->pretype != PREC_BOTH) )
     content->pretype = PREC_NONE;
-  if (content->maxl <= 0)
-    content->maxl = SUNSPTFQMR_MAXL_DEFAULT;
+
+  if ((content->pretype != PREC_NONE) && (content->Psolve == NULL)) {
+    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
+    return(LASTFLAG(S));
+  }
 
   /* no additional memory to allocate */
 
@@ -374,6 +389,23 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   scale_x = (sx != NULL);
   scale_b = (sb != NULL);
 
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  if (SPTFQMR_CONTENT(S)->print_level && SPTFQMR_CONTENT(S)->info_file)
+    fprintf(SPTFQMR_CONTENT(S)->info_file, "SUNLINSOL_SPTFQMR:\n");
+#endif
+
+  /* Check if Atimes function has been set */
+  if (atimes == NULL) {
+    LASTFLAG(S) = SUNLS_ATIMES_NULL;
+    return(LASTFLAG(S));
+  }
+
+  /* If preconditioning, check if psolve has been set */
+  if ((preOnLeft || preOnRight) && psolve == NULL) {
+    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
+    return(LASTFLAG(S));
+  }
+
   /* Set r_star to initial (unscaled) residual r_star = r_0 = b - A*x_0 */
   /* NOTE: if x == 0 then just set residual to b and continue */
   if (N_VDotProd(x, x) == ZERO) N_VScale(ONE, b, r_star);
@@ -409,6 +441,17 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* Compute norm of initial residual (r_0) to see if we really need
      to do anything */
   *res_norm = r_init_norm = SUNRsqrt(rho[0]);
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* print initial residual */
+  if (SPTFQMR_CONTENT(S)->print_level && SPTFQMR_CONTENT(S)->info_file)
+  {
+    fprintf(SPTFQMR_CONTENT(S)->info_file,
+            SUNLS_MSG_RESIDUAL,
+            (long int) 0, *res_norm);
+  }
+#endif
+
   if (r_init_norm <= delta) {
     LASTFLAG(S) = SUNLS_SUCCESS;
     return(LASTFLAG(S));
@@ -537,11 +580,21 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       /* NOTE: just use approximation to norm of residual, if possible */
       *res_norm = r_curr_norm = tau*SUNRsqrt(m+1);
 
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+      /* print current iteration number and the residual */
+      if (SPTFQMR_CONTENT(S)->print_level && SPTFQMR_CONTENT(S)->info_file)
+      {
+        fprintf(SPTFQMR_CONTENT(S)->info_file,
+                SUNLS_MSG_RESIDUAL,
+                (long int) *nli, *res_norm);
+      }
+#endif
+
       /* Exit inner loop if iteration has converged based upon approximation
 	 to norm of current residual */
       if (r_curr_norm <= delta) {
-	converged = SUNTRUE;
-	break;
+        converged = SUNTRUE;
+        break;
       }
 
       /* Decide if actual norm of residual vector should be computed */
@@ -801,4 +854,44 @@ int SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
   if (S->ops) { free(S->ops); S->ops = NULL; }
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
+}
+
+
+int SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver S,
+                                 FILE* info_file)
+{
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* check that the linear solver is non-null */
+  if (S == NULL)
+    return(SUNLS_MEM_NULL);
+
+  SPTFQMR_CONTENT(S)->info_file = info_file;
+
+  return(SUNLS_SUCCESS);
+#else
+  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetInfoFile_SPTFQMR: SUNDIALS was not built with monitoring\n");
+  return(SUNLS_ILL_INPUT);
+#endif
+}
+
+
+int SUNLinSolSetPrintLevel_SPTFQMR(SUNLinearSolver S,
+                                   int print_level)
+{
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* check that the linear solver is non-null */
+  if (S == NULL)
+    return(SUNLS_MEM_NULL);
+
+  /* check for valid print level */
+  if (print_level < 0 || print_level > 1)
+    return(SUNLS_ILL_INPUT);
+
+  SPTFQMR_CONTENT(S)->print_level = print_level;
+
+  return(SUNLS_SUCCESS);
+#else
+  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetPrintLevel_SPTFQMR: SUNDIALS was not built with monitoring\n");
+  return(SUNLS_ILL_INPUT);
+#endif
 }

@@ -140,6 +140,8 @@ SUNDIALS_EXPORT int ARKStepSetErrorBias(void *arkode_mem,
                                         realtype bias);
 SUNDIALS_EXPORT int ARKStepSetMaxGrowth(void *arkode_mem,
                                         realtype mx_growth);
+SUNDIALS_EXPORT int ARKStepSetMinReduction(void *arkode_mem,
+                                           realtype eta_min);
 SUNDIALS_EXPORT int ARKStepSetFixedStepBounds(void *arkode_mem,
                                               realtype lb, realtype ub);
 SUNDIALS_EXPORT int ARKStepSetAdaptivityMethod(void *arkode_mem,
@@ -237,6 +239,8 @@ SUNDIALS_EXPORT int ARKStepSetMassPreconditioner(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetJacTimes(void *arkode_mem,
                                        ARKLsJacTimesSetupFn jtsetup,
                                        ARKLsJacTimesVecFn jtimes);
+SUNDIALS_EXPORT int ARKStepSetJacTimesRhsFn(void *arkode_mem,
+                                            ARKRhsFn jtimesRhsFn);
 SUNDIALS_EXPORT int ARKStepSetMassTimes(void *arkode_mem,
                                         ARKLsMassTimesSetupFn msetup,
                                         ARKLsMassTimesVecFn mtimes,

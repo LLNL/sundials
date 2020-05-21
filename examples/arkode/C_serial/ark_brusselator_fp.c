@@ -78,7 +78,7 @@ static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Main Program */
-int main()
+int main(int argc, char *argv[])
 {
   /* general problem parameters */
   realtype T0 = RCONST(0.0);     /* initial time */
@@ -93,16 +93,22 @@ int main()
   int maxcor = 10;               /* maximum # of nonlinear iterations/step */
   realtype a, b, ep, u0, v0, w0;
   realtype rdata[3];
+  int monitor = 0;               /* turn on/off monitoring */
 
   /* general problem variables */
   int flag;                       /* reusable error-checking flag */
   N_Vector y = NULL;              /* empty vector for storing solution */
   SUNNonlinearSolver NLS = NULL;  /* empty nonlinear solver object */
   void *arkode_mem = NULL;        /* empty ARKode memory structure */
-  FILE *UFID;
+  FILE *UFID, *INFOFID;
   realtype t, tout;
   int iout;
   long int nst, nst_a, nfe, nfi, nni, ncfn, netf;
+
+  /* read inputs */
+  if (argc == 2) {
+    monitor = atoi(argv[1]);
+  }
 
   /* set up the test problem according to the desired test */
   if (test == 1) {
@@ -134,6 +140,9 @@ int main()
   printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",a,b,ep);
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n",reltol,abstol);
 
+  /* Open up info output file */
+  if (monitor) INFOFID = fopen("ark_brusselator_fp-info.txt","w");
+
   /* Initialize data structures */
   rdata[0] = a;    /* set user data  */
   rdata[1] = b;
@@ -153,6 +162,12 @@ int main()
   /* Initialize fixed-point nonlinear solver and attach to ARKStep */
   NLS = SUNNonlinSol_FixedPoint(y, fp_m);
   if (check_flag((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return 1;
+  if (monitor) {
+    flag = SUNNonlinSolSetPrintLevel_FixedPoint(NLS, 1);
+    if (check_flag(&flag, "SUNNonlinSolSetPrintLevel_Newton", 1)) return(1);
+    flag = SUNNonlinSolSetInfoFile_FixedPoint(NLS, INFOFID);
+    if (check_flag(&flag, "SUNNonlinSolSetPrintLevel_Newton", 1)) return(1);
+  }
   flag = ARKStepSetNonlinearSolver(arkode_mem, NLS);
   if (check_flag(&flag, "ARKStepSetNonlinearSolver", 1)) return 1;
 
@@ -196,6 +211,7 @@ int main()
   }
   printf("   ----------------------------------------------\n");
   fclose(UFID);
+  if (monitor) fclose(INFOFID);
 
   /* Print some final statistics */
   flag = ARKStepGetNumSteps(arkode_mem, &nst);

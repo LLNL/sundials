@@ -77,17 +77,23 @@ find_library(SUNDIALS_NVEC_LIB
   sundials_nveccuda ${SUNDIALS_LIBRARY_DIR}
   DOC "NVECTOR_CUDA library")
 
+find_library(SUNDIALS_CUSPARSEMAT_LIB
+  sundials_sunmatrixcusparse ${SUNDIALS_LIBRARY_DIR}
+  DOC "SUNMATRIX_CUSPARSE library")
+
 find_library(SUNDIALS_CUSOLVERSP_LIB
   sundials_sunlinsolcusolversp
   ${SUNDIALS_LIBRARY_DIR}
   DOC "SUNLINSOL_CUSOLVERSP linear solver library")
 
-# Set additional libraries
-set(SUNDIALS_EXTRA_LIBS -L${SUNDIALS_LIBRARY_DIR} @SUNMAT_LIB@ @LIBS@ CACHE STRING "Additional libraries")
-
 # For SUNDIALS module examples the solver library is not needed
 if(NOT SUNDIALS_SOLVER_LIB)
   set(SUNDIALS_SOLVER_LIB "")
+endif()
+
+# For some examples the SUNDIALS_CUSPARSEMAT_LIB library is not needed
+if(NOT SUNDIALS_CUSPARSEMAT_LIB)
+  set(SUNDIALS_CUSPARSEMAT_LIB "")
 endif()
 
 # For some examples the SUNLINSOL_CUSOLVERSP library is not needed
@@ -95,10 +101,15 @@ if(NOT SUNDIALS_CUSOLVERSP_LIB)
   set(SUNDIALS_CUSOLVERSP_LIB "")
 endif()
 
+# Set additional libraries
+set(SUNDIALS_EXTRA_LIBS -L${SUNDIALS_LIBRARY_DIR} @LIBS@ CACHE STRING "Additional libraries")
+
 # List of SUNDIALS libraries
 set(SUNDIALS_LIBRARIES
+  -L${SUNDIALS_LIBRARY_DIR}
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_LIB}
+  ${SUNDIALS_CUSPARSEMAT_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # ------------------------------------------------------------------------------
@@ -142,6 +153,7 @@ endif()
 set(SUNDIALS_LIBRARIES
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_LIB}
+  ${SUNDIALS_CUSPARSEMAT_LIB}
   ${SUNDIALS_CUSOLVERSP_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 

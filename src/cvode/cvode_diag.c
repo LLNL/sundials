@@ -1,7 +1,7 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+ *                Radu Serban, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -23,8 +23,33 @@
 #include "cvode_diag_impl.h"
 #include "cvode_impl.h"
 
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+extern
+int cvDiagSetup_formY(const realtype h,
+                      const realtype r,
+                      const N_Vector fpred,
+                      const N_Vector zn1,
+                      const N_Vector ypred,
+                      N_Vector ftemp,
+                      N_Vector y);
+
+extern
+int cvDiagSetup_buildM(const realtype fract,
+                       const realtype uround,
+                       const realtype h,
+                       const N_Vector ftemp,
+                       const N_Vector fpred,
+                       const N_Vector ewt,
+                       N_Vector bit,
+                       N_Vector bitcomp,
+                       N_Vector y,
+                       N_Vector M);
+
+int cvDiagSolve_updateM(const realtype r, N_Vector M);
+#endif
+
 /* Other Constants */
-  
+
 #define FRACT RCONST(0.1)
 #define ONE   RCONST(1.0)
 
@@ -71,7 +96,7 @@ static int CVDiagFree(CVodeMem cv_mem);
 
 /*
  * -----------------------------------------------------------------
- * CVDiag 
+ * CVDiag
  * -----------------------------------------------------------------
  * This routine initializes the memory record and sets various function
  * fields specific to the diagonal linear solver module.  CVDense first
@@ -82,11 +107,11 @@ static int CVDiagFree(CVodeMem cv_mem);
  * CVDiagMemRec and sets the cv_lmem field in (*cvode_mem) to the
  * address of this structure.  It sets setupNonNull in (*cvode_mem) to
  * SUNTRUE.  Finally, it allocates memory for M, bit, and bitcomp.
- * The CVDiag return value is SUCCESS = 0, LMEM_FAIL = -1, or 
+ * The CVDiag return value is SUCCESS = 0, LMEM_FAIL = -1, or
  * LIN_ILL_INPUT=-2.
  * -----------------------------------------------------------------
  */
-  
+
 int CVDiag(void *cvode_mem)
 {
   CVodeMem cv_mem;
@@ -107,7 +132,7 @@ int CVDiag(void *cvode_mem)
   }
 
   if (lfree != NULL) lfree(cv_mem);
-  
+
   /* Set four main function fields in cv_mem */
   linit  = CVDiagInit;
   lsetup = CVDiagSetup;
@@ -124,9 +149,9 @@ int CVDiag(void *cvode_mem)
 
   last_flag = CVDIAG_SUCCESS;
 
-  
+
   /* Allocate memory for M, bit, and bitcomp */
-   
+
   M = N_VClone(vec_tmpl);
   if (M == NULL) {
     cvProcessError(cv_mem, CVDIAG_MEM_FAIL, "CVDIAG", "CVDiag", MSGDG_MEM_FAIL);
@@ -253,7 +278,7 @@ char *CVDiagGetReturnFlagName(long int flag)
   switch(flag) {
   case CVDIAG_SUCCESS:
     sprintf(name,"CVDIAG_SUCCESS");
-    break;   
+    break;
   case CVDIAG_MEM_NULL:
     sprintf(name,"CVDIAG_MEM_NULL");
     break;
@@ -307,8 +332,8 @@ static int CVDiagInit(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  * CVDiagSetup
  * -----------------------------------------------------------------
- * This routine does the setup operations for the diagonal linear 
- * solver.  It constructs a diagonal approximation to the Newton matrix 
+ * This routine does the setup operations for the diagonal linear
+ * solver.  It constructs a diagonal approximation to the Newton matrix
  * M = I - gamma*J, updates counters, and inverts M.
  * -----------------------------------------------------------------
  */
@@ -331,8 +356,17 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   /* Form y with perturbation = FRACT*(func. iter. correction) */
   r = FRACT * rl1;
-  N_VLinearSum(h, fpred, -ONE, zn[1], ftemp);
-  N_VLinearSum(r, ftemp, ONE, ypred, y);
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (cv_mem->cv_usefused)
+  {
+    cvDiagSetup_formY(h, r, fpred, zn[1], ypred, ftemp, y);
+  }
+  else
+#endif
+  {
+    N_VLinearSum(h, fpred, -ONE, zn[1], ftemp);
+    N_VLinearSum(r, ftemp, ONE, ypred, y);
+  }
 
   /* Evaluate f at perturbed y */
   retval = f(tn, y, M, cv_mem->cv_user_data);
@@ -348,17 +382,26 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   }
 
   /* Construct M = I - gamma*J with J = diag(deltaf_i/deltay_i) */
-  N_VLinearSum(ONE, M, -ONE, fpred, M);
-  N_VLinearSum(FRACT, ftemp, -h, M, M);
-  N_VProd(ftemp, ewt, y);
-  /* Protect against deltay_i being at roundoff level */
-  N_VCompare(uround, y, bit);
-  N_VAddConst(bit, -ONE, bitcomp);
-  N_VProd(ftemp, bit, y);
-  N_VLinearSum(FRACT, y, -ONE, bitcomp, y);
-  N_VDiv(M, y, M);
-  N_VProd(M, bit, M);
-  N_VLinearSum(ONE, M, -ONE, bitcomp, M);
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+  if (cv_mem->cv_usefused)
+  {
+    cvDiagSetup_buildM(FRACT, uround, h, ftemp, fpred, ewt, bit, bitcomp, y, M);
+  }
+  else
+#endif
+  {
+    N_VLinearSum(ONE, M, -ONE, fpred, M);
+    N_VLinearSum(FRACT, ftemp, -h, M, M);
+    N_VProd(ftemp, ewt, y);
+    /* Protect against deltay_i being at roundoff level */
+    N_VCompare(uround, y, bit);
+    N_VAddConst(bit, -ONE, bitcomp);
+    N_VProd(ftemp, bit, y);
+    N_VLinearSum(FRACT, y, -ONE, bitcomp, y);
+    N_VDiv(M, y, M);
+    N_VProd(M, bit, M);
+    N_VLinearSum(ONE, M, -ONE, bitcomp, M);
+  }
 
   /* Invert M with test for zero components */
   invOK = N_VInvTest(M, M);
@@ -391,15 +434,24 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   CVDiagMem cvdiag_mem;
 
   cvdiag_mem = (CVDiagMem) lmem;
-  
+
   /* If gamma has changed, update factor in M, and save gamma value */
 
   if (gammasv != gamma) {
     r = gamma / gammasv;
-    N_VInv(M, M);
-    N_VAddConst(M, -ONE, M);
-    N_VScale(r, M, M);
-    N_VAddConst(M, ONE, M);
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+    if (cv_mem->cv_usefused)
+    {
+      cvDiagSolve_updateM(r, M);
+    }
+    else
+#endif
+    {
+      N_VInv(M, M);
+      N_VAddConst(M, -ONE, M);
+      N_VScale(r, M, M);
+      N_VAddConst(M, ONE, M);
+    }
     invOK = N_VInvTest(M, M);
     if (!invOK) {
       last_flag = CVDIAG_INV_FAIL;
@@ -426,7 +478,7 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 static int CVDiagFree(CVodeMem cv_mem)
 {
   CVDiagMem cvdiag_mem;
-  
+
   cvdiag_mem = (CVDiagMem) lmem;
 
   N_VDestroy(M);

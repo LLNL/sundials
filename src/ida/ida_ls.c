@@ -167,6 +167,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   idals_mem->jtimesDQ = SUNTRUE;
   idals_mem->jtsetup  = NULL;
   idals_mem->jtimes   = idaLsDQJtimes;
+  idals_mem->jt_res   = IDA_mem->ida_res;
   idals_mem->jt_data  = IDA_mem;
 
   /* Set defaults for preconditioner-related fields */
@@ -441,8 +442,40 @@ int IDASetJacTimes(void *ida_mem, IDALsJacTimesSetupFn jtsetup,
     idals_mem->jtimesDQ = SUNTRUE;
     idals_mem->jtsetup  = NULL;
     idals_mem->jtimes   = idaLsDQJtimes;
+    idals_mem->jt_res   = IDA_mem->ida_res;
     idals_mem->jt_data  = IDA_mem;
   }
+
+  return(IDALS_SUCCESS);
+}
+
+
+/* IDASetJacTimesResFn specifies an alternative user-supplied DAE residual
+   function to use in the internal finite difference Jacobian-vector
+   product */
+int IDASetJacTimesResFn(void *ida_mem, IDAResFn jtimesResFn)
+{
+  IDAMem   IDA_mem;
+  IDALsMem idals_mem;
+  int      retval;
+
+  /* access IDALsMem structure */
+  retval = idaLs_AccessLMem(ida_mem, "IDASetJacTimesResFn",
+                            &IDA_mem, &idals_mem);
+  if (retval != IDALS_SUCCESS) return(retval);
+
+  /* check if using internal finite difference approximation */
+  if (!(idals_mem->jtimesDQ)) {
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetJacTimesResFn",
+                    "Internal finite-difference Jacobian-vector product is disabled.");
+    return(IDALS_ILL_INPUT);
+  }
+
+  /* store function pointers for Res function (NULL implies use DAE Res) */
+  if (jtimesResFn != NULL)
+    idals_mem->jt_res = jtimesResFn;
+  else
+    idals_mem->jt_res = IDA_mem->ida_res;
 
   return(IDALS_SUCCESS);
 }
@@ -1107,7 +1140,7 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
     N_VLinearSum(c_j*sig, v, ONE, yp, yp_tmp);
 
     /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
-    retval = IDA_mem->ida_res(tt, y_tmp, yp_tmp, Jv, IDA_mem->ida_user_data);
+    retval = idals_mem->jt_res(tt, y_tmp, yp_tmp, Jv, IDA_mem->ida_user_data);
     idals_mem->nreDQ++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);

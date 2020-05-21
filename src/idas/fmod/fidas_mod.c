@@ -1313,6 +1313,20 @@ SWIGEXPORT void _wrap_FIDAFree(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FIDASetJacTimesResFn(void *farg1, IDAResFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  IDAResFn arg2 = (IDAResFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (IDAResFn)(farg2);
+  result = (int)IDASetJacTimesResFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FIDAQuadInit(void *farg1, IDAQuadRhsFn farg2, N_Vector farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -2922,6 +2936,22 @@ SWIGEXPORT int _wrap_FIDAGetAdjCheckPointsInfo(void *farg1, SwigClassWrapper con
   SWIG_check_mutable(*farg2, "IDAadjCheckPointRec *", "IDAadjCheckPointRec", "IDAGetAdjCheckPointsInfo(void *,IDAadjCheckPointRec *)", return 0);
   arg2 = (IDAadjCheckPointRec *)(farg2->cptr);
   result = (int)IDAGetAdjCheckPointsInfo(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetJacTimesResFnB(void *farg1, int const *farg2, IDAResFn farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  IDAResFn arg3 = (IDAResFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (IDAResFn)(farg3);
+  result = (int)IDASetJacTimesResFnB(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

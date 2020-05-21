@@ -696,14 +696,9 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* If there are no constarints, destroy data structures */
+  /* If there are no constraints, destroy data structures */
   if (constraints == NULL) {
-    if (ark_mem->ConstraintsMallocDone) {
-      N_VDestroy(ark_mem->constraints);
-      ark_mem->lrw -= ark_mem->lrw1;
-      ark_mem->liw -= ark_mem->liw1;
-    }
-    ark_mem->ConstraintsMallocDone = SUNFALSE;
+    arkFreeVec(ark_mem, &ark_mem->constraints);
     ark_mem->constraintsSet = SUNFALSE;
     return(ARK_SUCCESS);
   }
@@ -727,16 +722,12 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
     return(ARK_ILL_INPUT);
   }
 
-  if ( !(ark_mem->ConstraintsMallocDone) ) {
-    ark_mem->constraints = N_VClone(constraints);
-    ark_mem->lrw += ark_mem->lrw1;
-    ark_mem->liw += ark_mem->liw1;
-    ark_mem->ConstraintsMallocDone = SUNTRUE;
-  }
+  /* Allocate the internal constrains vector (if necessary) */
+  if (!arkAllocVec(ark_mem, constraints, &ark_mem->constraints))
+    return(ARK_MEM_FAIL);
 
   /* Load the constraints vector */
   N_VScale(ONE, constraints, ark_mem->constraints);
-
   ark_mem->constraintsSet = SUNTRUE;
 
   return(ARK_SUCCESS);

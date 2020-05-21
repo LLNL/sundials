@@ -15,40 +15,52 @@
 # CMakeLists.txt file for CVODE serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is
+# Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvRoberts_dns\;"
-  "cvRoberts_dns_uw\;develop"
-  "cvRoberts_dns_negsol\;develop"
-  "cvRoberts_dns_constraints\;develop"
-  "cvAdvDiff_bnd\;develop"
-  "cvDirectDemo_ls\;develop"
-  "cvDiurnal_kry_bp\;develop"
-  "cvDiurnal_kry\;develop"
-  "cvDisc_dns\;develop"
-  "cvKrylovDemo_ls\;develop"
-  "cvKrylovDemo_prec\;develop"
+  "cvAdvDiff_bnd\;\;develop"
+  "cvDirectDemo_ls\;\;develop"
+  "cvDiurnal_kry_bp\;\;develop"
+  "cvDiurnal_kry\;\;develop"
+  "cvDisc_dns\;\;develop"
+  "cvKrylovDemo_ls\;\;develop"
+  "cvKrylovDemo_prec\;\;develop"
+  "cvParticle_dns\;\;develop"
+  "cvPendulum_dns\;\;develop"
+  "cvRoberts_dns\;\;"
+  "cvRoberts_dns_uw\;\;develop"
+  "cvRoberts_dns_negsol\;\;develop"
+  "cvRoberts_dns_constraints\;\;develop"
   #cvAdvDiffReac_kry\;develop" # not released
   )
 
+if(SUNDIALS_BUILD_WITH_MONITORING)
+  list(APPEND CVODE_examples "cvKrylovDemo_ls\;1\;develop")
+endif()
+
 # Examples using LAPACK linear solvers
 set(CVODE_examples_BL
-  "cvAdvDiff_bndL\;develop"
-  "cvRoberts_dnsL\;develop"
+  "cvAdvDiff_bndL\;\;develop"
+  "cvRoberts_dnsL\;\;develop"
   )
 
 # Examples using KLU linear solver
 set(CVODE_examples_KLU
-  "cvRoberts_klu\;develop"
-  "cvRoberts_block_klu\;develop"
+  "cvRoberts_klu\;\;develop"
+  "cvRoberts_block_klu\;\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(CVODE_examples_SUPERLUMT
-  "cvRoberts_sps\;develop"
+  "cvRoberts_sps\;\;develop"
+  )
+
+# Auxiliary files to install
+set(CVODE_extras
+  plot_cvParticle.py
+  plot_cvPendulum.py
   )
 
 # Specify libraries to link against (through the target that was used to
@@ -61,34 +73,55 @@ else()
   set(NVECS_LIB sundials_nvecserial_shared)
 endif()
 
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  list(APPEND CVODE_LIB
+       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
+endif()
+
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_type)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 example_type)
 
-  # example source files
-  add_executable(${example} ${example}.c)
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  if(NOT TARGET ${example})
+    # example source files
+    add_executable(${example} ${example}.c)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    # folder to organize targets in an IDE
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
+  endif()
+
+  # check if example args are provided and set the test name
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(${test_name} ${example}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  # find all .out files for this example
+  file(GLOB example_out ${example}*.out)
 
-  # install example source and out files
+  # install example source and .out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
+    install(FILES ${example}.c ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
   endif()
 
@@ -121,25 +154,42 @@ if(LAPACK_FOUND)
 
     # parse the example tuple
     list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
+    list(GET example_tuple 1 example_args)
+    list(GET example_tuple 2 example_type)
 
-    # example source files
-    add_executable(${example} ${example}.c)
+    # check if this example has already been added, only need to add
+    # example source files once for testing with different inputs
+    if(NOT TARGET ${example})
+      # example source files
+      add_executable(${example} ${example}.c)
 
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+      # libraries to link against
+      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
+    endif()
+
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
 
     # add example to regression tests
-    sundials_add_test(${example} ${example}
+    sundials_add_test(${test_name} ${example}
+      TEST_ARGS ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
+      ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type})
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
+    # find all .out files for this example
+    file(GLOB example_out ${example}*.out)
 
-    # install example source and out files
+    # install example source and .out files
     if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example}.out
+      install(FILES ${example}.c ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
     endif()
 
@@ -165,25 +215,42 @@ if(KLU_FOUND)
 
     # parse the example tuple
     list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
+    list(GET example_tuple 1 example_args)
+    list(GET example_tuple 2 example_type)
 
-    # example source files
-    add_executable(${example} ${example}.c)
+    # check if this example has already been added, only need to add
+    # example source files once for testing with different inputs
+    if(NOT TARGET ${example})
+      # add example source files
+      add_executable(${example} ${example}.c)
 
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+      # libraries to link against
+      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
+    endif()
+
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
 
     # add example to regression tests
-    sundials_add_test(${example} ${example}
+    sundials_add_test(${test_name} ${example}
+      TEST_ARGS ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
+      ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type})
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
+    # find all .out files for this example
+    file(GLOB example_out ${example}*.out)
 
-    # install example source and out files
+    # install example source and .out files
     if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example}.out
+      install(FILES ${example}.c ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
     endif()
 
@@ -214,25 +281,35 @@ if(SUPERLUMT_FOUND)
 
     # parse the example tuple
     list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
+    list(GET example_tuple 1 example_args)
+    list(GET example_tuple 2 example_type)
 
-    # example source files
-    add_executable(${example} ${example}.c)
+    # check if this example has already been added, only need to add
+    # example source files once for testing with different inputs
+    if(NOT TARGET ${example})
+      # add example source files
+      add_executable(${example} ${example}.c)
 
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # add example to regression tests
-    sundials_add_test(${example} ${example}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
-      EXAMPLE_TYPE ${example_type})
+      # libraries to link against
+      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
+    endif()
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
 
-    # install example source and out files
+    # find all .out files for this example
+    file(GLOB example_out ${example}*.out)
+
+    # install example source and .out files
     if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example}.out
+      install(FILES ${example}.c ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
     endif()
 
@@ -247,9 +324,17 @@ if(EXAMPLES_INSTALL)
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
 
+  # Install the extra files
+  foreach(extrafile ${CVODE_extras})
+    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+  endforeach()
+
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "CVODE")
   set(SOLVER_LIB "sundials_cvode")
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
+  endif()
 
   examples2string(CVODE_examples EXAMPLES)
 

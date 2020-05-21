@@ -30,16 +30,9 @@
 #define RSYM ".16g"
 #endif
 
-#define NO_DEBUG_OUTPUT
-/* #define DEBUG_OUTPUT */
-#ifdef DEBUG_OUTPUT
-#include <nvector/nvector_serial.h>
-#endif
-
 /* constants */
 #define ZERO   RCONST(0.0)
 #define ONE    RCONST(1.0)
-
 
 
 /*===============================================================
@@ -172,9 +165,12 @@ int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
 
   /* Resize the RHS vectors */
   for (i=0; i<step_mem->stages; i++) {
-    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &step_mem->F[i]);
-    if (retval != ARK_SUCCESS)  return(retval);
+    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                      liw_diff, y0, &step_mem->F[i])) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ERKStep", "ERKStepResize",
+                      "Unable to resize vector");
+      return(ARK_MEM_FAIL);
+    }
   }
 
   return(ARK_SUCCESS);
@@ -383,6 +379,10 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
   ARKodeERKStepMem step_mem;
   int retval;
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  int i;
+#endif
+
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepPrintMem",
                                  &ark_mem, &step_mem);
@@ -403,11 +403,11 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile,"ERKStep: Butcher table:\n");
   ARKodeButcherTable_Write(step_mem->B, outfile);
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
   for (i=0; i<step_mem->stages; i++) {
     fprintf(outfile,"ERKStep: F[%i]:\n", i);
-    N_VPrint_Serial(step_mem->F[i]);
+    N_VPrintFile(step_mem->F[i], outfile);
   }
 #endif
 }
@@ -688,9 +688,9 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
   printf("stage 0 RHS:\n");
-  N_VPrint_Serial(step_mem->F[0]);
+  N_VPrint(step_mem->F[0]);
 #endif
 
   /* Loop over internal stages to the step; since the method is explicit
@@ -700,7 +700,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* Set current stage time(s) */
     ark_mem->tcur = ark_mem->tn + step_mem->B->c[is]*ark_mem->h;
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG
     printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
            ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
@@ -740,9 +740,9 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     if (retval < 0)  return(ARK_RHSFUNC_FAIL);
     if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG_PRINTVEC
     printf("RHS:\n");
-    N_VPrint_Serial(step_mem->F[is]);
+    N_VPrint(step_mem->F[is]);
 #endif
 
   } /* loop over stages */
@@ -751,10 +751,12 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   retval = erkStep_ComputeSolutions(ark_mem, dsmPtr);
   if (retval < 0)  return(retval);
 
-#ifdef DEBUG_OUTPUT
+#ifdef SUNDIALS_DEBUG
   printf("error estimate = %"RSYM"\n", *dsmPtr);
+#endif
+#ifdef SUNDIALS_DEBUG_PRINTVEC
   printf("updated solution:\n");
-  N_VPrint_Serial(ark_mem->ycur);
+  N_VPrint(ark_mem->ycur);
 #endif
 
   /* Solver diagnostics reporting */

@@ -50,6 +50,11 @@ struct _SUNNonlinearSolverContent_Newton {
   long int    niters;     /* total number of nonlinear iterations across all solves */
   long int    nconvfails; /* total number of convergence failures across all solves */
   void*       ctest_data; /* data to pass to convergence test function              */
+
+  /* if 0 (default) nothing is printed, if 1 the residual is printed every iteration */
+  int print_level;
+  /* if NULL nothing is printed, if 1 the residual is printed every iteration */
+  FILE* info_file;
 };
 
 typedef struct _SUNNonlinearSolverContent_Newton *SUNNonlinearSolverContent_Newton;
@@ -103,6 +108,13 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails_Newton(SUNNonlinearSolver NLS,
 
 SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS,
                                                 SUNNonlinSolSysFn *SysFn);
+
+SUNDIALS_EXPORT int SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS,
+                                                   FILE* info_file);
+
+SUNDIALS_EXPORT int SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS,
+                                                     int print_level);
+
 
 #ifdef __cplusplus
 }

@@ -100,6 +100,7 @@ typedef struct IDALsMemRec {
   booleantype jtimesDQ;
   IDALsJacTimesSetupFn jtsetup;
   IDALsJacTimesVecFn jtimes;
+  IDAResFn jt_res;
   void *jt_data;
 
 } *IDALsMem;

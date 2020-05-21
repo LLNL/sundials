@@ -19,7 +19,9 @@
 
 # Examples using SUNDIALS cuda nvector
 set(nvector_cuda_examples
-  "test_nvector_cuda\;1000 0\;\;\;"
+  "test_nvector_cuda\;3 32 0\;\;\;"
+  "test_nvector_cuda\;500 128 0\;\;\;"
+  "test_nvector_cuda\;1000 -1 0\;\;\;"
   )
 
 # Dependencies for nvector examples
@@ -34,9 +36,9 @@ include_directories(. ..)
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nveccuda_static)
+  set(NVECS_LIB sundials_nveccuda_static sundials_nvecserial_static)
 else()
-  set(NVECS_LIB sundials_nveccuda_shared)
+  set(NVECS_LIB sundials_nveccuda_shared sundials_nvecserial_shared)
 endif()
 
 # Set-up linker flags and link libraries

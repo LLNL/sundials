@@ -23,6 +23,8 @@
 #include <sunlinsol/sunlinsol_spbcgs.h>
 #include <sundials/sundials_math.h>
 
+#include "sundials_debug.h"
+
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
@@ -110,25 +112,27 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl)
   S->content = content;
 
   /* Fill content */
-  content->last_flag = 0;
-  content->maxl      = maxl;
-  content->pretype   = pretype;
-  content->numiters  = 0;
-  content->resnorm   = ZERO;
-  content->r_star    = NULL;
-  content->r         = NULL;
-  content->p         = NULL;
-  content->q         = NULL;
-  content->u         = NULL;
-  content->Ap        = NULL;
-  content->vtemp     = NULL;
-  content->s1        = NULL;
-  content->s2        = NULL;
-  content->ATimes    = NULL;
-  content->ATData    = NULL;
-  content->Psetup    = NULL;
-  content->Psolve    = NULL;
-  content->PData     = NULL;
+  content->last_flag   = 0;
+  content->maxl        = maxl;
+  content->pretype     = pretype;
+  content->numiters    = 0;
+  content->resnorm     = ZERO;
+  content->r_star      = NULL;
+  content->r           = NULL;
+  content->p           = NULL;
+  content->q           = NULL;
+  content->u           = NULL;
+  content->Ap          = NULL;
+  content->vtemp       = NULL;
+  content->s1          = NULL;
+  content->s2          = NULL;
+  content->ATimes      = NULL;
+  content->ATData      = NULL;
+  content->Psetup      = NULL;
+  content->Psolve      = NULL;
+  content->PData       = NULL;
+  content->print_level = 0;
+  content->info_file   = stdout;
 
   /* Allocate content */
   content->r_star = N_VClone(y);
@@ -218,12 +222,24 @@ int SUNLinSolInitialize_SPBCGS(SUNLinearSolver S)
 {
   /* ensure valid options */
   if (S == NULL) return(SUNLS_MEM_NULL);
+
+  if (SPBCGS_CONTENT(S)->maxl <= 0)
+    SPBCGS_CONTENT(S)->maxl = SUNSPBCGS_MAXL_DEFAULT;
+
+  if (SPBCGS_CONTENT(S)->ATimes == NULL) {
+    LASTFLAG(S) = SUNLS_ATIMES_NULL;
+    return(LASTFLAG(S));
+  }
+
   if ( (PRETYPE(S) != PREC_LEFT) &&
        (PRETYPE(S) != PREC_RIGHT) &&
        (PRETYPE(S) != PREC_BOTH) )
     PRETYPE(S) = PREC_NONE;
-  if (SPBCGS_CONTENT(S)->maxl <= 0)
-    SPBCGS_CONTENT(S)->maxl = SUNSPBCGS_MAXL_DEFAULT;
+
+  if ((PRETYPE(S) != PREC_NONE) && (SPBCGS_CONTENT(S)->Psolve == NULL)) {
+    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
+    return(LASTFLAG(S));
+  }
 
   /* no additional memory to allocate */
 
@@ -351,6 +367,23 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   scale_x = (sx != NULL);
   scale_b = (sb != NULL);
 
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  if (SPBCGS_CONTENT(S)->print_level && SPBCGS_CONTENT(S)->info_file)
+    fprintf(SPBCGS_CONTENT(S)->info_file, "SUNLINSOL_SPBCGS:\n");
+#endif
+
+  /* Check if Atimes function has been set */
+  if (atimes == NULL) {
+    LASTFLAG(S) = SUNLS_ATIMES_NULL;
+    return(LASTFLAG(S));
+  }
+
+  /* If preconditioning, check if psolve has been set */
+  if ((preOnLeft || preOnRight) && psolve == NULL) {
+    LASTFLAG(S) = SUNLS_PSOLVE_NULL;
+    return(LASTFLAG(S));
+  }
+
   /* Set r_star to initial (unscaled) residual r_0 = b - A*x_0 */
 
   if (N_VDotProd(x, x) == ZERO) N_VScale(ONE, b, r_star);
@@ -387,6 +420,17 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
      return if small */
 
   *res_norm = r_norm = rho = SUNRsqrt(beta_denom);
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* print the initial residual */
+  if (SPBCGS_CONTENT(S)->print_level && SPBCGS_CONTENT(S)->info_file)
+  {
+    fprintf(SPBCGS_CONTENT(S)->info_file,
+            SUNLS_MSG_RESIDUAL,
+            (long int) 0, *res_norm);
+  }
+#endif
+
   if (r_norm <= delta) {
     LASTFLAG(S) = SUNLS_SUCCESS;
     return(LASTFLAG(S));
@@ -529,6 +573,17 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     /* Set rho = norm(r) and check convergence */
 
     *res_norm = rho = SUNRsqrt(N_VDotProd(r, r));
+
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+      /* print current iteration number and the residual */
+      if (SPBCGS_CONTENT(S)->print_level && SPBCGS_CONTENT(S)->info_file)
+      {
+        fprintf(SPBCGS_CONTENT(S)->info_file,
+                SUNLS_MSG_RESIDUAL,
+                (long int) *nli, *res_norm);
+      }
+#endif
+
     if (rho <= delta) {
       converged = SUNTRUE;
       break;
@@ -673,4 +728,44 @@ int SUNLinSolFree_SPBCGS(SUNLinearSolver S)
   if (S->ops) { free(S->ops); S->ops = NULL; }
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
+}
+
+
+int SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver S,
+                                FILE* info_file)
+{
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* check that the linear solver is non-null */
+  if (S == NULL)
+    return(SUNLS_MEM_NULL);
+
+  SPBCGS_CONTENT(S)->info_file = info_file;
+
+  return(SUNLS_SUCCESS);
+#else
+  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetInfoFile_SPBCGS: SUNDIALS was not built with monitoring\n");
+  return(SUNLS_ILL_INPUT);
+#endif
+}
+
+
+int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver S,
+                                  int print_level)
+{
+#ifdef SUNDIALS_BUILD_WITH_MONITORING
+  /* check that the linear solver is non-null */
+  if (S == NULL)
+    return(SUNLS_MEM_NULL);
+
+  /* check for valid print level */
+  if (print_level < 0 || print_level > 1)
+    return(SUNLS_ILL_INPUT);
+
+  SPBCGS_CONTENT(S)->print_level = print_level;
+
+  return(SUNLS_SUCCESS);
+#else
+  SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSolSetPrintLevel_SPBCGS: SUNDIALS was not built with monitoring\n");
+  return(SUNLS_ILL_INPUT);
+#endif
 }

@@ -153,6 +153,7 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   }
   kinls_mem->jtimesDQ = SUNTRUE;
   kinls_mem->jtimes   = kinLsDQJtimes;
+  kinls_mem->jt_func  = kin_mem->kin_func;
   kinls_mem->jt_data  = kin_mem;
 
   /* Set defaults for preconditioner-related fields */
@@ -317,11 +318,43 @@ int KINSetJacTimesVecFn(void *kinmem, KINLsJacTimesVecFn jtv)
   } else {
     kinls_mem->jtimesDQ = SUNTRUE;
     kinls_mem->jtimes   = kinLsDQJtimes;
+    kinls_mem->jt_func  = kin_mem->kin_func;
     kinls_mem->jt_data  = kin_mem;
   }
 
   return(KINLS_SUCCESS);
 }
+
+
+/* KINSetJacTimesVecSysFn specifies an alternative user-supplied system function
+   to use in the internal finite difference Jacobian-vector product */
+int KINSetJacTimesVecSysFn(void *kinmem, KINSysFn jtimesSysFn)
+{
+  int      retval;
+  KINMem   kin_mem = NULL;
+  KINLsMem kinls_mem = NULL;
+
+  /* access KINLsMem structure */
+  retval = kinLs_AccessLMem(kin_mem, "KINSetJacTimesVecSysFn",
+                            &kin_mem, &kinls_mem);
+  if (retval != KIN_SUCCESS) return(retval);
+
+  /* check if using internal finite difference approximation */
+  if (!(kinls_mem->jtimesDQ)) {
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetJacTimesVecSysFn",
+                    "Internal finite-difference Jacobian-vector product is disabled.");
+    return(KINLS_ILL_INPUT);
+  }
+
+  /* store function pointers for system function (NULL implies use kin_func) */
+  if (jtimesSysFn != NULL)
+    kinls_mem->jt_func = jtimesSysFn;
+  else
+    kinls_mem->jt_func = kin_mem->kin_func;
+
+  return(KINLS_SUCCESS);
+}
+
 
 /*------------------------------------------------------------------
   KINGetLinWorkSpace returns the integer and real workspace size
@@ -923,8 +956,8 @@ int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
   N_VLinearSum(ONE, u, sigma, v, kin_mem->kin_vtemp1);
 
   /* call the system function to calculate func(u+sigma*v) */
-  retval = kin_mem->kin_func(kin_mem->kin_vtemp1, kin_mem->kin_vtemp2,
-                             kin_mem->kin_user_data);
+  retval = kinls_mem->jt_func(kin_mem->kin_vtemp1, kin_mem->kin_vtemp2,
+                              kin_mem->kin_user_data);
   kinls_mem->nfeDQ++;
   if (retval != 0) return(retval);
 

@@ -169,6 +169,15 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   arkls_mem->jtsetup  = NULL;
   arkls_mem->jtimes   = arkLsDQJtimes;
   arkls_mem->Jt_data  = ark_mem;
+  arkls_mem->Jt_f     = ark_mem->step_getimplicitrhs(arkode_mem);
+
+  if (arkls_mem->Jt_f == NULL) {
+    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
+                    "arkLSSetLinearSolver",
+                    "Time step module is missing implicit RHS fcn");
+    free(arkls_mem); arkls_mem = NULL;
+    return(ARKLS_ILL_INPUT);
+  }
 
   arkls_mem->user_linsys = SUNFALSE;
   arkls_mem->linsys      = arkLsLinSys;
@@ -692,6 +701,54 @@ int arkLSSetJacTimes(void *arkode_mem,
     arkls_mem->jtsetup  = NULL;
     arkls_mem->jtimes   = arkLsDQJtimes;
     arkls_mem->Jt_data  = ark_mem;
+    arkls_mem->Jt_f     = ark_mem->step_getimplicitrhs(arkode_mem);
+
+    if (arkls_mem->Jt_f == NULL) {
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
+                      "arkLSSetJacTimes",
+                      "Time step module is missing implicit RHS fcn");
+      return(ARKLS_ILL_INPUT);
+    }
+  }
+
+  return(ARKLS_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  arkLSSetJacTimesRhsFn specifies an alternative user-supplied
+  ODE right-hand side function to use in the internal finite
+  difference Jacobian-vector product.
+  ---------------------------------------------------------------*/
+int arkLSSetJacTimesRhsFn(void *arkode_mem, ARKRhsFn jtimesRhsFn)
+{
+  ARKodeMem ark_mem;
+  ARKLsMem  arkls_mem;
+  int       retval;
+
+  /* access ARKLsMem structure */
+  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetJacTimesRhsFn",
+                            &ark_mem, &arkls_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* check if using internal finite difference approximation */
+  if (!(arkls_mem->jtimesDQ)) {
+    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS", "arkLSSetJacTimesRhsFn",
+                    "Internal finite-difference Jacobian-vector product is disabled.");
+    return(ARKLS_ILL_INPUT);
+  }
+
+  /* store function pointers for RHS function (NULL implies use ODE RHS) */
+  if (jtimesRhsFn != NULL) {
+    arkls_mem->Jt_f = jtimesRhsFn;
+  } else {
+    arkls_mem->Jt_f = ark_mem->step_getimplicitrhs(arkode_mem);
+
+    if (arkls_mem->Jt_f == NULL) {
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
+                      "arkLSSetJacTimesRhsFn",
+                      "Time step module is missing implicit RHS fcn");
+      return(ARKLS_ILL_INPUT);
+    }
   }
 
   return(ARKLS_SUCCESS);
@@ -1949,7 +2006,6 @@ int arkLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 {
   ARKodeMem ark_mem;
   ARKLsMem  arkls_mem;
-  ARKRhsFn  fi;
   realtype  sig, siginv;
   int       iter, retval;
 
@@ -1961,22 +2017,13 @@ int arkLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
   /* Initialize perturbation to 1/||v|| */
   sig = ONE/N_VWrmsNorm(v, ark_mem->ewt);
 
-  /* Access implicit RHS function */
-  fi = ark_mem->step_getimplicitrhs(arkode_mem);
-  if (fi == NULL) {
-    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
-                    "arkLsDQJtimes",
-                    "Time step module is missing implicit RHS fcn");
-    return(ARKLS_ILL_INPUT);
-  }
-
   for (iter=0; iter<MAX_DQITERS; iter++) {
 
     /* Set work = y + sig*v */
     N_VLinearSum(sig, v, ONE, y, work);
 
     /* Set Jv = f(tn, y+sig*v) */
-    retval = fi(t, work, Jv, ark_mem->user_data);
+    retval = arkls_mem->Jt_f(t, work, Jv, ark_mem->user_data);
     arkls_mem->nfeDQ++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);

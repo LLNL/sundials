@@ -45,6 +45,11 @@ else()
   set(SUNLS_LIB sundials_sunlinsolsuperludist_shared)
 endif()
 
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  list(APPEND CVODE_LIB
+       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
+endif()
+
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${SUNMAT_LIB} ${SUNLS_LIB} ${EXTRA_LINK_LIBS})
 
@@ -98,6 +103,9 @@ if(EXAMPLES_INSTALL)
     "-lsundials_nvecparallel "
     "-lsundials_sunmatrixslunrloc "
     "-lsundials_sunlinsolsuperludist")
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
+  endif()
 
   examples2string(CVODE_examples EXAMPLES)
 

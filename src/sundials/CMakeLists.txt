@@ -42,6 +42,10 @@ set(sundials_HEADERS
   sundials_version.h
   )
 
+if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+  list(APPEND sundials_HEADERS sundials_cuda_policies.hpp)
+endif()
+
 # Add prefix with complete path to the SUNDIALS header files
 add_prefix(${sundials_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 

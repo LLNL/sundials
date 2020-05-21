@@ -72,4 +72,4 @@ endif(BUILD_SHARED_LIBS)
 install(FILES ${cusparse_HEADERS} DESTINATION include/sunmatrix)
 
 #
-message(STATUS "Added sunmatrix_cusparse module")
+message(STATUS "Added SUNMATRIX_CUSPARSE module")

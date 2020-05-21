@@ -358,7 +358,6 @@ typedef struct ARKodeMemRec {
   realtype    tolsf;        /* tolerance scale factor (suggestion to user) */
   booleantype VabstolMallocDone;
   booleantype VRabstolMallocDone;
-  booleantype ConstraintsMallocDone;
   booleantype MallocDone;
   booleantype resized;      /* denotes first step after ARKodeResize      */
   booleantype firststage;   /* denotes first stage in simulation          */
@@ -838,18 +837,24 @@ booleantype arkAllocVec(ARKodeMem ark_mem,
                         N_Vector tmpl,
                         N_Vector *v);
 void arkFreeVec(ARKodeMem ark_mem, N_Vector *v);
-int arkResizeVec(ARKodeMem ark_mem,
-                 ARKVecResizeFn resize,
-                 void *resize_data,
-                 sunindextype lrw_diff,
-                 sunindextype liw_diff,
-                 N_Vector tmpl,
-                 N_Vector *v);
+booleantype arkResizeVec(ARKodeMem ark_mem,
+                         ARKVecResizeFn resize,
+                         void *resize_data,
+                         sunindextype lrw_diff,
+                         sunindextype liw_diff,
+                         N_Vector tmpl,
+                         N_Vector *v);
 void arkPrintMem(ARKodeMem ark_mem, FILE *outfile);
 booleantype arkCheckTimestepper(ARKodeMem ark_mem);
 booleantype arkCheckNvector(N_Vector tmpl);
 booleantype arkAllocVectors(ARKodeMem ark_mem,
                             N_Vector tmpl);
+booleantype arkResizeVectors(ARKodeMem ark_mem,
+                             ARKVecResizeFn resize,
+                             void *resize_data,
+                             sunindextype lrw_diff,
+                             sunindextype liw_diff,
+                             N_Vector tmpl);
 void arkFreeVectors(ARKodeMem ark_mem);
 
 int arkInitialSetup(ARKodeMem ark_mem, realtype tout);

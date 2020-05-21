@@ -1,6 +1,7 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ *                David Gardner, Carol Woodward,
+ *                Slaven Peles, Cody Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -181,13 +182,15 @@ SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
 #define SUNLS_MEM_NULL           -801   /* mem argument is NULL          */
 #define SUNLS_ILL_INPUT          -802   /* illegal function input        */
 #define SUNLS_MEM_FAIL           -803   /* failed memory access          */
-#define SUNLS_ATIMES_FAIL_UNREC  -804   /* atimes unrecoverable failure  */
-#define SUNLS_PSET_FAIL_UNREC    -805   /* pset unrecoverable failure    */
-#define SUNLS_PSOLVE_FAIL_UNREC  -806   /* psolve unrecoverable failure  */
-#define SUNLS_PACKAGE_FAIL_UNREC -807   /* external package unrec. fail  */
-#define SUNLS_GS_FAIL            -808   /* Gram-Schmidt failure          */
-#define SUNLS_QRSOL_FAIL         -809   /* QRsol found singular R        */
-#define SUNLS_VECTOROP_ERR       -810   /* vector operation error        */
+#define SUNLS_ATIMES_NULL        -804   /* atimes function is NULL       */
+#define SUNLS_ATIMES_FAIL_UNREC  -805   /* atimes unrecoverable failure  */
+#define SUNLS_PSET_FAIL_UNREC    -806   /* pset unrecoverable failure    */
+#define SUNLS_PSOLVE_NULL        -807   /* psolve function is NULL       */
+#define SUNLS_PSOLVE_FAIL_UNREC  -808   /* psolve unrecoverable failure  */
+#define SUNLS_PACKAGE_FAIL_UNREC -809   /* external package unrec. fail  */
+#define SUNLS_GS_FAIL            -810   /* Gram-Schmidt failure          */
+#define SUNLS_QRSOL_FAIL         -811   /* QRsol found singular R        */
+#define SUNLS_VECTOROP_ERR       -812   /* vector operation error        */
 
 #define SUNLS_RES_REDUCED         801   /* nonconv. solve, resid reduced */
 #define SUNLS_CONV_FAIL           802   /* nonconvergent solve           */
@@ -197,6 +200,18 @@ SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
 #define SUNLS_PACKAGE_FAIL_REC    806   /* external package recov. fail  */
 #define SUNLS_QRFACT_FAIL         807   /* QRfact found singular matrix  */
 #define SUNLS_LUFACT_FAIL         808   /* LUfact found singular matrix  */
+
+/* -----------------------------------------------------------------------------
+ * SUNLinearSolver messages
+ * ---------------------------------------------------------------------------*/
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNLS_MSG_RESIDUAL "\t\tlin. iteration %ld, lin. residual: %Lg\n"
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNLS_MSG_RESIDUAL "\t\tlin. iteration %ld, lin. residual: %g\n"
+#else
+#define SUNLS_MSG_RESIDUAL "\t\tlin. iteration %ld, lin. residual: %g\n"
+#endif
 
 #ifdef __cplusplus
 }

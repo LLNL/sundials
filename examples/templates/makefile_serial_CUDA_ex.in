@@ -34,7 +34,7 @@ NVCC        = @CMAKE_CUDA_COMPILER@
 NVCCFLAGS   = -ccbin=${CXX} -std=c++11 @CMAKE_CUDA_FLAGS@
 LD          = ${NVCC}
 LDFLAGS     = @LDFLAGS@ ${NVCCFLAGS} -Xcompiler \"-Wl,-rpath,${libdir}\"
-LIBS        = @LIBS@
+LIBS        = @LIBS@ -lcusolver -lcusparse
 
 TMP_INCS = ${includedir}
 INCLUDES = $(addprefix -I, ${TMP_INCS})

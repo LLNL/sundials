@@ -29,6 +29,7 @@ set(sunmatrix_cusparse_examples
 set(sunmatrix_examples_dependencies
   test_sunmatrix
   sundials_matrix
+  dreadrb
   )
 
 # Specify libraries to link against (through the target that was used to

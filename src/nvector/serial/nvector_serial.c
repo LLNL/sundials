@@ -123,6 +123,10 @@ N_Vector N_VNewEmpty_Serial(sunindextype length)
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Serial;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Serial;
 
+  /* debugging functions */
+  v->ops->nvprint     = N_VPrint_Serial;
+  v->ops->nvprintfile = N_VPrintFile_Serial;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Serial) malloc(sizeof *content);
@@ -1876,7 +1880,7 @@ static int VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* 
     }
 
     return(0);
-  }    
+  }
 
   for (i=0; i<nvec; i++) {
     xd = NV_DATA_S(X[i]);

@@ -24,6 +24,8 @@
 #include <stdarg.h>
 #include <cvode/cvode.h>
 
+#include "cvode_proj_impl.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -47,10 +49,57 @@ extern "C" {
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
-/* Return values for lower level routines used by CVode and functions
-   provided to the nonlinear solver */
+/* Control constants for lower-level functions used by cvStep
+ * ----------------------------------------------------------
+ *
+ * cvHin return values:
+ *    CV_SUCCESS
+ *    CV_RHSFUNC_FAIL
+ *    CV_TOO_CLOSE
+ *
+ * cvStep control constants:
+ *    DO_ERROR_TEST
+ *    PREDICT_AGAIN
+ *
+ * cvStep return values:
+ *    CV_SUCCESS,
+ *    CV_LSETUP_FAIL,  CV_LSOLVE_FAIL,
+ *    CV_RHSFUNC_FAIL, CV_RTFUNC_FAIL
+ *    CV_CONV_FAILURE, CV_ERR_FAILURE,
+ *    CV_FIRST_RHSFUNC_ERR
+ *
+ * cvNls input nflag values:
+ *    FIRST_CALL
+ *    PREV_CONV_FAIL
+ *    PREV_PROJ_FAIL
+ *    PREV_ERR_FAIL
+ *
+ * cvNls return values:
+ *    CV_SUCCESS,
+ *    CV_LSETUP_FAIL, CV_LSOLVE_FAIL, CV_RHSFUNC_FAIL,
+ *    CONV_FAIL, RHSFUNC_RECVR
+ *
+ * cvNewtonIteration return values:
+ *    CV_SUCCESS,
+ *    CV_LSOLVE_FAIL, CV_RHSFUNC_FAIL
+ *    CONV_FAIL, RHSFUNC_RECVR,
+ *    TRY_AGAIN
+ *
+ */
 
-#define RHSFUNC_RECVR +9
+#define DO_ERROR_TEST    +2
+#define PREDICT_AGAIN    +3
+
+#define TRY_AGAIN        +5
+#define FIRST_CALL       +6
+#define PREV_CONV_FAIL   +7
+#define PREV_PROJ_FAIL   +8
+#define PREV_ERR_FAIL    +9
+
+#define RHSFUNC_RECVR    +10
+#define CONSTR_RECVR     +11
+#define CONSTRFUNC_RECVR +12
+#define PROJFUNC_RECVR   +13
 
 /*
  * -----------------------------------------------------------------
@@ -258,6 +307,12 @@ typedef struct CVodeMemRec {
   void *cv_eh_data;           /* data pointer passed to ehfun                 */
   FILE *cv_errfp;             /* CVODE error messages are sent to errfp       */
 
+  /*-------------------------------------------
+    User access function
+  -------------------------------------------*/
+  CVMonitorFn cv_monitorfun;     /* func called with CVODE mem and user data  */
+  long int cv_monitor_interval;  /* step interval to call cv_monitorfun       */
+
   /*-------------------------
     Stability Limit Detection
     -------------------------*/
@@ -289,12 +344,23 @@ typedef struct CVodeMemRec {
   booleantype *cv_gactive; /* array with active/inactive event functions      */
   int cv_mxgnull;          /* number of warning messages about possible g==0  */
 
+  /*----------------
+    Projection Data
+    ----------------*/
+
+  CVodeProjMem proj_mem;      /* projection memory structure               */
+  booleantype  proj_enabled;  /* flag indicating if projection is enabled  */
+  booleantype  proj_applied;  /* flag indicating if projection was applied */
+  realtype     cv_p[L_MAX];   /* coefficients of p(x) (degree q poly)      */
+
   /*-----------------------
     Fused Vector Operations
     -----------------------*/
 
   realtype cv_cvals[L_MAX]; /* array of scalars */
   N_Vector cv_Xvecs[L_MAX]; /* array of vectors */
+
+  booleantype cv_usefused;  /* flag indicating if CVODE specific fused kernels should be used */
 
 } *CVodeMem;
 
@@ -455,6 +521,21 @@ void cvErrHandler(int error_code, const char *module, const char *function,
 
 int cvNlsInit(CVodeMem cv_mem);
 
+/* Projection functions */
+
+int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
+                   int *npfPtr);
+int cvProjInit(CVodeProjMem proj_mem);
+int cvProjFree(CVodeProjMem *proj_mem);
+
+/* Restore tn and undo prediction to reattempt a step */
+
+void cvRestore(CVodeMem cv_mem, realtype saved_t);
+
+/* Reset h and rescale history array to prepare for a step */
+
+void cvRescale(CVodeMem cv_mem);
+
 /*
  * =================================================================
  *   C V O D E    E R R O R    M E S S A G E S
@@ -550,6 +631,15 @@ int cvNlsInit(CVodeMem cv_mem);
 #define MSGCV_NLS_SETUP_FAILED "At " MSG_TIME ", the nonlinear solver setup failed unrecoverably."
 #define MSGCV_NLS_INPUT_NULL "At " MSG_TIME ", the nonlinear solver was passed a NULL input."
 #define MSGCV_NLS_FAIL "At " MSG_TIME ", the nonlinear solver failed in an unrecoverable manner."
+
+/* CVode Projection Error Messages */
+
+#define MSG_CV_MEM_NULL  "cvode_mem = NULL illegal."
+#define MSG_CV_MEM_FAIL  "A memory request failed."
+
+#define MSG_CV_PROJ_MEM_NULL       "proj_mem = NULL illegal."
+#define MSG_CV_PROJFUNC_FAIL       "At " MSG_TIME " the projection function failed with an unrecoverable error."
+#define MSG_CV_REPTD_PROJFUNC_ERR  "At " MSG_TIME " the projection function had repeated recoverable errors."
 
 #ifdef __cplusplus
 }

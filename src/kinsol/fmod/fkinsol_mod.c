@@ -774,6 +774,20 @@ SWIGEXPORT void _wrap_FKINFree(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FKINSetJacTimesVecSysFn(void *farg1, KINSysFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  KINSysFn arg2 = (KINSysFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (KINSysFn)(farg2);
+  result = (int)KINSetJacTimesVecSysFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FKINBBDPrecInit(void *farg1, int64_t const *farg2, int64_t const *farg3, int64_t const *farg4, int64_t const *farg5, int64_t const *farg6, double const *farg7, KINBBDLocalFn farg8, KINBBDCommFn farg9) {
   int fresult ;
   void *arg1 = (void *) 0 ;
