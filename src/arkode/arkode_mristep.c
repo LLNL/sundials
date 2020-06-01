@@ -140,66 +140,15 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
   MRIStepReInit:
 
   This routine re-initializes the MRIStep module to solve a new
-  problem of the same size as was previously solved.
+  problem of the same size as was previously solved (all counter
+  values are set to 0).
 
   NOTE: the inner stepper needs to be reinitialized before
   calling this function.
   ---------------------------------------------------------------*/
 int MRIStepReInit(void* arkode_mem, ARKRhsFn fs, realtype t0, N_Vector y0)
 {
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepReInit",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* Check that fs is supplied */
-  if (fs == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
-                    "MRIStepReInit", MSG_ARK_NULL_F);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Check that y0 is supplied */
-  if (y0 == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
-                    "MRIStepReInit", MSG_ARK_NULL_Y0);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* ReInitialize main ARKode infrastructure */
-  retval = arkReInit(arkode_mem, t0, y0);
-  if (retval != ARK_SUCCESS) {
-    arkProcessError(ark_mem, retval, "ARKode::MRIStep", "MRIStepReInit",
-                    "Unable to initialize main ARKode infrastructure");
-    return(retval);
-  }
-
-  /* Copy the input parameters into ARKode state */
-  step_mem->fs = fs;
-
-  /* Initialize all the counters */
-  step_mem->nfs = 0;
-
-  /* Reattach the inner integrator */
-  switch (step_mem->inner_stepper_id) {
-  case MRISTEP_ARKSTEP:
-    retval = mriStep_AttachARK(arkode_mem, step_mem->inner_mem);
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT,
-                    "ARKode::MRIStep", "MRIStepReInit",
-                    "Invalid inner integrator option");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* check if inner integrator was attached successfully */
-  if (retval != ARK_SUCCESS) return(ARK_INNERSTEP_ATTACH_ERR);
-
-  return(ARK_SUCCESS);
+  return(mriStep_ReInit(arkode_mem, fs, t0, y0, 0));
 }
 
 
@@ -474,7 +423,7 @@ void* mriStep_Create(ARKRhsFn fs, realtype t0, N_Vector y0)
   step_mem->post_inner_evolve = NULL;
 
   /* Initialize main ARKode infrastructure (allocates vectors) */
-  retval = arkInit(ark_mem, t0, y0);
+  retval = arkInit(ark_mem, t0, y0, 0);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKode::MRIStep", "MRIStepCreate",
                     "Unable to initialize main ARKode infrastructure");
@@ -528,8 +477,10 @@ int mriStep_AttachARK(void* arkode_mem, void* inner_mem)
 
   This routine is called just prior to performing internal time
   steps (after all user "set" routines have been called) from
-  within arkInitialSetup (init_type == 0) or arkPostResizeSetup
-  (init_type == 1).
+  within arkInitialSetup.
+
+  init_type == 0 for (re-)initialization
+  init_type == 1 for a post resize() call
 
   With init_type == 0, this routine:
   - sets/checks the ARK Butcher tables to be used
@@ -1142,6 +1093,82 @@ int mriStep_CheckButcherTable(ARKodeMem ark_mem)
                     "Final stage time must be less than 1.");
     return(ARK_ILL_INPUT);
   }
+
+  return(ARK_SUCCESS);
+}
+
+
+/*------------------------------------------------------------------------------
+  mriStep_ReInit
+
+  This routine is called by ReInit initialize the MRIStep module.
+
+  init_type == 0 all counters are set to 0
+  init_type == 1 all counter values are retained
+  ----------------------------------------------------------------------------*/
+int mriStep_ReInit(void* arkode_mem, ARKRhsFn fs, realtype t0, N_Vector y0,
+                   int init_type)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "mriStep_ReInit",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE) {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode::MRIStep",
+                    "mriStep_ReInit", MSG_ARK_NO_MALLOC);
+    return(ARK_NO_MALLOC);
+  }
+
+  /* Check that fs is supplied */
+  if (fs == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
+                    "mriStep_ReInit", MSG_ARK_NULL_F);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* Check that y0 is supplied */
+  if (y0 == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
+                    "mriStep_ReInit", MSG_ARK_NULL_Y0);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* ReInitialize main ARKode infrastructure */
+  retval = arkInit(arkode_mem, t0, y0, init_type);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode::MRIStep", "mriStep_ReInit",
+                    "Unable to initialize main ARKode infrastructure");
+    return(retval);
+  }
+
+  /* Copy the input parameters into ARKode state */
+  step_mem->fs = fs;
+
+  /* Initialize all the counters (if necessary) */
+  if (init_type == 0) {
+    step_mem->nfs = 0;
+  }
+
+  /* Reattach the inner integrator */
+  switch (step_mem->inner_stepper_id) {
+  case MRISTEP_ARKSTEP:
+    retval = mriStep_AttachARK(arkode_mem, step_mem->inner_mem);
+    break;
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT,
+                    "ARKode::MRIStep", "MRIStepReInit",
+                    "Invalid inner integrator option");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* check if inner integrator was attached successfully */
+  if (retval != ARK_SUCCESS) return(ARK_INNERSTEP_ATTACH_ERR);
 
   return(ARK_SUCCESS);
 }

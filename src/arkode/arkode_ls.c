@@ -2334,7 +2334,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
      Note: the "ARK_FAIL_BAD_J" test is asking whether the nonlinear
      solver converged due to a bad system Jacobian AND our gamma was
      fine, indicating that the J and/or P were invalid */
-  arkls_mem->jbad = (ark_mem->nst == 0) ||
+  arkls_mem->jbad = (ark_mem->initsetup) ||
     (ark_mem->nst > arkls_mem->nstlj + arkls_mem->msbj) ||
     ((convfail == ARK_FAIL_BAD_J) && (!dgamma_fail)) ||
     (convfail == ARK_FAIL_OTHER);

@@ -196,7 +196,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   step_mem->nforcing   = 0;
 
   /* Initialize main ARKode infrastructure */
-  retval = arkInit(ark_mem, t0, y0);
+  retval = arkInit(ark_mem, t0, y0, 0);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKode::ARKStep", "ARKStepCreate",
                     "Unable to initialize main ARKode infrastructure");
@@ -334,60 +334,13 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   ARKStepReInit:
 
   This routine re-initializes the ARKStep module to solve a new
-  problem of the same size as was previously solved.
+  problem of the same size as was previously solved (all counter
+  values are set to 0).
   ---------------------------------------------------------------*/
 int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                   ARKRhsFn fi, realtype t0, N_Vector y0)
 {
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepReInit",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* Check that at least one of fe, fi is supplied and is to be used */
-  if (fe == NULL && fi == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
-                    "ARKStepCreate", MSG_ARK_NULL_F);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Check for legal input parameters */
-  if (y0 == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
-                    "ARKStepReInit", MSG_ARK_NULL_Y0);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Set implicit/explicit problem based on function pointers */
-  step_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
-  step_mem->implicit = (fi == NULL) ? SUNFALSE : SUNTRUE;
-
-  /* Copy the input parameters into ARKode state */
-  step_mem->fe = fe;
-  step_mem->fi = fi;
-
-  /* Initialize initial error norm  */
-  step_mem->eRNrm = ONE;
-
-  /* ReInitialize main ARKode infrastructure */
-  retval = arkReInit(ark_mem, t0, y0);
-  if (retval != ARK_SUCCESS) {
-    arkProcessError(ark_mem, retval, "ARKode::ARKStep", "ARKStepReInit",
-                    "Unable to initialize main ARKode infrastructure");
-    return(retval);
-  }
-
-  /* Initialize all the counters */
-  step_mem->nfe     = 0;
-  step_mem->nfi     = 0;
-  step_mem->nsetups = 0;
-  step_mem->nstlp   = 0;
-
-  return(ARK_SUCCESS);
+  return(arkStep_ReInit(arkode_mem, fe, fi, t0, y0, 0));
 }
 
 
@@ -972,8 +925,10 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
 
   This routine is called just prior to performing internal time
   steps (after all user "set" routines have been called) from
-  within arkInitialSetup (init_type == 0) or arkPostResizeSetup
-  (init_type == 1).
+  within arkInitialSetup.
+
+  init_type == 0 for (re-)initialization
+  init_type == 1 for a post resize() call
 
   With init_type == 0, this routine:
   - sets/checks the ARK Butcher tables to be used
@@ -2092,8 +2047,8 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-  /* if the first step (or if resized), use initial condition as guess */
-  if (ark_mem->nst == 0 || ark_mem->resized) {
+  /* if the first step, use initial condition as guess */
+  if (ark_mem->initsetup) {
     N_VScale(ONE, ark_mem->yn, yguess);
     return(ARK_SUCCESS);
   }
@@ -2523,6 +2478,78 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 
 
 /*------------------------------------------------------------------------------
+  arkStep_ReInit
+
+  This routine is called by ReInit to initialize the ARKStep module.
+
+  init_type == 0 all counters are set to 0
+  init_type == 1 all counter values are retained
+  ----------------------------------------------------------------------------*/
+int arkStep_ReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, realtype t0,
+                   N_Vector y0, int init_type)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_ReInit",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE) {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode::ARKStep",
+                    "arkStep_ReInit", MSG_ARK_NO_MALLOC);
+    return(ARK_NO_MALLOC);
+  }
+
+  /* Check that at least one of fe, fi is supplied and is to be used */
+  if (fe == NULL && fi == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "arkStep_ReInit", MSG_ARK_NULL_F);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* Check for legal input parameters */
+  if (y0 == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "arkStep_ReInit", MSG_ARK_NULL_Y0);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* Set implicit/explicit problem based on function pointers */
+  step_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
+  step_mem->implicit = (fi == NULL) ? SUNFALSE : SUNTRUE;
+
+  /* Copy the input parameters into ARKode state */
+  step_mem->fe = fe;
+  step_mem->fi = fi;
+
+  /* Initialize initial error norm  */
+  step_mem->eRNrm = ONE;
+
+  /* Initialize main ARKode infrastructure */
+  retval = arkInit(ark_mem, t0, y0, init_type);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode::ARKStep", "arkStep_ReInit",
+                    "Unable to initialize main ARKode infrastructure");
+    return(retval);
+  }
+
+  /* Initialize all the counters (if necessary) */
+  if (init_type == 0) {
+    step_mem->nfe     = 0;
+    step_mem->nfi     = 0;
+    step_mem->nsetups = 0;
+    step_mem->nstlp   = 0;
+  }
+
+  return(ARK_SUCCESS);
+}
+
+
+/*------------------------------------------------------------------------------
   arkStep_SetInnerForcing
 
   Sets an array of coefficient vectors for a time-dependent external polynomial
@@ -2545,7 +2572,7 @@ int arkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepResize",
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_SetInnerForcing",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 

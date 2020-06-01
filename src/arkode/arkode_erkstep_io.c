@@ -431,7 +431,7 @@ int ERKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
   *expsteps = ark_mem->hadapt_mem->nst_exp;
   *accsteps = ark_mem->hadapt_mem->nst_acc;
 
-  /* set remaining outputs from step_mem */
+  /* set remaining outputs */
   *attempts = ark_mem->nst_attempts;
   *fevals   = step_mem->nfe;
   *netfails = ark_mem->netf;

@@ -359,6 +359,7 @@ typedef struct ARKodeMemRec {
   booleantype VabstolMallocDone;
   booleantype VRabstolMallocDone;
   booleantype MallocDone;
+  booleantype initsetup;    /* denotes a call to InitialSetup is needed */
   booleantype resized;      /* denotes first step after ARKodeResize      */
   booleantype firststage;   /* denotes first stage in simulation          */
   booleantype initialized;  /* denotes arkInitialSetup has been done      */
@@ -719,11 +720,11 @@ typedef struct ARKodeMemRec {
   ---------------------------------------------------------------
   This routine is called just prior to performing internal time
   steps (after all user "set" routines have been called) from
-  within arkInitialSetup (init_type == 0) or arkPostResizeSetup
-  (init_type == 1).  It should complete initializations for a
-  specific ARKode time stepping module, such as verifying
+  within arkInitialSetup. It should complete initializations for
+  a specific ARKode time stepping module, such as verifying
   compatibility of user-specified linear and nonlinear solver
-  objects.
+  objects. The input init_type flag indicates if the call is
+  for (re-)initializing or resizing the problem.
 
   This routine should return 0 if it has successfully initialized
   the ARKode time stepper module and a negative value otherwise.
@@ -831,8 +832,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define SUNDIALS_UNUSED
 #endif
 
-int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0);
-int arkReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0);
+int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0, int init_type);
 booleantype arkAllocVec(ARKodeMem ark_mem,
                         N_Vector tmpl,
                         N_Vector *v);
@@ -858,7 +858,6 @@ booleantype arkResizeVectors(ARKodeMem ark_mem,
 void arkFreeVectors(ARKodeMem ark_mem);
 
 int arkInitialSetup(ARKodeMem ark_mem, realtype tout);
-int arkPostResizeSetup(ARKodeMem ark_mem);
 int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
                  realtype *tret, int itask, int *ier);
 int arkHin(ARKodeMem ark_mem, realtype tout);
