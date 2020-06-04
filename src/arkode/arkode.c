@@ -130,11 +130,20 @@ ARKodeMem arkCreate()
   /* Initially, rwt should point to ewt */
   ark_mem->rwt_is_ewt = SUNTRUE;
 
-  /* Initially, the problem has not been resized */
-  ark_mem->resized = SUNFALSE;
+  /* Indicate that evaluation of the full RHS is not required after each step,
+     this flag is updated to SUNTRUE by the interpolation module initialization
+     function and/or the stepper initialization function in arkInitialSetup */
+  ark_mem->call_fullrhs = SUNFALSE;
 
-  /* Indicate that problem needs to be initialized */
-  ark_mem->initsetup = SUNTRUE;
+  /* Indicate that the problem needs to be initialized */
+  ark_mem->initsetup   = SUNTRUE;
+  ark_mem->init_type   = FIRST_INIT;
+  ark_mem->firststage  = SUNTRUE;
+  ark_mem->initialized = SUNFALSE;
+
+  /* Initial step size has not been determined yet */
+  ark_mem->h   = ZERO;
+  ark_mem->h0u = ZERO;
 
   /* Set default values for integrator optional inputs */
   iret = arkSetDefaults(ark_mem);
@@ -194,7 +203,7 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
   int retval;
 
   /* Check ark_mem */
-  if (ark_mem==NULL) {
+  if (ark_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
                     "arkResize", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
@@ -255,10 +264,6 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
     return(ARK_MEM_FAIL);
   }
 
-  /* Indicate that the fullrhs is not required after each step, this is updated
-     by the interpolation module constructor and stepper init function */
-  ark_mem->call_fullrhs = SUNFALSE;
-
   /* Resize the interpolation structure memory */
   if (ark_mem->interp != NULL) {
     retval = arkInterpResize(ark_mem, ark_mem->interp, resize,
@@ -276,11 +281,9 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
   /* Disable constraints */
   ark_mem->constraintsSet = SUNFALSE;
 
-  /* Indicate that problem size is new */
-  ark_mem->resized = SUNTRUE;
-
   /* Indicate that problem needs to be initialized */
   ark_mem->initsetup  = SUNTRUE;
+  ark_mem->init_type  = RESIZE_INIT;
   ark_mem->firststage = SUNTRUE;
 
   /* Problem has been successfully re-sized */
@@ -868,7 +871,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     nstloc++;
 
     /* Check for root in last step taken. */
-    if (ark_mem->root_mem != NULL)
+    if (ark_mem->root_mem != NULL) {
       if (ark_mem->root_mem->nrtfn > 0) {
 
         retval = arkRootCheck3((void*) ark_mem);
@@ -902,6 +905,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
           }
         }
       }
+    }
 
     /* In NORMAL mode, check if tout reached */
     if ( (itask == ARK_NORMAL) &&
@@ -1157,7 +1161,7 @@ void arkErrHandler(int error_code, const char *module,
   timestepper module (not by the user).  This routine must be
   called prior to calling arkEvolve to evolve the problem. The
   initialization type indicates if the values of internal counters
-  should be reinitialized (0) or retained (1).
+  should be reinitialized (FIRST_INIT) or retained (RESET_INIT).
   ---------------------------------------------------------------*/
 int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
             int init_type)
@@ -1238,15 +1242,8 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
   /* Initialize yn */
   N_VScale(ONE, y0, ark_mem->yn);
 
-  /* Set step parameters */
-  ark_mem->hold  = ZERO;
-  ark_mem->tolsf = ONE;
-
-  /* Initialize other integrator counters and optional outputs */
-  ark_mem->next_h = ZERO;
-
-  /* Initialize counters/output values (if necessary) */
-  if (init_type == 0) {
+  /* Initializations on (re-)initialization call, skip on reset */
+  if (init_type == FIRST_INIT) {
 
     /* Counters */
     ark_mem->nst_attempts = 0;
@@ -1256,25 +1253,37 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
     ark_mem->netf         = 0;
     ark_mem->nconstrfails = 0;
 
-    /* Optional outputs */
-    ark_mem->h0u = ZERO;
+    /* Initial, old, and next step sizes */
+    ark_mem->h0u    = ZERO;
+    ark_mem->hold   = ZERO;
+    ark_mem->next_h = ZERO;
+
+    /* Tolerance scale factor */
+    ark_mem->tolsf  = ONE;
 
     /* Adaptivity counters */
-    ark_mem->hadapt_mem->nst_acc  = 0;
-    ark_mem->hadapt_mem->nst_exp  = 0;
+    ark_mem->hadapt_mem->nst_acc = 0;
+    ark_mem->hadapt_mem->nst_exp = 0;
 
+    /* Error and step size history */
+    ark_mem->hadapt_mem->ehist[0] = ONE;
+    ark_mem->hadapt_mem->ehist[1] = ONE;
+    ark_mem->hadapt_mem->hhist[0] = ZERO;
+    ark_mem->hadapt_mem->hhist[1] = ZERO;
+
+    /* Indicate that evaluation of the full RHS is not required after each step,
+       this flag is updated to SUNTRUE by the interpolation module initialization
+       function and/or the stepper initialization function in arkInitialSetup */
+    ark_mem->call_fullrhs = SUNFALSE;
+
+    /* Indicate that initialization has not been done before */
+    ark_mem->initialized = SUNFALSE;
   }
 
-  /* Initialize the time step adaptivity structure */
-  ark_mem->hadapt_mem->ehist[0] = ONE;
-  ark_mem->hadapt_mem->ehist[1] = ONE;
-  ark_mem->hadapt_mem->hhist[0] = ZERO;
-  ark_mem->hadapt_mem->hhist[1] = ZERO;
-
-  /* Indicate that first step initializations are needed */
-  ark_mem->initsetup   = SUNTRUE;
-  ark_mem->firststage  = SUNTRUE;
-  ark_mem->initialized = SUNFALSE;
+  /* Indicate initialization is needed */
+  ark_mem->initsetup  = SUNTRUE;
+  ark_mem->init_type  = init_type;
+  ark_mem->firststage = SUNTRUE;
 
   return(ARK_SUCCESS);
 }
@@ -1304,7 +1313,7 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   fprintf(outfile, "VabstolMallocDone = %i\n", ark_mem->VabstolMallocDone);
   fprintf(outfile, "MallocDone = %i\n", ark_mem->MallocDone);
   fprintf(outfile, "initsetup = %i\n", ark_mem->initsetup);
-  fprintf(outfile, "resized = %i\n", ark_mem->resized);
+  fprintf(outfile, "init_type = %i\n", ark_mem->init_type);
   fprintf(outfile, "firststage = %i\n", ark_mem->firststage);
   fprintf(outfile, "uround = %" RSYM"\n", ark_mem->uround);
   fprintf(outfile, "reltol = %" RSYM"\n", ark_mem->reltol);
@@ -1669,7 +1678,7 @@ void arkFreeVectors(ARKodeMem ark_mem)
 
   This routine performs all necessary items to prepare ARKode for
   the first internal step after initialization, reinitialization,
-  or a resize() call, including:
+  a reset() call, or a resize() call, including:
   - input consistency checks
   - (re)initializes the stepper
   - computes error and residual weights
@@ -1684,23 +1693,13 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
   realtype tout_hin, rh, htmp;
   booleantype conOK;
 
-  /* Temporarily set ark_h (to compute full rhs in steppers with M != I) and
-     htmp (to check for a valid tstop value) */
-  if (!ark_mem->resized) {
-    htmp = tout - ark_mem->tcur;
-    ark_mem->h = SUNRabs(htmp);
-    if (ark_mem->h == ZERO) ark_mem->h = ONE;
-  } else {
-    htmp = ark_mem->h;
-  }
-
   /* Set up the time stepper module */
   if (ark_mem->step_init == NULL) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                     "arkInitialSetup", "Time stepper module is missing");
     return(ARK_ILL_INPUT);
   }
-  retval = ark_mem->step_init(ark_mem, ark_mem->resized);
+  retval = ark_mem->step_init(ark_mem, ark_mem->init_type);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKode", "arkInitialSetup",
                     "Error in initialization of time stepper module");
@@ -1730,6 +1729,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
   /* Test input tstop for legality (correct direction of integration) */
   if ( ark_mem->tstopset ) {
+    htmp = (ark_mem->h == ZERO) ? tout - ark_mem->tcur : ark_mem->h;
     if ( (ark_mem->tstop - ark_mem->tcur) * htmp <= ZERO ) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup",
                       MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);
@@ -1774,6 +1774,10 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     }
   }
 
+  /* If necessary, temporarily set h as it is used to compute the tolerance in a
+     potential mass matrix solve when computing the full rhs */
+  if (ark_mem->h == ZERO) ark_mem->h = ONE;
+
   /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1) */
   retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur,
@@ -1790,7 +1794,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
   ark_mem->initialized = SUNTRUE;
 
   /* Set initial step size */
-  if (!ark_mem->resized) {
+  if (ark_mem->h0u == ZERO) {
 
     /* Check input h for validity */
     ark_mem->h = ark_mem->hin;
@@ -1803,7 +1807,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
     /* Estimate initial h if not set */
     if (ark_mem->h == ZERO) {
-      /* Again, temporarily set ark_h for estimating an optimal value */
+      /* Again, temporarily set h for estimating an optimal value */
       ark_mem->h = SUNRabs(tout - ark_mem->tcur);
       if (ark_mem->h == ZERO)  ark_mem->h = ONE;
       /* Estimate the first step size */
@@ -1816,6 +1820,14 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
         istate = arkHandleFailure(ark_mem, hflag);
         return(istate);
       }
+      /* Use first step growth factor for estimated h */
+      ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->etamx1;
+    } else if (ark_mem->nst == 0) {
+      /* Use first step growth factor for user defined h */
+      ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->etamx1;
+    } else {
+      /* Use standard growth factor (e.g., for reset) */
+      ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->growth;
     }
 
     /* Enforce step size bounds */
@@ -1832,13 +1844,9 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     }
 
     /* Set initial time step factors */
-    if (ark_mem->nst == 0) ark_mem->h0u = ark_mem->h;
-    ark_mem->eta = ONE;
+    ark_mem->h0u    = ark_mem->h;
+    ark_mem->eta    = ONE;
     ark_mem->hprime = ark_mem->h;
-
-    /* Set first step growth factor */
-    ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->etamx1;
-
   }
 
   /* Check for zeros of root function g at and near t0. */
@@ -1853,9 +1861,6 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
       }
     }
   }
-
-  /* Turn off flag indicating a resized problem */
-  ark_mem->resized = SUNFALSE;
 
   return(ARK_SUCCESS);
 }
@@ -2284,8 +2289,9 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   /* Reset growth factor for subsequent time step */
   ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->growth;
 
-  /* Turn off flag indicating initial step */
-  ark_mem->initsetup = SUNFALSE;
+  /* Turn off flag indicating initial step and first stage */
+  ark_mem->initsetup  = SUNFALSE;
+  ark_mem->firststage = SUNFALSE;
 
   return(ARK_SUCCESS);
 }

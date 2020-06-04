@@ -2702,6 +2702,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 {
   int flag = CV_SUCCESS;
   booleantype callSetup;
+  long int nni_inc;
 
   /* Decide whether or not to call setup routine (if one exists) and */
   /* set flag convfail (input to lsetup for its evaluation decision) */
@@ -2731,6 +2732,11 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   /* solve the nonlinear system */
   flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                            cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
+
+  /* increment counter */
+  nni_inc = 0;
+  (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &(nni_inc));
+  cv_mem->cv_nni += nni_inc;
 
   /* if the solve failed return */
   if (flag != CV_SUCCESS) return(flag);

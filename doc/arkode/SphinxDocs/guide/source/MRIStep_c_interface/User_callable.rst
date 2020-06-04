@@ -119,7 +119,7 @@ the user has set a stop time (with a call to the optional input function
         backward integration.  It will then compute an approximation
         to the solution :math:`y(tout)` by interpolation (using one
         of the dense output routines described in the section
-        :ref:`Mathematics.Interpolation`). 
+        :ref:`Mathematics.Interpolation`).
 
 	The *ARK_ONE_STEP* option tells the solver to only take a
         single internal step :math:`y_{n-1} \to y_{n}` and then return
@@ -134,7 +134,7 @@ the user has set a stop time (with a call to the optional input function
         found one or more roots.  If the number of root functions,
         *nrtfn*, is greater than 1, call
         :c:func:`MRIStepGetRootInfo()` to see which :math:`g_i` were
-        found to have a root at (*\*tret*). 
+        found to have a root at (*\*tret*).
       * *ARK_TSTOP_RETURN* if :c:func:`MRIStepEvolve()` succeeded and
         returned at *tstop*.
       * *ARK_MEM_NULL* if the *arkode_mem* argument was ``NULL``.
@@ -192,8 +192,7 @@ the user has set a stop time (with a call to the optional input function
 .. include:: user_callable/rootfinding_inputs.rest
 .. include:: user_callable/interpolated.rest
 .. include:: user_callable/main_outputs.rest
-.. include:: user_callable/rootfinding_outputs.rest  
+.. include:: user_callable/rootfinding_outputs.rest
 .. include:: user_callable/reinit.rest
+.. include:: user_callable/reset.rest
 .. include:: user_callable/resize.rest
-
-

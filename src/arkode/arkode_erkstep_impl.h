@@ -82,8 +82,6 @@ booleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
-int erkStep_ReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0,
-                   int init_type);
 
 /*===============================================================
   Reusable ERKStep Error Messages

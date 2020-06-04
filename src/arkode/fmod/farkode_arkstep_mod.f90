@@ -55,6 +55,7 @@ module farkode_arkstep_mod
  public :: FARKStepCreate
  public :: FARKStepResize
  public :: FARKStepReInit
+ public :: FARKStepReset
  public :: FARKStepSStolerances
  public :: FARKStepSVtolerances
  public :: FARKStepWFtolerances
@@ -226,6 +227,16 @@ type(C_FUNPTR), value :: farg2
 type(C_FUNPTR), value :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepReset(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKStepReset") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -1521,6 +1532,25 @@ farg3 = fi
 farg4 = t0
 farg5 = c_loc(y0)
 fresult = swigc_FARKStepReInit(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FARKStepReset(arkode_mem, tr, yr) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: tr
+type(N_Vector), target, intent(inout) :: yr
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = tr
+farg3 = c_loc(yr)
+fresult = swigc_FARKStepReset(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

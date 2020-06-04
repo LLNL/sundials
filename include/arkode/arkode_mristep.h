@@ -62,6 +62,8 @@ SUNDIALS_EXPORT int MRIStepResize(void *arkode_mem, N_Vector ynew,
 SUNDIALS_EXPORT int MRIStepReInit(void* arkode_mem, ARKRhsFn fs, realtype t0,
                                   N_Vector y0);
 
+SUNDIALS_EXPORT int MRIStepReset(void* arkode_mem, realtype tR, N_Vector yR);
+
 /* Rootfinding initialization */
 SUNDIALS_EXPORT int MRIStepRootInit(void *arkode_mem, int nrtfn,
                                     ARKRootFn g);

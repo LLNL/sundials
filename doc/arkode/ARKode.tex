@@ -229,6 +229,26 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{\detokenize{Introduction:changes-from-previous-versions}}
 
+\subsection{Changes in v4.x.x}
+\label{\detokenize{Introduction:changes-in-v4-x-x}}
+Added new reset functions {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReset}]{\sphinxcrossref{\sphinxcode{ARKStepReset()}}}}, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReset}]{\sphinxcrossref{\sphinxcode{ERKStepReset()}}}},
+and {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReset}]{\sphinxcrossref{\sphinxcode{MRIStepReset()}}}} to reset the stepper time and state vector to
+user-provided values for continuing the integration from that point while
+retaining the integration history. These function complement the
+reinitialization functions {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReInit}]{\sphinxcrossref{\sphinxcode{ARKStepReInit()}}}}, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReInit}]{\sphinxcrossref{\sphinxcode{ERKStepReInit()}}}},
+and {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReInit}]{\sphinxcrossref{\sphinxcode{MRIStepReInit()}}}} which reinitialize the stepper so that the problem
+integration should resume as if started from scratch.
+
+The expected behavior of the {\hyperref[\detokenize{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolGetNumIters}]{\sphinxcrossref{\sphinxcode{SUNNonlinSolGetNumIters()}}}} function in the
+SUNNonlinearSolver API has been updated to specify that it should return the
+number of nonlinear solver iterations in most recent solve rather than the
+cumulative number of iterations across all solves. The API documentation and
+SUNDIALS provided SUNNonlinearSolver implementations have been updated
+accordingly. As before, the cumulative number of nonlinear iterations may be
+retrieved by calling {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepGetNumNonlinSolvIters}]{\sphinxcrossref{\sphinxcode{ARKStepGetNumNonlinSolvIters()}}}} or
+{\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepGetNonlinSolvStats}]{\sphinxcrossref{\sphinxcode{ARKStepGetNonlinSolvStats()}}}}.
+
+
 \subsection{Changes in v4.3.0}
 \label{\detokenize{Introduction:changes-in-v4-3-0}}
 Fixed a bug in ARKode where the prototypes for {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetMinReduction}]{\sphinxcrossref{\sphinxcode{ERKStepSetMinReduction()}}}}
@@ -5692,7 +5712,7 @@ worst they may interfere with the desired fixed step size.
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetInitStep}}\pysiglinewithargsret{int \sphinxbfcode{ARKStepSetInitStep}}{void*\sphinxstyleemphasis{ arkode\_mem}, realtype\sphinxstyleemphasis{ hin}}{}
 Specifies the initial time step size ARKStep should use after
-initialization or re-initialization.
+initialization, re-initialization, or resetting.
 \begin{description}
 \item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -5723,6 +5743,8 @@ By default, ARKStep estimates the initial step size to be the
 solution \(h\) of the equation \(\left\| \frac{h^2
 \ddot{y}}{2}\right\| = 1\), where \(\ddot{y}\) is an estimated
 value of the second derivative of the solution at \sphinxstyleemphasis{t0}.
+
+This routine will also reset the step size and error history.
 
 \end{fulllineitems}
 
@@ -10898,8 +10920,8 @@ identical.
 
 
 
-\subsection{ARKStep re-initialization functions}
-\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-reinitialization}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-re-initialization-functions}}
+\subsection{ARKStep re-initialization function}
+\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-reinitialization}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-re-initialization-function}}
 To reinitialize the ARKStep module for the solution of a new problem,
 where a prior call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}]{\sphinxcrossref{\sphinxcode{ARKStepCreate()}}}} has been made, the
 user must call the function {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReInit}]{\sphinxcrossref{\sphinxcode{ARKStepReInit()}}}}.  The new
@@ -10996,6 +11018,94 @@ the appropriate “Set” functions.
 
 If an error occurred, {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReInit}]{\sphinxcrossref{\sphinxcode{ARKStepReInit()}}}} also
 sends an error message to the error handler function.
+
+\end{fulllineitems}
+
+
+
+\subsection{ARKStep reset function}
+\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-reset}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-reset-function}}
+To reset the ARKStep module to a particular independent variable value and
+dependent variable vector for the continued solution of a problem, where a prior
+call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}]{\sphinxcrossref{\sphinxcode{ARKStepCreate()}}}} has been made, the user must call the function
+{\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReset}]{\sphinxcrossref{\sphinxcode{ARKStepReset()}}}}.  Like {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReInit}]{\sphinxcrossref{\sphinxcode{ARKStepReInit()}}}} this routine retains
+the current settings for all ARKStep module options and performs no memory
+allocations but, unlike {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReInit}]{\sphinxcrossref{\sphinxcode{ARKStepReInit()}}}}, this routine performs only a
+\sphinxstyleemphasis{subset} of the input checking and initializations that are done in
+{\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}]{\sphinxcrossref{\sphinxcode{ARKStepCreate()}}}}. In particular this routine retains all internal
+counter values and the step size/error history and does not reinitialize the
+linear and/or nonlinear solver but it does indicate that a linear solver setup
+is necessary in the next step. Following a successful call to
+{\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReset}]{\sphinxcrossref{\sphinxcode{ARKStepReset()}}}}, call {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\sphinxcrossref{\sphinxcode{ARKStepEvolve()}}}} again to continue
+solving the problem. By default the next call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\sphinxcrossref{\sphinxcode{ARKStepEvolve()}}}} will
+use the step size computed by ARKStep prior to calling {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReset}]{\sphinxcrossref{\sphinxcode{ARKStepReset()}}}}.
+To set a different step size or have ARKStep estimate a new step size use
+{\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetInitStep}]{\sphinxcrossref{\sphinxcode{ARKStepSetInitStep()}}}}.
+
+One important use of the {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReset}]{\sphinxcrossref{\sphinxcode{ARKStepReset()}}}} function is in the
+treating of jump discontinuities in the RHS functions.  Except in cases
+of fairly small jumps, it is usually more efficient to stop at each
+point of discontinuity and restart the integrator with a readjusted
+ODE model, using a call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReset}]{\sphinxcrossref{\sphinxcode{ARKStepReset()}}}}.  To stop when
+the location of the discontinuity is known, simply make that location
+a value of \sphinxcode{tout}.  To stop when the location of the discontinuity
+is determined by the solution, use the rootfinding feature.  In either
+case, it is critical that the RHS functions \sphinxstyleemphasis{not} incorporate the
+discontinuity, but rather have a smooth extension over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the RHS
+functions (communicated through \sphinxcode{user\_data}) that can be flipped
+between the stopping of the integration and the restart, so that the
+restarted problem uses the new values (which have jumped).  Similar
+comments apply if there is to be a jump in the dependent variable
+vector.
+\index{ARKStepReset (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReset}}\pysiglinewithargsret{int \sphinxbfcode{ARKStepReset}}{void*\sphinxstyleemphasis{ arkode\_mem}, realtype\sphinxstyleemphasis{ tR}, N\_Vector\sphinxstyleemphasis{ yR}}{}
+Resets the current ARKStep time-stepper module state to the provided
+independent variable value and dependent variable vector.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{arkode\_mem} \textendash{} pointer to the ARKStep memory block.
+
+\item {} 
+\sphinxstyleemphasis{tR} \textendash{} the value of the independent variable \(t\).
+
+\item {} 
+\sphinxstyleemphasis{yR} \textendash{} the value of the dependent variable vector \(y(t_R)\).
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{ARK\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{ARK\_MEM\_NULL}  if the ARKStep memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{ARK\_MEM\_FAIL}  if a memory allocation failed
+
+\item {} 
+\sphinxstyleemphasis{ARK\_ILL\_INPUT} if an argument has an illegal value.
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+By default the next call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\sphinxcrossref{\sphinxcode{ARKStepEvolve()}}}} will use the step size
+computed by ARKStep prior to calling {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReset}]{\sphinxcrossref{\sphinxcode{ARKStepReset()}}}}. To set a
+different step size or have ARKStep estimate a new step size use
+{\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetInitStep}]{\sphinxcrossref{\sphinxcode{ARKStepSetInitStep()}}}}.
+
+All previously set options are retained but may be updated by calling the
+appropriate “Set” functions.
+
+If an error occurred, {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReset}]{\sphinxcrossref{\sphinxcode{ARKStepReset()}}}} also sends an error message to
+the error handler function.
 
 \end{fulllineitems}
 
@@ -14646,7 +14756,7 @@ worst they may interfere with the desired fixed step size.
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetInitStep}}\pysiglinewithargsret{int \sphinxbfcode{ERKStepSetInitStep}}{void*\sphinxstyleemphasis{ arkode\_mem}, realtype\sphinxstyleemphasis{ hin}}{}
 Specifies the initial time step size ERKStep should use after
-initialization or re-initialization.
+initialization, re-initialization, or resetting.
 \begin{description}
 \item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -14677,6 +14787,8 @@ By default, ERKStep estimates the initial step size to be the
 solution \(h\) of the equation \(\left\| \frac{h^2
 \ddot{y}}{2}\right\| = 1\), where \(\ddot{y}\) is an estimated
 value of the second derivative of the solution at \sphinxstyleemphasis{t0}.
+
+This routine will also reset the step size and error history.
 
 \end{fulllineitems}
 
@@ -16989,8 +17101,8 @@ identical.
 
 
 
-\subsection{ERKStep re-initialization functions}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-re-initialization-functions}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-reinitialization}}
+\subsection{ERKStep re-initialization function}
+\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-re-initialization-function}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-reinitialization}}
 To reinitialize the ERKStep module for the solution of a new problem,
 where a prior call to {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepCreate}]{\sphinxcrossref{\sphinxcode{ERKStepCreate()}}}} has been made, the
 user must call the function {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReInit}]{\sphinxcrossref{\sphinxcode{ERKStepReInit()}}}}.  The new
@@ -17073,6 +17185,92 @@ the appropriate “Set” functions.
 
 If an error occurred, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReInit}]{\sphinxcrossref{\sphinxcode{ERKStepReInit()}}}} also
 sends an error message to the error handler function.
+
+\end{fulllineitems}
+
+
+
+\subsection{ERKStep reset function}
+\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-reset}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-reset-function}}
+To reset the ERKStep module to a particular independent variable value and
+dependent variable vector for the continued solution of a problem, where a prior
+call to {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepCreate}]{\sphinxcrossref{\sphinxcode{ERKStepCreate()}}}} has been made, the user must call the function
+{\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReset}]{\sphinxcrossref{\sphinxcode{ERKStepReset()}}}}.  Like {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReInit}]{\sphinxcrossref{\sphinxcode{ERKStepReInit()}}}} this routine retains
+the current settings for all ERKStep module options and performs no memory
+allocations but, unlike {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReInit}]{\sphinxcrossref{\sphinxcode{ERKStepReInit()}}}}, this routine performs only a
+\sphinxstyleemphasis{subset} of the input checking and initializations that are done in
+{\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepCreate}]{\sphinxcrossref{\sphinxcode{ERKStepCreate()}}}}. In particular this routine retains all internal
+counter values and the step size/error history. Following a successful call to
+{\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReset}]{\sphinxcrossref{\sphinxcode{ERKStepReset()}}}}, call {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepEvolve}]{\sphinxcrossref{\sphinxcode{ERKStepEvolve()}}}} again to continue
+solving the problem. By default the next call to {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepEvolve}]{\sphinxcrossref{\sphinxcode{ERKStepEvolve()}}}} will
+use the step size computed by ERKStep prior to calling {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReset}]{\sphinxcrossref{\sphinxcode{ERKStepReset()}}}}.
+To set a different step size or have ERKStep estimate a new step size use
+{\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetInitStep}]{\sphinxcrossref{\sphinxcode{ERKStepSetInitStep()}}}}.
+
+One important use of the {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReset}]{\sphinxcrossref{\sphinxcode{ERKStepReset()}}}} function is in the
+treating of jump discontinuities in the RHS functions.  Except in cases
+of fairly small jumps, it is usually more efficient to stop at each
+point of discontinuity and restart the integrator with a readjusted
+ODE model, using a call to {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReset}]{\sphinxcrossref{\sphinxcode{ERKStepReset()}}}}.  To stop when
+the location of the discontinuity is known, simply make that location
+a value of \sphinxcode{tout}.  To stop when the location of the discontinuity
+is determined by the solution, use the rootfinding feature.  In either
+case, it is critical that the RHS functions \sphinxstyleemphasis{not} incorporate the
+discontinuity, but rather have a smooth extension over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the RHS
+functions (communicated through \sphinxcode{user\_data}) that can be flipped
+between the stopping of the integration and the restart, so that the
+restarted problem uses the new values (which have jumped).  Similar
+comments apply if there is to be a jump in the dependent variable
+vector.
+\index{ERKStepReset (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReset}}\pysiglinewithargsret{int \sphinxbfcode{ERKStepReset}}{void*\sphinxstyleemphasis{ arkode\_mem}, realtype\sphinxstyleemphasis{ tR}, N\_Vector\sphinxstyleemphasis{ yR}}{}
+Resets the current ERKStep time-stepper module state to the provided
+independent variable value and dependent variable vector.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{arkode\_mem} \textendash{} pointer to the ERKStep memory block.
+
+\item {} 
+\sphinxstyleemphasis{tR} \textendash{} the value of the independent variable \(t\).
+
+\item {} 
+\sphinxstyleemphasis{yR} \textendash{} the value of the dependent variable vector \(y(t_R)\).
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{ARK\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{ARK\_MEM\_NULL}  if the ERKStep memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{ARK\_MEM\_FAIL}  if a memory allocation failed
+
+\item {} 
+\sphinxstyleemphasis{ARK\_ILL\_INPUT} if an argument has an illegal value.
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+By default the next call to {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepEvolve}]{\sphinxcrossref{\sphinxcode{ERKStepEvolve()}}}} will use the step size
+computed by ERKStep prior to calling {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReset}]{\sphinxcrossref{\sphinxcode{ERKStepReset()}}}}. To set a
+different step size or have ERKStep estimate a new step size use
+{\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetInitStep}]{\sphinxcrossref{\sphinxcode{ERKStepSetInitStep()}}}}.
+
+All previously set options are retained but may be updated by calling the
+appropriate “Set” functions.
+
+If an error occurred, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReset}]{\sphinxcrossref{\sphinxcode{ERKStepReset()}}}} also sends an error message to
+the error handler function.
 
 \end{fulllineitems}
 
@@ -19878,8 +20076,8 @@ user’s root function \(g\).
 
 
 
-\subsection{MRIStep re-initialization functions}
-\label{\detokenize{MRIStep_c_interface/User_callable:mristep-re-initialization-functions}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-reinitialization}}
+\subsection{MRIStep re-initialization function}
+\label{\detokenize{MRIStep_c_interface/User_callable:mristep-re-initialization-function}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-reinitialization}}
 To reinitialize the MRIStep module for the solution of a new problem,
 where a prior call to {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepCreate}]{\sphinxcrossref{\sphinxcode{MRIStepCreate()}}}} has been made, the
 user must call the function {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReInit}]{\sphinxcrossref{\sphinxcode{MRIStepReInit()}}}}.  The new
@@ -19966,6 +20164,92 @@ the appropriate “Set” functions.
 
 If an error occurred, {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReInit}]{\sphinxcrossref{\sphinxcode{MRIStepReInit()}}}} also
 sends an error message to the error handler function.
+
+\end{fulllineitems}
+
+
+
+\subsection{MRIStep reset function}
+\label{\detokenize{MRIStep_c_interface/User_callable:mristep-reset-function}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-reset}}
+To reset the MRIStep module to a particular independent variable value and
+dependent variable vector for the continued solution of a problem, where a prior
+call to {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepCreate}]{\sphinxcrossref{\sphinxcode{MRIStepCreate()}}}} has been made, the user must call the function
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReset}]{\sphinxcrossref{\sphinxcode{MRIStepReset()}}}}.  Like {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReInit}]{\sphinxcrossref{\sphinxcode{MRIStepReInit()}}}} this routine retains
+the current settings for all MRIStep module options and performs no memory
+allocations but, unlike {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReInit}]{\sphinxcrossref{\sphinxcode{MRIStepReInit()}}}}, this routine performs only a
+\sphinxstyleemphasis{subset} of the input checking and initializations that are done in
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepCreate}]{\sphinxcrossref{\sphinxcode{MRIStepCreate()}}}}. In particular this routine retains all internal
+counter values and the step size/error history and does not reinitialize the
+linear and/or nonlinear solver but it does indicate that a linear solver setup
+is necessary in the next step. Following a successful call to
+{\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReset}]{\sphinxcrossref{\sphinxcode{MRIStepReset()}}}}, call {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepEvolve}]{\sphinxcrossref{\sphinxcode{MRIStepEvolve()}}}} again to continue
+solving the problem. By default the next call to {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepEvolve}]{\sphinxcrossref{\sphinxcode{MRIStepEvolve()}}}} will
+use the step size computed by MRIStep prior to calling {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReset}]{\sphinxcrossref{\sphinxcode{MRIStepReset()}}}}.
+To set a different step size or have MRIStep estimate a new step size use
+\sphinxcode{MRIStepSetInitStep()}.
+
+One important use of the {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReset}]{\sphinxcrossref{\sphinxcode{MRIStepReset()}}}} function is in the
+treating of jump discontinuities in the RHS functions.  Except in cases
+of fairly small jumps, it is usually more efficient to stop at each
+point of discontinuity and restart the integrator with a readjusted
+ODE model, using a call to {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReset}]{\sphinxcrossref{\sphinxcode{MRIStepReset()}}}}.  To stop when
+the location of the discontinuity is known, simply make that location
+a value of \sphinxcode{tout}.  To stop when the location of the discontinuity
+is determined by the solution, use the rootfinding feature.  In either
+case, it is critical that the RHS functions \sphinxstyleemphasis{not} incorporate the
+discontinuity, but rather have a smooth extension over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the RHS
+functions (communicated through \sphinxcode{user\_data}) that can be flipped
+between the stopping of the integration and the restart, so that the
+restarted problem uses the new values (which have jumped).  Similar
+comments apply if there is to be a jump in the dependent variable
+vector.
+\index{MRIStepReset (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReset}}\pysiglinewithargsret{int \sphinxbfcode{MRIStepReset}}{void*\sphinxstyleemphasis{ arkode\_mem}, realtype\sphinxstyleemphasis{ tR}, N\_Vector\sphinxstyleemphasis{ yR}}{}
+Resets the current MRIStep outer (slow) time-stepper module state to the
+provided independent variable value and dependent variable vector.
+\begin{description}
+\item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{arkode\_mem} \textendash{} pointer to the MRIStep memory block.
+
+\item {} 
+\sphinxstyleemphasis{tR} \textendash{} the value of the independent variable \(t\).
+
+\item {} 
+\sphinxstyleemphasis{yR} \textendash{} the value of the dependent variable vector \(y(t_R)\).
+
+\end{itemize}
+
+\item[{\sphinxstylestrong{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{ARK\_SUCCESS} if successful
+
+\item {} 
+\sphinxstyleemphasis{ARK\_MEM\_NULL}  if the MRIStep memory was \sphinxcode{NULL}
+
+\item {} 
+\sphinxstyleemphasis{ARK\_MEM\_FAIL}  if a memory allocation failed
+
+\item {} 
+\sphinxstyleemphasis{ARK\_ILL\_INPUT} if an argument has an illegal value.
+
+\end{itemize}
+
+\end{description}
+
+\sphinxstylestrong{Notes:}
+If the inner (fast) stepper also needs to be reset, its reset function should
+be called before calling {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReset}]{\sphinxcrossref{\sphinxcode{MRIStepReset()}}}} to reset the outer stepper.
+
+All previously set options are retained but may be updated by calling the
+appropriate “Set” functions.
+
+If an error occurred, {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepReset}]{\sphinxcrossref{\sphinxcode{MRIStepReset()}}}} also sends an error message to
+the error handler function.
 
 \end{fulllineitems}
 
@@ -41824,9 +42108,9 @@ successful call, and a negative value for a failure
 \subsection{SUNNonlinearSolver get functions}
 \label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-get-functions}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-getfn}}
 The following get functions allow SUNDIALS integrators to retrieve nonlinear
-solver statistics. The routines to get the current total number of
-iterations (\sphinxcode{SUNNonlinSolGetNumIters}) and number of convergence failures are
-optional. The routine to get the current nonlinear solver iteration
+solver statistics. The routines to get the number of iterations in the most
+recent solve (\sphinxcode{SUNNonlinSolGetNumIters}) and number of convergence failures
+are optional. The routine to get the current nonlinear solver iteration
 (\sphinxcode{SUNNonlinSolGetCurIter}) is required when using the convergence test
 provided by the SUNDIALS integrator or when using a SUNLinSol spils linear
 solver otherwise, \sphinxcode{SUNNonlinSolGetCurIter} is optional.
@@ -41834,9 +42118,9 @@ solver otherwise, \sphinxcode{SUNNonlinSolGetCurIter} is optional.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolGetNumIters}}\pysiglinewithargsret{int \sphinxbfcode{SUNNonlinSolGetNumIters}}{SUNNonlinearSolver\sphinxstyleemphasis{ NLS}, long int\sphinxstyleemphasis{ *niters}}{}
-The \sphinxstyleemphasis{optional} function {\hyperref[\detokenize{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolGetNumIters}]{\sphinxcrossref{\sphinxcode{SUNNonlinSolGetNumIters()}}}} returns
-the total number of nonlinear solver iterations. This is typically
-called by the SUNDIALS integrator to store the nonlinear solver
+The \sphinxstyleemphasis{optional} function {\hyperref[\detokenize{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolGetNumIters}]{\sphinxcrossref{\sphinxcode{SUNNonlinSolGetNumIters()}}}} returns the
+number of nonlinear solver iterations in the most recent solve. This is
+typically called by the SUNDIALS integrator to store the nonlinear solver
 statistics, but may also be called by the user.
 \begin{description}
 \item[{\sphinxstylestrong{Arguments:}}] \leavevmode\begin{itemize}

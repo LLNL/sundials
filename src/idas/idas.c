@@ -5409,6 +5409,7 @@ static int IDANls(IDAMem IDA_mem)
   booleantype constraintsPassed, callLSetup, sensi_sim;
   realtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
+  long int nni_inc;
 
   /* Are we computing sensitivities with the IDA_SIMULTANEOUS approach? */
   sensi_sim = (IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_SIMULTANEOUS));
@@ -5456,16 +5457,31 @@ static int IDANls(IDAMem IDA_mem)
   }
 
   /* solve the nonlinear system */
-  if (sensi_sim)
+  if (sensi_sim) {
+
     retval = SUNNonlinSolSolve(IDA_mem->NLSsim,
                                IDA_mem->ypredictSim, IDA_mem->ycorSim,
                                IDA_mem->ewtSim, IDA_mem->ida_epsNewt,
                                callLSetup, IDA_mem);
-  else
+
+    /* increment counter */
+    nni_inc = 0;
+    (void) SUNNonlinSolGetNumIters(IDA_mem->NLSsim, &(nni_inc));
+    IDA_mem->ida_nni += nni_inc;
+
+  } else {
+
     retval = SUNNonlinSolSolve(IDA_mem->NLS,
                                IDA_mem->ida_yypredict, IDA_mem->ida_ee,
                                IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
                                callLSetup, IDA_mem);
+
+    /* increment counter */
+    nni_inc = 0;
+    (void) SUNNonlinSolGetNumIters(IDA_mem->NLS, &(nni_inc));
+    IDA_mem->ida_nni += nni_inc;
+
+  }
 
   /* update the state using the final correction from the nonlinear solver */
   N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee, IDA_mem->ida_yy);
@@ -5619,6 +5635,7 @@ static void IDAQuadPredict(IDAMem IDA_mem)
 static int IDASensNls(IDAMem IDA_mem)
 {
   booleantype callLSetup;
+  long int nniS_inc;
   int retval;
 
   callLSetup = SUNFALSE;
@@ -5631,6 +5648,11 @@ static int IDASensNls(IDAMem IDA_mem)
                              IDA_mem->ypredictStg, IDA_mem->ycorStg,
                              IDA_mem->ewtStg, IDA_mem->ida_epsNewt,
                              callLSetup, IDA_mem);
+
+  /* increment counter */
+  nniS_inc = 0;
+  (void) SUNNonlinSolGetNumIters(IDA_mem->NLSstg, &(nniS_inc));
+  IDA_mem->ida_nniS += nniS_inc;
 
   /* update using the final correction from the nonlinear solver */
   N_VLinearSumVectorArray(IDA_mem->ida_Ns,

@@ -115,7 +115,7 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
   step_mem->nfe = 0;
 
   /* Initialize main ARKode infrastructure */
-  retval = arkInit(ark_mem, t0, y0, 0);
+  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKode::ERKStep", "ERKStepCreate",
                     "Unable to initialize main ARKode infrastructure");
@@ -181,12 +181,91 @@ int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   ERKStepReInit:
 
   This routine re-initializes the ERKStep module to solve a new
-  problem of the same size as was previously solved (all counter
-  values are set to 0).
+  problem of the same size as was previously solved. This routine
+  should also be called when the problem dynamics or desired solvers
+  have changed dramatically, so that the problem integration should
+  resume as if started from scratch.
+
+  Note all internal counters are set to 0 on re-initialization.
   ---------------------------------------------------------------*/
 int ERKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
 {
-  return(erkStep_ReInit(arkode_mem, f, t0, y0, 0));
+  ARKodeMem ark_mem;
+  ARKodeERKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeERKStepMem structure */
+  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepReInit",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE) {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode::ERKStep",
+                    "ERKStepReInit", MSG_ARK_NO_MALLOC);
+    return(ARK_NO_MALLOC);
+  }
+
+  /* Check that f is supplied */
+  if (f == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+                    "ERKStepReInit", MSG_ARK_NULL_F);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* Check for legal input parameters */
+  if (y0 == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+                    "ERKStepReInit", MSG_ARK_NULL_Y0);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* Copy the input parameters into ARKode state */
+  step_mem->f = f;
+
+  /* Initialize main ARKode infrastructure */
+  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode::ERKStep", "ERKStepReInit",
+                    "Unable to initialize main ARKode infrastructure");
+    return(retval);
+  }
+
+  /* Initialize all the counters */
+  step_mem->nfe = 0;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  ERKStepReset:
+
+  This routine resets the ERKStep module state to solve the same
+  problem from the given time with the input state (all counter
+  values are retained).
+  ---------------------------------------------------------------*/
+int ERKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+{
+  ARKodeMem ark_mem;
+  ARKodeERKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeERKStepMem structure */
+  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepReset",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* Initialize main ARKode infrastructure */
+  retval = arkInit(ark_mem, tR, yR, RESET_INIT);
+
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode::ERKStep", "ERKStepReset",
+                    "Unable to initialize main ARKode infrastructure");
+    return(retval);
+  }
+
+  return(ARK_SUCCESS);
 }
 
 
@@ -405,21 +484,18 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
   steps (after all user "set" routines have been called) from
   within arkInitialSetup.
 
-  init_type == 0 for (re-)initialization
-  init_type == 1 for a post resize() call
-
-  With init_type == 0, this routine:
+  With initialization types FIRST_INIT this routine:
   - sets/checks the ARK Butcher tables to be used
   - allocates any memory that depends on the number of ARK
     stages, method order, or solver options
+  - sets the call_fullrhs flag
 
-  With init_type == 1, this routine does nothing.
+  With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
 int erkStep_Init(void* arkode_mem, int init_type)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  sunindextype Blrw, Bliw;
   int retval, j;
 
   /* access ARKodeERKStepMem structure */
@@ -427,11 +503,9 @@ int erkStep_Init(void* arkode_mem, int init_type)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  /* immediately return if init_type == 1 */
-  if (init_type == 1) {
-    ark_mem->call_fullrhs = SUNTRUE;
+  /* immediately return if resize or reset */
+  if (init_type == RESIZE_INIT || init_type == RESET_INIT)
     return(ARK_SUCCESS);
-  }
 
   /* enforce use of arkEwtSmallReal if using a fixed step size
      and an internal error weight function */
@@ -456,11 +530,6 @@ int erkStep_Init(void* arkode_mem, int init_type)
                     "erkStep_Init", "Error in Butcher table");
     return(ARK_ILL_INPUT);
   }
-
-  /* note Butcher table space requirements */
-  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
-  ark_mem->liw += Bliw;
-  ark_mem->lrw += Blrw;
 
   /* Retrieve/store method and embedding orders now that table is finalized */
   step_mem->q = ark_mem->hadapt_mem->q = step_mem->B->q;
@@ -762,13 +831,13 @@ int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
 
   /* access ARKodeMem structure */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
                     fname, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   *ark_mem = (ARKodeMem) arkode_mem;
   if ((*ark_mem)->step_mem==NULL) {
-    arkProcessError(*ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(*ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
                     fname, MSG_ERKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -806,6 +875,7 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
 {
   int etable;
   ARKodeERKStepMem step_mem;
+  sunindextype Bliw, Blrw;
 
   /* access ARKodeERKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -853,6 +923,11 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
 
   if (etable > -1)
     step_mem->B = ARKodeButcherTable_LoadERK(etable);
+
+  /* note Butcher table space requirements */
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+  ark_mem->liw += Bliw;
+  ark_mem->lrw += Blrw;
 
   /* set [redundant] stored values for stage numbers and method orders */
   if (step_mem->B != NULL) {
@@ -1023,68 +1098,6 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 
   return(ARK_SUCCESS);
 }
-
-
-/*------------------------------------------------------------------------------
-  erkStep_ReInit
-
-  This routine is called by ReInit to initialize the ERKStep module.
-
-  init_type == 0 all counters are set to 0
-  init_type == 1 all counter values are retained
-  ----------------------------------------------------------------------------*/
-int erkStep_ReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0,
-                   int init_type)
-{
-  ARKodeMem ark_mem;
-  ARKodeERKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, "erkStep_ReInit",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* Check if ark_mem was allocated */
-  if (ark_mem->MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode::ERKStep",
-                    "erkStep_ReInit", MSG_ARK_NO_MALLOC);
-    return(ARK_NO_MALLOC);
-  }
-
-  /* Check that f is supplied */
-  if (f == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
-                    "erkStep_ReInit", MSG_ARK_NULL_F);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Check for legal input parameters */
-  if (y0 == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
-                    "erkStep_ReInit", MSG_ARK_NULL_Y0);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Copy the input parameters into ARKode state */
-  step_mem->f = f;
-
-  /* Initialize main ARKode infrastructure */
-  retval = arkInit(arkode_mem, t0, y0, init_type);
-  if (retval != ARK_SUCCESS) {
-    arkProcessError(ark_mem, retval, "ARKode::ERKStep", "erkStep_ReInit",
-                    "Unable to initialize main ARKode infrastructure");
-    return(retval);
-  }
-
-  /* Initialize all the counters (if necessary) */
-  if (init_type == 0) {
-    step_mem->nfe = 0;
-  }
-
-  return(ARK_SUCCESS);
-}
-
 
 /*===============================================================
   EOF

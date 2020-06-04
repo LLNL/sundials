@@ -71,12 +71,12 @@ extern "C" {
   ===============================================================*/
 
 /*---------------------------------------------------------------
- Types : struct ARKodeHAdaptMemRec, ARKodeHAdaptMem
------------------------------------------------------------------
- The type ARKodeHAdaptMem is type pointer to struct
- ARKodeHAdaptMemRec.  This structure contains fields to
- keep track of temporal adaptivity.
----------------------------------------------------------------*/
+  Types : struct ARKodeHAdaptMemRec, ARKodeHAdaptMem
+  -----------------------------------------------------------------
+  The type ARKodeHAdaptMem is type pointer to struct
+  ARKodeHAdaptMemRec.  This structure contains fields to
+  keep track of temporal adaptivity.
+  ---------------------------------------------------------------*/
 typedef struct ARKodeHAdaptMemRec {
 
   realtype     etamax;      /* eta <= etamax                              */
@@ -121,7 +121,7 @@ typedef struct ARKodeHAdaptMemRec {
 
 /*===============================================================
   ARKode Time Step Adaptivity Routines
-===============================================================*/
+  ===============================================================*/
 
 ARKodeHAdaptMem arkAdaptInit();
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile);

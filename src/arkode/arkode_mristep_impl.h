@@ -106,8 +106,6 @@ int mriStep_AccessStepMem(void* arkode_mem, const char *fname,
 booleantype mriStep_CheckNVector(N_Vector tmpl);
 int mriStep_SetButcherTable(ARKodeMem ark_mem);
 int mriStep_CheckButcherTable(ARKodeMem ark_mem);
-int mriStep_ReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0,
-                   int init_type);
 
 /* Attach ARKStep inner stepper */
 int mriStep_AttachARK(void* arkode_mem, void* inner_arkode_mem);

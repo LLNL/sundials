@@ -2367,6 +2367,7 @@ static int IDANls(IDAMem IDA_mem)
   booleantype constraintsPassed, callLSetup;
   realtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
+  long int nni_inc;
 
   callLSetup = SUNFALSE;
 
@@ -2403,6 +2404,11 @@ static int IDANls(IDAMem IDA_mem)
                              IDA_mem->ida_yypredict, IDA_mem->ida_ee,
                              IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
                              callLSetup, IDA_mem);
+
+  /* increment counter */
+  nni_inc = 0;
+  (void) SUNNonlinSolGetNumIters(IDA_mem->NLS, &(nni_inc));
+  IDA_mem->ida_nni += nni_inc;
 
   /* update yy and yp based on the final correction from the nonlinear solver */
   N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee, IDA_mem->ida_yy);

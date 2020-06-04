@@ -291,6 +291,22 @@ SWIGEXPORT int _wrap_FMRIStepReInit(void *farg1, ARKRhsFn farg2, double const *f
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepReset(void *farg1, double const *farg2, N_Vector farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  arg3 = (N_Vector)(farg3);
+  result = (int)MRIStepReset(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepRootInit(void *farg1, int const *farg2, ARKRootFn farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

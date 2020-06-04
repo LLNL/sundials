@@ -273,9 +273,9 @@ SUNNonlinearSolver get functions
 ----------------------------------
 
 The following get functions allow SUNDIALS integrators to retrieve nonlinear
-solver statistics. The routines to get the current total number of
-iterations (``SUNNonlinSolGetNumIters``) and number of convergence failures are
-optional. The routine to get the current nonlinear solver iteration
+solver statistics. The routines to get the number of iterations in the most
+recent solve (``SUNNonlinSolGetNumIters``) and number of convergence failures
+are optional. The routine to get the current nonlinear solver iteration
 (``SUNNonlinSolGetCurIter``) is required when using the convergence test
 provided by the SUNDIALS integrator or when using a SUNLinSol spils linear
 solver otherwise, ``SUNNonlinSolGetCurIter`` is optional.
@@ -283,9 +283,9 @@ solver otherwise, ``SUNNonlinSolGetCurIter`` is optional.
 
 .. c:function:: int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
 
-   The *optional* function :c:func:`SUNNonlinSolGetNumIters()` returns
-   the total number of nonlinear solver iterations. This is typically
-   called by the SUNDIALS integrator to store the nonlinear solver
+   The *optional* function :c:func:`SUNNonlinSolGetNumIters()` returns the
+   number of nonlinear solver iterations in the most recent solve. This is
+   typically called by the SUNDIALS integrator to store the nonlinear solver
    statistics, but may also be called by the user.
 
    **Arguments:**

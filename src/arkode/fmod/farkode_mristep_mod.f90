@@ -46,6 +46,7 @@ module farkode_mristep_mod
  public :: FMRIStepCreate
  public :: FMRIStepResize
  public :: FMRIStepReInit
+ public :: FMRIStepReset
  public :: FMRIStepRootInit
  public :: FMRIStepSetDefaults
  public :: FMRIStepSetInterpolantType
@@ -123,6 +124,16 @@ type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepReset(farg1, farg2, farg3) &
+bind(C, name="_wrap_FMRIStepReset") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -549,6 +560,25 @@ farg2 = fs
 farg3 = t0
 farg4 = c_loc(y0)
 fresult = swigc_FMRIStepReInit(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
+function FMRIStepReset(arkode_mem, tr, yr) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: tr
+type(N_Vector), target, intent(inout) :: yr
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = tr
+farg3 = c_loc(yr)
+fresult = swigc_FMRIStepReset(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

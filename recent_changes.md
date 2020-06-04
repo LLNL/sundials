@@ -1,5 +1,24 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release x.x.x
+
+Added new reset functions `ARKStepReset()`, `ERKStepReset()`, and
+`MRIStepReset()` to reset the stepper time and state vector to user-provided
+values for continuing the integration from that point while retaining the
+integration history. These function complement the reinitialization functions
+`ARKStepReInit()`, `ERKStepReInit()`, and `MRIStepReInit()` which reinitialize
+the stepper so that the problem integration should resume as if started from
+scratch.
+
+The expected behavior of the `SUNNonlinSolGetNumIters` function in the
+SUNNonlinearSolver API has been updated to specify that it should return the
+number of nonlinear solver iterations in most recent solve rather than the
+cumulative number of iterations across all solves. The API documentation and
+SUNDIALS provided SUNNonlinearSolver implementations and have been updated
+accordingly. As before, the cumulative number of nonlinear iterations may be
+retreived by calling the integrator provided get functions.
+
+
 ## Changes to SUNDIALS in release 5.3.0
 
 Fixed a bug in ARKode where the prototypes for `ERKStepSetMinReduction()` and

@@ -107,6 +107,27 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in v4.x.x
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Added new reset functions :c:func:`ARKStepReset()`, :c:func:`ERKStepReset()`,
+and :c:func:`MRIStepReset()` to reset the stepper time and state vector to
+user-provided values for continuing the integration from that point while
+retaining the integration history. These function complement the
+reinitialization functions :c:func:`ARKStepReInit()`, :c:func:`ERKStepReInit()`,
+and :c:func:`MRIStepReInit()` which reinitialize the stepper so that the problem
+integration should resume as if started from scratch.
+
+The expected behavior of the :c:func:`SUNNonlinSolGetNumIters()` function in the
+SUNNonlinearSolver API has been updated to specify that it should return the
+number of nonlinear solver iterations in most recent solve rather than the
+cumulative number of iterations across all solves. The API documentation and
+SUNDIALS provided SUNNonlinearSolver implementations have been updated
+accordingly. As before, the cumulative number of nonlinear iterations may be
+retrieved by calling :c:func:`ARKStepGetNumNonlinSolvIters()` or
+:c:func:`ARKStepGetNonlinSolvStats()`.
+
+
 Changes in v4.3.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -66,6 +66,17 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v5.x.x}
+
+The expected behavior of the \id{SUNNonlinSolGetNumIters} function in the
+{\sunnonlinsol} API has been updated to specify that it should return the
+number of nonlinear solver iterations in most recent solve rather than the
+cumulative number of iterations across all solves. The API documentation and
+{\sundials} provided {\sunnonlinsol} implementations and have been updated
+accordingly. As before, the cumulative number of nonlinear iterations may be
+retreived by calling \id{IDAGetNumNonlinSolvIters} or
+\id{IDAGetNonlinSolvStats}.
+
 \subsection*{Changes in v5.3.0}
 
 Fixed a bug in the iterative linear solver modules where an error is not

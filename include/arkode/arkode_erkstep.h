@@ -55,6 +55,9 @@ SUNDIALS_EXPORT int ERKStepResize(void *arkode_mem, N_Vector ynew,
 SUNDIALS_EXPORT int ERKStepReInit(void* arkode_mem, ARKRhsFn f,
                                   realtype t0, N_Vector y0);
 
+SUNDIALS_EXPORT int ERKStepReset(void* arkode_mem, realtype tR,
+                                 N_Vector yR);
+
 /* Tolerance input functions */
 SUNDIALS_EXPORT int ERKStepSStolerances(void *arkode_mem,
                                         realtype reltol,

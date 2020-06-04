@@ -562,6 +562,7 @@ int ARKStepSetOrder(void *arkode_mem, int ord)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  sunindextype Blrw, Bliw;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -581,8 +582,18 @@ int ARKStepSetOrder(void *arkode_mem, int ord)
   step_mem->stages = 0;
   step_mem->istage = 0;
   step_mem->p = 0;
-  ARKodeButcherTable_Free(step_mem->Be);  step_mem->Be = NULL;
-  ARKodeButcherTable_Free(step_mem->Bi);  step_mem->Bi = NULL;
+
+  ARKodeButcherTable_Space(step_mem->Be, &Bliw, &Blrw);
+  ARKodeButcherTable_Free(step_mem->Be);
+  step_mem->Be = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
+
+  ARKodeButcherTable_Space(step_mem->Bi, &Bliw, &Blrw);
+  ARKodeButcherTable_Free(step_mem->Bi);
+  step_mem->Bi = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
 
   return(ARK_SUCCESS);
 }
@@ -786,6 +797,7 @@ int ARKStepSetTables(void *arkode_mem, int q, int p,
   int retval;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  sunindextype Blrw, Bliw;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetTables",
@@ -814,8 +826,18 @@ int ARKStepSetTables(void *arkode_mem, int q, int p,
   step_mem->stages = 0;
   step_mem->q = 0;
   step_mem->p = 0;
-  ARKodeButcherTable_Free(step_mem->Be);  step_mem->Be = NULL;
-  ARKodeButcherTable_Free(step_mem->Bi);  step_mem->Bi = NULL;
+
+  ARKodeButcherTable_Space(step_mem->Be, &Bliw, &Blrw);
+  ARKodeButcherTable_Free(step_mem->Be);
+  step_mem->Be = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
+
+  ARKodeButcherTable_Space(step_mem->Bi, &Bliw, &Blrw);
+  ARKodeButcherTable_Free(step_mem->Bi);
+  step_mem->Bi = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
 
   /*
    * determine mode (implicit/explicit/ImEx), and perform appropriate actions
@@ -905,6 +927,15 @@ int ARKStepSetTables(void *arkode_mem, int q, int p,
     }
   }
 
+  /* note Butcher table space requirements */
+  ARKodeButcherTable_Space(step_mem->Be, &Bliw, &Blrw);
+  ark_mem->liw += Bliw;
+  ark_mem->lrw += Blrw;
+
+  ARKodeButcherTable_Space(step_mem->Bi, &Bliw, &Blrw);
+  ark_mem->liw += Bliw;
+  ark_mem->lrw += Blrw;
+
   return(ARK_SUCCESS);
 }
 
@@ -926,6 +957,7 @@ int ARKStepSetTableNum(void *arkode_mem, int itable, int etable)
   int flag, retval;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  sunindextype Blrw, Bliw;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetTableNum",
@@ -936,9 +968,18 @@ int ARKStepSetTableNum(void *arkode_mem, int itable, int etable)
   step_mem->stages = 0;
   step_mem->q = 0;
   step_mem->p = 0;
-  ARKodeButcherTable_Free(step_mem->Be);  step_mem->Be = NULL;
-  ARKodeButcherTable_Free(step_mem->Bi);  step_mem->Bi = NULL;
 
+  ARKodeButcherTable_Space(step_mem->Be, &Bliw, &Blrw);
+  ARKodeButcherTable_Free(step_mem->Be);
+  step_mem->Be = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
+
+  ARKodeButcherTable_Space(step_mem->Bi, &Bliw, &Blrw);
+  ARKodeButcherTable_Free(step_mem->Bi);
+  step_mem->Bi = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
 
   /* determine mode (implicit/explicit/ImEx), and perform
      appropriate actions  */
@@ -1457,19 +1498,7 @@ int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* if a NLS object is present, set output from that; otherwise
-     we took zero iterations */
-  if (step_mem->NLS) {
-    retval = SUNNonlinSolGetNumIters(step_mem->NLS, nniters);
-    if (retval != SUN_NLS_SUCCESS) {
-      arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::ARKStep",
-                      "ARKStepGetNumNonlinSolvIters",
-                      "Error retrieving nniters from SUNNonlinearSolver");
-      return(ARK_NLS_OP_ERR);
-    }
-  } else {
-    *nniters = 0;
-  }
+  *nniters = step_mem->nls_iters;
 
   return(ARK_SUCCESS);
 }
@@ -1515,21 +1544,8 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* set outputs from NLS module and step_mem structure (if present);
-     otherwise there were zero iterations and no nonlinear failures */
-  if (step_mem->NLS) {
-    retval = SUNNonlinSolGetNumIters(step_mem->NLS, nniters);
-    if (retval != SUN_NLS_SUCCESS) {
-      arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::ARKStep",
-                      "ARKStepGetNonlinSolvStats",
-                      "Error retrieving nniters from SUNNonlinearSolver");
-      return(ARK_NLS_OP_ERR);
-    }
-    *nncfails = ark_mem->ncfn;
-  } else {
-    *nniters = 0;
-    *nncfails = 0;
-  }
+  *nniters  = step_mem->nls_iters;
+  *nncfails = ark_mem->ncfn;
 
   return(ARK_SUCCESS);
 }

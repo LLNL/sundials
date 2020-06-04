@@ -174,6 +174,7 @@ int MRIStepSetTable(void *arkode_mem, int q, ARKodeButcherTable B)
   int retval;
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
+  sunindextype Blrw, Bliw;
 
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetTable",
@@ -191,8 +192,12 @@ int MRIStepSetTable(void *arkode_mem, int q, ARKodeButcherTable B)
   step_mem->stages = 0;
   step_mem->q = 0;
   step_mem->p = 0;
+
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
   ARKodeButcherTable_Free(step_mem->B);
   step_mem->B = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
 
   /* set the relevant parameters */
   step_mem->stages = B->stages;
@@ -206,6 +211,10 @@ int MRIStepSetTable(void *arkode_mem, int q, ARKodeButcherTable B)
                     "MRIStepSetTables", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
+
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+  ark_mem->liw += Bliw;
+  ark_mem->lrw += Blrw;
 
   return(ARK_SUCCESS);
 }
@@ -222,6 +231,7 @@ int MRIStepSetTableNum(void *arkode_mem, int itable)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
+  sunindextype Blrw, Bliw;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
@@ -241,7 +251,12 @@ int MRIStepSetTableNum(void *arkode_mem, int itable)
   step_mem->stages = 0;
   step_mem->q = 0;
   step_mem->p = 0;
-  ARKodeButcherTable_Free(step_mem->B);  step_mem->B = NULL;
+
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+  ARKodeButcherTable_Free(step_mem->B);
+  step_mem->B = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
 
   /* fill in table based on argument */
   step_mem->B = ARKodeButcherTable_LoadERK(itable);
@@ -254,6 +269,10 @@ int MRIStepSetTableNum(void *arkode_mem, int itable)
   step_mem->stages = step_mem->B->stages;
   step_mem->q = step_mem->B->q;
   step_mem->p = step_mem->B->p;
+
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+  ark_mem->liw += Bliw;
+  ark_mem->lrw += Blrw;
 
   return(ARK_SUCCESS);
 }

@@ -705,7 +705,7 @@ Set max number of constraint failures               :c:func:`ERKStepSetMaxNumCon
 .. c:function:: int ERKStepSetInitStep(void* arkode_mem, realtype hin)
 
    Specifies the initial time step size ERKStep should use after
-   initialization or re-initialization.
+   initialization, re-initialization, or resetting.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
@@ -723,6 +723,7 @@ Set max number of constraint failures               :c:func:`ERKStepSetMaxNumCon
    \ddot{y}}{2}\right\| = 1`, where :math:`\ddot{y}` is an estimated
    value of the second derivative of the solution at *t0*.
 
+   This routine will also reset the step size and error history.
 
 
 
@@ -1999,7 +2000,7 @@ Output the current Butcher table       :c:func:`ERKStepWriteButcher()`
 
 .. _ERKStep_CInterface.Reinitialization:
 
-ERKStep re-initialization functions
+ERKStep re-initialization function
 -------------------------------------
 
 To reinitialize the ERKStep module for the solution of a new problem,
@@ -2064,6 +2065,75 @@ vector.
 
    If an error occurred, :c:func:`ERKStepReInit()` also
    sends an error message to the error handler function.
+
+
+
+
+.. _ERKStep_CInterface.Reset:
+
+ERKStep reset function
+----------------------
+
+To reset the ERKStep module to a particular independent variable value and
+dependent variable vector for the continued solution of a problem, where a prior
+call to :c:func:`ERKStepCreate()` has been made, the user must call the function
+:c:func:`ERKStepReset()`.  Like :c:func:`ERKStepReInit()` this routine retains
+the current settings for all ERKStep module options and performs no memory
+allocations but, unlike :c:func:`ERKStepReInit()`, this routine performs only a
+*subset* of the input checking and initializations that are done in
+:c:func:`ERKStepCreate()`. In particular this routine retains all internal
+counter values and the step size/error history. Following a successful call to
+:c:func:`ERKStepReset()`, call :c:func:`ERKStepEvolve()` again to continue
+solving the problem. By default the next call to :c:func:`ERKStepEvolve()` will
+use the step size computed by ERKStep prior to calling :c:func:`ERKStepReset()`.
+To set a different step size or have ERKStep estimate a new step size use
+:c:func:`ERKStepSetInitStep()`.
+
+One important use of the :c:func:`ERKStepReset()` function is in the
+treating of jump discontinuities in the RHS functions.  Except in cases
+of fairly small jumps, it is usually more efficient to stop at each
+point of discontinuity and restart the integrator with a readjusted
+ODE model, using a call to :c:func:`ERKStepReset()`.  To stop when
+the location of the discontinuity is known, simply make that location
+a value of ``tout``.  To stop when the location of the discontinuity
+is determined by the solution, use the rootfinding feature.  In either
+case, it is critical that the RHS functions *not* incorporate the
+discontinuity, but rather have a smooth extension over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the RHS
+functions (communicated through ``user_data``) that can be flipped
+between the stopping of the integration and the restart, so that the
+restarted problem uses the new values (which have jumped).  Similar
+comments apply if there is to be a jump in the dependent variable
+vector.
+
+.. c:function:: int ERKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+
+   Resets the current ERKStep time-stepper module state to the provided
+   independent variable value and dependent variable vector.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *tR* -- the value of the independent variable :math:`t`.
+      * *yR* -- the value of the dependent variable vector :math:`y(t_R)`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL*  if the ERKStep memory was ``NULL``
+      * *ARK_MEM_FAIL*  if a memory allocation failed
+      * *ARK_ILL_INPUT* if an argument has an illegal value.
+
+   **Notes:**
+   By default the next call to :c:func:`ERKStepEvolve()` will use the step size
+   computed by ERKStep prior to calling :c:func:`ERKStepReset()`. To set a
+   different step size or have ERKStep estimate a new step size use
+   :c:func:`ERKStepSetInitStep()`.
+
+   All previously set options are retained but may be updated by calling the
+   appropriate "Set" functions.
+
+   If an error occurred, :c:func:`ERKStepReset()` also sends an error message to
+   the error handler function.
 
 
 

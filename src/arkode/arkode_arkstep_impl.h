@@ -128,9 +128,10 @@ typedef struct ARKodeARKStepMemRec {
   int msolve_type;  /* interface type: 0=iterative; 1=direct; 2=custom */
 
   /* Counters */
-  long int nfe;      /* num fe calls    */
-  long int nfi;      /* num fi calls    */
-  long int nsetups;  /* num setup calls */
+  long int nfe;       /* num fe calls               */
+  long int nfi;       /* num fi calls               */
+  long int nsetups;   /* num setup calls            */
+  long int nls_iters; /* num nonlinear solver iters */
 
   /* Reusable arrays for fused vector operations */
   realtype *cvals;         /* scalar array for fused ops       */
@@ -188,8 +189,6 @@ int arkStep_StageSetup(ARKodeMem ark_mem);
 int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
-int arkStep_ReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, realtype t0,
-                   N_Vector y0, int init_type);
 
 /* private functions passed to nonlinear solver */
 int arkStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);

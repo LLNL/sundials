@@ -40,7 +40,7 @@ Final statistics:
  average Krylov subspace dimension (NLI/NNI) =   0.9851
  number of conv. failures.. nonlinear =   0  linear =   0
  number of error test failures =   0
- main solver real/int workspace sizes   =   740  240
+ main solver real/int workspace sizes   =   661  225
  linear solver real/int workspace sizes =   535  126
 In ARKBBDPRE:
  real/int local workspace =   160   72
@@ -80,7 +80,7 @@ Final statistics:
  average Krylov subspace dimension (NLI/NNI) =   0.9851
  number of conv. failures.. nonlinear =   0  linear =   0
  number of error test failures =   0
- main solver real/int workspace sizes   =   780  248
+ main solver real/int workspace sizes   =   661  230
  linear solver real/int workspace sizes =   535  126
 In ARKBBDPRE:
  real/int local workspace =   160   72

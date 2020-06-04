@@ -6108,6 +6108,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   int flag = CV_SUCCESS;
   booleantype callSetup;
   booleantype do_sensi_sim;
+  long int nni_inc;
 
   /* Are we computing sensitivities with the CV_SIMULTANEOUS approach? */
   do_sensi_sim = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_SIMULTANEOUS));
@@ -6152,12 +6153,27 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   }
 
   /* solve the nonlinear system */
-  if (do_sensi_sim)
+  if (do_sensi_sim) {
+
     flag = SUNNonlinSolSolve(cv_mem->NLSsim, cv_mem->zn0Sim, cv_mem->ycorSim,
                              cv_mem->ewtSim, cv_mem->cv_tq[4], callSetup, cv_mem);
-  else
+
+    /* increment counter */
+    nni_inc = 0;
+    (void) SUNNonlinSolGetNumIters(cv_mem->NLSsim, &(nni_inc));
+    cv_mem->cv_nni += nni_inc;
+
+  } else {
+
     flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                              cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
+
+    /* increment counter */
+    nni_inc = 0;
+    (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &(nni_inc));
+    cv_mem->cv_nni += nni_inc;
+
+  }
 
   /* if the solve failed return */
   if (flag != CV_SUCCESS) return(flag);
@@ -6350,6 +6366,7 @@ static int cvStgrNls(CVodeMem cv_mem)
 {
   booleantype callSetup;
   int flag=CV_SUCCESS;
+  long int nniS_inc;
 
   callSetup = SUNFALSE;
   if (cv_mem->cv_lsetup == NULL)
@@ -6364,6 +6381,11 @@ static int cvStgrNls(CVodeMem cv_mem)
   /* solve the nonlinear system */
   flag = SUNNonlinSolSolve(cv_mem->NLSstg, cv_mem->zn0Stg, cv_mem->ycorStg,
                            cv_mem->ewtStg, cv_mem->cv_tq[4], callSetup, cv_mem);
+
+  /* increment counter */
+  nniS_inc = 0;
+  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg, &(nniS_inc));
+  cv_mem->cv_nniS += nniS_inc;
 
   /* reset sens solve flag */
   cv_mem->sens_solve = SUNFALSE;
@@ -6395,8 +6417,9 @@ static int cvStgrNls(CVodeMem cv_mem)
 static int cvStgr1Nls(CVodeMem cv_mem, int is)
 {
   booleantype callSetup;
-  long int nni;
+  long int nniS1_inc;
   int flag=CV_SUCCESS;
+
 
   callSetup = SUNFALSE;
   if (cv_mem->cv_lsetup == NULL)
@@ -6413,13 +6436,13 @@ static int cvStgr1Nls(CVodeMem cv_mem, int is)
                            cv_mem->cv_znS[0][is], cv_mem->cv_acorS[is],
                            cv_mem->cv_ewtS[is], cv_mem->cv_tq[4], callSetup, cv_mem);
 
+  /* increment counter */
+  nniS1_inc = 0;
+  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg1, &(nniS1_inc));
+  cv_mem->cv_nniS1[is] += nniS1_inc;
+
   /* reset sens solve flag */
   cv_mem->sens_solve = SUNFALSE;
-
-  /* update nniS iteration count */
-  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg1, &nni);
-  cv_mem->cv_nniS1[is] += nni - cv_mem->nnip;
-  cv_mem->nnip = nni;
 
   /* if the solve failed return */
   if (flag != CV_SUCCESS) return(flag);

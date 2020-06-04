@@ -61,6 +61,13 @@ extern "C" {
   ===============================================================*/
 
 /*---------------------------------------------------------------
+  Initialization types
+  ---------------------------------------------------------------*/
+#define FIRST_INIT   0  /* first step (re-)initialization */
+#define RESET_INIT   1  /* reset initialization           */
+#define RESIZE_INIT  2  /* resize initialization          */
+
+/*---------------------------------------------------------------
   Control constants for lower-level time-stepping functions
   ---------------------------------------------------------------*/
 #define PREDICT_AGAIN    +3
@@ -359,8 +366,8 @@ typedef struct ARKodeMemRec {
   booleantype VabstolMallocDone;
   booleantype VRabstolMallocDone;
   booleantype MallocDone;
-  booleantype initsetup;    /* denotes a call to InitialSetup is needed */
-  booleantype resized;      /* denotes first step after ARKodeResize      */
+  booleantype initsetup;    /* denotes a call to InitialSetup is needed   */
+  int         init_type;    /* initialization type (see constants above)  */
   booleantype firststage;   /* denotes first stage in simulation          */
   booleantype initialized;  /* denotes arkInitialSetup has been done      */
   booleantype call_fullrhs; /* denotes fn needs updating after each step  */
@@ -724,7 +731,7 @@ typedef struct ARKodeMemRec {
   a specific ARKode time stepping module, such as verifying
   compatibility of user-specified linear and nonlinear solver
   objects. The input init_type flag indicates if the call is
-  for (re-)initializing or resizing the problem.
+  for (re-)initializing, resizing, or resetting the problem.
 
   This routine should return 0 if it has successfully initialized
   the ARKode time stepper module and a negative value otherwise.

@@ -401,6 +401,15 @@ int arkSetInitStep(void *arkode_mem, realtype hin)
     ark_mem->hin = hin;
   }
 
+  /* Clear previous initial step */
+  ark_mem->h0u = ZERO;
+
+  /* Clear error and step size history */
+  ark_mem->hadapt_mem->ehist[0] = ONE;
+  ark_mem->hadapt_mem->ehist[1] = ONE;
+  ark_mem->hadapt_mem->hhist[0] = ZERO;
+  ark_mem->hadapt_mem->hhist[1] = ZERO;
+
   return(ARK_SUCCESS);
 }
 
@@ -969,7 +978,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
   /* set adaptivity method */
   hadapt_mem->imethod = imethod;
 
-  /* set flag whether to use p or q */
+  /* set flag whether to use p (embedding, 0) or q (method, 1) order */
   hadapt_mem->pq = (pq != 0);
 
   /* set method parameters */

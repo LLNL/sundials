@@ -1138,7 +1138,7 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
 .. c:function:: int ARKStepSetInitStep(void* arkode_mem, realtype hin)
 
    Specifies the initial time step size ARKStep should use after
-   initialization or re-initialization.
+   initialization, re-initialization, or resetting.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -1155,6 +1155,8 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
    solution :math:`h` of the equation :math:`\left\| \frac{h^2
    \ddot{y}}{2}\right\| = 1`, where :math:`\ddot{y}` is an estimated
    value of the second derivative of the solution at *t0*.
+
+   This routine will also reset the step size and error history.
 
 
 
@@ -4057,7 +4059,7 @@ Output the current Butcher table(s)    :c:func:`ARKStepWriteButcher()`
 
 .. _ARKStep_CInterface.Reinitialization:
 
-ARKStep re-initialization functions
+ARKStep re-initialization function
 -------------------------------------
 
 To reinitialize the ARKStep module for the solution of a new problem,
@@ -4135,6 +4137,78 @@ vector.
    If an error occurred, :c:func:`ARKStepReInit()` also
    sends an error message to the error handler function.
 
+
+
+
+
+.. _ARKStep_CInterface.Reset:
+
+ARKStep reset function
+----------------------
+
+To reset the ARKStep module to a particular independent variable value and
+dependent variable vector for the continued solution of a problem, where a prior
+call to :c:func:`ARKStepCreate()` has been made, the user must call the function
+:c:func:`ARKStepReset()`.  Like :c:func:`ARKStepReInit()` this routine retains
+the current settings for all ARKStep module options and performs no memory
+allocations but, unlike :c:func:`ARKStepReInit()`, this routine performs only a
+*subset* of the input checking and initializations that are done in
+:c:func:`ARKStepCreate()`. In particular this routine retains all internal
+counter values and the step size/error history and does not reinitialize the
+linear and/or nonlinear solver but it does indicate that a linear solver setup
+is necessary in the next step. Following a successful call to
+:c:func:`ARKStepReset()`, call :c:func:`ARKStepEvolve()` again to continue
+solving the problem. By default the next call to :c:func:`ARKStepEvolve()` will
+use the step size computed by ARKStep prior to calling :c:func:`ARKStepReset()`.
+To set a different step size or have ARKStep estimate a new step size use
+:c:func:`ARKStepSetInitStep()`.
+
+One important use of the :c:func:`ARKStepReset()` function is in the
+treating of jump discontinuities in the RHS functions.  Except in cases
+of fairly small jumps, it is usually more efficient to stop at each
+point of discontinuity and restart the integrator with a readjusted
+ODE model, using a call to :c:func:`ARKStepReset()`.  To stop when
+the location of the discontinuity is known, simply make that location
+a value of ``tout``.  To stop when the location of the discontinuity
+is determined by the solution, use the rootfinding feature.  In either
+case, it is critical that the RHS functions *not* incorporate the
+discontinuity, but rather have a smooth extension over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the RHS
+functions (communicated through ``user_data``) that can be flipped
+between the stopping of the integration and the restart, so that the
+restarted problem uses the new values (which have jumped).  Similar
+comments apply if there is to be a jump in the dependent variable
+vector.
+
+
+.. c:function:: int ARKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+
+   Resets the current ARKStep time-stepper module state to the provided
+   independent variable value and dependent variable vector.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *tR* -- the value of the independent variable :math:`t`.
+      * *yR* -- the value of the dependent variable vector :math:`y(t_R)`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
+      * *ARK_MEM_FAIL*  if a memory allocation failed
+      * *ARK_ILL_INPUT* if an argument has an illegal value.
+
+   **Notes:**
+   By default the next call to :c:func:`ARKStepEvolve()` will use the step size
+   computed by ARKStep prior to calling :c:func:`ARKStepReset()`. To set a
+   different step size or have ARKStep estimate a new step size use
+   :c:func:`ARKStepSetInitStep()`.
+
+   All previously set options are retained but may be updated by calling the
+   appropriate "Set" functions.
+
+   If an error occurred, :c:func:`ARKStepReset()` also sends an error message to
+   the error handler function.
 
 
 

@@ -195,8 +195,6 @@ int main() {
     /* "set" routines */
     flag = ARKStepSetStopTime(arkode_mem, Tf);
     if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
-    flag = ARKStepSetInitStep(arkode_mem, newdt);
-    if (check_flag(&flag, "ARKStepSetInitStep", 1)) return 1;
 
     /* call integrator */
     flag = ARKStepEvolve(arkode_mem, Tf, y, &t, ARK_ONE_STEP);

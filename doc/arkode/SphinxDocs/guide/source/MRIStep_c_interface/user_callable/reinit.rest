@@ -1,6 +1,6 @@
 .. _MRIStep_CInterface.Reinitialization:
 
-MRIStep re-initialization functions
+MRIStep re-initialization function
 -------------------------------------
 
 To reinitialize the MRIStep module for the solution of a new problem,

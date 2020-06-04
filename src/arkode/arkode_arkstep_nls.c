@@ -148,6 +148,9 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
+  /* reset counters */
+  step_mem->nls_iters = 0;
+
   /* set the linear solver setup wrapper function */
   if (step_mem->lsetup)
     retval = SUNNonlinSolSetLSetupFn(step_mem->NLS, arkStep_NlsLSetup);
@@ -204,6 +207,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 {
   ARKodeARKStepMem step_mem;
   booleantype callLSetup;
+  long int nls_iters_inc;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -253,6 +257,11 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 
   /* apply the correction to construct ycur */
   N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
+
+  /* increment counter */
+  nls_iters_inc = 0;
+  (void) SUNNonlinSolGetNumIters(step_mem->NLS, &(nls_iters_inc));
+  step_mem->nls_iters += nls_iters_inc;
 
   /* on successful solve, reset the jcur flag */
   if (retval == ARK_SUCCESS)  step_mem->jcur = SUNFALSE;
