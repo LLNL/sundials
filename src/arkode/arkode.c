@@ -1183,6 +1183,10 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
     return(ARK_ILL_INPUT);
   }
 
+  /* Check if reset was called before the first Evolve call */
+  if (init_type == RESET_INIT && !(ark_mem->initialized))
+    init_type = FIRST_INIT;
+
   /* Check if allocations have been done i.e., is this first init call */
   if (ark_mem->MallocDone == SUNFALSE) {
 
