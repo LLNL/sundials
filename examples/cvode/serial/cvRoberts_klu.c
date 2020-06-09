@@ -57,6 +57,7 @@
 /* Problem Constants */
 
 #define NEQ   3                /* number of equations  */
+#define NNZ   7                /* number of non-zero-entries in jacobian */
 #define Y1    RCONST(1.0)      /* initial y components */
 #define Y2    RCONST(0.0)
 #define Y3    RCONST(0.0)
@@ -107,7 +108,7 @@ int main()
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int retval, retvalr, iout, nnz;
+  int retval, retvalr, iout;
   int rootsfound[2];
 
   y = abstol = NULL;
@@ -154,8 +155,7 @@ int main()
   if (check_retval(&retval, "CVodeRootInit", 1)) return(1);
 
   /* Create sparse SUNMatrix for use in linear solves */
-  nnz = NEQ * NEQ;
-  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
+  A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU solver object for use by CVode */
@@ -260,39 +260,48 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *yval;
+
+  /* NNZ: maximum number of non-zero entries */
+
+  /* CSC format: IndexPointers returns a pointer to the first entry in each column */
+  /* length: columns + 1 */
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
+
+  /* CSC format: IndexValues gives the row index for each non-empty entry */
+  /* length: NNZ */
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
+
+  /* length: NNZ */
   realtype *data = SUNSparseMatrix_Data(J);
-  
+
   yval = N_VGetArrayPointer(y);
 
   SUNMatZero(J);
 
   colptrs[0] = 0;
-  colptrs[1] = 3;
-  colptrs[2] = 6;
-  colptrs[3] = 9;
+  colptrs[1] = 2;
+  colptrs[2] = 5;
+  colptrs[3] = 7;
 
+  /* two entries in first column */
   data[0] = RCONST(-0.04);
   rowvals[0] = 0;
   data[1] = RCONST(0.04);
   rowvals[1] = 1;
-  data[2] = ZERO;
-  rowvals[2] = 2;
 
-  data[3] = RCONST(1.0e4)*yval[2];
-  rowvals[3] = 0;
-  data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]);
-  rowvals[4] = 1;
-  data[5] = RCONST(6.0e7)*yval[1];
-  rowvals[5] = 2;
+  /* three entries in second column */
+  data[2] = RCONST(1.0e4)*yval[2];
+  rowvals[2] = 0;
+  data[3] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]);
+  rowvals[3] = 1;
+  data[4] = RCONST(6.0e7)*yval[1];
+  rowvals[4] = 2;
 
-  data[6] = RCONST(1.0e4)*yval[1];
-  rowvals[6] = 0;
-  data[7] = RCONST(-1.0e4)*yval[1];
-  rowvals[7] = 1;
-  data[8] = ZERO;
-  rowvals[8] = 2;
+  /* two entries in third column */
+  data[5] = RCONST(1.0e4)*yval[1];
+  rowvals[5] = 0;
+  data[6] = RCONST(-1.0e4)*yval[1];
+  rowvals[6] = 1;
 
   return(0);
 }
