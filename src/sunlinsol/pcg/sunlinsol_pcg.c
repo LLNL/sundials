@@ -169,11 +169,11 @@ SUNDIALS_EXPORT int SUNLinSol_PCGSetMaxl(SUNLinearSolver S, int maxl)
   /* Check for non-NULL SUNLinearSolver */
   if (S == NULL) return(SUNLS_MEM_NULL);
 
-  /* Check for legal pretype */
+  /* Check for legal number of iters */
   if (maxl <= 0)
     maxl = SUNPCG_MAXL_DEFAULT;
 
-  /* Set pretype */
+  /* Set max iters */
   PCG_CONTENT(S)->maxl = maxl;
   return(SUNLS_SUCCESS);
 }
@@ -443,6 +443,9 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
       converged = SUNTRUE;
       break;
     }
+
+    /* Exit early on last iteration */
+    if (l == l_max - 1) break;
 
     /* Apply preconditioner:  z = P^{-1}*r */
     if (UsePrec) {

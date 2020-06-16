@@ -1,6 +1,6 @@
 # /
 /.project
-/build
+/build*
 /autom4te.cache
 /.settings
 /.cproject
