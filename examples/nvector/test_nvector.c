@@ -6,7 +6,7 @@
  *                   @ SMU.
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -27,22 +27,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sundials/sundials_nvector.h>
+#include <sundials/sundials_math.h>
+#include "test_nvector.h"
+
 /* POSIX timers */
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 #include <time.h>
 #include <unistd.h>
 #endif
-
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
-#include "test_nvector.h"
-
-/* private functions */
-static double get_time();
-
-/* private variables */
-static int print_time = 0;
 
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
@@ -51,6 +44,12 @@ static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
                                        based.
                                     */
 #endif
+
+/* private functions */
+static double get_time();
+
+/* private variables */
+static int print_time = 0;
 
 /* macro for printing timings */
 #define FMT "%s Time: %22.15e\n\n"
@@ -1321,7 +1320,7 @@ int Test_N_VDotProd(N_Vector X, N_Vector Y, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal global vector length */
-  failure = FNEQ(ans, global_length);
+  failure = FNEQ(ans, (realtype) global_length);
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProd, Proc %d \n", myid);
@@ -1564,7 +1563,7 @@ int Test_N_VL1Norm(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal global_length */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, global_length);
+  failure = (ans < ZERO) ? 1 : FNEQ(ans, (realtype) global_length);
 
   if (failure) {
     printf(">>> FAILED test -- N_VL1Norm, Proc %d \n", myid);
@@ -1672,7 +1671,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   int          fails = 0, failure = 0;
   double       start_time, stop_time, maxt;
   sunindextype i;
-  booleantype  test;
+  booleantype  ans, exp;
 
   if (local_length < 2) {
     printf("Error Test_N_VInvTest: Local vector length is %ld, length must be >= 2\n",
@@ -1689,14 +1688,17 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   N_VConst(ZERO, Z);
 
   start_time = get_time();
-  test = N_VInvTest(X, Z);
+  ans = N_VInvTest(X, Z);
   sync_device();
   stop_time = get_time();
+
+  /* we expect no zeros */
+  exp = SUNTRUE;
 
   /* Z should be vector of +2 */
   failure = check_ans(TWO, Z, local_length);
 
-  if (failure || !test) {
+  if (failure || (ans != exp)) {
     printf(">>> FAILED test -- N_VInvTest Case 1, Proc %d \n", myid);
     fails++;
   } else if (myid == 0) {
@@ -1717,14 +1719,16 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   /* fill vector data */
   N_VConst(ZERO, Z);
   for(i=0; i < local_length; i++){
-    if (i % 2)
+    if (i % 2) {
       set_element(X, i, HALF);
-    else
+    } else {
+      exp = SUNFALSE;
       set_element(X, i, ZERO);
+    }
   }
 
   start_time = get_time();
-  test = N_VInvTest(X, Z);
+  ans = N_VInvTest(X, Z);
   sync_device();
   stop_time = get_time();
 
@@ -1739,7 +1743,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
     }
   }
 
-  if (failure || test) {
+  if (failure || (ans != exp)) {
     printf(">>> FAILED test -- N_VInvTest Case 2, Proc %d \n", myid);
     fails++;
   } else if (myid == 0) {
@@ -2485,7 +2489,7 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int myid)
 
   /* dotprod[0] should equal the global vector length */
   if (ierr == 0)
-    failure = FNEQ(dotprods[0], global_length);
+    failure = FNEQ(dotprods[0], (realtype) global_length);
   else
     failure = 1;
 
@@ -2517,9 +2521,9 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int myid)
 
   /* dotprod[i] should equal -1, +1, and 2 times the global vector length */
   if (ierr == 0) {
-    failure  = FNEQ(dotprods[0], -1*global_length);
-    failure += FNEQ(dotprods[1],    global_length);
-    failure += FNEQ(dotprods[2],  2*global_length);
+    failure  = FNEQ(dotprods[0], (realtype) -1*global_length);
+    failure += FNEQ(dotprods[1], (realtype)    global_length);
+    failure += FNEQ(dotprods[2], (realtype)  2*global_length);
   } else {
     failure = 1;
   }
@@ -4803,7 +4807,8 @@ int Test_N_VL1NormLocal(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, myid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, (realtype) myid,
+                                       SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VL1NormLocal, Proc %d\n", myid);
@@ -4841,7 +4846,8 @@ int Test_N_VWSqrSumLocal(N_Vector X, N_Vector W, sunindextype local_length, int 
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, myid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, (realtype) myid,
+                                       SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VWSqrSumLocal, Proc %d\n", myid);
@@ -4884,7 +4890,8 @@ int Test_N_VWSqrSumMaskLocal(N_Vector X, N_Vector W, N_Vector ID,
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, myid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, (realtype) myid,
+                                       SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VWSqrSumMaskLocal, Proc %d\n", myid);
@@ -5183,7 +5190,7 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = FNEQTOL(ans, myid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = FNEQTOL(ans, (realtype) myid, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotientLocal Case 1, Proc %d \n", myid);

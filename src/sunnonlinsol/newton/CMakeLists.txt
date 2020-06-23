@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -38,7 +38,7 @@ set(lib_HEADERS
   )
 
 # Add source directory to include directories
-include_directories(.)
+include_directories(. ${sundials_SOURCE_DIR}/src/sundials)
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 add_definitions(-DBUILD_SUNDIALS_LIBRARY)

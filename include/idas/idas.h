@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -285,6 +285,10 @@ SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
 /* Free function */
 SUNDIALS_EXPORT void IDAFree(void **ida_mem);
 
+/* IDALS interface function that depends on IDAResFn */
+SUNDIALS_EXPORT int IDASetJacTimesResFn(void *ida_mem,
+                                        IDAResFn jtimesResFn);
+
 
 /* ---------------------------------
  * Exported Functions -- Quadrature
@@ -548,6 +552,10 @@ typedef struct {
 
 SUNDIALS_EXPORT int IDAGetAdjCheckPointsInfo(void *ida_mem,
                                              IDAadjCheckPointRec *ckpnt);
+
+/* IDALS interface function that depends on IDAResFn */
+SUNDIALS_EXPORT int IDASetJacTimesResFnB(void *ida_mem, int which,
+                                         IDAResFn jtimesResFn);
 
 
 /* Undocumented Optional Output Functions For Backward Problems */

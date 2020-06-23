@@ -2,7 +2,7 @@
    Programmer(s): David J. Gardner @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -89,3 +89,18 @@ ARKStep advanced output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
+
+MRIStep advanced output functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. c:function:: int MRIStepGetCurrentState(void* arkode_mem, N_Vector* y)
+
+   Returns the current state vector
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+      * *y* -- N_Vector pointer that will get set to the current state vector
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``

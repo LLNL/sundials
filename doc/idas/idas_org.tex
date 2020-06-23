@@ -18,20 +18,17 @@ of this structure is not necessary for its use.
 
 The overall organization of the {\idas} package is shown in Figure
 \ref{f:idasorg}.
-\begin{figure}
+\begin{figure}[!htb]
 {\centerline{\includegraphics[width=\textwidth]{idasorg}}}
-\caption [Overall structure diagram of the {\ida} package]
-{Overall structure diagram of the {\ida} package.
-  Modules specific to {\ida} begin with ``IDA'' ({\idals},
-  {\idabbdpre}, and {\idanls}), all other items correspond
-  to generic solver and auxiliary modules. 
-  Note also that the LAPACK, {\klu} and {\superlumt} support is
-  through interfaces to external packages. 
-  Users will need to download and compile those packages independently.}
+\caption [Overall structure diagram of the {\idas} package]
+{Overall structure diagram of the {\idas} package.
+  Modules specific to {\idas} begin with ``IDA'' ({\idals}, {\idanls}, and
+  {\idabbdpre}), all other items correspond to generic
+  {\sundials} vector, matrix, and solver modules (see Figure \ref{f:sunorg1}).}
 \label{f:idasorg}
 \end{figure}
 The central integration module, implemented in the files \id{idas.h},
-\id{idas\_impl.h}, and \id{idas.c}, deals with the evaluation of integration 
+\id{idas\_impl.h}, and \id{idas.c}, deals with the evaluation of integration
 coefficients, estimation of local error,
 selection of stepsize and order, and interpolation to user output
 points, among other issues.
@@ -47,7 +44,7 @@ interfaces is specified, and invoked as needed during the integration. While
 supported in {\idas} (note the fixed-point module is listed in Figure
 \ref{f:sunorg1} but not Figure \ref{f:idasorg}).
 
-In addition, if forward sensitivity analysis is turned on, the main module 
+In addition, if forward sensitivity analysis is turned on, the main module
 will integrate the forward sensitivity equations simultaneously with the original
 IVP. The sensitivity variables may be included in the local error control
 mechanism of the main integrator.
@@ -60,15 +57,15 @@ sensitivity equations residuals by difference quotients, but the user has
 the option of supplying these residual functions directly.
 
 \index{adjoint sensitivity analysis!implementation in {\idas}|(}
-The adjoint sensitivity module (file \id{idaa.c}) provides the infrastructure needed for the 
-backward integration of any system of DAEs which depends on the solution 
+The adjoint sensitivity module (file \id{idaa.c}) provides the infrastructure needed for the
+backward integration of any system of DAEs which depends on the solution
 of the original IVP, in particular the adjoint system and any quadratures required
 in evaluating the gradient of the objective functional.  This module deals with
 the setup of the checkpoints, the interpolation of the forward solution during
 the backward integration, and the backward integration of the adjoint equations.
 \index{adjoint sensitivity analysis!implementation in {\idas}|)}
 
-\index{IDAS@{\ida} linear solver interfaces|(} 
+\index{IDAS@{\ida} linear solver interfaces|(}
 {\idas} now has a single unified linear solver interface, {\idals},
 supporting both direct and iterative linear solvers built using the
 generic {\sunlinsol} API (see Chapter \ref{s:sunlinsol}).  These
@@ -79,11 +76,11 @@ implementation, the set of linear solver modules available to {\idas}
 will expand as new {\sunlinsol} modules are developed.
 
 For users employing dense or banded Jacobian matrices, {\idals}
-includes algorithms for their approximation through difference 
+includes algorithms for their approximation through difference
 quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly.  This user-supplied 
+(or an approximation to it) directly.  This user-supplied
 routine is required when using sparse or user-supplied Jacobian
-matrices. 
+matrices.
 
 For users employing matrix-free iterative linear solvers, {\idals}
 includes an algorithm for the approximation by difference quotients of
@@ -91,26 +88,26 @@ the product between the Jacobian matrix and a vector, $Jv$. Again, the
 user has the option of providing routines for this operation, in two
 phases: setup (preprocessing of Jacobian data) and multiplication.
 
-For preconditioned iterative methods, \index{preconditioning!setup and solve phases} 
-the preconditioning must be supplied by the user, again in two phases: 
+For preconditioned iterative methods, \index{preconditioning!setup and solve phases}
+the preconditioning must be supplied by the user, again in two phases:
 setup and solve.  While\index{preconditioning!advice on} there is no
 default choice of preconditioner analogous to the difference-quotient
 approximation in the direct case, the references
 \cite{BrHi:89,Byr:92}, together with the example and demonstration
 programs included with {\idas}, offer considerable assistance in
-building preconditioners. 
+building preconditioners.
 
-\index{IDAS@{\idas} linear solvers!implementation details|(} 
+\index{IDAS@{\idas} linear solvers!implementation details|(}
 {\idas}' linear solver interface consists of four primary routines,
 devoted to (1) memory allocation and initialization, (2) setup of the
-matrix data involved, (3) solution of the system, and (4) freeing of memory.  
+matrix data involved, (3) solution of the system, and (4) freeing of memory.
 The setup and solution phases are separate because the evaluation of
 Jacobians and preconditioners is done only periodically during the
 integration, as required to achieve convergence. The call list within
 the central {\idas} module to each of the four associated functions is
 fixed, thus allowing the central module to be completely independent
 of the linear system method.
-\index{IDAS@{\idas} linear solvers!implementation details|)} 
+\index{IDAS@{\idas} linear solvers!implementation details|)}
 
 {\idas} also provides a preconditioner module, {\idabbdpre}, for use
 with any of the Krylov iterative linear solvers.  It works in
@@ -125,4 +122,3 @@ solver is saved in a separate structure, a pointer to which resides in
 the {\idas} memory structure. The reentrancy of {\idas} was motivated
 by the situation where two or more problems are solved by
 intermixed calls to the package from one user program.
-

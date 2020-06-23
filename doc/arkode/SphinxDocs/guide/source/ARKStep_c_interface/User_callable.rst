@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -858,16 +858,20 @@ The optional inputs are grouped into the following categories:
 * IVP method solver options (:ref:`ARKStep_CInterface.ARKStepMethodInputTable`),
 * Step adaptivity solver options (:ref:`ARKStep_CInterface.ARKStepAdaptivityInputTable`),
 * Implicit stage solver options (:ref:`ARKStep_CInterface.ARKStep_CInterface.ARKStepSolverInputTable`),
-* Linear solver interface options (:ref:`ARKStep_CInterface.ARKLsInputs`),
+* Linear solver interface options (:ref:`ARKStep_CInterface.ARKLsInputs`), and
+* Rootfinding options (:ref:`ARKStep_CInterface.ARKStepRootfindingInputTable`).
 
 For the most casual use of ARKStep, relying on the default set of
 solver parameters, the reader can skip to the following section,
 :ref:`ARKStep_CInterface.UserSupplied`.
 
-We note that, on an error return, all of the optional input functions
-send an error message to the error handler function.  We also note
-that all error return values are negative, so a test on the return
-arguments for negative values will catch all errors.
+We note that, on an error return, all of the optional input functions send an
+error message to the error handler function. All error return values are
+negative, so a test on the return arguments for negative values will catch all
+errors. Finally, a call to an ``ARKStepSet***`` function can generally be made
+from the user's calling program at any time and, if successful, takes effect
+immediately. ``ARKStepSet***`` functions that cannot be called at any time note
+this in the "**Notes**:" section of the function documentation.
 
 
 
@@ -878,11 +882,12 @@ Optional inputs for ARKStep
 
 .. cssclass:: table-bordered
 
-==================================================  =======================================  ==============
+==================================================  =======================================  =======================
 Optional input                                      Function name                            Default
-==================================================  =======================================  ==============
+==================================================  =======================================  =======================
 Return ARKStep solver parameters to their defaults  :c:func:`ARKStepSetDefaults()`           internal
-Set dense output order                              :c:func:`ARKStepSetDenseOrder()`         3
+Set dense output interpolation type                 :c:func:`ARKStepSetInterpolantType()`    ``ARK_INTERP_HERMITE``
+Set dense output polynomial degree                  :c:func:`ARKStepSetInterpolantDegree()`  5
 Supply a pointer to a diagnostics output file       :c:func:`ARKStepSetDiagnostics()`        ``NULL``
 Supply a pointer to an error output file            :c:func:`ARKStepSetErrFile()`            ``stderr``
 Supply a custom error handler function              :c:func:`ARKStepSetErrHandlerFn()`       internal fn
@@ -898,7 +903,7 @@ Maximum no. of ARKStep error test failures          :c:func:`ARKStepSetMaxErrTes
 Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalParams()`      internal
 Set inequality constraints on solution              :c:func:`ARKStepSetConstraints()`        ``NULL``
 Set max number of constraint failures               :c:func:`ARKStepSetMaxNumConstrFails()`  10
-==================================================  =======================================  ==============
+==================================================  =======================================  =======================
 
 
 
@@ -924,7 +929,40 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
 
 
 
-.. c:function:: int ARKStepSetDenseOrder(void* arkode_mem, int dord)
+.. c:function:: int ARKStepSetInterpolantType(void* arkode_mem, int itype)
+
+   Specifies use of the Lagrange or Hermite interpolation modules (used for
+   dense output -- interpolation of solution output values and implicit
+   method predictors).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *itype* -- requested interpolant type (``ARK_INTERP_HERMITE`` or ``ARK_INTERP_LAGRANGE``)
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_FAIL* if the interpolation module cannot be allocated
+      * *ARK_ILL_INPUT* if the *itype* argument is not recognized or the
+        interpolation module has already been initialized
+
+   **Notes:** The Hermite interpolation module is described in the Section
+   :ref:`Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
+   is described in the Section :ref:`Mathematics.Interpolation.Lagrange`.
+
+   This routine frees any previously-allocated interpolation module, and re-creates
+   one according to the specified argument.  Thus any previous calls to
+   :c:func:`ARKStepSetInterpolantDegree()` will be nullified.
+
+   This routine may only be called *after* the call to :c:func:`ARKStepCreate()`.
+   After the first call to :c:func:`ARKStepEvolve()` the interpolation type may
+   not be changed without first calling :c:func:`ARKStepReInit()`.
+
+   If this routine is not called, the Hermite interpolation module will be used.
+
+
+
+.. c:function:: int ARKStepSetInterpolantDegree(void* arkode_mem, int degree)
 
    Specifies the degree of the polynomial interpolant
    used for dense output (i.e. interpolation of solution output values
@@ -932,15 +970,37 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *dord* -- requested polynomial order of accuracy.
+      * *degree* -- requested polynomial degree.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_MEM_NULL* if the ARKStep memory or interpolation module are ``NULL``
+      * *ARK_INTERP_FAIL* if this is called after :c:func:`ARKStepEvolve()`
+      * *ARK_ILL_INPUT* if an argument has an illegal value or the
+        interpolation module has already been initialized
 
-   **Notes:** Allowed values are between 0 and ``min(q,5)``, where ``q`` is
-   the order of the overall integration method.
+   **Notes:** Allowed values are between 0 and 5.
+
+   This routine should be called *after* :c:func:`ARKStepCreate()` and *before*
+   :c:func:`ARKStepEvolve()`. After the first call to :c:func:`ARKStepEvolve()`
+   the interpolation degree may not be changed without first calling
+   :c:func:`ARKStepReInit()`.
+
+   If a user calls both this routine and :c:func:`ARKStepSetInterpolantType()`, then
+   :c:func:`ARKStepSetInterpolantType()` must be called first.
+
+   Since the accuracy of any polynomial interpolant is limited by the accuracy of
+   the time-step solutions on which it is based, the *actual* polynomial degree that
+   is used by ARKStep will be the minimum of :math:`q-1` and the input *degree*,
+   where :math:`q` is the order of accuracy for the time integration method.
+
+
+
+.. c:function:: int ARKStepSetDenseOrder(void* arkode_mem, int dord)
+
+   *This function is deprecated, and will be removed in a future release.
+   Users should transition to calling* :c:func:`ARKStepSetInterpolantDegree()`
+   *instead.*
 
 
 
@@ -1051,6 +1111,7 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
    :c:func:`ARKStepSetMaxEFailGrowth()`,
    :c:func:`ARKStepSetMaxFirstGrowth()`,
    :c:func:`ARKStepSetMaxGrowth()`,
+   :c:func:`ARKStepSetMinReduction()`,
    :c:func:`ARKStepSetSafetyFactor()`,
    :c:func:`ARKStepSetSmallNumEFails()` and
    :c:func:`ARKStepSetStabilityFn()`
@@ -1077,7 +1138,7 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
 .. c:function:: int ARKStepSetInitStep(void* arkode_mem, realtype hin)
 
    Specifies the initial time step size ARKStep should use after
-   initialization or re-initialization.
+   initialization, re-initialization, or resetting.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -1094,6 +1155,8 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
    solution :math:`h` of the equation :math:`\left\| \frac{h^2
    \ddot{y}}{2}\right\| = 1`, where :math:`\ddot{y}` is an estimated
    value of the second derivative of the solution at *t0*.
+
+   This routine will also reset the step size and error history.
 
 
 
@@ -1286,6 +1349,16 @@ Set max number of constraint failures               :c:func:`ARKStepSetMaxNumCon
    call with 0.0 in all components of ``constraints`` will result in an illegal
    input return. A ``NULL`` constraints vector will disable constraint checking.
 
+   After a call to :c:func:`ARKStepResize()` inequality constraint checking
+   will be disabled and a call to :c:func:`ARKStepSetConstraints()` is
+   required to re-enable constraint checking.
+
+   Since constraint-handling is performed through cutting time steps that would
+   violate the constraints, it is possible that this feature will cause some
+   problems to fail due to an inability to enforce constraints even at the
+   minimum time step size.  Additionally, the features :c:func:`ARKStepSetConstraints()`
+   and :c:func:`ARKStepSetFixedStep()` are incompatible, and should not be used
+   simultaneously.
 
 
 .. c:function:: int ARKStepSetMaxNumConstrFails(void* arkode_mem, int maxfails)
@@ -1518,22 +1591,23 @@ the code, is provided in the section :ref:`Mathematics.Adaptivity`.
 
 .. cssclass:: table-bordered
 
-==============================================  ======================================  ========
-Optional input                                  Function name                           Default
-==============================================  ======================================  ========
-Set a custom time step adaptivity function      :c:func:`ARKStepSetAdaptivityFn()`      internal
-Choose an existing time step adaptivity method  :c:func:`ARKStepSetAdaptivityMethod()`  0
-Explicit stability safety factor                :c:func:`ARKStepSetCFLFraction()`       0.5
-Time step error bias factor                     :c:func:`ARKStepSetErrorBias()`         1.5
-Bounds determining no change in step size       :c:func:`ARKStepSetFixedStepBounds()`   1.0  1.5
-Maximum step growth factor on convergence fail  :c:func:`ARKStepSetMaxCFailGrowth()`    0.25
-Maximum step growth factor on error test fail   :c:func:`ARKStepSetMaxEFailGrowth()`    0.3
-Maximum first step growth factor                :c:func:`ARKStepSetMaxFirstGrowth()`    10000.0
-Maximum general step growth factor              :c:func:`ARKStepSetMaxGrowth()`         20.0
-Time step safety factor                         :c:func:`ARKStepSetSafetyFactor()`      0.96
-Error fails before MaxEFailGrowth takes effect  :c:func:`ARKStepSetSmallNumEFails()`    2
-Explicit stability function                     :c:func:`ARKStepSetStabilityFn()`       none
-==============================================  ======================================  ========
+========================================================   ======================================  ========
+Optional input                                             Function name                           Default
+========================================================   ======================================  ========
+Set a custom time step adaptivity function                 :c:func:`ARKStepSetAdaptivityFn()`      internal
+Choose an existing time step adaptivity method             :c:func:`ARKStepSetAdaptivityMethod()`  0
+Explicit stability safety factor                           :c:func:`ARKStepSetCFLFraction()`       0.5
+Time step error bias factor                                :c:func:`ARKStepSetErrorBias()`         1.5
+Bounds determining no change in step size                  :c:func:`ARKStepSetFixedStepBounds()`   1.0  1.5
+Maximum step growth factor on convergence fail             :c:func:`ARKStepSetMaxCFailGrowth()`    0.25
+Maximum step growth factor on error test fail              :c:func:`ARKStepSetMaxEFailGrowth()`    0.3
+Maximum first step growth factor                           :c:func:`ARKStepSetMaxFirstGrowth()`    10000.0
+Maximum allowed general step growth factor                 :c:func:`ARKStepSetMaxGrowth()`         20.0
+Minimum allowed step reduction factor on error test fail   :c:func:`ARKStepSetMinReduction()`      0.1
+Time step safety factor                                    :c:func:`ARKStepSetSafetyFactor()`      0.96
+Error fails before MaxEFailGrowth takes effect             :c:func:`ARKStepSetSmallNumEFails()`    2
+Explicit stability function                                :c:func:`ARKStepSetStabilityFn()`       none
+========================================================   ======================================  ========
 
 
 
@@ -1684,7 +1758,7 @@ Explicit stability function                     :c:func:`ARKStepSetStabilityFn()
 
 .. c:function:: int ARKStepSetMaxFirstGrowth(void* arkode_mem, realtype etamx1)
 
-   Specifies the maximum allowed step size change following the very
+   Specifies the maximum allowed growth factor in step size following the very
    first integration step.
 
    **Arguments:**
@@ -1703,12 +1777,12 @@ Explicit stability function                     :c:func:`ARKStepSetStabilityFn()
 
 .. c:function:: int ARKStepSetMaxGrowth(void* arkode_mem, realtype mx_growth)
 
-   Specifies the maximum growth of the step size between consecutive
-   steps in the integration process.
+   Specifies the maximum allowed growth factor in step size between
+   consecutive steps in the integration process.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *growth* -- maximum allowed growth factor between consecutive time steps (default is 20.0).
+      * *mx_growth* -- maximum allowed growth factor between consecutive time steps (default is 20.0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1717,6 +1791,27 @@ Explicit stability function                     :c:func:`ARKStepSetStabilityFn()
 
    **Notes:** Any value :math:`\le 1.0` will imply a reset to the default
    value.
+
+
+
+.. c:function:: int ARKStepSetMinReduction(void* arkode_mem, realtype eta_min)
+
+   Specifies the minimum allowed reduction factor in step size between
+   step attempts, resulting from a temporal error failure in the integration
+   process.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *eta_min* -- minimum allowed reduction factor time step after an error
+        test failure (default is 0.1).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:** Any value :math:`\ge 1.0` or :math:`\le 0.0` will imply a reset to
+   the default value.
 
 
 
@@ -1784,10 +1879,6 @@ Explicit stability function                     :c:func:`ARKStepSetStabilityFn()
 
 
 
-
-
-
-
 .. _ARKStep_CInterface.ARKStep_CInterface.ARKStepSolverInputTable:
 
 Optional inputs for implicit stage solves
@@ -1811,6 +1902,7 @@ Coefficient in the nonlinear convergence test  :c:func:`ARKStepSetNonlinConvCoef
 Nonlinear convergence rate constant            :c:func:`ARKStepSetNonlinCRDown()`         0.3
 Nonlinear residual divergence ratio            :c:func:`ARKStepSetNonlinRDiv()`           2.3
 Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()`         10
+User-provided implicit stage predictor         :c:func:`ARKStepSetStagePredictFn()`       ``NULL``
 =============================================  =========================================  ============
 
 
@@ -2002,6 +2094,24 @@ Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()
 
 
 
+.. c:function:: int ARKStepSetStagePredictFn(void* arkode_mem, ARKStepStagePredictFn PredictStage)
+
+   Sets the user-supplied function to update the implicit stage predictor prior to
+   execution of the nonlinear or linear solver algorithms that compute the implicit stage solution.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *PredictStage* -- name of user-supplied predictor function.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   **Notes:** See the section :ref:`ARKStep_CInterface.StagePredictFn` for more information on
+   this user-supplied routine.
+
+
+
 
 
 .. _ARKStep_CInterface.ARKLsInputs:
@@ -2162,13 +2272,14 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
 
 .. cssclass:: table-bordered
 
-==========================  ===============================  =============
-Optional input              Function name                    Default
-==========================  ===============================  =============
-Jacobian function           :c:func:`ARKStepSetJacFn()`      ``DQ``
-Linear system function      :c:func:`ARKStepSetLinSysFn()`   internal
-Mass matrix function        :c:func:`ARKStepSetMassFn()`     none
-==========================  ===============================  =============
+=========================================  ===========================================  =============
+Optional input                             Function name                                Default
+=========================================  ===========================================  =============
+Jacobian function                          :c:func:`ARKStepSetJacFn()`                  ``DQ``
+Linear system function                     :c:func:`ARKStepSetLinSysFn()`               internal
+Mass matrix function                       :c:func:`ARKStepSetMassFn()`                 none
+Enable or disable linear solution scaling  :c:func:`ARKStepSetLinearSolutionScaling()`  on
+=========================================  ===========================================  =============
 
 When using matrix-based linear solver modules, the ARKLS solver interface needs
 a function to compute an approximation to the Jacobian matrix :math:`J(t,y)` or
@@ -2183,7 +2294,15 @@ Alternatively, a function of type :c:func:`ARKLsLinSysFn()` can be provided to
 evaluate the linear system :math:`M - \gamma J`. By default, ARKLS uses an
 internal linear system function leveraging the SUNMATRIX API to form the system
 :math:`M = I - \gamma J`. To specify a user-supplied linear system function
-*linsys*, ARKStep provides the function :c:func:`ARKStepSetLinSysFn()`.
+*linsys*, ARKStep provides the function :c:func:`ARKStepSetLinSysFn()`. In
+either case the matrix information will be updated infrequently to reduce matrix
+construction and, with direct solvers, factorization costs. As a result the
+value of :math:`\gamma` may not be current and a scaling factor is applied to the
+solution of the linear system to account for lagged value of :math:`\gamma`. See
+:ref:`SUNLinSol.Lagged_matrix` for more details. The function
+:c:func:`ARKStepSetLinearSolutionScaling()` can be used to disable this scaling
+when necessary, e.g., when providing a custom linear solver that updates the
+matrix using the current :math:`\gamma` as part of the solve.
 
 The ARKLS interface passes the user data pointer to the Jacobian and linear
 system functions. This allows the user to create an arbitrary structure with
@@ -2286,8 +2405,24 @@ data may be specified through :c:func:`ARKStepSetUserData()`.
    :ref:`ARKStep_CInterface.UserSupplied`.
 
 
+.. c:function:: int ARKStepSetLinearSolutionScaling(void* arkode_mem, booleantype onoff)
 
+   Enables or disables scaling the linear system solution to account for a
+   change in :math:`\gamma` in the linear system. For more details see
+   :ref:`SUNLinSol.Lagged_matrix`.
 
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *onoff* -- flag to enable (``SUNTRUE``) or disable (``SUNFALSE``)
+        scaling
+
+   **Return value:**
+      * *ARKLS_SUCCESS* if successful
+      * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
+      * *ARKLS_ILL_INPUT* if the attached linear solver is not matrix-based
+
+   **Notes:** Linear solution scaling is enabled by default when a matrix-based
+   linear solver is attached.
 
 .. _ARKStep_CInterface.ARKLsInputs.MatrixFree:
 
@@ -2300,6 +2435,7 @@ Optional inputs for matrix-free ``SUNLinearSolver`` modules
 Optional input                                      Function name                              Default
 ==================================================  =========================================  ==================
 :math:`Jv` functions (*jtimes* and *jtsetup*)       :c:func:`ARKStepSetJacTimes()`             DQ,  none
+:math:`Jv` DQ rhs function (*jtimesRhsFn*)          :c:func:`ARKStepSetJacTimesRhsFn()`        fi
 :math:`Mv` functions (*mtimes* and *mtsetup*)       :c:func:`ARKStepSetMassTimes()`            none, none
 ==================================================  =========================================  ==================
 
@@ -2311,7 +2447,9 @@ the product between the Jacobian matrix
 :math:`J(t,y)` and a vector :math:`v`. The user can supply a custom
 Jacobian-times-vector approximation function, or use the default
 internal difference quotient function that comes with the ARKLS
-interface.  A user-defined Jacobian-vector function must be of type
+interface.
+
+A user-defined Jacobian-vector function must be of type
 :c:type:`ARKLsJacTimesVecFn` and can be specified through a call
 to :c:func:`ARKStepSetJacTimes()` (see the section
 :ref:`ARKStep_CInterface.UserSupplied` for specification details).  As with the
@@ -2325,21 +2463,6 @@ data structure, *user_data*, specified through
 :c:func:`ARKStepSetUserData()` (or a ``NULL`` pointer otherwise) is
 passed to the Jacobian-times-vector setup and product functions each
 time they are called.
-
-Similarly, if a problem involves a non-identity mass matrix,
-:math:`M\ne I`, then matrix-free solvers require a *mtimes* function
-to compute an approximation to the product between the mass matrix
-:math:`M` and a vector :math:`v`.  This function must be
-user-supplied, since there is no default value.  *mtimes* must be
-of type :c:func:`ARKLsMassTimesVecFn()`, and can be specified
-through a call to the  :c:func:`ARKStepSetMassTimes()` routine.
-As with the user-supplied preconditioner functions, the evaluation and
-processing of any mass matrix-related data needed by the user's
-mass-matrix-times-vector function is done in the optional user-supplied
-function of type :c:type:`ARKLsMassTimesSetupFn` (see the section
-:ref:`ARKStep_CInterface.UserSupplied` for specification details).
-
-
 
 
 .. c:function:: int ARKStepSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup, ARKLsJacTimesVecFn jtimes)
@@ -2373,6 +2496,55 @@ function of type :c:type:`ARKLsMassTimesSetupFn` (see the section
    The function types :c:type:`ARKLsJacTimesSetupFn` and
    :c:type:`ARKLsJacTimesVecFn` are described in the section
    :ref:`ARKStep_CInterface.UserSupplied`.
+
+
+When using the internal difference quotient the user may optionally supply
+an alternative implicit right-hand side function for use in the Jacobian-vector
+product approximation by calling :c:func:`ARKStepSetJacTimesRhsFn()`. The
+alternative implicit right-hand side function should compute a suitable (and
+differentiable) approximation to the :math:`f^I` function provided to
+:c:func:`ARKStepCreate()`. For example, as done in [DFWBT2010]_, the alternative
+function may use lagged values when evaluating a nonlinearity in :math:`f^I` to
+avoid differencing a potentially non-differentiable factor.
+
+
+.. c:function:: int ARKStepSetJacTimesRhsFn(void* arkode_mem, ARKRhsFn jtimesRhsFn)
+
+   Specifies an alternative implicit right-hand side function for use in the
+   internal Jacobian-vector product difference quotient approximation.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *jtimesRhsFn* -- the name of the C function (of type
+        :c:func:`ARKRhsFn()`) defining the alternative right-hand side function.
+
+   **Return value:**
+      * *ARKLS_SUCCESS* if successful.
+      * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``.
+      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``.
+      * *ARKLS_ILL_INPUT* if an input has an illegal value.
+
+   **Notes:** The default is to use the implicit right-hand side function
+   provided to :c:func:`ARKStepCreate()` in the internal difference quotient. If
+   the input implicit right-hand side function is ``NULL``, the default is used.
+
+   This function must be called *after* the ARKLS system solver interface has
+   been initialized through a call to :c:func:`ARKStepSetLinearSolver()`.
+
+
+
+Similarly, if a problem involves a non-identity mass matrix,
+:math:`M\ne I`, then matrix-free solvers require a *mtimes* function
+to compute an approximation to the product between the mass matrix
+:math:`M` and a vector :math:`v`.  This function must be
+user-supplied, since there is no default value.  *mtimes* must be
+of type :c:func:`ARKLsMassTimesVecFn()`, and can be specified
+through a call to the  :c:func:`ARKStepSetMassTimes()` routine.
+As with the user-supplied preconditioner functions, the evaluation and
+processing of any mass matrix-related data needed by the user's
+mass-matrix-times-vector function is done in the optional user-supplied
+function of type :c:type:`ARKLsMassTimesSetupFn` (see the section
+:ref:`ARKStep_CInterface.UserSupplied` for specification details).
 
 
 
@@ -2577,7 +2749,7 @@ the user through the :c:func:`ARKStepSetEpsLin()` function.
 
 
 
-
+.. _ARKStep_CInterface.ARKStepRootfindingInputTable:
 
 
 Rootfinding optional input functions
@@ -2673,10 +2845,10 @@ polynomial model may be evaluated upon request.
    independent variable satisfying :math:`t_n-h_n \le t \le t_n`, with
    :math:`t_n` as current internal time reached, and :math:`h_n` is
    the last internal step size successfully used by the solver.  This
-   routine uses an interpolating polynomial of degree *max(dord, k)*,
-   where *dord* is the argument provided to
-   :c:func:`ARKStepSetDenseOrder()`.  The user may request *k* in the
-   range {0,...,*dord*}.
+   routine uses an interpolating polynomial of degree *max(degree, k)*,
+   where *degree* is the argument provided to
+   :c:func:`ARKStepSetInterpolantDegree()`.  The user may request *k* in the
+   range {0,...,*degree*}.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -2687,7 +2859,7 @@ polynomial model may be evaluated upon request.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_BAD_K* if *k* is not in the range {0,...,*dord*}.
+      * *ARK_BAD_K* if *k* is not in the range {0,...,*degree*}.
       * *ARK_BAD_T* if *t* is not in the interval :math:`[t_n-h_n, t_n]`
       * *ARK_BAD_DKY* if the *dky* vector was ``NULL``
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
@@ -3887,7 +4059,7 @@ Output the current Butcher table(s)    :c:func:`ARKStepWriteButcher()`
 
 .. _ARKStep_CInterface.Reinitialization:
 
-ARKStep re-initialization functions
+ARKStep re-initialization function
 -------------------------------------
 
 To reinitialize the ARKStep module for the solution of a new problem,
@@ -3969,6 +4141,78 @@ vector.
 
 
 
+.. _ARKStep_CInterface.Reset:
+
+ARKStep reset function
+----------------------
+
+To reset the ARKStep module to a particular independent variable value and
+dependent variable vector for the continued solution of a problem, where a prior
+call to :c:func:`ARKStepCreate()` has been made, the user must call the function
+:c:func:`ARKStepReset()`.  Like :c:func:`ARKStepReInit()` this routine retains
+the current settings for all ARKStep module options and performs no memory
+allocations but, unlike :c:func:`ARKStepReInit()`, this routine performs only a
+*subset* of the input checking and initializations that are done in
+:c:func:`ARKStepCreate()`. In particular this routine retains all internal
+counter values and the step size/error history and does not reinitialize the
+linear and/or nonlinear solver but it does indicate that a linear solver setup
+is necessary in the next step. Following a successful call to
+:c:func:`ARKStepReset()`, call :c:func:`ARKStepEvolve()` again to continue
+solving the problem. By default the next call to :c:func:`ARKStepEvolve()` will
+use the step size computed by ARKStep prior to calling :c:func:`ARKStepReset()`.
+To set a different step size or have ARKStep estimate a new step size use
+:c:func:`ARKStepSetInitStep()`.
+
+One important use of the :c:func:`ARKStepReset()` function is in the
+treating of jump discontinuities in the RHS functions.  Except in cases
+of fairly small jumps, it is usually more efficient to stop at each
+point of discontinuity and restart the integrator with a readjusted
+ODE model, using a call to :c:func:`ARKStepReset()`.  To stop when
+the location of the discontinuity is known, simply make that location
+a value of ``tout``.  To stop when the location of the discontinuity
+is determined by the solution, use the rootfinding feature.  In either
+case, it is critical that the RHS functions *not* incorporate the
+discontinuity, but rather have a smooth extension over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the RHS
+functions (communicated through ``user_data``) that can be flipped
+between the stopping of the integration and the restart, so that the
+restarted problem uses the new values (which have jumped).  Similar
+comments apply if there is to be a jump in the dependent variable
+vector.
+
+
+.. c:function:: int ARKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+
+   Resets the current ARKStep time-stepper module state to the provided
+   independent variable value and dependent variable vector.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *tR* -- the value of the independent variable :math:`t`.
+      * *yR* -- the value of the dependent variable vector :math:`y(t_R)`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
+      * *ARK_MEM_FAIL*  if a memory allocation failed
+      * *ARK_ILL_INPUT* if an argument has an illegal value.
+
+   **Notes:**
+   By default the next call to :c:func:`ARKStepEvolve()` will use the step size
+   computed by ARKStep prior to calling :c:func:`ARKStepReset()`. To set a
+   different step size or have ARKStep estimate a new step size use
+   :c:func:`ARKStepSetInitStep()`.
+
+   All previously set options are retained but may be updated by calling the
+   appropriate "Set" functions.
+
+   If an error occurred, :c:func:`ARKStepReset()` also sends an error message to
+   the error handler function.
+
+
+
+
 .. _ARKStep_CInterface.Resizing:
 
 ARKStep system resize function
@@ -4031,6 +4275,10 @@ rescale the upcoming time step by the specified factor.  If a value
    **Notes:** If an error occurred, :c:func:`ARKStepResize()` also sends an error
    message to the error handler function.
 
+   If inequality constraint checking is enabled a call to
+   :c:func:`ARKStepResize()` will disable constraint checking. A call
+   to :c:func:`ARKStepSetConstraints()` is required to re-enable constraint
+   checking.
 
 
 Resizing the linear solver

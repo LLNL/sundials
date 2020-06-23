@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -43,7 +43,7 @@
 
 .. [BBH1989] P.N. Brown, G.D. Byrne and A.C. Hindmarsh.  VODE, a
              Variable-Coefficient ODE
-             Solver. *SIAM J. Sci. Stat. Comput.*, 10:1038-1051, 1989.  
+             Solver. *SIAM J. Sci. Stat. Comput.*, 10:1038-1051, 1989.
 
 .. [BH1989] P.N. Brown and A.C. Hindmarsh. Reduced Storage
             Matrix Methods in Stiff ODE Systems. *J. Appl. Math. &
@@ -73,6 +73,14 @@
 
 .. [cuSOLVER] `NVIDIA cuSOLVER Documentation
                <https://docs.nvidia.com/cuda/cusolver/index.html>`_.
+
+.. [cuSPARSE] `NVIDIA cuSPARSE Documentation
+               <https://docs.nvidia.com/cuda/cusparse/index.html>`_.
+
+.. [DFWBT2010] M.R. Dorr, J.-L. Fattebert, M.E. Wickett, J.F. Belak and
+               P.E.A Turchi. A numerical algorithm for the solution of a
+               phase-field model of polycrystalline materials.
+               *J. Comput. Phys.*, 229(3):626-641, 2010.
 
 .. [DP1980] J.R. Dormand and P.J. Prince. A family of embedded
             Runge-Kutta formulae, *J. Comput. Appl. Math.* 6:19–26, 1980.
@@ -140,11 +148,11 @@
            Report UCRL-ID-141558, LLNL, 2000.
 
 .. [HS2017] A.C. Hindmarsh and R. Serban. User Documentation for CVODE
-            v5.0.0. Technical Report UCRL-SM-208108, LLNL, 2019.
+            v5.3.0. Technical Report UCRL-SM-208108, LLNL, 2020.
 
 .. [HSR2017] A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-             Programs for CVODE v5.0.0. Technical Report
-             UCRL-SM-208110, LLNL, 2019.
+             Programs for CVODE v5.3.0. Technical Report
+             UCRL-SM-208110, LLNL, 2020.
 
 .. [HT1998] A.C. Hindmarsh and A.G. Taylor.  PVODE and KINSOL:
             Parallel Software for Differential and Nonlinear
@@ -157,7 +165,7 @@
 
 .. [JPE2019] S.R. Johnson, A. Prokopenko, and K. J. Evans. Automated
              Fortran-C++ bindings for Large-Scale Scientific Applications.
-             arXiv:1904.02546 [cs], Apr. 2019. 
+             arXiv:1904.02546 [cs], Apr. 2019.
 
 .. [K1995] C.T. Kelley.  Iterative Methods for Solving Linear and
            Nonlinear Equations. SIAM, Philadelphia, 1995.
@@ -191,7 +199,7 @@
 
 .. [R2018] D.R. Reynolds. ARKode Example Documentation. Technical
            Report, Southern Methodist University Center for Scientific
-           Computation, 2019.
+           Computation, 2020.
 
 .. [SS1986] Y. Saad and M.H. Schultz. GMRES: A Generalized Minimal Residual
             Algorithm for Solving Nonsymmetric Linear Systems.

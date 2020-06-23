@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -73,6 +73,9 @@ if(BUILD_SHARED_LIBS)
   # depends on sunmatrixband and LAPACK
   target_link_libraries(sundials_sunlinsollapackband_shared
     PUBLIC sundials_sunmatrixband_shared ${LAPACK_LIBRARIES})
+
+  target_compile_definitions(sundials_sunlinsollapackband_shared
+    PUBLIC -DBUILD_SUNDIALS_LIBRARY)
 
   install(TARGETS sundials_sunlinsollapackband_shared
     DESTINATION ${CMAKE_INSTALL_LIBDIR})

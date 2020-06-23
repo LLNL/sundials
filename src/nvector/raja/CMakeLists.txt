@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -32,8 +32,6 @@ add_prefix(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 # Add variable nveccuda_HEADERS with the exported NVECRAJA header files
 set(nvecraja_HEADERS nvector_raja.h)
 add_prefix(${sundials_SOURCE_DIR}/include/nvector/ nvecraja_HEADERS)
-
-include_directories(${MPI_CXX_INCLUDE_PATH})
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 add_definitions(-DBUILD_SUNDIALS_LIBRARY)

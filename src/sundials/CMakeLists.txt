@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -30,6 +30,7 @@ set(sundials_HEADERS
   sundials_dense.h
   sundials_direct.h
   sundials_fnvector.h
+  sundials_futils.h
   sundials_iterative.h
   sundials_linearsolver.h
   sundials_math.h
@@ -41,8 +42,15 @@ set(sundials_HEADERS
   sundials_version.h
   )
 
+if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+  list(APPEND sundials_HEADERS sundials_cuda_policies.hpp)
+endif()
+
 # Add prefix with complete path to the SUNDIALS header files
 add_prefix(${sundials_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
+
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
+add_definitions(-DBUILD_SUNDIALS_LIBRARY)
 
 # Create an object library out of the generic sundials modules
 if(BUILD_STATIC_LIBS)
@@ -50,6 +58,7 @@ if(BUILD_STATIC_LIBS)
     sundials_band.c
     sundials_dense.c
     sundials_direct.c
+    sundials_futils.c
     sundials_iterative.c
     sundials_linearsolver.c
     sundials_math.c
@@ -65,6 +74,7 @@ if(BUILD_SHARED_LIBS)
       sundials_band.c
       sundials_dense.c
       sundials_direct.c
+      sundials_futils.c
       sundials_iterative.c
       sundials_linearsolver.c
       sundials_math.c

@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -49,6 +49,9 @@ if(BUILD_STATIC_LIBS)
       PRIVATE m)
   endif()
 
+  target_include_directories(sundials_sunlinsolspgmr_static
+    PRIVATE ${sundials_SOURCE_DIR}/src/sundials)
+
   target_compile_definitions(sundials_sunlinsolspgmr_static
     PUBLIC -DBUILD_SUNDIALS_LIBRARY)
 
@@ -78,6 +81,9 @@ if(BUILD_SHARED_LIBS)
     target_link_libraries(sundials_sunlinsolspgmr_shared
       PRIVATE m)
   endif()
+
+  target_include_directories(sundials_sunlinsolspgmr_shared
+    PRIVATE ${sundials_SOURCE_DIR}/src/sundials)
 
   target_compile_definitions(sundials_sunlinsolspgmr_shared
     PUBLIC -DBUILD_SUNDIALS_LIBRARY)

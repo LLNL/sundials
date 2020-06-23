@@ -103,13 +103,15 @@ module fsundials_linearsolver_mod
  integer(C_INT), parameter, public :: SUNLS_MEM_NULL = -801_C_INT
  integer(C_INT), parameter, public :: SUNLS_ILL_INPUT = -802_C_INT
  integer(C_INT), parameter, public :: SUNLS_MEM_FAIL = -803_C_INT
- integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_UNREC = -804_C_INT
- integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_UNREC = -805_C_INT
- integer(C_INT), parameter, public :: SUNLS_PSOLVE_FAIL_UNREC = -806_C_INT
- integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_UNREC = -807_C_INT
- integer(C_INT), parameter, public :: SUNLS_GS_FAIL = -808_C_INT
- integer(C_INT), parameter, public :: SUNLS_QRSOL_FAIL = -809_C_INT
- integer(C_INT), parameter, public :: SUNLS_VECTOROP_ERR = -810_C_INT
+ integer(C_INT), parameter, public :: SUNLS_ATIMES_NULL = -804_C_INT
+ integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_UNREC = -805_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_UNREC = -806_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSOLVE_NULL = -807_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PSOLVE_FAIL_UNREC = -808_C_INT
+ integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_UNREC = -809_C_INT
+ integer(C_INT), parameter, public :: SUNLS_GS_FAIL = -810_C_INT
+ integer(C_INT), parameter, public :: SUNLS_QRSOL_FAIL = -811_C_INT
+ integer(C_INT), parameter, public :: SUNLS_VECTOROP_ERR = -812_C_INT
  integer(C_INT), parameter, public :: SUNLS_RES_REDUCED = 801_C_INT
  integer(C_INT), parameter, public :: SUNLS_CONV_FAIL = 802_C_INT
  integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_REC = 803_C_INT
@@ -287,7 +289,7 @@ bind(C, name="_wrap_FSUNLinSolLastFlag") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_LONG) :: fresult
+integer(C_INT64_T) :: fresult
 end function
 
 function swigc_FSUNLinSolSpace(farg1, farg2, farg3) &
@@ -614,9 +616,9 @@ end function
 function FSUNLinSolLastFlag(s) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(C_LONG) :: swig_result
+integer(C_INT64_T) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_LONG) :: fresult 
+integer(C_INT64_T) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)

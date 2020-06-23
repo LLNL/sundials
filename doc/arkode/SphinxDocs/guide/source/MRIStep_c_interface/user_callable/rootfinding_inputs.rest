@@ -1,3 +1,5 @@
+.. _MRIStep_CInterface.MRIStepRootfindingInputTable:
+
 Rootfinding optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

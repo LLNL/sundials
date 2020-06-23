@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -53,11 +53,18 @@ extern "C" {
   -----------------------------------------------------------------*/
 typedef struct CVLsMemRec {
 
+  /* Linear solver type information */
+  booleantype iterative;    /* is the solver iterative?    */
+  booleantype matrixbased;  /* is a matrix structure used? */
+
   /* Jacobian construction & storage */
   booleantype jacDQ;  /* SUNTRUE if using internal DQ Jac approx.     */
   CVLsJacFn jac;      /* Jacobian routine to be called                */
   void *J_data;       /* user data is passed to jac                   */
   booleantype jbad;   /* heuristic suggestion for pset                */
+
+  /* Matrix-based solver, scale solution to account for change in gamma */
+  booleantype scalesol;
 
   /* Iterative solver tolerance */
   realtype sqrtN;     /* sqrt(N)                                      */
@@ -107,6 +114,7 @@ typedef struct CVLsMemRec {
   booleantype jtimesDQ;
   CVLsJacTimesSetupFn jtsetup;
   CVLsJacTimesVecFn jtimes;
+  CVRhsFn jt_f;
   void *jt_data;
 
   /* Linear system setup function

@@ -6,7 +6,7 @@
 #                     library written by Rob Falgout @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,7 +15,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# Update SUNDIALS GitHub distribution with a commit from sundials release tar 
+# Update SUNDIALS GitHub distribution with a commit from sundials release tar
 # file. Run from any machine that has access to github.
 # ------------------------------------------------------------------------------
 
@@ -23,34 +23,61 @@ help ()
 {
   cat <<EOF
 
-   $0 -help | <release tar file>
+   $0 [-help] [-no-tag] | <release tar file>
 
    where:
 
       -help        Displays this message.
+      -no-tag      Doesn't tag the release commit.
 
-   Example usage: $0 sundials-2.7.0.tar.gz
-                  $0 sundials-4.0.0-dev.tar.gz develop
+   Example usage: $0 sundials-5.0.0.tar.gz
+                  $0 sundials-5.0.0-dev.1.tar.gz develop
+                  $0 -no-tag sundials-pre-release.tar.gz develop
 
 EOF
 }
 
-# check number of inputs
-if [ $# -eq 1 ]; then
-    DISTFILE=$1
-elif [ $# -eq 2 ]; then
-    DISTFILE=$1
-    BRANCH=$2
-else
-    help
-    exit -1
+# at least one input required
+if [ $# -lt 1 ]; then
+  help
+  exit
 fi
 
-case $1 in
-    -h|-help)
-        help
-        exit;;
+# tag commits by default
+TAG=true
+
+# parse inputs
+POSITIONAL=() # store positional inputs
+while [[ $# -gt 0 ]]
+do
+input="$1"
+
+case $input in
+  -help)
+    help
+    exit;;
+  -no-tag)
+    TAG=false
+    shift;;
+  *)
+    POSITIONAL+=("$input")
+    shift;;
 esac
+done
+
+# reset positional inputs
+set -- "${POSITIONAL[@]}"
+
+# check positional inputs
+if [ $# -lt 1 ]; then
+  help
+  exit
+elif [ $# -eq 1 ]; then
+    DISTFILE=$1
+else
+    DISTFILE=$1
+    BRANCH=$2
+fi
 
 # move to location where tarscript places tarballs
 cd ../..
@@ -114,7 +141,9 @@ cp -r $DISTDIR/* $REPODIR
 cd $REPODIR
 git add -A
 git commit -m "SUNDIALS Release $VERSION"
-git tag -a $VERSION -m "SUNDIALS Release $VERSION"
+if [ "${TAG}" == "true" ]; then
+  git tag -a $VERSION -m "SUNDIALS Release $VERSION"
+fi
 
 echo ""
 echo "*** DO THE FOLLOWING TO COMPLETE THE GITHUB UPDATE ***"

@@ -1,6 +1,6 @@
 # /
 /.project
-/build
+/build*
 /autom4te.cache
 /.settings
 /.cproject
@@ -24,6 +24,7 @@
 *.nvvp
 *.ptp-sync*
 *~
+\#*
 
 # OS X
 .DS_Store
@@ -72,4 +73,3 @@ __pycache__
 
 # editor files
 .vscode
-

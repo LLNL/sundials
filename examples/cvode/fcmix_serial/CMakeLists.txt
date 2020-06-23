@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -58,6 +58,11 @@ else()
   set(CVODE_LIB sundials_cvode_shared)
   set(NVECS_LIB sundials_nvecserial_shared)
   set(FNVECS_LIB sundials_fnvecserial_shared)
+endif()
+
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  list(APPEND CVODE_LIB
+       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
 endif()
 
 # Only static FCMIX libraries are available
@@ -264,6 +269,9 @@ if(EXAMPLES_INSTALL)
   set(SOLVER "CVODE")
   set(SOLVER_LIB "sundials_cvode")
   set(SOLVER_FLIB "sundials_fcvode")
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
+  endif()
 
   examples2string(FCVODE_examples EXAMPLES)
 

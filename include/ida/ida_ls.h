@@ -4,7 +4,7 @@
  *                Aaron Collier @ LLNL
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -97,6 +97,8 @@ SUNDIALS_EXPORT int IDASetJacTimes(void *ida_mem,
                                    IDALsJacTimesSetupFn jtsetup,
                                    IDALsJacTimesVecFn jtimes);
 SUNDIALS_EXPORT int IDASetEpsLin(void *ida_mem, realtype eplifac);
+SUNDIALS_EXPORT int IDASetLinearSolutionScaling(void *ida_mem,
+                                                booleantype onoff);
 SUNDIALS_EXPORT int IDASetIncrementFactor(void *ida_mem,
                                           realtype dqincfac);
 

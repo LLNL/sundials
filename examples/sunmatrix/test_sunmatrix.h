@@ -4,7 +4,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -66,7 +66,7 @@ extern "C" {
   /* Forward declarations for implementation specific utility functions */
   int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol);
   int check_matrix_entry(SUNMatrix A, realtype val, realtype tol);
-  int check_vector(N_Vector X, N_Vector Y, realtype tol);
+  int check_vector(N_Vector expected, N_Vector computed, realtype tol);
   booleantype has_data(SUNMatrix A);
   booleantype is_square(SUNMatrix A);
 

@@ -3,7 +3,7 @@
 #                Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -24,3 +24,9 @@ if(MPI_ENABLE AND MPI_C_FOUND AND MPI_CXX_FOUND AND
     SUNDIALS_SUPERLUDIST)
   add_subdirectory(slunrloc)
 endif()
+
+if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+  if(SUNDIALS_INDEX_SIZE MATCHES "32")
+    add_subdirectory(cusparse)
+  endif()
+endif(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)

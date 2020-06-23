@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Script to replace ARKode Copyright.
+# Script to replace SUNDIALS Copyright.
 #
 
 use strict;
@@ -87,7 +87,7 @@ my $end_of_line = $/;
 
 my $newCopyright = <<END;
  # SUNDIALS Copyright Start
- # Copyright (c) 2002-2019, Lawrence Livermore National Security
+ # Copyright (c) 2002-2020, Lawrence Livermore National Security
  # and Southern Methodist University.
  # All rights reserved.
  #
@@ -175,4 +175,3 @@ my $matlabNewCopyright = $newCopyright;
 $matlabNewCopyright =~ s/ #/\%/g;
 
 replaceInFiles($matlabFilePattern,$fileExcludePattern,$matlabReplacePattern,$matlabNewCopyright);
-

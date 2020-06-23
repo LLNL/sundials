@@ -4,7 +4,7 @@
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -156,12 +156,14 @@ typedef struct KINMemRec {
   N_Vector *kin_df_aa;      /* vector array needed for AA, Broyden, and NLEN */
   N_Vector *kin_dg_aa;      /* vector array needed for AA, Broyden and NLEN */
   N_Vector *kin_q_aa;       /* vector array needed for AA */
+  realtype kin_beta_aa;     /* beta damping parameter for AA */
   realtype *kin_gamma_aa;   /* array of size maa used in AA */
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
   long int *kin_ipt_map;    /* array of size maa used in AA */
   long int  kin_m_aa;       /* parameter for AA, Broyden or NLEN */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
+  booleantype kin_damping_aa; /* flag to apply damping in AA */
   realtype *kin_cv;         /* scalar array for fused vector operations */
   N_Vector *kin_Xv;         /* vector array for fused vector operations */
 

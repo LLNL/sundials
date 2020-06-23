@@ -18,20 +18,17 @@ of this structure is not necessary for its use.
 
 The overall organization of the {\ida} package is shown in Figure
 \ref{f:idaorg}.
-\begin{figure}
+\begin{figure}[!htb]
 {\centerline{\includegraphics[width=\textwidth]{idaorg}}}
 \caption [Overall structure diagram of the {\ida} package]
 {Overall structure diagram of the {\ida} package.
-  Modules specific to {\ida} begin with ``IDA'' ({\idals},
-  {\idabbdpre}, and {\idanls}), all other items correspond
-  to generic solver and auxiliary modules. 
-  Note also that the LAPACK, {\klu} and {\superlumt} support is
-  through interfaces to external packages. 
-  Users will need to download and compile those packages independently.}
+  Modules specific to {\ida} begin with ``IDA'' ({\idals}, {\idanls}, and
+  {\idabbdpre}), all other items correspond to generic
+  {\sundials} vector, matrix, and solver modules (see Figure \ref{f:sunorg1}).}
 \label{f:idaorg}
 \end{figure}
 The central integration module, implemented in the files \id{ida.h},
-\id{ida\_impl.h}, and \id{ida.c}, deals with the evaluation of integration 
+\id{ida\_impl.h}, and \id{ida.c}, deals with the evaluation of integration
 coefficients, estimation of local error,
 selection of stepsize and order, and interpolation to user output
 points, among other issues.
@@ -47,7 +44,7 @@ interface is specified, and invoked as needed during the integration. While
 supported in {\ida} (note the fixed-point module is listed in Figure
 \ref{f:sunorg1} but not Figure \ref{f:idaorg}).
 
-\index{IDA@{\ida} linear solver interfaces|(} 
+\index{IDA@{\ida} linear solver interfaces|(}
 {\ida} now has a single unified linear solver interface, {\idals},
 supporting both direct and iterative linear solvers built using the
 generic {\sunlinsol} API (see Chapter \ref{s:sunlinsol}).  These
@@ -58,9 +55,9 @@ implementation, the set of linear solver modules available to {\ida}
 will expand as new {\sunlinsol} modules are developed.
 
 For users employing dense or banded Jacobian matrices, {\idals}
-includes algorithms for their approximation through difference 
+includes algorithms for their approximation through difference
 quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly.  This user-supplied 
+(or an approximation to it) directly.  This user-supplied
 routine is required when using sparse or user-supplied Jacobian
 matrices.
 
@@ -70,30 +67,30 @@ the product between the Jacobian matrix and a vector, $Jv$. Again, the
 user has the option of providing routines for this operation, in two
 phases: setup (preprocessing of Jacobian data) and multiplication.
 
-For preconditioned iterative methods, \index{preconditioning!setup and solve phases} 
-the preconditioning must be supplied by the user, again in two phases: 
+For preconditioned iterative methods, \index{preconditioning!setup and solve phases}
+the preconditioning must be supplied by the user, again in two phases:
 setup and solve.  While\index{preconditioning!advice on} there is no
 default choice of preconditioner analogous to the difference-quotient
 approximation in the direct case, the references
 \cite{BrHi:89,Byr:92}, together with the example and demonstration
 programs included with {\ida}, offer considerable assistance in
-building preconditioners. 
+building preconditioners.
 
-\index{IDA@{\ida} linear solvers!implementation details|(} 
+\index{IDA@{\ida} linear solvers!implementation details|(}
 {\ida}'s linear solver interface consists of four primary routines,
 devoted to (1) memory allocation and initialization, (2) setup of the
-matrix data involved, (3) solution of the system, and (4) freeing of memory.  
+matrix data involved, (3) solution of the system, and (4) freeing of memory.
 The setup and solution phases are separate because the evaluation of
 Jacobians and preconditioners is done only periodically during the
 integration, as required to achieve convergence. The call list within
 the central {\ida} module to each of the four associated functions is
 fixed, thus allowing the central module to be completely independent
 of the linear system method.
-\index{IDA@{\ida} linear solvers!implementation details|)} 
+\index{IDA@{\ida} linear solvers!implementation details|)}
 
 {\ida} also provides a preconditioner module, {\idabbdpre}, for use
 with any of the Krylov iterative linear solvers.  It works in
-conjunction with {\nvecp} and generates a preconditioner that is a  
+conjunction with {\nvecp} and generates a preconditioner that is a
 block-diagonal matrix with each block being a banded matrix.
 
 All state information used by {\ida} to solve a given problem is saved

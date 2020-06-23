@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban, Slaven Peles, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -53,6 +53,7 @@ sunmatrix_band.tex \
 sunmatrix_dense.tex \
 sunmatrix_sparse.tex \
 sunmatrix_slunrloc.tex \
+sunmatrix_cusparse.tex \
 sunmatrix_examples.tex \
 sunlinsol_generic.tex \
 sunlinsol_band.tex \
@@ -85,7 +86,6 @@ bandmat.pdf \
 cscmat.pdf \
 sunorg1.pdf \
 sunorg2.pdf \
-sunorg3.pdf \
 doc_logo_blue.pdf \
 warning.pdf
 

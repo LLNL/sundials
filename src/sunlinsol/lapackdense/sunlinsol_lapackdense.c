@@ -3,7 +3,7 @@
  * Based on codes <solver>_lapack.c by: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -137,7 +137,7 @@ int SUNLinSolInitialize_LapackDense(SUNLinearSolver S)
 
 int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
 {
-  int n, ier;
+  sunindextype n, ier;
 
   /* check for valid inputs */
   if ( (A == NULL) || (S == NULL) )
@@ -152,7 +152,7 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
   /* Call LAPACK to do LU factorization of A */
   n = SUNDenseMatrix_Rows(A);
   xgetrf_f77(&n, &n, SUNDenseMatrix_Data(A), &n, PIVOTS(S), &ier);
-  LASTFLAG(S) = (long int) ier;
+  LASTFLAG(S) = ier;
   if (ier > 0)
     return(SUNLS_LUFACT_FAIL);
   if (ier < 0)
@@ -162,9 +162,9 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
 
 
 int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                              N_Vector b, realtype tol)
+                               N_Vector b, realtype tol)
 {
-  int n, one, ier;
+  sunindextype n, one, ier;
   realtype *xdata;
 
   if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )
@@ -184,8 +184,8 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   n = SUNDenseMatrix_Rows(A);
   one = 1;
   xgetrs_f77("N", &n, &one, SUNDenseMatrix_Data(A),
-	     &n, PIVOTS(S), xdata, &n, &ier, 1);
-  LASTFLAG(S) = (long int) ier;
+             &n, PIVOTS(S), xdata, &n, &ier);
+  LASTFLAG(S) = ier;
   if (ier < 0)
     return(SUNLS_PACKAGE_FAIL_UNREC);
 

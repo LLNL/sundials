@@ -2,7 +2,7 @@
 \chapter{Mathematical Considerations}\label{s:math}
 %===================================================================================
 
-{\kinsol} solves nonlinear algebraic systems in real $N$-space.  
+{\kinsol} solves nonlinear algebraic systems in real $N$-space.
 
 Using Newton's method, or the Picard iteration, one can solve
 \index{nonlinear system!definition}
@@ -10,7 +10,7 @@ Using Newton's method, or the Picard iteration, one can solve
   F(u) = 0 \, , \quad F:\mbox{\bf R}^N \rightarrow \mbox{\bf R}^N \, ,
 \end{equation}
 given an initial guess $u_0$.
-Using a fixed-point iteration, the convergence of which can be improved with Anderson 
+Using a fixed-point iteration, the convergence of which can be improved with Anderson
 acceleration, one can solve
 \index{fixed-point system!definition}
 \begin{equation}\label{fixed-point_system}
@@ -23,7 +23,7 @@ given an initial guess $u_0$.
 
 \subsubsection*{Basic Newton iteration}
 %%
-Depending on the linear solver used, {\kinsol} can employ either an Inexact Newton 
+Depending on the linear solver used, {\kinsol} can employ either an Inexact Newton
 method~\cite{Bro:87,BrSa:90,DES:82,DeSc:96,Kel:95}, or a Modified Newton method.
 At the highest level, {\kinsol} implements the following iteration scheme:
 
@@ -53,36 +53,36 @@ A test for convergence is made before the iteration continues.
 For solving the linear system given in step (\ref{e:Newton}), {\kinsol} provides
 several choices, including the option of a user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
-are organized in two families, a {\em direct} family comprising direct linear 
-solvers for dense, banded, or sparse matrices and a {\em spils} 
+are organized in two families, a {\em direct} family comprising direct linear
+solvers for dense, banded, or sparse matrices and a {\em spils}
 family comprising scaled preconditioned
-iterative (Krylov) linear solvers. 
+iterative (Krylov) linear solvers.
 %%
 The methods offered through these modules are as follows:
 \begin{itemize}
-\item dense direct solvers, using either an internal implementation or 
+\item dense direct solvers, using either an internal implementation or
   a BLAS/LAPACK implementation (serial or threaded vector modules only),
-\item band direct solvers, using either an internal implementation or 
+\item band direct solvers, using either an internal implementation or
   a BLAS/LAPACK implementation (serial or threaded vector modules only),
 \item sparse direct solver interfaces, using either the KLU sparse solver
   library \cite{DaPa:10,KLU_site}, or the thread-enabled SuperLU\_MT sparse
-  solver library \cite{Li:05,DGL:99,SuperLUMT_site} (serial or threaded 
-  vector modules only) [Note that users will need to download and install the 
+  solver library \cite{Li:05,DGL:99,SuperLUMT_site} (serial or threaded
+  vector modules only) [Note that users will need to download and install the
   {\klu} or {\superlumt} packages independent of {\kinsol}],
 \item {\spgmr}, a scaled preconditioned GMRES (Generalized Minimal Residual method)
   solver,
-\item {\spfgmr}, a scaled preconditioned FGMRES (Flexible Generalized 
+\item {\spfgmr}, a scaled preconditioned FGMRES (Flexible Generalized
   Minimal Residual method) solver,
 \item {\spbcg}, a scaled preconditioned Bi-CGStab (Bi-Conjugate Gradient Stable
-  method) solver, 
+  method) solver,
 \item {\sptfqmr}, a scaled preconditioned TFQMR (Transpose-Free Quasi-Minimal
   Residual method) solver, or
 \item {\pcg}, a scaled preconditioned CG (Conjugate Gradient method) solver.
 \end{itemize}
-When using a direct linear solver, the linear system in 2(a) is 
-solved exactly, thus resulting in a Modified Newton method (the Jacobian matrix 
-is normally out of date; see below\footnote{{\kinsol} allows the user to enforce 
-a Jacobian evaluation at each iteration thus allowing for an Exact Newton iteration.}). 
+When using a direct linear solver, the linear system in 2(a) is
+solved exactly, thus resulting in a Modified Newton method (the Jacobian matrix
+is normally out of date; see below\footnote{{\kinsol} allows the user to enforce
+a Jacobian evaluation at each iteration thus allowing for an Exact Newton iteration.}).
 %%
 Note that the dense, band, and sparse direct linear solvers can only
 be used with the serial and threaded vector representations.
@@ -92,7 +92,7 @@ solved only approximately, thus resulting in an Inexact Newton method. Here
 right preconditioning is available by way of the preconditioning setup and solve
 routines supplied by the user, in which case the iterative method is applied to
 the linear systems $(JP^{-1})(P\delta) = -F$, where $P$ denotes the right
-preconditioning matrix. 
+preconditioning matrix.
 
 Additionally, it is possible for users to supply a matrix-based
 iterative linear solver to {\kinsol}, resulting in a Modified Inexact
@@ -108,7 +108,7 @@ the linear system is solved only approximately.
 In general, unless specified otherwise by the user, {\kinsol} strives to update
 Jacobian information (the actual system Jacobian $J$ in the case of matrix-based linear
 solvers, and the preconditioner matrix $P$ in the case of iterative linear solvers)
-as infrequently as possible to balance the high costs of matrix operations against 
+as infrequently as possible to balance the high costs of matrix operations against
 other costs. Specifically, these updates occur when:
 \begin{itemize}
 \item the problem is initialized,
@@ -129,25 +129,25 @@ Jacobian information update is enforced.
 \subsubsection*{Scaling}
 \label{ss:Scaling}
 %%
-To address the case of ill-conditioned nonlinear systems, {\kinsol} allows 
-prescribing scaling factors both for the solution vector and for the residual 
+To address the case of ill-conditioned nonlinear systems, {\kinsol} allows
+prescribing scaling factors both for the solution vector and for the residual
 vector.
 %%
-For scaling to be used, the user should supply values $D_u$, which are diagonal 
-elements of the scaling matrix such that $D_u u_n$ has all components roughly 
+For scaling to be used, the user should supply values $D_u$, which are diagonal
+elements of the scaling matrix such that $D_u u_n$ has all components roughly
 the same magnitude when $u_n$ is close to a solution, and $D_F$, which are diagonal
-scaling matrix elements such that $D_F F$ has all components roughly the same 
-magnitude when $u_n$ is not too close to a solution. 
+scaling matrix elements such that $D_F F$ has all components roughly the same
+magnitude when $u_n$ is not too close to a solution.
 In the text below, we use the following scaled norms:
 \begin{equation}
 \|z\|_{D_u} = \|D_u z\|_2, \;\; \|z\|_{D_F} = \|D_F z\|_2, \;\;
 \|z\|_{D_u,\infty} = \|D_u z\|_{\infty}, \;\; {\rm and} \;\;
 \|z\|_{D_F,\infty} = \|D_F z\|_{\infty}
 \end{equation}
-where $\| \cdot \|_{\infty}$ is the max norm.  When scaling values are provided 
-for the solution vector, these values are automatically incorporated into the 
-calculation of the perturbations used for the default difference quotient 
-approximations for Jacobian information; see (\ref{e:sigmaDQ_direct}) and 
+where $\| \cdot \|_{\infty}$ is the max norm.  When scaling values are provided
+for the solution vector, these values are automatically incorporated into the
+calculation of the perturbations used for the default difference quotient
+approximations for Jacobian information; see (\ref{e:sigmaDQ_direct}) and
 (\ref{e:sigmaDQ_iterative}) below.
 
 %% GLOBALIZATION
@@ -167,7 +167,7 @@ given in \cite{DeSc:96} for step 2(b), where $\lambda$ is chosen
 to guarantee a sufficient decrease in $F$ relative to the step
 length as well as a minimum step length relative to the initial
 rate of decrease of $F$.  One property of the algorithm is that
-the full Newton step tends to be taken close to the solution.  
+the full Newton step tends to be taken close to the solution.
 
 {\kinsol} implements a backtracking algorithm to first find
 the value $\lambda$ such that $u_n + \lambda \delta_n$
@@ -254,7 +254,7 @@ Optionally, a constant value $\omega_{const}$ can be used for the parameter $\om
 
 The constants controlling the nonlinear residual monitoring algorithm can
 be changed from their default values through optional inputs to {\kinsol}.
-These include the parameters $\omega_{min}$ and $\omega_{max}$, the constant 
+These include the parameters $\omega_{min}$ and $\omega_{max}$, the constant
 value $\omega_{const}$, and the threshold \id{mbsetsub}.
 
 %% INEXACT NEWTON SPECIFIC
@@ -262,11 +262,11 @@ value $\omega_{const}$, and the threshold \id{mbsetsub}.
 \subsubsection*{Stopping criteria for iterative linear solvers}
 \label{ss:InexactNewtonStopCrit}
 %%
-When using an Inexact Newton method (i.e. when an iterative linear solver is 
+When using an Inexact Newton method (i.e. when an iterative linear solver is
 used), the convergence of the overall nonlinear solver is intimately coupled
 with the accuracy with which the linear solver in 2(a) above is solved.
-{\kinsol} provides three options for stopping criteria for the linear system 
-solver, including the two algorithms of Eisenstat and Walker \cite{EiWa:96}. 
+{\kinsol} provides three options for stopping criteria for the linear system
+solver, including the two algorithms of Eisenstat and Walker \cite{EiWa:96}.
 More precisely, the Krylov iteration must pass a stopping test
 \[ \|J \delta_n + F\|_{D_F} < (\eta_n + U) \|F\|_{D_F} \, , \]
 where $\eta_n$ is one of:
@@ -291,7 +291,7 @@ respectively.
   \]
 with 0.1 as the default.
 \end{description}
-The default strategy is "Eisenstat and Walker Choice 1". 
+The default strategy is "Eisenstat and Walker Choice 1".
 For both options 1 and 2, appropriate safeguards are incorporated to ensure that
 $\eta$ does not decrease too quickly~\cite{EiWa:96}.
 
@@ -311,9 +311,9 @@ The increments $\sigma_j$ are given by
   \sigma_j = \sqrt{U} \; \max\left\{ |u^j| , 1/D_u^j \right\} \, .
 \end{equation}
 %%
-In the dense case, this scheme requires $N$ evaluations of $F$, 
-one for each column of $J$.  In the band case, the columns of 
-$J$ are computed in groups, by the Curtis-Powell-Reid algorithm, 
+In the dense case, this scheme requires $N$ evaluations of $F$,
+one for each column of $J$.  In the band case, the columns of
+$J$ are computed in groups, by the Curtis-Powell-Reid algorithm,
 with the number of $F$ evaluations equal to the bandwidth.
 The parameter $U$ above can (optionally) be replaced by a
 user-specified value, \id{relfunc}.
@@ -364,7 +364,7 @@ The basic fixed-point iteration scheme implemented in {\kinsol} is given by:
       \end{itemize}
 \end{enumerate}
 Here, $u_n$ is the $n$th iterate to $u$.
-At each stage in the iteration process, function $G$ is applied to the current 
+At each stage in the iteration process, function $G$ is applied to the current
 iterate to produce a new iterate, $u_{n+1}$.
 A test for convergence is made before the iteration continues.
 
@@ -388,12 +388,12 @@ The Picard iteration is given by:
       \end{itemize}
 \end{enumerate}
 Here, $u_n$ is the $n$th iterate to $u$.
-Within each iteration, the Picard step is computed then added to $u_n$ to produce 
+Within each iteration, the Picard step is computed then added to $u_n$ to produce
 the new iterate.  Next, the nonlinear residual
 function is evaluated at the new iterate, and convergence is checked.
 Noting that $L^{-1}N(u) = u - L^{-1}F(u)$, the above iteration can be written in the same form
 as a Newton iteration except that here, $L$ is in the role of the Jacobian.
-Within {\kinsol}, however, we leave this in a fixed-point form as above. 
+Within {\kinsol}, however, we leave this in a fixed-point form as above.
 For more information, see p. 182 of \cite{Ortega-Rheinbolt00}.
 
 
@@ -401,7 +401,7 @@ For more information, see p. 182 of \cite{Ortega-Rheinbolt00}.
 
 \subsubsection*{Anderson Acceleration}
 %%
-The Picard and fixed point methods can be significantly accelerated using 
+The Picard and fixed point methods can be significantly accelerated using
 Anderson's method \cite{Anderson65, Walker-Ni09, Fang-Saad09, LWWY11}.
 Anderson acceleration can be formulated as follows:
 
@@ -409,14 +409,15 @@ Anderson acceleration can be formulated as follows:
 \index{Anderson acceleration!definition}
 \begin{enumerate}
    \item Set $u_0 = $ an initial guess and $m \ge 1$
-   \item Set $u_1 = G(u_0)$ 
-   \item For $n = 0, 1, 2,...$ until convergence do:
+   \item Set $u_1 = G(u_0)$
+   \item For $n = 1, 2,...$ until convergence do:
       \begin{itemize}
           \item[(a)] Set $m_n = \min\{m,n\}$
           \item[(b)] Set $F_{n} = (f_{n-m_n}, \ldots, f_n)$, where $f_i=G(u_i)-u_i$
-          \item[(c)] Determine $\alpha^{(n)} = (\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})$ that solves 
-          $\min_\alpha  \| F_n \alpha^T \|_2$ such that $\sum_{i=0}^{m_n} \alpha_i = 1$
-          \item[(d)] Set $u_{n+1} = \sum_{i=0}^{m_n} \alpha_i^{(n)} G(u_{n-m_n+i})$
+          \item[(c)] Determine $\alpha^{(n)} = (\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})$ that solves
+            $\min_\alpha  \| F_n \alpha^T \|_2$ such that $\sum_{i=0}^{m_n} \alpha_i = 1$
+          \item[(d)] Set $u_{n+1} = \beta \sum_{i=0}^{m_n} \alpha_i^{(n)} G(u_{n-m_n+i}) +
+            (1-\beta) \sum_{i=0}^{m_n} \alpha_i^{(n)} u_{n-m_{n}+i}$
           \item[(e)] Test for convergence
       \end{itemize}
 \end{enumerate}
@@ -428,45 +429,43 @@ problem in Step (c) into an unconstrained one leading to the algorithm given bel
 \index{Anderson acceleration UA!definition}
 \begin{enumerate}
    \item Set $u_0 = $ an initial guess and $m \ge 1$
-   \item Set $u_1 = G(u_0)$ 
-   \item For $n = 0, 1, 2,...$ until convergence do:
+   \item Set $u_1 = G(u_0)$
+   \item For $n = 1, 2,...$ until convergence do:
       \begin{itemize}
           \item[(a)] Set $m_n = \min\{m,n\}$
           \item[(b)] Set $\Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1})$,
-                where $\Delta f_i = f_{i+1} - f_i$ and $f_i=G(u_i)-u_i$
+            where $\Delta f_i = f_{i+1} - f_i$ and $f_i=G(u_i)-u_i$
           \item[(c)] Determine $\gamma^{(n)} = (\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})$
-                that solves $\min_\gamma  \| f_n - \Delta F_n \gamma^T \|_2$ 
+            that solves $\min_\gamma  \| f_n - \Delta F_n \gamma^T \|_2$
           \item[(d)] Set $u_{n+1} = G(u_n)-\sum_{i=0}^{m_n-1} \gamma_i^{(n)}
-               \Delta g_{n-m_n+i}$ with $\Delta g_i = G(u_{i+1}) - G(u_i)$
+            \Delta g_{n-m_n+i} - (1-\beta)(f(u_n) - \sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta f_{n-m_n+i})$ with
+            $\Delta g_i = G(u_{i+1}) - G(u_i)$
           \item[(e)] Test for convergence
       \end{itemize}
 \end{enumerate}
 
 The least-squares problem in (c) is solved by applying a QR factorization to
-$\Delta F_n = Q_n R_n$ and solving $R_n \gamma = Q_n^T f_n$.
+$\Delta F_n = Q_n R_n$ and solving $R_n \gamma = Q_n^T f_n$. By default the
+damping is disabled i.e., $\beta = 1.0$.
 
 
 \subsubsection*{Fixed-point - Anderson Acceleration Stopping Criterion}
 
-The default stopping criterion is 
+The default stopping criterion is
 \[ \|G(u_{n+1}) - u_{n+1} \|_{D_F,\infty} < \mbox{\sc gtol} \, , \]
-where $D_F$ is a user-defined diagonal matrix that can be the identity 
-or a scaling matrix chosen so that the components of $D_F (G(u)-u)$ have 
+where $D_F$ is a user-defined diagonal matrix that can be the identity
+or a scaling matrix chosen so that the components of $D_F (G(u)-u)$ have
 roughly the same order of magnitude.
-Note that when using Anderson acceleration, 
+Note that when using Anderson acceleration,
 convergence is checked after the acceleration is applied.
 
 
 \subsubsection*{Picard - Anderson Acceleration Stopping Criterion}
 
-The default stopping criterion is 
+The default stopping criterion is
 \[ \|F(u_{n+1})\|_{D_F,\infty} < \mbox{\sc ftol} \, , \]
-where $D_F$ is a user-defined diagonal matrix that can be the identity 
-or a scaling matrix chosen so that the components of $D_F F(u)$ have 
+where $D_F$ is a user-defined diagonal matrix that can be the identity
+or a scaling matrix chosen so that the components of $D_F F(u)$ have
 roughly the same order of magnitude.
-Note that when using Anderson acceleration, 
+Note that when using Anderson acceleration,
 convergence is checked after the acceleration is applied.
-
-
-
-

@@ -21,7 +21,7 @@ function status = IDAReInitB(idxB,tB0,yyB0,ypB0,optionsB)
 
 % Radu Serban <radu@llnl.gov>
 % SUNDIALS Copyright Start
-% Copyright (c) 2002-2019, Lawrence Livermore National Security
+% Copyright (c) 2002-2020, Lawrence Livermore National Security
 % and Southern Methodist University.
 % All rights reserved.
 %

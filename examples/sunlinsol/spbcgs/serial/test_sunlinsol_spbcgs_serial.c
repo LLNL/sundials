@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -511,4 +511,8 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   }
   else
     return(0);
+}
+
+void sync_device()
+{
 }

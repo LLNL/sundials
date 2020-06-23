@@ -9,13 +9,23 @@ write in the abstract form
 \begin{equation}\label{e:ivp}
   \dot{y} = f(t,y) \, ,\quad y(t_0) = y_0 \, ,
 \end{equation}
-where $y \in \mbox{\bf R}^N$.
+where $y \in \mbox{\bf R}^N$ and $f: \mbox{\bf R} \times \mbox{\bf R}^N \rightarrow \mbox{\bf R}^{N}$.
 Here we use $\dot{y}$ to denote $dy/dt$.  While we use $t$ to denote
 the independent variable, and usually this is time, it certainly need
 not be.  {\cvode} solves both stiff and nonstiff systems.  Roughly
 speaking, stiffness is characterized by the presence of at least one
 rapidly damped mode, whose time constant is small compared to the time
-scale of the solution itself.
+scale of the solution itself. Additionally, {\cvode} solves ODE IVPs with
+constraints in the explicit form
+\begin{equation}\label{e:ivp_constr}
+  \begin{aligned}
+    \dot{y} &= f(t,y) \, ,\quad y(t_0) = y_0 \, ,\\
+    0 &= g(t,y)
+  \end{aligned}
+\end{equation}
+where $g(t,y): \mbox{\bf R} \times \mbox{\bf R}^N \rightarrow \mbox{\bf R}^{M}$
+and the initial condition lies on the constraint manifold i.e.,
+$g(t_0, y_0) = 0$.
 
 %------------------------
 \section{IVP solution}\label{ss:ivp_sol}
@@ -351,6 +361,62 @@ $y(t_{\mbox{\scriptsize out}})$ by interpolation.  However, a
 calling program after each step.  There are also options to force
 {\cvode} not to integrate past a given stopping point
 $t = t_{\mbox{\scriptsize stop}}$.
+
+%-------------------------------------------------------------------------------
+\section{IVPs with constraints}
+\label{ss:constraints}
+%-------------------------------------------------------------------------------
+For IVPs with constraints {\cvode} ensures that the solution satisfies the
+constraint equation by projecting a successfully computed time step onto the
+invariant manifold. As discussed in \cite{eich1993convergence} and
+\cite{shampine1999conservation}, this approach reduces the error in the solution
+and retains the order of convergence of the numerical method. Therefore, in an
+attempt to advance the solution to a new point in time (i.e., taking a new
+integration step), {\cvode} performs the following operations:
+\begin{enumerate}
+  \itemsep0em
+  \item predict solution
+  \item solve nonlinear system and correct solution \label{projstep2}
+  \item project solution
+  \item test error
+  \item select order and step size for next step
+\end{enumerate}
+and includes several recovery attempts in case there are convergence failures
+(or difficulties) in the nonlinear solver or in the projection step, or if the
+solution fails to satisfy the error test. Note that at this time projection is
+only supported with BDF methods and the projection function must be
+user-defined. See \S\ref{ss:cvprojinit} and \S\ref{ss:projFn} for more
+information on providing a projection function to {\cvode}.
+
+When using a coordinate projection method the solution $y_n$ is obtained by
+projecting (orthogonally or otherwise) the solution $\tilde{y}_n$ from step
+\ref{projstep2} above onto the manifold given by the constraint. As such
+$y_n$ is computed as the solution of the nonlinear constrained least squares
+problem
+\begin{equation} \label{e:proj}
+\begin{split}
+  \text{minimize}   &\quad \| y_n - \tilde{y}_n \| \\
+  \text{subject to} &\quad g(t_n,y_n) = 0.
+\end{split}
+\end{equation}
+The solution of \eqref{e:proj} can be computed iteratively with a Newton method.
+Given an initial guess $y_n^{(0)}$ the iterations are computed as
+\begin{equation}
+    y_n^{(i+1)} = y_n^{(i)} + \delta y_n^{(i)}
+\end{equation}
+where the increment $\delta y_n^{(i)}$ is the solution of the least-norm problem
+\begin{equation} \label{e:leastnorm}
+\begin{split}
+    \text{minimize}   &\quad \| \delta y_n^{(i)} \| \\
+    \text{subject to} &\quad G(t_n,y_n^{(i)}) \; \delta y_n^{(i)} = -g(t_n,y_n^{(i)})
+\end{split}
+\end{equation}
+where $G(t,y) = \partial g(t,y) / \partial y$.
+
+If the projected solution satisfies the error test then the step is accepted and
+the correction to the unprojected solution, $\Delta_p = y_n - \tilde{y}_n$, is
+used to update the Nordsieck history array for the next step.
+
 
 %------------------------
 \section{Preconditioning}\label{s:preconditioning}

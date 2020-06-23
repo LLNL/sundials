@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -36,6 +36,20 @@ Shared ARKode input constants
 
 :index:`ARK_ONE_STEP`  (2):
    Solver returns after each successful step.
+
+
+Interpolation module input constants
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:index:`ARK_INTERP_MAX_DEGREE` (5):
+   Maximum possible interpolating polynomial degree.
+
+:index:`ARK_INTERP_HERMITE`  (0):
+   Specifies use of the Hermite polynomial interpolation module (for non-stiff problems)
+   
+:index:`ARK_INTERP_LAGRANGE`  (1):
+   Specifies use of the Lagrange polynomial interpolation module (for stiff problems)
+
 
 
 Explicit Butcher table specification
@@ -105,41 +119,47 @@ Explicit Butcher table specification
 Implicit Butcher table specification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:index:`SDIRK_2_1_2 <SDIRK-2-1-2 method>`  (12):
+:index:`SDIRK_2_1_2 <SDIRK-2-1-2 method>`  (100):
    Use the SDIRK-2-1-2 SDIRK method
 
-:index:`BILLINGTON_3_3_2 <Billington-3-3-2 SDIRK method>`  (13):
+:index:`BILLINGTON_3_3_2 <Billington-3-3-2 SDIRK method>`  (101):
    Use the Billington-3-3-2 SDIRK method
 
-:index:`TRBDF2_3_3_2 <TRBDF2-3-3-2 ESDIRK method>`  (14):
+:index:`TRBDF2_3_3_2 <TRBDF2-3-3-2 ESDIRK method>`  (102):
    Use the TRBDF2-3-3-2 ESDIRK method
 
-:index:`KVAERNO_4_2_3 <Kvaerno-4-2-3 ESDIRK method>`  (15):
+:index:`KVAERNO_4_2_3 <Kvaerno-4-2-3 ESDIRK method>`  (103):
    Use the Kvaerno-4-2-3 ESDIRK method
 
-:index:`ARK324L2SA_DIRK_4_2_3 <ARK-4-2-3 ESDIRK method>`  (16):
+:index:`ARK324L2SA_DIRK_4_2_3 <ARK-4-2-3 ESDIRK method>`  (104):
    Use the ARK-4-2-3 ESDIRK method
 
-:index:`CASH_5_2_4 <Cash-5-2-4 SDIRK method>`  (17):
+:index:`CASH_5_2_4 <Cash-5-2-4 SDIRK method>`  (105):
    Use the Cash-5-2-4 SDIRK method
 
-:index:`CASH_5_3_4 <Cash-5-3-4 SDIRK method>`  (18):
+:index:`CASH_5_3_4 <Cash-5-3-4 SDIRK method>`  (106):
    Use the Cash-5-3-4 SDIRK method
 
-:index:`SDIRK_5_3_4 <SDIRK-5-3-4 method>`  (19):
+:index:`SDIRK_5_3_4 <SDIRK-5-3-4 method>`  (107):
    Use the SDIRK-5-3-4 SDIRK method
 
-:index:`KVAERNO_5_3_4 <Kvaerno-5-3-4 ESDIRK method>`  (20):
+:index:`KVAERNO_5_3_4 <Kvaerno-5-3-4 ESDIRK method>`  (108):
    Use the Kvaerno-5-3-4 ESDIRK method
 
-:index:`ARK436L2SA_DIRK_6_3_4 <ARK-6-3-4 ESDIRK method>`  (21):
+:index:`ARK436L2SA_DIRK_6_3_4 <ARK-6-3-4 ESDIRK method>`  (109):
    Use the ARK-6-3-4 ESDIRK method
 
-:index:`KVAERNO_7_4_5 <Kvaerno-7-4-5 ESDIRK method>`  (22):
+:index:`KVAERNO_7_4_5 <Kvaerno-7-4-5 ESDIRK method>`  (110):
    Use the Kvaerno-7-4-5 ESDIRK method
 
-:index:`ARK548L2SA_DIRK_8_4_5 <ARK-8-4-5 ESDIRK method>`  (23):
+:index:`ARK548L2SA_DIRK_8_4_5 <ARK-8-4-5 ESDIRK method>`  (111):
    Use the ARK-8-4-5 ESDIRK method
+
+:index:`ARK437L2SA_DIRK_7_3_4 <ARK-7-3-4 ESDIRK method>`  (112):
+   Use the ARK-7-3-4 ESDIRK method
+
+:index:`ARK548L2SAb_DIRK_8_4_5 <ARK-8-4-5 ESDIRK method>`  (113):
+   Use the ARK-8-4-5b ESDIRK method
 
 
 :index:`DEFAULT_DIRK_2`  (SDIRK_2_1_2):
@@ -191,7 +211,7 @@ Shared ARKode output constants
    Successful function return.
 
 :index:`ARK_TSTOP_RETURN`  (1):
-   ARKode succeeded by reachign the specified
+   ARKode succeeded by reaching the specified
    stopping point.
 
 :index:`ARK_ROOT_RETURN`  (2):
@@ -299,41 +319,48 @@ Shared ARKode output constants
    The output and initial times are too close to
    each other.
 
-..
-   :index:`ARK_POSTPROCESS_FAIL`  (-28):
-      An error occurred when calling the user-provided ``ARKPostProcessStepFn`` routine.
-
-:index:`ARK_VECTOROP_ERR`  (-29):
+:index:`ARK_VECTOROP_ERR`  (-28):
    An error occurred when calling an NVECTOR routine.
 
-:index:`ARK_NLS_INIT_FAIL`  (-30):
+:index:`ARK_NLS_INIT_FAIL`  (-29):
    An error occurred when initializing a SUNNonlinearSolver module.
 
-:index:`ARK_NLS_SETUP_FAIL`  (-31):
+:index:`ARK_NLS_SETUP_FAIL`  (-30):
    A non-recoverable error occurred when setting up a
    SUNNonlinearSolver module.
 
-:index:`ARK_NLS_SETUP_RECVR`  (-32):
+:index:`ARK_NLS_SETUP_RECVR`  (-31):
    A recoverable error occurred when setting up a SUNNonlinearSolver module.
 
-:index:`ARK_NLS_OP_ERR`  (-33):
+:index:`ARK_NLS_OP_ERR`  (-32):
    An error occurred when calling a set/get routine in a SUNNonlinearSolver
    module.
 
-:index:`ARK_INNERSTEP_ATTACH_ERR`  (-34):
+:index:`ARK_INNERSTEP_ATTACH_ERR`  (-33):
    An error occurred when attaching the inner stepper module.
 
-:index:`ARK_INNERSTEP_FAIL`  (-35):
+:index:`ARK_INNERSTEP_FAIL`  (-34):
    An error occurred in the inner stepper module.
 
-:index:`ARK_PREINNERFN_FAIL`  (-36):
+:index:`ARK_PREINNERFN_FAIL`  (-35):
    An error occurred in the MRIStep pre inner integrator function.
 
-:index:`ARK_POSTINNERFN_FAIL`  (-37):
+:index:`ARK_POSTINNERFN_FAIL`  (-36):
    An error occurred in the MRIStep post inner integrator function.
 
+:index:`ARK_INTERP_FAIL`  (-40):
+   An error occurred in the ARKode polynomial interpolation module.
+       
 :index:`ARK_UNRECOGNIZED_ERROR` (-99):
    An unknown error was encountered.
+
+..
+   :index:`ARK_POSTPROCESS_STEP_FAIL`  (-37):
+      An error occurred when calling the user-provided step-based ``ARKPostProcessFn`` routine.
+
+..
+   :index:`ARK_POSTPROCESS_STAGE_FAIL`  (-38):
+      An error occurred when calling the user-provided stage-based ``ARKPostProcessFn`` routine.
 
 
 

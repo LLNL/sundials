@@ -370,9 +370,13 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Default: fortran
 \item[\id{CUDA\_ENABLE}] -
-  Build the {\sundials} {\cuda} vector module.
+  Build the {\sundials} {\cuda} modules.
   \\
   Default: OFF
+\item[\id{CUDA\_ARCH}] -
+  Specifies the CUDA architecture to compile for.
+  \\
+  Default: sm\_30
 \item[\id{EXAMPLES\_ENABLE\_C}] -
   Build the {\sundials} {\CC} examples
   \\
@@ -556,6 +560,25 @@ a typical configuration on a Linux system and are provided as illustration only.
   Default: OFF
   \\
   Note: You need to enable {\cuda} in order to build the {\raja} vector module.
+\item[\id{SUNDIALS\_BUILD\_WITH\_MONITORING}] -
+  Build {\sundials} with capabilties for fine-grained monitoring of solver progress
+  and statistics. This is primarily useful for debugging.
+  \\
+  Default: OFF
+  \\
+  Note: Building with monitoring may result in minor performance degradation
+  even if monitoring is not utilized.
+\item[\id{SUNDIALS\_BUILD\_PACKAGE\_FUSED\_KERNELS}] -
+  Build specialized fused kernels inside {\cvode}.
+  \\
+  Default: OFF
+  \\
+  Note: This option is currently only available when building with
+  \id{CUDA\_ENABLE = ON}. Building with fused kernels requires
+  linking to either \id{libsundials\_cvode\_fused\_cuda.{\em lib}} or
+  \id{libsundials\_cvode\_fused\_stubs.{\em lib}}, where the latter
+  provides CPU-only placeholders for the fused routines, in
+  addition to \id{libsundials\_cvode.{\em lib}}.
 \item[\id{SUNDIALS\_F77\_FUNC\_CASE}] - \textbf{advanced option} -
   Specify the case to use in the Fortran name-mangling scheme, options
   are: \id{lower} or \id{upper}
@@ -958,9 +981,11 @@ threading is enabled for {\sundials} by having \id{PTHREAD\_ENABLE} set to
 \label{ss:building_with_petsc}
 The {\petsc} libraries are available for download from the Argonne National
 Laboratory website: {\tt http://www.mcs.anl.gov/petsc}. {\sundials} has been
-tested with {\petsc} version 3.10.0--3.12.0. To enable {\petsc}, set
+tested with {\petsc} version 3.10.0--3.12.1. To enable {\petsc}, set
 \id{PETSC\_ENABLE} to \id{ON} and then set \id{PETSC\_DIR} to the path of the
-{\petsc} installation.
+{\petsc} installation. Alternatively, a user can provide a list of include paths
+in \id{PETSC\_INCLUDES}, and a list of complete paths to the libraries needed in
+\id{PETSC\_LIBRARIES}.
 
 
 \subsubsection*{Building with {\hypre}}
@@ -1172,6 +1197,7 @@ are to be used in building a preconditioner.
 &              & sundials/sundials\_nonlinearsolver.h                &                           \\
 &              & sundials/sundials\_version.h                        &                           \\
 &              & sundials/sundials\_mpi\_types.h                     &                           \\
+&              & sundials/sundials\_cuda\_policies.hpp               &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecs}
@@ -1263,9 +1289,6 @@ are to be used in building a preconditioner.
 & Libraries    & libsundials\_nveccuda.{\em lib}                     &                           \\
 \cline{2-4}
 & Header files & nvector/nvector\_cuda.h                             &                           \\
-&              & nvector/cuda/ThreadPartitioning.hpp                 &                           \\
-&              & nvector/cuda/Vector.hpp                             &                           \\
-&              & nvector/cuda/VectorKernels.cuh                      &                           \\
 \hline
 %% --------------------------------------------------
 {\nvecraja}
@@ -1317,6 +1340,12 @@ are to be used in building a preconditioner.
 & Libraries    & libsundials\_sunmatrixslunrloc.{\em lib}            &                           \\
 \cline{2-4}
 & Header files & sunmatrix/sunmatrix\_slunrloc.h                     &                           \\
+\hline
+%% --------------------------------------------------
+{SUNMATRIX\_CUSPARSE}
+& Libraries    & libsundials\_sunmatrixcusparse.{\em lib}            &                           \\
+\cline{2-4}
+& Header files & sunmatrix/sunmatrix\_cusparse.h                     &                           \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolband}

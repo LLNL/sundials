@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -34,6 +34,8 @@ The user-supplied functions for ARKStep consist of:
 * a function that handles adaptive time step error control (optional),
 
 * a function that handles explicit time step stability (optional),
+
+* a function that updates the implicit stage prediction (optional),
 
 * a function that defines the root-finding problem(s) to solve
   (optional),
@@ -301,6 +303,47 @@ step, and the accuracy-based time step.
    *hstab* :math:`\le 0.0`, then ARKStep will assume that there is no explicit
    stability restriction on the time step size.
 
+
+
+
+.. _ARKStep_CInterface.StagePredictFn:
+
+Implicit stage prediction function
+--------------------------------------
+
+A user may supply a function to update the prediction for each implicit stage solution.
+If supplied, this routine will be called *after* any existing ARKStep predictor
+algorithm completes, so that the predictor may be modified by the user as desired.
+In this scenario, a user may provide a function of type :c:type:`ARKStepStagePredictFn`
+to provide this implicit predictor to ARKStep.  This function takes as input the
+already-predicted implicit stage solution and the corresponding 'time' for that prediction;
+it then updates the prediction vector as desired.
+
+
+
+.. c:type:: typedef int (*ARKStepStagePredictFn)(realtype t, N_Vector zpred, void* user_data)
+
+   This function updates the prediction for the implicit stage solution.
+
+   **Arguments:**
+      * *t* -- the current value of the independent variable.
+      * *zpred* -- the ARKStep-predicted stage solution on input, and the user-modified
+        predicted stage solution on output.
+      * *user_data* -- a pointer to user data, the same as the
+        *user_data* parameter that was passed to :c:func:`ARKStepSetUserData()`.
+
+   **Return value:**
+   An *ARKStepStagePredictFn* function should return 0 if it
+   successfully set the upcoming stable step size, and a non-zero
+   value otherwise.
+
+   **Notes:**  This may be useful if there are bound constraints on the solution,
+   and these should be enforced prior to beginning the nonlinear or linear implicit solver
+   algorithm.
+
+   This routine is incompatible with the "minimum correction predictor" -- option 5 to the
+   routine :c:func:`ARKStepSetPredictorMethod()`.  If both are selected, then ARKStep will
+   override its built-in implicit predictor routine to instead use option 0 (trivial predictor).
 
 
 .. _ARKStep_CInterface.RootfindingFn:

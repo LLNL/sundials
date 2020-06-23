@@ -18,16 +18,13 @@ of this structure is not necessary for its use.
 
 The overall organization of the {\cvode} package is shown in Figure
 \ref{f:cvorg}.
-\begin{figure}[!ht]
+\begin{figure}[!htb]
 {\centerline{\includegraphics[width=\textwidth]{cvorg}}}
 \caption [Overall structure diagram of the {\cvode} package]
 {Overall structure diagram of the {\cvode} package.
-  Modules specific to {\cvode} begin with ``CV'' ({\cvls},  {\cvdiag},
-  {\cvbbdpre}, {\cvbandpre}, and {\cvnls}), all other items correspond
-  to generic solver and auxiliary modules. 
-  Note also that the LAPACK, {\klu} and {\superlumt} support is
-  through interfaces to external packages.  Users will need to
-  download and compile those packages independently.}
+  Modules specific to {\cvode} begin with ``CV'' ({\cvls},  {\cvnls}, {\cvdiag},
+  {\cvbbdpre}, and {\cvbandpre}), all other items correspond to generic
+  {\sundials} vector, matrix, and solver modules (see Figure \ref{f:sunorg1}).}
 \label{f:cvorg}
 \end{figure}
 The central integration module, implemented in the files \id{cvode.h},
@@ -44,7 +41,7 @@ arise. For any given user problem, there exists a single nonlinear solver
 interface and, if necessary, one of the linear system solver interfaces is
 specified, and invoked as needed during the integration.
 
-\index{CVODE@{\cvode} linear solver interfaces|(} 
+\index{CVODE@{\cvode} linear solver interfaces|(}
 At present, the package includes two linear solver interfaces.  The
 primary linear solver interface, {\cvls}, supports both direct and
 iterative linear solvers built using the generic {\sunlinsol} API (see
@@ -58,10 +55,10 @@ are developed.
 Additionally, {\cvode} includes the {\em diagonal} linear solver
 interface, {\cvdiag}, that creates an internally generated diagonal
 approximation to the Jacobian.
-\index{CVODE@{\cvode} linear solver interfaces|)} 
+\index{CVODE@{\cvode} linear solver interfaces|)}
 
 For users employing dense or banded Jacobian matrices, {\cvode}
-includes algorithms for their approximation through difference 
+includes algorithms for their approximation through difference
 quotients, although the user also has the option of supplying a
 routine to compute the Jacobian (or an approximation to it) directly.
 This user-supplied routine is required when using sparse or
@@ -72,25 +69,25 @@ For users employing matrix-free iterative linear solvers,
 includes an algorithm for the approximation by difference quotients of
 the product $Mv$. Again, the user has the option of providing routines
 for this operation, in two phases: setup (preprocessing of Jacobian
-data) and multiplication. 
+data) and multiplication.
 
-For preconditioned iterative methods, \index{preconditioning!setup and solve phases} 
-the preconditioning must be supplied by the user, again in two phases: 
+For preconditioned iterative methods, \index{preconditioning!setup and solve phases}
+the preconditioning must be supplied by the user, again in two phases:
 setup and solve.  While\index{preconditioning!advice on} there is no
 default choice of preconditioner analogous to the difference-quotient
 approximation in the direct case, the references
 \cite{BrHi:89,Byr:92}, together with the example and demonstration
 programs included with {\cvode}, offer considerable assistance in
-building preconditioners. 
+building preconditioners.
 
-\index{CVODE@{\cvode} linear solvers!implementation details|(} 
+\index{CVODE@{\cvode} linear solvers!implementation details|(}
 {\cvode}'s linear solver interface consists of four primary phases,
 devoted to (1) memory allocation and initialization, (2) setup of the
-matrix data involved, (3) solution of the system, and (4) freeing of memory.  
+matrix data involved, (3) solution of the system, and (4) freeing of memory.
 The setup and solution phases are separate because the evaluation of
 Jacobians and preconditioners is done only periodically during the
-integration, and only as required to achieve convergence. 
-\index{CVODE@{\cvode} linear solvers!implementation details|)} 
+integration, and only as required to achieve convergence.
+\index{CVODE@{\cvode} linear solvers!implementation details|)}
 
 {\cvode} also provides two preconditioner modules, for use with any of
 the Krylov iterative linear solvers. The first one, {\cvbandpre},

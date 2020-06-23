@@ -5,7 +5,7 @@
  * Daniel R. Reynolds @ SMU.
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -861,6 +861,11 @@ static int MassMatrix(realtype t, SUNMatrix M, void *user_data,
 
   /* clear out mass matrix */
   SUNMatZero(M);
+
+  /* initialize node value shortcuts */
+  xl = ZERO;
+  xc = ZERO;
+  xr = ZERO;
 
   /* iterate through nodes, filling in matrix by rows */
   for (i=0; i<N; i++) {

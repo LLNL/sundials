@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -486,9 +486,14 @@ illustration only.
    Default: ``OFF``
 
 :index:`CUDA_ENABLE <CUDA_ENABLE (CMake option)>`
-   Build the SUNDIALS CUDA vector module.
+   Build the SUNDIALS CUDA modules.
 
    Default: ``OFF``
+
+:index:`CUDA_ARCH <CUDA_ARCH (CMake option)>`
+   Specifies the CUDA architecture to compile for.
+
+   Default: ``sm_30``
 
 :index:`EXAMPLES_ENABLE_C <EXAMPLES_ENABLE_C (CMake option)>`
    Build the SUNDIALS C examples
@@ -701,6 +706,15 @@ illustration only.
 
    .. note:: You need to enable CUDA in order to build the RAJA vector
              module.
+
+:index:`SUNDIALS_BUILD_WITH_MONITORING <SUNDIALS_BUILD_WITH_MONITORING (CMake option)>`
+   Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
+   and statistics. This is primarily useful for debugging.
+
+   Default: OFF
+
+   Note: Building with monitoring may result in minor performance degradation
+   even if monitoring is not utilized.
 
 :index:`SUNDIALS_F77_FUNC_CASE <SUNDIALS_F77_FUNC_CASE (CMake option)>`
    Specify the case to use in the Fortran name-mangling scheme,
@@ -1151,9 +1165,11 @@ The PETSc libraries are available for download from the Argonne
 National Laboratory website:
 http://www.mcs.anl.gov/petsc .
 
-SUNDIALS has been tested with PETSc version 3.10.0 - 3.12.0.  To enable
-PETSc, set ``PETSC_ENABLE`` to ``ON``, and set ``PETSC_DIR`` to the
-path of the PETSc installation.
+SUNDIALS has been tested with PETSc version 3.10.0 - 3.12.1. To enable PETSc,
+set ``PETSC_ENABLE`` to ``ON``, and set ``PETSC_DIR`` to the path of the PETSc
+installation. Alternatively, a user can provide a list of inlcude paths in
+``PETSC_INCLUDES`` and a list of complete paths to the PETSc libraries in
+``PETSC_LIBRARIES``.
 
 
 .. _Installation.CMake.ExternalLibraries.hypre:
@@ -1179,7 +1195,7 @@ equivalently, ``XSDK_INDEX_SIZE``) equals the precision of
 Building with CUDA
 ^^^^^^^^^^^^^^^^^^^^^^
 
-SUNDIALS CUDA modules and examples have been tested with version 8.0 of the
+SUNDIALS CUDA modules and examples have been tested with version 10.1 of the
 CUDA toolkit. To build them, you need to install the Toolkit and compatible
 NVIDIA drivers. Both are available for download from the NVIDIA website:
 `https://developer.nvidia.com/cuda-downloads
@@ -1356,6 +1372,7 @@ Table: SUNDIALS libraries and header files
 +------------------------------+--------------+----------------------------------------------+
 | Shared                       | Header files | ``sundials/sundials_band.h``,                |
 |                              |              | ``sundials/sundials_config.h``,              |
+|                              |              | ``sundials/sundials_cuda_policies.hpp``      |
 |                              |              | ``sundials/sundials_dense.h``,               |
 |                              |              | ``sundials/sundials_direct.h``,              |
 |                              |              | ``sundials/sundials_fconfig.h``,             |
@@ -1431,6 +1448,14 @@ Table: SUNDIALS libraries and header files
 |                              |              | ``libsundials_fsunmatrixsparse.a``           |
 +------------------------------+--------------+----------------------------------------------+
 | SUNMATRIX_SPARSE             | Header files | ``sunmatrix/sunmatrix_sparse.h``             |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_SLUNRLOC           | Libraries    | ``libsundials_sunmatrixslunrloc.LIB``,       |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_SLUNRLOC           | Header files | ``sunmatrix/sunmatrix_slunrloc.h``           |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_CUSPARSE           | Libraries    | ``libsundials_sunmatrixcusparse.LIB``,       |
++------------------------------+--------------+----------------------------------------------+
+| SUNMATRIX_CUSPARSE           | Header files | ``sunmatrix/sunmatrix_cusparse.h``           |
 +------------------------------+--------------+----------------------------------------------+
 | SUNLINSOL_BAND               | Libraries    | ``libsundials_sunlinsolband.LIB``,           |
 |                              |              | ``libsundials_fsunlinsolband.a``             |

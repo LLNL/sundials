@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -94,6 +94,57 @@ user-callable routines:
    This routine will return with one of the error codes
    ``SUNLS_MEM_NULL`` (``S`` is ``NULL``) or ``SUNLS_SUCCESS``.
 
+
+.. c:function:: int SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver LS, FILE* info_file)
+
+   The function :c:func:`SUNLinSolSetInfoFile_SPBCGS()` sets the
+   output file where all informative (non-error) messages should be directed.
+
+   **Arguments:**
+      * *LS* -- a SUNLinSol object
+      * *info_file* -- pointer to output file (``stdout`` by default);
+         a ``NULL`` input will disable output
+
+   **Return value:**
+      * *SUNLS_SUCCESS* if successful
+      * *SUNLS_MEM_NULL* if the SUNLinearSolver memory was ``NULL``
+      * *SUNLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled
+
+   **Notes:**
+   This function is intended for users that wish to monitor the linear
+   solver progress. By default, the file pointer is set to ``stdout``.
+
+   **SUNDIALS must be built with the CMake option
+   ``SUNDIALS_BUILD_WITH_MONITORING``, to utilize this function.**
+   See section :ref:`Installation.CMake.Options` for more information.
+
+
+.. c:function:: int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver LS, int print_level)
+
+   The function :c:func:`SUNLinSolSetPrintLevel_SPBCGS()` specifies the
+   level of verbosity of the output.
+
+   **Arguments:**
+      * *LS* -- a SUNLinSol object
+      * *print_level* -- flag indicating level of verbosity;
+        must be one of:
+
+         * 0, no information is printed (default)
+         * 1, for each linear iteration the residual norm is printed
+
+   **Return value:**
+      * *SUNLS_SUCCESS* if successful
+      * *SUNLS_MEM_NULL* if the SUNLinearSolver memory was ``NULL``
+      * *SUNLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled, or
+        if the print level value was invalid
+
+   **Notes:**
+   This function is intended for users that wish to monitor the linear
+   solver progress. By default, the print level is 0.
+
+   **SUNDIALS must be built with the CMake option
+   ``SUNDIALS_BUILD_WITH_MONITORING``, to utilize this function.**
+   See section :ref:`Installation.CMake.Options` for more information.
 
 
 For backwards compatibility, we also provide the wrapper functions,
@@ -238,6 +289,8 @@ The SUNLinSol_SPBCGS module defines the *content* field of a
      N_Vector u;
      N_Vector Ap;
      N_Vector vtemp;
+     int      print_level;
+     FILE*    info_file;
    };
 
 These entries of the *content* field contain the following
@@ -277,6 +330,10 @@ information:
 
 * ``p, q, u, Ap, vtemp`` - ``N_Vector`` used for workspace by the
   SPBCGS algorithm.
+
+* ``print_level`` - controls the amount of information to be printed to the info file
+
+* ``info_file``   - the file where all informative (non-error) messages will be directed
 
 
 This solver is constructed to perform the following operations:

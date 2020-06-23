@@ -3,7 +3,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -35,6 +35,7 @@ extern "C" {
 #endif
   /* Forward declarations for implementation specific utility functions */
   int check_vector(N_Vector X, N_Vector Y, realtype tol);
+  void sync_device();
    
   /* Test function declarations */
   int Test_SUNLinSolGetType(SUNLinearSolver S, SUNLinearSolver_Type suntype, int myid);

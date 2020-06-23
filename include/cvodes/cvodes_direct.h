@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -38,28 +38,28 @@ typedef CVLsJacFnBS CVDlsJacFnBS;
   Exported Functions (wrappers for equivalent routines in cvodes_ls.h)
   ====================================================================*/
 
-int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
-                         SUNMatrix A);
+SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
+                                         SUNMatrix A);
 
-int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
+SUNDIALS_EXPORT int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
 
-int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
-                      long int *leniwLS);
+SUNDIALS_EXPORT int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
+                                      long int *leniwLS);
 
-int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
+SUNDIALS_EXPORT int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
 
-int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
+SUNDIALS_EXPORT int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
 
-int CVDlsGetLastFlag(void *cvode_mem, long int *flag);
+SUNDIALS_EXPORT int CVDlsGetLastFlag(void *cvode_mem, long int *flag);
 
-char *CVDlsGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT char *CVDlsGetReturnFlagName(long int flag);
 
-int CVDlsSetLinearSolverB(void *cvode_mem, int which,
-                          SUNLinearSolver LS, SUNMatrix A);
+SUNDIALS_EXPORT int CVDlsSetLinearSolverB(void *cvode_mem, int which,
+                                          SUNLinearSolver LS, SUNMatrix A);
 
-int CVDlsSetJacFnB(void *cvode_mem, int which, CVDlsJacFnB jacB);
+SUNDIALS_EXPORT int CVDlsSetJacFnB(void *cvode_mem, int which, CVDlsJacFnB jacB);
 
-int CVDlsSetJacFnBS(void *cvode_mem, int which, CVDlsJacFnBS jacBS);
+SUNDIALS_EXPORT int CVDlsSetJacFnBS(void *cvode_mem, int which, CVDlsJacFnBS jacBS);
 
 
 #ifdef __cplusplus

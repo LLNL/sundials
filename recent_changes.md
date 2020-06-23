@@ -1,5 +1,181 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release x.x.x
+
+Added new reset functions `ARKStepReset()`, `ERKStepReset()`, and
+`MRIStepReset()` to reset the stepper time and state vector to user-provided
+values for continuing the integration from that point while retaining the
+integration history. These function complement the reinitialization functions
+`ARKStepReInit()`, `ERKStepReInit()`, and `MRIStepReInit()` which reinitialize
+the stepper so that the problem integration should resume as if started from
+scratch.
+
+The expected behavior of the `SUNNonlinSolGetNumIters` function in the
+SUNNonlinearSolver API has been updated to specify that it should return the
+number of nonlinear solver iterations in most recent solve rather than the
+cumulative number of iterations across all solves. The API documentation and
+SUNDIALS provided SUNNonlinearSolver implementations and have been updated
+accordingly. As before, the cumulative number of nonlinear iterations may be
+retreived by calling the integrator provided get functions.
+
+
+## Changes to SUNDIALS in release 5.3.0
+
+Fixed a bug in ARKode where the prototypes for `ERKStepSetMinReduction()` and
+`ARKStepSetMinReduction()` were not included in `arkode_erkstep.h` and
+`arkode_arkstep.h` respectively.
+
+Fixed a bug in ARKode where inequality constraint checking would need to be
+disabled and then re-enabled to update the inequality constraint values after
+resizing a problem. Resizing a problem will now disable constraints and a call
+to `ARKStepSetConstraints` or `ERKStepSetConstraints` is required to re-enable
+constraint checking for the new problem size.
+
+Fixed a bug in the iterative linear solver modules where an error is not
+returned if the Atimes function is `NULL` or, if preconditioning is enabled, the
+PSolve function is `NULL`.
+
+Added specialized fused CUDA kernels to CVODE which may offer better
+performance on smaller problems when using CVODE with the `NVECTOR_CUDA`
+module. See the optional input function `CVodeSetUseIntegratorFusedKernels`
+for more information. As with other SUNDIALS CUDA features, this is
+feature is experimental and may change from version to version.
+
+Added the ability to control the CUDA kernel launch parameters for the
+`NVECTOR_CUDA` and `SUNMATRIX_CUSPARSE` modules. These modules remain
+experimental and are subject to change from version to version.
+In addition, the `NVECTOR_CUDA` kernels were rewritten to be more flexible.
+Most users should see equivalent performance or some improvement, but a select
+few may observe minor performance degradation with the default settings. Users
+are encouraged to contact the SUNDIALS team about any perfomance changes
+that they notice.
+
+Added new capabilities for monitoring the solve phase in the `SUNNONLINSOL_NEWTON`
+and `SUNNONLINSOL_FIXEDPOINT` modules, and the SUNDIALS iterative linear solver
+modules. SUNDIALS must be built with the CMake option
+`SUNDIALS_BUILD_WITH_MONITORING` to use these capabilties.
+
+Added a new function, `CVodeSetMonitorFn`, that takes a user-function
+to be called by CVODE after every `nst` succesfully completed time-steps.
+This is intended to provide a way of monitoring the CVODE statistics
+throughout the simulation.
+
+Added a new function `CVodeGetLinSolveStats` to get the CVODE linear solver
+statistics as a group.
+
+Added optional set functions to provide an alternative ODE right-hand side
+function (ARKode and CVODE(S)), DAE residual function (IDA(S)), or nonlinear
+system function (KINSOL) for use when computing Jacobian-vector products with
+the internal difference quotient approximation.
+
+Added support to CVODE for integrating IVPs with constraints using BDF methods
+and projecting the solution onto the constraint manifold with a user defined
+projection function. This implementation is accompanied by additions to the
+CVODE user documentation and examples.
+
+
+## Changes to SUNDIALS in release 5.2.0
+
+Fixed a build system bug related to the Fortran 2003 interfaces when using the
+IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
+it is recommended to set `CMAKE_Fortran_COMPILER` to `f2003`, `xlf2003`, or
+`xlf2003_r`.
+
+Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver.
+In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the
+lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling
+factor using the error weight vector, `ewt`; this fix changes that to the residual weight vector,
+
+Fixed a linkage bug affecting Windows users that stemmed from dllimport/dllexport
+attribute missing on some SUNDIALS API functions.
+
+Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver.
+In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the
+lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling
+factor using the error weight vector, `ewt`; this fix changes that to the residual weight vector,
+`rwt`, that can differ from `ewt` when solving problems with non-identity mass matrix.
+
+Fixed a similar bug in how ARKode interfaces with scaled linear solvers when solving problems
+with non-identity mass matrices.  Here, the left scaling matrix should correspond with `rwt`
+and the right scaling matrix with `ewt`; these were reversed but are now correct.
+
+Fixed a memory leak in CVODES and IDAS from not deallocating the `atolSmin0` and
+`atolQSmin0` arrays.
+
+Fixed a bug where a non-default value for the maximum allowed growth factor
+after the first step would be ignored.
+
+Functions were added to each of the time integration packages to enable or
+disable the scaling applied to linear system solutions with matrix-based linear solvers
+to account for lagged matrix information.
+
+Added two new functions, `ARKStepSetMinReduction()` and
+`ERKStepSetMinReduction()` to change the minimum allowed step size reduction factor
+after an error test failure.
+
+Added a new `SUNMatrix` implementation, `SUNMATRIX_CUSPARSE`, that interfaces
+to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
+the `SUNLINSOL_CUSOLVER_BATCHQR` linear solver has been updated to
+use this matrix, therefore, users of this module will need to update their code.
+These modules are still considered to be experimental, thus they are subject to
+breaking changes even in minor releases.
+
+Added a new "stiff" interpolation module to ARKode, based on Lagrange polynomial interpolation,
+that is accessible to each of the ARKStep, ERKStep and MRIStep time-stepping modules.
+This module is designed to provide increased interpolation accuracy when integrating
+stiff problems, as opposed to the ARKode-standard Hermite interpolation module that
+can suffer when the IVP right-hand side has large Lipschitz constant.  While the Hermite module
+remains the default, the new Lagrange module may be enabled using one of the routines
+`ARKStepSetInterpolantType`, `ERKStepSetInterpolantType`, or `MRIStepSetInterpolantType`.
+The serial example problem ``ark_brusselator.c`` has been converted to use this Lagrange
+interpolation module.  Created accompanying routines `ARKStepSetInterpolantDegree`,
+`ARKStepSetInterpolantDegree` and `ARKStepSetInterpolantDegree` to provide user control over
+these interpolating polynomials. While the routines `ARKStepSetDenseOrder`,
+`ARKStepSetDenseOrder` and `ARKStepSetDenseOrder` still exist, these have been deprecated and
+will be removed in a future release.
+
+
+
+## Changes to SUNDIALS in release 5.1.0
+
+Fixed a build system bug related to finding LAPACK/BLAS.
+
+Fixed a build system bug related to checking if the KLU library works.
+
+Fixed a build system bug related to finding PETSc when using the CMake
+variables `PETSC_INCLUDES` and `PETSC_LIBRARIES` instead of `PETSC_DIR`.
+
+Added a new build system option, `CUDA_ARCH`, to specify the CUDA architecture to compile for.
+
+Fixed a bug in the Fortran 2003 interfaces to the ARKode Butcher table routines and structure.
+This includes changing the `ARKodeButcherTable` type to be a `type(c_ptr)` in Fortran.
+
+Added two utility functions, `SUNDIALSFileOpen` and `SUNDIALSFileClose` for creating/destroying
+file pointers. These are useful when using the Fortran 2003 interfaces.
+
+Added support for a user-supplied function to update the prediction for each
+implicit stage solution in ARKStep.  If supplied, this routine will be called
+*after* any existing ARKStep predictor algorithm completes, so that the
+predictor may be modified by the user as desired.  The new user-supplied routine
+has type `ARKStepStagePredictFn`, and may be set by calling `ARKStepSetStagePredictFn`.
+
+The MRIStep module has been updated to support attaching different user data
+pointers to the inner and outer integrators. If applicable, user codes will
+need to add a call to `ARKStepSetUserData` to attach their user data
+pointer to the inner integrator memory as `MRIStepSetUserData` will
+not set the pointer for both the inner and outer integrators. The MRIStep
+examples have been updated to reflect this change.
+
+Added support for damping when using Anderson acceleration in KINSOL. See the
+mathematical considerations section of the user guide and the description of the
+`KINSetDampingAA` function for more details.
+
+Added support for damping to the `SUNNonlinearSolver_FixedPoint` module when
+using Anderson acceleration. See the `SUNNonlinearSolver_FixedPoint` section in
+the user guides and the description of the `SUNNonlinSolSetDamping_FixedPoint`
+function for more details.
+
+
 ## Changes to SUNDIALS in release 5.0.0
 
 ### Build System

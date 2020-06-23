@@ -16,119 +16,119 @@
 @techreport{arkode_ug,
 author={Daniel R. Reynolds and David J. Gardner and Alan C. Hindmarsh
 and Carol S. Woodward and Jean M. Sexton},
-title={{User Documentation for ARKODE v4.0.0}},
+title={{User Documentation for ARKODE v4.3.0}},
 institution={LLNL},
 number={LLNL-SM-668082},
-year=2019
+year=2020
 }
 %
 % ARKODE examples
 %
 @techreport{arkode_ex,
 author={Daniel R. Reynolds},
-title={{Example Programs for ARKODE v4.0.0}},
+title={{Example Programs for ARKODE v4.3.0}},
 institution={Southern Methodist University},
-year=2019
+year=2020
 }
 %
 % CVODE user guide
 %
 @techreport{cvode_ug,
 author={A. C. Hindmarsh and R. Serban},
-title={{User Documentation for CVODE v5.0.0}},
+title={{User Documentation for CVODE v5.3.0}},
 institution={LLNL},
 number={UCRL-SM-208108},
-year=2019
+year=2020
 }
 %
 % CVODE examples
 %
 @techreport{cvode_ex,
 author={A. C. Hindmarsh and R. Serban and D. R. Reynolds},
-title={{Example Programs for CVODE v5.0.0}},
+title={{Example Programs for CVODE v5.3.0}},
 institution={LLNL},
 note={UCRL-SM-208110},
-year=2019
+year=2020
 }
 %
 % CVODES user guide
 %
 @techreport{cvodes_ug,
 author={A. C. Hindmarsh and R. Serban},
-title={{User Documentation for CVODES v5.0.0}},
+title={{User Documentation for CVODES v5.3.0}},
 institution={LLNL},
 note={UCRL-SM-208111},
-year=2019
+year=2020
 }
 %
 % CVODES examples
 %
 @techreport{cvodes_ex,
 author={R. Serban and A. C. Hindmarsh},
-title={{Example Programs for CVODES v5.0.0}},
+title={{Example Programs for CVODES v5.3.0}},
 institution={LLNL},
 number={UCRL-SM-208115},
-year=2019
+year=2020
 }
 %
 % IDA user guide
 %
 @techreport{ida_ug,
 author={A. C. Hindmarsh and R. Serban and A. Collier},
-title={{User Documentation for IDA v5.0.0}},
+title={{User Documentation for IDA v5.3.0}},
 institution={LLNL},
 number={UCRL-SM-208112},
-year=2019
+year=2020
 }
 %
 % IDA examples
 %
 @techreport{ida_ex,
 author={A. C. Hindmarsh and R. Serban and A. Collier},
-title={{Example Programs for IDA v5.0.0}},
+title={{Example Programs for IDA v5.3.0}},
 institution={LLNL},
 number={UCRL-SM-208113},
-year=2019
+year=2020
 }
 %
 % IDAS user guide
 %
 @techreport{idas_ug,
 author={R. Serban and C. Petra and A. C. Hindmarsh},
-title={{User Documentation for IDAS v4.0.0}},
+title={{User Documentation for IDAS v4.3.0}},
 institution={LLNL},
 number={UCRL-SM-234051},
-year=2019
+year=2020
 }
 %
 % IDAS examples
 %
 @techreport{idas_ex,
 author={R. Serban and A. C. Hindmarsh},
-title={{Example Programs for IDAS v4.0.0}},
+title={{Example Programs for IDAS v4.3.0}},
 institution={LLNL},
 number={LLNL-TR-437091},
-year=2019
+year=2020
 }
 %
 % KINSOL user guide
 %
 @techreport{kinsol_ug,
 author={A. M. Collier and A. C. Hindmarsh and R. Serban and C.S. Woodward},
-title={{User Documentation for KINSOL v5.0.0}},
+title={{User Documentation for KINSOL v5.3.0}},
 institution={LLNL},
 number={UCRL-SM-208116},
-year=2019
+year=2020
 }
 %
 % KINSOL examples
 %
 @techreport{kinsol_ex,
 author={A. M. Collier and R. Serban},
-title={{Example Programs for KINSOL v5.0.0}},
+title={{Example Programs for KINSOL v5.3.0}},
 institution={LLNL},
 number={UCRL-SM-208114},
-year=2019
+year=2020
 }
 
 %---------------------------------------------------------
@@ -470,6 +470,29 @@ pages={311--318},
 year=1995
 }
 %
+% Projection methods for IVPs with constraints
+%
+@article{eich1993convergence,
+  title={Convergence results for a coordinate projection method applied to mechanical systems with algebraic constraints},
+  author={Eich, Edda},
+  journal={SIAM Journal on Numerical Analysis},
+  volume={30},
+  number={5},
+  pages={1467--1482},
+  year={1993},
+  publisher={SIAM}
+}
+@article{shampine1999conservation,
+  title={Conservation laws and the numerical solution of ODEs, II},
+  author={Shampine, LF},
+  journal={Computers \& Mathematics with Applications},
+  volume={38},
+  number={2},
+  pages={61--72},
+  year={1999},
+  publisher={Elsevier}
+}
+%
 % Consistent initialization for DAE
 %
 @article{BHP:98,
@@ -710,6 +733,13 @@ year=1952
 @Misc{cuSOLVER_site,
   title = {{NVIDIA cuSOLVER Documentation}},
   howpublished = {https://docs.nvidia.com/cuda/cusolver/index.html}
+}
+%
+% cuSPARSE
+%
+@Misc{cuSPARSE_site,
+  title = {{NVIDIA cuSPARSE Documentation}},
+  howpublished = {https://docs.nvidia.com/cuda/cusparse/index.html}
 }
 %
 % ADIFOR
@@ -1513,3 +1543,16 @@ biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1904-02546},
 bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 
+%
+% Using an alternative function in Jacobian-vector products
+%
+@article{dorr2010numerical,
+  title={A numerical algorithm for the solution of a phase-field model of polycrystalline materials},
+  author={Dorr, M.R. and Fattebert, J.-L. and Wickett, M.E. and Belak, J.F. and Turchi, P.E.A.},
+  journal={Journal of Computational Physics},
+  volume={229},
+  number={3},
+  pages={626--641},
+  year={2010},
+  publisher={Elsevier}
+}

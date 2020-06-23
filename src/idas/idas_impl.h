@@ -6,7 +6,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -298,16 +298,12 @@ typedef struct IDAMemRec {
     ------*/
 
   int ida_maxncf;        /* max numer of convergence failures                 */
-  int ida_maxcor;        /* max number of Newton corrections                  */
   int ida_maxnef;        /* max number of error test failures                 */
 
   int ida_maxord;        /* max value of method order k:                      */
   int ida_maxord_alloc;  /* value of maxord used when allocating memory       */
   long int ida_mxstep;   /* max number of internal steps for one user call    */
   realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
-
-  int ida_maxcorS;       /* max number of Newton corrections for sensitivity
-                            systems (staggered method)                        */
 
   /*--------
     Counters

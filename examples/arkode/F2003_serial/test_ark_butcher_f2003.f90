@@ -2,7 +2,7 @@
 ! Programmer(s): Cody J. Balos @ LLNL
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2019, Lawrence Livermore National Security
+! Copyright (c) 2002-2020, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -26,7 +26,7 @@ module test_arkode_butcher_table
 
     !======== Declarations ========
     implicit none
-    type(ARKodeButcherTable) :: ERK, DIRK
+    type(c_ptr) :: ERK, DIRK
     integer(C_INT)  :: ierr, q(1), p(1)
     integer(C_LONG) :: liw(1), lrw(1)
     real(C_DOUBLE)  :: b(2), c(2), d(2), A(4)

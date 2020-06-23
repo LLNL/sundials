@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -30,23 +30,25 @@ IDAS, respectively.
 The various solvers of this family share many subordinate modules.
 For this reason, it is organized as a family, with a directory
 structure that exploits that sharing (see the following Figures
-:ref:`SUNDIALS organization <sunorg1>`,
-:ref:`SUNDIALS tree <sunorg2>` and
-:ref:`SUNDIALS examples <sunorg3>`).  The following is a list of the
-solver packages presently available, and the basic functionality
-of each:
+:ref:`SUNDIALS organization <sunorg1>` and :ref:`SUNDIALS tree <sunorg2>`).
+The following is a list of the solver packages presently available, and the
+basic functionality of each:
 
 - CVODE, a linear multistep solver for stiff and nonstiff ODE systems
   :math:`\dot{y} = f(t,y)` based on Adams and BDF methods;
 - CVODES, a linear multistep solver for stiff and nonstiff ODEs with
   sensitivity analysis capabilities;
-- ARKode, a Runge-Kutta based solver for stiff, nonstiff, and mixed ODE systems;
+- ARKode, a Runge-Kutta based solver for stiff, nonstiff, mixed stiff-nonstiff,
+  and multirate ODE systems;
 - IDA, a linear multistep solver for differential-algebraic systems
   :math:`F(t,y,\dot{y}) = 0` based on BDF methods;
 - IDAS, a linear multistep solver for differential-algebraic systems with sensitivity
   analysis capabilities;
 - KINSOL, a solver for nonlinear algebraic systems :math:`F(u) = 0`.
 
+Note for modules that provide interfaces to third-party libraries (i.e., LAPACK,
+KLU, SuperLU_MT, SuperLU_DIST, *hypre*, PETSc, Trilinos, and RAJA users will
+need to download and compile those packages independently.
 
 .. _sunorg1:
 
@@ -66,15 +68,6 @@ of each:
    *SUNDIALS tree*: Directory structure of the source tree.
 
 
-.. _sunorg3:
-
-.. figure:: figs/sunorg3.png
-   :scale: 75%
-   :align: center
-
-   *SUNDIALS examples*: Directory structure of the examples.
-
-
 
 
 
@@ -89,8 +82,8 @@ The overall organization of the ARKode package is shown in Figure
 :ref:`ARKode organization <arkorg>`.  The central integration modules,
 implemented in the files ``arkode.h``, ``arkode_impl.h``,
 ``arkode_butcher.h``, ``arkode.c``, ``arkode_arkstep.c`` ,
-``arkode_erkstep.c`` and ``arkode_butcher.c``, deal with the
-evaluation of integration stages, the nonlinear solvers, estimation of
+``arkode_erkstep.c``, ``arkode_mristep.h``, and ``arkode_butcher.c``, deal with
+the evaluation of integration stages, the nonlinear solvers, estimation of
 the local truncation error, selection of step size, and interpolation
 to user output points, among other issues.  ARKode currently supports
 modified Newton, inexact Newton, and accelerated fixed-point solvers
@@ -108,12 +101,10 @@ during the integration process.
 .. figure:: figs/arkorg.png
 
    *ARKode organization*: Overall structure of the ARKode package.
-   Modules specific to ARKode are the timesteppers, linear solver
-   interfaces and preconditioners: ARKSTEP, ERKSTEP, ARKBBDPRE,
-   ARKBANDPRE; all other items correspond to generic solver 
-   and auxiliary modules.  Note also that the LAPACK, KLU and
-   SuperLU_MT support is through interfaces to external packages.
-   Users will need to download and compile those packages independently.
+   Modules specific to ARKode are the timesteppers (ARKODE), linear solver
+   interfaces (ARKLS), nonlinear solver interfaces (ARKNLS), and preconditioners
+   (ARKBANDPRE and ARKBBDPRE); all other items correspond to generic SUNDIALS
+   vector, matrix, and solver modules.
 
 For solving these linear systems, ARKode's linear solver interface
 supports both direct and iterative linear solvers built using the
@@ -121,14 +112,14 @@ generic SUNLINSOL API (see :ref:`SUNLinSol`).  These solvers may
 utilize a SUNMATRIX object for storing Jacobian information, or they
 may be matrix-free.  Since ARKode can operate on any valid SUNLINSOL
 implementation, the set of linear solver modules available to ARKode
-will expand as new SUNLINSOL modules are developed. 
+will expand as new SUNLINSOL modules are developed.
 
 For users employing dense or banded Jacobians, ARKode includes
 algorithms for their approximation  through difference quotients,
 although the user also has the option of supplying a routine to
 compute the Jacobian (or an approximation to it) directly.  This
 user-supplied routine is required when using sparse or user-supplied
-Jacobian matrices. 
+Jacobian matrices.
 
 For users employing iterative linear solvers, ARKode includes an
 algorithm for the approximation by difference quotients of the product
@@ -141,7 +132,7 @@ user-supplied routines for computing either the mass matrix :math:`M`
 or the product :math:`Mv` are required.  Additionally, the type of
 linear solver module (iterative, dense-direct, band-direct,
 sparse-direct) used for both the IVP system and mass matrix must
-match. 
+match.
 
 For preconditioned iterative methods for either the system or mass
 matrix solves, the preconditioning must be supplied by the user, again
@@ -152,7 +143,7 @@ the example and demonstration programs included with ARKode and CVODE,
 offer considerable assistance in building simple preconditioners.
 
 ARKode's linear solver interface consists of four primary phases,
-devoted to 
+devoted to
 
 (1) memory allocation and initialization,
 (2) setup of the matrix/preconditioner data involved,

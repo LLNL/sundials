@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -20,6 +20,8 @@
 # Example programs
 set(examples
   "test_sunnonlinsol_fixedpoint\;\;"
+  "test_sunnonlinsol_fixedpoint\;2\;"
+  "test_sunnonlinsol_fixedpoint\;2 0.5\;"
 )
 
 # if building F2003 tests

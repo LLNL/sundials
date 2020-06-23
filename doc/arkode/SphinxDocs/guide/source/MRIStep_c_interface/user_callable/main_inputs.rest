@@ -12,52 +12,50 @@ arguments for each function are then provided following each table.
 
 The optional inputs are grouped into the following categories:
 
-* General MRIStep options (:ref:`MRIStep_CInterface.MRIStepInputTable`),
-* IVP method solver options (:ref:`MRIStep_CInterface.MRIStepMethodInputTable`),
-..
-   * Step adaptivity solver options (:ref:`MRIStep_CInterface.MRIStepAdaptivityInputTable`),
+* General MRIStep options (:ref:`MRIStep_CInterface.MRIStepInputTable`), and
+* IVP method solver options (:ref:`MRIStep_CInterface.MRIStepMethodInputTable`)
+* Rootfinding options (:ref:`MRIStep_CInterface.MRIStepRootfindingInputTable`).
 
 For the most casual use of MRIStep, relying on the default set of
 solver parameters, the reader can skip to the following section,
 :ref:`MRIStep_CInterface.UserSupplied`.
 
-We note that, on an error return, all of the optional input functions
-send an error message to the error handler function.  We also note
-that all error return values are negative, so a test on the return
-arguments for negative values will catch all errors.
+We note that, on an error return, all of the optional input functions send an
+error message to the error handler function. All error return values are
+negative, so a test on the return arguments for negative values will catch all
+errors. Finally, a call to an ``MRIStepSet***`` function can generally be made
+from the user's calling program at any time and, if successful, takes effect
+immediately. ``MRIStepSet***`` functions that cannot be called at any time note
+this in the "**Notes**:" section of the function documentation.
 
 
 
 .. _MRIStep_CInterface.MRIStepInputTable:
-
 
 Optional inputs for MRIStep
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. cssclass:: table-bordered
 
-=============================================================  =====================================  ==============
-Optional input                                                 Function name                          Default
-=============================================================  =====================================  ==============
-Return MRIStep solver parameters to their defaults             :c:func:`MRIStepSetDefaults()`         internal
-Set dense output order                                         :c:func:`MRIStepSetDenseOrder()`       3
-Supply a pointer to a diagnostics output file                  :c:func:`MRIStepSetDiagnostics()`      ``NULL``
-Supply a pointer to an error output file                       :c:func:`MRIStepSetErrFile()`          ``stderr``
-Supply a custom error handler function                         :c:func:`MRIStepSetErrHandlerFn()`     internal fn
-Run with fixed-step sizes                                      :c:func:`MRIStepSetFixedStep()`        required
-Maximum no. of warnings for :math:`t_n+h = t_n`                :c:func:`MRIStepSetMaxHnilWarns()`     10
-Maximum no. of internal steps before *tout*                    :c:func:`MRIStepSetMaxNumSteps()`      500
-Set a value for :math:`t_{stop}`                               :c:func:`MRIStepSetStopTime()`         :math:`\infty`
-Supply a pointer for user data                                 :c:func:`MRIStepSetUserData()`         ``NULL``
-Supply a function to be called prior to the inner integration  :c:func:`MRIStepSetPreInnerFn()`       ``NULL``
-Supply a function to be called after the inner integration     :c:func:`MRIStepSetPostInnerFn()`      ``NULL``
-=============================================================  =====================================  ==============
+=============================================================  =======================================  =======================
+Optional input                                                 Function name                            Default
+=============================================================  =======================================  =======================
+Return MRIStep solver parameters to their defaults             :c:func:`MRIStepSetDefaults()`           internal
+Set dense output interpolation type                            :c:func:`MRIStepSetInterpolantType()`    ``ARK_INTERP_HERMITE``
+Set dense output polynomial degree                             :c:func:`MRIStepSetInterpolantDegree()`  5
+Supply a pointer to a diagnostics output file                  :c:func:`MRIStepSetDiagnostics()`        ``NULL``
+Supply a pointer to an error output file                       :c:func:`MRIStepSetErrFile()`            ``stderr``
+Supply a custom error handler function                         :c:func:`MRIStepSetErrHandlerFn()`       internal fn
+Run with fixed-step sizes                                      :c:func:`MRIStepSetFixedStep()`          required
+Maximum no. of warnings for :math:`t_n+h = t_n`                :c:func:`MRIStepSetMaxHnilWarns()`       10
+Maximum no. of internal steps before *tout*                    :c:func:`MRIStepSetMaxNumSteps()`        500
+Set a value for :math:`t_{stop}`                               :c:func:`MRIStepSetStopTime()`           :math:`\infty`
+Supply a pointer for user data                                 :c:func:`MRIStepSetUserData()`           ``NULL``
+Supply a function to be called prior to the inner integration  :c:func:`MRIStepSetPreInnerFn()`         ``NULL``
+Supply a function to be called after the inner integration     :c:func:`MRIStepSetPostInnerFn()`        ``NULL``
+=============================================================  =======================================  =======================
 
-.. Functions not currently supported by MRIStep
-.. Supply an initial step size to attempt              :c:func:`MRIStepSetInitStep()`         estimated
-.. Maximum absolute step size                          :c:func:`MRIStepSetMaxStep()`          :math:`\infty`
-.. Minimum absolute step size                          :c:func:`MRIStepSetMinStep()`          0.0
-.. Maximum no. of MRIStep error test failures          :c:func:`MRIStepSetMaxErrTestFails()`  7
+
 
 
 .. c:function:: int MRIStepSetDefaults(void* arkode_mem)
@@ -80,22 +78,79 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
 
 
 
-.. c:function:: int MRIStepSetDenseOrder(void* arkode_mem, int dord)
+.. c:function:: int MRIStepSetInterpolantType(void* arkode_mem, int itype)
 
-   Specifies the degree of the polynomial interpolant
-   used for dense output (i.e. interpolation of solution output values).
+   Specifies use of the Lagrange or Hermite interpolation modules (used for
+   dense output -- interpolation of solution output values and implicit
+   method predictors).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *dord* -- requested polynomial order of accuracy.
+      * *itype* -- requested interpolant type (``ARK_INTERP_HERMITE`` or ``ARK_INTERP_LAGRANGE``)
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_MEM_FAIL* if the interpolation module cannot be allocated
+      * *ARK_ILL_INPUT* if the *itype* argument is not recognized or the
+        interpolation module has already been initialized
 
-   **Notes:** Allowed values are between 0 and ``min(q,5)``, where ``q`` is
-   the order of the overall integration method.
+   **Notes:** The Hermite interpolation module is described in the Section
+   :ref:`Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
+   is described in the Section :ref:`Mathematics.Interpolation.Lagrange`.
+
+   This routine frees any previously-allocated interpolation module, and re-creates
+   one according to the specified argument.  Thus any previous calls to
+   :c:func:`MRIStepSetInterpolantDegree()` will be nullified.
+
+   This routine must be called *after* the call to :c:func:`MRIStepCreate()`.
+   After the first call to :c:func:`MRIStepEvolve()` the interpolation type may
+   not be changed without first calling :c:func:`MRIStepReInit()`.
+
+   If this routine is not called, the Hermite interpolation module will be used.
+
+
+
+.. c:function:: int MRIStepSetInterpolantDegree(void* arkode_mem, int degree)
+
+   Specifies the degree of the polynomial interpolant
+   used for dense output (i.e. interpolation of solution output values
+   and implicit method predictors).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+      * *degree* -- requested polynomial degree.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the MRIStep memory or interpolation module are ``NULL``
+      * *ARK_INTERP_FAIL* if this is called after :c:func:`MRIStepEvolve()`
+      * *ARK_ILL_INPUT* if an argument has an illegal value or the
+        interpolation module has already been initialized
+
+   **Notes:** Allowed values are between 0 and 5.
+
+   This routine should be called *after* :c:func:`MRIStepCreate()` and *before*
+   :c:func:`MRIStepEvolve()`. After the first call to :c:func:`MRIStepEvolve()`
+   the interpolation degree may not be changed without first calling
+   :c:func:`MRIStepReInit()`.
+
+
+   If a user calls both this routine and :c:func:`MRIStepSetInterpolantType()`, then
+   :c:func:`MRIStepSetInterpolantType()` must be called first.
+
+   Since the accuracy of any polynomial interpolant is limited by the accuracy of
+   the time-step solutions on which it is based, the *actual* polynomial degree that
+   is used by MRIStep will be the minimum of :math:`q-1` and the input *degree*,
+   where :math:`q` is the order of accuracy for the time integration method.
+
+
+
+.. c:function:: int MRIStepSetDenseOrder(void* arkode_mem, int dord)
+
+   *This function is deprecated, and will be removed in a future release.
+   Users should transition to calling* :c:func:`MRIStepSetInterpolantDegree()`
+   *instead.*
 
 
 
@@ -333,7 +388,7 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
 
 .. c:function:: int MRIStepSetUserData(void* arkode_mem, void* user_data)
 
-   Specifies the user data block *user_data* and
+   Specifies the user data block *user_data* for the outer integrator and
    attaches it to the main MRIStep memory block.
 
    **Arguments:**
@@ -346,32 +401,35 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** If specified, the pointer to *user_data* is passed to all
-   user-supplied functions for which it is an argument; otherwise
-   ``NULL`` is passed.
+   user-supplied functions called by the outer integrator for which it is an
+   argument; otherwise ``NULL`` is passed.
 
-   The *user_data* pointer should only be attached to the slow (outer)
-   integrator.
+   To attach a user data block to the inner integrator call the appropriate
+   *SetUserData* function for the inner integrator memory structure (e.g.,
+   :c:func:`ARKStepSetUserData()` if the inner stepper is ARKStep). This pointer
+   may be the same as or different from the pointer attached to the outer
+   integrator depending on what is required by the user code.
 
-.. c:function:: int MRIStepSetPreInnerFn(void* arkode_mem, ARKInnerToOuterFn prefn)
+.. c:function:: int MRIStepSetPreInnerFn(void* arkode_mem, MRIStepPreInnerFn prefn)
 
    Specifies the function called *before* each inner integration.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *prefn* -- the name of the C function (of type :c:func:`ARKOuterToInner()`)
+      * *prefn* -- the name of the C function (of type :c:func:`MRIStepPreInnerFn()`)
         defining pre inner integration function.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-.. c:function:: int MRIStepSetPostInnerFn(void* arkode_mem, ARKOuterToInnerFn postfn)
+.. c:function:: int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
 
    Specifies the function called *after* each inner integration.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *postfn* -- the name of the C function (of type :c:func:`ARKInnerToOuter()`)
+      * *postfn* -- the name of the C function (of type :c:func:`MRIStepPostInnerFn()`)
         defining post inner integration function.
 
    **Return value:**

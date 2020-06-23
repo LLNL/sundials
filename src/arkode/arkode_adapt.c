@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -47,35 +47,14 @@ ARKodeHAdaptMem arkAdaptInit()
   hadapt_mem = (ARKodeHAdaptMem) malloc(sizeof(struct ARKodeHAdaptMemRec));
   if (hadapt_mem == NULL)  return(NULL);
 
-  /* initialize default values */
+  /* initialize values (default parameters are set in arkSetDefaults) */
   memset(hadapt_mem, 0, sizeof(struct ARKodeHAdaptMemRec));
-  hadapt_mem->etamx1      = ETAMX1;     /* max change on first step */
-  hadapt_mem->etamxf      = ETAMXF;     /* max change on error-failed step */
-  hadapt_mem->small_nef   = SMALL_NEF;  /* num error fails before ETAMXF enforced */
-  hadapt_mem->etacf       = ETACF;      /* max change on convergence failure */
-  hadapt_mem->HAdapt      = NULL;       /* step adaptivity fn */
-  hadapt_mem->HAdapt_data = NULL;       /* step adaptivity data */
-  hadapt_mem->imethod     = 0;          /* PID controller */
-  hadapt_mem->cfl         = CFLFAC;     /* explicit stability factor */
-  hadapt_mem->safety      = SAFETY;     /* step adaptivity safety factor  */
-  hadapt_mem->bias        = BIAS;       /* step adaptivity error bias */
-  hadapt_mem->growth      = GROWTH;     /* step adaptivity growth factor */
-  hadapt_mem->lbound      = HFIXED_LB;  /* step adaptivity no-change lower bound */
-  hadapt_mem->ubound      = HFIXED_UB;  /* step adaptivity no-change upper bound */
-  hadapt_mem->k1          = AD0_K1;     /* step adaptivity parameter */
-  hadapt_mem->k2          = AD0_K2;     /* step adaptivity parameter */
-  hadapt_mem->k3          = AD0_K3;     /* step adaptivity parameter */
-  hadapt_mem->ehist[0]    = ONE;
-  hadapt_mem->ehist[1]    = ONE;
-  hadapt_mem->ehist[2]    = ONE;
-  hadapt_mem->hhist[0]    = ZERO;
-  hadapt_mem->hhist[1]    = ZERO;
-  hadapt_mem->hhist[2]    = ZERO;
-  hadapt_mem->nst_acc     = 0;
-  hadapt_mem->nst_exp     = 0;
-
-  hadapt_mem->expstab     = arkExpStab;
-  hadapt_mem->estab_data  = NULL;
+  hadapt_mem->ehist[0] = ONE;
+  hadapt_mem->ehist[1] = ONE;
+  hadapt_mem->hhist[0] = ZERO;
+  hadapt_mem->hhist[1] = ZERO;
+  hadapt_mem->nst_acc  = 0;
+  hadapt_mem->nst_exp  = 0;
   return(hadapt_mem);
 }
 
@@ -92,17 +71,16 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
     fprintf(outfile, "ark_hadapt: etamax = %"RSYM"\n", hadapt_mem->etamax);
     fprintf(outfile, "ark_hadapt: etamx1 = %"RSYM"\n", hadapt_mem->etamx1);
     fprintf(outfile, "ark_hadapt: etamxf = %"RSYM"\n", hadapt_mem->etamxf);
+    fprintf(outfile, "ark_hadapt: etamin = %"RSYM"\n", hadapt_mem->etamin);
     fprintf(outfile, "ark_hadapt: small_nef = %i\n", hadapt_mem->small_nef);
     fprintf(outfile, "ark_hadapt: etacf = %"RSYM"\n", hadapt_mem->etacf);
     fprintf(outfile, "ark_hadapt: imethod = %i\n", hadapt_mem->imethod);
-    fprintf(outfile, "ark_hadapt: ehist =  %"RSYM"  %"RSYM"  %"RSYM"\n",
+    fprintf(outfile, "ark_hadapt: ehist =  %"RSYM"  %"RSYM"\n",
             hadapt_mem->ehist[0],
-            hadapt_mem->ehist[1],
-            hadapt_mem->ehist[2]);
-    fprintf(outfile, "ark_hadapt: hhist =  %"RSYM"  %"RSYM"  %"RSYM"\n",
+            hadapt_mem->ehist[1]);
+    fprintf(outfile, "ark_hadapt: hhist =  %"RSYM"  %"RSYM"\n",
             hadapt_mem->hhist[0],
-            hadapt_mem->hhist[1],
-            hadapt_mem->hhist[2]);
+            hadapt_mem->hhist[1]);
     fprintf(outfile, "ark_hadapt: cfl = %"RSYM"\n", hadapt_mem->cfl);
     fprintf(outfile, "ark_hadapt: safety = %"RSYM"\n", hadapt_mem->safety);
     fprintf(outfile, "ark_hadapt: bias = %"RSYM"\n", hadapt_mem->bias);
@@ -112,6 +90,9 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
     fprintf(outfile, "ark_hadapt: k1 = %"RSYM"\n", hadapt_mem->k1);
     fprintf(outfile, "ark_hadapt: k2 = %"RSYM"\n", hadapt_mem->k2);
     fprintf(outfile, "ark_hadapt: k3 = %"RSYM"\n", hadapt_mem->k3);
+    fprintf(outfile, "ark_hadapt: q = %i\n", hadapt_mem->q);
+    fprintf(outfile, "ark_hadapt: p = %i\n", hadapt_mem->p);
+    fprintf(outfile, "ark_hadapt: pq = %i\n", hadapt_mem->pq);
     fprintf(outfile, "ark_hadapt: nst_acc = %li\n", hadapt_mem->nst_acc);
     fprintf(outfile, "ark_hadapt: nst_exp = %li\n", hadapt_mem->nst_exp);
     if (hadapt_mem->expstab == arkExpStab) {
@@ -134,7 +115,7 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
   ---------------------------------------------------------------*/
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              N_Vector ycur, realtype tcur, realtype hcur,
-             int q, int p, booleantype pq, long int nst)
+             realtype ecur, long int nst)
 {
   int ier, k;
   realtype h_acc, h_cfl, int_dir;
@@ -147,37 +128,35 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Set k as either p or q, based on pq flag */
-  k = (pq) ? q : p;
-  
+  k = (hadapt_mem->pq) ? hadapt_mem->q : hadapt_mem->p;
+
   /* Call algorithm-specific error adaptivity method */
   switch (hadapt_mem->imethod) {
   case(0):    /* PID controller */
-    ier = arkAdaptPID(hadapt_mem, k, hcur, &h_acc);
+    ier = arkAdaptPID(hadapt_mem, k, hcur, ecur, &h_acc);
     break;
   case(1):    /* PI controller */
-    ier = arkAdaptPI(hadapt_mem, k, hcur, &h_acc);
+    ier = arkAdaptPI(hadapt_mem, k, hcur, ecur, &h_acc);
     break;
   case(2):    /* I controller */
-    ier = arkAdaptI(hadapt_mem, k, hcur, &h_acc);
+    ier = arkAdaptI(hadapt_mem, k, hcur, ecur, &h_acc);
     break;
   case(3):    /* explicit Gustafsson controller */
-    ier = arkAdaptExpGus(hadapt_mem, k, nst, hcur, &h_acc);
+    ier = arkAdaptExpGus(hadapt_mem, k, nst, hcur, ecur, &h_acc);
     break;
   case(4):    /* implicit Gustafsson controller */
-    ier = arkAdaptImpGus(hadapt_mem, k, nst, hcur, &h_acc);
+    ier = arkAdaptImpGus(hadapt_mem, k, nst, hcur, ecur, &h_acc);
     break;
   case(5):    /* imex Gustafsson controller */
-    ier = arkAdaptImExGus(hadapt_mem, k, nst, hcur, &h_acc);
+    ier = arkAdaptImExGus(hadapt_mem, k, nst, hcur, ecur, &h_acc);
     break;
   case(-1):   /* user-supplied controller */
-    ier = hadapt_mem->HAdapt(ycur, tcur,
-                             hadapt_mem->hhist[0],
-                             hadapt_mem->hhist[1],
-                             hadapt_mem->hhist[2],
+    ier = hadapt_mem->HAdapt(ycur, tcur, hcur, hadapt_mem->hhist[0],
+                             hadapt_mem->hhist[1], ecur,
                              hadapt_mem->ehist[0],
                              hadapt_mem->ehist[1],
-                             hadapt_mem->ehist[2],
-                             q, p, &h_acc, hadapt_mem->HAdapt_data);
+                             hadapt_mem->q, hadapt_mem->p,
+                             &h_acc, hadapt_mem->HAdapt_data);
     break;
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",
@@ -200,14 +179,13 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                     "Error in explicit stability function.");
     return (ARK_ILL_INPUT);
   }
-  if (h_cfl <= 0.0)  h_cfl = RCONST(1.0e30) * SUNRabs(hcur);
+  if (h_cfl <= ZERO)  h_cfl = RCONST(1.0e30) * SUNRabs(hcur);
 
   /* Solver diagnostics reporting */
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "ARKadapt  adapt  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  ",
-            hadapt_mem->ehist[0], hadapt_mem->ehist[1],
-            hadapt_mem->ehist[2], hadapt_mem->hhist[0],
-            hadapt_mem->hhist[1], hadapt_mem->hhist[2], h_acc, h_cfl);
+            ecur, hadapt_mem->ehist[0], hadapt_mem->ehist[1],
+            hcur, hadapt_mem->hhist[0], hadapt_mem->hhist[1], h_acc, h_cfl);
 
   /* enforce safety factors */
   h_acc *= hadapt_mem->safety;
@@ -217,7 +195,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   h_acc = int_dir * SUNMIN(SUNRabs(h_acc), SUNRabs(hadapt_mem->etamax*hcur));
 
   /* enforce minimum bound time step reduction */
-  h_acc = int_dir * SUNMAX(SUNRabs(h_acc), SUNRabs(ETAMIN*hcur));
+  h_acc = int_dir * SUNMAX(SUNRabs(h_acc), SUNRabs(hadapt_mem->etamin*hcur));
 
   /* Solver diagnostics reporting */
   if (ark_mem->report)
@@ -258,7 +236,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   arkAdaptPID implements a PID time step control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
-                realtype *hnew)
+                realtype ecur, realtype *hnew)
 {
   realtype k1, k2, k3, e1, e2, e3, h_acc;
 
@@ -266,9 +244,9 @@ int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
   k1 = -hadapt_mem->k1 / k;
   k2 =  hadapt_mem->k2 / k;
   k3 = -hadapt_mem->k3 / k;
-  e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
-  e2 = SUNMAX(hadapt_mem->ehist[1], TINY);
-  e3 = SUNMAX(hadapt_mem->ehist[2], TINY);
+  e1 = SUNMAX(ecur, TINY);
+  e2 = SUNMAX(hadapt_mem->ehist[0], TINY);
+  e3 = SUNMAX(hadapt_mem->ehist[1], TINY);
 
   /* compute estimated optimal time step size, set into output */
   h_acc = hcur * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2) * SUNRpowerR(e3,k3);
@@ -282,15 +260,15 @@ int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
   arkAdaptPI implements a PI time step control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
-               realtype *hnew)
+               realtype ecur, realtype *hnew)
 {
   realtype k1, k2, e1, e2, h_acc;
 
   /* set usable time-step adaptivity parameters */
   k1 = -hadapt_mem->k1 / k;
   k2 =  hadapt_mem->k2 / k;
-  e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
-  e2 = SUNMAX(hadapt_mem->ehist[1], TINY);
+  e1 = SUNMAX(ecur, TINY);
+  e2 = SUNMAX(hadapt_mem->ehist[0], TINY);
 
   /* compute estimated optimal time step size, set into output */
   h_acc = hcur * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
@@ -304,13 +282,13 @@ int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
   arkAdaptI implements an I time step control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
-              realtype *hnew)
+              realtype ecur, realtype *hnew)
 {
   realtype k1, e1, h_acc;
 
   /* set usable time-step adaptivity parameters */
   k1 = -hadapt_mem->k1 / k;
-  e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
+  e1 = SUNMAX(ecur, TINY);
 
   /* compute estimated optimal time step size, set into output */
   h_acc = hcur * SUNRpowerR(e1,k1);
@@ -325,7 +303,7 @@ int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
   control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                   realtype hcur, realtype *hnew)
+                   realtype hcur, realtype ecur, realtype *hnew)
 {
   realtype k1, k2, e1, e2, h_acc;
 
@@ -333,7 +311,7 @@ int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
   if (nst < 2) {
 
     k1 = -ONE / k;
-    e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
+    e1 = SUNMAX(ecur, TINY);
     h_acc = hcur * SUNRpowerR(e1,k1);
 
   /* general estimate */
@@ -341,8 +319,8 @@ int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
 
     k1 = -hadapt_mem->k1 / k;
     k2 = -hadapt_mem->k2 / k;
-    e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
-    e2 = e1 / SUNMAX(hadapt_mem->ehist[1], TINY);
+    e1 = SUNMAX(ecur, TINY);
+    e2 = e1 / SUNMAX(hadapt_mem->ehist[0], TINY);
     h_acc = hcur * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
 
   }
@@ -357,7 +335,7 @@ int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
   control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                   realtype hcur, realtype *hnew)
+                   realtype hcur, realtype ecur, realtype *hnew)
 {
   realtype k1, k2, e1, e2, hrat, h_acc;
 
@@ -365,7 +343,7 @@ int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
   if (nst < 2) {
 
     k1 = -ONE / k;
-    e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
+    e1 = SUNMAX(ecur, TINY);
     h_acc = hcur * SUNRpowerR(e1,k1);
 
   /* general estimate */
@@ -373,9 +351,9 @@ int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
 
     k1 = -hadapt_mem->k1 / k;
     k2 = -hadapt_mem->k2 / k;
-    e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
-    e2 = e1 / SUNMAX(hadapt_mem->ehist[1], TINY);
-    hrat = hcur / hadapt_mem->hhist[1];
+    e1 = SUNMAX(ecur, TINY);
+    e2 = e1 / SUNMAX(hadapt_mem->ehist[0], TINY);
+    hrat = hcur / hadapt_mem->hhist[0];
     h_acc = hcur * hrat * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
 
   }
@@ -390,7 +368,7 @@ int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
   Gustafsson time step control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                    realtype hcur, realtype *hnew)
+                    realtype hcur, realtype ecur, realtype *hnew)
 {
   realtype k1, k2, k3, e1, e2, hrat, h_acc;
 
@@ -398,7 +376,7 @@ int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
   if (nst < 2) {
 
     k1 = -ONE / k;
-    e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
+    e1 = SUNMAX(ecur, TINY);
     h_acc = hcur * SUNRpowerR(e1,k1);
 
   /* general estimate */
@@ -407,9 +385,9 @@ int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
     k1 = -hadapt_mem->k1 / k;
     k2 = -hadapt_mem->k2 / k;
     k3 = -hadapt_mem->k3 / k;
-    e1 = SUNMAX(hadapt_mem->ehist[0], TINY);
-    e2 = e1 / SUNMAX(hadapt_mem->ehist[1], TINY);
-    hrat = hcur / hadapt_mem->hhist[1];
+    e1 = SUNMAX(ecur, TINY);
+    e2 = e1 / SUNMAX(hadapt_mem->ehist[0], TINY);
+    hrat = hcur / hadapt_mem->hhist[0];
     /* implicit estimate */
     h_acc = hcur * hrat * SUNRpowerR(e1,k3) * SUNRpowerR(e2,k3);
     /* explicit estimate */

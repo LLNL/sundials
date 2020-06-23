@@ -2,7 +2,7 @@
 # Programmer:  Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -68,64 +68,95 @@
 #  because parent variables have made old cache entries stale. The LANGUAGE
 #  variable is either C or CXX indicating which compiler the test should
 #  use.
-# MULTIPASS_C_SOURCE_RUNS (Name INCLUDES LIBRARIES SOURCE RUNS)
-#  DEPRECATED! This is only included for backwards compatability. Use
-#  the more general MULTIPASS_SOURCE_RUNS instead.
-#  Always runs the given test, use this when you need to re-run tests
-#  because parent variables have made old cache entries stale.
 # ---------------------------------------------------------------
 
 macro (FIND_PACKAGE_MULTIPASS _name _current)
+
+  # convert the package name to all caps
   string (TOUPPER ${_name} _NAME)
+
+  # copy all input args and remove _name and _current
   set (_args ${ARGV})
   list (REMOVE_AT _args 0 1)
 
+  # initialize package status to current
   set (_states_current "YES")
+
+  # check if the keyword STATES was input
   list (GET _args 0 _cmd)
   if (_cmd STREQUAL "STATES")
+
+    # remove STATE from the args list and get the first state variable
     list (REMOVE_AT _args 0)
     list (GET _args 0 _state)
+
+    # loop over the state variables until none are left or DEPENDENTS is reached
     while (_state AND NOT _state STREQUAL "DEPENDENTS")
-      # The name of the stored value for the given state
+
+      # get the name of the variable with the stored state variable value
       set (_stored_var PACKAGE_MULTIPASS_${_NAME}_${_state})
+
+      # if the stored value is different from the current value, signal that
+      # reconfiguration is necessary
       if (NOT "${${_stored_var}}" STREQUAL "${${_NAME}_${_state}}")
         set (_states_current "NO")
-      endif (NOT "${${_stored_var}}" STREQUAL "${${_NAME}_${_state}}")
+      endif ()
+
+      # update the stored value
       set (${_stored_var} "${${_NAME}_${_state}}" CACHE INTERNAL "Stored state for ${_name}." FORCE)
+
+      # remove the current state variable from the args list and get the next one
       list (REMOVE_AT _args 0)
       list (GET _args 0 _state)
-    endwhile (_state AND NOT _state STREQUAL "DEPENDENTS")
-  endif (_cmd STREQUAL "STATES")
 
+    endwhile ()
+
+  endif ()
+
+  # get the name of the package status variable
   set (_stored ${_NAME}_CURRENT)
+
+  # check if reconfiguration was requested
   if (NOT ${_stored})
     set (${_stored} "YES" CACHE BOOL "Is the configuration for ${_name} current?  Set to \"NO\" to reconfigure." FORCE)
     set (_states_current "NO")
-  endif (NOT ${_stored})
+  endif ()
 
+  # set the output package status
   set (${_current} ${_states_current})
+
+  # check the if dependent variables need to be cleared so that the calling
+  # module can reset their values
   if (NOT ${_current} AND PACKAGE_MULTIPASS_${_name}_CALLED)
+
     message (STATUS "Clearing ${_name} dependent variables")
-    # Clear all the dependent variables so that the module can reset them
+
+    # check if the keyword DEPENDENTS was input
     list (GET _args 0 _cmd)
     if (_cmd STREQUAL "DEPENDENTS")
+
+      # remove the DEPENDENTS from the list
       list (REMOVE_AT _args 0)
+
+      # clear the value of each dependent variable in the list
       foreach (dep ${_args})
         set (${_NAME}_${dep} "NOTFOUND" CACHE INTERNAL "Cleared" FORCE)
-      endforeach (dep)
-    endif (_cmd STREQUAL "DEPENDENTS")
+      endforeach ()
+
+    endif ()
+
+    # reset the package FOUND status
     set (${_NAME}_FOUND "NOTFOUND" CACHE INTERNAL "Cleared" FORCE)
+
   endif ()
-  set (PACKAGE_MULTIPASS_${name}_CALLED YES CACHE INTERNAL "Private" FORCE)
+
+  # signal that multipass has previously been called for this package
+  set (PACKAGE_MULTIPASS_${_name}_CALLED YES CACHE INTERNAL "Private" FORCE)
+
 endmacro (FIND_PACKAGE_MULTIPASS)
 
 
 macro (MULTIPASS_SOURCE_RUNS includes libraries source runs language)
-  # Cody Balos on 7/2019: CHECK_<lang>_SOURCE_RUNS does not allow for the
-  # compiler to be set which causes problems if MPI is not the C compiler.
-  # Therefore, this has been changed to use try_run instead. Everything
-  # else was kept so FindPETSC did not need to be modified.
-
   # This is a ridiculous hack. CHECK_${language}_SOURCE_*
   # thinks that if the *name* of the return variable doesn't change,
   # then the test does not need to be re-run.  We keep an internal count
@@ -138,7 +169,10 @@ macro (MULTIPASS_SOURCE_RUNS includes libraries source runs language)
   math (EXPR _tmp "${MULTIPASS_TEST_COUNT} + 1") # Why can't I add to a cache variable?
   set (MULTIPASS_TEST_COUNT ${_tmp} CACHE INTERNAL "Unique test ID")
   set (testname MULTIPASS_TEST_${MULTIPASS_TEST_COUNT}_${runs})
-  set (testdir ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp)
+  set (testdir ${PROJECT_BINARY_DIR}/PETSC_test)
+  if (NOT EXISTS ${testdir})
+    file(MAKE_DIRECTORY ${testdir})
+  endif ()
   set (CMAKE_REQUIRED_INCLUDES ${includes})
   set (CMAKE_REQUIRED_LIBRARIES ${libraries})
   # if MPI is available, use it for the test
@@ -148,27 +182,35 @@ macro (MULTIPASS_SOURCE_RUNS includes libraries source runs language)
     set (REQUIRED_COMPILER ${CMAKE_${language}_COMPILER})
   endif ()
   if(${language} STREQUAL "C")
-    file(WRITE ${testdir}/src.c "${source}")
-    try_run(${testname} _compiles ${testdir} ${testdir}/src.c
-            CMAKE_FLAGS -DCMAKE_C_COMPILER=${REQUIRED_COMPILER} -DINCLUDE_DIRECTORIES=${CMAKE_REQUIRED_INCLUDES}
-            LINK_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
-  elseif(${language} STREQUAL "CXX")
-    file(WRITE ${testdir}/src.cxx "${source}")
-    try_run(${testname} _compiles ${testdir} ${testdir}/src.cxx
-            CMAKE_FLAGS -DCMAKE_CXX_COMPILER=${REQUIRED_COMPILER} -DINCLUDE_DIRECTORIES=${CMAKE_REQUIRED_INCLUDES}
-            LINK_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
-  endif()
-  # ${testname} is the exit code returned by try_run,
-  # so 0 is success and anything else is a failure.
-  if (${testname})
-    set (${runs} FALSE)
+    set (extension c)
   else ()
-    set (${runs} TRUE)
+    set (extension cxx)
   endif ()
-  unset (_compiles)
+  # Create simple test code
+  file(WRITE ${testdir}/src.${extension} "${source}")
+  # Create a CMakeLists.txt file for the test code
+  file(WRITE ${testdir}/CMakeLists.txt
+    "cmake_minimum_required(VERSION 3.5)\n"
+    "project(ctest ${language})\n"
+    "set(CMAKE_VERBOSE_MAKEFILE ON)\n"
+    "set(CMAKE_${language}_COMPILER \"${REQUIRED_COMPILER}\")\n"
+    "set(CMAKE_${language}_FLAGS \"${CMAKE_${language}_FLAGS}\")\n"
+    "include_directories(${CMAKE_REQUIRED_INCLUDES})\n"
+    "add_executable(ctest src.${extension})\n"
+    "target_link_libraries(ctest ${CMAKE_REQUIRED_LIBRARIES})\n")
+  # Attempt to compile the test code
+  try_compile(${testname} ${testdir} ${testdir} ctest
+    OUTPUT_VARIABLE _output)
+  # Write output compiling the test code
+  file(WRITE ${testdir}/src.out "${_output}")
+  # To ensure we do not use stuff from the previous attempts,
+  # we must remove the CMakeFiles directory.
+  file(REMOVE_RECURSE ${testdir}/CMakeFiles)
+  # Process test result
+  if (${testname})
+    set (${runs} TRUE)
+  else ()
+    set (${runs} FALSE)
+  endif ()
+  unset (_output)
 endmacro (MULTIPASS_SOURCE_RUNS)
-
-
-macro (MULTIPASS_C_SOURCE_RUNS includes libraries source runs)
-  multipass_source_runs("${includes}" "${libraries}" "${source}" ${runs} "C")
-endmacro (MULTIPASS_C_SOURCE_RUNS)

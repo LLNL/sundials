@@ -18,16 +18,13 @@ of this structure is not necessary for its use.
 
 The overall organization of the {\kinsol} package is shown in Figure
 \ref{f:kinorg}.
-\begin{figure}[htb]
+\begin{figure}[!htb]
 {\centerline{\includegraphics[width=\textwidth]{kinorg}}}
 \caption [Overall structure diagram of the KINSOL package]
 {Overall structure diagram of the {\kinsol} package.
-  Modules specific to {\kinsol} are distinguished by rounded boxes, while
-  generic solver and auxiliary modules are in rectangular boxes.
-  Grayed boxes refer to the encompassing {\sundials} structure.
-  Note also that the LAPACK, {\klu} and {\superlumt} support is
-  through interfaces to external packages. 
-  Users will need to download and compile those packages independently.}
+  Modules specific to {\kinsol} begin with ``KIN'' ({\kinls} and {\kinbbdpre}),
+  all other items correspond to generic {\sundials} vector, matrix, and solver
+  modules (see Figure \ref{f:sunorg1}).}
 \label{f:kinorg}
 \end{figure}
 The central solver module, implemented in the files
@@ -49,9 +46,9 @@ implementation, the set of linear solver modules available to
 {\kinsol} will expand as new {\sunlinsol} modules are developed.
 
 For users employing dense or banded Jacobian matrices, {\kinls}
-includes algorithms for their approximation through difference  
+includes algorithms for their approximation through difference
 quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly.  This user-supplied 
+(or an approximation to it) directly.  This user-supplied
 routine is required when using sparse or user-supplied Jacobian
 matrices.
 
@@ -61,14 +58,14 @@ the product between the Jacobian matrix and a vector, $Jv$. Again, the
 user has the option of providing routines for this operation, in two
 phases: setup (preprocessing of Jacobian data) and multiplication.
 
-For preconditioned iterative methods, \index{preconditioning!setup and solve phases} 
-the preconditioning must be supplied by the user, again in two phases: 
+For preconditioned iterative methods, \index{preconditioning!setup and solve phases}
+the preconditioning must be supplied by the user, again in two phases:
 setup and solve.  While\index{preconditioning!advice on} there is no
 default choice of preconditioner analogous to the difference-quotient
 approximation in the direct case, the references
 \cite{BrHi:89,Byr:92}, together with the example and demonstration
 programs included with {\kinsol}, offer considerable assistance in
-building preconditioners. 
+building preconditioners.
 
 \index{KINSOL@{\kinsol} linear solvers!implementation details|(}
 {\kinsol}'s linear solver interface consists of four primary phases,

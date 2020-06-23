@@ -2,7 +2,7 @@
  * Programmer(s): Slaven Peles, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -19,7 +19,6 @@
 #include <stdlib.h>
 
 #include <sundials/sundials_types.h>
-#include <nvector/cuda/Vector.hpp>
 #include <nvector/nvector_cuda.h>
 #include <nvector/nvector_mpiplusx.h>
 #include <sundials/sundials_math.h>
@@ -306,7 +305,12 @@ int check_ans(realtype ans, N_Vector plusX, sunindextype local_length)
 
 booleantype has_data(N_Vector plusX)
 {
-  return (N_VGetLocalVector_MPIPlusX(plusX)->content == NULL) ? SUNFALSE : SUNTRUE;
+  N_Vector X = N_VGetLocalVector_MPIPlusX(plusX);
+  /* check if vector data is non-null */
+  if ((N_VGetHostArrayPointer_Cuda(X) == NULL) &&
+      (N_VGetDeviceArrayPointer_Cuda(X) == NULL))
+    return SUNFALSE;
+  return SUNTRUE;
 }
 
 void set_element(N_Vector plusX, sunindextype i, realtype val)

@@ -183,6 +183,81 @@ user-callable functions.
 }
 {}
 {SUNSPBCGSSetMaxl}
+%
+% --------------------------------------------------------------------
+%
+\ucfunctionf{SUNLinSolSetInfoFile\_SPBCGS}
+{
+  retval = SUNLinSolSetInfoFile\_SPBCGS(LS, info\_file);
+}
+{
+  The function \ID{SUNLinSolSetInfoFile\_SPBCGS} sets the
+  output file where all informative (non-error) messages should be directed.
+}
+{
+  \begin{args}[info\_file]
+    \item[LS] (\id{SUNLinearSolver})
+      a {\sunnonlinsol} object
+    \item[info\_file] (\id{FILE*}) pointer to output file (\id{stdout} by default);
+      a \id{NULL} input will disable output
+  \end{args}
+}
+{
+  The return value is
+  \begin{itemize}
+    \item \id{SUNLS\_SUCCESS} if successful
+    \item \id{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \id{NULL}
+    \item \id{SUNLS\_ILL\_INPUT} if {\sundials} was not built with monitoring enabled
+  \end{itemize}
+}
+{
+  This function is intended for users that wish to monitor the linear
+  solver progress. By default, the file pointer is set to \id{stdout}.
+
+  \textbf{{\sundials} must be built with the CMake option
+  \id{SUNDIALS\_BUILD\_WITH\_MONITORING}, to utilize this function.}
+  See section \ref{ss:configuration_options_nix} for more information.
+}
+%
+% --------------------------------------------------------------------
+%
+\ucfunctionf{SUNLinSolSetPrintLevel\_SPBCGS}
+{
+  retval = SUNLinSolSetPrintLevel\_SPBCGS(NLS, print\_level);
+}
+{
+  The function \ID{SUNLinSolSetPrintLevel\_SPBCGS} specifies the level
+  of verbosity of the output.
+}
+{
+  \begin{args}[print\_level]
+  \item[LS] (\id{SUNLinearSolver})
+    a {\sunnonlinsol} object
+  \item[print\_level] (\id{int}) flag indicating level of verbosity;
+    must be one of:
+    \begin{itemize}
+      \item 0, no information is printed (default)
+      \item 1, for each linear iteration the residual norm is printed
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value is
+  \begin{itemize}
+    \item \id{SUNLS\_SUCCESS} if successful
+    \item \id{SUNLS\_MEM\_NULL} if the SUNLinearSolver memory was \id{NULL}
+    \item \id{SUNLS\_ILL\_INPUT} if {\sundials} was not built with monitoring enabled,
+      or the print level value was invalid
+  \end{itemize}
+}
+{
+  This function is intended for users that wish to monitor the linear
+  solver progress. By default, the print level is 0.
+
+  \textbf{{\sundials} must be built with the CMake option
+  \id{SUNDIALS\_BUILD\_WITH\_MONITORING}, to utilize this function.}
+  See section \ref{ss:configuration_options_nix} for more information.
+}
 
 
 % ====================================================================
@@ -433,12 +508,14 @@ struct _SUNLinearSolverContent_SPBCGS {
   N_Vector u;
   N_Vector Ap;
   N_Vector vtemp;
+  int      print_level;
+  FILE*    info_file;
 };
 \end{verbatim}
 %%
 These entries of the \emph{content} field contain the following
 information:
-\begin{args}[last\_flag]
+\begin{args}[print\_level]
   \item[maxl] - number of {\spbcgs} iterations to allow (default is 5),
   \item[pretype] - flag for type of preconditioning to employ
     (default is none),
@@ -458,4 +535,6 @@ information:
     preconditioned linear system residual,
   \item[p, q, u, Ap, vtemp] - {\nvector}s used for workspace by the
     {\spbcgs} algorithm.
+  \item[print\_level] - controls the amount of information to be printed to the info file
+  \item[info\_file]   - the file where all informative (non-error) messages will be directed
 \end{args}

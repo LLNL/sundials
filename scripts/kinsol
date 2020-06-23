@@ -63,6 +63,10 @@ $tar $tarfile $distrobase/examples/kinsol/CMakeLists.txt || exit 1
 
 $tar $tarfile $distrobase/examples/kinsol/serial/README                    || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/CMakeLists.txt            || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp.c          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp.out        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp_2.out      || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp_2_0.5.out  || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.c          || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.out        || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_klu.c          || exit 1

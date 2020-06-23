@@ -4,7 +4,7 @@
  *                David Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -32,8 +32,8 @@
 int Test_SUNMatScaleAdd2(SUNMatrix A, SUNMatrix B, N_Vector x,
                          N_Vector y, N_Vector z);
 int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y);
-
-
+int Test_SUNSparseMatrixToCSC(SUNMatrix A);
+int Test_SUNSparseMatrixToCSR(SUNMatrix A);
 
 /* ----------------------------------------------------------------------
  * Main SUNMatrix Testing Routine
@@ -366,6 +366,11 @@ int main(int argc, char *argv[])
   }
   fails += Test_SUNMatMatvec(A, x, y, 0);
   fails += Test_SUNMatSpace(A, 0);
+  if (mattype == CSR_MAT) {
+    fails += Test_SUNSparseMatrixToCSC(A);
+  } else {
+    fails += Test_SUNSparseMatrixToCSR(A);
+  }
 
   /* Print result */
   if (fails) {
@@ -588,7 +593,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
   int       failure;
   SUNMatrix B, C, D;
   N_Vector  w, z;
-  realtype  tol=100*UNIT_ROUNDOFF;
+  realtype  tol=200*UNIT_ROUNDOFF;
 
   /* create clones for test */
   B = SUNMatClone(A);
@@ -614,7 +619,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
            failure);
     SUNMatDestroy(B);  N_VDestroy(z);  N_VDestroy(w);  return(1);
   }
-  N_VLinearSum(ONE,x,NEG_ONE,y,w);
+  N_VLinearSum(ONE,x,NEG_ONE,y,w);  /* B x = (I - A) x = x - Ax = x - y = w */
   failure = check_vector(z, w, tol);
   if (failure) {
     printf(">>> FAILED test -- SUNMatScaleAddI2 check 1 \n");
@@ -725,6 +730,79 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
   N_VDestroy(w);
   return(0);
 }
+
+int Test_SUNSparseMatrixToCSR(SUNMatrix A)
+{
+  int       failure;
+  SUNMatrix csc, csr;
+  realtype  tol=200*UNIT_ROUNDOFF;
+
+  failure = SUNSparseMatrix_ToCSR(A, &csr);
+
+  if (failure) {
+    printf(">>> FAILED test -- SUNSparseMatrix_ToCSR returned nonzero\n");
+    SUNMatDestroy(csr);
+    return(1);
+  }
+
+  /* check entries */
+  if (SUNSparseMatrix_ToCSC(csr, &csc)) {
+    printf(">>> FAILED test -- SUNSparseMatrix_ToCSC returned nonzero\n");
+    SUNMatDestroy(csr);
+    return(1);
+  }
+
+  if (check_matrix(A, csc, tol)) {
+    printf(">>> FAILED test --  Test_SUNSparseMatrixToCSR check_matrix failed\n");
+    SUNMatDestroy(csr);
+    SUNMatDestroy(csc);
+    return(1);
+  }
+
+  printf("    PASSED test -- SUNSparseMatrixToCSR\n");
+
+  SUNMatDestroy(csr);
+  SUNMatDestroy(csc);
+
+  return(0);
+}
+
+int Test_SUNSparseMatrixToCSC(SUNMatrix A)
+{
+  int       failure;
+  SUNMatrix csc, csr;
+  realtype  tol=200*UNIT_ROUNDOFF;
+
+  failure = SUNSparseMatrix_ToCSC(A, &csc);
+
+  if (failure) {
+    printf(">>> FAILED test -- SUNSparseMatrix_ToCSC returned nonzero\n");
+    SUNMatDestroy(csr);
+    return(1);
+  }
+
+  /* check entries */
+  if (SUNSparseMatrix_ToCSR(csc, &csr)) {
+    printf(">>> FAILED test -- SUNSparseMatrix_ToCSR returned nonzero\n");
+    SUNMatDestroy(csc);
+    return(1);
+  }
+
+  if (check_matrix(A, csr, tol)) {
+    printf(">>> FAILED test --  Test_SUNSparseMatrixToCSC check_martrix failed\n");
+    SUNMatDestroy(csr);
+    SUNMatDestroy(csc);
+    return(1);
+  }
+
+  printf("    PASSED test -- SUNSparseMatrixToCSC\n");
+
+  SUNMatDestroy(csr);
+  SUNMatDestroy(csc);
+
+  return(0);
+}
+
 
 /* ----------------------------------------------------------------------
  * Check matrix

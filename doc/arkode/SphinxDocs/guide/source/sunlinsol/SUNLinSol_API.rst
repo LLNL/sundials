@@ -2,7 +2,7 @@
    Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -440,17 +440,23 @@ the user in case of a linear solver failure.
 
 * ``SUNLS_MEM_FAIL`` (-803) -- failed memory access or allocation
 
-* ``SUNLS_ATIMES_FAIL_UNREC`` (-804) -- an unrecoverable failure occurred in the ``ATimes`` routine
+* ``SUNLS_ATIMES_NULL`` (-804) -- the Atimes function is ``NULL``
 
-* ``SUNLS_PSET_FAIL_UNREC`` (-805) -- an unrecoverable failure occurred in the ``Pset`` routine
+* ``SUNLS_ATIMES_FAIL_UNREC`` (-805) -- an unrecoverable failure occurred in the ``ATimes`` routine
 
-* ``SUNLS_PSOLVE_FAIL_UNREC`` (-806) -- an unrecoverable failure occurred in the ``Psolve`` routine
+* ``SUNLS_PSET_FAIL_UNREC`` (-806) -- an unrecoverable failure occurred in the ``Pset`` routine
 
-* ``SUNLS_PACKAGE_FAIL_UNREC`` (-807) -- an unrecoverable failure occurred in an external linear solver package
+* ``SUNLS_PSOLVE_NULL`` (-807) -- the preconditioner solve function is ``NULL``
 
-* ``SUNLS_GS_FAIL`` (-808) -- a failure occurred during Gram-Schmidt orthogonalization (SPGMR/SPFGMR)
+* ``SUNLS_PSOLVE_FAIL_UNREC`` (-808) -- an unrecoverable failure occurred in the ``Psolve`` routine
 
-* ``SUNLS_QRSOL_FAIL`` (-809) -- a singular $R$ matrix was encountered in a QR factorization (SPGMR/SPFGMR)
+* ``SUNLS_PACKAGE_FAIL_UNREC`` (-809) -- an unrecoverable failure occurred in an external linear solver package
+
+* ``SUNLS_GS_FAIL`` (-810) -- a failure occurred during Gram-Schmidt orthogonalization (SPGMR/SPFGMR)
+
+* ``SUNLS_QRSOL_FAIL`` (-811) -- a singular $R$ matrix was encountered in a QR factorization (SPGMR/SPFGMR)
+
+* ``SUNLS_VECTOROP_ERR`` (-812) -- a vector operation error occurred
 
 * ``SUNLS_RES_REDUCED`` (801) -- an iterative solver reduced the residual, but did not converge to the desired tolerance
 

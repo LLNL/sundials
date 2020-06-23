@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -22,3 +22,9 @@ add_subdirectory(sparse)
 if(SUPERLUDIST_ENABLE AND SUPERLUDIST_FOUND)
   add_subdirectory(slunrloc)
 endif(SUPERLUDIST_ENABLE AND SUPERLUDIST_FOUND)
+
+if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+  if(SUNDIALS_INDEX_SIZE MATCHES "32")
+    add_subdirectory(cusparse)
+  endif()
+endif(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)

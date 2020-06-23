@@ -2,7 +2,7 @@
 // Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2019, Lawrence Livermore National Security
+// Copyright (c) 2002-2020, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -35,9 +35,8 @@
 %import "../sundials/fsundials_nonlinearsolver_mod.i"
 %import "../sundials/fsundials_types_mod.i"
 
-// SWIG will pick up the ARKodeButcherTableMem structure,
-// not the ARKodeButcherTable typedef, so rename it.
-%rename(ARKodeButcherTable) ARKodeButcherTableMem;
+// Treat ARKodeButcherTable as an opaque pointer
+%apply void* { ARKodeButcherTable };
 
 // Process definitions from these files
 %include "arkode/arkode.h"

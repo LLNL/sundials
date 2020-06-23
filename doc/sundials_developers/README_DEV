@@ -79,6 +79,14 @@ h. When adding any new files, update the corresponding solver script in
    the scripts/ directory to include your file(s) within the
    distribution.
 
+i. Use the debugging macros defined in src/sundials/sundials_debug.h
+   where relevant and internal to SUNDIALS. Sections of code which
+   should be ifdef'd out except for debugging purposes should be
+   conditioned on the SUNDIALS_DEBUG macro. Additionally, the
+   SUNDIALS_DEBUG_PRINTVEC macro should be used to ifdef out calls
+   to the generic vector print functions N_VPrint and N_VPrintFile used
+   for debugging purposes.
+
 2. Conventions on shared library versioning
 ===========================================
 

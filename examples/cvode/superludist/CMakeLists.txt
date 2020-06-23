@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -43,6 +43,11 @@ else()
   set(NVECP_LIB sundials_nvecparallel_shared)
   set(SUNMAT_LIB sundials_sunmatrixslunrloc_shared)
   set(SUNLS_LIB sundials_sunlinsolsuperludist_shared)
+endif()
+
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  list(APPEND CVODE_LIB
+       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
 endif()
 
 # Set-up linker flags and link libraries
@@ -98,6 +103,9 @@ if(EXAMPLES_INSTALL)
     "-lsundials_nvecparallel "
     "-lsundials_sunmatrixslunrloc "
     "-lsundials_sunlinsolsuperludist")
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
+  endif()
 
   examples2string(CVODE_examples EXAMPLES)
 

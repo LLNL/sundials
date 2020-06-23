@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -55,15 +55,8 @@ typedef struct ARKodeERKStepMemRec {
   int stages;             /* number of stages           */
   ARKodeButcherTable B;   /* ERK Butcher table          */
 
-  /* Time step adaptivity data */
-  ARKodeHAdaptMem hadapt_mem;  /* time step adaptivity structure   */
-  booleantype     hadapt_pq;   /* choice of using p (0) vs q (1)   */
-  int             maxnef;      /* max error test fails in one step */
-
   /* Counters */
-  long int nst_attempts;  /* num attempted steps                */
-  long int nfe;           /* num fe calls                       */
-  long int netf;          /* num error test failures            */
+  long int nfe;           /* num fe calls               */
 
   /* Reusable arrays for fused vector operations */
   realtype* cvals;
@@ -80,7 +73,7 @@ typedef struct ARKodeERKStepMemRec {
 int erkStep_Init(void* arkode_mem, int init_type);
 int erkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);
-int erkStep_TakeStep(void* arkode_mem);
+int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
@@ -88,11 +81,7 @@ int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
 booleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
-
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
-int erkStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr,
-                        realtype dsm);
-int erkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm);
 
 /*===============================================================
   Reusable ERKStep Error Messages

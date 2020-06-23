@@ -4,7 +4,7 @@
 #                Daniel R. Reynolds @ SMU
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -44,10 +44,10 @@ MPI_FLAGS   = @MPI_FLAGS@
 
 # -----------------------------------------------------------------------------------------
 
-PETSC_LIBRARIES = @PETSC_LIBRARIES@
-INCLUDES_PETSC  = @PETSC_INCLUDE_DIR@
+PETSC_LIBRARIES = @PETSC_LIBRARIES_@
+INCLUDES_PETSC  = @PETSC_INCLUDES_@
 LIBRARIES_PETSC = $(subst ;, , ${PETSC_LIBRARIES})
-LINKFLAGS_PETSC = ${LINKFLAGS}:@PETSC_LIBRARY_DIR@
+LINKFLAGS_PETSC = ${LINKFLAGS}
 
 TMP_INCS = ${includedir} ${MPI_INC_DIR} ${INCLUDES_PETSC}
 INCLUDES = $(addprefix -I, ${TMP_INCS})

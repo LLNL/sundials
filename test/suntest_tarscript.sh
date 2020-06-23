@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -251,7 +251,7 @@ for tarball in *.tar.gz; do
     cd $package/test || exit 1
 
     # copy environment and testing scripts from original test directory
-    cp $testdir/env*.sh .    || exit 1
+    cp -r $testdir/env .     || exit 1
     cp $testdir/suntest.sh . || exit 1
 
     # loop over build options

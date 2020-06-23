@@ -3,7 +3,7 @@
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -122,6 +122,10 @@ N_Vector N_VNewEmpty_Serial(sunindextype length)
   v->ops->nvminquotientlocal = N_VMinQuotient_Serial;
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Serial;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Serial;
+
+  /* debugging functions */
+  v->ops->nvprint     = N_VPrint_Serial;
+  v->ops->nvprintfile = N_VPrintFile_Serial;
 
   /* Create content */
   content = NULL;
@@ -1876,7 +1880,7 @@ static int VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* 
     }
 
     return(0);
-  }    
+  }
 
   for (i=0; i<nvec; i++) {
     xd = NV_DATA_S(X[i]);

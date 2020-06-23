@@ -3,7 +3,7 @@
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -206,6 +206,10 @@ SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
 
 /* Free function */
 SUNDIALS_EXPORT void IDAFree(void **ida_mem);
+
+/* IDALS interface function that depends on IDAResFn */
+SUNDIALS_EXPORT int IDASetJacTimesResFn(void *ida_mem,
+                                        IDAResFn jtimesResFn);
 
 
 #ifdef __cplusplus

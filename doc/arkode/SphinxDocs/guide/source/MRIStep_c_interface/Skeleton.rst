@@ -4,7 +4,7 @@
    Based on ERKStep by Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -122,7 +122,7 @@ referenced.
    this memory structure. See the section
    :ref:`ARKStep_CInterface.Initialization` for details.
 
-#. Configure the fast integrator
+#. Configure the fast (inner) integrator
 
    Specify tolerances, create and attach matrix and/or solver objects,
    or call ``ARKStepSet*`` functions to configure the fast integrator
@@ -141,11 +141,16 @@ referenced.
    fast step a call to :c:func:`ARKStepSetFixedStep()` should be made in this
    step otherwise fast integration tolerances should be set in this step as
    described in :ref:`ARKStep_CInterface.Skeleton`.
-   
-   If attaching a *user_data* pointer, it should be attached to the slow
-   integrator in the following steps with :c:func:`MRIStepSetUserData()`. This
-   pointer will subsequently be passed to user-provided functions during the
-   fast integration.
+
+   If a *user_data* pointer needs to be passed to user functions called by the
+   fast (inner) integrator then it should be attached here by calling
+   :c:func:`ARKStepSetUserData()`. This *user_data* pointer will only be passed
+   to user-supplied functions that are attached to the fast (inner) integrator.
+   To supply a *user_data* pointer to user-supplied functions called by the slow
+   (outer) integrator the desired pointer should be attached by calling
+   :c:func:`MRIStepSetUserData()` after creating the MRIStep memory below. Note
+   the *user_data* pointers attached to the inner and outer integrators may
+   be the same or different depending on what is required by the user code.
 
    Specifying a rootfinding problem for the fast integration is not
    supported. Rootfinding problems should be created and initialized with

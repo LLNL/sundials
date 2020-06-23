@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -94,8 +94,9 @@ passfail=0
 
 # if SPACK_ROOT is not set, check for the shared spack installation
 if [ -z "$SPACK_ROOT" ]; then
-    if [ -d "/usr/casc/sundials/share/rh7/spack" ]; then
-        export SPACK_ROOT=/usr/casc/sundials/share/rh7/spack
+    if [ -d "/usr/casc/sundials/share/sunenv/spack" ]; then
+        echo "Using shared spack install"
+        export SPACK_ROOT=/usr/casc/sundials/share/sunenv/spack
         source ${SPACK_ROOT}/share/spack/setup-env.sh
     else
         echo "WARNING: Could not locate spack installation"

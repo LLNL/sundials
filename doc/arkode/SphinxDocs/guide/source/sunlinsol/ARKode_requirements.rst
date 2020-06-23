@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -135,28 +135,23 @@ ARKLS will attempt to adjust the linear solver tolerance to account
 for this lack of functionality.  To this end, the following
 assumptions are made:
 
-* The units of the IVP solution and linear residual are the same
-  (i.e., the error and residual weight vectors in section
-  :ref:`Mathematics.Error.Norm` are the same); this is automatically
-  satisfied with identity mass matrix, :math:`M=I`, or similar.
-
-* All solution components have similar magnitude; hence the error
+* All solution components have similar magnitude; hence the residual
   weight vector :math:`w` used in the WRMS norm (see the section
-  :ref:`Mathematics.Error.Norm`) should satisfy the assumption
+  :ref:`Mathematics.Error.Norm`), corresponding to the left scaling
+  matrix :math:`S_1`, should satisfy the assumption
 
   .. math::
      w_i \approx w_{mean},\quad \text{for}\quad i=0,\ldots,n-1.
 
 * The SUNLinSol object uses a standard 2-norm to measure convergence.
 
-Under these assumptions, ARKLS uses identical left and right scaling matrices,
-:math:`S_1 = S_2 = S = \operatorname{diag}(w)`, so the linear solver
-convergence requirement is converted as follows
+Under these assumptions, ARKLS adjusts the linear solver
+convergence requirement as follows
 (using the notation from the beginning of this chapter):
 
 .. math::
    &\left\| \tilde{b} - \tilde{A} \tilde{x} \right\|_2  <  \text{tol}\\
-   \Leftrightarrow \quad & \left\| S P_1^{-1} b - S P_1^{-1} A x \right\|_2  <  \text{tol}\\
+   \Leftrightarrow \quad & \left\| S_1 P_1^{-1} b - S_1 P_1^{-1} A x \right\|_2  <  \text{tol}\\
    \Leftrightarrow \quad & \sum_{i=0}^{n-1} \left[w_i \left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \text{tol}^2\\
    \Leftrightarrow \quad & w_{mean}^2 \sum_{i=0}^{n-1} \left[\left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \text{tol}^2\\
    \Leftrightarrow \quad & \sum_{i=0}^{n-1} \left[\left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \left(\frac{\text{tol}}{w_{mean}}\right)^2\\

@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -270,6 +270,10 @@ SUNDIALS_EXPORT char *CVodeGetReturnFlagName(long int flag);
 /* Free function */
 SUNDIALS_EXPORT void CVodeFree(void **cvode_mem);
 
+/* CVLS interface function that depends on CVRhsFn */
+SUNDIALS_EXPORT int CVodeSetJacTimesRhsFn(void *cvode_mem,
+                                          CVRhsFn jtimesRhsFn);
+
 
 /* ---------------------------------
  * Exported Functions -- Quadrature
@@ -536,6 +540,9 @@ typedef struct {
 
 SUNDIALS_EXPORT int CVodeGetAdjCheckPointsInfo(void *cvode_mem,
                                                CVadjCheckPointRec *ckpnt);
+
+/* CVLS interface function that depends on CVRhsFn */
+int CVodeSetJacTimesRhsFnB(void *cvode_mem, int which, CVRhsFn jtimesRhsFn);
 
 
 /* Undocumented Optional Output Functions For Backward Problems */

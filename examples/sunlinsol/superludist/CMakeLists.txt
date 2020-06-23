@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -139,7 +139,7 @@ if(EXAMPLES_INSTALL)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "SUNMatrix_SLUNRloc")
-  string(CONCAT SUNDIALS_LIBS "-lsundials_cvode "
+  string(CONCAT SUNDIALS_LIBS
     "-lsundials_nvecparallel "
     "-lsundials_sunmatrixslunrloc "
     "-lsundials_sunlinsolsuperludist")

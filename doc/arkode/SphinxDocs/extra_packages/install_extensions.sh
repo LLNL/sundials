@@ -3,7 +3,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,7 +15,7 @@
 
 # Sphinx
 echo "installing Sphinx"
-pip install -U Sphinx==1.3.1
+pip install -U Sphinx==1.6.7
 
 # Sphinx fortran domain
 echo "installing Sphinx fortran domain"

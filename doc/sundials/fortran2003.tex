@@ -333,46 +333,53 @@ described in Chapter \ref{ss:nvecutils}.
 
 Expert {\sundials} users may notice that there are a few advanced functions in the {\sundials}
 {\CC} API that take a \id{FILE *} argument. Since there is no portable way to convert between
-a Fortran file descriptor and a {\CC} file pointer, a user will need to allocate the
-\id{FILE *} in {\CC}. The code example below demonstrates one way of doing this.
+a Fortran file descriptor and a {\CC} file pointer, {\sundials} provides two utility functions
+for creating a \id{FILE *} and destroying it. These functions are defined in the module
+\id{fsundials\_futils\_mod}.
 \\
 \\
-\noindent \emph{{\CC} code}:
-\begin{verbatim}
-void allocate_file_ptr(FILE *fp)
+\ucfunction{FSUNDIALSFileOpen}
 {
-  fp = fopen(...);
+  fp = FSUNDIALSFileOpen(filename, mode)
 }
-
-int free_file_ptr(FILE *fp)
 {
-  return fclose(fp);
+  The function allocates a \id{FILE *} by calling the C function \id{fopen}.
 }
-\end{verbatim}
-
-\noindent \emph{Fortran code}:
-\begin{verbatim}
-subroutine allocate_file_ptr(fp) &
-  bind(C,name='allocate_file_ptr')
-  use, intrinsic :: iso_c_binding
-  type(c_ptr) :: fp
-end subroutine
-
-integer(C_INT) function free_file_ptr(fp) &
-  bind(C,name='free_file_ptr')
-  use, intrinsic :: iso_c_binding
-  type(c_ptr) :: fp
-end function
-
-program main
-  use, intrinsic :: iso_c_binding
-  type(c_ptr)    :: fp
-  integer(C_INT) :: ierr
-
-  call allocate_file_ptr(fp)
-  ierr = free_file_ptr(fp)
-end program
-\end{verbatim}
+{
+  \begin{args}[filename]
+  \item[filename] (\id{character(kind=C\_CHAR, len=*)}) - the path to the file to open
+  \item[mode] (\id{character(kind=C\_CHAR, len=*)}) - the mode string given to \id{fopen}
+    It should begin with one of the following characters: 
+    \begin{itemize}
+      \item[] ``r'' - open text file for reading
+      \item[] ``r+'' - open text file for reading and writing
+      \item[] ``w''  - truncate text file to zero length or create it for writing
+      \item[] ``w+'' - open text file for reading or writing, create it if it does not exist
+      \item[] ``a''  - open for appending, see documentation of ``fopen`` for your system/compiler
+      \item[] ``a+'' - open for reading and appending, see documentation for ``fopen`` for your system/compiler
+    \end{itemize}
+  \end{args}
+}
+{
+  This returns a \id{type(C\_PTR)} which is a \id{FILE*} in C.
+  If it is \id{NULL}, then there was an error opening the file.
+}
+{}
+%
+\ucfunction{FSUNDIALSFileClose}
+{
+  call FSUNDIALSFileClose(fp)
+}
+{
+  The function deallocates a \id{FILE*} by calling the C function \id{fclose}.
+}
+{
+  \begin{args}[fp]
+  \item[fp] (\id{type(C\_PTR)}) - the file pointer (type \id{FILE*} in C)
+  \end{args}
+}
+{}
+{}
 
 % =============================================================================
 \subsection{Important notes on portability}\label{ss:f2003_portability}

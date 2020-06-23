@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, 10*UNIT_ROUNDOFF, 0);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, 0);
 
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_LAPACKDENSE, 0);
@@ -177,4 +177,8 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   }
   else
     return(0);
+}
+
+void sync_device()
+{
 }

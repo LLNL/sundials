@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -20,47 +20,36 @@
 The NVECTOR_CUDA Module
 ======================================
 
-The NVECTOR_CUDA module is an experimental NVECTOR implementation in the CUDA language.
-The module allows for SUNDIALS vector kernels to run on GPU devices. It is intended for users
-who are already familiar with CUDA and GPU programming. Building this vector
-module requires a CUDA compiler and, by extension, a C++ compiler. The class ``Vector``
-in the namespace ``suncudavec`` manages the vector data layout:
+The NVECTOR_CUDA module is an NVECTOR implementation in the CUDA language.
+The module allows for SUNDIALS vector kernels to run on NVIDIA GPU devices. It is intended
+for users who are already familiar with CUDA and GPU programming. Building this vector
+module requires a CUDA compiler and, by extension, a C++ compiler. The vector content layout
+is as follows:
 
 .. code-block:: c++
 
-  template <class T, class I>
-  class Vector {
-    I size_;
-    I mem_size_;
-    T* h_vec_;
-    T* d_vec_;
-    ThreadPartitioning<T, I>* partStream_;
-    ThreadPartitioning<T, I>* partReduce_;
-    bool ownPartitioning_;
-    bool ownData_;
-    bool managed_mem_;
-    ...
-  };
+   struct _N_VectorContent_Cuda
+   {
+     sunindextype       length;
+     booleantype        own_data;
+     realtype*          host_data;
+     realtype*          device_data;
+     SUNCudaExecPolicy* stream_exec_policy;
+     SUNCudaExecPolicy* reduce_exec_policy;
+     void*              priv; /* 'private' data */
+   };
 
-The class members are vector size (length), size of the vector data memory
-block, pointers to vector data on the host and the device, pointers
-to ``ThreadPartitioning`` implementations that handle thread partitioning for
-streaming and reduction vector kernels, a boolean flag that signals if the
-vector owns the thread partitioning, a boolean flag that signals if the vector
-owns the data, and a boolean flag that signals if managed memory is used for the
-data arrays. The class ``Vector`` inherits from the empty structure
+   typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
 
-.. code-block:: c++
 
-   struct _N_VectorContent_Cuda {};
+The content members are the vector length (size), a boolean flag that signals if
+the vector owns the data (i.e. it is in charge of freeing the data), pointers to
+vector data on the host and the device, pointers to ``SUNCudaExecPolicy``
+implementations that control how the CUDA kernels are launched for streaming and
+reduction vector kernels, and a private data structure which holds additonal members
+that should not be accessed directly.
 
-to interface the C++ class with the NVECTOR C code. Due to the rapid progress
-of CUDA development, we expect that the ``suncudavec::Vector`` class will
-change frequently in future SUNDIALS releases. The code is structured so that
-it can tolerate significant changes in the ``suncudavec::Vector`` class without
-requiring changes to the user API.
-
-When instantiated with ``N_VNew_Cuda``, the class ``Vector`` will allocate
+When instantiated with ``N_VNew_Cuda``, the underlying data will be allocated
 memory on both the host and the device. Alternatively, a user can provide host
 and device data arrays by using the ``N_VMake_Cuda`` constructor. To use CUDA
 managed memory, the constructors ``N_VNewManaged_Cuda`` and
@@ -153,21 +142,43 @@ following additional user-callable routines:
    This function creates a CUDA ``N_Vector`` with a user-supplied memory allocator.
    It requires the user to provide a corresponding free function as well.
    The memory allocated by the allocator function must behave like CUDA managed memory.
-   
+
 
 
 The module NVECTOR_CUDA also provides the following user-callable routines:
 
+.. c:function:: void N_VSetKernelExecPolicy_Cuda(N_Vector v,
+                                                 SUNCudaExecPolicy* stream_exec_policy,
+                                                 SUNCudaExecPolicy* reduce_exec_policy)
+
+   This function sets the execution policies which control the kernel parameters
+   utilized when launching the streaming and reduction CUDA kernels. By default
+   the vector is setup to use the ``SUNCudaThreadDirectExecPolicy`` and
+   ``SUNCudaBlockReduceExecPolicy``. Any custom execution policy for reductions
+   must ensure that the grid dimensions (number of thread blocks) is a multiple of
+   the CUDA warp size (32). See section :ref:`NVectors.CUDA.SUNCudaExecPolicy`
+   below for more information about the ``SUNCudaExecPolicy`` class.
+
+   *Note: All vectors used in a single instance of a {\sundials} solver must
+   use the same execution policy. It is **strongly recommended** that
+   this function is called immediately after constructing the vector,
+   and any subsequent vector be created by cloning to ensure consistent execution
+   policies across vectors*
+
+
 .. c:function:: void N_VSetCudaStream_Cuda(N_Vector v, cudaStream_t \*stream)
+
+   **DEPRECATED** This function will be removed in the next major release,
+   user should utilize the ``N_VSetKernelExecPolicy_Cuda`` function instead.
 
    This function sets the CUDA stream that all vector kernels will be launched on.
    By default an NVECTOR_CUDA uses the default CUDA stream.
 
-   *Note: All vectors used in a single instance of a SUNDIALS solver must
-   use the same CUDA stream, and the CUDA stream must be set prior to
-   solver initialization. Additionally, if manually instantiating the stream and
-   reduce ``ThreadPartitioning`` of a ``suncudavec::Vector``, ensure that they
-   use the same CUDA stream.*
+   *Note: All vectors used in a single instance of a {\sundials} solver must
+   use the same CUDA stream. It is **strongly recommended** that
+   this function is called immediately after constructing the vector,
+   and any subsequent vector be created by cloning to ensure consistent execution
+   policies across vectors*
 
 
 .. c:function:: realtype* N_VCopyToDevice_Cuda(N_Vector v)
@@ -285,3 +296,110 @@ options as the vector they are cloned from while vectors created with
   consistent internal representations of these vectors. It is the user's
   responsibility to ensure that such routines are called with ``N_Vector``
   arguments that were all created with the same internal representations.
+
+
+.. _NVectors.CUDA.SUNCudaExecPolicy:
+
+The ``SUNCudaExecPolicy`` Class
+--------------------------------
+
+
+In order to provide maximum flexibility to users, the CUDA kernel execution parameters used
+by kernels within SUNDIALS are defined by objects of the ``sundials::CudaExecPolicy``
+abstract class type (this class can be accessed in the global namespace as ``SUNCudaExecPolicy``).
+Thus, users may provide custom execution policies that fit the needs of their problem. The
+``sundials::CudaExecPolicy`` is defined in the header file ``sundials_cuda_policies.hpp``,
+as follows:
+
+.. code-block:: c++
+
+   class CudaExecPolicy
+   {
+   public:
+      virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
+      virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
+      virtual cudaStream_t stream() const = 0;
+      virtual CudaExecPolicy* clone() const = 0;
+      virtual ~CudaExecPolicy() {}
+   };
+
+
+To define a custom execution policy, a user simply needs to create a class that inherits from
+the abstract class and implements the methods. The SUNDIALS provided
+``sundials::CudaThreadDirectExecPolicy`` (aka in the global namespace as
+``SUNCudaThreadDirectExecPolicy``) class is a good example of a what a custom execution policy
+may look like:
+
+.. code-block:: c++
+
+   class CudaThreadDirectExecPolicy : public CudaExecPolicy
+   {
+   public:
+      CudaThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
+         : blockDim_(blockDim), stream_(stream)
+      {}
+
+      CudaThreadDirectExecPolicy(const CudaThreadDirectExecPolicy& ex)
+         : blockDim_(ex.blockDim_), stream_(ex.stream_)
+      {}
+
+      virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+      {
+         return (numWorkUnits + blockSize() - 1) / blockSize();
+      }
+
+      virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+      {
+         return blockDim_;
+      }
+
+      virtual cudaStream_t stream() const
+      {
+         return stream_;
+      }
+
+      virtual CudaExecPolicy* clone() const
+      {
+         return static_cast<CudaExecPolicy*>(new CudaThreadDirectExecPolicy(*this));
+      }
+
+   private:
+      const cudaStream_t stream_;
+      const size_t blockDim_;
+   };
+
+
+In total, SUNDIALS provides 3 execution policies:
+
+
+1. ``SUNCudaThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)``
+   maps each CUDA thread to a work unit. The number of threads per block (blockDim) can be set
+   to anything. The grid size will be calculated so that there are enough threads for one
+   thread per element. If a CUDA stream is provided, it will be used to execute the kernel.
+
+2. ``SUNCudaGridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const cudaStream_t stream = 0)``
+   is for kernels that use grid stride loops. The number of threads per block (blockDim)
+   can be set to anything. The number of blocks (gridDim) can be set to anything. If a
+   CUDA stream is provided, it will be used to execute the kernel.
+
+3. ``SUNCudaBlockReduceExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)``
+   is for kernels performing a reduction across indvidual thread blocks. The number of threads
+   per block (blockDim) can be set to any valid multiple of the CUDA warp size. The grid size
+   (gridDim) can be set to any value greater than 0. If it is set to 0, then the grid size
+   will be chosen so that there is enough threads for one thread per work unit. If a
+   CUDA stream is provided, it will be used to execute the kernel.
+
+
+For example, a policy that uses 128 threads per block and a user provided stream can be
+created like so:
+
+.. code-block:: c++
+
+   cudaStream_t stream;
+   cudaStreamCreate(&stream);
+   SUNCudaThreadDirectExecPolicy thread_direct(128, stream);
+
+
+These default policy objects can be reused for multiple SUNDIALS data structures
+(e.g. a ``SUNMatrix`` and an ``N_Vector``) since they do not hold any modifiable
+state information.

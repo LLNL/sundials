@@ -7,7 +7,7 @@
  *                   Hindmarsh and Radu Serban @ LLNL
  * -------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -361,8 +361,8 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserData data)
 {
   printf("\n2-D Advection-Diffusion Equation\n");
-  printf("Mesh dimensions = %ld X %ld\n", data->MX, data->MY);
-  printf("Total system size = %ld\n", data->NEQ);
+  printf("Mesh dimensions = %ld X %ld\n", (long int) data->MX, (long int) data->MY);
+  printf("Total system size = %ld\n", (long int) data->NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n",
          reltol, abstol);

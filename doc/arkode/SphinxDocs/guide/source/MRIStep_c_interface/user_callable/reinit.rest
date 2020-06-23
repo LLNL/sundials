@@ -1,6 +1,6 @@
 .. _MRIStep_CInterface.Reinitialization:
 
-MRIStep re-initialization functions
+MRIStep re-initialization function
 -------------------------------------
 
 To reinitialize the MRIStep module for the solution of a new problem,
@@ -49,9 +49,6 @@ vector.
       * *arkode_mem* -- pointer to the MRIStep memory block.
       * *fs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the slow right-hand side function in :math:`\dot{y} = f_s(t,y) +
-        f_f(t,y)`.
-      * *ff* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
-        defining the fast right-hand side function in :math:`\dot{y} = f_s(t,y) +
         f_f(t,y)`.
       * *t0* -- the initial value of :math:`t`.
       * *y0* -- the initial condition vector :math:`y(t_0)`.

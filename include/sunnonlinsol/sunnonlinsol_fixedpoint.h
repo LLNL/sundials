@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *-----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -41,25 +41,32 @@ struct _SUNNonlinearSolverContent_FixedPoint {
   SUNNonlinSolConvTestFn CTest;  /* convergence test function      */
 
   /* nonlinear solver variables */
-  int       m;          /* number of acceleration vectors to use          */
-  int      *imap;       /* array of length m                              */
-  realtype *R;          /* array of length m*m                            */
-  realtype *gamma;      /* array of length m                              */
-  realtype *cvals;      /* array of length m+1 for fused vector op        */
-  N_Vector *df;         /* vector array of length m                       */
-  N_Vector *dg;         /* vector array of length m                       */
-  N_Vector *q;          /* vector array of length m                       */
-  N_Vector *Xvecs;      /* array of length m+1 for fused vector op        */
-  N_Vector  yprev;      /* temporary vectors for performing solve         */
-  N_Vector  gy;
-  N_Vector  fold;
-  N_Vector  gold;
-  N_Vector  delta;      /* correction vector (change between 2 iterates)  */
-  int       curiter;    /* current iteration number in a solve attempt    */
-  int       maxiters;   /* maximum number of iterations per solve attempt */
-  long int  niters;     /* total number of iterations across all solves   */
-  long int  nconvfails; /* total number of convergence failures           */
-  void*     ctest_data; /* data to pass to convergence test function      */
+  int          m;          /* number of acceleration vectors to use          */
+  int         *imap;       /* array of length m                              */
+  booleantype  damping;    /* flag to apply dampling in acceleration         */
+  realtype     beta;       /* damping paramter                               */
+  realtype    *R;          /* array of length m*m                            */
+  realtype    *gamma;      /* array of length m                              */
+  realtype    *cvals;      /* array of length m+1 for fused vector op        */
+  N_Vector    *df;         /* vector array of length m                       */
+  N_Vector    *dg;         /* vector array of length m                       */
+  N_Vector    *q;          /* vector array of length m                       */
+  N_Vector    *Xvecs;      /* array of length m+1 for fused vector op        */
+  N_Vector     yprev;      /* temporary vectors for performing solve         */
+  N_Vector     gy;
+  N_Vector     fold;
+  N_Vector     gold;
+  N_Vector     delta;      /* correction vector (change between 2 iterates)  */
+  int          curiter;    /* current iteration number in a solve attempt    */
+  int          maxiters;   /* maximum number of iterations per solve attempt */
+  long int     niters;     /* total number of iterations across all solves   */
+  long int     nconvfails; /* total number of convergence failures           */
+  void        *ctest_data; /* data to pass to convergence test function      */
+
+  /* if 0 (default) nothing is printed, if 1 the residual is printed every iteration */
+  int print_level;
+  /* if NULL nothing is printed, if 1 the residual is printed every iteration */
+  FILE* info_file;
 };
 
 typedef struct _SUNNonlinearSolverContent_FixedPoint *SUNNonlinearSolverContent_FixedPoint;
@@ -95,6 +102,9 @@ SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
 SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS,
                                                        int maxiters);
 
+SUNDIALS_EXPORT int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS,
+                                                      realtype beta);
+
 /* get functions */
 SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS,
                                                        long int *niters);
@@ -107,6 +117,13 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails_FixedPoint(SUNNonlinearSolver NL
 
 SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS,
                                                     SUNNonlinSolSysFn *SysFn);
+
+SUNDIALS_EXPORT int SUNNonlinSolSetInfoFile_FixedPoint(SUNNonlinearSolver NLS,
+                                                       FILE* info_file);
+
+SUNDIALS_EXPORT int SUNNonlinSolSetPrintLevel_FixedPoint(SUNNonlinearSolver NLS,
+                                                         int print_level);                                                   
+
 
 #ifdef __cplusplus
 }

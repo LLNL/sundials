@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -106,6 +106,157 @@ preconditioner routines.
 
 Changes from previous versions
 --------------------------------
+
+Changes in v4.x.x
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Added new reset functions :c:func:`ARKStepReset()`, :c:func:`ERKStepReset()`,
+and :c:func:`MRIStepReset()` to reset the stepper time and state vector to
+user-provided values for continuing the integration from that point while
+retaining the integration history. These function complement the
+reinitialization functions :c:func:`ARKStepReInit()`, :c:func:`ERKStepReInit()`,
+and :c:func:`MRIStepReInit()` which reinitialize the stepper so that the problem
+integration should resume as if started from scratch.
+
+The expected behavior of the :c:func:`SUNNonlinSolGetNumIters()` function in the
+SUNNonlinearSolver API has been updated to specify that it should return the
+number of nonlinear solver iterations in most recent solve rather than the
+cumulative number of iterations across all solves. The API documentation and
+SUNDIALS provided SUNNonlinearSolver implementations have been updated
+accordingly. As before, the cumulative number of nonlinear iterations may be
+retrieved by calling :c:func:`ARKStepGetNumNonlinSolvIters()` or
+:c:func:`ARKStepGetNonlinSolvStats()`.
+
+
+Changes in v4.3.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a bug in ARKode where the prototypes for :c:func:`ERKStepSetMinReduction()`
+and :c:func:`ARKStepSetMinReduction()` were not included in ``arkode_erkstep.h``
+and ``arkode_arkstep.h`` respectively.
+
+Fixed a bug where inequality constraint checking would need to be disabled and
+then re-enabled to update the inequality constraint values after resizing a
+problem. Resizing a problem will now disable constraints and a call to
+:c:func:`ARKStepSetConstraints()` or :c:func:`ERKStepSetConstraints()` is
+required to re-enable constraint checking for the new problem size.
+
+Fixed a bug in the iterative linear solver modules where an error is not
+returned if the Atimes function is ``NULL`` or, if preconditioning is enabled,
+the PSolve function is ``NULL``.
+
+Added the ability to control the CUDA kernel launch parameters for the
+``NVECTOR_CUDA`` and ``SUNMATRIX_CUSPARSE`` modules. These modules remain
+experimental and are subject to change from version to version.
+In addition, the ``NVECTOR_CUDA`` kernels were rewritten to be more flexible.
+Most users should see equivalent performance or some improvement, but a select
+few may observe minor performance degradation with the default settings. Users
+are encouraged to contact the SUNDIALS team about any perfomance changes
+that they notice.
+
+Added the optional function :c:func:`ARKStepSetJacTimesRhsFn()` to specify an
+alternative implicit right-hand side function for computing Jacobian-vector
+products with the internal difference quotient approximation.
+
+Added new capabilities for monitoring the solve phase in the ``SUNNONLINSOL_NEWTON``
+and ``SUNNONLINSOL_FIXEDPOINT`` modules, and the SUNDIALS iterative linear solver
+modules. SUNDIALS must be built with the CMake option
+``SUNDIALS_BUILD_WITH_MONITORING`` to use these capabilties.
+
+
+Changes in v4.2.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a build system bug related to the Fortran 2003 interfaces when using the
+IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
+it is recommended to set ``CMAKE_Fortran_COMPILER`` to ``f2003``, ``xlf2003``,
+or ``xlf2003_r``.
+
+Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver.
+In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the
+lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling
+factor using the error weight vector, ``ewt``; this fix changes that to the residual weight vector,
+``rwt``, that can differ from ``ewt`` when solving problems with non-identity mass matrix.
+
+Fixed a similar bug in how ARKode interfaces with scaled linear solvers when solving problems
+with non-identity mass matrices.  Here, the left scaling matrix should correspond with ``rwt``
+and the right scaling matrix with ``ewt``; these were reversed but are now correct.
+
+Fixed a bug where a non-default value for the maximum allowed growth factor
+after the first step would be ignored.
+
+The function :c:func:`ARKStepSetLinearSolutionScaling()` was added to
+enable or disable the scaling applied to linear system solutions with
+matrix-based linear solvers to account for a lagged value of :math:`\gamma` in
+the linear system matrix e.g., :math:`M - \gamma J` or :math:`I - \gamma J`.
+Scaling is enabled by default when using a matrix-based linear solver.
+
+Added two new functions, :c:func:`ARKStepSetMinReduction()` and
+:c:func:`ERKStepSetMinReduction()`, to change the minimum allowed step size
+reduction factor after an error test failure.
+
+Added a new ``SUNMatrix`` implementation, :ref:`SUNMatrix_cuSparse`, that interfaces
+to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
+the :ref:`SUNLinSol_cuSolverSp_batchQR` ``SUNLinearSolver`` has been updated to
+use this matrix, as such, users of this module will need to update their code.
+These modules are still considered to be experimental, thus they are subject to
+breaking changes even in minor releases.
+
+Added a new "stiff" interpolation module, based on Lagrange polynomial interpolation,
+that is accessible to each of the ARKStep, ERKStep and MRIStep time-stepping modules.
+This module is designed to provide increased interpolation accuracy when integrating
+stiff problems, as opposed to the ARKode-standard Hermite interpolation module that
+can suffer when the IVP right-hand side has large Lipschitz constant.  While the
+Hermite module remains the default, the new Lagrange module may be enabled using one
+of the routines :c:func:`ARKStepSetInterpolantType()`, :c:func:`ERKStepSetInterpolantType()`,
+or :c:func:`MRIStepSetInterpolantType()`.  The serial example problem ``ark_brusselator.c``
+has been converted to use this Lagrange interpolation module.  Created accompanying routines
+:c:func:`ARKStepSetInterpolantDegree()`, :c:func:`ARKStepSetInterpolantDegree()` and
+:c:func:`ARKStepSetInterpolantDegree()` to provide user control over these
+interpolating polynomials.  While the routines :c:func:`ARKStepSetDenseOrder()`,
+:c:func:`ARKStepSetDenseOrder()` and :c:func:`ARKStepSetDenseOrder()` still exist,
+these have been deprecated and will be removed in a future release.
+
+
+
+Changes in v4.1.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a build system bug related to finding LAPACK/BLAS.
+
+Fixed a build system bug related to checking if the KLU library works.
+
+Fixed a build system bug related to finding PETSc when using the CMake
+variables ``PETSC_INCLUDES`` and ``PETSC_LIBRARIES`` instead of
+``PETSC_DIR``.
+
+Added a new build system option, ``CUDA_ARCH``, that can be used to specify
+the CUDA architecture to compile for.
+
+Fixed a bug in the Fortran 2003 interfaces to the ARKode Butcher table routines and structure.
+This includes changing the ``ARKodeButcherTable`` type to be a ``type(c_ptr)`` in Fortran.
+
+Added two utility functions, ``SUNDIALSFileOpen`` and ``SUNDIALSFileClose``
+for creating/destroying file pointers that are useful when using the Fortran
+2003 interfaces.
+
+Added support for a user-supplied function to update the prediction for each
+implicit stage solution in ARKStep.  If supplied, this routine will be called
+*after* any existing ARKStep predictor algorithm completes, so that the
+predictor may be modified by the user as desired.  The new user-supplied routine
+has type :c:type:`ARKStepStagePredictFn`, and may be set by calling
+:c:func:`ARKStepSetStagePredictFn()`.
+
+The MRIStep module has been updated to support attaching different user data
+pointers to the inner and outer integrators. If applicable, user codes will
+need to add a call to :c:func:`ARKStepSetUserData()` to attach their user data
+pointer to the inner integrator memory as :c:func:`MRIStepSetUserData()` will
+not set the pointer for both the inner and outer integrators. The MRIStep
+examples have been updated to reflect this change.
+
+Added support for constant damping to the ``SUNNonlinearSolver_FixedPoint``
+module when using Anderson acceleration. See :ref:`SUNNonlinSolFixedPoint.Math`
+and the :c:func:`SUNNonlinSolSetDamping_FixedPoint()` for more details.
 
 Changes in v4.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -426,7 +577,7 @@ module. Two new time-stepping modules have been added:
 
 This restructure has resulted in numerous small changes to the user
 interface, particularly the suite of "Set" routines for user-provided
-solver parameters and and "Get" routines to access solver statistics,
+solver parameters and "Get" routines to access solver statistics,
 that are now prefixed with the name of time-stepping module (e.g., ``ARKStep``
 or ``ERKStep``) instead of ``ARKode``.  Aside from affecting the names of these
 routines, user-level changes have been kept to a minimum.  However, we recommend
@@ -526,34 +677,34 @@ automatically be called as necessary to complete the computation.
 
 Multiple changes to the CUDA NVECTOR were made:
 
-  * Changed the ``N_VMake_Cuda`` function to take a host data pointer and a device
-    data pointer instead of an ``N_VectorContent_Cuda`` object.
+* Changed the ``N_VMake_Cuda`` function to take a host data pointer and a device
+  data pointer instead of an ``N_VectorContent_Cuda`` object.
 
-  * Changed ``N_VGetLength_Cuda`` to return the global vector length instead of
-    the local vector length.
+* Changed ``N_VGetLength_Cuda`` to return the global vector length instead of
+  the local vector length.
 
-  * Added ``N_VGetLocalLength_Cuda`` to return the local vector length.
+* Added ``N_VGetLocalLength_Cuda`` to return the local vector length.
 
-  * Added ``N_VGetMPIComm_Cuda`` to return the MPI communicator used.
+* Added ``N_VGetMPIComm_Cuda`` to return the MPI communicator used.
 
-  * Removed the accessor functions in the namespace ``suncudavec``.
+* Removed the accessor functions in the namespace ``suncudavec``.
 
-  * Added the ability to set the ``cudaStream_t`` used for execution of the CUDA
-    NVECTOR kernels. See the function ``N_VSetCudaStreams_Cuda``.
+* Added the ability to set the ``cudaStream_t`` used for execution of the CUDA
+  NVECTOR kernels. See the function ``N_VSetCudaStreams_Cuda``.
 
-  * Added ``N_VNewManaged_Cuda``, ``N_VMakeManaged_Cuda``, and ``N_VIsManagedMemory_Cuda``
-    functions to accommodate using managed memory with the CUDA NVECTOR.
+* Added ``N_VNewManaged_Cuda``, ``N_VMakeManaged_Cuda``, and ``N_VIsManagedMemory_Cuda``
+  functions to accommodate using managed memory with the CUDA NVECTOR.
 
 Multiple changes to the RAJA NVECTOR were made:
 
-  * Changed ``N_VGetLength_Raja`` to return the global vector length instead of
-    the local vector length.
+* Changed ``N_VGetLength_Raja`` to return the global vector length instead of
+  the local vector length.
 
-  * Added ``N_VGetLocalLength_Raja`` to return the local vector length.
+* Added ``N_VGetLocalLength_Raja`` to return the local vector length.
 
-  * Added ``N_VGetMPIComm_Raja`` to return the MPI communicator used.
+* Added ``N_VGetMPIComm_Raja`` to return the MPI communicator used.
 
-  * Removed the accessor functions in the namespace ``sunrajavec``.
+* Removed the accessor functions in the namespace ``sunrajavec``.
 
 A new NVECTOR implementation for leveraging OpenMP 4.5+ device offloading has
 been added, NVECTOR_OpenMPDEV. See :ref:`NVectors.OpenMPDEV` for more details.
@@ -962,7 +1113,7 @@ BSD license anymore.
 BSD 3-Clause License
 ^^^^^^^^^^^^^^^^^^^^
 
-Copyright (c) 2002-2019, Lawrence Livermore National Security and Southern
+Copyright (c) 2002-2020, Lawrence Livermore National Security and Southern
 Methodist University.
 
 All rights reserved.

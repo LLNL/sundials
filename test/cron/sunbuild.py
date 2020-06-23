@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 # -------------------------------------------------------------------------------
-# Programmer(s): Eddy Banks and David J. Gardner @ LLNL 
+# Programmer(s): Eddy Banks and David J. Gardner @ LLNL
 # -------------------------------------------------------------------------------
-# This is a python script for running nightly tests on the most recent commit to 
+# This is a python script for running nightly tests on the most recent commit to
 # the SUNDIALS git repository. Results are stored in /usr/casc/sundials/devtest
-# and the main log file is sent to the SUNDIALS developers mailing list 
-# "sundials-devs@llnl.gov" after all tests are completed. 
+# and the main log file is sent to the SUNDIALS developers mailing list
+# "sundials-devs@llnl.gov" after all tests are completed.
 # -------------------------------------------------------------------------------
 
 import sys, os, shutil
@@ -20,25 +20,25 @@ def main():
     maxCommitDirs = 5               # max number of commit directories to keep
     maxBuildsPerPreviousCommit = 3  # max number of builds to keep per previous commit
     maxBuildsPerCurrentCommit  = 10 # max number of builds to keep for current commit
-    
+
     sunGitRepo = "ssh://git@mystash.llnl.gov:7999/sundials/sunrepo.git"
-   
+
     sunBaseDir = "/usr/casc/sundials/devtest"
     sunNightlyDir = os.path.join(sunBaseDir,"nightly")
-    
+
     # main log file for this script
     buildLogFileName = "build.log"
     buildLogFile = os.path.join(sunNightlyDir, buildLogFileName)
     sys.stdout = Logger(buildLogFile)
-    
+
     # other log files created in this script
     cmakeLogFileName = "cmake.log"
     makeLogFileName  = "make.log"
 
-    # log file created by the testRunner script 
+    # log file created by the testRunner script
     testLogFileName  = "build/Testing/Temporary/LastTest.log"
-        
-    # place holders in case an error is encountered before these variables are created 
+
+    # place holders in case an error is encountered before these variables are created
     makeLogFile  = "Oops - didn't get this far!"
     cmakeLogFile = "Oops - didn't get this far!"
     testLogFile  = "Oops - didn't get this far!"
@@ -46,22 +46,22 @@ def main():
     msg          = "Oops - didn't get this far!"
 
     todayDate = time.strftime("%Y-%m-%d")
-    
+
     print "*** SUNDIALS Automated Build/Test ***"
     startTime = datetime.datetime.now()
     print "\nStart time:", startTime.ctime()
 
-    try:                
+    try:
         # get most recent commit hash
         cmd = "git ls-remote " + sunGitRepo + " | grep HEAD"
         cmdout = runCommand(cmd)
-        
+
         commitHashLong  = cmdout.split()[0].strip()
         commitHashShort = commitHashLong[0:7]
         print "Git commit:",commitHashLong
-        
-        # create commit test directory 
-        sunTestDir = os.path.join(sunNightlyDir, 
+
+        # create commit test directory
+        sunTestDir = os.path.join(sunNightlyDir,
                                   "commit_"+commitHashShort,
                                   todayDate)
         print "\n*** Creating commit test directory: " + sunTestDir
@@ -69,30 +69,30 @@ def main():
             os.makedirs(sunTestDir)
 
         # change working directory to test dir
-        os.chdir(sunTestDir)    
-        
+        os.chdir(sunTestDir)
+
         # if commit test directory is not empty - exit
         if os.listdir(sunTestDir) != []:
             msg = "'" + sunTestDir + "' is not empty."
             raise Exception(msg)
-    
+
         # checkout only the most recent commit to the repo
         cmd = "git clone --quiet --depth 1 " + sunGitRepo
         print "\n*** Cloning most recent commit: " + cmd
         cmdout = runCommand(cmd)
 
         # change working directory to clone of sundials repo
-        sunSrcDir = os.path.join(sunTestDir,"sunrepo") 
+        sunSrcDir = os.path.join(sunTestDir,"sunrepo")
         os.chdir(sunSrcDir)
-        
+
         # print most recent commit message
         cmd = "git log -1"
         print "\n*** Most recent commit message: " + cmd + " \n"
         cmdout = runCommand(cmd)
         print cmdout
-    
+
         # change working directory to test dir
-        os.chdir(sunTestDir)    
+        os.chdir(sunTestDir)
 
         # create build directory
         sunBuildDir = os.path.join(sunTestDir, "build")
@@ -147,20 +147,20 @@ def main():
         cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1_long_int_fpic/lib \ \n"
         cmd = cmd + "-DSUPERLUMT_THREAD_TYPE=Pthread \ \n"
         # turn on development tests
-        cmd = cmd + "-DSUNDIALS_DEVTESTS=ON \ \n"
+        cmd = cmd + "-DSUNDIALS_TEST_DEVTESTS=ON \ \n"
         # specify source
         cmd = cmd + sunSrcDir
         # redirect output to config log file
         cmd = cmd + " &> " + cmakeLogFile
 
         print "\n*** Running CMake:\n" + cmd
-            
+
         # remove newlines from cmd
         cmd = cmd.replace('\n','')
         cmd = cmd.replace('\\','')
         cmdout = runCommand(cmd)
         print cmdout
-        
+
         # run make to build libs and executables
         makeLogFile = os.path.join(sunBuildDir, makeLogFileName)
         cmd = "make -j4 &> " + makeLogFile
@@ -176,7 +176,7 @@ def main():
         print "\n*** Testing with: " + cmd
         cmdout = runCommand(cmd)
         print cmdout
-        
+
         # find the percentage of successful tests
         percentLine = findPercentSuccessfulLine(cmdout)
 
@@ -186,21 +186,21 @@ def main():
         # purge nightly build directory (keep maxRevDirs number of revisions)
         print "\n*** Purging nightly build directory"
         commitDirList = purgeNightlyDir(sunNightlyDir, maxCommitDirs)
-        
+
         # now purge each revision directory (except most current)
         for commitDir in commitDirList[:-1]:
             purgeNightlyDir(commitDir, maxBuildsPerPreviousCommit)
-            
+
         # now purge current revision directory (last entry in list)
         purgeNightlyDir(commitDirList[-1], maxBuildsPerCurrentCommit)
-               
+
     except Exception as e:
         msg = "FAILED: Commit: " + commitHashShort + " | " + str(e)
         return 1
 
     finally:
-        # clean up test after success or fail 
-        cleanup(msg, startTime, sunTestDir, buildLogFile, buildLogFileName, 
+        # clean up test after success or fail
+        cleanup(msg, startTime, sunTestDir, buildLogFile, buildLogFileName,
                 cmakeLogFile, makeLogFile, testLogFile)
 
     return 0
@@ -218,15 +218,15 @@ class Logger(object):
     def write(self, message):
         self.terminal.write(message)
         self.log.write(message)
-        
+
     def flush(self):
         self.log.flush()
-        
+
     def close(self):
         self.log.close()
 
 #
-# run external command 
+# run external command
 #
 def runCommand(cmd):
     cmdout = subprocess.check_output(cmd, shell=True)
@@ -243,7 +243,7 @@ def findPercentSuccessfulLine(cmdout):
         if '%' in line.split(' ')[0]:
             percentLine = line
             break
-    
+
     return percentLine
 
 #
@@ -263,25 +263,25 @@ def purgeNightlyDir(rootDir, maxKeepDirs):
         tmpSpec = os.path.join(rootDir, tmpName)
         if os.path.isdir(tmpSpec):
             dirExtension = os.path.splitext(tmpSpec)[1]
-            # only purge directories without extensions 
-            # (e.g. allows user to add '.save' to specific build) 
+            # only purge directories without extensions
+            # (e.g. allows user to add '.save' to specific build)
             if dirExtension == '':
                 dirList.append(tmpSpec)
                 #print tmpSpec
-    
+
     # if more than maxRevDirs - remove them
     numDirs = len(dirList)
     removeDirCount = numDirs - maxKeepDirs
     for i in xrange(removeDirCount):
         shutil.rmtree(dirList[i])
-    
+
     # return list of remaining directories
     return dirList[removeDirCount:numDirs]
 
 #
 # cleanup after test
 #
-def cleanup(msg, startTime, sunTestDir, buildLogFile, buildLogFileName, 
+def cleanup(msg, startTime, sunTestDir, buildLogFile, buildLogFileName,
             cmakeLogFile, makeLogFile, testLogFile):
 
     # move log file to test directory
@@ -290,14 +290,14 @@ def cleanup(msg, startTime, sunTestDir, buildLogFile, buildLogFileName,
         os.rename(buildLogFile, finalBuildLogFile)
     else:
         finalBuildLogFile = buildLogFile
-    
+
     # print closing info
     print "\n" + msg
     print "For build script details see:    " + finalBuildLogFile
     print "For CMake specific details see:  " + cmakeLogFile
     print "For make specific details see:   " + makeLogFile
     print "For test details see:            " + testLogFile
-    
+
     endTime = datetime.datetime.now()
     print "\nEnd time:", endTime.ctime()
     elapsedTime = endTime - startTime
@@ -308,17 +308,17 @@ def cleanup(msg, startTime, sunTestDir, buildLogFile, buildLogFileName,
 
     # send email
     sendEmail(finalBuildLogFile, msg)
-    
+
     return
 
 #
-# send email to SUNDIALS dev list 
+# send email to SUNDIALS dev list
 #
 def sendEmail(logFile, subject):
     # Open a plain text file for reading.  For this example, assume that
     # the text file contains only ASCII characters.
     fp = open(logFile, 'rb')
-    
+
     # Create a text/plain message
     msg = MIMEText(fp.read())
     fp.close()
@@ -341,4 +341,3 @@ def sendEmail(logFile, subject):
 
 if __name__ == "__main__":
     sys.exit(main())
-

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -55,6 +55,9 @@ SUNDIALS_EXPORT int ERKStepResize(void *arkode_mem, N_Vector ynew,
 SUNDIALS_EXPORT int ERKStepReInit(void* arkode_mem, ARKRhsFn f,
                                   realtype t0, N_Vector y0);
 
+SUNDIALS_EXPORT int ERKStepReset(void* arkode_mem, realtype tR,
+                                 N_Vector yR);
+
 /* Tolerance input functions */
 SUNDIALS_EXPORT int ERKStepSStolerances(void *arkode_mem,
                                         realtype reltol,
@@ -72,6 +75,8 @@ SUNDIALS_EXPORT int ERKStepRootInit(void *arkode_mem, int nrtfn,
 /* Optional input functions -- must be called AFTER ERKStepCreate */
 SUNDIALS_EXPORT int ERKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int ERKStepSetOrder(void *arkode_mem, int maxord);
+SUNDIALS_EXPORT int ERKStepSetInterpolantType(void *arkode_mem, int itype);
+SUNDIALS_EXPORT int ERKStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int ERKStepSetDenseOrder(void *arkode_mem, int dord);
 SUNDIALS_EXPORT int ERKStepSetTable(void *arkode_mem,
                                     ARKodeButcherTable B);
@@ -84,6 +89,8 @@ SUNDIALS_EXPORT int ERKStepSetErrorBias(void *arkode_mem,
                                         realtype bias);
 SUNDIALS_EXPORT int ERKStepSetMaxGrowth(void *arkode_mem,
                                         realtype mx_growth);
+SUNDIALS_EXPORT int ERKStepSetMinReduction(void *arkode_mem,
+                                           realtype eta_min);
 SUNDIALS_EXPORT int ERKStepSetFixedStepBounds(void *arkode_mem,
                                               realtype lb, realtype ub);
 SUNDIALS_EXPORT int ERKStepSetAdaptivityMethod(void *arkode_mem,
@@ -138,7 +145,9 @@ SUNDIALS_EXPORT int ERKStepSetDiagnostics(void *arkode_mem,
                                           FILE *diagfp);
 
 SUNDIALS_EXPORT int ERKStepSetPostprocessStepFn(void *arkode_mem,
-                                                ARKPostProcessStepFn ProcessStep);
+                                                ARKPostProcessFn ProcessStep);
+SUNDIALS_EXPORT int ERKStepSetPostprocessStageFn(void *arkode_mem,
+                                                 ARKPostProcessFn ProcessStage);
 
 
 /* Integrate the ODE over an interval in t */

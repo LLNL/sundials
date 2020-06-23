@@ -1,6 +1,6 @@
 C     --------------------------------------------------------------------
 C     SUNDIALS Copyright Start
-C     Copyright (c) 2002-2019, Lawrence Livermore National Security
+C     Copyright (c) 2002-2020, Lawrence Livermore National Security
 C     and Southern Methodist University.
 C     All rights reserved.
 C
@@ -44,9 +44,9 @@ C
       INTEGER*4 IER, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE, LNGE
       INTEGER*4 METH, ITOL, ITASK, JOUT, NOUT, IERROOT
       INTEGER*4 INFO(2)
-      INTEGER*4 I, NEQ
+      INTEGER*4 I
 C The following declaration specification should match C type long int.
-      INTEGER*8 IPAR, IOUT(25)
+      INTEGER*8 NEQ, IPAR, IOUT(25)
       DOUBLE PRECISION RTOL, T, T0, TOUT
       DOUBLE PRECISION Y(3), ATOL(3), ROUT(10), RPAR
 C
@@ -99,7 +99,7 @@ C     initialize LAPACK dense linear solver module
         STOP
       ENDIF
 
-C     Call FCVMALLOC to create the solver memory and specify the 
+C     Call FCVMALLOC to create the solver memory and specify the
 C     Backward Differentiation Formula
       CALL FCVMALLOC(T0, Y, METH, ITOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
@@ -241,7 +241,7 @@ C
 
 C     ----------------------------------------------------------------
 
-      SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, H, IPAR, RPAR, 
+      SUBROUTINE FCVDJAC(N, T, Y, FY, JAC, H, IPAR, RPAR,
      1                   V1, V2, V3, IER)
 C     Fortran routine for dense user-supplied Jacobian
       IMPLICIT NONE

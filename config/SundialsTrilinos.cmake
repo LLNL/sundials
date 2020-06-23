@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos and Slaven Peles @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -27,6 +27,9 @@
 # are created. The variables should be used to set the compiler flags
 # when building targets that use Trilinos.
 # -----------------------------------------------------------------------------
+
+# Initialize SUNDIALS Trilinos support variable
+set(SUNDIALS_TRILINOS FALSE)
 
 # Find Trilinos
 include(FindTrilinos)
@@ -118,6 +121,7 @@ if(Trilinos_FOUND AND TARGET Trilinos::Trilinos)
     set(SUNDIALS_TRILINOS TRUE)
     set(SUNDIALS_TRILINOS_HAVE_MPI ${Trilinos_INTERFACE_MPI_CXX_FOUND})
   else(LTEST_OK)
+    set(SUNDIALS_TRILINOS FALSE)
     message(STATUS "Testing Trilinos libraries... FAILED")
     print_error("Trilinos not functional - support cannot be provided.")
   endif(LTEST_OK)

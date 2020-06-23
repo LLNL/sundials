@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's root-finding (in time) 
+ * Implementation header file for ARKode's root-finding (in time)
  * utility.
  *--------------------------------------------------------------*/
 
@@ -32,7 +32,11 @@ extern "C" {
 
 #define ARK_ROOT_LRW   5
 #define ARK_ROOT_LIW  12   /* int, ptr, etc */
-  
+
+/* Numeric constants */
+#define HUND   RCONST(100.0)    /* real 100.0   */
+
+
 /*===============================================================
   ARKode Root-finding Data Structure
   ===============================================================*/
@@ -40,8 +44,8 @@ extern "C" {
 /*---------------------------------------------------------------
   Types : struct ARKodeRootMemRec, ARKodeRootMem
   -----------------------------------------------------------------
-  The type ARKodeRootMem is type pointer to struct 
-  ARKodeRootMemRec.  This structure contains data pertaining to 
+  The type ARKodeRootMem is type pointer to struct
+  ARKodeRootMemRec.  This structure contains data pertaining to
   the use of root-finding capabilities in ARKode.
   ---------------------------------------------------------------*/
 typedef struct ARKodeRootMemRec {
@@ -79,7 +83,7 @@ int arkRootCheck2(void* arkode_mem);
 int arkRootCheck3(void* arkode_mem);
 int arkRootfind(void* arkode_mem);
 
-  
+
 #ifdef __cplusplus
 }
 #endif

@@ -3,7 +3,7 @@
  *     Based on cvAdvDiff_bnd.c and parallelized with OpenMP
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -245,10 +245,12 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
 {
   realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
   realtype *udata, *dudata;
-  int i, j;
+  sunindextype i, j;
   UserData data;
 
-  udata = NV_DATA_OMP(u);
+  i = j = 0;
+
+  udata  = NV_DATA_OMP(u);
   dudata = NV_DATA_OMP(udot);
 
   /* Extract needed constants from data */
@@ -304,7 +306,9 @@ static int Jac(realtype t, N_Vector u, N_Vector fu,
       df(i,j+1)/du(i,j) = 1/dy^2           (if j < MY)
   */
 
-  data = (UserData) user_data;
+  i = j = 0;
+
+  data  = (UserData) user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
@@ -338,9 +342,11 @@ static int Jac(realtype t, N_Vector u, N_Vector fu,
 
 static void SetIC(N_Vector u, UserData data)
 {
-  int i, j;
+  sunindextype i, j;
   realtype x, y, dx, dy;
   realtype *udata;
+
+  i = j = 0;
 
   /* Extract needed constants from data */
 

@@ -6,7 +6,7 @@
  *     Slaven Peles @ LLNL, and Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -109,6 +109,9 @@ SUNDIALS_EXPORT SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A,
 SUNDIALS_EXPORT SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A,
                                                   realtype droptol,
                                                   int sparsetype);
+
+SUNDIALS_EXPORT int SUNSparseMatrix_ToCSR(const SUNMatrix A, SUNMatrix* Bout);
+SUNDIALS_EXPORT int SUNSparseMatrix_ToCSC(const SUNMatrix A, SUNMatrix* Bout);
 
 SUNDIALS_EXPORT int SUNSparseMatrix_Realloc(SUNMatrix A);
 

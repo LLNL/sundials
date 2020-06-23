@@ -36,6 +36,7 @@ $tar $tarfile $distrobase/config/SundialsAddTest.cmake                  || exit 
 $tar $tarfile $distrobase/config/SundialsAddTestInstall.cmake           || exit 1
 $tar $tarfile $distrobase/config/SundialsAddF2003InterfaceLibrary.cmake || exit 1
 $tar $tarfile $distrobase/config/SundialsCMakeMacros.cmake              || exit 1
+$tar $tarfile $distrobase/config/SundialsCudaArchGeq.cmake              || exit 1
 $tar $tarfile $distrobase/config/SundialsCXX.cmake                      || exit 1
 $tar $tarfile $distrobase/config/SundialsDeprecated.cmake               || exit 1
 $tar $tarfile $distrobase/config/SundialsFortran.cmake                  || exit 1
@@ -46,7 +47,7 @@ $tar $tarfile $distrobase/config/SundialsLapack.cmake                   || exit 
 $tar $tarfile $distrobase/config/SundialsMPI.cmake                      || exit 1
 $tar $tarfile $distrobase/config/SundialsOpenMP.cmake                   || exit 1
 $tar $tarfile $distrobase/config/SundialsOption.cmake                   || exit 1
-$tar $tarfile $distrobase/config/SundialsPETSc.cmake                    || exit 1
+$tar $tarfile $distrobase/config/SundialsPETSC.cmake                    || exit 1
 $tar $tarfile $distrobase/config/SundialsPOSIXTimers.cmake              || exit 1
 $tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake                || exit 1
 $tar $tarfile $distrobase/config/SundialsSuperLUDIST.cmake              || exit 1
@@ -58,6 +59,7 @@ $tar $tarfile $distrobase/config/SundialsXSDK.cmake                     || exit 
 echo "   --- Add shared module to $tarfile"
 
 $tar $tarfile $distrobase/include/sundials/sundials_config.in             || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_cuda_policies.hpp     || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_fconfig.in            || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_types.h               || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h           || exit 1
@@ -74,6 +76,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_iterative.h           || exi
 $tar $tarfile $distrobase/include/sundials/sundials_version.h             || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.h     || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_nvector_senswrapper.h || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_futils.h              || exit 1
 
 $tar $tarfile $distrobase/include/nvector/nvector_serial.h                            || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_parallel.h                          || exit 1
@@ -84,10 +87,6 @@ $tar $tarfile $distrobase/include/nvector/nvector_openmp.h                      
 $tar $tarfile $distrobase/include/nvector/nvector_openmpdev.h                         || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_cuda.h                              || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_raja.h                              || exit 1
-$tar $tarfile $distrobase/include/nvector/cuda/ThreadPartitioning.hpp                 || exit 1
-$tar $tarfile $distrobase/include/nvector/cuda/Vector.hpp                             || exit 1
-$tar $tarfile $distrobase/include/nvector/cuda/VectorKernels.cuh                      || exit 1
-$tar $tarfile $distrobase/include/nvector/cuda/VectorArrayKernels.cuh                 || exit 1
 $tar $tarfile $distrobase/include/nvector/raja/Vector.hpp                             || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_trilinos.h                          || exit 1
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp  || exit 1
@@ -97,6 +96,7 @@ $tar $tarfile $distrobase/include/nvector/nvector_mpimanyvector.h               
 $tar $tarfile $distrobase/include/nvector/nvector_mpiplusx.h                          || exit 1
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h      || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_cusparse.h  || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h     || exit 1
 #$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h    || exit 1
@@ -134,12 +134,17 @@ $tar $tarfile $distrobase/src/sundials/sundials_iterative.c                     
 $tar $tarfile $distrobase/src/sundials/sundials_version.c                         || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c                 || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c             || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_futils.c                          || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_cuda.h                            || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_cuda_kernels.cuh                  || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_debug.h                           || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/CMakeLists.txt                        || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.{c,f90}    || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.{c,f90}          || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_nonlinearsolver_mod.{c,f90} || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_nvector_mod.{c,f90}         || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.{c,f90}           || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.{c,f90}          || exit 1
 
 echo "   --- Add nvector modules to $tarfile"
 
@@ -198,8 +203,10 @@ $tar $tarfile $distrobase/src/nvector/pthreads/fmod/fnvector_pthreads_mod.{c,f90
 
 echo "   --- Add nvector/cuda module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvector/cuda/CMakeLists.txt  || exit 1
-$tar $tarfile $distrobase/src/nvector/cuda/nvector_cuda.cu || exit 1
+$tar $tarfile $distrobase/src/nvector/cuda/CMakeLists.txt          || exit 1
+$tar $tarfile $distrobase/src/nvector/cuda/nvector_cuda.cu         || exit 1
+$tar $tarfile $distrobase/src/nvector/cuda/VectorKernels.cuh       || exit 1
+$tar $tarfile $distrobase/src/nvector/cuda/VectorArrayKernels.cuh  || exit 1
 
 echo "   --- Add nvector/raja module to $tarfile"
 
@@ -238,6 +245,12 @@ $tar $tarfile $distrobase/src/sunmatrix/band/fsunmatrix_band.h                ||
 $tar $tarfile $distrobase/src/sunmatrix/band/fsunmatrix_band.c                || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/band/fmod/CMakeLists.txt              || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/band/fmod/fsunmatrix_band_mod.{c,f90} || exit 1
+
+echo "   --- Add sunmatrix/cusparse module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmatrix/cusparse/CMakeLists.txt         || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/cusparse/sunmatrix_cusparse.cu  || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/cusparse/cusparse_kernels.cuh   || exit 1
 
 echo "   --- Add sunmatrix/dense module to $tarfile"
 
@@ -451,12 +464,12 @@ $tar $tarfile $distrobase/examples/nvector/test_mpinvector.c                    
 
 echo "   --- Add sunmatrix examples to $tarfile"
 
-$tar $tarfile $distrobase/examples/sunmatrix/CMakeLists.txt     || exit 1
-$tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.f90 || exit 1
-
+$tar $tarfile $distrobase/examples/sunmatrix/CMakeLists.txt                        || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/band/test_sunmatrix_band.c            || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/band/test_fsunmatrix_band_mod.f90     || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/band/CMakeLists.txt                   || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/cusparse/test_sunmatrix_cusparse.cu   || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/cusparse/CMakeLists.txt               || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/test_sunmatrix_dense.c          || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/test_fsunmatrix_dense_mod.f90   || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/CMakeLists.txt                  || exit 1
@@ -465,6 +478,9 @@ $tar $tarfile $distrobase/examples/sunmatrix/sparse/test_fsunmatrix_sparse_mod.f
 $tar $tarfile $distrobase/examples/sunmatrix/sparse/CMakeLists.txt                 || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/slunrloc/test_sunmatrix_slunrloc.cpp  || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/slunrloc/CMakeLists.txt               || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/dreadrb.c                             || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/dreadrb.h                             || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.f90                    || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.c                      || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.h                      || exit 1
 
@@ -589,3 +605,7 @@ $tar $tarfile $distrobase/examples/templates/makefile_superludist_CXX_ex.in || e
 echo "   --- Add testing files to $tarfile"
 
 $tar $tarfile $distrobase/test/testRunner || exit 1
+
+echo "   --- Add unit tests files to $tarfile"
+
+$tar $tarfile $distrobase/test/unit_tests/CMakeLists.txt || exit 1

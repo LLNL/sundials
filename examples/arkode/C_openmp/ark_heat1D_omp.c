@@ -5,7 +5,7 @@
  * Daniel R. Reynolds @ SMU and parallelized with OpenMP
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -248,7 +248,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype dx = udata->dx;
   realtype *Y=NULL, *Ydot=NULL;
   realtype c1, c2;
-  sunindextype i, isource;
+  sunindextype i = 0;
+  sunindextype isource;
 
   Y = N_VGetArrayPointer(y);      /* access data arrays */
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return 1;
@@ -280,7 +281,7 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   realtype dx = udata->dx;
   realtype *V=NULL, *JV=NULL;
   realtype c1, c2;
-  sunindextype i;
+  sunindextype i = 0;
 
   V = N_VGetArrayPointer(v);       /* access data arrays */
   if (check_flag((void *) V, "N_VGetArrayPointer", 0)) return 1;

@@ -6,7 +6,7 @@
  * by Cohen, Hindmarsh, Byrne, and Serban @ LLNL.
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -328,17 +328,17 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   /* Pass needed data to processes before and after current process. */
    if (my_pe != 0)
-     MPI_Send(&z[1], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
+     (void) MPI_Send(&z[1], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
    if (my_pe != last_pe)
-     MPI_Send(&z[my_length], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
+     (void) MPI_Send(&z[my_length], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
 
   /* Receive needed data from processes before and after current process. */
    if (my_pe != 0)
-     MPI_Recv(&z[0], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
+     (void) MPI_Recv(&z[0], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
    else z[0] = ZERO;
    if (my_pe != last_pe)
-     MPI_Recv(&z[my_length+1], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm,
-              &status);
+     (void) MPI_Recv(&z[my_length+1], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm,
+                     &status);
    else z[my_length + 1] = ZERO;
 
   /* Loop over all grid points in current process. */

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -64,13 +64,13 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
 int main()
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);      /* initial time */
-  realtype Tf = RCONST(10.0);     /* final time */
-  realtype dTout = RCONST(1.0);   /* time between outputs */
-  sunindextype NEQ = 1;           /* number of dependent vars. */
-  realtype reltol = 1.0e-6;       /* tolerances */
-  realtype abstol = 1.0e-10;
-  realtype lamda  = -100.0;       /* stiffness parameter */
+  realtype T0 = RCONST(0.0);         /* initial time */
+  realtype Tf = RCONST(10.0);        /* final time */
+  realtype dTout = RCONST(1.0);      /* time between outputs */
+  sunindextype NEQ = 1;              /* number of dependent vars. */
+  realtype reltol = RCONST(1.0e-6);  /* tolerances */
+  realtype abstol = RCONST(1.0e-10);
+  realtype lamda  = RCONST(-100.0);  /* stiffness parameter */
 
   /* general problem variables */
   int flag;                       /* reusable error-checking flag */
@@ -91,7 +91,7 @@ int main()
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ);          /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
-  N_VConst(0.0, y);             /* Specify initial condition */
+  N_VConst(RCONST(0.0), y);        /* Specify initial condition */
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
@@ -206,7 +206,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype u = NV_Ith_S(y,0);                 /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot,0) = lamda*u + 1.0/(1.0+t*t) - lamda*atan(t);
+  NV_Ith_S(ydot,0) = lamda*u + RCONST(1.0)/(RCONST(1.0)+t*t) - lamda*atan(t);
 
   return 0;                                   /* return with success */
 }
@@ -269,15 +269,14 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
 {
   int      passfail=0;     /* answer pass (0) or fail (1) flag     */
   realtype ans, err, ewt;  /* answer data, error, and error weight */
-  realtype ONE=RCONST(1.0);
 
   /* compute solution error */
   ans = atan(t);
-  ewt = ONE / (rtol * fabs(ans) + atol);
+  ewt = RCONST(1.0) / (rtol * fabs(ans) + atol);
   err = ewt * fabs(NV_Ith_S(y,0) - ans);
 
   /* is the solution within the tolerances? */
-  passfail = (err < ONE) ? 0 : 1;
+  passfail = (err < RCONST(1.0)) ? 0 : 1;
 
   if (passfail) {
     fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);

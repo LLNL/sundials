@@ -87,6 +87,87 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v4.x.x}
+
+The expected behavior of the \id{SUNNonlinSolGetNumIters} function in the
+{\sunnonlinsol} API has been updated to specify that it should return the
+number of nonlinear solver iterations in most recent solve rather than the
+cumulative number of iterations across all solves. The API documentation and
+{\sundials} provided {\sunnonlinsol} implementations and have been updated
+accordingly. As before, the cumulative number of nonlinear iterations may be
+retreived by calling \id{IDAGetNumNonlinSolvIters}, \id{IDAGetNonlinSolvStats},
+\id{IDAGetSensNumNonlinSolvIters}, or \id{IDAGetSensNonlinSolvStats}.
+
+\subsection*{Changes in v4.3.0}
+
+Fixed a bug in the iterative linear solver modules where an error is not
+returned if the Atimes function is \id{NULL} or, if preconditioning is enabled,
+the PSolve function is \id{NULL}.
+
+Added the ability to control the {\cuda} kernel launch parameters for the
+\id{NVECTOR\_CUDA} and \id{SUNMATRIX\_CUSPARSE} modules. These modules remain
+experimental and are subject to change from version to version.
+In addition, the \id{NVECTOR\_CUDA} kernels were rewritten to be more flexible.
+Most users should see equivalent performance or some improvement, but a select
+few may observe minor performance degradation with the default settings. Users
+are encouraged to contact the {\sundials} team about any perfomance changes
+that they notice.
+
+Added new capabilities for monitoring the solve phase in the {\sunnonlinsolnewton}
+and {\sunnonlinsolfixedpoint} modules, and the {\sundials} iterative linear solver
+modules. {\sundials} must be built with the CMake option
+\id{SUNDIALS\_BUILD\_WITH\_MONITORING} to use these capabilties.
+
+Added the optional functions \id{IDASetJacTimesResFn} and
+\id{IDASetJacTimesResFnB} to specify an alternative residual function
+for computing Jacobian-vector products with the internal difference quotient
+approximation.
+
+
+\subsection*{Changes in v4.2.0}
+
+Fixed a build system bug related to the Fortran 2003 interfaces when using the
+IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
+it is recommended to set \id{CMAKE\_Fortran\_COMPILER} to \id{f2003},
+\id{xlf2003}, or \id{xlf2003\_r}.
+
+Fixed a linkage bug affecting Windows users that stemmed from dllimport/dllexport
+attributes missing on some SUNDIALS API functions.
+
+Fixed a memory leak from not deallocating the \id{atolSmin0} and \id{atolQSmin0}
+arrays.
+
+Added a new \id{SUNMatrix} implementation, \id{SUNMATRIX\_CUSPARSE}, that interfaces
+to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
+the \id{SUNLINSOL\_CUSOLVER\_BATCHQR} linear solver has been updated to
+use this matrix, therefore, users of this module will need to update their code.
+These modules are still considered to be experimental, thus they are subject to
+breaking changes even in minor releases.
+
+The functions \id{IDASetLinearSolutionScaling} and
+\id{IDASetLinearSolutionScalingB} were added to enable or disable the scaling
+applied to linear system solutions with matrix-based linear solvers to account
+for a lagged value of $\alpha$ in the linear system matrix
+$\frac{\partial F}{\partial y} + \alpha\frac{\partial F}{\partial \dot{y}}$.
+Scaling is enabled by default when using a matrix-based linear solver.
+
+\subsection*{Changes in v4.1.0}
+
+Fixed a build system bug related to finding LAPACK/BLAS.
+
+Fixed a build system bug related to checking if the KLU library works.
+
+Added a new build system option, \id{CUDA\_ARCH}, that can be used to specify
+the CUDA architecture to compile for.
+
+Fixed a build system bug related to finding PETSc when using the CMake
+variables \id{PETSC\_INCLUDES} and \id{PETSC\_LIBRARIES} instead of
+\id{PETSC\_DIR}.
+
+Added two utility functions, \id{SUNDIALSFileOpen} and \id{SUNDIALSFileClose}
+for creating/destroying file pointers that are useful when using the Fortran
+2003 interfaces.
+
 \subsection*{Changes in v4.0.0}
 
 \subsubsection*{Build system changes}

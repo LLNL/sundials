@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -44,6 +44,9 @@
 
 #ifndef _NVECTOR_H
 #define _NVECTOR_H
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <sundials/sundials_types.h>
 
@@ -145,6 +148,10 @@ struct _generic_N_Vector_Ops {
   realtype (*nvminquotientlocal)(N_Vector, N_Vector);
   realtype (*nvwsqrsumlocal)(N_Vector, N_Vector);
   realtype (*nvwsqrsummasklocal)(N_Vector, N_Vector, N_Vector);
+
+  /* debugging functions (called when SUNDIALS_DEBUG_PRINTVEC is defined) */
+  void (*nvprint)(N_Vector);
+  void (*nvprintfile)(N_Vector, FILE*);
 };
 
 /* A vector is a structure with an implementation-dependent
@@ -256,6 +263,15 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector* vs, int count);
 /* These function are really only for users of the Fortran interface */
 SUNDIALS_EXPORT N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index);
 SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w);
+
+
+/* -----------------------------------------------------------------
+ * Debugging functions
+ * ----------------------------------------------------------------- */
+
+SUNDIALS_EXPORT void N_VPrint(N_Vector v);
+SUNDIALS_EXPORT void N_VPrintFile(N_Vector v, FILE* outfile);
+
 
 #ifdef __cplusplus
 }

@@ -385,7 +385,7 @@ name of the function to be called or macro to be referenced.
 
   If using a non-default nonlinear solver, then initialize the nonlinear solver
   interface by attaching the nonlinear solver object by calling
-  \id{ier = }\Id{IDASetNonlinearSolver}\id{(ida\_mem, NLS);}  (see
+  \id{ier = }\Id{IDASetNonlinearSolver}\id{(ida\_mem, NLS);} (see
   \S\ref{sss:nonlin_solv_init} for details).
 
 \item
@@ -494,7 +494,7 @@ The following three functions must be called in the order listed. The last one
 is to be called only after the DAE solution is complete, as it frees the {\ida}
 memory block created and allocated by the first two calls.
 %%
-\ucfunction{IDACreate}
+\ucfunctionf{IDACreate}
 {
   ida\_mem = IDACreate();
 }
@@ -511,7 +511,7 @@ memory block created and allocated by the first two calls.
 {}
 %%
 %%
-\ucfunction{IDAInit}
+\ucfunctionf{IDAInit}
 {
   flag = IDAInit(ida\_mem, res, t0, y0, yp0);
 }
@@ -555,7 +555,7 @@ memory block created and allocated by the first two calls.
 }
 %%
 %%
-\ucfunction{IDAFree}
+\ucfunctionf{IDAFree}
 {
   IDAFree(\&ida\_mem);
 }
@@ -581,7 +581,7 @@ integration tolerances (or directly specify the weights used in
 evaluating WRMS vector norms).  Note that this call must be made after
 the call to \id{IDAInit}.
 %%
-\ucfunction{IDASStolerances}
+\ucfunctionf{IDASStolerances}
 {
   flag = IDASStolerances(ida\_mem, reltol, abstol);
 }
@@ -616,7 +616,7 @@ the call to \id{IDAInit}.
 {}
 %%
 %%
-\ucfunction{IDASVtolerances}
+\ucfunctionf{IDASVtolerances}
 {
   flag = IDASVtolerances(ida\_mem, reltol, abstol);
 }
@@ -655,7 +655,7 @@ the call to \id{IDAInit}.
 }
 %%
 %%
-\ucfunction{IDAWFtolerances}
+\ucfunctionf{IDAWFtolerances}
 {
   flag = IDAWFtolerances(ida\_mem, efun);
 }
@@ -752,7 +752,7 @@ is equivalent to zero as far as the computation is concerned.
 (3) The user's residual routine \id{res} should never change a
 negative value in the solution vector \id{yy} to a non-negative value,
 as a "solution" to this problem.  This can cause instability.  If the
-\id{res} routine cannot tolerate a zero or negative value (e.g. because
+\id{res} routine cannot tolerate a zero or negative value (e.g., because
 there is a square root or log of it), then the offending value should
 be changed to zero or a tiny positive number in a temporary variable
 (not in the input \id{yy} vector) for the purposes of computing $F(t,y,\dot{y})$.
@@ -768,8 +768,8 @@ the computed values is unsuccessful.
 %%
 \subsection{Linear solver interface functions}\label{sss:lin_solv_init}
 
-As previously explained, a if the nonlinear solver requires the solution of
-linear systems of the from (\ref{e:DAE_Newtoncorr}) (e.g., the default Newton
+As previously explained, if the nonlinear solver requires the solution of
+linear systems of the form (\ref{e:DAE_Newtoncorr}) (e.g., the default Newton
 iteration, then solution of these linear systems is handled with the
 {\idals} linear solver interface.  This interface supports all valid
 {\sunlinsol} modules.  Here, matrix-based {\sunlinsol} modules utilize
@@ -839,7 +839,7 @@ choice of linear solver.
 %%
 \index{IDA@{\ida} linear solvers!selecting one|)}
 \index{IDA@{\ida} linear solver interface!IDALS@{\idals}}
-\ucfunction{IDASetLinearSolver}
+\ucfunctionf{IDASetLinearSolver}
 {
   flag = IDASetLinearSolver(ida\_mem, LS, J);
 }
@@ -883,7 +883,7 @@ choice of linear solver.
   If \id{LS} is a matrix-based linear solver, then the template
   Jacobian matrix \id{J} will be used in the solve process, so if
   additional storage is required within the {\sunmatrix} object
-  (e.g. for factorization of a banded matrix), ensure that the input
+  (e.g., for factorization of a banded matrix), ensure that the input
   object is allocated with sufficient size (see the documentation of
   the particular {\sunmatrix} type in Chapter \ref{s:sunmatrix} for
   further information).
@@ -923,7 +923,7 @@ A call to this function attaches the nonlinear solver to the main {\ida}
 integrator. We note that at present, the {\sunnonlinsol} object
 \emph{must be of type} \id{SUNNONLINEARSOLVER\_ROOTFIND}.
 
-\ucfunction{IDASetNonlinearSolver}
+\ucfunctionf{IDASetNonlinearSolver}
 {
   flag = IDASetNonlinearSolver(ida\_mem, NLS);
 }
@@ -976,7 +976,7 @@ successful call to the linear system solver specification function.
 The call to \id{IDACalcIC} should precede the call(s) to \id{IDASolve}
 for the given problem.
 %
-\ucfunction{IDACalcIC}
+\ucfunctionf{IDACalcIC}
 {
   flag = IDACalcIC(ida\_mem, icopt, tout1);
 }
@@ -1085,7 +1085,7 @@ problem is to be changed during the solution, \id{IDARootInit} can also
 be called prior to a continuation call to \id{IDASolve}.
 %%
 %%
-\ucfunction{IDARootInit}
+\ucfunctionf{IDARootInit}
 {
   flag = IDARootInit(ida\_mem, nrtfn, g);
 }
@@ -1134,7 +1134,7 @@ specifies one of two modes as to where {\ida} is to return a solution.
 But these modes are modified if the user has set a stop time (with
 \id{IDASetStopTime}) or requested rootfinding.
 %
-\ucfunction{IDASolve}
+\ucfunctionf{IDASolve}
 {
   flag = IDASolve(ida\_mem, tout, \&tret, yret, ypret, itask);
 }
@@ -1265,11 +1265,12 @@ Table \ref{t:optional_input} lists all optional input functions in {\ida} which
 are then described in detail in the remainder of this section.
 For the most casual use of {\ida}, the reader can skip to \S\ref{ss:user_fct_sim}.
 
-We note that, on an error return, all these functions also send an error message to
-the error handler function.
+We note that, on an error return, all of the optional input functions also send an
+error message to the error handler function.
 \index{error messages}
-We also note that all error return values are negative,
-so a test \id{flag} $<0$ will catch any error.
+All error return values are negative, so the test \id{flag < 0} will catch all
+errors. Finally, a call to a \id{IDASet***} function can be made from the
+user's calling program at any time and, if successful, takes effect immediately.
 
 \begin{table}
 \centering
@@ -1312,10 +1313,12 @@ Lower bound on Newton step & \id{IDASetStepToleranceIC} &  uround$^{2/3}$ \\
 \multicolumn{3}{|c|}{\bf IDALS linear solver interface} \\
 \hline
 Jacobian function & \id{IDASetJacFn} & DQ\\
+Enable or disable linear solution scaling & \id{IDASetLinearSolutionScaling} & on\\
 Jacobian-times-vector function & \id{IDASetJacTimes} & NULL, DQ\\
 Preconditioner functions & \id{IDASetPreconditioner} &NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{IDASetEpsLin} & 0.05 \\
-Increment factor used in DQ $Jv$ approx.  & \id{IDASetIncrementFactor} & 1.0 \\
+Increment factor used in DQ $Jv$ approx. & \id{IDASetIncrementFactor} & 1.0 \\
+Jacobian-times-vector DQ Res function & \id{IDASetJacTimesResFn} & NULL \\
 \hline
 \end{tabular}
 \end{table}
@@ -1329,7 +1332,7 @@ take effect for any later error message.
 %%
 %%
 \index{error messages!redirecting}
-\ucfunction{IDASetErrFile}
+\ucfunctionf{IDASetErrFile}
 {
 flag = IDASetErrFile(ida\_mem, errfp);
 }
@@ -1369,7 +1372,7 @@ flag = IDASetErrFile(ida\_mem, errfp);
 %%
 %%
 \index{error messages!user-defined handler}
-\ucfunction{IDASetErrHandlerFn}
+\ucfunctionf{IDASetErrHandlerFn}
 {
 flag = IDASetErrHandlerFn(ida\_mem, ehfun, eh\_data);
 }
@@ -1402,7 +1405,7 @@ flag = IDASetErrHandlerFn(ida\_mem, ehfun, eh\_data);
 }
 %%
 %%
-\ucfunction{IDASetUserData}
+\ucfunctionf{IDASetUserData}
 {
   flag = IDASetUserData(ida\_mem, user\_data);
 }
@@ -1437,7 +1440,7 @@ flag = IDASetErrHandlerFn(ida\_mem, ehfun, eh\_data);
 }
 %%
 %%
-\ucfunction{IDASetMaxOrd}
+\ucfunctionf{IDASetMaxOrd}
 {
 flag = IDASetMaxOrd(ida\_mem, maxord);
 }
@@ -1473,7 +1476,7 @@ flag = IDASetMaxOrd(ida\_mem, maxord);
 }
 %%
 %%
-\ucfunction{IDASetMaxNumSteps}
+\ucfunctionf{IDASetMaxNumSteps}
 {
 flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
 }
@@ -1506,7 +1509,7 @@ flag = IDASetMaxNumSteps(ida\_mem, mxsteps);
 }
 %%
 %%
-\ucfunction{IDASetInitStep}
+\ucfunctionf{IDASetInitStep}
 {
 flag = IDASetInitStep(ida\_mem, hin);
 }
@@ -1540,7 +1543,7 @@ flag = IDASetInitStep(ida\_mem, hin);
 %%
 \index{step size bounds|(}
 %%
-\ucfunction{IDASetMaxStep}
+\ucfunctionf{IDASetMaxStep}
 {
 flag = IDASetMaxStep(ida\_mem, hmax);
 }
@@ -1574,7 +1577,7 @@ flag = IDASetMaxStep(ida\_mem, hmax);
 \index{step size bounds|)}
 %%
 %%
-\ucfunction{IDASetStopTime}
+\ucfunctionf{IDASetStopTime}
 {
 flag = IDASetStopTime(ida\_mem, tstop);
 }
@@ -1610,7 +1613,7 @@ flag = IDASetStopTime(ida\_mem, tstop);
 }
 %%
 %%
-\ucfunction{IDASetMaxErrTestFails}
+\ucfunctionf{IDASetMaxErrTestFails}
 {
 flag = IDASetMaxErrTestFails(ida\_mem, maxnef);
 }
@@ -1640,7 +1643,7 @@ flag = IDASetMaxErrTestFails(ida\_mem, maxnef);
 }
 %%
 %%
-\ucfunction{IDASetMaxNonlinIters}
+\ucfunctionf{IDASetMaxNonlinIters}
 {
 flag = IDASetMaxNonlinIters(ida\_mem, maxcor);
 }
@@ -1672,7 +1675,7 @@ flag = IDASetMaxNonlinIters(ida\_mem, maxcor);
 }
 %%
 %%
-\ucfunction{IDASetMaxConvFails}
+\ucfunctionf{IDASetMaxConvFails}
 {
 flag = IDASetMaxConvFails(ida\_mem, maxncf);
 }
@@ -1703,7 +1706,7 @@ flag = IDASetMaxConvFails(ida\_mem, maxncf);
 }
 %%
 %%
-\ucfunction{IDASetNonlinConvCoef}
+\ucfunctionf{IDASetNonlinConvCoef}
 {
 flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
 }
@@ -1736,7 +1739,7 @@ flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
 }
 %%
 %%
-\ucfunction{IDASetSuppressAlg}
+\ucfunctionf{IDASetSuppressAlg}
 {
 flag = IDASetSuppressAlg(ida\_mem, suppressalg);
 }
@@ -1775,7 +1778,7 @@ flag = IDASetSuppressAlg(ida\_mem, suppressalg);
 }
 %%
 %%
-\ucfunction{IDASetId}
+\ucfunctionf{IDASetId}
 {
 flag = IDASetId(ida\_mem, id);
 }
@@ -1809,7 +1812,7 @@ flag = IDASetId(ida\_mem, id);
 }
 %%
 %%
-\ucfunction{IDASetConstraints}
+\ucfunctionf{IDASetConstraints}
 {
 flag = IDASetConstraints(ida\_mem, constraints);
 }
@@ -1868,8 +1871,7 @@ optional inputs for matrix-based linear solvers, optional inputs for
 matrix-free linear solvers, and optional inputs for iterative linear
 solvers.  We note that the matrix-based and matrix-free groups are
 mutually exclusive, whereas the ``iterative'' tag can apply to either
-case. \\
-
+case.
 
 \index{optional input!matrix-based linear solver|(}
 \index{IDALS@{\idals} linear solver interface!Jacobian approximation used by}
@@ -1891,7 +1893,7 @@ using global data in the program.
 The pointer \id{user\_data} may be specified through \id{IDASetUserData}.
 %%
 \index{Jacobian approximation function!user-supplied}
-\ucfunction{IDASetJacFn}
+\ucfunctionf{IDASetJacFn}
 {
   flag = IDASetJacFn(ida\_mem, jac);
 }
@@ -1937,6 +1939,54 @@ The pointer \id{user\_data} may be specified through \id{IDASetUserData}.
   users transition to the new routine name soon.
 }
 %%
+When using a matrix-based linear solver the matrix information will be updated
+infrequently to reduce matrix construction and, with direct solvers,
+factorization costs. As a result the value of $\alpha$ may not be current and
+a scaling factor is applied to the solution of the linear system to account for
+the lagged value of $\alpha$. See \S\ref{ss:sunlinsol_lagged_matrix} for more
+details. The function \id{IDASetLinearSolutionScaling} can be used to disable
+this scaling when necessary, e.g., when providing a custom linear solver that
+updates the matrix using the current $\alpha$ as part of the solve.
+%%
+\index{Linear solution scaling function!user-supplied}
+\ucfunctionf{IDASetLinearSolutionScaling}
+{
+  flag = IDASetLinearSolutionScaling(ida\_mem, onoff);
+}
+{
+  The function \ID{IDASetLinearSolutionScaling} enables or disables scaling
+  the linear system solution to account for a change in $\alpha$ in the linear
+  system. For more details see \S\ref{ss:sunlinsol_lagged_matrix}.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[onoff] (\id{booleantype})
+    flag to enable (\id{SUNTRUE}) or disable (\id{SUNFALSE}) scaling
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}]
+    The flag value has been successfully set.
+  \item[\Id{IDALS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver interface has not been initialized.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The attached linear solver is not matrix-based.
+  \end{args}
+}
+{
+  This function must be called \emph{after} the {\idals} linear solver
+  interface has been initialized through a call to
+  \id{IDASetLinearSolver}.
+
+  By default scaling is enabled with matrix-based linear solvers.
+}
+%%
 \index{optional input!matrix-based linear solver|)}
 %%
 %%
@@ -1949,7 +1999,9 @@ product between the Jacobian matrix $J(t,y)$ and a vector $v$. The
 user can supply a Jacobian-times-vector approximation function,
 or use the default internal difference quotient function
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
-that comes with the {\idals} solver interface.  A user-defined
+that comes with the {\idals} solver interface.
+
+A user-defined
 Jacobian-vector function must be of type \id{IDALsJacTimesVecFn}
 and can be specified through a call to \id{IDASetJacTimes}
 (see \S\ref{ss:jtimesFn} for specification details).
@@ -1967,7 +2019,7 @@ during the execution of the user-supplied functions
 without using global data in the program.
 %%
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
-\ucfunction{IDASetJacTimes}
+\ucfunctionf{IDASetJacTimes}
 {
   flag = IDASetJacTimes(ida\_mem, jsetup, jtimes);
 }
@@ -2020,12 +2072,15 @@ without using global data in the program.
   However, this will be deprecated in future releases, so we recommend
   that users transition to the new routine name soon.
 }
-Alternately, when using the default difference-quotient approximation
-to the Jacobian-vector product, the user may specify the factor to
-use in setting increments for the finite-difference approximation, via
-a call to \Id{IDASetIncrementFactor}:
-
-\ucfunction{IDASetIncrementFactor}
+%%
+%%
+When using the default difference-quotient approximation to the Jacobian-vector
+product, the user may specify the factor to use in setting increments for the
+finite-difference approximation, via a call to \Id{IDASetIncrementFactor}.
+%%
+%%
+\index{Jacobian approximation function!Jacobian times vector!increment}
+\ucfunctionf{IDASetIncrementFactor}
 {
   flag = IDASetIncrementFactor(ida\_mem, dqincfac);
 }
@@ -2076,7 +2131,58 @@ a call to \Id{IDASetIncrementFactor}:
 }
 %%
 %%
+Additionally, when using the internal difference quotient, the user may also
+optionally supply an alternative residual function for use in the
+Jacobian-vector product approximation by calling \id{IDASetJacTimesResFn}. The
+alternative residual function should compute a suitable (and differentiable)
+approximation to the residual function provided to \id{IDAInit}. For example,
+as done in \cite{dorr2010numerical} for an ODE in explicit form, the alternative
+function may use lagged values when evaluating a nonlinearity to avoid
+differencing a potentially non-differentiable factor.
+%%
+%%
+\index{Jacobian approximation function!Jacobian times vector!alternative-res}
+\ucfunctionf{IDASetJacTimesResFn}
+{
+  flag = IDASetJacTimesResFn(ida\_mem, jtimesResFn);
+}
+{
+  The function \ID{IDASetJacTimesResFn} specifies an alternative DAE residual
+  function for use in the internal Jacobian-vector product difference quotient
+  approximation.
+}
+{
+  \begin{args}[jtimesResFn]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[jtimesResFn] (\Id{IDAResFn})
+    is the {\CC} function which computes the alternative DAE residual function
+    to use in Jacobian-vector product difference quotient approximations. This
+    function has the form \id{res(t, yy, yp, resval, user\_data)}. For full
+    details see \S\ref{ss:resFn}.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDALS\_SUNLS\_FAIL]
+  \item[\Id{IDALS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{IDALS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The internal difference quotient approximation is disabled.
+  \end{args}
+}
+{
+  The default is to use the residual function provided to \id{IDAInit} in the
+  internal difference quotient. If the input resudual function is \id{NULL},
+  the default is used.
 
+  This function must be called \emph{after} the {\idals} linear solver interface
+  has been initialized through a call to \id{IDASetLinearSolver}.
+}
 %%
 %%
 \index{optional input!matrix-free linear solver|)}
@@ -2114,7 +2220,9 @@ the \id{IDASetEpsLin} function.
 
 \index{IDALS@{\idals} linear solver interface!preconditioner solve function}
 \index{IDALS@{\idals} linear solver interface!preconditioner setup function}
-\ucfunction{IDASetPreconditioner}
+%%
+%%
+\ucfunctionf{IDASetPreconditioner}
 {
   flag = IDASetPreconditioner(ida\_mem, psetup, psolve);
 }
@@ -2167,7 +2275,7 @@ the \id{IDASetEpsLin} function.
 %%
 %%
 \index{IDALS@{\idals} linear solver interface!convergence test}
-\ucfunction{IDASetEpsLin}
+\ucfunctionf{IDASetEpsLin}
 {
   flag = IDASetEpsLin(ida\_mem, eplifac);
 }
@@ -2229,7 +2337,7 @@ the \id{IDASetEpsLin} function.
 The following functions can be called just prior to calling \id{IDACalcIC}
 to set optional inputs controlling the initial condition calculation.
 %%
-\ucfunction{IDASetNonlinConvCoefIC}
+\ucfunctionf{IDASetNonlinConvCoefIC}
 {
 flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
 }
@@ -2265,7 +2373,7 @@ flag = IDASetNonlinConvCoefIC(ida\_mem, epiccon);
   system Jacobian.
 }
 %%
-\ucfunction{IDASetMaxNumStepsIC}
+\ucfunctionf{IDASetMaxNumStepsIC}
 {
 flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
 }
@@ -2299,7 +2407,7 @@ flag = IDASetMaxNumStepsIC(ida\_mem, maxnh);
 }
 %%
 %%
-\ucfunction{IDASetMaxNumJacsIC}
+\ucfunctionf{IDASetMaxNumJacsIC}
 {
 flag = IDASetMaxNumJacsIC(ida\_mem, maxnj);
 }
@@ -2332,7 +2440,7 @@ flag = IDASetMaxNumJacsIC(ida\_mem, maxnj);
 }
 %%
 %%
-\ucfunction{IDASetMaxNumItersIC}
+\ucfunctionf{IDASetMaxNumItersIC}
 {
 flag = IDASetMaxNumItersIC(ida\_mem, maxnit);
 }
@@ -2365,7 +2473,7 @@ flag = IDASetMaxNumItersIC(ida\_mem, maxnit);
 }
 %%
 %%
-\ucfunction{IDASetMaxBacksIC}
+\ucfunctionf{IDASetMaxBacksIC}
 {
 flag = IDASetMaxBacksIC(ida\_mem, maxbacks);
 }
@@ -2398,7 +2506,7 @@ flag = IDASetMaxBacksIC(ida\_mem, maxbacks);
 }
 %%
 %%
-\ucfunction{IDASetLineSearchOffIC}
+\ucfunctionf{IDASetLineSearchOffIC}
 {
 flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
 }
@@ -2429,7 +2537,7 @@ flag = IDASetLineSearchOffIC(ida\_mem, lsoff);
 }
 %%
 %%
-\ucfunction{IDASetStepToleranceIC}
+\ucfunctionf{IDASetStepToleranceIC}
 {
 flag = IDASetStepToleranceIC(ida\_mem, steptol);
 }
@@ -2471,7 +2579,7 @@ flag = IDASetStepToleranceIC(ida\_mem, steptol);
 The following functions can be called to set optional inputs to control the
 rootfinding algorithm.
 %%
-\ucfunction{IDASetRootDirection}
+\ucfunctionf{IDASetRootDirection}
 {
 flag = IDASetRootDirection(ida\_mem, rootdir);
 }
@@ -2507,7 +2615,7 @@ flag = IDASetRootDirection(ida\_mem, rootdir);
 }
 %%
 %%
-\ucfunction{IDASetNoInactiveRootWarn}
+\ucfunctionf{IDASetNoInactiveRootWarn}
 {
 flag = IDASetNoInactiveRootWarn(ida\_mem);
 }
@@ -2555,7 +2663,7 @@ for any value of $t$ in the last internal step taken by {\ida}.
 
 The call to the \id{IDAGetDky} function has the following form:
 %%
-\ucfunction{IDAGetDky}
+\ucfunctionf{IDAGetDky}
 {
   flag = IDAGetDky(ida\_mem, t, k, dky);
 }
@@ -2713,7 +2821,7 @@ outputs in groups.
 These optional output functions are described next.
 %%
 %%
-\ucfunction{IDAGetWorkSpace}
+\ucfunctionf{IDAGetWorkSpace}
 {
   flag = IDAGetWorkSpace(ida\_mem, \&lenrw, \&leniw);
 }
@@ -2773,7 +2881,7 @@ These optional output functions are described next.
   given roughly by: \id{lenrw} $= 55 + 11N$, \id{leniw} $= 49$.
 }
 %%
-\ucfunction{IDAGetNumSteps}
+\ucfunctionf{IDAGetNumSteps}
 {
   flag = IDAGetNumSteps(ida\_mem, \&nsteps);
 }
@@ -2801,7 +2909,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNumResEvals}
+\ucfunctionf{IDAGetNumResEvals}
 {
   flag = IDAGetNumResEvals(ida\_mem, \&nrevals);
 }
@@ -2833,7 +2941,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{IDAGetNumLinSolvSetups}
+\ucfunctionf{IDAGetNumLinSolvSetups}
 {
   flag = IDAGetNumLinSolvSetups(ida\_mem, \&nlinsetups);
 }
@@ -2862,7 +2970,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNumErrTestFails}
+\ucfunctionf{IDAGetNumErrTestFails}
 {
   flag = IDAGetNumErrTestFails(ida\_mem, \&netfails);
 }
@@ -2891,7 +2999,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetLastOrder}
+\ucfunctionf{IDAGetLastOrder}
 {
   flag = IDAGetLastOrder(ida\_mem, \&klast);
 }
@@ -2919,7 +3027,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetCurrentOrder}
+\ucfunctionf{IDAGetCurrentOrder}
 {
   flag = IDAGetCurrentOrder(ida\_mem, \&kcur);
 }
@@ -2947,7 +3055,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetLastStep}
+\ucfunctionf{IDAGetLastStep}
 {
   flag = IDAGetLastStep(ida\_mem, \&hlast);
 }
@@ -2977,7 +3085,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetCurrentStep}
+\ucfunctionf{IDAGetCurrentStep}
 {
   flag = IDAGetCurrentStep(ida\_mem, \&hcur);
 }
@@ -3005,7 +3113,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetActualInitStep}
+\ucfunctionf{IDAGetActualInitStep}
 {
   flag = IDAGetActualInitStep(ida\_mem, \&hinused);
 }
@@ -3039,7 +3147,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{IDAGetCurrentTime}
+\ucfunctionf{IDAGetCurrentTime}
 {
   flag = IDAGetCurrentTime(ida\_mem, \&tcur);
 }
@@ -3067,7 +3175,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetTolScaleFactor}
+\ucfunctionf{IDAGetTolScaleFactor}
 {
   flag = IDAGetTolScaleFactor(ida\_mem, \&tolsfac);
 }
@@ -3097,7 +3205,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetErrWeights}
+\ucfunctionf{IDAGetErrWeights}
 {
   flag = IDAGetErrWeights(ida\_mem, eweight);
 }
@@ -3128,7 +3236,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{IDAGetEstLocalErrors}
+\ucfunctionf{IDAGetEstLocalErrors}
 {
   flag = IDAGetEstLocalErrors(ida\_mem, ele);
 }
@@ -3169,7 +3277,7 @@ These optional output functions are described next.
 }
 %%
 %%
-\ucfunction{IDAGetIntegratorStats}
+\ucfunctionf{IDAGetIntegratorStats}
 {
   \begin{tabular}[t]{@{}r@{}l@{}}
     flag = IDAGetIntegratorStats(&ida\_mem, \&nsteps, \&nrevals, \&nlinsetups, \\
@@ -3219,7 +3327,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNumNonlinSolvIters}
+\ucfunctionf{IDAGetNumNonlinSolvIters}
 {
   flag = IDAGetNumNonlinSolvIters(ida\_mem, \&nniters);
 }
@@ -3249,7 +3357,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNumNonlinSolvConvFails}
+\ucfunctionf{IDAGetNumNonlinSolvConvFails}
 {
   flag = IDAGetNumNonlinSolvConvFails(ida\_mem, \&nncfails);
 }
@@ -3277,7 +3385,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{IDAGetNonlinSolvStats}
+\ucfunctionf{IDAGetNonlinSolvStats}
 {
   flag = IDAGetNonlinSolvStats(ida\_mem, \&nniters, \&nncfails);
 }
@@ -3308,7 +3416,7 @@ These optional output functions are described next.
 }
 {}
 %%
-\ucfunction{IDAGetReturnFlagName}
+\ucfunctionf{IDAGetReturnFlagName}
 {
   name = IDAGetReturnFlagName(flag);
 }
@@ -3332,7 +3440,7 @@ These optional output functions are described next.
 \label{sss:optout_iccalc}
 \index{optional output!initial condition calculation|(}
 %%
-\ucfunction{IDAGetNumBcktrackOps}
+\ucfunctionf{IDAGetNumBcktrackOps}
 {
   flag = IDAGetNumBacktrackOps(ida\_mem, \&nbacktr);
 }
@@ -3359,7 +3467,7 @@ These optional output functions are described next.
 }
 {}
 %%
-\ucfunction{IDAGetConsistentIC}
+\ucfunctionf{IDAGetConsistentIC}
 {
   flag = IDAGetConsistentIC(ida\_mem, yy0\_mod, yp0\_mod);
 }
@@ -3405,7 +3513,7 @@ These optional output functions are described next.
 There are two optional output functions associated with rootfinding.
 %%
 %%
-\ucfunction{IDAGetRootInfo}
+\ucfunctionf{IDAGetRootInfo}
 {
   flag = IDAGetRootInfo(ida\_mem, rootsfound);
 }
@@ -3442,7 +3550,7 @@ There are two optional output functions associated with rootfinding.
 }
 %%
 %%
-\ucfunction{IDAGetNumGEvals}
+\ucfunctionf{IDAGetNumGEvals}
 {
   flag = IDAGetNumGEvals(ida\_mem, \&ngevals);
 }
@@ -3480,7 +3588,8 @@ There are two optional output functions associated with rootfinding.
 The following optional outputs are available from the {\idals} modules:
 workspace requirements,
 number of calls to the Jacobian routine,
-number of calls to the residual routine for finite-difference Jacobian or Jacobian-vector product approximation,
+number of calls to the residual routine for finite-difference Jacobian
+or Jacobian-vector product approximation,
 number of linear iterations,
 number of linear convergence failures,
 number of calls to the preconditioner setup and solve routines,
@@ -3488,12 +3597,12 @@ number of calls to the Jacobian-vector setup and product routines,
 and last return value from an {\idals} function.
 Note that, where the name of an output would otherwise conflict with
 the name of an optional output from the main solver, a suffix \id{LS}
-(for Linear Solver) has been added (e.g. \id{lenrwLS}).
+(for Linear Solver) has been added (e.g., \id{lenrwLS}).
 %%
 %%
 \index{IDALS@{\idals} linear solver interface!memory requirements}
 \index{memory requirements!IDALS@{\idals} linear solver interface}
-\ucfunction{IDAGetLinWorkSpace}
+\ucfunctionf{IDAGetLinWorkSpace}
 {
   flag = IDAGetLinWorkSpace(ida\_mem, \&lenrwLS, \&leniwLS);
 }
@@ -3537,7 +3646,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumJacEvals}
+\ucfunctionf{IDAGetNumJacEvals}
 {
   flag = IDAGetNumJacEvals(ida\_mem, \&njevals);
 }
@@ -3573,15 +3682,15 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumLinResEvals}
+\ucfunctionf{IDAGetNumLinResEvals}
 {
   flag = IDAGetNumLinResEvals(ida\_mem, \&nrevalsLS);
 }
 {
   The function \ID{IDAGetNumLinResEvals} returns the
   cumulative number of calls to the user residual function due to the
-  finite difference Jacobian approximation or finite
-  difference Jacobian-vector product approximation.
+  finite difference Jacobian approximation or finite difference
+  Jacobian-vector product approximation.
 }
 {
   \begin{args}[nrevalsLS]
@@ -3614,7 +3723,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumLinIters}
+\ucfunctionf{IDAGetNumLinIters}
 {
   flag = IDAGetNumLinIters(ida\_mem, \&nliters);
 }
@@ -3649,7 +3758,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumLinConvFails}
+\ucfunctionf{IDAGetNumLinConvFails}
 {
   flag = IDAGetNumLinConvFails(ida\_mem, \&nlcfails);
 }
@@ -3684,7 +3793,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumPrecEvals}
+\ucfunctionf{IDAGetNumPrecEvals}
 {
   flag = IDAGetNumPrecEvals(ida\_mem, \&npevals);
 }
@@ -3720,7 +3829,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumPrecSolves}
+\ucfunctionf{IDAGetNumPrecSolves}
 {
   flag = IDAGetNumPrecSolves(ida\_mem, \&npsolves);
 }
@@ -3756,7 +3865,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumJTSetupEvals}
+\ucfunctionf{IDAGetNumJTSetupEvals}
 {
   flag = IDAGetNumJTSetupEvals(ida\_mem, \&njtsetup);
 }
@@ -3792,7 +3901,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetNumJtimesEvals}
+\ucfunctionf{IDAGetNumJtimesEvals}
 {
   flag = IDAGetNumJtimesEvals(ida\_mem, \&njvevals);
 }
@@ -3828,7 +3937,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetLastLinFlag}
+\ucfunctionf{IDAGetLastLinFlag}
 {
   flag = IDAGetLastLinFlag(ida\_mem, \&lsflag);
 }
@@ -3866,14 +3975,14 @@ the name of an optional output from the main solver, a suffix \id{LS}
   If the {\idals} setup function failed when using another
   {\sunlinsol} module, then \id{lsflag} will be
   \id{SUNLS\_PSET\_FAIL\_UNREC}, \id{SUNLS\_ASET\_FAIL\_UNREC}, or
-  \id{SUNLS\_PACKAGE\_FAIL\_UNREC}.
+  \\ \noindent \id{SUNLS\_PACKAGE\_FAIL\_UNREC}.
 
   If the {\idals} solve function failed (\id{IDASolve} returned
   \id{IDA\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
-  the {\sunlinsol} object, which will be one of:
+  the {\sunlinsol} object, which will be one of: \\ \noindent
   \id{SUNLS\_MEM\_NULL}, indicating that the {\sunlinsol} memory is \id{NULL};
-  \id{SUNLS\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the
-  $J*v$ function;
+  \\ \noindent \id{SUNLS\_ATIMES\_FAIL\_UNREC}, indicating an
+  unrecoverable failure in the $J*v$ function;
   \id{SUNLS\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably;
   \id{SUNLS\_GS\_FAIL}, indicating a failure in the Gram-Schmidt
@@ -3891,7 +4000,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{IDAGetLinReturnFlagName}
+\ucfunctionf{IDAGetLinReturnFlagName}
 {
   name = IDAGetLinReturnFlagName(lsflag);
 }
@@ -3973,7 +4082,7 @@ is to be a jump in the dependent variable vector.
 
 %%
 %%
-\ucfunction{IDAReInit}
+\ucfunctionf{IDAReInit}
 {
   flag = IDAReInit(ida\_mem, t0, y0, yp0);
 }
@@ -4056,7 +4165,7 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
 }
 {
   An \id{IDAResFn} function type should return a value of $0$ if successful,
-  a positive value if a recoverable error occurred (e.g. \id{yy} has an illegal
+  a positive value if a recoverable error occurred (e.g., \id{yy} has an illegal
   value), or a negative value if a nonrecoverable error occurred.
   In the last case, the integrator halts.
   If a recoverable error occurred, the integrator will attempt to correct and retry.
@@ -4072,7 +4181,7 @@ The user must provide a function of type \ID{IDAResFn} defined as follows:
   For efficiency reasons, the DAE residual function is not evaluated
   at the converged solution of the nonlinear solver. Therefore, in general, a
   recoverable error in that converged value cannot be corrected.  (It may be
-  detected when the right-hand side function is called the first time during
+  detected when the residual function is called the first time during
   the following integration step, but a successful step cannot be undone.)
 
   Allocation of memory for \id{yp} is handled within {\ida}.
@@ -4263,7 +4372,7 @@ provide a function of type \ID{IDALsJacFn} defined as follows:
 }
 {
   Information regarding the structure of the specific {\sunmatrix}
-  structure (e.g.~number of rows, upper/lower bandwidth, sparsity
+  structure (e.g.,~number of rows, upper/lower bandwidth, sparsity
   type) may be obtained through using the implementation-specific
   {\sunmatrix} interface functions (see Chapter \ref{s:sunmatrix} for
   details).
@@ -4368,7 +4477,7 @@ provide a function of type \ID{IDALsJacFn} defined as follows:
 \label{ss:jtimesFn}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|(}
 If a matrix-free linear solver is to be used (i.e., a \id{NULL}-valued
-{\sunmatrix} was supplied to \id{IDASetLinearSolver}), the user may
+{\sunmatrix} was supplied to \\ \noindent \id{IDASetLinearSolver}), the user may
 provide a function of type \Id{IDALsJacTimesVecFn} in the following form,
 to compute matrix-vector products $Jv$. If such a function is not supplied,
 the default is a difference quotient approximation to these products.
@@ -4429,9 +4538,10 @@ the default is a difference quotient approximation to these products.
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
   The previous function type \Id{IDASpilsJacTimesVecFn} is identical to
-  \id{IDALsJacTimesVecFn}, and may still be used for backward-compatibility.
-  However, this will be deprecated in future releases, so we recommend
-  that users transition to the new function type name soon.
+  \\ \noindent \id{IDALsJacTimesVecFn}, and may still be used for
+  backward-compatibility. However, this will be deprecated in future
+  releases, so we recommend that users transition to the new function
+  type name soon.
 }
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
 %%
@@ -4493,7 +4603,7 @@ user-supplied function of type \Id{IDALsJacTimesSetupFn}, defined as follows:
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 
   The previous function type \Id{IDASpilsJacTimesSetupFn} is identical
-  to \id{IDALsJacTimesSetupFn}, and may still be used for
+  to \\ \noindent \id{IDALsJacTimesSetupFn}, and may still be used for
   backward-compatibility.  However, this will be deprecated in future
   releases, so we recommend that users transition to the new function
   type name soon.
@@ -4964,7 +5074,7 @@ above) or re-initialize the {\idabbdpre} preconditioner module are
 described next.
 %%
 \index{half-bandwidths}
-\ucfunction{IDABBDPrecInit}
+\ucfunctionf{IDABBDPrecInit}
 {
    \begin{tabular}[t]{@{}r@{}l@{}}
      flag = IDABBDPrecInit(&ida\_mem, Nlocal, mudq, mldq, \\
@@ -5005,9 +5115,9 @@ described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDALS\_ILL\_INPUT]
-  \item[\id{IDALS\_SUCCESS}]
+  \item[\Id{IDALS\_SUCCESS}]
     The call to \id{IDABBDPrecInit} was successful.
-  \item[\id{IDALS\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} pointer was \id{NULL}.
   \item[\Id{IDALS\_MEM\_FAIL}]
     A memory allocation request has failed.
@@ -5053,7 +5163,7 @@ also be made (in the proper order).
 %%
 %%
 %%
-\ucfunction{IDABBDPrecReInit}
+\ucfunctionf{IDABBDPrecReInit}
 {
   flag = IDABBDPrecReInit(ida\_mem, mudq, mldq, dq\_rel\_yy);
 }
@@ -5078,9 +5188,9 @@ also be made (in the proper order).
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDALS\_PMEM\_NULL]
-  \item[\id{IDALS\_SUCCESS}]
+  \item[\Id{IDALS\_SUCCESS}]
     The call to \id{IDABBDPrecReInit} was successful.
-  \item[\id{IDALS\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} pointer was \id{NULL}.
   \item[\Id{IDALS\_LMEM\_NULL}]
     An {\idals} linear solver memory was not attached.
@@ -5104,7 +5214,7 @@ The following two optional output functions are available for use with
 the {\idabbdpre} module:
 %%
 \index{memory requirements!IDABBDPRE@{\idabbdpre} preconditioner}
-\ucfunction{IDABBDPrecGetWorkSpace}
+\ucfunctionf{IDABBDPrecGetWorkSpace}
 {
   flag = IDABBDPrecGetWorkSpace(ida\_mem, \&lenrwBBDP, \&leniwBBDP);
 }
@@ -5125,9 +5235,9 @@ the {\idabbdpre} module:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDALS\_PMEM\_NULL]
-  \item[\id{IDALS\_SUCCESS}]
+  \item[\Id{IDALS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\id{IDALS\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} pointer was \id{NULL}.
   \item[\Id{IDALS\_PMEM\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.
@@ -5150,7 +5260,7 @@ the {\idabbdpre} module:
 }
 %%
 %%
-\ucfunction{IDABBDPrecGetNumGfnEvals}
+\ucfunctionf{IDABBDPrecGetNumGfnEvals}
 {
   flag = IDABBDPrecGetNumGfnEvals(ida\_mem, \&ngevalsBBDP);
 }
@@ -5171,9 +5281,9 @@ the {\idabbdpre} module:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[IDALS\_PMEM\_NULL]
-  \item[\id{IDALS\_SUCCESS}]
+  \item[\Id{IDALS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\id{IDALS\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} pointer was \id{NULL}.
   \item[\Id{IDALS\_PMEM\_NULL}]
     The {\idabbdpre} preconditioner has not been initialized.

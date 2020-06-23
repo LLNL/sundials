@@ -111,8 +111,8 @@ If using a nonlinear solver that requires the solution of a linear
 system of the form (\ref{e:Newton}) (e.g., the default Newton iteration),
 then a linear solver module header file will be required.
 \index{CVODE@{\cvode} linear solvers!header files}
-The header files corresponding to the {\sundials}-provided linear
-solver modules available for use with {\cvode} are:
+The header files corresponding to the various {\sundials}-provided
+linear solver modules available for use with {\cvode} are:
 %%
 \begin{itemize}
 \item Direct linear solvers:
@@ -507,7 +507,7 @@ is to be called only after the IVP solution is complete, as it frees the
   to as the functional iteration in this guide) is
   recommended for nonstiff problems. For details on how to attach a
   different nonlinear solver module to {\cvode} see the description of
-  \id{CvodeSetNonlinearSolver}.
+  \id{CVodeSetNonlinearSolver}.
 }
 {
   If successful, \id{CVodeCreate} returns a pointer to the newly created
@@ -801,7 +801,6 @@ of (\ref{e:Newtonmat}).
 The {\cvdiag} linear solver interface supports a direct linear solver,
 that uses only a diagonal approximation to $J$.
 
-
 \index{CVODE@{\cvode} linear solvers!selecting one|(}
 To specify a generic linear solver to {\cvode}, after the call to
 \id{CVodeCreate} but before any calls to \id{CVode}, the user's
@@ -928,7 +927,7 @@ memory pointer returned by \id{CVodeCreate}.
 \index{CVDIAG@{\cvdiag} linear solver!selection of}
 \index{CVDIAG@{\cvdiag} linear solver!Jacobian approximation used by}
 \index{Jacobian approximation function!diagonal!difference quotient}
-\ucfunction{CVDiag}
+\ucfunctionf{CVDiag}
 {
   flag = CVDiag(cvode\_mem);
 }
@@ -1072,6 +1071,54 @@ be called prior to a continuation call to \id{CVode}.
   \id{CVodeRootInit} with \id{nrtfn}$=0$.
 }
 
+%%==============================================================================
+\subsection{Projection initialization function}\label{ss:cvprojinit}
+\index{Projection}
+
+When solving an IVP with a constraint equation, {\cvode} has the capability to
+project the solution onto the constraint manifold after each time step. To
+activate the projection capability with a user-defined projection function, call
+the following set function:
+%%
+%%
+\ucfunctionf{CVodeSetProjFn}
+{
+  flag = CVodeSetProjFn(cvode\_mem, proj);
+}
+{
+  The function \ID{CVodeSetProjFn} enables or disables projection with a
+  user-defined projection function.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block returned by \id{CVodeCreate}.
+  \item[proj] (\id{CVProjFn})
+    is the {\CC} function which defines the projection. See \S\ref{ss:projFn}
+    for details.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[CV\_SUCCESS]
+    The call to \id{CVodeSetProjFn} was successful.
+  \item[CV\_MEM\_NULL]
+    The \id{cvode\_mem} argument was \id{NULL}.
+  \item[CV\_MEM\_FAIL]
+    A memory allocation failed.
+  \item[CV\_ILL\_INPUT]
+    The projection function is \id{NULL} or the method type is not \id{CV\_BDF}.
+  \end{args}
+}
+{
+  At this time projection is only supported with BDF methods.
+
+  If a new IVP is to be solved with a call to \id{CVodeReInit}, where the new
+  IVP does not have a constraint equation but the prior one did, then call
+  \id{CVodeSetProjFrequency} with an input of \id{0} to disable projection.
+}
+
 
 %%==============================================================================
 \subsection{CVODE solver function}\label{sss:cvode}
@@ -1150,7 +1197,7 @@ But these modes are modified if the user has set a stop time (with
     very near $t$.
     In any case, the user should see the error message for details.
   \item[\Id{CV\_TOO\_CLOSE}]
-    The initial time $t_0$ and the output time $t_{out}$ are too close to each 
+    The initial time $t_0$ and the output time $t_{out}$ are too close to each
     other and the user did not specify an initial step size.
   \item[\Id{CV\_TOO\_MUCH\_WORK}]
     The solver took \id{mxstep} internal steps but still could not reach \id{tout}.
@@ -1201,7 +1248,7 @@ But these modes are modified if the user has set a stop time (with
   \id{CVode} returns the solution at \id{tstop}. Once the integrator returns
   at a stop time, any future testing for \id{tstop} is disabled (and can be
   reenabled only though a new call to \id{CVodeSetStopTime}).
-  
+
   All failure return values are negative and so the test \id{flag < 0}
   will trap all \id{CVode} failures.
 
@@ -1228,9 +1275,11 @@ optional inputs.  For the most casual use of {\cvode}, the reader
 can skip to \S\ref{ss:user_fct_sim}.
 
 We note that, on an error return, all of the optional input functions send an
-error message to the error handler function. \index{error messages}
-We also note that all error return values are negative, so the test \id{flag < 0}
-will catch all errors.
+error message to the error handler function.
+\index{error messages}
+All error return values are negative, so the test \id{flag < 0} will catch all
+errors. Finally, a call to a \id{CVodeSet***} function can be made from the
+user's calling program at any time and, if successful, takes effect immediately.
 
 \begin{table}
 \centering
@@ -1267,9 +1316,12 @@ Disable rootfinding warnings & \id{CVodeSetNoInactiveRootWarn} & none \\
 Jacobian / preconditioner update frequency & \id{CVodeSetMaxStepsBetweenJac} & 50\\
 Jacobian function & \id{CVodeSetJacFn} & DQ\\
 Linear System function & \id{CVodeSetLinSysFn} & internal\\
+Enable or disable linear solution scaling & \id{CVodeSetLinearSolutionScaling} & on\\
 Jacobian-times-vector functions & \id{CVodeSetJacTimes} & NULL, DQ \\
+Jacobian-times-vector DQ RHS function & \id{CVodeSetJacTimesRhsFn} & NULL \\
 Preconditioner functions & \id{CVodeSetPreconditioner} & NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{CVodeSetEpsLin} & 0.05 \\
+Instruct CVODE to use specialized fused kernels when possible& \id{CVodeSetUseIntegratorFusedKernels} & {\tt SUNFALSE} \\
 \hline
 \end{tabular}
 \end{table}
@@ -1286,7 +1338,7 @@ in order to take effect for any later error message.
 
 %%
 \index{error messages!redirecting}
-\ucfunction{CVodeSetErrFile}
+\ucfunctionf{CVodeSetErrFile}
 {
 flag = CVodeSetErrFile(cvode\_mem, errfp);
 }
@@ -1392,12 +1444,94 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
 }
 %%
 %%
+\ucfunctionf{CVodeSetMonitorFn}
+{
+  flag = CVodeSetMonitorFn(cvode\_mem, monitorfn);
+}
+{
+  The function \ID{CVodeSetMonitorFn} specifies a user function,
+  \id{monitorfn}, to be called at some interval of successfully
+  completed {\cvode} time steps.
+}
+{
+  \begin{args}[cvode\_data]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[monitorfn] (\id{CVMonitorFn})
+    user-supplied monitor function (\id{NULL} by default); a \id{NULL}
+    input will turn off monitoring
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The frequency with which the monitor function is called can be
+  set with the function \id{CVodeSetMonitorFrequency}.
+
+  {\warn}Modifying the solution in this function will result in
+  undefined behavior. This function is only intended to be used
+  for monitoring the integrator.
+
+  \textbf{{\sundials} must be built with the CMake option
+  \id{SUNDIALS\_BUILD\_WITH\_MONITORING}, to utilize this function.}
+  See section \ref{ss:configuration_options_nix} for more information.
+}
+%%
+%%
+\ucfunctionf{CVodeSetMonitorFrequency}
+{
+  flag = CVodeSetMonitorFrequency(cvode\_mem, nst);
+}
+{
+  The function \ID{CVodeSetMonitorFrequency} specifies the
+  interval, measured in successfully completed {\cvode} time-steps,
+  at which the monitor function should be called.
+}
+{
+  \begin{args}[cvode\_data]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[nst] (\id{long int})
+    number of successful steps inbetween calls to the monitor function (0 by default);
+    a 0 input will turn off monitoring
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The monitor function that will be called can be set with
+  \id{CVodeSetMonitorFn}.
+
+  {\warn}Modifying the solution in this function will result in
+  undefined behavior. This function is only intended to be used
+  for monitoring the integrator.
+
+  \textbf{{\sundials} must be built with the CMake option
+  \id{SUNDIALS\_BUILD\_WITH\_MONITORING}, to utilize this function.}
+  See section \ref{ss:configuration_options_nix} for more information.
+}
+%%
+%%
 \ucfunctionf{CVodeSetMaxOrd}
 {
 flag = CVodeSetMaxOrd(cvode\_mem, maxord);
 }
 {
-  The function \ID{CVodeSetMaxOrd} specifies the maximum order of the 
+  The function \ID{CVodeSetMaxOrd} specifies the maximum order of the
   linear multistep method.
 }
 {
@@ -1814,10 +1948,10 @@ flag = CVodeSetConstraints(cvode\_mem, constraints);
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of 
+  The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CV\_ILL\_INPUT]
   \item[\Id{CV\_SUCCESS}]
-    The optional value has been sucessfully set.
+    The optional value has been successfully set.
   \item[\Id{CV\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CV\_ILL\_INPUT}]
@@ -1830,6 +1964,45 @@ flag = CVodeSetConstraints(cvode\_mem, constraints);
   However, a call with $0.0$ in all components of \id{constraints} will
   result in an illegal input return. A \id{NULL} constraints vector will disable
   constraint checking.
+}
+%%
+\ucfunction{CVodeSetUseIntegratorFusedKernels}
+{
+  flag = CVodeSetUseIntegratorFusedKernels(cvode\_mem, onoff);
+}
+{
+  The function \ID{CVodeSetUseIntegratorFusedKernels} informs {\cvode} that it should
+  use specialized fused kernels internally, if available. The specialized
+  kernels may offer performance improvements for small problem sizes. Users
+  should beware that these kernels can cause changes in the behavior of the
+  integrator. \textit{By default, these kernels are not used}.
+  Must be called after \ID{CVodeInit}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[onoff] (\id{booleantype})
+    boolean flag to turn on the specialized kernels (SUNTRUE),
+    or to turn them off (SUNFALSE)
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  \textbf{{\sundials} must be compiled appropriately for specialized kernels to be available}.
+  The CMake option \id{SUNDIALS\_BUILD\_PACKAGE\_FUSED\_KERNELS} must be set to
+  \id{ON} when {\sundials} is compiled. See the entry for this option in
+  section~\ref{ss:configuration_options_nix} for more requirements.
+  Currently, the fused kernels are only supported when using {\cvode}
+  with the {\nveccuda} module~\ref{ss:nvec_cuda}.
 }
 \index{optional input!solver|)}
 
@@ -1885,7 +2058,7 @@ which this setup routine is called may be controlled with the
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
+  \begin{args}[CVLS\_LMEM\_NULL]
   \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVLS\_MEM\_NULL}]
@@ -1907,7 +2080,7 @@ which this setup routine is called may be controlled with the
 \index{CVLS@{\cvls} linear solver interface!Jacobian approximation used by}
 When using matrix-based linear solver modules, the {\cvls} solver interface
 needs a function to compute an approximation to the Jacobian matrix $J(t,y)$ or
-linear system $M = I - \gamma J$. The function to evaluate $J(t,y)$ the must
+the linear system $M = I - \gamma J$. The function to evaluate $J(t,y)$ the must
 be of type \id{CVLsJacFn}. The user can supply a Jacobian function, or if using
 a dense or banded matrix $J$, can use the default internal difference quotient
 approximation
@@ -1940,7 +2113,7 @@ through \id{CVodeSetUserData}.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
+  \begin{args}[CVLS\_LMEM\_NULL]
   \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVLS\_MEM\_NULL}]
@@ -1994,7 +2167,7 @@ in the program. The pointer \id{user\_data} may be specified through
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
+  \begin{args}[CVLS\_LMEM\_NULL]
   \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVLS\_MEM\_NULL}]
@@ -2016,6 +2189,57 @@ in the program. The pointer \id{user\_data} may be specified through
   The function type \id{CVLsLinSysFn} is described in \S\ref{ss:linsysFn}.
 }
 %%
+When using a matrix-based linear solver the matrix information will be updated
+infrequently to reduce matrix construction and, with direct solvers,
+factorization costs. As a result the value of $\gamma$ may not be current and,
+with BDF methods, a scaling factor is applied to the solution of the linear
+system to account for the lagged value of $\gamma$. See
+\S\ref{ss:sunlinsol_lagged_matrix} for more details. The function
+\id{CVodeSetLinearSolutionScaling} can be used to disable this scaling when
+necessary, e.g., when providing a custom linear solver that updates the matrix
+using the current $\gamma$ as part of the solve.
+%%
+\index{Linear solution scaling function!user-supplied}
+\ucfunctionf{CVodeSetLinearSolutionScaling}
+{
+  flag = CVodeSetLinearSolutionScaling(cvode\_mem, onoff);
+}
+{
+  The function \ID{CVodeSetLinearSolutionScaling} enables or disables scaling
+  the linear system solution to account for a change in $\gamma$ in the linear
+  system. For more details see \S\ref{ss:sunlinsol_lagged_matrix}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[onoff] (\id{booleantype})
+    flag to enable (\id{SUNTRUE}) or disable (\id{SUNFALSE}) scaling
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}]
+    The flag value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver interface has not been initialized.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The attached linear solver is not matrix-based or the linear multistep
+    method type is not BDF.
+  \end{args}
+}
+{
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolver}.
+
+  By default scaling is enabled with matrix-based linear solvers when using BDF
+  methods.
+}
+%%
 \index{optional input!matrix-based linear solver|)}
 %%
 %%
@@ -2028,7 +2252,9 @@ product between the Jacobian matrix $J(t,y)$ and a vector $v$. The
 user can supply a Jacobian-times-vector approximation function or use
 the default internal difference quotient function
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
-that comes with the {\cvls} interface.  A user-defined Jacobian-vector
+that comes with the {\cvls} interface.
+
+A user-defined Jacobian-vector product
 function must be of type \id{CVLsJacTimesVecFn} and
 can be specified through a call to \id{CVodeSetJacTimes} (see
 \S\ref{ss:jtimesFn} for specification details).
@@ -2036,7 +2262,7 @@ The evaluation and processing of any Jacobian-related data needed by
 the user's Jacobian-times-vector function may be done in the optional
 user-supplied function \id{jtsetup} (see \S\ref{ss:jtsetupFn} for
 specification details).
-
+%
 The pointer \id{user\_data} received through \id{CVodeSetUserData} (or
 a pointer to \id{NULL} if \id{user\_data} was not specified)
 is passed to the Jacobian-times-vector setup and product functions, \id{jtsetup} and
@@ -2051,7 +2277,7 @@ without using global data in the program.
   flag = CVodeSetJacTimes(cvode\_mem, jtsetup, jtimes);
 }
 {
-  The function \ID{CVSetJacTimes} specifies the Jacobian-vector
+  The function \ID{CVodeSetJacTimes} specifies the Jacobian-vector
   setup and product functions.
 }
 {
@@ -2067,7 +2293,7 @@ without using global data in the program.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVLS\_LMEM\_NULL]
+  \begin{args}[CVLS\_SUNLS\_FAIL]
   \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{CVLS\_MEM\_NULL}]
@@ -2098,6 +2324,60 @@ without using global data in the program.
   this routine, and may still be used for backward-compatibility.
   However, this will be deprecated in future releases, so we recommend
   that users transition to the new routine name soon.
+}
+%%
+%%
+When using the internal difference quotient the user may optionally supply an
+alternative right-hand side function for use in the Jacobian-vector product
+approximation by calling \id{CVodeSetJacTimesRhsFn}. The alternative right-hand
+side function should compute a suitable (and differentiable) approximation to
+the right-hand side function provided to \id{CVodeInit}. For example, as done in
+\cite{dorr2010numerical}, the alternative function may use lagged values when
+evaluating a nonlinearity in the right-hand side to avoid differencing a
+potentially non-differentiable factor.
+%%
+%%
+\index{Jacobian approximation function!Jacobian times vector!alternative-rhs}
+\ucfunctionf{CVodeSetJacTimesRhsFn}
+{
+  flag = CVodeSetJacTimesRhsFn(cvode\_mem, jtimesRhsFn);
+}
+{
+  The function \ID{CVodeSetJacTimesRhsFn} specifies an alternative ODE
+  right-hand side function for use in the internal Jacobian-vector product
+  difference quotient approximation.
+}
+{
+  \begin{args}[jtimesRhsFn]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[jtimesRhsFn] (\Id{CVRhsFn})
+    is the {\CC} function which computes the alternative ODE right-hand side
+    function to use in Jacobian-vector product difference quotient
+    approximations. This function has the form \id{f(t, y, ydot, user\_data)}
+    (for full details see \S\ref{ss:rhsFn}).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVLS\_SUNLS\_FAIL]
+  \item[\Id{CVLS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The internal difference quotient approximation is disabled.
+  \end{args}
+}
+{
+  The default is to use the right-hand side function provided to \id{CVodeInit}
+  in the internal difference quotient. If the input right-hand side function is
+  \id{NULL}, the default is used.
+
+  This function must be called \emph{after} the {\cvls} linear solver interface
+  has been initialized through a call to \id{CVodeSetLinearSolver}.
 }
 %%
 %%
@@ -2251,7 +2531,7 @@ rootfinding algorithm.
 %%
 \ucfunctionf{CVodeSetRootDirection}
 {
-flag = CVodeSetRootDirection(cvode\_mem, rootdir);
+  flag = CVodeSetRootDirection(cvode\_mem, rootdir);
 }
 {
   The function \ID{CVodeSetRootDirection} specifies the direction of
@@ -2318,6 +2598,181 @@ flag = CVodeSetNoInactiveRootWarn(cvode\_mem);
 }
 %%
 \index{optional input!rootfinding|)}
+
+%%==============================================================================
+\subsubsection{Projection optional input functions}
+\label{sss:optin_proj}
+\index{optional input!projection|(}
+%%==============================================================================
+%%
+The following functions can be called to set optional inputs to control the
+projection when solving an IVP with constraints.
+%%
+%%
+\ucfunctionf{CVodeSetProjErrEst}
+{
+  flag = CVodeSetProjErrEst(cvode\_mem, onoff);
+}
+{
+  The function \ID{CVodeSetProjErrEst} enables or disables projection of
+  the error estimate by the projection function.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block.
+  \item[onoff] (\id{booleantype})
+    is a flag indicating if error projection should be enabled (\id{SUNTRUE},
+    default) or disabled (\id{SUNFALSE}).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeSetProjFrequency}
+{
+  flag = CVodeSetProjFrequency(cvode\_mem, freq);
+}
+{
+  The function \ID{CVodeSetProjFrequency} specifies the frequency with which the
+  projection is performed.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block.
+  \item[freq] (\id{long int})
+    is the frequency with which to perform the projection. The default is 1
+    (project every step), a value of 0 will disable projection, and a
+    value $< 0$ will restore the default.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeSetMaxNumProjFails}
+{
+  flag = CVodeSetMaxNumProjFails(cvode\_mem, max\_fails);
+}
+{
+  The function \ID{CVodeSetMaxNumProjFails} specifies the maximum number of
+  projection failures in a step attempt before an unrecoverable error is
+  returned.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block.
+  \item[max\_fails] (\id{int})
+    is the maximum number of projection failures. The default is 10 and an
+    input value $< 1$ will restore the default.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeSetEpsProj}
+{
+  flag = CVodeSetEpsProj(cvode\_mem, eps);
+}
+{
+  The function \ID{CVodeSetEpsProj} specifies the tolerance for the nonlinear
+  constrained least squares problem solved by the projection function.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block.
+  \item[eps] (\id{realtype})
+    is the tolerance (default 0.1) for the the nonlinear constrained least
+    squares problem solved by the projection function. A value $\leq 0$ will
+    restore the default.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeSetProjFailEta}
+{
+  flag = CVodeSetProjFailEta(cvode\_mem, eta);
+}
+{
+  The function \ID{CVodeSetProjFailEta} specifies the time step reduction factor
+  to apply on a projection function failure.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    is a pointer to the {\cvode} memory block.
+  \item[eps] (\id{realtype})
+    is the time step reduction factor to apply on a projection function failure
+    (default 0.25). A value $\leq 0$ or $> 1$ will restore the default.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\index{optional input!projection|)}
 
 %%==============================================================================
 \subsection{Interpolated output function}\label{ss:optional_dky}
@@ -2445,7 +2900,7 @@ No. of nonlinear solver iterations & \id{CVodeGetNumNonlinSolvIters} \\
 No. of nonlinear convergence failures & \id{CVodeGetNumNonlinSolvConvFails} \\
 All {\cvode} integrator statistics & \id{CVodeGetIntegratorStats} \\
 {\cvode} nonlinear solver statistics & \id{CVodeGetNonlinSolvStats} \\
-Array showing roots found & \id{CvodeGetRootInfo} \\
+Array showing roots found & \id{CVodeGetRootInfo} \\
 No. of calls to user root function & \id{CVodeGetNumGEvals} \\
 Name of constant associated with a return flag & \id{CVodeGetReturnFlagName} \\
 \hline
@@ -2460,6 +2915,7 @@ No. of preconditioner evaluations & \id{CVodeGetNumPrecEvals} \\
 No. of preconditioner solves & \id{CVodeGetNumPrecSolves} \\
 No. of Jacobian-vector setup evaluations & \id{CVodeGetNumJTSetupEvals} \\
 No. of Jacobian-vector product evaluations & \id{CVodeGetNumJtimesEvals} \\
+Get all linear solver statistics in one function call & \id{CVodeGetLinSolvStats} \\
 Last return from a linear solver function & \id{CVodeGetLastLinFlag} \\
 Name of constant associated with a return flag & \id{CVodeGetLinReturnFlagName} \\
 \hline
@@ -2546,7 +3002,7 @@ These optional output functions are described next.
   where $N_i$ is the number of integer words in one \id{N\_Vector}
   (= 1 for {\nvecs} and 2*\id{npes} for {\nvecp} and \id{npes} processors).
 
-  For the default value of \id{maxord}, no rootfinding, no constraints, and 
+  For the default value of \id{maxord}, no rootfinding, no constraints, and
   without using \id{CVodeSVtolerances}, these lengths are given roughly by:
   \begin{itemize}
   \item For the Adams method: \id{lenrw} $= 96 + 17N$ and \id{leniw} $= 57$
@@ -3118,7 +3574,7 @@ These optional output functions are described next.
 {}
 %%
 %%
-\ucfunction{CVodeGetReturnFlagName}
+\ucfunctionf{CVodeGetReturnFlagName}
 {
   name = CVodeGetReturnFlagName(flag);
 }
@@ -3140,7 +3596,8 @@ These optional output functions are described next.
 %%==================================================================================
 %%
 \subsubsection{Rootfinding optional output functions}\label{sss:optout_root}
-
+\index{optional output!rootfinding|(}
+%%
 There are two optional output functions associated with rootfinding.
 %%
 %%
@@ -3153,7 +3610,7 @@ There are two optional output functions associated with rootfinding.
   functions were found to have a root.
 }
 {
-  \begin{args}[cvode\_mem]
+  \begin{args}[rootsfound]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[rootsfound] (\id{int *})
@@ -3207,6 +3664,82 @@ There are two optional output functions associated with rootfinding.
   \end{args}
 }
 {}
+%%
+\index{optional output!rootfinding|)}
+
+%%==============================================================================
+\subsubsection{Projection optional output functions}
+\label{sss:optout_proj}
+\index{optional output!projection|(}
+%%==============================================================================
+%%
+The following optional output functions are available for retrieving information
+and statistics related the projection when solving and IVP with constraints.
+%%
+%%
+\ucfunctionf{CVodeGetNumProjEvals}
+{
+  flag = CVodeGetNumProjEvals(cvode\_mem, nproj);
+}
+{
+  The function \ID{CVodeGetNumProjEvals} returns the current total number of
+  projection evaluations.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[nproj] (\id{long int *})
+    the number of calls to the projection function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\ucfunctionf{CVodeGetNumProjFails}
+{
+  flag = CVodeGetNumProjFails(cvode\_mem, npfails);
+}
+{
+  The function \ID{CVodeGetNumProjFails} returns the current total number of
+  projection evaluation failures.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[npfails] (\id{long int *})
+    the number of projection failures.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CV\_PROJ\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_PROJ\_MEM\_NULL}]
+    The projection memory is \id{NULL} i.e., the projection functionality has
+    not been enabled.
+  \end{args}
+}
+{}
+%%
+%%
+\index{optional output!projection|)}
 
 %%==============================================================================
 \subsubsection{{\cvls} linear solver interface optional output functions}
@@ -3565,6 +4098,48 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
+\ucfunctionf{CVodeGetLinSolvStats}
+{
+  flag = CVodeGetLinSolvStats(cvode\_mem,
+                              \&njevals, \&nfevalsLS,
+                              \&nliters, \&nlcfails,
+                              \&npevals, \&npsolves,
+                              \&njtsetups, \&njtimes);
+}
+{
+  The function \ID{CVodeGetLinSolvStats} returns {\cvode} linear solver
+  statsitics.
+}
+{
+  \begin{args}[cvode\_mem]
+    \item[\id{cvode\_mem}] - (\id{void *}) the \id{CVodeMem} structure
+    \item[\id{njevals}] - (\id{long int*}) the current number of calls to the
+      Jacobian function
+    \item[\id{nfevalsLS}] - (\id{long int*}) the current number of calls made to
+      the user-supplied right-hand side function by the linear solver
+    \item[\id{nliters}] - (\id{long int*}) the current number of linear iterations
+    \item[\id{nlcfails}] - (\id{long int*}) the current number of linear
+      convergence failures
+    \item[\id{npevals}] - (\id{long int*}) the current number of calls to \id{psetup}
+    \item[\id{npsolves}] - (\id{long int*}) the current number of calls to \id{psolve}
+    \item[\id{njtsetup}] - (\id{long int*}) the current number of calls to \id{jtsetup}
+    \item[\id{njtimes}] - (\id{long int*}) the current number of calls to \id{jtimes}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
+    The optional output value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \end{args}
+}
+{}
+%%
+%%
 \ucfunctionf{CVodeGetLastLinFlag}
 {
   flag = CVodeGetLastLinFlag(cvode\_mem, \&lsflag);
@@ -3602,14 +4177,14 @@ the name of an optional output from the main solver, a suffix \id{LS}
 
   If the {\cvls} setup function failed when using another {\sunlinsol}
   module, then \id{lsflag} will be \id{SUNLS\_PSET\_FAIL\_UNREC},
-  \id{SUNLS\_ASET\_FAIL\_UNREC}, or \id{SUNLS\_PACKAGE\_FAIL\_UNREC}.
+  \id{SUNLS\_ASET\_FAIL\_UNREC}, or \\ \noindent \id{SUNLS\_PACKAGE\_FAIL\_UNREC}.
 
   If the {\cvls} solve function failed (i.e., \id{CVode} returned
   \id{CV\_LSOLVE\_FAIL}), then \id{lsflag} contains the error return
-  flag from the {\sunlinsol} object, which will be one of:
+  flag from the {\sunlinsol} object, which will be one of:\\ \noindent
   \id{SUNLS\_MEM\_NULL}, indicating that the {\sunlinsol} memory is \id{NULL};
-  \id{SUNLS\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the
-  $Jv$ function;
+  \\ \noindent \id{SUNLS\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the
+  $Jv$ function;\\ \noindent
   \id{SUNLS\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably;
   \id{SUNLS\_GS\_FAIL}, indicating a failure in the Gram-Schmidt
@@ -3627,7 +4202,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVodeGetLinReturnFlagName}
+\ucfunctionf{CVodeGetLinReturnFlagName}
 {
   name = CVodeGetLinReturnFlagName(lsflag);
 }
@@ -3783,7 +4358,7 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 %%
 %%
-\ucfunction{CVDiagGetReturnFlagName}
+\ucfunctionf{CVDiagGetReturnFlagName}
 {
   name = CVDiagGetReturnFlagName(lsflag);
 }
@@ -4003,6 +4578,39 @@ The function type \id{CVErrHandlerFn} is defined as follows:
 }
 
 %%==============================================================================
+\subsection{Monitor function}
+\label{ss:monitorfn}
+%%==============================================================================
+\index{monitor}
+A user may provide a function of type \Id{CVMonitorFn} to monitor the
+integrator progress throughout a simulation. For example, a user may
+want to check integrator statistics as a simulation progresses.
+\usfunction{CVMonitorFn}
+{
+  typedef void (*CVMonitorFn)(void* cvode\_mem, void* user\_data);
+}
+{
+  This function is used to monitor the {\cvode} integrator
+  throughout a simulation.
+}
+{
+  \begin{args}[user\_data]
+  \item[cvode\_mem]
+    the {\cvode} memory block
+  \item[user\_data]
+    is a pointer to user data, the same as the \Id{user\_data}
+    parameter passed to \id{CVodeSetUserData}.
+  \end{args}
+}
+{
+  A \id{CVMonitorFn} should return 0 if successful, or a negative value
+  if unsuccessful.
+}
+{
+  {\warn} This function should only be utilized for monitoring the integrator.
+}
+
+%%==============================================================================
 \subsection{Error weight function}
 \label{ss:ewtsetFn}
 %%==============================================================================
@@ -4080,6 +4688,60 @@ the user must supply a {\CC} function of type \Id{CVRootFn}, defined as follows:
 }
 {
   Allocation of memory for \id{gout} is automatically handled within {\cvode}.
+}
+
+%%==============================================================================
+\subsection{Projection function}\label{ss:projFn}
+%%
+When solving an IVP with a constraint equation and providing a user-defined
+projection operation the projection function must have type \Id{CVProjFn},
+defined as follows:
+%%
+\usfunction{CVProjFn}
+{
+  typedef int (*CVProjFn)(realtype t, N\_Vector ycur, N\_Vector corr,\\
+                          realtype epsProj, N\_Vector err, void *user\_data);
+}
+{
+  This function computes the projection of the solution and, if enabled, the
+  error on to the constraint manifold.
+}
+{
+  \begin{args}[user\_data]
+  \item[t]
+    is the current value of the independent variable.
+  \item[ycur]
+    is the current value of the dependent variable vector, $y(t)$.
+  \item[corr]
+    is the correction, $c$, to the dependent variable vector so that $y(t) + c$
+    satisfies the constraint equation.
+  \item[epsProj]
+    is the tolerance to use in the nonlinear solver stopping test when solving
+    the nonlinear constrainted least squares problem.
+  \item[err]
+    is on input the current error estimate, if error projection is enabled (the
+    default) then this should be overwritten with the projected error on output.
+    If error projection is disabled then \id{err} is \id{NULL}.
+  \item[user\_data]
+    is a pointer to user data, the same as the \Id{user\_data} parameter passed
+    to \id{CVodeSetUserData}.
+  \end{args}
+}
+{
+  A \id{CVProjFn} should return 0 if successful, a negative value if an
+  unrecoverable error occurred (the integraiton is halted), or a positive value
+  if a recoverable error occurred (the integrator will, in most cases, try to
+  correct and reattempt the step).
+}
+{
+  The tolerance passed to the projection function (\id{epsProj}) is the
+  tolerance on the iteration update in the WRMS norm, i.e., the solve should
+  stop when the WRMS norm of the current iterate update is less than
+  \id{epsProj}.
+
+  If needed by the user's projection routine, the error weight vector can be
+  accessed by calling \id{CVodeGetErrWeights}, and the unit roundoff is
+  available as \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
 
 
@@ -4751,9 +5413,9 @@ by calling the following function:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVLS\_ILL\_INPUT]
-  \item[CVLS\_SUCCESS]
+  \item[\Id{CVLS\_SUCCESS}]
     The call to \id{CVBandPrecInit} was successful.
-  \item[\id{CVLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer was \id{NULL}.
   \item[\Id{CVLS\_MEM\_FAIL}]
     A memory allocation request has failed.
@@ -4780,7 +5442,7 @@ by calling the following function:
 the {\cvbandpre} module:
 %%
 %%
-\ucfunction{CVBandPrecGetWorkSpace}
+\ucfunctionf{CVBandPrecGetWorkSpace}
 {
   flag = CVBandPrecGetWorkSpace(cvode\_mem, \&lenrwBP, \&leniwBP);
 }
@@ -5189,9 +5851,9 @@ the {\cvbbdpre} preconditioner module are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVLS\_ILL\_INPUT]
-  \item[CVLS\_SUCCESS]
+  \item[\Id{CVLS\_SUCCESS}]
     The call to \id{CVBBDPrecInit} was successful.
-  \item[\id{CVLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer was \id{NULL}.
   \item[\Id{CVLS\_MEM\_FAIL}]
     A memory allocation request has failed.
@@ -5258,9 +5920,9 @@ also be made (in the proper order).
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVLS\_PMEM\_NULL]
-  \item[CVLS\_SUCCESS]
+  \item[\Id{CVLS\_SUCCESS}]
     The call to \id{CVBBDPrecReInit} was successful.
-  \item[\id{CVLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer was \id{NULL}.
   \item[\Id{CVLS\_LMEM\_NULL}]
     A {\cvls} linear solver memory was not attached.
@@ -5304,9 +5966,9 @@ the {\cvbbdpre} module:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVLS\_PMEM\_NULL]
-  \item[CVLS\_SUCCESS]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\id{CVLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer was \id{NULL}.
   \item[\Id{CVLS\_PMEM\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
@@ -5345,9 +6007,9 @@ the {\cvbbdpre} module:
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[CVLS\_PMEM\_NULL]
-  \item[CVLS\_SUCCESS]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\id{CVLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer was \id{NULL}.
   \item[\Id{CVLS\_PMEM\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.

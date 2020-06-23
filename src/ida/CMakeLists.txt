@@ -3,7 +3,7 @@
 #                Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2020, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -48,6 +48,7 @@ set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_version.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector_senswrapper.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_futils.c
   ${sundials_SOURCE_DIR}/src/nvector/serial/nvector_serial.c
   )
 
@@ -92,7 +93,7 @@ add_prefix(${sundials_SOURCE_DIR}/include/ida/ ida_HEADERS)
 
 # Add source directories to include directories for access to
 # implementation only header files.
-include_directories(.)
+include_directories(. ${sundials_SOURCE_DIR}/src/sundials)
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 add_definitions(-DBUILD_SUNDIALS_LIBRARY)

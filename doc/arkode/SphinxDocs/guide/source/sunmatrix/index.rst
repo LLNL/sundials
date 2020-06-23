@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   Copyright (c) 2002-2020, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -42,6 +42,7 @@ matrix objects and use them in the solution of linear systems.
    SUNMatrix_Compatibility
    SUNMatrix_Dense
    SUNMatrix_Band
+   SUNMatrix_cuSparse
    SUNMatrix_Sparse
    SUNMatrix_SLUNRloc
    SUNMatrix_Examples

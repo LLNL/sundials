@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -37,21 +37,21 @@ typedef IDALsJacFn IDADlsJacFn;
   Exported Functions (wrappers for equivalent routines in ida_ls.h)
   ===================================================================*/
 
-int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS,
-                          SUNMatrix A);
+SUNDIALS_EXPORT int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS,
+                                          SUNMatrix A);
 
-int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac);
+SUNDIALS_EXPORT int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac);
 
-int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
-                       long int *leniwLS);
+SUNDIALS_EXPORT int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
+                                       long int *leniwLS);
 
-int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
+SUNDIALS_EXPORT int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
 
-int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
+SUNDIALS_EXPORT int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
 
-int IDADlsGetLastFlag(void *ida_mem, long int *flag);
+SUNDIALS_EXPORT int IDADlsGetLastFlag(void *ida_mem, long int *flag);
 
-char *IDADlsGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT char *IDADlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

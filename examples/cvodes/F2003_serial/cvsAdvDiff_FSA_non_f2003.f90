@@ -2,7 +2,7 @@
 ! Programmer(s): David J. Gardner, and Cody J. Balos @ LLNL
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2019, Lawrence Livermore National Security
+! Copyright (c) 2002-2020, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -274,7 +274,7 @@ program main
       call FN_VConst(ZERO, uiS)
     end do
 
-    retval = FCVodeSensInit1(cvodes_mem, NS, sensi_meth, c_null_ptr, uS)
+    retval = FCVodeSensInit1(cvodes_mem, NS, sensi_meth, c_null_funptr, uS)
     call check_retval(retval, "FCVodeSensInit1")
 
     retval = FCVodeSensEEtolerances(cvodes_mem)
