@@ -158,6 +158,8 @@ class N_Vector_Ops(object):
     nvminquotientlocal = property(_kinsol.N_Vector_Ops_nvminquotientlocal_get, _kinsol.N_Vector_Ops_nvminquotientlocal_set)
     nvwsqrsumlocal = property(_kinsol.N_Vector_Ops_nvwsqrsumlocal_get, _kinsol.N_Vector_Ops_nvwsqrsumlocal_set)
     nvwsqrsummasklocal = property(_kinsol.N_Vector_Ops_nvwsqrsummasklocal_get, _kinsol.N_Vector_Ops_nvwsqrsummasklocal_set)
+    nvprint = property(_kinsol.N_Vector_Ops_nvprint_get, _kinsol.N_Vector_Ops_nvprint_set)
+    nvprintfile = property(_kinsol.N_Vector_Ops_nvprintfile_get, _kinsol.N_Vector_Ops_nvprintfile_set)
 
     def __init__(self):
         _kinsol.N_Vector_Ops_swiginit(self, _kinsol.new_N_Vector_Ops())
@@ -347,10 +349,17 @@ def N_VGetVecAtIndexVectorArray(vs, index):
 
 def N_VSetVecAtIndexVectorArray(vs, index, w):
     return _kinsol.N_VSetVecAtIndexVectorArray(vs, index, w)
+
+def N_VPrint(v):
+    return _kinsol.N_VPrint(v)
+
+def N_VPrintFile(v, outfile):
+    return _kinsol.N_VPrintFile(v, outfile)
 SUNMATRIX_DENSE = _kinsol.SUNMATRIX_DENSE
 SUNMATRIX_BAND = _kinsol.SUNMATRIX_BAND
 SUNMATRIX_SPARSE = _kinsol.SUNMATRIX_SPARSE
 SUNMATRIX_SLUNRLOC = _kinsol.SUNMATRIX_SLUNRLOC
+SUNMATRIX_CUSPARSE = _kinsol.SUNMATRIX_CUSPARSE
 SUNMATRIX_CUSTOM = _kinsol.SUNMATRIX_CUSTOM
 class SUNMatrix_Ops(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
@@ -555,8 +564,10 @@ SUNLS_SUCCESS = _kinsol.SUNLS_SUCCESS
 SUNLS_MEM_NULL = _kinsol.SUNLS_MEM_NULL
 SUNLS_ILL_INPUT = _kinsol.SUNLS_ILL_INPUT
 SUNLS_MEM_FAIL = _kinsol.SUNLS_MEM_FAIL
+SUNLS_ATIMES_NULL = _kinsol.SUNLS_ATIMES_NULL
 SUNLS_ATIMES_FAIL_UNREC = _kinsol.SUNLS_ATIMES_FAIL_UNREC
 SUNLS_PSET_FAIL_UNREC = _kinsol.SUNLS_PSET_FAIL_UNREC
+SUNLS_PSOLVE_NULL = _kinsol.SUNLS_PSOLVE_NULL
 SUNLS_PSOLVE_FAIL_UNREC = _kinsol.SUNLS_PSOLVE_FAIL_UNREC
 SUNLS_PACKAGE_FAIL_UNREC = _kinsol.SUNLS_PACKAGE_FAIL_UNREC
 SUNLS_GS_FAIL = _kinsol.SUNLS_GS_FAIL
@@ -570,6 +581,7 @@ SUNLS_PSOLVE_FAIL_REC = _kinsol.SUNLS_PSOLVE_FAIL_REC
 SUNLS_PACKAGE_FAIL_REC = _kinsol.SUNLS_PACKAGE_FAIL_REC
 SUNLS_QRFACT_FAIL = _kinsol.SUNLS_QRFACT_FAIL
 SUNLS_LUFACT_FAIL = _kinsol.SUNLS_LUFACT_FAIL
+SUNLS_MSG_RESIDUAL = _kinsol.SUNLS_MSG_RESIDUAL
 SUNNONLINEARSOLVER_ROOTFIND = _kinsol.SUNNONLINEARSOLVER_ROOTFIND
 SUNNONLINEARSOLVER_FIXEDPOINT = _kinsol.SUNNONLINEARSOLVER_FIXEDPOINT
 class SUNNonlinearSolver_Ops(object):
@@ -662,6 +674,7 @@ SUN_NLS_MEM_FAIL = _kinsol.SUN_NLS_MEM_FAIL
 SUN_NLS_ILL_INPUT = _kinsol.SUN_NLS_ILL_INPUT
 SUN_NLS_VECTOROP_ERR = _kinsol.SUN_NLS_VECTOROP_ERR
 SUN_NLS_EXT_FAIL = _kinsol.SUN_NLS_EXT_FAIL
+SUN_NLS_MSG_RESIDUAL = _kinsol.SUN_NLS_MSG_RESIDUAL
 
 def N_VGetData(v):
     return _kinsol.N_VGetData(v)
@@ -894,6 +907,9 @@ def KINSetPrintLevel(kinmemm, printfl):
 def KINSetMAA(kinmem, maa):
     return _kinsol.KINSetMAA(kinmem, maa)
 
+def KINSetDampingAA(kinmem, beta):
+    return _kinsol.KINSetDampingAA(kinmem, beta)
+
 def KINSetNumMaxIters(kinmem, mxiter):
     return _kinsol.KINSetNumMaxIters(kinmem, mxiter)
 
@@ -974,6 +990,9 @@ def KINGetReturnFlagName(flag):
 
 def KINFree(kinmem):
     return _kinsol.KINFree(kinmem)
+
+def KINSetJacTimesVecSysFn(kinmem, jtimesSysFn):
+    return _kinsol.KINSetJacTimesVecSysFn(kinmem, jtimesSysFn)
 KINBBDPRE_SUCCESS = _kinsol.KINBBDPRE_SUCCESS
 KINBBDPRE_PDATA_NULL = _kinsol.KINBBDPRE_PDATA_NULL
 KINBBDPRE_FUNC_UNRECVR = _kinsol.KINBBDPRE_FUNC_UNRECVR
