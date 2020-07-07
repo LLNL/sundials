@@ -309,7 +309,7 @@ The utility functions are defined by the generic {\nvector} itself.
 {
   Sets the components of the \id{N\_Vector} \id{z} to be the absolute
   values of the components of the \id{N\_Vector} \id{x}:
-  $y_i = | x_i | , \: i=0,\ldots,n-1$.
+  $z_i = | x_i | , \: i=0,\ldots,n-1$.
 }
 {
   \begin{args}[x]
@@ -1329,7 +1329,7 @@ also provides the utility functions \ID{N\_VCloneVectorArray},
   v = N\_VGetVecAtIndexVectorArray(vecs, index);
 }
 {
-  Returns the \id{N\_Vector} object stored in the vector array at the 
+  Returns the \id{N\_Vector} object stored in the vector array at the
   provided index. This function is primarily meant for users of the
   Fortran 2003 interface.
 }
@@ -1340,7 +1340,7 @@ also provides the utility functions \ID{N\_VCloneVectorArray},
   \end{args}
 }
 {
-  Returns the \id{N\_Vector} object stored in the vector array at the 
+  Returns the \id{N\_Vector} object stored in the vector array at the
   provided index. Returns \id{NULL} if an error occurred.
 }
 {}
@@ -1350,7 +1350,7 @@ also provides the utility functions \ID{N\_VCloneVectorArray},
   N\_VSetVecAtIndexVectorArray(vecs, index, v);
 }
 {
-  Sets the \id{N\_Vector} object stored in the vector array at the 
+  Sets the \id{N\_Vector} object stored in the vector array at the
   provided index. This function is primarily meant for users of the
   Fortran 2003 interface.
 }

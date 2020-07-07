@@ -238,7 +238,7 @@ operations below.
    values of the components of the ``N_Vector`` *x*:
 
    .. math::
-      y_i = |x_i|, \quad i=0,\ldots,n-1.
+      z_i = |x_i|, \quad i=0,\ldots,n-1.
 
    Usage:
 
