@@ -161,6 +161,9 @@ typedef struct KINMemRec {
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
   long int *kin_ipt_map;    /* array of size maa used in AA */
   long int  kin_m_aa;       /* parameter for AA, Broyden or NLEN */
+  sunindextype kin_orth_aa; /* parameter for AA determining orthogonalization routine
+                               0 - Modified Gram Schmit (standard)
+                               1 - Inverse Compact WY Modified Gram Schmit */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
   booleantype kin_damping_aa; /* flag to apply damping in AA */

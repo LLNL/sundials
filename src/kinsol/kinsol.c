@@ -1,7 +1,7 @@
 /*
  * -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, Carol Woodward,
- *                John Loffeld, and Aaron Collier @ LLNL
+ *                John Loffeld, Aaron Collier, and Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -182,6 +182,8 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken,
                    int sflag);
 static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                        N_Vector x_old, long int iter, realtype *R, realtype *gamma);
+static int AndersonAccLowSync(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
+                              N_Vector x_old, long int iter, realtype *R, realtype *gamma);
 
 /*
  * =================================================================
@@ -250,6 +252,7 @@ void *KINCreate(void)
   kin_mem->kin_Xv               = NULL;
   kin_mem->kin_lmem             = NULL;
   kin_mem->kin_m_aa             = 0;
+  kin_mem->kin_orth_aa          = 0;
   kin_mem->kin_aamem_aa         = 0;
   kin_mem->kin_setstop_aa       = 0;
   kin_mem->kin_beta_aa          = ONE;
@@ -2488,11 +2491,16 @@ static int KINFP(KINMem kin_mem)
     if (kin_mem->kin_m_aa == 0) {
       /* standard fixed point */
       N_VScale(ONE, kin_mem->kin_fval, kin_mem->kin_unew);
-    } else {
+    } else if (kin_mem->kin_orth_aa == 0) {
       /* apply Anderson acceleration */
       AndersonAcc(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
                   kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
                   kin_mem->kin_gamma_aa);
+    } else {
+      /* apply low sync Anderson acceleration */
+      AndersonAccLowSync(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
+                         kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
+                         kin_mem->kin_gamma_aa);
     }
 
     /* compute change between iterations */
@@ -2596,6 +2604,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   } else if (iter <= kin_mem->kin_m_aa) {
 
     /* another iteration before we've reached maa */
+    /* -- QRAdd with MGS -- */
     N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2);
     for (j=0; j < (iter-1); j++) {
       ipt_map[j] = j;
@@ -2604,6 +2613,168 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
     }
     R[(iter-1)*kin_mem->kin_m_aa+iter-1] = SUNRsqrt(N_VDotProd(kin_mem->kin_vtemp2, kin_mem->kin_vtemp2));
     N_VScale((1/R[(iter-1)*kin_mem->kin_m_aa+iter-1]), kin_mem->kin_vtemp2, kin_mem->kin_q_aa[i_pt]);
+    /* -- end kernel -- */
+    ipt_map[iter-1] = iter-1;
+
+  } else {
+
+    /* we've filled the acceleration subspace, so start recycling */
+
+    /* Delete left-most column vector from QR factorization */
+    for (i=0; i < kin_mem->kin_m_aa-1; i++) {
+      a = R[(i+1)*kin_mem->kin_m_aa + i];
+      b = R[(i+1)*kin_mem->kin_m_aa + i+1];
+      temp = SUNRsqrt(a*a + b*b);
+      c = a / temp;
+      s = b / temp;
+      R[(i+1)*kin_mem->kin_m_aa + i] = temp;
+      R[(i+1)*kin_mem->kin_m_aa + i+1] = ZERO;
+      /* OK to re-use temp */
+      if (i < kin_mem->kin_m_aa-1) {
+        for (j = i+2; j < kin_mem->kin_m_aa; j++) {
+          a = R[j*kin_mem->kin_m_aa + i];
+          b = R[j*kin_mem->kin_m_aa + i+1];
+          temp = c * a + s * b;
+          R[j*kin_mem->kin_m_aa + i+1] = -s*a + c*b;
+          R[j*kin_mem->kin_m_aa + i] = temp;
+        }
+      }
+      N_VLinearSum(c, kin_mem->kin_q_aa[i], s, kin_mem->kin_q_aa[i+1], kin_mem->kin_vtemp2);
+      N_VLinearSum(-s, kin_mem->kin_q_aa[i], c, kin_mem->kin_q_aa[i+1], kin_mem->kin_q_aa[i+1]);
+      N_VScale(ONE, kin_mem->kin_vtemp2, kin_mem->kin_q_aa[i]);
+    }
+
+    /* Shift R to the left by one. */
+    for (i = 1; i < kin_mem->kin_m_aa; i++) {
+      for (j = 0; j < kin_mem->kin_m_aa-1; j++) {
+        R[(i-1)*kin_mem->kin_m_aa + j] = R[i*kin_mem->kin_m_aa + j];
+      }
+    }
+
+    /* Add the new df vector */
+    N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2);
+    for (j=0; j < (kin_mem->kin_m_aa-1); j++) {
+      R[(kin_mem->kin_m_aa-1)*kin_mem->kin_m_aa+j] = N_VDotProd(kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);
+      N_VLinearSum(ONE, kin_mem->kin_vtemp2, -R[(kin_mem->kin_m_aa-1)*kin_mem->kin_m_aa+j], kin_mem->kin_q_aa[j],kin_mem->kin_vtemp2);
+    }
+    R[(kin_mem->kin_m_aa-1)*kin_mem->kin_m_aa+kin_mem->kin_m_aa-1] = SUNRsqrt(N_VDotProd(kin_mem->kin_vtemp2, kin_mem->kin_vtemp2));
+    N_VScale((1/R[(kin_mem->kin_m_aa-1)*kin_mem->kin_m_aa+kin_mem->kin_m_aa-1]), kin_mem->kin_vtemp2, kin_mem->kin_q_aa[kin_mem->kin_m_aa-1]);
+
+    /* Update the iteration map */
+    j = 0;
+    for (i=i_pt+1; i < kin_mem->kin_m_aa; i++)
+      ipt_map[j++] = i;
+    for (i=0; i < (i_pt+1); i++)
+      ipt_map[j++] = i;
+  }
+
+  /* Solve least squares problem and update solution */
+  lAA = iter;
+  if (kin_mem->kin_m_aa < iter) lAA = kin_mem->kin_m_aa;
+
+  retval = N_VDotProdMulti((int) lAA, fv, kin_mem->kin_q_aa, gamma);
+  if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+
+  /* set arrays for fused vector operation */
+  cv[0] = ONE;
+  Xv[0] = gval;
+  nvec = 1;
+
+  for (i=lAA-1; i > -1; i--) {
+    for (j=i+1; j < lAA; j++) {
+      gamma[i] = gamma[i]-R[j*kin_mem->kin_m_aa+i]*gamma[j];
+    }
+    gamma[i] = gamma[i]/R[i*kin_mem->kin_m_aa+i];
+
+    cv[nvec] = -gamma[i];
+    Xv[nvec] = kin_mem->kin_dg_aa[ipt_map[i]];
+    nvec += 1;
+  }
+
+  /* if enabled, apply damping */
+  if (kin_mem->kin_damping_aa) {
+    onembeta = (ONE - kin_mem->kin_beta_aa);
+    cv[nvec] = -onembeta;
+    Xv[nvec] = fv;
+    nvec += 1;
+    for (i = lAA - 1; i > -1; i--) {
+      cv[nvec] = onembeta * gamma[i];
+      Xv[nvec] = kin_mem->kin_df_aa[ipt_map[i]];
+      nvec += 1;
+    }
+  }
+
+  /* update solution */
+  retval = N_VLinearCombination(nvec, cv, Xv, x);
+  if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+
+  return 0;
+}
+
+/*
+ * ========================================================================
+ * Low Synchronous Anderson Acceleration
+ * ========================================================================
+ */
+
+static int AndersonAccLowSync(KINMem kin_mem, N_Vector gval, N_Vector fv,
+                              N_Vector x, N_Vector xold,
+                              long int iter, realtype *R, realtype *gamma)
+{
+  int retval;
+  long int i_pt, i, j, lAA;
+  long int *ipt_map;
+  realtype alfa;
+  realtype onembeta;
+  realtype a, b, temp, c, s;
+
+  /* local shortcuts for fused vector operation */
+  int       nvec=0;
+  realtype* cv=kin_mem->kin_cv;
+  N_Vector* Xv=kin_mem->kin_Xv;
+
+  ipt_map = kin_mem->kin_ipt_map;
+  i_pt = iter-1 - ((iter-1) / kin_mem->kin_m_aa) * kin_mem->kin_m_aa;
+  N_VLinearSum(ONE, gval, -ONE, xold, fv);
+  if (iter > 0) {
+    /* compute dg_new = gval - gval_old */
+    N_VLinearSum(ONE, gval, -ONE, kin_mem->kin_gold_aa, kin_mem->kin_dg_aa[i_pt]);
+    /* compute df_new = fval - fval_old */
+    N_VLinearSum(ONE, fv, -ONE, kin_mem->kin_fold_aa, kin_mem->kin_df_aa[i_pt]);
+  }
+
+  N_VScale(ONE, gval, kin_mem->kin_gold_aa);
+  N_VScale(ONE, fv, kin_mem->kin_fold_aa);
+
+  /* on first iteration, just do basic fixed-point update */
+  if (iter == 0) {
+    N_VScale(ONE, gval, x);
+    return(0);
+  }
+
+  /* update data structures based on current iteration index */
+
+  if (iter == 1) {
+
+    /* second iteration */
+    R[0] = SUNRsqrt(N_VDotProd(kin_mem->kin_df_aa[i_pt], kin_mem->kin_df_aa[i_pt]));
+    alfa = ONE/R[0];
+    N_VScale(alfa, kin_mem->kin_df_aa[i_pt], kin_mem->kin_q_aa[i_pt]);
+    ipt_map[0] = 0;
+
+  } else if (iter <= kin_mem->kin_m_aa) {
+
+    /* another iteration before we've reached maa */
+    /* -- QRAdd with MGS - to be replaced with ICWY MGS -- */
+    N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2);
+    for (j=0; j < (iter-1); j++) {
+      ipt_map[j] = j;
+      R[(iter-1)*kin_mem->kin_m_aa+j] = N_VDotProd(kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);
+      N_VLinearSum(ONE,kin_mem->kin_vtemp2, -R[(iter-1)*kin_mem->kin_m_aa+j], kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);
+    }
+    R[(iter-1)*kin_mem->kin_m_aa+iter-1] = SUNRsqrt(N_VDotProd(kin_mem->kin_vtemp2, kin_mem->kin_vtemp2));
+    N_VScale((1/R[(iter-1)*kin_mem->kin_m_aa+iter-1]), kin_mem->kin_vtemp2, kin_mem->kin_q_aa[i_pt]);
+    /* -- end kernel -- */
     ipt_map[iter-1] = iter-1;
 
   } else {
