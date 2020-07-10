@@ -459,48 +459,90 @@ components:
   system.  This will be integrated using a large time step :math:`h^S`.
 
 * :math:`f^F(t,y)` contains the "fast" components of the
-  system.  This will be integrated using a small time step :math:`h^F`.
+  system, and will be integrated using small time steps :math:`h^F \ll h^S`.
 
 For such problems, MRIStep provides fixed-step slow step multirate infinitesimal
-step methods (see [SKAW2009]_, [SKAW2012a]_, and [SKAW2012b]_) that combine two
-Runge-Kutta methods. The outer (slow) method is an :math:`s` stage explicit
-Runge-Kutta method where the stage values and the new solution are computed by
-solving an auxiliary ODE with an inner (fast) Runge-Kutta method. This
-corresponds to the following algorithm for a single step:
+step and multirate infinitesimal GARK methods (see [SKAW2009]_, [SKAW2012a]_,
+[SKAW2012b]_, and [S2019]_) that combine two Runge-Kutta methods.  The outer
+(slow) method derives from an :math:`s` stage Runge-Kutta method where the stage values
+and the new solution are computed by solving an auxiliary ODE with an inner
+(fast) Runge-Kutta method. This corresponds to the following algorithm for a
+single step:
 
 #. Set :math:`z_1 = y_{n-1}`
 #. For :math:`i = 2,\ldots,s+1`
 
-   #. Let :math:`v(t^S_{n,i-1}) = z_{i-1}`
+   #. Let :math:`v(0) = z_{i-1}`, :math:`t_{n,i-1}^S = t_{n-1} + c_{i-1}^S h^S`, and :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)`.
 
-   #. Compute :math:`r = \frac{1}{c^S_i - c^S_{i-1}} \sum_{j=1}^{i-1}
-      (A^S_{i,j} - A^S_{i-1,j}) f^S(t^S_{n,j}, z_j)`
+   #. Let :math:`r(\tau) = \sum\limits_{j=1}^i \gamma_{i,j}\left(\tau/h^S\right) f^S(t_{n,j}^S, z_j)`
+      
+   #. For :math:`\tau \in [0, h^S]`, solve :math:`\dot{v}(\tau) = \Delta c_i^S f^F(t_{n,i-1}^S+\Delta c_i^S\tau, v) + r(\tau)`
 
-   #. For :math:`\tau \in [t^S_{n,i-1}, t^S_{n,i}]`, solve :math:`\dot{v}(\tau)
-      = f^F(\tau, v) + r`
+   #. Set :math:`z_i = v(h^S)`,
 
-   #. Set :math:`z_i = v(t^S_{n,i})`,
+#. Set :math:`y_{n} = z_{s+1}`.
 
-#. Set :math:`y_{n} = z_{s+1}`,
+where :math:`c^S_{s+1}=1` and the coefficients :math:`\gamma_{i,j}` are polynomials in time that dictate the
+couplings from the slow to the fast time scale; these can be expressed as in [S2019]_:
 
-where :math:`t^S_{n,j} = t_{n-1} + c^S_{j} h^S` and
-:math:`A^S_{s+1,j}=b^S_{j}`.
+.. math::
+   \gamma_{i,j}(\theta) &= \sum_{k\geq 0} \gamma_{i,j}^{\{k\}} \theta^k,
+   :label: MRI_coupling
 
-The MRIStep module provides a third order explicit outer method
-(:ref:`Butcher.Knoth_Wolke`). The inner ODE is solved using the ARKStep
-module. As such can the inner methods can be an explicit, implicit, or IMEX
-method.
+and where the tables :math:`\Gamma^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` define the slow-to-fast coupling.
+For traditional MIS methods (as in [SKAW2009]_, [SKAW2012a]_, and [SKAW2012b]_), these coefficients are
+uniquely defined based on a slow Butcher table :math:`(A^S,b^S,c^S)` having explicit first stage (i.e.,
+:math:`c^S_1=0` and :math:`A^S_{1,j}=0` for :math:`1\le j\le s`), sorted abcissae (i.e.,
+:math:`c^S_{i} \ge  c^S_{i-1}` for :math:`2\le i\le s`), and final abcissa :math:`c^S_s \leq 1` as:
 
-User-defined outer and inner methods are also supported. A user defined method
-will be first to third order accurate depending on the slow and fast tables
-provided. If both the slow and fast tables are second order, then the overall
-method will also be second order. If the slow and fast tables are both third
-order and the slow method satisfies an auxiliary condition (see [SKAW2012a]_),
-then the overall method will also be third order.
+.. math::
+   \gamma_{i,j}^{\{0\}} = \begin{cases}
+   0, & \text{if}\; i=1,\\
+   A^S_{i,j} - A^S_{i-1,j}, & \text{if}\; 2\le i\le s,\\
+   b^S_j - A^S_{s,j}, & \text{if}\; i=s+1.
+   \end{cases}
+   :label: MIS_to_MRI
 
-Note that at this time the MRIStep module only supports explicit outer tables
-where the stage times are unique and ordered (i.e., :math:`c^S_{i} > c^S_{i-1}`)
-and the final stage time is less than 1.
+For general slow tables :math:`(A^S,b^S,c^S)` with at least second-order accuracy, the corresponding MIS
+method will be second order.  However, if this slow table is at least third order and satisfies the additional
+condition
+
+.. math::
+   \sum_{i=2}^{s} \left(c_i^S-c_{i-1}^S\right) \left(\mathbf{e}_i+\mathbf{e}_{i-1}\right)^T A^S c^S
+   + \left(1-c_{s}^S\right) \left(\frac12+\mathbf{e}_{s}^T A^S c^S\right) = \frac13,
+   :label: MIS_order3
+           
+where :math:`\mathbf{e}_j` corresponds to the :math:`j`-th column from the identity matrix, then the overall
+MIS method will be third order.
+
+As with standard Runge--Kutta methods, implicitness at the slow time scale is characterized by nonzero values
+on or above the diagonal of the matrices :math:`\Gamma^{\{k\}}`.  Typically, MRI methods are at most
+diagonally-implicit (i.e., :math:`\gamma_{i,j}^{\{k\}}=0` for all :math:`j>i`).  Additionally, an implicit
+stage :math:`i` may be characterized as being "solve-decoupled," wherein :math:`c^S_i - c^S_{i-1}=0` and thus
+the 'fast' IVP for :math:`v` over :math:`\tau \in [0, h^S]` may be solved analytically,
+
+.. math::
+   &z_i = z_{i-1} + \int_0^{h^S} r(\tau)\,\mathrm d\tau\\
+   \Leftrightarrow\quad&\\
+   &z_i = z_{i-1} + h^S \sum_{j=1}^i \left(\sum_{k\geq 0}
+   \frac{\gamma_{i,j}^{\{k\}}}{k+1}\right)f^S(t_{n,j}^S, z_j),
+   :label: MRI_dirk_solve_decoupled
+
+corresponding to a standard diagonally-implicit Runge--Kutta stage.  Alternately, an implicit MRI stage
+:math:`i` is considered "solve-coupled" if both :math:`c^S_i - c^S_{i-1}\ne 0` and
+:math:`\sum\limits_{k\geq 0} \frac{\gamma_{i,j}^{\{k\}}}{k+1} \ne 0`, in which case the stage solution
+:math:`z_i` is *both* an input to :math:`r(\tau)` and the result of time-evolution of the fast IVP,
+necessitating an implicit solve that is coupled to the 'fast' solver.
+
+The default method supported by the MRIStep module is the explicit, third-order MIS method defined by
+the slow Butcher table (:ref:`Butcher.Knoth_Wolke`); however, other slow Butcher tables :math:`(A^S,b^S,c^S)`
+or coupling tables :math:`\Gamma^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` may be provided.  At present, only
+'solve-decoupled' implicit MRI methods are supported.
+
+At present, the inner ODEs for step 2c of the MRI algorithm must be solved using the ARKStep
+module.  As such, this can be evolved using either an explicit, implicit, or IMEX method with adaptive
+or fixed time steps.
+
 
 
 .. _Mathematics.Error.Norm:
@@ -896,11 +938,12 @@ Fixed time stepping
 
 While both the ARKStep and ERKStep time-stepping modules are designed
 for tolerance-based time step adaptivity, they additionally support a
-"fixed-step" mode.  This mode is typically used for debugging
-purposes, for verification against hand-coded Runge-Kutta methods, or
-for problems where the time steps should be chosen based on other
-problem-specific information.  In this mode, all internal time step
-adaptivity is disabled:
+"fixed-step" mode (*note: fixed-step mode is currently required for
+the slow time scale in the MRIStep module*).  This mode is typically
+used for debugging purposes, for verification against hand-coded
+Runge-Kutta methods, or for problems where the time steps should be
+chosen based on other problem-specific information.  In this mode,
+all internal time step adaptivity is disabled:
 
 * temporal error control is disabled,
 
@@ -911,8 +954,9 @@ adaptivity is disabled:
 
 
 Additional information on this mode is provided in the sections
-:ref:`ARKStep Optional Inputs <ARKStep_CInterface.OptionalInputs>` and
-:ref:`ERKStep Optional Inputs <ERKStep_CInterface.OptionalInputs>`.
+:ref:`ARKStep Optional Inputs <ARKStep_CInterface.OptionalInputs>`,
+:ref:`ERKStep Optional Inputs <ERKStep_CInterface.OptionalInputs>`, and 
+:ref:`MRIStep Optional Inputs <MRIStep_CInterface.OptionalInputs>`.
 
 
 
@@ -923,12 +967,11 @@ Additional information on this mode is provided in the sections
 Algebraic solvers
 ===============================
 
-When solving a problem involving either a nonzero implicit component,
-:math:`f^I(t,y) \ne 0`, or a non-identity mass matrix,
-:math:`M \ne I`, systems of linear or nonlinear algebraic equations
-must be solved at each stage and/or step of the method.  This section
-therefore focuses on the variety of mathematical methods provided in
-the ARKode infrastructure for such problems, including
+When solving a problem involving either an implicit component (e.g., in ARKStep with :math:`f^I(t,y) \ne 0`,
+or in MRIStep with a solve-decoupled implicit slow stage), or a non-identity mass matrix (:math:`M \ne I` in
+ARKStep), systems of linear or nonlinear algebraic equations must be solved at each stage and/or step of the
+method.  This section therefore focuses on the variety of mathematical methods provided in the ARKode
+infrastructure for such problems, including
 :ref:`nonlinear solvers <Mathematics.Nonlinear>`,
 :ref:`linear solvers <Mathematics.Linear>`,
 :ref:`preconditioners <Mathematics.Preconditioning>`,
@@ -947,7 +990,7 @@ Nonlinear solver methods
 
 
 For both the DIRK and ARK methods corresponding to :eq:`IMEX_IVP` and
-:eq:`IVP_implicit`, an implicit system
+:eq:`IVP_implicit` in ARKStep, an implicit system
 
 .. math::
    G(z_i) \equiv M z_i - h_n A^I_{i,i} f^I(t^I_{n,i}, z_i) - a_i = 0
@@ -972,6 +1015,22 @@ on :math:`y` then :eq:`Residual` corresponds to a nonlinear system of
 equations; if :math:`f^I(t,y)` depends linearly on :math:`y` then this
 is a linear system of equations.
 
+Similarly, for solve-decoupled implicit slow stages :eq:`MRI_dirk_solve_decoupled`
+in MRIStep, an implicit system
+
+.. math::
+   G(z_i) \equiv z_i - h^S \left(\sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}\right) f^S(t_{n,i}^S, z_i) - a_i = 0
+   :label: MRIStep_Residual
+
+must be solved, where we have the data
+
+.. math::
+
+   a_i \equiv \left( z_{i-1} + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 0} \frac{\gamma_{i,j}^{\{k\}}}{k+1}\right)f^S(t_{n,j}^S, z_j) \right),
+
+and where again the linearity/nonlinearity of :math:`f^S` dictates the
+type of algebraic system of equations that must be solved.
+
 For systems of either type, ARKode provides a choice of solution
 strategies. The default solver choice is a variant of :index:`Newton's
 method`,
@@ -994,9 +1053,18 @@ in which
 .. math::
    {\mathcal A}(t,z) \approx M - \gamma J(t,z), \quad
    J(t,z) = \frac{\partial f^I(t,z)}{\partial z}, \quad\text{and}\quad
-   \gamma = h_n A^I_{i,i}.
+   \gamma = h_n A^I_{i,i}
    :label: NewtonMatrix
 
+within ARKStep, or
+
+.. math::
+   {\mathcal A}(t,z) \approx I - \gamma J(t,z), \quad
+   J(t,z) = \frac{\partial f^S(t,z)}{\partial z}, \quad\text{and}\quad
+   \gamma = h^S \sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}
+   :label: NewtonMatrix_MRIStep
+
+within MRIStep.
 When the problem involves an identity mass matrix, then as an
 alternative to Newton's method, ARKode provides a :index:`fixed point
 iteration` for solving the stages :math:`z_i, i=1,\ldots,s`,
@@ -1012,10 +1080,11 @@ method, these methods *do not* require the solution of a linear system
 at each iteration, instead opting for solution of a low-dimensional
 least-squares solution to construct the nonlinear update.
 
-Finally, if the user specifies that :math:`f^I(t,y)` depends linearly
-on :math:`y`, and if the Newton-based nonlinear solver is chosen, then
-the problem :eq:`Residual` will be solved using only a single Newton
-iteration. In this case, an additional user-supplied argument
+Finally, if the user specifies that :math:`f^I(t,y)` or :math:`f^S(t,y)`
+depend linearly on :math:`y` in ARKStep or MRIStep, respectively, and
+if the Newton-based nonlinear solver is chosen, then the problem
+:eq:`Residual` or :eq:`MRIStep_Residual` will be solved using only a
+single Newton iteration. In this case, an additional user-supplied argument
 indicates whether this Jacobian is time-dependent or not, signaling
 whether the Jacobian or preconditioner needs to be recomputed
 at each stage or time step, or if it can be reused throughout the full
@@ -1120,7 +1189,8 @@ in which
 
 .. math::
    \tilde{\mathcal A}(t,z) \approx M - \tilde{\gamma} J(t,z),
-   \quad\text{and}\quad \tilde{\gamma} = \tilde{h} A^I_{i,i}.
+   \quad\text{and}\quad \tilde{\gamma} = \tilde{h} A^I_{i,i} \;\text{(ARKStep)}
+   \quad\text{or}\quad \tilde{\gamma} = \tilde{h} \sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}\;\text{(MRIStep)}.
    :label: modified_NewtonMatrix
 
 Here, the solution :math:`\tilde{z}`, time :math:`\tilde{t}`, and step
@@ -1137,9 +1207,10 @@ by a user routine, or approximated internally by finite-differences.
 In the case of differencing, we use the standard approximation
 
 .. math::
-   J_{i,j}(t,z) \approx \frac{f_{I,i}(t,z+\sigma_j e_j) - f_{I,i}(t,z)}{\sigma_j},
+   J_{i,j}(t,z) \approx \frac{\hat{f}_i(t,z+\sigma_j e_j) - \hat{f}_i(t,z)}{\sigma_j},
 
-where :math:`e_j` is the :math:`j`-th unit vector, and the increments
+where :math:`\hat{f}` is either :math:`f^I` for ARKStep or :math:`f^S` for MRIStep,
+:math:`e_j` is the :math:`j`-th unit vector, and the increments
 :math:`\sigma_j` are given by
 
 .. math::
@@ -1148,9 +1219,9 @@ where :math:`e_j` is the :math:`j`-th unit vector, and the increments
 Here :math:`U` is the unit roundoff, :math:`\sigma_0` is a small
 dimensionless value, and :math:`w_j` is the error weight defined in
 :eq:`EWT`.  In the dense case, this approach requires :math:`N`
-evaluations of :math:`f^I`, one for each column of :math:`J`.  In the
+evaluations of :math:`\hat{f}`, one for each column of :math:`J`.  In the
 band case, the columns of :math:`J` are computed in groups, using the
-Curtis-Powell-Reid algorithm, with the number of :math:`f^I`
+Curtis-Powell-Reid algorithm, with the number of :math:`\hat{f}`
 evaluations equal to the matrix bandwidth.
 
 We note that with sparse and user-supplied SUNMatrix objects, the
@@ -1184,10 +1255,10 @@ through a finite difference approximation to the directional
 derivative:
 
 .. math::
-   J(t,z)\,v \approx \frac{f^I(t,z+\sigma v) - f^I(t,z)}{\sigma},
+   J(t,z)\,v \approx \frac{\hat{f}(t,z+\sigma v) - \hat{f}(t,z)}{\sigma},
 
-where the increment :math:`\sigma = 1/\|v\|` to ensure that
-:math:`\|\sigma v\| = 1`.
+where again :math:`\hat{f}` is either :math:`f^I` for ARKStep or :math:`f^S` for MRIStep,
+and the increment :math:`\sigma = 1/\|v\|` to ensure that :math:`\|\sigma v\| = 1`.
 
 As with the modified Newton method that reused :math:`{\mathcal A}`
 between solves, the inexact Newton iteration may also recompute
@@ -1452,6 +1523,7 @@ Runge-Kutta methods each stage solution satisfies
 .. math::
    z_i \approx y(t^I_{n,i}),
 
+(similarly for MRI methods :math:`z_i \approx y(t^S_{n,i})`),
 so by constructing an interpolating polynomial :math:`p_q(t)` through
 a set of existing data, the initial guess at stage solutions may be
 approximated as
@@ -1460,21 +1532,24 @@ approximated as
    z_i^{(0)} = p_q(t^I_{n,i}).
    :label: extrapolant
 
-As the stage times for implicit ARK and DIRK stages usually satisfy
-:math:`c_j^I > 0`, it is typically the case that :math:`t^I_{n,j}` is
-outside of the time interval containing the data used to construct
-:math:`p_q(t)`, hence :eq:`extrapolant` will correspond to an
-extrapolant instead of an interpolant.  The dangers of using a
-polynomial interpolant to extrapolate values outside the interpolation
-interval are well-known, with higher-order polynomials and predictions
-further outside the interval resulting in the greatest potential
-inaccuracies.
+As the stage times for MRI stages and implicit ARK and DIRK stages usually
+have non-negative abcissae (i.e., :math:`c_j^I > 0`), it is typically the
+case that :math:`t^I_{n,j}` (resp., :math:`t^S_{n,j}`) is outside of the
+time interval containing the data used to construct :math:`p_q(t)`, hence
+:eq:`extrapolant` will correspond to an extrapolant instead of an
+interpolant.  The dangers of using a polynomial interpolant to extrapolate
+values outside the interpolation interval are well-known, with higher-order
+polynomials and predictions further outside the interval resulting in the
+greatest potential inaccuracies.
 
 The prediction algorithms available in ARKode therefore
 construct a variety of interpolants :math:`p_q(t)`, having
 different polynomial order and using different interpolation data, to
 support 'optimal' choices for different types of problems, as
-described below.
+described below.  We note that due to the structural similarities between
+implicit ARK and DIRK stages in ARKStep, and solve-decoupled implicit stages
+in MRIStep, we use the ARKStep notation throughout the remainder of this
+section, but each statement equally applies to MRIStep (unless otherwise noted).
 
 
 .. _Mathematics.Predictors.Trivial:
@@ -1520,7 +1595,7 @@ This predictor attempts to use higher-order polynomials
 :math:`p_q(t)` for predicting earlier stages, and lower-order
 interpolants for later stages.  It uses the same interpolation module
 as described above, but chooses :math:`q` adaptively based on the
-stage index :math:`i`, under the (rather tenuous) assumption that the
+stage index :math:`i`, under the assumption that the
 stage times are increasing, i.e. :math:`c^I_j < c^I_k` for
 :math:`j<k`:
 
@@ -1593,8 +1668,8 @@ currently implemented, so selection of this predictor in the case that
 
 .. _Mathematics.Predictors.MinimumCorrection:
 
-Minimum correction predictor
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Minimum correction predictor (ARKStep only)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The last predictor is not interpolation based; instead it
 utilizes all existing stage information from the current step to
@@ -1630,7 +1705,7 @@ currently implemented, so selection of this predictor in the case that
 Mass matrix solver
 ------------------------------------
 
-Within the algorithms described above, there are multiple
+Within the ARKStep algorithms described above, there are multiple
 locations where a matrix-vector product
 
 .. math::
@@ -1733,7 +1808,7 @@ solve :eq:`mass_solve_LTE` is not performed at each attempted step.
 Rootfinding
 ===============
 
-Many of the time-stepping modules in ARKode also support a rootfinding
+All of the time-stepping modules in ARKode also support a rootfinding
 feature.  This means that, while integrating the IVP :eq:`IVP`, these
 can also find the roots of a set of user-defined functions
 :math:`g_i(t,y)` that depend on :math:`t` and the solution vector
@@ -1837,9 +1912,9 @@ communication to ensure that :math:`g_i(t,y)` is identical on each task.
 Inequality Constraints
 =======================
 
-ARKode permits the user to impose optional inequality constraints on individual
-components of the solution vector :math:`y`. Any of the following four
-constraints can be imposed: :math:`y_i > 0`, :math:`y_i < 0`,
+The ARKStep and ERKStep modules in ARKode permit the user to impose optional
+inequality constraints on individual components of the solution vector :math:`y`.
+Any of the following four constraints can be imposed: :math:`y_i > 0`, :math:`y_i < 0`,
 :math:`y_i \geq 0`, or :math:`y_i \leq 0`. The constraint satisfaction is tested
 after a successful step and before the error test. If any constraint fails, the
 step size is reduced and a flag is set to update the Jacobian or preconditioner

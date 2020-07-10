@@ -351,6 +351,9 @@ Shared ARKode output constants
 :index:`ARK_INTERP_FAIL`  (-40):
    An error occurred in the ARKode polynomial interpolation module.
        
+:index:`ARK_INVALID_TABLE`  (-41):
+   An invalid Butcher or MRI table was encountered.
+       
 :index:`ARK_UNRECOGNIZED_ERROR` (-99):
    An unknown error was encountered.
 

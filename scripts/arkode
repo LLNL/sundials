@@ -54,9 +54,11 @@ $tar $tarfile $distrobase/src/arkode/arkode_interp_impl.h  || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_io.c           || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_ls.c           || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_ls_impl.h      || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_mri_tables.c   || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_mristep.c      || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_impl.h || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_io.c   || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_mristep_nls.c  || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_root.c         || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_root_impl.h    || exit 1
 
@@ -165,6 +167,16 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.c                 
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.out                 || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.c             || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.out           || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri.c                  || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri.out                || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_0_0.002.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_1_0.002.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_2_0.005.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_3_0.01.out         || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_4_0.002.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_5_0.002.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_6_0.005.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_7_0.001.out        || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.c          || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.out        || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_onewaycouple_mri.c         || exit 1
@@ -267,6 +279,11 @@ $tar $tarfile $distrobase/examples/arkode/F2003_custom/test_fsunmatrix_fortran_m
 
 echo "   --- Add arkode unit tests to $tarfile"
 
-$tar $tarfile $distrobase/test/unit_tests/arkode/CMakeLists.txt               || exit 1
-$tar $tarfile $distrobase/test/unit_tests/arkode/ark_test_arkstepsetforcing.c || exit 1
-$tar $tarfile $distrobase/test/unit_tests/arkode/ark_interp_check.c           || exit 1
+$tar $tarfile $distrobase/test/unit_tests/arkode/CMakeLists.txt                        || exit 1
+$tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/CMakeLists.txt               || exit 1
+$tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_test_arkstepsetforcing.c || exit 1
+$tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_interp_check.c           || exit 1
+$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/CMakeLists.txt             || exit 1
+$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_analytic_sys_mri.cpp   || exit 1
+$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_parallel/CMakeLists.txt           || exit 1
+$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_parallel/ark_heat2D_mri.cpp       || exit 1

@@ -1197,14 +1197,14 @@ SWIGEXPORT int _wrap_FARKStepSetPostprocessStageFn(void *farg1, ARKPostProcessFn
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetStagePredictFn(void *farg1, ARKStepStagePredictFn farg2) {
+SWIGEXPORT int _wrap_FARKStepSetStagePredictFn(void *farg1, ARKStagePredictFn farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  ARKStepStagePredictFn arg2 = (ARKStepStagePredictFn) 0 ;
+  ARKStagePredictFn arg2 = (ARKStagePredictFn) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (ARKStepStagePredictFn)(farg2);
+  arg2 = (ARKStagePredictFn)(farg2);
   result = (int)ARKStepSetStagePredictFn(arg1,arg2);
   fresult = (int)(result);
   return fresult;

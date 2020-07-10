@@ -191,15 +191,13 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
   arkStep_Nls
 
   This routine attempts to solve the nonlinear system associated
-  with a single implicit step of the linear multistep method.
-  It calls the supplied SUNNonlinearSolver object to perform the
-  solve.
+  with a single implicit stage.  It calls the supplied 
+  SUNNonlinearSolver object to perform the solve.
 
-  Upon entry, the predicted solution is held in step_mem->zpred;
-  this array is never changed throughout this routine.  If an
-  initial attempt at solving the nonlinear system fails (e.g. due
-  to a stale Jacobian), this allows for new attempts at the
-  solution.
+  Upon entry, the predicted solution is held in step_mem->zpred,
+  which is never changed throughout this routine.  If an initial 
+  attempt at solving the nonlinear system fails (e.g. due to a 
+  stale Jacobian), this allows for new attempts at the solution.
 
   Upon a successful solve, the solution is held in ark_mem->ycur.
   ---------------------------------------------------------------*/
@@ -252,8 +250,8 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
 
   /* solve the nonlinear system for the actual correction */
-  retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor, ark_mem->ewt,
-                             step_mem->nlscoef, callLSetup, ark_mem);
+  retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor,
+                             ark_mem->ewt, step_mem->nlscoef, callLSetup, ark_mem);
 
   /* apply the correction to construct ycur */
   N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
@@ -274,7 +272,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 
 
 /*---------------------------------------------------------------
-  Interface routines supplied to SUNNonlinearSolver module
+  Interface routines supplied to the SUNNonlinearSolver module
   ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
@@ -295,8 +293,7 @@ int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* update convfail based on jbad flag */
-  if (jbad)
-    step_mem->convfail = ARK_FAIL_BAD_J;
+  if (jbad)  step_mem->convfail = ARK_FAIL_BAD_J;
 
   /* Use ARKode's tempv1, tempv2 and tempv3 as
      temporary vectors for the linear solver setup routine */

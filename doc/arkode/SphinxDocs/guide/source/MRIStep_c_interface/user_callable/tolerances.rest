@@ -25,7 +25,7 @@ are given by
    ewt[i] = 1.0/(reltol*abs(y[i]) + abstol[i]);
 
 This vector is used in all error tests, which use a weighted RMS norm
-on all error-like vectors v:
+on all error-like vectors :math:`v`:
 
 .. math::
     \|v\|_{WRMS} = \left( \frac{1}{N} \sum_{i=1}^N (v_i\; ewt_i)^2 \right)^{1/2},
@@ -164,21 +164,22 @@ these scenarios the following pieces of advice are relevant.
     magnitude comparable to ``abstol`` or less, is equivalent to zero
     as far as the computation is concerned.
 
-(3) The user's right-hand side routine :math:`f`
+(3) The user's right-hand side routine :math:`f^S`
     should never change a negative value in the solution vector :math:`y`
     to a non-negative value in attempt to "fix" this problem,
-    since this can lead to numerical instability.  If the :math:`f`
+    since this can lead to numerical instability.  If the :math:`f^S`
     routine cannot tolerate a zero or negative value (e.g. because
     there is a square root or log), then the offending value should be
     changed to zero or a tiny positive number in a temporary variable
     (not in the input :math:`y` vector) for the purposes of computing
-    :math:`f(t, y)`.
+    :math:`f^S(t, y)`.
 
-(4) Positivity and non-negativity constraints on components can be
-    enforced by use of the recoverable error return feature in the
-    user-supplied right-hand side function, :math:`f`. When a
-    recoverable error is encountered, MRIStep will retry the step with
-    a smaller step size, which typically alleviates the problem.
-    However, because this option involves some additional overhead
-    cost, it should only be exercised if the use of absolute
-    tolerances to control the computed values is unsuccessful.
+..
+   (4) Positivity and non-negativity constraints on components can be
+       enforced by use of the recoverable error return feature in the
+       user-supplied right-hand side function, :math:`f^S`. When a
+       recoverable error is encountered, MRIStep will retry the step with
+       a smaller step size, which typically alleviates the problem.
+       However, because this option involves some additional overhead
+       cost, it should only be exercised if the use of absolute
+       tolerances to control the computed values is unsuccessful.

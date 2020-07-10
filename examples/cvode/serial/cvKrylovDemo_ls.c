@@ -193,6 +193,7 @@ int main(int argc, char* argv[])
   LS = NULL;
   cvode_mem = NULL;
   monitor = 0;
+  infofp = NULL;
 
   if (argc == 2) {
     monitor = atoi(argv[1]);

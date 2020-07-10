@@ -127,6 +127,12 @@ accordingly. As before, the cumulative number of nonlinear iterations may be
 retrieved by calling :c:func:`ARKStepGetNumNonlinSolvIters()` or
 :c:func:`ARKStepGetNonlinSolvStats()`.
 
+Updated the MRIStep time-stepping module in ARKode to support
+higher-order MRI-GARK methods [S2019]_, including methods that
+involve solve-decoupled, diagonally-implicit treatment of the
+slow time scale.
+   
+
 
 Changes in v4.3.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

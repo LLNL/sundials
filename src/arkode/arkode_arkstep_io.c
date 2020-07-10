@@ -112,73 +112,6 @@ int ARKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
   return(arkSetFixedStep(arkode_mem, hfixed)); }
 
 
-/*===============================================================
-  ARKStep Optional input functions (customized wrappers for
-  generic ARKode utility routines).  All are documented in
-  arkode_io.c and arkode_ls.c.
-  ===============================================================*/
-
-int ARKStepSetUserData(void *arkode_mem, void *user_data)
-{
-  ARKodeMem        ark_mem;
-  ARKodeARKStepMem step_mem;
-  int              retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetUserData",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set user_data in ARKode mem */
-  retval = arkSetUserData(arkode_mem, user_data);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set user data in ARKodeLS mem */
-  if (step_mem->lmem != NULL) {
-    retval = arkLSSetUserData(arkode_mem, user_data);
-    if (retval != ARKLS_SUCCESS) return(retval);
-  }
-
-  /* set user data in ARKodeLSMass mem */
-  if (step_mem->mass_mem != NULL) {
-    retval = arkLSSetMassUserData(arkode_mem, user_data);
-    if (retval != ARKLS_SUCCESS) return(retval);
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  ARKStepSetStagePredictFn:  Specifies a user-provided step
-  predictor function having type ARKStepStagePredictFn.  A
-  NULL input function disables calls to this routine.
-  ---------------------------------------------------------------*/
-int ARKStepSetStagePredictFn(void *arkode_mem,
-                             ARKStepStagePredictFn PredictStage)
-{
-  ARKodeMem        ark_mem;
-  ARKodeARKStepMem step_mem;
-  int              retval;
-
-  /* access ARKodeARKStepMem structure and set function pointer */
-  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetStagePredictFn",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* override predictor method 5 if non-NULL PredictStage is supplied */
-  if ((step_mem->predictor == 5) && (PredictStage != NULL)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
-                    "ARKStepSetStagePredictFn",
-                    "User-supplied predictor is incompatible with predictor method 5");
-    return(ARK_ILL_INPUT);
-  }
-
-  step_mem->stage_predict = PredictStage;
-  return(ARK_SUCCESS);
-}
-
-
 /*---------------------------------------------------------------
   These wrappers for ARKLs module 'set' routines all are
   documented in arkode_arkstep.h.
@@ -311,7 +244,6 @@ int ARKStepGetNumMTSetups(void *arkode_mem, long int *nmtsetups) {
   return(arkLSGetNumMTSetups(arkode_mem, nmtsetups)); }
 int ARKStepGetLastMassFlag(void *arkode_mem, long int *flag) {
   return(arkLSGetLastMassFlag(arkode_mem, flag)); }
-
 char *ARKStepGetLinReturnFlagName(long int flag) {
   return(arkLSGetReturnFlagName(flag)); }
 
@@ -320,6 +252,43 @@ char *ARKStepGetLinReturnFlagName(long int flag) {
 /*===============================================================
   ARKStep optional input functions -- stepper-specific
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  ARKStepSetUserData:
+
+  Wrapper for generic arkSetUserData and arkLSSetUserData 
+  routines.
+  ---------------------------------------------------------------*/
+int ARKStepSetUserData(void *arkode_mem, void *user_data)
+{
+  ARKodeMem        ark_mem;
+  ARKodeARKStepMem step_mem;
+  int              retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetUserData",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* set user_data in ARKode mem */
+  retval = arkSetUserData(arkode_mem, user_data);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* set user data in ARKodeLS mem */
+  if (step_mem->lmem != NULL) {
+    retval = arkLSSetUserData(arkode_mem, user_data);
+    if (retval != ARKLS_SUCCESS) return(retval);
+  }
+
+  /* set user data in ARKodeLSMass mem */
+  if (step_mem->mass_mem != NULL) {
+    retval = arkLSSetMassUserData(arkode_mem, user_data);
+    if (retval != ARKLS_SUCCESS) return(retval);
+  }
+
+  return(ARK_SUCCESS);
+}
+
 
 /*---------------------------------------------------------------
   ARKStepSetDefaults:
@@ -1326,6 +1295,36 @@ int ARKStepSetNonlinConvCoef(void *arkode_mem, realtype nlscoef)
     step_mem->nlscoef = nlscoef;
   }
 
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  ARKStepSetStagePredictFn:  Specifies a user-provided step
+  predictor function having type ARKStagePredictFn.  A
+  NULL input function disables calls to this routine.
+  ---------------------------------------------------------------*/
+int ARKStepSetStagePredictFn(void *arkode_mem,
+                             ARKStagePredictFn PredictStage)
+{
+  ARKodeMem        ark_mem;
+  ARKodeARKStepMem step_mem;
+  int              retval;
+
+  /* access ARKodeARKStepMem structure and set function pointer */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetStagePredictFn",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* override predictor method 5 if non-NULL PredictStage is supplied */
+  if ((step_mem->predictor == 5) && (PredictStage != NULL)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetStagePredictFn",
+                    "User-supplied predictor is incompatible with predictor method 5");
+    return(ARK_ILL_INPUT);
+  }
+
+  step_mem->stage_predict = PredictStage;
   return(ARK_SUCCESS);
 }
 

@@ -47,7 +47,7 @@
   module (c_i > c_{i-1} and c_s != 1) are marked with a ^.
 
   The 'QP' column denotes whether the coefficients of the method
-  are known precisely enough for use in 'long double' (128-bit)
+  are known precisely enough for use in quad precision (128-bit)
   calculations.
 
      imeth                       QP
@@ -250,16 +250,16 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->b[6] = RCONST(247.0)/RCONST(2000.0);
 
     B->d[2] = RCONST(4469248916618.0)/RCONST(8635866897933.0);
-    B->d[3] = RCONST(-621260224600.0)/RCONST(4094290005349.0);        
+    B->d[3] = RCONST(-621260224600.0)/RCONST(4094290005349.0);
     B->d[4] = RCONST(696572312987.0)/RCONST(2942599194819.0);
     B->d[5] = RCONST(1532940081127.0)/RCONST(5565293938103.0);
     B->d[6] = RCONST(2441.0)/RCONST(20000.0);
 
     B->c[1] = RCONST(247.0)/RCONST(1000.0);
     B->c[2] = RCONST(4276536705230.0)/RCONST(10142255878289.0);
-    B->c[3] = RCONST(67.0)/RCONST(200.0); 
-    B->c[4] = RCONST(3.0)/RCONST(40.0); 
-    B->c[5] = RCONST(7.0)/RCONST(10.0); 
+    B->c[3] = RCONST(67.0)/RCONST(200.0);
+    B->c[4] = RCONST(3.0)/RCONST(40.0);
+    B->c[5] = RCONST(7.0)/RCONST(10.0);
     B->c[6] = RCONST(1.0);
     break;
 

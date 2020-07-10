@@ -121,28 +121,28 @@ the correct precision (for details see :ref:`Installation`).
 
 
 
-Integer types used for indexing
---------------------------------
+Integer types used for vector and matrix indices
+---------------------------------------------------
 
-The type ``sunindextype`` is used for indexing array entries in SUNDIALS modules
-(*e.g.*, vectors lengths and matrix sizes) as well as for storing the total
-problem size. During configuration ``sunindextype`` may be selected to be either
-a 32- or 64-bit *signed* integer with the default being 64-bit. See the section
-:ref:`Installation` for the configuration option to select the desired size of
-``sunindextype``. When using a 32-bit integer the total problem size is limited
-to :math:`2^{31}-1` and with 64-bit integers the limit is :math:`2^{63}-1`. For
-users with problem sizes that exceed the 64-bit limit an advanced configuration
-option is available to specify the type used for ``sunindextype``.
+The type ``sunindextype`` can be either a 32- or 64-bit *signed* integer.
+The default is the portable ``int64_t`` type, and the user can change it
+to ``int32_t`` at the configuration stage. The configuration system
+will detect if the compiler does not support portable types, and will
+replace ``int32_t`` and ``int64_t`` with ``int``, ``long int``, or
+``long long int`` as appropriate, to ensure use of the desired sizes on
+Linux, Mac OS X, and Windows platforms. SUNDIALS currently does not support
+*unsigned* integer types for vector and matrix indices, although these could
+be added in the future if there is sufficient demand.
 
-A user program which uses ``sunindextype`` to handle indices will work with both
-index storage types except for any calls to index storage-specific external
-libraries. Our C and C++ example programs use ``sunindextype``. Users can,
-however, use any compatible type (*e.g.*,  ``int``, ``long int``, ``int32_t``,
-``int64_t`` or ``long long int``) in their code, assuming that this usage is
-consistent with the typedef for ``sunindextype`` on their architecture. Thus, a
-previously existing piece of ANSI C code can use SUNDIALS without modifying the
-code to use ``sunindextype``, so long as the SUNDIALS libraries use the
-appropriate index storage type (for details :ref:`Installation`).
+A user program which uses ``sunindextype`` to handle vector and matrix indices
+will work with both index storage types except for any calls to index storage-specific
+external libraries. (Our ``C`` and ``C++`` example programs use ``sunindextype``.)
+Users can, however, use any one of ``int``, ``long int``, ``int32_t``, ``int64_t`` or
+``long long int`` in their code, assuming that this usage is consistent with the typedef
+for ``sunindextype`` on their architecture. Thus, a previously existing piece of ANSI
+C code can use SUNDIALS without modifying the code to use ``sunindextype``,
+so long as the SUNDIALS libraries use the appropriate index storage type (for details
+see the section :ref:`Installation`).
 
 
 
@@ -172,9 +172,10 @@ appropriate name.  This file in turn includes the header file
 type.
 
 If the user includes a non-trivial implicit component to their
-ODE system, then each time step will require a nonlinear solver for
-the resulting systems of equations -- the default for this is a
-modified Newton iteration.  If using a non-default nonlinear solver
+ODE system, then each implicit stage will require a nonlinear solver for
+the resulting system of algebraic equations -- the default for this is a
+modified or inexact Newton iteration, depending on the user's choice of
+linear solver.  If using a non-default nonlinear solver
 module, or when interacting with a SUNNONLINSOL module directly, the
 calling program must also include a SUNNONLINSOL header file, of the
 form ``sunnonlinsol/sunnonlinsol_***.h`` where ``***`` is the name of
@@ -218,6 +219,14 @@ for use with ARKode are:
     which is used with the SuperLU_MT sparse linear solver module,
     SUNLINSOL_SUPERLUMT;
 
+  - ``sunlinsol/sunlinsol_superludist.h``,
+    which is used with the SuperLU_DIST parallel sparse linear solver module,
+    SUNLINSOL_SUPERLUDIST;
+
+  - ``sunlinsol/sunlinsol_cusolversp_batchqr.h``,
+    which is used with the batched sparse QR factorization method provided
+    by the NVDIA cuSOLVER library, SUNLINSOL_CUSOLVERSP_BATCHQR;
+    
 - Iterative linear solvers:
 
   - ``sunlinsol/sunlinsol_spgmr.h``,
@@ -255,6 +264,16 @@ The header files for the SUNLINSOL_KLU and SUNLINSOL_SUPERLUMT linear
 solver modules include the file ``sunmatrix/sunmatrix_sparse.h``,
 which defines the SUNMATRIX_SPARSE matrix module, as well as various
 functions and macros for acting on such matrices.
+
+The header file for the SUNLINSOL_CUSOLVERSP_BATCHQR
+linear solver module includes the file ``sunmatrix/sunmatrix_cusparse.h``,
+which defines the SUNMATRIX_CUSPARSE matrix module, as well as various
+functions for acting on such matrices.
+
+The header file for the SUNLINSOL_SUPERLUDIST
+linear solver module includes the file ``sunmatrix/sunmatrix_slunrloc.h``,
+which defines the SUNMATRIX_SLUNRLOC matrix module, as well as various
+functions for acting on such matrices.
 
 The header files for the Krylov iterative solvers include the file
 ``sundials/sundials_iterative.h``, which enumerates the

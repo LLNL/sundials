@@ -2869,8 +2869,8 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
   /* Set scaling vectors for LS to use (if applicable) */
   if (arkls_mem->LS->ops->setscalingvectors) {
     retval = SUNLinSolSetScalingVectors(arkls_mem->LS,
-                                        ark_mem->ewt,
-                                        ark_mem->rwt);
+                                        ark_mem->rwt,
+                                        ark_mem->ewt);
     if (retval != SUNLS_SUCCESS) {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS", "arkLsMassSolve",
                       "Error in call to SUNLinSolSetScalingVectors");

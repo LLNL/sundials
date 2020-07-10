@@ -866,7 +866,7 @@ for the implementation specific functions to enable/disable operations.
   This routine scales and adds a vector in a vector array of $n_v$ vectors to
   the corresponding vector in $n_s$ vector arrays:
   \begin{equation*}
-    z_{j,i} = \sum_{k=0}^{n_s-1} c_k x_{k,j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,n_v-1,
+    z_{k,j,i} = c_k x_{j,i} + y_{k,j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1, \quad k=0,\ldots,ns-1
   \end{equation*}
   where $c$ is an array of $n_s$ scalars, $X$ is a vector array of $n_v$ vectors
   to be scaled and added to the corresponding vector in each of the $n_s$ vector

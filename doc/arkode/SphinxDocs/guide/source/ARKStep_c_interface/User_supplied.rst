@@ -91,9 +91,11 @@ specify the explicit and/or implicit portions of the ODE system:
    case the integration is halted and *ARK_RHSFUNC_FAIL* is returned).
 
    **Notes:** Allocation of memory for `ydot` is handled within the
-   ARKStep module.  A recoverable failure error return from the *ARKRhsFn* is
-   typically used to flag a value of the dependent variable :math:`y`
-   that is "illegal" in some way (e.g., negative where only a
+   ARKStep module.
+
+   A recoverable failure error return from the *ARKRhsFn* is typically 
+   used to flag a value of the dependent variable :math:`y` that is
+   "illegal" in some way (e.g., negative where only a
    non-negative value is physically meaningful).  If such a return is
    made, ARKStep will attempt to recover (possibly repeating the
    nonlinear iteration, or reducing the step size) in order to avoid
@@ -314,14 +316,17 @@ Implicit stage prediction function
 A user may supply a function to update the prediction for each implicit stage solution.
 If supplied, this routine will be called *after* any existing ARKStep predictor
 algorithm completes, so that the predictor may be modified by the user as desired.
-In this scenario, a user may provide a function of type :c:type:`ARKStepStagePredictFn`
+In this scenario, a user may provide a function of type :c:type:`ARKStagePredictFn`
 to provide this implicit predictor to ARKStep.  This function takes as input the
 already-predicted implicit stage solution and the corresponding 'time' for that prediction;
-it then updates the prediction vector as desired.
+it then updates the prediction vector as desired.  If the user-supplied routine will
+construct a full prediction (and thus the ARKStep prediction is irrelevant), it is
+recommended that the user *not* call :c:func:`ARKStepSetPredictorMethod()`, thereby leaving
+the default trivial predictor in place.
 
 
 
-.. c:type:: typedef int (*ARKStepStagePredictFn)(realtype t, N_Vector zpred, void* user_data)
+.. c:type:: typedef int (*ARKStagePredictFn)(realtype t, N_Vector zpred, void* user_data)
 
    This function updates the prediction for the implicit stage solution.
 
@@ -333,7 +338,7 @@ it then updates the prediction vector as desired.
         *user_data* parameter that was passed to :c:func:`ARKStepSetUserData()`.
 
    **Return value:**
-   An *ARKStepStagePredictFn* function should return 0 if it
+   An *ARKStagePredictFn* function should return 0 if it
    successfully set the upcoming stable step size, and a non-zero
    value otherwise.
 
@@ -424,14 +429,10 @@ object was supplied to :c:func:`ARKStepSetLinearSolver()` in section
    implementation-specific ``SUNMatrix`` interface functions
    (see the section :ref:`SUNMatrix` for details).
 
-   Prior to calling the user-supplied Jacobian function, the Jacobian
+   When using a linear solver of type ``SUNLINEARSOLVER_DIRECT``, prior
+   to calling the user-supplied Jacobian function, the Jacobian
    matrix :math:`J(t,y)` is zeroed out, so only nonzero elements need
    to be loaded into *Jac*.
-
-   With direct linear solvers (i.e., linear solvers with type
-   ``SUNLINEARSOLVER_DIRECT``), the Jacobian matrix :math:`J(t,y)` is zeroed out
-   prior to calling the user-supplied Jacobian function so only nonzero elements
-   need to be loaded into *Jac*.
 
    If the user's :c:type:`ARKLsJacFn` function uses difference
    quotient approximations, then it may need to access quantities not
@@ -535,12 +536,11 @@ object was supplied to :c:func:`ARKStepSetLinearSolver()` in section
       * *M* -- the current mass matrix (this input is ``NULL`` if :math:`M = I`).
       * *jok* -- is an input flag indicating whether the Jacobian-related data
         needs to be updated. The *jok* argument provides for the reuse of
-        Jacobian data in the preconditioner solve function. When *jok* =
-        ``SUNFALSE``, the Jacobian-related data should be recomputed from
-        scratch. When *jok* = ``SUNTRUE`` the Jacobian data, if saved from the
-        previous call to this function, can be reused (with the current value of
-        *gamma*). A call with *jok* = ``SUNTRUE`` can only occur after a call
-        with *jok* = ``SUNFALSE``.
+        Jacobian data. When *jok* = ``SUNFALSE``, the Jacobian-related data
+        should be recomputed from scratch. When *jok* = ``SUNTRUE`` the Jacobian
+        data, if saved from the previous call to this function, can be reused
+        (with the current value of *gamma*). A call with *jok* = ``SUNTRUE`` can
+        only occur after a call with *jok* = ``SUNFALSE``.
       * *jcur* -- is a pointer to a flag which should be set to ``SUNTRUE`` if
         Jacobian data was recomputed, or set to ``SUNFALSE`` if Jacobian data
         was not recomputed, but saved data was still reused.
@@ -567,7 +567,7 @@ object was supplied to :c:func:`ARKStepSetLinearSolver()` in section
 Jacobian-vector product (matrix-free linear solvers)
 --------------------------------------------------------------
 
-When using a matrix-free linear solver modules for the implicit
+When using a matrix-free linear solver module for the implicit
 stage solves (i.e., a NULL-valued SUNMATRIX argument was supplied to
 :c:func:`ARKStepSetLinearSolver()` in the section
 :ref:`ARKStep_CInterface.Skeleton`), the user may provide a function

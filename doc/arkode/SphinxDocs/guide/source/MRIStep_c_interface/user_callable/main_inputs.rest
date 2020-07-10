@@ -14,6 +14,8 @@ The optional inputs are grouped into the following categories:
 
 * General MRIStep options (:ref:`MRIStep_CInterface.MRIStepInputTable`), and
 * IVP method solver options (:ref:`MRIStep_CInterface.MRIStepMethodInputTable`)
+* Implicit stage solver options (:ref:`MRIStep_CInterface.MRIStepSolverInputTable`),
+* Linear solver interface options (:ref:`MRIStep_CInterface.ARKLsInputs`), and
 * Rootfinding options (:ref:`MRIStep_CInterface.MRIStepRootfindingInputTable`).
 
 For the most casual use of MRIStep, relying on the default set of
@@ -230,7 +232,7 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
 
 .. c:function:: int MRIStepSetFixedStep(void* arkode_mem, realtype hs)
 
-   Set the slow and fast step size used within MRIStep.
+   Set the slow step size used within MRIStep.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
@@ -243,21 +245,8 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
 
    **Notes:**
 
-   If the inner (fast) stepper is using fixed step size *hf* that does not evenly divide
-   the time interval between the stages of the outer (slow) method, then the actual
-   value used for the inner steps will be adjusted to a lightly smaller value
-   to ensure :math:`(c^s_{i} -  c^s_{i-1})h_s/h_f` is an integer
-   value. Specifically, the fast step for the *i*-th outer stage will be :math:`h
-   = \frac{(c^s_{i} - c^s_{i-1}) h_s}{\lceil (c^s_{i} - c^s_{i-1})h_s/h_f
-   \rceil}`.
-
-   If both :c:func:`MRIStepSetFixedStep()` and
-   :c:func:`MRIStepSetStopTime()` are used, then the fixed step size
-   will be used for all steps until the final step preceding the
-   provided stop time (which may be shorter).  To resume use of the
-   previous fixed step size, another call to
-   :c:func:`MRIStepSetFixedStep()` must be made prior to calling
-   :c:func:`MRIStepEvolve()` to resume integration.
+   The step sizes used by the inner (fast) stepper may be controlled through calling the
+   appropriate "Set" routines on the inner integrator.
 
 
 
@@ -384,8 +373,6 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
    **Notes:** The default is that no stop time is imposed.
 
 
-
-
 .. c:function:: int MRIStepSetUserData(void* arkode_mem, void* user_data)
 
    Specifies the user data block *user_data* for the outer integrator and
@@ -410,6 +397,7 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
    may be the same as or different from the pointer attached to the outer
    integrator depending on what is required by the user code.
 
+   
 .. c:function:: int MRIStepSetPreInnerFn(void* arkode_mem, MRIStepPreInnerFn prefn)
 
    Specifies the function called *before* each inner integration.
@@ -423,6 +411,7 @@ Supply a function to be called after the inner integration     :c:func:`MRIStepS
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
+        
 .. c:function:: int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
 
    Specifies the function called *after* each inner integration.

@@ -1,5 +1,6 @@
 ..
    Programmer(s): David J. Gardner @ LLNL
+                  Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    Based on ERKStep by Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
@@ -24,8 +25,10 @@ A skeleton of the user's main program
 
 The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP using the MRIStep module.
-Most of the steps are independent of the NVECTOR implementation used.
-For the steps that are not, refer to the section :ref:`NVectors` for
+Most of the steps are independent of the NVECTOR, SUNMATRIX, SUNLINSOL
+and SUNNONLINSOL implementations used.
+For the steps that are not, refer to the sections :ref:`NVectors`, :ref:`SUNMatrix`,
+:ref:`SUNLinSol`, and  :ref:`SUNNonlinSol` for
 the specific name of the function to be called or macro to be
 referenced.
 
@@ -91,28 +94,13 @@ referenced.
    :ref:`NVectors.ParHyp` and :ref:`NVectors.NVPETSc` for details.
 
    If using either the CUDA- or RAJA-based vector implementations use
-   a call of the form
+   calls to the module-specific routines
 
    .. code-block:: c
 
-      y0 = N_VMake_***(..., c);
+      y0 = N_VMake_***(...);
 
-   where ``c`` is a pointer to a ``suncudavec`` or ``sunrajavec``
-   vector class if this class already exists.  Otherwise, create a new
-   vector by making a call of the form
-
-   .. code-block:: c
-
-      N_VGetDeviceArrayPointer_***
-
-   or
-
-   .. code-block:: c
-
-      N_VGetHostArrayPointer_***
-
-   Note that the vector class will allocate memory on both the host
-   and device when instantiated.  See the sections
+   as applicable.  See the sections
    :ref:`NVectors.CUDA` and :ref:`NVectors.RAJA` for details.
 
 #. Create an ARKStep object for the fast (inner) integration
@@ -132,15 +120,12 @@ referenced.
 
    *Notes on using ARKStep as a fast integrator:*
 
-   If the inner method is not explicitly specified then the default method in
-   the ``ARKStep`` module will be used. If a particular fast method is desired
-   it should be set in this step. The slow method can be set when configuring
-   the slow integrator in the following steps.
-
-   By default the fast integrator will use adaptive step sizes. To use a fixed
-   fast step a call to :c:func:`ARKStepSetFixedStep()` should be made in this
-   step otherwise fast integration tolerances should be set in this step as
-   described in :ref:`ARKStep_CInterface.Skeleton`.
+   It is the user's responsibility to create, configure, and attach the
+   ``inner_arkode_mem`` to the MRIStep module.  User-specified options
+   regarding how this fast integration should be performed (e.g., adaptive
+   versus fixed time step, explicit/implicit/ImEx partitioning, algebraic
+   solvers, etc.) will be respected during integration of the fast time scales
+   during MRIStep integration.
 
    If a *user_data* pointer needs to be passed to user functions called by the
    fast (inner) integrator then it should be attached here by calling
@@ -157,20 +142,154 @@ referenced.
    the slow integrator. See the steps below and :c:func:`MRIStepRootInit()`
    for more details.
 
-   The ``ARKStep`` module used for the fast time scale must be configured
+   We note that due to the algorithms supported in MRIStep, the
+   ARKStep module used for the fast time scale must be configured
    with an identity mass matrix.
 
 #. Create an MRIStep object for the slow (outer) integration
 
-   Call ``arkode_mem = MRIStepCreate(...)`` to create the MRIStep memory
-   block. :c:func:`MRIStepCreate()` returns a ``void*`` pointer to
-   this memory structure. See the section
+   Call ``arkode_mem = MRIStepCreate(..., inner_arkode_mem)`` to create the 
+   MRIStep memory block. :c:func:`MRIStepCreate()` returns a ``void*`` pointer 
+   to this memory structure. See the section
    :ref:`MRIStep_CInterface.Initialization` for details.
 
 #. Set the slow step size
 
    Call :c:func:`MRIStepSetFixedStep()` to specify the slow time step
    size.
+
+   Specifically, if MRIStep is configured to use an implicit solver for the
+   slow time scale, then the following steps are recommended:
+
+#. Create and configure implicit solvers
+
+   If MRIStep is configured to use an implicit solver for the slow time scale, then:
+   
+   #. Specify integration tolerances
+
+      Call :c:func:`MRIStepSStolerances()` or :c:func:`MRIStepSVtolerances()` to
+      specify either a scalar relative tolerance and scalar absolute tolerance,
+      or a scalar relative tolerance and a vector of absolute tolerances,
+      respectively.  Alternatively, call :c:func:`MRIStepWFtolerances()`
+      to specify a function which sets directly the weights used in
+      evaluating WRMS vector norms. See the section
+      :ref:`MRIStep_CInterface.Tolerances` for details.
+
+   #. Create nonlinear solver object
+
+      If a non-default nonlinear solver object is desired for implicit
+      MRI stage solves (see the section :ref:`MRIStep_CInterface.NonlinearSolvers`),
+      then that nonlinear solver object must be created by using
+      the appropriate functions defined by the particular SUNNONLINSOL
+      implementation (e.g., ``NLS = SUNNonlinSol_***(...);`` where
+      ``***`` is the name of the nonlinear solver (see the section
+      :ref:`SUNNonlinSol` for details).
+
+      For the SUNDIALS-supplied SUNNONLINSOL implementations, the
+      nonlinear solver object may be created using a call of the form
+
+      .. code-block:: c
+
+         SUNNonlinearSolver NLS = SUNNonlinSol_*(...);
+
+      where ``*`` can be replaced with "Newton", "FixedPoint", or other
+      options, as discussed in the sections
+      :ref:`ARKStep_CInterface.NonlinearSolvers` and :ref:`SUNNonlinSol`.
+
+      Note: by default, MRIStep will use the Newton nonlinear solver
+      (see section :ref:`SUNNonlinSol_Newton`), so a custom nonlinear solver
+      object is only needed when using a *different* solver, or for the user
+      to exercise additional controls over the Newton solver.
+           
+   #. Attach nonlinear solver module
+
+      If a nonlinear solver object was created above, then it must be
+      attached to MRIStep using the call (for details see the
+      section :ref:`MRIStep_CInterface.NonlinearSolvers`):
+
+      .. code-block:: c
+  
+         ier = MRIStepSetNonlinearSolver(...);
+
+   #. Set nonlinear solver optional inputs
+
+      Call the appropriate set functions for the selected nonlinear
+      solver module to change optional inputs specific to that nonlinear
+      solver.  These *must* be called after attaching the nonlinear
+      solver to MRIStep, otherwise the optional inputs will be
+      overridden by MRIStep defaults.  See the section
+      :ref:`SUNNonlinSol` for more information on optional inputs.
+
+   #. Create matrix object
+
+      If a nonlinear solver requiring a linear solver will be used (e.g.,
+      a Newton iteration) and if that linear solver will be matrix-based,
+      then a template Jacobian matrix must be created by using the
+      appropriate functions defined by the particular SUNMATRIX
+      implementation.
+
+      For the SUNDIALS-supplied SUNMATRIX implementations, the
+      matrix object may be created using a call of the form
+
+      .. code-block:: c
+
+         SUNMatrix A = SUNBandMatrix(...);
+
+      or
+
+      .. code-block:: c
+                      
+         SUNMatrix A = SUNDenseMatrix(...);
+
+      or
+
+      .. code-block:: c
+
+         SUNMatrix A = SUNSparseMatrix(...);
+
+      or similarly for the CUDA and SuperLU_DIST matrix modules (see the
+      sections :ref:`SUNMatrix_cuSparse` or :ref:`SUNMatrix_SLUNRloc` for
+      further information).
+
+      NOTE: The dense, banded, and sparse matrix objects are usable only in a
+      serial or threaded environment.
+
+   #. Create linear solver object
+
+      If a nonlinear solver requiring a linear solver will be used (e.g.,
+      a Newton iteration), then the desired linear solver object(s) must be
+      created by using the appropriate functions defined by the particular
+      SUNLINSOL implementation.
+
+      For any of the SUNDIALS-supplied SUNLINSOL implementations, the
+      linear solver object may be created using a call of the form
+
+      .. code-block:: c
+   
+         SUNLinearSolver LS = SUNLinSol_*(...);
+
+      where ``*`` can be replaced with "Dense", "SPGMR", or other
+      options, as discussed in the sections
+      :ref:`MRIStep_CInterface.LinearSolvers` and :ref:`SUNLinSol`.
+
+   #. Set linear solver optional inputs
+
+      Call ``*Set*`` functions from the selected linear solver module
+      to change optional inputs specific to that linear solver.  See the
+      documentation for each SUNLINSOL module in the section
+      :ref:`SUNLinSol` for details.
+
+   #. Attach linear solver module
+
+      If a linear solver was created above for implicit MRI stage solves,
+      initialize the ARKLS linear solver interface by attaching the
+      linear solver object (and Jacobian matrix object, if applicable)
+      with the call (for details see the section
+      :ref:`MRIStep_CInterface.LinearSolvers`):
+
+      .. code-block:: c
+   
+         ier = MRIStepSetLinearSolver(...);
 
 #. Set optional inputs
 
@@ -225,8 +344,26 @@ referenced.
 
     Call :c:func:`SUNLinSolFree()` and (possibly)
     :c:func:`SUNMatDestroy()` to free any memory allocated for any
-    linear solver and/or matrix objects created above for the fast integrator.
+    linear solver and/or matrix objects created above for either the fast or
+    slow integrators.
+
+#. Free nonlinear solver memory
+
+   If a user-supplied ``SUNNonlinearSolver`` was provided to MRIStep,
+   then call :c:func:`SUNNonlinSolFree()` to free any memory allocated
+   for the nonlinear solver object created above.
 
 #. Finalize MPI, if used
 
     Call ``MPI_Finalize`` to terminate MPI.
+
+
+    
+SUNDIALS provides some linear solvers only as a means for users to get
+problems running and not as highly efficient solvers.  For example, if
+solving a dense system, we suggest using the LAPACK solvers if the
+size of the linear system is :math:`> 50,000` (thanks to A. Nicolai
+for his testing and recommendation).  See the table
+:ref:`ARKStep_CInterface.solver-vector` for a listing of the 
+linear solver interfaces available as ``SUNLinearSolver`` modules and
+the vector implementations required for use.  

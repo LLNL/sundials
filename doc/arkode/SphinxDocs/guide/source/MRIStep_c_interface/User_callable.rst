@@ -1,7 +1,6 @@
 ..
    Programmer(s): David J. Gardner @ LLNL
-   ----------------------------------------------------------------
-   Based on ERKStep by Daniel R. Reynolds @ SMU
+                  Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -79,7 +78,11 @@ MRIStep initialization and deallocation functions
 
 
 .. Tolerances
-.. user_callable/tolerances.rest
+.. include:: user_callable/tolerances.rest
+
+
+.. Linear/Nonlinear Solvers
+.. include:: user_callable/algebraic_solvers.rest
 
 
 .. Rootfinding initialization
@@ -144,19 +147,33 @@ the user has set a stop time (with a call to the optional input function
         the solver was either illegal or missing.  Details will be
         provided in the error message.  Typical causes of this failure:
 
-	(a) A component of the error weight vector became zero during
-	    internal time-stepping.
+        (a) A component of the error weight vector became zero during
+            internal time-stepping.
 
-	(b) A root of one of the root functions was found both at a
-	    point :math:`t` and also very near :math:`t`.
+        (b) The linear solver initialization function (called by the
+            user after calling :c:func:`ARKStepCreate()`) failed to set
+            the linear solver-specific *lsolve* field in
+            *arkode_mem*.
+
+        (c) A root of one of the root functions was found both at a
+            point :math:`t` and also very near :math:`t`.
 
       * *ARK_TOO_MUCH_WORK* if the solver took *mxstep* internal steps
         but could not reach *tout*.  The default value for *mxstep* is
         *MXSTEP_DEFAULT = 500*.
+      * *ARK_CONV_FAILURE* if convergence test failures occurred
+        too many times (*ark_maxncf*) during one internal time step.
+      * *ARK_LINIT_FAIL* if the linear solver's initialization
+        function failed.
+      * *ARK_LSETUP_FAIL* if the linear solver's setup routine failed in
+        an unrecoverable manner.
+      * *ARK_LSOLVE_FAIL* if the linear solver's solve routine failed in
+        an unrecoverable manner.
       * *ARK_VECTOROP_ERR* a vector operation error occured.
       * *ARK_INNERSTEP_FAILED* if the inner stepper returned with an
         unrecoverable error. The value returned from the inner stepper can be
         obtained with :c:func:`MRIStepGetLastInnerStepFlag()`.
+      * *ARK_INVALID_TABLE* if an invalid coupling table was provided.
 
    **Notes:** The input vector *yout* can use the same memory as the
    vector *y0* of initial conditions that was passed to
@@ -189,6 +206,7 @@ the user has set a stop time (with a call to the optional input function
 .. include:: user_callable/main_inputs.rest
 .. include:: user_callable/methods.rest
 .. user_callable/adaptivity.rest
+.. include:: user_callable/implicit_solves.rest
 .. include:: user_callable/rootfinding_inputs.rest
 .. include:: user_callable/interpolated.rest
 .. include:: user_callable/main_outputs.rest

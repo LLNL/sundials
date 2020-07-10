@@ -208,6 +208,9 @@
 .. [S1993] Y. Saad. A flexible inner-outer preconditioned GMRES
            algorithm.  *SIAM J. Sci. Comput.*, 14:461-469, 1993.
 
+.. [S2019] A. Sandu, A Class of Multirate Infinitesimal GARK Methods.
+           *SIAM J. Numer. Anal.*, 57:2300-2327, 2019.
+           
 .. [SA2002] A. Sayfy and A. Aburub. Embedded Additive Runge-Kutta
             Methods. *Intern. J. Computer Math.*, 79:945-953, 2002.
 

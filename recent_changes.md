@@ -18,6 +18,11 @@ SUNDIALS provided SUNNonlinearSolver implementations and have been updated
 accordingly. As before, the cumulative number of nonlinear iterations may be
 retreived by calling the integrator provided get functions.
 
+Updated the MRIStep time-stepping module in ARKode to support
+higher-order MRI-GARK methods [Sandu, SIAM J. Numer. Anal., 57, 2019], 
+including methods that involve solve-decoupled, diagonally-implicit 
+treatment of the slow time scale.
+
 
 ## Changes to SUNDIALS in release 5.3.0
 

@@ -79,7 +79,7 @@ typedef struct ARKodeARKStepMemRec {
   ARKodeButcherTable Bi;  /* IRK Butcher table          */
 
   /* User-supplied stage predictor routine */
-  ARKStepStagePredictFn stage_predict;
+  ARKStagePredictFn stage_predict;
 
   /* (Non)Linear solver parameters & data */
   SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
@@ -97,7 +97,6 @@ typedef struct ARKodeARKStepMemRec {
   realtype eRNrm;        /* estimated residual norm, used in nonlin
                             and linear solver convergence tests      */
   realtype nlscoef;      /* coefficient in nonlin. convergence test  */
-  int      mnewt;        /* internal Newton iteration counter        */
 
   int      msbp;         /* positive => max # steps between lsetup
                             negative => call at each Newton iter     */
@@ -189,6 +188,8 @@ int arkStep_StageSetup(ARKodeMem ark_mem);
 int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
+void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, realtype t,
+                          realtype s, int *nvec);
 
 /* private functions passed to nonlinear solver */
 int arkStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);

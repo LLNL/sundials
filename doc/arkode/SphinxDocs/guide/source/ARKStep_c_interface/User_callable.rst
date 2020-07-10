@@ -16,8 +16,8 @@
 
 .. _ARKStep_CInterface.UserCallable:
 
-User-callable functions
-=============================
+ARKStep User-callable functions
+================================
 
 This section describes the functions that are called by the user to
 setup and then solve an IVP using the ARKStep time-stepping
@@ -377,13 +377,13 @@ where
 .. math::
    {\mathcal A} \approx M - \gamma J, \qquad J = \frac{\partial f^I}{\partial y}.
 
-ARKode's ARKLs linear solver interface supports all valid
+ARKode's ARKLS linear solver interface supports all valid
 ``SUNLinearSolver`` modules for this task.
 
 Matrix-based ``SUNLinearSolver`` modules utilize ``SUNMatrix`` objects
 to store the approximate Jacobian matrix :math:`J`, the Newton matrix
-:math:`{\mathcal A}`, the mass matrix :math:`M`, and factorizations
-used throughout the solution process.
+:math:`{\mathcal A}`, the mass matrix :math:`M`, and, when using direct
+solvers, the factorizations used throughout the solution process.
 
 Matrix-free ``SUNLinearSolver`` modules instead use iterative methods
 to solve the Newton systems of equations, and only require the
@@ -422,6 +422,8 @@ The current list of such constructor routines includes
 :c:func:`SUNLinSol_LapackBand()`,
 :c:func:`SUNLinSol_KLU()`,
 :c:func:`SUNLinSol_SuperLUMT()`,
+:c:func:`SUNLinSol_SuperLUDIST()`,
+:c:func:`SUNLinSol_cuSolverSp_batchQR()`,
 :c:func:`SUNLinSol_SPGMR()`,
 :c:func:`SUNLinSol_SPFGMR()`,
 :c:func:`SUNLinSol_SPBCGS()`,
@@ -445,7 +447,7 @@ returned by :c:func:`ARKStepCreate()`; the second argument is the
 optional ``SUNMatrix`` object to accompany matrix-based
 ``SUNLinearSolver`` inputs (for matrix-free linear solvers, the third
 argument should be ``NULL``).  A call to this function initializes the
-ARKLs linear solver interface, linking it to the ARKStep integrator,
+ARKLS linear solver interface, linking it to the ARKStep integrator,
 and allows the user to specify additional parameters and routines
 pertinent to their choice of linear solver.
 
@@ -508,7 +510,7 @@ must solve linear systems of the form
 .. math::
     M x = b.
 
-ARKode's ARKLs mass-matrix linear solver interface supports all valid
+ARKode's ARKLS mass-matrix linear solver interface supports all valid
 ``SUNLinearSolver`` modules for this task.  For iterative linear
 solvers, user-supplied preconditioning can be applied.  For the
 specification of a preconditioner, see the iterative linear solver
@@ -531,7 +533,7 @@ systems.  The third object is a template ``SUNMatrix`` to use with the
 provided ``SUNLinearSolver`` (if applicable).  The fourth input is a
 flag to indicate whether the mass matrix is time-dependent,
 i.e. :math:`M = M(t)` or not.  A call to this function initializes the
-ARKLs mass matrix linear solver interface, linking this to the main
+ARKLS mass matrix linear solver interface, linking this to the main
 ARKStep integrator, and allows the user to specify additional
 parameters and routines pertinent to their choice of linear solver.
 
@@ -719,12 +721,10 @@ ARKStep solver function
 -------------------------
 
 This is the central step in the solution process -- the call to perform
-the integration of the IVP.  One of the input arguments (*itask*)
-specifies one of two modes as to where ARKStep is to return a
-solution.  These modes are modified if the user has set a stop time
-(with a call to the optional input function :c:func:`ARKStepSetStopTime()`) or
-has requested rootfinding.
-
+the integration of the IVP.  The input argument *itask* specifies one of two
+modes as to where ARKStep is to return a solution.  These modes are modified if
+the user has set a stop time (with a call to the optional input function
+:c:func:`ARKStepSetStopTime()`) or has requested rootfinding.
 
 
 .. c:function:: int ARKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout, realtype *tret, int itask)
@@ -816,9 +816,10 @@ has requested rootfinding.
 
    In *ARK_ONE_STEP* mode, *tout* is used only on the first call, and
    only to get the direction and a rough scale of the independent
-   variable. All failure return values are negative and so testing the
-   return argument for negative values will trap all
-   :c:func:`ARKStepEvolve()` failures.
+   variable.
+
+   All failure return values are negative and so testing the return argument for
+   negative values will trap all :c:func:`ARKStepEvolve()` failures.
 
    Since interpolation may reduce the accuracy in the reported
    solution, if full method accuracy is desired the user should issue
@@ -857,7 +858,7 @@ The optional inputs are grouped into the following categories:
 * General ARKStep options (:ref:`ARKStep_CInterface.ARKStepInputTable`),
 * IVP method solver options (:ref:`ARKStep_CInterface.ARKStepMethodInputTable`),
 * Step adaptivity solver options (:ref:`ARKStep_CInterface.ARKStepAdaptivityInputTable`),
-* Implicit stage solver options (:ref:`ARKStep_CInterface.ARKStep_CInterface.ARKStepSolverInputTable`),
+* Implicit stage solver options (:ref:`ARKStep_CInterface.ARKStepSolverInputTable`),
 * Linear solver interface options (:ref:`ARKStep_CInterface.ARKLsInputs`), and
 * Rootfinding options (:ref:`ARKStep_CInterface.ARKStepRootfindingInputTable`).
 
@@ -1879,7 +1880,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
 
 
 
-.. _ARKStep_CInterface.ARKStep_CInterface.ARKStepSolverInputTable:
+.. _ARKStep_CInterface.ARKStepSolverInputTable:
 
 Optional inputs for implicit stage solves
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1916,8 +1917,8 @@ User-provided implicit stage predictor         :c:func:`ARKStepSetStagePredictFn
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *timedepend* -- flag denoting whether the Jacobian of
         :math:`f^I(t,y)` is time-dependent (1) or not (0).
-        Alternately, when using an iterative linear solver this flag
-        denotes time dependence of the preconditioner.
+        Alternately, when using a matrix-free iterative linear solver
+        this flag denotes time dependence of the preconditioner.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1932,8 +1933,8 @@ User-provided implicit stage predictor         :c:func:`ARKStepSetStagePredictFn
    combination with the modified or inexact Newton iteration (not the
    fixed-point solver).
 
-   The only SUNNonlinearSolver module that is compatible with the
-   :c:func:`ARKStepSetLinear()` option is the Newton solver.
+   The only SUNDIALS-provided SUNNonlinearSolver module that is compatible
+   with the :c:func:`MRIStepSetLinear()` option is the Newton solver.
 
 
 
@@ -2094,14 +2095,15 @@ User-provided implicit stage predictor         :c:func:`ARKStepSetStagePredictFn
 
 
 
-.. c:function:: int ARKStepSetStagePredictFn(void* arkode_mem, ARKStepStagePredictFn PredictStage)
+.. c:function:: int ARKStepSetStagePredictFn(void* arkode_mem, ARKStagePredictFn PredictStage)
 
    Sets the user-supplied function to update the implicit stage predictor prior to
    execution of the nonlinear or linear solver algorithms that compute the implicit stage solution.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *PredictStage* -- name of user-supplied predictor function.
+      * *PredictStage* -- name of user-supplied predictor function.  If ``NULL``, then any
+        previously-provided stage prediction function will be disabled.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -2134,7 +2136,7 @@ matrix-based and matrix-free groups are mutually exclusive, whereas the
 
 .. _ARKStep_CInterface.ARKLsInputs.General:
 
-Optional inputs for the ARKLs linear solver interface
+Optional inputs for the ARKLS linear solver interface
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 As discussed in the section :ref:`Mathematics.Linear.Setup`, ARKode
@@ -2156,33 +2158,29 @@ validity of :math:`{\mathcal A}` for successive time steps
 intimately depends on whether the corresponding :math:`\gamma` and
 :math:`J` inputs remain valid.
 
-If the current value of :math:`\gamma` is ever too far from the value
-used when constructing :math:`{\mathcal A}`, then it is considered
-invalid and the linear solver setup routine is called.  For linear
-solvers with user-supplied preconditioning, the input *jok* is then
-set to ``SUNFALSE`` in calling the user-supplied
-:c:type:`ARKLsPrecSetupFn()`, to recommend a preconditioner update.
+At each call to the linear solver setup routine the decision to update
+:math:`\mathcal{A}` with a new value of :math:`\gamma`, and to reuse
+or reevaluate Jacobian information, depends on several factors including:
 
-It is more difficult to automatically and efficiently determine the
-validity of :math:`J` (unless the nonlinear solver fails to converge).
-To this end, we automatically update :math:`J` at a user-defined
-frequency, controlled with the *msbj* argument to
-:c:func:`ARKStepSetMaxStepsBetweenJac()`.  We note that this is only
-checked *within* calls to the linear solver setup routine, so values
-*msbj* :math:`<` *msbp* do not make sense.
+* the success or failure of previous solve attempts,
+* the success or failure of the previous time step attempts,
+* the change in :math:`\gamma` from the value used when constructing :math:`\mathcal{A}`, and
+* the number of steps since Jacobian information was last evaluated.
 
-For linear solvers with user-supplied preconditioning: at each call
-to the linear solver setup routine, *msbj* is used to determine
-whether to recommend a preconditioner update (i.e., whether to set
-*jok* to ``SUNFALSE`` in calling the user-supplied
-:c:type:`ARKLsPrecSetupFn()`).
+The frequency with which to update Jacobian information can be controlled
+with the *msbj* argument to :c:func:`ARKStepSetMaxStepsBetweenJac()`.
+We note that this is only checked *within* calls to the linear solver setup
+routine, so values *msbj* :math:`<` *msbp* do not make sense. For
+linear-solvers with user-supplied preconditioning the above factors are used
+to determine whether to recommend updating the Jacobian information in the
+preconditioner (i.e., whether to set *jok* to ``SUNFALSE`` in calling the
+user-supplied :c:type:`ARKLsPrecSetupFn()`). For matrix-based linear solvers
+these factors determine whether the matrix :math:`J(t,y) = \frac{\partial f^I(t,y)}{\partial y}`
+should be updated (either with an internal finite difference approximation or
+a call to the user-supplied :c:type:`ARKLsJacFn`); if not then the previous
+value is reused and the system matrix :math:`{\mathcal A}(t,y) \approx M - \gamma J(t,y)`
+is recomputed using the current :math:`\gamma` value.
 
-For matrix-based linear solvers: at each call to the linear solver
-setup routine, *msbj* is used to determine whether the matrix
-:math:`J(t,y) = \frac{\partial f^I(t,y)}{\partial y}` should be
-updated; if not then the previous value is reused and the system
-matrix :math:`{\mathcal A}(t,y) \approx M - \gamma J(t,y)` is
-recomputed using the current :math:`\gamma` value.
 
 
 
@@ -2291,9 +2289,9 @@ present, we do not supply a corresponding routine to approximate Jacobian
 entries in sparse matrices :math:`J`. To specify a user-supplied Jacobian
 function *jac*, ARKStep provides the function :c:func:`ARKStepSetJacFn()`.
 Alternatively, a function of type :c:func:`ARKLsLinSysFn()` can be provided to
-evaluate the linear system :math:`M - \gamma J`. By default, ARKLS uses an
-internal linear system function leveraging the SUNMATRIX API to form the system
-:math:`M = I - \gamma J`. To specify a user-supplied linear system function
+evaluate the matrix :math:`M - \gamma J`. By default, ARKLS uses an
+internal linear system function leveraging the SUNMATRIX API to form the matrix
+:math:`I - \gamma J`. To specify a user-supplied linear system function
 *linsys*, ARKStep provides the function :c:func:`ARKStepSetLinSysFn()`. In
 either case the matrix information will be updated infrequently to reduce matrix
 construction and, with direct solvers, factorization costs. As a result the
@@ -2423,6 +2421,7 @@ data may be specified through :c:func:`ARKStepSetUserData()`.
 
    **Notes:** Linear solution scaling is enabled by default when a matrix-based
    linear solver is attached.
+
 
 .. _ARKStep_CInterface.ARKLsInputs.MatrixFree:
 
@@ -2902,7 +2901,7 @@ Some of the optional outputs, especially the various counters, can be
 very useful in determining the efficiency of various methods inside
 ARKStep.  For example:
 
-* The counters *nsteps*, *nfe_evals*, *nfi_evals* and *nf_evals*
+* The counters *nsteps*, *nfe_evals* and *nfi_evals*
   provide a rough measure of the overall cost of a given run, and can
   be compared between runs with different solver options to suggest
   which set of options is the most efficient.
@@ -3011,6 +3010,8 @@ Actual initial time step size used                   :c:func:`ARKStepGetActualIn
 Step size used for the last successful step          :c:func:`ARKStepGetLastStep()`
 Step size to be attempted on the next step           :c:func:`ARKStepGetCurrentStep()`
 Current internal time reached by the solver          :c:func:`ARKStepGetCurrentTime()`
+Current internal solution reached by the solver      :c:func:`ARKStepGetCurrentState()`
+Current :math:`\gamma` value used by the solver      :c:func:`ARKStepGetCurrentGamma()`
 Suggested factor for tolerance scaling               :c:func:`ARKStepGetTolScaleFactor()`
 Error weight vector for state variables              :c:func:`ARKStepGetErrWeights()`
 Residual weight vector                               :c:func:`ARKStepGetResWeights()`
@@ -3118,6 +3119,38 @@ Number of constraint test failures                   :c:func:`ARKStepGetNumConst
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *tcur* -- current internal time reached.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+
+
+.. c:function:: int ARKStepGetCurrentState(void *arkode_mem, N_Vector *ycur)
+
+   Returns the current internal solution reached by the solver.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *ycur* -- current internal solution.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+   **Notes:** Users should exercise extreme caution when using this function,
+   as altering values of *ycur* may lead to undesirable behavior, depending
+   on the particular use case and on when this routine is called.
+
+
+.. c:function:: int ARKStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
+
+   Returns the current internal value of :math:`\gamma` used in the implicit
+   solver Newton matrix (see equation :eq:`NewtonMatrix`).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *gamma* -- current step size scaling factor in the Newton system.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -3633,11 +3666,16 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new linear solver
+   module is 'attached' to ARKStep, or when ARKStep is resized.
+
 
 .. c:function:: int ARKStepGetNumPrecEvals(void* arkode_mem, long int* npevals)
 
    Returns the total number of preconditioner evaluations,
-   i.e. the number of calls made to *psetup* with *jok* = ``SUNFALSE``.
+   i.e. the number of calls made to *psetup* with ``jok`` = ``SUNFALSE`` and
+   that returned ``*jcurPtr`` = ``SUNTRUE``.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -3647,6 +3685,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new linear solver
+   module is 'attached' to ARKStep, or when ARKStep is resized.
 
 
 .. c:function:: int ARKStepGetNumPrecSolves(void* arkode_mem, long int* npsolves)
@@ -3662,6 +3704,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new linear solver
+   module is 'attached' to ARKStep, or when ARKStep is resized.
 
 
 .. c:function:: int ARKStepGetNumLinIters(void* arkode_mem, long int* nliters)
@@ -3695,6 +3741,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new linear solver
+   module is 'attached' to ARKStep, or when ARKStep is resized.
+
 
 .. c:function:: int ARKStepGetNumJTSetupEvals(void* arkode_mem, long int* njtsetup)
 
@@ -3710,6 +3760,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new linear solver
+   module is 'attached' to ARKStep, or when ARKStep is resized.
+
 
 .. c:function:: int ARKStepGetNumJtimesEvals(void* arkode_mem, long int* njvevals)
 
@@ -3724,6 +3778,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new linear solver
+   module is 'attached' to ARKStep, or when ARKStep is resized.
 
 
 .. c:function:: int ARKStepGetNumLinRhsEvals(void* arkode_mem, long int* nfevalsLS)
@@ -3745,6 +3803,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
    **Notes:** The value *nfevalsLS* is incremented only if the default
    internal difference quotient function is used.
 
+   This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new linear solver
+   module is 'attached' to ARKStep, or when ARKStep is resized.
+
 
 .. c:function:: int ARKStepGetLastLinFlag(void* arkode_mem, long int* lsflag)
 
@@ -3760,14 +3822,14 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
-   **Notes:** If the ARKLs setup function failed when using the
+   **Notes:** If the ARKLS setup function failed when using the
    ``SUNLINSOL_DENSE`` or ``SUNLINSOL_BAND`` modules, then the value
    of *lsflag* is equal to the column index (numbered from one) at
    which a zero diagonal element was encountered during the LU
    factorization of the (dense or banded) Jacobian matrix.  For all
    other failures, *lsflag* is negative.
 
-   Otherwise, if the ARKLs setup function failed
+   Otherwise, if the ARKLS setup function failed
    (:c:func:`ARKStepEvolve()` returned *ARK_LSETUP_FAIL*), then
    *lsflag* will be *SUNLS_PSET_FAIL_UNREC*, *SUNLS_ASET_FAIL_UNREC*
    or *SUNLS_PACKAGE_FAIL_UNREC*.
@@ -3778,8 +3840,14 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
    be one of:
    *SUNLS_MEM_NULL*, indicating that the ``SUNLinearSolver``
    memory is ``NULL``;
+   *SUNLS_ATIMES_NULL*, indicating that a matrix-free iterative solver
+   was provided, but is missing a routine for the matrix-vector product
+   approximation,
    *SUNLS_ATIMES_FAIL_UNREC*, indicating an unrecoverable failure in
    the :math:`Jv` function;
+   *SUNLS_PSOLVE_NULL*, indicating that an iterative linear solver was
+   configured to use preconditioning, but no preconditioner solve
+   routine was provided,
    *SUNLS_PSOLVE_FAIL_UNREC*, indicating that the preconditioner solve
    function failed unrecoverably;
    *SUNLS_GS_FAIL*, indicating a failure in the Gram-Schmidt procedure
@@ -3844,6 +3912,12 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new mass-matrix
+   linear solver module is 'attached' to ARKStep, or when ARKStep is
+   resized.
+
+
 .. c:function:: int ARKStepGetNumMassMultSetups(void* arkode_mem, long int* nmvsetups)
 
    Returns the number of calls made to the ARKLS mass matrix 'matvec setup'
@@ -3857,6 +3931,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new mass-matrix
+   linear solver module is 'attached' to ARKStep, or when ARKStep is
+   resized.
 
 .. c:function:: int ARKStepGetNumMassMult(void* arkode_mem, long int* nmmults)
 
@@ -3873,6 +3952,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new mass-matrix
+   linear solver module is 'attached' to ARKStep, or when ARKStep is
+   resized.
+
 
 .. c:function:: int ARKStepGetNumMassSolves(void* arkode_mem, long int* nmsolves)
 
@@ -3886,6 +3970,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new mass-matrix
+   linear solver module is 'attached' to ARKStep, or when ARKStep is
+   resized.
 
 
 .. c:function:: int ARKStepGetNumMassPrecEvals(void* arkode_mem, long int* nmpevals)
@@ -3902,6 +3991,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new mass-matrix
+   linear solver module is 'attached' to ARKStep, or when ARKStep is
+   resized.
+
 
 .. c:function:: int ARKStepGetNumMassPrecSolves(void* arkode_mem, long int* nmpsolves)
 
@@ -3917,6 +4011,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new mass-matrix
+   linear solver module is 'attached' to ARKStep, or when ARKStep is
+   resized.
+
 
 .. c:function:: int ARKStepGetNumMassIters(void* arkode_mem, long int* nmiters)
 
@@ -3930,6 +4029,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new mass-matrix
+   linear solver module is 'attached' to ARKStep, or when ARKStep is
+   resized.
 
 
 .. c:function:: int ARKStepGetNumMassConvFails(void* arkode_mem, long int* nmcfails)
@@ -3945,6 +4049,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new mass-matrix
+   linear solver module is 'attached' to ARKStep, or when ARKStep is
+   resized.
+
 
 .. c:function:: int ARKStepGetNumMTSetups(void* arkode_mem, long int* nmtsetup)
 
@@ -3959,6 +4068,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the 'life' of the linear
+   solver object; the counter is reset whenever a new mass-matrix
+   linear solver module is 'attached' to ARKStep, or when ARKStep is
+   resized.
 
 
 .. c:function:: int ARKStepGetLastMassFlag(void* arkode_mem, long int* mlsflag)
@@ -3989,11 +4103,9 @@ General usability functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following optional routines may be called by a user to inquire
-about existing solver parameters, to retrieve stored Butcher tables,
-write the current Butcher table(s), or even to test a provided Butcher
-table to determine its analytical order of accuracy.  While none of
-these would typically be called during the course of solving an
-initial value problem, these may be useful for users wishing to better
+about existing solver parameters or write the current Butcher table(s). While
+neither of these would typically be called during the course of solving an
+initial value problem, they may be useful for users wishing to better
 understand ARKStep and/or specific Runge-Kutta methods.
 
 

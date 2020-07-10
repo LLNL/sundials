@@ -39,7 +39,7 @@ where *.lib* is typically ``.so`` for shared libraries and
 The module SUNLinSol_SuperLUDIST provides the following user-callable routines:
 
 
-.. c:function:: SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SuperMatrix \*A, gridinfo_t \*grid, LUstruct_t \*lu, ScalePermstruct_t \*scaleperm, SOLVEstruct_t \*solve, SuperLUStat_t \*stat, superlu_dist_options_t \*options)
+.. c:function:: SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SuperMatrix *A, gridinfo_t *grid, LUstruct_t *lu, ScalePermstruct_t *scaleperm, SOLVEstruct_t *solve, SuperLUStat_t *stat, superlu_dist_options_t *options)
 
    This constructor function creates and allocates memory for a SUNLinSol_SuperLUDIST
    object. Its arguments are an ``N_Vector``, a ``SUNMatrix``, and SuperLU_DIST

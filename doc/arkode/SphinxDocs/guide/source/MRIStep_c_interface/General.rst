@@ -1,5 +1,6 @@
 ..
    Programmer(s): David J. Gardner @ LLNL
+                  Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    Based on ERKStep by Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
@@ -40,6 +41,9 @@ are located in the subdirectories
 - ``incdir/include/arkode``
 - ``incdir/include/sundials``
 - ``incdir/include/nvector``
+- ``incdir/include/sunmatrix``
+- ``incdir/include/sunlinsol``
+- ``incdir/include/sunnonlinsol``
 
 The directories ``libdir`` and ``incdir`` are the installation library
 and include directories, respectively.  For a default installation,
@@ -119,11 +123,11 @@ The type ``sunindextype`` can be either a 32- or 64-bit *signed* integer.
 The default is the portable ``int64_t`` type, and the user can change it
 to ``int32_t`` at the configuration stage. The configuration system
 will detect if the compiler does not support portable types, and will
-replace ``int32_t`` and ``int64_t`` with ``int`` and ``long int``,
-respectively, to ensure use of the desired sizes on Linux, Mac OS X, and Windows
-platforms. SUNDIALS currently does not support *unsigned* integer types
-for vector and matrix indices, although these could be added in the future if there
-is sufficient demand.
+replace ``int32_t`` and ``int64_t`` with ``int``, ``long int``, or
+``long long int`` as appropriate, to ensure use of the desired sizes on
+Linux, Mac OS X, and Windows platforms. SUNDIALS currently does not support
+*unsigned* integer types for vector and matrix indices, although these could
+be added in the future if there is sufficient demand.
 
 A user program which uses ``sunindextype`` to handle vector and matrix indices
 will work with both index storage types except for any calls to index storage-specific
@@ -161,3 +165,114 @@ appropriate name.  This file in turn includes the header file
 ``sundials_nvector.h`` which defines the abstract ``N_Vector`` data
 type.
 
+If the user specifies that the slow time scale should be treated
+implicitly, then each implicit stage will require a nonlinear solver for
+the resulting system of algebraic equations -- the default for this is a
+modified or inexact Newton iteration, depending on the user's choice of
+linear solver.  If using a non-default nonlinear solver
+module, or when interacting with a SUNNONLINSOL module directly, the
+calling program must also include a SUNNONLINSOL header file, of the
+form ``sunnonlinsol/sunnonlinsol_***.h`` where ``***`` is the name of
+the nonlinear solver module (see the section :ref:`SUNNonlinSol` for
+more information).  This file in turn includes the header file
+``sundials_nonlinearsolver.h`` which defines the abstract
+``SUNNonlinearSolver`` data type.
+
+If using a nonlinear solver that requires the solution of a linear
+system of the form :math:`\mathcal{A}x=b` (e.g., the default Newton
+iteration), then a linear solver module header file will also
+be required.  The header files corresponding to the SUNDIALS-provided
+linear solver modules available for use with ARKode are:
+
+- Direct linear solvers:
+
+  - ``sunlinsol/sunlinsol_dense.h``,
+    which is used with the dense linear solver module,
+    SUNLINSOL_DENSE;
+
+  - ``sunlinsol/sunlinsol_band.h``,
+    which is used with the banded linear solver module,
+    SUNLINSOL_BAND;
+
+  - ``sunlinsol/sunlinsol_lapackdense.h``,
+    which is used with the LAPACK dense linear solver module,
+    SUNLINSOL_LAPACKDENSE;
+
+  - ``sunlinsol/sunlinsol_lapackband.h``,
+    which is used with the LAPACK banded linear solver module,
+    SUNLINSOL_LAPACKBAND;
+
+  - ``sunlinsol/sunlinsol_klu.h``,
+    which is used with the KLU sparse linear solver module,
+    SUNLINSOL_KLU;
+
+  - ``sunlinsol/sunlinsol_superlumt.h``,
+    which is used with the SuperLU_MT sparse linear solver module,
+    SUNLINSOL_SUPERLUMT;
+
+  - ``sunlinsol/sunlinsol_superludist.h``,
+    which is used with the SuperLU_DIST parallel sparse linear solver module,
+    SUNLINSOL_SUPERLUDIST;
+
+  - ``sunlinsol/sunlinsol_cusolversp_batchqr.h``,
+    which is used with the batched sparse QR factorization method provided
+    by the NVDIA cuSOLVER library, SUNLINSOL_CUSOLVERSP_BATCHQR;
+
+- Iterative linear solvers:
+
+  - ``sunlinsol/sunlinsol_spgmr.h``,
+    which is used with the scaled, preconditioned GMRES Krylov linear
+    solver module, SUNLINSOL_SPGMR;
+
+  - ``sunlinsol/sunlinsol_spfgmr.h``,
+    which is used with the scaled, preconditioned FGMRES Krylov linear
+    solver module, SUNLINSOL_SPFGMR;
+
+  - ``sunlinsol/sunlinsol_spbcgs.h``,
+    which is used with the scaled, preconditioned Bi-CGStab Krylov
+    linear solver module, SUNLINSOL_SPBCGS;
+
+  - ``sunlinsol/sunlinsol_sptfqmr.h``,
+    which is used with the scaled, preconditioned TFQMR Krylov linear
+    solver module, SUNLINSOL_SPTFQMR;
+
+  - ``sunlinsol/sunlinsol_pcg.h``,
+    which is used with the scaled, preconditioned CG Krylov linear
+    solver module, SUNLINSOL_PCG;
+
+The header files for the SUNLINSOL_DENSE and SUNLINSOL_LAPACKDENSE
+linear solver modules include the file
+``sunmatrix/sunmatrix_dense.h``, which defines the SUNMATRIX_DENSE
+matrix module, as well as various functions and macros for acting on
+such matrices.
+
+The header files for the SUNLINSOL_BAND and SUNLINSOL_LAPACKBAND
+linear solver modules include the file ``sunmatrix/sunmatrix_band.h``,
+which defines the SUNMATRIX_BAND matrix module, as well as various
+functions and macros for acting on such matrices.
+
+The header files for the SUNLINSOL_KLU and SUNLINSOL_SUPERLUMT linear
+solver modules include the file ``sunmatrix/sunmatrix_sparse.h``,
+which defines the SUNMATRIX_SPARSE matrix module, as well as various
+functions and macros for acting on such matrices.
+
+The header file for the SUNLINSOL_CUSOLVERSP_BATCHQR
+linear solver module includes the file ``sunmatrix/sunmatrix_cusparse.h``,
+which defines the SUNMATRIX_CUSPARSE matrix module, as well as various
+functions for acting on such matrices.
+
+The header file for the SUNLINSOL_SUPERLUDIST
+linear solver module includes the file ``sunmatrix/sunmatrix_slunrloc.h``,
+which defines the SUNMATRIX_SLUNRLOC matrix module, as well as various
+functions for acting on such matrices.
+
+The header files for the Krylov iterative solvers include the file
+``sundials/sundials_iterative.h``, which enumerates the
+preconditioning type and (for the SPGMR and SPFGMR solvers) the
+choices for the Gram-Schmidt orthogonalization process.
+
+Other headers may be needed, according to the choice of
+preconditioner, etc.  For example, if preconditioning for an iterative
+linear solver were performed using the ARKBBDPRE module, the header
+``arkode/arkode_bbdpre.h`` is needed to access the preconditioner
+initialization routines.

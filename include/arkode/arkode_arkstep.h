@@ -57,13 +57,8 @@ extern "C" {
 #define DEFAULT_ARK_ITABLE_4    ARK436L2SA_DIRK_6_3_4
 #define DEFAULT_ARK_ITABLE_5    ARK548L2SA_DIRK_8_4_5
 
-
-/* ------------------------------
- * User-Supplied Function Types
- * ------------------------------ */
-
-typedef int (*ARKStepStagePredictFn)(realtype t, N_Vector zpred,
-                                     void *user_data);
+/* backwards-compatibility */  
+typedef ARKStagePredictFn ARKStepStagePredictFn;
 
 /* -------------------
  * Exported Functions
@@ -93,7 +88,7 @@ SUNDIALS_EXPORT int ARKStepSVtolerances(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepWFtolerances(void *arkode_mem,
                                         ARKEwtFn efun);
 
-/* Resudal tolerance input functions */
+/* Residual tolerance input functions */
 SUNDIALS_EXPORT int ARKStepResStolerance(void *arkode_mem,
                                          realtype rabstol);
 SUNDIALS_EXPORT int ARKStepResVtolerance(void *arkode_mem,
@@ -220,7 +215,7 @@ SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetPostprocessStageFn(void *arkode_mem,
                                                  ARKPostProcessFn ProcessStage);
 SUNDIALS_EXPORT int ARKStepSetStagePredictFn(void *arkode_mem,
-                                             ARKStepStagePredictFn PredictStage);
+                                             ARKStagePredictFn PredictStage);
 
 /* Linear solver interface optional input functions -- must be called
    AFTER ARKStepSetLinearSolver and/or ARKStepSetMassLinearSolver */

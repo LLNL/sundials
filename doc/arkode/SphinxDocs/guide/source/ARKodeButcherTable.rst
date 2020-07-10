@@ -155,7 +155,7 @@ Function name                                Description
       * ``NULL`` pointer if *stages* was invalid or an allocation error occured.
 
    **Notes:** If the method does not have an embedding then *d* should be
-   ``NULL`` and *q* should be equal to zero.
+   ``NULL`` and *p* should be equal to zero.
 
 .. c:function:: ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B)
 
