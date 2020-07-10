@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Slaven Peles @ LLNL
+ * Programmer(s): Slaven Peles, Daniel McGreer @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -52,11 +52,17 @@ extern "C" {
  */
 
 /* RAJA implementation of the N_Vector 'content' structure
-   contains the length of the vector, a pointer to an array
-   of 'realtype' components, and a flag indicating ownership of
-   the data */
+   contains the length of the vector, pointers to host and device
+   arrays of 'realtype' components, a flag indicating ownership of
+   the data, and a private data pointer  */
 
-struct _N_VectorContent_Raja {};
+struct _N_VectorContent_Raja {
+  sunindextype       length;
+  booleantype        own_data;
+  realtype*          host_data;
+  realtype*          device_data;
+  void*              priv; /* 'private' data */
+};
 
 typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
 
@@ -70,13 +76,19 @@ SUNDIALS_EXPORT N_Vector N_VNew_Raja(sunindextype length);
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Raja();
 
-SUNDIALS_EXPORT N_Vector N_VMake_Raja(N_VectorContent_Raja c);
+SUNDIALS_EXPORT N_Vector N_VNewManaged_Raja(sunindextype length);
+
+SUNDIALS_EXPORT N_Vector N_VMake_Raja(sunindextype length, realtype *h_vdata, realtype *d_vdata);
+
+SUNDIALS_EXPORT N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata);
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_Raja(N_Vector v);
 
 SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_Raja(N_Vector v);
 
 SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer_Raja(N_Vector v);
+
+SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Raja(N_Vector x);
 
 SUNDIALS_EXPORT void N_VCopyToDevice_Raja(N_Vector v);
 

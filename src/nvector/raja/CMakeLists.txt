@@ -46,6 +46,7 @@ if(BUILD_STATIC_LIBS)
   target_compile_options(sundials_nveccudaraja_static PUBLIC
     $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>)
   target_link_libraries(sundials_nveccudaraja_static PUBLIC RAJA)
+  target_include_directories(sundials_nveccudaraja_static PRIVATE . ${sundials_SOURCE_DIR}/src/sundials)
   set_target_properties(sundials_nveccudaraja_static PROPERTIES
                         OUTPUT_NAME sundials_nveccudaraja
                         CLEAN_DIRECT_OUTPUT 1)
@@ -63,6 +64,7 @@ if(BUILD_SHARED_LIBS)
   target_compile_options(sundials_nveccudaraja_shared PUBLIC
     $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>)
   target_link_libraries(sundials_nveccudaraja_shared PUBLIC RAJA)
+  target_include_directories(sundials_nveccudaraja_shared PRIVATE . ${sundials_SOURCE_DIR}/src/sundials)
   set_target_properties(sundials_nveccudaraja_shared PROPERTIES
                         OUTPUT_NAME sundials_nveccudaraja
                         CLEAN_DIRECT_OUTPUT 1
@@ -73,6 +75,5 @@ endif(BUILD_SHARED_LIBS)
 
 # Install the NVECRAJA header files
 install(FILES ${nvecraja_HEADERS} DESTINATION include/nvector)
-install(DIRECTORY ${sundials_SOURCE_DIR}/include/nvector/raja DESTINATION include/nvector)
 
 message(STATUS "Added NVECTOR_RAJA module")

@@ -28,36 +28,31 @@ who are already familiar with RAJA and GPU programming. Building this vector
 module requires a C++11 compliant compiler and a CUDA software development toolkit.
 Besides the CUDA backend, RAJA has other backends such as serial, OpenMP,
 and OpenACC. These backends are not used in this SUNDIALS release.
-Class ``Vector`` in namespace ``sunrajavec`` manages the vector data
-layout:
+The vector content layout is as follows:
 
 .. code-block:: c++
 
-   template <class T, class I>
-   class Vector {
-     I size_;
-     I mem_size_;
-     T* h_vec_;
-     T* d_vec_;
-     ...
+   struct _N_VectorContent_Raja
+   {
+      sunindextype length;
+      booleantype  own_data;
+      realtype*    host_data;
+      realtype*    device_data;
+      void*        priv; /* 'private' data */
    };
 
-The class members are: vector size (length), size of the vector data
-memory block, a pointer to vector data on the host, and a pointer to
-the vector data on the device. The class ``Vector`` inherits from an empty structure
 
-.. code-block:: c++
+The content members are the vector length (size), a boolean flag that signals if
+the vector owns the data (i.e., it is in charge of freeing the data), pointers to
+vector data on the host and the device, and a private data structure which holds
+the memory management type, which should not be accessed directly.
 
-   struct _N_VectorContent_Raja { };
-
-to interface the C++ class with the ``N_Vector`` C code. When
-instantiated, the class ``Vector`` will allocate memory on both the host
-and the device.
-Due to the rapid progress of RAJA development, we expect
-that the ``sunrajavec::Vector`` class will change frequently in future
-SUNDIALS releases. The code is structured so that it can tolerate
-significant changes in the ``sunrajavec::Vector`` class without
-requiring changes to the user API.
+When instantiated with ``N_VNew_Raja``, the underlying data will be allocated
+on both the host and the device. Alternatively, a user can provide host
+and device data arrays by using the ``N_VMake_Raja`` constructor. To use CUDA
+managed memory, the constructors ``N_VNewManaged_Raja`` and
+``N_VMakeManaged_Raja`` are provided. Details on each of these constructors
+are provided below.
 
 The header file to include when using this is ``nvector_raja.h``.
 The installed module library to link to is ``libsundials_nveccudaraja.lib``.
@@ -83,6 +78,10 @@ accessor functions:
 
    This function returns pointer to the vector data on the device.
 
+.. c:function:: booleantype N_VIsManagedMemory_Raja(N_Vector v)
+
+   This function returns a boolean flag indicating if the vector
+   data is allocated in managed memory or not.
 
 
 The NVECTOR_RAJA module defines the implementations of all vector
@@ -116,6 +115,12 @@ provides the following additional user-callable routines:
    device. Its only argument is the vector length.
 
 
+.. c:function:: N_Vector N_VNewManaged_Raja(sunindextype vec_length)
+
+   This function creates and allocates memory for a RAJA ``N_Vector``.
+   The vector data array is allocated in managed memory.
+
+
 .. c:function:: N_Vector N_VNewEmpty_Raja(sunindextype vec_length)
 
    This function creates a new ``N_Vector`` wrapper with the pointer
@@ -124,12 +129,10 @@ provides the following additional user-callable routines:
    :c:func:`N_VClone_Raja()` implementations.
 
 
-.. c:function:: N_Vector N_VMake_Raja(N_VectorContent_Raja c)
+.. c:function:: N_Vector N_VMake_Raja(sunindextype length, realtype *vdata)
 
-   This function creates and allocates memory for an NVECTOR_RAJA
-   wrapper around a user-provided ``sunrajavec::Vector`` class.
-   Its only argument is of type ``N_VectorContent_Raja``, which
-   is the pointer to the class.
+   This function creates an NVECTOR_RAJA with a user-supplied managed
+   memory data array. This function does not allocate memory for data itself.
 
 
 .. c:function:: realtype* N_VCopyToDevice_Raja(N_Vector v)
@@ -240,8 +243,9 @@ options as the vector they are cloned from while vectors created with
 **Notes**
 
 * When there is a need to access components of an ``N_Vector_Raja``, ``v``,
-  it is recommeded to use functions :c:func:`N_VGetDeviceArrayPointer_Raja()` or
-  :c:func:`N_VGetHostArrayPointer_Raja()`.
+  it is recommended to use functions :c:func:`N_VGetDeviceArrayPointer_Raja()` or
+  :c:func:`N_VGetHostArrayPointer_Raja()`. However, when using managed memory,
+  the function ``N_VGetArrayPointer`` may also be used.
 
 * To maximize efficiency, vector operations in the NVECTOR_RAJA implementation
   that have more than one ``N_Vector`` argument do not check for

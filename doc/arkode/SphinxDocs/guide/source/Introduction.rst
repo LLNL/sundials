@@ -131,7 +131,12 @@ Updated the MRIStep time-stepping module in ARKode to support
 higher-order MRI-GARK methods [S2019]_, including methods that
 involve solve-decoupled, diagonally-implicit treatment of the
 slow time scale.
-   
+
+The ``NVECTOR_RAJA`` module has been updated to mirror the ``NVECTOR_CUDA`` module.
+Notably, the update adds managed memory support to the ``NVECTOR_RAJA`` module.
+Users of the module will need to update any calls to the ``N_VMake_Raja`` function
+because that signature was changed. This module remains experimental and is
+subject to change from version to version.
 
 
 Changes in v4.3.0
