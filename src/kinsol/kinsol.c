@@ -245,6 +245,7 @@ void *KINCreate(void)
   kin_mem->kin_df_aa            = NULL;
   kin_mem->kin_dg_aa            = NULL;
   kin_mem->kin_q_aa             = NULL;
+  kin_mem->kin_L_aa             = NULL;
   kin_mem->kin_gamma_aa         = NULL;
   kin_mem->kin_R_aa             = NULL;
   kin_mem->kin_ipt_map          = NULL;
@@ -734,6 +735,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 {
   /* allocate unew, fval, pp, vtemp1 and vtemp2. */
   /* allocate df, dg, q, for Anderson Acceleration, Broyden and EN */
+  /* allocate L, for Low Sync Anderson Acceleration */
 
   if (kin_mem->kin_unew == NULL) {
     kin_mem->kin_unew = N_VClone(tmpl);
@@ -999,6 +1001,31 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       kin_mem->kin_liw += kin_mem->kin_m_aa * kin_mem->kin_liw1;
       kin_mem->kin_lrw += kin_mem->kin_m_aa * kin_mem->kin_lrw1;
     }
+    
+    if (kin_mem->kin_L_aa == NULL) {
+      kin_mem->kin_L_aa = N_VCloneVectorArray((int) kin_mem->kin_m_aa,tmpl);
+      if (kin_mem->kin_L_aa == NULL) {
+        N_VDestroy(kin_mem->kin_unew);
+        N_VDestroy(kin_mem->kin_fval);
+        N_VDestroy(kin_mem->kin_pp);
+        N_VDestroy(kin_mem->kin_vtemp1);
+        N_VDestroy(kin_mem->kin_vtemp2);
+        free(kin_mem->kin_R_aa);
+        free(kin_mem->kin_gamma_aa);
+        free(kin_mem->kin_ipt_map);
+        free(kin_mem->kin_cv);
+        free(kin_mem->kin_Xv);
+        N_VDestroy(kin_mem->kin_fold_aa);
+        N_VDestroy(kin_mem->kin_gold_aa);
+        N_VDestroyVectorArray(kin_mem->kin_df_aa, (int) kin_mem->kin_m_aa);
+        N_VDestroyVectorArray(kin_mem->kin_dg_aa, (int) kin_mem->kin_m_aa);
+        kin_mem->kin_liw -= (7 + 2 * kin_mem->kin_m_aa) * kin_mem->kin_liw1;
+        kin_mem->kin_lrw -= (7 + 2 * kin_mem->kin_m_aa) * kin_mem->kin_lrw1;
+        return(SUNFALSE);
+      }
+      kin_mem->kin_liw += kin_mem->kin_m_aa * kin_mem->kin_liw1;
+      kin_mem->kin_lrw += kin_mem->kin_m_aa * kin_mem->kin_lrw1;
+    }
   }
 
   return(SUNTRUE);
@@ -1111,6 +1138,13 @@ static void KINFreeVectors(KINMem kin_mem)
   if (kin_mem->kin_q_aa != NULL) {
     N_VDestroyVectorArray(kin_mem->kin_q_aa, (int) kin_mem->kin_m_aa);
     kin_mem->kin_q_aa = NULL;
+    kin_mem->kin_lrw -= kin_mem->kin_m_aa * kin_mem->kin_lrw1;
+    kin_mem->kin_liw -= kin_mem->kin_m_aa * kin_mem->kin_liw1;
+  }
+  
+  if (kin_mem->kin_L_aa != NULL) {
+    N_VDestroyVectorArray(kin_mem->kin_L_aa, (int) kin_mem->kin_m_aa);
+    kin_mem->kin_L_aa = NULL;
     kin_mem->kin_lrw -= kin_mem->kin_m_aa * kin_mem->kin_lrw1;
     kin_mem->kin_liw -= kin_mem->kin_m_aa * kin_mem->kin_liw1;
   }
@@ -2492,7 +2526,7 @@ static int KINFP(KINMem kin_mem)
       /* standard fixed point */
       N_VScale(ONE, kin_mem->kin_fval, kin_mem->kin_unew);
     } else if (kin_mem->kin_orth_aa == 0) {
-      /* apply Anderson acceleration */
+      /* apply standard Anderson acceleration */
       AndersonAcc(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
                   kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
                   kin_mem->kin_gamma_aa);
@@ -2766,9 +2800,12 @@ static int AndersonAccLowSync(KINMem kin_mem, N_Vector gval, N_Vector fv,
 
     /* another iteration before we've reached maa */
     /* -- QRAdd with MGS - to be replaced with ICWY MGS -- */
+    /* delta_f_i = kin_mem->kin_df_aa[i_pt] */
+    /* Q = kin_mem->kin_q_aa */
+    /* R = R - passed into function but allocated in kin memory -- why not also accessed via pointer like Q and delta f?  */
     N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2);
     for (j=0; j < (iter-1); j++) {
-      ipt_map[j] = j;
+      ipt_map[j] = j; /* array keeping track of m_aa_i */
       R[(iter-1)*kin_mem->kin_m_aa+j] = N_VDotProd(kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);
       N_VLinearSum(ONE,kin_mem->kin_vtemp2, -R[(iter-1)*kin_mem->kin_m_aa+j], kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);
     }
@@ -2841,6 +2878,7 @@ static int AndersonAccLowSync(KINMem kin_mem, N_Vector gval, N_Vector fv,
   Xv[0] = gval;
   nvec = 1;
 
+  /* backward solve */
   for (i=lAA-1; i > -1; i--) {
     for (j=i+1; j < lAA; j++) {
       gamma[i] = gamma[i]-R[j*kin_mem->kin_m_aa+i]*gamma[j];

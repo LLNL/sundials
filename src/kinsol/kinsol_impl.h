@@ -156,6 +156,7 @@ typedef struct KINMemRec {
   N_Vector *kin_df_aa;      /* vector array needed for AA, Broyden, and NLEN */
   N_Vector *kin_dg_aa;      /* vector array needed for AA, Broyden and NLEN */
   N_Vector *kin_q_aa;       /* vector array needed for AA */
+  N_Vector *kin_L_aa;       /* vector array needed for Low Sync AA */
   realtype kin_beta_aa;     /* beta damping parameter for AA */
   realtype *kin_gamma_aa;   /* array of size maa used in AA */
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
@@ -409,6 +410,8 @@ void KINInfoHandler(const char *module, const char *function,
 #define MSG_BAD_CONSTRAINTS    "Illegal values in constraints vector."
 #define MSG_BAD_OMEGA          "scalars < 0 illegal."
 #define MSG_BAD_MAA            "maa < 0 illegal."
+#define MSG_BAD_ORTHAA         "orthaa < 0 illegal."
+#define MSG_LG_ORTHAA          "orthaa > 2 illegal."
 #define MSG_ZERO_MAA           "maa = 0 illegal."
 
 #define MSG_LSOLV_NO_MEM       "The linear solver memory pointer is NULL."

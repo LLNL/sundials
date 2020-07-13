@@ -22,6 +22,7 @@
 set(KINSOL_examples
   "kinAnalytic_fp\;\;"
   "kinAnalytic_fp\;2\;"
+  "kinLowSyncAnderson_fp\;2 1.0 0\;"
   "kinAnalytic_fp\;2 0.5\;develop"
   "kinFerTron_dns\;\;develop"
   "kinFoodWeb_kry\;\;develop"

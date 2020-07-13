@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
- *                Aaron Collier @ LLNL
+ *                Aaron Collier, Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -211,6 +211,38 @@ int KINSetMAA(void *kinmem, long int maa)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINSetOrthAA
+ * -----------------------------------------------------------------
+ */
+
+int KINSetOrthAA(void *kinmem, sunindextype orthaa)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetOrthAA", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  if (orthaa < 0) {
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetOrthAA", MSG_BAD_ORTHAA);
+    return(KIN_ILL_INPUT);
+  }
+  
+  if (orthaa > 2) {
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetOrthAA", MSG_LG_ORTHAA);
+    return(KIN_ILL_INPUT);
+  }
+
+  kin_mem->kin_orth_aa = orthaa;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINSetDampingAA
  * -----------------------------------------------------------------
  */
@@ -220,7 +252,7 @@ int KINSetDampingAA(void *kinmem, realtype beta)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetMAA", MSG_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDampingAA", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 

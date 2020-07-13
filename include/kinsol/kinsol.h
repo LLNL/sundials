@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
- *                Aaron Collier @ LLNL
+ *                Aaron Collier, Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -105,6 +105,7 @@ SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
 SUNDIALS_EXPORT int KINSetUserData(void *kinmem, void *user_data);
 SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmemm, int printfl);
 SUNDIALS_EXPORT int KINSetMAA(void *kinmem, long int maa);
+SUNDIALS_EXPORT int KINSetOrthAA(void *kinmem, sunindextype orthaa);
 SUNDIALS_EXPORT int KINSetDampingAA(void *kinmem, realtype beta);
 SUNDIALS_EXPORT int KINSetNumMaxIters(void *kinmem, long int mxiter);
 SUNDIALS_EXPORT int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup);
