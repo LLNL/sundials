@@ -2795,15 +2795,34 @@ static int AndersonAccLowSync(KINMem kin_mem, N_Vector gval, N_Vector fv,
     alfa = ONE/R[0];
     N_VScale(alfa, kin_mem->kin_df_aa[i_pt], kin_mem->kin_q_aa[i_pt]);
     ipt_map[0] = 0;
+    /* adding code for ICWY MGS */
+    /* Q should contain a single vector now -- and L should be initialized to 0? */
+    kin_mem->kin_L_aa[0] = 0;
 
   } else if (iter <= kin_mem->kin_m_aa) {
 
     /* another iteration before we've reached maa */
     /* -- QRAdd with MGS - to be replaced with ICWY MGS -- */
-    /* delta_f_i = kin_mem->kin_df_aa[i_pt] */
+    /* delta_fi = kin_mem->kin_df_aa[i_pt] */
+    /* kin_mem->kin_vtemp2 = delta_f_i  -- copied before function since delta_fi updated in place */
     /* Q = kin_mem->kin_q_aa */
     /* R = R - passed into function but allocated in kin memory -- why not also accessed via pointer like Q and delta f?  */
-    N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2);
+    N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2); /* stores d_fi in vtemp2 */
+    /* L(:,mi1)^T = Q_mi1^T * d_fi1 */
+    /* R(:,mi) = Q_mi1^T * d_fi */ 
+    /* R(mi1,mi1) = || d_fi1 ||_2 */
+    //R[(iter-2)*kin_mem->kin_m_aa+iter-2] = SUNRsqrt(N_VDotProd(kin_mem->kin_vtemp2, kin_mem->kin_vtemp2));
+    /* d_fi1 = d_fi1 / R(mi1,mi1) */
+    //N_VScale(ONE/R[(iter-2)*kin_mem->kin_m_aa+iter-2], kin_mem->kin_vtemp2, kin_mem->kin_q_aa[i_pt-1]);
+    /* R(mi1,mi1) = R(mi1,mi) / R(mi,mi) */
+    //R[(iter-2)*kin_mem->kin_m_aa+iter-2] = R[(iter-2)*kin_mem->kin_m_aa+iter-1] / R[(iter-1)*kin_mem->kin_m_aa+iter-1];
+    /* L(:,mi1)^T = L(:,mi1)^T / R(mi1,mi1) */
+    /* R(1:mi1,mi) = (I + L_mi1)^-1 * R(1:mi1,mi) */
+    /* d_fi = d_fi - Q_mi1 * R(1:mi1,mi) */
+    /* update last column of Q to be current d_fi, or should that update happen when R gets updated
+     *          next iteration? */ 
+
+    /* -------- standard mgs code after this ----------- */
     for (j=0; j < (iter-1); j++) {
       ipt_map[j] = j; /* array keeping track of m_aa_i */
       R[(iter-1)*kin_mem->kin_m_aa+j] = N_VDotProd(kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);

@@ -1,12 +1,5 @@
 /* -----------------------------------------------------------------------------
  * Programmer(s): Shelby Lockhart @ LLNL
- *
- * *********************************************
- *
- * THIS FILE TO BE REPLACED WITH A LINEAR FIXED POINT PROBLEM TO TEST
- * LOW SYNC ANDERSON AGAINST GMRES FOR COMPARISON
- *
- * ********************************************* 
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -18,28 +11,33 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * This example solves the nonlinear system
+ * This example solves the linear convection-diffusion problem 
  *
- * 3x - cos((y-1)z) - 1/2 = 0
- * x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0
- * exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0
+ * laplacian u + 20u + 20u_x + 20u_y = -10
  *
- * using the accelerated fixed pointer solver in KINSOL. The nonlinear fixed
- * point function is
+ * on the unit square with u = 0 on the boundaries. 
  *
- * g1(x,y,z) = 1/3 cos((y-1)yz) + 1/6
- * g2(x,y,z) = 1/9 sqrt(x^2 + sin(z) + 1.06) + 0.9
- * g3(x,y,z) = -1/20 exp(-x(y-1)) - (10 pi - 3) / 60
+ * The problem was discretized using centered differences on a 128x128
+ * grid. Restricted Additive Schwartz was applied on a 4x4 array of
+ * subdomains with three grid lines of overlap and accelerated with
+ * Anderson Acceleration, not limiting m.
+ * -----------------------------------------------------------------
+ * References:
  *
- * This system has the analytic solution x = 1/2, y = 1, z = -pi/6.
+ * 1. Walker H and Ni P,
+ *    Anderson Acceleration for Fixed-Point Iterations,
+ *    SIAM Journal on Numerical Analysis,
+ *    2011, vol.49(4), pp.1715-1735.
+ *
  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include "kinsol/kinsol.h"           /* access to KINSOL func., consts. */
-#include "nvector/nvector_serial.h"  /* access to serial N_Vector       */
+#include "kinsol/kinsol.h"               /* access to KINSOL func., consts. */
+#include "nvector/nvector_serial.h"      /* access to serial N_Vector       */
+#include "sunmatrix/sunmatrix_sparse.h"  /* access to Sparse SunMatrix      */
 
 /* precision specific formatting macros */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -56,50 +54,44 @@
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define ABS(x)  (fabs((x)))
 #define SQRT(x) (sqrt((x)))
-#define EXP(x)  (exp((x)))
-#define SIN(x)  (sin((x)))
-#define COS(x)  (cos((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
 #define ABS(x)  (fabsf((x)))
 #define SQRT(x) (sqrtf((x)))
-#define EXP(x)  (expf((x)))
-#define SIN(x)  (sinf((x)))
-#define COS(x)  (cosf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define ABS(x)  (fabsl((x)))
 #define SQRT(x) (sqrtl((x)))
-#define EXP(x)  (expl((x)))
-#define SIN(x)  (sinl((x)))
-#define COS(x)  (cosl((x)))
 #endif
 
 /* problem constants */
-#define NEQ 3 /* number of equations */
+#define NUMREGIONS   4                       /* number of subdomains for RAS             */
+#define OVERLAPWIDTH 3                       /* number of overlapping grid lines for RAS */
+#define N            128                     /* dimension of one side of grid            */
 
 #define ZERO         RCONST(0.0)             /* real 0.0  */
-#define PTONE        RCONST(0.1)             /* real 0.1  */
-#define HALF         RCONST(0.5)             /* real 0.5  */
-#define PTNINE       RCONST(0.9)             /* real 0.9  */
+#define C            RCONST(20.0)            /* real 20.0 */
+#define D            RCONST(20.0)            /* real 20.0 */
 #define ONE          RCONST(1.0)             /* real 1.0  */
-#define ONEPTZEROSIX RCONST(1.06)            /* real 1.06 */
-#define ONEPTONE     RCONST(1.1)             /* real 1.1  */
-#define THREE        RCONST(3.0)             /* real 3.0  */
-#define FOUR         RCONST(4.0)             /* real 4.0  */
-#define SIX          RCONST(6.0)             /* real 6.0  */
-#define NINE         RCONST(9.0)             /* real 9.0  */
-#define TEN          RCONST(10.0)            /* real 10.0 */
-#define TWENTY       RCONST(20.0)            /* real 20.0 */
-#define SIXTY        RCONST(60.0)            /* real 60.0 */
-#define EIGHTYONE    RCONST(81.0)            /* real 81.0 */
-#define PI           RCONST(3.1415926535898) /* real pi   */
 
-/* analytic solution */
-#define XTRUE HALF
-#define YTRUE ONE
-#define ZTRUE -PI/SIX
+/* UserData */ 
+typedef struct {
+  SUNMatrix A;
+  SUNMatrix L;
+  SUNMatrix R;
+  N_Vector v;
+  N_Vector accum;
+} *UserData;
 
-/* Nonlinear fixed point function */
+/* Linear Convection-Diffusion fixed point function */
 static int FPFunction(N_Vector u, N_Vector f, void *user_data);
+
+/* Function to return the 2D Convection Diffusion Matrix */
+static int ConvectionDiffusionMatrix2D(SUNMatrix Q);
+
+/* Function to return the matrix for overlapping regions in RAS */
+static int OverlappingRestrictionMatrix2D(SUNMatrix Q);
+
+/* Function to return the matrix for nonoverlapping regions in RAS*/
+static int NonOverlappingRestrictionMatrix2D(SUNMatrix Q);
 
 /* Check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -116,15 +108,16 @@ int main(int argc, char *argv[])
   N_Vector  u       = NULL;
   N_Vector  scale   = NULL;
   realtype  tol     = 100 * SQRT(UNIT_ROUNDOFF);
-  long int  mxiter  = 10;
+  long int  mxiter  = 75;
   long int  maa     = 0;           /* no acceleration          */
   realtype  damping = RCONST(1.0); /* no damping               */
   int       orth    = 0;           /* standard MGS in Anderson */
   long int  nni, nfe;
   realtype* data;
   void*     kmem;
+  UserData  udata;                 /* contain matrices for function evals */ 
 
-  /* Check if a acceleration/dampling/orthogonaliztion values were provided */
+  /* Check if a acceleration/damping/orthogonaliztion values were provided */
   if (argc > 1) maa     = (long int) atoi(argv[1]);
   if (argc > 2) damping = (realtype) atof(argv[2]);
   if (argc > 3) orth = (int) atof(argv[3]);
@@ -133,25 +126,35 @@ int main(int argc, char *argv[])
    * Print problem description
    * ------------------------- */
 
-  printf("Solve the nonlinear system:\n");
-  printf("    3x - cos((y-1)z) - 1/2 = 0\n");
-  printf("    x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0\n");
-  printf("    exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0\n");
-  printf("Analytic solution:\n");
-  printf("    x = %"GSYM"\n", XTRUE);
-  printf("    y = %"GSYM"\n", YTRUE);
-  printf("    z = %"GSYM"\n", ZTRUE);
-  printf("Solution method: Anderson accelerated fixed point iteration.\n");
-  printf("    tolerance = %"GSYM"\n", tol);
-  printf("    max iters = %ld\n", mxiter);
-  printf("    accel vec = %ld\n", maa);
-  printf("    damping   = %"GSYM"\n", damping);
+  printf("Solve the linear system:\n");
+  printf("    laplacian u + 20u + 20u_x + 20u_y = -10\n");
+  printf("                                    u = 0\n");
+  printf("     on [0,1] x [0,1] with boundaries = 0\n");
+  printf("Solution method: Anderson accelerated RAS posed as fixed point iteration.\n");
+  printf("    tolerance    = %"GSYM"\n", tol);
+  printf("    max iters    = %ld\n", mxiter);
+  printf("    accel vec    = %ld\n", maa);
+  printf("    damping      = %"GSYM"\n", damping);
+  printf("    orth routine = %ld\n", orth);
+  
+  /* ---------------------------------------------------------------------------
+   * Allocate user data -- containing matrices required for function evaluations 
+   * --------------------------------------------------------------------------- */
+  udata = (UserData)malloc(sizeof *udata);
+
+  /* create 2d convection diffusion matrix here */
+  /* allocate space for v and accum here */
+  udata->v     = N_VNew_Serial(N*N);
+  if (check_retval((void *)udata->v, "N_VNew_Serial", 0)) return(1);
+
+  udata->accum = N_VNew_Serial(N*N);
+  if (check_retval((void *)udata->accum, "N_VNew_Serial", 0)) return(1);
 
   /* --------------------------------------
    * Create vectors for solution and scales
    * -------------------------------------- */
 
-  u = N_VNew_Serial(NEQ);
+  u = N_VNew_Serial(N*N);
   if (check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
 
   scale = N_VClone(u);
@@ -170,6 +173,7 @@ int main(int argc, char *argv[])
   /* Set orthogonalization routine used in Anderson acceleration */
   retval = KINSetOrthAA(kmem, orth);
 
+  /* Initialize FixedPoint Iteration as the function we're using */
   retval = KINInit(kmem, FPFunction, u);
   if (check_retval(&retval, "KINInit", 1)) return(1);
 
@@ -196,10 +200,7 @@ int main(int argc, char *argv[])
   /* Get vector data array */
   data = N_VGetArrayPointer(u);
   if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
-
-  data[0] =  PTONE;
-  data[1] =  PTONE;
-  data[2] = -PTONE;
+  N_VConst(ZERO, u);
 
   /* ----------------------------
    * Call KINSol to solve problem
@@ -228,7 +229,7 @@ int main(int argc, char *argv[])
   check_retval(&retval, "KINGetNumFuncEvals", 1);
 
   printf("\nFinal Statistics:\n");
-  printf("Number of nonlinear iterations: %6ld\n", nni);
+  printf("Number of solver iterations: %6ld\n", nni);
   printf("Number of function evaluations: %6ld\n", nfe);
 
   /* ------------------------------------
@@ -245,82 +246,111 @@ int main(int argc, char *argv[])
   N_VDestroy(u);
   N_VDestroy(scale);
   KINFree(&kmem);
+  free(udata);
 
   return(retval);
 }
+    
 
 /* -----------------------------------------------------------------------------
- * Nonlinear system
+ * Linear convection-diffusion problem 
  *
- * 3x - cos((y-1)z) - 1/2 = 0
- * x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0
- * exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0
+ * laplacian u + 20u + 20u_x + 20u_y = -10
+ * on the unit square with u = 0 on the boundaries 
  *
- * Nonlinear fixed point function
+ * Linear fixed point function 
  *
- * g1(x,y,z) = 1/3 cos((y-1)z) + 1/6
- * g2(x,y,z) = 1/9 sqrt(x^2 + sin(z) + 1.06) + 0.9
- * g3(x,y,z) = -1/20 exp(-x(y-1)) - (10 pi - 3) / 60
+ * ** PUT FUNCTION DESCRIPTION HERE ** 
  *
  * ---------------------------------------------------------------------------*/
 int FPFunction(N_Vector u, N_Vector g, void* user_data)
 {
-  realtype* udata = NULL;
-  realtype* gdata = NULL;
-  realtype  x, y, z;
+  SUNMatrix subA, A, R, L;
+  N_Vector  v, accum, temp; 
+  UserData udata;
+  int i, j;
+  
+  /* Need to setup size of subA and temp */
+ 
+  /* Grab matrices and vectors from user_data */ 
+  /*udata = (UserData)user_data;
+  A = udata->A;
+  R = udata->R;
+  L = udata->L;
+  v = udata->v;
+  accum = udata->accum;*/
 
-  /* Get vector data arrays */
-  udata = N_VGetArrayPointer(u);
-  if (check_retval((void*)udata, "N_VGetArrayPointer", 0)) return(-1);
+  /* v = A * u */ 
+  /*SUNMatMatvec(A, u, v);*/
 
-  gdata = N_VGetArrayPointer(g);
-  if (check_retval((void*)gdata, "N_VGetArrayPointer", 0)) return(-1);
+  /* v = f - v */
 
-  x = udata[0];
-  y = udata[1];
-  z = udata[2];
+  /* accum = 0 */
+  /*N_VConst(ZERO, accum);*/
 
-  gdata[0] = (ONE/THREE) * COS((y-ONE)*z) + (ONE/SIX);
-  gdata[1] = (ONE/NINE) * SQRT(x*x + SIN(z) + ONEPTZEROSIX) + PTNINE;
-  gdata[2] = -(ONE/TWENTY) * EXP(-x*(y-ONE)) - (TEN * PI - THREE) / SIXTY;
+  for (i = 0; i < NUMREGIONS; i++)
+  {
+    for (j = 0; j < NUMREGIONS; j++)
+    {
+      /* setup R = OverlappingRestrictionMatrix2D */
+      /* setup L = NonOverlappingRestrictionMatrix2D */
+      /* subA = R * A * R^T */
+      /* temp = R * v */
+      /* solve subA * temp = temp (overwrite old temp) */
+      /* temp = L^T * temp */
+      /* accum = accum + temp */
+      continue; /* just for now */ 
+    }  
+  }
+  /* v = u + accum */
+  /* copy v into u and return */
 
   return(0);
 }
 
 /* -----------------------------------------------------------------------------
+ * Function to return the 2D Convection Diffusion Matrix to be used in
+ * the fixed point function call
+ * ---------------------------------------------------------------------------*/
+int ConvectionDiffusionMatrix2D(SUNMatrix Q)
+{
+  /*C = SUNSparseMatrix(5, 6, 9, CSR_MAT);*/
+  return(0);
+}
+
+/* -----------------------------------------------------------------------------
+ * Function to return the matrix for overlapping regions in RAS
+ * ---------------------------------------------------------------------------*/
+int OverlappingRestrictionMatrix2D(SUNMatrix Q)
+{
+  /*C = SUNSparseMatrix(5, 6, 9, CSR_MAT);*/
+  return(0);
+}
+
+/* -----------------------------------------------------------------------------
+ * Function to return the matrix for nonoverlapping regions in RAS
+ * ---------------------------------------------------------------------------*/
+int NonOverlappingRestrictionMatrix2D(SUNMatrix Q)
+{
+  /*C = SUNSparseMatrix(5, 6, 9, CSR_MAT);*/
+  return(0);
+}
+
+
+/* -----------------------------------------------------------------------------
  * Check the solution of the nonlinear system and return PASS or FAIL
+ *
+ * NEEDS TO BE UPDATED
  * ---------------------------------------------------------------------------*/
 static int check_ans(N_Vector u, realtype tol)
 {
-  realtype* data = NULL;
-  realtype  ex, ey, ez;
-
   /* Get vector data array */
-  data = N_VGetArrayPointer(u);
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
 
   /* print the solution */
-  printf("Computed solution:\n");
-  printf("    x = %"GSYM"\n", data[0]);
-  printf("    y = %"GSYM"\n", data[1]);
-  printf("    z = %"GSYM"\n", data[2]);
 
   /* solution error */
-  ex = ABS(data[0] - XTRUE);
-  ey = ABS(data[1] - YTRUE);
-  ez = ABS(data[2] - ZTRUE);
 
   /* print the solution error */
-  printf("Solution error:\n");
-  printf("    ex = %"GSYM"\n", ex);
-  printf("    ey = %"GSYM"\n", ey);
-  printf("    ez = %"GSYM"\n", ez);
-
-  tol *= TEN;
-  if (ex > tol || ey > tol || ez > tol) {
-    printf("FAIL\n");
-    return(1);
-  }
 
   printf("PASS\n");
   return(0);
