@@ -149,6 +149,9 @@ int main(int argc, char *argv[])
 
   udata->accum = N_VNew_Serial(N*N);
   if (check_retval((void *)udata->accum, "N_VNew_Serial", 0)) return(1);
+  
+  /* allocate space for A, and all L and R matrices, used in problems domain decomposition */
+  ConvectionDiffusionMatrix2D(udata->A);
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -314,7 +317,53 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
  * ---------------------------------------------------------------------------*/
 int ConvectionDiffusionMatrix2D(SUNMatrix Q)
 {
-  /*C = SUNSparseMatrix(5, 6, 9, CSR_MAT);*/
+  SUNMatrix I, Laplacian, CenteredDiffi, ZeroMat;
+  realtype  h, h2_inv;
+  realtype  *colj;
+  int       i, j, nnz;
+
+  /* Scaled Identity matrix */
+  I = SUNBandMatrix(N*N, 0, 0);
+  for (j = 0; j < N*N; j++)
+  {    
+    colj = SUNBandMatrix_Column(I, j);
+    colj[0] = C;
+  }
+
+  /* Laplacian Matrix */
+  h = ONE / (N + 1);
+  h2_inv = ONE / (h*h);
+  
+  nnz = 100; /* NEED TO FIX THIS */ 
+  Laplacian = SUNSparseMatrix(N*N, N*N, nnz, CSR_MAT);
+  for (i = 0; i < N*N; i++)
+  {
+    if (i == 0)
+    {
+        /* vals = h2_inv * [-4, 1, 1] */
+        /* cols = [i, i+1, i+N] */
+        continue;
+    }
+    else if (i == N*N-1)
+    {
+        /* vals = h2_inv * [1, 1, -4] */
+        /* cols = [i-N, i-1, i] */
+        continue;
+    }
+    else if (i < N)
+    {
+        /* vals = h2_inv * [1, -4, 1, 1] */
+        /* cols = [i-1, i, i+1, i+N] */
+        continue;
+    }
+    else if (i > N*N-N) 
+    {
+        /* vals = h2_inv * [1, 1, -4, 1] */
+        /* cols = [i-N, i-1, i, i+1] */
+        continue;
+    }
+  }
+
   return(0);
 }
 
