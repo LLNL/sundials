@@ -51,6 +51,9 @@
 /doc/arkode/SphinxDocs/guide/build
 /doc/arkode/SphinxDocs/examples/build
 
+# developer guide build directory
+/doc/sundials_developers/build
+
 # PDFs of user guides and example docs
 /doc/*/*_guide.pdf
 /doc/*/*_examples.pdf
