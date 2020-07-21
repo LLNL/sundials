@@ -150,7 +150,7 @@ Similarly, in CSR format, the same matrix could be stored as
    M = 5;
    N = 4;
    NNZ = 8;
-   NP = N;
+   NP = M;
    data = {3.0, 1.0, 3.0, 2.0, 7.0, 1.0, 9.0, 5.0};
    sparsetype = CSR_MAT;
    indexvals = {1, 2, 0, 3, 1, 0, 3, 3};
