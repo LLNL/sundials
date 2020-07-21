@@ -66,11 +66,13 @@
 #define NUMREGIONS   4                       /* number of subdomains for RAS             */
 #define OVERLAPWIDTH 3                       /* number of overlapping grid lines for RAS */
 #define N            128                     /* dimension of one side of grid            */
+//#define N            10                     /* dimension of one side of grid            */
 
-#define ZERO         RCONST(0.0)             /* real 0.0  */
-#define C            RCONST(20.0)            /* real 20.0 */
-#define D            RCONST(20.0)            /* real 20.0 */
-#define ONE          RCONST(1.0)             /* real 1.0  */
+#define ZERO         RCONST(0.0)             /* real 0.0   */
+#define C            RCONST(20.0)            /* real 20.0  */
+#define D            RCONST(20.0)            /* real 20.0  */
+#define ONE          RCONST(1.0)             /* real 1.0   */
+#define NEGONE       RCONST(-1.0)            /* real -1.0  */
 
 /* UserData */ 
 typedef struct {
@@ -151,7 +153,9 @@ int main(int argc, char *argv[])
   if (check_retval((void *)udata->accum, "N_VNew_Serial", 0)) return(1);
   
   /* allocate space for A, and all L and R matrices, used in problems domain decomposition */
+  printf("Before convection diffusion matrix created\n");
   ConvectionDiffusionMatrix2D(udata->A);
+  printf("After convection diffusion matrix created\n");
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -317,52 +321,194 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
  * ---------------------------------------------------------------------------*/
 int ConvectionDiffusionMatrix2D(SUNMatrix Q)
 {
-  SUNMatrix I, Laplacian, CenteredDiffi, ZeroMat;
-  realtype  h, h2_inv;
-  realtype  *colj;
-  int       i, j, nnz;
+  SUNMatrix I, Laplacian, CenteredDiff;
+  realtype  h, h2, h2_inv;
+  realtype  *colj, *matdata;
+  sunindextype *rowptrs, *colindices;
+  int       i, j, nnz, nnz_ctr, fail;
 
   /* Scaled Identity matrix */
-  I = SUNBandMatrix(N*N, 0, 0);
+  nnz = N*N;
+  I = SUNSparseMatrix(N*N, N*N, nnz, CSR_MAT);
+  rowptrs = SUNSparseMatrix_IndexPointers(I);
+  rowptrs[0] = 0; /* first row starts at index 0 */
+  colindices = SUNSparseMatrix_IndexValues(I);
+  matdata = SUNSparseMatrix_Data(I);
   for (j = 0; j < N*N; j++)
   {    
-    colj = SUNBandMatrix_Column(I, j);
-    colj[0] = C;
+    matdata[i] = C;
+    colindices[i] = i;
+    rowptrs[i+1] = rowptrs[i] + 1;
   }
 
   /* Laplacian Matrix */
   h = ONE / (N + 1);
   h2_inv = ONE / (h*h);
   
-  nnz = 100; /* NEED TO FIX THIS */ 
+  nnz = 81408;
+  //nnz = 460;
   Laplacian = SUNSparseMatrix(N*N, N*N, nnz, CSR_MAT);
+  rowptrs = SUNSparseMatrix_IndexPointers(Laplacian);
+  rowptrs[0] = 0; /* first row starts at index 0 */
+  colindices = SUNSparseMatrix_IndexValues(Laplacian);
+  matdata = SUNSparseMatrix_Data(Laplacian);
   for (i = 0; i < N*N; i++)
   {
+    nnz_ctr = rowptrs[i];
     if (i == 0)
     {
-        /* vals = h2_inv * [-4, 1, 1] */
-        /* cols = [i, i+1, i+N] */
-        continue;
+      /* FIRST ROW OF MATRIX */
+      /* vals = h2_inv * [-4, 1, 1] */
+      /* cols = [i, i+1, i+N] */
+      matdata[nnz_ctr] = -4; matdata[nnz_ctr+1] = 1; matdata[nnz_ctr+2] = 1;
+      colindices[nnz_ctr] = i; colindices[nnz_ctr+1] = i+1; colindices[nnz_ctr+2] = i+N;
+      rowptrs[i+1] = rowptrs[i] + 3;
     }
     else if (i == N*N-1)
     {
-        /* vals = h2_inv * [1, 1, -4] */
-        /* cols = [i-N, i-1, i] */
-        continue;
+      /* LAST ROW OF MATRIX */
+      /* vals = h2_inv * [1, 1, -4] */
+      /* cols = [i-N, i-1, i] */
+      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = 1; matdata[nnz_ctr+2] = -4;
+      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i;
+      rowptrs[i+1] = rowptrs[i] + 3;
+    }
+    else if ((i+1) % N == 0)
+    {
+      /* vals = h2_inv * [1, 1, -4, 1] */
+      /* cols = [i-N, i-1, i, i+N] */
+      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = 1; matdata[nnz_ctr+2] = -4; matdata[nnz_ctr+3] = 1;
+      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i; colindices[nnz_ctr+3] = i+N;
+      rowptrs[i+1] = rowptrs[i] + 4;
+    }
+    else if (i % N == 0)
+    {
+      /* vals = h2_inv * [1, -4, 1, 1] */
+      /* cols = [i-N, i, i+1, i+N] */
+      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = -4; matdata[nnz_ctr+2] = 1; matdata[nnz_ctr+3] = 1;
+      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i; colindices[nnz_ctr+2] = i+1; colindices[nnz_ctr+3] = i+N;
+      rowptrs[i+1] = rowptrs[i] + 4;
     }
     else if (i < N)
     {
-        /* vals = h2_inv * [1, -4, 1, 1] */
-        /* cols = [i-1, i, i+1, i+N] */
-        continue;
+      /* vals = h2_inv * [1, -4, 1, 1] */
+      /* cols = [i-1, i, i+1, i+N] */
+      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = -4; matdata[nnz_ctr+2] = 1; matdata[nnz_ctr+3] = 1;
+      colindices[nnz_ctr] = i-1; colindices[nnz_ctr+1] = i; colindices[nnz_ctr+2] = i+1; colindices[nnz_ctr+3] = i+N;
+      rowptrs[i+1] = rowptrs[i] + 4;
     }
-    else if (i > N*N-N) 
+    else if ((i+N) > (N*N-1)) 
     {
-        /* vals = h2_inv * [1, 1, -4, 1] */
-        /* cols = [i-N, i-1, i, i+1] */
-        continue;
+      /* vals = h2_inv * [1, 1, -4, 1] */
+      /* cols = [i-N, i-1, i, i+1] */
+      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = 1; matdata[nnz_ctr+2] = -4; matdata[nnz_ctr+3] = 1;
+      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i; colindices[nnz_ctr+3] = i+1;
+      rowptrs[i+1] = rowptrs[i] + 4;
+    }
+    else 
+    {
+      /* vals = h2_inv * [1, 1, -4, 1, 1] */
+      /* cols = [i-N, i-1, i, i+1, i+N] */
+      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = 1; matdata[nnz_ctr+2] = -4; matdata[nnz_ctr+3] = 1;
+        matdata[nnz_ctr+4] = 1;
+      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i; colindices[nnz_ctr+3] = i+1;
+        colindices[nnz_ctr+4] = i + N;
+      rowptrs[i+1] = rowptrs[i] + 5;
     }
   }
+  
+  /* Centered Difference Matrix */
+  h2 = ONE / (2*h);
+
+  nnz = 65024;
+  //nnz = 360;
+  CenteredDiff = SUNSparseMatrix(N*N, N*N, nnz, CSR_MAT);
+  rowptrs = SUNSparseMatrix_IndexPointers(CenteredDiff);
+  rowptrs[0] = 0; /* first row starts at index 0 */
+  colindices = SUNSparseMatrix_IndexValues(CenteredDiff);
+  matdata = SUNSparseMatrix_Data(CenteredDiff);
+  for (i = 0; i < N*N; i++)
+  {
+    nnz_ctr = rowptrs[i];
+    if (i == 0)
+    {
+        /* FIRST ROW OF MATRIX */
+        /* vals = h2 * [-1, -1] */
+        /* cols = [i+1, i+N] */
+        matdata[nnz_ctr] = NEGONE*h2; matdata[nnz_ctr+1] = NEGONE*h2;
+        colindices[nnz_ctr] = i+1; colindices[nnz_ctr+1] = i+N;
+        rowptrs[i+1] = rowptrs[i] + 2;
+    }
+    else if (i == N*N-1)
+    {
+      /* LAST ROW OF MATRIX */
+      /* vals = h2 * [1, 1] */
+      /* cols = [i-N, i-1] */
+      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = ONE*h2;
+      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1;
+      rowptrs[i+1] = rowptrs[i] + 2;
+    }
+    else if ((i+1) % N == 0)
+    {
+      /* vals = h2 * [1, 1, -1] */
+      /* cols = [i-N, i-1, i+N] */
+      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = ONE*h2; matdata[nnz_ctr+2] = NEGONE*h2;
+      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i+N;
+      rowptrs[i+1] = rowptrs[i] + 3;
+    }
+    else if (i % N == 0)
+    {
+      /* vals = h2 * [1, -1, -1] */
+      /* cols = [i-N, i+1, i+N] */
+      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = NEGONE*h2; matdata[nnz_ctr+2] = NEGONE*h2;
+      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i+1; colindices[nnz_ctr+2] = i+N;
+      rowptrs[i+1] = rowptrs[i] + 3;
+    }
+    else if (i < N)
+    {
+      /* vals = h2 * [1, -1, -1] */
+      /* cols = [i-1, i+1, i+N] */
+      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = NEGONE*h2; matdata[nnz_ctr+2] = NEGONE*h2;
+      colindices[nnz_ctr] = i-1; colindices[nnz_ctr+1] = i+1; colindices[nnz_ctr+2] = i+N;
+      rowptrs[i+1] = rowptrs[i] + 3;
+    }
+    else if ((i+N) > (N*N-1)) 
+    {
+      /* vals = h2 * [1, 1, -1] */
+      /* cols = [i-N, i-1, i+1] */
+      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = ONE*h2; matdata[nnz_ctr+2] = NEGONE*h2;
+      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i+1;
+      rowptrs[i+1] = rowptrs[i] + 3;
+    }
+    else 
+    {
+      /* vals = h2 * [1, 1, -1, -1] */
+      /* cols = [i-N, i-1, i+1, i+N] */
+      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = ONE*h2; matdata[nnz_ctr+2] = NEGONE*h2; matdata[nnz_ctr+3] = NEGONE*h2;
+      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i+1; colindices[nnz_ctr+3] = i+N;
+      rowptrs[i+1] = rowptrs[i] + 4;
+    }
+  }
+  
+  /* Q = h2_inv * Laplacian + C * I + h2 * CenteredDiff */
+  Q = SUNMatClone(Laplacian);
+  SUNMatCopy(Laplacian, Q);             /* Q = Laplacian */
+  /* CORRECT UP TO HERE */
+  fail = SUNMatScaleAdd(h2_inv, Q, I);         /* Q = h2_inv * Laplacian + C * I */
+  if (fail) {
+    printf(">>> FAILED -- SUNMatScaleAdd returned %d \n", fail);
+    SUNMatDestroy(Q); return(1);
+  }
+  //fail = SUNMatScaleAdd(ONE, Q, CenteredDiff); /* Q = h2_inv * Laplacian + C * I  + h2 * CenteredDiff*/
+  /*if (fail) {
+    printf(">>> FAILED -- SUNMatScaleAdd returned %d \n", fail);
+    SUNMatDestroy(Q); return(1);
+  }*/
+
+  /* Clean up matrices */
+  SUNMatDestroy(Laplacian);
+  SUNMatDestroy(CenteredDiff);
+  SUNMatDestroy(I);
 
   return(0);
 }

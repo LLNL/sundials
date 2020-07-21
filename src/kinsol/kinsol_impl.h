@@ -149,6 +149,9 @@ typedef struct KINMemRec {
   N_Vector kin_constraints; /* constraints vector                              */
   N_Vector kin_vtemp1;      /* scratch vector #1                               */
   N_Vector kin_vtemp2;      /* scratch vector #2                               */
+  N_Vector kin_vtemp3;      /* scratch vector #3                               */
+  N_Vector kin_vtemp4;      /* scratch vector #4                               */
+  N_Vector kin_vtemp5;      /* scratch vector #5                               */
 
   /* space requirements for AA, Broyden and NLEN */
   N_Vector kin_fold_aa;     /* vector needed for AA, Broyden, and NLEN */
@@ -411,7 +414,7 @@ void KINInfoHandler(const char *module, const char *function,
 #define MSG_BAD_OMEGA          "scalars < 0 illegal."
 #define MSG_BAD_MAA            "maa < 0 illegal."
 #define MSG_BAD_ORTHAA         "orthaa < 0 illegal."
-#define MSG_LG_ORTHAA          "orthaa > 2 illegal."
+#define MSG_LG_ORTHAA          "orthaa > 4 illegal."
 #define MSG_ZERO_MAA           "maa = 0 illegal."
 
 #define MSG_LSOLV_NO_MEM       "The linear solver memory pointer is NULL."

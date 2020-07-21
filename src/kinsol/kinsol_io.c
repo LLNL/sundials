@@ -231,7 +231,7 @@ int KINSetOrthAA(void *kinmem, sunindextype orthaa)
     return(KIN_ILL_INPUT);
   }
   
-  if (orthaa > 2) {
+  if (orthaa > 4) {
     KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetOrthAA", MSG_LG_ORTHAA);
     return(KIN_ILL_INPUT);
   }
