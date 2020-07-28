@@ -979,7 +979,7 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
   /* access matrix dimension */
-  N = SUNDenseMatrix_Rows(Jac);
+  N = SUNDenseMatrix_Columns(Jac);
 
   /* Rename work vector for readibility */
   ftemp = tmp1;

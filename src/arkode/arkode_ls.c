@@ -1834,7 +1834,7 @@ int arkLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   int          retval = 0;
 
   /* access matrix dimension */
-  N = SUNDenseMatrix_Rows(Jac);
+  N = SUNDenseMatrix_Columns(Jac);
 
   /* Rename work vector for readibility */
   ftemp = tmp1;

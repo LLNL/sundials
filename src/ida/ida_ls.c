@@ -899,7 +899,7 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
   idals_mem = (IDALsMem) IDA_mem->ida_lmem;
 
   /* access matrix dimension */
-  N = SUNDenseMatrix_Rows(Jac);
+  N = SUNDenseMatrix_Columns(Jac);
 
   /* Rename work vectors for readibility */
   rtemp = tmp1;
