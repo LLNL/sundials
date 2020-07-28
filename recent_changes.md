@@ -19,8 +19,8 @@ accordingly. As before, the cumulative number of nonlinear iterations may be
 retreived by calling the integrator provided get functions.
 
 Updated the MRIStep time-stepping module in ARKode to support
-higher-order MRI-GARK methods [Sandu, SIAM J. Numer. Anal., 57, 2019], 
-including methods that involve solve-decoupled, diagonally-implicit 
+higher-order MRI-GARK methods [Sandu, SIAM J. Numer. Anal., 57, 2019],
+including methods that involve solve-decoupled, diagonally-implicit
 treatment of the slow time scale.
 
 The `NVECTOR_RAJA` module has been updated to mirror the `NVECTOR_CUDA` module.
@@ -28,6 +28,15 @@ Notably, the update adds managed memory support to the `NVECTOR_RAJA` module.
 Users of the module will need to update any calls to the `N_VMake_Raja` function
 because that signature was changed. This module remains experimental and is
 subject to change from version to version.
+
+**This change may cause an error in existing user code**.
+In IDAS and CVODES, the functions for forward integration with checkpointing
+(`IDASolveF`, `CVodeF`) are now subject to a restriction on the number of time
+steps allowed to reach the output time. This is the same restriction applied to
+the `IDASolve` and `CVode` functions. The default maximum number of steps is
+500, but this may be changed using the `<IDA|CVode>SetMaxNumSteps` function.
+This change fixes a bug that could cause an infinite loop in the `IDASolveF`
+and `CVodeF` and functions.
 
 
 ## Changes to SUNDIALS in release 5.3.0

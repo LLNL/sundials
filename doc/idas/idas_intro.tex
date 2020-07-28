@@ -104,6 +104,13 @@ Users of the module will need to update any calls to the \id{N\_VMake\_Raja} fun
 because that signature was changed. This module remains experimental and is
 subject to change from version to version.
 
+\textbf{This change may cause an error in existing user code}.
+The \id{IDASolveF} function for forward integration with checkpointing is now
+subject to a restriction on the number of time steps allowed to reach the output
+time. This is the same restriction applied to the \id{IDASolve} function. The
+default maximum number of steps is 500, but this may be changed using the
+\id{IDASetMaxNumSteps} function. This change fixes a bug that could cause an
+infinite loop in the \id{IDASolveF} function.
 
 \subsection*{Changes in v4.3.0}
 

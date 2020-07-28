@@ -291,6 +291,12 @@ int main(int argc, char *argv[])
   retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
   if(check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
 
+  /* Call CVodeSetMaxNumSteps to set the maximum number of steps the
+   * solver will take in an attempt to reach the next output time
+   * during forward integration. */
+  retval = CVodeSetMaxNumSteps(cvode_mem, 2500);
+  if(check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+
   /* Set-up adjoint calculations */
 
   printf("\nAllocate global memory\n");

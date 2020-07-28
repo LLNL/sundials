@@ -28,13 +28,13 @@
  * tolerance.
  * Output is printed in decades from t = .4 to t = 4.e10.
  * Run statistics (optional outputs) are printed at the end.
- * 
+ *
  * Optionally, CVODES can compute sensitivities with respect to
  * the problem parameters p1, p2, and p3 of the following quantity:
  *   G = int_t0^t1 g(t,p,y) dt
  * where
  *   g(t,p,y) = y3
- *        
+ *
  * The gradient dG/dp is obtained as:
  *   dG/dp = int_t0^t1 (g_p - lambda^T f_p ) dt - lambda^T(t0)*y0_p
  *         = - xi^T(t0) - lambda^T(t0)*y0_p
@@ -44,7 +44,7 @@
  * and
  *   d(xi)/dt = - (f_p)^T * lambda + (g_p)^T
  *   xi(t1) = 0
- * 
+ *
  * During the backward integration, CVODES also evaluates G as
  *   G = - phi(t0)
  * where
@@ -108,11 +108,11 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
 static int ewt(N_Vector y, N_Vector w, void *user_data);
 
-static int fB(realtype t, N_Vector y, 
+static int fB(realtype t, N_Vector y,
               N_Vector yB, N_Vector yBdot, void *user_dataB);
 static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
                 void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-static int fQB(realtype t, N_Vector y, N_Vector yB, 
+static int fQB(realtype t, N_Vector y, N_Vector yB,
                N_Vector qBdot, void *user_dataB);
 
 
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
   /* Create and allocate CVODES memory for forward run */
   printf("Create and allocate CVODES memory for forward runs\n");
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
      Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -250,9 +250,15 @@ int main(int argc, char *argv[])
   retval = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
   if (check_retval(&retval, "CVodeQuadSStolerances", 1)) return(1);
 
+  /* Call CVodeSetMaxNumSteps to set the maximum number of steps the
+   * solver will take in an attempt to reach the next output time
+   * during forward integration. */
+  retval = CVodeSetMaxNumSteps(cvode_mem, 2500);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+
   /* Allocate global memory */
 
-  /* Call CVodeAdjInit to update CVODES memory block by allocting the internal 
+  /* Call CVodeAdjInit to update CVODES memory block by allocting the internal
      memory needed for backward integration.*/
   steps = STEPS; /* no. of integration steps between two consecutive ckeckpoints*/
   retval = CVodeAdjInit(cvode_mem, steps, CV_HERMITE);
@@ -287,13 +293,13 @@ int main(int argc, char *argv[])
 #endif
   printf("--------------------------------------------------------\n\n");
 
-  /* Test check point linked list 
+  /* Test check point linked list
      (uncomment next block to print check point information) */
-  
+
   /*
   {
     int i;
-    
+
     printf("\nList of Check Points (ncheck = %d)\n\n", ncheck);
     ckpnt = (CVadjCheckPointRec *) malloc ( (ncheck+1)*sizeof(CVadjCheckPointRec));
     CVodeGetAdjCheckPointsInfo(cvode_mem, ckpnt);
@@ -306,10 +312,10 @@ int main(int argc, char *argv[])
       printf("Step size:     %le\n",ckpnt[i].step);
       printf("\n");
     }
-    
+
   }
   */
-  
+
   /* Initialize yB */
   yB = N_VNew_Serial(NEQ);
   if (check_retval((void *)yB, "N_VNew_Serial", 0)) return(1);
@@ -325,7 +331,7 @@ int main(int argc, char *argv[])
   Ith(qB,3) = ZERO;
 
   /* Set the scalar relative tolerance reltolB */
-  reltolB = RTOL;               
+  reltolB = RTOL;
 
   /* Set the scalar absolute tolerance abstolB */
   abstolB = ATOLl;
@@ -336,12 +342,12 @@ int main(int argc, char *argv[])
   /* Create and allocate CVODES memory for backward run */
   printf("Create and allocate CVODES memory for backward run\n");
 
-  /* Call CVodeCreateB to specify the solution method for the backward 
+  /* Call CVodeCreateB to specify the solution method for the backward
      problem. */
   retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
   if (check_retval(&retval, "CVodeCreateB", 1)) return(1);
 
-  /* Call CVodeInitB to allocate internal memory and initialize the 
+  /* Call CVodeInitB to allocate internal memory and initialize the
      backward problem. */
   retval = CVodeInitB(cvode_mem, indexB, fB, TB1, yB);
   if (check_retval(&retval, "CVodeInitB", 1)) return(1);
@@ -418,7 +424,7 @@ int main(int argc, char *argv[])
   retval = CVodeGetB(cvode_mem, indexB, &time, yB);
   if (check_retval(&retval, "CVodeGetB", 1)) return(1);
 
-  /* Call CVodeGetQuadB to get the quadrature solution vector after a 
+  /* Call CVodeGetQuadB to get the quadrature solution vector after a
      successful return from CVodeB. */
   retval = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
   if (check_retval(&retval, "CVodeGetQuadB", 1)) return(1);
@@ -443,7 +449,7 @@ int main(int argc, char *argv[])
   retval = CVodeReInitB(cvode_mem, indexB, TB2, yB);
   if (check_retval(&retval, "CVodeReInitB", 1)) return(1);
 
-  retval = CVodeQuadReInitB(cvode_mem, indexB, qB); 
+  retval = CVodeQuadReInitB(cvode_mem, indexB, qB);
   if (check_retval(&retval, "CVodeQuadReInitB", 1)) return(1);
 
   PrintHead(TB2);
@@ -483,7 +489,7 @@ int main(int argc, char *argv[])
   printf("Free memory\n\n");
 
   CVodeFree(&cvode_mem);
-  N_VDestroy(y); 
+  N_VDestroy(y);
   N_VDestroy(q);
   N_VDestroy(yB);
   N_VDestroy(qB);
@@ -506,7 +512,7 @@ int main(int argc, char *argv[])
  */
 
 /*
- * f routine. Compute f(t,y). 
+ * f routine. Compute f(t,y).
 */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
@@ -526,8 +532,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 }
 
-/* 
- * Jacobian routine. Compute J(t,y). 
+/*
+ * Jacobian routine. Compute J(t,y).
 */
 
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
@@ -536,11 +542,11 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   realtype y2, y3;
   UserData data;
   realtype p1, p2, p3;
- 
+
   y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
- 
+
   IJth(J,1,1) = -p1;  IJth(J,1,2) = p2*y3;          IJth(J,1,3) = p2*y2;
   IJth(J,2,1) =  p1;  IJth(J,2,2) = -p2*y3-2*p3*y2; IJth(J,2,3) = -p2*y2;
   IJth(J,3,1) = ZERO; IJth(J,3,2) = 2*p3*y2;        IJth(J,3,3) = ZERO;
@@ -548,17 +554,17 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   return(0);
 }
 
-/* 
- * fQ routine. Compute fQ(t,y). 
+/*
+ * fQ routine. Compute fQ(t,y).
 */
 
 static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
 {
-  Ith(qdot,1) = Ith(y,3);  
+  Ith(qdot,1) = Ith(y,3);
 
   return(0);
 }
- 
+
 /*
  * EwtSet function. Computes the error weights at the current solution.
  */
@@ -583,8 +589,8 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
   return(0);
 }
 
-/* 
- * fB routine. Compute fB(t,y,yB). 
+/*
+ * fB routine. Compute fB(t,y,yB).
 */
 
 static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_dataB)
@@ -594,7 +600,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
   realtype p1, p2, p3;
   realtype l1, l2, l3;
   realtype l21, l32;
-  
+
   data = (UserData) user_dataB;
 
   /* The p vector */
@@ -602,7 +608,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
 
   /* The y vector */
   y2 = Ith(y,2); y3 = Ith(y,3);
-  
+
   /* The lambda vector */
   l1 = Ith(yB,1); l2 = Ith(yB,2); l3 = Ith(yB,3);
 
@@ -618,8 +624,8 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
   return(0);
 }
 
-/* 
- * JacB routine. Compute JB(t,y,yB). 
+/*
+ * JacB routine. Compute JB(t,y,yB).
  */
 
 static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
@@ -628,7 +634,7 @@ static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
   UserData data;
   realtype y2, y3;
   realtype p1, p2, p3;
-  
+
   data = (UserData) user_dataB;
 
   /* The p vector */
@@ -646,10 +652,10 @@ static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
 }
 
 /*
- * fQB routine. Compute integrand for quadratures 
+ * fQB routine. Compute integrand for quadratures
 */
 
-static int fQB(realtype t, N_Vector y, N_Vector yB, 
+static int fQB(realtype t, N_Vector y, N_Vector yB,
                N_Vector qBdot, void *user_dataB)
 {
   realtype y1, y2, y3;
@@ -658,7 +664,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
 
   /* The y vector */
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
-  
+
   /* The lambda vector */
   l1 = Ith(yB,1); l2 = Ith(yB,2); l3 = Ith(yB,3);
 
@@ -705,23 +711,23 @@ static void PrintOutput1(realtype time, realtype t, N_Vector y, N_Vector yB)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("returned t: %12.4Le\n",time);
   printf("tout:       %12.4Le\n",t);
-  printf("lambda(t):  %12.4Le %12.4Le %12.4Le\n", 
+  printf("lambda(t):  %12.4Le %12.4Le %12.4Le\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("y(t):       %12.4Le %12.4Le %12.4Le\n", 
+  printf("y(t):       %12.4Le %12.4Le %12.4Le\n",
          Ith(y,1), Ith(y,2), Ith(y,3));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("returned t: %12.4e\n",time);
   printf("tout:       %12.4e\n",t);
-  printf("lambda(t):  %12.4e %12.4e %12.4e\n", 
+  printf("lambda(t):  %12.4e %12.4e %12.4e\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("y(t):       %12.4e %12.4e %12.4e\n", 
+  printf("y(t):       %12.4e %12.4e %12.4e\n",
          Ith(y,1), Ith(y,2), Ith(y,3));
 #else
   printf("returned t: %12.4e\n",time);
   printf("tout:       %12.4e\n",t);
-  printf("lambda(t):  %12.4e %12.4e %12.4e\n", 
+  printf("lambda(t):  %12.4e %12.4e %12.4e\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("y(t)      : %12.4e %12.4e %12.4e\n", 
+  printf("y(t)      : %12.4e %12.4e %12.4e\n",
          Ith(y,1), Ith(y,2), Ith(y,3));
 #endif
   printf("--------------------------------------------------------\n\n");
@@ -736,40 +742,40 @@ static void PrintOutput(realtype tfinal, N_Vector y, N_Vector yB, N_Vector qB)
   printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("returned t: %12.4Le\n",tfinal);
-  printf("lambda(t0): %12.4Le %12.4Le %12.4Le\n", 
+  printf("lambda(t0): %12.4Le %12.4Le %12.4Le\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("y(t0):      %12.4Le %12.4Le %12.4Le\n", 
+  printf("y(t0):      %12.4Le %12.4Le %12.4Le\n",
          Ith(y,1), Ith(y,2), Ith(y,3));
-  printf("dG/dp:      %12.4Le %12.4Le %12.4Le\n", 
+  printf("dG/dp:      %12.4Le %12.4Le %12.4Le\n",
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("returned t: %12.4e\n",tfinal);
-  printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
+  printf("lambda(t0): %12.4e %12.4e %12.4e\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("y(t0):      %12.4e %12.4e %12.4e\n", 
+  printf("y(t0):      %12.4e %12.4e %12.4e\n",
          Ith(y,1), Ith(y,2), Ith(y,3));
-  printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
+  printf("dG/dp:      %12.4e %12.4e %12.4e\n",
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
 #else
   printf("returned t: %12.4e\n",tfinal);
-  printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
+  printf("lambda(t0): %12.4e %12.4e %12.4e\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
-  printf("y(t0)     : %12.4e %12.4e %12.4e\n", 
+  printf("y(t0)     : %12.4e %12.4e %12.4e\n",
          Ith(y,1), Ith(y,2), Ith(y,3));
-  printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
+  printf("dG/dp:      %12.4e %12.4e %12.4e\n",
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
 #endif
   printf("--------------------------------------------------------\n\n");
 }
 
-/* 
+/*
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
  *    opt == 1 means SUNDIALS function returns an integer value so check if
  *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer 
+ *             NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)
