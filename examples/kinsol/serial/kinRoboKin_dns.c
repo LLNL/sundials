@@ -1,13 +1,23 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * This example solves a nonlinear system from robot kinematics.
  *
  * Source: "Handbook of Test Problems in Local and Global Optimization",
  *             C.A. Floudas, P.M. Pardalos et al.
  *             Kluwer Academic Publishers, 1999.
  * Test problem 6 from Section 14.1, Chapter 14
- * 
+ *
  * The nonlinear system is solved by KINSOL using the DENSE linear
  * solver.
  *
@@ -29,7 +39,7 @@
 
 /* Problem Constants */
 
-#define NVAR  8              /* variables */ 
+#define NVAR  8              /* variables */
 #define NEQ   3*NVAR         /* equations + bounds */
 
 #define FTOL   RCONST(1.e-5) /* function tolerance */
@@ -96,11 +106,11 @@ int main()
 
   N_VConst(ZERO,constraints);
   for (i = NVAR+1; i <= NEQ; i++) Ith(constraints, i) = ONE;
-  
+
   flag = KINSetConstraints(kmem, constraints);
   if (check_flag(&flag, "KINSetConstraints", 1)) return(1);
 
-  fnormtol  = FTOL; 
+  fnormtol  = FTOL;
   flag = KINSetFuncNormTol(kmem, fnormtol);
   if (check_flag(&flag, "KINSetFuncNormTol", 1)) return(1);
 
@@ -151,7 +161,7 @@ int main()
   printf("\nComputed solution:\n");
   PrintOutput(y);
 
-  /* Print final statistics and free memory */  
+  /* Print final statistics and free memory */
 
   PrintFinalStats(kmem);
 
@@ -165,8 +175,8 @@ int main()
   return(0);
 }
 
-/* 
- * System function 
+/*
+ * System function
  */
 
 static int func(N_Vector y, N_Vector f, void *user_data)
@@ -184,20 +194,20 @@ static int func(N_Vector y, N_Vector f, void *user_data)
   yd = N_VGetArrayPointer(y);
   fd = N_VGetArrayPointer(f);
 
-  x1 = yd[0]; l1 = yd[ 8]; u1 = yd[16]; 
-  x2 = yd[1]; l2 = yd[ 9]; u2 = yd[17]; 
-  x3 = yd[2]; l3 = yd[10]; u3 = yd[18]; 
-  x4 = yd[3]; l4 = yd[11]; u4 = yd[19]; 
-  x5 = yd[4]; l5 = yd[12]; u5 = yd[20]; 
-  x6 = yd[5]; l6 = yd[13]; u6 = yd[21]; 
-  x7 = yd[6]; l7 = yd[14]; u7 = yd[22]; 
-  x8 = yd[7]; l8 = yd[15]; u8 = yd[23]; 
+  x1 = yd[0]; l1 = yd[ 8]; u1 = yd[16];
+  x2 = yd[1]; l2 = yd[ 9]; u2 = yd[17];
+  x3 = yd[2]; l3 = yd[10]; u3 = yd[18];
+  x4 = yd[3]; l4 = yd[11]; u4 = yd[19];
+  x5 = yd[4]; l5 = yd[12]; u5 = yd[20];
+  x6 = yd[5]; l6 = yd[13]; u6 = yd[21];
+  x7 = yd[6]; l7 = yd[14]; u7 = yd[22];
+  x8 = yd[7]; l8 = yd[15]; u8 = yd[23];
 
   /* Nonlinear equations */
 
-  eq1 = - 0.1238*x1 + x7 - 0.001637*x2 
+  eq1 = - 0.1238*x1 + x7 - 0.001637*x2
     - 0.9338*x4 + 0.004731*x1*x3 - 0.3578*x2*x3 - 0.3571;
-  eq2 = 0.2638*x1 - x7 - 0.07745*x2 
+  eq2 = 0.2638*x1 - x7 - 0.07745*x2
     - 0.6734*x4 + 0.2238*x1*x3 + 0.7623*x2*x3 - 0.6022;
   eq3 = 0.3578*x1 + 0.004731*x2 + x6*x8;
   eq4 = - 0.7623*x1 + 0.2238*x2 + 0.3461;
@@ -264,9 +274,9 @@ static int jac(N_Vector y, N_Vector f,SUNMatrix J,
 
   /* Nonlinear equations */
 
-  /* 
-     - 0.1238*x1 + x7 - 0.001637*x2 
-     - 0.9338*x4 + 0.004731*x1*x3 - 0.3578*x2*x3 - 0.3571 
+  /*
+     - 0.1238*x1 + x7 - 0.001637*x2
+     - 0.9338*x4 + 0.004731*x1*x3 - 0.3578*x2*x3 - 0.3571
   */
   IJth(J,1,1) = - 0.1238 + 0.004731*x3;
   IJth(J,1,2) = - 0.001637 - 0.3578*x3;
@@ -275,7 +285,7 @@ static int jac(N_Vector y, N_Vector f,SUNMatrix J,
   IJth(J,1,7) = 1.0;
 
   /*
-    0.2638*x1 - x7 - 0.07745*x2 
+    0.2638*x1 - x7 - 0.07745*x2
     - 0.6734*x4 + 0.2238*x1*x3 + 0.7623*x2*x3 - 0.6022
   */
   IJth(J,2,1) = 0.2638 + 0.2238*x3;
@@ -322,7 +332,7 @@ static int jac(N_Vector y, N_Vector f,SUNMatrix J,
   IJth(J,8,7) = 2.0*x7;
   IJth(J,8,8) = 2.0*x8;
 
-  
+
   /*
     Lower bounds ( l_i = 1 + x_i >= 0)
     l_i - 1.0 - x_i
@@ -347,7 +357,7 @@ static int jac(N_Vector y, N_Vector f,SUNMatrix J,
 
 }
 
-/* 
+/*
  * Print solution
  */
 
@@ -361,13 +371,13 @@ static void PrintOutput(N_Vector y)
   for(i=1; i<=NVAR; i++) {
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf(" %10.6Lg   %10.6Lg   %10.6Lg\n", 
+    printf(" %10.6Lg   %10.6Lg   %10.6Lg\n",
            Ith(y,i+NVAR), Ith(y,i), Ith(y,i+2*NVAR));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf(" %10.6g   %10.6g   %10.6g\n", 
+    printf(" %10.6g   %10.6g   %10.6g\n",
            Ith(y,i+NVAR), Ith(y,i), Ith(y,i+2*NVAR));
 #else
-    printf(" %10.6g   %10.6g   %10.6g\n", 
+    printf(" %10.6g   %10.6g   %10.6g\n",
            Ith(y,i+NVAR), Ith(y,i), Ith(y,i+2*NVAR));
 #endif
 
@@ -375,7 +385,7 @@ static void PrintOutput(N_Vector y)
 
 }
 
-/* 
+/*
  * Print final statistics
  */
 
@@ -383,7 +393,7 @@ static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe, nje, nfeD;
   int flag;
-  
+
   flag = KINGetNumNonlinSolvIters(kmem, &nni);
   check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
   flag = KINGetNumFuncEvals(kmem, &nfe);
@@ -406,7 +416,7 @@ static void PrintFinalStats(void *kmem)
  *    opt == 1 means SUNDIALS function returns a flag so check if
  *             flag >= 0
  *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer 
+ *             NULL pointer
  */
 
 static int check_flag(void *flagvalue, const char *funcname, int opt)
@@ -415,7 +425,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, 
+    fprintf(stderr,
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1);
@@ -428,7 +438,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
       fprintf(stderr,
               "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
 	      funcname, *errflag);
-      return(1); 
+      return(1);
     }
   }
 

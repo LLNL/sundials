@@ -1,14 +1,24 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * Example problem:
- * 
+ *
  * The following is a simple example problem, with the coding
- * needed for its solution by the accelerated fixed point solver in 
- * KINSOL. 
- * The problem is from chemical kinetics, and consists of solving 
- * the first time step in a Backward Euler solution for the 
- * following three rate equations:         
+ * needed for its solution by the accelerated fixed point solver in
+ * KINSOL.
+ * The problem is from chemical kinetics, and consists of solving
+ * the first time step in a Backward Euler solution for the
+ * following three rate equations:
  *    dy1/dt = -.04*y1 + 1.e4*y2*y3
  *    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e2*(y2)^2
  *    dy3/dt = 3.e2*(y2)^2
@@ -92,15 +102,15 @@ int main()
   /* -------------------------
    * Print problem description
    * ------------------------- */
-  
-  printf("Example problem from chemical kinetics solving\n"); 
+
+  printf("Example problem from chemical kinetics solving\n");
   printf("the first time step in a Backward Euler solution for the\n");
   printf("following three rate equations:\n");
   printf("    dy1/dt = -.04*y1 + 1.e4*y2*y3\n");
   printf("    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e2*(y2)^2\n");
   printf("    dy3/dt = 3.e2*(y2)^2\n");
   printf("on the interval from t = 0.0 to t = 0.1, with initial\n");
-  printf("conditions: y1 = 1.0, y2 = y3 = 0.\n"); 
+  printf("conditions: y1 = 1.0, y2 = y3 = 0.\n");
   printf("Solution method: Anderson accelerated fixed point iteration.\n");
 
   /* --------------------------------------
@@ -129,24 +139,24 @@ int main()
   if (check_flag(&flag, "KINInit", 1)) return(1);
 
   /* -------------------
-   * Set optional inputs 
+   * Set optional inputs
    * ------------------- */
 
   /* Specify stopping tolerance based on residual */
 
-  fnormtol  = TOL; 
+  fnormtol  = TOL;
   flag = KINSetFuncNormTol(kmem, fnormtol);
   if (check_flag(&flag, "KINSetFuncNormTol", 1)) return(1);
 
   /* -------------
-   * Initial guess 
+   * Initial guess
    * ------------- */
 
   N_VConst(ZERO, y);
   Ith(y,1) = ONE;
 
   /* ----------------------------
-   * Call KINSol to solve problem 
+   * Call KINSol to solve problem
    * ---------------------------- */
 
   /* No scaling used */
@@ -162,7 +172,7 @@ int main()
 
 
   /* ------------------------------------
-   * Print solution and solver statistics 
+   * Print solution and solver statistics
    * ------------------------------------ */
 
   /* Get scaled norm of the system function */
@@ -174,7 +184,7 @@ int main()
   printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);
 #else
   printf("\nComputed solution (||F|| = %g):\n\n",fnorm);
-#endif  
+#endif
   PrintOutput(y);
 
   PrintFinalStats(kmem);
@@ -183,9 +193,9 @@ int main()
   flag = check_ans(y, RCONST(1e-4), RCONST(1e-6));
 
   /* -----------
-   * Free memory 
+   * Free memory
    * ----------- */
-  
+
   N_VDestroy(y);
   N_VDestroy(scale);
   KINFree(&kmem);
@@ -199,8 +209,8 @@ int main()
  *--------------------------------------------------------------------
  */
 
-/* 
- * System function 
+/*
+ * System function
  */
 
 static int funcRoberts(N_Vector y, N_Vector g, void *user_data)
@@ -222,7 +232,7 @@ static int funcRoberts(N_Vector y, N_Vector g, void *user_data)
   return(0);
 }
 
-/* 
+/*
  * Print solution at selected points
  */
 
@@ -245,7 +255,7 @@ static void PrintOutput(N_Vector y)
   return;
 }
 
-/* 
+/*
  * Print final statistics
  */
 
@@ -253,7 +263,7 @@ static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe;
   int flag;
-  
+
   /* Main solver statistics */
 
   flag = KINGetNumNonlinSolvIters(kmem, &nni);
@@ -272,7 +282,7 @@ static void PrintFinalStats(void *kmem)
  *    opt == 1 means SUNDIALS function returns a flag so check if
  *             flag >= 0
  *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer 
+ *             NULL pointer
  */
 
 static int check_flag(void *flagvalue, const char *funcname, int opt)
@@ -281,7 +291,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, 
+    fprintf(stderr,
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1);
@@ -294,7 +304,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
       fprintf(stderr,
               "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
 	      funcname, *errflag);
-      return(1); 
+      return(1);
     }
   }
 
@@ -313,7 +323,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
    tolerance of 1e-14 */
 static int check_ans(N_Vector u, realtype rtol, realtype atol)
 {
-  int      passfail=0;        /* answer pass (0) or fail (1) flag */  
+  int      passfail=0;        /* answer pass (0) or fail (1) flag */
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
   realtype err;               /* wrms error                       */
@@ -335,14 +345,14 @@ static int check_ans(N_Vector u, realtype rtol, realtype atol)
     fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
     return(-1);
   }
-  N_VInv(ewt, ewt);   
+  N_VInv(ewt, ewt);
 
   /* compute the solution error */
   N_VLinearSum(ONE, u, -ONE, ref, ref);
   err = N_VWrmsNorm(ref, ewt);
 
   /* is the solution within the tolerances? */
-  passfail = (err < ONE) ? 0 : 1; 
+  passfail = (err < ONE) ? 0 : 1;
 
   if (passfail) {
     fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);

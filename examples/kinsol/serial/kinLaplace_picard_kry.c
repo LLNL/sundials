@@ -1,5 +1,7 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Radu Serban @ LLNL
+ * Programmer(s): David J. Gardner @ LLNL
+ * -----------------------------------------------------------------
+ * Based on kinLaplace_picard_bnd.c by Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -19,8 +21,8 @@
  * The PDE is discretized on a uniform NX+2 by NY+2 grid with
  * central differencing, and with boundary values eliminated,
  * leaving a system of size NEQ = NX*NY.
- * The nonlinear system is solved by KINSOL using the SUNBAND linear
- * solver.
+ * The nonlinear system is solved by KINSOL using the Picard
+ * iteration and the SPGMR linear solver.
  * -----------------------------------------------------------------
  */
 
@@ -30,8 +32,7 @@
 
 #include <kinsol/kinsol.h>             /* access to KINSOL func., consts. */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
-#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix        */
-#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver  */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype */
 #include <sundials/sundials_math.h>    /* access to SUNRexp               */
 
@@ -63,6 +64,8 @@
 /* Private functions */
 
 static int func(N_Vector u, N_Vector f, void *user_data);
+static int jactimes(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u,
+                    void *user_data);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -77,14 +80,13 @@ int main()
 {
   realtype fnormtol, fnorm;
   N_Vector y, scale;
-  int mset, msubset, flag;
+  int flag;
   void *kmem;
-  SUNMatrix J;
   SUNLinearSolver LS;
+  FILE *infofp;
 
   y = scale = NULL;
   kmem = NULL;
-  J = NULL;
   LS = NULL;
 
   /* -------------------------
@@ -94,7 +96,7 @@ int main()
   printf("\n2D elliptic PDE on unit square\n");
   printf("   d^2 u / dx^2 + d^2 u / dy^2 = u^3 - u + 2.0\n");
   printf(" + homogeneous Dirichlet boundary conditions\n\n");
-  printf("Solution method: Modified Newton with band linear solver\n");
+  printf("Solution method: Anderson accelerated Picard iteration with SPGMR linear solver.\n");
   printf("Problem size: %2ld x %2ld = %4ld\n", (long int) NX, (long int) NY, (long int) NEQ);
 
   /* --------------------------------------
@@ -107,14 +109,18 @@ int main()
   scale = N_VNew_Serial(NEQ);
   if (check_flag((void *)scale, "N_VNew_Serial", 0)) return(1);
 
-  /* -----------------------------------------
-   * Initialize and allocate memory for KINSOL
-   * ----------------------------------------- */
+  /* ----------------------------------------------------------------------------------
+   * Initialize and allocate memory for KINSOL, set parametrs for Anderson acceleration
+   * ---------------------------------------------------------------------------------- */
 
   kmem = KINCreate();
   if (check_flag((void *)kmem, "KINCreate", 0)) return(1);
 
   /* y is used as a template */
+
+  /* Use acceleration with up to 3 prior residuals */
+  flag = KINSetMAA(kmem, 3);
+  if (check_flag(&flag, "KINSetMAA", 1)) return(1);
 
   flag = KINInit(kmem, func, y);
   if (check_flag(&flag, "KINInit", 1)) return(1);
@@ -129,47 +135,43 @@ int main()
   flag = KINSetFuncNormTol(kmem, fnormtol);
   if (check_flag(&flag, "KINSetFuncNormTol", 1)) return(1);
 
-  /* -------------------------
-   * Create band SUNMatrix
-   * ------------------------- */
+  /* Set information file */
 
-  J = SUNBandMatrix(NEQ, NX, NX);
-  if(check_flag((void *)J, "SUNBandMatrix", 0)) return(1);
+  infofp = fopen("KINSOL.log", "w");
 
-  /* ---------------------------
-   * Create band SUNLinearSolver
-   * --------------------------- */
+  flag = KINSetInfoFile(kmem, infofp);
+  if (check_flag(&flag, "KINSetInfoFile", 1)) return(1);
 
-  LS = SUNLinSol_Band(y, J);
-  if(check_flag((void *)LS, "SUNLinSol_Band", 0)) return(1);
+  flag = KINSetPrintLevel(kmem, 3);
+  if (check_flag(&flag, "KINSetPrintLevel", 1)) return(1);
 
-  /* -------------------------
-   * Attach band linear solver
-   * ------------------------- */
+  /* ----------------------
+   * Create SUNLinearSolver
+   * ---------------------- */
 
-  flag = KINSetLinearSolver(kmem, LS, J);
+  LS = SUNLinSol_SPGMR(y, PREC_NONE, 10);
+  if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+
+  /* --------------------
+   * Attach linear solver
+   * -------------------- */
+
+  flag = KINSetLinearSolver(kmem, LS, NULL);
   if(check_flag(&flag, "KINSetLinearSolver", 1)) return(1);
 
-  /* ------------------------------
-   * Parameters for Modified Newton
-   * ------------------------------ */
+  /* ------------------------------------
+   * Set Jacobian vector product function
+   * ------------------------------------ */
 
-  /* Force a Jacobian re-evaluation every mset iterations */
-  mset = 100;
-  flag = KINSetMaxSetupCalls(kmem, mset);
-  if (check_flag(&flag, "KINSetMaxSetupCalls", 1)) return(1);
-
-  /* Every msubset iterations, test if a Jacobian evaluation
-     is necessary */
-  msubset = 1;
-  flag = KINSetMaxSubSetupCalls(kmem, msubset);
-  if (check_flag(&flag, "KINSetMaxSubSetupCalls", 1)) return(1);
+  flag = KINSetJacTimesVecFn(kmem, jactimes);
+  if (check_flag(&flag, "KINSetJacTimesVecFn", 1)) return(1);
 
   /* -------------
    * Initial guess
    * ------------- */
 
   N_VConst(ZERO, y);
+  IJth(N_VGetArrayPointer(y), 2, 2) = ONE;
 
   /* ----------------------------
    * Call KINSol to solve problem
@@ -181,7 +183,7 @@ int main()
   /* Call main solver */
   flag = KINSol(kmem,           /* KINSol memory block */
                 y,              /* initial guess on input; solution vector */
-                KIN_LINESEARCH, /* global strategy choice */
+                KIN_PICARD,     /* global strategy choice */
                 scale,          /* scaling vector, for the variable cc */
                 scale);         /* scaling vector for function values fval */
   if (check_flag(&flag, "KINSol", 1)) return(1);
@@ -209,11 +211,11 @@ int main()
    * Free memory
    * ----------- */
 
+  fclose(infofp);
   N_VDestroy(y);
   N_VDestroy(scale);
   KINFree(&kmem);
   SUNLinSolFree(LS);
-  SUNMatDestroy(J);
 
   return(0);
 }
@@ -272,6 +274,54 @@ static int func(N_Vector u, N_Vector f, void *user_data)
 }
 
 /*
+ * Jacobian vector product function
+ */
+
+static int jactimes(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u,
+                    void *user_data)
+{
+  realtype dx, dy, hdiff, vdiff;
+  realtype hdc, vdc;
+  realtype vij, vdn, vup, vlt, vrt;
+  realtype *vdata, *Jvdata;
+
+  int i, j;
+
+  dx  = ONE/(NX+1);
+  dy  = ONE/(NY+1);
+  hdc = ONE/(dx*dx);
+  vdc = ONE/(dy*dy);
+
+  vdata  = N_VGetArrayPointer(v);
+  Jvdata = N_VGetArrayPointer(Jv);
+
+  for (j=1; j <= NY; j++) {
+    for (i=1; i <= NX; i++) {
+
+      /* Extract v at x_i, y_j and four neighboring points */
+
+      vij = IJth(vdata, i, j);
+      vdn = (j == 1)  ? ZERO : IJth(vdata, i, j-1);
+      vup = (j == NY) ? ZERO : IJth(vdata, i, j+1);
+      vlt = (i == 1)  ? ZERO : IJth(vdata, i-1, j);
+      vrt = (i == NX) ? ZERO : IJth(vdata, i+1, j);
+
+      /* Evaluate diffusion components */
+
+      hdiff = hdc*(vlt - TWO*vij + vrt);
+      vdiff = vdc*(vup - TWO*vij + vdn);
+
+      /* Set Jv at x_i, y_j */
+
+      IJth(Jvdata, i, j) = hdiff + vdiff;
+
+    }
+  }
+
+  return(0);
+}
+
+/*
  * Print solution at selected points
  */
 
@@ -284,7 +334,7 @@ static void PrintOutput(N_Vector u)
   dx = ONE/(NX+1);
   dy = ONE/(NY+1);
 
-  udata =  N_VGetArrayPointer(u);
+  udata = N_VGetArrayPointer(u);
 
   printf("            ");
   for (i=1; i<=NX; i+= SKIP) {
@@ -327,9 +377,8 @@ static void PrintOutput(N_Vector u)
 
 static void PrintFinalStats(void *kmem)
 {
-  long int nni, nfe, nje, nfeD;
-  long int lenrw, leniw, lenrwB, leniwB;
-  long int nbcfails, nbacktr;
+  long int nni, nfe, nli, npe, nps, ncfl, nfeLS, njvevals;
+  long int lenrw, leniw, lenrwLS, leniwLS;
   int flag;
 
   /* Main solver statistics */
@@ -339,37 +388,38 @@ static void PrintFinalStats(void *kmem)
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
 
-  /* Linesearch statistics */
+  /* Linear solver statistics */
 
-  flag = KINGetNumBetaCondFails(kmem, &nbcfails);
-  check_flag(&flag, "KINGetNumBetacondFails", 1);
-  flag = KINGetNumBacktrackOps(kmem, &nbacktr);
-  check_flag(&flag, "KINGetNumBacktrackOps", 1);
+  flag = KINGetNumLinIters(kmem, &nli);
+  check_flag(&flag, "KINGetNumLinIters", 1);
+  flag = KINGetNumLinFuncEvals(kmem, &nfeLS);
+  check_flag(&flag, "KINGetNumLinFuncEvals", 1);
+  flag = KINGetNumLinConvFails(kmem, &ncfl);
+  check_flag(&flag, "KINGetNumLinConvFails", 1);
+  flag = KINGetNumJtimesEvals(kmem, &njvevals);
+  check_flag(&flag, "KINGetNumJtimesEvals", 1);
+  flag = KINGetNumPrecEvals(kmem, &npe);
+  check_flag(&flag, "KINGetNumPrecEvals", 1);
+  flag = KINGetNumPrecSolves(kmem, &nps);
+  check_flag(&flag, "KINGetNumPrecSolves", 1);
 
   /* Main solver workspace size */
 
   flag = KINGetWorkSpace(kmem, &lenrw, &leniw);
   check_flag(&flag, "KINGetWorkSpace", 1);
 
-  /* Band linear solver statistics */
+  /* Linear solver workspace size */
 
-  flag = KINGetNumJacEvals(kmem, &nje);
-  check_flag(&flag, "KINGetNumJacEvals", 1);
-  flag = KINGetNumLinFuncEvals(kmem, &nfeD);
-  check_flag(&flag, "KINGetNumLinFuncEvals", 1);
-
-  /* Band linear solver workspace size */
-
-  flag = KINGetLinWorkSpace(kmem, &lenrwB, &leniwB);
+  flag = KINGetLinWorkSpace(kmem, &lenrwLS, &leniwLS);
   check_flag(&flag, "KINGetLinWorkSpace", 1);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("nni      = %6ld    nfe     = %6ld \n", nni, nfe);
-  printf("nbcfails = %6ld    nbacktr = %6ld \n", nbcfails, nbacktr);
-  printf("nje      = %6ld    nfeB    = %6ld \n", nje, nfeD);
+  printf("nni = %6ld  nli   = %6ld  ncfl = %6ld\n", nni, nli, ncfl);
+  printf("nfe = %6ld  nfeLS = %6ld  njt  = %6ld\n", nfe, nfeLS, njvevals);
+  printf("npe = %6ld  nps   = %6ld\n", npe, nps);
   printf("\n");
-  printf("lenrw    = %6ld    leniw   = %6ld \n", lenrw, leniw);
-  printf("lenrwB   = %6ld    leniwB  = %6ld \n", lenrwB, leniwB);
+  printf("lenrw   = %6ld  leniw   = %6ld\n", lenrw, leniw);
+  printf("lenrwLS = %6ld  leniwLS = %6ld\n", lenrwLS, leniwLS);
 
 }
 

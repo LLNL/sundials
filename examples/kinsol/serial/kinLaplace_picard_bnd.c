@@ -1,11 +1,21 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * This example solves a 2D elliptic PDE
  *
  *    d^2 u / dx^2 + d^2 u / dy^2 = u^3 - u - 2.0
  *
- * subject to homogeneous Dirichelt boundary conditions.
+ * subject to homogeneous Dirichlet boundary conditions.
  * The PDE is discretized on a uniform NX+2 by NY+2 grid with
  * central differencing, and with boundary values eliminated,
  * leaving a system of size NEQ = NX*NY.

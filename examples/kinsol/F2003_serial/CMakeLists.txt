@@ -21,6 +21,7 @@
 set(FKINSOL_examples
   "kinRoboKin_dns_f2003\;develop"
   "kinLaplace_bnd_f2003\;develop"
+  "kinLaplace_picard_kry_f2003\;develop"
   )
 
 # Specify libraries to link against (through the target that was used to
