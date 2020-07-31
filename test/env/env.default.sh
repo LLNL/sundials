@@ -120,33 +120,48 @@ if [ "$compilername" == "gcc" ]; then
     export CC="${COMPILER_DIR}/bin/gcc"
     export CXX="${COMPILER_DIR}/bin/g++"
     export FC="${COMPILER_DIR}/bin/gfortran"
+
+    # optimization flags
+    if [ "$bldtype" == "dbg" ]; then
+        export CFLAGS="-g -O0"
+        export CXXFLAGS="-g -O0"
+        export FFLAGS="-g -O0"
+        export CUDAFLAGS="-g -O0"
+    else
+        export CFLAGS="-g -O3"
+        export CXXFLAGS="-g -O3"
+        export FFLAGS="-g -O3"
+        export CUDAFLAGS="-g -O3"
+    fi
+
+    # append warning flags
+    export CFLAGS="${CFLAGS} -Wall -Wpedantic -Wextra -Wno-unused-parameter -Werror"
+    export CXXFLAGS="${CXXFLAGS} -Wall -Wpedantic -Wextra -Wno-unused-parameter -Werror"
+    export FFLAGS="${FFLAGS} -Wall -Wpedantic -ffpe-summary=none"
+
+    if [[ "$realtype" == "double" && "$indexsize" == "32" ]]; then
+        export CFLAGS="${CFLAGS} -Wconversion -Wno-sign-conversion"
+        export CXXFLAGS="${CXXFLAGS} -Wconversion -Wno-sign-conversion"
+    fi
 else
     COMPILER_DIR="$(spack location -i "llvm@$compilerversion")"
     export CC="${COMPILER_DIR}/bin/clang"
     export CXX="${COMPILER_DIR}/bin/clang++"
-fi
 
-# compiler flags (test scripts will append C/C++ standard flags)
-if [ "$bldtype" == "dbg" ]; then
-    export CFLAGS="-g -O0"
-    export CXXFLAGS="-g -O0"
-    export FFLAGS="-g -O0"
-    export CUDAFLAGS="-g -O0"
-else
-    export CFLAGS="-g -O3"
-    export CXXFLAGS="-g -O3"
-    export FFLAGS="-g -O3"
-    export CUDAFLAGS="-g -O3"
-fi
+    # optimization flags
+    if [ "$bldtype" == "dbg" ]; then
+        export CFLAGS="-g -O0"
+        export CXXFLAGS="-g -O0"
+        export CUDAFLAGS="-g -O0"
+    else
+        export CFLAGS="-g -O3"
+        export CXXFLAGS="-g -O3"
+        export CUDAFLAGS="-g -O3"
+    fi
 
-# append additional compiler flags
-export CFLAGS="${CFLAGS} -Wall -Wpedantic -Werror"
-export CXXFLAGS="${CXXFLAGS} -Wall -Wpedantic -Werror"
-export FFLAGS="${FFLAGS} -Wall -Wpedantic -ffpe-summary=none"
-
-if [[ "$realtype" == "double" && "$indexsize" == "32" ]]; then
-    export CFLAGS="${CFLAGS} -Wconversion -Wno-sign-conversion"
-    export CXXFLAGS="${CXXFLAGS} -Wconversion -Wno-sign-conversion"
+    # append warning flags
+    export CFLAGS="${CFLAGS} -Wall -Wpedantic -Werror"
+    export CXXFLAGS="${CXXFLAGS} -Wall -Wpedantic -Werror"
 fi
 
 # ------------------------------------------------------------------------------
