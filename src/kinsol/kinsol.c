@@ -256,7 +256,7 @@ void *KINCreate(void)
   kin_mem->kin_df_aa            = NULL;
   kin_mem->kin_dg_aa            = NULL;
   kin_mem->kin_q_aa             = NULL;
-  kin_mem->kin_L_aa             = NULL;
+  kin_mem->kin_T_aa             = NULL;
   kin_mem->kin_gamma_aa         = NULL;
   kin_mem->kin_R_aa             = NULL;
   kin_mem->kin_ipt_map          = NULL;
@@ -1031,9 +1031,10 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         kin_mem->kin_lrw += kin_mem->kin_lrw1;
       }
 
-      if (kin_mem->kin_L_aa == NULL) {
-        kin_mem->kin_L_aa = N_VCloneVectorArray((int) kin_mem->kin_m_aa,tmpl);
-        if (kin_mem->kin_L_aa == NULL) {
+      if (kin_mem->kin_T_aa == NULL) {
+        kin_mem->kin_T_aa = (realtype *) malloc(((kin_mem->kin_m_aa*kin_mem->kin_m_aa)/2) * sizeof(realtype));
+        if (kin_mem->kin_T_aa == NULL) {
+          KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
           N_VDestroy(kin_mem->kin_unew);
           N_VDestroy(kin_mem->kin_fval);
           N_VDestroy(kin_mem->kin_pp);
@@ -1048,12 +1049,10 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
           N_VDestroy(kin_mem->kin_gold_aa);
           N_VDestroyVectorArray(kin_mem->kin_df_aa, (int) kin_mem->kin_m_aa);
           N_VDestroyVectorArray(kin_mem->kin_dg_aa, (int) kin_mem->kin_m_aa);
-          kin_mem->kin_liw -= (7 + 2 * kin_mem->kin_m_aa) * kin_mem->kin_liw1;
-          kin_mem->kin_lrw -= (7 + 2 * kin_mem->kin_m_aa) * kin_mem->kin_lrw1;
-          return(SUNFALSE);
+          kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
+          kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
+          return(KIN_MEM_FAIL);
         }
-        kin_mem->kin_liw += kin_mem->kin_m_aa * kin_mem->kin_liw1;
-        kin_mem->kin_lrw += kin_mem->kin_m_aa * kin_mem->kin_lrw1;
       }
     }
   
@@ -1284,11 +1283,9 @@ static void KINFreeVectors(KINMem kin_mem)
     kin_mem->kin_liw -= kin_mem->kin_m_aa * kin_mem->kin_liw1;
   }
   
-  if (kin_mem->kin_L_aa != NULL) {
-    N_VDestroyVectorArray(kin_mem->kin_L_aa, (int) kin_mem->kin_m_aa);
-    kin_mem->kin_L_aa = NULL;
-    kin_mem->kin_lrw -= kin_mem->kin_m_aa * kin_mem->kin_lrw1;
-    kin_mem->kin_liw -= kin_mem->kin_m_aa * kin_mem->kin_liw1;
+  if (kin_mem->kin_T_aa != NULL) {
+    free(kin_mem->kin_T_aa);
+    kin_mem->kin_T_aa = NULL;
   }
 
   if (kin_mem->kin_constraints != NULL) {
@@ -2913,7 +2910,7 @@ static int AndersonAccLowSync_icwy(KINMem kin_mem, N_Vector gval, N_Vector fv,
                                    long int iter, realtype *R, realtype *gamma)
 {
   int retval;
-  long int i_pt, i, j, lAA, vsize;
+  long int i_pt, i, j, lAA, vsize, k, t_offset;
   long int *ipt_map;
   realtype alfa;
   realtype onembeta;
@@ -2953,32 +2950,55 @@ static int AndersonAccLowSync_icwy(KINMem kin_mem, N_Vector gval, N_Vector fv,
     alfa = ONE/R[0];
     N_VScale(alfa, kin_mem->kin_df_aa[i_pt], kin_mem->kin_q_aa[i_pt]);
     ipt_map[0] = 0;
+    kin_mem->kin_T_aa[0] = 1.0;
 
   } else if (iter <= kin_mem->kin_m_aa) {
 
     /* another iteration before we've reached maa */
-    /* -- QRAdd with MGS - to be replaced with ICWY MGS -- */
+    /* -- QRAdd with ICWY MGS -- */
+    /* T matrix is stored in row-wise order with each row having an additional
+     *   value because it is lower triangular */
     sdata = N_VGetArrayPointer(kin_mem->kin_vtemp3);
     vsize = N_VGetLength(kin_mem->kin_df_aa[i_pt]);
     N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2); /* stores d_fi in vtemp2 */
 
-    /* NEED TO DOUBLE CHECK THAT THIS INDEXING IS CORRECT */
-    /* L(:,k-1)^T = Q_k-1^T Q(:,k-1) */
-    ldata = N_VGetArrayPointer(kin_mem->kin_L_aa[iter-1]);
-    N_VDotProdMulti(iter-1, kin_mem->kin_q_aa[iter-1], kin_mem->kin_q_aa, ldata);
+    t_offset = (iter-2)*(iter-1)/2;
+    if (iter-2 > 0) {
+      /* T(k-1,1:k-1) = Q(:,1:k-1)^T * Q(:,k-1) */
+      N_VDotProdMulti(iter-1, kin_mem->kin_q_aa[iter-2], kin_mem->kin_q_aa, kin_mem->kin_T_aa + t_offset);
+    }
+    /* T(k-1,k-1) = 1.0 */
+    kin_mem->kin_T_aa[t_offset+(iter-2)] = 1.0; /* I think adding iter-2 is correct to get to diagonal */
 
-    /* R(1:k-1,k) = Q_k-1^T df */
+    /* R(1:k-1,k) = Q_k-1^T * df */
     N_VDotProdMulti(iter-1, kin_mem->kin_vtemp2, kin_mem->kin_q_aa, R + (iter-1)*kin_mem->kin_m_aa );
 
-    /* R(k-1,k-1) = \| Q(:,k-1) \|*/
-    R[(iter-2)*kin_mem->kin_m_aa+iter-2] = SUNRsqrt(N_VDotProd(kin_mem->kin_q_aa[iter-2], kin_mem->kin_q_aa[iter-2]));
-
-    for (j=0; j < (iter-1); j++) {
-      ipt_map[j] = j; /* array keeping track of m_aa_i */
-      R[(iter-1)*kin_mem->kin_m_aa+j] = N_VDotProd(kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);
-      N_VLinearSum(ONE,kin_mem->kin_vtemp2, -R[(iter-1)*kin_mem->kin_m_aa+j], kin_mem->kin_q_aa[j], kin_mem->kin_vtemp2);
+    /* Solve T * R(1:k-1,k) = R(1:k-1,k) */
+    for (k = 0; k < (iter-1); k++) {
+      t_offset = k*(k+1)/2;
+      R[(iter-1)*kin_mem->kin_m_aa+k] = R[(iter-1)*kin_mem->kin_m_aa+k] / kin_mem->kin_T_aa[t_offset + k];
+      ipt_map[k] = k; /* array keeping track of m_aa_i  - update while I'm here */
+      for (j = 0; j < (iter-1); j++) {
+        t_offset = j*(j+1)/2;
+        R[(iter-1)*kin_mem->kin_m_aa+j] -= R[(iter-1)*kin_mem->kin_m_aa+k] * kin_mem->kin_T_aa[t_offset + k];
+      }
     }
+    /*************************************/
+
+    /* Q(:,k) = df - Q_k-1 R(1:k-1,k) */
+    sdata = N_VGetArrayPointer(kin_mem->kin_vtemp3); /* reusing sdata array for matvec */ 
+    for (k = 0; k < vsize; k++) {
+      sdata[k] = ZERO;
+      for (j = 0; j < (iter-1); j++) {
+        qdata = N_VGetArrayPointer(kin_mem->kin_q_aa[j]);
+        sdata[k] += qdata[k] * R[(iter-1)*kin_mem->kin_m_aa+j]; 
+      }
+    }
+    N_VLinearSum(ONE, kin_mem->kin_vtemp2, -ONE, kin_mem->kin_vtemp3, kin_mem->kin_q_aa[iter-1]);
+    
+    /* R(k,k) = \| df \| */
     R[(iter-1)*kin_mem->kin_m_aa+iter-1] = SUNRsqrt(N_VDotProd(kin_mem->kin_vtemp2, kin_mem->kin_vtemp2));
+    /* Q(:,k) = df / \| df \| */
     N_VScale((1/R[(iter-1)*kin_mem->kin_m_aa+iter-1]), kin_mem->kin_vtemp2, kin_mem->kin_q_aa[i_pt]);
     /* -- end kernel -- */
     ipt_map[iter-1] = iter-1;

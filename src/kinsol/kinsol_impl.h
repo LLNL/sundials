@@ -159,11 +159,11 @@ typedef struct KINMemRec {
   N_Vector *kin_df_aa;      /* vector array needed for AA, Broyden, and NLEN */
   N_Vector *kin_dg_aa;      /* vector array needed for AA, Broyden and NLEN */
   N_Vector *kin_q_aa;       /* vector array needed for AA */
-  N_Vector *kin_L_aa;       /* vector array needed for Low Sync AA */
   realtype kin_beta_aa;     /* beta damping parameter for AA */
   realtype *kin_gamma_aa;   /* array of size maa used in AA */
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
-  long int *kin_ipt_map;    /* array of size maa used in AA */
+  realtype *kin_T_aa;       /* array of size maa*maa used in AA */
+  long int *kin_ipt_map;    /* array of size maa*maa/2 used in Low Sync AA */
   long int  kin_m_aa;       /* parameter for AA, Broyden or NLEN */
   sunindextype kin_orth_aa; /* parameter for AA determining orthogonalization routine
                                0 - Modified Gram Schmit (standard)
