@@ -196,7 +196,10 @@ int main(int argc, char** argv)
   /* optional: create a cudaStream to use with the CUDA NVector
      (otherwise the default stream is used) */
   cuerr = cudaStreamCreate(&stream);
-  if(cuerr != cudaSuccess) { printf("Error: cudaStreamCreate() failed\n"); return(1); }
+  if (cuerr != cudaSuccess) {
+    printf("Error in cudaStreamCreate(): %s\n", cudaGetErrorString(cuerr));
+    return(1); 
+  }
 
   /* Set model parameters */
   data = SetUserData(argc, argv);
