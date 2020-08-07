@@ -46,10 +46,36 @@
 /doc/*/*.log
 
 # directories created by ARKode's Sphinx documentation system
-/doc/arkode/SphinxDocs/extra_packages/sphinx-bootstrap-theme
-/doc/arkode/SphinxDocs/extra_packages/sphinx-fortran
-/doc/arkode/SphinxDocs/guide/build
-/doc/arkode/SphinxDocs/examples/build
+/doc/arkode/extra_packages/sphinx-bootstrap-theme
+/doc/arkode/extra_packages/sphinx-fortran
+
+/doc/arkode/guide/build/*
+!/doc/arkode/guide/build/latex
+/doc/arkode/guide/build/latex/*
+!/doc/arkode/guide/build/latex/ark_guide.tex
+!/doc/arkode/guide/build/latex/fncychap.sty
+!/doc/arkode/guide/build/latex/footnotehyper-sphinx.sty
+!/doc/arkode/guide/build/latex/python.ist
+!/doc/arkode/guide/build/latex/sphinx.sty
+!/doc/arkode/guide/build/latex/sphinxhighlight.sty
+!/doc/arkode/guide/build/latex/sphinxhowto.cls
+!/doc/arkode/guide/build/latex/sphinxmanual.cls
+!/doc/arkode/guide/build/latex/sphinxmulticell.sty
+!/doc/arkode/guide/build/latex/tabulary.sty
+
+/doc/arkode/examples/build/*
+!/doc/arkode/examples/build/latex
+/doc/arkode/examples/build/latex/*
+!/doc/arkode/examples/build/latex/ark_examples.tex
+!/doc/arkode/examples/build/latex/fncychap.sty
+!/doc/arkode/examples/build/latex/footnotehyper-sphinx.sty
+!/doc/arkode/examples/build/latex/python.ist
+!/doc/arkode/examples/build/latex/sphinx.sty
+!/doc/arkode/examples/build/latex/sphinxhighlight.sty
+!/doc/arkode/examples/build/latex/sphinxhowto.cls
+!/doc/arkode/examples/build/latex/sphinxmanual.cls
+!/doc/arkode/examples/build/latex/sphinxmulticell.sty
+!/doc/arkode/examples/build/latex/tabulary.sty
 
 # developer guide build directory
 /doc/sundials_developers/build

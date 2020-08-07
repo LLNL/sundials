@@ -334,18 +334,18 @@ ${kin_ver}' \\\\'$'\n' ../doc/sundials/sundials_release_history.tex
 # ------------------------------------------------------------------------------
 
 # user guide
-fn="../doc/arkode/SphinxDocs/guide/source/conf.py"
-sedi "s/version =.*/version = \'${ark_ver}\'/" $fn
-sedi "s/release =.*/release = \'${ark_ver}\'/" $fn
+fn="../doc/arkode/guide/source/conf.py"
+sedi "s/version =.*/version = \'v${ark_ver}\'/" $fn
+sedi "s/sun_version =.*/sun_version = \'v${sun_ver}\'/" $fn
 
-fn="../doc/arkode/SphinxDocs/guide/source/References.rst"
+fn="../doc/arkode/guide/source/References.rst"
 sedi "/UCRL-SM-208108/ s/.*/            v${cv_ver}. Technical Report UCRL-SM-208108, LLNL, ${year}./" $fn
 sedi "/Programs for CVODE/ s/.*/             Programs for CVODE v${cv_ver}. Technical Report/" $fn
 sedi "/UCRL-SM-208110/ s/.*/             UCRL-SM-208110, LLNL, ${year}./" $fn
 sedi "/Computation,/ s/.*/           Computation, ${year}./" $fn
 
 # insert new release history row after line 25
-fn="../doc/arkode/SphinxDocs/guide/source/History.rst"
+fn="../doc/arkode/guide/source/History.rst"
 if [ "${sun_label}" == "" ]; then
 sedi '25 a\
 '${month}' '${year}'  '\
@@ -369,19 +369,11 @@ ${kin_ver}$'\n' $fn
 fi
 
 # example doc
-fn="../doc/arkode/SphinxDocs/examples/source/conf.py"
-sedi "s/version =.*/version = \'${ark_ver}\'/" $fn
-sedi "s/release =.*/release = \'${ark_ver}\'/" $fn
+fn="../doc/arkode/examples/source/conf.py"
+sedi "s/version =.*/version = \'v${ark_ver}\'/" $fn
+sedi "s/release =.*/sun_version = \'v${ark_ver}\'/" $fn
 
-fn="../doc/arkode/SphinxDocs/examples/source/References.rst"
+fn="../doc/arkode/examples/source/References.rst"
 sedi "/Programs for CVODE/ s/.*/             Programs for CVODE v${cv_ver}. Technical Report/" $fn
 sedi "/UCRL-SM-208110/ s/.*/             UCRL-SM-208110, LLNL, ${year}./" $fn
 sedi "/LLNL-CODE-667205/ s/.*/           v${ark_ver}. Technical Report LLNL-CODE-667205, LLNL, ${year}./" $fn
-
-# user guide (latex)
-fn="../doc/arkode/ARKode.tex"
-sedi "s/User Documentation for ARKode v.*/User Documentation for ARKode v${ark_ver} (SUNDIALS v${sun_ver})\}/" $fn
-
-# example doc (latex)
-fn="../doc/arkode/ARKode_example.tex"
-sedi "s/release{.*}/release{${ark_ver}}/" $fn
