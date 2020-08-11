@@ -35,9 +35,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "kinsol/kinsol.h"               /* access to KINSOL func., consts. */
-#include "nvector/nvector_serial.h"      /* access to serial N_Vector       */
-#include "sunmatrix/sunmatrix_sparse.h"  /* access to Sparse SunMatrix      */
+#include "kinsol/kinsol.h"               /* access to KINSOL func., consts.   */
+#include "nvector/nvector_serial.h"      /* access to serial N_Vector         */
+#include "sunmatrix/sunmatrix_band.h"    /* access to banded SUNMatrix        */
+#include "sunlinsol/sunlinsol_band.h"    /* access to banded SUNMatrix solver */
+#include "sundials/sundials_math.h"      /* access to SUNRSqrt function       */
 
 /* precision specific formatting macros */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -74,26 +76,30 @@
 #define ONE          RCONST(1.0)             /* real 1.0   */
 #define NEGONE       RCONST(-1.0)            /* real -1.0  */
 
+#define TRUE         RCONST(26.651793729865151050262284) /* Norm of true solution */ 
+
 /* UserData */ 
 typedef struct {
-  SUNMatrix A;
-  SUNMatrix L;
-  SUNMatrix R;
+  SUNMatrix subA;
   N_Vector v;
   N_Vector accum;
+  N_Vector temp;
 } *UserData;
 
 /* Linear Convection-Diffusion fixed point function */
 static int FPFunction(N_Vector u, N_Vector f, void *user_data);
 
-/* Function to return the 2D Convection Diffusion Matrix */
-static int ConvectionDiffusionMatrix2D(SUNMatrix Q);
+/* Function to calculate the residual for the current iterations guess u */
+static int ConvectionDiffusionResidual2D(N_Vector v, N_Vector u);
 
-/* Function to return the matrix for overlapping regions in RAS */
-static int OverlappingRestrictionMatrix2D(SUNMatrix Q);
+/* Function to apply the matrix for overlapping regions in RAS */
+static int OverlappingRestrictionMatrix2D(N_Vector v, N_Vector temp, int i, int j, int *subX, int *subY);
 
-/* Function to return the matrix for nonoverlapping regions in RAS*/
-static int NonOverlappingRestrictionMatrix2D(SUNMatrix Q);
+/* Function to apply the matrix for nonoverlapping regions in RAS*/
+static int NonOverlappingRestrictionMatrix2D(N_Vector temp, N_Vector out, int i, int j);
+
+/* Function to setup the subdomain system for overlapping regions in RAS*/
+static int SubDomain2D(SUNMatrix subA, int bandwidth);
 
 /* Check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -109,7 +115,7 @@ int main(int argc, char *argv[])
   int       retval  = 0;
   N_Vector  u       = NULL;
   N_Vector  scale   = NULL;
-  realtype  tol     = 100 * SQRT(UNIT_ROUNDOFF);
+  realtype  tol     = SQRT(UNIT_ROUNDOFF);
   long int  mxiter  = 75;
   long int  maa     = 0;           /* no acceleration          */
   realtype  damping = RCONST(1.0); /* no damping               */
@@ -117,7 +123,7 @@ int main(int argc, char *argv[])
   long int  nni, nfe;
   realtype* data;
   void*     kmem;
-  UserData  udata;                 /* contain matrices for function evals */ 
+  //UserData  udata;                 /* contain matrices for function evals */ 
 
   /* Check if a acceleration/damping/orthogonaliztion values were provided */
   if (argc > 1) maa     = (long int) atoi(argv[1]);
@@ -142,20 +148,16 @@ int main(int argc, char *argv[])
   /* ---------------------------------------------------------------------------
    * Allocate user data -- containing matrices required for function evaluations 
    * --------------------------------------------------------------------------- */
-  udata = (UserData)malloc(sizeof *udata);
+  /*udata = NULL;
+  udata = (UserData)malloc(sizeof *udata);*/
 
   /* create 2d convection diffusion matrix here */
   /* allocate space for v and accum here */
-  udata->v     = N_VNew_Serial(N*N);
+  /*udata->v     = N_VNew_Serial(N*N);
   if (check_retval((void *)udata->v, "N_VNew_Serial", 0)) return(1);
 
   udata->accum = N_VNew_Serial(N*N);
-  if (check_retval((void *)udata->accum, "N_VNew_Serial", 0)) return(1);
-  
-  /* allocate space for A, and all L and R matrices, used in problems domain decomposition */
-  printf("Before convection diffusion matrix created\n");
-  ConvectionDiffusionMatrix2D(udata->A);
-  printf("After convection diffusion matrix created\n");
+  if (check_retval((void *)udata->accum, "N_VNew_Serial", 0)) return(1);*/
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -173,12 +175,18 @@ int main(int argc, char *argv[])
 
   kmem = KINCreate();
   if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  
+  /* Set userdata to be used in function evaluation */
+  /*retval = KINSetUserData(kmem, data);
+  if (check_retval(&retval, "KINSetUserData", 1)) return(1);*/
 
   /* Set number of prior residuals used in Anderson acceleration */
   retval = KINSetMAA(kmem, maa);
+  if (check_retval(&retval, "KINSetMAA", 1)) return(1);
   
   /* Set orthogonalization routine used in Anderson acceleration */
   retval = KINSetOrthAA(kmem, orth);
+  if (check_retval(&retval, "KINSetOrthAA", 1)) return(1);
 
   /* Initialize FixedPoint Iteration as the function we're using */
   retval = KINInit(kmem, FPFunction, u);
@@ -253,7 +261,7 @@ int main(int argc, char *argv[])
   N_VDestroy(u);
   N_VDestroy(scale);
   KINFree(&kmem);
-  free(udata);
+  /*free(udata);*/
 
   return(retval);
 }
@@ -272,243 +280,135 @@ int main(int argc, char *argv[])
  * ---------------------------------------------------------------------------*/
 int FPFunction(N_Vector u, N_Vector g, void* user_data)
 {
-  SUNMatrix subA, A, R, L;
-  N_Vector  v, accum, temp; 
+  SUNMatrix subA;
+  SUNLinearSolver LS;
+  N_Vector  v, accum, temp, temp2; 
   UserData udata;
-  int i, j;
-  
-  /* Need to setup size of subA and temp */
+  int i, j, k, retval, subX, subY;
+  realtype* vdata;
  
   /* Grab matrices and vectors from user_data */ 
-  /*udata = (UserData)user_data;
-  A = udata->A;
-  R = udata->R;
-  L = udata->L;
-  v = udata->v;
+  /*udata = (UserData)user_data;*/
+  /*v     = udata->v;
+  printf("after grabbing v\n");
   accum = udata->accum;*/
+  v     = N_VNew_Serial(N*N);
+  if (check_retval((void *)v, "N_VNew_Serial", 0)) return(1);
+  accum = N_VNew_Serial(N*N);
+  if (check_retval((void *)accum, "N_VNew_Serial", 0)) return(1);
 
-  /* v = A * u */ 
-  /*SUNMatMatvec(A, u, v);*/
-
-  /* v = f - v */
+  /* v = f - A * u */
+  retval = ConvectionDiffusionResidual2D(v, u);
+  if (check_retval(&retval, "ConvectionDiffusionResidual2D", 1)) return(1);
+  if (check_retval((void *)v, "v NULL", 0)) return(1);
+  /*vdata = N_VGetArrayPointer(v);
+  for (i = 10; i < 15; i++) printf("v[%d] %e\n", i, vdata[i]);*/
+  printf("v norm %e\n", SUNRsqrt(N_VDotProd(v, v)));
 
   /* accum = 0 */
-  /*N_VConst(ZERO, accum);*/
+  N_VConst(ZERO, accum);
 
   for (i = 0; i < NUMREGIONS; i++)
   {
     for (j = 0; j < NUMREGIONS; j++)
     {
       /* setup R = OverlappingRestrictionMatrix2D */
-      /* setup L = NonOverlappingRestrictionMatrix2D */
-      /* subA = R * A * R^T */
-      /* temp = R * v */
+      /* temp = R*v */
+      temp  = N_VNew_Serial(N);
+      if (check_retval((void *)temp, "N_VNew_Serial", 0)) return(1);
+      retval = OverlappingRestrictionMatrix2D(v, temp, i, j, &subX, &subY);
+      if (check_retval(&retval, "OverlappingRestrictionMatrix2D", 1)) return(1);
+      if (check_retval((void *)temp, "temp NULL", 0)) return(1);
+
+      /* setup subA = R * A * R^T */
+      k = N_VGetLength_Serial(temp);
+      subA = SUNBandMatrix(k, subX, subX);
+      retval = SubDomain2D(subA, subX);
+      if (check_retval(&retval, "SubDomain2D", 1)) return(1);
+
       /* solve subA * temp = temp (overwrite old temp) */
-      /* temp = L^T * temp */
+      LS = SUNLinSol_Band(temp, subA);
+      retval = SUNLinSolInitialize(LS);
+      check_retval(&retval, "SUNLinSolInitialize", 1);
+      retval = SUNLinSolSetup(LS, subA);
+      check_retval(&retval, "SUNLinSolSetup", 1);
+      retval = SUNLinSolSolve(LS, subA, temp, temp, UNIT_ROUNDOFF);
+      check_retval(&retval, "SUNLinSolSolve", 1);
+      printf("temp norm %e\n", SUNRsqrt(N_VDotProd(temp, temp)));
+
+      /* setup L^T = NonOverlappingRestrictionMatrix2D */
+      /* temp2 = L^T * temp */
+      temp2  = N_VNew_Serial(N*N);
+      if (check_retval((void *)temp2, "N_VNew_Serial", 0)) return(1);
+      retval = NonOverlappingRestrictionMatrix2D(temp, temp2, i, j);
+      if (check_retval(&retval, "NonOverlappingRestrictionMatrix2D", 1)) return(1);
+      if (check_retval((void *)temp2, "temp2 NULL", 0)) return(1);
+
       /* accum = accum + temp */
-      continue; /* just for now */ 
+      N_VLinearSum(ONE, accum, ONE, temp2, accum);
+
+      N_VDestroy(temp); /* Destroying and reallocating for each subdomain
+                           -- inefficient, but it's serial */
+      //N_VDestroy(temp2);
+      SUNMatDestroy(subA); /* For now while we're not allocating them beforehand 
+                              -- destroy and recreate after each iteration */
+      SUNLinSolFree(LS);   /* Need to create new Linear Solver object next iteration
+                              -- with new subA */ 
     }  
   }
-  /* v = u + accum */
-  /* copy v into u and return */
+  /* u = u + accum (overwrite old u) */
+  /*printf("accum norm %e\n", SUNRsqrt(N_VDotProd(accum, accum)));*/
+  N_VLinearSum(ONE, accum, ONE, u, u);
 
   return(0);
 }
 
 /* -----------------------------------------------------------------------------
- * Function to return the 2D Convection Diffusion Matrix to be used in
- * the fixed point function call
+ * Function to calculate the residual for the current iterate u 
  * ---------------------------------------------------------------------------*/
-int ConvectionDiffusionMatrix2D(SUNMatrix Q)
+int ConvectionDiffusionResidual2D(N_Vector v, N_Vector u)
 {
-  SUNMatrix I, Laplacian, CenteredDiff;
-  realtype  h, h2, h2_inv;
-  realtype  *colj, *matdata;
-  sunindextype *rowptrs, *colindices;
-  int       i, j, nnz, nnz_ctr, fail;
-
-  /* Scaled Identity matrix */
-  nnz = N*N;
-  I = SUNSparseMatrix(N*N, N*N, nnz, CSR_MAT);
-  rowptrs = SUNSparseMatrix_IndexPointers(I);
-  rowptrs[0] = 0; /* first row starts at index 0 */
-  colindices = SUNSparseMatrix_IndexValues(I);
-  matdata = SUNSparseMatrix_Data(I);
-  for (j = 0; j < N*N; j++)
-  {    
-    matdata[i] = C;
-    colindices[i] = i;
-    rowptrs[i+1] = rowptrs[i] + 1;
-  }
-
-  /* Laplacian Matrix */
-  h = ONE / (N + 1);
-  h2_inv = ONE / (h*h);
+  realtype *vdata, *uvals;
+  realtype h, h2_inv, hhalf_inv, a, b, c, d, e;
+  int i;
   
-  nnz = 81408;
-  //nnz = 460;
-  Laplacian = SUNSparseMatrix(N*N, N*N, nnz, CSR_MAT);
-  rowptrs = SUNSparseMatrix_IndexPointers(Laplacian);
-  rowptrs[0] = 0; /* first row starts at index 0 */
-  colindices = SUNSparseMatrix_IndexValues(Laplacian);
-  matdata = SUNSparseMatrix_Data(Laplacian);
-  for (i = 0; i < N*N; i++)
-  {
-    nnz_ctr = rowptrs[i];
-    if (i == 0)
-    {
-      /* FIRST ROW OF MATRIX */
-      /* vals = h2_inv * [-4, 1, 1] */
-      /* cols = [i, i+1, i+N] */
-      matdata[nnz_ctr] = -4; matdata[nnz_ctr+1] = 1; matdata[nnz_ctr+2] = 1;
-      colindices[nnz_ctr] = i; colindices[nnz_ctr+1] = i+1; colindices[nnz_ctr+2] = i+N;
-      rowptrs[i+1] = rowptrs[i] + 3;
-    }
-    else if (i == N*N-1)
-    {
-      /* LAST ROW OF MATRIX */
-      /* vals = h2_inv * [1, 1, -4] */
-      /* cols = [i-N, i-1, i] */
-      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = 1; matdata[nnz_ctr+2] = -4;
-      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i;
-      rowptrs[i+1] = rowptrs[i] + 3;
-    }
-    else if ((i+1) % N == 0)
-    {
-      /* vals = h2_inv * [1, 1, -4, 1] */
-      /* cols = [i-N, i-1, i, i+N] */
-      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = 1; matdata[nnz_ctr+2] = -4; matdata[nnz_ctr+3] = 1;
-      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i; colindices[nnz_ctr+3] = i+N;
-      rowptrs[i+1] = rowptrs[i] + 4;
-    }
-    else if (i % N == 0)
-    {
-      /* vals = h2_inv * [1, -4, 1, 1] */
-      /* cols = [i-N, i, i+1, i+N] */
-      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = -4; matdata[nnz_ctr+2] = 1; matdata[nnz_ctr+3] = 1;
-      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i; colindices[nnz_ctr+2] = i+1; colindices[nnz_ctr+3] = i+N;
-      rowptrs[i+1] = rowptrs[i] + 4;
-    }
-    else if (i < N)
-    {
-      /* vals = h2_inv * [1, -4, 1, 1] */
-      /* cols = [i-1, i, i+1, i+N] */
-      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = -4; matdata[nnz_ctr+2] = 1; matdata[nnz_ctr+3] = 1;
-      colindices[nnz_ctr] = i-1; colindices[nnz_ctr+1] = i; colindices[nnz_ctr+2] = i+1; colindices[nnz_ctr+3] = i+N;
-      rowptrs[i+1] = rowptrs[i] + 4;
-    }
-    else if ((i+N) > (N*N-1)) 
-    {
-      /* vals = h2_inv * [1, 1, -4, 1] */
-      /* cols = [i-N, i-1, i, i+1] */
-      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = 1; matdata[nnz_ctr+2] = -4; matdata[nnz_ctr+3] = 1;
-      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i; colindices[nnz_ctr+3] = i+1;
-      rowptrs[i+1] = rowptrs[i] + 4;
-    }
-    else 
-    {
-      /* vals = h2_inv * [1, 1, -4, 1, 1] */
-      /* cols = [i-N, i-1, i, i+1, i+N] */
-      matdata[nnz_ctr] = 1; matdata[nnz_ctr+1] = 1; matdata[nnz_ctr+2] = -4; matdata[nnz_ctr+3] = 1;
-        matdata[nnz_ctr+4] = 1;
-      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i; colindices[nnz_ctr+3] = i+1;
-        colindices[nnz_ctr+4] = i + N;
-      rowptrs[i+1] = rowptrs[i] + 5;
-    }
-  }
-  
-  /* Centered Difference Matrix */
-  h2 = ONE / (2*h);
+  /* Define some constants */
+  h = 1.0 / (N+1);
+  h2_inv    = 1.0 / (h*h); /* 1/h^2 */
+  hhalf_inv = 1.0 / (2*h);  /* 1/(2*h) */
+  a = h2_inv * -4.0 + C;
+  b = h2_inv + D * hhalf_inv;
+  c = h2_inv + D * hhalf_inv;
+  d = h2_inv + D * hhalf_inv;
+  e = h2_inv + D * hhalf_inv;
 
-  nnz = 65024;
-  //nnz = 360;
-  CenteredDiff = SUNSparseMatrix(N*N, N*N, nnz, CSR_MAT);
-  rowptrs = SUNSparseMatrix_IndexPointers(CenteredDiff);
-  rowptrs[0] = 0; /* first row starts at index 0 */
-  colindices = SUNSparseMatrix_IndexValues(CenteredDiff);
-  matdata = SUNSparseMatrix_Data(CenteredDiff);
-  for (i = 0; i < N*N; i++)
-  {
-    nnz_ctr = rowptrs[i];
-    if (i == 0)
-    {
-        /* FIRST ROW OF MATRIX */
-        /* vals = h2 * [-1, -1] */
-        /* cols = [i+1, i+N] */
-        matdata[nnz_ctr] = NEGONE*h2; matdata[nnz_ctr+1] = NEGONE*h2;
-        colindices[nnz_ctr] = i+1; colindices[nnz_ctr+1] = i+N;
-        rowptrs[i+1] = rowptrs[i] + 2;
-    }
-    else if (i == N*N-1)
-    {
-      /* LAST ROW OF MATRIX */
-      /* vals = h2 * [1, 1] */
-      /* cols = [i-N, i-1] */
-      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = ONE*h2;
-      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1;
-      rowptrs[i+1] = rowptrs[i] + 2;
-    }
-    else if ((i+1) % N == 0)
-    {
-      /* vals = h2 * [1, 1, -1] */
-      /* cols = [i-N, i-1, i+N] */
-      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = ONE*h2; matdata[nnz_ctr+2] = NEGONE*h2;
-      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i+N;
-      rowptrs[i+1] = rowptrs[i] + 3;
-    }
-    else if (i % N == 0)
-    {
-      /* vals = h2 * [1, -1, -1] */
-      /* cols = [i-N, i+1, i+N] */
-      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = NEGONE*h2; matdata[nnz_ctr+2] = NEGONE*h2;
-      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i+1; colindices[nnz_ctr+2] = i+N;
-      rowptrs[i+1] = rowptrs[i] + 3;
-    }
-    else if (i < N)
-    {
-      /* vals = h2 * [1, -1, -1] */
-      /* cols = [i-1, i+1, i+N] */
-      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = NEGONE*h2; matdata[nnz_ctr+2] = NEGONE*h2;
-      colindices[nnz_ctr] = i-1; colindices[nnz_ctr+1] = i+1; colindices[nnz_ctr+2] = i+N;
-      rowptrs[i+1] = rowptrs[i] + 3;
-    }
-    else if ((i+N) > (N*N-1)) 
-    {
-      /* vals = h2 * [1, 1, -1] */
-      /* cols = [i-N, i-1, i+1] */
-      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = ONE*h2; matdata[nnz_ctr+2] = NEGONE*h2;
-      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i+1;
-      rowptrs[i+1] = rowptrs[i] + 3;
-    }
-    else 
-    {
-      /* vals = h2 * [1, 1, -1, -1] */
-      /* cols = [i-N, i-1, i+1, i+N] */
-      matdata[nnz_ctr] = ONE*h2; matdata[nnz_ctr+1] = ONE*h2; matdata[nnz_ctr+2] = NEGONE*h2; matdata[nnz_ctr+3] = NEGONE*h2;
-      colindices[nnz_ctr] = i-N; colindices[nnz_ctr+1] = i-1; colindices[nnz_ctr+2] = i+1; colindices[nnz_ctr+3] = i+N;
-      rowptrs[i+1] = rowptrs[i] + 4;
-    }
-  }
-  
-  /* Q = h2_inv * Laplacian + C * I + h2 * CenteredDiff */
-  Q = SUNMatClone(Laplacian);
-  SUNMatCopy(Laplacian, Q);             /* Q = Laplacian */
-  /* CORRECT UP TO HERE */
-  fail = SUNMatScaleAdd(h2_inv, Q, I);         /* Q = h2_inv * Laplacian + C * I */
-  if (fail) {
-    printf(">>> FAILED -- SUNMatScaleAdd returned %d \n", fail);
-    SUNMatDestroy(Q); return(1);
-  }
-  //fail = SUNMatScaleAdd(ONE, Q, CenteredDiff); /* Q = h2_inv * Laplacian + C * I  + h2 * CenteredDiff*/
-  /*if (fail) {
-    printf(">>> FAILED -- SUNMatScaleAdd returned %d \n", fail);
-    SUNMatDestroy(Q); return(1);
-  }*/
+  /* v = f - A * u */
+  vdata = N_VGetArrayPointer(v);
+  uvals = N_VGetArrayPointer(u);
 
-  /* Clean up matrices */
-  SUNMatDestroy(Laplacian);
-  SUNMatDestroy(CenteredDiff);
-  SUNMatDestroy(I);
+  for (i=0; i<N*N; i++) {
+    vdata[i] = -10;
+
+    if (i == 0) {
+      vdata[i] -= (a*uvals[i] + c*uvals[i+1] + e*uvals[i+N]);
+    }
+    else if (i == 1) {
+      vdata[i] -= (a*uvals[i] + b*uvals[i-1] + c*uvals[i+1] + e*uvals[i+N]);
+    }
+    else if (i == (N*N-1)) {
+      vdata[i] -= (a*uvals[i] + b*uvals[i-1] + c*uvals[i+1] + d*uvals[i-N]);
+    }
+    else if (i == (N*N-2)) {
+      vdata[i] -= (a*uvals[i] + b*uvals[i-1] + d*uvals[i-N]);
+    }
+    else {
+      vdata[i] -= a * uvals[i];
+      if ((i%N) != 0)     vdata[i] -= b * uvals[i-1];
+      if (((i+1)%N) != 0) vdata[i] -= c * uvals[i+1];
+      if ((i-N) > 0)      vdata[i] -= d * uvals[i-N];
+      if ((i+N) < (N*N))  vdata[i] -= e * uvals[i+N];
+    }
+  }
 
   return(0);
 }
@@ -516,18 +416,155 @@ int ConvectionDiffusionMatrix2D(SUNMatrix Q)
 /* -----------------------------------------------------------------------------
  * Function to return the matrix for overlapping regions in RAS
  * ---------------------------------------------------------------------------*/
-int OverlappingRestrictionMatrix2D(SUNMatrix Q)
+static int OverlappingRestrictionMatrix2D(N_Vector v, N_Vector temp, int i, int j, int *subX, int *subY)
 {
-  /*C = SUNSparseMatrix(5, 6, 9, CSR_MAT);*/
+  int ind_i, ind_j;
+  int subDomainLengthX, subDomainLengthY;
+  int x, y, xstart, xend, ystart, yend;
+  realtype *vdata, *temp_data;
+
+  subDomainLengthX = N / NUMREGIONS;
+  subDomainLengthY = subDomainLengthX;
+  xstart = i * subDomainLengthX;
+  xend = xstart + subDomainLengthX - 1;
+  ystart = j * subDomainLengthY;
+  yend = ystart + subDomainLengthY - 1;
+
+  if (i > 0) {
+    xstart = xstart - OVERLAPWIDTH;
+    subDomainLengthX = subDomainLengthX + OVERLAPWIDTH; 
+  }
+  if (i < (NUMREGIONS-1)) {
+    xend = xend + OVERLAPWIDTH;
+    subDomainLengthX = subDomainLengthX + OVERLAPWIDTH; 
+  }
+  
+  if (j > 0) {
+    ystart = ystart - OVERLAPWIDTH;
+    subDomainLengthY = subDomainLengthY + OVERLAPWIDTH; 
+  }
+  if (j < (NUMREGIONS-1)) {
+    yend = yend + OVERLAPWIDTH;
+    subDomainLengthY = subDomainLengthY + OVERLAPWIDTH; 
+  }
+ 
+  /* temp = R * v */ 
+  //temp  = N_VNew_Serial(subDomainLengthX * subDomainLengthY);
+  /* Create temp data array of correct length and attach to temp vector */
+  free(NV_DATA_S(temp));
+  temp_data = NULL;
+  temp_data = (realtype *) malloc(subDomainLengthX * subDomainLengthY * sizeof(realtype));
+  NV_DATA_S(temp) = temp_data; 
+  NV_LENGTH_S(temp) = subDomainLengthX * subDomainLengthY;
+  N_VConst(ZERO, temp);
+ 
+  vdata = N_VGetArrayPointer(v); 
+  /* Double nested for loop for application of R*v */
+  for (x = xstart; x < xend+1; x++) {
+    for (y = ystart; y < yend+1; y++) {
+      ind_i = x-xstart + (y-ystart)*subDomainLengthX;
+      ind_j = y * N + x;
+      temp_data[ind_i] = vdata[ind_j];
+    }
+  }
+
+  *subX = subDomainLengthX;
+  *subY = subDomainLengthY;
+
   return(0);
 }
 
 /* -----------------------------------------------------------------------------
  * Function to return the matrix for nonoverlapping regions in RAS
  * ---------------------------------------------------------------------------*/
-int NonOverlappingRestrictionMatrix2D(SUNMatrix Q)
+int NonOverlappingRestrictionMatrix2D(N_Vector temp, N_Vector out, int i, int j)
 {
-  /*C = SUNSparseMatrix(5, 6, 9, CSR_MAT);*/
+  int ind_i, ind_j, xoffset, yoffset;
+  int subDomainLengthX, subDomainLengthY;
+  int x, y, xstart, xend, ystart, yend;
+  realtype *out_data, *temp_data; 
+
+  subDomainLengthX = N / NUMREGIONS;
+  subDomainLengthY = subDomainLengthX;
+  xstart = i * subDomainLengthX;
+  xend = xstart + subDomainLengthX - 1;
+  ystart = j * subDomainLengthY;
+  yend = ystart + subDomainLengthY - 1;
+
+  if (i > 0) {
+    subDomainLengthX = subDomainLengthX + OVERLAPWIDTH; 
+  }
+  if (i < (NUMREGIONS-1)) {
+    subDomainLengthX = subDomainLengthX + OVERLAPWIDTH; 
+  }
+  
+  if (j > 0) {
+    subDomainLengthY = subDomainLengthY + OVERLAPWIDTH; 
+  }
+  if (j < (NUMREGIONS-1)) {
+    subDomainLengthY = subDomainLengthY + OVERLAPWIDTH; 
+  }
+
+  /* out = L^T * temp */
+  //out       = N_VNew_Serial(N*N);
+  //if (check_retval((void *)out, "N_VNew_Serial", 0)) return(1);
+  N_VConst(ZERO, out);
+  out_data  = N_VGetArrayPointer(out);
+  temp_data = N_VGetArrayPointer(out);
+
+  /* Double nested for loop for application of L^T*temp */
+  for (x = xstart; x < xend; x++) {
+    for (y = ystart; y < yend; y++) {
+      xoffset = 0;
+      if (i > 0) xoffset = OVERLAPWIDTH;
+      yoffset = 0;
+      if (j > 0) yoffset = OVERLAPWIDTH; 
+
+      ind_i = x-xstart + xoffset + (y-ystart+yoffset)*subDomainLengthX;
+      ind_j = y * N + x - 1; 
+      out_data[ind_j] = temp_data[ind_i]; 
+    }
+  }
+
+  return(0);
+}
+
+/* -----------------------------------------------------------------------------
+ * Function to form the subdomain matrix for overlapping regions in RAS
+ * ---------------------------------------------------------------------------*/
+int SubDomain2D(SUNMatrix subA, int bandwidth)
+{
+  realtype h, h2_inv, hhalf_inv, a, b;
+  realtype *colj;
+  int i, j, k, kstart, kend, cols; 
+
+  /* Define some constants */
+  h = 1.0 / (N+1);
+  h2_inv    = 1.0 / (h*h); /* 1/h^2 */
+  hhalf_inv = 1.0 / (2*h);  /* 1/(2*h) */
+  a = h2_inv * -4.0 + C;
+  b = h2_inv + D * hhalf_inv;
+ 
+  cols = SUNBandMatrix_Columns(subA); 
+  for (j=0; j<cols; j++) {
+    colj = SUNBandMatrix_Column(subA, j); /* Grab column */
+
+    /* Zero out the whole column */
+    kstart = (j<bandwidth) ? -j : -bandwidth;
+    kend = (j>cols-1-bandwidth) ? cols-1-j : bandwidth;
+    for (k=kstart; k < kend; k++) {
+      colj[k] = ZERO;
+    }
+   
+    /* Add the nonzero values */ 
+    colj[0] = a;                              /* Store diagonal */
+    if ((j % bandwidth) != 0) colj[-1] = b;   /* Store above diagonal */
+    if (((j+1)%bandwidth) != 0) colj[1] = b;  /* Store below diagonal */
+    if (j < bandwidth) colj[bandwidth] = b;   /* Store below diagonal bandwidth value */  
+    if (j > bandwidth) colj[-bandwidth] = b;  /* Store above diagonal bandwidth value */  
+
+  }
+
   return(0);
 }
 
@@ -539,13 +576,29 @@ int NonOverlappingRestrictionMatrix2D(SUNMatrix Q)
  * ---------------------------------------------------------------------------*/
 static int check_ans(N_Vector u, realtype tol)
 {
-  /* Get vector data array */
+  realtype* data = NULL;
+  realtype  norm, norm_error;
 
-  /* print the solution */
+  /* Get vector data array */
+  data = N_VGetArrayPointer(u);
+  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+
+  /* print the norm of solution */
+  norm = SUNRsqrt(N_VDotProd(u, u));
+  printf("Computed solution norm:\n");
+  printf("    ||u||_2 = %"GSYM"\n", norm);
 
   /* solution error */
+  norm_error = ABS(norm - TRUE);
 
   /* print the solution error */
+  printf("Solution error:\n");
+  printf("    ex = %"GSYM"\n", norm_error);
+
+  if (norm_error > tol) {
+    printf("FAIL\n");
+    return(1);
+  }
 
   printf("PASS\n");
   return(0);
