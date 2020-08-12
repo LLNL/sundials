@@ -20,18 +20,24 @@
 #define MemSpace Kokkos::HostSpace
 #endif
 
-//TODO think about using mirror_view to create either host or device view form the other
+//TODO find best location for this
+using ExecSpace = MemSpace::execution_space;
+using range_policy = Kokkos::RangePolicy<ExecSpace>;
+
+typedef Kokkos::View<realtype*, MemSpace> DeviceArrayView;
+typedef Kokkos::View<realtype*, Kokkos::HostSpace> HostArrayView;
+
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 struct _N_VectorContent_Kokkos {
-  sunindextype       length;
-  booleantype        own_data;
-  void*              priv; /* 'private' data */
-  Kokkos::View<realtype*, Kokkos::HostSpace> host_data;
-  Kokkos::View<realtype*, MemSpace>          device_data;
+  sunindextype length;
+  booleantype  own_data;
+  DeviceArrayView   host_data;
+  HostArrayView     device_data;
+  void*        priv; /* 'private' data */
 };
 
 typedef struct _N_VectorContent_Kokkos *N_VectorContent_Kokkos;
