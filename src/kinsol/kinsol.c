@@ -249,11 +249,13 @@ void *KINCreate(void)
   kin_mem->kin_cv               = NULL;
   kin_mem->kin_Xv               = NULL;
   kin_mem->kin_lmem             = NULL;
+  kin_mem->kin_beta_fp          = ONE;
+  kin_mem->kin_damp_fp          = SUNFALSE;
   kin_mem->kin_m_aa             = 0;
   kin_mem->kin_aamem_aa         = 0;
   kin_mem->kin_setstop_aa       = 0;
   kin_mem->kin_beta_aa          = ONE;
-  kin_mem->kin_damping_aa       = SUNFALSE;
+  kin_mem->kin_damp_aa          = SUNFALSE;
   kin_mem->kin_constraintsSet   = SUNFALSE;
   kin_mem->kin_ehfun            = KINErrHandler;
   kin_mem->kin_eh_data          = kin_mem;
@@ -2486,8 +2488,18 @@ static int KINFP(KINMem kin_mem)
 
     /* compute new solution */
     if (kin_mem->kin_m_aa == 0) {
-      /* standard fixed point */
-      N_VScale(ONE, kin_mem->kin_fval, kin_mem->kin_unew);
+
+      if (kin_mem->kin_damp_fp) {
+        /* damped fixed point */
+        N_VLinearSum((ONE - kin_mem->kin_beta_fp), kin_mem->kin_uu,
+                     kin_mem->kin_beta_fp, kin_mem->kin_fval,
+                     kin_mem->kin_unew);
+
+      } else {
+        /* standard fixed point */
+        N_VScale(ONE, kin_mem->kin_fval, kin_mem->kin_unew);
+      }
+
     } else {
       /* apply Anderson acceleration */
       AndersonAcc(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
@@ -2681,8 +2693,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
     nvec += 1;
   }
 
-  /* if enabled, apply damping */
-  if (kin_mem->kin_damping_aa) {
+  /* if enabled, apply damp */
+  if (kin_mem->kin_damp_aa) {
     onembeta = (ONE - kin_mem->kin_beta_aa);
     cv[nvec] = -onembeta;
     Xv[nvec] = fv;

@@ -195,9 +195,18 @@ int main(int argc, char *argv[])
   retval = KINSetNumMaxIters(kmem, uopt->maxiter);
   if (check_retval(&retval, "KINSetNumMaxItersFuncNormTol", 1)) return(1);
 
+  /* Set Fixed point damping parameter */
+  if (uopt->maa == 0)
+  {
+    retval = KINSetDampingFP(kmem, uopt->damping_fp);
+  }
+
   /* Set Anderson acceleration damping parameter */
-  retval = KINSetDampingAA(kmem, uopt->damping_aa);
-  if (check_retval(&retval, "KINSetDampingAA", 1)) return(1);
+  if (uopt->maa > 0)
+  {
+    retval = KINSetDampingAA(kmem, uopt->damping_aa);
+    if (check_retval(&retval, "KINSetDampingAA", 1)) return(1);
+  }
 
   /* -------------
    * Initial guess
@@ -348,7 +357,7 @@ static int SetDefaults(UserOpt *uopt)
 
   /* Set default options values */
   (*uopt)->tol        = 100 * SQRT(UNIT_ROUNDOFF);
-  (*uopt)->maxiter    = 10;
+  (*uopt)->maxiter    = 30;
   (*uopt)->maa        = 0;            /* no acceleration */
   (*uopt)->damping_fp = RCONST(1.0);  /* no FP dampig    */
   (*uopt)->damping_aa = RCONST(1.0);  /* no AA damping   */

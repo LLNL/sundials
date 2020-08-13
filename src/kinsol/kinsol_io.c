@@ -181,6 +181,45 @@ int KINSetUserData(void *kinmem, void *user_data)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINSetDampingFP
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDampingFP(void *kinmem, realtype beta)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDampingFP", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  /* check for illegal input value */
+  if (beta <= ZERO) {
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetDampingFP",
+                    "beta <= 0 illegal");
+    return(KIN_ILL_INPUT);
+  }
+
+  if (beta < ONE) {
+    /* enable damping */
+    kin_mem->kin_beta_fp = beta;
+    kin_mem->kin_damp_fp = SUNTRUE;
+  } else {
+    /* disable damping */
+    kin_mem->kin_beta_fp = ONE;
+    kin_mem->kin_damp_fp = SUNFALSE;
+  }
+
+  return(KIN_SUCCESS);
+}
+
+
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINSetMAA
  * -----------------------------------------------------------------
  */
@@ -220,7 +259,7 @@ int KINSetDampingAA(void *kinmem, realtype beta)
   KINMem kin_mem;
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetMAA", MSG_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDampingAA", MSG_NO_MEM);
     return(KIN_MEM_NULL);
   }
 
@@ -235,12 +274,12 @@ int KINSetDampingAA(void *kinmem, realtype beta)
 
   if (beta < ONE) {
     /* enable damping */
-    kin_mem->kin_beta_aa    = beta;
-    kin_mem->kin_damping_aa = SUNTRUE;
+    kin_mem->kin_beta_aa = beta;
+    kin_mem->kin_damp_aa = SUNTRUE;
   } else {
     /* disable damping */
-    kin_mem->kin_beta_aa    = ONE;
-    kin_mem->kin_damping_aa = SUNFALSE;
+    kin_mem->kin_beta_aa = ONE;
+    kin_mem->kin_damp_aa = SUNFALSE;
   }
 
   return(KIN_SUCCESS);

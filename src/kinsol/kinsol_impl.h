@@ -150,6 +150,10 @@ typedef struct KINMemRec {
   N_Vector kin_vtemp1;      /* scratch vector #1                               */
   N_Vector kin_vtemp2;      /* scratch vector #2                               */
 
+  /* fixed point options */
+  booleantype kin_damp_fp; /* flag to apply damping in FP */
+  realtype    kin_beta_fp; /* damping parameter for FP    */
+
   /* space requirements for AA, Broyden and NLEN */
   N_Vector kin_fold_aa;     /* vector needed for AA, Broyden, and NLEN */
   N_Vector kin_gold_aa;     /* vector needed for AA, Broyden, and NLEN */
@@ -163,7 +167,7 @@ typedef struct KINMemRec {
   long int  kin_m_aa;       /* parameter for AA, Broyden or NLEN */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
-  booleantype kin_damping_aa; /* flag to apply damping in AA */
+  booleantype kin_damp_aa;    /* flag to apply damping in AA */
   realtype *kin_cv;         /* scalar array for fused vector operations */
   N_Vector *kin_Xv;         /* vector array for fused vector operations */
 

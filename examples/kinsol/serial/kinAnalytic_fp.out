@@ -8,7 +8,7 @@ Analytic solution:
     z = -0.523599
 Solution method: Anderson accelerated fixed point iteration.
     tolerance  = 1.49012e-06
-    max iters  = 10
+    max iters  = 30
     accel vec  = 0
     damping_fp = 1
     damping_aa = 1
