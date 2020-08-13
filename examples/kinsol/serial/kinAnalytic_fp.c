@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include "kinsol/kinsol.h"           /* access to KINSOL func., consts. */
@@ -91,34 +92,54 @@
 #define YTRUE ONE
 #define ZTRUE -PI/SIX
 
+/* problem options */
+typedef struct
+{
+  realtype tol;         /* solve tolerance                */
+  long int maxiter;     /* max number of iterations       */
+  long int maa;         /* number of acceleration vectors */
+  realtype damping_fp;  /* damping parameter for FP       */
+  realtype damping_aa;  /* damping parameter for AAFP     */
+} *UserOpt;
+
 /* Nonlinear fixed point function */
 static int FPFunction(N_Vector u, N_Vector f, void *user_data);
+
+/* Check the system solution */
+static int check_ans(N_Vector u, realtype tol);
+
+/* Set default options */
+static int SetDefaults(UserOpt *uopt);
+
+/* Read command line inputs */
+static int ReadInputs(int *argc, char ***argv, UserOpt uopt);
+
+/* Print command line options */
+static void InputHelp();
 
 /* Check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
-/* Check the system solution */
-static int check_ans(N_Vector u, realtype tol);
 
 /* -----------------------------------------------------------------------------
  * Main program
  * ---------------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-  int       retval  = 0;
-  N_Vector  u       = NULL;
-  N_Vector  scale   = NULL;
-  realtype  tol     = 100 * SQRT(UNIT_ROUNDOFF);
-  long int  mxiter  = 10;
-  long int  maa     = 0;           /* no acceleration */
-  realtype  damping = RCONST(1.0); /* no damping      */
-  long int  nni, nfe;
-  realtype* data;
-  void*     kmem;
+  int       retval = 0;     /* return value flag   */
+  UserOpt   uopt   = NULL;  /* user options struct */
+  N_Vector  u      = NULL;  /* solution vector     */
+  N_Vector  scale  = NULL;  /* scaling vector      */
+  long int  nni, nfe;       /* solver outputs      */
+  realtype* data;           /* vector data array   */
+  void*     kmem;           /* KINSOL memory       */
 
-  /* Check if a acceleration/dampling values were provided */
-  if (argc > 1) maa     = (long int) atoi(argv[1]);
-  if (argc > 2) damping = (realtype) atof(argv[2]);
+  /* Set default options */
+  retval = SetDefaults(&uopt);
+  if (check_retval(&retval, "SetDefaults", 1)) return(1);
+
+  retval = ReadInputs(&argc, &argv, uopt);
+  if (check_retval(&retval, "ReadInputs", 1)) { free(uopt); return(1); }
 
   /* -------------------------
    * Print problem description
@@ -133,10 +154,11 @@ int main(int argc, char *argv[])
   printf("    y = %"GSYM"\n", YTRUE);
   printf("    z = %"GSYM"\n", ZTRUE);
   printf("Solution method: Anderson accelerated fixed point iteration.\n");
-  printf("    tolerance = %"GSYM"\n", tol);
-  printf("    max iters = %ld\n", mxiter);
-  printf("    accel vec = %ld\n", maa);
-  printf("    damping   = %"GSYM"\n", damping);
+  printf("    tolerance  = %"GSYM"\n", uopt->tol);
+  printf("    max iters  = %ld\n", uopt->maxiter);
+  printf("    accel vec  = %ld\n", uopt->maa);
+  printf("    damping_fp = %"GSYM"\n", uopt->damping_fp);
+  printf("    damping_aa = %"GSYM"\n", uopt->damping_aa);
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -156,7 +178,7 @@ int main(int argc, char *argv[])
   if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
 
   /* Set number of prior residuals used in Anderson acceleration */
-  retval = KINSetMAA(kmem, maa);
+  retval = KINSetMAA(kmem, uopt->maa);
 
   retval = KINInit(kmem, FPFunction, u);
   if (check_retval(&retval, "KINInit", 1)) return(1);
@@ -166,15 +188,15 @@ int main(int argc, char *argv[])
    * ------------------- */
 
   /* Specify stopping tolerance based on residual */
-  retval = KINSetFuncNormTol(kmem, tol);
+  retval = KINSetFuncNormTol(kmem, uopt->tol);
   if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
 
   /* Set maximum number of iterations */
-  retval = KINSetNumMaxIters(kmem, mxiter);
+  retval = KINSetNumMaxIters(kmem, uopt->maxiter);
   if (check_retval(&retval, "KINSetNumMaxItersFuncNormTol", 1)) return(1);
 
   /* Set Anderson acceleration damping parameter */
-  retval = KINSetDampingAA(kmem, damping);
+  retval = KINSetDampingAA(kmem, uopt->damping_aa);
   if (check_retval(&retval, "KINSetDampingAA", 1)) return(1);
 
   /* -------------
@@ -224,7 +246,7 @@ int main(int argc, char *argv[])
    * ------------------------------------ */
 
   /* check solution */
-  retval = check_ans(u, tol);
+  retval = check_ans(u, uopt->tol);
 
   /* -----------
    * Free memory
@@ -315,6 +337,92 @@ static int check_ans(N_Vector u, realtype tol)
 }
 
 /* -----------------------------------------------------------------------------
+ * Set default options
+ * ---------------------------------------------------------------------------*/
+static int SetDefaults(UserOpt *uopt)
+{
+  /* Allocate options structure */
+  *uopt = NULL;
+  *uopt = (UserOpt) malloc(sizeof **uopt);
+  if (*uopt == NULL) return(-1);
+
+  /* Set default options values */
+  (*uopt)->tol        = 100 * SQRT(UNIT_ROUNDOFF);
+  (*uopt)->maxiter    = 10;
+  (*uopt)->maa        = 0;            /* no acceleration */
+  (*uopt)->damping_fp = RCONST(1.0);  /* no FP dampig    */
+  (*uopt)->damping_aa = RCONST(1.0);  /* no AA damping   */
+
+  return(0);
+}
+
+/* -----------------------------------------------------------------------------
+ * Read command line inputs
+ * ---------------------------------------------------------------------------*/
+static int ReadInputs(int *argc, char ***argv, UserOpt uopt)
+{
+  int arg_index = 1;
+
+  while (arg_index < (*argc))
+  {
+    if (strcmp((*argv)[arg_index], "--tol") == 0)
+    {
+      arg_index++;
+      uopt->tol = atof((*argv)[arg_index++]);
+    }
+    else if (strcmp((*argv)[arg_index], "--maxiter") == 0)
+    {
+      arg_index++;
+      uopt->maxiter = atoi((*argv)[arg_index++]);
+    }
+    else if (strcmp((*argv)[arg_index], "--maa") == 0)
+    {
+      arg_index++;
+      uopt->maa = atoi((*argv)[arg_index++]);
+    }
+    else if (strcmp((*argv)[arg_index], "--damping_fp") == 0)
+    {
+      arg_index++;
+      uopt->damping_fp = atof((*argv)[arg_index++]);
+    }
+    else if (strcmp((*argv)[arg_index], "--damping_aa") == 0)
+    {
+      arg_index++;
+      uopt->damping_aa = atof((*argv)[arg_index++]);
+    }
+    else if (strcmp((*argv)[arg_index], "--help") == 0)
+    {
+      InputHelp();
+      return(-1);
+    }
+    else
+    {
+      printf("Error: Invalid command line parameter %s\n", (*argv)[arg_index]);
+      InputHelp();
+      return(-1);
+
+    }
+  }
+
+  return(0);
+}
+
+/* -----------------------------------------------------------------------------
+ * Print command line options
+ * ---------------------------------------------------------------------------*/
+static void InputHelp()
+{
+  printf("\n");
+  printf(" Command line options:\n");
+  printf("   --tol         : nonlinear solver tolerance\n");
+  printf("   --maxiter     : max number of nonlinear iterations\n");
+  printf("   --maa         : number of Anderson acceleration vectors\n");
+  printf("   --damping_fp  : fixed point damping parameter\n");
+  printf("   --damping_aa  : Anderson acceleration damping parameter\n");
+  return;
+}
+
+/* -----------------------------------------------------------------------------
  * Check function return value
  *   opt == 0 check if returned NULL pointer
  *   opt == 1 check if returned a non-zero value
@@ -324,27 +432,36 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   int *errflag;
 
   /* Check if the function returned a NULL pointer -- no memory allocated */
-  if (opt == 0) {
-    if (returnvalue == NULL) {
+  if (opt == 0)
+  {
+    if (returnvalue == NULL)
+    {
       fprintf(stderr, "\nERROR: %s() failed -- returned NULL\n\n", funcname);
       return(1);
-    } else {
+    }
+    else
+    {
       return(0);
     }
   }
 
-  /* Check if the function returned an non-zero value -- internal failure */
-  if (opt == 1) {
+  /* Check if the function returned a non-zero value -- internal failure */
+  if (opt == 1)
+  {
     errflag = (int *) returnvalue;
-    if (*errflag != 0) {
+    if (*errflag != 0)
+    {
       fprintf(stderr, "\nERROR: %s() failed -- returned %d\n\n", funcname, *errflag);
       return(1);
-    } else {
+    }
+    else
+    {
       return(0);
     }
   }
 
-  /* if we make it here then opt was not 0 or 1 */
+  /* If we make it here then opt was not 0 or 1 */
   fprintf(stderr, "\nERROR: check_retval failed -- Invalid opt value\n\n");
+
   return(1);
 }
