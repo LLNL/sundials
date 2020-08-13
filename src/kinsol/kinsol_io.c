@@ -248,6 +248,37 @@ int KINSetMAA(void *kinmem, long int maa)
   return(KIN_SUCCESS);
 }
 
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetDelayAA
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDelayAA(void *kinmem, long int delay)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDelayAA", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  /* check for illegal input value */
+  if (delay < ZERO) {
+    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetDelayAA",
+                    "delay < 0 illegal");
+    return(KIN_ILL_INPUT);
+  }
+
+  kin_mem->kin_delay_aa = delay;
+
+  return(KIN_SUCCESS);
+}
+
+
 /*
  * -----------------------------------------------------------------
  * Function : KINSetDampingAA

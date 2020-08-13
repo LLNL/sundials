@@ -95,11 +95,12 @@
 /* problem options */
 typedef struct
 {
-  realtype tol;         /* solve tolerance                */
-  long int maxiter;     /* max number of iterations       */
-  long int m_aa;        /* number of acceleration vectors */
-  realtype damping_fp;  /* damping parameter for FP       */
-  realtype damping_aa;  /* damping parameter for AAFP     */
+  realtype tol;         /* solve tolerance                  */
+  long int maxiter;     /* max number of iterations         */
+  long int m_aa;        /* number of acceleration vectors   */
+  long int delay_aa;    /* number of iterations to delay AA */
+  realtype damping_fp;  /* damping parameter for FP         */
+  realtype damping_aa;  /* damping parameter for AA         */
 } *UserOpt;
 
 /* Nonlinear fixed point function */
@@ -130,6 +131,7 @@ int main(int argc, char *argv[])
   UserOpt   uopt   = NULL;  /* user options struct */
   N_Vector  u      = NULL;  /* solution vector     */
   N_Vector  scale  = NULL;  /* scaling vector      */
+  FILE*     infofp = NULL;  /* KINSOL log file     */
   long int  nni, nfe;       /* solver outputs      */
   realtype* data;           /* vector data array   */
   void*     kmem;           /* KINSOL memory       */
@@ -156,9 +158,10 @@ int main(int argc, char *argv[])
   printf("Solution method: Anderson accelerated fixed point iteration.\n");
   printf("    tolerance  = %"GSYM"\n", uopt->tol);
   printf("    max iters  = %ld\n", uopt->maxiter);
-  printf("    accel vec  = %ld\n", uopt->m_aa);
-  printf("    damping_fp = %"GSYM"\n", uopt->damping_fp);
+  printf("    m_aa       = %ld\n", uopt->m_aa);
+  printf("    delay_aa   = %ld\n", uopt->delay_aa);
   printf("    damping_aa = %"GSYM"\n", uopt->damping_aa);
+  printf("    damping_fp = %"GSYM"\n", uopt->damping_fp);
 
   /* --------------------------------------
    * Create vectors for solution and scales
@@ -201,12 +204,27 @@ int main(int argc, char *argv[])
     retval = KINSetDampingFP(kmem, uopt->damping_fp);
   }
 
-  /* Set Anderson acceleration damping parameter */
+  /* Set Anderson acceleration options */
   if (uopt->m_aa > 0)
   {
+    /* Set damping parameter */
     retval = KINSetDampingAA(kmem, uopt->damping_aa);
     if (check_retval(&retval, "KINSetDampingAA", 1)) return(1);
+
+    /* Set acceleration delay */
+    retval = KINSetDelayAA(kmem, uopt->delay_aa);
+    if (check_retval(&retval, "KINSetDelayAA", 1)) return(1);
   }
+
+  /* Set info log file and print level */
+  infofp = fopen("kinsol.log", "w");
+  if (check_retval((void *)infofp, "fopen", 0)) return(1);
+
+  retval = KINSetInfoFile(kmem, infofp);
+  if (check_retval(&retval, "KINSetInfoFile", 1)) return(1);
+
+  retval = KINSetPrintLevel(kmem, 1);
+  if (check_retval(&retval, "KINSetPrintLevel", 1)) return(1);
 
   /* -------------
    * Initial guess
@@ -261,6 +279,7 @@ int main(int argc, char *argv[])
    * Free memory
    * ----------- */
 
+  fclose(infofp);
   N_VDestroy(u);
   N_VDestroy(scale);
   KINFree(&kmem);
@@ -359,6 +378,7 @@ static int SetDefaults(UserOpt *uopt)
   (*uopt)->tol        = 100 * SQRT(UNIT_ROUNDOFF);
   (*uopt)->maxiter    = 30;
   (*uopt)->m_aa       = 0;            /* no acceleration */
+  (*uopt)->delay_aa   = 0;            /* no delay        */
   (*uopt)->damping_fp = RCONST(1.0);  /* no FP dampig    */
   (*uopt)->damping_aa = RCONST(1.0);  /* no AA damping   */
 
@@ -388,6 +408,11 @@ static int ReadInputs(int *argc, char ***argv, UserOpt uopt)
     {
       arg_index++;
       uopt->m_aa = atoi((*argv)[arg_index++]);
+    }
+    else if (strcmp((*argv)[arg_index], "--delay_aa") == 0)
+    {
+      arg_index++;
+      uopt->delay_aa = atoi((*argv)[arg_index++]);
     }
     else if (strcmp((*argv)[arg_index], "--damping_fp") == 0)
     {

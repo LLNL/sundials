@@ -252,6 +252,7 @@ void *KINCreate(void)
   kin_mem->kin_beta_fp          = ONE;
   kin_mem->kin_damp_fp          = SUNFALSE;
   kin_mem->kin_m_aa             = 0;
+  kin_mem->kin_delay_aa         = 0;
   kin_mem->kin_aamem_aa         = 0;
   kin_mem->kin_setstop_aa       = 0;
   kin_mem->kin_beta_aa          = ONE;
@@ -2459,10 +2460,11 @@ static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vect
 
 static int KINFP(KINMem kin_mem)
 {
-  int retval;     /* return value from user func */
-  int ret;        /* iteration status            */
-  realtype fmax;  /* max norm of residual func   */
-  N_Vector delta; /* temporary workspace vector  */
+  int retval;       /* return value from user func */
+  int ret;          /* iteration status            */
+  long int iter_aa; /* iteration count for AA      */
+  realtype fmax;    /* max norm of residual func   */
+  N_Vector delta;   /* temporary workspace vector  */
 
   delta = kin_mem->kin_vtemp1;
   ret   = CONTINUE_ITERATIONS;
@@ -2487,23 +2489,36 @@ static int KINFP(KINMem kin_mem)
     }
 
     /* compute new solution */
-    if (kin_mem->kin_m_aa == 0) {
-
-      if (kin_mem->kin_damp_fp) {
+    if (kin_mem->kin_m_aa == 0 || kin_mem->kin_nni < kin_mem->kin_delay_aa)
+    {
+      if (kin_mem->kin_damp_fp)
+      {
         /* damped fixed point */
         N_VLinearSum((ONE - kin_mem->kin_beta_fp), kin_mem->kin_uu,
                      kin_mem->kin_beta_fp, kin_mem->kin_fval,
                      kin_mem->kin_unew);
-
-      } else {
+      }
+      else
+      {
         /* standard fixed point */
         N_VScale(ONE, kin_mem->kin_fval, kin_mem->kin_unew);
       }
+    }
+    else
+    {
+      /* compute iteration count for Anderson accleration */
+      if (kin_mem->kin_delay_aa > 0)
+      {
+        iter_aa = kin_mem->kin_nni - kin_mem->kin_delay_aa;
+      }
+      else
+      {
+        iter_aa = kin_mem->kin_nni - 1;
+      }
 
-    } else {
       /* apply Anderson acceleration */
       AndersonAcc(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
-                  kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
+                  kin_mem->kin_uu, iter_aa, kin_mem->kin_R_aa,
                   kin_mem->kin_gamma_aa);
     }
 

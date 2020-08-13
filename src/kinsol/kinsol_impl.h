@@ -164,7 +164,8 @@ typedef struct KINMemRec {
   realtype *kin_gamma_aa;   /* array of size maa used in AA */
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
   long int *kin_ipt_map;    /* array of size maa used in AA */
-  long int  kin_m_aa;       /* parameter for AA, Broyden or NLEN */
+  long int kin_m_aa;        /* parameter for AA, Broyden or NLEN */
+  long int kin_delay_aa;    /* number of iterations to delay AA */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
   booleantype kin_damp_aa;    /* flag to apply damping in AA */
