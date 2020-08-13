@@ -139,6 +139,7 @@
  * ---------------------
  */
 
+#define PRNT_DEBUG      0
 #define PRNT_RETVAL     1
 #define PRNT_NNI        2
 #define PRNT_TOL        3
@@ -2473,6 +2474,11 @@ static int KINFP(KINMem kin_mem)
   /* initialize iteration count */
   kin_mem->kin_nni = 0;
 
+#ifdef SUNDIALS_DEBUG
+  KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "KINFP", INFO_LIVAR, "kin_delay_aa",
+               kin_mem->kin_delay_aa);
+#endif
+
   while (ret == CONTINUE_ITERATIONS) {
 
     /* update iteration count */
@@ -2590,6 +2596,10 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   int       nvec=0;
   realtype* cv=kin_mem->kin_cv;
   N_Vector* Xv=kin_mem->kin_Xv;
+
+#ifdef SUNDIALS_DEBUG
+  KINPrintInfo(kin_mem, PRNT_DEBUG, "KINSOL", "AndersonAcc", INFO_LIVAR, "iter", iter);
+#endif
 
   ipt_map = kin_mem->kin_ipt_map;
   i_pt = iter-1 - ((iter-1) / kin_mem->kin_m_aa) * kin_mem->kin_m_aa;

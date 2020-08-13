@@ -442,11 +442,14 @@ void KINInfoHandler(const char *module, const char *function,
  * =================================================================
  */
 
+#define INFO_IVAR      "%s = %d"
+#define INFO_LIVAR     "%s = %ld"
 #define INFO_RETVAL    "Return value: %d"
 #define INFO_ADJ       "no. of lambda adjustments = %ld"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 
+#define INFO_RVAR      "%s = %26.16Lg"
 #define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16Lg"
 #define INFO_TOL       "scsteptol = %12.3Lg  fnormtol = %12.3Lg"
 #define INFO_FMAX      "scaled f norm (for stopping) = %12.3Lg"
@@ -460,6 +463,7 @@ void KINInfoHandler(const char *module, const char *function,
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
+#define INFO_RVAR      "%s = %26.16lg"
 #define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16lg"
 #define INFO_TOL       "scsteptol = %12.3lg  fnormtol = %12.3lg"
 #define INFO_FMAX      "scaled f norm (for stopping) = %12.3lg"
@@ -473,6 +477,7 @@ void KINInfoHandler(const char *module, const char *function,
 
 #else
 
+#define INFO_RVAR      "%s = %26.16g"
 #define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16g"
 #define INFO_TOL       "scsteptol = %12.3g  fnormtol = %12.3g"
 #define INFO_FMAX      "scaled f norm (for stopping) = %12.3g"
