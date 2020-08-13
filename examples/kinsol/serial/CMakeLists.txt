@@ -22,8 +22,8 @@
 set(KINSOL_examples
   "kinAnalytic_fp\;\;"
   "kinAnalytic_fp\;--damping_fp 0.5\;develop"
-  "kinAnalytic_fp\;--maa 2\;"
-  "kinAnalytic_fp\;--maa 2 --damping_aa 0.5\;develop"
+  "kinAnalytic_fp\;--m_aa 2\;"
+  "kinAnalytic_fp\;--m_aa 2 --damping_aa 0.5\;develop"
   "kinFerTron_dns\;\;develop"
   "kinFoodWeb_kry\;\;develop"
   "kinKrylovDemo_ls\;\;develop"

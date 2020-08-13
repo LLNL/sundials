@@ -97,7 +97,7 @@ typedef struct
 {
   realtype tol;         /* solve tolerance                */
   long int maxiter;     /* max number of iterations       */
-  long int maa;         /* number of acceleration vectors */
+  long int m_aa;        /* number of acceleration vectors */
   realtype damping_fp;  /* damping parameter for FP       */
   realtype damping_aa;  /* damping parameter for AAFP     */
 } *UserOpt;
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
   printf("Solution method: Anderson accelerated fixed point iteration.\n");
   printf("    tolerance  = %"GSYM"\n", uopt->tol);
   printf("    max iters  = %ld\n", uopt->maxiter);
-  printf("    accel vec  = %ld\n", uopt->maa);
+  printf("    accel vec  = %ld\n", uopt->m_aa);
   printf("    damping_fp = %"GSYM"\n", uopt->damping_fp);
   printf("    damping_aa = %"GSYM"\n", uopt->damping_aa);
 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
   if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
 
   /* Set number of prior residuals used in Anderson acceleration */
-  retval = KINSetMAA(kmem, uopt->maa);
+  retval = KINSetMAA(kmem, uopt->m_aa);
 
   retval = KINInit(kmem, FPFunction, u);
   if (check_retval(&retval, "KINInit", 1)) return(1);
@@ -196,13 +196,13 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "KINSetNumMaxItersFuncNormTol", 1)) return(1);
 
   /* Set Fixed point damping parameter */
-  if (uopt->maa == 0)
+  if (uopt->m_aa == 0)
   {
     retval = KINSetDampingFP(kmem, uopt->damping_fp);
   }
 
   /* Set Anderson acceleration damping parameter */
-  if (uopt->maa > 0)
+  if (uopt->m_aa > 0)
   {
     retval = KINSetDampingAA(kmem, uopt->damping_aa);
     if (check_retval(&retval, "KINSetDampingAA", 1)) return(1);
@@ -358,7 +358,7 @@ static int SetDefaults(UserOpt *uopt)
   /* Set default options values */
   (*uopt)->tol        = 100 * SQRT(UNIT_ROUNDOFF);
   (*uopt)->maxiter    = 30;
-  (*uopt)->maa        = 0;            /* no acceleration */
+  (*uopt)->m_aa       = 0;            /* no acceleration */
   (*uopt)->damping_fp = RCONST(1.0);  /* no FP dampig    */
   (*uopt)->damping_aa = RCONST(1.0);  /* no AA damping   */
 
@@ -384,10 +384,10 @@ static int ReadInputs(int *argc, char ***argv, UserOpt uopt)
       arg_index++;
       uopt->maxiter = atoi((*argv)[arg_index++]);
     }
-    else if (strcmp((*argv)[arg_index], "--maa") == 0)
+    else if (strcmp((*argv)[arg_index], "--m_aa") == 0)
     {
       arg_index++;
-      uopt->maa = atoi((*argv)[arg_index++]);
+      uopt->m_aa = atoi((*argv)[arg_index++]);
     }
     else if (strcmp((*argv)[arg_index], "--damping_fp") == 0)
     {
@@ -425,7 +425,7 @@ static void InputHelp()
   printf(" Command line options:\n");
   printf("   --tol         : nonlinear solver tolerance\n");
   printf("   --maxiter     : max number of nonlinear iterations\n");
-  printf("   --maa         : number of Anderson acceleration vectors\n");
+  printf("   --m_aa        : number of Anderson acceleration vectors\n");
   printf("   --damping_fp  : fixed point damping parameter\n");
   printf("   --damping_aa  : Anderson acceleration damping parameter\n");
   return;
