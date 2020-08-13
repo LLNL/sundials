@@ -5,39 +5,33 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_config.h>
 
-//TODO: determine best pace to include this - do I need sundials_config/what is it
-#ifdef KOKKOS_ENABLE_CUDA
-#define MemSpace Kokkos::CudaSpace
-#endif
-#ifdef KOKKOS_ENABLE_HIP
-#define MemSpace Kokkos::Experimental::HIPSpace
-#endif
-#ifdef KOKKOS_ENABLE_OPENMPTARGET
-#define MemSpace Kokkos::OpenMPTargetSpace
-#endif
-
-#ifndef MemSpace
-#define MemSpace Kokkos::HostSpace
+//TODO: determine best place to include this - do I need sundials_config/what is
+#if defined(KOKKOS_ENABLE_CUDA_UVM)
+  #define MemSpace Kokkos::CudaUVMSpace
+#elif defined(KOKKOS_ENABLE_CUDA)
+  #define MemSpace Kokkos::CudaSpace
+#elif defined(KOKKOS_ENABLE_HIP)
+  #define MemSpace Kokkos::Experimental::HIPSpace
+#elif defined(KOKKOS_ENABLE_OPENMPTARGET)
+  #define MemSpace Kokkos::OpenMPTargetSpace
+#else
+  #define MemSpace Kokkos::HostSpace
 #endif
 
-//TODO find best location for this
 using ExecSpace = MemSpace::execution_space;
 using range_policy = Kokkos::RangePolicy<ExecSpace>;
 
 typedef Kokkos::View<realtype*, MemSpace> DeviceArrayView;
 typedef Kokkos::View<realtype*, Kokkos::HostSpace> HostArrayView;
 
-
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 struct _N_VectorContent_Kokkos {
-  sunindextype length;
-  booleantype  own_data;
-  DeviceArrayView   host_data;
-  HostArrayView     device_data;
-  void*        priv; /* 'private' data */
+  sunindextype    length;
+  HostArrayView   device_data;
+  DeviceArrayView host_data;
 };
 
 typedef struct _N_VectorContent_Kokkos *N_VectorContent_Kokkos;
@@ -46,19 +40,13 @@ SUNDIALS_EXPORT N_Vector N_VNew_Kokkos(sunindextype length);
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Kokkos();
 
-SUNDIALS_EXPORT N_Vector N_VNewManaged_Kokkos(sunindextype length);
-
 SUNDIALS_EXPORT N_Vector N_VMake_Kokkos(sunindextype length, realtype *h_vdata, realtype *d_vdata);
-
-SUNDIALS_EXPORT N_Vector N_VMakeManaged_Kokkos(sunindextype length, realtype *vdata);
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_Kokkos(N_Vector v);
 
 SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_Kokkos(N_Vector v);
 
 SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer_Kokkos(N_Vector v);
-
-SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Kokkos(N_Vector x);
 
 SUNDIALS_EXPORT void N_VCopyToDevice_Kokkos(N_Vector v);
 

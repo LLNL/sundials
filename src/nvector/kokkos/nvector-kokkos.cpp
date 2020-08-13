@@ -19,19 +19,8 @@ static constexpr sunindextype zeroIdx = 0;
 // Helpful macros
 #define NVEC_KOKKOS_CONTENT(x) ((N_VectorContent_Kokkos)(x->content))
 #define NVEC_KOKKOS_MEMSIZE(x) (NVEC_KOKKOS_CONTENT(x)->length * sizeof(realtype))
-#define NVEC_KOKKOS_PRIVATE(x) ((N_PrivateVectorContent_Kokkos)(NVEC_KOKKOS_CONTENT(x)->priv))
 
-// TODO Find best way to implement managed memory
-// Will most likely only include cuda by including CUDAUVM memspace
-
-struct _N_PrivateVectorContent_Kokkos
-{
-  booleantype use_managed_mem; /* indicates if the data pointers and buffer pointers are managed memory */
-};
-
-typedef struct _N_PrivateVectorContent_Kokkos*N_PrivateVectorContent_Kokkos;
-
-static int AllocateData(N_Vector v);
+static void AllocateData(N_Vector v);
 
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
@@ -111,21 +100,12 @@ N_Vector N_VNew_Kokkos(sunindextype length)
   v = N_VNewEmpty_Kokkos();
   if (v == NULL) return(NULL);
 
-  NVEC_KOKKOS_CONTENT(v)->length          = length;
-  NVEC_KOKKOS_CONTENT(v)->own_data        = SUNTRUE;
-  NVEC_KOKKOS_PRIVATE(v)->use_managed_mem = SUNFALSE;
+  NVEC_KOKKOS_CONTENT(v)->length   = length;
 
-  if (AllocateData(v))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VNew_Kokkos: AllocateData returned nonzero\n");
-    N_VDestroy(v);
-    return NULL;
-  }
+  AllocateData(v);
 
   return(v);
 }
-
-//TODO NewManaged will be inserted here based on managed memory implementation design
 
 N_Vector N_VMake_Kokkos(sunindextype length, realtype *h_vdata, realtype *d_vdata)
 {
@@ -137,16 +117,13 @@ N_Vector N_VMake_Kokkos(sunindextype length, realtype *h_vdata, realtype *d_vdat
   v = N_VNewEmpty_Kokkos();
   if (v == NULL) return(NULL);
 
-  NVEC_KOKKOS_CONTENT(v)->length          = length;
-  NVEC_KOKKOS_CONTENT(v)->own_data        = SUNFALSE;
-  NVEC_KOKKOS_PRIVATE(v)->use_managed_mem = SUNFALSE;
-  NVEC_KOKKOS_CONTENT(v)->host_data       = HostArrayView("host_data", h_vdata, length);
-  NVEC_KOKKOS_CONTENT(v)->device_data     = DeviceArrayView("device_data" d_vdata, length);
+  NVEC_KOKKOS_CONTENT(v)->length      = length;
+  // Create "unmanaged views" for data by passing data pointer into view contructor
+  NVEC_KOKKOS_CONTENT(v)->host_data   = HostArrayView("host_data", h_vdata, length);
+  NVEC_KOKKOS_CONTENT(v)->device_data = DeviceArrayView("device_data" d_vdata, length);
 
   return(v);
 }
-
-//TODO MakeManaged will be inserted here
 
 /* -----------------------------------------------------------------
  * Function to return the global length of the vector.
@@ -160,7 +137,7 @@ sunindextype N_VGetLength_Kokkos(N_Vector v)
  * Return pointer to the raw host data
  */
 
-// Todo, this currently returns actual data pointer
+// TODO, this currently returns actual data pointer
 // Consider adding functions to return views?
 // Same with get device array
 realtype *N_VGetHostArrayPointer_Kokkos(N_Vector x)
@@ -178,24 +155,13 @@ realtype *N_VGetDeviceArrayPointer_Kokkos(N_Vector x)
 }
 
 /* ----------------------------------------------------------------------------
- * Return a flag indicating if the memory for the vector data is managed
- */
-booleantype N_VIsManagedMemory_Kokkos(N_Vector x)
-{
-  return NVEC_KOKKOS_PRIVATE(x)->use_managed_mem;
-}
-
-/* ----------------------------------------------------------------------------
  * Copy vector data to the device
  */
 
 void N_VCopyToDevice_Kokkos(N_Vector x)
 {
-  if(!NVEC_KOKKOS_PRIVATE(x)->use_managed_mem)
-  {
-    Kokkos::deep_copy(NVEC_KOKKOS_CONTENT(x)->device_data, NVEC_KOKKOS_CONTENT(x)->host_data);
-    // TODO does this error check or will I need to error check some how
-  }
+  Kokkos::deep_copy(NVEC_KOKKOS_CONTENT(x)->device_data,
+                    NVEC_KOKKOS_CONTENT(x)->host_data);
 }
 
 /* ----------------------------------------------------------------------------
@@ -204,12 +170,9 @@ void N_VCopyToDevice_Kokkos(N_Vector x)
 
 void N_VCopyFromDevice_Kokkos(N_Vector x)
 {
-  if(!NVEC_KOKKOS_PRIVATE(x)->use_managed_mem)
-  {
-    Kokkos::deep_copy(NVEC_KOKKOS_CONTENT(x)->host_data,
-                      NVEC_KOKKOS_CONTENT(x)->device_data);
-    // TODO does this error check or will I need to do this
-  }
+
+  Kokkos::deep_copy(NVEC_KOKKOS_CONTENT(x)->host_data,
+                    NVEC_KOKKOS_CONTENT(x)->device_data);
 }
 
 /* ----------------------------------------------------------------------------
@@ -266,9 +229,7 @@ N_Vector N_VCloneEmpty_Kokkos(N_Vector w)
   if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
   /* Set content */
-  NVEC_KOKKOS_CONTENT(v)->length          = NVEC_KOKKOS_CONTENT(w)->length;
-  NVEC_KOKKOS_CONTENT(v)->own_data        = SUNFALSE;
-  NVEC_KOKKOS_PRIVATE(v)->use_managed_mem = NVEC_KOKKOS_PRIVATE(w)->use_managed_mem;
+  NVEC_KOKKOS_CONTENT(v)->length   = NVEC_KOKKOS_CONTENT(w)->length;
 
   return(v);
 }
@@ -280,17 +241,9 @@ N_Vector N_VClone_Kokkos(N_Vector w)
   v = N_VCloneEmpty_Kokkos(w);
   if (v == NULL) return(NULL);
 
-  NVEC_KOKKOS_CONTENT(v)->own_data = SUNTRUE;
+  AllocateData(v);
 
-  if (AllocateData(v))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VClone_Kokkos: AllocateData returned nonzero\n");
-    N_VDestroy(v);
-    return NULL;
-  }
-
-return(v);
-
+  return(v);
 }
 
 
@@ -306,16 +259,14 @@ void N_VDestroy_Kokkos(N_Vector v)
     return;
   }
 
-  N_PrivateVectorContent_Kokkos vcp = NVEC_KOKKOS_PRIVATE(v);
-
-  if (vc->own_data)
-  {
-    //TODO figure out how to destroy/deallocate Views here
-  }
-
-  /* free private content struct */
-  if (vcp) free(vcp);
-  vc->priv = NULL;
+   /*
+   By assigning the views to default constructed views the refference
+   count of the orignal view goes to zero and it automatically deallocates
+   the data, unless the vector doesn't own the data in which it is a unmanaged
+   view and the data will not be deallocated
+   */
+  vc->device_data = DeviceArrayView;
+  vc->host_data = HostArrayView;
 
   /* free content struct */
   free(vc);
@@ -629,6 +580,8 @@ realtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
   const auto ddata = NVEC_KOKKOS_CONTENT(denom)->device_data;
   const sunindextype N = NVEC_KOKKOS_CONTENT(num)->length;
 
+  reltype gpu_result = std::numeric_limits<realtype>::max();
+
   Kokkos::parallel_reduce( "N_VMinQuotient", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
       if (ddata(i) != ZERO){
@@ -636,17 +589,16 @@ realtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
       }
     }, Kokkos::Min<realtype>(gpu_result));
 
-  KOKKOS::ReduceMin< KOKKOS_REDUCE_TYPE, realtype> gpu_result(std::numeric_limits<realtype>::max());
-  KOKKOS::forall< KOKKOS_NODE_TYPE >(KOKKOS::RangeSegment(zeroIdx, N),
-    KOKKOS_LAMBDA(sunindextype i) {
-      if (ddata[i] != ZERO)
-        gpu_result.min(ndata[i]/ddata[i]);
-    }
-  );
   return (static_cast<realtype>(gpu_result));
 }
 
-//TODO All functionstake in realtpe pointers
+/*
+ * -----------------------------------------------------------------------------
+ * fused vector operations
+ * -----------------------------------------------------------------------------
+ */
+
+//TODO All functions take in realtpe pointers
 // maybe some implementation could take in Views?
 int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
@@ -654,90 +606,66 @@ int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
   sunindextype N = NVEC_KOKKOS_CONTENT(z)->length;
   auto d_zd = NVEC_KOKKOS_CONTENT(z)->device_data;
 
-  // Copy c array to device
-  // make c into a view, create a device view for d_c, then deep copy c to it,
+  // Make c into a view, create a device view d_c, then deep copy c to it
   HostArrayView h_c("c", c, nvec);
   DeviceArrayView d_c("d_c", nvec);
-  //TODO error check above and below?
   Kokkos::deep_copy(d_c, h_c);
 
-  // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
+  // Create View of device views on host
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nvec);
   for (int j=0; j<nvec; j++)
     h_Xd(j) = NVEC_KOKKOS_CONTENT(X[j])->device_data;
 
-  //TODO: Figure out how to get all the device views in a single view then finish fused and vector array ops appropriately
-
-  // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  // Copy host view to a device view
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nvec);
+  Kokkos::deep_copy(d_Xd, h_Xd);
 
   Kokkos::parallel_for("N_VLinearCombination", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
-      d_zd(i) = d_c(0) * d_Xd(0,i);
-      for (int j=1; j<nvec; j++)
-        d_zd(i) += d_c(j) * d_Xd(j,i);
+      d_zd(i) = d_c(0) * d_Xd(j)(i);
+      for (int j=1; j<nvec; j++){
+        d_zd(i) += d_c(j) * d_Xd(j)(i);
+      }
     }
   );
-
-  // Free host array
-  delete[] h_Xd;
 
   return(0);
 }
 
 int N_VScaleAddMulti_Kokkos(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
-
   sunindextype N = NVEC_KOKKOS_CONTENT(x)->length;
   auto d_xd = NVEC_KOKKOS_CONTENT(x)->device_data;
 
-  // Copy c array to device
-  // make c into a view, create a device view for d_c, then deep copy c to it,
+  // Make c into a view, create a device view d_c, then deep copy c to it,
   HostArrayView h_c("c", c, nvec);
   DeviceArrayView d_c("d_c", nvec);
-  //TODO error check above and below?
   Kokkos::deep_copy(d_c, h_c);
 
-  // Create array of device pointers on host
-  realtype** h_Yd = new realtype*[nvec];
+  // Create array of device views on host
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Yd("h_Yd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Yd[j] = NVEC_KOKKOS_CONTENT(Y[j])->device_data;
+    h_Yd(j) = NVEC_KOKKOS_CONTENT(Y[j])->device_data;
 
-  realtype** h_Zd = new realtype*[nvec];
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Zd[j] = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
+    h_Zd(j) = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
 
-  // Copy array of device pointers to device from host
-  realtype** d_Yd;
-  err = cudaMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  // Copy host view to a device view
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Yd("d_Yd", nvec);
+  Kokkos::deep_copy(d_Yd, h_Yd);
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Zd("d_Zd", nvec);
+  Kokkos::deep_copy(d_Zd, h_Zd);
 
   Kokkos::parallel_for("N_VScaleAddMulti", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
       for (int j=0; j<nvec; j++)
-        d_Zd(j,i) = d_c(j) * d_xd(i) + d_Yd(j,i);
+        d_Zd(j)(i) = d_c(j) * d_xd(i) + d_Yd(j)(i);
     }
   );
 
-  // Free host array
-  delete[] h_Yd;
-  delete[] h_Zd;
-
   return(0);
 }
-
 
 /*
  * -----------------------------------------------------------------------------
@@ -750,53 +678,35 @@ int N_VLinearSumVectorArray_Kokkos(int nvec,
                                  realtype b, N_Vector* Y,
                                  N_Vector* Z)
 {
-
-
   sunindextype N = NVEC_KOKKOS_CONTENT(Z[0])->length;
 
-  // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
+  // Create array of device views on host
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Xd[j] = NVEC_KOKKOS_CONTENT(X[j])->device_data;
+    h_Xd(j) = NVEC_KOKKOS_CONTENT(X[j])->device_data;
 
-  realtype** h_Yd = new realtype*[nvec];
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Yd("h_Yd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Yd[j] = NVEC_KOKKOS_CONTENT(Y[j])->device_data;
+    h_Yd(j) = NVEC_KOKKOS_CONTENT(Y[j])->device_data;
 
-  realtype** h_Zd = new realtype*[nvec];
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Zd[j] = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
+    h_Zd(j) = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
 
-  // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Yd;
-  err = cudaMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  // Copy host view to a device view
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nvec);
+  Kokkos::deep_copy(d_Xd, h_Xd);
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Yd("d_Yd", nvec);
+  Kokkos::deep_copy(d_Yd, h_Yd);
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Zd("d_Zd", nvec);
+  Kokkos::deep_copy(d_Zd, h_Zd);
 
   Kokkos::parallel_for(" N_VLinearSumVectorArray", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
       for (int j=0; j<nvec; j++)
-        d_Zd(j,i) = a * d_Xd(j,i) + b * d_Yd(j,i);
+        d_Zd(j)(i) = a * d_Xd(j)(i) + b * d_Yd(j)(i);
     }
   );
-
-  // Free host array
-  delete[] h_Xd;
-  delete[] h_Yd;
-  delete[] h_Zd;
 
   return(0);
 }
@@ -804,80 +714,57 @@ int N_VLinearSumVectorArray_Kokkos(int nvec,
 
 int N_VScaleVectorArray_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
-
-
   sunindextype N = NVEC_KOKKOS_CONTENT(Z[0])->length;
 
-  // Copy c array to device
-  // make c into a view, create a device view for d_c, then deep copy c to it,
+  // Make c into a view, create a device view d_c, then deep copy c to it,
   HostArrayView h_c("c", c, nvec);
   DeviceArrayView d_c("d_c", nvec);
-  //TODO error check above and below?
   Kokkos::deep_copy(d_c, h_c);
 
-  // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
+  // Create array of device views on host
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Xd[j] = NVEC_KOKKOS_CONTENT(X[j])->device_data;
+    h_Xd(j) = NVEC_KOKKOS_CONTENT(X[j])->device_data;
 
-  realtype** h_Zd = new realtype*[nvec];
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Zd[j] = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
+    h_Zd(j) = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
 
-  // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  // Copy host view to a device view
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nvec);
+  Kokkos::deep_copy(d_Xd, h_Xd);
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Zd("d_Zd", nvec);
+  Kokkos::deep_copy(d_Zd, h_Zd);
 
   Kokkos::parallel_for("N_VScaleVectorArray", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
       for (int j=0; j<nvec; j++)
-        d_Zd(j,i) = d_c(j) * d_Xd(j,i);
+        d_Zd(j)(i) = d_c(j) * d_Xd(j)(i);
     }
   );
-
-  // Free host array
-  delete[] h_Xd;
-  delete[] h_Zd;
 
   return(0);
 }
 
-
 int N_VConstVectorArray_Kokkos(int nvec, realtype c, N_Vector* Z)
 {
-
   sunindextype N = NVEC_KOKKOS_CONTENT(Z[0])->length;
 
-  // Create array of device pointers on host
-  realtype** h_Zd = new realtype*[nvec];
+  // Create array of device views on host
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Zd[j] = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
+    h_Zd(j) = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
 
-  // Copy array of device pointers to device from host
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+   // Copy host view to a device view
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Zd("d_Zd", nvec);
+  Kokkos::deep_copy(d_Zd, h_Zd);
 
   Kokkos::parallel_for("N_VConstVectorArray", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
       for (int j=0; j<nvec; j++)
-        d_Zd(j,i) = c;
+        d_Zd(j)(i) = c;
       }
     );
-
-  // Free host array
-  delete[] h_Zd;
 
   return(0);
 }
@@ -886,62 +773,43 @@ int N_VConstVectorArray_Kokkos(int nvec, realtype c, N_Vector* Z)
 int N_VScaleAddMultiVectorArray_Kokkos(int nvec, int nsum, realtype* c,
                                        N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
-
   sunindextype N = NVEC_KOKKOS_CONTENT(X[0])->length;
 
-  // Copy c array to device
-  // make c into a view, create a device view for d_c, then deep copy c to it,
+  // Make c into a view, create a device view d_c, then deep copy c to it,
   HostArrayView h_c("c", c, nsum);
   DeviceArrayView d_c("d_c", nsum);
-  //TODO error check above and below?
   Kokkos::deep_copy(d_c, h_c);
 
-  // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
+  // Create array of device views on host
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Xd[j] = NVEC_KOKKOS_CONTENT(X[j])->device_data;
+    h_Xd(j) = NVEC_KOKKOS_CONTENT(X[j])->device_data;
 
-  realtype** h_Yd = new realtype*[nsum*nvec];
-  for (int j=0; j<nvec; j++)
-    for (int k=0; k<nsum; k++)
-      h_Yd[j*nsum+k] = NVEC_KOKKOS_CONTENT(Y[k][j])->device_data;
-
-  realtype** h_Zd = new realtype*[nsum*nvec];
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Yd("h_Yd", nsum*nvec);
   for (int j=0; j<nvec; j++)
     for (int k=0; k<nsum; k++)
-      h_Zd[j*nsum+k] = NVEC_KOKKOS_CONTENT(Z[k][j])->device_data;
+      h_Yd(j*nsum+k) = NVEC_KOKKOS_CONTENT(Y[k][j])->device_data;
 
-  // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nsum*nvec);
+  for (int j=0; j<nvec; j++)
+    for (int k=0; k<nsum; k++)
+      h_Zd(j*nsum+k) = NVEC_KOKKOS_CONTENT(Z[k][j])->device_data;
 
-  realtype** d_Yd;
-  err = cudaMalloc((void**) &d_Yd, nsum*nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Yd, h_Yd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nsum*nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+   // Copy host view to a device view
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nvec);
+  Kokkos::deep_copy(d_Xd, h_Xd);
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Yd("d_Yd", nsum*nvec);
+  Kokkos::deep_copy(d_Yd, h_Yd);
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Zd("d_Zd", nsum*nvec);
+  Kokkos::deep_copy(d_Zd, h_Zd);
 
   Kokkos::parallel_for("N_VScaleAddMultiVectorArray", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
       for (int j=0; j<nvec; j++)
         for (int k=0; k<nsum; k++)
-          d_Zd(j*nsum+k, i) = d_c(k) * d_Xd(j,i) + d_Yd(j*nsum+k, i);
+          d_Zd(j*nsum+k)(i) = d_c(k) * d_Xd(j)(i) + d_Yd(j*nsum+k)(i);
     }
   );
-
-  // Free host array
-  delete[] h_Xd;
-  delete[] h_Yd;
-  delete[] h_Zd;
 
   return(0);
 }
@@ -950,54 +818,39 @@ int N_VScaleAddMultiVectorArray_Kokkos(int nvec, int nsum, realtype* c,
 int N_VLinearCombinationVectorArray_Kokkos(int nvec, int nsum, realtype* c,
                                          N_Vector** X, N_Vector* Z)
 {
-
-
   sunindextype N = NVEC_KOKKOS_CONTENT(Z[0])->length;
 
-  // Copy c array to device
-  // make c into a view, create a device view for d_c, then deep copy c to it,
+  // Make c into a view, create a device view d_c, then deep copy c to it,
   HostArrayView h_c("c", c, nsum);
   DeviceArrayView d_c("d_c", nsum);
-  //TODO error check above and below?
   Kokkos::deep_copy(d_c, h_c);
 
-  // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nsum*nvec];
+  // Create View of device views on host
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nsum*nvec);
   for (int j=0; j<nvec; j++)
     for (int k=0; k<nsum; k++)
-      h_Xd[j*nsum+k] = NVEC_KOKKOS_CONTENT(X[k][j])->device_data;
+      h_Xd(j*nsum+k) = NVEC_KOKKOS_CONTENT(X[k][j])->device_data;
 
-  realtype** h_Zd = new realtype*[nvec];
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Zd[j] = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
+    h_Zd(j) = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
 
-  // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = cudaMalloc((void**) &d_Xd, nsum*nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Xd, h_Xd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  // Copy host view to a device view
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nsum*nvec);
+  Kokkos::deep_copy(d_Xd, h_Xd);
+  Kokkos::View<DeviceArrayView*, MemSpace> d_Zd("d_Zd", nvec);
+  Kokkos::deep_copy(d_Zd, h_Zd);
 
   Kokkos::parallel_for("N_VLinearCombinationVectorArray", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
       for (int j=0; j<nvec; j++) {
-        d_Zd(j,i) = d_c(0) * d_Xd(j*nsum,i);
+        d_Zd(j)(i) = d_c(0) * d_Xd(j*nsum)(i);
         for (int k=1; k<nsum; k++) {
-          d_Zd(j,i)) += d_c(k) * d_Xd(j*nsum+k, i);
+          d_Zd(j)(i) += d_c(k) * d_Xd(j*nsum+k)(i);
         }
       }
     }
   );
-
-  // Free host array
-  delete[] h_Xd;
-  delete[] h_Zd;
 
   return(0);
 }
@@ -1175,15 +1028,13 @@ int N_VEnableLinearCombinationVectorArray_Kokkos(N_Vector v, booleantype tf)
   return(0);
 }
 
-int AllocateData(N_Vector v)
+void AllocateData(N_Vector v)
 {
   N_VectorContent_Kokkos vc = NVEC_KOKKOS_CONTENT(v);
 
   vc->device_data = DeviceArrayView("device_data", NVEC_KOKKOS_MEMSIZE(v));
   vc->host_data = HostArrayView("host_data", NVEC_KOKKOS_MEMSIZE(v));
-  //Possible to error check these, or do they error check?
 
-  return 0;
 }
 
 } // extern "C"
