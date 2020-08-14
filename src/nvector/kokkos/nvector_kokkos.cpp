@@ -100,7 +100,7 @@ N_Vector N_VNew_Kokkos(sunindextype length)
   v = N_VNewEmpty_Kokkos();
   if (v == NULL) return(NULL);
 
-  NVEC_KOKKOS_CONTENT(v)->length   = length;
+  NVEC_KOKKOS_CONTENT(v)->length = length;
 
   AllocateData(v);
 
@@ -769,7 +769,6 @@ int N_VConstVectorArray_Kokkos(int nvec, realtype c, N_Vector* Z)
   return(0);
 }
 
-//checkpoint
 int N_VScaleAddMultiVectorArray_Kokkos(int nvec, int nsum, realtype* c,
                                        N_Vector* X, N_Vector** Y, N_Vector** Z)
 {

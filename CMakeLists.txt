@@ -503,6 +503,11 @@ endif()
 # ---------------------------------------------------------------
 option(Trilinos_ENABLE "Enable Trilinos support" OFF)
 
+# ---------------------------------------------------------------
+# Enable Kokkos support?
+# ---------------------------------------------------------------
+option(KOKKOS_ENABLE "Enable Kokkos support" OFF)
+
 # -------------------------------------------------------------
 # Enable RAJA support?
 # -------------------------------------------------------------
@@ -822,12 +827,13 @@ endif()
 # (a) C++ examples are enabled
 # (b) CUDA is enabled
 # (c) RAJA is enabled
+# (c) KOKKOS is enabled
 # (d) Trilinos is enabled
 # (e) SuperLU_DIST is enabled
 # ---------------------------------------------------------------
 
 if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE OR Trilinos_ENABLE OR
-    SUPERLUDIST_ENABLE)
+    SUPERLUDIST_ENABLE OR KOKKOS_ENABLE)
   include(SundialsCXX)
 endif()
 
@@ -1071,6 +1077,16 @@ if(RAJA_ENABLE)
     PATHS ${RAJA_DIR} ${RAJA_DIR}/share/raja/cmake
     REQUIRED)
 endif(RAJA_ENABLE)
+
+# -------------------------------------------------------------
+# Find Kokkos
+# -------------------------------------------------------------
+
+if(KOKKOS_ENABLE)
+  # Look for CMake configuration file in Kokkos installation
+  find_package(Kokkos CONFIG
+    PATHS ${KOKKOS_DIR} ${KOKKOS_DIR}/share/kokkos/cmake REQUIRED)
+endif(KOKKOS_ENABLE)
 
 
 # -------------------------------------------------------------
