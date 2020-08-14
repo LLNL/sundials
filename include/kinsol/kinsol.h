@@ -57,6 +57,13 @@ extern "C" {
 
 #define KIN_VECTOROP_ERR        -16
 
+/* Anderson Acceleration Orthogonalization Choice */
+#define KIN_ORTH_MGS    0 
+#define KIN_ORTH_ICWY   1 
+#define KIN_ORTH_CGS2   2
+#define KIN_ORTH_DCGS2  3
+#define KIN_ORTH_SDCGS2 4 
+
 /* Enumeration for eta choice */
 #define KIN_ETACHOICE1  1
 #define KIN_ETACHOICE2  2
@@ -105,7 +112,7 @@ SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
 SUNDIALS_EXPORT int KINSetUserData(void *kinmem, void *user_data);
 SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmemm, int printfl);
 SUNDIALS_EXPORT int KINSetMAA(void *kinmem, long int maa);
-SUNDIALS_EXPORT int KINSetOrthAA(void *kinmem, sunindextype orthaa);
+SUNDIALS_EXPORT int KINSetOrthAA(void *kinmem, int orthaa);
 SUNDIALS_EXPORT int KINSetDampingAA(void *kinmem, realtype beta);
 SUNDIALS_EXPORT int KINSetNumMaxIters(void *kinmem, long int mxiter);
 SUNDIALS_EXPORT int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup);

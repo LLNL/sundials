@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
   if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
   
   /* Set userdata to be used in function evaluation */
-  /*retval = KINSetUserData(kmem, data);
+  /*retval = KINSetUserData(kmem, udata);
   if (check_retval(&retval, "KINSetUserData", 1)) return(1);*/
 
   /* Set number of prior residuals used in Anderson acceleration */

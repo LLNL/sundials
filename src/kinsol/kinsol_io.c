@@ -215,7 +215,7 @@ int KINSetMAA(void *kinmem, long int maa)
  * -----------------------------------------------------------------
  */
 
-int KINSetOrthAA(void *kinmem, sunindextype orthaa)
+int KINSetOrthAA(void *kinmem, int orthaa)
 {
   KINMem kin_mem;
 
@@ -226,13 +226,9 @@ int KINSetOrthAA(void *kinmem, sunindextype orthaa)
 
   kin_mem = (KINMem) kinmem;
 
-  if (orthaa < 0) {
+  /* REPLACE WITH SINGLE ERROR EMESSAGE */
+  if ((orthaa < KIN_ORTH_MGS) || (orthaa > KIN_ORTH_SDCGS2)) {
     KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetOrthAA", MSG_BAD_ORTHAA);
-    return(KIN_ILL_INPUT);
-  }
-  
-  if (orthaa > 4) {
-    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetOrthAA", MSG_LG_ORTHAA);
     return(KIN_ILL_INPUT);
   }
 

@@ -26,7 +26,7 @@ set(KINSOL_examples
   "kinAnalytic_aa_lowsync\;2 1.0 2\;"
   "kinAnalytic_aa_lowsync\;2 1.0 3\;"
   "kinAnalytic_aa_lowsync\;2 1.0 4\;"
-  "kinLowSyncAnderson_fp\;2 1.0 0\;"
+  #"kinLowSyncAnderson_fp\;2 1.0 0\;"
   "kinAnalytic_fp\;2 0.5\;develop"
   "kinFerTron_dns\;\;develop"
   "kinFoodWeb_kry\;\;develop"

@@ -150,8 +150,6 @@ typedef struct KINMemRec {
   N_Vector kin_vtemp1;      /* scratch vector #1                               */
   N_Vector kin_vtemp2;      /* scratch vector #2                               */
   N_Vector kin_vtemp3;      /* scratch vector #3                               */
-  N_Vector kin_vtemp4;      /* scratch vector #4                               */
-  N_Vector kin_vtemp5;      /* scratch vector #5                               */
 
   /* space requirements for AA, Broyden and NLEN */
   N_Vector kin_fold_aa;     /* vector needed for AA, Broyden, and NLEN */
@@ -162,12 +160,14 @@ typedef struct KINMemRec {
   realtype kin_beta_aa;     /* beta damping parameter for AA */
   realtype *kin_gamma_aa;   /* array of size maa used in AA */
   realtype *kin_R_aa;       /* array of size maa*maa used in AA */
-  realtype *kin_T_aa;       /* array of size maa*maa used in AA */
+  realtype *kin_T_aa;       /* array of size maa*maa/2 used in AA */
   long int *kin_ipt_map;    /* array of size maa*maa/2 used in Low Sync AA */
   long int  kin_m_aa;       /* parameter for AA, Broyden or NLEN */
-  sunindextype kin_orth_aa; /* parameter for AA determining orthogonalization routine
-                               0 - Modified Gram Schmit (standard)
-                               1 - Inverse Compact WY Modified Gram Schmit */
+  int kin_orth_aa;          /* parameter for AA determining orthogonalization routine
+                               0 - Modified Gram Schmidt (standard)
+                               1 - Inverse Compact WY Modified Gram Schmidt (Bjorck)
+                               2 - CGS2 (Hernandez)
+                                3, 4 ....*/
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
   booleantype kin_damping_aa; /* flag to apply damping in AA */
@@ -413,8 +413,7 @@ void KINInfoHandler(const char *module, const char *function,
 #define MSG_BAD_CONSTRAINTS    "Illegal values in constraints vector."
 #define MSG_BAD_OMEGA          "scalars < 0 illegal."
 #define MSG_BAD_MAA            "maa < 0 illegal."
-#define MSG_BAD_ORTHAA         "orthaa < 0 illegal."
-#define MSG_LG_ORTHAA          "orthaa > 4 illegal."
+#define MSG_BAD_ORTHAA         "Illegal value for orthaa."
 #define MSG_ZERO_MAA           "maa = 0 illegal."
 
 #define MSG_LSOLV_NO_MEM       "The linear solver memory pointer is NULL."

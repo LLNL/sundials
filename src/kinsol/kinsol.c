@@ -249,8 +249,6 @@ void *KINCreate(void)
   kin_mem->kin_vtemp1           = NULL;
   kin_mem->kin_vtemp2           = NULL;
   kin_mem->kin_vtemp3           = NULL;
-  kin_mem->kin_vtemp4           = NULL;
-  kin_mem->kin_vtemp5           = NULL;
   kin_mem->kin_fold_aa          = NULL;
   kin_mem->kin_gold_aa          = NULL;
   kin_mem->kin_df_aa            = NULL;
@@ -264,7 +262,7 @@ void *KINCreate(void)
   kin_mem->kin_Xv               = NULL;
   kin_mem->kin_lmem             = NULL;
   kin_mem->kin_m_aa             = 0;
-  kin_mem->kin_orth_aa          = 0;
+  kin_mem->kin_orth_aa          = KIN_ORTH_MGS;
   kin_mem->kin_aamem_aa         = 0;
   kin_mem->kin_setstop_aa       = 0;
   kin_mem->kin_beta_aa          = ONE;
@@ -1013,7 +1011,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       kin_mem->kin_lrw += kin_mem->kin_m_aa * kin_mem->kin_lrw1;
     }
     
-    if (kin_mem->kin_orth_aa == 1)
+    if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY)
     {  
       if (kin_mem->kin_vtemp3 == NULL) {
         kin_mem->kin_vtemp3 = N_VClone(tmpl);
@@ -1056,7 +1054,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       }
     }
   
-    if (kin_mem->kin_orth_aa == 2)
+    if ((kin_mem->kin_orth_aa == KIN_ORTH_CGS2) || (kin_mem->kin_orth_aa == KIN_ORTH_DCGS2) || (kin_mem->kin_orth_aa == KIN_ORTH_SDCGS2))
     {  
       if (kin_mem->kin_vtemp3 == NULL) {
         kin_mem->kin_vtemp3 = N_VClone(tmpl);
@@ -1068,77 +1066,6 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
           N_VDestroy(kin_mem->kin_vtemp2);
           kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
           kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
-          return(SUNFALSE);
-        }
-        kin_mem->kin_liw += kin_mem->kin_liw1;
-        kin_mem->kin_lrw += kin_mem->kin_lrw1;
-      }
-
-      if (kin_mem->kin_vtemp4 == NULL) {
-        kin_mem->kin_vtemp4 = N_VClone(tmpl);
-        if (kin_mem->kin_vtemp4 == NULL) {
-          N_VDestroy(kin_mem->kin_unew);
-          N_VDestroy(kin_mem->kin_fval);
-          N_VDestroy(kin_mem->kin_pp);
-          N_VDestroy(kin_mem->kin_vtemp1);
-          N_VDestroy(kin_mem->kin_vtemp2);
-          N_VDestroy(kin_mem->kin_vtemp3);
-          kin_mem->kin_liw -= 6*kin_mem->kin_liw1;
-          kin_mem->kin_lrw -= 6*kin_mem->kin_lrw1;
-          return(SUNFALSE);
-        }
-        kin_mem->kin_liw += kin_mem->kin_liw1;
-        kin_mem->kin_lrw += kin_mem->kin_lrw1;
-      }
-
-      if (kin_mem->kin_vtemp5 == NULL) {
-        kin_mem->kin_vtemp5 = N_VClone(tmpl);
-        if (kin_mem->kin_vtemp5 == NULL) {
-          N_VDestroy(kin_mem->kin_unew);
-          N_VDestroy(kin_mem->kin_fval);
-          N_VDestroy(kin_mem->kin_pp);
-          N_VDestroy(kin_mem->kin_vtemp1);
-          N_VDestroy(kin_mem->kin_vtemp2);
-          N_VDestroy(kin_mem->kin_vtemp3);
-          N_VDestroy(kin_mem->kin_vtemp4);
-          kin_mem->kin_liw -= 7*kin_mem->kin_liw1;
-          kin_mem->kin_lrw -= 7*kin_mem->kin_lrw1;
-          return(SUNFALSE);
-        }
-        kin_mem->kin_liw += kin_mem->kin_liw1;
-        kin_mem->kin_lrw += kin_mem->kin_lrw1;
-      }
-    }
-    
-    if (kin_mem->kin_orth_aa == 3 || kin_mem->kin_orth_aa == 4)
-    {  
-      if (kin_mem->kin_vtemp3 == NULL) {
-        kin_mem->kin_vtemp3 = N_VClone(tmpl);
-        if (kin_mem->kin_vtemp3 == NULL) {
-          N_VDestroy(kin_mem->kin_unew);
-          N_VDestroy(kin_mem->kin_fval);
-          N_VDestroy(kin_mem->kin_pp);
-          N_VDestroy(kin_mem->kin_vtemp1);
-          N_VDestroy(kin_mem->kin_vtemp2);
-          kin_mem->kin_liw -= 5*kin_mem->kin_liw1;
-          kin_mem->kin_lrw -= 5*kin_mem->kin_lrw1;
-          return(SUNFALSE);
-        }
-        kin_mem->kin_liw += kin_mem->kin_liw1;
-        kin_mem->kin_lrw += kin_mem->kin_lrw1;
-      }
-
-      if (kin_mem->kin_vtemp4 == NULL) {
-        kin_mem->kin_vtemp4 = N_VClone(tmpl);
-        if (kin_mem->kin_vtemp4 == NULL) {
-          N_VDestroy(kin_mem->kin_unew);
-          N_VDestroy(kin_mem->kin_fval);
-          N_VDestroy(kin_mem->kin_pp);
-          N_VDestroy(kin_mem->kin_vtemp1);
-          N_VDestroy(kin_mem->kin_vtemp2);
-          N_VDestroy(kin_mem->kin_vtemp3);
-          kin_mem->kin_liw -= 6*kin_mem->kin_liw1;
-          kin_mem->kin_lrw -= 6*kin_mem->kin_lrw1;
           return(SUNFALSE);
         }
         kin_mem->kin_liw += kin_mem->kin_liw1;
@@ -1202,20 +1129,6 @@ static void KINFreeVectors(KINMem kin_mem)
     kin_mem->kin_liw -= kin_mem->kin_liw1;
   }
   
-  if (kin_mem->kin_vtemp4 != NULL) {
-    N_VDestroy(kin_mem->kin_vtemp4);
-    kin_mem->kin_vtemp4 = NULL;
-    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
-    kin_mem->kin_liw -= kin_mem->kin_liw1;
-  }
-  
-  if (kin_mem->kin_vtemp5 != NULL) {
-    N_VDestroy(kin_mem->kin_vtemp5);
-    kin_mem->kin_vtemp5 = NULL;
-    kin_mem->kin_lrw -= kin_mem->kin_lrw1;
-    kin_mem->kin_liw -= kin_mem->kin_liw1;
-  }
-
   if (kin_mem->kin_gval != NULL) {
     N_VDestroy(kin_mem->kin_gval);
     kin_mem->kin_gval = NULL;
@@ -2514,7 +2427,32 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R,
     }
     else {  /* use Anderson, if desired */
       N_VScale(ONE, kin_mem->kin_uu, kin_mem->kin_unew);
-      AndersonAcc(kin_mem, gval, delta, kin_mem->kin_unew, kin_mem->kin_uu, iter-1, R, gamma);
+      if (kin_mem->kin_orth_aa == KIN_ORTH_MGS) {
+        /* apply standard Anderson acceleration */
+        AndersonAcc(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
+                    kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
+                    kin_mem->kin_gamma_aa);
+      } else if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY) {
+        /* apply low sync Anderson acceleration w/ ICWY MGS */
+        AndersonAccLowSync_icwy(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
+                           kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
+                           kin_mem->kin_gamma_aa);
+      } else if (kin_mem->kin_orth_aa == KIN_ORTH_CGS2) {
+        /* apply low sync Anderson acceleration w/ CGS2 */
+        AndersonAccLowSync_cgs2(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
+                                kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
+                                kin_mem->kin_gamma_aa);
+      } else if (kin_mem->kin_orth_aa == KIN_ORTH_DCGS2){
+        /* apply low sync Anderson acceleration w/ Delayed CGS2 */
+        AndersonAccLowSync_delayedcgs2(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
+                                       kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
+                                       kin_mem->kin_gamma_aa);
+      } else {
+        /* apply low sync Anderson acceleration w/ Stabilized Delayed CGS2 */
+        AndersonAccLowSync_stabdcgs2(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
+                                     kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
+                                     kin_mem->kin_gamma_aa);
+      }
     }
 
     /* Fill the Newton residual based on the new solution iterate */
@@ -2664,22 +2602,22 @@ static int KINFP(KINMem kin_mem)
     if (kin_mem->kin_m_aa == 0) {
       /* standard fixed point */
       N_VScale(ONE, kin_mem->kin_fval, kin_mem->kin_unew);
-    } else if (kin_mem->kin_orth_aa == 0) {
+    } else if (kin_mem->kin_orth_aa == KIN_ORTH_MGS) {
       /* apply standard Anderson acceleration */
       AndersonAcc(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
                   kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
                   kin_mem->kin_gamma_aa);
-    } else if (kin_mem->kin_orth_aa == 1) {
+    } else if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY) {
       /* apply low sync Anderson acceleration w/ ICWY MGS */
       AndersonAccLowSync_icwy(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
                          kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
                          kin_mem->kin_gamma_aa);
-    } else if (kin_mem->kin_orth_aa == 2) {
+    } else if (kin_mem->kin_orth_aa == KIN_ORTH_CGS2) {
       /* apply low sync Anderson acceleration w/ CGS2 */
       AndersonAccLowSync_cgs2(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
                               kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
                               kin_mem->kin_gamma_aa);
-    } else if (kin_mem->kin_orth_aa == 3){
+    } else if (kin_mem->kin_orth_aa == KIN_ORTH_DCGS2){
       /* apply low sync Anderson acceleration w/ Delayed CGS2 */
       AndersonAccLowSync_delayedcgs2(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
                                      kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
@@ -2910,12 +2848,11 @@ static int AndersonAccLowSync_icwy(KINMem kin_mem, N_Vector gval, N_Vector fv,
                                    long int iter, realtype *R, realtype *gamma)
 {
   int retval;
-  long int i_pt, i, j, lAA, vsize, k, t_offset;
+  long int i_pt, i, j, lAA, k, t_offset;
   long int *ipt_map;
   realtype alfa;
   realtype onembeta;
   realtype a, b, temp, c, s;
-  realtype *sdata, *ldata, *qdata;
 
   /* local shortcuts for fused vector operation */
   int       nvec=0;
@@ -2958,8 +2895,6 @@ static int AndersonAccLowSync_icwy(KINMem kin_mem, N_Vector gval, N_Vector fv,
     /* -- QRAdd with ICWY MGS -- */
     /* T matrix is stored in row-wise order with each row having an additional
      *   value because it is lower triangular */
-    sdata = N_VGetArrayPointer(kin_mem->kin_vtemp3);
-    vsize = N_VGetLength(kin_mem->kin_df_aa[i_pt]);
     N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2); /* stores d_fi in vtemp2 */
 
     t_offset = (iter-2)*(iter-1)/2;
@@ -2986,14 +2921,8 @@ static int AndersonAccLowSync_icwy(KINMem kin_mem, N_Vector gval, N_Vector fv,
     /*************************************/
 
     /* Q(:,k) = df - Q_k-1 R(1:k-1,k) */
-    sdata = N_VGetArrayPointer(kin_mem->kin_vtemp3); /* reusing sdata array for matvec */ 
-    for (k = 0; k < vsize; k++) {
-      sdata[k] = ZERO;
-      for (j = 0; j < (iter-1); j++) {
-        qdata = N_VGetArrayPointer(kin_mem->kin_q_aa[j]);
-        sdata[k] += qdata[k] * R[(iter-1)*kin_mem->kin_m_aa+j]; 
-      }
-    }
+    retval = N_VLinearCombination(iter-1, R + (iter-1)*kin_mem->kin_m_aa, kin_mem->kin_q_aa, kin_mem->kin_vtemp3); 
+    if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
     N_VLinearSum(ONE, kin_mem->kin_vtemp2, -ONE, kin_mem->kin_vtemp3, kin_mem->kin_q_aa[iter-1]);
     
     /* R(k,k) = \| df \| */
@@ -3110,12 +3039,11 @@ static int AndersonAccLowSync_cgs2(KINMem kin_mem, N_Vector gval, N_Vector fv,
                                    long int iter, realtype *R, realtype *gamma)
 {
   int retval;
-  long int i_pt, i, j, lAA, k, vsize;
+  long int i_pt, i, j, lAA, k;
   long int *ipt_map;
   realtype alfa;
   realtype onembeta;
   realtype a, b, temp, c, s;
-  realtype *sdata, *ydata, *zdata, *qdata;
 
   /* local shortcuts for fused vector operation */
   int       nvec=0;
@@ -3155,45 +3083,30 @@ static int AndersonAccLowSync_cgs2(KINMem kin_mem, N_Vector gval, N_Vector fv,
 
     /* another iteration before we've reached maa */
     /* -- QRAdd with CGS2 -- */
-    sdata = N_VGetArrayPointer(kin_mem->kin_vtemp3);
-    ydata = N_VGetArrayPointer(kin_mem->kin_vtemp4);
-    zdata = N_VGetArrayPointer(kin_mem->kin_vtemp5);
-    vsize = N_VGetLength(kin_mem->kin_df_aa[i_pt]);
     N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2); /* vtemp2 = df */ 
     
-    /* s_k = Q_k-1^T df_aa */
-    //N_VDotProdMulti(iter-1, kin_mem->kin_vtemp2, kin_mem->kin_q_aa, sdata);
-    N_VDotProdMulti(iter-2, kin_mem->kin_vtemp2, kin_mem->kin_q_aa, sdata);
+    /* s_k = Q_k-1^T df_aa -- update with sdata as a realtype* array */
+    //N_VDotProdMulti(iter-1, kin_mem->kin_vtemp2, kin_mem->kin_q_aa, cv);
+    N_VDotProdMulti(iter-2, kin_mem->kin_vtemp2, kin_mem->kin_q_aa, cv); /* reusing cv here */
 
     /* y = df - Q_k-1 s_k */
-    for (k = 0; k < vsize; k++) {
-      ydata[k] = ZERO;
-      for (j = 0; j < (iter-1); j++) {
-        qdata = N_VGetArrayPointer(kin_mem->kin_q_aa[j]);
-        ydata[k] += qdata[k] * sdata[j]; 
-      }
-    }
-    N_VLinearSum(ONE, kin_mem->kin_vtemp2, -ONE, kin_mem->kin_vtemp4, kin_mem->kin_vtemp4);
+    retval = N_VLinearCombination(iter-1, cv, kin_mem->kin_q_aa, kin_mem->kin_vtemp3); 
+    if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+    N_VLinearSum(ONE, kin_mem->kin_vtemp2, -ONE, kin_mem->kin_vtemp3, kin_mem->kin_vtemp3);
 
     /* z_k = Q_k-1^T y */
-    //N_VDotProdMulti(iter-1, kin_mem->kin_vtemp4, kin_mem->kin_q_aa, zdata);
-    N_VDotProdMulti(iter-2, kin_mem->kin_vtemp4, kin_mem->kin_q_aa, zdata);
+    //N_VDotProdMulti(iter-1, kin_mem->kin_vtemp3, kin_mem->kin_q_aa, R + (iter-1)*kin_mem->kin_m_aa);
+    N_VDotProdMulti(iter-2, kin_mem->kin_vtemp3, kin_mem->kin_q_aa, R + (iter-1)*kin_mem->kin_m_aa);
 
-    /* df = y - Q_k-1 z_k */
-    ydata = N_VGetArrayPointer(kin_mem->kin_vtemp2); /* reusing ydata for df pointer */
-    for (k = 0; k < vsize; k++) {
-      ydata[k] = ZERO;
-      for (j = 0; j < (iter-1); j++) {
-        qdata = N_VGetArrayPointer(kin_mem->kin_q_aa[j]);
-        ydata[k] += qdata[k] * zdata[j]; 
-      }
-    }
-    N_VLinearSum(ONE, kin_mem->kin_vtemp4, -ONE, kin_mem->kin_vtemp2, kin_mem->kin_vtemp2);
+    /* df = y - Q_k-1 z_k  -- update using N_VLinearCombination */
+    retval = N_VLinearCombination(iter-1, R + (iter-1)*kin_mem->kin_m_aa, kin_mem->kin_q_aa, kin_mem->kin_vtemp3); 
+    if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+    N_VLinearSum(ONE, kin_mem->kin_vtemp3, -ONE, kin_mem->kin_vtemp2, kin_mem->kin_vtemp2);
 
     /* R(1:k-1,k) = s_k + z_k */
     for (j = 0; j < (iter-1); j++) {
       ipt_map[j] = j; /* update iteration loop while I'm in here */
-      R[(iter-1)*kin_mem->kin_m_aa+j] = sdata[j] + zdata[j];
+      R[(iter-1)*kin_mem->kin_m_aa+j] = R[(iter-1)*kin_mem->kin_m_aa+j] + cv[j];
     }
     /* R(k,k) = \| df \| */
     R[(iter-1)*kin_mem->kin_m_aa+iter-1] = SUNRsqrt(N_VDotProd(kin_mem->kin_vtemp2, kin_mem->kin_vtemp2));
@@ -3309,12 +3222,11 @@ static int AndersonAccLowSync_delayedcgs2(KINMem kin_mem, N_Vector gval, N_Vecto
                                           long int iter, realtype *R, realtype *gamma)
 {
   int retval;
-  long int i_pt, i, j, lAA, k, vsize;
+  long int i_pt, i, j, lAA, k;
   long int *ipt_map;
   realtype alfa;
   realtype onembeta;
   realtype a, b, temp, c, s;
-  realtype *sdata, *ydata, *qdata;
 
   /* local shortcuts for fused vector operation */
   int       nvec=0;
@@ -3354,9 +3266,6 @@ static int AndersonAccLowSync_delayedcgs2(KINMem kin_mem, N_Vector gval, N_Vecto
     
     /* another iteration before we've reached maa */
     /* -- QRAdd with Delayed CGS2 -- */
-    sdata = N_VGetArrayPointer(kin_mem->kin_vtemp3);
-    ydata = N_VGetArrayPointer(kin_mem->kin_vtemp4);
-    vsize = N_VGetLength(kin_mem->kin_df_aa[i_pt]);
     N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2); /* vtemp2 = df */ 
     
     /* R(1:k-1,k) = Q_k-1^T df_aa */
@@ -3364,35 +3273,25 @@ static int AndersonAccLowSync_delayedcgs2(KINMem kin_mem, N_Vector gval, N_Vecto
     /* Delayed reorthogonalization */
     if ((iter-1) > 1) {
         /* s = Q_k-2^T Q(:,k-1) */
-        N_VDotProdMulti(iter-1, kin_mem->kin_q_aa[iter-2], kin_mem->kin_q_aa, sdata);
+        N_VDotProdMulti(iter-1, kin_mem->kin_q_aa[iter-2], kin_mem->kin_q_aa, cv);
 
         /* Q(:,k-1) = Q(:,k-1) - Q_k-2 s */
-        for (k = 0; k < vsize; k++) {
-          ydata[k] = ZERO;
-          for (j = 0; j < (iter-2); j++) {
-            qdata = N_VGetArrayPointer(kin_mem->kin_q_aa[j]);
-            ydata[k] += qdata[k] * sdata[j]; 
-          }
-        }
-        N_VLinearSum(ONE, kin_mem->kin_q_aa[iter-2], -ONE, kin_mem->kin_vtemp4, kin_mem->kin_q_aa[iter-2]);
+        retval = N_VLinearCombination(iter-2, cv, kin_mem->kin_q_aa, kin_mem->kin_vtemp3); 
+        if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+        N_VLinearSum(ONE, kin_mem->kin_q_aa[iter-2], -ONE, kin_mem->kin_vtemp3, kin_mem->kin_q_aa[iter-2]);
         
         /* R(1:k-2,k-1) = R(1:k-2,k-1) + s */
         for (j = 0; j < (iter-2); j++) {
           ipt_map[j] = j; /* update iteration loop while I'm in here */
-          R[(iter-2)*kin_mem->kin_m_aa+j] = R[(iter-2)*kin_mem->kin_m_aa+j] + sdata[j];
+          R[(iter-2)*kin_mem->kin_m_aa+j] = R[(iter-2)*kin_mem->kin_m_aa+j] + cv[j];
         }
         ipt_map[iter-2] = iter-2; /* update iteration loop while I'm in here */
     }
 
     /* df = df - Q(:,k-1) s */
-    for (k = 0; k < vsize; k++) {
-      ydata[k] = ZERO;
-      for (j = 0; j < (iter-1); j++) {
-        qdata = N_VGetArrayPointer(kin_mem->kin_q_aa[j]);
-        ydata[k] += qdata[k] * R[(iter-1)*kin_mem->kin_m_aa+j]; 
-      }
-    }
-    N_VLinearSum(ONE, kin_mem->kin_vtemp2, -ONE, kin_mem->kin_vtemp4, kin_mem->kin_vtemp2);
+    retval = N_VLinearCombination(iter-1, R + (iter-1)*kin_mem->kin_m_aa, kin_mem->kin_q_aa, kin_mem->kin_vtemp3); 
+    if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+    N_VLinearSum(ONE, kin_mem->kin_vtemp2, -ONE, kin_mem->kin_vtemp3, kin_mem->kin_vtemp2);
 
     /* R(k,k) = \| df \| */
     R[(iter-1)*kin_mem->kin_m_aa+iter-1] = SUNRsqrt(N_VDotProd(kin_mem->kin_vtemp2, kin_mem->kin_vtemp2));
@@ -3507,12 +3406,11 @@ static int AndersonAccLowSync_stabdcgs2(KINMem kin_mem, N_Vector gval, N_Vector 
                                           long int iter, realtype *R, realtype *gamma)
 {
   int retval;
-  long int i_pt, i, j, lAA, k, vsize;
+  long int i_pt, i, j, lAA, k;
   long int *ipt_map;
   realtype alfa;
   realtype onembeta;
   realtype a, b, temp, c, s;
-  realtype *sdata, *ydata, *qdata;
 
   /* local shortcuts for fused vector operation */
   int       nvec=0;
@@ -3552,9 +3450,6 @@ static int AndersonAccLowSync_stabdcgs2(KINMem kin_mem, N_Vector gval, N_Vector 
    
     /* another iteration before we've reached maa */
     /* -- QRAdd with Stabilized Delayed CGS2 -- */
-    sdata = N_VGetArrayPointer(kin_mem->kin_vtemp3);
-    ydata = N_VGetArrayPointer(kin_mem->kin_vtemp4);
-    vsize = N_VGetLength(kin_mem->kin_df_aa[i_pt]);
     N_VScale(ONE, kin_mem->kin_df_aa[i_pt], kin_mem->kin_vtemp2); /* vtemp2 = df */ 
     
     /* R(1:k-1,k) = Q_k-1^T df_aa */
@@ -3562,42 +3457,32 @@ static int AndersonAccLowSync_stabdcgs2(KINMem kin_mem, N_Vector gval, N_Vector 
     /* Delayed reorthogonalization */
     if ((iter-1) > 1) {
         /* s = Q_k-2^T Q(:,k-1) */
-        N_VDotProdMulti(iter-1, kin_mem->kin_q_aa[iter-2], kin_mem->kin_q_aa, sdata);
+        N_VDotProdMulti(iter-1, kin_mem->kin_q_aa[iter-2], kin_mem->kin_q_aa, cv);
 
         /* Q(:,k-1) = Q(:,k-1) - Q_k-2 s */
-        for (k = 0; k < vsize; k++) {
-          ydata[k] = ZERO;
-          for (j = 0; j < (iter-2); j++) {
-            qdata = N_VGetArrayPointer(kin_mem->kin_q_aa[j]);
-            ydata[k] += qdata[k] * sdata[j]; 
-          }
-        }
-        N_VLinearSum(ONE, kin_mem->kin_q_aa[iter-2], -ONE, kin_mem->kin_vtemp4, kin_mem->kin_q_aa[iter-2]);
+        retval = N_VLinearCombination(iter-2, cv, kin_mem->kin_q_aa, kin_mem->kin_vtemp3); 
+        if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+        N_VLinearSum(ONE, kin_mem->kin_q_aa[iter-2], -ONE, kin_mem->kin_vtemp3, kin_mem->kin_q_aa[iter-2]);
         
         /* R(1:k-2,k-1) = R(1:k-2,k-1) + s */
         for (j = 0; j < (iter-2); j++) {
           ipt_map[j] = j; /* update iteration loop while I'm in here */
-          R[(iter-2)*kin_mem->kin_m_aa+j] = R[(iter-2)*kin_mem->kin_m_aa+j] + sdata[j];
+          R[(iter-2)*kin_mem->kin_m_aa+j] = R[(iter-2)*kin_mem->kin_m_aa+j] + cv[j];
         }
         ipt_map[iter-2] = iter-2; /* update iteration loop while I'm in here */
     }
 
     /* df = df - Q(:,k-1) s */
-    for (k = 0; k < vsize; k++) {
-      ydata[k] = ZERO;
-      for (j = 0; j < (iter-1); j++) {
-        qdata = N_VGetArrayPointer(kin_mem->kin_q_aa[j]);
-        ydata[k] += qdata[k] * R[(iter-1)*kin_mem->kin_m_aa+j]; 
-      }
-    }
-    N_VLinearSum(ONE, kin_mem->kin_vtemp2, -ONE, kin_mem->kin_vtemp4, kin_mem->kin_vtemp2);
+    retval = N_VLinearCombination(iter-1, R + (iter-1)*kin_mem->kin_m_aa, kin_mem->kin_q_aa, kin_mem->kin_vtemp3); 
+    if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+    N_VLinearSum(ONE, kin_mem->kin_vtemp2, -ONE, kin_mem->kin_vtemp3, kin_mem->kin_vtemp2);
  
     /* Apply correction */
     if ((iter-1) > 1) {
       /* df = df + Q(:,k-1) s^T R(1:k-2,k) */
       c = ZERO;
       for (j = 0; j < (iter-2); j++) {
-        c += R[(iter-1)*kin_mem->kin_m_aa+j] * sdata[j];
+        c += R[(iter-1)*kin_mem->kin_m_aa+j] * cv[j];
       }
       N_VLinearSum(ONE, kin_mem->kin_vtemp2, c, kin_mem->kin_q_aa[iter-2], kin_mem->kin_vtemp2);
 
@@ -3607,7 +3492,7 @@ static int AndersonAccLowSync_stabdcgs2(KINMem kin_mem, N_Vector gval, N_Vector 
       /* R(k-1,k-1) = R(k-1,k-1) - s^T s */
       c = ZERO;
       for (j = 0; j < (iter-2); j++) {
-        c += sdata[j] * sdata[j];
+        c += cv[j] * cv[j];
       }
       R[(iter-2)*kin_mem->kin_m_aa+(iter-2)] -= c;
 
