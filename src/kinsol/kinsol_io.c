@@ -84,6 +84,31 @@ int KINSetErrFile(void *kinmem, FILE *errfp)
   return(KIN_SUCCESS);
 }
 
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetErrFilename
+ * -----------------------------------------------------------------
+ */
+
+int KINSetErrFilename(void *kinmem, const char* filename)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetErrFilename", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+  kin_mem->kin_errfp = fopen(filename, "w+");
+  if (kin_mem->kin_errfp == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetErrFilename", "error opening file");
+    return(KIN_MEM_NULL);
+  }
+
+  return(KIN_SUCCESS);
+}
+
 #define errfp (kin_mem->kin_errfp)
 
 /*
