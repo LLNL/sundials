@@ -59,7 +59,8 @@ int main(int argc, char *argv[])
 
   printf("Vector length %ld \n\n", (long int) length);
 
-  //TODO initialize and finalize kokkos
+  Kokkos::initialize( argc, argv );
+  {
 
   /* Create new vectors */
   X = N_VNew_Kokkos(length);
@@ -205,6 +206,9 @@ int main(int argc, char *argv[])
   N_VDestroy(Z);
   N_VDestroy(U);
   N_VDestroy(V);
+
+  }
+  Kokkos::finalize();
 
   /* Print result */
   if (fails) {

@@ -84,11 +84,15 @@ N_Vector N_VNewEmpty_Kokkos()
   v->ops->nvminquotientlocal = N_VMinQuotient_Kokkos;
 
   v->content = (N_VectorContent_Kokkos) malloc(sizeof(_N_VectorContent_Kokkos));
+
   if (v->content == NULL)
   {
     N_VDestroy(v);
     return NULL;
   }
+  NVEC_KOKKOS_CONTENT(v)->length = 0;
+
+  return(v);
 }
 
 N_Vector N_VNew_Kokkos(sunindextype length)
@@ -1030,8 +1034,8 @@ void AllocateData(N_Vector v)
 {
   N_VectorContent_Kokkos vc = NVEC_KOKKOS_CONTENT(v);
 
-  vc->device_data = DeviceArrayView("device_data", NVEC_KOKKOS_MEMSIZE(v));
   vc->host_data = HostArrayView("host_data", NVEC_KOKKOS_MEMSIZE(v));
+  vc->device_data = DeviceArrayView("device_data", NVEC_KOKKOS_MEMSIZE(v));
 
 }
 

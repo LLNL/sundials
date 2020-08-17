@@ -32,8 +32,8 @@ extern "C" {
 
 struct _N_VectorContent_Kokkos {
   sunindextype    length;
-  HostArrayView   device_data;
-  DeviceArrayView host_data;
+  HostArrayView   host_data;
+  DeviceArrayView device_data;
 };
 
 typedef struct _N_VectorContent_Kokkos *N_VectorContent_Kokkos;

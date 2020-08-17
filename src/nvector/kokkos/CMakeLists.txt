@@ -36,8 +36,7 @@ endif(BUILD_STATIC_LIBS)
 
 if(BUILD_SHARED_LIBS)
   add_library(sundials_nveckokkos_shared SHARED ${nveckokkos_SOURCES} ${shared_SOURCES})
-  #TODO Do I need to set cxx_std_11 flag
-  # target_compile_features(sundials_nveckokkos_shared PUBLIC cxx_std_11)
+  target_compile_features(sundials_nveckokkos_shared PUBLIC cxx_std_11)
   target_link_libraries(sundials_nveckokkos_shared PUBLIC Kokkos::kokkos)
   target_include_directories(sundials_nveckokkos_shared PRIVATE . ${sundials_SOURCE_DIR}/src/sundials)
   set_target_properties(sundials_nveckokkos_shared PROPERTIES
