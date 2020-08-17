@@ -922,6 +922,9 @@ def KINSetDampingAA(kinmem, beta):
 def KINSetNumMaxIters(kinmem, mxiter):
     return _kinsol.KINSetNumMaxIters(kinmem, mxiter)
 
+def KINSetUseMaxIters(kinmem, use_mxiter):
+    return _kinsol.KINSetUseMaxIters(kinmem, use_mxiter)
+
 def KINSetNoInitSetup(kinmem, noInitSetup):
     return _kinsol.KINSetNoInitSetup(kinmem, noInitSetup)
 

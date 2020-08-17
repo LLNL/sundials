@@ -72,6 +72,7 @@ typedef struct KINMemRec {
                                   KIN_PICARD and KIN_FP                        */
   int kin_printfl;             /* level of verbosity of output                 */
   long int kin_mxiter;         /* maximum number of nonlinear iterations       */
+  booleantype kin_use_mxiter;  /* ignore stopping criteria, run to max iters   */
   long int kin_msbset;         /* maximum number of nonlinear iterations that
                                   may be performed between calls to the
                                   linear solver setup routine (lsetup)         */

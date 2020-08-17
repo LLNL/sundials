@@ -15191,6 +15191,34 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_KINSetUseMaxIters(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int res1 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "KINSetUseMaxIters", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINSetUseMaxIters" "', argument " "1"" of type '" "void *""'"); 
+  }
+  ecode2 = SWIG_AsVal_int(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "KINSetUseMaxIters" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (int)KINSetUseMaxIters(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_KINSetNoInitSetup(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   void *arg1 = (void *) 0 ;
@@ -17399,6 +17427,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "KINSetDelayAA", _wrap_KINSetDelayAA, METH_VARARGS, NULL},
 	 { "KINSetDampingAA", _wrap_KINSetDampingAA, METH_VARARGS, NULL},
 	 { "KINSetNumMaxIters", _wrap_KINSetNumMaxIters, METH_VARARGS, NULL},
+	 { "KINSetUseMaxIters", _wrap_KINSetUseMaxIters, METH_VARARGS, NULL},
 	 { "KINSetNoInitSetup", _wrap_KINSetNoInitSetup, METH_VARARGS, NULL},
 	 { "KINSetNoResMon", _wrap_KINSetNoResMon, METH_VARARGS, NULL},
 	 { "KINSetMaxSetupCalls", _wrap_KINSetMaxSetupCalls, METH_VARARGS, NULL},

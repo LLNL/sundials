@@ -267,6 +267,7 @@ void *KINCreate(void)
   kin_mem->kin_infofp           = stdout;
   kin_mem->kin_printfl          = PRINTFL_DEFAULT;
   kin_mem->kin_mxiter           = MXITER_DEFAULT;
+  kin_mem->kin_use_mxiter       = SUNFALSE;
   kin_mem->kin_noInitSetup      = SUNFALSE;
   kin_mem->kin_msbset           = MSBSET_DEFAULT;
   kin_mem->kin_noResMon         = SUNFALSE;
@@ -2545,9 +2546,13 @@ static int KINFP(KINMem kin_mem)
 
     /* Check if the maximum number of iterations is reached */
     if (kin_mem->kin_nni >= kin_mem->kin_mxiter) {
-      ret = KIN_MAXITER_REACHED;
+      if (kin_mem->kin_use_mxiter) {
+        ret = KIN_WARNING;
+      } else {
+        ret = KIN_MAXITER_REACHED;
+      }
     }
-    if (fmax <= kin_mem->kin_fnormtol) {
+    if (fmax <= kin_mem->kin_fnormtol && !(kin_mem->kin_use_mxiter)) {
       ret = KIN_SUCCESS;
     }
 
