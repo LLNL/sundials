@@ -562,10 +562,9 @@ booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
 
   Kokkos::parallel_reduce("N_VConstrMask", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
-    /*  bool test = (abs(cdata(i)) > ONEPT5 && cdata(i)*xdata(i) <= ZERO) ||
+      bool test = (abs(cdata(i)) > ONEPT5 && cdata(i)*xdata(i) <= ZERO) ||
                   (abs(cdata(i)) > HALF   && cdata(i)*xdata(i) <  ZERO);
       mdata(i) = test ? ONE : ZERO;
-      */
       update += mdata(i);
     }, gpu_result);
 

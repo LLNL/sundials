@@ -59,6 +59,12 @@ if(RAJA_ENABLE AND RAJA_FOUND)
   endif()
 endif()
 
+if(KOKKOS_ENABLE)
+  add_subdirectory(kokkos)
+endif()
+
+
+
 if(Trilinos_ENABLE AND Trilinos_FOUND)
   add_subdirectory(trilinos)
 endif()

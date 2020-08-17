@@ -19,13 +19,12 @@
 #include <stdlib.h>
 
 #include <sundials/sundials_types.h>
-#include <nvector/nvector_raja.h>
+#include <nvector/nvector_kokkos.h>
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
 
 /* KOKKOS vector specific tests */
 static int Test_N_VMake_Kokkos(N_Vector X, sunindextype length, int myid);
-static int Test_N_VMakeManaged_Kokkos(N_Vector X, sunindextype length, int myid);
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -129,7 +128,6 @@ int main(int argc, char *argv[])
 
   /* create vector and disable all fused and vector array operations */
   U = N_VNew_Kokkos(length);
-  N_VNewManaged_Kokkos(length);
 
   retval = N_VEnableFusedOps_Kokkos(U, SUNFALSE);
   if (U == NULL || retval != 0) {
