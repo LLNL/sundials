@@ -25,7 +25,6 @@
 
 /* KOKKOS vector specific tests */
 static int Test_N_VMake_Kokkos(N_Vector X, sunindextype length, int myid);
-//TODO remove all managed cases
 static int Test_N_VMakeManaged_Kokkos(N_Vector X, sunindextype length, int myid);
 
 /* ----------------------------------------------------------------------
@@ -355,10 +354,9 @@ double max_time(N_Vector X, double time)
   return(time);
 }
 
-//TODO sync device some how
 void sync_device()
 {
   /* sync with GPU */
-  cudaDeviceSynchronize();
+  Kokkos::fence();
   return;
 }

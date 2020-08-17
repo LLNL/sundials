@@ -5,6 +5,8 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_config.h>
 
+#include <Kokkos_Core.hpp>
+
 //TODO: determine best place to include this - do I need sundials_config/what is
 #if defined(KOKKOS_ENABLE_CUDA_UVM)
   #define MemSpace Kokkos::CudaUVMSpace

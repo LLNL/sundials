@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include <nvector/nvector_kokkos.h>
-#include <Kokkos_Core.hpp>
 
 #include "sundials_debug.h"
 
@@ -119,8 +118,8 @@ N_Vector N_VMake_Kokkos(sunindextype length, realtype *h_vdata, realtype *d_vdat
 
   NVEC_KOKKOS_CONTENT(v)->length      = length;
   // Create "unmanaged views" for data by passing data pointer into view contructor
-  NVEC_KOKKOS_CONTENT(v)->host_data   = HostArrayView("host_data", h_vdata, length);
-  NVEC_KOKKOS_CONTENT(v)->device_data = DeviceArrayView("device_data" d_vdata, length);
+  NVEC_KOKKOS_CONTENT(v)->host_data   = HostArrayView(h_vdata, length);
+  NVEC_KOKKOS_CONTENT(v)->device_data = DeviceArrayView(d_vdata, length);
 
   return(v);
 }
@@ -265,8 +264,8 @@ void N_VDestroy_Kokkos(N_Vector v)
    the data, unless the vector doesn't own the data in which it is a unmanaged
    view and the data will not be deallocated
    */
-  vc->device_data = DeviceArrayView;
-  vc->host_data = HostArrayView;
+  vc->device_data = DeviceArrayView();
+  vc->host_data = HostArrayView();
 
   /* free content struct */
   free(vc);
@@ -408,7 +407,7 @@ realtype N_VDotProd_Kokkos(N_Vector X, N_Vector Y)
   const auto ydata = NVEC_KOKKOS_CONTENT(Y)->device_data;
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtpe gpu_result = 0.0;
+  realtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce( "N_VDotProd", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
@@ -423,7 +422,7 @@ realtype N_VMaxNorm_Kokkos(N_Vector X)
   const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtype gpu_resul= 0.0;
+  realtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce( "N_VMaxNorm", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
@@ -439,7 +438,7 @@ realtype N_VWSqrSumLocal_Kokkos(N_Vector X, N_Vector W)
   const auto wdata = NVEC_KOKKOS_CONTENT(W)->device_data;
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtpe gpu_result = 0.0;
+  realtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce( "N_VWSqrSumLocal", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
@@ -463,7 +462,7 @@ realtype N_VWSqrSumMaskLocal_Kokkos(N_Vector X, N_Vector W, N_Vector ID)
   const auto iddata = NVEC_KOKKOS_CONTENT(ID)->device_data;
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtpe gpu_result = 0.0;
+  realtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce( "N_VWSqrSumMaskLocal", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
@@ -486,7 +485,7 @@ realtype N_VMin_Kokkos(N_Vector X)
   const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtype gpu_resul = std::numeric_limits<realtype>::max();
+  realtype gpu_result = std::numeric_limits<realtype>::max();
 
   Kokkos::parallel_reduce( "N_VMin", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
@@ -507,11 +506,11 @@ realtype N_VL1Norm_Kokkos(N_Vector X)
   const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
-  realtpe gpu_result = 0.0;
+  realtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce( "N_VL1Norm", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
-      update += += (abs(xdata[i]));
+      update += (abs(xdata(i)));
     }, gpu_result );
 
   return (static_cast<realtype>(gpu_result));
@@ -535,9 +534,9 @@ booleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
 {
   const auto xdata = NVEC_KOKKOS_CONTENT(x)->device_data;
   const sunindextype N = NVEC_KOKKOS_CONTENT(x)->length;
-  realtype *zdata = NVEC_KOKKOS_CONTENT(z)->device_data;
+  auto zdata = NVEC_KOKKOS_CONTENT(z)->device_data;
 
-  realtpe gpu_result = 0.0;
+  realtype gpu_result = 0.0;
 
   Kokkos::parallel_reduce( "N_VInvTest", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
@@ -559,15 +558,16 @@ booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
   const sunindextype N = NVEC_KOKKOS_CONTENT(x)->length;
   auto mdata = NVEC_KOKKOS_CONTENT(m)->device_data;
 
-  realtpe gpu_result = 0.0;
+  realtype gpu_result = 0.0;
 
-  Kokkos::parallel_reduce( "N_VConstrMask", range_policy(zeroIdx, N),
+  Kokkos::parallel_reduce("N_VConstrMask", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
-      bool test = (abs(cdata(i)) > ONEPT5 && cdata(i)*xdata(i) <= ZERO) ||
+    /*  bool test = (abs(cdata(i)) > ONEPT5 && cdata(i)*xdata(i) <= ZERO) ||
                   (abs(cdata(i)) > HALF   && cdata(i)*xdata(i) <  ZERO);
       mdata(i) = test ? ONE : ZERO;
+      */
       update += mdata(i);
-    } gpu_result);
+    }, gpu_result);
 
   realtype sum = static_cast<realtype>(gpu_result);
   return(sum < HALF);
@@ -580,7 +580,7 @@ realtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
   const auto ddata = NVEC_KOKKOS_CONTENT(denom)->device_data;
   const sunindextype N = NVEC_KOKKOS_CONTENT(num)->length;
 
-  reltype gpu_result = std::numeric_limits<realtype>::max();
+  realtype gpu_result = std::numeric_limits<realtype>::max();
 
   Kokkos::parallel_reduce( "N_VMinQuotient", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i, realtype &update) {
@@ -598,7 +598,7 @@ realtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
  * -----------------------------------------------------------------------------
  */
 
-//TODO All functions take in realtpe pointers
+//TODO All functions take in realtype pointers
 // maybe some implementation could take in Views?
 int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
@@ -607,7 +607,7 @@ int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
   auto d_zd = NVEC_KOKKOS_CONTENT(z)->device_data;
 
   // Make c into a view, create a device view d_c, then deep copy c to it
-  HostArrayView h_c("c", c, nvec);
+  HostArrayView h_c(c, nvec);
   DeviceArrayView d_c("d_c", nvec);
   Kokkos::deep_copy(d_c, h_c);
 
@@ -622,7 +622,7 @@ int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
 
   Kokkos::parallel_for("N_VLinearCombination", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
-      d_zd(i) = d_c(0) * d_Xd(j)(i);
+      d_zd(i) = d_c(0) * d_Xd(0)(i);
       for (int j=1; j<nvec; j++){
         d_zd(i) += d_c(j) * d_Xd(j)(i);
       }
@@ -638,7 +638,7 @@ int N_VScaleAddMulti_Kokkos(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Ve
   auto d_xd = NVEC_KOKKOS_CONTENT(x)->device_data;
 
   // Make c into a view, create a device view d_c, then deep copy c to it,
-  HostArrayView h_c("c", c, nvec);
+  HostArrayView h_c(c, nvec);
   DeviceArrayView d_c("d_c", nvec);
   Kokkos::deep_copy(d_c, h_c);
 
@@ -717,7 +717,7 @@ int N_VScaleVectorArray_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   sunindextype N = NVEC_KOKKOS_CONTENT(Z[0])->length;
 
   // Make c into a view, create a device view d_c, then deep copy c to it,
-  HostArrayView h_c("c", c, nvec);
+  HostArrayView h_c(c, nvec);
   DeviceArrayView d_c("d_c", nvec);
   Kokkos::deep_copy(d_c, h_c);
 
@@ -775,7 +775,7 @@ int N_VScaleAddMultiVectorArray_Kokkos(int nvec, int nsum, realtype* c,
   sunindextype N = NVEC_KOKKOS_CONTENT(X[0])->length;
 
   // Make c into a view, create a device view d_c, then deep copy c to it,
-  HostArrayView h_c("c", c, nsum);
+  HostArrayView h_c(c, nsum);
   DeviceArrayView d_c("d_c", nsum);
   Kokkos::deep_copy(d_c, h_c);
 
@@ -820,7 +820,7 @@ int N_VLinearCombinationVectorArray_Kokkos(int nvec, int nsum, realtype* c,
   sunindextype N = NVEC_KOKKOS_CONTENT(Z[0])->length;
 
   // Make c into a view, create a device view d_c, then deep copy c to it,
-  HostArrayView h_c("c", c, nsum);
+  HostArrayView h_c(c, nsum);
   DeviceArrayView d_c("d_c", nsum);
   Kokkos::deep_copy(d_c, h_c);
 

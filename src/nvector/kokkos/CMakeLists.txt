@@ -24,8 +24,7 @@ add_definitions(-DBUILD_SUNDIALS_LIBRARY)
 #checkpoint
 if(BUILD_STATIC_LIBS)
   add_library(sundials_nveckokkos_static STATIC ${nveckokkos_SOURCES} ${shared_SOURCES})
-  #TODO Do I need to set cxx_std_11 flag
-  # target_compile_features(sundials_nveckokkos_static PUBLIC cxx_std_11)
+  target_compile_features(sundials_nveckokkos_static PUBLIC cxx_std_11)
   target_link_libraries(sundials_nveckokkos_static PUBLIC Kokkos::kokkos)
   target_include_directories(sundials_nveckokkos_static PRIVATE . ${sundials_SOURCE_DIR}/src/sundials)
   set_target_properties(sundials_nveckokkos_static PROPERTIES
