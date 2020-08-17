@@ -901,6 +901,9 @@ def KINSetInfoHandlerFn(kinmem, ihfun, ih_data):
 def KINSetInfoFile(kinmem, infofp):
     return _kinsol.KINSetInfoFile(kinmem, infofp)
 
+def KINSetInfoFilename(kinmem, filename):
+    return _kinsol.KINSetInfoFilename(kinmem, filename)
+
 def KINSetPrintLevel(kinmem, printfl):
     return _kinsol.KINSetPrintLevel(kinmem, printfl)
 

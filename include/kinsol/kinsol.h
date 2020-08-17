@@ -103,6 +103,7 @@ SUNDIALS_EXPORT int KINSetErrFilename(void *kinmem, const char* filename);
 SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun,
                                         void *ih_data);
 SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
+SUNDIALS_EXPORT int KINSetInfoFilename(void *kinmem, const char *filename);
 SUNDIALS_EXPORT int KINSetUserData(void *kinmem, void *user_data);
 SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmem, int printfl);
 SUNDIALS_EXPORT int KINSetDampingFP(void *kinmem, realtype beta);

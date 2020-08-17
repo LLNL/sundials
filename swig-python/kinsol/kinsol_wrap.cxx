@@ -14992,6 +14992,37 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_KINSetInfoFilename(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  void *arg1 = (void *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "KINSetInfoFilename", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINSetInfoFilename" "', argument " "1"" of type '" "void *""'"); 
+  }
+  res2 = SWIG_AsCharPtrAndSize(swig_obj[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "KINSetInfoFilename" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (int)KINSetInfoFilename(arg1,(char const *)arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_KINSetPrintLevel(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   void *arg1 = (void *) 0 ;
@@ -17361,6 +17392,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "KINSetErrFilename", _wrap_KINSetErrFilename, METH_VARARGS, NULL},
 	 { "KINSetInfoHandlerFn", _wrap_KINSetInfoHandlerFn, METH_VARARGS, NULL},
 	 { "KINSetInfoFile", _wrap_KINSetInfoFile, METH_VARARGS, NULL},
+	 { "KINSetInfoFilename", _wrap_KINSetInfoFilename, METH_VARARGS, NULL},
 	 { "KINSetPrintLevel", _wrap_KINSetPrintLevel, METH_VARARGS, NULL},
 	 { "KINSetDampingFP", _wrap_KINSetDampingFP, METH_VARARGS, NULL},
 	 { "KINSetMAA", _wrap_KINSetMAA, METH_VARARGS, NULL},

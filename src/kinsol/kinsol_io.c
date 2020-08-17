@@ -109,8 +109,6 @@ int KINSetErrFilename(void *kinmem, const char* filename)
   return(KIN_SUCCESS);
 }
 
-#define errfp (kin_mem->kin_errfp)
-
 /*
  * -----------------------------------------------------------------
  * Function : KINSetPrintLevel
@@ -161,7 +159,6 @@ int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data)
   return(KIN_SUCCESS);
 }
 
-
 /*
  * -----------------------------------------------------------------
  * Function : KINSetInfoFile
@@ -179,6 +176,31 @@ int KINSetInfoFile(void *kinmem, FILE *infofp)
 
   kin_mem = (KINMem) kinmem;
   kin_mem->kin_infofp = infofp;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetInfoFilename
+ * -----------------------------------------------------------------
+ */
+
+int KINSetInfoFilename(void *kinmem, const char* filename)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetInfoFilename", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+  kin_mem->kin_infofp = fopen(filename, "w+");
+  if (kin_mem->kin_infofp == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetInfoFilename", "error opening file");
+    return(KIN_MEM_NULL);
+  }
 
   return(KIN_SUCCESS);
 }
