@@ -901,11 +901,17 @@ def KINSetInfoHandlerFn(kinmem, ihfun, ih_data):
 def KINSetInfoFile(kinmem, infofp):
     return _kinsol.KINSetInfoFile(kinmem, infofp)
 
-def KINSetPrintLevel(kinmemm, printfl):
-    return _kinsol.KINSetPrintLevel(kinmemm, printfl)
+def KINSetPrintLevel(kinmem, printfl):
+    return _kinsol.KINSetPrintLevel(kinmem, printfl)
+
+def KINSetDampingFP(kinmem, beta):
+    return _kinsol.KINSetDampingFP(kinmem, beta)
 
 def KINSetMAA(kinmem, maa):
     return _kinsol.KINSetMAA(kinmem, maa)
+
+def KINSetDelayAA(kinmem, delay):
+    return _kinsol.KINSetDelayAA(kinmem, delay)
 
 def KINSetDampingAA(kinmem, beta):
     return _kinsol.KINSetDampingAA(kinmem, beta)

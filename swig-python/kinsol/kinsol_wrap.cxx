@@ -3628,11 +3628,6 @@ SWIG_FromCharPtr(const char *cptr)
     if (PyDict_Check(    py_obj)) return "dict"        ;
     if (PyList_Check(    py_obj)) return "list"        ;
     if (PyTuple_Check(   py_obj)) return "tuple"       ;
-#if PY_MAJOR_VERSION < 3
-    if (PyFile_Check(    py_obj)) return "file"        ;
-    if (PyModule_Check(  py_obj)) return "module"      ;
-    if (PyInstance_Check(py_obj)) return "instance"    ;
-#endif
 
     return "unknown type";
   }
@@ -4038,7 +4033,7 @@ SWIG_FromCharPtr(const char *cptr)
     const npy_intp *dims = array_dimensions(ary);
     for (i=0; i < nd; ++i)
       n_non_one += (dims[i] != 1) ? 1 : 0;
-    if (n_non_one > 1)    
+    if (n_non_one > 1)
       array_clearflags(ary,NPY_ARRAY_CARRAY);
     array_enableflags(ary,NPY_ARRAY_FARRAY);
     /* Recompute the strides */
@@ -15025,6 +15020,34 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_KINSetDampingFP(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int res1 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "KINSetDampingFP", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINSetDampingFP" "', argument " "1"" of type '" "void *""'"); 
+  }
+  ecode2 = SWIG_AsVal_double(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "KINSetDampingFP" "', argument " "2"" of type '" "realtype""'");
+  } 
+  arg2 = static_cast< realtype >(val2);
+  result = (int)KINSetDampingFP(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_KINSetMAA(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   void *arg1 = (void *) 0 ;
@@ -15046,6 +15069,34 @@ SWIGINTERN PyObject *_wrap_KINSetMAA(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   } 
   arg2 = static_cast< long >(val2);
   result = (int)KINSetMAA(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_KINSetDelayAA(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  void *arg1 = (void *) 0 ;
+  long arg2 ;
+  int res1 ;
+  long val2 ;
+  int ecode2 = 0 ;
+  PyObject *swig_obj[2] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "KINSetDelayAA", 2, 2, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0],SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "KINSetDelayAA" "', argument " "1"" of type '" "void *""'"); 
+  }
+  ecode2 = SWIG_AsVal_long(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "KINSetDelayAA" "', argument " "2"" of type '" "long""'");
+  } 
+  arg2 = static_cast< long >(val2);
+  result = (int)KINSetDelayAA(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
@@ -17311,7 +17362,9 @@ static PyMethodDef SwigMethods[] = {
 	 { "KINSetInfoHandlerFn", _wrap_KINSetInfoHandlerFn, METH_VARARGS, NULL},
 	 { "KINSetInfoFile", _wrap_KINSetInfoFile, METH_VARARGS, NULL},
 	 { "KINSetPrintLevel", _wrap_KINSetPrintLevel, METH_VARARGS, NULL},
+	 { "KINSetDampingFP", _wrap_KINSetDampingFP, METH_VARARGS, NULL},
 	 { "KINSetMAA", _wrap_KINSetMAA, METH_VARARGS, NULL},
+	 { "KINSetDelayAA", _wrap_KINSetDelayAA, METH_VARARGS, NULL},
 	 { "KINSetDampingAA", _wrap_KINSetDampingAA, METH_VARARGS, NULL},
 	 { "KINSetNumMaxIters", _wrap_KINSetNumMaxIters, METH_VARARGS, NULL},
 	 { "KINSetNoInitSetup", _wrap_KINSetNoInitSetup, METH_VARARGS, NULL},
