@@ -84,6 +84,8 @@ N_Vector N_VNewEmpty_Kokkos()
   v->ops->nvminquotientlocal = N_VMinQuotient_Kokkos;
 
   v->content = (N_VectorContent_Kokkos) malloc(sizeof(_N_VectorContent_Kokkos));
+  NVEC_KOKKOS_CONTENT(v)->host_data   = NULL;
+  NVEC_KOKKOS_CONTENT(v)->device_data = NULL;
 
   if (v->content == NULL)
   {
@@ -122,8 +124,8 @@ N_Vector N_VMake_Kokkos(sunindextype length, realtype *h_vdata, realtype *d_vdat
 
   NVEC_KOKKOS_CONTENT(v)->length      = length;
   // Create "unmanaged views" for data by passing data pointer into view contructor
-  NVEC_KOKKOS_CONTENT(v)->host_data   = HostArrayView(h_vdata, length);
-  NVEC_KOKKOS_CONTENT(v)->device_data = DeviceArrayView(d_vdata, length);
+  NVEC_KOKKOS_CONTENT(v)->host_data   = new HostArrayView(h_vdata, length);;
+  NVEC_KOKKOS_CONTENT(v)->device_data = new DeviceArrayView(d_vdata, length);
 
   return(v);
 }
@@ -145,7 +147,10 @@ sunindextype N_VGetLength_Kokkos(N_Vector v)
 // Same with get device array
 realtype *N_VGetHostArrayPointer_Kokkos(N_Vector x)
 {
-  return NVEC_KOKKOS_CONTENT(x)->host_data.data();
+  if (NVEC_KOKKOS_CONTENT(x)->host_data == NULL)
+    return NULL;
+  else
+    return NVEC_KOKKOS_CONTENT(x)->host_data->data();
 }
 
 /* ----------------------------------------------------------------------------
@@ -154,7 +159,10 @@ realtype *N_VGetHostArrayPointer_Kokkos(N_Vector x)
 
 realtype *N_VGetDeviceArrayPointer_Kokkos(N_Vector x)
 {
-  return NVEC_KOKKOS_CONTENT(x)->device_data.data();;
+  if (NVEC_KOKKOS_CONTENT(x)->device_data == NULL)
+    return NULL;
+  else
+    return NVEC_KOKKOS_CONTENT(x)->device_data->data();
 }
 
 /* ----------------------------------------------------------------------------
@@ -163,8 +171,8 @@ realtype *N_VGetDeviceArrayPointer_Kokkos(N_Vector x)
 
 void N_VCopyToDevice_Kokkos(N_Vector x)
 {
-  Kokkos::deep_copy(NVEC_KOKKOS_CONTENT(x)->device_data,
-                    NVEC_KOKKOS_CONTENT(x)->host_data);
+  Kokkos::deep_copy(*(NVEC_KOKKOS_CONTENT(x)->device_data),
+                    *(NVEC_KOKKOS_CONTENT(x)->host_data));
 }
 
 /* ----------------------------------------------------------------------------
@@ -174,8 +182,8 @@ void N_VCopyToDevice_Kokkos(N_Vector x)
 void N_VCopyFromDevice_Kokkos(N_Vector x)
 {
 
-  Kokkos::deep_copy(NVEC_KOKKOS_CONTENT(x)->host_data,
-                    NVEC_KOKKOS_CONTENT(x)->device_data);
+  Kokkos::deep_copy(*(NVEC_KOKKOS_CONTENT(x)->host_data),
+                    *(NVEC_KOKKOS_CONTENT(x)->device_data));
 }
 
 /* ----------------------------------------------------------------------------
@@ -193,7 +201,7 @@ void N_VPrint_Kokkos(N_Vector X)
 
 void N_VPrintFile_Kokkos(N_Vector X, FILE *outfile)
 {
-  const realtype *xd = NVEC_KOKKOS_CONTENT(X)->host_data.data();
+  const realtype *xd = NVEC_KOKKOS_CONTENT(X)->host_data->data();
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
   sunindextype i;
 
@@ -262,14 +270,14 @@ void N_VDestroy_Kokkos(N_Vector v)
     return;
   }
 
-   /*
+   /* TOTDO rexamine and explain this
    By assigning the views to default constructed views the refference
    count of the orignal view goes to zero and it automatically deallocates
    the data, unless the vector doesn't own the data in which it is a unmanaged
    view and the data will not be deallocated
    */
-  vc->device_data = DeviceArrayView();
-  vc->host_data = HostArrayView();
+  vc->device_data = NULL;
+  vc->host_data = NULL;
 
   /* free content struct */
   free(vc);
@@ -299,7 +307,7 @@ void N_VSpace_Kokkos(N_Vector X, sunindextype *lrw, sunindextype *liw)
 void N_VConst_Kokkos(realtype c, N_Vector Z)
 {
   const sunindextype N = NVEC_KOKKOS_CONTENT(Z)->length;
-  auto zdata = NVEC_KOKKOS_CONTENT(Z)->device_data;
+  auto zdata = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
 
   Kokkos::parallel_for("N_VConst", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
@@ -311,10 +319,10 @@ void N_VConst_Kokkos(realtype c, N_Vector Z)
 
 void N_VLinearSum_Kokkos(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
-  const auto ydata = NVEC_KOKKOS_CONTENT(Y)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
+  const auto ydata = *(NVEC_KOKKOS_CONTENT(Y)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
-  auto zdata = NVEC_KOKKOS_CONTENT(Z)->device_data;
+  auto zdata = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
 
 
   Kokkos::parallel_for("N_VLinearSum", range_policy(zeroIdx, N),
@@ -326,10 +334,10 @@ void N_VLinearSum_Kokkos(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vecto
 
 void N_VProd_Kokkos(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
-  const auto ydata = NVEC_KOKKOS_CONTENT(Y)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
+  const auto ydata = *(NVEC_KOKKOS_CONTENT(Y)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
-  auto zdata = NVEC_KOKKOS_CONTENT(Z)->device_data;
+  auto zdata = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
 
   Kokkos::parallel_for("N_VProd", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
@@ -341,10 +349,10 @@ void N_VProd_Kokkos(N_Vector X, N_Vector Y, N_Vector Z)
 
 void N_VDiv_Kokkos(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
-  const auto ydata = NVEC_KOKKOS_CONTENT(Y)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
+  const auto ydata = *(NVEC_KOKKOS_CONTENT(Y)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
-  auto zdata = NVEC_KOKKOS_CONTENT(Z)->device_data;
+  auto zdata = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
 
   Kokkos::parallel_for("N_VDiv", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
@@ -355,9 +363,9 @@ void N_VDiv_Kokkos(N_Vector X, N_Vector Y, N_Vector Z)
 
 void N_VScale_Kokkos(realtype c, N_Vector X, N_Vector Z)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
-  auto zdata = NVEC_KOKKOS_CONTENT(Z)->device_data;
+  auto zdata = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
 
   Kokkos::parallel_for("N_VScale", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
@@ -368,9 +376,9 @@ void N_VScale_Kokkos(realtype c, N_Vector X, N_Vector Z)
 
 void N_VAbs_Kokkos(N_Vector X, N_Vector Z)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
-  auto zdata = NVEC_KOKKOS_CONTENT(Z)->device_data;
+  auto zdata = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
 
   Kokkos::parallel_for("N_VAbs", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
@@ -381,9 +389,9 @@ void N_VAbs_Kokkos(N_Vector X, N_Vector Z)
 
 void N_VInv_Kokkos(N_Vector X, N_Vector Z)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
-  auto zdata = NVEC_KOKKOS_CONTENT(Z)->device_data;
+  auto zdata = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
 
   Kokkos::parallel_for("N_VInv", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
@@ -394,9 +402,9 @@ void N_VInv_Kokkos(N_Vector X, N_Vector Z)
 
 void N_VAddConst_Kokkos(N_Vector X, realtype b, N_Vector Z)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
-  auto zdata = NVEC_KOKKOS_CONTENT(Z)->device_data;
+  auto zdata = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
 
   Kokkos::parallel_for("N_VAddConst", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
@@ -407,8 +415,8 @@ void N_VAddConst_Kokkos(N_Vector X, realtype b, N_Vector Z)
 
 realtype N_VDotProd_Kokkos(N_Vector X, N_Vector Y)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
-  const auto ydata = NVEC_KOKKOS_CONTENT(Y)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
+  const auto ydata = *(NVEC_KOKKOS_CONTENT(Y)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
   realtype gpu_result = 0.0;
@@ -423,7 +431,7 @@ realtype N_VDotProd_Kokkos(N_Vector X, N_Vector Y)
 
 realtype N_VMaxNorm_Kokkos(N_Vector X)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
   realtype gpu_result = 0.0;
@@ -438,8 +446,8 @@ realtype N_VMaxNorm_Kokkos(N_Vector X)
 
 realtype N_VWSqrSumLocal_Kokkos(N_Vector X, N_Vector W)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
-  const auto wdata = NVEC_KOKKOS_CONTENT(W)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
+  const auto wdata = *(NVEC_KOKKOS_CONTENT(W)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
   realtype gpu_result = 0.0;
@@ -461,9 +469,9 @@ realtype N_VWrmsNorm_Kokkos(N_Vector X, N_Vector W)
 
 realtype N_VWSqrSumMaskLocal_Kokkos(N_Vector X, N_Vector W, N_Vector ID)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
-  const auto wdata = NVEC_KOKKOS_CONTENT(W)->device_data;
-  const auto iddata = NVEC_KOKKOS_CONTENT(ID)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
+  const auto wdata = *(NVEC_KOKKOS_CONTENT(W)->device_data);
+  const auto iddata = *(NVEC_KOKKOS_CONTENT(ID)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
   realtype gpu_result = 0.0;
@@ -486,7 +494,7 @@ realtype N_VWrmsNormMask_Kokkos(N_Vector X, N_Vector W, N_Vector ID)
 
 realtype N_VMin_Kokkos(N_Vector X)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
   realtype gpu_result = std::numeric_limits<realtype>::max();
@@ -507,7 +515,7 @@ realtype N_VWL2Norm_Kokkos(N_Vector X, N_Vector W)
 
 realtype N_VL1Norm_Kokkos(N_Vector X)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
 
   realtype gpu_result = 0.0;
@@ -522,9 +530,9 @@ realtype N_VL1Norm_Kokkos(N_Vector X)
 
 void N_VCompare_Kokkos(realtype c, N_Vector X, N_Vector Z)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(X)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(X)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
-  auto zdata = NVEC_KOKKOS_CONTENT(Z)->device_data;
+  auto zdata = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
 
   Kokkos::parallel_for("N_VCompare", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
@@ -536,9 +544,9 @@ void N_VCompare_Kokkos(realtype c, N_Vector X, N_Vector Z)
 
 booleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
 {
-  const auto xdata = NVEC_KOKKOS_CONTENT(x)->device_data;
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(x)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(x)->length;
-  auto zdata = NVEC_KOKKOS_CONTENT(z)->device_data;
+  auto zdata = *(NVEC_KOKKOS_CONTENT(z)->device_data);
 
   realtype gpu_result = 0.0;
 
@@ -557,10 +565,10 @@ booleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
 {
-  const auto cdata = NVEC_KOKKOS_CONTENT(c)->device_data;
-  const auto xdata = NVEC_KOKKOS_CONTENT(x)->device_data;
+  const auto cdata = *(NVEC_KOKKOS_CONTENT(c)->device_data);
+  const auto xdata = *(NVEC_KOKKOS_CONTENT(x)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(x)->length;
-  auto mdata = NVEC_KOKKOS_CONTENT(m)->device_data;
+  auto mdata = *(NVEC_KOKKOS_CONTENT(m)->device_data);
 
   realtype gpu_result = 0.0;
 
@@ -579,8 +587,8 @@ booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
 
 realtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
 {
-  const auto ndata = NVEC_KOKKOS_CONTENT(num)->device_data;
-  const auto ddata = NVEC_KOKKOS_CONTENT(denom)->device_data;
+  const auto ndata = *(NVEC_KOKKOS_CONTENT(num)->device_data);
+  const auto ddata = *(NVEC_KOKKOS_CONTENT(denom)->device_data);
   const sunindextype N = NVEC_KOKKOS_CONTENT(num)->length;
 
   realtype gpu_result = std::numeric_limits<realtype>::max();
@@ -607,7 +615,7 @@ int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
 
   sunindextype N = NVEC_KOKKOS_CONTENT(z)->length;
-  auto d_zd = NVEC_KOKKOS_CONTENT(z)->device_data;
+  auto d_zd = *(NVEC_KOKKOS_CONTENT(z)->device_data);
 
   // Make c into a view, create a device view d_c, then deep copy c to it
   HostArrayView h_c(c, nvec);
@@ -617,7 +625,7 @@ int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
   // Create View of device views on host
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Xd(j) = NVEC_KOKKOS_CONTENT(X[j])->device_data;
+    h_Xd(j) = *(NVEC_KOKKOS_CONTENT(X[j])->device_data);
 
   // Copy host view to a device view
   Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nvec);
@@ -638,7 +646,7 @@ int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
 int N_VScaleAddMulti_Kokkos(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
   sunindextype N = NVEC_KOKKOS_CONTENT(x)->length;
-  auto d_xd = NVEC_KOKKOS_CONTENT(x)->device_data;
+  auto d_xd = *(NVEC_KOKKOS_CONTENT(x)->device_data);
 
   // Make c into a view, create a device view d_c, then deep copy c to it,
   HostArrayView h_c(c, nvec);
@@ -648,11 +656,11 @@ int N_VScaleAddMulti_Kokkos(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Ve
   // Create array of device views on host
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Yd("h_Yd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Yd(j) = NVEC_KOKKOS_CONTENT(Y[j])->device_data;
+    h_Yd(j) = *(NVEC_KOKKOS_CONTENT(Y[j])->device_data);
 
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Zd(j) = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
+    h_Zd(j) = *(NVEC_KOKKOS_CONTENT(Z[j])->device_data);
 
   // Copy host view to a device view
   Kokkos::View<DeviceArrayView*, MemSpace> d_Yd("d_Yd", nvec);
@@ -686,15 +694,15 @@ int N_VLinearSumVectorArray_Kokkos(int nvec,
   // Create array of device views on host
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Xd(j) = NVEC_KOKKOS_CONTENT(X[j])->device_data;
+    h_Xd(j) = *(NVEC_KOKKOS_CONTENT(X[j])->device_data);
 
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Yd("h_Yd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Yd(j) = NVEC_KOKKOS_CONTENT(Y[j])->device_data;
+    h_Yd(j) = *(NVEC_KOKKOS_CONTENT(Y[j])->device_data);
 
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Zd(j) = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
+    h_Zd(j) = *(NVEC_KOKKOS_CONTENT(Z[j])->device_data);
 
   // Copy host view to a device view
   Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nvec);
@@ -727,11 +735,11 @@ int N_VScaleVectorArray_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   // Create array of device views on host
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Xd(j) = NVEC_KOKKOS_CONTENT(X[j])->device_data;
+    h_Xd(j) = *(NVEC_KOKKOS_CONTENT(X[j])->device_data);
 
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Zd(j) = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
+    h_Zd(j) = *(NVEC_KOKKOS_CONTENT(Z[j])->device_data);
 
   // Copy host view to a device view
   Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nvec);
@@ -756,7 +764,7 @@ int N_VConstVectorArray_Kokkos(int nvec, realtype c, N_Vector* Z)
   // Create array of device views on host
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Zd(j) = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
+    h_Zd(j) = *(NVEC_KOKKOS_CONTENT(Z[j])->device_data);
 
    // Copy host view to a device view
   Kokkos::View<DeviceArrayView*, MemSpace> d_Zd("d_Zd", nvec);
@@ -785,17 +793,17 @@ int N_VScaleAddMultiVectorArray_Kokkos(int nvec, int nsum, realtype* c,
   // Create array of device views on host
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Xd(j) = NVEC_KOKKOS_CONTENT(X[j])->device_data;
+    h_Xd(j) = *(NVEC_KOKKOS_CONTENT(X[j])->device_data);
 
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Yd("h_Yd", nsum*nvec);
   for (int j=0; j<nvec; j++)
     for (int k=0; k<nsum; k++)
-      h_Yd(j*nsum+k) = NVEC_KOKKOS_CONTENT(Y[k][j])->device_data;
+      h_Yd(j*nsum+k) = *(NVEC_KOKKOS_CONTENT(Y[k][j])->device_data);
 
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nsum*nvec);
   for (int j=0; j<nvec; j++)
     for (int k=0; k<nsum; k++)
-      h_Zd(j*nsum+k) = NVEC_KOKKOS_CONTENT(Z[k][j])->device_data;
+      h_Zd(j*nsum+k) = *(NVEC_KOKKOS_CONTENT(Z[k][j])->device_data);
 
    // Copy host view to a device view
   Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nvec);
@@ -831,11 +839,11 @@ int N_VLinearCombinationVectorArray_Kokkos(int nvec, int nsum, realtype* c,
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nsum*nvec);
   for (int j=0; j<nvec; j++)
     for (int k=0; k<nsum; k++)
-      h_Xd(j*nsum+k) = NVEC_KOKKOS_CONTENT(X[k][j])->device_data;
+      h_Xd(j*nsum+k) = *(NVEC_KOKKOS_CONTENT(X[k][j])->device_data);
 
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
   for (int j=0; j<nvec; j++)
-    h_Zd(j) = NVEC_KOKKOS_CONTENT(Z[j])->device_data;
+    h_Zd(j) = *(NVEC_KOKKOS_CONTENT(Z[j])->device_data);
 
   // Copy host view to a device view
   Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nsum*nvec);
@@ -1034,8 +1042,8 @@ void AllocateData(N_Vector v)
 {
   N_VectorContent_Kokkos vc = NVEC_KOKKOS_CONTENT(v);
 
-  vc->host_data = HostArrayView("host_data", NVEC_KOKKOS_MEMSIZE(v));
-  vc->device_data = DeviceArrayView("device_data", NVEC_KOKKOS_MEMSIZE(v));
+  vc->host_data = new HostArrayView("host_data", NVEC_KOKKOS_MEMSIZE(v));
+  vc->device_data = new DeviceArrayView("device_data", NVEC_KOKKOS_MEMSIZE(v));
 
 }
 
