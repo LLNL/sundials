@@ -243,3 +243,9 @@ if(EXAMPLES_INSTALL)
   endif(UNIX)
 
 endif(EXAMPLES_INSTALL)
+    
+# Executable for N_VDotProdMulti timing tests 
+add_executable(time_nvector_mpi_allreduce time_nvector_mpi_allreduce.c
+      ../../../src/sundials/sundials_nvector.c)
+target_link_libraries(time_nvector_mpi_allreduce ${SUNDIALS_LIBS})
+target_link_libraries(time_nvector_mpi_allreduce ${MPI_LIBRARIES})
