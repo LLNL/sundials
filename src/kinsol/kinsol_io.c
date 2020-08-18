@@ -393,6 +393,28 @@ int KINSetAAStopCrit(void *kinmem, booleantype setstop)
  * -----------------------------------------------------------------
  */
 
+int KINSetReturnNewest(void *kinmem, booleantype ret_newest)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetReturnNewest", MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  kin_mem->kin_ret_newest = ret_newest;
+
+  return(KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetNumMaxIters
+ * -----------------------------------------------------------------
+ */
+
 int KINSetNumMaxIters(void *kinmem, long int mxiter)
 {
   KINMem kin_mem;

@@ -919,6 +919,9 @@ def KINSetDelayAA(kinmem, delay):
 def KINSetDampingAA(kinmem, beta):
     return _kinsol.KINSetDampingAA(kinmem, beta)
 
+def KINSetReturnNewest(kinmem, ret_newest):
+    return _kinsol.KINSetReturnNewest(kinmem, ret_newest)
+
 def KINSetNumMaxIters(kinmem, mxiter):
     return _kinsol.KINSetNumMaxIters(kinmem, mxiter)
 

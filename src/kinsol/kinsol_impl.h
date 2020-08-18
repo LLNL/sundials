@@ -71,6 +71,7 @@ typedef struct KINMemRec {
   int kin_globalstrategy;      /* choices are KIN_NONE, KIN_LINESEARCH
                                   KIN_PICARD and KIN_FP                        */
   int kin_printfl;             /* level of verbosity of output                 */
+  booleantype kin_ret_newest;  /* return the newest iteration                  */
   long int kin_mxiter;         /* maximum number of nonlinear iterations       */
   booleantype kin_use_mxiter;  /* ignore stopping criteria, run to max iters   */
   long int kin_msbset;         /* maximum number of nonlinear iterations that

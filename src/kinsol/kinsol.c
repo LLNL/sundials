@@ -266,6 +266,7 @@ void *KINCreate(void)
   kin_mem->kin_ih_data          = kin_mem;
   kin_mem->kin_infofp           = stdout;
   kin_mem->kin_printfl          = PRINTFL_DEFAULT;
+  kin_mem->kin_ret_newest       = SUNFALSE;
   kin_mem->kin_mxiter           = MXITER_DEFAULT;
   kin_mem->kin_use_mxiter       = SUNFALSE;
   kin_mem->kin_noInitSetup      = SUNFALSE;
@@ -2556,7 +2557,7 @@ static int KINFP(KINMem kin_mem)
       ret = KIN_SUCCESS;
     }
 
-    if (ret == CONTINUE_ITERATIONS) {
+    if (ret == CONTINUE_ITERATIONS || kin_mem->kin_ret_newest) {
       /* Only update solution if taking a next iteration.  */
       /* CSW  Should put in a conditional to send back the newest iterate or
          the one consistent with the fval */
