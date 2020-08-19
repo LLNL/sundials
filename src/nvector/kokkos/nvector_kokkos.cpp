@@ -615,14 +615,17 @@ int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
   auto d_zd = *(NVEC_KOKKOS_CONTENT(z)->device_data);
 
   // Make c into a view, create a device view d_c, then deep copy c to it
-  HostArrayView h_c(c, nvec);
+  HostArrayView h_c("h_c", nvec);
+  for (int j=0; j<nvec; j++)
+    h_c(j) = c[j];
+
   DeviceArrayView d_c("d_c", nvec);
   Kokkos::deep_copy(d_c, h_c);
 
-  //Create pointer to device views and create an unmanaged view from it
-  DeviceArrayView* Xd = new DeviceArrayView[nvec];
-  for (int j=0; j<nvec; j++)
-    Xd[j] = *(NVEC_KOKKOS_CONTENT(X[j])->device_data);
+//Create pointer to device views and create an unmanaged view from it
+DeviceArrayView* Xd = new DeviceArrayView[nvec];
+for (int j=0; j<nvec; j++)
+  Xd[j] = *(NVEC_KOKKOS_CONTENT(X[j])->device_data);
 
   // Create View of device views on host
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd(Xd, nvec);
