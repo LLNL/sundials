@@ -19,12 +19,6 @@
 #include <stdlib.h>
 #include <mpi.h>
 
-/* POSIX timers */
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
-#include <time.h>
-#include <unistd.h>
-#endif
-
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 #include <nvector/nvector_parallel.h>
@@ -34,22 +28,12 @@
 #define ONE      RCONST(1.0)
 #define TWO      RCONST(2.0)
 
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
-static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
-                                       by get_time easier to read when
-                                       printed since they will be zero
-                                       based.
-                                    */
-#endif
-
 /* macro for printing timings */
 #define FMT "%s Time: %22.15e\n\n"
 #define PRINT_TIME(test, time) printf(FMT, test, time)
 
 /* private functions */
-void SetTiming(int onoff, int myid);
-static double get_time();
-double max_time(N_Vector X, double time);
+double max_time(double time);
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -62,12 +46,13 @@ int main(int argc, char *argv[])
   N_Vector     X;                     /* test vector               */
   N_Vector     *V;                    /* nvector array containing clones of X      */
   realtype     *dotprods;             /* array containing dotprods of vectors in V */
+  realtype     *xd, *yd;              /* arrays used in dotprod calculations       */
   int          num_vecs;              /* number of vectors in V    */ 
   MPI_Comm     comm;                  /* MPI Communicator          */
   int          nprocs, myid;          /* Number of procs, proc id  */
   double       start_time, stop_time; /* start and stop times for processes   */ 
   double       maxt;                  /* maximum time required by any process */
-  int i;
+  int i, j;
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
@@ -96,8 +81,6 @@ int main(int argc, char *argv[])
     MPI_Abort(comm, -1);
   }
 
-  SetTiming(1, myid);
-
   /* global length */
   global_length = nprocs*local_length;
 
@@ -113,7 +96,7 @@ int main(int argc, char *argv[])
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
     MPI_Abort(comm, 1);
   }
-
+  
   /* Enable fused vector operations */ 
   retval = N_VEnableFusedOps_Parallel(X, SUNTRUE);
 
@@ -129,19 +112,32 @@ int main(int argc, char *argv[])
   N_VConst(TWO, X);
   for (i = 0; i < num_vecs; i++)
     N_VConst(ONE, V[i]);
+  
+  /* get data array */
+  xd   = NV_DATA_P(X);
 
-  /* time multi dot prod */
-  start_time = get_time();
-  retval = N_VDotProdMulti(num_vecs, X, V, dotprods);
-  stop_time = get_time();
+  MPI_Barrier(MPI_COMM_WORLD);
+  /* compute multiple dot products */
+  for (i=0; i<num_vecs; i++) {
+    yd = NV_DATA_P(V[i]);
+    dotprods[i] = ZERO;
+    for (j=0; j<local_length; j++) {
+      dotprods[i] += xd[j] * yd[j];
+    }
+  }
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  start_time = MPI_Wtime();
+  retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, num_vecs, MPI_SUNREALTYPE, MPI_SUM, MPI_COMM_WORLD);
+  stop_time = MPI_Wtime();
+
+  MPI_Barrier(MPI_COMM_WORLD);
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time(stop_time - start_time);
 
   /* Print result */
   if (myid == 0) PRINT_TIME("N_VDotProdMulti", maxt);
-
-  /*fails += Test_N_VDotProdMulti(V, local_length, myid);*/
 
   /* Free memory */
   N_VDestroyVectorArray(V, num_vecs);
@@ -153,49 +149,14 @@ int main(int argc, char *argv[])
   return(0);
 }
 
-
-/* ----------------------------------------------------------------------
- * Set Timing 
- * --------------------------------------------------------------------*/
-void SetTiming(int onoff, int myid)
-{
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
-  struct timespec spec;
-  int print_time;
-  clock_gettime(CLOCK_MONOTONIC_RAW, &spec);
-  base_time_tv_sec = spec.tv_sec;
-
-  clock_getres(CLOCK_MONOTONIC_RAW, &spec);
-  if (myid == 0)
-    printf("Timer resolution: %ld ns = %g s\n",
-           spec.tv_nsec, ((double)(spec.tv_nsec) / 1E9));
-#endif
-}
-
-/* ----------------------------------------------------------------------
- * Timer
- * --------------------------------------------------------------------*/
-static double get_time()
-{
-  double time;
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
-  struct timespec spec;
-  clock_gettime(CLOCK_MONOTONIC_RAW, &spec);
-  time = (double)(spec.tv_sec - base_time_tv_sec) + ((double)(spec.tv_nsec) / 1E9);
-#else
-  time = 0;
-#endif
-  return time;
-}
-
 /* ----------------------------------------------------------------------
  * Grab max time of all mpi processes 
  * --------------------------------------------------------------------*/
-double max_time(N_Vector X, double time)
+double max_time(double time)
 {
   double maxt;
 
   /* get max time across all MPI ranks */
-  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, NV_COMM_P(X));
+  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
   return(maxt);
 }
