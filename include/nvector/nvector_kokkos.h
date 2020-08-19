@@ -1,3 +1,39 @@
+/* -----------------------------------------------------------------
+ * Programmer(s): Slaven Peles, Daniel McGreer @ LLNL
+ * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
+ * This is the header file for the Kokkos implementation of the
+ * NVECTOR module.
+ *
+ * Notes:
+ *
+ *   - The definition of the generic N_Vector structure can be found
+ *     in the header file sundials_nvector.h.
+ *
+ *   - The definition of the type 'realtype' can be found in the
+ *     header file sundials_types.h, and it may be changed (at the
+ *     configuration stage) according to the user's needs.
+ *     The sundials_types.h file also contains the definition
+ *     for the type 'booleantype'.
+ *
+ *   - N_Vector arguments to arithmetic vector operations need not
+ *     be distinct. For example, the following call:
+ *
+ *       N_VLinearSum_Kokkos(a,x,b,y,y);
+ *
+ *     (which stores the result of the operation a*x+b*y in y)
+ *     is legal.
+ * -----------------------------------------------------------------*/
+
 #ifndef _NVECTOR_KOKKOS_H
 #define _NVECTOR_KOKKOS_H
 
@@ -7,7 +43,7 @@
 
 #include <Kokkos_Core.hpp>
 
-//TODO: determine best place to include this - do I need sundials_config/what is
+//Discover memory space based on Kokkos build
 #if defined(KOKKOS_ENABLE_CUDA_UVM)
   #define MemSpace Kokkos::CudaUVMSpace
 #elif defined(KOKKOS_ENABLE_CUDA)
@@ -23,6 +59,7 @@
 using ExecSpace = MemSpace::execution_space;
 using range_policy = Kokkos::RangePolicy<ExecSpace>;
 
+// Set usefule typedefs
 typedef Kokkos::View<realtype*, MemSpace> DeviceArrayView;
 typedef Kokkos::View<realtype*, Kokkos::HostSpace> HostArrayView;
 

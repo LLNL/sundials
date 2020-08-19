@@ -38,8 +38,6 @@ int main(int argc, char *argv[])
   int          print_timing;      /* turn timing on/off        */
   int          memtype;
 
-//TODO maybe add some tests where you create a vector by passing it already allocated data
-
   /* check input and set vector length */
   if (argc < 3){
     printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
@@ -197,7 +195,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
   /* KOKKOS specific tests */
-  printf("\nTesting raja vector specific operations:\n\n");
+  printf("\nTesting kokkos vector specific operations:\n\n");
     fails += Test_N_VMake_Kokkos(X, length, 0);
 
   /* Free vectors */

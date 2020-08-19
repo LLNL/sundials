@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): Slaven Peles and Cody Balos @ LLNL
+# Programmer(s): Slaven Peles, Cody Balos, and Daniel McGreer @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for kokkos nvector examples
+# CMakeLists.txt file for Kokkos nvector examples
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;args\;nodes\;tasks\;type" where the

@@ -1,3 +1,20 @@
+/* -----------------------------------------------------------------
+ * Programmer(s): Slaven Peles, Cody J. Balos, Daniel McGreer @ LLNL
+ * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
+ * This is the implementation file for a Kokkos implementation
+ * of the NVECTOR package.
+ * -----------------------------------------------------------------*/
+ 
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -142,9 +159,6 @@ sunindextype N_VGetLength_Kokkos(N_Vector v)
  * Return pointer to the raw host data
  */
 
-// TODO, this currently returns actual data pointer
-// Consider adding functions to return views?
-// Same with get device array
 realtype *N_VGetHostArrayPointer_Kokkos(N_Vector x)
 {
   if (NVEC_KOKKOS_CONTENT(x)->host_data == NULL)
@@ -257,7 +271,6 @@ N_Vector N_VClone_Kokkos(N_Vector w)
   return(v);
 }
 
-
 void N_VDestroy_Kokkos(N_Vector v)
 {
   if (v == NULL) return;
@@ -295,7 +308,6 @@ void N_VDestroy_Kokkos(N_Vector v)
   return;
 }
 
-
 void N_VSpace_Kokkos(N_Vector X, sunindextype *lrw, sunindextype *liw)
 {
   *lrw = NVEC_KOKKOS_CONTENT(X)->length;
@@ -321,7 +333,6 @@ void N_VLinearSum_Kokkos(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vecto
   const sunindextype N = NVEC_KOKKOS_CONTENT(X)->length;
   auto zdata = *(NVEC_KOKKOS_CONTENT(Z)->device_data);
 
-
   Kokkos::parallel_for("N_VLinearSum", range_policy(zeroIdx, N),
     KOKKOS_LAMBDA(sunindextype i){
       zdata(i) = a*xdata(i) + b*ydata(i);
@@ -342,7 +353,6 @@ void N_VProd_Kokkos(N_Vector X, N_Vector Y, N_Vector Z)
     }
   );
 }
-
 
 void N_VDiv_Kokkos(N_Vector X, N_Vector Y, N_Vector Z)
 {
@@ -502,7 +512,6 @@ realtype N_VMin_Kokkos(N_Vector X)
     }, Kokkos::Min<realtype>(gpu_result));
 
   return (static_cast<realtype>(gpu_result));
-
 }
 
 realtype N_VWL2Norm_Kokkos(N_Vector X, N_Vector W)
@@ -536,7 +545,6 @@ void N_VCompare_Kokkos(realtype c, N_Vector X, N_Vector Z)
       zdata(i) = abs(xdata(i)) >= c ? ONE : ZERO;
     }
   );
-
 }
 
 booleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
@@ -606,8 +614,6 @@ realtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
  * -----------------------------------------------------------------------------
  */
 
-//TODO All functions take in realtype pointers
-// maybe some implementation could take in Views?
 int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
   sunindextype N = NVEC_KOKKOS_CONTENT(z)->length;
@@ -727,7 +733,6 @@ int N_VLinearSumVectorArray_Kokkos(int nvec,
 
   return(0);
 }
-
 
 int N_VScaleVectorArray_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
@@ -853,6 +858,7 @@ int N_VLinearCombinationVectorArray_Kokkos(int nvec, int nsum, realtype* c,
     h_c(j) = c[j];
   Kokkos::deep_copy(d_c, h_c);
 
+  //Create pointer to device views and create an unmanaged view from it
   DeviceArrayView* Xd = new DeviceArrayView[nvec*nsum];
   for (int j=0; j<nvec; j++)
     for (int k=0; k<nsum; k++)
@@ -1063,7 +1069,6 @@ void AllocateData(N_Vector v)
 
   vc->host_data = new HostArrayView("host_data", NVEC_KOKKOS_MEMSIZE(v));
   vc->device_data = new DeviceArrayView("device_data", NVEC_KOKKOS_MEMSIZE(v));
-
 }
 
 } // extern "C"
