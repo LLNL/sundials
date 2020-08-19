@@ -86,13 +86,13 @@ N_Vector N_VNewEmpty_Kokkos()
   v->content = (N_VectorContent_Kokkos) malloc(sizeof(_N_VectorContent_Kokkos));
   NVEC_KOKKOS_CONTENT(v)->host_data   = NULL;
   NVEC_KOKKOS_CONTENT(v)->device_data = NULL;
+  NVEC_KOKKOS_CONTENT(v)->length = 0;
 
   if (v->content == NULL)
   {
     N_VDestroy(v);
     return NULL;
   }
-  NVEC_KOKKOS_CONTENT(v)->length = 0;
 
   return(v);
 }
@@ -124,7 +124,7 @@ N_Vector N_VMake_Kokkos(sunindextype length, realtype *h_vdata, realtype *d_vdat
 
   NVEC_KOKKOS_CONTENT(v)->length      = length;
   // Create "unmanaged views" for data by passing data pointer into view contructor
-  NVEC_KOKKOS_CONTENT(v)->host_data   = new HostArrayView(h_vdata, length);;
+  NVEC_KOKKOS_CONTENT(v)->host_data   = new HostArrayView(h_vdata, length);
   NVEC_KOKKOS_CONTENT(v)->device_data = new DeviceArrayView(d_vdata, length);
 
   return(v);
@@ -622,10 +622,10 @@ int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
   DeviceArrayView d_c("d_c", nvec);
   Kokkos::deep_copy(d_c, h_c);
 
-//Create pointer to device views and create an unmanaged view from it
-DeviceArrayView* Xd = new DeviceArrayView[nvec];
-for (int j=0; j<nvec; j++)
-  Xd[j] = *(NVEC_KOKKOS_CONTENT(X[j])->device_data);
+  //Create pointer to device views and create an unmanaged view from it
+  DeviceArrayView* Xd = new DeviceArrayView[nvec];
+  for (int j=0; j<nvec; j++)
+    Xd[j] = *(NVEC_KOKKOS_CONTENT(X[j])->device_data);
 
   // Create View of device views on host
   Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd(Xd, nvec);
@@ -651,23 +651,36 @@ int N_VScaleAddMulti_Kokkos(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Ve
   sunindextype N = NVEC_KOKKOS_CONTENT(x)->length;
   auto d_xd = *(NVEC_KOKKOS_CONTENT(x)->device_data);
 
-  // Make c into a view, create a device view d_c, then deep copy c to it,
-  HostArrayView h_c(c, nvec);
+  // Make c into a view, create a device view d_c, then deep copy c to it
+  HostArrayView h_c("h_c", nvec);
+  for (int j=0; j<nvec; j++)
+    h_c(j) = c[j];
+
   DeviceArrayView d_c("d_c", nvec);
   Kokkos::deep_copy(d_c, h_c);
 
-  // Create array of device views on host
-  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Yd("h_Yd", nvec);
-  for (int j=0; j<nvec; j++)
-    h_Yd(j) = *(NVEC_KOKKOS_CONTENT(Y[j])->device_data);
 
-  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd("h_Zd", nvec);
+  //Create pointer to device views and create an unmanaged view from it
+  DeviceArrayView* Yd = new DeviceArrayView[nvec];
   for (int j=0; j<nvec; j++)
-    h_Zd(j) = *(NVEC_KOKKOS_CONTENT(Z[j])->device_data);
+    Yd[j] = *(NVEC_KOKKOS_CONTENT(Y[j])->device_data);
+
+  // Create View of device views on host
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Yd(Yd, nvec);
 
   // Copy host view to a device view
   Kokkos::View<DeviceArrayView*, MemSpace> d_Yd("d_Yd", nvec);
   Kokkos::deep_copy(d_Yd, h_Yd);
+
+  //Create pointer to device views and create an unmanaged view from it
+  DeviceArrayView* Zd = new DeviceArrayView[nvec];
+  for (int j=0; j<nvec; j++)
+    Zd[j] = *(NVEC_KOKKOS_CONTENT(Z[j])->device_data);
+
+  // Create View of device views on host
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Zd(Zd, nvec);
+
+  // Copy host view to a device view
   Kokkos::View<DeviceArrayView*, MemSpace> d_Zd("d_Zd", nvec);
   Kokkos::deep_copy(d_Zd, h_Zd);
 
