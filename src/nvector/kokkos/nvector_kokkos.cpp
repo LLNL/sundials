@@ -270,14 +270,12 @@ void N_VDestroy_Kokkos(N_Vector v)
     return;
   }
 
-   /* TOTDO rexamine and explain this
-   By assigning the views to default constructed views the refference
-   count of the orignal view goes to zero and it automatically deallocates
-   the data, unless the vector doesn't own the data in which it is a unmanaged
-   view and the data will not be deallocated
-   */
-  vc->device_data = NULL;
-  vc->host_data = NULL;
+  if( vc->host_data != NULL)
+    delete vc->host_data;
+    vc->host_data = NULL;
+  if( vc->device_data != NULL)
+    delete vc->device_data;
+    vc->device_data = NULL;
 
   /* free content struct */
   free(vc);
@@ -314,7 +312,6 @@ void N_VConst_Kokkos(realtype c, N_Vector Z)
       zdata(i) = c;
     }
   );
-
 }
 
 void N_VLinearSum_Kokkos(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
@@ -622,10 +619,13 @@ int N_VLinearCombination_Kokkos(int nvec, realtype* c, N_Vector* X, N_Vector z)
   DeviceArrayView d_c("d_c", nvec);
   Kokkos::deep_copy(d_c, h_c);
 
-  // Create View of device views on host
-  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd("h_Xd", nvec);
+  //Create pointer to device views and create an unmanaged view from it
+  DeviceArrayView* Xd = new DeviceArrayView[nvec];
   for (int j=0; j<nvec; j++)
-    h_Xd(j) = *(NVEC_KOKKOS_CONTENT(X[j])->device_data);
+    Xd[j] = *(NVEC_KOKKOS_CONTENT(X[j])->device_data);
+
+  // Create View of device views on host
+  Kokkos::View<DeviceArrayView*, Kokkos::HostSpace> h_Xd(Xd, nvec);
 
   // Copy host view to a device view
   Kokkos::View<DeviceArrayView*, MemSpace> d_Xd("d_Xd", nvec);
