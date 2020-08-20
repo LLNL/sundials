@@ -448,6 +448,43 @@ The least-squares problem in (c) is solved by applying a QR factorization to
 $\Delta F_n = Q_n R_n$ and solving $R_n \gamma = Q_n^T f_n$. By default the
 damping is disabled i.e., $\beta = 1.0$.
 
+\subsubsection*{Anderson Acceleration QR Factorization}
+The default QR factorization routine used in Anderson Acceleration is 
+Modified Gram-Schmidt, a stable orthogonalization routine that requires
+an increasing number of synchronizations per iteration dependent upon
+the number of vectors being orthgonalized against.
+While practical use of Anderson acceleration only requires a small number
+of vectors to be used in the QR factorization, this linearly scaling
+number of synchronizations per iteration can yield poor performance
+when Anderson acceleration is performed in a parallel setting.
+To combat this poor performance, low synchronization QR routines are 
+available to the user.
+While all the QR factorization routines are mathematically equivalent,
+they do not exhibit the same stability when performed with floating
+point arithmetic or in a parallel setting.
+
+Inverse Compact WY Modified Gram-Schmidt
+which is based on triangular solve variants of Modified Gram-Schmidt
+that have been extended to GMRES is an option that only requires 2
+synchronizations per iteration \cite{lowSyncGMRES}. Additionally, it
+adds a lower triangular solve at every iteration, but this
+generally does not affect performance due to the system solve
+being small, i.e. the number of vectors being orthgonalized against.
+
+The remaining orthogonalization options are based on and include
+Classical Gram-Schmidt with Reorthogonalization (CGS-2) introduced
+by Hernandez in \cite{hernandez2005parallel}.
+CGS-2 only requires 3 synchronizations per iteration, but does not exhibit
+the same stability as Modified Gram-Schmidt. Classical Gram-Schmidt with
+Delayed Reorthogolonization has the same stability as CGS-2, but it reduces
+the number of synchronizations per iteration to 2.
+The fifth option available to the user is stabilized CGS-2 with delayed
+reorthogonalization. This option restores some of the stability to
+CGS-2 while still maintaining 2 synchronizations per iteration. It may
+be more performant than the ICWY variant due to not requiring a
+lower triangular solve. 
+
+
 
 \subsubsection*{Fixed-point - Anderson Acceleration Stopping Criterion}
 

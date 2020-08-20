@@ -826,6 +826,7 @@ Inequality constraints on solution & \id{KINSetConstraints} & \id{NULL} \\
 Nonlinear system function & \id{KINSetSysFunc} & none \\
 Anderson Acceleration subspace size & \id{KINSetMAA} & 0 \\
 Anderson Acceleration damping parameter & \id{KINSetDampingAA} & 1.0 \\
+Anderson Acceleration orthogonalization routine & \id{KINSetOrthAA} & \id{MGS} \\
 \hline
 \multicolumn{3}{|c|}{\bf KINLS linear solver interface} \\
 \hline
@@ -1825,6 +1826,53 @@ flag = KINSetDampingAA(kin\_mem, beta);
   and less than one if damping is to be used. A value $\geq 1$ disables damping.
 
   The default value of \id{beta} is 1.0, indicating no damping.
+}
+%
+%
+\ucfunction{KINSetOrthAA}
+{
+flag = KINSetOrthAA(kin\_mem, orthaa);
+}
+{
+  The function \ID{KINSetOrthAA} specifies the orthogonalization routine to be used
+  in the QR factorization portion of Anderson acceleration.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[orthaa] (\id{int})
+    the orthogonalization routine parameter. Can be set to any of the following
+    \begin{itemize}
+    \item[\id{KIN\_ORTH\_MGS}] : Modified Gram Schmidt 
+    \item[\id{KIN\_ORTH\_ICWY}] : Inverse Compact WY Modified Gram Schmidt
+    \item[\id{KIN\_ORTH\_CGS2}] : Classical Gram Schmidt with Reorthogonalization (CGS2)
+    \item[\id{KIN\_ORTH\_DCGS2}] : Classical Gram Schmidt with Delayed Reorthogonlization
+    \item[\id{KIN\_ORTH\_SDCGS2}] : Stabilized Classical Gram Schmidt with Delayed
+                                    Reorthogonalization
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[KIN\_ILL\_INPUT]
+  \item[\Id{KIN\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{KIN\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KIN\_ILL\_INPUT}]
+    The argument \id{orthaa} was not one of the predefined orthogonalization
+    routines defined in \id{KINSOL}.
+  \end{args}
+}
+{
+  This function sets the orthogonalization routine to be used in Anderson Accleration.
+  It must be one of the orthogonalization routines defined in \id{KINSOL}.
+  Not calling this function sets Anderson Acceleration to use the default 
+  orthogonalization routine. 
+
+  The default value of \id{orthaa} is \id{KIN\_ORTH\_MGS}, indicating the use of
+  Modified Gram Schmidt.
 }
 %%
 %%
