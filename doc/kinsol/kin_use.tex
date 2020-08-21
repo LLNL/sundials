@@ -826,7 +826,7 @@ Inequality constraints on solution & \id{KINSetConstraints} & \id{NULL} \\
 Nonlinear system function & \id{KINSetSysFunc} & none \\
 Anderson Acceleration subspace size & \id{KINSetMAA} & 0 \\
 Anderson Acceleration damping parameter & \id{KINSetDampingAA} & 1.0 \\
-Anderson Acceleration orthogonalization routine & \id{KINSetOrthAA} & \id{MGS} \\
+Anderson Acceleration orthogonalization routine & \id{KINSetOrthAA} & \Id{KIN\_ORTH\_MGS} \\
 \hline
 \multicolumn{3}{|c|}{\bf KINLS linear solver interface} \\
 \hline
@@ -1843,14 +1843,18 @@ flag = KINSetOrthAA(kin\_mem, orthaa);
     pointer to the {\kinsol} memory block.
   \item[orthaa] (\id{int})
     the orthogonalization routine parameter. Can be set to any of the following
-    \begin{itemize}
-    \item[\id{KIN\_ORTH\_MGS}] : Modified Gram Schmidt 
-    \item[\id{KIN\_ORTH\_ICWY}] : Inverse Compact WY Modified Gram Schmidt
-    \item[\id{KIN\_ORTH\_CGS2}] : Classical Gram Schmidt with Reorthogonalization (CGS2)
-    \item[\id{KIN\_ORTH\_DCGS2}] : Classical Gram Schmidt with Delayed Reorthogonlization
-    \item[\id{KIN\_ORTH\_SDCGS2}] : Stabilized Classical Gram Schmidt with Delayed
-                                    Reorthogonalization
-    \end{itemize}
+    \begin{args}
+    \item[\Id{KIN\_ORTH\_MGS}] 
+      Modified Gram Schmidt 
+    \item[\Id{KIN\_ORTH\_ICWY}]
+      Inverse Compact WY Modified Gram Schmidt
+    \item[\Id{KIN\_ORTH\_CGS2}]
+      Classical Gram Schmidt with Reorthogonalization (CGS2)
+    \item[\Id{KIN\_ORTH\_DCGS2}]
+      Classical Gram Schmidt with Delayed Reorthogonlization
+    \item[\Id{KIN\_ORTH\_SDCGS2}]
+      Stabilized Classical Gram Schmidt with Delayed Reorthogonalization
+    \end{args}
   \end{args}
 }
 {
@@ -1871,7 +1875,7 @@ flag = KINSetOrthAA(kin\_mem, orthaa);
   Not calling this function sets Anderson Acceleration to use the default 
   orthogonalization routine. 
 
-  The default value of \id{orthaa} is \id{KIN\_ORTH\_MGS}, indicating the use of
+  The default value of \id{orthaa} is \Id{KIN\_ORTH\_MGS}, indicating the use of
   Modified Gram Schmidt.
 }
 %%
