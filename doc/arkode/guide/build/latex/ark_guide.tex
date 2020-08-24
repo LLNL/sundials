@@ -75,7 +75,7 @@
 
 
 \title{User Documentation for ARKode}
-\date{July 12, 2020}
+\date{August 11, 2020}
 \release{}
 \author{
     Daniel R. Reynolds\\
@@ -197,7 +197,7 @@ B598130 from \sphinxhref{http://www.llnl.gov}{Lawrence Livermore National Labora
 
 
 \chapter{Introduction}
-\label{\detokenize{Introduction:id1}}\label{\detokenize{Introduction:arkode-documentation}}\label{\detokenize{Introduction:introduction}}\label{\detokenize{Introduction::doc}}
+\label{\detokenize{Introduction:introduction}}\label{\detokenize{Introduction::doc}}\label{\detokenize{Introduction:arkode-documentation}}\label{\detokenize{Introduction:id1}}
 The ARKode infrastructure provides adaptive-step time integration
 modules for stiff, nonstiff and mixed stiff/nonstiff systems of
 ordinary differential equations (ODEs).  ARKode itself is structured
@@ -313,6 +313,9 @@ Notably, the update adds managed memory support to the \sphinxcode{NVECTOR\_RAJA
 Users of the module will need to update any calls to the \sphinxcode{N\_VMake\_Raja} function
 because that signature was changed. This module remains experimental and is
 subject to change from version to version.
+
+The \sphinxcode{NVECTOR\_TRILINOS} module has been updated to work with Trilinos 12.18+.
+This update changes the local ordinal type to always be an \sphinxcode{int}.
 
 
 \subsection{Changes in v4.3.0}
@@ -1415,7 +1418,7 @@ LLNL-CODE-665877  (KINSOL)
 
 
 \chapter{Mathematical Considerations}
-\label{\detokenize{Mathematics:mathematical-considerations}}\label{\detokenize{Mathematics:mathematics}}\label{\detokenize{Mathematics::doc}}
+\label{\detokenize{Mathematics:mathematics}}\label{\detokenize{Mathematics::doc}}\label{\detokenize{Mathematics:mathematical-considerations}}
 ARKode solves ODE initial value problems (IVP) in \(\mathbb{R}^N\)
 posed in linearly-implicit form,
 
@@ -1482,7 +1485,7 @@ user-specified functions.
 
 
 \section{Adaptive single-step methods}
-\label{\detokenize{Mathematics:adaptive-single-step-methods}}\label{\detokenize{Mathematics:mathematics-singlestep}}
+\label{\detokenize{Mathematics:mathematics-singlestep}}\label{\detokenize{Mathematics:adaptive-single-step-methods}}
 The ARKode infrastructure is designed to support single-step, IVP
 integration methods, i.e.
 \begin{equation*}
@@ -1540,7 +1543,7 @@ may be used.
 
 
 \section{Interpolation}
-\label{\detokenize{Mathematics:interpolation}}\label{\detokenize{Mathematics:mathematics-interpolation}}
+\label{\detokenize{Mathematics:mathematics-interpolation}}\label{\detokenize{Mathematics:interpolation}}
 As mentioned above, the time-stepping modules in ARKode support
 interpolation of solutions \(y(t_\text{out})\) and derivatives
 \(y^{(d)}(t_\text{out})\), where \(t_\text{out}\) occurs
@@ -1562,7 +1565,7 @@ Both are described in detail below.
 
 
 \subsection{Hermite interpolation module}
-\label{\detokenize{Mathematics:hermite-interpolation-module}}\label{\detokenize{Mathematics:mathematics-interpolation-hermite}}
+\label{\detokenize{Mathematics:mathematics-interpolation-hermite}}\label{\detokenize{Mathematics:hermite-interpolation-module}}
 For non-stiff problems, polynomial interpolants of Hermite form are provided.
 These interpolants are typically constructed using the data
 \(\left\{ y_{n-1}, f_{n-1}, y_{n}, f_{n} \right\}\),
@@ -1665,7 +1668,7 @@ these initial steps have completed.
 
 
 \section{ARKStep \textendash{} Additive Runge-Kutta methods}
-\label{\detokenize{Mathematics:arkstep-additive-runge-kutta-methods}}\label{\detokenize{Mathematics:mathematics-ark}}
+\label{\detokenize{Mathematics:mathematics-ark}}\label{\detokenize{Mathematics:arkstep-additive-runge-kutta-methods}}
 The ARKStep time-stepping module in ARKode is designed for IVPs of the
 form
 
@@ -1769,7 +1772,7 @@ respectively.  Again, user-defined DIRK tables are supported.
 
 
 \section{ERKStep \textendash{} Explicit Runge-Kutta methods}
-\label{\detokenize{Mathematics:erkstep-explicit-runge-kutta-methods}}\label{\detokenize{Mathematics:mathematics-erk}}
+\label{\detokenize{Mathematics:mathematics-erk}}\label{\detokenize{Mathematics:erkstep-explicit-runge-kutta-methods}}
 The ERKStep time-stepping module in ARKode is designed for IVP
 of the form
 
@@ -1798,7 +1801,7 @@ process than when considering the more general form.
 
 
 \section{MRIStep \textendash{} Multirate infinitesimal step methods}
-\label{\detokenize{Mathematics:mristep-multirate-infinitesimal-step-methods}}\label{\detokenize{Mathematics:mathematics-mristep}}
+\label{\detokenize{Mathematics:mathematics-mristep}}\label{\detokenize{Mathematics:mristep-multirate-infinitesimal-step-methods}}
 The MRIStep time-stepping module in ARKode is designed for IVPs
 of the form
 
@@ -2077,7 +2080,7 @@ control algorithms, as specified in the subsections below.
 
 
 \subsubsection{PID controller}
-\label{\detokenize{Mathematics:pid-controller}}\label{\detokenize{Mathematics:mathematics-adaptivity-errorcontrol-pid}}
+\label{\detokenize{Mathematics:mathematics-adaptivity-errorcontrol-pid}}\label{\detokenize{Mathematics:pid-controller}}
 This is the default time adaptivity controller used by the ARKStep and
 ERKStep modules.  It derives from those found in \phantomsection\label{\detokenize{Mathematics:id11}}{\hyperref[\detokenize{References:kc2003}]{\sphinxcrossref{{[}KC2003{]}}}}, \phantomsection\label{\detokenize{Mathematics:id12}}{\hyperref[\detokenize{References:s1998}]{\sphinxcrossref{{[}S1998{]}}}}, \phantomsection\label{\detokenize{Mathematics:id13}}{\hyperref[\detokenize{References:s2003}]{\sphinxcrossref{{[}S2003{]}}}} and
 \phantomsection\label{\detokenize{Mathematics:id14}}{\hyperref[\detokenize{References:s2006}]{\sphinxcrossref{{[}S2006{]}}}}, and uses all three of the local error estimates
@@ -2094,7 +2097,7 @@ enforced to avoid division-by-zero errors.
 
 
 \subsubsection{PI controller}
-\label{\detokenize{Mathematics:pi-controller}}\label{\detokenize{Mathematics:mathematics-adaptivity-errorcontrol-pi}}
+\label{\detokenize{Mathematics:mathematics-adaptivity-errorcontrol-pi}}\label{\detokenize{Mathematics:pi-controller}}
 Like with the previous method, the PI controller derives from those
 found in \phantomsection\label{\detokenize{Mathematics:id15}}{\hyperref[\detokenize{References:kc2003}]{\sphinxcrossref{{[}KC2003{]}}}}, \phantomsection\label{\detokenize{Mathematics:id16}}{\hyperref[\detokenize{References:s1998}]{\sphinxcrossref{{[}S1998{]}}}}, \phantomsection\label{\detokenize{Mathematics:id17}}{\hyperref[\detokenize{References:s2003}]{\sphinxcrossref{{[}S2003{]}}}} and \phantomsection\label{\detokenize{Mathematics:id18}}{\hyperref[\detokenize{References:s2006}]{\sphinxcrossref{{[}S2006{]}}}}, but it differs in
 that it only uses the two most recent step sizes in its adaptivity
@@ -2107,7 +2110,7 @@ to 0.8 and 0.31, respectively, though they may be changed by the user.
 
 
 \subsubsection{I controller}
-\label{\detokenize{Mathematics:i-controller}}\label{\detokenize{Mathematics:mathematics-adaptivity-errorcontrol-i}}
+\label{\detokenize{Mathematics:mathematics-adaptivity-errorcontrol-i}}\label{\detokenize{Mathematics:i-controller}}
 This is the standard time adaptivity control algorithm in use by most
 publicly-available ODE solver codes.  It bases the prospective time step
 estimate entirely off of the current local error estimate,
@@ -2229,7 +2232,7 @@ Here the explicit stability step factor \(c>0\) (often called the
 
 
 \subsection{Fixed time stepping}
-\label{\detokenize{Mathematics:mathematics-fixedstep}}\label{\detokenize{Mathematics:fixed-time-stepping}}
+\label{\detokenize{Mathematics:fixed-time-stepping}}\label{\detokenize{Mathematics:mathematics-fixedstep}}
 While both the ARKStep and ERKStep time-stepping modules are designed
 for tolerance-based time step adaptivity, they additionally support a
 “fixed-step” mode (\sphinxstyleemphasis{note: fixed-step mode is currently required for
@@ -2258,7 +2261,7 @@ Additional information on this mode is provided in the sections
 
 
 \section{Algebraic solvers}
-\label{\detokenize{Mathematics:mathematics-algebraicsolvers}}\label{\detokenize{Mathematics:algebraic-solvers}}
+\label{\detokenize{Mathematics:algebraic-solvers}}\label{\detokenize{Mathematics:mathematics-algebraicsolvers}}
 When solving a problem involving either an implicit component (e.g., in ARKStep with \(f^I(t,y) \ne 0\),
 or in MRIStep with a solve-decoupled implicit slow stage), or a non-identity mass matrix (\(M \ne I\) in
 ARKStep), systems of linear or nonlinear algebraic equations must be solved at each stage and/or step of the
@@ -2398,7 +2401,7 @@ is provided in the following section, {\hyperref[\detokenize{Mathematics:mathema
 
 
 \subsection{Linear solver methods}
-\label{\detokenize{Mathematics:mathematics-linear}}\label{\detokenize{Mathematics:linear-solver-methods}}
+\label{\detokenize{Mathematics:linear-solver-methods}}\label{\detokenize{Mathematics:mathematics-linear}}
 When a Newton-based method is chosen for solving each nonlinear
 system, a linear system of equations must be solved at each nonlinear
 iteration.  For this solve ARKode provides several choices, including
@@ -2460,7 +2463,7 @@ used with the serial and threaded vector representations.
 \index{modified Newton iteration}\ignorespaces 
 
 \subsubsection{Matrix-based linear solvers}
-\label{\detokenize{Mathematics:index-11}}\label{\detokenize{Mathematics:mathematics-linear-direct}}\label{\detokenize{Mathematics:matrix-based-linear-solvers}}
+\label{\detokenize{Mathematics:matrix-based-linear-solvers}}\label{\detokenize{Mathematics:mathematics-linear-direct}}\label{\detokenize{Mathematics:index-11}}
 In the case that a matrix-based linear solver is used, a \sphinxstyleemphasis{modified
 Newton iteration} is utilized.  In a modified newton iteration, the matrix
 \({\mathcal A}\) is held fixed for multiple Newton iterations.
@@ -2513,7 +2516,7 @@ Jacobian \sphinxstyleemphasis{must} be supplied by a user routine.
 \index{inexact Newton iteration}\ignorespaces 
 
 \subsubsection{Matrix-free iterative linear solvers}
-\label{\detokenize{Mathematics:matrix-free-iterative-linear-solvers}}\label{\detokenize{Mathematics:mathematics-linear-iterative}}\label{\detokenize{Mathematics:index-12}}
+\label{\detokenize{Mathematics:mathematics-linear-iterative}}\label{\detokenize{Mathematics:matrix-free-iterative-linear-solvers}}\label{\detokenize{Mathematics:index-12}}
 In the case that a matrix-free iterative linear solver is chosen,
 an \sphinxstyleemphasis{inexact Newton iteration} is utilized.  Here, the
 matrix \({\mathcal A}\) is not itself constructed since the
@@ -2676,7 +2679,7 @@ modified by the user.
 
 
 \subsubsection{Linear iteration error control}
-\label{\detokenize{Mathematics:mathematics-error-linear}}\label{\detokenize{Mathematics:linear-iteration-error-control}}
+\label{\detokenize{Mathematics:linear-iteration-error-control}}\label{\detokenize{Mathematics:mathematics-error-linear}}
 When a Krylov method is used to solve the linear Newton systems
 \eqref{equation:Mathematics:Newton_system}, its errors must also be controlled.  To this end,
 we approximate the linear iteration error in the solution vector
@@ -2704,7 +2707,7 @@ used for the single Newton iteration.
 
 
 \subsection{Preconditioning}
-\label{\detokenize{Mathematics:mathematics-preconditioning}}\label{\detokenize{Mathematics:preconditioning}}
+\label{\detokenize{Mathematics:preconditioning}}\label{\detokenize{Mathematics:mathematics-preconditioning}}
 When using an inexact Newton method to solve the nonlinear system
 \eqref{equation:Mathematics:Residual}, an iterative method is used repeatedly to solve
 linear systems of the form \({\mathcal A}x = b\), where \(x\) is a
@@ -2769,7 +2772,7 @@ the Newton-Krylov method with no preconditioning.
 
 
 \subsection{Implicit predictors}
-\label{\detokenize{Mathematics:implicit-predictors}}\label{\detokenize{Mathematics:mathematics-predictors}}
+\label{\detokenize{Mathematics:mathematics-predictors}}\label{\detokenize{Mathematics:implicit-predictors}}
 For problems with implicit components, a prediction algorithm is
 employed for constructing the initial guesses for each implicit
 Runge-Kutta stage, \(z_i^{(0)}\).  As is well-known with nonlinear
@@ -2856,7 +2859,7 @@ stage times are increasing, i.e. \(c^I_j < c^I_k\) for
 \end{equation*}
 
 \subsubsection{Cutoff order predictor}
-\label{\detokenize{Mathematics:cutoff-order-predictor}}\label{\detokenize{Mathematics:mathematics-predictors-cutoff}}
+\label{\detokenize{Mathematics:mathematics-predictors-cutoff}}\label{\detokenize{Mathematics:cutoff-order-predictor}}
 This predictor follows a similar idea as the previous algorithm, but
 monitors the actual stage times to determine the polynomial
 interpolant to use for prediction.  Denoting \(\tau = c_i^I
@@ -2907,7 +2910,7 @@ currently implemented, so selection of this predictor in the case that
 
 
 \subsubsection{Minimum correction predictor (ARKStep only)}
-\label{\detokenize{Mathematics:mathematics-predictors-minimumcorrection}}\label{\detokenize{Mathematics:minimum-correction-predictor-arkstep-only}}
+\label{\detokenize{Mathematics:minimum-correction-predictor-arkstep-only}}\label{\detokenize{Mathematics:mathematics-predictors-minimumcorrection}}
 The last predictor is not interpolation based; instead it
 utilizes all existing stage information from the current step to
 create a predictor containing all but the current stage solution.
@@ -2933,7 +2936,7 @@ currently implemented, so selection of this predictor in the case that
 
 
 \subsection{Mass matrix solver}
-\label{\detokenize{Mathematics:mathematics-masssolve}}\label{\detokenize{Mathematics:mass-matrix-solver}}
+\label{\detokenize{Mathematics:mass-matrix-solver}}\label{\detokenize{Mathematics:mathematics-masssolve}}
 Within the ARKStep algorithms described above, there are multiple
 locations where a matrix-vector product
 
@@ -3123,7 +3126,7 @@ communication to ensure that \(g_i(t,y)\) is identical on each task.
 
 
 \section{Inequality Constraints}
-\label{\detokenize{Mathematics:inequality-constraints}}\label{\detokenize{Mathematics:mathematics-inequalityconstraints}}
+\label{\detokenize{Mathematics:mathematics-inequalityconstraints}}\label{\detokenize{Mathematics:inequality-constraints}}
 The ARKStep and ERKStep modules in ARKode permit the user to impose optional
 inequality constraints on individual components of the solution vector \(y\).
 Any of the following four constraints can be imposed: \(y_i > 0\), \(y_i < 0\),
@@ -3142,7 +3145,7 @@ strategies as discussed in {\hyperref[\detokenize{ARKStep_c_interface/User_calla
 
 
 \chapter{Code Organization}
-\label{\detokenize{Organization:code-organization}}\label{\detokenize{Organization:organization}}\label{\detokenize{Organization::doc}}
+\label{\detokenize{Organization:code-organization}}\label{\detokenize{Organization::doc}}\label{\detokenize{Organization:organization}}
 The family of solvers referred to as SUNDIALS consists of the solvers
 CVODE and ARKode (for ODE systems), KINSOL (for nonlinear algebraic
 systems), and IDA (for differential-algebraic systems).  In addition,
@@ -3321,7 +3324,7 @@ computations).
 
 
 \chapter{Using ARKStep for C and C++ Applications}
-\label{\detokenize{ARKStep_c_interface/index:arkstep-cinterface}}\label{\detokenize{ARKStep_c_interface/index:using-arkstep-for-c-and-c-applications}}\label{\detokenize{ARKStep_c_interface/index::doc}}
+\label{\detokenize{ARKStep_c_interface/index:using-arkstep-for-c-and-c-applications}}\label{\detokenize{ARKStep_c_interface/index:arkstep-cinterface}}\label{\detokenize{ARKStep_c_interface/index::doc}}
 This chapter is concerned with the use of the ARKStep time-stepping
 module for the solution of initial value problems (IVPs) in a C or C++
 language setting.  The following sections discuss the header files and
@@ -3665,7 +3668,7 @@ initialization routines.
 
 
 \section{A skeleton of the user’s main program}
-\label{\detokenize{ARKStep_c_interface/Skeleton:a-skeleton-of-the-user-s-main-program}}\label{\detokenize{ARKStep_c_interface/Skeleton::doc}}\label{\detokenize{ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton}}
+\label{\detokenize{ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton}}\label{\detokenize{ARKStep_c_interface/Skeleton:a-skeleton-of-the-user-s-main-program}}\label{\detokenize{ARKStep_c_interface/Skeleton::doc}}
 The following is a skeleton of the user’s main program (or calling
 program) for the integration of an ODE IVP using the ARKStep module.
 Most of the steps are independent of the NVECTOR, SUNMATRIX, SUNLINSOL
@@ -4012,7 +4015,7 @@ solvers should they so desire.
 
 
 \subsection{SUNDIALS linear solver interfaces and vector implementations that can be used for each}
-\label{\detokenize{ARKStep_c_interface/Skeleton:sundials-linear-solver-interfaces-and-vector-implementations-that-can-be-used-for-each}}\label{\detokenize{ARKStep_c_interface/Skeleton:arkstep-cinterface-solver-vector}}
+\label{\detokenize{ARKStep_c_interface/Skeleton:arkstep-cinterface-solver-vector}}\label{\detokenize{ARKStep_c_interface/Skeleton:sundials-linear-solver-interfaces-and-vector-implementations-that-can-be-used-for-each}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -4260,7 +4263,7 @@ X
 
 
 \section{ARKStep User-callable functions}
-\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-user-callable-functions}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-usercallable}}\label{\detokenize{ARKStep_c_interface/User_callable::doc}}
+\label{\detokenize{ARKStep_c_interface/User_callable::doc}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-user-callable-functions}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-usercallable}}
 This section describes the functions that are called by the user to
 setup and then solve an IVP using the ARKStep time-stepping
 module. Some of these are required; however, starting with the section
@@ -4336,7 +4339,7 @@ This function frees the problem memory \sphinxstyleemphasis{arkode\_mem} created
 
 
 \subsection{ARKStep tolerance specification functions}
-\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-tolerances}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-tolerance-specification-functions}}
+\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-tolerance-specification-functions}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-tolerances}}
 These functions specify the integration tolerances. One of them
 \sphinxstylestrong{should} be called before the first call to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\sphinxcrossref{\sphinxcode{ARKStepEvolve()}}}}; otherwise default values of \sphinxcode{reltol =
@@ -5026,7 +5029,7 @@ user to provide a mass-matrix-times-vector product routine (see
 
 
 \subsection{Nonlinear solver interface functions}
-\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-nonlinearsolvers}}\label{\detokenize{ARKStep_c_interface/User_callable:nonlinear-solver-interface-functions}}
+\label{\detokenize{ARKStep_c_interface/User_callable:nonlinear-solver-interface-functions}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-nonlinearsolvers}}
 When changing the nonlinear solver in ARKStep, after the
 call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}]{\sphinxcrossref{\sphinxcode{ARKStepCreate()}}}} but before any calls to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\sphinxcrossref{\sphinxcode{ARKStepEvolve()}}}}, the user’s program must create the
@@ -5324,7 +5327,7 @@ from those provided to the routine.
 
 
 \subsection{Optional input functions}
-\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-optionalinputs}}\label{\detokenize{ARKStep_c_interface/User_callable:optional-input-functions}}
+\label{\detokenize{ARKStep_c_interface/User_callable:optional-input-functions}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-optionalinputs}}
 There are numerous optional input parameters that control the behavior
 of the ARKStep solver, each of which may be modified from its default
 value through calling an appropriate input function.  The following
@@ -6619,7 +6622,7 @@ exist.
 
 
 \subsubsection{Optional inputs for time step adaptivity}
-\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arkstepadaptivityinputtable}}\label{\detokenize{ARKStep_c_interface/User_callable:optional-inputs-for-time-step-adaptivity}}
+\label{\detokenize{ARKStep_c_interface/User_callable:optional-inputs-for-time-step-adaptivity}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arkstepadaptivityinputtable}}
 The mathematical explanation of ARKode’s time step adaptivity
 algorithm, including how each of the parameters below is used within
 the code, is provided in the section {\hyperref[\detokenize{Mathematics:mathematics-adaptivity}]{\sphinxcrossref{\DUrole{std,std-ref}{Time step adaptivity}}}}.
@@ -8144,7 +8147,7 @@ linear solver is attached.
 
 
 \paragraph{Optional inputs for matrix-free \sphinxstyleliteralintitle{SUNLinearSolver} modules}
-\label{\detokenize{ARKStep_c_interface/User_callable:optional-inputs-for-matrix-free-sunlinearsolver-modules}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arklsinputs-matrixfree}}
+\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arklsinputs-matrixfree}}\label{\detokenize{ARKStep_c_interface/User_callable:optional-inputs-for-matrix-free-sunlinearsolver-modules}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -8936,7 +8939,7 @@ particular problem of interest.
 
 
 \subsubsection{SUNDIALS version information}
-\label{\detokenize{ARKStep_c_interface/User_callable:sundials-version-information}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-sunversioninfo}}
+\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-sunversioninfo}}\label{\detokenize{ARKStep_c_interface/User_callable:sundials-version-information}}
 The following functions provide a way to get SUNDIALS version
 information at runtime.
 \index{SUNDIALSGetVersion (C function)}
@@ -9858,7 +9861,7 @@ Returns the cumulative number of constraint test failures (so far).
 
 
 \subsubsection{Implicit solver optional output functions}
-\label{\detokenize{ARKStep_c_interface/User_callable:implicit-solver-optional-output-functions}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arkstepimplicitsolveroutputs}}
+\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arkstepimplicitsolveroutputs}}\label{\detokenize{ARKStep_c_interface/User_callable:implicit-solver-optional-output-functions}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -10036,7 +10039,7 @@ nonlinear solver module is ‘attached’ to ARKStep, or when ARKStep is resized
 
 
 \subsubsection{Rootfinding optional output functions}
-\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arksteprootoutputs}}\label{\detokenize{ARKStep_c_interface/User_callable:rootfinding-optional-output-functions}}
+\label{\detokenize{ARKStep_c_interface/User_callable:rootfinding-optional-output-functions}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arksteprootoutputs}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -10135,7 +10138,7 @@ user’s root function \(g\).
 
 
 \subsubsection{Linear solver interface optional output functions}
-\label{\detokenize{ARKStep_c_interface/User_callable:linear-solver-interface-optional-output-functions}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arklsoutputs}}
+\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arklsoutputs}}\label{\detokenize{ARKStep_c_interface/User_callable:linear-solver-interface-optional-output-functions}}
 The following optional outputs are available from the ARKLS
 modules:
 workspace requirements,
@@ -11113,7 +11116,7 @@ will match those described above for the function
 
 
 \subsubsection{General usability functions}
-\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arkstepextraoutputs}}\label{\detokenize{ARKStep_c_interface/User_callable:general-usability-functions}}
+\label{\detokenize{ARKStep_c_interface/User_callable:general-usability-functions}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-arkstepextraoutputs}}
 The following optional routines may be called by a user to inquire
 about existing solver parameters or write the current Butcher table(s). While
 neither of these would typically be called during the course of solving an
@@ -11221,7 +11224,7 @@ identical.
 
 
 \subsection{ARKStep re-initialization function}
-\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-reinitialization}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-re-initialization-function}}
+\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-re-initialization-function}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-reinitialization}}
 To reinitialize the ARKStep module for the solution of a new problem,
 where a prior call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}]{\sphinxcrossref{\sphinxcode{ARKStepCreate()}}}} has been made, the
 user must call the function {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepReInit}]{\sphinxcrossref{\sphinxcode{ARKStepReInit()}}}}.  The new
@@ -11324,7 +11327,7 @@ sends an error message to the error handler function.
 
 
 \subsection{ARKStep reset function}
-\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-reset}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-reset-function}}
+\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-reset-function}}\label{\detokenize{ARKStep_c_interface/User_callable:arkstep-cinterface-reset}}
 To reset the ARKStep module to a particular independent variable value and
 dependent variable vector for the continued solution of a problem, where a prior
 call to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepCreate}]{\sphinxcrossref{\sphinxcode{ARKStepCreate()}}}} has been made, the user must call the function
@@ -11605,7 +11608,7 @@ deletion/recreation), and if the user plans to call
 
 
 \subsection{ODE right-hand side}
-\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-oderhs}}\label{\detokenize{ARKStep_c_interface/User_supplied:ode-right-hand-side}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:ode-right-hand-side}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-oderhs}}
 The user must supply at least one function of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKRhsFn}]{\sphinxcrossref{\sphinxcode{ARKRhsFn}}}} to
 specify the explicit and/or implicit portions of the ODE system:
 \index{ARKRhsFn (C type)}
@@ -11707,7 +11710,7 @@ pointer to memory encounters an error, it sets \sphinxstyleemphasis{error\_code}
 
 
 \subsection{Error weight function}
-\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-errorweight}}\label{\detokenize{ARKStep_c_interface/User_supplied:error-weight-function}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:error-weight-function}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-errorweight}}
 As an alternative to providing the relative and absolute tolerances,
 the user may provide a function of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKEwtFn}]{\sphinxcrossref{\sphinxcode{ARKEwtFn}}}} to compute a
 vector \sphinxstyleemphasis{ewt} containing the weights in the WRMS norm
@@ -11752,7 +11755,7 @@ is not satisfied.
 
 
 \subsection{Residual weight function}
-\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-residualweight}}\label{\detokenize{ARKStep_c_interface/User_supplied:residual-weight-function}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:residual-weight-function}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-residualweight}}
 As an alternative to providing the scalar or vector absolute residual
 tolerances (when the IVP units differ from the solution units), the
 user may provide a function of type {\hyperref[\detokenize{ARKStep_c_interface/User_supplied:c.ARKRwtFn}]{\sphinxcrossref{\sphinxcode{ARKRwtFn}}}} to compute a
@@ -11862,7 +11865,7 @@ successfully set the next step size, and a non-zero value otherwise.
 
 
 \subsection{Explicit stability function}
-\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-stabilityfn}}\label{\detokenize{ARKStep_c_interface/User_supplied:explicit-stability-function}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:explicit-stability-function}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-stabilityfn}}
 A user may supply a function to predict the maximum stable step size
 for the explicit portion of the ImEx system, \(f^E(t,y)\).  While
 the accuracy-based time step adaptivity algorithms may be sufficient
@@ -12006,7 +12009,7 @@ integration is halted and ARKStep returns \sphinxstyleemphasis{ARK\_RTFUNC\_FAIL
 
 
 \subsection{Jacobian construction (matrix-based linear solvers)}
-\label{\detokenize{ARKStep_c_interface/User_supplied:jacobian-construction-matrix-based-linear-solvers}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-jacobianfn}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-jacobianfn}}\label{\detokenize{ARKStep_c_interface/User_supplied:jacobian-construction-matrix-based-linear-solvers}}
 If a matrix-based linear solver module is used (i.e., a non-NULL \sphinxcode{SUNMatrix}
 object was supplied to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetLinearSolver}]{\sphinxcrossref{\sphinxcode{ARKStepSetLinearSolver()}}}} in section
 {\hyperref[\detokenize{ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton}]{\sphinxcrossref{\DUrole{std,std-ref}{A skeleton of the user’s main program}}}}), the user may provide a function of type
@@ -12223,7 +12226,7 @@ halted, {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve
 
 
 \subsection{Jacobian-vector product (matrix-free linear solvers)}
-\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-jtimesfn}}\label{\detokenize{ARKStep_c_interface/User_supplied:jacobian-vector-product-matrix-free-linear-solvers}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:jacobian-vector-product-matrix-free-linear-solvers}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-jtimesfn}}
 When using a matrix-free linear solver module for the implicit
 stage solves (i.e., a NULL-valued SUNMATRIX argument was supplied to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetLinearSolver}]{\sphinxcrossref{\sphinxcode{ARKStepSetLinearSolver()}}}} in the section
@@ -12287,7 +12290,7 @@ file \sphinxcode{sundials\_types.h}.
 
 
 \subsection{Jacobian-vector product setup (matrix-free linear solvers)}
-\label{\detokenize{ARKStep_c_interface/User_supplied:jacobian-vector-product-setup-matrix-free-linear-solvers}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-jtsetupfn}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-jtsetupfn}}\label{\detokenize{ARKStep_c_interface/User_supplied:jacobian-vector-product-setup-matrix-free-linear-solvers}}
 If the user’s Jacobian-times-vector routine requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
 user-supplied function of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKLsJacTimesSetupFn}]{\sphinxcrossref{\sphinxcode{ARKLsJacTimesSetupFn}}}},
@@ -12344,7 +12347,7 @@ file \sphinxcode{sundials\_types.h}.
 
 
 \subsection{Preconditioner solve (iterative linear solvers)}
-\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-precsolvefn}}\label{\detokenize{ARKStep_c_interface/User_supplied:preconditioner-solve-iterative-linear-solvers}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:preconditioner-solve-iterative-linear-solvers}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-precsolvefn}}
 If a user-supplied preconditioner is to be used with a SUNLinSol
 solver module, then the user must provide a function of type
 {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKLsPrecSolveFn}]{\sphinxcrossref{\sphinxcode{ARKLsPrecSolveFn}}}} to solve the linear system \(Pz=r\),
@@ -12415,7 +12418,7 @@ unrecoverable error (in which case the integration is halted).
 
 
 \subsection{Preconditioner setup (iterative linear solvers)}
-\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-precsetupfn}}\label{\detokenize{ARKStep_c_interface/User_supplied:preconditioner-setup-iterative-linear-solvers}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:preconditioner-setup-iterative-linear-solvers}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-precsetupfn}}
 If the user’s preconditioner routine requires that any data be
 preprocessed or evaluated, then these actions need to occur within a
 user-supplied function of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKLsPrecSetupFn}]{\sphinxcrossref{\sphinxcode{ARKLsPrecSetupFn}}}}.
@@ -12500,7 +12503,7 @@ file \sphinxcode{sundials\_types.h}.
 
 
 \subsection{Mass matrix construction (matrix-based linear solvers)}
-\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-massfn}}\label{\detokenize{ARKStep_c_interface/User_supplied:mass-matrix-construction-matrix-based-linear-solvers}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:mass-matrix-construction-matrix-based-linear-solvers}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-massfn}}
 If a matrix-based mass-matrix linear solver is used (i.e., a non-NULL
 SUNMATRIX was supplied to {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetMassLinearSolver}]{\sphinxcrossref{\sphinxcode{ARKStepSetMassLinearSolver()}}}} in
 the section {\hyperref[\detokenize{ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton}]{\sphinxcrossref{\DUrole{std,std-ref}{A skeleton of the user’s main program}}}}), the user must provide a function
@@ -12594,7 +12597,7 @@ further documented in the section {\hyperref[\detokenize{sunmatrix/SUNMatrix_Spa
 
 
 \subsection{Mass matrix-vector product (matrix-free linear solvers)}
-\label{\detokenize{ARKStep_c_interface/User_supplied:mass-matrix-vector-product-matrix-free-linear-solvers}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-mtimesfn}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-mtimesfn}}\label{\detokenize{ARKStep_c_interface/User_supplied:mass-matrix-vector-product-matrix-free-linear-solvers}}
 If a matrix-free linear solver is to be used for mass-matrix linear
 systems (i.e., a NULL-valued SUNMATRIX argument was supplied to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetMassLinearSolver}]{\sphinxcrossref{\sphinxcode{ARKStepSetMassLinearSolver()}}}} in the section
@@ -12671,7 +12674,7 @@ interface, in which case the integration is halted.
 
 
 \subsection{Mass matrix preconditioner solve (iterative linear solvers)}
-\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-massprecsolvefn}}\label{\detokenize{ARKStep_c_interface/User_supplied:mass-matrix-preconditioner-solve-iterative-linear-solvers}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:mass-matrix-preconditioner-solve-iterative-linear-solvers}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-massprecsolvefn}}
 If a user-supplied preconditioner is to be used with a SUNLINEAR
 solver module for mass matrix linear systems, then the user must
 provide a function of type {\hyperref[\detokenize{ARKStep_c_interface/User_supplied:c.ARKLsMassPrecSolveFn}]{\sphinxcrossref{\sphinxcode{ARKLsMassPrecSolveFn}}}} to solve the
@@ -12730,7 +12733,7 @@ unrecoverable error (in which case the integration is halted).
 
 
 \subsection{Mass matrix preconditioner setup (iterative linear solvers)}
-\label{\detokenize{ARKStep_c_interface/User_supplied:mass-matrix-preconditioner-setup-iterative-linear-solvers}}\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-massprecsetupfn}}
+\label{\detokenize{ARKStep_c_interface/User_supplied:arkstep-cinterface-massprecsetupfn}}\label{\detokenize{ARKStep_c_interface/User_supplied:mass-matrix-preconditioner-setup-iterative-linear-solvers}}
 If the user’s mass matrix preconditioner above requires that any
 problem data be preprocessed or evaluated, then these actions need to
 occur within a user-supplied function of type
@@ -12840,7 +12843,7 @@ preconditioner for parallel problems (ARKBBDPRE).
 
 
 \subsection{A serial banded preconditioner module}
-\label{\detokenize{ARKStep_c_interface/Preconditioners:a-serial-banded-preconditioner-module}}\label{\detokenize{ARKStep_c_interface/Preconditioners:arkstep-cinterface-bandpre}}
+\label{\detokenize{ARKStep_c_interface/Preconditioners:arkstep-cinterface-bandpre}}\label{\detokenize{ARKStep_c_interface/Preconditioners:a-serial-banded-preconditioner-module}}
 This preconditioner provides a band matrix preconditioner for use with
 iterative SUNLINSOL modules through the ARKLS linear solver interface,
 in a serial or threaded setting. It requires that the problem be set
@@ -13656,7 +13659,7 @@ the table {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-cinte
 
 
 \chapter{Using ERKStep for C and C++ Applications}
-\label{\detokenize{ERKStep_c_interface/index:erkstep-cinterface}}\label{\detokenize{ERKStep_c_interface/index:using-erkstep-for-c-and-c-applications}}\label{\detokenize{ERKStep_c_interface/index::doc}}
+\label{\detokenize{ERKStep_c_interface/index:using-erkstep-for-c-and-c-applications}}\label{\detokenize{ERKStep_c_interface/index:erkstep-cinterface}}\label{\detokenize{ERKStep_c_interface/index::doc}}
 This chapter is concerned with the use of the ERKStep time-stepping
 module for the solution of nonstiff initial value problems (IVPs) in a
 C or C++ language setting.  The following sections discuss the header
@@ -13719,7 +13722,7 @@ section {\hyperref[\detokenize{Install:installation}]{\sphinxcrossref{\DUrole{st
 
 
 \section{Data Types}
-\label{\detokenize{ERKStep_c_interface/General:data-types}}\label{\detokenize{ERKStep_c_interface/General:erkstep-cinterface-datatypes}}
+\label{\detokenize{ERKStep_c_interface/General:erkstep-cinterface-datatypes}}\label{\detokenize{ERKStep_c_interface/General:data-types}}
 The \sphinxcode{sundials\_types.h} file contains the definition of the variable
 type \sphinxcode{realtype}, which is used by the SUNDIALS solvers for all
 floating-point data, the definition of the integer type
@@ -13829,7 +13832,7 @@ type.
 
 
 \section{A skeleton of the user’s main program}
-\label{\detokenize{ERKStep_c_interface/Skeleton:erkstep-cinterface-skeleton}}\label{\detokenize{ERKStep_c_interface/Skeleton:a-skeleton-of-the-user-s-main-program}}\label{\detokenize{ERKStep_c_interface/Skeleton::doc}}
+\label{\detokenize{ERKStep_c_interface/Skeleton:a-skeleton-of-the-user-s-main-program}}\label{\detokenize{ERKStep_c_interface/Skeleton:erkstep-cinterface-skeleton}}\label{\detokenize{ERKStep_c_interface/Skeleton::doc}}
 The following is a skeleton of the user’s main program (or calling
 program) for the integration of an ODE IVP using the ERKStep module.
 Most of the steps are independent of the NVECTOR implementation used.
@@ -14016,7 +14019,7 @@ Call \sphinxcode{MPI\_Finalize} to terminate MPI.
 
 
 \section{ERKStep User-callable functions}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-usercallable}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-user-callable-functions}}\label{\detokenize{ERKStep_c_interface/User_callable::doc}}
+\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-user-callable-functions}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-usercallable}}\label{\detokenize{ERKStep_c_interface/User_callable::doc}}
 This section describes the functions that are called by the
 user to setup and then solve an IVP using the ERKStep time-stepping
 module. Some of these are required; however, starting with the section
@@ -14035,7 +14038,7 @@ provide her own error handler function (see the section
 
 
 \subsection{ERKStep initialization and deallocation functions}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-initialization-and-deallocation-functions}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-initialization}}\index{ERKStepCreate (C function)}
+\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-initialization}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-initialization-and-deallocation-functions}}\index{ERKStepCreate (C function)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{ERKStep_c_interface/User_callable:c.ERKStepCreate}}\pysiglinewithargsret{void* \sphinxbfcode{ERKStepCreate}}{{\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKRhsFn}]{\sphinxcrossref{ARKRhsFn}}}\sphinxstyleemphasis{ f}, realtype\sphinxstyleemphasis{ t0}, N\_Vector\sphinxstyleemphasis{ y0}}{}
@@ -14087,7 +14090,7 @@ This function frees the problem memory \sphinxstyleemphasis{arkode\_mem} created
 
 
 \subsection{ERKStep tolerance specification functions}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-tolerance-specification-functions}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-tolerances}}
+\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-tolerances}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-tolerance-specification-functions}}
 These functions specify the integration tolerances. One of them
 \sphinxstylestrong{should} be called before the first call to
 {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepEvolve}]{\sphinxcrossref{\sphinxcode{ERKStepEvolve()}}}}; otherwise default values of \sphinxcode{reltol =
@@ -14333,7 +14336,7 @@ tolerances to control the computed values is unsuccessful.
 
 
 \subsection{Rootfinding initialization function}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-rootfinding}}\label{\detokenize{ERKStep_c_interface/User_callable:rootfinding-initialization-function}}
+\label{\detokenize{ERKStep_c_interface/User_callable:rootfinding-initialization-function}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-rootfinding}}
 As described in the section {\hyperref[\detokenize{Mathematics:mathematics-rootfinding}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding}}}}, while
 solving the IVP, ARKode’s time-stepping modules have the capability to
 find the roots of a set of user-defined functions.  To activate the
@@ -15439,7 +15442,7 @@ default value (10).
 
 
 \subsubsection{Optional inputs for IVP method selection}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erkstepmethodinputtable}}\label{\detokenize{ERKStep_c_interface/User_callable:optional-inputs-for-ivp-method-selection}}
+\label{\detokenize{ERKStep_c_interface/User_callable:optional-inputs-for-ivp-method-selection}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erkstepmethodinputtable}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -16164,7 +16167,7 @@ terms.
 
 
 \subsubsection{Rootfinding optional input functions}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erksteprootfindinginputtable}}\label{\detokenize{ERKStep_c_interface/User_callable:rootfinding-optional-input-functions}}
+\label{\detokenize{ERKStep_c_interface/User_callable:rootfinding-optional-input-functions}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erksteprootfindinginputtable}}
 The following functions can be called to set optional inputs to
 control the rootfinding algorithm, the mathematics of which are
 described in the section {\hyperref[\detokenize{Mathematics:mathematics-rootfinding}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding}}}}.
@@ -16275,7 +16278,7 @@ this optional input function.
 
 
 \subsection{Interpolated output function}
-\label{\detokenize{ERKStep_c_interface/User_callable:interpolated-output-function}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-interpolatedoutput}}
+\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-interpolatedoutput}}\label{\detokenize{ERKStep_c_interface/User_callable:interpolated-output-function}}
 An optional function {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepGetDky}]{\sphinxcrossref{\sphinxcode{ERKStepGetDky()}}}} is available to obtain
 additional values of solution-related quantities.  This function
 should only be called after a successful return from
@@ -16399,7 +16402,7 @@ particular problem of interest.
 
 
 \subsubsection{SUNDIALS version information}
-\label{\detokenize{ERKStep_c_interface/User_callable:sundials-version-information}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-sunversioninfo}}
+\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-sunversioninfo}}\label{\detokenize{ERKStep_c_interface/User_callable:sundials-version-information}}
 The following functions provide a way to get SUNDIALS version
 information at runtime.
 \index{SUNDIALSGetVersion (C function)}
@@ -17197,7 +17200,7 @@ Returns the cumulative number of constraint test failures (so far).
 
 
 \subsubsection{Rootfinding optional output functions}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erksteprootoutputs}}\label{\detokenize{ERKStep_c_interface/User_callable:rootfinding-optional-output-functions}}
+\label{\detokenize{ERKStep_c_interface/User_callable:rootfinding-optional-output-functions}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-erksteprootoutputs}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -17402,7 +17405,7 @@ identical.
 
 
 \subsection{ERKStep re-initialization function}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-reinitialization}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-re-initialization-function}}
+\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-re-initialization-function}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-reinitialization}}
 To reinitialize the ERKStep module for the solution of a new problem,
 where a prior call to {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepCreate}]{\sphinxcrossref{\sphinxcode{ERKStepCreate()}}}} has been made, the
 user must call the function {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepReInit}]{\sphinxcrossref{\sphinxcode{ERKStepReInit()}}}}.  The new
@@ -17491,7 +17494,7 @@ sends an error message to the error handler function.
 
 
 \subsection{ERKStep reset function}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-reset-function}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-reset}}
+\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-reset}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-reset-function}}
 To reset the ERKStep module to a particular independent variable value and
 dependent variable vector for the continued solution of a problem, where a prior
 call to {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepCreate}]{\sphinxcrossref{\sphinxcode{ERKStepCreate()}}}} has been made, the user must call the function
@@ -17577,7 +17580,7 @@ the error handler function.
 
 
 \subsection{ERKStep system resize function}
-\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-system-resize-function}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-resizing}}
+\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-cinterface-resizing}}\label{\detokenize{ERKStep_c_interface/User_callable:erkstep-system-resize-function}}
 For simulations involving changes to the number of equations and
 unknowns in the ODE system (e.g. when using spatially-adaptive
 PDE simulations under a method-of-lines approach), the ERKStep
@@ -17688,7 +17691,7 @@ example problem, \sphinxcode{ark\_heat1D\_adapt.c}.
 
 
 \section{User-supplied functions}
-\label{\detokenize{ERKStep_c_interface/User_supplied:erkstep-cinterface-usersupplied}}\label{\detokenize{ERKStep_c_interface/User_supplied::doc}}\label{\detokenize{ERKStep_c_interface/User_supplied:user-supplied-functions}}
+\label{\detokenize{ERKStep_c_interface/User_supplied:erkstep-cinterface-usersupplied}}\label{\detokenize{ERKStep_c_interface/User_supplied:user-supplied-functions}}\label{\detokenize{ERKStep_c_interface/User_supplied::doc}}
 The user-supplied functions for ERKStep consist of:
 \begin{itemize}
 \item {} 
@@ -17816,7 +17819,7 @@ pointer to memory encounters an error, it sets \sphinxstyleemphasis{error\_code}
 
 
 \subsection{Error weight function}
-\label{\detokenize{ERKStep_c_interface/User_supplied:erkstep-cinterface-errorweight}}\label{\detokenize{ERKStep_c_interface/User_supplied:error-weight-function}}
+\label{\detokenize{ERKStep_c_interface/User_supplied:error-weight-function}}\label{\detokenize{ERKStep_c_interface/User_supplied:erkstep-cinterface-errorweight}}
 As an alternative to providing the relative and absolute tolerances,
 the user may provide a function of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKEwtFn}]{\sphinxcrossref{\sphinxcode{ARKEwtFn}}}} to compute a
 vector \sphinxstyleemphasis{ewt} containing the weights in the WRMS norm
@@ -17976,7 +17979,7 @@ stability restriction on the time step size.
 
 
 \subsection{Rootfinding function}
-\label{\detokenize{ERKStep_c_interface/User_supplied:erkstep-cinterface-rootfindingfn}}\label{\detokenize{ERKStep_c_interface/User_supplied:rootfinding-function}}
+\label{\detokenize{ERKStep_c_interface/User_supplied:rootfinding-function}}\label{\detokenize{ERKStep_c_interface/User_supplied:erkstep-cinterface-rootfindingfn}}
 If a rootfinding problem is to be solved during the integration of the
 ODE system, the user must supply a function of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKRootFn}]{\sphinxcrossref{\sphinxcode{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
@@ -18017,7 +18020,7 @@ integration is halted and ERKStep returns \sphinxstyleemphasis{ARK\_RTFUNC\_FAIL
 
 
 \subsection{Vector resize function}
-\label{\detokenize{ERKStep_c_interface/User_supplied:erkstep-cinterface-vecresizefn}}\label{\detokenize{ERKStep_c_interface/User_supplied:vector-resize-function}}
+\label{\detokenize{ERKStep_c_interface/User_supplied:vector-resize-function}}\label{\detokenize{ERKStep_c_interface/User_supplied:erkstep-cinterface-vecresizefn}}
 For simulations involving changes to the number of equations and
 unknowns in the ODE system (e.g. when using spatial adaptivity in a
 PDE simulation), the ERKStep integrator may be “resized” between
@@ -18068,7 +18071,7 @@ instead destroy the vector \sphinxstyleemphasis{y} and clone a new vector \sphin
 
 
 \chapter{Using MRIStep for C and C++ Applications}
-\label{\detokenize{MRIStep_c_interface/index:mristep-cinterface}}\label{\detokenize{MRIStep_c_interface/index::doc}}\label{\detokenize{MRIStep_c_interface/index:using-mristep-for-c-and-c-applications}}
+\label{\detokenize{MRIStep_c_interface/index:using-mristep-for-c-and-c-applications}}\label{\detokenize{MRIStep_c_interface/index::doc}}\label{\detokenize{MRIStep_c_interface/index:mristep-cinterface}}
 This chapter is concerned with the use of the MRIStep time-stepping
 module for the solution of two-rate initial value problems (IVPs) in a
 C or C++ language setting. The following sections discuss the header
@@ -18090,7 +18093,7 @@ detailed in the following sub-sections.
 
 
 \section{Access to library and header files}
-\label{\detokenize{MRIStep_c_interface/General:access-to-library-and-header-files}}\label{\detokenize{MRIStep_c_interface/General:mristep-cinterface-headers}}\label{\detokenize{MRIStep_c_interface/General::doc}}
+\label{\detokenize{MRIStep_c_interface/General:access-to-library-and-header-files}}\label{\detokenize{MRIStep_c_interface/General::doc}}\label{\detokenize{MRIStep_c_interface/General:mristep-cinterface-headers}}
 At this point, it is assumed that the installation of ARKode,
 following the procedure described in the section {\hyperref[\detokenize{Install:installation}]{\sphinxcrossref{\DUrole{std,std-ref}{ARKode Installation Procedure}}}},
 has been completed successfully.
@@ -18383,7 +18386,7 @@ initialization routines.
 
 
 \section{A skeleton of the user’s main program}
-\label{\detokenize{MRIStep_c_interface/Skeleton:a-skeleton-of-the-user-s-main-program}}\label{\detokenize{MRIStep_c_interface/Skeleton::doc}}\label{\detokenize{MRIStep_c_interface/Skeleton:mristep-cinterface-skeleton}}
+\label{\detokenize{MRIStep_c_interface/Skeleton:mristep-cinterface-skeleton}}\label{\detokenize{MRIStep_c_interface/Skeleton:a-skeleton-of-the-user-s-main-program}}\label{\detokenize{MRIStep_c_interface/Skeleton::doc}}
 The following is a skeleton of the user’s main program (or calling
 program) for the integration of an ODE IVP using the MRIStep module.
 Most of the steps are independent of the NVECTOR, SUNMATRIX, SUNLINSOL
@@ -18777,7 +18780,7 @@ the vector implementations required for use.
 
 
 \section{MRIStep User-callable functions}
-\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-usercallable}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-user-callable-functions}}\label{\detokenize{MRIStep_c_interface/User_callable::doc}}
+\label{\detokenize{MRIStep_c_interface/User_callable:mristep-user-callable-functions}}\label{\detokenize{MRIStep_c_interface/User_callable::doc}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-usercallable}}
 This section describes the functions that are called by the
 user to setup and then solve an IVP using the MRIStep time-stepping
 module. Some of these are required; however, starting with the section
@@ -19092,7 +19095,7 @@ changed to zero or a tiny positive number in a temporary variable
 
 
 \subsection{Linear solver interface functions}
-\label{\detokenize{MRIStep_c_interface/User_callable:linear-solver-interface-functions}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-linearsolvers}}
+\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-linearsolvers}}\label{\detokenize{MRIStep_c_interface/User_callable:linear-solver-interface-functions}}
 As previously explained, the Newton iterations used in solving
 implicit systems within MRIStep require the solution of linear
 systems of the form
@@ -19303,7 +19306,7 @@ supplied \sphinxstyleemphasis{NLS} object.
 
 
 \subsection{Rootfinding initialization function}
-\label{\detokenize{MRIStep_c_interface/User_callable:rootfinding-initialization-function}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-rootfinding}}
+\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-rootfinding}}\label{\detokenize{MRIStep_c_interface/User_callable:rootfinding-initialization-function}}
 As described in the section {\hyperref[\detokenize{Mathematics:mathematics-rootfinding}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding}}}}, while
 solving the IVP, ARKode’s time-stepping modules have the capability to
 find the roots of a set of user-defined functions.  In the MRIStep module root
@@ -19369,7 +19372,7 @@ be actived for the fast (inner) integrator.
 
 
 \subsection{MRIStep solver function}
-\label{\detokenize{MRIStep_c_interface/User_callable:mristep-solver-function}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-integration}}
+\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-integration}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-solver-function}}
 This is the central step in the solution process \textendash{} the call to perform
 the integration of the IVP.  The input argument \sphinxstyleemphasis{itask} specifies one of two
 modes as to where MRIStep is to return a solution.  These modes are modified if
@@ -20199,7 +20202,7 @@ defining post inner integration function.
 
 
 \subsubsection{Optional inputs for IVP method selection}
-\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepmethodinputtable}}\label{\detokenize{MRIStep_c_interface/User_callable:optional-inputs-for-ivp-method-selection}}
+\label{\detokenize{MRIStep_c_interface/User_callable:optional-inputs-for-ivp-method-selection}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepmethodinputtable}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -20990,7 +20993,7 @@ interface has been initialized through a call to
 
 
 \paragraph{Optional inputs for matrix-based \sphinxstyleliteralintitle{SUNLinearSolver} modules}
-\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-arklsinputs-matrixbased}}\label{\detokenize{MRIStep_c_interface/User_callable:optional-inputs-for-matrix-based-sunlinearsolver-modules}}
+\label{\detokenize{MRIStep_c_interface/User_callable:optional-inputs-for-matrix-based-sunlinearsolver-modules}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-arklsinputs-matrixbased}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -21185,7 +21188,7 @@ linear solver is attached.
 
 
 \paragraph{Optional inputs for matrix-free \sphinxstyleliteralintitle{SUNLinearSolver} modules}
-\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-arklsinputs-matrixfree}}\label{\detokenize{MRIStep_c_interface/User_callable:optional-inputs-for-matrix-free-sunlinearsolver-modules}}
+\label{\detokenize{MRIStep_c_interface/User_callable:optional-inputs-for-matrix-free-sunlinearsolver-modules}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-arklsinputs-matrixfree}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -21351,7 +21354,7 @@ been initialized through a call to {\hyperref[\detokenize{MRIStep_c_interface/Us
 
 
 \paragraph{Optional inputs for iterative \sphinxstyleliteralintitle{SUNLinearSolver} modules}
-\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-arklsinputs-iterative}}\label{\detokenize{MRIStep_c_interface/User_callable:optional-inputs-for-iterative-sunlinearsolver-modules}}
+\label{\detokenize{MRIStep_c_interface/User_callable:optional-inputs-for-iterative-sunlinearsolver-modules}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-arklsinputs-iterative}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -21507,7 +21510,7 @@ interface has been initialized through a call to
 
 
 \subsubsection{Rootfinding optional input functions}
-\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristeprootfindinginputtable}}\label{\detokenize{MRIStep_c_interface/User_callable:rootfinding-optional-input-functions}}
+\label{\detokenize{MRIStep_c_interface/User_callable:rootfinding-optional-input-functions}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristeprootfindinginputtable}}
 The following functions can be called to set optional inputs to
 control the rootfinding algorithm, the mathematics of which are
 described in the section {\hyperref[\detokenize{Mathematics:mathematics-rootfinding}]{\sphinxcrossref{\DUrole{std,std-ref}{Rootfinding}}}}.
@@ -21770,7 +21773,7 @@ particular problem of interest.
 
 
 \subsubsection{SUNDIALS version information}
-\label{\detokenize{MRIStep_c_interface/User_callable:sundials-version-information}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-sunversioninfo}}
+\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-sunversioninfo}}\label{\detokenize{MRIStep_c_interface/User_callable:sundials-version-information}}
 The following functions provide a way to get SUNDIALS version
 information at runtime.
 \index{SUNDIALSGetVersion (C function)}
@@ -21850,7 +21853,7 @@ version, no information is copied to \sphinxstyleemphasis{label}.
 
 
 \subsubsection{Main solver optional output functions}
-\label{\detokenize{MRIStep_c_interface/User_callable:main-solver-optional-output-functions}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepmainoutputs}}
+\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristepmainoutputs}}\label{\detokenize{MRIStep_c_interface/User_callable:main-solver-optional-output-functions}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -23086,7 +23089,7 @@ identical.
 
 
 \subsubsection{Rootfinding optional output functions}
-\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristeprootoutputs}}\label{\detokenize{MRIStep_c_interface/User_callable:rootfinding-optional-output-functions}}
+\label{\detokenize{MRIStep_c_interface/User_callable:rootfinding-optional-output-functions}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-mristeprootoutputs}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -23278,7 +23281,7 @@ sends an error message to the error handler function.
 
 
 \subsection{MRIStep reset function}
-\label{\detokenize{MRIStep_c_interface/User_callable:mristep-reset-function}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-reset}}
+\label{\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-reset}}\label{\detokenize{MRIStep_c_interface/User_callable:mristep-reset-function}}
 To reset the MRIStep module to a particular independent variable value and
 dependent variable vector for the continued solution of a problem, where a prior
 call to {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepCreate}]{\sphinxcrossref{\sphinxcode{MRIStepCreate()}}}} has been made, the user must call the function
@@ -23503,7 +23506,7 @@ Additionally, a user may supply a custom set of slow-to-fast coupling coefficien
 
 
 \subsection{ODE right-hand side}
-\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-oderhs}}\label{\detokenize{MRIStep_c_interface/User_supplied:ode-right-hand-side}}
+\label{\detokenize{MRIStep_c_interface/User_supplied:ode-right-hand-side}}\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-oderhs}}
 The user must supply a function of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKRhsFn}]{\sphinxcrossref{\sphinxcode{ARKRhsFn}}}} to
 specify the “slow” right-hand side of the ODE system:
 \index{ARKRhsFn (C type)}
@@ -23554,7 +23557,7 @@ MRIStep may halt on a recoverable error flag.
 
 
 \subsection{Error message handler function}
-\label{\detokenize{MRIStep_c_interface/User_supplied:error-message-handler-function}}\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-errorhandler}}
+\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-errorhandler}}\label{\detokenize{MRIStep_c_interface/User_supplied:error-message-handler-function}}
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \sphinxtitleref{errfp} (see
 {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetErrFile}]{\sphinxcrossref{\sphinxcode{MRIStepSetErrFile()}}}}), the user may provide a function of type
@@ -23600,7 +23603,7 @@ pointer to memory encounters an error, it sets \sphinxstyleemphasis{error\_code}
 
 
 \subsection{Error weight function}
-\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-errorweight}}\label{\detokenize{MRIStep_c_interface/User_supplied:error-weight-function}}
+\label{\detokenize{MRIStep_c_interface/User_supplied:error-weight-function}}\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-errorweight}}
 As an alternative to providing the relative and absolute tolerances,
 the user may provide a function of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKEwtFn}]{\sphinxcrossref{\sphinxcode{ARKEwtFn}}}} to compute a
 vector \sphinxstyleemphasis{ewt} containing the weights in the WRMS norm
@@ -23733,7 +23736,7 @@ integration is halted and MRIStep returns \sphinxstyleemphasis{ARK\_RTFUNC\_FAIL
 
 
 \subsection{Jacobian construction (matrix-based linear solvers)}
-\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-jacobianfn}}\label{\detokenize{MRIStep_c_interface/User_supplied:jacobian-construction-matrix-based-linear-solvers}}
+\label{\detokenize{MRIStep_c_interface/User_supplied:jacobian-construction-matrix-based-linear-solvers}}\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-jacobianfn}}
 If a matrix-based linear solver module is used (i.e., a non-NULL \sphinxcode{SUNMatrix}
 object was supplied to {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetLinearSolver}]{\sphinxcrossref{\sphinxcode{MRIStepSetLinearSolver()}}}} in section
 {\hyperref[\detokenize{MRIStep_c_interface/Skeleton:mristep-cinterface-skeleton}]{\sphinxcrossref{\DUrole{std,std-ref}{A skeleton of the user’s main program}}}}), the user may provide a function of type
@@ -23950,7 +23953,7 @@ halted, {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepEvolve
 
 
 \subsection{Jacobian-vector product (matrix-free linear solvers)}
-\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-jtimesfn}}\label{\detokenize{MRIStep_c_interface/User_supplied:jacobian-vector-product-matrix-free-linear-solvers}}
+\label{\detokenize{MRIStep_c_interface/User_supplied:jacobian-vector-product-matrix-free-linear-solvers}}\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-jtimesfn}}
 When using a matrix-free linear solver module for the implicit
 stage solves (i.e., a NULL-valued SUNMATRIX argument was supplied to
 {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetLinearSolver}]{\sphinxcrossref{\sphinxcode{MRIStepSetLinearSolver()}}}} in the section
@@ -24071,7 +24074,7 @@ file \sphinxcode{sundials\_types.h}.
 
 
 \subsection{Preconditioner solve (iterative linear solvers)}
-\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-precsolvefn}}\label{\detokenize{MRIStep_c_interface/User_supplied:preconditioner-solve-iterative-linear-solvers}}
+\label{\detokenize{MRIStep_c_interface/User_supplied:preconditioner-solve-iterative-linear-solvers}}\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-precsolvefn}}
 If a user-supplied preconditioner is to be used with a SUNLinSol
 solver module, then the user must provide a function of type
 {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.ARKLsPrecSolveFn}]{\sphinxcrossref{\sphinxcode{ARKLsPrecSolveFn}}}} to solve the linear system \(Pz=r\),
@@ -24319,7 +24322,7 @@ and device vector data are necessary, this is where that should occur.
 
 
 \subsection{Post inner integrator communication function}
-\label{\detokenize{MRIStep_c_interface/User_supplied:post-inner-integrator-communication-function}}\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-postinnerfn}}
+\label{\detokenize{MRIStep_c_interface/User_supplied:mristep-cinterface-postinnerfn}}\label{\detokenize{MRIStep_c_interface/User_supplied:post-inner-integrator-communication-function}}
 The user may supply a function of type {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.MRIStepPostInnerFn}]{\sphinxcrossref{\sphinxcode{MRIStepPostInnerFn}}}} that will be
 called \sphinxstyleemphasis{after} each inner integration to perform any communication or
 memory transfers of state data supplied by the inner integrator to the
@@ -24363,7 +24366,7 @@ and device vector data are necessary, this is where that should occur.
 
 
 \subsection{MRI Coupling Coefficients Data Structure}
-\label{\detokenize{MRIStep_c_interface/User_supplied:mristepcoupling}}\label{\detokenize{MRIStep_c_interface/User_supplied:mri-coupling-coefficients-data-structure}}
+\label{\detokenize{MRIStep_c_interface/User_supplied:mri-coupling-coefficients-data-structure}}\label{\detokenize{MRIStep_c_interface/User_supplied:mristepcoupling}}
 As mentioned in the section {\hyperref[\detokenize{MRIStep_c_interface/User_callable:mristep-cinterface-usercallable}]{\sphinxcrossref{\DUrole{std,std-ref}{MRIStep User-callable functions}}}}, a user may supply a custom set of coupling
 coefficients between fast and slow time scales (through {\hyperref[\detokenize{MRIStep_c_interface/User_callable:c.MRIStepSetCoupling}]{\sphinxcrossref{\sphinxcode{MRIStepSetCoupling()}}}}).  MRIStep uses a custom
 data type, {\hyperref[\detokenize{MRIStep_c_interface/User_supplied:c.MRIStepCoupling}]{\sphinxcrossref{\sphinxcode{MRIStepCoupling}}}}, to store these coefficients, and provides several related utility
@@ -24709,7 +24712,7 @@ may point to a specific file created using \sphinxcode{fopen}.
 
 
 \subsubsection{MRIStepCoupling tables}
-\label{\detokenize{MRIStep_c_interface/User_supplied:mristepcoupling-tables}}\label{\detokenize{MRIStep_c_interface/User_supplied:id2}}
+\label{\detokenize{MRIStep_c_interface/User_supplied:id2}}\label{\detokenize{MRIStep_c_interface/User_supplied:mristepcoupling-tables}}
 MRIStep currently includes two classes of MRI coupling tables: those that encode methods that are
 explicit at the slow time scale, and those that are diagonally-implicit and solve-decoupled at
 the slow time scale.  We list the current identifiers, multirate order of accuracy, and relevant
@@ -24790,7 +24793,7 @@ Reference
 
 
 \chapter{Using ARKode for Fortran Applications}
-\label{\detokenize{ARKode_f_interface/index:fortraninterfaces}}\label{\detokenize{ARKode_f_interface/index::doc}}\label{\detokenize{ARKode_f_interface/index:using-arkode-for-fortran-applications}}
+\label{\detokenize{ARKode_f_interface/index:fortraninterfaces}}\label{\detokenize{ARKode_f_interface/index:using-arkode-for-fortran-applications}}\label{\detokenize{ARKode_f_interface/index::doc}}
 Fortran 2003 interfaces to each of the time-stepping modules as well as a
 Fortran 77 style interface to the ARKStep time-stepping module are
 provided to support the use of ARKode, for the solution of ODE systems,
@@ -24800,7 +24803,7 @@ rotuines are written in Fortran.
 
 
 \section{ARKode Fortran 2003 Interface Modules}
-\label{\detokenize{ARKode_f_interface/F2003Module:fortran2003}}\label{\detokenize{ARKode_f_interface/F2003Module:arkode-fortran-2003-interface-modules}}\label{\detokenize{ARKode_f_interface/F2003Module::doc}}
+\label{\detokenize{ARKode_f_interface/F2003Module:fortran2003}}\label{\detokenize{ARKode_f_interface/F2003Module::doc}}\label{\detokenize{ARKode_f_interface/F2003Module:arkode-fortran-2003-interface-modules}}
 The ARKode Fortran 2003 modules define interfaces to most of the ARKode C
 API using the intrinsic \sphinxcode{iso\_c\_binding} module which provides a standardized
 mechanism for interoperating with C. AKRode provides four Fortran 2003 modules:
@@ -25067,7 +25070,7 @@ where the \sphinxcode{realtype} is double-precision the \sphinxcode{sunindextype
 
 
 \subsubsection{Table: C/Fortran-2003 Equivalent Types}
-\label{\detokenize{ARKode_f_interface/F2003Module:table-c-fortran-2003-equivalent-types}}\label{\detokenize{ARKode_f_interface/F2003Module:fortran2003-datatypestable}}
+\label{\detokenize{ARKode_f_interface/F2003Module:fortran2003-datatypestable}}\label{\detokenize{ARKode_f_interface/F2003Module:table-c-fortran-2003-equivalent-types}}
 
 \begin{savenotes}\sphinxatlongtablestart\begin{longtable}{|l|l|l|}
 \hline
@@ -25321,7 +25324,7 @@ in, inout, out, return
 
 
 \subsection{Notable Fortran/C usage differences}
-\label{\detokenize{ARKode_f_interface/F2003Module:notable-fortran-c-usage-differences}}\label{\detokenize{ARKode_f_interface/F2003Module:fortran2003-differences}}
+\label{\detokenize{ARKode_f_interface/F2003Module:fortran2003-differences}}\label{\detokenize{ARKode_f_interface/F2003Module:notable-fortran-c-usage-differences}}
 While the Fortran 2003 interface to SUNDIALS closely follows the C API,
 some differences are inevitable due to the differences between Fortran and C.
 In this section, we note the most critical differences. Additionally, section
@@ -25451,7 +25454,7 @@ pointers to pass such data back to user-supplied functions. These users should s
 
 
 \subsubsection{Passing NULL to optional parameters}
-\label{\detokenize{ARKode_f_interface/F2003Module:passing-null-to-optional-parameters}}\label{\detokenize{ARKode_f_interface/F2003Module:fortran2003-differences-optionalparameters}}
+\label{\detokenize{ARKode_f_interface/F2003Module:fortran2003-differences-optionalparameters}}\label{\detokenize{ARKode_f_interface/F2003Module:passing-null-to-optional-parameters}}
 In the SUNDIALS C API some functions have optional parameters that a
 caller can pass \sphinxcode{NULL} to. If the optional parameter is of a type that is
 equivalent to a Fortran \sphinxcode{type(c\_ptr)} (see section {\hyperref[\detokenize{ARKode_f_interface/F2003Module:fortran2003-datatypes}]{\sphinxcrossref{\DUrole{std,std-ref}{Data Types}}}}),
@@ -25490,7 +25493,7 @@ Fortran code:
 
 
 \subsubsection{Working with \sphinxstyleliteralintitle{N\_Vector} arrays}
-\label{\detokenize{ARKode_f_interface/F2003Module:working-with-n-vector-arrays}}\label{\detokenize{ARKode_f_interface/F2003Module:fortran2003-differences-nvectorarrays}}
+\label{\detokenize{ARKode_f_interface/F2003Module:fortran2003-differences-nvectorarrays}}\label{\detokenize{ARKode_f_interface/F2003Module:working-with-n-vector-arrays}}
 Arrays of \sphinxcode{N\_Vector} objects are interfaced to Fortran 2003 as opaque
 \sphinxcode{type(c\_ptr)}.  As such, it is not possible to directly index an array of
 \sphinxcode{N\_Vector} objects returned by the \sphinxcode{N\_Vector} “VectorArray” operations, or
@@ -25603,7 +25606,7 @@ same compiler used to generate the modules.
 
 
 \section{FARKODE, an Interface Module for FORTRAN Applications}
-\label{\detokenize{ARKode_f_interface/FARKODE:farkode-an-interface-module-for-fortran-applications}}\label{\detokenize{ARKode_f_interface/FARKODE:fortraninterface}}\label{\detokenize{ARKode_f_interface/FARKODE::doc}}
+\label{\detokenize{ARKode_f_interface/FARKODE:farkode-an-interface-module-for-fortran-applications}}\label{\detokenize{ARKode_f_interface/FARKODE::doc}}\label{\detokenize{ARKode_f_interface/FARKODE:fortraninterface}}
 The FARKODE interface module is a package of C functions which
 support the use of the ARKStep time-stepping module for the solution
 of ODE systems
@@ -25621,7 +25624,7 @@ NVECTOR implementations.
 
 
 \subsection{Important note on portability}
-\label{\detokenize{ARKode_f_interface/FARKODE:important-note-on-portability}}\label{\detokenize{ARKode_f_interface/FARKODE:finterface-portability}}
+\label{\detokenize{ARKode_f_interface/FARKODE:finterface-portability}}\label{\detokenize{ARKode_f_interface/FARKODE:important-note-on-portability}}
 In this package, the names of the interface functions, and the names
 of the Fortran user routines called by them, appear as dummy names
 which are mapped to actual values by a series of definitions in the
@@ -25719,7 +25722,7 @@ following sub-sections:
 
 
 \subsubsection{FARKODE routines}
-\label{\detokenize{ARKode_f_interface/Routines:farkode-routines}}\label{\detokenize{ARKode_f_interface/Routines:finterface-routines}}\label{\detokenize{ARKode_f_interface/Routines::doc}}
+\label{\detokenize{ARKode_f_interface/Routines::doc}}\label{\detokenize{ARKode_f_interface/Routines:finterface-routines}}\label{\detokenize{ARKode_f_interface/Routines:farkode-routines}}
 In this section, we list the full set of user-callable functions
 comprising the FARKODE solver interface.  For each function, we list
 the corresponding ARKStep functions, to provide a mapping between the
@@ -26172,7 +26175,7 @@ preconditioner modules is described in later subsections.
 
 
 \paragraph{Right-hand side specification}
-\label{\detokenize{ARKode_f_interface/Usage:finterface-rhs}}\label{\detokenize{ARKode_f_interface/Usage:right-hand-side-specification}}
+\label{\detokenize{ARKode_f_interface/Usage:right-hand-side-specification}}\label{\detokenize{ARKode_f_interface/Usage:finterface-rhs}}
 The user must in all cases supply the following Fortran routines:
 \index{FARKIFUN() (fortran subroutine)|textbf}
 
@@ -26257,7 +26260,7 @@ remain empty.
 
 
 \paragraph{NVECTOR module initialization}
-\label{\detokenize{ARKode_f_interface/Usage:nvector-module-initialization}}\label{\detokenize{ARKode_f_interface/Usage:finterface-nvector}}
+\label{\detokenize{ARKode_f_interface/Usage:finterface-nvector}}\label{\detokenize{ARKode_f_interface/Usage:nvector-module-initialization}}
 If using one of the NVECTOR modules supplied with SUNDIALS, the user
 must make a call of the form
 
@@ -26315,7 +26318,7 @@ only usable in a serial or multi-threaded environment.
 
 
 \paragraph{SUNLINSOL module initialization}
-\label{\detokenize{ARKode_f_interface/Usage:sunlinsol-module-initialization}}\label{\detokenize{ARKode_f_interface/Usage:finterface-sunlinsol}}
+\label{\detokenize{ARKode_f_interface/Usage:finterface-sunlinsol}}\label{\detokenize{ARKode_f_interface/Usage:sunlinsol-module-initialization}}
 If using a Newton iteration with one of the SUNLINSOL linear
 solver modules supplied with SUNDIALS, the user must make a call
 of the form
@@ -26562,7 +26565,7 @@ Informs FARKODE to use the user-supplied {\hyperref[\detokenize{ARKode_f_interfa
 
 
 \paragraph{Setting optional inputs}
-\label{\detokenize{ARKode_f_interface/Usage:setting-optional-inputs}}\label{\detokenize{ARKode_f_interface/Usage:finterface-optionalinputs}}
+\label{\detokenize{ARKode_f_interface/Usage:finterface-optionalinputs}}\label{\detokenize{ARKode_f_interface/Usage:setting-optional-inputs}}
 Unlike ARKStep’s C interface, that provides separate functions for
 setting each optional input, FARKODE uses only three functions, that
 accept keywords to specify which optional input should be set to the
@@ -27276,7 +27279,7 @@ to {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKMALLOC}]{\sphinxcross
 
 
 \paragraph{Nonlinear solver module specification}
-\label{\detokenize{ARKode_f_interface/Usage:nonlinear-solver-module-specification}}\label{\detokenize{ARKode_f_interface/Usage:finterface-nonlinearsolver}}
+\label{\detokenize{ARKode_f_interface/Usage:finterface-nonlinearsolver}}\label{\detokenize{ARKode_f_interface/Usage:nonlinear-solver-module-specification}}
 To use a non-default nonlinear solver algorithm, then after it has
 been initialized in step {\hyperref[\detokenize{ARKode_f_interface/Usage:finterface-sunnonlinsol}]{\sphinxcrossref{\DUrole{std,std-ref}{SUNNONLINSOL module initialization}}}} above, the
 user of FARKODE must attach it to ARKSTEP by calling the
@@ -27332,7 +27335,7 @@ error occurred, -2 for an illegal input).
 
 
 \subparagraph{Matrix-based linear solvers}
-\label{\detokenize{ARKode_f_interface/Usage:matrix-based-linear-solvers}}\label{\detokenize{ARKode_f_interface/Usage:finterface-direct}}
+\label{\detokenize{ARKode_f_interface/Usage:finterface-direct}}\label{\detokenize{ARKode_f_interface/Usage:matrix-based-linear-solvers}}
 As an option when using ARKSTEP with either the SUNLINSOL\_DENSE or
 SUNLINSOL\_LAPACKDENSE linear solver modules, the user may supply a
 routine that computes a dense approximation of the system Jacobian
@@ -27645,7 +27648,7 @@ been provided for the Jacobian approximation.
 
 
 \subparagraph{Iterative linear solvers}
-\label{\detokenize{ARKode_f_interface/Usage:iterative-linear-solvers}}\label{\detokenize{ARKode_f_interface/Usage:finterface-iterative}}
+\label{\detokenize{ARKode_f_interface/Usage:finterface-iterative}}\label{\detokenize{ARKode_f_interface/Usage:iterative-linear-solvers}}
 As described in the section {\hyperref[\detokenize{Mathematics:mathematics-error-linear}]{\sphinxcrossref{\DUrole{std,std-ref}{Linear iteration error control}}}}, a user
 may adjust the linear solver tolerance scaling factor
 \(\epsilon_L\).  Fortran users may adjust this value by calling
@@ -28016,7 +28019,7 @@ the \sphinxstyleemphasis{RPAR} user data array or a common block.
 
 
 \paragraph{Mass matrix linear solver interface specification}
-\label{\detokenize{ARKode_f_interface/Usage:finterface-masslinearsolver}}\label{\detokenize{ARKode_f_interface/Usage:mass-matrix-linear-solver-interface-specification}}
+\label{\detokenize{ARKode_f_interface/Usage:mass-matrix-linear-solver-interface-specification}}\label{\detokenize{ARKode_f_interface/Usage:finterface-masslinearsolver}}
 To attach the mass matrix linear solver (and optionally the mass
 matrix) object(s) initialized in steps {\hyperref[\detokenize{ARKode_f_interface/Usage:finterface-sunmatrix}]{\sphinxcrossref{\DUrole{std,std-ref}{SUNMATRIX module initialization}}}} and
 {\hyperref[\detokenize{ARKode_f_interface/Usage:finterface-sunlinsol}]{\sphinxcrossref{\DUrole{std,std-ref}{SUNLINSOL module initialization}}}} above, the user of FARKODE must
@@ -28690,7 +28693,7 @@ of {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepEvolve}]{\s
 
 
 \paragraph{Additional solution output}
-\label{\detokenize{ARKode_f_interface/Usage:finterface-additionaloutput}}\label{\detokenize{ARKode_f_interface/Usage:additional-solution-output}}
+\label{\detokenize{ARKode_f_interface/Usage:additional-solution-output}}\label{\detokenize{ARKode_f_interface/Usage:finterface-additionaloutput}}
 After a successful return from {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKODE}]{\sphinxcrossref{\sphinxcode{FARKODE()}}}}, the routine
 {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKDKY}]{\sphinxcrossref{\sphinxcode{FARKDKY()}}}} may be used to obtain a derivative of the solution,
 of order up to 3, at any \(t\) within the last step taken.
@@ -28757,7 +28760,7 @@ these calls may be made without re-attaching to ARKStep.
 
 
 \paragraph{Resizing the ODE system}
-\label{\detokenize{ARKode_f_interface/Usage:finterface-resize}}\label{\detokenize{ARKode_f_interface/Usage:resizing-the-ode-system}}
+\label{\detokenize{ARKode_f_interface/Usage:resizing-the-ode-system}}\label{\detokenize{ARKode_f_interface/Usage:finterface-resize}}
 For simulations involving changes to the number of equations and
 unknowns in the ODE system (e.g. when solving a spatially-adaptive
 PDE), the {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKODE}]{\sphinxcrossref{\sphinxcode{FARKODE()}}}} integrator may be “resized” between
@@ -28850,7 +28853,7 @@ relevant “set” routines to specify their usage must be called again
 
 
 \paragraph{Memory deallocation}
-\label{\detokenize{ARKode_f_interface/Usage:memory-deallocation}}\label{\detokenize{ARKode_f_interface/Usage:finterface-deallocation}}
+\label{\detokenize{ARKode_f_interface/Usage:finterface-deallocation}}\label{\detokenize{ARKode_f_interface/Usage:memory-deallocation}}
 To free the internal memory created by {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKMALLOC}]{\sphinxcrossref{\sphinxcode{FARKMALLOC()}}}},
 {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKLSINIT}]{\sphinxcrossref{\sphinxcode{FARKLSINIT()}}}}, {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKLSMASSINIT}]{\sphinxcrossref{\sphinxcode{FARKLSMASSINIT()}}}}, and the SUNMATRIX,
 SUNLINSOL and SUNNONLINSOL objects, the user may call
@@ -28868,7 +28871,7 @@ Frees the internal memory created by {\hyperref[\detokenize{ARKode_f_interface/U
 
 
 \subsubsection{FARKODE optional output}
-\label{\detokenize{ARKode_f_interface/Optional_output:farkode-optional-output}}\label{\detokenize{ARKode_f_interface/Optional_output:finterface-optionaloutputs}}\label{\detokenize{ARKode_f_interface/Optional_output::doc}}
+\label{\detokenize{ARKode_f_interface/Optional_output:finterface-optionaloutputs}}\label{\detokenize{ARKode_f_interface/Optional_output:farkode-optional-output}}\label{\detokenize{ARKode_f_interface/Optional_output::doc}}
 We note that the optional inputs to FARKODE have already been
 described in the section {\hyperref[\detokenize{ARKode_f_interface/Usage:finterface-optionalinputs}]{\sphinxcrossref{\DUrole{std,std-ref}{Setting optional inputs}}}}.
 
@@ -28900,7 +28903,7 @@ the sections {\hyperref[\detokenize{ARKStep_c_interface/User_callable:arkstep-ci
 
 
 \paragraph{Table: Optional FARKODE integer outputs}
-\label{\detokenize{ARKode_f_interface/Optional_output:finterface-iouttable}}\label{\detokenize{ARKode_f_interface/Optional_output:table-optional-farkode-integer-outputs}}
+\label{\detokenize{ARKode_f_interface/Optional_output:table-optional-farkode-integer-outputs}}\label{\detokenize{ARKode_f_interface/Optional_output:finterface-iouttable}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -29073,7 +29076,7 @@ UROUND
 
 
 \paragraph{Table: Optional ARKLS interface outputs}
-\label{\detokenize{ARKode_f_interface/Optional_output:table-optional-arkls-interface-outputs}}\label{\detokenize{ARKode_f_interface/Optional_output:finterface-lsiouttable}}
+\label{\detokenize{ARKode_f_interface/Optional_output:finterface-lsiouttable}}\label{\detokenize{ARKode_f_interface/Optional_output:table-optional-arkls-interface-outputs}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -29170,7 +29173,7 @@ NCFL
 
 
 \paragraph{Table: Optional ARKLS mass interface outputs}
-\label{\detokenize{ARKode_f_interface/Optional_output:finterface-lsmassiouttable}}\label{\detokenize{ARKode_f_interface/Optional_output:table-optional-arkls-mass-interface-outputs}}
+\label{\detokenize{ARKode_f_interface/Optional_output:table-optional-arkls-mass-interface-outputs}}\label{\detokenize{ARKode_f_interface/Optional_output:finterface-lsmassiouttable}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -29267,7 +29270,7 @@ NMCFL
 
 
 \paragraph{Table: Optional ARKode constraints outputs}
-\label{\detokenize{ARKode_f_interface/Optional_output:table-optional-arkode-constraints-outputs}}\label{\detokenize{ARKode_f_interface/Optional_output:finterface-constriouttable}}
+\label{\detokenize{ARKode_f_interface/Optional_output:finterface-constriouttable}}\label{\detokenize{ARKode_f_interface/Optional_output:table-optional-arkode-constraints-outputs}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -29516,7 +29519,7 @@ Frees memory associated with the FARKODE rootfinding module.
 
 
 \subsubsection{Usage of the FARKODE interface to built-in preconditioners}
-\label{\detokenize{ARKode_f_interface/Preconditioning:usage-of-the-farkode-interface-to-built-in-preconditioners}}\label{\detokenize{ARKode_f_interface/Preconditioning:finterface-preconditioning}}\label{\detokenize{ARKode_f_interface/Preconditioning::doc}}
+\label{\detokenize{ARKode_f_interface/Preconditioning:finterface-preconditioning}}\label{\detokenize{ARKode_f_interface/Preconditioning:usage-of-the-farkode-interface-to-built-in-preconditioners}}\label{\detokenize{ARKode_f_interface/Preconditioning::doc}}
 The FARKODE interface enables usage of the two built-in
 preconditioning modules ARKBANDPRE and ARKBBDPRE.  Details on how
 these preconditioners work are provided in the section
@@ -29525,7 +29528,7 @@ specifically on the Fortran interface to these modules.
 
 
 \paragraph{Usage of the FARKBP interface to ARKBANDPRE}
-\label{\detokenize{ARKode_f_interface/Preconditioning:usage-of-the-farkbp-interface-to-arkbandpre}}\label{\detokenize{ARKode_f_interface/Preconditioning:finterface-bandpre}}
+\label{\detokenize{ARKode_f_interface/Preconditioning:finterface-bandpre}}\label{\detokenize{ARKode_f_interface/Preconditioning:usage-of-the-farkbp-interface-to-arkbandpre}}
 The FARKBP interface module is a package of C functions which,
 as part of the FARKODE interface module, support the use of the
 ARKStep solver with the serial or threaded NVector modules
@@ -29674,7 +29677,7 @@ automatically by {\hyperref[\detokenize{ARKode_f_interface/Usage:f/_/FARKFREE}]{
 
 
 \paragraph{Usage of the FARKBBD interface to ARKBBDPRE}
-\label{\detokenize{ARKode_f_interface/Preconditioning:usage-of-the-farkbbd-interface-to-arkbbdpre}}\label{\detokenize{ARKode_f_interface/Preconditioning:finterface-bbdpre}}
+\label{\detokenize{ARKode_f_interface/Preconditioning:finterface-bbdpre}}\label{\detokenize{ARKode_f_interface/Preconditioning:usage-of-the-farkbbd-interface-to-arkbbdpre}}
 The FARKBBD interface module is a package of C functions which, as
 part of the FARKODE interface module, support the use of the ARKStep
 solver with the parallel vector module ({\hyperref[\detokenize{nvectors/NVector_Parallel:nvectors-nvparallel}]{\sphinxcrossref{\DUrole{std,std-ref}{The NVECTOR\_PARALLEL Module}}}}),
@@ -30068,7 +30071,7 @@ must return \sphinxstyleemphasis{IER = 0}.
 
 
 \chapter{Butcher Table Data Structure}
-\label{\detokenize{ARKodeButcherTable:butcher-table-data-structure}}\label{\detokenize{ARKodeButcherTable:arkodebutchertable}}\label{\detokenize{ARKodeButcherTable::doc}}
+\label{\detokenize{ARKodeButcherTable:arkodebutchertable}}\label{\detokenize{ARKodeButcherTable::doc}}\label{\detokenize{ARKodeButcherTable:butcher-table-data-structure}}
 To store the Butcher table defining a Runge Kutta method ARKode provides the
 {\hyperref[\detokenize{ARKodeButcherTable:c.ARKodeButcherTable}]{\sphinxcrossref{\sphinxcode{ARKodeButcherTable}}}} type and several related utilitiy routines. We use
 the following Butcher table notation (shown for a 3-stage method):
@@ -30124,7 +30127,7 @@ above, and \sphinxcode{d} is used to store \(\tilde{b}\).
 
 
 \section{ARKodeButcherTable functions}
-\label{\detokenize{ARKodeButcherTable:id1}}\label{\detokenize{ARKodeButcherTable:arkodebutchertable-functions}}
+\label{\detokenize{ARKodeButcherTable:arkodebutchertable-functions}}\label{\detokenize{ARKodeButcherTable:id1}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -30546,7 +30549,7 @@ patterns in the NVECTORS used.
 
 
 \section{Description of the NVECTOR Modules}
-\label{\detokenize{nvectors/NVector_Description:description-of-the-nvector-modules}}\label{\detokenize{nvectors/NVector_Description:nvectors-description}}\label{\detokenize{nvectors/NVector_Description::doc}}
+\label{\detokenize{nvectors/NVector_Description:nvectors-description}}\label{\detokenize{nvectors/NVector_Description:description-of-the-nvector-modules}}\label{\detokenize{nvectors/NVector_Description::doc}}
 The SUNDIALS solvers are written in a data-independent manner. They
 all operate on generic vectors (of type \sphinxcode{N\_Vector}) through a set of
 operations defined by, and specific to, the particular NVECTOR
@@ -30680,7 +30683,7 @@ used as templates for user-defined NVECTOR implementations.
 
 
 \subsection{NVECTOR Utility Functions}
-\label{\detokenize{nvectors/NVector_Description:nvectors-utilities}}\label{\detokenize{nvectors/NVector_Description:nvector-utility-functions}}
+\label{\detokenize{nvectors/NVector_Description:nvector-utility-functions}}\label{\detokenize{nvectors/NVector_Description:nvectors-utilities}}
 The generic NVECTOR module also defines the utility functions
 \sphinxcode{N\_VCloneVectorArray}, \sphinxcode{N\_VCloneVectorArrayEmpty}, and
 \sphinxcode{N\_VDestroyVectorArray}. Both clone functions create (by cloning) an array of
@@ -30721,7 +30724,7 @@ index. There prototypes are given below:
 
 
 \subsection{Vector Identifications associated with vector kernels supplied with SUNDIALS}
-\label{\detokenize{nvectors/NVector_Description:vector-identifications-associated-with-vector-kernels-supplied-with-sundials}}\label{\detokenize{nvectors/NVector_Description:nvector-vectorids}}
+\label{\detokenize{nvectors/NVector_Description:nvector-vectorids}}\label{\detokenize{nvectors/NVector_Description:vector-identifications-associated-with-vector-kernels-supplied-with-sundials}}
 
 \begin{savenotes}\sphinxattablestart
 \centering
@@ -30839,7 +30842,7 @@ User-provided custom vector
 
 
 \subsection{Implementing a custom NVECTOR}
-\label{\detokenize{nvectors/NVector_Description:implementing-a-custom-nvector}}\label{\detokenize{nvectors/NVector_Description:nvector-custom-implementation}}
+\label{\detokenize{nvectors/NVector_Description:nvector-custom-implementation}}\label{\detokenize{nvectors/NVector_Description:implementing-a-custom-nvector}}
 A particular implementation of the NVECTOR module must:
 \begin{itemize}
 \item {} 
@@ -31562,7 +31565,7 @@ Usage:
 
 
 \subsection{Description of the NVECTOR fused operations}
-\label{\detokenize{nvectors/NVector_Operations:description-of-the-nvector-fused-operations}}\label{\detokenize{nvectors/NVector_Operations:nvectors-fusedops}}
+\label{\detokenize{nvectors/NVector_Operations:nvectors-fusedops}}\label{\detokenize{nvectors/NVector_Operations:description-of-the-nvector-fused-operations}}
 The following fused vector operations are \sphinxstyleemphasis{optional}. These
 operations are intended to increase data reuse, reduce parallel
 communication on distributed memory systems, and lower the number of
@@ -31818,7 +31821,7 @@ Usage:
 
 
 \subsection{Description of the NVECTOR local reduction operations}
-\label{\detokenize{nvectors/NVector_Operations:nvectors-localops}}\label{\detokenize{nvectors/NVector_Operations:description-of-the-nvector-local-reduction-operations}}
+\label{\detokenize{nvectors/NVector_Operations:description-of-the-nvector-local-reduction-operations}}\label{\detokenize{nvectors/NVector_Operations:nvectors-localops}}
 The following local reduction operations are also \sphinxstyleemphasis{optional}. As with
 the fused and vector array operations, these are intended to reduce
 parallel communication on distributed memory systems. If a particular
@@ -32039,7 +32042,7 @@ Usage:
 
 
 \section{The NVECTOR\_SERIAL Module}
-\label{\detokenize{nvectors/NVector_Serial:nvectors-nvserial}}\label{\detokenize{nvectors/NVector_Serial:the-nvector-serial-module}}\label{\detokenize{nvectors/NVector_Serial::doc}}
+\label{\detokenize{nvectors/NVector_Serial:the-nvector-serial-module}}\label{\detokenize{nvectors/NVector_Serial::doc}}\label{\detokenize{nvectors/NVector_Serial:nvectors-nvserial}}
 The serial implementation of the NVECTOR module provided with
 SUNDIALS, NVECTOR\_SERIAL, defines the \sphinxstyleemphasis{content} field of a
 \sphinxcode{N\_Vector} to be a structure containing the length of the vector, a
@@ -32445,7 +32448,7 @@ the problem size (declared so as to match C type \sphinxcode{long int}); and
 
 
 \section{The NVECTOR\_PARALLEL Module}
-\label{\detokenize{nvectors/NVector_Parallel:the-nvector-parallel-module}}\label{\detokenize{nvectors/NVector_Parallel:nvectors-nvparallel}}\label{\detokenize{nvectors/NVector_Parallel::doc}}
+\label{\detokenize{nvectors/NVector_Parallel:nvectors-nvparallel}}\label{\detokenize{nvectors/NVector_Parallel::doc}}\label{\detokenize{nvectors/NVector_Parallel:the-nvector-parallel-module}}
 The NVECTOR\_PARALLEL implementation of the NVECTOR module provided with
 SUNDIALS is based on MPI.  It defines the \sphinxstyleemphasis{content} field of a
 \sphinxcode{N\_Vector} to be a structure containing the global and local lengths
@@ -32881,7 +32884,7 @@ placeholder.
 
 
 \section{The NVECTOR\_OPENMP Module}
-\label{\detokenize{nvectors/NVector_OpenMP:the-nvector-openmp-module}}\label{\detokenize{nvectors/NVector_OpenMP:nvectors-openmp}}\label{\detokenize{nvectors/NVector_OpenMP::doc}}
+\label{\detokenize{nvectors/NVector_OpenMP:nvectors-openmp}}\label{\detokenize{nvectors/NVector_OpenMP:the-nvector-openmp-module}}\label{\detokenize{nvectors/NVector_OpenMP::doc}}
 In situations where a user has a multi-core processing unit capable of
 running multiple parallel threads with shared memory, SUNDIALS provides
 an implementation of NVECTOR using OpenMP, called NVECTOR\_OPENMP, and
@@ -33318,7 +33321,7 @@ and -1 for failure.
 
 
 \section{The NVECTOR\_PTHREADS Module}
-\label{\detokenize{nvectors/NVector_Pthreads:the-nvector-pthreads-module}}\label{\detokenize{nvectors/NVector_Pthreads:nvectors-pthreads}}\label{\detokenize{nvectors/NVector_Pthreads::doc}}
+\label{\detokenize{nvectors/NVector_Pthreads::doc}}\label{\detokenize{nvectors/NVector_Pthreads:nvectors-pthreads}}\label{\detokenize{nvectors/NVector_Pthreads:the-nvector-pthreads-module}}
 In situations where a user has a multi-core processing unit capable of
 running multiple parallel threads with shared memory, SUNDIALS
 provides an implementation of NVECTOR using OpenMP, called
@@ -33751,7 +33754,7 @@ return flag equal 0 for success and -1 for failure.
 
 
 \section{The NVECTOR\_PARHYP Module}
-\label{\detokenize{nvectors/NVector_ParHyp:the-nvector-parhyp-module}}\label{\detokenize{nvectors/NVector_ParHyp:nvectors-parhyp}}\label{\detokenize{nvectors/NVector_ParHyp::doc}}
+\label{\detokenize{nvectors/NVector_ParHyp:the-nvector-parhyp-module}}\label{\detokenize{nvectors/NVector_ParHyp::doc}}\label{\detokenize{nvectors/NVector_ParHyp:nvectors-parhyp}}
 The NVECTOR\_PARHYP implementation of the NVECTOR  module provided with
 SUNDIALS is a wrapper around HYPRE’s ParVector class.
 Most of the vector kernels simply call HYPRE vector operations.
@@ -34031,7 +34034,7 @@ internal representations.
 
 
 \section{The NVECTOR\_PETSC Module}
-\label{\detokenize{nvectors/NVector_PETSc:the-nvector-petsc-module}}\label{\detokenize{nvectors/NVector_PETSc:nvectors-nvpetsc}}\label{\detokenize{nvectors/NVector_PETSc::doc}}
+\label{\detokenize{nvectors/NVector_PETSc:nvectors-nvpetsc}}\label{\detokenize{nvectors/NVector_PETSc:the-nvector-petsc-module}}\label{\detokenize{nvectors/NVector_PETSc::doc}}
 The NVECTOR\_PETSC module is an NVECTOR wrapper around the PETSc vector. It
 defines the \sphinxstyleemphasis{content} field of a \sphinxcode{N\_Vector} to be a structure
 containing the global and local lengths of the vector, a pointer to
@@ -34778,7 +34781,7 @@ state information.
 
 
 \section{The NVECTOR\_RAJA Module}
-\label{\detokenize{nvectors/NVector_RAJA:the-nvector-raja-module}}\label{\detokenize{nvectors/NVector_RAJA:nvectors-raja}}\label{\detokenize{nvectors/NVector_RAJA::doc}}
+\label{\detokenize{nvectors/NVector_RAJA:nvectors-raja}}\label{\detokenize{nvectors/NVector_RAJA:the-nvector-raja-module}}\label{\detokenize{nvectors/NVector_RAJA::doc}}
 The NVECTOR\_RAJA module is an experimental \{nvector\} implementation using the
 \sphinxhref{https://software.llnl.gov/RAJA/}{RAJA} hardware abstraction
 layer. In this implementation, RAJA
@@ -35057,7 +35060,7 @@ arguments that were all created with the same internal representations.
 
 
 \section{The NVECTOR\_OPENMPDEV Module}
-\label{\detokenize{nvectors/NVector_OpenMPDEV:nvectors-openmpdev}}\label{\detokenize{nvectors/NVector_OpenMPDEV:the-nvector-openmpdev-module}}\label{\detokenize{nvectors/NVector_OpenMPDEV::doc}}
+\label{\detokenize{nvectors/NVector_OpenMPDEV:the-nvector-openmpdev-module}}\label{\detokenize{nvectors/NVector_OpenMPDEV::doc}}\label{\detokenize{nvectors/NVector_OpenMPDEV:nvectors-openmpdev}}
 In situations where a user has access to a device such as a GPU for
 offloading computation, SUNDIALS provides an NVECTOR implementation using
 OpenMP device offloading, called NVECTOR\_OPENMPDEV.
@@ -35458,7 +35461,7 @@ length.
 
 
 \section{The NVECTOR\_TRILINOS Module}
-\label{\detokenize{nvectors/NVector_Trilinos:the-nvector-trilinos-module}}\label{\detokenize{nvectors/NVector_Trilinos:nvectors-nvtrilinos}}\label{\detokenize{nvectors/NVector_Trilinos::doc}}
+\label{\detokenize{nvectors/NVector_Trilinos:the-nvector-trilinos-module}}\label{\detokenize{nvectors/NVector_Trilinos::doc}}\label{\detokenize{nvectors/NVector_Trilinos:nvectors-nvtrilinos}}
 The NVECTOR\_TRILINOS module is an NVECTOR wrapper around the Trilinos
 \sphinxhref{https://github.com/trilinos/Trilinos}{Tpetra} vector. The interface
 to Tpetra is implemented in the \sphinxcode{Sundials::TpetraVectorInterface}
@@ -35480,11 +35483,11 @@ class is defined as:
 
 \fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{k}{typedef} \PYG{n}{Tpetra}\PYG{o}{:}\PYG{o}{:}\PYG{n}{Vector}\PYG{o}{\PYGZlt{}}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{sunindextype}\PYG{p}{,} \PYG{n}{sunindextype}\PYG{o}{\PYGZgt{}} \PYG{n}{vector\PYGZus{}type}\PYG{p}{;}
+\PYG{k}{typedef} \PYG{n}{Tpetra}\PYG{o}{:}\PYG{o}{:}\PYG{n}{Vector}\PYG{o}{\PYGZlt{}}\PYG{n}{realtype}\PYG{p}{,} \PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{sunindextype}\PYG{o}{\PYGZgt{}} \PYG{n}{vector\PYGZus{}type}\PYG{p}{;}
 \end{sphinxVerbatim}
 
 The Tpetra vector will use the SUNDIALS-specified \sphinxcode{realtype} as its scalar
-type, and it will use \sphinxcode{sunindextype} as the global and the local ordinal types.
+type, \sphinxcode{int} as the local ordinal type, and \sphinxcode{sunindextype} as the global ordinal type.
 This type definition will use Tpetra’s default node type. Available Kokkos node
 types in Trilinos 12.14 release are serial (single thread), OpenMP, Pthread,
 and CUDA. The default node type is selected when building the Kokkos package.
@@ -35576,7 +35579,7 @@ as there is at least one reference to it.
 
 
 \section{The NVECTOR\_MANYVECTOR Module}
-\label{\detokenize{nvectors/NVector_ManyVector:nvectors-manyvector}}\label{\detokenize{nvectors/NVector_ManyVector:the-nvector-manyvector-module}}\label{\detokenize{nvectors/NVector_ManyVector::doc}}
+\label{\detokenize{nvectors/NVector_ManyVector:the-nvector-manyvector-module}}\label{\detokenize{nvectors/NVector_ManyVector::doc}}\label{\detokenize{nvectors/NVector_ManyVector:nvectors-manyvector}}
 The NVECTOR\_MANYVECTOR implementation of the NVECTOR module provided with
 SUNDIALS is designed to facilitate problems with an inherent
 data partitioning for the solution vector within a computational node.
@@ -35879,7 +35882,7 @@ that were all created with the same subvector representations.
 
 
 \section{The NVECTOR\_MPIMANYVECTOR Module}
-\label{\detokenize{nvectors/NVector_MPIManyVector:the-nvector-mpimanyvector-module}}\label{\detokenize{nvectors/NVector_MPIManyVector::doc}}\label{\detokenize{nvectors/NVector_MPIManyVector:nvectors-mpimanyvector}}
+\label{\detokenize{nvectors/NVector_MPIManyVector:the-nvector-mpimanyvector-module}}\label{\detokenize{nvectors/NVector_MPIManyVector:nvectors-mpimanyvector}}\label{\detokenize{nvectors/NVector_MPIManyVector::doc}}
 The NVECTOR\_MPIMANYVECTOR implementation of the NVECTOR module provided with
 SUNDIALS is designed to facilitate problems with an inherent
 data partitioning for the solution vector, and when using
@@ -35950,7 +35953,7 @@ residual, or nonlinear solver residual functions.
 
 
 \subsection{NVECTOR\_MPIMANYVECTOR structure}
-\label{\detokenize{nvectors/NVector_MPIManyVector:nvectors-mpimanyvector-structure}}\label{\detokenize{nvectors/NVector_MPIManyVector:nvector-mpimanyvector-structure}}
+\label{\detokenize{nvectors/NVector_MPIManyVector:nvector-mpimanyvector-structure}}\label{\detokenize{nvectors/NVector_MPIManyVector:nvectors-mpimanyvector-structure}}
 The NVECTOR\_MPIMANYVECTOR implementation defines the \sphinxstyleemphasis{content} field
 of \sphinxcode{N\_Vector} to be a structure containing the MPI communicator
 (or \sphinxcode{MPI\_COMM\_NULL} if running on a single-node), the number of
@@ -36248,7 +36251,7 @@ that were all created with the same subvector representations.
 
 
 \section{The NVECTOR\_MPIPLUSX Module}
-\label{\detokenize{nvectors/NVector_MPIPlusX:nvectors-mpiplusx}}\label{\detokenize{nvectors/NVector_MPIPlusX:the-nvector-mpiplusx-module}}\label{\detokenize{nvectors/NVector_MPIPlusX::doc}}
+\label{\detokenize{nvectors/NVector_MPIPlusX:the-nvector-mpiplusx-module}}\label{\detokenize{nvectors/NVector_MPIPlusX::doc}}\label{\detokenize{nvectors/NVector_MPIPlusX:nvectors-mpiplusx}}
 The NVECTOR\_MPIPLUSX implementation of the NVECTOR module provided
 with SUNDIALS is designed to facilitate the MPI+X paradigm, where
 X is some form of on-node (local) parallelism (e.g. OpenMP, CUDA).
@@ -36375,7 +36378,7 @@ that were all created with the same subvector representations.
 
 
 \section{NVECTOR Examples}
-\label{\detokenize{nvectors/NVector_Examples:nvectors-examples}}\label{\detokenize{nvectors/NVector_Examples::doc}}\label{\detokenize{nvectors/NVector_Examples:nvector-examples}}
+\label{\detokenize{nvectors/NVector_Examples:nvector-examples}}\label{\detokenize{nvectors/NVector_Examples::doc}}\label{\detokenize{nvectors/NVector_Examples:nvectors-examples}}
 There are NVECTOR examples that may be installed for each
 implementation: serial, parallel, OpenMP, and Pthreads.  Each
 implementation makes use of the functions in \sphinxcode{test\_nvector.c}.
@@ -36969,7 +36972,7 @@ matrix objects and use them in the solution of linear systems.
 
 
 \section{Description of the SUNMATRIX Modules}
-\label{\detokenize{sunmatrix/SUNMatrix_Description:description-of-the-sunmatrix-modules}}\label{\detokenize{sunmatrix/SUNMatrix_Description::doc}}\label{\detokenize{sunmatrix/SUNMatrix_Description:sunmatrix-description}}
+\label{\detokenize{sunmatrix/SUNMatrix_Description:description-of-the-sunmatrix-modules}}\label{\detokenize{sunmatrix/SUNMatrix_Description:sunmatrix-description}}\label{\detokenize{sunmatrix/SUNMatrix_Description::doc}}
 For problems that involve direct methods for solving linear systems,
 the SUNDIALS solvers not only operate on generic vectors, but also
 on generic matrices (of type \sphinxcode{SUNMatrix}), through a set of
@@ -37203,7 +37206,7 @@ User-provided custom matrix
 
 
 \section{Description of the SUNMATRIX operations}
-\label{\detokenize{sunmatrix/SUNMatrix_Operations:description-of-the-sunmatrix-operations}}\label{\detokenize{sunmatrix/SUNMatrix_Operations:sunmatrix-ops}}\label{\detokenize{sunmatrix/SUNMatrix_Operations::doc}}
+\label{\detokenize{sunmatrix/SUNMatrix_Operations:description-of-the-sunmatrix-operations}}\label{\detokenize{sunmatrix/SUNMatrix_Operations::doc}}\label{\detokenize{sunmatrix/SUNMatrix_Operations:sunmatrix-ops}}
 For each of the \sphinxcode{SUNMatrix} operations, we give the name, usage
 of the function, and a description of its mathematical operations
 below.
@@ -37421,7 +37424,7 @@ called prior to calling \sphinxcode{SUNMatMatvec}
 
 
 \section{Compatibility of SUNMATRIX types}
-\label{\detokenize{sunmatrix/SUNMatrix_Compatibility:compatibility-of-sunmatrix-types}}\label{\detokenize{sunmatrix/SUNMatrix_Compatibility:sunmatrix-compatibility}}\label{\detokenize{sunmatrix/SUNMatrix_Compatibility::doc}}
+\label{\detokenize{sunmatrix/SUNMatrix_Compatibility:sunmatrix-compatibility}}\label{\detokenize{sunmatrix/SUNMatrix_Compatibility::doc}}\label{\detokenize{sunmatrix/SUNMatrix_Compatibility:compatibility-of-sunmatrix-types}}
 We note that not all \sphinxcode{SUNMatrix} types are compatible with all
 \sphinxcode{N\_Vector} types provided with SUNDIALS.  This is primarily due to
 the need for compatibility within the \sphinxcode{SUNMatMatvec} routine;
@@ -37539,7 +37542,7 @@ X
 
 
 \section{The SUNMATRIX\_DENSE Module}
-\label{\detokenize{sunmatrix/SUNMatrix_Dense:the-sunmatrix-dense-module}}\label{\detokenize{sunmatrix/SUNMatrix_Dense:sunmatrix-dense}}\label{\detokenize{sunmatrix/SUNMatrix_Dense::doc}}
+\label{\detokenize{sunmatrix/SUNMatrix_Dense:sunmatrix-dense}}\label{\detokenize{sunmatrix/SUNMatrix_Dense:the-sunmatrix-dense-module}}\label{\detokenize{sunmatrix/SUNMatrix_Dense::doc}}
 The dense implementation of the \sphinxcode{SUNMatrix} module provided with
 SUNDIALS, SUNMATRIX\_DENSE, defines the \sphinxstyleemphasis{content} field of
 \sphinxcode{SUNMatrix} to be the following structure:
@@ -37932,7 +37935,7 @@ matrix in ARKode.
 
 
 \section{The SUNMATRIX\_BAND Module}
-\label{\detokenize{sunmatrix/SUNMatrix_Band:the-sunmatrix-band-module}}\label{\detokenize{sunmatrix/SUNMatrix_Band:sunmatrix-band}}\label{\detokenize{sunmatrix/SUNMatrix_Band::doc}}
+\label{\detokenize{sunmatrix/SUNMatrix_Band:sunmatrix-band}}\label{\detokenize{sunmatrix/SUNMatrix_Band:the-sunmatrix-band-module}}\label{\detokenize{sunmatrix/SUNMatrix_Band::doc}}
 The banded implementation of the \sphinxcode{SUNMatrix} module provided with
 SUNDIALS, SUNMATRIX\_BAND, defines the \sphinxstyleemphasis{content} field of
 \sphinxcode{SUNMatrix} to be the following structure:
@@ -38515,7 +38518,7 @@ matrix in ARKode.
 
 
 \section{The SUNMATRIX\_CUSPARSE Module}
-\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:the-sunmatrix-cusparse-module}}\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:sunmatrix-cusparse}}\label{\detokenize{sunmatrix/SUNMatrix_cuSparse::doc}}
+\label{\detokenize{sunmatrix/SUNMatrix_cuSparse::doc}}\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:the-sunmatrix-cusparse-module}}\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:sunmatrix-cusparse}}
 The SUNMATRIX\_CUSPARSE implementation of the \sphinxcode{SUNMatrix} module provided with
 SUNDIALS, is an interface to the NVIDIA cuSPARSE matrix for use on NVIDIA GPUs (\phantomsection\label{\detokenize{sunmatrix/SUNMatrix_cuSparse:id1}}{\hyperref[\detokenize{References:cusparse}]{\sphinxcrossref{{[}cuSPARSE{]}}}}).
 All data stored by this matrix implementation resides on the GPU at all times.
@@ -38834,7 +38837,7 @@ If different streams are utilized, synchronization issues may occur.
 
 
 \section{The SUNMATRIX\_SPARSE Module}
-\label{\detokenize{sunmatrix/SUNMatrix_Sparse:the-sunmatrix-sparse-module}}\label{\detokenize{sunmatrix/SUNMatrix_Sparse:sunmatrix-sparse}}\label{\detokenize{sunmatrix/SUNMatrix_Sparse::doc}}
+\label{\detokenize{sunmatrix/SUNMatrix_Sparse:sunmatrix-sparse}}\label{\detokenize{sunmatrix/SUNMatrix_Sparse::doc}}\label{\detokenize{sunmatrix/SUNMatrix_Sparse:the-sunmatrix-sparse-module}}
 The sparse implementation of the \sphinxcode{SUNMatrix} module provided with
 SUNDIALS, SUNMATRIX\_SPARSE, is designed to work with either
 \sphinxstyleemphasis{compressed-sparse-column} (CSC) or \sphinxstyleemphasis{compressed-sparse-row}
@@ -39501,7 +39504,7 @@ where \sphinxstyleemphasis{.lib} is typically \sphinxcode{.so} for shared librar
 
 
 \subsection{SUNMATRIX\_SLUNRLOC Functions}
-\label{\detokenize{sunmatrix/SUNMatrix_SLUNRloc:sunmatrix-slunrloc-functions}}\label{\detokenize{sunmatrix/SUNMatrix_SLUNRloc:id5}}
+\label{\detokenize{sunmatrix/SUNMatrix_SLUNRloc:id5}}\label{\detokenize{sunmatrix/SUNMatrix_SLUNRloc:sunmatrix-slunrloc-functions}}
 The SUNMATRIX\_SLUNRLOC module provides the following user-callable routines:
 \index{SUNMatrix\_SLUNRloc (C function)}
 
@@ -39596,7 +39599,7 @@ the first call to \sphinxcode{SUNMatMatvec} or if the matrix changed since the l
 
 
 \section{SUNMATRIX Examples}
-\label{\detokenize{sunmatrix/SUNMatrix_Examples:id1}}\label{\detokenize{sunmatrix/SUNMatrix_Examples:sunmatrix-examples}}\label{\detokenize{sunmatrix/SUNMatrix_Examples::doc}}
+\label{\detokenize{sunmatrix/SUNMatrix_Examples:sunmatrix-examples}}\label{\detokenize{sunmatrix/SUNMatrix_Examples::doc}}\label{\detokenize{sunmatrix/SUNMatrix_Examples:id1}}
 There are \sphinxcode{SUNMatrix} examples that may be installed for each
 implementation: dense, banded, and sparse.  Each implementation
 makes use of the functions in \sphinxcode{test\_sunmatrix.c}.
@@ -39661,7 +39664,7 @@ called, and outputs the results to \sphinxcode{stdout}.
 
 
 \section{SUNMATRIX functions required by ARKode}
-\label{\detokenize{sunmatrix/ARKode_requirements:sunmatrix-functions-required-by-arkode}}\label{\detokenize{sunmatrix/ARKode_requirements:sunmatrix-arkode}}\label{\detokenize{sunmatrix/ARKode_requirements::doc}}
+\label{\detokenize{sunmatrix/ARKode_requirements:sunmatrix-functions-required-by-arkode}}\label{\detokenize{sunmatrix/ARKode_requirements::doc}}\label{\detokenize{sunmatrix/ARKode_requirements:sunmatrix-arkode}}
 In Table {\hyperref[\detokenize{sunmatrix/ARKode_requirements:sunmatrix-arkode-use}]{\sphinxcrossref{\DUrole{std,std-ref}{List of matrix functions usage by ARKode code modules}}}}, we list the matrix functions in
 the \sphinxcode{SUNMatrix} module used within the ARKode package.  The table
 also shows, for each function, which of the code modules uses the
@@ -39791,7 +39794,7 @@ implementations is the column relating to ARKLS requirements.
 
 
 \chapter{Description of the SUNLinearSolver module}
-\label{\detokenize{sunlinsol/index:description-of-the-sunlinearsolver-module}}\label{\detokenize{sunlinsol/index:sunlinsol}}\label{\detokenize{sunlinsol/index::doc}}
+\label{\detokenize{sunlinsol/index:description-of-the-sunlinearsolver-module}}\label{\detokenize{sunlinsol/index::doc}}\label{\detokenize{sunlinsol/index:sunlinsol}}
 For problems that require the solution of linear systems of equations,
 the SUNDIALS packages operate using generic linear solver modules
 defined through the SUNLinSol API.  This allows SUNDIALS
@@ -39902,7 +39905,7 @@ present the SUNLinSol modules provided with SUNDIALS.
 
 
 \section{The SUNLinearSolver API}
-\label{\detokenize{sunlinsol/SUNLinSol_API:the-sunlinearsolver-api}}\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-api}}\label{\detokenize{sunlinsol/SUNLinSol_API::doc}}
+\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-api}}\label{\detokenize{sunlinsol/SUNLinSol_API::doc}}\label{\detokenize{sunlinsol/SUNLinSol_API:the-sunlinearsolver-api}}
 The SUNLinSol API defines several linear solver operations that enable
 SUNDIALS packages to utilize any SUNLinSol implementation that
 provides the required functions. These functions can be divided into
@@ -39916,7 +39919,7 @@ functions are defined in the header file
 
 
 \subsection{SUNLinearSolver core functions}
-\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-corefn}}\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinearsolver-core-functions}}
+\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinearsolver-core-functions}}\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-corefn}}
 The core linear solver functions consist of two required functions to get the
 linear solver type ({\hyperref[\detokenize{sunlinsol/SUNLinSol_API:c.SUNLinSolGetType}]{\sphinxcrossref{\sphinxcode{SUNLinSolGetType()}}}}) and solve the linear system
 \(Ax=b\) ({\hyperref[\detokenize{sunlinsol/SUNLinSol_API:c.SUNLinSolSolve}]{\sphinxcrossref{\sphinxcode{SUNLinSolSolve()}}}}). The remaining functions are for
@@ -40193,7 +40196,7 @@ Usage:
 
 
 \subsection{SUNLinearSolver get functions}
-\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinearsolver-get-functions}}\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-getfn}}
+\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-getfn}}\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinearsolver-get-functions}}
 The following get functions allow SUNDIALS packages to retrieve
 results from a linear solve.  All routines are optional.
 \index{SUNLinSolNumIters (C function)}
@@ -40297,7 +40300,7 @@ Usage:
 
 
 \subsection{Functions provided by SUNDIALS packages}
-\label{\detokenize{sunlinsol/SUNLinSol_API:functions-provided-by-sundials-packages}}\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-sunsuppliedfn}}
+\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-sunsuppliedfn}}\label{\detokenize{sunlinsol/SUNLinSol_API:functions-provided-by-sundials-packages}}
 To interface with SUNLinSol modules, the SUNDIALS packages supply a
 variety of routines for evaluating the matrix-vector product, and
 setting up and applying the preconditioniner.  These package-provided
@@ -40363,7 +40366,7 @@ data.
 
 
 \subsection{SUNLinearSolver return codes}
-\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinearsolver-return-codes}}\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-errorcodes}}
+\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-errorcodes}}\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinearsolver-return-codes}}
 The functions provided to SUNLinSol modules by each SUNDIALS package,
 and functions within the SUNDIALS-provided SUNLinSol implementations
 utilize a common set of return codes, listed below.  These adhere to a
@@ -40595,7 +40598,7 @@ X
 
 
 \subsection{Implementing a custom SUNLinearSolver module}
-\label{\detokenize{sunlinsol/SUNLinSol_API:implementing-a-custom-sunlinearsolver-module}}\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-custom}}
+\label{\detokenize{sunlinsol/SUNLinSol_API:sunlinsol-custom}}\label{\detokenize{sunlinsol/SUNLinSol_API:implementing-a-custom-sunlinearsolver-module}}
 A particular implementation of the \sphinxcode{SUNLinearSolver} module must:
 \begin{itemize}
 \item {} 
@@ -40791,7 +40794,7 @@ package-supplied \sphinxcode{ATimesFn} routine.
 
 
 \section{ARKode SUNLinearSolver interface}
-\label{\detokenize{sunlinsol/ARKode_requirements:arkode-sunlinearsolver-interface}}\label{\detokenize{sunlinsol/ARKode_requirements:sunlinsol-arkode}}\label{\detokenize{sunlinsol/ARKode_requirements::doc}}
+\label{\detokenize{sunlinsol/ARKode_requirements:sunlinsol-arkode}}\label{\detokenize{sunlinsol/ARKode_requirements::doc}}\label{\detokenize{sunlinsol/ARKode_requirements:arkode-sunlinearsolver-interface}}
 In the table below, we list the SUNLinSol module linear solver
 functions used within the ARKLS interface.  As with the SUNMATRIX module, we
 emphasize that the ARKode user does not need to know detailed usage of linear
@@ -40943,7 +40946,7 @@ interested users wish to develop custom SUNLinSol modules.
 
 
 \subsection{Lagged matrix information}
-\label{\detokenize{sunlinsol/ARKode_requirements:lagged-matrix-information}}\label{\detokenize{sunlinsol/ARKode_requirements:sunlinsol-lagged-matrix}}
+\label{\detokenize{sunlinsol/ARKode_requirements:sunlinsol-lagged-matrix}}\label{\detokenize{sunlinsol/ARKode_requirements:lagged-matrix-information}}
 If the SUNLinSol identifies as having type
 \sphinxcode{SUNLINEARSOLVER\_DIRECT} or \sphinxcode{SUNLINEARSOLVER\_MATRIX\_ITERATIVE},
 then the SUNLinSol object solves a
@@ -41026,7 +41029,7 @@ w_{mean}\) is supplied to the SUNLinSol object.
 
 
 \section{The SUNLinSol\_Dense Module}
-\label{\detokenize{sunlinsol/SUNLinSol_Dense:the-sunlinsol-dense-module}}\label{\detokenize{sunlinsol/SUNLinSol_Dense:sunlinsol-dense}}\label{\detokenize{sunlinsol/SUNLinSol_Dense::doc}}
+\label{\detokenize{sunlinsol/SUNLinSol_Dense:sunlinsol-dense}}\label{\detokenize{sunlinsol/SUNLinSol_Dense::doc}}\label{\detokenize{sunlinsol/SUNLinSol_Dense:the-sunlinsol-dense-module}}
 The dense implementation of the \sphinxcode{SUNLinearSolver} module provided with
 SUNDIALS, SUNLinSol\_Dense, is designed to be used with the
 corresponding SUNMATRIX\_DENSE matrix type, and one of the serial or
@@ -41035,7 +41038,7 @@ NVECTOR\_PTHREADS).
 
 
 \subsection{SUNLinSol\_Dense Usage}
-\label{\detokenize{sunlinsol/SUNLinSol_Dense:id1}}\label{\detokenize{sunlinsol/SUNLinSol_Dense:sunlinsol-dense-usage}}
+\label{\detokenize{sunlinsol/SUNLinSol_Dense:sunlinsol-dense-usage}}\label{\detokenize{sunlinsol/SUNLinSol_Dense:id1}}
 The header file to be included when using this module is
 \sphinxcode{sunlinsol/sunlinsol\_dense.h}.  The SUNLinSol\_Dense module is
 accessible from all SUNDIALS solvers \sphinxstyleemphasis{without}
@@ -41131,7 +41134,7 @@ This routine must be called \sphinxstyleemphasis{after} both the \sphinxcode{N\_
 
 
 \subsection{SUNLinSol\_Dense Description}
-\label{\detokenize{sunlinsol/SUNLinSol_Dense:id2}}\label{\detokenize{sunlinsol/SUNLinSol_Dense:sunlinsol-dense-description}}
+\label{\detokenize{sunlinsol/SUNLinSol_Dense:sunlinsol-dense-description}}\label{\detokenize{sunlinsol/SUNLinSol_Dense:id2}}
 The SUNLinSol\_Dense module defines the \sphinxstyleemphasis{content}
 field of a \sphinxcode{SUNLinearSolver} to be the following structure:
 
@@ -41219,7 +41222,7 @@ NVECTOR\_PTHREADS).
 
 
 \subsection{SUNLinSol\_Band Usage}
-\label{\detokenize{sunlinsol/SUNLinSol_Band:id1}}\label{\detokenize{sunlinsol/SUNLinSol_Band:sunlinsol-band-usage}}
+\label{\detokenize{sunlinsol/SUNLinSol_Band:sunlinsol-band-usage}}\label{\detokenize{sunlinsol/SUNLinSol_Band:id1}}
 The header file to be included when using this module
 is \sphinxcode{sunlinsol/sunlinsol\_band.h}.  The SUNLinSol\_Band module
 is accessible from all SUNDIALS solvers \sphinxstyleemphasis{without}
@@ -41405,7 +41408,7 @@ for \sphinxcode{N}, \sphinxcode{last\_flag}, and \sphinxcode{pivots}.
 
 
 \section{The SUNLinSol\_LapackDense Module}
-\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:sunlinsol-lapackdense}}\label{\detokenize{sunlinsol/SUNLinSol_LapackDense::doc}}\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:the-sunlinsol-lapackdense-module}}
+\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:the-sunlinsol-lapackdense-module}}\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:sunlinsol-lapackdense}}\label{\detokenize{sunlinsol/SUNLinSol_LapackDense::doc}}
 The LAPACK dense implementation of the \sphinxcode{SUNLinearSolver} module provided
 with SUNDIALS, SUNLinSol\_LapackDense, is designed to be used with the
 corresponding SUNMATRIX\_DENSE matrix type, and one of the serial or
@@ -41414,7 +41417,7 @@ NVECTOR\_PTHREADS).
 
 
 \subsection{SUNLinSol\_LapackDense Usage}
-\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:id1}}\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:sunlinsol-lapackdense-usage}}
+\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:sunlinsol-lapackdense-usage}}\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:id1}}
 The header file to be included when using this module
 is \sphinxcode{sunlinsol/sunlinsol\_lapackdense.h}.  The installed module
 library to link to is \sphinxcode{libsundials\_sunlinsollapackdense} \sphinxstyleemphasis{.lib}
@@ -41513,7 +41516,7 @@ This routine must be called \sphinxstyleemphasis{after} both the \sphinxcode{N\_
 
 
 \subsection{SUNLinSol\_LapackDense Description}
-\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:sunlinsol-lapackdense-description}}\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:id2}}
+\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:id2}}\label{\detokenize{sunlinsol/SUNLinSol_LapackDense:sunlinsol-lapackdense-description}}
 The SUNLinSol\_LapackDense module defines the
 \sphinxstyleemphasis{content} field of a \sphinxcode{SUNLinearSolver} to be the following
 structure:
@@ -41615,7 +41618,7 @@ for \sphinxcode{N}, \sphinxcode{last\_flag}, and \sphinxcode{pivots}.
 
 
 \section{The SUNLinSol\_LapackBand Module}
-\label{\detokenize{sunlinsol/SUNLinSol_LapackBand:the-sunlinsol-lapackband-module}}\label{\detokenize{sunlinsol/SUNLinSol_LapackBand:sunlinsol-lapackband}}\label{\detokenize{sunlinsol/SUNLinSol_LapackBand::doc}}
+\label{\detokenize{sunlinsol/SUNLinSol_LapackBand:sunlinsol-lapackband}}\label{\detokenize{sunlinsol/SUNLinSol_LapackBand:the-sunlinsol-lapackband-module}}\label{\detokenize{sunlinsol/SUNLinSol_LapackBand::doc}}
 The LAPACK band implementation of the \sphinxcode{SUNLinearSolver} module provided
 with SUNDIALS, SUNLinSol\_LapackBand, is designed to be used with the
 corresponding SUNMATRIX\_BAND matrix type, and one of the serial or
@@ -41624,7 +41627,7 @@ NVECTOR\_PTHREADS).  The
 
 
 \subsection{SUNLinSol\_LapackBand Usage}
-\label{\detokenize{sunlinsol/SUNLinSol_LapackBand:id1}}\label{\detokenize{sunlinsol/SUNLinSol_LapackBand:sunlinsol-lapackband-usage}}
+\label{\detokenize{sunlinsol/SUNLinSol_LapackBand:sunlinsol-lapackband-usage}}\label{\detokenize{sunlinsol/SUNLinSol_LapackBand:id1}}
 The header file to be included when using this module
 is \sphinxcode{sunlinsol/sunlinsol\_lapackband.h}.  The installed module
 library to link to is
@@ -41845,7 +41848,7 @@ NVECTOR\_PTHREADS).
 
 
 \subsection{SUNLinSol\_KLU Usage}
-\label{\detokenize{sunlinsol/SUNLinSol_KLU:id1}}\label{\detokenize{sunlinsol/SUNLinSol_KLU:sunlinsol-klu-usage}}
+\label{\detokenize{sunlinsol/SUNLinSol_KLU:sunlinsol-klu-usage}}\label{\detokenize{sunlinsol/SUNLinSol_KLU:id1}}
 The header file to be included when using this module
 is \sphinxcode{sunlinsol/sunlinsol\_klu.h}.  The installed module
 library to link to is \sphinxcode{libsundials\_sunlinsolklu} \sphinxstyleemphasis{.lib}
@@ -42134,7 +42137,7 @@ identical to those listed above.
 
 
 \subsection{SUNLinSol\_KLU Description}
-\label{\detokenize{sunlinsol/SUNLinSol_KLU:id2}}\label{\detokenize{sunlinsol/SUNLinSol_KLU:sunlinsol-klu-description}}
+\label{\detokenize{sunlinsol/SUNLinSol_KLU:sunlinsol-klu-description}}\label{\detokenize{sunlinsol/SUNLinSol_KLU:id2}}
 The SUNLinSol\_KLU module defines the \sphinxstyleemphasis{content}
 field of a \sphinxcode{SUNLinearSolver} to be the following structure:
 
@@ -42290,7 +42293,7 @@ space requirements, see the KLU documentation.
 
 
 \section{The SUNLinSol\_SuperLUDIST Module}
-\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:sunlinsol-superludist}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST::doc}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:the-sunlinsol-superludist-module}}
+\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:sunlinsol-superludist}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:the-sunlinsol-superludist-module}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST::doc}}
 The SuperLU\_DIST implementation of the SUNLinearSolver module provided with SUNDIALS,
 SUNLinsol\_SuperLUDIST, is designed to be used with the SUNMatrix\_SLUNRloc SUNMatrix,
 and one of the serial, threaded or parallel N\_Vector implementations (NVECTOR\_SERIAL,
@@ -42298,7 +42301,7 @@ NVECTOR\_OPENMP, NVECTOR\_PTHREADS, NVECTOR\_PARALLEL, NVECTOR\_PARHYP).
 
 
 \subsection{SUNLinSol\_SuperLUDIST Usage}
-\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:id1}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:sunlinsol-superludist-usage}}
+\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:sunlinsol-superludist-usage}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:id1}}
 The header file to be included when using this module
 is \sphinxcode{sunlinsol/sunlinsol\_superludist.h}.  The installed module
 library to link to is \sphinxcode{libsundials\_sunlinsolsuperludist} \sphinxstyleemphasis{.lib}
@@ -42406,7 +42409,7 @@ information about runtime and flop count. It takes one argument, the
 
 
 \subsection{SUNLinSol\_SuperLUDIST Description}
-\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:sunlinsol-superludist-description}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:id2}}
+\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:id2}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUDIST:sunlinsol-superludist-description}}
 The SUNLinSol\_SuperLUDIST module defines the \sphinxstyleemphasis{content} field of a
 \sphinxcode{SUNLinearSolver} to be the following structure:
 
@@ -42561,7 +42564,7 @@ space requirements, see the SuperLU\_DIST documentation.
 
 
 \section{The SUNLinSol\_SuperLUMT Module}
-\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:sunlinsol-superlumt}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:the-sunlinsol-superlumt-module}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT::doc}}
+\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:the-sunlinsol-superlumt-module}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT::doc}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:sunlinsol-superlumt}}
 The SuperLU\_MT implementation of the \sphinxcode{SUNLinearSolver} module
 provided with SUNDIALS, SUNLinSol\_SuperLUMT, is designed to be used
 with the corresponding SUNMATRIX\_SPARSE matrix type, and one of the
@@ -42573,7 +42576,7 @@ SuperLU\_MT library has also been compiled with OpenMP.
 
 
 \subsection{SUNLinSol\_SuperLUMT Usage}
-\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:id1}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:sunlinsol-superlumt-usage}}
+\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:sunlinsol-superlumt-usage}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:id1}}
 The header file to be included when using this module
 is \sphinxcode{sunlinsol/sunlinsol\_superlumt.h}.  The installed module
 library to link to is \sphinxcode{libsundials\_sunlinsolsuperlumt} \sphinxstyleemphasis{.lib}
@@ -42758,7 +42761,7 @@ identical to those listed above
 
 
 \subsection{SUNLinSol\_SuperLUMT Description}
-\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:id2}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:sunlinsol-superlumt-description}}
+\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:sunlinsol-superlumt-description}}\label{\detokenize{sunlinsol/SUNLinSol_SuperLUMT:id2}}
 The SUNLinSol\_SuperLUMT module defines the \sphinxstyleemphasis{content} field of a
 \sphinxcode{SUNLinearSolver} to be the following structure:
 
@@ -42902,7 +42905,7 @@ space requirements, see the SuperLU\_MT documentation.
 
 
 \section{The SUNLinSol\_cuSolverSp\_batchQR Module}
-\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:the-sunlinsol-cusolversp-batchqr-module}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp::doc}}
+\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:the-sunlinsol-cusolversp-batchqr-module}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp::doc}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr}}
 The \sphinxcode{SUNLinearSolver\_cuSolverSp\_batchQR} implementation of the SUNLinearSolver API is
 designed to be used with the SUNMATRIX\_CUSPARSE matrix, and the NVECTOR\_CUDA vector.
 The header file to include when using this module is
@@ -42914,7 +42917,7 @@ is \sphinxcode{libsundials\_sunlinsolcusolversp.lib} where \sphinxcode{.lib} is 
 
 
 \subsection{SUNLinSol\_cuSolverSp\_batchQR description}
-\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:id1}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr-description}}
+\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr-description}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:id1}}
 The SUNLinearSolver\_cuSolverSp\_batchQR implementation provides an interface to
 the batched sparse QR factorization method provided by the NVIDIA cuSOLVER library (\phantomsection\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:id2}}{\hyperref[\detokenize{References:cusolver}]{\sphinxcrossref{{[}cuSOLVER{]}}}}).
 The module is designed for solving block diagonal linear systems of the form
@@ -43022,7 +43025,7 @@ of the workspace is almost independent of the number of blocks.
 
 
 \subsection{SUNLinSol\_cuSolverSp\_batchQR content}
-\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr-content}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:id4}}
+\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:id4}}\label{\detokenize{sunlinsol/SUNLinSol_cuSolverSp:sunlinsol-cusolversp-batchqr-content}}
 The SUNLinSol\_cuSolverSp\_batchQR module defines the \sphinxstyleemphasis{content} field of a
 \sphinxcode{SUNLinearSolver} to be the following structure:
 
@@ -43423,7 +43426,7 @@ identical to those listed above.
 
 
 \subsection{SUNLinSol\_SPGMR Description}
-\label{\detokenize{sunlinsol/SUNLinSol_SPGMR:sunlinsol-spgmr-description}}\label{\detokenize{sunlinsol/SUNLinSol_SPGMR:id3}}
+\label{\detokenize{sunlinsol/SUNLinSol_SPGMR:id3}}\label{\detokenize{sunlinsol/SUNLinSol_SPGMR:sunlinsol-spgmr-description}}
 The SUNLinSol\_SPGMR module defines the \sphinxstyleemphasis{content} field of a
 \sphinxcode{SUNLinearSolver} to be the following structure:
 
@@ -44028,7 +44031,7 @@ identical to those listed above.
 
 
 \subsection{SUNLinSol\_SPFGMR Description}
-\label{\detokenize{sunlinsol/SUNLinSol_SPFGMR:sunlinsol-spfgmr-description}}\label{\detokenize{sunlinsol/SUNLinSol_SPFGMR:id3}}
+\label{\detokenize{sunlinsol/SUNLinSol_SPFGMR:id3}}\label{\detokenize{sunlinsol/SUNLinSol_SPFGMR:sunlinsol-spfgmr-description}}
 The SUNLinSol\_SPFGMR module defines the \sphinxstyleemphasis{content} field of a
 \sphinxcode{SUNLinearSolver} to be the following structure:
 
@@ -44246,7 +44249,7 @@ The SUNLinSol\_SPFGMR module defines implementations of all
 
 
 \section{The SUNLinSol\_SPBCGS Module}
-\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:sunlinsol-spbcgs}}\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS::doc}}\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:the-sunlinsol-spbcgs-module}}
+\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:sunlinsol-spbcgs}}\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:the-sunlinsol-spbcgs-module}}\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS::doc}}
 The SPBCGS (Scaled, Preconditioned, Bi-Conjugate Gradient,
 Stabilized \phantomsection\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:id1}}{\hyperref[\detokenize{References:v1992}]{\sphinxcrossref{{[}V1992{]}}}}) implementation of the \sphinxcode{SUNLinearSolver} module
 provided with SUNDIALS, SUNLinSol\_SPBCGS, is an iterative linear
@@ -44261,7 +44264,7 @@ the number of allowed iterations.
 
 
 \subsection{SUNLinSol\_SPBCGS Usage}
-\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:id2}}\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:sunlinsol-spbcgs-usage}}
+\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:sunlinsol-spbcgs-usage}}\label{\detokenize{sunlinsol/SUNLinSol_SPBCGS:id2}}
 The header file to be included when using this module
 is \sphinxcode{sunlinsol/sunlinsol\_spbcgs.h}.  The SUNLinSol\_SPBCGS module
 is accessible from all SUNDIALS solvers \sphinxstyleemphasis{without}
@@ -44752,7 +44755,7 @@ The SUNLinSol\_SPBCGS module defines implementations of all
 
 
 \section{The SUNLinSol\_SPTFQMR Module}
-\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:sunlinsol-sptfqmr}}\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR::doc}}\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:the-sunlinsol-sptfqmr-module}}
+\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:the-sunlinsol-sptfqmr-module}}\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:sunlinsol-sptfqmr}}\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR::doc}}
 The SPTFQMR (Scaled, Preconditioned, Transpose-Free Quasi-Minimum
 Residual \phantomsection\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:id1}}{\hyperref[\detokenize{References:f1993}]{\sphinxcrossref{{[}F1993{]}}}}) implementation of the \sphinxcode{SUNLinearSolver} module
 provided with SUNDIALS, SUNLinSol\_SPTFQMR, is an iterative linear
@@ -45087,7 +45090,7 @@ identical to those listed above.
 
 
 \subsection{SUNLinSol\_SPTFQMR Description}
-\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:id3}}\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:sunlinsol-sptfqmr-description}}
+\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:sunlinsol-sptfqmr-description}}\label{\detokenize{sunlinsol/SUNLinSol_SPTFQMR:id3}}
 The SUNLinSol\_SPTFQMR module defines the \sphinxstyleemphasis{content} field of a
 \sphinxcode{SUNLinearSolver} to be the following structure:
 
@@ -45265,7 +45268,7 @@ The SUNLinSol\_SPTFQMR module defines implementations of all
 
 
 \section{The SUNLinSol\_PCG Module}
-\label{\detokenize{sunlinsol/SUNLinSol_PCG:the-sunlinsol-pcg-module}}\label{\detokenize{sunlinsol/SUNLinSol_PCG:sunlinsol-pcg}}\label{\detokenize{sunlinsol/SUNLinSol_PCG::doc}}
+\label{\detokenize{sunlinsol/SUNLinSol_PCG:the-sunlinsol-pcg-module}}\label{\detokenize{sunlinsol/SUNLinSol_PCG::doc}}\label{\detokenize{sunlinsol/SUNLinSol_PCG:sunlinsol-pcg}}
 The PCG (Preconditioned Conjugate Gradient \phantomsection\label{\detokenize{sunlinsol/SUNLinSol_PCG:id1}}{\hyperref[\detokenize{References:hs1952}]{\sphinxcrossref{{[}HS1952{]}}}} implementation of
 the \sphinxcode{SUNLinearSolver} module provided with SUNDIALS, SUNLinSol\_PCG,
 is an iterative linear solver that is designed to be compatible with
@@ -45330,7 +45333,7 @@ where \(\| v \|_S = \sqrt{v^T S^T S v}\), with an input tolerance
 
 
 \subsection{SUNLinSol\_PCG Usage}
-\label{\detokenize{sunlinsol/SUNLinSol_PCG:id2}}\label{\detokenize{sunlinsol/SUNLinSol_PCG:sunlinsol-pcg-usage}}
+\label{\detokenize{sunlinsol/SUNLinSol_PCG:sunlinsol-pcg-usage}}\label{\detokenize{sunlinsol/SUNLinSol_PCG:id2}}
 The header file to be included when using this module
 is \sphinxcode{sunlinsol/sunlinsol\_pcg.h}.  The SUNLinSol\_PCG module
 is accessible from all SUNDIALS solvers \sphinxstyleemphasis{without}
@@ -45820,7 +45823,7 @@ is ignored
 
 
 \section{SUNLinearSolver Examples}
-\label{\detokenize{sunlinsol/SUNLinSol_Examples:sunlinsol-examples}}\label{\detokenize{sunlinsol/SUNLinSol_Examples:sunlinearsolver-examples}}\label{\detokenize{sunlinsol/SUNLinSol_Examples::doc}}
+\label{\detokenize{sunlinsol/SUNLinSol_Examples:sunlinearsolver-examples}}\label{\detokenize{sunlinsol/SUNLinSol_Examples::doc}}\label{\detokenize{sunlinsol/SUNLinSol_Examples:sunlinsol-examples}}
 There are \sphinxcode{SUNLinearSolver} examples that may be installed for each
 implementation; these make use of the functions in \sphinxcode{test\_sunlinsol.c}.
 These example functions show simple usage of the \sphinxcode{SUNLinearSolver} family
@@ -45906,7 +45909,7 @@ order in all of the example problems.
 
 
 \chapter{Description of the SUNNonlinearSolver Module}
-\label{\detokenize{sunnonlinsol/index:sunnonlinsol}}\label{\detokenize{sunnonlinsol/index:description-of-the-sunnonlinearsolver-module}}\label{\detokenize{sunnonlinsol/index::doc}}
+\label{\detokenize{sunnonlinsol/index::doc}}\label{\detokenize{sunnonlinsol/index:sunnonlinsol}}\label{\detokenize{sunnonlinsol/index:description-of-the-sunnonlinearsolver-module}}
 SUNDIALS time integration packages are written in terms of generic nonlinear
 solver operations defined by the SUNNonlinSol API and implemented by a
 particular SUNNonlinSol module of type \sphinxcode{SUNNonlinearSolver}.
@@ -45942,7 +45945,7 @@ SUNDIALS as a template for supplying custom nonlinear solver modules.
 
 
 \section{The SUNNonlinearSolver API}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-api}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:the-sunnonlinearsolver-api}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API::doc}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:the-sunnonlinearsolver-api}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API::doc}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-api}}
 The SUNNonlinSol API defines several nonlinear solver operations that enable
 SUNDIALS integrators to utilize any SUNNonlinSol implementation that
 provides the required functions. These functions can be divided into three
@@ -46120,7 +46123,7 @@ to \sphinxcode{NULL}.
 
 
 \subsection{SUNNonlinearSolver set functions}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-setfn}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-set-functions}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-set-functions}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-setfn}}
 The following set functions are used to supply nonlinear solver modules with
 functions defined by the SUNDIALS integrators and to modify solver
 parameters. Only the routine for setting the nonlinear system defining function
@@ -46288,7 +46291,7 @@ successful call, and a negative value for a failure
 
 
 \subsection{SUNNonlinearSolver get functions}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-get-functions}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-getfn}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-getfn}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-get-functions}}
 The following get functions allow SUNDIALS integrators to retrieve nonlinear
 solver statistics. The routines to get the number of iterations in the most
 recent solve (\sphinxcode{SUNNonlinSolGetNumIters}) and number of convergence failures
@@ -46572,7 +46575,7 @@ their own convergence criteria may ignore these functions.
 
 
 \subsection{SUNNonlinearSolver return codes}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-returncodes}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-return-codes}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-return-codes}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-returncodes}}
 The functions provided to SUNNonlinSol modules by each SUNDIALS
 integrator, and functions within the SUNDIALS-provided SUNNonlinSol
 implementations utilize a common set of return codes, shown in the
@@ -46657,7 +46660,7 @@ an external library call returned an error
 
 
 \subsection{The generic SUNNonlinearSolver module}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-generic}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:the-generic-sunnonlinearsolver-module}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:the-generic-sunnonlinearsolver-module}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-generic}}
 SUNDIALS integrators interact with specific SUNNonlinSol
 implementations through the generic SUNNonlinSol module on which all
 other SUNNonlinSol implementations are built. The
@@ -46725,7 +46728,7 @@ denoting a successful or failed solve:
 
 
 \subsection{Implementing a Custom SUNNonlinearSolver Module}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-custom}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:implementing-a-custom-sunnonlinearsolver-module}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:implementing-a-custom-sunnonlinearsolver-module}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-custom}}
 A SUNNonlinSol implementation \sphinxstyleemphasis{must} do the following:
 \begin{itemize}
 \item {} 
@@ -46806,7 +46809,7 @@ statistics.
 
 
 \section{ARKode SUNNonlinearSolver interface}
-\label{\detokenize{sunnonlinsol/ARKode_Interface:arkode-sunnonlinearsolver-interface}}\label{\detokenize{sunnonlinsol/ARKode_Interface:sunnonlinsol-arkode}}\label{\detokenize{sunnonlinsol/ARKode_Interface::doc}}
+\label{\detokenize{sunnonlinsol/ARKode_Interface:sunnonlinsol-arkode}}\label{\detokenize{sunnonlinsol/ARKode_Interface::doc}}\label{\detokenize{sunnonlinsol/ARKode_Interface:arkode-sunnonlinearsolver-interface}}
 As discussed in {\hyperref[\detokenize{Mathematics:mathematics}]{\sphinxcrossref{\DUrole{std,std-ref}{Mathematical Considerations}}}} integration steps often require the
 (approximate) solution of a nonlinear system. This system can be formulated as
 the rootfinding problem
@@ -46938,7 +46941,7 @@ Returns the current state vector
 
 
 \section{The SUNNonlinearSolver\_Newton implementation}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinsol-newton}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton:the-sunnonlinearsolver-newton-implementation}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton::doc}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton:the-sunnonlinearsolver-newton-implementation}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinsol-newton}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton::doc}}
 This section describes the SUNNonlinSol implementation of Newton’s method. To
 access the SUNNonlinSol\_Newton module, include the header file
 \sphinxcode{sunnonlinsol/sunnonlinsol\_newton.h}. We note that the SUNNonlinSol\_Newton
@@ -47176,7 +47179,7 @@ See section {\hyperref[\detokenize{Install:installation-cmake-options}]{\sphinxc
 
 
 \subsection{SUNNonlinearSolver\_Newton content}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinsolnewton-content}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinearsolver-newton-content}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinearsolver-newton-content}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_Newton:sunnonlinsolnewton-content}}
 The \sphinxstyleemphasis{content} field of the SUNNonlinSol\_Newton module is the
 following structure.
 
@@ -47286,7 +47289,7 @@ of failure.
 
 
 \section{The SUNNonlinearSolver\_FixedPoint implementation}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:the-sunnonlinearsolver-fixedpoint-implementation}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsol-fixedpoint}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint::doc}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsol-fixedpoint}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:the-sunnonlinearsolver-fixedpoint-implementation}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint::doc}}
 This section describes the SUNNonlinSol implementation of a fixed point
 (functional) iteration with optional Anderson acceleration. To access the
 SUNNonlinSol\_FixedPoint module, include the header file
@@ -47297,7 +47300,7 @@ SUNNonlinSol\_FixedPoint module is accessible from SUNDIALS integrators
 
 
 \subsection{SUNNonlinearSolver\_FixedPoint description}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsolfixedpoint-math}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinearsolver-fixedpoint-description}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinearsolver-fixedpoint-description}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsolfixedpoint-math}}
 To find the solution to
 
 \phantomsection\label{\detokenize{sunnonlinsol/SUNNonlinSol_FixedPoint:equation-e-fixed-point-sys}}\begin{equation}\label{equation:sunnonlinsol/SUNNonlinSol_FixedPoint:e:fixed_point_sys}
@@ -47728,7 +47731,7 @@ of failure.
 
 
 \section{The SUNNonlinearSolver\_PetscSNES implementation}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:the-sunnonlinearsolver-petscsnes-implementation}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunonlinsol-petscsnes}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES::doc}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES::doc}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:the-sunnonlinearsolver-petscsnes-implementation}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunonlinsol-petscsnes}}
 This section describes the SUNNonlinSol interface to the PETSc SNES nonlinear
 solver(s).To enable the SUNonlinSol\_PetscSNES module, SUNDIALS must be
 configured to use PETSc. Instructions on how to do thus are given in Chapter
@@ -47743,7 +47746,7 @@ API.
 
 
 \subsection{SUNNonlinearSolver\_PetscSNES description}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinsolpetscsnes-description}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinearsolver-petscsnes-description}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinearsolver-petscsnes-description}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinsolpetscsnes-description}}
 The \sphinxcode{SUNNonlinearSolver\_PetscSNES} implementation allows users to utilize a
 PETSc SNES nonlinear solver to solve the nonlinear systems that arise in the
 SUNDIALS integrators. Since SNES uses the KSP linear solver interface underneath
@@ -47786,7 +47789,7 @@ the CVODES or IDAS staggered or simultaneous sensitivity strategies.
 
 
 \subsection{SUNNonlinearSolver\_PetscSNES functions}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinearsolver-petscsnes-functions}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinsolpetscsnes-functions}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinsolpetscsnes-functions}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinearsolver-petscsnes-functions}}
 The \sphinxcode{SUNNonlinearSolver\_PetscSNES} module provides the following constructor
 for creating a \sphinxcode{SUNNonlinearSolver} object.
 \index{SUNNonlinSol\_PetscSNES (C function)}
@@ -47905,7 +47908,7 @@ for a successful call, and a negative value for a failure.
 
 
 \subsection{SUNNonlinearSolver\_PetscSNES content}
-\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinsolpetscsnes-content}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinearsolver-petscsnes-content}}
+\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinearsolver-petscsnes-content}}\label{\detokenize{sunnonlinsol/SUNNonlinSol_PetscSNES:sunnonlinsolpetscsnes-content}}
 The \sphinxstyleemphasis{content} field of the SUNNonlinSol\_Newton module is the following
 structure.
 
@@ -47960,7 +47963,7 @@ These entries of the \sphinxstyleemphasis{content} field contain the following i
 
 
 \chapter{ARKode Installation Procedure}
-\label{\detokenize{Install:installation}}\label{\detokenize{Install::doc}}\label{\detokenize{Install:arkode-installation-procedure}}
+\label{\detokenize{Install::doc}}\label{\detokenize{Install:arkode-installation-procedure}}\label{\detokenize{Install:installation}}
 The installation of any SUNDIALS package is accomplished by installing
 the SUNDIALS suite as a whole, according to the instructions that
 follow.  The same procedure applies whether or not the downloaded
@@ -48117,7 +48120,7 @@ directories:
 \index{ccmake}\ignorespaces 
 
 \subsubsection{Building with the GUI}
-\label{\detokenize{Install:building-with-the-gui}}\label{\detokenize{Install:index-2}}
+\label{\detokenize{Install:index-2}}\label{\detokenize{Install:building-with-the-gui}}
 Using CMake with the \sphinxcode{ccmake} GUI follows the general process:
 \begin{itemize}
 \item {} 
@@ -48266,7 +48269,7 @@ To install SUNDIALS in the installation directory specified in the configuration
 \index{cmake}\ignorespaces 
 
 \subsubsection{Building from the command line}
-\label{\detokenize{Install:building-from-the-command-line}}\label{\detokenize{Install:index-3}}
+\label{\detokenize{Install:index-3}}\label{\detokenize{Install:building-from-the-command-line}}
 Using CMake from the command line is simply a matter of specifying
 CMake variable settings with the \sphinxcode{cmake} command.  The following
 will build the default configuration:
@@ -48838,7 +48841,7 @@ Default: \sphinxcode{ON}
 
 
 \subsubsection{xSDK Configuration Options}
-\label{\detokenize{Install:installation-cmake-xsdk}}\label{\detokenize{Install:xsdk-configuration-options}}
+\label{\detokenize{Install:xsdk-configuration-options}}\label{\detokenize{Install:installation-cmake-xsdk}}
 SUNDIALS supports CMake configuration options defined by the
 Extreme-scale Scientific Software Development Kit (xSDK) community
 policies (see \sphinxurl{https://xsdk.info} for more
@@ -49006,7 +49009,7 @@ SUNDIALS equivalent: \sphinxcode{SUNDIALS\_PRECISION}
 
 
 \subsection{Configuration examples}
-\label{\detokenize{Install:installation-cmake-examples}}\label{\detokenize{Install:configuration-examples}}
+\label{\detokenize{Install:configuration-examples}}\label{\detokenize{Install:installation-cmake-examples}}
 The following examples will help demonstrate usage of the CMake
 configure options.
 
@@ -49052,7 +49055,7 @@ party libraries.
 
 
 \subsubsection{Building with LAPACK}
-\label{\detokenize{Install:building-with-lapack}}\label{\detokenize{Install:installation-cmake-externallibraries-lapack}}
+\label{\detokenize{Install:installation-cmake-externallibraries-lapack}}\label{\detokenize{Install:building-with-lapack}}
 To enable LAPACK, set the \sphinxcode{LAPACK\_ENABLE} option to \sphinxcode{ON}.
 If the directory containing the LAPACK library is in the
 \sphinxcode{LD\_LIBRARY\_PATH} environment variable, CMake will set the
@@ -49086,7 +49089,7 @@ respectively.
 
 
 \subsubsection{Building with KLU}
-\label{\detokenize{Install:installation-cmake-externallibraries-klu}}\label{\detokenize{Install:building-with-klu}}
+\label{\detokenize{Install:building-with-klu}}\label{\detokenize{Install:installation-cmake-externallibraries-klu}}
 The KLU libraries are part of SuiteSparse, a suite of sparse matrix
 software, available from the Texas A\&M University website:
 \sphinxurl{http://faculty.cse.tamu.edu/davis/suitesparse.html} .
@@ -49101,7 +49104,7 @@ result in populating the following variables: \sphinxcode{AMD\_LIBRARY},
 
 
 \subsubsection{Building with SuperLU\_DIST}
-\label{\detokenize{Install:installation-cmake-externallibraries-superlu-mt}}\label{\detokenize{Install:building-with-superlu-dist}}
+\label{\detokenize{Install:building-with-superlu-dist}}\label{\detokenize{Install:installation-cmake-externallibraries-superlu-mt}}
 The SuperLU\_DIST libraries are available for download from the Lawrence
 Berkeley National Laboratory website:
 \sphinxurl{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}\#superlu\_dist.
@@ -49172,7 +49175,7 @@ equivalently, \sphinxcode{XSDK\_INDEX\_SIZE}) equals the precision of
 
 
 \subsubsection{Building with CUDA}
-\label{\detokenize{Install:installation-cmake-externallibraries-cuda}}\label{\detokenize{Install:building-with-cuda}}
+\label{\detokenize{Install:building-with-cuda}}\label{\detokenize{Install:installation-cmake-externallibraries-cuda}}
 SUNDIALS CUDA modules and examples have been tested with version 10.1 of the
 CUDA toolkit. To build them, you need to install the Toolkit and compatible
 NVIDIA drivers. Both are available for download from the NVIDIA website:
@@ -49184,7 +49187,7 @@ path. To enable CUDA examples, set \sphinxcode{EXAMPLES\_ENABLE\_CUDA} to \sphin
 
 
 \subsubsection{Building with RAJA}
-\label{\detokenize{Install:building-with-raja}}\label{\detokenize{Install:installation-cmake-externallibraries-raja}}
+\label{\detokenize{Install:installation-cmake-externallibraries-raja}}\label{\detokenize{Install:building-with-raja}}
 RAJA is a performance portability layer developed by Lawrence
 Livermore National Laboratory and can be obtained from
 \sphinxurl{https://github.com/LLNL/RAJA}.
@@ -49198,7 +49201,7 @@ RAJA examples set \sphinxcode{EXAMPLES\_ENABLE\_CUDA} to \sphinxcode{ON}.
 
 
 \subsection{Testing the build and installation}
-\label{\detokenize{Install:testing-the-build-and-installation}}\label{\detokenize{Install:installation-cmake-testing}}
+\label{\detokenize{Install:installation-cmake-testing}}\label{\detokenize{Install:testing-the-build-and-installation}}
 If SUNDIALS was configured with \sphinxcode{EXAMPLES\_ENABLE\_\textless{}language\textgreater{}} options
 to \sphinxcode{ON}, then a set of regression tests can be run after building
 with the \sphinxcode{make} command by running:
@@ -49306,7 +49309,7 @@ and set the SUNDIALS libraries as dependencies for your project.
 
 
 \section{Installed libraries and exported header files}
-\label{\detokenize{Install:installed-libraries-and-exported-header-files}}\label{\detokenize{Install:installation-results}}
+\label{\detokenize{Install:installation-results}}\label{\detokenize{Install:installed-libraries-and-exported-header-files}}
 Using the CMake SUNDIALS build system, the command
 
 \fvset{hllines={, ,}}%
@@ -50360,7 +50363,7 @@ Headers
 
 
 \chapter{Appendix: ARKode Constants}
-\label{\detokenize{Constants:appendix-arkode-constants}}\label{\detokenize{Constants::doc}}\label{\detokenize{Constants:constants}}
+\label{\detokenize{Constants:appendix-arkode-constants}}\label{\detokenize{Constants:constants}}\label{\detokenize{Constants::doc}}
 Below we list all input and output constants used by the main solver,
 timestepper, and linear solver modules, together with their numerical
 values and a short description of their meaning.
@@ -50742,7 +50745,7 @@ An error occurred with the current SUNLINSOL module.
 
 
 \chapter{Appendix: Butcher tables}
-\label{\detokenize{Butcher:appendix-butcher-tables}}\label{\detokenize{Butcher:butcher}}\label{\detokenize{Butcher::doc}}
+\label{\detokenize{Butcher:butcher}}\label{\detokenize{Butcher:appendix-butcher-tables}}\label{\detokenize{Butcher::doc}}
 Here we catalog the full set of Butcher tables included in ARKode.
 We group these into three categories: \sphinxstyleemphasis{explicit}, \sphinxstyleemphasis{implicit} and
 \sphinxstyleemphasis{additive}.  However, since the methods that comprise an additive
@@ -50870,7 +50873,7 @@ orders 1 through 5.
 
 
 \subsection{Heun-Euler-2-1-2}
-\label{\detokenize{Butcher:butcher-heun-euler}}\label{\detokenize{Butcher:heun-euler-2-1-2}}
+\label{\detokenize{Butcher:heun-euler-2-1-2}}\label{\detokenize{Butcher:butcher-heun-euler}}
 \index{Heun-Euler-2-1-2 ERK method}\ignorespaces 
 Accessible via the constant \sphinxcode{HEUN\_EULER\_2\_1\_2} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ERKStepSetTableNum()}}}} or
@@ -50924,7 +50927,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{ARK-4-2-3 (explicit)}
-\label{\detokenize{Butcher:butcher-ark-4-2-3-e}}\label{\detokenize{Butcher:ark-4-2-3-explicit}}
+\label{\detokenize{Butcher:ark-4-2-3-explicit}}\label{\detokenize{Butcher:butcher-ark-4-2-3-e}}
 \index{ARK-4-2-3 ERK method}\ignorespaces 
 Accessible via the constant \sphinxcode{ARK324L2SA\_ERK\_4\_2\_3} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ERKStepSetTableNum()}}}} or
@@ -50952,7 +50955,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{Knoth-Wolke-3-3}
-\label{\detokenize{Butcher:knoth-wolke-3-3}}\label{\detokenize{Butcher:butcher-knoth-wolke}}
+\label{\detokenize{Butcher:butcher-knoth-wolke}}\label{\detokenize{Butcher:knoth-wolke-3-3}}
 \index{Knoth-Wolke-3-3 ERK method}\ignorespaces 
 Accessible via the constant \sphinxcode{KNOTH\_WOLKE\_3\_3} to
 \sphinxcode{MRIStepSetMRITableNum()} and {\hyperref[\detokenize{ARKodeButcherTable:c.ARKodeButcherTable_LoadERK}]{\sphinxcrossref{\sphinxcode{ARKodeButcherTable\_LoadERK()}}}}.
@@ -51006,7 +51009,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{ARK-6-3-4 (explicit)}
-\label{\detokenize{Butcher:butcher-ark-6-3-4-e}}\label{\detokenize{Butcher:ark-6-3-4-explicit}}
+\label{\detokenize{Butcher:ark-6-3-4-explicit}}\label{\detokenize{Butcher:butcher-ark-6-3-4-e}}
 \index{ARK-6-3-4 ERK method}\ignorespaces 
 Accessible via the constant \sphinxcode{ARK436L2SA\_ERK\_6\_3\_4} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ERKStepSetTableNum()}}}}
@@ -51059,7 +51062,7 @@ of the 4th order additive method (from \phantomsection\label{\detokenize{Butcher
 \end{equation*}
 
 \subsection{Sayfy-Aburub-6-3-4}
-\label{\detokenize{Butcher:butcher-sayfy-aburub}}\label{\detokenize{Butcher:sayfy-aburub-6-3-4}}
+\label{\detokenize{Butcher:sayfy-aburub-6-3-4}}\label{\detokenize{Butcher:butcher-sayfy-aburub}}
 \index{Sayfy-Aburub-6-3-4 ERK method}\ignorespaces 
 Accessible via the constant \sphinxcode{SAYFY\_ABURUB\_6\_3\_4} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ERKStepSetTableNum()}}}}
@@ -51118,7 +51121,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{Fehlberg-6-4-5}
-\label{\detokenize{Butcher:butcher-fehlberg}}\label{\detokenize{Butcher:fehlberg-6-4-5}}
+\label{\detokenize{Butcher:fehlberg-6-4-5}}\label{\detokenize{Butcher:butcher-fehlberg}}
 \index{Fehlberg-6-4-5 ERK method}\ignorespaces 
 Accessible via the constant \sphinxcode{FEHLBERG\_6\_4\_5} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ERKStepSetTableNum()}}}}
@@ -51147,7 +51150,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{Dormand-Prince-7-4-5}
-\label{\detokenize{Butcher:dormand-prince-7-4-5}}\label{\detokenize{Butcher:butcher-dormand-prince}}
+\label{\detokenize{Butcher:butcher-dormand-prince}}\label{\detokenize{Butcher:dormand-prince-7-4-5}}
 \index{Dormand-Prince-7-4-5 ERK method}\ignorespaces 
 Accessible via the constant \sphinxcode{DORMAND\_PRINCE\_7\_4\_5} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ERKStepSetTableNum()}}}}
@@ -51209,7 +51212,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{ARK-8-4-5b (explicit)}
-\label{\detokenize{Butcher:butcher-ark-8-4-5b-e}}\label{\detokenize{Butcher:ark-8-4-5b-explicit}}
+\label{\detokenize{Butcher:ark-8-4-5b-explicit}}\label{\detokenize{Butcher:butcher-ark-8-4-5b-e}}
 \index{ARK-8-4-5b ERK method}\ignorespaces 
 Accessible via the constant \sphinxcode{ARK548L2SAb\_ERK\_8\_4\_5} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ERKStepSetTableNum()}}}}
@@ -51265,7 +51268,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{Fehlberg-13-7-8}
-\label{\detokenize{Butcher:butcher-fehlberg-8-7}}\label{\detokenize{Butcher:fehlberg-13-7-8}}
+\label{\detokenize{Butcher:fehlberg-13-7-8}}\label{\detokenize{Butcher:butcher-fehlberg-8-7}}
 \index{Fehlberg-13-7-8 ERK method}\ignorespaces 
 Accessible via the constant \sphinxcode{FEHLBERG\_13\_7\_8} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}}, {\hyperref[\detokenize{ERKStep_c_interface/User_callable:c.ERKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ERKStepSetTableNum()}}}}
@@ -51302,14 +51305,14 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \section{Implicit Butcher tables}
-\label{\detokenize{Butcher:butcher-implicit}}\label{\detokenize{Butcher:implicit-butcher-tables}}
+\label{\detokenize{Butcher:implicit-butcher-tables}}\label{\detokenize{Butcher:butcher-implicit}}
 In the category of diagonally implicit Runge-Kutta methods, ARKode
 includes methods that have orders 2 through 5, with embeddings that are of
 orders 1 through 4.
 
 
 \subsection{SDIRK-2-1-2}
-\label{\detokenize{Butcher:butcher-sdirk-2-1}}\label{\detokenize{Butcher:sdirk-2-1-2}}
+\label{\detokenize{Butcher:sdirk-2-1-2}}\label{\detokenize{Butcher:butcher-sdirk-2-1}}
 \index{SDIRK-2-1-2 method}\ignorespaces 
 Accessible via the constant \sphinxcode{SDIRK\_2\_1\_2} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}} or
@@ -51362,7 +51365,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{TRBDF2-3-3-2}
-\label{\detokenize{Butcher:butcher-trbdf2}}\label{\detokenize{Butcher:trbdf2-3-3-2}}
+\label{\detokenize{Butcher:trbdf2-3-3-2}}\label{\detokenize{Butcher:butcher-trbdf2}}
 \index{TRBDF2-3-3-2 ESDIRK method}\ignorespaces 
 Accessible via the constant \sphinxcode{TRBDF2\_3\_3\_2} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}} or
@@ -51477,7 +51480,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{Cash-5-3-4}
-\label{\detokenize{Butcher:butcher-cash-5-3-4}}\label{\detokenize{Butcher:cash-5-3-4}}
+\label{\detokenize{Butcher:cash-5-3-4}}\label{\detokenize{Butcher:butcher-cash-5-3-4}}
 \index{Cash-5-3-4 SDIRK method}\ignorespaces 
 Accessible via the constant \sphinxcode{CASH\_5\_3\_4} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}} or
@@ -51536,7 +51539,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{Kvaerno-5-3-4}
-\label{\detokenize{Butcher:kvaerno-5-3-4}}\label{\detokenize{Butcher:butcher-kvaerno-5-3-4}}
+\label{\detokenize{Butcher:butcher-kvaerno-5-3-4}}\label{\detokenize{Butcher:kvaerno-5-3-4}}
 \index{Kvaerno-5-3-4 ESDIRK method}\ignorespaces 
 Accessible via the constant \sphinxcode{KVAERNO\_5\_3\_4} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}} or
@@ -51565,7 +51568,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{ARK-6-3-4 (implicit)}
-\label{\detokenize{Butcher:ark-6-3-4-implicit}}\label{\detokenize{Butcher:butcher-ark-6-3-4-i}}
+\label{\detokenize{Butcher:butcher-ark-6-3-4-i}}\label{\detokenize{Butcher:ark-6-3-4-implicit}}
 \index{ARK-6-3-4 ESDIRK method}\ignorespaces 
 Accessible via the constant \sphinxcode{ARK436L2SA\_DIRK\_6\_3\_4} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}} or
@@ -51619,7 +51622,7 @@ of the 4th order additive method from \phantomsection\label{\detokenize{Butcher:
 \end{equation*}
 
 \subsection{Kvaerno-7-4-5}
-\label{\detokenize{Butcher:butcher-kvaerno-7-4-5}}\label{\detokenize{Butcher:kvaerno-7-4-5}}
+\label{\detokenize{Butcher:kvaerno-7-4-5}}\label{\detokenize{Butcher:butcher-kvaerno-7-4-5}}
 \index{Kvaerno-7-4-5 ESDIRK method}\ignorespaces 
 Accessible via the constant \sphinxcode{KVAERNO\_7\_4\_5} to
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}} or
@@ -51650,7 +51653,7 @@ region is outlined in blue; the embedding’s region is in red.}\label{\detokeni
 
 
 \subsection{ARK-8-4-5 (implicit)}
-\label{\detokenize{Butcher:butcher-ark-8-4-5-i}}\label{\detokenize{Butcher:ark-8-4-5-implicit}}
+\label{\detokenize{Butcher:ark-8-4-5-implicit}}\label{\detokenize{Butcher:butcher-ark-8-4-5-i}}
 \index{ARK-8-4-5 ESDIRK method}\ignorespaces 
 Accessible via the constant \sphinxcode{ARK548L2SA\_DIRK\_8\_4\_5} for
 {\hyperref[\detokenize{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}]{\sphinxcrossref{\sphinxcode{ARKStepSetTableNum()}}}} or
@@ -51708,7 +51711,7 @@ implicit method from \phantomsection\label{\detokenize{Butcher:id27}}{\hyperref[
 \end{equation*}
 
 \section{Additive Butcher tables}
-\label{\detokenize{Butcher:butcher-additive}}\label{\detokenize{Butcher:additive-butcher-tables}}
+\label{\detokenize{Butcher:additive-butcher-tables}}\label{\detokenize{Butcher:butcher-additive}}
 In the category of additive Runge-Kutta methods for split implicit and
 explicit calculations, ARKode includes methods that have orders 3
 through 5, with embeddings that are of orders 2 through 4.  These
@@ -51748,7 +51751,7 @@ corresponding to Butcher tables \sphinxcode{ARK548L2SAb\_ERK\_8\_4\_5} and
 
 
 \chapter{Appendix: SUNDIALS Release History}
-\label{\detokenize{History:history}}\label{\detokenize{History:appendix-sundials-release-history}}\label{\detokenize{History::doc}}
+\label{\detokenize{History:appendix-sundials-release-history}}\label{\detokenize{History::doc}}\label{\detokenize{History:history}}
 
 \begin{savenotes}\sphinxatlongtablestart\begin{longtable}{|l|l|l|l|l|l|l|l|}
 \hline

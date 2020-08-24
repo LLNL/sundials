@@ -112,6 +112,9 @@ default maximum number of steps is 500, but this may be changed using the
 \id{IDASetMaxNumSteps} function. This change fixes a bug that could cause an
 infinite loop in the \id{IDASolveF} function.
 
+The \id{NVECTOR\_TRILINOS} module has been updated to work with Trilinos 12.18+.
+This update changes the local ordinal type to always be an \id{int}.
+
 \subsection*{Changes in v4.3.0}
 
 Fixed a bug in the iterative linear solver modules where an error is not

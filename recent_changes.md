@@ -38,6 +38,9 @@ the `IDASolve` and `CVode` functions. The default maximum number of steps is
 This change fixes a bug that could cause an infinite loop in the `IDASolveF`
 and `CVodeF` and functions.
 
+The `NVECTOR_TRILINOS` module has been updated to work with Trilinos 12.18+.
+This update changes the local ordinal type to always be an `int`.
+
 
 ## Changes to SUNDIALS in release 5.3.0
 

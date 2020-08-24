@@ -138,6 +138,9 @@ Users of the module will need to update any calls to the ``N_VMake_Raja`` functi
 because that signature was changed. This module remains experimental and is
 subject to change from version to version.
 
+The ``NVECTOR_TRILINOS`` module has been updated to work with Trilinos 12.18+.
+This update changes the local ordinal type to always be an ``int``.
+
 
 Changes in v4.3.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

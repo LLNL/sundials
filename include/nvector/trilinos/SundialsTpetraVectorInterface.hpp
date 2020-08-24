@@ -24,7 +24,7 @@ namespace Sundials
   struct TpetraVectorInterface : public _N_VectorContent_Trilinos
   {
     // Typedef of Tpetra vector class to be used with SUNDIALS
-    typedef Tpetra::Vector<realtype, sunindextype, sunindextype> vector_type;
+    typedef Tpetra::Vector<realtype, int, sunindextype> vector_type;
 
     TpetraVectorInterface(Teuchos::RCP<vector_type> rcpvec)
     {
