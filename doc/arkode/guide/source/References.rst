@@ -26,6 +26,10 @@
            Equations, *J. Assoc. Comput. Machinery*,
            12:547-560, 1965.
 
+.. [AP1998] U.M Ascher and L.R. Petzold, Computer Methods for Ordinary
+            Differential Equations and Differential-Algebraic Equations,
+            SIAM, Philadelphia, 1998.
+
 .. [B1985] Bank et al., Transient Simulation of Silicon Devices and
            Circuits, *IEEE Trans. CAD*, 4:436-451, 1985.
 
@@ -210,7 +214,7 @@
 
 .. [S2019] A. Sandu, A Class of Multirate Infinitesimal GARK Methods.
            *SIAM J. Numer. Anal.*, 57:2300-2327, 2019.
-           
+
 .. [SA2002] A. Sayfy and A. Aburub. Embedded Additive Runge-Kutta
             Methods. *Intern. J. Computer Math.*, 79:945-953, 2002.
 

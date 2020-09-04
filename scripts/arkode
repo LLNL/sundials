@@ -213,14 +213,25 @@ $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pfmg.cpp  
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pfmg_--np_2_2.out || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/plot_heat2D_p.py                   || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/CMakeLists.txt       || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/README               || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.cpp || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.out || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_heat2D.cpp       || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_heat2D.out       || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_heat2D.py       || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py          || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/CMakeLists.txt              || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/README                      || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.cpp        || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_heat2D.cpp              || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_heat2D.out              || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt.cpp              || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_3_0_-10_0.out  || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_1.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_-4.out         || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_5.out          || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_1_-3_0_-10_0.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_1_4.out          || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_1_-5.out         || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_4_0_-10_0.out  || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_-5_0_-10.out   || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_8_0_-10.out    || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_heat2D.py              || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py                 || exit 1
 
 $tar $tarfile $distrobase/examples/arkode/CXX_superludist/CMakeLists.txt                    || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_superludist/README                            || exit 1

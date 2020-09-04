@@ -767,7 +767,8 @@ int mriStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup,
                          ARKLinsolSolveFn lsolve,
                          ARKLinsolFreeFn lfree,
-                         int lsolve_type, void *lmem)
+                         SUNLinearSolver_Type lsolve_type,
+                         void *lmem)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;

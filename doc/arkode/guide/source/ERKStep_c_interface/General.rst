@@ -159,3 +159,9 @@ appropriate name.  This file in turn includes the header file
 ``sundials_nvector.h`` which defines the abstract ``N_Vector`` data
 type.
 
+If the user wishes to manually select between any of the pre-defined
+ERK Butcher tables, these are defined through a set of constants
+that are enumerated in the header file ``arkode/arkode_butcher_erk.h``,
+or if a user wishes to manually specify a Butcher table, the
+corresponding ``ARKodeButcherTable`` structure is defined in
+``arkode/arkode_butcher.h``.

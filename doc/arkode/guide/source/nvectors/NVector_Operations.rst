@@ -163,6 +163,9 @@ operations below.
    .. math::
       z_i = a x_i + b y_i, \quad i=0,\ldots,n-1.
 
+   The output vector *z* can be the same as either of the input vectors (*x* or *y*).
+
+
    Usage:
 
    .. code-block:: c
@@ -335,6 +338,8 @@ operations below.
       m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i H(id_i))^2 \right) / n},
 
    where :math:`H(\alpha)=\begin{cases} 1 & \alpha>0\\ 0 & \alpha \leq 0\end{cases}`.
+
+   Usage:
 
    .. code-block:: c
 

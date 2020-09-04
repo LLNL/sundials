@@ -164,7 +164,8 @@ int mriStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup,
                          ARKLinsolSolveFn lsolve,
                          ARKLinsolFreeFn lfree,
-                         int lsolve_type, void *lmem);
+                         SUNLinearSolver_Type lsolve_type,
+                         void *lmem);
 void mriStep_DisableLSetup(void* arkode_mem);
 int mriStep_Init(void* arkode_mem, int init_type);
 void* mriStep_GetLmem(void* arkode_mem);

@@ -580,7 +580,6 @@ modules.
         the independent variable (:math:`M = M(t)`) or not (:math:`M
         \ne M(t)`).  ``SUNTRUE`` indicates time-dependence of the
         mass matrix.
-        *Currently, only values of "SUNFALSE" are supported*.
 
    **Return value:**
       * *ARKLS_SUCCESS*   if successful
@@ -599,26 +598,21 @@ modules.
    factorization of a banded matrix), ensure that the input object is
    allocated with sufficient size.
 
-   ..
-      If called with *time_dep* set to ``SUNFALSE``, then the mass matrix is
-      only computed and factored once, with the results reused throughout
-      the entire ARKStep simulation.
-
-   The *time_dep* flag is currently unused, serving as a placeholder
-   for planned future functionality.  As such, ARKStep only computes
-   and factors the mass matrix once, with the results reused
+   If called with *time_dep* set to ``SUNFALSE``, then the mass matrix is
+   only computed and factored once (or when either :c:func:`ARKStepReInit()`
+   or :c:func`ARKStepResize()` are called), with the results reused
    throughout the entire ARKStep simulation.
 
-   Unlike the system Jacobian, the system mass matrix cannot be
-   approximated using finite-differences of any functions provided to
-   ARKStep.  Hence, use of the a matrix-based *LS* requires the user
-   to provide a mass-matrix constructor routine (see
-   :c:type:`ARKLsMassFn` and :c:func:`ARKStepSetMassFn()`).
+   Unlike the system Jacobian, the system mass matrix is not approximated
+   using finite-differences of any functions provided to ARKStep.  Hence,
+   use of the a matrix-based *LS* requires the user to provide a
+   mass-matrix constructor routine (see :c:type:`ARKLsMassFn` and
+   :c:func:`ARKStepSetMassFn()`).
 
-   Similarly, the system mass matrix-vector-product cannot be
-   approximated using finite-differences of any functions
-   provided to ARKStep.  Hence, use of a matrix-free *LS* requires the
-   user to provide a mass-matrix-times-vector product routine (see
+   Similarly, the system mass matrix-vector-product is not approximated
+   using finite-differences of any functions provided to ARKStep.  Hence,
+   use of a matrix-free *LS* requires the user to provide a
+   mass-matrix-times-vector product routine (see
    :c:type:`ARKLsMassTimesVecFn` and :c:func:`ARKStepSetMassTimes()`).
 
 
@@ -883,28 +877,28 @@ Optional inputs for ARKStep
 
 .. cssclass:: table-bordered
 
-==================================================  =======================================  =======================
-Optional input                                      Function name                            Default
-==================================================  =======================================  =======================
-Return ARKStep solver parameters to their defaults  :c:func:`ARKStepSetDefaults()`           internal
-Set dense output interpolation type                 :c:func:`ARKStepSetInterpolantType()`    ``ARK_INTERP_HERMITE``
-Set dense output polynomial degree                  :c:func:`ARKStepSetInterpolantDegree()`  5
-Supply a pointer to a diagnostics output file       :c:func:`ARKStepSetDiagnostics()`        ``NULL``
-Supply a pointer to an error output file            :c:func:`ARKStepSetErrFile()`            ``stderr``
-Supply a custom error handler function              :c:func:`ARKStepSetErrHandlerFn()`       internal fn
-Disable time step adaptivity (fixed-step mode)      :c:func:`ARKStepSetFixedStep()`          disabled
-Supply an initial step size to attempt              :c:func:`ARKStepSetInitStep()`           estimated
-Maximum no. of warnings for :math:`t_n+h = t_n`     :c:func:`ARKStepSetMaxHnilWarns()`       10
-Maximum no. of internal steps before *tout*         :c:func:`ARKStepSetMaxNumSteps()`        500
-Maximum absolute step size                          :c:func:`ARKStepSetMaxStep()`            :math:`\infty`
-Minimum absolute step size                          :c:func:`ARKStepSetMinStep()`            0.0
-Set a value for :math:`t_{stop}`                    :c:func:`ARKStepSetStopTime()`           :math:`\infty`
-Supply a pointer for user data                      :c:func:`ARKStepSetUserData()`           ``NULL``
-Maximum no. of ARKStep error test failures          :c:func:`ARKStepSetMaxErrTestFails()`    7
-Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalParams()`      internal
-Set inequality constraints on solution              :c:func:`ARKStepSetConstraints()`        ``NULL``
-Set max number of constraint failures               :c:func:`ARKStepSetMaxNumConstrFails()`  10
-==================================================  =======================================  =======================
+================================================  =======================================  =======================
+Optional input                                    Function name                            Default
+================================================  =======================================  =======================
+Return ARKStep parameters to their defaults       :c:func:`ARKStepSetDefaults`             internal
+Set dense output interpolation type               :c:func:`ARKStepSetInterpolantType`      ``ARK_INTERP_HERMITE``
+Set dense output polynomial degree                :c:func:`ARKStepSetInterpolantDegree`    5
+Supply a pointer to a diagnostics output file     :c:func:`ARKStepSetDiagnostics`          ``NULL``
+Supply a pointer to an error output file          :c:func:`ARKStepSetErrFile`              ``stderr``
+Supply a custom error handler function            :c:func:`ARKStepSetErrHandlerFn`         internal fn
+Disable time step adaptivity (fixed-step mode)    :c:func:`ARKStepSetFixedStep`            disabled
+Supply an initial step size to attempt            :c:func:`ARKStepSetInitStep`             estimated
+Maximum no. of warnings for :math:`t_n+h = t_n`   :c:func:`ARKStepSetMaxHnilWarns`         10
+Maximum no. of internal steps before *tout*       :c:func:`ARKStepSetMaxNumSteps`          500
+Maximum absolute step size                        :c:func:`ARKStepSetMaxStep`              :math:`\infty`
+Minimum absolute step size                        :c:func:`ARKStepSetMinStep`              0.0
+Set a value for :math:`t_{stop}`                  :c:func:`ARKStepSetStopTime`             :math:`\infty`
+Supply a pointer for user data                    :c:func:`ARKStepSetUserData`             ``NULL``
+Maximum no. of ARKStep error test failures        :c:func:`ARKStepSetMaxErrTestFails`      7
+Set 'optimal' adaptivity params. for a method     :c:func:`ARKStepSetOptimalParams`        internal
+Set inequality constraints on solution            :c:func:`ARKStepSetConstraints`          ``NULL``
+Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConstrFails`    10
+================================================  =======================================  =======================
 
 
 
@@ -1992,6 +1986,10 @@ User-provided implicit stage predictor         :c:func:`ARKStepSetStagePredictFn
    **Notes:** The default value is 0.  If *method* is set to an
    undefined value, this default predictor will be used.
 
+   Options 4 and 5 are currently not supported when solving a problem involving
+   a non-identity mass matrix.  In that case, selection of *method* as 4 or 5 will
+   instead default to the trivial predictor (*method* 0).
+
 
 
 .. c:function:: int ARKStepSetMaxNonlinIters(void* arkode_mem, int maxcor)
@@ -2281,46 +2279,43 @@ Enable or disable linear solution scaling  :c:func:`ARKStepSetLinearSolutionScal
 
 When using matrix-based linear solver modules, the ARKLS solver interface needs
 a function to compute an approximation to the Jacobian matrix :math:`J(t,y)` or
-the linear system :math:`M - \gamma J`. The function to evaluate the Jacobian
-must be of type :c:func:`ARKLsJacFn()`. The user can supply a custom Jacobian
-function, or if using a dense or banded :math:`J` can use the default internal
-difference quotient approximation that comes with the ARKLS interface.  At
-present, we do not supply a corresponding routine to approximate Jacobian
-entries in sparse matrices :math:`J`. To specify a user-supplied Jacobian
-function *jac*, ARKStep provides the function :c:func:`ARKStepSetJacFn()`.
+the linear system :math:`\mathcal{A(t,y)} = M(t) - \gamma J(t,y)`.
+
+For :math:`J(t,y)`, the ARKLS interface is packaged with a routine that can approximate
+:math:`J` if the user has selected either dense or banded linear algebra.  Alternatively,
+the user can supply a custom Jacobian function of type :c:func:`ARKLsJacFn()` -- this is
+*required* when the user selects other matrix formats.  To specify a user-supplied
+Jacobian function, ARKStep provides the function :c:func:`ARKStepSetJacFn()`.
+
 Alternatively, a function of type :c:func:`ARKLsLinSysFn()` can be provided to
-evaluate the matrix :math:`M - \gamma J`. By default, ARKLS uses an
+evaluate the matrix :math:`\mathcal{A(t,y)}`. By default, ARKLS uses an
 internal linear system function leveraging the SUNMATRIX API to form the matrix
-:math:`I - \gamma J`. To specify a user-supplied linear system function
-*linsys*, ARKStep provides the function :c:func:`ARKStepSetLinSysFn()`. In
-either case the matrix information will be updated infrequently to reduce matrix
-construction and, with direct solvers, factorization costs. As a result the
-value of :math:`\gamma` may not be current and a scaling factor is applied to the
-solution of the linear system to account for lagged value of :math:`\gamma`. See
-:ref:`SUNLinSol.Lagged_matrix` for more details. The function
-:c:func:`ARKStepSetLinearSolutionScaling()` can be used to disable this scaling
-when necessary, e.g., when providing a custom linear solver that updates the
-matrix using the current :math:`\gamma` as part of the solve.
+:math:`\mathcal{A(t,y)}` by combining the matrices :math:`M(t)` and :math:`J(t,y)`.
+To specify a user-supplied linear system function instead, ARKStep provides the function
+:c:func:`ARKStepSetLinSysFn()`.
 
-The ARKLS interface passes the user data pointer to the Jacobian and linear
-system functions. This allows the user to create an arbitrary structure with
-relevant problem data and access it during the execution of the user-supplied
-Jacobian or linear system functions, without using global data in the
-program. The user data pointer may be specified through
-:c:func:`ARKStepSetUserData()`.
-
-Similarly, if the ODE system involves a non-identity mass matrix,
-:math:`M\ne I`, matrix-based linear solver modules require a function
-to compute an approximation to the mass matrix :math:`M`. There is no
-default difference quotient approximation (for any matrix type), so this
+If the ODE system involves a non-identity mass matrix, :math:`M\ne I`, matrix-based linear
+solver modules require a function to compute an approximation to the mass matrix :math:`M(t)`.
+There is no default difference quotient approximation (for any matrix type), so this
 routine must be supplied by the user. This function must be of type
 :c:func:`ARKLsMassFn()`, and should be set using the function
-:c:func:`ARKStepSetMassFn()`.  We note that the ARKLS solver passes
-the user data pointer to the mass matrix function. This allows the
-user to create an arbitrary structure with relevant problem data and
-access it during the execution of the user-supplied mass matrix
-function, without using global data in the program. The pointer user
-data may be specified through :c:func:`ARKStepSetUserData()`.
+:c:func:`ARKStepSetMassFn()`.
+
+In either case (:math:`J(t,y)` versus :math:`\mathcal{A(t,y)}` is supplied) the matrix
+information will be updated infrequently to reduce matrix construction and, with direct
+solvers, factorization costs. As a result the value of :math:`\gamma` may not be current
+and a scaling factor is applied to the solution of the linear system to account for
+the lagged value of :math:`\gamma`. See :ref:`SUNLinSol.Lagged_matrix` for more details.
+The function :c:func:`ARKStepSetLinearSolutionScaling()` can be used to disable this
+scaling when necessary, e.g., when providing a custom linear solver that updates the
+matrix using the current :math:`\gamma` as part of the solve.
+
+The ARKLS interface passes the user data pointer to the Jacobian, linear
+system, and mass matrix functions. This allows the user to create an arbitrary
+structure with relevant problem data and access it during the execution of the
+user-supplied Jacobian, linear system or mass matrix functions, without using global
+data in the program. The user data pointer may be specified through
+:c:func:`ARKStepSetUserData()`.
 
 
 
@@ -2535,13 +2530,13 @@ avoid differencing a potentially non-differentiable factor.
 Similarly, if a problem involves a non-identity mass matrix,
 :math:`M\ne I`, then matrix-free solvers require a *mtimes* function
 to compute an approximation to the product between the mass matrix
-:math:`M` and a vector :math:`v`.  This function must be
+:math:`M(t)` and a vector :math:`v`.  This function must be
 user-supplied, since there is no default value.  *mtimes* must be
 of type :c:func:`ARKLsMassTimesVecFn()`, and can be specified
 through a call to the  :c:func:`ARKStepSetMassTimes()` routine.
-As with the user-supplied preconditioner functions, the evaluation and
-processing of any mass matrix-related data needed by the user's
-mass-matrix-times-vector function is done in the optional user-supplied
+Similarly to the user-supplied preconditioner functions, any evaluation
+and processing of any mass matrix-related data needed by the user's
+mass-matrix-times-vector function may be done in an optional user-supplied
 function of type :c:type:`ARKLsMassTimesSetupFn` (see the section
 :ref:`ARKStep_CInterface.UserSupplied` for specification details).
 
@@ -2844,10 +2839,12 @@ polynomial model may be evaluated upon request.
    independent variable satisfying :math:`t_n-h_n \le t \le t_n`, with
    :math:`t_n` as current internal time reached, and :math:`h_n` is
    the last internal step size successfully used by the solver.  This
-   routine uses an interpolating polynomial of degree *max(degree, k)*,
+   routine uses an interpolating polynomial of degree *min(degree, 5)*,
    where *degree* is the argument provided to
    :c:func:`ARKStepSetInterpolantDegree()`.  The user may request *k* in the
-   range {0,...,*degree*}.
+   range {0,...,*min(degree, kmax)*} where *kmax* depends on the choice of
+   interpolation module. For Hermite interpolants *kmax = 5* and for Lagrange
+   interpolants *kmax = 3*.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -2858,7 +2855,7 @@ polynomial model may be evaluated upon request.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_BAD_K* if *k* is not in the range {0,...,*degree*}.
+      * *ARK_BAD_K* if *k* is not in the range {0,...,*min(degree, kmax)*}.
       * *ARK_BAD_T* if *t* is not in the interval :math:`[t_n-h_n, t_n]`
       * *ARK_BAD_DKY* if the *dky* vector was ``NULL``
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
@@ -3655,11 +3652,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
 
 .. c:function:: int ARKStepGetNumJacEvals(void* arkode_mem, long int* njevals)
 
-   Returns the number of calls made to the Jacobian approximation routine.
+   Returns the number of Jacobian evaluations.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *njevals* -- number of calls to the Jacobian function.
+      * *njevals* -- number of Jacobian evaluations.
 
    **Return value:**
       * *ARKLS_SUCCESS* if successful

@@ -22,6 +22,16 @@
 set(ARKODE_examples
   "ark_analytic_sys\;\;develop"
   "ark_heat2D\;\;develop"
+  "ark_kpr_Mt\;0 5\;develop"
+  "ark_kpr_Mt\;1 4\;develop"
+  "ark_kpr_Mt\;2 8 0 -10\;develop"
+  "ark_kpr_Mt\;0 4 1\;develop"
+  "ark_kpr_Mt\;0 -4\;develop"
+  "ark_kpr_Mt\;1 -5\;develop"
+  "ark_kpr_Mt\;2 -5 0 -10\;develop"
+  "ark_kpr_Mt\;1 -3 0 -10 0\;develop"
+  "ark_kpr_Mt\;0 3 0 -10 0\;develop"
+  "ark_kpr_Mt\;2 4 0 -10 0\;develop"
   )
 
 # Auxiliary files to install

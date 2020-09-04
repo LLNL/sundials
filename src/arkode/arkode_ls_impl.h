@@ -150,15 +150,16 @@ typedef struct ARKLsMassMemRec {
 
   /* Statistics and associated parameters */
   booleantype time_dependent;  /* flag whether M depends on t        */
-  long int nmsetups;  /* total number of mass matrix-solver setups   */
-  long int nmsolves;  /* total number of mass matrix-solver solves   */
-  long int nmtsetup;  /* total number of calls to mtsetup            */
-  long int nmtimes;   /* total number of calls to mtimes             */
-  long int nmvsetup;  /* total number of calls to SUNMatMatvec setup */
-  long int npe;       /* total number of pset calls                  */
-  long int nli;       /* total number of linear iterations           */
-  long int nps;       /* total number of psolve calls                */
-  long int ncfl;      /* total number of convergence failures        */
+  realtype    msetuptime;      /* "t" value at last msetup call      */
+  long int    nmsetups;        /* total # mass matrix-solver setups  */
+  long int    nmsolves;        /* total # mass matrix-solver solves  */
+  long int    nmtsetup;        /* total # calls to mtsetup           */
+  long int    nmtimes;         /* total # calls to mtimes            */
+  long int    nmvsetup;        /* total # calls to matvec setup      */
+  long int    npe;             /* total # pset calls                 */
+  long int    nli;             /* total # linear iterations          */
+  long int    nps;             /* total # psolve calls               */
+  long int    ncfl;            /* total # convergence failures       */
 
   /* Linear solver, matrix and vector objects/pointers */
   SUNLinearSolver LS; /* generic linear solver object                */
@@ -235,7 +236,7 @@ int arkLsFree(void* arkode_mem);
 /* Generic minit/msetup/mmult/msolve/mfree routines for ARKode to call */
 int arkLsMassInitialize(void* arkode_mem);
 
-int arkLsMassSetup(void* arkode_mem, N_Vector vtemp1,
+int arkLsMassSetup(void* arkode_mem, realtype t, N_Vector vtemp1,
                    N_Vector vtemp2, N_Vector vtemp3);
 
 int arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);

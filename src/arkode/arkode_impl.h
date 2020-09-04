@@ -22,6 +22,7 @@
 #include <arkode/arkode_butcher.h>
 #include "arkode_adapt_impl.h"
 #include "arkode_root_impl.h"
+#include <sundials/sundials_linearsolver.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -131,8 +132,9 @@ typedef int (*ARKLinsolFreeFn)(void* arkode_mem);
 
 /* mass-matrix solver interface functions */
 typedef int (*ARKMassInitFn)(void *arkode_mem);
-typedef int (*ARKMassSetupFn)(void *arkode_mem, N_Vector vtemp1,
-                              N_Vector vtemp2, N_Vector vtemp3);
+typedef int (*ARKMassSetupFn)(void *arkode_mem, realtype t,
+                              N_Vector vtemp1, N_Vector vtemp2,
+                              N_Vector vtemp3);
 typedef int (*ARKMassMultFn)(void *arkode_mem, N_Vector v,
                              N_Vector Mv);
 typedef int (*ARKMassSolveFn)(void *arkode_mem, N_Vector b,
@@ -146,7 +148,7 @@ typedef int (*ARKTimestepAttachLinsolFn)(void* arkode_mem,
                                          ARKLinsolSetupFn lsetup,
                                          ARKLinsolSolveFn lsolve,
                                          ARKLinsolFreeFn lfree,
-                                         int lsolve_type,
+                                         SUNLinearSolver_Type lsolve_type,
                                          void *lmem);
 typedef int (*ARKTimestepAttachMasssolFn)(void* arkode_mem,
                                           ARKMassInitFn minit,
@@ -154,7 +156,8 @@ typedef int (*ARKTimestepAttachMasssolFn)(void* arkode_mem,
                                           ARKMassMultFn mmult,
                                           ARKMassSolveFn msolve,
                                           ARKMassFreeFn mfree,
-                                          int msolve_type,
+                                          booleantype time_dep,
+                                          SUNLinearSolver_Type msolve_type,
                                           void *mass_mem);
 typedef void (*ARKTimestepDisableLSetup)(void* arkode_mem);
 typedef void (*ARKTimestepDisableMSetup)(void* arkode_mem);
@@ -547,7 +550,7 @@ typedef struct ARKodeMemRec {
 
   arkode_mem - void* problem memory pointer of type ARKodeMem. See
            the typedef earlier in this file.
-
+  t - the 'time' at which to setup the mass matrix
   vtemp1, vtemp2, vtemp3 - temporary N_Vectors
 
   This routine should return 0 if successful, and a negative
@@ -621,11 +624,11 @@ typedef struct ARKodeMemRec {
 /*---------------------------------------------------------------
   ARKTimestepAttachMasssolFn
   ---------------------------------------------------------------
-  This routine should attach the various set of mass matrix linear
-  solver interface routines, data structure, and solver type to
-  the ARKode time stepping module pointed to in
-  ark_mem->step_mem.  This will be called by the ARKode linear
-  solver interface.
+  This routine should attach the various set of mass matrix
+  linear solver interface routines, data structure, mass matrix
+  type, and solver type to the ARKode time stepping module
+  pointed to in ark_mem->step_mem.  This will be called by the
+  ARKode linear solver interface.
 
   This routine should return 0 if it has successfully attached
   these items, and a negative value otherwise.  If an error does

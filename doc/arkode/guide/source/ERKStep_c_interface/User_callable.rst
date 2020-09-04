@@ -1389,10 +1389,12 @@ polynomial model may be evaluated upon request.
    independent variable satisfying :math:`t_n-h_n \le t \le t_n`, with
    :math:`t_n` as current internal time reached, and :math:`h_n` is
    the last internal step size successfully used by the solver.  This
-   routine uses an interpolating polynomial of degree *max(degree, k)*,
+   routine uses an interpolating polynomial of degree *min(degree, 5)*,
    where *degree* is the argument provided to
-   :c:func:`ERKStepSetInterpolantDegree()`. The user may request *k* in the
-   range {0,...,*degree*}.
+   :c:func:`ERKStepSetInterpolantDegree()`.  The user may request *k* in the
+   range {0,...,*min(degree, kmax)*} where *kmax* depends on the choice of
+   interpolation module. For Hermite interpolants *kmax = 5* and for Lagrange
+   interpolants *kmax = 3*.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
@@ -1403,7 +1405,7 @@ polynomial model may be evaluated upon request.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_BAD_K* if *k* is not in the range {0,...,*degree*}.
+      * *ARK_BAD_K* if *k* is not in the range {0,...,*min(degree, kmax)*}.
       * *ARK_BAD_T* if *t* is not in the interval :math:`[t_n-h_n, t_n]`
       * *ARK_BAD_DKY* if the *dky* vector was ``NULL``
       * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``

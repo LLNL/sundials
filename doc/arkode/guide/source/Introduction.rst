@@ -141,6 +141,11 @@ subject to change from version to version.
 The ``NVECTOR_TRILINOS`` module has been updated to work with Trilinos 12.18+.
 This update changes the local ordinal type to always be an ``int``.
 
+Added full support for time-dependent mass matrices in ARKStep, and expanded
+existing non-identity mass matrix infrastructure to support use of the
+fixed point nonlinear solver. Fixed bug for ERK method integration with
+static mass matrices.
+
 
 Changes in v4.3.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -62,10 +62,10 @@ The user-supplied functions for MRIStep consist of:
   by the outer integrator to the inner integrator, or state data supplied
   by the inner integrator to the outer integrator.
 
-  
+
 Additionally, a user may supply a custom set of slow-to-fast coupling coefficients for the MRI method.
 
-     
+
 
 .. _MRIStep_CInterface.ODERHS:
 
@@ -95,6 +95,9 @@ specify the "slow" right-hand side of the ODE system:
 
    **Notes:** Allocation of memory for `ydot` is handled within the
    MRIStep module.
+
+   The vector *ydot* may be uninitialized on input; it is the user's
+   responsibility to fill this entire vector with meaningful values.
 
    A recoverable failure error return from the *ARKRhsFn* is typically
    used to flag a value of the dependent variable :math:`y` that is
@@ -774,7 +777,7 @@ following form:
    instead destroy the vector *y* and clone a new vector *y* off of
    *ytemplate*.
 
-   
+
 .. _MRIStep_CInterface.PreInnerFn:
 
 Pre inner integrator communication function

@@ -42,6 +42,10 @@ extern "C" {
 /* #define NLSCOEF   RCONST(0.2)   */  /* CVODE constant */
 #define NLSCOEF   RCONST(0.1)
 
+/* Mass matrix types */
+#define MASS_IDENTITY 0
+#define MASS_FIXED    1
+#define MASS_TIMEDEP  2
 
 
 /*===============================================================
@@ -109,22 +113,22 @@ typedef struct ARKodeARKStepMemRec {
   booleantype jcur;      /* is Jacobian info for lin solver current? */
 
   /* Linear Solver Data */
-  ARKLinsolInitFn  linit;
-  ARKLinsolSetupFn lsetup;
-  ARKLinsolSolveFn lsolve;
-  ARKLinsolFreeFn  lfree;
-  void            *lmem;
-  int lsolve_type;  /* interface type: 0=iterative; 1=direct; 2=custom */
+  ARKLinsolInitFn      linit;
+  ARKLinsolSetupFn     lsetup;
+  ARKLinsolSolveFn     lsolve;
+  ARKLinsolFreeFn      lfree;
+  void                *lmem;
+  SUNLinearSolver_Type lsolve_type;
 
   /* Mass matrix solver data */
-  ARKMassInitFn   minit;
-  ARKMassSetupFn  msetup;
-  ARKMassMultFn   mmult;
-  ARKMassSolveFn  msolve;
-  ARKMassFreeFn   mfree;
-  void*           mass_mem;
-  realtype        msetuptime;   /* "t" value at last msetup call */
-  int msolve_type;  /* interface type: 0=iterative; 1=direct; 2=custom */
+  ARKMassInitFn        minit;
+  ARKMassSetupFn       msetup;
+  ARKMassMultFn        mmult;
+  ARKMassSolveFn       msolve;
+  ARKMassFreeFn        mfree;
+  void*                mass_mem;
+  int                  mass_type;  /* 0=identity, 1=fixed, 2=time-dep */
+  SUNLinearSolver_Type msolve_type;
 
   /* Counters */
   long int nfe;       /* num fe calls               */
@@ -157,13 +161,17 @@ int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup,
                          ARKLinsolSolveFn lsolve,
                          ARKLinsolFreeFn lfree,
-                         int lsolve_type, void *lmem);
-int arkStep_AttachMasssol(void* arkode_mem, ARKMassInitFn minit,
+                         SUNLinearSolver_Type lsolve_type,
+                         void *lmem);
+int arkStep_AttachMasssol(void* arkode_mem,
+                          ARKMassInitFn minit,
                           ARKMassSetupFn msetup,
                           ARKMassMultFn mmult,
                           ARKMassSolveFn msolve,
                           ARKMassFreeFn lfree,
-                          int msolve_type, void *mass_mem);
+                          booleantype time_dep,
+                          SUNLinearSolver_Type msolve_type,
+                          void *mass_mem);
 void arkStep_DisableLSetup(void* arkode_mem);
 void arkStep_DisableMSetup(void* arkode_mem);
 int arkStep_Init(void* arkode_mem, int init_type);
@@ -175,7 +183,7 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
                       booleantype *dgamma_fail);
 int arkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);
-int arkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
+int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int arkStep_AccessStepMem(void* arkode_mem, const char *fname,
@@ -184,16 +192,21 @@ booleantype arkStep_CheckNVector(N_Vector tmpl);
 int arkStep_SetButcherTables(ARKodeMem ark_mem);
 int arkStep_CheckButcherTables(ARKodeMem ark_mem);
 int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
-int arkStep_StageSetup(ARKodeMem ark_mem);
+int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit);
 int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
+int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, realtype *dsm);
 void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, realtype t,
                           realtype s, int *nvec);
 
 /* private functions passed to nonlinear solver */
-int arkStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
-int arkStep_NlsFPFunction(N_Vector yy, N_Vector res, void* arkode_mem);
+int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem);
+int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem);
+int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem);
 int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
 int arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,

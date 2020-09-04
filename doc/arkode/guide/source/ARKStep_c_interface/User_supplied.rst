@@ -93,7 +93,10 @@ specify the explicit and/or implicit portions of the ODE system:
    **Notes:** Allocation of memory for `ydot` is handled within the
    ARKStep module.
 
-   A recoverable failure error return from the *ARKRhsFn* is typically 
+   The vector *ydot* may be uninitialized on input; it is the user's
+   responsibility to fill this entire vector with meaningful values.
+
+   A recoverable failure error return from the *ARKRhsFn* is typically
    used to flag a value of the dependent variable :math:`y` that is
    "illegal" in some way (e.g., negative where only a
    non-negative value is physically meaningful).  If such a return is
@@ -393,14 +396,14 @@ object was supplied to :c:func:`ARKStepSetLinearSolver()` in section
 :ref:`ARKStep_CInterface.Skeleton`), the user may provide a function of type
 :c:type:`ARKLsJacFn` to provide the Jacobian approximation or
 :c:type:`ARKLsLinSysFn` to provide an approximation of the linear system
-:math:`A = I - \gamma J` or :math:`A = M - \gamma J`.
+:math:`\mathcal{A(t,y)} = M(t) - \gamma J(t,y)`.
 
 
 
 .. c:type:: typedef int (*ARKLsJacFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 
-   This function computes the Jacobian matrix :math:`J =
-   \frac{\partial f^I}{\partial y}` (or an approximation to it).
+   This function computes the Jacobian matrix :math:`J(t,y) =
+   \frac{\partial f^I}{\partial y}(t,y)` (or an approximation to it).
 
    **Arguments:**
       * *t* -- the current value of the independent variable.
@@ -524,7 +527,7 @@ object was supplied to :c:func:`ARKStepSetLinearSolver()` in section
 
 .. c:type:: typedef int (*ARKLsLinSysFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix A, SUNMatrix M, booleantype jok, booleantype *jcur, realtype gamma, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 
-   This function computes the linear system matrix :math:`A = M - \gamma J` (or
+   This function computes the linear system matrix :math:`\mathcal{A}(t,y) = M(t) - \gamma J(t,y)` (or
    an approximation to it).
 
    **Arguments:**
@@ -545,7 +548,7 @@ object was supplied to :c:func:`ARKStepSetLinearSolver()` in section
         Jacobian data was recomputed, or set to ``SUNFALSE`` if Jacobian data
         was not recomputed, but saved data was still reused.
       * *gamma* -- the scalar :math:`\gamma` appearing in the Newton matrix
-        given by :math:`A=I-\gamma J` or :math:`A=M-\gamma J`.
+        given by :math:`\mathcal{A}=M(t)-\gamma J(t,y)`.
       * *user_data* -- a pointer to user data, the same as the *user_data*
         parameter that was passed to :c:func:`ARKStepSetUserData()`.
       * *tmp1*, *tmp2*, *tmp3* -- pointers to memory allocated to variables of
@@ -578,8 +581,8 @@ the default is a difference quotient approximation to these products.
 
 .. c:type:: typedef int (*ARKLsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t, N_Vector y, N_Vector fy, void* user_data, N_Vector tmp)
 
-   This function computes the product :math:`Jv =
-   \left(\frac{\partial f^I}{\partial y}\right)v` (or an approximation to it).
+   This function computes the product :math:`Jv` where :math:`J(t,y) \approx
+   \frac{\partial f^I}{\partial y}(t,y)`.
 
    **Arguments:**
       * *v* -- the vector to multiply.
@@ -669,11 +672,10 @@ solver module, then the user must provide a function of type
 :c:type:`ARKLsPrecSolveFn` to solve the linear system :math:`Pz=r`,
 where :math:`P` corresponds to either a left or right
 preconditioning matrix.  Here :math:`P` should approximate (at least
-crudely) the Newton matrix :math:`A=M-\gamma J`, where :math:`M` is
-the mass matrix (typically :math:`M=I` unless working in a
-finite-element setting) and :math:`J = \frac{\partial f^I}{\partial
-y}`  If preconditioning is done on both sides, the product of the two
-preconditioner matrices should approximate :math:`A`.
+crudely) the Newton matrix :math:`\mathcal{A}(t,y)=M(t)-\gamma J(t,y)`,
+where :math:`M(t)` is the mass matrix and :math:`J(t,y) = \frac{\partial f^I}{\partial
+y}(t,y)`  If preconditioning is done on both sides, the product of the two
+preconditioner matrices should approximate :math:`\mathcal{A}`.
 
 
 
@@ -688,7 +690,7 @@ preconditioner matrices should approximate :math:`A`.
       * *r* -- the right-hand side vector of the linear system.
       * *z* -- the computed output solution vector.
       * *gamma* -- the scalar :math:`\gamma` appearing in the Newton
-        matrix given by :math:`A=M-\gamma J`.
+        matrix given by :math:`\mathcal{A}=M(t)-\gamma J(t,y)`.
       * *delta* -- an input tolerance to be used if an iterative method
         is employed in the solution.  In that case, the residual vector
         :math:`Res = r-Pz` of the system should be made to be less than *delta*
@@ -743,7 +745,7 @@ user-supplied function of type :c:type:`ARKLsPrecSetupFn`.
         ``SUNTRUE`` if Jacobian data was recomputed, or set to ``SUNFALSE`` if
         Jacobian data was not recomputed, but saved data was still reused.
       * *gamma* -- the scalar :math:`\gamma` appearing in the Newton
-        matrix given by :math:`A=M-\gamma J`.
+        matrix given by :math:`\mathcal{A}=M(t)-\gamma J(t,y)`.
       * *user_data* -- a pointer to user data, the same as the
         *user_data* parameter that was passed to :c:func:`ARKStepSetUserData()`.
 
@@ -756,8 +758,8 @@ user-supplied function of type :c:type:`ARKLsPrecSetupFn`.
 
    **Notes:**  The operations performed by this function might include
    forming a crude approximate Jacobian, and performing an LU
-   factorization of the resulting approximation to :math:`A = M -
-   \gamma J`.
+   factorization of the resulting approximation to :math:`\mathcal{A} = M(t) -
+   \gamma J(t,y)`.
 
    Each call to the preconditioner setup function is preceded by a
    call to the implicit :c:type:`ARKRhsFn` user function with the
@@ -796,7 +798,7 @@ approximation.
 
 .. c:type:: typedef int (*ARKLsMassFn)(realtype t, SUNMatrix M, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 
-   This function computes the mass matrix :math:`M` (or an approximation to it).
+   This function computes the mass matrix :math:`M(t)` (or an approximation to it).
 
    **Arguments:**
       * *t* -- the current value of the independent variable.
@@ -820,31 +822,15 @@ approximation.
    implementation-specific ``SUNMatrix`` interface functions
    (see the section :ref:`SUNMatrix` for details).
 
-   ..
-      Prior to calling the user-supplied mass matrix function, the mass
-      matrix :math:`M(t)` is zeroed out, so only nonzero elements need to
-      be loaded into *M*.
-
    Prior to calling the user-supplied mass matrix function, the mass
-   matrix :math:`M` is zeroed out, so only nonzero elements need to
+   matrix :math:`M(t)` is zeroed out, so only nonzero elements need to
    be loaded into *M*.
 
    **dense**:
 
-   ..
-      A user-supplied dense mass matrix function must load the *N* by *N*
-      dense matrix *M* with an approximation to the mass matrix
-      :math:`M(t)`. As discussed above in section :ref:`ARKStep_CInterface.JacobianFn`,
-      the accessor macros ``SM_ELEMENT_D`` and ``SM_COLUMN_D`` allow the user
-      to read and write dense matrix elements without making explicit
-      references to the underlying representation of the SUNMATRIX_DENSE
-      type. Similarly, the SUNMATRIX_DENSE type and accessor macros
-      ``SM_ELEMENT_D`` and ``SM_COLUMN_D`` are documented in the section
-      :ref:`SUNMatrix_Dense`.
-
    A user-supplied dense mass matrix function must load the *N* by *N*
    dense matrix *M* with an approximation to the mass matrix
-   :math:`M`. As discussed above in section :ref:`ARKStep_CInterface.JacobianFn`,
+   :math:`M(t)`. As discussed above in section :ref:`ARKStep_CInterface.JacobianFn`,
    the accessor macros ``SM_ELEMENT_D`` and ``SM_COLUMN_D`` allow the user
    to read and write dense matrix elements without making explicit
    references to the underlying representation of the SUNMATRIX_DENSE
@@ -854,21 +840,9 @@ approximation.
 
    **band**:
 
-   ..
-      A user-supplied banded mass matrix function must load
-      the band matrix *M* with the elements of the mass matrix
-      :math:`M(t)`. As discussed above in section
-      :ref:`ARKStep_CInterface.JacobianFn`, the accessor macros ``SM_ELEMENT_B``,
-      ``SM_COLUMN_B``, and ``SM_COLUMN_ELEMENT_B`` allow the user to read
-      and write band matrix elements without making specific references
-      to the underlying representation of the SUNMATRIX_BAND type.
-      Similarly, the SUNMATRIX_BAND type and the accessor macros ``SM_ELEMENT_B``,
-      ``SM_COLUMN_B``, and ``SM_COLUMN_ELEMENT_B`` are documented in the section
-      :ref:`SUNMatrix_Band`.
-
    A user-supplied banded mass matrix function must load
    the band matrix *M* with the elements of the mass matrix
-   :math:`M`. As discussed above in section
+   :math:`M(t)`. As discussed above in section
    :ref:`ARKStep_CInterface.JacobianFn`, the accessor macros ``SM_ELEMENT_B``,
    ``SM_COLUMN_B``, and ``SM_COLUMN_ELEMENT_B`` allow the user to read
    and write band matrix elements without making specific references
@@ -879,23 +853,9 @@ approximation.
 
    **sparse**:
 
-   ..
-      A user-supplied sparse mass matrix function must load the
-      compressed-sparse-column (CSR) or compressed-sparse-row (CSR)
-      matrix *M* with an approximation to the mass matrix :math:`M(t)`.
-      Storage for *M* already exists on entry to this function, although
-      the user should ensure that sufficient space is allocated in *M*
-      to hold the nonzero values to be set; if the existing space is
-      insufficient the user may reallocate the data and row index arrays
-      as needed.  The type of *M* is SUNMATRIX_SPARSE, and the amount of
-      allocated space in a SUNMATRIX_SPARSE object may be
-      accessed using the macro ``SM_NNZ_S`` or the routine
-      :c:func:`SUNSparseMatrix_NNZ()`.  The SUNMATRIX_SPARSE type is
-      further documented in the section :ref:`SUNMatrix_Sparse`.
-
    A user-supplied sparse mass matrix function must load the
    compressed-sparse-column (CSR) or compressed-sparse-row (CSR)
-   matrix *M* with an approximation to the mass matrix :math:`M`.
+   matrix *M* with an approximation to the mass matrix :math:`M(t)`.
    Storage for *M* already exists on entry to this function, although
    the user should ensure that sufficient space is allocated in *M*
    to hold the nonzero values to be set; if the existing space is
@@ -905,6 +865,7 @@ approximation.
    accessed using the macro ``SM_NNZ_S`` or the routine
    :c:func:`SUNSparseMatrix_NNZ()`.  The SUNMATRIX_SPARSE type is
    further documented in the section :ref:`SUNMatrix_Sparse`.
+
 
 
 
@@ -918,13 +879,13 @@ systems (i.e., a NULL-valued SUNMATRIX argument was supplied to
 :c:func:`ARKStepSetMassLinearSolver()` in the section
 :ref:`ARKStep_CInterface.Skeleton`), the user *must* provide a
 function of type :c:type:`ARKLsMassTimesVecFn` in the following form, to
-compute matrix-vector products :math:`Mv`.
+compute matrix-vector products :math:`M(t)\, v`.
 
 
 
 .. c:type:: typedef int (*ARKLsMassTimesVecFn)(N_Vector v, N_Vector Mv, realtype t, void* mtimes_data)
 
-   This function computes the product :math:`M*v` (or an approximation to it).
+   This function computes the product :math:`M(t)\, v` (or an approximation to it).
 
    **Arguments:**
       * *v* -- the vector to multiply.
@@ -981,9 +942,9 @@ solver module for mass matrix linear systems, then the user must
 provide a function of type :c:type:`ARKLsMassPrecSolveFn` to solve the
 linear system :math:`Pz=r`, where :math:`P` may be either a left or right
 preconditioning matrix.  Here :math:`P` should approximate (at least
-crudely) the mass matrix :math:`M`.  If preconditioning is done on
+crudely) the mass matrix :math:`M(t)`.  If preconditioning is done on
 both sides, the product of the two preconditioner matrices should
-approximate :math:`M`.
+approximate :math:`M(t)`.
 
 
 .. c:type:: typedef int (*ARKLsMassPrecSolveFn)(realtype t, N_Vector r, N_Vector z, realtype delta, int lr, void* user_data)
