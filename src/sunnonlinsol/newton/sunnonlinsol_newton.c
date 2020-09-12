@@ -212,8 +212,9 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   /* assume the Jacobian is good */
   jbad = SUNFALSE;
 
-  /* initialize total iteration counter for this solve */
-  NEWTON_CONTENT(NLS)->niters = 0;
+  /* initialize iteration and convergence fail counters for this solve */
+  NEWTON_CONTENT(NLS)->niters     = 0;
+  NEWTON_CONTENT(NLS)->nconvfails = 0;
 
   /* looping point for attempts at solution of the nonlinear system:
        Evaluate the nonlinear residual function (store in delta)

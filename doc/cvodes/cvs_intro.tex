@@ -119,14 +119,20 @@ writing in C|)}
 
 \subsection*{Changes in v5.x.x}
 
-The expected behavior of the \id{SUNNonlinSolGetNumIters} function in the
-{\sunnonlinsol} API has been updated to specify that it should return the
-number of nonlinear solver iterations in most recent solve rather than the
-cumulative number of iterations across all solves. The API documentation and
-{\sundials} provided {\sunnonlinsol} implementations and have been updated
-accordingly. As before, the cumulative number of nonlinear iterations may be
-retreived by calling \id{CVGetNumNonlinSolvIters}, \id{CVGetNonlinSolvStats},
-\id{CVGetSensNumNonlinSolvIters}, or \id{CVGetSensNonlinSolvStats}.
+The expected behavior of \id{SUNNonlinSolGetNumIters} and
+\id{SUNNonlinSolGetNumConvFails} in the {\sunnonlinsol} API have been updated to
+specify that they should return the number of nonlinear solver iterations and
+convergence failures in the most recent solve respectively rather than the
+cumulative number of iterations and failures across all solves respectively. The
+API documentation and {\sundials} provided {\sunnonlinsol} implementations have
+been updated accordingly. As before, the cumulative number of nonlinear
+iterations may be retreived by calling \id{CVodeGetNumNonlinSolvIters},
+\id{CVodeGetSensNumNonlinSolvIters}, \id{CVodeGetStgrSensNumNonlinSolvIters},
+the cumulative number of failures with \id{CVodeGetNumNonlinSolvConvFails},
+\id{CVodeGetSensNumNonlinSolvConvFails},
+\id{CVodeGetStgrSensNumNonlinSolvConvFails}, or both with
+\id{CVodeGetNonlinSolvStats}, \id{CVodeGetSensNonlinSolvStats},
+\id{CVodeGetStgrSensNonlinSolvStats}.
 
 The \id{NVECTOR\_RAJA} module has been updated to mirror the \id{NVECTOR\_CUDA}
 module. Notably, the update adds managed memory support to the

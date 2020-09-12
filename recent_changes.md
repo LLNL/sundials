@@ -10,13 +10,15 @@ integration history. These function complement the reinitialization functions
 the stepper so that the problem integration should resume as if started from
 scratch.
 
-The expected behavior of the `SUNNonlinSolGetNumIters` function in the
-SUNNonlinearSolver API has been updated to specify that it should return the
-number of nonlinear solver iterations in most recent solve rather than the
-cumulative number of iterations across all solves. The API documentation and
-SUNDIALS provided SUNNonlinearSolver implementations and have been updated
-accordingly. As before, the cumulative number of nonlinear iterations may be
-retreived by calling the integrator provided get functions.
+The expected behavior of `SUNNonlinSolGetNumIters` and
+`SUNNonlinSolGetNumConvFails` in the SUNNonlinearSolver API have been updated to
+specify that they should return the number of nonlinear solver iterations and
+convergence failures in the most recent solve respectively rather than the
+cumulative number of iterations and failures across all solves respectively. The
+API documentation and SUNDIALS provided SUNNonlinearSolver implementations and
+have been updated accordingly. As before, the cumulative number of nonlinear
+iterations and failures may be retreived by calling the integrator provided get
+functions.
 
 Updated the MRIStep time-stepping module in ARKode to support
 higher-order MRI-GARK methods [Sandu, SIAM J. Numer. Anal., 57, 2019],

@@ -377,13 +377,16 @@ SUNDIALS_EXPORT int CVodeGetSensNumNonlinSolvIters(void *cvode_mem,
                                                    long int *nSniters);
 SUNDIALS_EXPORT int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem,
                                                        long int *nSncfails);
+SUNDIALS_EXPORT int CVodeGetSensNonlinSolvStats(void *cvode_mem,
+                                                long int *nSniters,
+                                                long int *nSncfails);
 SUNDIALS_EXPORT int CVodeGetStgrSensNumNonlinSolvIters(void *cvode_mem,
                                                        long int *nSTGR1niters);
 SUNDIALS_EXPORT int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem,
                                                            long int *nSTGR1ncfails);
-SUNDIALS_EXPORT int CVodeGetSensNonlinSolvStats(void *cvode_mem,
-                                                long int *nSniters,
-                                                long int *nSncfails);
+SUNDIALS_EXPORT int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem,
+                                                    long int *nSTGR1niters,
+                                                    long int *nSTGR1ncfails);
 
 /* Free function */
 SUNDIALS_EXPORT void CVodeSensFree(void *cvode_mem);

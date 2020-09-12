@@ -206,8 +206,9 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
   gy    = FP_CONTENT(NLS)->gy;
   delta = FP_CONTENT(NLS)->delta;
 
-  /* initialize total iteration counter for this solve */
-  FP_CONTENT(NLS)->niters = 0;
+  /* initialize iteration and convergence fail counters for this solve */
+  FP_CONTENT(NLS)->niters     = 0;
+  FP_CONTENT(NLS)->nconvfails = 0;
 
 #ifdef SUNDIALS_BUILD_WITH_MONITORING
       /* print current iteration number and the nonlinear residual */

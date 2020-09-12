@@ -314,10 +314,10 @@ solver otherwise, ``SUNNonlinSolGetCurIter`` is optional.
 
  .. c:function:: int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int *nconvfails)
 
-   The *optional* function :c:func:`SUNNonlinSolGetNumConvFails()` returns
-   the total number of nonlinear solver convergence failures. This may be
-   called by the SUNDIALS integrator to store the nonlinear solver
-   statistics, but may also be called by the user.
+   The *optional* function :c:func:`SUNNonlinSolGetNumConvFails()` returns the
+   number of nonlinear solver convergence failures in the most recent solve.
+   This is typically called by the SUNDIALS integrator to store the nonlinear
+   solver statistics, but may also be called by the user.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object

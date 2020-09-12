@@ -1783,6 +1783,33 @@ int CVodeGetSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSncfails)
 
 /*-----------------------------------------------------------------*/
 
+int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
+                                long int *nSncfails)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeGetSensNonlinSolvStats", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (cv_mem->cv_sensi==SUNFALSE) {
+    cvProcessError(cv_mem, CV_NO_SENS, "CVODES",
+                   "CVodeGetSensNonlinSolvStats", MSGCV_NO_SENSI);
+    return(CV_NO_SENS);
+  }
+
+  *nSniters  = cv_mem->cv_nniS;
+  *nSncfails = cv_mem->cv_ncfnS;
+
+  return(CV_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
 int CVodeGetStgrSensNumNonlinSolvIters(void *cvode_mem, long int *nSTGR1niters)
 {
   CVodeMem cv_mem;
@@ -1837,27 +1864,33 @@ int CVodeGetStgrSensNumNonlinSolvConvFails(void *cvode_mem, long int *nSTGR1ncfa
 
 /*-----------------------------------------------------------------*/
 
-int CVodeGetSensNonlinSolvStats(void *cvode_mem, long int *nSniters,
-                                long int *nSncfails)
+int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem,
+                                    long int *nSTGR1niters,
+                                    long int *nSTGR1ncfails)
 {
   CVodeMem cv_mem;
+  int is, Ns;
 
-  if (cvode_mem==NULL) {
+  if (cvode_mem == NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES",
-                   "CVodeGetSensNonlinSolvstats", MSGCV_NO_MEM);
+                   "CVodeGetStgrSensNonlinSolvStats", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (cv_mem->cv_sensi==SUNFALSE) {
+  Ns = cv_mem->cv_Ns;
+
+  if (cv_mem->cv_sensi == SUNFALSE) {
     cvProcessError(cv_mem, CV_NO_SENS, "CVODES",
-                   "CVodeGetSensNonlinSolvStats", MSGCV_NO_SENSI);
+                   "CVodeGetStgrSensNonlinSolvStats", MSGCV_NO_SENSI);
     return(CV_NO_SENS);
   }
 
-  *nSniters  = cv_mem->cv_nniS;
-  *nSncfails = cv_mem->cv_ncfnS;
+  if(cv_mem->cv_ism == CV_STAGGERED1) {
+    for(is=0; is<Ns; is++) nSTGR1niters[is]  = cv_mem->cv_nniS1[is];
+    for(is=0; is<Ns; is++) nSTGR1ncfails[is] = cv_mem->cv_ncfnS1[is];
+  }
 
   return(CV_SUCCESS);
 }

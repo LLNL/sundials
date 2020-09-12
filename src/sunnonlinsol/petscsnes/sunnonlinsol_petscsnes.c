@@ -180,6 +180,9 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS,
    * accessed in the system function */
   SUNNLS_SNES_CONTENT(NLS)->imem = mem;
 
+  /* reset convergence failure count */
+  SUNNLS_SNES_CONTENT(NLS)->nconvfails = 0;
+
   /* call petsc SNES solve */
   ierr = SNESSolve(SUNNLS_SNESOBJ(NLS), NULL, N_VGetVector_Petsc(y));
 

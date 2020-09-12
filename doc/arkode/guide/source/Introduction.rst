@@ -118,13 +118,16 @@ reinitialization functions :c:func:`ARKStepReInit()`, :c:func:`ERKStepReInit()`,
 and :c:func:`MRIStepReInit()` which reinitialize the stepper so that the problem
 integration should resume as if started from scratch.
 
-The expected behavior of the :c:func:`SUNNonlinSolGetNumIters()` function in the
-SUNNonlinearSolver API has been updated to specify that it should return the
-number of nonlinear solver iterations in most recent solve rather than the
-cumulative number of iterations across all solves. The API documentation and
-SUNDIALS provided SUNNonlinearSolver implementations have been updated
-accordingly. As before, the cumulative number of nonlinear iterations may be
-retrieved by calling :c:func:`ARKStepGetNumNonlinSolvIters()` or
+The expected behavior of :c:func:`SUNNonlinSolGetNumIters()` and
+:c:func:`SUNNonlinSolGetNumConvFails()` in the SUNNonlinearSolver API have been
+updated to specify that they should return the number of nonlinear solver
+iterations and convergence failures in the most recent solve respectively rather
+than the cumulative number of iterations and failures across all solves
+respectively. The API documentation and SUNDIALS provided SUNNonlinearSolver
+implementations have been updated accordingly. As before, the cumulative number
+of nonlinear iterations may be retrieved by calling
+:c:func:`ARKStepGetNumNonlinSolvIters()`, the cumulative number of failures with
+:c:func:`ARKStepGetNumNonlinSolvConvFails()`, or both with
 :c:func:`ARKStepGetNonlinSolvStats()`.
 
 Updated the MRIStep time-stepping module in ARKode to support
