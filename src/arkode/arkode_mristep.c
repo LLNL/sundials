@@ -1751,10 +1751,10 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
   * cdiff*h, the temporal width of this MRIStep stage
   * n -- shorthand for MRIC->nmat
 
-  MRI-based methods define this forcing polynomial for each outer
-  stage i:
+  explicit and solve-decoupled implicit MRI-based methods define
+  this forcing polynomial for each outer stage i:
 
-    p_i(theta) = a_i,0(theta)*fs_0 + ... + a_i,i(theta)*fs_i
+    p_i(theta) = a_i,0(theta)*fs_0 + ... + a_i,{i-1}(theta)*fs_{i-1}
 
   where
 
@@ -1763,15 +1763,15 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 
   Converting to the appropriate form, we have
 
-    p_i(theta) = (a_0,i,0*fs_0 + ... + a_0,i,i*fs_i)*theta^0
-               + (a_1,i,0*fs_0 + ... + a_1,i,i*fs_i)*theta^1
+    p_i(theta) = (a_0,i,0*fs_0 + ... + a_0,i,{i-1}*fs_{i-1})*theta^0
+               + (a_1,i,0*fs_0 + ... + a_1,i,{i-1}*fs_{i-1})*theta^1
                + ...
-               + (a_n,i,0*fs_0 + ... + a_n,i,i*fs_i)*theta^{n-1}
+               + (a_n,i,0*fs_0 + ... + a_n,i,{i-1}*fs_{i-1})*theta^{n-1}
 
   Thus we define the forcing vectors for j=1,...,nvec
 
-    forcing[j] = a_k,i,0*fs_0 + ... + a_k,i,i*fs_i
-               = 1/cdiff*(G[k][i][0]*fs_0 + ... + G[k][i][i]*fs_i)
+    forcing[j] = a_k,i,0*fs_0 + ... + a_k,i,{i-1}*fs_{i-1}
+               = 1/cdiff*(G[k][i][0]*fs_0 + ... + G[k][i][i-1]*fs_{i-1})
 
   This routine additionally returns a success/failure flag:
      ARK_SUCCESS -- successful evaluation
@@ -1792,11 +1792,11 @@ int mriStep_ComputeInnerForcing(ARKodeMRIStepMem step_mem,
   /* compute inner forcing vectors (assumes cdiff != 0) */
   rcdiff = ONE / cdiff;
   nvec = step_mem->MRIC->nmat;
-  for (j=0; j<=i; j++)  Xvecs[j] = step_mem->F[j];
+  for (j=0; j<i; j++)  Xvecs[j] = step_mem->F[j];
   for (k=0; k<nvec; k++) {
-    for (j=0; j<=i; j++)
+    for (j=0; j<i; j++)
       cvals[j] = rcdiff * step_mem->MRIC->G[k][i][j];
-    retval = N_VLinearCombination(i+1, cvals, Xvecs,
+    retval = N_VLinearCombination(i, cvals, Xvecs,
                                   step_mem->inner_forcing[k]);
     if (retval != 0) return(ARK_VECTOROP_ERR);
   }
