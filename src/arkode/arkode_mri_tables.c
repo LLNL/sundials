@@ -423,6 +423,7 @@ void MRIStepCoupling_Free(MRIStepCoupling MRIC)
               free(MRIC->G[k][i]);
               MRIC->G[k][i] = NULL;
             }
+          free(MRIC->G[k]);
           MRIC->G[k] = NULL;
         }
       free(MRIC->G);
