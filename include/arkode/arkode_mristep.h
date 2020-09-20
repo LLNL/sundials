@@ -218,6 +218,8 @@ SUNDIALS_EXPORT int MRIStepSetMaxStepsBetweenJac(void *arkode_mem,
 SUNDIALS_EXPORT int MRIStepSetLinearSolutionScaling(void *arkode_mem,
                                                     booleantype onoff);
 SUNDIALS_EXPORT int MRIStepSetEpsLin(void *arkode_mem, realtype eplifac);
+SUNDIALS_EXPORT int MRIStepSetLSNormFactor(void *arkode_mem,
+                                           realtype nrmfac);
 SUNDIALS_EXPORT int MRIStepSetPreconditioner(void *arkode_mem,
                                              ARKLsPrecSetupFn psetup,
                                              ARKLsPrecSolveFn psolve);

@@ -316,9 +316,9 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
     return(CVLS_MEM_FAIL);
   }
 
-  /* For iterative LS, compute sqrtN */
+  /* For iterative LS, compute default norm conversion factor */
   if (iterative)
-    cvls_mem->sqrtN = SUNRsqrt( N_VGetLength(cvls_mem->ytemp) );
+    cvls_mem->nrmfac = SUNRsqrt( N_VGetLength(cvls_mem->ytemp) );
 
   /* Check if soltuion scaling should be enabled */
   if (matrixbased && cv_mem->cv_lmm == CV_BDF)
@@ -397,6 +397,35 @@ int CVodeSetEpsLin(void *cvode_mem, realtype eplifac)
   }
 
   cvls_mem->eplifac = (eplifac == ZERO) ? CVLS_EPLIN : eplifac;
+
+  return(CVLS_SUCCESS);
+}
+
+
+/* CVodeSetLSNormFactor sets or computes the factor to use when converting from
+   the integrator tolerance to the linear solver tolerance (WRMS to L2 norm). */
+int CVodeSetLSNormFactor(void *cvode_mem, realtype nrmfac)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeSetLSNormFactor",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS) return(retval);
+
+  if (nrmfac > ZERO) {
+    /* user-provided factor */
+    cvls_mem->nrmfac = nrmfac;
+  } else if (nrmfac < ZERO) {
+    /* compute factor for WRMS norm with dot product */
+    N_VConst(ONE, cvls_mem->ytemp);
+    cvls_mem->nrmfac = SUNRsqrt(N_VDotProd(cvls_mem->ytemp, cvls_mem->ytemp));
+  } else {
+    /* compute default factor for WRMS norm from vector legnth */
+    cvls_mem->nrmfac = SUNRsqrt(N_VGetLength(cvls_mem->ytemp));
+  }
 
   return(CVLS_SUCCESS);
 }
@@ -1608,7 +1637,8 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
       cvls_mem->last_flag = CVLS_SUCCESS;
       return(cvls_mem->last_flag);
     }
-    delta = deltar * cvls_mem->sqrtN;
+    /* Adjust tolerance for 2-norm */
+    delta = deltar * cvls_mem->nrmfac;
   } else {
     delta = ZERO;
   }
@@ -2000,6 +2030,26 @@ int CVodeSetEpsLinB(void *cvode_mem, int which, realtype eplifacB)
   /* call corresponding routine for cvodeB_mem structure */
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
   return(CVodeSetEpsLin(cvodeB_mem, eplifacB));
+}
+
+
+int CVodeSetLSNormFactorB(void *cvode_mem, int which, realtype nrmfacB)
+{
+  CVodeMem  cv_mem;
+  CVadjMem  ca_mem;
+  CVodeBMem cvB_mem;
+  CVLsMemB  cvlsB_mem;
+  void      *cvodeB_mem;
+  int       retval;
+
+  /* access relevant memory structures */
+  retval = cvLs_AccessLMemB(cvode_mem, which, "CVodeSetLSNormFactorB",
+                            &cv_mem, &ca_mem, &cvB_mem, &cvlsB_mem);
+  if (retval != CVLS_SUCCESS) return(retval);
+
+  /* call corresponding routine for cvodeB_mem structure */
+  cvodeB_mem = (void *) (cvB_mem->cv_mem);
+  return(CVodeSetLSNormFactor(cvodeB_mem, nrmfacB));
 }
 
 

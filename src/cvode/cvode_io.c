@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -17,14 +13,13 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the optional input and output
  * functions for the CVODE solver.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "cvode_impl.h"
-#include <sundials/sundials_types.h>
+#include "sundials/sundials_types.h"
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -620,6 +615,12 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
 
   return(CV_SUCCESS);
 }
+
+/*
+ * CVodeSetUseIntegratorFusedKernels
+ *
+ * Enable or disable integrator specific fused kernels
+ */
 
 int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, booleantype onoff)
 {

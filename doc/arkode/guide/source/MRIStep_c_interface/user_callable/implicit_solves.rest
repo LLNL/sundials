@@ -587,12 +587,13 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
 
 .. cssclass:: table-bordered
 
-==================================================  =========================================  ==================
-Optional input                                      Function name                              Default
-==================================================  =========================================  ==================
-Newton preconditioning functions                    :c:func:`MRIStepSetPreconditioner()`       ``NULL``, ``NULL``
-Newton linear and nonlinear tolerance ratio         :c:func:`MRIStepSetEpsLin()`               0.05
-==================================================  =========================================  ==================
+===============================================  =========================================  ==================
+Optional input                                   Function name                              Default
+===============================================  =========================================  ==================
+Newton preconditioning functions                 :c:func:`MRIStepSetPreconditioner()`       ``NULL``, ``NULL``
+Newton linear and nonlinear tolerance ratio      :c:func:`MRIStepSetEpsLin()`               0.05
+Newton linear solve tolerance conversion factor  :c:func:`MRIStepSetLSNormFactor()`         vector length
+===============================================  =========================================  ==================
 
 
 As described in the section :ref:`Mathematics.Linear`, when using
@@ -675,3 +676,31 @@ the user through the :c:func:`MRIStepSetEpsLin()` function.
    This function must be called *after* the ARKLS system solver
    interface has been initialized through a call to
    :c:func:`MRIStepSetLinearSolver()`.
+
+
+.. c:function:: int MRIStepSetLSNormFactor(void* arkode_mem, realtype nrmfac)
+
+   Specifies the factor to use when converting from the integrator tolerance
+   (WRMS norm) to the linear solver tolerance (L2 norm) for Newton linear system
+   solves e.g., ``tol_L2 = fac * tol_WRMS``.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+      * *nrmfac* -- the norm conversion factor. If *nrmfac* is:
+
+        :math:`> 0` then the provided value is used.
+
+        :math:`= 0` then the conversion factor is computed using the vector
+        length i.e., ``nrmfac = sqrt(N_VGetLength(y))`` (*default*).
+
+        :math:`< 0` then the conversion factor is computed using the vector dot
+        product i.e., ``nrmfac = sqrt(N_VDotProd(v,v))`` where all the entries
+        of ``v`` are one.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful.
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``.
+
+   **Notes:**
+   This function must be called *after* the ARKLS system solver interface has
+   been initialized through a call to :c:func:`MRIStepSetLinearSolver()`.

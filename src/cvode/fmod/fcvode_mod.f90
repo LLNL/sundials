@@ -168,6 +168,7 @@ module fcvode_mod
  public :: FCVodeSetMaxStepsBetweenJac
  public :: FCVodeSetLinearSolutionScaling
  public :: FCVodeSetEpsLin
+ public :: FCVodeSetLSNormFactor
  public :: FCVodeSetPreconditioner
  public :: FCVodeSetJacTimes
  public :: FCVodeSetLinSysFn
@@ -890,6 +891,15 @@ end function
 
 function swigc_FCVodeSetEpsLin(farg1, farg2) &
 bind(C, name="_wrap_FCVodeSetEpsLin") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetLSNormFactor(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetLSNormFactor") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2408,6 +2418,22 @@ real(C_DOUBLE) :: farg2
 farg1 = cvode_mem
 farg2 = eplifac
 fresult = swigc_FCVodeSetEpsLin(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetLSNormFactor(arkode_mem, nrmfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: nrmfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nrmfac
+fresult = swigc_FCVodeSetLSNormFactor(farg1, farg2)
 swig_result = fresult
 end function
 

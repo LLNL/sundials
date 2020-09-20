@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Alan Hindmarsh, Radu Serban and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,15 +14,14 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the optional inputs and
  * outputs for the IDA solver.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "ida_impl.h"
-
-#include <sundials/sundials_math.h>
+#include "sundials/sundials_types.h"
+#include "sundials/sundials_math.h"
 
 #define ZERO    RCONST(0.0)
 #define HALF    RCONST(0.5)

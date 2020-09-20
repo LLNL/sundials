@@ -67,8 +67,8 @@ typedef struct CVLsMemRec {
   booleantype scalesol;
 
   /* Iterative solver tolerance */
-  realtype sqrtN;     /* sqrt(N)                                      */
-  realtype eplifac;   /* eplifac = user specified or EPLIN_DEFAULT    */
+  realtype eplifac;   /* nonlinear -> linear tol scaling factor       */
+  realtype nrmfac;    /* integrator -> LS norm conversion factor      */
 
   /* Linear solver, matrix and vector objects/pointers */
   SUNLinearSolver LS; /* generic linear solver object                 */

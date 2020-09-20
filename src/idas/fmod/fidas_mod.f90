@@ -317,6 +317,7 @@ module fidas_mod
  public :: FIDASetPreconditioner
  public :: FIDASetJacTimes
  public :: FIDASetEpsLin
+ public :: FIDASetLSNormFactor
  public :: FIDASetLinearSolutionScaling
  public :: FIDASetIncrementFactor
  public :: FIDAGetLinWorkSpace
@@ -334,6 +335,7 @@ module fidas_mod
  public :: FIDASetJacFnB
  public :: FIDASetJacFnBS
  public :: FIDASetEpsLinB
+ public :: FIDASetLSNormFactorB
  public :: FIDASetLinearSolutionScalingB
  public :: FIDASetIncrementFactorB
  public :: FIDASetPreconditionerB
@@ -2189,6 +2191,15 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FIDASetLSNormFactor(farg1, farg2) &
+bind(C, name="_wrap_FIDASetLSNormFactor") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FIDASetLinearSolutionScaling(farg1, farg2) &
 bind(C, name="_wrap_FIDASetLinearSolutionScaling") &
 result(fresult)
@@ -2340,6 +2351,16 @@ end function
 
 function swigc_FIDASetEpsLinB(farg1, farg2, farg3) &
 bind(C, name="_wrap_FIDASetEpsLinB") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetLSNormFactorB(farg1, farg2, farg3) &
+bind(C, name="_wrap_FIDASetLSNormFactorB") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -5842,6 +5863,22 @@ fresult = swigc_FIDASetEpsLin(farg1, farg2)
 swig_result = fresult
 end function
 
+function FIDASetLSNormFactor(ida_mem, nrmfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: nrmfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = nrmfac
+fresult = swigc_FIDASetLSNormFactor(farg1, farg2)
+swig_result = fresult
+end function
+
 function FIDASetLinearSolutionScaling(ida_mem, onoff) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -6127,6 +6164,25 @@ farg1 = ida_mem
 farg2 = which
 farg3 = eplifacb
 fresult = swigc_FIDASetEpsLinB(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FIDASetLSNormFactorB(ida_mem, which, nrmfacb) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+integer(C_INT), intent(in) :: which
+real(C_DOUBLE), intent(in) :: nrmfacb
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+real(C_DOUBLE) :: farg3 
+
+farg1 = ida_mem
+farg2 = which
+farg3 = nrmfacb
+fresult = swigc_FIDASetLSNormFactorB(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

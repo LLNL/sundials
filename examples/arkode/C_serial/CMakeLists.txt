@@ -28,6 +28,8 @@ set(ARKODE_examples
   "ark_heat1D\;\;develop"
   "ark_heat1D_adapt\;\;develop"
   "ark_KrylovDemo_prec\;\;develop"
+  "ark_KrylovDemo_prec\;1\;develop"
+  "ark_KrylovDemo_prec\;2\;develop"
   "ark_robertson\;\;develop"
   "ark_robertson_constraints\;\;develop"
   "ark_robertson_root\;\;develop"

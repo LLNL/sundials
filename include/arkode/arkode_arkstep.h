@@ -57,7 +57,7 @@ extern "C" {
 #define DEFAULT_ARK_ITABLE_4    ARK436L2SA_DIRK_6_3_4
 #define DEFAULT_ARK_ITABLE_5    ARK548L2SA_DIRK_8_4_5
 
-/* backwards-compatibility */  
+/* backwards-compatibility */
 typedef ARKStagePredictFn ARKStepStagePredictFn;
 
 /* -------------------
@@ -227,6 +227,10 @@ SUNDIALS_EXPORT int ARKStepSetLinearSolutionScaling(void *arkode_mem,
                                                     booleantype onoff);
 SUNDIALS_EXPORT int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac);
+SUNDIALS_EXPORT int ARKStepSetLSNormFactor(void *arkode_mem,
+                                           realtype nrmfac);
+SUNDIALS_EXPORT int ARKStepSetMassLSNormFactor(void *arkode_mem,
+                                               realtype nrmfac);
 SUNDIALS_EXPORT int ARKStepSetPreconditioner(void *arkode_mem,
                                              ARKLsPrecSetupFn psetup,
                                              ARKLsPrecSolveFn psolve);

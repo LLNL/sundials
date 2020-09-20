@@ -57,8 +57,8 @@ typedef struct IDALsMemRec {
   booleantype scalesol;
 
   /* Iterative solver tolerance */
-  realtype sqrtN;     /* sqrt(N)                                      */
-  realtype eplifac;   /* eplifac = linear convergence factor          */
+  realtype eplifac;   /* nonlinear -> linear tol scaling factor       */
+  realtype nrmfac;    /* integrator -> LS norm conversion factor      */
 
   /* Statistics and associated parameters */
   realtype dqincfac;  /* dqincfac = optional increment factor in Jv   */

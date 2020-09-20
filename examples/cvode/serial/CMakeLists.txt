@@ -26,6 +26,8 @@ set(CVODE_examples
   "cvDiurnal_kry\;\;develop"
   "cvDisc_dns\;\;develop"
   "cvKrylovDemo_ls\;\;develop"
+  "cvKrylovDemo_ls\;1\;develop"
+  "cvKrylovDemo_ls\;2\;develop"
   "cvKrylovDemo_prec\;\;develop"
   "cvParticle_dns\;\;develop"
   "cvPendulum_dns\;\;develop"
@@ -37,7 +39,7 @@ set(CVODE_examples
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND CVODE_examples "cvKrylovDemo_ls\;1\;develop")
+  list(APPEND CVODE_examples "cvKrylovDemo_ls\;0 1\;develop")
 endif()
 
 # Examples using LAPACK linear solvers
@@ -302,6 +304,19 @@ if(SUPERLUMT_FOUND)
       set(test_name ${example})
     else()
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
+
+    # Do not include SuperLUMT examples in testing when the indextype is int64_t.
+    # Answer files were generated with int32_t and minor differences in output
+    # occur causing a false positive when testing. These tests can be re-enabled
+    # when type specific answer files are added.
+    if(SUNDIALS_INDEX_SIZE MATCHES "32")
+      # add example to regression tests
+      sundials_add_test(${test_name} ${example}
+        TEST_ARGS ${example_args}
+        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        ANSWER_FILE ${test_name}.out
+        EXAMPLE_TYPE ${example_type})
     endif()
 
     # find all .out files for this example

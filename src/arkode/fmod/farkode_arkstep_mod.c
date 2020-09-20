@@ -1295,6 +1295,34 @@ SWIGEXPORT int _wrap_FARKStepSetMassEpsLin(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FARKStepSetLSNormFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)ARKStepSetLSNormFactor(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetMassLSNormFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)ARKStepSetMassLSNormFactor(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetPreconditioner(void *farg1, ARKLsPrecSetupFn farg2, ARKLsPrecSolveFn farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

@@ -3213,6 +3213,20 @@ SWIGEXPORT int _wrap_FIDASetEpsLin(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FIDASetLSNormFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)IDASetLSNormFactor(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FIDASetLinearSolutionScaling(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -3457,6 +3471,22 @@ SWIGEXPORT int _wrap_FIDASetEpsLinB(void *farg1, int const *farg2, double const 
   arg2 = (int)(*farg2);
   arg3 = (realtype)(*farg3);
   result = (int)IDASetEpsLinB(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetLSNormFactorB(void *farg1, int const *farg2, double const *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  realtype arg3 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (realtype)(*farg3);
+  result = (int)IDASetLSNormFactorB(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

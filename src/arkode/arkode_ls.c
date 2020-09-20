@@ -247,9 +247,9 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     return(ARKLS_MEM_FAIL);
   }
 
-  /* For iterative LS, compute sqrtN */
+  /* For iterative LS, compute default norm conversion factor */
   if (iterative)
-    arkls_mem->sqrtN = SUNRsqrt( N_VGetLength(arkls_mem->ytemp) );
+    arkls_mem->nrmfac = SUNRsqrt( N_VGetLength(arkls_mem->ytemp) );
 
   /* For matrix-based LS, enable soltuion scaling */
   if (matrixbased)
@@ -452,9 +452,9 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     return(ARKLS_MEM_FAIL);
   }
 
-  /* For iterative LS, compute sqrtN */
+  /* For iterative LS, compute default norm conversion factor */
   if (iterative)
-    arkls_mem->sqrtN = SUNRsqrt( N_VGetLength(arkls_mem->x) );
+    arkls_mem->nrmfac = SUNRsqrt( N_VGetLength(arkls_mem->x) );
 
   /* Attach ARKLs interface to time stepper module */
   retval = ark_mem->step_attachmasssol(arkode_mem, arkLsMassInitialize,
@@ -568,6 +568,38 @@ int arkLSSetEpsLin(void *arkode_mem, realtype eplifac)
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   arkls_mem->eplifac = (eplifac <= ZERO) ? ARKLS_EPLIN : eplifac;
+
+  return(ARKLS_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkLSSetNormFactor sets or computes the factor to use when
+  converting from the integrator tolerance (WRMS norm) to the
+  linear solver tolerance (L2 norm).
+  ---------------------------------------------------------------*/
+int arkLSSetNormFactor(void *arkode_mem, realtype nrmfac)
+{
+  ARKodeMem ark_mem;
+  ARKLsMem  arkls_mem;
+  int       retval;
+
+  /* access ARKLsMem structure; store input and return */
+  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetNormFactor",
+                            &ark_mem, &arkls_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  if (nrmfac > ZERO) {
+    /* set user-provided factor */
+    arkls_mem->nrmfac = nrmfac;
+  } else if (nrmfac < ZERO) {
+    /* compute factor for WRMS norm with dot product */
+    N_VConst(ONE, ark_mem->tempv1);
+    arkls_mem->nrmfac = SUNRsqrt(N_VDotProd(ark_mem->tempv1, ark_mem->tempv1));
+  } else {
+    /* compute default factor for WRMS norm from vector legnth */
+    arkls_mem->nrmfac = SUNRsqrt(N_VGetLength(ark_mem->tempv1));
+  }
 
   return(ARKLS_SUCCESS);
 }
@@ -1131,6 +1163,38 @@ int arkLSSetMassEpsLin(void *arkode_mem, realtype eplifac)
                                &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   arkls_mem->eplifac = (eplifac <= ZERO) ? ARKLS_EPLIN : eplifac;
+
+  return(ARKLS_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkLSSetMassNormFactor sets or computes the factor to use when
+  converting from the integrator tolerance (WRMS norm) to the
+  linear solver tolerance (L2 norm).
+  ---------------------------------------------------------------*/
+int arkLSSetMassNormFactor(void *arkode_mem, realtype nrmfac)
+{
+  ARKodeMem     ark_mem;
+  ARKLsMassMem  arkls_mem;
+  int           retval;
+
+  /* access ARKLsMem structure; store input and return */
+  retval = arkLs_AccessMassMem(arkode_mem, "arkLSSetMassNormFactor",
+                               &ark_mem, &arkls_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  if (nrmfac > ZERO) {
+    /* set user-provided factor */
+    arkls_mem->nrmfac = nrmfac;
+  } else if (nrmfac < ZERO) {
+    /* compute factor for WRMS norm with dot product */
+    N_VConst(ONE, ark_mem->tempv1);
+    arkls_mem->nrmfac = SUNRsqrt(N_VDotProd(ark_mem->tempv1, ark_mem->tempv1));
+  } else {
+    /* compute default factor for WRMS norm from vector legnth */
+    arkls_mem->nrmfac = SUNRsqrt(N_VGetLength(ark_mem->tempv1));
+  }
 
   return(ARKLS_SUCCESS);
 }
@@ -2468,7 +2532,8 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
       arkls_mem->last_flag = ARKLS_SUCCESS;
       return(arkls_mem->last_flag);
     }
-    delta = deltar * arkls_mem->sqrtN;
+    /* Adjust tolerance for 2-norm */
+    delta = deltar * arkls_mem->nrmfac;
   } else {
     delta = bnorm = ZERO;
   }
@@ -2882,9 +2947,9 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
                                &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* Set input tolerance for iterative solvers */
+  /* Set input tolerance for iterative solvers (in 2-norm) */
   if (arkls_mem->iterative) {
-    delta = arkls_mem->eplifac * nlscoef * arkls_mem->sqrtN;
+    delta = arkls_mem->eplifac * nlscoef * arkls_mem->nrmfac;
   } else {
     delta = ZERO;
   }

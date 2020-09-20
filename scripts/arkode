@@ -179,6 +179,8 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_6_0.005.out      
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_7_0.001.out        || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.c          || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec_1.out      || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec_2.out      || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_onewaycouple_mri.c         || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_onewaycouple_mri.out       || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.c   || exit 1

@@ -96,6 +96,8 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvDiurnal_kry.out             ||
 $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_ls.c             || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_ls.out           || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_ls_1.out         || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_ls_2.out         || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_ls_0_1.out       || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_prec.c           || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_prec.out         || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvParticle_dns.c              || exit 1

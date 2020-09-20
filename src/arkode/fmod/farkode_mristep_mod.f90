@@ -36,6 +36,22 @@ module farkode_mristep_mod
  private
 
  ! DECLARATION CONSTRUCTS
+ ! typedef enum MRISTEP_ID
+ enum, bind(c)
+  enumerator :: MRISTEP_ARKSTEP
+ end enum
+ integer, parameter, public :: MRISTEP_ID = kind(MRISTEP_ARKSTEP)
+ public :: MRISTEP_ARKSTEP
+ integer(C_INT), parameter, public :: MIS_KW3 = 200_C_INT
+ integer(C_INT), parameter, public :: MRI_GARK_ERK45a = 201_C_INT
+ integer(C_INT), parameter, public :: MRI_GARK_IRK21a = 202_C_INT
+ integer(C_INT), parameter, public :: MRI_GARK_ESDIRK34a = 203_C_INT
+ integer(C_INT), parameter, public :: MIN_MRI_NUM = 200_C_INT
+ integer(C_INT), parameter, public :: MAX_MRI_NUM = 203_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_MRI_TABLE_3 = 200_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_EXPL_MRI_TABLE_3 = 200_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_EXPL_MRI_TABLE_4 = 201_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_IMPL_SD_MRI_TABLE_4 = 203_C_INT
 
  integer, parameter :: swig_cmem_own_bit = 0
  integer, parameter :: swig_cmem_rvalue_bit = 1
@@ -67,6 +83,7 @@ module farkode_mristep_mod
  interface MRIStepCouplingMem
   module procedure swigf_create_MRIStepCouplingMem
  end interface
+ public :: FMRIStepCoupling_LoadTable
  public :: FMRIStepCoupling_Alloc
  public :: FMRIStepCoupling_Create
  public :: FMRIStepCoupling_MIStoMRI
@@ -74,13 +91,8 @@ module farkode_mristep_mod
  public :: FMRIStepCoupling_Space
  public :: FMRIStepCoupling_Free
  public :: FMRIStepCoupling_Write
- ! typedef enum MRISTEP_ID
- enum, bind(c)
-  enumerator :: MRISTEP_ARKSTEP
- end enum
- integer, parameter, public :: MRISTEP_ID = kind(MRISTEP_ARKSTEP)
- public :: MRISTEP_ARKSTEP
- integer(C_INT), parameter, public :: DEFAULT_MRI_TABLE_3 = 12_C_INT
+ public :: FMRIStepGetCurrentButcherTables
+ public :: FMRIStepWriteButcher
  public :: FMRIStepCreate
  public :: FMRIStepResize
  public :: FMRIStepReInit
@@ -121,10 +133,12 @@ module farkode_mristep_mod
  public :: FMRIStepSetPostprocessStageFn
  public :: FMRIStepSetPreInnerFn
  public :: FMRIStepSetPostInnerFn
+ public :: FMRIStepSetStagePredictFn
  public :: FMRIStepSetJacFn
  public :: FMRIStepSetMaxStepsBetweenJac
  public :: FMRIStepSetLinearSolutionScaling
  public :: FMRIStepSetEpsLin
+ public :: FMRIStepSetLSNormFactor
  public :: FMRIStepSetPreconditioner
  public :: FMRIStepSetJacTimes
  public :: FMRIStepSetJacTimesRhsFn
@@ -296,6 +310,15 @@ type(SwigClassWrapper), intent(inout) :: farg1
 type(SwigClassWrapper) :: farg2
 end subroutine
 
+function swigc_FMRIStepCoupling_LoadTable(farg1) &
+bind(C, name="_wrap_FMRIStepCoupling_LoadTable") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+integer(C_INT), intent(in) :: farg1
+type(SwigClassWrapper) :: fresult
+end function
+
 function swigc_FMRIStepCoupling_Alloc(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepCoupling_Alloc") &
 result(fresult)
@@ -363,6 +386,24 @@ import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
 type(C_PTR), value :: farg2
 end subroutine
+
+function swigc_FMRIStepGetCurrentButcherTables(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepGetCurrentButcherTables") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepWriteButcher(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepWriteButcher") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
 
 function swigc_FMRIStepCreate(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FMRIStepCreate") &
@@ -737,6 +778,15 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FMRIStepSetStagePredictFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetStagePredictFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FMRIStepSetJacFn(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepSetJacFn") &
 result(fresult)
@@ -766,6 +816,15 @@ end function
 
 function swigc_FMRIStepSetEpsLin(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepSetEpsLin") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetLSNormFactor(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetLSNormFactor") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1326,6 +1385,19 @@ call swigc_MRIStepCouplingMem_op_assign__(farg1, farg2)
 self%swigdata = farg1
 end subroutine
 
+function FMRIStepCoupling_LoadTable(imethod) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(MRIStepCouplingMem) :: swig_result
+integer(C_INT), intent(in) :: imethod
+type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: farg1 
+
+farg1 = imethod
+fresult = swigc_FMRIStepCoupling_LoadTable(farg1)
+swig_result%swigdata = fresult
+end function
+
 function FMRIStepCoupling_Alloc(nmat, stages) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1437,6 +1509,38 @@ farg1 = mric%swigdata
 farg2 = outfile
 call swigc_FMRIStepCoupling_Write(farg1, farg2)
 end subroutine
+
+function FMRIStepGetCurrentButcherTables(arkode_mem, b) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: b
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(b)
+fresult = swigc_FMRIStepGetCurrentButcherTables(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepWriteButcher(arkode_mem, fp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR) :: fp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = fp
+fresult = swigc_FMRIStepWriteButcher(farg1, farg2)
+swig_result = fresult
+end function
 
 function FMRIStepCreate(fs, t0, y0, inner_step_id, inner_step_mem) &
 result(swig_result)
@@ -2114,6 +2218,22 @@ fresult = swigc_FMRIStepSetPostInnerFn(farg1, farg2)
 swig_result = fresult
 end function
 
+function FMRIStepSetStagePredictFn(arkode_mem, predictstage) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: predictstage
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = predictstage
+fresult = swigc_FMRIStepSetStagePredictFn(farg1, farg2)
+swig_result = fresult
+end function
+
 function FMRIStepSetJacFn(arkode_mem, jac) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2175,6 +2295,22 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = eplifac
 fresult = swigc_FMRIStepSetEpsLin(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepSetLSNormFactor(arkode_mem, nrmfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: nrmfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nrmfac
+fresult = swigc_FMRIStepSetLSNormFactor(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -1298,6 +1298,7 @@ Coefficient in the nonlinear convergence test & \id{CVodeSetNonlinConvCoef} & 0.
 Inequality constraints on solution & \id{CVodeSetConstraints} & \id{NULL} \\
 Direction of zero-crossing & \id{CVodeSetRootDirection} & both \\
 Disable rootfinding warnings & \id{CVodeSetNoInactiveRootWarn} & none \\
+Flag to activate specialized fused kernels & \id{CVodeSetUseIntegratorFusedKernels} & {\tt SUNFALSE} \\
 \hline
 \multicolumn{3}{|c|}{\bf CVLS linear solver interface} \\
 \hline
@@ -1309,7 +1310,7 @@ Jacobian-times-vector functions & \id{CVodeSetJacTimes} & NULL, DQ \\
 Jacobian-times-vector DQ RHS function & \id{CVodeSetJacTimesRhsFn} & NULL \\
 Preconditioner functions & \id{CVodeSetPreconditioner} & NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{CVodeSetEpsLin} & 0.05 \\
-Instruct CVODE to use specialized fused kernels when possible& \id{CVodeSetUseIntegratorFusedKernels} & {\tt SUNFALSE} \\
+Newton linear solve tolerance conversion factor & \id{CVodeSetLSNormFactor} & vector length \\
 \hline
 \end{tabular}
 \end{table}
@@ -2501,6 +2502,52 @@ the \id{CVodeSetEpsLin} function.
   routine, and may still be used for backward-compatibility.  However,
   this will be deprecated in future releases, so we recommend that
   users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunctionf{CVodeSetLSNormFactor}
+{
+  flag = CVodeSetLSNormFactor(cvode\_mem, nrmfac);
+}
+{
+  The function \ID{CVodeSetLSNormFactor} specifies the factor to use when
+  converting from the integrator tolerance (WRMS norm) to the linear solver
+  tolerance (L2 norm) for Newton linear system solves e.g.,
+  \id{tol\_L2 = fac * tol\_WRMS}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[nrmfac] (\id{realtype})
+    the norm conversion factor. If \id{nrmfac} is:
+    \begin{itemize}
+    \item[$> 0$] then the provided value is used.
+    \item[$= 0$] then the conversion factor is computed using the vector length
+      i.e., \id{nrmfac = N\_VGetLength(y)} (\textit{default}).
+    \item[$< 0$] then the conversion factor is computed using the vector dot
+      product \id{nrmfac = N\_VDotProd(v,v)} where all the entries of \id{v} are
+      one.
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolver}.
+
+  Prior to the introduction of \id{N\_VGetLength} in {\sundials} v5.0.0
+  ({\cvode} v5.0.0) the value of \id{nrmfac} was computed using the vector
+  dot product i.e., the \id{nrmfac < 0} case.
 }
 %%
 %%

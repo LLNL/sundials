@@ -110,6 +110,12 @@ Changes from previous versions
 Changes in v4.x.x
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Added the functions :c:func:`ARKStepSetLSNormFactor()`,
+:c:func:`ARKStepSetMassLSNormFactor()`, and :c:func:`MRIStepSetLSNormFactor()`
+to specify the factor for converting between integrator tolerances (WRMS norm)
+and linear solver tolerances (L2 norm) i.e.,
+``tol_L2 = nrmfac * tol_WRMS``.
+
 Added new reset functions :c:func:`ARKStepReset()`, :c:func:`ERKStepReset()`,
 and :c:func:`MRIStepReset()` to reset the stepper time and state vector to
 user-provided values for continuing the integration from that point while

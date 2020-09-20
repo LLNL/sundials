@@ -2,6 +2,10 @@
 
 ## Changes to SUNDIALS in release x.x.x
 
+Added new `SetLSNormFactor()` functions to CVODE(S), ARKODE, and IDA(S) to
+to specify the factor for converting between integrator tolerances (WRMS norm)
+and linear solver tolerances (L2 norm) i.e., `tol_L2 = nrmfac * tol_WRMS`.
+
 Added new reset functions `ARKStepReset()`, `ERKStepReset()`, and
 `MRIStepReset()` to reset the stepper time and state vector to user-provided
 values for continuing the integration from that point while retaining the

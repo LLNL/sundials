@@ -59,8 +59,8 @@ typedef struct ARKLsMemRec {
   booleantype scalesol;
 
   /* Iterative solver tolerance */
-  realtype sqrtN;     /* sqrt(N)                                       */
   realtype eplifac;   /* nonlinear -> linear tol scaling factor        */
+  realtype nrmfac;    /* integrator -> LS norm conversion factor       */
 
   /* Linear solver, matrix and vector objects/pointers */
   SUNLinearSolver LS; /* generic linear solver object                  */
@@ -145,8 +145,8 @@ typedef struct ARKLsMassMemRec {
   void* M_data;       /* user data pointer */
 
   /* Iterative solver tolerance */
-  realtype sqrtN;     /* sqrt(N)                                     */
   realtype eplifac;   /* nonlinear -> linear tol scaling factor      */
+  realtype nrmfac;    /* integrator -> LS norm conversion factor     */
 
   /* Statistics and associated parameters */
   booleantype time_dependent;  /* flag whether M depends on t        */
@@ -266,6 +266,8 @@ int arkLSSetJacFn(void* arkode_mem, ARKLsJacFn jac);
 int arkLSSetMassFn(void* arkode_mem, ARKLsMassFn mass);
 int arkLSSetEpsLin(void* arkode_mem, realtype eplifac);
 int arkLSSetMassEpsLin(void* arkode_mem, realtype eplifac);
+int arkLSSetNormFactor(void* arkode_mem, realtype nrmfac);
+int arkLSSetMassNormFactor(void* arkode_mem, realtype nrmfac);
 int arkLSSetMaxStepsBetweenJac(void* arkode_mem, long int msbj);
 int arkLSSetLinearSolutionScaling(void* arkode_mem, booleantype onoff);
 int arkLSSetPreconditioner(void* arkode_mem, ARKLsPrecSetupFn psetup,

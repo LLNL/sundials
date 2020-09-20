@@ -483,6 +483,19 @@ SWIGEXPORT void _wrap_MRIStepCouplingMem_op_assign__(SwigClassWrapper *farg1, Sw
 }
 
 
+SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_LoadTable(int const *farg1) {
+  SwigClassWrapper fresult ;
+  int arg1 ;
+  MRIStepCoupling result;
+  
+  arg1 = (int)(*farg1);
+  result = (MRIStepCoupling)MRIStepCoupling_LoadTable(arg1);
+  fresult.cptr = result;
+  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
+  return fresult;
+}
+
+
 SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_Alloc(int const *farg1, int const *farg2) {
   SwigClassWrapper fresult ;
   int arg1 ;
@@ -582,6 +595,34 @@ SWIGEXPORT void _wrap_FMRIStepCoupling_Write(SwigClassWrapper const *farg1, void
   arg1 = (MRIStepCoupling)(farg1->cptr);
   arg2 = (FILE *)(farg2);
   MRIStepCoupling_Write(arg1,arg2);
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepGetCurrentButcherTables(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKodeButcherTable *arg2 = (ARKodeButcherTable *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKodeButcherTable *)(farg2);
+  result = (int)MRIStepGetCurrentButcherTables(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepWriteButcher(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (FILE *)(farg2);
+  result = (int)MRIStepWriteButcher(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
 }
 
 
@@ -1170,6 +1211,20 @@ SWIGEXPORT int _wrap_FMRIStepSetPostInnerFn(void *farg1, MRIStepPostInnerFn farg
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepSetStagePredictFn(void *farg1, ARKStagePredictFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKStagePredictFn arg2 = (ARKStagePredictFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKStagePredictFn)(farg2);
+  result = (int)MRIStepSetStagePredictFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepSetJacFn(void *farg1, ARKLsJacFn farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1221,6 +1276,20 @@ SWIGEXPORT int _wrap_FMRIStepSetEpsLin(void *farg1, double const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)MRIStepSetEpsLin(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepSetLSNormFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)MRIStepSetLSNormFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

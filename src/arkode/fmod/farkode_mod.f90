@@ -85,6 +85,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_POSTPROCESS_STAGE_FAIL = -38_C_INT
  integer(C_INT), parameter, public :: ARK_USER_PREDICT_FAIL = -39_C_INT
  integer(C_INT), parameter, public :: ARK_INTERP_FAIL = -40_C_INT
+ integer(C_INT), parameter, public :: ARK_INVALID_TABLE = -41_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  public :: FARKBandPrecInit
  public :: FARKBandPrecGetWorkSpace

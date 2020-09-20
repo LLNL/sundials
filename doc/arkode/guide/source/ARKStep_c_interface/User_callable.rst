@@ -2587,14 +2587,16 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
 
 .. cssclass:: table-bordered
 
-==================================================  =========================================  ==================
-Optional input                                      Function name                              Default
-==================================================  =========================================  ==================
-Newton preconditioning functions                    :c:func:`ARKStepSetPreconditioner()`       ``NULL``, ``NULL``
-Mass matrix preconditioning functions               :c:func:`ARKStepSetMassPreconditioner()`   ``NULL``, ``NULL``
-Newton linear and nonlinear tolerance ratio         :c:func:`ARKStepSetEpsLin()`               0.05
-Mass matrix linear and nonlinear tolerance ratio    :c:func:`ARKStepSetMassEpsLin()`           0.05
-==================================================  =========================================  ==================
+====================================================  =========================================  ==================
+Optional input                                        Function name                              Default
+====================================================  =========================================  ==================
+Newton preconditioning functions                      :c:func:`ARKStepSetPreconditioner()`       ``NULL``, ``NULL``
+Mass matrix preconditioning functions                 :c:func:`ARKStepSetMassPreconditioner()`   ``NULL``, ``NULL``
+Newton linear and nonlinear tolerance ratio           :c:func:`ARKStepSetEpsLin()`               0.05
+Mass matrix linear and nonlinear tolerance ratio      :c:func:`ARKStepSetMassEpsLin()`           0.05
+Newton linear solve tolerance conversion factor       :c:func:`ARKStepSetLSNormFactor()`         vector length
+Mass matrix linear solve tolerance conversion factor  :c:func:`ARKStepSetMassLSNormFactor()`     vector length
+====================================================  =========================================  ==================
 
 
 As described in the section :ref:`Mathematics.Linear`, when using
@@ -2740,6 +2742,71 @@ the user through the :c:func:`ARKStepSetEpsLin()` function.
    Passing a value *eplifac* :math:`\le 0` indicates to use the default value
    of 0.05.
 
+
+
+.. c:function:: int ARKStepSetLSNormFactor(void* arkode_mem, realtype nrmfac)
+
+   Specifies the factor to use when converting from the integrator tolerance
+   (WRMS norm) to the linear solver tolerance (L2 norm) for Newton linear system
+   solves e.g., ``tol_L2 = fac * tol_WRMS``.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *nrmfac* -- the norm conversion factor. If *nrmfac* is:
+
+        :math:`> 0` then the provided value is used.
+
+        :math:`= 0` then the conversion factor is computed using the vector
+        length i.e., ``nrmfac = sqrt(N_VGetLength(y))`` (*default*).
+
+        :math:`< 0` then the conversion factor is computed using the vector dot
+        product i.e., ``nrmfac = sqrt(N_VDotProd(v,v))`` where all the entries
+        of ``v`` are one.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful.
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``.
+
+   **Notes:**
+   This function must be called *after* the ARKLS system solver interface has
+   been initialized through a call to :c:func:`ARKStepSetLinearSolver()`.
+
+   Prior to the introduction of :c:func:`N_VGetLength` in SUNDIALS v5.0.0 the
+   value of ``nrmfac`` was computed using the vector dot product i.e., the
+   ``nrmfac < 0`` case.
+
+
+
+   .. c:function:: int ARKStepSetMassLSNormFactor(void* arkode_mem, realtype nrmfac)
+
+   Specifies the factor to use when converting from the integrator tolerance
+   (WRMS norm) to the linear solver tolerance (L2 norm) for mass matrix linear
+   system solves e.g., ``tol_L2 = fac * tol_WRMS``.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *nrmfac* -- the norm conversion factor. If *nrmfac* is:
+
+        :math:`> 0` then the provided value is used.
+
+        :math:`= 0` then the conversion factor is computed using the vector
+        length i.e., ``nrmfac = sqrt(N_VGetLength(y))`` (*default*).
+
+        :math:`< 0` then the conversion factor is computed using the vector dot
+        product i.e., ``nrmfac = sqrt(N_VDotProd(v,v))`` where all the entries
+        of ``v`` are one.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful.
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``.
+
+   **Notes:**
+   This function must be called *after* the ARKLS mass matrix solver interface
+   has been initialized through a call to :c:func:`ARKStepSetMassLinearSolver()`.
+
+   Prior to the introduction of :c:func:`N_VGetLength` in SUNDIALS v5.0.0
+   (ARKODE v4.0.0) the value of ``nrmfac`` was computed using the vector dot
+   product i.e., the ``nrmfac < 0`` case.
 
 
 

@@ -125,6 +125,8 @@ int MRIStepSetLinearSolutionScaling(void *arkode_mem, booleantype onoff) {
   return(arkLSSetLinearSolutionScaling(arkode_mem, onoff)); }
 int MRIStepSetEpsLin(void *arkode_mem, realtype eplifac) {
   return(arkLSSetEpsLin(arkode_mem, eplifac)); }
+int MRIStepSetLSNormFactor(void *arkode_mem, realtype nrmfac) {
+  return(arkLSSetNormFactor(arkode_mem, nrmfac)); }
 int MRIStepSetPreconditioner(void *arkode_mem, ARKLsPrecSetupFn psetup,
                              ARKLsPrecSolveFn psolve) {
   return(arkLSSetPreconditioner(arkode_mem, psetup, psolve)); }

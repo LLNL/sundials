@@ -125,6 +125,8 @@ module farkode_arkstep_mod
  public :: FARKStepSetLinearSolutionScaling
  public :: FARKStepSetEpsLin
  public :: FARKStepSetMassEpsLin
+ public :: FARKStepSetLSNormFactor
+ public :: FARKStepSetMassLSNormFactor
  public :: FARKStepSetPreconditioner
  public :: FARKStepSetMassPreconditioner
  public :: FARKStepSetJacTimes
@@ -864,6 +866,24 @@ end function
 
 function swigc_FARKStepSetMassEpsLin(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetMassEpsLin") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetLSNormFactor(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetLSNormFactor") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetMassLSNormFactor(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetMassLSNormFactor") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2685,6 +2705,38 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = eplifac
 fresult = swigc_FARKStepSetMassEpsLin(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetLSNormFactor(arkode_mem, nrmfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: nrmfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nrmfac
+fresult = swigc_FARKStepSetLSNormFactor(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetMassLSNormFactor(arkode_mem, nrmfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: nrmfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nrmfac
+fresult = swigc_FARKStepSetMassLSNormFactor(farg1, farg2)
 swig_result = fresult
 end function
 

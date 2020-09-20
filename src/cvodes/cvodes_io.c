@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -17,16 +13,14 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the optional input and output
  * functions for the CVODES solver.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "cvodes_impl.h"
-
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
+#include "sundials/sundials_types.h"
+#include "sundials/sundials_math.h"
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)

@@ -1336,6 +1336,20 @@ SWIGEXPORT int _wrap_FCVodeSetEpsLin(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FCVodeSetLSNormFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)CVodeSetLSNormFactor(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeSetPreconditioner(void *farg1, CVLsPrecSetupFn farg2, CVLsPrecSolveFn farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

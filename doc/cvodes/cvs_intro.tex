@@ -119,6 +119,10 @@ writing in C|)}
 
 \subsection*{Changes in v5.x.x}
 
+Added the function \id{CVodeSetLSNormFactor} to specify the factor for
+converting between integrator tolerances (WRMS norm) and linear solver
+tolerances (L2 norm) i.e., \id{tol\_L2 = nrmfac * tol\_WRMS}.
+
 The expected behavior of \id{SUNNonlinSolGetNumIters} and
 \id{SUNNonlinSolGetNumConvFails} in the {\sunnonlinsol} API have been updated to
 specify that they should return the number of nonlinear solver iterations and

@@ -327,6 +327,7 @@ module fcvodes_mod
  public :: FCVodeSetMaxStepsBetweenJac
  public :: FCVodeSetLinearSolutionScaling
  public :: FCVodeSetEpsLin
+ public :: FCVodeSetLSNormFactor
  public :: FCVodeSetPreconditioner
  public :: FCVodeSetJacTimes
  public :: FCVodeSetLinSysFn
@@ -345,6 +346,7 @@ module fcvodes_mod
  public :: FCVodeSetJacFnB
  public :: FCVodeSetJacFnBS
  public :: FCVodeSetEpsLinB
+ public :: FCVodeSetLSNormFactorB
  public :: FCVodeSetLinearSolutionScalingB
  public :: FCVodeSetPreconditionerB
  public :: FCVodeSetPreconditionerBS
@@ -2155,6 +2157,15 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeSetLSNormFactor(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetLSNormFactor") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeSetPreconditioner(farg1, farg2, farg3) &
 bind(C, name="_wrap_FCVodeSetPreconditioner") &
 result(fresult)
@@ -2317,6 +2328,16 @@ end function
 
 function swigc_FCVodeSetEpsLinB(farg1, farg2, farg3) &
 bind(C, name="_wrap_FCVodeSetEpsLinB") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetLSNormFactorB(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeSetLSNormFactorB") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -5722,6 +5743,22 @@ fresult = swigc_FCVodeSetEpsLin(farg1, farg2)
 swig_result = fresult
 end function
 
+function FCVodeSetLSNormFactor(arkode_mem, nrmfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: nrmfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nrmfac
+fresult = swigc_FCVodeSetLSNormFactor(farg1, farg2)
+swig_result = fresult
+end function
+
 function FCVodeSetPreconditioner(cvode_mem, pset, psolve) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -6029,6 +6066,25 @@ farg1 = cvode_mem
 farg2 = which
 farg3 = eplifacb
 fresult = swigc_FCVodeSetEpsLinB(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeSetLSNormFactorB(arkode_mem, which, nrmfacb) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: which
+real(C_DOUBLE), intent(in) :: nrmfacb
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+real(C_DOUBLE) :: farg3 
+
+farg1 = arkode_mem
+farg2 = which
+farg3 = nrmfacb
+fresult = swigc_FCVodeSetLSNormFactorB(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

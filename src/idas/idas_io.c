@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -17,15 +13,14 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the optional inputs and
  * outputs for the IDAS solver.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "idas_impl.h"
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
+#include "sundials/sundials_types.h"
+#include "sundials/sundials_math.h"
 
 #define ZERO    RCONST(0.0)
 #define HALF    RCONST(0.5)

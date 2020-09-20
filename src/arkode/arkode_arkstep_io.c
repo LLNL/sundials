@@ -134,6 +134,10 @@ int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac) {
   return(arkLSSetEpsLin(arkode_mem, eplifac)); }
 int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac) {
   return(arkLSSetMassEpsLin(arkode_mem, eplifac)); }
+int ARKStepSetLSNormFactor(void *arkode_mem, realtype nrmfac) {
+  return(arkLSSetNormFactor(arkode_mem, nrmfac)); }
+int ARKStepSetMassLSNormFactor(void *arkode_mem, realtype nrmfac) {
+  return(arkLSSetMassNormFactor(arkode_mem, nrmfac)); }
 int ARKStepSetPreconditioner(void *arkode_mem, ARKLsPrecSetupFn psetup,
                              ARKLsPrecSolveFn psolve) {
   return(arkLSSetPreconditioner(arkode_mem, psetup, psolve)); }
@@ -256,7 +260,7 @@ char *ARKStepGetLinReturnFlagName(long int flag) {
 /*---------------------------------------------------------------
   ARKStepSetUserData:
 
-  Wrapper for generic arkSetUserData and arkLSSetUserData 
+  Wrapper for generic arkSetUserData and arkLSSetUserData
   routines.
   ---------------------------------------------------------------*/
 int ARKStepSetUserData(void *arkode_mem, void *user_data)
