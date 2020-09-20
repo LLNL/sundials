@@ -27,10 +27,11 @@ set(nvector_examples_dependencies
   test_nvector
   sundials_nvector
   sundials_math
+  custom_memory_helper
 )
 
 # Add source directory to include directories
-include_directories(. ..)
+include_directories(. .. ${sundials_SOURCE_DIR}/examples/utilities)
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -66,8 +67,9 @@ foreach(example_tuple ${nvector_raja_examples})
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.cu
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_math.c)
+      ../test_nvector.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+      ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

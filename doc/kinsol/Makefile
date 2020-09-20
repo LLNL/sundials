@@ -21,6 +21,7 @@ EXAMPLES   = kin_examples
 UG_FILES = \
 ${USER_GUIDE}.tex \
 kin_intro.tex \
+kin_gpu.tex \
 kin_math.tex \
 kin_org.tex \
 kin_use.tex \
@@ -29,6 +30,7 @@ kin_nvec.tex \
 kin_newlinsolv.tex \
 kin_sunmat.tex \
 kin_sunlinsol.tex \
+kin_sunmem.tex \
 kin_constants.tex
 
 EX_FILES = \

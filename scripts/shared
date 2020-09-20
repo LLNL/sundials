@@ -28,13 +28,13 @@ $tar $tarfile $distrobase/config/FindHypre.cmake                        || exit 
 $tar $tarfile $distrobase/config/FindKLU.cmake                          || exit 1
 $tar $tarfile $distrobase/config/FindPackageMultipass.cmake             || exit 1
 $tar $tarfile $distrobase/config/FindPETSC.cmake                        || exit 1
-$tar $tarfile $distrobase/config/FindSUPERLUMT.cmake                    || exit 1
 $tar $tarfile $distrobase/config/FindSUPERLUDIST.cmake                  || exit 1
+$tar $tarfile $distrobase/config/FindSUPERLUMT.cmake                    || exit 1
 $tar $tarfile $distrobase/config/FindTrilinos.cmake                     || exit 1
 $tar $tarfile $distrobase/config/ResolveCompilerPaths.cmake             || exit 1
+$tar $tarfile $distrobase/config/SundialsAddF2003InterfaceLibrary.cmake || exit 1
 $tar $tarfile $distrobase/config/SundialsAddTest.cmake                  || exit 1
 $tar $tarfile $distrobase/config/SundialsAddTestInstall.cmake           || exit 1
-$tar $tarfile $distrobase/config/SundialsAddF2003InterfaceLibrary.cmake || exit 1
 $tar $tarfile $distrobase/config/SundialsCMakeMacros.cmake              || exit 1
 $tar $tarfile $distrobase/config/SundialsCudaArchGeq.cmake              || exit 1
 $tar $tarfile $distrobase/config/SundialsCXX.cmake                      || exit 1
@@ -49,8 +49,8 @@ $tar $tarfile $distrobase/config/SundialsOpenMP.cmake                   || exit 
 $tar $tarfile $distrobase/config/SundialsOption.cmake                   || exit 1
 $tar $tarfile $distrobase/config/SundialsPETSC.cmake                    || exit 1
 $tar $tarfile $distrobase/config/SundialsPOSIXTimers.cmake              || exit 1
-$tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake                || exit 1
 $tar $tarfile $distrobase/config/SundialsSuperLUDIST.cmake              || exit 1
+$tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake                || exit 1
 $tar $tarfile $distrobase/config/SundialsTesting.cmake                  || exit 1
 $tar $tarfile $distrobase/config/SundialsTrilinos.cmake                 || exit 1
 $tar $tarfile $distrobase/config/SundialsTryCompileExecute.cmake        || exit 1
@@ -58,41 +58,42 @@ $tar $tarfile $distrobase/config/SundialsXSDK.cmake                     || exit 
 
 echo "   --- Add shared module to $tarfile"
 
+$tar $tarfile $distrobase/include/sundials/sundials_band.h                || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_config.in             || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_cuda_policies.hpp     || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_fconfig.in            || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_types.h               || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h           || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_matrix.h              || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_linearsolver.h        || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_math.h                || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_nvector.h             || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_fnvector.h            || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_dense.h               || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_direct.h              || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_band.h                || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_lapack.h              || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_fconfig.in            || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_fnvector.h            || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_futils.h              || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_iterative.h           || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_version.h             || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_lapack.h              || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_linearsolver.h        || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_math.h                || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_matrix.h              || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_memory.h              || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h           || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.h     || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_nvector_senswrapper.h || exit 1
-$tar $tarfile $distrobase/include/sundials/sundials_futils.h              || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_nvector.h             || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_types.h               || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_version.h             || exit 1
 
-$tar $tarfile $distrobase/include/nvector/nvector_serial.h                            || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_cuda.h                              || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_manyvector.h                        || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_mpimanyvector.h                     || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_mpiplusx.h                          || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_openmp.h                            || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_openmpdev.h                         || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_parallel.h                          || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_parhyp.h                            || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_petsc.h                             || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_pthreads.h                          || exit 1
-$tar $tarfile $distrobase/include/nvector/nvector_openmp.h                            || exit 1
-$tar $tarfile $distrobase/include/nvector/nvector_openmpdev.h                         || exit 1
-$tar $tarfile $distrobase/include/nvector/nvector_cuda.h                              || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_raja.h                              || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_serial.h                            || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_trilinos.h                          || exit 1
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp  || exit 1
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp    || exit 1
-$tar $tarfile $distrobase/include/nvector/nvector_manyvector.h                        || exit 1
-$tar $tarfile $distrobase/include/nvector/nvector_mpimanyvector.h                     || exit 1
-$tar $tarfile $distrobase/include/nvector/nvector_mpiplusx.h                          || exit 1
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h      || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_cusparse.h  || exit 1
@@ -100,6 +101,8 @@ $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h     || exit 1
 #$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h    || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_slunrloc.h  || exit 1
+
+$tar $tarfile $distrobase/include/sunmemory/sunmemory_cuda.h      || exit 1
 
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_cusolversp_batchqr.h || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_band.h               || exit 1
@@ -124,6 +127,7 @@ $tar $tarfile $distrobase/src/CMakeLists.txt                                    
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt                             || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_math.c                            || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_matrix.c                          || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_memory.c                          || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_linearsolver.c                    || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_nvector.c                         || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_dense.c                           || exit 1
@@ -274,6 +278,10 @@ echo "   --- Add sunmatrix/slunrloc module to $tarfile"
 $tar $tarfile $distrobase/src/sunmatrix/slunrloc/CMakeLists.txt       || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/slunrloc/sunmatrix_slunrloc.c || exit 1
 
+echo "   --- Add sunmemory modules to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmemory/cuda/sundials_cuda_memory.cu || exit 1
+
 echo "   --- Add sunlinsol modules to $tarfile"
 
 $tar $tarfile $distrobase/src/sunlinsol/CMakeLists.txt || exit 1
@@ -410,8 +418,9 @@ $tar $tarfile $distrobase/src/sunnonlinsol/petscsnes/sunnonlinsol_petscsnes.c  |
 
 echo "   --- Add examples to $tarfile"
 
-$tar $tarfile $distrobase/examples/CMakeLists.txt     || exit 1
-$tar $tarfile $distrobase/examples/test_utilities.f90 || exit 1
+$tar $tarfile $distrobase/examples/CMakeLists.txt                  || exit 1
+$tar $tarfile $distrobase/examples/utilities/custom_memory_helper.h || exit 1
+$tar $tarfile $distrobase/examples/utilities/test_utilities.f90     || exit 1
 
 echo "   --- Add nvector examples to $tarfile"
 

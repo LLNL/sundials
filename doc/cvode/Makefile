@@ -25,10 +25,12 @@ cv_math.tex \
 cv_org.tex \
 cv_usage.tex \
 cv_fcmix.tex \
+cv_gpu.tex \
 cv_nvec.tex \
 cv_newlinsolv.tex \
 cv_sunlinsol.tex \
 cv_sunnonlinsol.tex \
+cv_sunmem.tex \
 cv_constants.tex
 
 EX_FILES = \
@@ -38,6 +40,6 @@ cv_ex_serial.tex \
 cv_ex_parallel.tex \
 cv_ex_parhyp.tex \
 cv_ex_fortran.tex \
-cv_ex_tests.tex   
+cv_ex_tests.tex
 
 include ../Makefile.in

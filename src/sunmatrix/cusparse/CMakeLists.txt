@@ -18,18 +18,21 @@ install(CODE "MESSAGE(\"\nInstall SUNMATRIX_CUSPARSE\n\")")
 
 # Add variable cusparse_SOURCES with the sources for the cusparse lib
 set(cusparse_SOURCES
-    sunmatrix_cusparse.cu
-    )
+  sunmatrix_cusparse.cu
+  )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECCUDA library
 set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
+  ${sundials_SOURCE_DIR}/src/sunmemory/cuda/sundials_cuda_memory.cu
   )
 
 # Add variable cusparse_HEADERS with the exported cusparse header files
-set(cusparse_HEADERS sunmatrix_cusparse.h)
-add_prefix(${sundials_SOURCE_DIR}/include/sunmatrix/ cusparse_HEADERS)
+set(cusparse_HEADERS
+  ${sundials_SOURCE_DIR}/include/sunmatrix/sunmatrix_cusparse.h
+  ${sundials_SOURCE_DIR}/include/sunmemory/sunmemory_cuda.h
+  )
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 add_definitions(-DBUILD_SUNDIALS_LIBRARY)

@@ -17,6 +17,7 @@
  * -----------------------------------------------------------------
  */
 
+#include <assert.h>
 #include <stdio.h>
 
 #include <cuda_runtime.h>
@@ -60,6 +61,9 @@ inline booleantype SUNDIALS_CUDA_Assert(cudaError_t cuerr, const char *file, int
     fprintf(stderr,
             "ERROR in CUDA runtime operation: %s %s:%d\n",
             cudaGetErrorString(cuerr), file, line);
+#ifdef SUNDIALS_DEBUG_ASSERT
+    assert(false);
+#endif
 #endif
     return SUNFALSE; /* Assert failed */
   }
@@ -74,6 +78,9 @@ inline booleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status, const char 
     fprintf(stderr,
             "ERROR in cuSPARSE runtime operation: cusparseStatus_t = %d %s:%d\n",
             status, file, line);
+#ifdef SUNDIALS_DEBUG_ASSERT
+    assert(false);
+#endif
 #endif
     return SUNFALSE; /*  Assert failed */
   }
@@ -88,6 +95,9 @@ inline booleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status, const char 
     fprintf(stderr,
             "ERROR in cuSOLVER runtime operation: cusolverStatus_t = %d %s:%d\n",
             status, file, line);
+#ifdef SUNDIALS_DEBUG_ASSERT
+    assert(false);
+#endif
 #endif
     return SUNFALSE; /*  Assert failed */
   }

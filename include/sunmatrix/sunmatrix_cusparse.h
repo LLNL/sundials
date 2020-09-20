@@ -27,6 +27,7 @@
 
 #include <sundials/sundials_cuda_policies.hpp>
 #include <sundials/sundials_matrix.h>
+#include <sundials/sundials_memory.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -49,12 +50,13 @@ struct _SUNMatrix_Content_cuSparse {
   int blockcols;
   int blocknnz;
   int sparse_type;
-  booleantype own_data;
+  booleantype own_matd;
   booleantype own_exec;
   booleantype fixed_pattern;
-  int* colind;
-  int* rowptrs;
-  realtype* data;
+  SUNMemory colind;
+  SUNMemory rowptrs;
+  SUNMemory data;
+  SUNMemoryHelper mem_helper;
   cusparseMatDescr_t mat_descr;
   cusparseHandle_t cusp_handle;
   SUNCudaExecPolicy* exec_policy;

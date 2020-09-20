@@ -75,6 +75,9 @@
 .. [CGM2014] J. Cheng, M. Grossman and T. McKercher. Professional Cuda
              C Programming.  John Wiley & Sons, 2014.
 
+.. [CUDA] `NVIDIA CUDA Programming Guide
+          <https://docs.nvidia.com/cuda/index.html>`_.
+
 .. [cuSOLVER] `NVIDIA cuSOLVER Documentation
                <https://docs.nvidia.com/cuda/cusolver/index.html>`_.
 
@@ -201,9 +204,15 @@
               Accelerated Picard Method for Nonlinear Systems Related to
               Variably Saturated Flow, *Adv. Wat. Resour.*, 38:92-101, 2012.
 
+.. [oneAPI] `Intel oneAPI Programming Guide
+             <https://software.intel.com/content/www/us/en/develop/documentation/oneapi-programming-guide/top.html>`_.
+
 .. [R2018] D.R. Reynolds. ARKode Example Documentation. Technical
            Report, Southern Methodist University Center for Scientific
            Computation, 2020.
+
+.. [ROCm] `AMD ROCm Documentation
+          <https://rocmdocs.amd.com/en/latest/index.html>`_.
 
 .. [SS1986] Y. Saad and M.H. Schultz. GMRES: A Generalized Minimal Residual
             Algorithm for Solving Nonsymmetric Linear Systems.

@@ -212,9 +212,12 @@ cd -
 cp -r $sundialsdir/config $tmpdir/ || exit 1
 cp -r $sundialsdir/test $tmpdir/   || exit 1
 
+cp -r $sundialsdir/doc/sundials $tmpdir/doc/ || exit 1
+
 cp -r $sundialsdir/include/sundials $tmpdir/include/     || exit 1
 cp -r $sundialsdir/include/nvector $tmpdir/include/      || exit 1
 cp -r $sundialsdir/include/sunmatrix $tmpdir/include/    || exit 1
+cp -r $sundialsdir/include/sunmemory $tmpdir/include/    || exit 1
 cp -r $sundialsdir/include/sunlinsol $tmpdir/include/    || exit 1
 cp -r $sundialsdir/include/sunnonlinsol $tmpdir/include/ || exit 1
 
@@ -222,18 +225,17 @@ cp    $sundialsdir/src/CMakeLists.txt $tmpdir/src/ || exit 1
 cp -r $sundialsdir/src/sundials $tmpdir/src/       || exit 1
 cp -r $sundialsdir/src/nvector $tmpdir/src/        || exit 1
 cp -r $sundialsdir/src/sunmatrix $tmpdir/src/      || exit 1
+cp -r $sundialsdir/src/sunmemory $tmpdir/src/      || exit 1
 cp -r $sundialsdir/src/sunlinsol $tmpdir/src/      || exit 1
 cp -r $sundialsdir/src/sunnonlinsol $tmpdir/src/   || exit 1
 
-cp -r $sundialsdir/doc/sundials $tmpdir/doc/ || exit 1
-
-cp    $sundialsdir/examples/CMakeLists.txt $tmpdir/examples/     || exit 1
-cp    $sundialsdir/examples/test_utilities.f90 $tmpdir/examples/ || exit 1
-cp -r $sundialsdir/examples/nvector $tmpdir/examples/            || exit 1
-cp -r $sundialsdir/examples/sunmatrix $tmpdir/examples/          || exit 1
-cp -r $sundialsdir/examples/sunlinsol $tmpdir/examples/          || exit 1
-cp -r $sundialsdir/examples/sunnonlinsol $tmpdir/examples/       || exit 1
-cp -r $sundialsdir/examples/templates $tmpdir/examples/          || exit 1
+cp    $sundialsdir/examples/CMakeLists.txt $tmpdir/examples/         || exit 1
+cp -r $sundialsdir/examples/utilities $tmpdir/examples/               || exit 1
+cp -r $sundialsdir/examples/nvector $tmpdir/examples/                || exit 1
+cp -r $sundialsdir/examples/sunmatrix $tmpdir/examples/              || exit 1
+cp -r $sundialsdir/examples/sunlinsol $tmpdir/examples/              || exit 1
+cp -r $sundialsdir/examples/sunnonlinsol $tmpdir/examples/           || exit 1
+cp -r $sundialsdir/examples/templates $tmpdir/examples/              || exit 1
 
 #cd $tmpdir
 #echo -e "\n--- Generate configure script ---"

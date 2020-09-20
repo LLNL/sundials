@@ -135,6 +135,13 @@ higher-order MRI-GARK methods [S2019]_, including methods that
 involve solve-decoupled, diagonally-implicit treatment of the
 slow time scale.
 
+A new API, ``SUNMemoryHelper``, was added to support **GPU users** who
+have complex memory management needs such as using memory pools. This is paired
+with new constructors for the CUDA and RAJA NVECTOR modules that accept a
+``SUNMemoryHelper`` object. Refer to sections :ref:`ARKodeGpu`,
+:ref:`SUNMemory`, :ref:`NVectors.CUDA`, and :ref:`NVectors.RAJA`
+for more information.
+
 The ``NVECTOR_RAJA`` module has been updated to mirror the ``NVECTOR_CUDA`` module.
 Notably, the update adds managed memory support to the ``NVECTOR_RAJA`` module.
 Users of the module will need to update any calls to the ``N_VMake_Raja`` function
@@ -219,7 +226,7 @@ reduction factor after an error test failure.
 
 Added a new ``SUNMatrix`` implementation, :ref:`SUNMatrix_cuSparse`, that interfaces
 to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
-the :ref:`SUNLinSol_cuSolverSp_batchQR` ``SUNLinearSolver`` has been updated to
+the :ref:`SUNLinSol_cuSolverSp` ``SUNLinearSolver`` has been updated to
 use this matrix, as such, users of this module will need to update their code.
 These modules are still considered to be experimental, thus they are subject to
 breaking changes even in minor releases.

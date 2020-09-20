@@ -21,6 +21,7 @@ EXAMPLES   = idas_examples
 UG_FILES = \
 ${USER_GUIDE}.tex \
 idas_intro.tex \
+idas_gpu.tex \
 idas_math.tex \
 idas_org.tex \
 idas_sim.tex \
@@ -32,6 +33,7 @@ idas_newlinsolv.tex \
 idas_sunlinsol.tex \
 idas_sunmat.tex \
 idas_sunnonlinsol.tex \
+idas_sunmem.tex \
 idas_constants.tex
 
 EX_FILES = \

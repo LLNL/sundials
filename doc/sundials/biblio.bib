@@ -728,20 +728,6 @@ year=1952
   howpublished = {http://crd-legacy.lbl.gov/~xiaoye/SuperLU/},
 }
 %
-% cuSOLVER
-%
-@Misc{cuSOLVER_site,
-  title = {{NVIDIA cuSOLVER Documentation}},
-  howpublished = {https://docs.nvidia.com/cuda/cusolver/index.html}
-}
-%
-% cuSPARSE
-%
-@Misc{cuSPARSE_site,
-  title = {{NVIDIA cuSPARSE Documentation}},
-  howpublished = {https://docs.nvidia.com/cuda/cusparse/index.html}
-}
-%
 % ADIFOR
 %
 @article{BCCGH:92,
@@ -1452,6 +1438,7 @@ year={1999}
 %
 % CUDA references
 %
+
 @book{cheng2014professional,
   title={Professional Cuda C Programming},
   author={Cheng, John and Grossman, Max and McKercher, Ty},
@@ -1466,9 +1453,44 @@ year={1999}
   institution={TRM-06704-001 v8}
 }
 
+@Misc{cuda_site,
+  title = {{NVIDIA CUDA Programming Guide}},
+  howpublished = {https://docs.nvidia.com/cuda/index.html}
+}
+
+@Misc{cuSOLVER_site,
+  title = {{NVIDIA cuSOLVER Programming Guide}},
+  howpublished = {https://docs.nvidia.com/cuda/cusolver/index.html}
+}
+
+@Misc{cuSPARSE_site,
+  title = {{NVIDIA cuSPARSE Programming Guide}},
+  howpublished = {https://docs.nvidia.com/cuda/cusparse/index.html}
+}
+
+%
+% ROCm/HIP references
+%
+
+@Misc{rocm_site,
+  title = {{AMD ROCm Documentation}},
+  howpublished = {https://rocmdocs.amd.com/en/latest/index.html}
+}
+
+
+%
+% oneAPI references
+%
+
+@Misc{oneAPI_site,
+  title = {{Intel oneAPI Programming Guide}},
+  howpublished = {https://software.intel.com/content/www/us/en/develop/documentation/oneapi-programming-guide/top.html}
+}
+
 %
 % RAJA references
 %
+
 @TechReport{raja,
  author = {R. D. Hornung and J. A. Keasler},
  title = {The RAJA Poratability Layer: Overview and Status},
@@ -1527,6 +1549,7 @@ author = "H. Carter Edwards and Christian R. Trott and Daniel Sunderland"
 %
 % SWIG Fortran references
 %
+
 @article{Swig-Fortran,
 author    = {Seth R. Johnson and
               Andrey Prokopenko and
@@ -1546,6 +1569,7 @@ bibsource = {dblp computer science bibliography, https://dblp.org}
 %
 % Using an alternative function in Jacobian-vector products
 %
+
 @article{dorr2010numerical,
   title={A numerical algorithm for the solution of a phase-field model of polycrystalline materials},
   author={Dorr, M.R. and Fattebert, J.-L. and Wickett, M.E. and Belak, J.F. and Turchi, P.E.A.},

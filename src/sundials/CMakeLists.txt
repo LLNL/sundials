@@ -35,6 +35,7 @@ set(sundials_HEADERS
   sundials_linearsolver.h
   sundials_math.h
   sundials_matrix.h
+  sundials_memory.h
   sundials_nonlinearsolver.h
   sundials_mpi_types.h
   sundials_nvector.h
@@ -63,6 +64,7 @@ if(BUILD_STATIC_LIBS)
     sundials_linearsolver.c
     sundials_math.c
     sundials_matrix.c
+    sundials_memory.c
     sundials_nonlinearsolver.c
     sundials_nvector.c
     sundials_nvector_senswrapper.c
@@ -79,6 +81,7 @@ if(BUILD_SHARED_LIBS)
       sundials_linearsolver.c
       sundials_math.c
       sundials_matrix.c
+      sundials_memory.c
       sundials_nonlinearsolver.c
       sundials_nvector.c
       sundials_nvector_senswrapper.c

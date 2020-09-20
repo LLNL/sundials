@@ -25,13 +25,19 @@ higher-order MRI-GARK methods [Sandu, SIAM J. Numer. Anal., 57, 2019],
 including methods that involve solve-decoupled, diagonally-implicit
 treatment of the slow time scale.
 
+A new API, `SUNMemoryHelper`, was added to support **GPU users** who have complex
+memory management needs such as using memory pools. This is paired with new
+constructors for the `NVECTOR_CUDA` and `NVECTOR_RAJA` modules that accept a
+`SUNMemoryHelper` object. Refer to "The SUNMemoryHelper API", "NVECTOR CUDA"
+and "NVECTOR RAJA" sections in the documentation for more information.
+
 The `NVECTOR_RAJA` module has been updated to mirror the `NVECTOR_CUDA` module.
 Notably, the update adds managed memory support to the `NVECTOR_RAJA` module.
 Users of the module will need to update any calls to the `N_VMake_Raja` function
 because that signature was changed. This module remains experimental and is
 subject to change from version to version.
 
-**This change may cause an error in existing user code**.
+**This change may cause a runtime error in existing user code**.
 In IDAS and CVODES, the functions for forward integration with checkpointing
 (`IDASolveF`, `CVodeF`) are now subject to a restriction on the number of time
 steps allowed to reach the output time. This is the same restriction applied to

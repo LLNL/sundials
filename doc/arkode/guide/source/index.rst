@@ -64,10 +64,12 @@ B598130 from `Lawrence Livermore National Laboratory
    MRIStep_c_interface/index.rst
    ARKode_f_interface/index.rst
    ARKodeButcherTable
+   ARKodeGpu
    nvectors/index.rst
    sunmatrix/index.rst
    sunlinsol/index.rst
    sunnonlinsol/index.rst
+   sunmemory/index.rst
    Install
    Constants
    Butcher

@@ -15,7 +15,7 @@
 :tocdepth: 3
 
 
-.. _SUNLinSol_cuSolverSp_batchQR:
+.. _SUNLinSol_cuSolverSp:
 
 The SUNLinSol_cuSolverSp_batchQR Module
 =======================================
@@ -29,7 +29,7 @@ is ``libsundials_sunlinsolcusolversp.lib`` where ``.lib`` is typically
 
 **The SUNLinearSolver_cuSolverSp_batchQR module is experimental and subject to change.**
 
-.. _SUNLinSol_cuSolverSp_batchQR.description:
+.. _SUNLinSol_cuSolverSp.description:
 
 SUNLinSol_cuSolverSp_batchQR description
 ----------------------------------------
@@ -53,7 +53,7 @@ The module is designed for solving block diagonal linear systems of the form
 where all block matrices :math:`\mathbf{A_j}` share the same sparsisty pattern. The matrix
 must be the :ref:`SUNMatrix_cuSparse`.
 
-.. _SUNLinSol_cuSolverSp_batchQR.functions:
+.. _SUNLinSol_cuSolverSp.functions:
 
 SUNLinSol_cuSolverSp_batchQR functions
 --------------------------------------
@@ -122,7 +122,7 @@ In addition, the module provides the following user-callable routines:
    of the workspace is almost independent of the number of blocks.
 
 
-.. _SUNLinSol_cuSolverSp_batchQR.content:
+.. _SUNLinSol_cuSolverSp.content:
 
 SUNLinSol_cuSolverSp_batchQR content
 ------------------------------------

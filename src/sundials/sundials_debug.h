@@ -20,6 +20,8 @@
 #ifndef _SUNDIALS_DEBUG_H
 #define _SUNDIALS_DEBUG_H
 
+#include <stdio.h>
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif

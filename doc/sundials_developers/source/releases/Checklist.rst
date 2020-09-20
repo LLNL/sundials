@@ -67,9 +67,14 @@ web pages.
 
 #. Create release branch from trunk in the Git repository
 
+#. If this is a major release, search the SUNDIALS code for
+   'DEPRECATION NOTICE' and 'SUNDIALS_DEPRECATED'. All deprecated
+   functions should be removed.
+
 #. Regenerate the Fortran 2003 interfaces. It is possible nothing will be updated.
 
-#. Update the "Changes in ..." sections in all user guides.
+#. Update the "Changes in ..." sections in all user guides. The changes should be
+   sorted so that major new features are above bug fixes.
 
 #. Update version numbers and release date information using the ``updateVerson.sh``
    script. This will update the following files:

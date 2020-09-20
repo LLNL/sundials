@@ -53,7 +53,7 @@ each block is stored as dense). In this format, the CSR column indices and row p
 are only stored for the first block and are computed only as necessary for other blocks.
 This can drastically reduce the amount of storage required compared to the regular CSR
 format when there is a large number of blocks. This format is well-suited for, and
-intended to be used with the :ref:`SUNLinSol_cuSolverSp_batchQR`.
+intended to be used with the :ref:`SUNLinSol_cuSolverSp`.
 
 **The SUNMATRIX_CUSPARSE module is experimental and subject to change.**
 

@@ -22,6 +22,7 @@ UG_FILES = \
 ${USER_GUIDE}.tex \
 ida_intro.tex \
 ida_install.tex \
+ida_gpu.tex \
 ida_math.tex \
 ida_usage.tex \
 ida_fcmix.tex \
@@ -31,6 +32,7 @@ ida_newlinsolv.tex \
 ida_sunlinsol.tex \
 ida_sunmat.tex \
 ida_sunnonlinsol.tex \
+ida_sunmem.tex \
 ida_constants.tex
 
 EX_FILES = \

@@ -134,6 +134,13 @@ the cumulative number of failures with \id{CVodeGetNumNonlinSolvConvFails},
 \id{CVodeGetNonlinSolvStats}, \id{CVodeGetSensNonlinSolvStats},
 \id{CVodeGetStgrSensNonlinSolvStats}.
 
+A new API, \id{SUNMemoryHelper}, was added to support \textbf{GPU users} who
+have complex memory management needs such as using memory pools. This is paired
+with new constructors for the {\nveccuda} and {\nvecraja} modules that accept a
+\id{SUNMemoryHelper} object. Refer to sections
+\ref{s:gpu_model},\ref{s:sunmemory}, \ref{ss:nvec_cuda} and \ref{ss:nvec_raja}
+for more information.
+
 The \id{NVECTOR\_RAJA} module has been updated to mirror the \id{NVECTOR\_CUDA}
 module. Notably, the update adds managed memory support to the
 \id{NVECTOR\_RAJA} module. Users of the module will need to update any calls to

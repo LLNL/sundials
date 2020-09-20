@@ -21,6 +21,7 @@ EXAMPLES   = cvs_examples
 UG_FILES = \
 ${USER_GUIDE}.tex \
 cvs_intro.tex \
+cvs_gpu.tex \
 cvs_math.tex \
 cvs_org.tex \
 cvs_sim.tex \
@@ -31,6 +32,7 @@ cvs_nvec.tex \
 cvs_newlinsolv.tex \
 cvs_sunlinsol.tex \
 cvs_sunnonlinsol.tex \
+cvs_sunmem.tex \
 cvs_constants.tex
 
 EX_FILES = \
@@ -38,6 +40,6 @@ ${EXAMPLES}.tex \
 cvs_ex_intro.tex \
 cvs_ex_fwd.tex \
 cvs_ex_adj.tex \
-cvs_ex_tests.tex   
+cvs_ex_tests.tex
 
 include ../Makefile.in
