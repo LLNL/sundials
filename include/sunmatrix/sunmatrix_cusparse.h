@@ -53,11 +53,18 @@ struct _SUNMatrix_Content_cuSparse {
   booleantype own_matd;
   booleantype own_exec;
   booleantype fixed_pattern;
+  booleantype matvec_issetup;
   SUNMemory colind;
   SUNMemory rowptrs;
   SUNMemory data;
   SUNMemoryHelper mem_helper;
   cusparseMatDescr_t mat_descr;
+#if CUDART_VERSION >= 11000
+  SUNMemory dBufferMem;
+  size_t bufferSize;
+  cusparseDnVecDescr_t vecX, vecY;
+  cusparseSpMatDescr_t spmat_descr;
+#endif
   cusparseHandle_t cusp_handle;
   SUNCudaExecPolicy* exec_policy;
 };
@@ -116,6 +123,7 @@ SUNDIALS_EXPORT int SUNMatZero_cuSparse(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_cuSparse(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_cuSparse(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_cuSparse(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatMatvecSetup_cuSparse(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_cuSparse(SUNMatrix A, N_Vector x, N_Vector y);
 
 

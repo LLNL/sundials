@@ -460,7 +460,6 @@ private:
   * --------------------------------------------------------------------*/
 int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 {
-  printf("HERE\n");
   int print_all_ranks = 0;
   realtype  tol = 100*UNIT_ROUNDOFF;
   SUNMatrix B = SUNMatClone(I);

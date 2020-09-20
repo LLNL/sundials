@@ -54,6 +54,7 @@ existing non-identity mass matrix infrastructure to support use of the
 fixed point nonlinear solver.  Fixed bug for ERK method integration with
 static mass matrices.
 
+Added support for CUDA v11.
 
 ## Changes to SUNDIALS in release 5.3.0
 
