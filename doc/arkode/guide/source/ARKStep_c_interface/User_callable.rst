@@ -2134,14 +2134,17 @@ matrix-based and matrix-free groups are mutually exclusive, whereas the
 
 .. _ARKStep_CInterface.ARKLsInputs.General:
 
+.. index::
+   single: optional input; generic linear solver interface (ARKStep)
+
 Optional inputs for the ARKLS linear solver interface
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 As discussed in the section :ref:`Mathematics.Linear.Setup`, ARKode
 strives to reuse matrix and preconditioner data for as many solves as
 possible to amortize the high costs of matrix construction and
-factorization.  To that end, ARKStep provides three user-callable
-routines to modify this behavior.  To this end, we recall that the
+factorization.  To that end, ARKStep provides user-callable
+routines to modify this behavior.  Recall that the
 Newton system matrices that arise within an implicit stage solve are
 :math:`{\mathcal A}(t,z) \approx M - \gamma J(t,z)`, where the
 implicit right-hand side function has Jacobian matrix
@@ -2151,7 +2154,7 @@ The matrix or preconditioner for :math:`{\mathcal A}` can only be
 updated within a call to the linear solver 'setup' routine.  In
 general, the frequency with which the linear solver setup routine is
 called may be controlled with the *msbp* argument to
-:c:func:`ARKStepSetMaxStepsBetweenLSet()`.  When this occurs, the
+:c:func:`ARKStepSetLSetupFrequency()`.  When this occurs, the
 validity of :math:`{\mathcal A}` for successive time steps
 intimately depends on whether the corresponding :math:`\gamma` and
 :math:`J` inputs remain valid.
@@ -2166,7 +2169,7 @@ or reevaluate Jacobian information, depends on several factors including:
 * the number of steps since Jacobian information was last evaluated.
 
 The frequency with which to update Jacobian information can be controlled
-with the *msbj* argument to :c:func:`ARKStepSetMaxStepsBetweenJac()`.
+with the *msbj* argument to :c:func:`ARKStepSetJacEvalFrequency()`.
 We note that this is only checked *within* calls to the linear solver setup
 routine, so values *msbj* :math:`<` *msbp* do not make sense. For
 linear-solvers with user-supplied preconditioning the above factors are used
@@ -2181,15 +2184,14 @@ is recomputed using the current :math:`\gamma` value.
 
 
 
-
 .. cssclass:: table-bordered
 
 =============================================  =========================================  ============
 Optional input                                 Function name                              Default
 =============================================  =========================================  ============
 Max change in step signaling new :math:`J`     :c:func:`ARKStepSetDeltaGammaMax()`        0.2
-Max steps between calls to "lsetup" routine    :c:func:`ARKStepSetMaxStepsBetweenLSet()`  20
-Max steps between calls to new :math:`J`       :c:func:`ARKStepSetMaxStepsBetweenJac()`   50
+Linear solver setup frequency                  :c:func:`ARKStepSetLSetupFrequency()`      20
+Jacobian / preconditioner update frequency     :c:func:`ARKStepSetJacEvalFrequency()`     51
 =============================================  =========================================  ============
 
 
@@ -2211,49 +2213,60 @@ Max steps between calls to new :math:`J`       :c:func:`ARKStepSetMaxStepsBetwee
    **Notes:**  Any non-positive parameter will imply a reset to the default value.
 
 
+.. index::
+   single: optional input; linear solver setup frequency (ARKStep)
 
-.. c:function:: int ARKStepSetMaxStepsBetweenLSet(void* arkode_mem, int msbp)
+.. c:function:: int ARKStepSetLSetupFrequency(void* arkode_mem, int msbp)
 
    Specifies the frequency of calls to the linear solver setup
-   routine.  Positive values specify the number of time steps between
-   setup calls; negative values force recomputation at each stage
-   solve; zero values reset to the default.
+   routine.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *msbp* -- maximum number of time steps between linear solver
-        setup calls, or flag to force recomputation at each stage
-        solve (default is 20).
+      * *msbp* -- the linear solver setup frequency.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
 
+   **Notes:**
+   Positive values of **msbp** specify the linear solver setup frequency. For
+   example, an input of 1 means the setup function will be called every time
+   step while an input of 2 means it will be called called every other time
+   step. If **msbp** is 0, the default value of 20 will be used. A negative
+   value forces a linear solver step at each implicit stage.
 
 
-.. c:function:: int ARKStepSetMaxStepsBetweenJac(void* arkode_mem, long int msbj)
+.. index::
+   single: optional input; Jacobian update frequency (ARKStep)
+   single: optional input; preconditioner update frequency (ARKStep)
 
-   Specifies the maximum number of time steps to wait before
-   recomputation of the Jacobian or recommendation to update the
-   preconditioner.
+.. c:function:: int ARKStepSetJacEvalFrequency(void* arkode_mem, long int msbj)
+
+   Specifies the frequency for recomputing the Jacobian or recommending a
+   preconditioner update.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *msbj* -- maximum number of time steps between Jacobian or
-        preconditioner updates (default is 50).
+      * *msbj* -- the Jacobian re-computation or preconditioner update frequency.
 
    **Return value:**
       * *ARKLS_SUCCESS* if successful.
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``.
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``.
-      * *ARKLS_ILL_INPUT* if an input has an illegal value.
 
-   **Notes:** Passing a value *msbj* :math:`\le 0` indicates to use the
-   default value of 50.
+   **Notes:**
+   The Jacobian update frequency is only checked *within* calls to the linear
+   solver setup routine, as such values of *msbj* :math:`<` *msbp* will result
+   in recomputing the Jacobian every *msbp* steps. See
+   :c:func:`ARKStepSetLSetupFrequency()` for setting the linear solver steup
+   frequency *msbp*.
 
-   This function must be called *after* the ARKLS system solver
-   interface has been initialized through a call to
-   :c:func:`ARKStepSetLinearSolver()`.
+   Passing a value *msbj* :math:`\le 0` indicates to use the
+   default value of 51.
+
+   This function must be called *after* the ARKLS system solver interface has
+   been initialized through a call to :c:func:`ARKStepSetLinearSolver()`.
 
 
 

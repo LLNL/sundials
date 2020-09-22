@@ -448,9 +448,9 @@ int main(int argc, char* argv[])
   flag = ARKStepSetJacFn(arkode_mem, Jac);
   if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
 
-  // Set max steps between linear solver setup calls
-  flag = ARKStepSetMaxStepsBetweenLSet(arkode_mem, udata->msbp);
-  if (check_flag(&flag, "ARKStepSetMaxStepBetweenLSet", 1)) return 1;
+  // Set linear solver (preconditioner) setup frequency
+  flag = ARKStepSetLSetupFrequency(arkode_mem, udata->msbp);
+  if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) return 1;
 
   // Set linear solver tolerance factor
   flag = ARKStepSetEpsLin(arkode_mem, udata->epslin);

@@ -162,8 +162,8 @@ SUNDIALS_EXPORT int ARKStepSetNonlinRDiv(void *arkode_mem,
                                          realtype rdiv);
 SUNDIALS_EXPORT int ARKStepSetDeltaGammaMax(void *arkode_mem,
                                             realtype dgmax);
-SUNDIALS_EXPORT int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem,
-                                                  int msbp);
+SUNDIALS_EXPORT int ARKStepSetLSetupFrequency(void *arkode_mem,
+                                              int msbp);
 SUNDIALS_EXPORT int ARKStepSetPredictorMethod(void *arkode_mem,
                                               int method);
 SUNDIALS_EXPORT int ARKStepSetStabilityFn(void *arkode_mem,
@@ -221,8 +221,8 @@ SUNDIALS_EXPORT int ARKStepSetStagePredictFn(void *arkode_mem,
    AFTER ARKStepSetLinearSolver and/or ARKStepSetMassLinearSolver */
 SUNDIALS_EXPORT int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac);
 SUNDIALS_EXPORT int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass);
-SUNDIALS_EXPORT int ARKStepSetMaxStepsBetweenJac(void *arkode_mem,
-                                                 long int msbj);
+SUNDIALS_EXPORT int ARKStepSetJacEvalFrequency(void *arkode_mem,
+                                               long int msbj);
 SUNDIALS_EXPORT int ARKStepSetLinearSolutionScaling(void *arkode_mem,
                                                     booleantype onoff);
 SUNDIALS_EXPORT int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac);
@@ -407,6 +407,13 @@ SUNDIALS_EXPORT void ARKStepFree(void **arkode_mem);
 
 /* Output the ARKStep memory structure (useful when debugging) */
 SUNDIALS_EXPORT void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
+
+
+/* Deprecated functions */
+SUNDIALS_DEPRECATED int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem,
+                                                      int msbp);
+SUNDIALS_DEPRECATED int ARKStepSetMaxStepsBetweenJac(void *arkode_mem,
+                                                     long int msbj);
 
 
 #ifdef __cplusplus

@@ -146,13 +146,6 @@ higher-order MRI-GARK methods [S2019]_, including methods that
 involve solve-decoupled, diagonally-implicit treatment of the
 slow time scale.
 
-A new API, ``SUNMemoryHelper``, was added to support **GPU users** who
-have complex memory management needs such as using memory pools. This is paired
-with new constructors for the CUDA and RAJA NVECTOR modules that accept a
-``SUNMemoryHelper`` object. Refer to sections :ref:`ARKodeGpu`,
-:ref:`SUNMemory`, :ref:`NVectors.CUDA`, and :ref:`NVectors.RAJA`
-for more information.
-
 The ``NVECTOR_RAJA`` module has been updated to mirror the ``NVECTOR_CUDA`` module.
 Notably, the update adds managed memory support to the ``NVECTOR_RAJA`` module.
 Users of the module will need to update any calls to the ``N_VMake_Raja`` function
@@ -168,6 +161,16 @@ fixed point nonlinear solver. Fixed bug for ERK method integration with
 static mass matrices.
 
 Added support for CUDA v11.
+
+A minor bug in checking the Jacobian evaluation frequency has been fixed. As a
+result codes using using a non-default Jacobian update frequency through a call
+to :c:func:`ARKStepSetMaxStepsBetweenJac()` will need to increase the provided
+value by 1 to achieve the same behavior as before. Additionally, for greater
+clarity the functions :c:func:`ARKStepSetMaxStepsBetweenLSet()` and
+:c:func:`ARKStepSetMaxStepsBetweenJac()` have been deprecated and replaced with
+:c:func:`ARKStepSetLSetupFrequency()` and :c:func:`ARKStepSetJacEvalFrequency()`
+respectively.
+
 
 Changes in v4.3.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

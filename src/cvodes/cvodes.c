@@ -372,7 +372,6 @@
  * cvNls
  *
  *    DGMAX       |gamma/gammap-1| > DGMAX => call lsetup
- *    MSBP        max no. of steps between lsetup calls
  *
  */
 
@@ -407,7 +406,7 @@
 #define LONG_WAIT    10
 
 #define DGMAX  RCONST(0.3)
-#define MSBP   20
+
 
 /*=================================================================*/
 /* Private Helper Functions Prototypes                             */
@@ -624,6 +623,7 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_maxnef         = MXNEF;
   cv_mem->cv_maxncf         = MXNCF;
   cv_mem->cv_nlscoef        = CORTES;
+  cv_mem->cv_msbp           = MSBP;
   cv_mem->convfail          = CV_NO_FAILURES;
   cv_mem->cv_constraints    = NULL;
   cv_mem->cv_constraintsSet = SUNFALSE;
@@ -6193,7 +6193,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
       (cv_mem->cv_nst == 0) ||
-      (cv_mem->cv_nst >= cv_mem->cv_nstlp + MSBP) ||
+      (cv_mem->cv_nst >= cv_mem->cv_nstlp + cv_mem->cv_msbp) ||
       (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
 
     /* Decide whether to force a call to setup */

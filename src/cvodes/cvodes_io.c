@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the optional input and output
  * functions for the CVODES solver.
- * -----------------------------------------------------------------*/
+ * ----------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -463,6 +463,38 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_nlscoef = nlscoef;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetLSetupFrequency
+ *
+ * Specifies the frequency for calling the linear solver setup function to
+ * recompute the Jacobian matrix and/or preconditioner
+ */
+
+int CVodeSetLSetupFrequency(void *cvode_mem, long int msbp)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetLSetupFrequency",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* check for a valid input */
+  if (msbp < 0) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetLSetupFrequency",
+                   "A negative setup frequency was provided");
+    return(CV_ILL_INPUT);
+  }
+
+  /* use default or user provided value */
+  cv_mem->cv_msbp = (msbp == 0) ? MSBP : msbp;
 
   return(CV_SUCCESS);
 }

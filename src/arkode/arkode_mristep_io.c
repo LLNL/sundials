@@ -119,8 +119,8 @@ int MRIStepSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   return(arkLSSetLinearSolver(arkode_mem, LS, A)); }
 int MRIStepSetJacFn(void *arkode_mem, ARKLsJacFn jac) {
   return(arkLSSetJacFn(arkode_mem, jac)); }
-int MRIStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj) {
-  return(arkLSSetMaxStepsBetweenJac(arkode_mem, msbj)); }
+int MRIStepSetJacEvalFrequency(void *arkode_mem, long int msbj) {
+  return(arkLSSetJacEvalFrequency(arkode_mem, msbj)); }
 int MRIStepSetLinearSolutionScaling(void *arkode_mem, booleantype onoff) {
   return(arkLSSetLinearSolutionScaling(arkode_mem, onoff)); }
 int MRIStepSetEpsLin(void *arkode_mem, realtype eplifac) {
@@ -704,22 +704,21 @@ int MRIStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
 
 
 /*---------------------------------------------------------------
-  MRIStepSetMaxStepsBetweenLSet:
+  MRIStepSetLSetupFrequency:
 
   Specifies the user-provided linear setup decision constant
-  msbp.  Positive values give the number of time steps to wait
-  before calling lsetup; negative values imply recomputation of
-  lsetup at each nonlinear solve; a zero value implies a reset
-  to the default.
+  msbp.  Positive values give the frequency for calling lsetup;
+  negative values imply recomputation of lsetup at each nonlinear
+  solve; a zero value implies a reset to the default.
   ---------------------------------------------------------------*/
-int MRIStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
+int MRIStepSetLSetupFrequency(void *arkode_mem, int msbp)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetMaxStepsBetweenLSet",
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetLSetupFrequency",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 

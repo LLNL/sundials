@@ -973,7 +973,7 @@ SWIGEXPORT int _wrap_FMRIStepSetDeltaGammaMax(void *farg1, double const *farg2) 
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepSetMaxStepsBetweenLSet(void *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FMRIStepSetLSetupFrequency(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int arg2 ;
@@ -981,7 +981,7 @@ SWIGEXPORT int _wrap_FMRIStepSetMaxStepsBetweenLSet(void *farg1, int const *farg
   
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)MRIStepSetMaxStepsBetweenLSet(arg1,arg2);
+  result = (int)MRIStepSetLSetupFrequency(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1239,7 +1239,7 @@ SWIGEXPORT int _wrap_FMRIStepSetJacFn(void *farg1, ARKLsJacFn farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepSetMaxStepsBetweenJac(void *farg1, long const *farg2) {
+SWIGEXPORT int _wrap_FMRIStepSetJacEvalFrequency(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   long arg2 ;
@@ -1247,7 +1247,7 @@ SWIGEXPORT int _wrap_FMRIStepSetMaxStepsBetweenJac(void *farg1, long const *farg
   
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
-  result = (int)MRIStepSetMaxStepsBetweenJac(arg1,arg2);
+  result = (int)MRIStepSetJacEvalFrequency(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

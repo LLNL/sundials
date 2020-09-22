@@ -360,7 +360,7 @@ int main(int argc, char* argv[])
   // Specify tolerances
   flag = ARKStepSStolerances(arkode_mem, udata->rtol, udata->atol);
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
-  
+
   // Attach linear solver
   flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
   if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
@@ -371,9 +371,9 @@ int main(int argc, char* argv[])
     flag = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
     if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) return 1;
 
-    // Set max steps between linear solver (preconditioner) setup calls
-    flag = ARKStepSetMaxStepsBetweenLSet(arkode_mem, udata->msbp);
-    if (check_flag(&flag, "ARKStepSetMaxStepBetweenLSet", 1)) return 1;
+    // Set linear solver (preconditioner) setup frequency
+    flag = ARKStepSetLSetupFrequency(arkode_mem, udata->msbp);
+    if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) return 1;
   }
 
   // Set linear solver tolerance factor
@@ -1306,7 +1306,7 @@ static int InitUserData(UserData *udata)
 
   // MPI variables (set in SetupDecomp)
   udata->comm_c = MPI_COMM_NULL;
-  
+
   udata->nprocs_w = 1;
   udata->npx      = 1;
   udata->npy      = 1;
@@ -1925,7 +1925,7 @@ static int OutputTiming(UserData *udata)
     {
       cout << "  PSolve time   = " << maxtime << " sec" << endl;
       cout << endl;
-    }  
+    }
   }
 
   return 0;

@@ -859,7 +859,7 @@ SWIGEXPORT int _wrap_FARKStepSetDeltaGammaMax(void *farg1, double const *farg2) 
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetMaxStepsBetweenLSet(void *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FARKStepSetLSetupFrequency(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int arg2 ;
@@ -867,7 +867,7 @@ SWIGEXPORT int _wrap_FARKStepSetMaxStepsBetweenLSet(void *farg1, int const *farg
   
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)ARKStepSetMaxStepsBetweenLSet(arg1,arg2);
+  result = (int)ARKStepSetLSetupFrequency(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1239,7 +1239,7 @@ SWIGEXPORT int _wrap_FARKStepSetMassFn(void *farg1, ARKLsMassFn farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetMaxStepsBetweenJac(void *farg1, long const *farg2) {
+SWIGEXPORT int _wrap_FARKStepSetJacEvalFrequency(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   long arg2 ;
@@ -1247,7 +1247,7 @@ SWIGEXPORT int _wrap_FARKStepSetMaxStepsBetweenJac(void *farg1, long const *farg
   
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
-  result = (int)ARKStepSetMaxStepsBetweenJac(arg1,arg2);
+  result = (int)ARKStepSetJacEvalFrequency(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -2228,6 +2228,34 @@ SWIGEXPORT void _wrap_FARKStepPrintMem(void *farg1, void *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   ARKStepPrintMem(arg1,arg2);
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetMaxStepsBetweenLSet(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ARKStepSetMaxStepsBetweenLSet(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetMaxStepsBetweenJac(void *farg1, long const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long)(*farg2);
+  result = (int)ARKStepSetMaxStepsBetweenJac(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
 }
 
 

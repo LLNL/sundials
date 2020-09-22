@@ -403,7 +403,7 @@ Key                      ARKStep routine
 ``MAX_CONVFAIL``         :c:func:`ARKStepSetMaxConvFails()`
 ``MAX_NITERS``           :c:func:`ARKStepSetMaxNonlinIters()`
 ``ADAPT_SMALL_NEF``      :c:func:`ARKStepSetSmallNumEFails()`
-``LSETUP_MSBP``          :c:func:`ARKStepSetMaxStepsBetweenLSet()`
+``LSETUP_MSBP``          :c:func:`ARKStepSetLSetupFrequency()`
 ``MAX_CONSTR_FAIL``      :c:func:`ARKStepSetMaxNumConstrFails()`
 =======================  =========================================
 

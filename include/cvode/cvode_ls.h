@@ -88,8 +88,8 @@ SUNDIALS_EXPORT int CVodeSetLinearSolver(void *cvode_mem,
   -----------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int CVodeSetJacFn(void *cvode_mem, CVLsJacFn jac);
-SUNDIALS_EXPORT int CVodeSetMaxStepsBetweenJac(void *cvode_mem,
-                                               long int msbj);
+SUNDIALS_EXPORT int CVodeSetJacEvalFrequency(void *cvode_mem,
+                                             long int msbj);
 SUNDIALS_EXPORT int CVodeSetLinearSolutionScaling(void *cvode_mem,
                                                   booleantype onoff);
 SUNDIALS_EXPORT int CVodeSetEpsLin(void *cvode_mem, realtype eplifac);
@@ -136,6 +136,9 @@ SUNDIALS_EXPORT int CVodeGetLastLinFlag(void *cvode_mem,
 SUNDIALS_EXPORT char *CVodeGetLinReturnFlagName(long int flag);
 
 
+/* Deprecated functions */
+SUNDIALS_DEPRECATED int CVodeSetMaxStepsBetweenJac(void *cvode_mem,
+                                                   long int msbj);
 #ifdef __cplusplus
 }
 #endif

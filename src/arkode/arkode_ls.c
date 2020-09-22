@@ -606,18 +606,17 @@ int arkLSSetNormFactor(void *arkode_mem, realtype nrmfac)
 
 
 /*---------------------------------------------------------------
-  arkLSSetMaxStepsBetweenJac specifies the maximum number of
-  time steps to wait before recomputing the Jacobian matrix
-  and/or preconditioner.
+  arkLSSetJacEvalFrequency specifies the frequency for
+  recomputing the Jacobian matrix and/or preconditioner.
   ---------------------------------------------------------------*/
-int arkLSSetMaxStepsBetweenJac(void *arkode_mem, long int msbj)
+int arkLSSetJacEvalFrequency(void *arkode_mem, long int msbj)
 {
   ARKodeMem ark_mem;
   ARKLsMem  arkls_mem;
   int       retval;
 
   /* access ARKLsMem structure; store input and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetMaxStepsBetweenJac",
+  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetJacEvalFrequency",
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
   arkls_mem->msbj = (msbj <= ZERO) ? ARKLS_MSBJ : msbj;
@@ -2425,7 +2424,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
      solver converged due to a bad system Jacobian AND our gamma was
      fine, indicating that the J and/or P were invalid */
   arkls_mem->jbad = (ark_mem->initsetup) ||
-    (ark_mem->nst > arkls_mem->nstlj + arkls_mem->msbj) ||
+    (ark_mem->nst >= arkls_mem->nstlj + arkls_mem->msbj) ||
     ((convfail == ARK_FAIL_BAD_J) && (!dgamma_fail)) ||
     (convfail == ARK_FAIL_OTHER);
 

@@ -173,8 +173,8 @@ SUNDIALS_EXPORT int MRIStepSetNonlinRDiv(void *arkode_mem,
                                          realtype rdiv);
 SUNDIALS_EXPORT int MRIStepSetDeltaGammaMax(void *arkode_mem,
                                             realtype dgmax);
-SUNDIALS_EXPORT int MRIStepSetMaxStepsBetweenLSet(void *arkode_mem,
-                                                  int msbp);
+SUNDIALS_EXPORT int MRIStepSetLSetupFrequency(void *arkode_mem,
+                                              int msbp);
 SUNDIALS_EXPORT int MRIStepSetPredictorMethod(void *arkode_mem,
                                               int method);
 SUNDIALS_EXPORT int MRIStepSetMaxNonlinIters(void *arkode_mem,
@@ -213,8 +213,8 @@ SUNDIALS_EXPORT int MRIStepSetStagePredictFn(void *arkode_mem,
 /* Linear solver interface optional input functions -- must be called
    AFTER MRIStepSetLinearSolver */
 SUNDIALS_EXPORT int MRIStepSetJacFn(void *arkode_mem, ARKLsJacFn jac);
-SUNDIALS_EXPORT int MRIStepSetMaxStepsBetweenJac(void *arkode_mem,
-                                                 long int msbj);
+SUNDIALS_EXPORT int MRIStepSetJacEvalFrequency(void *arkode_mem,
+                                               long int msbj);
 SUNDIALS_EXPORT int MRIStepSetLinearSolutionScaling(void *arkode_mem,
                                                     booleantype onoff);
 SUNDIALS_EXPORT int MRIStepSetEpsLin(void *arkode_mem, realtype eplifac);

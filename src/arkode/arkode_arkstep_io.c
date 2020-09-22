@@ -126,8 +126,8 @@ int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac) {
   return(arkLSSetJacFn(arkode_mem, jac)); }
 int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass) {
   return(arkLSSetMassFn(arkode_mem, mass)); }
-int ARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj) {
-  return(arkLSSetMaxStepsBetweenJac(arkode_mem, msbj)); }
+int ARKStepSetJacEvalFrequency(void *arkode_mem, long int msbj) {
+  return(arkLSSetJacEvalFrequency(arkode_mem, msbj)); }
 int ARKStepSetLinearSolutionScaling(void *arkode_mem, booleantype onoff) {
   return(arkLSSetLinearSolutionScaling(arkode_mem, onoff)); }
 int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac) {
@@ -154,6 +154,10 @@ int ARKStepSetMassTimes(void *arkode_mem, ARKLsMassTimesSetupFn msetup,
   return(arkLSSetMassTimes(arkode_mem, msetup, mtimes, mtimes_data)); }
 int ARKStepSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys) {
   return(arkLSSetLinSysFn(arkode_mem, linsys)); }
+
+/* deprecated */
+int ARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj) {
+  return(arkLSSetJacEvalFrequency(arkode_mem, msbj)); }
 
 
 /*===============================================================
@@ -1168,22 +1172,21 @@ int ARKStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
 
 
 /*---------------------------------------------------------------
-  ARKStepSetMaxStepsBetweenLSet:
+  ARKStepSetLSetupFrequency:
 
   Specifies the user-provided linear setup decision constant
-  msbp.  Positive values give the number of time steps to wait
-  before calling lsetup; negative values imply recomputation of
-  lsetup at each nonlinear solve; a zero value implies a reset
-  to the default.
+  msbp.  Positive values give the frequency for calling lsetup;
+  negative values imply recomputation of lsetup at each nonlinear
+  solve; a zero value implies a reset to the default.
   ---------------------------------------------------------------*/
-int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
+int ARKStepSetLSetupFrequency(void *arkode_mem, int msbp)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetMaxStepsBetweenLSet",
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetLSetupFrequency",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
@@ -1195,6 +1198,12 @@ int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
   }
 
   return(ARK_SUCCESS);
+}
+
+/* Deprecated */
+int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
+{
+  return(ARKStepSetLSetupFrequency(arkode_mem, msbp));
 }
 
 

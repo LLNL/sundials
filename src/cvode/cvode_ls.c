@@ -1,7 +1,7 @@
-/*-----------------------------------------------------------------
+/* ----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
- *-----------------------------------------------------------------
+ * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -11,9 +11,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- *-----------------------------------------------------------------
+ * ----------------------------------------------------------------
  * Implementation file for CVode's linear solver interface.
- *-----------------------------------------------------------------*/
+ * ---------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -350,22 +350,35 @@ int CVodeSetLSNormFactor(void *cvode_mem, realtype nrmfac)
 }
 
 
-/* CVodeSetMaxStepsBetweenJac specifies the maximum number of
-   time steps to wait before recomputing the Jacobian matrix
-   and/or preconditioner */
-int CVodeSetMaxStepsBetweenJac(void *cvode_mem, long int msbj)
+/* CVodeSetJacEvalFrequency specifies the frequency for recomputing the Jacobian
+   matrix and/or preconditioner */
+int CVodeSetJacEvalFrequency(void *cvode_mem, long int msbj)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
   int      retval;
 
   /* access CVLsMem structure; store input and return */
-  retval = cvLs_AccessLMem(cvode_mem, "CVodeSetMaxStepsBetweenJac",
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeSetJacEvalFrequency",
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
-  cvls_mem->msbj = (msbj <= ZERO) ? CVLS_MSBJ : msbj;
+
+  /* Check for legal msbj */
+  if(msbj < 0) {
+    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS", "CVodeSetJacEvalFrequency",
+                   "A negative evaluation frequency was provided.");
+    return(CVLS_ILL_INPUT);
+  }
+
+  cvls_mem->msbj = (msbj == 0) ? CVLS_MSBJ : msbj;
 
   return(CVLS_SUCCESS);
+}
+
+/* Deprecated */
+int CVodeSetMaxStepsBetweenJac(void *cvode_mem, long int msbj)
+{
+  return(CVodeSetJacEvalFrequency(cvode_mem, msbj));
 }
 
 
@@ -1464,7 +1477,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   /* Use nst, gamma/gammap, and convfail to set J/P eval. flag jok */
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
   cvls_mem->jbad = (cv_mem->cv_nst == 0) ||
-    (cv_mem->cv_nst > cvls_mem->nstlj + cvls_mem->msbj) ||
+    (cv_mem->cv_nst >= cvls_mem->nstlj + cvls_mem->msbj) ||
     ((convfail == CV_FAIL_BAD_J) && (dgamma < CVLS_DGMAX)) ||
     (convfail == CV_FAIL_OTHER);
 

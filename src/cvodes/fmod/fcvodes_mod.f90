@@ -120,6 +120,7 @@ module fcvodes_mod
  public :: FCVodeSetMaxNonlinIters
  public :: FCVodeSetMaxConvFails
  public :: FCVodeSetNonlinConvCoef
+ public :: FCVodeSetLSetupFrequency
  public :: FCVodeSetConstraints
  public :: FCVodeSetNonlinearSolver
  public :: FCVodeRootInit
@@ -324,7 +325,7 @@ module fcvodes_mod
  integer(C_INT), parameter, public :: CVLS_LMEMB_NULL = -102_C_INT
  public :: FCVodeSetLinearSolver
  public :: FCVodeSetJacFn
- public :: FCVodeSetMaxStepsBetweenJac
+ public :: FCVodeSetJacEvalFrequency
  public :: FCVodeSetLinearSolutionScaling
  public :: FCVodeSetEpsLin
  public :: FCVodeSetLSNormFactor
@@ -354,6 +355,7 @@ module fcvodes_mod
  public :: FCVodeSetJacTimesBS
  public :: FCVodeSetLinSysFnB
  public :: FCVodeSetLinSysFnBS
+ public :: FCVodeSetMaxStepsBetweenJac
 
 ! WRAPPER DECLARATIONS
 interface
@@ -548,6 +550,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetLSetupFrequency(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetLSetupFrequency") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2130,8 +2141,8 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxStepsBetweenJac") &
+function swigc_FCVodeSetJacEvalFrequency(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetJacEvalFrequency") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2417,6 +2428,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 type(C_FUNPTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMaxStepsBetweenJac") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2773,6 +2793,22 @@ real(C_DOUBLE) :: farg2
 farg1 = cvode_mem
 farg2 = nlscoef
 fresult = swigc_FCVodeSetNonlinConvCoef(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetLSetupFrequency(cvode_mem, msbp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), intent(in) :: msbp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = cvode_mem
+farg2 = msbp
+fresult = swigc_FCVodeSetLSetupFrequency(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -5695,7 +5731,7 @@ fresult = swigc_FCVodeSetJacFn(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeSetMaxStepsBetweenJac(cvode_mem, msbj) &
+function FCVodeSetJacEvalFrequency(cvode_mem, msbj) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -5707,7 +5743,7 @@ integer(C_LONG) :: farg2
 
 farg1 = cvode_mem
 farg2 = msbj
-fresult = swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2)
+fresult = swigc_FCVodeSetJacEvalFrequency(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -6230,6 +6266,22 @@ farg1 = cvode_mem
 farg2 = which
 farg3 = linsys
 fresult = swigc_FCVodeSetLinSysFnBS(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeSetMaxStepsBetweenJac(cvode_mem, msbj) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), intent(in) :: msbj
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = cvode_mem
+farg2 = msbj
+fresult = swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2)
 swig_result = fresult
 end function
 

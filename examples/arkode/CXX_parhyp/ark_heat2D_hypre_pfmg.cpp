@@ -404,9 +404,9 @@ int main(int argc, char* argv[])
     flag = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
     if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) return 1;
 
-    // Set max steps between linear solver (preconditioner) setup calls
-    flag = ARKStepSetMaxStepsBetweenLSet(arkode_mem, udata->msbp);
-    if (check_flag(&flag, "ARKStepSetMaxStepBetweenLSet", 1)) return 1;
+    // Set linear solver (preconditioner) setup frequency
+    flag = ARKStepSetLSetupFrequency(arkode_mem, udata->msbp);
+    if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) return 1;
   }
 
   // Set linear solver tolerance factor

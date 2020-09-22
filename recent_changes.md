@@ -62,6 +62,19 @@ static mass matrices.
 
 Added support for CUDA v11.
 
+A minor inconsistency in CVODE(S) and a bug ARKODE when checking the Jacobian
+evaluation frequency has been fixed. As a result codes using using a
+non-default Jacobian update frequency through a call to
+`CVodeSetMaxStepsBetweenJac` or `ARKStepSetMaxStepsBetweenJac` will need to
+increase the provided value by 1 to achieve the same behavior as before. For
+greater clarity the functions `CVodeSetMaxStepsBetweenJac`,
+`ARKStepSetMaxStepsBetweenJac`, and `ARKStepSetMaxStepsBetweenLSet` have been
+deprecated and replaced with `CVodeSetJacEvalFrequency`,
+`ARKStepSetJacEvalFrequency`, and `ARKStepSetLSetupFrequency` respectively.
+Additionally, the function `CVodeSetLSetupFrequency` has been added to CVODE(S)
+to set the frequency of calls to the linear solver setup function.
+
+
 ## Changes to SUNDIALS in release 5.3.0
 
 Fixed a bug in ARKode where the prototypes for `ERKStepSetMinReduction()` and

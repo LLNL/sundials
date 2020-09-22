@@ -116,7 +116,7 @@ module farkode_mristep_mod
  public :: FMRIStepSetNonlinCRDown
  public :: FMRIStepSetNonlinRDiv
  public :: FMRIStepSetDeltaGammaMax
- public :: FMRIStepSetMaxStepsBetweenLSet
+ public :: FMRIStepSetLSetupFrequency
  public :: FMRIStepSetPredictorMethod
  public :: FMRIStepSetMaxNonlinIters
  public :: FMRIStepSetNonlinConvCoef
@@ -135,7 +135,7 @@ module farkode_mristep_mod
  public :: FMRIStepSetPostInnerFn
  public :: FMRIStepSetStagePredictFn
  public :: FMRIStepSetJacFn
- public :: FMRIStepSetMaxStepsBetweenJac
+ public :: FMRIStepSetJacEvalFrequency
  public :: FMRIStepSetLinearSolutionScaling
  public :: FMRIStepSetEpsLin
  public :: FMRIStepSetLSNormFactor
@@ -625,8 +625,8 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FMRIStepSetMaxStepsBetweenLSet(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetMaxStepsBetweenLSet") &
+function swigc_FMRIStepSetLSetupFrequency(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetLSetupFrequency") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -796,8 +796,8 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FMRIStepSetMaxStepsBetweenJac(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetMaxStepsBetweenJac") &
+function swigc_FMRIStepSetJacEvalFrequency(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetJacEvalFrequency") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1946,7 +1946,7 @@ fresult = swigc_FMRIStepSetDeltaGammaMax(farg1, farg2)
 swig_result = fresult
 end function
 
-function FMRIStepSetMaxStepsBetweenLSet(arkode_mem, msbp) &
+function FMRIStepSetLSetupFrequency(arkode_mem, msbp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -1958,7 +1958,7 @@ integer(C_INT) :: farg2
 
 farg1 = arkode_mem
 farg2 = msbp
-fresult = swigc_FMRIStepSetMaxStepsBetweenLSet(farg1, farg2)
+fresult = swigc_FMRIStepSetLSetupFrequency(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2250,7 +2250,7 @@ fresult = swigc_FMRIStepSetJacFn(farg1, farg2)
 swig_result = fresult
 end function
 
-function FMRIStepSetMaxStepsBetweenJac(arkode_mem, msbj) &
+function FMRIStepSetJacEvalFrequency(arkode_mem, msbj) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -2262,7 +2262,7 @@ integer(C_LONG) :: farg2
 
 farg1 = arkode_mem
 farg2 = msbj
-fresult = swigc_FMRIStepSetMaxStepsBetweenJac(farg1, farg2)
+fresult = swigc_FMRIStepSetJacEvalFrequency(farg1, farg2)
 swig_result = fresult
 end function
 

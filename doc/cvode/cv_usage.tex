@@ -1302,7 +1302,8 @@ Flag to activate specialized fused kernels & \id{CVodeSetUseIntegratorFusedKerne
 \hline
 \multicolumn{3}{|c|}{\bf CVLS linear solver interface} \\
 \hline
-Jacobian / preconditioner update frequency & \id{CVodeSetMaxStepsBetweenJac} & 50\\
+Linear solver setup frequency & \id{CVodeSetLSetupFrequency} & 20\\
+Jacobian / preconditioner update frequency & \id{CVodeSetJacEvalFrequency} & 51\\
 Jacobian function & \id{CVodeSetJacFn} & DQ\\
 Linear System function & \id{CVodeSetLinSysFn} & internal\\
 Enable or disable linear solution scaling & \id{CVodeSetLinearSolutionScaling} & on\\
@@ -2015,34 +2016,97 @@ case.
 As discussed in \S\ref{ss:ivp_sol}, {\cvode} strives to reuse matrix
 and preconditioner data for as many solves as possible to amortize the
 high costs of matrix construction and factorization.  To that end,
-{\cvode} provides a user-callable routine to modify this behavior.  To
-this end, we recall that the Newton system matrices are $M(t,y) = I -
-\gamma J(t,y)$, where the right-hand side function has Jacobian matrix
+{\cvode} provides user-callable routines to modify this behavior.  Recall
+that the Newton system matrices are $M(t,y) = I - \gamma J(t,y)$, where the
+right-hand side function has Jacobian matrix
 $J(t,y) = \frac{\partial f(t,y)}{\partial y}$.
 
 The matrix or preconditioner for $M$ can only be updated within a call
 to the linear solver `setup' routine.  In general, the frequency with
 which this setup routine is called may be controlled with the
-\id{msbj} argument to \id{CVodeSetMaxStepsBetweenJac}.
+\id{msbp} argument to \id{CVodeSetLSetupFrequency}. When this occurs, the
+validity of $M$ for successive time steps intimately depends on whether the
+corresponding $\gamma$ and $J$ inputs remain valid.
+
+At each call to the linear solver setup routine the decision to update $M$ with
+a new value of $\gamma$, and to reuse or reevaluate Jacobian information, depends
+on several factors including:
+\begin{itemize}
+  \item the success or failure of previous solve attempts,
+  \item the success or failure of the previous time step attempts,
+  \item the change in $\gamma$ from the value used when constructing $M$, and
+  \item the number of steps since Jacobian information was last evaluated.
+\end{itemize}
+
+The frequency with which to update Jacobian information can be controlled with
+the \id{msbj} argument to \id{CVodeSetJacEvalFrequency}. We note that this
+is only checked \textit{within} calls to the linear solver setup routine, so
+values \id{msbj} $<$ \id{msbp} do not make sense. For linear-solvers with
+user-supplied preconditioning the above factors are used to determine whether to
+recommend updating the Jacobian information in the preconditioner (i.e., whether
+to set \id{jok} to \id{SUNFALSE} in calling the user-supplied preconditioner
+setup function (see \S\ref{ss:psolveFn}). For matrix-based linear solvers these
+factors determine whether the matrix
+$J(t,y) = \frac{\partial f(t,y)}{\partial y}$
+should be updated (either with an internal finite difference approximation or a
+call to the user-supplied Jacobian function (see \S\ref{ss:jacFn})); if not then
+the previous value is reused and the system matrix
+$M(t,y) \approx I - \gamma J(t,y)$
+is recomputed using the current $\gamma$ value.
+
+
+\index{Linear solver setup frequency!optional input}
+\ucfunctionf{CVodeSetLSetupFrequency}
+{
+  retval = CVodeSetLSetupFrequency(cvode\_mem, msbp);
+}
+{
+  The function \ID{CVodeSetLSetupFrequency} specifies the frequency of
+  calls to the linear solver setup function.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[msbp] (\id{long int})
+    the linear solver setup frequency.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_ILL\_INPUT}]
+    The frequency \id{msbp} is negative.
+  \end{args}
+}
+{
+  Positive values of \id{msbp} specify the linear solver setup frequency. For
+  example, an input of \id{1} means the setup function will be called every time
+  step while an input of \id{2} means it will be called called every other time
+  step. If \id{msbp = 0}, the default value of 20 will be used. Otherwise an
+  error is returned.
+}
 
 \index{Jacobian update frequency!optional input}
 \index{Preconditioner update frequency!optional input}
-\ucfunctionf{CVodeSetMaxStepsBetweenJac}
+\ucfunctionf{CVodeSetJacEvalFrequency}
 {
-  retval = CVodeSetMaxStepsBetweenJac(cvode\_mem, msbj);
+  retval = CVodeSetJacEvalFrequency(cvode\_mem, msbj);
 }
 {
-  The function \ID{CVodeSetMaxStepsBetweenJac} specifies the maximum
-  number of time steps to wait before recomputation of the Jacobian or
-  recommendation to update the preconditioner.
+  The function \ID{CVodeSetJacEvalFrequency} specifies the frequency for
+  recomputing the Jacobian or recommending a preconditioner update.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[msbj] (\id{long int})
-    maximum number of time steps to wait before
-    Jacobian/preconditioner reconstruction.
+    the Jacobian re-computation or preconditioner update frequency.
   \end{args}
 }
 {
@@ -2054,10 +2118,19 @@ which this setup routine is called may be controlled with the
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVLS\_LMEM\_NULL}]
     The {\cvls} linear solver interface has not been initialized.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The frequency \id{msbj} is negative.
   \end{args}
 }
 {
-  If \id{msbj} is less than 1, the default value of 50 will be used.
+  The Jacobian update frequency is only checked \textit{within} calls to the
+  linear solver setup routine, as such values of \id{msbj} $<$ \id{msbp} will
+  result in recomputing the Jacobian every \id{msbp} steps. See
+  \id{CVodeSetLSetupFrequency} for setting the linear solver setup frequency
+  \id{msbp}.
+
+  If \id{msbj = 0}, the default value of 51 will be used. Otherwise an error is
+  returned.
 
   This function must be called \emph{after} the {\cvls} linear solver
   interface has been initialized through a call to

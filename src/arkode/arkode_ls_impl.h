@@ -34,7 +34,7 @@ extern "C" {
                on the nonlinear iteration is multiplied to get
                a tolerance on the linear iteration
   ---------------------------------------------------------------*/
-#define ARKLS_MSBJ   50
+#define ARKLS_MSBJ   51
 #define ARKLS_EPLIN  RCONST(0.05)
 
 
@@ -268,7 +268,7 @@ int arkLSSetEpsLin(void* arkode_mem, realtype eplifac);
 int arkLSSetMassEpsLin(void* arkode_mem, realtype eplifac);
 int arkLSSetNormFactor(void* arkode_mem, realtype nrmfac);
 int arkLSSetMassNormFactor(void* arkode_mem, realtype nrmfac);
-int arkLSSetMaxStepsBetweenJac(void* arkode_mem, long int msbj);
+int arkLSSetJacEvalFrequency(void* arkode_mem, long int msbj);
 int arkLSSetLinearSolutionScaling(void* arkode_mem, booleantype onoff);
 int arkLSSetPreconditioner(void* arkode_mem, ARKLsPrecSetupFn psetup,
                            ARKLsPrecSolveFn psolve);

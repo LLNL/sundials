@@ -618,10 +618,10 @@ static int check_order(void *arkode_mem, N_Vector y, realtype T0,
   retval = ARKStepSetMaxNumSteps(arkode_mem, 1000000);
   if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return(1);
   if (rk_type < 2) {
-    retval = ARKStepSetMaxStepsBetweenJac(arkode_mem, 1);
-    if (check_retval(&retval, "ARKStepSetMaxStepsBetweenJac", 1)) return 1;
-    retval = ARKStepSetMaxStepsBetweenLSet(arkode_mem, 1);
-    if (check_retval(&retval, "ARKStepSetMaxStepsBetweenLSet", 1)) return 1;
+    retval = ARKStepSetJacEvalFrequency(arkode_mem, 1);
+    if (check_retval(&retval, "ARKStepSetJacEvalFrequency", 1)) return 1;
+    retval = ARKStepSetLSetupFrequency(arkode_mem, 1);
+    if (check_retval(&retval, "ARKStepSetLSetupFrequency", 1)) return 1;
     retval = ARKStepSetMaxNonlinIters(arkode_mem, 20);
     if (check_retval(&retval, "ARKStepSetMaxNonlinIters", 1)) return 1;
   }

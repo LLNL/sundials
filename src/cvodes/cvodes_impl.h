@@ -44,6 +44,8 @@ extern "C" {
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
+#define MSBP 20  /* max no. of steps between lsetup calls */
+
 /* Return values for lower level routines used by CVode and functions
    provided to the nonlinear solver */
 
@@ -417,7 +419,8 @@ typedef struct CVodeMemRec {
 
   /* Linear Solver specific memory */
 
-  void *cv_lmem;
+  void     *cv_lmem;  /* linear solver interface memory structure */
+  long int  cv_msbp;  /* max number of steps between lsetip calls */
 
   /* Flag to request a call to the setup routine */
 
