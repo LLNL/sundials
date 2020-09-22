@@ -149,8 +149,8 @@ int MRIStepGetLastStep(void *arkode_mem, realtype *hlast) {
   return(arkGetLastStep(arkode_mem, hlast)); }
 int MRIStepGetCurrentTime(void *arkode_mem, realtype *tcur) {
   return(arkGetCurrentTime(arkode_mem, tcur)); }
-int MRIStepGetCurrentState(void *arkode_mem, N_Vector *ycur) {
-  return(arkGetCurrentState(arkode_mem, ycur)); }
+int MRIStepGetCurrentState(void *arkode_mem, N_Vector *state) {
+  return(arkGetCurrentState(arkode_mem, state)); }
 int MRIStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact) {
   return(arkGetTolScaleFactor(arkode_mem, tolsfact)); }
 int MRIStepGetErrWeights(void *arkode_mem, N_Vector eweight) {

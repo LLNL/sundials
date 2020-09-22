@@ -1510,6 +1510,24 @@ int arkLSGetNumMassConvFails(void *arkode_mem, long int *nmcfails)
 
 
 /*---------------------------------------------------------------
+  arkLSGetMassMatrix returns the current mass matrix.
+  ---------------------------------------------------------------*/
+int arkLSGetCurrentMassMatrix(void *arkode_mem, SUNMatrix *M)
+{
+  ARKodeMem    ark_mem;
+  ARKLsMassMem arkls_mem;
+  int          retval;
+
+  /* access ARKLsMassMem structure; set output value and return */
+  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetCurrentMassMatrix",
+                               &ark_mem, &arkls_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+  *M = arkls_mem->M;
+  return(ARKLS_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   arkLSGetNumMTSetups returns the number of calls to the
   user-supplied mass matrix-vector product setup routine.
   ---------------------------------------------------------------*/

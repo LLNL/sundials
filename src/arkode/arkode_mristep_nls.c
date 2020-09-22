@@ -123,6 +123,38 @@ int MRIStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
 
 
 /*---------------------------------------------------------------
+  MRIStepGetNonlinearSystemData:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int MRIStepGetNonlinearSystemData(void *arkode_mem, realtype *tcur,
+                                  N_Vector *zpred, N_Vector *z,
+                                  N_Vector *F, realtype *gamma,
+                                  N_Vector *sdata, void **user_data)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepGetNonlinearSystemData",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  *tcur      = ark_mem->tcur;
+  *zpred     = step_mem->zpred;
+  *z         = ark_mem->ycur;
+  *F         = step_mem->F[step_mem->istage];
+  *gamma     = step_mem->gamma;
+  *sdata     = step_mem->sdata;
+  *user_data = ark_mem->user_data;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   Utility routines called by MRIStep
   ---------------------------------------------------------------*/
 

@@ -131,6 +131,40 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
 }
 
 
+/*---------------------------------------------------------------
+  CVodeGetNonlinearSystemData:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
+                                N_Vector *ypred, N_Vector *yn,
+                                N_Vector *fn, realtype *gamma,
+                                realtype *rl1, N_Vector *zn1,
+                                void **user_data)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinearSystemData", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *tcur      = cv_mem->cv_tn;
+  *ypred     = cv_mem->cv_zn[0];
+  *yn        = cv_mem->cv_y;
+  *fn        = cv_mem->cv_ftemp;
+  *gamma     = cv_mem->cv_gamma;
+  *rl1       = cv_mem->cv_rl1;
+  *zn1       = cv_mem->cv_zn[1];
+  *user_data = cv_mem->cv_user_data;
+
+  return(CV_SUCCESS);
+}
+
+
 /* -----------------------------------------------------------------------------
  * Private functions
  * ---------------------------------------------------------------------------*/

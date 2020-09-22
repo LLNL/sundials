@@ -3351,6 +3351,78 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 }
 
 /*
+ * CVodeComputeState
+ *
+ * Computes y based on the current prediction and given correction.
+ */
+int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeComputeState",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, y);
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeComputeStateSens
+ *
+ * Computes yS based on the current prediction and given correction.
+ */
+int CVodeComputeStateSens(void *cvode_mem, N_Vector *ycorS, N_Vector *yS)
+{
+  int      retval;
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeComputeStateSens",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  retval = N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                   ONE, cv_mem->cv_znS[0],
+                                   ONE, ycorS, yS);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeComputeStateSens1
+ *
+ * Computes yS[idx] based on the current prediction and given correction.
+ */
+int CVodeComputeStateSens1(void *cvode_mem, int idx, N_Vector ycorS1,
+                           N_Vector yS1)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeComputeStateSens1",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  N_VLinearSum(ONE, cv_mem->cv_znS[0][idx], ONE, ycorS1, yS1);
+
+  return(CV_SUCCESS);
+}
+
+
+/*
  * -----------------------------------------------------------------
  * Interpolated output and extraction functions
  * -----------------------------------------------------------------

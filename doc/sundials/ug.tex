@@ -298,7 +298,7 @@
 
 %%------ Specify depths for section numbering and TOC
 
-\setcounter{tocdepth}{3}
+\setcounter{tocdepth}{1}
 \setcounter{secnumdepth}{3}
 
 %%-------
@@ -541,7 +541,7 @@ Ting Yan, and Ulrike M. Yang.
 \newcommand{\ucfunctionf}[6]{
   \noindent\paragraph{\fbox{\id{#1}}}
   \begin{Ventry}[Return value]
-  \item[Call]{\id{#2}}
+  \item[Call]{\id{\begin{tabular}[t]{@{}r@{}l@{}}#2\end{tabular}}}
   \item[Description]{#3}
   \addArgs{#4}
   \addRetval{#5}

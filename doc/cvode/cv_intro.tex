@@ -101,6 +101,10 @@ in extended {\F}.
 
 \subsection*{Changes in v5.x.x}
 
+Added new functions \Id{CVodeComputeState}, and \Id{CVodeGetNonlinearSystemData}
+which advanced users might find useful if providing a custom
+\id{SUNNonlinSolSysFn}.
+
 Added the function \id{CVodeSetLSNormFactor} to specify the factor for
 converting between integrator tolerances (WRMS norm) and linear solver
 tolerances (L2 norm) i.e., \id{tol\_L2 = nrmfac * tol\_WRMS}.

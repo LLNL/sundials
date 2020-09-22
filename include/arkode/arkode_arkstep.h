@@ -257,6 +257,10 @@ SUNDIALS_EXPORT int ARKStepEvolve(void *arkode_mem, realtype tout,
 SUNDIALS_EXPORT int ARKStepGetDky(void *arkode_mem, realtype t,
                                   int k, N_Vector dky);
 
+/* Utility function to update/compute y based on zcor */
+SUNDIALS_EXPORT int ARKStepComputeState(void *arkode_mem, N_Vector zcor,
+                                        N_Vector z);
+
 /* Optional output functions */
 SUNDIALS_EXPORT int ARKStepGetNumExpSteps(void *arkode_mem,
                                           long int *expsteps);
@@ -290,9 +294,11 @@ SUNDIALS_EXPORT int ARKStepGetCurrentStep(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepGetCurrentTime(void *arkode_mem,
                                           realtype *tcur);
 SUNDIALS_EXPORT int ARKStepGetCurrentState(void *arkode_mem,
-                                           N_Vector *ycur);
+                                           N_Vector *state);
 SUNDIALS_EXPORT int ARKStepGetCurrentGamma(void *arkode_mem,
                                            realtype *gamma);
+SUNDIALS_EXPORT int ARKStepGetCurrentMassMatrix(void *arkode_mem,
+                                                SUNMatrix *M);
 SUNDIALS_EXPORT int ARKStepGetTolScaleFactor(void *arkode_mem,
                                              realtype *tolsfac);
 SUNDIALS_EXPORT int ARKStepGetErrWeights(void *arkode_mem,
@@ -329,6 +335,15 @@ SUNDIALS_EXPORT int ARKStepGetStepStats(void *arkode_mem,
                                         realtype *tcur);
 
 /* Nonlinear solver optional output functions */
+SUNDIALS_EXPORT int ARKStepGetNonlinearSystemData(void *arkode_mem,
+                                                  realtype *tcur,
+                                                  N_Vector *zpred,
+                                                  N_Vector *z,
+                                                  N_Vector *Fi,
+                                                  realtype *gamma,
+                                                  N_Vector *sdata,
+                                                  void     **user_data);
+
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvIters(void *arkode_mem,
                                                 long int *nniters);
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem,

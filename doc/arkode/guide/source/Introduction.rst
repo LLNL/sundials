@@ -124,6 +124,11 @@ reinitialization functions :c:func:`ARKStepReInit()`, :c:func:`ERKStepReInit()`,
 and :c:func:`MRIStepReInit()` which reinitialize the stepper so that the problem
 integration should resume as if started from scratch.
 
+Added new functions :c:func:`ARKStepComputeState`,
+:c:func:`ARKStepGetNonlinearSystemData`, :c:func:`MRIStepComputeState`, and
+:c:func:`MRIStepGetNonlinearSystemData` which advanced users might find useful
+if providing a custom :c:func:`SUNNonlinSolSysFn`.
+
 The expected behavior of :c:func:`SUNNonlinSolGetNumIters()` and
 :c:func:`SUNNonlinSolGetNumConvFails()` in the SUNNonlinearSolver API have been
 updated to specify that they should return the number of nonlinear solver

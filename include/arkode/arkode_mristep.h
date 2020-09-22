@@ -112,9 +112,9 @@ typedef int (*MRIStepPostInnerFn)(realtype t, N_Vector y, void *user_data);
  * ------------------- */
 
 /* DEPRECATED routines (only for backwards compatibility) */
-SUNDIALS_EXPORT int MRIStepGetCurrentButcherTables(void *arkode_mem,
+SUNDIALS_DEPRECATED int MRIStepGetCurrentButcherTables(void *arkode_mem,
                                                    ARKodeButcherTable *B);
-SUNDIALS_EXPORT int MRIStepWriteButcher(void *arkode_mem, FILE *fp);
+SUNDIALS_DEPRECATED int MRIStepWriteButcher(void *arkode_mem, FILE *fp);
 
 
 /* Create, Resize, and Reinitialization functions */
@@ -239,6 +239,10 @@ SUNDIALS_EXPORT int MRIStepEvolve(void *arkode_mem, realtype tout,
 SUNDIALS_EXPORT int MRIStepGetDky(void *arkode_mem, realtype t,
                                   int k, N_Vector dky);
 
+/* Utility function to update/compute y based on zcor */
+SUNDIALS_EXPORT int MRIStepComputeState(void *arkode_mem, N_Vector zcor,
+                                        N_Vector z);
+
 /* Optional output functions */
 SUNDIALS_EXPORT int MRIStepGetNumRhsEvals(void *arkode_mem,
                                           long int *nfs_evals);
@@ -256,7 +260,7 @@ SUNDIALS_EXPORT int MRIStepGetLastStep(void *arkode_mem,
 SUNDIALS_EXPORT int MRIStepGetCurrentTime(void *arkode_mem,
                                           realtype *tcur);
 SUNDIALS_EXPORT int MRIStepGetCurrentState(void *arkode_mem,
-                                           N_Vector *ycur);
+                                           N_Vector *state);
 SUNDIALS_EXPORT int MRIStepGetCurrentGamma(void *arkode_mem,
                                            realtype *gamma);
 SUNDIALS_EXPORT int MRIStepGetTolScaleFactor(void *arkode_mem,
@@ -276,6 +280,14 @@ SUNDIALS_EXPORT int MRIStepWriteParameters(void *arkode_mem, FILE *fp);
 SUNDIALS_EXPORT int MRIStepWriteCoupling(void *arkode_mem, FILE *fp);
 
 /* Nonlinear solver optional output functions */
+SUNDIALS_EXPORT int MRIStepGetNonlinearSystemData(void *arkode_mem,
+                                                  realtype *tcur,
+                                                  N_Vector *zpred,
+                                                  N_Vector *z,
+                                                  N_Vector *F,
+                                                  realtype *gamma,
+                                                  N_Vector *sdata,
+                                                  void     **user_data);
 SUNDIALS_EXPORT int MRIStepGetNumNonlinSolvIters(void *arkode_mem,
                                                  long int *nniters);
 SUNDIALS_EXPORT int MRIStepGetNumNonlinSolvConvFails(void *arkode_mem,

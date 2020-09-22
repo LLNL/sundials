@@ -306,6 +306,7 @@ int arkLSGetNumMassPrecSolves(void* arkode_mem, long int* nmpsolves);
 int arkLSGetNumMassIters(void* arkode_mem, long int* nmiters);
 int arkLSGetNumMassConvFails(void* arkode_mem, long int* nmcfails);
 int arkLSGetNumMTSetups(void* arkode_mem, long int* nmtsetups);
+int arkLSGetCurrentMassMatrix(void* arkode_mem, SUNMatrix *M);
 int arkLSGetLastMassFlag(void* arkode_mem, long int* flag);
 
 char* arkLSGetReturnFlagName(long int flag);

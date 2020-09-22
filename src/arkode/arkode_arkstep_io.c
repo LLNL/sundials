@@ -172,8 +172,8 @@ int ARKStepGetCurrentStep(void *arkode_mem, realtype *hcur) {
   return(arkGetCurrentStep(arkode_mem, hcur)); }
 int ARKStepGetCurrentTime(void *arkode_mem, realtype *tcur) {
   return(arkGetCurrentTime(arkode_mem, tcur)); }
-int ARKStepGetCurrentState(void *arkode_mem, N_Vector *ycur) {
-  return(arkGetCurrentState(arkode_mem, ycur)); }
+int ARKStepGetCurrentState(void *arkode_mem, N_Vector *state) {
+  return(arkGetCurrentState(arkode_mem, state)); }
 int ARKStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact) {
   return(arkGetTolScaleFactor(arkode_mem, tolsfact)); }
 int ARKStepGetErrWeights(void *arkode_mem, N_Vector eweight) {
@@ -246,6 +246,8 @@ int ARKStepGetNumMassConvFails(void *arkode_mem, long int *nmcfails) {
   return(arkLSGetNumMassConvFails(arkode_mem, nmcfails)); }
 int ARKStepGetNumMTSetups(void *arkode_mem, long int *nmtsetups) {
   return(arkLSGetNumMTSetups(arkode_mem, nmtsetups)); }
+int ARKStepGetCurrentMassMatrix(void *arkode_mem, SUNMatrix *M) {
+  return(arkLSGetCurrentMassMatrix(arkode_mem, M)); }
 int ARKStepGetLastMassFlag(void *arkode_mem, long int *flag) {
   return(arkLSGetLastMassFlag(arkode_mem, flag)); }
 char *ARKStepGetLinReturnFlagName(long int flag) {

@@ -155,6 +155,9 @@ SUNDIALS_EXPORT int CVodeSetNoInactiveRootWarn(void *cvode_mem);
 SUNDIALS_EXPORT int CVode(void *cvode_mem, realtype tout, N_Vector yout,
                           realtype *tret, int itask);
 
+/* Utility functions to update/compute y based on ycor */
+SUNDIALS_EXPORT int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y);
+
 /* Dense output function */
 SUNDIALS_EXPORT int CVodeGetDky(void *cvode_mem, realtype t, int k,
                                 N_Vector dky);
@@ -190,6 +193,11 @@ SUNDIALS_EXPORT int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps,
                                             int *qlast, int *qcur,
                                             realtype *hinused, realtype *hlast,
                                             realtype *hcur, realtype *tcur);
+SUNDIALS_EXPORT int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
+                                                N_Vector *ypred, N_Vector *yn,
+                                                N_Vector *fn, realtype *gamma,
+                                                realtype *rl1, N_Vector *zn1,
+                                                void **user_data);
 SUNDIALS_EXPORT int CVodeGetNumNonlinSolvIters(void *cvode_mem,
                                                long int *nniters);
 SUNDIALS_EXPORT int CVodeGetNumNonlinSolvConvFails(void *cvode_mem,

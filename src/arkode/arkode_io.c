@@ -1342,9 +1342,10 @@ int arkGetCurrentStep(void *arkode_mem, realtype *hcur)
 /*---------------------------------------------------------------
   arkGetCurrentState:
 
-  Returns the current solution
+  Returns the current solution (before or after as step) or
+  stage value (during step solve).
   ---------------------------------------------------------------*/
-int arkGetCurrentState(void *arkode_mem, N_Vector *ycur)
+int arkGetCurrentState(void *arkode_mem, N_Vector *state)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -1354,7 +1355,7 @@ int arkGetCurrentState(void *arkode_mem, N_Vector *ycur)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  *ycur = ark_mem->ycur;
+  *state = ark_mem->ycur;
   return(ARK_SUCCESS);
 }
 

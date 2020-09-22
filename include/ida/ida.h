@@ -197,6 +197,12 @@ SUNDIALS_EXPORT int IDAGetIntegratorStats(void *ida_mem, long int *nsteps,
                                           int *qlast, int *qcur,
                                           realtype *hinused, realtype *hlast,
                                           realtype *hcur, realtype *tcur);
+SUNDIALS_EXPORT int IDAGetNonlinearSystemData(void *ida_mem, realtype *tcur,
+                                              N_Vector *yypred,
+                                              N_Vector *yppred,
+                                              N_Vector *yyn, N_Vector *ypn,
+                                              N_Vector *res, realtype *cj,
+                                              void **user_data);
 SUNDIALS_EXPORT int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters);
 SUNDIALS_EXPORT int IDAGetNumNonlinSolvConvFails(void *ida_mem,
                                                  long int *nncfails);

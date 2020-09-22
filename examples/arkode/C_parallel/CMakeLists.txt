@@ -19,14 +19,19 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_diurnal_kry_p\;1\;4\;develop"
-  "ark_diurnal_kry_bbd_p\;1\;4\;develop"
+  "ark_diurnal_kry_p\;\;1\;4\;develop"
+  "ark_diurnal_kry_bbd_p\;\;1\;4\;develop"
   )
 
-# Auxiliary files to install
-set(ARKODE_extras
-  # none yet
+if(SUNDIALS_PRECISION MATCHES "DOUBLE" AND
+   SUNDIALS_INDEX_SIZE MATCHES "64")
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls\;\;1\;4\;develop")
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls\;--global-nls\;1\;4\;develop")
+  # Auxiliary files to install
+  set(ARKODE_extras
+    "plot_brusselator1D.py"
   )
+endif()
 
 if(MPI_C_COMPILER)
   set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
@@ -38,10 +43,10 @@ endif()
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 if(LINK_LIBRARY_TYPE MATCHES "static")
   set(ARKODE_LIB sundials_arkode_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
+  set(NVECP_LIB sundials_nvecparallel_static sundials_nvecmpiplusx_static)
 else()
   set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
+  set(NVECP_LIB sundials_nvecparallel_shared sundials_nvecmpiplusx_shared)
 endif()
 
 # Set-up linker flags and link libraries
@@ -52,32 +57,46 @@ foreach(example_tuple ${ARKODE_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 number_of_nodes)
-  list(GET example_tuple 2 number_of_tasks)
-  list(GET example_tuple 3 example_type)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 number_of_nodes)
+  list(GET example_tuple 3 number_of_tasks)
+  list(GET example_tuple 4 example_type)
 
-  # example source files
-  add_executable(${example} ${example}.c)
+  if(NOT TARGET ${example})
+    # example source files
+    add_executable(${example} ${example}.c)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
+
+    if(NOT MPI_C_COMPILER)
+      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+    endif()
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  endif()
+
+  # check if example args are provided and set the test name
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(${test_name} ${example}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
-
-  if(NOT MPI_C_COMPILER)
-    target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  endif()
+  # find all .out files for this example
+  file(GLOB example_out ${example}*.out)
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
+    install(FILES ${example}.c ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel)
   endif()
 

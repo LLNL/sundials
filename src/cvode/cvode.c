@@ -1524,6 +1524,29 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 }
 
 /*
+ * CVodeComputeState
+ *
+ * Computes y based on the current prediction and given correction.
+ */
+
+int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeComputeState",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, y);
+
+  return(CV_SUCCESS);
+}
+
+/*
  * CVodeFree
  *
  * This routine frees the problem memory allocated by CVodeInit.

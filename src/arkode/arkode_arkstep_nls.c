@@ -105,6 +105,38 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
 
 
 /*---------------------------------------------------------------
+  ARKStepGetNonlinearSystemData:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int ARKStepGetNonlinearSystemData(void *arkode_mem, realtype *tcur,
+                                  N_Vector *zpred, N_Vector *z,
+                                  N_Vector *Fi, realtype *gamma,
+                                  N_Vector *sdata, void **user_data)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNonlinearSystemData",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  *tcur      = ark_mem->tcur;
+  *zpred     = step_mem->zpred;
+  *z         = ark_mem->ycur;
+  *Fi        = step_mem->Fi[step_mem->istage];
+  *gamma     = step_mem->gamma;
+  *sdata     = step_mem->sdata;
+  *user_data = ark_mem->user_data;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   Utility routines called by ARKStep
   ---------------------------------------------------------------*/
 

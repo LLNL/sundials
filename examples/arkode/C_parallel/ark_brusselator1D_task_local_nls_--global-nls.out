@@ -1,0 +1,28 @@
+
+1D Advection-Diffusion-Reaction Test Problem
+
+Number of Processors = 4
+Mesh Info:
+  NX   = 100, NXL = 25, dx = 0.010000
+Problem Parameters:
+  A = 1
+  B = 3.5
+  k = 1
+  c = 0.01
+Integrator Options:
+  order = 3
+  t0 = 0
+  tf = 10
+  reltol = 1.0e-06,  abstol = 1.0e-09
+  nout = 40
+  global nonlinear solver = 1
+
+Final Solver Statistics (for processor 0):
+   Internal solver steps = 1714 (attempted = 1714)
+   Total RHS evals:  Fe = 6859,  Fi = 14402
+   Total number of error test failures = 0
+   Total number of nonlinear solver convergence failures = 0
+   Total number of nonlinear iterations = 7543
+   Total number of linear iterations = 17375
+   Total number of preconditioner setups = 29
+   Total number of preconditioner solves = 24821

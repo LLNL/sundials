@@ -521,6 +521,27 @@ int MRIStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
   return(arkGetDky(ark_mem, t, k, dky));
 }
 
+/*---------------------------------------------------------------
+  MRIStepComputeState:
+
+  Computes y based on the current prediction and given correction.
+  ---------------------------------------------------------------*/
+int MRIStepComputeState(void *arkode_mem, N_Vector zcor, N_Vector z)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepComputeState",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z);
+
+  return(ARK_SUCCESS);
+}
+
 
 /*---------------------------------------------------------------
   MRIStepFree frees all MRIStep memory, and then calls an ARKode

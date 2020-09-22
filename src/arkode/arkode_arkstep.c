@@ -582,6 +582,28 @@ int ARKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
 
 
 /*---------------------------------------------------------------
+  ARKStepComputeState:
+
+  Computes y based on the current prediction and given correction.
+  ---------------------------------------------------------------*/
+int ARKStepComputeState(void *arkode_mem, N_Vector zcor, N_Vector z)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepComputeState",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z);
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   ARKStepFree frees all ARKStep memory, and then calls an ARKode
   utility routine to free the ARKode infrastructure memory.
   ---------------------------------------------------------------*/
