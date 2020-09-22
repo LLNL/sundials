@@ -337,3 +337,12 @@ if [[ ("$compiler" != "gcc@9.2.0") && ("$compiler" != "clang@9.0.0") ]]; then
         export RAJADIR=${APPDIR}/raja-0.10.0
     fi
 fi
+
+# xbraid
+XBRAID_STATUS=OFF
+if [ "$compiler" == "gcc@4.9.4" ]; then
+    if [ "$realtype" == "double" ] && [ "$indexsize" == "32" ]; then
+        XBRAID_STATUS=ON
+        export XBRAIDDIR=${APPDIR}/xbraid
+    fi
+fi

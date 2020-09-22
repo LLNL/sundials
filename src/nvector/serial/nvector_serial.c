@@ -123,6 +123,11 @@ N_Vector N_VNewEmpty_Serial(sunindextype length)
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Serial;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Serial;
 
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_Serial;
+  v->ops->nvbufpack   = N_VBufPack_Serial;
+  v->ops->nvbufunpack = N_VBufUnpack_Serial;
+
   /* debugging functions */
   v->ops->nvprint     = N_VPrint_Serial;
   v->ops->nvprintfile = N_VPrintFile_Serial;
@@ -1521,6 +1526,59 @@ int N_VLinearCombinationVectorArray_Serial(int nvec, int nsum, realtype* c,
       }
     }
   }
+  return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * OPTIONAL XBraid interface operations
+ * -----------------------------------------------------------------
+ */
+
+
+int N_VBufSize_Serial(N_Vector x, sunindextype *size)
+{
+  if (x == NULL) return(-1);
+  *size = NV_LENGTH_S(x) * ((sunindextype)sizeof(realtype));
+  return(0);
+}
+
+
+int N_VBufPack_Serial(N_Vector x, void *buf)
+{
+  sunindextype i, N;
+  realtype     *xd = NULL;
+  realtype     *bd = NULL;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  bd = (realtype*) buf;
+
+  for (i = 0; i < N; i++)
+    bd[i] = xd[i];
+
+  return(0);
+}
+
+
+int N_VBufUnpack_Serial(N_Vector x, void *buf)
+{
+  sunindextype i, N;
+  realtype     *xd = NULL;
+  realtype     *bd = NULL;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  bd = (realtype*) buf;
+
+  for (i = 0; i < N; i++)
+    xd[i] = bd[i];
+
   return(0);
 }
 

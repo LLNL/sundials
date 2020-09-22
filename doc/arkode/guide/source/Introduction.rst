@@ -110,6 +110,15 @@ Changes from previous versions
 Changes in v4.x.x
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+An interface between ARKStep and the XBraid multigrid reduction in time (MGRIT)
+library [XBraid]_ has been added to enable parallel-in-time integration. See the
+:ref:`ARKStep_CInterface.XBraid` section for more information and the example
+codes in ``examples/arkode/CXX_xbraid``. This interface required the addition of
+three new N_Vector operations to exchange vector data between computational
+nodes, see :c:func:`N_VBufSize()`, :c:func:`N_VBufPack()`, and
+:c:func:`N_VBufUnpack()`.  These N_Vector operations are only used within the
+XBraid interface and need not be implemented for any other context.
+
 Added the functions :c:func:`ARKStepSetLSNormFactor()`,
 :c:func:`ARKStepSetMassLSNormFactor()`, and :c:func:`MRIStepSetLSNormFactor()`
 to specify the factor for converting between integrator tolerances (WRMS norm)

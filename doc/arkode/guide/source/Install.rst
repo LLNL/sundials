@@ -476,9 +476,9 @@ illustration only.
    Default: ``/usr/local``
 
    .. note:: The user must have write access to the location specified
-	     through this option. Exported SUNDIALS header files and libraries
-	     will be installed under subdirectories ``include`` and ``lib`` of
-	     ``CMAKE_INSTALL_PREFIX``, respectively.
+             through this option. Exported SUNDIALS header files and libraries
+             will be installed under subdirectories ``include`` and ``lib`` of
+            ``CMAKE_INSTALL_PREFIX``, respectively.
 
 :index:`CXX_ENABLE <CXX_ENABLE (CMake option)>`
    Flag to enable C++ ARKode examples (if examples are enabled)
@@ -494,6 +494,14 @@ illustration only.
    Specifies the CUDA architecture to compile for.
 
    Default: ``sm_30``
+
+:index:`ENABLE_XBRAID <ENABLE_XBRAID (CMake option)>`
+   Enable or disable the ARKStep + XBraid interface.
+
+   Default: ``OFF``
+
+   .. note:: See additional information on building with *XBraid*
+             enabled in  :ref:`Installation.CMake.ExternalLibraries`.
 
 :index:`EXAMPLES_ENABLE_C <EXAMPLES_ENABLE_C (CMake option)>`
    Build the SUNDIALS C examples
@@ -554,7 +562,7 @@ illustration only.
    Default: ``/usr/local/examples``
 
    .. note:: The actual default value for this option will be an
-	     ``examples`` subdirectory created under ``CMAKE_INSTALL_PREFIX``.
+             ``examples`` subdirectory created under ``CMAKE_INSTALL_PREFIX``.
 
 :index:`F77_INTERFACE_ENABLE <F77_INTERFACE_ENABLE (CMake option)>`
    Enable Fortran77-C interface
@@ -627,7 +635,7 @@ illustration only.
    Default: ``OFF``
 
    .. note:: Setting this option to ``ON`` will trigger several additional
-	     options related to MPI.
+             options related to MPI.
 
 :index:`MPI_C_COMPILER <MPI_C_COMPILER (CMake option)>`
    ``mpicc`` program
@@ -729,7 +737,7 @@ illustration only.
    determined. If used, ``SUNDIALS_F77_FUNC_UNDERSCORES`` must also
    be set.
 
-:index: `SUNDIALS_F77_FUNC_UNDERSCORES <SUNDIALS_F77_FUNC_UNDERSCORES (CMake option)>`
+:index:`SUNDIALS_F77_FUNC_UNDERSCORES <SUNDIALS_F77_FUNC_UNDERSCORES (CMake option)>`
    Specify the number of underscores to append in the Fortran
    name-mangling scheme, options are: ``none``, ``one``, or ``two``
 
@@ -834,6 +842,24 @@ illustration only.
 
    Default: ``ON``
 
+:index:`XBRAID_DIR <XBRAID_DIR (CMake option)`
+   The root directory of the XBraid installation.
+
+   Default: ``OFF``
+
+:index:`XBRAID_INCLUDES <XBRAID_INCLUDES (CMake option)>`
+   Semi-colon separated list of XBraid include directories. Unless provided by
+   the user, this is autopopulated based on the XBraid installation found in
+   ``XBRAID_DIR``.
+
+   Default: none
+
+:index:`XBRAID_LIBRARIES <XBRAID_LIBRARIES (CMake option)>`
+   Semi-colon separated list of XBraid link libraries. Unless provided by
+   the user, this is autopopulated based on the XBraid installation found in
+   ``XBRAID_DIR``.
+
+   Default: none
 
 
 
@@ -1223,6 +1249,25 @@ the path to the RAJA CMake configuration file. To enable building the
 RAJA examples set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
 
 
+.. _Installation.CMake.ExternalLibraries.XBraid:
+
+Building with XBraid
+^^^^^^^^^^^^^^^^^^^^
+
+The XBraid library is available for download from the XBraid GitHub:
+`https://github.com/XBraid/xbraid <https://github.com/XBraid/xbraid>`_.
+SUNDIALS has been tested with XBraid version 3.0.0.
+To enable XBraid, set  ``ENABLE_XBRAID`` to ``ON``, set ``XBRAID_DIR``
+to the root install location of XBraid or the location of the clone of the
+XBraid repository.
+
+Note: At this time the XBraid types ``braid_Int`` and ``braid_Real`` are
+hard-coded to ``int`` and ``double`` respectively. As such SUNDIALS must be
+configured with ``SUNDIALS_INDEX_SIZE`` set to ``32`` and ``SUNDIALS_PRECISION``
+set to ``double``. Additionally, SUNDIALS must be configured with ``ENABLE_MPI``
+set to ``ON``.
+
+
 
 .. _Installation.CMake.Testing:
 
@@ -1397,6 +1442,8 @@ and would be useful, for example, if the functions declared in
    |                              |              | ``sundials/sundials_types.h``                |
    |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_version.h``              |
+   |                              |              +----------------------------------------------+
+   |                              |              | ``sundials/sundials_xbraid.h``               |
    +------------------------------+--------------+----------------------------------------------+
    |                                                                                            |
    | NVECTOR Modules                                                                            |
@@ -1625,6 +1672,8 @@ and would be useful, for example, if the functions declared in
    | ARKODE                       | Libraries    | ``libsundials_arkode.LIB``                   |
    |                              |              +----------------------------------------------+
    |                              |              | ``libsundials_farkode.a``                    |
+   |                              |              +----------------------------------------------+
+   |                              |              | ``libsundials_xbraid.LIB``                   |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``arkode/arkode.h``                          |
    |                              |              +----------------------------------------------+
@@ -1645,6 +1694,8 @@ and would be useful, for example, if the functions declared in
    |                              |              | ``arkode/arkode_impl.h``                     |
    |                              |              +----------------------------------------------+
    |                              |              | ``arkode/arkode_ls.h``                       |
+   |                              |              +----------------------------------------------+
+   |                              |              | ``arkode/arkode_xbraid.h``                   |
    +------------------------------+--------------+----------------------------------------------+
    | IDA                          | Libraries    | ``libsundials_ida.LIB``                      |
    |                              |              +----------------------------------------------+

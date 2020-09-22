@@ -181,6 +181,11 @@ SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X,
 SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Cuda(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Cuda(N_Vector x, N_Vector w, N_Vector id);
 
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize_Cuda(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack_Cuda(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack_Cuda(N_Vector x, void *buf);
+
 /* OPTIONAL operations for debugging */
 SUNDIALS_EXPORT void N_VPrint_Cuda(N_Vector v);
 SUNDIALS_EXPORT void N_VPrintFile_Cuda(N_Vector v, FILE *outfile);

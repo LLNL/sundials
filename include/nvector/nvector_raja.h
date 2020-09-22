@@ -156,6 +156,11 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum,
 SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Raja(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Raja(N_Vector x, N_Vector w, N_Vector id);
 
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize_Raja(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack_Raja(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack_Raja(N_Vector x, void *buf);
+
 /* OPTIONAL operations for debugging */
 SUNDIALS_EXPORT void N_VPrint_Raja(N_Vector v);
 SUNDIALS_EXPORT void N_VPrintFile_Raja(N_Vector v, FILE *outfile);

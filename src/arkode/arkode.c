@@ -808,7 +808,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 
     /* Looping point for step attempts */
     dsm = ZERO;
-    ncf = nef = constrfails = 0;
+    ncf = nef = constrfails = ark_mem->last_kflag = 0;
     nflag = FIRST_CALL;
     for(;;) {
 
@@ -851,6 +851,13 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       ark_mem->eta = SUNMIN(ark_mem->eta, ark_mem->hadapt_mem->etamax);
       ark_mem->eta = SUNMAX(ark_mem->eta, ark_mem->hmin / SUNRabs(ark_mem->h));
       ark_mem->eta /= SUNMAX(ONE, SUNRabs(ark_mem->h) * ark_mem->hmax_inv*ark_mem->eta);
+
+      /* if ignoring temporal error test result (XBraid) force step to pass */
+      if (ark_mem->force_pass) {
+        ark_mem->last_kflag = kflag;
+        kflag = ARK_SUCCESS;
+        break;
+      }
 
       /* break attempt loop on successful step */
       if (kflag == ARK_SUCCESS)  break;
@@ -1273,7 +1280,7 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
     ark_mem->next_h = ZERO;
 
     /* Tolerance scale factor */
-    ark_mem->tolsf  = ONE;
+    ark_mem->tolsf = ONE;
 
     /* Adaptivity counters */
     ark_mem->hadapt_mem->nst_acc = 0;

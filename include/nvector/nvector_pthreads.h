@@ -208,6 +208,10 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
 SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Pthreads(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Pthreads(N_Vector x, N_Vector w, N_Vector id);
 
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize_Pthreads(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack_Pthreads(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack_Pthreads(N_Vector x, void *buf);
 
 /*
  * -----------------------------------------------------------------

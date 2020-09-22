@@ -47,6 +47,11 @@ if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
   list(APPEND sundials_HEADERS sundials_cuda_policies.hpp)
 endif()
 
+# If enabled, add the XBraid interface header
+if(ENABLE_XBRAID)
+  list(APPEND sundials_HEADERS sundials_xbraid.h)
+endif()
+
 # Add prefix with complete path to the SUNDIALS header files
 add_prefix(${sundials_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 

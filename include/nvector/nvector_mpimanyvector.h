@@ -158,6 +158,11 @@ SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_MPIManyVector(N_Vector c, N_Vecto
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal_MPIManyVector(N_Vector num,
                                                            N_Vector denom);
 
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize_MPIManyVector(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack_MPIManyVector(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack_MPIManyVector(N_Vector x, void *buf);
+
 /* -----------------------------------------------------------------
    Enable / disable fused vector operations
    ----------------------------------------------------------------- */

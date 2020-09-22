@@ -25,6 +25,7 @@ $tar $tarfile $distrobase/include/arkode/arkode_butcher_erk.h  || exit 1
 $tar $tarfile $distrobase/include/arkode/arkode_erkstep.h      || exit 1
 $tar $tarfile $distrobase/include/arkode/arkode_ls.h           || exit 1
 $tar $tarfile $distrobase/include/arkode/arkode_mristep.h      || exit 1
+$tar $tarfile $distrobase/include/arkode/arkode_xbraid.h       || exit 1
 
 $tar $tarfile $distrobase/src/arkode/LICENSE        || exit 1
 $tar $tarfile $distrobase/src/arkode/NOTICE         || exit 1
@@ -61,6 +62,10 @@ $tar $tarfile $distrobase/src/arkode/arkode_mristep_io.c   || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_nls.c  || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_root.c         || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_root_impl.h    || exit 1
+
+$tar $tarfile $distrobase/src/arkode/xbraid/CMakeLists.txt       || exit 1
+$tar $tarfile $distrobase/src/arkode/xbraid/arkode_xbraid.c      || exit 1
+$tar $tarfile $distrobase/src/arkode/xbraid/arkode_xbraid_impl.h || exit 1
 
 echo "   --- Add farkode module to $tarfile"
 
@@ -243,6 +248,16 @@ $tar $tarfile $distrobase/examples/arkode/CXX_superludist/CMakeLists.txt        
 $tar $tarfile $distrobase/examples/arkode/CXX_superludist/README                            || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_superludist/ark_brusselator1D_FEM_sludist.cpp || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_superludist/ark_brusselator1D_FEM_sludist.out || exit 1
+
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/CMakeLists.txt                                                || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/README.md                                                     || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_hypre_pfmg_xbraid.cpp                              || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_hypre_pfmg_xbraid_--np_2_2_2_--x_print_level_0.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_p_xbraid.cpp                                       || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_p_xbraid_--np_2_2_2_--x_print_level_0.out          || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_xbraid.cpp                                         || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_xbraid_--x_print_level_0.out                       || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/plot_heat2D.py                                                || exit 1
 
 $tar $tarfile $distrobase/examples/arkode/F77_parallel/CMakeLists.txt          || exit 1
 $tar $tarfile $distrobase/examples/arkode/F77_parallel/README                  || exit 1

@@ -324,6 +324,13 @@ if [ "$TPLs" == "ON" ]; then
         exit 1
     fi
 
+    # XBRAID
+    XBRAID_STATUS=${XBRAID_STATUS:-"OFF"}
+    if [ "$XBRAID_STATUS" == "ON" ] && [ -z "$XBRAIDDIR" ]; then
+        echo "ERROR: XBRAID_STATUS = ON but XBRAIDDIR is not set"
+        exit 1
+    fi
+
 else
 
     # C and C++ standard flags to append
@@ -347,6 +354,7 @@ else
     CUDA_STATUS=OFF
     TRILINOS_STATUS=OFF
     RAJA_STATUS=OFF
+    XBRAID_STATUS=OFF
 
 fi
 
@@ -474,6 +482,9 @@ time cmake \
     \
     -D RAJA_ENABLE="${RAJA_STATUS}" \
     -D RAJA_DIR="${RAJADIR}" \
+    \
+    -D ENABLE_XBRAID="${XBRAID_STATUS}" \
+    -D XBRAID_DIR="${XBRAIDDIR}" \
     \
     -D USE_GENERIC_MATH="${C90MATH}" \
     \

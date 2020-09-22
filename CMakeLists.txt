@@ -513,6 +513,28 @@ if(RAJA_ENABLE AND (NOT CUDA_ENABLE))
   print_error("CUDA is required for RAJA support. Please enable CUDA and RAJA.")
 endif()
 
+
+# ---------------------------------------------------------------
+# Enable XBraid support?
+# ---------------------------------------------------------------
+
+sundials_option(ENABLE_XBRAID BOOL "Enable XBraid support" OFF)
+
+sundials_option(XBRAID_DIR PATH "Path to the root of aN XBraid installation" "${XBRAID_DIR}"
+                DEPENDS_ON ENABLE_XBRAID)
+
+sundials_option(XBRAID_LIBRARIES STRING "Semi-colon separated list of XBraid link libraries" "${XBRAID_LIBRARIES}"
+                DEPENDS_ON XBRAID_ENABLE
+                ADVANCED)
+
+sundials_option(XBRAID_INCLUDES STRING "Semi-colon separated list of XBraid include directories" "${XBRAID_INCLUDES}"
+                DEPENDS_ON XBRAID_ENABLE
+                ADVANCED)
+
+sundials_option(XBRAID_WORKS BOOL "Set to ON to force CMake to accept a given XBraid configuration" OFF
+                DEPENDS_ON XBRAID_ENABLE
+                ADVANCED)
+
 # ===============================================================
 # Options for examples
 # ===============================================================
@@ -1080,6 +1102,14 @@ endif(RAJA_ENABLE)
 if(Trilinos_ENABLE)
   include(SundialsTrilinos)
 endif(Trilinos_ENABLE)
+
+# -------------------------------------------------------------
+# Find XBraid
+# -------------------------------------------------------------
+
+if(ENABLE_XBRAID)
+  include(SundialsXBRAID)
+endif()
 
 
 # ===============================================================

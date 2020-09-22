@@ -101,6 +101,11 @@ N_Vector N_VNewEmpty()
   ops->nvwsqrsumlocal     = NULL;
   ops->nvwsqrsummasklocal = NULL;
 
+  /* XBraid interface operations */
+  ops->nvbufsize   = NULL;
+  ops->nvbufpack   = NULL;
+  ops->nvbufunpack = NULL;
+
   /* debugging functions (called when SUNDIALS_DEBUG_PRINTVEC is defined) */
   ops->nvprint     = NULL;
   ops->nvprintfile = NULL;
@@ -199,6 +204,11 @@ int N_VCopyOps(N_Vector w, N_Vector v)
   v->ops->nvminquotientlocal = w->ops->nvminquotientlocal;
   v->ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
   v->ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = w->ops->nvbufsize;
+  v->ops->nvbufpack   = w->ops->nvbufpack;
+  v->ops->nvbufunpack = w->ops->nvbufunpack;
 
   /* debugging functions (called when SUNDIALS_DEBUG_PRINTVEC is defined) */
   v->ops->nvprint     = w->ops->nvprint;
@@ -681,6 +691,28 @@ booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
 realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
 {
   return((realtype) num->ops->nvminquotientlocal(num,denom));
+}
+
+/* ------------------------------------
+ * OPTIONAL XBraid interface operations
+ * ------------------------------------*/
+
+int N_VBufSize(N_Vector x, sunindextype *size)
+{
+  if (x->ops->nvbufsize == NULL) return(-1);
+  return(x->ops->nvbufsize(x, size));
+}
+
+int N_VBufPack(N_Vector x, void *buf)
+{
+  if (x->ops->nvbufpack == NULL) return(-1);
+  return(x->ops->nvbufpack(x, buf));
+}
+
+int N_VBufUnpack(N_Vector x, void *buf)
+{
+  if (x->ops->nvbufunpack == NULL) return(-1);
+  return(x->ops->nvbufunpack(x, buf));
 }
 
 /* -----------------------------------------------------------------

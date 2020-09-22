@@ -17,8 +17,9 @@
 
 .. _NVectors.Ops:
 
-Description of the NVECTOR operations
-=========================================
+=======================================
+ Description of the NVECTOR operations
+=======================================
 
 The standard vector operations defined by the generic ``N_Vector``
 module are defined as follows.  For each of these operations, we give
@@ -468,7 +469,7 @@ operations below.
 .. _NVectors.FusedOps:
 
 Description of the NVECTOR fused operations
----------------------------------------------
+===========================================
 
 The following fused vector operations are *optional*. These
 operations are intended to increase data reuse, reduce parallel
@@ -543,7 +544,7 @@ operations below.
 .. _NVectors.ArrayOps:
 
 Description of the NVECTOR vector array operations
----------------------------------------------------
+==================================================
 
 The following vector array operations are also *optional*. As with the
 fused vector operations, these are intended to increase data reuse,
@@ -702,7 +703,7 @@ of its mathematical operations below.
 .. _NVectors.LocalOps:
 
 Description of the NVECTOR local reduction operations
---------------------------------------------------------
+=====================================================
 
 The following local reduction operations are also *optional*. As with
 the fused and vector array operations, these are intended to reduce
@@ -893,3 +894,55 @@ operations below.
    .. code-block:: c
 
       minq = N_VMinQuotientLocal(num, denom);
+
+
+
+.. _NVectors.ExchangeOps:
+
+Description of the NVECTOR exchange operations
+==============================================
+
+The following vector exchange operations are also *optional* and are
+intended only for use when interfacing with the XBraid library for
+parallel-in-time integration. In that setting these operations are
+required but are otherwise unused by SUNDIALS packages and may be set
+to ``NULL``. For each operation, we give the function signature, a
+description of the expected behavior, and an example of the function
+usage.
+
+
+
+.. c:function:: int N_VBufSize(N_Vector x, sunindextype *size)
+
+   This routine returns the buffer size need to exchange in the data in the
+   vector *x* between computational nodes.
+
+   Usage:
+
+   .. code-block:: c
+
+      flag = N_VBufSize(x, &buf_size)
+
+
+
+.. c:function:: int N_VBufPack(N_Vector x, void *buf)
+
+   This routine fills the exchange buffer *buf* with the vector data in *x*.
+
+   Usage:
+
+   .. code-block:: c
+
+      flag = N_VBufPack(x, &buf)
+
+
+.. c:function:: int N_VBufUnpack(N_Vector x, void *buf)
+
+   This routine unpacks the data in the exchange buffer *buf* into the vector
+   *x*.
+
+   Usage:
+
+   .. code-block:: c
+
+      flag = N_VBufUnpack(x, buf)

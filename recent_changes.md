@@ -2,6 +2,14 @@
 
 ## Changes to SUNDIALS in release x.x.x
 
+An interface between ARKStep and the XBraid multigrid reduction in time (MGRIT)
+library has been added to enable parallel-in-time integration. See the ARKStep
+documentation and examples for more details. This interface required the
+addition of three new N_Vector operations to exchange vector data between
+computational nodes, see `N_VBufSize`, `N_VBufPack`, and `N_VBufUnpack`. These
+N_Vector operations are only used within the XBraid interface and need not be
+implemented for any other context.
+
 Added new `SetLSNormFactor()` functions to CVODE(S), ARKODE, and IDA(S) to
 to specify the factor for converting between integrator tolerances (WRMS norm)
 and linear solver tolerances (L2 norm) i.e., `tol_L2 = nrmfac * tol_WRMS`.

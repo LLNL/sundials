@@ -390,7 +390,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
 
   /*    explicit */
   if (step_mem->explicit && !step_mem->implicit) {
-    hadapt_mem->imethod = 1;
+    hadapt_mem->imethod = ARK_ADAPT_PI;
     hadapt_mem->safety  = RCONST(0.99);
     hadapt_mem->bias    = RCONST(1.2);
     hadapt_mem->growth  = RCONST(25.0);
@@ -402,7 +402,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   } else if (step_mem->implicit && !step_mem->explicit) {
     switch (step_mem->q) {
     case 2:   /* just use standard defaults since better ones unknown */
-      hadapt_mem->imethod   = 0;
+      hadapt_mem->imethod   = ARK_ADAPT_PID;
       hadapt_mem->safety    = SAFETY;
       hadapt_mem->bias      = BIAS;
       hadapt_mem->growth    = GROWTH;
@@ -417,7 +417,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = MSBP;
       break;
     case 3:
-      hadapt_mem->imethod   = 2;
+      hadapt_mem->imethod   = ARK_ADAPT_I;
       hadapt_mem->safety    = RCONST(0.957);
       hadapt_mem->bias      = RCONST(1.9);
       hadapt_mem->growth    = RCONST(17.6);
@@ -431,7 +431,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 60;
       break;
     case 4:
-      hadapt_mem->imethod   = 0;
+      hadapt_mem->imethod   = ARK_ADAPT_PID;
       hadapt_mem->safety    = RCONST(0.988);
       hadapt_mem->bias      = RCONST(1.2);
       hadapt_mem->growth    = RCONST(31.5);
@@ -448,7 +448,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 31;
       break;
     case 5:
-      hadapt_mem->imethod   = 0;
+      hadapt_mem->imethod   = ARK_ADAPT_PID;
       hadapt_mem->safety    = RCONST(0.937);
       hadapt_mem->bias      = RCONST(3.3);
       hadapt_mem->growth    = RCONST(22.0);
@@ -470,7 +470,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   } else {
     switch (step_mem->q) {
     case 3:
-      hadapt_mem->imethod   = 0;
+      hadapt_mem->imethod   = ARK_ADAPT_PID;
       hadapt_mem->safety    = RCONST(0.965);
       hadapt_mem->bias      = RCONST(1.42);
       hadapt_mem->growth    = RCONST(28.7);
@@ -487,7 +487,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 60;
       break;
     case 4:
-      hadapt_mem->imethod   = 0;
+      hadapt_mem->imethod   = ARK_ADAPT_PID;
       hadapt_mem->safety    = RCONST(0.97);
       hadapt_mem->bias      = RCONST(1.35);
       hadapt_mem->growth    = RCONST(25.0);
@@ -504,7 +504,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 31;
       break;
     case 5:
-      hadapt_mem->imethod   = 1;
+      hadapt_mem->imethod   = ARK_ADAPT_PI;
       hadapt_mem->safety    = RCONST(0.993);
       hadapt_mem->bias      = RCONST(1.15);
       hadapt_mem->growth    = RCONST(28.5);

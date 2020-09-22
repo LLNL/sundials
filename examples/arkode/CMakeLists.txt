@@ -47,6 +47,9 @@ if(EXAMPLES_ENABLE_CXX AND CXX_FOUND)
   if(OPENMP_ENABLE AND OPENMP_FOUND AND MPI_CXX_FOUND AND SUPERLUDIST_ENABLE)
     add_subdirectory(CXX_superludist)
   endif()
+  if(ENABLE_XBRAID)
+    add_subdirectory(CXX_xbraid)
+  endif()
 endif()
 
 # F77 examples

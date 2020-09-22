@@ -108,6 +108,10 @@
             Unconstrained Optimization and Nonlinear Equations. SIAM,
             Philadelphia, 1996.
 
+.. [F2014] R.D. Falgout, S. Friedhoff, TZ.V. Kolev, S.P. MacLachlan, and
+           J.B. Schroder, Parallel Time Integration with Multigrid,
+           *SIAM J. Sci. Comput.*, 36:C635-C661, 2014.
+
 .. [F2015] R. Falgout and U.M. Yang. Hypre user's manual. *LLNL
            Technical Report*, 2015.
 
@@ -273,6 +277,8 @@
 .. [KW1998] O. Knoth and R. Wolke. Implicit-explicit Runge-Kutta methods for
             computing atmospheric reactive flows. *Appl. Numer. Math.*,
             28(2):327-341, 1998.
+
+.. [XBraid] `XBraid: Parallel multigrid in time. <http://llnl.gov/casc/xbraid>`_.
 
 .. [Z1963] J.A. Zonneveld. Automatic integration of ordinary
            differential equations. *Report R743, Mathematisch Centrum*,

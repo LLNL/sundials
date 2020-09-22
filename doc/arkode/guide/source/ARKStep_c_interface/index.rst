@@ -66,3 +66,4 @@ detailed in the following sub-sections.
    User_callable
    User_supplied
    Preconditioners
+   XBraid

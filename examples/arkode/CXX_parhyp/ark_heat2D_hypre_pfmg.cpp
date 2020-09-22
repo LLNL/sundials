@@ -104,7 +104,7 @@ struct UserData
   sunindextype nx_loc;
   sunindextype ny_loc;
 
-  // Local total number of nodes
+  // Overall number of local nodes
   sunindextype nodes_loc;
 
   // Global x and y indices of this subdomain
@@ -204,8 +204,8 @@ struct UserData
   // Ouput variables
   int      output; // output level
   int      nout;   // number of output times
-  ofstream uout;   // output file streams
-  ofstream eout;   // output file streams
+  ofstream uout;   // output file stream
+  ofstream eout;   // error file stream
   N_Vector e;      // error vector
 
   // Timing variables
@@ -331,7 +331,8 @@ int main(int argc, char* argv[])
   // Setup UserData and parallel decomposition
   // ------------------------------------------
 
-  // Allocate and initialize user data structure
+  // Allocate and initialize user data structure with default values. The
+  // defaults may be overwritten by command line inputs in ReadInputs below.
   udata = new UserData;
   flag = InitUserData(udata);
   if (check_flag(&flag, "InitUserData", 1)) return 1;
@@ -2206,7 +2207,7 @@ static void InputHelp()
   cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
-  cout << "  --noprec                : disable PFMG preconditioner" << endl;
+  cout << "  --noprec                : disable preconditioner" << endl;
   cout << "  --msbp <steps>          : max steps between prec setups" << endl;
   cout << "  --pfmg_relax <types>    : relaxtion type in PFMG" << endl;
   cout << "  --pfmg_nrelax <iters>   : pre/post relaxtion sweeps in PFMG" << endl;

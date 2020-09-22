@@ -38,7 +38,9 @@ using namespace sundials::sunmatrix_cusparse;
 /* Private function prototypes */
 static booleantype SMCompatible_cuSparse(SUNMatrix, SUNMatrix);
 static SUNMatrix SUNMatrix_cuSparse_NewEmpty();
+#if CUDART_VERSION >= 11000
 static cusparseStatus_t CreateSpMatDescr(SUNMatrix, cusparseSpMatDescr_t*);
+#endif
 
 /* Macros for handling the different function names based on precision */
 #if defined(SUNDIALS_DOUBLE_PRECISION)

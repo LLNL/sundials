@@ -44,17 +44,25 @@ extern "C" {
 #define ARK_NORMAL         1
 #define ARK_ONE_STEP       2
 
-  
+/* adaptivity module flags */
+#define ARK_ADAPT_CUSTOM   -1
+#define ARK_ADAPT_PID       0
+#define ARK_ADAPT_PI        1
+#define ARK_ADAPT_I         2
+#define ARK_ADAPT_EXP_GUS   3
+#define ARK_ADAPT_IMP_GUS   4
+#define ARK_ADAPT_IMEX_GUS  5
+
 /* interpolation module flags */
 
-/*    max allowed degree */  
+/*    max allowed degree */
 #define ARK_INTERP_MAX_DEGREE 5
 
-/*    interpolation module types */  
+/*    interpolation module types */
 #define ARK_INTERP_HERMITE  0
 #define ARK_INTERP_LAGRANGE 1
-  
-  
+
+
 /* return values */
 
 #define ARK_SUCCESS                 0

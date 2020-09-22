@@ -816,6 +816,48 @@ SWIGEXPORT double _wrap_FN_VWSqrSumMaskLocal_Serial(N_Vector farg1, N_Vector far
 }
 
 
+SWIGEXPORT int _wrap_FN_VBufSize_Serial(N_Vector farg1, int64_t *farg2) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  sunindextype *arg2 = (sunindextype *) 0 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (sunindextype *)(farg2);
+  result = (int)N_VBufSize_Serial(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VBufPack_Serial(N_Vector farg1, void *farg2) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  void *arg2 = (void *) 0 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (void *)(farg2);
+  result = (int)N_VBufPack_Serial(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VBufUnpack_Serial(N_Vector farg1, void *farg2) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  void *arg2 = (void *) 0 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (void *)(farg2);
+  result = (int)N_VBufUnpack_Serial(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FN_VEnableFusedOps_Serial(N_Vector farg1, int const *farg2) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;

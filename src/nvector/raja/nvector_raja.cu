@@ -115,6 +115,11 @@ N_Vector N_VNewEmpty_Raja()
   v->ops->nvconstrmasklocal  = N_VConstrMask_Raja;
   v->ops->nvminquotientlocal = N_VMinQuotient_Raja;
 
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_Raja;
+  v->ops->nvbufpack   = N_VBufPack_Raja;
+  v->ops->nvbufunpack = N_VBufUnpack_Raja;
+
   /* print operation for debugging */
   v->ops->nvprint            = N_VPrint_Raja;
   v->ops->nvprintfile        = N_VPrintFile_Raja;
@@ -1316,6 +1321,71 @@ int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, realtype* c,
   if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
 
   return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * OPTIONAL XBraid interface operations
+ * -----------------------------------------------------------------
+ */
+
+
+int N_VBufSize_Raja(N_Vector x, sunindextype *size)
+{
+  if (x == NULL) return(-1);
+  *size = (sunindextype)NVEC_RAJA_MEMSIZE(x);
+  return(0);
+}
+
+
+int N_VBufPack_Raja(N_Vector x, void *buf)
+{
+  int copy_fail = 0;
+  cudaError_t cuerr;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(buf, SUNMEMTYPE_HOST);
+  if (buf_mem == NULL) return(-1);
+
+  copy_fail = SUNMemoryHelper_CopyAsync(NVEC_RAJA_MEMHELP(x),
+                                        buf_mem,
+                                        NVEC_RAJA_CONTENT(x)->device_data,
+                                        NVEC_RAJA_MEMSIZE(x),
+                                        0);
+
+  /* we synchronize with respect to the host, but only in this stream */
+  cuerr = cudaStreamSynchronize(0);
+
+  SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem);
+
+  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+}
+
+
+int N_VBufUnpack_Raja(N_Vector x, void *buf)
+{
+  int copy_fail = 0;
+  cudaError_t cuerr;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(buf, SUNMEMTYPE_HOST);
+  if (buf_mem == NULL) return(-1);
+
+  copy_fail = SUNMemoryHelper_CopyAsync(NVEC_RAJA_MEMHELP(x),
+                                        NVEC_RAJA_CONTENT(x)->device_data,
+                                        buf_mem,
+                                        NVEC_RAJA_MEMSIZE(x),
+                                        0);
+
+  /* we synchronize with respect to the host, but only in this stream */
+  cuerr = cudaStreamSynchronize(0);
+
+  SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem);
+
+  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
 
 

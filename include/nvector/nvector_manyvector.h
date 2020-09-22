@@ -141,6 +141,11 @@ SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ManyVector(N_Vector c, N_Vector x
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal_ManyVector(N_Vector num,
                                                         N_Vector denom);
 
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize_ManyVector(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack_ManyVector(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack_ManyVector(N_Vector x, void *buf);
+
 /* -----------------------------------------------------------------
    Enable / disable fused vector operations
    ----------------------------------------------------------------- */

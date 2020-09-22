@@ -17,11 +17,6 @@
  * -----------------------------------------------------------------
  * These test functions are designed to check an NVECTOR module
  * implementation.
- *
- * NOTE: Many of these tests rely on the N_VGetArrayPointer routine
- *       to get a pointer to the data component of an N_Vector. This
- *       assumes the internal data is stored in a contiguous
- *       realtype array.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -5234,6 +5229,169 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
   PRINT_TIME("N_VMinQuotientLocal", maxt);
 
   return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VBufSize test
+ * --------------------------------------------------------------------*/
+int Test_N_VBufSize(N_Vector x, sunindextype local_length, int myid)
+{
+  int          flag = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype size;
+
+  /* get buffer size */
+  start_time = get_time();
+  flag = N_VBufSize(x, &size);
+  sync_device();
+  stop_time = get_time();
+
+  /* check return value */
+  if (flag != 0) {
+    printf(">>> FAILED test -- N_VBufSize returned %d, Proc %d \n", flag, myid);
+    return(1);
+  }
+
+  /* check buffer size */
+  if (size != local_length * ((sunindextype)sizeof(realtype))) {
+    printf(">>> FAILED test -- N_VBufSize, Proc %d \n", myid);
+    return(1);
+  }
+
+  if (myid == 0) {
+    printf("PASSED test -- N_VBufSize\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(x, stop_time - start_time);
+  PRINT_TIME("N_VBufSize", maxt);
+
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VBufPack test
+ * --------------------------------------------------------------------*/
+int Test_N_VBufPack(N_Vector x, sunindextype local_length, int myid)
+{
+  int          flag = 0, failure = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype i, size;
+  realtype     *buf;
+
+  /* get buffer size */
+  flag = N_VBufSize(x, &size);
+  if (flag != 0) {
+    printf(">>> FAILED test -- N_VBufSize returned %d, Proc %d \n", flag, myid);
+    return(1);
+  }
+
+  /* create and initialize buffer */
+  buf = NULL;
+  buf = (realtype*) malloc((size_t)size);
+  if (buf == NULL) {
+    printf(">>> FAILED test -- malloc failed, Proc %d \n", myid);
+    return(1);
+  }
+
+  for (i = 0; i < local_length; i++) {
+    buf[i] = ZERO;
+  }
+
+  /* set vector data */
+  N_VConst(ONE, x);
+
+  /* fill buffer */
+  start_time = get_time();
+  flag = N_VBufPack(x, (void*)buf);
+  sync_device();
+  stop_time = get_time();
+
+  if (flag != 0) {
+    printf(">>> FAILED test -- N_VBufPack returned %d, Proc %d \n", flag, myid);
+    return(1);
+  }
+
+  /* check buffer values */
+  for(i = 0; i < local_length; i++) {
+    failure += FNEQ(buf[i], ONE);
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VBufPack failed, Proc %d \n", myid);
+    return(1);
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VBufPack\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(x, stop_time - start_time);
+  PRINT_TIME("N_VBufPack", maxt);
+
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VBufUnpack test
+ * --------------------------------------------------------------------*/
+int Test_N_VBufUnpack(N_Vector x, sunindextype local_length, int myid)
+{
+  int          flag = 0, failure = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype i, size;
+  realtype     *buf;
+
+  /* get buffer size */
+  flag = N_VBufSize(x, &size);
+  if (flag != 0) {
+    printf(">>> FAILED test -- N_VBufSize returned %d, Proc %d \n", flag, myid);
+    return(1);
+  }
+
+  /* create and initialize buffer */
+  buf = NULL;
+  buf = (realtype*) malloc((size_t)size);
+  if (buf == NULL) {
+    printf(">>> FAILED test -- malloc failed, Proc %d \n", myid);
+    return(1);
+  }
+
+  for(i = 0; i < local_length; i++) {
+    buf[i] = ONE;
+  }
+
+  /* clear the input vector values */
+  N_VConst(ZERO, x);
+
+  /* fill vector data */
+  start_time = get_time();
+  flag = N_VBufUnpack(x, (void*)buf);
+  sync_device();
+  stop_time = get_time();
+
+  if (flag != 0) {
+    printf(">>> FAILED test -- N_VBufUnPack returned %d, Proc %d \n", flag, myid);
+    return(1);
+  }
+
+  /* x should be vector of ones */
+  failure = check_ans(ONE, x, local_length);
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VBufUnpack failed, Proc %d \n", myid);
+    return(1);
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VBufUnpack\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(x, stop_time - start_time);
+  PRINT_TIME("N_VBufUnpack", maxt);
+
+  return(0);
 }
 
 

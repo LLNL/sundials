@@ -14,11 +14,12 @@ provided with {\sundials} are described in the following sections.
 \label{s:nvector_api}
 % ====================================================================
 
-The generic {\nvector} API can be broken down into five groups of functions:
+The generic {\nvector} API can be broken down into groups of functions:
 the core vector operations, the fused vector operations, the vector array
-operations, the local reduction operations, and finally some utility functions.
-The first four groups are defined by a particular {\nvector} implementation.
-The utility functions are defined by the generic {\nvector} itself.
+operations, the local reduction operations, the exchange operations, and
+finally some utility functions. All but the last group are defined by a
+particular {\nvector} implementation. The utility functions are defined
+by the generic {\nvector} itself.
 
 % ====================================================================
 \subsection{NVECTOR core functions}\label{ss:nvecops}
@@ -1159,7 +1160,7 @@ used as templates for user-defined {\nvector} implementations.
   is returned.
 }
 {
-  \begin{args}[x]
+  \begin{args}[denom]
   \item[num] (\id{N\_Vector}) a {\nvector} object used as the numerator
   \item[denom] (\id{N\_Vector}) a {\nvector} object used as the denominator
   \end{args}
@@ -1168,6 +1169,74 @@ used as templates for user-defined {\nvector} implementations.
   \id{realtype}
 }
 {}
+
+
+% ====================================================================
+\subsection{NVECTOR exchange operations}\label{ss:nvecexchangeops}
+
+The following vector exchange operations are also \textit{optional} and are
+intended only for use when interfacing with the XBraid library for
+parallel-in-time integration. In that setting these operations are required but
+are otherwise unused by SUNDIALS packages and may be set to \id{NULL}. For each
+operation, we give the function signature, a description of the expected
+behavior, and an example of the function usage.
+
+\ucfunctionf{N\_VBufSize}
+{
+  flag = N\_VBufSize(N\_Vector x, sunindextype *size);
+}
+{
+  This routine returns the buffer size need to exchange in the data in the
+  vector \id{x} between computational nodes.
+}
+{
+  \begin{args}[size]
+  \item[x] (\id{N\_Vector}) a {\nvector} object
+  \item[size] (\id{sunindextype*}) the size of the message buffer
+  \end{args}
+}
+{
+  Returns an \id{int} with value \id{0} for success and a non-zero value otherwise.
+}
+{}
+
+\ucfunctionf{N\_VBufPack}
+{
+  flag = N\_VBufPack(N\_Vector x, void *buf);
+}
+{
+  This routine fills the exchange buffer \id{buf} with the vector data in \id{x}.
+}
+{
+  \begin{args}[buf]
+  \item[x] (\id{N\_Vector}) a {\nvector} object
+  \item[buf] (\id{sunindextype*}) the exchange buffer to pack
+  \end{args}
+}
+{
+  Returns an \id{int} with value \id{0} for success and a non-zero value otherwise.
+}
+{}
+
+\ucfunctionf{N\_VBufUnpack}
+{
+  flag = N\_VBufUnpack(N\_Vector x, void *buf);
+}
+{
+  This routine unpacks the data in the exchange buffer \id{buf} into the vector
+  \id{x}.
+}
+{
+  \begin{args}[buf]
+  \item[x] (\id{N\_Vector}) a {\nvector} object
+  \item[buf] (\id{sunindextype*}) the exchange buffer to unpack
+  \end{args}
+}
+{
+  Returns an \id{int} with value \id{0} for success and a non-zero value otherwise.
+}
+{}
+
 
 
 % ====================================================================
@@ -1479,7 +1548,9 @@ struct _generic_N_Vector_Ops {
   realtype     (*nvminquotientlocal)(N_Vector, N_Vector);
   realtype     (*nvwsqrsumlocal)(N_Vector, N_Vector);
   realtype     (*nvwsqrsummasklocal(N_Vector, N_Vector, N_Vector);
-
+  int          (*nvbufsize)(N_Vector, sunindextype *);
+  int          (*nvbufpack)(N_Vector, void*);
+  int          (*nvbufunpack)(N_Vector, void*);
 };
 \end{verbatim}
 
@@ -1565,6 +1636,9 @@ Their definition is given below.
   type(C_FUNPTR), public :: nvminquotientlocal
   type(C_FUNPTR), public :: nvwsqrsumlocal
   type(C_FUNPTR), public :: nvwsqrsummasklocal
+  type(C_FUNPTR), public :: nvbufsize
+  type(C_FUNPTR), public :: nvbufpack
+  type(C_FUNPTR), public :: nvbufunpack
  end type N_Vector_Ops
 \end{verbatim}
 

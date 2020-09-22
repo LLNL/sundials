@@ -205,9 +205,14 @@ N_Vector N_VNewEmpty_Cuda()
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Cuda;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Cuda;
 
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_Cuda;
+  v->ops->nvbufpack   = N_VBufPack_Cuda;
+  v->ops->nvbufunpack = N_VBufUnpack_Cuda;
+
   /* print operation for debugging */
-  v->ops->nvprint            = N_VPrint_Cuda;
-  v->ops->nvprintfile        = N_VPrintFile_Cuda;
+  v->ops->nvprint     = N_VPrint_Cuda;
+  v->ops->nvprintfile = N_VPrintFile_Cuda;
 
   /* Create content */
 
@@ -1893,6 +1898,71 @@ int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum, realtype* c,
   if (!SUNDIALS_CUDA_VERIFY(err)) return(-1);
 
   return cudaGetLastError();
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * OPTIONAL XBraid interface operations
+ * -----------------------------------------------------------------
+ */
+
+
+int N_VBufSize_Cuda(N_Vector x, sunindextype *size)
+{
+  if (x == NULL) return(-1);
+  *size = (sunindextype)NVEC_CUDA_MEMSIZE(x);
+  return(0);
+}
+
+
+int N_VBufPack_Cuda(N_Vector x, void *buf)
+{
+  int copy_fail = 0;
+  cudaError_t cuerr;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(buf, SUNMEMTYPE_HOST);
+  if (buf_mem == NULL) return(-1);
+
+  copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(x),
+                                        buf_mem,
+                                        NVEC_CUDA_CONTENT(x)->device_data,
+                                        NVEC_CUDA_MEMSIZE(x),
+                                        (void*) NVEC_CUDA_STREAM(x));
+
+  /* we synchronize with respect to the host, but only in this stream */
+  cuerr = cudaStreamSynchronize(*NVEC_CUDA_STREAM(x));
+
+  SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(x), buf_mem);
+
+  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+}
+
+
+int N_VBufUnpack_Cuda(N_Vector x, void *buf)
+{
+  int copy_fail = 0;
+  cudaError_t cuerr;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(buf, SUNMEMTYPE_HOST);
+  if (buf_mem == NULL) return(-1);
+
+  copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(x),
+                                        NVEC_CUDA_CONTENT(x)->device_data,
+                                        buf_mem,
+                                        NVEC_CUDA_MEMSIZE(x),
+                                        (void*) NVEC_CUDA_STREAM(x));
+
+  /* we synchronize with respect to the host, but only in this stream */
+  cuerr = cudaStreamSynchronize(*NVEC_CUDA_STREAM(x));
+
+  SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(x), buf_mem);
+
+  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
 
 

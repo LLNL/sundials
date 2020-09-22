@@ -31,6 +31,7 @@ $tar $tarfile $distrobase/config/FindPETSC.cmake                        || exit 
 $tar $tarfile $distrobase/config/FindSUPERLUDIST.cmake                  || exit 1
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake                    || exit 1
 $tar $tarfile $distrobase/config/FindTrilinos.cmake                     || exit 1
+$tar $tarfile $distrobase/config/FindXBRAID.cmake                       || exit 1
 $tar $tarfile $distrobase/config/ResolveCompilerPaths.cmake             || exit 1
 $tar $tarfile $distrobase/config/SundialsAddF2003InterfaceLibrary.cmake || exit 1
 $tar $tarfile $distrobase/config/SundialsAddTest.cmake                  || exit 1
@@ -54,6 +55,7 @@ $tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake                || exit 
 $tar $tarfile $distrobase/config/SundialsTesting.cmake                  || exit 1
 $tar $tarfile $distrobase/config/SundialsTrilinos.cmake                 || exit 1
 $tar $tarfile $distrobase/config/SundialsTryCompileExecute.cmake        || exit 1
+$tar $tarfile $distrobase/config/SundialsXBRAID.cmake                   || exit 1
 $tar $tarfile $distrobase/config/SundialsXSDK.cmake                     || exit 1
 
 echo "   --- Add shared module to $tarfile"
@@ -78,6 +80,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_nvector_senswrapper.h || exi
 $tar $tarfile $distrobase/include/sundials/sundials_nvector.h             || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_types.h               || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_version.h             || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_xbraid.h              || exit 1
 
 $tar $tarfile $distrobase/include/nvector/nvector_cuda.h                              || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_manyvector.h                        || exit 1
@@ -141,6 +144,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_futils.c                        
 $tar $tarfile $distrobase/src/sundials/sundials_cuda.h                            || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_cuda_kernels.cuh                  || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_debug.h                           || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_xbraid.c                          || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/CMakeLists.txt                        || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.{c,f90}    || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.{c,f90}          || exit 1
@@ -584,6 +588,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F90_ex.in      ||
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_F90_ex.in    || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_trilinos_CXX_ex.in    || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_superludist_CXX_ex.in || exit 1
+$tar $tarfile $distrobase/examples/templates/cmakelists_xbraid_CXX_ex.in      || exit 1
 
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_C_ex.in      || exit 1
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F77_ex.in    || exit 1
@@ -608,6 +613,7 @@ $tar $tarfile $distrobase/examples/templates/makefile_serial_F90_ex.in      || e
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F90_ex.in    || exit 1
 $tar $tarfile $distrobase/examples/templates/makefile_trilinos_CXX_ex.in    || exit 1
 $tar $tarfile $distrobase/examples/templates/makefile_superludist_CXX_ex.in || exit 1
+$tar $tarfile $distrobase/examples/templates/makefile_xbraid_CXX_ex.in      || exit 1
 
 
 echo "   --- Add testing files to $tarfile"

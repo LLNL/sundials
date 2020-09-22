@@ -390,6 +390,17 @@ typedef struct ARKodeMemRec {
   /* User-supplied stage solution post-processing function */
   ARKPostProcessFn ProcessStage;
 
+  /* XBraid interface variables */
+  booleantype force_pass;  /* when true the step attempt loop will ignore the
+                              return value (kflag) from arkCheckTemporalError
+                              and set kflag = ARK_SUCCESS to force the step
+                              attempt to always pass (if a solver failure did
+                              not occur before the error test). */
+  int         last_kflag;  /* last value of the return flag (kflag) from a call
+                              to arkCheckTemporalError. This is only set when
+                              force_pass is true and is used by the XBraid
+                              interface to determine if a time step passed or
+                              failed the time step error test.  */
 } *ARKodeMem;
 
 
@@ -980,6 +991,11 @@ int arkGetStepStats(void *arkode_mem, long int *nsteps,
                     realtype *hinused, realtype *hlast,
                     realtype *hcur, realtype *tcur);
 char *arkGetReturnFlagName(long int flag);
+
+
+/* XBraid interface functions */
+int arkSetForcePass(void *arkode_mem, booleantype force_pass);
+int arkGetLastKFlag(void *arkode_mem, int *last_kflag);
 
 
 /*===============================================================

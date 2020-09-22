@@ -158,5 +158,10 @@ endif(BUILD_SHARED_LIBS)
 # Install the ARKODE header files
 install(FILES ${arkode_HEADERS} DESTINATION include/arkode)
 
-#
+# Finished ARKODE
 message(STATUS "Added ARKODE module")
+
+# Add ARKODE XBraid interface
+if(ENABLE_XBRAID)
+  add_subdirectory(xbraid)
+endif()

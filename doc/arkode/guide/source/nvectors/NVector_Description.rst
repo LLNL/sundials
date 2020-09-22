@@ -102,6 +102,9 @@ defined as
       realtype     (*nvminquotientlocal)(N_Vector, N_Vector);
       realtype     (*nvwsqrsumlocal)(N_Vector, N_Vector);
       realtype     (*nvwsqrsummasklocal(N_Vector, N_Vector, N_Vector);
+      int          (*nvbufsize)(N_Vector, sunindextype *);
+      int          (*nvbufpack)(N_Vector, void*);
+      int          (*nvbufunpack)(N_Vector, void*);
    };
 
 
@@ -123,8 +126,8 @@ module, namely ``N_VScale``, which performs the scaling of a vector
 The subsection :ref:`NVectors.Ops` contains a complete list of all
 standard vector operations defined by the generic NVECTOR module.  The
 subsections :ref:`NVectors.FusedOps`, :ref:`NVectors.ArrayOps` and
-:ref:`NVectors.LocalOps` list *optional* fused, vector array and local
-reduction operations respectively.
+:ref:`NVectors.LocalOps`, :ref:`NVectors.ExchangeOps` list *optional*
+fused, vector array, local reduction, and exchange operations respectively.
 
 Fused and vector array operations are intended to increase data reuse, reduce
 parallel communication on distributed memory systems, and lower the number of
@@ -148,6 +151,10 @@ automatically call standard vector reduction operations as necessary
 to complete the desired operation. All SUNDIALS-provided NVECTOR
 implementations include these local reduction operations, which may be
 used as templates for user-defined NVECTOR implementations.
+
+The exchange operations are intended only for use with the XBraid library
+for parallel-in-time integration and are otherwise unused by SUNDIALS
+packages.
 
 .. _NVectors.utilities:
 
@@ -264,7 +271,7 @@ set and all operations are copied when cloning a vector.
 
   This routine frees the generic ``N_Vector`` object, under the assumption that any
   implementation-specific data that was allocated within the underlying content structure
-  has already been freed. It will additionally test whether the ops pointer is ``NULL``, 
+  has already been freed. It will additionally test whether the ops pointer is ``NULL``,
   and, if it is not, it will free it as well.
 
    **Arguments:**
