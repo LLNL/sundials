@@ -35,6 +35,7 @@ set(sundials_HEADERS
   sundials_linearsolver.h
   sundials_math.h
   sundials_matrix.h
+  sundials_memory.h
   sundials_nonlinearsolver.h
   sundials_mpi_types.h
   sundials_nvector.h
@@ -44,6 +45,11 @@ set(sundials_HEADERS
 
 if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
   list(APPEND sundials_HEADERS sundials_cuda_policies.hpp)
+endif()
+
+# If enabled, add the XBraid interface header
+if(ENABLE_XBRAID)
+  list(APPEND sundials_HEADERS sundials_xbraid.h)
 endif()
 
 # Add prefix with complete path to the SUNDIALS header files
@@ -63,6 +69,7 @@ if(BUILD_STATIC_LIBS)
     sundials_linearsolver.c
     sundials_math.c
     sundials_matrix.c
+    sundials_memory.c
     sundials_nonlinearsolver.c
     sundials_nvector.c
     sundials_nvector_senswrapper.c
@@ -79,6 +86,7 @@ if(BUILD_SHARED_LIBS)
       sundials_linearsolver.c
       sundials_math.c
       sundials_matrix.c
+      sundials_memory.c
       sundials_nonlinearsolver.c
       sundials_nvector.c
       sundials_nvector_senswrapper.c

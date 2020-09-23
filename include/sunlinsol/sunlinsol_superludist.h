@@ -36,7 +36,7 @@
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
-#include <sunmatrix/sunmatrix_sparse.h>
+#include <sunmatrix/sunmatrix_slunrloc.h>
 
 #ifdef __cplusplus
 extern "C" {

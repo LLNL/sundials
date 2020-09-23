@@ -1,8 +1,7 @@
-/*
- * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
- *                Scott D. Cohen, Alan C. Hindmarsh, Radu Serban
- *                   and Dan Shumaker @ LLNL
+/* -----------------------------------------------------------------
+ * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban and
+ *                Dan Shumaker @ LLNL
+ *                Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -15,15 +14,14 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * Implementation header file for the main CVODE integrator.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _CVODE_IMPL_H
 #define _CVODE_IMPL_H
 
 #include <stdarg.h>
-#include <cvode/cvode.h>
 
+#include "cvode/cvode.h"
 #include "cvode_proj_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -32,11 +30,11 @@ extern "C" {
 
 /*
  * =================================================================
- *   M A I N    I N T E G R A T O R    M E M O R Y    B L O C K
+ *   I N T E R N A L   C O N S T A N T S
  * =================================================================
  */
 
-/* Basic CVODE constants */
+/* Basic constants */
 
 #define ADAMS_Q_MAX 12     /* max value of q for lmm == ADAMS     */
 #define BDF_Q_MAX    5     /* max value of q for lmm == BDF       */
@@ -48,6 +46,9 @@ extern "C" {
 #define HMAX_INV_DEFAULT RCONST(0.0)    /* hmax_inv default value */
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
+
+#define MSBP 20  /* max no. of steps between lsetup calls */
+
 
 /* Control constants for lower-level functions used by cvStep
  * ----------------------------------------------------------
@@ -102,8 +103,15 @@ extern "C" {
 #define PROJFUNC_RECVR   +13
 
 /*
+ * =================================================================
+ *   M A I N    I N T E G R A T O R    M E M O R Y    B L O C K
+ * =================================================================
+ */
+
+
+/*
  * -----------------------------------------------------------------
- * Types : struct CVodeMemRec, CVodeMem
+ * Types: struct CVodeMemRec, CVodeMem
  * -----------------------------------------------------------------
  * The type CVodeMem is type pointer to struct CVodeMemRec.
  * This structure contains fields to keep track of problem state.
@@ -140,20 +148,20 @@ typedef struct CVodeMemRec {
 
   N_Vector cv_zn[L_MAX];  /* Nordsieck array, of size N x (q+1).
                              zn[j] is a vector of length N (j=0,...,q)
-                             zn[j] = [1/factorial(j)] * h^j * (jth
-                             derivative of the interpolating polynomial       */
+                             zn[j] = [1/factorial(j)] * h^j *
+                             (jth derivative of the interpolating polynomial) */
 
-  /*--------------------------
-    other vectors of length N
-    -------------------------*/
+  /*-------------------
+    Vectors of length N
+    -------------------*/
 
   N_Vector cv_ewt;     /* error weight vector                                 */
   N_Vector cv_y;       /* y is used as temporary storage by the solver
                           The memory is provided by the user to CVode
                           where the vector is named yout.                     */
   N_Vector cv_acor;    /* In the context of the solution of the nonlinear
-                          equation, acor = y_n(m) - y_n(0). On return,
-                          this vector is scaled to give the est. local err.   */
+                          equation, acor = y_n(m) - y_n(0). On return, this
+                          vector is scaled to give the estimated local error  */
   N_Vector cv_tempv;   /* temporary storage vector                            */
   N_Vector cv_ftemp;   /* temporary storage vector                            */
   N_Vector cv_vtemp1;  /* temporary storage vector                            */
@@ -175,7 +183,7 @@ typedef struct CVodeMemRec {
 
   int cv_q;                    /* current order                               */
   int cv_qprime;               /* order to be used on the next step
-                                  = q-1, q, or q+1                            */
+                                  qprime = q-1, q, or q+1                     */
   int cv_next_q;               /* order to be used on the next step           */
   int cv_qwait;                /* number of internal steps to wait before
                                   considering a change in q                   */
@@ -188,7 +196,7 @@ typedef struct CVodeMemRec {
   realtype cv_eta;             /* eta = hprime / h                            */
   realtype cv_hscale;          /* value of h used in zn                       */
   realtype cv_tn;              /* current internal value of t                 */
-  realtype cv_tretlast;        /* value of tret last returned by CVode        */
+  realtype cv_tretlast;        /* last value of t returned by CVode           */
 
   realtype cv_tau[L_MAX+1];    /* array of previous q+1 successful step
                                   sizes indexed from 1 to q+1                 */
@@ -196,16 +204,16 @@ typedef struct CVodeMemRec {
                                   1 to NUM_TESTS(=5)                          */
   realtype cv_l[L_MAX];        /* coefficients of l(x) (degree q poly)        */
 
-  realtype cv_rl1;              /* the scalar 1/l[1]                          */
-  realtype cv_gamma;            /* gamma = h * rl1                            */
-  realtype cv_gammap;           /* gamma at the last setup call               */
-  realtype cv_gamrat;           /* gamma / gammap                             */
+  realtype cv_rl1;             /* the scalar 1/l[1]                           */
+  realtype cv_gamma;           /* gamma = h * rl1                             */
+  realtype cv_gammap;          /* gamma at the last setup call                */
+  realtype cv_gamrat;          /* gamma / gammap                              */
 
-  realtype cv_crate;            /* estimated corrector convergence rate       */
-  realtype cv_delp;             /* norm of previous nonlinear solver update   */
-  realtype cv_acnrm;            /* | acor | wrms                              */
-  booleantype cv_acnrmcur;      /* is | acor | wrms current?                  */
-  realtype cv_nlscoef;          /* coeficient in nonlinear convergence test   */
+  realtype cv_crate;           /* estimated corrector convergence rate        */
+  realtype cv_delp;            /* norm of previous nonlinear solver update    */
+  realtype cv_acnrm;           /* | acor |                                    */
+  booleantype cv_acnrmcur;     /* is | acor | current?                        */
+  realtype cv_nlscoef;         /* coeficient in nonlinear convergence test    */
 
   /*------
     Limits
@@ -213,8 +221,6 @@ typedef struct CVodeMemRec {
 
   int cv_qmax;          /* q <= qmax                                          */
   long int cv_mxstep;   /* maximum number of internal steps for one user call */
-  int cv_maxcor;        /* maximum number of corrector iterations for the
-                           solution of the nonlinear equation                 */
   int cv_mxhnil;        /* maximum number of warning messages issued to the
                            user that t + h == t for the next internal step    */
   int cv_maxnef;        /* maximum number of error test failures              */
@@ -231,22 +237,26 @@ typedef struct CVodeMemRec {
   long int cv_nst;         /* number of internal steps taken                  */
   long int cv_nfe;         /* number of f calls                               */
   long int cv_ncfn;        /* number of corrector convergence failures        */
+  long int cv_nni;         /* number of nonlinear iterations performed        */
   long int cv_netf;        /* number of error test failures                   */
-  long int cv_nni;         /* number of Newton iterations performed           */
   long int cv_nsetups;     /* number of setup calls                           */
   int cv_nhnil;            /* number of messages issued to the user that
                               t + h == t for the next iternal step            */
+
+  /*----------------
+    Step size ratios
+    ----------------*/
 
   realtype cv_etaqm1;      /* ratio of new to old h for order q-1             */
   realtype cv_etaq;        /* ratio of new to old h for order q               */
   realtype cv_etaqp1;      /* ratio of new to old h for order q+1             */
 
-  /*----------------------------
-    Space requirements for CVODE
-    ----------------------------*/
+  /*------------------
+    Space requirements
+    ------------------*/
 
-  sunindextype cv_lrw1;        /* no. of realtype words in 1 N_Vector             */
-  sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector              */
+  sunindextype cv_lrw1;        /* no. of realtype words in 1 N_Vector y           */
+  sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector y            */
   long int cv_lrw;             /* no. of realtype words in CVODE work vectors     */
   long int cv_liw;             /* no. of integer words in CVODE work vectors      */
 
@@ -254,11 +264,10 @@ typedef struct CVodeMemRec {
     Nonlinear Solver Data
     ---------------------*/
 
-  SUNNonlinearSolver NLS;  /* Sundials generic nonlinear solver object */
-  booleantype ownNLS;      /* flag indicating if CVODE created the nonlinear
-                              solver object */
-  int convfail;            /* flag to indicate when a Jacbian update may
-                              be needed */
+  SUNNonlinearSolver NLS;      /* nonlinear solver object                   */
+  booleantype ownNLS;          /* flag indicating NLS ownership             */
+  int convfail;                /* flag to indicate when a Jacobian update may
+                                  be needed */
 
   /*------------------
     Linear Solver Data
@@ -268,9 +277,9 @@ typedef struct CVodeMemRec {
 
   int (*cv_linit)(struct CVodeMemRec *cv_mem);
 
-  int (*cv_lsetup)(struct CVodeMemRec *cv_mem, int convfail, N_Vector ypred,
-		   N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
-		   N_Vector vtemp2, N_Vector vtemp3);
+  int (*cv_lsetup)(struct CVodeMemRec *cv_mem, int convfail,
+                   N_Vector ypred, N_Vector fpred, booleantype *jcurPtr,
+                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
   int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector weight,
 		   N_Vector ycur, N_Vector fcur);
@@ -279,7 +288,8 @@ typedef struct CVodeMemRec {
 
   /* Linear Solver specific memory */
 
-  void *cv_lmem;
+  void     *cv_lmem;  /* linear solver interface memory structure */
+  long int  cv_msbp;  /* max number of steps between lsetip calls */
 
   /*------------
     Saved Values
@@ -290,10 +300,14 @@ typedef struct CVodeMemRec {
   realtype cv_h0u;             /* actual initial stepsize                     */
   realtype cv_hu;              /* last successful h value used                */
   realtype cv_saved_tq5;       /* saved value of tq[5]                        */
-  booleantype cv_jcur;         /* is Jacobian info. for lin. solver current?  */
+  booleantype cv_jcur;         /* is Jacobian info for linear solver current? */
   realtype cv_tolsf;           /* tolerance scale factor                      */
-  int cv_qmax_alloc;           /* value of qmax used when allocating memory   */
+  int cv_qmax_alloc;           /* value of qmax used when allocating mem      */
   int cv_indx_acor;            /* index of the zn vector with saved acor      */
+
+  /*--------------------------------------------------------------------
+    Flags turned ON by CVodeInit and read by CVodeReInit
+    --------------------------------------------------------------------*/
 
   booleantype cv_VabstolMallocDone;
   booleantype cv_MallocDone;
@@ -309,7 +323,7 @@ typedef struct CVodeMemRec {
 
   /*-------------------------------------------
     User access function
-  -------------------------------------------*/
+    -------------------------------------------*/
   CVMonitorFn cv_monitorfun;     /* func called with CVODE mem and user data  */
   long int cv_monitor_interval;  /* step interval to call cv_monitorfun       */
 
@@ -337,16 +351,16 @@ typedef struct CVodeMemRec {
   realtype *cv_ghi;        /* saved array of g values at t = thi              */
   realtype *cv_grout;      /* array of g values at t = trout                  */
   realtype cv_toutc;       /* copy of tout (if NORMAL mode)                   */
-  realtype cv_ttol;        /* tolerance on root location                      */
+  realtype cv_ttol;        /* tolerance on root location trout                */
   int cv_taskc;            /* copy of parameter itask                         */
   int cv_irfnd;            /* flag showing whether last step had a root       */
   long int cv_nge;         /* counter for g evaluations                       */
   booleantype *cv_gactive; /* array with active/inactive event functions      */
   int cv_mxgnull;          /* number of warning messages about possible g==0  */
 
-  /*----------------
+  /*---------------
     Projection Data
-    ----------------*/
+    ---------------*/
 
   CVodeProjMem proj_mem;      /* projection memory structure               */
   booleantype  proj_enabled;  /* flag indicating if projection is enabled  */
@@ -378,24 +392,24 @@ typedef struct CVodeMemRec {
  *
  * CV_NO_FAILURES : Either this is the first cv_setup call for this
  *                  step, or the local error test failed on the
- *                  previous attempt at this step (but the Newton
- *                  iteration converged).
+ *                  previous attempt at this step (but the nonlinear
+ *                  solver iteration converged).
  *
  * CV_FAIL_BAD_J  : This value is passed to cv_lsetup if
  *
- *                  (a) The previous Newton corrector iteration
+ *                  (a) The previous nonlinear solver corrector iteration
  *                      did not converge and the linear solver's
  *                      setup routine indicated that its Jacobian-
  *                      related data is not current
  *                                   or
- *                  (b) During the previous Newton corrector
+ *                  (b) During the previous nonlinear solver corrector
  *                      iteration, the linear solver's solve routine
  *                      failed in a recoverable manner and the
  *                      linear solver's setup routine indicated that
  *                      its Jacobian-related data is not current.
  *
  * CV_FAIL_OTHER  : During the current internal step try, the
- *                  previous Newton iteration failed to converge
+ *                  previous nonlinear solver iteration failed to converge
  *                  even though the linear solver was using current
  *                  Jacobian-related data.
  * -----------------------------------------------------------------
@@ -498,7 +512,7 @@ typedef struct CVodeMemRec {
 
 /*
  * =================================================================
- *   C V O D E    I N T E R N A L   F U N C T I O N S
+ *    I N T E R N A L   F U N C T I O N S
  * =================================================================
  */
 
@@ -508,16 +522,15 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
 /* High level error handler */
 
-void cvProcessError(CVodeMem cv_mem,
-		    int error_code, const char *module, const char *fname,
-		    const char *msgfmt, ...);
+void cvProcessError(CVodeMem cv_mem, int error_code, const char *module,
+                    const char *fname, const char *msgfmt, ...);
 
 /* Prototype of internal ErrHandler function */
 
 void cvErrHandler(int error_code, const char *module, const char *function,
-		  char *msg, void *data);
+                  char *msg, void *data);
 
-/* Nonlinear solver initializtion function */
+/* Nonlinear solver initialization */
 
 int cvNlsInit(CVodeMem cv_mem);
 
@@ -538,7 +551,7 @@ void cvRescale(CVodeMem cv_mem);
 
 /*
  * =================================================================
- *   C V O D E    E R R O R    M E S S A G E S
+ *    E R R O R    M E S S A G E S
  * =================================================================
  */
 

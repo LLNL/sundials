@@ -1,6 +1,16 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
  * Example (serial):
  *
  * This example solves a nonlinear system from.
@@ -9,28 +19,28 @@
  *             C.A. Floudas, P.M. Pardalos et al.
  *             Kluwer Academic Publishers, 1999.
  * Test problem 4 from Section 14.1, Chapter 14: Ferraris and Tronconi
- * 
+ *
  * This problem involves a blend of trigonometric and exponential terms.
  *    0.5 sin(x1 x2) - 0.25 x2/pi - 0.5 x1 = 0
  *    (1-0.25/pi) ( exp(2 x1)-e ) + e x2 / pi - 2 e x1 = 0
  * such that
  *    0.25 <= x1 <=1.0
  *    1.5 <= x2 <= 2 pi
- * 
+ *
  * The treatment of the bound constraints on x1 and x2 is done using
  * the additional variables
  *    l1 = x1 - x1_min >= 0
  *    L1 = x1 - x1_max <= 0
  *    l2 = x2 - x2_min >= 0
  *    L2 = x2 - x2_max >= 0
- * 
+ *
  * and using the constraint feature in KINSOL to impose
  *    l1 >= 0    l2 >= 0
  *    L1 <= 0    L2 <= 0
- * 
+ *
  * The Ferraris-Tronconi test problem has two known solutions.
- * The nonlinear system is solved by KINSOL using different 
- * combinations of globalization and Jacobian update strategies 
+ * The nonlinear system is solved by KINSOL using different
+ * combinations of globalization and Jacobian update strategies
  * and with different initial guesses (leading to one or the other
  * of the known solutions).
  *
@@ -145,7 +155,7 @@ int main()
   NV_Ith_S(c,3) = -ONE;    /* L1 = x1 - x1_max <= 0  */
   NV_Ith_S(c,4) =  ONE;    /* l2 = x2 - x2_min >= 0  */
   NV_Ith_S(c,5) = -ONE;    /* L2 = x2 - x22_min <= 0 */
-  
+
   fnormtol=FTOL; scsteptol=STOL;
 
 
@@ -308,8 +318,8 @@ static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
  *--------------------------------------------------------------------
  */
 
-/* 
- * System function for predator-prey system 
+/*
+ * System function for predator-prey system
  */
 
 static int func(N_Vector u, N_Vector f, void *user_data)
@@ -318,7 +328,7 @@ static int func(N_Vector u, N_Vector f, void *user_data)
   realtype x1, l1, L1, x2, l2, L2;
   realtype *lb, *ub;
   UserData params;
-  
+
   params = (UserData)user_data;
   lb = params->lb;
   ub = params->ub;
@@ -355,9 +365,9 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(J);
   sunindextype *colvals = SUNSparseMatrix_IndexValues(J);
   realtype *data = SUNSparseMatrix_Data(J);
-  
+
   yd = N_VGetArrayPointer(y);
-  
+
   SUNMatZero(J);
 
   rowptrs[0] =  0;
@@ -379,31 +389,31 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   colvals[2] = 0;
   data[3] = E/PI;
   colvals[3] = 1;
-  
+
   /* row 2: J(2,0) and J(2,2) */
   data[4] = -ONE;
   colvals[4] = 0;
   data[5] =  ONE;
   colvals[5] = 2;
-  
+
   /* row 3: J(3,0) and J(3,3) */
   data[6] = -ONE;
   colvals[6] = 0;
   data[7] =  ONE;
   colvals[7] = 3;
-  
+
   /* row 4: J(4,1) and J(4,4) */
   data[8] = -ONE;
   colvals[8] = 1;
   data[9] =  ONE;
   colvals[9] = 4;
-  
+
   /* row 5: J(5,1) and J(5,5) */
   data[10] = -ONE;
   colvals[10] = 1;
   data[11] =  ONE;
   colvals[11] = 5;
-  
+
   return(0);
 
 }
@@ -469,7 +479,7 @@ static void SetInitialGuess2(N_Vector u, UserData data)
   udata[5] = x2 - ub[1];
 }
 
-/* 
+/*
  * Print first lines of output (problem description)
  */
 
@@ -477,7 +487,7 @@ static void PrintHeader(realtype fnormtol, realtype scsteptol)
 {
   printf("\nFerraris and Tronconi test problem\n");
   printf("Tolerance parameters:\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION) 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("  fnormtol  = %10.6Lg\n  scsteptol = %10.6Lg\n",
          fnormtol, scsteptol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -489,7 +499,7 @@ static void PrintHeader(realtype fnormtol, realtype scsteptol)
 #endif
 }
 
-/* 
+/*
  * Print solution
  */
 
@@ -504,22 +514,22 @@ static void PrintOutput(N_Vector u)
 #endif
 }
 
-/* 
- * Print final statistics contained in iopt 
+/*
+ * Print final statistics contained in iopt
  */
 
 static void PrintFinalStats(void *kmem)
 {
   long int nni, nfe, nje;
   int flag;
-  
+
   flag = KINGetNumNonlinSolvIters(kmem, &nni);
   check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
   flag = KINGetNumJacEvals(kmem, &nje);
   check_flag(&flag, "KINGetNumJacEvals", 1);
-  
+
   printf("Final Statistics:\n");
   printf("  nni = %5ld    nfe  = %5ld \n", nni, nfe);
   printf("  nje = %5ld    \n", nje);
@@ -532,7 +542,7 @@ static void PrintFinalStats(void *kmem)
  *    opt == 1 means SUNDIALS function returns a flag so check if
  *             flag >= 0
  *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer 
+ *             NULL pointer
  */
 
 static int check_flag(void *flagvalue, const char *funcname, int opt)
@@ -541,7 +551,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, 
+    fprintf(stderr,
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
@@ -554,7 +564,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
       fprintf(stderr,
               "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
               funcname, *errflag);
-      return(1); 
+      return(1);
     }
   }
 

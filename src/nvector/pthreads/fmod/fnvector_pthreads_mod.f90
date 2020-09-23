@@ -71,6 +71,9 @@ module fnvector_pthreads_mod
  public :: FN_VWrmsNormMaskVectorArray_Pthreads
  public :: FN_VWSqrSumLocal_Pthreads
  public :: FN_VWSqrSumMaskLocal_Pthreads
+ public :: FN_VBufSize_Pthreads
+ public :: FN_VBufPack_Pthreads
+ public :: FN_VBufUnpack_Pthreads
  public :: FN_VEnableFusedOps_Pthreads
  public :: FN_VEnableLinearCombination_Pthreads
  public :: FN_VEnableScaleAddMulti_Pthreads
@@ -478,6 +481,33 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 real(C_DOUBLE) :: fresult
+end function
+
+function swigc_FN_VBufSize_Pthreads(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufSize_Pthreads") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VBufPack_Pthreads(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufPack_Pthreads") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VBufUnpack_Pthreads(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufUnpack_Pthreads") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
 end function
 
 function swigc_FN_VEnableFusedOps_Pthreads(farg1, farg2) &
@@ -1289,6 +1319,54 @@ farg1 = c_loc(x)
 farg2 = c_loc(w)
 farg3 = c_loc(id)
 fresult = swigc_FN_VWSqrSumMaskLocal_Pthreads(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FN_VBufSize_Pthreads(x, size) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+integer(C_INT64_T), dimension(*), target, intent(inout) :: size
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = c_loc(size(1))
+fresult = swigc_FN_VBufSize_Pthreads(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufPack_Pthreads(x, buf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: buf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = buf
+fresult = swigc_FN_VBufPack_Pthreads(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufUnpack_Pthreads(x, buf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: buf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = buf
+fresult = swigc_FN_VBufUnpack_Pthreads(farg1, farg2)
 swig_result = fresult
 end function
 

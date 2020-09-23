@@ -11,34 +11,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Example problem:
+ * Routine to check that MRIStep and ARKStep exhibit the same
+ * solver statistics when both run with fixed-steps, the same
+ * solver parameters, and MRIStep runs using a solve-decoupled
+ * DIRK method at the slow time scale.
  *
- * The following test simulates a simple anisotropic 2D heat
- * equation,
- *    u_t = kx*u_xx + ky*u_yy + h,
- * for t in [0, 10], (x,y) in [0, 1]^2, with initial conditions
- *    u(0,x,y) =  0,
- * stationary boundary conditions, i.e.
- *    u_t(t,0,y) = u_t(t,1,y) = u_t(t,x,0) = u_t(t,x,1) = 0,
- * and a heat source of the form
- *    h(x,y) = sin(pi*x)*sin(2*pi*y).
- *
- * Under this setup, the problem has an analytical solution:
- *    u(t,x,y) = a(t)*sin(pi*x)*sin(2*pi*y), where
- *    a(t) = (1 - exp(-(kx+4*ky)*pi^2*t)) / ((kx+4*ky)*pi^2).
- *
- * The spatial derivatives are computed using second-order
- * centered differences, with the data distributed over nx*ny
- * points on a uniform spatial grid.
- *
- * This program solves the problem with a DIRK method.  This
- * employs a Newton iteration with the PCG iterative linear solver,
- * which itself uses a Jacobi preconditioner.  The example uses the
- * built-in finite-difference Jacobian-vector product routine, but
- * supplies both the RHS and preconditioner setup/solve functions.
- *
- * 20 outputs are printed at equal intervals, and run statistics
- * are printed at the end.
+ * This routine will switch between the default Newton nonlinear
+ * solver and the 'linear' version based on a 0/1 command-line
+ * argument (1 => linear).
  *---------------------------------------------------------------*/
 
 // Header files
@@ -48,6 +28,7 @@
 #include <stdlib.h>
 #include <cmath>
 #include "arkode/arkode_arkstep.h"    // prototypes for ARKStep fcts., consts
+#include "arkode/arkode_mristep.h"    // prototypes for MRIStep fcts., consts
 #include "nvector/nvector_parallel.h" // parallel N_Vector types, fcts., macros
 #include "sunlinsol/sunlinsol_pcg.h"  // access to PCG SUNLinearSolver
 #include "sundials/sundials_types.h"  // def. of type 'realtype'
@@ -104,6 +85,7 @@ typedef struct {
 
 // User-supplied Functions Called by the Solver
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int PSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
                 booleantype *jcurPtr, realtype gamma, void *user_data);
 static int PSol(realtype t, N_Vector y, N_Vector fy, N_Vector r,
@@ -126,31 +108,44 @@ static int FreeUserData(UserData *udata);
 int main(int argc, char* argv[]) {
 
   // general problem parameters
-  realtype T0 = RCONST(0.0);   // initial time
-  realtype Tf = RCONST(0.3);   // final time
-  int Nt = 20;                 // total number of output times
-  sunindextype nx = 60;        // spatial mesh size
+  realtype T0 = RCONST(0.0);     // initial time
+  realtype Tf = RCONST(0.3);     // final time
+  int Nt = 1000;                 // total number of internal steps
+  sunindextype nx = 60;          // spatial mesh size
   sunindextype ny = 120;
-  realtype kx = 0.5;           // heat conductivity coefficients
-  realtype ky = 0.75;
-  realtype rtol = 1.e-5;       // relative and absolute tolerances
-  realtype atol = 1.e-10;
+  realtype kx = RCONST(0.5);     // heat conductivity coefficients
+  realtype ky = RCONST(0.75);
+  realtype rtol = RCONST(1.e-5); // relative and absolute tolerances
+  realtype atol = RCONST(1.e-10);
   UserData *udata = NULL;
   realtype *data;
   sunindextype N, Ntot, i, j;
+  int numfails;
+  booleantype linear;
+  realtype t;
+  long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nli, ark_nJv, ark_nlcf, ark_nni, ark_ncfn, ark_npe, ark_nps;
+  long int mri_nst, mri_nfs, mri_nsetups, mri_nli, mri_nJv, mri_nlcf, mri_nni, mri_ncfn, mri_npe, mri_nps;
 
   // general problem variables
-  int flag;                      // reusable error-checking flag
-  int myid;                      // MPI process ID
-  N_Vector y = NULL;             // empty vector for storing solution
-  SUNLinearSolver LS = NULL;     // empty linear solver memory structure
-  void *arkode_mem = NULL;       // empty ARKode memory structure
+  int flag;                       // reusable error-checking flag
+  int myid;                       // MPI process ID
+  N_Vector y = NULL;              // empty vector for storing solution
+  SUNLinearSolver LSa = NULL;     // empty linear solver memory structures
+  SUNLinearSolver LSm = NULL;
+  void *arkstep_mem = NULL;       // empty ARKStep memory structure
+  void *mristep_mem = NULL;       // empty MRIStep memory structure
+  void *inner_mem = NULL;         // empty inner ARKStep memory structure
+  ARKodeButcherTable B = NULL;    // empty Butcher table
 
   // initialize MPI
   flag = MPI_Init(&argc, &argv);
   if (check_flag(&flag, "MPI_Init", 1)) return 1;
   flag = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
   if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
+
+  // if an argument supplied, set linear (otherwise use SUNFALSE)
+  linear = SUNFALSE;
+  if (argc > 1)  linear = stoi(argv[1], NULL);
 
   // allocate and fill udata structure
   udata = new UserData;
@@ -179,7 +174,12 @@ int main(int argc, char* argv[]) {
     cout << "   rtol = " << rtol << "\n";
     cout << "   atol = " << atol << "\n";
     cout << "   nxl (proc 0) = " << udata->nxl << "\n";
-    cout << "   nyl (proc 0) = " << udata->nyl << "\n\n";
+    cout << "   nyl (proc 0) = " << udata->nyl << "\n";
+    if (linear) {
+      cout << "   Linearly implicit solver\n\n";
+    } else {
+      cout << "   Nonlinear implicit solver\n\n";
+    }
   }
 
   // Initialize vector data structures
@@ -187,15 +187,17 @@ int main(int argc, char* argv[]) {
   Ntot = nx*ny;
   y = N_VNew_Parallel(udata->comm, N, Ntot);         // Create parallel vector for solution
   if (check_flag((void *) y, "N_VNew_Parallel", 0)) return 1;
-  N_VConst(0.0, y);                                  // Set initial conditions
+  N_VConst(ZERO, y);                                 // Set initial conditions
   udata->h = N_VNew_Parallel(udata->comm, N, Ntot);  // Create vector for heat source
   if (check_flag((void *) udata->h, "N_VNew_Parallel", 0)) return 1;
   udata->d = N_VNew_Parallel(udata->comm, N, Ntot);  // Create vector for Jacobian diagonal
   if (check_flag((void *) udata->d, "N_VNew_Parallel", 0)) return 1;
 
-  // Initialize linear solver data structure
-  LS = SUNLinSol_PCG(y, 1, 20);
-  if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
+  // Initialize linear solver data structures
+  LSa = SUNLinSol_PCG(y, 1, 20);
+  if (check_flag((void *) LSa, "SUNLinSol_PCG", 0)) return 1;
+  LSm = SUNLinSol_PCG(y, 1, 20);
+  if (check_flag((void *) LSm, "SUNLinSol_PCG", 0)) return 1;
 
   // fill in the heat source array
   data = N_VGetArrayPointer(udata->h);
@@ -204,136 +206,225 @@ int main(int argc, char* argv[]) {
       data[IDX(i,j,udata->nxl)] = sin(PI*(udata->is+i)*udata->dx)
                                 * sin(TWO*PI*(udata->js+j)*udata->dy);
 
-  /* Call ARKStepCreate to initialize the ARK timestepper module and
-     specify the right-hand side function in y'=f(t,y), the inital time
-     T0, and the initial dependent variable vector y.  Note: since this
-     problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
-  if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
+  /* Call ARKStepCreate and MRIStepCreate to initialize the timesteppers */
+  arkstep_mem = ARKStepCreate(NULL, f, T0, y);
+  if (check_flag((void *) arkstep_mem, "ARKStepCreate", 0)) return 1;
+  inner_mem = ARKStepCreate(f0, NULL, T0, y);
+  if (check_flag((void *) inner_mem, "ARKStepCreate", 0)) return 1;
+  mristep_mem = MRIStepCreate(f, T0, y, MRISTEP_ARKSTEP, inner_mem);
+  if (check_flag((void *) mristep_mem, "MRIStepCreate", 0)) return 1;
+
+  // Create solve-decoupled DIRK2 (trapezoidal) Butcher table
+  B = ARKodeButcherTable_Alloc(3, SUNFALSE);
+  if (check_flag((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
+  B->A[1][0] = ONE;
+  B->A[2][0] = RCONST(0.5);
+  B->A[2][2] = RCONST(0.5);
+  B->b[0] = RCONST(0.5);
+  B->b[2] = RCONST(0.5);
+  B->c[1] = ONE;
+  B->c[2] = ONE;
+  B->q=2;
 
   // Set routines
-  flag = ARKStepSetUserData(arkode_mem, (void *) udata);   // Pass udata to user functions
+  flag = ARKStepSetUserData(arkstep_mem, (void *) udata);      // Pass udata to user functions
   if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
-  flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-7);      // Update solver convergence coeff.
+  flag = ARKStepSetNonlinConvCoef(arkstep_mem, RCONST(1.e-7)); // Update solver convergence coeff.
   if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
-  flag = ARKStepSStolerances(arkode_mem, rtol, atol);      // Specify tolerances
+  flag = ARKStepSStolerances(arkstep_mem, rtol, atol);         // Specify tolerances
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  flag = ARKStepSetFixedStep(arkstep_mem, Tf/Nt);              // Specify fixed time step size
+  if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
+  flag = ARKStepSetTables(arkstep_mem, 2, 0, B, NULL);         // Specify Butcher table
+  if (check_flag(&flag, "ARKStepSetTables", 1)) return 1;
+  flag = ARKStepSetMaxNumSteps(arkstep_mem, 2*Nt);             // Increase num internal steps
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+  flag = MRIStepSetUserData(mristep_mem, (void *) udata);      // Pass udata to user functions
+  if (check_flag(&flag, "MRIStepSetUserData", 1)) return 1;
+  flag = MRIStepSetNonlinConvCoef(mristep_mem, RCONST(1.e-7)); // Update solver convergence coeff.
+  if (check_flag(&flag, "MRIStepSetNonlinConvCoef", 1)) return 1;
+  flag = MRIStepSStolerances(mristep_mem, rtol, atol);         // Specify tolerances
+  if (check_flag(&flag, "MRIStepSStolerances", 1)) return 1;
+  flag = MRIStepSetFixedStep(mristep_mem, Tf/Nt);              // Specify fixed time step sizes
+  if (check_flag(&flag, "MRIStepSetFixedStep", 1)) return 1;
+  flag = ARKStepSetFixedStep(inner_mem, Tf/Nt/10);
+  if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
+  flag = MRIStepSetTable(mristep_mem, 2, B);                   // Specify Butcher table
+  if (check_flag(&flag, "MRIStepSetTable", 1)) return 1;
+  flag = MRIStepSetMaxNumSteps(mristep_mem, 2*Nt);             // Increase num internal steps
+  if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) return 1;
 
   // Linear solver interface
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);             // Attach linear solver
+  flag = ARKStepSetLinearSolver(arkstep_mem, LSa, NULL);      // Attach linear solver
   if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
-  flag = ARKStepSetPreconditioner(arkode_mem, PSet, PSol);   // Specify the Preconditoner
+  flag = ARKStepSetPreconditioner(arkstep_mem, PSet, PSol);   // Specify the Preconditoner
   if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) return 1;
+  flag = MRIStepSetLinearSolver(mristep_mem, LSm, NULL);      // Attach linear solver
+  if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) return 1;
+  flag = MRIStepSetPreconditioner(mristep_mem, PSet, PSol);   // Specify the Preconditoner
+  if (check_flag(&flag, "MRIStepSetPreconditioner", 1)) return 1;
 
-  // Specify linearly implicit RHS, with non-time-dependent preconditioner
-  flag = ARKStepSetLinear(arkode_mem, 0);
-  if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
-
-  // Each processor outputs subdomain information
-  char outname[100];
-  sprintf(outname, "heat2d_subdomain.%03i.txt", udata->myid);
-  FILE *UFID = fopen(outname,"w");
-  fprintf(UFID, "%li  %li  %li  %li  %li  %li\n",
-          (long int) udata->nx, (long int) udata->ny, (long int) udata->is,
-          (long int) udata->ie, (long int) udata->js, (long int) udata->je);
-  fclose(UFID);
-
-  // Open output streams for results, access data array
-  sprintf(outname, "heat2d.%03i.txt", udata->myid);
-  UFID = fopen(outname,"w");
-  data = N_VGetArrayPointer(y);
-
-  // output initial condition to disk
-  for (i=0; i<N; i++)  fprintf(UFID," %.16" ESYM, data[i]);
-  fprintf(UFID,"\n");
-
-  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
-     prints results.  Stops when the final time has been reached */
-  realtype t = T0;
-  realtype dTout = (Tf-T0)/Nt;
-  realtype tout = T0+dTout;
-  realtype urms = sqrt(N_VDotProd(y,y)/nx/ny);
-  if (outproc) {
-    cout << "        t      ||u||_rms\n";
-    cout << "   ----------------------\n";
-    printf("  %10.6" FSYM"  %10.6" FSYM"\n", t, urms);
+  // Optionally specify linearly implicit RHS, with non-time-dependent preconditioner
+  if (linear) {
+    flag = ARKStepSetLinear(arkstep_mem, 0);
+    if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
+    flag = MRIStepSetLinear(mristep_mem, 0);
+    if (check_flag(&flag, "MRIStepSetLinear", 1)) return 1;
   }
-  int iout;
-  for (iout=0; iout<Nt; iout++) {
 
-    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);         // call integrator
-    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
-    urms = sqrt(N_VDotProd(y,y)/nx/ny);
-    if (outproc)  printf("  %10.6" FSYM"  %10.6" FSYM"\n", t, urms);        // print solution stats
-    if (flag >= 0) {                                            // successful solve: update output time
-      tout += dTout;
-      tout = (tout > Tf) ? Tf : tout;
-    } else {                                                    // unsuccessful solve: break
-      if (outproc)
-        cerr << "Solver failure, stopping integration\n";
-      break;
-    }
-
-    // output results to disk
-    for (i=0; i<N; i++)  fprintf(UFID," %.16" ESYM"", data[i]);
-    fprintf(UFID,"\n");
-  }
-  if (outproc)  cout << "   ----------------------\n";
-  fclose(UFID);
-
-  // Print some final statistics
-  long int nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf, npe, nps;
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
+  // First call ARKStep to evolve the full problem, and print results
+  t = T0;
+  N_VConst(ZERO, y);
+  flag = ARKStepEvolve(arkstep_mem, Tf, y, &t, ARK_NORMAL);
+  if (check_flag(&flag, "ARKStepEvolve", 1)) return 1;
+  flag = ARKStepGetNumSteps(arkstep_mem, &ark_nst);
   if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return 1;
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) return 1;
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  flag = ARKStepGetNumRhsEvals(arkstep_mem, &ark_nfe, &ark_nfi);
   if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) return 1;
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  flag = ARKStepGetNumLinSolvSetups(arkstep_mem, &ark_nsetups);
   if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) return 1;
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) return 1;
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  flag = ARKStepGetNumNonlinSolvIters(arkstep_mem, &ark_nni);
   if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return 1;
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkstep_mem, &ark_ncfn);
   if (check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1)) return 1;
-  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
+  flag = ARKStepGetNumLinIters(arkstep_mem, &ark_nli);
   if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) return 1;
-  flag = ARKStepGetNumJtimesEvals(arkode_mem, &nJv);
+  flag = ARKStepGetNumJtimesEvals(arkstep_mem, &ark_nJv);
   if (check_flag(&flag, "ARKStepGetNumJtimesEvals", 1)) return 1;
-  flag = ARKStepGetNumLinConvFails(arkode_mem, &nlcf);
+  flag = ARKStepGetNumLinConvFails(arkstep_mem, &ark_nlcf);
   if (check_flag(&flag, "ARKStepGetNumLinConvFails", 1)) return 1;
-  flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
+  flag = ARKStepGetNumPrecEvals(arkstep_mem, &ark_npe);
   if (check_flag(&flag, "ARKStepGetNumPrecEvals", 1)) return 1;
-  flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
+  flag = ARKStepGetNumPrecSolves(arkstep_mem, &ark_nps);
   if (check_flag(&flag, "ARKStepGetNumPrecSolves", 1)) return 1;
-
   if (outproc) {
-    cout << "\nFinal Solver Statistics:\n";
-    cout << "   Internal solver steps = " << nst << " (attempted = " << nst_a << ")\n";
-    cout << "   Total RHS evals:  Fe = " << nfe << ",  Fi = " << nfi << "\n";
-    cout << "   Total linear solver setups = " << nsetups << "\n";
-    cout << "   Total linear iterations = " << nli << "\n";
-    cout << "   Total number of Jacobian-vector products = " << nJv << "\n";
-    cout << "   Total number of Preconditioner setups = " << npe << "\n";
-    cout << "   Total number of Preconditioner solves = " << nps << "\n";
-    cout << "   Total number of linear solver convergence failures = " << nlcf << "\n";
-    cout << "   Total number of Newton iterations = " << nni << "\n";
-    cout << "   Total number of nonlinear solver convergence failures = " << ncfn << "\n";
-    cout << "   Total number of error test failures = " << netf << "\n";
+    cout << "\nARKStep Solver Statistics:\n";
+    cout << "   Internal solver steps = " << ark_nst << "\n";
+    cout << "   Total RHS evals:  Fe = " << ark_nfe << ",  Fi = " << ark_nfi << "\n";
+    cout << "   Total linear solver setups = " << ark_nsetups << "\n";
+    cout << "   Total linear iterations = " << ark_nli << "\n";
+    cout << "   Total number of Jacobian-vector products = " << ark_nJv << "\n";
+    cout << "   Total number of Preconditioner setups = " << ark_npe << "\n";
+    cout << "   Total number of Preconditioner solves = " << ark_nps << "\n";
+    cout << "   Total number of linear solver convergence failures = " << ark_nlcf << "\n";
+    cout << "   Total number of Newton iterations = " << ark_nni << "\n";
+    cout << "   Total number of nonlinear solver convergence failures = " << ark_ncfn << "\n";
+  }
+
+
+  // Second call MRIStep to evolve the full problem, and print results
+  t = T0;
+  N_VConst(ZERO, y);
+  flag = MRIStepEvolve(mristep_mem, Tf, y, &t, ARK_NORMAL);
+  if (check_flag(&flag, "MRIStepEvolve", 1)) return 1;
+  flag = MRIStepGetNumSteps(mristep_mem, &mri_nst);
+  if (check_flag(&flag, "MRIStepGetNumSteps", 1)) return 1;
+  flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfs);
+  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) return 1;
+  flag = MRIStepGetNumLinSolvSetups(mristep_mem, &mri_nsetups);
+  if (check_flag(&flag, "MRIStepGetNumLinSolvSetups", 1)) return 1;
+  flag = MRIStepGetNumNonlinSolvIters(mristep_mem, &mri_nni);
+  if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) return 1;
+  flag = MRIStepGetNumNonlinSolvConvFails(mristep_mem, &mri_ncfn);
+  if (check_flag(&flag, "MRIStepGetNumNonlinSolvConvFails", 1)) return 1;
+  flag = MRIStepGetNumLinIters(mristep_mem, &mri_nli);
+  if (check_flag(&flag, "MRIStepGetNumLinIters", 1)) return 1;
+  flag = MRIStepGetNumJtimesEvals(mristep_mem, &mri_nJv);
+  if (check_flag(&flag, "MRIStepGetNumJtimesEvals", 1)) return 1;
+  flag = MRIStepGetNumLinConvFails(mristep_mem, &mri_nlcf);
+  if (check_flag(&flag, "MRIStepGetNumLinConvFails", 1)) return 1;
+  flag = MRIStepGetNumPrecEvals(mristep_mem, &mri_npe);
+  if (check_flag(&flag, "MRIStepGetNumPrecEvals", 1)) return 1;
+  flag = MRIStepGetNumPrecSolves(mristep_mem, &mri_nps);
+  if (check_flag(&flag, "MRIStepGetNumPrecSolves", 1)) return 1;
+  if (outproc) {
+    cout << "\nMRIStep Solver Statistics:\n";
+    cout << "   Internal solver steps = " << mri_nst << "\n";
+    cout << "   Total RHS evals:  Fe = " << mri_nfs << "\n";
+    cout << "   Total linear solver setups = " << mri_nsetups << "\n";
+    cout << "   Total linear iterations = " << mri_nli << "\n";
+    cout << "   Total number of Jacobian-vector products = " << mri_nJv << "\n";
+    cout << "   Total number of Preconditioner setups = " << mri_npe << "\n";
+    cout << "   Total number of Preconditioner solves = " << mri_nps << "\n";
+    cout << "   Total number of linear solver convergence failures = " << mri_nlcf << "\n";
+    cout << "   Total number of Newton iterations = " << mri_nni << "\n";
+    cout << "   Total number of nonlinear solver convergence failures = " << mri_ncfn << "\n";
+  }
+
+
+  // Compare solver statistics
+  numfails = 0;
+  if (outproc)
+    cout << "\nComparing Solver Statistics:\n";
+  if (ark_nst != mri_nst) {
+    numfails += 1;
+    if (outproc)
+      cout << "  Internal solver steps error: " << ark_nst << " vs " << mri_nst << "\n";
+  }
+  if (ark_nfi != (mri_nfs+mri_nst)) {
+    numfails += 1;
+    if (outproc)
+      cout << "  RHS evals error: " << ark_nfi << " vs " << mri_nfs << "\n";
+  }
+  if (ark_nsetups != mri_nsetups) {
+    numfails += 1;
+    if (outproc)
+      cout << "  Linear solver setups error: " << ark_nsetups << " vs " << mri_nsetups << "\n";
+  }
+  if (ark_nli < mri_nli) {
+    numfails += 1;
+    if (outproc)
+      cout << "  Linear iterations error: " << ark_nli << " vs " << mri_nli << "\n";
+  }
+  if (ark_nJv < mri_nJv) {
+    numfails += 1;
+    if (outproc)
+      cout << "  Jacobian-vector products error: " << ark_nJv << " vs " << mri_nJv << "\n";
+  }
+  if (ark_nps < mri_nps) {
+    numfails += 1;
+    if (outproc)
+      cout << "  Preconditioner solves error: " << ark_nps << " vs " << mri_nps << "\n";
+  }
+  if (ark_nlcf != mri_nlcf) {
+    numfails += 1;
+    if (outproc)
+      cout << "  Linear convergence failures error: " << ark_nlcf << " vs " << mri_nlcf << "\n";
+  }
+  if (ark_nni != mri_nni) {
+    numfails += 1;
+    if (outproc)
+      cout << "  Newton iterations error: " << ark_nni << " vs " << mri_nni << "\n";
+  }
+  if (ark_ncfn != mri_ncfn) {
+    numfails += 1;
+    if (outproc)
+      cout << "  Nonlinear convergence failures error: " << ark_ncfn << " vs " << mri_ncfn << "\n";
+  }
+  if (outproc) {
+    if (numfails) {
+      cout << "Failed " << numfails << " tests\n";
+    } else {
+      cout << "All tests pass!\n";
+    }
   }
 
   // Clean up and return with successful completion
-  ARKStepFree(&arkode_mem);    // Free integrator memory
-  SUNLinSolFree(LS);           // Free linear solver
+  ARKodeButcherTable_Free(B);  // Free Butcher table
+  ARKStepFree(&arkstep_mem);   // Free integrator memory
+  MRIStepFree(&mristep_mem);
+  ARKStepFree(&inner_mem);
+  SUNLinSolFree(LSa);          // Free linear solver
+  SUNLinSolFree(LSm);
   N_VDestroy(y);               // Free vectors
   N_VDestroy(udata->h);
   N_VDestroy(udata->d);
   FreeUserData(udata);         // Free user data
   delete udata;
   flag = MPI_Finalize();       // Finalize MPI
-  return 0;
+  return (numfails);
 }
+
 
 /*--------------------------------
  * Functions called by the solver
@@ -342,7 +433,7 @@ int main(int argc, char* argv[]) {
 // f routine to compute the ODE RHS function f(t,y).
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  N_VConst(0.0, ydot);                           // Initialize ydot to zero
+  N_VConst(ZERO, ydot);                          // Initialize ydot to zero
   UserData *udata = (UserData *) user_data;      // access problem data
   sunindextype nxl = udata->nxl;                     // set variable shortcuts
   sunindextype nyl = udata->nyl;
@@ -431,6 +522,14 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   // add in heat source
   N_VLinearSum(ONE, ydot, ONE, udata->h, ydot);
   return 0;                                      // Return with success
+}
+
+// f0 routine to compute a zero-valued ODE RHS function f(t,y).
+static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+{
+  // Initialize ydot to zero and return
+  N_VConst(ZERO, ydot);
+  return 0;
 }
 
 // Preconditioner setup routine (fills inverse of Jacobian diagonal)

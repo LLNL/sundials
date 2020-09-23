@@ -110,6 +110,10 @@ static void *VLin1VectorArray_PT(void *thread_data);
 static void *VLin2VectorArray_PT(void *thread_data);
 static void *VaxpyVectorArray_PT(void *thread_data);
 
+/* Pthread companion functions for XBraid interface operations */
+static void *VBufPack_PT(void *thread_data);
+static void *VBufUnpack_PT(void *thread_data);
+
 /* Function to determine loop values for threads */
 static void N_VSplitLoop(int myid, int *nthreads, sunindextype *N,
                          sunindextype *start, sunindextype *end);
@@ -191,6 +195,11 @@ N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads)
   v->ops->nvminquotientlocal = N_VMinQuotient_Pthreads;
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Pthreads;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Pthreads;
+
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_Pthreads;
+  v->ops->nvbufpack   = N_VBufPack_Pthreads;
+  v->ops->nvbufunpack = N_VBufUnpack_Pthreads;
 
   /* Create content */
   content = NULL;
@@ -3704,6 +3713,190 @@ static void *N_VLinearCombinationVectorArray_PT(void *thread_data)
       }
     }
   }
+  pthread_exit(NULL);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * OPTIONAL XBraid interface operations
+ * -----------------------------------------------------------------
+ */
+
+
+
+/* -----------------------------------------------------------------------------
+ * Set buffer size
+ */
+
+int N_VBufSize_Pthreads(N_Vector x, sunindextype *size)
+{
+  if (x == NULL) return(-1);
+  *size = NV_LENGTH_PT(x) * ((sunindextype)sizeof(realtype));
+  return(0);
+}
+
+
+/* -----------------------------------------------------------------------------
+ * Pack butter
+ */
+
+int N_VBufPack_Pthreads(N_Vector x, void *buf)
+{
+  sunindextype   N;
+  int            i, nthreads;
+  pthread_t      *threads;
+  Pthreads_Data  *thread_data;
+  pthread_attr_t attr;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  /* allocate threads and thread data structs */
+  N           = NV_LENGTH_PT(x);
+  nthreads    = NV_NUM_THREADS_PT(x);
+  threads     = malloc(nthreads*sizeof(pthread_t));
+  thread_data = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
+
+  /* set thread attributes */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  for (i=0; i<nthreads; i++) {
+    /* initialize thread data */
+    N_VInitThreadData(&thread_data[i]);
+
+    /* compute start and end loop index for thread */
+    N_VSplitLoop(i, &nthreads, &N, &thread_data[i].start, &thread_data[i].end);
+
+    /* pack thread data */
+    thread_data[i].v1 = NV_DATA_PT(x);
+    thread_data[i].v2 = (realtype*)buf;
+
+    /* create threads and call pthread companion function */
+    pthread_create(&threads[i], &attr, VBufPack_PT, (void *) &thread_data[i]);
+  }
+
+  /* wait for all threads to finish */
+  for (i=0; i<nthreads; i++) {
+    pthread_join(threads[i], NULL);
+  }
+
+  /* clean up */
+  pthread_attr_destroy(&attr);
+  free(threads);
+  free(thread_data);
+
+  return(0);
+}
+
+
+/* -----------------------------------------------------------------------------
+ * Pthread companion function to N_VBufPack
+ */
+
+
+static void *VBufPack_PT(void *thread_data)
+{
+  sunindextype  i, start, end;
+  realtype      *xd, *bd;
+  Pthreads_Data *my_data;
+
+  /* extract thread data */
+  my_data = (Pthreads_Data *) thread_data;
+
+  xd = my_data->v1;
+  bd = my_data->v2;
+
+  start = my_data->start;
+  end   = my_data->end;
+
+  /* pack the buffer */
+  for (i = start; i < end; i++)
+    bd[i] = xd[i];
+
+  /* exit */
+  pthread_exit(NULL);
+}
+
+
+/* -----------------------------------------------------------------------------
+ * Unpack butter
+ */
+
+int N_VBufUnpack_Pthreads(N_Vector x, void *buf)
+{
+  sunindextype   N;
+  int            i, nthreads;
+  pthread_t      *threads;
+  Pthreads_Data  *thread_data;
+  pthread_attr_t attr;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  /* allocate threads and thread data structs */
+  N           = NV_LENGTH_PT(x);
+  nthreads    = NV_NUM_THREADS_PT(x);
+  threads     = malloc(nthreads*sizeof(pthread_t));
+  thread_data = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
+
+  /* set thread attributes */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  for (i=0; i<nthreads; i++) {
+    /* initialize thread data */
+    N_VInitThreadData(&thread_data[i]);
+
+    /* compute start and end loop index for thread */
+    N_VSplitLoop(i, &nthreads, &N, &thread_data[i].start, &thread_data[i].end);
+
+    /* pack thread data */
+    thread_data[i].v1 = NV_DATA_PT(x);
+    thread_data[i].v2 = (realtype*)buf;
+
+    /* create threads and call pthread companion function */
+    pthread_create(&threads[i], &attr, VBufUnpack_PT, (void *) &thread_data[i]);
+  }
+
+  /* wait for all threads to finish */
+  for (i=0; i<nthreads; i++) {
+    pthread_join(threads[i], NULL);
+  }
+
+  /* clean up */
+  pthread_attr_destroy(&attr);
+  free(threads);
+  free(thread_data);
+
+  return(0);
+}
+
+
+/* -----------------------------------------------------------------------------
+ * Pthread companion function to N_VBufUnpack
+ */
+
+
+static void *VBufUnpack_PT(void *thread_data)
+{
+  sunindextype  i, start, end;
+  realtype      *xd, *bd;
+  Pthreads_Data *my_data;
+
+  /* extract thread data */
+  my_data = (Pthreads_Data *) thread_data;
+
+  xd = my_data->v1;
+  bd = my_data->v2;
+
+  start = my_data->start;
+  end   = my_data->end;
+
+  /* unpack the buffer */
+  for (i = start; i < end; i++)
+    xd[i] = bd[i];
+
+  /* exit */
   pthread_exit(NULL);
 }
 

@@ -113,6 +113,16 @@
 #define SQR(A) ((A)*(A))
 #endif
 
+#ifndef SQRT
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SQRT(x) (sqrt((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SQRT(x) (sqrtf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SQRT(x) (sqrtl((x)))
+#endif
+#endif
+
 /* Constants */
 
 #define ZERO RCONST(0.0)
@@ -229,7 +239,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Implementation */
 
-int main()
+int main(int argc, char* argv[])
 {
   realtype abstol=ATOL, reltol=RTOL, t, tout;
   N_Vector c;
@@ -239,11 +249,17 @@ int main()
   booleantype firstrun;
   int jpre, gstype, flag;
   int ns, mxns, iout;
+  int nrmfactor;   /* LS norm conversion factor flag */
+  realtype nrmfac; /* LS norm conversion factor      */
 
-  c = NULL;
-  wdata = NULL;
-  LS = NULL;
+  c          = NULL;
+  wdata      = NULL;
+  LS         = NULL;
   arkode_mem = NULL;
+  nrmfactor  = 0;
+
+  /* Retrieve the command-line options */
+  if (argc > 1) nrmfactor = atoi(argv[1]);
 
   /* Initializations */
   c = N_VNew_Serial(NEQ);
@@ -300,6 +316,26 @@ int main()
 
         flag = ARKStepSetPreconditioner(arkode_mem, Precond, PSolve);
         if(check_flag(&flag, "ARKStepSetPreconditioner", 1)) return(1);
+
+        /* Set the linear solver tolerance conversion factor */
+        switch(nrmfactor) {
+
+        case(0):
+          /* use the default */
+          nrmfac = ZERO;
+          break;
+        case(1):
+          /* use the square root of the vector length */
+          nrmfac = SQRT((realtype)NEQ);
+          break;
+        case(2):
+          /* compute with dot product */
+          nrmfac = -ONE;
+          break;
+        }
+
+        flag = ARKStepSetLSNormFactor(arkode_mem, nrmfac);
+        if (check_flag(&flag, "ARKStepSetLSNormFactor", 1)) return(1);
 
       } else {
 

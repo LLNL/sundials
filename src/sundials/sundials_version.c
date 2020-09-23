@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): David J. Gardner @ LLNL                               
+ * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -22,27 +22,27 @@
 /* fill string with SUNDIALS version information */
 int SUNDIALSGetVersion(char *version, int len)
 {
-  if (strlen(SUNDIALS_VERSION) > len) {
+  if (strlen(SUNDIALS_VERSION) > (size_t)len) {
     return(-1);
   }
-  
-  strncpy(version, SUNDIALS_VERSION, len);
+
+  strncpy(version, SUNDIALS_VERSION, (size_t)len);
   return(0);
 }
 
-/* fill integers with SUNDIALS major, minor, and patch release 
+/* fill integers with SUNDIALS major, minor, and patch release
    numbers and fill a string with the release label */
-int SUNDIALSGetVersionNumber(int *major, int *minor, int *patch, 
+int SUNDIALSGetVersionNumber(int *major, int *minor, int *patch,
                              char *label, int len)
 {
-  if (strlen(SUNDIALS_VERSION_LABEL) > len) {
+  if (strlen(SUNDIALS_VERSION_LABEL) > (size_t)len) {
     return(-1);
   }
-  
+
   *major = SUNDIALS_VERSION_MAJOR;
   *minor = SUNDIALS_VERSION_MINOR;
   *patch = SUNDIALS_VERSION_PATCH;
-  strncpy(label, SUNDIALS_VERSION_LABEL, len);
+  strncpy(label, SUNDIALS_VERSION_LABEL, (size_t)len);
 
   return(0);
 }

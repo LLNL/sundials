@@ -24,14 +24,17 @@ set(nvecraja_SOURCES
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECRAJA library
 set(shared_SOURCES
-  sundials_nvector.c
-  sundials_math.c
+  ${PROJECT_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${PROJECT_SOURCE_DIR}/src/sundials/sundials_math.c
+  ${PROJECT_SOURCE_DIR}/src/sundials/sundials_memory.c
+  ${PROJECT_SOURCE_DIR}/src/sunmemory/cuda/sundials_cuda_memory.cu
 )
-add_prefix(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
-# Add variable nveccuda_HEADERS with the exported NVECRAJA header files
-set(nvecraja_HEADERS nvector_raja.h)
-add_prefix(${sundials_SOURCE_DIR}/include/nvector/ nvecraja_HEADERS)
+# Add variable nvecraja_HEADERS with the exported NVECRAJA header files
+set(nvecraja_HEADERS
+  ${PROJECT_SOURCE_DIR}/include/nvector/nvector_raja.h
+  ${PROJECT_SOURCE_DIR}/include/sunmemory/sunmemory_cuda.h
+  )
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 add_definitions(-DBUILD_SUNDIALS_LIBRARY)
@@ -46,6 +49,7 @@ if(BUILD_STATIC_LIBS)
   target_compile_options(sundials_nveccudaraja_static PUBLIC
     $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>)
   target_link_libraries(sundials_nveccudaraja_static PUBLIC RAJA)
+  target_include_directories(sundials_nveccudaraja_static PRIVATE . ${PROJECT_SOURCE_DIR}/src/sundials)
   set_target_properties(sundials_nveccudaraja_static PROPERTIES
                         OUTPUT_NAME sundials_nveccudaraja
                         CLEAN_DIRECT_OUTPUT 1)
@@ -63,6 +67,7 @@ if(BUILD_SHARED_LIBS)
   target_compile_options(sundials_nveccudaraja_shared PUBLIC
     $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>)
   target_link_libraries(sundials_nveccudaraja_shared PUBLIC RAJA)
+  target_include_directories(sundials_nveccudaraja_shared PRIVATE . ${PROJECT_SOURCE_DIR}/src/sundials)
   set_target_properties(sundials_nveccudaraja_shared PROPERTIES
                         OUTPUT_NAME sundials_nveccudaraja
                         CLEAN_DIRECT_OUTPUT 1
@@ -73,6 +78,6 @@ endif(BUILD_SHARED_LIBS)
 
 # Install the NVECRAJA header files
 install(FILES ${nvecraja_HEADERS} DESTINATION include/nvector)
-install(DIRECTORY ${sundials_SOURCE_DIR}/include/nvector/raja DESTINATION include/nvector)
+install(FILES ${PROJECT_SOURCE_DIR}/include/sunmemory/sunmemory_cuda.h DESTINATION include/sunmemory)
 
 message(STATUS "Added NVECTOR_RAJA module")

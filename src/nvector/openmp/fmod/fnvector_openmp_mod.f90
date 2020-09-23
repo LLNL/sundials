@@ -71,6 +71,9 @@ module fnvector_openmp_mod
  public :: FN_VWrmsNormMaskVectorArray_OpenMP
  public :: FN_VWSqrSumLocal_OpenMP
  public :: FN_VWSqrSumMaskLocal_OpenMP
+ public :: FN_VBufSize_OpenMP
+ public :: FN_VBufPack_OpenMP
+ public :: FN_VBufUnpack_OpenMP
  public :: FN_VEnableFusedOps_OpenMP
  public :: FN_VEnableLinearCombination_OpenMP
  public :: FN_VEnableScaleAddMulti_OpenMP
@@ -478,6 +481,33 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 real(C_DOUBLE) :: fresult
+end function
+
+function swigc_FN_VBufSize_OpenMP(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufSize_OpenMP") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VBufPack_OpenMP(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufPack_OpenMP") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VBufUnpack_OpenMP(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufUnpack_OpenMP") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
 end function
 
 function swigc_FN_VEnableFusedOps_OpenMP(farg1, farg2) &
@@ -1289,6 +1319,54 @@ farg1 = c_loc(x)
 farg2 = c_loc(w)
 farg3 = c_loc(id)
 fresult = swigc_FN_VWSqrSumMaskLocal_OpenMP(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FN_VBufSize_OpenMP(x, size) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+integer(C_INT64_T), dimension(*), target, intent(inout) :: size
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = c_loc(size(1))
+fresult = swigc_FN_VBufSize_OpenMP(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufPack_OpenMP(x, buf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: buf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = buf
+fresult = swigc_FN_VBufPack_OpenMP(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufUnpack_OpenMP(x, buf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: buf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = buf
+fresult = swigc_FN_VBufUnpack_OpenMP(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -17,14 +13,13 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the optional input and output
  * functions for the CVODE solver.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "cvode_impl.h"
-#include <sundials/sundials_types.h>
+#include "sundials/sundials_types.h"
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -506,6 +501,38 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
 }
 
 /*
+ * CVodeSetLSetupFrequency
+ *
+ * Specifies the frequency for calling the linear solver setup function to
+ * recompute the Jacobian matrix and/or preconditioner
+ */
+
+int CVodeSetLSetupFrequency(void *cvode_mem, long int msbp)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetLSetupFrequency",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* check for a valid input */
+  if (msbp < 0) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetLSetupFrequency",
+                   "A negative setup frequency was provided");
+    return(CV_ILL_INPUT);
+  }
+
+  /* use default or user provided value */
+  cv_mem->cv_msbp = (msbp == 0) ? MSBP : msbp;
+
+  return(CV_SUCCESS);
+}
+
+/*
  * CVodeSetRootDirection
  *
  * Specifies the direction of zero-crossings to be monitored.
@@ -620,6 +647,12 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
 
   return(CV_SUCCESS);
 }
+
+/*
+ * CVodeSetUseIntegratorFusedKernels
+ *
+ * Enable or disable integrator specific fused kernels
+ */
 
 int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, booleantype onoff)
 {
@@ -1131,12 +1164,9 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  if (cv_mem->NLS == NULL) {
-    cvProcessError(NULL, CV_MEM_FAIL, "CVODE", "CVodeGetNumNonlinSolvIters", MSGCV_MEM_FAIL);
-    return (CV_MEM_FAIL);
-  }
+  *nniters = cv_mem->cv_nni;
 
-  return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
+  return(CV_SUCCESS);
 }
 
 /*
@@ -1180,15 +1210,10 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  *nniters  = cv_mem->cv_nni;
   *nncfails = cv_mem->cv_ncfn;
 
-  if (cv_mem->NLS == NULL) {
-    cvProcessError(NULL, CV_MEM_FAIL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_MEM_FAIL);
-    return (CV_MEM_FAIL);
-  }
-
-  return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
-
+  return(CV_SUCCESS);
 }
 
 /*-----------------------------------------------------------------*/

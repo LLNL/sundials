@@ -189,7 +189,7 @@ int ERKStepSetDefaults(void* arkode_mem)
   step_mem->q = Q_DEFAULT;                     /* method order */
   step_mem->p = 0;                             /* embedding order */
   ark_mem->hadapt_mem->etamxf  = RCONST(0.3);  /* max change on error-failed step */
-  ark_mem->hadapt_mem->imethod = 1;            /* PI controller */
+  ark_mem->hadapt_mem->imethod = ARK_ADAPT_PI; /* PI controller */
   ark_mem->hadapt_mem->safety  = RCONST(0.99); /* step adaptivity safety factor  */
   ark_mem->hadapt_mem->bias    = RCONST(1.2);  /* step adaptivity error bias */
   ark_mem->hadapt_mem->growth  = RCONST(25.0); /* step adaptivity growth factor */
@@ -210,6 +210,7 @@ int ERKStepSetOrder(void *arkode_mem, int ord)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
+  sunindextype Blrw, Bliw;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -228,7 +229,12 @@ int ERKStepSetOrder(void *arkode_mem, int ord)
      or a reset to defaults.  Tables will be set in ARKInitialSetup. */
   step_mem->stages = 0;
   step_mem->p = 0;
-  ARKodeButcherTable_Free(step_mem->B);  step_mem->B = NULL;
+
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+  ARKodeButcherTable_Free(step_mem->B);
+  step_mem->B = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
 
   return(ARK_SUCCESS);
 }
@@ -249,6 +255,7 @@ int ERKStepSetTable(void *arkode_mem, ARKodeButcherTable B)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
+  sunindextype Blrw, Bliw;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -267,7 +274,12 @@ int ERKStepSetTable(void *arkode_mem, ARKodeButcherTable B)
   step_mem->stages = 0;
   step_mem->q = 0;
   step_mem->p = 0;
-  ARKodeButcherTable_Free(step_mem->B); step_mem->B = NULL;
+
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+  ARKodeButcherTable_Free(step_mem->B);
+  step_mem->B = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
 
   /* set the relevant parameters */
   step_mem->stages = B->stages;
@@ -281,6 +293,10 @@ int ERKStepSetTable(void *arkode_mem, ARKodeButcherTable B)
                     "ERKStepSetTable", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
+
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+  ark_mem->liw += Bliw;
+  ark_mem->lrw += Blrw;
 
   return(ARK_SUCCESS);
 }
@@ -297,6 +313,7 @@ int ERKStepSetTableNum(void *arkode_mem, int itable)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
+  sunindextype Blrw, Bliw;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -316,7 +333,12 @@ int ERKStepSetTableNum(void *arkode_mem, int itable)
   step_mem->stages = 0;
   step_mem->q = 0;
   step_mem->p = 0;
-  ARKodeButcherTable_Free(step_mem->B);  step_mem->B = NULL;
+
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+  ARKodeButcherTable_Free(step_mem->B);
+  step_mem->B = NULL;
+  ark_mem->liw -= Bliw;
+  ark_mem->lrw -= Blrw;
 
   /* fill in table based on argument */
   step_mem->B = ARKodeButcherTable_LoadERK(itable);
@@ -329,6 +351,10 @@ int ERKStepSetTableNum(void *arkode_mem, int itable)
   step_mem->stages = step_mem->B->stages;
   step_mem->q = step_mem->B->q;
   step_mem->p = step_mem->B->p;
+
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+  ark_mem->liw += Bliw;
+  ark_mem->lrw += Blrw;
 
   return(ARK_SUCCESS);
 }
@@ -431,7 +457,7 @@ int ERKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
   *expsteps = ark_mem->hadapt_mem->nst_exp;
   *accsteps = ark_mem->hadapt_mem->nst_acc;
 
-  /* set remaining outputs from step_mem */
+  /* set remaining outputs */
   *attempts = ark_mem->nst_attempts;
   *fevals   = step_mem->nfe;
   *netfails = ark_mem->netf;

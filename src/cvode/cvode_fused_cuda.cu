@@ -63,7 +63,7 @@ int cvEwtSetSS_fused(const booleantype atolMin0,
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvEwtSetSS_cukernel<<<grid, block, 0, exec_policy->stream()>>>
+  cvEwtSetSS_cukernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     reltol,
@@ -123,7 +123,7 @@ int cvEwtSetSV_fused(const booleantype atolMin0,
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvEwtSetSV_cukernel<<<grid, block, 0, exec_policy->stream()>>>
+  cvEwtSetSV_cukernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     reltol,
@@ -189,7 +189,7 @@ int cvCheckConstraints_fused(const N_Vector c,
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvCheckConstraints_cukernel<<<grid, block, 0, exec_policy->stream()>>>
+  cvCheckConstraints_cukernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     N_VGetDeviceArrayPointer_Cuda(c),
@@ -246,7 +246,7 @@ int cvNlsResid_fused(const realtype rl1,
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvNlsResid_cukernel<<<grid, block, 0, exec_policy->stream()>>>
+  cvNlsResid_cukernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     rl1,
@@ -304,7 +304,7 @@ int cvDiagSetup_formY(const realtype h,
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvDiagSetup_formY_kernel<<<grid, block, 0, exec_policy->stream()>>>
+  cvDiagSetup_formY_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     h,
@@ -387,7 +387,7 @@ int cvDiagSetup_buildM(const realtype fract,
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvDiagSetup_buildM_kernel<<<grid, block, 0, exec_policy->stream()>>>
+  cvDiagSetup_buildM_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     fract,
@@ -442,7 +442,7 @@ int cvDiagSolve_updateM(const realtype r, N_Vector M)
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvDiagSolve_updateM_kernel<<<grid, block, 0, exec_policy->stream()>>>
+  cvDiagSolve_updateM_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     r,

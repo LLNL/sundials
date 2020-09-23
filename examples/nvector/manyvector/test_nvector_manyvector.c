@@ -226,6 +226,13 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
   fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
+  /* XBraid interface operations */
+  printf("\nTesting XBraid interface operations:\n\n");
+
+  fails += Test_N_VBufSize(X, length, 0);
+  fails += Test_N_VBufPack(X, length, 0);
+  fails += Test_N_VBufUnpack(X, length, 0);
+
   /* Free vectors */
   N_VDestroy(W);
   N_VDestroy(X);

@@ -182,7 +182,12 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   v->ops->nvminquotientlocal = N_VMinQuotientLocal_Petsc;
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Petsc;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Petsc;
-  
+
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_Petsc;
+  v->ops->nvbufpack   = N_VBufPack_Petsc;
+  v->ops->nvbufunpack = N_VBufUnpack_Petsc;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Petsc) malloc(sizeof *content);
@@ -611,7 +616,7 @@ realtype N_VDotProdLocal_Petsc(N_Vector x, N_Vector y)
 
   VecGetArray(xv, &xd);
   VecGetArray(yv, &yd);
-  for (i = 0; i < N; i++) 
+  for (i = 0; i < N; i++)
     sum += xd[i] * yd[i];
   VecRestoreArray(xv, &xd);
   VecRestoreArray(yv, &yd);
@@ -641,7 +646,7 @@ realtype N_VMaxNormLocal_Petsc(N_Vector x)
     if (PetscAbsScalar(xd[i]) > max) max = PetscAbsScalar(xd[i]);
   }
   VecRestoreArray(xv, &xd);
-  return ((realtype) max); 
+  return ((realtype) max);
 }
 
 realtype N_VMaxNorm_Petsc(N_Vector x)
@@ -679,7 +684,7 @@ realtype N_VWrmsNorm_Petsc(N_Vector x, N_Vector w)
   sunindextype N_global = NV_GLOBLENGTH_PTC(x);
   realtype sum = N_VWSqrSumLocal_Petsc(x, w);
   (void) MPI_Allreduce(&sum, &global_sum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PTC(x));
-  return (SUNRsqrt(global_sum/N_global)); 
+  return (SUNRsqrt(global_sum/N_global));
 }
 
 realtype N_VWSqrSumMaskLocal_Petsc(N_Vector x, N_Vector w, N_Vector id)
@@ -1522,6 +1527,66 @@ int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
   }
   return(0);
 }
+
+
+/*
+ * -----------------------------------------------------------------
+ * OPTIONAL XBraid interface operations
+ * -----------------------------------------------------------------
+ */
+
+
+int N_VBufSize_Petsc(N_Vector x, sunindextype *size)
+{
+  if (x == NULL) return(-1);
+  *size = NV_LOCLENGTH_PTC(x) * ((sunindextype)sizeof(PetscScalar));
+  return(0);
+}
+
+
+int N_VBufPack_Petsc(N_Vector x, void *buf)
+{
+  Vec          xv;
+  sunindextype i, N;
+  PetscScalar  *xd = NULL;
+  PetscScalar  *bd = NULL;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  xv = NV_PVEC_PTC(x);
+  N  = NV_LOCLENGTH_PTC(x);
+  bd = (PetscScalar*) buf;
+
+  VecGetArray(xv, &xd);
+  for (i = 0; i < N; i++)
+    bd[i] = xd[i];
+  VecRestoreArray(xv, &xd);
+
+  return(0);
+}
+
+
+int N_VBufUnpack_Petsc(N_Vector x, void *buf)
+{
+  Vec          xv;
+  sunindextype i, N;
+  PetscScalar  *xd = NULL;
+  PetscScalar  *bd = NULL;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  xv = NV_PVEC_PTC(x);
+  N  = NV_LOCLENGTH_PTC(x);
+  bd = (PetscScalar*) buf;
+
+  VecGetArray(xv, &xd);
+  for (i = 0; i < N; i++)
+    xd[i] = bd[i];
+  VecRestoreArray(xv, &xd);
+
+  return(0);
+}
+
 
 /*
  * -----------------------------------------------------------------

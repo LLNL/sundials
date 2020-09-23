@@ -81,30 +81,12 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   step_mem->NLS = NLS;
   step_mem->ownNLS = SUNFALSE;
 
-  /* set the nonlinear residual/fixed-point function, based on solver type */
-  if (SUNNonlinSolGetType(NLS) == SUNNONLINEARSOLVER_ROOTFIND) {
-    retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual);
-  } else if (SUNNonlinSolGetType(NLS) ==  SUNNONLINEARSOLVER_FIXEDPOINT) {
-    retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction);
-  } else {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
-                    "ARKStepSetNonlinearSolver",
-                    "Invalid nonlinear solver type");
-    return(ARK_ILL_INPUT);
-  }
-  if (retval != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
-                    "ARKStepSetNonlinearSolver",
-                    "Setting nonlinear system function failed");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* set convergence test function */
+  /* set default convergence test function */
   retval = SUNNonlinSolSetConvTestFn(step_mem->NLS, arkStep_NlsConvTest,
-                                     arkode_mem);
+                                     (void*) ark_mem);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
-                    "ARKStepSetNonlinearSolver",
+                    "arkStep_NlsInit",
                     "Setting convergence test function failed");
     return(ARK_ILL_INPUT);
   }
@@ -113,10 +95,42 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
-                    "ARKStepSetNonlinearSolver",
+                    "arkStep_NlsInit",
                     "Setting maximum number of nonlinear iterations failed");
     return(ARK_ILL_INPUT);
   }
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  ARKStepGetNonlinearSystemData:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int ARKStepGetNonlinearSystemData(void *arkode_mem, realtype *tcur,
+                                  N_Vector *zpred, N_Vector *z,
+                                  N_Vector *Fi, realtype *gamma,
+                                  N_Vector *sdata, void **user_data)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNonlinearSystemData",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  *tcur      = ark_mem->tcur;
+  *zpred     = step_mem->zpred;
+  *z         = ark_mem->ycur;
+  *Fi        = step_mem->Fi[step_mem->istage];
+  *gamma     = step_mem->gamma;
+  *sdata     = step_mem->sdata;
+  *user_data = ark_mem->user_data;
 
   return(ARK_SUCCESS);
 }
@@ -148,6 +162,9 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
+  /* reset counters */
+  step_mem->nls_iters = 0;
+
   /* set the linear solver setup wrapper function */
   if (step_mem->lsetup)
     retval = SUNNonlinSolSetLSetupFn(step_mem->NLS, arkStep_NlsLSetup);
@@ -172,6 +189,46 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
     return(ARK_NLS_INIT_FAIL);
   }
 
+  /* set the nonlinear residual/fixed-point function, based on solver type */
+  if (SUNNonlinSolGetType(step_mem->NLS) == SUNNONLINEARSOLVER_ROOTFIND) {
+    if (step_mem->mass_type == MASS_IDENTITY) {
+      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_MassIdent);
+    } else if (step_mem->mass_type == MASS_FIXED) {
+      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_MassFixed);
+    } else if (step_mem->mass_type == MASS_TIMEDEP) {
+      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_MassTDep);
+    } else {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                      "arkStep_NlsInit",
+                      "Invalid mass matrix type");
+      return(ARK_ILL_INPUT);
+    }
+  } else if (SUNNonlinSolGetType(step_mem->NLS) ==  SUNNONLINEARSOLVER_FIXEDPOINT) {
+    if (step_mem->mass_type == MASS_IDENTITY) {
+      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction_MassIdent);
+    } else if (step_mem->mass_type == MASS_FIXED) {
+      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction_MassFixed);
+    } else if (step_mem->mass_type == MASS_TIMEDEP) {
+      retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction_MassTDep);
+    } else {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                      "arkStep_NlsInit",
+                      "Invalid mass matrix type");
+      return(ARK_ILL_INPUT);
+    }
+  } else {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "arkStep_NlsInit",
+                    "Invalid nonlinear solver type");
+    return(ARK_ILL_INPUT);
+  }
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "arkStep_NlsInit",
+                    "Setting nonlinear system function failed");
+    return(ARK_ILL_INPUT);
+  }
+
   /* initialize nonlinear solver */
   retval = SUNNonlinSolInitialize(step_mem->NLS);
   if (retval != ARK_SUCCESS) {
@@ -188,15 +245,13 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
   arkStep_Nls
 
   This routine attempts to solve the nonlinear system associated
-  with a single implicit step of the linear multistep method.
-  It calls the supplied SUNNonlinearSolver object to perform the
-  solve.
+  with a single implicit stage.  It calls the supplied
+  SUNNonlinearSolver object to perform the solve.
 
-  Upon entry, the predicted solution is held in step_mem->zpred;
-  this array is never changed throughout this routine.  If an
-  initial attempt at solving the nonlinear system fails (e.g. due
-  to a stale Jacobian), this allows for new attempts at the
-  solution.
+  Upon entry, the predicted solution is held in step_mem->zpred,
+  which is never changed throughout this routine.  If an initial
+  attempt at solving the nonlinear system fails (e.g. due to a
+  stale Jacobian), this allows for new attempts at the solution.
 
   Upon a successful solve, the solution is held in ark_mem->ycur.
   ---------------------------------------------------------------*/
@@ -204,6 +259,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 {
   ARKodeARKStepMem step_mem;
   booleantype callLSetup;
+  long int nls_iters_inc;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -248,11 +304,16 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
 
   /* solve the nonlinear system for the actual correction */
-  retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor, ark_mem->ewt,
-                             step_mem->nlscoef, callLSetup, ark_mem);
+  retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor,
+                             ark_mem->ewt, step_mem->nlscoef, callLSetup, ark_mem);
 
   /* apply the correction to construct ycur */
   N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
+
+  /* increment counter */
+  nls_iters_inc = 0;
+  (void) SUNNonlinSolGetNumIters(step_mem->NLS, &(nls_iters_inc));
+  step_mem->nls_iters += nls_iters_inc;
 
   /* on successful solve, reset the jcur flag */
   if (retval == ARK_SUCCESS)  step_mem->jcur = SUNFALSE;
@@ -265,7 +326,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 
 
 /*---------------------------------------------------------------
-  Interface routines supplied to SUNNonlinearSolver module
+  Interface routines supplied to the SUNNonlinearSolver module
   ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
@@ -286,8 +347,7 @@ int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* update convfail based on jbad flag */
-  if (jbad)
-    step_mem->convfail = ARK_FAIL_BAD_J;
+  if (jbad)  step_mem->convfail = ARK_FAIL_BAD_J;
 
   /* Use ARKode's tempv1, tempv2 and tempv3 as
      temporary vectors for the linear solver setup routine */
@@ -348,7 +408,7 @@ int arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
 
 
 /*---------------------------------------------------------------
-  arkStep_NlsResidual:
+  arkStep_NlsResidual_MassIdent:
 
   This routine evaluates the nonlinear residual for the additive
   Runge-Kutta method.  It assumes that any data from previous
@@ -356,21 +416,25 @@ int arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
   this old data with the current implicit ODE RHS vector to
   compute the nonlinear residual r.
 
+  This version assumes an identity mass matrix.
+
   At the ith stage, we compute the residual vector:
-     r = M*z - M*yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
-                    - h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
-     r = M*zp + M*zc - M*yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
-                            - h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
-     r = (M*zc - gamma*Fi(z)) - (M*yn - M*zp + data)
+     r = z - yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+           - h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+  <=>
+     r = zp + zc - yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+            - h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+  <=>
+     r = (zc - gamma*Fi(z)) - (yn - zp + data)
   where the current stage solution z = zp + zc, and where
      zc is stored in the input, zcor
-     (M*yn-M*zp+data) is stored in step_mem->sdata,
+     (yn-zp+data) is stored in step_mem->sdata,
   so we really just compute:
      z = zp + zc (stored in ark_mem->ycur)
      Fi(z) (stored step_mem->Fi[step_mem->istage])
-     r = M*zc - gamma*Fi(z) - step_mem->sdata
+     r = zc - gamma*Fi(z) - step_mem->sdata
   ---------------------------------------------------------------*/
-int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
+int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -380,14 +444,14 @@ int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   N_Vector X[3];
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsResidual",
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsResidual_MassIdent",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* update 'ycur' value as stored predictor + current corrector */
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
-  /* compute implicit RHS and save for later */
+  /* compute implicit RHS */
   retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
                         step_mem->Fi[step_mem->istage],
                         ark_mem->user_data);
@@ -395,17 +459,9 @@ int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  /* put M*zcor in r */
-  if (step_mem->mass_mem != NULL) {
-    retval = step_mem->mmult((void *) ark_mem, zcor, r);
-    if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
-    X[0] = r;
-  } else {
-    X[0] = zcor;
-  }
-
-  /* update with My, sdata and gamma*fy */
+  /* compute residual via linear combination */
   c[0] = ONE;
+  X[0] = zcor;
   c[1] = -ONE;
   X[1] = step_mem->sdata;
   c[2] = -step_mem->gamma;
@@ -417,13 +473,149 @@ int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
 
 
 /*---------------------------------------------------------------
-  arkStep_NlsFPFunction:
+  arkStep_NlsResidual_MassFixed:
+
+  This routine evaluates the nonlinear residual for the additive
+  Runge-Kutta method.  It assumes that any data from previous
+  time steps/stages is contained in step_mem, and merely combines
+  this old data with the current implicit ODE RHS vector to
+  compute the nonlinear residual r.
+
+  This version assumes a fixed mass matrix.
+
+  At the ith stage, we compute the residual vector:
+     r = M*z - M*yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+                    - h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+  <=>
+     r = M*zp + M*zc - M*yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+                            - h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+  <=>
+     r = (M*zc - gamma*Fi(z)) - (M*yn - M*zp + data)
+  where the current stage solution z = zp + zc, and where
+     zc is stored in the input, zcor
+     (M*yn-M*zp+data) is stored in step_mem->sdata,
+  so we really just compute:
+     z = zp + zc (stored in ark_mem->ycur)
+     Fi(z) (stored step_mem->Fi[step_mem->istage])
+     r = M*zc - gamma*Fi(z) - step_mem->sdata
+  ---------------------------------------------------------------*/
+int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
+{
+  /* temporary variables */
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+  realtype c[3];
+  N_Vector X[3];
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsResidual_MassFixed",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* update 'ycur' value as stored predictor + current corrector */
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+
+  /* compute implicit RHS */
+  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
+                        step_mem->Fi[step_mem->istage],
+                        ark_mem->user_data);
+  step_mem->nfi++;
+  if (retval < 0) return(ARK_RHSFUNC_FAIL);
+  if (retval > 0) return(RHSFUNC_RECVR);
+
+  /* put M*zcor in r */
+  retval = step_mem->mmult((void *) ark_mem, zcor, r);
+  if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
+
+  /* compute residual via linear combination */
+  c[0] = ONE;
+  X[0] = r;
+  c[1] = -ONE;
+  X[1] = step_mem->sdata;
+  c[2] = -step_mem->gamma;
+  X[2] = step_mem->Fi[step_mem->istage];
+  retval = N_VLinearCombination(3, c, X, r);
+  if (retval != 0)  return(ARK_VECTOROP_ERR);
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkStep_NlsResidual_MassTDep:
+
+  This routine evaluates the nonlinear residual for the additive
+  Runge-Kutta method.  It assumes that any data from previous
+  time steps/stages is contained in step_mem, and merely combines
+  this old data with the current implicit ODE RHS vector to
+  compute the nonlinear residual r.
+
+  This version assumes a time-dependent mass matrix.
+
+  At the ith stage, we compute the residual vector:
+     r = M(ti)*(z - yn) - M(ti)*h*sum_{j=0}^{i-1} Ae(i,j)*M(tj)^{-1}*Fe(j)
+                        - M(ti)*h*sum_{j=0}^{i} Ai(i,j)*M(tj)^{-1}*Fi(j)
+  <=>
+     r = M(ti)*[zc + zp - yn - h*sum_{j=0}^{i-1} (Ai(i,j)*M(tj)^{-1}*Fi(j)
+                                                + Ae(i,j)*M(tj)^{-1}*Fe(j))]
+         - M(ti)*gamma*M(ti)^{-1}*Fi(i)
+  <=>
+     r = M(ti)*(zc - data) - gamma*Fi(z)
+  where the current stage solution z = zp + zc, and where
+     zc is stored in the input, zcor
+     yn - zp + h*sum_{j=0}^{i-1} (Ai(i,j)*M(tj)^{-1}*Fi(j)
+        + Ae(i,j)*M(tj)^{-1}*Fe(j)) stored in step_mem->sdata,
+  so we really just compute:
+     z = zp + zc (stored in ark_mem->ycur)
+     tmp = zc - data (stored in Fi[istage])
+     M(t)*tmp (stored in r)
+     Fi(z) (stored step_mem->Fi[istage])
+     r = r - gamma*Fi(z)
+  ---------------------------------------------------------------*/
+int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem)
+{
+  /* temporary variables */
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsResidual_MassTDep",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* update 'ycur' value as stored predictor + current corrector */
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+
+  /* put M*(zcor - sdata) in r (use Fi[is] as temporary storage) */
+  N_VLinearSum(ONE, zcor, -ONE, step_mem->sdata, step_mem->Fi[step_mem->istage]);
+  retval = step_mem->mmult((void *) ark_mem, step_mem->Fi[step_mem->istage], r);
+  if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
+
+  /* compute implicit RHS */
+  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
+                        step_mem->Fi[step_mem->istage],
+                        ark_mem->user_data);
+  step_mem->nfi++;
+  if (retval < 0) return(ARK_RHSFUNC_FAIL);
+  if (retval > 0) return(RHSFUNC_RECVR);
+
+  /* compute residual via linear sum */
+  N_VLinearSum(ONE, r, -step_mem->gamma, step_mem->Fi[step_mem->istage], r);
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkStep_NlsFPFunction_MassIdent:
 
   This routine evaluates the fixed point iteration function for
   the additive Runge-Kutta method.  It assumes that any data from
   previous time steps/stages is contained in step_mem, and
   merely combines this old data with the current guess and
   implicit ODE RHS vector to compute the iteration function g.
+
+  This version assumes an identity mass matrix.
 
   At the ith stage, the new stage solution z should solve:
      z = yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
@@ -441,14 +633,14 @@ int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   Our fixed-point problem is zc=g(zc), so the FP function is just:
      g(z) = gamma*Fi(z) + (yn - zp + data)
   where the current nonlinear guess is z = zp + zc, and where
-     z is stored in the ycur,
+     z is stored in ycur,
      zp is stored in step_mem->zpred,
      (yn-zp+data) is stored in step_mem->sdata,
   so we really just compute:
      Fi(z) (store in step_mem->Fi[step_mem->istage])
      g = gamma*Fi(z) + step_mem->sdata
   ---------------------------------------------------------------*/
-int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
+int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -456,7 +648,7 @@ int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsFPFunction",
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsFPFunction_MassIdent",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
@@ -474,6 +666,151 @@ int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
   /* combine parts:  g = gamma*Fi(z) + sdata */
   N_VLinearSum(step_mem->gamma, step_mem->Fi[step_mem->istage],
                ONE, step_mem->sdata, g);
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkStep_NlsFPFunction_MassFixed:
+
+  This routine evaluates the fixed point iteration function for
+  the additive Runge-Kutta method.  It assumes that any data from
+  previous time steps/stages is contained in step_mem, and
+  merely combines this old data with the current guess and
+  implicit ODE RHS vector to compute the iteration function g.
+
+  This version assumes a fixed mass matrix.
+
+  At the ith stage, the new stage solution z should solve:
+     M*z = M*yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+                + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+  <=>
+     M*z = M*yn + gamma*Fi(z) + h*sum_{j=0}^{i-1} ( Ae(i,j)*Fe(j)
+                                                  + Ai(i,j)*Fi(j) )
+  <=>
+     z = yn + M^{-1}*(gamma*Fi(z) + data)
+  <=>
+     zc = M^{-1}*(gamma*Fi(zp+zc) + M*yn - M*zp + data)
+  Where zp is the predicted stage and zc is the correction to
+  the prediction.
+
+  Our fixed-point problem is zc=g(zc), so the FP function is just:
+     g(z) = M^{-1}*(gamma*Fi(z) + M*yn - M*zp + data)
+  where the current nonlinear guess is z = zp + zc, and where
+     z is stored in ycur,
+     zp is stored in step_mem->zpred,
+     (M*yn-M*zp+data) is stored in step_mem->sdata,
+  so we really just compute:
+     Fi(z) (store in step_mem->Fi[step_mem->istage])
+     g = gamma*Fi(z) + step_mem->sdata
+     g = M^{-1}*g
+  ---------------------------------------------------------------*/
+int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem)
+{
+  /* temporary variables */
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsFPFunction_MassFixed",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* update 'ycur' value as stored predictor + current corrector */
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+
+  /* compute implicit RHS and save for later */
+  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
+                        step_mem->Fi[step_mem->istage],
+                        ark_mem->user_data);
+  step_mem->nfi++;
+  if (retval < 0) return(ARK_RHSFUNC_FAIL);
+  if (retval > 0) return(RHSFUNC_RECVR);
+
+  /* combine parts:  g = gamma*Fi(z) + sdata */
+  N_VLinearSum(step_mem->gamma, step_mem->Fi[step_mem->istage],
+               ONE, step_mem->sdata, g);
+
+  /* perform mass matrix solve */
+  retval = step_mem->msolve((void *) ark_mem, g, step_mem->nlscoef);
+  if (retval < 0) return(ARK_RHSFUNC_FAIL);
+  if (retval > 0) return(RHSFUNC_RECVR);
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkStep_NlsFPFunction_MassTDep:
+
+  This routine evaluates the fixed point iteration function for
+  the additive Runge-Kutta method.  It assumes that any data from
+  previous time steps/stages is contained in step_mem, and
+  merely combines this old data with the current guess and
+  implicit ODE RHS vector to compute the iteration function g.
+
+  This version assumes a time-dependent mass matrix.
+
+  At the ith stage, the new stage solution z should solve:
+     z = yn + h*sum_{j=0}^{i-1} Ae(i,j)*M(tj)^{-1}*Fe(j)
+            + h*sum_{j=0}^{i} Ai(i,j)*M(tj)^{-1}*Fi(j)
+  <=>
+     z = yn + gamma*M(ti)^{-1}*Fi(z)
+            + h*sum_{j=0}^{i-1} ( Ae(i,j)*M(tj)^{-1}*Fe(j)
+                                + Ai(i,j)*M(tj)^{-1}*Fi(j) )
+  <=>
+     z = yn + M(ti)^{-1}*gamma*Fi(z) + data
+  <=>
+     zc = yn - zp + data + M(ti)^{-1}*gamma*Fi(z)
+  Where zp is the predicted stage and zc is the correction to
+  the prediction.
+
+  Our fixed-point problem is zc=g(zc), so the FP function is just:
+     g(z) = yn - zp + data + M(ti)^{-1}*gamma*Fi(z)
+  where the current nonlinear guess is z = zp + zc, and where
+     z is stored in ycur,
+     zp is stored in step_mem->zpred,
+     (yn-zp+data) is stored in step_mem->sdata,
+  so we really just compute:
+     Fi(z) (store in step_mem->Fi[step_mem->istage])
+     g = M(ti)^{-1}*(gamma*Fi(z))
+     g = g + step_mem->sdata
+  ---------------------------------------------------------------*/
+int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem)
+{
+  /* temporary variables */
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsFPFunction_MassTDep",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* update 'ycur' value as stored predictor + current corrector */
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+
+  /* compute implicit RHS and save for later */
+  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
+                        step_mem->Fi[step_mem->istage],
+                        ark_mem->user_data);
+  step_mem->nfi++;
+  if (retval < 0) return(ARK_RHSFUNC_FAIL);
+  if (retval > 0) return(RHSFUNC_RECVR);
+
+  /* copy step_mem->gamma*Fi into g */
+  N_VScale(step_mem->gamma, step_mem->Fi[step_mem->istage], g);
+
+  /* perform mass matrix solve */
+  retval = step_mem->msolve((void *) ark_mem, g, step_mem->nlscoef);
+  if (retval < 0) return(ARK_RHSFUNC_FAIL);
+  if (retval > 0) return(RHSFUNC_RECVR);
+
+  /* combine parts:  g = g + sdata */
+  N_VLinearSum(ONE, g, ONE, step_mem->sdata, g);
 
   return(ARK_SUCCESS);
 }

@@ -30,6 +30,8 @@ set(IDAS_examples
   "idasHeat2D_kry\;\;develop"
   "idasHessian_ASA_FSA\;\;develop"
   "idasKrylovDemo_ls\;\;develop"
+  "idasKrylovDemo_ls\;1\;develop"
+  "idasKrylovDemo_ls\;2\;develop"
   "idasSlCrank_dns\;\;develop"
   "idasSlCrank_FSA_dns\;\;develop"
   )
@@ -38,7 +40,7 @@ set(IDAS_examples
 set(IDAS_examples_BL
   )
 
-# Example using KLU linear solver
+# Examples using KLU linear solver
 set(IDAS_examples_KLU
   "idasRoberts_klu\;\;develop"
   "idasRoberts_ASAi_klu\;\;develop"
@@ -65,11 +67,10 @@ endif()
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
-
 # Add the build and install targets for each example
 foreach(example_tuple ${IDAS_examples})
 
-  # first item is example
+  # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
@@ -156,17 +157,17 @@ if(LAPACK_FOUND)
     endif()
 
     # check if example args are provided and set the test name
-    # IF("${example_args}" STREQUAL "")
-    #   SET(test_name ${example})
-    # ELSE()
-    #   STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    # ENDIF()
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
 
     # add example to regression tests
-    sundials_add_test(${example} ${example}
+    sundials_add_test(${test_name} ${example}
       TEST_ARGS ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
+      ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type})
 
     # find all .out files for this example
@@ -272,7 +273,7 @@ if(SUPERLUMT_FOUND)
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
     if(NOT TARGET ${example})
-      # example source files
+      # add example source files
       add_executable(${example} ${example}.c)
 
       # folder to organize targets in an IDE
@@ -294,15 +295,13 @@ if(SUPERLUMT_FOUND)
     # occur causing a false positive when testing. These tests can be re-enabled
     # when type specific answer files are added.
     if(SUNDIALS_INDEX_SIZE MATCHES "32")
-
       # add example to regression tests
       sundials_add_test(${test_name} ${example}
         TEST_ARGS ${example_args}
         ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
         ANSWER_FILE ${test_name}.out
         EXAMPLE_TYPE ${example_type})
-
-    endif(SUNDIALS_INDEX_SIZE MATCHES "32")
+    endif()
 
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
@@ -318,7 +317,7 @@ if(SUPERLUMT_FOUND)
 endif(SUPERLUMT_FOUND)
 
 
-
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the README file

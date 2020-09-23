@@ -38,8 +38,10 @@ set(arkode_SOURCES
   arkode_interp.c
   arkode_io.c
   arkode_ls.c
+  arkode_mri_tables.c
   arkode_mristep.c
   arkode_mristep_io.c
+  arkode_mristep_nls.c
   arkode_root.c
   )
 
@@ -156,5 +158,10 @@ endif(BUILD_SHARED_LIBS)
 # Install the ARKODE header files
 install(FILES ${arkode_HEADERS} DESTINATION include/arkode)
 
-#
+# Finished ARKODE
 message(STATUS "Added ARKODE module")
+
+# Add ARKODE XBraid interface
+if(ENABLE_XBRAID)
+  add_subdirectory(xbraid)
+endif()

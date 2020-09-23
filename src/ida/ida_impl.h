@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -25,7 +21,7 @@
 
 #include <stdarg.h>
 
-#include <ida/ida.h>
+#include "ida/ida.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -56,10 +52,10 @@ extern "C" {
 
 /*
  * ----------------------------------------------------------------
- * Types : struct IDAMemRec, IDAMem
+ * Types: struct IDAMemRec, IDAMem
  * ----------------------------------------------------------------
- * The type IDAMem is type pointer to struct IDAMemRec. This
- * structure contains fields to keep track of problem state.
+ * The type IDAMem is type pointer to struct IDAMemRec.
+ * This structure contains fields to keep track of problem state.
  * ----------------------------------------------------------------
  */
 
@@ -67,27 +63,30 @@ typedef struct IDAMemRec {
 
   realtype ida_uround;    /* machine unit roundoff */
 
-  /* Problem Specification Data */
+  /*--------------------------
+    Problem Specification Data
+    --------------------------*/
 
-  IDAResFn       ida_res;            /* F(t,y(t),y'(t))=0; the function F     */
-  void          *ida_user_data;      /* user pointer passed to res            */
+  IDAResFn    ida_res;        /* F(t,y(t),y'(t))=0; the function F     */
+  void        *ida_user_data; /* user pointer passed to res            */
 
-  int            ida_itol;           /* itol = IDA_SS, IDA_SV, IDA_WF, IDA_NN */
-  realtype       ida_rtol;           /* relative tolerance                    */
-  realtype       ida_Satol;          /* scalar absolute tolerance             */
-  N_Vector       ida_Vatol;          /* vector absolute tolerance             */
-  booleantype    ida_atolmin0;       /* flag indicating that min(atol) = 0    */
-  booleantype    ida_user_efun;      /* SUNTRUE if user provides efun         */
-  IDAEwtFn       ida_efun;           /* function to set ewt                   */
-  void          *ida_edata;          /* user pointer passed to efun           */
-
+  int         ida_itol;       /* itol = IDA_SS, IDA_SV, IDA_WF, IDA_NN */
+  realtype    ida_rtol;       /* relative tolerance                    */
+  realtype    ida_Satol;      /* scalar absolute tolerance             */
+  N_Vector    ida_Vatol;      /* vector absolute tolerance             */
+  booleantype ida_atolmin0;   /* flag indicating that min(atol) = 0    */
+  booleantype ida_user_efun;  /* SUNTRUE if user provides efun         */
+  IDAEwtFn    ida_efun;       /* function to set ewt                   */
+  void        *ida_edata;     /* user pointer passed to efun           */
 
   booleantype    ida_constraintsSet; /* constraints vector present:
                                         do constraints calc                   */
   booleantype    ida_suppressalg;    /* SUNTRUE means suppress algebraic vars
                                         in local error tests                  */
 
-  /* Divided differences array and associated minor arrays */
+  /*-----------------------------------------------
+    Divided differences array and associated arrays
+    -----------------------------------------------*/
 
   N_Vector ida_phi[MXORDP1];   /* phi = (maxord+1) arrays of divided differences */
 
@@ -97,7 +96,9 @@ typedef struct IDAMemRec {
   realtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
   realtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
 
-  /* N_Vectors */
+  /*-------------------------
+    N_Vectors for integration
+    -------------------------*/
 
   N_Vector ida_ewt;         /* error weight vector                            */
   N_Vector ida_yy;          /* work space for y vector (= user's yret)        */
@@ -119,7 +120,9 @@ typedef struct IDAMemRec {
   N_Vector ida_delnew;      /* work vector for delta in IDACalcIC (= phi[2])  */
   N_Vector ida_dtemp;       /* work vector in IDACalcIC (= phi[3])            */
 
-  /* Variables for use by IDACalcIC*/
+  /*------------------------------
+    Variables for use by IDACalcIC
+    ------------------------------*/
 
   realtype ida_t0;          /* initial t                                      */
   N_Vector ida_yy0;         /* initial y vector (user-supplied).              */
@@ -167,7 +170,9 @@ typedef struct IDAMemRec {
   realtype ida_epcon;    /* coeficient of the Newton covergence test          */
   realtype ida_toldel;   /* tolerance in direct test on Newton corrections    */
 
-  /* Limits */
+  /*------
+    Limits
+    ------*/
 
   int ida_maxncf;        /* max numer of convergence failures                 */
   int ida_maxnef;        /* max number of error test failures                 */
@@ -177,7 +182,9 @@ typedef struct IDAMemRec {
   long int ida_mxstep;   /* max number of internal steps for one user call    */
   realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
 
-  /* Counters */
+  /*--------
+    Counters
+    --------*/
 
   long int ida_nst;      /* number of internal steps taken                    */
   long int ida_nre;      /* number of function (res) calls                    */
@@ -186,16 +193,20 @@ typedef struct IDAMemRec {
   long int ida_nni;      /* number of Newton iterations performed             */
   long int ida_nsetups;  /* number of lsetup calls                            */
 
-  /* Space requirements for IDA */
+  /*------------------
+    Space requirements
+    ------------------*/
 
   sunindextype ida_lrw1; /* no. of realtype words in 1 N_Vector               */
   sunindextype ida_liw1; /* no. of integer words in 1 N_Vector                */
-  long int ida_lrw;      /* number of realtype words in IDA work vectors      */
-  long int ida_liw;      /* no. of integer words in IDA work vectors          */
+  long int     ida_lrw;  /* number of realtype words in IDA work vectors      */
+  long int     ida_liw;  /* no. of integer words in IDA work vectors          */
 
   realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
-  /* Error handler function and error ouput file */
+  /*-------------------------------------------
+    Error handler function and error ouput file
+    -------------------------------------------*/
 
   IDAErrHandlerFn ida_ehfun;  /* Error messages are handled by ehfun          */
   void *ida_eh_data;          /* dats pointer passed to ehfun                 */
@@ -214,13 +225,16 @@ typedef struct IDAMemRec {
                                  set to SUNTRUE by IDAMAlloc
                                  tested by IDAReInit and IDASolve             */
 
-  /* Nonlinear Solver */
+  /*---------------------
+    Nonlinear Solver Data
+    ---------------------*/
 
-  SUNNonlinearSolver NLS; /* Sundials generic nonlinear solver object */
-  booleantype ownNLS;     /* flag indicating if IDA created the nonlinear
-                             solver object */
+  SUNNonlinearSolver NLS;    /* nonlinear solver object */
+  booleantype ownNLS;        /* flag indicating NLS ownership */
 
-  /* Linear Solver Data */
+  /*------------------
+    Linear Solver Data
+    ------------------*/
 
   /* Linear Solver functions to be called */
 
@@ -245,7 +259,9 @@ typedef struct IDAMemRec {
 
   booleantype ida_linitOK;
 
-  /* Rootfinding Data */
+  /*----------------
+    Rootfinding Data
+    ----------------*/
 
   IDARootFn ida_gfun;       /* Function g for roots sought                     */
   int ida_nrtfn;            /* number of components of g                       */
@@ -267,9 +283,11 @@ typedef struct IDAMemRec {
 
   /* Arrays for Fused Vector Operations */
 
+  /* scalar arrays */
   realtype ida_cvals[MXORDP1];
   realtype ida_dvals[MAXORD_DEFAULT];
 
+  /* vector  arrays */
   N_Vector ida_Xvecs[MXORDP1];
   N_Vector ida_Zvecs[MXORDP1];
 
@@ -290,8 +308,8 @@ typedef struct IDAMemRec {
  * perform any needed initializations of solver-specific memory,
  * such as counters/statistics. An (*ida_linit) should return
  * 0 if it has successfully initialized the IDA linear solver and
- * a non-zero value otherwise. If an error does occur, an appropriate
- * message should be sent to the error handler function.
+ * a non-zero value otherwise. If an error does occur, an
+ * appropriate message should be sent to the error handler function.
  * ----------------------------------------------------------------
  */
 
@@ -368,7 +386,7 @@ typedef struct IDAMemRec {
 
 /*
  * =================================================================
- *   I D A    I N T E R N A L   F U N C T I O N S
+ *    I N T E R N A L   F U N C T I O N S
  * =================================================================
  */
 
@@ -387,17 +405,18 @@ void IDAProcessError(IDAMem IDA_mem,
 void IDAErrHandler(int error_code, const char *module, const char *function,
                    char *msg, void *data);
 
-/* Norm functions */
+/* Norm functions. Also used for IC, so they are global.*/
 
-realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, booleantype mask);
+realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
+                     booleantype mask);
 
-/* Nonlinear solver initialization function */
+/* Nonlinear solver initialization */
 
 int idaNlsInit(IDAMem IDA_mem);
 
 /*
  * =================================================================
- * I D A    E R R O R    M E S S A G E S
+ *    E R R O R    M E S S A G E S
  * =================================================================
  */
 
@@ -440,9 +459,9 @@ int idaNlsInit(IDAMem IDA_mem);
 #define MSG_YP0_NULL       "yp0 = NULL illegal."
 #define MSG_BAD_ITOL       "Illegal value for itol. The legal values are IDA_SS, IDA_SV, and IDA_WF."
 #define MSG_RES_NULL       "res = NULL illegal."
-#define MSG_BAD_RTOL       "reltol < 0 illegal."
-#define MSG_ATOL_NULL      "abstol = NULL illegal."
-#define MSG_BAD_ATOL       "Some abstol component < 0.0 illegal."
+#define MSG_BAD_RTOL       "rtol < 0 illegal."
+#define MSG_ATOL_NULL      "atol = NULL illegal."
+#define MSG_BAD_ATOL       "Some atol component < 0.0 illegal."
 #define MSG_ROOT_FUNC_NULL "g = NULL illegal."
 
 #define MSG_MISSING_ID     "id = NULL but suppressalg option on."

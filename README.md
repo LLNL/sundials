@@ -1,5 +1,5 @@
 # SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers #
-### Version 5.3.0 (May 2020) ###
+### Version 5.4.0 (Sep 2020) ###
 
 **Center for Applied Scientific Computing, Lawrence Livermore National Laboratory**
 
@@ -79,15 +79,18 @@ in the "SUNDIALS Release History" appendix of each user guide.
 
 ## Authors ##
 
-The SUNDIALS Team: Carol S. Woodward, Daniel R. Reynolds, Alan C. Hindmarsh,
-David J. Gardner, and Cody J. Balos. We thank Radu Serban for significant
-and critical past contributions.
+The SUNDIALS library has been developed over many years by a number of
+contributors. The current SUNDIALS team consists of Cody J. Balos,
+David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and Carol S. Woodward.
+We thank Radu Serban for significant and critical past contributions.
 
-We also acknowledge past contributions of Scott D. Cohen, Peter N. Brown,
-George Byrne, Allan G. Taylor, Steven L. Lee, Keith E. Grant, Aaron Collier,
-Lawrence E. Banks, Steve Smith, Cosmin Petra, Slaven Peles, John Loffeld, Dan Shumaker,
-Ulrike Yang, James Almgren-Bell, Shelby L. Lockhart, Hilari C. Tiedeman, Ting Yan,
-Jean M. Sexton, and Chris White.
+Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
+Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
+Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
+Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
+Dan Shumaker, Steve G. Smith, Allan G. Taylor, Hilari C. Tiedeman, Chris White,
+Ting Yan, and Ulrike M. Yang.
+
 
 ### Citing SUNDIALS ###
 

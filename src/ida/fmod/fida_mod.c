@@ -1113,6 +1113,34 @@ SWIGEXPORT int _wrap_FIDAGetIntegratorStats(void *farg1, long *farg2, long *farg
 }
 
 
+SWIGEXPORT int _wrap_FIDAGetNonlinearSystemData(void *farg1, double *farg2, void *farg3, void *farg4, void *farg5, void *farg6, void *farg7, double *farg8, void *farg9) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype *arg2 = (realtype *) 0 ;
+  N_Vector *arg3 = (N_Vector *) 0 ;
+  N_Vector *arg4 = (N_Vector *) 0 ;
+  N_Vector *arg5 = (N_Vector *) 0 ;
+  N_Vector *arg6 = (N_Vector *) 0 ;
+  N_Vector *arg7 = (N_Vector *) 0 ;
+  realtype *arg8 = (realtype *) 0 ;
+  void **arg9 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype *)(farg2);
+  arg3 = (N_Vector *)(farg3);
+  arg4 = (N_Vector *)(farg4);
+  arg5 = (N_Vector *)(farg5);
+  arg6 = (N_Vector *)(farg6);
+  arg7 = (N_Vector *)(farg7);
+  arg8 = (realtype *)(farg8);
+  arg9 = (void **)(farg9);
+  result = (int)IDAGetNonlinearSystemData(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FIDAGetNumNonlinSolvIters(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1339,6 +1367,20 @@ SWIGEXPORT int _wrap_FIDASetEpsLin(void *farg1, double const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)IDASetEpsLin(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FIDASetLSNormFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)IDASetLSNormFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

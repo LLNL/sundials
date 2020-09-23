@@ -120,6 +120,7 @@ module fcvodes_mod
  public :: FCVodeSetMaxNonlinIters
  public :: FCVodeSetMaxConvFails
  public :: FCVodeSetNonlinConvCoef
+ public :: FCVodeSetLSetupFrequency
  public :: FCVodeSetConstraints
  public :: FCVodeSetNonlinearSolver
  public :: FCVodeRootInit
@@ -127,6 +128,9 @@ module fcvodes_mod
  public :: FCVodeSetNoInactiveRootWarn
  public :: FCVode
  public :: FCVodeGetDky
+ public :: FCVodeComputeState
+ public :: FCVodeComputeStateSens
+ public :: FCVodeComputeStateSens1
  public :: FCVodeGetWorkSpace
  public :: FCVodeGetNumSteps
  public :: FCVodeGetNumRhsEvals
@@ -149,6 +153,8 @@ module fcvodes_mod
  public :: FCVodeGetNumGEvals
  public :: FCVodeGetRootInfo
  public :: FCVodeGetIntegratorStats
+ public :: FCVodeGetNonlinearSystemData
+ public :: FCVodeGetNonlinearSystemDataSens
  public :: FCVodeGetNumNonlinSolvIters
  public :: FCVodeGetNumNonlinSolvConvFails
  public :: FCVodeGetNonlinSolvStats
@@ -197,9 +203,10 @@ module fcvodes_mod
  public :: FCVodeGetSensStats
  public :: FCVodeGetSensNumNonlinSolvIters
  public :: FCVodeGetSensNumNonlinSolvConvFails
+ public :: FCVodeGetSensNonlinSolvStats
  public :: FCVodeGetStgrSensNumNonlinSolvIters
  public :: FCVodeGetStgrSensNumNonlinSolvConvFails
- public :: FCVodeGetSensNonlinSolvStats
+ public :: FCVodeGetStgrSensNonlinSolvStats
  public :: FCVodeSensFree
  public :: FCVodeQuadSensInit
  public :: FCVodeQuadSensReInit
@@ -324,9 +331,10 @@ module fcvodes_mod
  integer(C_INT), parameter, public :: CVLS_LMEMB_NULL = -102_C_INT
  public :: FCVodeSetLinearSolver
  public :: FCVodeSetJacFn
- public :: FCVodeSetMaxStepsBetweenJac
+ public :: FCVodeSetJacEvalFrequency
  public :: FCVodeSetLinearSolutionScaling
  public :: FCVodeSetEpsLin
+ public :: FCVodeSetLSNormFactor
  public :: FCVodeSetPreconditioner
  public :: FCVodeSetJacTimes
  public :: FCVodeSetLinSysFn
@@ -345,6 +353,7 @@ module fcvodes_mod
  public :: FCVodeSetJacFnB
  public :: FCVodeSetJacFnBS
  public :: FCVodeSetEpsLinB
+ public :: FCVodeSetLSNormFactorB
  public :: FCVodeSetLinearSolutionScalingB
  public :: FCVodeSetPreconditionerB
  public :: FCVodeSetPreconditionerBS
@@ -352,6 +361,7 @@ module fcvodes_mod
  public :: FCVodeSetJacTimesBS
  public :: FCVodeSetLinSysFnB
  public :: FCVodeSetLinSysFnBS
+ public :: FCVodeSetMaxStepsBetweenJac
 
 ! WRAPPER DECLARATIONS
 interface
@@ -549,6 +559,15 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeSetLSetupFrequency(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetLSetupFrequency") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeSetConstraints(farg1, farg2) &
 bind(C, name="_wrap_FCVodeSetConstraints") &
 result(fresult)
@@ -613,6 +632,37 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT), intent(in) :: farg3
+type(C_PTR), value :: farg4
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeComputeState(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeComputeState") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeComputeStateSens(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeComputeStateSens") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeComputeStateSens1(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FCVodeComputeStateSens1") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
@@ -822,6 +872,37 @@ type(C_PTR), value :: farg8
 type(C_PTR), value :: farg9
 type(C_PTR), value :: farg10
 type(C_PTR), value :: farg11
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9) &
+bind(C, name="_wrap_FCVodeGetNonlinearSystemData") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
+type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
+type(C_PTR), value :: farg8
+type(C_PTR), value :: farg9
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetNonlinearSystemDataSens(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8) &
+bind(C, name="_wrap_FCVodeGetNonlinearSystemDataSens") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
+type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
+type(C_PTR), value :: farg8
 integer(C_INT) :: fresult
 end function
 
@@ -1249,6 +1330,16 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeGetSensNonlinSolvStats(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeGetSensNonlinSolvStats") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeGetStgrSensNumNonlinSolvIters(farg1, farg2) &
 bind(C, name="_wrap_FCVodeGetStgrSensNumNonlinSolvIters") &
 result(fresult)
@@ -1267,8 +1358,8 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FCVodeGetSensNonlinSolvStats(farg1, farg2, farg3) &
-bind(C, name="_wrap_FCVodeGetSensNonlinSolvStats") &
+function swigc_FCVodeGetStgrSensNonlinSolvStats(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeGetStgrSensNonlinSolvStats") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2128,8 +2219,8 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxStepsBetweenJac") &
+function swigc_FCVodeSetJacEvalFrequency(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetJacEvalFrequency") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2148,6 +2239,15 @@ end function
 
 function swigc_FCVodeSetEpsLin(farg1, farg2) &
 bind(C, name="_wrap_FCVodeSetEpsLin") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetLSNormFactor(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetLSNormFactor") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2325,6 +2425,16 @@ real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeSetLSNormFactorB(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeSetLSNormFactorB") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeSetLinearSolutionScalingB(farg1, farg2, farg3) &
 bind(C, name="_wrap_FCVodeSetLinearSolutionScalingB") &
 result(fresult)
@@ -2396,6 +2506,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 type(C_FUNPTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetMaxStepsBetweenJac") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2755,6 +2874,22 @@ fresult = swigc_FCVodeSetNonlinConvCoef(farg1, farg2)
 swig_result = fresult
 end function
 
+function FCVodeSetLSetupFrequency(cvode_mem, msbp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), intent(in) :: msbp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = cvode_mem
+farg2 = msbp
+fresult = swigc_FCVodeSetLSetupFrequency(farg1, farg2)
+swig_result = fresult
+end function
+
 function FCVodeSetConstraints(cvode_mem, constraints) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2879,6 +3014,66 @@ farg2 = t
 farg3 = k
 farg4 = c_loc(dky)
 fresult = swigc_FCVodeGetDky(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
+function FCVodeComputeState(cvode_mem, ycor, y) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(N_Vector), target, intent(inout) :: ycor
+type(N_Vector), target, intent(inout) :: y
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = c_loc(ycor)
+farg3 = c_loc(y)
+fresult = swigc_FCVodeComputeState(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeComputeStateSens(cvode_mem, yscor, ys) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(C_PTR) :: yscor
+type(C_PTR) :: ys
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = yscor
+farg3 = ys
+fresult = swigc_FCVodeComputeStateSens(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeComputeStateSens1(cvode_mem, idx, yscor1, ys1) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: idx
+type(N_Vector), target, intent(inout) :: yscor1
+type(N_Vector), target, intent(inout) :: ys1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+
+farg1 = cvode_mem
+farg2 = idx
+farg3 = c_loc(yscor1)
+farg4 = c_loc(ys1)
+fresult = swigc_FCVodeComputeStateSens1(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
@@ -3261,6 +3456,77 @@ farg9 = c_loc(hlast(1))
 farg10 = c_loc(hcur(1))
 farg11 = c_loc(tcur(1))
 fresult = swigc_FCVodeGetIntegratorStats(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9, farg10, farg11)
+swig_result = fresult
+end function
+
+function FCVodeGetNonlinearSystemData(cvode_mem, tcur, ypred, yn, fn, gamma, rl1, zn1, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tcur
+type(C_PTR) :: ypred
+type(C_PTR) :: yn
+type(C_PTR) :: fn
+real(C_DOUBLE), dimension(*), target, intent(inout) :: gamma
+real(C_DOUBLE), dimension(*), target, intent(inout) :: rl1
+type(C_PTR) :: zn1
+type(C_PTR), target, intent(inout) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
+type(C_PTR) :: farg9 
+
+farg1 = cvode_mem
+farg2 = c_loc(tcur(1))
+farg3 = ypred
+farg4 = yn
+farg5 = fn
+farg6 = c_loc(gamma(1))
+farg7 = c_loc(rl1(1))
+farg8 = zn1
+farg9 = c_loc(user_data)
+fresult = swigc_FCVodeGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9)
+swig_result = fresult
+end function
+
+function FCVodeGetNonlinearSystemDataSens(cvode_mem, tcur, yspred, ysn, gamma, rl1, zn1, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tcur
+type(C_PTR), target, intent(inout) :: yspred
+type(C_PTR), target, intent(inout) :: ysn
+real(C_DOUBLE), dimension(*), target, intent(inout) :: gamma
+real(C_DOUBLE), dimension(*), target, intent(inout) :: rl1
+type(C_PTR), target, intent(inout) :: zn1
+type(C_PTR), target, intent(inout) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
+
+farg1 = cvode_mem
+farg2 = c_loc(tcur(1))
+farg3 = c_loc(yspred)
+farg4 = c_loc(ysn)
+farg5 = c_loc(gamma(1))
+farg6 = c_loc(rl1(1))
+farg7 = c_loc(zn1)
+farg8 = c_loc(user_data)
+fresult = swigc_FCVodeGetNonlinearSystemDataSens(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8)
 swig_result = fresult
 end function
 
@@ -4053,6 +4319,25 @@ fresult = swigc_FCVodeGetSensNumNonlinSolvConvFails(farg1, farg2)
 swig_result = fresult
 end function
 
+function FCVodeGetSensNonlinSolvStats(cvode_mem, nsniters, nsncfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nsniters
+integer(C_LONG), dimension(*), target, intent(inout) :: nsncfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = c_loc(nsniters(1))
+farg3 = c_loc(nsncfails(1))
+fresult = swigc_FCVodeGetSensNonlinSolvStats(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
 function FCVodeGetStgrSensNumNonlinSolvIters(cvode_mem, nstgr1niters) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -4085,22 +4370,22 @@ fresult = swigc_FCVodeGetStgrSensNumNonlinSolvConvFails(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeGetSensNonlinSolvStats(cvode_mem, nsniters, nsncfails) &
+function FCVodeGetStgrSensNonlinSolvStats(cvode_mem, nstgr1niters, nstgr1ncfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nsniters
-integer(C_LONG), dimension(*), target, intent(inout) :: nsncfails
+integer(C_LONG), dimension(*), target, intent(inout) :: nstgr1niters
+integer(C_LONG), dimension(*), target, intent(inout) :: nstgr1ncfails
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
 
 farg1 = cvode_mem
-farg2 = c_loc(nsniters(1))
-farg3 = c_loc(nsncfails(1))
-fresult = swigc_FCVodeGetSensNonlinSolvStats(farg1, farg2, farg3)
+farg2 = c_loc(nstgr1niters(1))
+farg3 = c_loc(nstgr1ncfails(1))
+fresult = swigc_FCVodeGetStgrSensNonlinSolvStats(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
@@ -5674,7 +5959,7 @@ fresult = swigc_FCVodeSetJacFn(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeSetMaxStepsBetweenJac(cvode_mem, msbj) &
+function FCVodeSetJacEvalFrequency(cvode_mem, msbj) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -5686,7 +5971,7 @@ integer(C_LONG) :: farg2
 
 farg1 = cvode_mem
 farg2 = msbj
-fresult = swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2)
+fresult = swigc_FCVodeSetJacEvalFrequency(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -5719,6 +6004,22 @@ real(C_DOUBLE) :: farg2
 farg1 = cvode_mem
 farg2 = eplifac
 fresult = swigc_FCVodeSetEpsLin(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetLSNormFactor(arkode_mem, nrmfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: nrmfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nrmfac
+fresult = swigc_FCVodeSetLSNormFactor(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -6032,6 +6333,25 @@ fresult = swigc_FCVodeSetEpsLinB(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
+function FCVodeSetLSNormFactorB(arkode_mem, which, nrmfacb) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: which
+real(C_DOUBLE), intent(in) :: nrmfacb
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+real(C_DOUBLE) :: farg3 
+
+farg1 = arkode_mem
+farg2 = which
+farg3 = nrmfacb
+fresult = swigc_FCVodeSetLSNormFactorB(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
 function FCVodeSetLinearSolutionScalingB(cvode_mem, which, onoffb) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -6174,6 +6494,22 @@ farg1 = cvode_mem
 farg2 = which
 farg3 = linsys
 fresult = swigc_FCVodeSetLinSysFnBS(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FCVodeSetMaxStepsBetweenJac(cvode_mem, msbj) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_LONG), intent(in) :: msbj
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = cvode_mem
+farg2 = msbj
+fresult = swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2)
 swig_result = fresult
 end function
 

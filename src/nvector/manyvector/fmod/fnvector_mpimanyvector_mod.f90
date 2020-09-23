@@ -75,6 +75,9 @@ module fnvector_mpimanyvector_mod
  public :: FN_VInvTestLocal_MPIManyVector
  public :: FN_VConstrMaskLocal_MPIManyVector
  public :: FN_VMinQuotientLocal_MPIManyVector
+ public :: FN_VBufSize_MPIManyVector
+ public :: FN_VBufPack_MPIManyVector
+ public :: FN_VBufUnpack_MPIManyVector
  public :: FN_VEnableFusedOps_MPIManyVector
  public :: FN_VEnableLinearCombination_MPIManyVector
  public :: FN_VEnableScaleAddMulti_MPIManyVector
@@ -525,6 +528,33 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 real(C_DOUBLE) :: fresult
+end function
+
+function swigc_FN_VBufSize_MPIManyVector(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufSize_MPIManyVector") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VBufPack_MPIManyVector(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufPack_MPIManyVector") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VBufUnpack_MPIManyVector(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufUnpack_MPIManyVector") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
 end function
 
 function swigc_FN_VEnableFusedOps_MPIManyVector(farg1, farg2) &
@@ -1413,6 +1443,54 @@ type(C_PTR) :: farg2
 farg1 = c_loc(num)
 farg2 = c_loc(denom)
 fresult = swigc_FN_VMinQuotientLocal_MPIManyVector(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufSize_MPIManyVector(x, size) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+integer(C_INT64_T), dimension(*), target, intent(inout) :: size
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = c_loc(size(1))
+fresult = swigc_FN_VBufSize_MPIManyVector(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufPack_MPIManyVector(x, buf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: buf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = buf
+fresult = swigc_FN_VBufPack_MPIManyVector(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufUnpack_MPIManyVector(x, buf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: buf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = buf
+fresult = swigc_FN_VBufUnpack_MPIManyVector(farg1, farg2)
 swig_result = fresult
 end function
 

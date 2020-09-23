@@ -1,12 +1,12 @@
 List of parallel ARKODE C++ examples
 
-  ark_heat2D                    : 2-D diffusion                       (PCG with Jacobi preconditioner)
+  ark_heat2D : 2-D diffusion (PCG with Jacobi preconditioner)
 
 Sample results:
 
   The example output was produced by running:
 
-      mpiexec -n 4 ./ark_heat2D
+      mpiexec -n 4 ./ark_heat2D_p --np 2 2
 
 
 The following CMake command was used to configure SUNDIALS:

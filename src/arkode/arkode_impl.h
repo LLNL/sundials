@@ -22,6 +22,7 @@
 #include <arkode/arkode_butcher.h>
 #include "arkode_adapt_impl.h"
 #include "arkode_root_impl.h"
+#include <sundials/sundials_linearsolver.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -59,6 +60,13 @@ extern "C" {
 /*===============================================================
   ARKode Routine-Specific Constants
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  Initialization types
+  ---------------------------------------------------------------*/
+#define FIRST_INIT   0  /* first step (re-)initialization */
+#define RESET_INIT   1  /* reset initialization           */
+#define RESIZE_INIT  2  /* resize initialization          */
 
 /*---------------------------------------------------------------
   Control constants for lower-level time-stepping functions
@@ -124,8 +132,9 @@ typedef int (*ARKLinsolFreeFn)(void* arkode_mem);
 
 /* mass-matrix solver interface functions */
 typedef int (*ARKMassInitFn)(void *arkode_mem);
-typedef int (*ARKMassSetupFn)(void *arkode_mem, N_Vector vtemp1,
-                              N_Vector vtemp2, N_Vector vtemp3);
+typedef int (*ARKMassSetupFn)(void *arkode_mem, realtype t,
+                              N_Vector vtemp1, N_Vector vtemp2,
+                              N_Vector vtemp3);
 typedef int (*ARKMassMultFn)(void *arkode_mem, N_Vector v,
                              N_Vector Mv);
 typedef int (*ARKMassSolveFn)(void *arkode_mem, N_Vector b,
@@ -139,7 +148,7 @@ typedef int (*ARKTimestepAttachLinsolFn)(void* arkode_mem,
                                          ARKLinsolSetupFn lsetup,
                                          ARKLinsolSolveFn lsolve,
                                          ARKLinsolFreeFn lfree,
-                                         int lsolve_type,
+                                         SUNLinearSolver_Type lsolve_type,
                                          void *lmem);
 typedef int (*ARKTimestepAttachMasssolFn)(void* arkode_mem,
                                           ARKMassInitFn minit,
@@ -147,7 +156,8 @@ typedef int (*ARKTimestepAttachMasssolFn)(void* arkode_mem,
                                           ARKMassMultFn mmult,
                                           ARKMassSolveFn msolve,
                                           ARKMassFreeFn mfree,
-                                          int msolve_type,
+                                          booleantype time_dep,
+                                          SUNLinearSolver_Type msolve_type,
                                           void *mass_mem);
 typedef void (*ARKTimestepDisableLSetup)(void* arkode_mem);
 typedef void (*ARKTimestepDisableMSetup)(void* arkode_mem);
@@ -359,7 +369,8 @@ typedef struct ARKodeMemRec {
   booleantype VabstolMallocDone;
   booleantype VRabstolMallocDone;
   booleantype MallocDone;
-  booleantype resized;      /* denotes first step after ARKodeResize      */
+  booleantype initsetup;    /* denotes a call to InitialSetup is needed   */
+  int         init_type;    /* initialization type (see constants above)  */
   booleantype firststage;   /* denotes first stage in simulation          */
   booleantype initialized;  /* denotes arkInitialSetup has been done      */
   booleantype call_fullrhs; /* denotes fn needs updating after each step  */
@@ -379,6 +390,17 @@ typedef struct ARKodeMemRec {
   /* User-supplied stage solution post-processing function */
   ARKPostProcessFn ProcessStage;
 
+  /* XBraid interface variables */
+  booleantype force_pass;  /* when true the step attempt loop will ignore the
+                              return value (kflag) from arkCheckTemporalError
+                              and set kflag = ARK_SUCCESS to force the step
+                              attempt to always pass (if a solver failure did
+                              not occur before the error test). */
+  int         last_kflag;  /* last value of the return flag (kflag) from a call
+                              to arkCheckTemporalError. This is only set when
+                              force_pass is true and is used by the XBraid
+                              interface to determine if a time step passed or
+                              failed the time step error test.  */
 } *ARKodeMem;
 
 
@@ -539,7 +561,7 @@ typedef struct ARKodeMemRec {
 
   arkode_mem - void* problem memory pointer of type ARKodeMem. See
            the typedef earlier in this file.
-
+  t - the 'time' at which to setup the mass matrix
   vtemp1, vtemp2, vtemp3 - temporary N_Vectors
 
   This routine should return 0 if successful, and a negative
@@ -613,11 +635,11 @@ typedef struct ARKodeMemRec {
 /*---------------------------------------------------------------
   ARKTimestepAttachMasssolFn
   ---------------------------------------------------------------
-  This routine should attach the various set of mass matrix linear
-  solver interface routines, data structure, and solver type to
-  the ARKode time stepping module pointed to in
-  ark_mem->step_mem.  This will be called by the ARKode linear
-  solver interface.
+  This routine should attach the various set of mass matrix
+  linear solver interface routines, data structure, mass matrix
+  type, and solver type to the ARKode time stepping module
+  pointed to in ark_mem->step_mem.  This will be called by the
+  ARKode linear solver interface.
 
   This routine should return 0 if it has successfully attached
   these items, and a negative value otherwise.  If an error does
@@ -719,11 +741,11 @@ typedef struct ARKodeMemRec {
   ---------------------------------------------------------------
   This routine is called just prior to performing internal time
   steps (after all user "set" routines have been called) from
-  within arkInitialSetup (init_type == 0) or arkPostResizeSetup
-  (init_type == 1).  It should complete initializations for a
-  specific ARKode time stepping module, such as verifying
+  within arkInitialSetup. It should complete initializations for
+  a specific ARKode time stepping module, such as verifying
   compatibility of user-specified linear and nonlinear solver
-  objects.
+  objects. The input init_type flag indicates if the call is
+  for (re-)initializing, resizing, or resetting the problem.
 
   This routine should return 0 if it has successfully initialized
   the ARKode time stepper module and a negative value otherwise.
@@ -831,8 +853,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define SUNDIALS_UNUSED
 #endif
 
-int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0);
-int arkReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0);
+int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0, int init_type);
 booleantype arkAllocVec(ARKodeMem ark_mem,
                         N_Vector tmpl,
                         N_Vector *v);
@@ -858,7 +879,6 @@ booleantype arkResizeVectors(ARKodeMem ark_mem,
 void arkFreeVectors(ARKodeMem ark_mem);
 
 int arkInitialSetup(ARKodeMem ark_mem, realtype tout);
-int arkPostResizeSetup(ARKodeMem ark_mem);
 int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
                  realtype *tret, int itask, int *ier);
 int arkHin(ARKodeMem ark_mem, realtype tout);
@@ -971,6 +991,11 @@ int arkGetStepStats(void *arkode_mem, long int *nsteps,
                     realtype *hinused, realtype *hlast,
                     realtype *hcur, realtype *tcur);
 char *arkGetReturnFlagName(long int flag);
+
+
+/* XBraid interface functions */
+int arkSetForcePass(void *arkode_mem, booleantype force_pass);
+int arkGetLastKFlag(void *arkode_mem, int *last_kflag);
 
 
 /*===============================================================

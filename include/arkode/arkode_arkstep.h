@@ -57,13 +57,8 @@ extern "C" {
 #define DEFAULT_ARK_ITABLE_4    ARK436L2SA_DIRK_6_3_4
 #define DEFAULT_ARK_ITABLE_5    ARK548L2SA_DIRK_8_4_5
 
-
-/* ------------------------------
- * User-Supplied Function Types
- * ------------------------------ */
-
-typedef int (*ARKStepStagePredictFn)(realtype t, N_Vector zpred,
-                                     void *user_data);
+/* backwards-compatibility */
+typedef ARKStagePredictFn ARKStepStagePredictFn;
 
 /* -------------------
  * Exported Functions
@@ -81,6 +76,8 @@ SUNDIALS_EXPORT int ARKStepResize(void *arkode_mem, N_Vector ynew,
 SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                                   ARKRhsFn fi, realtype t0, N_Vector y0);
 
+SUNDIALS_EXPORT int ARKStepReset(void* arkode_mem, realtype tR, N_Vector yR);
+
 /* Tolerance input functions */
 SUNDIALS_EXPORT int ARKStepSStolerances(void *arkode_mem,
                                         realtype reltol,
@@ -91,7 +88,7 @@ SUNDIALS_EXPORT int ARKStepSVtolerances(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepWFtolerances(void *arkode_mem,
                                         ARKEwtFn efun);
 
-/* Resudal tolerance input functions */
+/* Residual tolerance input functions */
 SUNDIALS_EXPORT int ARKStepResStolerance(void *arkode_mem,
                                          realtype rabstol);
 SUNDIALS_EXPORT int ARKStepResVtolerance(void *arkode_mem,
@@ -165,8 +162,8 @@ SUNDIALS_EXPORT int ARKStepSetNonlinRDiv(void *arkode_mem,
                                          realtype rdiv);
 SUNDIALS_EXPORT int ARKStepSetDeltaGammaMax(void *arkode_mem,
                                             realtype dgmax);
-SUNDIALS_EXPORT int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem,
-                                                  int msbp);
+SUNDIALS_EXPORT int ARKStepSetLSetupFrequency(void *arkode_mem,
+                                              int msbp);
 SUNDIALS_EXPORT int ARKStepSetPredictorMethod(void *arkode_mem,
                                               int method);
 SUNDIALS_EXPORT int ARKStepSetStabilityFn(void *arkode_mem,
@@ -218,18 +215,22 @@ SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetPostprocessStageFn(void *arkode_mem,
                                                  ARKPostProcessFn ProcessStage);
 SUNDIALS_EXPORT int ARKStepSetStagePredictFn(void *arkode_mem,
-                                             ARKStepStagePredictFn PredictStage);
+                                             ARKStagePredictFn PredictStage);
 
 /* Linear solver interface optional input functions -- must be called
    AFTER ARKStepSetLinearSolver and/or ARKStepSetMassLinearSolver */
 SUNDIALS_EXPORT int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac);
 SUNDIALS_EXPORT int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass);
-SUNDIALS_EXPORT int ARKStepSetMaxStepsBetweenJac(void *arkode_mem,
-                                                 long int msbj);
+SUNDIALS_EXPORT int ARKStepSetJacEvalFrequency(void *arkode_mem,
+                                               long int msbj);
 SUNDIALS_EXPORT int ARKStepSetLinearSolutionScaling(void *arkode_mem,
                                                     booleantype onoff);
 SUNDIALS_EXPORT int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac);
 SUNDIALS_EXPORT int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac);
+SUNDIALS_EXPORT int ARKStepSetLSNormFactor(void *arkode_mem,
+                                           realtype nrmfac);
+SUNDIALS_EXPORT int ARKStepSetMassLSNormFactor(void *arkode_mem,
+                                               realtype nrmfac);
 SUNDIALS_EXPORT int ARKStepSetPreconditioner(void *arkode_mem,
                                              ARKLsPrecSetupFn psetup,
                                              ARKLsPrecSolveFn psolve);
@@ -255,6 +256,10 @@ SUNDIALS_EXPORT int ARKStepEvolve(void *arkode_mem, realtype tout,
 /* Computes the kth derivative of the y function at time t */
 SUNDIALS_EXPORT int ARKStepGetDky(void *arkode_mem, realtype t,
                                   int k, N_Vector dky);
+
+/* Utility function to update/compute y based on zcor */
+SUNDIALS_EXPORT int ARKStepComputeState(void *arkode_mem, N_Vector zcor,
+                                        N_Vector z);
 
 /* Optional output functions */
 SUNDIALS_EXPORT int ARKStepGetNumExpSteps(void *arkode_mem,
@@ -289,9 +294,11 @@ SUNDIALS_EXPORT int ARKStepGetCurrentStep(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepGetCurrentTime(void *arkode_mem,
                                           realtype *tcur);
 SUNDIALS_EXPORT int ARKStepGetCurrentState(void *arkode_mem,
-                                           N_Vector *ycur);
+                                           N_Vector *state);
 SUNDIALS_EXPORT int ARKStepGetCurrentGamma(void *arkode_mem,
                                            realtype *gamma);
+SUNDIALS_EXPORT int ARKStepGetCurrentMassMatrix(void *arkode_mem,
+                                                SUNMatrix *M);
 SUNDIALS_EXPORT int ARKStepGetTolScaleFactor(void *arkode_mem,
                                              realtype *tolsfac);
 SUNDIALS_EXPORT int ARKStepGetErrWeights(void *arkode_mem,
@@ -328,6 +335,15 @@ SUNDIALS_EXPORT int ARKStepGetStepStats(void *arkode_mem,
                                         realtype *tcur);
 
 /* Nonlinear solver optional output functions */
+SUNDIALS_EXPORT int ARKStepGetNonlinearSystemData(void *arkode_mem,
+                                                  realtype *tcur,
+                                                  N_Vector *zpred,
+                                                  N_Vector *z,
+                                                  N_Vector *Fi,
+                                                  realtype *gamma,
+                                                  N_Vector *sdata,
+                                                  void     **user_data);
+
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvIters(void *arkode_mem,
                                                 long int *nniters);
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem,
@@ -391,6 +407,13 @@ SUNDIALS_EXPORT void ARKStepFree(void **arkode_mem);
 
 /* Output the ARKStep memory structure (useful when debugging) */
 SUNDIALS_EXPORT void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
+
+
+/* Deprecated functions */
+SUNDIALS_DEPRECATED int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem,
+                                                      int msbp);
+SUNDIALS_DEPRECATED int ARKStepSetMaxStepsBetweenJac(void *arkode_mem,
+                                                     long int msbj);
 
 
 #ifdef __cplusplus

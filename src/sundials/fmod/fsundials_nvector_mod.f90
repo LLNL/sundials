@@ -80,6 +80,9 @@ module fsundials_nvector_mod
   type(C_FUNPTR), public :: nvminquotientlocal
   type(C_FUNPTR), public :: nvwsqrsumlocal
   type(C_FUNPTR), public :: nvwsqrsummasklocal
+  type(C_FUNPTR), public :: nvbufsize
+  type(C_FUNPTR), public :: nvbufpack
+  type(C_FUNPTR), public :: nvbufunpack
   type(C_FUNPTR), public :: nvprint
   type(C_FUNPTR), public :: nvprintfile
  end type N_Vector_Ops
@@ -136,6 +139,9 @@ module fsundials_nvector_mod
  public :: FN_VInvTestLocal
  public :: FN_VConstrMaskLocal
  public :: FN_VMinQuotientLocal
+ public :: FN_VBufSize
+ public :: FN_VBufPack
+ public :: FN_VBufUnpack
  public :: FN_VNewVectorArray
  public :: FN_VCloneEmptyVectorArray
  public :: FN_VCloneVectorArray
@@ -567,6 +573,33 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 real(C_DOUBLE) :: fresult
+end function
+
+function swigc_FN_VBufSize(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufSize") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VBufPack(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufPack") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VBufUnpack(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufUnpack") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
 end function
 
 function swigc_FN_VNewVectorArray(farg1) &
@@ -1398,6 +1431,54 @@ type(C_PTR) :: farg2
 farg1 = c_loc(num)
 farg2 = c_loc(denom)
 fresult = swigc_FN_VMinQuotientLocal(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufSize(x, size) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+integer(C_INT64_T), dimension(*), target, intent(inout) :: size
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = c_loc(size(1))
+fresult = swigc_FN_VBufSize(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufPack(x, buf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: buf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = buf
+fresult = swigc_FN_VBufPack(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufUnpack(x, buf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: buf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = buf
+fresult = swigc_FN_VBufUnpack(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -141,7 +141,7 @@ foreach(example_tuple ${sunmatrix_band_fortran_examples})
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.f90
-      ${sundials_SOURCE_DIR}/examples/test_utilities.f90
+      ${sundials_SOURCE_DIR}/examples/utilities/test_utilities.f90
       ${sundials_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.f90
       $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
       $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)

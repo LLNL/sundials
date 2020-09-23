@@ -97,6 +97,8 @@ SUNDIALS_EXPORT int IDASetJacTimes(void *ida_mem,
                                    IDALsJacTimesSetupFn jtsetup,
                                    IDALsJacTimesVecFn jtimes);
 SUNDIALS_EXPORT int IDASetEpsLin(void *ida_mem, realtype eplifac);
+SUNDIALS_EXPORT int IDASetLSNormFactor(void *ida_mem,
+                                       realtype nrmfac);
 SUNDIALS_EXPORT int IDASetLinearSolutionScaling(void *ida_mem,
                                                 booleantype onoff);
 SUNDIALS_EXPORT int IDASetIncrementFactor(void *ida_mem,

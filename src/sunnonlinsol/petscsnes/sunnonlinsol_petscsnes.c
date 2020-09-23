@@ -168,7 +168,6 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS,
   PetscErrorCode ierr;
   SNESConvergedReason reason;
   int retval;
-  sunindextype nni;
 
   /* check that the inputs are non-null */
   if ( (NLS == NULL) ||
@@ -181,13 +180,16 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS,
    * accessed in the system function */
   SUNNLS_SNES_CONTENT(NLS)->imem = mem;
 
+  /* reset convergence failure count */
+  SUNNLS_SNES_CONTENT(NLS)->nconvfails = 0;
+
   /* call petsc SNES solve */
   ierr = SNESSolve(SUNNLS_SNESOBJ(NLS), NULL, N_VGetVector_Petsc(y));
-  
+
   /* check if the call to the system function failed */
   if (SUNNLS_SNES_CONTENT(NLS)->sysfn_last_err != SUN_NLS_SUCCESS)
     return SUNNLS_SNES_CONTENT(NLS)->sysfn_last_err;
-  
+
   /* check if the SNESSolve had a failure elsewhere */
   if (ierr != 0) {
     SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ierr;
@@ -217,14 +219,6 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS,
     /* update convergence failure count */
     SUNNLS_SNES_CONTENT(NLS)->nconvfails++;
   }
-
-  /* update iteration count */
-  ierr = SNESGetIterationNumber(SUNNLS_SNESOBJ(NLS), &nni);
-  if (ierr != 0) {
-    SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ierr;
-    return SUN_NLS_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
-  }
-  SUNNLS_SNES_CONTENT(NLS)->nni += nni;
 
   return retval;
 }
@@ -318,15 +312,25 @@ int SUNNonlinSolGetSysFn_PetscSNES(SUNNonlinearSolver NLS, SUNNonlinSolSysFn* Sy
   return SUN_NLS_SUCCESS;
 }
 
-/* get the total number of iterations performed in the lifetime
-   of this SUNNonlinearSolver object */
+/* get the number of iterations performed in the last solve */
 int SUNNonlinSolGetNumIters_PetscSNES(SUNNonlinearSolver NLS, long int* nni)
 {
+  int ierr;
+  sunindextype niters;
+
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL)
     return SUN_NLS_MEM_NULL;
 
-  *nni = SUNNLS_SNES_CONTENT(NLS)->nni;
+  /* get iteration count */
+  ierr = SNESGetIterationNumber(SUNNLS_SNESOBJ(NLS), &niters);
+  if (ierr != 0) {
+    SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ierr;
+    return SUN_NLS_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
+  }
+
+  *nni = (long int) niters;
+
   return SUN_NLS_SUCCESS;
 }
 

@@ -178,6 +178,39 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 }
 
 
+/*---------------------------------------------------------------
+  IDAGetNonlinearSystemDataSens:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int IDAGetNonlinearSystemDataSens(void *ida_mem, realtype *tcur,
+                                  N_Vector **yySpred, N_Vector **ypSpred,
+                                  N_Vector **yySn, N_Vector **ypSn,
+                                  realtype *cj, void **user_data)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetNonlinearSystemData",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *tcur      = IDA_mem->ida_tn;
+  *yySpred   = IDA_mem->ida_yySpredict;
+  *ypSpred   = IDA_mem->ida_ypSpredict;
+  *yySn      = IDA_mem->ida_yyS;
+  *ypSn      = IDA_mem->ida_ypS;
+  *cj        = IDA_mem->ida_cj;
+  *user_data = IDA_mem->ida_user_data;
+
+  return(IDA_SUCCESS);
+}
+
+
 /* -----------------------------------------------------------------------------
  * Private functions
  * ---------------------------------------------------------------------------*/

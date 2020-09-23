@@ -26,7 +26,8 @@ extern "C" {
 
 /* Butcher table accessor IDs
      ERK:    0 -  99
-     DIRK: 100 - 199          */
+     DIRK: 100 - 199
+     MRI:  200 - 299          */
 #define SDIRK_2_1_2             100
 #define BILLINGTON_3_3_2        101
 #define TRBDF2_3_3_2            102

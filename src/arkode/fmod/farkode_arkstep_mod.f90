@@ -55,6 +55,7 @@ module farkode_arkstep_mod
  public :: FARKStepCreate
  public :: FARKStepResize
  public :: FARKStepReInit
+ public :: FARKStepReset
  public :: FARKStepSStolerances
  public :: FARKStepSVtolerances
  public :: FARKStepWFtolerances
@@ -93,7 +94,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetNonlinCRDown
  public :: FARKStepSetNonlinRDiv
  public :: FARKStepSetDeltaGammaMax
- public :: FARKStepSetMaxStepsBetweenLSet
+ public :: FARKStepSetLSetupFrequency
  public :: FARKStepSetPredictorMethod
  public :: FARKStepSetStabilityFn
  public :: FARKStepSetMaxErrTestFails
@@ -120,10 +121,12 @@ module farkode_arkstep_mod
  public :: FARKStepSetStagePredictFn
  public :: FARKStepSetJacFn
  public :: FARKStepSetMassFn
- public :: FARKStepSetMaxStepsBetweenJac
+ public :: FARKStepSetJacEvalFrequency
  public :: FARKStepSetLinearSolutionScaling
  public :: FARKStepSetEpsLin
  public :: FARKStepSetMassEpsLin
+ public :: FARKStepSetLSNormFactor
+ public :: FARKStepSetMassLSNormFactor
  public :: FARKStepSetPreconditioner
  public :: FARKStepSetMassPreconditioner
  public :: FARKStepSetJacTimes
@@ -132,6 +135,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetLinSysFn
  public :: FARKStepEvolve
  public :: FARKStepGetDky
+ public :: FARKStepComputeState
  public :: FARKStepGetNumExpSteps
  public :: FARKStepGetNumAccSteps
  public :: FARKStepGetNumStepAttempts
@@ -148,6 +152,7 @@ module farkode_arkstep_mod
  public :: FARKStepGetCurrentTime
  public :: FARKStepGetCurrentState
  public :: FARKStepGetCurrentGamma
+ public :: FARKStepGetCurrentMassMatrix
  public :: FARKStepGetTolScaleFactor
  public :: FARKStepGetErrWeights
  public :: FARKStepGetResWeights
@@ -163,6 +168,7 @@ module farkode_arkstep_mod
  public :: FARKStepWriteButcher
  public :: FARKStepGetTimestepperStats
  public :: FARKStepGetStepStats
+ public :: FARKStepGetNonlinearSystemData
  public :: FARKStepGetNumNonlinSolvIters
  public :: FARKStepGetNumNonlinSolvConvFails
  public :: FARKStepGetNonlinSolvStats
@@ -190,6 +196,8 @@ module farkode_arkstep_mod
  public :: FARKStepGetLinReturnFlagName
  public :: FARKStepFree
  public :: FARKStepPrintMem
+ public :: FARKStepSetMaxStepsBetweenLSet
+ public :: FARKStepSetMaxStepsBetweenJac
 
 ! WRAPPER DECLARATIONS
 interface
@@ -226,6 +234,16 @@ type(C_FUNPTR), value :: farg2
 type(C_FUNPTR), value :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepReset(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKStepReset") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -580,8 +598,8 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FARKStepSetMaxStepsBetweenLSet(farg1, farg2) &
-bind(C, name="_wrap_FARKStepSetMaxStepsBetweenLSet") &
+function swigc_FARKStepSetLSetupFrequency(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetLSetupFrequency") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -824,8 +842,8 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FARKStepSetMaxStepsBetweenJac(farg1, farg2) &
-bind(C, name="_wrap_FARKStepSetMaxStepsBetweenJac") &
+function swigc_FARKStepSetJacEvalFrequency(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetJacEvalFrequency") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -853,6 +871,24 @@ end function
 
 function swigc_FARKStepSetMassEpsLin(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetMassEpsLin") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetLSNormFactor(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetLSNormFactor") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetMassLSNormFactor(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetMassLSNormFactor") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -939,6 +975,16 @@ type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT), intent(in) :: farg3
 type(C_PTR), value :: farg4
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepComputeState(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKStepComputeState") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -1089,6 +1135,15 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKStepGetCurrentMassMatrix(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetCurrentMassMatrix") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKStepGetTolScaleFactor(farg1, farg2) &
 bind(C, name="_wrap_FARKStepGetTolScaleFactor") &
 result(fresult)
@@ -1200,6 +1255,21 @@ type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR), value :: farg6
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8) &
+bind(C, name="_wrap_FARKStepGetNonlinearSystemData") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
+type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
+type(C_PTR), value :: farg8
 integer(C_INT) :: fresult
 end function
 
@@ -1444,6 +1514,24 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
+function swigc_FARKStepSetMaxStepsBetweenLSet(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetMaxStepsBetweenLSet") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetMaxStepsBetweenJac(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetMaxStepsBetweenJac") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 end interface
 
 
@@ -1521,6 +1609,25 @@ farg3 = fi
 farg4 = t0
 farg5 = c_loc(y0)
 fresult = swigc_FARKStepReInit(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FARKStepReset(arkode_mem, tr, yr) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: tr
+type(N_Vector), target, intent(inout) :: yr
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = tr
+farg3 = c_loc(yr)
+fresult = swigc_FARKStepReset(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
@@ -2159,7 +2266,7 @@ fresult = swigc_FARKStepSetDeltaGammaMax(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKStepSetMaxStepsBetweenLSet(arkode_mem, msbp) &
+function FARKStepSetLSetupFrequency(arkode_mem, msbp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -2171,7 +2278,7 @@ integer(C_INT) :: farg2
 
 farg1 = arkode_mem
 farg2 = msbp
-fresult = swigc_FARKStepSetMaxStepsBetweenLSet(farg1, farg2)
+fresult = swigc_FARKStepSetLSetupFrequency(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2594,7 +2701,7 @@ fresult = swigc_FARKStepSetMassFn(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKStepSetMaxStepsBetweenJac(arkode_mem, msbj) &
+function FARKStepSetJacEvalFrequency(arkode_mem, msbj) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -2606,7 +2713,7 @@ integer(C_LONG) :: farg2
 
 farg1 = arkode_mem
 farg2 = msbj
-fresult = swigc_FARKStepSetMaxStepsBetweenJac(farg1, farg2)
+fresult = swigc_FARKStepSetJacEvalFrequency(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2655,6 +2762,38 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = eplifac
 fresult = swigc_FARKStepSetMassEpsLin(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetLSNormFactor(arkode_mem, nrmfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: nrmfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nrmfac
+fresult = swigc_FARKStepSetLSNormFactor(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetMassLSNormFactor(arkode_mem, nrmfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: nrmfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nrmfac
+fresult = swigc_FARKStepSetMassLSNormFactor(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2813,6 +2952,25 @@ farg2 = t
 farg3 = k
 farg4 = c_loc(dky)
 fresult = swigc_FARKStepGetDky(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
+function FARKStepComputeState(arkode_mem, zcor, z) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(N_Vector), target, intent(inout) :: zcor
+type(N_Vector), target, intent(inout) :: z
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = c_loc(zcor)
+farg3 = c_loc(z)
+fresult = swigc_FARKStepComputeState(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
@@ -3049,18 +3207,18 @@ fresult = swigc_FARKStepGetCurrentTime(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKStepGetCurrentState(arkode_mem, ycur) &
+function FARKStepGetCurrentState(arkode_mem, state) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-type(C_PTR) :: ycur
+type(C_PTR) :: state
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = ycur
+farg2 = state
 fresult = swigc_FARKStepGetCurrentState(farg1, farg2)
 swig_result = fresult
 end function
@@ -3078,6 +3236,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(gamma(1))
 fresult = swigc_FARKStepGetCurrentGamma(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetCurrentMassMatrix(arkode_mem, m) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: m
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(m)
+fresult = swigc_FARKStepGetCurrentMassMatrix(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3297,6 +3471,40 @@ farg4 = c_loc(hlast(1))
 farg5 = c_loc(hcur(1))
 farg6 = c_loc(tcur(1))
 fresult = swigc_FARKStepGetStepStats(farg1, farg2, farg3, farg4, farg5, farg6)
+swig_result = fresult
+end function
+
+function FARKStepGetNonlinearSystemData(arkode_mem, tcur, zpred, z, fi, gamma, sdata, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tcur
+type(C_PTR) :: zpred
+type(C_PTR) :: z
+type(C_PTR) :: fi
+real(C_DOUBLE), dimension(*), target, intent(inout) :: gamma
+type(C_PTR) :: sdata
+type(C_PTR), target, intent(inout) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
+
+farg1 = arkode_mem
+farg2 = c_loc(tcur(1))
+farg3 = zpred
+farg4 = z
+farg5 = fi
+farg6 = c_loc(gamma(1))
+farg7 = sdata
+farg8 = c_loc(user_data)
+fresult = swigc_FARKStepGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8)
 swig_result = fresult
 end function
 
@@ -3727,6 +3935,38 @@ farg1 = arkode_mem
 farg2 = outfile
 call swigc_FARKStepPrintMem(farg1, farg2)
 end subroutine
+
+function FARKStepSetMaxStepsBetweenLSet(arkode_mem, msbp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: msbp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = msbp
+fresult = swigc_FARKStepSetMaxStepsBetweenLSet(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetMaxStepsBetweenJac(arkode_mem, msbj) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), intent(in) :: msbj
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = arkode_mem
+farg2 = msbj
+fresult = swigc_FARKStepSetMaxStepsBetweenJac(farg1, farg2)
+swig_result = fresult
+end function
 
 
 end module

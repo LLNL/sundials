@@ -40,9 +40,10 @@
     SDIRK -- singly-diagonally implicit Runge Kutta
     ESDIRK -- explicit [1st stage] singly-diagonally implicit Runge Kutta
   The 'A-stable' and 'L-stable' columns are based on numerical estimates
-  of each property.  The 'QP' column denotes whether the coefficients
-  of the method are known precisely enough for use in 'long double'
-  (128-bit) calculations.
+  of each property.
+
+  The 'QP' column denotes whether the coefficients of the method are known
+  precisely enough for use in quad precision (128-bit) calculations.
 
      imeth                       type  A-stable  L-stable  QP
     ----------------------------------------------------------
@@ -428,7 +429,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadDIRK(int imethod)
     B->c[4] = RCONST(3.0)/RCONST(40.0);
     B->c[5] = RCONST(7.0)/RCONST(10.0);
     B->c[6] = RCONST(1.0);
- 
+
     B->d[2] = RCONST(4469248916618.0)/RCONST(8635866897933.0);
     B->d[3] = RCONST(-621260224600.0)/RCONST(4094290005349.0);
     B->d[4] = RCONST(696572312987.0)/RCONST(2942599194819.0);
@@ -569,7 +570,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadDIRK(int imethod)
     B->A[5][4] = RCONST(961109811699.0)/RCONST(6734810228204.0);
     B->A[5][5] = RCONST(2.0)/RCONST(9.0);
     B->A[6][0] = RCONST(2036305566805.0)/RCONST(6583108094622.0);
-    B->A[6][1] = RCONST(2036305566805.0)/RCONST(6583108094622.0);           
+    B->A[6][1] = RCONST(2036305566805.0)/RCONST(6583108094622.0);
     B->A[6][2] = RCONST(-3039402635899.0)/RCONST(4450598839912.0);
     B->A[6][3] = RCONST(-1829510709469.0)/RCONST(31102090912115.0);
     B->A[6][4] = RCONST(-286320471013.0)/RCONST(6931253422520.0);

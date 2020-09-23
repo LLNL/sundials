@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -367,6 +364,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
   CVodeMem cv_mem;
   CkpntMem tmp;
   DtpntMem *dt_mem;
+  long int nstloc;
   int flag, i;
   booleantype allocOK, earlyret;
   realtype ttest;
@@ -497,12 +495,24 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
   }
 
   /* Integrate to tout (in CV_ONE_STEP mode) while loading check points */
+  nstloc = 0;
   for(;;) {
+
+    /* Check for too many steps */
+
+    if ( (cv_mem->cv_mxstep>0) && (nstloc >= cv_mem->cv_mxstep) ) {
+      cvProcessError(cv_mem, CV_TOO_MUCH_WORK, "CVODEA", "CVodeF",
+                     MSGCV_MAX_STEPS, cv_mem->cv_tn);
+      flag = CV_TOO_MUCH_WORK;
+      break;
+    }
 
     /* Perform one step of the integration */
 
     flag = CVode(cv_mem, tout, yout, tret, CV_ONE_STEP);
     if (flag < 0) break;
+
+    nstloc++;
 
     /* Test if a new check point is needed */
 

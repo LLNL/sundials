@@ -151,7 +151,7 @@ foreach(example_tuple ${sunmatrix_sparse_fortran_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     add_executable(${example} ${example}.f90
-      ${sundials_SOURCE_DIR}/examples/test_utilities.f90
+      ${sundials_SOURCE_DIR}/examples/utilities/test_utilities.f90
       ${sundials_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.f90
       $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
       $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)

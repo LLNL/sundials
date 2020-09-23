@@ -39,7 +39,7 @@ int Test_SetKernelExecPolicy(SUNMatrix A, int myid);
 class ATestExecPolicy : public SUNCudaExecPolicy
 {
 public:
-  ATestExecPolicy(){}
+  ATestExecPolicy() : stream_(0) {}
 
   virtual size_t gridSize(size_t numWorkElements = 0, size_t blockDim = 0) const
   {
@@ -51,15 +51,18 @@ public:
     return 1;
   }
 
-  virtual cudaStream_t stream() const
+  virtual const cudaStream_t* stream() const
   {
-    return 0;
+    return &stream_;
   }
 
   virtual SUNCudaExecPolicy* clone() const
   {
     return static_cast<SUNCudaExecPolicy*>(new ATestExecPolicy());
   }
+
+private:
+  const cudaStream_t stream_;
 };
 
  /* ----------------------------------------------------------------------
@@ -457,7 +460,6 @@ public:
   * --------------------------------------------------------------------*/
 int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 {
-  printf("HERE\n");
   int print_all_ranks = 0;
   realtype  tol = 100*UNIT_ROUNDOFF;
   SUNMatrix B = SUNMatClone(I);

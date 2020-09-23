@@ -96,11 +96,13 @@ SUNDIALS_EXPORT int CVodeSetLinearSolver(void *cvode_mem,
   -----------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int CVodeSetJacFn(void *cvode_mem, CVLsJacFn jac);
-SUNDIALS_EXPORT int CVodeSetMaxStepsBetweenJac(void *cvode_mem,
-                                               long int msbj);
+SUNDIALS_EXPORT int CVodeSetJacEvalFrequency(void *cvode_mem,
+                                             long int msbj);
 SUNDIALS_EXPORT int CVodeSetLinearSolutionScaling(void *cvode_mem,
                                                   booleantype onoff);
 SUNDIALS_EXPORT int CVodeSetEpsLin(void *cvode_mem, realtype eplifac);
+SUNDIALS_EXPORT int CVodeSetLSNormFactor(void *arkode_mem,
+                                         realtype nrmfac);
 SUNDIALS_EXPORT int CVodeSetPreconditioner(void *cvode_mem,
                                            CVLsPrecSetupFn pset,
                                            CVLsPrecSolveFn psolve);
@@ -229,6 +231,9 @@ SUNDIALS_EXPORT int CVodeSetJacFnBS(void *cvode_mem, int which,
 SUNDIALS_EXPORT int CVodeSetEpsLinB(void *cvode_mem, int which,
                                     realtype eplifacB);
 
+SUNDIALS_EXPORT int CVodeSetLSNormFactorB(void *arkode_mem, int which,
+                                          realtype nrmfacB);
+
 SUNDIALS_EXPORT int CVodeSetLinearSolutionScalingB(void *cvode_mem, int which,
                                                    booleantype onoffB);
 
@@ -251,6 +256,9 @@ SUNDIALS_EXPORT int CVodeSetLinSysFnB(void *cvode_mem, int which,
 SUNDIALS_EXPORT int CVodeSetLinSysFnBS(void *cvode_mem, int which,
                                        CVLsLinSysFnBS linsys);
 
+/* Deprecated functions */
+SUNDIALS_DEPRECATED int CVodeSetMaxStepsBetweenJac(void *cvode_mem,
+                                                   long int msbj);
 
 #ifdef __cplusplus
 }

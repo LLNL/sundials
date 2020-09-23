@@ -141,6 +141,7 @@ int main(int argc, char *argv[])
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n",reltol,abstol);
 
   /* Open up info output file */
+  INFOFID = NULL;
   if (monitor) INFOFID = fopen("ark_brusselator_fp-info.txt","w");
 
   /* Initialize data structures */

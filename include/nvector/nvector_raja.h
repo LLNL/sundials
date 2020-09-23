@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Slaven Peles @ LLNL
+ * Programmer(s): Slaven Peles, Cody J. Balos, Daniel McGreer @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -10,36 +10,16 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * -----------------------------------------------------------------
- * This is the header file for the RAJA implementation of the
- * NVECTOR module.
- *
- * Notes:
- *
- *   - The definition of the generic N_Vector structure can be found
- *     in the header file sundials_nvector.h.
- *
- *   - The definition of the type 'realtype' can be found in the
- *     header file sundials_types.h, and it may be changed (at the
- *     configuration stage) according to the user's needs.
- *     The sundials_types.h file also contains the definition
- *     for the type 'booleantype'.
- *
- *   - N_Vector arguments to arithmetic vector operations need not
- *     be distinct. For example, the following call:
- *
- *       N_VLinearSum_Raja(a,x,b,y,y);
- *
- *     (which stores the result of the operation a*x+b*y in y)
- *     is legal.
  * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_RAJA_H
 #define _NVECTOR_RAJA_H
 
 #include <stdio.h>
+
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_config.h>
+#include <sunmemory/sunmemory_cuda.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -52,41 +32,75 @@ extern "C" {
  */
 
 /* RAJA implementation of the N_Vector 'content' structure
-   contains the length of the vector, a pointer to an array
-   of 'realtype' components, and a flag indicating ownership of
-   the data */
+   contains the length of the vector, pointers to host and device
+   arrays of 'realtype' components, a flag indicating ownership of
+   the data, and a private data pointer  */
 
-struct _N_VectorContent_Raja {};
+struct _N_VectorContent_Raja {
+  sunindextype    length;
+  booleantype     own_helper;
+  SUNMemory       host_data;
+  SUNMemory       device_data;
+  SUNMemoryHelper mem_helper;
+  void*           priv; /* 'private' data */
+};
 
 typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
 
 /*
  * -----------------------------------------------------------------
- * Functions exported by nvector_raja
+ * NVECTOR_RAJA implementation specific functions
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Raja(sunindextype length);
-
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Raja();
-
-SUNDIALS_EXPORT N_Vector N_VMake_Raja(N_VectorContent_Raja c);
-
-SUNDIALS_EXPORT sunindextype N_VGetLength_Raja(N_Vector v);
-
-SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_Raja(N_Vector v);
-
-SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer_Raja(N_Vector v);
-
+SUNDIALS_EXPORT N_Vector N_VNew_Raja(sunindextype length);
+SUNDIALS_EXPORT N_Vector N_VNewManaged_Raja(sunindextype length);
+SUNDIALS_EXPORT N_Vector N_VNewWithMemHelp_Raja(sunindextype length,
+                                                booleantype use_managed_mem,
+                                                SUNMemoryHelper helper);
+SUNDIALS_EXPORT N_Vector N_VMake_Raja(sunindextype length, realtype *h_vdata, realtype *d_vdata);
+SUNDIALS_EXPORT N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata);
+SUNDIALS_EXPORT void N_VSetHostArrayPointer_Raja(realtype* h_vdata, N_Vector v);
+SUNDIALS_EXPORT void N_VSetDeviceArrayPointer_Raja(realtype* d_vdata, N_Vector v);
+SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Raja(N_Vector x);
 SUNDIALS_EXPORT void N_VCopyToDevice_Raja(N_Vector v);
-
 SUNDIALS_EXPORT void N_VCopyFromDevice_Raja(N_Vector v);
 
-SUNDIALS_EXPORT void N_VPrint_Raja(N_Vector v);
+SUNDIALS_STATIC_INLINE
+sunindextype N_VGetLength_Raja(N_Vector x)
+{
+  N_VectorContent_Raja content = (N_VectorContent_Raja)x->content;
+  return content->length;
+}
 
-SUNDIALS_EXPORT void N_VPrintFile_Raja(N_Vector v, FILE *outfile);
+SUNDIALS_STATIC_INLINE
+realtype *N_VGetHostArrayPointer_Raja(N_Vector x)
+{
+  N_VectorContent_Raja content = (N_VectorContent_Raja)x->content;
+  return(content->host_data == NULL ? NULL : (realtype*)content->host_data->ptr);
+}
 
-SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Raja(N_Vector v);
+SUNDIALS_STATIC_INLINE
+realtype *N_VGetDeviceArrayPointer_Raja(N_Vector x)
+{
+  N_VectorContent_Raja content = (N_VectorContent_Raja)x->content;
+  return(content->host_data == NULL ? NULL : (realtype*)content->device_data->ptr);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * NVECTOR API functions
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_STATIC_INLINE
+N_Vector_ID N_VGetVectorID_Raja(N_Vector v)
+{
+  return SUNDIALS_NVEC_RAJA;
+}
+
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Raja(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Raja(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Raja(N_Vector v);
@@ -141,6 +155,15 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum,
 /* OPTIONAL local reduction kernels (no parallel communication) */
 SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Raja(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Raja(N_Vector x, N_Vector w, N_Vector id);
+
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize_Raja(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack_Raja(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack_Raja(N_Vector x, void *buf);
+
+/* OPTIONAL operations for debugging */
+SUNDIALS_EXPORT void N_VPrint_Raja(N_Vector v);
+SUNDIALS_EXPORT void N_VPrintFile_Raja(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

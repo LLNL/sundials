@@ -139,6 +139,7 @@ SUNDIALS_EXPORT int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef);
 SUNDIALS_EXPORT int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor);
 SUNDIALS_EXPORT int CVodeSetMaxConvFails(void *cvode_mem, int maxncf);
 SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
+SUNDIALS_EXPORT int CVodeSetLSetupFrequency(void *cvode_mem, long int msbp);
 SUNDIALS_EXPORT int CVodeSetConstraints(void *cvode_mem, N_Vector constraints);
 SUNDIALS_EXPORT int CVodeSetNonlinearSolver(void *cvode_mem,
                                             SUNNonlinearSolver NLS);
@@ -154,6 +155,9 @@ SUNDIALS_EXPORT int CVodeSetNoInactiveRootWarn(void *cvode_mem);
 /* Solver function */
 SUNDIALS_EXPORT int CVode(void *cvode_mem, realtype tout, N_Vector yout,
                           realtype *tret, int itask);
+
+/* Utility functions to update/compute y based on ycor */
+SUNDIALS_EXPORT int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y);
 
 /* Dense output function */
 SUNDIALS_EXPORT int CVodeGetDky(void *cvode_mem, realtype t, int k,
@@ -190,6 +194,11 @@ SUNDIALS_EXPORT int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps,
                                             int *qlast, int *qcur,
                                             realtype *hinused, realtype *hlast,
                                             realtype *hcur, realtype *tcur);
+SUNDIALS_EXPORT int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
+                                                N_Vector *ypred, N_Vector *yn,
+                                                N_Vector *fn, realtype *gamma,
+                                                realtype *rl1, N_Vector *zn1,
+                                                void **user_data);
 SUNDIALS_EXPORT int CVodeGetNumNonlinSolvIters(void *cvode_mem,
                                                long int *nniters);
 SUNDIALS_EXPORT int CVodeGetNumNonlinSolvConvFails(void *cvode_mem,

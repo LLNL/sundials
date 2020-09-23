@@ -129,6 +129,7 @@ module fida_mod
  public :: FIDAGetNumGEvals
  public :: FIDAGetRootInfo
  public :: FIDAGetIntegratorStats
+ public :: FIDAGetNonlinearSystemData
  public :: FIDAGetNumNonlinSolvIters
  public :: FIDAGetNumNonlinSolvConvFails
  public :: FIDAGetNonlinSolvStats
@@ -158,6 +159,7 @@ module fida_mod
  public :: FIDASetPreconditioner
  public :: FIDASetJacTimes
  public :: FIDASetEpsLin
+ public :: FIDASetLSNormFactor
  public :: FIDASetLinearSolutionScaling
  public :: FIDASetIncrementFactor
  public :: FIDAGetLinWorkSpace
@@ -731,6 +733,22 @@ type(C_PTR), value :: farg11
 integer(C_INT) :: fresult
 end function
 
+function swigc_FIDAGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9) &
+bind(C, name="_wrap_FIDAGetNonlinearSystemData") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
+type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
+type(C_PTR), value :: farg8
+type(C_PTR), value :: farg9
+integer(C_INT) :: fresult
+end function
+
 function swigc_FIDAGetNumNonlinSolvIters(farg1, farg2) &
 bind(C, name="_wrap_FIDAGetNumNonlinSolvIters") &
 result(fresult)
@@ -875,6 +893,15 @@ end function
 
 function swigc_FIDASetEpsLin(farg1, farg2) &
 bind(C, name="_wrap_FIDASetEpsLin") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FIDASetLSNormFactor(farg1, farg2) &
+bind(C, name="_wrap_FIDASetLSNormFactor") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2027,6 +2054,43 @@ fresult = swigc_FIDAGetIntegratorStats(farg1, farg2, farg3, farg4, farg5, farg6,
 swig_result = fresult
 end function
 
+function FIDAGetNonlinearSystemData(ida_mem, tcur, yypred, yppred, yyn, ypn, res, cj, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tcur
+type(C_PTR) :: yypred
+type(C_PTR) :: yppred
+type(C_PTR) :: yyn
+type(C_PTR) :: ypn
+type(C_PTR) :: res
+real(C_DOUBLE), dimension(*), target, intent(inout) :: cj
+type(C_PTR), target, intent(inout) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
+type(C_PTR) :: farg9 
+
+farg1 = ida_mem
+farg2 = c_loc(tcur(1))
+farg3 = yypred
+farg4 = yppred
+farg5 = yyn
+farg6 = ypn
+farg7 = res
+farg8 = c_loc(cj(1))
+farg9 = c_loc(user_data)
+fresult = swigc_FIDAGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9)
+swig_result = fresult
+end function
+
 function FIDAGetNumNonlinSolvIters(ida_mem, nniters) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2311,6 +2375,22 @@ real(C_DOUBLE) :: farg2
 farg1 = ida_mem
 farg2 = eplifac
 fresult = swigc_FIDASetEpsLin(farg1, farg2)
+swig_result = fresult
+end function
+
+function FIDASetLSNormFactor(ida_mem, nrmfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: ida_mem
+real(C_DOUBLE), intent(in) :: nrmfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = ida_mem
+farg2 = nrmfac
+fresult = swigc_FIDASetLSNormFactor(farg1, farg2)
 swig_result = fresult
 end function
 

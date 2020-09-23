@@ -93,7 +93,7 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->hadapt_mem->etacf       = ETACF;          /* max change on convergence failure */
   ark_mem->hadapt_mem->HAdapt      = NULL;           /* step adaptivity fn */
   ark_mem->hadapt_mem->HAdapt_data = NULL;           /* step adaptivity data */
-  ark_mem->hadapt_mem->imethod     = 0;              /* PID controller */
+  ark_mem->hadapt_mem->imethod     = ARK_ADAPT_PID;  /* PID controller */
   ark_mem->hadapt_mem->cfl         = CFLFAC;         /* explicit stability factor */
   ark_mem->hadapt_mem->safety      = SAFETY;         /* step adaptivity safety factor  */
   ark_mem->hadapt_mem->bias        = BIAS;           /* step adaptivity error bias */
@@ -400,6 +400,15 @@ int arkSetInitStep(void *arkode_mem, realtype hin)
   } else {
     ark_mem->hin = hin;
   }
+
+  /* Clear previous initial step */
+  ark_mem->h0u = ZERO;
+
+  /* Clear error and step size history */
+  ark_mem->hadapt_mem->ehist[0] = ONE;
+  ark_mem->hadapt_mem->ehist[1] = ONE;
+  ark_mem->hadapt_mem->hhist[0] = ZERO;
+  ark_mem->hadapt_mem->hhist[1] = ZERO;
 
   return(ARK_SUCCESS);
 }
@@ -960,7 +969,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* check for allowable parameters */
-  if ((imethod > 5) || (imethod < 0)) {
+  if ((imethod > ARK_ADAPT_IMEX_GUS) || (imethod < ARK_ADAPT_PID)) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                     "arkSetAdaptivityMethod", "Illegal imethod");
     return(ARK_ILL_INPUT);
@@ -969,28 +978,28 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
   /* set adaptivity method */
   hadapt_mem->imethod = imethod;
 
-  /* set flag whether to use p or q */
+  /* set flag whether to use p (embedding, 0) or q (method, 1) order */
   hadapt_mem->pq = (pq != 0);
 
   /* set method parameters */
   if (idefault == 1) {
     switch (hadapt_mem->imethod) {
-    case (0):
+    case (ARK_ADAPT_PID):
       hadapt_mem->k1 = AD0_K1;
       hadapt_mem->k2 = AD0_K2;
       hadapt_mem->k3 = AD0_K3; break;
-    case (1):
+    case (ARK_ADAPT_PI):
       hadapt_mem->k1 = AD1_K1;
       hadapt_mem->k2 = AD1_K2; break;
-    case (2):
+    case (ARK_ADAPT_I):
       hadapt_mem->k1 = AD2_K1; break;
-    case (3):
+    case (ARK_ADAPT_EXP_GUS):
       hadapt_mem->k1 = AD3_K1;
       hadapt_mem->k2 = AD3_K2; break;
-    case (4):
+    case (ARK_ADAPT_IMP_GUS):
       hadapt_mem->k1 = AD4_K1;
       hadapt_mem->k2 = AD4_K2; break;
-    case (5):
+    case (ARK_ADAPT_IMEX_GUS):
       hadapt_mem->k1 = AD5_K1;
       hadapt_mem->k2 = AD5_K2;
       hadapt_mem->k3 = AD5_K3; break;
@@ -1023,11 +1032,11 @@ int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data)
   if (hfun == NULL) {
     hadapt_mem->HAdapt      = NULL;
     hadapt_mem->HAdapt_data = NULL;
-    hadapt_mem->imethod     = 0;
+    hadapt_mem->imethod     = ARK_ADAPT_PID;
   } else {
     hadapt_mem->HAdapt      = hfun;
     hadapt_mem->HAdapt_data = h_data;
-    hadapt_mem->imethod     = -1;
+    hadapt_mem->imethod     = ARK_ADAPT_CUSTOM;
   }
 
   return(ARK_SUCCESS);
@@ -1333,9 +1342,10 @@ int arkGetCurrentStep(void *arkode_mem, realtype *hcur)
 /*---------------------------------------------------------------
   arkGetCurrentState:
 
-  Returns the current solution
+  Returns the current solution (before or after as step) or
+  stage value (during step solve).
   ---------------------------------------------------------------*/
-int arkGetCurrentState(void *arkode_mem, N_Vector *ycur)
+int arkGetCurrentState(void *arkode_mem, N_Vector *state)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -1345,7 +1355,7 @@ int arkGetCurrentState(void *arkode_mem, N_Vector *ycur)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  *ycur = ark_mem->ycur;
+  *state = ark_mem->ycur;
   return(ARK_SUCCESS);
 }
 
@@ -1818,6 +1828,54 @@ int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
 
   fprintf(fp, "  Maximum number of error test failures = %i\n",ark_mem->maxnef);
   fprintf(fp, "  Maximum number of convergence test failures = %i\n",ark_mem->maxncf);
+
+  return(ARK_SUCCESS);
+}
+
+
+/*===============================================================
+  ARKODE + XBraid interface utility functions
+  ===============================================================*/
+
+
+/*---------------------------------------------------------------
+  arkSetForcePass:
+
+  Ignore the value of kflag after the temporal error test and
+  force the step to pass.
+  ---------------------------------------------------------------*/
+int arkSetForcePass(void *arkode_mem, booleantype force_pass)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkSetForcePass", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  ark_mem->force_pass = force_pass;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkGetLastKFlag:
+
+  The last kflag value retured by the temporal error test.
+  ---------------------------------------------------------------*/
+int arkGetLastKFlag(void *arkode_mem, int *last_kflag)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkGetLastKFlag", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  *last_kflag = ark_mem->last_kflag;
 
   return(ARK_SUCCESS);
 }

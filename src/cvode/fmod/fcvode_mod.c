@@ -570,6 +570,20 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinConvCoef(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FCVodeSetLSetupFrequency(void *farg1, long const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long)(*farg2);
+  result = (int)CVodeSetLSetupFrequency(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeSetConstraints(void *farg1, N_Vector farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -669,6 +683,22 @@ SWIGEXPORT int _wrap_FCVode(void *farg1, double const *farg2, N_Vector farg3, do
   arg4 = (realtype *)(farg4);
   arg5 = (int)(*farg5);
   result = (int)CVode(arg1,arg2,arg3,arg4,arg5);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeComputeState(void *farg1, N_Vector farg2, N_Vector farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (N_Vector)(farg3);
+  result = (int)CVodeComputeState(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }
@@ -992,6 +1022,34 @@ SWIGEXPORT int _wrap_FCVodeGetIntegratorStats(void *farg1, long *farg2, long *fa
 }
 
 
+SWIGEXPORT int _wrap_FCVodeGetNonlinearSystemData(void *farg1, double *farg2, void *farg3, void *farg4, void *farg5, double *farg6, double *farg7, void *farg8, void *farg9) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype *arg2 = (realtype *) 0 ;
+  N_Vector *arg3 = (N_Vector *) 0 ;
+  N_Vector *arg4 = (N_Vector *) 0 ;
+  N_Vector *arg5 = (N_Vector *) 0 ;
+  realtype *arg6 = (realtype *) 0 ;
+  realtype *arg7 = (realtype *) 0 ;
+  N_Vector *arg8 = (N_Vector *) 0 ;
+  void **arg9 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype *)(farg2);
+  arg3 = (N_Vector *)(farg3);
+  arg4 = (N_Vector *)(farg4);
+  arg5 = (N_Vector *)(farg5);
+  arg6 = (realtype *)(farg6);
+  arg7 = (realtype *)(farg7);
+  arg8 = (N_Vector *)(farg8);
+  arg9 = (void **)(farg9);
+  result = (int)CVodeGetNonlinearSystemData(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeGetNumNonlinSolvIters(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1294,7 +1352,7 @@ SWIGEXPORT int _wrap_FCVodeSetJacFn(void *farg1, CVLsJacFn farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FCVodeSetMaxStepsBetweenJac(void *farg1, long const *farg2) {
+SWIGEXPORT int _wrap_FCVodeSetJacEvalFrequency(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   long arg2 ;
@@ -1302,7 +1360,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxStepsBetweenJac(void *farg1, long const *farg2)
   
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
-  result = (int)CVodeSetMaxStepsBetweenJac(arg1,arg2);
+  result = (int)CVodeSetJacEvalFrequency(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1331,6 +1389,20 @@ SWIGEXPORT int _wrap_FCVodeSetEpsLin(void *farg1, double const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)CVodeSetEpsLin(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetLSNormFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  result = (int)CVodeSetLSNormFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1561,6 +1633,20 @@ SWIGEXPORT SwigArrayWrapper _wrap_FCVodeGetLinReturnFlagName(long const *farg1) 
   result = (char *)CVodeGetLinReturnFlagName(arg1);
   fresult.size = strlen((const char*)(result));
   fresult.data = (char *)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeSetMaxStepsBetweenJac(void *farg1, long const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long)(*farg2);
+  result = (int)CVodeSetMaxStepsBetweenJac(arg1,arg2);
+  fresult = (int)(result);
   return fresult;
 }
 

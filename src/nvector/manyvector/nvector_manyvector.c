@@ -136,6 +136,11 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_MPIManyVector;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_MPIManyVector;
 
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_MPIManyVector;
+  v->ops->nvbufpack   = N_VBufPack_MPIManyVector;
+  v->ops->nvbufunpack = N_VBufUnpack_MPIManyVector;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_MPIManyVector) malloc(sizeof *content);
@@ -315,6 +320,11 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
   v->ops->nvminquotientlocal = N_VMinQuotientLocal_ManyVector;
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ManyVector;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ManyVector;
+
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_ManyVector;
+  v->ops->nvbufpack   = N_VBufPack_ManyVector;
+  v->ops->nvbufunpack = N_VBufUnpack_ManyVector;
 
   /* Create content */
   content = NULL;
@@ -1549,6 +1559,96 @@ int MVAPPEND(N_VWrmsNormMaskVectorArray)(int nvec, N_Vector* X, N_Vector* W,
     nrm[i] = SUNRsqrt(nrm[i]/(MANYVECTOR_GLOBLENGTH(X[i])));
 
   return(retval);
+}
+
+
+/* Performs the BufSize operation by calling N_VBufSize for each subvector and
+   combining results */
+int MVAPPEND(N_VBufSize)(N_Vector x, sunindextype* size)
+{
+  int          flag;        /* operation return flag */
+  sunindextype subvec_size; /* subvector buffer size */
+  sunindextype i;
+
+  if (x == NULL) return(-1);
+
+  /* initialize total size */
+  *size = 0;
+
+  for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
+    /* get buffer sized needed for this subvector */
+    flag = N_VBufSize(MANYVECTOR_SUBVEC(x,i), &subvec_size);
+    if (flag != 0) return(-1);
+
+    /* update total buffer size */
+    *size += subvec_size;
+  }
+
+  return(0);
+}
+
+
+/* Performs the BufPack operation by calling N_VBufPack for each subvector where
+   the output buffer is offset by the buffer size used by the the previous
+   subvector in the set */
+int MVAPPEND(N_VBufPack)(N_Vector x, void *buf)
+{
+  int          flag;   /* operation return flag     */
+  void         *loc;   /* location in output buffer */
+  sunindextype offset; /* subvector buffer offset   */
+  sunindextype i;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  /* start at the beginning of the output buffer */
+  loc = buf;
+
+  for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
+    /* pack the output buffer starting at the given buffer location */
+    flag = N_VBufPack(MANYVECTOR_SUBVEC(x,i), loc);
+    if (flag != 0) return(-1);
+
+    /* get the offset from this subvector */
+    flag = N_VBufSize(MANYVECTOR_SUBVEC(x,i), &offset);
+    if (flag != 0) return(-1);
+
+    /* update the buffer location for the next vector */
+    loc = (char*) buf + offset;
+  }
+
+  return(0);
+}
+
+
+/* Performs the BufUnpack operation by calling N_VBufUnpack for each subvector
+   where the input buffer is offset by the buffer size used by the the previous
+   subvector in the set */
+int MVAPPEND(N_VBufUnpack)(N_Vector x, void *buf)
+{
+  int          flag;   /* operation return flag     */
+  void         *loc;   /* location in input buffer */
+  sunindextype offset; /* subvector buffer offset   */
+  sunindextype i;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  /* start at the beginning of the input buffer */
+  loc = buf;
+
+  for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
+    /* unpack the input buffer starting at the given buffer location */
+    flag = N_VBufUnpack(MANYVECTOR_SUBVEC(x,i), loc);
+    if (flag != 0) return(-1);
+
+    /* get the offset from this subvector */
+    flag = N_VBufSize(MANYVECTOR_SUBVEC(x,i), &offset);
+    if (flag != 0) return(-1);
+
+    /* update the buffer location for the next vector */
+    loc = (char*) buf + offset;
+  }
+
+  return(0);
 }
 
 

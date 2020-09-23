@@ -60,6 +60,16 @@
 #define SQR(A) ((A)*(A))
 #endif
 
+#ifndef SQRT
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SQRT(x) (sqrt((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SQRT(x) (sqrtf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SQRT(x) (sqrtl((x)))
+#endif
+#endif
+
 /* Problem Constants */
 
 #define ZERO RCONST(0.0)
@@ -186,17 +196,21 @@ int main(int argc, char* argv[])
   void *cvode_mem;
   int linsolver, iout, retval;
   FILE* infofp;
-  int monitor;
+  int nrmfactor;   /* LS norm conversion factor flag */
+  realtype nrmfac; /* LS norm conversion factor      */
+  int monitor;     /* LS resiudal monitoring flag    */
 
-  u = NULL;
-  data = NULL;
-  LS = NULL;
+  u         = NULL;
+  data      = NULL;
+  LS        = NULL;
   cvode_mem = NULL;
-  monitor = 0;
+  infofp    = NULL;
+  nrmfactor = 0;
+  monitor   = 0;
 
-  if (argc == 2) {
-    monitor = atoi(argv[1]);
-  }
+  /* Retrieve the command-line options */
+  if (argc > 1) nrmfactor = atoi(argv[1]);
+  if (argc > 2) monitor   = atoi(argv[2]);
 
   /* Open info file if monitoring is turned on */
   if (monitor) {
@@ -401,6 +415,26 @@ int main(int argc, char* argv[])
        and the pointer to the user-defined block data */
     retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
     if (check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
+
+    /* Set the linear solver tolerance conversion factor */
+    switch(nrmfactor) {
+
+    case(0):
+      /* use the default */
+      nrmfac = ZERO;
+      break;
+    case(1):
+      /* use the square root of the vector length */
+      nrmfac = SQRT((realtype)NEQ);
+      break;
+    case(2):
+      /* compute with dot product */
+      nrmfac = -ONE;
+      break;
+    }
+
+    retval = CVodeSetLSNormFactor(cvode_mem, nrmfac);
+    if (check_retval(&retval, "CVodeSetLSNormFactor", 1)) return(1);
 
     /* In loop over output points, call CVode, print results, and test for error */
     printf(" \n2-species diurnal advection-diffusion problem\n\n");

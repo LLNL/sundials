@@ -212,6 +212,10 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   /* assume the Jacobian is good */
   jbad = SUNFALSE;
 
+  /* initialize iteration and convergence fail counters for this solve */
+  NEWTON_CONTENT(NLS)->niters     = 0;
+  NEWTON_CONTENT(NLS)->nconvfails = 0;
+
   /* looping point for attempts at solution of the nonlinear system:
        Evaluate the nonlinear residual function (store in delta)
        Setup the linear solver if necessary
@@ -230,7 +234,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       if (retval != SUN_NLS_SUCCESS) break;
     }
 
-    /* initialize counter curiter */
+    /* initialize current iteration counter for this solve attempt */
     NEWTON_CONTENT(NLS)->curiter = 0;
 
 #ifdef SUNDIALS_BUILD_WITH_MONITORING
@@ -443,7 +447,7 @@ int SUNNonlinSolGetNumIters_Newton(SUNNonlinearSolver NLS, long int *niters)
   if (NLS == NULL)
     return(SUN_NLS_MEM_NULL);
 
-  /* return the total number of nonlinear iterations */
+  /* return the number of nonlinear iterations in the last solve */
   *niters = NEWTON_CONTENT(NLS)->niters;
   return(SUN_NLS_SUCCESS);
 }

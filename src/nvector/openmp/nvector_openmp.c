@@ -129,6 +129,11 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_OpenMP;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_OpenMP;
 
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_OpenMP;
+  v->ops->nvbufpack   = N_VBufPack_OpenMP;
+  v->ops->nvbufunpack = N_VBufUnpack_OpenMP;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMP) malloc(sizeof *content);
@@ -1899,6 +1904,61 @@ int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
       }
     }
   }
+  return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * OPTIONAL XBraid interface operations
+ * -----------------------------------------------------------------
+ */
+
+
+int N_VBufSize_OpenMP(N_Vector x, sunindextype *size)
+{
+  if (x == NULL) return(-1);
+  *size = NV_LENGTH_OMP(x) * ((sunindextype)sizeof(realtype));
+  return(0);
+}
+
+
+int N_VBufPack_OpenMP(N_Vector x, void *buf)
+{
+  sunindextype i, N;
+  realtype     *xd = NULL;
+  realtype     *bd = NULL;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  N  = NV_LENGTH_OMP(x);
+  xd = NV_DATA_OMP(x);
+  bd = (realtype*) buf;
+
+#pragma omp for schedule(static)
+  for (i = 0; i < N; i++)
+    bd[i] = xd[i];
+
+  return(0);
+}
+
+
+int N_VBufUnpack_OpenMP(N_Vector x, void *buf)
+{
+  sunindextype i, N;
+  realtype     *xd = NULL;
+  realtype     *bd = NULL;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  N  = NV_LENGTH_OMP(x);
+  xd = NV_DATA_OMP(x);
+  bd = (realtype*) buf;
+
+#pragma omp for schedule(static)
+  for (i = 0; i < N; i++)
+    xd[i] = bd[i];
+
   return(0);
 }
 

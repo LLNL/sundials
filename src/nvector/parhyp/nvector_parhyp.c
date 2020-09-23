@@ -201,6 +201,11 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ParHyp;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ParHyp;
 
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_ParHyp;
+  v->ops->nvbufpack   = N_VBufPack_ParHyp;
+  v->ops->nvbufunpack = N_VBufUnpack_ParHyp;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_ParHyp) malloc(sizeof *content);
@@ -1594,6 +1599,59 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
       }
     }
   }
+  return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * OPTIONAL XBraid interface operations
+ * -----------------------------------------------------------------
+ */
+
+
+int N_VBufSize_ParHyp(N_Vector x, sunindextype *size)
+{
+  if (x == NULL) return(-1);
+  *size = NV_LOCLENGTH_PH(x) * ((sunindextype)sizeof(realtype));
+  return(0);
+}
+
+
+int N_VBufPack_ParHyp(N_Vector x, void *buf)
+{
+  sunindextype i, N;
+  realtype     *xd = NULL;
+  realtype     *bd = NULL;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  N  = NV_LOCLENGTH_PH(x);
+  xd = NV_DATA_PH(x);
+  bd = (realtype*) buf;
+
+  for (i = 0; i < N; i++)
+    bd[i] = xd[i];
+
+  return(0);
+}
+
+
+int N_VBufUnpack_ParHyp(N_Vector x, void *buf)
+{
+  sunindextype i, N;
+  realtype     *xd = NULL;
+  realtype     *bd = NULL;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  N  = NV_LOCLENGTH_PH(x);
+  xd = NV_DATA_PH(x);
+  bd = (realtype*) buf;
+
+  for (i = 0; i < N; i++)
+    xd[i] = bd[i];
+
   return(0);
 }
 

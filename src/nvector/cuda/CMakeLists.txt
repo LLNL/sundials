@@ -17,18 +17,22 @@
 install(CODE "MESSAGE(\"\nInstall NVECTOR_CUDA\n\")")
 
 # Add variable nveccuda_SOURCES with the sources for the NVECUDA lib
-set(nveccuda_SOURCES nvector_cuda.cu VectorKernels.cuh VectorArrayKernels.cuh)
+set(nveccuda_SOURCES nvector_cuda.cu)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECCUDA library
 set(shared_SOURCES
-  sundials_nvector.c
-  sundials_math.c
+  ${PROJECT_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${PROJECT_SOURCE_DIR}/src/sundials/sundials_math.c
+  ${PROJECT_SOURCE_DIR}/src/sundials/sundials_memory.c
+  ${PROJECT_SOURCE_DIR}/src/sunmemory/cuda/sundials_cuda_memory.cu
 )
-add_prefix(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
 # Add variable nveccuda_HEADERS with the exported NVECUDA header files
-set(nveccuda_HEADERS ${sundials_SOURCE_DIR}/include/nvector/nvector_cuda.h)
+set(nveccuda_HEADERS
+  ${PROJECT_SOURCE_DIR}/include/nvector/nvector_cuda.h
+  ${PROJECT_SOURCE_DIR}/include/sunmemory/sunmemory_cuda.h
+  )
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 add_definitions(-DBUILD_SUNDIALS_LIBRARY)
@@ -40,7 +44,7 @@ add_definitions(-DBUILD_SUNDIALS_LIBRARY)
 if(BUILD_STATIC_LIBS)
   add_library(sundials_nveccuda_static STATIC ${nveccuda_SOURCES} ${shared_SOURCES})
   target_compile_features(sundials_nveccuda_static PUBLIC cxx_std_11)
-  target_include_directories(sundials_nveccuda_static PRIVATE . ${sundials_SOURCE_DIR}/src/sundials)
+  target_include_directories(sundials_nveccuda_static PRIVATE . ${PROJECT_SOURCE_DIR}/src/sundials)
   set_target_properties(sundials_nveccuda_static PROPERTIES
                         OUTPUT_NAME sundials_nveccuda
                         CLEAN_DIRECT_OUTPUT 1)
@@ -55,7 +59,7 @@ endif(BUILD_STATIC_LIBS)
 if(BUILD_SHARED_LIBS)
   add_library(sundials_nveccuda_shared SHARED ${nveccuda_SOURCES} ${shared_SOURCES})
   target_compile_features(sundials_nveccuda_shared PUBLIC cxx_std_11)
-  target_include_directories(sundials_nveccuda_shared PRIVATE . ${sundials_SOURCE_DIR}/src/sundials)
+  target_include_directories(sundials_nveccuda_shared PRIVATE . ${PROJECT_SOURCE_DIR}/src/sundials)
   set_target_properties(sundials_nveccuda_shared PROPERTIES
                         OUTPUT_NAME sundials_nveccuda
                         CLEAN_DIRECT_OUTPUT 1
@@ -66,5 +70,6 @@ endif(BUILD_SHARED_LIBS)
 
 # Install the CUDA NVector header files
 install(FILES ${nveccuda_HEADERS} DESTINATION include/nvector)
+install(FILES ${PROJECT_SOURCE_DIR}/include/sunmemory/sunmemory_cuda.h DESTINATION include/sunmemory)
 
 message(STATUS "Added NVECTOR_CUDA module")

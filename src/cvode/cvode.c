@@ -134,7 +134,6 @@
  * cvNls
  *
  *    DGMAX       |gamma/gammap-1| > DGMAX => call lsetup
- *    MSBP        max no. of steps between lsetup calls
  *
  */
 
@@ -169,7 +168,7 @@
 #define LONG_WAIT    10
 
 #define DGMAX  RCONST(0.3)
-#define MSBP   20
+
 
 /*=================================================================*/
 /* Private Helper Functions Prototypes                             */
@@ -360,6 +359,7 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_maxnef           = MXNEF;
   cv_mem->cv_maxncf           = MXNCF;
   cv_mem->cv_nlscoef          = CORTES;
+  cv_mem->cv_msbp             = MSBP;
   cv_mem->convfail            = CV_NO_FAILURES;
   cv_mem->cv_constraints      = NULL;
   cv_mem->cv_constraintsSet   = SUNFALSE;
@@ -1520,6 +1520,29 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   if (k == 0) return(CV_SUCCESS);
   r = SUNRpowerI(cv_mem->cv_h, -k);
   N_VScale(r, dky, dky);
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeComputeState
+ *
+ * Computes y based on the current prediction and given correction.
+ */
+
+int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeComputeState",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, y);
+
   return(CV_SUCCESS);
 }
 
@@ -2702,6 +2725,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 {
   int flag = CV_SUCCESS;
   booleantype callSetup;
+  long int nni_inc;
 
   /* Decide whether or not to call setup routine (if one exists) and */
   /* set flag convfail (input to lsetup for its evaluation decision) */
@@ -2711,7 +2735,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
       (cv_mem->cv_nst == 0) ||
-      (cv_mem->cv_nst >= cv_mem->cv_nstlp + MSBP) ||
+      (cv_mem->cv_nst >= cv_mem->cv_nstlp + cv_mem->cv_msbp) ||
       (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
   } else {
     cv_mem->cv_crate = ONE;
@@ -2731,6 +2755,11 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   /* solve the nonlinear system */
   flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                            cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
+
+  /* increment counter */
+  nni_inc = 0;
+  (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &(nni_inc));
+  cv_mem->cv_nni += nni_inc;
 
   /* if the solve failed return */
   if (flag != CV_SUCCESS) return(flag);

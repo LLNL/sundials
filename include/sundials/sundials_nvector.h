@@ -149,6 +149,11 @@ struct _generic_N_Vector_Ops {
   realtype (*nvwsqrsumlocal)(N_Vector, N_Vector);
   realtype (*nvwsqrsummasklocal)(N_Vector, N_Vector, N_Vector);
 
+  /* OPTIONAL XBraid interface operations */
+  int (*nvbufsize)(N_Vector, sunindextype*);
+  int (*nvbufpack)(N_Vector, void*);
+  int (*nvbufunpack)(N_Vector, void*);
+
   /* debugging functions (called when SUNDIALS_DEBUG_PRINTVEC is defined) */
   void (*nvprint)(N_Vector);
   void (*nvprintfile)(N_Vector, FILE*);
@@ -250,6 +255,10 @@ SUNDIALS_EXPORT booleantype N_VInvTestLocal(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom);
 
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack(N_Vector x, void *buf);
 
 /* -----------------------------------------------------------------
  * Additional functions exported by NVECTOR module

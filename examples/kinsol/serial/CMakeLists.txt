@@ -28,6 +28,7 @@ set(KINSOL_examples
   "kinKrylovDemo_ls\;\;develop"
   "kinLaplace_bnd\;\;develop"
   "kinLaplace_picard_bnd\;\;develop"
+  "kinLaplace_picard_kry\;\;develop"
   "kinRoberts_fp\;\;develop"
   "kinRoboKin_dns\;\;develop"
   )

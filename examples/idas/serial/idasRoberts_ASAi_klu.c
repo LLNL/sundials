@@ -1,4 +1,4 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Ting Yan @ SMU
  *      Based on idasRoberts_ASAi_dns.c and modified to use KLU
  * -----------------------------------------------------------------
@@ -14,8 +14,8 @@
  * -----------------------------------------------------------------
  * Adjoint sensitivity example problem.
  *
- * This simple example problem for IDAS, due to Robertson, 
- * is from chemical kinetics, and consists of the following three 
+ * This simple example problem for IDAS, due to Robertson,
+ * is from chemical kinetics, and consists of the following three
  * equations:
  *
  *      dy1/dt + p1*y1 - p2*y2*y3            = 0
@@ -36,7 +36,7 @@
  *   g(t,p,y) = y3
  *
  * The gradient dG/dp is obtained as:
- *   dG/dp = int_t0^t1 (g_p - lambda^T F_p ) dt - 
+ *   dG/dp = int_t0^t1 (g_p - lambda^T F_p ) dt -
  *           lambda^T*F_y'*y_p | _t0^t1
  *         = int_t0^t1 (lambda^T*F_p) dt
  * where lambda and are solutions of the adjoint system:
@@ -100,31 +100,31 @@ typedef struct {
 
 /* Prototypes of user-supplied functions */
 
-static int res(realtype t, N_Vector yy, N_Vector yp, 
+static int res(realtype t, N_Vector yy, N_Vector yp,
                N_Vector resval, void *user_data);
-static int Jac(realtype t, realtype cj, 
-               N_Vector yy, N_Vector yp, N_Vector resvec, 
-               SUNMatrix JJ, void *user_data, 
+static int Jac(realtype t, realtype cj,
+               N_Vector yy, N_Vector yp, N_Vector resvec,
+               SUNMatrix JJ, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
 static int ewt(N_Vector y, N_Vector w, void *user_data);
 
-static int resB(realtype tt, 
+static int resB(realtype tt,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 void *user_dataB);
 
 static int JacB(realtype tt, realtype cjB,
                 N_Vector yy, N_Vector yp,
-                N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+                N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 SUNMatrix JB, void *user_data,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 
-static int rhsQB(realtype tt, 
-                 N_Vector yy, N_Vector yp, 
-                 N_Vector yyB, N_Vector ypB, 
+static int rhsQB(realtype tt,
+                 N_Vector yy, N_Vector yp,
+                 N_Vector yyB, N_Vector ypB,
                  N_Vector rrQB, void *user_dataB);
 
 /* Prototypes of private functions */
@@ -241,7 +241,8 @@ int main(int argc, char *argv[])
   /* Set the user-supplied Jacobian routine */
   retval = IDASetJacFn(ida_mem, Jac);
   if(check_retval(&retval, "IDASetJacFn", 1)) return(1);
-  
+
+  /* Setup quadrature integration */
   retval = IDAQuadInit(ida_mem, rhsQ, q);
   if (check_retval(&retval, "IDAQuadInit", 1)) return(1);
 
@@ -250,6 +251,12 @@ int main(int argc, char *argv[])
 
   retval = IDASetQuadErrCon(ida_mem, SUNTRUE);
   if (check_retval(&retval, "IDASetQuadErrCon", 1)) return(1);
+
+  /* Call IDASetMaxNumSteps to set the maximum number of steps the
+   * solver will take in an attempt to reach the next output time
+   * during forward integration. */
+  retval = IDASetMaxNumSteps(ida_mem, 2500);
+  if (check_retval(&retval, "IDASetMaxNumSteps", 1)) return(1);
 
   /* Allocate global memory */
 
@@ -270,7 +277,7 @@ int main(int argc, char *argv[])
   /* Save the states at t=TB1. */
   N_VScale(ONE, yy, yyTB1);
   N_VScale(ONE, yp, ypTB1);
-  
+
   /* Continue integrating till TOUT is reached. */
   retval = IDASolveF(ida_mem, TOUT, &time, yy, yp, IDA_NORMAL, &ncheck);
   if (check_retval(&retval, "IDASolveF", 1)) return(1);
@@ -293,13 +300,13 @@ int main(int argc, char *argv[])
 #endif
   printf("--------------------------------------------------------\n\n");
 
-  /* Test check point linked list 
+  /* Test check point linked list
      (uncomment next block to print check point information) */
-  
-  /*  
+
+  /*
   {
     int i;
-    
+
     printf("\nList of Check Points (ncheck = %d)\n\n", ncheck);
     ckpnt = (IDAadjCheckPointRec *) malloc ( (ncheck+1)*sizeof(IDAadjCheckPointRec));
     IDAGetAdjCheckPointsInfo(ida_mem, ckpnt);
@@ -312,7 +319,7 @@ int main(int argc, char *argv[])
       printf("Step size:     %le\n",ckpnt[i].step);
       printf("\n");
     }
-    
+
   }
   */
 
@@ -328,7 +335,7 @@ int main(int argc, char *argv[])
   Ith(yB,2) = ZERO;
   Ith(yB,3) = ONE;
 
-    
+
   /* Allocate ypB (i.e. lambda'_0). */
   ypB = N_VNew_Serial(NEQ);
   if (check_retval((void *)ypB, "N_VNew_Serial", 0)) return(1);
@@ -338,9 +345,9 @@ int main(int argc, char *argv[])
   Ith(ypB,2) = ONE;
   Ith(ypB,3) = ZERO;
 
-  
+
   /* Set the scalar relative tolerance reltolB */
-  reltolB = RTOL;               
+  reltolB = RTOL;
 
   /* Set the scalar absolute tolerance abstolB */
   abstolB = ATOLA;
@@ -364,6 +371,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "IDASetUserDataB", 1)) return(1);
 
   retval = IDASetMaxNumStepsB(ida_mem, indexB, 1000);
+  if (check_retval(&retval, "IDASetMaxNumStepsB", 1)) return(1);
 
   /* Create sparse SUNMatrix for use in linear solves */
   AB = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
@@ -382,7 +390,7 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "IDASetJacFnB", 1)) return(1);
 
   /* Quadrature for backward problem. */
- 
+
   /* Initialize qB */
   qB = N_VNew_Serial(NP);
   if (check_retval((void *)qB, "N_VNew", 0)) return(1);
@@ -444,7 +452,7 @@ int main(int argc, char *argv[])
   retval = IDAQuadReInitB(ida_mem, indexB, qB);
   if (check_retval(&retval, "IDAQuadReInitB", 1)) return(1);
 
-  /* Use IDACalcICB to compute consistent initial conditions 
+  /* Use IDACalcICB to compute consistent initial conditions
      for this backward problem. */
 
   id = N_VNew_Serial(NEQ);
@@ -512,7 +520,7 @@ int main(int argc, char *argv[])
  */
 
 /*
- * f routine. Compute f(t,y). 
+ * f routine. Compute f(t,y).
 */
 
 static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user_data)
@@ -521,7 +529,7 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
   UserData data;
   realtype p1, p2, p3;
 
-  y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3); 
+  y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3);
   yp1 = Ith(yp,1); yp2 = Ith(yp,2);
   rval = N_VGetArrayPointer(resval);
 
@@ -536,13 +544,13 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
   return(0);
 }
 
-/* 
- * Jacobian routine. Compute J(t,y). 
+/*
+ * Jacobian routine. Compute J(t,y).
 */
 
 static int Jac(realtype t, realtype cj,
-               N_Vector yy, N_Vector yp, N_Vector resvec, 
-               SUNMatrix JJ, void *user_data, 
+               N_Vector yy, N_Vector yp, N_Vector resvec,
+               SUNMatrix JJ, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype *yval;
@@ -552,7 +560,7 @@ static int Jac(realtype t, realtype cj,
 
   UserData userdata;
   realtype p1, p2, p3;
- 
+
   yval = N_VGetArrayPointer(yy);
 
   userdata = (UserData) user_data;
@@ -592,13 +600,13 @@ static int Jac(realtype t, realtype cj,
   return(0);
 }
 
-/* 
- * rhsQ routine. Compute fQ(t,y). 
+/*
+ * rhsQ routine. Compute fQ(t,y).
 */
 
 static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
 {
-  Ith(qdot,1) = Ith(yy,3);  
+  Ith(qdot,1) = Ith(yy,3);
   return(0);
 }
 
@@ -626,12 +634,12 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
   return(0);
 }
 
- 
-/* 
+
+/*
  * resB routine.
 */
 
-static int resB(realtype tt, 
+static int resB(realtype tt,
                  N_Vector yy, N_Vector yp,
                  N_Vector yyB, N_Vector ypB, N_Vector rrB,
                  void *user_dataB)
@@ -642,7 +650,7 @@ static int resB(realtype tt,
   realtype l1, l2, l3;
   realtype lp1, lp2;
   realtype l21;
-  
+
   data = (UserData) user_dataB;
 
   /* The p vector */
@@ -650,7 +658,7 @@ static int resB(realtype tt,
 
   /* The y  vector */
   y2 = Ith(yy,2); y3 = Ith(yy,3);
-  
+
   /* The lambda vector */
   l1 = Ith(yyB,1); l2 = Ith(yyB,2); l3 = Ith(yyB,3);
 
@@ -671,7 +679,7 @@ static int resB(realtype tt,
 /*Jacobian for backward problem. */
 static int JacB(realtype tt, realtype cjB,
                 N_Vector yy, N_Vector yp,
-                N_Vector yyB, N_Vector ypB, N_Vector rrB, 
+                N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 SUNMatrix JB, void *user_data,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
@@ -682,7 +690,7 @@ static int JacB(realtype tt, realtype cjB,
 
   UserData userdata;
   realtype p1, p2, p3;
- 
+
   yvalB = N_VGetArrayPointer(yy);
 
   userdata = (UserData) user_data;
@@ -711,7 +719,7 @@ static int JacB(realtype tt, realtype cjB,
   dataB[5] = -p2*yvalB[1];
   rowvalsB[5] = 2;
 
-  /* column 2 */    
+  /* column 2 */
   dataB[6] = -ONE;
   rowvalsB[6] = 0;
   dataB[7] = -ONE;
@@ -722,9 +730,9 @@ static int JacB(realtype tt, realtype cjB,
   return(0);
 }
 
-static int rhsQB(realtype tt, 
-                 N_Vector yy, N_Vector yp, 
-                 N_Vector yyB, N_Vector ypB, 
+static int rhsQB(realtype tt,
+                 N_Vector yy, N_Vector yp,
+                 N_Vector yyB, N_Vector ypB,
                  N_Vector rrQB, void *user_dataB)
 {
   realtype y1, y2, y3;
@@ -733,10 +741,10 @@ static int rhsQB(realtype tt,
 
   /* The y vector */
   y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
-  
+
   /* The lambda vector */
   l1 = Ith(yyB,1); l2 = Ith(yyB,2);
-  
+
   /* Temporary variables */
   l21 = l2-l1;
 
@@ -763,34 +771,34 @@ static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB, N_Vector qB)
   printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("tB0:        %12.4Le\n",tfinal);
-  printf("dG/dp:      %12.4Le %12.4Le %12.4Le\n", 
+  printf("dG/dp:      %12.4Le %12.4Le %12.4Le\n",
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
-  printf("lambda(t0): %12.4Le %12.4Le %12.4Le\n", 
+  printf("lambda(t0): %12.4Le %12.4Le %12.4Le\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("tB0:        %12.4e\n",tfinal);
-  printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
+  printf("dG/dp:      %12.4e %12.4e %12.4e\n",
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
-  printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
+  printf("lambda(t0): %12.4e %12.4e %12.4e\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
 #else
   printf("tB0:        %12.4e\n",tfinal);
-  printf("dG/dp:      %12.4e %12.4e %12.4e\n", 
+  printf("dG/dp:      %12.4e %12.4e %12.4e\n",
          -Ith(qB,1), -Ith(qB,2), -Ith(qB,3));
-  printf("lambda(t0): %12.4e %12.4e %12.4e\n", 
+  printf("lambda(t0): %12.4e %12.4e %12.4e\n",
          Ith(yB,1), Ith(yB,2), Ith(yB,3));
 #endif
   printf("--------------------------------------------------------\n\n");
 }
 
-/* 
+/*
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
  *    opt == 1 means SUNDIALS function returns an integer value so check if
  *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer 
+ *             NULL pointer
  */
 
 static int check_retval(void *returnvalue, char *funcname, int opt)

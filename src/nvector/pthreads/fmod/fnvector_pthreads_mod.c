@@ -822,6 +822,48 @@ SWIGEXPORT double _wrap_FN_VWSqrSumMaskLocal_Pthreads(N_Vector farg1, N_Vector f
 }
 
 
+SWIGEXPORT int _wrap_FN_VBufSize_Pthreads(N_Vector farg1, int64_t *farg2) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  sunindextype *arg2 = (sunindextype *) 0 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (sunindextype *)(farg2);
+  result = (int)N_VBufSize_Pthreads(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VBufPack_Pthreads(N_Vector farg1, void *farg2) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  void *arg2 = (void *) 0 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (void *)(farg2);
+  result = (int)N_VBufPack_Pthreads(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VBufUnpack_Pthreads(N_Vector farg1, void *farg2) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  void *arg2 = (void *) 0 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (void *)(farg2);
+  result = (int)N_VBufUnpack_Pthreads(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FN_VEnableFusedOps_Pthreads(N_Vector farg1, int const *farg2) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;

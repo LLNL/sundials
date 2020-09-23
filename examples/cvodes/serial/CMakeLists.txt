@@ -39,10 +39,16 @@ set(CVODES_examples
   "cvsFoodWeb_ASAp_kry\;\;develop"
   "cvsHessian_ASA_FSA\;\;develop"
   "cvsKrylovDemo_ls\;\;develop"
+  "cvsKrylovDemo_ls\;1\;develop"
+  "cvsKrylovDemo_ls\;2\;develop"
   "cvsKrylovDemo_prec\;\;develop"
   "cvsRoberts_ASAi_dns\;\;develop"
   "cvsRoberts_ASAi_dns_constraints\;\;develop"
   )
+
+if(SUNDIALS_BUILD_WITH_MONITORING)
+  list(APPEND CVODE_examples "cvsKrylovDemo_ls\;0 1\;develop")
+endif()
 
 # Examples using LAPACK linear solvers
 set(CVODES_examples_BL
@@ -76,7 +82,6 @@ endif()
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODES_examples})

@@ -238,7 +238,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 
   /* For iterative LS, compute sqrtN */
   if (iterative)
-    idals_mem->sqrtN = SUNRsqrt( N_VGetLength(idals_mem->ytemp) );
+    idals_mem->nrmfac = SUNRsqrt( N_VGetLength(idals_mem->ytemp) );
 
   /* For matrix-based LS, enable solution scaling */
   if (matrixbased)
@@ -312,6 +312,35 @@ int IDASetEpsLin(void *ida_mem, realtype eplifac)
   }
 
   idals_mem->eplifac = (eplifac == ZERO) ? PT05 : eplifac;
+
+  return(IDALS_SUCCESS);
+}
+
+
+/* IDASetWRMSNormFactor sets or computes the factor to use when converting from
+   the integrator tolerance to the linear solver tolerance (WRMS to L2 norm). */
+int IDASetLSNormFactor(void *ida_mem, realtype nrmfac)
+{
+  IDAMem   IDA_mem;
+  IDALsMem idals_mem;
+  int      retval;
+
+  /* access IDALsMem structure */
+  retval = idaLs_AccessLMem(ida_mem, "IDASetLSNormFactor",
+                            &IDA_mem, &idals_mem);
+  if (retval != IDALS_SUCCESS) return(retval);
+
+  if (nrmfac > ZERO) {
+    /* user-provided factor */
+    idals_mem->nrmfac = nrmfac;
+  } else if (nrmfac < ZERO) {
+    /* compute factor for WRMS norm with dot product */
+    N_VConst(ONE, idals_mem->ytemp);
+    idals_mem->nrmfac = SUNRsqrt(N_VDotProd(idals_mem->ytemp, idals_mem->ytemp));
+  } else {
+    /* compute default factor for WRMS norm from vector legnth */
+    idals_mem->nrmfac = SUNRsqrt(N_VGetLength(idals_mem->ytemp));
+  }
 
   return(IDALS_SUCCESS);
 }
@@ -899,7 +928,7 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
   idals_mem = (IDALsMem) IDA_mem->ida_lmem;
 
   /* access matrix dimension */
-  N = SUNDenseMatrix_Rows(Jac);
+  N = SUNDenseMatrix_Columns(Jac);
 
   /* Rename work vectors for readibility */
   rtemp = tmp1;
@@ -1125,7 +1154,7 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
 
   LSID = SUNLinSolGetID(idals_mem->LS);
   if (LSID == SUNLINEARSOLVER_SPGMR || LSID == SUNLINEARSOLVER_SPFGMR)
-    sig = idals_mem->sqrtN * idals_mem->dqincfac;
+    sig = idals_mem->nrmfac * idals_mem->dqincfac;
   else
     sig = idals_mem->dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);
 
@@ -1335,11 +1364,11 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
   /* If the linear solver is iterative: set convergence test constant tol,
      in terms of the Newton convergence test constant epsNewt and safety
-     factors. The factor sqrt(Neq) assures that the convergence test is
+     factors. The factor nrmlfac assures that the convergence test is
      applied to the WRMS norm of the residual vector, rather than the
      weighted L2 norm. */
   if (idals_mem->iterative) {
-    tol = idals_mem->sqrtN * idals_mem->eplifac * IDA_mem->ida_epsNewt;
+    tol = idals_mem->nrmfac * idals_mem->eplifac * IDA_mem->ida_epsNewt;
   } else {
     tol = ZERO;
   }

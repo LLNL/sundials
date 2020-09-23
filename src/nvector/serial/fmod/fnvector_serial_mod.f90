@@ -71,6 +71,9 @@ module fnvector_serial_mod
  public :: FN_VWrmsNormMaskVectorArray_Serial
  public :: FN_VWSqrSumLocal_Serial
  public :: FN_VWSqrSumMaskLocal_Serial
+ public :: FN_VBufSize_Serial
+ public :: FN_VBufPack_Serial
+ public :: FN_VBufUnpack_Serial
  public :: FN_VEnableFusedOps_Serial
  public :: FN_VEnableLinearCombination_Serial
  public :: FN_VEnableScaleAddMulti_Serial
@@ -475,6 +478,33 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 real(C_DOUBLE) :: fresult
+end function
+
+function swigc_FN_VBufSize_Serial(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufSize_Serial") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VBufPack_Serial(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufPack_Serial") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VBufUnpack_Serial(farg1, farg2) &
+bind(C, name="_wrap_FN_VBufUnpack_Serial") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
 end function
 
 function swigc_FN_VEnableFusedOps_Serial(farg1, farg2) &
@@ -1277,6 +1307,54 @@ farg1 = c_loc(x)
 farg2 = c_loc(w)
 farg3 = c_loc(id)
 fresult = swigc_FN_VWSqrSumMaskLocal_Serial(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FN_VBufSize_Serial(x, size) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+integer(C_INT64_T), dimension(*), target, intent(inout) :: size
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = c_loc(size(1))
+fresult = swigc_FN_VBufSize_Serial(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufPack_Serial(x, buf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: buf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = buf
+fresult = swigc_FN_VBufPack_Serial(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VBufUnpack_Serial(x, buf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: buf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = buf
+fresult = swigc_FN_VBufUnpack_Serial(farg1, farg2)
 swig_result = fresult
 end function
 

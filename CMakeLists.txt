@@ -30,13 +30,13 @@ project(sundials C)
 # Set some variables with info on the SUNDIALS project
 set(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 set(PACKAGE_NAME "SUNDIALS")
-set(PACKAGE_STRING "SUNDIALS 5.3.0")
+set(PACKAGE_STRING "SUNDIALS 5.4.0")
 set(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
 # (use "" for the version label if none is needed)
 set(PACKAGE_VERSION_MAJOR "5")
-set(PACKAGE_VERSION_MINOR "3")
+set(PACKAGE_VERSION_MINOR "4")
 set(PACKAGE_VERSION_PATCH "0")
 set(PACKAGE_VERSION_LABEL "")
 
@@ -63,37 +63,37 @@ mark_as_advanced(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-set(arkodelib_VERSION "4.3.0")
+set(arkodelib_VERSION "4.4.0")
 set(arkodelib_SOVERSION "4")
 
-set(cvodelib_VERSION "5.3.0")
+set(cvodelib_VERSION "5.4.0")
 set(cvodelib_SOVERSION "5")
 
-set(cvodeslib_VERSION "5.3.0")
+set(cvodeslib_VERSION "5.4.0")
 set(cvodeslib_SOVERSION "5")
 
-set(idalib_VERSION "5.3.0")
+set(idalib_VERSION "5.4.0")
 set(idalib_SOVERSION "5")
 
-set(idaslib_VERSION "4.3.0")
+set(idaslib_VERSION "4.4.0")
 set(idaslib_SOVERSION "4")
 
-set(kinsollib_VERSION "5.3.0")
+set(kinsollib_VERSION "5.4.0")
 set(kinsollib_SOVERSION "5")
 
 set(cpodeslib_VERSION "0.0.0")
 set(cpodeslib_SOVERSION "0")
 
-set(nveclib_VERSION "5.3.0")
+set(nveclib_VERSION "5.4.0")
 set(nveclib_SOVERSION "5")
 
-set(sunmatrixlib_VERSION "3.3.0")
+set(sunmatrixlib_VERSION "3.4.0")
 set(sunmatrixlib_SOVERSION "3")
 
-set(sunlinsollib_VERSION "3.3.0")
+set(sunlinsollib_VERSION "3.4.0")
 set(sunlinsollib_SOVERSION "3")
 
-set(sunnonlinsollib_VERSION "2.3.0")
+set(sunnonlinsollib_VERSION "2.4.0")
 set(sunnonlinsollib_SOVERSION "2")
 
 # Specify the location of additional CMAKE modules
@@ -512,6 +512,28 @@ sundials_option(RAJA_ENABLE BOOL "Enable RAJA support" OFF
 if(RAJA_ENABLE AND (NOT CUDA_ENABLE))
   print_error("CUDA is required for RAJA support. Please enable CUDA and RAJA.")
 endif()
+
+
+# ---------------------------------------------------------------
+# Enable XBraid support?
+# ---------------------------------------------------------------
+
+sundials_option(ENABLE_XBRAID BOOL "Enable XBraid support" OFF)
+
+sundials_option(XBRAID_DIR PATH "Path to the root of aN XBraid installation" "${XBRAID_DIR}"
+                DEPENDS_ON ENABLE_XBRAID)
+
+sundials_option(XBRAID_LIBRARIES STRING "Semi-colon separated list of XBraid link libraries" "${XBRAID_LIBRARIES}"
+                DEPENDS_ON XBRAID_ENABLE
+                ADVANCED)
+
+sundials_option(XBRAID_INCLUDES STRING "Semi-colon separated list of XBraid include directories" "${XBRAID_INCLUDES}"
+                DEPENDS_ON XBRAID_ENABLE
+                ADVANCED)
+
+sundials_option(XBRAID_WORKS BOOL "Set to ON to force CMake to accept a given XBraid configuration" OFF
+                DEPENDS_ON XBRAID_ENABLE
+                ADVANCED)
 
 # ===============================================================
 # Options for examples
@@ -1080,6 +1102,14 @@ endif(RAJA_ENABLE)
 if(Trilinos_ENABLE)
   include(SundialsTrilinos)
 endif(Trilinos_ENABLE)
+
+# -------------------------------------------------------------
+# Find XBraid
+# -------------------------------------------------------------
+
+if(ENABLE_XBRAID)
+  include(SundialsXBRAID)
+endif()
 
 
 # ===============================================================
