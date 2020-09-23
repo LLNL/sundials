@@ -1,8 +1,11 @@
 # IDA
-### Version 5.3.0 (May 2020)
+### Version 5.4.0 (Sep 2020)
 
-**Alan C. Hindmarsh and Radu Serban  
-  Center for Applied Scientific Computing, LLNL**
+**Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, 
+  and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
+
+**Daniel R. Reynolds, Department of Mathematics, Southern Methodist University**
+
 
 IDA is a package for the solution of differential-algebraic equation (DAE)
 systems
@@ -44,11 +47,12 @@ the "SUNDIALS Release History" appendix of the IDA User Guide.
 
 ## References
 
-* A. C. Hindmarsh, R. Serban, and A. Collier, "User Documentation for IDA v5.3.0,"
-  LLNL technical report UCRL-SM-208112, May 2020.
+* A. C. Hindmarsh, R. Serban, C. J. Balos, D. J. Gardner, D. R. Reynolds
+  and C. S. Woodward, "User Documentation for IDA v5.4.0,"
+  LLNL technical report UCRL-SM-208112, Sep 2020.
 
-* A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v5.3.0,"
-  LLNL technical report UCRL-SM-208113, May 2020.
+* A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v5.4.0,"
+  LLNL technical report UCRL-SM-208113, Sep 2020.
 
 * A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban,
   D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and

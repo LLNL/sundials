@@ -1,6 +1,11 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release x.x.x
+## Changes to SUNDIALS in release 5.4.0
+
+Added full support for time-dependent mass matrices in ARKStep, and expanded
+existing non-identity mass matrix infrastructure to support use of the
+fixed point nonlinear solver.  Fixed bug for ERK method integration with
+static mass matrices.
 
 An interface between ARKStep and the XBraid multigrid reduction in time (MGRIT)
 library has been added to enable parallel-in-time integration. See the ARKStep
@@ -9,28 +14,6 @@ addition of three new N_Vector operations to exchange vector data between
 computational nodes, see `N_VBufSize`, `N_VBufPack`, and `N_VBufUnpack`. These
 N_Vector operations are only used within the XBraid interface and need not be
 implemented for any other context.
-
-Added new `SetLSNormFactor()` functions to CVODE(S), ARKODE, and IDA(S) to
-to specify the factor for converting between integrator tolerances (WRMS norm)
-and linear solver tolerances (L2 norm) i.e., `tol_L2 = nrmfac * tol_WRMS`.
-
-Added new reset functions `ARKStepReset()`, `ERKStepReset()`, and
-`MRIStepReset()` to reset the stepper time and state vector to user-provided
-values for continuing the integration from that point while retaining the
-integration history. These function complement the reinitialization functions
-`ARKStepReInit()`, `ERKStepReInit()`, and `MRIStepReInit()` which reinitialize
-the stepper so that the problem integration should resume as if started from
-scratch.
-
-The expected behavior of `SUNNonlinSolGetNumIters` and
-`SUNNonlinSolGetNumConvFails` in the SUNNonlinearSolver API have been updated to
-specify that they should return the number of nonlinear solver iterations and
-convergence failures in the most recent solve respectively rather than the
-cumulative number of iterations and failures across all solves respectively. The
-API documentation and SUNDIALS provided SUNNonlinearSolver implementations and
-have been updated accordingly. As before, the cumulative number of nonlinear
-iterations and failures may be retreived by calling the integrator provided get
-functions.
 
 Updated the MRIStep time-stepping module in ARKode to support
 higher-order MRI-GARK methods [Sandu, SIAM J. Numer. Anal., 57, 2019],
@@ -49,6 +32,30 @@ Users of the module will need to update any calls to the `N_VMake_Raja` function
 because that signature was changed. This module remains experimental and is
 subject to change from version to version.
 
+Added new `SetLSNormFactor()` functions to CVODE(S), ARKODE, and IDA(S) to
+to specify the factor for converting between integrator tolerances (WRMS norm)
+and linear solver tolerances (L2 norm) i.e., `tol_L2 = nrmfac * tol_WRMS`.
+
+Added new reset functions `ARKStepReset()`, `ERKStepReset()`, and
+`MRIStepReset()` to reset the stepper time and state vector to user-provided
+values for continuing the integration from that point while retaining the
+integration history. These function complement the reinitialization functions
+`ARKStepReInit()`, `ERKStepReInit()`, and `MRIStepReInit()` which reinitialize
+the stepper so that the problem integration should resume as if started from
+scratch.
+
+Added new functions for advanced users providing a custom `SUNNonlinSolSysFn`.
+
+The expected behavior of `SUNNonlinSolGetNumIters` and
+`SUNNonlinSolGetNumConvFails` in the SUNNonlinearSolver API have been updated to
+specify that they should return the number of nonlinear solver iterations and
+convergence failures in the most recent solve respectively rather than the
+cumulative number of iterations and failures across all solves respectively. The
+API documentation and SUNDIALS provided SUNNonlinearSolver implementations and
+have been updated accordingly. As before, the cumulative number of nonlinear
+iterations and failures may be retreived by calling the integrator provided get
+functions.
+
 **This change may cause a runtime error in existing user code**.
 In IDAS and CVODES, the functions for forward integration with checkpointing
 (`IDASolveF`, `CVodeF`) are now subject to a restriction on the number of time
@@ -57,18 +64,6 @@ the `IDASolve` and `CVode` functions. The default maximum number of steps is
 500, but this may be changed using the `<IDA|CVode>SetMaxNumSteps` function.
 This change fixes a bug that could cause an infinite loop in the `IDASolveF`
 and `CVodeF` and functions.
-
-The `NVECTOR_TRILINOS` module has been updated to work with Trilinos 12.18+.
-This update changes the local ordinal type to always be an `int`.
-
-Added new functions for advanceed users providing a custom `SUNNonlinSolSysFn`.
-
-Added full support for time-dependent mass matrices in ARKStep, and expanded
-existing non-identity mass matrix infrastructure to support use of the
-fixed point nonlinear solver.  Fixed bug for ERK method integration with
-static mass matrices.
-
-Added support for CUDA v11.
 
 A minor inconsistency in CVODE(S) and a bug ARKODE when checking the Jacobian
 evaluation frequency has been fixed. As a result codes using using a
@@ -81,6 +76,11 @@ deprecated and replaced with `CVodeSetJacEvalFrequency`,
 `ARKStepSetJacEvalFrequency`, and `ARKStepSetLSetupFrequency` respectively.
 Additionally, the function `CVodeSetLSetupFrequency` has been added to CVODE(S)
 to set the frequency of calls to the linear solver setup function.
+
+The `NVECTOR_TRILINOS` module has been updated to work with Trilinos 12.18+.
+This update changes the local ordinal type to always be an `int`.
+
+Added support for CUDA v11.
 
 
 ## Changes to SUNDIALS in release 5.3.0

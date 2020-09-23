@@ -738,6 +738,56 @@ SWIGEXPORT int _wrap_FCVodeGetDky(void *farg1, double const *farg2, int const *f
 }
 
 
+SWIGEXPORT int _wrap_FCVodeComputeState(void *farg1, N_Vector farg2, N_Vector farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (N_Vector)(farg3);
+  result = (int)CVodeComputeState(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeComputeStateSens(void *farg1, void *farg2, void *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  N_Vector *arg2 = (N_Vector *) 0 ;
+  N_Vector *arg3 = (N_Vector *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (N_Vector *)(farg2);
+  arg3 = (N_Vector *)(farg3);
+  result = (int)CVodeComputeStateSens(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeComputeStateSens1(void *farg1, int const *farg2, N_Vector farg3, N_Vector farg4) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  N_Vector arg4 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (N_Vector)(farg4);
+  result = (int)CVodeComputeStateSens1(arg1,arg2,arg3,arg4);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeGetWorkSpace(void *farg1, long *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1061,6 +1111,60 @@ SWIGEXPORT int _wrap_FCVodeGetIntegratorStats(void *farg1, long *farg2, long *fa
   arg10 = (realtype *)(farg10);
   arg11 = (realtype *)(farg11);
   result = (int)CVodeGetIntegratorStats(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeGetNonlinearSystemData(void *farg1, double *farg2, void *farg3, void *farg4, void *farg5, double *farg6, double *farg7, void *farg8, void *farg9) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype *arg2 = (realtype *) 0 ;
+  N_Vector *arg3 = (N_Vector *) 0 ;
+  N_Vector *arg4 = (N_Vector *) 0 ;
+  N_Vector *arg5 = (N_Vector *) 0 ;
+  realtype *arg6 = (realtype *) 0 ;
+  realtype *arg7 = (realtype *) 0 ;
+  N_Vector *arg8 = (N_Vector *) 0 ;
+  void **arg9 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype *)(farg2);
+  arg3 = (N_Vector *)(farg3);
+  arg4 = (N_Vector *)(farg4);
+  arg5 = (N_Vector *)(farg5);
+  arg6 = (realtype *)(farg6);
+  arg7 = (realtype *)(farg7);
+  arg8 = (N_Vector *)(farg8);
+  arg9 = (void **)(farg9);
+  result = (int)CVodeGetNonlinearSystemData(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeGetNonlinearSystemDataSens(void *farg1, double *farg2, void *farg3, void *farg4, double *farg5, double *farg6, void *farg7, void *farg8) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype *arg2 = (realtype *) 0 ;
+  N_Vector **arg3 = (N_Vector **) 0 ;
+  N_Vector **arg4 = (N_Vector **) 0 ;
+  realtype *arg5 = (realtype *) 0 ;
+  realtype *arg6 = (realtype *) 0 ;
+  N_Vector **arg7 = (N_Vector **) 0 ;
+  void **arg8 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype *)(farg2);
+  arg3 = (N_Vector **)(farg3);
+  arg4 = (N_Vector **)(farg4);
+  arg5 = (realtype *)(farg5);
+  arg6 = (realtype *)(farg6);
+  arg7 = (N_Vector **)(farg7);
+  arg8 = (void **)(farg8);
+  result = (int)CVodeGetNonlinearSystemDataSens(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   fresult = (int)(result);
   return fresult;
 }

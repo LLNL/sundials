@@ -117,11 +117,23 @@ writing in C|)}
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in v5.x.x}
+\subsection*{Changes in v5.4.0}
 
 Added the function \id{CVodeSetLSNormFactor} to specify the factor for
 converting between integrator tolerances (WRMS norm) and linear solver
 tolerances (L2 norm) i.e., \id{tol\_L2 = nrmfac * tol\_WRMS}.
+
+Added new functions \Id{CVodeComputeState}, and \Id{CVodeGetNonlinearSystemData}
+which advanced users might find useful if providing a custom
+\id{SUNNonlinSolSysFn}.
+
+\textbf{This change may cause an error in existing user code}.
+The \id{CVodeF} function for forward integration with checkpointing is now
+subject to a restriction on the number of time steps allowed to reach the output
+time. This is the same restriction applied to the \id{CVode} function. The
+default maximum number of steps is 500, but this may be changed using the
+\id{CVodeSetMaxNumSteps} function. This change fixes a bug that could cause an
+infinite loop in the \id{CVodeF} function.
 
 The expected behavior of \id{SUNNonlinSolGetNumIters} and
 \id{SUNNonlinSolGetNumConvFails} in the {\sunnonlinsol} API have been updated to
@@ -138,6 +150,15 @@ the cumulative number of failures with \id{CVodeGetNumNonlinSolvConvFails},
 \id{CVodeGetNonlinSolvStats}, \id{CVodeGetSensNonlinSolvStats},
 \id{CVodeGetStgrSensNonlinSolvStats}.
 
+A minor inconsistency in checking the Jacobian evaluation frequency has been
+fixed. As a result codes using using a non-default Jacobian update frequency
+through a call to \id{CVodeSetMaxStepsBetweenJac} will need to increase the
+provided value by 1 to achieve the same behavior as before. For greater clarity
+the function \id{CVodeSetMaxStepsBetweenJac} has been deprecated and replaced
+with \id{CVodeSetJacEvalFrequency}. Additionally, the function
+\id{CVodeSetLSetupFrequency} has been added to set the frequency of calls to the
+linear solver setup function.
+
 A new API, \id{SUNMemoryHelper}, was added to support \textbf{GPU users} who
 have complex memory management needs such as using memory pools. This is paired
 with new constructors for the {\nveccuda} and {\nvecraja} modules that accept a
@@ -151,37 +172,11 @@ module. Notably, the update adds managed memory support to the
 the \id{N\_VMake\_Raja} function because that signature was changed. This module
 remains experimental and is subject to change from version to version.
 
-\textbf{This change may cause an error in existing user code}.
-The \id{CVodeF} function for forward integration with checkpointing is now
-subject to a restriction on the number of time steps allowed to reach the output
-time. This is the same restriction applied to the \id{CVode} function. The
-default maximum number of steps is 500, but this may be changed using the
-\id{CVodeSetMaxNumSteps} function. This change fixes a bug that could cause an
-infinite loop in the \id{CVodeF} function.
-
-Added new functions \Id{CVodeComputeState}, and \Id{CVodeGetNonlinearSystemData}
-which advanced users might find useful if providing a custom
-\id{SUNNonlinSolSysFn}.
-
-The \id{NVECTOR\_RAJA} module has been updated to mirror the \id{NVECTOR\_CUDA}
-module. Notably, the update adds managed memory support to the
-\id{NVECTOR\_RAJA} module. Users of the module will need to update any calls to
-the \id{N\_VMake\_Raja} function because that signature was changed. This module
-remains experimental and is subject to change from version to version.
-
 The \id{NVECTOR\_TRILINOS} module has been updated to work with Trilinos 12.18+.
 This update changes the local ordinal type to always be an \id{int}.
 
 Added support for CUDA v11.
 
-A minor inconsistency in checking the Jacobian evaluation frequency has been
-fixed. As a result codes using using a non-default Jacobian update frequency
-through a call to \id{CVodeSetMaxStepsBetweenJac} will need to increase the
-provided value by 1 to achieve the same behavior as before. For greater clarity
-the function \id{CVodeSetMaxStepsBetweenJac} has been deprecated and replaced
-with \id{CVodeSetJacEvalFrequency}. Additionally, the function
-\id{CVodeSetLSetupFrequency} has been added to set the frequency of calls to the
-linear solver setup function.
 
 \subsection*{Changes in v5.3.0}
 

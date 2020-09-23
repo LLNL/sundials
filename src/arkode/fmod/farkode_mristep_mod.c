@@ -1393,6 +1393,22 @@ SWIGEXPORT int _wrap_FMRIStepGetDky(void *farg1, double const *farg2, int const 
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepComputeState(void *farg1, N_Vector farg2, N_Vector farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (N_Vector)(farg3);
+  result = (int)MRIStepComputeState(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepGetNumRhsEvals(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1627,6 +1643,32 @@ SWIGEXPORT int _wrap_FMRIStepWriteCoupling(void *farg1, void *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   result = (int)MRIStepWriteCoupling(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepGetNonlinearSystemData(void *farg1, double *farg2, void *farg3, void *farg4, void *farg5, double *farg6, void *farg7, void *farg8) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype *arg2 = (realtype *) 0 ;
+  N_Vector *arg3 = (N_Vector *) 0 ;
+  N_Vector *arg4 = (N_Vector *) 0 ;
+  N_Vector *arg5 = (N_Vector *) 0 ;
+  realtype *arg6 = (realtype *) 0 ;
+  N_Vector *arg7 = (N_Vector *) 0 ;
+  void **arg8 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype *)(farg2);
+  arg3 = (N_Vector *)(farg3);
+  arg4 = (N_Vector *)(farg4);
+  arg5 = (N_Vector *)(farg5);
+  arg6 = (realtype *)(farg6);
+  arg7 = (N_Vector *)(farg7);
+  arg8 = (void **)(farg8);
+  result = (int)MRIStepGetNonlinearSystemData(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   fresult = (int)(result);
   return fresult;
 }

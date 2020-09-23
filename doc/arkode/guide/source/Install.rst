@@ -1126,7 +1126,7 @@ The KLU libraries are part of SuiteSparse, a suite of sparse matrix
 software, available from the Texas A&M University website:
 http://faculty.cse.tamu.edu/davis/suitesparse.html .
 
-SUNDIALS has been tested with SuiteSparse version 4.5.3.  To enable
+SUNDIALS has been tested with SuiteSparse version 5.7.2.  To enable
 KLU, set ``KLU_ENABLE`` to ``ON``, set ``KLU_INCLUDE_DIR`` to the
 ``include`` path of the KLU installation and set ``KLU_LIBRARY_DIR``
 to the ``lib`` path of the KLU installation.  The CMake configure will
@@ -1144,7 +1144,7 @@ The SuperLU_DIST libraries are available for download from the Lawrence
 Berkeley National Laboratory website:
 http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_dist.
 
-SUNDIALS has been tested with SuperLU_DIST greater than 6.1. To enable
+SUNDIALS has been tested with SuperLU_DIST version 6.1.1. To enable
 SuperLU_DIST, set  ``SUPERLUDIST_ENABLE`` to ``ON``, set
 ``SUPERLUDIST_INCLUDE_DIR`` to the ``SRC`` path of the SuperLU_DIST
 installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the
@@ -1191,7 +1191,7 @@ The PETSc libraries are available for download from the Argonne
 National Laboratory website:
 http://www.mcs.anl.gov/petsc .
 
-SUNDIALS has been tested with PETSc version 3.10.0 - 3.12.1. To enable PETSc,
+SUNDIALS has been tested with PETSc version 3.10.0 - 3.13.4. To enable PETSc,
 set ``PETSC_ENABLE`` to ``ON``, and set ``PETSC_DIR`` to the path of the PETSc
 installation. Alternatively, a user can provide a list of inlcude paths in
 ``PETSC_INCLUDES`` and a list of complete paths to the PETSc libraries in
@@ -1206,7 +1206,7 @@ Building with *hypre*
 The *hypre* libraries are available for download from the Lawrence
 Livermore National Laboratory website:
 `http://computing.llnl.gov/projects/hypre <http://computing.llnl.gov/projects/hypre>`_.
-SUNDIALS has been tested with *hypre* version 2.11.1.
+SUNDIALS has been tested with *hypre* version 2.19.0.
 To enable *hypre*, set  ``HYPRE_ENABLE`` to ``ON``, set ``HYPRE_INCLUDE_DIR``
 to the ``include`` path of the *hypre* installation, and set the variable
 ``HYPRE_LIBRARY_DIR`` to the ``lib`` path of the *hypre* installation.
@@ -1221,8 +1221,8 @@ equivalently, ``XSDK_INDEX_SIZE``) equals the precision of
 Building with CUDA
 ^^^^^^^^^^^^^^^^^^^^^^
 
-SUNDIALS CUDA modules and examples have been tested with version 10.1 of the
-CUDA toolkit. To build them, you need to install the Toolkit and compatible
+SUNDIALS CUDA modules and examples have been tested with version 10 and 11
+of the CUDA toolkit. To build them, you need to install the Toolkit and compatible
 NVIDIA drivers. Both are available for download from the NVIDIA website:
 `https://developer.nvidia.com/cuda-downloads
 <https://developer.nvidia.com/cuda-downloads>`_. To enable CUDA,
@@ -1241,7 +1241,7 @@ RAJA is a performance portability layer developed by Lawrence
 Livermore National Laboratory and can be obtained from
 `https://github.com/LLNL/RAJA <https://github.com/LLNL/RAJA>`_.
 SUNDIALS RAJA modules and examples have been tested with RAJA
-version 0.3. Building SUNDIALS RAJA modules requires a CUDA-enabled
+version 0.12.1. Building SUNDIALS RAJA modules requires a CUDA-enabled
 RAJA installation. To enable RAJA, set ``CUDA_ENABLE`` and
 ``RAJA_ENABLE`` to ``ON``. If RAJA is installed in a nonstandard
 location you will be prompted to set the variable ``RAJA_DIR`` with

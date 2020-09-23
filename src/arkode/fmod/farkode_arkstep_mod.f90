@@ -135,6 +135,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetLinSysFn
  public :: FARKStepEvolve
  public :: FARKStepGetDky
+ public :: FARKStepComputeState
  public :: FARKStepGetNumExpSteps
  public :: FARKStepGetNumAccSteps
  public :: FARKStepGetNumStepAttempts
@@ -151,6 +152,7 @@ module farkode_arkstep_mod
  public :: FARKStepGetCurrentTime
  public :: FARKStepGetCurrentState
  public :: FARKStepGetCurrentGamma
+ public :: FARKStepGetCurrentMassMatrix
  public :: FARKStepGetTolScaleFactor
  public :: FARKStepGetErrWeights
  public :: FARKStepGetResWeights
@@ -166,6 +168,7 @@ module farkode_arkstep_mod
  public :: FARKStepWriteButcher
  public :: FARKStepGetTimestepperStats
  public :: FARKStepGetStepStats
+ public :: FARKStepGetNonlinearSystemData
  public :: FARKStepGetNumNonlinSolvIters
  public :: FARKStepGetNumNonlinSolvConvFails
  public :: FARKStepGetNonlinSolvStats
@@ -975,6 +978,16 @@ type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKStepComputeState(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKStepComputeState") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKStepGetNumExpSteps(farg1, farg2) &
 bind(C, name="_wrap_FARKStepGetNumExpSteps") &
 result(fresult)
@@ -1122,6 +1135,15 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKStepGetCurrentMassMatrix(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetCurrentMassMatrix") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKStepGetTolScaleFactor(farg1, farg2) &
 bind(C, name="_wrap_FARKStepGetTolScaleFactor") &
 result(fresult)
@@ -1233,6 +1255,21 @@ type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR), value :: farg6
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8) &
+bind(C, name="_wrap_FARKStepGetNonlinearSystemData") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
+type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
+type(C_PTR), value :: farg8
 integer(C_INT) :: fresult
 end function
 
@@ -2918,6 +2955,25 @@ fresult = swigc_FARKStepGetDky(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
+function FARKStepComputeState(arkode_mem, zcor, z) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(N_Vector), target, intent(inout) :: zcor
+type(N_Vector), target, intent(inout) :: z
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = c_loc(zcor)
+farg3 = c_loc(z)
+fresult = swigc_FARKStepComputeState(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
 function FARKStepGetNumExpSteps(arkode_mem, expsteps) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3151,18 +3207,18 @@ fresult = swigc_FARKStepGetCurrentTime(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKStepGetCurrentState(arkode_mem, ycur) &
+function FARKStepGetCurrentState(arkode_mem, state) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-type(C_PTR) :: ycur
+type(C_PTR) :: state
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = ycur
+farg2 = state
 fresult = swigc_FARKStepGetCurrentState(farg1, farg2)
 swig_result = fresult
 end function
@@ -3180,6 +3236,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(gamma(1))
 fresult = swigc_FARKStepGetCurrentGamma(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetCurrentMassMatrix(arkode_mem, m) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: m
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(m)
+fresult = swigc_FARKStepGetCurrentMassMatrix(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3399,6 +3471,40 @@ farg4 = c_loc(hlast(1))
 farg5 = c_loc(hcur(1))
 farg6 = c_loc(tcur(1))
 fresult = swigc_FARKStepGetStepStats(farg1, farg2, farg3, farg4, farg5, farg6)
+swig_result = fresult
+end function
+
+function FARKStepGetNonlinearSystemData(arkode_mem, tcur, zpred, z, fi, gamma, sdata, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tcur
+type(C_PTR) :: zpred
+type(C_PTR) :: z
+type(C_PTR) :: fi
+real(C_DOUBLE), dimension(*), target, intent(inout) :: gamma
+type(C_PTR) :: sdata
+type(C_PTR), target, intent(inout) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
+
+farg1 = arkode_mem
+farg2 = c_loc(tcur(1))
+farg3 = zpred
+farg4 = z
+farg5 = fi
+farg6 = c_loc(gamma(1))
+farg7 = sdata
+farg8 = c_loc(user_data)
+fresult = swigc_FARKStepGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8)
 swig_result = fresult
 end function
 

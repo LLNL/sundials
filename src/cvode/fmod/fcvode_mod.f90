@@ -103,6 +103,7 @@ module fcvode_mod
  public :: FCVodeSetRootDirection
  public :: FCVodeSetNoInactiveRootWarn
  public :: FCVode
+ public :: FCVodeComputeState
  public :: FCVodeGetDky
  public :: FCVodeGetWorkSpace
  public :: FCVodeGetNumSteps
@@ -124,6 +125,7 @@ module fcvode_mod
  public :: FCVodeGetNumGEvals
  public :: FCVodeGetRootInfo
  public :: FCVodeGetIntegratorStats
+ public :: FCVodeGetNonlinearSystemData
  public :: FCVodeGetNumNonlinSolvIters
  public :: FCVodeGetNumNonlinSolvConvFails
  public :: FCVodeGetNonlinSolvStats
@@ -484,6 +486,16 @@ integer(C_INT), intent(in) :: farg5
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeComputeState(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeComputeState") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FCVodeGetDky(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FCVodeGetDky") &
 result(fresult)
@@ -682,6 +694,22 @@ type(C_PTR), value :: farg8
 type(C_PTR), value :: farg9
 type(C_PTR), value :: farg10
 type(C_PTR), value :: farg11
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9) &
+bind(C, name="_wrap_FCVodeGetNonlinearSystemData") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
+type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
+type(C_PTR), value :: farg8
+type(C_PTR), value :: farg9
 integer(C_INT) :: fresult
 end function
 
@@ -1669,6 +1697,25 @@ fresult = swigc_FCVode(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
+function FCVodeComputeState(cvode_mem, ycor, y) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(N_Vector), target, intent(inout) :: ycor
+type(N_Vector), target, intent(inout) :: y
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = c_loc(ycor)
+farg3 = c_loc(y)
+fresult = swigc_FCVodeComputeState(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
 function FCVodeGetDky(cvode_mem, t, k, dky) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2038,6 +2085,43 @@ farg9 = c_loc(hlast(1))
 farg10 = c_loc(hcur(1))
 farg11 = c_loc(tcur(1))
 fresult = swigc_FCVodeGetIntegratorStats(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9, farg10, farg11)
+swig_result = fresult
+end function
+
+function FCVodeGetNonlinearSystemData(cvode_mem, tcur, ypred, yn, fn, gamma, rl1, zn1, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tcur
+type(C_PTR) :: ypred
+type(C_PTR) :: yn
+type(C_PTR) :: fn
+real(C_DOUBLE), dimension(*), target, intent(inout) :: gamma
+real(C_DOUBLE), dimension(*), target, intent(inout) :: rl1
+type(C_PTR) :: zn1
+type(C_PTR), target, intent(inout) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
+type(C_PTR) :: farg9 
+
+farg1 = cvode_mem
+farg2 = c_loc(tcur(1))
+farg3 = ypred
+farg4 = yn
+farg5 = fn
+farg6 = c_loc(gamma(1))
+farg7 = c_loc(rl1(1))
+farg8 = zn1
+farg9 = c_loc(user_data)
+fresult = swigc_FCVodeGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9)
 swig_result = fresult
 end function
 

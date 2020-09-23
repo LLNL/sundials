@@ -929,7 +929,7 @@ scheme. The defaults for these options in earlier versions of
 The KLU libraries are part of SuiteSparse, a suite of sparse matrix software,
 available from the Texas A\&M University website: {\tt
 http://faculty.cse.tamu.edu/davis/suitesparse.html}.  {\sundials} has been
-tested with SuiteSparse version 5.3.0.  To enable KLU, set \id{KLU\_ENABLE} to
+tested with SuiteSparse version 5.7.2.  To enable KLU, set \id{KLU\_ENABLE} to
 \id{ON}, set \id{KLU\_INCLUDE\_DIR} to the \id{include} path of the KLU
 installation and set \id{KLU\_LIBRARY\_DIR} to the \id{lib} path of the KLU
 installation.  The CMake configure will result in populating the following
@@ -981,7 +981,7 @@ threading is enabled for {\sundials} by having \id{PTHREAD\_ENABLE} set to
 \label{ss:building_with_petsc}
 The {\petsc} libraries are available for download from the Argonne National
 Laboratory website: {\tt http://www.mcs.anl.gov/petsc}. {\sundials} has been
-tested with {\petsc} version 3.10.0--3.12.1. To enable {\petsc}, set
+tested with {\petsc} version 3.10.0--3.13.4. To enable {\petsc}, set
 \id{PETSC\_ENABLE} to \id{ON} and then set \id{PETSC\_DIR} to the path of the
 {\petsc} installation. Alternatively, a user can provide a list of include paths
 in \id{PETSC\_INCLUDES}, and a list of complete paths to the libraries needed in
@@ -991,7 +991,7 @@ in \id{PETSC\_INCLUDES}, and a list of complete paths to the libraries needed in
 \subsubsection*{Building with {\hypre}}
 The {\hypre} libraries are available for download from the Lawrence Livermore
 National Laboratory website: {\tt http://computing.llnl.gov/projects/hypre}.
-{\sundials} has been tested with {\hypre} version 2.14.0--2.18.0.  To enable
+{\sundials} has been tested with {\hypre} version 2.14.0--2.19.0.  To enable
 {\hypre}, set  \id{HYPRE\_ENABLE} to \id{ON}, set \id{HYPRE\_INCLUDE\_DIR} to
 the \id{include} path of the {\hypre} installation, and set the variable
 \id{HYPRE\_LIBRARY\_DIR} to the \id{lib} path of the {\hypre} installation.
@@ -1003,7 +1003,7 @@ equivalently, \id{XSDK\_INDEX\_SIZE}) equals the precision of
 
 \subsubsection*{Building with CUDA}
 {\sundials} {\cuda} modules and examples have been tested with versions 9
-through 10.1 of the {\cuda} toolkit. To build them, you need to install the
+through 11.0.2 of the {\cuda} toolkit. To build them, you need to install the
 Toolkit and compatible NVIDIA drivers. Both are available for download from the
 NVIDIA website: {\tt https://developer.nvidia.com/cuda-downloads}. To enable
 {\cuda}, set \id{CUDA\_ENABLE} to \id{ON}. If {\cuda} is installed in a
@@ -1015,7 +1015,7 @@ enable {\cuda} examples, set \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
 {\raja} is a performance portability layer developed by Lawrence Livermore
 National Laboratory and can be obtained from {\tt https://github.com/LLNL/RAJA}.
 {\sundials} {\raja} modules and examples have been tested with {\raja} up to
-version 0.9. Building {\sundials} {\raja} modules requires a {\cuda}-enabled
+version 0.12.1. Building {\sundials} {\raja} modules requires a {\cuda}-enabled
 {\raja} installation. To enable {\raja}, set \id{CUDA\_ENABLE} and
 \id{RAJA\_ENABLE} to \id{ON}. If {\raja} is installed in a nonstandard location
 you will be prompted to set the variable \id{RAJA\_DIR} with the path to the
@@ -1026,7 +1026,7 @@ you will be prompted to set the variable \id{RAJA\_DIR} with the path to the
 {\trilinos} is a suite of numerical libraries developed by Sandia National
 Laboratories. It can be obtained at {\tt https://github.com/trilinos/Trilinos}.
 {\sundials} {\trilinos} modules and examples have been tested with {\trilinos}
-version 12.14.1. To enable {\trilinos}, set
+version 12.14.1 -- 12.18.1. To enable {\trilinos}, set
 \id{Trilinos\_ENABLE} to \id{ON}. If {\trilinos} is
 installed in a nonstandard location you will be prompted to set the
 variable \id{Trilinos\_DIR} with the path to the {\trilinos} CMake

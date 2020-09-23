@@ -107,8 +107,13 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
-Changes in v4.x.x
+Changes in v4.4.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Added full support for time-dependent mass matrices in ARKStep, and expanded
+existing non-identity mass matrix infrastructure to support use of the
+fixed point nonlinear solver. Fixed bug for ERK method integration with
+static mass matrices.
 
 An interface between ARKStep and the XBraid multigrid reduction in time (MGRIT)
 library [XBraid]_ has been added to enable parallel-in-time integration. See the
@@ -118,6 +123,11 @@ three new N_Vector operations to exchange vector data between computational
 nodes, see :c:func:`N_VBufSize()`, :c:func:`N_VBufPack()`, and
 :c:func:`N_VBufUnpack()`.  These N_Vector operations are only used within the
 XBraid interface and need not be implemented for any other context.
+
+Updated the MRIStep time-stepping module in ARKode to support
+higher-order MRI-GARK methods [S2019]_, including methods that
+involve solve-decoupled, diagonally-implicit treatment of the
+slow time scale.
 
 Added the functions :c:func:`ARKStepSetLSNormFactor()`,
 :c:func:`ARKStepSetMassLSNormFactor()`, and :c:func:`MRIStepSetLSNormFactor()`
@@ -150,10 +160,14 @@ of nonlinear iterations may be retrieved by calling
 :c:func:`ARKStepGetNumNonlinSolvConvFails()`, or both with
 :c:func:`ARKStepGetNonlinSolvStats()`.
 
-Updated the MRIStep time-stepping module in ARKode to support
-higher-order MRI-GARK methods [S2019]_, including methods that
-involve solve-decoupled, diagonally-implicit treatment of the
-slow time scale.
+A minor bug in checking the Jacobian evaluation frequency has been fixed. As a
+result codes using using a non-default Jacobian update frequency through a call
+to :c:func:`ARKStepSetMaxStepsBetweenJac()` will need to increase the provided
+value by 1 to achieve the same behavior as before. Additionally, for greater
+clarity the functions :c:func:`ARKStepSetMaxStepsBetweenLSet()` and
+:c:func:`ARKStepSetMaxStepsBetweenJac()` have been deprecated and replaced with
+:c:func:`ARKStepSetLSetupFrequency()` and :c:func:`ARKStepSetJacEvalFrequency()`
+respectively.
 
 The ``NVECTOR_RAJA`` module has been updated to mirror the ``NVECTOR_CUDA`` module.
 Notably, the update adds managed memory support to the ``NVECTOR_RAJA`` module.
@@ -164,21 +178,7 @@ subject to change from version to version.
 The ``NVECTOR_TRILINOS`` module has been updated to work with Trilinos 12.18+.
 This update changes the local ordinal type to always be an ``int``.
 
-Added full support for time-dependent mass matrices in ARKStep, and expanded
-existing non-identity mass matrix infrastructure to support use of the
-fixed point nonlinear solver. Fixed bug for ERK method integration with
-static mass matrices.
-
 Added support for CUDA v11.
-
-A minor bug in checking the Jacobian evaluation frequency has been fixed. As a
-result codes using using a non-default Jacobian update frequency through a call
-to :c:func:`ARKStepSetMaxStepsBetweenJac()` will need to increase the provided
-value by 1 to achieve the same behavior as before. Additionally, for greater
-clarity the functions :c:func:`ARKStepSetMaxStepsBetweenLSet()` and
-:c:func:`ARKStepSetMaxStepsBetweenJac()` have been deprecated and replaced with
-:c:func:`ARKStepSetLSetupFrequency()` and :c:func:`ARKStepSetJacEvalFrequency()`
-respectively.
 
 
 Changes in v4.3.0
