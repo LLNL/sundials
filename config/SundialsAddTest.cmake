@@ -52,7 +52,9 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   # macro keyword inputs followed by a single value
   # MPI_NPROCS         = number of mpi tasks to use in parallel tests
-  # FLOAT_PRECISION    = precision for floating point failure comparision (num digits)
+  # FLOAT_PRECISION    = precision for floating point failure comparision (num digits),
+  #                      to use the default, either don't provide the keyword, or
+  #                      provide the value "default"
   # INTEGER_PRECENTAGE = integer percentage difference for failure comparison
   # ANSWER_DIR         = path to the directory containing the test answer file
   # ANSWER_FILE        = name of test answer file
@@ -111,7 +113,8 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         # set a non-default floating point precision (number of digits, default 4)
         if(SUNDIALS_TEST_FLOAT_PRECISION)
           list(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_TEST_FLOAT_PRECISION}")
-        elseif(SUNDIALS_ADD_TEST_FLOAT_PRECISION)
+        elseif(SUNDIALS_ADD_TEST_FLOAT_PRECISION AND
+               (NOT SUNDIALS_ADD_TEST_FLOAT_PRECISION MATCHES "DEFAULT|default"))
           list(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_ADD_TEST_FLOAT_PRECISION}")
         endif()
         # set a non-default integer precision (percent difference, default 10%)
