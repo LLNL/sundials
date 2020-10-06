@@ -234,13 +234,13 @@ htmlhelp_basename = 'ARKodedoc'
 # 5. the LaTeX theme
 # 6. include the file from 1. in the output
 tex_author = r'''
-    Daniel R. Reynolds\\
-    {\em Department of Mathematics} \\
-    {\em Southern Methodist University} \\
+    Daniel R. Reynolds$^1$,
+    David J. Gardner$^2$,
+    Carol S. Woodward$^2$, and
+    Cody J. Balos$^2$ \\
     \\
-    David J. Gardner, Carol S. Woodward, and Cody J. Balos\\
-    {\em Center for Applied Scientific Computing} \\
-    {\em Lawrence Livermore National Laboratory}
+    {\em $^1$Department of Mathematics, Southern Methodist University} \\
+    {\em $^2$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory}
     '''
 
 latex_documents = [('index', 'ark_guide.tex', project,
