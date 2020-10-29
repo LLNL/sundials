@@ -112,9 +112,11 @@ typedef int (*MRIStepPostInnerFn)(realtype t, N_Vector y, void *user_data);
  * ------------------- */
 
 /* DEPRECATED routines (only for backwards compatibility) */
-SUNDIALS_DEPRECATED int MRIStepGetCurrentButcherTables(void *arkode_mem,
-                                                   ARKodeButcherTable *B);
-SUNDIALS_DEPRECATED int MRIStepWriteButcher(void *arkode_mem, FILE *fp);
+SUNDIALS_DEPRECATED_EXPORT
+int MRIStepGetCurrentButcherTables(void *arkode_mem, ARKodeButcherTable *B);
+
+SUNDIALS_DEPRECATED_EXPORT
+int MRIStepWriteButcher(void *arkode_mem, FILE *fp);
 
 
 /* Create, Resize, and Reinitialization functions */

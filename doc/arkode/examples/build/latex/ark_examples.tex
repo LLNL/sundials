@@ -67,7 +67,7 @@
 \usepackage{footnotebackref}
 
 % Add new command for SUNDIALS version
-\newcommand{\sunreleasename}{v5.3.0}
+\newcommand{\sunreleasename}{v5.5.0}
 
 % ===================================================
 % End custom preamble (see latex_elements in conf.py)
@@ -75,7 +75,7 @@
 
 
 \title{Example Programs for ARKode}
-\date{September 18, 2020}
+\date{October 29, 2020}
 \release{}
 \author{
     Daniel R. Reynolds\\
@@ -83,7 +83,7 @@
     {\em Southern Methodist University}
     }
 \newcommand{\sphinxlogo}{\sphinxincludegraphics{doc_logo_blue.pdf}\par}
-\renewcommand{\releasename}{v4.3.0}
+\renewcommand{\releasename}{v4.5.0}
 \makeindex
 
 \begin{document}
@@ -650,10 +650,10 @@ parallel
 
 
 \chapter{Serial C example problems}
-\label{\detokenize{c_serial:serial-c-example-problems}}\label{\detokenize{c_serial::doc}}\label{\detokenize{c_serial:arkode-example-documentation}}\label{\detokenize{c_serial:serial-c}}
+\label{\detokenize{c_serial::doc}}\label{\detokenize{c_serial:serial-c-example-problems}}\label{\detokenize{c_serial:arkode-example-documentation}}\label{\detokenize{c_serial:serial-c}}
 
 \section{ark\_analytic}
-\label{\detokenize{c_serial:ark-analytic}}\label{\detokenize{c_serial:id1}}
+\label{\detokenize{c_serial:id1}}\label{\detokenize{c_serial:ark-analytic}}
 This is a very simple C example showing how to use the ARKode solver
 interface.
 
@@ -701,7 +701,7 @@ error tolerances (right).
 
 
 \section{ark\_analytic\_nonlin}
-\label{\detokenize{c_serial:id2}}\label{\detokenize{c_serial:ark-analytic-nonlin}}
+\label{\detokenize{c_serial:ark-analytic-nonlin}}\label{\detokenize{c_serial:id2}}
 This example problem is only marginally more difficult than the
 preceding problem, in that the ODE right-hand side function is
 nonlinear in the solution \(y\).  While the implicit solver from
@@ -908,7 +908,7 @@ are printed at the end.
 
 
 \section{ark\_robertson}
-\label{\detokenize{c_serial:id12}}\label{\detokenize{c_serial:ark-robertson}}
+\label{\detokenize{c_serial:ark-robertson}}\label{\detokenize{c_serial:id12}}
 Our next two tests simulate the Robertson problem, corresponding to the
 kinetics of an autocatalytic reaction, corresponding to the CVODE
 example of the same name.  This is an ODE system with 3
@@ -1095,7 +1095,7 @@ center is at time \(t=2.9\), right is at time \(t=8.8\).
 
 
 \section{ark\_brusselator1D\_klu}
-\label{\detokenize{c_serial:id21}}\label{\detokenize{c_serial:ark-brusselator1d-klu}}
+\label{\detokenize{c_serial:ark-brusselator1d-klu}}\label{\detokenize{c_serial:id21}}
 This problem is mathematically identical to the preceding problem,
 {\hyperref[\detokenize{c_serial:ark-brusselator1d}]{\sphinxcrossref{\DUrole{std,std-ref}{ark\_brusselator1D}}}}, but instead of using the SUNMATRIX\_BAND
 banded matrix module and SUNLINSOL\_BAND linear solver module, it uses
@@ -1258,7 +1258,7 @@ major ARKode data structures across vector length changes.
 
 
 \section{ark\_KrylovDemo\_prec}
-\label{\detokenize{c_serial:ark-krylovdemo-prec}}\label{\detokenize{c_serial:id30}}
+\label{\detokenize{c_serial:id30}}\label{\detokenize{c_serial:ark-krylovdemo-prec}}
 This problem is an ARKode clone of the CVODE problem,
 \sphinxcode{cv\_KrylovDemo\_prec}.  This is a demonstration program using the
 SUNLINSOL\_SPGMR linear solver module.  As explained more thoroughly in
@@ -1381,7 +1381,7 @@ w(t) &= 5051/2501*\exp(-t) - 49/2501*\cos(50t) + 51/2501*\sin(50t).\end{split}
 \end{equation*}
 
 \section{ark\_twowaycouple\_mri}
-\label{\detokenize{c_serial:id36}}\label{\detokenize{c_serial:ark-twowaycouple-mri}}
+\label{\detokenize{c_serial:ark-twowaycouple-mri}}\label{\detokenize{c_serial:id36}}
 This example simulates a linear system of 3 dependent variables \(u\),
 \(v\) and \(w\), that depend on the independent variable \(t\) via
 the IVP system
@@ -1408,10 +1408,10 @@ are printed at the end.
 
 
 \chapter{OpenMP C example problems}
-\label{\detokenize{c_openmp:openmp-c-example-problems}}\label{\detokenize{c_openmp::doc}}\label{\detokenize{c_openmp:openmp-c}}
+\label{\detokenize{c_openmp::doc}}\label{\detokenize{c_openmp:openmp-c}}\label{\detokenize{c_openmp:openmp-c-example-problems}}
 
 \section{ark\_brusselator1D\_omp}
-\label{\detokenize{c_openmp:ark-brusselator1d-omp}}\label{\detokenize{c_openmp:id1}}
+\label{\detokenize{c_openmp:id1}}\label{\detokenize{c_openmp:ark-brusselator1d-omp}}
 This problem is mathematically identical to the one-dimensional
 reaction-diffusion brusselator model, {\hyperref[\detokenize{c_serial:ark-brusselator1d}]{\sphinxcrossref{\DUrole{std,std-ref}{ark\_brusselator1D}}}}.  As
 before, we investigate a time-dependent system of partial differential
@@ -1451,7 +1451,7 @@ side and banded Jacobian construction functions.
 \label{\detokenize{c_parallel::doc}}\label{\detokenize{c_parallel:parallel-c-example-problems}}\label{\detokenize{c_parallel:parallel-c}}
 
 \section{ark\_diurnal\_kry\_bbd\_p}
-\label{\detokenize{c_parallel:ark-diurnal-kry-bbd-p}}\label{\detokenize{c_parallel:id1}}
+\label{\detokenize{c_parallel:id1}}\label{\detokenize{c_parallel:ark-diurnal-kry-bbd-p}}
 This problem is an ARKode clone of the CVODE problem,
 \sphinxcode{cv\_diurnal\_kry\_bbd\_p}.  As described in \phantomsection\label{\detokenize{c_parallel:id2}}{\hyperref[\detokenize{References:hsr2017}]{\sphinxcrossref{{[}HSR2017{]}}}}, this problem
 models a two-species diurnal kinetics advection-diffusion PDE system
@@ -1679,10 +1679,10 @@ and as a preview of functionality to come.
 
 
 \chapter{Serial C++ example problems}
-\label{\detokenize{cpp_serial:serial-c-example-problems}}\label{\detokenize{cpp_serial::doc}}\label{\detokenize{cpp_serial:serial-cpp}}
+\label{\detokenize{cpp_serial::doc}}\label{\detokenize{cpp_serial:serial-cpp}}\label{\detokenize{cpp_serial:serial-c-example-problems}}
 
 \section{ark\_analytic\_sys}
-\label{\detokenize{cpp_serial:ark-analytic-sys}}\label{\detokenize{cpp_serial:id1}}
+\label{\detokenize{cpp_serial:id1}}\label{\detokenize{cpp_serial:ark-analytic-sys}}
 This example demonstrates the use of ARKode’s fully implicit solver on
 a stiff ODE system that has a simple analytical solution.  The problem
 is that of a linear ODE system,
@@ -1814,10 +1814,10 @@ mesh.  All plots are created using the supplied Python script,
 
 
 \chapter{Serial Fortran 77 example problems}
-\label{\detokenize{f77_serial::doc}}\label{\detokenize{f77_serial:serial-f77}}\label{\detokenize{f77_serial:serial-fortran-77-example-problems}}
+\label{\detokenize{f77_serial::doc}}\label{\detokenize{f77_serial:serial-fortran-77-example-problems}}\label{\detokenize{f77_serial:serial-f77}}
 
 \section{fark\_diurnal\_kry\_bp}
-\label{\detokenize{f77_serial:fark-diurnal-kry-bp}}\label{\detokenize{f77_serial:id1}}
+\label{\detokenize{f77_serial:id1}}\label{\detokenize{f77_serial:fark-diurnal-kry-bp}}
 This problem is an ARKode clone of the CVODE problem,
 \sphinxcode{fcv\_diurnal\_kry\_bp}.  As described in \phantomsection\label{\detokenize{f77_serial:id2}}{\hyperref[\detokenize{References:hsr2017}]{\sphinxcrossref{{[}HSR2017{]}}}}, this problem
 models a two-species diurnal kinetics advection-diffusion PDE system
@@ -1919,7 +1919,7 @@ events.  All performance counters are printed on completion.
 \label{\detokenize{f77_parallel::doc}}\label{\detokenize{f77_parallel:parallel-fortran-77-example-problems}}\label{\detokenize{f77_parallel:parallel-f77}}
 
 \section{fark\_diag\_kry\_bbd\_p}
-\label{\detokenize{f77_parallel:fark-diag-kry-bbd-p}}\label{\detokenize{f77_parallel:id1}}
+\label{\detokenize{f77_parallel:id1}}\label{\detokenize{f77_parallel:fark-diag-kry-bbd-p}}
 This problem is an ARKode clone of the CVODE problem,
 \sphinxcode{fcv\_diag\_kry\_bbd\_p}.  As described in \phantomsection\label{\detokenize{f77_parallel:id2}}{\hyperref[\detokenize{References:hsr2017}]{\sphinxcrossref{{[}HSR2017{]}}}}, this problem
 models a stiff, linear, diagonal ODE system,
@@ -1952,7 +1952,7 @@ errors and final performance counters are printed on completion.
 
 
 \section{fark\_diag\_non\_p}
-\label{\detokenize{f77_parallel:id3}}\label{\detokenize{f77_parallel:fark-diag-non-p}}
+\label{\detokenize{f77_parallel:fark-diag-non-p}}\label{\detokenize{f77_parallel:id3}}
 This problem is an ARKode clone of the CVODE problem,
 \sphinxcode{fcv\_diag\_non\_p}.  As described in \phantomsection\label{\detokenize{f77_parallel:id4}}{\hyperref[\detokenize{References:hsr2017}]{\sphinxcrossref{{[}HSR2017{]}}}}, this problem models a
 nonstiff, linear, diagonal ODE system,
@@ -1974,10 +1974,10 @@ errors and final performance counters are printed on completion.
 
 
 \chapter{Serial Fortran 90 example problems}
-\label{\detokenize{f90_serial:serial-fortran-90-example-problems}}\label{\detokenize{f90_serial::doc}}\label{\detokenize{f90_serial:serial-f90}}
+\label{\detokenize{f90_serial::doc}}\label{\detokenize{f90_serial:serial-f90}}\label{\detokenize{f90_serial:serial-fortran-90-example-problems}}
 
 \section{ark\_bruss}
-\label{\detokenize{f90_serial:ark-bruss}}\label{\detokenize{f90_serial:id1}}
+\label{\detokenize{f90_serial:id1}}\label{\detokenize{f90_serial:ark-bruss}}
 This test problem is a Fortran-90 version of the same brusselator
 problem as before, {\hyperref[\detokenize{c_serial:ark-brusselator}]{\sphinxcrossref{\DUrole{std,std-ref}{ark\_brusselator}}}}, in which the “test 1”
 parameters are hard-coded into the solver.  As with the previous test,
@@ -2049,7 +2049,7 @@ and uses the KLU sparse-direct linear solver.
 \label{\detokenize{f90_parallel::doc}}\label{\detokenize{f90_parallel:parallel-f90}}\label{\detokenize{f90_parallel:parallel-fortran-90-example-problems}}
 
 \section{fark\_heat2D}
-\label{\detokenize{f90_parallel:fark-heat2d}}\label{\detokenize{f90_parallel:id1}}
+\label{\detokenize{f90_parallel:id1}}\label{\detokenize{f90_parallel:fark-heat2d}}
 This test problem is a Fortran-90 version of the same two-dimensional
 heat equation problem as in C++, {\hyperref[\detokenize{cpp_parallel:ark-heat2d}]{\sphinxcrossref{\DUrole{std,std-ref}{ark\_heat2D}}}}.  This models a
 simple two-dimenaional heat equation,
@@ -2094,12 +2094,12 @@ module for parallelization.
 \begin{sphinxthebibliography}{HSR2017}
 \bibitem[HSR2017]{\detokenize{HSR2017}}{\phantomsection\label{\detokenize{References:hsr2017}} 
 A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-Programs for CVODE v5.3.0. Technical Report
+Programs for CVODE v5.5.0. Technical Report
 UCRL-SM-208110, LLNL, 2020.
 }
 \bibitem[R2018]{\detokenize{R2018}}{\phantomsection\label{\detokenize{References:r2018}} 
 D.R. Reynolds. User Documentation for ARKode
-v4.3.0. Technical Report LLNL-CODE-667205, LLNL, 2020.
+v4.5.0. Technical Report LLNL-CODE-667205, LLNL, 2020.
 }
 \end{sphinxthebibliography}
 

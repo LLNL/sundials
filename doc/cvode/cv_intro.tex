@@ -99,6 +99,15 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v5.5.0}
+
+Refactored the {\sundials} build system. CMake 3.12.0 or newer is now required.
+Users will likely see deprecation warnings, but otherwise the changes
+should be fully backwards compatible for almost all users. {\sundials}
+now exports CMake targets and installs a SUNDIALSConfig.cmake file.
+
+Added support for SuperLU DIST 6.3.0 or newer.
+
 \subsection*{Changes in v5.4.0}
 
 Added new functions \Id{CVodeComputeState}, and \Id{CVodeGetNonlinearSystemData}

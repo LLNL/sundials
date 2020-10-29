@@ -1,5 +1,15 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 5.5.0
+
+Refactored the SUNDIALS build system. CMake 3.12.0 or newer is now required.
+Users will likely see deprecation warnings, but otherwise the changes
+should be fully backwards compatible for almost all users. SUNDIALS
+now exports CMake targets and installs a SUNDIALSConfig.cmake file.
+
+Added support for SuperLU DIST 6.3.0 or newer.
+
+
 ## Changes to SUNDIALS in release 5.4.0
 
 Added full support for time-dependent mass matrices in ARKStep, and expanded

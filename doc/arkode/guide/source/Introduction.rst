@@ -107,6 +107,16 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in v4.5.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Refactored the SUNDIALS build system. CMake 3.12.0 or newer is now required.
+Users will likely see deprecation warnings, but otherwise the changes
+should be fully backwards compatible for almost all users. SUNDIALS
+now exports CMake targets and installs a SUNDIALSConfig.cmake file.
+
+Added support for SuperLU DIST 6.3.0 or newer.
+
 Changes in v4.4.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -366,8 +366,12 @@ OPENMPDEV_STATUS=${OPENMPDEV_STATUS:-"OFF"}
 PTHREAD_STATUS=${PTHREAD_STATUS:-"OFF"}
 
 # Ensure Fortran interface options are set (default to OFF)
-F77_STATUS=${F77_STATUS:-"OFF"}
 F03_STATUS=${F03_STATUS:-"OFF"}
+if [ "$STATIC" == "ON" && "$SHARED" == "OFF" ]; then
+  F77_STATUS=${F77_STATUS:-"OFF"}
+else
+  F77_STATUS="OFF"
+fi
 
 # Ensure SUNDIALS package options are set (default to ON)
 ARKODE_STATUS=${ARKODE_STATUS:-"ON"}
