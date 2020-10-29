@@ -17,7 +17,12 @@
 # Example lists are tuples "name\;args\;nodes\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 
-list(APPEND CVODE_examples "cvAdvDiff_sludist\;2 1\;2\;develop")
+if(SUPERLUDIST_VERSION VERSION_GREATER_EQUAL "6.3.0")
+  list(APPEND CVODE_examples "cvAdvDiff_sludist\;2 1\;2\;develop")
+else()
+  print_warning("The cvAdvDiff_sludist example requires SuperLU_DIST >= 6.3.0, but the version found is less."
+                "SUPERLUDIST_VERSION: ${SUPERLUDIST_VERSION}")
+endif()
 
 if(MPI_CXX_COMPILER)
   set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})

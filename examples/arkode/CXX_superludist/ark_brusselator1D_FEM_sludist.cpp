@@ -64,7 +64,7 @@
 #include <stdlib.h>
 #include <cmath>
 #include <arkode/arkode_arkstep.h>            /* prototypes for ARKStep fcts., consts     */
-#include <nvector/nvector_openmp.h>           /* serial N_Vector types, fcts., macros     */
+#include <nvector/nvector_serial.h>           /* serial N_Vector types, fcts., macros     */
 #include <sunmatrix/sunmatrix_slunrloc.h>     /* access to SuperLU SLU_NR_loc SUNMatrix   */
 #include <sunlinsol/sunlinsol_superludist.h>  /* access to SuperLU_DIST SUNLinearSolver   */
 #include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype, etc     */
@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
   realtype reltol = RCONST(1.0e-6);     /* tolerances */
   realtype abstol = RCONST(1.0e-10);
   sunindextype i, NEQ, NNZ;
-  int num_threads, npes, my_pe;
+  int npes, my_pe;
 
   /* general problem variables */
   int retval;                 /* reusable error-checking retval */
@@ -177,9 +177,9 @@ int main(int argc, char *argv[]) {
   SuperMatrix Msuper;         /* empty SuperLU-DIST mass matrix object */
   SuperMatrix Rsuper;         /* empty SuperLU-DIST reaction matrix object */
   gridinfo_t grid;            /* SuperLU-DIST process grid */
-  LUstruct_t Alu, Mlu;        /* SuperLU-DIST LUstruct_t */
-  ScalePermstruct_t Ascaleperm, Mscaleperm; /* SuperLU-DIST ScalePermstruct_t */
-  SOLVEstruct_t Asolve, Msolve;             /* SuperLU-DIST SOLVEstruct_t */
+  dLUstruct_t Alu, Mlu;        /* SuperLU-DIST dLUstruct_t */
+  dScalePermstruct_t Ascaleperm, Mscaleperm; /* SuperLU-DIST dScalePermstruct_t */
+  dSOLVEstruct_t Asolve, Msolve;             /* SuperLU-DIST dSOLVEstruct_t */
   SuperLUStat_t Astat, Mstat;               /* SuperLU-DIST SuperLUState_t */
   superlu_dist_options_t Aopts, Mopts;      /* SuperLU-DIST options struct */
 
@@ -194,12 +194,10 @@ int main(int argc, char *argv[]) {
   MPI_Comm_size(MPI_COMM_WORLD, &npes);
   MPI_Comm_rank(MPI_COMM_WORLD, &my_pe);
 
-  num_threads = omp_get_num_threads();
-
-  /* this example only allows 1 MPI rank because we are demonstrating
-   * SuperLU_DIST on one node with OpenMP parallelism */
+  /* This example only allows 1 MPI rank because we are demonstrating
+   * SuperLU_DIST on one node. */
   if (npes != 1 && my_pe == 0) {
-    printf("WARNING: This example only uses 1 MPI rank to demonstrate the OpenMP parallelism feature of SuperLU_DIST\n");
+    printf("WARNING: This example only uses 1 MPI rank\n");
   }
 
   /* initialize SuperLU-DIST grid */
@@ -239,23 +237,23 @@ int main(int argc, char *argv[]) {
   printf("    reltol = %.1" ESYM ",  abstol = %.1" ESYM "\n\n", reltol, abstol);
 
   /* Initialize data structures */
-  y = N_VNew_OpenMP(NEQ, num_threads);           /* Create serial vector for solution */
-  if (check_retval((void *)y, "N_VNew_OpenMP", 0)) MPI_Abort(grid.comm, 1);
+  y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) MPI_Abort(grid.comm, 1);
 
   data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
   if (check_retval((void *)data, "N_VGetArrayPointer", 0)) MPI_Abort(grid.comm, 1);
 
-  umask = N_VNew_OpenMP(NEQ, num_threads);       /* Create serial vector masks */
-  if (check_retval((void *)umask, "N_VNew_OpenMP", 0)) MPI_Abort(grid.comm, 1);
+  umask = N_VNew_Serial(NEQ);       /* Create serial vector masks */
+  if (check_retval((void *)umask, "N_VNew_Serial", 0)) MPI_Abort(grid.comm, 1);
 
-  vmask = N_VNew_OpenMP(NEQ, num_threads);
-  if (check_retval((void *)vmask, "N_VNew_OpenMP", 0)) MPI_Abort(grid.comm, 1);
+  vmask = N_VNew_Serial(NEQ);
+  if (check_retval((void *)vmask, "N_VNew_Serial", 0)) MPI_Abort(grid.comm, 1);
 
-  wmask = N_VNew_OpenMP(NEQ, num_threads);
-  if (check_retval((void *)wmask, "N_VNew_OpenMP", 0)) MPI_Abort(grid.comm, 1);
+  wmask = N_VNew_Serial(NEQ);
+  if (check_retval((void *)wmask, "N_VNew_Serial", 0)) MPI_Abort(grid.comm, 1);
 
-  udata->tmp = N_VNew_OpenMP(NEQ, num_threads);  /* temporary N_Vector inside udata */
-  if (check_retval((void *) udata->tmp, "N_VNew_OpenMP", 0)) MPI_Abort(grid.comm, 1);
+  udata->tmp = N_VNew_Serial(NEQ);  /* temporary N_Vector inside udata */
+  if (check_retval((void *) udata->tmp, "N_VNew_Serial", 0)) MPI_Abort(grid.comm, 1);
 
   /* allocate and set up spatial mesh; this [arbitrarily] clusters
      more intervals near the end points of the interval */
@@ -355,16 +353,16 @@ int main(int argc, char *argv[]) {
   /* SuperLU_DIST structures */
   dCreate_CompRowLoc_Matrix_dist(&Asuper, NEQ, NEQ, NNZ, NEQ, 0,
                                  Adata, Acolind, Arowptr, SLU_NR_loc, SLU_D, SLU_GE);
-  ScalePermstructInit(NEQ, NEQ, &Ascaleperm);
-  LUstructInit(NEQ, &Alu);
+  dScalePermstructInit(NEQ, NEQ, &Ascaleperm);
+  dLUstructInit(NEQ, &Alu);
   PStatInit(&Astat);
   set_default_options_dist(&Aopts);
   Aopts.PrintStat = NO;
 
   dCreate_CompRowLoc_Matrix_dist(&Msuper, NEQ, NEQ, NNZ, NEQ, 0,
                                  Mdata, Mcolind, Mrowptr, SLU_NR_loc, SLU_D, SLU_GE);
-  ScalePermstructInit(NEQ, NEQ, &Mscaleperm);
-  LUstructInit(NEQ, &Mlu);
+  dScalePermstructInit(NEQ, NEQ, &Mscaleperm);
+  dLUstructInit(NEQ, &Mlu);
   PStatInit(&Mstat);
   set_default_options_dist(&Mopts);
   Mopts.PrintStat = NO;
@@ -517,8 +515,8 @@ int main(int argc, char *argv[]) {
 
   /* Free the SuperLU_DIST structures */
   PStatFree(&Astat); PStatFree(&Mstat);
-  ScalePermstructFree(&Ascaleperm); ScalePermstructFree(&Mscaleperm);
-  LUstructFree(&Alu); LUstructFree(&Mlu);
+  dScalePermstructFree(&Ascaleperm); dScalePermstructFree(&Mscaleperm);
+  dLUstructFree(&Alu); dLUstructFree(&Mlu);
   Destroy_CompRowLoc_Matrix_dist(&Asuper);
   Destroy_CompRowLoc_Matrix_dist(&Msuper);
   Destroy_CompRowLoc_Matrix_dist(&Rsuper);

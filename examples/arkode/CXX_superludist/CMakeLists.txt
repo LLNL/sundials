@@ -18,8 +18,11 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-if(BUILD_NVECTOR_OPENMP)
+if(SUPERLUDIST_VERSION VERSION_GREATER_EQUAL "6.3.0")
   list(APPEND ARKODE_examples "ark_brusselator1D_FEM_sludist\;1\;1\;develop")
+else()
+  print_warning("The ark_brusselator1D_FEM_sludist example requires SuperLU_DIST >= 6.3.0, but the version found is less."
+                "SUPERLUDIST_VERSION: ${SUPERLUDIST_VERSION}")
 endif()
 
 # Auxiliary files to install

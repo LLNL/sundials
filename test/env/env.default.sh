@@ -226,13 +226,12 @@ export OMP_NUM_THREADS=4
 export OPENMPDEV_STATUS=OFF
 
 # CUDA settings
-if [[ ("$compiler" != "gcc@9.2.0") && ("$compiler" != "clang@9.0.0") ]]; then
-    if [ "$realtype" == "extended" ]; then
-        export CUDA_STATUS=OFF
-        export FUSED_STATUS=OFF
-    else
-        export CUDA_STATUS=ON
-    fi
+if [ "$realtype" == "extended" ]; then
+    export CUDA_STATUS=OFF
+    # fused ops require CUDA
+    export FUSED_STATUS=OFF
+else
+    export CUDA_STATUS=ON
 fi
 
 # MPI
@@ -305,9 +304,9 @@ if [ "$realtype" != "double" ]; then
 else
     export SLUDIST_STATUS=ON
     if [ "$indexsize" == "32" ]; then
-        export SLUDISTDIR="$(spack location -i superlu-dist@6.1.1~int64+openmp % "$compiler")"
+        export SLUDISTDIR="$(spack location -i superlu-dist@6.3.1~int64+openmp % "$compiler")"
     else
-        export SLUDISTDIR="$(spack location -i superlu-dist@6.1.1+int64+openmp % "$compiler")"
+        export SLUDISTDIR="$(spack location -i superlu-dist@6.3.1+int64+openmp % "$compiler")"
     fi
     # built with 32-bit blas
     BLASDIR="$(spack location -i openblas@0.3.10~ilp64 % "$compiler")"
@@ -356,18 +355,14 @@ fi
 
 # raja
 RAJA_STATUS=OFF
-if [[ ("$compiler" != "gcc@9.2.0") && ("$compiler" != "clang@9.0.0") ]]; then
-    if [ "$realtype" == "double" ]; then
-        RAJA_STATUS=ON
-        export RAJADIR=${APPDIR}/raja-0.12.1
-    fi
+if [ "$realtype" == "double" ]; then
+    RAJA_STATUS=ON
+    export RAJADIR=${APPDIR}/raja-0.12.1
 fi
 
 # xbraid
 XBRAID_STATUS=OFF
-if [ "$compiler" == "gcc@4.9.4" ]; then
-    if [ "$realtype" == "double" ] && [ "$indexsize" == "32" ]; then
-        XBRAID_STATUS=ON
-        export XBRAIDDIR=${APPDIR}/xbraid
-    fi
+if [ "$realtype" == "double" ] && [ "$indexsize" == "32" ]; then
+    XBRAID_STATUS=ON
+    export XBRAIDDIR=${APPDIR}/xbraid
 fi

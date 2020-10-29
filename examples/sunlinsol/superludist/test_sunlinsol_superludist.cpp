@@ -57,9 +57,9 @@ int main(int argc, char *argv[])
   realtype        *xdata, *ydata, *bdata;
   sunindextype    *rowptrs, *colind;
   gridinfo_t      grid;                 /* SuperLU-DIST process grid  */
-  LUstruct_t      lu;
-  ScalePermstruct_t scaleperm;
-  SOLVEstruct_t   solve;                /* SuperLU-DIST solve struct  */
+  xLUstruct_t     lu;
+  xScalePermstruct_t scaleperm;
+  xSOLVEstruct_t  solve;                /* SuperLU-DIST solve struct  */
   SuperLUStat_t   stat;
   superlu_dist_options_t options;       /* SuperLU-DIST options struct*/
   sunindextype    i, j, k;
@@ -314,8 +314,8 @@ int main(int argc, char *argv[])
 
   /* Initialize all of the SuperLU-DIST structures */
   set_default_options_dist(&options);
-  ScalePermstructInit(N, N, &scaleperm);
-  LUstructInit(N, &lu);
+  xScalePermstructInit(N, N, &scaleperm);
+  xLUstructInit(N, &lu);
   PStatInit(&stat);
 
   /* Dont print out stats in this test */
@@ -399,8 +399,8 @@ int main(int argc, char *argv[])
   Destroy_CompRowLoc_Matrix_dist(Asuper);
   free(Asuper); Asuper = NULL;
   PStatFree(&stat);
-  ScalePermstructFree(&scaleperm);
-  LUstructFree(&lu);
+  xScalePermstructFree(&scaleperm);
+  xLUstructFree(&lu);
 
 #if LOG_PROCESS_TO_FILE
   /* Close file pointer */

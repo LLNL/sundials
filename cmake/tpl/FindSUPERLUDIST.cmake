@@ -76,12 +76,25 @@ if(SUPERLUDIST_LIBRARY AND SUPERLUDIST_INCLUDE_DIR)
   mark_as_advanced(FORCE SUPERLUDIST_CONFIG_PATH)
 endif()
 
-# set a more informative error message in case the library was not found
-set(SUPERLUDIST_NOT_FOUND_MESSAGE "\
-************************************************************************\n\
-ERROR: Could not find SuperLU_DIST. Please check the variables:\n\
-       SUPERLUDIST_INCLUDE_DIR and SUPERLUDIST_LIBRARY_DIR\n\
-************************************************************************")
+# find the library version file
+if(SUPERLUDIST_LIBRARY AND SUPERLUDIST_INCLUDE_DIR)
+  find_file(SUPERLUDIST_VERSION_PATH superlu_defs.h PATHS ${SUPERLUDIST_INCLUDE_DIR})
+
+  file(STRINGS ${SUPERLUDIST_VERSION_PATH} _version_major REGEX "SUPERLU_DIST_MAJOR_VERSION")
+  list(GET _version_major 0 _version_string)
+  string(REGEX MATCHALL "[0-9]" _version_major "${_version_string}")
+
+  file(STRINGS ${SUPERLUDIST_VERSION_PATH} _version_minor REGEX "SUPERLU_DIST_MINOR_VERSION")
+  list(GET _version_minor 0 _version_string)
+  string(REGEX MATCHALL "[0-9]" _version_minor "${_version_string}")
+
+  file(STRINGS ${SUPERLUDIST_VERSION_PATH} _version_patch REGEX "SUPERLU_DIST_PATCH_VERSION")
+  list(GET _version_patch 0 _version_string)
+  string(REGEX MATCHALL "[0-9]" _version_patch "${_version_string}")
+
+  set(SUPERLUDIST_VERSION "${_version_major}.${_version_minor}.${_version_patch}")
+  mark_as_advanced(FORCE SUPERLUDIST_VERSION_PATH)
+endif()
 
 # set package variables including SUPERLUDIST_FOUND
 find_package_handle_standard_args(SUPERLUDIST
@@ -90,8 +103,8 @@ find_package_handle_standard_args(SUPERLUDIST
     SUPERLUDIST_LIBRARIES
     SUPERLUDIST_INCLUDE_DIR
     SUPERLUDIST_INDEX_SIZE
-  FAIL_MESSAGE
-    "${SUPERLUDIST_NOT_FOUND_MESSAGE}"
+  VERSION_VAR
+    SUPERLUDIST_VERSION
   )
 
 # Create target for SuperLU_DIST

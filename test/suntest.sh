@@ -356,6 +356,8 @@ else
     RAJA_STATUS=OFF
     XBRAID_STATUS=OFF
 
+    # fused ops require cuda
+    FUSED_STATUS=OFF
 fi
 
 # Ensure OpenMP and PThread options are set (default to OFF)
