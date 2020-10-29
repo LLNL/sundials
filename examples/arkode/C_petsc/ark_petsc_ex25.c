@@ -89,7 +89,8 @@ int main(int argc, char **argv)
   T0    = 0.0;
   ftime = 10.0;
   tstop = T0;
-  dtout = 1.;
+  t     = T0;
+  dtout = 1.0;
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Create distributed array (DMDA) to manage parallel grid and vectors

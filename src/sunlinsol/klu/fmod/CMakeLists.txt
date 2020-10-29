@@ -14,30 +14,19 @@
 # CMakeLists.txt file for the F2003 KLU SUNLinearSolver object library
 # ---------------------------------------------------------------
 
-set(sunlinsolklu_SOURCES fsunlinsol_klu_mod.f90 fsunlinsol_klu_mod.c)
-
-if(BUILD_STATIC_LIBS)
-  sundials_add_f2003_interface_library(sundials_fsunlinsolklu_mod_static STATIC_OBJECT
-    ${sunlinsolklu_SOURCES}
-  )
-  add_dependencies(sundials_fsunlinsolklu_mod_static_obj sundials_fgeneric_static_obj)
-  target_link_libraries(sundials_fsunlinsolklu_mod_static PUBLIC sundials_fsunmatrixsparse_mod_static)
-  set_target_properties(sundials_fsunlinsolklu_mod_static
-    PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu_mod CLEAN_DIRECT_OUTPUT 1)
-  install(TARGETS sundials_fsunlinsolklu_mod_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif(BUILD_STATIC_LIBS)
-
-if(BUILD_SHARED_LIBS)
-  sundials_add_f2003_interface_library(sundials_fsunlinsolklu_mod_shared SHARED_OBJECT
-    ${sunlinsolklu_SOURCES}
-  )
-  add_dependencies(sundials_fsunlinsolklu_mod_shared_obj sundials_fgeneric_shared_obj)
-  target_link_libraries(sundials_fsunlinsolklu_mod_shared PUBLIC sundials_fsunmatrixsparse_mod_shared)
-  set_target_properties(sundials_fsunlinsolklu_mod_shared
-    PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu_mod CLEAN_DIRECT_OUTPUT 1)
-  set_target_properties(sundials_fsunlinsolklu_mod_shared
-    PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
-  install(TARGETS sundials_fsunlinsolklu_mod_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif(BUILD_SHARED_LIBS)
+sundials_add_f2003_library(sundials_fsunlinsolklu_mod
+  SOURCES
+    fsunlinsol_klu_mod.f90 fsunlinsol_klu_mod.c
+  OBJECT_LIBRARIES
+    sundials_fgeneric_mod_obj
+  LINK_LIBRARIES
+    PUBLIC sundials_fsunmatrixsparse_mod
+  OUTPUT_NAME
+    sundials_fsunlinsolklu_mod
+  VERSION
+    ${sunlinsollib_VERSION}
+  SOVERSION
+    ${sunlinsollib_SOVERSION}
+)
 
 message(STATUS "Added SUNLINSOL_KLU F2003 interface")

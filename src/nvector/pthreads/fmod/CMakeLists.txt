@@ -16,26 +16,17 @@
 
 set(nvecpthreads_SOURCES fnvector_pthreads_mod.f90 fnvector_pthreads_mod.c)
 
-if(BUILD_STATIC_LIBS)
-  sundials_add_f2003_interface_library(sundials_fnvecpthreads_mod_static STATIC_OBJECT
-    ${nvecpthreads_SOURCES}
-  )
-  add_dependencies(sundials_fnvecpthreads_mod_static_obj sundials_fgeneric_static_obj)
-  set_target_properties(sundials_fnvecpthreads_mod_static
-    PROPERTIES OUTPUT_NAME sundials_fnvecpthreads_mod CLEAN_DIRECT_OUTPUT 1)
-  install(TARGETS sundials_fnvecpthreads_mod_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif(BUILD_STATIC_LIBS)
-
-if(BUILD_SHARED_LIBS)
-  sundials_add_f2003_interface_library(sundials_fnvecpthreads_mod_shared SHARED_OBJECT
-    ${nvecpthreads_SOURCES}
-  )
-  add_dependencies(sundials_fnvecpthreads_mod_shared_obj sundials_fgeneric_shared_obj)
-  set_target_properties(sundials_fnvecpthreads_mod_shared
-    PROPERTIES OUTPUT_NAME sundials_fnvecpthreads_mod CLEAN_DIRECT_OUTPUT 1)
-  set_target_properties(sundials_fnvecpthreads_mod_shared
-    PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
-  install(TARGETS sundials_fnvecpthreads_mod_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif(BUILD_SHARED_LIBS)
+sundials_add_f2003_library(sundials_fnvecpthreads_mod
+  SOURCES
+    fnvector_pthreads_mod.f90 fnvector_pthreads_mod.c
+  OBJECT_LIBRARIES
+    sundials_fgeneric_mod_obj
+  OUTPUT_NAME
+    sundials_fnvecpthreads_mod
+  VERSION
+    ${nveclib_VERSION}
+  SOVERSION
+    ${nveclib_SOVERSION}
+)
 
 message(STATUS "Added NVECTOR_PTHREADS F2003 interface")

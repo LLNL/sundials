@@ -45,36 +45,3 @@ if [ $? -ne 0 ]; then
     echo "FAILED: ./suntest_tarscript.sh sundials all both each ON DEV $bt" | tee -a suntest.log
     exit 1
 fi
-
-# ==============================================================================
-# Test with xSDK options with TPLs and DEVTESTS ON
-# ==============================================================================
-
-realtype=( "single" "double" "extended" )
-indexsize=( "32" "64" )
-
-for rt in "${realtype[@]}"; do
-    for is in "${indexsize[@]}"; do
-
-        # print test label for Jenkins section collapsing
-        echo "TEST: ./suntest_xsdk.sh $rt $is both ON DEV $bt"
-
-        # run tests using xSDK CMake options
-        # rt   = real type to build/test
-        # is   = index size to build/test
-        # both = build both shared and static libraries (shared used in tests)
-        # ON   = enable third party libraries
-        # DEV  = enable development tests
-        # bt   = number of parallel build threads
-        ./suntest_xsdk.sh $rt $is both ON DEV $bt
-
-        # check return flag
-        if [ $? -ne 0 ]; then
-            echo "FAILED: ./suntest_xsdk.sh $rt $is both ON DEV $bt" | tee -a suntest.log
-            exit 1
-        else
-            echo "PASSED"
-        fi
-
-    done
-done

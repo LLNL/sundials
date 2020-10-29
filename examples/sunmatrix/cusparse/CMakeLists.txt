@@ -32,23 +32,13 @@ set(sunmatrix_examples_dependencies
   dreadrb
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(SUNDIALS_LIBS sundials_nvecserial_static
-                    sundials_nveccuda_static
-                    sundials_sunmatrixdense_static
-                    sundials_sunmatrixsparse_static
-                    sundials_sunmatrixcusparse_static
-                    ${EXTRA_LINK_LIBS})
-else()
-  set(SUNDIALS_LIBS sundials_nvecserial_shared
-                    sundials_nveccuda_shared
-                    sundials_sunmatrixdense_shared
-                    sundials_sunmatrixsparse_shared
-                    sundials_sunmatrixcusparse_shared
-                    ${EXTRA_LINK_LIBS})
-endif()
+# Specify libraries to link against
+set(SUNDIALS_LIBS sundials_nvecserial
+                  sundials_nveccuda
+                  sundials_sunmatrixdense
+                  sundials_sunmatrixsparse
+                  sundials_sunmatrixcusparse
+                  ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_cusparse_examples})
@@ -60,22 +50,13 @@ foreach(example_tuple ${sunmatrix_cusparse_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.cu
                   ../test_sunmatrix.c
-                  ../dreadrb.c
-                  ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c)
+                  ../dreadrb.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -84,7 +65,7 @@ foreach(example_tuple ${sunmatrix_cusparse_examples})
     target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
 
     # additional includes
-    target_include_directories(${example} PRIVATE . .. ${sundials_SOURCE_DIR}/src/sunmatrix/cusparse)
+    target_include_directories(${example} PRIVATE . .. ${SUNDIALS_SOURCE_DIR}/src/sunmatrix/cusparse)
   endif()
 
   # check if example args are provided and set the test name
@@ -169,6 +150,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/cusparse
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

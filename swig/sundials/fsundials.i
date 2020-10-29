@@ -62,7 +62,7 @@
 
 // Inform SWIG of the SUNDIALS_EXPORT macro
 #define SUNDIALS_EXPORT
-#define SUNDIALS_DEPRECATED
+#define SUNDIALS_DEPRECATED_EXPORT
 
 
 // Insert SUNDIALS copyright into generated C files.

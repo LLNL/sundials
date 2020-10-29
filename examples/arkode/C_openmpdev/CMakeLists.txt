@@ -24,24 +24,12 @@ set(ARKODE_examples
   "ark_heat1D_adapt_ompdev\;4\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECOMP_LIB sundials_nvecopenmpdev_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECOMP_LIB sundials_nvecopenmpdev_shared)
-endif()
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(NVECOMP_LIB sundials_nvecopenmpdev)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECOMP_LIB} ${EXTRA_LINK_LIBS})
-
-# update the compilation flags to include OpenMP support
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAFS}")
-# Use C flags for linker as well.
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
@@ -126,9 +114,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmpdev
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(arkode C_openmpdev)
 
-endif(EXAMPLES_INSTALL)
+endif()

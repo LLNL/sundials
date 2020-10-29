@@ -23,55 +23,26 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Add variable with the sources for the library
-set(lib_SOURCES sunnonlinsol_petscsnes.c)
-
-# Add variable with the common SUNDIALS sources to be included in the library
-set(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
-  )
-
 # Add variable with the exported header files
 set(lib_HEADERS
-  ${sundials_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_petscsnes.h
+  ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_petscsnes.h
   )
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-
-if(BUILD_STATIC_LIBS)
-  add_library(sundials_sunnonlinsolpetscsnes_static STATIC ${lib_SOURCES} ${shared_SOURCES})
-
-  target_link_libraries(sundials_sunnonlinsolpetscsnes_static
-    PUBLIC sundials_nvecpetsc_static PETSC::SNES)
-
-  set_target_properties(sundials_sunnonlinsolpetscsnes_static PROPERTIES
-                        OUTPUT_NAME sundials_sunnonlinsolpetscsnes
-                        CLEAN_DIRECT_OUTPUT 1)
-
-  install(TARGETS sundials_sunnonlinsolpetscsnes_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif()
-
-if(BUILD_SHARED_LIBS)
-  add_library(sundials_sunnonlinsolpetscsnes_shared SHARED ${lib_SOURCES} ${shared_SOURCES})
-
-  target_link_libraries(sundials_sunnonlinsolpetscsnes_shared
-    PUBLIC sundials_nvecpetsc_shared PETSC::SNES)
-
-  if(UNIX)
-    target_link_libraries(sundials_sunnonlinsolpetscsnes_shared PRIVATE m)
-  endif()
-
-  set_target_properties(sundials_sunnonlinsolpetscsnes_shared PROPERTIES
-                        OUTPUT_NAME sundials_sunnonlinsolpetscsnes
-                        CLEAN_DIRECT_OUTPUT 1
-                        VERSION ${sunnonlinsollib_VERSION}
-                        SOVERSION ${sunnonlinsollib_SOVERSION})
-
-  install(TARGETS sundials_sunnonlinsolpetscsnes_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif()
+# Create the library
+sundials_add_library(sundials_sunnonlinsolpetscsnes
+  SOURCES
+    sunnonlinsol_petscsnes.c
+  OBJECT_LIBRARIES
+    sundials_generic_obj
+  LINK_LIBRARIES
+    PUBLIC sundials_nvecpetsc SUNDIALS::PETSC_SNES
+  OUTPUT_NAME
+    sundials_sunnonlinsolpetscsnes
+  VERSION
+    ${nveclib_VERSION}
+  SOVERSION
+    ${nveclib_SOVERSION}
+)
 
 # Install the header files
 install(FILES ${lib_HEADERS} DESTINATION include/sunnonlinsol)

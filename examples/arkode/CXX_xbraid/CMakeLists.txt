@@ -34,33 +34,13 @@ set(ARKODE_extras
   plot_heat2D.py
   )
 
-if(MPI_CXX_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-
-  # disable C++ extensions (for known wrappers)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
-else()
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
-
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(ARKODE_XBRAID_LIB sundials_arkode_xbraid_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(ARKODE_XBRAID_LIB sundials_arkode_xbraid_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
-endif()
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(ARKODE_XBRAID_LIB sundials_arkode_xbraid)
+set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${ARKODE_XBRAID_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
-
 
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})
@@ -83,12 +63,7 @@ foreach(example_tuple ${ARKODE_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
-    target_link_libraries(${example} XBRAID::XBRAID)
-
-    if(NOT MPI_CXX_COMPILER)
-      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-    endif()
+    target_link_libraries(${example} ${SUNDIALS_LIBS} MPI::MPI_CXX)
 
   endif()
 
@@ -145,7 +120,7 @@ if(HYPRE_ENABLE)
       # libraries to link against
       target_link_libraries(${example} ${SUNDIALS_LIBS})
       target_link_libraries(${example} ${HYPRE_LIBRARIES})
-      target_link_libraries(${example} XBRAID::XBRAID)
+      target_link_libraries(${example} SUNDIALS::XBRAID)
 
       if(NOT MPI_CXX_COMPILER)
         target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})

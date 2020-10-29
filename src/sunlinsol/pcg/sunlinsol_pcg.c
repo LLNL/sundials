@@ -143,7 +143,7 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl)
  * Function to set the type of preconditioning for PCG to use
  */
 
-SUNDIALS_EXPORT int SUNLinSol_PCGSetPrecType(SUNLinearSolver S, int pretype)
+int SUNLinSol_PCGSetPrecType(SUNLinearSolver S, int pretype)
 {
   /* Check for legal pretype */
   if ((pretype != PREC_NONE)  && (pretype != PREC_LEFT) &&
@@ -164,7 +164,7 @@ SUNDIALS_EXPORT int SUNLinSol_PCGSetPrecType(SUNLinearSolver S, int pretype)
  * Function to set the maximum number of iterations for PCG to use
  */
 
-SUNDIALS_EXPORT int SUNLinSol_PCGSetMaxl(SUNLinearSolver S, int maxl)
+int SUNLinSol_PCGSetMaxl(SUNLinearSolver S, int maxl)
 {
   /* Check for non-NULL SUNLinearSolver */
   if (S == NULL) return(SUNLS_MEM_NULL);

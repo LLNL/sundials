@@ -32,7 +32,7 @@ set(nvector_examples_dependencies
   )
 
 # If building F2003 tests
-if (F2003_INTERFACE_ENABLE)
+if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(nvector_mpimanyvector_fortran_examples
     "test_fnvector_mpimanyvector_mod\;\;1\;1\;"
     "test_fnvector_mpimanyvector_mod\;\;1\;4\;")
@@ -41,24 +41,13 @@ endif()
 # Add source directory to include directories
 include_directories(. ..)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nvecmpimanyvector_static
-                sundials_nvecparallel_static
-                sundials_nvecserial_static)
-  if (F2003_INTERFACE_ENABLE)
-    list(APPEND NVECS_LIB sundials_fnvecmpimanyvector_mod_static
-                          sundials_fnvecserial_mod_static)
-  endif()
-else()
-  set(NVECS_LIB sundials_nvecmpimanyvector_shared
-                sundials_nvecparallel_shared
-                sundials_nvecserial_shared)
-  if (F2003_INTERFACE_ENABLE)
-    list(APPEND NVECS_LIB sundials_fnvecmpimanyvector_mod_shared
-                          sundials_fnvecserial_mod_shared)
-  endif()
+# Specify libraries to link against
+set(NVECS_LIB sundials_nvecmpimanyvector
+              sundials_nvecparallel
+              sundials_nvecserial)
+if (BUILD_FORTRAN_MODULE_INTERFACE)
+  list(APPEND NVECS_LIB sundials_fnvecmpimanyvector_mod
+                        sundials_fnvecserial_mod)
 endif()
 
 # Set-up linker flags and link libraries
@@ -72,7 +61,7 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-if (F2003_INTERFACE_ENABLE)
+if (BUILD_FORTRAN_MODULE_INTERFACE)
   if(MPI_Fortran_COMPILER)
     # use MPI wrapper as the compiler
     set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
@@ -93,22 +82,13 @@ foreach(example_tuple ${nvector_mpimanyvector_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.c
       ../test_nvector.c
-      ../test_mpinvector.c
-      ../../../src/sundials/sundials_nvector.c)
+      ../test_mpinvector.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -170,10 +150,8 @@ foreach(example_tuple ${nvector_mpimanyvector_fortran_examples})
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.f90
-      ${sundials_SOURCE_DIR}/examples/utilities/test_utilities.f90
-      ${sundials_SOURCE_DIR}/examples/nvector/test_nvector.f90
-      $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
-      $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.f90)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -256,6 +234,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

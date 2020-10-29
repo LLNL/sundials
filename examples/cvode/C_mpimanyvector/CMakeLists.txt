@@ -28,19 +28,12 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODE_LIB sundials_cvode_static)
-  set(NVECP_LIB sundials_nvecmpimanyvector_static sundials_nvecparallel_static)
-else()
-  set(CVODE_LIB sundials_cvode_shared)
-  set(NVECP_LIB sundials_nvecmpimanyvector_shared sundials_nvecparallel_shared)
-endif()
+# Specify libraries to link against
+set(CVODE_LIB sundials_cvode)
+set(NVECP_LIB sundials_nvecmpimanyvector sundials_nvecparallel)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB
-       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
+  list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
 endif()
 
 # Set-up linker flags and link libraries
@@ -132,9 +125,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_mpimanyvector
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvode C_mpimanyvector)
 
-endif(EXAMPLES_INSTALL)
+endif()

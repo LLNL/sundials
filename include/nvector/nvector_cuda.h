@@ -72,9 +72,10 @@ SUNDIALS_EXPORT N_Vector N_VMakeManaged_Cuda(sunindextype length,
    In SUNDIALS v6, this function will be removed.
    Use N_VNewWithMemHelp_Cuda instead.
  */
-SUNDIALS_DEPRECATED N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length,
-                                                              void* (*allocfn)(size_t),
-                                                              void (*freefn)(void*));
+SUNDIALS_DEPRECATED_EXPORT
+N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length,
+                                          void* (*allocfn)(size_t),
+                                          void (*freefn)(void*));
 SUNDIALS_EXPORT void N_VSetHostArrayPointer_Cuda(realtype* h_vdata, N_Vector v);
 SUNDIALS_EXPORT void N_VSetDeviceArrayPointer_Cuda(realtype* d_vdata, N_Vector v);
 SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Cuda(N_Vector x);
@@ -83,11 +84,8 @@ SUNDIALS_EXPORT int N_VSetKernelExecPolicy_Cuda(N_Vector x,
                                                 SUNCudaExecPolicy* reduce_exec_policy);
 SUNDIALS_EXPORT void N_VCopyToDevice_Cuda(N_Vector v);
 SUNDIALS_EXPORT void N_VCopyFromDevice_Cuda(N_Vector v);
-/* DEPRECATION NOTICE:
-  In SUNDIALS v6, this function will be removed.
-  Use N_VSetKerrnelExecPolicy_Cuda instead.
-*/
-SUNDIALS_DEPRECATED void N_VSetCudaStream_Cuda(N_Vector x, cudaStream_t *stream);
+ /* DEPRECATED (to be removed in SUNDIALS v6): use N_VSetKerrnelExecPolicy_Cuda instead */
+SUNDIALS_DEPRECATED_EXPORT void N_VSetCudaStream_Cuda(N_Vector x, cudaStream_t *stream);
 
 SUNDIALS_STATIC_INLINE
 sunindextype N_VGetLength_Cuda(N_Vector x)

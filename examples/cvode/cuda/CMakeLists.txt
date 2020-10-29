@@ -36,32 +36,18 @@ set(CVODE_examples_cusolver
 if(SUNDIALS_INDEX_SIZE MATCHES "32")
   set(all_examples "${CVODE_examples_cusolver}")
   # Specify libraries to link against
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNDIALS_LIBS sundials_sunlinsolcusolversp_static)
-  else()
-    set(SUNDIALS_LIBS sundials_sunlinsolcusolversp_shared)
-  endif()
+  set(SUNDIALS_LIBS sundials_sunlinsolcusolversp)
 endif()
 
 list(APPEND all_examples "${CVODE_examples}")
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
-                    sundials_cvode_static
-                    sundials_nveccuda_static
-                    ${EXTRA_LINK_LIBS})
-else()
-  set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
-                    sundials_cvode_shared
-                    sundials_nveccuda_shared
-                    ${EXTRA_LINK_LIBS})
-endif()
+# Specify libraries to link against
+set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
+                  sundials_cvode
+                  sundials_nveccuda)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
-    sundials_cvode_fused_cuda_${LINK_LIBRARY_TYPE})
+  set(SUNDIALS_LIBS ${SUNDIALS_LIBS} sundials_cvode_fused_cuda)
 endif()
 
 # Add source directory to include directories
@@ -85,7 +71,7 @@ foreach(example_tuple ${all_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -166,9 +152,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvode cuda)
 
-endif(EXAMPLES_INSTALL)
+endif()

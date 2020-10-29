@@ -174,7 +174,7 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl)
  * Function to set the type of preconditioning for SPTFQMR to use
  */
 
-SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
+int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
 {
   /* Check for legal pretype */
   if ((pretype != PREC_NONE)  && (pretype != PREC_LEFT) &&
@@ -195,7 +195,7 @@ SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
  * Function to set the maximum number of iterations for SPTFQMR to use
  */
 
-SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
+int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
 {
   /* Check for non-NULL SUNLinearSolver */
   if (S == NULL) return(SUNLS_MEM_NULL);

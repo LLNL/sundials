@@ -24,13 +24,8 @@ set(FCVODES_examples
   "cvsAdvDiff_FSA_non_f2003\;-sensi sim t\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODES_LIB sundials_fcvodes_mod_static)
-else()
-  set(CVODES_LIB sundials_fcvodes_mod_shared)
-endif()
+# Specify libraries to link against
+set(CVODES_LIB sundials_fcvodes_mod)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${CVODES_LIB} ${EXTRA_LINK_LIBS})
@@ -126,9 +121,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvodes F2003_serial)
 
-endif(EXAMPLES_INSTALL)
+endif()

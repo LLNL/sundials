@@ -23,46 +23,63 @@ $tar $tarfile $distrobase/CMakeLists.txt || exit 1
 
 echo "   --- Add configuration files to $tarfile"
 
-$tar $tarfile $distrobase/config/CorrectWindowsPaths.cmake              || exit 1
-$tar $tarfile $distrobase/config/FindHypre.cmake                        || exit 1
-$tar $tarfile $distrobase/config/FindKLU.cmake                          || exit 1
-$tar $tarfile $distrobase/config/FindPackageMultipass.cmake             || exit 1
-$tar $tarfile $distrobase/config/FindPETSC.cmake                        || exit 1
-$tar $tarfile $distrobase/config/FindSUPERLUDIST.cmake                  || exit 1
-$tar $tarfile $distrobase/config/FindSUPERLUMT.cmake                    || exit 1
-$tar $tarfile $distrobase/config/FindTrilinos.cmake                     || exit 1
-$tar $tarfile $distrobase/config/FindXBRAID.cmake                       || exit 1
-$tar $tarfile $distrobase/config/ResolveCompilerPaths.cmake             || exit 1
-$tar $tarfile $distrobase/config/SundialsAddF2003InterfaceLibrary.cmake || exit 1
-$tar $tarfile $distrobase/config/SundialsAddTest.cmake                  || exit 1
-$tar $tarfile $distrobase/config/SundialsAddTestInstall.cmake           || exit 1
-$tar $tarfile $distrobase/config/SundialsCMakeMacros.cmake              || exit 1
-$tar $tarfile $distrobase/config/SundialsCudaArchGeq.cmake              || exit 1
-$tar $tarfile $distrobase/config/SundialsCXX.cmake                      || exit 1
-$tar $tarfile $distrobase/config/SundialsDeprecated.cmake               || exit 1
-$tar $tarfile $distrobase/config/SundialsFortran.cmake                  || exit 1
-$tar $tarfile $distrobase/config/SundialsHypre.cmake                    || exit 1
-$tar $tarfile $distrobase/config/SundialsIndexSize.cmake                || exit 1
-$tar $tarfile $distrobase/config/SundialsKLU.cmake                      || exit 1
-$tar $tarfile $distrobase/config/SundialsLapack.cmake                   || exit 1
-$tar $tarfile $distrobase/config/SundialsMPI.cmake                      || exit 1
-$tar $tarfile $distrobase/config/SundialsOpenMP.cmake                   || exit 1
-$tar $tarfile $distrobase/config/SundialsOption.cmake                   || exit 1
-$tar $tarfile $distrobase/config/SundialsPETSC.cmake                    || exit 1
-$tar $tarfile $distrobase/config/SundialsPOSIXTimers.cmake              || exit 1
-$tar $tarfile $distrobase/config/SundialsSuperLUDIST.cmake              || exit 1
-$tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake                || exit 1
-$tar $tarfile $distrobase/config/SundialsTesting.cmake                  || exit 1
-$tar $tarfile $distrobase/config/SundialsTrilinos.cmake                 || exit 1
-$tar $tarfile $distrobase/config/SundialsTryCompileExecute.cmake        || exit 1
-$tar $tarfile $distrobase/config/SundialsXBRAID.cmake                   || exit 1
-$tar $tarfile $distrobase/config/SundialsXSDK.cmake                     || exit 1
+$tar $tarfile $distrobase/cmake/SUNDIALSConfig.cmake.in                    || exit 1
+$tar $tarfile $distrobase/cmake/SundialsDeprecated.cmake                   || exit 1
+$tar $tarfile $distrobase/cmake/SundialsBuildOptionsPre.cmake              || exit 1
+$tar $tarfile $distrobase/cmake/SundialsBuildOptionsPost.cmake             || exit 1
+$tar $tarfile $distrobase/cmake/SundialsExampleOptions.cmake               || exit 1
+$tar $tarfile $distrobase/cmake/SundialsIndexSize.cmake                    || exit 1
+$tar $tarfile $distrobase/cmake/SundialsSetupCompilers.cmake               || exit 1
+$tar $tarfile $distrobase/cmake/SundialsSetupConfig.cmake                  || exit 1
+$tar $tarfile $distrobase/cmake/SundialsSetupCuda.cmake                    || exit 1
+$tar $tarfile $distrobase/cmake/SundialsSetupCXX.cmake                     || exit 1
+$tar $tarfile $distrobase/cmake/SundialsSetupFortran.cmake                 || exit 1
+$tar $tarfile $distrobase/cmake/SundialsSetupTPLs.cmake                    || exit 1
+$tar $tarfile $distrobase/cmake/SundialsSetupTesting.cmake                 || exit 1
+$tar $tarfile $distrobase/cmake/SundialsTPLOptions.cmake                   || exit 1
+$tar $tarfile $distrobase/cmake/macros/CorrectWindowsPaths.cmake           || exit 1
+$tar $tarfile $distrobase/cmake/macros/FindPackageMultipass.cmake          || exit 1
+$tar $tarfile $distrobase/cmake/macros/ResolveCompilerPaths.cmake          || exit 1
+$tar $tarfile $distrobase/cmake/macros/SundialsAddLibrary.cmake            || exit 1
+$tar $tarfile $distrobase/cmake/macros/SundialsAddTest.cmake               || exit 1
+$tar $tarfile $distrobase/cmake/macros/SundialsAddTestInstall.cmake        || exit 1
+$tar $tarfile $distrobase/cmake/macros/SundialsCMakeMacros.cmake           || exit 1
+$tar $tarfile $distrobase/cmake/macros/SundialsOption.cmake                || exit 1
+$tar $tarfile $distrobase/cmake/macros/SundialsTryCompileExecute.cmake     || exit 1
+$tar $tarfile $distrobase/cmake/tpl/FindHYPRE.cmake                        || exit 1
+$tar $tarfile $distrobase/cmake/tpl/FindKLU.cmake                          || exit 1
+$tar $tarfile $distrobase/cmake/tpl/FindPETSC.cmake                        || exit 1
+$tar $tarfile $distrobase/cmake/tpl/FindSUPERLUMT.cmake                    || exit 1
+$tar $tarfile $distrobase/cmake/tpl/FindSUPERLUDIST.cmake                  || exit 1
+$tar $tarfile $distrobase/cmake/tpl/FindTrilinos.cmake                     || exit 1
+$tar $tarfile $distrobase/cmake/tpl/FindXBRAID.cmake                       || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsHypre.cmake                    || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsKLU.cmake                      || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsLapack.cmake                   || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsMPI.cmake                      || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsOpenMP.cmake                   || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsPETSC.cmake                    || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsPOSIXTimers.cmake              || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsPthread.cmake                  || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsRAJA.cmake                     || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsSuperLUMT.cmake                || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsSuperLUDIST.cmake              || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsTrilinos.cmake                 || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsXBRAID.cmake                 || exit 1
 
 echo "   --- Add shared module to $tarfile"
 
 $tar $tarfile $distrobase/include/sundials/sundials_band.h                || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_config.in             || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_fconfig.in            || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_cuda_policies.hpp     || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_types.h               || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h           || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_matrix.h              || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_linearsolver.h        || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_math.h                || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_nvector.h             || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_fnvector.h            || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_dense.h               || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_direct.h              || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_fconfig.in            || exit 1
@@ -284,6 +301,11 @@ $tar $tarfile $distrobase/src/sunmatrix/slunrloc/sunmatrix_slunrloc.c || exit 1
 
 echo "   --- Add sunmemory modules to $tarfile"
 
+$tar $tarfile $distrobase/src/sunmemory/CMakeLists.txt || exit 1
+
+echo "   --- Add sunmemory/cuda modules to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmemory/cuda/CMakeLists.txt || exit 1
 $tar $tarfile $distrobase/src/sunmemory/cuda/sundials_cuda_memory.cu || exit 1
 
 echo "   --- Add sunlinsol modules to $tarfile"
@@ -573,6 +595,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_RAJA_ex.in   ||
 $tar $tarfile $distrobase/examples/templates/cmakelists_parhyp_C_ex.in        || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_parhyp_CXX_ex.in      || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_petsc_C_ex.in         || exit 1
+$tar $tarfile $distrobase/examples/templates/cmakelists_CXX_ex.in             || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_C_ex.in        || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F77_ex.in      || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F2003_ex.in    || exit 1

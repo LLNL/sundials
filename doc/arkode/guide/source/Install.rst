@@ -448,7 +448,7 @@ illustration only.
 
    .. note:: Fortran support (and all related options) are triggered only if
              either Fortran-C support is (``FCMIX_ENABLE`` is ON) or
-             LAPACK support is enabled (``LAPACK_ENABLE`` is ``ON``).
+             LAPACK support is enabled (``ENABLE_LAPACK`` is ``ON``).
 
 :index:`CMAKE_Fortran_FLAGS <CMAKE_Fortran_FLAGS (CMake option)>`
    Flags for Fortran compiler
@@ -480,17 +480,12 @@ illustration only.
              will be installed under subdirectories ``include`` and ``lib`` of
             ``CMAKE_INSTALL_PREFIX``, respectively.
 
-:index:`CXX_ENABLE <CXX_ENABLE (CMake option)>`
-   Flag to enable C++ ARKode examples (if examples are enabled)
-
-   Default: ``OFF``
-
-:index:`CUDA_ENABLE <CUDA_ENABLE (CMake option)>`
+:index:`ENABLE_CUDA <ENABLE_CUDA (CMake option)>`
    Build the SUNDIALS CUDA modules.
 
    Default: ``OFF``
 
-:index:`CUDA_ARCH <CUDA_ARCH (CMake option)>`
+:index:`CMAKE_CUDA_ARCHITECTURES <CMAKE_CUDA_ARCHITECTURES (CMake option)>`
    Specifies the CUDA architecture to compile for.
 
    Default: ``sm_30``
@@ -508,17 +503,17 @@ illustration only.
 
    Default: ``ON``
 
+:index:`EXAMPLES_ENABLE_CXX <EXAMPLES_ENABLE_CXX (CMake option)>`
+   Build the SUNDIALS C++ examples
+
+   Default: ``OFF``
+
 :index:`EXAMPLES_ENABLE_CUDA <EXAMPLES_ENABLE_CUDA (CMake option)>`
    Build the SUNDIALS CUDA examples
 
    Default: ``OFF``
 
    .. note:: You need to enable CUDA support to build these examples.
-
-:index:`EXAMPLES_ENABLE_CXX <EXAMPLES_ENABLE_CXX (CMake option)>`
-   Build the SUNDIALS C++ examples
-
-   Default: ``OFF``
 
 :index:`EXAMPLES_ENABLE_F77 <EXAMPLES_ENABLE_F77 (CMake option)>`
    Build the SUNDIALS Fortran77 examples
@@ -528,12 +523,12 @@ illustration only.
 :index:`EXAMPLES_ENABLE_F90 <EXAMPLES_ENABLE_F90 (CMake option)>`
    Build the SUNDIALS Fortran90 examples
 
-   Default: ``ON`` (if ``F77_INTERFACE_ENABLE`` is ``ON``)
+   Default: ``ON`` (if ``BUILD_FORTRAN77_INTERFACE`` is ``ON``)
 
 :index:`EXAMPLES_ENABLE_F2003 <EXAMPLES_ENABLE_F2003 (CMake option)>`
    Build the SUNDIALS Fortran2003 examples
 
-   Default: ``ON`` (if ``F2003_INTERFACE_ENABLE`` is ``ON``)
+   Default: ``ON`` (if ``BUILD_FORTRAN_MODULE_INTERFACE`` is ``ON``)
 
 :index:`EXAMPLES_INSTALL <EXAMPLES_INSTALL (CMake option)>`
    Install example files
@@ -564,17 +559,17 @@ illustration only.
    .. note:: The actual default value for this option will be an
              ``examples`` subdirectory created under ``CMAKE_INSTALL_PREFIX``.
 
-:index:`F77_INTERFACE_ENABLE <F77_INTERFACE_ENABLE (CMake option)>`
+:index:`BUILD_FORTRAN77_INTERFACE <BUILD_FORTRAN77_INTERFACE (CMake option)>`
    Enable Fortran77-C interface
 
    Default: ``OFF``
 
-:index:`F2003_INTERFACE_ENABLE <F2003_INTERFACE_ENABLE (CMake option)>`
+:index:`BUILD_FORTRAN_MODULE_INTERFACE <BUILD_FORTRAN_MODULE_INTERFACE (CMake option)>`
    Enable Fortran2003 interface
 
    Default: ``OFF``
 
-:index:`HYPRE_ENABLE <HYPRE_ENABLE (CMake option)>`
+:index:`ENABLE_HYPRE <ENABLE_HYPRE (CMake option)>`
    Flag to enable *hypre* support
 
    Default: ``OFF``
@@ -592,7 +587,7 @@ illustration only.
 
    Default: none
 
-:index:`KLU_ENABLE <F90_ENABLE (CMake option)>`
+:index:`ENABLE_KLU <F90_ENABLE (CMake option)>`
    Enable KLU support
 
    Default: ``OFF``
@@ -610,7 +605,7 @@ illustration only.
 
    Default: none
 
-:index:`LAPACK_ENABLE <LAPACK_ENABLE (CMake option)>`
+:index:`ENABLE_LAPACK <ENABLE_LAPACK (CMake option)>`
    Enable LAPACK support
 
    Default: ``OFF``
@@ -628,7 +623,7 @@ illustration only.
       ``LD_LIBRARY_PATH`` prior to searching default system
       paths.
 
-:index:`MPI_ENABLE <MPI_ENABLE (CMake option)>`
+:index:`ENABLE_MPI <ENABLE_MPI (CMake option)>`
    Enable MPI support. This will build the parallel nvector
    and the MPI-aware version of the ManyVector library.
 
@@ -648,11 +643,11 @@ illustration only.
    Default:
 
    .. note:: This option is triggered only if MPI is enabled
-             (``MPI_ENABLE`` is ``ON``) and C++ examples are enabled
+             (``ENABLE_MPI`` is ``ON``) and C++ examples are enabled
              (``EXAMPLES_ENABLE_CXX`` is ``ON``). All SUNDIALS
              solvers can be used from C++ MPI applications by default
              without setting any additional configuration options
-             other than ``MPI_ENABLE``.
+             other than ``ENABLE_MPI``.
 
 :index:`MPI_Fortran_COMPILER <MPI_Fortran_COMPILER (CMake option)>`
    ``mpif77`` or ``mpif90`` program
@@ -660,7 +655,7 @@ illustration only.
    Default:
 
    .. note:: This option is triggered only if MPI is enabled
-             (``MPI_ENABLE`` is ``ON``) and Fortran-C support is
+             (``ENABLE_MPI`` is ``ON``) and Fortran-C support is
              enabled (``EXAMPLES_ENABLE_F77`` or ``EXAMPLES_ENABLE_F90`` are ``ON``).
 
 :index:`MPIEXEC_EXECUTABLE <MPIEXEC_EXECUTABLE (CMake option)>`
@@ -668,14 +663,14 @@ illustration only.
 
    Default: ``mpirun``
 
-   .. note:: This option is triggered only if MPI is enabled (``MPI_ENABLE`` is ``ON``).
+   .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
 
-:index:`OPENMP_ENABLE <OPENMP_ENABLE (CMake option)>`
+:index:`ENABLE_OPENMP <ENABLE_OPENMP (CMake option)>`
    Enable OpenMP support (build the OpenMP NVector)
 
    Default: ``OFF``
 
-:index:`PETSC_ENABLE <PETSC_ENABLE (CMake option)>`
+:index:`ENABLE_PETSC <ENABLE_PETSC (CMake option)>`
    Enable PETSc support
 
    Default: ``OFF``
@@ -702,18 +697,75 @@ illustration only.
 
    Default: none
 
-:index:`PTHREAD_ENABLE <PTHREAD_ENABLE (CMake option)>`
+:index:`ENABLE_PTHREAD <ENABLE_PTHREAD (CMake option)>`
    Enable Pthreads support (build the Pthreads NVector)
 
    Default: ``OFF``
 
-:index:`RAJA_ENABLE <RAJA_ENABLE (CMake option)>`
+:index:`ENABLE_RAJA <RAJA_ENABLE (CMake option)>`
    Enable RAJA support (build the RAJA NVector).
 
    Default: OFF
 
    .. note:: You need to enable CUDA in order to build the RAJA vector
              module.
+
+:index:`ENABLE_SUPERLUDIST <ENABLE_SUPERLUDIST (CMake option)>`
+   Enable SuperLU_DIST support
+
+   Default: ``OFF``
+
+   .. note:: See additional information on building wtih
+             SuperLU_DIST enabled in :ref:`Installation.CMake.ExternalLibraries`.
+
+:index:`SUPERLUDIST_INCLUDE_DIR <SUPERLUDIST_INCLUDE_DIR (CMake option)>`
+   Path to SuperLU_DIST header files (under a typical SuperLU_DIST
+   install, this is typically the SuperLU_DIST ``SRC`` directory)
+
+   Default: none
+
+:index:`SUPERLUDIST_LIBRARY_DIR <SUPERLUDIST_LIBRARY_DIR (CMake option)>`
+   Path to SuperLU_DIST installed library files
+
+   Default: none
+
+:index:`SUPERLUDIST_LIBRARIES <SUPERLUDIST_LIBRARIES (CMake option)>`
+   Semi-colon separated list of libraries needed for SuperLU_DIST
+
+   Default: none
+
+:index:`SUPERLUDIST_OpenMP <SUPERLUDIST_OpenMP (CMake option)>`
+   Enable SUNDIALS support for SuperLU_DIST built with OpenMP
+
+   Default: none
+
+   Note: SuperLU_DIST must be built with OpenMP support for this option to function.
+   Additionally the environment variable ``OMP_NUM_THREADS`` must be set to the desired
+   number of threads.
+
+:index:`ENABLE_SUPERLUMT <ENABLE_SUPERLUMT (CMake option)>`
+   Enable SuperLU_MT support
+
+   Default: ``OFF``
+
+   .. note:: See additional information on building with
+             SuperLU_MT enabled in :ref:`Installation.CMake.ExternalLibraries`.
+
+:index:`SUPERLUMT_INCLUDE_DIR <SUPERLUMT_INCLUDE_DIR (CMake option)>`
+   Path to SuperLU_MT header files (under a typical SuperLU_MT
+   install, this is typically the SuperLU_MT ``SRC`` directory)
+
+   Default: none
+
+:index:`SUPERLUMT_LIBRARY_DIR <SUPERLUMT_LIBRARY_DIR (CMake option)>`
+   Path to SuperLU_MT installed library files
+
+   Default: none
+
+:index:`SUPERLUMT_THREAD_TYPE <SUPERLUMT_THREAD_TYPE (CMake option)>`
+   Must be set to Pthread or OpenMP, depending on how SuperLU_MT was compiled.
+
+   Default: Pthread
 
 :index:`SUNDIALS_BUILD_WITH_MONITORING <SUNDIALS_BUILD_WITH_MONITORING (CMake option)>`
    Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
@@ -780,69 +832,17 @@ illustration only.
 
    Default: ``double``
 
-:index:`SUPERLUDIST_ENABLE <SUPERLUDIST_ENABLE (CMake option)>`
-   Enable SuperLU_DIST support
+:index:`SUNDIALS_INSTALL_CMAKEDIR <SUNDIALS_INSTALL_CMAKEDIR (CMake option)>`
+  Installation directory for the SUNDIALS cmake files (relative to ``CMAKE_INSTALL_PREFIX``).
 
-   Default: ``OFF``
-
-   .. note:: See additional information on building wtih
-             SuperLU_DIST enabled in :ref:`Installation.CMake.ExternalLibraries`.
-
-:index:`SUPERLUDIST_INCLUDE_DIR <SUPERLUDIST_INCLUDE_DIR (CMake option)>`
-   Path to SuperLU_DIST header files (under a typical SuperLU_DIST
-   install, this is typically the SuperLU_DIST ``SRC`` directory)
-
-   Default: none
-
-:index:`SUPERLUDIST_LIBRARY_DIR <SUPERLUDIST_LIBRARY_DIR (CMake option)>`
-   Path to SuperLU_DIST installed library files
-
-   Default: none
-
-:index:`SUPERLUDIST_LIBRARIES <SUPERLUDIST_LIBRARIES (CMake option)>`
-   Semi-colon separated list of libraries needed for SuperLU_DIST
-
-   Default: none
-
-:index:`SUPERLUDIST_OpenMP <SUPERLUDIST_OpenMP (CMake option)>`
-   Enable SUNDIALS support for SuperLU_DIST built with OpenMP
-
-   Default: none
-
-   Note: SuperLU_DIST must be built with OpenMP support for this option to function.
-   Additionally the environment variable ``OMP_NUM_THREADS`` must be set to the desired
-   number of threads.
-
-:index:`SUPERLUMT_ENABLE <SUPERLUMT_ENABLE (CMake option)>`
-   Enable SuperLU_MT support
-
-   Default: ``OFF``
-
-   .. note:: See additional information on building with
-             SuperLU_MT enabled in :ref:`Installation.CMake.ExternalLibraries`.
-
-:index:`SUPERLUMT_INCLUDE_DIR <SUPERLUMT_INCLUDE_DIR (CMake option)>`
-   Path to SuperLU_MT header files (under a typical SuperLU_MT
-   install, this is typically the SuperLU_MT ``SRC`` directory)
-
-   Default: none
-
-:index:`SUPERLUMT_LIBRARY_DIR <SUPERLUMT_LIBRARY_DIR (CMake option)>`
-   Path to SuperLU_MT installed library files
-
-   Default: none
-
-:index:`SUPERLUMT_THREAD_TYPE <SUPERLUMT_THREAD_TYPE (CMake option)>`
-   Must be set to Pthread or OpenMP, depending on how SuperLU_MT was compiled.
-
-   Default: Pthread
+  Default: ``CMAKE_INSTALL_PREFIX/cmake/sundials``
 
 :index:`USE_GENERIC_MATH <USE_GENERIC_MATH (CMake option)>`
    Use generic (``stdc``) math libraries
 
    Default: ``ON``
 
-:index:`XBRAID_DIR <XBRAID_DIR (CMake option)`
+:index:`XBRAID_DIR <XBRAID_DIR (CMake option)>`
    The root directory of the XBraid installation.
 
    Default: ``OFF``
@@ -861,170 +861,13 @@ illustration only.
 
    Default: none
 
-
-
-.. _Installation.CMake.xSDK:
-
-xSDK Configuration Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-SUNDIALS supports CMake configuration options defined by the
-Extreme-scale Scientific Software Development Kit (xSDK) community
-policies (see `https://xsdk.info <https://xsdk.info>`_ for more
-information). xSDK CMake options are unused by default but may be
-activated by setting ``USE_XSDK_DEFAULTS`` to ``ON``.
-
-.. note:: When xSDK options are active, they will overwrite the
-          corresponding SUNDIALS option and may have different
-          default values (see details below). As such the equivalent
-          SUNDIALS options should not be used when configuring with
-          xSDK options. In the GUI front end to CMake (``ccmake`` or
-          ``cmake-gui``), setting ``USE_XSDK_DEFAULTS`` to ON will
-          hide the corresponding SUNDIALS options as advanced CMake
-          variables. During configuration, messages are output
-          detailing which xSDK flags are active and the equivalent
-          SUNDIALS options that are replaced. Below is a complete list
-          xSDK options and the corresponding SUNDIALS options if
-          applicable.
-
-:index:`TPL_ENABLE_HYPRE <TPL_ENABLE_HYPRE (xSDK CMake option)>`
-   Enable *hypre* support
-
-   Default: ``OFF``
-
-   SUNDIALS equivalent: ``HYPRE_ENABLE``
-
-:index:`TPL_ENABLE_KLU <TPL_ENABLE_KLU (xSDK CMake option)>`
-   Enable KLU support
-
-   Default: ``OFF``
-
-   SUNDIALS equivalent: ``KLU_ENABLE``
-
-:index:`TPL_ENABLE_PETSC <TPL_ENABLE_PETSC (xSDK CMake option)>`
-   Enable PETSc support
-
-   Default: ``OFF``
-
-   SUNDIALS equivalent: ``PETSC_ENABLE``
-
-:index:`TPL_ENABLE_LAPACK <TPL_ENABLE_LAPACK (xSDK CMake option)>`
-   Enable LAPACK support
-
-   Default: ``OFF``
-
-   SUNDIALS equivalent: ``LAPACK_ENABLE``
-
-:index:`TPL_ENABLE_SUPERLUDIST <TPL_ENABLE_SUPERLUDIST (xSDK CMake option)>`
-   Enable SuperLU_DIST support
-
-   Default: ``OFF``
-
-   SUNDIALS equivalent: ``SUPERLUDIST_ENABLE``
-
-:index:`TPL_ENABLE_SUPERLUMT <TPL_ENABLE_SUPERLUMT (xSDK CMake option)>`
-   Enable SuperLU_MT support
-
-   Default: ``OFF``
-
-   SUNDIALS equivalent: ``SUPERLUMT_ENABLE``
-
-:index:`TPL_HYPRE_INCLUDE_DIRS <TPL_HYPRE_INCLUDE_DIRS (xSDK CMake option)>`
-   Path to *hypre* header files
-
-   SUNDIALS equivalent: ``HYPRE_INCLUDE_DIR``
-
-:index:`TPL_HYPRE_LIBRARIES <TPL_HYPRE_LIBRARIES (xSDK CMake option)>`
-   *hypre* library
-
-   SUNDIALS equivalent: N/A
-
-:index:`TPL_KLU_INCLUDE_DIRS <TPL_KLU_INCLUDE_DIRS (xSDK CMake option)>`
-   Path to KLU header files
-
-   SUNDIALS equivalent: ``KLU_INCLUDE_DIR``
-
-:index:`TPL_KLU_LIBRARIES <TPL_KLU_LIBRARIES (xSDK CMake option)>`
-   KLU library
-
-   SUNDIALS equivalent: N/A
-
-:index:`TPL_LAPACK_LIBRARIES <TPL_LAPACK_LIBRARIES (xSDK CMake option)>`
-   LAPACK (and BLAS) libraries
-
-   Default: ``/usr/lib/liblapack.so;/usr/lib/libblas.so``
-
-   SUNDIALS equivalent: ``LAPACK_LIBRARIES``
-
-   .. note:: CMake will search for libraries in your
-             ``LD_LIBRARY_PATH`` prior to searching default system paths.
-
-:index:`TPL_PETSC_DIR <TPL_PETSC_DIR (xSDK CMake option)>`
-   Path to PETSc installtion
-
-   SUNDIALS equivalent: ``PETSC_DIR``
-
-:index:`TPL_SUPERLUDIST_INCLUDE_DIRS <TPL_SUPERLUDIST_INCLUDE_DIRS (xSDK CMake option)>`
-   Path to SuperLU_DIST header files
-
-   SUNDIALS equivalent: ``SUPERLUDIST_INCLUDE_DIR``
-
-:index:`TPL_SUPERLUDIST_LIBRARIES <TPL_SUPERLUDIST_LIBRARIES (xSDK CMake option)>`
-   Semi-colon separated list of libraries needed for SuperLU_DIST including
-   the SuperLU_DIST library itself
-
-   SUNDIALS equivalent: ``SUPERLUDIST_LIBRARIES``
-
-:index:`TPL_SUPERLUDIST_OpenMP <TPL_SUPERLUDIST_OpenMP (xSDK CMake option)>`
-   Enable SUNDIALS support for SuperLU_DIST built with OpenMP
-
-   SUNDIALS equivalent: ``SUPERLUDIST_OpenMP``
-
-:index:`TPL_SUPERLUMT_INCLUDE_DIRS <TPL_SUPERLUMT_INCLUDE_DIRS (xSDK CMake option)>`
-   Path to SuperLU_MT header files
-
-   SUNDIALS equivalent: ``SUPERLUMT_INCLUDE_DIR``
-
-:index:`TPL_SUPERLUMT_LIBRARIES <TPL_SUPERLUMT_LIBRARIES (xSDK CMake option)>`
-   SuperLU_MT library
-
-   SUNDIALS equivalent: N/A
-
-:index:`TPL_SUPERLUMT_THREAD_TYPE <TPL_SUPERLUMT_THREAD_TYPE (xSDK CMake option)>`
-   SuperLU_MT library thread type
-
-   SUNDIALS equivalent: ``SUPERLUMT_THREAD_TYPE``
-
 :index:`USE_XSDK_DEFAULTS <USE_XSDK_DEFAULTS (xSDK CMake option)>`
-   Enable xSDK default configuration settings
+   Enable xSDK (see `https://xsdk.info <https://xsdk.info>`_ for more
+   information) default configuration settings. This sets ``CMAKE_BUILD_TYPE``
+   to ``Debug``, ``SUNDIALS_INDEX_SIZE`` to 32 and ``SUNDIALS_PRECISION`` to
+   double.
 
    Default: ``OFF``
-
-   SUNDIALS equivalent: N/A
-
-   .. note:: Enabling xSDK defaults also sets ``CMAKE_BUILD_TYPE`` to ``Debug``
-
-:index:`XSDK_ENABLE_FORTRAN <XSDK_ENABLE_FORTRAN (xSDK CMake option)>`
-   Enable SUNDIALS Fortran interface
-
-   Default: ``OFF``
-
-   SUNDIALS equivalent: ``FCMIX_ENABLE``
-
-:index:`XSDK_INDEX_SIZE <XSDK_INDEX_SIZE (xSDK CMake option)>`
-   Integer size (bits) used for indices in SUNDIALS, options are: ``32`` or ``64``
-
-   Default: ``32``
-
-   SUNDIALS equivalent: ``SUNDIALS_INDEX_SIZE``
-
-:index:`XSDK_PRECISION <XSDK_PRECISION (xSDK CMake option)>`
-   Precision used in SUNDIALS, options are: ``double``, ``single``, or ``quad``
-
-   Default: ``double``
-
-   SUNDIALS equivalent: ``SUNDIALS_PRECISION``
-
 
 
 .. _Installation.CMake.Examples:
@@ -1045,7 +888,7 @@ example sources under subdirectories of ``/home/myname/sundials/``, use:
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DMPI_ENABLE=ON \
+   > -DENABLE_MPI=ON \
    > -DFCMIX_ENABLE=ON \
    > /home/myname/sundials/srcdir
 
@@ -1059,7 +902,7 @@ To disable installation of the examples, use:
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DMPI_ENABLE=ON \
+   > -DENABLE_MPI=ON \
    > -DFCMIX_ENABLE=ON \
    > -DEXAMPLES_INSTALL=OFF \
    > /home/myname/sundials/srcdir
@@ -1086,7 +929,7 @@ party libraries.
 Building with LAPACK
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To enable LAPACK, set the ``LAPACK_ENABLE`` option to ``ON``.
+To enable LAPACK, set the ``ENABLE_LAPACK`` option to ``ON``.
 If the directory containing the LAPACK library is in the
 ``LD_LIBRARY_PATH`` environment variable, CMake will set the
 ``LAPACK_LIBRARIES`` variable accordingly, otherwise CMake will
@@ -1100,7 +943,7 @@ variable can be set to the desired libraries required for LAPACK.
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DLAPACK_ENABLE=ON \
+   > -DENABLE_LAPACK=ON \
    > -DLAPACK_LIBRARIES=/mylapackpath/lib/libblas.so;/mylapackpath/lib/liblapack.so \
    > /home/myname/sundials/srcdir
 
@@ -1127,7 +970,7 @@ software, available from the Texas A&M University website:
 http://faculty.cse.tamu.edu/davis/suitesparse.html .
 
 SUNDIALS has been tested with SuiteSparse version 5.7.2.  To enable
-KLU, set ``KLU_ENABLE`` to ``ON``, set ``KLU_INCLUDE_DIR`` to the
+KLU, set ``ENABLE_KLU`` to ``ON``, set ``KLU_INCLUDE_DIR`` to the
 ``include`` path of the KLU installation and set ``KLU_LIBRARY_DIR``
 to the ``lib`` path of the KLU installation.  The CMake configure will
 result in populating the following variables: ``AMD_LIBRARY``,
@@ -1142,10 +985,10 @@ Building with SuperLU_DIST
 
 The SuperLU_DIST libraries are available for download from the Lawrence
 Berkeley National Laboratory website:
-http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_dist.
+http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu_dist.
 
-SUNDIALS has been tested with SuperLU_DIST version 6.1.1. To enable
-SuperLU_DIST, set  ``SUPERLUDIST_ENABLE`` to ``ON``, set
+SUNDIALS has been tested with SuperLU_DIST 6.1.1. To enable
+SuperLU_DIST, set  ``ENABLE_SUPERLUDIST`` to ``ON``, set
 ``SUPERLUDIST_INCLUDE_DIR`` to the ``SRC`` path of the SuperLU_DIST
 installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the
 ``lib`` path of the SuperLU_DIST installation.  At the same time, the
@@ -1162,10 +1005,10 @@ Building with SuperLU_MT
 
 The SuperLU_MT libraries are available for download from the Lawrence
 Berkeley National Laboratory website:
-http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_mt .
+http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu_mt .
 
 SUNDIALS has been tested with SuperLU_MT version 3.1.  To enable
-SuperLU_MT, set  ``SUPERLUMT_ENABLE`` to ``ON``, set
+SuperLU_MT, set  ``ENABLE_SUPERLUMT`` to ``ON``, set
 ``SUPERLUMT_INCLUDE_DIR`` to the ``SRC`` path of the SuperLU_MT
 installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the
 ``lib`` path of the SuperLU_MT installation. At the same time, the
@@ -1178,7 +1021,7 @@ or ``OpenMP``.
 
 Do not mix thread types when building SUNDIALS solvers.
 If threading is enabled for SUNDIALS by having either
-``OPENMP_ENABLE`` or ``PTHREAD_ENABLE`` set to ``ON`` then SuperLU_MT
+``ENABLE_OPENMP`` or ``ENABLE_PTHREAD`` set to ``ON`` then SuperLU_MT
 should be set to use the same threading type.
 
 
@@ -1191,8 +1034,8 @@ The PETSc libraries are available for download from the Argonne
 National Laboratory website:
 http://www.mcs.anl.gov/petsc .
 
-SUNDIALS has been tested with PETSc version 3.10.0 - 3.13.4. To enable PETSc,
-set ``PETSC_ENABLE`` to ``ON``, and set ``PETSC_DIR`` to the path of the PETSc
+SUNDIALS has been tested with PETSc version 3.10.0 - 3.14.0. To enable PETSc,
+set ``ENABLE_PETSC`` to ``ON``, and set ``PETSC_DIR`` to the path of the PETSc
 installation. Alternatively, a user can provide a list of inlcude paths in
 ``PETSC_INCLUDES`` and a list of complete paths to the PETSc libraries in
 ``PETSC_LIBRARIES``.
@@ -1207,7 +1050,7 @@ The *hypre* libraries are available for download from the Lawrence
 Livermore National Laboratory website:
 `http://computing.llnl.gov/projects/hypre <http://computing.llnl.gov/projects/hypre>`_.
 SUNDIALS has been tested with *hypre* version 2.19.0.
-To enable *hypre*, set  ``HYPRE_ENABLE`` to ``ON``, set ``HYPRE_INCLUDE_DIR``
+To enable *hypre*, set  ``ENABLE_HYPRE`` to ``ON``, set ``HYPRE_INCLUDE_DIR``
 to the ``include`` path of the *hypre* installation, and set the variable
 ``HYPRE_LIBRARY_DIR`` to the ``lib`` path of the *hypre* installation.
 
@@ -1226,7 +1069,7 @@ of the CUDA toolkit. To build them, you need to install the Toolkit and compatib
 NVIDIA drivers. Both are available for download from the NVIDIA website:
 `https://developer.nvidia.com/cuda-downloads
 <https://developer.nvidia.com/cuda-downloads>`_. To enable CUDA,
-set ``CUDA_ENABLE`` to ``ON``. If CUDA is installed in a nonstandard
+set ``ENABLE_CUDA`` to ``ON``. If CUDA is installed in a nonstandard
 location, you may be prompted to set the variable
 ``CUDA_TOOLKIT_ROOT_DIR`` with your CUDA Toolkit installation
 path. To enable CUDA examples, set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
@@ -1242,8 +1085,8 @@ Livermore National Laboratory and can be obtained from
 `https://github.com/LLNL/RAJA <https://github.com/LLNL/RAJA>`_.
 SUNDIALS RAJA modules and examples have been tested with RAJA
 version 0.12.1. Building SUNDIALS RAJA modules requires a CUDA-enabled
-RAJA installation. To enable RAJA, set ``CUDA_ENABLE`` and
-``RAJA_ENABLE`` to ``ON``. If RAJA is installed in a nonstandard
+RAJA installation. To enable RAJA, set ``ENABLE_CUDA`` and
+``ENABLE_RAJA`` to ``ON``. If RAJA is installed in a nonstandard
 location you will be prompted to set the variable ``RAJA_DIR`` with
 the path to the RAJA CMake configuration file. To enable building the
 RAJA examples set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
@@ -1404,6 +1247,43 @@ header files (e.g., ``cvode_dense.h`` includes
 ``sundials_dense.h``). However, it is both legal and safe to do so,
 and would be useful, for example, if the functions declared in
 ``sundials_dense.h`` are to be used in building a preconditioner.
+
+
+Using SUNDIALS as a Third Party Library in other CMake Projects
+---------------------------------------------------------------
+
+The ``make install`` command will also install a `CMake package configuration file
+<https://cmake.org/cmake/help/v3.12/manual/cmake-packages.7.html\#package-configuration-file>`_
+that other CMake projects can load to get all the information needed to build
+against SUNDIALS. In the consuming project's CMake code, the ``find_package``
+command may be used to search for the configuration file, which will be
+installed to ``instdir/SUNDIALS_INSTALL_CMAKEDIR/SUNDIALSConfig.cmake``
+alongside a package version file
+``instdir/SUNDIALS_INSTALL_CMAKEDIR/SUNDIALSConfigVersion.cmake``. Together
+these files contain all the information the consuming project needs to use
+SUNDIALS, including exported CMake targets. The SUNDIALS exported CMake targets
+follow the same naming convention as the generated library binaries, e.g. the
+exported target for CVODE is ``SUNDIALS::cvode``. The CMake code snipped
+below shows how a consuming project might leverage the SUNDIALS package
+configuration file to build against SUNDIALS in their own CMake project.
+
+.. code-block:: none
+
+  project(MyProject)
+
+  # Set the variable SUNDIALS_DIR to the SUNDIALS instdir.
+  # When using the cmake CLI command, this can be done like so:
+  #   cmake -D SUNDIALS_DIR=/path/to/sundials/installation
+
+  find_project(SUNDIALS REQUIRED)
+
+  add_executable(myexec main.c)
+
+  # Link to SUNDIALS libraries through the exported targets.
+  # This is just an example, users should link to the targets appropriate
+  # for their use case.
+  target_link_libraries(myexec PUBLIC SUNDIALS::cvode SUNDIALS::nvecpetsc)
+
 
 
 .. _Installation.Table:

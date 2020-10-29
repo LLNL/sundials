@@ -37,18 +37,12 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Trilinos_INTERFACE_C_COMPILER_FLAGS}")
 
 set(MPIEXEC_EXECUTABLE ${Trilinos_INTERFACE_MPIEXEC})
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(IDA_LIB sundials_ida_static)
-  set(NVECS_LIB sundials_nvectrilinos_static)
-else()
-  set(IDA_LIB sundials_ida_shared)
-  set(NVECS_LIB sundials_nvectrilinos_shared)
-endif()
+# Specify libraries to link against
+set(IDA_LIB sundials_ida)
+set(NVECS_LIB sundials_nvectrilinos)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB})
 
 # Add the build and install targets for each IDA example
 foreach(example_tuple ${IDA_examples})
@@ -72,7 +66,7 @@ foreach(example_tuple ${IDA_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
@@ -129,9 +123,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/trilinos
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(ida trilinos)
 
-endif(EXAMPLES_INSTALL)
+endif()

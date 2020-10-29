@@ -20,13 +20,12 @@ add_subdirectory(dense)
 add_subdirectory(band)
 add_subdirectory(sparse)
 
-if(MPI_ENABLE AND MPI_C_FOUND AND MPI_CXX_FOUND AND
-    SUNDIALS_SUPERLUDIST)
+if(BUILD_SUNMATRIX_SLUNRLOC)
   add_subdirectory(slunrloc)
 endif()
 
-if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+if(BUILD_SUNMATRIX_CUSPARSE)
   if(SUNDIALS_INDEX_SIZE MATCHES "32")
     add_subdirectory(cusparse)
   endif()
-endif(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+endif()

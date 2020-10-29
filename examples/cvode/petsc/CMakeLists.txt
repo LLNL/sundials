@@ -31,25 +31,17 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODE_LIB sundials_cvode_static)
-  set(NVECP_LIB sundials_nvecpetsc_static)
-  set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes_static)
-else()
-  set(CVODE_LIB sundials_cvode_shared)
-  set(NVECP_LIB sundials_nvecpetsc_shared)
-  set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes_shared)
-endif()
+# Specify libraries to link against
+set(CVODE_LIB sundials_cvode)
+set(NVECP_LIB sundials_nvecpetsc)
+set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB
-       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
+  list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
 endif()
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${SUNNLS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${SUNNLS_LIB})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
@@ -72,7 +64,7 @@ foreach(example_tuple ${CVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
 
   if(NOT MPI_C_COMPILER)
     target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -135,8 +127,8 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/petsc
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   sundials_add_test_install(cvode petsc)
 
-endif(EXAMPLES_INSTALL)
+endif()

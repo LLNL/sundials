@@ -32,26 +32,17 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-if(BUILD_STATIC_LIBS)
-  sundials_add_f2003_interface_library(sundials_fnvecparallel_mod_static STATIC_OBJECT
-                                       ${nvecparallel_SOURCES})
-  add_dependencies(sundials_fnvecparallel_mod_static_obj sundials_fgeneric_static_obj)
-  set_target_properties(sundials_fnvecparallel_mod_static PROPERTIES
-                        OUTPUT_NAME sundials_fnvecparallel_mod
-                        CLEAN_DIRECT_OUTPUT 1)
-  install(TARGETS sundials_fnvecparallel_mod_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif(BUILD_STATIC_LIBS)
-
-if(BUILD_SHARED_LIBS)
-  sundials_add_f2003_interface_library(sundials_fnvecparallel_mod_shared SHARED_OBJECT
-                                       ${nvecparallel_SOURCES})
-  add_dependencies(sundials_fnvecparallel_mod_shared_obj sundials_fgeneric_shared_obj)
-  set_target_properties(sundials_fnvecparallel_mod_shared PROPERTIES
-                        OUTPUT_NAME sundials_fnvecparallel_mod
-                        CLEAN_DIRECT_OUTPUT 1
-                        VERSION ${nveclib_VERSION}
-                        SOVERSION ${nveclib_SOVERSION})
-  install(TARGETS sundials_fnvecparallel_mod_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif(BUILD_SHARED_LIBS)
+sundials_add_f2003_library(sundials_fnvecparallel_mod
+  SOURCES
+    fnvector_parallel_mod.f90 fnvector_parallel_mod.c
+  OBJECT_LIBRARIES
+    sundials_fgeneric_mod_obj
+  OUTPUT_NAME
+    sundials_fnvecparallel_mod
+  VERSION
+    ${nveclib_VERSION}
+  SOVERSION
+    ${nveclib_SOVERSION}
+)
 
 message(STATUS "Added NVECTOR_PARALLEL F2003 interface")

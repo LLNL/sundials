@@ -86,9 +86,9 @@ SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S,
 SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S,
                                             int maxl);
 
-SUNDIALS_DEPRECATED SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl);
-SUNDIALS_DEPRECATED int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_DEPRECATED int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl);
+SUNDIALS_DEPRECATED_EXPORT SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl);
+SUNDIALS_DEPRECATED_EXPORT int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_DEPRECATED_EXPORT int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S);

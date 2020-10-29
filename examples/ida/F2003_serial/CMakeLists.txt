@@ -23,13 +23,8 @@ set(FIDA_examples
   "idaRoberts_dns_f2003\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(IDA_LIB sundials_fida_mod_static)
-else()
-  set(IDA_LIB sundials_fida_mod_shared)
-endif()
+# Specify libraries to link against
+set(IDA_LIB sundials_fida_mod)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${IDA_LIB} ${EXTRA_LINK_LIBS})
@@ -111,9 +106,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_serial
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(ida F2003_serial)
 
-endif(EXAMPLES_INSTALL)
+endif()

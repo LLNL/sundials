@@ -19,7 +19,7 @@
 #include "arkode/arkode.h"
 
 #include "arkode_xbraid_impl.h"
-#include "arkode/arkode_arkstep_impl.h"
+#include "arkode_arkstep_impl.h"
 
 #define ONE RCONST(1.0)
 

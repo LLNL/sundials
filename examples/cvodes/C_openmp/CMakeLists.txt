@@ -22,22 +22,12 @@ set(CVODES_examples_OMP
   "cvsAdvDiff_bnd_omp\;4\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODES_LIB sundials_cvodes_static)
-  set(NVECOMP_LIB sundials_nvecopenmp_static)
-else()
-  set(CVODES_LIB sundials_cvodes_shared)
-  set(NVECOMP_LIB sundials_nvecopenmp_shared)
-endif()
+# Specify libraries to link against
+set(CVODES_LIB sundials_cvodes)
+set(NVECOMP_LIB sundials_nvecopenmp)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECOMP_LIB} ${EXTRA_LINK_LIBS})
-
-# update the compilation flags to include OpenMP support
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODES_examples_OMP})
@@ -127,9 +117,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvodes C_openmp)
 
-endif(EXAMPLES_INSTALL)
+endif()

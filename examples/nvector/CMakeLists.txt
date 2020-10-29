@@ -18,47 +18,47 @@
 # Always add the nvector serial examples
 add_subdirectory(serial)
 
-if(MPI_ENABLE AND MPI_C_FOUND)
+if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(parallel)
   add_subdirectory(mpimanyvector)
   add_subdirectory(mpiplusx)
 endif()
 add_subdirectory(manyvector)
 
-if(HYPRE_ENABLE AND HYPRE_FOUND)
+if(BUILD_NVECTOR_PARHYP)
   add_subdirectory(parhyp)
 endif()
 
-if(PTHREAD_ENABLE AND PTHREADS_FOUND)
+if(BUILD_NVECTOR_PTHREADS)
   add_subdirectory(pthreads)
 endif()
 
-if(OPENMP_ENABLE AND OPENMP_FOUND)
+if(BUILD_NVECTOR_OPENMP)
   add_subdirectory(C_openmp)
 endif()
 
-if(OPENMP_DEVICE_ENABLE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+if(BUILD_NVECTOR_OPENMPDEV)
   add_subdirectory(openmpdev)
 endif()
 
-if(PETSC_ENABLE AND PETSC_FOUND)
+if(BUILD_NVECTOR_PETSC)
   add_subdirectory(petsc)
 endif()
 
-if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+if(BUILD_NVECTOR_CUDA)
   add_subdirectory(cuda)
-  if(MPI_ENABLE AND MPI_C_FOUND)
+  if(ENABLE_MPI AND MPI_C_FOUND)
     add_subdirectory(mpicuda)
   endif()
 endif()
 
-if(RAJA_ENABLE AND RAJA_FOUND)
+if(BUILD_NVECTOR_RAJA)
   add_subdirectory(raja)
-  if(MPI_ENABLE AND MPI_C_FOUND)
+  if(ENABLE_MPI AND MPI_C_FOUND)
     add_subdirectory(mpiraja)
   endif()
 endif()
 
-if(Trilinos_ENABLE AND Trilinos_FOUND)
+if(BUILD_NVECTOR_TRILINOS)
   add_subdirectory(trilinos)
 endif()

@@ -38,22 +38,15 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
     )
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODE_LIB sundials_fcvode_mod_static)
-else()
-  set(CVODE_LIB sundials_fcvode_mod_shared)
-endif()
+# Specify libraries to link against
+set(CVODE_LIB sundials_cvode sundials_fcvode_mod)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB
-       sundials_cvode_${LINK_LIBRARY_TYPE}
-       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
+  list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
 endif()
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODE_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${CVODE_LIB})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FCVODE_examples})
@@ -76,7 +69,7 @@ foreach(example_tuple ${FCVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
 
    # install example source and out files
   if(EXAMPLES_INSTALL)
@@ -86,19 +79,10 @@ foreach(example_tuple ${FCVODE_examples})
 endforeach(example_tuple ${FCVODE_examples})
 
 # Add the build and install targets for each KLU example (if needed)
-if(KLU_FOUND)
+if(BUILD_SUNLINSOL_KLU)
 
   # Sundials KLU linear solver module
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLKLU_LIBS
-      sundials_fsunlinsolklu_mod_static)
-  else()
-    set(SUNLINSOLKLU_LIBS
-      sundials_fsunlinsolklu_mod_shared)
-  endif()
-
-  # KLU libraries
-  list(APPEND SUNLINSOLKLU_LIBS ${KLU_LIBRARIES})
+  set(SUNLINSOLKLU_LIBS sundials_fsunlinsolklu_mod)
 
   foreach(example_tuple ${FCVODE_examples_KLU})
 
@@ -131,7 +115,7 @@ if(KLU_FOUND)
 
   endforeach(example_tuple ${FCVODE_examples_KLU})
 
-endif(KLU_FOUND)
+endif()
 
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -151,7 +135,7 @@ if(EXAMPLES_INSTALL)
 
   examples2string(FCVODE_examples EXAMPLES)
 
-  if(KLU_FOUND)
+  if(BUILD_SUNLINSOL_KLU)
     examples2string(FCVODE_examples_KLU EXAMPLES_KLU)
     set(SUNLS_LIB "sundials_sunlinsolklu")
     set(SUNLS_FLIB "sundials_fsunlinsolklu_mod")
@@ -193,9 +177,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvode F2003_serial)
 
-endif(EXAMPLES_INSTALL)
+endif()

@@ -36,18 +36,13 @@ include_directories(${HYPRE_INC_PATH})
 include_directories(${HYPRE_INC_DIR})
 include_directories(${HYPRE_LIB_DIR})
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nvecparhyp_static)
-else()
-  set(NVECS_LIB sundials_nvecparhyp_shared)
-endif()
+# Specify libraries to link against
+set(NVECS_LIB sundials_nvecparhyp)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
-list(APPEND SUNDIALS_LIBS ${HYPRE_LIBRARIES})
+list(APPEND SUNDIALS_LIBS)
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -73,8 +68,7 @@ foreach(example_tuple ${nvector_parhyp_examples})
     # example source files
     add_executable(${example} ${example}.c
       ../test_nvector.c
-      ../test_mpinvector.c
-      ../../../src/sundials/sundials_nvector.c)
+      ../test_mpinvector.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -166,6 +160,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

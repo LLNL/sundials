@@ -126,7 +126,11 @@ fi
 
 # Fortran settings
 export F77_STATUS=${FORTRAN_STATUS}
-export F03_STATUS=${FORTRAN_STATUS}
+if [[ ("$realtype" == "double") && ("$indexsize" == "64") ]]; then
+    export F03_STATUS=${FORTRAN_STATUS}
+else
+    export F03_STATUS=OFF
+fi
 
 # set MPI compiler wrapper
 export MPI_STATUS=ON

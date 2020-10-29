@@ -30,9 +30,8 @@ else()
 endif()
 
 set(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
-  ${sundials_SOURCE_DIR}/examples/nvector/test_nvector.c
-  ${sundials_SOURCE_DIR}/examples/nvector/test_mpinvector.c
+  ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
+  ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_mpinvector.c
   )
 
 # Dependencies for nvector examples
@@ -61,13 +60,8 @@ set(MPIEXEC_EXECUTABLE ${Trilinos_INTERFACE_MPIEXEC})
 # Add source directory to include directories
 include_directories(. ..)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nvectrilinos_static)
-else()
-  set(NVECS_LIB sundials_nvectrilinos_shared)
-endif()
+# Specify libraries to link against
+set(NVECS_LIB sundials_nvectrilinos)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
@@ -81,14 +75,6 @@ foreach(example_tuple ${nvector_trilinos_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
-
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -183,6 +169,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/trilinos
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

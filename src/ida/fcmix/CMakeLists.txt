@@ -29,60 +29,35 @@ set(fida_SOURCES
   fidasparse.c
   )
 
-# Add variable shared_SOURCES with the common SUNDIALS sources which will
-# also be included in the IDA library
-set(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/nvector/serial/fnvector_serial.c
-  )
+sundials_add_library(sundials_fida
+  SOURCES
+    ${fida_SOURCES}
+  OBJECT_LIBRARIES
+    sundials_fnvecserial_obj
+    sundials_fsunmatrixband_obj
+    sundials_fsunmatrixdense_obj
+    sundials_fsunmatrixsparse_obj
+    sundials_fsunlinsolband_obj
+    sundials_fsunlinsoldense_obj
+    sundials_fsunlinsolspbcgs_obj
+    sundials_fsunlinsolspfgmr_obj
+    sundials_fsunlinsolspgmr_obj
+    sundials_fsunlinsolsptfqmr_obj
+    sundials_fsunlinsolpcg_obj
+    sundials_fsunnonlinsolnewton_obj
+    sundials_fsunnonlinsolfixedpoint_obj
+  LINK_LIBRARIES
+    PRIVATE sundials_ida
+  INCLUDE_DIRECTORIES
+    PRIVATE ../
+  OUTPUT_NAME
+    sundials_fida
+  VERSION
+    ${idalib_VERSION}
+  SOVERSION
+    ${idalib_SOVERSION}
+  STATIC_ONLY
+)
 
-# Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
-# also be included in the IDA library
-set(sunmatrix_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunmatrix/band/fsunmatrix_band.c
-  ${sundials_SOURCE_DIR}/src/sunmatrix/dense/fsunmatrix_dense.c
-  ${sundials_SOURCE_DIR}/src/sunmatrix/sparse/fsunmatrix_sparse.c
-  )
-
-# Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
-# also be included in the IDA library
-set(sunlinsol_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunlinsol/band/fsunlinsol_band.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/dense/fsunlinsol_dense.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spbcgs/fsunlinsol_spbcgs.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spfgmr/fsunlinsol_spfgmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spgmr/fsunlinsol_spgmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/sptfqmr/fsunlinsol_sptfqmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/pcg/fsunlinsol_pcg.c
-  )
-
-# Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
-# which will also be included in the IDA library
-set(sunnonlinsol_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/fsunnonlinsol_newton.c
-  )
-
-# Add source directories to include directories for access to
-# implementation only header files (both for fida and ida)
-include_directories(.)
-include_directories(..)
-
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-
-# Only build STATIC libraries (we cannot build shared libraries
-# for the FCMIX interfaces due to unresolved symbol errors
-# coming from inexistent user-provided functions)
-
-# Add the build target for the FIDA library
-add_library(sundials_fida_static STATIC
-  ${fida_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
-  ${sunnonlinsol_SOURCES})
-
-# Set the library name and make sure it is not deleted
-set_target_properties(sundials_fida_static
-  PROPERTIES OUTPUT_NAME sundials_fida CLEAN_DIRECT_OUTPUT 1)
-
-# Install the FIDA library
-install(TARGETS sundials_fida_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 #
 message(STATUS "Added IDA FCMIX module")

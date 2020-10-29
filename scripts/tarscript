@@ -209,7 +209,7 @@ cp $sundialsdir/doc/sundials/install_guide.pdf $tmpdir/INSTALL_GUIDE.pdf || exit
 make QUIET= purge    || exit 1
 
 cd -
-cp -r $sundialsdir/config $tmpdir/ || exit 1
+cp -r $sundialsdir/cmake $tmpdir/ || exit 1
 cp -r $sundialsdir/test $tmpdir/   || exit 1
 
 cp -r $sundialsdir/doc/sundials $tmpdir/doc/ || exit 1

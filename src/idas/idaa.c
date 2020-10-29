@@ -1576,7 +1576,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
  * in tret) as that at which IDASolveBreturned the solution.
  */
 
-SUNDIALS_EXPORT int IDAGetB(void* ida_mem, int which, realtype *tret,
+int IDAGetB(void* ida_mem, int which, realtype *tret,
                             N_Vector yy, N_Vector yp)
 {
   IDAMem IDA_mem;

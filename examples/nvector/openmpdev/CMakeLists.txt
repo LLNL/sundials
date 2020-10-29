@@ -32,22 +32,11 @@ set(nvector_examples_dependencies
 # Add source directory to include directories
 include_directories(. ..)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nvecopenmpdev_static)
-else()
-  set(NVECS_LIB sundials_nvecopenmpdev_shared)
-endif()
+# Specify libraries to link against
+set(NVECS_LIB sundials_nvecopenmpdev)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-# Use C flags for linker as well.
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_openmpdev_examples})
@@ -61,8 +50,7 @@ foreach(example_tuple ${nvector_openmpdev_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+    add_executable(${example} ${example}.c ../test_nvector.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")

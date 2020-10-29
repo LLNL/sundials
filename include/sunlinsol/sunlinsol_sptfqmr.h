@@ -86,9 +86,9 @@ SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S,
 SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S,
                                              int maxl);
 
-SUNDIALS_DEPRECATED SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl);
-SUNDIALS_DEPRECATED int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_DEPRECATED int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl);
+SUNDIALS_DEPRECATED_EXPORT SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl);
+SUNDIALS_DEPRECATED_EXPORT int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_DEPRECATED_EXPORT int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPTFQMR(SUNLinearSolver S);

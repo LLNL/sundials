@@ -22,28 +22,14 @@ set(FIDA_examples
   "fidaRoberts_dns_openmp\;\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(IDA_LIB sundials_ida_static)
-  set(NVECS_LIB sundials_nvecopenmp_static)
-  set(FNVECS_LIB sundials_fnvecopenmp_static)
-else()
-  set(IDA_LIB sundials_ida_shared)
-  set(NVECS_LIB sundials_nvecopenmp_shared)
-  set(FNVECS_LIB sundials_fnvecopenmp_shared)
-endif()
+# Specify libraries to link against
+set(FNVECS_LIB sundials_fnvecopenmp)
 
 # Only static FCMIX libraries are available
-set(FIDA_LIB sundials_fida_static)
+set(FIDA_LIB sundials_fida${_STATIC_LIB_SUFFIX})
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${FIDA_LIB} ${IDA_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
-# update the compilation flags to include OpenMP support
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-
+set(SUNDIALS_LIBS ${FIDA_LIB} ${FNVECS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FIDA_examples})
@@ -124,9 +110,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_openmp
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(ida fcmix_openmp)
 
-endif(EXAMPLES_INSTALL)
+endif()

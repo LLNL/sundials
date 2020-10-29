@@ -30,7 +30,7 @@ set(nvector_examples_dependencies
   )
 
 # If building F2003 tests
-if (F2003_INTERFACE_ENABLE)
+if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(nvector_manyvector_fortran_examples
     "test_fnvector_manyvector_mod\;\;")
 endif()
@@ -38,18 +38,10 @@ endif()
 # Add source directory to include directories
 include_directories(. ..)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nvecserial_static sundials_nvecmanyvector_static)
-  if (F2003_INTERFACE_ENABLE)
-    list(APPEND NVECS_LIB sundials_fnvecserial_mod_static sundials_fnvecmanyvector_mod_static)
-  endif()
-else()
-  set(NVECS_LIB sundials_nvecserial_shared sundials_nvecmanyvector_shared)
-  if (F2003_INTERFACE_ENABLE)
-    list(APPEND NVECS_LIB sundials_fnvecserial_mod_shared sundials_fnvecmanyvector_mod_shared)
-  endif()
+# Specify libraries to link against
+set(NVECS_LIB sundials_nvecserial sundials_nvecmanyvector)
+if (BUILD_FORTRAN_MODULE_INTERFACE)
+  list(APPEND NVECS_LIB sundials_fnvecserial_mod sundials_fnvecmanyvector_mod)
 endif()
 
 # Set-up linker flags and link libraries
@@ -64,20 +56,11 @@ foreach(example_tuple ${nvector_manyvector_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+    add_executable(${example} ${example}.c ../test_nvector.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -118,23 +101,13 @@ foreach(example_tuple ${nvector_manyvector_fortran_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.f90
-      ${sundials_SOURCE_DIR}/examples/utilities/test_utilities.f90
-      ${sundials_SOURCE_DIR}/examples/nvector/test_nvector.f90
-      $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
-      $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.f90)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -204,6 +177,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/manyvector
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

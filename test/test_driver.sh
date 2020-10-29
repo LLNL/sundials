@@ -89,21 +89,6 @@ passfail=0
 \rm -rf build*/ install*/ *.log
 
 # ------------------------------------------------------------------------------
-# Setup Spack
-# ------------------------------------------------------------------------------
-
-# if SPACK_ROOT is not set, check for the shared spack installation
-if [ -z "$SPACK_ROOT" ]; then
-    if [ -d "/usr/casc/sundials/share/sunenv/spack" ]; then
-        echo "Using shared spack install"
-        export SPACK_ROOT=/usr/casc/sundials/share/sunenv/spack
-        source ${SPACK_ROOT}/share/spack/setup-env.sh
-    else
-        echo "WARNING: Could not locate spack installation"
-    fi
-fi
-
-# ------------------------------------------------------------------------------
 # Run regression tests
 # ------------------------------------------------------------------------------
 

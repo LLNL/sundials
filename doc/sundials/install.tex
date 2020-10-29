@@ -331,7 +331,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Note: Fortran support (and all related options) are triggered only if
   either Fortran-C support is enabled (\id{FCMIX\_ENABLE} is ON) or
-  LAPACK support is enabled (\id{LAPACK\_ENABLE} is ON).
+  LAPACK support is enabled (\id{ENABLE\_LAPACK} is ON).
 \item[\id{CMAKE\_Fortran\_FLAGS}] -
   Flags for Fortran compiler
   \\
@@ -369,7 +369,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   Fortran module installation directory
   \\
   Default: fortran
-\item[\id{CUDA\_ENABLE}] -
+\item[\id{ENABLE\_CUDA}] -
   Build the {\sundials} {\cuda} modules.
   \\
   Default: OFF
@@ -390,7 +390,7 @@ a typical configuration on a Linux system and are provided as illustration only.
 \item[\id{EXAMPLES\_ENABLE\_CXX}] -
   Build the {\sundials} {\CPP} examples
   \\
-  Default: OFF unless \id{Trilinos\_ENABLE} is ON.
+  Default: OFF unless \id{ENABLE\_TRILINOS} is ON.
 \item[\id{EXAMPLES\_ENABLE\_F77}] -
   Build the {\sundials} Fortran77 examples
   \\
@@ -402,7 +402,7 @@ a typical configuration on a Linux system and are provided as illustration only.
 \item[\id{EXAMPLES\_ENABLE\_F2003}] -
   Build the {\sundials} Fortran2003 examples
   \\
-  Default: ON (if \id{F2003\_INTERFACE\_ENABLE} is ON)
+  Default: ON (if \id{BUILD\_FORTRAN\_MODULE\_INTERFACE} is ON)
 \item[\id{EXAMPLES\_INSTALL}] -
   Install example files
   \\
@@ -430,11 +430,11 @@ a typical configuration on a Linux system and are provided as illustration only.
   Enable Fortran-C support via the Fortran 77 interfaces
   \\
   Default: OFF
-\item[\id{F2003\_INTERFACE\_ENABLE}] -
+\item[\id{BUILD\_FORTRAN\_MODULE\_INTERFACE}] -
   Enable Fortran-C support via the Fortran 2003 interfaces
   \\
   Default: OFF
-\item[\id{HYPRE\_ENABLE}] -
+\item[\id{ENABLE\_HYPRE}] -
   Enable {\hypre} support
   \\
   Default: OFF
@@ -445,7 +445,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   Path to {\hypre} header files
 \item[\id{HYPRE\_LIBRARY\_DIR}] -
   Path to {\hypre} installed library files
-\item[\id{KLU\_ENABLE}] -
+\item[\id{ENABLE\_KLU}] -
   Enable KLU support
   \\
   Default: OFF
@@ -456,7 +456,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   Path to SuiteSparse header files
 \item[\id{KLU\_LIBRARY\_DIR}] -
   Path to SuiteSparse installed library files
-\item[\id{LAPACK\_ENABLE}] -
+\item[\id{ENABLE\_LAPACK}] -
   Enable LAPACK support
   \\
   Default: OFF
@@ -471,7 +471,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
   to searching default system paths.
-\item[\id{MPI\_ENABLE}] -
+\item[\id{ENABLE\_MPI}] -
   Enable MPI support. This will build the parallel {\nvector} and the
   MPI-aware version of the ManyVector library.
   \\
@@ -489,31 +489,31 @@ a typical configuration on a Linux system and are provided as illustration only.
   Default:
   \\
   Note: This option is triggered only if MPI is enabled
-  (\id{MPI\_ENABLE} is ON) and {\CPP} examples are enabled
+  (\id{ENABLE\_MPI} is ON) and {\CPP} examples are enabled
   (\id{EXAMPLES\_ENABLE\_CXX} is ON). All {\sundials}
   solvers can be used from {\CPP} MPI applications by default
   without setting any additional configuration options other than
-  \id{MPI\_ENABLE}.
+  \id{ENABLE\_MPI}.
 \item[\id{MPI\_Fortran\_COMPILER}] -
   \id{mpif77} or \id{mpif90} program
   \\
   Default:
   \\
   Note: This option is triggered only if MPI is enabled
-  (\id{MPI\_ENABLE} is ON) and Fortran-C support is enabled
-  (\id{F77\_INTERFACE\_ENABLE} or \id{F2003\_INTERFACE\_ENABLE} is ON).
+  (\id{ENABLE\_MPI} is ON) and Fortran-C support is enabled
+  (\id{F77\_INTERFACE\_ENABLE} or \id{BUILD\_FORTRAN\_MODULE\_INTERFACE} is ON).
 \item[\id{MPIEXEC\_EXECUTABLE}] -
   Specify the executable for running MPI programs
   \\
   Default: \id{mpirun}
   \\
   Note: This option is triggered only if MPI is enabled
-  (\id{MPI\_ENABLE} is ON).
+  (\id{ENABLE\_MPI} is ON).
   %% \\
   %% Note: This can either be set to \id{mpirun} for OpenMPI or \id{srun} if jobs are
   %% managed by \id{SLURM} - Simple Linux Utility for Resource Management as exists on
   %% LLNL's high performance computing clusters.
-\item[\id{OPENMP\_ENABLE}] -
+\item[\id{ENABLE\_OPENMP}] -
   Enable {\openmp} support (build the {\openmp} {\nvector}).
   \\
   Default: OFF
@@ -522,12 +522,12 @@ a typical configuration on a Linux system and are provided as illustration only.
   the provided compiler.
   \\
   Default: OFF
-\item[\id{SKIP\_OPENMP\_DEVICE\_CHECK}] - \textbf{advanced option} -
+\item[\id{OPENMP\_DEVICE\_WORKS}] - \textbf{advanced option} -
   Skip the check done to see if the {\openmp} provided by the compiler
   supports {\openmp} device offloading.
   \\
   Default: OFF
-\item[\id{PETSC\_ENABLE}] -
+\item[\id{ENABLE\_PETSC}] -
   Enable {\petsc} support
   \\
   Default: OFF
@@ -550,16 +550,94 @@ a typical configuration on a Linux system and are provided as illustration only.
   \id{PETSC\_DIR}.
   \\
   Default:
-\item[\id{PTHREAD\_ENABLE}] -
+\item[\id{ENABLE\_PTHREAD}] -
   Enable Pthreads support (build the Pthreads {\nvector}).
   \\
   Default: OFF
-\item[\id{RAJA\_ENABLE}] -
+\item[\id{ENABLE\_RAJA}] -
   Enable {\raja} support (build the {\raja} {\nvector}).
   \\
   Default: OFF
   \\
   Note: You need to enable {\cuda} in order to build the {\raja} vector module.
+  \item[\id{ENABLE\_SUPERLUDIST}] -
+  Enable {\superludist} support
+  \\
+  Default: OFF
+  \\
+  Note: See additional information on building with {\superludist} enabled
+  in \ref{ss:externallibs}.
+\item[\id{SUPERLUDIST\_INCLUDE\_DIR}] -
+  Path to {\superludist} header files (typically SRC directory)
+\item[\id{SUPERLUDIST\_LIBRARY\_DIR}] -
+  Path to {\superludist} installed library files
+\item[\id{SUPERLUDIST\_LIBRARIES}] -
+  Semi-colon separated list of libraries needed for {\superludist}
+\item[\id{SUPERLUDIST\_OpenMP}] -
+  Enable {\sundials} support for {\superludist} built with {\openmp}
+  \\
+  Default: OFF
+  \\
+  Note: {\superludist} must be built with {\openmp} support for this option to function
+  properly. Additionally the environment variable \id{OMP\_NUM\_THREADS} must be set to
+  the desired number of threads.
+\item[\id{ENABLE\_SUPERLUMT}] -
+  Enable {\superlumt} support
+  \\
+  Default: OFF
+  \\
+  Note: See additional information on building with {\superlumt} enabled
+  in \ref{ss:externallibs}.
+\item[\id{SUPERLUMT\_INCLUDE\_DIR}] -
+  Path to SuperLU\_MT header files (typically SRC directory)
+\item[\id{SUPERLUMT\_LIBRARY\_DIR}] -
+  Path to SuperLU\_MT installed library files
+\item[\id{SUPERLUMT\_LIBRARIES}] -
+  Semi-colon separated list of libraries needed for SuperLU\_MT
+\item[\id{SUPERLUMT\_THREAD\_TYPE}] -
+  Must be set to Pthread or {\openmp}
+  \\
+  Default: Pthread
+\item[\id{ENABLE\_TRILINOS}] -
+  Enable {\trilinos} support (build the {\tpetra} {\nvector}).
+  \\
+  Default: OFF
+\item[\id{Trilinos\_DIR}] -
+  Path to the Trilinos install directory.
+  \\
+  Default:
+\item[\id{TRILINOS\_INTERFACE\_C\_COMPILER}] - \textbf{advanced option} -
+  Set the {\CC} compiler for building the {\trilinos} interface
+  (i.e., {\nvectrilinos} and the examples that use it).
+  \\
+  Default: The {\CC} compiler exported from the found {\trilinos} installation
+  if \id{USE\_XSDK\_DEFAULTS=OFF}. \id{CMAKE\_C\_COMPILER} or \id{MPI\_C\_COMPILER} if \id{USE\_XSDK\_DEFAULTS=ON}.
+  \\
+  Note: It is recommended to use the same compiler that was used to build the {\trilinos} library.
+\item[\id{TRILINOS\_INTERFACE\_C\_COMPILER\_FLAGS}] - \textbf{advanced option} -
+  Set the {\CC} compiler flags for {\trilinos} interface
+  (i.e., {\nvectrilinos} and the examples that use it).
+  \\
+  Default: The {\CC} compiler flags exported from the found {\trilinos} installation
+  if \id{USE\_XSDK\_DEFAULTS=OFF}. \id{CMAKE\_C\_FLAGS} if \id{USE\_XSDK\_DEFAULTS=ON}.
+  \\
+  Note: It is recommended to use the same flags that were used to build the {\trilinos} library.
+\item[\id{TRILINOS\_INTERFACE\_CXX\_COMPILER}] - \textbf{advanced option} -
+  Set the {\CPP} compiler for builing {\trilinos} interface
+  (i.e., {\nvectrilinos} and the examples that use it).
+  \\
+  Default: The {\CPP} compiler exported from the found {\trilinos} installation
+  if \id{USE\_XSDK\_DEFAULTS=OFF}. \id{CMAKE\_CXX\_COMPILER} or \id{MPI\_CXX\_COMPILER} if \id{USE\_XSDK\_DEFAULTS=ON}.
+  \\
+  Note: It is recommended to use the same compiler that was used to build the {\trilinos} library.
+\item[\id{TRILINOS\_INTERFACE\_CXX\_COMPILER\_FLAGS}] - \textbf{advanced option} -
+  Set the {\CPP} compiler flags for {\trilinos} interface
+  (i.e., {\nvectrilinos} and the examples that use it).
+  \\
+  Default: The {\CPP} compiler flags exported from the found {\trilinos} installation
+  if \id{USE\_XSDK\_DEFAULTS=OFF}. \id{CMAKE\_CXX\_FLAGS} if \id{USE\_XSDK\_DEFAULTS=ON}.
+  \\
+  Note: Is is recommended to use the same flags that were used to build the {\trilinos} library.
 \item[\id{SUNDIALS\_BUILD\_WITH\_MONITORING}] -
   Build {\sundials} with capabilties for fine-grained monitoring of solver progress
   and statistics. This is primarily useful for debugging.
@@ -627,225 +705,20 @@ a typical configuration on a Linux system and are provided as illustration only.
   Precision used in {\sundials}, options are: \id{double}, \id{single}, or \id{extended}
   \\
   Default: \id{double}
-\item[\id{SUPERLUDIST\_ENABLE}] -
-  Enable {\superludist} support
+\item[\id{SUNDIALS\_INSTALL\_CMAKEDIR}] -
+  Installation directory for the {\sundials} cmake files (relative to \id{CMAKE\_INSTALL\_PREFIX}).
   \\
-  Default: OFF
-  \\
-  Note: See additional information on building with {\superludist} enabled
-  in \ref{ss:externallibs}.
-\item[\id{SUPERLUDIST\_INCLUDE\_DIR}] -
-  Path to {\superludist} header files (typically SRC directory)
-\item[\id{SUPERLUDIST\_LIBRARY\_DIR}] -
-  Path to {\superludist} installed library files
-\item[\id{SUPERLUDIST\_LIBRARIES}] -
-  Semi-colon separated list of libraries needed for {\superludist}
-\item[\id{SUPERLUDIST\_OpenMP}] -
-  Enable {\sundials} support for {\superludist} built with {\openmp}
-  \\
-  Default: OFF
-  \\
-  Note: {\superludist} must be built with {\openmp} support for this option to function
-  properly. Additionally the environment variable \id{OMP\_NUM\_THREADS} must be set to
-  the desired number of threads.
-\item[\id{SUPERLUMT\_ENABLE}] -
-  Enable {\superlumt} support
-  \\
-  Default: OFF
-  \\
-  Note: See additional information on building with {\superlumt} enabled
-  in \ref{ss:externallibs}.
-\item[\id{SUPERLUMT\_INCLUDE\_DIR}] -
-  Path to SuperLU\_MT header files (typically SRC directory)
-\item[\id{SUPERLUMT\_LIBRARY\_DIR}] -
-  Path to SuperLU\_MT installed library files
-\item[\id{SUPERLUMT\_LIBRARIES}] -
-  Semi-colon separated list of libraries needed for SuperLU\_MT
-\item[\id{SUPERLUMT\_THREAD\_TYPE}] -
-  Must be set to Pthread or {\openmp}
-  \\
-  Default: Pthread
-\item[\id{Trilinos\_ENABLE}] -
-  Enable {\trilinos} support (build the {\tpetra} {\nvector}).
-  \\
-  Default: OFF
-\item[\id{Trilinos\_DIR}] -
-  Path to the Trilinos install directory.
-  \\
-  Default:
-\item[\id{TRILINOS\_INTERFACE\_C\_COMPILER}] - \textbf{advanced option} -
-  Set the {\CC} compiler for building the {\trilinos} interface
-  (i.e., {\nvectrilinos} and the examples that use it).
-  \\
-  Default: The {\CC} compiler exported from the found {\trilinos} installation
-  if \id{USE\_XSDK\_DEFAULTS=OFF}. \id{CMAKE\_C\_COMPILER} or \id{MPI\_C\_COMPILER} if \id{USE\_XSDK\_DEFAULTS=ON}.
-  \\
-  Note: It is recommended to use the same compiler that was used to build the {\trilinos} library.
-\item[\id{TRILINOS\_INTERFACE\_C\_COMPILER\_FLAGS}] - \textbf{advanced option} -
-  Set the {\CC} compiler flags for {\trilinos} interface
-  (i.e., {\nvectrilinos} and the examples that use it).
-  \\
-  Default: The {\CC} compiler flags exported from the found {\trilinos} installation
-  if \id{USE\_XSDK\_DEFAULTS=OFF}. \id{CMAKE\_C\_FLAGS} if \id{USE\_XSDK\_DEFAULTS=ON}.
-  \\
-  Note: It is recommended to use the same flags that were used to build the {\trilinos} library.
-\item[\id{TRILINOS\_INTERFACE\_CXX\_COMPILER}] - \textbf{advanced option} -
-  Set the {\CPP} compiler for builing {\trilinos} interface
-  (i.e., {\nvectrilinos} and the examples that use it).
-  \\
-  Default: The {\CPP} compiler exported from the found {\trilinos} installation
-  if \id{USE\_XSDK\_DEFAULTS=OFF}. \id{CMAKE\_CXX\_COMPILER} or \id{MPI\_CXX\_COMPILER} if \id{USE\_XSDK\_DEFAULTS=ON}.
-  \\
-  Note: It is recommended to use the same compiler that was used to build the {\trilinos} library.
-\item[\id{TRILINOS\_INTERFACE\_CXX\_COMPILER\_FLAGS}] - \textbf{advanced option} -
-  Set the {\CPP} compiler flags for {\trilinos} interface
-  (i.e., {\nvectrilinos} and the examples that use it).
-  \\
-  Default: The {\CPP} compiler flags exported from the found {\trilinos} installation
-  if \id{USE\_XSDK\_DEFAULTS=OFF}. \id{CMAKE\_CXX\_FLAGS} if \id{USE\_XSDK\_DEFAULTS=ON}.
-  \\
-  Note: Is is recommended to use the same flags that were used to build the {\trilinos} library.
+  Default: \id{CMAKE\_INSTALL\_PREFIX/cmake/sundials}
 \item[\id{USE\_GENERIC\_MATH}] -
   Use generic (stdc) math libraries
   \\
   Default: ON
-
-
-
-\end{description}
-
-\subsubsection*{xSDK Configuration Options}
-
-{\sundials} supports CMake configuration options defined by the
-Extreme-scale Scientific Software Development Kit (xSDK) community
-policies (see {\tt https://xsdk.info} for more information). xSDK
-CMake options are unused by default but may be activated by setting
-\id{USE\_XSDK\_DEFAULTS} to ON.
-
-{\warn} When xSDK options are active, they will overwrite the
-corresponding {\sundials} option and may have different default values
-(see details below). As such the equivalent {\sundials} options should
-not be used when configuring with xSDK options. In the GUI front end
-to CMake (\id{ccmake}), setting \id{USE\_XSDK\_DEFAULTS} to ON will
-hide the corresponding {\sundials} options as advanced CMake variables.
-During configuration, messages are output detailing
-which xSDK flags are active and the equivalent {\sundials} options
-that are replaced. Below is a complete list xSDK options and the
-corresponding {\sundials} options if applicable.
-
-\begin{description}
-\item[\id{TPL\_ENABLE\_HYPRE}] -
-  Enable {\hypre} support
-  \\
-  Default: OFF
-  \\
-  {\sundials} equivalent: \id{HYPRE\_ENABLE}
-\item[\id{TPL\_ENABLE\_KLU}] -
-  Enable KLU support
-  \\
-  Default: OFF
-  \\
-  {\sundials} equivalent: \id{KLU\_ENABLE}
-\item[\id{TPL\_ENABLE\_PETSC}] -
-  Enable {\petsc} support
-  \\
-  Default: OFF
-  \\
-  {\sundials} equivalent: \id{PETSC\_ENABLE}
-\item[\id{TPL\_ENABLE\_LAPACK}] -
-  Enable LAPACK support
-  \\
-  Default: OFF
-  \\
-  {\sundials} equivalent: \id{LAPACK\_ENABLE}
-\item[\id{TPL\_ENABLE\_SUPERLUDIST}] -
-  Enable {\superludist} support
-  \\
-  Default: OFF
-  \\
-  {\sundials} equivalent: \id{SUPERLUDIST\_ENABLE}
-\item[\id{TPL\_ENABLE\_SUPERLUMT}] -
-  Enable SuperLU\_MT support
-  \\
-  Default: OFF
-  \\
-  {\sundials} equivalent: \id{SUPERLUMT\_ENABLE}
-\item[\id{TPL\_HYPRE\_INCLUDE\_DIRS}] -
-  Path to {\hypre} header files
-  \\
-  {\sundials} equivalent: \id{HYPRE\_INCLUDE\_DIR}
-\item[\id{TPL\_HYPRE\_LIBRARIES}] -
-  {\hypre} library
-  \\
-  {\sundials} equivalent: N/A
-\item[\id{TPL\_KLU\_INCLUDE\_DIRS}] -
-  Path to KLU header files
-  \\
-  {\sundials} equivalent: \id{KLU\_INCLUDE\_DIR}
-\item[\id{TPL\_KLU\_LIBRARIES}] -
-  KLU library
-  \\
-  {\sundials} equivalent: N/A
-\item[\id{TPL\_LAPACK\_LIBRARIES}] -
-  LAPACK (and BLAS) libraries
-  \\
-  Default: /usr/lib/liblapack.so;/usr/lib/libblas.so
-  \\
-  {\sundials} equivalent: \id{LAPACK\_LIBRARIES}
-  \\
-  Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
-  to searching default system paths.
-\item[\id{TPL\_PETSC\_DIR}] -
-  Path to {\petsc} installation
-  \\
-  {\sundials} equivalent: \id{PETSC\_DIR}
-\item[\id{TPL\_SUPERLUDIST\_INCLUDE\_DIRS}] -
-  Path to {\superludist} header files
-  \\
-  {\sundials} equivalent: \id{SUPERLUDIST\_INCLUDE\_DIR}
-\item[\id{TPL\_SUPERLUDIST\_LIBRARIES}] -
-  Semi-colon separated list of libraries needed for {\superludist}
-  including the {\superludist} library itself
-  \\
-  {\sundials} equivalent: \id{SUPERLUDIST\_LIBRARIES}
-\item[\id{TPL\_SUPERLUDIST\_OPENMP}] -
-  Enable {\sundials} support for {\superludist} built with {\openmp}
-  \\
-  {\sundials} equivalent: \id{SUPERLUDIST\_OPENMP}
-\item[\id{TPL\_SUPERLUMT\_LIBRARIES}] -
-  SuperLU\_MT library
-  \\
-  {\sundials} equivalent: N/A
-\item[\id{TPL\_SUPERLUMT\_THREAD\_TYPE}] -
-  SuperLU\_MT library thread type
-  \\
-  {\sundials} equivalent: \id{SUPERLUMT\_THREAD\_TYPE}
 \item[\id{USE\_XSDK\_DEFAULTS}] -
-  Enable xSDK default configuration settings
+  Enable xSDK (see \href{https://xsdk.info} for more information) default
+  configuration settings. This sets \id{CMAKE\_BUILD\_TYPE} to \id{Debug},
+  \id{SUNDIALS\_INDEX\_SIZE} to 32 and \id{SUNDIALS\_PRECISION} to double.
   \\
   Default: OFF
-  \\
-  {\sundials} equivalent: N/A
-  \\
-  Note: Enabling xSDK defaults also sets \id{CMAKE\_BUILD\_TYPE} to \id{Debug}
-\item[\id{XSDK\_ENABLE\_FORTRAN}] -
-  Enable {\sundials} Fortran interfaces
-  \\
-  Default: OFF
-  \\
-  {\sundials} equivalent: \id{F77\_INTERFACE\_ENABLE}/\id{F2003\_INTERFACE\_ENABLE}
-\item[\id{XSDK\_INDEX\_SIZE}] -
-  Integer size (bits) used for indices in {\sundials}, options are: \id{32} or \id{64}
-  \\
-  Default: \id{32}
-  \\
-  {\sundials} equivalent: \id{SUNDIALS\_INDEX\_SIZE}
-\item[\id{XSDK\_PRECISION}] -
-  Precision used in {\sundials}, options are: \id{double}, \id{single}, or \id{quad}
-  \\
-  Default: \id{double}
-  \\
-  {\sundials} equivalent: \id{SUNDIALS\_PRECISION}
 \end{description}
 
 
@@ -866,7 +739,7 @@ example sources under subdirectories of
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DMPI_ENABLE=ON \
+   > -DENABLE_MPI=ON \
    > -DFCMIX_ENABLE=ON \
    > /home/myname/sundials/solverdir
    %
@@ -879,7 +752,7 @@ example sources under subdirectories of
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DMPI_ENABLE=ON \
+   > -DENABLE_MPI=ON \
    > -DFCMIX_ENABLE=ON \
    > -DEXAMPLES_INSTALL=OFF \
    > /home/myname/sundials/solverdir
@@ -899,7 +772,7 @@ used with {\sundials} must also be build as a shared library or as a
 static library compiled with the \id{-fPIC} flag.{\warn}
 
 \subsubsection*{Building with LAPACK}
-To enable LAPACK, set the \id{LAPACK\_ENABLE} option to \id{ON}.
+To enable LAPACK, set the \id{ENABLE\_LAPACK} option to \id{ON}.
 If the directory containing the LAPACK library is in the
 \id{LD\_LIBRARY\_PATH} environment variable, CMake will set the
 \id{LAPACK\_LIBRARIES} variable accordingly, otherwise CMake will
@@ -910,7 +783,7 @@ variable can be set to the desired libraries rquired for LAPACK.
    % cmake \
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > -DLAPACK_ENABLE=ON \
+   > -DENABLE_LAPACK=ON \
    > -DLAPACK_LIBRARIES=/mylapackpath/lib/libblas.so;/mylapackpath/lib/liblapack.so \
    > /home/myname/sundials/solverdir
    %
@@ -929,7 +802,7 @@ scheme. The defaults for these options in earlier versions of
 The KLU libraries are part of SuiteSparse, a suite of sparse matrix software,
 available from the Texas A\&M University website: {\tt
 http://faculty.cse.tamu.edu/davis/suitesparse.html}.  {\sundials} has been
-tested with SuiteSparse version 5.7.2.  To enable KLU, set \id{KLU\_ENABLE} to
+tested with SuiteSparse version 5.7.2.  To enable KLU, set \id{ENABLE\_KLU} to
 \id{ON}, set \id{KLU\_INCLUDE\_DIR} to the \id{include} path of the KLU
 installation and set \id{KLU\_LIBRARY\_DIR} to the \id{lib} path of the KLU
 installation.  The CMake configure will result in populating the following
@@ -942,7 +815,7 @@ The SuperLU\_MT libraries are available for download from the Lawrence Berkeley
 National Laboratory website: {\tt
 http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_mt}.  {\sundials} has
 been tested with SuperLU\_MT version 3.1.  To enable SuperLU\_MT, set
-\id{SUPERLUMT\_ENABLE} to \id{ON}, set \id{SUPERLUMT\_INCLUDE\_DIR} to the
+\id{ENABLE\_SUPERLUMT} to \id{ON}, set \id{SUPERLUMT\_INCLUDE\_DIR} to the
 \id{SRC} path of the SuperLU\_MT installation, and set the variable
 \newline\id{SUPERLUMT\_LIBRARY\_DIR} to the \id{lib} path of the SuperLU\_MT
 installation.  At the same time, the variable \id{SUPERLUMT\_LIBRARIES} must be
@@ -953,8 +826,8 @@ the full path to the blas library in this list. Additionally, the variable
 \id{{\openmp}}.
 
 \noindent Do not mix thread types when building {\sundials} solvers.  If
-threading is enabled for {\sundials} by having either \id{OPENMP\_ENABLE} or
-\id{PTHREAD\_ENABLE} set to \id{ON} then SuperLU\_MT should be set to use the
+threading is enabled for {\sundials} by having either \id{ENABLE\_OPENMP} or
+\id{ENABLE\_PTHREAD} set to \id{ON} then SuperLU\_MT should be set to use the
 same threading type.{\warn}
 
 \subsubsection*{Building with {\superludist}}
@@ -962,7 +835,7 @@ The {\superludist} libraries are available for download from the Lawrence
 Berkeley National Laboratory website: {\tt
 http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_dist}.  {\sundials}
 has been tested with {\superludist} 6.1.1.  To enable {\superludist}, set
-\id{SUPERLUDIST\_ENABLE} to \id{ON}, set \id{SUPERLUDIST\_INCLUDE\_DIR} to the
+\id{ENABLE\_SUPERLUDIST} to \id{ON}, set \id{SUPERLUDIST\_INCLUDE\_DIR} to the
 include directory of the {\superludist} installation (typically \id{SRC}), and
 set the variable \newline\id{SUPERLUDIST\_LIBRARY\_DIR} to the path to library
 directory of the {\superludist} installation (typically \id{lib}). At the same
@@ -974,15 +847,15 @@ list.  If {\superludist} was built with {\openmp} support, then you may set
 {\superludist}.
 
 \noindent Do not mix thread types when building {\sundials} solvers.  If
-threading is enabled for {\sundials} by having \id{PTHREAD\_ENABLE} set to
+threading is enabled for {\sundials} by having \id{ENABLE\_PTHREAD} set to
 \id{ON} then {\superludist} should not be set to use {\openmp}.{\warn}
 
 \subsubsection*{Building with PETSc}
 \label{ss:building_with_petsc}
 The {\petsc} libraries are available for download from the Argonne National
 Laboratory website: {\tt http://www.mcs.anl.gov/petsc}. {\sundials} has been
-tested with {\petsc} version 3.10.0--3.13.4. To enable {\petsc}, set
-\id{PETSC\_ENABLE} to \id{ON} and then set \id{PETSC\_DIR} to the path of the
+tested with {\petsc} version 3.10.0--3.14.0. To enable {\petsc}, set
+\id{ENABLE\_PETSC} to \id{ON} and then set \id{PETSC\_DIR} to the path of the
 {\petsc} installation. Alternatively, a user can provide a list of include paths
 in \id{PETSC\_INCLUDES}, and a list of complete paths to the libraries needed in
 \id{PETSC\_LIBRARIES}.
@@ -992,7 +865,7 @@ in \id{PETSC\_INCLUDES}, and a list of complete paths to the libraries needed in
 The {\hypre} libraries are available for download from the Lawrence Livermore
 National Laboratory website: {\tt http://computing.llnl.gov/projects/hypre}.
 {\sundials} has been tested with {\hypre} version 2.14.0--2.19.0.  To enable
-{\hypre}, set  \id{HYPRE\_ENABLE} to \id{ON}, set \id{HYPRE\_INCLUDE\_DIR} to
+{\hypre}, set  \id{ENABLE\_HYPRE} to \id{ON}, set \id{HYPRE\_INCLUDE\_DIR} to
 the \id{include} path of the {\hypre} installation, and set the variable
 \id{HYPRE\_LIBRARY\_DIR} to the \id{lib} path of the {\hypre} installation.
 
@@ -1006,7 +879,7 @@ equivalently, \id{XSDK\_INDEX\_SIZE}) equals the precision of
 through 11.0.2 of the {\cuda} toolkit. To build them, you need to install the
 Toolkit and compatible NVIDIA drivers. Both are available for download from the
 NVIDIA website: {\tt https://developer.nvidia.com/cuda-downloads}. To enable
-{\cuda}, set \id{CUDA\_ENABLE} to \id{ON}. If {\cuda} is installed in a
+{\cuda}, set \id{ENABLE\_CUDA} to \id{ON}. If {\cuda} is installed in a
 nonstandard location, you may be prompted to set the variable
 \id{CUDA\_TOOLKIT\_ROOT\_DIR} with your {\cuda} Toolkit installation path. To
 enable {\cuda} examples, set \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
@@ -1016,8 +889,8 @@ enable {\cuda} examples, set \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
 National Laboratory and can be obtained from {\tt https://github.com/LLNL/RAJA}.
 {\sundials} {\raja} modules and examples have been tested with {\raja} up to
 version 0.12.1. Building {\sundials} {\raja} modules requires a {\cuda}-enabled
-{\raja} installation. To enable {\raja}, set \id{CUDA\_ENABLE} and
-\id{RAJA\_ENABLE} to \id{ON}. If {\raja} is installed in a nonstandard location
+{\raja} installation. To enable {\raja}, set \id{ENABLE\_CUDA} and
+\id{ENABLE\_RAJA} to \id{ON}. If {\raja} is installed in a nonstandard location
 you will be prompted to set the variable \id{RAJA\_DIR} with the path to the
 {\raja} CMake configuration file. To enable building the {\raja} examples set
 \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
@@ -1027,7 +900,7 @@ you will be prompted to set the variable \id{RAJA\_DIR} with the path to the
 Laboratories. It can be obtained at {\tt https://github.com/trilinos/Trilinos}.
 {\sundials} {\trilinos} modules and examples have been tested with {\trilinos}
 version 12.14.1 -- 12.18.1. To enable {\trilinos}, set
-\id{Trilinos\_ENABLE} to \id{ON}. If {\trilinos} is
+\id{ENABLE\_TRILINOS} to \id{ON}. If {\trilinos} is
 installed in a nonstandard location you will be prompted to set the
 variable \id{Trilinos\_DIR} with the path to the {\trilinos} CMake
 configuration file. It is desireable to build the {\trilinos} vector interface
@@ -1151,6 +1024,42 @@ header files ({\em e.g.}, \id{cvode\_dense.h} includes
 \id{sundials\_dense.h}). However, it is both legal and safe to do so,
 and would be useful, for example, if the functions declared in \id{sundials\_dense.h}
 are to be used in building a preconditioner.
+
+\subsection{Using {\sundials} as a Third Party Library in other CMake Projects}
+
+The \id{make install} command will also install a
+\href{https://cmake.org/cmake/help/v3.12/manual/cmake-packages.7.html\#package-configuration-file}
+{CMake package configuration file} that other CMake projects can load to get all
+the information needed to build against {\sundials}. In the consuming project's
+CMake code, the \id{find\_package} command may be used to search for the
+configuration file, which will be installed to
+\id{instdir/SUNDIALS\_INSTALL\_CMAKEDIR/SUNDIALSConfig.cmake}
+alongside a package version file
+\id{instdir/SUNDIALS\_INSTALL\_CMAKEDIR/SUNDIALSConfigVersion.cmake}.
+Together these files contain all the information the consuming project needs to
+use {\sundials}, including exported CMake targets. The {\sundials} exported
+CMake targets follow the same naming convention as the generated library
+binaries, e.g. the exported target for {\cvode} is \id{SUNDIALS::cvode}. The
+CMake code snipped below shows how a consuming project might leverage the
+SUNDIALS package configuration file to build against {\sundials} in their own
+CMake project.
+\begin{verbatim}
+  project(MyProject)
+
+  # Set the variable SUNDIALS_DIR to the SUNDIALS instdir.
+  # When using the cmake CLI command, this can be done like so:
+  #   cmake -D SUNDIALS_DIR=/path/to/sundials/installation
+
+  find_project(SUNDIALS REQUIRED)
+
+  add_executable(myexec main.c)
+
+  # Link to SUNDIALS libraries through the exported targets.
+  # This is just an example, users should link to the targets appropriate
+  # for their use case.
+  target_link_libraries(myexec PUBLIC SUNDIALS::cvode SUNDIALS::nvecpetsc)
+\end{verbatim}
+
 
 %---------------------------------------------------------------------------
 % Table of installed files
@@ -1341,7 +1250,7 @@ are to be used in building a preconditioner.
 & Header files & sunmatrix/sunmatrix\_slunrloc.h                     &                           \\
 \hline
 %% --------------------------------------------------
-{SUNMATRIX\_CUSPARSE}
+{\sunlinsolcusparse}
 & Libraries    & libsundials\_sunmatrixcusparse.{\em lib}            &                           \\
 \cline{2-4}
 & Header files & sunmatrix/sunmatrix\_cusparse.h                     &                           \\

@@ -32,29 +32,18 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODE_LIB sundials_cvode_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
-  set(FNVECP_LIB sundials_fnvecparallel_static)
-else()
-  set(CVODE_LIB sundials_cvode_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
-  set(FNVECP_LIB sundials_fnvecparallel_shared)
-endif()
-
-if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB
-       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
-endif()
+# Specify libraries to link againstx
+set(FNVECP_LIB sundials_fnvecparallel)
 
 # Only static FCMIX libraries are available
-set(FCVODE_LIB sundials_fcvode_static)
+set(FCVODE_LIB sundials_fcvode${_STATIC_LIB_SUFFIX})
+
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  list(APPEND FCVODE_LIB sundials_cvode_fused_stubs)
+endif()
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${FCVODE_LIB} ${CVODE_LIB} ${FNVECP_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
-
+set(SUNDIALS_LIBS ${FCVODE_LIB} ${FNVECP_LIB})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FCVODE_examples})
@@ -78,7 +67,7 @@ foreach(example_tuple ${FCVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
 
   if(NOT MPI_Fortran_COMPILER)
     target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -143,9 +132,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/fcmix_parallel
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvode fcmix_parallel)
 
-endif(EXAMPLES_INSTALL)
+endif()

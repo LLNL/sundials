@@ -811,7 +811,7 @@ Several changes were made to the build system:
   ``MPI_C_COMPILER``, ``MPI_CXX_COMPILER``, ``MPI_Fortran_COMPILER``,
   and ``MPIEXEC_EXECUTABLE``.
 
-* When a Fortran name-mangling scheme is needed (e.g., ``LAPACK_ENABLE``
+* When a Fortran name-mangling scheme is needed (e.g., ``ENABLE_LAPACK``
   is ``ON``) the build system will infer the scheme from the Fortran
   compiler. If a Fortran compiler is not available or the inferred or default
   scheme needs to be overridden, the advanced options

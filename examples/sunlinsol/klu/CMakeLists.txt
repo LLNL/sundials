@@ -34,7 +34,7 @@ set(sunlinsol_klu_dependencies
   )
 
 # If building F2003 tests
-if (F2003_INTERFACE_ENABLE)
+if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunlinsol_klu_fortran_examples
     "test_fsunlinsol_klu_mod\;\;")
 endif()
@@ -42,32 +42,20 @@ endif()
 # Add source directory to include directories
 include_directories(. ..)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVEC_LIB sundials_nvecserial_static)
-  set(SUNMAT_LIB sundials_sunmatrixdense_static)
-  set(SUNLINSOL_LIB sundials_sunlinsolklu_static)
-  if (F2003_INTERFACE_ENABLE)
-    list(APPEND NVEC_LIB sundials_fnvecserial_mod_static)
-    list(APPEND SUNMAT_LIB sundials_fsunmatrixdense_mod_static)
-    list(APPEND SUNLINSOL_LIB sundials_fsunlinsolklu_mod_static)
-  endif()
-else()
-  set(NVEC_LIB sundials_nvecserial_shared)
-  set(SUNMAT_LIB sundials_sunmatrixdense_shared)
-  set(SUNLINSOL_LIB sundials_sunlinsolklu_shared)
-  if (F2003_INTERFACE_ENABLE)
-    list(APPEND NVEC_LIB sundials_fnvecserial_mod_shared)
-    list(APPEND SUNMAT_LIB sundials_fsunmatrixdense_mod_shared)
-    list(APPEND SUNLINSOL_LIB sundials_fsunlinsolklu_mod_shared)
-  endif()
+# Specify libraries to link against
+set(NVEC_LIB sundials_nvecserial)
+set(SUNMAT_LIB sundials_sunmatrixdense)
+set(SUNLINSOL_LIB sundials_sunlinsolklu)
+if (BUILD_FORTRAN_MODULE_INTERFACE)
+  list(APPEND NVEC_LIB sundials_fnvecserial_mod)
+  list(APPEND SUNMAT_LIB sundials_fsunmatrixdense_mod)
+  list(APPEND SUNLINSOL_LIB sundials_fsunlinsolklu_mod)
 endif()
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVEC_LIB} ${SUNMAT_LIB} ${SUNLINSOL_LIB} ${EXTRA_LINK_LIBS})
 
-list(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
+list(APPEND SUNDIALS_LIBS)
 
 
 # Add the build and install targets for each example
@@ -78,23 +66,11 @@ foreach(example_tuple ${sunlinsol_klu_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c
-      ../test_sunlinsol.c
-      ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_linearsolver.c
-      ../../../src/sundials/sundials_nvector.c)
+    add_executable(${example} ${example}.c ../test_sunlinsol.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -137,23 +113,13 @@ foreach(example_tuple ${sunlinsol_klu_fortran_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.f90
-      ${sundials_SOURCE_DIR}/examples/utilities/test_utilities.f90
-      ${sundials_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.f90
-      $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
-      $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
+      ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.f90)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -230,6 +196,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/klu
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()
