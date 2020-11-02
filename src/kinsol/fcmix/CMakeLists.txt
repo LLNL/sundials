@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): Daniel R. Reynolds @ SMU
+# Programmer(s): Daniel R. Reynolds @ SMU, Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -14,7 +14,7 @@
 # CMakeLists.txt file for the FKINSOL library
 # ---------------------------------------------------------------
 
-# Add variable fcvode_SOURCES with the sources for the FCVODE library
+# Add variable fkinsol_SOURCES with the sources for the FKINSOL library
 set(fkinsol_SOURCES
   fkinband.c
   fkinbbd.c
@@ -27,54 +27,35 @@ set(fkinsol_SOURCES
   fkinsparse.c
   )
 
-# Add variable shared_SOURCES with the common SUNDIALS sources which will
-# also be included in the ARKODE library
-set(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/nvector/serial/fnvector_serial.c
-  )
-
-# Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
-# also be included in the ARKODE library
-set(sunmatrix_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunmatrix/band/fsunmatrix_band.c
-  ${sundials_SOURCE_DIR}/src/sunmatrix/dense/fsunmatrix_dense.c
-  ${sundials_SOURCE_DIR}/src/sunmatrix/sparse/fsunmatrix_sparse.c
-  )
-
-# Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
-# also be included in the ARKODE library
-set(sunlinsol_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunlinsol/band/fsunlinsol_band.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/dense/fsunlinsol_dense.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spbcgs/fsunlinsol_spbcgs.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spfgmr/fsunlinsol_spfgmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spgmr/fsunlinsol_spgmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/sptfqmr/fsunlinsol_sptfqmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol/pcg/fsunlinsol_pcg.c
-  )
-
-# Add source directories to include directories for access to
-# implementation only header files (both for fkinsol and kinsol)
-include_directories(.)
-include_directories(..)
-
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-
-# Only build STATIC libraries (we cannot build shared libraries
-# for the FCMIX interfaces due to unresolved symbol errors
-# coming from inexistent user-provided functions)
-
-# Add the build target for the FKINSOL library
-add_library(sundials_fkinsol_static STATIC
-  ${fkinsol_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} )
-
-# Set the library name and make sure it is not deleted
-set_target_properties(sundials_fkinsol_static
-  PROPERTIES OUTPUT_NAME sundials_fkinsol CLEAN_DIRECT_OUTPUT 1)
-
-# Install the FKINSOL library
-install(TARGETS sundials_fkinsol_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+sundials_add_library(sundials_fkinsol
+  SOURCES
+    ${fkinsol_SOURCES}
+  OBJECT_LIBRARIES
+    sundials_fnvecserial_obj
+    sundials_fsunmatrixband_obj
+    sundials_fsunmatrixdense_obj
+    sundials_fsunmatrixsparse_obj
+    sundials_fsunlinsolband_obj
+    sundials_fsunlinsoldense_obj
+    sundials_fsunlinsolspbcgs_obj
+    sundials_fsunlinsolspfgmr_obj
+    sundials_fsunlinsolspgmr_obj
+    sundials_fsunlinsolsptfqmr_obj
+    sundials_fsunlinsolpcg_obj
+    sundials_fsunnonlinsolnewton_obj
+    sundials_fsunnonlinsolfixedpoint_obj
+  LINK_LIBRARIES
+    PRIVATE sundials_kinsol
+  INCLUDE_DIRECTORIES
+    PRIVATE ../
+  OUTPUT_NAME
+    sundials_fkinsol
+  VERSION
+    ${kinsollib_VERSION}
+  SOVERSION
+    ${kinsollib_SOVERSION}
+  STATIC_ONLY
+)
 
 #
 message(STATUS "Added KINSOL FCMIX module")

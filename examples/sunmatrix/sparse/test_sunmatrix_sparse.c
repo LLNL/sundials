@@ -770,7 +770,7 @@ int Test_SUNSparseMatrixToCSR(SUNMatrix A)
 int Test_SUNSparseMatrixToCSC(SUNMatrix A)
 {
   int       failure;
-  SUNMatrix csc, csr;
+  SUNMatrix csc=NULL, csr=NULL;
   realtype  tol=200*UNIT_ROUNDOFF;
 
   failure = SUNSparseMatrix_ToCSC(A, &csc);

@@ -22,15 +22,8 @@ if (NOT SUNDIALS_PRECISION MATCHES "SINGLE")
     )
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECS_LIB sundials_nvecserial_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECS_LIB sundials_nvecserial_shared)
-endif()
+set(ARKODE_LIB sundials_arkode)
+set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
@@ -52,8 +45,10 @@ foreach(test_tuple ${ARKODE_unit_tests})
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
     # include location of public and private header files
-    target_include_directories(${test} PRIVATE ${CMAKE_SOURCE_DIR}/include)
-    target_include_directories(${test} PRIVATE ${CMAKE_SOURCE_DIR}/src)
+    target_include_directories(${test} PRIVATE
+      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+      ${CMAKE_SOURCE_DIR}/include
+      ${CMAKE_SOURCE_DIR}/src)
 
     # libraries to link against
     target_link_libraries(${test} ${SUNDIALS_LIBS})

@@ -39,13 +39,8 @@ if(MPI_C_COMPILER)
   set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nvecmpiplusx_static sundials_nveccudaraja_static)
-else()
-  set(NVECS_LIB sundials_nvecmpiplusx_shared sundials_nveccudaraja_shared)
-endif()
+# Specify libraries to link against
+set(NVECS_LIB sundials_nvecmpiplusx sundials_nveccudaraja)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH} -lRAJA)
@@ -61,22 +56,13 @@ foreach(example_tuple ${nvector_raja_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.cu
       ../test_nvector.c
-      ../test_mpinvector.c
-      ../../../src/sundials/sundials_nvector.c)
+      ../test_mpinvector.c)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -162,6 +148,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

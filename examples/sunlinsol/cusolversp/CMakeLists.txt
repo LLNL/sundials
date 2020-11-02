@@ -32,23 +32,13 @@ set(sunlinsol_examples_dependencies
 # Add source directory to include directories
 include_directories(. ..)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(SUNDIALS_LIBS sundials_nveccuda_static
-                    sundials_nvecserial_static
-                    sundials_sunmatrixdense_static
-                    sundials_sunmatrixsparse_static
-                    sundials_sunlinsolcusolversp_static
-                    ${EXTRA_LINK_LIBS})
-else()
-  set(SUNDIALS_LIBS sundials_nveccuda_shared
-                    sundials_nvecserial_shared
-                    sundials_sunmatrixdense_shared
-                    sundials_sunmatrixsparse_shared
-                    sundials_sunlinsolcusolversp_shared
-                    ${EXTRA_LINK_LIBS})
-endif()
+# Specify libraries to link against
+set(SUNDIALS_LIBS sundials_nveccuda
+                  sundials_nvecserial
+                  sundials_sunmatrixdense
+                  sundials_sunmatrixsparse
+                  sundials_sunlinsolcusolversp
+                  ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_cusolversp_examples})
@@ -59,14 +49,6 @@ foreach(example_tuple ${sunlinsol_cusolversp_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
-
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -165,6 +147,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/cusolversp
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

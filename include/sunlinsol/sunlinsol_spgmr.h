@@ -95,10 +95,10 @@ SUNDIALS_EXPORT int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S,
 SUNDIALS_EXPORT int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S,
                                                   int maxrs);
 
-SUNDIALS_DEPRECATED SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl);
-SUNDIALS_DEPRECATED int SUNSPGMRSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_DEPRECATED int SUNSPGMRSetGSType(SUNLinearSolver S, int gstype);
-SUNDIALS_DEPRECATED int SUNSPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
+SUNDIALS_DEPRECATED_EXPORT SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl);
+SUNDIALS_DEPRECATED_EXPORT int SUNSPGMRSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_DEPRECATED_EXPORT int SUNSPGMRSetGSType(SUNLinearSolver S, int gstype);
+SUNDIALS_DEPRECATED_EXPORT int SUNSPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNLinearSolver S);

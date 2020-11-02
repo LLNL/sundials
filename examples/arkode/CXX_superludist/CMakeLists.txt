@@ -18,7 +18,12 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-list(APPEND ARKODE_examples "ark_brusselator1D_FEM_sludist\;1\;1\;develop")
+if(SUPERLUDIST_VERSION VERSION_GREATER_EQUAL "6.3.0")
+  list(APPEND ARKODE_examples "ark_brusselator1D_FEM_sludist\;1\;1\;develop")
+else()
+  print_warning("The ark_brusselator1D_FEM_sludist example requires SuperLU_DIST >= 6.3.0, but the version found is less."
+                "SUPERLUDIST_VERSION: ${SUPERLUDIST_VERSION}")
+endif()
 
 # Auxiliary files to install
 set(ARKODE_extras
@@ -36,19 +41,11 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(SUNMAT_LIB sundials_sunmatrixslunrloc_static)
-  set(SUNLS_LIB sundials_sunlinsolsuperludist_static)
-  set(NVECP_LIB sundials_nvecopenmp_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(SUNMAT_LIB sundials_sunmatrixslunrloc_shared)
-  set(SUNLS_LIB sundials_sunlinsolsuperludist_shared)
-  set(NVECP_LIB sundials_nvecopenmp_shared)
-endif()
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(SUNMAT_LIB sundials_sunmatrixslunrloc)
+set(SUNLS_LIB sundials_sunlinsolsuperludist)
+set(NVECP_LIB sundials_nvecopenmp)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${SUNMAT_LIB} ${SUNLS_LIB} ${EXTRA_LINK_LIBS})
@@ -144,9 +141,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_superludist
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(arkode CXX_superludist)
 
-endif(EXAMPLES_INSTALL)
+endif()

@@ -22,23 +22,14 @@ set(FKINSOL_examples
   "fkinDiagon_kry\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(KINSOL_LIB sundials_kinsol_static)
-  set(NVECS_LIB sundials_nvecserial_static)
-  set(FNVECS_LIB sundials_fnvecserial_static)
-else()
-  set(KINSOL_LIB sundials_kinsol_shared)
-  set(NVECS_LIB sundials_nvecserial_shared)
-  set(FNVECS_LIB sundials_fnvecserial_shared)
-endif()
+# Specify libraries to link against
+set(FNVECS_LIB sundials_fnvecserial)
 
 # Only static FCMIX libraries are available
-set(FKINSOL_LIB sundials_fkinsol_static)
+set(FKINSOL_LIB sundials_fkinsol${_STATIC_LIB_SUFFIX})
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${FKINSOL_LIB} ${KINSOL_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${FKINSOL_LIB} ${FNVECS_LIB} ${EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example
@@ -118,9 +109,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/fcmix_serial
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(kinsol fcmix_serial)
 
-endif(EXAMPLES_INSTALL)
+endif()

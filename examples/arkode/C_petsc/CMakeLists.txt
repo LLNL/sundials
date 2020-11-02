@@ -18,9 +18,11 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(ARKODE_examples
-  "ark_petsc_ex25\;1\;1\;develop"
-  )
+if(BUILD_SUNNONLINSOL_PETSCSNES)
+  set(ARKODE_examples
+    "ark_petsc_ex25\;1\;1\;develop"
+    )
+endif()
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -30,16 +32,11 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECP_LIB sundials_nvecpetsc_static)
-  set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECP_LIB sundials_nvecpetsc_shared)
-  set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes_shared)
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(NVECP_LIB sundials_nvecpetsc)
+if(BUILD_SUNNONLINSOL_PETSCSNES)
+  set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes)
 endif()
 
 # set-up linker flags and link libraries
@@ -126,8 +123,8 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_petsc
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   sundials_add_test_install(arkode C_petsc)
 
-endif(EXAMPLES_INSTALL)
+endif()

@@ -25,15 +25,9 @@ set(IDA_examples
 # Add source directory to include directories
 include_directories(.)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(IDA_LIB sundials_ida_static)
-  set(NVECS_LIB sundials_nveccuda_static)
-else()
-  set(IDA_LIB sundials_ida_shared)
-  set(NVECS_LIB sundials_nveccuda_shared)
-endif()
+# Specify libraries to link against
+set(IDA_LIB sundials_ida)
+set(NVECS_LIB sundials_nveccuda)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
@@ -117,9 +111,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/cuda
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(ida cuda)
 
-endif(EXAMPLES_INSTALL)
+endif()

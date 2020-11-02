@@ -36,27 +36,15 @@ set(sunlinsol_lapackdense_dependencies
 # Add source directory to include directories
 include_directories(. ..)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVEC_LIB sundials_nvecserial_static)
-  set(SUNMAT_LIB sundials_sunmatrixdense_static)
-  set(SUNLINSOL_LIB sundials_sunlinsollapackdense_static)
-else()
-  set(NVEC_LIB sundials_nvecserial_shared)
-  set(SUNMAT_LIB sundials_sunmatrixdense_shared)
-  set(SUNLINSOL_LIB sundials_sunlinsollapackdense_shared)
-endif()
+# Specify libraries to link against
+set(NVEC_LIB sundials_nvecserial)
+set(SUNMAT_LIB sundials_sunmatrixdense)
+set(SUNLINSOL_LIB sundials_sunlinsollapackdense)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVEC_LIB} ${SUNMAT_LIB} ${SUNLINSOL_LIB} ${EXTRA_LINK_LIBS})
 
 list(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-
-if(BLAS_FOUND)
-  list(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
-endif(BLAS_FOUND)
-
 
 # Add the build and install targets for each sunlinsol example
 foreach(example_tuple ${sunlinsol_lapackdense_examples})
@@ -66,23 +54,11 @@ foreach(example_tuple ${sunlinsol_lapackdense_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c
-      ../test_sunlinsol.c
-      ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_linearsolver.c
-      ../../../src/sundials/sundials_nvector.c)
+    add_executable(${example} ${example}.c ../test_sunlinsol.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -168,6 +144,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackdense
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

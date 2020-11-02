@@ -35,20 +35,13 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
-  set(FNVECP_LIB sundials_fnvecparallel_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
-  set(FNVECP_LIB sundials_fnvecparallel_shared)
-endif()
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(NVECP_LIB sundials_nvecparallel)
+set(FNVECP_LIB sundials_fnvecparallel)
 
 # Only static FCMIX libraries are available
-set(FARKODE_LIB sundials_farkode_static)
+set(FARKODE_LIB sundials_farkode${_STATIC_LIB_SUFFIX})
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${FARKODE_LIB} ${ARKODE_LIB} ${FNVECP_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
@@ -142,9 +135,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F77_parallel
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(arkode F77_parallel)
 
-endif(EXAMPLES_INSTALL)
+endif()

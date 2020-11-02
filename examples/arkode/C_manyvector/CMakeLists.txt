@@ -27,27 +27,12 @@ set(ARKODE_extras
   plot_brusselator1D.py
   )
 
-if(MPI_C_FOUND AND MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-elseif(MPI_C_FOUND)
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
-
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECS_LIB sundials_nvecmanyvector_static sundials_nvecserial_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECS_LIB sundials_nvecmanyvector_shared sundials_nvecserial_shared)
-endif()
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(NVECS_LIB sundials_nvecmanyvector sundials_nvecserial)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
@@ -129,9 +114,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_manyvector
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(arkode C_manyvector)
 
-endif(EXAMPLES_INSTALL)
+endif()

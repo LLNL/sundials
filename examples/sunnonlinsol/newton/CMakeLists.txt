@@ -22,7 +22,7 @@ set(examples
   "test_sunnonlinsol_newton\;\;"
 )
 
-if (F2003_INTERFACE_ENABLE)
+if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(fortran_examples
     "test_fsunnonlinsol_newton_mod\;\;"
   )
@@ -31,30 +31,16 @@ endif()
 # Add source directory to include directories
 include_directories(.)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(SUNDIALS_LIBS sundials_nvecserial_static)
-  list(APPEND SUNDIALS_LIBS sundials_sunmatrixdense_static)
-  list(APPEND SUNDIALS_LIBS sundials_sunlinsoldense_static)
-  list(APPEND SUNDIALS_LIBS sundials_sunnonlinsolnewton_static)
-  if(F2003_INTERFACE_ENABLE)
-    list(APPEND SUNDIALS_LIBS sundials_fnvecserial_mod_static)
-    list(APPEND SUNDIALS_LIBS sundials_fsunmatrixdense_mod_static)
-    list(APPEND SUNDIALS_LIBS sundials_fsunlinsoldense_mod_static)
-    list(APPEND SUNDIALS_LIBS sundials_fsunnonlinsolnewton_mod_static)
-  endif()
-else()
-  set(SUNDIALS_LIBS sundials_nvecserial_shared)
-  list(APPEND SUNDIALS_LIBS sundials_sunmatrixdense_shared)
-  list(APPEND SUNDIALS_LIBS sundials_sunlinsoldense_shared)
-  list(APPEND SUNDIALS_LIBS sundials_sunnonlinsolnewton_shared)
-  if(F2003_INTERFACE_ENABLE)
-    list(APPEND SUNDIALS_LIBS sundials_fnvecserial_mod_shared)
-    list(APPEND SUNDIALS_LIBS sundials_fsunmatrixdense_mod_shared)
-    list(APPEND SUNDIALS_LIBS sundials_fsunlinsoldense_mod_shared)
-    list(APPEND SUNDIALS_LIBS sundials_fsunnonlinsolnewton_mod_shared)
-  endif()
+# Specify libraries to link against
+set(SUNDIALS_LIBS sundials_nvecserial)
+list(APPEND SUNDIALS_LIBS sundials_sunmatrixdense)
+list(APPEND SUNDIALS_LIBS sundials_sunlinsoldense)
+list(APPEND SUNDIALS_LIBS sundials_sunnonlinsolnewton)
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  list(APPEND SUNDIALS_LIBS sundials_fnvecserial_mod)
+  list(APPEND SUNDIALS_LIBS sundials_fsunmatrixdense_mod)
+  list(APPEND SUNDIALS_LIBS sundials_fsunlinsoldense_mod)
+  list(APPEND SUNDIALS_LIBS sundials_fsunnonlinsolnewton_mod)
 endif()
 
 # Set-up linker flags and link libraries
@@ -67,14 +53,6 @@ foreach(example_tuple ${examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
-
-  # This is used to get around DLL linkage issue since we are
-  # manually including shared sources, which are normally in
-  # a library that is included. If this is not set build system
-  # thinks the sources are externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif()
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -117,18 +95,12 @@ foreach(example_tuple ${fortran_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif()
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.f90
-      ${sundials_SOURCE_DIR}/examples/utilities/test_utilities.f90
-      $<TARGET_OBJECTS:sundials_generic_${LINK_LIBRARY_TYPE}_obj>
-      $<TARGET_OBJECTS:sundials_fgeneric_${LINK_LIBRARY_TYPE}_obj>)
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -202,6 +174,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/newton
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

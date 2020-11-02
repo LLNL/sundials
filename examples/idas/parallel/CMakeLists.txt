@@ -37,15 +37,9 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(IDAS_LIB sundials_idas_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
-else()
-  set(IDAS_LIB sundials_idas_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
-endif()
+# Specify libraries to link against
+set(IDAS_LIB sundials_idas)
+set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
@@ -151,9 +145,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/parallel
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(idas parallel)
 
-endif(EXAMPLES_INSTALL)
+endif()

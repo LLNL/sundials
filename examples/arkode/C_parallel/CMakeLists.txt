@@ -19,14 +19,17 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_diurnal_kry_p\;\;1\;4\;develop"
-  "ark_diurnal_kry_bbd_p\;\;1\;4\;develop"
+  "ark_diurnal_kry_p\;\;1\;4\;develop\;default"
+  "ark_diurnal_kry_bbd_p\;\;1\;4\;develop\;default"
   )
 
 if(SUNDIALS_PRECISION MATCHES "DOUBLE" AND
    SUNDIALS_INDEX_SIZE MATCHES "64")
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls\;\;1\;4\;develop")
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls\;--global-nls\;1\;4\;develop")
+
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls\;--monitor\;1\;4\;develop\;2")
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls\;--monitor --global-nls\;1\;4\;develop\;2")
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls\;--monitor --explicit --tf 3\;1\;4\;develop\;2")
+
   # Auxiliary files to install
   set(ARKODE_extras
     "plot_brusselator1D.py"
@@ -39,15 +42,9 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECP_LIB sundials_nvecparallel_static sundials_nvecmpiplusx_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared sundials_nvecmpiplusx_shared)
-endif()
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(NVECP_LIB sundials_nvecparallel sundials_nvecmpiplusx)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
@@ -61,6 +58,7 @@ foreach(example_tuple ${ARKODE_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
+  list(GET example_tuple 5 example_precision)
 
   if(NOT TARGET ${example})
     # example source files
@@ -89,7 +87,8 @@ foreach(example_tuple ${ARKODE_examples})
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+    FLOAT_PRECISION ${example_precision})
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
@@ -154,9 +153,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(arkode C_parallel)
 
-endif(EXAMPLES_INSTALL)
+endif()

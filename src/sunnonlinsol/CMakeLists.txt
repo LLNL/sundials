@@ -14,10 +14,10 @@
 # nonlinear solver level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# Always add SUNDIALS provided nonlinear solver modules
+# required modules
 add_subdirectory(newton)
 add_subdirectory(fixedpoint)
 
-if(PETSC_ENABLE AND PETSC_FOUND)
+if(BUILD_SUNNONLINSOL_PETSCSNES)
   add_subdirectory(petscsnes)
-endif(PETSC_ENABLE AND PETSC_FOUND)
+endif()

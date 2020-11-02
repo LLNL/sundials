@@ -18,7 +18,7 @@
 #define _ARKSTEP_XBRAID_IMP_H
 
 #include "sundials/sundials_types.h"
-#include "arkode/arkode_impl.h"
+#include "arkode_impl.h"
 #include "braid.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

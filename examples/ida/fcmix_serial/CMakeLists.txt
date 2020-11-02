@@ -22,24 +22,14 @@ set(FIDA_examples
   "fidaRoberts_dns\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(IDA_LIB sundials_ida_static)
-  set(NVECS_LIB sundials_nvecserial_static)
-  set(FNVECS_LIB sundials_fnvecserial_static)
-else()
-  set(IDA_LIB sundials_ida_shared)
-  set(NVECS_LIB sundials_nvecserial_shared)
-  set(FNVECS_LIB sundials_fnvecserial_shared)
-endif()
+# Specify libraries to link against
+set(FNVECS_LIB sundials_fnvecserial)
 
 # Only static FCMIX libraries are available
-set(FIDA_LIB sundials_fida_static)
+set(FIDA_LIB sundials_fida${_STATIC_LIB_SUFFIX})
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${FIDA_LIB} ${IDA_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
+set(SUNDIALS_LIBS ${FIDA_LIB} ${FNVECS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FIDA_examples})
@@ -117,9 +107,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(ida fcmix_serial)
 
-endif(EXAMPLES_INSTALL)
+endif()

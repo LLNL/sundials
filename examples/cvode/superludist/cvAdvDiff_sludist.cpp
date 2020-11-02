@@ -115,9 +115,9 @@ int main(int argc, char *argv[])
   long int nst;
 
   gridinfo_t grid;
-  LUstruct_t LUstruct;
-  ScalePermstruct_t scaleperm;
-  SOLVEstruct_t solve;
+  dLUstruct_t LUstruct;
+  dScalePermstruct_t scaleperm;
+  dSOLVEstruct_t solve;
   SuperLUStat_t stat;
   superlu_dist_options_t options;
   SuperMatrix Asuper;
@@ -198,8 +198,8 @@ int main(int argc, char *argv[])
   options.PrintStat = NO;
 
   /* Initialize SuperLU-DIST solver structures */
-  ScalePermstructInit(NEQ, NEQ, &scaleperm);
-  LUstructInit(NEQ, &LUstruct);
+  dScalePermstructInit(NEQ, NEQ, &scaleperm);
+  dLUstructInit(NEQ, &LUstruct);
   PStatInit(&stat);
 
   /* Call CVodeCreate to create the solver memory and specify the Adams-Moulton LMM */
@@ -268,8 +268,8 @@ int main(int argc, char *argv[])
 
   /* Free the SuperLU_DIST structures */
   PStatFree(&stat);
-  ScalePermstructFree(&scaleperm);
-  LUstructFree(&LUstruct);
+  dScalePermstructFree(&scaleperm);
+  dLUstructFree(&LUstruct);
   Destroy_CompRowLoc_Matrix_dist(&Asuper);
   superlu_gridexit(&grid);
 

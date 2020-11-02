@@ -14,14 +14,6 @@
 # examples level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
-# The examples will be linked with the library corresponding to the build type.
-# Whenever building shared libraries, use them to link the examples.
-if(BUILD_SHARED_LIBS)
-  set(LINK_LIBRARY_TYPE "shared")
-else()
-  set(LINK_LIBRARY_TYPE "static")
-endif()
-
 # Set variables used in generating CMake and Makefiles for examples
 if(EXAMPLES_INSTALL)
 
@@ -43,7 +35,7 @@ if(EXAMPLES_INSTALL)
     set(CXXFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
     set(CXX_LDFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
     list2string(EXTRA_LINK_LIBS CXX_LIBS)
-  endif(CXX_FOUND)
+  endif()
 
   if(F77_FOUND)
     set(F77 "${CMAKE_Fortran_COMPILER}")
@@ -51,7 +43,7 @@ if(EXAMPLES_INSTALL)
     set(FFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
     set(F77_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
     list2string(EXTRA_LINK_LIBS F77_LIBS)
-  endif(F77_FOUND)
+  endif()
 
   if(F90_FOUND)
     set(F90 "${CMAKE_Fortran_COMPILER}")
@@ -59,21 +51,21 @@ if(EXAMPLES_INSTALL)
     set(F90FLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
     set(F90_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
     list2string(EXTRA_LINK_LIBS F90_LIBS)
-  endif(F90_FOUND)
+  endif()
 
   if(SUPERLUMT_FOUND)
     list2string(SUPERLUMT_LIBRARIES SUPERLUMT_LIBS)
     set(SUPERLUMT_LIBS "${SUPERLUMT_LINKER_FLAGS} ${SUPERLUMT_LIBS}")
-  endif(SUPERLUMT_FOUND)
+  endif()
 
   if(KLU_FOUND)
     list2string(KLU_LIBRARIES KLU_LIBS)
     set(KLU_LIBS "${KLU_LINKER_FLAGS} ${KLU_LIBS}")
-  endif(KLU_FOUND)
+  endif()
 
   if(LAPACK_FOUND)
     list2string(LAPACK_LIBRARIES LAPACK_LIBS)
-  endif(LAPACK_FOUND)
+  endif()
 
   if(MPI_C_FOUND)
     if(MPI_C_COMPILER)
@@ -122,7 +114,7 @@ if(EXAMPLES_INSTALL)
     endif()
   endif()
 
-endif(EXAMPLES_INSTALL)
+endif()
 
 
 #----------------------------------------
@@ -132,37 +124,37 @@ endif(EXAMPLES_INSTALL)
 # Add ARKode examples
 if(BUILD_ARKODE)
   add_subdirectory(arkode)
-endif(BUILD_ARKODE)
+endif()
 
 # Add CVODE examples
 if(BUILD_CVODE)
   add_subdirectory(cvode)
-endif(BUILD_CVODE)
+endif()
 
 # Add CVODES Examples
 if(BUILD_CVODES)
   add_subdirectory(cvodes)
-endif(BUILD_CVODES)
+endif()
 
 # Add IDA examples
 if(BUILD_IDA)
   add_subdirectory(ida)
-endif(BUILD_IDA)
+endif()
 
 # Add IDAS examples
 if(BUILD_IDAS)
   add_subdirectory(idas)
-endif(BUILD_IDAS)
+endif()
 
 # Add KINSOL examples
 if(BUILD_KINSOL)
   add_subdirectory(kinsol)
-endif(BUILD_KINSOL)
+endif()
 
 # Add CPODES examples
 if(BUILD_CPODES)
   add_subdirectory(cpodes)
-endif(BUILD_CPODES)
+endif()
 
 # Add the nvector examples
 add_subdirectory(nvector)

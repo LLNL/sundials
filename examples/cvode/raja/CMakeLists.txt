@@ -28,22 +28,15 @@ set(CVODE_examples
 # Add source directory to include directories
 include_directories(.)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODE_LIB sundials_cvode_static)
-  set(NVECS_LIB sundials_nveccudaraja_static)
-else()
-  set(CVODE_LIB sundials_cvode_shared)
-  set(NVECS_LIB sundials_nveccudaraja_shared)
-endif()
+# Specify libraries to link against
+set(CVODE_LIB sundials_cvode)
+set(NVECS_LIB sundials_nveccudaraja)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB
-       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
+  list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
 endif()
 
-set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB})
 
 # Add the build and install targets for each CVODE example
 foreach(example_tuple ${CVODE_examples})
@@ -64,7 +57,7 @@ foreach(example_tuple ${CVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+  target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
@@ -125,9 +118,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvode raja)
 
-endif(EXAMPLES_INSTALL)
+endif()

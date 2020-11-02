@@ -40,15 +40,9 @@ set(ARKODE_extras
   plot_sol.py
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECS_LIB sundials_nvecserial_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECS_LIB sundials_nvecserial_shared)
-endif()
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
@@ -62,14 +56,13 @@ foreach(example_tuple ${ARKODE_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # add example executable
   if(NOT TARGET ${example})
-    # example source files
     add_executable(${example} ${example}.cpp)
 
-    # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    target_compile_features(${example} PRIVATE cxx_std_11)
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -92,7 +85,7 @@ foreach(example_tuple ${ARKODE_examples})
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
 
-  # install example source and .out files
+  # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.cpp ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial)
@@ -115,6 +108,7 @@ if(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "ARKODE")
   set(SOLVER_LIB "sundials_arkode")
+  set(EXAMPLES_CMAKE_TARGETS "arkode")
 
   examples2string(ARKODE_examples EXAMPLES)
 
@@ -124,7 +118,7 @@ if(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_CXX_ex.in
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_CXX_ex.in
     ${PROJECT_BINARY_DIR}/examples/arkode/CXX_serial/CMakeLists.txt
     @ONLY
     )
@@ -152,9 +146,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(arkode CXX_serial)
 
-endif(EXAMPLES_INSTALL)
+endif()

@@ -76,7 +76,6 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, 
                                size_t& shMemSize, cudaStream_t& stream, size_t n = 0);
 static void PostKernelLaunch();
 
-
 /*
  * Private functions needed for N_VMakeWithManagedAllocator_Cuda
  * backwards compatibility.

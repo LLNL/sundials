@@ -34,13 +34,8 @@ set(nvector_examples_dependencies
 # Add source directory to include directories
 include_directories(. .. ${PROJECT_SOURCE_DIR}/examples/utilities)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nveccuda_static sundials_nvecserial_static)
-else()
-  set(NVECS_LIB sundials_nveccuda_shared sundials_nvecserial_shared)
-endif()
+# Specify libraries to link against
+set(NVECS_LIB sundials_nveccuda sundials_nvecserial)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
@@ -55,21 +50,11 @@ foreach(example_tuple ${nvector_cuda_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.cu
-      ../test_nvector.c
-      ../../../src/sundials/sundials_nvector.c)
+    add_executable(${example} ${example}.cu ../test_nvector.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -104,8 +89,8 @@ foreach(example_tuple ${nvector_cuda_examples})
     install(FILES ${example}.cu
       ../test_nvector.c
       ../test_nvector.h
-      ${sundials_SOURCE_DIR}/examples/utilities/custom_memory_helper.h
-      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper.h
+      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
   endif()
 
@@ -157,6 +142,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

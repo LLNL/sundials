@@ -35,15 +35,9 @@ set(sunlinsol_spgmr_dependencies
 # Add source directory to include directories
 include_directories(. ../..)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVEC_LIB sundials_nvecparallel_static)
-  set(SUNLINSOL_LIB sundials_sunlinsolspgmr_static)
-else()
-  set(NVEC_LIB sundials_nvecparallel_shared)
-  set(SUNLINSOL_LIB sundials_sunlinsolspgmr_shared)
-endif()
+# Specify libraries to link against
+set(NVEC_LIB sundials_nvecparallel)
+set(SUNLINSOL_LIB sundials_sunlinsolspgmr)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVEC_LIB} ${SUNLINSOL_LIB} ${EXTRA_LINK_LIBS})
@@ -67,22 +61,11 @@ foreach(example_tuple ${sunlinsol_spgmr_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c
-      ../../test_sunlinsol.c
-      ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
-      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c)
+    add_executable(${example} ${example}.c ../../test_sunlinsol.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -114,8 +97,8 @@ foreach(example_tuple ${sunlinsol_spgmr_examples})
     install(FILES ${example}.c
       ../../test_sunlinsol.h
       ../../test_sunlinsol.c
-      ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
-      ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel)
   endif()
 
@@ -167,6 +150,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

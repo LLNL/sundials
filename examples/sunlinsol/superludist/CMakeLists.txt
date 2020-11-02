@@ -38,11 +38,6 @@ if(MPI_C_COMPILER AND MPI_CXX_COMPILER)
   set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 endif()
 
-if(SUPERLUDIST_OpenMP)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
 # Add source directory to include directories
 include_directories(. ..)
 
@@ -55,45 +50,23 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.cpp
-      ../test_sunlinsol.c
-      ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_linearsolver.c
-      ../../../src/sundials/sundials_nvector.c)
+    add_executable(${example} ${example}.cpp ../test_sunlinsol.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    if (LINK_LIBRARY_TYPE MATCHES "static")
-      target_link_libraries(${example}
-        PRIVATE
-          sundials_sunlinsolsuperludist_static
-          sundials_sunmatrixslunrloc_static
-          sundials_sunmatrixdense_static
-          sundials_nvecparallel_static
-          sundials_nvecserial_static)
-    else()
-      target_link_libraries(${example}
-        PRIVATE
-          sundials_sunlinsolsuperludist_shared
-          sundials_sunmatrixslunrloc_shared
-          sundials_sunmatrixdense_shared
-          sundials_nvecparallel_shared
-          sundials_nvecserial_shared)
-    endif()
+    target_link_libraries(${example}
+      PRIVATE
+        sundials_sunlinsolsuperludist
+        sundials_sunmatrixslunrloc
+        sundials_sunmatrixdense
+        sundials_nvecparallel
+        sundials_nvecserial)
 
   endif()
 
@@ -181,6 +154,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superludist
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

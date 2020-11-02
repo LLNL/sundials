@@ -38,19 +38,11 @@ set(sunlinsol_superlumt_dependencies
 # Add source directory to include directories
 include_directories(. ..)
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(NVECS_LIB sundials_nvecserial_static)
-  set(SUNMATS_LIB sundials_sunmatrixdense_static)
-  list(APPEND SUNMATS_LIB sundials_sunmatrixsparse_static)
-  set(SUNLINSOLS_LIB sundials_sunlinsolsuperlumt_static)
-else()
-  set(NVECS_LIB sundials_nvecserial_shared)
-  set(SUNMATS_LIB sundials_sunmatrixdense_shared)
-  list(APPEND SUNMATS_LIB sundials_sunmatrixsparse_shared)
-  set(SUNLINSOLS_LIB sundials_sunlinsolsuperlumt_shared)
-endif()
+# Specify libraries to link against
+set(NVECS_LIB sundials_nvecserial)
+set(SUNMATS_LIB sundials_sunmatrixdense)
+list(APPEND SUNMATS_LIB sundials_sunmatrixsparse)
+set(SUNLINSOLS_LIB sundials_sunlinsolsuperlumt)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVECS_LIB} ${SUNMATS_LIB} ${SUNLINSOLS_LIB} ${EXTRA_LINK_LIBS})
@@ -63,23 +55,11 @@ foreach(example_tuple ${sunlinsol_superlumt_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
-
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c
-      ../test_sunlinsol.c
-      ../../../src/sundials/sundials_matrix.c
-      ../../../src/sundials/sundials_linearsolver.c
-      ../../../src/sundials/sundials_nvector.c)
+    add_executable(${example} ${example}.c ../test_sunlinsol.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -170,6 +150,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superlumt
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

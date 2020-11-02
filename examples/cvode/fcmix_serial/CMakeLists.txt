@@ -48,29 +48,18 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
 
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODE_LIB sundials_cvode_static)
-  set(NVECS_LIB sundials_nvecserial_static)
-  set(FNVECS_LIB sundials_fnvecserial_static)
-else()
-  set(CVODE_LIB sundials_cvode_shared)
-  set(NVECS_LIB sundials_nvecserial_shared)
-  set(FNVECS_LIB sundials_fnvecserial_shared)
-endif()
-
-if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB
-       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
-endif()
+# Specify libraries to link against
+set(FNVECS_LIB sundials_fnvecserial)
 
 # Only static FCMIX libraries are available
-set(FCVODE_LIB sundials_fcvode_static)
+set(FCVODE_LIB sundials_fcvode${_STATIC_LIB_SUFFIX})
+
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  list(APPEND FCVODE_LIB sundials_cvode_fused_stubs)
+endif()
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${FCVODE_LIB} ${CVODE_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
+set(SUNDIALS_LIBS ${FCVODE_LIB} ${FNVECS_LIB})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FCVODE_examples})
@@ -91,7 +80,7 @@ foreach(example_tuple ${FCVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
 
    # install example source and out files
   if(EXAMPLES_INSTALL)
@@ -103,30 +92,16 @@ endforeach(example_tuple ${FCVODE_examples})
 
 
 # Add the build and install targets for each LAPACK example (if needed)
-if(LAPACK_FOUND)
+if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
-  # Sundials LAPACK linear solver modules
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLLAPACK_LIBS
-      sundials_sunlinsollapackband_static
-      sundials_sunlinsollapackdense_static
-      sundials_fsunlinsollapackband_static
-      sundials_fsunlinsollapackdense_static)
-  else()
-    set(SUNLINSOLLAPACK_LIBS
-      sundials_sunlinsollapackband_shared
-      sundials_sunlinsollapackdense_shared
-      sundials_fsunlinsollapackband_shared
-      sundials_fsunlinsollapackdense_shared)
-  endif()
+  set(SUNLINSOLLAPACK_LIBS
+    sundials_sunlinsollapackband
+    sundials_sunlinsollapackdense
+    sundials_fsunlinsollapackband
+    sundials_fsunlinsollapackdense)
 
   # LAPACK libraries
   list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
-
-  # BLAS libraries
-  if(BLAS_FOUND)
-    list(APPEND SUNLINSOLLAPACK_LIBS ${BLAS_LIBRARIES})
-  endif(BLAS_FOUND)
 
   foreach(example_tuple ${FCVODE_examples_BL})
 
@@ -156,25 +131,18 @@ if(LAPACK_FOUND)
 
   endforeach(example_tuple ${FCVODE_examples_BL})
 
-endif(LAPACK_FOUND)
+endif()
 
 
 # Add the build and install targets for each KLU example (if needed)
-if(KLU_FOUND)
+if(BUILD_SUNLINSOL_KLU)
 
-  # Sundials KLU linear solver module
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLKLU_LIBS
-      sundials_sunlinsolklu_static
-      sundials_fsunlinsolklu_static)
-  else()
-    set(SUNLINSOLKLU_LIBS
-      sundials_sunlinsolklu_shared
-      sundials_fsunlinsolklu_shared)
-  endif()
+  set(SUNLINSOLKLU_LIBS
+    sundials_sunlinsolklu
+    sundials_fsunlinsolklu)
 
   # KLU libraries
-  list(APPEND SUNLINSOLKLU_LIBS ${KLU_LIBRARIES})
+  list(APPEND SUNLINSOLKLU_LIBS)
 
   foreach(example_tuple ${FCVODE_examples_KLU})
 
@@ -204,30 +172,15 @@ if(KLU_FOUND)
 
   endforeach(example_tuple ${FCVODE_examples_KLU})
 
-endif(KLU_FOUND)
+endif()
 
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
-if(SUPERLUMT_FOUND)
+if(BUILD_SUNLINSOL_SUPERLUMT)
 
-  # Sundials SuperLU_MT linear solver module
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLSLUMT_LIBS
-      sundials_sunlinsolsuperlumt_static
-      sundials_fsunlinsolsuperlumt_static)
-  else()
-    set(SUNLINSOLSLUMT_LIBS
-      sundials_sunlinsolsuperlumt_shared
-      sundials_fsunlinsolsuperlumt_shared)
-  endif()
-
-  # SuperLU_MT libraries
-  list(APPEND SUNLINSOLSLUMT_LIBS ${SUPERLUMT_LIBRARIES})
-
-  # BLAS libraries
-  if(BLAS_FOUND)
-    list(APPEND SUNLINSOLSLUMT_LIBS ${BLAS_LIBRARIES})
-  endif(BLAS_FOUND)
+  set(SUNLINSOLSLUMT_LIBS
+    sundials_sunlinsolsuperlumt
+    sundials_fsunlinsolsuperlumt)
 
   foreach(example_tuple ${FCVODE_examples_SUPERLUMT})
 
@@ -257,7 +210,7 @@ if(SUPERLUMT_FOUND)
 
   endforeach(example_tuple ${FCVODE_examples_SUPERLUMT})
 
-endif(SUPERLUMT_FOUND)
+endif()
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -275,19 +228,19 @@ if(EXAMPLES_INSTALL)
 
   examples2string(FCVODE_examples EXAMPLES)
 
-  if(LAPACK_FOUND)
+  if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     examples2string(FCVODE_examples_BL EXAMPLES_BL)
   else()
     set(EXAMPLES_BL "")
   endif()
 
-  if(KLU_FOUND)
+  if(BUILD_SUNLINSOL_KLU)
     examples2string(FCVODE_examples_KLU EXAMPLES_KLU)
   else()
     set(EXAMPLES_KLU "")
   endif()
 
-  if(SUPERLUMT_FOUND)
+  if(BUILD_SUNLINSOL_SUPERLUMT)
     examples2string(FCVODE_examples_SUPERLUMT EXAMPLES_SLUMT)
   else()
     set(EXAMPLES_SLUMT "")
@@ -327,9 +280,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/fcmix_serial
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvode fcmix_serial)
 
-endif(EXAMPLES_INSTALL)
+endif()

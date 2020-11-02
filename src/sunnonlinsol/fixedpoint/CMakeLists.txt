@@ -16,93 +16,49 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNNONLINSOL_FIXEDPOINT\n\")")
 
-# Add F90 module if F2003 interface is enabled
-if(F2003_FOUND AND F2003_INTERFACE_ENABLE)
-  add_subdirectory(fmod)
-endif(F2003_FOUND AND F2003_INTERFACE_ENABLE)
-
-# Add variable with the sources for the library
-set(lib_SOURCES sunnonlinsol_fixedpoint.c)
-
-# Add variable with the common SUNDIALS sources to be included in the library
-set(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector_senswrapper.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
-  )
-
 # Add variable with the exported header files
 set(lib_HEADERS
-  ${sundials_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_fixedpoint.h
+  ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_fixedpoint.h
   )
 
-# Add source directory to include directories
-include_directories(. ${sundials_SOURCE_DIR}/src/sundials)
-
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-
-# Rules for building and installing the static library:
-#  - Add the build target for the library
-#  - Set the library name and make sure it is not deleted
-#  - Install the library
-if(BUILD_STATIC_LIBS)
-  add_library(sundials_sunnonlinsolfixedpoint_static STATIC ${lib_SOURCES} ${shared_SOURCES})
-  set_target_properties(sundials_sunnonlinsolfixedpoint_static
-    PROPERTIES OUTPUT_NAME sundials_sunnonlinsolfixedpoint CLEAN_DIRECT_OUTPUT 1)
-  install(TARGETS sundials_sunnonlinsolfixedpoint_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif()
-
-# Rules for building and installing the shared library:
-#  - Add the build target for the library
-#  - Set the library name and make sure it is not deleted
-#  - Set VERSION and SOVERSION for shared libraries
-#  - Install the library
-if(BUILD_SHARED_LIBS)
-  add_library(sundials_sunnonlinsolfixedpoint_shared SHARED ${lib_SOURCES} ${shared_SOURCES})
-
-  if(UNIX)
-    target_link_libraries(sundials_sunnonlinsolfixedpoint_shared m)
-  endif()
-
-  set_target_properties(sundials_sunnonlinsolfixedpoint_shared
-    PROPERTIES OUTPUT_NAME sundials_sunnonlinsolfixedpoint CLEAN_DIRECT_OUTPUT 1)
-  set_target_properties(sundials_sunnonlinsolfixedpoint_shared
-    PROPERTIES VERSION ${sunnonlinsollib_VERSION} SOVERSION ${sunnonlinsollib_SOVERSION})
-  install(TARGETS sundials_sunnonlinsolfixedpoint_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif()
+# Add the library
+sundials_add_library(sundials_sunnonlinsolfixedpoint
+  SOURCES
+    sunnonlinsol_fixedpoint.c
+  OBJECT_LIBRARIES
+    sundials_generic_obj
+  OUTPUT_NAME
+    sundials_sunnonlinsolfixedpoint
+  VERSION
+    ${sunnonlinsollib_VERSION}
+  SOVERSION
+    ${sunnonlinsollib_VERSION}
+)
 
 # Install the header files
 install(FILES ${lib_HEADERS} DESTINATION include/sunnonlinsol)
 
-# If FCMIX is enabled, build and install the F library
-if(F77_INTERFACE_ENABLE AND F77_FOUND)
-  set(flib_SOURCES fsunnonlinsol_fixedpoint.c)
-
-  if(BUILD_STATIC_LIBS)
-    add_library(sundials_fsunnonlinsolfixedpoint_static STATIC ${flib_SOURCES})
-    set_target_properties(sundials_fsunnonlinsolfixedpoint_static
-      PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolfixedpoint CLEAN_DIRECT_OUTPUT 1)
-    install(TARGETS sundials_fsunnonlinsolfixedpoint_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  endif()
-
-  if(BUILD_SHARED_LIBS)
-    add_library(sundials_fsunnonlinsolfixedpoint_shared ${flib_SOURCES})
-
-    # depends on fnvecserial and sunnonlinsolfixedpoint
-    target_link_libraries(sundials_fsunnonlinsolfixedpoint_shared
-      sundials_fnvecserial_shared
-      sundials_sunnonlinsolfixedpoint_shared)
-
-    set_target_properties(sundials_fsunnonlinsolfixedpoint_shared
-      PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolfixedpoint CLEAN_DIRECT_OUTPUT 1)
-    set_target_properties(sundials_fsunnonlinsolfixedpoint_shared
-      PROPERTIES VERSION ${sunnonlinsollib_VERSION} SOVERSION ${sunnonlinsollib_SOVERSION})
-    install(TARGETS sundials_fsunnonlinsolfixedpoint_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  endif()
-
-endif()
-
 #
 message(STATUS "Added SUNNONLINSOL_FIXEDPOINT module")
+
+# Add F2003 module if the interface is enabled
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  add_subdirectory(fmod)
+endif()
+
+# If FCMIX is enabled, build and install the F77 library
+if(BUILD_FORTRAN77_INTERFACE)
+  sundials_add_library(sundials_fsunnonlinsolfixedpoint
+    SOURCES
+      fsunnonlinsol_fixedpoint.c
+    LINK_LIBRARIES
+      PRIVATE sundials_fnvecserial sundials_sunnonlinsolfixedpoint
+    OUTPUT_NAME
+      sundials_fsunnonlinsolfixedpoint
+    VERSION
+      ${sunnonlinsol_VERSION}
+    SOVERSION
+      ${sunnonlinsol_SOVERSION}
+  )
+  message(STATUS "Added SUNNONLINSOL_FIXEDPOINT F77 interface")
+endif()

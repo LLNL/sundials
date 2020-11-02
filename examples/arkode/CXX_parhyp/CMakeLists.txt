@@ -39,15 +39,9 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
-endif()
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
@@ -73,7 +67,7 @@ foreach(example_tuple ${ARKODE_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} ${HYPRE_LIBRARIES})
+    target_link_libraries(${example} ${SUNDIALS_LIBS} SUNDIALS::HYPRE)
 
     if(NOT MPI_CXX_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -158,9 +152,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parhyp
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(arkode CXX_parhyp)
 
-endif(EXAMPLES_INSTALL)
+endif()

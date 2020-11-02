@@ -33,15 +33,8 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
-endif()
+set(ARKODE_LIB sundials_arkode)
+set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
@@ -57,23 +50,25 @@ foreach(test_tuple ${ARKODE_unit_tests})
   # check if this test has already been added, only need to add
   # test source files once for testing with different inputs
   if(NOT TARGET ${test})
-    
+
     # test source files
     add_executable(${test} ${test}.cpp)
-    
+
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
-    
+
     # include location of public and private header files
-    target_include_directories(${test} PRIVATE ${CMAKE_SOURCE_DIR}/include)
-    target_include_directories(${test} PRIVATE ${CMAKE_SOURCE_DIR}/src)
-    
+    target_include_directories(${test} PRIVATE
+      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+      ${CMAKE_SOURCE_DIR}/include
+      ${CMAKE_SOURCE_DIR}/src)
+
     # libraries to link against
     target_link_libraries(${test} ${SUNDIALS_LIBS})
-    
+
     if(NOT MPI_CXX_COMPILER)
       target_link_libraries(${test} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
     endif()
-    
+
   endif()
 
   # check if test args are provided and set the test name
@@ -82,11 +77,11 @@ foreach(test_tuple ${ARKODE_unit_tests})
   else()
     string(REGEX REPLACE " " "_" test_name ${test}_${test_args})
   endif()
-  
+
   # add test to regression tests
   sundials_add_test(${test_name} ${test}
     TEST_ARGS ${test_args}
     MPI_NPROCS ${number_of_tasks}
     NODIFF)
-  
+
 endforeach()

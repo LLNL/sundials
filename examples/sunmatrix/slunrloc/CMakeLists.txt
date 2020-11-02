@@ -38,11 +38,6 @@ if(MPI_C_COMPILER)
   set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 endif()
 
-if(OPENMP_FOUND AND SUPERLUDIST_OpenMP)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_slunrloc_examples})
   # parse the example tuple
@@ -50,14 +45,6 @@ foreach(example_tuple ${sunmatrix_slunrloc_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 example_type)
-
-  # This is used to get around DLL linkage issue since we are
-  # manually including sundials_nvector.c here, which is normally in
-  # a library that is included.  If this is not set build system
-  # thinks nvector is externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif(WIN32)
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -75,21 +62,12 @@ foreach(example_tuple ${sunmatrix_slunrloc_examples})
     target_include_directories(${example} PRIVATE . ..)
 
     # libraries to link against
-    if (LINK_LIBRARY_TYPE MATCHES "static")
-      target_link_libraries(${example}
-        PRIVATE
-          sundials_sunmatrixslunrloc_static
-          sundials_sunmatrixdense_static
-          sundials_nvecparallel_static
-          sundials_nvecserial_static)
-    else()
-      target_link_libraries(${example}
-        PRIVATE
-          sundials_sunmatrixslunrloc_shared
-          sundials_sunmatrixdense_shared
-          sundials_nvecparallel_shared
-          sundials_nvecserial_shared)
-    endif()
+    target_link_libraries(${example}
+      PRIVATE
+        sundials_sunmatrixslunrloc
+        sundials_sunmatrixdense
+        sundials_nvecparallel
+        sundials_nvecserial)
   endif()
 
   # check if example args are provided and set the test name
@@ -174,6 +152,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/slunrloc/
       RENAME Makefile
     )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

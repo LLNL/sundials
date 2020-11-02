@@ -21,15 +21,16 @@
  *    v_t = -c * v_x + w * u - v * u^2
  *    w_t = -c * w_x + (B - w) / ep - w * u
  *
- * for t in [0, 10], x in [0, 1] with periodic bounday conditions. The
+ * for t in [0, 10], x in [0, xmax] with periodic boundary conditions. The
  * initial condition is a Gaussian pertubation of the steady state
  * solution without advection
  *
  *    u(0,x) = k1 * A / k4 + p(x)
  *    v(0,x) = k2 * k4 * B / (k1 * k3 * A) + p(x)
  *    w(0,x) = 3.0 + p(x)
- *    p(x) = 0.1 * e^(-(x - 0.5)^2 / 0.1).
+ *    p(x)   = alpha * e^( -(x - mu)^2 / (2*sigma^2) ).
  *
+ * where alpha = 0.1, mu = xmax / 2.0, and sigma = xmax / 4.0.
  * The reaction rates are set so k_1 = k_2 = k_3 = k_4 = k, and k_5 = k_6 =
  * 1/5e-6. The spatial derivatives are discretized with first-order upwind
  * finite differences. An IMEX method is used to evolve the system in time with
@@ -41,9 +42,15 @@
  *
  * Command line options:
  *  --help           prints help message
- *  --global-nls     use a global newton nonlinear solver instead of task-local
+ *  --printtime      print timing information
  *  --monitor        print solution information to screen (slower)
- *  --nx <int>       number of intervals
+ *  --output-dir     the directory where all output files will be written
+ *  --nout <int>     the number of output times
+ *  --nx <int>       number of spatial mesh intervals
+ *  --xmax <double>  maximum x value
+ *  --explicit       use explicit method instead of IMEX
+ *  --order <int>    method order
+ *  --global-nls     use a global newton nonlinear solver instead of task-local
  *  --tf <double>    final time
  *  --A <double>     A parameter value
  *  --B <double>     B parameter value
@@ -60,6 +67,7 @@
 #include <mpi.h>
 
 #include "arkode/arkode_arkstep.h"             /* ARKStep                   */
+#include "arkode/arkode_erkstep.h"             /* ERKStep                   */
 #include "nvector/nvector_mpiplusx.h"          /* MPI+X N_Vector            */
 #include "nvector/nvector_serial.h"            /* serial N_Vector           */
 #include "sunmatrix/sunmatrix_dense.h"         /* dense SUNMatrix           */
@@ -68,11 +76,39 @@
 #include "sunnonlinsol/sunnonlinsol_newton.h"  /* Newton SUNNonlinearSolver */
 
 
+/* Maximum size of output directory string */
+#define MXSTR 2048
+
 /* Accessor macro:
    n = number of state variables
    i = mesh node index
    c = component */
 #define IDX(n,i,c) ((n)*(i)+(c))
+
+
+/*
+ * User options structure
+ */
+
+typedef struct
+{
+  double t0;       /* initial time                 */
+  double tf;       /* final time                   */
+  double rtol;     /* relative tolerance           */
+  double atol;     /* absolute tolerance           */
+  int    order;    /* method order                 */
+  int    explicit; /* imex method or explicit      */
+  int    global;   /* use global nonlinear solve   */
+  int    fused;    /* use fused vector ops         */
+  int    nout;     /* number of outputs            */
+  int    monitor;  /* print solution to screen     */
+  int    printtime;/* print timing information     */
+  FILE*  TFID;     /* time output file pointer     */
+  FILE*  UFID;     /* solution output file pointer */
+  FILE*  VFID;
+  FILE*  WFID;
+  char*  outputdir;
+} *UserOptions;
 
 
 /*
@@ -112,6 +148,7 @@ typedef struct
   long long nxl;  /* number of intervals locally  */
   long long NEQ;  /* number of equations locally  */
   double    dx;   /* mesh spacing                 */
+  double    xmax; /* maximum x value              */
   double    A;    /* concentration of species A   */
   double    B;    /* w source rate                */
   double    k1;   /* reaction rates               */
@@ -120,29 +157,11 @@ typedef struct
   double    k4;
   double    k5;
   double    k6;
-  double    c;     /* advection coefficient      */
+  double    c;    /* advection coefficient        */
+
+  /* integrator options */
+  UserOptions uopt;
 } *UserData;
-
-
-/*
- * User options structure
- */
-
-typedef struct
-{
-  int    order;    /* method order                 */
-  double t0;       /* initial time                 */
-  double tf;       /* final time                   */
-  double rtol;     /* relative tolerance           */
-  double atol;     /* absolute tolerance           */
-  int    nout;     /* number of outputs            */
-  int    global;   /* use global nonlinear solve   */
-  int    monitor;  /* print solution to screen     */
-  FILE*  TFID;     /* time output file pointer     */
-  FILE*  UFID;     /* solution output file pointer */
-  FILE*  VFID;
-  FILE*  WFID;
-} *UserOptions;
 
 
 /*
@@ -172,7 +191,8 @@ SUNNonlinearSolver TaskLocalNewton(N_Vector y, FILE* DFID);
 
 static int Advection(double t, N_Vector y, N_Vector ydot, void *user_data);
 static int Reaction(double t, N_Vector y, N_Vector ydot, void *user_data);
-
+static int AdvectionReaction(double t, N_Vector y, N_Vector ydot,
+                             void *user_data);
 
 /*
  * Preconditioner functions (used only when using the global nonlinear solver)
@@ -190,7 +210,10 @@ static int PSolve(double t, N_Vector y, N_Vector f, N_Vector r,
  */
 
 /* function that does ARKStep setup and evolves the solution */
-static int EvolveProblem(N_Vector y, UserData udata, UserOptions uopt);
+static int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt);
+
+/* function that does ERKStep setup and evolves the solution */
+static int EvolveProblemExplicit(N_Vector y, UserData udata, UserOptions uopt);
 
 /* function to set initial condition */
 static int SetIC(N_Vector y, UserData udata);
@@ -201,8 +224,8 @@ static int ExchangeAllStart(N_Vector y, UserData udata);
 static int ExchangeAllEnd(UserData udata);
 
 /* functions for processing command line args */
-static int SetupProblem(int argc, char *argv[], UserData udata,
-                        UserOptions uopt);
+static int SetupProblem(int argc, char *argv[],
+                        UserData udata, UserOptions uopt);
 static void InputError(char *name);
 
 /* function to write solution to disk */
@@ -225,41 +248,63 @@ int main(int argc, char *argv[])
   int          retval;        /* reusable error-checking flag */
   long long    i;             /* loop counter                 */
   FILE*        MFID;          /* mesh output file pointer     */
+  char         fname[MXSTR];
+  MPI_Comm     comm;
+  double       starttime, endtime;
 
   /* Initialize MPI */
+  comm = MPI_COMM_WORLD;
   retval = MPI_Init(&argc, &argv);
-  if (check_retval(&retval, "MPI_Init", 1)) return 1;
+  if (check_retval(&retval, "MPI_Init", 1)) MPI_Abort(comm, 1);
+
+  /* Start timing */
+  starttime = MPI_Wtime();
 
   /* Allocate user data structure */
   udata = (UserData) malloc(sizeof(*udata));
-  if (check_retval((void *) udata, "malloc", 2)) return(1);
+  if (check_retval((void *) udata, "malloc", 0)) MPI_Abort(comm, 1);
 
   /* Allocate user options structure */
   uopt = (UserOptions) malloc(sizeof(*uopt));
-  if (check_retval((void *) uopt, "malloc", 2)) return(1);
+  if (check_retval((void *) uopt, "malloc", 0)) MPI_Abort(comm, 1);
 
   /* Process input args and setup the problem */
   retval = SetupProblem(argc, argv, udata, uopt);
-  if (check_retval(&retval, "SetupProblem", 1)) return(1);
+  if (check_retval(&retval, "SetupProblem", 1)) MPI_Abort(comm, 1);
 
   /* Create solution vector */
   y = N_VMake_MPIPlusX(udata->comm, N_VNew_Serial(udata->NEQ));
-  if (check_retval((void *)y, "N_VMake_MPIPlusX", 0)) return 1;
+  if (check_retval((void *) y, "N_VMake_MPIPlusX", 0)) MPI_Abort(comm, 1);
+
+  /* Enabled fused vector ops */
+  retval = N_VEnableFusedOps_MPIManyVector(y, uopt->fused);
+  if (check_retval(&retval, "N_VEnableFusedOps_MPIManyVector", 1)) MPI_Abort(comm, 1);
 
   /* Set the initial condition */
   retval = SetIC(y, udata);
-  if (check_retval(&retval, "SetIC", 1)) return 1;
+  if (check_retval(&retval, "SetIC", 1)) MPI_Abort(comm, 1);
 
   /* Output spatial mesh to disk (add extra point for periodic BC) */
-  if (udata->myid == 0)
+  if (udata->myid == 0 && uopt->nout > 0)
   {
-    MFID = fopen("mesh.txt","w");
+    sprintf(fname, "%s/mesh.txt", uopt->outputdir);
+    MFID = fopen(fname,"w");
     for (i = 0; i < udata->nx + 1; i++) fprintf(MFID,"  %.16e\n", udata->dx*i);
     fclose(MFID);
   }
 
   /* Integrate in time */
-  retval = EvolveProblem(y, udata, uopt);
+  if (uopt->explicit) retval = EvolveProblemExplicit(y, udata, uopt);
+  else                retval = EvolveProblemIMEX(y, udata, uopt);
+
+  if (check_retval(&retval, "Evolve", 1)) MPI_Abort(comm, 1);
+
+  /* End timing */
+  endtime = MPI_Wtime();
+  if (udata->myid == 0 && uopt->printtime)
+  {
+    printf("\nTotal wall clock time: %.4f seconds\n", endtime-starttime);
+  }
 
   /* Clean up */
   FreeProblem(udata, uopt);
@@ -273,8 +318,8 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-/* Setup ARKODE and evolve problem in time */
-int EvolveProblem(N_Vector y, UserData udata, UserOptions uopt)
+/* Setup ARKODE and evolve problem in time with IMEX method*/
+int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt)
 {
   void*              arkode_mem = NULL;  /* empty ARKODE memory structure    */
   SUNNonlinearSolver NLS = NULL;         /* empty nonlinear solver structure */
@@ -287,8 +332,8 @@ int EvolveProblem(N_Vector y, UserData udata, UserOptions uopt)
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npre, npsol;  /* linear solver stats          */
-  FILE*    DFID;              /* diagnostics output file      */
-  char     fname[25];
+  FILE*    DFID = NULL;       /* diagnostics output file      */
+  char     fname[MXSTR];
 
   /* Create the ARK timestepper module */
   arkode_mem = ARKStepCreate(Advection, Reaction, uopt->t0, y);
@@ -311,11 +356,14 @@ int EvolveProblem(N_Vector y, UserData udata, UserOptions uopt)
   if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
 
   /* Open output file for integrator diagnostics */
-  sprintf(fname, "diagnostics.%06d.txt", udata->myid);
-  DFID = fopen(fname, "w");
+  if (uopt->monitor)
+  {
+    sprintf(fname, "%s/diagnostics.%06d.txt", uopt->outputdir, udata->myid);
+    DFID = fopen(fname, "w");
 
-  retval = ARKStepSetDiagnostics(arkode_mem, DFID);
-  if (check_retval(&retval, "ARKStepSetDiagnostics", 1)) return 1;
+    retval = ARKStepSetDiagnostics(arkode_mem, DFID);
+    if (check_retval(&retval, "ARKStepSetDiagnostics", 1)) return 1;
+  }
 
   /* Create the (non)linear solver */
   if (uopt->global)
@@ -343,7 +391,7 @@ int EvolveProblem(N_Vector y, UserData udata, UserOptions uopt)
   else
   {
     /* The custom task-local nonlinear solver handles the linear solve
-       as well, so we do not need a SUNLinearSolver */
+      as well, so we do not need a SUNLinearSolver */
     NLS = TaskLocalNewton(y, DFID);
     if (check_retval((void *)NLS, "TaskLocalNewton", 0)) return 1;
 
@@ -362,10 +410,13 @@ int EvolveProblem(N_Vector y, UserData udata, UserOptions uopt)
 
   /* Integrate to final time */
   t     = uopt->t0;
-  dtout = (uopt->tf - uopt->t0) / uopt->nout;
+  dtout = (uopt->tf - uopt->t0);
+  if (uopt->nout != 0)
+    dtout /= uopt->nout;
   tout  = t + dtout;
+  iout  = 0;
 
-  for (iout = 0; iout < uopt->nout; iout++)
+  do
   {
     /* Integrate to output time */
     retval = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
@@ -377,10 +428,12 @@ int EvolveProblem(N_Vector y, UserData udata, UserOptions uopt)
     /* Update output time */
     tout += dtout;
     tout = (tout > uopt->tf) ? uopt->tf : tout;
-  }
+
+    iout++;
+  } while (iout < uopt->nout);
 
   /* close output stream */
-  fclose(DFID);
+  if (uopt->monitor) fclose(DFID);
 
   /* Get final statistics */
   retval = ARKStepGetNumSteps(arkode_mem, &nst);
@@ -434,6 +487,110 @@ int EvolveProblem(N_Vector y, UserData udata, UserOptions uopt)
 }
 
 
+/* Setup ARKODE and evolve problem in time explicitly */
+int EvolveProblemExplicit(N_Vector y, UserData udata, UserOptions uopt)
+{
+  void*    arkode_mem = NULL; /* empty ARKODE memory structure */
+  double   t, dtout, tout;    /* current/output time data      */
+  int      retval;            /* reusable error-checking flag  */
+  int      iout;              /* output counter                */
+  long int nst, nst_a, netf;  /* step stats                    */
+  long int nfe;               /* RHS stats                     */
+  FILE*    DFID;              /* diagnostics output file       */
+  char     fname[MXSTR];
+
+  /* Create the ERK timestepper module */
+  arkode_mem = ERKStepCreate(AdvectionReaction, uopt->t0, y);
+  if (check_retval((void*)arkode_mem, "ERKStepCreate", 0)) return 1;
+
+  /* Select the method order */
+  retval = ERKStepSetOrder(arkode_mem, uopt->order);
+  if (check_retval(&retval, "ERKStepSetOrder", 1)) return 1;
+
+  /* Attach user data */
+  retval = ERKStepSetUserData(arkode_mem, (void*) udata);
+  if (check_retval(&retval, "ERKStepSetUserData", 1)) return 1;
+
+  /* Specify tolerances */
+  retval = ERKStepSStolerances(arkode_mem, uopt->rtol, uopt->atol);
+  if (check_retval(&retval, "ERKStepSStolerances", 1)) return 1;
+
+  /* Increase the max number of steps allowed between outputs */
+  retval = ERKStepSetMaxNumSteps(arkode_mem, 1000000);
+  if (check_retval(&retval, "ERKStepSetMaxNumSteps", 1)) return 1;
+
+  /* Open output file for integrator diagnostics */
+  if (uopt->monitor)
+  {
+    sprintf(fname, "%s/diagnostics.%06d.txt", uopt->outputdir, udata->myid);
+    DFID = fopen(fname, "w");
+
+    retval = ERKStepSetDiagnostics(arkode_mem, DFID);
+    if (check_retval(&retval, "ERKStepSetDiagnostics", 1)) return 1;
+  }
+
+  /* Output initial condition */
+  if (udata->myid == 0 && uopt->monitor)
+  {
+    printf("\n          t         ||u||_rms   ||v||_rms   ||w||_rms\n");
+    printf("   ----------------------------------------------------\n");
+  }
+  WriteOutput(uopt->t0, y, udata, uopt);
+
+  /* Integrate to final time */
+  t     = uopt->t0;
+  dtout = (uopt->tf - uopt->t0);
+  if (uopt->nout != 0)
+    dtout /= uopt->nout;
+  tout  = t + dtout;
+  iout  = 0;
+
+  do
+  {
+    /* Integrate to output time */
+    retval = ERKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    if (check_retval(&retval, "ERKStepEvolve", 1)) break;
+
+    /* Output state */
+    WriteOutput(t, y, udata, uopt);
+
+    /* Update output time */
+    tout += dtout;
+    tout = (tout > uopt->tf) ? uopt->tf : tout;
+
+    iout++;
+  } while (iout < uopt->nout);
+
+  /* close output stream */
+  if (uopt->monitor) fclose(DFID);
+
+  /* Get final statistics */
+  retval = ERKStepGetNumSteps(arkode_mem, &nst);
+  check_retval(&retval, "ERKStepGetNumSteps", 1);
+  retval = ERKStepGetNumStepAttempts(arkode_mem, &nst_a);
+  check_retval(&retval, "ERKStepGetNumStepAttempts", 1);
+  retval = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
+  check_retval(&retval, "ERKStepGetNumRhsEvals", 1);
+  retval = ERKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_retval(&retval, "ERKStepGetNumErrTestFails", 1);
+
+  /* Print final statistics */
+  if (udata->myid == 0)
+  {
+    printf("\nFinal Solver Statistics (for processor 0):\n");
+    printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
+    printf("   Total RHS evals:  Fe = %li", nfe);
+    printf("   Total number of error test failures = %li\n", netf);
+  }
+
+  /* Clean up */
+  ERKStepFree(&arkode_mem);
+
+  /* Return success */
+  return 0;
+}
+
+
 /* Write time and solution to disk */
 int WriteOutput(double t, N_Vector y, UserData udata, UserOptions uopt)
 {
@@ -462,30 +619,33 @@ int WriteOutput(double t, N_Vector y, UserData udata, UserOptions uopt)
       printf("     %10.6f   %10.6f   %10.6f   %10.6f\n", t, u, v, w);
   }
 
-  /* output the times to disk */
-  if (udata->myid == 0)
-    fprintf(uopt->TFID," %.16e\n", t);
+  if (uopt->nout > 0)
+  {
+      /* output the times to disk */
+      if (udata->myid == 0 && uopt->TFID)
+        fprintf(uopt->TFID," %.16e\n", t);
 
-  /* output results to disk */
-  for (i = 0; i < udata->nxl; i++)
-  {
-    fprintf(uopt->UFID," %.16e", data[IDX(nvar, i, 0)]);
-    fprintf(uopt->VFID," %.16e", data[IDX(nvar, i, 1)]);
-    fprintf(uopt->WFID," %.16e", data[IDX(nvar, i, 2)]);
-  }
+      /* output results to disk */
+      for (i = 0; i < udata->nxl; i++)
+      {
+        fprintf(uopt->UFID," %.16e", data[IDX(nvar, i, 0)]);
+        fprintf(uopt->VFID," %.16e", data[IDX(nvar, i, 1)]);
+        fprintf(uopt->WFID," %.16e", data[IDX(nvar, i, 2)]);
+      }
 
-  /* we have one extra output because of the periodic BCs */
-  if (udata->myid == (udata->nprocs - 1))
-  {
-    fprintf(uopt->UFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 0)]);
-    fprintf(uopt->VFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 1)]);
-    fprintf(uopt->WFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 2)]);
-  }
-  else
-  {
-    fprintf(uopt->UFID,"\n");
-    fprintf(uopt->VFID,"\n");
-    fprintf(uopt->WFID,"\n");
+      /* we have one extra output because of the periodic BCs */
+      if (udata->myid == (udata->nprocs - 1))
+      {
+        fprintf(uopt->UFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 0)]);
+        fprintf(uopt->VFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 1)]);
+        fprintf(uopt->WFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 2)]);
+      }
+      else
+      {
+        fprintf(uopt->UFID,"\n");
+        fprintf(uopt->VFID,"\n");
+        fprintf(uopt->WFID,"\n");
+      }
   }
 
   return 0;
@@ -512,6 +672,11 @@ int SetIC(N_Vector y, UserData udata)
   double    x, us, vs, ws, p;
   long long i;
 
+  /* Gaussian distribution defaults */
+  double mu    = udata->xmax / 2.0;
+  double sigma = udata->xmax / 4.0;
+  double alpha = 0.1;
+
   /* Access data array from NVector y */
   data = N_VGetArrayPointer(y);
 
@@ -524,7 +689,7 @@ int SetIC(N_Vector y, UserData udata)
   for (i = 0; i < N; i++)
   {
     x = (myid * N + i) * dx;
-    p = 0.1 * exp( -((x - 0.5) * (x - 0.5)) / 0.1 );
+    p = alpha * exp( -((x - mu) * (x - mu)) / (2.0 * sigma * sigma) );
     data[IDX(nvar, i, 0)] = us + p;
     data[IDX(nvar, i, 1)] = vs + p;
     data[IDX(nvar, i, 2)] = ws + p;
@@ -654,9 +819,6 @@ int Reaction(double t, N_Vector y, N_Vector ydot, void* user_data)
   double    u, v, w;
   long long i;
 
-  /* set output to zero */
-  N_VConst(0.0, ydot);
-
   /* access data arrays */
   Ydata = N_VGetArrayPointer(y);
   if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) return(-1);
@@ -665,20 +827,59 @@ int Reaction(double t, N_Vector y, N_Vector ydot, void* user_data)
   if (check_retval((void *)dYdata, "N_VGetArrayPointer", 0)) return(-1);
 
   /* iterate over domain, computing reactions */
-  for (i = 0; i < N; i++)
+  if (udata->uopt->explicit)
   {
-    u = Ydata[IDX(nvar, i ,0)];
-    v = Ydata[IDX(nvar, i, 1)];
-    w = Ydata[IDX(nvar, i, 2)];
-    dYdata[IDX(nvar, i, 0)] = k1 * A - k2 * w * u + k3 * u * u * v - k4 * u;
-    dYdata[IDX(nvar, i, 1)] = k2 * w * u - k3 * u * u * v;
-    dYdata[IDX(nvar, i, 2)] = -k2 * w * u + k5 * B - k6 * w;
+    /* when integrating explicitly, we add to ydot as we expect it
+       to hold the advection term already */
+    for (i = 0; i < N; i++)
+    {
+      u = Ydata[IDX(nvar, i ,0)];
+      v = Ydata[IDX(nvar, i, 1)];
+      w = Ydata[IDX(nvar, i, 2)];
+      dYdata[IDX(nvar, i, 0)] += k1 * A - k2 * w * u + k3 * u * u * v - k4 * u;
+      dYdata[IDX(nvar, i, 1)] += k2 * w * u - k3 * u * u * v;
+      dYdata[IDX(nvar, i, 2)] += -k2 * w * u + k5 * B - k6 * w;
+    }
+  }
+  else
+  {
+    /* set output to zero */
+    N_VConst(0.0, ydot);
+
+    for (i = 0; i < N; i++)
+    {
+      u = Ydata[IDX(nvar, i ,0)];
+      v = Ydata[IDX(nvar, i, 1)];
+      w = Ydata[IDX(nvar, i, 2)];
+      dYdata[IDX(nvar, i, 0)] = k1 * A - k2 * w * u + k3 * u * u * v - k4 * u;
+      dYdata[IDX(nvar, i, 1)] = k2 * w * u - k3 * u * u * v;
+      dYdata[IDX(nvar, i, 2)] = -k2 * w * u + k5 * B - k6 * w;
+    }
   }
 
   /* return success */
   return(0);
 }
 
+
+/* Compute the RHS as Advection+Reaction. */
+int AdvectionReaction(double t, N_Vector y, N_Vector ydot,
+                      void *user_data)
+{
+  int retval;
+
+  /* NOTE: The order in which Advection and Reaction are
+           called is critical here. Advection must be
+           computed first. */
+  retval = Advection(t, y, ydot, user_data);
+  if (check_retval((void *)&retval, "Advection", 1)) return(-1);
+
+  retval = Reaction(t, y, ydot, user_data);
+  if (check_retval((void *)&retval, "Reaction", 1)) return(-1);
+
+  /* return success */
+  return(0);
+}
 
 /* --------------------------------------------------------------
  * (Non)linear system functions
@@ -983,7 +1184,7 @@ SUNNonlinearSolver TaskLocalNewton(N_Vector y, FILE* DFID)
   content = (TaskLocalNewton_Content) malloc(sizeof *content);
   if (content == NULL) { SUNNonlinSolFree(NLS); return NULL; }
 
-  /* Initialize all comp1.0nts of content to 0/NULL */
+  /* Initialize all components of content to 0/NULL */
   memset(content, 0, sizeof(*content));
 
   /* Attach content */
@@ -1176,6 +1377,7 @@ int ExchangeBCOnly(N_Vector y, UserData udata)
 int ExchangeAllStart(N_Vector y, UserData udata)
 {
   int var;
+  int retval;
 
   /* shortcuts */
   double    c     = udata->c;
@@ -1195,28 +1397,32 @@ int ExchangeAllStart(N_Vector y, UserData udata)
     /* Right moving flow uses backward difference.
        Send from west to east (last processor sends to first) */
 
-    MPI_Irecv(udata->Wrecv, nvar, MPI_DOUBLE, ipW,
-              MPI_ANY_TAG, udata->comm, &udata->req);
+    retval = MPI_Irecv(udata->Wrecv, nvar, MPI_DOUBLE, ipW,
+                       MPI_ANY_TAG, udata->comm, &udata->req);
+    if (retval != MPI_SUCCESS) MPI_Abort(udata->comm, 1);
 
     for (var = 0; var < nvar; var++)
       udata->Esend[IDX(nvar, 0, var)] = Ydata[IDX(nvar, N - 1, var)];
 
-    MPI_Isend(udata->Esend, nvar, MPI_DOUBLE,
-              ipE, 0, udata->comm, &udata->req);
+    retval = MPI_Isend(udata->Esend, nvar, MPI_DOUBLE, ipE,
+                       0, udata->comm, &udata->req);
+    if (retval != MPI_SUCCESS) MPI_Abort(udata->comm, 1);
   }
   else if (c < 0.0)
   {
     /* Left moving flow uses forward difference.
        Send from east to west (first processor sends to last) */
 
-    MPI_Irecv(udata->Erecv, nvar, MPI_DOUBLE, ipE,
-              MPI_ANY_TAG, udata->comm, &udata->req);
+    retval = MPI_Irecv(udata->Erecv, nvar, MPI_DOUBLE, ipE,
+                       MPI_ANY_TAG, udata->comm, &udata->req);
+    if (retval != MPI_SUCCESS) MPI_Abort(udata->comm, 1);
 
     for (var = 0; var < nvar; var++)
       udata->Wsend[IDX(nvar, 0, var)] = Ydata[IDX(nvar, 0, var)];
 
-    MPI_Isend(udata->Wsend, nvar, MPI_DOUBLE,
-              ipW, 0, udata->comm, &udata->req);
+    retval = MPI_Isend(udata->Wsend, nvar, MPI_DOUBLE, ipW,
+                       0, udata->comm, &udata->req);
+    if (retval != MPI_SUCCESS) MPI_Abort(udata->comm, 1);
   }
 
   return 0;
@@ -1250,7 +1456,7 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
   int      i;
   double*  data = NULL;  /* data pointer           */
   N_Vector tmp  = NULL;  /* temporary local vector */
-  char     fname[15];    /* output file name       */
+  char     fname[MXSTR]; /* output file name       */
 
   /* MPI variables */
   udata->comm = MPI_COMM_WORLD;
@@ -1258,50 +1464,53 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
   MPI_Comm_size(udata->comm, &udata->nprocs);
 
   /* default problem parameters */
-  long long nvar = 3;     /* number of solution fields               */
-  long long NX   = 100;   /* global spatial mesh size (NX intervals) */
-  double    A    = 1.0;   /* problem parameters                      */
-  double    B    = 3.5;
-  double    k    = 1.0;
-  double    c    = 0.01;
-
-  /* default integrator parameters */
-  int    order = 3;       /* method order             */
-  double t0    = 0.0;     /* initial time             */
-  double tf    = 10.0;    /* final time               */
-  double rtol  = 1.0e-6;  /* relative tolerance       */
-  double atol  = 1.0e-9;  /* absolute tolerance       */
-  int    nout  = 40;      /* number of output times   */
+  const long long nvar = 3;     /* number of solution fields               */
+  const long long NX   = 100;   /* global spatial mesh size (NX intervals) */
+  const double    xmax = 1.0;   /* maximum x value          */
+  const double    A    = 1.0;   /* problem parameters                      */
+  const double    B    = 3.5;
+  const double    k    = 1.0;
+  const double    c    = 0.01;
 
   /* set default user data values */
-  udata->nvar = nvar;
-  udata->nx   = NX;
-  udata->nxl  = NX / udata->nprocs;
-  udata->NEQ  = nvar * udata->nxl;
-  udata->dx   = 1.0 / NX;            /* NX is number of intervals */
-  udata->A    = A;
-  udata->B    = B;
-  udata->k1   = k;
-  udata->k2   = k;
-  udata->k3   = k;
-  udata->k4   = k;
-  udata->k5   = 1.0/5.0e-6;
-  udata->k6   = 1.0/5.0e-6;
-  udata->c    = c;
+  udata->nvar  = nvar;
+  udata->nx    = NX;
+  udata->nxl   = NX / udata->nprocs;
+  udata->NEQ   = nvar * udata->nxl;
+  udata->xmax  = xmax;
+  udata->dx    = xmax / NX;            /* NX is number of intervals */
+  udata->A     = A;
+  udata->B     = B;
+  udata->k1    = k;
+  udata->k2    = k;
+  udata->k3    = k;
+  udata->k4    = k;
+  udata->k5    = 1.0/5.0e-6;
+  udata->k6    = 1.0/5.0e-6;
+  udata->c     = c;
+  udata->Wsend = NULL;
+  udata->Wrecv = NULL;
+  udata->Esend = NULL;
+  udata->Erecv = NULL;
+  udata->uopt  = uopt;
 
   /* set default integrator options */
-  uopt->order   = order;
-  uopt->t0      = t0;
-  uopt->tf      = tf;
-  uopt->rtol    = rtol;
-  uopt->atol    = atol;
-  uopt->nout    = nout;
-  uopt->monitor = 0;
-  uopt->TFID    = NULL;
-  uopt->UFID    = NULL;
-  uopt->VFID    = NULL;
-  uopt->WFID    = NULL;
-  uopt->global  = 0;
+  uopt->order     = 3;       /* method order             */
+  uopt->explicit  = 0;       /* imex or explicit         */
+  uopt->t0        = 0.0;     /* initial time             */
+  uopt->tf        = 10.0;    /* final time               */
+  uopt->rtol      = 1.0e-6;  /* relative tolerance       */
+  uopt->atol      = 1.0e-9;  /* absolute tolerance       */
+  uopt->global    = 0;       /* use global NLS           */
+  uopt->fused     = 0;       /* use fused vector ops     */
+  uopt->monitor   = 0;       /* print solution to screen */
+  uopt->printtime = 0;       /* print timing             */
+  uopt->nout      = 40;      /* number of output times   */
+  uopt->TFID      = NULL;
+  uopt->UFID      = NULL;
+  uopt->VFID      = NULL;
+  uopt->WFID      = NULL;
+  uopt->outputdir = ".";
 
   /* check for input args */
   if (argc > 1)
@@ -1314,9 +1523,38 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
         InputError(argv[0]);
         return(-1);
       }
-      if (strcmp(argv[i],"--nx") == 0)
+      else if (strcmp(argv[i],"--monitor") == 0)
+      {
+        uopt->monitor = 1;
+      }
+      else if (strcmp(argv[i],"--printtime") == 0)
+      {
+        uopt->printtime = 1;
+      }
+      else if (strcmp(argv[i],"--nout") == 0)
+      {
+        uopt->nout = atoi(argv[i+1]);
+        i++;
+      }
+      else if (strcmp(argv[i],"--output-dir") == 0)
+      {
+        uopt->outputdir = argv[i+1];
+        if (strlen(argv[i+1]) > MXSTR)
+        {
+          if (udata->myid == 0)
+            printf("ERROR: output directory string is too long\n");
+          return(-1);
+        }
+        i++;
+      }
+      else if (strcmp(argv[i],"--nx") == 0)
       {
         udata->nx = atoi(argv[i+1]);
+        i++;
+      }
+      else if (strcmp(argv[i],"--xmax") == 0)
+      {
+        udata->xmax = strtod(argv[i+1], NULL);
         i++;
       }
       else if (strcmp(argv[i],"--A") == 0)
@@ -1347,6 +1585,18 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
         uopt->order = atoi(argv[i+1]);
         i++;
       }
+      else if (strcmp(argv[i],"--explicit") == 0)
+      {
+        uopt->explicit = 1;
+      }
+      else if (strcmp(argv[i],"--global-nls") == 0)
+      {
+        uopt->global = 1;
+      }
+      else if (strcmp(argv[i],"--fused") == 0)
+      {
+        uopt->fused = 1;
+      }
       else if (strcmp(argv[i],"--tf") == 0)
       {
         uopt->tf = strtod(argv[i+1], NULL);
@@ -1361,14 +1611,6 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
       {
         uopt->atol = strtod(argv[i+1], NULL);
         i++;
-      }
-      else if (strcmp(argv[i],"--global-nls") == 0)
-      {
-        uopt->global = 1;
-      }
-      else if (strcmp(argv[i],"--monitor") == 0)
-      {
-        uopt->monitor = 1;
       }
       else
       {
@@ -1387,66 +1629,80 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
   }
   udata->nxl = udata->nx / udata->nprocs;
   udata->NEQ = udata->nvar * udata->nxl;
-  udata->dx  = 1.0 / udata->nx;  /* nx is number of intervals */
+  udata->dx  = udata->xmax / udata->nx;  /* nx is number of intervals */
 
   /* Create the MPI exchange buffers */
-  udata->Wsend = (double *) malloc(udata->nvar * sizeof(double));
-  udata->Wrecv = (double *) malloc(udata->nvar * sizeof(double));
-  udata->Esend = (double *) malloc(udata->nvar * sizeof(double));
-  udata->Erecv = (double *) malloc(udata->nvar * sizeof(double));
+  udata->Wsend = (double *) calloc(udata->nvar, sizeof(double));
+  if (check_retval((void *)udata->Wsend, "calloc", 0)) return 1;
+
+  udata->Wrecv = (double *) calloc(udata->nvar, sizeof(double));
+  if (check_retval((void *)udata->Wrecv, "calloc", 0)) return 1;
+
+  udata->Esend = (double *) calloc(udata->nvar, sizeof(double));
+  if (check_retval((void *)udata->Esend, "calloc", 0)) return 1;
+
+  udata->Erecv = (double *) calloc(udata->nvar, sizeof(double));
+  if (check_retval((void *)udata->Erecv, "calloc", 0)) return 1;
 
   /* Create the solution masks */
   udata->umask = N_VMake_MPIPlusX(udata->comm, N_VNew_Serial(udata->NEQ));
+  N_VEnableFusedOps_MPIManyVector(udata->umask, uopt->fused);
   N_VConst(0.0, udata->umask);
   data = N_VGetArrayPointer(udata->umask);
   if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return 1;
   for (i = 0; i < udata->nxl; i++)  data[IDX(nvar, i, 0)] = 1.0;
 
-  udata->vmask = N_VMake_MPIPlusX(udata->comm, N_VNew_Serial(udata->NEQ));
+  udata->vmask = N_VClone(udata->umask);
   N_VConst(0.0, udata->vmask);
   data = N_VGetArrayPointer(udata->vmask);
   if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return 1;
   for (i = 0; i < udata->nxl; i++)  data[IDX(nvar, i ,1)] = 1.0;
 
-  udata->wmask = N_VMake_MPIPlusX(udata->comm, N_VNew_Serial(udata->NEQ));
+  udata->wmask = N_VClone(udata->umask);
   N_VConst(0.0, udata->wmask);
   data = N_VGetArrayPointer(udata->wmask);
   if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return 1;
   for (i = 0; i < udata->nxl; i++)  data[IDX(nvar, i, 2)] = 1.0;
 
   /* Setup the linear system data structures */
-  if (uopt->global)
+  if (!uopt->explicit)
   {
-    /* Create MPI task-local data structures for preconditioning */
-    udata->pre = SUNDenseMatrix(udata->NEQ, udata->NEQ);
-    tmp = N_VNew_Serial(udata->NEQ);
-    udata->prels = SUNLinSol_Dense(tmp, udata->pre);
-    N_VDestroy(tmp);
+    if (uopt->global)
+    {
+      /* Create MPI task-local data structures for preconditioning */
+      udata->pre = SUNDenseMatrix(udata->NEQ, udata->NEQ);
+      tmp = N_VNew_Serial(udata->NEQ);
+      udata->prels = SUNLinSol_Dense(tmp, udata->pre);
+      N_VDestroy(tmp);
+    }
+    else
+    {
+      /* Create MPI task-local data structures for mesh node solves */
+      udata->b_node   = N_VNew_Serial(udata->nvar);
+      udata->jac_node = SUNDenseMatrix(udata->nvar, udata->nvar);
+      udata->ls_node  = SUNLinSol_Dense(udata->b_node, udata->jac_node);
+    }
   }
-  else
-  {
-    /* Create MPI task-local data structures for mesh node solves */
-    udata->b_node   = N_VNew_Serial(udata->nvar);
-    udata->jac_node = SUNDenseMatrix(udata->nvar, udata->nvar);
-    udata->ls_node  = SUNLinSol_Dense(udata->b_node, udata->jac_node);
-  }
-  udata->nnlfi  = 0;
+  udata->nnlfi = 0;
 
   /* Open output files for results */
-  if (udata->myid == 0)
+  if (uopt->nout > 0)
   {
-    sprintf(fname, "t.%06d.txt", udata->myid);
-    uopt->TFID = fopen(fname, "w");
+      if (udata->myid == 0)
+      {
+        sprintf(fname, "%s/t.%06d.txt", uopt->outputdir, udata->myid);
+        uopt->TFID = fopen(fname, "w");
+      }
+
+      sprintf(fname, "%s/u.%06d.txt", uopt->outputdir, udata->myid);
+      uopt->UFID = fopen(fname, "w");
+
+      sprintf(fname, "%s/v.%06d.txt", uopt->outputdir, udata->myid);
+      uopt->VFID = fopen(fname, "w");
+
+      sprintf(fname, "%s/w.%06d.txt", uopt->outputdir, udata->myid);
+      uopt->WFID = fopen(fname, "w");
   }
-
-  sprintf(fname, "u.%06d.txt", udata->myid);
-  uopt->UFID = fopen(fname, "w");
-
-  sprintf(fname, "v.%06d.txt", udata->myid);
-  uopt->VFID = fopen(fname, "w");
-
-  sprintf(fname, "w.%06d.txt", udata->myid);
-  uopt->WFID = fopen(fname, "w");
 
   /* Print problem setup */
   if (udata->myid == 0)
@@ -1454,20 +1710,27 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
     printf("\n1D Advection-Diffusion-Reaction Test Problem\n\n");
     printf("Number of Processors = %li\n", (long int) udata->nprocs);
     printf("Mesh Info:\n");
-    printf("  NX   = %li, NXL = %lli, dx = %.6f\n", (long int) udata->nx,
-           udata->nxl, udata->dx);
+    printf("  NX = %lli, NXL = %lli, dx = %.6f, xmax = %.6f\n",
+           udata->nx, udata->nxl, udata->dx, udata->xmax);
     printf("Problem Parameters:\n");
     printf("  A = %g\n", udata->A);
     printf("  B = %g\n", udata->B);
     printf("  k = %g\n", udata->k1);
     printf("  c = %g\n", udata->c);
     printf("Integrator Options:\n");
-    printf("  order = %d\n", uopt->order);
-    printf("  t0 = %g\n", uopt->t0);
-    printf("  tf = %g\n", uopt->tf);
-    printf("  reltol = %.1e,  abstol = %.1e\n", uopt->rtol, uopt->atol);
-    printf("  nout = %d\n", uopt->nout);
-    printf("  global nonlinear solver = %d\n", uopt->global);
+    printf("  order            = %d\n", uopt->order);
+    printf("  method           = %s\n", uopt->explicit ? "explicit" : "imex");
+    printf("  fused vector ops = %d\n", uopt->fused);
+    printf("  t0               = %g\n", uopt->t0);
+    printf("  tf               = %g\n", uopt->tf);
+    printf("  reltol           = %.1e\n", uopt->rtol);
+    printf("  abstol           = %.1e\n", uopt->atol);
+    printf("  nout             = %d\n", uopt->nout);
+    if (uopt->explicit)
+      printf("  nonlinear solver = none\n");
+    else
+      printf("  nonlinear solver = %s\n", uopt->global ? "global" : "task local");
+    printf("Output directory: %s\n", uopt->outputdir);
   }
 
 
@@ -1478,24 +1741,25 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
 
 void FreeProblem(UserData udata, UserOptions uopt)
 {
-  if (uopt->global)
+  if (!uopt->explicit)
   {
-    /* free task-local preconditioner solve structures */
-    SUNMatDestroy(udata->pre);
-    SUNLinSolFree(udata->prels);
-  }
-  else
-  {
-    /* free task-local solve structures */
-    N_VDestroy(udata->b_node);
-    SUNMatDestroy(udata->jac_node);
-    SUNLinSolFree(udata->ls_node);
+    if (uopt->global)
+    {
+      /* free task-local preconditioner solve structures */
+      SUNMatDestroy(udata->pre);
+      SUNLinSolFree(udata->prels);
+    }
+    else
+    {
+      /* free task-local solve structures */
+      N_VDestroy(udata->b_node);
+      SUNMatDestroy(udata->jac_node);
+      SUNLinSolFree(udata->ls_node);
+    }
   }
 
   /* free solution masks */
   N_VDestroy(N_VGetLocalVector_MPIPlusX(udata->umask));
-  N_VDestroy(N_VGetLocalVector_MPIPlusX(udata->vmask));
-  N_VDestroy(N_VGetLocalVector_MPIPlusX(udata->wmask));
   N_VDestroy(udata->umask);
   N_VDestroy(udata->vmask);
   N_VDestroy(udata->wmask);
@@ -1507,12 +1771,14 @@ void FreeProblem(UserData udata, UserOptions uopt)
   free(udata->Erecv);
 
   /* close output streams */
-  fclose(uopt->UFID);
-  fclose(uopt->VFID);
-  fclose(uopt->WFID);
-  if (udata->myid == 0) fclose(uopt->TFID);
+  if (uopt->nout > 0)
+  {
+      fclose(uopt->UFID);
+      fclose(uopt->VFID);
+      fclose(uopt->WFID);
+      if (udata->myid == 0) fclose(uopt->TFID);
+  }
 }
-
 
 void InputError(char *name)
 {
@@ -1526,9 +1792,14 @@ void InputError(char *name)
     printf("\nERROR: Invalid command line input\n");
     printf("\nCommand line options for %s\n",name);
     printf("  --help           prints this message\n");
-    printf("  --global-nls     use a global newton nonlinear solver instead of task-local\n");
     printf("  --monitor        print solution information to screen (slower)\n");
+    printf("  --output-dir     the directory where all output files will be written\n");
+    printf("  --nout <int>     number of output times\n");
+    printf("  --explicit       use an explicit method instead of IMEX\n");
+    printf("  --global-nls     use a global newton nonlinear solver instead of task-local (for IMEX only)\n");
+    printf("  --order <int>    the method order to use\n");
     printf("  --nx <int>       number of mesh points\n");
+    printf("  --xmax <double>  maximum value of x (size of domain)\n");
     printf("  --tf <double>    final time\n");
     printf("  --A <double>     A parameter value\n");
     printf("  --B <double>     B parameter value\n");

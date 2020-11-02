@@ -31,22 +31,16 @@ set(FARKODE_tests
   )
 
 # note the order matters when auto-generating the installed Makefile
-set(FARKODE_sharedsources
+set(FARKODEsources
   fnvector_complex_mod.f90
   fnvector_fortran_mod.f90
   fsunmatrix_fortran_mod.f90
   fsunlinsol_fortran_mod.f90
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(FARKODE_LIB sundials_farkode_mod_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(FARKODE_LIB sundials_farkode_mod_shared)
-endif()
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(FARKODE_LIB sundials_farkode_mod)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${FARKODE_LIB} ${ARKODE_LIB} ${EXTRA_LINK_LIBS})
@@ -62,7 +56,7 @@ foreach(example_tuple ${FARKODE_examples})
   set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  add_executable(${example} ${example}.f90 ${FARKODE_sharedsources})
+  add_executable(${example} ${example}.f90 ${FARKODEsources})
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -77,7 +71,7 @@ foreach(example_tuple ${FARKODE_examples})
 
    # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.f90 ${example}.out ${FARKODE_sharedsources}
+    install(FILES ${example}.f90 ${example}.out ${FARKODEsources}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom)
   endif()
 
@@ -94,7 +88,7 @@ foreach(example_tuple ${FARKODE_tests})
   set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  add_executable(${example} ${example}.f90 ${FARKODE_sharedsources})
+  add_executable(${example} ${example}.f90 ${FARKODEsources})
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -109,7 +103,7 @@ foreach(example_tuple ${FARKODE_tests})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.f90 ${FARKODE_sharedsources}
+    install(FILES ${example}.f90 ${FARKODEsources}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom)
   endif()
 
@@ -137,7 +131,7 @@ if(EXAMPLES_INSTALL)
   set(EXAMPLES "${EXAMPLES} ${TESTFILES}")
 
   # shared sources with file extensions for generated CMakeLists.txt
-  examples2string(FARKODE_sharedsources EXAMPLES_DEPENDENCIES)
+  examples2string(FARKODEsources EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
@@ -176,9 +170,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(arkode F2003_custom)
 
-endif(EXAMPLES_INSTALL)
+endif()

@@ -31,10 +31,10 @@ set(dependencies
 )
 
 set(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
+  ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_matrix.c
+  ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
 )
 
 if(MPI_C_COMPILER)
@@ -45,15 +45,9 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(SUNDIALS_LIBS sundials_nvecpetsc_static)
-  list(APPEND SUNDIALS_LIBS sundials_sunnonlinsolpetscsnes_static)
-else()
-  set(SUNDIALS_LIBS sundials_nvecpetsc_shared)
-  list(APPEND SUNDIALS_LIBS sundials_sunnonlinsolpetscsnes_shared)
-endif()
+# Specify libraries to link against
+set(SUNDIALS_LIBS sundials_nvecpetsc)
+list(APPEND SUNDIALS_LIBS sundials_sunnonlinsolpetscsnes)
 
 # Set-up linker flags and link libraries
 list(APPEND SUNDIALS_LIBS ${EXTRA_LINK_LIBS})
@@ -65,14 +59,6 @@ foreach(example_tuple ${examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
-
-  # This is used to get around DLL linkage issue since we are
-  # manually including shared sources, which are normally in
-  # a library that is included. If this is not set build system
-  # thinks the sources are externally linked.
-  if(WIN32)
-    add_definitions(-DBUILD_SUNDIALS_LIBRARY)
-  endif()
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -159,6 +145,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

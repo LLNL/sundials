@@ -14,14 +14,6 @@
 # unit_tests level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
-# The unit tests will be linked with the library corresponding to the build
-# type. Whenever building shared libraries, use them to link the tests.
-if(BUILD_SHARED_LIBS)
-  set(LINK_LIBRARY_TYPE "shared")
-else()
-  set(LINK_LIBRARY_TYPE "static")
-endif()
-
 # Add ARKode unit tests
 if(BUILD_ARKODE)
   add_subdirectory(arkode)

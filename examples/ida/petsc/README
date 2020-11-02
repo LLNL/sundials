@@ -19,7 +19,7 @@ The following CMake command was used to configure SUNDIALS:
 -DEXAMPLES_ENABLE_C=ON \
 -DEXAMPLES_ENABLE_CXX=ON \
 -DEXAMPLES_INSTALL=ON \
--DMPI_ENABLE=ON \
--DPETSC_ENABLE=ON \
+-DENABLE_MPI=ON \
+-DENABLE_PETSC=ON \
 -DPETSC_DIR=/path/to/petsc/
 ../sundials

@@ -410,10 +410,11 @@ SUNDIALS_EXPORT void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
 
 
 /* Deprecated functions */
-SUNDIALS_DEPRECATED int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem,
-                                                      int msbp);
-SUNDIALS_DEPRECATED int ARKStepSetMaxStepsBetweenJac(void *arkode_mem,
-                                                     long int msbj);
+SUNDIALS_DEPRECATED_EXPORT
+int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp);
+
+SUNDIALS_DEPRECATED_EXPORT
+int ARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj);
 
 
 #ifdef __cplusplus
