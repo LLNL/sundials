@@ -78,15 +78,14 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
   "ADD_EXECUTABLE(ltest ltest.c)\n"
   "TARGET_LINK_LIBRARIES(ltest ${HYPRE_LIBRARIES})\n")
 
-  # Create a C source file which calls a hypre function
   file(WRITE ${HYPRE_TEST_DIR}/ltest.c
   "\#include \"HYPRE_parcsr_ls.h\"\n"
   "int main(){\n"
   "HYPRE_ParVector par_b;\n"
   "HYPRE_IJVector b;\n"
-  "par_b = NULL;\n"
-  "b = NULL;\n"
-  "if (par_b != NULL || b != NULL) return(1);\n"
+  "par_b = 0;\n"
+  "b = 0;\n"
+  "if (par_b != 0 || b != 0) return(1);\n"
   "else return(0);\n"
   "}\n")
 
