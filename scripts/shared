@@ -589,6 +589,7 @@ echo "   --- Add directory with example Makefile templates to $tarfile"
 
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_C_ex.in      || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_F77_ex.in    || exit 1
+$tar $tarfile $distrobase/examples/templates/cmakelists_parallel_F2003_ex.in  || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_CXX_ex.in    || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_CUDA_ex.in   || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_RAJA_ex.in   || exit 1
@@ -615,6 +616,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_xbraid_CXX_ex.in      ||
 
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_C_ex.in      || exit 1
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F77_ex.in    || exit 1
+$tar $tarfile $distrobase/examples/templates/makefile_parallel_F2003_ex.in  || exit 1
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_CXX_ex.in    || exit 1
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_CUDA_ex.in   || exit 1
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_RAJA_ex.in   || exit 1

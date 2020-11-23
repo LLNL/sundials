@@ -121,7 +121,8 @@ typedef struct
   MPI_Comm    comm;
   int         myid;
   int         nprocs;
-  MPI_Request req;
+  MPI_Request reqS;
+  MPI_Request reqR;
   double*     Wsend;
   double*     Esend;
   double*     Wrecv;
@@ -277,8 +278,17 @@ int main(int argc, char *argv[])
   if (check_retval((void *) y, "N_VMake_MPIPlusX", 0)) MPI_Abort(comm, 1);
 
   /* Enabled fused vector ops */
-  retval = N_VEnableFusedOps_MPIManyVector(y, uopt->fused);
-  if (check_retval(&retval, "N_VEnableFusedOps_MPIManyVector", 1)) MPI_Abort(comm, 1);
+  if (uopt->fused)
+  {
+    retval = N_VEnableFusedOps_Serial(N_VGetLocalVector_MPIPlusX(y),
+                                      uopt->fused);
+    if (check_retval(&retval, "N_VEnableFusedOps_Serial", 1))
+      MPI_Abort(comm, 1);
+
+    retval = N_VEnableFusedOps_MPIManyVector(y, uopt->fused);
+    if (check_retval(&retval, "N_VEnableFusedOps_MPIManyVector", 1))
+      MPI_Abort(comm, 1);
+  }
 
   /* Set the initial condition */
   retval = SetIC(y, udata);
@@ -599,13 +609,6 @@ int WriteOutput(double t, N_Vector y, UserData udata, UserOptions uopt)
   double    u, v, w;
   double*   data = NULL;
 
-  /* get left end point for output */
-  ExchangeBCOnly(y, udata);
-
-  /* get vector data array */
-  data = N_VGetArrayPointer(y);
-  if (check_retval((void *) data, "N_VGetArrayPointer", 0)) return 1;
-
   /* output current solution norm to screen */
   if(uopt->monitor)
   {
@@ -621,31 +624,38 @@ int WriteOutput(double t, N_Vector y, UserData udata, UserOptions uopt)
 
   if (uopt->nout > 0)
   {
-      /* output the times to disk */
-      if (udata->myid == 0 && uopt->TFID)
-        fprintf(uopt->TFID," %.16e\n", t);
+    /* get left end point for output */
+    ExchangeBCOnly(y, udata);
 
-      /* output results to disk */
-      for (i = 0; i < udata->nxl; i++)
-      {
-        fprintf(uopt->UFID," %.16e", data[IDX(nvar, i, 0)]);
-        fprintf(uopt->VFID," %.16e", data[IDX(nvar, i, 1)]);
-        fprintf(uopt->WFID," %.16e", data[IDX(nvar, i, 2)]);
-      }
+    /* get vector data array */
+    data = N_VGetArrayPointer(y);
+    if (check_retval((void *) data, "N_VGetArrayPointer", 0)) return 1;
 
-      /* we have one extra output because of the periodic BCs */
-      if (udata->myid == (udata->nprocs - 1))
-      {
-        fprintf(uopt->UFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 0)]);
-        fprintf(uopt->VFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 1)]);
-        fprintf(uopt->WFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 2)]);
-      }
-      else
-      {
-        fprintf(uopt->UFID,"\n");
-        fprintf(uopt->VFID,"\n");
-        fprintf(uopt->WFID,"\n");
-      }
+    /* output the times to disk */
+    if (udata->myid == 0 && uopt->TFID)
+      fprintf(uopt->TFID," %.16e\n", t);
+
+    /* output results to disk */
+    for (i = 0; i < udata->nxl; i++)
+    {
+      fprintf(uopt->UFID," %.16e", data[IDX(nvar, i, 0)]);
+      fprintf(uopt->VFID," %.16e", data[IDX(nvar, i, 1)]);
+      fprintf(uopt->WFID," %.16e", data[IDX(nvar, i, 2)]);
+    }
+
+    /* we have one extra output because of the periodic BCs */
+    if (udata->myid == (udata->nprocs - 1))
+    {
+      fprintf(uopt->UFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 0)]);
+      fprintf(uopt->VFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 1)]);
+      fprintf(uopt->WFID," %.16e\n", udata->Erecv[IDX(nvar, 0, 2)]);
+    }
+    else
+    {
+      fprintf(uopt->UFID,"\n");
+      fprintf(uopt->VFID,"\n");
+      fprintf(uopt->WFID,"\n");
+    }
   }
 
   return 0;
@@ -976,7 +986,7 @@ int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
   LS     = udata->ls_node;
 
   /* access solution array */
-  Zdata = N_VGetArrayPointer(zpred);
+  Zdata = N_VGetArrayPointer(z);
   if (check_retval((void *)Zdata, "N_VGetArrayPointer", 0)) return(-1);
 
   Bdata = N_VGetArrayPointer(delta);
@@ -1331,7 +1341,7 @@ int ExchangeBCOnly(N_Vector y, UserData udata)
 {
   int var, ierr;
   MPI_Status stat;
-  MPI_Request req;
+  MPI_Request reqS, reqR;
 
   /* shortcuts */
   int nvar  = udata->nvar;
@@ -1346,7 +1356,7 @@ int ExchangeBCOnly(N_Vector y, UserData udata)
   if (myid == last)
   {
     ierr = MPI_Irecv(udata->Erecv, nvar, MPI_DOUBLE, first,
-                     MPI_ANY_TAG, udata->comm, &req);
+                     MPI_ANY_TAG, udata->comm, &reqR);
   }
 
   /* send first mesh node to the last processor */
@@ -1355,16 +1365,26 @@ int ExchangeBCOnly(N_Vector y, UserData udata)
     for (var = 0; var < nvar; var++)
       udata->Wsend[IDX(nvar, 0, var)] = Ydata[IDX(nvar, 0, var)];
     ierr = MPI_Isend(udata->Wsend, nvar, MPI_DOUBLE,
-                     last, 0, udata->comm, &req);
+                     last, 0, udata->comm, &reqS);
   }
 
-  if (myid == first || myid == last)
+  /* wait for exchange to finish */
+  if (myid == last)
   {
-    /* wait for exchange to finish */
-    ierr = MPI_Wait(&req, &stat);
+    ierr = MPI_Wait(&reqR, &stat);
     if (ierr != MPI_SUCCESS)
     {
-      printf("\nERROR: error in MPI_Wait = %d\n", ierr);
+      fprintf(stderr, "\nERROR: error in MPI_Wait = %d\n", ierr);
+      return -1;
+    }
+  }
+
+  if (myid == first)
+  {
+    ierr = MPI_Wait(&reqS, &stat);
+    if (ierr != MPI_SUCCESS)
+    {
+      fprintf(stderr, "\nERROR: error in MPI_Wait = %d\n", ierr);
       return -1;
     }
   }
@@ -1398,14 +1418,14 @@ int ExchangeAllStart(N_Vector y, UserData udata)
        Send from west to east (last processor sends to first) */
 
     retval = MPI_Irecv(udata->Wrecv, nvar, MPI_DOUBLE, ipW,
-                       MPI_ANY_TAG, udata->comm, &udata->req);
+                       MPI_ANY_TAG, udata->comm, &udata->reqR);
     if (retval != MPI_SUCCESS) MPI_Abort(udata->comm, 1);
 
     for (var = 0; var < nvar; var++)
       udata->Esend[IDX(nvar, 0, var)] = Ydata[IDX(nvar, N - 1, var)];
 
     retval = MPI_Isend(udata->Esend, nvar, MPI_DOUBLE, ipE,
-                       0, udata->comm, &udata->req);
+                       0, udata->comm, &udata->reqS);
     if (retval != MPI_SUCCESS) MPI_Abort(udata->comm, 1);
   }
   else if (c < 0.0)
@@ -1414,14 +1434,14 @@ int ExchangeAllStart(N_Vector y, UserData udata)
        Send from east to west (first processor sends to last) */
 
     retval = MPI_Irecv(udata->Erecv, nvar, MPI_DOUBLE, ipE,
-                       MPI_ANY_TAG, udata->comm, &udata->req);
+                       MPI_ANY_TAG, udata->comm, &udata->reqR);
     if (retval != MPI_SUCCESS) MPI_Abort(udata->comm, 1);
 
     for (var = 0; var < nvar; var++)
       udata->Wsend[IDX(nvar, 0, var)] = Ydata[IDX(nvar, 0, var)];
 
     retval = MPI_Isend(udata->Wsend, nvar, MPI_DOUBLE, ipW,
-                       0, udata->comm, &udata->req);
+                       0, udata->comm, &udata->reqS);
     if (retval != MPI_SUCCESS) MPI_Abort(udata->comm, 1);
   }
 
@@ -1436,12 +1456,19 @@ int ExchangeAllEnd(UserData udata)
   MPI_Status stat;
 
   /* wait for exchange to finish */
-  if (udata->req != MPI_REQUEST_NULL)
+  if (udata->c < 0.0 || udata->c > 0.0)
   {
-    ierr = MPI_Wait(&udata->req, &stat);
+    ierr = MPI_Wait(&udata->reqR, &stat);
     if (ierr != MPI_SUCCESS)
     {
-      printf("\nERROR: error in MPI_Wait = %d\n", ierr);
+      fprintf(stderr, "\nERROR: error in MPI_Wait = %d\n", ierr);
+      return -1;
+    }
+
+    ierr = MPI_Wait(&udata->reqS, &stat);
+    if (ierr != MPI_SUCCESS)
+    {
+      fprintf(stderr, "\nERROR: error in MPI_Wait = %d\n", ierr);
       return -1;
     }
   }
@@ -1453,7 +1480,7 @@ int ExchangeAllEnd(UserData udata)
 int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
 {
   /* local variables */
-  int      i;
+  int      i, retval;
   double*  data = NULL;  /* data pointer           */
   N_Vector tmp  = NULL;  /* temporary local vector */
   char     fname[MXSTR]; /* output file name       */
@@ -1542,7 +1569,7 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
         if (strlen(argv[i+1]) > MXSTR)
         {
           if (udata->myid == 0)
-            printf("ERROR: output directory string is too long\n");
+            fprintf(stderr, "ERROR: output directory string is too long\n");
           return(-1);
         }
         i++;
@@ -1623,8 +1650,9 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
   /* Setup the parallel decomposition */
   if (udata->nx % udata->nprocs)
   {
-    printf("\nERROR: The mesh size (nx = %li) must be divisible by the number of processors (%li)\n",
-           (long int) udata->nx, (long int) udata->nprocs);
+    fprintf(stderr,
+            "\nERROR: The mesh size (nx = %li) must be divisible by the number of processors (%li)\n",
+            (long int) udata->nx, (long int) udata->nprocs);
     return(-1);
   }
   udata->nxl = udata->nx / udata->nprocs;
@@ -1646,7 +1674,16 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
 
   /* Create the solution masks */
   udata->umask = N_VMake_MPIPlusX(udata->comm, N_VNew_Serial(udata->NEQ));
-  N_VEnableFusedOps_MPIManyVector(udata->umask, uopt->fused);
+  if (uopt->fused)
+  {
+    retval = N_VEnableFusedOps_Serial(N_VGetLocalVector_MPIPlusX(udata->umask),
+                                      uopt->fused);
+    if (check_retval(&retval, "N_VEnableFusedOps_Serial", 1)) return 1;
+
+    retval = N_VEnableFusedOps_MPIManyVector(udata->umask, uopt->fused);
+    if (check_retval(&retval, "N_VEnableFusedOps_MPIManyVector", 1)) return 1;
+  }
+
   N_VConst(0.0, udata->umask);
   data = N_VGetArrayPointer(udata->umask);
   if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return 1;
@@ -1707,7 +1744,7 @@ int SetupProblem(int argc, char *argv[], UserData udata, UserOptions uopt)
   /* Print problem setup */
   if (udata->myid == 0)
   {
-    printf("\n1D Advection-Diffusion-Reaction Test Problem\n\n");
+    printf("\n1D Advection-Reaction Test Problem\n\n");
     printf("Number of Processors = %li\n", (long int) udata->nprocs);
     printf("Mesh Info:\n");
     printf("  NX = %lli, NXL = %lli, dx = %.6f, xmax = %.6f\n",
@@ -1780,6 +1817,7 @@ void FreeProblem(UserData udata, UserOptions uopt)
   }
 }
 
+
 void InputError(char *name)
 {
   int myid;
@@ -1789,24 +1827,24 @@ void InputError(char *name)
 
   if (myid == 0)
   {
-    printf("\nERROR: Invalid command line input\n");
-    printf("\nCommand line options for %s\n",name);
-    printf("  --help           prints this message\n");
-    printf("  --monitor        print solution information to screen (slower)\n");
-    printf("  --output-dir     the directory where all output files will be written\n");
-    printf("  --nout <int>     number of output times\n");
-    printf("  --explicit       use an explicit method instead of IMEX\n");
-    printf("  --global-nls     use a global newton nonlinear solver instead of task-local (for IMEX only)\n");
-    printf("  --order <int>    the method order to use\n");
-    printf("  --nx <int>       number of mesh points\n");
-    printf("  --xmax <double>  maximum value of x (size of domain)\n");
-    printf("  --tf <double>    final time\n");
-    printf("  --A <double>     A parameter value\n");
-    printf("  --B <double>     B parameter value\n");
-    printf("  --k <double>     reaction rate\n");
-    printf("  --c <double>     advection speed\n");
-    printf("  --rtol <double>  relative tolerance\n");
-    printf("  --atol <double>  absolute tolerance\n");
+    fprintf(stderr, "\nERROR: Invalid command line input\n");
+    fprintf(stderr, "\nCommand line options for %s\n",name);
+    fprintf(stderr, "  --help           prints this message\n");
+    fprintf(stderr, "  --monitor        print solution information to screen (slower)\n");
+    fprintf(stderr, "  --output-dir     the directory where all output files will be written\n");
+    fprintf(stderr, "  --nout <int>     number of output times\n");
+    fprintf(stderr, "  --explicit       use an explicit method instead of IMEX\n");
+    fprintf(stderr, "  --global-nls     use a global newton nonlinear solver instead of task-local (for IMEX only)\n");
+    fprintf(stderr, "  --order <int>    the method order to use\n");
+    fprintf(stderr, "  --nx <int>       number of mesh points\n");
+    fprintf(stderr, "  --xmax <double>  maximum value of x (size of domain)\n");
+    fprintf(stderr, "  --tf <double>    final time\n");
+    fprintf(stderr, "  --A <double>     A parameter value\n");
+    fprintf(stderr, "  --B <double>     B parameter value\n");
+    fprintf(stderr, "  --k <double>     reaction rate\n");
+    fprintf(stderr, "  --c <double>     advection speed\n");
+    fprintf(stderr, "  --rtol <double>  relative tolerance\n");
+    fprintf(stderr, "  --atol <double>  absolute tolerance\n");
   }
 }
 

@@ -91,8 +91,17 @@ fi
 builddir=build
 installdir=install
 
+# add host name to directory names
+if [ -n "$HOST" ]; then
+    builddir=${builddir}_${HOST}
+    installdir=${installdir}_${HOST}
+elif [ -n "$HOSTNAME" ]; then
+    builddir=${builddir}_${HOSTNAME}
+    installdir=${installdir}_${HOSTNAME}
+fi
+
 # add compiler spec to directory names
-if [ "$compiler" != "" ]; then
+if [ -n "$compiler" ]; then
     # replace @ with -
     compilername=${compiler/@/-}
     builddir=${builddir}_${compilername}
@@ -100,7 +109,7 @@ if [ "$compiler" != "" ]; then
 fi
 
 # add build type to directory names
-if [ "$bldtype" != "" ]; then
+if [ -n "$bldtype" ]; then
     builddir=${builddir}_${bldtype}
     installdir=${installdir}_${bldtype}
 fi
@@ -367,7 +376,7 @@ PTHREAD_STATUS=${PTHREAD_STATUS:-"OFF"}
 
 # Ensure Fortran interface options are set (default to OFF)
 F03_STATUS=${F03_STATUS:-"OFF"}
-if [ "$STATIC" == "ON" && "$SHARED" == "OFF" ]; then
+if [ "$STATIC" == "ON" ] && [ "$SHARED" == "OFF" ]; then
   F77_STATUS=${F77_STATUS:-"OFF"}
 else
   F77_STATUS="OFF"
@@ -386,6 +395,9 @@ MONITOR_STATUS=${MONITOR_STATUS:-"OFF"}
 
 # Ensure fused kernel status is set (default is OFF)
 FUSED_STATUS=${FUSED_STATUS:-"OFF"}
+
+# Verbose make output (default ON)
+CMAKE_VERBOSE_MAKEFILE=${CMAKE_VERBOSE_MAKEFILE:-"ON"}
 
 # ------------------------------------------------------------------------------
 # Setup test directories
@@ -502,7 +514,7 @@ time cmake \
     -D SUNDIALS_TEST_FLOAT_PRECISION="${SUNDIALS_TEST_FLOAT_PRECISION}" \
     -D SUNDIALS_TEST_INTEGER_PRECISION="${SUNDIALS_TEST_INTEGER_PRECISION}" \
     \
-    -D CMAKE_VERBOSE_MAKEFILE=ON \
+    -D CMAKE_VERBOSE_MAKEFILE="${CMAKE_VERBOSE_MAKEFILE}" \
     \
     ../../. 2>&1 | tee configure.log
 
