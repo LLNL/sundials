@@ -283,10 +283,6 @@ int main(int argc, char* argv[])
         /* Set the linear solver tolerance conversion factor */
     switch(nrmfactor) {
 
-    case(0):
-      /* use the default */
-      nrmfac = ZERO;
-      break;
     case(1):
       /* use the square root of the vector length */
       nrmfac = SQRT((realtype)NEQ);
@@ -294,6 +290,10 @@ int main(int argc, char* argv[])
     case(2):
       /* compute with dot product */
       nrmfac = -ONE;
+      break;
+    default:
+      /* use the default */
+      nrmfac = ZERO;
       break;
     }
 
@@ -532,9 +532,9 @@ static void PrintHeader(realtype rtol, realtype atol, int linsolver)
   printf(" polynomial initial conditions.\n");
   printf("                   Mesh dimensions: %d x %d", MGRID, MGRID);
   printf("       Total system size: %d\n\n", NEQ);
-#if defined(SUNDIALS_EXTENDED_PRECISION) 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
-#elif defined(SUNDIALS_DOUBLE_PRECISION) 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);

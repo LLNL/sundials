@@ -15,7 +15,7 @@
 # Script to update example output files for failed tests
 #
 # Example usage:
-#   $ ./updateOutFiles.py sundials/examples sundials/build/Testing
+#   $ ./updateOutFiles.py sundials/build sundials/examples
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -26,14 +26,17 @@ def main():
     import argparse
     import sys, os, shutil
 
-    parser = argparse.ArgumentParser(
-        description='Update output files',
-        formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description='Update output files')
 
-    parser.add_argument('examples',type=str,
-                        help='Full path to SUNDIALS examples directory')
-    parser.add_argument('testing',type=str,
-                        help='Full path to CTest Testing directory')
+    parser.add_argument('build', type=str,
+                        help='Full path to build directory to read from')
+    parser.add_argument('examples', type=str,
+                        help='Full path to examples directory to write to')
+    parser.add_argument('--all','-a', action='store_true',
+                        help='Update all output files')
+    parser.add_argument('--verbose','-v', action='store_true',
+                        help='Enable verbose output')
+
 
     # parse command line args
     args = parser.parse_args()
@@ -43,24 +46,31 @@ def main():
         print("Error: could not find {}".format(args.examples))
         return -1
 
-    if (not os.path.isdir(args.testing)):
-        print("Error: could not find {}".format(args.testing))
+    if (not os.path.isdir(args.build)):
+        print("Error: could not find {}".format(args.build))
         return -1
 
     # check that the output directory exists
-    output = os.path.join(args.testing, "output")
+    output = os.path.join(args.build, "Testing", "output")
     if (not os.path.isdir(output)):
         print("Error: could not find {}".format(output))
         return -1
 
-    # get list of failed tests
-    failed = os.path.join(args.testing, "Temporary", "LastTestsFailed.log")
-
-    # extract test names from list and append .out
+    # create a list of all test run or just the failed tests
     tests = []
-    with open(failed, 'r') as f:
-        for line in f:
-            tests.append(line.split(':')[1].rstrip() + ".out")
+
+    if (args.all):
+        # get names of all .out files
+        for f in os.listdir(output):
+            if f.endswith(".out"):
+                tests.append(f)
+    else:
+        failed = os.path.join(args.build, "Testing", "Temporary", "LastTestsFailed.log")
+
+        # extract test names from list and append .out
+        with open(failed, 'r') as f:
+            for line in f:
+                tests.append(line.split(':')[1].rstrip() + ".out")
 
     # if failed tests were found update the output files
     if tests:
@@ -68,6 +78,8 @@ def main():
             found = False
             for root, dirs, files in os.walk(args.examples):
                 if t in files:
+                    if (args.verbose):
+                        print("Updating: {}".format(t))
                     shutil.copy(os.path.join(output, t), os.path.join(root, t))
                     found = True
                     break

@@ -1,5 +1,6 @@
 /* -----------------------------------------------------------------------------
  * Programmer(s): David J. Gardner @ LLNL
+ *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -37,11 +38,11 @@
  *
  * The spatial derivatives are computed using second-order centered differences,
  * with the data distributed over nx * ny points on a uniform spatial grid. The
- * problem is solved using the XBraid multigrid reduction in time library paired
- * with a diagonally implicit Runge-Kutta method from the ARKode ARKStep module
- * using an inexact Newton method paired with the PCG or SPGMR linear solver.
- * Several command line options are available to change the problem parameters
- * and ARKStep settings. Use the flag --help for more information.
+ * problem is advanced in time with a diagonally implicit Runge-Kutta method
+ * using an inexact Newton method paired with the hypre's PCG or GMRES linear
+ * solver and PFMG preconditioner. Several command line options are available
+ * to change the problem parameters and ARKStep settings. Use the flag --help
+ * for more information.
  * ---------------------------------------------------------------------------*/
 
 #include <cstdio>
@@ -52,13 +53,12 @@
 #include <limits>
 #include <cmath>
 
-#include "arkode/arkode_arkstep.h"     // access to ARKStep
-#include "nvector/nvector_parallel.h"  // access to the MPI N_Vector
-#include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
-#include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
-#include "mpi.h"                       // MPI header file
-#include "braid.h"                     // access to XBraid
-#include "arkode/arkode_xbraid.h"      // access to ARKStep + XBraid interface
+#include "arkode/arkode_arkstep.h"           // access to ARKStep
+#include "nvector/nvector_parallel.h"        // access to the MPI N_Vector
+#include "sundials/sundials_linearsolver.h"  // definition SUNLinearSolver
+#include "sundials/sundials_matrix.h"        // definition SUNMatrix
+#include "HYPRE_struct_ls.h"                 // HYPRE structured grid solver interface
+#include "mpi.h"                             // MPI header file
 
 
 // Macros for problem constants
@@ -118,17 +118,12 @@ struct UserData
   sunindextype je;  // y ending index
 
   // MPI variables
-  MPI_Comm comm_w; // world communicator
-  MPI_Comm comm_t; // communicator in time
-  MPI_Comm comm_x; // communicator in space
   MPI_Comm comm_c; // Cartesian communicator in space
 
   int nprocs_w; // total number of MPI processes in Comm world
   int npx;      // number of MPI processes in the x-direction
   int npy;      // number of MPI processes in the y-direction
-  int npt;      // number of MPI processes in time
 
-  int myid_w; // process ID in space and time
   int myid_c; // process ID in Cartesian communicator
 
   // Flags denoting if this process has a neighbor
@@ -170,20 +165,27 @@ struct UserData
   // Integrator settings
   realtype rtol;        // relative tolerance
   realtype atol;        // absolute tolerance
+  realtype hfixed;      // fixed step size
   int      order;       // ARKode method order
+  int      controller;  // step size adaptivity method
+  int      maxsteps;    // max number of steps between outputs
   bool     linear;      // enable/disable linearly implicit option
   bool     diagnostics; // output diagnostics
 
   // Linear solver and preconditioner settings
   bool     pcg;       // use PCG (true) or GMRES (false)
   bool     prec;      // preconditioner on/off
-  bool     lsinfo;    // output residual history
   int      liniters;  // number of linear iterations
   int      msbp;      // max number of steps between preconditioner setups
   realtype epslin;    // linear solver tolerance factor
 
-  // Inverse of Jacobian diagonal for preconditioner
-  N_Vector d;
+  // hypre PFMG settings (hypre defaults)
+  HYPRE_Int pfmg_relax;  // type of relaxation:
+                         //   0 - Jacobi
+                         //   1 - Weighted Jacobi
+                         //   2 - symmetric R/B Gauss-Seidel (*)
+                         //   3 - nonsymmetric R/B Gauss-Seidel
+  HYPRE_Int pfmg_nrelax; // number of pre and post relaxation sweeps (2)
 
   // Ouput variables
   int      output; // output level
@@ -196,42 +198,91 @@ struct UserData
   bool   timing;     // print timings
   double evolvetime;
   double rhstime;
-  double psetuptime;
-  double psolvetime;
+  double matfilltime;
+  double setuptime;
+  double solvetime;
   double exchangetime;
-  double accesstime;
-
-  // XBraid settings
-  realtype x_tol;           // Xbraid stopping tolerance
-  int      x_nt;            // number of fine grid time points
-  int      x_skip;          // skip all work on first down cycle
-  int      x_max_levels;    // max number of levels
-  int      x_min_coarse;    // min possible coarse gird size
-  int      x_nrelax;        // number of CF relaxation sweeps on all levels
-  int      x_nrelax0;       // number of CF relaxation sweeps on level 0
-  int      x_tnorm;         // temporal stopping norm
-  int      x_cfactor;       // coarsening factor
-  int      x_cfactor0;      // coarsening factor on level 0
-  int      x_max_iter;      // max number of interations
-  int      x_storage;       // Full storage on levels >= storage
-  int      x_print_level;   // xbraid output level
-  int      x_access_level;  // access level
-  int      x_rfactor_limit; // refinement factor limit
-  int      x_rfactor_fail;  // refinement factor on solver failure
-  int      x_max_refine;    // max number of refinements
-  bool     x_fmg;           // true = FMG cycle, false = V cycle
-  bool     x_refine;        // enable refinement with XBraid
-  bool     x_initseq;       // initialize with sequential solution
-  bool     x_reltol;        // use relative tolerance
-  bool     x_init_u0;       // initialize solution to initial condition
 };
 
 // -----------------------------------------------------------------------------
-// Functions provided to XBraid
+// Custom hypre 5-point structured grid matrix definition
 // -----------------------------------------------------------------------------
 
-int MyInit(braid_App app, realtype t, braid_Vector *u_ptr);
-int MyAccess(braid_App app, braid_Vector u, braid_AccessStatus astatus);
+struct Hypre5ptMatrixContent
+{
+  // hypre objects
+  HYPRE_StructGrid    grid;
+  HYPRE_StructStencil stencil;
+  HYPRE_StructMatrix  matrix;
+
+  // hypre grid extents
+  HYPRE_Int ilower[2];
+  HYPRE_Int iupper[2];
+
+  // hypre workspace
+  HYPRE_Int   nwork;
+  HYPRE_Real *work;
+
+  // User data
+  UserData *udata;
+};
+
+// Accessor macros
+#define H5PM_CONTENT(A)  ( (Hypre5ptMatrixContent*)(A->content) )
+#define H5PM_ILOWER(A)   ( H5PM_CONTENT(A)->ilower )
+#define H5PM_IUPPER(A)   ( H5PM_CONTENT(A)->iupper )
+#define H5PM_GRID(A)     ( H5PM_CONTENT(A)->grid )
+#define H5PM_STENCIL(A)  ( H5PM_CONTENT(A)->stencil )
+#define H5PM_MATRIX(A)   ( H5PM_CONTENT(A)->matrix )
+#define H5PM_WORK(A)     ( H5PM_CONTENT(A)->work )
+#define H5PM_NWORK(A)    ( H5PM_CONTENT(A)->nwork )
+#define H5PM_UDATA(A)    ( H5PM_CONTENT(A)->udata )
+
+// Matrix function prototypes
+SUNMatrix Hypre5ptMatrix(UserData *udata);
+SUNMatrix_ID Hypre5ptMatrix_GetID(SUNMatrix A);
+SUNMatrix Hypre5ptMatrix_Clone(SUNMatrix A);
+void Hypre5ptMatrix_Destroy(SUNMatrix A);
+int Hypre5ptMatrix_Copy(SUNMatrix A, SUNMatrix B);
+int Hypre5ptMatrix_ScaleAddI(realtype c, SUNMatrix A);
+
+// -----------------------------------------------------------------------------
+// Custom hypre linear solver definition
+// -----------------------------------------------------------------------------
+
+struct HypreLSContent
+{
+  // hypre objects
+  HYPRE_StructVector bvec;
+  HYPRE_StructVector xvec;
+  HYPRE_StructSolver precond;
+  HYPRE_StructSolver solver;
+
+  // Counters
+  HYPRE_Int iters;
+
+  // PCG (true) or GMRES (false)
+  bool pcg;
+};
+
+// Accessor macros
+#define HLS_CONTENT(S)  ( (HypreLSContent*)(S->content) )
+#define HLS_X(S)        ( HLS_CONTENT(S)->xvec )
+#define HLS_B(S)        ( HLS_CONTENT(S)->bvec )
+#define HLS_PRECOND(S)  ( HLS_CONTENT(S)->precond )
+#define HLS_SOLVER(S)   ( HLS_CONTENT(S)->solver )
+#define HLS_ITERS(S)    ( HLS_CONTENT(S)->iters )
+#define HLS_PCG(S)      ( HLS_CONTENT(S)->pcg )
+
+// Solver function prototypes
+SUNLinearSolver HypreLS(SUNMatrix A, UserData *udata);
+SUNLinearSolver_Type HypreLS_GetType(SUNLinearSolver S);
+int HypreLS_Initialize(SUNLinearSolver S);
+int HypreLS_Setup(SUNLinearSolver S, SUNMatrix A);
+int HypreLS_Solve(SUNLinearSolver S, SUNMatrix A,
+                   N_Vector x, N_Vector b, realtype tol);
+int HypreLS_NumIters(SUNLinearSolver S);
+int HypreLS_Free(SUNLinearSolver S);
 
 // -----------------------------------------------------------------------------
 // Functions provided to the SUNDIALS integrator
@@ -240,13 +291,9 @@ int MyAccess(braid_App app, braid_Vector u, braid_AccessStatus astatus);
 // ODE right hand side function
 static int f(realtype t, N_Vector u, N_Vector f, void *user_data);
 
-// Preconditioner setup and solve functions
-static int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
-                  booleantype *jcurPtr, realtype gamma, void *user_data);
-
-static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
-                  void *user_data);
+// Jacobian evaluation function
+static int Jac(realtype t, N_Vector u, N_Vector f, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // -----------------------------------------------------------------------------
 // Helper functions
@@ -289,6 +336,11 @@ static void InputHelp();
 // Print some UserData information
 static int PrintUserData(UserData *udata);
 
+// Output solution and error
+static int OpenOutput(UserData *udata);
+static int WriteOutput(realtype t, N_Vector u, UserData *udata);
+static int CloseOutput(UserData *udata);
+
 // Print integration statistics
 static int OutputStats(void *arkode_mem, UserData *udata);
 
@@ -307,11 +359,10 @@ int main(int argc, char* argv[])
   int flag;                   // reusable error-checking flag
   UserData *udata    = NULL;  // user data structure
   N_Vector u         = NULL;  // vector for storing solution
+  SUNMatrix A        = NULL;  // matrix for Jacobian
   SUNLinearSolver LS = NULL;  // linear solver memory structure
   void *arkode_mem   = NULL;  // ARKODE memory structure
   FILE *diagfp       = NULL;  // diagnostics output file
-  braid_Core core    = NULL;  // XBraid memory structure
-  braid_App app      = NULL;  // ARKode + XBraid interface structure
 
   // Timing variables
   double t1 = 0.0;
@@ -356,14 +407,9 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "PrintUserData", 1)) return 1;
 
     // Open diagnostics output file
-    if ((udata->diagnostics || udata->lsinfo) && udata->myid_c == 0)
+    if (udata->diagnostics)
     {
-      stringstream fname;
-      fname << "diagnostics." << setfill('0') << setw(5) << udata->myid_w
-            << ".txt";
-
-      const std::string tmp = fname.str();
-      diagfp = fopen(tmp.c_str(), "w");
+      diagfp = fopen("diagnostics.txt", "w");
       if (check_flag((void *) diagfp, "fopen", 0)) return 1;
     }
   }
@@ -384,48 +430,17 @@ int main(int argc, char* argv[])
   udata->e = N_VClone(u);
   if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
 
-  // ---------------------
-  // Create linear solver
-  // ---------------------
+  // --------------------------------
+  // Create matrix and linear solver
+  // --------------------------------
+
+  // Create custom matrix
+  A = Hypre5ptMatrix(udata);
+  if (check_flag((void *) A, "Hypre5ptMatrix", 0)) return 1;
 
   // Create linear solver
-  int prectype = (udata->prec) ? PREC_RIGHT : PREC_NONE;
-
-  if (udata->pcg)
-  {
-    LS = SUNLinSol_PCG(u, prectype, udata->liniters);
-    if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
-
-    if (udata->lsinfo && outproc)
-    {
-      flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
-
-      flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
-    }
-  }
-  else
-  {
-    LS = SUNLinSol_SPGMR(u, prectype, udata->liniters);
-    if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-    if (udata->lsinfo && outproc)
-    {
-      flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
-
-      flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
-    }
-  }
-
-  // Allocate preconditioner workspace
-  if (udata->prec)
-  {
-    udata->d = N_VClone(u);
-    if (check_flag((void *) (udata->d), "N_VClone", 0)) return 1;
-  }
+  LS = HypreLS(A, udata);
+  if (check_flag((void *) LS, "HypreLS", 0)) return 1;
 
   // --------------
   // Setup ARKStep
@@ -444,19 +459,16 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
 
   // Attach linear solver
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
   if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
 
-  if (udata->prec)
-  {
-    // Attach preconditioner
-    flag = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
-    if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) return 1;
+  // Specify the Jacobian evaluation function
+  flag = ARKStepSetJacFn(arkode_mem, Jac);
+  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
 
-    // Set linear solver setup frequency (update preconditioner)
-    flag = ARKStepSetLSetupFrequency(arkode_mem, udata->msbp);
-    if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) return 1;
-  }
+  // Set linear solver setup frequency (update linear system matrix)
+  flag = ARKStepSetLSetupFrequency(arkode_mem, udata->msbp);
+  if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) return 1;
 
   // Set linear solver tolerance factor
   flag = ARKStepSetEpsLin(arkode_mem, udata->epslin);
@@ -471,7 +483,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-    // Use implicit Euler (XBraid temporal refinement must be disabled)
+    // Use implicit Euler (requires fixed step size)
     realtype c[1], A[1], b[1];
     ARKodeButcherTable B = NULL;
 
@@ -488,6 +500,19 @@ int main(int argc, char* argv[])
     ARKodeButcherTable_Free(B);
   }
 
+  // Set fixed step size or adaptivity method
+  if (udata->hfixed > ZERO)
+  {
+    flag = ARKStepSetFixedStep(arkode_mem, udata->hfixed);
+    if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
+  }
+  else
+  {
+    flag = ARKStepSetAdaptivityMethod(arkode_mem, udata->controller, SUNTRUE,
+                                      SUNFALSE, NULL);
+    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+  }
+
   // Specify linearly implicit non-time-dependent RHS
   if (udata->linear)
   {
@@ -495,176 +520,90 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
   }
 
-  // Set adaptive stepping (XBraid with temporal refinement) options
-  if (udata->x_refine)
-  {
-    // Use I controller
-    flag = ARKStepSetAdaptivityMethod(arkode_mem, ARK_ADAPT_I, 1, 0, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+  // Set max steps between outputs
+  flag = ARKStepSetMaxNumSteps(arkode_mem, udata->maxsteps);
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
 
-    // Set the step size reduction factor limit (1 / refinement factor limit)
-    flag = ARKStepSetMinReduction(arkode_mem, ONE / udata->x_rfactor_limit);
-    if (check_flag(&flag, "ARKStepSetMinReduction", 1)) return 1;
-
-    // Set the failed solve step size reduction factor (1 / refinement factor)
-    flag = ARKStepSetMaxCFailGrowth(arkode_mem, ONE / udata->x_rfactor_fail);
-    if (check_flag(&flag, "ARKStepSetMaxCFailGrowth", 1)) return 1;
-  }
+  // Set stopping time
+  flag = ARKStepSetStopTime(arkode_mem, udata->tf);
+  if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
 
   // Set diagnostics output file
-  if (udata->diagnostics && udata->myid_c == 0)
+  if (udata->diagnostics && outproc)
   {
     flag = ARKStepSetDiagnostics(arkode_mem, diagfp);
     if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
   }
 
-  // ------------------------
-  // Create XBraid interface
-  // ------------------------
+  // -----------------------
+  // Loop over output times
+  // -----------------------
 
-  // Create the ARKStep + XBraid interface
-  flag = ARKBraid_Create(arkode_mem, &app);
-  if (check_flag(&flag, "ARKBraid_Create", 1)) return 1;
+  realtype t     = ZERO;
+  realtype dTout = udata->tf / udata->nout;
+  realtype tout  = dTout;
 
-  // Override the default initialization function
-  flag = ARKBraid_SetInitFn(app, MyInit);
-  if (check_flag(&flag, "ARKBraid_SetInitFn", 1)) return 1;
+  // Inital output
+  flag = OpenOutput(udata);
+  if (check_flag(&flag, "OpenOutput", 1)) return 1;
 
-  // Override the default access function
-  flag = ARKBraid_SetAccessFn(app, MyAccess);
-  if (check_flag(&flag, "ARKBraid_SetAccesFn", 1)) return 1;
+  flag = WriteOutput(t, u, udata);
+  if (check_flag(&flag, "WriteOutput", 1)) return 1;
 
-  // Initialize the ARKStep + XBraid interface
-  flag = ARKBraid_BraidInit(comm_w, udata->comm_t, ZERO, udata->tf,
-                            udata->x_nt, app, &core);
-  if (check_flag(&flag, "ARKBraid_BraidInit", 1)) return 1;
-
-  // ----------------------
-  // Set XBraid parameters
-  // ----------------------
-
-  flag = braid_SetTemporalNorm(core, udata->x_tnorm);
-  if (check_flag(&flag, "braid_SetTemporalNorm", 1)) return 1;
-
-  if (udata->x_reltol)
+  for (int iout = 0; iout < udata->nout; iout++)
   {
-    flag = braid_SetRelTol(core, udata->x_tol);
-    if (check_flag(&flag, "braid_SetRelTol", 1)) return 1;
-  }
-  else
-  {
-    // Since we are using the Euclidean 2-norm in space, scale the tolerance so
-    // it approximates to L2-norm.
-    realtype tolfactor;
-    if (udata->x_tnorm == 3)
-    {
-      // Infinity norm in time
-      tolfactor = sqrt(udata->nx * udata->ny);
-    }
-    else
-    {
-      // 2-norm in time
-      tolfactor = sqrt(udata->nx * udata->nx * udata->x_nt);
-    }
-    flag = braid_SetAbsTol(core, udata->x_tol * tolfactor);
-    if (check_flag(&flag, "braid_SetAbsTol", 1)) return 1;
-  }
+    // Start timer
+    t1 = MPI_Wtime();
 
-  flag = braid_SetSkip(core, udata->x_skip);
-  if (check_flag(&flag, "braid_SetSkip", 1)) return 1;
+    // Evolve in time
+    flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
+    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
 
-  flag = braid_SetMaxLevels( core, udata->x_max_levels );
-  if (check_flag(&flag, "braid_SetMaxLevels", 1)) return 1;
+    // Stop timer
+    t2 = MPI_Wtime();
 
-  flag = braid_SetMinCoarse( core, udata->x_min_coarse );
-  if (check_flag(&flag, "braid_SetMinCoarse", 1)) return 1;
+    // Update timer
+    udata->evolvetime += t2 - t1;
 
-  flag = braid_SetNRelax(core, -1, udata->x_nrelax);
-  if (check_flag(&flag, "braid_SetNRelax", 1)) return 1;
+    // Output solution and error
+    flag = WriteOutput(t, u, udata);
+    if (check_flag(&flag, "WriteOutput", 1)) return 1;
 
-  if (udata->x_nrelax0 > -1)
-  {
-    flag = braid_SetNRelax(core,  0, udata->x_nrelax0);
-    if (check_flag(&flag, "braid_SetNRelax", 1)) return 1;
+    // Update output time
+    tout += dTout;
+    tout = (tout > udata->tf) ? udata->tf : tout;
   }
 
-  flag = braid_SetCFactor(core, -1, udata->x_cfactor);
-  if (check_flag(&flag, "braid_SetCFactor", 1)) return 1;
-
-  if (udata->x_cfactor0 > 0)
-  {
-    flag = braid_SetCFactor(core,  0, udata->x_cfactor0);
-    if (check_flag(&flag, "braid_SetCFactor", 1)) return 1;
-  }
-
-  flag = braid_SetMaxIter(core, udata->x_max_iter);
-  if (check_flag(&flag, "braid_SetMaxIter", 1)) return 1;
-
-  if (udata->x_fmg)
-  {
-    // Use F-cycles
-    flag = braid_SetFMG(core);
-    if (check_flag(&flag, "braid_SetFMG", 1)) return 1;
-  }
-
-  flag = braid_SetPrintLevel(core, udata->x_print_level);
-  if (check_flag(&flag, "braid_SetPrintLevel", 1)) return 1;
-
-  flag = braid_SetAccessLevel(core, udata->x_access_level);
-  if (check_flag(&flag, "braid_SetAccessLevel", 1)) return 1;
-
-  if (udata->x_initseq) {
-    flag =  braid_SetSeqSoln(core, 1);
-    if (check_flag(&flag, "braid_SetSeqSoln", 1)) return 1;
-  }
-
-  // Temporal refinement
-  if (udata->x_refine)
-  {
-    // Enable refinement
-    flag = braid_SetRefine(core, 1);
-    if (check_flag(&flag, "braid_SetRefine", 1)) return 1;
-
-    // Set maximum number of refinements
-    flag = braid_SetMaxRefinements(core, udata->x_max_refine);
-    if (check_flag(&flag, "braid_SetMaxRefinements", 1)) return 1;
-
-    // Use F-cycles
-    flag = braid_SetFMG(core);
-    if (check_flag(&flag, "braid_SetFMG", 1)) return 1;
-
-    // Increase max levels after refinement
-    flag = braid_SetIncrMaxLevels(core);
-    if (check_flag(&flag, "braid_SetIncrMaxLevels", 1)) return 1;
-  }
-
-  // -----------------
-  // "Loop" over time
-  // -----------------
-
-  // Start timer
-  t1 = MPI_Wtime();
-
-  // Evolve in time
-  flag = braid_Drive(core);
-  if (check_flag(&flag, "braid_Drive", 1)) return 1;
-
-  // Stop timer
-  t2 = MPI_Wtime();
-
-  // Update timer
-  udata->evolvetime += t2 - t1;
+  // Close output
+  flag = CloseOutput(udata);
+  if (check_flag(&flag, "CloseOutput", 1)) return 1;
 
   // --------------
   // Final outputs
   // --------------
 
   // Print final integrator stats
-  if (udata->output > 0)
+  if (udata->output > 0 && outproc)
   {
-    if (outproc) cout << "Final max integrator statistics:" << endl;
+    cout << "Final integrator statistics:" << endl;
     flag = OutputStats(arkode_mem, udata);
     if (check_flag(&flag, "OutputStats", 1)) return 1;
+  }
+
+  if (udata->forcing)
+  {
+    // Output final error
+    flag = SolutionError(t, u, udata->e, udata);
+    if (check_flag(&flag, "SolutionError", 1)) return 1;
+
+    realtype maxerr = N_VMaxNorm(udata->e);
+
+    if (outproc)
+    {
+      cout << scientific;
+      cout << setprecision(numeric_limits<realtype>::digits10);
+      cout << "  Max error = " << maxerr << endl;
+    }
   }
 
   // Print timing
@@ -678,15 +617,14 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  if ((udata->diagnostics || udata->lsinfo) && udata->myid_c == 0) fclose(diagfp);
+  if (udata->diagnostics && outproc) fclose(diagfp);
 
   ARKStepFree(&arkode_mem);  // Free integrator memory
   SUNLinSolFree(LS);         // Free linear solver
+  SUNMatDestroy(A);          // Free matrix
   N_VDestroy(u);             // Free vectors
   FreeUserData(udata);       // Free user data
   delete udata;
-  braid_Destroy(core);       // Free braid memory
-  ARKBraid_Free(&app);       // Free interface memory
   flag = MPI_Finalize();     // Finalize MPI
   return 0;
 }
@@ -716,26 +654,11 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
   }
 
   // Check the processor grid
-  if ((udata->npx * udata->npy * udata->npt) != udata->nprocs_w)
+  if ((udata->npx * udata->npy) != udata->nprocs_w)
   {
     cerr << "Error: npx * npy != nproc" << endl;
     return -1;
   }
-
-  // Store global communicator
-  udata->comm_w = comm_w;
-
-  // Get global process ID
-  flag = MPI_Comm_rank(comm_w, &(udata->myid_w));
-  if (flag != MPI_SUCCESS)
-  {
-    cerr << "Error in MPI_Comm_rank" << endl;
-    return -1;
-  }
-
-  // Create communicators for time and space
-  braid_SplitCommworld(&comm_w, (udata->npx)*(udata->npy),
-                       &(udata->comm_x), &(udata->comm_t));
 
   // Set up 2D Cartesian communicator
   int dims[2];
@@ -746,7 +669,7 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
   periods[0] = 0;
   periods[1] = 0;
 
-  flag = MPI_Cart_create(udata->comm_x, 2, dims, periods, 0, &(udata->comm_c));
+  flag = MPI_Cart_create(comm_w, 2, dims, periods, 0, &(udata->comm_c));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Cart_create = " << flag << endl;
@@ -892,195 +815,6 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
   }
 
   // Return success
-  return 0;
-}
-
-// -----------------------------------------------------------------------------
-// Functions provided to XBraid
-// -----------------------------------------------------------------------------
-
-
-// Create and initialize vectors
-int MyInit(braid_App app, realtype t, braid_Vector *u_ptr)
-{
-  int      flag;
-  void     *user_data;
-  UserData *udata;
-
-  // Get user data pointer
-  ARKBraid_GetUserData(app, &user_data);
-  udata = static_cast<UserData*>(user_data);
-
-  // Create new vector
-  N_Vector y = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes);
-  flag = SUNBraidVector_New(y, u_ptr);
-  if (flag != 0) return 1;
-
-  // Set initial solution at all time points
-  if (t == ZERO)
-  {
-    flag = Solution(t, y, udata);
-    if (flag != 0) return 1;
-  }
-  else
-  {
-    N_VConst(ZERO, y);
-  }
-
-  return 0;
-}
-
-// Access XBraid and current vector
-int MyAccess(braid_App app, braid_Vector u, braid_AccessStatus astatus)
-{
-  int       flag;    // return flag
-  int       iter;    // current iteration number
-  int       level;   // current level
-  int       done;    // has XBraid finished
-  realtype  t;       // current time
-  void     *user_data;
-  UserData *udata;
-
-  // Start timer
-  double t1 = MPI_Wtime();
-
-  // Get user data pointer
-  ARKBraid_GetUserData(app, &user_data);
-  udata = static_cast<UserData*>(user_data);
-
-  // Get current time, iteration, level, and status
-  braid_AccessStatusGetTILD(astatus, &t, &iter, &level, &done);
-
-  // Output on fine level when XBraid has finished
-  if (level == 0 && done)
-  {
-    // Get current time index and number of fine grid points
-    int index;
-    int ntpts;
-    braid_AccessStatusGetTIndex(astatus, &index);
-    braid_AccessStatusGetNTPoints(astatus, &ntpts);
-
-    // Extract NVector
-    N_Vector y = NULL;
-    flag = SUNBraidVector_GetNVector(u, &y);
-    if (flag != 0) return 1;
-
-    // Write visualization files
-    if (udata->output == 2)
-    {
-      // Get output frequency (ensure the final time is output)
-      int qout = ntpts / udata->nout;
-      int rout = ntpts % udata->nout;
-      int nout = (rout > 0) ? udata->nout + 2 : udata->nout + 1;
-
-      // File name for output streams
-      stringstream fname;
-
-      // Output problem information
-      if (index == 0)
-      {
-        // Each processor outputs subdomain information
-        fname << "heat2d_info."
-              << setfill('0') << setw(5) << udata->myid_c << ".txt";
-
-        ofstream dout;
-        dout.open(fname.str());
-        dout <<  "xu  " << udata->xu       << endl;
-        dout <<  "yu  " << udata->yu       << endl;
-        dout <<  "nx  " << udata->nx       << endl;
-        dout <<  "ny  " << udata->ny       << endl;
-        dout <<  "px  " << udata->npx      << endl;
-        dout <<  "py  " << udata->npy      << endl;
-        dout <<  "pt  " << udata->npt      << endl;
-        dout <<  "np  " << udata->nprocs_w << endl;
-        dout <<  "is  " << udata->is       << endl;
-        dout <<  "ie  " << udata->ie       << endl;
-        dout <<  "js  " << udata->js       << endl;
-        dout <<  "je  " << udata->je       << endl;
-        dout <<  "nt  " << nout            << endl;
-        dout.close();
-      }
-
-      // Output solution and error
-      if (!(index % qout) || index == ntpts)
-      {
-        // Open output streams
-        fname.str("");
-        fname.clear();
-        fname << "heat2d_solution."
-              << setfill('0') << setw(5) << udata->myid_c
-              << setfill('0') << setw(6) << index / qout << ".txt";
-
-        udata->uout.open(fname.str());
-        udata->uout << scientific;
-        udata->uout << setprecision(numeric_limits<realtype>::digits10);
-
-        fname.str("");
-        fname.clear();
-        fname << "heat2d_error."
-              << setfill('0') << setw(5) << udata->myid_c
-              << setfill('0') << setw(6) << index / qout << ".txt";
-
-        udata->eout.open(fname.str());
-        udata->eout << scientific;
-        udata->eout << setprecision(numeric_limits<realtype>::digits10);
-
-        // Compute the error
-        flag = SolutionError(t, y, udata->e, udata);
-        if (check_flag(&flag, "SolutionError", 1)) return 1;
-
-        // Output solution to disk
-        realtype *yarray = N_VGetArrayPointer(y);
-        if (check_flag((void *) yarray, "N_VGetArrayPointer", 0)) return -1;
-
-        udata->uout << t << " ";
-        for (sunindextype i = 0; i < udata->nodes_loc; i++)
-        {
-          udata->uout << yarray[i] << " ";
-        }
-        udata->uout << endl;
-
-        // Output error to disk
-        realtype *earray = N_VGetArrayPointer(udata->e);
-        if (check_flag((void *) earray, "N_VGetArrayPointer", 0)) return -1;
-
-        udata->eout << t << " ";
-        for (sunindextype i = 0; i < udata->nodes_loc; i++)
-        {
-          udata->eout << earray[i] << " ";
-        }
-        udata->eout << endl;
-
-        // Close output streams
-        udata->uout.close();
-        udata->eout.close();
-      }
-    }
-
-    // Output final error
-    if (index == ntpts)
-    {
-      // Compute the max error
-      flag = SolutionError(t, y, udata->e, udata);
-      if (check_flag(&flag, "SolutionError", 1)) return 1;
-
-      realtype maxerr = N_VMaxNorm(udata->e);
-
-      if (udata->myid_c == 0)
-      {
-        cout << scientific;
-        cout << setprecision(numeric_limits<realtype>::digits10);
-        cout << "  Max error = " << maxerr << endl << endl;
-      }
-    }
-  }
-
-  // Stop timer
-  double t2 = MPI_Wtime();
-
-  // Update timing
-  udata->accesstime = t2 - t1;
-
   return 0;
 }
 
@@ -1287,59 +1021,318 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   return 0;
 }
 
-// Preconditioner setup routine
-static int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
-                  booleantype *jcurPtr, realtype gamma, void *user_data)
+// Jac function to compute the ODE RHS function Jacobian, (df/dy)(t,y).
+static int Jac(realtype t, N_Vector y, N_Vector ydot, SUNMatrix J,
+               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
+  // Shortcuts to hypre matrix and grid extents, work array, etc.
+  HYPRE_StructMatrix Jmatrix = H5PM_MATRIX(J);
+
+  UserData *udata = H5PM_UDATA(J);
+
+  HYPRE_Int ilower[2];
+  HYPRE_Int iupper[2];
+
+  ilower[0] = H5PM_ILOWER(J)[0];
+  ilower[1] = H5PM_ILOWER(J)[1];
+
+  iupper[0] = H5PM_IUPPER(J)[0];
+  iupper[1] = H5PM_IUPPER(J)[1];
+
+  HYPRE_Int   nwork = H5PM_NWORK(J);
+  HYPRE_Real *work  = H5PM_WORK(J);
+
+  sunindextype nx_loc = iupper[0] - ilower[0] + 1;
+  sunindextype ny_loc = iupper[1] - ilower[1] + 1;
+
+  // Matrix stencil: center, left, right, bottom, top
+  HYPRE_Int entries[5] = {0, 1, 2, 3, 4};
+  HYPRE_Int entry[1];
+
+  // Grid extents for setting boundary entries
+  HYPRE_Int bc_ilower[2];
+  HYPRE_Int bc_iupper[2];
+
+  // Loop counters
+  HYPRE_Int idx, ix, iy;
+
+  // hypre return flag
+  int flag;
+
+  // ----------
+  // Compute J
+  // ----------
+
   // Start timer
   double t1 = MPI_Wtime();
 
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
+  // Only do work if the box is non-zero in size
+  if ((ilower[0] <= iupper[0]) &&
+      (ilower[1] <= iupper[1]))
+  {
+    // Jacobian values
+    realtype cx = udata->kx / (udata->dx * udata->dx);
+    realtype cy = udata->ky / (udata->dy * udata->dy);
+    realtype cc = -TWO * (cx + cy);
 
-  // Access data array
-  realtype *diag = N_VGetArrayPointer(udata->d);
-  if (check_flag((void *) diag, "N_VGetArrayPointer", 0)) return -1;
+    // --------------------------------
+    // Set matrix values for all nodes
+    // --------------------------------
 
-  // Constants for computing diffusion
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
+    // Set the matrix interior entries (center, left, right, bottom, top)
+    idx = 0;
+    for (iy = 0; iy < ny_loc; iy++)
+    {
+      for (ix = 0; ix < nx_loc; ix++)
+      {
+        work[idx]     = cc;
+        work[idx + 1] = cx;
+        work[idx + 2] = cx;
+        work[idx + 3] = cy;
+        work[idx + 4] = cy;
+        idx += 5;
+      }
+    }
 
-  // Set all entries of d to the inverse diagonal values of interior
-  // (since boundary RHS is 0, set boundary diagonals to the same)
-  realtype c = ONE / (ONE - gamma * cc);
-  N_VConst(c, udata->d);
+    // Modify the matrix
+    flag = HYPRE_StructMatrixSetBoxValues(Jmatrix,
+                                          ilower, iupper,
+                                          5, entries, work);
+    if (flag != 0) return -1;
+
+    // ----------------------------------------
+    // Correct matrix values at boundary nodes
+    // ----------------------------------------
+
+    // Set the matrix boundary entries (center, left, right, bottom, top)
+    if (ilower[1] == 0 ||
+        iupper[1] == (udata->ny - 1) ||
+        ilower[0] == 0 ||
+        iupper[0] == (udata->nx - 1))
+    {
+      idx = 0;
+      for (iy = 0; iy < ny_loc; iy++)
+      {
+        for (ix = 0; ix < nx_loc; ix++)
+        {
+          work[idx]     = ONE;
+          work[idx + 1] = ZERO;
+          work[idx + 2] = ZERO;
+          work[idx + 3] = ZERO;
+          work[idx + 4] = ZERO;
+          idx += 5;
+        }
+      }
+    }
+
+    // Set cells on western boundary
+    if (ilower[0] == 0)
+    {
+      // Grid cell on south-west corner
+      bc_ilower[0] = ilower[0];
+      bc_ilower[1] = ilower[1];
+
+      // Grid cell on north-west corner
+      bc_iupper[0] = ilower[0];
+      bc_iupper[1] = iupper[1];
+
+      // Only do work if the box is non-zero in size
+      if ((bc_ilower[0] <= bc_iupper[0]) && (bc_ilower[1] <= bc_iupper[1]))
+      {
+        // Modify the matrix
+        flag = HYPRE_StructMatrixSetBoxValues(Jmatrix,
+                                              bc_ilower, bc_iupper,
+                                              5, entries, work);
+        if (flag != 0) return -1;
+      }
+    }
+
+    // Set cells on eastern boundary
+    if (iupper[0] == (udata->nx - 1))
+    {
+      // Grid cell on south-east corner
+      bc_ilower[0] = iupper[0];
+      bc_ilower[1] = ilower[1];
+
+      // Grid cell on north-east corner
+      bc_iupper[0] = iupper[0];
+      bc_iupper[1] = iupper[1];
+
+      // Only do work if the box is non-zero in size
+      if ((bc_ilower[0] <= bc_iupper[0]) && (bc_ilower[1] <= bc_iupper[1]))
+      {
+        // Modify the matrix
+        flag = HYPRE_StructMatrixSetBoxValues(Jmatrix,
+                                              bc_ilower, bc_iupper,
+                                              5, entries, work);
+        if (flag != 0) return -1;
+      }
+    }
+
+    // Correct cells on southern boundary
+    if (ilower[1] == 0)
+    {
+      // Grid cell on south-west corner
+      bc_ilower[0] = ilower[0];
+      bc_ilower[1] = ilower[1];
+
+      // Grid cell on south-east corner
+      bc_iupper[0] = iupper[0];
+      bc_iupper[1] = ilower[1];
+
+      // Only do work if the box is non-zero in size
+      if ((bc_ilower[0] <= bc_iupper[0]) && (bc_ilower[1] <= bc_iupper[1]))
+      {
+        // Modify the matrix
+        flag = HYPRE_StructMatrixSetBoxValues(Jmatrix,
+                                              bc_ilower, bc_iupper,
+                                              5, entries, work);
+        if (flag != 0) return -1;
+      }
+    }
+
+    // Set cells on northern boundary
+    if (iupper[1] == (udata->ny - 1))
+    {
+      // Grid cell on north-west corner
+      bc_ilower[0] = ilower[0];
+      bc_ilower[1] = iupper[1];
+
+      // Grid cell on north-east corner
+      bc_iupper[0] = iupper[0];
+      bc_iupper[1] = iupper[1];
+
+      // Only do work if the box is non-zero in size
+      if ((bc_ilower[0] <= bc_iupper[0]) && (bc_ilower[1] <= bc_iupper[1]))
+      {
+        // Modify the matrix
+        flag = HYPRE_StructMatrixSetBoxValues(Jmatrix,
+                                              bc_ilower, bc_iupper,
+                                              5, entries, work);
+        if (flag != 0) return -1;
+      }
+    }
+
+    // -----------------------------------------------------------
+    // Remove connections between the interior and boundary nodes
+    // -----------------------------------------------------------
+
+    // Zero out work array
+    for (ix = 0; ix < nwork; ix++)
+    {
+      work[ix] = ZERO;
+    }
+
+    // Second column of nodes (depends on western boundary)
+    if ((ilower[0] <= 1) && (iupper[0] >= 1))
+    {
+      // Remove western dependency
+      entry[0] = 1;
+
+      // Grid cell on south-west corner
+      bc_ilower[0] = 1;
+      bc_ilower[1] = ilower[1];
+
+      // Grid cell on north-west corner
+      bc_iupper[0] = 1;
+      bc_iupper[1] = iupper[1];
+
+      // Only do work if the box is non-zero in size
+      if ((bc_ilower[0] <= bc_iupper[0]) && (bc_ilower[1] <= bc_iupper[1]))
+      {
+        // Modify the matrix
+        flag = HYPRE_StructMatrixSetBoxValues(Jmatrix,
+                                              bc_ilower, bc_iupper,
+                                              1, entry, work);
+        if (flag != 0) return -1;
+      }
+    }
+
+    // Next to last column (depends on eastern boundary)
+    if ((ilower[0] <= (udata->nx - 2)) &&
+        (iupper[0] >= (udata->nx - 2)))
+    {
+      // Remove eastern dependency
+      entry[0] = 2;
+
+      // Grid cell on south-east corner
+      bc_ilower[0] = udata->nx - 2;
+      bc_ilower[1] = ilower[1];
+
+      // Grid cell on north-east corner
+      bc_iupper[0] = udata->nx - 2;
+      bc_iupper[1] = iupper[1];
+
+      // Only do work if the box is non-zero in size
+      if ((bc_ilower[0] <= bc_iupper[0]) && (bc_ilower[1] <= bc_iupper[1]))
+      {
+        // Modify the matrix
+        flag = HYPRE_StructMatrixSetBoxValues(Jmatrix,
+                                              bc_ilower, bc_iupper,
+                                              1, entry, work);
+        if (flag != 0) return -1;
+      }
+    }
+
+    // Second row of nodes (depends on southern boundary)
+    if ((ilower[1] <= 1) && (iupper[1] >= 1))
+    {
+      // Remove southern dependency
+      entry[0] = 3;
+
+      // Grid cell on south-west corner
+      bc_ilower[0] = ilower[0];
+      bc_ilower[1] = 1;
+
+      // Grid cell on south-east corner
+      bc_iupper[0] = iupper[0];
+      bc_iupper[1] = 1;
+
+      // Only do work if the box is non-zero in size
+      if ((bc_ilower[0] <= bc_iupper[0]) && (bc_ilower[1] <= bc_iupper[1]))
+      {
+        // Modify the matrix
+        flag = HYPRE_StructMatrixSetBoxValues(Jmatrix,
+                                              bc_ilower, bc_iupper,
+                                              1, entry, work);
+        if (flag != 0) return -1;
+      }
+    }
+
+    // Next to last row of nodes (depends on northern boundary)
+    if ((ilower[1] <= (udata->ny - 2)) &&
+        (iupper[1] >= (udata->ny - 2)))
+    {
+      // Remove northern dependency
+      entry[0] = 4;
+
+      // Grid cell on north-west corner
+      bc_ilower[0] = ilower[0];
+      bc_ilower[1] = udata->ny - 2;
+
+      // Grid cell on north-east corner
+      bc_iupper[0] = iupper[0];
+      bc_iupper[1] = udata->ny - 2;
+
+      // Only do work if the box is non-zero in size
+      if ((bc_ilower[0] <= bc_iupper[0]) && (bc_ilower[1] <= bc_iupper[1]))
+      {
+        // Modify the matrix
+        flag = HYPRE_StructMatrixSetBoxValues(Jmatrix,
+                                              bc_ilower, bc_iupper,
+                                              1, entry, work);
+        if (flag != 0) return -1;
+      }
+    }
+  }
+
+  // The matrix is assembled matrix in linear solver setup
 
   // Stop timer
   double t2 = MPI_Wtime();
 
   // Update timer
-  udata->psetuptime += t2 - t1;
-
-  // Return success
-  return 0;
-}
-
-// Preconditioner solve routine for Pz = r
-static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
-                  void *user_data)
-{
-  // Start timer
-  double t1 = MPI_Wtime();
-
-  // Access user_data structure
-  UserData *udata = (UserData *) user_data;
-
-  // Perform Jacobi iteration
-  N_VProd(udata->d, r, z);
-
-  // Stop timer
-  double t2 = MPI_Wtime();
-
-  // Update timer
-  udata->psolvetime += t2 - t1;
+  udata->matfilltime += t2 - t1;
 
   // Return success
   return 0;
@@ -1592,8 +1585,8 @@ static int InitUserData(UserData *udata)
   udata->yu = ONE;
 
   // Global number of nodes in the x and y directions
-  udata->nx    = 32;
-  udata->ny    = 32;
+  udata->nx    = 64;
+  udata->ny    = 64;
   udata->nodes = udata->nx * udata->ny;
 
   // Mesh spacing in the x and y directions
@@ -1612,17 +1605,12 @@ static int InitUserData(UserData *udata)
   udata->je = 0;
 
   // MPI variables (set in SetupDecomp)
-  udata->comm_w = MPI_COMM_NULL;
-  udata->comm_t = MPI_COMM_NULL;
-  udata->comm_x = MPI_COMM_NULL;
   udata->comm_c = MPI_COMM_NULL;
 
   udata->nprocs_w = 1;
   udata->npx      = 1;
   udata->npy      = 1;
-  udata->npt      = 1;
 
-  udata->myid_w = 0;
   udata->myid_c = 0;
 
   // Flags denoting neighbors (set in SetupDecomp)
@@ -1652,20 +1640,23 @@ static int InitUserData(UserData *udata)
   // Integrator settings
   udata->rtol        = RCONST(1.e-5);   // relative tolerance
   udata->atol        = RCONST(1.e-10);  // absolute tolerance
+  udata->hfixed      = ZERO;            // using adaptive step sizes
   udata->order       = 3;               // method order
+  udata->controller  = 0;               // PID controller
+  udata->maxsteps    = 0;               // use default
   udata->linear      = true;            // linearly implicit problem
   udata->diagnostics = false;           // output diagnostics
 
   // Linear solver and preconditioner options
   udata->pcg       = true;       // use PCG (true) or GMRES (false)
   udata->prec      = true;       // enable preconditioning
-  udata->lsinfo    = false;      // output residual history
-  udata->liniters  = 100;        // max linear iterations
+  udata->liniters  = 10;         // max linear iterations
   udata->msbp      = 0;          // use default (20 steps)
   udata->epslin    = ZERO;       // use default (0.05)
 
-  // Inverse of Jacobian diagonal for preconditioner
-  udata->d = NULL;
+  // hypre PFMG settings
+  udata->pfmg_relax  = 2;
+  udata->pfmg_nrelax = 2;
 
   // Output variables
   udata->output = 1;   // 0 = no output, 1 = stats output, 2 = output to disk
@@ -1676,34 +1667,10 @@ static int InitUserData(UserData *udata)
   udata->timing       = false;
   udata->evolvetime   = 0.0;
   udata->rhstime      = 0.0;
-  udata->psetuptime   = 0.0;
-  udata->psolvetime   = 0.0;
+  udata->matfilltime  = 0.0;
+  udata->setuptime    = 0.0;
+  udata->solvetime    = 0.0;
   udata->exchangetime = 0.0;
-  udata->accesstime   = 0.0;
-
-  // Xbraid
-  udata->x_tol           = 1.0e-6;
-  udata->x_nt            = 300;
-  udata->x_skip          = 1;
-  udata->x_max_levels    = 15;
-  udata->x_min_coarse    = 3;
-  udata->x_nrelax        = 1;
-  udata->x_nrelax0       = -1;
-  udata->x_tnorm         = 2;
-  udata->x_cfactor       = 2;
-  udata->x_cfactor0      = -1;
-  udata->x_max_iter      = 100;
-  udata->x_storage       = -1;
-  udata->x_print_level   = 1;
-  udata->x_access_level  = 1;
-  udata->x_rfactor_limit = 10;
-  udata->x_rfactor_fail  = 4;
-  udata->x_max_refine    = 8;
-  udata->x_fmg           = false;
-  udata->x_refine        = false;
-  udata->x_initseq       = false;
-  udata->x_reltol        = false;
-  udata->x_init_u0       = false;
 
   // Return success
   return 0;
@@ -1722,23 +1689,9 @@ static int FreeUserData(UserData *udata)
   if (udata->Nrecv != NULL)  delete[] udata->Nrecv;
   if (udata->Nsend != NULL)  delete[] udata->Nsend;
 
-  // Free preconditioner data
-  if (udata->d)
-  {
-    N_VDestroy(udata->d);
-    udata->d = NULL;
-  }
-
   // Free MPI Cartesian communicator
   if (udata->comm_c != MPI_COMM_NULL)
     MPI_Comm_free(&(udata->comm_c));
-
-  // Free MPI space and time communicators
-  if (udata->comm_t != MPI_COMM_NULL)
-    MPI_Comm_free(&(udata->comm_t));
-
-  if (udata->comm_x != MPI_COMM_NULL)
-    MPI_Comm_free(&(udata->comm_x));
 
   // Free error vector
   if (udata->e)
@@ -1772,7 +1725,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->npx = stoi((*argv)[arg_idx++]);
       udata->npy = stoi((*argv)[arg_idx++]);
-      udata->npt = stoi((*argv)[arg_idx++]);
     }
     // Domain upper bounds
     else if (arg == "--domain")
@@ -1805,9 +1757,17 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->atol = stod((*argv)[arg_idx++]);
     }
+    else if (arg == "--fixedstep")
+    {
+      udata->hfixed = stod((*argv)[arg_idx++]);
+    }
     else if (arg == "--order")
     {
       udata->order = stoi((*argv)[arg_idx++]);
+    }
+    else if (arg == "--controller")
+    {
+      udata->controller = stoi((*argv)[arg_idx++]);
     }
     else if (arg == "--nonlinear")
     {
@@ -1821,10 +1781,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     else if (arg == "--gmres")
     {
       udata->pcg = false;
-    }
-    else if (arg == "--lsinfo")
-    {
-      udata->lsinfo = true;
     }
     else if (arg == "--liniters")
     {
@@ -1843,94 +1799,14 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->msbp = stoi((*argv)[arg_idx++]);
     }
-    // XBraid settings
-    else if (arg == "--x_tol")
+    // PFMG settings
+    else if (arg == "--pfmg_relax")
     {
-      udata->x_tol = stod((*argv)[arg_idx++]);
+      udata->pfmg_relax = stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--x_nt")
+    else if (arg == "--pfmg_nrelax")
     {
-      udata->x_nt = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_skip")
-    {
-      udata->x_skip = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_max_levels")
-    {
-      udata->x_max_levels = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_min_coarse")
-    {
-      udata->x_min_coarse = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_nrelax")
-    {
-      udata->x_nrelax = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_nrelax0")
-    {
-      udata->x_nrelax0 = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_tnorm")
-    {
-      udata->x_tnorm = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_cfactor")
-    {
-      udata->x_cfactor = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_cfactor0")
-    {
-      udata->x_cfactor0 = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_max_iter")
-    {
-      udata->x_max_iter = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_storage")
-    {
-      udata->x_storage = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_print_level")
-    {
-      udata->x_print_level = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_access_level")
-    {
-      udata->x_access_level = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_rfactor_limit")
-    {
-      udata->x_rfactor_limit = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_rfactor_fail")
-    {
-      udata->x_rfactor_fail = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_max_refine")
-    {
-      udata->x_max_refine = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--x_fmg")
-    {
-      udata->x_fmg = true;
-    }
-    else if (arg == "--x_refine")
-    {
-      udata->x_refine = true;
-    }
-    else if (arg == "--x_initseq")
-    {
-      udata->x_initseq = true;
-    }
-    else if (arg == "--x_reltol")
-    {
-      udata->x_reltol = true;
-    }
-    else if (arg == "--x_init_u0")
-    {
-      udata->x_init_u0 = true;
+      udata->pfmg_nrelax = stoi((*argv)[arg_idx++]);
     }
     // Output settings
     else if (arg == "--output")
@@ -1940,6 +1816,10 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     else if (arg == "--nout")
     {
       udata->nout = stoi((*argv)[arg_idx++]);
+    }
+    else if (arg == "--maxsteps")
+    {
+      udata->maxsteps = stoi((*argv)[arg_idx++]);
     }
     else if (arg == "--timing")
     {
@@ -1970,8 +1850,8 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
   udata->dx = (udata->xu) / (udata->nx - 1);
   udata->dy = (udata->yu) / (udata->ny - 1);
 
-  // If the method order is 1 the XBraid refinement must be disabled
-  if (udata->order == 1 && !(udata->x_refine))
+  // If the method order is 1 fixed time stepping must be used
+  if (udata->order == 1 && !(udata->hfixed > ZERO))
   {
     cerr << "ERROR: Method order 1 requires fixed time stepping" << endl;
     return -1;
@@ -2045,7 +1925,7 @@ static void InputHelp()
   cout << endl;
   cout << "Command line options:" << endl;
   cout << "  --mesh <nx> <ny>        : mesh points in the x and y directions" << endl;
-  cout << "  --np <npx> <npy> <npt>  : number of MPI processes in space and timethe x and y" << endl;
+  cout << "  --np <npx> <npy>        : number of MPI processes in the x and y directions" << endl;
   cout << "  --domain <xu> <yu>      : domain upper bound in the x and y direction" << endl;
   cout << "  --k <kx> <ky>           : diffusion coefficients" << endl;
   cout << "  --noforcing             : disable forcing term" << endl;
@@ -2054,37 +1934,19 @@ static void InputHelp()
   cout << "  --atol <atol>           : absoltue tolerance" << endl;
   cout << "  --nonlinear             : disable linearly implicit flag" << endl;
   cout << "  --order <ord>           : method order" << endl;
+  cout << "  --fixedstep <step>      : used fixed step size" << endl;
+  cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
   cout << "  --diagnostics           : output diagnostics" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
-  cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
   cout << "  --noprec                : disable preconditioner" << endl;
   cout << "  --msbp <steps>          : max steps between prec setups" << endl;
-  cout << "  --x_tol <tol>           : XBraid stopping tolerance" << endl;
-  cout << "  --x_nt <nt>             : Initial number of time grid values" << endl;
-  cout << "  --x_skip <0,1>          : Skip all work on first down cycle" << endl;
-  cout << "  --x_max_levels <max>    : Max number of multigrid levels " << endl;
-  cout << "  --x_min_coarse <size>   : Minimum coarse grid size" << endl;
-  cout << "  --x_nrelax <num>        : Number of relaxation sweeps" << endl;
-  cout << "  --x_nrelax0 <num>       : Number of relaxation sweeps on level 0" << endl;
-  cout << "  --x_tnorm <1,2,3>       : Choice of temporal norm " << endl;
-  cout << "  --x_cfactor <fac>       : Coarsening factor" << endl;
-  cout << "  --x_cfactor0 <fac>      : Coarsening factor on level 0" << endl;
-  cout << "  --x_max_iter <max>      : Max number of multigrid iterations" << endl;
-  cout << "  --x_storage <lev>       : Full storage on levels >= <lev>" << endl;
-  cout << "  --x_print_level <lev>   : Set print level" << endl;
-  cout << "  --x_access_level <lev>  : Set access level" << endl;
-  cout << "  --x_rfactor_limit <fac> : Max refinement factor" << endl;
-  cout << "  --x_rfactor_fail <fac>  : Solver failure refinement factor" << endl;
-  cout << "  --x_max_refine <max>    : Max number of grid refinements" << endl;
-  cout << "  --x_fmg                 : Use FMG (F-cycles)" << endl;
-  cout << "  --x_refine              : Enable temporal refinement" << endl;
-  cout << "  --x_initseq             : Initialize with sequential solution (debug)" << endl;
-  cout << "  --x_reltol              : Use relative stopping tolerance" << endl;
-  cout << "  --x_init_u0             : Initialize all times with u0" << endl;
+  cout << "  --pfmg_relax <types>    : relaxtion type in PFMG" << endl;
+  cout << "  --pfmg_nrelax <iters>   : pre/post relaxtion sweeps in PFMG" << endl;
   cout << "  --output <level>        : output level" << endl;
   cout << "  --nout <nout>           : number of outputs" << endl;
+  cout << "  --maxsteps <steps>      : max steps between outputs" << endl;
   cout << "  --timing                : print timing data" << endl;
   cout << "  --help                  : print this message and exit" << endl;
 }
@@ -2098,7 +1960,6 @@ static int PrintUserData(UserData *udata)
   cout << "  nprocs         = " << udata->nprocs_w        << endl;
   cout << "  npx            = " << udata->npx             << endl;
   cout << "  npy            = " << udata->npy             << endl;
-  cout << "  npt            = " << udata->npt             << endl;
   cout << " --------------------------------- "           << endl;
   cout << "  kx             = " << udata->kx              << endl;
   cout << "  ky             = " << udata->ky              << endl;
@@ -2116,6 +1977,8 @@ static int PrintUserData(UserData *udata)
   cout << "  rtol           = " << udata->rtol            << endl;
   cout << "  atol           = " << udata->atol            << endl;
   cout << "  order          = " << udata->order           << endl;
+  cout << "  fixed h        = " << udata->hfixed          << endl;
+  cout << "  controller     = " << udata->controller      << endl;
   cout << "  linear         = " << udata->linear          << endl;
   cout << " --------------------------------- "           << endl;
   if (udata->pcg)
@@ -2130,19 +1993,190 @@ static int PrintUserData(UserData *udata)
   cout << "  eps lin        = " << udata->epslin          << endl;
   cout << "  prec           = " << udata->prec            << endl;
   cout << "  msbp           = " << udata->msbp            << endl;
-  cout << " --------------------------------- "           << endl;
-  cout << "  nt             = " << udata->x_nt            << endl;
-  cout << "  xtol           = " << udata->x_tol           << endl;
-  cout << "  refine         = " << udata->x_refine        << endl;
-  cout << "  rfactor limit  = " << udata->x_rfactor_limit << endl;
-  cout << "  rfactor fail   = " << udata->x_rfactor_fail  << endl;
-  cout << "  init seq       = " << udata->x_initseq       << endl;
-  cout << "  print level    = " << udata->x_print_level   << endl;
-  cout << "  access level   = " << udata->x_access_level  << endl;
+  cout << "  pfmg_relax     = " << udata->pfmg_relax      << endl;
+  cout << "  pfmg_nrelax    = " << udata->pfmg_nrelax     << endl;
   cout << " --------------------------------- "           << endl;
   cout << "  output         = " << udata->output          << endl;
   cout << " --------------------------------- "           << endl;
   cout << endl;
+
+  return 0;
+}
+
+// Initialize output
+static int OpenOutput(UserData *udata)
+{
+  bool outproc = (udata->myid_c == 0);
+
+  // Header for status output
+  if (udata->output > 0 && outproc)
+  {
+    cout << scientific;
+    cout << setprecision(numeric_limits<realtype>::digits10);
+    if (udata->forcing)
+    {
+      cout << "          t           ";
+      cout << "          ||u||_rms      ";
+      cout << "          max error      " << endl;
+      cout << " ---------------------";
+      cout << "-------------------------";
+      cout << "-------------------------" << endl;
+    }
+    else
+    {
+      cout << "          t           ";
+      cout << "          ||u||_rms      " << endl;
+      cout << " ---------------------";
+      cout << "-------------------------" << endl;
+    }
+  }
+
+  // Output problem information and open output streams
+  if (udata->output == 2)
+  {
+    // Each processor outputs subdomain information
+    stringstream fname;
+    fname << "heat2d_info." << setfill('0') << setw(5) << udata->myid_c
+          << ".txt";
+
+    ofstream dout;
+    dout.open(fname.str());
+    dout <<  "xu  " << udata->xu       << endl;
+    dout <<  "yu  " << udata->yu       << endl;
+    dout <<  "nx  " << udata->nx       << endl;
+    dout <<  "ny  " << udata->ny       << endl;
+    dout <<  "px  " << udata->npx      << endl;
+    dout <<  "py  " << udata->npy      << endl;
+    dout <<  "np  " << udata->nprocs_w << endl;
+    dout <<  "is  " << udata->is       << endl;
+    dout <<  "ie  " << udata->ie       << endl;
+    dout <<  "js  " << udata->js       << endl;
+    dout <<  "je  " << udata->je       << endl;
+    dout <<  "nt  " << udata->nout + 1 << endl;
+    dout.close();
+
+    // Open output streams for solution and error
+    fname.str("");
+    fname.clear();
+    fname << "heat2d_solution." << setfill('0') << setw(5) << udata->myid_c
+          << ".txt";
+    udata->uout.open(fname.str());
+
+    udata->uout << scientific;
+    udata->uout << setprecision(numeric_limits<realtype>::digits10);
+
+    if (udata->forcing)
+    {
+      fname.str("");
+      fname.clear();
+      fname << "heat2d_error." << setfill('0') << setw(5) << udata->myid_c
+            << ".txt";
+      udata->eout.open(fname.str());
+
+      udata->eout << scientific;
+      udata->eout << setprecision(numeric_limits<realtype>::digits10);
+    }
+  }
+
+  return 0;
+}
+
+// Write output
+static int WriteOutput(realtype t, N_Vector u, UserData *udata)
+{
+  int      flag;
+  realtype max;
+  bool     outproc = (udata->myid_c == 0);
+
+  if (udata->output > 0)
+  {
+    if (udata->forcing)
+    {
+      // Compute the error
+      flag = SolutionError(t, u, udata->e, udata);
+      if (check_flag(&flag, "SolutionError", 1)) return 1;
+
+      // Compute max error
+      max = N_VMaxNorm(udata->e);
+    }
+
+    // Compute rms norm of the state
+    realtype urms = sqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
+
+    // Output current status
+    if (outproc)
+    {
+      if (udata->forcing)
+      {
+        cout << setw(22) << t << setw(25) << urms << setw(25) << max << endl;
+      }
+      else
+      {
+        cout << setw(22) << t << setw(25) << urms << endl;
+      }
+    }
+
+    // Write solution and error to disk
+    if (udata->output == 2)
+    {
+      realtype *uarray = N_VGetArrayPointer(u);
+      if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
+
+      udata->uout << t << " ";
+      for (sunindextype i = 0; i < udata->nodes_loc; i++)
+      {
+        udata->uout << uarray[i] << " ";
+      }
+      udata->uout << endl;
+
+      if (udata->forcing)
+      {
+        // Output error to disk
+        realtype *earray = N_VGetArrayPointer(udata->e);
+        if (check_flag((void *) earray, "N_VGetArrayPointer", 0)) return -1;
+
+        udata->eout << t << " ";
+        for (sunindextype i = 0; i < udata->nodes_loc; i++)
+        {
+          udata->eout << earray[i] << " ";
+        }
+        udata->eout << endl;
+      }
+    }
+  }
+
+  return 0;
+}
+
+// Finalize output
+static int CloseOutput(UserData *udata)
+{
+  bool outproc = (udata->myid_c == 0);
+
+  // Footer for status output
+  if (outproc && (udata->output > 0))
+  {
+    if (udata->forcing)
+    {
+      cout << " ---------------------";
+      cout << "-------------------------";
+      cout << "-------------------------" << endl;
+      cout << endl;
+    }
+    else
+    {
+      cout << " ---------------------";
+      cout << "-------------------------" << endl;
+      cout << endl;
+    }
+  }
+
+  if (udata->output == 2)
+  {
+    // Close output streams
+    udata->uout.close();
+    if (udata->forcing) udata->eout.close();
+  }
 
   return 0;
 }
@@ -2152,10 +2186,8 @@ static int OutputStats(void *arkode_mem, UserData* udata)
 {
   int flag;
 
-  bool outproc = (udata->myid_w == 0);
-
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nJeval;
   flag = ARKStepGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return -1;
   flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
@@ -2174,76 +2206,37 @@ static int OutputStats(void *arkode_mem, UserData* udata)
   if (check_flag(&flag, "ARKStepGetNumLinConvFails", 1)) return -1;
   flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
   if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) return -1;
-  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfi_ls);
-  if (check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1)) return -1;
-  flag = ARKStepGetNumJtimesEvals(arkode_mem, &nJv);
-  if (check_flag(&flag, "ARKStepGetNumJtimesEvals", 1)) return -1;
+  flag = ARKStepGetNumJacEvals(arkode_mem, &nJeval);
+  if (check_flag(&flag, "ARKStepGetNumJacEvals", 1)) return -1;
 
-  // Reduce stats across time
-  MPI_Allreduce(MPI_IN_PLACE, &nst,     1, MPI_LONG, MPI_MAX, udata->comm_w);
-  MPI_Allreduce(MPI_IN_PLACE, &nst_a,   1, MPI_LONG, MPI_MAX, udata->comm_w);
-  MPI_Allreduce(MPI_IN_PLACE, &netf,    1, MPI_LONG, MPI_MAX, udata->comm_w);
-  MPI_Allreduce(MPI_IN_PLACE, &nfi,     1, MPI_LONG, MPI_MAX, udata->comm_w);
-  MPI_Allreduce(MPI_IN_PLACE, &nni,     1, MPI_LONG, MPI_MAX, udata->comm_w);
-  MPI_Allreduce(MPI_IN_PLACE, &ncfn,    1, MPI_LONG, MPI_MAX, udata->comm_w);
-  MPI_Allreduce(MPI_IN_PLACE, &nli,     1, MPI_LONG, MPI_MAX, udata->comm_w);
-  MPI_Allreduce(MPI_IN_PLACE, &nlcf,    1, MPI_LONG, MPI_MAX, udata->comm_w);
-  MPI_Allreduce(MPI_IN_PLACE, &nsetups, 1, MPI_LONG, MPI_MAX, udata->comm_w);
-  MPI_Allreduce(MPI_IN_PLACE, &nfi_ls,  1, MPI_LONG, MPI_MAX, udata->comm_w);
-  MPI_Allreduce(MPI_IN_PLACE, &nJv,     1, MPI_LONG, MPI_MAX, udata->comm_w);
+  cout << fixed;
+  cout << setprecision(6);
 
-  if (outproc)
-  {
-    cout << fixed;
-    cout << setprecision(6);
+  cout << "  Steps            = " << nst     << endl;
+  cout << "  Step attempts    = " << nst_a   << endl;
+  cout << "  Error test fails = " << netf    << endl;
+  cout << "  RHS evals        = " << nfi     << endl;
+  cout << "  NLS iters        = " << nni     << endl;
+  cout << "  NLS fails        = " << ncfn    << endl;
+  cout << "  LS iters         = " << nli     << endl;
+  cout << "  LS fails         = " << nlcf    << endl;
+  cout << "  LS setups        = " << nsetups << endl;
+  cout << "  J evals          = " << nJeval  << endl;
+  cout << endl;
 
-    cout << "  Steps            = " << nst     << endl;
-    cout << "  Step attempts    = " << nst_a   << endl;
-    cout << "  Error test fails = " << netf    << endl;
-    cout << "  RHS evals        = " << nfi     << endl;
-    cout << "  NLS iters        = " << nni     << endl;
-    cout << "  NLS fails        = " << ncfn    << endl;
-    cout << "  LS iters         = " << nli     << endl;
-    cout << "  LS fails         = " << nlcf    << endl;
-    cout << "  LS setups        = " << nsetups << endl;
-    cout << "  LS RHS evals     = " << nfi_ls  << endl;
-    cout << "  Jv products      = " << nJv     << endl;
-    cout << endl;
-
-    // Compute average nls iters per step attempt and ls iters per nls iter
-    realtype avgnli = (realtype) nni / (realtype) nst_a;
-    realtype avgli  = (realtype) nli / (realtype) nni;
-    cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
-    cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
-    cout << endl;
-  }
-
-  // Get preconditioner stats
-  if (udata->prec)
-  {
-    long int npe, nps;
-    flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
-    if (check_flag(&flag, "ARKStepGetNumPrecEvals", 1)) return -1;
-    flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
-    if (check_flag(&flag, "ARKStepGetNumPrecSolves", 1)) return -1;
-
-    MPI_Allreduce(MPI_IN_PLACE, &npe, 1, MPI_LONG, MPI_MAX, udata->comm_w);
-    MPI_Allreduce(MPI_IN_PLACE, &nps, 1, MPI_LONG, MPI_MAX, udata->comm_w);
-
-    if (outproc)
-    {
-      cout << "  Preconditioner setups = " << npe << endl;
-      cout << "  Preconditioner solves = " << nps << endl;
-      cout << endl;
-    }
-  }
+  // Compute average nls iters per step attempt and ls iters per nls iter
+  realtype avgnli = (realtype) nni / (realtype) nst_a;
+  realtype avgli  = (realtype) nli / (realtype) nni;
+  cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
+  cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
+  cout << endl;
 
   return 0;
 }
 
 static int OutputTiming(UserData *udata)
 {
-  bool outproc = (udata->myid_w == 0);
+  bool outproc = (udata->myid_c == 0);
 
   if (outproc)
   {
@@ -2254,50 +2247,45 @@ static int OutputTiming(UserData *udata)
   double maxtime = 0.0;
 
   MPI_Reduce(&(udata->evolvetime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
-             udata->comm_w);
+             udata->comm_c);
   if (outproc)
   {
     cout << "  Evolve time   = " << maxtime << " sec" << endl;
   }
 
   MPI_Reduce(&(udata->rhstime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
-             udata->comm_w);
+             udata->comm_c);
   if (outproc)
   {
     cout << "  RHS time      = " << maxtime << " sec" << endl;
   }
 
   MPI_Reduce(&(udata->exchangetime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
-             udata->comm_w);
+             udata->comm_c);
   if (outproc)
   {
     cout << "  Exchange time = " << maxtime << " sec" << endl;
     cout << endl;
   }
 
-  if (udata->prec)
-  {
-    MPI_Reduce(&(udata->psetuptime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
-               udata->comm_w);
-    if (outproc)
-    {
-      cout << "  PSetup time   = " << maxtime << " sec" << endl;
-    }
-
-    MPI_Reduce(&(udata->psolvetime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
-               udata->comm_w);
-    if (outproc)
-    {
-      cout << "  PSolve time   = " << maxtime << " sec" << endl;
-      cout << endl;
-    }
-  }
-
-  MPI_Reduce(&(udata->accesstime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
-             udata->comm_w);
+  MPI_Reduce(&(udata->matfilltime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
+             udata->comm_c);
   if (outproc)
   {
-    cout << "  Access time   = " << maxtime << " sec" << endl;
+    cout << "  MatFill time  = " << maxtime << " sec" << endl;
+  }
+
+  MPI_Reduce(&(udata->setuptime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
+             udata->comm_c);
+  if (outproc)
+  {
+    cout << "  LS setup time = " << maxtime << " sec" << endl;   }
+
+  MPI_Reduce(&(udata->solvetime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
+             udata->comm_c);
+  if (outproc)
+  {
+    cout << "  LS solve time = " << maxtime << " sec" << endl;
     cout << endl;
   }
 
@@ -2336,6 +2324,539 @@ static int check_flag(void *flagvalue, const string funcname, int opt)
   }
 
   return 0;
+}
+
+// -----------------------------------------------------------------------------
+// SUNMatrix functions
+// -----------------------------------------------------------------------------
+
+SUNMatrix Hypre5ptMatrix(UserData *udata)
+{
+  int flag, result;
+
+  // Check input
+  if (udata == NULL) return NULL;
+
+  // Check for valid 2D Cartesian MPI communicator
+  flag = MPI_Topo_test(udata->comm_c, &result);
+  if ((flag != MPI_SUCCESS) || (result != MPI_CART))  return NULL;
+
+  flag = MPI_Cartdim_get(udata->comm_c, &result);
+  if ((flag != MPI_SUCCESS) || (result != 2))  return NULL;
+
+  // Create an empty matrix object
+  SUNMatrix A = SUNMatNewEmpty();
+  if (A == NULL) return NULL;
+
+  // Attach operations
+  A->ops->getid     = Hypre5ptMatrix_GetID;
+  A->ops->clone     = Hypre5ptMatrix_Clone;
+  A->ops->destroy   = Hypre5ptMatrix_Destroy;
+  A->ops->copy      = Hypre5ptMatrix_Copy;
+  A->ops->scaleaddi = Hypre5ptMatrix_ScaleAddI;
+
+  // Create content
+  Hypre5ptMatrixContent *content = new Hypre5ptMatrixContent;
+  if (content == NULL) { SUNMatDestroy(A); return NULL; }
+
+  // Attach content
+  A->content = content;
+
+  // User data
+  content->udata = udata;
+
+  // -----
+  // Grid
+  // -----
+
+  // Create 2D grid object
+  flag = HYPRE_StructGridCreate(udata->comm_c, 2, &(content->grid));
+  if (flag != 0) { SUNMatDestroy(A); return NULL; }
+
+  // Set grid extents (lower left and upper right corners)
+  content->ilower[0] = udata->is;
+  content->ilower[1] = udata->js;
+
+  content->iupper[0] = udata->ie;
+  content->iupper[1] = udata->je;
+
+  flag = HYPRE_StructGridSetExtents(content->grid,
+                                    content->ilower, content->iupper);
+  if (flag != 0) { SUNMatDestroy(A); return NULL; }
+
+  // Assemble the grid
+  flag = HYPRE_StructGridAssemble(content->grid);
+  if (flag != 0) { SUNMatDestroy(A); return NULL; }
+
+  // --------
+  // Stencil
+  // --------
+
+  // Create the 2D 5 point stencil object
+  flag = HYPRE_StructStencilCreate(2, 5, &(content->stencil));
+  if (flag != 0) { SUNMatDestroy(A); return NULL; }
+
+  // Set the stencil entries (center, left, right, bottom, top)
+  HYPRE_Int offsets[5][2] = {{0,0}, {-1,0}, {1,0}, {0,-1}, {0,1}};
+
+  for (int entry = 0; entry < 5; entry++)
+  {
+    flag = HYPRE_StructStencilSetElement(content->stencil, entry,
+                                         offsets[entry]);
+    if (flag != 0) { SUNMatDestroy(A); return NULL; }
+  }
+
+  // -----------
+  // Work array
+  // -----------
+
+  content->nwork = 5 * (udata->nodes_loc);
+  content->work  = NULL;
+  content->work  = new HYPRE_Real[content->nwork];
+  if (flag != 0) { SUNMatDestroy(A); return NULL; }
+
+  // ---------
+  // A matrix
+  // ---------
+
+  flag = HYPRE_StructMatrixCreate(udata->comm_c, content->grid,
+                                  content->stencil,
+                                  &(content->matrix));
+  if (flag != 0) { SUNMatDestroy(A); return NULL; }
+
+  flag = HYPRE_StructMatrixInitialize(content->matrix);
+  if (flag != 0) { SUNMatDestroy(A); return NULL; }
+
+  // Return matrix
+  return(A);
+}
+
+SUNMatrix_ID Hypre5ptMatrix_GetID(SUNMatrix A)
+{
+  return SUNMATRIX_CUSTOM;
+}
+
+SUNMatrix Hypre5ptMatrix_Clone(SUNMatrix A)
+{
+  return(Hypre5ptMatrix(H5PM_UDATA(A)));
+}
+
+void Hypre5ptMatrix_Destroy(SUNMatrix A)
+{
+  if (A == NULL) return;
+  if (A->content != NULL)
+  {
+    if (H5PM_WORK(A))    delete[] H5PM_WORK(A);
+    if (H5PM_MATRIX(A))  HYPRE_StructMatrixDestroy(H5PM_MATRIX(A));
+    if (H5PM_GRID(A))    HYPRE_StructGridDestroy(H5PM_GRID(A));
+    if (H5PM_STENCIL(A)) HYPRE_StructStencilDestroy(H5PM_STENCIL(A));
+    delete ((Hypre5ptMatrixContent*) (A->content));
+    A->content = NULL;
+  }
+  SUNMatFreeEmpty(A);
+  return;
+}
+
+int Hypre5ptMatrix_Copy(SUNMatrix A, SUNMatrix B)
+{
+  int flag;
+
+  // Center, left, right, bottom, top
+  HYPRE_Int entries[5] = {0, 1, 2, 3, 4};
+
+  // Copy values from A into work array
+  flag = HYPRE_StructMatrixGetBoxValues(H5PM_MATRIX(A),
+                                        H5PM_ILOWER(A), H5PM_IUPPER(A),
+                                        5, entries, H5PM_WORK(A));
+  if (flag != 0) return(flag);
+
+  // Insert values into B
+  flag = HYPRE_StructMatrixSetBoxValues(H5PM_MATRIX(B),
+                                        H5PM_ILOWER(A), H5PM_IUPPER(A),
+                                        5, entries, H5PM_WORK(A));
+  if (flag != 0) return(flag);
+
+  // Return success
+  return(SUNMAT_SUCCESS);
+}
+
+int Hypre5ptMatrix_ScaleAddI(realtype c, SUNMatrix A)
+{
+  int flag;
+
+  // Center, left, right, bottom, top
+  HYPRE_Int entries[5] = {0, 1, 2, 3, 4};
+
+  // Copy all matrix values into work array
+  flag = HYPRE_StructMatrixGetBoxValues(H5PM_MATRIX(A),
+                                        H5PM_ILOWER(A), H5PM_IUPPER(A),
+                                        5, entries, H5PM_WORK(A));
+  if (flag != 0) return(flag);
+
+  // Scale work array by c
+  for (HYPRE_Int i = 0; i < H5PM_NWORK(A); i++)
+    H5PM_WORK(A)[i] *= c;
+
+  // Insert scaled values back into A
+  flag = HYPRE_StructMatrixSetBoxValues(H5PM_MATRIX(A),
+                                        H5PM_ILOWER(A), H5PM_IUPPER(A),
+                                        5, entries, H5PM_WORK(A));
+  if (flag != 0) return(flag);
+
+  // Set first 1/5 of work array to 1
+  for (HYPRE_Int i = 0; i < H5PM_NWORK(A)/5; i++)
+    H5PM_WORK(A)[i] = ONE;
+
+  // Insert resulting values back into diagonal of A
+  HYPRE_Int entry[1] = {0};
+  flag = HYPRE_StructMatrixAddToBoxValues(H5PM_MATRIX(A),
+                                          H5PM_ILOWER(A), H5PM_IUPPER(A),
+                                          1, entry, H5PM_WORK(A));
+  if (flag != 0) return(flag);
+
+  // Return success
+  return(SUNMAT_SUCCESS);
+}
+
+// -----------------------------------------------------------------------------
+// SUNLinearSolver functions
+// -----------------------------------------------------------------------------
+
+// Create hypre linear solver
+SUNLinearSolver HypreLS(SUNMatrix A, UserData *udata)
+{
+  int flag;
+
+  // Check input
+  if (udata == NULL) return NULL;
+
+  // Create an empty linear solver
+  SUNLinearSolver LS = SUNLinSolNewEmpty();
+  if (LS == NULL) return NULL;
+
+  // Attach operations
+  LS->ops->gettype    = HypreLS_GetType;
+  LS->ops->setup      = HypreLS_Setup;
+  LS->ops->solve      = HypreLS_Solve;
+  LS->ops->numiters   = HypreLS_NumIters;
+  LS->ops->free       = HypreLS_Free;
+
+  // Create content
+  HypreLSContent *content = new HypreLSContent;
+  if (content == NULL) { SUNLinSolFree(LS); return NULL; }
+
+  // Attach the content
+  LS->content = content;
+
+  // Initialize iteration count and solver choice
+  content->iters = 0;
+  content->pcg   = udata->pcg;
+
+  // ---------
+  // x vector
+  // ---------
+
+  flag = HYPRE_StructVectorCreate(udata->comm_c, H5PM_GRID(A),
+                                  &(content->xvec));
+  if (flag != 0) { SUNLinSolFree(LS); return NULL; }
+
+  flag = HYPRE_StructVectorInitialize(content->xvec);
+  if (flag != 0) { SUNLinSolFree(LS); return NULL; }
+
+  // ---------
+  // b vector
+  // ---------
+
+  flag = HYPRE_StructVectorCreate(udata->comm_c, H5PM_GRID(A),
+                                  &(content->bvec));
+  if (flag != 0) { SUNLinSolFree(LS); return NULL; }
+
+  flag = HYPRE_StructVectorInitialize(content->bvec);
+  if (flag != 0) { SUNLinSolFree(LS); return NULL; }
+
+  // --------------
+  // linear solver
+  // --------------
+
+  if (content->pcg)
+  {
+    // Create the struct PCG solver
+    flag = HYPRE_StructPCGCreate(udata->comm_c, &(content->solver));
+    if (flag != 0) { HypreLS_Free(LS); return(NULL); }
+
+    // Max number of iterations
+    flag = HYPRE_StructPCGSetMaxIter(content->solver, udata->liniters);
+    if (flag != 0) { HypreLS_Free(LS); return(NULL); }
+  }
+  else
+  {
+    // Create the struct GMRES solver
+    flag = HYPRE_StructGMRESCreate(udata->comm_c, &(content->solver));
+    if (flag != 0) { HypreLS_Free(LS); return(NULL); }
+
+    // Max Krylov space size and number of iterations (no restarts)
+    flag = HYPRE_StructGMRESSetKDim(content->solver, udata->liniters);
+    if (flag != 0) { HypreLS_Free(LS); return(NULL); }
+
+    flag = HYPRE_StructGMRESSetMaxIter(content->solver, udata->liniters);
+    if (flag != 0) { HypreLS_Free(LS); return(NULL); }
+  }
+
+  // --------------------
+  // PFMG preconditioner
+  // --------------------
+
+  // Note a new PFMG preconditioner must be created and attached each time the
+  // linear system is updated. As such it is constructed in the linear solver
+  // setup function.
+  content->precond = NULL;
+
+  // Return solver
+  return(LS);
+}
+
+SUNLinearSolver_Type HypreLS_GetType(SUNLinearSolver LS)
+{
+  return(SUNLINEARSOLVER_MATRIX_ITERATIVE);
+}
+
+int HypreLS_Setup(SUNLinearSolver LS, SUNMatrix A)
+{
+  int flag;
+
+  // Start timer
+  double t1 = MPI_Wtime();
+
+  // Shortcut to user data
+  UserData *udata = H5PM_UDATA(A);
+
+  // Assemble the matrix
+  flag = HYPRE_StructMatrixAssemble(H5PM_MATRIX(A));
+  if (flag != 0) return(flag);
+
+  // Set rhs/solution vectors as all zero for now
+  flag = HYPRE_StructVectorSetConstantValues(HLS_B(LS), ZERO);
+  if (flag != 0) return(flag);
+
+  flag = HYPRE_StructVectorAssemble(HLS_B(LS));
+  if (flag != 0) return(flag);
+
+  flag = HYPRE_StructVectorSetConstantValues(HLS_X(LS), ZERO);
+  if (flag != 0) return(flag);
+
+  flag = HYPRE_StructVectorAssemble(HLS_X(LS));
+  if (flag != 0) return(flag);
+
+  // Setup the preconditioner
+  if (udata->prec)
+  {
+    // Free the existing preconditioner if necessary
+    if (HLS_PRECOND(LS)) HYPRE_StructPFMGDestroy(HLS_PRECOND(LS));
+
+    // Create the new preconditioner
+    flag = HYPRE_StructPFMGCreate(udata->comm_c, &(HLS_PRECOND(LS)));
+    if (flag != 0) return(flag);
+
+    // Signal that the inital guess is zero
+    flag = HYPRE_StructPFMGSetZeroGuess(HLS_PRECOND(LS));
+    if (flag != 0) return(flag);
+
+    // tol <= 0.0 means do the max number of iterations
+    flag = HYPRE_StructPFMGSetTol(HLS_PRECOND(LS), ZERO);
+    if (flag != 0) return(flag);
+
+    // Use one v-cycle
+    flag = HYPRE_StructPFMGSetMaxIter(HLS_PRECOND(LS), 1);
+    if (flag != 0) return(flag);
+
+    // Use non-Galerkin corase grid operator
+    flag = HYPRE_StructPFMGSetRAPType(HLS_PRECOND(LS), 1);
+    if (flag != 0) return(flag);
+
+    // Set the relaxation type
+    flag = HYPRE_StructPFMGSetRelaxType(HLS_PRECOND(LS), udata->pfmg_relax);
+    if (flag != 0) return(flag);
+
+    // Set the number of pre and post relaxation sweeps
+    flag = HYPRE_StructPFMGSetNumPreRelax(HLS_PRECOND(LS), udata->pfmg_nrelax);
+    if (flag != 0) return(flag);
+
+    flag = HYPRE_StructPFMGSetNumPostRelax(HLS_PRECOND(LS), udata->pfmg_nrelax);
+    if (flag != 0) return(flag);
+
+    // Set preconditioner
+    if (HLS_PCG(LS))
+    {
+      flag = HYPRE_StructPCGSetPrecond(HLS_SOLVER(LS),
+                                       HYPRE_StructPFMGSolve,
+                                       HYPRE_StructPFMGSetup,
+                                       HLS_PRECOND(LS));
+    }
+    else
+    {
+      flag = HYPRE_StructGMRESSetPrecond(HLS_SOLVER(LS),
+                                         HYPRE_StructPFMGSolve,
+                                         HYPRE_StructPFMGSetup,
+                                         HLS_PRECOND(LS));
+    }
+    if (flag != 0) return(flag);
+  }
+
+  // Set up the solver
+  if (HLS_PCG(LS))
+  {
+    flag = HYPRE_StructPCGSetup(HLS_SOLVER(LS), H5PM_MATRIX(A),
+                                HLS_B(LS), HLS_X(LS));
+  }
+  else
+  {
+    flag = HYPRE_StructGMRESSetup(HLS_SOLVER(LS), H5PM_MATRIX(A),
+                                  HLS_B(LS), HLS_X(LS));
+  }
+  if (flag != 0) return(flag);
+
+  // Stop timer
+  double t2 = MPI_Wtime();
+
+  // Update timer
+  udata->setuptime += t2 - t1;
+
+  // Return success
+  return(SUNLS_SUCCESS);
+}
+
+int HypreLS_Solve(SUNLinearSolver LS, SUNMatrix A,
+                  N_Vector x, N_Vector b, realtype tol)
+{
+  int flag;
+
+  // Start timer
+  double t1 = MPI_Wtime();
+
+  // Shortcut to user data
+  UserData *udata = H5PM_UDATA(A);
+
+  // Insert rhs N_Vector entries into HYPRE vector b and assemble
+  flag = HYPRE_StructVectorSetBoxValues(HLS_B(LS),
+                                        H5PM_ILOWER(A), H5PM_IUPPER(A),
+                                        N_VGetArrayPointer(b));
+  if (flag != 0) return -1;
+
+  flag = HYPRE_StructVectorAssemble(HLS_B(LS));
+  if (flag != 0) return -1;
+
+  // Insert solution N_Vector entries into HYPRE vector x and assemble
+  flag = HYPRE_StructVectorSetBoxValues(HLS_X(LS),
+                                        H5PM_ILOWER(A), H5PM_IUPPER(A),
+                                        N_VGetArrayPointer(x));
+  if (flag != 0) return -1;
+
+  flag = HYPRE_StructVectorAssemble(HLS_X(LS));
+  if (flag != 0) return -1;
+
+  if (HLS_PCG(LS))
+  {
+    // Relative tolerance
+    flag = HYPRE_StructPCGSetTol(HLS_SOLVER(LS), ZERO);
+    if (flag != 0) return -1;
+
+    // Absolute tolerance
+    flag = HYPRE_StructPCGSetAbsoluteTol(HLS_SOLVER(LS), tol);
+    if (flag != 0) return -1;
+
+    // Use two norm
+    flag = HYPRE_StructPCGSetTwoNorm(HLS_SOLVER(LS), 1);
+    if (flag != 0) return -1;
+
+    // Solve the linear system
+    flag = HYPRE_StructPCGSolve(HLS_SOLVER(LS), H5PM_MATRIX(A),
+                                HLS_B(LS), HLS_X(LS));
+  }
+  else
+  {
+    // Relative tolerance
+    flag = HYPRE_StructGMRESSetTol(HLS_SOLVER(LS), ZERO);
+    if (flag != 0) return -1;
+
+    // Absolute tolerance
+    flag = HYPRE_StructGMRESSetAbsoluteTol(HLS_SOLVER(LS), tol);
+    if (flag != 0) return -1;
+
+    // Solve the linear system
+    flag = HYPRE_StructGMRESSolve(HLS_SOLVER(LS), H5PM_MATRIX(A),
+                                  HLS_B(LS), HLS_X(LS));
+  }
+
+  // If a convergence error occured, clear the error, and return with a
+  // recoverable error.
+  if (flag == HYPRE_ERROR_CONV)
+  {
+    HYPRE_ClearError(HYPRE_ERROR_CONV);
+    return SUNLS_CONV_FAIL;
+  }
+  // If any other error occured return with an unrecoverable error.
+  else if (flag != 0)
+  {
+    return SUNLS_PACKAGE_FAIL_UNREC;
+  }
+
+  // Update iteration count
+  if (HLS_PCG(LS))
+  {
+    flag = HYPRE_StructPCGGetNumIterations(HLS_SOLVER(LS), &(HLS_ITERS(LS)));
+    if (flag != 0) return -1;
+  }
+  else
+  {
+    flag = HYPRE_StructGMRESGetNumIterations(HLS_SOLVER(LS), &(HLS_ITERS(LS)));
+    if (flag != 0) return -1;
+  }
+
+  // Extract solution values
+  flag = HYPRE_StructVectorGetBoxValues(HLS_X(LS),
+                                        H5PM_ILOWER(A), H5PM_IUPPER(A),
+                                        N_VGetArrayPointer(x));
+  if (flag != 0) return -1;
+
+  // Stop timer
+  double t2 = MPI_Wtime();
+
+  // Update timer
+  udata->solvetime += t2 - t1;
+
+  // Return success
+  return(SUNLS_SUCCESS);
+}
+
+int HypreLS_NumIters(SUNLinearSolver LS)
+{
+  return((int) HLS_ITERS(LS));
+}
+
+int HypreLS_Free(SUNLinearSolver LS)
+{
+  if (LS == NULL) return(SUNLS_SUCCESS);
+  if (LS->content != NULL)
+  {
+    if (HLS_SOLVER(LS))
+    {
+      if (HLS_PCG(LS))
+      {
+        HYPRE_StructPCGDestroy(HLS_SOLVER(LS));
+      }
+      else
+      {
+        HYPRE_StructGMRESDestroy(HLS_SOLVER(LS));
+      }
+    }
+    if (HLS_PRECOND(LS)) HYPRE_StructPFMGDestroy(HLS_PRECOND(LS));
+    if (HLS_B(LS))       HYPRE_StructVectorDestroy(HLS_B(LS));
+    if (HLS_X(LS))       HYPRE_StructVectorDestroy(HLS_X(LS));
+    delete ((HypreLSContent*) (LS->content));
+    LS->content = NULL;
+  }
+  SUNLinSolFreeEmpty(LS);
+  return(SUNLS_SUCCESS);
 }
 
 //---- end of file ----

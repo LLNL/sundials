@@ -404,10 +404,6 @@ int main(int argc, char* argv[])
     /* Set the linear solver tolerance conversion factor */
     switch(nrmfactor) {
 
-    case(0):
-      /* use the default */
-      nrmfac = ZERO;
-      break;
     case(1):
       /* use the square root of the vector length */
       nrmfac = SQRT((realtype)NEQ);
@@ -415,6 +411,10 @@ int main(int argc, char* argv[])
     case(2):
       /* compute with dot product */
       nrmfac = -ONE;
+      break;
+    default:
+      /* use the default */
+      nrmfac = ZERO;
       break;
     }
 

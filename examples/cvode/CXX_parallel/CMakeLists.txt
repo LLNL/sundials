@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): Daniel R. Reynolds @ SMU
+# Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2020, Lawrence Livermore National Security
@@ -11,20 +11,19 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for ARKODE C++ parhyp examples
+# CMakeLists.txt file for CVODE C++ parallel examples
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(ARKODE_examples
-  "ark_heat2D_hypre_ls\;--np 2 2\;1\;4\;develop"
-  "ark_heat2D_hypre_pfmg\;--np 2 2\;1\;4\;develop"
+set(CVODE_examples
+  "cv_heat2D_p\;--np 2 2\;1\;4\;develop"
   )
 
 # Auxiliary files to install
-set(ARKODE_extras
+set(CVODE_extras
   plot_heat2D_p.py
   )
 
@@ -40,15 +39,18 @@ else()
 endif()
 
 # Specify libraries to link against
-set(ARKODE_LIB sundials_arkode)
+set(CVODE_LIB sundials_cvode)
 set(NVECP_LIB sundials_nvecparallel)
 
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
+endif()
 
+# Set-up linker flags and link libraries
+set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-foreach(example_tuple ${ARKODE_examples})
+foreach(example_tuple ${CVODE_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
@@ -67,7 +69,7 @@ foreach(example_tuple ${ARKODE_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} SUNDIALS::HYPRE)
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
 
     if(NOT MPI_CXX_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -95,28 +97,31 @@ foreach(example_tuple ${ARKODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.cpp ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parhyp)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel)
   endif()
 
-endforeach(example_tuple ${ARKODE_examples})
+endforeach(example_tuple ${CVODE_examples})
 
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parhyp)
+  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel)
 
   # Install the extra files
-  foreach(extrafile ${ARKODE_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parhyp)
+  foreach(extrafile ${CVODE_extras})
+    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel)
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "ARKODE")
-  set(SOLVER_LIB "sundials_arkode")
+  set(SOLVER "CVODE")
+  set(SOLVER_LIB "sundials_cvode")
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
+  endif()
 
-  examples2string(ARKODE_examples EXAMPLES)
+  examples2string(CVODE_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
@@ -124,15 +129,15 @@ if(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parhyp_CXX_ex.in
-    ${PROJECT_BINARY_DIR}/examples/arkode/CXX_parhyp/CMakeLists.txt
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_CXX_ex.in
+    ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parallel/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/arkode/CXX_parhyp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parhyp
+    FILES ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parallel/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -142,19 +147,19 @@ if(EXAMPLES_INSTALL)
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parhyp_CXX_ex.in
-      ${PROJECT_BINARY_DIR}/examples/arkode/CXX_parhyp/Makefile_ex
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_CXX_ex.in
+      ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parallel/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/arkode/CXX_parhyp/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parhyp
+      FILES ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parallel/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel
       RENAME Makefile
       )
-  endif()
+  endif(UNIX)
 
   # add test_install target
-  sundials_add_test_install(arkode CXX_parhyp)
+  sundials_add_test_install(cvode CXX_parallel)
 
-endif()
+endif(EXAMPLES_INSTALL)

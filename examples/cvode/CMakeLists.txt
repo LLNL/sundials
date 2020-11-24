@@ -38,8 +38,18 @@ endif()
 
 # CXX examples
 if(EXAMPLES_ENABLE_CXX)
-  if(ENABLE_MPI AND MPI_CXX_FOUND AND SUNDIALS_SUPERLUDIST)
-    add_subdirectory(superludist)
+  add_subdirectory(CXX_serial)
+  # MPI based examples
+  if(ENABLE_MPI AND MPI_CXX_FOUND)
+    add_subdirectory(CXX_parallel)
+    # hypre examples
+    if(ENABLE_HYPRE AND HYPRE_FOUND)
+      add_subdirectory(CXX_parhyp)
+    endif()
+    # SuperLU_DIST examples
+    if(ENABLE_SUPERLUDIST AND SUPERLUDIST_FOUND)
+      add_subdirectory(superludist)
+    endif()
   endif()
 endif()
 

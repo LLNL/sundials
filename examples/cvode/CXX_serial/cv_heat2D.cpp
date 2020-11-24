@@ -38,10 +38,10 @@
  *
  * The spatial derivatives are computed using second-order centered differences,
  * with the data distributed over nx * ny points on a uniform spatial grid. The
- * problem is advanced in time with a diagonally implicit Runge-Kutta method
- * using an inexact Newton method paired with the PCG or SPGMR linear solver.
- * Several command line options are available to change the problem parameters
- * and ARKStep settings. Use the flag --help for more information.
+ * problem is advanced in time with BDF methods using an inexact Newton method
+ * paired with the PCG or SPGMR linear solver. Several command line options are
+ * available to change the problem parameters and CVODE settings. Use the flag
+ * --help for more information.
  * ---------------------------------------------------------------------------*/
 
 #include <cstdio>
@@ -49,11 +49,10 @@
 #include <iomanip>
 #include <fstream>
 #include <limits>
-#include <string>
 #include <chrono>
 #include <cmath>
 
-#include "arkode/arkode_arkstep.h"     // access to ARKStep
+#include "cvode/cvode.h"               // access to CVODE
 #include "nvector/nvector_serial.h"    // access to the serial N_Vector
 #include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
 #include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
@@ -105,12 +104,7 @@ struct UserData
   // Integrator settings
   realtype rtol;        // relative tolerance
   realtype atol;        // absolute tolerance
-  realtype hfixed;      // fixed step size
-  int      order;       // ARKode method order
-  int      controller;  // step size adaptivity method
   int      maxsteps;    // max number of steps between outputs
-  bool     linear;      // enable/disable linearly implicit option
-  bool     diagnostics; // output diagnostics
 
   // Linear solver and preconditioner settings
   bool     pcg;       // use PCG (true) or GMRES (false)
@@ -188,7 +182,7 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata);
 static int CloseOutput(UserData *udata);
 
 // Print integration statistics
-static int OutputStats(void *arkode_mem, UserData *udata);
+static int OutputStats(void *cvode_mem, UserData *udata);
 
 // Print integration timing
 static int OutputTiming(UserData *udata);
@@ -206,7 +200,7 @@ int main(int argc, char* argv[])
   UserData *udata    = NULL;  // user data structure
   N_Vector u         = NULL;  // vector for storing solution
   SUNLinearSolver LS = NULL;  // linear solver memory structure
-  void *arkode_mem   = NULL;  // ARKODE memory structure
+  void *cvode_mem    = NULL;  // CVODE memory structure
   FILE *diagfp       = NULL;  // diagnostics output file
 
   // Timing variables
@@ -232,7 +226,7 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "PrintUserData", 1)) return 1;
 
   // Open diagnostics output file
-  if (udata->diagnostics || udata->lsinfo)
+  if (udata->lsinfo)
   {
     diagfp = fopen("diagnostics.txt", "w");
     if (check_flag((void *) diagfp, "fopen", 0)) return 1;
@@ -298,100 +292,51 @@ int main(int argc, char* argv[])
   }
 
   // --------------
-  // Setup ARKStep
+  // Setup CVODE
   // --------------
 
   // Create integrator
-  arkode_mem = ARKStepCreate(NULL, f, ZERO, u);
-  if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
+  cvode_mem = CVodeCreate(CV_BDF);
+  if (check_flag((void *) cvode_mem, "CVodeCreate", 0)) return 1;
+
+  // Initialize integrator
+  flag = CVodeInit(cvode_mem, f, ZERO, u);
+  if (check_flag(&flag, "CVodeInit", 1)) return 1;
 
   // Specify tolerances
-  flag = ARKStepSStolerances(arkode_mem, udata->rtol, udata->atol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  flag = CVodeSStolerances(cvode_mem, udata->rtol, udata->atol);
+  if (check_flag(&flag, "CVodeSStolerances", 1)) return 1;
 
   // Attach user data
-  flag = ARKStepSetUserData(arkode_mem, (void *) udata);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  flag = CVodeSetUserData(cvode_mem, (void *) udata);
+  if (check_flag(&flag, "CVodeSetUserData", 1)) return 1;
 
   // Attach linear solver
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+  if (check_flag(&flag, "CVodeSetLinearSolver", 1)) return 1;
 
   if (udata->prec)
   {
     // Attach preconditioner
-    flag = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
-    if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) return 1;
+    flag = CVodeSetPreconditioner(cvode_mem, PSetup, PSolve);
+    if (check_flag(&flag, "CVodeSetPreconditioner", 1)) return 1;
 
     // Set linear solver setup frequency (update preconditioner)
-    flag = ARKStepSetLSetupFrequency(arkode_mem, udata->msbp);
-    if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) return 1;
+    flag = CVodeSetLSetupFrequency(cvode_mem, udata->msbp);
+    if (check_flag(&flag, "CVodeSetLSetupFrequency", 1)) return 1;
   }
 
   // Set linear solver tolerance factor
-  flag = ARKStepSetEpsLin(arkode_mem, udata->epslin);
-  if (check_flag(&flag, "ARKStepSetEpsLin", 1)) return 1;
-
-  // Select method order
-  if (udata->order > 1)
-  {
-    // Use an ARKode provided table
-    flag = ARKStepSetOrder(arkode_mem, udata->order);
-    if (check_flag(&flag, "ARKStepSetOrder", 1)) return 1;
-  }
-  else
-  {
-    // Use implicit Euler (requires fixed step size)
-    realtype c[1], A[1], b[1];
-    ARKodeButcherTable B = NULL;
-
-    // Create implicit Euler Butcher table
-    c[0] = A[0] = b[0] = ONE;
-    B = ARKodeButcherTable_Create(1, 1, 0, c, A, b, NULL);
-    if (check_flag((void*) B, "ARKodeButcherTable_Create", 0)) return 1;
-
-    // Attach the Butcher table
-    flag = ARKStepSetTables(arkode_mem, 1, 0, B, NULL);
-    if (check_flag(&flag, "ARKStepSetTables", 1)) return 1;
-
-    // Free the Butcher table
-    ARKodeButcherTable_Free(B);
-  }
-
-  // Set fixed step size or adaptivity method
-  if (udata->hfixed > ZERO)
-  {
-    flag = ARKStepSetFixedStep(arkode_mem, udata->hfixed);
-    if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
-  }
-  else
-  {
-    flag = ARKStepSetAdaptivityMethod(arkode_mem, udata->controller, SUNTRUE,
-                                      SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
-  }
-
-  // Specify linearly implicit non-time-dependent RHS
-  if (udata->linear)
-  {
-    flag = ARKStepSetLinear(arkode_mem, 0);
-    if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
-  }
+  flag = CVodeSetEpsLin(cvode_mem, udata->epslin);
+  if (check_flag(&flag, "CVodeSetEpsLin", 1)) return 1;
 
   // Set max steps between outputs
-  flag = ARKStepSetMaxNumSteps(arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+  flag = CVodeSetMaxNumSteps(cvode_mem, udata->maxsteps);
+  if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
 
   // Set stopping time
-  flag = ARKStepSetStopTime(arkode_mem, udata->tf);
-  if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
-
-  // Set diagnostics output file
-  if (udata->diagnostics)
-  {
-    flag = ARKStepSetDiagnostics(arkode_mem, diagfp);
-    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
-  }
+  flag = CVodeSetStopTime(cvode_mem, udata->tf);
+  if (check_flag(&flag, "CVodeSetStopTime", 1)) return 1;
 
   // -----------------------
   // Loop over output times
@@ -414,8 +359,8 @@ int main(int argc, char* argv[])
     t1 = chrono::steady_clock::now();
 
     // Evolve in time
-    flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
-    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
+    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if (check_flag(&flag, "CVode", 1)) break;
 
     // Stop timer
     t2 = chrono::steady_clock::now();
@@ -444,7 +389,7 @@ int main(int argc, char* argv[])
   if (udata->output > 0)
   {
     cout << "Final integrator statistics:" << endl;
-    flag = OutputStats(arkode_mem, udata);
+    flag = OutputStats(cvode_mem, udata);
     if (check_flag(&flag, "OutputStats", 1)) return 1;
   }
 
@@ -472,9 +417,9 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  if (udata->diagnostics || udata->lsinfo) fclose(diagfp);
+  if (udata->lsinfo) fclose(diagfp);
 
-  ARKStepFree(&arkode_mem);  // Free integrator memory
+  CVodeFree(&cvode_mem);     // Free integrator memory
   SUNLinSolFree(LS);         // Free linear solver
   N_VDestroy(u);             // Free vectors
   FreeUserData(udata);       // Free user data
@@ -671,14 +616,9 @@ static int InitUserData(UserData *udata)
   udata->dy = udata->yu / (udata->ny - 1);
 
   // Integrator settings
-  udata->rtol        = RCONST(1.e-5);   // relative tolerance
-  udata->atol        = RCONST(1.e-10);  // absolute tolerance
-  udata->hfixed      = ZERO;            // using adaptive step sizes
-  udata->order       = 3;               // method order
-  udata->controller  = 0;               // PID controller
-  udata->maxsteps    = 0;               // use default
-  udata->linear      = true;            // linearly implicit problem
-  udata->diagnostics = false;           // output diagnostics
+  udata->rtol     = RCONST(1.e-5);   // relative tolerance
+  udata->atol     = RCONST(1.e-10);  // absolute tolerance
+  udata->maxsteps = 0;               // use default
 
   // Linear solver and preconditioner options
   udata->pcg       = true;       // use PCG (true) or GMRES (false)
@@ -775,26 +715,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
     {
       udata->atol = stod((*argv)[arg_idx++]);
     }
-    else if (arg == "--fixedstep")
-    {
-      udata->hfixed = stod((*argv)[arg_idx++]);
-    }
-    else if (arg == "--order")
-    {
-      udata->order = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--controller")
-    {
-      udata->controller = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--nonlinear")
-    {
-      udata->linear = false;
-    }
-    else if (arg == "--diagnostics")
-    {
-      udata->diagnostics = true;
-    }
     // Linear solver settings
     else if (arg == "--gmres")
     {
@@ -859,13 +779,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
   // Recompute x and y mesh spacing
   udata->dx = (udata->xu) / (udata->nx - 1);
   udata->dy = (udata->yu) / (udata->ny - 1);
-
-  // If the method order is 1 fixed time stepping must be used
-  if (udata->order == 1 && !(udata->hfixed > ZERO))
-  {
-    cerr << "ERROR: Method order 1 requires fixed time stepping" << endl;
-    return -1;
-  }
 
   // Return success
   return 0;
@@ -934,11 +847,6 @@ static void InputHelp()
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
   cout << "  --atol <atol>           : absoltue tolerance" << endl;
-  cout << "  --nonlinear             : disable linearly implicit flag" << endl;
-  cout << "  --order <ord>           : method order" << endl;
-  cout << "  --fixedstep <step>      : used fixed step size" << endl;
-  cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
-  cout << "  --diagnostics           : output diagnostics" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
   cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
@@ -971,10 +879,6 @@ static int PrintUserData(UserData *udata)
   cout << " --------------------------------- "           << endl;
   cout << "  rtol           = " << udata->rtol            << endl;
   cout << "  atol           = " << udata->atol            << endl;
-  cout << "  order          = " << udata->order           << endl;
-  cout << "  fixed h        = " << udata->hfixed          << endl;
-  cout << "  controller     = " << udata->controller      << endl;
-  cout << "  linear         = " << udata->linear          << endl;
   cout << " --------------------------------- "           << endl;
   if (udata->pcg)
   {
@@ -1146,66 +1050,63 @@ static int CloseOutput(UserData *udata)
 }
 
 // Print integrator statistics
-static int OutputStats(void *arkode_mem, UserData* udata)
+static int OutputStats(void *cvode_mem, UserData* udata)
 {
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return -1;
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) return -1;
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) return -1;
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) return -1;
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return -1;
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  if (check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1)) return -1;
-  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
-  if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) return -1;
-  flag = ARKStepGetNumLinConvFails(arkode_mem, &nlcf);
-  if (check_flag(&flag, "ARKStepGetNumLinConvFails", 1)) return -1;
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) return -1;
-  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfi_ls);
-  if (check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1)) return -1;
-  flag = ARKStepGetNumJtimesEvals(arkode_mem, &nJv);
-  if (check_flag(&flag, "ARKStepGetNumJtimesEvals", 1)) return -1;
+  long int nst, netf, nf, nni, ncfn, nli, nlcf, nsetups, nf_ls, nJv;
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  if (check_flag(&flag, "CVodeGetNumSteps", 1)) return -1;
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  if (check_flag(&flag, "CVodeGetNumErrTestFails", 1)) return -1;
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nf);
+  if (check_flag(&flag, "CVodeGetNumRhsEvals", 1)) return -1;
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  if (check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1)) return -1;
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  if (check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1)) return -1;
+  flag = CVodeGetNumLinIters(cvode_mem, &nli);
+  if (check_flag(&flag, "CVodeGetNumLinIters", 1)) return -1;
+  flag = CVodeGetNumLinConvFails(cvode_mem, &nlcf);
+  if (check_flag(&flag, "CVodeGetNumLinConvFails", 1)) return -1;
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  if (check_flag(&flag, "CVodeGetNumLinSolvSetups", 1)) return -1;
+  flag = CVodeGetNumLinRhsEvals(cvode_mem, &nf_ls);
+  if (check_flag(&flag, "CVodeGetNumLinRhsEvals", 1)) return -1;
+  flag = CVodeGetNumJtimesEvals(cvode_mem, &nJv);
+  if (check_flag(&flag, "CVodeGetNumJtimesEvals", 1)) return -1;
 
   cout << fixed;
   cout << setprecision(6);
 
   cout << "  Steps            = " << nst     << endl;
-  cout << "  Step attempts    = " << nst_a   << endl;
   cout << "  Error test fails = " << netf    << endl;
-  cout << "  RHS evals        = " << nfi     << endl;
+  cout << "  RHS evals        = " << nf      << endl;
   cout << "  NLS iters        = " << nni     << endl;
   cout << "  NLS fails        = " << ncfn    << endl;
   cout << "  LS iters         = " << nli     << endl;
   cout << "  LS fails         = " << nlcf    << endl;
   cout << "  LS setups        = " << nsetups << endl;
-  cout << "  LS RHS evals     = " << nfi_ls  << endl;
+  cout << "  LS RHS evals     = " << nf_ls   << endl;
   cout << "  Jv products      = " << nJv     << endl;
   cout << endl;
 
   // Compute average nls iters per step attempt and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nst_a;
+  realtype avgnli = (realtype) nni / (realtype) nst;
   realtype avgli  = (realtype) nli / (realtype) nni;
-  cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
-  cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
+  cout << "  Avg NLS iters per step    = " << avgnli << endl;
+  cout << "  Avg LS iters per NLS iter = " << avgli  << endl;
   cout << endl;
 
   // Get preconditioner stats
   if (udata->prec)
   {
     long int npe, nps;
-    flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
-    if (check_flag(&flag, "ARKStepGetNumPrecEvals", 1)) return -1;
-    flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
-    if (check_flag(&flag, "ARKStepGetNumPrecSolves", 1)) return -1;
+    flag = CVodeGetNumPrecEvals(cvode_mem, &npe);
+    if (check_flag(&flag, "CVodeGetNumPrecEvals", 1)) return -1;
+    flag = CVodeGetNumPrecSolves(cvode_mem, &nps);
+    if (check_flag(&flag, "CVodeGetNumPrecSolves", 1)) return -1;
 
     cout << "  Preconditioner setups = " << npe << endl;
     cout << "  Preconditioner solves = " << nps << endl;

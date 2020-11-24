@@ -13,7 +13,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# matplotlib-based plotting script for the serial ark_heat2D example
+# matplotlib-based plotting script for the parallel cv_heat2D_p examples
 # ------------------------------------------------------------------------------
 
 # imports
@@ -27,8 +27,8 @@ import matplotlib.pyplot as plt
 
 # ------------------------------------------------------------------------------
 
-# read problem info file
-infofile = 'heat2d_info.txt'
+# read MPI root process problem info file
+infofile = 'heat2d_info.00000.txt'
 
 with open(infofile) as fn:
 
@@ -48,14 +48,19 @@ with open(infofile) as fn:
             yu = float(text[1])
             continue
 
-        # nodes in the x-direction
+        # nodes in the x-direction (global)
         if "nx" in line:
             nx = int(text[1])
             continue
 
-        # nodes in the y-direction
+        # nodes in the y-direction (global)
         if "ny" in line:
             ny = int(text[1])
+            continue
+
+        # total number of MPI processes
+        if "np"in line:
+            nprocs = int(text[1])
             continue
 
         # number of output times
@@ -65,13 +70,44 @@ with open(infofile) as fn:
 
 # ------------------------------------------------------------------------------
 
-# check if the error was output
-fname = 'heat2d_error.txt'
+# load subdomain information, store in table
+subdomains = np.zeros((nprocs,4), dtype=np.int)
 
-if os.path.isfile(fname):
-    plottype = ['solution', 'error']
-else:
-    plottype = ['solution']
+for i in range(nprocs):
+
+    infofile = 'heat2d_info.' + repr(i).zfill(5) + '.txt'
+
+    with open(infofile) as fn:
+
+        # read the file line by line
+        for line in fn:
+
+            # split line into list
+            text = shlex.split(line)
+
+            # x-direction starting index
+            if "is" in line:
+                subdomains[i,0] = float(text[1])
+                continue
+
+            # x-direction ending index
+            if "ie" in line:
+                subdomains[i,1] = float(text[1])
+                continue
+
+            # y-direction starting index
+            if "js" in line:
+                subdomains[i,2] = float(text[1])
+                continue
+
+            # y-direction ending index
+            if "je" in line:
+                subdomains[i,3] = float(text[1])
+                continue
+
+# ------------------------------------------------------------------------------
+
+plottype = ['solution', 'error']
 
 for pt in plottype:
 
@@ -79,13 +115,28 @@ for pt in plottype:
     time   = np.zeros(nt)
     result = np.zeros((nt, ny, nx))
 
-    # load data
-    data = np.loadtxt('heat2d_' + pt + '.txt', dtype=np.double)
+    for i in range(nprocs):
 
-    # extract data
-    for i in range(nt):
-        time[i] = data[i,0]
-        result[i,0:ny+1,0:nx+1] = np.reshape(data[i,1:], (ny,nx))
+        datafile = 'heat2d_' + pt + '.' + repr(i).zfill(5) + '.txt'
+
+        # load data
+        data = np.loadtxt(datafile, dtype=np.double)
+
+        if (np.shape(data)[0] != nt):
+            sys.exit('error: subdomain ' + i + ' has an incorrect number of time steps')
+
+        # subdomain indices
+        istart = subdomains[i,0]
+        iend   = subdomains[i,1]
+        jstart = subdomains[i,2]
+        jend   = subdomains[i,3]
+        nxl    = iend - istart + 1
+        nyl    = jend - jstart + 1
+
+        # extract data
+        for i in range(nt):
+            time[i] = data[i,0]
+            result[i,jstart:jend+1,istart:iend+1] = np.reshape(data[i,1:], (nyl,nxl))
 
     # determine extents of plots
     maxtemp = 1.1 * result.max()

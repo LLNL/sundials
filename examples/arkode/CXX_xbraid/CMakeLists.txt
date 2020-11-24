@@ -23,7 +23,7 @@ set(ARKODE_examples
   "ark_heat2D_p_xbraid\;--np 2 2 2 --x_print_level 0\;1\;8\;develop"
   )
 
-if(HYPRE_ENABLE)
+if(ENABLE_HYPRE AND HYPRE_FOUND)
   set(ARKODE_examples_hypre
     "ark_heat2D_hypre_pfmg_xbraid\;--np 2 2 2 --x_print_level 0\;1\;8\;develop"
     )
@@ -95,7 +95,7 @@ endforeach(example_tuple ${ARKODE_examples})
 
 
 
-if(HYPRE_ENABLE)
+if(ENABLE_HYPRE AND HYPRE_FOUND)
 
   # Add the build and install targets for each example
   foreach(example_tuple ${ARKODE_examples_hypre})
@@ -119,7 +119,7 @@ if(HYPRE_ENABLE)
 
       # libraries to link against
       target_link_libraries(${example} ${SUNDIALS_LIBS})
-      target_link_libraries(${example} ${HYPRE_LIBRARIES})
+      target_link_libraries(${example} SUNDIALS::HYPRE)
       target_link_libraries(${example} SUNDIALS::XBRAID)
 
       if(NOT MPI_CXX_COMPILER)

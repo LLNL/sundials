@@ -107,7 +107,13 @@ for i in range(nprocs):
 
 # ------------------------------------------------------------------------------
 
-plottype = ['solution', 'error']
+# check if the error was output
+fname = 'heat2d_error.00000.txt'
+
+if os.path.isfile(fname):
+    plottype = ['solution', 'error']
+else:
+    plottype = ['solution']
 
 for pt in plottype:
 

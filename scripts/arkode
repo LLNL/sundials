@@ -220,8 +220,8 @@ $tar $tarfile $distrobase/examples/arkode/CXX_parallel/plot_heat2D_p.py         
 
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/CMakeLists.txt                     || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/README                             || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pcg.cpp           || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pcg_--np_2_2.out  || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_ls.cpp            || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_ls_--np_2_2.out   || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pfmg.cpp          || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pfmg_--np_2_2.out || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/plot_heat2D_p.py                   || exit 1

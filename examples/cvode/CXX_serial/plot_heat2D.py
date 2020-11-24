@@ -13,7 +13,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# matplotlib-based plotting script for the serial ark_heat2D example
+# matplotlib-based plotting script for the serial cv_heat2D example
 # ------------------------------------------------------------------------------
 
 # imports
@@ -65,13 +65,7 @@ with open(infofile) as fn:
 
 # ------------------------------------------------------------------------------
 
-# check if the error was output
-fname = 'heat2d_error.txt'
-
-if os.path.isfile(fname):
-    plottype = ['solution', 'error']
-else:
-    plottype = ['solution']
+plottype = ['solution', 'error']
 
 for pt in plottype:
 

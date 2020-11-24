@@ -99,7 +99,7 @@ to use GPU accelerated {\sundials} are:
   \item Write user-supplied functions so that they use data only in the
   device memory space (again, unless an atypical data partitioning is used).
   A few examples of these functions are the right-hand side evaluation
-  function, the Jacobian evalution function, or the preconditioner evaulation
+  function, the Jacobian evalution function, or the preconditioner evaluation
   function.  In the context of CUDA and the right-hand side function, one way a
   user might ensure data is accessed on the device is, for example, calling a
   CUDA kernel, which does all of the computation, from a CPU function which simply
