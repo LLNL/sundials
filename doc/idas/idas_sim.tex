@@ -4457,6 +4457,15 @@ provide a function of type \ID{IDALsJacFn} defined as follows:
   prior to calling the user-supplied Jacobian function so only nonzero elements
   need to be loaded into \id{Jac}.
 
+  With the default nonlinear solver (the native {\sundials} Netwon method), each
+  call to the user's \id{IDALsJacFn} function is preceded by a call to the
+  \id{IDAResFn} user function with the same (\id{tt}, \id{yy}, \id{yp})
+  arguments. Thus the Jacobian function can use any auxiliary data that is
+  computed and saved during the evaluation of the DAE residual. In the case of a
+  user-supplied or external nonlinear solver, this is also true if the residual
+  function is evaluated prior to calling the linear solver setup function
+  (see \S\ref{ss:sunnonlinsol_sunsuppliedfn} for more information).
+
   If the user's \id{IDALsJacFn} function uses difference
   quotient approximations, it may need to access quantities not in the
   call list. These quantities may include the current stepsize, the error weights, etc.
@@ -4802,10 +4811,14 @@ user-supplied function of type \ID{IDALsPrecSetupFn}, defined as follows:
   approximate Jacobian, and performing an LU factorization on the resulting
   approximation.
 
-  Each call to the preconditioner setup function is preceded by a call to the
-  \id{IDAResFn} user function with the same (\id{tt}, \id{yy}, \id{yp}) arguments.
-  Thus the preconditioner setup function can use any auxiliary data that is
-  computed and saved during the evaluation of the DAE residual.
+  With the default nonlinear solver (the native {\sundials} Netwon method), each
+  call to the preconditioner setup function is preceded by a call to the
+  \id{IDAResFn} user function with the same (\id{tt}, \id{yy}, \id{yp})
+  arguments. Thus the preconditioner setup function can use any auxiliary data
+  that is computed and saved during the evaluation of the DAE residual. In the
+  case of a user-supplied or external nonlinear solver, this is also true if the
+  residual function is evaluated prior to calling the linear solver setup
+  function (see \S\ref{ss:sunnonlinsol_sunsuppliedfn} for more information).
 
   This function is not called in advance of every call to the preconditioner solve
   function, but rather is called only as often as needed to achieve convergence in

@@ -390,6 +390,16 @@ object was supplied to :c:func:`MRIStepSetLinearSolver()` in section
    matrix :math:`J(t,y)` is zeroed out, so only nonzero elements need
    to be loaded into *Jac*.
 
+   With the default nonlinear solver (the native SUNDIALS Netwon method), each
+   call to the user's :c:func:`ARKLsJacFn` function is preceded by a call to the
+   implicit :c:func:`ARKRhsFn` user function with the same :math:`(t,y)`
+   arguments. Thus, the Jacobian function can use any auxiliary data that is
+   computed and saved during the evaluation of the implicit ODE right-hand side.
+   In the case of a user-supplied or external nonlinear solver, this is also
+   true if the nonlinear system function is evaluated prior to calling the
+   linear solver setup function (see :ref:`SUNNonlinSol.SUNSuppliedFn` for more
+   information).
+
    If the user's :c:type:`ARKLsJacFn` function uses difference
    quotient approximations, then it may need to access quantities not
    in the argument list.  These include the current step size, the
@@ -714,11 +724,15 @@ user-supplied function of type :c:type:`ARKLsPrecSetupFn`.
    factorization of the resulting approximation to :math:`A = I -
    \gamma J`.
 
-   Each call to the preconditioner setup function is preceded by a
-   call to the implicit :c:type:`ARKRhsFn` user function with the
-   same :math:`(t,y)` arguments.  Thus, the preconditioner setup
-   function can use any auxiliary data that is computed and saved
-   during the evaluation of the ODE right-hand side.
+   With the default nonlinear solver (the native SUNDIALS Netwon method), each
+   call to the preconditioner setup function is preceded by a call to the
+   implicit :c:type:`ARKRhsFn` user function with the same :math:`(t,y)`
+   arguments.  Thus, the preconditioner setup function can use any auxiliary
+   data that is computed and saved during the evaluation of the implicit ODE
+   right-hand side. In the case of a user-supplied or external nonlinear solver,
+   this is also true if the nonlinear system function is evaluated prior to
+   calling the linear solver setup function (see
+   :ref:`SUNNonlinSol.SUNSuppliedFn` for more information).
 
    This function is not called in advance of every call to the
    preconditioner solve function, but rather is called only as often
