@@ -430,15 +430,20 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     }
   }
 
-  /* When using a non-NULL SUNMatrix object, store pointer to M and create M_lu */
+  /* When using a non-NULL SUNMatrix object, store pointer to M and, for direct
+     linear solvers, create M_lu to store the factorization of M */
   if (M != NULL) {
     arkls_mem->M = M;
-    arkls_mem->M_lu = SUNMatClone(M);
-    if (arkls_mem->M_lu == NULL) {
-      arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKLS",
-                      "arkLSSetMassLinearSolver", MSG_LS_MEM_FAIL);
-      free(arkls_mem); arkls_mem = NULL;
-      return(ARKLS_MEM_FAIL);
+    if (!iterative) {
+      arkls_mem->M_lu = SUNMatClone(M);
+      if (arkls_mem->M_lu == NULL) {
+        arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKLS",
+                        "arkLSSetMassLinearSolver", MSG_LS_MEM_FAIL);
+        free(arkls_mem); arkls_mem = NULL;
+        return(ARKLS_MEM_FAIL);
+      }
+    } else {
+      arkls_mem->M_lu = M;
     }
   }
 
@@ -447,7 +452,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   if (arkls_mem->x == NULL) {
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKLS",
                     "arkLSSetMassLinearSolver", MSG_LS_MEM_FAIL);
-    SUNMatDestroy(arkls_mem->M_lu);
+    if (!iterative) SUNMatDestroy(arkls_mem->M_lu);
     free(arkls_mem); arkls_mem = NULL;
     return(ARKLS_MEM_FAIL);
   }
@@ -465,7 +470,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     arkProcessError(ark_mem, retval, "ARKLS", "arkLSSetMassLinearSolver",
                     "Failed to attach to time stepper module");
     N_VDestroy(arkls_mem->x);
-    SUNMatDestroy(arkls_mem->M_lu);
+    if (!iterative) SUNMatDestroy(arkls_mem->M_lu);
     free(arkls_mem); arkls_mem = NULL;
     return(retval);
   }
@@ -1353,7 +1358,7 @@ int arkLSGetMassWorkSpace(void *arkode_mem, long int *lenrw,
   }
 
   /* add SUNMatrix size (only account for the one owned by Ls interface) */
-  if (arkls_mem->M_lu)
+  if (!(arkls_mem->iterative) && arkls_mem->M_lu)
     if (arkls_mem->M_lu->ops->space) {
       retval = SUNMatSpace(arkls_mem->M_lu, &lrw, &liw);
       if (retval == 0) {
@@ -2178,8 +2183,8 @@ static int arkLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
     /* Call jac() routine to update J */
     *jcur = SUNTRUE;
 
-    /* Clear the linear system matrix if necessary */
-    if (SUNLinSolGetType(arkls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
+    /* Clear the linear system matrix if necessary (direct linear solvers) */
+    if (!(arkls_mem->iterative)) {
       retval = SUNMatZero(A);
       if (retval) {
         arkProcessError(ark_mem, ARKLS_SUNMAT_FAIL, "ARKLS",
@@ -2875,8 +2880,8 @@ int arkLsMassSetup(void *arkode_mem, realtype t, N_Vector vtemp1,
       return(arkls_mem->last_flag);
     }
 
-    /* Clear the mass matrix if necessary */
-    if (SUNLinSolGetType(arkls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
+    /* Clear the mass matrix if necessary (direct linear solvers) */
+    if (!(arkls_mem->iterative)) {
       retval = SUNMatZero(arkls_mem->M);
       if (retval) {
         arkProcessError(ark_mem, ARKLS_SUNMAT_FAIL, "ARKLS",
@@ -2901,13 +2906,15 @@ int arkLsMassSetup(void *arkode_mem, realtype t, N_Vector vtemp1,
       return(1);
     }
 
-    /* Copy M into M_lu for factorization */
-    retval = SUNMatCopy(arkls_mem->M, arkls_mem->M_lu);
-    if (retval) {
-      arkProcessError(ark_mem, ARKLS_SUNMAT_FAIL, "ARKLS",
-                      "arkLsMassSetup",  MSG_LS_SUNMAT_FAILED);
-      arkls_mem->last_flag = ARKLS_SUNMAT_FAIL;
-      return(arkls_mem->last_flag);
+    /* Copy M into M_lu for factorization (direct linear solvers) */
+    if (!(arkls_mem->iterative)) {
+      retval = SUNMatCopy(arkls_mem->M, arkls_mem->M_lu);
+      if (retval) {
+        arkProcessError(ark_mem, ARKLS_SUNMAT_FAIL, "ARKLS",
+                        "arkLsMassSetup",  MSG_LS_SUNMAT_FAILED);
+        arkls_mem->last_flag = ARKLS_SUNMAT_FAIL;
+        return(arkls_mem->last_flag);
+      }
     }
 
     /* signal call to matvec setup routine only if the user didn't provide
@@ -3119,11 +3126,11 @@ int arkLsMassFree(void *arkode_mem)
     arkls_mem->x = NULL;
   }
 
-  /* Free M_lu memory */
-  if (arkls_mem->M_lu) {
+  /* Free M_lu memory (direct linear solvers) */
+  if (!(arkls_mem->iterative) && arkls_mem->M_lu) {
     SUNMatDestroy(arkls_mem->M_lu);
-    arkls_mem->M_lu = NULL;
   }
+  arkls_mem->M_lu = NULL;
 
   /* Nullify other N_Vector pointers */
   arkls_mem->ycur = NULL;
