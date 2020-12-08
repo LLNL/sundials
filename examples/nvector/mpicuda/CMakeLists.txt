@@ -31,13 +31,12 @@ set(nvector_examples_dependencies
   )
 
 # Add source directory to include directories
-include_directories(. .. ${MPI_CXX_INCLUDE_PATH})
+include_directories(. ..)
 
-if(MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-endif()
+# use MPI wrapper as the compiler
+set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+set(CMAKE_CUDA_HOST_COMPILER ${MPI_CXX_COMPILER})
 
 # Specify libraries to link against
 set(NVECS_LIB sundials_nvecmpiplusx sundials_nveccuda)

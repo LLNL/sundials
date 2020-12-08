@@ -28,7 +28,7 @@ sundials_add_library(sundials_sunmatrixcusparse
     sundials_generic_obj
     sundials_sunmemcuda_obj
   LINK_LIBRARIES
-    PUBLIC sundials_nveccuda ${CUDA_cusparse_LIBRARY}
+    PUBLIC ${CUDA_cusparse_LIBRARY}
     PRIVATE ${CUDA_cusolver_LIBRARY}
   OUTPUT_NAME
     sundials_sunmatrixcusparse

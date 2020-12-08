@@ -107,6 +107,19 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in 4.6.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A new optional operation, :c:func:`N_VGetDeviceArrayPointer`, was added to the
+N_Vector API. This operation is useful for N_Vectors that utilize dual memory
+spaces, e.g. the native SUNDIALS CUDA N_Vector.
+
+The SUNMATRIX_CUSPARSE and SUNLINEARSOLVER_CUSOLVERSP_BATCHQR implementations
+no longer require the SUNDIALS CUDA N_Vector. Instead, they require that the
+vector utilized provides the :c:func:`N_VGetDeviceArrayPointer` operation, and
+that the pointer returned by :c:func:`N_VGetDeviceArrayPointer` is a valid CUDA
+device pointer.
+
 Changes in v4.5.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -360,7 +373,7 @@ implementation is accompanied by additions to user documentation and SUNDIALS
 examples.
 
 One new required vector operation and ten new optional vector operations have
-been added to the NVECTOR API. The new required operation, :c:func:`N\_VGetLength()`,
+been added to the NVECTOR API. The new required operation, :c:func:`N_VGetLength()`,
 returns the global length of an ``N_Vector``. The optional operations have
 been added to support the new NVECTOR_MPIMANYVECTOR implementation. The
 operation :c:func:`N_VGetCommunicator()` must be implemented by subvectors that are
@@ -369,15 +382,15 @@ this context. The remaining nine operations are optional local reduction
 operations intended to eliminate unnecessary latency when performing vector
 reduction operations (norms, etc.) on distributed memory systems. The optional
 local reduction vector operations are
-:c:func:`N\_VDotProdLocal`,
-:c:func:`N\_VMaxNormLocal`,
-:c:func:`N\_VMinLocal`,
-:c:func:`N\_VL1NormLocal`,
-:c:func:`N\_VWSqrSumLocal`,
-:c:func:`N\_VWSqrSumMaskLocal`,
-:c:func:`N\_VInvTestLocal`,
-:c:func:`N\_VConstrMaskLocal`, and
-:c:func:`N\_VMinQuotientLocal`.
+:c:func:`N_VDotProdLocal`,
+:c:func:`N_VMaxNormLocal`,
+:c:func:`N_VMinLocal`,
+:c:func:`N_VL1NormLocal`,
+:c:func:`N_VWSqrSumLocal`,
+:c:func:`N_VWSqrSumMaskLocal`,
+:c:func:`N_VInvTestLocal`,
+:c:func:`N_VConstrMaskLocal`, and
+:c:func:`N_VMinQuotientLocal`.
 If an NVECTOR implementation defines any of the local operations as
 ``NULL``, then the NVECTOR_MPIMANYVECTOR will call standard NVECTOR
 operations to complete the computation.

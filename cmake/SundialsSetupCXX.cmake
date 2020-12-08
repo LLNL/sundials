@@ -17,3 +17,4 @@
 
 enable_language(CXX)
 set(CXX_FOUND TRUE)
+message(STATUS "CXX standard set to ${CMAKE_CXX_STANDARD}")

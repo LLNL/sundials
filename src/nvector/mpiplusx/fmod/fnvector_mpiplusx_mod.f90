@@ -32,6 +32,7 @@ module fnvector_mpiplusx_mod
  public :: FN_VSetArrayPointer_MPIPlusX
  public :: FN_VGetLocalVector_MPIPlusX
  public :: FN_VGetLocalLength_MPIPlusX
+ public :: FN_VEnableFusedOps_MPIPlusX
 
 ! WRAPPER DECLARATIONS
 interface
@@ -81,6 +82,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT64_T) :: fresult
+end function
+
+function swigc_FN_VEnableFusedOps_MPIPlusX(farg1, farg2) &
+bind(C, name="_wrap_FN_VEnableFusedOps_MPIPlusX") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
 end function
 
 end interface
@@ -165,6 +175,22 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetLocalLength_MPIPlusX(farg1)
+swig_result = fresult
+end function
+
+function FN_VEnableFusedOps_MPIPlusX(v, tf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: v
+integer(C_INT), intent(in) :: tf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = c_loc(v)
+farg2 = tf
+fresult = swigc_FN_VEnableFusedOps_MPIPlusX(farg1, farg2)
 swig_result = fresult
 end function
 

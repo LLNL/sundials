@@ -776,6 +776,14 @@ illustration only.
    Note: Building with monitoring may result in minor performance degradation
    even if monitoring is not utilized.
 
+:index:`CMAKE_CXX_STANDARD <CMAKE_CXX_STANDARD (CMake option)>`
+   The C++ standard to build C++ parts of SUNDIALS with.
+
+   Default: 11
+
+   Note: Options are 99, 11, 14, 17. This option only used when a
+   C++ compiler is required.
+
 :index:`SUNDIALS_F77_FUNC_CASE <SUNDIALS_F77_FUNC_CASE (CMake option)>`
    Specify the case to use in the Fortran name-mangling scheme,
    options are: ``lower`` or ``upper``

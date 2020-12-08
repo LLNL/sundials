@@ -657,6 +657,13 @@ a typical configuration on a Linux system and are provided as illustration only.
   \id{libsundials\_cvode\_fused\_stubs.{\em lib}}, where the latter
   provides CPU-only placeholders for the fused routines, in
   addition to \id{libsundials\_cvode.{\em lib}}.
+\item[\id{CMAKE\_CXX\_STANDARD}] -
+  The C++ standard to build C++ parts of {\sundials} with.
+  \\
+  Default: 11
+  \\
+  Note: Options are 99, 11, 14, 17. This option only used when a
+  C++ compiler is required.
 \item[\id{SUNDIALS\_F77\_FUNC\_CASE}] - \textbf{advanced option} -
   Specify the case to use in the Fortran name-mangling scheme, options
   are: \id{lower} or \id{upper}

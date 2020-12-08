@@ -74,12 +74,16 @@ N_Vector N_VNewEmpty_Raja()
   /* Attach operations */
 
   /* constructors, destructors, and utility operations */
-  v->ops->nvgetvectorid     = N_VGetVectorID_Raja;
-  v->ops->nvclone           = N_VClone_Raja;
-  v->ops->nvcloneempty      = N_VCloneEmpty_Raja;
-  v->ops->nvdestroy         = N_VDestroy_Raja;
-  v->ops->nvspace           = N_VSpace_Raja;
-  v->ops->nvgetlength       = N_VGetLength_Raja;
+  v->ops->nvgetvectorid           = N_VGetVectorID_Raja;
+  v->ops->nvclone                 = N_VClone_Raja;
+  v->ops->nvcloneempty            = N_VCloneEmpty_Raja;
+  v->ops->nvdestroy               = N_VDestroy_Raja;
+  v->ops->nvspace                 = N_VSpace_Raja;
+  v->ops->nvgetlength             = N_VGetLength_Raja;
+  v->ops->nvgetarraypointer       = N_VGetHostArrayPointer_Raja;
+  v->ops->nvgetdevicearraypointer = N_VGetDeviceArrayPointer_Raja;
+  v->ops->nvsetarraypointer       = N_VSetHostArrayPointer_Raja;
+
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_Raja;
@@ -207,14 +211,6 @@ N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem
   NVEC_RAJA_CONTENT(v)->device_data     = NULL;
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = use_managed_mem;
 
-  if (use_managed_mem)
-  {
-    /* if using managed memory, we can attach an operation for
-       nv<get|set>arraypointer since the host and device pointers are the same */
-    v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Raja;
-    v->ops->nvsetarraypointer = N_VSetHostArrayPointer_Raja;
-  }
-
   if (AllocateData(v))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VNewWithMemHelp_Raja: AllocateData returned nonzero\n");
@@ -232,11 +228,6 @@ N_Vector N_VNewManaged_Raja(sunindextype length)
   v = NULL;
   v = N_VNewEmpty_Raja();
   if (v == NULL) return(NULL);
-
-  /* if using managed memory, we can attach an operation for
-     nv<get|set>arraypointer since the host and device pointers are the same */
-  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Raja;
-  v->ops->nvsetarraypointer = N_VSetHostArrayPointer_Raja;
 
   NVEC_RAJA_CONTENT(v)->length          = length;
   NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
@@ -307,11 +298,6 @@ N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata)
   v = NULL;
   v = N_VNewEmpty_Raja();
   if (v == NULL) return(NULL);
-
-  /* if using managed memory, we can attach an operation for
-     nv<get|set>arraypointer since the host and device pointers are the same */
-  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Raja;
-  v->ops->nvsetarraypointer = N_VSetHostArrayPointer_Raja;
 
   NVEC_RAJA_CONTENT(v)->length          = length;
   NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);

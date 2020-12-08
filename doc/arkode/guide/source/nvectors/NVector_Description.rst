@@ -57,6 +57,7 @@ defined as
       void         (*nvdestroy)(N_Vector);
       void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
       realtype*    (*nvgetarraypointer)(N_Vector);
+      realtype*    (*nvgetdevicearraypointer)(N_Vector);
       void         (*nvsetarraypointer)(realtype *, N_Vector);
       void*        (*nvgetcommunicator)(N_Vector);
       sunindextype (*nvgetlength)(N_Vector);
@@ -64,10 +65,10 @@ defined as
       void         (*nvconst)(realtype, N_Vector);
       void         (*nvprod)(N_Vector, N_Vector, N_Vector);
       void         (*nvdiv)(N_Vector, N_Vector, N_Vector);
-      void  	   (*nvscale)(realtype, N_Vector, N_Vector);
-      void  	   (*nvabs)(N_Vector, N_Vector);
-      void	   (*nvinv)(N_Vector, N_Vector);
-      void	   (*nvaddconst)(N_Vector, realtype, N_Vector);
+      void  	     (*nvscale)(realtype, N_Vector, N_Vector);
+      void  	     (*nvabs)(N_Vector, N_Vector);
+      void	       (*nvinv)(N_Vector, N_Vector);
+      void	       (*nvaddconst)(N_Vector, realtype, N_Vector);
       realtype	   (*nvdotprod)(N_Vector, N_Vector);
       realtype	   (*nvmaxnorm)(N_Vector);
       realtype	   (*nvwrmsnorm)(N_Vector, N_Vector);
@@ -75,7 +76,7 @@ defined as
       realtype	   (*nvmin)(N_Vector);
       realtype	   (*nvwl2norm)(N_Vector, N_Vector);
       realtype	   (*nvl1norm)(N_Vector);
-      void	   (*nvcompare)(realtype, N_Vector, N_Vector);
+      void	       (*nvcompare)(realtype, N_Vector, N_Vector);
       booleantype  (*nvinvtest)(N_Vector, N_Vector);
       booleantype  (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
       realtype	   (*nvminquotient)(N_Vector, N_Vector);

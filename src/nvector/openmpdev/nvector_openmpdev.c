@@ -86,12 +86,16 @@ N_Vector N_VNewEmpty_OpenMPDEV(sunindextype length)
   /* Attach operations */
 
   /* constructors, destructors, and utility operations */
-  v->ops->nvgetvectorid = N_VGetVectorID_OpenMPDEV;
-  v->ops->nvclone       = N_VClone_OpenMPDEV;
-  v->ops->nvcloneempty  = N_VCloneEmpty_OpenMPDEV;
-  v->ops->nvdestroy     = N_VDestroy_OpenMPDEV;
-  v->ops->nvspace       = N_VSpace_OpenMPDEV;
-  v->ops->nvgetlength   = N_VGetLength_OpenMPDEV;
+  v->ops->nvgetvectorid           = N_VGetVectorID_OpenMPDEV;
+  v->ops->nvclone                 = N_VClone_OpenMPDEV;
+  v->ops->nvcloneempty            = N_VCloneEmpty_OpenMPDEV;
+  v->ops->nvdestroy               = N_VDestroy_OpenMPDEV;
+  v->ops->nvspace                 = N_VSpace_OpenMPDEV;
+  v->ops->nvgetlength             = N_VGetLength_OpenMPDEV;
+  v->ops->nvgetarraypointer       = N_VGetHostArrayPointer_OpenMPDEV;
+  v->ops->nvgetdevicearraypointer = N_VGetDeviceArrayPointer_OpenMPDEV;
+  v->ops->nvprint                 = N_VPrint_OpenMPDEV;
+  v->ops->nvprintfile             = N_VPrintFile_OpenMPDEV;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_OpenMPDEV;
@@ -396,11 +400,13 @@ void N_VCopyFromDevice_OpenMPDEV(N_Vector x)
   return;
 }
 
+
 /*
  * -----------------------------------------------------------------
  * implementation of vector operations
  * -----------------------------------------------------------------
  */
+
 
 /* ----------------------------------------------------------------------------
  * Create new vector from existing vector without attaching data
@@ -622,7 +628,7 @@ void N_VLinearSum_OpenMPDEV(realtype a, N_Vector x, realtype b, N_Vector y, N_Ve
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N,a,b) is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = (a*xd_dev[i])+(b*yd_dev[i]);
@@ -649,7 +655,7 @@ void N_VConst_OpenMPDEV(realtype c, N_Vector z)
   /* get default device identifier */
   dev  = omp_get_default_device();
 
-#pragma omp target map(to:N,c) is_device_ptr(zd_dev) device(dev)
+#pragma omp target is_device_ptr(zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
     for (i = 0; i < N; i++) zd_dev[i] = c;
   return;
@@ -676,7 +682,7 @@ void N_VProd_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
   /* get default device identifier */
   dev  = omp_get_default_device();
 
-#pragma omp target map(to:N) is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = xd_dev[i]*yd_dev[i];
@@ -705,7 +711,7 @@ void N_VDiv_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
   /* get default device identifier */
   dev  = omp_get_default_device();
 
-#pragma omp target map(to:N) is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = xd_dev[i]/yd_dev[i];
@@ -743,7 +749,7 @@ void N_VScale_OpenMPDEV(realtype c, N_Vector x, N_Vector z)
     /* get default device identifier */
     dev  = omp_get_default_device();
 
-#pragma omp target map(to:N,c) is_device_ptr(xd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
     for (i = 0; i < N; i++)
       zd_dev[i] = c*xd_dev[i];
@@ -772,7 +778,7 @@ void N_VAbs_OpenMPDEV(N_Vector x, N_Vector z)
   /* get default device identifier */
   dev  = omp_get_default_device();
 
-#pragma omp target map(to:N) is_device_ptr(xd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = SUNRabs(xd_dev[i]);
@@ -800,7 +806,7 @@ void N_VInv_OpenMPDEV(N_Vector x, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) is_device_ptr(xd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = ONE/xd_dev[i];
@@ -828,7 +834,7 @@ void N_VAddConst_OpenMPDEV(N_Vector x, realtype b, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N,b) is_device_ptr(xd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = xd_dev[i]+b;
@@ -858,7 +864,7 @@ realtype N_VDotProd_OpenMPDEV(N_Vector x, N_Vector y)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) map(tofrom:sum) is_device_ptr(xd_dev, yd_dev) device(dev)
+#pragma omp target map(tofrom:sum) is_device_ptr(xd_dev, yd_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(+:sum) schedule(static, 1)
   for (i = 0; i < N; i++) {
     sum += xd_dev[i]*yd_dev[i];
@@ -887,7 +893,7 @@ realtype N_VMaxNorm_OpenMPDEV(N_Vector x)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) map(tofrom:max) is_device_ptr(xd_dev) device(dev)
+#pragma omp target map(tofrom:max) is_device_ptr(xd_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(max:max) schedule(static, 1)
     for (i = 0; i < N; i++) {
       max = SUNMAX(SUNRabs(xd_dev[i]), max);
@@ -937,7 +943,7 @@ realtype N_VWSqrSumLocal_OpenMPDEV(N_Vector x, N_Vector w)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) map(tofrom:sum) is_device_ptr(xd_dev, wd_dev) device(dev)
+#pragma omp target map(tofrom:sum) is_device_ptr(xd_dev, wd_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(+:sum) schedule(static, 1)
   for (i = 0; i < N; i++) {
     sum += SUNSQR(xd_dev[i]*wd_dev[i]);
@@ -968,7 +974,7 @@ realtype N_VWSqrSumMaskLocal_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) map(tofrom:sum) is_device_ptr(xd_dev, wd_dev, idd_dev) device(dev)
+#pragma omp target map(tofrom:sum) is_device_ptr(xd_dev, wd_dev, idd_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(+:sum) schedule(static, 1)
   for (i = 0; i < N; i++) {
     if (idd_dev[i] > ZERO) {
@@ -998,7 +1004,7 @@ realtype N_VMin_OpenMPDEV(N_Vector x)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) map(from:min) is_device_ptr(xd_dev) device(dev)
+#pragma omp target map(from:min) is_device_ptr(xd_dev) device(dev)
 #pragma omp teams num_teams(1)
   {
     min = xd_dev[0];
@@ -1032,7 +1038,7 @@ realtype N_VWL2Norm_OpenMPDEV(N_Vector x, N_Vector w)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) map(tofrom:sum) is_device_ptr(xd_dev, wd_dev) device(dev)
+#pragma omp target map(tofrom:sum) is_device_ptr(xd_dev, wd_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(+:sum) schedule(static, 1)
   for (i = 0; i < N; i++) {
     sum += SUNSQR(xd_dev[i]*wd_dev[i]);
@@ -1061,7 +1067,7 @@ realtype N_VL1Norm_OpenMPDEV(N_Vector x)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) map(tofrom:sum) is_device_ptr(xd_dev) device(dev)
+#pragma omp target map(tofrom:sum) is_device_ptr(xd_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(+:sum) schedule(static, 1)
   for (i = 0; i<N; i++)
     sum += SUNRabs(xd_dev[i]);
@@ -1089,7 +1095,7 @@ void N_VCompare_OpenMPDEV(realtype c, N_Vector x, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N,c) is_device_ptr(xd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = (SUNRabs(xd_dev[i]) >= c) ? ONE : ZERO;
@@ -1119,7 +1125,7 @@ booleantype N_VInvTest_OpenMPDEV(N_Vector x, N_Vector z)
 
   val = ZERO;
 
-#pragma omp target map(to:N) map(tofrom:val) is_device_ptr(xd_dev, zd_dev) device(dev)
+#pragma omp target map(tofrom:val) is_device_ptr(xd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(max:val) schedule(static, 1)
   for (i = 0; i < N; i++) {
     if (xd_dev[i] == ZERO)
@@ -1158,7 +1164,7 @@ booleantype N_VConstrMask_OpenMPDEV(N_Vector c, N_Vector x, N_Vector m)
 
   temp = ONE;
 
-#pragma omp target map(to:N) map(tofrom:temp) is_device_ptr(xd_dev, cd_dev, md_dev) device(dev)
+#pragma omp target map(tofrom:temp) is_device_ptr(xd_dev, cd_dev, md_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(min:temp) schedule(static, 1)
   for (i = 0; i < N; i++) {
     md_dev[i] = ZERO;
@@ -1198,7 +1204,7 @@ realtype N_VMinQuotient_OpenMPDEV(N_Vector num, N_Vector denom)
 
   min = BIG_REAL;
 
-#pragma omp target map(to:N) map(tofrom:min) is_device_ptr(nd_dev, dd_dev) device(dev)
+#pragma omp target map(tofrom:min) is_device_ptr(nd_dev, dd_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(min:min) schedule(static, 1)
   for (i = 0; i < N; i++)
     if (dd_dev[i] != ZERO)  min = SUNMIN(nd_dev[i]/dd_dev[i], min);
@@ -2168,7 +2174,7 @@ static void VCopy_OpenMPDEV(N_Vector x, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) is_device_ptr(xd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = xd_dev[i];
@@ -2197,7 +2203,7 @@ static void VSum_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = xd_dev[i]+yd_dev[i];
@@ -2226,7 +2232,7 @@ static void VDiff_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = xd_dev[i]-yd_dev[i];
@@ -2254,7 +2260,7 @@ static void VNeg_OpenMPDEV(N_Vector x, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N) is_device_ptr(xd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = -xd_dev[i];
@@ -2283,7 +2289,7 @@ static void VScaleSum_OpenMPDEV(realtype c, N_Vector x, N_Vector y, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N,c) is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = c*(xd_dev[i]+yd_dev[i]);
@@ -2312,7 +2318,7 @@ static void VScaleDiff_OpenMPDEV(realtype c, N_Vector x, N_Vector y, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N,c) is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = c*(xd_dev[i]-yd_dev[i]);
@@ -2341,7 +2347,7 @@ static void VLin1_OpenMPDEV(realtype a, N_Vector x, N_Vector y, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N,a) is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = (a*xd_dev[i])+yd_dev[i];
@@ -2370,7 +2376,7 @@ static void VLin2_OpenMPDEV(realtype a, N_Vector x, N_Vector y, N_Vector z)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N,a) is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev, zd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     zd_dev[i] = (a*xd_dev[i])-yd_dev[i];
@@ -2399,7 +2405,7 @@ static void Vaxpy_OpenMPDEV(realtype a, N_Vector x, N_Vector y)
   dev = omp_get_default_device();
 
   if (a == ONE) {
-#pragma omp target map(to:N) is_device_ptr(xd_dev, yd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
     for (i = 0; i < N; i++)
       yd_dev[i] += xd_dev[i];
@@ -2407,14 +2413,14 @@ static void Vaxpy_OpenMPDEV(realtype a, N_Vector x, N_Vector y)
   }
 
   if (a == -ONE) {
-#pragma omp target map(to:N) is_device_ptr(xd_dev, yd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
     for (i = 0; i < N; i++)
       yd_dev[i] -= xd_dev[i];
     return;
   }
 
-#pragma omp target map(to:N,a) is_device_ptr(xd_dev, yd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev, yd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     yd_dev[i] += a*xd_dev[i];
@@ -2441,7 +2447,7 @@ static void VScaleBy_OpenMPDEV(realtype a, N_Vector x)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-#pragma omp target map(to:N,a) is_device_ptr(xd_dev) device(dev)
+#pragma omp target is_device_ptr(xd_dev) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 0; i < N; i++)
     xd_dev[i] *= a;

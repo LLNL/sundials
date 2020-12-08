@@ -131,7 +131,9 @@ by the generic {\nvector} itself.
 {
   Returns a pointer to a \id{realtype} array from the \id{N\_Vector} \id{v}.
   Note that this assumes that the internal data in \id{N\_Vector} is
-  a contiguous array of \id{realtype}. This routine is only used in the
+  a contiguous array of \id{realtype} and is accessible from the CPU.
+
+  This routine is only used in the
   solver-specific interfaces to the dense and banded (serial) linear
   solvers, the sparse linear solvers (serial and threaded), and in the
   interfaces to the banded (serial) and band-block-diagonal (parallel)
@@ -146,6 +148,32 @@ by the generic {\nvector} itself.
   \id{realtype*}
 }
 {}
+
+\ucfunctionf{N\_VGetDeviceArrayPointer}
+{
+  vdata = N\_VGetDeviceArrayPointer(v);
+}
+{
+  Returns a device pointer to a \id{realtype} array from the \id{N\_Vector}
+  \id{v}. Note that this assumes that the internal data in \id{N\_Vector} is a
+  contiguous array of \id{realtype} and is accessible from the device (e.g.,
+  GPU).
+
+  This operation is \textit{optional} except when using the GPU-enabled direct
+  linear solvers.
+}
+{
+  \begin{args}[v]
+  \item[v] (\id{N\_Vector}) a {\nvector} object
+  \end{args}
+}
+{
+  \id{realtype*}
+}
+{
+  Currently, only the GPU-enabled {\sundials} vectors provide this operation.
+  All other SUNDIALS vectors will return \id{NULL}.
+}
 
 \ucfunctionf{N\_VSetArrayPointer}
 {
@@ -1503,6 +1531,7 @@ struct _generic_N_Vector_Ops {
   void         (*nvdestroy)(N_Vector);
   void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
   realtype*    (*nvgetarraypointer)(N_Vector);
+  realtype*    (*nvgetdevicearraypointer)(N_Vector);
   void         (*nvsetarraypointer)(realtype *, N_Vector);
   void*        (*nvgetcommunicator)(N_Vector);
   sunindextype (*nvgetlength)(N_Vector);

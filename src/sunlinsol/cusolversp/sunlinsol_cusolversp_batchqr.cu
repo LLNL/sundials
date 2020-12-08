@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <nvector/nvector_cuda.h>
 #include <sunmatrix/sunmatrix_cusparse.h>
 #include <sunlinsol/sunlinsol_cusolversp_batchqr.h>
 
@@ -71,7 +70,7 @@ SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverSp
   }
 
   /* Check compatibility with supplied SUNMatrix and N_Vector */
-  if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE || N_VGetVectorID(y) != SUNDIALS_NVEC_CUDA)
+  if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE || y->ops->nvgetdevicearraypointer == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in SUNLinSol_cuSolverSp_batchQR: illegal type for y or A\n");
     return NULL;
@@ -118,6 +117,10 @@ SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverSp
   S->content = content;
 
   /* Fill content */
+  content->last_flag       = SUNLS_SUCCESS;
+  content->first_factorize = SUNTRUE;
+  content->internal_size   = 0;
+  content->workspace_size  = 0;
   content->cusolver_handle = cusol_handle;
   content->info            = NULL;
   content->workspace       = NULL;
@@ -279,8 +282,8 @@ int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,
 
   SUN_CUSP_LASTFLAG(S) = SUNLS_SUCCESS;
 
-  realtype* device_b = N_VGetDeviceArrayPointer_Cuda(b);
-  realtype* device_x = N_VGetDeviceArrayPointer_Cuda(x);
+  realtype* device_b = N_VGetDeviceArrayPointer(b);
+  realtype* device_x = N_VGetDeviceArrayPointer(x);
 
   if (SUN_CUSP_LASTFLAG(S) != SUNLS_SUCCESS)
     return SUN_CUSP_LASTFLAG(S);

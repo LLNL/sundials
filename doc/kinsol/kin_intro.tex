@@ -109,6 +109,18 @@ interfacing the solver to applications written in {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v5.6.0}
+
+A new optional operation, \id{N\_VGetDeviceArrayPointer}, was added to the N\_Vector
+API. This operation is useful for N\_Vectors that utilize dual memory spaces,
+e.g. the native SUNDIALS CUDA N\_Vector.
+
+The SUNMATRIX\_CUSPARSE and SUNLINEARSOLVER\_CUSOLVERSP\_BATCHQR implementations
+no longer require the SUNDIALS CUDA N\_Vector. Instead, they require that the vector
+utilized provides the \id{N\_VGetDeviceArrayPointer} operation, and that the pointer
+returned by \id{N\_VGetDeviceArrayPointer} is a valid CUDA device pointer.
+
+
 \subsection*{Changes in v5.5.0}
 
 Refactored the {\sundials} build system. CMake 3.12.0 or newer is now required.

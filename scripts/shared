@@ -597,6 +597,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_parhyp_C_ex.in        ||
 $tar $tarfile $distrobase/examples/templates/cmakelists_parhyp_CXX_ex.in      || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_petsc_C_ex.in         || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_CXX_ex.in             || exit 1
+$tar $tarfile $distrobase/examples/templates/cmakelists_MPI_ex.in             || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_C_ex.in        || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F77_ex.in      || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F2003_ex.in    || exit 1

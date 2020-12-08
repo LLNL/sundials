@@ -99,11 +99,31 @@ operations below.
 
    Returns a pointer to a ``realtype`` array from the ``N_Vector``
    *v*.  Note that this assumes that the internal data in the
-   ``N_Vector`` is a contiguous array of ``realtype``. This routine is
+   ``N_Vector`` is a contiguous array of ``realtype`` and is
+   accesible from the CPU.
+
+   This routine is
    only used in the solver-specific interfaces to the dense and banded
    (serial) linear solvers, and in the interfaces to the banded
    (serial) and band-block-diagonal (parallel) preconditioner modules
    provided with SUNDIALS.
+
+   Usage:
+
+   .. code-block:: c
+
+      vdata = N_VGetArrayPointer(v);
+
+
+.. c:function:: realtype* N_VGetDeviceArrayPointer(N_Vector v)
+
+   Returns a device pointer to a ``realtype`` array from the ``N_Vector``
+   ``v``. Note that this assumes that the internal data in ``N_Vector`` is a
+   contiguous array of ``realtype`` and is accessible from the device (e.g.,
+   GPU).
+
+   This operation is *optional* except when using the GPU-enabled direct
+   linear solvers.
 
    Usage:
 

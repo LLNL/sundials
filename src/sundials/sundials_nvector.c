@@ -45,15 +45,16 @@ N_Vector N_VNewEmpty()
   /* initialize operations to NULL */
 
   /* constructors, destructors, and utility operations */
-  ops->nvgetvectorid     = NULL;
-  ops->nvclone           = NULL;
-  ops->nvcloneempty      = NULL;
-  ops->nvdestroy         = NULL;
-  ops->nvspace           = NULL;
-  ops->nvgetarraypointer = NULL;
-  ops->nvsetarraypointer = NULL;
-  ops->nvgetcommunicator = NULL;
-  ops->nvgetlength       = NULL;
+  ops->nvgetvectorid           = NULL;
+  ops->nvclone                 = NULL;
+  ops->nvcloneempty            = NULL;
+  ops->nvdestroy               = NULL;
+  ops->nvspace                 = NULL;
+  ops->nvgetarraypointer       = NULL;
+  ops->nvgetdevicearraypointer = NULL;
+  ops->nvsetarraypointer       = NULL;
+  ops->nvgetcommunicator       = NULL;
+  ops->nvgetlength             = NULL;
 
   /* standard vector operations */
   ops->nvlinearsum    = NULL;
@@ -149,15 +150,16 @@ int N_VCopyOps(N_Vector w, N_Vector v)
   /* Copy ops from w to v */
 
   /* constructors, destructors, and utility operations */
-  v->ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  v->ops->nvclone           = w->ops->nvclone;
-  v->ops->nvcloneempty      = w->ops->nvcloneempty;
-  v->ops->nvdestroy         = w->ops->nvdestroy;
-  v->ops->nvspace           = w->ops->nvspace;
-  v->ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  v->ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  v->ops->nvgetcommunicator = w->ops->nvgetcommunicator;
-  v->ops->nvgetlength       = w->ops->nvgetlength;
+  v->ops->nvgetvectorid           = w->ops->nvgetvectorid;
+  v->ops->nvclone                 = w->ops->nvclone;
+  v->ops->nvcloneempty            = w->ops->nvcloneempty;
+  v->ops->nvdestroy               = w->ops->nvdestroy;
+  v->ops->nvspace                 = w->ops->nvspace;
+  v->ops->nvgetarraypointer       = w->ops->nvgetarraypointer;
+  v->ops->nvgetdevicearraypointer = w->ops->nvgetdevicearraypointer;
+  v->ops->nvsetarraypointer       = w->ops->nvsetarraypointer;
+  v->ops->nvgetcommunicator       = w->ops->nvgetcommunicator;
+  v->ops->nvgetlength             = w->ops->nvgetlength;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = w->ops->nvlinearsum;
@@ -262,6 +264,14 @@ void N_VSpace(N_Vector v, sunindextype *lrw, sunindextype *liw)
 realtype *N_VGetArrayPointer(N_Vector v)
 {
   return((realtype *) v->ops->nvgetarraypointer(v));
+}
+
+realtype *N_VGetDeviceArrayPointer(N_Vector v)
+{
+  if (v->ops->nvgetdevicearraypointer)
+    return((realtype *) v->ops->nvgetdevicearraypointer(v));
+  else
+    return(NULL);
 }
 
 void N_VSetArrayPointer(realtype *v_data, N_Vector v)

@@ -284,4 +284,18 @@ SWIGEXPORT int64_t _wrap_FN_VGetLocalLength_MPIPlusX(N_Vector farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FN_VEnableFusedOps_MPIPlusX(N_Vector farg1, int const *farg2) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)N_VEnableFusedOps_MPIPlusX(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 
