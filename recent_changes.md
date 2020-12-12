@@ -2,6 +2,16 @@
 
 ## Changes to SUNDIALS in release 5.6.0
 
+A new NVECTOR implementation based on the AMD ROCm HIP platform has been added.
+This vector can target NVIDIA or AMD GPUs. See HIP NVECTOR section in the user
+guide for more details. This module is considered experimental and is subject to
+change from version to version.
+
+The RAJA NVECTOR implementation has been updated to support the HIP backend
+in addition to the CUDA backend. Users can choose the backend when configuring
+SUNDIALS by using the `SUNDIALS_RAJA_BACKENDS` CMake variable. This module
+remains experimental and is subject to change from version to version.
+
 A new optional operation, `N_VGetDeviceArrayPointer`, was added to the N_Vector
 API. This operation is useful for N_Vectors that utilize dual memory spaces,
 e.g. the native SUNDIALS CUDA N_Vector.

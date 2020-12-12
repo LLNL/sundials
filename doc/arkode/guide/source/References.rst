@@ -159,10 +159,10 @@
            Report UCRL-ID-141558, LLNL, 2000.
 
 .. [HS2017] A.C. Hindmarsh and R. Serban. User Documentation for CVODE
-            v5.5.0. Technical Report UCRL-SM-208108, LLNL, 2020.
+            v5.6.0. Technical Report UCRL-SM-208108, LLNL, 2020.
 
 .. [HSR2017] A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-             Programs for CVODE v5.5.0. Technical Report
+             Programs for CVODE v5.6.0. Technical Report
              UCRL-SM-208110, LLNL, 2020.
 
 .. [HT1998] A.C. Hindmarsh and A.G. Taylor.  PVODE and KINSOL:
