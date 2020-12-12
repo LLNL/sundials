@@ -54,7 +54,7 @@ find_package(RAJA CONFIG
              REQUIRED)
 
 # determine the backends
-foreach(_backend CUDA OPENMP TARGET_OPENMP)
+foreach(_backend CUDA HIP OPENMP TARGET_OPENMP)
   file(STRINGS "${RAJA_CONFIGHPP_PATH}" _raja_has_backend REGEX "^#define RAJA_ENABLE_${_backend}\$")
   if(_raja_has_backend)
     set(RAJA_BACKENDS "${_backend};${RAJA_BACKENDS}")
@@ -67,6 +67,16 @@ message(STATUS "RAJA Backends: ${RAJA_BACKENDS}")
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
+
+if((SUNDIALS_RAJA_BACKENDS MATCHES "CUDA") AND
+   (NOT RAJA_BACKENDS MATCHES "CUDA"))
+  print_error("Requested that SUNDIALS uses the CUDA RAJA backend, but RAJA was not built with the CUDA backend.")
+endif()
+
+if((SUNDIALS_RAJA_BACKENDS MATCHES "HIP") AND
+   (NOT RAJA_BACKENDS MATCHES "HIP"))
+  print_error("Requested that SUNDIALS uses the HIP RAJA backend, but RAJA was not built with the HIP backend.")
+endif()
 
 if(NOT ENABLE_OPENMP AND RAJA_BACKENDS MATCHES "OPENMP")
   print_error("RAJA was built with OpenMP, but OpenMP is not enabled. Set ENABLE_OPENMP to ON.")

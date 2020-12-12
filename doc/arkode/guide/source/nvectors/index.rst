@@ -52,6 +52,7 @@ patterns in the NVECTORS used.
    NVector_ParHyp
    NVector_PETSc
    NVector_CUDA
+   NVector_HIP
    NVector_RAJA
    NVector_OpenMPDEV
    NVector_Trilinos

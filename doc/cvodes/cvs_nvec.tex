@@ -8,7 +8,7 @@
 %---------------------------------------------------------------------------
 \section{NVECTOR functions used by CVODES}
 
-In Table \ref{t:nvecuse} below, we list the vector functions in the 
+In Table \ref{t:nvecuse} below, we list the vector functions in the
 {\nvector} module used within the {\cvodes} package.
 The table also shows, for each function, which of the code modules uses
 the function. The {\cvodes} column shows function usage within the main
@@ -19,9 +19,9 @@ module (denoted here by {\cvodea}).  Here
 {\cvls} stands for the generic linear solver interface in {\cvodes},
 and {\cvdiag} stands for the diagonal linear solver interface in {\cvodes}.
 
-At this point, we should emphasize that the {\cvodes} user does not need to know 
-anything about the usage of vector functions by the {\cvodes} code modules in order 
-to use {\cvodes}. The information is presented as an implementation detail for the 
+At this point, we should emphasize that the {\cvodes} user does not need to know
+anything about the usage of vector functions by the {\cvodes} code modules in order
+to use {\cvodes}. The information is presented as an implementation detail for the
 interested reader.
 
 \begin{table}[htb]
@@ -63,16 +63,16 @@ interested reader.
 \id{N\_VCompare}                      & \cm &     & \cm &     &     &     \\ \hline
 \id{N\_VInvTest}                      &     &     & \cm &     &     &     \\ \hline
 \hline
-\id{N\_VLinearCombination}            & \cm &     &     &     &     &     \\ \hline 
-\id{N\_VScaleAddMulti}                & \cm &     &     &     &     &     \\ \hline 
-\id{N\_VDotProdMulti}                 &  3  &  3  &     &     &     &     \\ \hline 
+\id{N\_VLinearCombination}            & \cm &     &     &     &     &     \\ \hline
+\id{N\_VScaleAddMulti}                & \cm &     &     &     &     &     \\ \hline
+\id{N\_VDotProdMulti}                 &  3  &  3  &     &     &     &     \\ \hline
 \hline
-\id{N\_VLinearSumVectorArray}         & \cm &     &     &     &     &     \\ \hline 
-\id{N\_VScaleVectorArray}             & \cm &     &     &     &     &     \\ \hline 
-\id{N\_VConstVectorArray}             & \cm &     &     &     &     &     \\ \hline 
-\id{N\_VWrmsNormVectorArray}          & \cm &     &     &     &     &     \\ \hline 
-\id{N\_VScaleAddMultiVectorArray}     & \cm &     &     &     &     &     \\ \hline 
-\id{N\_VLinearCombinationVectorArray} & \cm &     &     &     &     &     \\ \hline 
+\id{N\_VLinearSumVectorArray}         & \cm &     &     &     &     &     \\ \hline
+\id{N\_VScaleVectorArray}             & \cm &     &     &     &     &     \\ \hline
+\id{N\_VConstVectorArray}             & \cm &     &     &     &     &     \\ \hline
+\id{N\_VWrmsNormVectorArray}          & \cm &     &     &     &     &     \\ \hline
+\id{N\_VScaleAddMultiVectorArray}     & \cm &     &     &     &     &     \\ \hline
+\id{N\_VLinearCombinationVectorArray} & \cm &     &     &     &     &     \\ \hline
 %
 \end{tabular}
 \end{table}
@@ -101,7 +101,7 @@ The remaining operations from Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops}, an
 \ref{ss:nvecarrayops} not listed above
 are unused and a user-supplied {\nvector} module for {\cvodes} could
 omit these operations (although some may be needed by {\sunnonlinsol}
-or {\sunlinsol} modules).  The functions \id{N\_MinQuotient}, 
+or {\sunlinsol} modules).  The functions \id{N\_MinQuotient},
 \id{N\_VConstrMask}, and \id{N\_VCompare} are only used when
 constraint checking is enabled and may be omitted if this feature is
 not used.
@@ -117,6 +117,7 @@ not used.
 \input{nvec_parhyp}
 \input{nvec_petsc}
 \input{nvec_cuda}
+\input{nvec_hip}
 \input{nvec_raja}
 \input{nvec_openmpdev}
 \input{nvec_trilinos}

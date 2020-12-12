@@ -21,13 +21,18 @@ The NVECTOR_RAJA Module
 ======================================
 
 The NVECTOR_RAJA module is an experimental {\nvector} implementation using the
-`RAJA <https://software.llnl.gov/RAJA/>`_ hardware abstraction
-layer. In this implementation, RAJA
-allows for SUNDIALS vector kernels to run on GPU devices. The module is intended for users
-who are already familiar with RAJA and GPU programming. Building this vector
-module requires a C++11 compliant compiler and a CUDA software development toolkit.
-Besides the CUDA backend, RAJA has other backends such as serial, OpenMP,
-and OpenACC. These backends are not used in this SUNDIALS release.
+`RAJA <https://software.llnl.gov/RAJA/>`_ hardware abstraction layer. In this
+implementation, RAJA allows for SUNDIALS vector kernels to run on AMD or NVIDIA
+GPU devices. The module is intended for users who are already familiar with RAJA
+and GPU programming. Building this vector module requires a C++11 compliant
+compiler and either the NVIDIA CUDA programming environment, or the AMD ROCm HIP
+programming environment. When using the AMD ROCm HIP environment, the HIP-clang
+compiler must be utilized. Users can select which backend (CUDA or HIP) to
+compile with by setting the ``SUNDIALS_RAJA_BACKENDS`` CMake variable to
+either CUDA or HIP. Besides the CUDA and HIP backends, RAJA has other
+backends such as serial, OpenMP, and OpenACC. These backends are not used in
+this SUNDIALS release.
+
 The vector content layout is as follows:
 
 .. code-block:: c++
@@ -47,17 +52,18 @@ the vector owns the data (i.e., it is in charge of freeing the data), pointers t
 vector data on the host and the device, and a private data structure which holds
 the memory management type, which should not be accessed directly.
 
-When instantiated with ``N_VNew_Raja``, the underlying data will be allocated
+When instantiated with :c:func:`N_VNew_Raja`, the underlying data will be allocated
 on both the host and the device. Alternatively, a user can provide host
-and device data arrays by using the ``N_VMake_Raja`` constructor. To use CUDA
-managed memory, the constructors ``N_VNewManaged_Raja`` and
-``N_VMakeManaged_Raja`` are provided. Details on each of these constructors
+and device data arrays by using the :c:func:`N_VMake_Raja` constructor. To use
+managed memory, the constructors :c:func:`N_VNewManaged_Raja` and
+:c:func:`N_VMakeManaged_Raja` are provided. Details on each of these constructors
 are provided below.
 
-The header file to include when using this is ``nvector_raja.h``.
-The installed module library to link to is ``libsundials_nveccudaraja.lib``.
-The extension ``.lib`` is typically ``.so`` for shared libraries ``.a`` for
-static libraries.
+The header file to include when using this is ``nvector_raja.h``. The installed
+module library to link to is ``libsundials_nveccudaraja.lib`` when using the
+CUDA backend and ``libsundials_nvechipraja.lib`` when using the HIP backend. The
+extension ``.lib`` is typically ``.so`` for shared libraries ``.a`` for static
+libraries.
 
 
 NVECTOR_RAJA functions

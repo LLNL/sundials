@@ -179,6 +179,7 @@ endif()
 
 if(EXAMPLES_ENABLE_CXX OR
     ENABLE_CUDA OR
+    ENABLE_HIP OR
     ENABLE_RAJA OR
     ENABLE_TRILINOS OR
     ENABLE_SUPERLUDIST)
@@ -193,6 +194,15 @@ if(ENABLE_CUDA)
   include(SundialsSetupCuda)
   # we treat CUDA as both a TPL and a language
   list(APPEND SUNDIALS_TPL_LIST "CUDA")
+endif()
+
+# ===============================================================
+# HIP settings
+# ===============================================================
+
+if(ENABLE_HIP)
+  include(SundialsSetupHIP)
+  list(APPEND SUNDIALS_TPL_LIST "HIP")
 endif()
 
 # ===============================================================

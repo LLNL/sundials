@@ -11,21 +11,35 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * Example of a custom SUNMemoryHelper that only supports CUDA
+ * Example of a custom SUNMemoryHelper that only supports CUDA/HIP
  * unmanaged memory only and synchronous copies.
  * -----------------------------------------------------------------*/
 
 #include <assert.h>
+#include <string.h> 
+#if defined(__NVCC__)
 #include <cuda_runtime.h>
+#define EX_USES_CUDA
+#elif defined(__HCC__) || (defined(__clang__) && defined(__HIP__))
+#include <hip/hip_runtime.h>
+#define EX_USES_HIP
+#endif
+
 #include <sundials/sundials_memory.h>
 
+#if defined(EX_USES_CUDA)
+#define MY_GPU(a) cuda ## a
+#elif defined(EX_USES_HIP)
+#define MY_GPU(a) hip ## a
+#endif
 
-#define MY_CUDACHK(ans) { cudaVerify((ans), __FILE__, __LINE__, 1); }
-static void cudaVerify(cudaError_t code, const char *file, int line, int abort)
+#define MY_GPUCHK(ans) { gpuVerify((ans), __FILE__, __LINE__, 1); }
+
+static void gpuVerify(MY_GPU(Error_t) code, const char *file, int line, int abort)
 {
-   if (code != cudaSuccess)
+   if (code != MY_GPU(Success))
    {
-      fprintf(stderr, "CUDA ERROR: %s %s %d\n", cudaGetErrorString(code), file, line);
+      fprintf(stderr, "GPU ERROR: %s %s %d\n", MY_GPU(GetErrorString)(code), file, line);
       if (abort) assert(false);
    }
 }
@@ -47,7 +61,7 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
   else if (mem_type == SUNMEMTYPE_UVM ||
            mem_type == SUNMEMTYPE_DEVICE)
   {
-    MY_CUDACHK( cudaMalloc(&(mem->ptr), memsize) );
+    MY_GPUCHK( MY_GPU(Malloc)(&(mem->ptr), memsize) );
     mem->type = SUNMEMTYPE_DEVICE;
   }
   else
@@ -73,7 +87,7 @@ int MyMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem)
       }
       else if (mem->type == SUNMEMTYPE_DEVICE)
       {
-        MY_CUDACHK( cudaFree(mem->ptr) );
+        MY_GPUCHK( MY_GPU(Free)(mem->ptr) );
         mem->ptr = NULL;
       }
       else
@@ -100,23 +114,24 @@ int MyMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst,
       }
       else if (dst->type == SUNMEMTYPE_DEVICE)
       {
-        MY_CUDACHK( cudaMemcpy(dst->ptr, src->ptr,
-                               memory_size,
-                               cudaMemcpyHostToDevice) );
+
+        MY_GPUCHK( MY_GPU(Memcpy)(dst->ptr, src->ptr,
+                                  memory_size,
+                                  MY_GPU(MemcpyHostToDevice)) );
       }
       break;
     case SUNMEMTYPE_DEVICE:
       if (dst->type == SUNMEMTYPE_HOST)
       {
-        MY_CUDACHK( cudaMemcpy(dst->ptr, src->ptr,
-                               memory_size,
-                               cudaMemcpyDeviceToHost) );
+        MY_GPUCHK( MY_GPU(Memcpy)(dst->ptr, src->ptr,
+                                  memory_size,
+                                  MY_GPU(MemcpyDeviceToHost)) );
       }
       else if (dst->type == SUNMEMTYPE_DEVICE)
       {
-        MY_CUDACHK( cudaMemcpy(dst->ptr, src->ptr,
-                               memory_size,
-                               cudaMemcpyDeviceToDevice) );
+        MY_GPUCHK( MY_GPU(Memcpy)(dst->ptr, src->ptr,
+                                  memory_size,
+                                  MY_GPU(MemcpyDeviceToDevice)) );
       }
       break;
     default:

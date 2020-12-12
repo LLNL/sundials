@@ -27,14 +27,19 @@ set(nvector_examples_dependencies
   test_nvector
   sundials_nvector
   sundials_math
-  custom_memory_helper
 )
 
 # Add source directory to include directories
 include_directories(. .. ${SUNDIALS_SOURCE_DIR}/examples/utilities)
 
 # Specify libraries to link against
-set(NVECS_LIB sundials_nveccudaraja)
+set(NVECS_LIB sundials_nvecraja)
+
+if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
+  set(_lang CUDA)
+elseif(SUNDIALS_RAJA_BACKENDS MATCHES "HIP")
+  set(_lang CXX)
+endif()
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
@@ -52,16 +57,15 @@ foreach(example_tuple ${nvector_raja_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
-    # example source files
-    add_executable(${example} ${example}.cu
-      ../test_nvector.c )
+    set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE ${_lang})
+
+    add_executable(${example} ${example}.cpp ../test_nvector.c)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
   endif()
 
-  # check if example args are provided and set the test name
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
     if("${number_of_tasks}" STREQUAL "")
@@ -86,11 +90,12 @@ foreach(example_tuple ${nvector_raja_examples})
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu
+    install(FILES ${example}.cpp
       ../test_nvector.c
       ../test_nvector.h
-      ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_math.c
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper.h
+      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
+      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_math.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
   endif()
 

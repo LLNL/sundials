@@ -139,12 +139,12 @@ $tar $tarfile $distrobase/examples/ida/mpicuda/idaHeat2D_kry_p_mpicuda.out || ex
 
 $tar $tarfile $distrobase/examples/ida/raja/README                 || exit 1
 $tar $tarfile $distrobase/examples/ida/raja/CMakeLists.txt         || exit 1
-$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.cu  || exit 1
+$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.cpp  || exit 1
 $tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.out || exit 1
 
 $tar $tarfile $distrobase/examples/ida/mpiraja/README                      || exit 1
 $tar $tarfile $distrobase/examples/ida/mpiraja/CMakeLists.txt              || exit 1
-$tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.cu  || exit 1
+$tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.cpp || exit 1
 $tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.out || exit 1
 
 $tar $tarfile $distrobase/examples/ida/trilinos/README                     || exit 1

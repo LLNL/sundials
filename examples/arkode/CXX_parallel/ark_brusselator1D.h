@@ -31,6 +31,8 @@
 #elif defined(USE_OMPDEV_NVEC)
 #include <omp.h>
 #include "nvector/nvector_openmpdev.h"              /* OpenMPDEV N_Vector        */
+#elif defined(USE_HIP_NVEC)
+#include "nvector/nvector_hip.h"                    /* HIP N_Vector              */
 #elif defined(USE_CUDA_NVEC) || defined(USE_CUDAUVM_NVEC)
 #include "nvector/nvector_cuda.h"                   /* CUDA N_Vector             */
 #else
@@ -42,6 +44,19 @@
 #define USE_GPU
 #elif defined(USE_OMPDEV_NVEC)
 #define USE_GPU
+#elif defined(USE_HIP_NVEC)
+#define USE_HIP
+#define USE_GPU
+#endif
+
+#if defined(USE_CUDA) || defined(USE_HIP)
+#define USE_CUDA_OR_HIP
+#endif
+
+#if defined(USE_CUDA)
+#define GPU_PREFIX(a) cuda##a
+#elif defined(USE_HIP)
+#define GPU_PREFIX(a) hip##a
 #endif
 
 /* Maximum size of output directory string */
@@ -247,7 +262,7 @@ static int WriteOutput(double t, N_Vector y, UserData* udata, UserOptions* uopt)
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* function to check if GPU operation returned successfully */
-#ifdef USE_CUDA
-static void gpuAssert(cudaError_t code, const char *file, int line, int abort);
+#ifdef USE_CUDA_OR_HIP
+static void gpuAssert(GPU_PREFIX(Error_t) code, const char *file, int line, int abort);
 #endif
 

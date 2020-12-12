@@ -39,6 +39,7 @@ nvec_pthreads.tex \
 nvec_parhyp.tex \
 nvec_petsc.tex \
 nvec_cuda.tex \
+nvec_hip.tex \
 nvec_raja.tex \
 nvec_trilinos.tex \
 nvec_manyvector.tex \

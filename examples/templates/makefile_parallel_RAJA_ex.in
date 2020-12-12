@@ -62,12 +62,12 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 
 # -----------------------------------------------------------------------------------------
 
-.SUFFIXES : .o .cu
+.SUFFIXES : .o .cpp
 
 .c.o :
 	${CC} ${CFLAGS} ${INCLUDES} -c $<
 
-.cu.o :
+.cpp.o :
 	${NVCC} ${NVCCFLAGS} ${RAJAFLAGS} ${NVCCINCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------

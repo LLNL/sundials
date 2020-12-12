@@ -221,7 +221,7 @@ $tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr
 
 $tar $tarfile $distrobase/examples/cvode/raja/README                 || exit 1
 $tar $tarfile $distrobase/examples/cvode/raja/CMakeLists.txt         || exit 1
-$tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.cu  || exit 1
+$tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.cpp  || exit 1
 $tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.out || exit 1
 
 $tar $tarfile $distrobase/examples/cvode/CXX_serial/CMakeLists.txt || exit 1

@@ -499,6 +499,7 @@ time cmake \
     \
     -D ENABLE_RAJA="${RAJA_STATUS}" \
     -D RAJA_DIR="${RAJADIR}" \
+    -D SUNDIALS_RAJA_BACKENDS="CUDA" \
     \
     -D ENABLE_XBRAID="${XBRAID_STATUS}" \
     -D XBRAID_DIR="${XBRAIDDIR}" \

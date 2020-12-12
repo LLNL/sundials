@@ -76,6 +76,11 @@ if(Trilinos_MPI)
   set(SUNDIALS_TRILINOS_HAVE_MPI TRUE)
 endif()
 
+# prepare substitution variable(s) SUNDIALS_RAJA_BACKENDS_*
+foreach(backend ${SUNDIALS_RAJA_BACKENDS})
+  set(SUNDIALS_RAJA_BACKENDS_${backend} TRUE)
+endforeach()
+
 # prepare substitution variable SUNDIALS_HAVE_POSIX_TIMERS for sundials_config.h
 if(POSIX_TIMERS_TEST_OK) # set in SundialsPOSIXTimers.cmake
   set(SUNDIALS_HAVE_POSIX_TIMERS TRUE)

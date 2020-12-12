@@ -28,7 +28,6 @@ set(nvector_cuda_examples
 set(nvector_examples_dependencies
   test_nvector
   sundials_nvector
-  custom_memory_helper
   )
 
 # Add source directory to include directories

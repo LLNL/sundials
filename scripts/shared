@@ -32,6 +32,7 @@ $tar $tarfile $distrobase/cmake/SundialsIndexSize.cmake                    || ex
 $tar $tarfile $distrobase/cmake/SundialsSetupCompilers.cmake               || exit 1
 $tar $tarfile $distrobase/cmake/SundialsSetupConfig.cmake                  || exit 1
 $tar $tarfile $distrobase/cmake/SundialsSetupCuda.cmake                    || exit 1
+$tar $tarfile $distrobase/cmake/SundialsSetupHIP.cmake                     || exit 1
 $tar $tarfile $distrobase/cmake/SundialsSetupCXX.cmake                     || exit 1
 $tar $tarfile $distrobase/cmake/SundialsSetupFortran.cmake                 || exit 1
 $tar $tarfile $distrobase/cmake/SundialsSetupTPLs.cmake                    || exit 1
@@ -100,6 +101,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_version.h             || exi
 $tar $tarfile $distrobase/include/sundials/sundials_xbraid.h              || exit 1
 
 $tar $tarfile $distrobase/include/nvector/nvector_cuda.h                              || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_hip.h                               || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_manyvector.h                        || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_mpimanyvector.h                     || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_mpiplusx.h                          || exit 1
@@ -123,6 +125,7 @@ $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h    || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_slunrloc.h  || exit 1
 
 $tar $tarfile $distrobase/include/sunmemory/sunmemory_cuda.h      || exit 1
+$tar $tarfile $distrobase/include/sunmemory/sunmemory_hip.h       || exit 1
 
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_cusolversp_batchqr.h || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_band.h               || exit 1
@@ -145,30 +148,32 @@ $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_petscsnes.h    || ex
 
 $tar $tarfile $distrobase/src/CMakeLists.txt                                      || exit 1
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt                             || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_math.c                            || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_matrix.c                          || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_memory.c                          || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_linearsolver.c                    || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_nvector.c                         || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_dense.c                           || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_direct.c                          || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_band.c                            || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_iterative.c                       || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_version.c                         || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c                 || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c             || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_futils.c                          || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_cuda.h                            || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_cuda_kernels.cuh                  || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_debug.h                           || exit 1
-$tar $tarfile $distrobase/src/sundials/sundials_xbraid.c                          || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/CMakeLists.txt                        || exit 1
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.{c,f90}          || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_linearsolver_mod.{c,f90}    || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_matrix_mod.{c,f90}          || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_nonlinearsolver_mod.{c,f90} || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_nvector_mod.{c,f90}         || exit 1
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.{c,f90}           || exit 1
-$tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.{c,f90}          || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_band.c                            || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_cuda_kernels.cuh                  || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_cuda.h                            || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_debug.h                           || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_dense.c                           || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_direct.c                          || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_futils.c                          || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_hip_kernels.hip.hpp               || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_hip.h                             || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_iterative.c                       || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_linearsolver.c                    || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_math.c                            || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_matrix.c                          || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_memory.c                          || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c                 || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c             || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_nvector.c                         || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_version.c                         || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_xbraid.c                          || exit 1
 
 echo "   --- Add nvector modules to $tarfile"
 
@@ -232,10 +237,17 @@ $tar $tarfile $distrobase/src/nvector/cuda/nvector_cuda.cu         || exit 1
 $tar $tarfile $distrobase/src/nvector/cuda/VectorKernels.cuh       || exit 1
 $tar $tarfile $distrobase/src/nvector/cuda/VectorArrayKernels.cuh  || exit 1
 
+echo "   --- Add nvector/hip module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvector/hip/CMakeLists.txt              || exit 1
+$tar $tarfile $distrobase/src/nvector/hip/nvector_hip.hip.cpp         || exit 1
+$tar $tarfile $distrobase/src/nvector/hip/VectorKernels.hip.hpp       || exit 1
+$tar $tarfile $distrobase/src/nvector/hip/VectorArrayKernels.hip.hpp  || exit 1
+
 echo "   --- Add nvector/raja module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvector/raja/CMakeLists.txt  || exit 1
-$tar $tarfile $distrobase/src/nvector/raja/nvector_raja.cu || exit 1
+$tar $tarfile $distrobase/src/nvector/raja/CMakeLists.txt   || exit 1
+$tar $tarfile $distrobase/src/nvector/raja/nvector_raja.cpp || exit 1
 
 echo "   --- Add nvector/trilinos module to $tarfile"
 
@@ -307,6 +319,11 @@ echo "   --- Add sunmemory/cuda modules to $tarfile"
 
 $tar $tarfile $distrobase/src/sunmemory/cuda/CMakeLists.txt || exit 1
 $tar $tarfile $distrobase/src/sunmemory/cuda/sundials_cuda_memory.cu || exit 1
+
+echo "   --- Add sunmemory/hip modules to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmemory/hip/CMakeLists.txt || exit 1
+$tar $tarfile $distrobase/src/sunmemory/hip/sundials_hip_memory.hip.cpp || exit 1
 
 echo "   --- Add sunlinsol modules to $tarfile"
 
@@ -453,48 +470,50 @@ echo "   --- Add nvector examples to $tarfile"
 $tar $tarfile $distrobase/examples/nvector/CMakeLists.txt   || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_nvector.f90 || exit 1
 
-$tar $tarfile $distrobase/examples/nvector/serial/test_nvector_serial.c                         || exit 1
-$tar $tarfile $distrobase/examples/nvector/serial/test_fnvector_serial_mod.f90                  || exit 1
-$tar $tarfile $distrobase/examples/nvector/serial/CMakeLists.txt                                || exit 1
-$tar $tarfile $distrobase/examples/nvector/parallel/test_nvector_mpi.c                          || exit 1
-$tar $tarfile $distrobase/examples/nvector/parallel/test_fnvector_parallel_mod.f90              || exit 1
-$tar $tarfile $distrobase/examples/nvector/parallel/CMakeLists.txt                              || exit 1
-$tar $tarfile $distrobase/examples/nvector/parhyp/test_nvector_parhyp.c                         || exit 1
-$tar $tarfile $distrobase/examples/nvector/parhyp/CMakeLists.txt                                || exit 1
-$tar $tarfile $distrobase/examples/nvector/petsc/test_nvector_petsc.c                           || exit 1
-$tar $tarfile $distrobase/examples/nvector/petsc/CMakeLists.txt                                 || exit 1
-$tar $tarfile $distrobase/examples/nvector/C_openmp/test_nvector_openmp.c                       || exit 1
-$tar $tarfile $distrobase/examples/nvector/C_openmp/test_fnvector_openmp_mod.f90                || exit 1
 $tar $tarfile $distrobase/examples/nvector/C_openmp/CMakeLists.txt                              || exit 1
-$tar $tarfile $distrobase/examples/nvector/openmpdev/test_nvector_openmpdev.c                   || exit 1
-$tar $tarfile $distrobase/examples/nvector/openmpdev/CMakeLists.txt                             || exit 1
-$tar $tarfile $distrobase/examples/nvector/pthreads/test_nvector_pthreads.c                     || exit 1
-$tar $tarfile $distrobase/examples/nvector/pthreads/test_fnvector_pthreads_mod.f90              || exit 1
-$tar $tarfile $distrobase/examples/nvector/pthreads/CMakeLists.txt                              || exit 1
-$tar $tarfile $distrobase/examples/nvector/cuda/test_nvector_cuda.cu                            || exit 1
+$tar $tarfile $distrobase/examples/nvector/C_openmp/test_fnvector_openmp_mod.f90                || exit 1
+$tar $tarfile $distrobase/examples/nvector/C_openmp/test_nvector_openmp.c                       || exit 1
 $tar $tarfile $distrobase/examples/nvector/cuda/CMakeLists.txt                                  || exit 1
-$tar $tarfile $distrobase/examples/nvector/mpicuda/test_nvector_mpicuda.cu                      || exit 1
-$tar $tarfile $distrobase/examples/nvector/mpicuda/CMakeLists.txt                               || exit 1
-$tar $tarfile $distrobase/examples/nvector/raja/test_nvector_raja.cu                            || exit 1
-$tar $tarfile $distrobase/examples/nvector/raja/CMakeLists.txt                                  || exit 1
-$tar $tarfile $distrobase/examples/nvector/mpiraja/test_nvector_mpiraja.cu                      || exit 1
-$tar $tarfile $distrobase/examples/nvector/mpiraja/CMakeLists.txt                               || exit 1
-$tar $tarfile $distrobase/examples/nvector/trilinos/test_nvector_trilinos.cpp                   || exit 1
-$tar $tarfile $distrobase/examples/nvector/trilinos/CMakeLists.txt                              || exit 1
-$tar $tarfile $distrobase/examples/nvector/manyvector/test_nvector_manyvector.c                 || exit 1
-$tar $tarfile $distrobase/examples/nvector/manyvector/test_fnvector_manyvector_mod.f90          || exit 1
+$tar $tarfile $distrobase/examples/nvector/cuda/test_nvector_cuda.cu                            || exit 1
+$tar $tarfile $distrobase/examples/nvector/hip/CMakeLists.txt                                   || exit 1
+$tar $tarfile $distrobase/examples/nvector/hip/test_nvector_hip.hip.cpp                         || exit 1
 $tar $tarfile $distrobase/examples/nvector/manyvector/CMakeLists.txt                            || exit 1
-$tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_serial.c    || exit 1
+$tar $tarfile $distrobase/examples/nvector/manyvector/test_fnvector_manyvector_mod.f90          || exit 1
+$tar $tarfile $distrobase/examples/nvector/manyvector/test_nvector_manyvector.c                 || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpicuda/CMakeLists.txt                               || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpicuda/test_nvector_mpicuda.cu                      || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpimanyvector/CMakeLists.txt                         || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_fnvector_mpimanyvector_mod.f90    || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_parallel1.c || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_parallel2.c || exit 1
-$tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_fnvector_mpimanyvector_mod.f90    || exit 1
-$tar $tarfile $distrobase/examples/nvector/mpimanyvector/CMakeLists.txt                         || exit 1
-$tar $tarfile $distrobase/examples/nvector/mpiplusx/test_nvector_mpiplusx.c                     || exit 1
-$tar $tarfile $distrobase/examples/nvector/mpiplusx/test_fnvector_mpiplusx_mod.f90              || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_serial.c    || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpiplusx/CMakeLists.txt                              || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpiplusx/test_fnvector_mpiplusx_mod.f90              || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpiplusx/test_nvector_mpiplusx.c                     || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpiraja/CMakeLists.txt                               || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpiraja/test_nvector_mpiraja.cpp                     || exit 1
+$tar $tarfile $distrobase/examples/nvector/openmpdev/CMakeLists.txt                             || exit 1
+$tar $tarfile $distrobase/examples/nvector/openmpdev/test_nvector_openmpdev.c                   || exit 1
+$tar $tarfile $distrobase/examples/nvector/parallel/CMakeLists.txt                              || exit 1
+$tar $tarfile $distrobase/examples/nvector/parallel/test_fnvector_parallel_mod.f90              || exit 1
+$tar $tarfile $distrobase/examples/nvector/parallel/test_nvector_mpi.c                          || exit 1
+$tar $tarfile $distrobase/examples/nvector/parhyp/CMakeLists.txt                                || exit 1
+$tar $tarfile $distrobase/examples/nvector/parhyp/test_nvector_parhyp.c                         || exit 1
+$tar $tarfile $distrobase/examples/nvector/petsc/CMakeLists.txt                                 || exit 1
+$tar $tarfile $distrobase/examples/nvector/petsc/test_nvector_petsc.c                           || exit 1
+$tar $tarfile $distrobase/examples/nvector/pthreads/CMakeLists.txt                              || exit 1
+$tar $tarfile $distrobase/examples/nvector/pthreads/test_fnvector_pthreads_mod.f90              || exit 1
+$tar $tarfile $distrobase/examples/nvector/pthreads/test_nvector_pthreads.c                     || exit 1
+$tar $tarfile $distrobase/examples/nvector/raja/CMakeLists.txt                                  || exit 1
+$tar $tarfile $distrobase/examples/nvector/raja/test_nvector_raja.cpp                           || exit 1
+$tar $tarfile $distrobase/examples/nvector/serial/CMakeLists.txt                                || exit 1
+$tar $tarfile $distrobase/examples/nvector/serial/test_fnvector_serial_mod.f90                  || exit 1
+$tar $tarfile $distrobase/examples/nvector/serial/test_nvector_serial.c                         || exit 1
+$tar $tarfile $distrobase/examples/nvector/test_mpinvector.c                                    || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c                                       || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_nvector.h                                       || exit 1
-$tar $tarfile $distrobase/examples/nvector/test_mpinvector.c                                    || exit 1
+$tar $tarfile $distrobase/examples/nvector/trilinos/CMakeLists.txt                              || exit 1
+$tar $tarfile $distrobase/examples/nvector/trilinos/test_nvector_trilinos.cpp                   || exit 1
 
 echo "   --- Add sunmatrix examples to $tarfile"
 
@@ -597,6 +616,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_parhyp_C_ex.in        ||
 $tar $tarfile $distrobase/examples/templates/cmakelists_parhyp_CXX_ex.in      || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_petsc_C_ex.in         || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_CXX_ex.in             || exit 1
+$tar $tarfile $distrobase/examples/templates/cmakelists_HIP_ex.in             || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_MPI_ex.in             || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_C_ex.in        || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F77_ex.in      || exit 1

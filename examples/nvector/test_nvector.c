@@ -276,7 +276,6 @@ int Test_N_VClone(N_Vector W, sunindextype local_length, int myid)
     N_VDestroy(X);
     return(1);
   }
-
   N_VDestroy(X);
 
   if (myid == 0)

@@ -555,12 +555,17 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Default: OFF
 \item[\id{ENABLE\_RAJA}] -
-  Enable {\raja} support (build the {\raja} {\nvector}).
+  Enable {\raja} support.
   \\
   Default: OFF
   \\
-  Note: You need to enable {\cuda} in order to build the {\raja} vector module.
-  \item[\id{ENABLE\_SUPERLUDIST}] -
+  Note: You need to enable CUDA or HIP in order to build the {\raja} vector module.
+\item[\id{SUNDIALS\_RAJA\_BACKENDS}] -
+  If building SUNDIALS with RAJA support, this sets the RAJA
+  backend to target. Values supported are CUDA and HIP.
+  \\
+  Default: CUDA
+\item[\id{ENABLE\_SUPERLUDIST}] -
   Enable {\superludist} support
   \\
   Default: OFF
@@ -1209,6 +1214,7 @@ CMake project.
 %% --------------------------------------------------
 {\nvecraja}
 & Libraries    & libsundials\_nveccudaraja.{\em lib}                 &                           \\
+&              & libsundials\_nvechipraja.{\em lib}                  &                           \\
 \cline{2-4}
 & Header files & nvector/nvector\_raja.h                             &                           \\
 \hline

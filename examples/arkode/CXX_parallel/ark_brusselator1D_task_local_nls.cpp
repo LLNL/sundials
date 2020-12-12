@@ -86,6 +86,12 @@ using EXEC_POLICY = RAJA::cuda_exec< 256, false >;
 constexpr auto LocalNvector = N_VNew_Cuda;
 constexpr auto CopyVecFromDevice = N_VCopyFromDevice_Cuda;
 
+#elif USE_HIP_NVEC
+#define NVECTOR_ID_STRING "HIP-unmanaged"
+using EXEC_POLICY = RAJA::hip_exec< 512, false >;
+constexpr auto LocalNvector = N_VNew_Hip;
+constexpr auto CopyVecFromDevice = N_VCopyFromDevice_Hip;
+
 #else
 #define NVECTOR_ID_STRING "Serial"
 using EXEC_POLICY = RAJA::seq_exec;
@@ -94,7 +100,7 @@ constexpr auto LocalNvector = N_VNew_Serial;
 
 #endif // USE_RAJA_NVEC
 
-#ifdef USE_CUDA
+#ifdef USE_CUDA_OR_HIP
 #define DEVICE_LAMBDA RAJA_DEVICE
 #define GPU_SAFE_CALL(val) { gpuAssert((val), __FILE__, __LINE__, 1); }
 #else
@@ -1328,6 +1334,9 @@ int EnableFusedVectorOps(N_Vector y)
 #if defined(USE_CUDA_NVEC) || defined(USE_CUDAUVM_NVEC)
   retval = N_VEnableFusedOps_Cuda(N_VGetLocalVector_MPIPlusX(y), 1);
   if (check_retval(&retval, "N_VEnableFusedOps_Cuda", 1)) return(-1);
+#elif defined(USE_HIP_NVEC)
+  retval = N_VEnableFusedOps_Hip(N_VGetLocalVector_MPIPlusX(y), 1);
+  if (check_retval(&retval, "N_VEnableFusedOps_Hip", 1)) return(-1);
 #elif defined(USE_RAJA_NVEC)
   retval = N_VEnableFusedOps_Raja(N_VGetLocalVector_MPIPlusX(y), 1);
   if (check_retval(&retval, "N_VEnableFusedOps_Raja", 1)) return(-1);
@@ -1522,12 +1531,17 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt)
   udata->dx  = udata->xmax / (double) udata->nx;  /* nx is number of intervals */
 
   /* Create the MPI exchange buffers */
-#ifdef USE_CUDA
-  GPU_SAFE_CALL( cudaMallocHost(&(udata->Wsend), udata->nvar*sizeof(double)) );
-  GPU_SAFE_CALL( cudaMallocHost(&(udata->Wrecv), udata->nvar*sizeof(double)) );
-  GPU_SAFE_CALL( cudaMallocHost(&(udata->Esend), udata->nvar*sizeof(double)) );
-  GPU_SAFE_CALL( cudaMallocHost(&(udata->Erecv), udata->nvar*sizeof(double)) );
-#elif USE_OMPDEV_NVEC
+#if defined(USE_CUDA)
+  GPU_SAFE_CALL( cudaHostAlloc(&(udata->Wsend), udata->nvar*sizeof(double), cudaHostAllocDefault) );
+  GPU_SAFE_CALL( cudaHostAlloc(&(udata->Wrecv), udata->nvar*sizeof(double), cudaHostAllocDefault) );
+  GPU_SAFE_CALL( cudaHostAlloc(&(udata->Esend), udata->nvar*sizeof(double), cudaHostAllocDefault) );
+  GPU_SAFE_CALL( cudaHostAlloc(&(udata->Erecv), udata->nvar*sizeof(double), cudaHostAllocDefault) );
+#elif defined(USE_HIP)
+  GPU_SAFE_CALL( hipHostMalloc(&(udata->Wsend), udata->nvar*sizeof(double), hipHostMallocDefault) );
+  GPU_SAFE_CALL( hipHostMalloc(&(udata->Wrecv), udata->nvar*sizeof(double), hipHostMallocDefault) );
+  GPU_SAFE_CALL( hipHostMalloc(&(udata->Esend), udata->nvar*sizeof(double), hipHostMallocDefault) );
+  GPU_SAFE_CALL( hipHostMalloc(&(udata->Erecv), udata->nvar*sizeof(double), hipHostMallocDefault) );
+#elif defined(USE_OMPDEV_NVEC)
   int dev = omp_get_default_device();
 
   udata->Wsend = (double *) omp_target_alloc(udata->nvar*sizeof(double), dev);
@@ -1567,6 +1581,7 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt)
   double* umask = GetVecData(udata->umask);
   double* vmask = GetVecData(udata->vmask);
   double* wmask = GetVecData(udata->wmask);
+
   RAJA::forall< EXEC_POLICY >( RAJA::RangeSegment(0, udata->nxl),
     [=] DEVICE_LAMBDA (int i) {
     umask[IDX(nvar, i, 0)] = 1.0;
@@ -1643,17 +1658,16 @@ UserData::~UserData()
   N_VDestroy(wmask);
 
   /* free exchange buffers */
-#ifdef USE_CUDA
-  GPU_SAFE_CALL( cudaFreeHost(Wsend) );
-  GPU_SAFE_CALL( cudaFreeHost(Wrecv) );
-  GPU_SAFE_CALL( cudaFreeHost(Esend) );
-  GPU_SAFE_CALL( cudaFreeHost(Erecv) );
+#ifdef USE_CUDA_OR_HIP
+  GPU_SAFE_CALL( GPU_PREFIX(FreeHost)(Wsend) );
+  GPU_SAFE_CALL( GPU_PREFIX(FreeHost)(Wrecv) );
+  GPU_SAFE_CALL( GPU_PREFIX(FreeHost)(Esend) );
+  GPU_SAFE_CALL( GPU_PREFIX(FreeHost)(Erecv) );
 #elif USE_OMPDEV_NVEC
-  int dev = omp_get_default_device();
-  omp_target_free(Wsend, dev);
-  omp_target_free(Wrecv, dev);
-  omp_target_free(Esend, dev);
-  omp_target_free(Erecv, dev);
+  omp_target_free(Wsend);
+  omp_target_free(Wrecv);
+  omp_target_free(Esend);
+  omp_target_free(Erecv);
 #else
   delete Wsend;
   delete Wrecv;
@@ -1747,18 +1761,18 @@ int check_retval(void *returnvalue, const char *funcname, int opt)
 /* function to sync the host and device */
 void sync_device()
 {
-#ifdef USE_CUDA
-  cudaDeviceSynchronize();
+#ifdef USE_CUDA_OR_HIP
+  GPU_PREFIX(DeviceSynchronize)();
 #endif
 }
 
 
-#ifdef USE_CUDA
-void gpuAssert(cudaError_t code, const char *file, int line, int abort)
+#ifdef USE_CUDA_OR_HIP
+void gpuAssert(GPU_PREFIX(Error_t) code, const char *file, int line, int abort)
 {
-   if (code != cudaSuccess)
+   if (code != GPU_PREFIX(Success))
    {
-      fprintf(stderr, "GPU ERROR: %s %s %d\n", cudaGetErrorString(code), file, line);
+      fprintf(stderr, "GPU ERROR: %s %s %d\n", GPU_PREFIX(GetErrorString)(code), file, line);
       if (abort) MPI_Abort(MPI_COMM_WORLD, -1);
    }
 }

@@ -703,12 +703,18 @@ illustration only.
    Default: ``OFF``
 
 :index:`ENABLE_RAJA <RAJA_ENABLE (CMake option)>`
-   Enable RAJA support (build the RAJA NVector).
+   Enable RAJA support.
 
    Default: OFF
 
-   .. note:: You need to enable CUDA in order to build the RAJA vector
-             module.
+   .. note:: You need to enable CUDA or HIP in order to build the
+             RAJA vector module.
+
+:index:`SUNDIALS_RAJA_BACKENDS <SUNDIALS_RAJA_BACKENDS (CMake option)>`
+   If building SUNDIALS with RAJA support, this sets the RAJA
+   backend to target. Values supported are CUDA and HIP.
+
+   Default: CUDA
 
 :index:`ENABLE_SUPERLUDIST <ENABLE_SUPERLUDIST (CMake option)>`
    Enable SuperLU_DIST support
@@ -1373,7 +1379,8 @@ configuration file to build against SUNDIALS in their own CMake project.
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``nvector/nvector_cuda.h``                   |
    +------------------------------+--------------+----------------------------------------------+
-   | RAJA                         | Libraries    | ``libsundials_nvecraja.LIB``                 |
+   | RAJA                         | Libraries    | ``libsundials_nveccudaraja.LIB``             |
+   |                              |              | ``libsundials_nvechipraja.LIB``              |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``nvector/nvector_raja.h``                   |
    +------------------------------+--------------+----------------------------------------------+
