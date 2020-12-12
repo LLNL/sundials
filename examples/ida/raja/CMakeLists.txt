@@ -27,7 +27,7 @@ include_directories(.)
 
 # Specify libraries to link against
 set(IDA_LIB sundials_ida)
-set(NVECS_LIB sundials_nveccudaraja)
+set(NVECS_LIB sundials_nvecraja)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
@@ -40,8 +40,10 @@ foreach(example_tuple ${IDA_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_type)
 
+  set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE CUDA)
+
   # add example source files
-  add_executable(${example} ${example}.cu)
+  add_executable(${example} ${example}.cpp)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -55,7 +57,7 @@ foreach(example_tuple ${IDA_examples})
   target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu ${example}.out
+    install(FILES ${example}.cpp ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/raja)
   endif()
 
@@ -71,7 +73,7 @@ if(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "IDA")
   set(SOLVER_LIB "sundials_ida")
-  set(NVECTOR_LIB "sundials_nveccudaraja")
+  set(NVECTOR_LIB "sundials_nvecraja")
 
   examples2string(IDA_examples EXAMPLES)
 

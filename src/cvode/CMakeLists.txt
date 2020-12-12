@@ -75,10 +75,6 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
   set(_fused_link_lib sundials_cvode_fused_stubs)
 endif()
 
-if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-message("${SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS}")
-endif()
-
 # Create the library
 sundials_add_library(sundials_cvode
   SOURCES

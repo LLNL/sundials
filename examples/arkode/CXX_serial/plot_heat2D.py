@@ -65,7 +65,13 @@ with open(infofile) as fn:
 
 # ------------------------------------------------------------------------------
 
-plottype = ['solution', 'error']
+# check if the error was output
+fname = 'heat2d_error.txt'
+
+if os.path.isfile(fname):
+    plottype = ['solution', 'error']
+else:
+    plottype = ['solution']
 
 for pt in plottype:
 

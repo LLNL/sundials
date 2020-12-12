@@ -45,7 +45,7 @@ INCLUDES 		 = $(addprefix -I, ${TMP_INCS})
 TMP_LIBDIRS  = ${libdir} ${RAJA_LIB_DIR}
 LIBDIRS      = $(addprefix -L, ${TMP_LIBDIRS})
 
-TMP_SUNDIALSLIBS = @SOLVER_LIB@ @NVECTOR_LIB@ 
+TMP_SUNDIALSLIBS = @SOLVER_LIB@ @NVECTOR_LIB@
 SUNDIALSLIBS     = $(addprefix -l, ${TMP_SUNDIALSLIBS})
 LIBRARIES = ${SUNDIALSLIBS} ${RAJALIBS} ${LIBS}
 
@@ -57,12 +57,12 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 
 # -----------------------------------------------------------------------------------------
 
-.SUFFIXES : .o .cu
+.SUFFIXES : .o .cpp
 
 .c.o :
 	${CC} ${CFLAGS} ${INCLUDES} -c $<
 
-.cu.o :
+.cpp.o :
 	${NVCC} ${NVCCFLAGS} ${RAJAFLAGS} ${INCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------

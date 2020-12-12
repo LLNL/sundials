@@ -290,6 +290,18 @@ SWIGEXPORT double * _wrap_FN_VGetArrayPointer(N_Vector farg1) {
 }
 
 
+SWIGEXPORT double * _wrap_FN_VGetDeviceArrayPointer(N_Vector farg1) {
+  double * fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  realtype *result = 0 ;
+  
+  arg1 = (N_Vector)(farg1);
+  result = (realtype *)N_VGetDeviceArrayPointer(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FN_VSetArrayPointer(double *farg1, N_Vector farg2) {
   realtype *arg1 = (realtype *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;

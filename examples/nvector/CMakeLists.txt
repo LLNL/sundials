@@ -52,6 +52,10 @@ if(BUILD_NVECTOR_CUDA)
   endif()
 endif()
 
+if(BUILD_NVECTOR_HIP)
+  add_subdirectory(hip)
+endif()
+
 if(BUILD_NVECTOR_RAJA)
   add_subdirectory(raja)
   if(ENABLE_MPI AND MPI_C_FOUND)

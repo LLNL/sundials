@@ -36,21 +36,52 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
-if(ENABLE_RAJA AND (NOT ENABLE_CUDA))
-  print_error("CUDA is required for RAJA support. Please enable CUDA and RAJA.")
-endif()
-
 # -----------------------------------------------------------------------------
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
 
+# find the library configuration file
+find_file(RAJA_CONFIGHPP_PATH config.hpp
+          HINTS "${RAJA_DIR}"
+          PATH_SUFFIXES include include/RAJA
+          NO_DEFAULT_PATH)
+mark_as_advanced(FORCE RAJA_CONFIGHPP_PATH)
+
 # Look for CMake configuration file in RAJA installation
 find_package(RAJA CONFIG
-             PATHS ${RAJA_DIR} ${RAJA_DIR}/share/raja/cmake
+             PATHS "${RAJA_DIR}" "${RAJA_DIR}/share/raja/cmake"
+             NO_DEFAULT_PATH
              REQUIRED)
+
+# determine the backends
+foreach(_backend CUDA HIP OPENMP TARGET_OPENMP)
+  file(STRINGS "${RAJA_CONFIGHPP_PATH}" _raja_has_backend REGEX "^#define RAJA_ENABLE_${_backend}\$")
+  if(_raja_has_backend)
+    set(RAJA_BACKENDS "${_backend};${RAJA_BACKENDS}")
+  endif()
+endforeach()
+
+message(STATUS "RAJA Version:  ${RAJA_VERSION_MAJOR}.${RAJA_VERSION_MINOR}.${RAJA_VERSION_PATCHLEVEL}")
+message(STATUS "RAJA Backends: ${RAJA_BACKENDS}")
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 
-# TODO: Implement test of RAJA interface.
+if((SUNDIALS_RAJA_BACKENDS MATCHES "CUDA") AND
+   (NOT RAJA_BACKENDS MATCHES "CUDA"))
+  print_error("Requested that SUNDIALS uses the CUDA RAJA backend, but RAJA was not built with the CUDA backend.")
+endif()
+
+if((SUNDIALS_RAJA_BACKENDS MATCHES "HIP") AND
+   (NOT RAJA_BACKENDS MATCHES "HIP"))
+  print_error("Requested that SUNDIALS uses the HIP RAJA backend, but RAJA was not built with the HIP backend.")
+endif()
+
+if(NOT ENABLE_OPENMP AND RAJA_BACKENDS MATCHES "OPENMP")
+  print_error("RAJA was built with OpenMP, but OpenMP is not enabled. Set ENABLE_OPENMP to ON.")
+endif()
+
+if(NOT ENABLE_OPENMP_DEVICE AND RAJA_BACKENDS MATCHES "TARGET_OPENMP")
+  print_error("RAJA was built with OpenMP device offloading, but OpenMP with device offloading is not enabled. Set ENABLE_OPENMP_DEVICE to ON.")
+endif()

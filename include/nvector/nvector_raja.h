@@ -10,6 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
+ * This is the header file for the RAJA implementation of the
+ * NVECTOR module.
  * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_RAJA_H
@@ -18,8 +21,8 @@
 #include <stdio.h>
 
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_memory.h>
 #include <sundials/sundials_config.h>
-#include <sunmemory/sunmemory_cuda.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -85,7 +88,7 @@ SUNDIALS_STATIC_INLINE
 realtype *N_VGetDeviceArrayPointer_Raja(N_Vector x)
 {
   N_VectorContent_Raja content = (N_VectorContent_Raja)x->content;
-  return(content->host_data == NULL ? NULL : (realtype*)content->device_data->ptr);
+  return(content->device_data == NULL ? NULL : (realtype*)content->device_data->ptr);
 }
 
 

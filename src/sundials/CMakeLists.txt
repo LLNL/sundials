@@ -38,8 +38,12 @@ set(sundials_HEADERS
   sundials_version.h
   )
 
-if(CUDA_FOUND)
+if(ENABLE_CUDA)
   list(APPEND sundials_HEADERS sundials_cuda_policies.hpp)
+endif()
+
+if(ENABLE_HIP)
+  list(APPEND sundials_HEADERS sundials_hip_policies.hpp)
 endif()
 
 # If Blas/Lapack support was enabled, add the Lapack interface headers

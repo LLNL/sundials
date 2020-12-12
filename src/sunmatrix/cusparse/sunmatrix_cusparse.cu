@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <nvector/nvector_cuda.h>
+#include <sunmemory/sunmemory_cuda.h>
 #include <sunmatrix/sunmatrix_cusparse.h>
 
 #include "sundials_cuda.h"
@@ -1092,8 +1092,8 @@ int SUNMatMatvec_cuSparse(SUNMatrix A, N_Vector x, N_Vector y)
     return(SUNMAT_ILL_INPUT);
   }
 
-  realtype *d_xdata = N_VGetDeviceArrayPointer_Cuda(x);
-  realtype *d_ydata = N_VGetDeviceArrayPointer_Cuda(y);
+  realtype *d_xdata = N_VGetDeviceArrayPointer(x);
+  realtype *d_ydata = N_VGetDeviceArrayPointer(y);
 
   if (SMCU_SPARSETYPE(A) == SUNMAT_CUSPARSE_CSR)
   {

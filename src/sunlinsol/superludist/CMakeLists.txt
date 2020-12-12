@@ -32,7 +32,7 @@ sundials_add_library(sundials_sunlinsolsuperludist
     sundials_generic_obj
   LINK_LIBRARIES
   PUBLIC sundials_sunmatrixslunrloc SUNDIALS::SUPERLUDIST
-    $<IF:$<BOOL:SUPERLUDIST_OpenMP>,OpenMP::OpenMP_C,>
+    $<IF:$<BOOL:${SUPERLUDIST_OpenMP}>,OpenMP::OpenMP_C,>
   COMPILE_OPTIONS
     PRIVATE ${_compile_options}
   OUTPUT_NAME

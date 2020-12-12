@@ -38,6 +38,8 @@ set(NVECS_LIB sundials_nvecopenmpdev)
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
+set(CMAKE_EXE_LINKER_FLAGS ${OpenMP_C_FLAGS})
+
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_openmpdev_examples})
 

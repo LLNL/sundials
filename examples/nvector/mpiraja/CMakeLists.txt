@@ -26,24 +26,24 @@ set(nvector_raja_examples
 # Dependencies for nvector examples
 set(nvector_examples_dependencies
   test_nvector
+  test_mpinvector
   sundials_nvector
   sundials_math
   )
 
 # Add source directory to include directories
-include_directories(. .. ${MPI_CXX_INCLUDE_PATH})
+include_directories(. ..)
 
-if(MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-endif()
+# use MPI wrapper as the compiler
+set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+set(CMAKE_CUDA_HOST_COMPILER ${MPI_CXX_COMPILER})
 
 # Specify libraries to link against
-set(NVECS_LIB sundials_nvecmpiplusx sundials_nveccudaraja)
+set(NVECS_LIB sundials_nvecmpiplusx sundials_nvecraja)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH} -lRAJA)
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example
@@ -59,8 +59,10 @@ foreach(example_tuple ${nvector_raja_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
+    set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE CUDA)
+
     # example source files
-    add_executable(${example} ${example}.cu
+    add_executable(${example} ${example}.cpp
       ../test_nvector.c
       ../test_mpinvector.c)
 
@@ -94,7 +96,7 @@ foreach(example_tuple ${nvector_raja_examples})
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu
+    install(FILES ${example}.cpp
       ../test_nvector.c
       ../test_mpinvector.c
       ../test_nvector.h

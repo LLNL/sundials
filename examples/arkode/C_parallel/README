@@ -1,10 +1,10 @@
 List of parallel ARKODE C examples
 
-  ark_diurnal_kry_bbd_p : 2-D 2-species diurnal advection-diffusion with BBD preconditioner
-  ark_diurnal_kry_p     : 2-D 2-species diurnal advection-diffusion
-
-Sample results:
-
+  ark_diurnal_kry_bbd_p            : 2-D 2-species diurnal advection-diffusion
+                                     with BBD preconditioner
+  ark_diurnal_kry_p                : 2-D 2-species diurnal advection-diffusion
+  ark_brusselator1D_task_local_nls : 1-D 3-species advection-reaction problem
+                                     with a user-defined nonlinear solver
 
 The following CMake command was used to configure SUNDIALS:
 

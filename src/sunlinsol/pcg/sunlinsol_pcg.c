@@ -284,7 +284,7 @@ int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
     ier = Psetup(PData);
     if (ier != 0) {
       LASTFLAG(S) = (ier < 0) ?
-	SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
+        SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
       return(LASTFLAG(S));
     }
   }

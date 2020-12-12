@@ -30,7 +30,7 @@ include_directories(.)
 
 # Specify libraries to link against
 set(CVODE_LIB sundials_cvode)
-set(NVECS_LIB sundials_nveccudaraja)
+set(NVECS_LIB sundials_nvecraja)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
   list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
@@ -45,8 +45,10 @@ foreach(example_tuple ${CVODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_type)
 
+  set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE CUDA)
+
   # add example source files
-  add_executable(${example} ${example}.cu)
+  add_executable(${example} ${example}.cpp)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -61,7 +63,7 @@ foreach(example_tuple ${CVODE_examples})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu ${example}.out
+    install(FILES ${example}.cpp ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/raja)
   endif()
 
@@ -77,7 +79,7 @@ if(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "CVODE")
   set(SOLVER_LIB "sundials_cvode")
-  set(NVECTOR_LIB "sundials_nveccudaraja")
+  set(NVECTOR_LIB "sundials_nvecraja")
   if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
     set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
   endif()

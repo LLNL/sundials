@@ -276,7 +276,6 @@ int Test_N_VClone(N_Vector W, sunindextype local_length, int myid)
     N_VDestroy(X);
     return(1);
   }
-
   N_VDestroy(X);
 
   if (myid == 0)
@@ -5310,6 +5309,7 @@ int Test_N_VBufPack(N_Vector x, sunindextype local_length, int myid)
   stop_time = get_time();
 
   if (flag != 0) {
+    free(buf);
     printf(">>> FAILED test -- N_VBufPack returned %d, Proc %d \n", flag, myid);
     return(1);
   }
@@ -5320,6 +5320,7 @@ int Test_N_VBufPack(N_Vector x, sunindextype local_length, int myid)
   }
 
   if (failure) {
+    free(buf);
     printf(">>> FAILED test -- N_VBufPack failed, Proc %d \n", myid);
     return(1);
   } else if (myid == 0) {
@@ -5329,6 +5330,9 @@ int Test_N_VBufPack(N_Vector x, sunindextype local_length, int myid)
   /* find max time across all processes */
   maxt = max_time(x, stop_time - start_time);
   PRINT_TIME("N_VBufPack", maxt);
+
+  /* free buffer */
+  free(buf);
 
   return(0);
 }
@@ -5373,6 +5377,7 @@ int Test_N_VBufUnpack(N_Vector x, sunindextype local_length, int myid)
   stop_time = get_time();
 
   if (flag != 0) {
+    free(buf);
     printf(">>> FAILED test -- N_VBufUnPack returned %d, Proc %d \n", flag, myid);
     return(1);
   }
@@ -5381,6 +5386,7 @@ int Test_N_VBufUnpack(N_Vector x, sunindextype local_length, int myid)
   failure = check_ans(ONE, x, local_length);
 
   if (failure) {
+    free(buf);
     printf(">>> FAILED test -- N_VBufUnpack failed, Proc %d \n", myid);
     return(1);
   } else if (myid == 0) {
@@ -5390,6 +5396,9 @@ int Test_N_VBufUnpack(N_Vector x, sunindextype local_length, int myid)
   /* find max time across all processes */
   maxt = max_time(x, stop_time - start_time);
   PRINT_TIME("N_VBufUnpack", maxt);
+
+  /* free buffer */
+  free(buf);
 
   return(0);
 }

@@ -38,11 +38,10 @@
  * The spatial derivatives are computed using second-order centered differences,
  * with the data distributed over nx * ny points on a uniform spatial grid. The
  * problem is solved using the XBraid multigrid reduction in time library paired
- * with a diagonally implicit Runge-Kutta method from the ARKode ARKStep module
- * using an inexact Newton method paired with the PCG linear solver using
- * a diagnonal preconditioner. Several command line options are available to
- * change the problem parameters and ARKStep settings. Use the flag --help for
- * more information.
+ * with a diagonally implicit Runge-Kutta method from the ARKODE ARKStep module
+ * using an inexact Newton method paired with the PCG or SPGMR linear solver.
+ * Several command line options are available to change the problem parameters
+ * and ARKStep settings. Use the flag --help for more information.
  * ---------------------------------------------------------------------------*/
 
 #include <cstdio>
@@ -54,12 +53,13 @@
 #include <chrono>
 #include <cmath>
 
-#include "arkode/arkode_arkstep.h"    // access to ARKStep
-#include "nvector/nvector_serial.h"   // access to the serial N_Vector
-#include "sunlinsol/sunlinsol_pcg.h"  // access to PCG SUNLinearSolver
-#include "mpi.h"                      // MPI header file
-#include "braid.h"                    // access to XBraid
-#include "arkode/arkode_xbraid.h"     // access to ARKStep + XBraid interface
+#include "arkode/arkode_arkstep.h"     // access to ARKStep
+#include "nvector/nvector_serial.h"    // access to the serial N_Vector
+#include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
+#include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
+#include "mpi.h"                       // MPI header file
+#include "braid.h"                     // access to XBraid
+#include "arkode/arkode_xbraid.h"      // access to ARKStep + XBraid interface
 
 
 // Macros for problem constants
@@ -84,6 +84,9 @@ struct UserData
   realtype kx;
   realtype ky;
 
+  // Enable/disable forcing
+  bool forcing;
+
   // Final time
   realtype tf;
 
@@ -91,11 +94,11 @@ struct UserData
   realtype xu;
   realtype yu;
 
-  // Global number of nodes in the x and y directions
+  // Number of nodes in the x and y directions
   sunindextype nx;
   sunindextype ny;
 
-  // Global total number of nodes
+  // Total number of nodes
   sunindextype nodes;
 
   // Mesh spacing in the x and y directions
@@ -110,16 +113,19 @@ struct UserData
   int myid_w; // process ID in space and time
 
   // Integrator settings
-  realtype rtol;    // relative tolerance
-  realtype atol;    // absolute tolerance
-  bool     linear;  // enable/disable linearly implicit option
-  int      order;   // ARKode method order
+  realtype rtol;        // relative tolerance
+  realtype atol;        // absolute tolerance
+  int      order;       // ARKode method order
+  bool     linear;      // enable/disable linearly implicit option
+  bool     diagnostics; // output diagnostics
 
   // Linear solver and preconditioner settings
-  int      liniters; // number of linear iterations
-  realtype epslin;   // linear solver tolerance factor
-  int      prectype; // preconditioner type (NONE or LEFT)
-  int      msbp;     // max number of steps between preconditioner setups
+  bool     pcg;       // use PCG (true) or GMRES (false)
+  bool     prec;      // preconditioner on/off
+  bool     lsinfo;    // output residual history
+  int      liniters;  // number of linear iterations
+  int      msbp;      // max number of steps between preconditioner setups
+  realtype epslin;    // linear solver tolerance factor
 
   // Inverse of Jacobian diagonal for preconditioner
   N_Vector d;
@@ -234,7 +240,8 @@ int main(int argc, char* argv[])
   UserData *udata    = NULL;  // user data structure
   N_Vector u         = NULL;  // vector for storing solution
   SUNLinearSolver LS = NULL;  // linear solver memory structure
-  void *arkode_mem   = NULL;  // ARKode memory structure
+  void *arkode_mem   = NULL;  // ARKODE memory structure
+  FILE *diagfp       = NULL;  // diagnostics output file
   braid_Core core    = NULL;  // XBraid memory structure
   braid_App app      = NULL;  // ARKode + XBraid interface structure
 
@@ -256,9 +263,9 @@ int main(int argc, char* argv[])
   // Set output process flag
   bool outproc = (myid == 0);
 
-  // ------------------------------------------
+  // ---------------
   // Setup UserData
-  // ------------------------------------------
+  // ---------------
 
   // Allocate and initialize user data structure with default values. The
   // defaults may be overwritten by command line inputs in ReadInputs below.
@@ -287,9 +294,21 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "PrintUserData", 1)) return 1;
   }
 
-  // ------------------------
+  // Open diagnostics output file
+  if (udata->diagnostics || udata->lsinfo)
+  {
+    stringstream fname;
+    fname << "diagnostics." << setfill('0') << setw(5) << udata->myid_w
+          << ".txt";
+
+    const std::string tmp = fname.str();
+    diagfp = fopen(tmp.c_str(), "w");
+    if (check_flag((void *) diagfp, "fopen", 0)) return 1;
+  }
+
+  // ----------------------
   // Create serial vectors
-  // ------------------------
+  // ----------------------
 
   // Create vector for solution
   u = N_VNew_Serial(udata->nodes);
@@ -303,16 +322,44 @@ int main(int argc, char* argv[])
   udata->e = N_VClone(u);
   if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
 
-  // ----------------------------------------
-  // Create linear solver and preconditioner
-  // ----------------------------------------
+  // ---------------------
+  // Create linear solver
+  // ---------------------
 
   // Create linear solver
-  LS = SUNLinSol_PCG(u, udata->prectype, udata->liniters);
-  if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
+  int prectype = (udata->prec) ? PREC_RIGHT : PREC_NONE;
 
-  // Create preconditioner workspace
-  if (udata->prectype != PREC_NONE)
+  if (udata->pcg)
+  {
+    LS = SUNLinSol_PCG(u, prectype, udata->liniters);
+    if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
+
+    if (udata->lsinfo)
+    {
+      flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
+      if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
+
+      flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
+      if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
+    }
+  }
+  else
+  {
+    LS = SUNLinSol_SPGMR(u, prectype, udata->liniters);
+    if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
+
+    if (udata->lsinfo)
+    {
+      flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
+      if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
+
+      flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
+      if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
+    }
+  }
+
+  // Allocate preconditioner workspace
+  if (udata->prec)
   {
     udata->d = N_VClone(u);
     if (check_flag((void *) (udata->d), "N_VClone", 0)) return 1;
@@ -330,19 +377,23 @@ int main(int argc, char* argv[])
   flag = ARKStepSStolerances(arkode_mem, udata->rtol, udata->atol);
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
+  // Attach user data
+  flag = ARKStepSetUserData(arkode_mem, (void *) udata);
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+
   // Attach linear solver
   flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
   if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
 
-  if (udata->prectype != PREC_NONE)
+  if (udata->prec)
   {
     // Attach preconditioner
     flag = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
     if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) return 1;
 
-    // Set max steps between linear solver (preconditioner) setup calls
-    flag = ARKStepSetMaxStepsBetweenLSet(arkode_mem, udata->msbp);
-    if (check_flag(&flag, "ARKStepSetMaxStepBetweenLSet", 1)) return 1;
+    // Set linear solver setup frequency (update preconditioner)
+    flag = ARKStepSetLSetupFrequency(arkode_mem, udata->msbp);
+    if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) return 1;
   }
 
   // Set linear solver tolerance factor
@@ -398,9 +449,12 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "ARKStepSetMaxCFailGrowth", 1)) return 1;
   }
 
-  // Attach user data
-  flag = ARKStepSetUserData(arkode_mem, (void *) udata);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  // Set diagnostics output file
+  if (udata->diagnostics)
+  {
+    flag = ARKStepSetDiagnostics(arkode_mem, diagfp);
+    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
+  }
 
   // ------------------------
   // Create XBraid interface
@@ -561,6 +615,8 @@ int main(int argc, char* argv[])
   // --------------------
   // Clean up and return
   // --------------------
+
+  if (udata->diagnostics || udata->lsinfo) fclose(diagfp);
 
   ARKStepFree(&arkode_mem);  // Free integrator memory
   SUNLinSolFree(LS);         // Free linear solver
@@ -752,10 +808,6 @@ int MyAccess(braid_App app, braid_Vector u, braid_AccessStatus astatus)
 // f routine to compute the ODE RHS function f(t,y).
 static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
 {
-  realtype     x, y;
-  realtype     sin_sqr_x, sin_sqr_y;
-  realtype     cos_sqr_x, cos_sqr_y;
-  sunindextype i, j;
   // Timing variables
   chrono::time_point<chrono::steady_clock> t1;
   chrono::time_point<chrono::steady_clock> t2;
@@ -770,6 +822,11 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   sunindextype nx = udata->nx;
   sunindextype ny = udata->ny;
 
+  // Constants for computing diffusion term
+  realtype cx = udata->kx / (udata->dx * udata->dx);
+  realtype cy = udata->ky / (udata->dy * udata->dy);
+  realtype cc = -TWO * (cx + cy);
+
   // Access data arrays
   realtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
@@ -777,41 +834,52 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   realtype *farray = N_VGetArrayPointer(f);
   if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
 
-  // Constants for computing diffusion and forcing
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
-
-  realtype bx = (udata->kx) * TWO * PI * PI;
-  realtype by = (udata->ky) * TWO * PI * PI;
-
-  realtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
-  realtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
-
-  // Initialize rhs to zero (handles boundary conditions)
+  // Initialize rhs vector to zero (handles boundary conditions)
   N_VConst(ZERO, f);
 
-  // Iterate over subdomain interior setting rhs values
-  for (j = 1; j < ny - 1; j++)
+  // Iterate over domain interior and compute rhs forcing term
+  if (udata->forcing)
   {
-    for (i = 1; i < nx - 1; i++)
+    realtype x, y;
+    realtype sin_sqr_x, sin_sqr_y;
+    realtype cos_sqr_x, cos_sqr_y;
+
+    realtype bx = (udata->kx) * TWO * PI * PI;
+    realtype by = (udata->ky) * TWO * PI * PI;
+
+    realtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
+    realtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
+
+    for (sunindextype j = 1; j < ny - 1; j++)
     {
-      x  = i * udata->dx;
-      y  = j * udata->dy;
+      for (sunindextype i = 1; i < nx - 1; i++)
+      {
+        x  = i * udata->dx;
+        y  = j * udata->dy;
 
-      sin_sqr_x = sin(PI * x) * sin(PI * x);
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
+        sin_sqr_x = sin(PI * x) * sin(PI * x);
+        sin_sqr_y = sin(PI * y) * sin(PI * y);
 
-      cos_sqr_x = cos(PI * x) * cos(PI * x);
-      cos_sqr_y = cos(PI * y) * cos(PI * y);
+        cos_sqr_x = cos(PI * x) * cos(PI * x);
+        cos_sqr_y = cos(PI * y) * cos(PI * y);
 
-      farray[IDX(i,j,nx)] =
+        farray[IDX(i,j,nx)] =
+          -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
+          -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
+          -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+      }
+    }
+  }
+
+  // Iterate over domain interior and add rhs diffusion term
+  for (sunindextype j = 1; j < ny - 1; j++)
+  {
+    for (sunindextype i = 1; i < nx - 1; i++)
+    {
+      farray[IDX(i,j,nx)] +=
         cc * uarray[IDX(i,j,nx)]
         + cx * (uarray[IDX(i-1,j,nx)] + uarray[IDX(i+1,j,nx)])
-        + cy * (uarray[IDX(i,j-1,nx)] + uarray[IDX(i,j+1,nx)])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+        + cy * (uarray[IDX(i,j-1,nx)] + uarray[IDX(i,j+1,nx)]);
     }
   }
 
@@ -902,6 +970,9 @@ static int InitUserData(UserData *udata)
   udata->kx = ONE;
   udata->ky = ONE;
 
+  // Enable forcing
+  udata->forcing = true;
+
   // Final time
   udata->tf = ONE;
 
@@ -924,16 +995,19 @@ static int InitUserData(UserData *udata)
   udata->nprocs_w = 1;
 
   // Integrator settings
-  udata->rtol   = RCONST(1.e-5);   // relative tolerance
-  udata->atol   = RCONST(1.e-10);  // absolute tolerance
-  udata->linear = false;           // linearly implicit problem
-  udata->order  = 4;               // method order
+  udata->rtol        = RCONST(1.e-5);   // relative tolerance
+  udata->atol        = RCONST(1.e-10);  // absolute tolerance
+  udata->order       = 3;               // method order
+  udata->linear      = true;            // linearly implicit problem
+  udata->diagnostics = false;           // output diagnostics
 
   // Linear solver and preconditioner options
-  udata->liniters = 100;        // max linear iterations
-  udata->epslin   = -ONE;       // use ARKode default (0.05)
-  udata->prectype = PREC_LEFT;  // no preconditioning
-  udata->msbp     = 0;          // use ARKode default (20 steps)
+  udata->pcg       = true;       // use PCG (true) or GMRES (false)
+  udata->prec      = true;       // enable preconditioning
+  udata->lsinfo    = false;      // output residual history
+  udata->liniters  = 100;        // max linear iterations
+  udata->msbp      = 0;          // use default (20 steps)
+  udata->epslin    = ZERO;       // use default (0.05)
 
   // Inverse of Jacobian diagonal for preconditioner
   udata->d = NULL;
@@ -982,18 +1056,18 @@ static int InitUserData(UserData *udata)
 // Free memory allocated within Userdata
 static int FreeUserData(UserData *udata)
 {
+  // Free preconditioner data
+  if (udata->d)
+  {
+    N_VDestroy(udata->d);
+    udata->d = NULL;
+  }
+
   // Free error vector
   if (udata->e)
   {
     N_VDestroy(udata->e);
     udata->e = NULL;
-  }
-
-  // Free preconditioner vector if necessary
-  if (udata->d)
-  {
-    N_VDestroy(udata->d);
-    udata->d = NULL;
   }
 
   // Return success
@@ -1028,6 +1102,11 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
       udata->kx = stod((*argv)[arg_idx++]);
       udata->ky = stod((*argv)[arg_idx++]);
     }
+    // Disable forcing
+    else if (arg == "--noforcing")
+    {
+      udata->forcing = false;
+    }
     // Temporal domain settings
     else if (arg == "--tf")
     {
@@ -1042,15 +1121,27 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->atol = stod((*argv)[arg_idx++]);
     }
-    else if (arg == "--linear")
-    {
-      udata->linear = true;
-    }
     else if (arg == "--order")
     {
       udata->order = stoi((*argv)[arg_idx++]);
     }
+    else if (arg == "--nonlinear")
+    {
+      udata->linear = false;
+    }
+    else if (arg == "--diagnostics")
+    {
+      udata->diagnostics = true;
+    }
     // Linear solver settings
+    else if (arg == "--gmres")
+    {
+      udata->pcg = false;
+    }
+    else if (arg == "--lsinfo")
+    {
+      udata->lsinfo = true;
+    }
     else if (arg == "--liniters")
     {
       udata->liniters = stoi((*argv)[arg_idx++]);
@@ -1062,7 +1153,7 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     // Preconditioner settings
     else if (arg == "--noprec")
     {
-      udata->prectype = PREC_NONE;
+      udata->prec = false;
     }
     else if (arg == "--msbp")
     {
@@ -1265,11 +1356,15 @@ static void InputHelp()
   cout << "  --mesh <nx> <ny>        : mesh points in the x and y directions" << endl;
   cout << "  --domain <xu> <yu>      : domain upper bound in the x and y direction" << endl;
   cout << "  --k <kx> <ky>           : diffusion coefficients" << endl;
+  cout << "  --noforcing             : disable forcing term" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
   cout << "  --atol <atol>           : absoltue tolerance" << endl;
-  cout << "  --linear                : enable linearly implicit flag" << endl;
+  cout << "  --nonlinear             : disable linearly implicit flag" << endl;
   cout << "  --order <ord>           : method order" << endl;
+  cout << "  --diagnostics           : output diagnostics" << endl;
+  cout << "  --gmres                 : use GMRES linear solver" << endl;
+  cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
   cout << "  --noprec                : disable preconditioner" << endl;
@@ -1312,6 +1407,7 @@ static int PrintUserData(UserData *udata)
   cout << " --------------------------------- "           << endl;
   cout << "  kx             = " << udata->kx              << endl;
   cout << "  ky             = " << udata->ky              << endl;
+  cout << "  forcing        = " << udata->forcing         << endl;
   cout << "  tf             = " << udata->tf              << endl;
   cout << "  xu             = " << udata->xu              << endl;
   cout << "  yu             = " << udata->yu              << endl;
@@ -1325,9 +1421,17 @@ static int PrintUserData(UserData *udata)
   cout << "  order          = " << udata->order           << endl;
   cout << "  linear         = " << udata->linear          << endl;
   cout << " --------------------------------- "           << endl;
+  if (udata->pcg)
+  {
+    cout << "  linear solver  = PCG" << endl;
+  }
+  else
+  {
+    cout << "  linear solver  = GMRES" << endl;
+  }
   cout << "  lin iters      = " << udata->liniters        << endl;
-  cout << "  eps lins       = " << udata->epslin          << endl;
-  cout << "  prectype       = " << udata->prectype        << endl;
+  cout << "  eps lin        = " << udata->epslin          << endl;
+  cout << "  prec           = " << udata->prec            << endl;
   cout << "  msbp           = " << udata->msbp            << endl;
   cout << " --------------------------------- "           << endl;
   cout << "  nt             = " << udata->x_nt            << endl;
@@ -1354,7 +1458,7 @@ static int OutputStats(void *arkode_mem, UserData* udata)
   bool outproc = (udata->myid_w == 0);
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nJv;
+  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = ARKStepGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return -1;
   flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
@@ -1373,6 +1477,8 @@ static int OutputStats(void *arkode_mem, UserData* udata)
   if (check_flag(&flag, "ARKStepGetNumLinConvFails", 1)) return -1;
   flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
   if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) return -1;
+  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfi_ls);
+  if (check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1)) return -1;
   flag = ARKStepGetNumJtimesEvals(arkode_mem, &nJv);
   if (check_flag(&flag, "ARKStepGetNumJtimesEvals", 1)) return -1;
 
@@ -1386,6 +1492,7 @@ static int OutputStats(void *arkode_mem, UserData* udata)
   MPI_Allreduce(MPI_IN_PLACE, &nli,     1, MPI_LONG, MPI_MAX, udata->comm_w);
   MPI_Allreduce(MPI_IN_PLACE, &nlcf,    1, MPI_LONG, MPI_MAX, udata->comm_w);
   MPI_Allreduce(MPI_IN_PLACE, &nsetups, 1, MPI_LONG, MPI_MAX, udata->comm_w);
+  MPI_Allreduce(MPI_IN_PLACE, &nfi_ls,  1, MPI_LONG, MPI_MAX, udata->comm_w);
   MPI_Allreduce(MPI_IN_PLACE, &nJv,     1, MPI_LONG, MPI_MAX, udata->comm_w);
 
   if (outproc)
@@ -1402,6 +1509,7 @@ static int OutputStats(void *arkode_mem, UserData* udata)
     cout << "  LS iters         = " << nli     << endl;
     cout << "  LS fails         = " << nlcf    << endl;
     cout << "  LS setups        = " << nsetups << endl;
+    cout << "  LS RHS evals     = " << nfi_ls  << endl;
     cout << "  Jv products      = " << nJv     << endl;
     cout << endl;
 
@@ -1414,7 +1522,7 @@ static int OutputStats(void *arkode_mem, UserData* udata)
   }
 
   // Get preconditioner stats
-  if (udata->prectype != PREC_NONE)
+  if (udata->prec)
   {
     long int npe, nps;
     flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
@@ -1462,7 +1570,7 @@ static int OutputTiming(UserData *udata)
     cout << "  RHS time      = " << maxtime << " sec" << endl;
   }
 
-  if (udata->prectype != PREC_NONE)
+  if (udata->prec)
   {
     MPI_Reduce(&(udata->psetuptime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
                udata->comm_w);

@@ -70,6 +70,16 @@
  */
 #cmakedefine SUNDIALS_HAVE_POSIX_TIMERS
 
+/* CVODE should use fused kernels if utilizing
+  * the CUDA NVector.
+  */
+#cmakedefine SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+
+
+/* BUILD SUNDIALS with monitoring functionalities
+  * the CUDA NVector.
+  */
+#cmakedefine SUNDIALS_BUILD_WITH_MONITORING
 
 /* ------------------------------------------------------------------
  * SUNDIALS TPL macros
@@ -93,17 +103,9 @@
   */
 #cmakedefine SUNDIALS_TRILINOS_HAVE_MPI
 
-/* CVODE should use fused kernels if utilizing
-  * the CUDA NVector.
-  */
-#cmakedefine SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-
-
-/* BUILD SUNDIALS with monitoring functionalities
-  * the CUDA NVector.
-  */
-#cmakedefine SUNDIALS_BUILD_WITH_MONITORING
-
+/* RAJA backends */
+#cmakedefine SUNDIALS_RAJA_BACKENDS_HIP
+#cmakedefine SUNDIALS_RAJA_BACKENDS_CUDA
 
 /* ------------------------------------------------------------------
  * SUNDIALS modules enabled

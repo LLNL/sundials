@@ -38,11 +38,10 @@
  *
  * The spatial derivatives are computed using second-order centered differences,
  * with the data distributed over nx * ny points on a uniform spatial grid. The
- * problem is advanced in time with a diagonally implicit Runge-Kutta method
- * using an inexact Newton method paired with the hypre's PCG linear solver and
- * PFMG preconditioner. Several command line options are available to change
- * the problem parameters and ARKStep settings. Use the flag --help for more
- * information.
+ * problem is advanced in time with BDF methods using an inexact Newton method
+ * paired with the hypre's PCG or GMRES linear solver and PFMG preconditioner.
+ * Several command line options are available to change the problem parameters
+ * and CVODE settings. Use the flag --help for more information.
  * ---------------------------------------------------------------------------*/
 
 #include <cstdio>
@@ -53,7 +52,7 @@
 #include <limits>
 #include <cmath>
 
-#include "arkode/arkode_arkstep.h"           // access to ARKStep
+#include "cvode/cvode.h"                     // access to CVODE
 #include "nvector/nvector_parallel.h"        // access to the MPI N_Vector
 #include "sundials/sundials_linearsolver.h"  // definition SUNLinearSolver
 #include "sundials/sundials_matrix.h"        // definition SUNMatrix
@@ -82,6 +81,9 @@ struct UserData
   // Diffusion coefficients in the x and y directions
   realtype kx;
   realtype ky;
+
+  // Enable/disable forcing
+  bool forcing;
 
   // Final time
   realtype tf;
@@ -160,20 +162,16 @@ struct UserData
   MPI_Request reqSN;
 
   // Integrator settings
-  realtype rtol;    // relative tolerance
-  realtype atol;    // absolute tolerance
-  bool     linear;  // enable/disable linearly implicit option
-  int      order;   // ARKode method order
-
-  realtype hfixed;     // fixed step size
-  int      controller; // step size adaptivity method
-  int      maxsteps;   // max number of steps between outputs
+  realtype rtol;        // relative tolerance
+  realtype atol;        // absolute tolerance
+  int      maxsteps;    // max number of steps between outputs
 
   // Linear solver and preconditioner settings
-  int      liniters; // number of linear iterations
-  realtype epslin;   // linear solver tolerance factor
-  bool     prec;     // preconditioner on/off
-  int      msbp;     // max number of steps between preconditioner setups
+  bool     pcg;       // use PCG (true) or GMRES (false)
+  bool     prec;      // preconditioner on/off
+  int      liniters;  // number of linear iterations
+  int      msbp;      // max number of steps between preconditioner setups
+  realtype epslin;    // linear solver tolerance factor
 
   // hypre PFMG settings (hypre defaults)
   HYPRE_Int pfmg_relax;  // type of relaxation:
@@ -243,10 +241,10 @@ int Hypre5ptMatrix_Copy(SUNMatrix A, SUNMatrix B);
 int Hypre5ptMatrix_ScaleAddI(realtype c, SUNMatrix A);
 
 // -----------------------------------------------------------------------------
-// Custom hypre PCG+PFMG solver definition
+// Custom hypre linear solver definition
 // -----------------------------------------------------------------------------
 
-struct HyprePCGContent
+struct HypreLSContent
 {
   // hypre objects
   HYPRE_StructVector bvec;
@@ -256,31 +254,29 @@ struct HyprePCGContent
 
   // Counters
   HYPRE_Int iters;
+
+  // PCG (true) or GMRES (false)
+  bool pcg;
 };
 
 // Accessor macros
-#define HPCG_CONTENT(S)  ( (HyprePCGContent*)(S->content) )
-#define HPCG_X(S)        ( HPCG_CONTENT(S)->xvec )
-#define HPCG_B(S)        ( HPCG_CONTENT(S)->bvec )
-#define HPCG_PRECOND(S)  ( HPCG_CONTENT(S)->precond )
-#define HPCG_SOLVER(S)   ( HPCG_CONTENT(S)->solver )
-#define HPCG_ITERS(S)    ( HPCG_CONTENT(S)->iters )
+#define HLS_CONTENT(S)  ( (HypreLSContent*)(S->content) )
+#define HLS_X(S)        ( HLS_CONTENT(S)->xvec )
+#define HLS_B(S)        ( HLS_CONTENT(S)->bvec )
+#define HLS_PRECOND(S)  ( HLS_CONTENT(S)->precond )
+#define HLS_SOLVER(S)   ( HLS_CONTENT(S)->solver )
+#define HLS_ITERS(S)    ( HLS_CONTENT(S)->iters )
+#define HLS_PCG(S)      ( HLS_CONTENT(S)->pcg )
 
 // Solver function prototypes
-SUNLinearSolver HyprePCG(SUNMatrix A, UserData *udata);
-SUNLinearSolver_Type HyprePCG_GetType(SUNLinearSolver S);
-int HyprePCG_Initialize(SUNLinearSolver S);
-int HyprePCG_Setup(SUNLinearSolver S, SUNMatrix A);
-int HyprePCG_Solve(SUNLinearSolver S, SUNMatrix A,
+SUNLinearSolver HypreLS(SUNMatrix A, UserData *udata);
+SUNLinearSolver_Type HypreLS_GetType(SUNLinearSolver S);
+int HypreLS_Initialize(SUNLinearSolver S);
+int HypreLS_Setup(SUNLinearSolver S, SUNMatrix A);
+int HypreLS_Solve(SUNLinearSolver S, SUNMatrix A,
                    N_Vector x, N_Vector b, realtype tol);
-int HyprePCG_NumIters(SUNLinearSolver S);
-int HyprePCG_Free(SUNLinearSolver S);
-
-// -----------------------------------------------------------------------------
-// Setup the parallel decomposition
-// -----------------------------------------------------------------------------
-
-static int SetupDecomp(MPI_Comm comm_w, UserData *udata);
+int HypreLS_NumIters(SUNLinearSolver S);
+int HypreLS_Free(SUNLinearSolver S);
 
 // -----------------------------------------------------------------------------
 // Functions provided to the SUNDIALS integrator
@@ -294,8 +290,11 @@ static int Jac(realtype t, N_Vector u, N_Vector f, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // -----------------------------------------------------------------------------
-// Preconditioner and RHS helper functions
+// Helper functions
 // -----------------------------------------------------------------------------
+
+// Setup the parallel decomposition
+static int SetupDecomp(MPI_Comm comm_w, UserData *udata);
 
 // Perform neighbor exchange
 static int PostRecv(UserData *udata);
@@ -337,7 +336,7 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata);
 static int CloseOutput(UserData *udata);
 
 // Print integration statistics
-static int OutputStats(void *arkode_mem, UserData *udata);
+static int OutputStats(void *cvode_mem, UserData *udata);
 
 // Print integration timing
 static int OutputTiming(UserData *udata);
@@ -356,7 +355,7 @@ int main(int argc, char* argv[])
   N_Vector u         = NULL;  // vector for storing solution
   SUNMatrix A        = NULL;  // matrix for Jacobian
   SUNLinearSolver LS = NULL;  // linear solver memory structure
-  void *arkode_mem   = NULL;  // ARKode memory structure
+  void *cvode_mem    = NULL;  // CVODE memory structure
 
   // Timing variables
   double t1 = 0.0;
@@ -417,103 +416,61 @@ int main(int argc, char* argv[])
   udata->e = N_VClone(u);
   if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
 
-  // ----------------------------------------
+  // --------------------------------
   // Create matrix and linear solver
-  // ----------------------------------------
+  // --------------------------------
 
   // Create custom matrix
   A = Hypre5ptMatrix(udata);
   if (check_flag((void *) A, "Hypre5ptMatrix", 0)) return 1;
 
   // Create linear solver
-  LS = HyprePCG(A, udata);
-  if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
+  LS = HypreLS(A, udata);
+  if (check_flag((void *) LS, "HypreLS", 0)) return 1;
 
   // --------------
-  // Setup ARKStep
+  // Setup CVODE
   // --------------
 
   // Create integrator
-  arkode_mem = ARKStepCreate(NULL, f, ZERO, u);
-  if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
+  cvode_mem = CVodeCreate(CV_BDF);
+  if (check_flag((void *) cvode_mem, "CVodeCreate", 0)) return 1;
+
+  // Initialize integrator
+  flag = CVodeInit(cvode_mem, f, ZERO, u);
+  if (check_flag(&flag, "CVodeInit", 1)) return 1;
 
   // Specify tolerances
-  flag = ARKStepSStolerances(arkode_mem, udata->rtol, udata->atol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
-
-  // Attach linear solver
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
-
-  // Specify the Jacobian evaluation function
-  flag = ARKStepSetJacFn(arkode_mem, Jac);
-  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
-
-  // Set linear solver (preconditioner) setup frequency
-  flag = ARKStepSetLSetupFrequency(arkode_mem, udata->msbp);
-  if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) return 1;
-
-  // Set linear solver tolerance factor
-  flag = ARKStepSetEpsLin(arkode_mem, udata->epslin);
-  if (check_flag(&flag, "ARKStepSetEpsLin", 1)) return 1;
-
-  // Select method order
-  if (udata->order > 1)
-  {
-    // Use an ARKode provided table
-    flag = ARKStepSetOrder(arkode_mem, udata->order);
-    if (check_flag(&flag, "ARKStepSetOrder", 1)) return 1;
-  }
-  else
-  {
-    // Use implicit Euler (requires fixed step size)
-    realtype c[1], A[1], b[1];
-    ARKodeButcherTable B = NULL;
-
-    // Create implicit Euler Butcher table
-    c[0] = A[0] = b[0] = ONE;
-    B = ARKodeButcherTable_Create(1, 1, 0, c, A, b, NULL);
-    if (check_flag((void*) B, "ARKodeButcherTable_Create", 0)) return 1;
-
-    // Attach the Butcher table
-    flag = ARKStepSetTables(arkode_mem, 1, 0, B, NULL);
-    if (check_flag(&flag, "ARKStepSetTables", 1)) return 1;
-
-    // Free the Butcher table
-    ARKodeButcherTable_Free(B);
-  }
-
-  // Set fixed step size or adaptivity method
-  if (udata->hfixed > ZERO)
-  {
-    flag = ARKStepSetFixedStep(arkode_mem, udata->hfixed);
-    if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
-  }
-  else
-  {
-    flag = ARKStepSetAdaptivityMethod(arkode_mem, udata->controller, SUNTRUE,
-                                      SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
-  }
-
-  // Specify linearly implicit non-time-dependent RHS
-  if (udata->linear)
-  {
-    flag = ARKStepSetLinear(arkode_mem, 0);
-    if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
-  }
+  flag = CVodeSStolerances(cvode_mem, udata->rtol, udata->atol);
+  if (check_flag(&flag, "CVodeSStolerances", 1)) return 1;
 
   // Attach user data
-  flag = ARKStepSetUserData(arkode_mem, (void *) udata);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  flag = CVodeSetUserData(cvode_mem, (void *) udata);
+  if (check_flag(&flag, "CVodeSetUserData", 1)) return 1;
+
+  // Attach linear solver
+  flag = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if (check_flag(&flag, "CVodeSetLinearSolver", 1)) return 1;
+
+  // Specify the Jacobian evaluation function
+  flag = CVodeSetJacFn(cvode_mem, Jac);
+  if (check_flag(&flag, "CVodeSetJacFn", 1)) return 1;
+
+  // Set linear solver setup frequency (update linear system matrix)
+  flag = CVodeSetLSetupFrequency(cvode_mem, udata->msbp);
+  if (check_flag(&flag, "CVodeSetLSetupFrequency", 1)) return 1;
+
+  // Set linear solver tolerance factor
+  flag = CVodeSetEpsLin(cvode_mem, udata->epslin);
+  if (check_flag(&flag, "CVodeSetEpsLin", 1)) return 1;
 
   // Set max steps between outputs
-  flag = ARKStepSetMaxNumSteps(arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+  flag = CVodeSetMaxNumSteps(cvode_mem, udata->maxsteps);
+  if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
 
   // Set stopping time
-  flag = ARKStepSetStopTime(arkode_mem, udata->tf);
-  if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
+  flag = CVodeSetStopTime(cvode_mem, udata->tf);
+  if (check_flag(&flag, "CVodeSetStopTime", 1)) return 1;
 
   // -----------------------
   // Loop over output times
@@ -536,8 +493,8 @@ int main(int argc, char* argv[])
     t1 = MPI_Wtime();
 
     // Evolve in time
-    flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
-    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
+    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if (check_flag(&flag, "CVode", 1)) break;
 
     // Stop timer
     t2 = MPI_Wtime();
@@ -566,21 +523,24 @@ int main(int argc, char* argv[])
   if (udata->output > 0 && outproc)
   {
     cout << "Final integrator statistics:" << endl;
-    flag = OutputStats(arkode_mem, udata);
+    flag = OutputStats(cvode_mem, udata);
     if (check_flag(&flag, "OutputStats", 1)) return 1;
   }
 
-  // Output final error
-  flag = SolutionError(t, u, udata->e, udata);
-  if (check_flag(&flag, "SolutionError", 1)) return 1;
-
-  realtype maxerr = N_VMaxNorm(udata->e);
-
-  if (outproc)
+  if (udata->forcing)
   {
-    cout << scientific;
-    cout << setprecision(numeric_limits<realtype>::digits10);
-    cout << "  Max error = " << maxerr << endl;
+    // Output final error
+    flag = SolutionError(t, u, udata->e, udata);
+    if (check_flag(&flag, "SolutionError", 1)) return 1;
+
+    realtype maxerr = N_VMaxNorm(udata->e);
+
+    if (outproc)
+    {
+      cout << scientific;
+      cout << setprecision(numeric_limits<realtype>::digits10);
+      cout << "  Max error = " << maxerr << endl;
+    }
   }
 
   // Print timing
@@ -594,7 +554,7 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  ARKStepFree(&arkode_mem);  // Free integrator memory
+  CVodeFree(&cvode_mem);     // Free integrator memory
   SUNLinSolFree(LS);         // Free linear solver
   SUNMatDestroy(A);          // Free matrix
   N_VDestroy(u);             // Free vectors
@@ -801,9 +761,6 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
 static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
 {
   int          flag;
-  realtype     x, y;
-  realtype     sin_sqr_x, sin_sqr_y;
-  realtype     cos_sqr_x, cos_sqr_y;
   sunindextype i, j;
 
   // Start timer
@@ -811,17 +768,6 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
 
   // Access problem data
   UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
-
-  realtype *farray = N_VGetArrayPointer(f);
-  if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
 
   // Open exchange receives
   flag = PostRecv(udata);
@@ -831,41 +777,74 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   flag = SendData(u, udata);
   if (check_flag(&flag, "SendData", 1)) return -1;
 
-  // Constants for computing diffusion and forcing
+  // Shortcuts to local number of nodes
+  sunindextype nx_loc = udata->nx_loc;
+  sunindextype ny_loc = udata->ny_loc;
+
+  // Determine iteration range excluding the overall domain boundary
+  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
+  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
+  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
+  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
+
+  // Constants for computing diffusion term
   realtype cx = udata->kx / (udata->dx * udata->dx);
   realtype cy = udata->ky / (udata->dy * udata->dy);
   realtype cc = -TWO * (cx + cy);
 
-  realtype bx = (udata->kx) * TWO * PI * PI;
-  realtype by = (udata->ky) * TWO * PI * PI;
+  // Access data arrays
+  realtype *uarray = N_VGetArrayPointer(u);
+  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
-  realtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
-  realtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
+  realtype *farray = N_VGetArrayPointer(f);
+  if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
 
-  // Initialize rhs to zero (handles boundary conditions)
+  // Initialize rhs vector to zero (handles boundary conditions)
   N_VConst(ZERO, f);
 
-  // Iterate over subdomain interior setting rhs values
+  // Iterate over subdomain and compute rhs forcing term
+  if (udata->forcing)
+  {
+    realtype x, y;
+    realtype sin_sqr_x, sin_sqr_y;
+    realtype cos_sqr_x, cos_sqr_y;
+
+    realtype bx = (udata->kx) * TWO * PI * PI;
+    realtype by = (udata->ky) * TWO * PI * PI;
+
+    realtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
+    realtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
+
+    for (j = jstart; j < jend; j++)
+    {
+      for (i = istart; i < iend; i++)
+      {
+        x = (udata->is + i) * udata->dx;
+        y = (udata->js + j) * udata->dy;
+
+        sin_sqr_x = sin(PI * x) * sin(PI * x);
+        sin_sqr_y = sin(PI * y) * sin(PI * y);
+
+        cos_sqr_x = cos(PI * x) * cos(PI * x);
+        cos_sqr_y = cos(PI * y) * cos(PI * y);
+
+        farray[IDX(i,j,nx_loc)] =
+          -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
+          -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
+          -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+      }
+    }
+  }
+
+  // Iterate over subdomain interior and add rhs diffusion term
   for (j = 1; j < ny_loc - 1; j++)
   {
     for (i = 1; i < nx_loc - 1; i++)
     {
-      x  = (udata->is + i) * udata->dx;
-      y  = (udata->js + j) * udata->dy;
-
-      sin_sqr_x = sin(PI * x) * sin(PI * x);
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
-
-      cos_sqr_x = cos(PI * x) * cos(PI * x);
-      cos_sqr_y = cos(PI * y) * cos(PI * y);
-
-      farray[IDX(i,j,nx_loc)] =
+      farray[IDX(i,j,nx_loc)] +=
         cc * uarray[IDX(i,j,nx_loc)]
         + cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
     }
   }
 
@@ -873,181 +852,97 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   flag = WaitRecv(udata);
   if (check_flag(&flag, "WaitRecv", 1)) return -1;
 
-  // Iterate over subdomain boundaries (if not at overall domain boundary)
+  // Iterate over subdomain boundaries and add rhs diffusion term
   realtype *Warray = udata->Wrecv;
   realtype *Earray = udata->Erecv;
   realtype *Sarray = udata->Srecv;
   realtype *Narray = udata->Nrecv;
 
-  // West face
+  // West face (updates south-west and north-west corners if necessary)
   if (udata->HaveNbrW)
   {
     i = 0;
-    x = (udata->is + i) * udata->dx;
-
-    sin_sqr_x = sin(PI * x) * sin(PI * x);
-    cos_sqr_x = cos(PI * x) * cos(PI * x);
-
     if (udata->HaveNbrS)  // South-West corner
     {
       j = 0;
-      y = (udata->js + j) * udata->dy;
-
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
-      cos_sqr_y = cos(PI * y) * cos(PI * y);
-
-      farray[IDX(i,j,nx_loc)] =
+      farray[IDX(i,j,nx_loc)] +=
         cc * uarray[IDX(i,j,nx_loc)]
         + cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
     }
 
     for (j = 1; j < ny_loc - 1; j++)
     {
-      y = (udata->js + j) * udata->dy;
-
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
-      cos_sqr_y = cos(PI * y) * cos(PI * y);
-
-      farray[IDX(i,j,nx_loc)] =
+      farray[IDX(i,j,nx_loc)] +=
         cc * uarray[IDX(i,j,nx_loc)]
         + cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
     }
 
     if (udata->HaveNbrN)  // North-West corner
     {
       j = ny_loc - 1;
-      y = (udata->js + j) * udata->dy;
-
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
-      cos_sqr_y = cos(PI * y) * cos(PI * y);
-
-      farray[IDX(i,j,nx_loc)] =
+      farray[IDX(i,j,nx_loc)] +=
         cc * uarray[IDX(i,j,nx_loc)]
         + cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
     }
   }
 
-  // East face
+  // East face (updates south-east and north-east corners if necessary)
   if (udata->HaveNbrE)
   {
     i = nx_loc - 1;
-    x = (udata->is + i) * udata->dx;
-
-    sin_sqr_x = sin(PI * x) * sin(PI * x);
-    cos_sqr_x = cos(PI * x) * cos(PI * x);
-
     if (udata->HaveNbrS)  // South-East corner
     {
       j = 0;
-      y = (udata->js + j) * udata->dy;
-
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
-      cos_sqr_y = cos(PI * y) * cos(PI * y);
-
-      farray[IDX(i,j,nx_loc)] =
+      farray[IDX(i,j,nx_loc)] +=
         cc * uarray[IDX(i,j,nx_loc)]
         + cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
-        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
     }
 
     for (j = 1; j < ny_loc - 1; j++)
     {
-      y = (udata->js + j) * udata->dy;
-
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
-      cos_sqr_y = cos(PI * y) * cos(PI * y);
-
-      farray[IDX(i,j,nx_loc)] =
+      farray[IDX(i,j,nx_loc)] +=
         cc * uarray[IDX(i,j,nx_loc)]
         + cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
     }
 
     if (udata->HaveNbrN)  // North-East corner
     {
       j = ny_loc - 1;
-      y = (udata->js + j) * udata->dy;
-
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
-      cos_sqr_y = cos(PI * y) * cos(PI * y);
-
-      farray[IDX(i,j,nx_loc)] =
+      farray[IDX(i,j,nx_loc)] +=
         cc * uarray[IDX(i,j,nx_loc)]
         + cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
     }
   }
 
-  // South face
+  // South face (excludes corners)
   if (udata->HaveNbrS)
   {
     j = 0;
-    y = (udata->js + j) * udata->dy;
-
-    sin_sqr_y = sin(PI * y) * sin(PI * y);
-    cos_sqr_y = cos(PI * y) * cos(PI * y);
-
     for (i = 1; i < nx_loc - 1; i++)
     {
-      x = (udata->is + i) * udata->dx;
-
-      sin_sqr_x = sin(PI * x) * sin(PI * x);
-      cos_sqr_x = cos(PI * x) * cos(PI * x);
-
-      farray[IDX(i,j,nx_loc)] =
+      farray[IDX(i,j,nx_loc)] +=
         cc * uarray[IDX(i,j,nx_loc)]
         + cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
     }
   }
 
-  // North face
+  // North face (excludes corners)
   if (udata->HaveNbrN)
   {
     j = udata->ny_loc - 1;
-    y = (udata->js + j) * udata->dy;
-
-    sin_sqr_y = sin(PI * y) * sin(PI * y);
-    cos_sqr_y = cos(PI * y) * cos(PI * y);
-
     for (i = 1; i < nx_loc - 1; i++)
     {
-      x = (udata->is + i) * udata->dx;
-
-      sin_sqr_x = sin(PI * x) * sin(PI * x);
-      cos_sqr_x = cos(PI * x) * cos(PI * x);
-
-      farray[IDX(i,j,nx_loc)] =
+      farray[IDX(i,j,nx_loc)] +=
         cc * uarray[IDX(i,j,nx_loc)]
         + cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i])
-        -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-        -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-        -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
     }
   }
 
@@ -1065,8 +960,10 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
 static int Jac(realtype t, N_Vector y, N_Vector ydot, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  // Shortcuts to hypre matrix and grid extents, work array, and user data
+  // Shortcuts to hypre matrix and grid extents, work array, etc.
   HYPRE_StructMatrix Jmatrix = H5PM_MATRIX(J);
+
+  UserData *udata = H5PM_UDATA(J);
 
   HYPRE_Int ilower[2];
   HYPRE_Int iupper[2];
@@ -1080,13 +977,10 @@ static int Jac(realtype t, N_Vector y, N_Vector ydot, SUNMatrix J,
   HYPRE_Int   nwork = H5PM_NWORK(J);
   HYPRE_Real *work  = H5PM_WORK(J);
 
-  UserData *udata = H5PM_UDATA(J);
-
-  // Local number of nodes in x and y directions
   sunindextype nx_loc = iupper[0] - ilower[0] + 1;
   sunindextype ny_loc = iupper[1] - ilower[1] + 1;
 
-  // Matrix stencil
+  // Matrix stencil: center, left, right, bottom, top
   HYPRE_Int entries[5] = {0, 1, 2, 3, 4};
   HYPRE_Int entry[1];
 
@@ -1100,9 +994,9 @@ static int Jac(realtype t, N_Vector y, N_Vector ydot, SUNMatrix J,
   // hypre return flag
   int flag;
 
-  // --------------------------
-  // Compute A = I - gamma * J
-  // --------------------------
+  // ----------
+  // Compute J
+  // ----------
 
   // Start timer
   double t1 = MPI_Wtime();
@@ -1615,6 +1509,9 @@ static int InitUserData(UserData *udata)
   udata->kx = ONE;
   udata->ky = ONE;
 
+  // Enable forcing
+  udata->forcing = true;
+
   // Final time
   udata->tf = ONE;
 
@@ -1676,20 +1573,16 @@ static int InitUserData(UserData *udata)
   udata->ipN = -1;
 
   // Integrator settings
-  udata->rtol   = RCONST(1.e-5);   // relative tolerance
-  udata->atol   = RCONST(1.e-10);  // absolute tolerance
-  udata->linear = false;           // linearly implicit problem
-  udata->order  = 4;               // method order
-
-  udata->hfixed     = ZERO;           // using adaptive step sizes
-  udata->controller = 0;              // PID controller
-  udata->maxsteps   = 0;              // use ARKode default
+  udata->rtol     = RCONST(1.e-5);   // relative tolerance
+  udata->atol     = RCONST(1.e-10);  // absolute tolerance
+  udata->maxsteps = 0;               // use default
 
   // Linear solver and preconditioner options
-  udata->liniters = 10;         // max linear iterations
-  udata->epslin   = -ONE;       // use ARKode default (0.05)
-  udata->prec     = true;       // enable preconditioning
-  udata->msbp     = 0;          // use ARKode default (20 steps)
+  udata->pcg       = true;       // use PCG (true) or GMRES (false)
+  udata->prec      = true;       // enable preconditioning
+  udata->liniters  = 10;         // max linear iterations
+  udata->msbp      = 0;          // use default (20 steps)
+  udata->epslin    = ZERO;       // use default (0.05)
 
   // hypre PFMG settings
   udata->pfmg_relax  = 2;
@@ -1775,6 +1668,11 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
       udata->kx = stod((*argv)[arg_idx++]);
       udata->ky = stod((*argv)[arg_idx++]);
     }
+    // Disable forcing
+    else if (arg == "--noforcing")
+    {
+      udata->forcing = false;
+    }
     // Temporal domain settings
     else if (arg == "--tf")
     {
@@ -1789,23 +1687,11 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->atol = stod((*argv)[arg_idx++]);
     }
-    else if (arg == "--linear")
-    {
-      udata->linear = true;
-    }
-    else if (arg == "--order")
-    {
-      udata->order = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--fixedstep")
-    {
-      udata->hfixed = stod((*argv)[arg_idx++]);
-    }
-    else if (arg == "--controller")
-    {
-      udata->controller = stoi((*argv)[arg_idx++]);
-    }
     // Linear solver settings
+    else if (arg == "--gmres")
+    {
+      udata->pcg = false;
+    }
     else if (arg == "--liniters")
     {
       udata->liniters = stoi((*argv)[arg_idx++]);
@@ -1873,13 +1759,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
   // Recompute x and y mesh spacing
   udata->dx = (udata->xu) / (udata->nx - 1);
   udata->dy = (udata->yu) / (udata->ny - 1);
-
-  // If the method order is 1 fixed time stepping must be used
-  if (udata->order == 1 && !(udata->hfixed > ZERO))
-  {
-    cerr << "ERROR: Method order 1 requires fixed time stepping" << endl;
-    return -1;
-  }
 
   // Return success
   return 0;
@@ -1952,13 +1831,11 @@ static void InputHelp()
   cout << "  --np <npx> <npy>        : number of MPI processes in the x and y directions" << endl;
   cout << "  --domain <xu> <yu>      : domain upper bound in the x and y direction" << endl;
   cout << "  --k <kx> <ky>           : diffusion coefficients" << endl;
+  cout << "  --noforcing             : disable forcing term" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
   cout << "  --atol <atol>           : absoltue tolerance" << endl;
-  cout << "  --linear                : enable linearly implicit flag" << endl;
-  cout << "  --order <ord>           : method order" << endl;
-  cout << "  --fixedstep <step>      : used fixed step size" << endl;
-  cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
+  cout << "  --gmres                 : use GMRES linear solver" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
   cout << "  --noprec                : disable preconditioner" << endl;
@@ -1984,6 +1861,7 @@ static int PrintUserData(UserData *udata)
   cout << " --------------------------------- "           << endl;
   cout << "  kx             = " << udata->kx              << endl;
   cout << "  ky             = " << udata->ky              << endl;
+  cout << "  forcing        = " << udata->forcing         << endl;
   cout << "  tf             = " << udata->tf              << endl;
   cout << "  xu             = " << udata->xu              << endl;
   cout << "  yu             = " << udata->yu              << endl;
@@ -1996,13 +1874,17 @@ static int PrintUserData(UserData *udata)
   cout << " --------------------------------- "           << endl;
   cout << "  rtol           = " << udata->rtol            << endl;
   cout << "  atol           = " << udata->atol            << endl;
-  cout << "  order          = " << udata->order           << endl;
-  cout << "  fixed h        = " << udata->hfixed          << endl;
-  cout << "  controller     = " << udata->controller      << endl;
-  cout << "  linear         = " << udata->linear          << endl;
   cout << " --------------------------------- "           << endl;
+  if (udata->pcg)
+  {
+    cout << "  linear solver  = PCG" << endl;
+  }
+  else
+  {
+    cout << "  linear solver  = GMRES" << endl;
+  }
   cout << "  lin iters      = " << udata->liniters        << endl;
-  cout << "  eps lins       = " << udata->epslin          << endl;
+  cout << "  eps lin        = " << udata->epslin          << endl;
   cout << "  prec           = " << udata->prec            << endl;
   cout << "  msbp           = " << udata->msbp            << endl;
   cout << "  pfmg_relax     = " << udata->pfmg_relax      << endl;
@@ -2025,12 +1907,22 @@ static int OpenOutput(UserData *udata)
   {
     cout << scientific;
     cout << setprecision(numeric_limits<realtype>::digits10);
-    cout << "          t           ";
-    cout << "          ||u||_rms      ";
-    cout << "          max error      " << endl;
-    cout << " ---------------------";
-    cout << "-------------------------";
-    cout << "-------------------------" << endl;
+    if (udata->forcing)
+    {
+      cout << "          t           ";
+      cout << "          ||u||_rms      ";
+      cout << "          max error      " << endl;
+      cout << " ---------------------";
+      cout << "-------------------------";
+      cout << "-------------------------" << endl;
+    }
+    else
+    {
+      cout << "          t           ";
+      cout << "          ||u||_rms      " << endl;
+      cout << " ---------------------";
+      cout << "-------------------------" << endl;
+    }
   }
 
   // Output problem information and open output streams
@@ -2067,14 +1959,17 @@ static int OpenOutput(UserData *udata)
     udata->uout << scientific;
     udata->uout << setprecision(numeric_limits<realtype>::digits10);
 
-    fname.str("");
-    fname.clear();
-    fname << "heat2d_error." << setfill('0') << setw(5) << udata->myid_c
-          << ".txt";
-    udata->eout.open(fname.str());
+    if (udata->forcing)
+    {
+      fname.str("");
+      fname.clear();
+      fname << "heat2d_error." << setfill('0') << setw(5) << udata->myid_c
+            << ".txt";
+      udata->eout.open(fname.str());
 
-    udata->eout << scientific;
-    udata->eout << setprecision(numeric_limits<realtype>::digits10);
+      udata->eout << scientific;
+      udata->eout << setprecision(numeric_limits<realtype>::digits10);
+    }
   }
 
   return 0;
@@ -2083,23 +1978,36 @@ static int OpenOutput(UserData *udata)
 // Write output
 static int WriteOutput(realtype t, N_Vector u, UserData *udata)
 {
-  int  flag;
-  bool outproc = (udata->myid_c == 0);
+  int      flag;
+  realtype max;
+  bool     outproc = (udata->myid_c == 0);
 
   if (udata->output > 0)
   {
-    // Compute the error
-    flag = SolutionError(t, u, udata->e, udata);
-    if (check_flag(&flag, "SolutionError", 1)) return 1;
+    if (udata->forcing)
+    {
+      // Compute the error
+      flag = SolutionError(t, u, udata->e, udata);
+      if (check_flag(&flag, "SolutionError", 1)) return 1;
 
-    // Compute max error and rms norm
-    realtype max  = N_VMaxNorm(udata->e);
+      // Compute max error
+      max = N_VMaxNorm(udata->e);
+    }
+
+    // Compute rms norm of the state
     realtype urms = sqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
 
     // Output current status
     if (outproc)
     {
-      cout << setw(22) << t << setw(25) << urms << setw(25) << max << endl;
+      if (udata->forcing)
+      {
+        cout << setw(22) << t << setw(25) << urms << setw(25) << max << endl;
+      }
+      else
+      {
+        cout << setw(22) << t << setw(25) << urms << endl;
+      }
     }
 
     // Write solution and error to disk
@@ -2115,16 +2023,19 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata)
       }
       udata->uout << endl;
 
-      // Output error to disk
-      realtype *earray = N_VGetArrayPointer(udata->e);
-      if (check_flag((void *) earray, "N_VGetArrayPointer", 0)) return -1;
-
-      udata->eout << t << " ";
-      for (sunindextype i = 0; i < udata->nodes_loc; i++)
+      if (udata->forcing)
       {
-        udata->eout << earray[i] << " ";
+        // Output error to disk
+        realtype *earray = N_VGetArrayPointer(udata->e);
+        if (check_flag((void *) earray, "N_VGetArrayPointer", 0)) return -1;
+
+        udata->eout << t << " ";
+        for (sunindextype i = 0; i < udata->nodes_loc; i++)
+        {
+          udata->eout << earray[i] << " ";
+        }
+        udata->eout << endl;
       }
-      udata->eout << endl;
     }
   }
 
@@ -2139,57 +2050,63 @@ static int CloseOutput(UserData *udata)
   // Footer for status output
   if (outproc && (udata->output > 0))
   {
-    cout << " ---------------------";
-    cout << "-------------------------";
-    cout << "-------------------------" << endl;
-    cout << endl;
+    if (udata->forcing)
+    {
+      cout << " ---------------------";
+      cout << "-------------------------";
+      cout << "-------------------------" << endl;
+      cout << endl;
+    }
+    else
+    {
+      cout << " ---------------------";
+      cout << "-------------------------" << endl;
+      cout << endl;
+    }
   }
 
   if (udata->output == 2)
   {
     // Close output streams
     udata->uout.close();
-    udata->eout.close();
+    if (udata->forcing) udata->eout.close();
   }
 
   return 0;
 }
 
 // Print integrator statistics
-static int OutputStats(void *arkode_mem, UserData* udata)
+static int OutputStats(void *cvode_mem, UserData* udata)
 {
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nJeval;
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return -1;
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) return -1;
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) return -1;
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) return -1;
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return -1;
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  if (check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1)) return -1;
-  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
-  if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) return -1;
-  flag = ARKStepGetNumLinConvFails(arkode_mem, &nlcf);
-  if (check_flag(&flag, "ARKStepGetNumLinConvFails", 1)) return -1;
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) return -1;
-  flag = ARKStepGetNumJacEvals(arkode_mem, &nJeval);
-  if (check_flag(&flag, "ARKStepGetNumJacEvals", 1)) return -1;
+  long int nst, netf, nf, nni, ncfn, nli, nlcf, nsetups, nJeval;
+  flag = CVodeGetNumSteps(cvode_mem, &nst);
+  if (check_flag(&flag, "CVodeGetNumSteps", 1)) return -1;
+  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  if (check_flag(&flag, "CVodeGetNumErrTestFails", 1)) return -1;
+  flag = CVodeGetNumRhsEvals(cvode_mem, &nf);
+  if (check_flag(&flag, "CVodeGetNumRhsEvals", 1)) return -1;
+  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  if (check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1)) return -1;
+  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  if (check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1)) return -1;
+  flag = CVodeGetNumLinIters(cvode_mem, &nli);
+  if (check_flag(&flag, "CVodeGetNumLinIters", 1)) return -1;
+  flag = CVodeGetNumLinConvFails(cvode_mem, &nlcf);
+  if (check_flag(&flag, "CVodeGetNumLinConvFails", 1)) return -1;
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  if (check_flag(&flag, "CVodeGetNumLinSolvSetups", 1)) return -1;
+  flag = CVodeGetNumJacEvals(cvode_mem, &nJeval);
+  if (check_flag(&flag, "CVodeGetNumJacEvals", 1)) return -1;
 
   cout << fixed;
   cout << setprecision(6);
 
   cout << "  Steps            = " << nst     << endl;
-  cout << "  Step attempts    = " << nst_a   << endl;
   cout << "  Error test fails = " << netf    << endl;
-  cout << "  RHS evals        = " << nfi     << endl;
+  cout << "  RHS evals        = " << nf      << endl;
   cout << "  NLS iters        = " << nni     << endl;
   cout << "  NLS fails        = " << ncfn    << endl;
   cout << "  LS iters         = " << nli     << endl;
@@ -2199,10 +2116,10 @@ static int OutputStats(void *arkode_mem, UserData* udata)
   cout << endl;
 
   // Compute average nls iters per step attempt and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nst_a;
+  realtype avgnli = (realtype) nni / (realtype) nst;
   realtype avgli  = (realtype) nli / (realtype) nni;
-  cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
-  cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
+  cout << "  Avg NLS iters per step    = " << avgnli << endl;
+  cout << "  Avg LS iters per NLS iter = " << avgli  << endl;
   cout << endl;
 
   return 0;
@@ -2461,7 +2378,7 @@ int Hypre5ptMatrix_ScaleAddI(realtype c, SUNMatrix A)
   // Center, left, right, bottom, top
   HYPRE_Int entries[5] = {0, 1, 2, 3, 4};
 
-  // Set work array to all ones
+  // Copy all matrix values into work array
   flag = HYPRE_StructMatrixGetBoxValues(H5PM_MATRIX(A),
                                         H5PM_ILOWER(A), H5PM_IUPPER(A),
                                         5, entries, H5PM_WORK(A));
@@ -2496,8 +2413,8 @@ int Hypre5ptMatrix_ScaleAddI(realtype c, SUNMatrix A)
 // SUNLinearSolver functions
 // -----------------------------------------------------------------------------
 
-// Create hypre PCG solver
-SUNLinearSolver HyprePCG(SUNMatrix A, UserData *udata)
+// Create hypre linear solver
+SUNLinearSolver HypreLS(SUNMatrix A, UserData *udata)
 {
   int flag;
 
@@ -2509,20 +2426,22 @@ SUNLinearSolver HyprePCG(SUNMatrix A, UserData *udata)
   if (LS == NULL) return NULL;
 
   // Attach operations
-  LS->ops->gettype    = HyprePCG_GetType;
-  LS->ops->setup      = HyprePCG_Setup;
-  LS->ops->solve      = HyprePCG_Solve;
-  LS->ops->numiters   = HyprePCG_NumIters;
-  LS->ops->free       = HyprePCG_Free;
+  LS->ops->gettype    = HypreLS_GetType;
+  LS->ops->setup      = HypreLS_Setup;
+  LS->ops->solve      = HypreLS_Solve;
+  LS->ops->numiters   = HypreLS_NumIters;
+  LS->ops->free       = HypreLS_Free;
 
   // Create content
-  HyprePCGContent *content = new HyprePCGContent;
+  HypreLSContent *content = new HypreLSContent;
   if (content == NULL) { SUNLinSolFree(LS); return NULL; }
 
   // Attach the content
   LS->content = content;
 
+  // Initialize iteration count and solver choice
   content->iters = 0;
+  content->pcg   = udata->pcg;
 
   // ---------
   // x vector
@@ -2546,72 +2465,53 @@ SUNLinearSolver HyprePCG(SUNMatrix A, UserData *udata)
   flag = HYPRE_StructVectorInitialize(content->bvec);
   if (flag != 0) { SUNLinSolFree(LS); return NULL; }
 
-  // -----------
-  // PCG solver
-  // -----------
+  // --------------
+  // linear solver
+  // --------------
 
-  // Create the struct PCG solver
-  flag = HYPRE_StructPCGCreate(udata->comm_c, &(content->solver));
-  if (flag != 0) { HyprePCG_Free(LS); return(NULL); }
+  if (content->pcg)
+  {
+    // Create the struct PCG solver
+    flag = HYPRE_StructPCGCreate(udata->comm_c, &(content->solver));
+    if (flag != 0) { HypreLS_Free(LS); return(NULL); }
 
-  // Max number of iterations
-  flag = HYPRE_StructPCGSetMaxIter(content->solver, udata->liniters);
-  if (flag != 0) { HyprePCG_Free(LS); return(NULL); }
+    // Max number of iterations
+    flag = HYPRE_StructPCGSetMaxIter(content->solver, udata->liniters);
+    if (flag != 0) { HypreLS_Free(LS); return(NULL); }
+  }
+  else
+  {
+    // Create the struct GMRES solver
+    flag = HYPRE_StructGMRESCreate(udata->comm_c, &(content->solver));
+    if (flag != 0) { HypreLS_Free(LS); return(NULL); }
+
+    // Max Krylov space size and number of iterations (no restarts)
+    flag = HYPRE_StructGMRESSetKDim(content->solver, udata->liniters);
+    if (flag != 0) { HypreLS_Free(LS); return(NULL); }
+
+    flag = HYPRE_StructGMRESSetMaxIter(content->solver, udata->liniters);
+    if (flag != 0) { HypreLS_Free(LS); return(NULL); }
+  }
 
   // --------------------
   // PFMG preconditioner
   // --------------------
 
-  if (udata->prec)
-  {
-    flag = HYPRE_StructPFMGCreate(udata->comm_c, &(content->precond));
-    if (flag != 0) { HyprePCG_Free(LS); return NULL; }
-
-    // signal that the inital guess is zero
-    flag = HYPRE_StructPFMGSetZeroGuess(content->precond);
-    if (flag != 0) { HyprePCG_Free(LS); return NULL; }
-
-    // tol <= 0.0 means do the max number of iterations
-    flag = HYPRE_StructPFMGSetTol(content->precond, ZERO);
-    if (flag != 0) { HyprePCG_Free(LS); return NULL; }
-
-    // use one v-cycle
-    flag = HYPRE_StructPFMGSetMaxIter(content->precond, 1);
-    if (flag != 0) { HyprePCG_Free(LS); return NULL; }
-
-    // use non-Galerkin corase grid operator
-    flag = HYPRE_StructPFMGSetRAPType(content->precond, 1);
-    if (flag != 0) { HyprePCG_Free(LS); return NULL; }
-
-    // set the relaxation type
-    flag = HYPRE_StructPFMGSetRelaxType(content->precond, udata->pfmg_relax);
-    if (flag != 0) { HyprePCG_Free(LS); return NULL; }
-
-    // set the number of pre and post relaxation sweeps
-    flag = HYPRE_StructPFMGSetNumPreRelax(content->precond, udata->pfmg_nrelax);
-    if (flag != 0) { HyprePCG_Free(LS); return NULL; }
-
-    flag = HYPRE_StructPFMGSetNumPostRelax(content->precond, udata->pfmg_nrelax);
-    if (flag != 0) { HyprePCG_Free(LS); return NULL; }
-
-    // Set preconditioner
-    flag = HYPRE_StructPCGSetPrecond(content->solver,
-                                     HYPRE_StructPFMGSolve,
-                                     HYPRE_StructPFMGSetup,
-                                     content->precond);
-    if (flag != 0) { HyprePCG_Free(LS); return NULL; }
-  }
+  // Note a new PFMG preconditioner must be created and attached each time the
+  // linear system is updated. As such it is constructed in the linear solver
+  // setup function.
+  content->precond = NULL;
 
   // Return solver
   return(LS);
 }
 
-SUNLinearSolver_Type HyprePCG_GetType(SUNLinearSolver LS)
+SUNLinearSolver_Type HypreLS_GetType(SUNLinearSolver LS)
 {
   return(SUNLINEARSOLVER_MATRIX_ITERATIVE);
 }
 
-int HyprePCG_Setup(SUNLinearSolver LS, SUNMatrix A)
+int HypreLS_Setup(SUNLinearSolver LS, SUNMatrix A)
 {
   int flag;
 
@@ -2621,26 +2521,89 @@ int HyprePCG_Setup(SUNLinearSolver LS, SUNMatrix A)
   // Shortcut to user data
   UserData *udata = H5PM_UDATA(A);
 
-  // Set rhs/solution vectors as all zero for now
-  flag = HYPRE_StructVectorSetConstantValues(HPCG_B(LS), ZERO);
-  if (flag != 0) return(flag);
-
-  flag = HYPRE_StructVectorAssemble(HPCG_B(LS));
-  if (flag != 0) return(flag);
-
-  flag = HYPRE_StructVectorSetConstantValues(HPCG_X(LS), ZERO);
-  if (flag != 0) return(flag);
-
-  flag = HYPRE_StructVectorAssemble(HPCG_X(LS));
-  if (flag != 0) return(flag);
-
   // Assemble the matrix
   flag = HYPRE_StructMatrixAssemble(H5PM_MATRIX(A));
   if (flag != 0) return(flag);
 
+  // Set rhs/solution vectors as all zero for now
+  flag = HYPRE_StructVectorSetConstantValues(HLS_B(LS), ZERO);
+  if (flag != 0) return(flag);
+
+  flag = HYPRE_StructVectorAssemble(HLS_B(LS));
+  if (flag != 0) return(flag);
+
+  flag = HYPRE_StructVectorSetConstantValues(HLS_X(LS), ZERO);
+  if (flag != 0) return(flag);
+
+  flag = HYPRE_StructVectorAssemble(HLS_X(LS));
+  if (flag != 0) return(flag);
+
+  // Setup the preconditioner
+  if (udata->prec)
+  {
+    // Free the existing preconditioner if necessary
+    if (HLS_PRECOND(LS)) HYPRE_StructPFMGDestroy(HLS_PRECOND(LS));
+
+    // Create the new preconditioner
+    flag = HYPRE_StructPFMGCreate(udata->comm_c, &(HLS_PRECOND(LS)));
+    if (flag != 0) return(flag);
+
+    // Signal that the inital guess is zero
+    flag = HYPRE_StructPFMGSetZeroGuess(HLS_PRECOND(LS));
+    if (flag != 0) return(flag);
+
+    // tol <= 0.0 means do the max number of iterations
+    flag = HYPRE_StructPFMGSetTol(HLS_PRECOND(LS), ZERO);
+    if (flag != 0) return(flag);
+
+    // Use one v-cycle
+    flag = HYPRE_StructPFMGSetMaxIter(HLS_PRECOND(LS), 1);
+    if (flag != 0) return(flag);
+
+    // Use non-Galerkin corase grid operator
+    flag = HYPRE_StructPFMGSetRAPType(HLS_PRECOND(LS), 1);
+    if (flag != 0) return(flag);
+
+    // Set the relaxation type
+    flag = HYPRE_StructPFMGSetRelaxType(HLS_PRECOND(LS), udata->pfmg_relax);
+    if (flag != 0) return(flag);
+
+    // Set the number of pre and post relaxation sweeps
+    flag = HYPRE_StructPFMGSetNumPreRelax(HLS_PRECOND(LS), udata->pfmg_nrelax);
+    if (flag != 0) return(flag);
+
+    flag = HYPRE_StructPFMGSetNumPostRelax(HLS_PRECOND(LS), udata->pfmg_nrelax);
+    if (flag != 0) return(flag);
+
+    // Set preconditioner
+    if (HLS_PCG(LS))
+    {
+      flag = HYPRE_StructPCGSetPrecond(HLS_SOLVER(LS),
+                                       HYPRE_StructPFMGSolve,
+                                       HYPRE_StructPFMGSetup,
+                                       HLS_PRECOND(LS));
+    }
+    else
+    {
+      flag = HYPRE_StructGMRESSetPrecond(HLS_SOLVER(LS),
+                                         HYPRE_StructPFMGSolve,
+                                         HYPRE_StructPFMGSetup,
+                                         HLS_PRECOND(LS));
+    }
+    if (flag != 0) return(flag);
+  }
+
   // Set up the solver
-  flag = HYPRE_StructPCGSetup(HPCG_SOLVER(LS), H5PM_MATRIX(A),
-                              HPCG_B(LS), HPCG_X(LS));
+  if (HLS_PCG(LS))
+  {
+    flag = HYPRE_StructPCGSetup(HLS_SOLVER(LS), H5PM_MATRIX(A),
+                                HLS_B(LS), HLS_X(LS));
+  }
+  else
+  {
+    flag = HYPRE_StructGMRESSetup(HLS_SOLVER(LS), H5PM_MATRIX(A),
+                                  HLS_B(LS), HLS_X(LS));
+  }
   if (flag != 0) return(flag);
 
   // Stop timer
@@ -2653,8 +2616,8 @@ int HyprePCG_Setup(SUNLinearSolver LS, SUNMatrix A)
   return(SUNLS_SUCCESS);
 }
 
-int HyprePCG_Solve(SUNLinearSolver LS, SUNMatrix A,
-                   N_Vector x, N_Vector b, realtype tol)
+int HypreLS_Solve(SUNLinearSolver LS, SUNMatrix A,
+                  N_Vector x, N_Vector b, realtype tol)
 {
   int flag;
 
@@ -2665,50 +2628,83 @@ int HyprePCG_Solve(SUNLinearSolver LS, SUNMatrix A,
   UserData *udata = H5PM_UDATA(A);
 
   // Insert rhs N_Vector entries into HYPRE vector b and assemble
-  flag = HYPRE_StructVectorSetBoxValues(HPCG_B(LS),
+  flag = HYPRE_StructVectorSetBoxValues(HLS_B(LS),
                                         H5PM_ILOWER(A), H5PM_IUPPER(A),
                                         N_VGetArrayPointer(b));
   if (flag != 0) return -1;
 
-  flag = HYPRE_StructVectorAssemble(HPCG_B(LS));
+  flag = HYPRE_StructVectorAssemble(HLS_B(LS));
   if (flag != 0) return -1;
 
   // Insert solution N_Vector entries into HYPRE vector x and assemble
-  flag = HYPRE_StructVectorSetBoxValues(HPCG_X(LS),
+  flag = HYPRE_StructVectorSetBoxValues(HLS_X(LS),
                                         H5PM_ILOWER(A), H5PM_IUPPER(A),
                                         N_VGetArrayPointer(x));
   if (flag != 0) return -1;
 
-  flag = HYPRE_StructVectorAssemble(HPCG_X(LS));
+  flag = HYPRE_StructVectorAssemble(HLS_X(LS));
   if (flag != 0) return -1;
 
-  // Relative tolerance
-  flag = HYPRE_StructPCGSetTol(HPCG_SOLVER(LS), ZERO);
-  if (flag != 0) return -1;
+  if (HLS_PCG(LS))
+  {
+    // Relative tolerance
+    flag = HYPRE_StructPCGSetTol(HLS_SOLVER(LS), ZERO);
+    if (flag != 0) return -1;
 
-  // Absolute tolerance
-  flag = HYPRE_StructPCGSetAbsoluteTol(HPCG_SOLVER(LS), tol);
-  if (flag != 0) return -1;
+    // Absolute tolerance
+    flag = HYPRE_StructPCGSetAbsoluteTol(HLS_SOLVER(LS), tol);
+    if (flag != 0) return -1;
 
-  // Use two norm
-  flag = HYPRE_StructPCGSetTwoNorm(HPCG_SOLVER(LS), 1);
-  if (flag != 0) return -1;
+    // Use two norm
+    flag = HYPRE_StructPCGSetTwoNorm(HLS_SOLVER(LS), 1);
+    if (flag != 0) return -1;
 
-  // Solve the linear system
-  flag = HYPRE_StructPCGSolve(HPCG_SOLVER(LS), H5PM_MATRIX(A),
-                              HPCG_B(LS), HPCG_X(LS));
+    // Solve the linear system
+    flag = HYPRE_StructPCGSolve(HLS_SOLVER(LS), H5PM_MATRIX(A),
+                                HLS_B(LS), HLS_X(LS));
+  }
+  else
+  {
+    // Relative tolerance
+    flag = HYPRE_StructGMRESSetTol(HLS_SOLVER(LS), ZERO);
+    if (flag != 0) return -1;
 
-  // If a convergence error occured, clear the error and continue. For any
-  // other error return with a recoverable error.
-  if (flag == HYPRE_ERROR_CONV) HYPRE_ClearError(HYPRE_ERROR_CONV);
-  else if (flag != 0) return 1;
+    // Absolute tolerance
+    flag = HYPRE_StructGMRESSetAbsoluteTol(HLS_SOLVER(LS), tol);
+    if (flag != 0) return -1;
+
+    // Solve the linear system
+    flag = HYPRE_StructGMRESSolve(HLS_SOLVER(LS), H5PM_MATRIX(A),
+                                  HLS_B(LS), HLS_X(LS));
+  }
+
+  // If a convergence error occured, clear the error, and return with a
+  // recoverable error.
+  if (flag == HYPRE_ERROR_CONV)
+  {
+    HYPRE_ClearError(HYPRE_ERROR_CONV);
+    return SUNLS_CONV_FAIL;
+  }
+  // If any other error occured return with an unrecoverable error.
+  else if (flag != 0)
+  {
+    return SUNLS_PACKAGE_FAIL_UNREC;
+  }
 
   // Update iteration count
-  flag = HYPRE_StructPCGGetNumIterations(HPCG_SOLVER(LS), &(HPCG_ITERS(LS)));
-  if (flag != 0) return -1;
+  if (HLS_PCG(LS))
+  {
+    flag = HYPRE_StructPCGGetNumIterations(HLS_SOLVER(LS), &(HLS_ITERS(LS)));
+    if (flag != 0) return -1;
+  }
+  else
+  {
+    flag = HYPRE_StructGMRESGetNumIterations(HLS_SOLVER(LS), &(HLS_ITERS(LS)));
+    if (flag != 0) return -1;
+  }
 
   // Extract solution values
-  flag = HYPRE_StructVectorGetBoxValues(HPCG_X(LS),
+  flag = HYPRE_StructVectorGetBoxValues(HLS_X(LS),
                                         H5PM_ILOWER(A), H5PM_IUPPER(A),
                                         N_VGetArrayPointer(x));
   if (flag != 0) return -1;
@@ -2723,21 +2719,31 @@ int HyprePCG_Solve(SUNLinearSolver LS, SUNMatrix A,
   return(SUNLS_SUCCESS);
 }
 
-int HyprePCG_NumIters(SUNLinearSolver LS)
+int HypreLS_NumIters(SUNLinearSolver LS)
 {
-  return((int) HPCG_ITERS(LS));
+  return((int) HLS_ITERS(LS));
 }
 
-int HyprePCG_Free(SUNLinearSolver LS)
+int HypreLS_Free(SUNLinearSolver LS)
 {
   if (LS == NULL) return(SUNLS_SUCCESS);
   if (LS->content != NULL)
   {
-    if (HPCG_SOLVER(LS))  HYPRE_StructPCGDestroy(HPCG_SOLVER(LS));
-    if (HPCG_PRECOND(LS)) HYPRE_StructPFMGDestroy(HPCG_PRECOND(LS));
-    if (HPCG_B(LS))       HYPRE_StructVectorDestroy(HPCG_B(LS));
-    if (HPCG_X(LS))       HYPRE_StructVectorDestroy(HPCG_X(LS));
-    delete ((HyprePCGContent*) (LS->content));
+    if (HLS_SOLVER(LS))
+    {
+      if (HLS_PCG(LS))
+      {
+        HYPRE_StructPCGDestroy(HLS_SOLVER(LS));
+      }
+      else
+      {
+        HYPRE_StructGMRESDestroy(HLS_SOLVER(LS));
+      }
+    }
+    if (HLS_PRECOND(LS)) HYPRE_StructPFMGDestroy(HLS_PRECOND(LS));
+    if (HLS_B(LS))       HYPRE_StructVectorDestroy(HLS_B(LS));
+    if (HLS_X(LS))       HYPRE_StructVectorDestroy(HLS_X(LS));
+    delete ((HypreLSContent*) (LS->content));
     LS->content = NULL;
   }
   SUNLinSolFreeEmpty(LS);

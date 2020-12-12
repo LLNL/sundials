@@ -26,7 +26,7 @@ sundials_add_library(sundials_sunlinsolcusolversp
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
-    PUBLIC sundials_nveccuda sundials_sunmatrixcusparse ${CUDA_cusolver_LIBRARY}
+    PUBLIC sundials_sunmatrixcusparse ${CUDA_cusolver_LIBRARY}
     PRIVATE ${CUDA_cusparse_LIBRARY}
   OUTPUT_NAME
     sundials_sunlinsolcusolversp

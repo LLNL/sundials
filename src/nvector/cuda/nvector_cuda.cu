@@ -163,12 +163,15 @@ N_Vector N_VNewEmpty_Cuda()
   /* Attach operations */
 
   /* constructors, destructors, and utility operations */
-  v->ops->nvgetvectorid     = N_VGetVectorID_Cuda;
-  v->ops->nvclone           = N_VClone_Cuda;
-  v->ops->nvcloneempty      = N_VCloneEmpty_Cuda;
-  v->ops->nvdestroy         = N_VDestroy_Cuda;
-  v->ops->nvspace           = N_VSpace_Cuda;
-  v->ops->nvgetlength       = N_VGetLength_Cuda;
+  v->ops->nvgetvectorid           = N_VGetVectorID_Cuda;
+  v->ops->nvclone                 = N_VClone_Cuda;
+  v->ops->nvcloneempty            = N_VCloneEmpty_Cuda;
+  v->ops->nvdestroy               = N_VDestroy_Cuda;
+  v->ops->nvspace                 = N_VSpace_Cuda;
+  v->ops->nvgetlength             = N_VGetLength_Cuda;
+  v->ops->nvgetarraypointer       = N_VGetHostArrayPointer_Cuda;
+  v->ops->nvgetdevicearraypointer = N_VGetDeviceArrayPointer_Cuda;
+  v->ops->nvsetarraypointer       = N_VSetHostArrayPointer_Cuda;
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_Cuda;
@@ -316,14 +319,6 @@ N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem
   NVEC_CUDA_PRIVATE(v)->reduce_buffer_host            = NULL;
   NVEC_CUDA_PRIVATE(v)->reduce_buffer_allocated_bytes = 0;
 
-  if (use_managed_mem)
-  {
-    /* if using managed memory, we can attach an operation for
-       nv<get|set>arraypointer since the host and device pointers are the same */
-    v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
-    v->ops->nvsetarraypointer = N_VSetHostArrayPointer_Cuda;
-  }
-
   if (AllocateData(v))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VNewWithMemHelp_Cuda: AllocateData returned nonzero\n");
@@ -341,11 +336,6 @@ N_Vector N_VNewManaged_Cuda(sunindextype length)
   v = NULL;
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
-
-  /* if using managed memory, we can attach an operation for
-     nv<get|set>arraypointer since the host and device pointers are the same */
-  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
-  v->ops->nvsetarraypointer = N_VSetHostArrayPointer_Cuda;
 
   NVEC_CUDA_CONTENT(v)->length                        = length;
   NVEC_CUDA_CONTENT(v)->host_data                     = NULL;
@@ -428,11 +418,6 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata)
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
 
-  /* if using managed memory, we can attach an operation for
-     nv<get|set>arraypointer since the host and device pointers are the same */
-  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
-  v->ops->nvsetarraypointer = N_VSetHostArrayPointer_Cuda;
-
   NVEC_CUDA_CONTENT(v)->length                        = length;
   NVEC_CUDA_CONTENT(v)->host_data                     = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
   NVEC_CUDA_CONTENT(v)->device_data                   = SUNMemoryHelper_Alias(NVEC_CUDA_CONTENT(v)->host_data);
@@ -474,11 +459,6 @@ N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length,
   v = NULL;
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
-
-  /* if using managed memory, we can attach an operation for
-     nv<get|set>arraypointer since the host and device pointers are the same */
-  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Cuda;
-  v->ops->nvsetarraypointer = N_VSetHostArrayPointer_Cuda;
 
   NVEC_CUDA_CONTENT(v)->length                        = length;
   NVEC_CUDA_CONTENT(v)->host_data                     = NULL;

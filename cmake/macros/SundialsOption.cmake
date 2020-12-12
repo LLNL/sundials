@@ -32,13 +32,16 @@
 # all evaluate to true, then <variable> is set to "" and a warning is printed.
 # The DEPENDS_ON_THROW_ERROR option will change the warning to be an error.
 #
+# The OPTIONS macro can be used to provide a list of valid values for the
+# variable.
+#
 # The ADVANCED option can be used to make <variable> an advanced CMake option.
 # ---------------------------------------------------------------------------
 
 
 macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
-  set(options DEPENDS_ON_THROW_ERROR ADVANCED)  # macro options
-  set(multiValueArgs SHOW_IF DEPENDS_ON)        # macro keyword inputs followed by multiple values
+  set(options DEPENDS_ON_THROW_ERROR ADVANCED)   # macro options
+  set(multiValueArgs OPTIONS SHOW_IF DEPENDS_ON) # macro keyword inputs followed by multiple values
 
   # parse inputs and create variables sundials_option_<keyword>
   cmake_parse_arguments(sundials_option "${options}" "${oneValueArgs}"
@@ -108,6 +111,17 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
   endif()
 
+  if(sundials_option_OPTIONS)
+    if(NOT (${NAME} IN_LIST sundials_option_OPTIONS))
+      list(JOIN sundials_option_OPTIONS ", " _options_msg)
+      print_error("Value of ${NAME} must be one of ${_options_msg}")
+    endif()
+    get_property(is_in_cache CACHE ${NAME} PROPERTY TYPE)
+    if(is_in_cache)
+      set_property(CACHE ${NAME} PROPERTY STRINGS ${sundials_option_OPTIONS})
+    endif()
+    unset(is_in_cache)
+  endif()
 
   unset(all_show_if_dependencies_met)
   unset(all_depends_on_dependencies_met)

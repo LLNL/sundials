@@ -1,15 +1,15 @@
 List of parallel ARKODE C++ examples using hypre
 
-  ark_heat2D_hypre_pcg  : 2-D heat equation with user supplied user-supplied hypre
-                          PCG+PFMG linear solver
-  ark_heat2D_hypre_pfmg : 2-D heat equation with SUNDIALS PCG linear solver and
-                          user-supplied hypre PFMG preconditioner
+  ark_heat2D_hypre_ls   : 2-D heat equation with a user-supplied hypre linear
+                          solver and preconditioner
+  ark_heat2D_hypre_pfmg : 2-D heat equation with a SUNDIALS linear solver and
+                          user-supplied hypre preconditioner
 
 Sample results:
 
   The example output was produced by running:
 
-      mpiexec -n 4 ./ark_heat2D_hypre_pcg --np 2 2
+      mpiexec -n 4 ./ark_heat2D_hypre_ls --np 2 2
       mpiexec -n 4 ./ark_heat2D_hypre_pfmg --np 2 2
 
 The following CMake command was used to configure SUNDIALS:

@@ -11,29 +11,41 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for a RAJA+CUDA implementation
- * of the NVECTOR package.
+ * This is the implementation file for a RAJA implementation
+ * of the NVECTOR package. This will support CUDA and HIP
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <nvector/nvector_raja.h>
 #include <RAJA/RAJA.hpp>
+#include <nvector/nvector_raja.h>
 
 #include "sundials_debug.h"
+
+// RAJA defines
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
+#include <sunmemory/sunmemory_cuda.h>
 #include "sundials_cuda.h"
+#define RAJA_NODE_TYPE RAJA::cuda_exec< 256 >
+#define RAJA_REDUCE_TYPE RAJA::cuda_reduce
+#define SUNDIALS_GPU_PREFIX(val) cuda ## val
+#define SUNDIALS_GPU_VERIFY SUNDIALS_CUDA_VERIFY
+#elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+#include <sunmemory/sunmemory_hip.h>
+#include "sundials_hip.h"
+#define RAJA_NODE_TYPE RAJA::hip_exec< 512 >
+#define RAJA_REDUCE_TYPE RAJA::hip_reduce
+#define SUNDIALS_GPU_PREFIX(val) hip ## val
+#define SUNDIALS_GPU_VERIFY SUNDIALS_HIP_VERIFY
+#endif
+
+#define RAJA_LAMBDA [=] __device__
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
-
-// RAJA defines
-#define CUDA_BLOCK_SIZE 256
-#define RAJA_NODE_TYPE RAJA::cuda_exec< CUDA_BLOCK_SIZE >
-#define RAJA_REDUCE_TYPE RAJA::cuda_reduce
-#define RAJA_LAMBDA [=] __device__
 
 extern "C" {
 
@@ -59,8 +71,16 @@ struct _N_PrivateVectorContent_Raja
 
 typedef struct _N_PrivateVectorContent_Raja *N_PrivateVectorContent_Raja;
 
-static int AllocateData(N_Vector v);
 
+/*
+ * Utility functions
+ */
+
+static int AllocateData(N_Vector v);
+static void CreateArrayOfPointersOnDevice(realtype*** d_ptrs, SUNMemory* d_ref,
+                                          int nvec, N_Vector *V);
+static void Create2DArrayOfPointersOnDevice(realtype*** d_ptrs, SUNMemory* d_ref,
+                                            int nvec, int nsum, N_Vector **V);
 
 N_Vector N_VNewEmpty_Raja()
 {
@@ -74,12 +94,16 @@ N_Vector N_VNewEmpty_Raja()
   /* Attach operations */
 
   /* constructors, destructors, and utility operations */
-  v->ops->nvgetvectorid     = N_VGetVectorID_Raja;
-  v->ops->nvclone           = N_VClone_Raja;
-  v->ops->nvcloneempty      = N_VCloneEmpty_Raja;
-  v->ops->nvdestroy         = N_VDestroy_Raja;
-  v->ops->nvspace           = N_VSpace_Raja;
-  v->ops->nvgetlength       = N_VGetLength_Raja;
+  v->ops->nvgetvectorid           = N_VGetVectorID_Raja;
+  v->ops->nvclone                 = N_VClone_Raja;
+  v->ops->nvcloneempty            = N_VCloneEmpty_Raja;
+  v->ops->nvdestroy               = N_VDestroy_Raja;
+  v->ops->nvspace                 = N_VSpace_Raja;
+  v->ops->nvgetlength             = N_VGetLength_Raja;
+  v->ops->nvgetarraypointer       = N_VGetHostArrayPointer_Raja;
+  v->ops->nvgetdevicearraypointer = N_VGetDeviceArrayPointer_Raja;
+  v->ops->nvsetarraypointer       = N_VSetHostArrayPointer_Raja;
+
 
   /* standard vector operations */
   v->ops->nvlinearsum    = N_VLinearSum_Raja;
@@ -157,7 +181,11 @@ N_Vector N_VNew_Raja(sunindextype length)
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
   NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+#elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+#endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_CONTENT(v)->host_data       = NULL;
   NVEC_RAJA_CONTENT(v)->device_data     = NULL;
@@ -207,14 +235,6 @@ N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem
   NVEC_RAJA_CONTENT(v)->device_data     = NULL;
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = use_managed_mem;
 
-  if (use_managed_mem)
-  {
-    /* if using managed memory, we can attach an operation for
-       nv<get|set>arraypointer since the host and device pointers are the same */
-    v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Raja;
-    v->ops->nvsetarraypointer = N_VSetHostArrayPointer_Raja;
-  }
-
   if (AllocateData(v))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VNewWithMemHelp_Raja: AllocateData returned nonzero\n");
@@ -233,13 +253,12 @@ N_Vector N_VNewManaged_Raja(sunindextype length)
   v = N_VNewEmpty_Raja();
   if (v == NULL) return(NULL);
 
-  /* if using managed memory, we can attach an operation for
-     nv<get|set>arraypointer since the host and device pointers are the same */
-  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Raja;
-  v->ops->nvsetarraypointer = N_VSetHostArrayPointer_Raja;
-
   NVEC_RAJA_CONTENT(v)->length          = length;
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
   NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+#elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+#endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_CONTENT(v)->host_data       = NULL;
   NVEC_RAJA_CONTENT(v)->device_data     = NULL;
@@ -275,7 +294,11 @@ N_Vector N_VMake_Raja(sunindextype length, realtype *h_vdata, realtype *d_vdata)
   NVEC_RAJA_CONTENT(v)->length          = length;
   NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(h_vdata, SUNMEMTYPE_HOST);
   NVEC_RAJA_CONTENT(v)->device_data     = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
   NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+#elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+#endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = SUNFALSE;
 
@@ -308,15 +331,14 @@ N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata)
   v = N_VNewEmpty_Raja();
   if (v == NULL) return(NULL);
 
-  /* if using managed memory, we can attach an operation for
-     nv<get|set>arraypointer since the host and device pointers are the same */
-  v->ops->nvgetarraypointer = N_VGetHostArrayPointer_Raja;
-  v->ops->nvsetarraypointer = N_VSetHostArrayPointer_Raja;
-
   NVEC_RAJA_CONTENT(v)->length          = length;
   NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
   NVEC_RAJA_CONTENT(v)->device_data     = SUNMemoryHelper_Alias(NVEC_RAJA_CONTENT(v)->host_data);
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
   NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+#elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+#endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = SUNTRUE;
 
@@ -454,7 +476,7 @@ void N_VCopyToDevice_Raja(N_Vector x)
   }
 
   /* we synchronize with respect to the host, but on the default stream currently */
-  SUNDIALS_CUDA_VERIFY(cudaStreamSynchronize(0));
+  SUNDIALS_GPU_VERIFY(SUNDIALS_GPU_PREFIX(StreamSynchronize)(0));
 }
 
 /* ----------------------------------------------------------------------------
@@ -477,7 +499,7 @@ void N_VCopyFromDevice_Raja(N_Vector x)
   }
 
   /* we synchronize with respect to the host, but only in this stream */
-  SUNDIALS_CUDA_VERIFY(cudaStreamSynchronize(0));
+  SUNDIALS_GPU_VERIFY(SUNDIALS_GPU_PREFIX(StreamSynchronize)(0));
 }
 
 /* ----------------------------------------------------------------------------
@@ -922,46 +944,39 @@ realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
 
 int N_VLinearCombination_Raja(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
-  cudaError_t  err;
+  int retval;
 
+  SUNMemoryHelper h = NVEC_RAJA_MEMHELP(X[0]);
   sunindextype N = NVEC_RAJA_CONTENT(z)->length;
   realtype* d_zd = NVEC_RAJA_DDATAp(z);
 
+  // Create device c array for device
+  SUNMemory h_c, d_c;
+  h_c = SUNMemoryHelper_Wrap(c, SUNMEMTYPE_HOST);
+  retval = SUNMemoryHelper_Alloc(h, &d_c, sizeof(realtype)*nvec, SUNMEMTYPE_DEVICE);
+  if (retval) return(-1);
+
   // Copy c array to device
-  realtype* d_c;
-  err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  retval = SUNMemoryHelper_Copy(h, d_c, h_c, sizeof(realtype)*nvec);
+  if (retval) return(-1);
 
-  // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Xd[j] = NVEC_RAJA_DDATAp(X[j]);
-
-  // Copy array of device pointers to device from host
+  SUNMemory d_X;
   realtype** d_Xd;
-  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  CreateArrayOfPointersOnDevice(&d_Xd, &d_X, nvec, X);
 
+  // Shortcut to the arrays to work on
+  realtype* d_cd  = (realtype*) d_c->ptr;
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
-      d_zd[i] = d_c[0] * d_Xd[0][i];
+      d_zd[i] = d_cd[0] * d_Xd[0][i];
       for (int j=1; j<nvec; j++)
-        d_zd[i] += d_c[j] * d_Xd[j][i];
+        d_zd[i] += d_cd[j] * d_Xd[j][i];
     }
   );
 
-  // Free host array
-  delete[] h_Xd;
-
-  // Free device arrays
-  err = cudaFree(d_c);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaFree(d_Xd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  SUNMemoryHelper_Dealloc(h, h_c);
+  SUNMemoryHelper_Dealloc(h, d_c);
+  SUNMemoryHelper_Dealloc(h, d_X);
 
   return(0);
 }
@@ -969,58 +984,40 @@ int N_VLinearCombination_Raja(int nvec, realtype* c, N_Vector* X, N_Vector z)
 
 int N_VScaleAddMulti_Raja(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
-  cudaError_t err;
+  int retval;
 
+  SUNMemoryHelper h = NVEC_RAJA_MEMHELP(x);
   sunindextype N = NVEC_RAJA_CONTENT(x)->length;
   realtype* d_xd = NVEC_RAJA_DDATAp(x);
 
+  // Create c array for device
+  SUNMemory h_c, d_c;
+  h_c = SUNMemoryHelper_Wrap(c, SUNMEMTYPE_HOST);
+  retval = SUNMemoryHelper_Alloc(h, &d_c, sizeof(realtype)*nvec, SUNMEMTYPE_DEVICE);
+  if (retval) return(-1);
+
   // Copy c array to device
-  realtype* d_c;
-  err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  retval = SUNMemoryHelper_Copy(h, d_c, h_c, sizeof(realtype)*nvec);
+  if (retval) return(-1);
 
-  // Create array of device pointers on host
-  realtype** h_Yd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Yd[j] = NVEC_RAJA_DDATAp(Y[j]);
+  SUNMemory d_Y, d_Z;
+  realtype **d_Yd, **d_Zd;
+  CreateArrayOfPointersOnDevice(&d_Yd, &d_Y, nvec, Y);
+  CreateArrayOfPointersOnDevice(&d_Zd, &d_Z, nvec, Z);
 
-  realtype** h_Zd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Zd[j] = NVEC_RAJA_DDATAp(Z[j]);
-
-  // Copy array of device pointers to device from host
-  realtype** d_Yd;
-  err = cudaMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
+  // Perform operation
+  realtype* d_cd  = (realtype*) d_c->ptr;
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
-    RAJA_LAMBDA(sunindextype i) {
+     RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
-        d_Zd[j][i] = d_c[j] * d_xd[i] + d_Yd[j][i];
+        d_Zd[j][i] = d_cd[j] * d_xd[i] + d_Yd[j][i];
     }
   );
 
-  // Free host array
-  delete[] h_Yd;
-  delete[] h_Zd;
-
-  // Free device arrays
-  err = cudaFree(d_c);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaFree(d_Yd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaFree(d_Zd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  SUNMemoryHelper_Dealloc(h, h_c);
+  SUNMemoryHelper_Dealloc(h, d_c);
+  SUNMemoryHelper_Dealloc(h, d_Y);
+  SUNMemoryHelper_Dealloc(h, d_Z);
 
   return(0);
 }
@@ -1037,41 +1034,14 @@ int N_VLinearSumVectorArray_Raja(int nvec,
                                  realtype b, N_Vector* Y,
                                  N_Vector* Z)
 {
-  cudaError_t err;
-
+  SUNMemoryHelper h = NVEC_RAJA_MEMHELP(Z[0]);
   sunindextype N = NVEC_RAJA_CONTENT(Z[0])->length;
 
-  // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Xd[j] = NVEC_RAJA_DDATAp(X[j]);
-
-  realtype** h_Yd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Yd[j] = NVEC_RAJA_DDATAp(Y[j]);
-
-  realtype** h_Zd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Zd[j] = NVEC_RAJA_DDATAp(Z[j]);
-
-  // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Yd;
-  err = cudaMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  SUNMemory d_X, d_Y, d_Z;
+  realtype **d_Xd, **d_Yd, **d_Zd;
+  CreateArrayOfPointersOnDevice(&d_Xd, &d_X, nvec, X);
+  CreateArrayOfPointersOnDevice(&d_Yd, &d_Y, nvec, Y);
+  CreateArrayOfPointersOnDevice(&d_Zd, &d_Z, nvec, Z);
 
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
@@ -1080,18 +1050,9 @@ int N_VLinearSumVectorArray_Raja(int nvec,
     }
   );
 
-  // Free host array
-  delete[] h_Xd;
-  delete[] h_Yd;
-  delete[] h_Zd;
-
-  // Free device arrays
-  err = cudaFree(d_Xd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaFree(d_Yd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaFree(d_Zd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  SUNMemoryHelper_Dealloc(h, d_X);
+  SUNMemoryHelper_Dealloc(h, d_Y);
+  SUNMemoryHelper_Dealloc(h, d_Z);
 
   return(0);
 }
@@ -1099,55 +1060,38 @@ int N_VLinearSumVectorArray_Raja(int nvec,
 
 int N_VScaleVectorArray_Raja(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
-  cudaError_t err;
+  int retval;
 
+  SUNMemoryHelper h = NVEC_RAJA_MEMHELP(Z[0]);
   sunindextype N = NVEC_RAJA_CONTENT(Z[0])->length;
 
+  // Create c array for device
+  SUNMemory h_c, d_c;
+  h_c = SUNMemoryHelper_Wrap(c, SUNMEMTYPE_HOST);
+  retval = SUNMemoryHelper_Alloc(h, &d_c, sizeof(realtype)*nvec, SUNMEMTYPE_DEVICE);
+  if (retval) return(-1);
+
   // Copy c array to device
-  realtype* d_c;
-  err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  retval = SUNMemoryHelper_Copy(h, d_c, h_c, sizeof(realtype)*nvec);
+  if (retval) return(-1);
 
-  // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Xd[j] = NVEC_RAJA_DDATAp(X[j]);
+  SUNMemory d_X, d_Z;
+  realtype **d_Xd, **d_Zd;
+  CreateArrayOfPointersOnDevice(&d_Xd, &d_X, nvec, X);
+  CreateArrayOfPointersOnDevice(&d_Zd, &d_Z, nvec, Z);
 
-  realtype** h_Zd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Zd[j] = NVEC_RAJA_DDATAp(Z[j]);
-
-  // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
+  realtype* d_cd  = (realtype*) d_c->ptr;
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
-        d_Zd[j][i] = d_c[j] * d_Xd[j][i];
+        d_Zd[j][i] = d_cd[j] * d_Xd[j][i];
     }
   );
 
-  // Free host array
-  delete[] h_Xd;
-  delete[] h_Zd;
-
-  // Free device arrays
-  err = cudaFree(d_Xd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaFree(d_Zd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  SUNMemoryHelper_Dealloc(h, h_c);
+  SUNMemoryHelper_Dealloc(h, d_c);
+  SUNMemoryHelper_Dealloc(h, d_X);
+  SUNMemoryHelper_Dealloc(h, d_Z);
 
   return(0);
 }
@@ -1155,21 +1099,12 @@ int N_VScaleVectorArray_Raja(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 
 int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
 {
-  cudaError_t err;
-
+  SUNMemoryHelper h = NVEC_RAJA_MEMHELP(Z[0]);
   sunindextype N = NVEC_RAJA_CONTENT(Z[0])->length;
 
-  // Create array of device pointers on host
-  realtype** h_Zd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Zd[j] = NVEC_RAJA_DDATAp(Z[j]);
-
-  // Copy array of device pointers to device from host
+  SUNMemory d_Z;
   realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  CreateArrayOfPointersOnDevice(&d_Zd, &d_Z, nvec, Z);
 
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
@@ -1178,12 +1113,7 @@ int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
     }
   );
 
-  // Free host array
-  delete[] h_Zd;
-
-  // Free device arrays
-  err = cudaFree(d_Zd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  SUNMemoryHelper_Dealloc(h, d_Z);
 
   return(0);
 }
@@ -1192,71 +1122,41 @@ int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
 int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, realtype* c,
                                      N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
-  cudaError_t err;
+  int retval;
 
+  SUNMemoryHelper h = NVEC_RAJA_MEMHELP(X[0]);
   sunindextype N = NVEC_RAJA_CONTENT(X[0])->length;
 
+  // Create c array for device
+  SUNMemory h_c, d_c;
+  h_c = SUNMemoryHelper_Wrap(c, SUNMEMTYPE_HOST);
+  retval = SUNMemoryHelper_Alloc(h, &d_c, sizeof(realtype)*nsum, SUNMEMTYPE_DEVICE);
+  if (retval) return(-1);
+
   // Copy c array to device
-  realtype* d_c;
-  err = cudaMalloc((void**) &d_c, nsum*sizeof(realtype));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_c, c, nsum*sizeof(realtype), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  retval = SUNMemoryHelper_Copy(h, d_c, h_c, sizeof(realtype)*nsum);
+  if (retval) return(-1);
 
-  // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Xd[j] = NVEC_RAJA_DDATAp(X[j]);
+  SUNMemory d_X, d_Y, d_Z;
+  realtype **d_Xd, **d_Yd, **d_Zd;
+  CreateArrayOfPointersOnDevice(&d_Xd, &d_X, nvec, X);
+  Create2DArrayOfPointersOnDevice(&d_Yd, &d_Y, nvec, nsum, Y);
+  Create2DArrayOfPointersOnDevice(&d_Zd, &d_Z, nvec, nsum, Z);
 
-  realtype** h_Yd = new realtype*[nsum*nvec];
-  for (int j=0; j<nvec; j++)
-    for (int k=0; k<nsum; k++)
-      h_Yd[j*nsum+k] = NVEC_RAJA_DDATAp(Y[k][j]);
-
-  realtype** h_Zd = new realtype*[nsum*nvec];
-  for (int j=0; j<nvec; j++)
-    for (int k=0; k<nsum; k++)
-      h_Zd[j*nsum+k] = NVEC_RAJA_DDATAp(Z[k][j]);
-
-  // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Yd;
-  err = cudaMalloc((void**) &d_Yd, nsum*nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Yd, h_Yd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nsum*nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
+  realtype* d_cd = (realtype*) d_c->ptr;
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         for (int k=0; k<nsum; k++)
-          d_Zd[j*nsum+k][i] = d_c[k] * d_Xd[j][i] + d_Yd[j*nsum+k][i];
+          d_Zd[j*nsum+k][i] = d_cd[k] * d_Xd[j][i] + d_Yd[j*nsum+k][i];
     }
   );
 
-  // Free host array
-  delete[] h_Xd;
-  delete[] h_Yd;
-  delete[] h_Zd;
-
-  // Free device arrays
-  err = cudaFree(d_Xd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaFree(d_Yd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaFree(d_Zd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  SUNMemoryHelper_Dealloc(h, h_c);
+  SUNMemoryHelper_Dealloc(h, d_c);
+  SUNMemoryHelper_Dealloc(h, d_X);
+  SUNMemoryHelper_Dealloc(h, d_Y);
+  SUNMemoryHelper_Dealloc(h, d_Z);
 
   return(0);
 }
@@ -1265,60 +1165,42 @@ int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, realtype* c,
 int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, realtype* c,
                                          N_Vector** X, N_Vector* Z)
 {
-  cudaError_t err;
+  int retval;
 
+  SUNMemoryHelper h = NVEC_RAJA_MEMHELP(Z[0]);
   sunindextype N = NVEC_RAJA_CONTENT(Z[0])->length;
 
+  // Create c array for device
+  SUNMemory h_c, d_c;
+  h_c = SUNMemoryHelper_Wrap(c, SUNMEMTYPE_HOST);
+  retval = SUNMemoryHelper_Alloc(h, &d_c, sizeof(realtype)*nsum, SUNMEMTYPE_DEVICE);
+  if (retval) return(-1);
+
   // Copy c array to device
-  realtype* d_c;
-  err = cudaMalloc((void**) &d_c, nsum*sizeof(realtype));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_c, c, nsum*sizeof(realtype), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  retval = SUNMemoryHelper_Copy(h, d_c, h_c, sizeof(realtype)*nsum);
+  if (retval) return(-1);
 
-  // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nsum*nvec];
-  for (int j=0; j<nvec; j++)
-    for (int k=0; k<nsum; k++)
-      h_Xd[j*nsum+k] = NVEC_RAJA_DDATAp(X[k][j]);
+  SUNMemory d_X, d_Z;
+  realtype **d_Xd, **d_Zd;
+  CreateArrayOfPointersOnDevice(&d_Zd, &d_Z, nvec, Z);
+  Create2DArrayOfPointersOnDevice(&d_Xd, &d_X, nvec, nsum, X);
 
-  realtype** h_Zd = new realtype*[nvec];
-  for (int j=0; j<nvec; j++)
-    h_Zd[j] = NVEC_RAJA_DDATAp(Z[j]);
-
-  // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = cudaMalloc((void**) &d_Xd, nsum*nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Xd, h_Xd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
-  realtype** d_Zd;
-  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-
+  realtype *d_cd = (realtype*) d_c->ptr;
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++) {
-        d_Zd[j][i] = d_c[0] * d_Xd[j*nsum][i];
+        d_Zd[j][i] = d_cd[0] * d_Xd[j*nsum][i];
         for (int k=1; k<nsum; k++) {
-          d_Zd[j][i] += d_c[k] * d_Xd[j*nsum+k][i];
+          d_Zd[j][i] += d_cd[k] * d_Xd[j*nsum+k][i];
         }
       }
     }
   );
 
-  // Free host array
-  delete[] h_Xd;
-  delete[] h_Zd;
-
-  // Free device arrays
-  err = cudaFree(d_Xd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
-  err = cudaFree(d_Zd);
-  if (!SUNDIALS_CUDA_VERIFY(err)) return -1;
+  SUNMemoryHelper_Dealloc(h, h_c);
+  SUNMemoryHelper_Dealloc(h, d_c);
+  SUNMemoryHelper_Dealloc(h, d_X);
+  SUNMemoryHelper_Dealloc(h, d_Z);
 
   return(0);
 }
@@ -1342,7 +1224,7 @@ int N_VBufSize_Raja(N_Vector x, sunindextype *size)
 int N_VBufPack_Raja(N_Vector x, void *buf)
 {
   int copy_fail = 0;
-  cudaError_t cuerr;
+  SUNDIALS_GPU_PREFIX(Error_t) cuerr;
 
   if (x == NULL || buf == NULL) return(-1);
 
@@ -1356,18 +1238,18 @@ int N_VBufPack_Raja(N_Vector x, void *buf)
                                         0);
 
   /* we synchronize with respect to the host, but only in this stream */
-  cuerr = cudaStreamSynchronize(0);
+  cuerr = SUNDIALS_GPU_PREFIX(StreamSynchronize)(0);
 
   SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem);
 
-  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  return (!SUNDIALS_GPU_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
 
 
 int N_VBufUnpack_Raja(N_Vector x, void *buf)
 {
   int copy_fail = 0;
-  cudaError_t cuerr;
+  SUNDIALS_GPU_PREFIX(Error_t) cuerr;
 
   if (x == NULL || buf == NULL) return(-1);
 
@@ -1381,11 +1263,11 @@ int N_VBufUnpack_Raja(N_Vector x, void *buf)
                                         0);
 
   /* we synchronize with respect to the host, but only in this stream */
-  cuerr = cudaStreamSynchronize(0);
+  cuerr = SUNDIALS_GPU_PREFIX(StreamSynchronize)(0);
 
   SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem);
 
-  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  return (!SUNDIALS_GPU_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
 
 
@@ -1434,7 +1316,6 @@ int N_VEnableFusedOps_Raja(N_Vector v, booleantype tf)
   /* return success */
   return(0);
 }
-
 
 int N_VEnableLinearCombination_Raja(N_Vector v, booleantype tf)
 {
@@ -1562,6 +1443,13 @@ int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, booleantype tf)
   return(0);
 }
 
+
+/*
+ * -----------------------------------------------------------------
+ * Private utility functions
+ * -----------------------------------------------------------------
+ */
+
 int AllocateData(N_Vector v)
 {
   int alloc_fail = 0;
@@ -1598,6 +1486,75 @@ int AllocateData(N_Vector v)
   }
 
   return(alloc_fail ? -1 : 0);
+}
+
+
+void CreateArrayOfPointersOnDevice(realtype*** d_ptrs, SUNMemory* d_ref,
+                                   int nvec, N_Vector *V)
+{
+  size_t bytes = sizeof(realtype*)*nvec;
+  SUNMemoryHelper h = NVEC_RAJA_MEMHELP(V[0]);
+
+  // Default return values
+  *d_ref  = nullptr;
+  *d_ptrs = nullptr;
+
+  // Create space for host and device pointers
+  SUNMemory h_mem;
+  SUNMemoryHelper_Alloc(h, &h_mem, bytes, SUNMEMTYPE_HOST);
+
+  SUNMemory d_mem;
+  SUNMemoryHelper_Alloc(h, &d_mem, bytes, SUNMEMTYPE_DEVICE);
+
+  // Fill the host memory with the pointers
+  realtype** h_array = (realtype**) h_mem->ptr;
+  for (int j=0; j<nvec; j++) {
+    h_array[j] = NVEC_RAJA_DDATAp(V[j]);
+  }
+
+  // Copy the host memory to the device
+  SUNMemoryHelper_Copy(h, d_mem, h_mem, bytes);
+
+  // Return the device SUNMemory, and the raw pointer array
+  *d_ref  = d_mem;
+  *d_ptrs = (realtype**) d_mem->ptr;
+
+  // Free the host SUNMemory
+  SUNMemoryHelper_Dealloc(h, h_mem);
+}
+
+void Create2DArrayOfPointersOnDevice(realtype*** d_ptrs, SUNMemory* d_ref,
+                                     int nvec, int nsum, N_Vector **V)
+{
+  size_t bytes = sizeof(realtype*)*nsum*nvec;
+  SUNMemoryHelper h = NVEC_RAJA_MEMHELP(V[0][0]);
+
+  // Default return values
+  *d_ref  = nullptr;
+  *d_ptrs = nullptr;
+
+  // Create space for host and device pointers
+  SUNMemory h_mem;
+  SUNMemoryHelper_Alloc(h, &h_mem, bytes, SUNMEMTYPE_HOST);
+
+  SUNMemory d_mem;
+  SUNMemoryHelper_Alloc(h, &d_mem, bytes, SUNMEMTYPE_DEVICE);
+
+  // Fill the host memory with the pointers
+  realtype** h_array = (realtype**) h_mem->ptr;
+  for (int j=0; j<nvec; j++)
+    for (int k=0; k<nsum; k++)
+      h_array[j*nsum+k] = NVEC_RAJA_DDATAp(V[k][j]);
+
+  // Copy the host memory to the device
+  SUNMemoryHelper_Copy(h, d_mem, h_mem, bytes);
+
+  // Return the device SUNMemory, and the raw pointer array
+  *d_ref  = d_mem;
+  *d_ptrs = (realtype**) d_mem->ptr;
+
+  // Free the host SUNMemory
+  SUNMemoryHelper_Dealloc(h, h_mem);
 }
 
 } // extern "C"

@@ -51,6 +51,11 @@ sundials_option(ENABLE_CUDA BOOL "Enable CUDA support" OFF)
 sundials_option(CMAKE_CUDA_ARCHITECTURES STRING "Target CUDA architecture" "70"
                 SHOW_IF ENABLE_CUDA)
 
+# -------------------------------------------------------------
+# Enable HIP support?
+# -------------------------------------------------------------
+sundials_option(ENABLE_HIP BOOL "Enable HIP support" OFF)
+
 # ---------------------------------------------------------------
 # Enable LAPACK support?
 # ---------------------------------------------------------------
@@ -165,6 +170,10 @@ sundials_option(PETSC_WORKS BOOL "Set to ON to force CMake to accept a given PET
 sundials_option(ENABLE_RAJA BOOL "Enable RAJA support" OFF)
 
 sundials_option(RAJA_DIR PATH "Path to root of RAJA installation" "${RAJA_DIR}"
+                SHOW_IF ENABLE_RAJA)
+
+sundials_option(SUNDIALS_RAJA_BACKENDS STRING "Which RAJA backend under the SUNDIALS RAJA interfaces (CUDA, HIP)" "CUDA"
+                OPTIONS "CUDA;HIP"
                 SHOW_IF ENABLE_RAJA)
 
 # ---------------------------------------------------------------

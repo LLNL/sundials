@@ -65,6 +65,15 @@ set(DOCSTR "Build with simulation monitoring capabilities enabled")
 sundials_option(SUNDIALS_BUILD_WITH_MONITORING BOOL "${DOCSTR}" OFF)
 
 # ---------------------------------------------------------------
+# Option to specify the C++ standard SUNDIALS will use
+# ---------------------------------------------------------------
+
+set(DOCSTR "The C++ standard to use if C++ is enabled (98, 11, 14, 17)")
+sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "11"
+                OPTIONS "98;11;14;17"
+                SHOW_IF CMAKE_CXX_COMPILER)
+
+# ---------------------------------------------------------------
 # Option to use the generic math libraries (UNIX only)
 # ---------------------------------------------------------------
 

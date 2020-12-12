@@ -67,6 +67,7 @@ typedef enum {
   SUNDIALS_NVEC_PARHYP,
   SUNDIALS_NVEC_PETSC,
   SUNDIALS_NVEC_CUDA,
+  SUNDIALS_NVEC_HIP,
   SUNDIALS_NVEC_RAJA,
   SUNDIALS_NVEC_OPENMPDEV,
   SUNDIALS_NVEC_TRILINOS,
@@ -98,6 +99,7 @@ struct _generic_N_Vector_Ops {
   void         (*nvdestroy)(N_Vector);
   void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
   realtype*    (*nvgetarraypointer)(N_Vector);
+  realtype*    (*nvgetdevicearraypointer)(N_Vector);
   void         (*nvsetarraypointer)(realtype *, N_Vector);
   void*        (*nvgetcommunicator)(N_Vector);
   sunindextype (*nvgetlength)(N_Vector);
@@ -182,6 +184,7 @@ SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer(N_Vector v);
+SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void *N_VGetCommunicator(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength(N_Vector v);

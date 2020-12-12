@@ -22,6 +22,8 @@
 #include <nvector/nvector_raja.h>
 #include <sundials/sundials_math.h>
 
+#include <RAJA/RAJA.hpp>
+
 #include "custom_memory_helper.h"
 #include "test_nvector.h"
 
@@ -247,7 +249,7 @@ int main(int argc, char *argv[])
     if(mem_helper) SUNMemoryHelper_Destroy(mem_helper);
 
     /* Synchronize */
-    cudaDeviceSynchronize();
+    sync_device();
 
     printf("=====> Teardown complete\n\n");
   }
@@ -259,8 +261,12 @@ int main(int argc, char *argv[])
     printf("SUCCESS: NVector module passed all tests \n\n");
   }
 
-  cudaDeviceSynchronize();
+  sync_device();
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
   cudaDeviceReset();
+#elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+  hipDeviceReset();
+#endif
   return(fails);
 }
 
@@ -329,6 +335,11 @@ double max_time(N_Vector X, double time)
 void sync_device()
 {
   /* sync with GPU */
-  cudaDeviceSynchronize();
+  #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
+    cudaDeviceSynchronize();
+  #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+    hipDeviceSynchronize();
+  #endif
+
   return;
 }

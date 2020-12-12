@@ -179,6 +179,7 @@ endif()
 
 if(EXAMPLES_ENABLE_CXX OR
     ENABLE_CUDA OR
+    ENABLE_HIP OR
     ENABLE_RAJA OR
     ENABLE_TRILINOS OR
     ENABLE_SUPERLUDIST)
@@ -196,25 +197,34 @@ if(ENABLE_CUDA)
 endif()
 
 # ===============================================================
+# HIP settings
+# ===============================================================
+
+if(ENABLE_HIP)
+  include(SundialsSetupHIP)
+  list(APPEND SUNDIALS_TPL_LIST "HIP")
+endif()
+
+# ===============================================================
 # Configure presentation of language options
 # ===============================================================
 
 set(build_types DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
-set(_languages "C")
+set(_SUNDIALS_ENABLED_LANGS "C")
 
 if(CXX_FOUND)
-  list(APPEND _languages "CXX")
+  list(APPEND _SUNDIALS_ENABLED_LANGS "CXX")
 endif()
 if(Fortran_FOUND)
-  list(APPEND _languages "Fortran")
+  list(APPEND _SUNDIALS_ENABLED_LANGS "Fortran")
 endif()
 if(CUDA_FOUND)
-  list(APPEND _languages "CUDA")
+  list(APPEND _SUNDIALS_ENABLED_LANGS "CUDA")
 endif()
 
 # Make build type specific flag options ADVANCED,
 # except for the one corresponding to the current build type
-foreach(lang ${_languages})
+foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   foreach(build_type ${build_types})
     string(TOUPPER "${CMAKE_BUILD_TYPE}" _cmake_build_type)
     if(${_cmake_build_type} MATCHES "${build_type}")
