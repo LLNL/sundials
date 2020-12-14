@@ -53,6 +53,9 @@
 #   <build threads> = number of threads to use in parallel build (default 1)
 # ------------------------------------------------------------------------------
 
+# exit the script if a command fails
+set -e
+
 # check number of inputs
 if [ "$#" -lt 6 ]; then
     echo "ERROR: SIX (6) inputs required"
@@ -167,12 +170,12 @@ esac
 # location of testing directory
 testdir=`pwd`
 
-# remove old tarball directory and create new directory
-\rm -rf tarballs || exit 1
-mkdir tarballs   || exit 1
+# create directory for tarballs
+\rm -rf $testdir/tarballs
+mkdir $testdir/tarballs
 
 # run tarscript to create tarballs
-cd ../scripts || exit 1
+cd ../scripts
 
 echo "START TARSCRIPT"
 ./tarscript $package | tee -a tar.log
@@ -180,55 +183,17 @@ echo "START TARSCRIPT"
 # check tarscript return code
 rc=${PIPESTATUS[0]}
 echo -e "\ntarscript returned $rc\n" | tee -a tar.log
-if [ $rc -ne 0 ]; then
-    # remove temporary file created by tarscript and exit with error
-    \rm -rf ../../tmp_dir.*
-    exit 1;
-fi
+if [ $rc -ne 0 ]; then exit 1; fi
 
-# relocate tarballs
-mv tar.log $testdir/tarballs/.
-
-# move tarballs to tarball directory
-case $package in
-    arkode)
-        mv ../../arkode-*.tar.gz $testdir/tarballs/.   || exit 1
-        ;;
-    cvode)
-        mv ../../cvode-*.tar.gz $testdir/tarballs/.    || exit 1
-        ;;
-    cvodes)
-        mv ../../cvodes-*.tar.gz $testdir/tarballs/.   || exit 1
-        ;;
-    ida)
-        mv ../../ida-*.tar.gz $testdir/tarballs/.      || exit 1
-        ;;
-    idas)
-        mv ../../idas-*.tar.gz $testdir/tarballs/.     || exit 1
-        ;;
-    kinsol)
-        mv ../../kinsol-*.tar.gz $testdir/tarballs/.   || exit 1
-        ;;
-    sundials)
-        mv ../../sundials-*.tar.gz $testdir/tarballs/. || exit 1
-        ;;
-    all)
-        mv ../../sundials-*.tar.gz $testdir/tarballs/. || exit 1
-        mv ../../arkode-*.tar.gz $testdir/tarballs/.   || exit 1
-        mv ../../cvode-*.tar.gz $testdir/tarballs/.    || exit 1
-        mv ../../cvodes-*.tar.gz $testdir/tarballs/.   || exit 1
-        mv ../../ida-*.tar.gz $testdir/tarballs/.      || exit 1
-        mv ../../idas-*.tar.gz $testdir/tarballs/.     || exit 1
-        mv ../../kinsol-*.tar.gz $testdir/tarballs/.   || exit 1
-        ;;
-esac
+# relocate log and tarballs
+mv ../tarballs/* $testdir/tarballs/.
 
 # ------------------------------------------------------------------------------
 # Test tarballs
 # ------------------------------------------------------------------------------
 
 # move to tarball directory
-cd $testdir/tarballs || exit 1
+cd $testdir/tarballs
 
 # loop over tarballs and test each one
 for tarball in *.tar.gz; do
@@ -245,14 +210,17 @@ for tarball in *.tar.gz; do
     if [ $rc -ne 0 ]; then exit 1; fi
 
     # move log to package directory
-    mv tar.log $package/. || exit 1
+    mv tar.log $package/.
 
     # move to the extracted package's test directory
-    cd $package/test || exit 1
+    cd $package/test
 
     # copy environment and testing scripts from original test directory
-    cp -r $testdir/env .     || exit 1
-    cp $testdir/suntest.sh . || exit 1
+    if [ -f "$testdir/env.sh" ]; then
+        cp $testdir/env.sh .
+    fi
+    cp -r $testdir/env .
+    cp $testdir/suntest.sh .
 
     # loop over build options
     for rt in "${realtype[@]}"; do
@@ -278,7 +246,7 @@ for tarball in *.tar.gz; do
     done
 
     # return to tarball directory
-    cd $testdir/tarballs || exit 1
+    cd $testdir/tarballs
 
 done
 

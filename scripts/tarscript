@@ -165,14 +165,19 @@ fi
 
 # Location of the scripts
 scriptdir=`pwd`
-cd ..
+
 # Sundials directory
-sundialsdir=`pwd`
-# Location of tarballs
 cd ..
+sundialsdir=`pwd`
+
+# Location of tarballs
+\rm -rf tarballs || exit 1
+mkdir tarballs   || exit 1
+cd tarballs      || exit 1
 rootdir=`pwd`
 
-tmpdir=$rootdir/tmp_dir.$$
+# Location of source for tarballs
+tmpdir=$rootdir/tmp_dir
 
 #---------------------------
 # Create temporary directory
