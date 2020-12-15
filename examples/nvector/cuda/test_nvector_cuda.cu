@@ -367,7 +367,8 @@ int check_ans(realtype ans, N_Vector X, sunindextype length)
   /* check vector data */
   for (i = 0; i < length; i++) {
     if (failure += FNEQ(Xdata[i], ans)) {
-      printf("check_ans fail: Xdata[%d] = %f, expected Xdata[%d] = %f\n", i, Xdata[i], i, ans);
+      printf("check_ans fail: Xdata[%ld] = %f, expected Xdata[%ld] = %f\n",
+             (long int)i, Xdata[i], (long int)i, ans);
     }
   }
 

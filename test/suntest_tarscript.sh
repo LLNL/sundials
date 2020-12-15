@@ -186,6 +186,7 @@ echo -e "\ntarscript returned $rc\n" | tee -a tar.log
 if [ $rc -ne 0 ]; then exit 1; fi
 
 # relocate log and tarballs
+mv tar.log $testdir/tarballs/.
 mv ../tarballs/* $testdir/tarballs/.
 
 # ------------------------------------------------------------------------------
