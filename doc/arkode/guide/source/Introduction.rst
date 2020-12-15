@@ -107,6 +107,15 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in 4.6.1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a bug in the SUNDIALS CMake which caused an error
+if the CMAKE_CXX_STANDARD and SUNDIALS_RAJA_BACKENDS options
+were not provided.
+
+Fixed some compiler warnings when using the IBM XL compilers.
+
 Changes in 4.6.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

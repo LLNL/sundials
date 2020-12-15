@@ -1,5 +1,13 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 5.6.1
+
+Fixed a bug in the SUNDIALS CMake which caused an error
+if the CMAKE_CXX_STANDARD and SUNDIALS_RAJA_BACKENDS options
+were not provided.
+
+Fixed some compiler warnings when using the IBM XL compilers.
+
 ## Changes to SUNDIALS in release 5.6.0
 
 A new NVECTOR implementation based on the AMD ROCm HIP platform has been added.
