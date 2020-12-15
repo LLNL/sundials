@@ -36,7 +36,7 @@ set(ARKODE_extras
 )
 
 # More examples that only build with double precision.
-if((SUNDIALS_PRECISION MATCHES "DOUBLE") AND
+if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
     (SUNDIALS_INDEX_SIZE MATCHES "32"))
   list(APPEND serial_raja_examples
     "ark_brusselator1D_task_local_nls\;\;--monitor\;1\;4\;develop\;2"
