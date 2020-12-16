@@ -107,6 +107,8 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
     # hide the normal variable if not all dependencies were met
     if(DEFINED ${NAME})
       set(${NAME} ${${NAME}} CACHE INTERNAL ${DOCSTR} FORCE)
+    else()
+      set(${NAME} ${DEFAULT_VALUE} CACHE INTERNAL ${DOCSTR})
     endif()
 
   endif()

@@ -1,5 +1,5 @@
 # IDAS
-### Version 4.6.0 (Dec 2020)
+### Version 4.6.1 (Dec 2020)
 
 **Radu Serban, Cosmin Petra, Alan C. Hindmarsh, Cody J. Balos, David J. Gardner, 
   and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
@@ -44,10 +44,10 @@ the "SUNDIALS Release History" appendix of the IDAS User Guide.
 ## References
 
 * R. Serban, C. Petra, A. C. Hindmarsh, C. J. Balos, D. J. Gardner,
-  D. R. Reynolds and C. S. Woodward, "User Documentation for IDAS v4.6.0,"
+  D. R. Reynolds and C. S. Woodward, "User Documentation for IDAS v4.6.1,"
   LLNL technical report UCRL-SM-234051, Dec 2020.
 
-* R. Serban and A.C. Hindmarsh, "Example Programs for IDAS v4.6.0,"
+* R. Serban and A.C. Hindmarsh, "Example Programs for IDAS v4.6.1,"
   LLNL technical report LLNL-TR-437091, Dec 2020.
 
 * A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban,

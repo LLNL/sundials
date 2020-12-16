@@ -194,12 +194,16 @@ int main(int argc, char** argv)
   cvode_mem = NULL;
 
   /* optional: create a cudaStream to use with the CUDA NVector
-     (otherwise the default stream is used) */
+     (otherwise the default stream is used) and creating kernel
+     execution policies */
   cuerr = cudaStreamCreate(&stream);
   if (cuerr != cudaSuccess) {
     printf("Error in cudaStreamCreate(): %s\n", cudaGetErrorString(cuerr));
-    return(1); 
+    return(1);
   }
+
+  SUNCudaThreadDirectExecPolicy stream_exec_policy(256, stream);
+  SUNCudaBlockReduceExecPolicy reduce_exec_policy(256, 0, stream);
 
   /* Set model parameters */
   data = SetUserData(argc, argv);
@@ -213,11 +217,12 @@ int main(int argc, char** argv)
   if(check_retval((void*)u, "N_VNew_Cuda", 0)) return(1);
 
   /* Use a non-default cuda stream for kernel execution */
-  N_VSetCudaStream_Cuda(u, &stream);
+  retval = N_VSetKernelExecPolicy_Cuda(u, &stream_exec_policy, &reduce_exec_policy);
+  if(check_retval(&retval, "N_VSetKernelExecPolicy_Cuda", 0)) return(1);
 
   SetIC(u, data);  /* Initialize u vector */
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -269,7 +274,7 @@ int main(int argc, char** argv)
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   SUNLinSolFree(LS);      /* Free linear solver memory */
   free(data);             /* Free the user data */
-  
+
   cuerr = cudaStreamDestroy(stream); /* Free and cleanup the CUDA stream */
   if(cuerr != cudaSuccess) { printf("Error: cudaStreamDestroy() failed\n"); return(1); }
 
