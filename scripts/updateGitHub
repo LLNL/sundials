@@ -80,7 +80,7 @@ else
 fi
 
 # move to location where tarscript places tarballs
-cd ../..
+cd ../tarballs
 
 # check that tar file exists
 if [ ! -e $DISTFILE ]; then
