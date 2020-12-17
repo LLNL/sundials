@@ -88,19 +88,31 @@ set(sundialslib_VERSION
 )
 set(sundialslib_SOVERSION "${PACKAGE_VERSION_MAJOR}")
 
-# Organize targets into folders when using an IDE
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+# ===============================================================
+# SUNDIALS CMake Macros
+# ===============================================================
+
+# Specify the location of additional CMAKE modules
+set(CMAKE_MODULE_PATH
+  ${PROJECT_SOURCE_DIR}/cmake
+  ${PROJECT_SOURCE_DIR}/cmake/macros
+  ${PROJECT_SOURCE_DIR}/cmake/tpl
+  )
+
+# MACRO definitions
+include(SundialsCMakeMacros)
+
+# ===============================================================
+# Initial Setup
+# ===============================================================
 
 # Prohibit in-source build
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
   print_error("In-source build prohibited.")
 endif()
 
-# Specify the location of additional CMAKE modules
-set(CMAKE_MODULE_PATH
-    ${PROJECT_SOURCE_DIR}/cmake ${PROJECT_SOURCE_DIR}/cmake/macros
-    ${PROJECT_SOURCE_DIR}/cmake/tpl
-)
+# Organize targets into folders when using an IDE
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Get correct build paths automatically, but expose CMAKE_INSTALL_LIBDIR
 # as a regular cache variable so that a user can more easily see what
@@ -121,9 +133,6 @@ set(_SHARED_LIB_SUFFIX
 # A list of all the alias targets created.
 set(_SUNDIALS_ALIAS_TARGETS ""
     CACHE INTERNAL "" FORCE)
-
-# MACRO definitions
-include(SundialsCMakeMacros)
 
 # ===============================================================
 # Build options to be processed first
