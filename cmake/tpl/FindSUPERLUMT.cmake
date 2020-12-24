@@ -73,7 +73,7 @@ endif()
 # SUPERLUMT_LIBRARY variable.
 if(SUPERLUMT_LIBRARIES MATCHES "${SUPERLUMT_LIBRARY_NAME}")
   foreach(lib ${SUPERLUMT_LIBRARIES})
-    if(lib MATCHES "${SUPERLUME_LIBRARY_NAME}")
+    if(lib MATCHES "${SUPERLUMT_LIBRARY_NAME}")
       set(SUPERLUMT_LIBRARY ${lib})
     endif()
   endforeach()
