@@ -111,6 +111,11 @@ implementations.
 Changes from previous versions
 ==============================
 
+Changes in v6.4.2
+-----------------
+
+Fixed an underflow bug during root finding.
+
 Changes in v6.4.1
 -----------------
 

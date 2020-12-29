@@ -7430,6 +7430,8 @@ static int IDARcheck3(IDAMem IDA_mem)
   return(RTFOUND);
 }
 
+#define DIFFERENT_SIGN(a,b) ( ( (a) < 0 && (b) > 0 ) || ( (a) > 0 && (b) < 0 ) )
+
 /*
  * IDARootfind
  *
@@ -7527,7 +7529,7 @@ static int IDARootfind(IDAMem IDA_mem)
         zroot = SUNTRUE;
       }
     } else {
-      if ( (IDA_mem->ida_glo[i] * IDA_mem->ida_ghi[i] < ZERO) &&
+      if ( (DIFFERENT_SIGN(IDA_mem->ida_glo[i], IDA_mem->ida_ghi[i])) &&
            (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO) ) {
         gfrac = SUNRabs(IDA_mem->ida_ghi[i] / (IDA_mem->ida_ghi[i] - IDA_mem->ida_glo[i]));
         if (gfrac > maxfrac) {
@@ -7618,7 +7620,7 @@ static int IDARootfind(IDAMem IDA_mem)
         if(IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO)
           zroot = SUNTRUE;
       } else {
-        if ( (IDA_mem->ida_glo[i] * IDA_mem->ida_grout[i] < ZERO) &&
+        if ( (DIFFERENT_SIGN(IDA_mem->ida_glo[i], IDA_mem->ida_grout[i])) &&
              (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO) ) {
           gfrac = SUNRabs(IDA_mem->ida_grout[i] /
                           (IDA_mem->ida_grout[i] - IDA_mem->ida_glo[i]));
@@ -7671,7 +7673,7 @@ static int IDARootfind(IDAMem IDA_mem)
     if ( (SUNRabs(IDA_mem->ida_ghi[i]) == ZERO) &&
          (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO) )
       IDA_mem->ida_iroots[i] = IDA_mem->ida_glo[i] > 0 ? -1:1;
-    if ( (IDA_mem->ida_glo[i] * IDA_mem->ida_ghi[i] < ZERO) &&
+    if ( (DIFFERENT_SIGN(IDA_mem->ida_glo[i], IDA_mem->ida_ghi[i])) &&
          (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO) )
       IDA_mem->ida_iroots[i] = IDA_mem->ida_glo[i] > 0 ? -1:1;
   }

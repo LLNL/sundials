@@ -118,6 +118,11 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in v5.4.2
+-----------------
+
+Fixed an underflow bug during root finding.
+
 Changes in v5.4.1
 -----------------
 

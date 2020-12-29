@@ -1,5 +1,9 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.4.2
+
+Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and IDAS.
+
 ## Changes to SUNDIALS in release 6.4.1
 
 Fixed a bug with the Kokkos interfaces that would arise when using clang.
