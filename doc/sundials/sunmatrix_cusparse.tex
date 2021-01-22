@@ -5,7 +5,7 @@
 
 The \id{SUNMATRIX\_CUSPARSE} implementation of the \id{SUNMatrix} module provided with
 {\sundials}, is an interface to the NVIDIA cuSPARSE matrix for use on NVIDIA GPUs
-\cite{cuSPARSE}. All data stored by this matrix implementation resides on the
+\cite{cuSPARSE_site}. All data stored by this matrix implementation resides on the
 GPU at all times. The implementation currently supports the cuSPARSE CSR matrix
 format described in the cuSPARSE documentation as well as a unique low-storage
 format for block-diagonal matrices of the form
@@ -24,9 +24,10 @@ each block is stored as dense). In this format, the CSR column indices and row p
 are only stored for the first block and are computed only as necessary for other blocks.
 This can drastically reduce the amount of storage required compared to the regular CSR
 format when there is a large number of blocks. This format is well-suited for, and
-intended to be used with the \ref{ss:sunlinsol_cuspbqr}.
+intended to be used with the \id{SUNLinearSolver\_cuSolverSp\_batchQR} linear
+solver (see Section \ref{ss:sunlinsol_cuspbqr}).
 
-\noindent The header file to include when using this module is
+The header file to include when using this module is
 \id{sunmatrix/sunmatrix\_cusparse.h}. The installed library to link to is
 \id{libsundials\_sunmatrixcusparse.\textit{lib}} where \id{\em.lib} is typically \id{.so}
 for shared libraries and \id{.a} for static libraries.
@@ -39,9 +40,10 @@ for shared libraries and \id{.a} for static libraries.
 \label{ss:sunmat_cusparse_functions}
 % ====================================================================
 
-The \id{SUNMATRIX\_CUSPARSE} module defines GPU-enabled sparse implementations of all matrix
-operations listed in the section :ref:`SUNMatrix.Ops` except for the ``SUNMatSpace``
-and ``SUNMatMatvecSetup`` operations:
+The \id{SUNMATRIX\_CUSPARSE} module defines GPU-enabled sparse implementations
+of all matrix operations listed in Section
+\ref{ss:sunmatrix_functions} except for the \id{SUNMatSpace}
+and \id{SUNMatMatvecSetup} operations:
 
 \begin{enumerate}
   \item \id{SUNMatGetID\_cuSparse} -- returns \id{SUNMATRIX\_CUSPARSE}
@@ -81,8 +83,7 @@ functions:
 {
   a \id{SUNMatrix} object if successful else \id{NULL}
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -138,8 +139,7 @@ functions:
 {
   a \id{SUNMatrix} object if successful else \id{NULL}
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -158,8 +158,7 @@ functions:
 {
   the number of rows in the sparse \id{SUNMatrix}
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -178,8 +177,7 @@ functions:
 {
   the number of columns in the sparse \id{SUNMatrix}
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -198,8 +196,7 @@ functions:
 {
   the number of nonzeros in the sparse \id{SUNMatrix}
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -218,8 +215,7 @@ functions:
 {
   the \id{SUNMAT\_CUSPARSE\_CSR} or \id{SUNMAT\_CUSPARSE\_BCSR} sparsity formats
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -241,8 +237,7 @@ functions:
   entry. For the BCSR format this is an array of the column indices
   for each nonzero entry in the first block only.
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -265,8 +260,7 @@ functions:
   for the BCSR format this is an array of the locations of each row in the
   \id{data} and \id{indexvalues} arrays in the first block only.
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -285,8 +279,7 @@ functions:
 {
   the number of matrix blocks
 }
-{
-}
+{}
 
 
 %%--------------------------------------
@@ -307,8 +300,7 @@ functions:
 {
   the number of rows of a block
 }
-{
-}
+{}
 
 
 %%--------------------------------------
@@ -329,8 +321,7 @@ functions:
 {
   the number of columns of a block
 }
-{
-}
+{}
 
 
 %%--------------------------------------
@@ -350,8 +341,7 @@ functions:
 {
   the number of nonzeros of a block
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -374,8 +364,7 @@ functions:
   a pointer to the start of the nonzero values in the data array for given
   block index
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -392,22 +381,21 @@ functions:
   \begin{args}
   \item[A] (\id{SUNMatrix})
   \item[h\_data] (\id{realtype*}) a pointer to an allocated array of
-    at least \id{SUNMatrix\_cuSparse\_NNZ(A)*sizeof(realtype)} bytes;
-    the nonzero values will be copied from this array onto the device
+    at least \id{SUNMatrix\_cuSparse\_NNZ(A)} \id{*} \id{sizeof(realtype)}
+    bytes; the nonzero values will be copied from this array onto the device
   \item[h\_idxptrs] (\id{int*}) a pointer to an allocated array of
-    at least \id{(SUNMatrix\_cuSparse\_BlockDim(A)+1)*sizeof(int)} bytes;
-    the index pointers will be copied from this array onto the device
+    at least \id{(SUNMatrix\_cuSparse\_BlockDim(A)+1)} \id{*} \id{sizeof(int)}
+    bytes; the index pointers will be copied from this array onto the device
   \item[h\_idxvals] (\id{int*}) a pointer to an allocated array of
-    at least \id{SUNMatrix\_cuSparse\_BlockNNZ(A)*sizeof(int)} bytes;
-    the index values will be copied from this array onto the device
+    at least \id{SUNMatrix\_cuSparse\_BlockNNZ(A)} \id{*} \id{sizeof(int)}
+    bytes; the index values will be copied from this array onto the device
   \end{args}
 }
 {
   \id{SUNMAT\_SUCCESS} if the copy operation(s) were successful, or a nonzero error
   code otherwise.
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -424,22 +412,21 @@ functions:
   \begin{args}
   \item[A] (\id{SUNMatrix})
   \item[h\_data] (\id{realtype*}) a pointer to an allocated array of
-    at least \id{SUNMatrix\_cuSparse\_NNZ(A)*sizeof(realtype)} bytes;
-    the nonzero values will be copied into this array from the device
+    at least \id{SUNMatrix\_cuSparse\_NNZ(A)} \id{*} \id{sizeof(realtype)}
+    bytes; the nonzero values will be copied into this array from the device
   \item[h\_idxptrs] (\id{int*}) a pointer to an allocated array of
-    at least \id{(SUNMatrix\_cuSparse\_BlockDim(A)+1)*sizeof(int)} bytes;
-    the index pointers will be copied into this array from the device
+    at least \id{(SUNMatrix\_cuSparse\_BlockDim(A)+1)} \id{*} \id{sizeof(int)}
+    bytes; the index pointers will be copied into this array from the device
   \item[h\_idxvals] (\id{int*}) a pointer to an allocated array of
-    at least \id{SUNMatrix\_cuSparse\_BlockNNZ(A)*sizeof(int)} bytes;
-    the index values will be copied into this array from the device
+    at least \id{SUNMatrix\_cuSparse\_BlockNNZ(A)} \id{*} \id{sizeof(int)}
+    bytes; the index values will be copied into this array from the device
   \end{args}
 }
 {
   \id{SUNMAT\_SUCCESS} if the copy operation(s) were successful, or a nonzero error
   code otherwise.
 }
-{
-}
+{}
 
 %%--------------------------------------
 %%
@@ -496,8 +483,7 @@ functions:
   \id{SUNMAT\_SUCCESS} if the operation(s) were successful, or a nonzero error
   code otherwise.
 }
-{
-}
+{}
 
 % ====================================================================
 \subsection{SUNMatrix\_cuSparse Usage Notes}

@@ -198,8 +198,7 @@ functions:
    the matrix.
 
 
-.. c:function:: int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix A, realtype* h_data,
-                                                    int* h_idxptrs, int* h_idxvals)
+.. c:function:: int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix A, realtype* h_data, int* h_idxptrs, int* h_idxvals)
 
    This functions copies the matrix information to the GPU device from the provided
    host arrays. A user may provide ``NULL`` for any of ``h_data``, ``h_idxptrs``, or
