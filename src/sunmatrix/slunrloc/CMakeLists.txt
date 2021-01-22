@@ -16,12 +16,6 @@
 
 install(CODE "message(\"\nInstall SUNMATRIX_SLUNRLOC\n\")")
 
-# Add variable sunmatrixslunrloc_HEADERS with the exported sunmatrixslunrloc
-# header files
-set(sunmatrixslunrloc_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_slunrloc.h
-  )
-
 # Use MPI
 set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
 set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
@@ -30,6 +24,10 @@ set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 sundials_add_library(sundials_sunmatrixslunrloc
   SOURCES
     sunmatrix_slunrloc.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_slunrloc.h
+  INCLUDE_SUBDIR
+    sunmatrix
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -44,8 +42,5 @@ sundials_add_library(sundials_sunmatrixslunrloc
   SOVERSION
     ${sunlinsollib_VERSION}
 )
-
-# Install the sunmatrixslunrloc header files
-install(FILES ${sunmatrixslunrloc_HEADERS} DESTINATION include/sunmatrix)
 
 message(STATUS "Added SUNMATRIX_SLUNRLOC module")

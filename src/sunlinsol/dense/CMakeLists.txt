@@ -17,14 +17,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_DENSE\n\")")
 
-# Exported header files
-set(sunlinsoldense_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_dense.h)
-
 # Add the sunlinsol_dense library
 sundials_add_library(sundials_sunlinsoldense
   SOURCES
     sunlinsol_dense.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_dense.h
+  INCLUDE_SUBDIR
+    sunlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -37,10 +37,6 @@ sundials_add_library(sundials_sunlinsoldense
     ${sunlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${sunlinsoldense_HEADERS} DESTINATION include/sunlinsol)
-
-#
 message(STATUS "Added SUNLINSOL_DENSE module")
 
 # Add F90 module if F2003 interface is enabled

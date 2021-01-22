@@ -16,15 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall NVECTOR_OPENMPDEV\n\")")
 
-# Add variable nvecopenmpdev_HEADERS with the exported NVECOPENMPDEV header files
-set(nvecopenmpdev_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_openmpdev.h
-  )
-
 # Create the library
 sundials_add_library(sundials_nvecopenmpdev
   SOURCES
     nvector_openmpdev.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_openmpdev.h
+  INCLUDE_SUBDIR
+    nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -37,8 +36,4 @@ sundials_add_library(sundials_nvecopenmpdev
     ${nveclib_SOVERSION}
 )
 
-# Install the NVECOPENMPDEV header files
-install(FILES ${nvecopenmpdev_HEADERS} DESTINATION include/nvector)
-
-#
 message(STATUS "Added NVECTOR_OPENMPDEV module")

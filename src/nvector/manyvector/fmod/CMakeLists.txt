@@ -27,9 +27,8 @@ if(BUILD_NVECTOR_MANYVECTOR)
     SOVERSION
       ${nveclib_SOVERSION}
   )
+  message(STATUS "Added NVECTOR_MANYVECTOR F2003 Interface")
 endif()
-
-message(STATUS "Added NVECTOR_MANYVECTOR F2003 Interface")
 
 if(BUILD_NVECTOR_MPIMANYVECTOR)
 

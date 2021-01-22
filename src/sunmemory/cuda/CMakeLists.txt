@@ -16,9 +16,9 @@
 sundials_add_library(sundials_sunmemcuda
   SOURCES
     sundials_cuda_memory.cu
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_cuda.h
+  INCLUDE_SUBDIR
+    sunmemory
   OBJECT_LIB_ONLY
 )
-
-# Install the header files
-install(FILES ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_cuda.h
-  DESTINATION include/sunmemory)

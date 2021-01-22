@@ -16,14 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SPTFQMR\n\")")
 
-# Exported header files
-set(sunlinsolsptfqmr_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_sptfqmr.h)
-
 # Add the sunlinsol_sptfqmr library
 sundials_add_library(sundials_sunlinsolsptfqmr
   SOURCES
     sunlinsol_sptfqmr.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_sptfqmr.h
+  INCLUDE_SUBDIR
+    sunlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   OUTPUT_NAME
@@ -34,10 +34,6 @@ sundials_add_library(sundials_sunlinsolsptfqmr
     ${sunlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${sunlinsolsptfqmr_HEADERS} DESTINATION include/sunlinsol)
-
-#
 message(STATUS "Added SUNLINSOL_SPTFQMR module")
 
 # Add F90 module if F2003 interface is enabled

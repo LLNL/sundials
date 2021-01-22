@@ -61,6 +61,10 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
 sundials_add_library(sundials_arkode
   SOURCES
     ${arkode_SOURCES}
+  HEADERS
+    ${arkode_HEADERS}
+  INCLUDE_SUBDIR
+    arkode
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_nvecserial_obj
@@ -83,9 +87,6 @@ sundials_add_library(sundials_arkode
   SOVERSION
     ${arkodelib_SOVERSION}
 )
-
-# Install the ARKODE header files
-install(FILES ${arkode_HEADERS} DESTINATION include/arkode)
 
 # Finished ARKODE
 message(STATUS "Added ARKODE module")

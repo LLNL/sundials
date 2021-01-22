@@ -16,10 +16,6 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SUPERLUMT\n\")")
 
-# Exported header files
-set(sunlinsolsuperlumt_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_superlumt.h)
-
 # Include OpenMP flags if SuperLU_MT is using OpenMP,
 # otherwise we use threads.
 if(SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP")
@@ -32,10 +28,16 @@ endif()
 sundials_add_library(sundials_sunlinsolsuperlumt
   SOURCES
     sunlinsol_superlumt.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_superlumt.h
+  INCLUDE_SUBDIR
+    sunlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
-  PUBLIC sundials_sunmatrixsparse SUNDIALS::SUPERLUMT ${_threads}
+    PUBLIC
+    sundials_sunmatrixsparse
+    SUNDIALS::SUPERLUMT ${_threads}
   OUTPUT_NAME
     sundials_sunlinsolsuperlumt
   VERSION
@@ -44,10 +46,6 @@ sundials_add_library(sundials_sunlinsolsuperlumt
     ${sunlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${sunlinsolsuperlumt_HEADERS} DESTINATION include/sunlinsol)
-
-#
 message(STATUS "Added SUNLINSOL_SUPERLUMT module")
 
 # If FCMIX is enabled, build and install the Fortran77 library

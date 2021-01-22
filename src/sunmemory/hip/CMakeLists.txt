@@ -16,11 +16,11 @@
 sundials_add_library(sundials_sunmemhip
   SOURCES
     sundials_hip_memory.hip.cpp
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_hip.h
+  INCLUDE_SUBDIR
+    sunmemory
   LINK_LIBRARIES
     PRIVATE hip::device
   OBJECT_LIB_ONLY
 )
-
-# Install the header files
-install(FILES ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_hip.h
-  DESTINATION include/sunmemory)

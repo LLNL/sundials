@@ -16,14 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_LAPACKBAND\n\")")
 
-# Exported header files
-set(sunlinsollapackband_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_lapackband.h)
-
 # Add the library
 sundials_add_library(sundials_sunlinsollapackband
   SOURCES
     sunlinsol_lapackband.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_lapackband.h
+  INCLUDE_SUBDIR
+    sunlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -36,10 +36,6 @@ sundials_add_library(sundials_sunlinsollapackband
     ${sunlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${sunlinsollapackband_HEADERS} DESTINATION include/sunlinsol)
-
-#
 message(STATUS "Added SUNLINSOL_LAPACKBAND module")
 
 # If FCMIX is enabled, build and install the Fortran77 library

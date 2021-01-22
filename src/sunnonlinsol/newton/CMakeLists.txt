@@ -16,15 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNNONLINSOL_NEWTON\n\")")
 
-# Add variable with the exported header files
-set(lib_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_newton.h
-  )
-
 # Add the library
 sundials_add_library(sundials_sunnonlinsolnewton
   SOURCES
     sunnonlinsol_newton.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_newton.h
+  INCLUDE_SUBDIR
+    sunnonlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   OUTPUT_NAME
@@ -35,10 +34,6 @@ sundials_add_library(sundials_sunnonlinsolnewton
     ${sunnonlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${lib_HEADERS} DESTINATION include/sunnonlinsol)
-
-#
 message(STATUS "Added SUNNONLINSOL_NEWTON module")
 
 # Add F2003 module if interface is enabled

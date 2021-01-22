@@ -43,6 +43,10 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/kinsol/ kinsol_HEADERS)
 sundials_add_library(sundials_kinsol
   SOURCES
     ${kinsol_SOURCES}
+  HEADERS
+    ${kinsol_HEADERS}
+  INCLUDE_SUBDIR
+    kinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_nvecserial_obj
@@ -64,10 +68,7 @@ sundials_add_library(sundials_kinsol
     ${kinsollib_SOVERSION}
 )
 
-# Install the KINSOL header files
-install(FILES ${kinsol_HEADERS} DESTINATION include/kinsol)
-
-#
+# Finished KINSOL
 message(STATUS "Added KINSOL module")
 
 # Add F2003 module if the interface is enabled

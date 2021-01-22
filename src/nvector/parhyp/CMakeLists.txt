@@ -24,17 +24,18 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Add variable nvecparhyp_HEADERS with the exported NVECPARHYP header files
-set(nvecparhyp_HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parhyp.h)
-
 # Create the library
 sundials_add_library(sundials_nvecparhyp
   SOURCES
     nvector_parhyp.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parhyp.h
+  INCLUDE_SUBDIR
+    nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
-  PUBLIC SUNDIALS::HYPRE
+    PUBLIC SUNDIALS::HYPRE
   OUTPUT_NAME
     sundials_nvecparhyp
   VERSION
@@ -43,8 +44,4 @@ sundials_add_library(sundials_nvecparhyp
     ${nveclib_SOVERSION}
 )
 
-# Install the NVECPARHYP header files
-install(FILES ${nvecparhyp_HEADERS} DESTINATION include/nvector)
-
-#
 message(STATUS "Added NVECTOR_PARHYP module")

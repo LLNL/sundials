@@ -79,6 +79,10 @@ endif()
 sundials_add_library(sundials_cvode
   SOURCES
     ${cvode_SOURCES}
+  HEADERS
+    ${cvode_HEADERS}
+  INCLUDE_SUBDIR
+    cvode
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_nvecserial_obj
@@ -105,10 +109,7 @@ sundials_add_library(sundials_cvode
     ${cvodelib_SOVERSION}
 )
 
-# Install the CVODE header files
-install(FILES ${cvode_HEADERS} DESTINATION include/cvode)
-
-#
+# Finished CVODE
 message(STATUS "Added CVODE module")
 
 # Add F2003 module if the interface is enabled

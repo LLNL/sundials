@@ -24,15 +24,14 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Add variable nvecpetsc_HEADERS with the exported NVECPETSC header files
-set(nvecpetsc_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_petsc.h
-  )
-
 # Create the library
 sundials_add_library(sundials_nvecpetsc
   SOURCES
     nvector_petsc.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_petsc.h
+  INCLUDE_SUBDIR
+    nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -45,8 +44,4 @@ sundials_add_library(sundials_nvecpetsc
     ${nveclib_SOVERSION}
 )
 
-# Install the NVECPETSC header files
-install(FILES ${nvecpetsc_HEADERS} DESTINATION include/nvector)
-
-#
 message(STATUS "Added NVECTOR_PETSC module")

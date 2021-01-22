@@ -81,9 +81,16 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 sundials_add_library(sundials_generic
   SOURCES
     ${sundials_SOURCES}
-  OUTPUT_NAME sundials_generic
-  VERSION ${sundialslib_VERSION}
-  SOVERSION ${sundialslib_SOVERSION}
+  HEADERS
+    ${sundials_HEADERS}
+  INCLUDE_SUBDIR
+    sundials
+  OUTPUT_NAME
+    sundials_generic
+  VERSION
+    ${sundialslib_VERSION}
+  SOVERSION
+    ${sundialslib_SOVERSION}
 )
 
 # SUNDIALS_EXPORT macro
@@ -98,6 +105,3 @@ generate_export_header(
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
-
-# Install the SUNDIALS header files
-install(FILES ${sundials_HEADERS} DESTINATION include/sundials)

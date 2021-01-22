@@ -114,11 +114,12 @@ endif()
 # Organize targets into folders when using an IDE
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Get correct build paths automatically, but expose CMAKE_INSTALL_LIBDIR
-# as a regular cache variable so that a user can more easily see what
-# the library dir was set to be by GNUInstallDirs.
+# Get correct build paths automatically, but expose LIBDIR and
+# INCLUDEDIR as a regular cache variable so that a user can more
+# easily see what they were set to by GNUInstallDirs.
 include(GNUInstallDirs)
 mark_as_advanced(CLEAR CMAKE_INSTALL_LIBDIR)
+mark_as_advanced(CLEAR CMAKE_INSTALL_INCLUDEDIR)
 
 # Suffixes to use for static and shared targets.
 set(_STATIC_LIB_SUFFIX
@@ -198,18 +199,18 @@ endif()
 # ===============================================================
 
 # install sundials_export header file
-install(FILES ${PROJECT_BINARY_DIR}/include/sundials/sundials_export.h
-        DESTINATION include/sundials
+install(FILES "${PROJECT_BINARY_DIR}/include/sundials/sundials_export.h"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 
 # install configured header file
-install(FILES ${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h
-        DESTINATION include/sundials
+install(FILES "${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 
 # install configured header file for Fortran 90
-install(FILES ${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h
-        DESTINATION include/sundials
+install(FILES "${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 
 # install shared Fortran 2003 modules
@@ -229,8 +230,12 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
 endif()
 
 # install license and notice files
-install(FILES ${PROJECT_SOURCE_DIR}/LICENSE DESTINATION include/sundials)
-install(FILES ${PROJECT_SOURCE_DIR}/NOTICE DESTINATION include/sundials)
+install(FILES "${PROJECT_SOURCE_DIR}/LICENSE"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
+)
+install(FILES "${PROJECT_SOURCE_DIR}/NOTICE"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
+)
 
 # create package version file
 include(CMakePackageConfigHelpers)
