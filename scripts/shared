@@ -74,6 +74,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_band.h                || exi
 $tar $tarfile $distrobase/include/sundials/sundials_config.in             || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_fconfig.in            || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_cuda_policies.hpp     || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_hip_policies.hpp      || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_types.h               || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h           || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_matrix.h              || exit 1
