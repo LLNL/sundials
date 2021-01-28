@@ -324,6 +324,13 @@ a typical configuration on a Linux system and are provided as illustration only.
   Flags used by the {\CPP} compiler during release builds
   \\
   Default: -O3 -DNDEBUG
+\item[\id{CMAKE\_CXX\_STANDARD}] -
+  The C++ standard to build C++ parts of {\sundials} with.
+  \\
+  Default: 11
+  \\
+  Note: Options are 98, 11, 14, 17, 20. This option is on used when a C++
+  compiler is required.
 \item[\id{CMAKE\_Fortran\_COMPILER}] -
   Fortran compiler
   \\
@@ -603,6 +610,15 @@ a typical configuration on a Linux system and are provided as illustration only.
   Must be set to Pthread or {\openmp}
   \\
   Default: Pthread
+\item[\id{ENABLE\_SYCL}] -
+  Enable {\sycl} support.
+  \\
+  Default: OFF
+  \\
+  Note: At present the only supported SYCL compiler is the DPC++ (Intel oneAPI)
+  compiler. CMake does not currently support autodetection of SYCL compilers and
+  \id{CMAKE\_CXX\_COMPILER} must be set to a valid SYCL compiler i.e.,
+  \id{dpcpp} in order to build with SYCL support.
 \item[\id{ENABLE\_TRILINOS}] -
   Enable {\trilinos} support (build the {\tpetra} {\nvector}).
   \\
@@ -1212,11 +1228,23 @@ CMake project.
 & Header files & nvector/nvector\_cuda.h                             &                           \\
 \hline
 %% --------------------------------------------------
+{\nvechip}
+& Libraries    & libsundials\_nvechip.{\em lib}                      &                           \\
+\cline{2-4}
+& Header files & nvector/nvector\_hip.h                              &                           \\
+\hline
+%% --------------------------------------------------
 {\nvecraja}
 & Libraries    & libsundials\_nveccudaraja.{\em lib}                 &                           \\
 &              & libsundials\_nvechipraja.{\em lib}                  &                           \\
 \cline{2-4}
 & Header files & nvector/nvector\_raja.h                             &                           \\
+\hline
+%% --------------------------------------------------
+{\nvecsycl}
+& Libraries    & libsundials\_nvecsycl.{\em lib}                     &                           \\
+\cline{2-4}
+& Header files & nvector/nvector\_sycl.h                             &                           \\
 \hline
 %% --------------------------------------------------
 {\nvectrilinos}

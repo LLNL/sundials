@@ -56,6 +56,11 @@ sundials_option(CMAKE_CUDA_ARCHITECTURES STRING "Target CUDA architecture" "70"
 # -------------------------------------------------------------
 sundials_option(ENABLE_HIP BOOL "Enable HIP support" OFF)
 
+# -------------------------------------------------------------
+# Enable SYCL support?
+# -------------------------------------------------------------
+sundials_option(ENABLE_SYCL BOOL "Enable SYCL support" OFF)
+
 # ---------------------------------------------------------------
 # Enable LAPACK support?
 # ---------------------------------------------------------------

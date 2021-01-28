@@ -14,7 +14,7 @@
 function print_usage
 {
     # Location of tarballs
-    cd ../..
+    cd ..
     location=`pwd`
     cd -
 
@@ -28,7 +28,7 @@ function print_usage
     echo ""
     echo "Notes: If the module is not specified, all tarballs are created."
     echo "       This script must be executed from within its directory."
-    echo "       Tarballs will be created in $location"
+    echo "       Tarballs will be created in $location/tarballs"
     echo ""
     exit 1
 }
@@ -204,16 +204,19 @@ cp $sundialsdir/doc/Makefile.in $tmpdir/doc/ || exit 1
 cp $sundialsdir/CMakeLists.txt $tmpdir/      || exit 1
 
 # Make install guide and copy to $tmpdir
-echo -e "--- SUNDIALS Common Installation documentation"
-cd $sundialsdir/doc/sundials || exit 1
+if [ $doc = "T" ]; then
+    echo -e "--- SUNDIALS Common Installation documentation"
+    cd $sundialsdir/doc/sundials || exit 1
 
-# cleanup, make install guide, copy, and cleanup
-make QUIET= purge    || exit 1
-make QUIET= in_g_pdf || exit 1
-cp $sundialsdir/doc/sundials/install_guide.pdf $tmpdir/INSTALL_GUIDE.pdf || exit 1
-make QUIET= purge    || exit 1
+    # cleanup, make install guide, copy, and cleanup
+    make QUIET= purge    || exit 1
+    make QUIET= in_g_pdf || exit 1
+    cp $sundialsdir/doc/sundials/install_guide.pdf $tmpdir/INSTALL_GUIDE.pdf || exit 1
+    make QUIET= purge    || exit 1
 
-cd -
+    cd -
+fi
+
 cp -r $sundialsdir/cmake $tmpdir/ || exit 1
 cp -r $sundialsdir/test $tmpdir/   || exit 1
 

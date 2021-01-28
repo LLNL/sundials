@@ -89,7 +89,7 @@ the beginning of the array of subvectors, and a boolean flag
    };
 
 The header file to include when using this module is
-``nvector_manyvector.h``. The installed module library to link against is 
+``nvector_manyvector.h``. The installed module library to link against is
 ``libsundials_nvecmanyvector.lib`` where ``.lib`` is typically ``.so`` for
 shared libraries and ``.a`` for static libraries.
 
@@ -134,7 +134,7 @@ user-callable routines:
    failure occurred).
 
    Users of the Fortran 2003 interface to this function will first need to use
-   the generic ``N\_Vector`` utility functions ``N_VNewVectorArray``, and
+   the generic ``N_Vector`` utility functions ``N_VNewVectorArray``, and
    ``N_VSetVecAtIndexVectorArray`` to create the ``N_Vector*`` argument.  This is
    further explained in Chapter :ref:`Fortran2003.Differences.NVectorArrays`,
    and the functions are documented in Chapter :ref:`NVectors.utilities`.
@@ -148,17 +148,17 @@ user-callable routines:
 .. c:function:: realtype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v, sunindextype vec_num)
 
    This function returns the data array pointer for the *vec_num*
-   subvector from the NVECTOR array. 
+   subvector from the NVECTOR array.
 
    If the input *vec_num* is invalid, or if the subvector does not
    support the ``N_VGetArrayPointer`` operation, then ``NULL`` is
-   returned. 
+   returned.
 
 
 .. c:function:: int N_VSetSubvectorArrayPointer_ManyVector(realtype *v_data, N_Vector v, sunindextype vec_num)
 
    This function sets the data array pointer for the *vec_num*
-   subvector from the NVECTOR array. 
+   subvector from the NVECTOR array.
 
    If the input *vec_num* is invalid, or if the subvector does not
    support the ``N_VSetArrayPointer`` operation, then ``-1`` is

@@ -21,7 +21,7 @@
 set(nvector_cuda_examples
   "test_nvector_cuda\;3 32 0\;\;\;"
   "test_nvector_cuda\;500 128 0\;\;\;"
-  "test_nvector_cuda\;1000 -1 0\;\;\;"
+  "test_nvector_cuda\;1000 0 0\;\;\;"
   )
 
 # Dependencies for nvector examples

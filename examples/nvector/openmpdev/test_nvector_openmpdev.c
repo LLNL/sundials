@@ -363,7 +363,7 @@ double max_time(N_Vector X, double time)
   return(time);
 }
 
-void sync_device()
+void sync_device(N_Vector x)
 {
   /* not running on DEV, just return */
   return;

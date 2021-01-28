@@ -50,12 +50,14 @@ implementations that control how the HIP kernels are launched for streaming and
 reduction vector kernels, and a private data structure which holds additonal members
 that should not be accessed directly.
 
-When instantiated with :c:func:`N_VNew_Hip`, the underlying data will be allocated
-memory on both the host and the device. Alternatively, a user can provide host
-and device data arrays by using the :c:func:`N_VMake_Hip` constructor. To use HIP
-managed memory, the constructors :c:func:`N_VNewManaged_Hip` and
-:c:func:`N_VMakeManaged_Hip` are provided. Details on each of these constructors
-are provided below.
+When instantiated with :c:func:`N_VNew_Hip()`, the underlying data will be
+allocated on both the host and the device. Alternatively, a user can provide
+host and device data arrays by using the :c:func:`N_VMake_Hip()` constructor.
+To use managed memory, the constructors :c:func:`N_VNewManaged_Hip()` and
+:c:func:`N_VMakeManaged_Hip()` are provided. Additionally, a user-defined
+``SUNMemoryHelper`` for allocating/freeing data can be provided with the
+constructor :c:func:`N_VNewWithMemHelp_Hip()`. Details on each of these
+constructors are provided below.
 
 To use the NVECTOR_HIP module, include ``nvector_hip.h`` and link to
 the library ``libsundials_nvechip.lib``. The extension, ``.lib``, is
@@ -110,12 +112,17 @@ following additional user-callable routines:
    ``N_Vector``. The vector data array is allocated in managed memory.
 
 
+.. c:function:: N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper)
+
+   This function creates a new HIP ``N_Vector`` with a user-supplied
+   SUNMemoryHelper for allocating/freeing memory.
+
+
 .. c:function:: N_Vector N_VNewEmpty_Hip(sunindextype vec_length)
 
-   This function creates a new ``N_Vector`` wrapper with the pointer
-   to the wrapped HIP vector set to ``NULL``.  It is used by
-   :c:func:`N_VNew_Hip()`, :c:func:`N_VMake_Hip()`, and
-   :c:func:`N_VClone_Hip()` implementations.
+   This function creates a new HIP ``N_Vector`` where the members of the content
+   structure have not been allocated. This utility function is used by the
+   other constructors to create a new vector.
 
 
 .. c:function:: N_Vector N_VMake_Hip(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata)
@@ -145,11 +152,13 @@ The module NVECTOR_HIP also provides the following user-callable routines:
    :ref:`NVectors.HIP.SUNHipExecPolicy` below for more information about the
    ``SUNHipExecPolicy`` class.
 
-   *Note: All vectors used in a single instance of a {\sundials} solver must
-   use the same execution policy. It is **strongly recommended** that
-   this function is called immediately after constructing the vector,
-   and any subsequent vector be created by cloning to ensure consistent execution
-   policies across vectors*
+   .. note::
+
+      Note: All vectors used in a single instance of a SUNDIALS package must use
+      the same execution policy. It is **strongly recommended** that this
+      function is called immediately after constructing the vector, and any
+      subsequent vector be created by cloning to ensure consistent execution
+      policies across vectors*
 
 
 .. c:function:: realtype* N_VCopyToDevice_Hip(N_Vector v)

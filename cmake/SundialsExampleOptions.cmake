@@ -20,7 +20,13 @@
 
 sundials_option(EXAMPLES_ENABLE_C BOOL "Build SUNDIALS C examples" ON)
 
-sundials_option(EXAMPLES_ENABLE_CXX BOOL "Build SUNDIALS C++ examples" OFF)
+# Some TPLs only have C++ examples. Default the C++ examples to ON if any of
+# these are enabled on the initial configuration pass.
+if (ENABLE_TRILINOS OR ENABLE_SUPERLUDIST OR ENABLE_XBRAID OR ENABLE_HIP)
+  sundials_option(EXAMPLES_ENABLE_CXX BOOL "Build SUNDIALS C++ examples" ON)
+else()
+  sundials_option(EXAMPLES_ENABLE_CXX BOOL "Build SUNDIALS C++ examples" OFF)
+endif()
 
 # -----------------------------------------------------------------------------
 # Options for Fortran Examples

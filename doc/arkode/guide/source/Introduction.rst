@@ -107,6 +107,15 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in 4.7.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A new NVECTOR implementation based on the SYCL abstraction layer has been added
+targeting Intel GPUs. At present the only SYCL compiler supported is the DPC++
+(Intel oneAPI) compiler. See :ref:`NVectors.SYCL` for more details. This module
+is considered experimental and is subject to major changes even in minor
+releases.
+
 Changes in 4.6.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

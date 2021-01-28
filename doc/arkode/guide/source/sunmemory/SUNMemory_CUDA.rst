@@ -24,8 +24,8 @@ implementation defines the constructor
 
 .. c:function:: SUNMemoryHelper SUNMemoryHelper_Cuda()
 
-  Allocates and returns a ``SUNMemoryHelper`` object for handling CUDA memory.
-  A ``SUNMemoryHelper`` object if successful, or ``NULL`` if not.
+  Allocates and returns a ``SUNMemoryHelper`` object for handling CUDA memory if
+  successful. Otherwise it returns ``NULL``.
 
 
 .. _SUNMemory.CUDA.Operations:
@@ -84,7 +84,7 @@ The implementation provides the following operations defined by the
   Synchronously copies ``mem_size`` bytes from the the source memory to the
   destination memory.  The copy can be across memory spaces, e.g. host to
   device, or within a memory space, e.g. host to host.  The ``helper``
-  object should use the memory types of ``dst`` and ``src`` to determine
+  object will use the memory types of ``dst`` and ``src`` to determine
   the appropriate transfer type necessary.
 
   **Arguments:**
@@ -104,7 +104,7 @@ The implementation provides the following operations defined by the
   Asynchronously copies ``mem_size`` bytes from the the source memory to the
   destination memory.  The copy can be across memory spaces, e.g. host to
   device, or within a memory space, e.g. host to host.  The ``helper`` object
-  should use the memory types of ``dst`` and ``src`` to determine the
+  will use the memory types of ``dst`` and ``src`` to determine the
   appropriate transfer type necessary.
 
   **Arguments:**

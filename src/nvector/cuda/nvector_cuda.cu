@@ -2327,8 +2327,9 @@ int CopyReductionBufferFromDevice(N_Vector v, size_t n)
 /* Get the kernel launch parameters based on the kernel type (reduction or not),
  * using the appropriate kernel execution policy.
  */
-int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
-                        size_t& shMemSize, cudaStream_t& stream, size_t n)
+static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
+                               size_t& block, size_t& shMemSize,
+                               cudaStream_t& stream, size_t n)
 {
   n = (n == 0) ? NVEC_CUDA_CONTENT(v)->length : n;
   if (reduction)

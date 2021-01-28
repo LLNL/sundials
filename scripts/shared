@@ -17,9 +17,10 @@ tar cfv $tarfile $distrobase/README.md      || exit 1
 $tar $tarfile $distrobase/CONTRIBUTING.md   || exit 1
 $tar $tarfile $distrobase/LICENSE           || exit 1
 $tar $tarfile $distrobase/NOTICE            || exit 1
-$tar $tarfile $distrobase/INSTALL_GUIDE.pdf || exit 1
-
-$tar $tarfile $distrobase/CMakeLists.txt || exit 1
+$tar $tarfile $distrobase/CMakeLists.txt    || exit 1
+if [ $doc = "T" ]; then
+    $tar $tarfile $distrobase/INSTALL_GUIDE.pdf || exit 1
+fi
 
 echo "   --- Add configuration files to $tarfile"
 
@@ -97,6 +98,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h           || exi
 $tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.h     || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_nvector_senswrapper.h || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_nvector.h             || exit 1
+$tar $tarfile $distrobase/include/sundials/sundials_sycl_policies.hpp     || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_types.h               || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_version.h             || exit 1
 $tar $tarfile $distrobase/include/sundials/sundials_xbraid.h              || exit 1
@@ -114,6 +116,7 @@ $tar $tarfile $distrobase/include/nvector/nvector_petsc.h                       
 $tar $tarfile $distrobase/include/nvector/nvector_pthreads.h                          || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_raja.h                              || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_serial.h                            || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_sycl.h                              || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_trilinos.h                          || exit 1
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp  || exit 1
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp    || exit 1
@@ -127,6 +130,7 @@ $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_slunrloc.h  || exit 1
 
 $tar $tarfile $distrobase/include/sunmemory/sunmemory_cuda.h      || exit 1
 $tar $tarfile $distrobase/include/sunmemory/sunmemory_hip.h       || exit 1
+$tar $tarfile $distrobase/include/sunmemory/sunmemory_sycl.h       || exit 1
 
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_cusolversp_batchqr.h || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_band.h               || exit 1
@@ -250,6 +254,11 @@ echo "   --- Add nvector/raja module to $tarfile"
 $tar $tarfile $distrobase/src/nvector/raja/CMakeLists.txt   || exit 1
 $tar $tarfile $distrobase/src/nvector/raja/nvector_raja.cpp || exit 1
 
+echo "   --- Add nvector/sycl module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvector/sycl/CMakeLists.txt   || exit 1
+$tar $tarfile $distrobase/src/nvector/sycl/nvector_sycl.cpp || exit 1
+
 echo "   --- Add nvector/trilinos module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvector/trilinos/CMakeLists.txt       || exit 1
@@ -325,6 +334,11 @@ echo "   --- Add sunmemory/hip modules to $tarfile"
 
 $tar $tarfile $distrobase/src/sunmemory/hip/CMakeLists.txt || exit 1
 $tar $tarfile $distrobase/src/sunmemory/hip/sundials_hip_memory.hip.cpp || exit 1
+
+echo "   --- Add sunmemory/sycl modules to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmemory/sycl/CMakeLists.txt || exit 1
+$tar $tarfile $distrobase/src/sunmemory/sycl/sundials_sycl_memory.cpp || exit 1
 
 echo "   --- Add sunlinsol modules to $tarfile"
 
@@ -510,6 +524,9 @@ $tar $tarfile $distrobase/examples/nvector/raja/test_nvector_raja.cpp           
 $tar $tarfile $distrobase/examples/nvector/serial/CMakeLists.txt                                || exit 1
 $tar $tarfile $distrobase/examples/nvector/serial/test_fnvector_serial_mod.f90                  || exit 1
 $tar $tarfile $distrobase/examples/nvector/serial/test_nvector_serial.c                         || exit 1
+$tar $tarfile $distrobase/examples/nvector/sycl/CMakeLists.txt                                  || exit 1
+$tar $tarfile $distrobase/examples/nvector/sycl/custom_memory_helper.h                          || exit 1
+$tar $tarfile $distrobase/examples/nvector/sycl/test_nvector_sycl.cpp                           || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_mpinvector.c                                    || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c                                       || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_nvector.h                                       || exit 1
@@ -636,6 +653,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_trilinos_CXX_ex.in    ||
 $tar $tarfile $distrobase/examples/templates/cmakelists_superludist_CXX_ex.in || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_xbraid_CXX_ex.in      || exit 1
 
+$tar $tarfile $distrobase/examples/templates/makefile_CXX_ex.in             || exit 1
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_C_ex.in      || exit 1
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F77_ex.in    || exit 1
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F2003_ex.in  || exit 1

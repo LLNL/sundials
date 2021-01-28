@@ -1,5 +1,13 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 5.7.0
+
+A new NVECTOR implementation based on the SYCL abstraction layer has been added
+targeting Intel GPUs. At present the only SYCL compiler supported is the DPC++
+(Intel oneAPI) compiler. See the SYCL NVECTOR section in the user guide for more
+details. This module is considered experimental and is subject to major changes
+even in minor releases.
+
 ## Changes to SUNDIALS in release 5.6.1
 
 Fixed a bug in the SUNDIALS CMake which caused an error

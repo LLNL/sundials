@@ -300,7 +300,7 @@ double max_time(N_Vector X, double time)
   return maxtime;
 }
 
-void sync_device()
+void sync_device(N_Vector x)
 {
   /* Kokkos should take care of this */
 }

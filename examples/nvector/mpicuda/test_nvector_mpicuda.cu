@@ -363,7 +363,7 @@ double max_time(N_Vector plusX, double time)
   return(maxt);
 }
 
-void sync_device()
+void sync_device(N_Vector x)
 {
   /* sync with GPU */
   cudaDeviceSynchronize();

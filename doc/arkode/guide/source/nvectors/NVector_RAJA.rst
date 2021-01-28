@@ -20,7 +20,7 @@
 The NVECTOR_RAJA Module
 ======================================
 
-The NVECTOR_RAJA module is an experimental {\nvector} implementation using the
+The NVECTOR_RAJA module is an experimental NVECTOR implementation using the
 `RAJA <https://software.llnl.gov/RAJA/>`_ hardware abstraction layer. In this
 implementation, RAJA allows for SUNDIALS vector kernels to run on AMD or NVIDIA
 GPU devices. The module is intended for users who are already familiar with RAJA
@@ -127,26 +127,37 @@ provides the following additional user-callable routines:
    The vector data array is allocated in managed memory.
 
 
-.. c:function:: N_Vector N_VNewEmpty_Raja(sunindextype vec_length)
+.. c:function:: N_Vector N_VMake_Raja(sunindextype length, realtype *h_data, realtype *v_data)
 
-   This function creates a new ``N_Vector`` wrapper with the pointer
-   to the wrapped RAJA vector set to ``NULL``.  It is used by
-   :c:func:`N_VNew_Raja()`, :c:func:`N_VMake_Raja()`, and
-   :c:func:`N_VClone_Raja()` implementations.
+   This function creates an NVECTOR_RAJA with user-supplied host and device
+   data arrays. This function does not allocate memory for data itself.
 
 
-.. c:function:: N_Vector N_VMake_Raja(sunindextype length, realtype *vdata)
+.. c:function:: N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata)
 
    This function creates an NVECTOR_RAJA with a user-supplied managed
    memory data array. This function does not allocate memory for data itself.
 
 
-.. c:function:: realtype* N_VCopyToDevice_Raja(N_Vector v)
+.. c:function:: N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper)
+
+   This function creates an NVECTOR_RAJA with a user-supplied SUNMemoryHelper
+   for allocating/freeing memory.
+
+
+.. c:function:: N_Vector N_VNewEmpty_Raja()
+
+   This function creates a new ``N_Vector`` where the members of the content
+   structure have not been allocated.  This utility function is used by the
+   other constructors to create a new vector.
+
+
+.. c:function:: void N_VCopyToDevice_Raja(N_Vector v)
 
    This function copies host vector data to the device.
 
 
-.. c:function:: realtype* N_VCopyFromDevice_Raja(N_Vector v)
+.. c:function:: void N_VCopyFromDevice_Raja(N_Vector v)
 
    This function copies vector data from the device to the host.
 

@@ -41,6 +41,7 @@ nvec_petsc.tex \
 nvec_cuda.tex \
 nvec_hip.tex \
 nvec_raja.tex \
+nvec_sycl.tex \
 nvec_trilinos.tex \
 nvec_manyvector.tex \
 nvec_mpimanyvector.tex \
@@ -59,6 +60,8 @@ sunmatrix_cusparse.tex \
 sunmatrix_examples.tex \
 sunmemory_generic.tex \
 sunmemory_cuda.tex \
+sunmemory_hip.tex \
+sunmemory_sycl.tex \
 sunlinsol_generic.tex \
 sunlinsol_band.tex \
 sunlinsol_dense.tex \

@@ -43,6 +43,11 @@ sundials_option(BUILD_NVECTOR_HIP BOOL "Build the NVECTOR_HIP module (requires H
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_NVECTOR_HIP")
 
+sundials_option(BUILD_NVECTOR_SYCL BOOL "Build the NVECTOR_SYCL module (requires SYCL)" ON
+                DEPENDS_ON ENABLE_SYCL
+                ADVANCED)
+list(APPEND SUNDIALS_BUILD_LIST "BUILD_NVECTOR_SYCL")
+
 sundials_option(BUILD_NVECTOR_MANYVECTOR BOOL "Build the NVECTOR_MANYVECTOR module" ON
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_NVECTOR_MANYVECTOR")

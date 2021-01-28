@@ -21,3 +21,7 @@ endif()
 if(ENABLE_HIP)
   add_subdirectory(hip)
 endif()
+
+if(ENABLE_SYCL)
+  add_subdirectory(sycl)
+endif()

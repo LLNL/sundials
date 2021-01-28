@@ -32,3 +32,5 @@ the memory management.
 
    SUNMemory_Description
    SUNMemory_CUDA
+   SUNMemory_HIP
+   SUNMemory_SYCL

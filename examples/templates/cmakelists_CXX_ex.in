@@ -16,6 +16,15 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Set cache variables for compilers and flags
+set(CMAKE_C_COMPILER
+  @CMAKE_C_COMPILER@
+  CACHE FILEPATH "C compiler")
+
+set(CMAKE_C_FLAGS
+  "@CMAKE_C_FLAGS@"
+  CACHE STRING "C compiler flags")
+
+# Set cache variables for compilers and flags
 set(CMAKE_CXX_COMPILER
   @CMAKE_CXX_COMPILER@
   CACHE FILEPATH "CXX compiler")
@@ -25,7 +34,7 @@ set(CMAKE_CXX_FLAGS
   CACHE STRING "CXX compiler flags")
 
 # Specify project name and languages
-project(@SOLVER@_CXX_serial_examples CXX)
+project(@SOLVER@_examples C CXX)
 
 # Enable testing
 include(CTest)

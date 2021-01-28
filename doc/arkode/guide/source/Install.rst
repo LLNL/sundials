@@ -441,6 +441,14 @@ illustration only.
 
    Default: ``-O3 -DNDEBUG``
 
+:index:`CMAKE_CXX_STANDARD <CMAKE_CXX_STANDARD (CMake option)>`
+   The C++ standard to build C++ parts of SUNDIALS with.
+
+   Default: 11
+
+   Note: Options are 98, 11, 14, 17, 20. This option is only used when a
+   C++ compiler is required.
+
 :index:`CMAKE_Fortran_COMPILER <CMAKE_Fortran_COMPILER (CMake option)>`
    Fortran compiler
 
@@ -702,7 +710,7 @@ illustration only.
 
    Default: ``OFF``
 
-:index:`ENABLE_RAJA <RAJA_ENABLE (CMake option)>`
+:index:`ENABLE_RAJA <ENABLE_RAJA (CMake option)>`
    Enable RAJA support.
 
    Default: OFF
@@ -773,6 +781,18 @@ illustration only.
 
    Default: Pthread
 
+:index:`ENABLE_SYCL <ENABLE_SYCL (CMake option)>`
+   Enable SYCL support.
+
+   Default: OFF
+
+   .. note::
+
+      At present the only supported SYCL compiler is the DPC++ (Intel oneAPI)
+      compiler. CMake does not currently support autodetection of SYCL compilers
+      and ``CMAKE_CXX_COMPILER`` must be set to a valid SYCL compiler i.e.,
+      ``dpcpp`` in order to build with SYCL support.
+
 :index:`SUNDIALS_BUILD_WITH_MONITORING <SUNDIALS_BUILD_WITH_MONITORING (CMake option)>`
    Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
    and statistics. This is primarily useful for debugging.
@@ -781,14 +801,6 @@ illustration only.
 
    Note: Building with monitoring may result in minor performance degradation
    even if monitoring is not utilized.
-
-:index:`CMAKE_CXX_STANDARD <CMAKE_CXX_STANDARD (CMake option)>`
-   The C++ standard to build C++ parts of SUNDIALS with.
-
-   Default: 11
-
-   Note: Options are 99, 11, 14, 17. This option only used when a
-   C++ compiler is required.
 
 :index:`SUNDIALS_F77_FUNC_CASE <SUNDIALS_F77_FUNC_CASE (CMake option)>`
    Specify the case to use in the Fortran name-mangling scheme,
@@ -1379,10 +1391,18 @@ configuration file to build against SUNDIALS in their own CMake project.
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``nvector/nvector_cuda.h``                   |
    +------------------------------+--------------+----------------------------------------------+
+   | HIP                          | Libraries    | ``libsundials_nvechip.LIB``                  |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``nvector/nvector_hip.h``                    |
+   +------------------------------+--------------+----------------------------------------------+
    | RAJA                         | Libraries    | ``libsundials_nveccudaraja.LIB``             |
    |                              |              | ``libsundials_nvechipraja.LIB``              |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``nvector/nvector_raja.h``                   |
+   +------------------------------+--------------+----------------------------------------------+
+   | SYCL                         | Libraries    | ``libsundials_nvecsycl.LIB``                 |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``nvector/nvector_sycl.h``                   |
    +------------------------------+--------------+----------------------------------------------+
    | MANYVECTOR                   | Libraries    | ``libsundials_nvecmanyvector.LIB``           |
    |                              +--------------+----------------------------------------------+

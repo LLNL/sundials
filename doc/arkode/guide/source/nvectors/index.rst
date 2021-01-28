@@ -54,6 +54,7 @@ patterns in the NVECTORS used.
    NVector_CUDA
    NVector_HIP
    NVector_RAJA
+   NVector_SYCL
    NVector_OpenMPDEV
    NVector_Trilinos
    NVector_ManyVector

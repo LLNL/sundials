@@ -57,6 +57,10 @@ if(BUILD_NVECTOR_HIP)
   add_subdirectory(hip)
 endif()
 
+if(BUILD_NVECTOR_SYCL)
+  add_subdirectory(sycl)
+endif()
+
 if(BUILD_NVECTOR_RAJA)
   add_subdirectory(raja)
 endif()
