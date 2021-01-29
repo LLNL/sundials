@@ -14,7 +14,7 @@
 # CMakeLists.txt file for the RAJA NVECTOR library
 # ---------------------------------------------------------------
 
-install(CODE "MESSAGE(\"\nInstall NVECTOR_RAJA with ${SUNDIALS_RAJA_BACKENDS} backend\n\")")
+install(CODE "MESSAGE(\"\nInstall NVECTOR_RAJA with ${SUNDIALS_RAJA_BACKENDS} backend(s)\n\")")
 
 if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
   set(_sunmemlib sundials_sunmemcuda_obj)

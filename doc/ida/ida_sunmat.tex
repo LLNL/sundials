@@ -10,7 +10,7 @@
 \label{s:sunmat_usage}
 %---------------------------------------------------------------------------
 
-In Table \ref{t:sunmatuse}, we list the matrix functions in the 
+In Table \ref{t:sunmatuse}, we list the matrix functions in the
 {\sunmatrix} module used within the {\ida} package.
 The table also shows, for each function, which of the code modules uses
 the function. The main {\ida} integrator does not call any
@@ -21,9 +21,9 @@ interface only utilizes these routines when supplied with a
 \emph{matrix-based} linear solver, i.e., the {\sunmatrix} object
 passed to \Id{IDASetLinearSolver} was not \id{NULL}.
 
-At this point, we should emphasize that the {\ida} user does not need to know 
-anything about the usage of matrix functions by the {\ida} code modules in order 
-to use {\ida}. The information is presented as an implementation detail for the 
+At this point, we should emphasize that the {\ida} user does not need to know
+anything about the usage of matrix functions by the {\ida} code modules in order
+to use {\ida}. The information is presented as an implementation detail for the
 interested reader.
 
 \begin{table}[htb]
@@ -31,8 +31,8 @@ interested reader.
 \caption{List of matrix functions usage by {\ida} code modules}\label{t:sunmatuse}
 \medskip
 \begin{tabular}{|r|c|c|} \hline
-                                             & 
-\begin{sideways}{\idals}       \end{sideways} & 
+                                             &
+\begin{sideways}{\idals}       \end{sideways} &
 \begin{sideways}{\idabbdpre}   \end{sideways} \\ \hline\hline
 %                             LS         BBD
 \id{SUNMatGetID}         &    \cm    &           \\ \hline
@@ -46,7 +46,7 @@ The matrix functions listed in Section \ref{ss:sunmatrix_functions} with
 a $\dagger$ symbol are optionally used, in that these are only called
 if they are implemented in the {\sunmatrix} module that is being used
 (i.e.~their function pointers are non-\id{NULL}).  The matrix
-functions listed in Section \ref{ss:sunmatrix_functions} that are {\em not} used by 
+functions listed in Section \ref{ss:sunmatrix_functions} that are {\em not} used by
 {\ida} are: \id{SUNMatCopy}, \id{SUNMatClone}, \id{SUNMatScaleAdd},
 \id{SUNMatScaleAddI} and \id{SUNMatMatvec}. Therefore a user-supplied
 {\sunmatrix} module for {\ida} could omit these functions.
@@ -60,3 +60,4 @@ functions listed in Section \ref{ss:sunmatrix_functions} that are {\em not} used
 \input{sunmatrix_sparse}
 \input{sunmatrix_slunrloc}
 \input{sunmatrix_cusparse}
+\input{sunmatrix_magmadense}

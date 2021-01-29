@@ -107,6 +107,12 @@ the DPC++ (Intel oneAPI) compiler. See Section \ref{ss:nvec_sycl} for more
 details. This module is considered experimental and is subject to major changes
 even in minor releases.
 
+A new {\sunmatrix} and {\sunlinsol} implementation were added to interface
+with the MAGMA linear algebra library. Both the matrix and the linear solver
+support general dense linear systems as well as block diagonal linear systems,
+and both are targeted at GPUs (AMD or NVIDIA). See Section \ref{ss:sunlinsol_magmadense}
+for more details.
+
 \subsection*{Changes in v5.6.1}
 
 Fixed a bug in the {\sundials} CMake which caused an error

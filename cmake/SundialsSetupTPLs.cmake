@@ -60,6 +60,15 @@ if(ENABLE_LAPACK)
 endif()
 
 # ---------------------------------------------------------------
+# Find (and test) the MAGMA libraries
+# ---------------------------------------------------------------
+
+if(ENABLE_MAGMA)
+  include(SundialsMAGMA)
+  list(APPEND SUNDIALS_TPL_LIST "MAGMA")
+endif()
+
+# ---------------------------------------------------------------
 # Find (and test) the SuperLUDIST libraries
 # ---------------------------------------------------------------
 

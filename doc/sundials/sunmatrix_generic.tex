@@ -356,9 +356,11 @@ It is recommended that a user-supplied {\sunmatrix} implementation use the
 \hline
 SUNMATRIX\_DENSE      & Dense $\id{M} \times \id{N}$ matrix               & 0 \\
 SUNMATRIX\_BAND       & Band $\id{M} \times \id{M}$ matrix                & 1 \\
-SUNMATRIX\_SPARSE     & Sparse (CSR or CSC) $\id{M} \times \id{N}$ matrix & 2 \\
-SUNMATRIX\_SLUNRLOC   & Adapter for the {\superludist} \id{SuperMatrix}   & 3 \\
-SUNMATRIX\_CUSTOM     & User-provided custom matrix                       & 4 \\
+SUNMATRIX\_MAGMADENSE & Magma dense $\id{M} \times \id{N}$ matrix         & 2 \\
+SUNMATRIX\_SPARSE     & Sparse (CSR or CSC) $\id{M} \times \id{N}$ matrix & 3 \\
+SUNMATRIX\_SLUNRLOC   & Adapter for the {\superludist} \id{SuperMatrix}   & 4 \\
+SUNMATRIX\_CUSPARSE   & CUDA sparse CSR matrix                            & 5 \\
+SUNMATRIX\_CUSTOM     & User-provided custom matrix                       & 6 \\
 \hline
 \end{tabular}
 \end{table}
@@ -527,4 +529,3 @@ routines these functions will ease the introduction of any new optional matrix
 operations to the {\sunmatrix} API by ensuring only required operations need to
 be set and all operations are copied when cloning a matrix. These functions
 are desrcribed in Section \ref{ss:sunmatrix_utilities}.
-

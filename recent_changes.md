@@ -8,6 +8,11 @@ targeting Intel GPUs. At present the only SYCL compiler supported is the DPC++
 details. This module is considered experimental and is subject to major changes
 even in minor releases.
 
+A new SUNMatrix and SUNLinearSolver implementation were added to interface
+with the MAGMA linear algebra library. Both the matrix and the linear solver
+support general dense linear systems as well as block diagonal linear systems,
+and both are targeted at GPUs (AMD or NVIDIA).
+
 ## Changes to SUNDIALS in release 5.6.1
 
 Fixed a bug in the SUNDIALS CMake which caused an error

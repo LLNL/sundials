@@ -45,11 +45,13 @@ $tar $tarfile $distrobase/cmake/macros/ResolveCompilerPaths.cmake          || ex
 $tar $tarfile $distrobase/cmake/macros/SundialsAddLibrary.cmake            || exit 1
 $tar $tarfile $distrobase/cmake/macros/SundialsAddTest.cmake               || exit 1
 $tar $tarfile $distrobase/cmake/macros/SundialsAddTestInstall.cmake        || exit 1
+$tar $tarfile $distrobase/cmake/macros/SundialsInstallExamples.cmake       || exit 1
 $tar $tarfile $distrobase/cmake/macros/SundialsCMakeMacros.cmake           || exit 1
 $tar $tarfile $distrobase/cmake/macros/SundialsOption.cmake                || exit 1
 $tar $tarfile $distrobase/cmake/macros/SundialsTryCompileExecute.cmake     || exit 1
 $tar $tarfile $distrobase/cmake/tpl/FindHYPRE.cmake                        || exit 1
 $tar $tarfile $distrobase/cmake/tpl/FindKLU.cmake                          || exit 1
+$tar $tarfile $distrobase/cmake/tpl/FindMAGMA.cmake                        || exit 1
 $tar $tarfile $distrobase/cmake/tpl/FindPETSC.cmake                        || exit 1
 $tar $tarfile $distrobase/cmake/tpl/FindSUPERLUMT.cmake                    || exit 1
 $tar $tarfile $distrobase/cmake/tpl/FindSUPERLUDIST.cmake                  || exit 1
@@ -59,6 +61,7 @@ $tar $tarfile $distrobase/cmake/tpl/SundialsHypre.cmake                    || ex
 $tar $tarfile $distrobase/cmake/tpl/SundialsKLU.cmake                      || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsLapack.cmake                   || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsMPI.cmake                      || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsMAGMA.cmake                    || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsOpenMP.cmake                   || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsPETSC.cmake                    || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsPOSIXTimers.cmake              || exit 1
@@ -67,7 +70,7 @@ $tar $tarfile $distrobase/cmake/tpl/SundialsRAJA.cmake                     || ex
 $tar $tarfile $distrobase/cmake/tpl/SundialsSuperLUMT.cmake                || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsSuperLUDIST.cmake              || exit 1
 $tar $tarfile $distrobase/cmake/tpl/SundialsTrilinos.cmake                 || exit 1
-$tar $tarfile $distrobase/cmake/tpl/SundialsXBRAID.cmake                 || exit 1
+$tar $tarfile $distrobase/cmake/tpl/SundialsXBRAID.cmake                   || exit 1
 
 echo "   --- Add shared module to $tarfile"
 
@@ -121,12 +124,13 @@ $tar $tarfile $distrobase/include/nvector/nvector_trilinos.h                    
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp  || exit 1
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp    || exit 1
 
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h      || exit 1
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_cusparse.h  || exit 1
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h     || exit 1
-#$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h || exit 1
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h    || exit 1
-$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_slunrloc.h  || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h       || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_cusparse.h   || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h      || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_magmadense.h || exit 1
+#$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h  || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h     || exit 1
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_slunrloc.h   || exit 1
 
 $tar $tarfile $distrobase/include/sunmemory/sunmemory_cuda.h      || exit 1
 $tar $tarfile $distrobase/include/sunmemory/sunmemory_hip.h       || exit 1
@@ -139,6 +143,7 @@ $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_dense.h              || ex
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_klu.h                || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackband.h         || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_lapackdense.h        || exit 1
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_magmadense.h         || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_pcg.h                || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spbcgs.h             || exit 1
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spfgmr.h             || exit 1
@@ -321,6 +326,13 @@ echo "   --- Add sunmatrix/slunrloc module to $tarfile"
 $tar $tarfile $distrobase/src/sunmatrix/slunrloc/CMakeLists.txt       || exit 1
 $tar $tarfile $distrobase/src/sunmatrix/slunrloc/sunmatrix_slunrloc.c || exit 1
 
+echo "   --- Add sunmatrix/magmadense module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmatrix/magmadense/CMakeLists.txt            || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/magmadense/sunmatrix_magmadense.cpp  || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/magmadense/dense_cuda_kernels.cuh    || exit 1
+$tar $tarfile $distrobase/src/sunmatrix/magmadense/dense_hip_kernels.hip.hpp || exit 1
+
 echo "   --- Add sunmemory modules to $tarfile"
 
 $tar $tarfile $distrobase/src/sunmemory/CMakeLists.txt || exit 1
@@ -389,6 +401,11 @@ $tar $tarfile $distrobase/src/sunlinsol/lapackdense/CMakeLists.txt           || 
 $tar $tarfile $distrobase/src/sunlinsol/lapackdense/sunlinsol_lapackdense.c  || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/lapackdense/fsunlinsol_lapackdense.h || exit 1
 $tar $tarfile $distrobase/src/sunlinsol/lapackdense/fsunlinsol_lapackdense.c || exit 1
+
+echo "   --- Add sunlinsol/magmadense module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol/magmadense/CMakeLists.txt           || exit 1
+$tar $tarfile $distrobase/src/sunlinsol/magmadense/sunlinsol_magmadense.cpp || exit 1
 
 echo "   --- Add sunlinsol/pcg module to $tarfile"
 
@@ -541,6 +558,8 @@ $tar $tarfile $distrobase/examples/sunmatrix/band/test_fsunmatrix_band_mod.f90  
 $tar $tarfile $distrobase/examples/sunmatrix/band/CMakeLists.txt                   || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/cusparse/test_sunmatrix_cusparse.cu   || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/cusparse/CMakeLists.txt               || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/magmadense/test_sunmatrix_magmadense.cpp || exit 1
+$tar $tarfile $distrobase/examples/sunmatrix/magmadense/CMakeLists.txt                || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/test_sunmatrix_dense.c          || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/test_fsunmatrix_dense_mod.f90   || exit 1
 $tar $tarfile $distrobase/examples/sunmatrix/dense/CMakeLists.txt                  || exit 1
@@ -577,6 +596,8 @@ $tar $tarfile $distrobase/examples/sunlinsol/lapackband/test_sunlinsol_lapackban
 $tar $tarfile $distrobase/examples/sunlinsol/lapackband/CMakeLists.txt                             || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/lapackdense/test_sunlinsol_lapackdense.c              || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/lapackdense/CMakeLists.txt                            || exit 1
+$tar $tarfile $distrobase/examples/sunlinsol/magmadense/test_sunlinsol_magmadense.cpp              || exit 1
+$tar $tarfile $distrobase/examples/sunlinsol/magmadense/CMakeLists.txt                             || exit 1
 #$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/test_sunlinsol_pcg_parallel.c           || exit 1
 #$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/CMakeLists.txt                          || exit 1
 $tar $tarfile $distrobase/examples/sunlinsol/pcg/serial/test_sunlinsol_pcg_serial.c                || exit 1
@@ -634,6 +655,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_parhyp_C_ex.in        ||
 $tar $tarfile $distrobase/examples/templates/cmakelists_parhyp_CXX_ex.in      || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_petsc_C_ex.in         || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_CXX_ex.in             || exit 1
+$tar $tarfile $distrobase/examples/templates/cmakelists_CUDA_ex.in            || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_HIP_ex.in             || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_MPI_ex.in             || exit 1
 $tar $tarfile $distrobase/examples/templates/cmakelists_serial_C_ex.in        || exit 1

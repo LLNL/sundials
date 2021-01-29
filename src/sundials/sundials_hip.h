@@ -42,6 +42,19 @@ extern "C" {
 
 #define SUNDIALS_HIP_VERIFY(hiperr) SUNDIALS_HIP_Assert(hiperr, __FILE__, __LINE__)
 
+#define SUNDIALS_KERNEL_NAME(...) __VA_ARGS__
+#ifndef SUNDIALS_DEBUG_HIP_LASTERROR
+#define SUNDIALS_LAUNCH_KERNEL(kernel, gridDim, blockDim, shMem, stream, ...) \
+{ kernel<<<gridDim, blockDim, shMem, stream>>>(__VA_ARGS__); }
+#else
+#define SUNDIALS_LAUNCH_KERNEL(kernel, gridDim, blockDim, shMem, stream, ...) \
+{ \
+  kernel<<<gridDim, blockDim, shMem, stream>>>(__VA_ARGS__); \
+  hipDeviceSynchronize(); \
+  SUNDIALS_HIP_VERIFY(hipGetLastError()); \
+}
+#endif
+
 /* ---------------------------------------------------------------------------
  * Utility functions
  * ---------------------------------------------------------------------------*/

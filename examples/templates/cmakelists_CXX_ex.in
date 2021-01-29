@@ -62,6 +62,9 @@ set(SUNDIALS_LIBRARIES
     ${SUNDIALS_TARGETS_NEEDED}
     ${SUNDIALS_EXTRA_LIBS})
 
+# Additional includes
+include_directories(. @EXTRA_INCLUDES@)
+
 # ------------------------------------------------------------------------------
 
 # Set the names of the examples to be built and their dependencies
@@ -74,16 +77,19 @@ endif()
 # Create targets for each example
 foreach(example ${examples})
 
+  # get filename without extension
+  get_filename_component(example_target ${example} NAME_WE)
+
   # example source files
-  add_executable(${example} ${example}.cpp ${examples_dependencies})
+  add_executable(${example_target} ${example} ${examples_dependencies})
 
   # directories to include
-  target_include_directories(${example} PRIVATE ${SUNDIALS_INCLUDE_DIR})
+  target_include_directories(${example_target} PRIVATE ${SUNDIALS_INCLUDE_DIR})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBRARIES})
+  target_link_libraries(${example_target} ${SUNDIALS_LIBRARIES})
 
   # add the example to ctest
-  add_test(NAME ${example} COMMAND ${example})
+  add_test(NAME ${example_target} COMMAND ${example})
 
 endforeach()

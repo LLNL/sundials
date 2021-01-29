@@ -57,6 +57,7 @@ sunmatrix_dense.tex \
 sunmatrix_sparse.tex \
 sunmatrix_slunrloc.tex \
 sunmatrix_cusparse.tex \
+sunmatrix_magmadense.tex \
 sunmatrix_examples.tex \
 sunmemory_generic.tex \
 sunmemory_cuda.tex \
@@ -68,6 +69,7 @@ sunlinsol_dense.tex \
 sunlinsol_klu.tex \
 sunlinsol_lapackband.tex \
 sunlinsol_lapackdense.tex \
+sunlinsol_magmadense.tex \
 sunlinsol_pcg.tex \
 sunlinsol_spbcgs.tex \
 sunlinsol_spfgmr.tex \

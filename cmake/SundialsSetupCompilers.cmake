@@ -180,6 +180,7 @@ endif()
 # (e) RAJA is enabled
 # (f) Trilinos is enabled
 # (g) SuperLU_DIST is enabled
+# (e) MAGMA is enabled
 # ---------------------------------------------------------------
 
 if(EXAMPLES_ENABLE_CXX OR
@@ -188,7 +189,8 @@ if(EXAMPLES_ENABLE_CXX OR
     ENABLE_SYCL OR
     ENABLE_RAJA OR
     ENABLE_TRILINOS OR
-    ENABLE_SUPERLUDIST)
+    ENABLE_SUPERLUDIST OR
+    ENABLE_MAGMA)
   include(SundialsSetupCXX)
 endif()
 

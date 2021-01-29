@@ -129,6 +129,11 @@ sundials_option(BUILD_SUNMATRIX_SLUNRLOC BOOL "Build the SUNMATRIX_SLUNRLOC modu
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNMATRIX_SLUNRLOC")
 
+sundials_option(BUILD_SUNMATRIX_MAGMADENSE BOOL "Build the SUNMATRIX_MAGMADENSE module (requires MAGMA)" ON
+                DEPENDS_ON ENABLE_MAGMA MAGMA_WORKS
+                ADVANCED)
+list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNMATRIX_MAGMADENSE")
+
 # ---------------------------------------------------------------
 # Options to enable/disable build for SUNLINSOL modules.
 # ---------------------------------------------------------------
@@ -168,6 +173,11 @@ sundials_option(BUILD_SUNLINSOL_LAPACKDENSE BOOL "Build the SUNLINSOL_LAPACKDENS
                 DEPENDS_ON ENABLE_LAPACK LAPACK_WORKS
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNLINSOL_LAPACKDENSE")
+
+sundials_option(BUILD_SUNLINSOL_MAGMADENSE BOOL "Build the SUNLINSOL_MAGMADENSE module (requires MAGMA)" ON
+                DEPENDS_ON ENABLE_MAGMA MAGMA_WORKS
+                ADVANCED)
+list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNLINSOL_MAGMADENSE")
 
 sundials_option(BUILD_SUNLINSOL_SUPERLUDIST BOOL "Build the SUNLINSOL_SUPERLUDIST module (requires SUPERLUDIST)" ON
                 DEPENDS_ON ENABLE_SUPERLUDIST SUPERLUDIST_WORKS BUILD_SUNMATRIX_SLUNRLOC

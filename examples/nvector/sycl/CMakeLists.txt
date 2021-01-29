@@ -96,8 +96,8 @@ endforeach(example_tuple ${nvector_sycl_examples})
 
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/sycl)
+  # Install extra files
+  install(FILES custom_memory_helper.h DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/sycl)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "nvector_sycl")

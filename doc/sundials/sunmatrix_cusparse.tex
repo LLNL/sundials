@@ -12,10 +12,10 @@ format for block-diagonal matrices of the form
 \begin{equation*}
   \mathbf{A} =
   \begin{bmatrix}
-    \mathbf{A_1} & 0 & \cdots & 0\\
-    0 & \mathbf{A_2} & \cdots & 0\\
+    \mathbf{A_0} & 0 & \cdots & 0\\
+    0 & \mathbf{A_1} & \cdots & 0\\
     \vdots & \vdots & \ddots & \vdots\\
-    0 & 0 & \cdots & \mathbf{A_n}\\
+    0 & 0 & \cdots & \mathbf{A_{n-1}}\\
   \end{bmatrix}
 \end{equation*}
 where all the block matrices $A_j$ share the same sparsity pattern.
@@ -69,11 +69,11 @@ functions:
   A = SUNMatrix\_cuSparse\_NewCSR(M, N, NNZ, cusp)
 }
 {
-  This constructor function creates and allocates memory for a \id{SUMATRIX\_CUSPARSE}
+  This constructor function creates and allocates memory for a \id{SUNMATRIX\_CUSPARSE}
   \id{SUNMatrix} that uses the CSR storage format.
 }
 {
-  \begin{args}
+  \begin{args}[cusp]
   \item[M] (\id{int}) the number of matrix rows
   \item[N] (\id{int}) the number of matrix columns
   \item[NNZ] (\id{int}) the number of matrix nonzeros
@@ -92,13 +92,13 @@ functions:
   A = SUNMatrix\_cuSparse\_NewBlockCSR(nblocks, blockrows, blockcols, blocknnz, cusp)
 }
 {
-  This constructor function creates and allocates memory for a \id{SUMATRIX\_CUSPARSE}
+  This constructor function creates and allocates memory for a \id{SUNMATRIX\_CUSPARSE}
   \id{SUNMatrix} that leverages the \id{SUNMAT\_CUSPARSE\_BCSR} storage
   format to store a block diagonal matrix where each block shares the same
   sparsity pattern. \textbf{The blocks must be square.}
 }
 {
-  \begin{args}
+  \begin{args}[blockcols]
   \item[nblocks] (\id{int}) the number of matrix blocks
   \item[blockrows] (\id{int}) the number of rows for a block
   \item[blockcols] (\id{int}) the number of columns for a block
@@ -120,11 +120,11 @@ functions:
   A = SUNMatrix\_cuSparse\_MakeCSR(mat\_descr, M, N, NNZ, rowptrs, colind, data, cusp)
 }
 {
-  This constructor function creates and allocates memory for a \id{SUMATRIX\_CUSPARSE}
+  This constructor function creates and allocates memory for a \id{SUNMATRIX\_CUSPARSE}
   \id{SUNMatrix} that uses the CSR storage format from the user provided pointers.
 }
 {
-  \begin{args}
+  \begin{args}[mat\_decsr]
   \item[mat\_decsr] a valid \id{cusparseMatDescr\_t} object;
     must use \id{CUSPARSE\_INDEX\_BASE\_ZERO} indexing
   \item[M] (\id{int}) the number of matrix rows
@@ -378,7 +378,7 @@ functions:
   \id{h\_idxvals} to avoid copying that information.
 }
 {
-  \begin{args}
+  \begin{args}[h\_idxptrs]
   \item[A] (\id{SUNMatrix})
   \item[h\_data] (\id{realtype*}) a pointer to an allocated array of
     at least \id{SUNMatrix\_cuSparse\_NNZ(A)} \id{*} \id{sizeof(realtype)}
@@ -409,7 +409,7 @@ functions:
   \id{h\_idxvals} to avoid copying that information.
 }
 {
-  \begin{args}
+  \begin{args}[h\_idxptrs]
   \item[A] (\id{SUNMatrix})
   \item[h\_data] (\id{realtype*}) a pointer to an allocated array of
     at least \id{SUNMatrix\_cuSparse\_NNZ(A)} \id{*} \id{sizeof(realtype)}
@@ -442,7 +442,7 @@ functions:
   class.
 }
 {
-  \begin{args}
+  \begin{args}[exec\_policy]
     \item[A] (\id{SUNMatrix})
     \item[exec\_policy] (\id{SUNCudaExecPolicy*})
   \end{args}
@@ -474,7 +474,7 @@ functions:
   or \id{SUNFALSE} for the \id{yesno} argument is equivalent to the default behavior.
 }
 {
-  \begin{args}
+  \begin{args}[yesno]
   \item[A] (\id{SUNMatrix})
   \item[yesno] (\id{booleantype})
   \end{args}

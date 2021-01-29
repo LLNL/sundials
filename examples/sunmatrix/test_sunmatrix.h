@@ -69,6 +69,7 @@ extern "C" {
   int check_vector(N_Vector expected, N_Vector computed, realtype tol);
   booleantype has_data(SUNMatrix A);
   booleantype is_square(SUNMatrix A);
+  void sync_device();
 
   /* Test function declarations */
   int Test_SUNMatGetID(SUNMatrix A, SUNMatrix_ID sunid, int myid);

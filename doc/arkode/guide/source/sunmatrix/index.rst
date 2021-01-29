@@ -30,7 +30,7 @@ constructed to only depend on these generic matrix operations, making
 them immediately extensible to new user-defined matrix objects.  For
 each of the SUNDIALS-provided matrix types, SUNDIALS also provides at
 least two ``SUNLinearSolver`` implementations that factor these
-matrix objects and use them in the solution of linear systems.  
+matrix objects and use them in the solution of linear systems.
 
 
 
@@ -41,6 +41,7 @@ matrix objects and use them in the solution of linear systems.
    SUNMatrix_Operations
    SUNMatrix_Compatibility
    SUNMatrix_Dense
+   SUNMatrix_MagmaDense
    SUNMatrix_Band
    SUNMatrix_cuSparse
    SUNMatrix_Sparse

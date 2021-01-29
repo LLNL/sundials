@@ -208,6 +208,10 @@
               Accelerated Picard Method for Nonlinear Systems Related to
               Variably Saturated Flow, *Adv. Wat. Resour.*, 38:92-101, 2012.
 
+.. [MAGMA2010] S. Tomov, J. Dongarra, and M. Baboulin
+               Towards dense linear algebra for hybrid GPU accelerated manycore systems.
+               Parallel Matrix Algorithms and Applications, 36:232--240, 2010.
+
 .. [oneAPI] `Intel oneAPI Programming Guide
              <https://software.intel.com/content/www/us/en/develop/documentation/oneapi-programming-guide/top.html>`_.
 

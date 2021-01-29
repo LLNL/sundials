@@ -74,6 +74,22 @@ sundials_option(LAPACK_WORKS BOOL "Set to ON to force CMake to accept a given LA
                 ADVANCED)
 
 # ---------------------------------------------------------------
+# Enable MAGMA support?
+# ---------------------------------------------------------------
+sundials_option(ENABLE_MAGMA BOOL "Enable MAGMA support" OFF)
+
+sundials_option(MAGMA_DIR PATH "Path to the root of a MAGMA installation" "${MAGMA_DIR}"
+                SHOW_IF ENABLE_MAGMA)
+
+sundials_option(SUNDIALS_MAGMA_BACKENDS STRING "Which MAGMA backend under the SUNDIALS MAGMA interfaces (CUDA, HIP)" "CUDA"
+                OPTIONS "CUDA;HIP"
+                SHOW_IF ENABLE_MAGMA)
+
+sundials_option(MAGMA_WORKS BOOL "Set to ON to force CMake to accept a given MAGMA configuration" OFF
+                SHOW_IF ENABLE_MAGMA
+                ADVANCED)
+
+# ---------------------------------------------------------------
 # Enable SuperLU_DIST support?
 # ---------------------------------------------------------------
 sundials_option(ENABLE_SUPERLUDIST BOOL "Enable SuperLU_DIST support" OFF)

@@ -41,10 +41,10 @@ block-diagonal matrices of the form
 
    \mathbf{A} =
    \begin{bmatrix}
-      \mathbf{A_1} & 0 & \cdots & 0\\
+      \mathbf{A_0} & 0 & \cdots & 0\\
       0 & \mathbf{A_2} & \cdots & 0\\
       \vdots & \vdots & \ddots & \vdots\\
-      0 & 0 & \cdots & \mathbf{A_n}\\
+      0 & 0 & \cdots & \mathbf{A_{n-1}}\\
    \end{bmatrix}
 
 where all the block matrices :math:`\mathbf{A_j}` share the same sparsisty pattern.
@@ -90,7 +90,7 @@ functions:
 
 .. c:function:: SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp)
 
-   This constructor function creates and allocates memory for a SUMATRIX_CUSPARSE
+   This constructor function creates and allocates memory for a SUNMATRIX_CUSPARSE
    ``SUNMatrix`` that uses the CSR storage format. Its arguments are the
    number of rows and columns of the matrix, ``M`` and ``N``, the number of
    nonzeros to be stored in the matrix, ``NNZ``, and a valid ``cusparseHandle_t``.

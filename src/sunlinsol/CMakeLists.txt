@@ -23,16 +23,12 @@ add_subdirectory(spfgmr)
 add_subdirectory(spgmr)
 add_subdirectory(sptfqmr)
 
+if(BUILD_SUNLINSOL_CUSOLVERSP)
+  add_subdirectory(cusolversp)
+endif()
+
 if(BUILD_SUNLINSOL_KLU)
   add_subdirectory(klu)
-endif()
-
-if(BUILD_SUNLINSOL_SUPERLUDIST)
-  add_subdirectory(superludist)
-endif()
-
-if(BUILD_SUNLINSOL_SUPERLUMT)
-  add_subdirectory(superlumt)
 endif()
 
 if(BUILD_SUNLINSOL_LAPACKBAND)
@@ -43,6 +39,14 @@ if(BUILD_SUNLINSOL_LAPACKDENSE)
   add_subdirectory(lapackdense)
 endif()
 
-if(BUILD_SUNLINSOL_CUSOLVERSP)
-  add_subdirectory(cusolversp)
+if(BUILD_SUNLINSOL_MAGMADENSE)
+  add_subdirectory(magmadense)
+endif()
+
+if(BUILD_SUNLINSOL_SUPERLUDIST)
+  add_subdirectory(superludist)
+endif()
+
+if(BUILD_SUNLINSOL_SUPERLUMT)
+  add_subdirectory(superlumt)
 endif()
