@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,15 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNMATRIX_BAND\n\")")
 
-# Add variable sunmatrixband_HEADERS with the exported SUNMATRIXBAND header files
-set(sunmatrixband_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_band.h
-  )
-
 # Add the sunmatrix_band library
 sundials_add_library(sundials_sunmatrixband
   SOURCES
     sunmatrix_band.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_band.h
+  INCLUDE_SUBDIR
+    sunmatrix
   OBJECT_LIBRARIES
     sundials_generic_obj
   OUTPUT_NAME
@@ -35,10 +34,6 @@ sundials_add_library(sundials_sunmatrixband
     ${sunmatrixlib_SOVERSION}
 )
 
-# Install the SUNMATRIXBAND header files
-install(FILES ${sunmatrixband_HEADERS} DESTINATION include/sunmatrix)
-
-#
 message(STATUS "Added SUNMATRIX_BAND module")
 
 # Add F2003 module if the interface is enabled

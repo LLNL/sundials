@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles, Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -22,20 +22,14 @@ set(CMAKE_C_COMPILER   ${Trilinos_INTERFACE_C_COMPILER})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Trilinos_INTERFACE_CXX_COMPILER_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Trilinos_INTERFACE_C_COMPILER_FLAGS}")
 
-# Add variable nvectrilinos_HEADERS with the exported NVECTRILINOS header files
-set(nvectrilinos_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_trilinos.h
-  )
-
-set(nvectrilinos_CXXHEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp
-  )
-
 # Create the library
 sundials_add_library(sundials_nvectrilinos
   SOURCES
     nvector_trilinos.cpp
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_trilinos.h
+  INCLUDE_SUBDIR
+    nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -48,9 +42,10 @@ sundials_add_library(sundials_nvectrilinos
     ${nveclib_SOVERSION}
 )
 
-# Install the NVECTRILINOS header files
-install(FILES ${nvectrilinos_HEADERS} DESTINATION include/nvector)
-install(FILES ${nvectrilinos_CXXHEADERS} DESTINATION include/nvector/trilinos)
+# Install the exported NVECTRILINOS CXX header files in a separate subdirectory
+install(FILES
+        ${SUNDIALS_SOURCE_DIR}/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp
+        ${SUNDIALS_SOURCE_DIR}/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/nvector/trilinos")
 
-#
 message(STATUS "Added NVECTOR_Trilinos module")

@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,14 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNMATRIX_CUSPARSE\n\")")
 
-# Add variable cusparse_HEADERS with the exported cusparse header files
-set(cusparse_HEADERS sunmatrix_cusparse.h)
-add_prefix(${SUNDIALS_SOURCE_DIR}/include/sunmatrix/ cusparse_HEADERS)
-
 # Add the library
 sundials_add_library(sundials_sunmatrixcusparse
   SOURCES
     sunmatrix_cusparse.cu
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_cusparse.h
+  INCLUDE_SUBDIR
+    sunmatrix
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_sunmemcuda_obj
@@ -38,8 +38,4 @@ sundials_add_library(sundials_sunmatrixcusparse
     ${sunmatrixlib_SOVERSION}
 )
 
-# Install the CUDA NVector header files
-install(FILES ${cusparse_HEADERS} DESTINATION include/sunmatrix)
-
-#
 message(STATUS "Added SUNMATRIX_CUSPARSE module")

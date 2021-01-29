@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -53,3 +53,4 @@ message(STATUS "HIP version:      ${HIP_VERSION}")
 message(STATUS "HIP platform:     ${HIP_PLATFORM}")
 message(STATUS "HIP compiler:     ${HIP_COMPILER}")
 message(STATUS "HIP linker:       ${CMAKE_CXX_LINK_EXECUTABLE}")
+message(STATUS "AMD targets:      ${AMDGPU_TARGETS}")

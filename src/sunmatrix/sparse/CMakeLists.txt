@@ -3,7 +3,7 @@
 #                and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -17,15 +17,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNMATRIX_SPARSE\n\")")
 
-# Add variable sunmatrixsparse_HEADERS with the exported SUNMATRIXSPARSE header files
-set(sunmatrixsparse_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_sparse.h
-  )
-
 # Add the sunmatrix_sparse library
 sundials_add_library(sundials_sunmatrixsparse
   SOURCES
     sunmatrix_sparse.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_sparse.h
+  INCLUDE_SUBDIR
+    sunmatrix
   OBJECT_LIBRARIES
     sundials_generic_obj
   OUTPUT_NAME
@@ -36,10 +35,6 @@ sundials_add_library(sundials_sunmatrixsparse
     ${sunmatrixlib_SOVERSION}
 )
 
-# Install the SUNMATRIXSPARSE header files
-install(FILES ${sunmatrixsparse_HEADERS} DESTINATION include/sunmatrix)
-
-#
 message(STATUS "Added SUNMATRIX_SPARSE module")
 
 # Add F2003 module if the interface is enabled

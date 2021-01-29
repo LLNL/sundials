@@ -3,7 +3,7 @@
 #                and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -17,14 +17,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_BAND\n\")")
 
-# Exported header files
-set(sunlinsolband_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_band.h)
-
 # Add the library
 sundials_add_library(sundials_sunlinsolband
   SOURCES
     sunlinsol_band.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_band.h
+  INCLUDE_SUBDIR
+    sunlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -37,10 +37,6 @@ sundials_add_library(sundials_sunlinsolband
     ${sunlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${sunlinsolband_HEADERS} DESTINATION include/sunlinsol)
-
-#
 message(STATUS "Added SUNLINSOL_BAND module")
 
 # Add F2003 module if the interface is enabled

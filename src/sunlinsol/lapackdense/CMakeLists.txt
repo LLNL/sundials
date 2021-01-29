@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,17 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_LAPACKDENSE\n\")")
 
-# Source files for the library
-set(sunlinsollapackdense_SOURCES sunlinsol_lapackdense.c)
-
-# Exported header files
-set(sunlinsollapackdense_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_lapackdense.h)
-
 # Add the library
 sundials_add_library(sundials_sunlinsollapackdense
   SOURCES
     sunlinsol_lapackdense.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_lapackdense.h
+  INCLUDE_SUBDIR
+    sunlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -39,10 +36,6 @@ sundials_add_library(sundials_sunlinsollapackdense
     ${sunlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${sunlinsollapackdense_HEADERS} DESTINATION include/sunlinsol)
-
-#
 message(STATUS "Added SUNLINSOL_LAPACKDENSE module")
 
 # If FCMIX is enabled, build and install the Fortran77 library

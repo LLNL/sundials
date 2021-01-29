@@ -2,7 +2,7 @@
 # Programmer(s): Steve Smith and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,15 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall NVECTOR_OPENMP\n\")")
 
-# Add variable nvecopenmp_HEADERS with the exported NVECOPENMP header files
-set(nvecopenmp_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_openmp.h
-  )
-
 # Create the library
 sundials_add_library(sundials_nvecopenmp
   SOURCES
     nvector_openmp.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_openmp.h
+  INCLUDE_SUBDIR
+    nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -37,10 +36,6 @@ sundials_add_library(sundials_nvecopenmp
     ${nveclib_SOVERSION}
 )
 
-# Install the NVECOPENMP header files
-install(FILES ${nvecopenmp_HEADERS} DESTINATION include/nvector)
-
-#
 message(STATUS "Added NVECTOR_OPENMP module")
 
 # Add F2003 module if the interface is enabled

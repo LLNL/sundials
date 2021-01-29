@@ -3,7 +3,7 @@
 #                and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,18 +15,17 @@
 # CMakeLists.txt file for the ManyVector NVECTOR library
 # ---------------------------------------------------------------
 
-# Add variable nvecmanyvector_HEADERS with the exported NVECMANYVECTOR header files
-set(nvecmanyvector_HEADERS )
-
 # Create the sundials_nvecmanyvector library
 if(BUILD_NVECTOR_MANYVECTOR)
   install(CODE "MESSAGE(\"\nInstall NVECTOR_MANYVECTOR\n\")")
 
-  list(APPEND nvecmanyvector_HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_manyvector.h)
-
   sundials_add_library(sundials_nvecmanyvector
     SOURCES
       nvector_manyvector.c
+    HEADERS
+      ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_manyvector.h
+    INCLUDE_SUBDIR
+      nvector
     OBJECT_LIBRARIES
       sundials_generic_obj
     OUTPUT_NAME
@@ -35,13 +34,14 @@ if(BUILD_NVECTOR_MANYVECTOR)
       ${nveclib_VERSION}
     SOVERSION
       ${nveclib_SOVERSION}
-  )
+    )
+
+  message(STATUS "Added NVECTOR_MANYVECTOR module")
 endif()
 
+# Create the sundials_nvecmpimanyvector library
 if(BUILD_NVECTOR_MPIMANYVECTOR)
   install(CODE "MESSAGE(\"\nInstall NVECTOR_MPIMANYVECTOR\n\")")
-
-  list(APPEND nvecmanyvector_HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpimanyvector.h)
 
   if(MPI_C_COMPILER)
     # use MPI wrapper as the compiler
@@ -55,6 +55,10 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
   sundials_add_library(sundials_nvecmpimanyvector
     SOURCES
       nvector_manyvector.c
+    HEADERS
+      ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpimanyvector.h
+    INCLUDE_SUBDIR
+      nvector
     OBJECT_LIBRARIES
       sundials_generic_obj
     COMPILE_DEFINITIONS
@@ -65,18 +69,12 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
       ${nveclib_VERSION}
     SOVERSION
       ${nveclib_SOVERSION}
-  )
-endif()
+    )
 
-# Install the NVECMANYVECTOR header files
-install(FILES ${nvecmanyvector_HEADERS} DESTINATION include/nvector)
+  message(STATUS "Added NVECTOR_MPIMANYVECTOR module")
+endif()
 
 # Add F2003 module if the interface is enabled
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
-endif()
-
-message(STATUS "Added NVECTOR_MANYVECTOR module")
-if(ENABLE_MPI AND MPI_C_FOUND)
-  message(STATUS "Added NVECTOR_MPIMANYVECTOR module")
 endif()

@@ -3,7 +3,7 @@
 #                Radu Serban, Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -49,6 +49,10 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/idas/ idas_HEADERS)
 sundials_add_library(sundials_idas
   SOURCES
     ${idas_SOURCES}
+  HEADERS
+    ${idas_HEADERS}
+  INCLUDE_SUBDIR
+    idas
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_nvecserial_obj
@@ -72,10 +76,7 @@ sundials_add_library(sundials_idas
     ${idaslib_SOVERSION}
 )
 
-# Install the IDAS header files
-install(FILES ${idas_HEADERS} DESTINATION include/idas)
-
-#
+# Finished IDAS
 message(STATUS "Added IDAS module")
 
 # Add F2003 module if the interface is enabled

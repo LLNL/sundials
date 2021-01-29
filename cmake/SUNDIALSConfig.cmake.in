@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -90,6 +90,12 @@ if(@ENABLE_PETSC@)
       endif()
     endforeach()
   endif()
+endif()
+
+if(@ENABLE_MAGMA@ AND NOT TARGET SUNDIALS::MAGMA)
+  add_library(SUNDIALS::MAGMA INTERFACE IMPORTED GLOBAL)
+  target_link_libraries(SUNDIALS::MAGMA INTERFACE "@MAGMA_LIBRARIES@")
+  set_target_properties(SUNDIALS::MAGMA PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "@MAGMA_INCLUDE_DIR@")
 endif()
 
 if(@ENABLE_SUPERLUDIST@ AND NOT TARGET SUNDIALS::SUPERLUDIST)

@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,15 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNNONLINSOL_FIXEDPOINT\n\")")
 
-# Add variable with the exported header files
-set(lib_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_fixedpoint.h
-  )
-
 # Add the library
 sundials_add_library(sundials_sunnonlinsolfixedpoint
   SOURCES
     sunnonlinsol_fixedpoint.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_fixedpoint.h
+  INCLUDE_SUBDIR
+    sunnonlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   OUTPUT_NAME
@@ -35,10 +34,6 @@ sundials_add_library(sundials_sunnonlinsolfixedpoint
     ${sunnonlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${lib_HEADERS} DESTINATION include/sunnonlinsol)
-
-#
 message(STATUS "Added SUNNONLINSOL_FIXEDPOINT module")
 
 # Add F2003 module if the interface is enabled

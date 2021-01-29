@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -27,7 +27,7 @@ endif()
 set(nvector_hip_examples
   "test_nvector_hip\;3 ${_warp_size} 0\;\;\;"
   "test_nvector_hip\;500 128 0\;\;\;"
-  "test_nvector_hip\;1000 -1 0\;\;\;"
+  "test_nvector_hip\;1000 0 0\;\;\;"
   )
 
 # Add source directory to include directories

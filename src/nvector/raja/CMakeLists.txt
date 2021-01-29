@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,11 +14,7 @@
 # CMakeLists.txt file for the RAJA NVECTOR library
 # ---------------------------------------------------------------
 
-install(CODE "MESSAGE(\"\nInstall NVECTOR_RAJA with ${SUNDIALS_RAJA_BACKENDS} backend\n\")")
-
-# Add variable nveccuda_HEADERS with the exported NVECRAJA header files
-set(nvecraja_HEADERS nvector_raja.h)
-add_prefix(${SUNDIALS_SOURCE_DIR}/include/nvector/ nvecraja_HEADERS)
+install(CODE "MESSAGE(\"\nInstall NVECTOR_RAJA with ${SUNDIALS_RAJA_BACKENDS} backend(s)\n\")")
 
 if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
   set(_sunmemlib sundials_sunmemcuda_obj)
@@ -36,6 +32,10 @@ endif()
 sundials_add_library(sundials_nvecraja
   SOURCES
     nvector_raja.cpp
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_raja.h
+  INCLUDE_SUBDIR
+    nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
     ${_sunmemlib}
@@ -54,8 +54,5 @@ sundials_add_library(sundials_nvecraja
   SOVERSION
     ${nveclib_SOVERSION}
 )
-
-# Install the NVECRAJA header files
-install(FILES ${nvecraja_HEADERS} DESTINATION include/nvector)
 
 message(STATUS "Added NVECTOR_RAJA module with ${SUNDIALS_RAJA_BACKENDS} backend")

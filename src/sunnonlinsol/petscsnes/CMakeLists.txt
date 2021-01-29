@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -23,15 +23,14 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Add variable with the exported header files
-set(lib_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_petscsnes.h
-  )
-
 # Create the library
 sundials_add_library(sundials_sunnonlinsolpetscsnes
   SOURCES
     sunnonlinsol_petscsnes.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_petscsnes.h
+  INCLUDE_SUBDIR
+    sunnonlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -43,8 +42,5 @@ sundials_add_library(sundials_sunnonlinsolpetscsnes
   SOVERSION
     ${nveclib_SOVERSION}
 )
-
-# Install the header files
-install(FILES ${lib_HEADERS} DESTINATION include/sunnonlinsol)
 
 message(STATUS "Added SUNNONLINSOL_PETSCSNES module")

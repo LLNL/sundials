@@ -3,7 +3,7 @@
 #                Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -17,15 +17,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNMATRIX_DENSE\n\")")
 
-# Add variable sunmatrixband_HEADERS with the exported SUNMATRIXBAND header files
-set(sunmatrixdense_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_dense.h
-  )
-
 # Add the sunmatrix_dense library
 sundials_add_library(sundials_sunmatrixdense
   SOURCES
     sunmatrix_dense.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_dense.h
+  INCLUDE_SUBDIR
+    sunmatrix
   OBJECT_LIBRARIES
     sundials_generic_obj
   OUTPUT_NAME
@@ -36,10 +35,6 @@ sundials_add_library(sundials_sunmatrixdense
     ${sunmatrixlib_SOVERSION}
 )
 
-# Install the SUNMATRIXDENSE header files
-install(FILES ${sunmatrixdense_HEADERS} DESTINATION include/sunmatrix)
-
-#
 message(STATUS "Added SUNMATRIX_DENSE module")
 
 # Add F2003 module if the interface is enabled

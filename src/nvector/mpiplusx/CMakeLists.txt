@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -24,16 +24,14 @@ elseif(MPI_C_FOUND)
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Add variable nvecmpiplusx_HEADERS with the exported NVECMPIPLUSX header files
-set(nvecmpiplusx_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpimanyvector.h
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpiplusx.h
-)
-
 # Create the library
 sundials_add_library(sundials_nvecmpiplusx
   SOURCES
     nvector_mpiplusx.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpiplusx.h
+  INCLUDE_SUBDIR
+    nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_nvecmpimanyvector_obj
@@ -45,10 +43,6 @@ sundials_add_library(sundials_nvecmpiplusx
     ${nveclib_SOVERSION}
 )
 
-# Install the NVECMPIPLUSX header files
-install(FILES ${nvecmpiplusx_HEADERS} DESTINATION include/nvector)
-
-#
 message(STATUS "Added NVECTOR_MPIPLUSX module")
 
 # Add F2003 module if the interface is enabled

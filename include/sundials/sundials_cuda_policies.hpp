@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -41,7 +41,7 @@ public:
 /*
  * A kernel execution policy that maps each thread to a work unit.
  * The number of threads per block (blockSize) can be set to anything.
- * The grid size will be chosen so that there is enough threads for one
+ * The grid size will be chosen so that there are enough threads for one
  * thread per element. If a stream is provided, it will be used to
  * execute the kernel.
  */
@@ -127,12 +127,12 @@ private:
 
 
 /*
- * A kernel execution policy for performing a reduction across indvidual thread blocks.
- * The number of threads per block (blockSize) can be set to any valid multiple of
- * the CUDA warp size. The grid size (gridSize) can be set to any value greater than 0.
- * If it is set to 0, then the grid size will be chosen so that there is enough threads
- * for one thread per work unit. If a stream is provided, it will be used to execute
- * the kernel.
+ * A kernel execution policy for performing a reduction across indvidual thread
+ * blocks. The number of threads per block (blockSize) can be set to any valid
+ * multiple of the CUDA warp size. The number of blocks (gridSize) can be set to
+ * any value greater or equal to 0. If it is set to 0, then the grid size will
+ * be chosen so that there are at most two work units per thread. If a stream is
+ * provided, it will be used to execute the kernel.
  */
 class CudaBlockReduceExecPolicy : public CudaExecPolicy
 {

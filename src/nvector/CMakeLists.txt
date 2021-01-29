@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -55,6 +55,10 @@ endif()
 
 if(BUILD_NVECTOR_HIP)
   add_subdirectory(hip)
+endif()
+
+if(BUILD_NVECTOR_SYCL)
+  add_subdirectory(sycl)
 endif()
 
 if(BUILD_NVECTOR_RAJA)

@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -16,7 +16,7 @@
  * -----------------------------------------------------------------*/
 
 #include <assert.h>
-#include <string.h> 
+#include <string.h>
 #if defined(__NVCC__)
 #include <cuda_runtime.h>
 #define EX_USES_CUDA
@@ -55,7 +55,7 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
   if (mem_type == SUNMEMTYPE_HOST)
   {
     mem->ptr  = malloc(memsize);
-    if (mem->ptr == NULL) return(-1);
+    if (mem->ptr == NULL) { free(mem); return(-1); }
     mem->type = SUNMEMTYPE_HOST;
   }
   else if (mem_type == SUNMEMTYPE_UVM ||

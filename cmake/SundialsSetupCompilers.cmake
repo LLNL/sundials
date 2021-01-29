@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -47,17 +47,17 @@ if(BUILD_SHARED_LIBS)
   # when building, don't use the install RPATH already
   # (but later on when installing)
   set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
-  set(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
+  set(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_FULL_LIBDIR}")
 
   # add the automatically determined parts of the RPATH
   # which point to directories outside the build tree to the install RPATH
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
   # the RPATH to be used when installing, but only if it's not a system directory
-  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" isSystemDir)
+  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_FULL_LIBDIR}" isSystemDir)
   if("${isSystemDir}" STREQUAL "-1")
-    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
   endif()
 endif()
 
@@ -160,7 +160,10 @@ if(SUNDIALS_F77_FUNC_CASE AND SUNDIALS_F77_FUNC_UNDERSCORES)
 endif()
 
 # Do we need a Fortran compiler?
-if(BUILD_FORTRAN_MODULE_INTERFACE OR EXAMPLES_ENABLE_F77 OR EXAMPLES_ENABLE_F90 OR NEED_FORTRAN_NAME_MANGLING)
+if(BUILD_FORTRAN_MODULE_INTERFACE OR
+    EXAMPLES_ENABLE_F77 OR
+    EXAMPLES_ENABLE_F90 OR
+    NEED_FORTRAN_NAME_MANGLING)
   include(SundialsSetupFortran)
 endif()
 
@@ -172,17 +175,22 @@ endif()
 # A C++ compiler is only needed if:
 # (a) C++ examples are enabled
 # (b) CUDA is enabled
-# (c) RAJA is enabled
-# (d) Trilinos is enabled
-# (e) SuperLU_DIST is enabled
+# (c) HIP is enabled
+# (d) SYCL is enabled
+# (e) RAJA is enabled
+# (f) Trilinos is enabled
+# (g) SuperLU_DIST is enabled
+# (e) MAGMA is enabled
 # ---------------------------------------------------------------
 
 if(EXAMPLES_ENABLE_CXX OR
     ENABLE_CUDA OR
     ENABLE_HIP OR
+    ENABLE_SYCL OR
     ENABLE_RAJA OR
     ENABLE_TRILINOS OR
-    ENABLE_SUPERLUDIST)
+    ENABLE_SUPERLUDIST OR
+    ENABLE_MAGMA)
   include(SundialsSetupCXX)
 endif()
 

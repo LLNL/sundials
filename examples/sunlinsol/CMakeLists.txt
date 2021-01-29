@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -32,16 +32,15 @@ if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(sptfqmr/parallel)
 endif()
 
+
+if(BUILD_SUNMATRIX_CUSPARSE)
+  if(SUNDIALS_INDEX_SIZE MATCHES "32")
+    add_subdirectory(cusolversp)
+  endif()
+endif()
+
 if(BUILD_SUNLINSOL_KLU)
   add_subdirectory(klu)
-endif()
-
-if(BUILD_SUNLINSOL_SUPERLUMT)
-  add_subdirectory(superlumt)
-endif()
-
-if(BUILD_SUNLINSOL_SUPERLUDIST)
-  add_subdirectory(superludist)
 endif()
 
 if(BUILD_SUNLINSOL_LAPACKBAND)
@@ -52,8 +51,15 @@ if(BUILD_SUNLINSOL_LAPACKDENSE)
   add_subdirectory(lapackdense)
 endif()
 
-if(BUILD_SUNMATRIX_CUSPARSE)
-  if(SUNDIALS_INDEX_SIZE MATCHES "32")
-    add_subdirectory(cusolversp)
-  endif()
+if(BUILD_SUNLINSOL_MAGMADENSE)
+  add_subdirectory(magmadense)
 endif()
+
+if(BUILD_SUNLINSOL_SUPERLUMT)
+  add_subdirectory(superlumt)
+endif()
+
+if(BUILD_SUNLINSOL_SUPERLUDIST)
+  add_subdirectory(superludist)
+endif()
+

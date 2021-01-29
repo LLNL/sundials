@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -42,6 +42,11 @@ sundials_option(BUILD_NVECTOR_HIP BOOL "Build the NVECTOR_HIP module (requires H
                 DEPENDS_ON ENABLE_HIP
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_NVECTOR_HIP")
+
+sundials_option(BUILD_NVECTOR_SYCL BOOL "Build the NVECTOR_SYCL module (requires SYCL)" ON
+                DEPENDS_ON ENABLE_SYCL
+                ADVANCED)
+list(APPEND SUNDIALS_BUILD_LIST "BUILD_NVECTOR_SYCL")
 
 sundials_option(BUILD_NVECTOR_MANYVECTOR BOOL "Build the NVECTOR_MANYVECTOR module" ON
                 ADVANCED)
@@ -124,6 +129,11 @@ sundials_option(BUILD_SUNMATRIX_SLUNRLOC BOOL "Build the SUNMATRIX_SLUNRLOC modu
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNMATRIX_SLUNRLOC")
 
+sundials_option(BUILD_SUNMATRIX_MAGMADENSE BOOL "Build the SUNMATRIX_MAGMADENSE module (requires MAGMA)" ON
+                DEPENDS_ON ENABLE_MAGMA MAGMA_WORKS
+                ADVANCED)
+list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNMATRIX_MAGMADENSE")
+
 # ---------------------------------------------------------------
 # Options to enable/disable build for SUNLINSOL modules.
 # ---------------------------------------------------------------
@@ -163,6 +173,11 @@ sundials_option(BUILD_SUNLINSOL_LAPACKDENSE BOOL "Build the SUNLINSOL_LAPACKDENS
                 DEPENDS_ON ENABLE_LAPACK LAPACK_WORKS
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNLINSOL_LAPACKDENSE")
+
+sundials_option(BUILD_SUNLINSOL_MAGMADENSE BOOL "Build the SUNLINSOL_MAGMADENSE module (requires MAGMA)" ON
+                DEPENDS_ON ENABLE_MAGMA MAGMA_WORKS
+                ADVANCED)
+list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNLINSOL_MAGMADENSE")
 
 sundials_option(BUILD_SUNLINSOL_SUPERLUDIST BOOL "Build the SUNLINSOL_SUPERLUDIST module (requires SUPERLUDIST)" ON
                 DEPENDS_ON ENABLE_SUPERLUDIST SUPERLUDIST_WORKS BUILD_SUNMATRIX_SLUNRLOC

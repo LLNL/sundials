@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,13 +16,13 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_CUSOLVERSP\n\")")
 
-# Add variable cusolversp_HEADERS with the exported cusolversp header files
-set(cusolversp_HEADERS sunlinsol_cusolversp_batchqr.h)
-add_prefix(${SUNDIALS_SOURCE_DIR}/include/sunlinsol/ cusolversp_HEADERS)
-
 sundials_add_library(sundials_sunlinsolcusolversp
   SOURCES
     sunlinsol_cusolversp_batchqr.cu
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_cusolversp_batchqr.h
+  INCLUDE_SUBDIR
+    sunlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -36,8 +36,4 @@ sundials_add_library(sundials_sunlinsolcusolversp
     ${sunlinsollib_VERSION}
 )
 
-# Install the CUDA NVector header files
-install(FILES ${cusolversp_HEADERS} DESTINATION include/sunlinsol)
-
-#
 message(STATUS "Added SUNLINSOL_CUSOLVERSP module")

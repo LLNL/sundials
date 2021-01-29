@@ -2,7 +2,7 @@
  * Programmer(s): Slaven Peles, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -2327,8 +2327,9 @@ int CopyReductionBufferFromDevice(N_Vector v, size_t n)
 /* Get the kernel launch parameters based on the kernel type (reduction or not),
  * using the appropriate kernel execution policy.
  */
-int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
-                        size_t& shMemSize, cudaStream_t& stream, size_t n)
+static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
+                               size_t& block, size_t& shMemSize,
+                               cudaStream_t& stream, size_t n)
 {
   n = (n == 0) ? NVEC_CUDA_CONTENT(v)->length : n;
   if (reduction)

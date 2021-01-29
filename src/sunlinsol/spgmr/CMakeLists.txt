@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,14 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SPGMR\n\")")
 
-# Exported header files
-set(sunlinsolspgmr_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_spgmr.h)
-
 # Add the sunlinsol_spgmr library
 sundials_add_library(sundials_sunlinsolspgmr
   SOURCES
     sunlinsol_spgmr.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_spgmr.h
+  INCLUDE_SUBDIR
+    sunlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   OUTPUT_NAME
@@ -34,17 +34,12 @@ sundials_add_library(sundials_sunlinsolspgmr
     ${sunlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${sunlinsolspgmr_HEADERS} DESTINATION include/sunlinsol)
-
-#
 message(STATUS "Added SUNLINSOL_SPGMR module")
 
 # Add F90 module if F2003 interface is enabled
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
-
 
 # If FCMIX is enabled, build and install the Fortran77 library
 if(BUILD_FORTRAN77_INTERFACE)

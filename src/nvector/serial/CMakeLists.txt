@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban, Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,15 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall NVECTOR_SERIAL\n\")")
 
-# Add variable nvecserial_HEADERS with the exported NVECSERIAL header files
-set(nvecserial_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_serial.h
-  )
-
 # Create the sundials_nvecserial library
 sundials_add_library(sundials_nvecserial
   SOURCES
     nvector_serial.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_serial.h
+  INCLUDE_SUBDIR
+    nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
   OUTPUT_NAME
@@ -35,10 +34,6 @@ sundials_add_library(sundials_nvecserial
     ${nveclib_SOVERSION}
 )
 
-# Install the NVECSERIAL header files
-install(FILES ${nvecserial_HEADERS} DESTINATION include/nvector)
-
-#
 message(STATUS "Added NVECTOR_SERIAL module")
 
 # Add F2003 module if the interface is enabled

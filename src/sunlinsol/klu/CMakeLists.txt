@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU, Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,14 +16,14 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_KLU\n\")")
 
-# Exported header files
-set(sunlinsolklu_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_klu.h)
-
 # Add the library
 sundials_add_library(sundials_sunlinsolklu
   SOURCES
     sunlinsol_klu.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_klu.h
+  INCLUDE_SUBDIR
+    sunlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
@@ -36,10 +36,6 @@ sundials_add_library(sundials_sunlinsolklu
     ${sunlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${sunlinsolklu_HEADERS} DESTINATION include/sunlinsol)
-
-#
 message(STATUS "Added SUNLINSOL_KLU module")
 
 # If FCMIX is enabled, build and install the Fortran77 library

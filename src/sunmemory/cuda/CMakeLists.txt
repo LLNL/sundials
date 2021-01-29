@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,9 +16,9 @@
 sundials_add_library(sundials_sunmemcuda
   SOURCES
     sundials_cuda_memory.cu
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_cuda.h
+  INCLUDE_SUBDIR
+    sunmemory
   OBJECT_LIB_ONLY
 )
-
-# Install the header files
-install(FILES ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_cuda.h
-  DESTINATION include/sunmemory)

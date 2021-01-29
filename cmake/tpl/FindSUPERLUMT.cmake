@@ -2,7 +2,7 @@
 # Programmer(s): Eddy Banks and David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -73,7 +73,7 @@ endif()
 # SUPERLUMT_LIBRARY variable.
 if(SUPERLUMT_LIBRARIES MATCHES "${SUPERLUMT_LIBRARY_NAME}")
   foreach(lib ${SUPERLUMT_LIBRARIES})
-    if(lib MATCHES "${SUPERLUME_LIBRARY_NAME}")
+    if(lib MATCHES "${SUPERLUMT_LIBRARY_NAME}")
       set(SUPERLUMT_LIBRARY ${lib})
     endif()
   endforeach()

@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -24,15 +24,14 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Add variable nvecparallel_HEADERS with the exported NVECPARALLEL header files
-set(nvecparallel_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parallel.h
-  )
-
 # Create the library
 sundials_add_library(sundials_nvecparallel
   SOURCES
     nvector_parallel.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parallel.h
+  INCLUDE_SUBDIR
+    nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
   OUTPUT_NAME
@@ -43,10 +42,6 @@ sundials_add_library(sundials_nvecparallel
     ${nveclib_SOVERSION}
 )
 
-# Install the NVECPARALLEL header files
-install(FILES ${nvecparallel_HEADERS} DESTINATION include/nvector)
-
-#
 message(STATUS "Added NVECTOR_PARALLEL module")
 
 # Add F2003 module if the interface is enabled

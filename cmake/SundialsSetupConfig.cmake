@@ -2,14 +2,14 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
 # See the top-level LICENSE and NOTICE files for details.
 #
 # SPDX-License-Identifier: BSD-3-Clause
-# SUNDIALS Copyright End-
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # Configures the SUNDIALS config header files:
 #  sundials_config.h and sundials_fconfig.h
@@ -79,6 +79,11 @@ endif()
 # prepare substitution variable(s) SUNDIALS_RAJA_BACKENDS_*
 foreach(backend ${SUNDIALS_RAJA_BACKENDS})
   set(SUNDIALS_RAJA_BACKENDS_${backend} TRUE)
+endforeach()
+
+# prepare substitution variable(s) SUNDIALS_MAGMA_BACKENDS_*
+foreach(backend ${SUNDIALS_MAGMA_BACKENDS})
+  set(SUNDIALS_MAGMA_BACKENDS_${backend} TRUE)
 endforeach()
 
 # prepare substitution variable SUNDIALS_HAVE_POSIX_TIMERS for sundials_config.h

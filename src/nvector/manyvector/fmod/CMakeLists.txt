@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -27,9 +27,8 @@ if(BUILD_NVECTOR_MANYVECTOR)
     SOVERSION
       ${nveclib_SOVERSION}
   )
+  message(STATUS "Added NVECTOR_MANYVECTOR F2003 Interface")
 endif()
-
-message(STATUS "Added NVECTOR_MANYVECTOR F2003 Interface")
 
 if(BUILD_NVECTOR_MPIMANYVECTOR)
 

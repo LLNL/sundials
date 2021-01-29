@@ -2,7 +2,7 @@
  * Programmer(s): Slaven Peles, Daniel McGreer @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
     if(mem_helper) SUNMemoryHelper_Destroy(mem_helper);
 
     /* Synchronize */
-    sync_device();
+    sync_device(NULL);
 
     printf("=====> Teardown complete\n\n");
   }
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: NVector module passed all tests \n\n");
   }
 
-  sync_device();
+  sync_device(NULL);
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
   cudaDeviceReset();
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
@@ -332,7 +332,7 @@ double max_time(N_Vector X, double time)
   return(time);
 }
 
-void sync_device()
+void sync_device(N_Vector x)
 {
   /* sync with GPU */
   #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)

@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,10 +16,6 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SUPERLUDIST\n\")")
 
-# Exported header files
-set(sunlinsolsuperludist_HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_superludist.h)
-
 # Use MPI
 set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
 set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
@@ -28,10 +24,16 @@ set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 sundials_add_library(sundials_sunlinsolsuperludist
   SOURCES
     sunlinsol_superludist.c
+  HEADERS
+    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_superludist.h
+  INCLUDE_SUBDIR
+    sunlinsol
   OBJECT_LIBRARIES
     sundials_generic_obj
   LINK_LIBRARIES
-  PUBLIC sundials_sunmatrixslunrloc SUNDIALS::SUPERLUDIST
+    PUBLIC
+    sundials_sunmatrixslunrloc
+    SUNDIALS::SUPERLUDIST
     $<IF:$<BOOL:${SUPERLUDIST_OpenMP}>,OpenMP::OpenMP_C,>
   COMPILE_OPTIONS
     PRIVATE ${_compile_options}
@@ -43,8 +45,4 @@ sundials_add_library(sundials_sunlinsolsuperludist
     ${sunlinsollib_VERSION}
 )
 
-# Install the header files
-install(FILES ${sunlinsolsuperludist_HEADERS} DESTINATION include/sunlinsol)
-
-#
 message(STATUS "Added SUNLINSOL_SUPERLUDIST module")

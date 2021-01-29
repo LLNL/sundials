@@ -4,7 +4,7 @@ C     Based on prior version by: Scott D. Cohen, Alan C. Hindmarsh and
 C                                Radu Serban @ LLNL
 C     --------------------------------------------------------------------
 C     SUNDIALS Copyright Start
-C     Copyright (c) 2002-2020, Lawrence Livermore National Security
+C     Copyright (c) 2002-2021, Lawrence Livermore National Security
 C     and Southern Methodist University.
 C     All rights reserved.
 C

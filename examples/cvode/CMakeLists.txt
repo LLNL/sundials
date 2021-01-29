@@ -3,7 +3,7 @@
 #                Shelby Lockhart @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -39,6 +39,12 @@ endif()
 # CXX examples
 if(EXAMPLES_ENABLE_CXX)
   add_subdirectory(CXX_serial)
+  if(ENABLE_HIP)
+    add_subdirectory(hip)
+  endif()
+  if(ENABLE_MAGMA AND MAGMA_FOUND)
+    add_subdirectory(magma)
+  endif()
   # MPI based examples
   if(ENABLE_MPI AND MPI_CXX_FOUND)
     add_subdirectory(CXX_parallel)

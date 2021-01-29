@@ -2,7 +2,7 @@
  * Programmer(s): Slaven Peles, Cody J. Balos, Daniel McGreer @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -108,7 +108,6 @@ SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Raja(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Raja(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Raja(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Raja(N_Vector v, sunindextype *lrw, sunindextype *liw);
-SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Raja(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Raja(realtype *v_data, N_Vector v);
 
 /* standard vector operations */

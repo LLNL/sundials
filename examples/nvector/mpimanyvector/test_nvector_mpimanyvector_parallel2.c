@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -428,7 +428,7 @@ double max_time(N_Vector X, double time)
   return(maxt);
 }
 
-void sync_device()
+void sync_device(N_Vector x)
 {
   /* not running on GPU, just return */
   return;
