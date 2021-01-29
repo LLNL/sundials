@@ -1525,7 +1525,7 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VMin Case 1, Proc %d \n", myid);
-    printf("    min = %"FSYM", expected %"FSYM"\n", ans, HALF);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, HALF);
     fails++;
   } else if (myid == 0) {
     printf("PASSED test -- N_VMin \n");
@@ -1552,7 +1552,7 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int myid)
 
   if (failure) {
     printf(">>> FAILED test -- N_VMin, Proc %d \n", myid);
-    printf("    min = %"FSYM", expected %"FSYM"\n", ans, NEG_TWO);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, NEG_TWO);
     fails++;
   } else if (myid == 0) {
     printf("PASSED test -- N_VMin \n");
@@ -2019,7 +2019,7 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotient Case 1, Proc %d \n", myid);
-    printf("    min = %"FSYM", expected %"FSYM"\n", ans, HALF*HALF);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, HALF*HALF);
     fails++;
   } else if (myid == 0) {
     printf("PASSED test -- N_VMinQuotient Case 1 \n");
@@ -2050,7 +2050,7 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotient Case 2, Proc %d \n", myid);
-    printf("    min = %"FSYM", expected %"FSYM"\n", ans, BIG_REAL);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, BIG_REAL);
     fails++;
   } else if (myid == 0) {
     printf("PASSED test -- N_VMinQuotient Case 2 \n");

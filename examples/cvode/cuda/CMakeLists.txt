@@ -16,7 +16,7 @@
 # CMakeLists.txt file for CVODE CUDA examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is
+# Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers

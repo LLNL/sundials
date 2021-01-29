@@ -219,6 +219,10 @@ $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.out    
 $tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr.cu   || exit 1
 $tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr.out  || exit 1
 
+$tar $tarfile $distrobase/examples/cvode/hip/CMakeLists.txt                         || exit 1
+$tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_kry_hip.cpp                  || exit 1
+$tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_kry_hip.out                  || exit 1
+
 $tar $tarfile $distrobase/examples/cvode/magma/CMakeLists.txt                 || exit 1
 $tar $tarfile $distrobase/examples/cvode/magma/cvRoberts_blockdiag_magma.cpp  || exit 1
 $tar $tarfile $distrobase/examples/cvode/magma/cvRoberts_blockdiag_magma.out  || exit 1

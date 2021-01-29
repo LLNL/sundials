@@ -1,12 +1,10 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Slaven Peles @ LLNL
+ * Programmer(s): Cody Balos @ LLNL
  * -----------------------------------------------------------------
- * Acknowledgements: This example is based on cvAdvDiff_bnd
- *                   example by Scott D. Cohen, Alan C.
- *                   Hindmarsh and Radu Serban @ LLNL
+ * Acknowledgements: This example is based on cvAdvDiff_kry_cuda.cu.
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -41,14 +39,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cuda_runtime.h>
+#include <hip/hip_runtime.h>
 
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts. */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver     */
 #include <sundials/sundials_types.h>   /* definition of type realtype */
 #include <sundials/sundials_math.h>    /* definition of ABS and EXP   */
 
-#include <nvector/nvector_cuda.h>
+#include <nvector/nvector_hip.h>
 
 /* Real Constants */
 
@@ -82,7 +80,7 @@
 
 
 /*
- * CUDA kernels
+ * HIP kernels
  */
 
 __global__ void fKernel(const realtype *u, realtype *udot,
@@ -185,25 +183,25 @@ int main(int argc, char** argv)
   void *cvode_mem;
   int iout, retval;
   long int nst;
-  cudaStream_t stream;
-  cudaError_t cuerr;
+  hipStream_t stream;
+  hipError_t cuerr;
 
   u = NULL;
   data = NULL;
   LS = NULL;
   cvode_mem = NULL;
 
-  /* optional: create a cudaStream to use with the CUDA NVector
+  /* optional: create a hipStream to use with the HIP NVector
      (otherwise the default stream is used) and creating kernel
      execution policies */
-  cuerr = cudaStreamCreate(&stream);
-  if (cuerr != cudaSuccess) {
-    printf("Error in cudaStreamCreate(): %s\n", cudaGetErrorString(cuerr));
+  cuerr = hipStreamCreate(&stream);
+  if (cuerr != hipSuccess) {
+    printf("Error in hipStreamCreate(): %s\n", hipGetErrorString(cuerr));
     return(1);
   }
 
-  SUNCudaThreadDirectExecPolicy stream_exec_policy(256, stream);
-  SUNCudaBlockReduceExecPolicy reduce_exec_policy(256, 0, stream);
+  SUNHipThreadDirectExecPolicy stream_exec_policy(256, stream);
+  SUNHipBlockReduceExecPolicy reduce_exec_policy(256, 0, stream);
 
   /* Set model parameters */
   data = SetUserData(argc, argv);
@@ -212,13 +210,13 @@ int main(int argc, char** argv)
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
 
-  /* Create a CUDA vector with initial values */
-  u = N_VNew_Cuda(data->NEQ);  /* Allocate u vector */
-  if(check_retval((void*)u, "N_VNew_Cuda", 0)) return(1);
+  /* Create a HIP vector with initial values */
+  u = N_VNew_Hip(data->NEQ);  /* Allocate u vector */
+  if(check_retval((void*)u, "N_VNew_Hip", 0)) return(1);
 
-  /* Use a non-default cuda stream for kernel execution */
-  retval = N_VSetKernelExecPolicy_Cuda(u, &stream_exec_policy, &reduce_exec_policy);
-  if(check_retval(&retval, "N_VSetKernelExecPolicy_Cuda", 0)) return(1);
+  /* Use a non-default hip stream for kernel execution */
+  retval = N_VSetKernelExecPolicy_Hip(u, &stream_exec_policy, &reduce_exec_policy);
+  if(check_retval(&retval, "N_VSetKernelExecPolicy_Hip", 0)) return(1);
 
   SetIC(u, data);  /* Initialize u vector */
 
@@ -275,8 +273,8 @@ int main(int argc, char** argv)
   SUNLinSolFree(LS);      /* Free linear solver memory */
   free(data);             /* Free the user data */
 
-  cuerr = cudaStreamDestroy(stream); /* Free and cleanup the CUDA stream */
-  if(cuerr != cudaSuccess) { printf("Error: cudaStreamDestroy() failed\n"); return(1); }
+  cuerr = hipStreamDestroy(stream); /* Free and cleanup the HIP stream */
+  if(cuerr != hipSuccess) { printf("Error: hipStreamDestroy() failed\n"); return(1); }
 
   return(0);
 }
@@ -328,7 +326,7 @@ static void SetIC(N_Vector u, UserData data)
   const sunindextype NEQ = data->NEQ;
 
   /* Extract pointer to solution vector data on the host */
-  realtype *udata = N_VGetHostArrayPointer_Cuda(u);
+  realtype *udata = N_VGetHostArrayPointer_Hip(u);
 
   sunindextype i, j, tid;
   realtype x, y;
@@ -345,7 +343,7 @@ static void SetIC(N_Vector u, UserData data)
 
     udata[tid] = x*(xmax - x)*y*(ymax - y)*SUNRexp(FIVE*x*y);
   }
-  N_VCopyToDevice_Cuda(u);
+  N_VCopyToDevice_Hip(u);
 }
 
 
@@ -369,8 +367,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   const realtype verdc   = data->vdcoef;
 
   /* Extract pointers to vector data */
-  const realtype *udata = N_VGetDeviceArrayPointer_Cuda(u);
-  realtype *dudata      = N_VGetDeviceArrayPointer_Cuda(udot);
+  const realtype *udata = N_VGetDeviceArrayPointer_Hip(u);
+  realtype *dudata      = N_VGetDeviceArrayPointer_Hip(udot);
 
   unsigned block = 256;
   unsigned grid = (MX*MY + block - 1) / block;
@@ -397,8 +395,8 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
   const realtype verdc   = data->vdcoef;
 
   /* Extract pointers to vector data */
-  const realtype *vdata = N_VGetDeviceArrayPointer_Cuda(v);
-  realtype *Jvdata      = N_VGetDeviceArrayPointer_Cuda(Jv);
+  const realtype *vdata = N_VGetDeviceArrayPointer_Hip(v);
+  realtype *Jvdata      = N_VGetDeviceArrayPointer_Hip(Jv);
 
   unsigned block = 256;
   unsigned grid = (MX*MY + block - 1) / block;
