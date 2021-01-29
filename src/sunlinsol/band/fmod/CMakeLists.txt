@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ----------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #

@@ -3,7 +3,7 @@
 #                and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -28,14 +28,14 @@ project(SUNDIALS C)
 # Set some variables with info on the SUNDIALS project
 set(PACKAGE_BUGREPORT "sundials-users@llnl.gov")
 set(PACKAGE_NAME "SUNDIALS")
-set(PACKAGE_STRING "SUNDIALS 5.6.1")
+set(PACKAGE_STRING "SUNDIALS 5.7.0")
 set(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
 # (use "" for the version label if none is needed)
 set(PACKAGE_VERSION_MAJOR "5")
-set(PACKAGE_VERSION_MINOR "6")
-set(PACKAGE_VERSION_PATCH "1")
+set(PACKAGE_VERSION_MINOR "7")
+set(PACKAGE_VERSION_PATCH "0")
 set(PACKAGE_VERSION_LABEL "")
 
 if(PACKAGE_VERSION_LABEL)
@@ -50,37 +50,37 @@ endif()
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-set(arkodelib_VERSION "4.6.1")
+set(arkodelib_VERSION "4.7.0")
 set(arkodelib_SOVERSION "4")
 
-set(cvodelib_VERSION "5.6.1")
+set(cvodelib_VERSION "5.7.0")
 set(cvodelib_SOVERSION "5")
 
-set(cvodeslib_VERSION "5.6.1")
+set(cvodeslib_VERSION "5.7.0")
 set(cvodeslib_SOVERSION "5")
 
-set(idalib_VERSION "5.6.1")
+set(idalib_VERSION "5.7.0")
 set(idalib_SOVERSION "5")
 
-set(idaslib_VERSION "4.6.1")
+set(idaslib_VERSION "4.7.0")
 set(idaslib_SOVERSION "4")
 
-set(kinsollib_VERSION "5.6.1")
+set(kinsollib_VERSION "5.7.0")
 set(kinsollib_SOVERSION "5")
 
 set(cpodeslib_VERSION "0.0.0")
 set(cpodeslib_SOVERSION "0")
 
-set(nveclib_VERSION "5.6.1")
+set(nveclib_VERSION "5.7.0")
 set(nveclib_SOVERSION "5")
 
-set(sunmatrixlib_VERSION "3.6.1")
+set(sunmatrixlib_VERSION "3.7.0")
 set(sunmatrixlib_SOVERSION "3")
 
-set(sunlinsollib_VERSION "3.6.1")
+set(sunlinsollib_VERSION "3.7.0")
 set(sunlinsollib_SOVERSION "3")
 
-set(sunnonlinsollib_VERSION "2.6.1")
+set(sunnonlinsollib_VERSION "2.7.0")
 set(sunnonlinsollib_SOVERSION "2")
 
 set(sundialslib_VERSION

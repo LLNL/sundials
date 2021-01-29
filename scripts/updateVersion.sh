@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -19,8 +19,8 @@
 # development releases the label string is of the form "-dev.#" and for full
 # releases the label string is "".
 sun_major=${1:-5}
-sun_minor=${2:-6}
-sun_patch=${3:-1}
+sun_minor=${2:-7}
+sun_patch=${3:-0}
 sun_label=${4:-""}
 month=${5:-$(date +"%b")}
 year=${6:-$(date +"%Y")}
