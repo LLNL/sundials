@@ -7,7 +7,7 @@
  *                   @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -175,6 +175,10 @@ SUNDIALS_EXPORT realtype N_VWSqrSumLocal_OpenMP(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_OpenMP(N_Vector x, N_Vector w,
                                                     N_Vector id);
 
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize_OpenMP(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack_OpenMP(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack_OpenMP(N_Vector x, void *buf);
 
 /*
  * -----------------------------------------------------------------

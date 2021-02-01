@@ -21,7 +21,7 @@ To build SWIG-Fortran (and optionally install it on your system), first complete
 the following commands:
 
 ```bash
-$ git clone https://github.com/swig-fortran/swig
+$ git clone https://github.com/sundials-codes/swig
 $ cd swig
 $ ./autogen.sh
 $ ./configure --prefix=/my/install/location

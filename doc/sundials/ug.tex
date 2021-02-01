@@ -59,29 +59,29 @@
 
 %----- VERSIONS AND UCRL NUMBERS OF SUNDIALS CODES
 
-\newcommand{\sunrelease}{v5.2.0}
+\newcommand{\sunrelease}{v5.7.0}
 
-\newcommand{\cvrelease}{v5.2.0}
+\newcommand{\cvrelease}{v5.7.0}
 \newcommand{\cvucrlug}{UCRL-SM-208108}
 \newcommand{\cvucrlex}{UCRL-SM-208110}
 
-\newcommand{\cvsrelease}{v5.2.0}
+\newcommand{\cvsrelease}{v5.7.0}
 \newcommand{\cvsucrlug}{UCRL-SM-208111}
 \newcommand{\cvsucrlex}{UCRL-SM-208115}
 
-\newcommand{\idarelease}{v5.2.0}
+\newcommand{\idarelease}{v5.7.0}
 \newcommand{\idaucrlug}{UCRL-SM-208112}
 \newcommand{\idaucrlex}{UCRL-SM-208113}
 
-\newcommand{\idasrelease}{v4.2.0}
+\newcommand{\idasrelease}{v4.7.0}
 \newcommand{\idasucrlug}{UCRL-SM-234051}
 \newcommand{\idasucrlex}{LLNL-TR-437091}
 
-\newcommand{\kinrelease}{v5.2.0}
+\newcommand{\kinrelease}{v5.7.0}
 \newcommand{\kinucrlug}{UCRL-SM-208116}
 \newcommand{\kinucrlex}{UCRL-SM-208114}
 
-\newcommand{\arkrelease}{v4.2.0}
+\newcommand{\arkrelease}{v4.7.0}
 \newcommand{\arkucrlug}{LLNL-SM-668082}
 \newcommand{\arkucrlex}{????-??-??????}
 
@@ -99,7 +99,9 @@
 \newcommand{\nvecph}{{\normalfont\scshape nvector\_parhyp}}
 \newcommand{\nvecpetsc}{{\normalfont\scshape nvector\_petsc}}
 \newcommand{\nveccuda}{{\normalfont\scshape nvector\_cuda}}
+\newcommand{\nvechip}{{\normalfont\scshape nvector\_hip}}
 \newcommand{\nvecraja}{{\normalfont\scshape nvector\_raja}}
+\newcommand{\nvecsycl}{{\normalfont\scshape nvector\_sycl}}
 \newcommand{\nvectrilinos}{{\normalfont\scshape nvector\_trilinos}}
 \newcommand{\nvecwrap}{{\normalfont\scshape nvector\_senswrapper}}
 \newcommand{\nvecmanyvector}{{\normalfont\scshape nvector\_manyvector}}
@@ -111,6 +113,7 @@
 \newcommand{\sunmatband}{{\normalfont\scshape sunmatrix\_band}}
 \newcommand{\sunmatdense}{{\normalfont\scshape sunmatrix\_dense}}
 \newcommand{\sunmatsparse}{{\normalfont\scshape sunmatrix\_sparse}}
+\newcommand{\sunmatcusparse}{{\normalfont\scshape sunmatrix\_cusparse}}
 \newcommand{\sunmatslunrloc}{{\normalfont\scshape sunmatrix\_slunrloc}}
 %----- Linear Solvers:
 \newcommand{\sunlinsol}{{\normalfont\scshape sunlinsol}}
@@ -128,12 +131,15 @@
 \newcommand{\sunlinsolspbcgs}{{\normalfont\scshape sunlinsol\_spbcgs}}
 \newcommand{\sunlinsolsptfqmr}{{\normalfont\scshape sunlinsol\_sptfqmr}}
 \newcommand{\sunlinsolpcg}{{\normalfont\scshape sunlinsol\_pcg}}
+\newcommand{\sunlinsolcusparse}{{\normalfont\scshape sunlinsol\_cusparse}}
 %----- Nonlinear Solvers:
 \newcommand{\sunnonlinsol}{{\normalfont\scshape sunnonlinsol}}
 \newcommand{\fsunnonlinsol}{{\normalfont\scshape fsunnonlinsol}}
 \newcommand{\sunnonlinsolnewton}{{\normalfont\scshape sunnonlinsol\_newton}}
 \newcommand{\sunnonlinsolfixedpoint}{{\normalfont\scshape sunnonlinsol\_fixedpoint}}
 \newcommand{\sunnonlinsolpetsc}{{\normalfont\scshape sunnonlinsol\_petscsnes}}
+%----- SUNMemory:
+\newcommand{\sunmemory}{{\normalfont\scshape sunmemory}}
 %----- Packages:
 \newcommand{\cvode}{{\normalfont\scshape cvode}}
 \newcommand{\pvode}{{\normalfont\scshape pvode}}
@@ -154,7 +160,9 @@
 \newcommand{\openmp}{{\normalfont OpenMP}}
 \newcommand{\petsc}{{\normalfont\scshape pets}c}
 \newcommand{\cuda}{{\normalfont\scshape cuda}}
+\newcommand{\hip}{{\normalfont\scshape hip}}
 \newcommand{\raja}{{\normalfont\scshape raja}}
+\newcommand{\sycl}{{\normalfont\scshape sycl}}
 \newcommand{\superludist}{SuperLU\_DIST}
 \newcommand{\trilinos}{Trilinos}
 \newcommand{\tpetra}{Tpetra}
@@ -295,7 +303,7 @@
 
 %%------ Specify depths for section numbering and TOC
 
-\setcounter{tocdepth}{3}
+\setcounter{tocdepth}{1}
 \setcounter{secnumdepth}{3}
 
 %%-------
@@ -354,6 +362,30 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
+%%-------
+
+\newcommand{\contributors}{%
+\thispagestyle{empty}% no number of this page
+\vglue5\baselineskip
+\begin{center}
+{\bf CONTRIBUTORS}
+\end{center}
+\noindent
+The SUNDIALS library has been developed over many years by a number of
+contributors. The current SUNDIALS team consists of Cody J. Balos,
+David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and
+Carol S. Woodward. We thank Radu Serban for significant and critical past
+contributions.\\
+\\
+\noindent
+Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
+Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
+Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
+Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
+Dan Shumaker, Steve G. Smith, Allan G. Taylor, Hilari C. Tiedeman, Chris White,
+Ting Yan, and Ulrike M. Yang.
+\clearpage
+}
 
 %%--------------------------------
 
@@ -366,6 +398,8 @@ Approved for public release; further dissemination unlimited
   %% Title page
   \maketitle
   \disclaimer
+  \contributors
+  \clearemptydoublepage
 
   %% Contents, tables, and figures
   \tableofcontents
@@ -405,6 +439,10 @@ Approved for public release; further dissemination unlimited
   \pagestyle{empty}
   \maketitle
   \disclaimer
+  \contributors
+  \clearemptydoublepage
+
+  % Contents
   \tableofcontents
 
   %% Start arabic numbering
@@ -508,7 +546,7 @@ Approved for public release; further dissemination unlimited
 \newcommand{\ucfunctionf}[6]{
   \noindent\paragraph{\fbox{\id{#1}}}
   \begin{Ventry}[Return value]
-  \item[Call]{\id{#2}}
+  \item[Call]{\id{\begin{tabular}[t]{@{}r@{}l@{}}#2\end{tabular}}}
   \item[Description]{#3}
   \addArgs{#4}
   \addRetval{#5}

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -168,9 +168,6 @@ ARKInterp arkInterpCreate_Hermite(void* arkode_mem, int degree)
   content->told = ark_mem->tcur;
   content->tnew = ark_mem->tcur;
   content->h    = RCONST(0.0);
-
-  /* signal that fullrhs is required after each step */
-  ark_mem->call_fullrhs = SUNTRUE;
 
   return(interp);
 }
@@ -416,6 +413,9 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
 
   /* copy fnew into fold */
   N_VScale(ONE, HINT_FNEW(interp), HINT_FOLD(interp));
+
+  /* signal that fullrhs is required after each step */
+  ark_mem->call_fullrhs = SUNTRUE;
 
   /* return with success */
   return(ARK_SUCCESS);
@@ -804,9 +804,6 @@ ARKInterp arkInterpCreate_Lagrange(void* arkode_mem, int degree)
   /* update workspace sizes */
   ark_mem->lrw += content->nmax + 1;
   ark_mem->liw += content->nmax + 2;
-
-  /* signal that fullrhs is not required after each step */
-  ark_mem->call_fullrhs = SUNFALSE;
 
   return(interp);
 }

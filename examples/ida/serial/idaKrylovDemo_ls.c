@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -49,6 +49,18 @@
 #include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver */
 #include <nvector/nvector_serial.h>      /* serial N_Vector types, fct. and macros */
 #include <sundials/sundials_types.h>     /* definition of realtype */
+
+/* helpful macros */
+
+#ifndef SQRT
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SQRT(x) (sqrt((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SQRT(x) (sqrtf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SQRT(x) (sqrtl((x)))
+#endif
+#endif
 
 /* Problem Constants */
 
@@ -103,7 +115,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
  *--------------------------------------------------------------------
  */
 
-int main(void)
+int main(int argc, char* argv[])
 {
   void *mem;
   UserData data;
@@ -112,11 +124,20 @@ int main(void)
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
+  int nrmfactor;   /* LS norm conversion factor flag */
+  realtype nrmfac; /* LS norm conversion factor      */
 
-  mem = NULL;
-  data = NULL;
-  uu = up = constraints = res = NULL;
-  LS = NULL;
+  mem         = NULL;
+  data        = NULL;
+  uu          = NULL;
+  up          = NULL;
+  constraints = NULL;
+  res         = NULL;
+  LS          = NULL;
+  nrmfactor   = 0;
+
+  /* Retrieve the command-line options */
+  if (argc > 1) nrmfactor = atoi(argv[1]);
 
   /* Allocate N-vectors and the user data structure. */
 
@@ -258,6 +279,26 @@ int main(void)
     /* Specify preconditioner */
     retval = IDASetPreconditioner(mem, PsetupHeat, PsolveHeat);
     if(check_retval(&retval, "IDASetPreconditioner", 1)) return(1);
+
+        /* Set the linear solver tolerance conversion factor */
+    switch(nrmfactor) {
+
+    case(1):
+      /* use the square root of the vector length */
+      nrmfac = SQRT((realtype)NEQ);
+      break;
+    case(2):
+      /* compute with dot product */
+      nrmfac = -ONE;
+      break;
+    default:
+      /* use the default */
+      nrmfac = ZERO;
+      break;
+    }
+
+    retval = IDASetLSNormFactor(mem, nrmfac);
+    if (check_retval(&retval, "IDASetLSNormFactor", 1)) return(1);
 
     /* Print output heading. */
     PrintHeader(rtol, atol, linsolver);

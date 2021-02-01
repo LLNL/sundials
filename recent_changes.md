@@ -1,5 +1,140 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 5.7.0
+
+A new NVECTOR implementation based on the SYCL abstraction layer has been added
+targeting Intel GPUs. At present the only SYCL compiler supported is the DPC++
+(Intel oneAPI) compiler. See the SYCL NVECTOR section in the user guide for more
+details. This module is considered experimental and is subject to major changes
+even in minor releases.
+
+A new SUNMatrix and SUNLinearSolver implementation were added to interface
+with the MAGMA linear algebra library. Both the matrix and the linear solver
+support general dense linear systems as well as block diagonal linear systems,
+and both are targeted at GPUs (AMD or NVIDIA).
+
+## Changes to SUNDIALS in release 5.6.1
+
+Fixed a bug in the SUNDIALS CMake which caused an error
+if the CMAKE_CXX_STANDARD and SUNDIALS_RAJA_BACKENDS options
+were not provided.
+
+Fixed some compiler warnings when using the IBM XL compilers.
+
+## Changes to SUNDIALS in release 5.6.0
+
+A new NVECTOR implementation based on the AMD ROCm HIP platform has been added.
+This vector can target NVIDIA or AMD GPUs. See HIP NVECTOR section in the user
+guide for more details. This module is considered experimental and is subject to
+change from version to version.
+
+The RAJA NVECTOR implementation has been updated to support the HIP backend
+in addition to the CUDA backend. Users can choose the backend when configuring
+SUNDIALS by using the `SUNDIALS_RAJA_BACKENDS` CMake variable. This module
+remains experimental and is subject to change from version to version.
+
+A new optional operation, `N_VGetDeviceArrayPointer`, was added to the N_Vector
+API. This operation is useful for N_Vectors that utilize dual memory spaces,
+e.g. the native SUNDIALS CUDA N_Vector.
+
+The SUNMATRIX_CUSPARSE and SUNLINEARSOLVER_CUSOLVERSP_BATCHQR implementations
+no longer require the SUNDIALS CUDA N_Vector. Instead, they require that the vector
+utilized provides the `N_VGetDeviceArrayPointer` operation, and that the pointer
+returned by `N_VGetDeviceArrayPointer` is a valid CUDA device pointer.
+
+## Changes to SUNDIALS in release 5.5.0
+
+Refactored the SUNDIALS build system. CMake 3.12.0 or newer is now required.
+Users will likely see deprecation warnings, but otherwise the changes
+should be fully backwards compatible for almost all users. SUNDIALS
+now exports CMake targets and installs a SUNDIALSConfig.cmake file.
+
+Added support for SuperLU DIST 6.3.0 or newer.
+
+
+## Changes to SUNDIALS in release 5.4.0
+
+Added full support for time-dependent mass matrices in ARKStep, and expanded
+existing non-identity mass matrix infrastructure to support use of the
+fixed point nonlinear solver.  Fixed bug for ERK method integration with
+static mass matrices.
+
+An interface between ARKStep and the XBraid multigrid reduction in time (MGRIT)
+library has been added to enable parallel-in-time integration. See the ARKStep
+documentation and examples for more details. This interface required the
+addition of three new N_Vector operations to exchange vector data between
+computational nodes, see `N_VBufSize`, `N_VBufPack`, and `N_VBufUnpack`. These
+N_Vector operations are only used within the XBraid interface and need not be
+implemented for any other context.
+
+Updated the MRIStep time-stepping module in ARKode to support
+higher-order MRI-GARK methods [Sandu, SIAM J. Numer. Anal., 57, 2019],
+including methods that involve solve-decoupled, diagonally-implicit
+treatment of the slow time scale.
+
+A new API, `SUNMemoryHelper`, was added to support **GPU users** who have complex
+memory management needs such as using memory pools. This is paired with new
+constructors for the `NVECTOR_CUDA` and `NVECTOR_RAJA` modules that accept a
+`SUNMemoryHelper` object. Refer to "The SUNMemoryHelper API", "NVECTOR CUDA"
+and "NVECTOR RAJA" sections in the documentation for more information.
+
+The `NVECTOR_RAJA` module has been updated to mirror the `NVECTOR_CUDA` module.
+Notably, the update adds managed memory support to the `NVECTOR_RAJA` module.
+Users of the module will need to update any calls to the `N_VMake_Raja` function
+because that signature was changed. This module remains experimental and is
+subject to change from version to version.
+
+Added new `SetLSNormFactor()` functions to CVODE(S), ARKODE, and IDA(S) to
+to specify the factor for converting between integrator tolerances (WRMS norm)
+and linear solver tolerances (L2 norm) i.e., `tol_L2 = nrmfac * tol_WRMS`.
+
+Added new reset functions `ARKStepReset()`, `ERKStepReset()`, and
+`MRIStepReset()` to reset the stepper time and state vector to user-provided
+values for continuing the integration from that point while retaining the
+integration history. These function complement the reinitialization functions
+`ARKStepReInit()`, `ERKStepReInit()`, and `MRIStepReInit()` which reinitialize
+the stepper so that the problem integration should resume as if started from
+scratch.
+
+Added new functions for advanced users providing a custom `SUNNonlinSolSysFn`.
+
+The expected behavior of `SUNNonlinSolGetNumIters` and
+`SUNNonlinSolGetNumConvFails` in the SUNNonlinearSolver API have been updated to
+specify that they should return the number of nonlinear solver iterations and
+convergence failures in the most recent solve respectively rather than the
+cumulative number of iterations and failures across all solves respectively. The
+API documentation and SUNDIALS provided SUNNonlinearSolver implementations and
+have been updated accordingly. As before, the cumulative number of nonlinear
+iterations and failures may be retreived by calling the integrator provided get
+functions.
+
+**This change may cause a runtime error in existing user code**.
+In IDAS and CVODES, the functions for forward integration with checkpointing
+(`IDASolveF`, `CVodeF`) are now subject to a restriction on the number of time
+steps allowed to reach the output time. This is the same restriction applied to
+the `IDASolve` and `CVode` functions. The default maximum number of steps is
+500, but this may be changed using the `<IDA|CVode>SetMaxNumSteps` function.
+This change fixes a bug that could cause an infinite loop in the `IDASolveF`
+and `CVodeF` and functions.
+
+A minor inconsistency in CVODE(S) and a bug ARKODE when checking the Jacobian
+evaluation frequency has been fixed. As a result codes using using a
+non-default Jacobian update frequency through a call to
+`CVodeSetMaxStepsBetweenJac` or `ARKStepSetMaxStepsBetweenJac` will need to
+increase the provided value by 1 to achieve the same behavior as before. For
+greater clarity the functions `CVodeSetMaxStepsBetweenJac`,
+`ARKStepSetMaxStepsBetweenJac`, and `ARKStepSetMaxStepsBetweenLSet` have been
+deprecated and replaced with `CVodeSetJacEvalFrequency`,
+`ARKStepSetJacEvalFrequency`, and `ARKStepSetLSetupFrequency` respectively.
+Additionally, the function `CVodeSetLSetupFrequency` has been added to CVODE(S)
+to set the frequency of calls to the linear solver setup function.
+
+The `NVECTOR_TRILINOS` module has been updated to work with Trilinos 12.18+.
+This update changes the local ordinal type to always be an `int`.
+
+Added support for CUDA v11.
+
+
 ## Changes to SUNDIALS in release 5.3.0
 
 Fixed a bug in ARKode where the prototypes for `ERKStepSetMinReduction()` and
@@ -19,7 +154,8 @@ PSolve function is `NULL`.
 Added specialized fused CUDA kernels to CVODE which may offer better
 performance on smaller problems when using CVODE with the `NVECTOR_CUDA`
 module. See the optional input function `CVodeSetUseIntegratorFusedKernels`
-for more information.
+for more information. As with other SUNDIALS CUDA features, this is
+feature is experimental and may change from version to version.
 
 Added the ability to control the CUDA kernel launch parameters for the
 `NVECTOR_CUDA` and `SUNMATRIX_CUSPARSE` modules. These modules remain
@@ -47,7 +183,6 @@ Added optional set functions to provide an alternative ODE right-hand side
 function (ARKode and CVODE(S)), DAE residual function (IDA(S)), or nonlinear
 system function (KINSOL) for use when computing Jacobian-vector products with
 the internal difference quotient approximation.
-
 
 Added support to CVODE for integrating IVPs with constraints using BDF methods
 and projecting the solution onto the constraint manifold with a user defined

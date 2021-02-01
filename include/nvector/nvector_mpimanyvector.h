@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -157,6 +157,11 @@ SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_MPIManyVector(N_Vector c, N_Vecto
                                                              N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal_MPIManyVector(N_Vector num,
                                                            N_Vector denom);
+
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize_MPIManyVector(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack_MPIManyVector(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack_MPIManyVector(N_Vector x, void *buf);
 
 /* -----------------------------------------------------------------
    Enable / disable fused vector operations

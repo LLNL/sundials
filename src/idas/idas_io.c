@@ -1,12 +1,8 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -17,15 +13,14 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the optional inputs and
  * outputs for the IDAS solver.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "idas_impl.h"
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
+#include "sundials/sundials_types.h"
+#include "sundials/sundials_math.h"
 
 #define ZERO    RCONST(0.0)
 #define HALF    RCONST(0.5)
@@ -1313,9 +1308,6 @@ int IDAGetRootInfo(void *ida_mem, int *rootsfound)
 int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 {
   IDAMem IDA_mem;
-  long int nls_iters;
-  booleantype sensi_sim;
-  int retval;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS",
@@ -1325,40 +1317,7 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  /* get number of iterations for IC calc */
   *nniters = IDA_mem->ida_nni;
-
-  /* are we computing sensitivities with the simultaneous approach? */
-  sensi_sim = (IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_SIMULTANEOUS));
-
-  /* get number of iterations from the NLS */
-  if (sensi_sim) {
-
-    /* check that the NLS is non-NULL */
-    if (IDA_mem->NLSsim == NULL) {
-      IDAProcessError(NULL, IDA_MEM_FAIL, "IDAS",
-                      "IDAGetNumNonlinSolvIters", MSG_MEM_FAIL);
-      return(IDA_MEM_FAIL);
-    }
-
-    retval = SUNNonlinSolGetNumIters(IDA_mem->NLSsim, &nls_iters);
-    if (retval != IDA_SUCCESS) return(retval);
-
-  } else {
-
-    /* check that the NLS is non-NULL */
-    if (IDA_mem->NLS == NULL) {
-      IDAProcessError(NULL, IDA_MEM_FAIL, "IDAS",
-                      "IDAGetNumNonlinSolvIters", MSG_MEM_FAIL);
-      return(IDA_MEM_FAIL);
-    }
-
-    retval = SUNNonlinSolGetNumIters(IDA_mem->NLS, &nls_iters);
-    if (retval != IDA_SUCCESS) return(retval);
-  }
-
-  /* update the number of nonlinear iterations */
-  *nniters += nls_iters;
 
   return(IDA_SUCCESS);
 }
@@ -1386,9 +1345,6 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
 int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 {
   IDAMem IDA_mem;
-  long int nls_iters;
-  booleantype sensi_sim;
-  int retval;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS",
@@ -1400,37 +1356,6 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 
   *nniters  = IDA_mem->ida_nni;
   *nncfails = IDA_mem->ida_ncfn;
-
-  /* Are we computing sensitivities with the simultaneous approach? */
-  sensi_sim = (IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_SIMULTANEOUS));
-
-  /* get number of iterations from NLS */
-  if (sensi_sim) {
-
-    if (IDA_mem->NLSsim == NULL) {
-      IDAProcessError(NULL, IDA_MEM_FAIL, "IDAS",
-                      "IDAGetNonlinSolvStats", MSG_MEM_FAIL);
-      return(IDA_MEM_FAIL);
-    }
-
-    retval = SUNNonlinSolGetNumIters(IDA_mem->NLSsim, &nls_iters);
-    if (retval != IDA_SUCCESS) return(retval);
-
-  } else {
-
-    if (IDA_mem->NLS == NULL) {
-      IDAProcessError(NULL, IDA_MEM_FAIL, "IDAS",
-                      "IDAGetNonlinSolvStats", MSG_MEM_FAIL);
-      return(IDA_MEM_FAIL);
-    }
-
-    retval = SUNNonlinSolGetNumIters(IDA_mem->NLS, &nls_iters);
-    if (retval != IDA_SUCCESS) return(retval);
-
-  }
-
-  /* update the number of nonlinear iterations */
-  *nniters += nls_iters;
 
   return(IDA_SUCCESS);
 }
@@ -1833,8 +1758,6 @@ int IDAGetSensStats(void *ida_mem, long int *nrSevals, long int *nrevalsS,
 int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters)
 {
   IDAMem IDA_mem;
-  long int nls_iters;
-  int retval;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS",
@@ -1851,20 +1774,6 @@ int IDAGetSensNumNonlinSolvIters(void *ida_mem, long int *nSniters)
   }
 
   *nSniters = IDA_mem->ida_nniS;
-
-  /* check that the NLS is non-NULL */
-  if (IDA_mem->NLSstg == NULL) {
-    IDAProcessError(NULL, IDA_MEM_FAIL, "IDAS",
-                    "IDAGetSensNumNonlinSolvIters", MSG_MEM_FAIL);
-    return(IDA_MEM_FAIL);
-  }
-
-  /* get number of iterations from the NLS */
-  retval = SUNNonlinSolGetNumIters(IDA_mem->NLSstg, &nls_iters);
-  if (retval != IDA_SUCCESS) return(retval);
-
-  /* update the number of nonlinear iterations */
-  *nSniters += nls_iters;
 
   return(IDA_SUCCESS);
 }
@@ -1897,8 +1806,6 @@ int IDAGetSensNumNonlinSolvConvFails(void *ida_mem, long int *nSncfails)
 int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncfails)
 {
   IDAMem IDA_mem;
-  long int nls_iters;
-  int retval;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS",
@@ -1914,22 +1821,8 @@ int IDAGetSensNonlinSolvStats(void *ida_mem, long int *nSniters, long int *nSncf
     return(IDA_NO_SENS);
   }
 
-  *nSniters = IDA_mem->ida_nniS;
+  *nSniters  = IDA_mem->ida_nniS;
   *nSncfails = IDA_mem->ida_ncfnS;
-
-  /* check that the NLS is non-NULL */
-  if (IDA_mem->NLSstg == NULL) {
-    IDAProcessError(NULL, IDA_MEM_FAIL, "IDAS",
-                    "IDAGetSensNumNonlinSolvStats", MSG_MEM_FAIL);
-    return(IDA_MEM_FAIL);
-  }
-
-  /* get number of iterations from the NLS */
-  retval = SUNNonlinSolGetNumIters(IDA_mem->NLSstg, &nls_iters);
-  if (retval != IDA_SUCCESS) return(retval);
-
-  /* update the number of nonlinear iterations */
-  *nSniters += nls_iters;
 
   return(IDA_SUCCESS);
 }

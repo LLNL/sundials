@@ -2,7 +2,7 @@
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -372,7 +372,6 @@
  * cvNls
  *
  *    DGMAX       |gamma/gammap-1| > DGMAX => call lsetup
- *    MSBP        max no. of steps between lsetup calls
  *
  */
 
@@ -407,7 +406,7 @@
 #define LONG_WAIT    10
 
 #define DGMAX  RCONST(0.3)
-#define MSBP   20
+
 
 /*=================================================================*/
 /* Private Helper Functions Prototypes                             */
@@ -603,29 +602,30 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
-  cv_mem->cv_f           = NULL;
-  cv_mem->cv_user_data   = NULL;
-  cv_mem->cv_itol        = CV_NN;
-  cv_mem->cv_atolmin0    = SUNTRUE;
-  cv_mem->cv_user_efun   = SUNFALSE;
-  cv_mem->cv_efun        = NULL;
-  cv_mem->cv_e_data      = NULL;
-  cv_mem->cv_ehfun       = cvErrHandler;
-  cv_mem->cv_eh_data     = cv_mem;
-  cv_mem->cv_errfp       = stderr;
-  cv_mem->cv_qmax        = maxord;
-  cv_mem->cv_mxstep      = MXSTEP_DEFAULT;
-  cv_mem->cv_mxhnil      = MXHNIL_DEFAULT;
-  cv_mem->cv_sldeton     = SUNFALSE;
-  cv_mem->cv_hin         = ZERO;
-  cv_mem->cv_hmin        = HMIN_DEFAULT;
-  cv_mem->cv_hmax_inv    = HMAX_INV_DEFAULT;
-  cv_mem->cv_tstopset    = SUNFALSE;
-  cv_mem->cv_maxnef      = MXNEF;
-  cv_mem->cv_maxncf      = MXNCF;
-  cv_mem->cv_nlscoef     = CORTES;
-  cv_mem->convfail       = CV_NO_FAILURES;
-  cv_mem->cv_constraints = NULL;
+  cv_mem->cv_f              = NULL;
+  cv_mem->cv_user_data      = NULL;
+  cv_mem->cv_itol           = CV_NN;
+  cv_mem->cv_atolmin0       = SUNTRUE;
+  cv_mem->cv_user_efun      = SUNFALSE;
+  cv_mem->cv_efun           = NULL;
+  cv_mem->cv_e_data         = NULL;
+  cv_mem->cv_ehfun          = cvErrHandler;
+  cv_mem->cv_eh_data        = cv_mem;
+  cv_mem->cv_errfp          = stderr;
+  cv_mem->cv_qmax           = maxord;
+  cv_mem->cv_mxstep         = MXSTEP_DEFAULT;
+  cv_mem->cv_mxhnil         = MXHNIL_DEFAULT;
+  cv_mem->cv_sldeton        = SUNFALSE;
+  cv_mem->cv_hin            = ZERO;
+  cv_mem->cv_hmin           = HMIN_DEFAULT;
+  cv_mem->cv_hmax_inv       = HMAX_INV_DEFAULT;
+  cv_mem->cv_tstopset       = SUNFALSE;
+  cv_mem->cv_maxnef         = MXNEF;
+  cv_mem->cv_maxncf         = MXNCF;
+  cv_mem->cv_nlscoef        = CORTES;
+  cv_mem->cv_msbp           = MSBP;
+  cv_mem->convfail          = CV_NO_FAILURES;
+  cv_mem->cv_constraints    = NULL;
   cv_mem->cv_constraintsSet = SUNFALSE;
 
   /* Initialize root finding variables */
@@ -3349,6 +3349,78 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
   return(istate);
 }
+
+/*
+ * CVodeComputeState
+ *
+ * Computes y based on the current prediction and given correction.
+ */
+int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeComputeState",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, y);
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeComputeStateSens
+ *
+ * Computes yS based on the current prediction and given correction.
+ */
+int CVodeComputeStateSens(void *cvode_mem, N_Vector *ycorS, N_Vector *yS)
+{
+  int      retval;
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeComputeStateSens",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  retval = N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                   ONE, cv_mem->cv_znS[0],
+                                   ONE, ycorS, yS);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeComputeStateSens1
+ *
+ * Computes yS[idx] based on the current prediction and given correction.
+ */
+int CVodeComputeStateSens1(void *cvode_mem, int idx, N_Vector ycorS1,
+                           N_Vector yS1)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeComputeStateSens1",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  N_VLinearSum(ONE, cv_mem->cv_znS[0][idx], ONE, ycorS1, yS1);
+
+  return(CV_SUCCESS);
+}
+
 
 /*
  * -----------------------------------------------------------------
@@ -6108,6 +6180,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   int flag = CV_SUCCESS;
   booleantype callSetup;
   booleantype do_sensi_sim;
+  long int nni_inc;
 
   /* Are we computing sensitivities with the CV_SIMULTANEOUS approach? */
   do_sensi_sim = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_SIMULTANEOUS));
@@ -6120,7 +6193,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
       (cv_mem->cv_nst == 0) ||
-      (cv_mem->cv_nst >= cv_mem->cv_nstlp + MSBP) ||
+      (cv_mem->cv_nst >= cv_mem->cv_nstlp + cv_mem->cv_msbp) ||
       (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
 
     /* Decide whether to force a call to setup */
@@ -6152,12 +6225,27 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   }
 
   /* solve the nonlinear system */
-  if (do_sensi_sim)
+  if (do_sensi_sim) {
+
     flag = SUNNonlinSolSolve(cv_mem->NLSsim, cv_mem->zn0Sim, cv_mem->ycorSim,
                              cv_mem->ewtSim, cv_mem->cv_tq[4], callSetup, cv_mem);
-  else
+
+    /* increment counter */
+    nni_inc = 0;
+    (void) SUNNonlinSolGetNumIters(cv_mem->NLSsim, &(nni_inc));
+    cv_mem->cv_nni += nni_inc;
+
+  } else {
+
     flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                              cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
+
+    /* increment counter */
+    nni_inc = 0;
+    (void) SUNNonlinSolGetNumIters(cv_mem->NLS, &(nni_inc));
+    cv_mem->cv_nni += nni_inc;
+
+  }
 
   /* if the solve failed return */
   if (flag != CV_SUCCESS) return(flag);
@@ -6350,6 +6438,7 @@ static int cvStgrNls(CVodeMem cv_mem)
 {
   booleantype callSetup;
   int flag=CV_SUCCESS;
+  long int nniS_inc;
 
   callSetup = SUNFALSE;
   if (cv_mem->cv_lsetup == NULL)
@@ -6364,6 +6453,11 @@ static int cvStgrNls(CVodeMem cv_mem)
   /* solve the nonlinear system */
   flag = SUNNonlinSolSolve(cv_mem->NLSstg, cv_mem->zn0Stg, cv_mem->ycorStg,
                            cv_mem->ewtStg, cv_mem->cv_tq[4], callSetup, cv_mem);
+
+  /* increment counter */
+  nniS_inc = 0;
+  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg, &(nniS_inc));
+  cv_mem->cv_nniS += nniS_inc;
 
   /* reset sens solve flag */
   cv_mem->sens_solve = SUNFALSE;
@@ -6395,8 +6489,9 @@ static int cvStgrNls(CVodeMem cv_mem)
 static int cvStgr1Nls(CVodeMem cv_mem, int is)
 {
   booleantype callSetup;
-  long int nni;
+  long int nniS1_inc;
   int flag=CV_SUCCESS;
+
 
   callSetup = SUNFALSE;
   if (cv_mem->cv_lsetup == NULL)
@@ -6413,13 +6508,13 @@ static int cvStgr1Nls(CVodeMem cv_mem, int is)
                            cv_mem->cv_znS[0][is], cv_mem->cv_acorS[is],
                            cv_mem->cv_ewtS[is], cv_mem->cv_tq[4], callSetup, cv_mem);
 
+  /* increment counter */
+  nniS1_inc = 0;
+  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg1, &(nniS1_inc));
+  cv_mem->cv_nniS1[is] += nniS1_inc;
+
   /* reset sens solve flag */
   cv_mem->sens_solve = SUNFALSE;
-
-  /* update nniS iteration count */
-  (void) SUNNonlinSolGetNumIters(cv_mem->NLSstg1, &nni);
-  cv_mem->cv_nniS1[is] += nni - cv_mem->nnip;
-  cv_mem->nnip = nni;
 
   /* if the solve failed return */
   if (flag != CV_SUCCESS) return(flag);

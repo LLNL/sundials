@@ -2,7 +2,7 @@
  * Programmer(s): Slaven Peles, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -254,6 +254,13 @@ int main(int argc, char *argv[])
     fails += Test_N_VConstrMaskLocal(plusX, plusY, plusZ, local_length, myid);
     fails += Test_N_VMinQuotientLocal(plusX, plusY, local_length, myid);
 
+    /* XBraid interface operations */
+    printf("\nTesting XBraid interface operations:\n\n");
+
+    fails += Test_N_VBufSize(plusX, local_length, myid);
+    fails += Test_N_VBufPack(plusX, local_length, myid);
+    fails += Test_N_VBufUnpack(plusX, local_length, myid);
+
     /* Free vectors */
     N_VDestroy(X);
     N_VDestroy(U);
@@ -356,7 +363,7 @@ double max_time(N_Vector plusX, double time)
   return(maxt);
 }
 
-void sync_device()
+void sync_device(N_Vector x)
 {
   /* sync with GPU */
   cudaDeviceSynchronize();

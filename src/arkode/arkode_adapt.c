@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -132,25 +132,25 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
 
   /* Call algorithm-specific error adaptivity method */
   switch (hadapt_mem->imethod) {
-  case(0):    /* PID controller */
+  case(ARK_ADAPT_PID):         /* PID controller */
     ier = arkAdaptPID(hadapt_mem, k, hcur, ecur, &h_acc);
     break;
-  case(1):    /* PI controller */
+  case(ARK_ADAPT_PI):          /* PI controller */
     ier = arkAdaptPI(hadapt_mem, k, hcur, ecur, &h_acc);
     break;
-  case(2):    /* I controller */
+  case(ARK_ADAPT_I):           /* I controller */
     ier = arkAdaptI(hadapt_mem, k, hcur, ecur, &h_acc);
     break;
-  case(3):    /* explicit Gustafsson controller */
+  case(ARK_ADAPT_EXP_GUS):     /* explicit Gustafsson controller */
     ier = arkAdaptExpGus(hadapt_mem, k, nst, hcur, ecur, &h_acc);
     break;
-  case(4):    /* implicit Gustafsson controller */
+  case(ARK_ADAPT_IMP_GUS):     /* implicit Gustafsson controller */
     ier = arkAdaptImpGus(hadapt_mem, k, nst, hcur, ecur, &h_acc);
     break;
-  case(5):    /* imex Gustafsson controller */
+  case(ARK_ADAPT_IMEX_GUS):    /* imex Gustafsson controller */
     ier = arkAdaptImExGus(hadapt_mem, k, nst, hcur, ecur, &h_acc);
     break;
-  case(-1):   /* user-supplied controller */
+  case(ARK_ADAPT_CUSTOM):      /* user-supplied controller */
     ier = hadapt_mem->HAdapt(ycur, tcur, hcur, hadapt_mem->hhist[0],
                              hadapt_mem->hhist[1], ecur,
                              hadapt_mem->ehist[0],

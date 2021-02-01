@@ -14,11 +14,12 @@ provided with {\sundials} are described in the following sections.
 \label{s:nvector_api}
 % ====================================================================
 
-The generic {\nvector} API can be broken down into five groups of functions:
+The generic {\nvector} API can be broken down into groups of functions:
 the core vector operations, the fused vector operations, the vector array
-operations, the local reduction operations, and finally some utility functions.
-The first four groups are defined by a particular {\nvector} implementation.
-The utility functions are defined by the generic {\nvector} itself.
+operations, the local reduction operations, the exchange operations, and
+finally some utility functions. All but the last group are defined by a
+particular {\nvector} implementation. The utility functions are defined
+by the generic {\nvector} itself.
 
 % ====================================================================
 \subsection{NVECTOR core functions}\label{ss:nvecops}
@@ -130,7 +131,9 @@ The utility functions are defined by the generic {\nvector} itself.
 {
   Returns a pointer to a \id{realtype} array from the \id{N\_Vector} \id{v}.
   Note that this assumes that the internal data in \id{N\_Vector} is
-  a contiguous array of \id{realtype}. This routine is only used in the
+  a contiguous array of \id{realtype} and is accessible from the CPU.
+
+  This routine is only used in the
   solver-specific interfaces to the dense and banded (serial) linear
   solvers, the sparse linear solvers (serial and threaded), and in the
   interfaces to the banded (serial) and band-block-diagonal (parallel)
@@ -145,6 +148,32 @@ The utility functions are defined by the generic {\nvector} itself.
   \id{realtype*}
 }
 {}
+
+\ucfunctionf{N\_VGetDeviceArrayPointer}
+{
+  vdata = N\_VGetDeviceArrayPointer(v);
+}
+{
+  Returns a device pointer to a \id{realtype} array from the \id{N\_Vector}
+  \id{v}. Note that this assumes that the internal data in \id{N\_Vector} is a
+  contiguous array of \id{realtype} and is accessible from the device (e.g.,
+  GPU).
+
+  This operation is \textit{optional} except when using the GPU-enabled direct
+  linear solvers.
+}
+{
+  \begin{args}[v]
+  \item[v] (\id{N\_Vector}) a {\nvector} object
+  \end{args}
+}
+{
+  \id{realtype*}
+}
+{
+  Currently, only the GPU-enabled {\sundials} vectors provide this operation.
+  All other SUNDIALS vectors will return \id{NULL}.
+}
 
 \ucfunctionf{N\_VSetArrayPointer}
 {
@@ -225,7 +254,9 @@ The utility functions are defined by the generic {\nvector} itself.
   \item[z] (\id{N\_Vector}) a {\nvector} object containing the result
   \end{args}
 }
-{}
+{
+  The output vector \id{z} can be the same as either of the input vectors (\id{x} or \id{y}).
+}
 {}
 
 \ucfunctionf{N\_VConst}
@@ -309,7 +340,7 @@ The utility functions are defined by the generic {\nvector} itself.
 {
   Sets the components of the \id{N\_Vector} \id{z} to be the absolute
   values of the components of the \id{N\_Vector} \id{x}:
-  $y_i = | x_i | , \: i=0,\ldots,n-1$.
+  $z_i = | x_i | , \: i=0,\ldots,n-1$.
 }
 {
   \begin{args}[x]
@@ -866,7 +897,7 @@ for the implementation specific functions to enable/disable operations.
   This routine scales and adds a vector in a vector array of $n_v$ vectors to
   the corresponding vector in $n_s$ vector arrays:
   \begin{equation*}
-    z_{j,i} = \sum_{k=0}^{n_s-1} c_k x_{k,j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,n_v-1,
+    z_{k,j,i} = c_k x_{j,i} + y_{k,j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1, \quad k=0,\ldots,ns-1
   \end{equation*}
   where $c$ is an array of $n_s$ scalars, $X$ is a vector array of $n_v$ vectors
   to be scaled and added to the corresponding vector in each of the $n_s$ vector
@@ -1157,7 +1188,7 @@ used as templates for user-defined {\nvector} implementations.
   is returned.
 }
 {
-  \begin{args}[x]
+  \begin{args}[denom]
   \item[num] (\id{N\_Vector}) a {\nvector} object used as the numerator
   \item[denom] (\id{N\_Vector}) a {\nvector} object used as the denominator
   \end{args}
@@ -1166,6 +1197,74 @@ used as templates for user-defined {\nvector} implementations.
   \id{realtype}
 }
 {}
+
+
+% ====================================================================
+\subsection{NVECTOR exchange operations}\label{ss:nvecexchangeops}
+
+The following vector exchange operations are also \textit{optional} and are
+intended only for use when interfacing with the XBraid library for
+parallel-in-time integration. In that setting these operations are required but
+are otherwise unused by SUNDIALS packages and may be set to \id{NULL}. For each
+operation, we give the function signature, a description of the expected
+behavior, and an example of the function usage.
+
+\ucfunctionf{N\_VBufSize}
+{
+  flag = N\_VBufSize(N\_Vector x, sunindextype *size);
+}
+{
+  This routine returns the buffer size need to exchange in the data in the
+  vector \id{x} between computational nodes.
+}
+{
+  \begin{args}[size]
+  \item[x] (\id{N\_Vector}) a {\nvector} object
+  \item[size] (\id{sunindextype*}) the size of the message buffer
+  \end{args}
+}
+{
+  Returns an \id{int} with value \id{0} for success and a non-zero value otherwise.
+}
+{}
+
+\ucfunctionf{N\_VBufPack}
+{
+  flag = N\_VBufPack(N\_Vector x, void *buf);
+}
+{
+  This routine fills the exchange buffer \id{buf} with the vector data in \id{x}.
+}
+{
+  \begin{args}[buf]
+  \item[x] (\id{N\_Vector}) a {\nvector} object
+  \item[buf] (\id{sunindextype*}) the exchange buffer to pack
+  \end{args}
+}
+{
+  Returns an \id{int} with value \id{0} for success and a non-zero value otherwise.
+}
+{}
+
+\ucfunctionf{N\_VBufUnpack}
+{
+  flag = N\_VBufUnpack(N\_Vector x, void *buf);
+}
+{
+  This routine unpacks the data in the exchange buffer \id{buf} into the vector
+  \id{x}.
+}
+{
+  \begin{args}[buf]
+  \item[x] (\id{N\_Vector}) a {\nvector} object
+  \item[buf] (\id{sunindextype*}) the exchange buffer to unpack
+  \end{args}
+}
+{
+  Returns an \id{int} with value \id{0} for success and a non-zero value otherwise.
+}
+{}
+
 
 
 % ====================================================================
@@ -1329,7 +1428,7 @@ also provides the utility functions \ID{N\_VCloneVectorArray},
   v = N\_VGetVecAtIndexVectorArray(vecs, index);
 }
 {
-  Returns the \id{N\_Vector} object stored in the vector array at the 
+  Returns the \id{N\_Vector} object stored in the vector array at the
   provided index. This function is primarily meant for users of the
   Fortran 2003 interface.
 }
@@ -1340,7 +1439,7 @@ also provides the utility functions \ID{N\_VCloneVectorArray},
   \end{args}
 }
 {
-  Returns the \id{N\_Vector} object stored in the vector array at the 
+  Returns the \id{N\_Vector} object stored in the vector array at the
   provided index. Returns \id{NULL} if an error occurred.
 }
 {}
@@ -1350,7 +1449,7 @@ also provides the utility functions \ID{N\_VCloneVectorArray},
   N\_VSetVecAtIndexVectorArray(vecs, index, v);
 }
 {
-  Sets the \id{N\_Vector} object stored in the vector array at the 
+  Sets the \id{N\_Vector} object stored in the vector array at the
   provided index. This function is primarily meant for users of the
   Fortran 2003 interface.
 }
@@ -1387,14 +1486,16 @@ SUNDIALS\_NVEC\_OPENMP        & OpenMP shared memory parallel                 & 
 SUNDIALS\_NVEC\_PTHREADS      & PThreads shared memory parallel               & 3 \\
 SUNDIALS\_NVEC\_PARHYP        & {\hypre} ParHyp parallel vector               & 4 \\
 SUNDIALS\_NVEC\_PETSC         & {\petsc} parallel vector                      & 5 \\
-SUNDIALS\_NVEC\_CUDA          & {\cuda} parallel vector                       & 6 \\
-SUNDIALS\_NVEC\_RAJA          & {\raja} parallel vector                       & 7 \\
-SUNDIALS\_NVEC\_OPENMPDEV     & OpenMP parallel vector with device offloading & 8 \\
-SUNDIALS\_NVEC\_TRILINOS      & {\trilinos} Tpetra vector                     & 9 \\
-SUNDIALS\_NVEC\_MANYVECTOR    & ``ManyVector'' vector                         & 10 \\
-SUNDIALS\_NVEC\_MPIMANYVECTOR & MPI-enabled ``ManyVector'' vector             & 11 \\
-SUNDIALS\_NVEC\_MPIPLUSX      & MPI+X vector                                  & 12 \\
-SUNDIALS\_NVEC\_CUSTOM        & User-provided custom vector                   & 13 \\
+SUNDIALS\_NVEC\_CUDA          & {\cuda} vector                                & 6 \\
+SUNDIALS\_NVEC\_HIP           & {\hip} vector                                 & 7 \\
+SUNDIALS\_NVEC\_SYCL          & {\sycl} vector                                & 8 \\
+SUNDIALS\_NVEC\_RAJA          & {\raja} vector                                & 9 \\
+SUNDIALS\_NVEC\_OPENMPDEV     & OpenMP vector with device offloading          & 10 \\
+SUNDIALS\_NVEC\_TRILINOS      & {\trilinos} Tpetra vector                     & 11 \\
+SUNDIALS\_NVEC\_MANYVECTOR    & ``ManyVector'' vector                         & 12 \\
+SUNDIALS\_NVEC\_MPIMANYVECTOR & MPI-enabled ``ManyVector'' vector             & 13 \\
+SUNDIALS\_NVEC\_MPIPLUSX      & MPI+X vector                                  & 14 \\
+SUNDIALS\_NVEC\_CUSTOM        & User-provided custom vector                   & 15 \\
 \hline
 \end{tabular}
 \end{table}
@@ -1432,6 +1533,7 @@ struct _generic_N_Vector_Ops {
   void         (*nvdestroy)(N_Vector);
   void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
   realtype*    (*nvgetarraypointer)(N_Vector);
+  realtype*    (*nvgetdevicearraypointer)(N_Vector);
   void         (*nvsetarraypointer)(realtype *, N_Vector);
   void*        (*nvgetcommunicator)(N_Vector);
   sunindextype (*nvgetlength)(N_Vector);
@@ -1477,7 +1579,9 @@ struct _generic_N_Vector_Ops {
   realtype     (*nvminquotientlocal)(N_Vector, N_Vector);
   realtype     (*nvwsqrsumlocal)(N_Vector, N_Vector);
   realtype     (*nvwsqrsummasklocal(N_Vector, N_Vector, N_Vector);
-
+  int          (*nvbufsize)(N_Vector, sunindextype *);
+  int          (*nvbufpack)(N_Vector, void*);
+  int          (*nvbufunpack)(N_Vector, void*);
 };
 \end{verbatim}
 
@@ -1563,6 +1667,9 @@ Their definition is given below.
   type(C_FUNPTR), public :: nvminquotientlocal
   type(C_FUNPTR), public :: nvwsqrsumlocal
   type(C_FUNPTR), public :: nvwsqrsummasklocal
+  type(C_FUNPTR), public :: nvbufsize
+  type(C_FUNPTR), public :: nvbufpack
+  type(C_FUNPTR), public :: nvbufunpack
  end type N_Vector_Ops
 \end{verbatim}
 

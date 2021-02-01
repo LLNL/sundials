@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,293 +15,95 @@
 # CMakeLists.txt file for ARKODE serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is
+# Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_analytic_sys\;develop"
-  )
-
-# Examples using LAPACK linear solvers
-set(ARKODE_examples_BL
-  )
-
-# Examples using KLU linear solver
-set(ARKODE_examples_KLU
-  )
-
-# Examples using SuperLU_MT linear solver
-set(ARKODE_examples_SUPERLUMT
+  "ark_analytic_sys.cpp\;\;develop"
+  "ark_heat2D.cpp\;\;develop"
+  "ark_kpr_Mt.cpp\;0 5\;develop"
+  "ark_kpr_Mt.cpp\;1 4\;develop"
+  "ark_kpr_Mt.cpp\;2 8 0 -10\;develop"
+  "ark_kpr_Mt.cpp\;0 4 1\;develop"
+  "ark_kpr_Mt.cpp\;0 -4\;develop"
+  "ark_kpr_Mt.cpp\;1 -5\;develop"
+  "ark_kpr_Mt.cpp\;2 -5 0 -10\;develop"
+  "ark_kpr_Mt.cpp\;1 -3 0 -10 0\;develop"
+  "ark_kpr_Mt.cpp\;0 3 0 -10 0\;develop"
+  "ark_kpr_Mt.cpp\;2 4 0 -10 0\;develop"
   )
 
 # Auxiliary files to install
 set(ARKODE_extras
+  plot_heat2D.py
   plot_sol.py
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(ARKODE_LIB sundials_arkode_static)
-  set(NVECS_LIB sundials_nvecserial_static)
-else()
-  set(ARKODE_LIB sundials_arkode_shared)
-  set(NVECS_LIB sundials_nvecserial_shared)
-endif()
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
 
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_type)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 example_type)
 
-  # example source files
-  add_executable(${example} ${example}.cpp)
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  # add example executable
+  if(NOT TARGET ${example_target})
+    add_executable(${example_target} ${example})
+
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+
+    target_compile_features(${example_target} PRIVATE cxx_std_11)
+
+    # libraries to link against
+    target_link_libraries(${example_target} ${SUNDIALS_LIBS})
+  endif()
+
+  # check if example args are provided and set the test name
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example_target})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+  endif()
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(${test_name} ${example_target}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
-
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
-
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial)
-  endif()
 
 endforeach(example_tuple ${ARKODE_examples})
 
-
-# Add the build and install targets for each LAPACK example (if needed)
-if(LAPACK_FOUND)
-
-  # Sundials LAPACK linear solver modules
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLLAPACK_LIBS
-      sundials_sunlinsollapackband_static
-      sundials_sunlinsollapackdense_static)
-  else()
-    set(SUNLINSOLLAPACK_LIBS
-      sundials_sunlinsollapackband_shared
-      sundials_sunlinsollapackdense_shared)
-  endif()
-
-  # LAPACK libraries
-  list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
-
-  # BLAS libraries
-  if(BLAS_FOUND)
-    list(APPEND SUNLINSOLLAPACK_LIBS ${BLAS_LIBRARIES})
-  endif(BLAS_FOUND)
-
-  foreach(example_tuple ${ARKODE_examples_BL})
-
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
-
-    # example source files
-    add_executable(${example} ${example}.cpp)
-
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # add example to regression tests
-    sundials_add_test(${example} ${example}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
-      EXAMPLE_TYPE ${example_type})
-
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
-
-    # install example source and out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.cpp ${example}.out
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial)
-    endif()
-
-  endforeach(example_tuple ${ARKODE_examples_BL})
-
-endif(LAPACK_FOUND)
-
-
-# Add the build and install targets for each KLU example (if needed)
-if(KLU_FOUND)
-
-  # Sundials KLU linear solver module
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu_static)
-  else()
-    set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu_shared)
-  endif()
-
-  # KLU libraries
-  list(APPEND SUNLINSOLKLU_LIBS ${KLU_LIBRARIES})
-
-  foreach(example_tuple ${ARKODE_examples_KLU})
-
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
-
-    # example source files
-    add_executable(${example} ${example}.cpp)
-
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # add example to regression tests
-    sundials_add_test(${example} ${example}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
-      EXAMPLE_TYPE ${example_type})
-
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
-
-    # install example source and out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example}.out
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial)
-    endif()
-
-  endforeach(example_tuple ${ARKODE_examples_KLU})
-
-endif(KLU_FOUND)
-
-
-# Add the build and install targets for each SuperLU_MT example (if needed)
-if(SUPERLUMT_FOUND)
-
-  # Sundials SuperLU_MT linear solver module
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLSLUMT_LIBS sundials_sunlinsolsuperlumt_static)
-  else()
-    set(SUNLINSOLSLUMT_LIBS sundials_sunlinsolsuperlumt_shared)
-  endif()
-
-  # SuperLU_MT libraries
-  list(APPEND SUNLINSOLSLUMT_LIBS ${SUPERLUMT_LIBRARIES})
-
-  # BLAS libraries
-  if(BLAS_FOUND)
-    list(APPEND SUNLINSOLSLUMT_LIBS ${BLAS_LIBRARIES})
-  endif(BLAS_FOUND)
-
-  foreach(example_tuple ${ARKODE_examples_SUPERLUMT})
-
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
-
-    # example source files
-    add_executable(${example} ${example}.cpp)
-
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # add example to regression tests
-    sundials_add_test(${example} ${example}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
-      EXAMPLE_TYPE ${example_type})
-
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
-
-    # install example source and out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example}.out
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial)
-    endif()
-
-  endforeach(example_tuple ${ARKODE_examples_SUPERLUMT})
-
-endif(SUPERLUMT_FOUND)
-
-
-# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial)
+  sundials_install_examples(arkode ARKODE_examples
+    CMAKE_TEMPLATE
+      cmakelists_CXX_ex.in
+    MAKE_TEMPLATE
+      makefile_serial_CXX_ex.in
+    SOLVER_LIBRARY
+      sundials_arkode
+    SUNDIALS_TARGETS
+      arkode
+    DESTINATION
+      arkode/CXX_serial
+    EXTRA_FILES
+      README
+      ${ARKODE_extras}
+    TEST_INSTALL
+      CXX_serial
+  )
 
-  # Install the extra files
-  foreach(extrafile ${ARKODE_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial)
-  endforeach(extrafile ${ARKODE_extras})
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "ARKODE")
-  set(SOLVER_LIB "sundials_arkode")
-
-  examples2string(ARKODE_examples EXAMPLES)
-
-  if(LAPACK_FOUND)
-    examples2string(ARKODE_examples_BL EXAMPLES_BL)
-  else()
-    set(EXAMPLES_BL "")
-  endif()
-
-  if(KLU_FOUND)
-    examples2string(ARKODE_examples_KLU EXAMPLES_KLU)
-  else()
-    set(EXAMPLES_KLU "")
-  endif()
-
-  if(SUPERLUMT_FOUND)
-    examples2string(ARKODE_examples_SUPERLUMT EXAMPLES_SLUMT)
-  else()
-    set(EXAMPLES_SLUMT "")
-  endif()
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_CXX_ex.in
-    ${PROJECT_BINARY_DIR}/examples/arkode/CXX_serial/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/arkode/CXX_serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_CXX_ex.in
-      ${PROJECT_BINARY_DIR}/examples/arkode/CXX_serial/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/arkode/CXX_serial/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_serial
-      RENAME Makefile
-      )
-  endif(UNIX)
-
-  # add test_install target
-  sundials_add_test_install(arkode CXX_serial)
-
-endif(EXAMPLES_INSTALL)
+endif()

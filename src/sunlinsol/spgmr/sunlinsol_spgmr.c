@@ -4,7 +4,7 @@
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -153,7 +153,7 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl)
  * Function to set the type of preconditioning for SPGMR to use
  */
 
-SUNDIALS_EXPORT int SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype)
+int SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype)
 {
   /* Check for legal pretype */
   if ((pretype != PREC_NONE)  && (pretype != PREC_LEFT) &&
@@ -174,7 +174,7 @@ SUNDIALS_EXPORT int SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype)
  * Function to set the type of Gram-Schmidt orthogonalization for SPGMR to use
  */
 
-SUNDIALS_EXPORT int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
+int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
 {
   /* Check for legal gstype */
   if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
@@ -194,7 +194,7 @@ SUNDIALS_EXPORT int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
  * Function to set the maximum number of GMRES restarts to allow
  */
 
-SUNDIALS_EXPORT int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
+int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 {
   /* Illegal maxrs implies use of default value */
   if (maxrs < 0)
@@ -384,7 +384,7 @@ int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
     ier = Psetup(PData);
     if (ier != 0) {
       LASTFLAG(S) = (ier < 0) ?
-	SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
+        SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
       return(LASTFLAG(S));
     }
   }

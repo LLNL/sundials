@@ -4,7 +4,7 @@
 # Based on CMakeLists.txt in cvode/serial by Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,22 +16,17 @@
 # CMakeLists.txt file for CVODE CUDA examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is
+# Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
   "cvAdvDiff_kry_cuda\;\;develop"
   "cvAdvDiff_kry_cuda_managed\;\;develop"
+  "cvAdvDiff_diag_cuda\;0 0\;develop"
+  "cvAdvDiff_diag_cuda\;0 1\;develop"
+  "cvAdvDiff_diag_cuda\;1 1\;develop"
   )
-
-if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_examples
-    "cvAdvDiff_diag_cuda\;0 0\;develop"
-    "cvAdvDiff_diag_cuda\;0 1\;develop"
-    "cvAdvDiff_diag_cuda\;1 1\;develop"
-    )
-endif()
 
 # Examples using cuSolverSP linear solvers
 set(CVODE_examples_cusolver
@@ -41,36 +36,18 @@ set(CVODE_examples_cusolver
 if(SUNDIALS_INDEX_SIZE MATCHES "32")
   set(all_examples "${CVODE_examples_cusolver}")
   # Specify libraries to link against
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNDIALS_LIBS sundials_sunlinsolcusolversp_static)
-  else()
-    set(SUNDIALS_LIBS sundials_sunlinsolcusolversp_shared)
-  endif()
+  set(SUNDIALS_LIBS sundials_sunlinsolcusolversp)
 endif()
 
 list(APPEND all_examples "${CVODE_examples}")
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
+# Specify libraries to link against
+set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
+                  sundials_cvode
+                  sundials_nveccuda)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    list(APPEND SUNDIALS_LIBS sundials_cvode_cuda_kernels_static)
-  else()
-    list(APPEND SUNDIALS_LIBS sundials_cvode_cuda_kernels_shared)
-  endif()
-endif()
-
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
-                    sundials_cvode_static
-                    sundials_nveccuda_static
-                    ${EXTRA_LINK_LIBS})
-else()
-  set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
-                    sundials_cvode_shared
-                    sundials_nveccuda_shared
-                    ${EXTRA_LINK_LIBS})
+  set(SUNDIALS_LIBS ${SUNDIALS_LIBS} sundials_cvode_fused_cuda)
 endif()
 
 # Add source directory to include directories
@@ -94,7 +71,7 @@ foreach(example_tuple ${all_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -130,9 +107,7 @@ if(EXAMPLES_INSTALL)
   set(SOLVER_LIB "sundials_cvode")
   set(NVECTOR_LIB "sundials_nveccuda")
   if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-    set(KERNELS_LIB "sundials_cvode_cuda_kernels")
-  else()
-    set(KERNELS_LIB "")
+    set(LIBS "-lsundials_cvode_fused_cuda ${LIBS}")
   endif()
 
   examples2string(CVODE_examples EXAMPLES)
@@ -177,9 +152,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvode cuda)
 
-endif(EXAMPLES_INSTALL)
+endif()

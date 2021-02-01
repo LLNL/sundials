@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -31,6 +31,13 @@ fi
 # ==============================================================================
 
 # run tests
+# sundials = make the sundials tarball
+# all      = test all real types
+# both     = test both index sizes
+# each     = test static and shared libraries separately
+# ON       = enable thrid party libraries
+# DEV      = enable development tests
+# bt       = number of parallel build threads
 ./suntest_tarscript.sh sundials all both each ON DEV $bt
 
 # check return flag
@@ -38,30 +45,3 @@ if [ $? -ne 0 ]; then
     echo "FAILED: ./suntest_tarscript.sh sundials all both each ON DEV $bt" | tee -a suntest.log
     exit 1
 fi
-
-# ==============================================================================
-# Test with xSDK options with TPLs and DEVTESTS ON
-# ==============================================================================
-
-realtype=( "single" "double" "extended" )
-indexsize=( "32" "64" )
-
-for rt in "${realtype[@]}"; do
-    for is in "${indexsize[@]}"; do
-
-        # print test label for Jenkins section collapsing
-        echo "TEST: ./suntest_xsdk.sh $rt $is both ON DEV $bt"
-
-        # run tests using xSDK CMake options
-        ./suntest_xsdk.sh $rt $is both ON DEV $bt
-
-        # check return flag
-        if [ $? -ne 0 ]; then
-            echo "FAILED: ./suntest_xsdk.sh $rt $is both ON DEV $bt" | tee -a suntest.log
-            exit 1
-        else
-            echo "PASSED"
-        fi
-
-    done
-done

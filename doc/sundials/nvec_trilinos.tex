@@ -22,10 +22,10 @@ is not deleted for as long as the \id{N\_Vector} object exists.
 The Tpetra vector type in the \id{Sundials::TpetraVectorInterface} class is defined
 as:
 \begin{verbatim}
-  typedef Tpetra::Vector<realtype, sunindextype, sunindextype> vector_type;
+  typedef Tpetra::Vector<realtype, int, sunindextype> vector_type;
 \end{verbatim}
 The Tpetra vector will use the {\sundials}-specified \id{realtype} as its scalar
-type, and it will use \id{sunindextype} as the global and the local ordinal types.
+type, \id{int} as its local ordinal type, and \id{sunindextype} as the global ordinal type.
 This type definition will use Tpetra's default node type. Available Kokkos node
 types in {\trilinos} 12.14 release are serial (single thread), OpenMP, Pthread,
 and {\cuda}. The default node type is selected when building the Kokkos package.

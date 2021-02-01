@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -30,15 +30,9 @@ endif()
 
 include_directories(${MPI_CXX_INCLUDE_PATH})
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(IDA_LIB sundials_ida_static)
-  set(NVECS_LIB sundials_nvecmpiplusx_static sundials_nveccudaraja_static)
-else()
-  set(IDA_LIB sundials_ida_shared)
-  set(NVECS_LIB sundials_nvecmpiplusx_shared sundials_nveccudaraja_shared)
-endif()
+# Specify libraries to link against
+set(IDA_LIB sundials_ida)
+set(NVECS_LIB sundials_nvecmpiplusx sundials_nvecraja)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
@@ -54,7 +48,8 @@ foreach(example_tuple ${IDA_examples})
   list(GET example_tuple 3 example_type)
 
   # add example source files
-  add_executable(${example} ${example}.cu)
+  set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE CUDA)
+  add_executable(${example} ${example}.cpp)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -70,7 +65,7 @@ foreach(example_tuple ${IDA_examples})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu ${example}.out
+    install(FILES ${example}.cpp ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpiraja)
   endif()
 
@@ -123,9 +118,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpiraja
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(ida mpiraja)
 
-endif(EXAMPLES_INSTALL)
+endif()

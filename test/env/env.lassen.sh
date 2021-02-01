@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # -------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -47,8 +47,8 @@ realtype=$1   # precision for realtypes
 indexsize=$2  # integer size for indices
 
 # set defaults for optional inputs
-compiler="xl@2019.12.23" # compiler spec
-bldtype="dbg"            # build type dbg = debug or opt = optimized
+compiler="xl@2020.09.17" # compiler spec
+bldtype="opt"            # build type dbg = debug or opt = optimized
 
 # set optional inputs if provided
 if [ "$#" -gt 2 ]; then
@@ -126,7 +126,14 @@ fi
 
 # Fortran settings
 export F77_STATUS=${FORTRAN_STATUS}
-export F03_STATUS=${FORTRAN_STATUS}
+if [[ ("$realtype" == "double") && ("$indexsize" == "64") ]]; then
+    export F03_STATUS=${FORTRAN_STATUS}
+else
+    export F03_STATUS=OFF
+fi
+
+# Sundials monitoring
+export MONITOR_STATUS=ON
 
 # set MPI compiler wrapper
 export MPI_STATUS=ON

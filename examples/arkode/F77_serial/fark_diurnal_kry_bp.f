@@ -2,7 +2,7 @@ C     ----------------------------------------------------------------
 C     Programmer(s): Daniel R. Reynolds @ SMU
 C     ----------------------------------------------------------------
 C     SUNDIALS Copyright Start
-C     Copyright (c) 2002-2020, Lawrence Livermore National Security
+C     Copyright (c) 2002-2021, Lawrence Livermore National Security
 C     and Southern Methodist University.
 C     All rights reserved.
 C

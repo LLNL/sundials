@@ -1,12 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -349,6 +346,7 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
   IDAMem IDA_mem;
   CkpntMem tmp;
   DtpntMem *dt_mem;
+  long int nstloc;
   int flag, i;
   booleantype allocOK, earlyret;
   realtype ttest;
@@ -481,12 +479,24 @@ int IDASolveF(void *ida_mem, realtype tout, realtype *tret,
   }
 
   /* Integrate to tout (in IDA_ONE_STEP mode) while loading check points */
+  nstloc = 0;
   for(;;) {
+
+    /* Check for too many steps */
+
+    if ( (IDA_mem->ida_mxstep>0) && (nstloc >= IDA_mem->ida_mxstep) ) {
+      IDAProcessError(IDA_mem, IDA_TOO_MUCH_WORK, "IDAA", "IDASolveF",
+                      MSG_MAX_STEPS, IDA_mem->ida_tn);
+      flag = IDA_TOO_MUCH_WORK;
+      break;
+    }
 
     /* Perform one step of the integration */
 
     flag = IDASolve(IDA_mem, tout, tret, yret, ypret, IDA_ONE_STEP);
     if (flag < 0) break;
+
+    nstloc++;
 
     /* Test if a new check point is needed */
 
@@ -1566,7 +1576,7 @@ int IDASolveB(void *ida_mem, realtype tBout, int itaskB)
  * in tret) as that at which IDASolveBreturned the solution.
  */
 
-SUNDIALS_EXPORT int IDAGetB(void* ida_mem, int which, realtype *tret,
+int IDAGetB(void* ida_mem, int which, realtype *tret,
                             N_Vector yy, N_Vector yp)
 {
   IDAMem IDA_mem;

@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -17,6 +17,7 @@
  * -----------------------------------------------------------------
  */
 
+#include <assert.h>
 #include <stdio.h>
 
 #include <cuda_runtime.h>
@@ -48,10 +49,23 @@ extern "C" {
 #define SUNDIALS_CUSPARSE_VERIFY(cuerr) SUNDIALS_CUSPARSE_Assert(cuerr, __FILE__, __LINE__)
 #define SUNDIALS_CUSOLVER_VERIFY(cuerr) SUNDIALS_CUSOLVER_Assert(cuerr, __FILE__, __LINE__)
 
+#define SUNDIALS_KERNEL_NAME(...) __VA_ARGS__
+#ifndef SUNDIALS_DEBUG_CUDA_LASTERROR
+#define SUNDIALS_LAUNCH_KERNEL(kernel, gridDim, blockDim, shMem, stream, ...) \
+{ kernel<<<gridDim, blockDim, shMem, stream>>>(__VA_ARGS__); }
+#else
+#define SUNDIALS_LAUNCH_KERNEL(kernel, gridDim, blockDim, shMem, stream, ...) \
+{ \
+  kernel<<<gridDim, blockDim, shMem, stream>>>(__VA_ARGS__); \
+  cudaDeviceSynchronize(); \
+  SUNDIALS_CUDA_VERIFY(cudaGetLastError()); \
+}
+#endif
 
 /* ---------------------------------------------------------------------------
  * Utility functions
  * ---------------------------------------------------------------------------*/
+
 inline booleantype SUNDIALS_CUDA_Assert(cudaError_t cuerr, const char *file, int line)
 {
   if (cuerr != cudaSuccess)
@@ -60,6 +74,9 @@ inline booleantype SUNDIALS_CUDA_Assert(cudaError_t cuerr, const char *file, int
     fprintf(stderr,
             "ERROR in CUDA runtime operation: %s %s:%d\n",
             cudaGetErrorString(cuerr), file, line);
+#ifdef SUNDIALS_DEBUG_ASSERT
+    assert(false);
+#endif
 #endif
     return SUNFALSE; /* Assert failed */
   }
@@ -74,6 +91,9 @@ inline booleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status, const char 
     fprintf(stderr,
             "ERROR in cuSPARSE runtime operation: cusparseStatus_t = %d %s:%d\n",
             status, file, line);
+#ifdef SUNDIALS_DEBUG_ASSERT
+    assert(false);
+#endif
 #endif
     return SUNFALSE; /*  Assert failed */
   }
@@ -88,12 +108,14 @@ inline booleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status, const char 
     fprintf(stderr,
             "ERROR in cuSOLVER runtime operation: cusolverStatus_t = %d %s:%d\n",
             status, file, line);
+#ifdef SUNDIALS_DEBUG_ASSERT
+    assert(false);
+#endif
 #endif
     return SUNFALSE; /*  Assert failed */
   }
   return SUNTRUE; /* Assert OK */
 }
-
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 }

@@ -1643,7 +1643,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
   each sensitivity equation separately, in the \id{CV\_STAGGERED1} case.
 }
 {
-  \begin{args}[cvode\_mem]
+  \begin{args}[nSTGR1niters]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[nSTGR1niters] (\id{long int *})
@@ -1677,7 +1677,7 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
   each sensitivity equation separately, in the \id{CV\_STAGGERED1} case.
 }
 {
-  \begin{args}[cvode\_mem]
+  \begin{args}[nSTGR1ncfails]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[nSTGR1ncfails] (\id{long int *})
@@ -1699,6 +1699,43 @@ No. of staggered convergence failures& \id{CVodeGetStgrSensNumNonlinSolvConvFail
 {
   {\warn}The user must allocate space for \id{nSTGR1ncfails}.
 }
+%%
+%%
+\ucfunctionf{CVodeGetStgrSensNonlinSolvStats}
+{
+  flag = CVodeGetStgrSensNonlinSolvStats(cvode\_mem, \&nSTRG1niters, \&nSTGR1ncfails);
+}
+{
+  The function \ID{CVodeGetStgrSensNonlinSolvStats} returns the
+  number of nonlinear iterations and convergence failures that have occurred for
+  each sensitivity equation separately, in the \id{CV\_STAGGERED1} case.
+}
+{
+  \begin{args}[nSTGR1ncfails]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[nSTGR1niters] (\id{long int *})
+    an array (of dimension \id{Ns}) which will be set with the number of
+    nonlinear iterations performed for each sensitivity system individually.
+  \item[nSTGR1ncfails] (\id{long int *})
+    an array (of dimension \id{Ns}) which will be set with the
+    number of nonlinear convergence failures for each sensitivity system individually.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CV\_MEM\_NULL]
+  \item[\Id{CV\_SUCCESS}]
+    The optional output values have been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_NO\_SENS}]
+    Forward sensitivity analysis was not initialized.
+  \item[\Id{CV\_MEM\_FAIL}]
+    The {\sunnonlinsol} module is \id{NULL}.
+  \end{args}
+}
+{}
 \index{optional output!forward sensitivity|)}
 %%
 %%

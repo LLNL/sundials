@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -31,11 +31,18 @@ fi
 # ==============================================================================
 
 # run tests
-./suntest_tarscript.sh sundials all both both ON DEV $bt
+# sundials = make the sundials tarball
+# all      = test all real types
+# both     = test both index sizes
+# static   = test static libraries
+# ON       = enable thrid party libraries
+# DEV      = enable development tests
+# bt       = number of parallel build threads
+./suntest_tarscript.sh sundials all both static ON DEV $bt
 
 # check return flag
 if [ $? -ne 0 ]; then
-    echo "FAILED: ./suntest_tarscript.sh sundials all both both ON DEV $bt" | tee -a suntest.log
+    echo "FAILED: ./suntest_tarscript.sh sundials all both static ON DEV $bt" | tee -a suntest.log
     exit 1
 fi
 

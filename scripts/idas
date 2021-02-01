@@ -66,6 +66,8 @@ $tar $tarfile $distrobase/examples/idas/serial/idasHessian_ASA_FSA.c            
 $tar $tarfile $distrobase/examples/idas/serial/idasHessian_ASA_FSA.out              || exit 1
 $tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls.c                  || exit 1
 $tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls.out                || exit 1
+$tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls_1.out              || exit 1
+$tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls_2.out              || exit 1
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.c               || exit 1
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.out             || exit 1
 $tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_klu.c               || exit 1

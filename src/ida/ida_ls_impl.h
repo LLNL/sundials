@@ -3,7 +3,7 @@
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -57,8 +57,8 @@ typedef struct IDALsMemRec {
   booleantype scalesol;
 
   /* Iterative solver tolerance */
-  realtype sqrtN;     /* sqrt(N)                                      */
-  realtype eplifac;   /* eplifac = linear convergence factor          */
+  realtype eplifac;   /* nonlinear -> linear tol scaling factor       */
+  realtype nrmfac;    /* integrator -> LS norm conversion factor      */
 
   /* Statistics and associated parameters */
   realtype dqincfac;  /* dqincfac = optional increment factor in Jv   */

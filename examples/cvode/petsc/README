@@ -19,6 +19,6 @@ The following CMake command was used to configure SUNDIALS:
 -DBUILD_STATIC_LIBS=ON \
 -DEXAMPLES_ENABLE_C=ON \
 -DEXAMPLES_INSTALL=ON \
--DPETSC_ENABLE=ON \
+-DENABLE_PETSC=ON \
 -DPETSC_DIR=/home/user1/petsc \
 ../sundials

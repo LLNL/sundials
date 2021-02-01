@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -206,6 +206,10 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
   gy    = FP_CONTENT(NLS)->gy;
   delta = FP_CONTENT(NLS)->delta;
 
+  /* initialize iteration and convergence fail counters for this solve */
+  FP_CONTENT(NLS)->niters     = 0;
+  FP_CONTENT(NLS)->nconvfails = 0;
+
 #ifdef SUNDIALS_BUILD_WITH_MONITORING
       /* print current iteration number and the nonlinear residual */
       if (FP_CONTENT(NLS)->print_level && FP_CONTENT(NLS)->info_file)
@@ -389,7 +393,7 @@ int SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS, long int *niters)
   if (NLS == NULL)
     return(SUN_NLS_MEM_NULL);
 
-  /* return the total number of nonlinear iterations */
+  /* return number of nonlinear iterations in the last solve */
   *niters = FP_CONTENT(NLS)->niters;
   return(SUN_NLS_SUCCESS);
 }

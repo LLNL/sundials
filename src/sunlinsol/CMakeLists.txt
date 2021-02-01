@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,36 +14,39 @@
 # linear solver level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# Always add SUNDIALS provided linear solver modules
+# required modules
 add_subdirectory(band)
 add_subdirectory(dense)
 add_subdirectory(pcg)
-
 add_subdirectory(spbcgs)
 add_subdirectory(spfgmr)
 add_subdirectory(spgmr)
 add_subdirectory(sptfqmr)
 
-# Add linear solver modules with TPL dependencies
-if(KLU_ENABLE AND KLU_FOUND)
-  add_subdirectory(klu)
-endif(KLU_ENABLE AND KLU_FOUND)
+if(BUILD_SUNLINSOL_CUSOLVERSP)
+  add_subdirectory(cusolversp)
+endif()
 
-if(SUNDIALS_SUPERLUDIST)
+if(BUILD_SUNLINSOL_KLU)
+  add_subdirectory(klu)
+endif()
+
+if(BUILD_SUNLINSOL_LAPACKBAND)
+  add_subdirectory(lapackband)
+endif()
+
+if(BUILD_SUNLINSOL_LAPACKDENSE)
+  add_subdirectory(lapackdense)
+endif()
+
+if(BUILD_SUNLINSOL_MAGMADENSE)
+  add_subdirectory(magmadense)
+endif()
+
+if(BUILD_SUNLINSOL_SUPERLUDIST)
   add_subdirectory(superludist)
 endif()
 
-if(SUPERLUMT_ENABLE AND SUPERLUMT_FOUND)
+if(BUILD_SUNLINSOL_SUPERLUMT)
   add_subdirectory(superlumt)
-endif(SUPERLUMT_ENABLE AND SUPERLUMT_FOUND)
-
-if(LAPACK_ENABLE AND LAPACK_FOUND)
-  add_subdirectory(lapackband)
-  add_subdirectory(lapackdense)
-endif(LAPACK_ENABLE AND LAPACK_FOUND)
-
-if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
-  if(SUNDIALS_INDEX_SIZE MATCHES "32")
-    add_subdirectory(cusolversp)
-  endif()
-endif(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+endif()

@@ -79,6 +79,8 @@ $tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.c          || ex
 $tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.out        || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.c   || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.out || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_kry.c   || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_kry.out || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.c          || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.out        || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_slu.c          || exit 1
@@ -108,9 +110,11 @@ $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt       ||
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f   || exit 1
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out || exit 1
 
-$tar $tarfile $distrobase/examples/kinsol/F2003_serial/README                   || exit 1
-$tar $tarfile $distrobase/examples/kinsol/F2003_serial/CMakeLists.txt           || exit 1
-$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinRoboKin_dns_f2003.f90 || exit 1
-$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinRoboKin_dns_f2003.out || exit 1
-$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_bnd_f2003.f90 || exit 1
-$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_bnd_f2003.out || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/README                          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/CMakeLists.txt                  || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinRoboKin_dns_f2003.f90        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinRoboKin_dns_f2003.out        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_bnd_f2003.f90        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_bnd_f2003.out        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_picard_kry_f2003.f90 || exit 1
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_picard_kry_f2003.out || exit 1

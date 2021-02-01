@@ -7,13 +7,15 @@
 \title{User Documentation for {\cvode} {\cvrelease} \\
            ({\sundials} {\sunrelease})}
 \author{
-  Alan C. Hindmarsh and Radu Serban\\
-  {\em Center for Applied Scientific Computing} \\
-  {\em Lawrence Livermore National Laboratory} \\
+  Alan C. Hindmarsh$^1$,
+  Radu Serban$^1$,
+  Cody J. Balos$^1$,\\
+  David J. Gardner$^1$,
+  Daniel R. Reynolds$^2$, and
+  Carol S. Woodward$^1$ \\
   \\
-  Daniel R. Reynolds\\
-  {\em Department of Mathematics} \\
-  {\em Southern Methodist University}
+  {\em $^1$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory} \\
+  {\em $^2$Department of Mathematics, Southern Methodist University}
 }
 \date{
   \today
@@ -55,6 +57,10 @@
 \include{cv_fcmix}
 \clearemptydoublepage
 %===============================================================
+% GPU Usage
+\include{cv_gpu}
+\clearemptydoublepage
+%===============================================================
 % Description of the NVECTOR Concept
 \include{cv_nvec}
 \clearemptydoublepage
@@ -69,6 +75,10 @@
 %===============================================================
 % Description of the SUNNonlinearSolver API and modules
 \include{cv_sunnonlinsol}
+\clearemptydoublepage
+%===============================================================
+% Description of the SUNMemory API and modules
+\include{cv_sunmem}
 \clearemptydoublepage
 %% %===============================================================
 %% % Providing a new linear solver module

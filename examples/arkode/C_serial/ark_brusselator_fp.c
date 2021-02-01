@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -141,6 +141,7 @@ int main(int argc, char *argv[])
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n",reltol,abstol);
 
   /* Open up info output file */
+  INFOFID = NULL;
   if (monitor) INFOFID = fopen("ark_brusselator_fp-info.txt","w");
 
   /* Initialize data structures */

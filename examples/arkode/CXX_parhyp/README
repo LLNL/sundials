@@ -1,12 +1,19 @@
-List of parallel HYPRE ARKODE C++ examples
+List of parallel ARKODE C++ examples using hypre
 
-  ark_heat2D_hypre : 2-D heat equation with user-supplied HYPRE matrix and linear solver objects
+  ark_heat2D_hypre_ls   : 2-D heat equation with a user-supplied hypre linear
+                          solver and preconditioner
+  ark_heat2D_hypre_pfmg : 2-D heat equation with a SUNDIALS linear solver and
+                          user-supplied hypre preconditioner
 
 Sample results:
 
+  The example output was produced by running:
+
+      mpiexec -n 4 ./ark_heat2D_hypre_ls --np 2 2
+      mpiexec -n 4 ./ark_heat2D_hypre_pfmg --np 2 2
+
 The following CMake command was used to configure SUNDIALS:
 
- cmake \
 cmake \
  -DCMAKE_INSTALL_PREFIX:PATH="$PWD/../install_opt" \
  -DEXAMPLES_INSTALL_PATH:PATH="$PWD/../examples_opt" \
@@ -29,11 +36,11 @@ cmake \
  -DEXAMPLES_ENABLE_F90:BOOL="1" \
  -DEXAMPLES_INSTALL:BOOL="1" \
  -DFCMIX_ENABLE:BOOL="1" \
- -DMPI_ENABLE:BOOL="1" \
- -DOPENMP_ENABLE:BOOL="1" \
- -DPTHREAD_ENABLE:BOOL="1" \
+ -DENABLE_MPI:BOOL="1" \
+ -DENABLE_OPENMP:BOOL="1" \
+ -DENABLE_PTHREAD:BOOL="1" \
  -DBUILD_SHARED_LIBS:BOOL="1" \
- -DHYPRE_ENABLE:BOOL="1" \
+ -DENABLE_HYPRE:BOOL="1" \
  -DHYPRE_INCLUDE_DIR:STRING="/usr/local/hypre-2.14.0/gnu_int64/include" \
  -DHYPRE_LIBRARY_DIR:FILEPATH="/usr/local/hypre-2.14.0/gnu_int64/lib" \
  ../sundials

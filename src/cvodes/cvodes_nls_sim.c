@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -186,6 +186,39 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* Reset the acnrmcur flag to SUNFALSE */
   cv_mem->cv_acnrmcur = SUNFALSE;
+
+  return(CV_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  CVodeGetNonlinearSystemDataSens:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int CVodeGetNonlinearSystemDataSens(void *cvode_mem, realtype *tcur,
+                                    N_Vector **ySpred, N_Vector **ySn,
+                                    realtype *gamma, realtype *rl1,
+                                    N_Vector **znS1, void **user_data)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES",
+                   "CVodeGetNonlinearSystemDataSens", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  *tcur      = cv_mem->cv_tn;
+  *ySpred    = cv_mem->cv_znS[0];
+  *ySn       = cv_mem->cv_yS;
+  *gamma     = cv_mem->cv_gamma;
+  *rl1       = cv_mem->cv_rl1;
+  *znS1      = cv_mem->cv_znS[1];
+  *user_data = cv_mem->cv_user_data;
 
   return(CV_SUCCESS);
 }

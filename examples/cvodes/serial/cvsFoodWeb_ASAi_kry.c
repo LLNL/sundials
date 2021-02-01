@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -296,6 +296,12 @@ int main(int argc, char *argv[])
   /* Set the preconditioner solve and setup functions */
   retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
   if(check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
+
+  /* Call CVodeSetMaxNumSteps to set the maximum number of steps the
+   * solver will take in an attempt to reach the next output time
+   * during forward integration. */
+  retval = CVodeSetMaxNumSteps(cvode_mem, 2500);
+  if(check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
 
   /* Set-up adjoint calculations */
 

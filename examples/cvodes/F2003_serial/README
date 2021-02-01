@@ -26,12 +26,12 @@ The following CMake command was used to configure SUNDIALS:
 -DEXAMPLES_ENABLE_CXX=ON \
 -DEXAMPLES_ENABLE_F2003=ON \
 -DEXAMPLES_INSTALL=ON \
--DF2003_INTERFACE_ENABLE=ON \
--DKLU_ENABLE=ON \
+-DBUILD_FORTRAN_MODULE_INTERFACE=ON \
+-DENABLE_KLU=ON \
 -DKLU_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/include \
 -DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/lib \
--DOPENMP_ENABLE=ON \
--DPTHREAD_ENABLE=ON \
+-DENABLE_OPENMP=ON \
+-DENABLE_PTHREAD=ON \
 ../sundials
 
   System Architecture: x86_64
