@@ -403,6 +403,15 @@ CMAKE_VERBOSE_MAKEFILE=${CMAKE_VERBOSE_MAKEFILE:-"ON"}
 # Setup test directories
 # ------------------------------------------------------------------------------
 
+# check if an install prefix was set
+if [ -n "${SUNDIALS_INSTALL_PREFIX}" ]; then
+    # user defined install location
+    installdir="${SUNDIALS_INSTALL_PREFIX}"
+else
+    # default install location (same level as build directory)
+    installdir="${PWD}/${installdir}"
+fi
+
 # remove old build and install directories
 \rm -rf $builddir
 \rm -rf $installdir
@@ -417,7 +426,7 @@ cd $builddir
 
 echo "START CMAKE"
 time cmake \
-    -D CMAKE_INSTALL_PREFIX="../$installdir" \
+    -D CMAKE_INSTALL_PREFIX="${installdir}" \
     \
     -D BUILD_STATIC_LIBS="${STATIC}" \
     -D BUILD_SHARED_LIBS="${SHARED}" \
