@@ -51,6 +51,7 @@
 #include <limits>
 #include <chrono>
 #include <cmath>
+#include <string>
 
 #include "cvode/cvode.h"               // access to CVODE
 #include "nvector/nvector_serial.h"    // access to the serial N_Vector
