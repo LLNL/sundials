@@ -1,0 +1,3 @@
+List of Hip CVODE examples
+
+  cvAdvDiff_kry_hip                 : 2-D advection-diffusion (nonstiff)
