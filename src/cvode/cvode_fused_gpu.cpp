@@ -1,6 +1,5 @@
-/*
- * -----------------------------------------------------------------
- * Programmer(s): Cody J. Balos @ LLNL
+/* -----------------------------------------------------------------
+ * Programmer(s): Cody J. Balos and David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -12,15 +11,38 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This file implements fused CUDA kernels for CVODE.
- * -----------------------------------------------------------------
- */
+ * This file implements fused CUDA/HIP kernels for CVODE.
+ * -----------------------------------------------------------------*/
 
- #include <cuda_runtime.h>
+#ifdef USE_CUDA
+#include <cuda_runtime.h>
+#include <nvector/nvector_cuda.h>
+#include "sundials_cuda_kernels.cuh"
+using SUNExecPolicy = SUNCudaExecPolicy;
+using NVectorContent = N_VectorContent_Cuda;
+constexpr auto gpuDeviceSynchronize = cudaDeviceSynchronize;
+constexpr auto gpuGetLastError = cudaGetLastError;
+constexpr auto gpuAssert = SUNDIALS_CUDA_Assert;
+#ifdef SUNDIALS_DEBUG_CUDA_LASTERROR
+#define SUNDIALS_DEBUG_GPU_LASTERROR
+#endif
 
- #include <nvector/nvector_cuda.h>
- #include "sundials_cuda_kernels.cuh"
+#elif USE_HIP
+#include <hip/hip_runtime.h>
+#include <nvector/nvector_hip.h>
+#include "sundials_hip_kernels.hip.hpp"
+using SUNExecPolicy = SUNHipExecPolicy;
+using NVectorContent = N_VectorContent_Hip;
+constexpr auto gpuDeviceSynchronize = hipDeviceSynchronize;
+constexpr auto gpuGetLastError = hipGetLastError;
+constexpr auto gpuAssert = SUNDIALS_HIP_Assert;
+#ifdef SUNDIALS_DEBUG_HIP_LASTERROR
+#define SUNDIALS_DEBUG_GPU_LASTERROR
+#endif
 
+#else
+#error Incompatible GPU option for fused kernels
+#endif
 
 /*
  * -----------------------------------------------------------------
@@ -30,12 +52,12 @@
 
 
 __global__
-void cvEwtSetSS_cukernel(const sunindextype length,
-                         const realtype reltol,
-                         const realtype Sabstol,
-                         const realtype* ycur,
-                         realtype* tempv,
-                         realtype* weight)
+void cvEwtSetSS_kernel(const sunindextype length,
+                       const realtype reltol,
+                       const realtype Sabstol,
+                       const realtype* ycur,
+                       realtype* tempv,
+                       realtype* weight)
 {
   const realtype one = 1.0;
   GRID_STRIDE_XLOOP(sunindextype, i, length)
@@ -58,24 +80,24 @@ int cvEwtSetSS_fused(const booleantype atolMin0,
                      N_Vector tempv,
                      N_Vector weight)
 {
-  const SUNCudaExecPolicy* exec_policy = ((N_VectorContent_Cuda)weight->content)->stream_exec_policy;
+  const SUNExecPolicy* exec_policy = ((NVectorContent)weight->content)->stream_exec_policy;
   const sunindextype N = N_VGetLength(weight);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvEwtSetSS_cukernel<<<grid, block, 0, *(exec_policy->stream())>>>
+  cvEwtSetSS_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     reltol,
     Sabstol,
-    N_VGetDeviceArrayPointer_Cuda(ycur),
-    N_VGetDeviceArrayPointer_Cuda(tempv),
-    N_VGetDeviceArrayPointer_Cuda(weight)
+    N_VGetDeviceArrayPointer(ycur),
+    N_VGetDeviceArrayPointer(tempv),
+    N_VGetDeviceArrayPointer(weight)
   );
 
-#ifdef SUNDIALS_DEBUG_CUDA_LASTERROR
-  cudaDeviceSynchronize();
-  if (!SUNDIALS_CUDA_VERIFY(cudaGetLastError())) return -1;
+#ifdef SUNDIALS_DEBUG_GPU_LASTERROR
+  gpuDeviceSynchronize();
+  if (!gpuAssert(gpuGetLastError(), __FILE__, __LINE__)) return -1;
 #endif
 
   return 0;
@@ -90,12 +112,12 @@ int cvEwtSetSS_fused(const booleantype atolMin0,
 
 
 __global__
-void cvEwtSetSV_cukernel(const sunindextype length,
-                         const realtype reltol,
-                         const realtype* Vabstol,
-                         const realtype* ycur,
-                         realtype* tempv,
-                         realtype* weight)
+void cvEwtSetSV_kernel(const sunindextype length,
+                       const realtype reltol,
+                       const realtype* Vabstol,
+                       const realtype* ycur,
+                       realtype* tempv,
+                       realtype* weight)
 {
   const realtype one = 1.0;
   GRID_STRIDE_XLOOP(sunindextype, i, length)
@@ -118,24 +140,24 @@ int cvEwtSetSV_fused(const booleantype atolMin0,
                      N_Vector tempv,
                      N_Vector weight)
 {
-  const SUNCudaExecPolicy* exec_policy = ((N_VectorContent_Cuda)weight->content)->stream_exec_policy;
+  const SUNExecPolicy* exec_policy = ((NVectorContent)weight->content)->stream_exec_policy;
   const sunindextype N = N_VGetLength(weight);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvEwtSetSV_cukernel<<<grid, block, 0, *(exec_policy->stream())>>>
+  cvEwtSetSV_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     reltol,
-    N_VGetDeviceArrayPointer_Cuda(Vabstol),
-    N_VGetDeviceArrayPointer_Cuda(ycur),
-    N_VGetDeviceArrayPointer_Cuda(tempv),
-    N_VGetDeviceArrayPointer_Cuda(weight)
+    N_VGetDeviceArrayPointer(Vabstol),
+    N_VGetDeviceArrayPointer(ycur),
+    N_VGetDeviceArrayPointer(tempv),
+    N_VGetDeviceArrayPointer(weight)
   );
 
-#ifdef SUNDIALS_DEBUG_CUDA_LASTERROR
-  cudaDeviceSynchronize();
-  if (!SUNDIALS_CUDA_VERIFY(cudaGetLastError())) return -1;
+#ifdef SUNDIALS_DEBUG_GPU_LASTERROR
+  gpuDeviceSynchronize();
+  if (!gpuAssert(gpuGetLastError(), __FILE__, __LINE__)) return -1;
 #endif
 
   return 0;
@@ -151,12 +173,12 @@ int cvEwtSetSV_fused(const booleantype atolMin0,
 
 
 __global__
-void cvCheckConstraints_cukernel(const sunindextype length,
-                                 const realtype* c,
-                                 const realtype* ewt,
-                                 const realtype* y,
-                                 const realtype* mm,
-                                 realtype* tempv)
+void cvCheckConstraints_kernel(const sunindextype length,
+                               const realtype* c,
+                               const realtype* ewt,
+                               const realtype* y,
+                               const realtype* mm,
+                               realtype* tempv)
 {
   static const realtype zero = 0.0;
   static const realtype pt1 = 0.1;
@@ -184,24 +206,24 @@ int cvCheckConstraints_fused(const N_Vector c,
                              const N_Vector mm,
                              N_Vector tempv)
 {
-  const SUNCudaExecPolicy* exec_policy = ((N_VectorContent_Cuda)c->content)->stream_exec_policy;
+  const SUNExecPolicy* exec_policy = ((NVectorContent)c->content)->stream_exec_policy;
   const sunindextype N = N_VGetLength(c);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvCheckConstraints_cukernel<<<grid, block, 0, *(exec_policy->stream())>>>
+  cvCheckConstraints_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
-    N_VGetDeviceArrayPointer_Cuda(c),
-    N_VGetDeviceArrayPointer_Cuda(ewt),
-    N_VGetDeviceArrayPointer_Cuda(y),
-    N_VGetDeviceArrayPointer_Cuda(mm),
-    N_VGetDeviceArrayPointer_Cuda(tempv)
+    N_VGetDeviceArrayPointer(c),
+    N_VGetDeviceArrayPointer(ewt),
+    N_VGetDeviceArrayPointer(y),
+    N_VGetDeviceArrayPointer(mm),
+    N_VGetDeviceArrayPointer(tempv)
   );
 
-#ifdef SUNDIALS_DEBUG_CUDA_LASTERROR
-  cudaDeviceSynchronize();
-  if (!SUNDIALS_CUDA_VERIFY(cudaGetLastError())) return -1;
+#ifdef SUNDIALS_DEBUG_GPU_LASTERROR
+  gpuDeviceSynchronize();
+  if (!gpuAssert(gpuGetLastError(), __FILE__, __LINE__)) return -1;
 #endif
 
   return 0;
@@ -216,13 +238,13 @@ int cvCheckConstraints_fused(const N_Vector c,
 
 
 __global__
-void cvNlsResid_cukernel(const sunindextype length,
-                         const realtype rl1,
-                         const realtype ngamma,
-                         const realtype* zn1,
-                         const realtype* ycor,
-                         const realtype* ftemp,
-                         realtype* res)
+void cvNlsResid_kernel(const sunindextype length,
+                       const realtype rl1,
+                       const realtype ngamma,
+                       const realtype* zn1,
+                       const realtype* ycor,
+                       const realtype* ftemp,
+                       realtype* res)
 {
   GRID_STRIDE_XLOOP(sunindextype, i, length)
   {
@@ -241,25 +263,25 @@ int cvNlsResid_fused(const realtype rl1,
                      const N_Vector ftemp,
                      N_Vector res)
 {
-  const SUNCudaExecPolicy* exec_policy = ((N_VectorContent_Cuda)res->content)->stream_exec_policy;
+  const SUNExecPolicy* exec_policy = ((NVectorContent)res->content)->stream_exec_policy;
   const sunindextype N = N_VGetLength(res);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
 
-  cvNlsResid_cukernel<<<grid, block, 0, *(exec_policy->stream())>>>
+  cvNlsResid_kernel<<<grid, block, 0, *(exec_policy->stream())>>>
   (
     N,
     rl1,
     ngamma,
-    N_VGetDeviceArrayPointer_Cuda(zn1),
-    N_VGetDeviceArrayPointer_Cuda(ycor),
-    N_VGetDeviceArrayPointer_Cuda(ftemp),
-    N_VGetDeviceArrayPointer_Cuda(res)
+    N_VGetDeviceArrayPointer(zn1),
+    N_VGetDeviceArrayPointer(ycor),
+    N_VGetDeviceArrayPointer(ftemp),
+    N_VGetDeviceArrayPointer(res)
   );
 
-#ifdef SUNDIALS_DEBUG_CUDA_LASTERROR
-  cudaDeviceSynchronize();
-  if (!SUNDIALS_CUDA_VERIFY(cudaGetLastError())) return -1;
+#ifdef SUNDIALS_DEBUG_GPU_LASTERROR
+  gpuDeviceSynchronize();
+  if (!gpuAssert(gpuGetLastError(), __FILE__, __LINE__)) return -1;
 #endif
 
   return 0;
@@ -299,7 +321,7 @@ int cvDiagSetup_formY(const realtype h,
                       N_Vector ftemp,
                       N_Vector y)
 {
-  const SUNCudaExecPolicy* exec_policy = ((N_VectorContent_Cuda)y->content)->stream_exec_policy;
+  const SUNExecPolicy* exec_policy = ((NVectorContent)y->content)->stream_exec_policy;
   const sunindextype N = N_VGetLength(y);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
@@ -309,16 +331,16 @@ int cvDiagSetup_formY(const realtype h,
     N,
     h,
     r,
-    N_VGetDeviceArrayPointer_Cuda(fpred),
-    N_VGetDeviceArrayPointer_Cuda(zn1),
-    N_VGetDeviceArrayPointer_Cuda(ypred),
-    N_VGetDeviceArrayPointer_Cuda(ftemp),
-    N_VGetDeviceArrayPointer_Cuda(y)
+    N_VGetDeviceArrayPointer(fpred),
+    N_VGetDeviceArrayPointer(zn1),
+    N_VGetDeviceArrayPointer(ypred),
+    N_VGetDeviceArrayPointer(ftemp),
+    N_VGetDeviceArrayPointer(y)
   );
 
-#ifdef SUNDIALS_DEBUG_CUDA_LASTERROR
-  cudaDeviceSynchronize();
-  if (!SUNDIALS_CUDA_VERIFY(cudaGetLastError())) return -1;
+#ifdef SUNDIALS_DEBUG_GPU_LASTERROR
+  gpuDeviceSynchronize();
+  if (!gpuAssert(gpuGetLastError(), __FILE__, __LINE__)) return -1;
 #endif
 
   return 0;
@@ -382,7 +404,7 @@ int cvDiagSetup_buildM(const realtype fract,
                        N_Vector y,
                        N_Vector M)
 {
-  const SUNCudaExecPolicy* exec_policy = ((N_VectorContent_Cuda)M->content)->stream_exec_policy;
+  const SUNExecPolicy* exec_policy = ((NVectorContent)M->content)->stream_exec_policy;
   const sunindextype N = N_VGetLength(M);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
@@ -393,18 +415,18 @@ int cvDiagSetup_buildM(const realtype fract,
     fract,
     uround,
     h,
-    N_VGetDeviceArrayPointer_Cuda(ftemp),
-    N_VGetDeviceArrayPointer_Cuda(fpred),
-    N_VGetDeviceArrayPointer_Cuda(ewt),
-    N_VGetDeviceArrayPointer_Cuda(bit),
-    N_VGetDeviceArrayPointer_Cuda(bitcomp),
-    N_VGetDeviceArrayPointer_Cuda(y),
-    N_VGetDeviceArrayPointer_Cuda(M)
+    N_VGetDeviceArrayPointer(ftemp),
+    N_VGetDeviceArrayPointer(fpred),
+    N_VGetDeviceArrayPointer(ewt),
+    N_VGetDeviceArrayPointer(bit),
+    N_VGetDeviceArrayPointer(bitcomp),
+    N_VGetDeviceArrayPointer(y),
+    N_VGetDeviceArrayPointer(M)
   );
 
-#ifdef SUNDIALS_DEBUG_CUDA_LASTERROR
-  cudaDeviceSynchronize();
-  if (!SUNDIALS_CUDA_VERIFY(cudaGetLastError())) return -1;
+#ifdef SUNDIALS_DEBUG_GPU_LASTERROR
+  gpuDeviceSynchronize();
+  if (!gpuAssert(gpuGetLastError(), __FILE__, __LINE__)) return -1;
 #endif
 
   return 0;
@@ -437,7 +459,7 @@ void cvDiagSolve_updateM_kernel(const sunindextype length, const realtype r, rea
 extern "C"
 int cvDiagSolve_updateM(const realtype r, N_Vector M)
 {
-  const SUNCudaExecPolicy* exec_policy = ((N_VectorContent_Cuda)M->content)->stream_exec_policy;
+  const SUNExecPolicy* exec_policy = ((NVectorContent)M->content)->stream_exec_policy;
   const sunindextype N = N_VGetLength(M);
   size_t block = exec_policy->blockSize(N);
   size_t grid  = exec_policy->gridSize(N);
@@ -446,12 +468,12 @@ int cvDiagSolve_updateM(const realtype r, N_Vector M)
   (
     N,
     r,
-    N_VGetDeviceArrayPointer_Cuda(M)
+    N_VGetDeviceArrayPointer(M)
   );
 
-#ifdef SUNDIALS_DEBUG_CUDA_LASTERROR
-  cudaDeviceSynchronize();
-  if (!SUNDIALS_CUDA_VERIFY(cudaGetLastError())) return -1;
+#ifdef SUNDIALS_DEBUG_GPU_LASTERROR
+  gpuDeviceSynchronize();
+  if (!gpuAssert(gpuGetLastError(), __FILE__, __LINE__)) return -1;
 #endif
 
   return 0;

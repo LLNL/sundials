@@ -1,5 +1,13 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 5.8.0
+
+Added specialized fused HIP kernels to CVODE which may offer better
+performance on smaller problems when using CVODE with the `NVECTOR_HIP`
+module. See the optional input function `CVodeSetUseIntegratorFusedKernels`
+for more information. As with other SUNDIALS HIP features, this is
+feature is experimental and may change from version to version.
+
 ## Changes to SUNDIALS in release 5.7.0
 
 A new NVECTOR implementation based on the SYCL abstraction layer has been added
