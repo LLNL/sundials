@@ -983,7 +983,7 @@ realtype N_VMin_Hip(N_Vector X)
   }
 
   hipLaunchKernelGGL(HIP_KERNEL_NAME(findMinKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    maxVal,
+    gpu_result,
     NVEC_HIP_DDATAp(X),
     NVEC_HIP_DBUFFERp(X),
     NVEC_HIP_CONTENT(X)->length
@@ -1137,7 +1137,7 @@ realtype N_VMinQuotient_Hip(N_Vector num, N_Vector denom)
   }
 
   hipLaunchKernelGGL(HIP_KERNEL_NAME(minQuotientKernel<realtype, sunindextype>), grid, block, shMemSize, stream,
-    maxVal,
+    gpu_result,
     NVEC_HIP_DDATAp(num),
     NVEC_HIP_DDATAp(denom),
     NVEC_HIP_DBUFFERp(num),
@@ -2066,7 +2066,7 @@ int AllocateData(N_Vector v)
  * of the vector is increased. The buffer is initialized to the
  * value given.
  */
-int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
+int InitializeReductionBuffer(N_Vector v, const realtype* value, size_t n)
 {
   int         alloc_fail = 0;
   int         copy_fail  = 0;
