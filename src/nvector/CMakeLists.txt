@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,49 +14,57 @@
 # vector level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# Always add SUNDIALS serial vector
+# required modules
 add_subdirectory(serial)
 
-# Always add SUNDIALS ManyVector
-add_subdirectory(manyvector)
+if(BUILD_NVECTOR_MANYVECTOR OR BUILD_NVECTOR_MPIMANYVECTOR)
+  add_subdirectory(manyvector)
+endif()
 
-# Add NVECTOR modules with depedencies
-if(MPI_ENABLE AND MPI_C_FOUND)
+if(BUILD_NVECTOR_PARALLEL)
   add_subdirectory(parallel)
-endif(MPI_ENABLE AND MPI_C_FOUND)
+endif()
 
-if(MPI_ENABLE AND MPI_C_FOUND)
+if(BUILD_NVECTOR_MPIPLUSX)
   add_subdirectory(mpiplusx)
-endif(MPI_ENABLE AND MPI_C_FOUND)
+endif()
 
-if(HYPRE_ENABLE AND HYPRE_FOUND)
+if(BUILD_NVECTOR_PARHYP)
   add_subdirectory(parhyp)
-endif(HYPRE_ENABLE AND HYPRE_FOUND)
+endif()
 
-if(OPENMP_ENABLE AND OPENMP_FOUND)
+if(BUILD_NVECTOR_OPENMP)
   add_subdirectory(openmp)
-endif(OPENMP_ENABLE AND OPENMP_FOUND)
+endif()
 
-if(OPENMP_DEVICE_ENABLE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+if(BUILD_NVECTOR_OPENMPDEV)
   add_subdirectory(openmpdev)
-endif(OPENMP_DEVICE_ENABLE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+endif()
 
-if(PTHREAD_ENABLE AND PTHREADS_FOUND)
+if(BUILD_NVECTOR_PTHREADS)
   add_subdirectory(pthreads)
-endif(PTHREAD_ENABLE AND PTHREADS_FOUND)
+endif()
 
-if(PETSC_ENABLE AND PETSC_FOUND)
+if(BUILD_NVECTOR_PETSC)
   add_subdirectory(petsc)
-endif(PETSC_ENABLE AND PETSC_FOUND)
+endif()
 
-if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+if(BUILD_NVECTOR_CUDA)
   add_subdirectory(cuda)
-endif(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+endif()
 
-if(RAJA_ENABLE AND RAJA_FOUND)
+if(BUILD_NVECTOR_HIP)
+  add_subdirectory(hip)
+endif()
+
+if(BUILD_NVECTOR_SYCL)
+  add_subdirectory(sycl)
+endif()
+
+if(BUILD_NVECTOR_RAJA)
   add_subdirectory(raja)
-endif(RAJA_ENABLE AND RAJA_FOUND)
+endif()
 
-if(Trilinos_ENABLE AND Trilinos_FOUND)
+if(BUILD_NVECTOR_TRILINOS)
   add_subdirectory(trilinos)
-endif(Trilinos_ENABLE AND Trilinos_FOUND)
+endif()

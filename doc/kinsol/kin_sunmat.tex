@@ -10,7 +10,7 @@
 \label{s:sunmat_usage}
 %---------------------------------------------------------------------------
 
-In Table \ref{t:sunmatuse} below, we list the matrix functions in the 
+In Table \ref{t:sunmatuse} below, we list the matrix functions in the
 {\sunmatrix} module used within the {\kinsol} package.
 The table also shows, for each function, which of the code modules uses
 the function. The main {\kinsol} integrator does not call any
@@ -30,8 +30,8 @@ an implementation detail for the interested reader.
 \caption{List of matrix functions usage by {\kinsol} code modules}\label{t:sunmatuse}
 \medskip
 \begin{tabular}{|r|c|c|} \hline
-                                             & 
-\begin{sideways}{\kinls}       \end{sideways} & 
+                                             &
+\begin{sideways}{\kinls}       \end{sideways} &
 \begin{sideways}{\kinbbdpre}   \end{sideways} \\ \hline\hline
 %                             KINLS       BBD
 \id{SUNMatGetID}         &    \cm    &           \\ \hline
@@ -45,7 +45,7 @@ The matrix functions listed in Section \ref{ss:sunmatrix_functions} with
 a $\dagger$ symbol are optionally used, in that these are only called
 if they are implemented in the {\sunmatrix} module that is being used
 (i.e.~their function pointers are non-\id{NULL}).  The matrix
-functions listed in Section \ref{ss:sunmatrix_functions} that are {\em not} used by 
+functions listed in Section \ref{ss:sunmatrix_functions} that are {\em not} used by
 {\kinsol} are: \id{SUNMatCopy}, \id{SUNMatClone}, \id{SUNMatScaleAdd},
 \id{SUNMatScaleAddI} and \id{SUNMatMatvec}. Therefore a user-supplied
 {\sunmatrix} module for {\kinsol} could omit these functions.
@@ -53,7 +53,7 @@ functions listed in Section \ref{ss:sunmatrix_functions} that are {\em not} used
 We note that the {\kinbbdpre} preconditioner module is hard-coded to
 use the {\sundials}-supplied band {\sunmatrix} type, so the most
 useful information above for user-supplied {\sunmatrix}
-implementations is the column relating the {\kinls} requirements. 
+implementations is the column relating the {\kinls} requirements.
 
 %---------------------------------------------------------------------------
 % sunmatrix module sections
@@ -64,3 +64,4 @@ implementations is the column relating the {\kinls} requirements.
 \input{sunmatrix_sparse}
 \input{sunmatrix_slunrloc}
 \input{sunmatrix_cusparse}
+\input{sunmatrix_magmadense}

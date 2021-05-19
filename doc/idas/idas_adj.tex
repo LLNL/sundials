@@ -1639,7 +1639,7 @@ setting increments for the finite-difference approximation, via a call to
   in the increments used in the difference quotient approximations to matrix-vector
   products for the backward problem.
 
-  This routine can be used in both the cases wherethe backward problem
+  This routine can be used in both the cases where the backward problem
   does and does not depend on the forward sensitvities.
 }
 {
@@ -1903,8 +1903,66 @@ the following functions:
   name soon.
 }
 %%
-\index{optional input!iterative linear solver|)}
 %%
+\ucfunctionf{IDASetLSNormFactorB}
+{
+  flag = IDASetLSNormFactorB(ida\_mem, which, nrmfac);
+}
+{
+  The function \ID{IDASetLSNormFactorB} specifies the factor to use when
+  converting from the integrator tolerance (WRMS norm) to the linear solver
+  tolerance (L2 norm) for Newton linear system solves e.g.,
+  \id{tol\_L2 = fac * tol\_WRMS}.
+  This routine can be used in both the cases wherethe backward problem
+  does and does not depend on the forward sensitvities.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[nrmfac] (\id{realtype})
+    the norm conversion factor. If \id{nrmfac} is:
+    \begin{itemize}
+    \item[$> 0$] then the provided value is used.
+    \item[$= 0$] then the conversion factor is computed using the vector length
+      i.e., \id{nrmfac = N\_VGetLength(y)} (\textit{default}).
+    \item[$< 0$] then the conversion factor is computed using the vector dot
+      product \id{nrmfac = N\_VDotProd(v,v)} where all the entries of \id{v} are
+      one.
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{IDALS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The value of \id{eplifacB} is negative.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  This function must be called \emph{after} the {\idals} linear solver
+  interface has been initialized through a call to
+  \id{IDASetLinearSolverB}.
+
+  Prior to the introduction of \id{N\_VGetLength} in {\sundials} v5.0.0
+  ({\idas} v4.0.0) the value of \id{nrmfac} was computed using the vector
+  dot product i.e., the \id{nrmfac < 0} case.
+}
+%%
+%%
+\index{optional input!iterative linear solver|)}
 \index{optional input!generic linear solver interface|)}
 \index{IDALS@{\idals} linear solver interface!optional input|)}
 %%

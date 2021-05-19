@@ -7,13 +7,19 @@
 \title{User Documentation for {\cvodes} {\cvsrelease} \\
            ({\sundials} {\sunrelease})}
 \author{
-  Alan C. Hindmarsh and Radu Serban\\
-  {\em Center for Applied Scientific Computing} \\
-  {\em Lawrence Livermore National Laboratory}
+  Alan C. Hindmarsh$^1$,
+  Radu Serban$^1$,
+  Cody J. Balos$^1$,\\
+  David J. Gardner$^1$,
+  Daniel R. Reynolds$^2$, and
+  Carol S. Woodward$^1$ \\
+  \\
+  {\em $^1$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory} \\
+  {\em $^2$Department of Mathematics, Southern Methodist University}
 }
 \date{
-  \today 
-  \vfill 
+  \today
+  \vfill
   {\centerline{\includegraphics[width=0.5\textwidth]{doc_logo_blue}}}
   \vfill \cvsucrlug
 }
@@ -59,6 +65,10 @@
 \include{cvs_fcmix}
 \clearemptydoublepage
 %===============================================================
+% Using CVODES from Fortran
+\include{cvs_gpu}
+\clearemptydoublepage
+%===============================================================
 % Description of the NVECTOR Concept
 \include{cvs_nvec}
 \clearemptydoublepage
@@ -73,6 +83,10 @@
 %===============================================================
 % Description of the SUNNonlinearSolver API and modules
 \include{cvs_sunnonlinsol}
+\clearemptydoublepage
+%===============================================================
+% Description of the SUNMemory API and modules
+\include{cvs_sunmem}
 \clearemptydoublepage
 %% %===============================================================
 %% % Providing a new linear solver module

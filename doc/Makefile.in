@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban, Slaven Peles, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -25,6 +25,7 @@ TEX_COMPILER = pdflatex
 UG_SHARED_FILES = \
 fortran.tex \
 fortran2003.tex \
+gpu.tex \
 install.tex \
 license_info.tex \
 linear-vector-table.tex \
@@ -38,7 +39,9 @@ nvec_pthreads.tex \
 nvec_parhyp.tex \
 nvec_petsc.tex \
 nvec_cuda.tex \
+nvec_hip.tex \
 nvec_raja.tex \
+nvec_sycl.tex \
 nvec_trilinos.tex \
 nvec_manyvector.tex \
 nvec_mpimanyvector.tex \
@@ -54,13 +57,19 @@ sunmatrix_dense.tex \
 sunmatrix_sparse.tex \
 sunmatrix_slunrloc.tex \
 sunmatrix_cusparse.tex \
+sunmatrix_magmadense.tex \
 sunmatrix_examples.tex \
+sunmemory_generic.tex \
+sunmemory_cuda.tex \
+sunmemory_hip.tex \
+sunmemory_sycl.tex \
 sunlinsol_generic.tex \
 sunlinsol_band.tex \
 sunlinsol_dense.tex \
 sunlinsol_klu.tex \
 sunlinsol_lapackband.tex \
 sunlinsol_lapackdense.tex \
+sunlinsol_magmadense.tex \
 sunlinsol_pcg.tex \
 sunlinsol_spbcgs.tex \
 sunlinsol_spfgmr.tex \

@@ -251,18 +251,6 @@ for the specific name of the function to be called or macro to be referenced.
   \id{N\_VGetArrayPointer(...)} are not available for these vector wrappers.
   See \S\ref{ss:nvec_parhyp} and \S\ref{ss:nvec_petsc} for details.
 
-  If using either the {\cuda}- or {\raja}-based vector implementations
-  use a call of the form
-  \id{y0 = N\_VMake\_***(..., c)} where \id{c} is a pointer to a \id{suncudavec}
-  or \id{sunrajavec} vector class if this class already exists.  Otherwise,
-  create a new vector
-  by making a call of the form \id{y0 = N\_VNew\_***(...)}, and then set its
-  elements by accessing the underlying data where it is located
-  with a call of the form
-  \id{N\_VGetDeviceArrayPointer\_***} or \id{N\_VGetHostArrayPointer\_***}.
-  Note that the vector class will allocate memory on both the host and device
-  when instantiated.  See \S\ref{ss:nvec_cuda}-\ref{ss:nvec_raja} for details.
-
 %   If a \id{realtype} array \id{ydata} containing the initial values of $y$
 %   already exists, it may be possible to do this either with a call of the form
 %   \id{y0 = N\_VMake\_***(..., ydata);}
@@ -400,10 +388,10 @@ for the specific name of the function to be called or macro to be referenced.
   more information on optional inputs.
 
 \item
-  {\bf Specify rootfinding problem}
+  {\bf Specify rootfinding problem} (\textit{optional})
   \index{Rootfinding}
 
-  Optionally, call \id{CVodeRootInit} to initialize a rootfinding problem
+  Call \id{CVodeRootInit} to initialize a rootfinding problem
   to be solved during the integration of the ODE system.
   See \S\ref{ss:cvrootinit}, and see \S\ref{sss:optin_root} for
   relevant optional input calls.
@@ -1310,10 +1298,12 @@ Coefficient in the nonlinear convergence test & \id{CVodeSetNonlinConvCoef} & 0.
 Inequality constraints on solution & \id{CVodeSetConstraints} & \id{NULL} \\
 Direction of zero-crossing & \id{CVodeSetRootDirection} & both \\
 Disable rootfinding warnings & \id{CVodeSetNoInactiveRootWarn} & none \\
+Flag to activate specialized fused kernels & \id{CVodeSetUseIntegratorFusedKernels} & {\tt SUNFALSE} \\
 \hline
 \multicolumn{3}{|c|}{\bf CVLS linear solver interface} \\
 \hline
-Jacobian / preconditioner update frequency & \id{CVodeSetMaxStepsBetweenJac} & 50\\
+Linear solver setup frequency & \id{CVodeSetLSetupFrequency} & 20\\
+Jacobian / preconditioner update frequency & \id{CVodeSetJacEvalFrequency} & 51\\
 Jacobian function & \id{CVodeSetJacFn} & DQ\\
 Linear System function & \id{CVodeSetLinSysFn} & internal\\
 Enable or disable linear solution scaling & \id{CVodeSetLinearSolutionScaling} & on\\
@@ -1321,7 +1311,7 @@ Jacobian-times-vector functions & \id{CVodeSetJacTimes} & NULL, DQ \\
 Jacobian-times-vector DQ RHS function & \id{CVodeSetJacTimesRhsFn} & NULL \\
 Preconditioner functions & \id{CVodeSetPreconditioner} & NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{CVodeSetEpsLin} & 0.05 \\
-Instruct CVODE to use specialized fused kernels when possible& \id{CVodeSetUseIntegratorFusedKernels} & {\tt SUNFALSE} \\
+Newton linear solve tolerance conversion factor & \id{CVodeSetLSNormFactor} & vector length \\
 \hline
 \end{tabular}
 \end{table}
@@ -2026,34 +2016,97 @@ case.
 As discussed in \S\ref{ss:ivp_sol}, {\cvode} strives to reuse matrix
 and preconditioner data for as many solves as possible to amortize the
 high costs of matrix construction and factorization.  To that end,
-{\cvode} provides a user-callable routine to modify this behavior.  To
-this end, we recall that the Newton system matrices are $M(t,y) = I -
-\gamma J(t,y)$, where the right-hand side function has Jacobian matrix
+{\cvode} provides user-callable routines to modify this behavior.  Recall
+that the Newton system matrices are $M(t,y) = I - \gamma J(t,y)$, where the
+right-hand side function has Jacobian matrix
 $J(t,y) = \frac{\partial f(t,y)}{\partial y}$.
 
 The matrix or preconditioner for $M$ can only be updated within a call
 to the linear solver `setup' routine.  In general, the frequency with
 which this setup routine is called may be controlled with the
-\id{msbj} argument to \id{CVodeSetMaxStepsBetweenJac}.
+\id{msbp} argument to \id{CVodeSetLSetupFrequency}. When this occurs, the
+validity of $M$ for successive time steps intimately depends on whether the
+corresponding $\gamma$ and $J$ inputs remain valid.
+
+At each call to the linear solver setup routine the decision to update $M$ with
+a new value of $\gamma$, and to reuse or reevaluate Jacobian information, depends
+on several factors including:
+\begin{itemize}
+  \item the success or failure of previous solve attempts,
+  \item the success or failure of the previous time step attempts,
+  \item the change in $\gamma$ from the value used when constructing $M$, and
+  \item the number of steps since Jacobian information was last evaluated.
+\end{itemize}
+
+The frequency with which to update Jacobian information can be controlled with
+the \id{msbj} argument to \id{CVodeSetJacEvalFrequency}. We note that this
+is only checked \textit{within} calls to the linear solver setup routine, so
+values \id{msbj} $<$ \id{msbp} do not make sense. For linear-solvers with
+user-supplied preconditioning the above factors are used to determine whether to
+recommend updating the Jacobian information in the preconditioner (i.e., whether
+to set \id{jok} to \id{SUNFALSE} in calling the user-supplied preconditioner
+setup function (see \S\ref{ss:psolveFn}). For matrix-based linear solvers these
+factors determine whether the matrix
+$J(t,y) = \frac{\partial f(t,y)}{\partial y}$
+should be updated (either with an internal finite difference approximation or a
+call to the user-supplied Jacobian function (see \S\ref{ss:jacFn})); if not then
+the previous value is reused and the system matrix
+$M(t,y) \approx I - \gamma J(t,y)$
+is recomputed using the current $\gamma$ value.
+
+
+\index{Linear solver setup frequency!optional input}
+\ucfunctionf{CVodeSetLSetupFrequency}
+{
+  retval = CVodeSetLSetupFrequency(cvode\_mem, msbp);
+}
+{
+  The function \ID{CVodeSetLSetupFrequency} specifies the frequency of
+  calls to the linear solver setup function.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[msbp] (\id{long int})
+    the linear solver setup frequency.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_ILL\_INPUT}]
+    The frequency \id{msbp} is negative.
+  \end{args}
+}
+{
+  Positive values of \id{msbp} specify the linear solver setup frequency. For
+  example, an input of \id{1} means the setup function will be called every time
+  step while an input of \id{2} means it will be called called every other time
+  step. If \id{msbp = 0}, the default value of 20 will be used. Otherwise an
+  error is returned.
+}
 
 \index{Jacobian update frequency!optional input}
 \index{Preconditioner update frequency!optional input}
-\ucfunctionf{CVodeSetMaxStepsBetweenJac}
+\ucfunctionf{CVodeSetJacEvalFrequency}
 {
-  retval = CVodeSetMaxStepsBetweenJac(cvode\_mem, msbj);
+  retval = CVodeSetJacEvalFrequency(cvode\_mem, msbj);
 }
 {
-  The function \ID{CVodeSetMaxStepsBetweenJac} specifies the maximum
-  number of time steps to wait before recomputation of the Jacobian or
-  recommendation to update the preconditioner.
+  The function \ID{CVodeSetJacEvalFrequency} specifies the frequency for
+  recomputing the Jacobian or recommending a preconditioner update.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[msbj] (\id{long int})
-    maximum number of time steps to wait before
-    Jacobian/preconditioner reconstruction.
+    the Jacobian re-computation or preconditioner update frequency.
   \end{args}
 }
 {
@@ -2065,10 +2118,19 @@ which this setup routine is called may be controlled with the
     The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CVLS\_LMEM\_NULL}]
     The {\cvls} linear solver interface has not been initialized.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The frequency \id{msbj} is negative.
   \end{args}
 }
 {
-  If \id{msbj} is less than 1, the default value of 50 will be used.
+  The Jacobian update frequency is only checked \textit{within} calls to the
+  linear solver setup routine, as such values of \id{msbj} $<$ \id{msbp} will
+  result in recomputing the Jacobian every \id{msbp} steps. See
+  \id{CVodeSetLSetupFrequency} for setting the linear solver setup frequency
+  \id{msbp}.
+
+  If \id{msbj = 0}, the default value of 51 will be used. Otherwise an error is
+  returned.
 
   This function must be called \emph{after} the {\cvls} linear solver
   interface has been initialized through a call to
@@ -2513,6 +2575,52 @@ the \id{CVodeSetEpsLin} function.
   routine, and may still be used for backward-compatibility.  However,
   this will be deprecated in future releases, so we recommend that
   users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunctionf{CVodeSetLSNormFactor}
+{
+  flag = CVodeSetLSNormFactor(cvode\_mem, nrmfac);
+}
+{
+  The function \ID{CVodeSetLSNormFactor} specifies the factor to use when
+  converting from the integrator tolerance (WRMS norm) to the linear solver
+  tolerance (L2 norm) for Newton linear system solves e.g.,
+  \id{tol\_L2 = fac * tol\_WRMS}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[nrmfac] (\id{realtype})
+    the norm conversion factor. If \id{nrmfac} is:
+    \begin{itemize}
+    \item[$> 0$] then the provided value is used.
+    \item[$= 0$] then the conversion factor is computed using the vector length
+      i.e., \id{nrmfac = N\_VGetLength(y)} (\textit{default}).
+    \item[$< 0$] then the conversion factor is computed using the vector dot
+      product \id{nrmfac = N\_VDotProd(v,v)} where all the entries of \id{v} are
+      one.
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolver}.
+
+  Prior to the introduction of \id{N\_VGetLength} in {\sundials} v5.0.0
+  ({\cvode} v5.0.0) the value of \id{nrmfac} was computed using the vector
+  dot product i.e., the \id{nrmfac < 0} case.
 }
 %%
 %%
@@ -4809,6 +4917,15 @@ is defined as follows:
   prior to calling the user-supplied Jacobian function so only nonzero elements
   need to be loaded into \id{Jac}.
 
+  With the default nonlinear solver (the native {\sundials} Netwon method), each
+  call to the user's \id{CVLsJacFn} function is preceded by a call to the
+  \id{CVRhsFn} user function with the same \id{(t,y)} arguments. Thus, the
+  Jacobian function can use any auxiliary data that is computed and saved during
+  the evaluation of the ODE right-hand side. In the case of a user-supplied or
+  external nonlinear solver, this is also true if the nonlinear system function
+  is evaluated prior to calling the linear solver setup function (see
+  \S\ref{ss:sunnonlinsol_sunsuppliedfn} for more information).
+
   If the user's \id{CVLsJacFn} function uses difference quotient
   approximations, then it may need to access quantities not in the
   argument list.  These include the current step size, the error
@@ -5227,10 +5344,14 @@ user-supplied function of type \Id{CVLsPrecSetupFn}, defined as follows:
   approximate Jacobian and performing an LU factorization of the resulting
   approximation to $M=I - \gamma J$.
 
-  Each call to the preconditioner setup function is preceded by a call to
-  the \id{CVRhsFn} user function with the same \id{(t,y)} arguments.
-  Thus, the preconditioner setup function can use any auxiliary data that is
-  computed and saved during the evaluation of the ODE right-hand side.
+  With the default nonlinear solver (the native {\sundials} Netwon method), each
+  call to the preconditioner setup function is preceded by a call to the
+  \id{CVRhsFn} user function with the same \id{(t,y)} arguments. Thus, the
+  preconditioner setup function can use any auxiliary data that is computed and
+  saved during the evaluation of the ODE right-hand side. In the case of a
+  user-supplied or external nonlinear solver, this is also true if the nonlinear
+  system function is evaluated prior to calling the linear solver setup function
+  (see \S\ref{ss:sunnonlinsol_sunsuppliedfn} for more information).
 
   This function is not called in advance of every call to the preconditioner
   solve function, but rather is called only as often as needed to achieve

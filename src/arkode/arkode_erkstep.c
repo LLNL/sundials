@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -950,7 +950,7 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
     embedding order q > 0 (all -- if adaptive time-stepping enabled)
     stages > 0 (all)
 
-  Returns ARK_SUCCESS if tables pass, ARK_ILL_INPUT otherwise.
+  Returns ARK_SUCCESS if tables pass, ARK_INVALID_TABLE otherwise.
   ---------------------------------------------------------------*/
 int erkStep_CheckButcherTable(ARKodeMem ark_mem)
 {
@@ -969,35 +969,35 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
 
   /* check that stages > 0 */
   if (step_mem->stages < 1) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKode::ERKStep",
                     "erkStep_CheckButcherTable",
                     "stages < 1!");
-    return(ARK_ILL_INPUT);
+    return(ARK_INVALID_TABLE);
   }
 
   /* check that method order q > 0 */
   if (step_mem->q < 1) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKode::ERKStep",
                     "erkStep_CheckButcherTable",
                     "method order < 1!");
-    return(ARK_ILL_INPUT);
+    return(ARK_INVALID_TABLE);
   }
 
   /* check that embedding order p > 0 */
   if ((step_mem->p < 1) && (!ark_mem->fixedstep)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKode::ERKStep",
                     "erkStep_CheckButcherTable",
                     "embedding order < 1!");
-    return(ARK_ILL_INPUT);
+    return(ARK_INVALID_TABLE);
   }
 
   /* check that embedding exists */
   if ((step_mem->p > 0) && (!ark_mem->fixedstep)) {
     if (step_mem->B->d == NULL) {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+      arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKode::ERKStep",
                       "erkStep_CheckButcherTable",
                       "no embedding!");
-      return(ARK_ILL_INPUT);
+      return(ARK_INVALID_TABLE);
     }
   }
 
@@ -1008,10 +1008,10 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
       if (SUNRabs(step_mem->B->A[i][j]) > tol)
         okay = SUNFALSE;
   if (!okay) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKode::ERKStep",
                     "erkStep_CheckButcherTable",
                     "Ae Butcher table is implicit!");
-    return(ARK_ILL_INPUT);
+    return(ARK_INVALID_TABLE);
   }
 
   return(ARK_SUCCESS);

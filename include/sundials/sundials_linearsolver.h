@@ -4,7 +4,7 @@
  *                Slaven Peles, Cody Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -87,6 +87,7 @@ typedef enum {
   SUNLINEARSOLVER_SUPERLUDIST,
   SUNLINEARSOLVER_SUPERLUMT,
   SUNLINEARSOLVER_CUSOLVERSP_BATCHQR,
+  SUNLINEARSOLVER_MAGMADENSE,
   SUNLINEARSOLVER_CUSTOM
 } SUNLinearSolver_ID;
 

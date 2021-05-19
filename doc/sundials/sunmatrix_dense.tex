@@ -7,7 +7,7 @@ The dense implementation of the {\sunmatrix} module provided with
 {\sundials}, {\sunmatdense}, defines the {\em content} field
 of \id{SUNMatrix} to be the following structure:
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _SUNMatrixContent_Dense {
   sunindextype M;
   sunindextype N;
@@ -24,18 +24,18 @@ information:
   \item[N] - number of columns
   \item[data] - pointer to a contiguous block of \id{realtype} variables.
     The elements of the dense matrix are stored columnwise, i.e.~the
-    (\id{i},\id{j})-th element of a dense {\sunmatrix} \id{A} 
-    (with $0 \le$ \id{i} $<$ \id{M} and $ 0 \le$ \id{j} $<$ \id{N}) 
+    (\id{i},\id{j})-th element of a dense {\sunmatrix} \id{A}
+    (with $0 \le$ \id{i} $<$ \id{M} and $ 0 \le$ \id{j} $<$ \id{N})
     may be accessed via \id{data[j*M+i]}.
   \item[ldata] - length of the data array ($=$ \id{M}$\cdot$\id{N}).
   \item[cols] - array of pointers. \id{cols[j]} points to the first
     element of the j-th column of the matrix in the array \id{data}.
     The (\id{i},\id{j})-th element of a dense {\sunmatrix} \id{A}
-    (with $0 \le$ \id{i} $<$ \id{M} and $ 0 \le$ \id{j} $<$ \id{N}) 
+    (with $0 \le$ \id{i} $<$ \id{M} and $ 0 \le$ \id{j} $<$ \id{N})
     may be accessed via \id{cols[j][i]}.
 \end{args}
 
-\noindent The header file to include when using this module 
+\noindent The header file to include when using this module
 is \id{sunmatrix/sunmatrix\_dense.h}. The {\sunmatdense} module
 is accessible from all {\sundials} solvers \textit{without}
 linking to the \newline
@@ -56,30 +56,30 @@ the \emph{dense} version.
 \begin{itemize}
 
 \item \ID{SM\_CONTENT\_D}
-    
+
   This macro gives access to the contents of the
   dense \id{SUNMatrix}.
-  
+
   The assignment \id{A\_cont} $=$ \id{SM\_CONTENT\_D(A)} sets
-  \id{A\_cont} to be a pointer to the dense \id{SUNMatrix} content  
-  structure.                                             
-                                                            
-  Implementation: 
-  
+  \id{A\_cont} to be a pointer to the dense \id{SUNMatrix} content
+  structure.
+
+  Implementation:
+
   \verb|#define SM_CONTENT_D(A)     ( (SUNMatrixContent_Dense)(A->content) )|
-  
+
 \item \ID{SM\_ROWS\_D}, \ID{SM\_COLUMNS\_D}, and \ID{SM\_LDATA\_D}
 
   These macros give individual access to various lengths relevant to the
-  content of a dense \id{SUNMatrix}.                        
-                                                               
+  content of a dense \id{SUNMatrix}.
+
   These may be used either to retrieve or to set these values.  For
   example, the assignment \id{A\_rows = SM\_ROWS\_D(A)} sets \id{A\_rows} to be
   the number of rows in the matrix \id{A}.  Similarly, the
   assignment \id{SM\_COLUMNS\_D(A) = A\_cols} sets the number of
   columns in \id{A} to equal \id{A\_cols}.
-  
-  Implementation: 
+
+  Implementation:
 
   \verb|#define SM_ROWS_D(A)        ( SM_CONTENT_D(A)->M )|
 
@@ -88,21 +88,21 @@ the \emph{dense} version.
   \verb|#define SM_LDATA_D(A)       ( SM_CONTENT_D(A)->ldata )|
 
 \item \ID{SM\_DATA\_D} and \ID{SM\_COLS\_D}
-                                                            
+
   These macros give access to the \id{data} and \id{cols} pointers for
   the matrix entries.
 
-  The assignment \id{A\_data = SM\_DATA\_D(A)} sets \id{A\_data} to be     
+  The assignment \id{A\_data = SM\_DATA\_D(A)} sets \id{A\_data} to be
   a pointer to the first component of the data array for the dense
   \id{SUNMatrix} \id{A}.  The assignment \id{SM\_DATA\_D(A) = A\_data}
   sets the data array of \id{A} to be \id{A\_data} by storing the
   pointer \id{A\_data}.
-  
-  Similarly, the assignment \id{A\_cols = SM\_COLS\_D(A)} sets \id{A\_cols} to be     
-  a pointer to the array of column pointers for the dense \id{SUNMatrix} \id{A}. 
+
+  Similarly, the assignment \id{A\_cols = SM\_COLS\_D(A)} sets \id{A\_cols} to be
+  a pointer to the array of column pointers for the dense \id{SUNMatrix} \id{A}.
   The assignment \id{SM\_COLS\_D(A) = A\_cols} sets the column pointer
-  array of \id{A} to be \id{A\_cols} by storing the pointer \id{A\_cols}.                   
-  
+  array of \id{A} to be \id{A\_cols} by storing the pointer \id{A\_cols}.
+
   Implementation:
 
   \verb|#define SM_DATA_D(A)        ( SM_CONTENT_D(A)->data )|
@@ -111,7 +111,7 @@ the \emph{dense} version.
 
 
 \item \ID{SM\_COLUMN\_D} and \ID{SM\_ELEMENT\_D}
-                                                            
+
   These macros give access to the individual columns and entries of
   the data array of a dense \id{SUNMatrix}.
 
@@ -119,7 +119,7 @@ the \emph{dense} version.
   a pointer to the first entry of the \id{j}-th column of the $\id{M} \times \id{N}$
   dense matrix \id{A} (with $0 \le \id{j} < \id{N}$).  The type of the
   expression \id{SM\_COLUMN\_D(A,j)} is \id{realtype *}.  The pointer
-  returned by the call \id{SM\_COLUMN\_D(A,j)} can be treated as  
+  returned by the call \id{SM\_COLUMN\_D(A,j)} can be treated as
   an array which is indexed from $0$ to $\id{M}-1$.
 
   The assignments \id{SM\_ELEMENT\_D(A,i,j) = a\_ij} and \id{a\_ij =
@@ -144,13 +144,13 @@ the \emph{dense} version.
 The {\sunmatdense} module defines dense implementations of all matrix
 operations listed in Section \ref{ss:sunmatrix_functions}. Their names are obtained
 from those in Section \ref{ss:sunmatrix_functions} by appending the
-suffix \id{\_Dense} (e.g. \id{SUNMatCopy\_Dense}). 
+suffix \id{\_Dense} (e.g. \id{SUNMatCopy\_Dense}).
 All the standard matrix operations listed in Section \ref{ss:sunmatrix_functions} with the suffix
 \id{\_Dense} appended are callable via the {\F} 2003 interface by prepending an
 `F' (e.g. \id{FSUNMatCopy\_Dense}).
 
 The module {\sunmatdense} provides the following additional
-user-callable routines: 
+user-callable routines:
 %%--------------------------------------
 \sunmodfunf{SUNDenseMatrix}
 {
@@ -225,10 +225,10 @@ user-callable routines:
 %%
 %%------------------------------------
 %%
-\paragraph{\bf Notes}                                                      
-           
+\paragraph{\bf Notes}
+
 \begin{itemize}
-                                        
+
 \item
   When looping over the components of a dense \id{SUNMatrix} \id{A},
   the most efficient approaches are to:
@@ -236,11 +236,11 @@ user-callable routines:
     \item First obtain the component array via \id{A\_data = SM\_DATA\_D(A)} or\\
     \id{A\_data = SUNDenseMatrix\_Data(A)} and then
     access \id{A\_data[i]} within the loop.
-  
+
     \item First obtain the array of column pointers via \id{A\_cols = SM\_COLS\_D(A)} or\\
     \id{A\_cols = SUNDenseMatrix\_Cols(A)}, and then
-    access \id{A\_cols[j][i]} within the loop. 
-  
+    access \id{A\_cols[j][i]} within the loop.
+
     \item Within a loop over the columns, access the column pointer via\\
     \id{A\_colj = SUNDenseMatrix\_Column(A,j)} and then to access the
     entries within that column using \id{A\_colj[i]} within the loop.
@@ -294,9 +294,9 @@ this {\sunmatdense} module for a given {\sundials} solver.
 Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
 for {\kinsol}, 4 for {\arkode}); \id{M} and \id{N} are the
 corresponding dense matrix construction arguments (declared to
-match C type \id{long int}); and \id{ier} is an error return flag 
+match C type \id{long int}); and \id{ier} is an error return flag
 equal to 0 for success and -1 for failure. Both \id{code} and \id{ier}
 are declared to match C type \id{int}. Additionally, when using
 {\arkode} with a non-identity mass matrix, the {\F}-callable
 function \id{FSUNDenseMassMatInit(M, N, ier)} initializes this
-{\sunmatdense} module for storing the mass matrix. 
+{\sunmatdense} module for storing the mass matrix.

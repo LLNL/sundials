@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -26,6 +26,8 @@ set(CVODE_examples
   "cvDiurnal_kry\;\;develop"
   "cvDisc_dns\;\;develop"
   "cvKrylovDemo_ls\;\;develop"
+  "cvKrylovDemo_ls\;1\;develop"
+  "cvKrylovDemo_ls\;2\;develop"
   "cvKrylovDemo_prec\;\;develop"
   "cvParticle_dns\;\;develop"
   "cvPendulum_dns\;\;develop"
@@ -37,7 +39,7 @@ set(CVODE_examples
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND CVODE_examples "cvKrylovDemo_ls\;1\;develop")
+  list(APPEND CVODE_examples "cvKrylovDemo_ls\;0 1\;develop")
 endif()
 
 # Examples using LAPACK linear solvers
@@ -63,19 +65,12 @@ set(CVODE_extras
   plot_cvPendulum.py
   )
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CVODE_LIB sundials_cvode_static)
-  set(NVECS_LIB sundials_nvecserial_static)
-else()
-  set(CVODE_LIB sundials_cvode_shared)
-  set(NVECS_LIB sundials_nvecserial_shared)
-endif()
+# Specify libraries to link against
+set(CVODE_LIB sundials_cvode)
+set(NVECS_LIB sundials_nvecserial)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB
-       sundials_cvode_fused_stubs_${LINK_LIBRARY_TYPE})
+  list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
 endif()
 
 # Set-up linker flags and link libraries
@@ -129,26 +124,15 @@ endforeach(example_tuple ${CVODE_examples})
 
 
 # Add the build and install targets for each LAPACK example (if needed)
-if(LAPACK_FOUND)
+if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
   # Sundials LAPACK linear solver modules
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLLAPACK_LIBS
-      sundials_sunlinsollapackband_static
-      sundials_sunlinsollapackdense_static)
-  else()
-    set(SUNLINSOLLAPACK_LIBS
-      sundials_sunlinsollapackband_shared
-      sundials_sunlinsollapackdense_shared)
-  endif()
+  set(SUNLINSOLLAPACK_LIBS
+    sundials_sunlinsollapackband
+    sundials_sunlinsollapackdense)
 
   # LAPACK libraries
   list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
-
-  # BLAS libraries
-  if(BLAS_FOUND)
-    list(APPEND SUNLINSOLLAPACK_LIBS ${BLAS_LIBRARIES})
-  endif(BLAS_FOUND)
 
   foreach(example_tuple ${CVODE_examples_BL})
 
@@ -195,21 +179,17 @@ if(LAPACK_FOUND)
 
   endforeach(example_tuple ${CVODE_examples_BL})
 
-endif(LAPACK_FOUND)
+endif()
 
 
 # Add the build and install targets for each KLU example (if needed)
-if(KLU_FOUND)
+if(BUILD_SUNLINSOL_KLU)
 
   # Sundials KLU linear solver module
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu_static)
-  else()
-    set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu_shared)
-  endif()
+  set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu)
 
   # KLU libraries
-  list(APPEND SUNLINSOLKLU_LIBS ${KLU_LIBRARIES})
+  list(APPEND SUNLINSOLKLU_LIBS)
 
   foreach(example_tuple ${CVODE_examples_KLU})
 
@@ -256,26 +236,17 @@ if(KLU_FOUND)
 
   endforeach(example_tuple ${CVODE_examples_KLU})
 
-endif(KLU_FOUND)
+endif()
 
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
-if(SUPERLUMT_FOUND)
+if(BUILD_SUNLINSOL_SUPERLUMT)
 
   # Sundials SuperLU_MT linear solver module
-  if(LINK_LIBRARY_TYPE MATCHES "static")
-    set(SUNLINSOLSLUMT_LIBS sundials_sunlinsolsuperlumt_static)
-  else()
-    set(SUNLINSOLSLUMT_LIBS sundials_sunlinsolsuperlumt_shared)
-  endif()
+  set(SUNLINSOLSLUMT_LIBS sundials_sunlinsolsuperlumt)
 
   # SuperLU_MT libraries
   list(APPEND SUNLINSOLSLUMT_LIBS ${SUPERLUMT_LIBRARIES})
-
-  # BLAS libraries
-  if(BLAS_FOUND)
-    list(APPEND SUNLINSOLSLUMT_LIBS ${BLAS_LIBRARIES})
-  endif(BLAS_FOUND)
 
   foreach(example_tuple ${CVODE_examples_SUPERLUMT})
 
@@ -304,6 +275,19 @@ if(SUPERLUMT_FOUND)
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     endif()
 
+    # Do not include SuperLUMT examples in testing when the indextype is int64_t.
+    # Answer files were generated with int32_t and minor differences in output
+    # occur causing a false positive when testing. These tests can be re-enabled
+    # when type specific answer files are added.
+    if(SUNDIALS_INDEX_SIZE MATCHES "32")
+      # add example to regression tests
+      sundials_add_test(${test_name} ${example}
+        TEST_ARGS ${example_args}
+        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        ANSWER_FILE ${test_name}.out
+        EXAMPLE_TYPE ${example_type})
+    endif()
+
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
 
@@ -315,7 +299,7 @@ if(SUPERLUMT_FOUND)
 
   endforeach(example_tuple ${CVODE_examples_SUPERLUMT})
 
-endif(SUPERLUMT_FOUND)
+endif()
 
 
 # create Makfile and CMakeLists.txt for examples
@@ -338,19 +322,19 @@ if(EXAMPLES_INSTALL)
 
   examples2string(CVODE_examples EXAMPLES)
 
-  if(LAPACK_FOUND)
+  if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     examples2string(CVODE_examples_BL EXAMPLES_BL)
   else()
     set(EXAMPLES_BL "")
   endif()
 
-  if(KLU_FOUND)
+  if(BUILD_SUNLINSOL_KLU)
     examples2string(CVODE_examples_KLU EXAMPLES_KLU)
   else()
     set(EXAMPLES_KLU "")
   endif()
 
-  if(SUPERLUMT_FOUND)
+  if(BUILD_SUNLINSOL_SUPERLUMT)
     examples2string(CVODE_examples_SUPERLUMT EXAMPLES_SLUMT)
     if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
       set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
@@ -396,9 +380,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(cvode serial EXECUTABLE cvRoberts_dns)
 
-endif(EXAMPLES_INSTALL)
+endif()

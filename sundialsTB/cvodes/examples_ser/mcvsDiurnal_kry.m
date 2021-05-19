@@ -24,7 +24,7 @@ function [x,y,u0_2, u_2] = mcvsDiurnal_kry
 
 % Radu Serban <radu@llnl.gov>
 % SUNDIALS Copyright Start
-% Copyright (c) 2002-2020, Lawrence Livermore National Security
+% Copyright (c) 2002-2021, Lawrence Livermore National Security
 % and Southern Methodist University.
 % All rights reserved.
 %

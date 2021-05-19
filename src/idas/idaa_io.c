@@ -6,7 +6,7 @@
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -55,7 +55,7 @@
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDAAdjSetNoSensi(void *ida_mem)
+int IDAAdjSetNoSensi(void *ida_mem)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
@@ -501,7 +501,7 @@ int IDASetQuadErrConB(void *ida_mem, int which, int errconQB)
  * extract optional output for the backward integration phase.
  */
 
-SUNDIALS_EXPORT void *IDAGetAdjIDABmem(void *ida_mem, int which)
+void *IDAGetAdjIDABmem(void *ida_mem, int which)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
@@ -755,7 +755,7 @@ int IDAGetAdjDataPointPolynomial(void *ida_mem, int which,
  * Returns the address of the 'active' check point.
  */
 
-SUNDIALS_EXPORT int IDAGetAdjCurrentCheckPoint(void *ida_mem, void **addr)
+int IDAGetAdjCurrentCheckPoint(void *ida_mem, void **addr)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;

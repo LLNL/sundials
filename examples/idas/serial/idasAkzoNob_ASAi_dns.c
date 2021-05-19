@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -19,10 +19,11 @@
  * species are mixed, while carbon dioxide is continuously added.
  * See http://pitagora.dm.uniba.it/~testset/report/chemakzo.pdf
  *
- * IDAS also computes the sensitivities with respect to initial
- * conditions of the following quantity:
- *   G = int_t0^t1 y1 dt
- * The sensitivity of G is the solution of the adjoint system at t0.
+ * IDAS also computes the sensitivities of the integral
+ *   G = int_t0^tf y1 dt
+ * with respect to the initial values of the first components of y
+ * (the differential components). These sensitivities are the first
+ * five components of the solution of the adjoint system, at t = 0.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -429,11 +430,11 @@ static int resB(realtype tt,
 static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("dG/dy0: \t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n",
+  printf("dG/dy0: \t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n",
 #else
-  printf("dG/dy0: \t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n",
+  printf("dG/dy0: \t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n\t\t%12.4e\n",
 #endif
-         Ith(yB,1), Ith(yB,2), Ith(yB,3), Ith(yB,4), Ith(yB,5), Ith(yB,6));
+         Ith(yB,1), Ith(yB,2), Ith(yB,3), Ith(yB,4), Ith(yB,5));
   printf("--------------------------------------------------------\n\n");
 }
 

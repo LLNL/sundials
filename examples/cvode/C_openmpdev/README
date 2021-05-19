@@ -5,7 +5,7 @@ List of OpenMP device offloading CVODE examples
 Sample results:
 
   SUNDIALS was built with OpenMP enabled, and the example output was run using
-  LLNL LC's wrapped xlc compiler for gpu program compilation: xlc-gpu 
+  LLNL LC's wrapped xlc compiler for gpu program compilation: xlc-gpu
 
 The following CMake command was used to configure SUNDIALS:
 
@@ -24,14 +24,14 @@ cmake \
 -DEXAMPLES_ENABLE_C=ON \
 -DEXAMPLES_INSTALL_PATH=/user/local/sundials/examples \
 -DEXAMPLES_INSTALL=ON \
--DOPENMP_ENABLE=ON \
--DOPENMP_DEVICE_ENABLE=ON \
--DSKIP_OPENMP_DEVICE_CHECK=ON \
+-DENABLE_OPENMP=ON \
+-DENABLE_OPENMP_DEVICE=ON \
+-DOPENMP_DEVICE_WORKS=ON \
 -DSUNDIALS_INDEX_SIZE=64 \
 -DSUNDIALS_PRECISION=double \
 ../sundials
 
-  System Architecture: ppc64le 
+  System Architecture: ppc64le
   Processor Type: IBM POWER8 @ 2.5GHz
-  Operating System: Red Hat 7.3 
+  Operating System: Red Hat 7.3
   C Compiler: xlc-gpu

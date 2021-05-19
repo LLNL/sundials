@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles, Eddy Banks and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -34,17 +34,10 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(IDA_LIB sundials_ida_static)
-  set(NVECP_LIB sundials_nvecpetsc_static)
-  set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes_static)
-else()
-  set(IDA_LIB sundials_ida_shared)
-  set(NVECP_LIB sundials_nvecpetsc_shared)
-  set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes_shared)
-endif()
+# Specify libraries to link against
+set(IDA_LIB sundials_ida)
+set(NVECP_LIB sundials_nvecpetsc)
+set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${SUNNLS_LIB} ${EXTRA_LINK_LIBS})
@@ -146,9 +139,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(ida petsc)
 
-endif(EXAMPLES_INSTALL)
+endif()

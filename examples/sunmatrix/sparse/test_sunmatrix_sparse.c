@@ -4,7 +4,7 @@
  *                David Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -770,7 +770,7 @@ int Test_SUNSparseMatrixToCSR(SUNMatrix A)
 int Test_SUNSparseMatrixToCSC(SUNMatrix A)
 {
   int       failure;
-  SUNMatrix csc, csr;
+  SUNMatrix csc=NULL, csr=NULL;
   realtype  tol=200*UNIT_ROUNDOFF;
 
   failure = SUNSparseMatrix_ToCSC(A, &csc);

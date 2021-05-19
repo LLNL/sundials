@@ -2,7 +2,7 @@
  * Programmer(s): Alan Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -285,28 +285,28 @@ void *IDACreate(void)
   IDA_mem->ida_uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
-  IDA_mem->ida_res         = NULL;
-  IDA_mem->ida_user_data   = NULL;
-  IDA_mem->ida_itol        = IDA_NN;
-  IDA_mem->ida_atolmin0    = SUNTRUE;
-  IDA_mem->ida_user_efun   = SUNFALSE;
-  IDA_mem->ida_efun        = NULL;
-  IDA_mem->ida_edata       = NULL;
-  IDA_mem->ida_ehfun       = IDAErrHandler;
-  IDA_mem->ida_eh_data     = IDA_mem;
-  IDA_mem->ida_errfp       = stderr;
-  IDA_mem->ida_maxord      = MAXORD_DEFAULT;
-  IDA_mem->ida_mxstep      = MXSTEP_DEFAULT;
-  IDA_mem->ida_hmax_inv    = HMAX_INV_DEFAULT;
-  IDA_mem->ida_hin         = ZERO;
-  IDA_mem->ida_epcon       = EPCON;
-  IDA_mem->ida_maxnef      = MXNEF;
-  IDA_mem->ida_maxncf      = MXNCF;
-  IDA_mem->ida_suppressalg = SUNFALSE;
-  IDA_mem->ida_id          = NULL;
-  IDA_mem->ida_constraints = NULL;
+  IDA_mem->ida_res            = NULL;
+  IDA_mem->ida_user_data      = NULL;
+  IDA_mem->ida_itol           = IDA_NN;
+  IDA_mem->ida_atolmin0       = SUNTRUE;
+  IDA_mem->ida_user_efun      = SUNFALSE;
+  IDA_mem->ida_efun           = NULL;
+  IDA_mem->ida_edata          = NULL;
+  IDA_mem->ida_ehfun          = IDAErrHandler;
+  IDA_mem->ida_eh_data        = IDA_mem;
+  IDA_mem->ida_errfp          = stderr;
+  IDA_mem->ida_maxord         = MAXORD_DEFAULT;
+  IDA_mem->ida_mxstep         = MXSTEP_DEFAULT;
+  IDA_mem->ida_hmax_inv       = HMAX_INV_DEFAULT;
+  IDA_mem->ida_hin            = ZERO;
+  IDA_mem->ida_epcon          = EPCON;
+  IDA_mem->ida_maxnef         = MXNEF;
+  IDA_mem->ida_maxncf         = MXNCF;
+  IDA_mem->ida_suppressalg    = SUNFALSE;
+  IDA_mem->ida_id             = NULL;
+  IDA_mem->ida_constraints    = NULL;
   IDA_mem->ida_constraintsSet = SUNFALSE;
-  IDA_mem->ida_tstopset    = SUNFALSE;
+  IDA_mem->ida_tstopset       = SUNFALSE;
 
   /* set the saved value maxord_alloc */
   IDA_mem->ida_maxord_alloc = MAXORD_DEFAULT;

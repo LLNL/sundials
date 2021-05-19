@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -41,11 +41,11 @@ set(CPODES_examples_BL
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 
 if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CPODES_LIB sundials_cpodes_static)
-  set(NVECS_LIB sundials_nvecserial_static)
+  set(CPODES_LIB sundials_cpodes${_STATIC_LIB_SUFFIX})
+  set(NVECS_LIB sundials_nvecserial${_STATIC_LIB_SUFFIX})
 else(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CPODES_LIB sundials_cpodes_shared)
-  set(NVECS_LIB sundials_nvecserial_shared)
+  set(CPODES_LIB sundials_cpodes)
+  set(NVECS_LIB sundials_nvecserial)
 endif(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Set-up linker flags and link libraries
@@ -53,11 +53,11 @@ endif(LINK_LIBRARY_TYPE MATCHES "static")
 set(SUNDIALS_LIBS ${CPODES_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 if(LAPACK_FOUND)
   list(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-endif(LAPACK_FOUND)
+endif()
 
 if(BLAS_FOUND)
   list(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
-endif(BLAS_FOUND)
+endif()
 
 # Add the build and install targets for each CPODES example
 
@@ -69,7 +69,7 @@ foreach(example ${CPODES_examples})
   file(GLOB example_out ${example}.out*)
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
-  endif(EXAMPLES_INSTALL)
+  endif()
 endforeach(example ${CPODES_examples})
 
 # If Lapack support is enabled, add the build and install targets for
@@ -84,9 +84,9 @@ if(LAPACK_FOUND)
     file(GLOB example_out ${example}.out*)
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.c ${example_out} DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial)
-    endif(EXAMPLES_INSTALL)
+    endif()
   endforeach(example ${CPODES_examples_BL})
-endif(LAPACK_FOUND)
+endif()
 
 if(EXAMPLES_INSTALL)
 
@@ -101,7 +101,7 @@ if(EXAMPLES_INSTALL)
     list2string(CPODES_examples_BL EXAMPLES_BL)
   else(LAPACK_FOUND)
     set(EXAMPLES_BL "")
-  endif(LAPACK_FOUND)
+  endif()
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
@@ -137,6 +137,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/serial
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

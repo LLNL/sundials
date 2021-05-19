@@ -1325,6 +1325,7 @@ Preconditioner functions & \id{IDASetPreconditioner} &NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{IDASetEpsLin} & 0.05 \\
 Increment factor used in DQ $Jv$ approx. & \id{IDASetIncrementFactor} & 1.0 \\
 Jacobian-times-vector DQ Res function & \id{IDASetJacTimesResFn} & NULL \\
+Newton linear solve tolerance conversion factor & \id{IDASetLSNormFactor} & vector length \\
 \hline
 \end{tabular}
 \end{table}
@@ -1972,7 +1973,7 @@ updates the matrix using the current $\alpha$ as part of the solve.
 {
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
-    pointer to the {\ida} memory block.
+    pointer to the {\idas} memory block.
   \item[onoff] (\id{booleantype})
     flag to enable (\id{SUNTRUE}) or disable (\id{SUNFALSE}) scaling
   \end{args}
@@ -2206,7 +2207,7 @@ differencing a potentially non-differentiable factor.
 When using an iterative linear solver, the user may supply a
 preconditioning operator to aid in solution of the system.  This
 operator consists of two user-supplied functions, \id{psetup} and
-\id{psolve}, that are supplied to {\ida} using the function
+\id{psolve}, that are supplied to {\idas} using the function
 \Id{IDASetPreconditioner}.  The \id{psetup} function supplied to
 this routine should handle evaluation and preprocessing of any
 Jacobian data needed by the user's preconditioner solve function,
@@ -2330,6 +2331,52 @@ the \id{IDASetEpsLin} function.
   routine, and may still be used for backward-compatibility.  However,
   this will be deprecated in future releases, so we recommend that
   users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunctionf{IDASetLSNormFactor}
+{
+  flag = IDASetLSNormFactor(ida\_mem, nrmfac);
+}
+{
+  The function \ID{IDASetLSNormFactor} specifies the factor to use when
+  converting from the integrator tolerance (WRMS norm) to the linear solver
+  tolerance (L2 norm) for Newton linear system solves e.g.,
+  \id{tol\_L2 = fac * tol\_WRMS}.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[nrmfac] (\id{realtype})
+    the norm conversion factor. If \id{nrmfac} is:
+    \begin{itemize}
+    \item[$> 0$] then the provided value is used.
+    \item[$= 0$] then the conversion factor is computed using the vector length
+      i.e., \id{nrmfac = N\_VGetLength(y)} (\textit{default}).
+    \item[$< 0$] then the conversion factor is computed using the vector dot
+      product \id{nrmfac = N\_VDotProd(v,v)} where all the entries of \id{v} are
+      one.
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  This function must be called \emph{after} the {\idals} linear solver
+  interface has been initialized through a call to
+  \id{IDASetLinearSolver}.
+
+  Prior to the introduction of \id{N\_VGetLength} in {\sundials} v5.0.0
+  ({\idas} v4.0.0) the value of \id{nrmfac} was computed using the vector
+  dot product i.e., the \id{nrmfac < 0} case.
 }
 %%
 %%
@@ -4410,6 +4457,15 @@ provide a function of type \ID{IDALsJacFn} defined as follows:
   prior to calling the user-supplied Jacobian function so only nonzero elements
   need to be loaded into \id{Jac}.
 
+  With the default nonlinear solver (the native {\sundials} Netwon method), each
+  call to the user's \id{IDALsJacFn} function is preceded by a call to the
+  \id{IDAResFn} user function with the same (\id{tt}, \id{yy}, \id{yp})
+  arguments. Thus the Jacobian function can use any auxiliary data that is
+  computed and saved during the evaluation of the DAE residual. In the case of a
+  user-supplied or external nonlinear solver, this is also true if the residual
+  function is evaluated prior to calling the linear solver setup function
+  (see \S\ref{ss:sunnonlinsol_sunsuppliedfn} for more information).
+
   If the user's \id{IDALsJacFn} function uses difference
   quotient approximations, it may need to access quantities not in the
   call list. These quantities may include the current stepsize, the error weights, etc.
@@ -4755,10 +4811,14 @@ user-supplied function of type \ID{IDALsPrecSetupFn}, defined as follows:
   approximate Jacobian, and performing an LU factorization on the resulting
   approximation.
 
-  Each call to the preconditioner setup function is preceded by a call to the
-  \id{IDAResFn} user function with the same (\id{tt}, \id{yy}, \id{yp}) arguments.
-  Thus the preconditioner setup function can use any auxiliary data that is
-  computed and saved during the evaluation of the DAE residual.
+  With the default nonlinear solver (the native {\sundials} Netwon method), each
+  call to the preconditioner setup function is preceded by a call to the
+  \id{IDAResFn} user function with the same (\id{tt}, \id{yy}, \id{yp})
+  arguments. Thus the preconditioner setup function can use any auxiliary data
+  that is computed and saved during the evaluation of the DAE residual. In the
+  case of a user-supplied or external nonlinear solver, this is also true if the
+  residual function is evaluated prior to calling the linear solver setup
+  function (see \S\ref{ss:sunnonlinsol_sunsuppliedfn} for more information).
 
   This function is not called in advance of every call to the preconditioner solve
   function, but rather is called only as often as needed to achieve convergence in

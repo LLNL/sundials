@@ -15,6 +15,7 @@ module fsundials_matrix_mod
  ! typedef enum SUNMatrix_ID
  enum, bind(c)
   enumerator :: SUNMATRIX_DENSE
+  enumerator :: SUNMATRIX_MAGMADENSE
   enumerator :: SUNMATRIX_BAND
   enumerator :: SUNMATRIX_SPARSE
   enumerator :: SUNMATRIX_SLUNRLOC
@@ -22,7 +23,8 @@ module fsundials_matrix_mod
   enumerator :: SUNMATRIX_CUSTOM
  end enum
  integer, parameter, public :: SUNMatrix_ID = kind(SUNMATRIX_DENSE)
- public :: SUNMATRIX_DENSE, SUNMATRIX_BAND, SUNMATRIX_SPARSE, SUNMATRIX_SLUNRLOC, SUNMATRIX_CUSPARSE, SUNMATRIX_CUSTOM
+ public :: SUNMATRIX_DENSE, SUNMATRIX_MAGMADENSE, SUNMATRIX_BAND, SUNMATRIX_SPARSE, SUNMATRIX_SLUNRLOC, SUNMATRIX_CUSPARSE, &
+    SUNMATRIX_CUSTOM
  ! struct struct _generic_SUNMatrix_Ops
  type, bind(C), public :: SUNMatrix_Ops
   type(C_FUNPTR), public :: getid

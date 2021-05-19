@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -52,8 +52,8 @@
  */
 
 SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A, gridinfo_t *grid,
-                                      LUstruct_t *lu, ScalePermstruct_t *scaleperm,
-                                      SOLVEstruct_t *solve, SuperLUStat_t *stat,
+                                      xLUstruct_t *lu, xScalePermstruct_t *scaleperm,
+                                      xSOLVEstruct_t *solve, SuperLUStat_t *stat,
                                       superlu_dist_options_t *options)
 {
   SUNLinearSolver S;
@@ -128,7 +128,7 @@ gridinfo_t* SUNLinSol_SuperLUDIST_GetGridinfo(SUNLinearSolver LS)
   return(SLU_GRID(LS));
 }
 
-LUstruct_t* SUNLinSol_SuperLUDIST_GetLUstruct(SUNLinearSolver LS)
+xLUstruct_t* SUNLinSol_SuperLUDIST_GetLUstruct(SUNLinearSolver LS)
 {
   return(SLU_LU(LS));
 }
@@ -138,12 +138,12 @@ superlu_dist_options_t* SUNLinSol_SuperLUDIST_GetSuperLUOptions(SUNLinearSolver 
   return(SLU_OPTIONS(LS));
 }
 
-ScalePermstruct_t* SUNLinSol_SuperLUDIST_GetScalePermstruct(SUNLinearSolver LS)
+xScalePermstruct_t* SUNLinSol_SuperLUDIST_GetScalePermstruct(SUNLinearSolver LS)
 {
   return(SLU_SCALEPERM(LS));
 }
 
-SOLVEstruct_t* SUNLinSol_SuperLUDIST_GetSOLVEstruct(SUNLinearSolver LS)
+xSOLVEstruct_t* SUNLinSol_SuperLUDIST_GetSOLVEstruct(SUNLinearSolver LS)
 {
   return(SLU_SOLVESTRUCT(LS));
 }
@@ -186,7 +186,7 @@ int SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S, SUNMatrix A)
     /* if the solve struct was already initialized, we need to
        finalize the last solve to avoid leaking memory */
     if (SLU_OPTIONS(S)->SolveInitialized == YES) {
-      Destroy_LU(SLU_SIZE(S), SLU_GRID(S), SLU_LU(S));
+      xDestroy_LU(SLU_SIZE(S), SLU_GRID(S), SLU_LU(S));
       dSolveFinalize(SLU_OPTIONS(S), SLU_SOLVESTRUCT(S));
     }
   } else {
@@ -257,7 +257,7 @@ int SUNLinSolFree_SuperLUDIST(SUNLinearSolver S)
 
   /* Call SuperLU DIST destroy/finalize routines,
      but don't free the sturctures themselves - that is the user's job */
-  Destroy_LU(SLU_SIZE(S), SLU_GRID(S), SLU_LU(S));
+  xDestroy_LU(SLU_SIZE(S), SLU_GRID(S), SLU_LU(S));
   dSolveFinalize(SLU_OPTIONS(S), SLU_SOLVESTRUCT(S));
 
   /* free content structure */

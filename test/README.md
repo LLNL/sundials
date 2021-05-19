@@ -92,7 +92,6 @@ release pull-request.
 The BRANCH, PR, and RELEASE scripts call one or more of the following test
 scripts to configure, build, and test SUNDIALS:
 * `suntest.sh` -- tests configured using standard options
-* `suntest_xsdk.sh` -- tests configured using xSDK options
 * `suntest_tarscript.sh` -- create tarballs and test with standard options
 
 Any of the test scripts may be called independently of the driver scripts for

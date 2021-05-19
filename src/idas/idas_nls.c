@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -113,6 +113,39 @@ int IDASetNonlinearSolver(void *ida_mem, SUNNonlinearSolver NLS)
                     "Setting maximum number of nonlinear iterations failed");
     return(IDA_ILL_INPUT);
   }
+
+  return(IDA_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  IDAGetNonlinearSystemData:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int IDAGetNonlinearSystemData(void *ida_mem, realtype *tcur, N_Vector *yypred,
+                              N_Vector *yppred, N_Vector *yyn, N_Vector *ypn,
+                              N_Vector *res, realtype *cj, void **user_data)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAGetNonlinearSystemData",
+                    MSG_NO_MEM);
+    return(IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  *tcur      = IDA_mem->ida_tn;
+  *yypred    = IDA_mem->ida_yypredict;
+  *yppred    = IDA_mem->ida_yppredict;
+  *yyn       = IDA_mem->ida_yy;
+  *ypn       = IDA_mem->ida_yp;
+  *res       = IDA_mem->ida_savres;
+  *cj        = IDA_mem->ida_cj;
+  *user_data = IDA_mem->ida_user_data;
 
   return(IDA_SUCCESS);
 }

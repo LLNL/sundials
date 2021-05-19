@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -179,6 +179,9 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS,
   /* store a pointer to the integrator memory so it can be
    * accessed in the system function */
   SUNNLS_SNES_CONTENT(NLS)->imem = mem;
+
+  /* reset convergence failure count */
+  SUNNLS_SNES_CONTENT(NLS)->nconvfails = 0;
 
   /* call petsc SNES solve */
   ierr = SNESSolve(SUNNLS_SNESOBJ(NLS), NULL, N_VGetVector_Petsc(y));

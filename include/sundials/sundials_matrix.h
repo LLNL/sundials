@@ -4,7 +4,7 @@
  *                Cody Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -57,8 +57,9 @@ extern "C" {
  * ----------------------------------------------------------------- */
 
 typedef enum {
-  SUNMATRIX_DENSE, 
-  SUNMATRIX_BAND, 
+  SUNMATRIX_DENSE,
+  SUNMATRIX_MAGMADENSE,
+  SUNMATRIX_BAND,
   SUNMATRIX_SPARSE,
   SUNMATRIX_SLUNRLOC,
   SUNMATRIX_CUSPARSE,
@@ -113,7 +114,7 @@ SUNDIALS_EXPORT int SUNMatZero(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI(realtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvecSetup(SUNMatrix A); 
+SUNDIALS_EXPORT int SUNMatMatvecSetup(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
 SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw);
 

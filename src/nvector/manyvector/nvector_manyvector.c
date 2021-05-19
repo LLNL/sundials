@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -18,14 +18,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 #include <nvector/nvector_mpimanyvector.h>
 #else
 #include <nvector/nvector_manyvector.h>
 #endif
 
 /* Macro to handle separate MPI-aware/unaware installations */
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 #define MVAPPEND(fun) fun##_MPIManyVector
 #else
 #define MVAPPEND(fun) fun##_ManyVector
@@ -37,7 +37,7 @@
 /* -----------------------------------------------------------------
    ManyVector content accessor macros
    -----------------------------------------------------------------*/
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 #define MANYVECTOR_CONTENT(v)     ( (N_VectorContent_MPIManyVector)(v->content) )
 #define MANYVECTOR_COMM(v)        ( MANYVECTOR_CONTENT(v)->comm )
 #else
@@ -53,7 +53,7 @@
    Prototypes of utility routines
    -----------------------------------------------------------------*/
 static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty);
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 static int SubvectorMPIRank(N_Vector w);
 #endif
 
@@ -61,7 +61,7 @@ static int SubvectorMPIRank(N_Vector w);
    ManyVector API routines
    -----------------------------------------------------------------*/
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 
 /* This function creates an MPIManyVector from a set of existing
    N_Vector objects, along with a user-created MPI (inter/intra)communicator
@@ -136,6 +136,11 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_MPIManyVector;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_MPIManyVector;
 
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_MPIManyVector;
+  v->ops->nvbufpack   = N_VBufPack_MPIManyVector;
+  v->ops->nvbufunpack = N_VBufUnpack_MPIManyVector;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_MPIManyVector) malloc(sizeof *content);
@@ -193,7 +198,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
 #endif
 
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 /* This function creates an MPIManyVector from a set of existing
    N_Vector objects, under the requirement that all MPI-aware
    sub-vectors use the same MPI communicator (this is verified
@@ -316,6 +321,11 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ManyVector;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ManyVector;
 
+  /* XBraid interface operations */
+  v->ops->nvbufsize   = N_VBufSize_ManyVector;
+  v->ops->nvbufpack   = N_VBufPack_ManyVector;
+  v->ops->nvbufunpack = N_VBufUnpack_ManyVector;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_ManyVector) malloc(sizeof *content);
@@ -408,7 +418,7 @@ sunindextype MVAPPEND(N_VGetNumSubvectors)(N_Vector v)
    from abstract N_Vector interface. */
 N_Vector_ID MVAPPEND(N_VGetVectorID)(N_Vector v)
 {
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   return(SUNDIALS_NVEC_MPIMANYVECTOR);
 #else
   return(SUNDIALS_NVEC_MANYVECTOR);
@@ -451,7 +461,7 @@ void MVAPPEND(N_VDestroy)(N_Vector v)
     free(MANYVECTOR_SUBVECS(v));
     MANYVECTOR_SUBVECS(v) = NULL;
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
     /* free communicator */
     if (MANYVECTOR_COMM(v) != MPI_COMM_NULL)  MPI_Comm_free(&(MANYVECTOR_COMM(v)));
     MANYVECTOR_COMM(v) = MPI_COMM_NULL;
@@ -489,7 +499,7 @@ void MVAPPEND(N_VSpace)(N_Vector v, sunindextype *lrw, sunindextype *liw)
 }
 
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 /* This function retrieves the MPI Communicator from an MPIManyVector object. */
 void *N_VGetCommunicator_MPIManyVector(N_Vector v)
 {
@@ -624,7 +634,7 @@ realtype MVAPPEND(N_VDotProdLocal)(N_Vector x, N_Vector y)
 {
   sunindextype i;
   realtype sum;
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   realtype contrib;
   int rank;
 #endif
@@ -634,7 +644,7 @@ realtype MVAPPEND(N_VDotProdLocal)(N_Vector x, N_Vector y)
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 
     /* check for nvdotprodlocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvdotprodlocal) {
@@ -667,7 +677,7 @@ realtype MVAPPEND(N_VDotProdLocal)(N_Vector x, N_Vector y)
 }
 
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 /* Performs the dot product of two ManyVectors by calling N_VDotProdLocal and
    combining the results.  This routine does not check that x and y are
    ManyVectors, if they have the same number of subvectors, or if these
@@ -717,7 +727,7 @@ realtype MVAPPEND(N_VMaxNormLocal)(N_Vector x)
 }
 
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 /* Performs the maximum norm of a ManyVector by calling N_VMaxNormLocal and
    combining the results. */
 realtype N_VMaxNorm_MPIManyVector(N_Vector x)
@@ -745,7 +755,7 @@ realtype MVAPPEND(N_VWSqrSumLocal)(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
   realtype sum, contrib;
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   int rank;
 #endif
 
@@ -754,7 +764,7 @@ realtype MVAPPEND(N_VWSqrSumLocal)(N_Vector x, N_Vector w)
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 
     /* check for nvwsqrsumlocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvwsqrsumlocal) {
@@ -798,7 +808,7 @@ realtype MVAPPEND(N_VWSqrSumLocal)(N_Vector x, N_Vector w)
 realtype MVAPPEND(N_VWrmsNorm)(N_Vector x, N_Vector w)
 {
   realtype gsum;
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   realtype lsum;
   lsum = gsum = N_VWSqrSumLocal_MPIManyVector(x, w);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
@@ -825,7 +835,7 @@ realtype MVAPPEND(N_VWSqrSumMaskLocal)(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i, N;
   realtype sum, contrib;
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   int rank;
 #endif
 
@@ -834,7 +844,7 @@ realtype MVAPPEND(N_VWSqrSumMaskLocal)(N_Vector x, N_Vector w, N_Vector id)
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 
     /* check for nvwsqrsummasklocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvwsqrsummasklocal) {
@@ -881,7 +891,7 @@ realtype MVAPPEND(N_VWSqrSumMaskLocal)(N_Vector x, N_Vector w, N_Vector id)
 realtype MVAPPEND(N_VWrmsNormMask)(N_Vector x, N_Vector w, N_Vector id)
 {
   realtype gsum;
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   realtype lsum;
   lsum = gsum = N_VWSqrSumMaskLocal_MPIManyVector(x, w, id);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
@@ -927,7 +937,7 @@ realtype MVAPPEND(N_VMinLocal)(N_Vector x)
 }
 
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 /* Computes the minimum entry of a ManyVector by calling N_VMinLocal and
    combining the results. */
 realtype N_VMin_MPIManyVector(N_Vector x)
@@ -948,7 +958,7 @@ realtype N_VMin_MPIManyVector(N_Vector x)
 realtype MVAPPEND(N_VWL2Norm)(N_Vector x, N_Vector w)
 {
   realtype gsum;
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   realtype lsum;
   lsum = gsum = N_VWSqrSumLocal_MPIManyVector(x, w);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
@@ -969,7 +979,7 @@ realtype MVAPPEND(N_VL1NormLocal)(N_Vector x)
 {
   sunindextype i;
   realtype sum;
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   realtype contrib;
   int rank;
 #endif
@@ -979,7 +989,7 @@ realtype MVAPPEND(N_VL1NormLocal)(N_Vector x)
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 
     /* check for nvl1normlocal in subvector */
     if (MANYVECTOR_SUBVEC(x,i)->ops->nvl1normlocal) {
@@ -1012,7 +1022,7 @@ realtype MVAPPEND(N_VL1NormLocal)(N_Vector x)
 }
 
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 /* Performs the L1 norm of a ManyVector by calling N_VL1NormLocal and
    combining the results. */
 realtype N_VL1Norm_MPIManyVector(N_Vector x)
@@ -1074,7 +1084,7 @@ booleantype MVAPPEND(N_VInvTestLocal)(N_Vector x, N_Vector z)
 }
 
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 /* Performs the InvTest for a ManyVector by calling N_VInvTestLocal and
    combining the results. This routine does not check that x and z
    are ManyVectors, if they have the same number of subvectors, or if these
@@ -1128,7 +1138,7 @@ booleantype MVAPPEND(N_VConstrMaskLocal)(N_Vector c, N_Vector x, N_Vector m)
 }
 
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 /* Performs the ConstrMask for a ManyVector by calling N_VConstrMaskLocal and
    combining the results.  This routine does not check that c, x and m
    are ManyVectors, if they have the same number of subvectors, or if these
@@ -1182,7 +1192,7 @@ realtype MVAPPEND(N_VMinQuotientLocal)(N_Vector num, N_Vector denom)
 }
 
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 /* Performs the MinQuotient for a ManyVector by calling N_VMinQuotientLocal
    and combining the results.  This routine does not check that num and
    denom are ManyVectors, if they have the same number of subvectors, or if
@@ -1310,7 +1320,7 @@ int MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y, realtype* dotpr
   /* call N_VDotProdLocal for each <x,Y[i]> pair */
   for (i=0; i<nvec; i++)  dotprods[i] = N_VDotProdLocal(x,Y[i]);
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   /* accumulate totals and return */
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     return(MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE,
@@ -1501,7 +1511,7 @@ int MVAPPEND(N_VWrmsNormVectorArray)(int nvec, N_Vector* X, N_Vector* W, realtyp
 
   /* accumulate totals */
   retval = 0;
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   if (MANYVECTOR_COMM(X[0]) != MPI_COMM_NULL)
     retval = (MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM,
                             MANYVECTOR_COMM(X[0])) == MPI_SUCCESS) ? 0 : -1;
@@ -1538,7 +1548,7 @@ int MVAPPEND(N_VWrmsNormMaskVectorArray)(int nvec, N_Vector* X, N_Vector* W,
 
   /* accumulate totals */
   retval = 0;
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   if (MANYVECTOR_COMM(X[0]) != MPI_COMM_NULL)
     retval = (MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM,
                             MANYVECTOR_COMM(X[0])) == MPI_SUCCESS) ? 0 : -1;
@@ -1549,6 +1559,96 @@ int MVAPPEND(N_VWrmsNormMaskVectorArray)(int nvec, N_Vector* X, N_Vector* W,
     nrm[i] = SUNRsqrt(nrm[i]/(MANYVECTOR_GLOBLENGTH(X[i])));
 
   return(retval);
+}
+
+
+/* Performs the BufSize operation by calling N_VBufSize for each subvector and
+   combining results */
+int MVAPPEND(N_VBufSize)(N_Vector x, sunindextype* size)
+{
+  int          flag;        /* operation return flag */
+  sunindextype subvec_size; /* subvector buffer size */
+  sunindextype i;
+
+  if (x == NULL) return(-1);
+
+  /* initialize total size */
+  *size = 0;
+
+  for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
+    /* get buffer sized needed for this subvector */
+    flag = N_VBufSize(MANYVECTOR_SUBVEC(x,i), &subvec_size);
+    if (flag != 0) return(-1);
+
+    /* update total buffer size */
+    *size += subvec_size;
+  }
+
+  return(0);
+}
+
+
+/* Performs the BufPack operation by calling N_VBufPack for each subvector where
+   the output buffer is offset by the buffer size used by the the previous
+   subvector in the set */
+int MVAPPEND(N_VBufPack)(N_Vector x, void *buf)
+{
+  int          flag;   /* operation return flag     */
+  void         *loc;   /* location in output buffer */
+  sunindextype offset; /* subvector buffer offset   */
+  sunindextype i;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  /* start at the beginning of the output buffer */
+  loc = buf;
+
+  for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
+    /* pack the output buffer starting at the given buffer location */
+    flag = N_VBufPack(MANYVECTOR_SUBVEC(x,i), loc);
+    if (flag != 0) return(-1);
+
+    /* get the offset from this subvector */
+    flag = N_VBufSize(MANYVECTOR_SUBVEC(x,i), &offset);
+    if (flag != 0) return(-1);
+
+    /* update the buffer location for the next vector */
+    loc = (char*) buf + offset;
+  }
+
+  return(0);
+}
+
+
+/* Performs the BufUnpack operation by calling N_VBufUnpack for each subvector
+   where the input buffer is offset by the buffer size used by the the previous
+   subvector in the set */
+int MVAPPEND(N_VBufUnpack)(N_Vector x, void *buf)
+{
+  int          flag;   /* operation return flag     */
+  void         *loc;   /* location in input buffer */
+  sunindextype offset; /* subvector buffer offset   */
+  sunindextype i;
+
+  if (x == NULL || buf == NULL) return(-1);
+
+  /* start at the beginning of the input buffer */
+  loc = buf;
+
+  for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
+    /* unpack the input buffer starting at the given buffer location */
+    flag = N_VBufUnpack(MANYVECTOR_SUBVEC(x,i), loc);
+    if (flag != 0) return(-1);
+
+    /* get the offset from this subvector */
+    flag = N_VBufSize(MANYVECTOR_SUBVEC(x,i), &offset);
+    if (flag != 0) return(-1);
+
+    /* update the buffer location for the next vector */
+    loc = (char*) buf + offset;
+  }
+
+  return(0);
 }
 
 
@@ -1776,7 +1876,7 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
   /* Attach content components */
 
   /* Set scalar components */
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   content->comm           = MPI_COMM_NULL;
 #endif
   content->num_subvectors = MANYVECTOR_NUM_SUBVECS(w);
@@ -1793,7 +1893,7 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
     content->subvec_array[i] = NULL;
 
   /* Duplicate the input communicator (if applicable) */
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   if (MANYVECTOR_COMM(w) != MPI_COMM_NULL) {
     if (MPI_Comm_dup(MANYVECTOR_COMM(w), &(content->comm)) != MPI_SUCCESS)
       { N_VDestroy(v); return(NULL); }
@@ -1817,7 +1917,7 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
 }
 
 
-#if SUNDIALS_MPI_ENABLED
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 /* This function returns the rank of this task in the MPI communicator
    associated with the input N_Vector.  If the input N_Vector is MPI-unaware, it
    returns 0.  If an error occurs in the call to MPI_Comm_Rank, it returns -1. */
