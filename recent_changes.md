@@ -10,6 +10,11 @@ feature is experimental and may change from version to version.
 
 ## Changes to SUNDIALS in release 5.7.0
 
+The installed SUNDIALSConfig.cmake file now supports the `COMPONENTS` option
+to `find_package`.
+
+## Changes to SUNDIALS in release 5.7.0
+
 A new NVECTOR implementation based on the SYCL abstraction layer has been added
 targeting Intel GPUs. At present the only SYCL compiler supported is the DPC++
 (Intel oneAPI) compiler. See the SYCL NVECTOR section in the user guide for more

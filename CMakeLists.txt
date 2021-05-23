@@ -192,8 +192,6 @@ if(_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
-
-
 # ===============================================================
 # Install configuration header files and license file.
 # ===============================================================
@@ -254,9 +252,10 @@ install(
 )
 
 # install SUNDIALSConfig.cmake
-configure_file(
-  ${PROJECT_SOURCE_DIR}/cmake/SUNDIALSConfig.cmake.in SUNDIALSConfig.cmake
-  @ONLY
+configure_package_config_file(
+  "${PROJECT_SOURCE_DIR}/cmake/SUNDIALSConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSConfig.cmake"
+  INSTALL_DESTINATION "${SUNDIALS_INSTALL_CMAKEDIR}"
 )
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSConfig.cmake"
               "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSConfigVersion.cmake"
