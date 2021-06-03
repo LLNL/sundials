@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): David J. Gardner and Slaven Peles @ LLNL
+#                Shelby Lockhart @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -23,6 +24,13 @@ if(EXAMPLES_ENABLE_C)
   endif()
   if(ENABLE_MPI AND MPI_C_FOUND)
     add_subdirectory(parallel)
+  endif()
+endif()
+
+# C++ examples
+if(EXAMPLES_ENABLE_CXX)
+  if(ENABLE_MPI AND MPI_CXX_FOUND)
+    add_subdirectory(CXX_parallel)
   endif()
 endif()
 

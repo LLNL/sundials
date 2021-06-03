@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
   printf("    max iters    = %ld\n", mxiter);
   printf("    accel vec    = %ld\n", maa);
   printf("    damping      = %"GSYM"\n", damping);
-  printf("    orth routine = %ld\n", orth);
+  printf("    orth routine = %d\n", orth);
   
   /* ---------------------------------------------------------------------------
    * Allocate user data -- containing matrices required for function evaluations 
@@ -301,9 +301,9 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
   retval = ConvectionDiffusionResidual2D(v, u);
   if (check_retval(&retval, "ConvectionDiffusionResidual2D", 1)) return(1);
   if (check_retval((void *)v, "v NULL", 0)) return(1);
-  /*vdata = N_VGetArrayPointer(v);
-  for (i = 10; i < 15; i++) printf("v[%d] %e\n", i, vdata[i]);*/
-  printf("v norm %e\n", SUNRsqrt(N_VDotProd(v, v)));
+  vdata = N_VGetArrayPointer(v);
+  /*for (i = 10; i < 15; i++) printf("v[%d] %e\n", i, vdata[i]);*/
+  /*printf("v norm %e\n", SUNRsqrt(N_VDotProd(v, v)));*/
 
   /* accum = 0 */
   N_VConst(ZERO, accum);
@@ -320,6 +320,9 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
       if (check_retval(&retval, "OverlappingRestrictionMatrix2D", 1)) return(1);
       if (check_retval((void *)temp, "temp NULL", 0)) return(1);
 
+      /* CORRECT FOR FIRST ITERATION UP UNTIL THIS POINT -- NEED TO DO THE FOLLOWING
+         SUNBAND MATRIX/ SOLVE MATRIX-FREE AND NOT USE THE SUNBAND SOLVER */
+
       /* setup subA = R * A * R^T */
       k = N_VGetLength_Serial(temp);
       subA = SUNBandMatrix(k, subX, subX);
@@ -334,7 +337,7 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
       check_retval(&retval, "SUNLinSolSetup", 1);
       retval = SUNLinSolSolve(LS, subA, temp, temp, UNIT_ROUNDOFF);
       check_retval(&retval, "SUNLinSolSolve", 1);
-      printf("temp norm %e\n", SUNRsqrt(N_VDotProd(temp, temp)));
+      /*printf("temp norm %e\n", SUNRsqrt(N_VDotProd(temp, temp)));*/
 
       /* setup L^T = NonOverlappingRestrictionMatrix2D */
       /* temp2 = L^T * temp */
@@ -369,7 +372,7 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
 int ConvectionDiffusionResidual2D(N_Vector v, N_Vector u)
 {
   realtype *vdata, *uvals;
-  realtype h, h2_inv, hhalf_inv, a, b, c, d, e;
+  realtype h, h2_inv, hhalf_inv, a, b, c, d, e, temp;
   int i;
   
   /* Define some constants */
@@ -387,19 +390,19 @@ int ConvectionDiffusionResidual2D(N_Vector v, N_Vector u)
   uvals = N_VGetArrayPointer(u);
 
   for (i=0; i<N*N; i++) {
-    vdata[i] = -10;
+    temp = -10;
 
     if (i == 0) {
-      vdata[i] -= (a*uvals[i] + c*uvals[i+1] + e*uvals[i+N]);
+      temp -= (a*uvals[i] + c*uvals[i+1] + e*uvals[i+N]);
     }
     else if (i == 1) {
-      vdata[i] -= (a*uvals[i] + b*uvals[i-1] + c*uvals[i+1] + e*uvals[i+N]);
+      temp -= (a*uvals[i] + b*uvals[i-1] + c*uvals[i+1] + e*uvals[i+N]);
     }
     else if (i == (N*N-1)) {
-      vdata[i] -= (a*uvals[i] + b*uvals[i-1] + c*uvals[i+1] + d*uvals[i-N]);
+      temp -= (a*uvals[i] + b*uvals[i-1] + c*uvals[i+1] + d*uvals[i-N]);
     }
     else if (i == (N*N-2)) {
-      vdata[i] -= (a*uvals[i] + b*uvals[i-1] + d*uvals[i-N]);
+      temp -= (a*uvals[i] + b*uvals[i-1] + d*uvals[i-N]);
     }
     else {
       vdata[i] -= a * uvals[i];
@@ -408,6 +411,7 @@ int ConvectionDiffusionResidual2D(N_Vector v, N_Vector u)
       if ((i-N) > 0)      vdata[i] -= d * uvals[i-N];
       if ((i+N) < (N*N))  vdata[i] -= e * uvals[i+N];
     }
+    vdata[i] = temp;
   }
 
   return(0);
@@ -426,9 +430,11 @@ static int OverlappingRestrictionMatrix2D(N_Vector v, N_Vector temp, int i, int 
   subDomainLengthX = N / NUMREGIONS;
   subDomainLengthY = subDomainLengthX;
   xstart = i * subDomainLengthX;
-  xend = xstart + subDomainLengthX - 1;
+  /*xend = xstart + subDomainLengthX - 1;*/
+  xend = xstart + subDomainLengthX;
   ystart = j * subDomainLengthY;
-  yend = ystart + subDomainLengthY - 1;
+  /*yend = ystart + subDomainLengthY - 1;*/
+  yend = ystart + subDomainLengthY;
 
   if (i > 0) {
     xstart = xstart - OVERLAPWIDTH;
