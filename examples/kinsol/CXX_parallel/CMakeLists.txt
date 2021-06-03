@@ -24,11 +24,6 @@ set(serial_examples
 # Header files to install
 set(KINSOL_headers )
 
-# Auxiliary files to install
-set(KINSOL_extras
-  plot_heat2D_p.py
-)
-
 if(MPI_CXX_COMPILER)
   # use MPI wrapper as the compiler
   set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
