@@ -134,6 +134,7 @@ struct UserData
   realtype rtol;        // relative tolerance
   int      maa;         // m for Anderson Acceleration
   int      damping;     // daming for Anderson Acceleration
+  int      orthaa;      // orthogonalization routine for AA
   int      maxits;      // max number of fixed point iterations
 
   // Linear solver and preconditioner settings

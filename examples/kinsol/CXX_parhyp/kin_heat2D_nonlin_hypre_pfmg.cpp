@@ -159,6 +159,10 @@ int main(int argc, char* argv[])
   // Set number of prior residuals used in Anderson Acceleration
   flag = KINSetMAA(kin_mem, udata->maa);
   if (check_flag(&flag, "KINSetMAA", 1)) return 1;
+  
+  // Set orthogonalization routine used in Anderson Acceleration
+  flag = KINSetOrthAA(kin_mem, udata->orthaa);
+  if (check_flag(&flag, "KINSetOrthAA", 1)) return 1;
 
   // Set Fixed Point Function
   flag = KINInit(kin_mem, FPFunction, u);
@@ -1367,6 +1371,7 @@ static int InitUserData(UserData *udata)
   udata->rtol        = RCONST(1.e-8);   // relative tolerance
   udata->maa         = 0;               // no Anderson Acceleration
   udata->damping     = 1;               // no damping for Anderson Acceleration
+  udata->orthaa      = 0;               // use MGS for Anderson Acceleration
   udata->maxits      = 100;             // max number of fixed point iterations
 
 
@@ -1534,6 +1539,10 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->damping = stoi((*argv)[arg_idx++]);
     }
+    else if (arg == "--orthaa")
+    {
+      udata->orthaa = stoi((*argv)[arg_idx++]);
+    }
     else if (arg == "--maxits")
     {
       udata->maxits = stoi((*argv)[arg_idx++]);
@@ -1667,6 +1676,9 @@ static void InputHelp()
   cout << "  --domain <xu> <yu>      : domain upper bound in the x and y direction" << endl;
   cout << "  --k <kx> <ky>           : diffusion coefficients" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
+  cout << "  --maa <maa>             : number of previous residuals for Anderson Acceleration" << endl;
+  cout << "  --damping <damping>     : damping for Anderson Acceleration " << endl;
+  cout << "  --orthaa <orthaa>       : orthogonalization routine used in Anderson Acceleration " << endl;
   cout << "  --c <c_int>             : nonlinear function parameter" << endl;
   cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
@@ -1702,6 +1714,9 @@ static int PrintUserData(UserData *udata)
   cout << "  dy             = " << udata->dy                       << endl;
   cout << " --------------------------------- "                    << endl;
   cout << "  rtol           = " << udata->rtol                     << endl;
+  cout << "  maa            = " << udata->maa                      << endl;
+  cout << "  damping        = " << udata->damping                  << endl;
+  cout << "  orthaa         = " << udata->orthaa                   << endl;
   cout << " --------------------------------- "                    << endl;
   cout << "  c              = " << udata->c_int                    << endl;
   cout << " --------------------------------- "                    << endl;
