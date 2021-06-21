@@ -5,6 +5,7 @@
  * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
+ *                Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -295,4 +296,193 @@ int QRsol(int n, realtype **h, realtype *q, realtype *b)
   }
   
   return (code);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * Function : QRAdd_MGS
+ * -----------------------------------------------------------------
+ * Implementation of QRAdd to be called in Anderson Acceleration 
+ * -----------------------------------------------------------------
+ */
+
+int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
+              N_Vector vtemp, int mAA, int mMax,
+              long int *pt_map, long int pt)
+{
+    sunindextype j;
+
+    N_VScale(ONE, df, vtemp);
+    for (j=0; j < (mAA-1); j++) {
+      pt_map[j] = j;
+      R[(mAA-1)*mMax+j] = N_VDotProd(Q[j], vtemp);
+      N_VLinearSum(ONE, vtemp, -R[(mAA-1)*mMax + j], Q[j], vtemp);
+    }
+    R[(mAA-1)*mMax + mAA-1] = SUNRsqrt(N_VDotProd(vtemp, vtemp));
+    N_VScale((1/R[(mAA-1)*mMax +mAA-1]), vtemp, Q[pt]);
+
+    // Return success
+    return 0;
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : QRAdd_ICWY
+ * -----------------------------------------------------------------
+ * Low synchronous implementation of QRAdd to be called in 
+ * Anderson Acceleration. 
+ * -----------------------------------------------------------------
+ */
+
+int QRAdd_ICWY(N_Vector *Q, realtype *R, realtype *T, N_Vector df, 
+               N_Vector vtemp, N_Vector vtemp2, int mAA, int mMax,
+               long int *pt_map, long int pt, int VECTOROP_ERR)
+{
+    sunindextype j, k;
+    int t_offset, retval;
+
+    /* T matrix is stored in row-wise order with each row having an additional
+     *   value because it is lower triangular */
+    N_VScale(ONE, df, vtemp); /* stores d_fi in temp */
+
+    t_offset = (mAA-2)*(mAA-1)/2;
+    if (mAA-2 > 0) {
+      /* T(k-1,1:k-1) = Q(:,1:k-1)^T * Q(:,k-1) */
+      N_VDotProdMulti(mAA-1, Q[mAA-2], Q, T + t_offset);
+    }
+    /* T(k-1,k-1) = 1.0 */
+    T[t_offset+(mAA-2)] = 1.0; /* I think adding iter-2 is correct to get to diagonal */
+
+    /* R(1:k-1,k) = Q_k-1^T * df */
+    N_VDotProdMulti(mAA-1, vtemp, Q, R + (mAA-1)*mMax );
+
+    /* Solve T * R(1:k-1,k) = R(1:k-1,k) */
+    for (k = 0; k < (mAA-1); k++) {
+      t_offset = k*(k+1)/2;
+      R[(mAA-1)*mMax + k] = R[(mAA-1)*mMax + k] / T[t_offset + k];
+      pt_map[k] = k; /* array keeping track of m_aa_i  - update while I'm here */
+      for (j = 0; j < (mAA-1); j++) {
+        t_offset = j*(j+1)/2;
+        R[(mAA-1)*mMax + j] -= R[(mAA-1)*mMax + k] * T[t_offset + k];
+      }
+    }
+
+    /* Q(:,k) = df - Q_k-1 R(1:k-1,k) */
+    retval = N_VLinearCombination(mAA-1, R + (mAA-1)*mMax, Q, vtemp2); 
+    if (retval != 0) return(VECTOROP_ERR);
+    N_VLinearSum(ONE, vtemp, -ONE, vtemp2, Q[mAA-1]);
+    
+    /* R(k,k) = \| df \| */
+    R[(mAA-1)*mMax + mAA-1] = SUNRsqrt(N_VDotProd(vtemp, vtemp));
+    /* Q(:,k) = df / \| df \| */
+    N_VScale((1/R[(mAA-1)*mMax + mAA-1]), vtemp, Q[pt]);
+    
+    // Return success
+    return 0;
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : QRAdd_CGS2
+ * -----------------------------------------------------------------
+ * Low synchronous Implementation of QRAdd to be called in
+ * Anderson Acceleration. 
+ * -----------------------------------------------------------------
+ */
+
+int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df, 
+               N_Vector vtemp, N_Vector vtemp2, realtype *temp_array, 
+               int mAA, int mMax, long int *pt_map, long int pt,
+               int VECTOROP_ERR)
+{
+    int retval;
+    sunindextype j;
+
+    N_VScale(ONE, df, vtemp); /* temp = df */ 
+    
+    /* s_k = Q_k-1^T df_aa -- update with sdata as a realtype* array */
+    //N_VDotProdMulti(mAA-1, temp, Q, temp_array);
+    N_VDotProdMulti(mAA-2, vtemp, Q, temp_array); 
+
+    /* y = df - Q_k-1 s_k */
+    retval = N_VLinearCombination(mAA-1, temp_array, Q, vtemp2); 
+    if (retval != 0) return(VECTOROP_ERR);
+    N_VLinearSum(ONE, vtemp, -ONE, vtemp2, vtemp2);
+
+    /* z_k = Q_k-1^T y */
+    //N_VDotProdMulti(iter-1, kin_mem->kin_vtemp3, kin_mem->kin_q_aa, R + (iter-1)*kin_mem->kin_m_aa);
+    N_VDotProdMulti(mAA-2, vtemp2, Q, R + (mAA-1)*mMax);
+
+    /* df = y - Q_k-1 z_k  -- update using N_VLinearCombination */
+    retval = N_VLinearCombination(mAA-1, R + (mAA-1)*mMax, Q, vtemp2); 
+    if (retval != 0) return(VECTOROP_ERR);
+    N_VLinearSum(ONE, vtemp2, -ONE, vtemp, vtemp);
+
+    /* R(1:k-1,k) = s_k + z_k */
+    for (j = 0; j < (mAA-1); j++) {
+      pt_map[j] = j; /* update iteration loop while I'm in here */
+      R[(mAA-1)*mMax + j] = R[(mAA-1)*mMax + j] + temp_array[j];
+    }
+    /* R(k,k) = \| df \| */
+    R[(mAA-1)*mMax + mAA-1] = SUNRsqrt(N_VDotProd(vtemp, vtemp));
+    /* Q(:,k) = df / R(k,k) */
+    N_VScale((1/R[(mAA-1)*mMax + mAA-1]), vtemp, Q[pt]);
+    /* -- end kernel -- */
+
+    // Return success
+    return 0;
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : QRAdd_DCGS2
+ * -----------------------------------------------------------------
+ * Low synchronous Implementation of QRAdd to be called in
+ * Anderson Acceleration. 
+ * -----------------------------------------------------------------
+ */
+
+int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
+                N_Vector vtemp, N_Vector vtemp2, realtype *temp_array,
+                int mAA, int mMax, long int *pt_map, long int pt,
+                int VECTOROP_ERR)
+{
+    sunindextype j;
+    int retval;
+
+    N_VScale(ONE, df, vtemp); /* temp = df */ 
+    
+    /* R(1:k-1,k) = Q_k-1^T df_aa */
+    N_VDotProdMulti(mAA-2, vtemp, Q, R + (mAA-1)*mMax );
+    /* Delayed reorthogonalization */
+    if ((mAA-1) > 1) {
+        /* s = Q_k-2^T Q(:,k-1) */
+        N_VDotProdMulti(mAA-1, Q[mAA-2], Q, temp_array);
+
+        /* Q(:,k-1) = Q(:,k-1) - Q_k-2 s */
+        retval = N_VLinearCombination(mAA-2, temp_array, Q, vtemp2); 
+        if (retval != 0) return(VECTOROP_ERR);
+        N_VLinearSum(ONE, Q[mAA-2], -ONE, vtemp2, Q[mAA-2]);
+        
+        /* R(1:k-2,k-1) = R(1:k-2,k-1) + s */
+        for (j = 0; j < (mAA-2); j++) {
+          pt_map[j] = j; /* update iteration loop while I'm in here */
+          R[(mAA-2)*mMax + j] = R[(mAA-2)*mMax + j] + temp_array[j];
+        }
+        pt_map[mAA-2] = mAA-2; /* update iteration loop while I'm in here */
+    }
+
+    /* df = df - Q(:,k-1) s */
+    retval = N_VLinearCombination(mAA-1, R + (mAA-1)*mMax, Q, vtemp2); 
+    if (retval != 0) return(VECTOROP_ERR);
+    N_VLinearSum(ONE, vtemp, -ONE, vtemp2, vtemp);
+
+    /* R(k,k) = \| df \| */
+    R[(mAA-1)*mMax + mAA-1] = SUNRsqrt(N_VDotProd(vtemp, vtemp));
+    /* Q(:,k) = df / R(k,k) */
+    N_VScale((1/R[(mAA-1)*mMax + mAA-1]), vtemp, Q[pt]);
+
+    // Return success
+    return 0;
 }

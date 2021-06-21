@@ -1,5 +1,6 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen and Alan C. Hindmarsh @ LLNL
+ *                Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -255,6 +256,153 @@ SUNDIALS_EXPORT int QRfact(int n, realtype **h, realtype *q, int job);
  */
 
 SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: QRAdd_MGS
+ * -----------------------------------------------------------------
+ * QRAdd_MGS uses Modified Gram Schmidt to update the QR factorization 
+ * stored in user inputs 
+ *   - N_Vector *Q 
+ *   - realtype *R 
+ * to include the orthonormalized vector input by 
+ *   - N_Vector df. 
+ *
+ * temp : N_Vector same size as those in Q - used for temporary
+ *        storage during computation
+ * mAA :
+ * 
+ * mMax :
+ * 
+ * pt_map :
+ *
+ * pt :
+ *
+ * On return, Q and R contain the updated Q R factors, if
+ * QRAdd_MGS was successful.
+ *
+ * QRAdd_MGS returns a 0 if successful. Otherwise,....  
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df, N_Vector temp,
+                int mAA, int mMax, long int *pt_map, long int pt);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: QRAdd_ICWY
+ * -----------------------------------------------------------------
+ * QRAdd_ICWY uses the Inverse Compact WY Modified Gram Schmidt 
+ * method to update the QR factorization stored in user inputs 
+ *   - N_Vector *Q 
+ *   - realtype *R
+ *   - realtype *T 
+ * to include the orthonormalized vector input by 
+ *   - N_Vector df. 
+ * where the factorization to be updated is of the form
+ *   Q * T * R
+ * 
+ * temp : N_Vector same size as those in Q - used for temporary
+ *        storage during computation
+ *
+ * temp2 : N_Vector same size as those in Q - used for temporary
+ *        storage during computation
+ *
+ * mAA :
+ * 
+ * mMax :
+ * 
+ * pt_map :
+ *
+ * pt :
+ *
+ * On return, Q, R, and T contain the updated Q T R factors, if
+ * QRAdd_ICWY was successful.
+ *
+ * QRAdd_ICWY returns a 0 if successful. Otherwise,....  
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, realtype *T, N_Vector df, 
+                      N_Vector temp, N_Vector temp2, int mAA, int mMax,
+                      long int *pt_map, long int pt, int VECTOROP_ERR);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: QRAdd_CGS2
+ * -----------------------------------------------------------------
+ * QRAdd_CGS2 uses a Classical Gram Schmidt with Reorthogonalization
+ * formulation to update the QR factorization stored in user inputs 
+ *   - N_Vector *Q 
+ *   - realtype *R
+ * to include the orthonormalized vector input by 
+ *   - N_Vector df. 
+ * 
+ * temp : N_Vector same size as those in Q - used for temporary
+ *        storage during computation
+ *
+ * temp2 : N_Vector same size as those in Q - used for temporary
+ *        storage during computation
+ *
+ * mAA :
+ * 
+ * mMax :
+ * 
+ * pt_map :
+ *
+ * pt :
+ *
+ * On return, Q and R contain the updated Q R factors, if
+ * QRAdd_CGS2 was successful.
+ *
+ * QRAdd_CGS2 returns a 0 if successful. Otherwise,....  
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df, 
+                      N_Vector temp, N_Vector temp2, realtype *temp_array,
+                      int mAA, int mMax, long int *pt_map, long int pt,
+                      int VECTOROP_ERR);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: QRAdd_DCGS2
+ * -----------------------------------------------------------------
+ * QRAdd_DCGS2 uses a Classical Gram Schmidt with Reorthogonalization
+ * formulation that delays reorthogonlization (for the purpose of 
+ * reducing number of inner products) to update the QR factorization 
+ * stored in user inputs 
+ *   - N_Vector *Q 
+ *   - realtype *R
+ * to include the orthonormalized vector input by 
+ *   - N_Vector df. 
+ * 
+ * temp : N_Vector same size as those in Q - used for temporary
+ *        storage during computation
+ *
+ * temp2 : N_Vector same size as those in Q - used for temporary
+ *        storage during computation
+ *
+ * mAA :
+ * 
+ * mMax :
+ * 
+ * pt_map :
+ *
+ * pt :
+ *
+ * On return, Q and R contain the updated Q R factors, if
+ * QRAdd_DCGS2 was successful.
+ *
+ * QRAdd_DCGS2 returns a 0 if successful. Otherwise,....  
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
+                      N_Vector temp, N_Vector temp2, realtype *temp_array, 
+                      int mAA, int mMax, long int *pt_map, long int pt,
+                      int VECTOROP_ERR);
+
 
 #ifdef __cplusplus
 }
