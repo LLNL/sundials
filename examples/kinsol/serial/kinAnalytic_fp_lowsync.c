@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
   long int  mxiter  = 10;
   long int  maa     = 0;           /* no acceleration */
   realtype  damping = RCONST(1.0); /* no damping      */
-  int       orth    = 2;           /* CGS2 in Anderson */
+  int       orth    = 0;           /* MGS in Anderson */
   long int  nni, nfe;
   realtype* data;
   void*     kmem;
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
   /* Check if a acceleration/dampling values were provided */
   if (argc > 1) maa     = (long int) atoi(argv[1]);
   if (argc > 2) damping = (realtype) atof(argv[2]);
-  if (argc > 3) orth = (int) atof(argv[3]);
+  if (argc > 3) orth    = (int)      atoi(argv[3]);
 
   /* -------------------------
    * Print problem description
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
   printf("    max iters = %ld\n", mxiter);
   printf("    accel vec = %ld\n", maa);
   printf("    damping   = %"GSYM"\n", damping);
-  printf("    orth routine = %ld\n", orth);
+  printf("    orth routine = %d\n", orth);
 
   /* --------------------------------------
    * Create vectors for solution and scales
