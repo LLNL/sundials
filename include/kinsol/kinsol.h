@@ -62,7 +62,6 @@ extern "C" {
 #define KIN_ORTH_ICWY   1 
 #define KIN_ORTH_CGS2   2
 #define KIN_ORTH_DCGS2  3
-#define KIN_ORTH_SDCGS2 4 
 
 /* Enumeration for eta choice */
 #define KIN_ETACHOICE1  1
