@@ -32,6 +32,9 @@ if(EXAMPLES_ENABLE_CXX)
   if(ENABLE_MPI AND MPI_CXX_FOUND)
     add_subdirectory(CXX_parallel)
   endif()
+  if(ENABLE_MPI AND MPI_CXX_FOUND AND ENABLE_HYPRE AND HYPRE_FOUND)
+    add_subdirectory(CXX_parhyp)
+  endif()
 endif()
 
 # Fortran examples
