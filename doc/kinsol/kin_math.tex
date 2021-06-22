@@ -480,12 +480,6 @@ CGS-2 only requires 3 synchronizations per iteration, but does not exhibit
 the same stability as Modified Gram-Schmidt. Classical Gram-Schmidt with
 Delayed Reorthogolonization has the same stability as CGS-2, but it reduces
 the number of synchronizations per iteration to 2.
-The fifth option available to the user is stabilized CGS-2 with delayed
-reorthogonalization. This option restores some of the stability to
-CGS-2 while still maintaining 2 synchronizations per iteration. It may
-be more performant than the ICWY variant due to not requiring a
-lower triangular solve. 
-
 
 
 \subsubsection*{Fixed-point - Anderson Acceleration Stopping Criterion}
