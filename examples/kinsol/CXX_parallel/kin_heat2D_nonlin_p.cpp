@@ -1,5 +1,6 @@
 /* -----------------------------------------------------------------------------
  * Programmer(s): Shelby Lockhart @ LLNL
+ *                David Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -13,7 +14,8 @@
  * -----------------------------------------------------------------------------
  * Example problem:
  *
- * The following test simulates a simple anisotropic 2D heat equation,
+ * The following test simulates a steady-state anisotropic 2D heat equation
+ * with an additional nonlinear term,
  *
  *   b = kx u_xx + ky u_yy + c(u),
  *
@@ -23,216 +25,35 @@
  *
  * and the forcing term
  *
- *   b(x,y) = - kx 2 pi^2 (cos^2(pi x) - sin^2(pi x)) sin^2(pi y)
- *            - ky 2 pi^2 (cos^2(pi y) - sin^2(pi y)) sin^2(pi x).
+ *   b(x,y) = kx 2 pi^2 * (cos^2(pi x) - sin^2(pi x)) sin^2(pi y)
+ *            ky 2 pi^2 * (cos^2(pi y) - sin^2(pi y)) sin^2(pi x)
+ *            + c(u_exact).
  *
- * and the nonlinear term
+ * Under this setup, the problem has the analytical solution
  *
- *   c(u) = u^3 - u
- * 
+ *   u(x,y) = u_exact = sin^2(pi x ) sin^2(pi y).
+ *
  * The spatial derivatives are computed using second-order centered differences,
- * with the data distributed over nx * ny points on a uniform spatial grid,
- * with mesh spacing hx and hy.
+ * with the data distributed over nx * ny points on a uniform spatial grid.
+ * The problem is solved via Fixed Point Iteration by adding u to both
+ * sides of the equation to setup the fixed point function. 
+ * This matrix-free setup has the following form
  * 
- * Under this setup, the problem has the following fixed point format
- * 
- *   u_{ij} = C * [c1*(u_{i-1,j} + u_{i+1,j}) + c2*(u_{i,j-1} + u_{i,j+1}) + u_{ij^3} - b]
+ *   u = c3 * u_{ij} + c1*(u_{i-1,j} + u_{i+1,j}) + c2*(u_{i,j-1} + u_{i,j+1})
+                 + c(u)_{ij} - b_{ij} + u_{ij}  
  *
- * where the constants c1, c2, and C are defined as follows
+ * where the constants c1, c2, and c3 are defined as follows
  *
  *   c1 = kx/hx^2 
- *   c2 = ky/hx^2 
- *    C = 2 * (c1 + c2) + 1 
+ *   c2 = ky/hy^2 
+ *   c3  = -2 * (c1 + c2)
  *
- * The initial guess for the fixed point problem is taken to be
- * 
- *    u(x,y) = sin^2(pi x) sin^2(pi y).
- *
- * The resulting nonlinear ystem is solved using fixed point iteration with
- * Anderson Acceleration.
+ * Several command line options are available to change the problem parameters
+ * and KINSOL settings. Use the flag --help for more information. 
  * ---------------------------------------------------------------------------*/
 
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <limits>
-#include <cmath>
-
-#include "kinsol/kinsol.h"             // access to KINSOL
-#include "nvector/nvector_parallel.h"  // access to the MPI N_Vector
-#include "mpi.h"                       // MPI header file
-
-
-// Macros for problem constants
-#define PI    RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define EIGHT RCONST(8.0)
-
-// Macro to access (x,y) location in 1D NVector array
-#define IDX(x,y,n) ((n)*(y)+(x))
-
-using namespace std;
-
-// -----------------------------------------------------------------------------
-// User data structure
-// -----------------------------------------------------------------------------
-
-struct UserData
-{
-  // Diffusion coefficients in the x and y directions
-  realtype kx;
-  realtype ky;
-
-  // Upper bounds in x and y directions
-  realtype xu;
-  realtype yu;
-
-  // Global number of nodes in the x and y directions
-  sunindextype nx;
-  sunindextype ny;
-
-  // Global total number of nodes
-  sunindextype nodes;
-
-  // Mesh spacing in the x and y directions
-  realtype dx;
-  realtype dy;
-
-  // Local number of nodes in the x and y directions
-  sunindextype nx_loc;
-  sunindextype ny_loc;
-
-  // Overall number of local nodes
-  sunindextype nodes_loc;
-
-  // Global x and y indices of this subdomain
-  sunindextype is;  // x starting index
-  sunindextype ie;  // x ending index
-  sunindextype js;  // y starting index
-  sunindextype je;  // y ending index
-
-  // MPI variables
-  MPI_Comm comm_c; // Cartesian communicator in space
-
-  int nprocs_w; // total number of MPI processes in Comm world
-  int npx;      // number of MPI processes in the x-direction
-  int npy;      // number of MPI processes in the y-direction
-
-  int myid_c; // process ID in Cartesian communicator
-
-  // Flags denoting if this process has a neighbor
-  bool HaveNbrW;
-  bool HaveNbrE;
-  bool HaveNbrS;
-  bool HaveNbrN;
-
-  // Neighbor IDs for exchange
-  int ipW;
-  int ipE;
-  int ipS;
-  int ipN;
-
-  // Receive buffers for neighbor exchange
-  realtype *Wrecv;
-  realtype *Erecv;
-  realtype *Srecv;
-  realtype *Nrecv;
-
-  // Receive requests for neighbor exchange
-  MPI_Request reqRW;
-  MPI_Request reqRE;
-  MPI_Request reqRS;
-  MPI_Request reqRN;
-
-  // Send buffers for neighbor exchange
-  realtype *Wsend;
-  realtype *Esend;
-  realtype *Ssend;
-  realtype *Nsend;
-
-  // Send requests for neighor exchange
-  MPI_Request reqSW;
-  MPI_Request reqSE;
-  MPI_Request reqSS;
-  MPI_Request reqSN;
-
-  // Integrator settings
-  realtype rtol;        // relative tolerance
-  int      maa;         // m for Anderson Acceleration
-  realtype damping;     // damping for Anderson Acceleration 
-  int      maxits;      // max number of fixed point iterations
-
-  // Ouput variables
-  int      output; // output level
-  N_Vector e;      // error vector
-
-  // Timing variables
-  bool   timing;     // print timings
-  double totaltime;
-  double fevaltime;
-  double exchangetime;
-};
-
-// -----------------------------------------------------------------------------
-// Functions provided to the SUNDIALS integrator
-// -----------------------------------------------------------------------------
-
-// Nonlinear fixed point function 
-static int FPFunction(N_Vector u, N_Vector f, void *user_data);
-
-// -----------------------------------------------------------------------------
-// Helper functions
-// -----------------------------------------------------------------------------
-
-// Setup the parallel decomposition
-static int SetupDecomp(MPI_Comm comm_w, UserData *udata);
-
-// Perform neighbor exchange
-static int PostRecv(UserData *udata);
-static int SendData(N_Vector y, UserData *udata);
-static int WaitRecv(UserData *udata);
-
-// -----------------------------------------------------------------------------
-// UserData and input functions
-// -----------------------------------------------------------------------------
-
-// Set the default values in the UserData structure
-static int InitUserData(UserData *udata);
-
-// Free memory allocated within UserData
-static int FreeUserData(UserData *udata);
-
-// Read the command line inputs and set UserData values
-static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc);
-
-// -----------------------------------------------------------------------------
-// Output and utility functions
-// -----------------------------------------------------------------------------
-
-// Compute the true solution
-static int Solution(realtype t, N_Vector u, UserData *udata);
-
-// Compute the solution error solution
-static int SolutionError(N_Vector u,  N_Vector e, UserData *udata);
-
-// Print the command line options
-static void InputHelp();
-
-// Print some UserData information
-static int PrintUserData(UserData *udata);
-
-// Print Fixed Point statistics
-static int OutputStats(void *kinsol_mem, UserData *udata);
-
-// Print integration timing
-static int OutputTiming(UserData *udata);
-
-// Check function return values
-static int check_flag(void *flagvalue, const string funcname, int opt);
+#include "kin_heat2D_nonlin_p.hpp"     // header file containing UserData
+                                       //   and function declartions
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -303,12 +124,25 @@ int main(int argc, char* argv[])
   N_VConst(ONE, scale);
 
   // Set initial condition
-  flag = Solution(ZERO, u, udata);
-  if (check_flag(&flag, "Solution", 1)) return 1;
-
+  N_VConst(ONE, u);
+ 
   // Create vector for error
   udata->e = N_VClone(u);
   if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
+
+  // Create vector for b
+  udata->b = N_VClone(u);
+  if (check_flag((void *) (udata->b), "N_VClone", 0)) return 1;
+
+  // Create temp vector for FPFunction evaluation
+  udata->vtemp = N_VClone(u);
+  if (check_flag((void *) (udata->vtemp), "N_VClone", 0)) return 1;
+  
+  // -----------------------------------------------
+  // Set b and c(u) for RHS evaluation in FPFunction
+  // -----------------------------------------------
+  flag = SetupRHS(udata);
+  if (check_flag(&flag, "SetupRHS", 1)) return 1;
 
   // --------------
   // Setup KINSOL 
@@ -321,6 +155,10 @@ int main(int argc, char* argv[])
   // Set number of prior residuals used in Anderson Accleration
   flag = KINSetMAA(kin_mem, udata->maa);
   if (check_flag(&flag, "KINSetMAA", 0)) return 1;
+  
+  // Set orthogonlization routine used in Anderson Accleration
+  flag = KINSetOrthAA(kin_mem, udata->orthaa);
+  if (check_flag(&flag, "KINSetOrthAA", 0)) return 1;
 
   // Set Fixed Point Function
   flag = KINInit(kin_mem, FPFunction, u);
@@ -364,7 +202,7 @@ int main(int argc, char* argv[])
   t2 = MPI_Wtime();
 
   // Update timer
-  udata->totaltime += t2 - t1;
+  udata->totaltime = t2 - t1;
 
   // -----------------------
   // Get solver statistics
@@ -607,7 +445,7 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
 }
 
 // -----------------------------------------------------------------------------
-// Functions called by the integrator
+// Functions called by the solver 
 // -----------------------------------------------------------------------------
 
 // Fixed point function to compute G(u) 
@@ -644,7 +482,6 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   realtype cx = udata->kx / (udata->dx * udata->dx);
   realtype cy = udata->ky / (udata->dy * udata->dy);
   realtype cc = -TWO * (cx + cy);
-  realtype cc1 = - ONE / (cc - 1);
 
   // Access data arrays
   realtype *uarray = N_VGetArrayPointer(u);
@@ -656,51 +493,10 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   // Initialize rhs vector to zero (handles boundary conditions)
   N_VConst(ZERO, f);
 
-  // POTENTIALLY UPDATE BOUNDARY CONDITIONS HERE
-
   // Iterate over subdomain and compute rhs forcing term
   realtype x, y;
   realtype sin_sqr_x, sin_sqr_y;
   realtype cos_sqr_x, cos_sqr_y;
-
-  realtype bx = (udata->kx) * TWO * PI * PI;
-  realtype by = (udata->ky) * TWO * PI * PI;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      x = (udata->is + i) * udata->dx;
-      y = (udata->js + j) * udata->dy;
-
-      sin_sqr_x = sin(PI * x) * sin(PI * x);
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
-
-      cos_sqr_x = cos(PI * x) * cos(PI * x);
-      cos_sqr_y = cos(PI * y) * cos(PI * y);
-
-      farray[IDX(i,j,nx_loc)] = 
-       cc1 * (-bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y
-       -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x);
-    }
-  }
-  
-  // Iterate over subdomain and compute rhs nonlinear term
-  realtype u_val, u3_val;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      u3_val = u_val * u_val * u_val;
-
-      // CHANGE NONLINEAR TERM HERE
-      farray[IDX(i,j,nx_loc)] += cc1 * (u3_val); 
-      //farray[IDX(i,j,nx_loc)] += cc1 * (u3_val + 2); 
-      //farray[IDX(i,j,nx_loc)] += (u_val * (1 - u_val)); 
-    }
-  }
 
   // Iterate over subdomain interior and add rhs diffusion term
   for (j = 1; j < ny_loc - 1; j++)
@@ -708,9 +504,9 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     for (i = 1; i < nx_loc - 1; i++)
     {
       farray[IDX(i,j,nx_loc)] +=
-        //cc * uarray[IDX(i,j,nx_loc)]
-        cc1 * (cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]));
+        cc * uarray[IDX(i,j,nx_loc)] +
+        cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
     }
   }
 
@@ -732,26 +528,26 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     {
       j = 0;
       farray[IDX(i,j,nx_loc)] +=
-        //cc * uarray[IDX(i,j,nx_loc)]
-        cc1 * (cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]));
+        cc * uarray[IDX(i,j,nx_loc)] + 
+        cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
+        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
     }
 
     for (j = 1; j < ny_loc - 1; j++)
     {
       farray[IDX(i,j,nx_loc)] +=
-        //cc * uarray[IDX(i,j,nx_loc)]
-        cc1 * (cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]));
+        cc * uarray[IDX(i,j,nx_loc)] + 
+        cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
     }
 
     if (udata->HaveNbrN)  // North-West corner
     {
       j = ny_loc - 1;
       farray[IDX(i,j,nx_loc)] +=
-        //cc * uarray[IDX(i,j,nx_loc)]
-        cc1 * (cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]));
+        cc * uarray[IDX(i,j,nx_loc)] + 
+        cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
     }
   }
 
@@ -763,26 +559,26 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     {
       j = 0;
       farray[IDX(i,j,nx_loc)] +=
-        //cc * uarray[IDX(i,j,nx_loc)]
-        cc1 * (cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
-        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]));
+        cc * uarray[IDX(i,j,nx_loc)] + 
+        cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
+        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
     }
 
     for (j = 1; j < ny_loc - 1; j++)
     {
       farray[IDX(i,j,nx_loc)] +=
-        //cc * uarray[IDX(i,j,nx_loc)]
-        cc1 * (cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]));
+        cc * uarray[IDX(i,j,nx_loc)] + 
+        cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
     }
 
     if (udata->HaveNbrN)  // North-East corner
     {
       j = ny_loc - 1;
       farray[IDX(i,j,nx_loc)] +=
-        //cc * uarray[IDX(i,j,nx_loc)]
-        cc1 * (cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]));
+        cc * uarray[IDX(i,j,nx_loc)] + 
+        cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
     }
   }
 
@@ -793,9 +589,9 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     for (i = 1; i < nx_loc - 1; i++)
     {
       farray[IDX(i,j,nx_loc)] +=
-        //cc * uarray[IDX(i,j,nx_loc)]
-        cc1 * (cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]));
+        cc * uarray[IDX(i,j,nx_loc)] + 
+        cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
+        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
     }
   }
 
@@ -806,11 +602,22 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     for (i = 1; i < nx_loc - 1; i++)
     {
       farray[IDX(i,j,nx_loc)] +=
-        //cc * uarray[IDX(i,j,nx_loc)]
-        cc1 * (cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]));
+        cc * uarray[IDX(i,j,nx_loc)] + 
+        cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
+        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
     }
   }
+ 
+  // Add c(u)
+  flag = udata->c(u, udata->vtemp, user_data);
+  if (check_flag(&flag, "c(u)", 1)) return 1;
+  N_VLinearSum(ONE, udata->vtemp, ONE, f, f);
+
+  // Add u
+  N_VLinearSum(ONE, u, ONE, f, f);
+
+  // Subtract b 
+  N_VLinearSum(-ONE, udata->b, ONE, f, f);
 
   // Stop timer
   double t2 = MPI_Wtime();
@@ -825,6 +632,110 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 // -----------------------------------------------------------------------------
 // RHS helper functions
 // -----------------------------------------------------------------------------
+
+// Set nonlinear function c(u)
+static int SetC(UserData *udata)
+{
+  if (0 < udata->c_int && udata->c_int < 18)
+  {
+    if (udata->c_int == 1) udata->c = c1;
+    else if (udata->c_int == 2) udata->c = c2;
+    else if (udata->c_int == 3) udata->c = c3;
+    else if (udata->c_int == 4) udata->c = c4;
+    else if (udata->c_int == 5) udata->c = c5;
+    else if (udata->c_int == 6) udata->c = c6;
+    else if (udata->c_int == 7) udata->c = c7;
+    else if (udata->c_int == 8) udata->c = c8;
+    else if (udata->c_int == 9) udata->c = c9;
+    else if (udata->c_int == 10) udata->c = c10;
+    else if (udata->c_int == 11) udata->c = c11;
+    else if (udata->c_int == 12) udata->c = c12;
+    else if (udata->c_int == 13) udata->c = c13;
+    else if (udata->c_int == 14) udata->c = c14;
+    else if (udata->c_int == 15) udata->c = c15;
+    else if (udata->c_int == 16) udata->c = c16;
+    else if (udata->c_int == 17) udata->c = c17;
+  }
+  else return 1;
+
+  // Return success
+  return 0;
+}
+
+// Set nonlinear function c(u)
+static int SetupRHS(void *user_data)
+{
+  int           flag;
+  sunindextype i, j;
+
+  // Access problem data
+  UserData *udata = (UserData *) user_data;
+
+  // Shortcuts to local number of nodes
+  sunindextype nx_loc = udata->nx_loc;
+  sunindextype ny_loc = udata->ny_loc;
+
+  // Determine iteration range excluding the overall domain boundary
+  sunindextype istart = (udata->HaveNbrW) ? 0      :          1;
+  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
+  sunindextype jstart = (udata->HaveNbrS) ? 0      :          1;
+  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
+
+  // ------------------------------------------------------
+  // Setup function c(u) for FPFunction based on user input
+  // ------------------------------------------------------
+  flag = SetC(udata);
+  if (check_flag(&flag, "SetC", 1)) return 1;
+  
+  // ------------------------------------------------------
+  // Setup b for FPFunction 
+  // ------------------------------------------------------
+
+  // Access data array
+  realtype *barray = N_VGetArrayPointer(udata->b);
+  if (check_flag((void *) barray, "N_VGetArrayPointer", 0)) return 1;
+
+  // Initialize rhs vector to zero (handles boundary conditions)
+  realtype x, y;
+  realtype sin_sqr_x, sin_sqr_y;
+  realtype cos_sqr_x, cos_sqr_y;
+
+  realtype bx = (udata->kx) * TWO * PI * PI;
+  realtype by = (udata->ky) * TWO * PI * PI;
+
+  // Iterate over subdomain and compute forcing term (b)
+  for (j = jstart; j < jend; j++)
+  {
+    for (i = istart; i < iend; i++)
+    {
+      x = (udata->is + i) * udata->dx;
+      y = (udata->js + j) * udata->dy;
+
+      sin_sqr_x = sin(PI * x) * sin(PI * x);
+      sin_sqr_y = sin(PI * y) * sin(PI * y);
+
+      cos_sqr_x = cos(PI * x) * cos(PI * x);
+      cos_sqr_y = cos(PI * y) * cos(PI * y);
+
+      barray[IDX(i,j,nx_loc)] = 
+        bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y
+        + by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x;
+    }
+  }
+
+  // Calculate c(u_exact) and add to forcing term (b)
+  flag = Solution(udata->e, udata);
+  if (check_flag(&flag, "rhs", 1)) return 1;
+
+  flag = udata->c(udata->e, udata->vtemp, user_data);
+  if (check_flag(&flag, "c(u)", 1)) return 1;
+
+  // b = kx u_xx (u_exact) + ky u_yy (u_exact) + c(u_exact)
+  N_VLinearSum(ONE, udata->vtemp, ONE, udata->b, udata->b);
+
+  // Return success
+  return 0;
+}
 
 // Post exchange receives
 static int PostRecv(UserData *udata)
@@ -1063,10 +974,8 @@ static int InitUserData(UserData *udata)
   udata->yu = ONE;
 
   // Global number of nodes in the x and y directions
-  //udata->nx    = 32;
-  //udata->ny    = 32;
-  udata->nx    = 64;
-  udata->ny    = 64;
+  udata->nx    = 32;
+  udata->ny    = 32;
   udata->nodes = udata->nx * udata->ny;
 
   // Mesh spacing in the x and y directions
@@ -1118,10 +1027,19 @@ static int InitUserData(UserData *udata)
   udata->ipN = -1;
 
   // Integrator settings
-  udata->rtol        = RCONST(1.e-5);   // relative tolerance
+  udata->rtol        = RCONST(1.e-8);   // relative tolerance
   udata->maa         = 0;               // no Anderson Acceleration
-  udata->damping     = ONE;             // no damping 
-  udata->maxits      = 700;             // use default
+  udata->damping     = ONE;             // no damping for Anderson Acceleration
+  udata->orthaa      = 0;               // use MGS for Anderson Acceleration 
+  udata->maxits      = 200;             // max number of fixed point iterations
+
+  // c function
+  udata->c     = NULL;
+  udata->c_int = 1; 
+
+  // Vectors
+  udata->b     = NULL;
+  udata->vtemp = NULL;
 
   // Output variables
   udata->output = 1;   // 0 = no output, 1 = stats output, 2 = output to disk
@@ -1153,6 +1071,20 @@ static int FreeUserData(UserData *udata)
   // Free MPI Cartesian communicator
   if (udata->comm_c != MPI_COMM_NULL)
     MPI_Comm_free(&(udata->comm_c));
+
+  // Free b vector
+  if (udata->b)
+  {
+    N_VDestroy(udata->b);
+    udata->b = NULL;
+  }
+  
+  // Free temporary vector
+  if (udata->vtemp)
+  {
+    N_VDestroy(udata->vtemp);
+    udata->vtemp = NULL;
+  }
 
   // Free error vector
   if (udata->e)
@@ -1204,13 +1136,26 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->rtol = stod((*argv)[arg_idx++]);
     }
+    else if (arg == "--maa")
+    {
+      udata->maa = stoi((*argv)[arg_idx++]);
+    }
+    else if (arg == "--damping")
+    {
+      udata->damping = stod((*argv)[arg_idx++]);
+    }
+    else if (arg == "--orthaa")
+    {
+      udata->orthaa = stoi((*argv)[arg_idx++]);
+    }
     else if (arg == "--maxits")
     {
       udata->maxits = stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--maa")
+    // RHS settings
+    else if (arg == "--c")
     {
-      udata->maa = stoi((*argv)[arg_idx++]);
+      udata->c_int = stoi((*argv)[arg_idx++]);
     }
     // Output settings
     else if (arg == "--output")
@@ -1255,14 +1200,10 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
 // -----------------------------------------------------------------------------
 
 // Compute the exact solution
-static int Solution(realtype t, N_Vector u, UserData *udata)
+static int Solution(N_Vector u, UserData *udata)
 {
   realtype x, y;
-  realtype cos_sqr_t;
   realtype sin_sqr_x, sin_sqr_y;
-
-  // Constants for computing solution
-  cos_sqr_t = cos(PI * t) * cos(PI * t);
 
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, u);
@@ -1287,7 +1228,7 @@ static int Solution(realtype t, N_Vector u, UserData *udata)
       sin_sqr_x = sin(PI * x) * sin(PI * x);
       sin_sqr_y = sin(PI * y) * sin(PI * y);
 
-      uarray[IDX(i,j,udata->nx_loc)] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
+      uarray[IDX(i,j,udata->nx_loc)] = sin_sqr_x * sin_sqr_y;
     }
   }
 
@@ -1297,14 +1238,10 @@ static int Solution(realtype t, N_Vector u, UserData *udata)
 // Compute the solution error
 static int SolutionError(N_Vector u, N_Vector e, UserData *udata)
 {
-  // Compute true solution
-  //int flag = Solution(t, e, udata);
-  //if (flag != 0) return -1;
-
   // Check absolute error between output u and G(u)
-  int flag = FPFunction(u, e, udata);
+  int flag = Solution(e, udata);
   if (flag != 0) return -1;
-
+  
   // Compute absolute error
   N_VLinearSum(ONE, u, -ONE, e, e);
   N_VAbs(e, e);
@@ -1322,8 +1259,11 @@ static void InputHelp()
   cout << "  --domain <xu> <yu>      : domain upper bound in the x and y direction" << endl;
   cout << "  --k <kx> <ky>           : diffusion coefficients" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --maxits <iterations>   : max fixed point iterations" << endl;
   cout << "  --maa                   : size of Anderson Acceleration subspace" << endl;
+  cout << "  --damping               : damping for Anderson Acceleration" << endl;
+  cout << "  --orthaa                : orthogonalization routined used in Anderson Acceleration" << endl;
+  cout << "  --maxits <iterations>   : max fixed point iterations" << endl;
+  cout << "  --c <c_int>             : nonlinear function choice" << endl;
   cout << "  --output                : output nonlinear solver statistics" << endl;
   cout << "  --timing                : print timing data" << endl;
   cout << "  --help                  : print this message and exit" << endl;
@@ -1351,8 +1291,12 @@ static int PrintUserData(UserData *udata)
   cout << "  dy             = " << udata->dy              << endl;
   cout << " --------------------------------- "           << endl;
   cout << "  rtol           = " << udata->rtol            << endl;
-  cout << "  maxits         = " << udata->maxits          << endl;
   cout << "  maa            = " << udata->maa             << endl;
+  cout << "  damping        = " << udata->damping         << endl;
+  cout << "  orthaa         = " << udata->orthaa          << endl;
+  cout << "  maxits         = " << udata->maxits          << endl;
+  cout << " --------------------------------- "           << endl;
+  cout << "  c              = " << udata->c_int           << endl;
   cout << " --------------------------------- "           << endl;
   cout << "  output         = " << udata->output          << endl;
   cout << " --------------------------------- "           << endl;
