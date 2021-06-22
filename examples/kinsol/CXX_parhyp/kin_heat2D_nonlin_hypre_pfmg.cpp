@@ -539,11 +539,6 @@ static int SetupRHS(void *user_data)
   sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
   sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
 
-  // Constants for computing diffusion term
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
-
   // -------------------------------------------------------
   // Setup function c(u) for FPFunction based on user input 
   // -------------------------------------------------------
