@@ -133,7 +133,7 @@ struct UserData
   // Fixed Point Solver settings
   realtype rtol;        // relative tolerance
   int      maa;         // m for Anderson Acceleration
-  int      damping;     // daming for Anderson Acceleration
+  realtype damping;     // daming for Anderson Acceleration
   int      orthaa;      // orthogonalization routine for AA
   int      maxits;      // max number of fixed point iterations
 
@@ -235,7 +235,6 @@ static int SetupLS(N_Vector u, void *user_data);
 
 // Fill Jacobian and A = I - gamma * J
 static int Jac(UserData *udata);
-static int ScaleAddI(UserData *udata, realtype gamma);
 
 // -----------------------------------------------------------------------------
 // UserData and input functions

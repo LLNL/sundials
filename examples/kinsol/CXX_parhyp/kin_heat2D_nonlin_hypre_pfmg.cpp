@@ -27,7 +27,7 @@
  *
  *   b(x,y) = kx 2 pi^2 (cos^2(pi x) - sin^2(pi x)) sin^2(pi y) 
  *            ky 2 pi^2 (cos^2(pi y) - sin^2(pi y)) sin^2(pi x)
- *            - c(u_exact).
+ *            + c(u_exact).
  *
  * Under this setup, the problem has the analytical solution
  *
@@ -1370,7 +1370,7 @@ static int InitUserData(UserData *udata)
   // Fixed Point Solver settings
   udata->rtol        = RCONST(1.e-8);   // relative tolerance
   udata->maa         = 0;               // no Anderson Acceleration
-  udata->damping     = 1;               // no damping for Anderson Acceleration
+  udata->damping     = ONE;               // no damping for Anderson Acceleration
   udata->orthaa      = 0;               // use MGS for Anderson Acceleration
   udata->maxits      = 100;             // max number of fixed point iterations
 
@@ -1537,7 +1537,7 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     }
     else if (arg == "--damping")
     {
-      udata->damping = stoi((*argv)[arg_idx++]);
+      udata->damping = stod((*argv)[arg_idx++]);
     }
     else if (arg == "--orthaa")
     {
@@ -1685,9 +1685,8 @@ static void InputHelp()
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
   cout << "  --pfmg_relax <types>    : relaxtion type in PFMG" << endl;
   cout << "  --pfmg_nrelax <iters>   : pre/post relaxtion sweeps in PFMG" << endl;
-  cout << "  --output <level>        : output level" << endl;
-  cout << "  --nout <nout>           : number of outputs" << endl;
-  cout << "  --maxsteps <steps>      : max steps between outputs" << endl;
+  cout << "  --output                : output nonlinear solver statistics" << endl;
+  cout << "  --maxits <maxits>       : max fixed point iterations" << endl;
   cout << "  --timing                : print timing data" << endl;
   cout << "  --help                  : print this message and exit" << endl;
 }
@@ -1717,6 +1716,7 @@ static int PrintUserData(UserData *udata)
   cout << "  maa            = " << udata->maa                      << endl;
   cout << "  damping        = " << udata->damping                  << endl;
   cout << "  orthaa         = " << udata->orthaa                   << endl;
+  cout << "  maxits         = " << udata->maxits                   << endl;
   cout << " --------------------------------- "                    << endl;
   cout << "  c              = " << udata->c_int                    << endl;
   cout << " --------------------------------- "                    << endl;
