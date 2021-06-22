@@ -167,7 +167,7 @@ typedef struct KINMemRec {
                                0 - Modified Gram Schmidt (standard)
                                1 - Inverse Compact WY Modified Gram Schmidt (Bjorck)
                                2 - CGS2 (Hernandez)
-                                3, 4 ....*/
+                               3 - Delayed CGS2 (Hernandez) */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
   booleantype kin_damping_aa; /* flag to apply damping in AA */
