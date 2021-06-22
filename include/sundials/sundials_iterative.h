@@ -270,13 +270,17 @@ SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
  *
  * temp : N_Vector same size as those in Q - used for temporary
  *        storage during computation
- * mAA :
- * 
- * mMax :
- * 
- * pt_map :
  *
- * pt :
+ * mAA :  int - current number of vectors in Q factorization
+ * 
+ * mMax : int - maximum number of vectors that will be in the Q
+ *        factorization (the allocated number of N_Vectors in Q)
+ * 
+ * pt_map : long int * - contains the iteration map for the
+ *          routine calling Anderson Acceleration 
+ *
+ * pt : long int - current iteration for the routine calling
+ *      Anderson Acceleration 
  *
  * On return, Q and R contain the updated Q R factors, if
  * QRAdd_MGS was successful.
@@ -308,13 +312,16 @@ SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df, N_Vector te
  * temp2 : N_Vector same size as those in Q - used for temporary
  *        storage during computation
  *
- * mAA :
+ * mAA :  int - current number of vectors in Q factorization
  * 
- * mMax :
+ * mMax : int - maximum number of vectors that will be in the Q
+ *        factorization (the allocated number of N_Vectors in Q)
  * 
- * pt_map :
+ * pt_map : long int * - contains the iteration map for the
+ *          routine calling Anderson Acceleration 
  *
- * pt :
+ * pt : long int - current iteration for the routine calling
+ *      Anderson Acceleration 
  *
  * On return, Q, R, and T contain the updated Q T R factors, if
  * QRAdd_ICWY was successful.
@@ -344,13 +351,16 @@ SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, realtype *T, N_Vector d
  * temp2 : N_Vector same size as those in Q - used for temporary
  *        storage during computation
  *
- * mAA :
+ * mAA :  int - current number of vectors in Q factorization
  * 
- * mMax :
+ * mMax : int - maximum number of vectors that will be in the Q
+ *        factorization (the allocated number of N_Vectors in Q)
  * 
- * pt_map :
+ * pt_map : long int * - contains the iteration map for the
+ *          routine calling Anderson Acceleration 
  *
- * pt :
+ * pt : long int - current iteration for the routine calling
+ *      Anderson Acceleration 
  *
  * On return, Q and R contain the updated Q R factors, if
  * QRAdd_CGS2 was successful.
@@ -383,13 +393,16 @@ SUNDIALS_EXPORT int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  * temp2 : N_Vector same size as those in Q - used for temporary
  *        storage during computation
  *
- * mAA :
+ * mAA :  int - current number of vectors in Q factorization
  * 
- * mMax :
+ * mMax : int - maximum number of vectors that will be in the Q
+ *        factorization (the allocated number of N_Vectors in Q)
  * 
- * pt_map :
+ * pt_map : long int * - contains the iteration map for the
+ *          routine calling Anderson Acceleration 
  *
- * pt :
+ * pt : long int - current iteration for the routine calling
+ *      Anderson Acceleration 
  *
  * On return, Q and R contain the updated Q R factors, if
  * QRAdd_DCGS2 was successful.
