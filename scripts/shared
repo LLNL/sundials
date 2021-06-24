@@ -2,13 +2,14 @@
 
 tarfile=$1
 distrobase=$2
+doc=$3
 
 echo ">>>>>>"
 echo $distrobase
 echo ">>>>>>"
 
 # all remaining inputs are for tar command
-shift 2
+shift 3
 tar=$*
 
 echo "   --- Add top-level files to $tarfile"
