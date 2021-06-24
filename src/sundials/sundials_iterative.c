@@ -308,21 +308,20 @@ int QRsol(int n, realtype **h, realtype *q, realtype *b)
  */
 
 int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
-              N_Vector vtemp, int mAA, int mMax,
-              long int *pt_map, long int pt)
+              int m, int mMax, long int index, void *QRdata)
 {
     sunindextype j;
+    QRData qrdata = (QRData) QRdata;    
 
-    N_VScale(ONE, df, vtemp);
-    for (j=0; j < (mAA-1); j++) {
-      pt_map[j] = j;
-      R[(mAA-1)*mMax+j] = N_VDotProd(Q[j], vtemp);
-      N_VLinearSum(ONE, vtemp, -R[(mAA-1)*mMax + j], Q[j], vtemp);
+    N_VScale(ONE, df, qrdata->vtemp);
+    for (j=0; j < (m-1); j++) {
+      R[(m-1)*mMax+j] = N_VDotProd(Q[j], qrdata->vtemp);
+      N_VLinearSum(ONE, qrdata->vtemp, -R[(m-1)*mMax + j], Q[j], qrdata->vtemp);
     }
-    R[(mAA-1)*mMax + mAA-1] = SUNRsqrt(N_VDotProd(vtemp, vtemp));
-    N_VScale((1/R[(mAA-1)*mMax +mAA-1]), vtemp, Q[pt]);
+    R[(m-1)*mMax + m-1] = SUNRsqrt(N_VDotProd(qrdata->vtemp, qrdata->vtemp));
+    N_VScale((1/R[(m-1)*mMax +m-1]), qrdata->vtemp, Q[index]);
 
-    // Return success
+    /* Return success */
     return 0;
 }
 
@@ -335,50 +334,48 @@ int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
  * -----------------------------------------------------------------
  */
 
-int QRAdd_ICWY(N_Vector *Q, realtype *R, realtype *T, N_Vector df, 
-               N_Vector vtemp, N_Vector vtemp2, int mAA, int mMax,
-               long int *pt_map, long int pt, int VECTOROP_ERR)
+int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df, 
+               int m, int mMax, long int index, void *QRdata)
 {
     sunindextype j, k;
     int t_offset, retval;
+    QRData qrdata = (QRData) QRdata;    
 
     /* T matrix is stored in row-wise order with each row having an additional
      *   value because it is lower triangular */
-    N_VScale(ONE, df, vtemp); /* stores d_fi in temp */
+    N_VScale(ONE, df, qrdata->vtemp); /* stores d_fi in temp */
 
-    t_offset = (mAA-2)*(mAA-1)/2;
-    if (mAA-2 > 0) {
+    t_offset = (m-2)*(m-1)/2;
+    if (m-2 > 0) {
       /* T(k-1,1:k-1) = Q(:,1:k-1)^T * Q(:,k-1) */
-      N_VDotProdMulti(mAA-1, Q[mAA-2], Q, T + t_offset);
+      N_VDotProdMulti(m-1, Q[m-2], Q, qrdata->temp_array + t_offset);
     }
     /* T(k-1,k-1) = 1.0 */
-    T[t_offset+(mAA-2)] = 1.0; /* I think adding iter-2 is correct to get to diagonal */
+    qrdata->temp_array[t_offset+(m-2)] = 1.0; /* I think adding iter-2 is correct to get to diagonal */
 
     /* R(1:k-1,k) = Q_k-1^T * df */
-    N_VDotProdMulti(mAA-1, vtemp, Q, R + (mAA-1)*mMax );
+    N_VDotProdMulti(m-1, qrdata->vtemp, Q, R + (m-1)*mMax );
 
     /* Solve T * R(1:k-1,k) = R(1:k-1,k) */
-    for (k = 0; k < (mAA-1); k++) {
+    for (k = 0; k < (m-1); k++) {
       t_offset = k*(k+1)/2;
-      R[(mAA-1)*mMax + k] = R[(mAA-1)*mMax + k] / T[t_offset + k];
-      pt_map[k] = k; /* array keeping track of m_aa_i  - update while I'm here */
-      for (j = 0; j < (mAA-1); j++) {
+      R[(m-1)*mMax + k] = R[(m-1)*mMax + k] / qrdata->temp_array[t_offset + k];
+      for (j = 0; j < (m-1); j++) {
         t_offset = j*(j+1)/2;
-        R[(mAA-1)*mMax + j] -= R[(mAA-1)*mMax + k] * T[t_offset + k];
+        R[(m-1)*mMax + j] -= R[(m-1)*mMax + k] * qrdata->temp_array[t_offset + k];
       }
     }
 
     /* Q(:,k) = df - Q_k-1 R(1:k-1,k) */
-    retval = N_VLinearCombination(mAA-1, R + (mAA-1)*mMax, Q, vtemp2); 
-    if (retval != 0) return(VECTOROP_ERR);
-    N_VLinearSum(ONE, vtemp, -ONE, vtemp2, Q[mAA-1]);
+    N_VLinearCombination(m-1, R + (m-1)*mMax, Q, qrdata->vtemp2); 
+    N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, Q[m-1]);
     
     /* R(k,k) = \| df \| */
-    R[(mAA-1)*mMax + mAA-1] = SUNRsqrt(N_VDotProd(vtemp, vtemp));
+    R[(m-1)*mMax + m-1] = SUNRsqrt(N_VDotProd(qrdata->vtemp, qrdata->vtemp));
     /* Q(:,k) = df / \| df \| */
-    N_VScale((1/R[(mAA-1)*mMax + mAA-1]), vtemp, Q[pt]);
+    N_VScale((1/R[(m-1)*mMax + m-1]), qrdata->vtemp, Q[index]);
     
-    // Return success
+    /* Return success */
     return 0;
 }
 
@@ -392,45 +389,38 @@ int QRAdd_ICWY(N_Vector *Q, realtype *R, realtype *T, N_Vector df,
  */
 
 int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df, 
-               N_Vector vtemp, N_Vector vtemp2, realtype *temp_array, 
-               int mAA, int mMax, long int *pt_map, long int pt,
-               int VECTOROP_ERR)
+               int m, int mMax, long int index, void *QRdata)
 {
-    int retval;
     sunindextype j;
+    QRData qrdata = (QRData) QRdata;    
 
-    N_VScale(ONE, df, vtemp); /* temp = df */ 
+    N_VScale(ONE, df, qrdata->vtemp); /* temp = df */ 
     
     /* s_k = Q_k-1^T df_aa -- update with sdata as a realtype* array */
-    //N_VDotProdMulti(mAA-1, temp, Q, temp_array);
-    N_VDotProdMulti(mAA-2, vtemp, Q, temp_array); 
+    N_VDotProdMulti(m-1, qrdata->vtemp, Q, qrdata->temp_array); 
 
     /* y = df - Q_k-1 s_k */
-    retval = N_VLinearCombination(mAA-1, temp_array, Q, vtemp2); 
-    if (retval != 0) return(VECTOROP_ERR);
-    N_VLinearSum(ONE, vtemp, -ONE, vtemp2, vtemp2);
+    N_VLinearCombination(m-1, qrdata->temp_array, Q, qrdata->vtemp2); 
+    N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp2);
 
     /* z_k = Q_k-1^T y */
-    //N_VDotProdMulti(iter-1, kin_mem->kin_vtemp3, kin_mem->kin_q_aa, R + (iter-1)*kin_mem->kin_m_aa);
-    N_VDotProdMulti(mAA-2, vtemp2, Q, R + (mAA-1)*mMax);
+    N_VDotProdMulti(m-1, qrdata->vtemp2, Q, R + (m-1)*mMax);
 
     /* df = y - Q_k-1 z_k  -- update using N_VLinearCombination */
-    retval = N_VLinearCombination(mAA-1, R + (mAA-1)*mMax, Q, vtemp2); 
-    if (retval != 0) return(VECTOROP_ERR);
-    N_VLinearSum(ONE, vtemp2, -ONE, vtemp, vtemp);
+    N_VLinearCombination(m-1, R + (m-1)*mMax, Q, qrdata->vtemp2); 
+    N_VLinearSum(ONE, qrdata->vtemp2, -ONE, qrdata->vtemp, qrdata->vtemp);
 
     /* R(1:k-1,k) = s_k + z_k */
-    for (j = 0; j < (mAA-1); j++) {
-      pt_map[j] = j; /* update iteration loop while I'm in here */
-      R[(mAA-1)*mMax + j] = R[(mAA-1)*mMax + j] + temp_array[j];
+    for (j = 0; j < (m-1); j++) {
+      R[(m-1)*mMax + j] = R[(m-1)*mMax + j] + qrdata->temp_array[j];
     }
     /* R(k,k) = \| df \| */
-    R[(mAA-1)*mMax + mAA-1] = SUNRsqrt(N_VDotProd(vtemp, vtemp));
+    R[(m-1)*mMax + m-1] = SUNRsqrt(N_VDotProd(qrdata->vtemp, qrdata->vtemp));
     /* Q(:,k) = df / R(k,k) */
-    N_VScale((1/R[(mAA-1)*mMax + mAA-1]), vtemp, Q[pt]);
+    N_VScale((1/R[(m-1)*mMax + m-1]), qrdata->vtemp, Q[index]);
     /* -- end kernel -- */
 
-    // Return success
+    /* Return success */
     return 0;
 }
 
@@ -443,46 +433,40 @@ int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  * -----------------------------------------------------------------
  */
 
-int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
-                N_Vector vtemp, N_Vector vtemp2, realtype *temp_array,
-                int mAA, int mMax, long int *pt_map, long int pt,
-                int VECTOROP_ERR)
+SUNDIALS_EXPORT int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
+                                int m, int mMax, long int index, void *QRdata)
 {
     sunindextype j;
-    int retval;
+    QRData qrdata = (QRData) QRdata;    
 
-    N_VScale(ONE, df, vtemp); /* temp = df */ 
+    N_VScale(ONE, df, qrdata->vtemp); /* temp = df */ 
     
     /* R(1:k-1,k) = Q_k-1^T df_aa */
-    N_VDotProdMulti(mAA-2, vtemp, Q, R + (mAA-1)*mMax );
+    N_VDotProdMulti(m-2, qrdata->vtemp, Q, R + (m-1)*mMax );
     /* Delayed reorthogonalization */
-    if ((mAA-1) > 1) {
+    if ((m-1) > 1) {
         /* s = Q_k-2^T Q(:,k-1) */
-        N_VDotProdMulti(mAA-1, Q[mAA-2], Q, temp_array);
+        N_VDotProdMulti(m-1, Q[m-2], Q, qrdata->temp_array);
 
         /* Q(:,k-1) = Q(:,k-1) - Q_k-2 s */
-        retval = N_VLinearCombination(mAA-2, temp_array, Q, vtemp2); 
-        if (retval != 0) return(VECTOROP_ERR);
-        N_VLinearSum(ONE, Q[mAA-2], -ONE, vtemp2, Q[mAA-2]);
+        N_VLinearCombination(m-2, qrdata->temp_array, Q, qrdata->vtemp2); 
+        N_VLinearSum(ONE, Q[m-2], -ONE, qrdata->vtemp2, Q[m-2]);
         
         /* R(1:k-2,k-1) = R(1:k-2,k-1) + s */
-        for (j = 0; j < (mAA-2); j++) {
-          pt_map[j] = j; /* update iteration loop while I'm in here */
-          R[(mAA-2)*mMax + j] = R[(mAA-2)*mMax + j] + temp_array[j];
+        for (j = 0; j < (m-2); j++) {
+          R[(m-2)*mMax + j] = R[(m-2)*mMax + j] + qrdata->temp_array[j];
         }
-        pt_map[mAA-2] = mAA-2; /* update iteration loop while I'm in here */
     }
 
     /* df = df - Q(:,k-1) s */
-    retval = N_VLinearCombination(mAA-1, R + (mAA-1)*mMax, Q, vtemp2); 
-    if (retval != 0) return(VECTOROP_ERR);
-    N_VLinearSum(ONE, vtemp, -ONE, vtemp2, vtemp);
+    N_VLinearCombination(m-1, R + (m-1)*mMax, Q, qrdata->vtemp2); 
+    N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp);
 
     /* R(k,k) = \| df \| */
-    R[(mAA-1)*mMax + mAA-1] = SUNRsqrt(N_VDotProd(vtemp, vtemp));
+    R[(m-1)*mMax + m-1] = SUNRsqrt(N_VDotProd(qrdata->vtemp, qrdata->vtemp));
     /* Q(:,k) = df / R(k,k) */
-    N_VScale((1/R[(mAA-1)*mMax + mAA-1]), vtemp, Q[pt]);
+    N_VScale((1/R[(m-1)*mMax + m-1]), qrdata->vtemp, Q[index]);
 
-    // Return success
+    /* Return success */
     return 0;
 }

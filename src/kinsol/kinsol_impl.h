@@ -23,6 +23,7 @@
 #include <stdarg.h>
 
 #include <kinsol/kinsol.h>
+#include <sundials/sundials_iterative.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -152,27 +153,32 @@ typedef struct KINMemRec {
   N_Vector kin_vtemp3;      /* scratch vector #3                               */
 
   /* space requirements for AA, Broyden and NLEN */
-  N_Vector kin_fold_aa;     /* vector needed for AA, Broyden, and NLEN */
-  N_Vector kin_gold_aa;     /* vector needed for AA, Broyden, and NLEN */
-  N_Vector *kin_df_aa;      /* vector array needed for AA, Broyden, and NLEN */
-  N_Vector *kin_dg_aa;      /* vector array needed for AA, Broyden and NLEN */
-  N_Vector *kin_q_aa;       /* vector array needed for AA */
-  realtype kin_beta_aa;     /* beta damping parameter for AA */
-  realtype *kin_gamma_aa;   /* array of size maa used in AA */
-  realtype *kin_R_aa;       /* array of size maa*maa used in AA */
-  realtype *kin_T_aa;       /* array of size maa*maa/2 used in AA */
-  long int *kin_ipt_map;    /* array of size maa*maa/2 used in Low Sync AA */
-  long int  kin_m_aa;       /* parameter for AA, Broyden or NLEN */
-  int kin_orth_aa;          /* parameter for AA determining orthogonalization routine
-                               0 - Modified Gram Schmidt (standard)
-                               1 - Inverse Compact WY Modified Gram Schmidt (Bjorck)
-                               2 - CGS2 (Hernandez)
-                               3 - Delayed CGS2 (Hernandez) */
-  booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
-  booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
-  booleantype kin_damping_aa; /* flag to apply damping in AA */
-  realtype *kin_cv;         /* scalar array for fused vector operations */
-  N_Vector *kin_Xv;         /* vector array for fused vector operations */
+  N_Vector kin_fold_aa;       /* vector needed for AA, Broyden, and NLEN         */
+  N_Vector kin_gold_aa;       /* vector needed for AA, Broyden, and NLEN         */
+  N_Vector *kin_df_aa;        /* vector array needed for AA, Broyden, and NLEN   */
+  N_Vector *kin_dg_aa;        /* vector array needed for AA, Broyden and NLEN    */
+  N_Vector *kin_q_aa;         /* vector array needed for AA                      */
+  realtype kin_beta_aa;       /* beta damping parameter for AA                   */
+  realtype *kin_gamma_aa;     /* array of size maa used in AA                    */
+  realtype *kin_R_aa;         /* array of size maa*maa used in AA                */
+  realtype *kin_T_aa;         /* array of size maa*maa/2 used in AA              */
+  long int *kin_ipt_map;      /* array of size maa*maa/2 used in Low Sync AA     */
+  long int  kin_m_aa;         /* parameter for AA, Broyden or NLEN               */
+  int kin_orth_aa;            /* parameter for AA determining orthogonalization
+                                 routine
+                                 0 - Modified Gram Schmidt (standard)
+                                 1 - ICWY Modified Gram Schmidt (Bjorck)
+                                 2 - CGS2 (Hernandez)
+                                 3 - Delayed CGS2 (Hernandez)                    */
+  QRAddFn kin_qr_func;        /* QRAdd function for AA orthogonalization         */
+  QRData  kin_qr_data;        /* Additional parameters required for QRAdd routine
+                                 set for AA                                      */
+  booleantype kin_aamem_aa;   /* sets additional memory needed for Anderson Acc  */
+  booleantype kin_setstop_aa; /* determines whether user will set stopping 
+                                 criterion                                       */
+  booleantype kin_damping_aa; /* flag to apply damping in AA                     */
+  realtype *kin_cv;           /* scalar array for fused vector operations        */
+  N_Vector *kin_Xv;           /* vector array for fused vector operations        */
 
   /* space requirements for vector storage */
 

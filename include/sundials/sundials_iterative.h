@@ -128,6 +128,46 @@ typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z,
 
 /*
  * -----------------------------------------------------------------
+ * Type: QRAddFn
+ * -----------------------------------------------------------------
+*/
+
+/* Forward reference for pointer to SUNLinearSolver_Ops object */
+typedef _SUNDIALS_STRUCT_ _generic_QRData *QRData;
+
+/* Structure containing pointers to data used in QRAdd routines */
+struct _generic_QRData{
+  N_Vector vtemp;
+  N_Vector vtemp2;
+  realtype *temp_array;
+};
+
+/*
+ * -----------------------------------------------------------------
+ * Type: QRAddFn
+ * -----------------------------------------------------------------
+ * A QRAddFn updates a given QR factorization defined by the input
+ * parameters:
+ *   Q : N_Vector *
+ *   R : realtype *
+ * with the input vector
+ *   f : N_Vector
+ *
+ * mAA : (int) the number of vectors already in the QR factorization
+ *
+ * mMax : (int) the maximum number of vectors to be in the QR 
+ *        factorization (the number of N_Vectors allocated to be in Q)
+ *
+ * QR_data : (void *) a structure containing any additional inputs
+ *           required for the execution of QRAddFn
+ * -----------------------------------------------------------------
+*/
+
+typedef int (*QRAddFn)(N_Vector *Q, realtype *R, N_Vector f,
+                       int mAA, int mMax, long int index, void *QR_data);
+
+/*
+ * -----------------------------------------------------------------
  * Function: ModifiedGS
  * -----------------------------------------------------------------
  * ModifiedGS performs a modified Gram-Schmidt orthogonalization
@@ -268,20 +308,19 @@ SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
  * to include the orthonormalized vector input by 
  *   - N_Vector df. 
  *
- * temp : N_Vector same size as those in Q - used for temporary
- *        storage during computation
- *
- * mAA :  int - current number of vectors in Q factorization
+ * m :  int - current number of vectors in Q factorization
  * 
  * mMax : int - maximum number of vectors that will be in the Q
  *        factorization (the allocated number of N_Vectors in Q)
+ *
+ * index : long int - index within Q where new orthonormalized
+ *         vector added to the factorization should be stored
+ *         (this is a parameter because it is dependent upon
+ *          the calling routine)
+ *
+ * QRdata : void * - a struct containing any additional temporary
+ *          vectors or arrays required for the QRAdd routine
  * 
- * pt_map : long int * - contains the iteration map for the
- *          routine calling Anderson Acceleration 
- *
- * pt : long int - current iteration for the routine calling
- *      Anderson Acceleration 
- *
  * On return, Q and R contain the updated Q R factors, if
  * QRAdd_MGS was successful.
  *
@@ -289,8 +328,8 @@ SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df, N_Vector temp,
-                int mAA, int mMax, long int *pt_map, long int pt);
+SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
+                              int m, int mMax, long int index, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -300,28 +339,27 @@ SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df, N_Vector te
  * method to update the QR factorization stored in user inputs 
  *   - N_Vector *Q 
  *   - realtype *R
- *   - realtype *T 
+ *   - realtype *T (held within (void *) QRdata) 
  * to include the orthonormalized vector input by 
  *   - N_Vector df. 
  * where the factorization to be updated is of the form
  *   Q * T * R
- * 
- * temp : N_Vector same size as those in Q - used for temporary
- *        storage during computation
  *
- * temp2 : N_Vector same size as those in Q - used for temporary
- *        storage during computation
- *
- * mAA :  int - current number of vectors in Q factorization
+ * m :  int - current number of vectors in Q factorization
  * 
  * mMax : int - maximum number of vectors that will be in the Q
  *        factorization (the allocated number of N_Vectors in Q)
  * 
- * pt_map : long int * - contains the iteration map for the
- *          routine calling Anderson Acceleration 
+ * index : long int - index within Q where new orthonormalized
+ *         vector added to the factorization should be stored
+ *         (this is a parameter because it is dependent upon
+ *          the calling routine)
  *
- * pt : long int - current iteration for the routine calling
- *      Anderson Acceleration 
+ * QRdata : void * - a struct containing any additional temporary
+ *          vectors or arrays required for the QRAdd routine
+ *
+ * QRdata should contain : 
+ *        N_Vector vtemp, realtype *temp_array (this will be used for T)
  *
  * On return, Q, R, and T contain the updated Q T R factors, if
  * QRAdd_ICWY was successful.
@@ -330,9 +368,8 @@ SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df, N_Vector te
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, realtype *T, N_Vector df, 
-                      N_Vector temp, N_Vector temp2, int mAA, int mMax,
-                      long int *pt_map, long int pt, int VECTOROP_ERR);
+SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df, 
+                               int m, int mMax, long int index, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -344,23 +381,22 @@ SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, realtype *T, N_Vector d
  *   - realtype *R
  * to include the orthonormalized vector input by 
  *   - N_Vector df. 
- * 
- * temp : N_Vector same size as those in Q - used for temporary
- *        storage during computation
  *
- * temp2 : N_Vector same size as those in Q - used for temporary
- *        storage during computation
- *
- * mAA :  int - current number of vectors in Q factorization
+ * m :  int - current number of vectors in Q factorization
  * 
  * mMax : int - maximum number of vectors that will be in the Q
  *        factorization (the allocated number of N_Vectors in Q)
  * 
- * pt_map : long int * - contains the iteration map for the
- *          routine calling Anderson Acceleration 
+ * index : long int - index within Q where new orthonormalized
+ *         vector added to the factorization should be stored
+ *         (this is a parameter because it is dependent upon
+ *          the calling routine)
  *
- * pt : long int - current iteration for the routine calling
- *      Anderson Acceleration 
+ * QRdata : void * - a struct containing any additional temporary
+ *          vectors or arrays required for the QRAdd routine
+ *
+ * QRdata should contain : 
+ *        N_Vector vtemp, N_Vector vtemp2, realtype *temp_array
  *
  * On return, Q and R contain the updated Q R factors, if
  * QRAdd_CGS2 was successful.
@@ -370,9 +406,7 @@ SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, realtype *T, N_Vector d
  */
 
 SUNDIALS_EXPORT int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df, 
-                      N_Vector temp, N_Vector temp2, realtype *temp_array,
-                      int mAA, int mMax, long int *pt_map, long int pt,
-                      int VECTOROP_ERR);
+                               int m, int mMax, long int index, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -386,23 +420,22 @@ SUNDIALS_EXPORT int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  *   - realtype *R
  * to include the orthonormalized vector input by 
  *   - N_Vector df. 
- * 
- * temp : N_Vector same size as those in Q - used for temporary
- *        storage during computation
  *
- * temp2 : N_Vector same size as those in Q - used for temporary
- *        storage during computation
- *
- * mAA :  int - current number of vectors in Q factorization
+ * m :  int - current number of vectors in Q factorization
  * 
  * mMax : int - maximum number of vectors that will be in the Q
  *        factorization (the allocated number of N_Vectors in Q)
  * 
- * pt_map : long int * - contains the iteration map for the
- *          routine calling Anderson Acceleration 
+ * index : long int - index within Q where new orthonormalized
+ *         vector added to the factorization should be stored
+ *         (this is a parameter because it is dependent upon
+ *          the calling routine)
  *
- * pt : long int - current iteration for the routine calling
- *      Anderson Acceleration 
+ * QRdata : void * - a struct containing any additional temporary
+ *          vectors or arrays required for the QRAdd routine
+ *
+ * QRdata should contain : 
+ *        N_Vector vtemp, N_Vector vtemp2, realtype *temp_array
  *
  * On return, Q and R contain the updated Q R factors, if
  * QRAdd_DCGS2 was successful.
@@ -412,10 +445,7 @@ SUNDIALS_EXPORT int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 SUNDIALS_EXPORT int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
-                      N_Vector temp, N_Vector temp2, realtype *temp_array, 
-                      int mAA, int mMax, long int *pt_map, long int pt,
-                      int VECTOROP_ERR);
-
+                                int m, int mMax, long int index, void *QRdata);
 
 #ifdef __cplusplus
 }

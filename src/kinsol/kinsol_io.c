@@ -228,7 +228,7 @@ int KINSetOrthAA(void *kinmem, int orthaa)
 
   /* REPLACE WITH SINGLE ERROR EMESSAGE */
   if ((orthaa < KIN_ORTH_MGS) || (orthaa > KIN_ORTH_DCGS2)) {
-    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetOrthAA", MSG_BAD_ORTHAA);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSetOrthAA", MSG_BAD_ORTHAA);
     return(KIN_ILL_INPUT);
   }
 
