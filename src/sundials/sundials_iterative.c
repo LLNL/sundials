@@ -397,22 +397,22 @@ int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
     N_VScale(ONE, df, qrdata->vtemp); /* temp = df */ 
     
     /* s_k = Q_k-1^T df_aa -- update with sdata as a realtype* array */
-    N_VDotProdMulti(m-1, qrdata->vtemp, Q, qrdata->temp_array); 
+    N_VDotProdMulti(m-1, qrdata->vtemp, Q, R + (m-1)*mMax); 
 
     /* y = df - Q_k-1 s_k */
-    N_VLinearCombination(m-1, qrdata->temp_array, Q, qrdata->vtemp2); 
+    N_VLinearCombination(m-1, R + (m-1)*mMax, Q, qrdata->vtemp2); 
     N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp2);
 
     /* z_k = Q_k-1^T y */
-    N_VDotProdMulti(m-1, qrdata->vtemp2, Q, R + (m-1)*mMax);
+    N_VDotProdMulti(m-1, qrdata->vtemp2, Q, qrdata->temp_array + (m-1)*mMax);
 
     /* df = y - Q_k-1 z_k  -- update using N_VLinearCombination */
-    N_VLinearCombination(m-1, R + (m-1)*mMax, Q, qrdata->vtemp2); 
-    N_VLinearSum(ONE, qrdata->vtemp2, -ONE, qrdata->vtemp, qrdata->vtemp);
+    N_VLinearCombination(m-1, qrdata->temp_array + (m-1)*mMax, Q, Q[index]); 
+    N_VLinearSum(ONE, qrdata->vtemp2, -ONE, Q[index], qrdata->vtemp);
 
     /* R(1:k-1,k) = s_k + z_k */
     for (j = 0; j < (m-1); j++) {
-      R[(m-1)*mMax + j] = R[(m-1)*mMax + j] + qrdata->temp_array[j];
+      R[(m-1)*mMax + j] = R[(m-1)*mMax + j] + qrdata->temp_array[(m-1)*mMax + j];
     }
     /* R(k,k) = \| df \| */
     R[(m-1)*mMax + m-1] = SUNRsqrt(N_VDotProd(qrdata->vtemp, qrdata->vtemp));
@@ -442,7 +442,7 @@ SUNDIALS_EXPORT int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df,
     N_VScale(ONE, df, qrdata->vtemp); /* temp = df */ 
     
     /* R(1:k-1,k) = Q_k-1^T df_aa */
-    N_VDotProdMulti(m-2, qrdata->vtemp, Q, R + (m-1)*mMax );
+    N_VDotProdMulti(m-1, qrdata->vtemp, Q, R + (m-1)*mMax );
     /* Delayed reorthogonalization */
     if ((m-1) > 1) {
         /* s = Q_k-2^T Q(:,k-1) */
