@@ -128,7 +128,18 @@ typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z,
 
 /*
  * -----------------------------------------------------------------
- * Type: QRAddFn
+ * Type: QRData
+ * -----------------------------------------------------------------
+ * A QRData struct holds the temporary vectors and temporary array
+ * of realtypes for the QRAddFn's. The N_Vectors and realtype *
+ * arrays it contains are created by the routine calling QRAdd.
+ *
+ * The struct contains the following values:
+ *
+ *   vtemp      : N_Vector
+ *   vtemp2     : N_Vector
+ *   temp_array : realtype *
+ *
  * -----------------------------------------------------------------
 */
 
@@ -153,7 +164,7 @@ struct _generic_QRData{
  * with the input vector
  *   f : N_Vector
  *
- * mAA : (int) the number of vectors already in the QR factorization
+ * m : (int) the number of vectors already in the QR factorization
  *
  * mMax : (int) the maximum number of vectors to be in the QR 
  *        factorization (the number of N_Vectors allocated to be in Q)
@@ -164,7 +175,7 @@ struct _generic_QRData{
 */
 
 typedef int (*QRAddFn)(N_Vector *Q, realtype *R, N_Vector f,
-                       int mAA, int mMax, long int index, void *QR_data);
+                       int m, int mMax, void *QR_data);
 
 /*
  * -----------------------------------------------------------------
@@ -313,11 +324,6 @@ SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
  * mMax : int - maximum number of vectors that will be in the Q
  *        factorization (the allocated number of N_Vectors in Q)
  *
- * index : long int - index within Q where new orthonormalized
- *         vector added to the factorization should be stored
- *         (this is a parameter because it is dependent upon
- *          the calling routine)
- *
  * QRdata : void * - a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
  * 
@@ -329,7 +335,7 @@ SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
  */
 
 SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
-                              int m, int mMax, long int index, void *QRdata);
+                              int m, int mMax, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -350,11 +356,6 @@ SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
  * mMax : int - maximum number of vectors that will be in the Q
  *        factorization (the allocated number of N_Vectors in Q)
  * 
- * index : long int - index within Q where new orthonormalized
- *         vector added to the factorization should be stored
- *         (this is a parameter because it is dependent upon
- *          the calling routine)
- *
  * QRdata : void * - a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
  *
@@ -369,7 +370,7 @@ SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df, 
-                               int m, int mMax, long int index, void *QRdata);
+                               int m, int mMax, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -386,11 +387,6 @@ SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
  * 
  * mMax : int - maximum number of vectors that will be in the Q
  *        factorization (the allocated number of N_Vectors in Q)
- * 
- * index : long int - index within Q where new orthonormalized
- *         vector added to the factorization should be stored
- *         (this is a parameter because it is dependent upon
- *          the calling routine)
  *
  * QRdata : void * - a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
@@ -406,7 +402,7 @@ SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 SUNDIALS_EXPORT int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df, 
-                               int m, int mMax, long int index, void *QRdata);
+                               int m, int mMax, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -425,11 +421,6 @@ SUNDIALS_EXPORT int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  * 
  * mMax : int - maximum number of vectors that will be in the Q
  *        factorization (the allocated number of N_Vectors in Q)
- * 
- * index : long int - index within Q where new orthonormalized
- *         vector added to the factorization should be stored
- *         (this is a parameter because it is dependent upon
- *          the calling routine)
  *
  * QRdata : void * - a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
@@ -445,7 +436,7 @@ SUNDIALS_EXPORT int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 SUNDIALS_EXPORT int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
-                                int m, int mMax, long int index, void *QRdata);
+                                int m, int mMax, void *QRdata);
 
 #ifdef __cplusplus
 }
