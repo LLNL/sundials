@@ -1,0 +1,208 @@
+%===================================================================================
+\section{C++ example problems}\label{s:ex_cpp}
+%===================================================================================
+
+\subsection{A parallel matrix-free example: kin\_heat2D\_nonlin\_p}\label{ss:kin_heat2D_nonlin_p}
+
+As an illustration of the use of the {\kinsol} package for the
+solution of nonlinear systems in parallel, 
+we give a sample program called \id{kin\_heat2D\_nonlin\_p.cpp}.
+It uses the {\kinsol} \id{KINFP} iteration 
+and the {\nvecp} module (which provides a parallel implementation of {\nvector})
+for the solution of the following test problem.
+
+This problem involves solving a steady-state 2D heat equation with an additional
+nonlinear term defined by $c(u)$:
+\begin{equation}
+    b = k_x u_{xx} + k_y u_{yy} + c(u) \quad \text{in} \quad \mathcal{D}
+        = [0,1] \times [0,1]
+\end{equation}
+subject to the boundary conditions
+\begin{equation}
+    u(0,y) = u(1,y) = u(x,0) = u(x,1) = 0 \quad \text{on} \quad \partial \mathcal{D}.
+\end{equation}
+%%
+We chose the analytical solution to be
+\begin{equation}
+    u_{exact} = u(x,y) = sin^2(\pi x) sin^2(\pi y),
+\end{equation}
+hence, we define the static term $b$ as follows
+\begin{equation}
+\begin{aligned}
+    b = &k_x 2 \pi^2 (cos^2(\pi x) - sin^2(\pi x)) sin^2(\pi y) \\
+        &+ k_y 2 \pi^2 (cos^2(\pi y) - sin^2(\pi y)) sin^2(\pi x) + c(u_{exact})
+\end{aligned}
+\end{equation}
+
+The spatial derivatives are computed using second-order centered
+differences, with the data distributed over $nx\times ny$ points
+on a uniform spatial grid.  
+The problem is set up to use spatial grid parameters $nx=64$ and
+$ny=64$, with heat conductivity parameters $k_x=1.0$ and
+$k_y=1.0$.  
+
+This problem is solved via Fixed Point Iteration, where the fixed point format
+of the problem is set up by adding $u$ to both sides of the equation, as
+seen here
+\begin{equation}
+    b + u = k_x u_{xx} + k_y u_{yy} + c(u) + u.
+\end{equation}
+Under this format, the fixed point problem to be solved is given by
+\begin{equation}
+    u = k_x u_{xx} + k_y u_{yy} + c(u) + u - b.
+\end{equation}
+
+This program solves the problem with Fixed Point Iteration, 
+with the option of using Anderson Acceleration.
+%%
+The problem is run using a scalar relative
+tolerance of $rtol=10^{-8}$, and a starting vector
+containing all ones. 
+The following table contains all available input parameters
+when running the example problem.
+%%
+% Something like the following for the KIN memory calls
+%%
+
+\begin{center}
+\begin{tabular}{ |p{5cm}||p{10cm}| }
+\hline
+\multicolumn{2}{|c|}{Input Parameters} \\
+\hline
+flag & option \\
+\hline
+{\tt --mesh <nx> <ny>} & mesh points in the x and y directions\\
+{\tt --np <npx> <npy>} & number of MPI processes in the x and y directions\\
+{\tt --domain <xu> <yu>} & domain upper bound in the x and y direction\\
+{\tt --k <kx> <ky>} & diffusion coefficients\\
+{\tt --rtol <rtol>} & relative tolerance\\
+{\tt --maa <maa>} & number of previous residuals for Anderson Acceleration \\
+{\tt --damping <damping>} & damping parameter for Anderson Acceleration \\
+{\tt --orthaa <orthaa>} & orthogonalization routine used in Anderson Acceleration \\
+{\tt --maxits <maxits>} & max number of iterations \\
+{\tt --c <cu>} & nonlinear function choice (integer between 1 - 17)\\
+{\tt --timing} & print timing data\\
+{\tt --help} & print available input parameters and exit\\
+\hline
+\end{tabular}
+\end{center}
+
+The following nonlinear functions $c(u)$ can be set as the $c(u)$ argument via the
+{\tt --c} flag.
+
+\begin{center}
+\begin{tabular}{ |p{2cm}||p{10cm}| }
+\hline
+\multicolumn{2}{|c|}{Input Parameter: Function Flag Options} \\
+\hline
+flag & function \\
+\hline
+{\tt --c 1} & $ c(u) = u $ \\
+{\tt --c 2} & $ c(u) = u^3 - u $ \\
+{\tt --c 3} & $ c(u) = u - u^2 $ \\
+{\tt --c 4} & $ c(u) = e^u $ \\
+{\tt --c 5} & $ c(u) = u^4 $ \\
+{\tt --c 6} & $ c(u) = cos^2(u) - sin^2(u) $ \\
+{\tt --c 7} & $ c(u) = cos^2(u) - sin^2(u) - e^u $ \\
+{\tt --c 8} & $ c(u) = e^uu^4 - ue^{cos(u)} $ \\
+{\tt --c 9} & $ c(u) = e^(cos^2(u)) $ \\
+{\tt --c 10} & $ c(u) = 10(u - u^2) $ \\
+{\tt --c 11} & $ c(u) = -13 + u + ((5-u)u - 2)u $ \\
+{\tt --c 12} & $ c(u) = \sqrt{5}(u - u^2) $ \\
+{\tt --c 13} & $ c(u) = (u - e^u)^2 + (u + u sin(u) - cos(u))^2 $ \\
+{\tt --c 14} & $ c(u) = u + ue^u + ue^{-u} $ \\
+{\tt --c 15} & $ c(u) = u + ue^u + ue^{-u} + (u - e^u)^2 $ \\
+{\tt --c 16} & $ c(u) = u + ue^u + ue^{-u} + (u - e^u)^2 + (u + usin(u) - cos(u))^2 $ \\
+{\tt --c 17} & $ c(u) = u + ue^{-u} + e^u (u + sin(u) - cos(u))^3 $ \\
+\hline
+\end{tabular}
+\end{center}
+%-----------------------------------------------------------------------------------
+
+\subsection{A parallel example using Hypre: kin\_heat2D\_nonlin\_hypre\_pfmg}\label{ss:kin_heat2D_nonlin_hypre_pfmg}
+
+As an illustration of the use of the {\kinsol} package for the
+solution of nonlinear systems in parallel and using Hypre linear solvers, 
+we give a sample program called \id{kin\_heat2D\_nonlin\_hypre\_pfmg.cpp}.
+It uses the {\kinsol} \id{KINFP} iteration
+and the {\nvecp} module (which provides a parallel implementation of {\nvector})
+for the solution of the following test problem.
+
+This problem involves solving a steady-state 2D heat equation with an additional
+nonlinear term defined by $c(u)$:
+\begin{equation}
+    b = k_x u_{xx} + k_y u_{yy} + c(u) \quad \text{in} \quad \mathcal{D}
+        = [0,1] \times [0,1]
+\end{equation}
+subject to the boundary conditions
+\begin{equation}
+    u(0,y) = u(1,y) = u(x,0) = u(x,1) = 0 \quad \text{on} \quad \partial \mathcal{D}.
+\end{equation}
+%%
+We chose the analytical solution to be
+\begin{equation}
+    u_{exact} = u(x,y) = sin^2(\pi x) sin^2(\pi y),
+\end{equation}
+hence, we define the static term $b$ as follows
+\begin{equation}
+\begin{aligned}
+    b = &k_x 2 \pi^2 (cos^2(\pi x) - sin^2(\pi x)) sin^2(\pi y) \\
+        &+ k_y 2 \pi^2 (cos^2(\pi y) - sin^2(\pi y)) sin^2(\pi x) + c(u_{exact})
+\end{aligned}
+\end{equation}
+
+The spatial derivatives are computed using second-order centered
+differences, with the data distributed over $nx\times ny$ points
+on a uniform spatial grid.  
+The problem is set up to use spatial grid parameters $nx=64$ and
+$ny=64$, with heat conductivity parameters $k_x=1.0$ and
+$k_y=1.0$.  
+
+This problem is solved via Fixed Point Iteration, where the fixed point format
+of the problem is set up by implementing the Laplacian term which is solved
+via finite differences as a matrix-vector product, 
+\begin{equation}
+    b = A u + c(u),
+\end{equation}
+then moving $c(u)$ to the other side of the equation results 
+in the following fixed point formulation
+\begin{equation}
+    u = A^{-1} (b - c(u)).
+\end{equation}
+
+This program solves the problem with Fixed Point Iteration, 
+with the option of using Anderson Acceleration.
+%%
+The problem is run using a scalar relative
+tolerance of $rtol=10^{-8}$, and a starting
+vector containing all ones.
+The linear system solve is executed using the
+\id{SUNLINSOL\_PCG} linear solver with
+the Hypre PFMG preconditioner. The setup of the
+linear solver can be found in the
+\id{Setup\_LS} function, and setup of the Hypre
+preconditioner can be found in the
+\id{Setup\_Hypre} function within the main file.
+
+All input parameter flags available for Example 
+\ref{ss:kin_heat2D_nonlin_p} are also available for this problem.
+In addition, all runtime flags controlling the linear solver
+and Hypre related parameters are set
+using the flags in the following table. 
+%%
+\begin{center}
+\begin{tabular}{ |p{6cm}||p{10cm}| }
+\hline
+\multicolumn{2}{|c|}{Linear Solver and Hypre Related Input Parameters} \\
+\hline
+flag & option \\
+\hline
+{\tt --lsinfo} & output residual history for PCG\\
+{\tt --liniters <liniters>} & max number of iterations for PCG\\
+{\tt --epslin <epslin>} & linear tolerance for PCG\\
+{\tt --pfmg\_relax <pfmg\_relax>} & relaxation type in PFMG\\
+{\tt --pfmg\_nrelax <pfmg\_nrelax>} & pre/post relaxation sweeps in PFMG\\
+\hline
+\end{tabular}
+\end{center}
+
