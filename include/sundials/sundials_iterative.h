@@ -143,7 +143,7 @@ typedef int (*PSolveFn)(void *P_data, N_Vector r, N_Vector z,
  * -----------------------------------------------------------------
 */
 
-/* Forward reference for pointer to SUNLinearSolver_Ops object */
+/* Forward reference for pointer to QRData */
 typedef _SUNDIALS_STRUCT_ _generic_QRData *QRData;
 
 /* Structure containing pointers to data used in QRAdd routines */
