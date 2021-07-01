@@ -20,6 +20,7 @@
 # Examples using SUNDIALS linear solvers
 set(KINSOL_examples
   "kin_heat2D_nonlin_hypre_pfmg\;--np 2 2\;1\;4\;develop"
+  "kin_bratu2D_hypre_pfmg\;--np 2 2\;1\;4\;develop"
   )
 
 if(MPI_CXX_COMPILER)
