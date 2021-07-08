@@ -1,13 +1,15 @@
 # NEEDS UPDATING
 List of parallel KINSOL C++ examples
 
-  kin_heat2D_nonlin_p : steady-state 2-D heat equation with added nonlinear term
+  kin_heat2D_nonlin_hypre_pfmg : steady-state 2-D heat equation with added nonlinear term
+  kin_bratu2D_hypre_pfmg       : 2-D Bratu problem 
 
 Sample results:
 
-  The example output was produced by running:
+  The example outputs were produced by running:
 
-      mpiexec -n 4 ./kin_heat2D_nonlin_p --np 2 2
+      mpiexec -n 4 ./kin_heat2D_nonlin_hypre_pfmg --np 2 2
+      mpiexec -n 4 ./kin_bratu2D_hypre_pfmg --np 2 2
 
 The following CMake command was used to configure SUNDIALS:
 
@@ -41,6 +43,11 @@ cmake \
     \
     -DENABLE_LAPACK=OFF \
     -DLAPACK_LIBRARIES="${LAPACK_LIBRARIES}" \
+    \
+    -DENABLE_HYPRE=ON \
+    -DHYPRE_LIBRARIES="${HYPRE_DIR}/lib/libHYPRE.a"
+    -DHYPRE_INCLUDE_DIR="${HYPRE_DIR}/lib"
+    -DHYPRE_LIBRARY_DIR="${HYPRE_DIR}/include"
     \
     ../
 
