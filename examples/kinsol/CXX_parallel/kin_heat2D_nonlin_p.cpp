@@ -974,8 +974,8 @@ static int InitUserData(UserData *udata)
   udata->yu = ONE;
 
   // Global number of nodes in the x and y directions
-  udata->nx    = 32;
-  udata->ny    = 32;
+  udata->nx    = 35;
+  udata->ny    = 35;
   udata->nodes = udata->nx * udata->ny;
 
   // Mesh spacing in the x and y directions
@@ -1028,7 +1028,7 @@ static int InitUserData(UserData *udata)
 
   // Integrator settings
   udata->rtol        = RCONST(1.e-8);   // relative tolerance
-  udata->maa         = 0;               // no Anderson Acceleration
+  udata->maa         = 60;              // 60 vectors in Anderson Acceleration space 
   udata->damping     = ONE;             // no damping for Anderson Acceleration
   udata->orthaa      = 0;               // use MGS for Anderson Acceleration 
   udata->maxits      = 200;             // max number of fixed point iterations

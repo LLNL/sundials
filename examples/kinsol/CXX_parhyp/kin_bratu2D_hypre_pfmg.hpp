@@ -190,6 +190,9 @@ static int SetupLS(N_Vector u, void *user_data);
 // Fill Jacobian and A = I - gamma * J
 static int Jac(UserData *udata);
 
+// Initial Guess 
+static int InitialGuess(N_Vector u, UserData *udata);
+
 // -----------------------------------------------------------------------------
 // UserData and input functions
 // -----------------------------------------------------------------------------

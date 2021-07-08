@@ -25,6 +25,10 @@
  * but it appears in various applications, such as thermal combustion,
  * thermal reaction, etc... 
  *
+ * The starting guess is taken to be 
+ *
+ *   u(x,y) = sin^2(pi x) sin^2(pi y).
+ *
  * The spatial derivatives are computed using second-order centered differences,
  * with the data distributed over nx * ny points on a uniform spatial grid. The
  * problem is solved via Fixed Point Iteration paired with the PCG linear solver
@@ -105,7 +109,9 @@ int main(int argc, char* argv[])
   N_VConst(ONE, scale);
 
   // Set initial condition
-  N_VConst(ZERO, u);
+  flag = InitialGuess(u, udata);
+  if (check_flag(&flag, "InitialGuess", 1)) return 1;
+  //N_VConst(ZERO, u);
 
   // ---------------------
   // Create hypre objects
@@ -406,16 +412,13 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
 
-  realtype h2 = ONE / (udata->dx * udata->dx);
-
   for (sunindextype j = jstart; j < jend; j++)
   {
     for (sunindextype i = istart; i < iend; i++)
     {
-      farray[IDX(i,j,udata->nx_loc)] = h2 * exp(uarray[IDX(i,j,udata->nx_loc)]);
+      farray[IDX(i,j,udata->nx_loc)] = -ONE * udata->C * exp(uarray[IDX(i,j,udata->nx_loc)]);
     }
   }
-  N_VScale(udata->C, f, f);
 
   // ---------------------------
   // Solve Au = C e^u 
@@ -1131,6 +1134,42 @@ static int Jac(UserData *udata)
   return 0;
 }
 
+// Compute the starting guess
+static int InitialGuess(N_Vector u, UserData *udata)
+{
+  realtype x, y;
+  realtype sin_sqr_x, sin_sqr_y;
+
+  // Initialize u to zero (handles boundary conditions)
+  N_VConst(ZERO, u);
+
+  // Iterative over domain interior
+  sunindextype istart = (udata->HaveNbrW) ? 0 : 1;
+  sunindextype iend   = (udata->HaveNbrE) ? udata->nx_loc : udata->nx_loc - 1;
+
+  sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
+  sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
+
+  realtype *uarray = N_VGetArrayPointer(u);
+  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
+
+  for (sunindextype j = jstart; j < jend; j++)
+  {
+    for (sunindextype i = istart; i < iend; i++)
+    {
+      x  = (udata->is + i) * udata->dx;
+      y  = (udata->js + j) * udata->dy;
+
+      sin_sqr_x = sin(PI * x) * sin(PI * x);
+      sin_sqr_y = sin(PI * y) * sin(PI * y);
+
+      uarray[IDX(i,j,udata->nx_loc)] = sin_sqr_x * sin_sqr_y;
+    }
+  }
+
+  return 0;
+}
+
 // -----------------------------------------------------------------------------
 // UserData and input functions
 // -----------------------------------------------------------------------------
@@ -1146,8 +1185,8 @@ static int InitUserData(UserData *udata)
   udata->yu = ONE;
 
   // Global number of nodes in the x and y directions
-  udata->nx    = 128;
-  udata->ny    = 128;
+  udata->nx    = 256;
+  udata->ny    = 256;
   udata->nodes = udata->nx * udata->ny;
 
   // Mesh spacing in the x and y directions
@@ -1197,7 +1236,7 @@ static int InitUserData(UserData *udata)
   // Linear solver and preconditioner options
   udata->lsinfo    = false;         // output residual history
   udata->liniters  = 20;            // max linear iterations
-  udata->epslin    = RCONST(1.e-8); // use default (0.05)
+  udata->epslin    = RCONST(1.e-8); // relative stopping tolerance 
   
   // Linear solver object
   udata->LS    = NULL;
@@ -1396,12 +1435,11 @@ static void InputHelp()
   cout << "  --mesh <nx> <ny>        : mesh points in the x and y directions" << endl;
   cout << "  --np <npx> <npy>        : number of MPI processes in the x and y directions" << endl;
   cout << "  --domain <xu> <yu>      : domain upper bound in the x and y direction" << endl;
-  cout << "  --k <kx> <ky>           : diffusion coefficients" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
   cout << "  --maa <maa>             : number of previous residuals for Anderson Acceleration" << endl;
   cout << "  --damping <damping>     : damping for Anderson Acceleration " << endl;
   cout << "  --orthaa <orthaa>       : orthogonalization routine used in Anderson Acceleration " << endl;
-  cout << "  --c <c_int>             : nonlinear function parameter" << endl;
+  cout << "  --C                     : scalar value on exponential term " << endl;
   cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
@@ -1417,7 +1455,7 @@ static void InputHelp()
 static int PrintUserData(UserData *udata)
 {
   cout << endl;
-  cout << "2D Stationary Heat PDE + Nonlinear term test problem:"  << endl;
+  cout << "2D Bratu test problem:"  << endl;
   cout << " --------------------------------- "                    << endl;
   cout << "  nprocs         = " << udata->nprocs_w                 << endl;
   cout << "  npx            = " << udata->npx                      << endl;
@@ -1437,6 +1475,8 @@ static int PrintUserData(UserData *udata)
   cout << "  damping        = " << udata->damping                  << endl;
   cout << "  orthaa         = " << udata->orthaa                   << endl;
   cout << "  maxits         = " << udata->maxits                   << endl;
+  cout << " --------------------------------- "                    << endl;
+  cout << "  C              = " << udata->C                        << endl;
   cout << " --------------------------------- "                    << endl;
   cout << "  linear solver  = PCG" << endl;
   cout << "  lin iters      = " << udata->liniters                 << endl;

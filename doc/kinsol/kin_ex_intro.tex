@@ -119,10 +119,17 @@ equation with an additional nonlinear term.
 
 \vspace{0.2in}\noindent
 Supplied in directory {\em srcdir}\id{/examples/kinsol/CXX\_parhyp}
-is an example using the {\nvecp} module.
-\id{kin\_heat2D\_nonlin\_hypre\_pfmg} solves the same problem
-as \id{kin\_heat2D\_nonlin\_p} but with a different fixed 
-point iteration setup requiring a linear solve. 
+are examples using the {\nvecp} module and incorporating use
+of Hypre preconditioners and solvers.
+\begin{itemize}
+\item \id{kin\_heat2D\_nonlin\_hypre\_pfmg}
+  solves the same problem as \id{kin\_heat2D\_nonlin\_p} 
+  but with a different fixed point iteration setup requiring 
+  a linear solve that uses Hypre's PFMG as a preconditioner. 
+\item \id{kin\_bratu2D\_hypre\_pfmg}
+  solves a 2D Bratu equation which requires a linear solve
+  that uses Hypre's PFMG as a preconditioner.
+\end{itemize}
 
 
 \vspace{0.2in}\noindent 
