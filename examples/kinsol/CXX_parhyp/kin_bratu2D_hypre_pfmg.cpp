@@ -13,19 +13,19 @@
  * -----------------------------------------------------------------------------
  * Example problem:
  *
- * The following test simulates a 2D Bratu problem 
+ * The following test simulates a 2D Bratu problem
  *
  *   u_xx + u_yy + C e^u = 0,
  *
  * for (x,y) in [0, 1]^2, with boundary conditions
  *
- *   u = 0, 
+ *   u = 0,
  *
  * There is no exact analytical solution known for the 2D Bratu problem,
  * but it appears in various applications, such as thermal combustion,
- * thermal reaction, etc... 
+ * thermal reaction, etc...
  *
- * The starting guess is taken to be 
+ * The starting guess is taken to be
  *
  *   u(x,y) = sin^2(pi x) sin^2(pi y).
  *
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
   int flag;                   // reusable error-checking flag
   UserData *udata    = NULL;  // user data structure
   N_Vector u         = NULL;  // vector for storing solution
-  N_Vector scale     = NULL;  // vector for scaling initial value 
+  N_Vector scale     = NULL;  // vector for scaling initial value
   void *kin_mem      = NULL;  // KINSOL memory structure
 
   // Timing variables
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
   // Create vector for solution
   u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes);
   if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
-  
+
   // Create vector for scaling initial value
   scale = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes);
   if (check_flag((void *) scale, "N_VNew_Parallel", 0)) return 1;
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
 
   flag = SetupHypre(udata);
   if (check_flag(&flag, "SetupHypre", 1)) return 1;
-  
+
   // ---------------------
   // Create linear solver
   // ---------------------
@@ -128,17 +128,17 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "SetupLS", 1)) return 1;
 
   // --------------
-  // Setup KINSOL 
+  // Setup KINSOL
   // --------------
 
-  // Initialize KINSOL memory 
+  // Initialize KINSOL memory
   kin_mem = KINCreate();
   if (check_flag((void *) kin_mem, "KINCreate", 0)) return 1;
 
   // Set number of prior residuals used in Anderson Acceleration
   flag = KINSetMAA(kin_mem, udata->maa);
   if (check_flag(&flag, "KINSetMAA", 1)) return 1;
-  
+
   // Set orthogonalization routine used in Anderson Acceleration
   flag = KINSetOrthAA(kin_mem, udata->orthaa);
   if (check_flag(&flag, "KINSetOrthAA", 1)) return 1;
@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
   // Set maximum number of iterations
   flag = KINSetNumMaxIters(kin_mem, udata->maxits);
   if (check_flag(&flag, "KINSetMaxNumIters", 1)) return 1;
-  
+
   // Set Anderson Acceleration damping parameter
   flag = KINSetDampingAA(kin_mem, udata->damping);
   if (check_flag(&flag, "KINSetDampingAA", 1)) return 1;
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "KINSetUserData", 1)) return 1;
 
   // ----------------------------
-  // Call KINSol to solve problem 
+  // Call KINSol to solve problem
   // ----------------------------
 
   // No scaling used
@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
                 scale,   // scaling vector, for the variable u
                 scale);  // scaling vector, for the function values fval
   if (check_flag(&flag, "KINSol", 1)) return 1;
-  
+
   // Stop timer
   t2 = MPI_Wtime();
 
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
   udata->totaltime = t2 - t1;
 
   // ----------------------
-  // Get solver statistics 
+  // Get solver statistics
   // ----------------------
   if (udata->output > 0 && outproc)
   {
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
   }
 
   // ------------
-  // Print timing 
+  // Print timing
   // ------------
   if (udata->timing)
   {
@@ -207,12 +207,12 @@ int main(int argc, char* argv[])
   }
 
   // --------------------
-  // Free memory 
+  // Free memory
   // --------------------
 
   KINFree(&kin_mem);         // Free solver memory
   N_VDestroy(u);             // Free vectors
-  N_VDestroy(scale);      
+  N_VDestroy(scale);
   FreeUserData(udata);       // Free user data
   delete udata;
   flag = MPI_Finalize();     // Finalize MPI
@@ -379,21 +379,21 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
 }
 
 // -----------------------------------------------------------------------------
-// Functions called by the solver 
+// Functions called by the solver
 // -----------------------------------------------------------------------------
 
-// Fixed point function to compute G(u) =  A^{-1} (b - c(u)) 
+// Fixed point function to compute G(u) =  A^{-1} (b - c(u))
 static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 {
   int flag;
-  
+
   // Access problem data
   UserData *udata = (UserData *) user_data;
-  
+
   // Get array pointers
   realtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-  
+
   realtype *farray = N_VGetArrayPointer(f);
   if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return 1;
 
@@ -401,9 +401,9 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   double t1 = MPI_Wtime();
 
   // ---------------------------
-  // Calculate f = C e^u 
+  // Calculate f = C e^u
   // ---------------------------
-  
+
   // Iterate over domain interior
   sunindextype istart = (udata->HaveNbrW) ? 0 : 1;
   sunindextype iend   = (udata->HaveNbrE) ? udata->nx_loc : udata->nx_loc - 1;
@@ -420,10 +420,10 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   }
 
   // ---------------------------
-  // Solve Au = C e^u 
+  // Solve Au = C e^u
   // ---------------------------
 
-  // Solve system Au = f, store solution in f 
+  // Solve system Au = f, store solution in f
   flag = SUNLinSolSolve(udata->LS, NULL, f, f, udata->epslin);
   if (check_flag(&flag, "SUNLinSolSolve", 1)) return -1;
 
@@ -444,7 +444,7 @@ static int SetupLS(N_Vector u, void *user_data)
 
   // Access problem data
   UserData *udata = (UserData *) user_data;
-  
+
   int prectype = PREC_RIGHT;
 
   // Create linear solver
@@ -604,7 +604,7 @@ static int PSetup(void *user_data)
 }
 
 // Preconditioner solve routine for Pz = r
-static int PSolve(void *user_data, N_Vector r, N_Vector z, 
+static int PSolve(void *user_data, N_Vector r, N_Vector z,
                   realtype tol, int lr)
 {
   int flag;
@@ -1234,8 +1234,8 @@ static int InitUserData(UserData *udata)
   // Linear solver and preconditioner options
   udata->lsinfo    = false;         // output residual history
   udata->liniters  = 20;            // max linear iterations
-  udata->epslin    = RCONST(1.e-8); // relative stopping tolerance 
-  
+  udata->epslin    = RCONST(1.e-8); // relative stopping tolerance
+
   // Linear solver object
   udata->LS    = NULL;
 
@@ -1522,7 +1522,7 @@ static int OutputTiming(UserData *udata)
   }
 
   double maxtime = 0.0;
-  
+
   MPI_Reduce(&(udata->totaltime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
              udata->comm_c);
   if (outproc)

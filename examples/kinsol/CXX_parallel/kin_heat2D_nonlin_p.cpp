@@ -36,20 +36,20 @@
  * The spatial derivatives are computed using second-order centered differences,
  * with the data distributed over nx * ny points on a uniform spatial grid.
  * The problem is solved via Fixed Point Iteration by adding u to both
- * sides of the equation to setup the fixed point function. 
+ * sides of the equation to setup the fixed point function.
  * This matrix-free setup has the following form
- * 
+ *
  *   u = c3 * u_{ij} + c1*(u_{i-1,j} + u_{i+1,j}) + c2*(u_{i,j-1} + u_{i,j+1})
-                 + c(u)_{ij} - b_{ij} + u_{ij}  
+                 + c(u)_{ij} - b_{ij} + u_{ij}
  *
  * where the constants c1, c2, and c3 are defined as follows
  *
- *   c1 = kx/hx^2 
- *   c2 = ky/hy^2 
+ *   c1 = kx/hx^2
+ *   c2 = ky/hy^2
  *   c3  = -2 * (c1 + c2)
  *
  * Several command line options are available to change the problem parameters
- * and KINSOL settings. Use the flag --help for more information. 
+ * and KINSOL settings. Use the flag --help for more information.
  * ---------------------------------------------------------------------------*/
 
 #include "kin_heat2D_nonlin_p.hpp"     // header file containing UserData
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
 
   // Set initial condition
   N_VConst(ONE, u);
- 
+
   // Create vector for error
   udata->e = N_VClone(u);
   if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
   // Create temp vector for FPFunction evaluation
   udata->vtemp = N_VClone(u);
   if (check_flag((void *) (udata->vtemp), "N_VClone", 0)) return 1;
-  
+
   // -----------------------------------------------
   // Set b and c(u) for RHS evaluation in FPFunction
   // -----------------------------------------------
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "SetupRHS", 1)) return 1;
 
   // --------------
-  // Setup KINSOL 
+  // Setup KINSOL
   // --------------
 
   // Initialize KINSOL memory
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
   // Set number of prior residuals used in Anderson Accleration
   flag = KINSetMAA(kin_mem, udata->maa);
   if (check_flag(&flag, "KINSetMAA", 0)) return 1;
-  
+
   // Set orthogonlization routine used in Anderson Accleration
   flag = KINSetOrthAA(kin_mem, udata->orthaa);
   if (check_flag(&flag, "KINSetOrthAA", 0)) return 1;
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
 
   // No scaling used
   N_VConst(ONE, scale);
-  
+
   // Start timer
   t1 = MPI_Wtime();
 
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
   flag = KINSol(kin_mem,        // KINSol memory block
                 u,              // inital guess on input; solution vector
                 KIN_FP,         // global strategy choice
-                scale,          // scaling vector, for the variable u 
+                scale,          // scaling vector, for the variable u
                 scale);         // scaling vector for function values fval
   if (check_flag(&flag, "KINSol", 1)) return(1);
 
@@ -240,9 +240,9 @@ int main(int argc, char* argv[])
     flag = OutputTiming(udata);
     if (check_flag(&flag, "OutputTiming", 1)) return 1;
   }
-  
+
   // ------------------------------
-  // Free memory 
+  // Free memory
   // ------------------------------
 
   KINFree(&kin_mem);         // Free solver memory
@@ -445,10 +445,10 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
 }
 
 // -----------------------------------------------------------------------------
-// Functions called by the solver 
+// Functions called by the solver
 // -----------------------------------------------------------------------------
 
-// Fixed point function to compute G(u) 
+// Fixed point function to compute G(u)
 static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 {
   int          flag;
@@ -517,7 +517,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     {
       j = 0;
       farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] + 
+        cc * uarray[IDX(i,j,nx_loc)] +
         cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
         + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
     }
@@ -525,7 +525,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     for (j = 1; j < ny_loc - 1; j++)
     {
       farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] + 
+        cc * uarray[IDX(i,j,nx_loc)] +
         cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
         + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
     }
@@ -534,7 +534,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     {
       j = ny_loc - 1;
       farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] + 
+        cc * uarray[IDX(i,j,nx_loc)] +
         cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
         + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
     }
@@ -548,7 +548,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     {
       j = 0;
       farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] + 
+        cc * uarray[IDX(i,j,nx_loc)] +
         cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
         + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
     }
@@ -556,7 +556,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     for (j = 1; j < ny_loc - 1; j++)
     {
       farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] + 
+        cc * uarray[IDX(i,j,nx_loc)] +
         cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
         + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
     }
@@ -565,7 +565,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     {
       j = ny_loc - 1;
       farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] + 
+        cc * uarray[IDX(i,j,nx_loc)] +
         cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
         + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
     }
@@ -578,7 +578,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     for (i = 1; i < nx_loc - 1; i++)
     {
       farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] + 
+        cc * uarray[IDX(i,j,nx_loc)] +
         cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
         + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
     }
@@ -591,12 +591,12 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     for (i = 1; i < nx_loc - 1; i++)
     {
       farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] + 
+        cc * uarray[IDX(i,j,nx_loc)] +
         cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
         + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
     }
   }
- 
+
   // Add c(u)
   flag = udata->c(u, udata->vtemp, user_data);
   if (check_flag(&flag, "c(u)", 1)) return 1;
@@ -605,7 +605,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   // Add u
   N_VLinearSum(ONE, u, ONE, f, f);
 
-  // Subtract b 
+  // Subtract b
   N_VLinearSum(-ONE, udata->b, ONE, f, f);
 
   // Stop timer
@@ -675,9 +675,9 @@ static int SetupRHS(void *user_data)
   // ------------------------------------------------------
   flag = SetC(udata);
   if (check_flag(&flag, "SetC", 1)) return 1;
-  
+
   // ------------------------------------------------------
-  // Setup b for FPFunction 
+  // Setup b for FPFunction
   // ------------------------------------------------------
 
   // Access data array
@@ -706,7 +706,7 @@ static int SetupRHS(void *user_data)
       cos_sqr_x = cos(PI * x) * cos(PI * x);
       cos_sqr_y = cos(PI * y) * cos(PI * y);
 
-      barray[IDX(i,j,nx_loc)] = 
+      barray[IDX(i,j,nx_loc)] =
         bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y
         + by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x;
     }
@@ -1017,14 +1017,14 @@ static int InitUserData(UserData *udata)
 
   // Integrator settings
   udata->rtol        = RCONST(1.e-8);   // relative tolerance
-  udata->maa         = 60;              // 60 vectors in Anderson Acceleration space 
+  udata->maa         = 60;              // 60 vectors in Anderson Acceleration space
   udata->damping     = ONE;             // no damping for Anderson Acceleration
-  udata->orthaa      = 0;               // use MGS for Anderson Acceleration 
+  udata->orthaa      = 0;               // use MGS for Anderson Acceleration
   udata->maxits      = 200;             // max number of fixed point iterations
 
   // c function
   udata->c     = NULL;
-  udata->c_int = 1; 
+  udata->c_int = 1;
 
   // Vectors
   udata->b     = NULL;
@@ -1035,7 +1035,7 @@ static int InitUserData(UserData *udata)
   udata->e      = NULL;
 
   // Timing variables
-  udata->timing       = true;
+  udata->timing       = false;
   udata->totaltime    = 0.0;
   udata->fevaltime    = 0.0;
   udata->exchangetime = 0.0;
@@ -1067,7 +1067,7 @@ static int FreeUserData(UserData *udata)
     N_VDestroy(udata->b);
     udata->b = NULL;
   }
-  
+
   // Free temporary vector
   if (udata->vtemp)
   {
@@ -1230,7 +1230,7 @@ static int SolutionError(N_Vector u, N_Vector e, UserData *udata)
   // Check absolute error between output u and G(u)
   int flag = Solution(e, udata);
   if (flag != 0) return -1;
-  
+
   // Compute absolute error
   N_VLinearSum(ONE, u, -ONE, e, e);
   N_VAbs(e, e);

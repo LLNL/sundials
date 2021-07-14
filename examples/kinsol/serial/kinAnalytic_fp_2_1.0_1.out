@@ -9,9 +9,9 @@ Analytic solution:
 Solution method: Anderson accelerated fixed point iteration.
     tolerance    = 1.49012e-06
     max iters    = 10
-    accel vec    = 0
+    accel vec    = 2
     damping      = 1
-    orth routine = 0
+    orth routine = 1
 
 Final Statistics:
 Number of nonlinear iterations:      5
@@ -19,9 +19,9 @@ Number of function evaluations:      5
 Computed solution:
     x = 0.5
     y = 1
-    z = -0.523598
+    z = -0.523599
 Solution error:
-    ex = 6.91114e-12
-    ey = 4.48202e-07
-    ez = 3.07455e-07
+    ex = 1.78138e-10
+    ey = 3.94722e-09
+    ez = 6.5144e-10
 PASS
