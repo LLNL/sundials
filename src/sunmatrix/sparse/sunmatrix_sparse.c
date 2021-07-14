@@ -1231,3 +1231,4 @@ int format_convert(const SUNMatrix A, SUNMatrix B)
 
     return 0;
 }
+

@@ -338,7 +338,6 @@ int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
                int m, int mMax, void *QRdata)
 {
     sunindextype j, k;
-    int t_offset, retval;
     QRData qrdata = (QRData) QRdata;    
 
     N_VScale(ONE, df, qrdata->vtemp); /* stores d_fi in temp */

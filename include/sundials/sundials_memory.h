@@ -145,3 +145,4 @@ booleantype SUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper);
 #endif
 
 #endif
+

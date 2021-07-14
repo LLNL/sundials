@@ -105,6 +105,21 @@ $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.out || e
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.c       || exit 1
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.out     || exit 1
 
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/README                           || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/CMakeLists.txt                   || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/kin_heat2D_nonlin_p.hpp          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/kin_heat2D_nonlin_p.cpp          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/kin_heat2D_nonlin_p_--np_2_2.out || exit 1
+
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/README                                    || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/CMakeLists.txt                            || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_bratu2D_hypre_pfmg.hpp                || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_bratu2D_hypre_pfmg.cpp                || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_bratu2D_hypre_pfmg_--np_2_2.out       || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_heat2D_nonlin_hypre_pfmg.hpp          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_heat2D_nonlin_hypre_pfmg.cpp          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_heat2D_nonlin_hypre_pfmg_--np_2_2.out || exit 1
+
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/README               || exit 1
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt       || exit 1
 $tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f   || exit 1

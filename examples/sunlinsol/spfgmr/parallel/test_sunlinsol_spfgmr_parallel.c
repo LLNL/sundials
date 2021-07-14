@@ -580,3 +580,4 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 void sync_device()
 {
 }
+
