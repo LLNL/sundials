@@ -218,97 +218,6 @@ static int OutputTiming(UserData *udata);
 // Check function return values
 static int check_flag(void *flagvalue, const string funcname, int opt);
 
-// Output solution and error
-static int OpenOutput(UserData *udata);
-static int WriteOutput(realtype t, N_Vector u, UserData *udata);
-static int CloseOutput(UserData *udata);
-
-// -----------------------------------------------------------------------------
-// Nonlinear functions to substitute for c(u) 
-// -----------------------------------------------------------------------------
-
-// c(u) = - u
-static int c1(N_Vector u, N_Vector f, int INDEX, realtype x, realtype y, bool b_term)
-{
-  realtype sin_sqr_x, sin_sqr_y;
-  realtype u_val;
-
-  realtype *farray = N_VGetArrayPointer(f);
-  if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
-
-  if (b_term) 
-  {
-    sin_sqr_x = sin(PI * x) * sin(PI * x);
-    sin_sqr_y = sin(PI * y) * sin(PI * y);
-
-    u_val  = sin_sqr_x * sin_sqr_y;
-
-    //farray[INDEX] += u_val;
-    farray[INDEX] += sin(PI * x) * sin(PI * y);
-  }
-
-  // Return success
-  return 0;
-}
-
-// c(u) = u^3 - u
-static int c2(N_Vector u, N_Vector f, int INDEX, realtype x, realtype y, bool b_term)
-{
-  realtype sin_sqr_x, sin_sqr_y;
-  realtype u_val, u3_val;
-
-  realtype *farray = N_VGetArrayPointer(f);
-  if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
-
-  if (b_term) 
-  {
-    sin_sqr_x = sin(PI * x) * sin(PI * x);
-    sin_sqr_y = sin(PI * y) * sin(PI * y);
-
-    u_val  = sin_sqr_x * sin_sqr_y;
-    u3_val = u_val * u_val * u_val;
-
-    farray[INDEX] -= (u3_val - u_val);
-  }
-  else 
-  {
-    realtype *uarray = N_VGetArrayPointer(u);
-    if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
-
-    u_val  = uarray[INDEX];
-    u3_val = u_val * u_val * u_val;
-
-    farray[INDEX] += u3_val;
-  }
-
-  // Return success
-  return 0;
-}
-
-// c(u) = u * (1 - u)
-static int c3(N_Vector u, N_Vector f, int INDEX, bool b_term)
-{
-  realtype *farray = N_VGetArrayPointer(f);
-  if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
-
-  realtype u_val = uarray[INDEX];
-
-  if (b_term) 
-  {
-    farray[INDEX] += -(u_val - u_val * u_val);
-  }
-  else 
-  {
-    farray[INDEX] += u_val;
-    farray[INDEX] = sqrt(farray[INDEX]);
-  }
-
-  // Return success
-  return 0;
-}
-
 // -----------------------------------------------------------------------------
 // Multiple nonlinear functions for testing
 // -----------------------------------------------------------------------------
@@ -316,7 +225,6 @@ static int c3(N_Vector u, N_Vector f, int INDEX, bool b_term)
 // c(u) = u
 static int c1(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -362,7 +270,6 @@ static int c1(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u^3 - u
 static int c2(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -408,7 +315,6 @@ static int c2(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u - u^2
 static int c3(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -454,7 +360,6 @@ static int c3(N_Vector u, N_Vector z, void *user_data)
 // c(u) = e^u
 static int c4(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -500,7 +405,6 @@ static int c4(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u^4
 static int c5(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -546,7 +450,6 @@ static int c5(N_Vector u, N_Vector z, void *user_data)
 // c(u) = cos^2(u) - sin^2(u)
 static int c6(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -592,7 +495,6 @@ static int c6(N_Vector u, N_Vector z, void *user_data)
 // c(u) = cos^2(u) - sin^2(u) - e^u
 static int c7(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -638,7 +540,6 @@ static int c7(N_Vector u, N_Vector z, void *user_data)
 // c(u) = e^u * u^4 - u * e^{cos(u)}
 static int c8(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -685,7 +586,6 @@ static int c8(N_Vector u, N_Vector z, void *user_data)
 // c(u) = e^(cos^2(u))
 static int c9(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -732,7 +632,6 @@ static int c9(N_Vector u, N_Vector z, void *user_data)
 // c(u) = 10(u - u^2) 
 static int c10(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -779,7 +678,6 @@ static int c10(N_Vector u, N_Vector z, void *user_data)
 // c(u) = -13 + u + ((5-u)u - 2)u
 static int c11(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -826,7 +724,6 @@ static int c11(N_Vector u, N_Vector z, void *user_data)
 // c(u) = sqrt(5) * (u - u^2) 
 static int c12(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -874,7 +771,6 @@ static int c12(N_Vector u, N_Vector z, void *user_data)
 // c(u) = (u - e^u)^2 + (u + u * sin(u) - cos(u))^2 
 static int c13(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -923,7 +819,6 @@ static int c13(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u + ue^u + ue^{-u} 
 static int c14(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -971,7 +866,6 @@ static int c14(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u + ue^u + ue^{-u} + (u - e^u)^2 
 static int c15(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -1020,7 +914,6 @@ static int c15(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u + ue^u + ue^{-u} + (u - e^u)^2 + (u + usin(u) - cos(u))^2 
 static int c16(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -1070,7 +963,6 @@ static int c16(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u + ue^{-u} + e^u*(u + sin(u) - cos(u))^3 
 static int c17(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data

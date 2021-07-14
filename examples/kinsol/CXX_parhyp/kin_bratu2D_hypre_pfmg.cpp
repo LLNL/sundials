@@ -385,8 +385,7 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
 // Fixed point function to compute G(u) =  A^{-1} (b - c(u)) 
 static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 {
-  int          flag;
-  sunindextype i, j;
+  int flag;
   
   // Access problem data
   UserData *udata = (UserData *) user_data;
@@ -441,8 +440,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 // Create PCG Linear solver
 static int SetupLS(N_Vector u, void *user_data)
 {
-  int          flag;
-  sunindextype i, j;
+  int flag;
 
   // Access problem data
   UserData *udata = (UserData *) user_data;

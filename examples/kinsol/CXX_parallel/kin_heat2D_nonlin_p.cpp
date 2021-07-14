@@ -472,12 +472,6 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   sunindextype nx_loc = udata->nx_loc;
   sunindextype ny_loc = udata->ny_loc;
 
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
   // Constants for computing diffusion term
   realtype cx = udata->kx / (udata->dx * udata->dx);
   realtype cy = udata->ky / (udata->dy * udata->dy);
@@ -492,11 +486,6 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 
   // Initialize rhs vector to zero (handles boundary conditions)
   N_VConst(ZERO, f);
-
-  // Iterate over subdomain and compute rhs forcing term
-  realtype x, y;
-  realtype sin_sqr_x, sin_sqr_y;
-  realtype cos_sqr_x, cos_sqr_y;
 
   // Iterate over subdomain interior and add rhs diffusion term
   for (j = 1; j < ny_loc - 1; j++)

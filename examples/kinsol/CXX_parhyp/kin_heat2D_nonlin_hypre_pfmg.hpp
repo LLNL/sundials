@@ -281,7 +281,6 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 // c(u) = u
 static int c1(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -327,7 +326,6 @@ static int c1(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u^3 - u
 static int c2(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -373,7 +371,6 @@ static int c2(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u - u^2
 static int c3(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -419,7 +416,6 @@ static int c3(N_Vector u, N_Vector z, void *user_data)
 // c(u) = e^u
 static int c4(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -465,7 +461,6 @@ static int c4(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u^4
 static int c5(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -511,7 +506,6 @@ static int c5(N_Vector u, N_Vector z, void *user_data)
 // c(u) = cos^2(u) - sin^2(u)
 static int c6(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -557,7 +551,6 @@ static int c6(N_Vector u, N_Vector z, void *user_data)
 // c(u) = cos^2(u) - sin^2(u) - e^u
 static int c7(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -603,7 +596,6 @@ static int c7(N_Vector u, N_Vector z, void *user_data)
 // c(u) = e^u * u^4 - u * e^{cos(u)}
 static int c8(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -650,7 +642,6 @@ static int c8(N_Vector u, N_Vector z, void *user_data)
 // c(u) = e^(cos^2(u))
 static int c9(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -697,7 +688,6 @@ static int c9(N_Vector u, N_Vector z, void *user_data)
 // c(u) = 10(u - u^2) 
 static int c10(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -744,7 +734,6 @@ static int c10(N_Vector u, N_Vector z, void *user_data)
 // c(u) = -13 + u + ((5-u)u - 2)u
 static int c11(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -791,7 +780,6 @@ static int c11(N_Vector u, N_Vector z, void *user_data)
 // c(u) = sqrt(5) * (u - u^2) 
 static int c12(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -839,7 +827,6 @@ static int c12(N_Vector u, N_Vector z, void *user_data)
 // c(u) = (u - e^u)^2 + (u + u * sin(u) - cos(u))^2 
 static int c13(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -888,7 +875,6 @@ static int c13(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u + ue^u + ue^{-u} 
 static int c14(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -936,7 +922,6 @@ static int c14(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u + ue^u + ue^{-u} + (u - e^u)^2 
 static int c15(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -985,7 +970,6 @@ static int c15(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u + ue^u + ue^{-u} + (u - e^u)^2 + (u + usin(u) - cos(u))^2 
 static int c16(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
@@ -1035,7 +1019,6 @@ static int c16(N_Vector u, N_Vector z, void *user_data)
 // c(u) = u + ue^{-u} + e^u*(u + sin(u) - cos(u))^3 
 static int c17(N_Vector u, N_Vector z, void *user_data)
 {
-  int          flag;
   sunindextype i, j;
 
   // Access problem data
