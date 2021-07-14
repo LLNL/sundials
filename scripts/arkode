@@ -263,9 +263,9 @@ $tar $tarfile $distrobase/examples/arkode/CXX_superludist/ark_brusselator1D_FEM_
 $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/CMakeLists.txt                                                || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/README.md                                                     || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_hypre_pfmg_xbraid.cpp                              || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_hypre_pfmg_xbraid_--np_2_2_2_--x_print_level_0.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_hypre_pfmg_xbraid_--np_2_1_2_--x_print_level_0.out || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_p_xbraid.cpp                                       || exit 1
-$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_p_xbraid_--np_2_2_2_--x_print_level_0.out          || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_p_xbraid_--np_2_1_2_--x_print_level_0.out          || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_xbraid.cpp                                         || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_xbraid_--x_print_level_0.out                       || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/plot_heat2D.py                                                || exit 1

@@ -554,7 +554,7 @@ if [ "$skiptests" = "ON" ]; then exit 0; fi
 
 # test sundials
 echo "START TEST"
-time ctest -j $buildthreads test 2>&1 | tee test.log
+time ctest test 2>&1 | tee test.log
 
 # check make test return code
 rc=${PIPESTATUS[0]}
