@@ -107,6 +107,12 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in 4.8.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The installed SUNDIALSConfig.cmake file now supports the ``COMPONENTS`` option
+to ``find_package``.
+
 Changes in 4.7.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

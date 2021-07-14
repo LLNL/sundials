@@ -357,6 +357,15 @@ macro(sundials_add_library target)
     endif()
   endif()
 
+  # --------------------------------------------------------------------------
+  # List of installed SUNDIALS components
+  # --------------------------------------------------------------------------
+
+  if(NOT sundials_add_library_OBJECT_LIB_ONLY)
+    string(REPLACE "sundials_" "" _comp_name "${target}")
+    set(_SUNDIALS_INSTALLED_COMPONENTS "${_comp_name};${_SUNDIALS_INSTALLED_COMPONENTS}" CACHE INTERNAL "" FORCE)
+  endif()
+
 endmacro(sundials_add_library)
 
 

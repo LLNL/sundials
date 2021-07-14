@@ -99,6 +99,17 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v5.8.0}
+
+Added specialized fused {\hip} kernels to {\cvode} which may offer better
+performance on smaller problems when using {\cvode} with the {\nvechip}
+module. See the optional input function \\\id{CVodeSetUseIntegratorFusedKernels}
+for more information. As with other {\sundials} {\hip} features, this
+capability is considered experimental and may change from version to version.
+
+The installed SUNDIALSConfig.cmake file now supports the \id{COMPONENTS} option
+to \id{find\_package}.
+
 \subsection*{Changes in v5.7.0}
 
 A new {\nvector} implementation based on the {\sycl} abstraction layer has been

@@ -761,10 +761,10 @@ typedef struct ARKodeMemRec {
   Depending on the type of stepper, this may be just the single
   ODE RHS function supplied (e.g. ERK, DIRK, IRK), or it may be
   the sum of many ODE RHS functions (e.g. ARK, MRI).  The 'mode'
-  flag indicates where this routine is called:
-     0 -> called at the beginning of a simulation
-     1 -> called at the end of a successful step
-     2 -> called elsewhere (e.g. for dense output)
+  indicates where this routine is called:
+     ARK_FULLRHS_START -> called at the beginning of a simulation
+     ARK_FULLRHS_END   -> called at the end of a successful step
+     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
   It is recommended that the stepper use the mode information to
   maximize reuse between calls to this function and RHS
   evaluations inside the stepper itself.
@@ -773,6 +773,11 @@ typedef struct ARKodeMemRec {
   otherwise.  If an error does occur, an appropriate message
   should be sent to the error handler function.
   ---------------------------------------------------------------*/
+
+/* Constants for Full RHS */
+#define ARK_FULLRHS_START 0
+#define ARK_FULLRHS_END   1
+#define ARK_FULLRHS_OTHER 2
 
 /*---------------------------------------------------------------
   ARKTimestepStepFn
@@ -925,7 +930,8 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
                          N_Vector *Xvecs, N_Vector yguess);
 int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr);
 int arkCheckConstraints(ARKodeMem ark_mem, int *nflag, int *constrfails);
-int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtype dsm);
+int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr,
+                          realtype dsm);
 int arkAccessHAdaptMem(void* arkode_mem, const char *fname,
                        ARKodeMem *ark_mem, ARKodeHAdaptMem *hadapt_mem);
 

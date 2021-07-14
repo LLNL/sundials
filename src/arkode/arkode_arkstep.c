@@ -1271,25 +1271,26 @@ int arkStep_Init(void* arkode_mem, int init_type)
     f = M^{-1}*[ fe(t,y) + fi(t,y) ]
 
   This will be called in one of three 'modes':
-    0 -> called at the beginning of a simulation
-    1 -> called at the end of a successful step
-    2 -> called elsewhere (e.g. for dense output)
+    ARK_FULLRHS_START -> called at the beginning of a simulation
+                         or after post processing at step
+    ARK_FULLRHS_END   -> called at the end of a successful step
+    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in mode 0, we store the vectors fe(t,y) and
-  fi(t,y) in Fe[0] and Fi[0] for possible reuse in the first
-  stage of the subsequent time step.
+  If it is called in ARK_FULLRHS_START mode, we store the vectors
+  fe(t,y) and fi(t,y) in Fe[0] and Fi[0] for possible reuse in the
+  first stage of the subsequent time step.
 
-  If it is called in mode 1 and the ARK method coefficients
-  support it, we may just copy vectors Fe[stages] and Fi[stages]
-  to fill f instead of calling fe() and fi().
+  If it is called in ARK_FULLRHS_END mode and the ARK method
+  coefficients support it, we may just copy vectors Fe[stages] and
+  Fi[stages] to fill f instead of calling fe() and fi().
 
-  Mode 2 is only called for dense output in-between steps, or
-  when estimating the initial time step size, so we strive to
+  ARK_FULLRHS_OTHER mode is only called for dense output in-between
+  steps, or when estimating the initial time step size, so we strive to
   store the intermediate parts so that they do not interfere
   with the other two modes.
   ---------------------------------------------------------------*/
-int arkStep_FullRHS(void* arkode_mem, realtype t,
-                    N_Vector y, N_Vector f, int mode)
+int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+                    int mode)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -1317,10 +1318,10 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
-  /* Mode 0: called at the beginning of a simulation
+  /* ARK_FULLRHS_START: called at the beginning of a simulation
      Store the vectors fe(t,y) and fi(t,y) in Fe[0] and Fi[0] for
      possible reuse in the first stage of the subsequent time step */
-  case 0:
+  case ARK_FULLRHS_START:
 
     /* call fe if the problem has an explicit component */
     if (step_mem->explicit) {
@@ -1372,11 +1373,11 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
     break;
 
 
-  /* Mode 1: called at the end of a successful step
-     If the ARK method coefficients support it, we just copy the last stage RHS vectors
-     to fill f instead of calling fe() and fi().
+  /* ARK_FULLRHS_END: called at the end of a successful step
+     If the ARK method coefficients support it, we just copy the last stage RHS
+     vectors to fill f instead of calling fe() and fi().
      Copy the results to Fe[0] and Fi[0] if the ARK coefficients support it. */
-  case 1:
+  case ARK_FULLRHS_END:
 
     /* determine if explicit/implicit RHS functions need to be recomputed */
     recomputeRHS = SUNFALSE;
@@ -1443,10 +1444,10 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
 
     break;
 
-  /*  Mode 2: called for dense output in-between steps or for estimation
-      of the initial time step size, store the intermediate calculations
-      in such a way as to not interfere with the other two modes */
-  default:
+  /* ARK_FULLRHS_OTHER: called for dense output in-between steps or for
+     estimation of the initial time step size, store the intermediate
+     calculations in such a way as to not interfere with the other two modes */
+  case ARK_FULLRHS_OTHER:
 
     /* call fe if the problem has an explicit component (store in ark_tempv2) */
     if (step_mem->explicit) {
@@ -1496,6 +1497,12 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
     }
 
     break;
+
+  default:
+    /* return with RHS failure if unknown mode is passed */
+    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
+                    "arkStep_FullRHS", "Unknown full RHS mode");
+    return(ARK_RHSFUNC_FAIL);
   }
 
   /* if M != I, then update f = M^{-1}*f */

@@ -12,9 +12,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -------------------------------------------------------------------------------
-# Script that sets up the environment for SUNDIALS testing on Lassen.
+# Script that sets up the environment for SUNDIALS testing on Summit.
 #
-# Usage: source env.lassen.sh <real type> <index size> <compiler spec> \
+# Usage: source env.summit.sh <real type> <index size> <compiler spec> \
 #                             <build type>
 #
 # Required Inputs:
@@ -28,7 +28,7 @@
 #
 # Optional Inputs:
 #   <compiler spec> = Compiler to build sundials with:
-#                       e.g., xl@2019.12.23, gcc@8.1.0, clang@9.0.0, etc.
+#                       e.g., xl@16.1.1-5, gcc@8.1.1, etc.
 #   <build type>    = SUNDIALS build type:
 #                       dbg : debug build
 #                       opt : optimized build
@@ -47,8 +47,8 @@ realtype=$1   # precision for realtypes
 indexsize=$2  # integer size for indices
 
 # set defaults for optional inputs
-compiler="xl@2020.09.17" # compiler spec
-bldtype="opt"            # build type dbg = debug or opt = optimized
+compiler="xl@16.1.1-5" # compiler spec
+bldtype="opt"          # build type dbg = debug or opt = optimized
 
 # set optional inputs if provided
 if [ "$#" -gt 2 ]; then
@@ -148,6 +148,11 @@ export PTHREAD_STATUS=ON
 # OpenMP settings
 export OPENMP_STATUS=ON
 export OMP_NUM_THREADS=20
+
+# LAPACK settings
+module load essl
+export LAPACK_STATUS=ON
+export LAPACKLIBS="${OLCF_ESSL_ROOT}/lib64/libessl.so"
 
 # CUDA settings
 module load cuda

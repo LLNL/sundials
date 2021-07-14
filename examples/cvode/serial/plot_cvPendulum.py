@@ -38,6 +38,15 @@ y  = data[:, 2]
 vx = data[:, 3]
 vy = data[:, 4]
 
+# read reference solution output file
+ref = np.loadtxt("cvPendulum_dns_ref.txt", dtype=np.double)
+
+# extract positions and velocities
+xr  = ref[:, 1]
+yr  = ref[:, 2]
+vxr = ref[:, 3]
+vyr = ref[:, 4]
+
 # lower half of unit circle
 tt = np.linspace(np.pi, 2*np.pi, 10000)
 xt = np.cos(tt)
@@ -45,15 +54,17 @@ yt = np.sin(tt)
 
 # plot solution in xy plane
 fig, ax = plt.subplots()
-ax.axhline(y=0, color='black', linestyle='--')
-ax.axvline(x=0, color='black', linestyle='--')
-plt.plot(xt, yt, color='black', linestyle='--')
-plt.scatter(x, y, color='red')
+ax.axhline(y=0, color='black', linestyle='--', label=None)
+ax.axvline(x=0, color='black', linestyle='--', label=None)
+plt.plot(xt, yt, color='black', linestyle='--', label=None)
+plt.scatter(x, y, color='red', label='comp')
+plt.scatter(xr, yr, color='blue', label='ref')
 
 plt.xlabel('x')
 plt.ylabel('y')
 plt.title('Pendulum')
 ax.set_aspect('equal')
+plt.legend(loc='lower right')
 
 # plot position over time
 fig, ax = plt.subplots()

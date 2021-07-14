@@ -232,6 +232,7 @@ if [ "$realtype" == "extended" ]; then
     export FUSED_STATUS=OFF
 else
     export CUDA_STATUS=ON
+    export CUDA_ARCH=60
 fi
 
 # MPI

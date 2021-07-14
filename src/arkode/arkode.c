@@ -1801,8 +1801,8 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
   /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1) */
-  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur,
-                                 ark_mem->yn, ark_mem->fn, 0);
+  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
+                                 ark_mem->fn, ARK_FULLRHS_START);
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
   /* Fill initial interpolation data (if needed) */
@@ -1923,8 +1923,8 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
          and roots were found in the previous step, then compute the full rhs
          for possible use in arkRootCheck2 (not always necessary) */
       if (!(ark_mem->call_fullrhs) && irfndp != 0) {
-        retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur,
-                                       ark_mem->yn, ark_mem->fn, 1);
+        retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
+                                       ark_mem->fn, ARK_FULLRHS_END);
         if (retval != 0) {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode", "arkStopTests",
                           MSG_ARK_RHSFUNC_FAILED);
@@ -2224,9 +2224,8 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   N_VLinearSum(hg, ark_mem->fn, ONE, ark_mem->yn, ark_mem->ycur);
 
   /* compute y', via the ODE RHS routine */
-  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur+hg,
-                                 ark_mem->ycur,
-                                 ark_mem->tempv1, 2);
+  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + hg, ark_mem->ycur,
+                                 ark_mem->tempv1, ARK_FULLRHS_OTHER);
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
   /* difference new f and original f to estimate y'' */
@@ -2285,9 +2284,8 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 
   /* call fullrhs if needed */
   if (ark_mem->call_fullrhs) {
-    mode = (ark_mem->ProcessStep != NULL) ? 0 : 1;
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur,
-                                   ark_mem->ycur,
+    mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,
                                    ark_mem->fn, mode);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);
   }

@@ -20,10 +20,10 @@
 # Currently only available in CVODE.
 # ---------------------------------------------------------------
 
-sundials_option(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS BOOL "Build specialized fused CUDA kernels" OFF
-                DEPENDS_ON ENABLE_CUDA CMAKE_CUDA_COMPILER BUILD_CVODE
+sundials_option(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS BOOL "Build specialized fused GPU kernels" OFF
+                DEPENDS_ON BUILD_CVODE
                 DEPENDS_ON_THROW_ERROR
-                SHOW_IF ENABLE_CUDA CMAKE_CUDA_COMPILER BUILD_CVODE)
+                SHOW_IF BUILD_CVODE)
 
 # ---------------------------------------------------------------
 # Options to enable/disable build for NVECTOR modules.

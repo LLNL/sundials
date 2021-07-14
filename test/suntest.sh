@@ -403,6 +403,15 @@ CMAKE_VERBOSE_MAKEFILE=${CMAKE_VERBOSE_MAKEFILE:-"ON"}
 # Setup test directories
 # ------------------------------------------------------------------------------
 
+# check if an install prefix was set
+if [ -n "${SUNDIALS_INSTALL_PREFIX}" ]; then
+    # user defined install location
+    installdir="${SUNDIALS_INSTALL_PREFIX}"
+else
+    # default install location (same level as build directory)
+    installdir="${PWD}/${installdir}"
+fi
+
 # remove old build and install directories
 \rm -rf $builddir
 \rm -rf $installdir
@@ -417,7 +426,7 @@ cd $builddir
 
 echo "START CMAKE"
 time cmake \
-    -D CMAKE_INSTALL_PREFIX="../$installdir" \
+    -D CMAKE_INSTALL_PREFIX="${installdir}" \
     \
     -D BUILD_STATIC_LIBS="${STATIC}" \
     -D BUILD_SHARED_LIBS="${SHARED}" \
@@ -456,7 +465,7 @@ time cmake \
     -D ENABLE_OPENMP="${OPENMP_STATUS}" \
     -D ENABLE_PTHREAD="${PTHREAD_STATUS}" \
     -D ENABLE_CUDA="${CUDA_STATUS}" \
-    -D CUDA_ARCH="${CUDA_ARCH}" \
+    -D CMAKE_CUDA_ARCHITECTURES="${CUDA_ARCH}" \
     \
     -D ENABLE_OPENMP_DEVICE="${OPENMPDEV_STATUS}" \
     -D OPENMP_DEVICE_WORKS=TRUE \
@@ -545,7 +554,7 @@ if [ "$skiptests" = "ON" ]; then exit 0; fi
 
 # test sundials
 echo "START TEST"
-time ctest -j $buildthreads test 2>&1 | tee test.log
+time ctest test 2>&1 | tee test.log
 
 # check make test return code
 rc=${PIPESTATUS[0]}

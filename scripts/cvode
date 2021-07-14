@@ -31,7 +31,7 @@ $tar $tarfile $distrobase/src/cvode/CMakeLists.txt || exit 1
 
 $tar $tarfile $distrobase/src/cvode/cvode.c              || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_fused_stubs.c  || exit 1
-$tar $tarfile $distrobase/src/cvode/cvode_fused_cuda.cu  || exit 1
+$tar $tarfile $distrobase/src/cvode/cvode_fused_gpu.cpp  || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre.c      || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bandpre_impl.h || exit 1
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre.c       || exit 1
@@ -219,10 +219,16 @@ $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.out    
 $tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr.cu   || exit 1
 $tar $tarfile $distrobase/examples/cvode/cuda/cvRoberts_block_cusolversp_batchqr.out  || exit 1
 
+$tar $tarfile $distrobase/examples/cvode/hip/README                                 || exit 1
 $tar $tarfile $distrobase/examples/cvode/hip/CMakeLists.txt                         || exit 1
+$tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_diag_hip.cpp                 || exit 1
+$tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_diag_hip_0_0.out             || exit 1
+$tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_diag_hip_0_1.out             || exit 1
+$tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_diag_hip_1_1.out             || exit 1
 $tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_kry_hip.cpp                  || exit 1
 $tar $tarfile $distrobase/examples/cvode/hip/cvAdvDiff_kry_hip.out                  || exit 1
 
+$tar $tarfile $distrobase/examples/cvode/magma/README                         || exit 1
 $tar $tarfile $distrobase/examples/cvode/magma/CMakeLists.txt                 || exit 1
 $tar $tarfile $distrobase/examples/cvode/magma/cvRoberts_blockdiag_magma.cpp  || exit 1
 $tar $tarfile $distrobase/examples/cvode/magma/cvRoberts_blockdiag_magma.out  || exit 1

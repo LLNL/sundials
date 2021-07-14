@@ -1108,23 +1108,25 @@ int mriStep_Init(void* arkode_mem, int init_type)
   f(t,y) = fs(t,y) + ff(t,y).
 
   This will be called in one of three 'modes':
-    0 -> called at the beginning of a simulation
-    1 -> called at the end of a successful step
-    2 -> called elsewhere (e.g. for dense output)
+    ARK_FULLRHS_START -> called at the beginning of a simulation
+                         or after post processing at step
+    ARK_FULLRHS_END   -> called at the end of a successful step
+    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in mode 0, we store the vectors f(t,y) in F[0]
-  for possible reuse in the first stage of the subsequent time step.
+  If it is called in ARK_FULLRHS_START mode, we store the vectors
+  f(t,y) in F[0] for possible reuse in the first stage of the
+  subsequent time step.
 
-  If it is called in mode 1, we reevauate f(t,y). At this time no
-  checks are made to see if the method coefficient support copying
-  vectors F[stages] to fill f instead of calling f().
+  If it is called in ARK_FULLRHS_END mode, we reevauate f(t,y). At
+  this time no checks are made to see if the method coefficient
+  support copying vectors F[stages] to fill f instead of calling f().
 
-  Mode 2 is only called for dense output in-between steps, so we
-  strive to store the intermediate parts so that they do not
-  interfere with the other two modes.
+  ARK_FULLRHS_OTHER mode is only called for dense output in-between
+  steps, so we strive to store the intermediate parts so that they
+  do not interfere with the other two modes.
   ---------------------------------------------------------------*/
-int mriStep_FullRHS(void* arkode_mem, realtype t,
-                    N_Vector y, N_Vector f, int mode)
+int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+                    int mode)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -1143,10 +1145,10 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
-  /* Mode 0: called at the beginning of a simulation
+  /* ARK_FULLRHS_START: called at the beginning of a simulation
      Store the vector fs(t,y) in F[0] for possible reuse
      in the first stage of the subsequent time step */
-  case 0:
+  case ARK_FULLRHS_START:
 
     /* call fs */
     retval = step_mem->fs(t, y, step_mem->F[0], ark_mem->user_data);
@@ -1159,7 +1161,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
 
     /* call ff (force new RHS computation) */
     step_mem->inner_retval =
-      step_mem->inner_fullrhs(step_mem->inner_mem, t, y, f, 2);
+      step_mem->inner_fullrhs(step_mem->inner_mem, t, y, f, ARK_FULLRHS_OTHER);
     if (step_mem->inner_retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::MRIStep",
                       "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
@@ -1172,10 +1174,10 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
     break;
 
 
-  /* Mode 1: called at the end of a successful step
+  /* ARK_FULLRHS_END: called at the end of a successful step
      This always recomputes the full RHS (i.e., this is the
      same as case 0). */
-  case 1:
+  case ARK_FULLRHS_END:
 
     /* call fs */
     retval = step_mem->fs(t, y, step_mem->F[0], ark_mem->user_data);
@@ -1188,7 +1190,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
 
     /* call ff (force new RHS computation) */
     step_mem->inner_retval =
-      step_mem->inner_fullrhs(step_mem->inner_mem, t, y, f, 2);
+      step_mem->inner_fullrhs(step_mem->inner_mem, t, y, f, ARK_FULLRHS_OTHER);
     if (step_mem->inner_retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::MRIStep",
                       "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
@@ -1200,10 +1202,10 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
 
     break;
 
-  /*  Mode 2: called for dense output in-between steps
+  /*  ARK_FULLRHS_OTHER: called for dense output in-between steps
       store the intermediate calculations in such a way as to not
       interfere with the other two modes */
-  default:
+  case ARK_FULLRHS_OTHER:
 
     /* call fs */
     retval = step_mem->fs(t, y, ark_mem->tempv2, ark_mem->user_data);
@@ -1216,7 +1218,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
 
     /* call ff (force new RHS computation) */
     step_mem->inner_retval =
-      step_mem->inner_fullrhs(arkode_mem, t, y, f, 2);
+      step_mem->inner_fullrhs(arkode_mem, t, y, f, ARK_FULLRHS_OTHER);
     if (step_mem->inner_retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::MRIStep",
                       "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
@@ -1227,6 +1229,12 @@ int mriStep_FullRHS(void* arkode_mem, realtype t,
     N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
 
     break;
+
+  default:
+    /* return with RHS failure if unknown mode is passed */
+    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::MRIStep",
+                    "mriStep_FullRHS", "Unknown full RHS mode");
+    return(ARK_RHSFUNC_FAIL);
   }
 
   return(ARK_SUCCESS);

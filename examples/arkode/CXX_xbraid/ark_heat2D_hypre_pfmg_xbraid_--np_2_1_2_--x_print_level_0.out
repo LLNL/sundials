@@ -1,11 +1,11 @@
 
 2D Heat PDE test problem:
- ---------------------------------
-  nprocs         = 8
+ --------------------------------- 
+  nprocs         = 4
   npx            = 2
-  npy            = 2
+  npy            = 1
   npt            = 2
- ---------------------------------
+ --------------------------------- 
   kx             = 1
   ky             = 1
   forcing        = 1
@@ -15,15 +15,15 @@
   nx             = 32
   ny             = 32
   nxl (proc 0)   = 16
-  nyl (proc 0)   = 16
+  nyl (proc 0)   = 32
   dx             = 0.0322581
   dy             = 0.0322581
- ---------------------------------
+ --------------------------------- 
   rtol           = 1e-05
   atol           = 1e-10
   order          = 3
   linear         = 1
- ---------------------------------
+ --------------------------------- 
   linear solver  = PCG
   lin iters      = 100
   matvec         = 0
@@ -32,7 +32,7 @@
   msbp           = 0
   pfmg_relax     = 2
   pfmg_nrelax    = 2
- ---------------------------------
+ --------------------------------- 
   nt             = 300
   xtol           = 1e-06
   refine         = 0
@@ -41,11 +41,11 @@
   init seq       = 0
   print level    = 0
   access level   = 1
- ---------------------------------
+ --------------------------------- 
   output         = 1
- ---------------------------------
+ --------------------------------- 
 
-  Max error = 3.297223465995036e-03
+  Max error = 3.297223468430088e-03
 
 Final max integrator statistics:
   Steps            = 1780
@@ -66,3 +66,4 @@ Final max integrator statistics:
   Preconditioner setups = 1780
   Preconditioner solves = 30510
   PFMG iters            = 30510
+

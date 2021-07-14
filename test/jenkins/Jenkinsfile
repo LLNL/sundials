@@ -12,7 +12,7 @@ pipeline {
               echo "END JENKINS SETUP"
 
               // run regression tests
-              sh("cd test && ./test_driver.sh 8 ${env.BRANCH_NAME} ${env.CHANGE_BRANCH}")
+              sh("cd test && ./test_driver.sh 4 ${env.BRANCH_NAME} ${env.CHANGE_BRANCH}")
             }
         }
     }
@@ -21,13 +21,13 @@ pipeline {
                  echo 'Tests Complete'
          }
          success {
-                 sh("cd test && ./notify.py success ${env.BRANCH_NAME} ${env.BUILD_URL}")
+                 sh("cd test && ./notify.py passed ${env.BRANCH_NAME} ${env.BUILD_URL}")
          }
          failure {
-                 sh("cd test && ./notify.py failure ${env.BRANCH_NAME} ${env.BUILD_URL}")
+                 sh("cd test && ./notify.py failed ${env.BRANCH_NAME} ${env.BUILD_URL}")
          }
-         unstable {
-                 sh("cd test && ./notify.py unstable ${env.BRANCH_NAME} ${env.BUILD_URL}")
+         fixed {
+                 sh("cd test && ./notify.py fixed ${env.BRANCH_NAME} ${env.BUILD_URL}")
          }
     }
 }

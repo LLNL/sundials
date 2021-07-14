@@ -221,8 +221,8 @@ int main(int argc, char *argv[])
     for (groupj = 0; groupj < ngroups; groupj += 10) {
       printf("group %d: ", groupj);
       PrintOutput(t, ydata[GROUPSIZE*groupj],
-                     ydata[1+GROUPSIZE*groupj],
-                     ydata[2+GROUPSIZE*groupj]);
+                  ydata[1+GROUPSIZE*groupj],
+                  ydata[2+GROUPSIZE*groupj]);
     }
 
     if (check_retval(&retval, "CVode", 1)) break;
@@ -307,7 +307,7 @@ static void f_kernel(realtype t, realtype* ydata, realtype* ydotdata,
 
     yd1 = ydotdata[groupj]   = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
     yd3 = ydotdata[groupj+2] = RCONST(3.0e7)*y2*y2;
-          ydotdata[groupj+1] = -yd1 - yd3;
+    ydotdata[groupj+1] = -yd1 - yd3;
   }
 }
 
@@ -466,15 +466,11 @@ static void PrintFinalStats(void *cvode_mem, SUNLinearSolver LS)
   retval = CVodeGetNumGEvals(cvode_mem, &nge);
   check_retval(&retval, "CVodeGetNumGEvals", 1);
 
-  SUNLinSol_cuSolverSp_batchQR_GetDeviceSpace(LS, &cuSpInternalSize, &cuSpWorkSize);
-
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n",
-	 nst, nfe, nsetups, nje);
-  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld    nge = %ld\n \n",
-   nni, ncfn, netf, nge);
-  printf("cuSolverSp numerical factorization workspace size (in bytes) = %ld\n", cuSpWorkSize);
-  printf("cuSolverSp internal Q, R buffer size (in bytes) = %ld\n", cuSpInternalSize);
+         nst, nfe, nsetups, nje);
+  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld    nge = %ld\n",
+         nni, ncfn, netf, nge);
 }
 
 /*
@@ -494,7 +490,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -502,13 +498,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);

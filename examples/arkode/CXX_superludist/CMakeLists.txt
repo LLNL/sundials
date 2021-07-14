@@ -45,10 +45,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 set(ARKODE_LIB sundials_arkode)
 set(SUNMAT_LIB sundials_sunmatrixslunrloc)
 set(SUNLS_LIB sundials_sunlinsolsuperludist)
-set(NVECP_LIB sundials_nvecopenmp)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${SUNMAT_LIB} ${SUNLS_LIB} ${EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${SUNMAT_LIB} ${SUNLS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})
@@ -102,8 +101,7 @@ if(EXAMPLES_INSTALL)
   set(SOLVER "ARKODE")
   string(CONCAT SUNDIALS_LIBS "-lsundials_arkode "
     "-lsundials_sunmatrixslunrloc "
-    "-lsundials_sunlinsolsuperludist "
-    "-lsundials_nvecopenmp")
+    "-lsundials_sunlinsolsuperludist")
 
   examples2string(ARKODE_examples EXAMPLES)
 
