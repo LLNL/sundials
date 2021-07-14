@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): Shelby Lockhart @ LLNL 
+# Programmer(s): Shelby Lockhart @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -19,9 +19,13 @@
 
 # Examples using SUNDIALS linear solvers
 set(KINSOL_examples
-  "kin_heat2D_nonlin_hypre_pfmg\;--np 2 2\;1\;4\;develop"
   "kin_bratu2D_hypre_pfmg\;--np 2 2\;1\;4\;develop"
+  "kin_heat2D_nonlin_hypre_pfmg\;--np 2 2\;1\;4\;develop"
   )
+
+set(KINSOL_headers
+  "kin_bratu2D_hypre_pfmg.hpp"
+  "kin_heat2D_nonlin_hypre_pfmg.hpp")
 
 if(MPI_CXX_COMPILER)
   # use MPI wrapper as the compiler
@@ -99,13 +103,13 @@ endforeach(example_tuple ${KINSOL_examples})
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp)
-
-  # Install the extra files
-  foreach(extrafile ${KINSOL_extras})
+  # Install the header files
+  foreach(extrafile ${KINSOL_headers})
     install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp)
   endforeach()
+
+  # Install the README file
+  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "KINSOL")

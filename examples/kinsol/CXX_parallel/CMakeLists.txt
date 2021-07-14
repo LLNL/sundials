@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): Shelby Lockhart @ LLNL 
+# Programmer(s): Shelby Lockhart @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -22,7 +22,7 @@ set(serial_examples
   "kin_heat2D_nonlin_p\;\;--np 2 2\;1\;4\;develop\;default")
 
 # Header files to install
-set(KINSOL_headers )
+set(KINSOL_headers "kin_heat2D_nonlin_p.hpp")
 
 if(MPI_CXX_COMPILER)
   # use MPI wrapper as the compiler
