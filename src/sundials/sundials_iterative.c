@@ -308,11 +308,11 @@ int QRsol(int n, realtype **h, realtype *q, realtype *b)
  */
 
 int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
-              int m, int mMax, void *QRdata)
+              long int m, long int mMax, void *QRdata)
 {
     sunindextype j;
     QRData qrdata = (QRData) QRdata;    
-    
+ 
     N_VScale(ONE, df, qrdata->vtemp);
     for (j=0; j < m; j++) {
       R[m * mMax + j] = N_VDotProd(Q[j], qrdata->vtemp);
@@ -335,7 +335,7 @@ int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df, 
-               int m, int mMax, void *QRdata)
+               long int m, long int mMax, void *QRdata)
 {
     sunindextype j, k;
     QRData qrdata = (QRData) QRdata;    
@@ -383,7 +383,7 @@ int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df, 
-               int m, int mMax, void *QRdata)
+               long int m, long int mMax, void *QRdata)
 {
     sunindextype j;
     QRData qrdata = (QRData) QRdata;    
@@ -426,8 +426,8 @@ int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
-                                int m, int mMax, void *QRdata)
+int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
+                long int m, long int mMax, void *QRdata)
 {
     sunindextype j;
     QRData qrdata = (QRData) QRdata;    

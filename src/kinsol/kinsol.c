@@ -2473,9 +2473,9 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R,
     else {  /* use Anderson, if desired */
       N_VScale(ONE, kin_mem->kin_uu, kin_mem->kin_unew);
       /* apply standard Anderson acceleration */
-      AndersonAcc(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
-                  kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
-                  kin_mem->kin_gamma_aa);
+      AndersonAcc(kin_mem, gval, delta, kin_mem->kin_unew,
+                  kin_mem->kin_uu, iter-1, kin_mem->kin_R_aa,
+                  gamma);
     }
 
     /* Fill the Newton residual based on the new solution iterate */

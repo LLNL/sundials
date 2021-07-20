@@ -335,7 +335,7 @@ SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
  */
 
 SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
-                              int m, int mMax, void *QRdata);
+                              long int m, long int mMax, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -370,7 +370,7 @@ SUNDIALS_EXPORT int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df, 
-                               int m, int mMax, void *QRdata);
+                               long int m, long int mMax, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -402,7 +402,7 @@ SUNDIALS_EXPORT int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 SUNDIALS_EXPORT int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df, 
-                               int m, int mMax, void *QRdata);
+                               long int m, long int mMax, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -436,7 +436,7 @@ SUNDIALS_EXPORT int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 SUNDIALS_EXPORT int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
-                                int m, int mMax, void *QRdata);
+                                long int m, long int mMax, void *QRdata);
 
 #ifdef __cplusplus
 }
