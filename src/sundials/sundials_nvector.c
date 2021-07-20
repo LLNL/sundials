@@ -773,7 +773,7 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
   if (count <= 0) return(NULL);
 
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
+  if (vs == NULL) return(NULL);
 
   for (j = 0; j < count; j++) {
     vs[j] = N_VClone(w);
@@ -790,9 +790,12 @@ void N_VDestroyVectorArray(N_Vector* vs, int count)
 {
   int j;
 
-  if (vs==NULL) return;
+  if (vs == NULL) return;
 
-  for (j = 0; j < count; j++) N_VDestroy(vs[j]);
+  for (j = 0; j < count; j++) {
+    N_VDestroy(vs[j]);
+    vs[j] = NULL;
+  }
 
   free(vs); vs = NULL;
 

@@ -516,9 +516,11 @@ other SUNNonlinSol implementations are built. The
 implementation-dependent *content* field and an *ops*
 field. The type ``SUNNonlinearSolver`` is defined as follows:
 
-.. code-block:: c
+.. c:type:: typedef struct _generic_SUNNonlinearSolver *SUNNonlinearSolver
 
-   typedef struct _generic_SUNNonlinearSolver *SUNNonlinearSolver;
+and the generic structure is defined as
+
+.. code-block:: c
 
    struct _generic_SUNNonlinearSolver {
      void *content;

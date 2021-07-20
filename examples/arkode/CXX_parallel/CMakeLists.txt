@@ -35,33 +35,50 @@ set(ARKODE_extras
   plot_heat2D_p.py
 )
 
-# More examples that only build with double precision.
+# Examples that require CVODE
+if(BUILD_CVODE)
+  set(examples_cvode
+    "ark_diffusion_reaction_p\;\;--np 2 2 --imex\;1\;4\;develop\;default"
+    "ark_diffusion_reaction_p\;\;--np 2 2 --mri-arkstep\;1\;4\;develop\;default"
+    "ark_diffusion_reaction_p\;\;--np 2 2 --mri-cvode-global\;1\;4\;develop\;default"
+    "ark_diffusion_reaction_p\;\;--np 2 2 --mri-cvode-local\;1\;4\;develop\;default")
+endif()
+
+
+# Examples that only build with double precision.
 if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
     (SUNDIALS_INDEX_SIZE MATCHES "32"))
+
   list(APPEND serial_raja_examples
     "ark_brusselator1D_task_local_nls\;\;--monitor\;1\;4\;develop\;2"
     "ark_brusselator1D_task_local_nls\;\;--monitor --global-nls\;1\;4\;develop\;2"
     "ark_brusselator1D_task_local_nls\;\;--monitor --explicit --tf 1\;1\;4\;develop\;2")
+
   if(BUILD_NVECTOR_CUDA AND (RAJA_BACKENDS MATCHES "CUDA"))
     list(APPEND cuda_raja_examples
       "ark_brusselator1D_task_local_nls\;USE_CUDA_NVEC\;--monitor\;1\;4\;develop\;2"
       "ark_brusselator1D_task_local_nls\;USE_CUDAUVM_NVEC\;--monitor\;1\;4\;exclude\;2"
       "ark_brusselator1D_task_local_nls\;USE_CUDA_NVEC\;--monitor --global-nls\;1\;4\;develop\;2")
   endif()
+
   if(BUILD_NVECTOR_HIP AND (RAJA_BACKENDS MATCHES "HIP"))
     list(APPEND hip_raja_examples
       "ark_brusselator1D_task_local_nls\;USE_HIP_NVEC\;--monitor\;1\;4\;exclude\;2")
   endif()
+
   if(BUILD_NVECTOR_RAJA AND (RAJA_BACKENDS MATCHES "CUDA"))
     list(APPEND raja_raja_examples
       "ark_brusselator1D_task_local_nls\;USE_RAJA_NVEC\;--monitor\;1\;4\;exclude\;2")
   endif()
+
   if(BUILD_NVECTOR_OPENMPDEV AND (RAJA_BACKENDS MATCHES "TARGET_OPENMP"))
     list(APPEND openmpdev_raja_examples
       "ark_brusselator1D_task_local_nls\;USE_OMPDEV_NVEC\;--monitor\;1\;4\;exclude\;2")
   endif()
+
   list(APPEND ARKODE_headers ark_brusselator1D.h)
   list(APPEND ARKODE_extras plot_brusselator1D.py)
+
 endif()
 
 if(NOT hip_raja_examples)
@@ -151,40 +168,53 @@ endmacro()
 # Specify libraries to link against for each configuration
 # and build the examples.
 set(SUNDIALS_LIBS sundials_arkode sundials_nvecparallel)
-set(OTHER_LIBS )
+set(OTHER_LIBS ${EXTRA_LINK_LIBS})
 build_examples(serial_examples CXX)
 
-set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx)
-# if RAJA has HIP enabled, we have to link to HIP even if we dont use it
-set(OTHER_LIBS RAJA ${EXTRA_LINK_LIBS})
-if(RAJA_BACKENDS MATCHES "HIP")
-  set(OTHER_LIBS hip::device ${OTHER_LIBS})
+if(BUILD_CVODE)
+  set(SUNDIALS_LIBS sundials_arkode sundials_cvode sundials_nvecparallel sundials_nvecmpiplusx)
+  set(OTHER_LIBS ${EXTRA_LINK_LIBS})
+  build_examples(examples_cvode CXX)
 endif()
-build_examples(serial_raja_examples CXX)
 
-if(BUILD_NVECTOR_CUDA)
-  set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nveccuda)
+
+if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
+    (SUNDIALS_INDEX_SIZE MATCHES "32"))
+
+  # if RAJA has HIP enabled, we have to link to HIP even if we dont use it
+  if(RAJA_BACKENDS MATCHES "HIP")
+    set(EXTRA_LINK_LIBS hip::device ${EXTRA_LINK_LIBS})
+  endif()
+
+  set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx)
   set(OTHER_LIBS RAJA ${EXTRA_LINK_LIBS})
-  build_examples(cuda_raja_examples CUDA)
-endif()
+  build_examples(serial_raja_examples CXX)
 
-if(BUILD_NVECTOR_HIP)
-  set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvechip)
-  set(OTHER_LIBS RAJA ${EXTRA_LINK_LIBS})
-  build_examples(hip_raja_examples CXX)
-endif()
+  if(BUILD_NVECTOR_CUDA AND (RAJA_BACKENDS MATCHES "CUDA"))
+    set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nveccuda)
+    set(OTHER_LIBS RAJA ${EXTRA_LINK_LIBS})
+    build_examples(cuda_raja_examples CUDA)
+  endif()
 
-if(BUILD_NVECTOR_RAJA)
-  set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvecraja)
-  set(OTHER_LIBS RAJA ${EXTRA_LINK_LIBS})
-  build_examples(raja_raja_examples CUDA)
-endif()
+  if(BUILD_NVECTOR_HIP AND (RAJA_BACKENDS MATCHES "HIP"))
+    set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvechip)
+    set(OTHER_LIBS RAJA ${EXTRA_LINK_LIBS})
+    build_examples(hip_raja_examples CXX)
+  endif()
 
-if(BUILD_NVECTOR_OPENMPDEV)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvecopenmpdev)
-  set(OTHER_LIBS OpenMP::OpenMP_CXX RAJA ${EXTRA_LINK_LIBS})
-  build_examples(openmpdev_raja_examples CXX)
+  if(BUILD_NVECTOR_RAJA AND (RAJA_BACKENDS MATCHES "CUDA"))
+    set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvecraja)
+    set(OTHER_LIBS RAJA ${EXTRA_LINK_LIBS})
+    build_examples(raja_raja_examples CUDA)
+  endif()
+
+  if(BUILD_NVECTOR_OPENMPDEV AND (RAJA_BACKENDS MATCHES "TARGET_OPENMP"))
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvecopenmpdev)
+    set(OTHER_LIBS OpenMP::OpenMP_CXX RAJA ${EXTRA_LINK_LIBS})
+    build_examples(openmpdev_raja_examples CXX)
+  endif()
+
 endif()
 
 if(EXAMPLES_INSTALL)

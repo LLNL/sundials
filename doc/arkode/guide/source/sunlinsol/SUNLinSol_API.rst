@@ -493,9 +493,11 @@ iplementations are built.  The ``SUNLinearSolver`` type is a pointer
 to a structure containing an implementation-dependent *content* field,
 and an *ops* field.  The type ``SUNLinearSolver`` is defined as
 
-.. code-block:: c
+.. c:type:: typedef struct _generic_SUNLinearSolver *SUNLinearSolver
 
-   typedef struct _generic_SUNLinearSolver *SUNLinearSolver;
+and the generic structure is defined as
+
+.. code-block:: c
 
    struct _generic_SUNLinearSolver {
      void *content;

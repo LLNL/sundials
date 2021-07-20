@@ -88,13 +88,14 @@ int main(int argc, char* argv[])
   ARKodeButcherTable B = NULL;
   int numfails;
   booleantype fixedpoint;
-  realtype t;
+  realtype t, tcur;
   long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nje, ark_nfeLS, ark_nni, ark_ncfn;
   long int mri_nst, mri_nfs, mri_nsetups, mri_nje, mri_nfeLS, mri_nni, mri_ncfn;
 
   // if an argument supplied, set fixedpoint (otherwise use SUNFALSE)
   fixedpoint = SUNFALSE;
   if (argc > 1)  fixedpoint = stoi(argv[1], NULL);
+  if (argc > 2)  Nt = stoi(argv[2], NULL);
 
   // Initial problem output
   cout << "\nAnalytical ODE test problem:\n";
@@ -205,6 +206,8 @@ int main(int argc, char* argv[])
   N_VConst(ONE, y);
   flag = ARKStepEvolve(arkstep_mem, Tf, y, &t, ARK_NORMAL);
   if (check_flag(&flag, "ARKStepEvolve", 1)) return 1;
+  flag = ARKStepGetCurrentTime(arkstep_mem, &tcur);
+  if (check_flag(&flag, "ARKStepGetCurrentTime", 1)) return 1;
   flag = ARKStepGetNumSteps(arkstep_mem, &ark_nst);
   if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return 1;
   flag = ARKStepGetNumRhsEvals(arkstep_mem, &ark_nfe, &ark_nfi);
@@ -222,6 +225,8 @@ int main(int argc, char* argv[])
     check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
   }
   cout << "\nARKStep Solver Statistics:\n";
+  cout << "   Return time = " << t << "\n";
+  cout << "   Internal final time = " << tcur << "\n";
   cout << "   Internal solver steps = " << ark_nst << "\n";
   cout << "   Total RHS evals:  Fe = " << ark_nfe << ",  Fi = " << ark_nfi << "\n";
   cout << "   Total number of nonlinear iterations = " << ark_nni << "\n";
@@ -238,6 +243,8 @@ int main(int argc, char* argv[])
   N_VConst(ZERO, y);
   flag = MRIStepEvolve(mristep_mem, Tf, y, &t, ARK_NORMAL);
   if (check_flag(&flag, "MRIStepEvolve", 1)) return 1;
+  flag = MRIStepGetCurrentTime(arkstep_mem, &tcur);
+  if (check_flag(&flag, "MRIStepGetCurrentTime", 1)) return 1;
   flag = MRIStepGetNumSteps(mristep_mem, &mri_nst);
   if (check_flag(&flag, "MRIStepGetNumSteps", 1)) return 1;
   flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfs);
@@ -255,6 +262,8 @@ int main(int argc, char* argv[])
     check_flag(&flag, "MRIStepGetNumLinRhsEvals", 1);
   }
   cout << "\nMRIStep Solver Statistics:\n";
+  cout << "   Return time = " << t << "\n";
+  cout << "   Internal final time = " << tcur << "\n";
   cout << "   Internal solver steps = " << mri_nst << "\n";
   cout << "   Total RHS evals:  Fs = " << mri_nfs << "\n";
   cout << "   Total number of nonlinear iterations = " << mri_nni << "\n";

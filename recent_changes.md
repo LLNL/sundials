@@ -2,16 +2,21 @@
 
 ## Changes to SUNDIALS in release 5.8.0
 
+Support for user-defined inner (fast) integrators has been to the MRIStep module
+in ARKODE. See the "MRIStep Custom Inner Steppers" section in the user guide for
+more information on providing a user-defined integration method.
+
 Added specialized fused HIP kernels to CVODE which may offer better
 performance on smaller problems when using CVODE with the `NVECTOR_HIP`
 module. See the optional input function `CVodeSetUseIntegratorFusedKernels`
 for more information. As with other SUNDIALS HIP features, this is
 feature is experimental and may change from version to version.
 
-## Changes to SUNDIALS in release 5.7.0
-
 The installed SUNDIALSConfig.cmake file now supports the `COMPONENTS` option
 to `find_package`.
+
+A bug was fixed in the ARKODE stepper modules where the stop time may be passed
+after resetting the integrator.
 
 ## Changes to SUNDIALS in release 5.7.0
 

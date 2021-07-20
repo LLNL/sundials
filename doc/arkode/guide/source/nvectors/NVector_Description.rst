@@ -33,11 +33,13 @@ The generic ``N_Vector`` type is a pointer to a structure that has an
 implementation-dependent *content* field containing the description
 and actual data of the vector, and an *ops* field pointing to a
 structure with generic vector operations. The type ``N_Vector`` is
-defined as:
+defined as
+
+.. c:type:: typedef struct _generic_N_Vector *N_Vector
+
+and the generic structure is defined as
 
 .. code-block:: c
-
-   typedef struct _generic_N_Vector *N_Vector;
 
    struct _generic_N_Vector {
       void *content;
@@ -65,21 +67,21 @@ defined as
       void         (*nvconst)(realtype, N_Vector);
       void         (*nvprod)(N_Vector, N_Vector, N_Vector);
       void         (*nvdiv)(N_Vector, N_Vector, N_Vector);
-      void  	     (*nvscale)(realtype, N_Vector, N_Vector);
-      void  	     (*nvabs)(N_Vector, N_Vector);
-      void	       (*nvinv)(N_Vector, N_Vector);
-      void	       (*nvaddconst)(N_Vector, realtype, N_Vector);
-      realtype	   (*nvdotprod)(N_Vector, N_Vector);
-      realtype	   (*nvmaxnorm)(N_Vector);
-      realtype	   (*nvwrmsnorm)(N_Vector, N_Vector);
-      realtype	   (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
-      realtype	   (*nvmin)(N_Vector);
-      realtype	   (*nvwl2norm)(N_Vector, N_Vector);
-      realtype	   (*nvl1norm)(N_Vector);
-      void	       (*nvcompare)(realtype, N_Vector, N_Vector);
+      void         (*nvscale)(realtype, N_Vector, N_Vector);
+      void         (*nvabs)(N_Vector, N_Vector);
+      void         (*nvinv)(N_Vector, N_Vector);
+      void         (*nvaddconst)(N_Vector, realtype, N_Vector);
+      realtype     (*nvdotprod)(N_Vector, N_Vector);
+      realtype     (*nvmaxnorm)(N_Vector);
+      realtype     (*nvwrmsnorm)(N_Vector, N_Vector);
+      realtype     (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
+      realtype     (*nvmin)(N_Vector);
+      realtype     (*nvwl2norm)(N_Vector, N_Vector);
+      realtype     (*nvl1norm)(N_Vector);
+      void         (*nvcompare)(realtype, N_Vector, N_Vector);
       booleantype  (*nvinvtest)(N_Vector, N_Vector);
       booleantype  (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
-      realtype	   (*nvminquotient)(N_Vector, N_Vector);
+      realtype     (*nvminquotient)(N_Vector, N_Vector);
       int          (*nvlinearcombination)(int, realtype *, N_Vector *, N_Vector);
       int          (*nvscaleaddmulti)(int, realtype *, N_Vector, N_Vector *, N_Vector *);
       int          (*nvdotprodmulti)(int, N_Vector, N_Vector *,  realtype *);

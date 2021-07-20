@@ -494,9 +494,13 @@ $tar $tarfile $distrobase/src/sunnonlinsol/petscsnes/sunnonlinsol_petscsnes.c  |
 
 echo "   --- Add examples to $tarfile"
 
-$tar $tarfile $distrobase/examples/CMakeLists.txt                  || exit 1
+$tar $tarfile $distrobase/examples/CMakeLists.txt || exit 1
+
+echo "   --- Add examples utilities to $tarfile"
+
 $tar $tarfile $distrobase/examples/utilities/custom_memory_helper.h || exit 1
 $tar $tarfile $distrobase/examples/utilities/test_utilities.f90     || exit 1
+$tar $tarfile $distrobase/examples/utilities/plot_data_2d.py        || exit 1
 
 echo "   --- Add nvector examples to $tarfile"
 
