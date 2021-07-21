@@ -1363,7 +1363,7 @@ static int InitUserData(UserData *udata)
   // Fixed Point Solver settings
   udata->rtol        = RCONST(1.e-8);   // relative tolerance
   udata->maa         = 0;               // no Anderson Acceleration
-  udata->damping     = ONE;               // no damping for Anderson Acceleration
+  udata->damping     = ONE;             // no damping for Anderson Acceleration
   udata->orthaa      = 0;               // use MGS for Anderson Acceleration
   udata->maxits      = 100;             // max number of fixed point iterations
 

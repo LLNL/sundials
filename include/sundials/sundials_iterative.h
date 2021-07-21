@@ -175,7 +175,7 @@ struct _generic_QRData{
 */
 
 typedef int (*QRAddFn)(N_Vector *Q, realtype *R, N_Vector f,
-                       int m, int mMax, void *QR_data);
+                       long int m, long int mMax, void *QR_data);
 
 /*
  * -----------------------------------------------------------------
