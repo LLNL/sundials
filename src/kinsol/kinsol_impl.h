@@ -170,8 +170,8 @@ typedef struct KINMemRec {
                                  1 - ICWY Modified Gram Schmidt (Bjorck)
                                  2 - CGS2 (Hernandez)
                                  3 - Delayed CGS2 (Hernandez)                    */
-  QRAddFn kin_qr_func;        /* QRAdd function for AA orthogonalization         */
-  QRData  kin_qr_data;        /* Additional parameters required for QRAdd routine
+  SUNQRAddFn kin_qr_func;     /* QRAdd function for AA orthogonalization         */
+  SUNQRData  kin_qr_data;     /* Additional parameters required for QRAdd routine
                                  set for AA                                      */
   booleantype kin_aamem_aa;   /* sets additional memory needed for Anderson Acc  */
   booleantype kin_setstop_aa; /* determines whether user will set stopping 

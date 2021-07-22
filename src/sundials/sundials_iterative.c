@@ -301,17 +301,17 @@ int QRsol(int n, realtype **h, realtype *q, realtype *b)
 
 /*
  * -----------------------------------------------------------------
- * Function : QRAdd_MGS
+ * Function : SUNQRAdd_MGS
  * -----------------------------------------------------------------
  * Implementation of QRAdd to be called in Anderson Acceleration 
  * -----------------------------------------------------------------
  */
 
-int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
-              long int m, long int mMax, void *QRdata)
+int SUNQRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
+                 long int m, long int mMax, void *QRdata)
 {
     sunindextype j;
-    QRData qrdata = (QRData) QRdata;    
+    SUNQRData qrdata = (SUNQRData) QRdata;    
  
     N_VScale(ONE, df, qrdata->vtemp);
     for (j=0; j < m; j++) {
@@ -327,18 +327,18 @@ int QRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
 
 /*
  * -----------------------------------------------------------------
- * Function : QRAdd_ICWY
+ * Function : SUNQRAdd_ICWY
  * -----------------------------------------------------------------
  * Low synchronous implementation of QRAdd to be called in 
  * Anderson Acceleration. 
  * -----------------------------------------------------------------
  */
 
-int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df, 
-               long int m, long int mMax, void *QRdata)
+int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df, 
+                  long int m, long int mMax, void *QRdata)
 {
     sunindextype j, k;
-    QRData qrdata = (QRData) QRdata;    
+    SUNQRData qrdata = (SUNQRData) QRdata;    
     int m_int = (int) m;
 
     N_VScale(ONE, df, qrdata->vtemp); /* stores d_fi in temp */
@@ -376,18 +376,18 @@ int QRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
 
 /*
  * -----------------------------------------------------------------
- * Function : QRAdd_CGS2
+ * Function : SUNQRAdd_CGS2
  * -----------------------------------------------------------------
  * Low synchronous Implementation of QRAdd to be called in
  * Anderson Acceleration. 
  * -----------------------------------------------------------------
  */
 
-int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df, 
-               long int m, long int mMax, void *QRdata)
+int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df, 
+                  long int m, long int mMax, void *QRdata)
 {
     sunindextype j;
-    QRData qrdata = (QRData) QRdata;    
+    SUNQRData qrdata = (SUNQRData) QRdata;    
     int m_int = (int) m;
 
     N_VScale(ONE, df, qrdata->vtemp); /* temp = df */ 
@@ -421,18 +421,18 @@ int QRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
 
 /*
  * -----------------------------------------------------------------
- * Function : QRAdd_DCGS2
+ * Function : SUNQRAdd_DCGS2
  * -----------------------------------------------------------------
  * Low synchronous Implementation of QRAdd to be called in
  * Anderson Acceleration. 
  * -----------------------------------------------------------------
  */
 
-int QRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
-                long int m, long int mMax, void *QRdata)
+int SUNQRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
+                   long int m, long int mMax, void *QRdata)
 {
     sunindextype j;
-    QRData qrdata = (QRData) QRdata;    
+    SUNQRData qrdata = (SUNQRData) QRdata;    
     int m_int = (int) m;
 
     N_VScale(ONE, df, qrdata->vtemp); /* temp = df */ 

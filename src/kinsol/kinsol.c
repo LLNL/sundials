@@ -376,23 +376,23 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 
   if (kin_mem->kin_m_aa != 0) {
     if (kin_mem->kin_orth_aa == KIN_ORTH_MGS) {
-      kin_mem->kin_qr_func = (QRAddFn) QRAdd_MGS;
+      kin_mem->kin_qr_func = (SUNQRAddFn) SUNQRAdd_MGS;
       kin_mem->kin_qr_data->vtemp = kin_mem->kin_vtemp2;
     }
     else if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY) {
-      kin_mem->kin_qr_func = (QRAddFn) QRAdd_ICWY;
+      kin_mem->kin_qr_func = (SUNQRAddFn) SUNQRAdd_ICWY;
       kin_mem->kin_qr_data->vtemp      = kin_mem->kin_vtemp2;
       kin_mem->kin_qr_data->vtemp2     = kin_mem->kin_vtemp3;
       kin_mem->kin_qr_data->temp_array = kin_mem->kin_T_aa;
     }
     else if (kin_mem->kin_orth_aa == KIN_ORTH_CGS2) {
-      kin_mem->kin_qr_func = (QRAddFn) QRAdd_CGS2;
+      kin_mem->kin_qr_func = (SUNQRAddFn) SUNQRAdd_CGS2;
       kin_mem->kin_qr_data->vtemp      = kin_mem->kin_vtemp2;
       kin_mem->kin_qr_data->vtemp2     = kin_mem->kin_vtemp3;
       kin_mem->kin_qr_data->temp_array = kin_mem->kin_cv;
     }
     else if (kin_mem->kin_orth_aa == KIN_ORTH_DCGS2) {
-      kin_mem->kin_qr_func = (QRAddFn) QRAdd_DCGS2;
+      kin_mem->kin_qr_func = (SUNQRAddFn) SUNQRAdd_DCGS2;
       kin_mem->kin_qr_data->vtemp      = kin_mem->kin_vtemp2;
       kin_mem->kin_qr_data->vtemp2     = kin_mem->kin_vtemp3;
       kin_mem->kin_qr_data->temp_array = kin_mem->kin_cv;
@@ -1031,7 +1031,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     }
 
     if (kin_mem->kin_qr_data == NULL) {
-      kin_mem->kin_qr_data = (QRData) malloc(sizeof *kin_mem->kin_qr_data);
+      kin_mem->kin_qr_data = (SUNQRData) malloc(sizeof *kin_mem->kin_qr_data);
       if (kin_mem->kin_qr_data == NULL) {
         N_VDestroy(kin_mem->kin_unew);
         N_VDestroy(kin_mem->kin_fval);
