@@ -156,6 +156,8 @@ struct UserData
   double psetuptime;
   double psolvetime;
 
+  // Fused operations variable
+  bool fusedops;
 };
 
 // -----------------------------------------------------------------------------

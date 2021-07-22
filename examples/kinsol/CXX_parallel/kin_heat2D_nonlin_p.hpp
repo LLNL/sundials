@@ -153,6 +153,9 @@ struct UserData
   double totaltime;
   double fevaltime;
   double exchangetime;
+
+  // Fused operations variable
+  bool fusedops;
 };
 
 // -----------------------------------------------------------------------------

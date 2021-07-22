@@ -118,9 +118,17 @@ int main(int argc, char* argv[])
   u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes);
   if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
 
+  // Enable fused vector operations for low sync orthogonalization routines
+  // Turned off by default 
+  if (udata->fusedops)
+  {
+    flag = N_VEnableFusedOps_Parallel(u, SUNTRUE);
+    if (check_flag((void *) u, "N_VEnableFusedOps_Parallel", 1)) return 1;
+  }
+
   // Create vector for scaling initial value
-  scale = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes);
-  if (check_flag((void *) scale, "N_VNew_Parallel", 0)) return 1;
+  scale = N_VClone(u);
+  if (check_flag((void *) scale, "N_VClone", 0)) return 1;
   N_VConst(ONE, scale);
 
   // Set initial condition
@@ -1040,6 +1048,9 @@ static int InitUserData(UserData *udata)
   udata->fevaltime    = 0.0;
   udata->exchangetime = 0.0;
 
+  // Fused operations
+  udata->fusedops = false;
+
   // Return success
   return 0;
 }
@@ -1154,6 +1165,10 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     else if (arg == "--timing")
     {
       udata->timing = true;
+    }
+    else if (arg == "--fusedops")
+    {
+      udata->fusedops = true;
     }
     // Help
     else if (arg == "--help")
