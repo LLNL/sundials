@@ -343,27 +343,29 @@ int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
 
     N_VScale(ONE, df, qrdata->vtemp); /* stores d_fi in temp */
 
-    /* T(k-1,1:k-1)^T = Q(:,1:k-1)^T * Q(:,k-1) */
-    N_VDotProdMulti(m_int, Q[m-1], Q, qrdata->temp_array + (m-1) * mMax);
+    if (m > 0) {
+      /* T(k-1,1:k-1)^T = Q(:,1:k-1)^T * Q(:,k-1) */
+      N_VDotProdMulti(m_int, Q[m-1], Q, qrdata->temp_array + (m-1) * mMax);
 
-    /* T(k-1,k-1) = 1.0 */
-    qrdata->temp_array[(m-1) * mMax + (m-1)] = 1.0;
+      /* T(k-1,k-1) = 1.0 */
+      qrdata->temp_array[(m-1) * mMax + (m-1)] = 1.0;
 
-    /* R(1:k-1,k) = Q_k-1^T * df */
-    N_VDotProdMulti(m_int, qrdata->vtemp, Q, R + m * mMax );
+      /* R(1:k-1,k) = Q_k-1^T * df */
+      N_VDotProdMulti(m_int, qrdata->vtemp, Q, R + m * mMax );
 
-    /* Solve T^T * R(1:k-1,k) = R(1:k-1,k) */
-    for (k = 0; k < m; k++) {
-      /* Skip setting the diagonal element because it doesn't change */
-      for (j = k+1; j < m; j++) {
-        R[m * mMax + j] -= R[m * mMax + k] * qrdata->temp_array[j * mMax + k];
+      /* Solve T^T * R(1:k-1,k) = R(1:k-1,k) */
+      for (k = 0; k < m; k++) {
+        /* Skip setting the diagonal element because it doesn't change */
+        for (j = k+1; j < m; j++) {
+          R[m * mMax + j] -= R[m * mMax + k] * qrdata->temp_array[j * mMax + k];
+        }
       }
-    }
-    /* end */
+      /* end */
 
-    /* Q(:,k-1) = df - Q_k-1 R(1:k-1,k) */
-    N_VLinearCombination(m_int, R + m * mMax, Q, qrdata->vtemp2); 
-    N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp);
+      /* Q(:,k-1) = df - Q_k-1 R(1:k-1,k) */
+      N_VLinearCombination(m_int, R + m * mMax, Q, qrdata->vtemp2); 
+      N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp);
+    }
     
     /* R(k,k) = \| df \| */
     R[m * mMax + m] = SUNRsqrt(N_VDotProd(qrdata->vtemp, qrdata->vtemp));
