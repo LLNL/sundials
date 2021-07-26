@@ -1859,6 +1859,8 @@ flag = KINSetOrthAA(kin\_mem, orthaa);
   It must be one of the orthogonalization routines defined in \id{KINSOL}.
   Not calling this function sets Anderson Acceleration to use the default 
   orthogonalization routine. 
+  
+  This function MUST be called before calling \ID{KINInit}.
 
   The default value of \id{orthaa} is \Id{KIN\_ORTH\_MGS}, indicating the use of
   Modified Gram Schmidt.

@@ -161,8 +161,8 @@ typedef struct KINMemRec {
   realtype kin_beta_aa;       /* beta damping parameter for AA                   */
   realtype *kin_gamma_aa;     /* array of size maa used in AA                    */
   realtype *kin_R_aa;         /* array of size maa*maa used in AA                */
-  realtype *kin_T_aa;         /* array of size maa*maa/2 used in AA              */
-  long int *kin_ipt_map;      /* array of size maa*maa/2 used in Low Sync AA     */
+  realtype *kin_T_aa;         /* array of size maa*maa used in AA with ICWY MGS  */
+  long int *kin_ipt_map;      /* array of size maa*maa/2 used in AA              */
   long int  kin_m_aa;         /* parameter for AA, Broyden or NLEN               */
   int kin_orth_aa;            /* parameter for AA determining orthogonalization
                                  routine

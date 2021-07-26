@@ -2472,7 +2472,7 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R,
     }
     else {  /* use Anderson, if desired */
       N_VScale(ONE, kin_mem->kin_uu, kin_mem->kin_unew);
-      /* apply standard Anderson acceleration */
+      /* apply Anderson acceleration */
       AndersonAcc(kin_mem, gval, delta, kin_mem->kin_unew,
                   kin_mem->kin_uu, iter-1, kin_mem->kin_R_aa,
                   gamma);
@@ -2626,6 +2626,7 @@ static int KINFP(KINMem kin_mem)
       /* standard fixed point */
       N_VScale(ONE, kin_mem->kin_fval, kin_mem->kin_unew);
     } else {
+      /* Apply Anderson Acceleration */
       AndersonAcc(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
                   kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
                   kin_mem->kin_gamma_aa);
@@ -2777,8 +2778,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
     }
     
     /* If ICWY orthogonalization, then shift T to the left by one */
-    if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY)
-    {
+    if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY) {
       for (i = 1; i < kin_mem->kin_m_aa; i++) {
         for (j = 0; j < kin_mem->kin_m_aa-1; j++) {
           kin_mem->kin_T_aa[(i-1)*kin_mem->kin_m_aa + j] = kin_mem->kin_T_aa[i*kin_mem->kin_m_aa + j];

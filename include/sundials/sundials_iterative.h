@@ -164,13 +164,16 @@ struct _generic_SUNQRData{
  * with the input vector
  *   f : N_Vector
  *
- * m : (int) the number of vectors already in the QR factorization
+ * Additional input parameters include:
  *
- * mMax : (int) the maximum number of vectors to be in the QR 
- *        factorization (the number of N_Vectors allocated to be in Q)
+ *          m : (long int) the number of vectors already in the QR factorization
+ *
+ *       mMax : (long int) the maximum number of vectors to be in the QR 
+ *              factorization (the number of N_Vectors allocated to be in Q)
  *
  * SUNQR_data : (void *) a structure containing any additional inputs
- *           required for the execution of QRAddFn
+ *              required for the execution of QRAddFn
+ *
  * -----------------------------------------------------------------
 */
 
@@ -319,12 +322,14 @@ SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
  * to include the orthonormalized vector input by 
  *   - N_Vector df. 
  *
- * m :  int - current number of vectors in Q factorization
- * 
- * mMax : int - maximum number of vectors that will be in the Q
- *        factorization (the allocated number of N_Vectors in Q)
+ * Additional input parameters include:
  *
- * QRdata : void * - a struct containing any additional temporary
+ *      m : (long int) current number of vectors in QR factorization
+ * 
+ *   mMax : (long int) maximum number of vectors that will be in the QR
+ *          factorization (the allocated number of N_Vectors in Q)
+ *
+ * QRdata : (void *) a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
  * 
  * On return, Q and R contain the updated Q R factors, if
@@ -351,12 +356,14 @@ SUNDIALS_EXPORT int SUNQRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
  * where the factorization to be updated is of the form
  *   Q * T * R
  *
- * m :  int - current number of vectors in Q factorization
+ * Additional input parameters include:
+ *
+ *     m :  (long int) current number of vectors in QR factorization
  * 
- * mMax : int - maximum number of vectors that will be in the Q
- *        factorization (the allocated number of N_Vectors in Q)
+ *  mMax : (long int) maximum number of vectors that will be in the QR
+ *         factorization (the allocated number of N_Vectors in Q)
  * 
- * QRdata : void * - a struct containing any additional temporary
+ * QRdata : (void *) a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
  *
  * QRdata should contain : 
@@ -383,12 +390,14 @@ SUNDIALS_EXPORT int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
  * to include the orthonormalized vector input by 
  *   - N_Vector df. 
  *
- * m :  int - current number of vectors in Q factorization
- * 
- * mMax : int - maximum number of vectors that will be in the Q
- *        factorization (the allocated number of N_Vectors in Q)
+ * Additional input parameters include:
  *
- * QRdata : void * - a struct containing any additional temporary
+ *      m : (long int) current number of vectors in QR factorization
+ * 
+ *   mMax : (long int) maximum number of vectors that will be in the QR
+ *          factorization (the allocated number of N_Vectors in Q)
+ *
+ * QRdata : (void *) a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
  *
  * QRdata should contain : 
@@ -417,12 +426,14 @@ SUNDIALS_EXPORT int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  * to include the orthonormalized vector input by 
  *   - N_Vector df. 
  *
- * m :  int - current number of vectors in Q factorization
- * 
- * mMax : int - maximum number of vectors that will be in the Q
- *        factorization (the allocated number of N_Vectors in Q)
+ * Additional input parameters include:
  *
- * QRdata : void * - a struct containing any additional temporary
+ *      m : (long int) current number of vectors in QR factorization
+ * 
+ *   mMax : (long int) maximum number of vectors that will be in the QR
+ *          factorization (the allocated number of N_Vectors in Q)
+ *
+ * QRdata : (void *) a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
  *
  * QRdata should contain : 
