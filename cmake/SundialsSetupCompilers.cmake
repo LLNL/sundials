@@ -214,10 +214,21 @@ if(ENABLE_HIP)
 endif()
 
 # ===============================================================
+# Default flags for build types
+# ===============================================================
+
+set(CMAKE_C_FLAGS_DEV "${CMAKE_C_FLAGS_DEV} -g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Werror")
+set(CMAKE_CXX_FLAGS_DEV "${CMAKE_CXX_FLAGS_DEV} -g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Werror")
+set(CMAKE_Fortran_FLAGS_DEV "${CMAKE_Fortran_FLAGS_DEV} -g -O0 -Wall -Wpedantic -ffpe-summary=none")
+set(CMAKE_C_FLAGS_DEVSTRICT "-std=c89 ${CMAKE_C_FLAGS_DEV}")
+set(CMAKE_CXX_FLAGS_DEVSTRICT "${CMAKE_CXX_FLAGS_DEV}")
+set(CMAKE_Fortran_FLAGS_DEVSTRICT "${CMAKE_Fortran_FLAGS_DEV}")
+
+# ===============================================================
 # Configure presentation of language options
 # ===============================================================
 
-set(build_types DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+set(build_types DEBUG RELEASE RELWITHDEBINFO MINSIZEREL DEV DEVSTRICT)
 set(_SUNDIALS_ENABLED_LANGS "C")
 
 if(CXX_FOUND)

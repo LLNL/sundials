@@ -56,6 +56,9 @@ booleantype SUNRCompare(realtype a, realtype b)
 
 booleantype SUNRCompareTol(realtype a, realtype b, realtype tol)
 {
+  realtype diff;
+  realtype norm;
+
   /* If a and b are exactly equal */
   if (a == b) return(SUNFALSE);
 
@@ -67,8 +70,8 @@ booleantype SUNRCompareTol(realtype a, realtype b, realtype tol)
   if (isinf(a) || isinf(b)) return(SUNTRUE);
 #endif
   
-  const realtype diff = SUNRabs(a - b);
-  const realtype norm = SUNMIN(SUNRabs(a + b), BIG_REAL);
+  diff = SUNRabs(a - b);
+  norm = SUNMIN(SUNRabs(a + b), BIG_REAL);
   
   /* When a + b is very small or zero, we use an absolute difference:
    *    |a - b| >= SMALL_REAL
