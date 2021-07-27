@@ -277,7 +277,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   /* check PETSc vector data */
   VecGetArray(xv, &a);
   for (i = 0; i < local_length; i++) {
-    failure += FNEQ(a[i], ans);
+    failure += SUNRCompare(a[i], ans);
   }
   VecRestoreArray(xv, &a);
 

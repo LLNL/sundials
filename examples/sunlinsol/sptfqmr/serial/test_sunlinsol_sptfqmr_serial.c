@@ -504,14 +504,14 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   /* check vector data */
   for(i=0; i<problem_size; i++)
-    failure += FNEQ(Xdata[i], Ydata[i], FIVE*tol*SUNRabs(Xdata[i]));
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
   if (failure > ZERO) {
     maxerr = ZERO;
     for(i=0; i < problem_size; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i])/SUNRabs(Xdata[i]), maxerr);
     printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
-	   maxerr, FIVE*tol);
+	   maxerr, tol);
     return(1);
   }
   else
