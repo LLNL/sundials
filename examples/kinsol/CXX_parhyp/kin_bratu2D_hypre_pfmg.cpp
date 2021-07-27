@@ -465,7 +465,6 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   if (udata->output > 1)
   {
     N_VLinearSum(ONE, f, -ONE, u, udata->e);
-    realtype res = N_VDotProd(udata->e, udata->e);
     flag = WriteResOutput(udata);
     if (check_flag(&flag, "OpenResOutput", 1)) return 1;
   }
