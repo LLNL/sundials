@@ -4510,3 +4510,65 @@ further action is necessary.
 
 .. note:: For an example of :c:func:`ARKStepResize()` usage, see the
           supplied serial C example problem, ``ark_heat1D_adapt.c``.
+
+
+.. _ARKStep_CInterface.MRIStepInterface:
+
+Interfacing with MRIStep
+------------------------
+
+When using ARKStep as the inner (fast) integrator with MRIStep the
+utility function :c:func:`ARKStepCreateMRIStepInnerStepper` should be used to
+wrap an ARKStep memory block as an :c:type:`MRIStepInnerStepper`.
+
+.. c:function:: int ARKStepCreateMRIStepInnerStepper(void *inner_arkode_mem, MRIStepInnerStepper *stepper)
+
+   Wraps an ARKStep memory block as an :c:type:`MRIStepInnerStepper` for use
+   with MRIStep.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *stepper* -- the :c:type:`MRIStepInnerStepper` object.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_FAIL* if a memory allocation failed
+      * *ARK_ILL_INPUT* if an argument has an illegal value.
+
+   .. warning::
+
+      When passing a ``stepper`` created with
+      :c:func:`ARKStepCreateMRIStepInnerStepper` to :c:func:`MRIStepCreate`
+      ``MRISTEP_CUSTOM`` *must* be passed as the stepper ID. The ID
+      ``MRISTEP_ARKODE`` should *only* be used when passing the ARKStep memory
+      block directly to :c:func:`MRIStepCreate`.
+
+      In a future release :c:func:`MRIStepCreate` will be updated to remove the
+      stepper ID input and only accept :c:type:`MRIStepInnerStepper` objects.
+
+   **Example usage:**
+
+   .. code-block:: C
+
+      /* inner (fast) and outer (slow) ARKODE memory blocks */
+      void *inner_arkode_mem = NULL;
+      void *outer_arkode_mem = NULL;
+
+      /* MRIStepInnerStepper to wrap the inner (fast) ARKStep memory block */
+      MRIStepInnerStepper stepper = NULL;
+
+      /* create an ARKStep memory block */
+      inner_arkode_mem = ARKStepCreate(fe, fi, t0, y0);
+
+      /* setup ARKStep */
+      . . .
+
+      /* create MRIStepInnerStepper wrapping the ARKStep memory block */
+      flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
+
+      /* create an MRIStep memory block */
+      outer_arkode_mem = MRIStepCreate(fs, t0, y0, MRISTEP_CUSTOM, stepper)
+
+   **Example codes:**
+
+   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``

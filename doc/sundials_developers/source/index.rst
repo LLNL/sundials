@@ -25,6 +25,7 @@ SUNDIALS Developers Guide
    pull_requests/index
    releases/index
    appendix/index
+   references
 
 ..
    Future chapters to add:

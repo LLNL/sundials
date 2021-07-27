@@ -742,7 +742,14 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   Xvecs = step_mem->Xvecs;
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-  printf("stage 0 RHS:\n");
+  printf("    ERKStep step %li,  stage 0,  h = %"RSYM",  t_n = %"RSYM"\n",
+         ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#endif
+
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  printf("    ERKStep stage 0 solution:\n");
+  N_VPrint(ark_mem->ycur);
+  printf("    ERKStep stage RHS F[0]:\n");
   N_VPrint(step_mem->F[0]);
 #endif
 
@@ -754,7 +761,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     ark_mem->tcur = ark_mem->tn + step_mem->B->c[is]*ark_mem->h;
 
 #ifdef SUNDIALS_DEBUG
-    printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
+    printf("    ERKStep step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
            ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
 
@@ -794,7 +801,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("RHS:\n");
+    printf("    ERKStep stage RHS F[%i]:\n",is);
     N_VPrint(step_mem->F[is]);
 #endif
 
@@ -805,10 +812,10 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   if (retval < 0)  return(retval);
 
 #ifdef SUNDIALS_DEBUG
-  printf("error estimate = %"RSYM"\n", *dsmPtr);
+  printf("    ERKStep error estimate = %"RSYM"\n", *dsmPtr);
 #endif
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-  printf("updated solution:\n");
+  printf("    ERKStep updated solution:\n");
   N_VPrint(ark_mem->ycur);
 #endif
 

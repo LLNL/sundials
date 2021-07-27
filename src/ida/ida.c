@@ -1184,6 +1184,13 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
 
     nstloc++;
 
+    /* If tstop is set and was reached, reset IDA_mem->ida_tn = tstop */
+    if (IDA_mem->ida_tstopset) {
+      troundoff = HUNDRED * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh));
+      if (SUNRabs(IDA_mem->ida_tn - IDA_mem->ida_tstop) <= troundoff)
+        IDA_mem->ida_tn = IDA_mem->ida_tstop;
+    }
+
     /* After successful step, check for stop conditions; continue or break. */
 
     /* First check for root in the last step taken. */

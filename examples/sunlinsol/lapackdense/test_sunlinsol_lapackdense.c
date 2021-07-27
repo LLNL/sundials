@@ -165,7 +165,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   /* check vector data */
   for(i=0; i < local_length; i++)
-    failure += FNEQ(Xdata[i], Ydata[i], tol);
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
   if (failure > ZERO) {
     maxerr = ZERO;

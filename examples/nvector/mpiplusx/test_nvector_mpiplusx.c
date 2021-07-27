@@ -301,7 +301,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
     return(1);
 
   /* check vector data */
-  for (i=0; i<x0len; i++)  failure += FNEQ(x0[i], ans);
+  for (i=0; i<x0len; i++)  failure += SUNRCompare(x0[i], ans);
 
   return (failure > ZERO) ? (1) : (0);
 }

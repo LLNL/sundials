@@ -213,19 +213,24 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol.py                  
 $tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol_log.py                || exit 1
 
 basedir=$distrobase/examples/arkode/CXX_parallel
-$tar $tarfile $basedir/CMakeLists.txt                                              || exit 1
-$tar $tarfile $basedir/README                                                      || exit 1
-$tar $tarfile $basedir/plot_heat2D_p.py                                            || exit 1
-$tar $tarfile $basedir/ark_heat2D_p.cpp                                            || exit 1
-$tar $tarfile $basedir/ark_heat2D_p_--np_2_2.out                                   || exit 1
-$tar $tarfile $basedir/plot_brusselator1D.py                                       || exit 1
-$tar $tarfile $basedir/ark_brusselator1D.h                                         || exit 1
-$tar $tarfile $basedir/ark_brusselator1D_task_local_nls.cpp                        || exit 1
+$tar $tarfile $basedir/CMakeLists.txt                                                              || exit 1
+$tar $tarfile $basedir/README                                                                      || exit 1
+$tar $tarfile $basedir/plot_heat2D_p.py                                                            || exit 1
+$tar $tarfile $basedir/ark_heat2D_p.cpp                                                            || exit 1
+$tar $tarfile $basedir/ark_heat2D_p_--np_2_2.out                                                   || exit 1
+$tar $tarfile $basedir/plot_brusselator1D.py                                                       || exit 1
+$tar $tarfile $basedir/ark_brusselator1D.h                                                         || exit 1
+$tar $tarfile $basedir/ark_brusselator1D_task_local_nls.cpp                                        || exit 1
 $tar $tarfile $basedir/ark_brusselator1D_task_local_nls_--monitor.out                              || exit 1
 $tar $tarfile $basedir/ark_brusselator1D_task_local_nls_--monitor_--global-nls.out                 || exit 1
 $tar $tarfile $basedir/ark_brusselator1D_task_local_nls_--monitor_--explicit_--tf_1.out            || exit 1
 $tar $tarfile $basedir/ark_brusselator1D_task_local_nls.USE_CUDA_NVEC_--monitor.out                || exit 1
 $tar $tarfile $basedir/ark_brusselator1D_task_local_nls.USE_CUDA_NVEC_--monitor_--global-nls.out   || exit 1
+$tar $tarfile $basedir/ark_diffusion_reaction_p.cpp                                                || exit 1
+$tar $tarfile $basedir/ark_diffusion_reaction_p_--np_2_2_--imex.out                                || exit 1
+$tar $tarfile $basedir/ark_diffusion_reaction_p_--np_2_2_--mri-arkstep.out                         || exit 1
+$tar $tarfile $basedir/ark_diffusion_reaction_p_--np_2_2_--mri-cvode-global.out                    || exit 1
+$tar $tarfile $basedir/ark_diffusion_reaction_p_--np_2_2_--mri-cvode-local.out                     || exit 1
 
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/CMakeLists.txt                     || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/README                             || exit 1

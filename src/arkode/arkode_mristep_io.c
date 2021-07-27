@@ -884,7 +884,7 @@ int MRIStepGetLastInnerStepFlag(void *arkode_mem, int *flag)
   if (retval != ARK_SUCCESS) return(retval);
 
   /* get the last return value from the inner stepper */
-  *flag = step_mem->inner_retval;
+  *flag = step_mem->stepper->last_flag;
 
   return(ARK_SUCCESS);
 }

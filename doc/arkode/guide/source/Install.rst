@@ -1301,7 +1301,7 @@ configuration file to build against SUNDIALS in their own CMake project.
   # When using the cmake CLI command, this can be done like so:
   #   cmake -D SUNDIALS_DIR=/path/to/sundials/installation
 
-  find_project(SUNDIALS REQUIRED)
+  find_package(SUNDIALS REQUIRED)
 
   add_executable(myexec main.c)
 

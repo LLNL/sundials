@@ -141,6 +141,10 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
   v->ops->nvbufpack   = N_VBufPack_MPIManyVector;
   v->ops->nvbufunpack = N_VBufUnpack_MPIManyVector;
 
+  /* debugging functions */
+  v->ops->nvprint     = N_VPrint_MPIManyVector;
+  v->ops->nvprintfile = N_VPrintFile_MPIManyVector;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_MPIManyVector) malloc(sizeof *content);
@@ -326,6 +330,10 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
   v->ops->nvbufpack   = N_VBufPack_ManyVector;
   v->ops->nvbufunpack = N_VBufUnpack_ManyVector;
 
+  /* debugging functions */
+  v->ops->nvprint     = N_VPrint_ManyVector;
+  v->ops->nvprintfile = N_VPrintFile_ManyVector;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_ManyVector) malloc(sizeof *content);
@@ -425,6 +433,23 @@ N_Vector_ID MVAPPEND(N_VGetVectorID)(N_Vector v)
 #endif
 }
 
+/* Prints the vector to stdout, calling Print on subvectors. */
+void MVAPPEND(N_VPrint)(N_Vector x)
+{
+  sunindextype i;
+  for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++)
+    N_VPrint(MANYVECTOR_SUBVEC(x,i));
+  return;
+}
+
+/* Prints the vector to outfile, calling PrintFile on subvectors. */
+void MVAPPEND(N_VPrintFile)(N_Vector x, FILE* outfile)
+{
+  sunindextype i;
+  for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++)
+    N_VPrintFile(MANYVECTOR_SUBVEC(x,i), outfile);
+  return;
+}
 
 /* Clones a ManyVector, calling CloneEmpty on subvectors. */
 N_Vector MVAPPEND(N_VCloneEmpty)(N_Vector w)

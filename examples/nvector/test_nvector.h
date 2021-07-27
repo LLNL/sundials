@@ -27,16 +27,6 @@
 #define ONE      RCONST(1.0)
 #define TWO      RCONST(2.0)
 
-/* NAN and floating point "equality" check, failure update macro */
-#if __STDC_VERSION__ >= 199901L
-#define FNEQ(a,b) (isnan(a) ? 1 : ( SUNRabs((a)-(b))/SUNRabs(b) > (10*UNIT_ROUNDOFF) ))
-#define FNEQTOL(a,b,tol) (isnan(a) ? 1 : ( SUNRabs((a)-(b))/SUNRabs(b) > tol ))
-#else
-#define FNEQ(a,b) (( SUNRabs((a)-(b))/SUNRabs(b) > (10*UNIT_ROUNDOFF) ))
-#define FNEQTOL(a,b,tol) (( SUNRabs((a)-(b))/SUNRabs(b) > tol ))
-#endif
-
-
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
