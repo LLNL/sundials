@@ -1617,8 +1617,6 @@ static int OutputTiming(UserData *udata)
 //Write solution to file to be plotted 
 static int WriteSolution(N_Vector u, UserData *udata)
 {
-  bool outproc = (udata->myid_c == 0);
-
   // Output problem information and open output streams
   // Each processor outputs subdomain information
   stringstream fname;
