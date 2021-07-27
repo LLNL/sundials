@@ -1198,8 +1198,7 @@ static int InitialGuess(N_Vector u, UserData *udata)
       sin_sqr_x = sin(PI * x) * sin(PI * x);
       sin_sqr_y = sin(PI * y) * sin(PI * y);
 
-      //uarray[IDX(i,j,udata->nx_loc)] = sin_sqr_x * sin_sqr_y;
-      uarray[IDX(i,j,udata->nx_loc)] = 9.0 * sin(PI * x) * sin(PI * y);
+      uarray[IDX(i,j,udata->nx_loc)] = sin_sqr_x * sin_sqr_y;
     }
   }
 
