@@ -110,6 +110,10 @@ int main(int argc, char* argv[])
     flag = N_VEnableFusedOps_Parallel(u, SUNTRUE);
     if (check_flag((void *) u, "N_VEnableFusedOps_Parallel", 1)) return 1;
   }
+  
+  // Create vector for error
+  udata->e = N_VClone(u);
+  if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
 
   // Create vector for scaling initial value
   scale = N_VClone(u);
@@ -177,6 +181,12 @@ int main(int argc, char* argv[])
 
   // No scaling used
   N_VConst(ONE, scale);
+  
+  if (udata->output > 1)
+  {
+    flag = OpenResOutput(udata);
+    if (check_flag(&flag, "OpenResOutput", 1)) return 1;
+  }
 
   // Start timer
   t1 = MPI_Wtime();
@@ -203,6 +213,15 @@ int main(int argc, char* argv[])
     cout << "Final statistics:" << endl;
     flag = OutputStats(kin_mem, udata);
     if (check_flag(&flag, "OutputStats", 1)) return 1;
+
+  }
+  if (udata->output > 1)
+  {
+    flag = CloseResOutput(udata);
+    if (check_flag(&flag, "CloseResOutput", 1)) return 1;
+
+    flag = WriteSolution(u, udata);
+    if (check_flag(&flag, "WriteSolution", 1)) return 1;
   }
 
   // ------------
@@ -440,6 +459,16 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 
   // Update timer
   udata->fevaltime += t2 - t1;
+  
+  // Calculate and output residual history
+  // r = \|G(u) - u\|_2
+  if (udata->output > 1)
+  {
+    N_VLinearSum(ONE, f, -ONE, u, udata->e);
+    realtype res = N_VDotProd(udata->e, udata->e);
+    flag = WriteResOutput(udata);
+    if (check_flag(&flag, "OpenResOutput", 1)) return 1;
+  }
 
   // Return success
   return 0;
@@ -1169,7 +1198,8 @@ static int InitialGuess(N_Vector u, UserData *udata)
       sin_sqr_x = sin(PI * x) * sin(PI * x);
       sin_sqr_y = sin(PI * y) * sin(PI * y);
 
-      uarray[IDX(i,j,udata->nx_loc)] = sin_sqr_x * sin_sqr_y;
+      //uarray[IDX(i,j,udata->nx_loc)] = sin_sqr_x * sin_sqr_y;
+      uarray[IDX(i,j,udata->nx_loc)] = 9.0 * sin(PI * x) * sin(PI * y);
     }
   }
 
@@ -1579,6 +1609,108 @@ static int OutputTiming(UserData *udata)
   {
     cout << "  PSolve time   = " << maxtime << " sec" << endl;
     cout << endl;
+  }
+
+  return 0;
+}
+
+//Write solution to file to be plotted 
+static int WriteSolution(N_Vector u, UserData *udata)
+{
+  bool outproc = (udata->myid_c == 0);
+
+  // Output problem information and open output streams
+  // Each processor outputs subdomain information
+  stringstream fname;
+  fname << "bratu2d_info." << setfill('0') << setw(5) << udata->myid_c
+        << ".txt";
+
+  ofstream dout;
+  dout.open(fname.str());
+  dout <<  "xu  " << udata->xu       << endl;
+  dout <<  "yu  " << udata->yu       << endl;
+  dout <<  "nx  " << udata->nx       << endl;
+  dout <<  "ny  " << udata->ny       << endl;
+  dout <<  "px  " << udata->npx      << endl;
+  dout <<  "py  " << udata->npy      << endl;
+  dout <<  "np  " << udata->nprocs_w << endl;
+  dout <<  "is  " << udata->is       << endl;
+  dout <<  "ie  " << udata->ie       << endl;
+  dout <<  "js  " << udata->js       << endl;
+  dout <<  "je  " << udata->je       << endl;
+  dout <<  "nt  " << 1               << endl;
+  dout.close();
+
+  // Open output streams for solution
+  fname.str("");
+  fname.clear();
+  fname << "bratu2d_solution." << setfill('0') << setw(5) << udata->myid_c
+        << ".txt";
+  udata->uout.open(fname.str());
+
+  udata->uout << scientific;
+  udata->uout << setprecision(numeric_limits<realtype>::digits10);
+  
+  // Write solution and error to disk
+  realtype *uarray = N_VGetArrayPointer(u);
+  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
+
+  for (sunindextype i = 0; i < udata->nodes_loc; i++)
+  {
+    udata->uout << uarray[i] << " ";
+  }
+  udata->uout << endl;
+  
+  // Close output stream
+  udata->uout.close();
+
+  return 0;
+}
+
+static int OpenResOutput(UserData *udata)
+{
+  bool outproc = (udata->myid_c == 0);
+ 
+  if (outproc)
+  { 
+    stringstream fname;
+
+    // Open output streams for solution
+    fname.str("");
+    fname.clear();
+    fname << "bratu2d_res_m" << udata->maa << "_orth" << udata->orthaa << ".txt";
+    udata->rout.open(fname.str());
+
+    udata->rout << scientific;
+    udata->rout << setprecision(numeric_limits<realtype>::digits10);
+  }
+
+  return 0;
+}
+
+static int WriteResOutput(UserData *udata)
+{
+  bool outproc = (udata->myid_c == 0);
+
+  realtype res = N_VDotProd(udata->e, udata->e);
+
+  if (outproc)
+  {
+    // Output residual 
+    udata->rout << sqrt(res);
+    udata->rout << endl;
+  }
+  return 0;
+}
+
+static int CloseResOutput(UserData *udata)
+{
+  bool outproc = (udata->myid_c == 0);
+
+  if (outproc)
+  {
+    // Close output stream
+    udata->rout.close();
   }
 
   return 0;

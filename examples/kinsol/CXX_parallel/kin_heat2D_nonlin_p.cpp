@@ -194,6 +194,12 @@ int main(int argc, char* argv[])
 
   // No scaling used
   N_VConst(ONE, scale);
+  
+  if (udata->output > 1)
+  {
+    flag = OpenOutput(udata);
+    if (check_flag(&flag, "OpenOutput", 1)) return 1;
+  }
 
   // Start timer
   t1 = MPI_Wtime();
@@ -220,6 +226,14 @@ int main(int argc, char* argv[])
     cout << "Final statistics:" << endl;
     flag = OutputStats(kin_mem, udata);
     if (check_flag(&flag, "OutputStats", 1)) return 1;
+  }
+  if (udata->output > 1)
+  {
+    flag = CloseOutput(udata);
+    if (check_flag(&flag, "CloseOutput", 1)) return 1;
+
+    flag = WriteSolution(u, udata);
+    if (check_flag(&flag, "WriteSolution", 1)) return 1;
   }
 
   // ------------------------
@@ -621,6 +635,13 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 
   // Update timer
   udata->fevaltime += t2 - t1;
+  
+  // Calculate and output residual and error history
+  if (udata->output > 1)
+  {
+    flag = WriteOutput(u, f, udata);
+    if (check_flag(&flag, "WriteOutput", 1)) return 1;
+  }
 
   // Return success
   return 0;
@@ -1362,6 +1383,134 @@ static int OutputTiming(UserData *udata)
   {
     cout << "  Boundary exchange time    = " << maxtime << " sec" << endl;
     cout << endl;
+  }
+
+  return 0;
+}
+
+// Write solution to a file
+static int WriteSolution(N_Vector u, UserData *udata)
+{
+  bool outproc = (udata->myid_c == 0);
+
+  // Output problem information and open output streams
+  // Each processor outputs subdomain information
+  stringstream fname;
+  fname << "heat2d_info." << setfill('0') << setw(5) << udata->myid_c
+        << ".txt";
+
+  ofstream dout;
+  dout.open(fname.str());
+  dout <<  "xu  " << udata->xu       << endl;
+  dout <<  "yu  " << udata->yu       << endl;
+  dout <<  "nx  " << udata->nx       << endl;
+  dout <<  "ny  " << udata->ny       << endl;
+  dout <<  "px  " << udata->npx      << endl;
+  dout <<  "py  " << udata->npy      << endl;
+  dout <<  "np  " << udata->nprocs_w << endl;
+  dout <<  "is  " << udata->is       << endl;
+  dout <<  "ie  " << udata->ie       << endl;
+  dout <<  "js  " << udata->js       << endl;
+  dout <<  "je  " << udata->je       << endl;
+  dout <<  "nt  " << 1               << endl;
+  dout.close();
+
+  // Open output streams for solution
+  fname.str("");
+  fname.clear();
+  fname << "heat2d_solution." << setfill('0') << setw(5) << udata->myid_c
+        << ".txt";
+  udata->uout.open(fname.str());
+
+  udata->uout << scientific;
+  udata->uout << setprecision(numeric_limits<realtype>::digits10);
+  
+  // Write solution and error to disk
+  realtype *uarray = N_VGetArrayPointer(u);
+  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
+
+  for (sunindextype i = 0; i < udata->nodes_loc; i++)
+  {
+    udata->uout << uarray[i] << " ";
+  }
+  udata->uout << endl;
+  
+  // Close output stream
+  udata->uout.close();
+
+  return 0;
+}
+
+// Open residual and error output 
+static int OpenOutput(UserData *udata)
+{
+  bool outproc = (udata->myid_c == 0);
+ 
+  if (outproc)
+  { 
+    stringstream fname;
+
+    // Open output stream for residual
+    fname.str("");
+    fname.clear();
+    fname << "heat2d_res_m" << udata->maa << "_orth" << udata->orthaa << ".txt";
+    udata->rout.open(fname.str());
+
+    udata->rout << scientific;
+    udata->rout << setprecision(numeric_limits<realtype>::digits10);
+    
+    // Open output stream for error 
+    fname.str("");
+    fname.clear();
+    fname << "heat2d_err_m" << udata->maa << "_orth" << udata->orthaa << ".txt";
+    udata->eout.open(fname.str());
+
+    udata->eout << scientific;
+    udata->eout << setprecision(numeric_limits<realtype>::digits10);
+  }
+
+  return 0;
+}
+
+// Write residual and error out to file
+static int WriteOutput(N_Vector u, N_Vector f, UserData *udata)
+{
+  int flag;
+  bool outproc = (udata->myid_c == 0);
+
+  // r = \|G(u) - u\|_2
+  N_VLinearSum(ONE, f, -ONE, u, udata->e);
+  realtype res = N_VDotProd(udata->e, udata->e);
+
+  // e = \|u_exact - u\|_2
+  flag = SolutionError(u, udata->e, udata);
+  if (check_flag(&flag, "SolutionError", 1)) return 1;
+  realtype err = N_VDotProd(udata->e, udata->e);
+
+  if (outproc)
+  {
+    // Output residual 
+    udata->rout << sqrt(res);
+    udata->rout << endl;
+    
+    // Output error
+    udata->eout << sqrt(err);
+    udata->eout << endl;
+  }
+
+  return 0;
+}
+
+// Close residual and error output files
+static int CloseOutput(UserData *udata)
+{
+  bool outproc = (udata->myid_c == 0);
+
+  if (outproc)
+  {
+    // Close output streams
+    udata->rout.close();
+    udata->eout.close();
   }
 
   return 0;

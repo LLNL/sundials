@@ -19,6 +19,8 @@
 #include <cstdio>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
+#include <sstream>
 #include <limits>
 #include <cmath>
 
@@ -185,6 +187,9 @@ struct UserData
 
   // Ouput variables
   int      output; // output level
+  ofstream uout;   // output file stream
+  ofstream rout;   // output residual file stream
+  ofstream eout;   // output error file stream
   N_Vector e;      // error vector
 
   // Timing variables
@@ -272,6 +277,14 @@ static int OutputStats(void *kinsol_mem, UserData *udata);
 
 // Print solver timing
 static int OutputTiming(UserData *udata);
+
+// Write solution to a file
+static int WriteSolution(N_Vector u, UserData *udata);
+
+// Functions for outputting residual history to file
+static int OpenOutput(UserData *udata);
+static int WriteOutput(N_Vector u, N_Vector f, UserData *udata);
+static int CloseOutput(UserData *udata);
 
 // Check function return values
 static int check_flag(void *flagvalue, const string funcname, int opt);
