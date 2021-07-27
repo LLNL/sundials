@@ -42,7 +42,7 @@
 #define IDX(x,y,n) ((n)*(y)+(x))
 
 // Define c function type
-typedef int (*cFn)(N_Vector u, N_Vector z, void *user_data);
+typedef realtype (*cFn)(realtype u_val);
 
 using namespace std;
 
@@ -212,6 +212,9 @@ struct UserData
 // Nonlinear fixed point function
 static int FPFunction(N_Vector u, N_Vector f, void *user_data);
 
+// Nonlinear function c(u)
+static int c(N_Vector u, N_Vector z, void *user_data);
+
 // Jacobian-vector product function
 static int JTimes(void *user_data, N_Vector v, N_Vector Jv);
 
@@ -294,789 +297,126 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 // -----------------------------------------------------------------------------
 
 // c(u) = u
-static int c1(N_Vector u, N_Vector z, void *user_data)
+realtype c1(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-
-      zarray[IDX(i,j,nx_loc)] = u_val;
-    }
-  }
-
-  // Return success
-  return 0;
+  return u_val; 
 }
 
 // c(u) = u^3 - u
-static int c2(N_Vector u, N_Vector z, void *user_data)
+realtype c2(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-
-      zarray[IDX(i,j,nx_loc)] = u_val * u_val * u_val - u_val;
-    }
-  }
-
-  // Return success
-  return 0;
+  return u_val * u_val * u_val - u_val;
 }
 
 // c(u) = u - u^2
-static int c3(N_Vector u, N_Vector z, void *user_data)
+realtype c3(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-
-      zarray[IDX(i,j,nx_loc)] = u_val - u_val * u_val;
-    }
-  }
-
-  // Return success
-  return 0;
+  return u_val - u_val * u_val;
 }
 
 // c(u) = e^u
-static int c4(N_Vector u, N_Vector z, void *user_data)
+realtype c4(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-
-      zarray[IDX(i,j,nx_loc)] = exp(u_val);
-    }
-  }
-
-  // Return success
-  return 0;
+  return exp(u_val);
 }
 
 // c(u) = u^4
-static int c5(N_Vector u, N_Vector z, void *user_data)
+realtype c5(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-
-      zarray[IDX(i,j,nx_loc)] = u_val * u_val * u_val * u_val;
-    }
-  }
-
-  // Return success
-  return 0;
+  return u_val * u_val * u_val * u_val;
 }
 
 // c(u) = cos^2(u) - sin^2(u)
-static int c6(N_Vector u, N_Vector z, void *user_data)
+realtype c6(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-
-      zarray[IDX(i,j,nx_loc)] = (cos(u_val) * cos(u_val)) - (sin(u_val) * sin(u_val));
-    }
-  }
-
-  // Return success
-  return 0;
+  return (cos(u_val) * cos(u_val)) - (sin(u_val) * sin(u_val));
 }
 
 // c(u) = cos^2(u) - sin^2(u) - e^u
-static int c7(N_Vector u, N_Vector z, void *user_data)
+realtype c7(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-
-      zarray[IDX(i,j,nx_loc)] = (cos(u_val) * cos(u_val)) - (sin(u_val) * sin(u_val)) - exp(u_val);
-    }
-  }
-
-  // Return success
-  return 0;
+  return (cos(u_val) * cos(u_val)) - (sin(u_val) * sin(u_val)) - exp(u_val);
 }
 
 // c(u) = e^u * u^4 - u * e^{cos(u)}
-static int c8(N_Vector u, N_Vector z, void *user_data)
+realtype c8(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val, u2;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      u2 = u_val * u_val;
-
-      zarray[IDX(i,j,nx_loc)] = exp(u_val) * u2 * u2 - u_val * exp(cos(u_val));
-    }
-  }
-
-  // Return success
-  return 0;
+  realtype u2 = u_val * u_val;
+  return exp(u_val) * u2 * u2 - u_val * exp(cos(u_val));
 }
 
 // c(u) = e^(cos^2(u))
-static int c9(N_Vector u, N_Vector z, void *user_data)
+realtype c9(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val, cos2u;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      cos2u = cos(u_val) * cos(u_val);
-
-      zarray[IDX(i,j,nx_loc)] = exp(cos2u);
-    }
-  }
-
-  // Return success
-  return 0;
+  realtype cos2u = cos(u_val) * cos(u_val);
+  return exp(cos2u);
 }
 
 // c(u) = 10(u - u^2) 
-static int c10(N_Vector u, N_Vector z, void *user_data)
+realtype c10(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val, u2;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      u2 = u_val * u_val;
-
-      zarray[IDX(i,j,nx_loc)] = 10.0 * (u_val - u2);
-    }
-  }
-
-  // Return success
-  return 0;
+  realtype u2 = u_val * u_val;
+  return 10.0 * (u_val - u2);
 }
 
 // c(u) = -13 + u + ((5-u)u - 2)u
-static int c11(N_Vector u, N_Vector z, void *user_data)
+realtype c11(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val, temp;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      temp = ((5.0 - u_val) * u_val) - 2.0;
-
-      zarray[IDX(i,j,nx_loc)] = -13.0 + u_val + temp * u_val;
-    }
-  }
-
-  // Return success
-  return 0;
+  realtype temp = ((5.0 - u_val) * u_val) - 2.0;
+  return -13.0 + u_val + temp * u_val;
 }
 
 // c(u) = sqrt(5) * (u - u^2) 
-static int c12(N_Vector u, N_Vector z, void *user_data)
+realtype c12(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val, u2;
   realtype temp = sqrt(5);
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      u2    = u_val * u_val;
-
-      zarray[IDX(i,j,nx_loc)] = temp * (u_val - u2);
-    }
-  }
-
-  // Return success
-  return 0;
+  realtype u2 = u_val * u_val;
+  return temp * (u_val - u2);
 }
 
 // c(u) = (u - e^u)^2 + (u + u * sin(u) - cos(u))^2 
-static int c13(N_Vector u, N_Vector z, void *user_data)
+realtype c13(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val, eu, usin, temp;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      eu    = u_val - exp(u_val);
-      usin  = u_val * sin(u_val);
-      temp  = (u_val + usin - cos(u_val));
-
-      zarray[IDX(i,j,nx_loc)] = eu * eu + temp * temp;
-    }
-  }
-
-  // Return success
-  return 0;
+  realtype eu   = u_val - exp(u_val);
+  realtype usin = u_val * sin(u_val);
+  realtype temp = (u_val + usin - cos(u_val));
+  return eu * eu + temp * temp;
 }
 
 // c(u) = u + ue^u + ue^{-u} 
-static int c14(N_Vector u, N_Vector z, void *user_data)
+realtype c14(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val, ueu, ue_u;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      ueu   = u_val * exp(u_val);
-      ue_u  = u_val * exp(-u_val);
-
-      zarray[IDX(i,j,nx_loc)] = u_val + ueu + ue_u;
-    }
-  }
-
-  // Return success
-  return 0;
+  realtype ueu  = u_val * exp(u_val);
+  realtype ue_u = u_val * exp(-u_val);
+  return u_val + ueu + ue_u;
 }
 
 // c(u) = u + ue^u + ue^{-u} + (u - e^u)^2 
-static int c15(N_Vector u, N_Vector z, void *user_data)
+realtype c15(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val, ueu, ue_u, temp;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      ueu  = u_val * exp(u_val);
-      ue_u = u_val * exp(-u_val);
-      temp = u_val - exp(u_val);
-
-      zarray[IDX(i,j,nx_loc)] = u_val + ueu + ue_u + (temp * temp);
-    }
-  }
-
-  // Return success
-  return 0;
+  realtype ueu  = u_val * exp(u_val);
+  realtype ue_u = u_val * exp(-u_val);
+  realtype temp = u_val - exp(u_val);
+  return u_val + ueu + ue_u + (temp * temp);
 }
 
 // c(u) = u + ue^u + ue^{-u} + (u - e^u)^2 + (u + usin(u) - cos(u))^2 
-static int c16(N_Vector u, N_Vector z, void *user_data)
+realtype c16(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val, ueu, ue_u, temp, temp2;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      ueu    = u_val * exp(u_val);
-      ue_u   = u_val * exp(-u_val);
-      temp   = u_val - exp(u_val);
-      temp2  = u_val + (u_val * sin(u_val)) - cos(u_val);
-
-      zarray[IDX(i,j,nx_loc)] = u_val + ueu + ue_u + (temp * temp) + (temp2 * temp2);
-    }
-  }
-
-  // Return success
-  return 0;
+  realtype ueu   = u_val * exp(u_val);
+  realtype ue_u  = u_val * exp(-u_val);
+  realtype temp  = u_val - exp(u_val);
+  realtype temp2 = u_val + (u_val * sin(u_val)) - cos(u_val);
+  return u_val + ueu + ue_u + (temp * temp) + (temp2 * temp2);
 }
 
 // c(u) = u + ue^{-u} + e^u*(u + sin(u) - cos(u))^3 
-static int c17(N_Vector u, N_Vector z, void *user_data)
+realtype c17(realtype u_val)
 {
-  sunindextype i, j;
-
-  // Access problem data
-  UserData *udata = (UserData *) user_data;
-
-  // Shortcuts to local number of nodes
-  sunindextype nx_loc = udata->nx_loc;
-  sunindextype ny_loc = udata->ny_loc;
-
-  // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
-  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
-  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
-
-  // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
-
-  realtype *zarray = N_VGetArrayPointer(z);
-  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
-  
-  // Initialize rhs vector to zero (handles boundary conditions)
-  N_VConst(ZERO, z);
-
-  // Iterate over subdomain and compute z = c(u) 
-  realtype u_val, ue_u, eu, temp;
-
-  for (j = jstart; j < jend; j++)
-  {
-    for (i = istart; i < iend; i++)
-    {
-      u_val = uarray[IDX(i,j,nx_loc)];
-      ue_u  = u_val * exp(-u_val);
-      eu    = exp(u_val);
-      temp  = u_val + sin(u_val) - cos(u_val);
-
-      zarray[IDX(i,j,nx_loc)] = u_val + ue_u + eu * (temp * temp * temp);
-    }
-  }
-
-  // Return success
-  return 0;
+  realtype ue_u = u_val * exp(-u_val);
+  realtype eu   = exp(u_val);
+  realtype temp = u_val + sin(u_val) - cos(u_val);
+  return u_val + ue_u + eu * (temp * temp * temp);
 }
 
 #endif

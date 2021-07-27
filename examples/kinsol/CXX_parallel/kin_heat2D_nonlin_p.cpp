@@ -620,7 +620,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   }
 
   // Add c(u)
-  flag = udata->c(u, udata->vtemp, user_data);
+  flag = c(u, udata->vtemp, user_data);
   if (check_flag(&flag, "c(u)", 1)) return 1;
   N_VLinearSum(ONE, udata->vtemp, ONE, f, f);
 
@@ -745,11 +745,56 @@ static int SetupRHS(void *user_data)
   flag = Solution(udata->e, udata);
   if (check_flag(&flag, "rhs", 1)) return 1;
 
-  flag = udata->c(udata->e, udata->vtemp, user_data);
+  flag = c(udata->e, udata->vtemp, user_data);
   if (check_flag(&flag, "c(u)", 1)) return 1;
 
   // b = kx u_xx (u_exact) + ky u_yy (u_exact) + c(u_exact)
   N_VLinearSum(ONE, udata->vtemp, ONE, udata->b, udata->b);
+
+  // Return success
+  return 0;
+}
+
+// c(u)
+static int c(N_Vector u, N_Vector z, void *user_data)
+{
+  sunindextype i, j;
+
+  // Access problem data
+  UserData *udata = (UserData *) user_data;
+
+  // Shortcuts to local number of nodes
+  sunindextype nx_loc = udata->nx_loc;
+  sunindextype ny_loc = udata->ny_loc;
+
+  // Determine iteration range excluding the overall domain boundary
+  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
+  sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
+  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
+  sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
+
+  // Access data arrays
+  realtype *uarray = N_VGetArrayPointer(u);
+  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
+
+  realtype *zarray = N_VGetArrayPointer(z);
+  if (check_flag((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
+  
+  // Initialize rhs vector to zero (handles boundary conditions)
+  N_VConst(ZERO, z);
+
+  // Iterate over subdomain and compute z = c(u) 
+  realtype u_val;
+
+  for (j = jstart; j < jend; j++)
+  {
+    for (i = istart; i < iend; i++)
+    {
+      u_val = uarray[IDX(i,j,nx_loc)];
+
+      zarray[IDX(i,j,nx_loc)] = udata->c(u_val);
+    }
+  }
 
   // Return success
   return 0;
