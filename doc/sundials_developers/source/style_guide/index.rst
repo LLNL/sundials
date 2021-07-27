@@ -12,20 +12,19 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _StyleGuide:
+.. _Style:
 
 Style Guide
 ===========
 
-This chapter covers the SUNDIALS style conventions for formatting C/C++ source
-code, CMake files, and documentation files to ensure consistency and
-maintainability.
+This chapter covers the SUNDIALS style conventions for formatting source code,
+CMake files, and documentation files to ensure consistency and maintainability.
 
 .. toctree::
    :maxdepth: 2
 
    SourceCode
-
+   Classes
+   Documentation
 ..
    CMake
-   Documentation

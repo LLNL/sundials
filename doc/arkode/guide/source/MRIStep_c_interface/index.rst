@@ -1,7 +1,6 @@
 ..
    Programmer(s): David J. Gardner @ LLNL
-   ----------------------------------------------------------------
-   Based on ERKStep by Daniel R. Reynolds @ SMU
+                  Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -48,3 +47,4 @@ detailed in the following sub-sections.
    Skeleton
    User_callable
    User_supplied
+   Custom_Inner_Stepper/index

@@ -40,9 +40,11 @@ the description and actual data of the matrix, and an *ops* field
 pointing to a structure with generic matrix operations.
 The type ``SUNMatrix`` is defined as:
 
-.. code-block:: c
+.. c:type:: typedef struct _generic_SUNMatrix *SUNMatrix
 
-   typedef struct _generic_SUNMatrix *SUNMatrix;
+and the generic structure is defined as
+
+.. code-block:: c
 
    struct _generic_SUNMatrix {
        void *content;

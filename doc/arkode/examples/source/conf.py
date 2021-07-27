@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ARKode_example documentation build configuration file, created by
+# ARKODE_example documentation build configuration file, created by
 # sphinx-quickstart on Sat Dec 22 20:38:03 2012.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -41,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Example Programs for ARKode'
+project = u'Example Programs for ARKODE'
 copyright = u'2012-2020, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -222,7 +222,7 @@ html_show_sourcelink = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ARKodeExampleDoc'
+htmlhelp_basename = 'ARKODEExampleDoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -408,7 +408,7 @@ Ting Yan, and Ulrike M. Yang.
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'arkode_example', u'ARKode Example Documentation',
+    ('index', 'arkode_example', u'ARKODE Example Documentation',
      [u'Daniel R. Reynolds'], 1)
 ]
 
@@ -422,9 +422,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'ARKode_example', u'ARKode Example Documentation',
-   u'Daniel R. Reynolds', 'ARKode_example',
-   'Example programs for the ARKode time integration package for multi-rate systems of ordinary differntial equations.',
+  ('index', 'ARKODE_example', u'ARKODE Example Documentation',
+   u'Daniel R. Reynolds', 'ARKODE_example',
+   'Example programs for the ARKODE time integration package for multi-rate systems of ordinary differntial equations.',
    'Miscellaneous'),
 ]
 

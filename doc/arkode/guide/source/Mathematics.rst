@@ -343,7 +343,7 @@ to algorithms of the form
                  + b^I_i \hat{f}^I(t^I_{n,i}, z_i)\right), \\
    \tilde{y}_n &= y_{n-1} + h_n \sum_{i=1}^{s} \left(
                   \tilde{b}^E_i \hat{f}^E(t^E_{n,i}, z_i) +
-		  \tilde{b}^I_i \hat{f}^I(t^I_{n,i}, z_i)\right).
+                  \tilde{b}^I_i \hat{f}^I(t^I_{n,i}, z_i)\right).
    :label: ARK
 
 Here :math:`\tilde{y}_n` are embedded solutions that approximate
@@ -363,7 +363,7 @@ embedding :math:`\tilde{y}_n`.  We note that ARKStep currently
 enforces the constraint that the explicit and implicit methods in an
 ARK pair must share the same number of stages, :math:`s`.  We note that
 when the problem has a time-independent mass matrix :math:`M`, ARKStep
-allows the possibility for different explicit and implicit abcissae,
+allows the possibility for different explicit and implicit abscissae,
 i.e. :math:`c^E` need not equal :math:`c^I`.
 
 The user of ARKStep must choose appropriately between one of three
@@ -487,36 +487,42 @@ an identity mass matrix, :math:`M(t)=I`.
 For such problems, MRIStep provides fixed-step slow step multirate infinitesimal
 step and multirate infinitesimal GARK methods (see [SKAW2009]_, [SKAW2012a]_,
 [SKAW2012b]_, and [S2019]_) that combine two Runge-Kutta methods.  The outer
-(slow) method derives from an :math:`s` stage Runge-Kutta method where the stage values
-and the new solution are computed by solving an auxiliary ODE with an inner
-(fast) Runge-Kutta method. This corresponds to the following algorithm for a
-single step:
+(slow) method derives from an :math:`s` stage Runge-Kutta method where the stage
+values and the new solution are computed by solving an auxiliary ODE with an
+inner (fast) time integration method. This corresponds to the following
+algorithm for a single step:
 
-#. Set :math:`z_1 = y_{n-1}`
-#. For :math:`i = 2,\ldots,s+1`
+#. Set :math:`z_1 = y_{n-1}`.
+#. For :math:`i = 2,\ldots,s+1` do:
 
-   #. Let :math:`v(0) = z_{i-1}`, :math:`t_{n,i-1}^S = t_{n-1} + c_{i-1}^S h^S`, and :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)`.
+   #. Let :math:`t_{n,i-1}^S = t_{n-1} + c_{i-1}^S h^S` and
+      :math:`v(t_{n,i-1}^S) = z_{i-1}`.
 
-   #. Let :math:`r(\tau) = \sum\limits_{j=1}^i \gamma_{i,j}\left(\tau/h^S\right) f^S(t_{n,j}^S, z_j)`
+   #. Let :math:`r_i(t) = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i
+      \gamma_{i,j}(\tau) f^S(t_{n,j}^S, z_j)` where
+      :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)` and
+      :math:`\tau = (t - t_{n,i-1}^S)/(h^S \Delta c_i^S)`.
 
-   #. For :math:`\tau \in [0, h^S]`, solve :math:`\dot{v}(\tau) = \Delta c_i^S f^F(t_{n,i-1}^S+\Delta c_i^S\tau, v) + r(\tau)`
+   #. For :math:`t \in [t_{n,i-1}^S, t_{n,i}^S]` solve
+      :math:`\dot{v}(t) = f^F(t, v) + r_i(t)`.
 
-   #. Set :math:`z_i = v(h^S)`,
+   #. Set :math:`z_i = v(t_{n,i}^S)`.
 
 #. Set :math:`y_{n} = z_{s+1}`.
 
-where :math:`c^S_{s+1}=1` and the coefficients :math:`\gamma_{i,j}` are polynomials in time that dictate the
-couplings from the slow to the fast time scale; these can be expressed as in [S2019]_:
+The final abscissa is :math:`c^S_{s+1}=1` and the coefficients
+:math:`\gamma_{i,j}` are polynomials in time that dictate the couplings from the
+slow to the fast time scale; these can be expressed as in [S2019]_:
 
 .. math::
-   \gamma_{i,j}(\theta) &= \sum_{k\geq 0} \gamma_{i,j}^{\{k\}} \theta^k,
+   \gamma_{i,j}(\tau) &= \sum_{k\geq 0} \gamma_{i,j}^{\{k\}} \tau^k,
    :label: MRI_coupling
 
 and where the tables :math:`\Gamma^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` define the slow-to-fast coupling.
 For traditional MIS methods (as in [SKAW2009]_, [SKAW2012a]_, and [SKAW2012b]_), these coefficients are
 uniquely defined based on a slow Butcher table :math:`(A^S,b^S,c^S)` having explicit first stage (i.e.,
-:math:`c^S_1=0` and :math:`A^S_{1,j}=0` for :math:`1\le j\le s`), sorted abcissae (i.e.,
-:math:`c^S_{i} \ge  c^S_{i-1}` for :math:`2\le i\le s`), and final abcissa :math:`c^S_s \leq 1` as:
+:math:`c^S_1=0` and :math:`A^S_{1,j}=0` for :math:`1\le j\le s`), sorted abscissae (i.e.,
+:math:`c^S_{i} \ge  c^S_{i-1}` for :math:`2\le i\le s`), and final abscissa :math:`c^S_s \leq 1` as:
 
 .. math::
    \gamma_{i,j}^{\{0\}} = \begin{cases}
@@ -538,33 +544,40 @@ condition
 where :math:`\mathbf{e}_j` corresponds to the :math:`j`-th column from the identity matrix, then the overall
 MIS method will be third order.
 
-As with standard Runge--Kutta methods, implicitness at the slow time scale is characterized by nonzero values
-on or above the diagonal of the matrices :math:`\Gamma^{\{k\}}`.  Typically, MRI methods are at most
-diagonally-implicit (i.e., :math:`\gamma_{i,j}^{\{k\}}=0` for all :math:`j>i`).  Additionally, an implicit
-stage :math:`i` may be characterized as being "solve-decoupled," wherein :math:`c^S_i - c^S_{i-1}=0` and thus
-the 'fast' IVP for :math:`v` over :math:`\tau \in [0, h^S]` may be solved analytically,
+When the outer (slow) method has repeated abscissa, i.e. :math:`\Delta c_i^S = 0`
+for stage :math:`i`, the inner (fast) IVP can be rescaled and the stage
+is computed analytically as
 
 .. math::
-   &z_i = z_{i-1} + \int_0^{h^S} r(\tau)\,\mathrm d\tau\\
-   \Leftrightarrow\quad&\\
-   &z_i = z_{i-1} + h^S \sum_{j=1}^i \left(\sum_{k\geq 0}
+   z_i = z_{i-1} + \int_0^{h^S} r(\tau)\,\mathrm d\tau
+   \quad\Leftrightarrow\quad
+   z_i = z_{i-1} + h^S \sum_{j=1}^i \left(\sum_{k\geq 0}
    \frac{\gamma_{i,j}^{\{k\}}}{k+1}\right)f^S(t_{n,j}^S, z_j),
-   :label: MRI_dirk_solve_decoupled
+   :label: MRI_delta_c_zero
 
-corresponding to a standard diagonally-implicit Runge--Kutta stage.  Alternately, an implicit MRI stage
-:math:`i` is considered "solve-coupled" if both :math:`c^S_i - c^S_{i-1}\ne 0` and
-:math:`\sum\limits_{k\geq 0} \dfrac{\gamma_{i,j}^{\{k\}}}{k+1} \ne 0`, in which case the stage solution
-:math:`z_i` is *both* an input to :math:`r(\tau)` and the result of time-evolution of the fast IVP,
-necessitating an implicit solve that is coupled to the 'fast' solver.
+which corresponds to a standard Runge--Kutta stage computation.
+
+As with standard Runge--Kutta methods, implicitness at the slow time scale is
+characterized by nonzero values on or above the diagonal of the matrices
+:math:`\Gamma^{\{k\}}`. Typically, MRI methods are at most diagonally-implicit
+(i.e., :math:`\gamma_{i,j}^{\{k\}}=0` for all :math:`j>i`). Diagonally-implicit
+MRI stages are characterized as being "solve-decoupled" when
+:math:`\Delta c_i^S = 0` and :math:`\gamma_{i,i}^{\{k\}} \ne 0` and the stage is
+computed as standard DIRK update. Alternately, a diagonally-implicit MRI stage
+is considered "solve-coupled" if both :math:`\Delta c^S_i \ne 0` and
+:math:`\gamma_{i,j}^{\{k\}} \ne 0`, in which case the stage solution :math:`z_i`
+is *both* an input to :math:`r(t)` and the result of time-evolution of the fast
+IVP, necessitating an implicit solve that is coupled to the inner (fast) solver.
 
 The default method supported by the MRIStep module is the explicit, third-order MIS method defined by
 the slow Butcher table (:ref:`Butcher.Knoth_Wolke`); however, other slow Butcher tables :math:`(A^S,b^S,c^S)`
 or coupling tables :math:`\Gamma^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` may be provided.  At present, only
-'solve-decoupled' implicit MRI methods are supported.
+"solve-decoupled" diagonally-implicit MRI methods are supported.
 
-At present, the inner ODEs for step 2c of the MRI algorithm must be solved using the ARKStep
-module.  As such, this can be evolved using either an explicit, implicit, or IMEX method with adaptive
-or fixed time steps.
+The inner (fast) IVP solve in step 2 of the MRI algorithm can be solved using
+the ARKStep module (allowing for explicit, implicit, or IMEX treatments of the
+inner (fast) time scale with fixed or adaptive steps) or a user defined
+integration method (see :ref:`MRIStep.CustomInnerStepper`).
 
 
 
@@ -1016,7 +1029,7 @@ Nonlinear solver methods
 
 For the DIRK and ARK methods corresponding to :eq:`IMEX_IVP` and
 :eq:`IVP_implicit` in ARKStep, and the solve-decoupled implicit slow
-stages :eq:`MRI_dirk_solve_decoupled` in MRIStep, an implicit system
+stages :eq:`MRI_delta_c_zero` in MRIStep, an implicit system
 
 .. math::
    G(z_i) = 0
@@ -1609,7 +1622,7 @@ approximated as
    :label: extrapolant
 
 As the stage times for MRI stages and implicit ARK and DIRK stages usually
-have non-negative abcissae (i.e., :math:`c_j^I > 0`), it is typically the
+have non-negative abscissae (i.e., :math:`c_j^I > 0`), it is typically the
 case that :math:`t^I_{n,j}` (resp., :math:`t^S_{n,j}`) is outside of the
 time interval containing the data used to construct :math:`p_q(t)`, hence
 :eq:`extrapolant` will correspond to an extrapolant instead of an

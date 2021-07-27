@@ -50,13 +50,17 @@ MRIStep initialization and deallocation functions
    be solved using the MRIStep time-stepping module in ARKode.
 
    **Arguments:**
-      * *fs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+      * *fs* -- the name of the function (of type :c:func:`ARKRhsFn()`)
         defining the slow portion of the right-hand side function in
         :math:`\dot{y} = f_s(t,y) + f_f(t,y)`.
       * *t0* -- the initial value of :math:`t`.
       * *y0* -- the initial condition vector :math:`y(t_0)`.
-      * *inner_step_id* -- the identifier for the inner stepper. Currently
-        ``MRISTEP_ARKSTEP`` is the only supported option.
+      * *inner_step_id* -- the identifier for the inner stepper.
+
+        * ``MRISTEP_ARKSTEP`` when attaching an ARKStep memory structure
+        * ``MRISTEP_CUSTOM`` when attaching an :c:type:`MRIStepInnerStepper`
+          object e.g., a user-defined inner stepper
+
       * *inner_step_mem* -- a ``void*`` pointer to the ARKStep memory block for
         integrating the fast time scale.
 
@@ -64,6 +68,51 @@ MRIStep initialization and deallocation functions
    of type ``void*``, to be passed to all user-facing MRIStep routines
    listed below.  If unsuccessful, a ``NULL`` pointer will be
    returned, and an error message will be printed to ``stderr``.
+
+   .. warning::
+
+      When using :c:func:`ARKStepCreateMRIStepInnerStepper` to wrap an ARKStep
+      memory block as an :c:type:`MRIStepInnerStepper` the input
+      ``inner_step_id`` *must* be ``MRISTEP_CUSTOM``. The ID ``MRISTEP_ARKODE``
+      should *only* be used when passing an ARKStep memory block directly to
+      :c:func:`MRIStepCreate`.
+
+      In a future release :c:func:`MRIStepCreate` will be updated to remove the
+      stepper ID input and only accept :c:type:`MRIStepInnerStepper` objects.
+
+
+   **Example usage:**
+
+   .. code-block:: C
+
+      /* inner (fast) and outer (slow) ARKODE memory blocks */
+      void *inner_arkode_mem = NULL;
+      void *outer_arkode_mem = NULL;
+
+      /* MRIStepInnerStepper to wrap the inner (fast) ARKStep memory block */
+      MRIStepInnerStepper stepper = NULL;
+
+      /* create an ARKStep memory block */
+      inner_arkode_mem = ARKStepCreate(fe, fi, t0, y0);
+
+      /* setup ARKStep */
+      . . .
+
+      /* create MRIStepInnerStepper wrapping the ARKStep memory block */
+      flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
+
+      /* create an MRIStep memory block */
+      outer_arkode_mem = MRIStepCreate(fs, t0, y0, MRISTEP_CUSTOM, stepper)
+
+   **Example codes:**
+
+   * ``examples/arkode/C_serial/ark_brusselator_mri.c``
+   * ``examples/arkode/C_serial/ark_twowaycouple_mri.c``
+   * ``examples/arkode/C_serial/ark_brusselator_1D_mri.c``
+   * ``examples/arkode/C_serial/ark_onewaycouple_mri.c``
+   * ``examples/arkode/C_serial/ark_reaction_diffusion_mri.c``
+   * ``examples/arkode/C_serial/ark_kpr_mri.c``
+   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 
 .. c:function:: void MRIStepFree(void** arkode_mem)

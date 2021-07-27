@@ -32,6 +32,8 @@ module fnvector_manyvector_mod
  public :: FN_VSetSubvectorArrayPointer_ManyVector
  public :: FN_VGetNumSubvectors_ManyVector
  public :: FN_VGetVectorID_ManyVector
+ public :: FN_VPrint_ManyVector
+ public :: FN_VPrintFile_ManyVector
  public :: FN_VCloneEmpty_ManyVector
  public :: FN_VClone_ManyVector
  public :: FN_VDestroy_ManyVector
@@ -133,6 +135,19 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
+
+subroutine swigc_FN_VPrint_ManyVector(farg1) &
+bind(C, name="_wrap_FN_VPrint_ManyVector")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+end subroutine
+
+subroutine swigc_FN_VPrintFile_ManyVector(farg1, farg2) &
+bind(C, name="_wrap_FN_VPrintFile_ManyVector")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+end subroutine
 
 function swigc_FN_VCloneEmpty_ManyVector(farg1) &
 bind(C, name="_wrap_FN_VCloneEmpty_ManyVector") &
@@ -647,6 +662,27 @@ farg1 = c_loc(v)
 fresult = swigc_FN_VGetVectorID_ManyVector(farg1)
 swig_result = fresult
 end function
+
+subroutine FN_VPrint_ManyVector(v)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), target, intent(inout) :: v
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(v)
+call swigc_FN_VPrint_ManyVector(farg1)
+end subroutine
+
+subroutine FN_VPrintFile_ManyVector(v, outfile)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), target, intent(inout) :: v
+type(C_PTR) :: outfile
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(v)
+farg2 = outfile
+call swigc_FN_VPrintFile_ManyVector(farg1, farg2)
+end subroutine
 
 function FN_VCloneEmpty_ManyVector(w) &
 result(swig_result)

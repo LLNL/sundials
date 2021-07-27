@@ -1359,6 +1359,14 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
     nstloc++;
 
+    /* If tstop is set and was reached, reset tn = tstop */
+    if ( cv_mem->cv_tstopset ) {
+      troundoff = FUZZ_FACTOR * cv_mem->cv_uround *
+        (SUNRabs(cv_mem->cv_tn) + SUNRabs(cv_mem->cv_h));
+      if ( SUNRabs(cv_mem->cv_tn - cv_mem->cv_tstop) <= troundoff)
+        cv_mem->cv_tn = cv_mem->cv_tstop;
+    }
+
     /* Check for root in last step taken. */
     if (cv_mem->cv_nrtfn > 0) {
 

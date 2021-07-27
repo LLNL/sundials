@@ -774,11 +774,6 @@ typedef struct ARKodeMemRec {
   should be sent to the error handler function.
   ---------------------------------------------------------------*/
 
-/* Constants for Full RHS */
-#define ARK_FULLRHS_START 0
-#define ARK_FULLRHS_END   1
-#define ARK_FULLRHS_OTHER 2
-
 /*---------------------------------------------------------------
   ARKTimestepStepFn
   ---------------------------------------------------------------
@@ -859,10 +854,11 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #endif
 
 int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0, int init_type);
-booleantype arkAllocVec(ARKodeMem ark_mem,
-                        N_Vector tmpl,
-                        N_Vector *v);
+booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v);
+booleantype arkAllocVecArray(ARKodeMem ark_mem, int count, N_Vector tmpl,
+                             N_Vector **v);
 void arkFreeVec(ARKodeMem ark_mem, N_Vector *v);
+void arkFreeVecArray(ARKodeMem ark_mem, int count, N_Vector **v);
 booleantype arkResizeVec(ARKodeMem ark_mem,
                          ARKVecResizeFn resize,
                          void *resize_data,
@@ -870,6 +866,14 @@ booleantype arkResizeVec(ARKodeMem ark_mem,
                          sunindextype liw_diff,
                          N_Vector tmpl,
                          N_Vector *v);
+booleantype arkResizeVecArray(ARKodeMem ark_mem,
+                              ARKVecResizeFn resize,
+                              void *resize_data,
+                              sunindextype lrw_diff,
+                              sunindextype liw_diff,
+                              int count,
+                              N_Vector tmpl,
+                              N_Vector **v);
 void arkPrintMem(ARKodeMem ark_mem, FILE *outfile);
 booleantype arkCheckTimestepper(ARKodeMem ark_mem);
 booleantype arkCheckNvector(N_Vector tmpl);

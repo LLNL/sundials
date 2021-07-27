@@ -285,6 +285,11 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor,
                              ark_mem->ewt, step_mem->nlscoef, callLSetup, ark_mem);
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  printf("    MRIStep nonlinear solution zcor:\n");
+  N_VPrint(step_mem->zcor);
+#endif
+
   /* apply the correction to construct ycur */
   N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
 
