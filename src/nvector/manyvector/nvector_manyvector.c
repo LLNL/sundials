@@ -206,9 +206,9 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
 /* This function creates an MPIManyVector from a set of existing
    N_Vector objects, under the requirement that all MPI-aware
    sub-vectors use the same MPI communicator (this is verified
-   internally).  If no sub-vector is MPI-aware, then this may be
-   used to describe data partitioning within a single node, and
-   a NULL communicator will be created. */
+   internally).  If no sub-vector is MPI-aware, then this 
+   function will return NULL. For single-node partitioning,
+   the regular (not MPI aware) manyvector should be used. */
 N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
                               N_Vector *vec_array)
 {
@@ -217,7 +217,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
   void* tmpcomm;
   MPI_Comm comm, *vcomm;
   int retval, comparison;
-  N_Vector v;
+  N_Vector v = NULL;
 
   /* Check that all subvectors have identical MPI communicators (if present) */
   nocommfound = SUNTRUE;
@@ -232,7 +232,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
 
     /* if this is the first communicator, create a copy */
     if (nocommfound) {
-
+    
       /* set comm to duplicate this first subvector communicator */
       retval = MPI_Comm_dup(*vcomm, &comm);
       if (retval != MPI_SUCCESS)  return(NULL);
@@ -247,10 +247,13 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
 
     }
   }
+    
+  if (!nocommfound) {
+    /* Create vector using "Make" routine and shared communicator (if non-NULL) */
+    v = N_VMake_MPIManyVector(comm, num_subvectors, vec_array);
+    if (comm != MPI_COMM_NULL)  MPI_Comm_free(&comm);
+  }
 
-  /* Create vector using "Make" routine and shared communicator (if non-NULL) */
-  v = N_VMake_MPIManyVector(comm, num_subvectors, vec_array);
-  if (comm != MPI_COMM_NULL)  MPI_Comm_free(&comm);
   return(v);
 }
 #else

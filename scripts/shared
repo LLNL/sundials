@@ -523,7 +523,6 @@ $tar $tarfile $distrobase/examples/nvector/mpimanyvector/CMakeLists.txt         
 $tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_fnvector_mpimanyvector_mod.f90    || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_parallel1.c || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_parallel2.c || exit 1
-$tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_serial.c    || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpiplusx/CMakeLists.txt                              || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpiplusx/test_fnvector_mpiplusx_mod.f90              || exit 1
 $tar $tarfile $distrobase/examples/nvector/mpiplusx/test_nvector_mpiplusx.c                     || exit 1
