@@ -7,9 +7,13 @@
 As an illustration of the use of the {\kinsol} package for the
 solution of nonlinear systems in parallel, 
 we give a sample program called \id{kin\_heat2D\_nonlin\_p.cpp}.
-It uses the {\kinsol} \id{KINFP} iteration 
+It uses the {\kinsol} \id{KINFP} iteration with Anderson Acceleration
 and the {\nvecp} module (which provides a parallel implementation of {\nvector})
 for the solution of the following test problem.
+This example highlights the use of the various orthogonalization routine
+options within Anderson Acceleration, passed to the example problem
+via the \texttt{--orthaa} flag. Available options include 0 (\id{KIN\_ORTH\_MGS}),
+1 (\id{KIN\_ORTH\_ICWY}), 2 (\id{KIN\_ORTH\_CGS2}), and 3 (\id{KIN\_ORTH\_DCGS2}).
 
 This problem involves solving a steady-state 2D heat equation with an additional
 nonlinear term defined by $c(u)$:
@@ -65,6 +69,7 @@ when running the example problem.
 %%
 
 \begin{center}
+\begin{table}
 \begin{tabular}{ |p{5cm}||p{10cm}| }
 \hline
 \multicolumn{2}{|c|}{Input Parameters} \\
@@ -84,12 +89,12 @@ flag & option \\
 {\tt --timing} & print timing data\\
 {\tt --help} & print available input parameters and exit\\
 \hline
-\end{tabular}
+\end{tabular}\label{tab:input_params}
+\caption{Optional input parameter flags.}
+\end{table}
 \end{center}
 
-The following nonlinear functions $c(u)$ can be set as the $c(u)$ argument via the
-{\tt --c} flag.
-
+\begin{table}
 \begin{center}
 \begin{tabular}{ |p{2cm}||p{10cm}| }
 \hline
@@ -117,6 +122,8 @@ flag & function \\
 \hline
 \end{tabular}
 \end{center}
+\caption{Input parameter flag for setting the nonlinear function $c(u)$.}
+\end{table}
 %-----------------------------------------------------------------------------------
 
 \subsection{A parallel example using {\hypre}: kin\_heat2D\_nonlin\_hypre\_pfmg}\label{ss:kin_heat2D_nonlin_hypre_pfmg}
@@ -127,6 +134,10 @@ we give a sample program called \id{kin\_heat2D\_nonlin\_hypre\_pfmg.cpp}.
 It uses the {\kinsol} \id{KINFP} iteration
 and the {\nvecp} module (which provides a parallel implementation of {\nvector})
 for the solution of the following test problem.
+This example highlights the use of the various orthogonalization routine
+options within Anderson Acceleration, passed to the example problem
+via the \texttt{--orthaa} flag. Available options include 0 (\id{KIN\_ORTH\_MGS}),
+1 (\id{KIN\_ORTH\_ICWY}), 2 (\id{KIN\_ORTH\_CGS2}), and 3 (\id{KIN\_ORTH\_DCGS2}).
 
 This problem involves solving a steady-state 2D heat equation with an additional
 nonlinear term defined by $c(u)$:
@@ -191,6 +202,7 @@ and {\hypre} related parameters are set
 using the flags in the following table. 
 %%
 \begin{center}
+\begin{table}
 \begin{tabular}{ |p{6cm}||p{10cm}| }
 \hline
 \multicolumn{2}{|c|}{Linear Solver and {\hypre} Related Input Parameters} \\
@@ -204,5 +216,7 @@ flag & option \\
 {\tt --pfmg\_nrelax <pfmg\_nrelax>} & pre/post relaxation sweeps in PFMG\\
 \hline
 \end{tabular}
+\caption{Optional input parameter flags for setting {\hypre} related parameters.}
+\end{table}
 \end{center}
 
