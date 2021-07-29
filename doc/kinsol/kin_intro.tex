@@ -114,6 +114,11 @@ interfacing the solver to applications written in {\F}.
 The installed SUNDIALSConfig.cmake file now supports the \id{COMPONENTS} option
 to \id{find\_package}.
 
+New orthogonalization methods were added for use within the {\kinsol}
+Anderson Acceleration routine. See the 'Anderson Acceleration QR Factorization'
+subsection within Chapter \ref{s:math} and the description of 
+the \id{KINSetOrthAA} function for more details.
+
 \subsection*{Changes in v5.7.0}
 
 A new {\nvector} implementation based on the {\sycl} abstraction layer has been

@@ -18,6 +18,11 @@ to `find_package`.
 A bug was fixed in the ARKODE stepper modules where the stop time may be passed
 after resetting the integrator.
 
+New QRAdd routines were added for use within Anderson Acceleration, currently
+housed in sundials_iterative.c See the "Anderson Acceleration QR Factorization"
+subsection within the math considerations chapter and the KINSetOrthAA function
+for more details.
+
 ## Changes to SUNDIALS in release 5.7.0
 
 A new NVECTOR implementation based on the SYCL abstraction layer has been added
