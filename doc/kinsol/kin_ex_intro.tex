@@ -115,20 +115,28 @@ is an example using the OpenMP NVECTOR module.
 Supplied in directory {\em srcdir}\id{/examples/kinsol/CXX\_parallel}
 is an example using the {\nvecp} module.
 \id{kin\_heat2D\_nonlin\_p} solves a steady-state 2D heat
-equation with an additional nonlinear term. 
+equation with an additional nonlinear term.
+This problem is solved via fixed point iteration accelerated by
+Anderson Acceleration. This example highlights the availability
+of various orthogonalization methods for use within Anderson 
+Acceleration.
 
 \vspace{0.2in}\noindent
 Supplied in directory {\em srcdir}\id{/examples/kinsol/CXX\_parhyp}
 are examples using the {\nvecp} module and incorporating use
-of Hypre preconditioners and solvers.
+of {\hypre} preconditioners and solvers.
+These example problems are solved via fixed point iteration accelerated by
+Anderson Acceleration. They highlight the availability
+of various orthogonalization methods for use within
+Anderson Acceleration.
 \begin{itemize}
 \item \id{kin\_heat2D\_nonlin\_hypre\_pfmg}
   solves the same problem as \id{kin\_heat2D\_nonlin\_p} 
   but with a different fixed point iteration setup requiring 
-  a linear solve that uses Hypre's PFMG as a preconditioner. 
+  a linear solve that uses {\hypre}'s PFMG as a preconditioner.
 \item \id{kin\_bratu2D\_hypre\_pfmg}
-  solves a 2D Bratu equation which requires a linear solve
-  that uses Hypre's PFMG as a preconditioner.
+  solves a 2D Bratu equation \cite{Frank-Kam:55} requiring a linear solve
+  that uses {\hypre}'s PFMG as a preconditioner.
 \end{itemize}
 
 
