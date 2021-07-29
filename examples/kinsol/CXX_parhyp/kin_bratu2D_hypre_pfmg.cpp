@@ -25,6 +25,11 @@
  * but it appears in various applications, such as thermal combustion,
  * thermal reaction, etc...
  *
+ * Source: "Diffusion and Heat Exchange in Chemical Kinetics",
+ *             D.A. Frank-Kamenetskii and N. Thon.
+ *             Princeton University Press, 1955.
+ * Chapter 7: Temperature Distribution, problem discussed throughout chapter
+ *
  * The starting guess is taken to be
  *
  *   u(x,y) = sin^2(pi x) sin^2(pi y).
