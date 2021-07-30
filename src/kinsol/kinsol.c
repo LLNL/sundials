@@ -1050,7 +1050,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         N_VDestroyVectorArray(kin_mem->kin_q_aa, (int) kin_mem->kin_m_aa);
         kin_mem->kin_liw -= (7 + 3 * kin_mem->kin_m_aa) * kin_mem->kin_liw1;
         kin_mem->kin_lrw -= (7 + 3 * kin_mem->kin_m_aa) * kin_mem->kin_lrw1;
-        return(SUNFALSE);
+        return(KIN_MEM_FAIL);
       }
       kin_mem->kin_liw += kin_mem->kin_m_aa * kin_mem->kin_liw1;
       kin_mem->kin_lrw += kin_mem->kin_m_aa * kin_mem->kin_lrw1;
