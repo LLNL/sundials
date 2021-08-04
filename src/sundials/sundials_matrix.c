@@ -90,15 +90,16 @@ int SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
   if (A->ops == NULL || B->ops == NULL) return(-1);
 
   /* Copy ops from A to B */
-  B->ops->getid     = A->ops->getid;
-  B->ops->clone     = A->ops->clone;
-  B->ops->destroy   = A->ops->destroy;
-  B->ops->zero      = A->ops->zero;
-  B->ops->copy      = A->ops->copy;
-  B->ops->scaleadd  = A->ops->scaleadd;
-  B->ops->scaleaddi = A->ops->scaleaddi;
-  B->ops->matvec    = A->ops->matvec;
-  B->ops->space     = A->ops->space;
+  B->ops->getid       = A->ops->getid;
+  B->ops->clone       = A->ops->clone;
+  B->ops->destroy     = A->ops->destroy;
+  B->ops->zero        = A->ops->zero;
+  B->ops->copy        = A->ops->copy;
+  B->ops->scaleadd    = A->ops->scaleadd;
+  B->ops->scaleaddi   = A->ops->scaleaddi;
+  B->ops->matvecsetup = A->ops->matvecsetup;
+  B->ops->matvec      = A->ops->matvec;
+  B->ops->space       = A->ops->space;
 
   return(0);
 }
