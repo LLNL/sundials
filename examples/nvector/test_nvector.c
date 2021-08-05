@@ -39,7 +39,7 @@
 #else
 #define GSYM "g"
 #define ESYM "e"
-#define FSYM ".17f"
+#define FSYM "f"
 #endif
 
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
