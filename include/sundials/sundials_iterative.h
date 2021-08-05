@@ -166,9 +166,9 @@ struct _generic_SUNQRData{
  *
  * Additional input parameters include:
  *
- *          m : (long int) the number of vectors already in the QR factorization
+ *          m : (int) the number of vectors already in the QR factorization
  *
- *       mMax : (long int) the maximum number of vectors to be in the QR
+ *       mMax : (int) the maximum number of vectors to be in the QR
  *              factorization (the number of N_Vectors allocated to be in Q)
  *
  * SUNQR_data : (void *) a structure containing any additional inputs
@@ -178,7 +178,7 @@ struct _generic_SUNQRData{
 */
 
 typedef int (*SUNQRAddFn)(N_Vector *Q, realtype *R, N_Vector f,
-                          long int m, long int mMax, void *QR_data);
+                          int m, int mMax, void *QR_data);
 
 /*
  * -----------------------------------------------------------------
@@ -324,9 +324,9 @@ SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
  *
  * Additional input parameters include:
  *
- *      m : (long int) current number of vectors in QR factorization
+ *      m : (int) current number of vectors in QR factorization
  *
- *   mMax : (long int) maximum number of vectors that will be in the QR
+ *   mMax : (int) maximum number of vectors that will be in the QR
  *          factorization (the allocated number of N_Vectors in Q)
  *
  * QRdata : (void *) a struct containing any additional temporary
@@ -340,7 +340,7 @@ SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
  */
 
 SUNDIALS_EXPORT int SUNQRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
-                                 long int m, long int mMax, void *QRdata);
+                                 int m, int mMax, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -358,9 +358,9 @@ SUNDIALS_EXPORT int SUNQRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
  *
  * Additional input parameters include:
  *
- *     m :  (long int) current number of vectors in QR factorization
+ *     m :  (int) current number of vectors in QR factorization
  *
- *  mMax : (long int) maximum number of vectors that will be in the QR
+ *  mMax : (int) maximum number of vectors that will be in the QR
  *         factorization (the allocated number of N_Vectors in Q)
  *
  * QRdata : (void *) a struct containing any additional temporary
@@ -377,7 +377,7 @@ SUNDIALS_EXPORT int SUNQRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 SUNDIALS_EXPORT int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
-                                  long int m, long int mMax, void *QRdata);
+                                  int m, int mMax, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -392,9 +392,9 @@ SUNDIALS_EXPORT int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
  *
  * Additional input parameters include:
  *
- *      m : (long int) current number of vectors in QR factorization
+ *      m : (int) current number of vectors in QR factorization
  *
- *   mMax : (long int) maximum number of vectors that will be in the QR
+ *   mMax : (int) maximum number of vectors that will be in the QR
  *          factorization (the allocated number of N_Vectors in Q)
  *
  * QRdata : (void *) a struct containing any additional temporary
@@ -411,7 +411,7 @@ SUNDIALS_EXPORT int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 SUNDIALS_EXPORT int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
-                                  long int m, long int mMax, void *QRdata);
+                                  int m, int mMax, void *QRdata);
 
 /*
  * -----------------------------------------------------------------
@@ -428,9 +428,9 @@ SUNDIALS_EXPORT int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  *
  * Additional input parameters include:
  *
- *      m : (long int) current number of vectors in QR factorization
+ *      m : (int) current number of vectors in QR factorization
  *
- *   mMax : (long int) maximum number of vectors that will be in the QR
+ *   mMax : (int) maximum number of vectors that will be in the QR
  *          factorization (the allocated number of N_Vectors in Q)
  *
  * QRdata : (void *) a struct containing any additional temporary
@@ -447,7 +447,7 @@ SUNDIALS_EXPORT int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 SUNDIALS_EXPORT int SUNQRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df,
-                                   long int m, long int mMax, void *QRdata);
+                                   int m, int mMax, void *QRdata);
 
 #ifdef __cplusplus
 }

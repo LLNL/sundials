@@ -303,7 +303,7 @@ int QRsol(int n, realtype **h, realtype *q, realtype *b)
  */
 
 int SUNQRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
-                 long int m, long int mMax, void *QRdata)
+                 int m, int mMax, void *QRdata)
 {
     sunindextype j;
     SUNQRData qrdata = (SUNQRData) QRdata;
@@ -330,23 +330,22 @@ int SUNQRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
-                  long int m, long int mMax, void *QRdata)
+                  int m, int mMax, void *QRdata)
 {
     sunindextype j, k;
     SUNQRData qrdata = (SUNQRData) QRdata;
-    int m_int = (int) m;
 
     N_VScale(ONE, df, qrdata->vtemp); /* stores d_fi in temp */
 
     if (m > 0) {
       /* T(1:k-1,k-1)^T = Q(:,1:k-1)^T * Q(:,k-1) */
-      N_VDotProdMulti(m_int, Q[m-1], Q, qrdata->temp_array + (m-1) * mMax);
+      N_VDotProdMulti(m, Q[m-1], Q, qrdata->temp_array + (m-1) * mMax);
 
       /* T(k-1,k-1) = 1.0 */
       qrdata->temp_array[(m-1) * mMax + (m-1)] = 1.0;
 
       /* R(1:k-1,k) = Q_k-1^T * df */
-      N_VDotProdMulti(m_int, qrdata->vtemp, Q, R + m * mMax );
+      N_VDotProdMulti(m, qrdata->vtemp, Q, R + m * mMax );
 
       /* Solve T^T * R(1:k-1,k) = R(1:k-1,k) */
       for (k = 0; k < m; k++) {
@@ -358,7 +357,7 @@ int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
       /* end */
 
       /* Q(:,k-1) = df - Q_k-1 R(1:k-1,k) */
-      N_VLinearCombination(m_int, R + m * mMax, Q, qrdata->vtemp2);
+      N_VLinearCombination(m, R + m * mMax, Q, qrdata->vtemp2);
       N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp);
     }
 
@@ -381,27 +380,26 @@ int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
-                  long int m, long int mMax, void *QRdata)
+                  int m, int mMax, void *QRdata)
 {
     sunindextype j;
     SUNQRData qrdata = (SUNQRData) QRdata;
-    int m_int = (int) m;
 
     N_VScale(ONE, df, qrdata->vtemp); /* temp = df */
 
     if (m > 0) {
       /* s_k = Q_k-1^T df_aa -- update with sdata as a realtype* array */
-      N_VDotProdMulti(m_int, qrdata->vtemp, Q, R + m * mMax);
+      N_VDotProdMulti(m, qrdata->vtemp, Q, R + m * mMax);
 
       /* y = df - Q_k-1 s_k */
-      N_VLinearCombination(m_int, R + m * mMax, Q, qrdata->vtemp2);
+      N_VLinearCombination(m, R + m * mMax, Q, qrdata->vtemp2);
       N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp2);
 
       /* z_k = Q_k-1^T y */
-      N_VDotProdMulti(m_int, qrdata->vtemp2, Q, qrdata->temp_array);
+      N_VDotProdMulti(m, qrdata->vtemp2, Q, qrdata->temp_array);
 
       /* df = y - Q_k-1 z_k  -- update using N_VLinearCombination */
-      N_VLinearCombination(m_int, qrdata->temp_array, Q, Q[m]);
+      N_VLinearCombination(m, qrdata->temp_array, Q, Q[m]);
       N_VLinearSum(ONE, qrdata->vtemp2, -ONE, Q[m], qrdata->vtemp);
 
       /* R(1:k-1,k) = s_k + z_k */
@@ -429,24 +427,23 @@ int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  */
 
 int SUNQRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df,
-                   long int m, long int mMax, void *QRdata)
+                   int m, int mMax, void *QRdata)
 {
     sunindextype j;
     SUNQRData qrdata = (SUNQRData) QRdata;
-    int m_int = (int) m;
 
     N_VScale(ONE, df, qrdata->vtemp); /* temp = df */
 
     if (m > 0) {
       /* R(1:k-1,k) = Q_k-1^T df_aa */
-      N_VDotProdMulti(m_int, qrdata->vtemp, Q, R + m*mMax);
+      N_VDotProdMulti(m, qrdata->vtemp, Q, R + m*mMax);
       /* Delayed reorthogonalization */
       if (m > 1) {
           /* s = Q_k-2^T Q(:,k-1) */
-          N_VDotProdMulti(m_int-1, Q[m-1], Q, qrdata->temp_array);
+          N_VDotProdMulti(m-1, Q[m-1], Q, qrdata->temp_array);
 
           /* Q(:,k-1) = Q(:,k-1) - Q_k-2 s */
-          N_VLinearCombination(m_int-1, qrdata->temp_array, Q, qrdata->vtemp2);
+          N_VLinearCombination(m-1, qrdata->temp_array, Q, qrdata->vtemp2);
           N_VLinearSum(ONE, Q[m-1], -ONE, qrdata->vtemp2, Q[m-1]);
 
           /* R(1:k-2,k-1) = R(1:k-2,k-1) + s */
@@ -456,7 +453,7 @@ int SUNQRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df,
       }
 
       /* df = df - Q(:,k-1) s */
-      N_VLinearCombination(m_int, R + m * mMax, Q, qrdata->vtemp2);
+      N_VLinearCombination(m, R + m * mMax, Q, qrdata->vtemp2);
       N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp);
     }
 

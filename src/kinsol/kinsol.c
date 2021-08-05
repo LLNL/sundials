@@ -2738,7 +2738,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
     /* another iteration before we've reached maa */
 
     kin_mem->kin_qr_func(kin_mem->kin_q_aa, R, kin_mem->kin_df_aa[i_pt],
-                         iter-1, kin_mem->kin_m_aa, (void *)kin_mem->kin_qr_data);
+                         (int) iter-1, (int) kin_mem->kin_m_aa,
+                         (void *)kin_mem->kin_qr_data);
 
     /* update iteration map */
     for (j = 0; j < iter; j++) {
@@ -2791,7 +2792,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
 
     /* Add the new df vector */
     kin_mem->kin_qr_func(kin_mem->kin_q_aa, R, kin_mem->kin_df_aa[i_pt],
-                         kin_mem->kin_m_aa - 1, kin_mem->kin_m_aa, (void *)kin_mem->kin_qr_data);
+                         (int) kin_mem->kin_m_aa - 1, (int) kin_mem->kin_m_aa,
+                         (void *)kin_mem->kin_qr_data);
 
     /* Update the iteration map */
     j = 0;
