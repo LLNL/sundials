@@ -168,7 +168,7 @@ struct _generic_SUNQRData{
  *
  *          m : (long int) the number of vectors already in the QR factorization
  *
- *       mMax : (long int) the maximum number of vectors to be in the QR 
+ *       mMax : (long int) the maximum number of vectors to be in the QR
  *              factorization (the number of N_Vectors allocated to be in Q)
  *
  * SUNQR_data : (void *) a structure containing any additional inputs
@@ -315,23 +315,23 @@ SUNDIALS_EXPORT int QRsol(int n, realtype **h, realtype *q, realtype *b);
  * -----------------------------------------------------------------
  * Function: SUNQRAdd_MGS
  * -----------------------------------------------------------------
- * SUNQRAdd_MGS uses Modified Gram Schmidt to update the QR factorization 
- * stored in user inputs 
- *   - N_Vector *Q 
- *   - realtype *R 
- * to include the orthonormalized vector input by 
- *   - N_Vector df. 
+ * SUNQRAdd_MGS uses Modified Gram Schmidt to update the QR factorization
+ * stored in user inputs
+ *   - N_Vector *Q
+ *   - realtype *R
+ * to include the orthonormalized vector input by
+ *   - N_Vector df.
  *
  * Additional input parameters include:
  *
  *      m : (long int) current number of vectors in QR factorization
- * 
+ *
  *   mMax : (long int) maximum number of vectors that will be in the QR
  *          factorization (the allocated number of N_Vectors in Q)
  *
  * QRdata : (void *) a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
- * 
+ *
  * On return, Q and R contain the updated Q R factors, if
  * SUNQRAdd_MGS was successful.
  *
@@ -346,37 +346,37 @@ SUNDIALS_EXPORT int SUNQRAdd_MGS(N_Vector *Q, realtype *R, N_Vector df,
  * -----------------------------------------------------------------
  * Function: SUNQRAdd_ICWY
  * -----------------------------------------------------------------
- * SUNQRAdd_ICWY uses the Inverse Compact WY Modified Gram Schmidt 
- * method to update the QR factorization stored in user inputs 
- *   - N_Vector *Q 
+ * SUNQRAdd_ICWY uses the Inverse Compact WY Modified Gram Schmidt
+ * method to update the QR factorization stored in user inputs
+ *   - N_Vector *Q
  *   - realtype *R
- *   - realtype *T (held within (void *) QRdata) 
- * to include the orthonormalized vector input by 
- *   - N_Vector df. 
+ *   - realtype *T (held within (void *) QRdata)
+ * to include the orthonormalized vector input by
+ *   - N_Vector df.
  * where the factorization to be updated is of the form
  *   Q * T * R
  *
  * Additional input parameters include:
  *
  *     m :  (long int) current number of vectors in QR factorization
- * 
+ *
  *  mMax : (long int) maximum number of vectors that will be in the QR
  *         factorization (the allocated number of N_Vectors in Q)
- * 
+ *
  * QRdata : (void *) a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
  *
- * QRdata should contain : 
+ * QRdata should contain :
  *        N_Vector vtemp, realtype *temp_array (this will be used for T)
  *
  * On return, Q, R, and T contain the updated Q T R factors, if
  * SUNQRAdd_ICWY was successful.
  *
- * SUNQRAdd_ICWY returns a 0 if successful.  
+ * SUNQRAdd_ICWY returns a 0 if successful.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df, 
+SUNDIALS_EXPORT int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
                                   long int m, long int mMax, void *QRdata);
 
 /*
@@ -384,23 +384,23 @@ SUNDIALS_EXPORT int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
  * Function: SUNQRAdd_CGS2
  * -----------------------------------------------------------------
  * SUNQRAdd_CGS2 uses a Classical Gram Schmidt with Reorthogonalization
- * formulation to update the QR factorization stored in user inputs 
- *   - N_Vector *Q 
+ * formulation to update the QR factorization stored in user inputs
+ *   - N_Vector *Q
  *   - realtype *R
- * to include the orthonormalized vector input by 
- *   - N_Vector df. 
+ * to include the orthonormalized vector input by
+ *   - N_Vector df.
  *
  * Additional input parameters include:
  *
  *      m : (long int) current number of vectors in QR factorization
- * 
+ *
  *   mMax : (long int) maximum number of vectors that will be in the QR
  *          factorization (the allocated number of N_Vectors in Q)
  *
  * QRdata : (void *) a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
  *
- * QRdata should contain : 
+ * QRdata should contain :
  *        N_Vector vtemp, N_Vector vtemp2, realtype *temp_array
  *
  * On return, Q and R contain the updated Q R factors, if
@@ -410,7 +410,7 @@ SUNDIALS_EXPORT int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df, 
+SUNDIALS_EXPORT int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
                                   long int m, long int mMax, void *QRdata);
 
 /*
@@ -418,35 +418,35 @@ SUNDIALS_EXPORT int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
  * Function: SUNQRAdd_DCGS2
  * -----------------------------------------------------------------
  * SUNQRAdd_DCGS2 uses a Classical Gram Schmidt with Reorthogonalization
- * formulation that delays reorthogonlization (for the purpose of 
- * reducing number of inner products) to update the QR factorization 
- * stored in user inputs 
- *   - N_Vector *Q 
+ * formulation that delays reorthogonlization (for the purpose of
+ * reducing number of inner products) to update the QR factorization
+ * stored in user inputs
+ *   - N_Vector *Q
  *   - realtype *R
- * to include the orthonormalized vector input by 
- *   - N_Vector df. 
+ * to include the orthonormalized vector input by
+ *   - N_Vector df.
  *
  * Additional input parameters include:
  *
  *      m : (long int) current number of vectors in QR factorization
- * 
+ *
  *   mMax : (long int) maximum number of vectors that will be in the QR
  *          factorization (the allocated number of N_Vectors in Q)
  *
  * QRdata : (void *) a struct containing any additional temporary
  *          vectors or arrays required for the QRAdd routine
  *
- * QRdata should contain : 
+ * QRdata should contain :
  *        N_Vector vtemp, N_Vector vtemp2, realtype *temp_array
  *
  * On return, Q and R contain the updated Q R factors, if
  * SUNQRAdd_DCGS2 was successful.
  *
- * SUNQRAdd_DCGS2 returns a 0 if successful. Otherwise,....  
+ * SUNQRAdd_DCGS2 returns a 0 if successful. Otherwise,....
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int SUNQRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df, 
+SUNDIALS_EXPORT int SUNQRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df,
                                    long int m, long int mMax, void *QRdata);
 
 #ifdef __cplusplus

@@ -371,7 +371,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
   kin_mem->kin_lsolve = NULL;
   kin_mem->kin_lfree  = NULL;
   kin_mem->kin_lmem   = NULL;
-  
+
   /* initialize the QRData and set the QRAdd function if Anderson Acceleration is being used */
 
   if (kin_mem->kin_m_aa != 0) {
@@ -1055,9 +1055,9 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       kin_mem->kin_liw += kin_mem->kin_m_aa * kin_mem->kin_liw1;
       kin_mem->kin_lrw += kin_mem->kin_m_aa * kin_mem->kin_lrw1;
     }
-    
+
     if (kin_mem->kin_orth_aa != KIN_ORTH_MGS)
-    {  
+    {
       if (kin_mem->kin_vtemp3 == NULL) {
         kin_mem->kin_vtemp3 = N_VClone(tmpl);
         if (kin_mem->kin_vtemp3 == NULL) {
@@ -1115,7 +1115,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         }
       }
     }
-  
+
   }
 
   return(SUNTRUE);
@@ -1164,14 +1164,14 @@ static void KINFreeVectors(KINMem kin_mem)
     kin_mem->kin_lrw -= kin_mem->kin_lrw1;
     kin_mem->kin_liw -= kin_mem->kin_liw1;
   }
-  
+
   if (kin_mem->kin_vtemp3 != NULL) {
     N_VDestroy(kin_mem->kin_vtemp3);
     kin_mem->kin_vtemp3 = NULL;
     kin_mem->kin_lrw -= kin_mem->kin_lrw1;
     kin_mem->kin_liw -= kin_mem->kin_liw1;
   }
-  
+
   if (kin_mem->kin_gval != NULL) {
     N_VDestroy(kin_mem->kin_gval);
     kin_mem->kin_gval = NULL;
@@ -1243,7 +1243,7 @@ static void KINFreeVectors(KINMem kin_mem)
     free(kin_mem->kin_qr_data);
     kin_mem->kin_qr_data = NULL;
   }
-  
+
   if (kin_mem->kin_T_aa != NULL) {
     free(kin_mem->kin_T_aa);
     kin_mem->kin_T_aa = NULL;
@@ -2779,7 +2779,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
         R[(i-1)*kin_mem->kin_m_aa + j] = R[i*kin_mem->kin_m_aa + j];
       }
     }
-    
+
     /* If ICWY orthogonalization, then shift T to the left by one */
     if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY) {
       for (i = 1; i < kin_mem->kin_m_aa; i++) {
