@@ -12,16 +12,16 @@ module. See the optional input function `CVodeSetUseIntegratorFusedKernels`
 for more information. As with other SUNDIALS HIP features, this is
 feature is experimental and may change from version to version.
 
+New orthogonalization methods were added for use within Anderson acceleration
+in KINSOL. See the "Anderson Acceleration QR Factorization" subsection within
+the mathematical considerations chapter of the user guide and the
+`KINSetOrthAA` function documentation for more details.
+
 The installed SUNDIALSConfig.cmake file now supports the `COMPONENTS` option
 to `find_package`.
 
 A bug was fixed in the ARKODE stepper modules where the stop time may be passed
 after resetting the integrator.
-
-New QRAdd routines were added for use within Anderson Acceleration, currently
-housed in sundials_iterative.c See the "Anderson Acceleration QR Factorization"
-subsection within the math considerations chapter and the KINSetOrthAA function
-for more details.
 
 ## Changes to SUNDIALS in release 5.7.0
 

@@ -1,80 +1,76 @@
-%===================================================================================
+%===============================================================================
 \section{C++ example problems}\label{s:ex_cpp}
-%===================================================================================
+%===============================================================================
 
-\subsection{A parallel matrix-free example: kin\_heat2D\_nonlin\_p}\label{ss:kin_heat2D_nonlin_p}
+\subsection{A parallel matrix-free example: kin\_heat2D\_nonlin\_p}
+\label{ss:kin_heat2D_nonlin_p}
 
-As an illustration of the use of the {\kinsol} package for the
-solution of nonlinear systems in parallel, 
-we give a sample program called \id{kin\_heat2D\_nonlin\_p.cpp}.
-It uses the {\kinsol} \id{KINFP} iteration with Anderson Acceleration
-and the {\nvecp} module (which provides a parallel implementation of {\nvector})
-for the solution of the following test problem.
-This example highlights the use of the various orthogonalization routine
-options within Anderson Acceleration, passed to the example problem
-via the \texttt{--orthaa} flag. Available options include 0 (\id{KIN\_ORTH\_MGS}),
-1 (\id{KIN\_ORTH\_ICWY}), 2 (\id{KIN\_ORTH\_CGS2}), and 3 (\id{KIN\_ORTH\_DCGS2}).
+As an illustration of the use of the {\kinsol} package for the solution of
+nonlinear systems in parallel, we give a sample program called
+\id{kin\_heat2D\_nonlin\_p.cpp}.  It uses the {\kinsol} \id{KINFP} iteration
+with Anderson Acceleration and the {\nvecp} module (which provides a parallel
+implementation of {\nvector}) for the solution of the following test problem.
+This example highlights the use of the various orthogonalization routine options
+within Anderson Acceleration, passed to the example problem via the
+\texttt{--orthaa} flag. Available options include 0 (\id{KIN\_ORTH\_MGS}), 1
+(\id{KIN\_ORTH\_ICWY}), 2 (\id{KIN\_ORTH\_CGS2}), and 3 (\id{KIN\_ORTH\_DCGS2}).
 
 This problem involves solving a steady-state 2D heat equation with an additional
 nonlinear term defined by $c(u)$:
 \begin{equation}
-    b = k_x u_{xx} + k_y u_{yy} + c(u) \quad \text{in} \quad \mathcal{D}
-        = [0,1] \times [0,1]
+  b = \nabla \cdot (D \nabla u) + c(u) \quad \text{in} \quad
+  \mathcal{D} = [0,1] \times [0,1]
 \end{equation}
-subject to the boundary conditions
+where $D$ is a diagonal matrix with entries $k_x$ and $k_y$ for the diffusivity
+in the $x$ and $y$ directions respectively. The boundary conditions are
 \begin{equation}
-    u(0,y) = u(1,y) = u(x,0) = u(x,1) = 0 \quad \text{on} \quad \partial \mathcal{D}.
+  u(0,y) = u(1,y) = u(x,0) = u(x,1) = 0.
 \end{equation}
 %%
 We chose the analytical solution to be
 \begin{equation}
-    u_{exact} = u(x,y) = \sin^2(\pi x) \sin^2(\pi y),
+  u_{\text{exact}} = u(x,y) = \sin^2(\pi x) \sin^2(\pi y),
 \end{equation}
 hence, we define the static term $b$ as follows
 \begin{equation}
-\begin{aligned}
+  \begin{aligned}
     b = &k_x 2 \pi^2 (\cos^2(\pi x) - \sin^2(\pi x)) \sin^2(\pi y) \\
-        &+ k_y 2 \pi^2 (\cos^2(\pi y) - \sin^2(\pi y)) \sin^2(\pi x) + c(u_{exact})
-\end{aligned}
+        &+ k_y 2 \pi^2 (\cos^2(\pi y) - \sin^2(\pi y)) \sin^2(\pi x)
+        + c(u_{\text{exact}})
+  \end{aligned}
 \end{equation}
 
-The spatial derivatives are computed using second-order centered
-differences, with the data distributed over $nx\times ny$ points
-on a uniform spatial grid.  
-The problem is set up to use spatial grid parameters $nx=64$ and
-$ny=64$, with heat conductivity parameters $k_x=1.0$ and
-$k_y=1.0$.  
+The spatial derivatives are computed using second-order centered differences,
+with the data distributed over $n_x\times n_y$ points on a uniform spatial grid.
+The problem is set up to use spatial grid parameters $n_x=64$ and $n_y=64$, with
+heat conductivity parameters $k_x=1.0$ and $k_y=1.0$.
 
-This problem is solved via a Fixed Point Iteration, where the fixed point format
-of the problem is set up by adding $u$ to both sides of the equation, as
-seen here
+This problem is solved via a fixed point iteration with Anderson acceleration,
+where the fixed point is function formed by adding $u$ to both sides of the
+equation i.e.,
 \begin{equation}
-    b + u = k_x u_{xx} + k_y u_{yy} + c(u) + u.
+  b + u = \nabla \cdot (D \nabla u) + c(u) + u,
 \end{equation}
-Under this format, the fixed point problem to be solved is given by
+so that the fixed point function is
 \begin{equation}
-    u = k_x u_{xx} + k_y u_{yy} + c(u) + u - b.
+  G(u) = \nabla \cdot (D \nabla u) + c(u) + u - b.
 \end{equation}
 
-This program solves the problem with Fixed Point Iteration, 
-with the option of using Anderson Acceleration.
 %%
-The problem is run using a scalar relative
-tolerance of $rtol=10^{-8}$, and a starting vector
-containing all ones. 
-The following table contains all available input parameters
-when running the example problem.
+The problem is run using a tolerance of $10^{-8}$, and a starting vector
+containing all ones. The following tables contains all available input
+parameters when running the example problem.
 %%
 % Something like the following for the KIN memory calls
 %%
 
 \begin{center}
 \begin{table}
-\begin{tabular}{ |p{5cm}||p{10cm}| }
+\label{tab:input_params}
+\caption{Optional input parameter flags.}
+ \begin{tabular}{ |p{5cm}|p{10cm}| }
 \hline
-\multicolumn{2}{|c|}{Input Parameters} \\
-\hline
-flag & option \\
+Flag & Description \\
 \hline
 {\tt --mesh <nx> <ny>} & mesh points in the x and y directions\\
 {\tt --np <npx> <npy>} & number of MPI processes in the x and y directions\\
@@ -89,18 +85,16 @@ flag & option \\
 {\tt --timing} & print timing data\\
 {\tt --help} & print available input parameters and exit\\
 \hline
-\end{tabular}\label{tab:input_params}
-\caption{Optional input parameter flags.}
+\end{tabular}
 \end{table}
 \end{center}
 
 \begin{table}
 \begin{center}
-\begin{tabular}{ |p{2cm}||p{10cm}| }
+\caption{Input parameter flags for setting the nonlinear function $c(u)$.}
+\begin{tabular}{ |p{2cm}|p{10cm}| }
 \hline
-\multicolumn{2}{|c|}{Input Parameter: Function Flag Options} \\
-\hline
-flag & function \\
+Flag & Function \\
 \hline
 {\tt --c 1} & $ c(u) = u $ \\
 {\tt --c 2} & $ c(u) = u^3 - u $ \\
@@ -122,92 +116,82 @@ flag & function \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Input parameter flag for setting the nonlinear function $c(u)$.}
 \end{table}
-%-----------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
 
-\subsection{A parallel example using {\hypre}: kin\_heat2D\_nonlin\_hypre\_pfmg}\label{ss:kin_heat2D_nonlin_hypre_pfmg}
+\subsection{A parallel example using {\hypre}: kin\_heat2D\_nonlin\_hypre\_pfmg}
+\label{ss:kin_heat2D_nonlin_hypre_pfmg}
 
-As an illustration of the use of the {\kinsol} package for the
-solution of nonlinear systems in parallel and using {\hypre} linear solvers, 
-we give a sample program called \id{kin\_heat2D\_nonlin\_hypre\_pfmg.cpp}.
-It uses the {\kinsol} \id{KINFP} iteration
-and the {\nvecp} module (which provides a parallel implementation of {\nvector})
-for the solution of the following test problem.
-This example highlights the use of the various orthogonalization routine
-options within Anderson Acceleration, passed to the example problem
-via the \texttt{--orthaa} flag. Available options include 0 (\id{KIN\_ORTH\_MGS}),
-1 (\id{KIN\_ORTH\_ICWY}), 2 (\id{KIN\_ORTH\_CGS2}), and 3 (\id{KIN\_ORTH\_DCGS2}).
+As an illustration of the use of the {\kinsol} package for the solution of
+nonlinear systems in parallel and using {\hypre} linear solvers, we give a
+sample program called \\ \id{kin\_heat2D\_nonlin\_hypre\_pfmg.cpp}.  It uses the
+{\kinsol} \id{KINFP} iteration and the {\nvecp} module (which provides a
+parallel implementation of {\nvector}) for the solution of the following test
+problem.  This example highlights the use of the various orthogonalization
+routine options within Anderson Acceleration, passed to the example problem via
+the \texttt{--orthaa} flag. Available options include 0 (\id{KIN\_ORTH\_MGS}), 1
+(\id{KIN\_ORTH\_ICWY}), 2 (\id{KIN\_ORTH\_CGS2}), and 3 (\id{KIN\_ORTH\_DCGS2}).
 
 This problem involves solving a steady-state 2D heat equation with an additional
 nonlinear term defined by $c(u)$:
 \begin{equation}
-    b = k_x u_{xx} + k_y u_{yy} + c(u) \quad \text{in} \quad \mathcal{D}
-        = [0,1] \times [0,1]
+  b = \nabla \cdot (D \nabla u) + c(u) \quad \text{in} \quad
+  \mathcal{D} = [0,1] \times [0,1]
 \end{equation}
-subject to the boundary conditions
+where $D$ is a diagonal matrix with entries $k_x$ and $k_y$ for the diffusivity
+in the $x$ and $y$ directions respectively. The boundary conditions are
 \begin{equation}
-    u(0,y) = u(1,y) = u(x,0) = u(x,1) = 0 \quad \text{on} \quad \partial \mathcal{D}.
+    u(0,y) = u(1,y) = u(x,0) = u(x,1) = 0
 \end{equation}
 %%
 We chose the analytical solution to be
 \begin{equation}
-    u_{exact} = u(x,y) = \sin^2(\pi x) \sin^2(\pi y),
+    u_{\text{exact}} = u(x,y) = \sin^2(\pi x) \sin^2(\pi y),
 \end{equation}
 hence, we define the static term $b$ as follows
 \begin{equation}
 \begin{aligned}
     b = &k_x 2 \pi^2 (\cos^2(\pi x) - \sin^2(\pi x)) \sin^2(\pi y) \\
-        &+ k_y 2 \pi^2 (\cos^2(\pi y) - \sin^2(\pi y)) \sin^2(\pi x) + c(u_{exact})
+    &+ k_y 2 \pi^2 (\cos^2(\pi y) - \sin^2(\pi y)) \sin^2(\pi x)
+    + c(u_{\text{exact}})
 \end{aligned}
 \end{equation}
 
-The spatial derivatives are computed using second-order centered
-differences, with the data distributed over $nx\times ny$ points
-on a uniform spatial grid.  
-The problem is set up to use spatial grid parameters $nx=64$ and
-$ny=64$, with heat conductivity parameters $k_x=1.0$ and
-$k_y=1.0$.  
+The spatial derivatives are computed using second-order centered differences,
+with the data distributed over $n_x \times n_y$ points on a uniform spatial
+grid.  The problem is set up to use spatial grid parameters $n_x=64$ and
+$n_y=64$, with heat conductivity parameters $k_x=1.0$ and $k_y=1.0$.
 
-This problem is solved via Fixed Point Iteration, where the fixed point format
-of the problem is set up by implementing the Laplacian as a matrix-vector product, 
+This problem is solved via a fixed point iteration with Anderson acceleration,
+where the fixed point function formed by implementing the Laplacian as a
+matrix-vector product,
 \begin{equation}
     b = A u + c(u),
 \end{equation}
-then moving $c(u)$ to the other side of the equation 
-and solving for $u$ results 
-in the following fixed point formulation
+and solving for $u$ results to get the fixed point function
 \begin{equation}
-    u = A^{-1} (b - c(u)).
+    G(u) = A^{-1} (b - c(u)).
 \end{equation}
 
-This program solves the problem with a Fixed Point Iteration, 
-with the option of using Anderson Acceleration.
 %%
-The problem is run using a scalar relative
-tolerance of $rtol=10^{-8}$, and a starting
-vector containing all ones.
-The linear system solve is executed using the
-\id{SUNLINSOL\_PCG} linear solver with
-the {\hypre} PFMG preconditioner. The setup of the
-linear solver can be found in the
-\id{Setup\_LS} function, and setup of the {\hypre}
-preconditioner can be found in the
-\id{Setup\_Hypre} function within the main file.
+The problem is run using a tolerance of $10^{-8}$, and a starting vector
+containing all ones.  The linear system solve is executed using the
+\id{SUNLINSOL\_PCG} linear solver with the {\hypre} PFMG preconditioner. The
+setup of the linear solver can be found in the \id{Setup\_LS} function, and
+setup of the {\hypre} preconditioner can be found in the \id{Setup\_Hypre}
+function within the main file.
 
-All input parameter flags available for Example 
-\ref{ss:kin_heat2D_nonlin_p} are also available for this problem.
-In addition, all runtime flags controlling the linear solver
-and {\hypre} related parameters are set
-using the flags in the following table. 
+All input parameter flags available for Example \ref{ss:kin_heat2D_nonlin_p} are
+also available for this problem.  In addition, all runtime flags controlling the
+linear solver and {\hypre} related parameters are set using the flags in the
+following table.
 %%
 \begin{center}
 \begin{table}
-\begin{tabular}{ |p{6cm}||p{10cm}| }
+\caption{Optional input parameter flags for setting {\hypre} related parameters.}
+\begin{tabular}{ |p{6cm}|p{10cm}| }
 \hline
-\multicolumn{2}{|c|}{Linear Solver and {\hypre} Related Input Parameters} \\
-\hline
-flag & option \\
+Flag & Description \\
 \hline
 {\tt --lsinfo} & output residual history for PCG\\
 {\tt --liniters <liniters>} & max number of iterations for PCG\\
@@ -216,7 +200,5 @@ flag & option \\
 {\tt --pfmg\_nrelax <pfmg\_nrelax>} & pre/post relaxation sweeps in PFMG\\
 \hline
 \end{tabular}
-\caption{Optional input parameter flags for setting {\hypre} related parameters.}
 \end{table}
 \end{center}
-

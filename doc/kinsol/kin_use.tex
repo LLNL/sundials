@@ -1831,8 +1831,8 @@ flag = KINSetOrthAA(kin\_mem, orthaa);
   \item[orthaa] (\id{int})
     the orthogonalization routine parameter. Can be set to any of the following
     \begin{args}
-    \item[\Id{KIN\_ORTH\_MGS}] 
-      Modified Gram Schmidt 
+    \item[\Id{KIN\_ORTH\_MGS}]
+      Modified Gram Schmidt
     \item[\Id{KIN\_ORTH\_ICWY}]
       Inverse Compact WY Modified Gram Schmidt
     \item[\Id{KIN\_ORTH\_CGS2}]
@@ -1855,12 +1855,12 @@ flag = KINSetOrthAA(kin\_mem, orthaa);
   \end{args}
 }
 {
-  This function sets the orthogonalization routine to be used in Anderson Accleration.
+  This function sets the orthogonalization routine to be used in Anderson accleration.
   It must be one of the orthogonalization routines defined in \id{KINSOL}.
-  Not calling this function sets Anderson Acceleration to use the default 
-  orthogonalization routine. 
-  
-  This function MUST be called before calling \ID{KINInit}.
+  Not calling this function sets Anderson acceleration to use the default
+  orthogonalization routine.
+
+  This function \textit{must} be called before calling \ID{KINInit}.
 
   The default value of \id{orthaa} is \Id{KIN\_ORTH\_MGS}, indicating the use of
   Modified Gram Schmidt.
