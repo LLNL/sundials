@@ -2781,12 +2781,11 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
       }
     }
 
-    /* If ICWY orthogonalization, then shift T to the left by one */
+    /* If ICWY orthogonalization, then update T */
     if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY) {
       for (i = 1; i < kin_mem->kin_m_aa; i++) {
-        for (j = 0; j < kin_mem->kin_m_aa-1; j++) {
-          kin_mem->kin_T_aa[(i-1)*kin_mem->kin_m_aa + j] = kin_mem->kin_T_aa[i*kin_mem->kin_m_aa + j];
-        }
+        N_VDotProdMulti((int) i, kin_mem->kin_q_aa[i-1], kin_mem->kin_q_aa, kin_mem->kin_T_aa + (i-1)*kin_mem->kin_m_aa);
+        kin_mem->kin_T_aa[(i-1) * kin_mem->kin_m_aa + (i-1)] = 1.0;
       }
     }
 
