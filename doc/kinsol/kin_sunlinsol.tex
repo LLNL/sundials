@@ -125,6 +125,16 @@ is computed and the scaled tolerance \id{delta}$= \text{tol} / D_{F,mean}$ is
 supplied to the {\sunlinsol} object.
 
 %---------------------------------------------------------------------------
+\subsection{Matrix-embedded solver incompatibility}
+\label{ss:sunlinsol_matrix_embedded}
+%---------------------------------------------------------------------------
+
+At present, {\kinls} is incompatible with {\sunlinsol} objects that self-identify as having type
+\id{SUNLINEARSOLVER\_MATRIX\_EMBEDDED}.  Support for such user-supplied linear solvers may be 
+added in a future release.  Users interested in such support are recommended to contact the 
+{\sundials} development team.
+
+%---------------------------------------------------------------------------
 % sunlinsol module sections
 %---------------------------------------------------------------------------
 

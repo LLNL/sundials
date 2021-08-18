@@ -71,6 +71,8 @@ $tar $tarfile $distrobase/examples/ida/CMakeLists.txt || exit 1
 
 $tar $tarfile $distrobase/examples/ida/serial/README                 || exit 1
 $tar $tarfile $distrobase/examples/ida/serial/CMakeLists.txt         || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaAnalytic_mels.c     || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaAnalytic_mels.out   || exit 1
 $tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.c       || exit 1
 $tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.out     || exit 1
 $tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_kry.c       || exit 1

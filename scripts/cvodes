@@ -67,6 +67,8 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsAdvDiff_bnd.out             
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsAdvDiff_FSA_non.c                             || exit 1
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsAdvDiff_FSA_non_-sensi_sim_t.out              || exit 1
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsAdvDiff_FSA_non_-sensi_stg_t.out              || exit 1
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsAnalytic_mels.c                               || exit 1
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsAnalytic_mels.out                             || exit 1
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsDirectDemo_ls.c                               || exit 1
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsDirectDemo_ls.out                             || exit 1
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsDiurnal_FSA_kry.c                             || exit 1

@@ -120,6 +120,13 @@ to ``find_package``.
 A bug was fixed in the ARKODE stepper modules where the stop time may be passed
 after resetting the integrator.
 
+ARKODE now supports a new "matrix-embedded" SUNLinearSolver type.  This type
+supports user-supplied SUNLinearSolver implementations that set up and solve
+the specified linear system at each linear solve call.  Any matrix-related data
+structures are held internally to the linear solver itself, and are not
+provided by the SUNDIALS package.
+
+
 Changes in 4.7.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

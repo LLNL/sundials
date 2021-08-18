@@ -44,8 +44,9 @@ particularly in cases where they provide their own ``N_Vector`` and/or
 
 Historically, the SUNDIALS packages have been designed to specifically
 leverage the use of either *direct linear solvers* or matrix-free,
-*scaled, preconditioned, iterative linear solvers*.  However,
-matrix-based iterative linear solvers are also supported.
+*scaled, preconditioned, iterative linear solvers*.  However, user-supplied
+implementations for matrix-based iterative linear solvers and linear solvers
+with 'embedded' matrices are also supported.
 
 The iterative linear solvers packaged with SUNDIALS leverage scaling
 and preconditioning, as applicable, to balance error between solution

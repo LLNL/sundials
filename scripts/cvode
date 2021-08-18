@@ -85,6 +85,8 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvAdvDiff_bnd.c               ||
 $tar $tarfile $distrobase/examples/cvode/serial/cvAdvDiff_bndL.c              || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvAdvDiff_bndL.out            || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvAdvDiff_bnd.out             || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/cvAnalytic_mels.c             || exit 1
+$tar $tarfile $distrobase/examples/cvode/serial/cvAnalytic_mels.out           || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvDirectDemo_ls.c             || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvDirectDemo_ls.out           || exit 1
 $tar $tarfile $distrobase/examples/cvode/serial/cvDisc_dns.c                  || exit 1

@@ -80,6 +80,11 @@ linear solver object (:c:func:`SUNLinSolFree`) are optional.
      solver should check for solution convergence/accuracy as
      appropriate.
 
+   * ``SUNLINEARSOLVER_MATRIX_EMBEDDED`` -- ``3``, the SUNLinSol module sets up
+     and solves the specified linear system at each linear solve call.  Any
+     matrix-related data structures are held internally to the linear solver itself,
+     and are not provided by the SUNDIALS package.
+
    Usage:
 
    .. code-block:: c
@@ -91,8 +96,11 @@ linear solver object (:c:func:`SUNLinSolFree`) are optional.
 
 .. c:function:: SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver LS)
 
-   Returns the identifier for the linear solver *LS*. It is recommended that a
-   user-supplied ``SUNLinearSolver`` implementation return the
+   The return value (of type ``int``) will be a non-negative value
+   defined by the enumeration ``SUNLinearSolver_ID``.  The possible enumeration
+   values are specified in the ``sundials_linearsolver.h`` header file.
+
+   It is recommended that a user-supplied ``SUNLinearSolver`` return the
    ``SUNLINEARSOLVER_CUSTOM`` identifier.
 
    Usage:
@@ -167,6 +175,12 @@ linear solver object (:c:func:`SUNLinSolFree`) are optional.
    the specified tolerance *tol* in a weighted 2-norm. If the solver
    does not support scaling then it should just use a 2-norm.
 
+   **Matrix-embedded solvers:** should ignore the ``SUNMatrix`` input *A*
+   as this will be ``NULL``.  It is assumed that within this call, the solver
+   will call interface routines from the relevant SUNDIALS package to
+   directly form the relevant linear system matrix :math:`A`, and then solve
+   the system before returning with the solution :math:`x`.
+
    Usage:
 
    .. code-block:: c
@@ -196,8 +210,8 @@ SUNLinearSolver set functions
 The following set functions are used to supply linear solver modules with
 functions defined by the SUNDIALS packages and to modify solver
 parameters.  Only the routine for setting the matrix-vector product
-routine is required, and that is only for matrix-free linear solver
-modules.  Otherwise, all other set functions are optional.  SUNLinSol
+routine is required, and even then is only required for matrix-free linear
+solver modules.  Otherwise, all other set functions are optional.  SUNLinSol
 implementations that do not provide the functionality for any optional
 routine should leave the corresponding function pointer ``NULL``
 instead of supplying a dummy routine.
@@ -772,3 +786,39 @@ then call the SUNLinSol-provided :c:func:`SUNLinSolSetup()` routine
 (infrequently) to update matrix information, but will provide current
 matrix-vector products to the SUNLinSol implementation through the
 package-supplied ``ATimesFn`` routine.
+
+
+Application-specific linear solvers with embedded matrix structure
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Many applications can exploit additional linear system structure due to the
+implicit couplings in their model equations.  In certain circumstances, the
+linear solve :math:`Ax=b` may be performed without the need for a global system
+matrix :math:`A`, as the unformed :math:`A` may be block diagonal or block
+triangular, and thus the overall linear solve may be performed through a
+sequence of smaller linear solves.  In other circumstances, a linear system
+solve may be accomplished via specialized fast solvers, such as the fast Fourier
+transform, fast multipole method, or treecode, in which case no matrix structure
+may be explicitly necessary.  Furthermore, in many of these situations
+construction and preprocessing of the linear system matrix :math:`A` may be
+inexpensive, and thus increased performance may be possible if the current
+linear system information is used within every solve (instead of being lagged,
+as occurs with matrix-based solvers that reuse :math:`A`).
+
+To support such application-specific situations, SUNDIALS supports user-provided
+linear solvers with the ``SUNLINEARSOLVER_MATRIX_EMBEDDED`` type.  For an
+application to leverage this support, it should define a custom SUNLinearSolver
+implementation having this type.  For this implementation, only the required
+:c:func:`SUNLinSolGetType` and :c:func:`SUNLinSolSolve` operations should be
+needed.  Within :c:func:`SUNLinSolSolve`, the linear solver implementation
+should call package-specific interface routines (e.g.,
+:c:func:`ARKStepGetNonlinearSystemData`, ``CVodeGetNonlinearSystemData``,
+``IDAGetNonlinearSystemData``, :c:func:`ARKStepGetCurrentGamma`,
+``CVodeGetCurrentGamma``, ``IDAGetCurrentCj``, or
+:c:func:`MRIStepGetCurrentGamma`) to construct the relevant system matrix
+:math:`A` (or portions thereof), solve the linear system :math:`Ax=b`, and
+return the solution vector :math:`x`.
+
+We note that when attaching this custom SUNLinearSolver object with the relevant
+SUNDIALS package ``SetLinearSolver`` routine, the input SUNMatrix ``A`` should
+be set to ``NULL``.

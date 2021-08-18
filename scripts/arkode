@@ -157,6 +157,8 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/CMakeLists.txt               
 $tar $tarfile $distrobase/examples/arkode/C_serial/README                         || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic.c                 || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic.out               || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_mels.c            || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_mels.out          || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin.c          || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin.out        || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.c              || exit 1

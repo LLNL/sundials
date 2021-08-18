@@ -25,8 +25,9 @@ particularly in cases where they provide their own {\nvector} and/or
 
 Historically, the {\sundials} packages have been designed to specifically
 leverage the use of either \emph{direct linear solvers} or matrix-free,
-\emph{scaled, preconditioned, iterative linear solvers}.  However,
-matrix-based iterative linear solvers are also supported.
+\emph{scaled, preconditioned, iterative linear solvers}.  However, user-supplied
+implementations for matrix-based iterative linear solvers and linear solvers
+with `embedded' matrices are also supported.
 
 The iterative linear solvers packaged with {\sundials} leverage
 scaling and preconditioning, as applicable, to balance error between
@@ -178,6 +179,10 @@ for destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
   differs from that encoded by the package-supplied \id{ATimes} routine. As the
   solver computes the solution only inexactly (or may diverge), the linear
   solver should check for solution convergence/accuracy as appropriate.
+  \item \Id{SUNLINEARSOLVER\_MATRIX\_EMBEDDED} -- \id{3}, the {\sunlinsol} module sets up
+  and solves the specified linear system at each linear solve call.  Any
+  matrix-related data structures are held internally to the linear solver itself,
+  and are not provided by the {\sundials} package.
   \end{itemize}
 }
 {
@@ -201,7 +206,8 @@ for destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
 }
 {
   The return value \id{id} (of type \id{int}) will be a non-negative value
-  defined by the enumeration \id{SUNLinearSolver\_ID}.
+  defined by the enumeration \id{SUNLinearSolver\_ID}.  The possible enumeration
+  values are specified in the \id{sundials\_linearsolver.h} header file.
 }
 {
   It is recommended that a user-supplied \id{SUNLinearSolver} return the\\
@@ -301,6 +307,12 @@ for destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
   should attempt to solve to the specified tolerance \id{tol} in a weighted
   2-norm. If the solver does not support scaling then it should just use a
   2-norm.
+
+  {\bf Matrix-embedded solvers:} should ignore the {\sunmatrix} input \id{A}
+  as this will be \id{NULL}.  It is assumed that within this call, the solver
+  will call interface routines from the relevant {\sundials} package to
+  directly form the relevant linear system matrix $A$, and then solve the system
+  before returning with the solution $x$.
 }
 % --------------------------------------------------------------------
 \ucfunctionf{SUNLinSolFree}
@@ -330,8 +342,8 @@ for destroying the linear solver object (\Id{SUNLinSolFree}) are optional.
 The following set functions are used to supply linear solver modules with
 functions defined by the {\sundials} packages and to modify solver
 parameters.  Only the routine for setting the matrix-vector product
-routine is required, and that is only for matrix-free linear solver
-modules.  Otherwise, all other set functions are optional.  {\sunlinsol}
+routine is required, and even then is only required for matrix-free linear
+solver modules.  Otherwise, all other set functions are optional.  {\sunlinsol}
 implementations that do not provide the functionality for any optional
 routine should leave the corresponding function pointer \id{NULL}
 instead of supplying a dummy routine.
@@ -1102,3 +1114,34 @@ routine to the {\sunlinsol} object. The {\sundials} package will then call the
 {\sunlinsol}-provided \Id{SUNLinSolSetup} routine (infrequently) to update
 matrix information, but will provide current matrix-vector products to the
 {\sunlinsol} implementation through the package-supplied \id{ATimesFn} routine.
+
+\subsubsection*{Application-specific linear solvers with embedded matrix structure}
+
+Many applications can exploit additional linear system structure due to the
+implicit couplings in their model equations.  In certain circumstances,
+the linear solve $Ax=b$ may be performed without the need for a global
+system matrix $A$, as the unformed $A$ may be block diagonal or block triangular,
+and thus the overall linear solve may be performed through a sequence of smaller
+linear solves.  In other circumstances, a linear system solve may be accomplished
+via specialized fast solvers, such as the fast Fourier transform, fast multipole
+method, or treecode, in which case no matrix structure may be explicitly necessary.
+Furthermore, in many of these situations construction and preprocessing of the
+linear system matrix $A$ may be inexpensive, and thus increased performance
+may be possible if the current linear system information is used within every solve
+(instead of being lagged, as occurs with matrix-based solvers that reuse $A$).
+
+To support such application-specific situations, {\sundials} supports user-provided
+linear solvers with the \Id{SUNLINEARSOLVER\_MATRIX\_EMBEDDED} type.  For an
+application to leverage this support, it should define a custom {\sunlinsol}
+implementation having this type.  For this implementation, only the required
+\Id{SUNLinSolGetType} and \Id{SUNLinSolSolve} operations should be needed.  Within
+\Id{SUNLinSolSolve}, the linear solver implementation should call package-specific
+interface routines (e.g., \Id{ARKStepGetNonlinearSystemData},
+\Id{CVodeGetNonlinearSystemData}, \Id{IDAGetNonlinearSystemData},
+\Id{ARKStepGetCurrentGamma}, \Id{CVodeGetCurrentGamma}, \Id{IDAGetCurrentCj} or
+\Id{MRIStepGetCurrentGamma}) to construct the relevant system matrix $A$ (or
+portions thereof), solve the linear system $Ax=b$, and return the solution vector $x$.
+
+We note that when attaching this custom {\sunlinsol} object with the relevant
+{\sundials} package \id{SetLinearSolver} routine, the input {\sunmatrix} \id{A}
+should be set to \id{NULL}.

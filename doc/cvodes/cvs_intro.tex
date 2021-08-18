@@ -122,6 +122,12 @@ writing in C|)}
 The installed SUNDIALSConfig.cmake file now supports the \id{COMPONENTS} option
 to \id{find\_package}.
 
+{\cvodes} now supports a new ``matrix-embedded'' {\sunlinsol} type.  This type
+supports user-supplied {\sunlinsol} implementations that set up and solve the
+specified linear system at each linear solve call.  Any matrix-related data
+structures are held internally to the linear solver itself, and are not
+provided by the {\sundials} package.
+
 \subsection*{Changes in v5.7.0}
 
 A new {\nvector} implementation based on the {\sycl} abstraction layer has been
