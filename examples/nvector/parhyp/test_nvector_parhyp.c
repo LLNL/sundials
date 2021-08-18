@@ -245,6 +245,9 @@ int main(int argc, char *argv[])
   N_VDestroy(U);
   N_VDestroy(V);
   HYPRE_ParVectorDestroy(Xhyp);
+#ifndef hypre_ParVectorOwnsPartitioning
+  free(partitioning);
+#endif
 
   /* Print result */
   if (fails) {

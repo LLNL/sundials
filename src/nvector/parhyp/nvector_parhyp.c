@@ -428,7 +428,9 @@ N_Vector N_VClone_ParHyp(N_Vector w)
   vx = hypre_ParVectorCreate(wx->comm, wx->global_size, wx->partitioning);
   hypre_ParVectorInitialize(vx);
 
+#ifdef hypre_ParVectorOwnsPartitioning
   hypre_ParVectorSetPartitioningOwner(vx, 0);
+#endif
   hypre_ParVectorSetDataOwner(vx, 1);
   hypre_SeqVectorSetDataOwner(hypre_ParVectorLocalVector(vx), 1);
 
