@@ -25,13 +25,28 @@ cmake_minimum_required(VERSION 3.12)
 # sets PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR variables.
 project(SUNDIALS C)
 
+# Specify the location of additional CMAKE modules
+set(CMAKE_MODULE_PATH
+  ${PROJECT_SOURCE_DIR}/cmake
+  ${PROJECT_SOURCE_DIR}/cmake/macros
+  ${PROJECT_SOURCE_DIR}/cmake/tpl
+  )
+
+# MACRO definitions
+include(SundialsCMakeMacros)
+include(FindPackageHandleStandardArgs)
+include(CMakePrintHelpers)
+
 # Set some variables with info on the SUNDIALS project
 set(PACKAGE_BUGREPORT "sundials-users@llnl.gov")
 set(PACKAGE_NAME "SUNDIALS")
 set(PACKAGE_STRING "SUNDIALS 5.7.0")
 set(PACKAGE_TARNAME "sundials")
 
-# set SUNDIALS version numbers
+# Set SUNDIALS version numbers
+sundials_git_version() # sets SUNDIALS_GIT_VERSION
+message(STATUS "SUNDIALS_GIT_VERSION: ${SUNDIALS_GIT_VERSION}")
+
 # (use "" for the version label if none is needed)
 set(PACKAGE_VERSION_MAJOR "5")
 set(PACKAGE_VERSION_MINOR "7")
@@ -87,20 +102,6 @@ set(sundialslib_VERSION
     "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}"
 )
 set(sundialslib_SOVERSION "${PACKAGE_VERSION_MAJOR}")
-
-# ===============================================================
-# SUNDIALS CMake Macros
-# ===============================================================
-
-# Specify the location of additional CMAKE modules
-set(CMAKE_MODULE_PATH
-  ${PROJECT_SOURCE_DIR}/cmake
-  ${PROJECT_SOURCE_DIR}/cmake/macros
-  ${PROJECT_SOURCE_DIR}/cmake/tpl
-  )
-
-# MACRO definitions
-include(SundialsCMakeMacros)
 
 # ===============================================================
 # Initial Setup
