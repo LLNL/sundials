@@ -185,6 +185,42 @@ SUNDIALS_EXPORT realtype SUNRpowerI(realtype base, int exponent);
 
 SUNDIALS_EXPORT realtype SUNRpowerR(realtype base, realtype exponent);
 
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRCompare
+ * -----------------------------------------------------------------
+ * Usage : int isNotEqual;
+ *         realtype a, b;
+ *         isNotEqual = SUNRCompare(a, b);
+ * -----------------------------------------------------------------
+ * SUNRCompareTol returns 0 if the relative difference of a and b is
+ * less than or equal to 10*machine epsilon. If the relative
+ * difference is greater than 10*machine epsilon, it returns 1. The
+ * function handles the case where a or b are near zero as well as
+ * the case where a or b are inf/nan.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT booleantype SUNRCompare(realtype a, realtype b);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRCompareTol
+ * -----------------------------------------------------------------
+ * Usage : int isNotEqual;
+ *         realtype a, b, tol;
+ *         isNotEqual = SUNRCompareTol(a, b, tol);
+ * -----------------------------------------------------------------
+ * SUNRCompareTol returns 0 if the relative difference of a and b is
+ * less than or equal to the provided tolerance. If the relative
+ * difference is greater than the tolerance, it returns 1. The
+ * function handles the case where a or b are near zero as well as
+ * the case where a or b are inf/nan.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT booleantype SUNRCompareTol(realtype a, realtype b, realtype tol);
+
 
 #ifdef __cplusplus
 }

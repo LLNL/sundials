@@ -48,18 +48,44 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/cvode/ cvode_HEADERS)
 
 # Build fused kernel libraries
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  sundials_add_library(sundials_cvode_fused_cuda
-    SOURCES
-      cvode_fused_cuda.cu
-    LINK_LIBRARIES
-      PRIVATE sundials_nveccuda
-    OUTPUT_NAME
-      sundials_cvode_fused_cuda
-    VERSION
-      ${cvodelib_VERSION}
-    SOVERSION
-      ${cvodelib_SOVERSION}
-  )
+
+  if(BUILD_NVECTOR_CUDA)
+
+    set_source_files_properties(cvode_fused_gpu.cpp PROPERTIES
+      LANGUAGE CUDA)
+
+    sundials_add_library(sundials_cvode_fused_cuda
+      SOURCES
+        cvode_fused_gpu.cpp
+      COMPILE_DEFINITIONS
+        PRIVATE USE_CUDA
+      LINK_LIBRARIES
+        PRIVATE sundials_nveccuda
+      OUTPUT_NAME
+        sundials_cvode_fused_cuda
+      VERSION
+        ${cvodelib_VERSION}
+      SOVERSION
+        ${cvodelib_SOVERSION}
+      )
+  endif()
+
+  if(BUILD_NVECTOR_HIP)
+    sundials_add_library(sundials_cvode_fused_hip
+      SOURCES
+        cvode_fused_gpu.cpp
+      COMPILE_DEFINITIONS
+        PRIVATE USE_HIP
+      LINK_LIBRARIES
+        PRIVATE sundials_nvechip
+      OUTPUT_NAME
+        sundials_cvode_fused_hip
+      VERSION
+        ${cvodelib_VERSION}
+      SOVERSION
+        ${cvodelib_SOVERSION}
+      )
+  endif()
 
   sundials_add_library(sundials_cvode_fused_stubs
     SOURCES

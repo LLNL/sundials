@@ -26,6 +26,7 @@
 #define SUNDIALS_VERSION_MINOR @PACKAGE_VERSION_MINOR@
 #define SUNDIALS_VERSION_PATCH @PACKAGE_VERSION_PATCH@
 #define SUNDIALS_VERSION_LABEL "@PACKAGE_VERSION_LABEL@"
+#define SUNDIALS_GIT_VERSION "@SUNDIALS_GIT_VERSION@"
 
 
 /* ------------------------------------------------------------------

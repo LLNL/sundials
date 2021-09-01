@@ -290,6 +290,24 @@ SWIGEXPORT int _wrap_FN_VGetVectorID_ManyVector(N_Vector farg1) {
 }
 
 
+SWIGEXPORT void _wrap_FN_VPrint_ManyVector(N_Vector farg1) {
+  N_Vector arg1 = (N_Vector) 0 ;
+  
+  arg1 = (N_Vector)(farg1);
+  N_VPrint_ManyVector(arg1);
+}
+
+
+SWIGEXPORT void _wrap_FN_VPrintFile_ManyVector(N_Vector farg1, void *farg2) {
+  N_Vector arg1 = (N_Vector) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (FILE *)(farg2);
+  N_VPrintFile_ManyVector(arg1,arg2);
+}
+
+
 SWIGEXPORT N_Vector _wrap_FN_VCloneEmpty_ManyVector(N_Vector farg1) {
   N_Vector fresult ;
   N_Vector arg1 = (N_Vector) 0 ;

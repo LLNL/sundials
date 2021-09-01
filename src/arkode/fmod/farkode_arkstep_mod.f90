@@ -196,6 +196,7 @@ module farkode_arkstep_mod
  public :: FARKStepGetLinReturnFlagName
  public :: FARKStepFree
  public :: FARKStepPrintMem
+ public :: FARKStepCreateMRIStepInnerStepper
  public :: FARKStepSetMaxStepsBetweenLSet
  public :: FARKStepSetMaxStepsBetweenJac
 
@@ -1513,6 +1514,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
+
+function swigc_FARKStepCreateMRIStepInnerStepper(farg1, farg2) &
+bind(C, name="_wrap_FARKStepCreateMRIStepInnerStepper") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
 
 function swigc_FARKStepSetMaxStepsBetweenLSet(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetMaxStepsBetweenLSet") &
@@ -3935,6 +3945,22 @@ farg1 = arkode_mem
 farg2 = outfile
 call swigc_FARKStepPrintMem(farg1, farg2)
 end subroutine
+
+function FARKStepCreateMRIStepInnerStepper(arkode_mem, stepper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: stepper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(stepper)
+fresult = swigc_FARKStepCreateMRIStepInnerStepper(farg1, farg2)
+swig_result = fresult
+end function
 
 function FARKStepSetMaxStepsBetweenLSet(arkode_mem, msbp) &
 result(swig_result)

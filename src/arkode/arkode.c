@@ -625,7 +625,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
   realtype troundoff, nrm;
   booleantype inactive_roots;
   realtype dsm;
-  int nflag, ncf, nef, constrfails;
+  int nflag, attempts, ncf, nef, constrfails;
 
   /* Check and process inputs */
 
@@ -808,12 +808,18 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 
     /* Looping point for step attempts */
     dsm = ZERO;
-    ncf = nef = constrfails = ark_mem->last_kflag = 0;
+    attempts = ncf = nef = constrfails = ark_mem->last_kflag = 0;
     nflag = FIRST_CALL;
     for(;;) {
 
-      /* increment attempt counter */
+      /* increment attempt counters */
+      attempts++;
       ark_mem->nst_attempts++;
+
+#ifdef SUNDIALS_DEBUG
+      printf("ARKODE start step %li,  attempt %i,  h = %"RSYM",  t_n = %"RSYM"\n",
+             ark_mem->nst, attempts, ark_mem->h, ark_mem->tcur);
+#endif
 
       /* Call time stepper module to attempt a step:
             0 => step completed successfully
@@ -869,7 +875,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       ark_mem->h *= ark_mem->eta;
       ark_mem->next_h = ark_mem->hprime = ark_mem->h;
 
-    }
+    } /* end looping for step attempts */
 
     /* If step attempt loop succeeded, complete step (update current time, solution,
        error stepsize history arrays; call user-supplied step postprocessing function)
@@ -1456,19 +1462,22 @@ booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
 
 
 /*---------------------------------------------------------------
-  arkAllocVec:
+  arkAllocVec and arkAllocVecArray:
 
-  This routine allocates a single vector based on a template
-  vector.  If the target vector already exists it is left alone;
-  otherwise it is allocated by cloning the input vector. If the
-  allocation is successful (or if the target vector already
-  exists) then this returns SUNTRUE.  This routine also updates
-  the optional outputs lrw and liw, which are (respectively) the
-  lengths of the overall ARKode real and integer work spaces.
+  These routines allocate (respectively) single vector or a vector
+  array based on a template vector.  If the target vector or vector
+  array already exists it is left alone; otherwise it is allocated
+  by cloning the input vector.
+
+  This routine also updates the optional outputs lrw and liw, which
+  are (respectively) the lengths of the overall ARKode real and
+  integer work spaces.
+
+  SUNTRUE is returned if the allocation is successful (or if the
+  target vector or vector array already exists) otherwise SUNFALSE
+  is retured.
   ---------------------------------------------------------------*/
-booleantype arkAllocVec(ARKodeMem ark_mem,
-                        N_Vector tmpl,
-                        N_Vector *v)
+booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v)
 {
   if (*v == NULL) {
     *v = N_VClone(tmpl);
@@ -1484,12 +1493,30 @@ booleantype arkAllocVec(ARKodeMem ark_mem,
 }
 
 
-/*---------------------------------------------------------------
-  arkFreeVec:
+booleantype arkAllocVecArray(ARKodeMem ark_mem, int count, N_Vector tmpl,
+                             N_Vector **v)
+{
+  if (*v == NULL) {
+    *v = N_VCloneVectorArray(count, tmpl);
+    if (*v == NULL) {
+      arkFreeVectors(ark_mem);
+      return(SUNFALSE);
+    } else {
+      ark_mem->lrw += count * ark_mem->lrw1;
+      ark_mem->liw += count * ark_mem->liw1;
+    }
+  }
+  return (SUNTRUE);
+}
 
-  This routine frees a single vector.  If the target vector is
-  already NULL it is left alone; otherwise it is freed and the
-  optional outputs lrw and liw are updated accordingly.
+
+/*---------------------------------------------------------------
+  arkFreeVec and arkFreeVecArray:
+
+  These routines (respectively) free a single vector or a vector
+  array. If the target vector or vector array is already NULL it
+  is left alone; otherwise it is freed and the optional outputs
+  lrw and liw are updated accordingly.
   ---------------------------------------------------------------*/
 void arkFreeVec(ARKodeMem ark_mem, N_Vector *v)
 {
@@ -1502,19 +1529,31 @@ void arkFreeVec(ARKodeMem ark_mem, N_Vector *v)
 }
 
 
+void arkFreeVecArray(ARKodeMem ark_mem, int count, N_Vector **v)
+{
+  if (*v != NULL) {
+    N_VDestroyVectorArray(*v, count);
+    *v = NULL;
+    ark_mem->lrw -= count * ark_mem->lrw1;
+    ark_mem->liw -= count * ark_mem->liw1;
+  }
+}
+
+
 /*---------------------------------------------------------------
-  arkResizeVec:
+  arkResizeVec and arkResizeVecArray:
 
-  This routine resizes a single vector based on a template
-  vector. If the ARKVecResizeFn function is non-NULL, then it
-  calls that routine to perform the single-vector resize;
-  otherwise it deallocates and reallocates the target vector based
-  on the template vector. This routine also updates the optional
-  outputs lrw and liw, which are (respectively) the lengths of the
-  overall ARKode real and integer work spaces.
+  This routines (respectively) resize a single vector or a vector
+  array based on a template vector. If the ARKVecResizeFn function
+  is non-NULL, then it calls that routine to perform the resize;
+  otherwise it deallocates and reallocates the target vector or
+  vector array based on the template vector. These routines also
+  updates the optional outputs lrw and liw, which are
+  (respectively) the lengths of the overall ARKode real and
+  integer work spaces.
 
-  If the resize is successful then this returns SUNTRUE,
-  otherwise it returns SUNFALSE.
+  SUNTRUE is returned if the resize is successful otherwise
+  SUNFALSE is retured.
   ---------------------------------------------------------------*/
 booleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
                          void *resize_data, sunindextype lrw_diff,
@@ -1539,6 +1578,39 @@ booleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
     }
     ark_mem->lrw += lrw_diff;
     ark_mem->liw += liw_diff;
+  }
+  return(SUNTRUE);
+}
+
+
+booleantype arkResizeVecArray(ARKodeMem ark_mem, ARKVecResizeFn resize,
+                              void *resize_data, sunindextype lrw_diff,
+                              sunindextype liw_diff, int count, N_Vector tmpl,
+                              N_Vector **v)
+{
+  int i;
+
+  if (*v != NULL) {
+    if (resize == NULL) {
+      N_VDestroyVectorArray(*v, count);
+      *v = NULL;
+      *v = N_VCloneVectorArray(count, tmpl);
+      if (*v == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+                        "arkResizeVecArray", "Unable to clone vector");
+        return(SUNFALSE);
+      }
+    } else {
+      for (i = 0; i < count; i++) {
+        if (resize((*v)[i], tmpl, resize_data)) {
+          arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+                          "arkResizeVecArray", MSG_ARK_RESIZE_FAIL);
+          return(SUNFALSE);
+        }
+      }
+    }
+    ark_mem->lrw += count * lrw_diff;
+    ark_mem->liw += count * liw_diff;
   }
   return(SUNTRUE);
 }
@@ -1801,8 +1873,8 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
   /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1) */
-  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur,
-                                 ark_mem->yn, ark_mem->fn, 0);
+  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
+                                 ark_mem->fn, ARK_FULLRHS_START);
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
   /* Fill initial interpolation data (if needed) */
@@ -1868,6 +1940,12 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     ark_mem->h0u    = ark_mem->h;
     ark_mem->eta    = ONE;
     ark_mem->hprime = ark_mem->h;
+  } else {
+    /* If next step would overtake tstop, adjust stepsize */
+    if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO ) {
+      ark_mem->hprime = (ark_mem->tstop - ark_mem->tcur)*(ONE-FOUR*ark_mem->uround);
+      ark_mem->eta = ark_mem->hprime/ark_mem->h;
+    }
   }
 
   /* Check for zeros of root function g at and near t0. */
@@ -1923,8 +2001,8 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
          and roots were found in the previous step, then compute the full rhs
          for possible use in arkRootCheck2 (not always necessary) */
       if (!(ark_mem->call_fullrhs) && irfndp != 0) {
-        retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur,
-                                       ark_mem->yn, ark_mem->fn, 1);
+        retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
+                                       ark_mem->fn, ARK_FULLRHS_END);
         if (retval != 0) {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode", "arkStopTests",
                           MSG_ARK_RHSFUNC_FAILED);
@@ -2224,9 +2302,8 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   N_VLinearSum(hg, ark_mem->fn, ONE, ark_mem->yn, ark_mem->ycur);
 
   /* compute y', via the ODE RHS routine */
-  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur+hg,
-                                 ark_mem->ycur,
-                                 ark_mem->tempv1, 2);
+  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + hg, ark_mem->ycur,
+                                 ark_mem->tempv1, ARK_FULLRHS_OTHER);
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
 
   /* difference new f and original f to estimate y'' */
@@ -2257,6 +2334,7 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
 int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 {
   int retval, mode;
+  realtype troundoff;
 
   /* Set current time to the end of the step (in case the last
      stage time does not coincide with the step solution time).
@@ -2264,10 +2342,17 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
      tstop by roundoff, and in that case, we reset tn (after
      incrementing by h) to tstop. */
   ark_mem->tcur = ark_mem->tn + ark_mem->h;
-  if (ark_mem->tstopset) {
-    if ((ark_mem->tcur - ark_mem->tstop)*ark_mem->h > ZERO)
+  if ( ark_mem->tstopset ) {
+    troundoff = FUZZ_FACTOR * ark_mem->uround *
+      (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
+    if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff)
       ark_mem->tcur = ark_mem->tstop;
   }
+
+#ifdef SUNDIALS_DEBUG
+  printf("ARKODE end step %li,  h = %"RSYM",  t_n = %"RSYM"\n",
+         ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#endif
 
   /* apply user-supplied step postprocessing function (if supplied) */
   if (ark_mem->ProcessStep != NULL) {
@@ -2285,9 +2370,8 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 
   /* call fullrhs if needed */
   if (ark_mem->call_fullrhs) {
-    mode = (ark_mem->ProcessStep != NULL) ? 0 : 1;
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur,
-                                   ark_mem->ycur,
+    mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,
                                    ark_mem->fn, mode);
     if (retval != 0) return(ARK_RHSFUNC_FAIL);
   }

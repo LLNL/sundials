@@ -1271,25 +1271,26 @@ int arkStep_Init(void* arkode_mem, int init_type)
     f = M^{-1}*[ fe(t,y) + fi(t,y) ]
 
   This will be called in one of three 'modes':
-    0 -> called at the beginning of a simulation
-    1 -> called at the end of a successful step
-    2 -> called elsewhere (e.g. for dense output)
+    ARK_FULLRHS_START -> called at the beginning of a simulation
+                         or after post processing at step
+    ARK_FULLRHS_END   -> called at the end of a successful step
+    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in mode 0, we store the vectors fe(t,y) and
-  fi(t,y) in Fe[0] and Fi[0] for possible reuse in the first
-  stage of the subsequent time step.
+  If it is called in ARK_FULLRHS_START mode, we store the vectors
+  fe(t,y) and fi(t,y) in Fe[0] and Fi[0] for possible reuse in the
+  first stage of the subsequent time step.
 
-  If it is called in mode 1 and the ARK method coefficients
-  support it, we may just copy vectors Fe[stages] and Fi[stages]
-  to fill f instead of calling fe() and fi().
+  If it is called in ARK_FULLRHS_END mode and the ARK method
+  coefficients support it, we may just copy vectors Fe[stages] and
+  Fi[stages] to fill f instead of calling fe() and fi().
 
-  Mode 2 is only called for dense output in-between steps, or
-  when estimating the initial time step size, so we strive to
+  ARK_FULLRHS_OTHER mode is only called for dense output in-between
+  steps, or when estimating the initial time step size, so we strive to
   store the intermediate parts so that they do not interfere
   with the other two modes.
   ---------------------------------------------------------------*/
-int arkStep_FullRHS(void* arkode_mem, realtype t,
-                    N_Vector y, N_Vector f, int mode)
+int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+                    int mode)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -1317,10 +1318,10 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
-  /* Mode 0: called at the beginning of a simulation
+  /* ARK_FULLRHS_START: called at the beginning of a simulation
      Store the vectors fe(t,y) and fi(t,y) in Fe[0] and Fi[0] for
      possible reuse in the first stage of the subsequent time step */
-  case 0:
+  case ARK_FULLRHS_START:
 
     /* call fe if the problem has an explicit component */
     if (step_mem->explicit) {
@@ -1372,11 +1373,11 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
     break;
 
 
-  /* Mode 1: called at the end of a successful step
-     If the ARK method coefficients support it, we just copy the last stage RHS vectors
-     to fill f instead of calling fe() and fi().
+  /* ARK_FULLRHS_END: called at the end of a successful step
+     If the ARK method coefficients support it, we just copy the last stage RHS
+     vectors to fill f instead of calling fe() and fi().
      Copy the results to Fe[0] and Fi[0] if the ARK coefficients support it. */
-  case 1:
+  case ARK_FULLRHS_END:
 
     /* determine if explicit/implicit RHS functions need to be recomputed */
     recomputeRHS = SUNFALSE;
@@ -1443,10 +1444,10 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
 
     break;
 
-  /*  Mode 2: called for dense output in-between steps or for estimation
-      of the initial time step size, store the intermediate calculations
-      in such a way as to not interfere with the other two modes */
-  default:
+  /* ARK_FULLRHS_OTHER: called for dense output in-between steps or for
+     estimation of the initial time step size, store the intermediate
+     calculations in such a way as to not interfere with the other two modes */
+  case ARK_FULLRHS_OTHER:
 
     /* call fe if the problem has an explicit component (store in ark_tempv2) */
     if (step_mem->explicit) {
@@ -1496,6 +1497,12 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
     }
 
     break;
+
+  default:
+    /* return with RHS failure if unknown mode is passed */
+    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
+                    "arkStep_FullRHS", "Unknown full RHS mode");
+    return(ARK_RHSFUNC_FAIL);
   }
 
   /* if M != I, then update f = M^{-1}*f */
@@ -1585,7 +1592,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
 
 #ifdef SUNDIALS_DEBUG
-    printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
+    printf("    ARKStep step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
            ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
 
@@ -1623,7 +1630,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     }
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("predictor:\n");
+    printf("    ARKStep predictor:\n");
     N_VPrint(step_mem->zpred);
 #endif
 
@@ -1632,7 +1639,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     if (retval != ARK_SUCCESS)  return (retval);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("rhs data:\n");
+    printf("    ARKStep rhs data:\n");
     N_VPrint(step_mem->sdata);
 #endif
 
@@ -1650,7 +1657,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (*nflagPtr != ARK_SUCCESS)  return(TRY_AGAIN);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-      printf("nonlinear solution:\n");
+      printf("    ARKStep implicit stage %i solution:\n",is);
       N_VPrint(ark_mem->ycur);
 #endif
 
@@ -1672,7 +1679,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       N_VLinearSum(ONE, ark_mem->yn, ONE, step_mem->sdata, ark_mem->ycur);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-      printf("explicit solution:\n");
+      printf("    ARKStep explicit stage %i solution:\n",is);
       N_VPrint(ark_mem->ycur);
 #endif
 
@@ -1704,6 +1711,11 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
         arkStep_ApplyForcing(step_mem, ark_mem->tcur, ONE, &nvec);
         N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[is]);
       }
+
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+      printf("    ARKStep implicit stage RHS Fi[%i]:\n",is);
+      N_VPrint(step_mem->Fi[is]);
+#endif
     }
 
     /*    store explicit RHS */
@@ -1722,6 +1734,11 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                                ONE, &nvec);
           N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[is]);
         }
+
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+        printf("    ARKStep explicit stage RHS Fe[%i]:\n",is);
+        N_VPrint(step_mem->Fe[is]);
+#endif
     }
 
     /* if using a time-dependent mass matrix, update Fe[is] and/or Fi[is] with M(t)^{-1} */
@@ -1752,8 +1769,13 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     return(TRY_AGAIN);
   }
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+    printf("    ARKStep updated solution:\n");
+    N_VPrint(ark_mem->ycur);
+#endif
+
 #ifdef SUNDIALS_DEBUG
-  printf("error estimate = %"RSYM"\n", *dsmPtr);
+  printf("    ARKStep error estimate = %"RSYM"\n", *dsmPtr);
 #endif
 
   /* solver diagnostics reporting */
@@ -2624,6 +2646,141 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, realtype *dsmPtr)
   }
 
   return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  Utility routines for interfacing with MRIStep
+  ---------------------------------------------------------------*/
+
+
+/*------------------------------------------------------------------------------
+  ARKStepCreateMRIStepInnerStepper
+
+  Wraps an ARKStep memory structure as an MRIStep inner stepper.
+  ----------------------------------------------------------------------------*/
+
+int ARKStepCreateMRIStepInnerStepper(void *inner_arkode_mem,
+                                     MRIStepInnerStepper *stepper)
+{
+  int retval;
+
+  if (inner_arkode_mem == NULL) {
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::ARKStep",
+                    "ARKStepCreateMRIStepInnerStepper",
+                    "The ARKStep memory pointer is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  retval = MRIStepInnerStepper_Create(stepper);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper,
+                                           arkStep_MRIStepInnerEvolve);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
+                                            arkStep_MRIStepInnerFullRhs);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  retval = MRIStepInnerStepper_SetResetFn(*stepper,
+                                          arkStep_MRIStepInnerReset);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  return(ARK_SUCCESS);
+}
+
+
+/*------------------------------------------------------------------------------
+  arkStep_MRIStepInnerEvolve
+
+  Implementation of MRIStepInnerStepperEvolveFn to advance the inner (fast)
+  ODE IVP.
+  ----------------------------------------------------------------------------*/
+
+int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, realtype t0,
+                               realtype tout, N_Vector y)
+{
+  void*    arkode_mem;     /* arkode memory             */
+  realtype tret;           /* return time               */
+  realtype tshift, tscale; /* time normalization values */
+  N_Vector *forcing;       /* forcing vectors           */
+  int      nforcing;       /* number of forcing vectors */
+  int      retval;         /* return value              */
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* get the forcing data */
+  retval = MRIStepInnerStepper_GetForcingData(stepper,
+                                              &tshift, &tscale,
+                                              &forcing, &nforcing);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* set the inner forcing data */
+  retval = arkStep_SetInnerForcing(arkode_mem, tshift, tscale,
+                                   forcing, nforcing);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* set the stop time */
+  retval = ARKStepSetStopTime(arkode_mem, tout);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* evolve inner ODE */
+  retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+  if (retval < 0) return(retval);
+
+  /* disable inner forcing */
+  retval = arkStep_SetInnerForcing(arkode_mem, ZERO, ONE, NULL, 0);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  return(ARK_SUCCESS);
+}
+
+
+/*------------------------------------------------------------------------------
+  arkStep_MRIStepInnerFullRhs
+
+  Implementation of MRIStepInnerStepperFullRhsFn to compute the full inner
+  (fast) ODE IVP RHS.
+  ----------------------------------------------------------------------------*/
+
+int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, realtype t,
+                                N_Vector y, N_Vector f, int mode)
+{
+  void* arkode_mem;
+  int   retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  return(arkStep_FullRHS(arkode_mem, t, y, f, mode));
+}
+
+
+/*------------------------------------------------------------------------------
+  arkStep_MRIStepInnerReset
+
+  Implementation of MRIStepInnerStepperResetFn to reset the inner (fast) stepper
+  state.
+  ----------------------------------------------------------------------------*/
+
+int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, realtype tR,
+                              N_Vector yR)
+{
+  void* arkode_mem;
+  int   retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  return(ARKStepReset(arkode_mem, tR, yR));
 }
 
 

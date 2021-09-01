@@ -30,13 +30,6 @@
 #define TWO      RCONST(2.0)
 #define THREE    RCONST(3.0)
 
-/* NAN and floating point "equality" check, failure update macro */
-#if __STDC_VERSION__ >= 199901L
-#define FNEQ(a,b,tol) (isnan(a) ? 1 : ( SUNRabs((a)-(b))/SUNRabs(b) > tol ))
-#else
-#define FNEQ(a,b,tol) (( SUNRabs((a)-(b))/SUNRabs(b) > tol ))
-#endif
-
 /* Helpers for printing out test status information */
 #define TEST_STATUS(fmt, myrank)                     \
   if (print_all_ranks == 0 && myrank == 0) {         \

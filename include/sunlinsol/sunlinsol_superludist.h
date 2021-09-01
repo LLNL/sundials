@@ -40,7 +40,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sunmatrix/sunmatrix_slunrloc.h>
 
-#if (SUPERLU_DIST_MAJOR_VERSION >= 6) && (SUPERLU_DIST_MINOR_VERSION >= 3)
+#if (SUPERLU_DIST_MAJOR_VERSION >= 7) || ((SUPERLU_DIST_MAJOR_VERSION == 6) && (SUPERLU_DIST_MINOR_VERSION >= 3))
 #define xLUstructInit dLUstructInit
 #define xScalePermstructInit dScalePermstructInit
 #define xScalePermstructFree dScalePermstructFree

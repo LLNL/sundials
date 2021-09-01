@@ -21,10 +21,11 @@
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
   "cvAdvDiff_bnd\;\;develop"
+  "cvAnalytic_mels\;\;develop"
   "cvDirectDemo_ls\;\;develop"
+  "cvDisc_dns\;\;develop"
   "cvDiurnal_kry_bp\;\;develop"
   "cvDiurnal_kry\;\;develop"
-  "cvDisc_dns\;\;develop"
   "cvKrylovDemo_ls\;\;develop"
   "cvKrylovDemo_ls\;1\;develop"
   "cvKrylovDemo_ls\;2\;develop"
@@ -32,10 +33,9 @@ set(CVODE_examples
   "cvParticle_dns\;\;develop"
   "cvPendulum_dns\;\;develop"
   "cvRoberts_dns\;\;"
-  "cvRoberts_dns_uw\;\;develop"
-  "cvRoberts_dns_negsol\;\;develop"
   "cvRoberts_dns_constraints\;\;develop"
-  #cvAdvDiffReac_kry\;develop" # not released
+  "cvRoberts_dns_negsol\;\;develop"
+  "cvRoberts_dns_uw\;\;develop"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
@@ -50,8 +50,8 @@ set(CVODE_examples_BL
 
 # Examples using KLU linear solver
 set(CVODE_examples_KLU
-  "cvRoberts_klu\;\;develop"
   "cvRoberts_block_klu\;\;develop"
+  "cvRoberts_klu\;\;develop"
   )
 
 # Examples using SuperLU_MT linear solver

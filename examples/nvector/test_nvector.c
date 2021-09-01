@@ -401,7 +401,7 @@ int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid)
   /* check vector data */
   N_VConst(NEG_HALF,W);
   for(i=0; i < local_length; i++){
-    failure += FNEQ(Wdata[i], NEG_HALF);
+    failure += SUNRCompare(Wdata[i], NEG_HALF);
   }
 
   if (failure) {
@@ -1357,7 +1357,7 @@ int Test_N_VDotProd(N_Vector X, N_Vector Y, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal global vector length */
-  failure = FNEQ(ans, (realtype) global_length);
+  failure = SUNRCompare(ans, (realtype) global_length);
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProd, Proc %d \n", myid);
@@ -1396,7 +1396,7 @@ int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal 2 */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, TWO);
+  failure = (ans < ZERO) ? 1 : SUNRCompare(ans, TWO);
 
   if (failure) {
     printf(">>> FAILED test -- N_VMaxNorm, Proc %d \n", myid);
@@ -1432,7 +1432,7 @@ int Test_N_VWrmsNorm(N_Vector X, N_Vector W, sunindextype local_length, int myid
   stop_time = get_time();
 
   /* ans should equal 1/4 */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, HALF*HALF);
+  failure = (ans < ZERO) ? 1 : SUNRCompare(ans, HALF*HALF);
 
   if (failure) {
     printf(">>> FAILED test -- N_VWrmsNorm, Proc %d \n", myid);
@@ -1482,7 +1482,7 @@ int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
   stop_time = get_time();
 
   /* check ans */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, fac);
+  failure = (ans < ZERO) ? 1 : SUNRCompare(ans, fac);
 
   if (failure) {
     printf(">>> FAILED test -- N_VWrmsNormMask, Proc %d \n", myid);
@@ -1521,7 +1521,7 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal 0.5 */
-  failure = FNEQ(ans, HALF);
+  failure = SUNRCompare(ans, HALF);
 
   if (failure) {
     printf(">>> FAILED test -- N_VMin Case 1, Proc %d \n", myid);
@@ -1548,7 +1548,7 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal -2 */
-  failure = FNEQ(ans, NEG_TWO);
+  failure = SUNRCompare(ans, NEG_TWO);
 
   if (failure) {
     printf(">>> FAILED test -- N_VMin, Proc %d \n", myid);
@@ -1589,7 +1589,7 @@ int Test_N_VWL2Norm(N_Vector X, N_Vector W, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal 1/4 * sqrt(global_length) */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, HALF*HALF*SUNRsqrt((realtype) global_length));
+  failure = (ans < ZERO) ? 1 : SUNRCompare(ans, HALF*HALF*SUNRsqrt((realtype) global_length));
 
   if (failure) {
     printf(">>> FAILED test -- N_VWL2Norm, Proc %d \n", myid);
@@ -1628,7 +1628,7 @@ int Test_N_VL1Norm(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal global_length */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, (realtype) global_length);
+  failure = (ans < ZERO) ? 1 : SUNRCompare(ans, (realtype) global_length);
 
   if (failure) {
     printf(">>> FAILED test -- N_VL1Norm, Proc %d \n", myid);
@@ -2015,7 +2015,7 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
   stop_time = get_time();
 
   /* ans should equal 1/4 */
-  failure = FNEQ(ans, HALF*HALF);
+  failure = SUNRCompare(ans, HALF*HALF);
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotient Case 1, Proc %d \n", myid);
@@ -2046,7 +2046,7 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
   stop_time = get_time();
 
   /* ans should equal BIG_REAL */
-  failure = FNEQ(ans, BIG_REAL);
+  failure = SUNRCompare(ans, BIG_REAL);
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotient Case 2, Proc %d \n", myid);
@@ -2556,7 +2556,7 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int myid)
 
   /* dotprod[0] should equal the global vector length */
   if (ierr == 0)
-    failure = FNEQ(dotprods[0], (realtype) global_length);
+    failure = SUNRCompare(dotprods[0], (realtype) global_length);
   else
     failure = 1;
 
@@ -2588,9 +2588,9 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int myid)
 
   /* dotprod[i] should equal -1, +1, and 2 times the global vector length */
   if (ierr == 0) {
-    failure  = FNEQ(dotprods[0], (realtype) -1*global_length);
-    failure += FNEQ(dotprods[1], (realtype)    global_length);
-    failure += FNEQ(dotprods[2], (realtype)  2*global_length);
+    failure  = SUNRCompare(dotprods[0], (realtype) -1*global_length);
+    failure += SUNRCompare(dotprods[1], (realtype)    global_length);
+    failure += SUNRCompare(dotprods[2], (realtype)  2*global_length);
   } else {
     failure = 1;
   }
@@ -3598,7 +3598,7 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length, int myid)
 
   /* nrm should equal 1/4 */
   if (ierr == 0)
-    failure = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], HALF*HALF);
+    failure = (nrm[0] < ZERO) ? 1 : SUNRCompare(nrm[0], HALF*HALF);
   else
     failure = 1;
 
@@ -3637,9 +3637,9 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length, int myid)
 
   /* ans should equal 1/4, 1, 1/2 */
   if (ierr == 0) {
-    failure  = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], HALF*HALF);
-    failure += (nrm[1] < ZERO) ? 1 : FNEQ(nrm[1], ONE);
-    failure += (nrm[2] < ZERO) ? 1 : FNEQ(nrm[2], HALF);
+    failure  = (nrm[0] < ZERO) ? 1 : SUNRCompare(nrm[0], HALF*HALF);
+    failure += (nrm[1] < ZERO) ? 1 : SUNRCompare(nrm[1], ONE);
+    failure += (nrm[2] < ZERO) ? 1 : SUNRCompare(nrm[2], HALF);
   } else {
     failure = 1;
   }
@@ -3712,7 +3712,7 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
 
   /* nrm should equal fac/4 */
   if (ierr == 0)
-    failure = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], fac*HALF*HALF);
+    failure = (nrm[0] < ZERO) ? 1 : SUNRCompare(nrm[0], fac*HALF*HALF);
   else
     failure = 1;
 
@@ -3756,9 +3756,9 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
 
   /* ans should equal fac/4, fac, fac/2] */
   if (ierr == 0) {
-    failure  = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], fac*HALF*HALF);
-    failure += (nrm[1] < ZERO) ? 1 : FNEQ(nrm[1], fac);
-    failure += (nrm[2] < ZERO) ? 1 : FNEQ(nrm[2], fac*HALF);
+    failure  = (nrm[0] < ZERO) ? 1 : SUNRCompare(nrm[0], fac*HALF*HALF);
+    failure += (nrm[1] < ZERO) ? 1 : SUNRCompare(nrm[1], fac);
+    failure += (nrm[2] < ZERO) ? 1 : SUNRCompare(nrm[2], fac*HALF);
   } else {
     failure = 1;
   }
@@ -4764,10 +4764,11 @@ int Test_N_VDotProdLocal(N_Vector X, N_Vector Y, sunindextype local_length, int 
   stop_time = get_time();
 
   /* ans should equal rmyid */
-  failure = FNEQTOL(ans, rmyid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, rmyid, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProdLocal, Proc %d\n", myid);
+    printf("ans = %" FSYM " expected = %" FSYM "\n", ans, rmyid);
     fails++;
   } else if (myid == 0) {
     printf("PASSED test -- N_VDotProdLocal\n");
@@ -4801,7 +4802,7 @@ int Test_N_VMaxNormLocal(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal myidp1 */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, myidp1, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, myidp1, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMaxNormLocal, Proc %d\n", myid);
@@ -4838,7 +4839,7 @@ int Test_N_VMinLocal(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal negmyid */
-  failure = FNEQTOL(ans, negmyid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, negmyid, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinLocal, Proc %d\n", myid);
@@ -4874,7 +4875,7 @@ int Test_N_VL1NormLocal(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, (realtype) myid,
+  failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, (realtype) myid,
                                        SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
@@ -4913,7 +4914,7 @@ int Test_N_VWSqrSumLocal(N_Vector X, N_Vector W, sunindextype local_length, int 
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, (realtype) myid,
+  failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, (realtype) myid,
                                        SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
@@ -4957,7 +4958,7 @@ int Test_N_VWSqrSumMaskLocal(N_Vector X, N_Vector W, N_Vector ID,
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, (realtype) myid,
+  failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, (realtype) myid,
                                        SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
@@ -5257,7 +5258,7 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = FNEQTOL(ans, (realtype) myid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, (realtype) myid, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotientLocal Case 1, Proc %d \n", myid);
@@ -5287,7 +5288,7 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
   stop_time = get_time();
 
   /* ans should equal BIG_REAL */
-  failure = FNEQTOL(ans, BIG_REAL, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, BIG_REAL, SUNRsqrt(UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotientLocal Case 2, Proc %d \n", myid);
@@ -5389,7 +5390,7 @@ int Test_N_VBufPack(N_Vector x, sunindextype local_length, int myid)
 
   /* check buffer values */
   for(i = 0; i < local_length; i++) {
-    failure += FNEQ(buf[i], ONE);
+    failure += SUNRCompare(buf[i], ONE);
   }
 
   if (failure) {

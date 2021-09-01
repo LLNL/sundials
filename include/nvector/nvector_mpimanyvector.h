@@ -84,6 +84,8 @@ SUNDIALS_EXPORT sunindextype N_VGetNumSubvectors_MPIManyVector(N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_MPIManyVector(N_Vector v);
+SUNDIALS_EXPORT void N_VPrint_MPIManyVector(N_Vector v);
+SUNDIALS_EXPORT void N_VPrintFile_MPIManyVector(N_Vector v, FILE *outfile);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_MPIManyVector(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_MPIManyVector(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_MPIManyVector(N_Vector v);

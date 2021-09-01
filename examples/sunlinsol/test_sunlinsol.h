@@ -23,13 +23,6 @@
 #define ZERO     RCONST(0.0)
 #define ONE      RCONST(1.0)
 
-/* NAN and floating point "equality" check, failure update macro */
-#if __STDC_VERSION__ >= 199901L
-#define FNEQ(a,b,tol) (isnan(a) ? 1 : ( SUNRabs((a)-(b)) > tol ))
-#else
-#define FNEQ(a,b,tol) (( SUNRabs((a)-(b)) > tol ))
-#endif
-
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif

@@ -589,27 +589,29 @@ int erkStep_Init(void* arkode_mem, int init_type)
   f(t,y).
 
   This will be called in one of three 'modes':
-    0 -> called at the beginning of a simulation
-    1 -> called at the end of a successful step
-    2 -> called elsewhere (e.g. for dense output)
+    ARK_FULLRHS_START -> called at the beginning of a simulation
+                         or after post processing at step
+    ARK_FULLRHS_END   -> called at the end of a successful step
+    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in mode 0, we store the vectors f(t,y) in F[0]
-  for possible reuse in the first stage of the subsequent time step.
+  If it is called in ARK_FULLRHS_START mode, we store the vectors
+  f(t,y) in F[0] for possible reuse in the first stage of the
+  subsequent time step.
 
-  If it is called in mode 1 and the method coefficients
+  If it is called in ARK_FULLRHS_END mode and the method coefficients
   support it, we may just copy vectors F[stages] to fill f instead
   of calling f().
 
-  Mode 2 is only called for dense output in-between steps, so we
-  strive to store the intermediate parts so that they do not
-  interfere with the other two modes.
+  ARK_FULLRHS_OTHER mode is only called for dense output in-between
+  steps, so we strive to store the intermediate parts so that they
+  do not interfere with the other two modes.
   ---------------------------------------------------------------*/
-int erkStep_FullRHS(void* arkode_mem, realtype t,
-                    N_Vector y, N_Vector f, int mode)
+int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+                    int mode)
 {
+  int retval;
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  int i, s, retval;
   booleantype recomputeRHS;
 
   /* access ARKodeERKStepMem structure */
@@ -620,10 +622,10 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
-  /* Mode 0: called at the beginning of a simulation
+  /* ARK_FULLRHS_START: called at the beginning of a simulation
      Store the vectors f(t,y) in F[0] for possible reuse
      in the first stage of the subsequent time step */
-  case 0:
+  case ARK_FULLRHS_START:
 
     /* call f */
     retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
@@ -640,18 +642,16 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
     break;
 
 
-  /* Mode 1: called at the end of a successful step
-     If the method coefficients support it, we just copy the last stage RHS vectors
-     to fill f instead of calling f(t,y).
+  /* ARK_FULLRHS_END: called at the end of a successful step
+     If the method coefficients support it, we just copy the last stage RHS
+     vectors to fill f instead of calling f(t,y).
      Copy the results to F[0] if the coefficients support it. */
-  case 1:
+  case ARK_FULLRHS_END:
 
-    /* determine if explicit/implicit RHS functions need to be recomputed */
+    /* determine if explicit RHS function needs to be recomputed */
     recomputeRHS = SUNFALSE;
-    s = step_mem->B->stages;
-    for (i=0; i<s; i++)
-      if (SUNRabs(step_mem->B->b[i] - step_mem->B->A[s-1][i])>TINY)
-        recomputeRHS = SUNTRUE;
+    if (SUNRabs(step_mem->B->c[step_mem->stages - 1] - ONE) > TINY)
+      recomputeRHS = SUNTRUE;
 
     /* base RHS calls on recomputeRHS argument */
     if (recomputeRHS) {
@@ -674,10 +674,10 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
 
     break;
 
-  /*  Mode 2: called for dense output in-between steps
+  /*  ARK_FULLRHS_OTHER: called for dense output in-between steps
       store the intermediate calculations in such a way as to not
       interfere with the other two modes */
-  default:
+  case ARK_FULLRHS_OTHER:
 
     /* call f */
     retval = step_mem->f(t, y, f, ark_mem->user_data);
@@ -689,6 +689,12 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
     }
 
     break;
+
+  default:
+    /* return with RHS failure if unknown mode is passed */
+    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ERKStep",
+                    "erkStep_FullRHS", "Unknown full RHS mode");
+    return(ARK_RHSFUNC_FAIL);
   }
 
   return(ARK_SUCCESS);
@@ -736,7 +742,14 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   Xvecs = step_mem->Xvecs;
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-  printf("stage 0 RHS:\n");
+  printf("    ERKStep step %li,  stage 0,  h = %"RSYM",  t_n = %"RSYM"\n",
+         ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#endif
+
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  printf("    ERKStep stage 0 solution:\n");
+  N_VPrint(ark_mem->ycur);
+  printf("    ERKStep stage RHS F[0]:\n");
   N_VPrint(step_mem->F[0]);
 #endif
 
@@ -748,7 +761,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     ark_mem->tcur = ark_mem->tn + step_mem->B->c[is]*ark_mem->h;
 
 #ifdef SUNDIALS_DEBUG
-    printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
+    printf("    ERKStep step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n",
            ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
 
@@ -788,7 +801,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-    printf("RHS:\n");
+    printf("    ERKStep stage RHS F[%i]:\n",is);
     N_VPrint(step_mem->F[is]);
 #endif
 
@@ -799,10 +812,10 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   if (retval < 0)  return(retval);
 
 #ifdef SUNDIALS_DEBUG
-  printf("error estimate = %"RSYM"\n", *dsmPtr);
+  printf("    ERKStep error estimate = %"RSYM"\n", *dsmPtr);
 #endif
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-  printf("updated solution:\n");
+  printf("    ERKStep updated solution:\n");
   N_VPrint(ark_mem->ycur);
 #endif
 

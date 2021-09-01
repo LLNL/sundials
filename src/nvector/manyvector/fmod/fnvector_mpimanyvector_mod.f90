@@ -33,6 +33,8 @@ module fnvector_mpimanyvector_mod
  public :: FN_VSetSubvectorArrayPointer_MPIManyVector
  public :: FN_VGetNumSubvectors_MPIManyVector
  public :: FN_VGetVectorID_MPIManyVector
+ public :: FN_VPrint_MPIManyVector
+ public :: FN_VPrintFile_MPIManyVector
  public :: FN_VCloneEmpty_MPIManyVector
  public :: FN_VClone_MPIManyVector
  public :: FN_VDestroy_MPIManyVector
@@ -152,6 +154,19 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
+
+subroutine swigc_FN_VPrint_MPIManyVector(farg1) &
+bind(C, name="_wrap_FN_VPrint_MPIManyVector")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+end subroutine
+
+subroutine swigc_FN_VPrintFile_MPIManyVector(farg1, farg2) &
+bind(C, name="_wrap_FN_VPrintFile_MPIManyVector")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+end subroutine
 
 function swigc_FN_VCloneEmpty_MPIManyVector(farg1) &
 bind(C, name="_wrap_FN_VCloneEmpty_MPIManyVector") &
@@ -754,6 +769,27 @@ farg1 = c_loc(v)
 fresult = swigc_FN_VGetVectorID_MPIManyVector(farg1)
 swig_result = fresult
 end function
+
+subroutine FN_VPrint_MPIManyVector(v)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), target, intent(inout) :: v
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(v)
+call swigc_FN_VPrint_MPIManyVector(farg1)
+end subroutine
+
+subroutine FN_VPrintFile_MPIManyVector(v, outfile)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), target, intent(inout) :: v
+type(C_PTR) :: outfile
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(v)
+farg2 = outfile
+call swigc_FN_VPrintFile_MPIManyVector(farg1, farg2)
+end subroutine
 
 function FN_VCloneEmpty_MPIManyVector(w) &
 result(swig_result)

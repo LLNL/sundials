@@ -245,6 +245,9 @@ int main(int argc, char *argv[])
   N_VDestroy(U);
   N_VDestroy(V);
   HYPRE_ParVectorDestroy(Xhyp);
+#ifndef hypre_ParVectorOwnsPartitioning
+  free(partitioning);
+#endif
 
   /* Print result */
   if (fails) {
@@ -277,7 +280,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
   /* check vector data */
   for (i = 0; i < local_length; i++) {
-    failure += FNEQ(Xdata[i], ans);
+    failure += SUNRCompare(Xdata[i], ans);
   }
 
   return (failure > ZERO) ? (1) : (0);

@@ -20,21 +20,16 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-  "cvsRoberts_dns\;\;"
-  "cvsRoberts_dns_constraints\;\;develop"
-  "cvsRoberts_dns_uw\;\;develop"
-  "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
-  "cvsRoberts_FSA_dns_Switch\;\;develop"
-  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;develop"
   "cvsAdvDiff_ASAi_bnd\;\;develop"
-  "cvsAdvDiff_bnd\;\;develop"
-  "cvsAdvDiff_FSA_non\;-sensi stg t\;develop"
   "cvsAdvDiff_FSA_non\;-sensi sim t\;develop"
+  "cvsAdvDiff_FSA_non\;-sensi stg t\;develop"
+  "cvsAdvDiff_bnd\;\;develop"
+  "cvsAnalytic_mels\;\;develop"
   "cvsDirectDemo_ls\;\;develop"
-  "cvsDiurnal_FSA_kry\;-sensi stg t\;develop"
   "cvsDiurnal_FSA_kry\;-sensi sim t\;develop"
-  "cvsDiurnal_kry_bp\;\;develop"
+  "cvsDiurnal_FSA_kry\;-sensi stg t\;develop"
   "cvsDiurnal_kry\;\;develop"
+  "cvsDiurnal_kry_bp\;\;develop"
   "cvsFoodWeb_ASAi_kry\;\;develop"
   "cvsFoodWeb_ASAp_kry\;\;develop"
   "cvsHessian_ASA_FSA\;\;develop"
@@ -44,6 +39,12 @@ set(CVODES_examples
   "cvsKrylovDemo_prec\;\;develop"
   "cvsRoberts_ASAi_dns\;\;develop"
   "cvsRoberts_ASAi_dns_constraints\;\;develop"
+  "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
+  "cvsRoberts_FSA_dns_Switch\;\;develop"
+  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;develop"
+  "cvsRoberts_dns\;\;"
+  "cvsRoberts_dns_constraints\;\;develop"
+  "cvsRoberts_dns_uw\;\;develop"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
@@ -58,16 +59,16 @@ set(CVODES_examples_BL
 
 # Examples using KLU linear solver
 set(CVODES_examples_KLU
-  "cvsRoberts_klu\;\;develop"
   "cvsRoberts_ASAi_klu\;\;develop"
   "cvsRoberts_FSA_klu\;-sensi stg1 t\;develop"
+  "cvsRoberts_klu\;\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(CVODES_examples_SUPERLUMT
-  "cvsRoberts_sps\;\;develop"
   "cvsRoberts_ASAi_sps\;\;develop"
   "cvsRoberts_FSA_sps\;-sensi stg1 t\;develop"
+  "cvsRoberts_sps\;\;develop"
   )
 
 # Specify libraries to link against
