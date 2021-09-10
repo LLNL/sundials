@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -88,7 +88,7 @@ linear system *defined* by a SUNMATRIX object. ARKLS will update the
 matrix information infrequently according to the strategies outlined in
 the section :ref:`Mathematics.Linear.Setup`.  To this end, we
 differentiate between the *desired* linear system
-:math:`\mathcal A x = b` with :math:`\mathcal A = (M-\gamma J)` 
+:math:`\mathcal A x = b` with :math:`\mathcal A = (M-\gamma J)`
 and the *actual* linear system
 
 .. math::
@@ -164,3 +164,58 @@ Therefore the tolerance scaling factor
 
 is computed and the scaled tolerance ``delta`` :math:`= \text{tol} /
 w_{mean}` is supplied to the SUNLinSol object.
+
+
+
+.. _SUNLinSol.Custom:
+
+Providing a custom SUNLinearSolver
+-------------------------------------
+
+In certain instances, users may wish to provide a custom SUNLinearSolver
+implementation to ARKode in order to leverage the structure of a problem.  While
+the 'standard' API for these routines is typically sufficient for most users,
+others may need additional ARKode-specific information on top of what is
+provided.  For these purposes, we note the following advanced ouptut functions
+available in ARKStep and MRIStep:
+
+
+**ARKStep advanced outputs**: when solving the Newton nonlinear system of
+equations in predictor-corrector form,
+
+.. math::
+   G(z_{cor}) &\equiv z_{cor} - \gamma f^I\left(t^I_{n,i}, z_{i} \right) - \tilde{a}_i = 0 \qquad\qquad\qquad\text{[$M=I$]},\\
+   G(z_{cor}) &\equiv M z_{cor} - \gamma f^I\left(t^I_{n,i}, z_{i} \right) - \tilde{a}_i = 0 \quad\qquad\qquad\text{[$M$ static]},\\
+   G(z_{cor}) &\equiv M(t^I_{n,i}) (z_{cor} - \tilde{a}_i) - \gamma f^I\left(t^I_{n,i}, z_{i}\right) = 0 \qquad\text{[$M$ time-dependent]}.
+
+* :c:func:`ARKStepGetCurrentTime()` -- when called within the computation of a
+  step (i.e., within a solve) this returns :math:`t^I_{n,i}`. Otherwise the
+  current internal solution time is returned.
+* :c:func:`ARKStepGetCurrentState()` -- when called within the computation of a
+  step (i.e., within a solve) this returns the current stage vector
+  :math:`z_{i} = z_{cor} + z_{pred}`. Otherwise the current internal solution
+  is returned.
+* :c:func:`ARKStepGetCurrentGamma()` -- returns :math:`\gamma`.
+* :c:func:`ARKStepGetCurrentMassMatrix()` -- returns :math:`M(t)`.
+* :c:func:`ARKStepGetNonlinearSystemData()` -- returns
+  :math:`z_{i}`, :math:`z_{pred}`, :math:`f^I(t^I_{n,i}, y_{cur})`,
+  :math:`\tilde{a}_i`, and :math:`\gamma`.
+
+
+**MRIStep advanced outputs**: when solving the Newton nonlinear system of
+equations in predictor-corrector form,
+
+.. math::
+   G(z_{cor}) \equiv z_{cor} - \gamma f^S\left(t^S_{n,i}, z_{i}\right) - \tilde{a}_i = 0
+
+* :c:func:`MRIStepGetCurrentTime()` -- when called within the computation of a
+  step (i.e., within a solve) this returns :math:`t^S_{n,i}`. Otherwise the
+  current internal solution time is returned.
+* :c:func:`MRIStepGetCurrentState()` -- when called within the computation of a
+  step (i.e., within a solve) this returns the current stage vector
+  :math:`z_{i} = z_{cor} + z_{pred}`. Otherwise the current internal solution
+  is returned.
+* :c:func:`MRIStepGetCurrentGamma()` -- returns :math:`\gamma`.
+* :c:func:`MRIStepGetNonlinearSystemData()` -- returns
+  :math:`z_{i}`, :math:`z_{pred}`, :math:`f^I(t^I_{n,i}, y_{cur})`,
+  :math:`\tilde{a}_i`, and :math:`\gamma`.

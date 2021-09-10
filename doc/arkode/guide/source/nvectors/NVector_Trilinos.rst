@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -39,10 +39,10 @@ class is defined as:
 
 .. code-block:: cpp
 
-   typedef Tpetra::Vector<realtype, sunindextype, sunindextype> vector_type;
+   typedef Tpetra::Vector<realtype, int, sunindextype> vector_type;
 
 The Tpetra vector will use the SUNDIALS-specified ``realtype`` as its scalar
-type, and it will use ``sunindextype`` as the global and the local ordinal types.
+type, ``int`` as the local ordinal type, and ``sunindextype`` as the global ordinal type.
 This type definition will use Tpetra's default node type. Available Kokkos node
 types in Trilinos 12.14 release are serial (single thread), OpenMP, Pthread,
 and CUDA. The default node type is selected when building the Kokkos package.

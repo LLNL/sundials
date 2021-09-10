@@ -3,7 +3,7 @@
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -221,7 +221,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
   /* check Tpetra vector */
   for (i = 0; i < local_length; ++i){
-    failure += FNEQ(x_1d(i), ans);
+    failure += SUNRCompare(x_1d(i), ans);
   }
 
   return (failure > ZERO) ? 1 : 0;
@@ -300,7 +300,7 @@ double max_time(N_Vector X, double time)
   return maxtime;
 }
 
-void sync_device()
+void sync_device(N_Vector x)
 {
   /* Kokkos should take care of this */
 }

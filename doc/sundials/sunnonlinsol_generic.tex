@@ -434,9 +434,9 @@ or by the {\arkode} and {\cvode} linear solver interfaces.  Otherwise,
 }
 {
   The \textit{optional} function \ID{SUNNonlinSolGetNumConvFails} returns
-  the total number of nonlinear solver convergence failures. This may be
-  called by the {\sundials} integrator to store the nonlinear solver
-  statistics, but may also be called by the user.
+  the number of nonlinear solver convergence failures in the most recent solve.
+  This is typically called by the {\sundials} integrator to store the nonlinear
+  solver statistics, but may also be called by the user.
 }
 {
   \begin{args}[nconvfails]

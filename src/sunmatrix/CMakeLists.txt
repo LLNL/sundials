@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,17 +14,19 @@
 # matrix level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# Always add SUNDIALS provided matrix modules
+# required modules
 add_subdirectory(band)
 add_subdirectory(dense)
 add_subdirectory(sparse)
 
-if(SUPERLUDIST_ENABLE AND SUPERLUDIST_FOUND)
+if(BUILD_SUNMATRIX_SLUNRLOC)
   add_subdirectory(slunrloc)
-endif(SUPERLUDIST_ENABLE AND SUPERLUDIST_FOUND)
+endif()
 
-if(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
-  if(SUNDIALS_INDEX_SIZE MATCHES "32")
-    add_subdirectory(cusparse)
-  endif()
-endif(CUDA_ENABLE AND CMAKE_CUDA_COMPILER)
+if(BUILD_SUNMATRIX_CUSPARSE)
+  add_subdirectory(cusparse)
+endif()
+
+if(BUILD_SUNMATRIX_MAGMADENSE)
+  add_subdirectory(magmadense)
+endif()

@@ -3,7 +3,7 @@
  *                David J. Gardner, Radu Serban and Aaron Collier @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -74,6 +74,14 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
 
   /* Retrieve the LS type */
   LSType = SUNLinSolGetType(LS);
+
+  /* Return with error if LS has 'matrix-embedded' type */
+  if (LSType == SUNLINEARSOLVER_MATRIX_EMBEDDED) {
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS",
+                   "KINSetLinearSolver",
+                   "KINSOL is incompatible with MATRIX_EMBEDDED LS objects");
+    return(KINLS_ILL_INPUT);
+  }
 
   /* Set flags based on LS type */
   iterative   = (LSType != SUNLINEARSOLVER_DIRECT);

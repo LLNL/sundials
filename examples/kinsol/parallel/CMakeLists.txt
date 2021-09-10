@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -31,15 +31,9 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against (through the target that was used to
-# generate them) based on the value of the variable LINK_LIBRARY_TYPE
-if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(KINSOL_LIB sundials_kinsol_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
-else()
-  set(KINSOL_LIB sundials_kinsol_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
-endif()
+# Specify libraries to link against
+set(KINSOL_LIB sundials_kinsol)
+set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
@@ -127,9 +121,9 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/parallel
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
   # add test_install target
   sundials_add_test_install(kinsol parallel)
 
-endif(EXAMPLES_INSTALL)
+endif()

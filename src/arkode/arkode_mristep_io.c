@@ -3,7 +3,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -119,12 +119,14 @@ int MRIStepSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   return(arkLSSetLinearSolver(arkode_mem, LS, A)); }
 int MRIStepSetJacFn(void *arkode_mem, ARKLsJacFn jac) {
   return(arkLSSetJacFn(arkode_mem, jac)); }
-int MRIStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj) {
-  return(arkLSSetMaxStepsBetweenJac(arkode_mem, msbj)); }
+int MRIStepSetJacEvalFrequency(void *arkode_mem, long int msbj) {
+  return(arkLSSetJacEvalFrequency(arkode_mem, msbj)); }
 int MRIStepSetLinearSolutionScaling(void *arkode_mem, booleantype onoff) {
   return(arkLSSetLinearSolutionScaling(arkode_mem, onoff)); }
 int MRIStepSetEpsLin(void *arkode_mem, realtype eplifac) {
   return(arkLSSetEpsLin(arkode_mem, eplifac)); }
+int MRIStepSetLSNormFactor(void *arkode_mem, realtype nrmfac) {
+  return(arkLSSetNormFactor(arkode_mem, nrmfac)); }
 int MRIStepSetPreconditioner(void *arkode_mem, ARKLsPrecSetupFn psetup,
                              ARKLsPrecSolveFn psolve) {
   return(arkLSSetPreconditioner(arkode_mem, psetup, psolve)); }
@@ -147,8 +149,8 @@ int MRIStepGetLastStep(void *arkode_mem, realtype *hlast) {
   return(arkGetLastStep(arkode_mem, hlast)); }
 int MRIStepGetCurrentTime(void *arkode_mem, realtype *tcur) {
   return(arkGetCurrentTime(arkode_mem, tcur)); }
-int MRIStepGetCurrentState(void *arkode_mem, N_Vector *ycur) {
-  return(arkGetCurrentState(arkode_mem, ycur)); }
+int MRIStepGetCurrentState(void *arkode_mem, N_Vector *state) {
+  return(arkGetCurrentState(arkode_mem, state)); }
 int MRIStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact) {
   return(arkGetTolScaleFactor(arkode_mem, tolsfact)); }
 int MRIStepGetErrWeights(void *arkode_mem, N_Vector eweight) {
@@ -702,22 +704,21 @@ int MRIStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
 
 
 /*---------------------------------------------------------------
-  MRIStepSetMaxStepsBetweenLSet:
+  MRIStepSetLSetupFrequency:
 
   Specifies the user-provided linear setup decision constant
-  msbp.  Positive values give the number of time steps to wait
-  before calling lsetup; negative values imply recomputation of
-  lsetup at each nonlinear solve; a zero value implies a reset
-  to the default.
+  msbp.  Positive values give the frequency for calling lsetup;
+  negative values imply recomputation of lsetup at each nonlinear
+  solve; a zero value implies a reset to the default.
   ---------------------------------------------------------------*/
-int MRIStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
+int MRIStepSetLSetupFrequency(void *arkode_mem, int msbp)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetMaxStepsBetweenLSet",
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetLSetupFrequency",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
@@ -883,7 +884,7 @@ int MRIStepGetLastInnerStepFlag(void *arkode_mem, int *flag)
   if (retval != ARK_SUCCESS) return(retval);
 
   /* get the last return value from the inner stepper */
-  *flag = step_mem->inner_retval;
+  *flag = step_mem->stepper->last_flag;
 
   return(ARK_SUCCESS);
 }

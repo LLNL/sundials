@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -174,7 +174,7 @@ parameters. Only the routine for setting the nonlinear system defining function
 
 .. c:function:: int SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn SetupFn)
 
-   The *optional* function :c:func:`SUNNonlinSolLSetupFn()` is called
+   The *optional* function :c:func:`SUNNonlinSolLSetupFn` is called
    by SUNDIALS integrators to provide the nonlinear solver with access
    to its linear solver setup function.
 
@@ -182,12 +182,12 @@ parameters. Only the routine for setting the nonlinear system defining function
       * *NLS* -- a SUNNonlinSol object
       * *SetupFn* -- a wrapper function to the SUNDIALS integrator's linear solver setup
         function. See the section :ref:`SUNNonlinSol.SUNSuppliedFn`  for the
-        definition of :c:type:`SUNNonlinLSetupFn()`.
+        definition of :c:type:`SUNNonlinSolLSetupFn`.
 
    **Return value:**  the return value should be zero for a
    successful call, and a negative value for a failure.
 
-   **Notes:** The :c:type:`SUNNonlinLSetupFn()` function sets up the
+   **Notes:** The :c:type:`SUNNonlinSolLSetupFn` function sets up the
    linear system :math:`Ax=b` where :math:`A = \frac{\partial
    F}{\partial y}` is the linearization of the nonlinear residual
    function :math:`F(y) = 0` (when using SUNLinSol direct linear
@@ -210,12 +210,12 @@ parameters. Only the routine for setting the nonlinear system defining function
       * *SolveFn* -- a wrapper function to the SUNDIALS integrator's
         linear solver solve function. See the section
         :ref:`SUNNonlinSol.SUNSuppliedFn` for the definition of
-        :c:type:`SUNNonlinSolLSolveFn()`.
+        :c:type:`SUNNonlinSolLSolveFn`.
 
    **Return value:**  the return value should be zero for a
    successful call, and a negative value for a failure.
 
-   **Notes:** The :c:type:`SUNNonlinLSolveFn()` function solves the
+   **Notes:** The :c:type:`SUNNonlinSolLSolveFn` function solves the
    linear system :math:`Ax=b` where :math:`A = \frac{\partial
    F}{\partial y}` is the linearization of the nonlinear residual
    function :math:`F(y) = 0`.  SUNNonlinSol implementations that do
@@ -314,10 +314,10 @@ solver otherwise, ``SUNNonlinSolGetCurIter`` is optional.
 
  .. c:function:: int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int *nconvfails)
 
-   The *optional* function :c:func:`SUNNonlinSolGetNumConvFails()` returns
-   the total number of nonlinear solver convergence failures. This may be
-   called by the SUNDIALS integrator to store the nonlinear solver
-   statistics, but may also be called by the user.
+   The *optional* function :c:func:`SUNNonlinSolGetNumConvFails()` returns the
+   number of nonlinear solver convergence failures in the most recent solve.
+   This is typically called by the SUNDIALS integrator to store the nonlinear
+   solver statistics, but may also be called by the user.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object
@@ -388,7 +388,7 @@ module are defined in the header file
    successul solve, a positive value for a recoverable error, and a
    negative value for an unrecoverable error.
 
-   **Notes:**  The :c:type:`SUNNonlinLSetupFn()` function sets up the
+   **Notes:**  The :c:type:`SUNNonlinSolLSetupFn` function sets up the
    linear system :math:`Ax=b` where :math:`A = \frac{\partial
    F}{\partial y}` is the linearization of the nonlinear residual
    function :math:`F(y) = 0` (when using SUNLinSol direct linear
@@ -419,7 +419,7 @@ module are defined in the header file
    successul solve, a positive value for a recoverable error, and a
    negative value for an unrecoverable error.
 
-   **Notes:**  The :c:type:`SUNNonlinLSolveFn()` function solves the
+   **Notes:**  The :c:type:`SUNNonlinSolLSolveFn` function solves the
    linear system :math:`Ax=b` where :math:`A = \frac{\partial
    F}{\partial y}` is the linearization of the nonlinear residual
    function :math:`F(y) = 0`. SUNNonlinSol implementations that do not
@@ -516,9 +516,11 @@ other SUNNonlinSol implementations are built. The
 implementation-dependent *content* field and an *ops*
 field. The type ``SUNNonlinearSolver`` is defined as follows:
 
-.. code-block:: c
+.. c:type:: typedef struct _generic_SUNNonlinearSolver *SUNNonlinearSolver
 
-   typedef struct _generic_SUNNonlinearSolver *SUNNonlinearSolver;
+and the generic structure is defined as
+
+.. code-block:: c
 
    struct _generic_SUNNonlinearSolver {
      void *content;

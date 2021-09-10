@@ -2,7 +2,7 @@
    Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -44,8 +44,9 @@ particularly in cases where they provide their own ``N_Vector`` and/or
 
 Historically, the SUNDIALS packages have been designed to specifically
 leverage the use of either *direct linear solvers* or matrix-free,
-*scaled, preconditioned, iterative linear solvers*.  However,
-matrix-based iterative linear solvers are also supported.
+*scaled, preconditioned, iterative linear solvers*.  However, user-supplied
+implementations for matrix-based iterative linear solvers and linear solvers
+with 'embedded' matrices are also supported.
 
 The iterative linear solvers packaged with SUNDIALS leverage scaling
 and preconditioning, as applicable, to balance error between solution
@@ -146,6 +147,7 @@ present the SUNLinSol modules provided with SUNDIALS.
    SUNLinSol_SuperLUDIST
    SUNLinSol_SuperLUMT
    SUNLinSol_cuSolverSp
+   SUNLinSol_MagmaDense
    SUNLinSol_SPGMR
    SUNLinSol_SPFGMR
    SUNLinSol_SPBCGS

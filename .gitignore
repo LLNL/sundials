@@ -1,6 +1,7 @@
 # /
 /.project
 /build*
+/TPLs
 /autom4te.cache
 /.settings
 /.cproject
@@ -8,6 +9,7 @@
 *.kdev4
 *.directory
 /.pydevproject
+/tarballs
 
 # custom test environment setup script
 /test/env.sh

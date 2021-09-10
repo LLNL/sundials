@@ -3,7 +3,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -34,7 +34,20 @@ PATCH_URL="${PR_URL}.patch"
 PATCH_FILE="github-PR-$PR_NUMBER.patch"
 
 # grab the patch from Github
-wget $PATCH_URL -O ../$PATCH_FILE -o /dev/null
+if type "wget" &> /dev/null; then
+    wget -q $PATCH_URL -O ../$PATCH_FILE
+elif type "curl" &> /dev/null; then
+    curl -L -s $PATCH_URL -o ../$PATCH_FILE
+else
+    echo "Error: could not find wget or curl"
+    exit 1
+fi
+
+# check for success
+if [ $? -ne 0 ]; then
+    echo "Error: could fetch the patch file"
+    exit 1
+fi
 
 # output some information about the patch and ensure the user wants to apply it
 echo "pull-request converted to patch file ../${PATCH_FILE}"
@@ -42,6 +55,7 @@ echo "current git branch: $(git rev-parse --abbrev-ref HEAD)"
 echo "pull-request changes:"
 echo ""
 cd ../ && git apply --stat $PATCH_FILE
+if [ $? -ne 0 ]; then exit 1; fi
 echo ""
 read -p "Do you want to apply the pull-request? [y/n] " yn
 

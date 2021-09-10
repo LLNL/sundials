@@ -241,12 +241,12 @@ int main(int argc, char *argv[])
 
   /* Create the linear solver SUNSPGMR with left preconditioning
      and the default Krylov dimension */
-  LS = SUNSPGMR(uu, PREC_LEFT, 0);
-  if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
+  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);
+  if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
-  ier = SUNSPGMRSetMaxRestarts(LS, 5);
-  if(check_flag(&ier, "SUNSPGMRSetMaxRestarts", 1)) return(1);
+  ier = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);
+  if(check_flag(&ier, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
 
   /* Attach the linear sovler */
   ier = IDASpilsSetLinearSolver(mem, LS);
@@ -310,8 +310,8 @@ int main(int argc, char *argv[])
   ier = IDAReInit(mem, t0, uu, up);
   if(check_flag(&ier, "IDAReInit", 1)) return(1);
 
-  ier = SUNSPGMRSetGSType(LS, CLASSICAL_GS);
-  if(check_flag(&ier, "SUNSPGMRSetGSType",1)) return(1);
+  ier = SUNLinSol_SPGMRSetGSType(LS, CLASSICAL_GS);
+  if(check_flag(&ier, "SUNLinSol_SPGMRSetGSType",1)) return(1);
 
   /* Print case number, output table heading, and initial line of table. */
 

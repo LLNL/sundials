@@ -10,26 +10,29 @@ module requires a CUDA compiler and, by extension, a C++ compiler. The vector co
 is as follows:
 
 \begin{verbatim}
-struct _N_VectorContent_Cuda 
+struct _N_VectorContent_Cuda
 {
   sunindextype       length;
-  booleantype        own_data;
-  realtype*          host_data;
-  realtype*          device_data;
+  booleantype        own_exec;
+  booleantype        own_helper;
+  SUNMemory          host_data;
+  SUNMemory          device_data;
   SUNCudaExecPolicy* stream_exec_policy;
   SUNCudaExecPolicy* reduce_exec_policy;
+  SUNMemoryHelper    mem_helper;
   void*              priv; /* 'private' data */
 };
 
 typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
 \end{verbatim}
 
-The content members are the vector length (size), a boolean flag that signals if 
-the vector owns the data (i.e. it is in charge of freeing the data), pointers to
-vector data on the host and the device, pointers to \id{SUNCudaExecPolicy}
-implementations that control how the CUDA kernels are launched for streaming and 
-reduction vector kernels, and a private data structure which holds additonal members
-that should not be accessed directly.
+The content members are the vector length (size), ownership flags for the
+\id{*\_exec\_policy} fields and the \id{mem\_helper} field, \id{SUNMemory}
+objects for the vector data on the host and the device, pointers to
+\id{SUNCudaExecPolicy} implementations that control how the CUDA kernels are
+launched for streaming and reduction vector kernels, a \id{SUNMemoryHelper}
+object, and a private data structure which holds additonal members that should
+not be accessed directly.
 
 When instantiated with \id{N\_VNew\_Cuda}, the underlying data will be allocated
 memory on both the host and the device. Alternatively, a user can provide host
@@ -67,6 +70,24 @@ to access its member variables. Instead, user should use the accessor functions:
   realtype *N\_VGetDeviceArrayPointer\_Cuda(N\_Vector v)
 }
 %%--------------------------------------
+\sunmodfun{N\_VSetHostArrayPointer\_Cuda}
+{
+  This function sets the pointer to the vector data on the host.
+  The existing pointer \textit{will not} be freed first.
+}
+{
+  realtype *N\_VSetHostArrayPointer\_Cuda(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfun{N\_VSetDeviceArrayPointer\_Cuda}
+{
+  This function sets pointer to the vector data on the device.
+  The existing pointer \textit{will not} be freed first.
+}
+{
+  realtype *N\_VSetDeviceArrayPointer\_Cuda(N\_Vector v)
+}
+%%--------------------------------------
 \sunmodfun{N\_VIsManagedMemory\_Cuda}
 {
   This function returns a boolean flag indicating if the vector
@@ -79,8 +100,8 @@ to access its member variables. Instead, user should use the accessor functions:
 
 The {\nveccuda} module defines implementations of all vector operations listed
 in Tables \ref{ss:nvecops}, \ref{ss:nvecfusedops}, \ref{ss:nvecarrayops}
-and \ref{ss:nveclocalops}, except for \id{N\_VSetArrayPointer}, and,
-if using unmanaged memory, \id{N\_VGetArrayPointer}.
+and \ref{ss:nveclocalops}, except for \id{N\_VSetArrayPointer} and
+\id{N\_VGetArrayPointer} unless managed memory is used.
 As such, this vector can only be used with the {\sundials} Fortran interfaces,
 and the {\sundials} direct solvers and preconditioners when using managed memory.
 The {\nveccuda} module provides separate functions to access data on the host
@@ -110,6 +131,18 @@ functions:
 }
 {
   N\_Vector N\_VNewManaged\_Cuda(sunindextype length)
+}
+%%--------------------------------------
+\sunmodfun{N\_VNewWithMemHelp\_Cuda}
+{
+  This function creates an {\nveccuda} which will use the \id{SUNMemoryHelper}
+  object to allocate memory. If \id{use\_managed\_memory} is 0, then unmanaged
+  memory is used, otherwise managed memory is used.
+}
+{
+  N\_Vector N\_VNewWithMemHelp\_Cuda(sunindextype length,
+                                     booleantype use\_managed\_mem,
+                                     SUNMemoryHelper helper);
 }
 %%--------------------------------------
 \sunmodfun{N\_VNewEmpty\_Cuda}
@@ -147,6 +180,9 @@ functions:
   This function creates an {\nveccuda} with a user-supplied memory allocator.
   It requires the user to provide a corresponding free function as well.
   The memory allocated by the allocator function must behave like CUDA managed memory.
+
+  \warn This function is deprecated and will be removed in the next major release.
+  Use \id{N\_VNewWithMemHelp\_Cuda} instead.
 }
 {
   N\_Vector N\_VMakeWithManagedAllocator\_Cuda(sunindextype length,
@@ -160,7 +196,7 @@ The module {\nveccuda} also provides the following user-callable routines:
 {
   This function sets the execution policies which control the kernel parameters
   utilized when launching the streaming and reduction CUDA kernels. By default
-  the vector is setup to use the \id{SUNCudaThreadDirectExecPolicy} and 
+  the vector is setup to use the \id{SUNCudaThreadDirectExecPolicy} and
   \id{SUNCudaBlockReduceExecPolicy}. Any custom execution policy for reductions
   must ensure that the grid dimensions (number of thread blocks) is a multiple of
   the CUDA warp size (32). See section \ref{ss:suncudaexecpolicy} below for more
@@ -173,16 +209,13 @@ The module {\nveccuda} also provides the following user-callable routines:
   policies across vectors.}
 }
 {
-  void N\_VSetKernelExecPolicy\_Cuda(N\_Vector v, 
+  void N\_VSetKernelExecPolicy\_Cuda(N\_Vector v,
                                     SUNCudaExecPolicy* stream\_exec\_policy,
                                     SUNCudaExecPolicy* reduce\_exec\_policy);
 }
 %%--------------------------------------
 \sunmodfun{N\_VSetCudaStream\_Cuda}
 {
-  \textbf{DEPRECATED} This function will be removed in the next major release,
-  user should utilize the \id{N\_VSetKernelExecPolicy\_Cuda} function instead.
-
   This function sets the {\cuda} stream that all vector kernels will be launched on.
   By default an {\nveccuda} uses the default {\cuda} stream.\\
 
@@ -191,6 +224,9 @@ The module {\nveccuda} also provides the following user-callable routines:
   this function is called immediately after constructing the vector, and
   any subsequent vector be created by cloning to ensure consistent execution
   policies across vectors.}
+
+  \warn This function will be removed in the next major release,
+  user should utilize the \id{N\_VSetKernelExecPolicy\_Cuda} function instead.
 }
 {
   void N\_VSetCudaStream\_Cuda(N\_Vector v, cudaStream\_t *stream)
@@ -370,6 +406,11 @@ options as the vector they are cloned from while vectors created with
   function \id{N\_VGetArrayPointer} may also be used.
 
 \item
+  Performance is better if the \id{SUNMemoryHelper} provided supports \id{SUNMEMTYPE\_PINNED};
+  the default \id{SUNMemoryHelper} does provide this support. In the case that it does,
+  then the buffers used for reductions will be allocated as pinned memory.
+
+\item
   {\warn}To maximize efficiency, vector operations in the {\nveccuda} implementation
   that have more than one \id{N\_Vector} argument do not check for
   consistent internal representations of these vectors. It is the user's
@@ -393,7 +434,7 @@ class CudaExecPolicy
 {
 public:
   virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0; 
+  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
   virtual cudaStream_t stream() const = 0;
   virtual CudaExecPolicy* clone() const = 0;
   virtual ~CudaExecPolicy() {}
@@ -416,7 +457,7 @@ public:
 
   CudaThreadDirectExecPolicy(const CudaThreadDirectExecPolicy& ex)
     : blockDim_(ex.blockDim_), stream_(ex.stream_)
-  {} 
+  {}
 
   virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
   {

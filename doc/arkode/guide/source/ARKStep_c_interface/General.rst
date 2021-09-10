@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -171,6 +171,13 @@ appropriate name.  This file in turn includes the header file
 ``sundials_nvector.h`` which defines the abstract ``N_Vector`` data
 type.
 
+If the user wishes to manually select between any of the pre-defined
+ERK or DIRK Butcher tables, these are defined through a set of constants
+that are enumerated in the header files ``arkode/arkode_butcher_erk.h``
+and ``arkode/arkode_butcher_dirk.h``, or if a user wishes to manually
+specify one or more Butcher tables, the corresponding ``ARKodeButcherTable``
+structure is defined in ``arkode/arkode_butcher.h``.
+
 If the user includes a non-trivial implicit component to their
 ODE system, then each implicit stage will require a nonlinear solver for
 the resulting system of algebraic equations -- the default for this is a
@@ -226,7 +233,7 @@ for use with ARKode are:
   - ``sunlinsol/sunlinsol_cusolversp_batchqr.h``,
     which is used with the batched sparse QR factorization method provided
     by the NVDIA cuSOLVER library, SUNLINSOL_CUSOLVERSP_BATCHQR;
-    
+
 - Iterative linear solvers:
 
   - ``sunlinsol/sunlinsol_spgmr.h``,

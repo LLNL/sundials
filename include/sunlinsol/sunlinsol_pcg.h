@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -78,9 +78,9 @@ SUNDIALS_EXPORT int SUNLinSol_PCGSetPrecType(SUNLinearSolver S,
 SUNDIALS_EXPORT int SUNLinSol_PCGSetMaxl(SUNLinearSolver S,
                                          int maxl);
 
-SUNDIALS_DEPRECATED SUNLinearSolver SUNPCG(N_Vector y, int pretype, int maxl);
-SUNDIALS_DEPRECATED int SUNPCGSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_DEPRECATED int SUNPCGSetMaxl(SUNLinearSolver S, int maxl);
+SUNDIALS_DEPRECATED_EXPORT SUNLinearSolver SUNPCG(N_Vector y, int pretype, int maxl);
+SUNDIALS_DEPRECATED_EXPORT int SUNPCGSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_DEPRECATED_EXPORT int SUNPCGSetMaxl(SUNLinearSolver S, int maxl);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_PCG(SUNLinearSolver S);

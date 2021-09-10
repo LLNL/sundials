@@ -70,6 +70,15 @@ following operations:
 \end{itemize}
 
 
+{\warn} Starting with SuperLU\_DIST version 6.3.0, some structures were renamed
+to have a prefix for the floating point type. The double precision API functions
+have the prefix 'd'. To maintain backwards compatibility with the unprefixed
+types, SUNDIALS provides macros to these SuperLU\_DIST types with an 'x' prefix
+that expand to the correct prefix. E.g., the SUNDIALS macro \id{xLUstruct\_t}
+expands to \id{dLUstruct\_t} or \id{LUstruct\_t} based on the SuperLU\_DIST
+version.
+
+
 \subsection{SUNLinearSolver\_SuperLUDIST functions}\label{ss:sunlinsol_sludist_functions}
 
 The {\sunlinsolsludist} module defines implementations of all
@@ -311,10 +320,10 @@ struct _SUNLinearSolverContent_SuperLUDIST {
   int                     last_flag;
   realtype                berr;
   gridinfo_t              *grid;
-  LUstruct_t              *lu;
+  xLUstruct_t             *lu;
   superlu_dist_options_t  *options;
-  ScalePermstruct_t       *scaleperm;
-  SOLVEstruct_t           *solve;
+  xScalePermstruct_t      *scaleperm;
+  xSOLVEstruct_t          *solve;
   SuperLUStat_t           *stat;
   sunindextype            N;
 };

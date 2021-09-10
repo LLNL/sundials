@@ -6,7 +6,7 @@
 #                     library written by Rob Falgout @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -80,7 +80,7 @@ else
 fi
 
 # move to location where tarscript places tarballs
-cd ../..
+cd ../tarballs
 
 # check that tar file exists
 if [ ! -e $DISTFILE ]; then

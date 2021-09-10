@@ -26,7 +26,7 @@ implementation that is being used. Note:
   the {\sunlinsol} module, then {\kinls} will consider all solves as
   requiring zero iterations.
 \item Although \id{SUNLinSolResNorm} is optional, if it is not
-  implemented by the {\sunlinsol} then {\kinls} will consider all 
+  implemented by the {\sunlinsol} then {\kinls} will consider all
    solves a being \emph{exact}.
 \item Although {\kinls} does not call \id{SUNLinSolLastFlag}
   directly, this routine is available for users to query linear solver
@@ -41,11 +41,11 @@ implementation that is being used. Note:
 \caption{List of linear solver function usage in the {\kinls} interface}\label{t:sunlinsoluse}
 \medskip
 \begin{tabular}{|r|c|c|c|} \hline
-                                                    & 
-\begin{sideways}{DIRECT}             \end{sideways} & 
-\begin{sideways}{ITERATIVE}          \end{sideways} & 
+                                                    &
+\begin{sideways}{DIRECT}             \end{sideways} &
+\begin{sideways}{ITERATIVE}          \end{sideways} &
 \begin{sideways}{MATRIX\_ITERATIVE}  \end{sideways} \\ \hline\hline
-%                                  DIRECT       ITER    & MAT-ITER  
+%                                  DIRECT       ITER    & MAT-ITER
 \id{SUNLinSolGetType}           &    \cm    &    \cm    &    \cm    \\ \hline
 \id{SUNLinSolSetATimes}         & $\dagger$ &    \cm    & $\dagger$ \\ \hline
 \id{SUNLinSolSetPreconditioner} & $\dagger$ & $\dagger$ & $\dagger$ \\ \hline
@@ -85,7 +85,7 @@ described in \S\ref{ss:ModifiedNewtonResidualMon}.
 If the {\sunlinsol} object self-identifies as having type
 \id{SUNLINEARSOLVER\_ITERATIVE} or \newline
 \id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE} then {\kinls} will adjust the linear solver
-tolerance \id{delta} as described in \S\ref{ss:InexactNewtonStopCrit} 
+tolerance \id{delta} as described in \S\ref{ss:InexactNewtonStopCrit}
 during the course of the nonlinear solve process. However, if the
 iterative linear solver does not support scaling matrices (i.e., the
 \id{SUNLinSolSetScalingVectors} routine is \id{NULL}), then {\kinls} will
@@ -97,7 +97,7 @@ following assumptions are made:
 \begin{enumerate}
 \item All residual components have similar magnitude; hence the
   scaling matrix $D_F$ used in computing the linear residual norm (see
-  \S\ref{ss:Scaling}) should satisfy the assumption 
+  \S\ref{ss:Scaling}) should satisfy the assumption
   \[
     (D_F)_{i,i} \approx D_{F,mean},\quad \text{for}\quad i=0,\ldots,n-1.
   \]
@@ -108,7 +108,7 @@ following assumptions are made:
 Since {\kinsol} uses $D_F$ as the left-scaling matrix, $S_1 = D_F$,
 then the linear solver convergence requirement is converted as follows
 (using the notation from equations
-\eqref{eq:transformed_linear_system}-\eqref{eq:transformed_linear_system_components}): 
+\eqref{eq:transformed_linear_system}-\eqref{eq:transformed_linear_system_components}):
 \begin{align*}
   &\left\| \tilde{b} - \tilde{A} \tilde{x} \right\|_2  <  \text{tol}\\
   \Leftrightarrow \quad & \left\| D_F P_1^{-1} b - D_F P_1^{-1} A x \right\|_2  <  \text{tol}\\
@@ -125,6 +125,16 @@ is computed and the scaled tolerance \id{delta}$= \text{tol} / D_{F,mean}$ is
 supplied to the {\sunlinsol} object.
 
 %---------------------------------------------------------------------------
+\subsection{Matrix-embedded solver incompatibility}
+\label{ss:sunlinsol_matrix_embedded}
+%---------------------------------------------------------------------------
+
+At present, {\kinls} is incompatible with {\sunlinsol} objects that self-identify as having type
+\id{SUNLINEARSOLVER\_MATRIX\_EMBEDDED}.  Support for such user-supplied linear solvers may be 
+added in a future release.  Users interested in such support are recommended to contact the 
+{\sundials} development team.
+
+%---------------------------------------------------------------------------
 % sunlinsol module sections
 %---------------------------------------------------------------------------
 
@@ -136,6 +146,7 @@ supplied to the {\sunlinsol} object.
 \input{sunlinsol_superludist}
 \input{sunlinsol_superlumt}
 \input{sunlinsol_cusolversp}
+\input{sunlinsol_magmadense}
 \input{sunlinsol_spgmr}
 \input{sunlinsol_spfgmr}
 \input{sunlinsol_spbcgs}

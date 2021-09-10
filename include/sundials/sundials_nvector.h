@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -67,6 +67,8 @@ typedef enum {
   SUNDIALS_NVEC_PARHYP,
   SUNDIALS_NVEC_PETSC,
   SUNDIALS_NVEC_CUDA,
+  SUNDIALS_NVEC_HIP,
+  SUNDIALS_NVEC_SYCL,
   SUNDIALS_NVEC_RAJA,
   SUNDIALS_NVEC_OPENMPDEV,
   SUNDIALS_NVEC_TRILINOS,
@@ -98,6 +100,7 @@ struct _generic_N_Vector_Ops {
   void         (*nvdestroy)(N_Vector);
   void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
   realtype*    (*nvgetarraypointer)(N_Vector);
+  realtype*    (*nvgetdevicearraypointer)(N_Vector);
   void         (*nvsetarraypointer)(realtype *, N_Vector);
   void*        (*nvgetcommunicator)(N_Vector);
   sunindextype (*nvgetlength)(N_Vector);
@@ -149,6 +152,11 @@ struct _generic_N_Vector_Ops {
   realtype (*nvwsqrsumlocal)(N_Vector, N_Vector);
   realtype (*nvwsqrsummasklocal)(N_Vector, N_Vector, N_Vector);
 
+  /* OPTIONAL XBraid interface operations */
+  int (*nvbufsize)(N_Vector, sunindextype*);
+  int (*nvbufpack)(N_Vector, void*);
+  int (*nvbufunpack)(N_Vector, void*);
+
   /* debugging functions (called when SUNDIALS_DEBUG_PRINTVEC is defined) */
   void (*nvprint)(N_Vector);
   void (*nvprintfile)(N_Vector, FILE*);
@@ -177,6 +185,7 @@ SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer(N_Vector v);
+SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void *N_VGetCommunicator(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength(N_Vector v);
@@ -250,6 +259,10 @@ SUNDIALS_EXPORT booleantype N_VInvTestLocal(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom);
 
+/* OPTIONAL XBraid interface operations */
+SUNDIALS_EXPORT int N_VBufSize(N_Vector x, sunindextype *size);
+SUNDIALS_EXPORT int N_VBufPack(N_Vector x, void *buf);
+SUNDIALS_EXPORT int N_VBufUnpack(N_Vector x, void *buf);
 
 /* -----------------------------------------------------------------
  * Additional functions exported by NVECTOR module

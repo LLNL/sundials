@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -33,11 +33,11 @@ endif()
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 
 if(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CPODES_LIB sundials_cpodes_static)
-  set(NVECP_LIB sundials_nvecparallel_static)
+  set(CPODES_LIB sundials_cpodes${_STATIC_LIB_SUFFIX})
+  set(NVECP_LIB sundials_nvecparallel${_STATIC_LIB_SUFFIX})
 else(LINK_LIBRARY_TYPE MATCHES "static")
-  set(CPODES_LIB sundials_cpodes_shared)
-  set(NVECP_LIB sundials_nvecparallel_shared)
+  set(CPODES_LIB sundials_cpodes)
+  set(NVECP_LIB sundials_nvecparallel)
 endif(LINK_LIBRARY_TYPE MATCHES "static")
 
 # Set-up linker flags and link libraries
@@ -45,11 +45,11 @@ endif(LINK_LIBRARY_TYPE MATCHES "static")
 set(SUNDIALS_LIBS ${CPODES_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 if(LAPACK_FOUND)
   list(APPEND SUNDIALS_LIBS ${LAPACK_LIBRARIES})
-endif(LAPACK_FOUND)
+endif()
 
 if(BLAS_FOUND)
   list(APPEND SUNDIALS_LIBS ${BLAS_LIBRARIES})
-endif(BLAS_FOUND)
+endif()
 
 # Add the build and install targets for each CPODES example
 
@@ -62,7 +62,7 @@ foreach(example ${CPODES_examples})
   endif()
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example}.out DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/parallel)
-  endif(EXAMPLES_INSTALL)
+  endif()
 endforeach(example ${CPODES_examples})
 
 if(EXAMPLES_INSTALL)
@@ -109,6 +109,6 @@ if(EXAMPLES_INSTALL)
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cpodes/parallel
       RENAME Makefile
       )
-  endif(UNIX)
+  endif()
 
-endif(EXAMPLES_INSTALL)
+endif()

@@ -4,7 +4,7 @@
  *                David Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -190,7 +190,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
     iend = (j>SUNBandMatrix_Columns(A)-1-SUNBandMatrix_LowerBandwidth(A)) ?
       SUNBandMatrix_Columns(A)-1-j : SUNBandMatrix_LowerBandwidth(A);
     for (i=istart; i<=iend; i++)
-      failure += FNEQ(Acolj[i], Bcolj[i], tol);
+      failure += SUNRCompareTol(Acolj[i], Bcolj[i], tol);
   }
 
   if (failure > ZERO) {
@@ -224,7 +224,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     iend = (j>SUNBandMatrix_Columns(A)-1-SUNBandMatrix_LowerBandwidth(A)) ?
       SUNBandMatrix_Columns(A)-1-j : SUNBandMatrix_LowerBandwidth(A);
     for (i=istart; i<=iend; i++) {
-      if (FNEQ(Acolj[i], val, tol)) {
+      if (SUNRCompareTol(Acolj[i], val, tol)) {
         failure++;
         printf("j = %li, Acolj[%li] = %"GSYM", val = %"GSYM"\n",
                (long int) j, (long int) i, Acolj[i], val);
@@ -250,7 +250,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
   
   /* check vector data */
   for(i=0; i < local_length; i++) {
-    failure += FNEQ(Xdata[i], Ydata[i], tol);
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
   }
 
   if (failure > ZERO)

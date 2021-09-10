@@ -7,12 +7,18 @@
 \title{User Documentation for {\kinsol} {\kinrelease} \\
            ({\sundials} {\sunrelease})}
 \author{
-  Aaron M. Collier, Alan C. Hindmarsh, Radu Serban, and Carol S. Woodward\\
-  {\em Center for Applied Scientific Computing} \\
-  {\em Lawrence Livermore National Laboratory}
+  Alan C. Hindmarsh$^1$,
+  Radu Serban$^1$,
+  Cody J. Balos$^1$,\\
+  David J. Gardner$^1$,
+  Daniel R. Reynolds$^2$, and
+  Carol S. Woodward$^1$ \\
+  \\
+  {\em $^1$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory} \\
+  {\em $^2$Department of Mathematics, Southern Methodist University}
 }
 \date{
-  \today 
+  \today
   \vfill
   {\centerline{\includegraphics[width=0.5\textwidth]{doc_logo_blue}}}
   \vfill \kinucrlug
@@ -51,6 +57,10 @@
 \include{kin_fcmix}
 \clearemptydoublepage
 %===============================================================
+% GPU usage of KINSOL
+\include{kin_gpu}
+\clearemptydoublepage
+%===============================================================
 % Description of the NVECTOR Concept
 \include{kin_nvec}
 \clearemptydoublepage
@@ -61,6 +71,10 @@
 %===============================================================
 % Description of the SUNLinearSolver Concept
 \include{kin_sunlinsol}
+\clearemptydoublepage
+%===============================================================
+% Description of the SUNMemory API and modules
+\include{kin_sunmem}
 \clearemptydoublepage
 %===============================================================
 %% % Providing a new linear solver module

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -673,9 +673,9 @@ static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
   const realtype v = NV_Ith_S(y,1);
 
   /* fill in the Jacobian:
-     [G/2 + (G*(1+r(t))+rdot(t))/(2*u^2)     e/2+e*(2+s(t))/(2*v^2)]
+     [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)     e/2+e*(2+s(t))/(2*v^2)]
      [e/2+e*(1+r(t))/(2*u^2)                -1/2 - (2+s(t))/(2*v^2)] */
-  SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar))+rdot(t,rpar))/(2*u*u);
+  SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar))-rdot(t,rpar))/(2*u*u);
   SM_ELEMENT_D(J,0,1) = e/TWO+e*(TWO+s(t,rpar))/(TWO*v*v);
   SM_ELEMENT_D(J,1,0) = e/TWO+e*(ONE+r(t,rpar))/(TWO*u*u);
   SM_ELEMENT_D(J,1,1) = -ONE/TWO - (TWO+s(t,rpar))/(TWO*v*v);

@@ -69,28 +69,32 @@ echo "   --- Add ida examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/ida/CMakeLists.txt || exit 1
 
-$tar $tarfile $distrobase/examples/ida/serial/README               || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/CMakeLists.txt       || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.c     || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.out   || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_kry.c     || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_kry.out   || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.c      || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.out    || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.c      || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.out    || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_klu.c      || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_klu.out    || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.c   || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.out || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.c     || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.out   || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.c     || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.out   || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.c     || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.out   || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.c     || exit 1
-$tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.out   || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/README                 || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/CMakeLists.txt         || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaAnalytic_mels.c     || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaAnalytic_mels.out   || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.c       || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.out     || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_kry.c       || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_kry.out     || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.c        || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.out      || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.c        || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.out      || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_klu.c        || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_klu.out      || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.c     || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.out   || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls_1.out || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls_2.out || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.c       || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.out     || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.c       || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.out     || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.c       || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.out     || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.c       || exit 1
+$tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.out     || exit 1
 
 $tar $tarfile $distrobase/examples/ida/fcmix_serial/README              || exit 1
 $tar $tarfile $distrobase/examples/ida/fcmix_serial/CMakeLists.txt      || exit 1
@@ -137,12 +141,12 @@ $tar $tarfile $distrobase/examples/ida/mpicuda/idaHeat2D_kry_p_mpicuda.out || ex
 
 $tar $tarfile $distrobase/examples/ida/raja/README                 || exit 1
 $tar $tarfile $distrobase/examples/ida/raja/CMakeLists.txt         || exit 1
-$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.cu  || exit 1
+$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.cpp  || exit 1
 $tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.out || exit 1
 
 $tar $tarfile $distrobase/examples/ida/mpiraja/README                      || exit 1
 $tar $tarfile $distrobase/examples/ida/mpiraja/CMakeLists.txt              || exit 1
-$tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.cu  || exit 1
+$tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.cpp || exit 1
 $tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.out || exit 1
 
 $tar $tarfile $distrobase/examples/ida/trilinos/README                     || exit 1

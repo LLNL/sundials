@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -50,7 +50,7 @@ set(shared_SOURCES
   )
 
 # Add prefix with complete path to the common SUNDIALS sources
-add_prefix(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
+add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
 # Add variable cpodes_HEADERS with the exported CPODES header files
 set(cpodes_HEADERS
@@ -67,25 +67,25 @@ set(cpodes_HEADERS
   )
 
 # Add prefix with complete path to the CPODES header files
-add_prefix(${sundials_SOURCE_DIR}/include/cpodes/ cpodes_HEADERS)
+add_prefix(${SUNDIALS_SOURCE_DIR}/include/cpodes/ cpodes_HEADERS)
 
 # If Blas/Lapack support was enabled, set-up additional file lists
 if(LAPACK_FOUND)
   set(cpodes_BL_SOURCES cpodes_lapack.c)
   set(cpodes_BL_HEADERS cpodes_lapack.h)
-  add_prefix(${sundials_SOURCE_DIR}/include/cpodes/ cpodes_BL_HEADERS)
+  add_prefix(${SUNDIALS_SOURCE_DIR}/include/cpodes/ cpodes_BL_HEADERS)
 else(LAPACK_FOUND)
   set(cpodes_BL_SOURCES "")
   set(cpodes_BL_HEADERS "")
-endif(LAPACK_FOUND)
+endif()
 
 # Add source directories to include directories for access to
 # implementation only header files.
 include_directories(.)
 include_directories(../sundials)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
-add_definitions(-DBUILD_SUNDIALS_LIBRARY)
+
+
 
 # Build the static library
 if(BUILD_STATIC_LIBS)
@@ -101,7 +101,7 @@ if(BUILD_STATIC_LIBS)
   # Install the CPODES library
   install(TARGETS sundials_cpodes_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-endif(BUILD_STATIC_LIBS)
+endif()
 
 # Build the shared library
 if(BUILD_SHARED_LIBS)
@@ -121,7 +121,7 @@ if(BUILD_SHARED_LIBS)
   # Install the CPODES library
   install(TARGETS sundials_cpodes_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-endif(BUILD_SHARED_LIBS)
+endif()
 
 # Install the CPODES header files
 install(FILES ${cpodes_HEADERS} ${cpodes_BL_HEADERS} DESTINATION include/cpodes)

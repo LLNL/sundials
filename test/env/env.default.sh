@@ -3,7 +3,7 @@
 # Programmer(s): Cody J. Balos and David J. Gardner @ LLNL
 # -------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -60,6 +60,10 @@ if [ "$#" -gt 3 ]; then
     bldtype=$4
 fi
 
+# get compiler name and version from spec
+compilername="${compiler%%@*}"
+compilerversion="${compiler##*@}"
+
 # ------------------------------------------------------------------------------
 # Check input values
 # ------------------------------------------------------------------------------
@@ -81,8 +85,7 @@ case "$indexsize" in
 esac
 
 case "$compiler" in
-    gcc@4.9.4|gcc@8.3.0|gcc@9.2.0) ;;
-    clang@9.0.0);;
+    gcc@4.9.4);;
     *)
         echo "ERROR: Unknown compiler spec: $compiler"
         return 1
@@ -101,15 +104,28 @@ esac
 # Setup environment
 # ------------------------------------------------------------------------------
 
-# get compiler name and version from spec
-compilername="${compiler%%@*}"
-compilerversion="${compiler##*@}"
-
 # set file permissions (rwxrwxr-x)
 umask 002
 
+# if SPACK_ROOT is not set, check for the shared spack installation
+if [ -z "$SPACK_ROOT" ]; then
+    if [ -d "/usr/casc/sundials/share/sunenv/spack" ]; then
+        echo "Using shared spack install"
+        export SPACK_ROOT=/usr/casc/sundials/share/sundials-tpls-v0.15.4/spack
+        source ${SPACK_ROOT}/share/spack/setup-env.sh
+    else
+        echo "WARNING: Could not locate spack installation"
+    fi
+fi
+
 # path to libraries not installed through spack
-APPDIR=/usr/casc/sundials/share/sunenv/apps/${compilername}-${compilerversion}
+APPDIR=/usr/casc/sundials/share/sundials-tpls-v0.15.4/apps/${compilername}-${compilerversion}
+
+# load CMake
+spack load cmake@3.12.1
+
+# load compiler
+spack load ${compiler}
 
 # ------------------------------------------------------------------------------
 # Compilers and flags
@@ -179,7 +195,11 @@ export KINSOL_STATUS=ON
 # Fortran interface status
 if [ "$compilername" == "gcc" ]; then
     export F77_STATUS=ON
-    export F03_STATUS=ON
+    if [[ ("$realtype" == "double") && ("$indexsize" == "64") ]]; then
+        export F03_STATUS=ON
+    else
+        export F03_STATUS=OFF
+    fi
 else
     export F77_STATUS=OFF
     export F03_STATUS=OFF
@@ -206,17 +226,18 @@ export OMP_NUM_THREADS=4
 export OPENMPDEV_STATUS=OFF
 
 # CUDA settings
-if [[ ("$compiler" != "gcc@9.2.0") && ("$compiler" != "clang@9.0.0") ]]; then
-    if [ "$realtype" == "extended" ]; then
-        export CUDA_STATUS=OFF
-    else
-        export CUDA_STATUS=ON
-    fi
+if [ "$realtype" == "extended" ]; then
+    export CUDA_STATUS=OFF
+    # fused ops require CUDA
+    export FUSED_STATUS=OFF
+else
+    export CUDA_STATUS=ON
+    export CUDA_ARCH=60
 fi
 
 # MPI
 export MPI_STATUS=ON
-MPIDIR="$(spack location -i openmpi@3.1.4 % "$compiler")"
+MPIDIR="$(spack location -i openmpi@3.1.6 % "$compiler")"
 export MPICC="${MPIDIR}/bin/mpicc"
 export MPICXX="${MPIDIR}/bin/mpicxx"
 export MPIFC="${MPIDIR}/bin/mpifort"
@@ -229,9 +250,9 @@ if [ "$realtype" == "extended" ]; then
 else
     export LAPACK_STATUS=ON
     if [ "$indexsize" == "32" ]; then
-        LAPACKDIR="$(spack location -i openblas@0.3.7~ilp64 % "$compiler")"
+        LAPACKDIR="$(spack location -i openblas@0.3.10~ilp64 % "$compiler")"
     else
-        LAPACKDIR="$(spack location -i openblas@0.3.7+ilp64 % "$compiler")"
+        LAPACKDIR="$(spack location -i openblas@0.3.10+ilp64 % "$compiler")"
     fi
     export LAPACKLIBS="${LAPACKDIR}/lib/libopenblas.so"
 fi
@@ -258,7 +279,7 @@ if [ "$realtype" != "double" ]; then
     unset KLUDIR
 else
     export KLU_STATUS=ON
-    export KLUDIR="$(spack location -i suite-sparse@5.3.0 % "$compiler")"
+    export KLUDIR="$(spack location -i suite-sparse@5.7.2 % "$compiler")"
 fi
 
 # SuperLU_MT
@@ -284,12 +305,12 @@ if [ "$realtype" != "double" ]; then
 else
     export SLUDIST_STATUS=ON
     if [ "$indexsize" == "32" ]; then
-        export SLUDISTDIR="$(spack location -i superlu-dist@6.1.1~int64+openmp % "$compiler")"
+        export SLUDISTDIR="$(spack location -i superlu-dist@6.3.1~int64+openmp % "$compiler")"
     else
-        export SLUDISTDIR="$(spack location -i superlu-dist@6.1.1+int64+openmp % "$compiler")"
+        export SLUDISTDIR="$(spack location -i superlu-dist@6.3.1+int64+openmp % "$compiler")"
     fi
     # built with 32-bit blas
-    BLASDIR="$(spack location -i openblas@0.3.7~ilp64 % "$compiler")"
+    BLASDIR="$(spack location -i openblas@0.3.10~ilp64 % "$compiler")"
     BLASLIBS=${BLASDIR}/lib/libopenblas.so
     export SLUDISTLIBS="${BLASLIBS};${PARMETISLIB};${METISLIB};${SLUDISTDIR}/lib/libsuperlu_dist.a"
 fi
@@ -314,16 +335,20 @@ if [ "$realtype" != "double" ]; then
 else
     export PETSC_STATUS=ON
     if [ "$indexsize" == "32" ]; then
-        export PETSCDIR="$(spack location -i petsc@3.12.1~int64 % $compiler)"
+        export PETSCDIR="$(spack location -i petsc@3.13.1~int64 % $compiler)"
     else
-        export PETSCDIR="$(spack location -i petsc@3.12.1+int64 % $compiler)"
+        export PETSCDIR="$(spack location -i petsc@3.13.1+int64 % $compiler)"
     fi
 fi
 
-# trilinos
+# trilinos (examples do not build with 64-bit)
 if [ "$realtype" == "double" ] && [ "$indexsize" == "32" ]; then
     export TRILINOS_STATUS=ON
-    export TRILINOSDIR="$(spack location -i trilinos@12.14.1 % $compiler)"
+    if [ "$indexsize" == "32" ]; then
+        export TRILINOSDIR="$(spack location -i trilinos@12.18.1 gotype=int % $compiler)"
+    else
+        export TRILINOSDIR="$(spack location -i trilinos@12.18.1 gotype=long_long % $compiler)"
+    fi
 else
     export TRILINOS_STATUS=OFF
     unset TRILINOSDIR
@@ -331,9 +356,14 @@ fi
 
 # raja
 RAJA_STATUS=OFF
-if [[ ("$compiler" != "gcc@9.2.0") && ("$compiler" != "clang@9.0.0") ]]; then
-    if [ "$realtype" == "double" ]; then
-        RAJA_STATUS=ON
-        export RAJADIR=${APPDIR}/raja-0.10.0
-    fi
+if [ "$realtype" == "double" ]; then
+    RAJA_STATUS=ON
+    export RAJADIR=${APPDIR}/raja-0.12.1
+fi
+
+# xbraid
+XBRAID_STATUS=OFF
+if [ "$realtype" == "double" ] && [ "$indexsize" == "32" ]; then
+    XBRAID_STATUS=ON
+    export XBRAIDDIR=${APPDIR}/xbraid
 fi

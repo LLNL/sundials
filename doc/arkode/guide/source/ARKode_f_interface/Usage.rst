@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -403,7 +403,7 @@ Key                      ARKStep routine
 ``MAX_CONVFAIL``         :c:func:`ARKStepSetMaxConvFails()`
 ``MAX_NITERS``           :c:func:`ARKStepSetMaxNonlinIters()`
 ``ADAPT_SMALL_NEF``      :c:func:`ARKStepSetSmallNumEFails()`
-``LSETUP_MSBP``          :c:func:`ARKStepSetMaxStepsBetweenLSet()`
+``LSETUP_MSBP``          :c:func:`ARKStepSetLSetupFrequency()`
 ``MAX_CONSTR_FAIL``      :c:func:`ARKStepSetMaxNumConstrFails()`
 =======================  =========================================
 

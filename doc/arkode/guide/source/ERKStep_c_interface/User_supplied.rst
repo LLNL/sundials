@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -71,16 +71,21 @@ specify the right-hand side of the ODE system:
    case the integration is halted and *ARK_RHSFUNC_FAIL* is returned).
 
    **Notes:** Allocation of memory for `ydot` is handled within the
-   ERKStep module.  A recoverable failure error return from the
-   *ARKRhsFn* is typically used to flag a value of the dependent
-   variable :math:`y` that is "illegal" in some way (e.g., negative
-   where only a non-negative value is physically meaningful).  If such
-   a return is made, ERKStep will attempt to recover by reducing the
-   step size in order to avoid this recoverable error return.  There
-   are some situations in which recovery is not possible even if the
-   right-hand side function returns a recoverable error flag.  One is
-   when this occurs at the very first call to the *ARKRhsFn* (in which
-   case ERKStep returns *ARK_FIRST_RHSFUNC_ERR*).
+   ERKStep module.
+
+   The vector *ydot* may be uninitialized on input; it is the user's
+   responsibility to fill this entire vector with meaningful values.
+
+   A recoverable failure error return from the *ARKRhsFn* is typically
+   used to flag a value of the dependent variable :math:`y` that is
+   "illegal" in some way (e.g., negative where only a non-negative
+   value is physically meaningful).  If such a return is made, ERKStep
+   will attempt to recover by reducing the step size in order to avoid
+   this recoverable error return.  There are some situations in which
+   recovery is not possible even if the right-hand side function
+   returns a recoverable error flag.  One is when this occurs at the
+   very first call to the *ARKRhsFn* (in which case ERKStep returns
+   *ARK_FIRST_RHSFUNC_ERR*).
 
 
 

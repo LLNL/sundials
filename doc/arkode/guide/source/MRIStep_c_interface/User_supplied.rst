@@ -4,7 +4,7 @@
    Based on ERKStep by Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -62,10 +62,10 @@ The user-supplied functions for MRIStep consist of:
   by the outer integrator to the inner integrator, or state data supplied
   by the inner integrator to the outer integrator.
 
-  
+
 Additionally, a user may supply a custom set of slow-to-fast coupling coefficients for the MRI method.
 
-     
+
 
 .. _MRIStep_CInterface.ODERHS:
 
@@ -95,6 +95,9 @@ specify the "slow" right-hand side of the ODE system:
 
    **Notes:** Allocation of memory for `ydot` is handled within the
    MRIStep module.
+
+   The vector *ydot* may be uninitialized on input; it is the user's
+   responsibility to fill this entire vector with meaningful values.
 
    A recoverable failure error return from the *ARKRhsFn* is typically
    used to flag a value of the dependent variable :math:`y` that is
@@ -386,6 +389,16 @@ object was supplied to :c:func:`MRIStepSetLinearSolver()` in section
    to calling the user-supplied Jacobian function, the Jacobian
    matrix :math:`J(t,y)` is zeroed out, so only nonzero elements need
    to be loaded into *Jac*.
+
+   With the default nonlinear solver (the native SUNDIALS Netwon method), each
+   call to the user's :c:func:`ARKLsJacFn` function is preceded by a call to the
+   implicit :c:func:`ARKRhsFn` user function with the same :math:`(t,y)`
+   arguments. Thus, the Jacobian function can use any auxiliary data that is
+   computed and saved during the evaluation of the implicit ODE right-hand side.
+   In the case of a user-supplied or external nonlinear solver, this is also
+   true if the nonlinear system function is evaluated prior to calling the
+   linear solver setup function (see :ref:`SUNNonlinSol.SUNSuppliedFn` for more
+   information).
 
    If the user's :c:type:`ARKLsJacFn` function uses difference
    quotient approximations, then it may need to access quantities not
@@ -711,11 +724,15 @@ user-supplied function of type :c:type:`ARKLsPrecSetupFn`.
    factorization of the resulting approximation to :math:`A = I -
    \gamma J`.
 
-   Each call to the preconditioner setup function is preceded by a
-   call to the implicit :c:type:`ARKRhsFn` user function with the
-   same :math:`(t,y)` arguments.  Thus, the preconditioner setup
-   function can use any auxiliary data that is computed and saved
-   during the evaluation of the ODE right-hand side.
+   With the default nonlinear solver (the native SUNDIALS Netwon method), each
+   call to the preconditioner setup function is preceded by a call to the
+   implicit :c:type:`ARKRhsFn` user function with the same :math:`(t,y)`
+   arguments.  Thus, the preconditioner setup function can use any auxiliary
+   data that is computed and saved during the evaluation of the implicit ODE
+   right-hand side. In the case of a user-supplied or external nonlinear solver,
+   this is also true if the nonlinear system function is evaluated prior to
+   calling the linear solver setup function (see
+   :ref:`SUNNonlinSol.SUNSuppliedFn` for more information).
 
    This function is not called in advance of every call to the
    preconditioner solve function, but rather is called only as often
@@ -774,7 +791,7 @@ following form:
    instead destroy the vector *y* and clone a new vector *y* off of
    *ytemplate*.
 
-   
+
 .. _MRIStep_CInterface.PreInnerFn:
 
 Pre inner integrator communication function

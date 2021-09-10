@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -25,6 +25,10 @@
 .. [A1965] D.G. Anderson, Iterative Procedures for Nonlinear Integral
            Equations, *J. Assoc. Comput. Machinery*,
            12:547-560, 1965.
+
+.. [AP1998] U.M Ascher and L.R. Petzold, Computer Methods for Ordinary
+            Differential Equations and Differential-Algebraic Equations,
+            SIAM, Philadelphia, 1998.
 
 .. [B1985] Bank et al., Transient Simulation of Silicon Devices and
            Circuits, *IEEE Trans. CAD*, 4:436-451, 1985.
@@ -71,6 +75,9 @@
 .. [CGM2014] J. Cheng, M. Grossman and T. McKercher. Professional Cuda
              C Programming.  John Wiley & Sons, 2014.
 
+.. [CUDA] `NVIDIA CUDA Programming Guide
+          <https://docs.nvidia.com/cuda/index.html>`_.
+
 .. [cuSOLVER] `NVIDIA cuSOLVER Documentation
                <https://docs.nvidia.com/cuda/cusolver/index.html>`_.
 
@@ -100,6 +107,10 @@
 .. [DS1996] J.E. Dennis and R.B. Schnabel.  Numerical Methods for
             Unconstrained Optimization and Nonlinear Equations. SIAM,
             Philadelphia, 1996.
+
+.. [F2014] R.D. Falgout, S. Friedhoff, TZ.V. Kolev, S.P. MacLachlan, and
+           J.B. Schroder, Parallel Time Integration with Multigrid,
+           *SIAM J. Sci. Comput.*, 36:C635-C661, 2014.
 
 .. [F2015] R. Falgout and U.M. Yang. Hypre user's manual. *LLNL
            Technical Report*, 2015.
@@ -148,11 +159,11 @@
            Report UCRL-ID-141558, LLNL, 2000.
 
 .. [HS2017] A.C. Hindmarsh and R. Serban. User Documentation for CVODE
-            v5.3.0. Technical Report UCRL-SM-208108, LLNL, 2020.
+            v5.7.0. Technical Report UCRL-SM-208108, LLNL, 2021.
 
 .. [HSR2017] A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-             Programs for CVODE v5.3.0. Technical Report
-             UCRL-SM-208110, LLNL, 2020.
+             Programs for CVODE v5.7.0. Technical Report
+             UCRL-SM-208110, LLNL, 2021.
 
 .. [HT1998] A.C. Hindmarsh and A.G. Taylor.  PVODE and KINSOL:
             Parallel Software for Differential and Nonlinear
@@ -197,9 +208,19 @@
               Accelerated Picard Method for Nonlinear Systems Related to
               Variably Saturated Flow, *Adv. Wat. Resour.*, 38:92-101, 2012.
 
+.. [MAGMA2010] S. Tomov, J. Dongarra, and M. Baboulin
+               Towards dense linear algebra for hybrid GPU accelerated manycore systems.
+               Parallel Matrix Algorithms and Applications, 36:232--240, 2010.
+
+.. [oneAPI] `Intel oneAPI Programming Guide
+             <https://software.intel.com/content/www/us/en/develop/documentation/oneapi-programming-guide/top.html>`_.
+
 .. [R2018] D.R. Reynolds. ARKode Example Documentation. Technical
            Report, Southern Methodist University Center for Scientific
-           Computation, 2020.
+           Computation, 2021.
+
+.. [ROCm] `AMD ROCm Documentation
+          <https://rocmdocs.amd.com/en/latest/index.html>`_.
 
 .. [SS1986] Y. Saad and M.H. Schultz. GMRES: A Generalized Minimal Residual
             Algorithm for Solving Nonsymmetric Linear Systems.
@@ -210,7 +231,7 @@
 
 .. [S2019] A. Sandu, A Class of Multirate Infinitesimal GARK Methods.
            *SIAM J. Numer. Anal.*, 57:2300-2327, 2019.
-           
+
 .. [SA2002] A. Sayfy and A. Aburub. Embedded Additive Runge-Kutta
             Methods. *Intern. J. Computer Math.*, 79:945-953, 2002.
 
@@ -260,6 +281,8 @@
 .. [KW1998] O. Knoth and R. Wolke. Implicit-explicit Runge-Kutta methods for
             computing atmospheric reactive flows. *Appl. Numer. Math.*,
             28(2):327-341, 1998.
+
+.. [XBraid] `XBraid: Parallel multigrid in time. <http://llnl.gov/casc/xbraid>`_.
 
 .. [Z1963] J.A. Zonneveld. Automatic integration of ordinary
            differential equations. *Report R743, Mathematisch Centrum*,

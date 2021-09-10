@@ -1506,7 +1506,7 @@ disable solution scaling when using a matrix-based linear solver.
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
+    pointer to the {\cvodes} memory block.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
   \item[onoffB] (\id{booleantype})
@@ -1807,7 +1807,7 @@ factor.
   The function \ID{CVodeSetEpsLinB} specifies the factor by
   which the Krylov linear solver's convergence test constant is reduced
   from the nonlinear iteration test constant.
-  This routine can be used in both the cases wherethe backward problem
+  This routine can be used in both the cases where the backward problem
   does and does not depend on the forward sensitvities.
 }
 {
@@ -1847,8 +1847,64 @@ factor.
   users transition to the new routine name soon.
 }
 %%
-\index{optional input!iterative linear solver|)}
 %%
+\ucfunctionf{CVodeSetLSNormFactorB}
+{
+  flag = CVodeSetLSNormFactorB(cvode\_mem, which, nrmfac);
+}
+{
+  The function \ID{CVodeSetLSNormFactor} specifies the factor to use when
+  converting from the integrator tolerance (WRMS norm) to the linear solver
+  tolerance (L2 norm) for Newton linear system solves e.g.,
+  \id{tol\_L2 = fac * tol\_WRMS}.
+  This routine can be used in both the cases wherethe backward problem
+  does and does not depend on the forward sensitvities.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[nrmfac] (\id{realtype})
+    the norm conversion factor. If \id{nrmfac} is:
+    \begin{itemize}
+    \item[$> 0$] then the provided value is used.
+    \item[$= 0$] then the conversion factor is computed using the vector length
+      i.e., \id{nrmfac = N\_VGetLength(y)} (\textit{default}).
+    \item[$< 0$] then the conversion factor is computed using the vector dot
+      product \id{nrmfac = N\_VDotProd(v,v)} where all the entries of \id{v} are
+      one.
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolverB}.
+
+  Prior to the introduction of \id{N\_VGetLength} in {\sundials} v5.0.0
+  ({\cvodes} v5.0.0) the value of \id{nrmfac} was computed using the vector
+  dot product i.e., the \id{nrmfac < 0} case.
+}
+%%
+%%
+\index{optional input!iterative linear solver|)}
 \index{CVLS@{\cvls} linear solver interface!optional input|)}
 \index{optional input!generic linear solver interface|)}
 

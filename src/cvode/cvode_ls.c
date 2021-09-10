@@ -1,9 +1,9 @@
-/*-----------------------------------------------------------------
+/* ----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
- *-----------------------------------------------------------------
+ * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,9 +11,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- *-----------------------------------------------------------------
+ * ----------------------------------------------------------------
  * Implementation file for CVode's linear solver interface.
- *-----------------------------------------------------------------*/
+ * ---------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,13 +86,21 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
 
   /* Set flags based on LS type */
   iterative   = (LSType != SUNLINEARSOLVER_DIRECT);
-  matrixbased = (LSType != SUNLINEARSOLVER_ITERATIVE);
+  matrixbased = ((LSType != SUNLINEARSOLVER_ITERATIVE) &&
+                 (LSType != SUNLINEARSOLVER_MATRIX_EMBEDDED));
 
   /* Test if vector is compatible with LS interface */
   if ( (cv_mem->cv_tempv->ops->nvconst == NULL) ||
        (cv_mem->cv_tempv->ops->nvwrmsnorm == NULL) ) {
     cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS",
                    "CVodeSetLinearSolver", MSG_LS_BAD_NVECTOR);
+    return(CVLS_ILL_INPUT);
+  }
+
+  /* Ensure that A is NULL when LS is matrix-embedded */
+  if ((LSType == SUNLINEARSOLVER_MATRIX_EMBEDDED) && (A != NULL)) {
+    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS", "CVodeSetLinearSolver",
+                    "Incompatible inputs: matrix-embedded LS requires NULL matrix");
     return(CVLS_ILL_INPUT);
   }
 
@@ -105,13 +113,14 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
       return(CVLS_ILL_INPUT);
     }
 
-    if (!matrixbased && LS->ops->setatimes == NULL) {
+    if (!matrixbased && (LSType != SUNLINEARSOLVER_MATRIX_EMBEDDED) &&
+        (LS->ops->setatimes == NULL)) {
       cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS", "CVodeSetLinearSolver",
                      "Incompatible inputs: iterative LS must support ATimes routine");
       return(CVLS_ILL_INPUT);
     }
 
-    if (matrixbased && A == NULL) {
+    if (matrixbased && (A == NULL)) {
       cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS", "CVodeSetLinearSolver",
                      "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
       return(CVLS_ILL_INPUT);
@@ -235,11 +244,11 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
     return(CVLS_MEM_FAIL);
   }
 
-  /* For iterative LS, compute sqrtN */
+  /* For iterative LS, compute default norm conversion factor */
   if (iterative)
-    cvls_mem->sqrtN = SUNRsqrt( N_VGetLength(cvls_mem->ytemp) );
+    cvls_mem->nrmfac = SUNRsqrt( N_VGetLength(cvls_mem->ytemp) );
 
-  /* Check if soltuion scaling should be enabled */
+  /* Check if solution scaling should be enabled */
   if (matrixbased && cv_mem->cv_lmm == CV_BDF)
     cvls_mem->scalesol = SUNTRUE;
   else
@@ -321,22 +330,64 @@ int CVodeSetEpsLin(void *cvode_mem, realtype eplifac)
 }
 
 
-/* CVodeSetMaxStepsBetweenJac specifies the maximum number of
-   time steps to wait before recomputing the Jacobian matrix
-   and/or preconditioner */
-int CVodeSetMaxStepsBetweenJac(void *cvode_mem, long int msbj)
+/* CVodeSetLSNormFactor sets or computes the factor to use when converting from
+   the integrator tolerance to the linear solver tolerance (WRMS to L2 norm). */
+int CVodeSetLSNormFactor(void *cvode_mem, realtype nrmfac)
+{
+  CVodeMem cv_mem;
+  CVLsMem  cvls_mem;
+  int      retval;
+
+  /* access CVLsMem structure */
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeSetLSNormFactor",
+                           &cv_mem, &cvls_mem);
+  if (retval != CVLS_SUCCESS) return(retval);
+
+  if (nrmfac > ZERO) {
+    /* user-provided factor */
+    cvls_mem->nrmfac = nrmfac;
+  } else if (nrmfac < ZERO) {
+    /* compute factor for WRMS norm with dot product */
+    N_VConst(ONE, cvls_mem->ytemp);
+    cvls_mem->nrmfac = SUNRsqrt(N_VDotProd(cvls_mem->ytemp, cvls_mem->ytemp));
+  } else {
+    /* compute default factor for WRMS norm from vector legnth */
+    cvls_mem->nrmfac = SUNRsqrt(N_VGetLength(cvls_mem->ytemp));
+  }
+
+  return(CVLS_SUCCESS);
+}
+
+
+/* CVodeSetJacEvalFrequency specifies the frequency for recomputing the Jacobian
+   matrix and/or preconditioner */
+int CVodeSetJacEvalFrequency(void *cvode_mem, long int msbj)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
   int      retval;
 
   /* access CVLsMem structure; store input and return */
-  retval = cvLs_AccessLMem(cvode_mem, "CVodeSetMaxStepsBetweenJac",
+  retval = cvLs_AccessLMem(cvode_mem, "CVodeSetJacEvalFrequency",
                            &cv_mem, &cvls_mem);
   if (retval != CVLS_SUCCESS)  return(retval);
-  cvls_mem->msbj = (msbj <= ZERO) ? CVLS_MSBJ : msbj;
+
+  /* Check for legal msbj */
+  if(msbj < 0) {
+    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVLS", "CVodeSetJacEvalFrequency",
+                   "A negative evaluation frequency was provided.");
+    return(CVLS_ILL_INPUT);
+  }
+
+  cvls_mem->msbj = (msbj == 0) ? CVLS_MSBJ : msbj;
 
   return(CVLS_SUCCESS);
+}
+
+/* Deprecated */
+int CVodeSetMaxStepsBetweenJac(void *cvode_mem, long int msbj)
+{
+  return(CVodeSetJacEvalFrequency(cvode_mem, msbj));
 }
 
 
@@ -1392,6 +1443,12 @@ int cvLsInitialize(CVodeMem cv_mem)
   if ( (cvls_mem->A == NULL) && (cvls_mem->pset == NULL) )
     cv_mem->cv_lsetup = NULL;
 
+  /* When using a matrix-embedded linear solver, disable lsetup call and solution scaling */
+  if (SUNLinSolGetType(cvls_mem->LS) == SUNLINEARSOLVER_MATRIX_EMBEDDED) {
+    cv_mem->cv_lsetup = NULL;
+    cvls_mem->scalesol = SUNFALSE;
+  }
+
   /* Call LS initialize routine, and return result */
   cvls_mem->last_flag = SUNLinSolInitialize(cvls_mem->LS);
   return(cvls_mem->last_flag);
@@ -1428,6 +1485,12 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   }
   cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
+  /* Immediately return when using matrix-embedded linear solver */
+  if (SUNLinSolGetType(cvls_mem->LS) == SUNLINEARSOLVER_MATRIX_EMBEDDED) {
+    cvls_mem->last_flag = CVLS_SUCCESS;
+    return(cvls_mem->last_flag);
+  }
+
   /* Set CVLs N_Vector pointers to current solution and rhs */
   cvls_mem->ycur = ypred;
   cvls_mem->fcur = fpred;
@@ -1435,7 +1498,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
   /* Use nst, gamma/gammap, and convfail to set J/P eval. flag jok */
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
   cvls_mem->jbad = (cv_mem->cv_nst == 0) ||
-    (cv_mem->cv_nst > cvls_mem->nstlj + cvls_mem->msbj) ||
+    (cv_mem->cv_nst >= cvls_mem->nstlj + cvls_mem->msbj) ||
     ((convfail == CV_FAIL_BAD_J) && (dgamma < CVLS_DGMAX)) ||
     (convfail == CV_FAIL_OTHER);
 
@@ -1535,7 +1598,8 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
       cvls_mem->last_flag = CVLS_SUCCESS;
       return(cvls_mem->last_flag);
     }
-    delta = deltar * cvls_mem->sqrtN;
+    /* Adjust tolerance for 2-norm */
+    delta = deltar * cvls_mem->nrmfac;
   } else {
     delta = ZERO;
   }

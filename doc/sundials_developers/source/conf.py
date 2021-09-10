@@ -2,7 +2,7 @@
 # Author(s): David J. Gardner @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -34,7 +34,7 @@
 project = 'SUNDIALS Developers Guide'
 copyright = '2020, The SUNDIALS Team'
 author = 'David J. Gardner, Cody J. Balos, Daniel R. Reynolds, Carol W. Woodward'
-version = 'v5.3.0'
+version = 'v5.7.0'
 
 # The master toctree document (needed with Sphinx 1.6.7 but not 3.1.1)
 master_doc = 'index'
@@ -58,6 +58,9 @@ exclude_patterns = []
 # Set the date format (full-month-name day, full-year)
 today_fmt = '%B %d, %Y'
 
+# Figures, tables and code-blocks are automatically numbered if they have a
+# caption
+numfig = True
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -67,15 +70,15 @@ today_fmt = '%B %d, %Y'
 # 4. text for \author
 # 5. the LaTeX theme
 # 6. include the file from 1. in the output
-tex_author = """
-    David J. Gardner, Cody J. Balos, and Carol S. Woodward\\\\
-    {\em Center for Applied Scientific Computing} \\\\
-    {\em Lawrence Livermore National Laboratory} \\\\
-    \\\\
-    Daniel R. Reynolds\\\\
-    {\em Department of Mathematics} \\\\
-    {\em Southern Methodist University}
-    """
+tex_author = r'''
+    David J. Gardner$^1$,
+    Cody J. Balos$^1$
+    Carol S. Woodward$^1$, and
+    Daniel R. Reynolds$^2$ \\
+    \\
+    {\em $^1$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory} \\
+    {\em $^2$Department of Mathematics, Southern Methodist University}
+    '''
 
 latex_documents = [('index', 'sundials_developers_guide.tex', project,
                     tex_author, 'manual', False)]
@@ -193,6 +196,31 @@ Livermore National Laboratory under Contract DE-AC52-07NA27344.
 \end{center}
 
 \clearpage
+
+% Contributors
+\thispagestyle{empty}% no number of this page
+\vglue5\baselineskip
+\begin{center}
+{\bf CONTRIBUTORS}
+\end{center}
+\noindent
+The SUNDIALS library has been developed over many years by a number of
+contributors. The current SUNDIALS team consists of Cody J. Balos,
+David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and
+Carol S. Woodward. We thank Radu Serban for significant and critical past
+contributions.\\
+\vskip 2em%
+\noindent
+Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
+Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
+Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
+Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
+Dan Shumaker, Steve G. Smith, Allan G. Taylor, Hilari C. Tiedeman, Chris White,
+Ting Yan, and Ulrike M. Yang.
+\clearpage
+
+% clear empty double page
+\newpage{\pagestyle{empty}\cleardoublepage}
 
 % Start arabic numbering
 \pagenumbering{arabic}

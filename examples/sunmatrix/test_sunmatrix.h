@@ -4,7 +4,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -29,13 +29,6 @@
 #define ONE      RCONST(1.0)
 #define TWO      RCONST(2.0)
 #define THREE    RCONST(3.0)
-
-/* NAN and floating point "equality" check, failure update macro */
-#if __STDC_VERSION__ >= 199901L
-#define FNEQ(a,b,tol) (isnan(a) ? 1 : ( SUNRabs((a)-(b))/SUNRabs(b) > tol ))
-#else
-#define FNEQ(a,b,tol) (( SUNRabs((a)-(b))/SUNRabs(b) > tol ))
-#endif
 
 /* Helpers for printing out test status information */
 #define TEST_STATUS(fmt, myrank)                     \
@@ -69,6 +62,7 @@ extern "C" {
   int check_vector(N_Vector expected, N_Vector computed, realtype tol);
   booleantype has_data(SUNMatrix A);
   booleantype is_square(SUNMatrix A);
+  void sync_device();
 
   /* Test function declarations */
   int Test_SUNMatGetID(SUNMatrix A, SUNMatrix_ID sunid, int myid);

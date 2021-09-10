@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -39,7 +39,7 @@ int Test_SetKernelExecPolicy(SUNMatrix A, int myid);
 class ATestExecPolicy : public SUNCudaExecPolicy
 {
 public:
-  ATestExecPolicy(){}
+  ATestExecPolicy() : stream_(0) {}
 
   virtual size_t gridSize(size_t numWorkElements = 0, size_t blockDim = 0) const
   {
@@ -51,15 +51,18 @@ public:
     return 1;
   }
 
-  virtual cudaStream_t stream() const
+  virtual const cudaStream_t* stream() const
   {
-    return 0;
+    return &stream_;
   }
 
   virtual SUNCudaExecPolicy* clone() const
   {
     return static_cast<SUNCudaExecPolicy*>(new ATestExecPolicy());
   }
+
+private:
+  const cudaStream_t stream_;
 };
 
  /* ----------------------------------------------------------------------
@@ -457,7 +460,6 @@ public:
   * --------------------------------------------------------------------*/
 int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 {
-  printf("HERE\n");
   int print_all_ranks = 0;
   realtype  tol = 100*UNIT_ROUNDOFF;
   SUNMatrix B = SUNMatClone(I);
@@ -593,7 +595,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 
    /* compare matrix values */
    for(i=0; i<Annz; i++)
-     failure += FNEQ(Adata[i], Bdata[i], tol);
+     failure += SUNRCompareTol(Adata[i], Bdata[i], tol);
    if (failure > ZERO) {
      printf(">>> ERROR: check_matrix: Different entries \n");
      SUNMatDestroy(A); SUNMatDestroy(B);
@@ -618,7 +620,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 
    /* compare data */
    for(i=0; i < SUNMatrix_cuSparse_NNZ(dA); i++) {
-     failure += FNEQ(Adata[i], val, tol);
+     failure += SUNRCompareTol(Adata[i], val, tol);
    }
 
    free(Adata);
@@ -656,7 +658,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 
    /* check vector data */
    for(i=0; i < xldata; i++){
-     failure += FNEQ(xdata[i], ydata[i], tol);
+     failure += SUNRCompareTol(xdata[i], ydata[i], tol);
    }
 
    if (failure > ZERO)

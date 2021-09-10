@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -37,16 +37,31 @@ Shared ARKode input constants
 :index:`ARK_ONE_STEP`  (2):
    Solver returns after each successful step.
 
+Full right-hand side evaluation constants
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. c:macro:: ARK_FULLRHS_START
+
+   Calling the full right-hand side function at the start of the integration.
+
+.. c:macro:: ARK_FULLRHS_END
+
+   Calling the full right-hand side function at the end of a step.
+
+.. c:macro:: ARK_FULLRHS_OTHER
+
+   Calling the full right-hand side function at the some other point e.g., for
+   dense output.
 
 Interpolation module input constants
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :index:`ARK_INTERP_MAX_DEGREE` (5):
    Maximum possible interpolating polynomial degree.
 
 :index:`ARK_INTERP_HERMITE`  (0):
    Specifies use of the Hermite polynomial interpolation module (for non-stiff problems)
-   
+
 :index:`ARK_INTERP_LAGRANGE`  (1):
    Specifies use of the Lagrange polynomial interpolation module (for stiff problems)
 

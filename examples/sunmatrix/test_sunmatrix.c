@@ -4,7 +4,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -81,7 +81,7 @@ int Test_SUNMatClone(SUNMatrix A, int myid)
   realtype  tol=10*UNIT_ROUNDOFF;
   SUNMatrix B;
 
-  /* clone vector */
+  /* clone matrix */
   start_time = get_time();
   B = SUNMatClone(A);
   stop_time = get_time();
@@ -108,7 +108,7 @@ int Test_SUNMatClone(SUNMatrix A, int myid)
     return(1);
   }
 
-  failure = check_matrix(B, A, tol);
+  failure = check_matrix(A, B, tol);
   if (failure) {
     TEST_STATUS(">>> FAILED test -- SUNMatClone \n", myid);
     TEST_STATUS("    Failed SUNMatClone check \n \n", myid);
@@ -274,7 +274,8 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
   /*
    * Case 2: different sparsity/bandwidth patterns
    */
-  if (is_square(A) && SUNMatGetID(A) != SUNMATRIX_CUSPARSE) {
+  if (is_square(A) && SUNMatGetID(A) != SUNMATRIX_CUSPARSE
+      && SUNMatGetID(A) != SUNMATRIX_MAGMADENSE) {
 
     /* protect A and I */
     D = SUNMatClone(A);
@@ -466,8 +467,14 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
     w = N_VClone(y); /* will be the reference */
 
     /* Call the Setup function before the Matvec if it exists */
-    if (B->ops->matvecsetup)
-      SUNMatMatvecSetup(B);
+    if (B->ops->matvecsetup) {
+      failure = SUNMatMatvecSetup(B);
+      if (failure) {
+        TEST_STATUS2(">>> FAILED test -- SUNMatMatvecSetup returned %d \n", failure, myid);
+        SUNMatDestroy(B);
+        return(1);
+      }
+    }
 
     start_time = get_time();
     failure = SUNMatMatvec(B,x,z); /* z = (3A+I)x */
@@ -542,7 +549,7 @@ int Test_SUNMatSpace(SUNMatrix A, int myid)
     return(1);
   } else {
     TEST_STATUS2("    PASSED test -- SUNMatSpace lenrw=%li ", lenrw, myid);
-    TEST_STATUS2("leniw = %li\n", leniw, myid);
+    TEST_STATUS2("leniw=%li\n", leniw, myid);
   }
 
   if (myid == 0)

@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -21,6 +21,7 @@ EXAMPLES   = idas_examples
 UG_FILES = \
 ${USER_GUIDE}.tex \
 idas_intro.tex \
+idas_gpu.tex \
 idas_math.tex \
 idas_org.tex \
 idas_sim.tex \
@@ -32,6 +33,7 @@ idas_newlinsolv.tex \
 idas_sunlinsol.tex \
 idas_sunmat.tex \
 idas_sunnonlinsol.tex \
+idas_sunmem.tex \
 idas_constants.tex
 
 EX_FILES = \

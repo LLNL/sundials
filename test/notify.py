@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-# -------------------------------------------------------------------------------
-# Programmer(s): David J. Gardner @ LLNL 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Programmer(s): David J. Gardner @ LLNL
+# -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -11,30 +11,30 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Send email notification if a SUNDIALS regression test status
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 def main():
 
     import argparse
-    import sys, os
+    import os
 
     parser = argparse.ArgumentParser(
         description='Send email notification based on regression test status',
         formatter_class=argparse.RawTextHelpFormatter)
-    
-    parser.add_argument('teststatus',type=str,
-                        choices=['success','failure','unstable'],
+
+    parser.add_argument('teststatus', type=str,
+                        choices=['passed', 'failed', 'fixed'],
                         help='Status of regression test')
 
-    parser.add_argument('testname',type=str,
+    parser.add_argument('testname', type=str,
                         help='Name branch name or pull-request tested')
 
-    parser.add_argument('testurl',type=str,
+    parser.add_argument('testurl', type=str,
                         help='URL for viewing test results')
 
-    # parse command line args 
+    # parse command line args
     args = parser.parse_args()
 
     # name of regression test log file
@@ -42,23 +42,20 @@ def main():
 
     # if log file exists add url, otherwise create log file
     if (os.path.isfile(logfile)):
-        missinglogfile = False
-        with open(logfile,"a") as log:
+        with open(logfile, "a") as log:
             log.write("View test output at:\n")
             log.write(args.testurl)
     else:
-        print "Warning: log file not found"
-        missinglogfile = True
-
-        with open(logfile,"w") as log:
+        print("Warning: log file not found")
+        with open(logfile, "w") as log:
             log.write("Warning: log file not found\n")
             log.write("View test output at:\n")
             log.write(args.testurl)
 
     # determine notification recipient
-    if ((args.testname == 'master')
-        or (args.testname == 'develop')
-        or ('release' in args.testname)):
+    special_branches = ['master', 'develop', 'release']
+
+    if any(branch in args.testname for branch in special_branches):
         # SUNDIALS developers list
         recipient = "sundials-devs@llnl.gov"
     else:
@@ -66,25 +63,25 @@ def main():
         cmd = "git log --format='%ae' -1"
         recipient = runCommand(cmd)
 
-    # send notification if regression tests fail or log file not found
-    if (args.teststatus != 'success'):
+    # send notification if tests fail, log file not found, or fixed
+    if (args.teststatus == 'failed'):
 
         subject = "FAILED: SUNDIALS "+args.testname+" failed regression tests"
-        print "Tests failed, sending notification to",recipient
+        print("Tests failed, sending notification to", recipient)
         sendEmail(recipient, subject, logfile)
 
-    elif (missinglogfile):
+    elif (args.teststatus == 'fixed'):
 
-        subject = "ERROR: SUNDIALS "+args.testname+" log file not found"
-        print "Log file not found, sending notification to",recipient
+        subject = "FIXED: SUNDIALS "+args.testname+" passed regression tests"
+        print("Tests fixed, sending notification to", recipient)
         sendEmail(recipient, subject, logfile)
 
     else:
-        print "Tests passed, no notifications sent"
+        print("Tests passed, no notifications sent")
 
 
 #
-# run external command 
+# run external command
 #
 def runCommand(cmd):
 
@@ -106,7 +103,7 @@ def sendEmail(recipient, subject, message):
     # Open a plain text file for reading. Assumed that
     # the text file contains only ASCII characters.
     fp = open(message, 'rb')
-    
+
     # Create a text/plain message
     msg = MIMEText(fp.read())
     fp.close()

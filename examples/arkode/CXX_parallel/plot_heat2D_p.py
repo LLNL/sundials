@@ -4,7 +4,7 @@
 #                 David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -107,7 +107,13 @@ for i in range(nprocs):
 
 # ------------------------------------------------------------------------------
 
-plottype = ['solution', 'error']
+# check if the error was output
+fname = 'heat2d_error.00000.txt'
+
+if os.path.isfile(fname):
+    plottype = ['solution', 'error']
+else:
+    plottype = ['solution']
 
 for pt in plottype:
 

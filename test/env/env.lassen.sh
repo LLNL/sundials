@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # -------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,7 +14,7 @@
 # -------------------------------------------------------------------------------
 # Script that sets up the environment for SUNDIALS testing on Lassen.
 #
-# Usage: source env.quartz.sh <real type> <index size> <compiler spec> \
+# Usage: source env.lassen.sh <real type> <index size> <compiler spec> \
 #                             <build type>
 #
 # Required Inputs:
@@ -47,8 +47,8 @@ realtype=$1   # precision for realtypes
 indexsize=$2  # integer size for indices
 
 # set defaults for optional inputs
-compiler="xl@2019.12.23" # compiler spec
-bldtype="dbg"            # build type dbg = debug or opt = optimized
+compiler="xl@2020.09.17" # compiler spec
+bldtype="opt"            # build type dbg = debug or opt = optimized
 
 # set optional inputs if provided
 if [ "$#" -gt 2 ]; then
@@ -91,9 +91,9 @@ case "$compilername" in
     xl)
         module load xl/${compilerversion}
         if [ $? -ne 0 ]; then return 1; fi
-        export CC=$(which xlc)
-        export CXX=$(which xlc++)
-        export FC=$(which xlf2003)
+        export CC=$(which xlc_r)
+        export CXX=$(which xlc++_r)
+        export FC=$(which xlf2003_r)
         FORTRAN_STATUS=OFF # Build issues with F2003 interface
         ;;
     pgi)
@@ -126,7 +126,14 @@ fi
 
 # Fortran settings
 export F77_STATUS=${FORTRAN_STATUS}
-export F03_STATUS=${FORTRAN_STATUS}
+if [[ ("$realtype" == "double") && ("$indexsize" == "64") ]]; then
+    export F03_STATUS=${FORTRAN_STATUS}
+else
+    export F03_STATUS=OFF
+fi
+
+# Sundials monitoring
+export MONITOR_STATUS=ON
 
 # set MPI compiler wrapper
 export MPI_STATUS=ON
@@ -145,4 +152,4 @@ export OMP_NUM_THREADS=20
 # CUDA settings
 module load cuda
 export CUDA_STATUS=ON
-export CUDA_ARCH=sm_70
+export CUDA_ARCH=70

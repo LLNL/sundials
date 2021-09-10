@@ -2,7 +2,7 @@
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -24,7 +24,7 @@ namespace Sundials
   struct TpetraVectorInterface : public _N_VectorContent_Trilinos
   {
     // Typedef of Tpetra vector class to be used with SUNDIALS
-    typedef Tpetra::Vector<realtype, sunindextype, sunindextype> vector_type;
+    typedef Tpetra::Vector<realtype, int, sunindextype> vector_type;
 
     TpetraVectorInterface(Teuchos::RCP<vector_type> rcpvec)
     {

@@ -5,7 +5,7 @@
    Based on ERKStep by Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -164,6 +164,17 @@ parallelism.  See the section :ref:`NVectors` for details for the
 appropriate name.  This file in turn includes the header file
 ``sundials_nvector.h`` which defines the abstract ``N_Vector`` data
 type.
+
+If the user wishes to manually select between any of the pre-defined
+ERK or DIRK Butcher tables as the basis for a MIS method, these are defined
+through a set of constants that are enumerated in the header files
+``arkode/arkode_butcher_erk.h`` and ``arkode/arkode_butcher_dirk.h``, or if a
+user wishes to manually specify a Butcher table, the corresponding
+``ARKodeButcherTable`` structure is defined in ``arkode/arkode_butcher.h``.
+Alternatively, slow-to-fast coupling coefficient tables are enumerated in the
+header file ``arkode/arkode_mristp.h``, or if a user wishes to manually specify
+a coupling table, the corresponding ``MRIStepCouplingMem`` structure is defined
+in ``arkode/arkode_mristep.h``.
 
 If the user specifies that the slow time scale should be treated
 implicitly, then each implicit stage will require a nonlinear solver for

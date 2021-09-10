@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -90,7 +90,7 @@ variety of linear solvers provided with SUNDIALS, including both
 direct (dense, band, or sparse) and preconditioned Krylov iterative
 (GMRES [SS1986]_, BiCGStab [V1992]_, TFQMR [F1993]_, FGMRES [S1993]_,
 or PCG [HS1952]_) linear solvers.  When used with the MPI-based
-parallel, PETSc, *hypre*, CUDA, and Raja NVECTOR modules, or a
+parallel, PETSc, *hypre*, CUDA, HIP, and Raja NVECTOR modules, or a
 user-provided vector data structure, only the Krylov solvers are
 available, although a user may supply their own linear solver for any
 data structures if desired.  For the serial or threaded vector
@@ -107,8 +107,110 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
-Changes in v4.x.x
+Changes in 4.8.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Support for user-defined inner (fast) integrators has been to the MRIStep
+module. See :ref:`MRIStep.CustomInnerStepper` for more information on providing
+a user-defined integration method.
+
+The installed SUNDIALSConfig.cmake file now supports the ``COMPONENTS`` option
+to ``find_package``.
+
+A bug was fixed in the ARKODE stepper modules where the stop time may be passed
+after resetting the integrator.
+
+ARKODE now supports a new "matrix-embedded" SUNLinearSolver type.  This type
+supports user-supplied SUNLinearSolver implementations that set up and solve
+the specified linear system at each linear solve call.  Any matrix-related data
+structures are held internally to the linear solver itself, and are not
+provided by the SUNDIALS package.
+
+
+Changes in 4.7.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A new NVECTOR implementation based on the SYCL abstraction layer has been added
+targeting Intel GPUs. At present the only SYCL compiler supported is the DPC++
+(Intel oneAPI) compiler. See :ref:`NVectors.SYCL` for more details. This module
+is considered experimental and is subject to major changes even in minor
+releases.
+
+A new SUNMatrix and SUNLinearSolver implementation were added to interface
+with the MAGMA linear algebra library. Both the matrix and the linear solver
+support general dense linear systems as well as block diagonal linear systems,
+and both are targeted at GPUs (AMD or NVIDIA). See :ref:`SUNLinSol_MagmaDense`
+for more details.
+
+Changes in 4.6.1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a bug in the SUNDIALS CMake which caused an error
+if the CMAKE_CXX_STANDARD and SUNDIALS_RAJA_BACKENDS options
+were not provided.
+
+Fixed some compiler warnings when using the IBM XL compilers.
+
+Changes in 4.6.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A new NVECTOR implementation based on the AMD ROCm HIP platform has been added.
+This vector can target NVIDIA or AMD GPUs. See :ref:`NVectors.HIP` for more
+details. This module is considered experimental and is subject to change from
+version to version.
+
+The RAJA NVECTOR implementation has been updated to support the HIP backend
+in addition to the CUDA backend. Users can choose the backend when configuring
+SUNDIALS by using the ``SUNDIALS_RAJA_BACKENDS`` CMake variable. This module
+remains experimental and is subject to change from version to version.
+
+A new optional operation, :c:func:`N_VGetDeviceArrayPointer`, was added to the
+N_Vector API. This operation is useful for N_Vectors that utilize dual memory
+spaces, e.g. the native SUNDIALS CUDA N_Vector.
+
+The SUNMATRIX_CUSPARSE and SUNLINEARSOLVER_CUSOLVERSP_BATCHQR implementations
+no longer require the SUNDIALS CUDA N_Vector. Instead, they require that the
+vector utilized provides the :c:func:`N_VGetDeviceArrayPointer` operation, and
+that the pointer returned by :c:func:`N_VGetDeviceArrayPointer` is a valid CUDA
+device pointer.
+
+Changes in v4.5.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Refactored the SUNDIALS build system. CMake 3.12.0 or newer is now required.
+Users will likely see deprecation warnings, but otherwise the changes
+should be fully backwards compatible for almost all users. SUNDIALS
+now exports CMake targets and installs a SUNDIALSConfig.cmake file.
+
+Added support for SuperLU DIST 6.3.0 or newer.
+
+Changes in v4.4.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Added full support for time-dependent mass matrices in ARKStep, and expanded
+existing non-identity mass matrix infrastructure to support use of the
+fixed point nonlinear solver. Fixed bug for ERK method integration with
+static mass matrices.
+
+An interface between ARKStep and the XBraid multigrid reduction in time (MGRIT)
+library [XBraid]_ has been added to enable parallel-in-time integration. See the
+:ref:`ARKStep_CInterface.XBraid` section for more information and the example
+codes in ``examples/arkode/CXX_xbraid``. This interface required the addition of
+three new N_Vector operations to exchange vector data between computational
+nodes, see :c:func:`N_VBufSize()`, :c:func:`N_VBufPack()`, and
+:c:func:`N_VBufUnpack()`.  These N_Vector operations are only used within the
+XBraid interface and need not be implemented for any other context.
+
+Updated the MRIStep time-stepping module in ARKode to support
+higher-order MRI-GARK methods [S2019]_, including methods that
+involve solve-decoupled, diagonally-implicit treatment of the
+slow time scale.
+
+Added the functions :c:func:`ARKStepSetLSNormFactor()`,
+:c:func:`ARKStepSetMassLSNormFactor()`, and :c:func:`MRIStepSetLSNormFactor()`
+to specify the factor for converting between integrator tolerances (WRMS norm)
+and linear solver tolerances (L2 norm) i.e.,
+``tol_L2 = nrmfac * tol_WRMS``.
 
 Added new reset functions :c:func:`ARKStepReset()`, :c:func:`ERKStepReset()`,
 and :c:func:`MRIStepReset()` to reset the stepper time and state vector to
@@ -118,25 +220,42 @@ reinitialization functions :c:func:`ARKStepReInit()`, :c:func:`ERKStepReInit()`,
 and :c:func:`MRIStepReInit()` which reinitialize the stepper so that the problem
 integration should resume as if started from scratch.
 
-The expected behavior of the :c:func:`SUNNonlinSolGetNumIters()` function in the
-SUNNonlinearSolver API has been updated to specify that it should return the
-number of nonlinear solver iterations in most recent solve rather than the
-cumulative number of iterations across all solves. The API documentation and
-SUNDIALS provided SUNNonlinearSolver implementations have been updated
-accordingly. As before, the cumulative number of nonlinear iterations may be
-retrieved by calling :c:func:`ARKStepGetNumNonlinSolvIters()` or
+Added new functions :c:func:`ARKStepComputeState`,
+:c:func:`ARKStepGetNonlinearSystemData`, :c:func:`MRIStepComputeState`, and
+:c:func:`MRIStepGetNonlinearSystemData` which advanced users might find useful
+if providing a custom :c:func:`SUNNonlinSolSysFn`.
+
+The expected behavior of :c:func:`SUNNonlinSolGetNumIters()` and
+:c:func:`SUNNonlinSolGetNumConvFails()` in the SUNNonlinearSolver API have been
+updated to specify that they should return the number of nonlinear solver
+iterations and convergence failures in the most recent solve respectively rather
+than the cumulative number of iterations and failures across all solves
+respectively. The API documentation and SUNDIALS provided SUNNonlinearSolver
+implementations have been updated accordingly. As before, the cumulative number
+of nonlinear iterations may be retrieved by calling
+:c:func:`ARKStepGetNumNonlinSolvIters()`, the cumulative number of failures with
+:c:func:`ARKStepGetNumNonlinSolvConvFails()`, or both with
 :c:func:`ARKStepGetNonlinSolvStats()`.
 
-Updated the MRIStep time-stepping module in ARKode to support
-higher-order MRI-GARK methods [S2019]_, including methods that
-involve solve-decoupled, diagonally-implicit treatment of the
-slow time scale.
+A minor bug in checking the Jacobian evaluation frequency has been fixed. As a
+result codes using using a non-default Jacobian update frequency through a call
+to :c:func:`ARKStepSetMaxStepsBetweenJac()` will need to increase the provided
+value by 1 to achieve the same behavior as before. Additionally, for greater
+clarity the functions :c:func:`ARKStepSetMaxStepsBetweenLSet()` and
+:c:func:`ARKStepSetMaxStepsBetweenJac()` have been deprecated and replaced with
+:c:func:`ARKStepSetLSetupFrequency()` and :c:func:`ARKStepSetJacEvalFrequency()`
+respectively.
 
 The ``NVECTOR_RAJA`` module has been updated to mirror the ``NVECTOR_CUDA`` module.
 Notably, the update adds managed memory support to the ``NVECTOR_RAJA`` module.
 Users of the module will need to update any calls to the ``N_VMake_Raja`` function
 because that signature was changed. This module remains experimental and is
 subject to change from version to version.
+
+The ``NVECTOR_TRILINOS`` module has been updated to work with Trilinos 12.18+.
+This update changes the local ordinal type to always be an ``int``.
+
+Added support for CUDA v11.
 
 
 Changes in v4.3.0
@@ -208,7 +327,7 @@ reduction factor after an error test failure.
 
 Added a new ``SUNMatrix`` implementation, :ref:`SUNMatrix_cuSparse`, that interfaces
 to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
-the :ref:`SUNLinSol_cuSolverSp_batchQR` ``SUNLinearSolver`` has been updated to
+the :ref:`SUNLinSol_cuSolverSp` ``SUNLinearSolver`` has been updated to
 use this matrix, as such, users of this module will need to update their code.
 These modules are still considered to be experimental, thus they are subject to
 breaking changes even in minor releases.
@@ -308,7 +427,7 @@ implementation is accompanied by additions to user documentation and SUNDIALS
 examples.
 
 One new required vector operation and ten new optional vector operations have
-been added to the NVECTOR API. The new required operation, :c:func:`N\_VGetLength()`,
+been added to the NVECTOR API. The new required operation, :c:func:`N_VGetLength()`,
 returns the global length of an ``N_Vector``. The optional operations have
 been added to support the new NVECTOR_MPIMANYVECTOR implementation. The
 operation :c:func:`N_VGetCommunicator()` must be implemented by subvectors that are
@@ -317,15 +436,15 @@ this context. The remaining nine operations are optional local reduction
 operations intended to eliminate unnecessary latency when performing vector
 reduction operations (norms, etc.) on distributed memory systems. The optional
 local reduction vector operations are
-:c:func:`N\_VDotProdLocal`,
-:c:func:`N\_VMaxNormLocal`,
-:c:func:`N\_VMinLocal`,
-:c:func:`N\_VL1NormLocal`,
-:c:func:`N\_VWSqrSumLocal`,
-:c:func:`N\_VWSqrSumMaskLocal`,
-:c:func:`N\_VInvTestLocal`,
-:c:func:`N\_VConstrMaskLocal`, and
-:c:func:`N\_VMinQuotientLocal`.
+:c:func:`N_VDotProdLocal`,
+:c:func:`N_VMaxNormLocal`,
+:c:func:`N_VMinLocal`,
+:c:func:`N_VL1NormLocal`,
+:c:func:`N_VWSqrSumLocal`,
+:c:func:`N_VWSqrSumMaskLocal`,
+:c:func:`N_VInvTestLocal`,
+:c:func:`N_VConstrMaskLocal`, and
+:c:func:`N_VMinQuotientLocal`.
 If an NVECTOR implementation defines any of the local operations as
 ``NULL``, then the NVECTOR_MPIMANYVECTOR will call standard NVECTOR
 operations to complete the computation.
@@ -769,7 +888,7 @@ Several changes were made to the build system:
   ``MPI_C_COMPILER``, ``MPI_CXX_COMPILER``, ``MPI_Fortran_COMPILER``,
   and ``MPIEXEC_EXECUTABLE``.
 
-* When a Fortran name-mangling scheme is needed (e.g., ``LAPACK_ENABLE``
+* When a Fortran name-mangling scheme is needed (e.g., ``ENABLE_LAPACK``
   is ``ON``) the build system will infer the scheme from the Fortran
   compiler. If a Fortran compiler is not available or the inferred or default
   scheme needs to be overridden, the advanced options
@@ -1124,7 +1243,7 @@ BSD license anymore.
 BSD 3-Clause License
 ^^^^^^^^^^^^^^^^^^^^
 
-Copyright (c) 2002-2020, Lawrence Livermore National Security and Southern
+Copyright (c) 2002-2021, Lawrence Livermore National Security and Southern
 Methodist University.
 
 All rights reserved.

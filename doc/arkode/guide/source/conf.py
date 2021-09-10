@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ARKode documentation build configuration file, created by
+# ARKODE documentation build configuration file, created by
 # sphinx-quickstart on Sat Dec 22 20:38:03 2012.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -41,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'User Documentation for ARKode'
+project = u'User Documentation for ARKODE'
 copyright = u'2012-2020, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -49,8 +49,8 @@ copyright = u'2012-2020, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward
 # built documents.
 #
 # The short X.Y version.
-version = 'v4.3.0'
-sun_version = 'v5.3.0'
+version = 'v4.7.0'
+sun_version = 'v5.7.0'
 
 # Set the date format (full-month-name day, full-year)
 today_fmt = '%B %d, %Y'
@@ -222,7 +222,7 @@ html_show_sourcelink = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ARKodedoc'
+htmlhelp_basename = 'ARKODEdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -234,13 +234,13 @@ htmlhelp_basename = 'ARKodedoc'
 # 5. the LaTeX theme
 # 6. include the file from 1. in the output
 tex_author = r'''
-    Daniel R. Reynolds\\
-    {\em Department of Mathematics} \\
-    {\em Southern Methodist University} \\
+    Daniel R. Reynolds$^1$,
+    David J. Gardner$^2$,
+    Carol S. Woodward$^2$, and
+    Cody J. Balos$^2$ \\
     \\
-    David J. Gardner, Carol S. Woodward, and Cody J. Balos\\
-    {\em Center for Applied Scientific Computing} \\
-    {\em Lawrence Livermore National Laboratory}
+    {\em $^1$Department of Mathematics, Southern Methodist University} \\
+    {\em $^2$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory}
     '''
 
 latex_documents = [('index', 'ark_guide.tex', project,
@@ -372,6 +372,31 @@ Livermore National Laboratory under Contract DE-AC52-07NA27344.
 
 \clearpage
 
+% Contributors
+\thispagestyle{empty}% no number of this page
+\vglue5\baselineskip
+\begin{center}
+{\bf CONTRIBUTORS}
+\end{center}
+\noindent
+The SUNDIALS library has been developed over many years by a number of
+contributors. The current SUNDIALS team consists of Cody J. Balos,
+David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and
+Carol S. Woodward. We thank Radu Serban for significant and critical past
+contributions.\\
+\vskip 2em%
+\noindent
+Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
+Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
+Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
+Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
+Dan Shumaker, Steve G. Smith, Allan G. Taylor, Hilari C. Tiedeman, Chris White,
+Ting Yan, and Ulrike M. Yang.
+\clearpage
+
+% clear empty double page
+\newpage{\pagestyle{empty}\cleardoublepage}
+
 % Start arabic numbering
 \pagenumbering{arabic}
 
@@ -387,7 +412,7 @@ Livermore National Laboratory under Contract DE-AC52-07NA27344.
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'arkode', u'ARKode Documentation',
+    ('index', 'arkode', u'ARKODE Documentation',
      [u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos'], 1)
 ]
 
@@ -401,8 +426,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'ARKode', u'ARKode Documentation',
-   u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos', 'ARKode',
+  ('index', 'ARKODE', u'ARKODE Documentation',
+   u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos', 'ARKODE',
    'Time integration package for multi-rate systems of ordinary differntial equations.',
    'Miscellaneous'),
 ]

@@ -1,10 +1,10 @@
 # ARKode
-### Version 4.3.0 (May 2020)
+### Version 4.7.0 (Jan 2021)
 
-**Daniel R. Reynolds and Jean M. Sexton  
+**Daniel R. Reynolds,
   Department of Mathematics, SMU**
 
-**David J. Gardner, Alan C. Hindmarsh, and Carol S. Woodward  
+**David J. Gardner, Carol S. Woodward, and Cody J. Balos,  
   Center for Applied Scientific Computing, LLNL**
 
 ARKode is a package for the solution of stiff, nonstiff, and multirate ordinary
@@ -48,9 +48,9 @@ the "SUNDIALS Release History" appendix of the ARKode User Guide.
 
 ## References
 
-* D. R. Reynolds, D. J. Gardner, A. C. Hindmarsh, C. S. Woodward, and
-  J. M. Sexton, "User Documentation for ARKode v4.3.0," LLNL technical report
-  LLNL-SM-668082, May 2020.
+* D. R. Reynolds, D. J. Gardner, C. S. Woodward, and C. J. Balos,
+  "User Documentation for ARKode v4.7.0," LLNL technical report
+  LLNL-SM-668082, Jan 2021.
 
-* D. R. Reynolds, "Example Programs for ARKode v4.3.0," Technical Report,
-  Southern Methodist University Center for Scientific Computation, May 2020.
+* D. R. Reynolds, "Example Programs for ARKode v4.7.0," Technical Report,
+  Southern Methodist University Center for Scientific Computation, Jan 2021.

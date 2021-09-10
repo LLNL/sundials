@@ -2,7 +2,7 @@
  * Programmer(s): Cody J.Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -254,7 +254,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   /* check vector data */
   for(i=0; i < local_length; i++)
-    failure += FNEQ(Xdata[i], Ydata[i], tol);
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
   if (failure > ZERO) {
     maxerr = ZERO;

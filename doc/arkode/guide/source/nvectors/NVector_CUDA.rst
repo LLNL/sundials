@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -31,30 +31,35 @@ is as follows:
    struct _N_VectorContent_Cuda
    {
      sunindextype       length;
-     booleantype        own_data;
-     realtype*          host_data;
-     realtype*          device_data;
+     booleantype        own_exec;
+     booleantype        own_helper;
+     SUNMemory          host_data;
+     SUNMemory          device_data;
      SUNCudaExecPolicy* stream_exec_policy;
      SUNCudaExecPolicy* reduce_exec_policy;
+     SUNMemoryHelper    mem_helper;
      void*              priv; /* 'private' data */
    };
 
    typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
 
 
-The content members are the vector length (size), a boolean flag that signals if
-the vector owns the data (i.e. it is in charge of freeing the data), pointers to
-vector data on the host and the device, pointers to ``SUNCudaExecPolicy``
-implementations that control how the CUDA kernels are launched for streaming and
-reduction vector kernels, and a private data structure which holds additonal members
-that should not be accessed directly.
+The content members are the vector length (size), boolean flags that indicate
+if the vector owns the execution policies and memory helper objects (i.e., it is
+in change of freeing the objects), ``SUNMemory`` objects for the vector data on
+the host and device, pointers to execution policies that control how streaming
+and reduction kernels are launched, a ``SUNMemoryHelper`` for performing memory
+operations, and a private data structure which holds additonal members that
+should not be accessed directly.
 
-When instantiated with ``N_VNew_Cuda``, the underlying data will be allocated
-memory on both the host and the device. Alternatively, a user can provide host
-and device data arrays by using the ``N_VMake_Cuda`` constructor. To use CUDA
-managed memory, the constructors ``N_VNewManaged_Cuda`` and
-``N_VMakeManaged_Cuda`` are provided. Details on each of these constructors
-are provided below.
+When instantiated with :c:func:`N_VNew_Cuda()`, the underlying data will be
+allocated on both the host and the device. Alternatively, a user can provide
+host and device data arrays by using the :c:func:`N_VMake_Cuda()` constructor.
+To use CUDA managed memory, the constructors :c:func:`N_VNewManaged_Cuda()` and
+:c:func:`N_VMakeManaged_Cuda()` are provided. Additionally, a user-defined
+``SUNMemoryHelper`` for allocating/freeing data can be provided with the
+constructor :c:func:`N_VNewWithMemHelp_Cuda()`. Details on each of these
+constructors are provided below.
 
 To use the NVECTOR_CUDA module, include ``nvector_cuda.h`` and link to
 the library ``libsundials_nveccuda.lib``. The extension, ``.lib``, is
@@ -116,28 +121,33 @@ following additional user-callable routines:
    ``N_Vector``. The vector data array is allocated in managed memory.
 
 
+.. c:function:: N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper)
+
+   This function creates a new CUDA ``N_Vector`` with a user-supplied
+   SUNMemoryHelper for allocating/freeing memory.
+
+
 .. c:function:: N_Vector N_VNewEmpty_Cuda(sunindextype vec_length)
 
-   This function creates a new ``N_Vector`` wrapper with the pointer
-   to the wrapped CUDA vector set to ``NULL``.  It is used by
-   :c:func:`N_VNew_Cuda()`, :c:func:`N_VMake_Cuda()`, and
-   :c:func:`N_VClone_Cuda()` implementations.
+   This function creates a new CUDA ``N_Vector`` where the members of the
+   content structure have not been allocated. This utility function is used by
+   the other constructors to create a new vector.
 
 
-.. c:function:: N_Vector N_VMake_Cuda(sunindextype vec_length, realtype \*h_vdata, realtype \*d_vdata)
+.. c:function:: N_Vector N_VMake_Cuda(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata)
 
 
    This function creates a CUDA ``N_Vector`` with user-supplied vector data arrays
    for the host and the device.
 
 
-.. c:function:: N_Vector N_VMakeManaged_Cuda(sunindextype vec_length, realtype \*vdata)
+.. c:function:: N_Vector N_VMakeManaged_Cuda(sunindextype vec_length, realtype *vdata)
 
    This function creates a CUDA ``N_Vector`` with a user-supplied
    managed memory data array.
 
 
-.. c:function:: N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length, void* (\*allocfn)(size_t size), void (\*freefn)(void* ptr))
+.. c:function:: N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length, void* (*allocfn)(size_t size), void (*freefn)(void* ptr))
 
    This function creates a CUDA ``N_Vector`` with a user-supplied memory allocator.
    It requires the user to provide a corresponding free function as well.
@@ -147,9 +157,7 @@ following additional user-callable routines:
 
 The module NVECTOR_CUDA also provides the following user-callable routines:
 
-.. c:function:: void N_VSetKernelExecPolicy_Cuda(N_Vector v,
-                                                 SUNCudaExecPolicy* stream_exec_policy,
-                                                 SUNCudaExecPolicy* reduce_exec_policy)
+.. c:function:: void N_VSetKernelExecPolicy_Cuda(N_Vector v, SUNCudaExecPolicy* stream_exec_policy, SUNCudaExecPolicy* reduce_exec_policy)
 
    This function sets the execution policies which control the kernel parameters
    utilized when launching the streaming and reduction CUDA kernels. By default
@@ -159,14 +167,16 @@ The module NVECTOR_CUDA also provides the following user-callable routines:
    the CUDA warp size (32). See section :ref:`NVectors.CUDA.SUNCudaExecPolicy`
    below for more information about the ``SUNCudaExecPolicy`` class.
 
-   *Note: All vectors used in a single instance of a {\sundials} solver must
-   use the same execution policy. It is **strongly recommended** that
-   this function is called immediately after constructing the vector,
-   and any subsequent vector be created by cloning to ensure consistent execution
-   policies across vectors*
+   .. note::
+
+      Note: All vectors used in a single instance of a SUNDIALS package must use
+      the same execution policy. It is **strongly recommended** that this
+      function is called immediately after constructing the vector, and any
+      subsequent vector be created by cloning to ensure consistent execution
+      policies across vectors
 
 
-.. c:function:: void N_VSetCudaStream_Cuda(N_Vector v, cudaStream_t \*stream)
+.. c:function:: void N_VSetCudaStream_Cuda(N_Vector v, cudaStream_t *stream)
 
    **DEPRECATED** This function will be removed in the next major release,
    user should utilize the ``N_VSetKernelExecPolicy_Cuda`` function instead.
@@ -174,11 +184,13 @@ The module NVECTOR_CUDA also provides the following user-callable routines:
    This function sets the CUDA stream that all vector kernels will be launched on.
    By default an NVECTOR_CUDA uses the default CUDA stream.
 
-   *Note: All vectors used in a single instance of a {\sundials} solver must
-   use the same CUDA stream. It is **strongly recommended** that
-   this function is called immediately after constructing the vector,
-   and any subsequent vector be created by cloning to ensure consistent execution
-   policies across vectors*
+   .. note::
+
+      All vectors used in a single instance of a SUNDIALS solver must  use the
+      same CUDA stream. It is **strongly recommended** that this function is
+      called immediately after constructing the vector, and any subsequent
+      vector be created by cloning to ensure consistent execution policies
+      across vectors
 
 
 .. c:function:: realtype* N_VCopyToDevice_Cuda(N_Vector v)

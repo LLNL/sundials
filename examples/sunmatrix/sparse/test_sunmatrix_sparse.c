@@ -4,7 +4,7 @@
  *                David Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -770,7 +770,7 @@ int Test_SUNSparseMatrixToCSR(SUNMatrix A)
 int Test_SUNSparseMatrixToCSC(SUNMatrix A)
 {
   int       failure;
-  SUNMatrix csc, csr;
+  SUNMatrix csc=NULL, csr=NULL;
   realtype  tol=200*UNIT_ROUNDOFF;
 
   failure = SUNSparseMatrix_ToCSC(A, &csc);
@@ -872,7 +872,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 
   /* compare matrix values */
   for(i=0; i<Annz; i++)
-    failure += FNEQ(Adata[i], Bdata[i], tol);
+    failure += SUNRCompareTol(Adata[i], Bdata[i], tol);
   if (failure > ZERO) {
     printf(">>> ERROR: check_matrix: Different entries \n");
     return(1);
@@ -895,7 +895,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
   indexptrs = SUNSparseMatrix_IndexPointers(A);
   NP = SUNSparseMatrix_NP(A);
   for(i=0; i < indexptrs[NP]; i++){
-    failure += FNEQ(Adata[i], val, tol);
+    failure += SUNRCompareTol(Adata[i], val, tol);
   }
 
   if (failure > ZERO)
@@ -926,7 +926,7 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
 
   /* check vector data */
   for(i=0; i < xldata; i++){
-    failure += FNEQ(xdata[i], ydata[i], tol);
+    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
   }
 
   if (failure > ZERO)

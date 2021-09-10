@@ -3,7 +3,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -22,13 +22,6 @@
 /* define constatnts */
 #define ZERO     RCONST(0.0)
 #define ONE      RCONST(1.0)
-
-/* NAN and floating point "equality" check, failure update macro */
-#if __STDC_VERSION__ >= 199901L
-#define FNEQ(a,b,tol) (isnan(a) ? 1 : ( SUNRabs((a)-(b)) > tol ))
-#else
-#define FNEQ(a,b,tol) (( SUNRabs((a)-(b)) > tol ))
-#endif
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

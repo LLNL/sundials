@@ -2,7 +2,7 @@
    Programmer(s): Cody J. Balos @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -32,11 +32,12 @@ the ownership of host and device data arrays.
 
 .. code-block:: c
 
-  struct _N_VectorContent_OpenMPDEV {
+  struct _N_VectorContent_OpenMPDEV
+  {
     sunindextype length;
-    booleantype own_data;
-    realtype *host_data;
-    realtype *dev_data;
+    booleantype  own_data;
+    realtype     *host_data;
+    realtype     *dev_data;
   };
 
 The header file to include when using this module is ``nvector_openmpdev.h``.
@@ -134,69 +135,69 @@ The names of the vector operations are obtained from those in tables
 :ref:`NVectors.LocalOps` by appending the suffix ``_OpenMPDEV`` (e.g. ``N_VDestroy_OpenMPDEV``).
 The module NVECTOR_OPENMPDEV provides the following additional user-callable routines:
 
-.. c:function:: N_Vector N_VNew_OpenMPDEV(sunindextype vec_length);
+.. c:function:: N_Vector N_VNew_OpenMPDEV(sunindextype vec_length)
 
    This function creates and allocates memory for an NVECTOR_OPENMPDEV ``N_Vector``.
 
 
-.. c:function:: N_Vector N_VNewEmpty_OpenMPDEV(sunindextype vec_length);
+.. c:function:: N_Vector N_VNewEmpty_OpenMPDEV(sunindextype vec_length)
 
    This function creates a new NVECTOR_OPENMPDEV ``N_Vector`` with an empty
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_OpenMPDEV(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata);
+.. c:function:: N_Vector N_VMake_OpenMPDEV(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata)
 
    This function creates an NVECTOR_OPENMPDEV vector with user-supplied vector data
    arrays ``h_vdata} and ``d_vdata``. This function does not allocate memory for
    data itself.
 
 
-.. c:function:: N_Vector *N_VCloneVectorArray_OpenMPDEV(int count, N_Vector w);
+.. c:function:: N_Vector *N_VCloneVectorArray_OpenMPDEV(int count, N_Vector w)
 
    This function creates (by cloning) an array of ``count`` NVECTOR_OPENMPDEV vectors.
 
 
-.. c:function:: N_Vector *N_VCloneVectorArrayEmpty_OpenMPDEV(int count, N_Vector w);
+.. c:function:: N_Vector *N_VCloneVectorArrayEmpty_OpenMPDEV(int count, N_Vector w)
 
    This function creates (by cloning) an array of ``count`` NVECTOR_OPENMPDEV vectors,
    each with an empty (``NULL``) data array.
 
 
-.. c:function:: void N_VDestroyVectorArray_OpenMPDEV(N_Vector *vs, int count);
+.. c:function:: void N_VDestroyVectorArray_OpenMPDEV(N_Vector *vs, int count)
 
    This function frees memory allocated for the array of ``count`` variables of type
    ``N_Vector`` created with ``N_VCloneVectorArray_OpenMPDEV`` or with
    ``N_VCloneVectorArrayEmpty_OpenMPDEV``.
 
 
-.. c:function:: realtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v);
+.. c:function:: realtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
 
    This function returns a pointer to the host data array.
 
 
-.. c:function:: realtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v);
+.. c:function:: realtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
 
    This function returns a pointer to the device data array.
 
 
-.. c:function:: void N_VPrint_OpenMPDEV(N_Vector v);
+.. c:function:: void N_VPrint_OpenMPDEV(N_Vector v)
 
    This function prints the content of an NVECTOR_OPENMPDEV vector to ``stdout``.
 
 
-.. c:function:: void N_VPrintFile_OpenMPDEV(N_Vector v, FILE *outfile);
+.. c:function:: void N_VPrintFile_OpenMPDEV(N_Vector v, FILE *outfile)
 
    This function prints the content of an NVECTOR_OPENMPDEV vector to ``outfile``.
 
 
-.. c:function:: void N_VCopyToDevice_OpenMPDEV(N_Vector v);
+.. c:function:: void N_VCopyToDevice_OpenMPDEV(N_Vector v)
 
    This function copies the content of an NVECTOR_OPENMPDEV vector's host data array
    to the device data array.
 
 
-.. c:function:: void N_VCopyFromDevice_OpenMPDEV(N_Vector v);
+.. c:function:: void N_VCopyFromDevice_OpenMPDEV(N_Vector v)
 
    This function copies the content of an NVECTOR_OPENMPDEV vector's device data array
    to the host data array.

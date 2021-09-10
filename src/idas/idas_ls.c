@@ -3,7 +3,7 @@
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -130,13 +130,21 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 
   /* Set flags based on LS type */
   iterative   = (LSType != SUNLINEARSOLVER_DIRECT);
-  matrixbased = (LSType != SUNLINEARSOLVER_ITERATIVE);
+  matrixbased = ((LSType != SUNLINEARSOLVER_ITERATIVE) &&
+                 (LSType != SUNLINEARSOLVER_MATRIX_EMBEDDED));
 
   /* Test if vector is compatible with LS interface */
   if (IDA_mem->ida_tempv1->ops->nvconst == NULL ||
       IDA_mem->ida_tempv1->ops->nvwrmsnorm == NULL) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS",
                     "IDASetLinearSolver", MSG_LS_BAD_NVECTOR);
+    return(IDALS_ILL_INPUT);
+  }
+
+  /* Ensure that A is NULL when LS is matrix-embedded */
+  if ((LSType == SUNLINEARSOLVER_MATRIX_EMBEDDED) && (A != NULL)) {
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolver",
+                    "Incompatible inputs: matrix-embedded LS requires NULL matrix");
     return(IDALS_ILL_INPUT);
   }
 
@@ -149,19 +157,22 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
       return(IDALS_ILL_INPUT);
     }
 
-    if (LS->ops->resid == NULL || LS->ops->numiters == NULL) {
-      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolver",
-                      "Iterative LS object requires 'resid' and 'numiters' routines");
-      return(IDALS_ILL_INPUT);
+    if (LSType != SUNLINEARSOLVER_MATRIX_EMBEDDED) {
+      if (LS->ops->resid == NULL || LS->ops->numiters == NULL) {
+        IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolver",
+                        "Iterative LS object requires 'resid' and 'numiters' routines");
+        return(IDALS_ILL_INPUT);
+      }
     }
 
-    if (!matrixbased && LS->ops->setatimes == NULL) {
+    if (!matrixbased && (LSType != SUNLINEARSOLVER_MATRIX_EMBEDDED) &&
+        (LS->ops->setatimes == NULL)) {
       IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolver",
                       "Incompatible inputs: iterative LS must support ATimes routine");
       return(IDALS_ILL_INPUT);
     }
 
-    if (matrixbased && A == NULL) {
+    if (matrixbased && (A == NULL)) {
       IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolver",
                       "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
       return(IDALS_ILL_INPUT);
@@ -289,7 +300,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 
   /* For iterative LS, compute sqrtN */
   if (iterative)
-    idals_mem->sqrtN = SUNRsqrt( N_VGetLength(idals_mem->ytemp) );
+    idals_mem->nrmfac = SUNRsqrt( N_VGetLength(idals_mem->ytemp) );
 
   /* For matrix-based LS, enable soltuion scaling */
   if (matrixbased)
@@ -363,6 +374,35 @@ int IDASetEpsLin(void *ida_mem, realtype eplifac)
   }
 
   idals_mem->eplifac = (eplifac == ZERO) ? PT05 : eplifac;
+
+  return(IDALS_SUCCESS);
+}
+
+
+/* IDASetWRMSNormFactor sets or computes the factor to use when converting from
+   the integrator tolerance to the linear solver tolerance (WRMS to L2 norm). */
+int IDASetLSNormFactor(void *ida_mem, realtype nrmfac)
+{
+  IDAMem   IDA_mem;
+  IDALsMem idals_mem;
+  int      retval;
+
+  /* access IDALsMem structure */
+  retval = idaLs_AccessLMem(ida_mem, "IDASetLSNormFactor",
+                            &IDA_mem, &idals_mem);
+  if (retval != IDALS_SUCCESS) return(retval);
+
+  if (nrmfac > ZERO) {
+    /* user-provided factor */
+    idals_mem->nrmfac = nrmfac;
+  } else if (nrmfac < ZERO) {
+    /* compute factor for WRMS norm with dot product */
+    N_VConst(ONE, idals_mem->ytemp);
+    idals_mem->nrmfac = SUNRsqrt(N_VDotProd(idals_mem->ytemp, idals_mem->ytemp));
+  } else {
+    /* compute default factor for WRMS norm from vector legnth */
+    idals_mem->nrmfac = SUNRsqrt(N_VGetLength(idals_mem->ytemp));
+  }
 
   return(IDALS_SUCCESS);
 }
@@ -1176,7 +1216,7 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
 
   LSID = SUNLinSolGetID(idals_mem->LS);
   if (LSID == SUNLINEARSOLVER_SPGMR || LSID == SUNLINEARSOLVER_SPFGMR)
-    sig = idals_mem->sqrtN * idals_mem->dqincfac;
+    sig = idals_mem->nrmfac * idals_mem->dqincfac;
   else
     sig = idals_mem->dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);
 
@@ -1287,6 +1327,12 @@ int idaLsInitialize(IDAMem IDA_mem)
   if ( (idals_mem->J == NULL) && (idals_mem->pset == NULL) )
     IDA_mem->ida_lsetup = NULL;
 
+  /* When using a matrix-embedded linear solver disable lsetup call */
+  if (SUNLinSolGetType(idals_mem->LS) == SUNLINEARSOLVER_MATRIX_EMBEDDED) {
+    IDA_mem->ida_lsetup = NULL;
+    idals_mem->scalesol = SUNFALSE;
+  }
+
   /* Call LS initialize routine */
   idals_mem->last_flag = SUNLinSolInitialize(idals_mem->LS);
   return(idals_mem->last_flag);
@@ -1313,6 +1359,12 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
     return(IDALS_LMEM_NULL);
   }
   idals_mem = (IDALsMem) IDA_mem->ida_lmem;
+
+  /* Immediately return when using matrix-embedded linear solver */
+  if (SUNLinSolGetType(idals_mem->LS) == SUNLINEARSOLVER_MATRIX_EMBEDDED) {
+    idals_mem->last_flag = IDALS_SUCCESS;
+    return(idals_mem->last_flag);
+  }
 
   /* Set IDALs N_Vector pointers to inputs */
   idals_mem->ycur  = y;
@@ -1386,11 +1438,11 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
   /* If the linear solver is iterative: set convergence test constant tol,
      in terms of the Newton convergence test constant epsNewt and safety
-     factors. The factor sqrt(Neq) assures that the convergence test is
+     factors. The factor nrmfac assures that the convergence test is
      applied to the WRMS norm of the residual vector, rather than the
      weighted L2 norm. */
   if (idals_mem->iterative) {
-    tol = idals_mem->sqrtN * idals_mem->eplifac * IDA_mem->ida_epsNewt;
+    tol = idals_mem->nrmfac * idals_mem->eplifac * IDA_mem->ida_epsNewt;
   } else {
     tol = ZERO;
   }
@@ -1459,7 +1511,8 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
     nli_inc = SUNLinSolNumIters(idals_mem->LS);
 
     /* Copy x (or preconditioned residual vector if no iterations required) to b */
-    if (nli_inc == 0) N_VScale(ONE, SUNLinSolResid(idals_mem->LS), b);
+    if ((nli_inc == 0) && (SUNLinSolGetType(idals_mem->LS) != SUNLINEARSOLVER_MATRIX_EMBEDDED))
+      N_VScale(ONE, SUNLinSolResid(idals_mem->LS), b);
     else N_VScale(ONE, idals_mem->x, b);
 
     /* Increment nli counter */
@@ -1838,6 +1891,26 @@ int IDASetEpsLinB(void *ida_mem, int which, realtype eplifacB)
   /* call corresponding routine for IDAB_mem structure */
   ida_memB = (void *) IDAB_mem->IDA_mem;
   return(IDASetEpsLin(ida_memB, eplifacB));
+}
+
+
+int IDASetLSNormFactorB(void *ida_mem, int which, realtype nrmfacB)
+{
+  IDAadjMem IDAADJ_mem;
+  IDAMem    IDA_mem;
+  IDABMem   IDAB_mem;
+  IDALsMemB idalsB_mem;
+  void      *ida_memB;
+  int       retval;
+
+  /* access relevant memory structures */
+  retval = idaLs_AccessLMemB(ida_mem, which, "IDASetLSNormFactorB", &IDA_mem,
+                             &IDAADJ_mem, &IDAB_mem, &idalsB_mem);
+  if (retval != IDALS_SUCCESS) return(retval);
+
+  /* call corresponding routine for IDAB_mem structure */
+  ida_memB = (void *) IDAB_mem->IDA_mem;
+  return(IDASetLSNormFactor(ida_memB, nrmfacB));
 }
 
 
@@ -2520,7 +2593,7 @@ int idaLs_AccessLMemB(void *ida_mem, int which, const char *fname,
 
 
 /* idaLs_AccessLMemBCur unpacks the ida_mem, ca_mem, idaB_mem and
-   idalsB_mem structures from the void* idaode_mem pointer.
+   idalsB_mem structures from the void* ida_mem pointer.
    If any are missing it returns IDALS_MEM_NULL, IDALS_NO_ADJ,
    or IDALS_LMEMB_NULL. */
 int idaLs_AccessLMemBCur(void *ida_mem, const char *fname,

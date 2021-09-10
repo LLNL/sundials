@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2020, Lawrence Livermore National Security
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -91,8 +91,17 @@ fi
 builddir=build
 installdir=install
 
+# add host name to directory names
+if [ -n "$HOST" ]; then
+    builddir=${builddir}_${HOST}
+    installdir=${installdir}_${HOST}
+elif [ -n "$HOSTNAME" ]; then
+    builddir=${builddir}_${HOSTNAME}
+    installdir=${installdir}_${HOSTNAME}
+fi
+
 # add compiler spec to directory names
-if [ "$compiler" != "" ]; then
+if [ -n "$compiler" ]; then
     # replace @ with -
     compilername=${compiler/@/-}
     builddir=${builddir}_${compilername}
@@ -100,7 +109,7 @@ if [ "$compiler" != "" ]; then
 fi
 
 # add build type to directory names
-if [ "$bldtype" != "" ]; then
+if [ -n "$bldtype" ]; then
     builddir=${builddir}_${bldtype}
     installdir=${installdir}_${bldtype}
 fi
@@ -324,6 +333,13 @@ if [ "$TPLs" == "ON" ]; then
         exit 1
     fi
 
+    # XBRAID
+    XBRAID_STATUS=${XBRAID_STATUS:-"OFF"}
+    if [ "$XBRAID_STATUS" == "ON" ] && [ -z "$XBRAIDDIR" ]; then
+        echo "ERROR: XBRAID_STATUS = ON but XBRAIDDIR is not set"
+        exit 1
+    fi
+
 else
 
     # C and C++ standard flags to append
@@ -347,7 +363,10 @@ else
     CUDA_STATUS=OFF
     TRILINOS_STATUS=OFF
     RAJA_STATUS=OFF
+    XBRAID_STATUS=OFF
 
+    # fused ops require cuda
+    FUSED_STATUS=OFF
 fi
 
 # Ensure OpenMP and PThread options are set (default to OFF)
@@ -356,8 +375,12 @@ OPENMPDEV_STATUS=${OPENMPDEV_STATUS:-"OFF"}
 PTHREAD_STATUS=${PTHREAD_STATUS:-"OFF"}
 
 # Ensure Fortran interface options are set (default to OFF)
-F77_STATUS=${F77_STATUS:-"OFF"}
 F03_STATUS=${F03_STATUS:-"OFF"}
+if [ "$STATIC" == "ON" ] && [ "$SHARED" == "OFF" ]; then
+  F77_STATUS=${F77_STATUS:-"OFF"}
+else
+  F77_STATUS="OFF"
+fi
 
 # Ensure SUNDIALS package options are set (default to ON)
 ARKODE_STATUS=${ARKODE_STATUS:-"ON"}
@@ -373,9 +396,21 @@ MONITOR_STATUS=${MONITOR_STATUS:-"OFF"}
 # Ensure fused kernel status is set (default is OFF)
 FUSED_STATUS=${FUSED_STATUS:-"OFF"}
 
+# Verbose make output (default ON)
+CMAKE_VERBOSE_MAKEFILE=${CMAKE_VERBOSE_MAKEFILE:-"ON"}
+
 # ------------------------------------------------------------------------------
 # Setup test directories
 # ------------------------------------------------------------------------------
+
+# check if an install prefix was set
+if [ -n "${SUNDIALS_INSTALL_PREFIX}" ]; then
+    # user defined install location
+    installdir="${SUNDIALS_INSTALL_PREFIX}"
+else
+    # default install location (same level as build directory)
+    installdir="${PWD}/${installdir}"
+fi
 
 # remove old build and install directories
 \rm -rf $builddir
@@ -391,7 +426,7 @@ cd $builddir
 
 echo "START CMAKE"
 time cmake \
-    -D CMAKE_INSTALL_PREFIX="../$installdir" \
+    -D CMAKE_INSTALL_PREFIX="${installdir}" \
     \
     -D BUILD_STATIC_LIBS="${STATIC}" \
     -D BUILD_SHARED_LIBS="${SHARED}" \
@@ -408,8 +443,8 @@ time cmake \
     -D SUNDIALS_PRECISION=$realtype \
     -D SUNDIALS_INDEX_SIZE=$indexsize \
     \
-    -D F77_INTERFACE_ENABLE="${F77_STATUS}" \
-    -D F2003_INTERFACE_ENABLE="${F03_STATUS}" \
+    -D BUILD_FORTRAN77_INTERFACE="${F77_STATUS}" \
+    -D BUILD_FORTRAN_MODULE_INTERFACE="${F03_STATUS}" \
     \
     -D EXAMPLES_ENABLE_C=ON \
     -D EXAMPLES_ENABLE_CXX=ON \
@@ -427,53 +462,56 @@ time cmake \
     -D CMAKE_CXX_FLAGS="${CXXFLAGS} ${CXXSTD}" \
     -D CMAKE_Fortran_FLAGS="${FFLAGS}" \
     \
-    -D OPENMP_ENABLE="${OPENMP_STATUS}" \
-    -D PTHREAD_ENABLE="${PTHREAD_STATUS}" \
+    -D ENABLE_OPENMP="${OPENMP_STATUS}" \
+    -D ENABLE_PTHREAD="${PTHREAD_STATUS}" \
+    -D ENABLE_CUDA="${CUDA_STATUS}" \
+    -D CMAKE_CUDA_ARCHITECTURES="${CUDA_ARCH}" \
     \
-    -D CUDA_ENABLE="${CUDA_STATUS}" \
-    -D CUDA_ARCH="${CUDA_ARCH}" \
+    -D ENABLE_OPENMP_DEVICE="${OPENMPDEV_STATUS}" \
+    -D OPENMP_DEVICE_WORKS=TRUE \
     \
-    -D OPENMP_DEVICE_ENABLE="${OPENMPDEV_STATUS}" \
-    -D SKIP_OPENMP_DEVICE_CHECK=TRUE \
-    \
-    -D MPI_ENABLE="${MPI_STATUS}" \
+    -D ENABLE_MPI="${MPI_STATUS}" \
     -D MPI_C_COMPILER="${MPICC}" \
     -D MPI_CXX_COMPILER="${MPICXX}" \
     -D MPI_Fortran_COMPILER="${MPIFC}" \
     -D MPIEXEC_EXECUTABLE="${MPIEXEC}" \
     \
-    -D LAPACK_ENABLE="${LAPACK_STATUS}" \
+    -D ENABLE_LAPACK="${LAPACK_STATUS}" \
     -D LAPACK_LIBRARIES="${LAPACKLIBS}" \
     \
-    -D KLU_ENABLE="${KLU_STATUS}" \
+    -D ENABLE_KLU="${KLU_STATUS}" \
     -D KLU_INCLUDE_DIR="${KLUDIR}/include" \
     -D KLU_LIBRARY_DIR="${KLUDIR}/lib" \
     \
-    -D HYPRE_ENABLE="${HYPRE_STATUS}" \
+    -D ENABLE_HYPRE="${HYPRE_STATUS}" \
     -D HYPRE_INCLUDE_DIR="${HYPREDIR}/include" \
     -D HYPRE_LIBRARY_DIR="${HYPREDIR}/lib" \
     \
-    -D PETSC_ENABLE="${PETSC_STATUS}" \
+    -D ENABLE_PETSC="${PETSC_STATUS}" \
     -D PETSC_DIR="${PETSCDIR}" \
     \
-    -D SUPERLUMT_ENABLE="${SLUMT_STATUS}" \
+    -D ENABLE_SUPERLUMT="${SLUMT_STATUS}" \
     -D SUPERLUMT_INCLUDE_DIR="${SLUMTDIR}/include" \
     -D SUPERLUMT_LIBRARY_DIR="${SLUMTDIR}/lib" \
     -D SUPERLUMT_LIBRARIES="${SLUMTLIBS}" \
     -D SUPERLUMT_THREAD_TYPE="${SLUMTTYPE}" \
     \
-    -D SUPERLUDIST_ENABLE="${SLUDIST_STATUS}" \
+    -D ENABLE_SUPERLUDIST="${SLUDIST_STATUS}" \
     -D SUPERLUDIST_INCLUDE_DIR="${SLUDISTDIR}/include" \
     -D SUPERLUDIST_LIBRARY_DIR="${SLUDISTDIR}/lib" \
     -D SUPERLUDIST_LIBRARIES="${SLUDISTLIBS}" \
     -D SUPERLUDIST_OpenMP=ON \
-    -D SKIP_OPENMP_DEVICE_CHECK=ON \
+    -D OPENMP_DEVICE_WORKS=ON \
     \
-    -D Trilinos_ENABLE="${TRILINOS_STATUS}" \
+    -D ENABLE_TRILINOS="${TRILINOS_STATUS}" \
     -D Trilinos_DIR="${TRILINOSDIR}" \
     \
-    -D RAJA_ENABLE="${RAJA_STATUS}" \
+    -D ENABLE_RAJA="${RAJA_STATUS}" \
     -D RAJA_DIR="${RAJADIR}" \
+    -D SUNDIALS_RAJA_BACKENDS="CUDA" \
+    \
+    -D ENABLE_XBRAID="${XBRAID_STATUS}" \
+    -D XBRAID_DIR="${XBRAIDDIR}" \
     \
     -D USE_GENERIC_MATH="${C90MATH}" \
     \
@@ -486,7 +524,7 @@ time cmake \
     -D SUNDIALS_TEST_FLOAT_PRECISION="${SUNDIALS_TEST_FLOAT_PRECISION}" \
     -D SUNDIALS_TEST_INTEGER_PRECISION="${SUNDIALS_TEST_INTEGER_PRECISION}" \
     \
-    -D CMAKE_VERBOSE_MAKEFILE=OFF \
+    -D CMAKE_VERBOSE_MAKEFILE="${CMAKE_VERBOSE_MAKEFILE}" \
     \
     ../../. 2>&1 | tee configure.log
 
@@ -516,7 +554,7 @@ if [ "$skiptests" = "ON" ]; then exit 0; fi
 
 # test sundials
 echo "START TEST"
-time ctest -j $buildthreads test 2>&1 | tee test.log
+time ctest test 2>&1 | tee test.log
 
 # check make test return code
 rc=${PIPESTATUS[0]}

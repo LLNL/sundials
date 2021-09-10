@@ -3,7 +3,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2002-2021, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -423,6 +423,7 @@ void MRIStepCoupling_Free(MRIStepCoupling MRIC)
               free(MRIC->G[k][i]);
               MRIC->G[k][i] = NULL;
             }
+          free(MRIC->G[k]);
           MRIC->G[k] = NULL;
         }
       free(MRIC->G);

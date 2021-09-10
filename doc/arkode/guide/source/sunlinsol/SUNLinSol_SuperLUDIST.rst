@@ -2,7 +2,7 @@
    Programmer(s): Cody J. Balos @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -38,12 +38,20 @@ where *.lib* is typically ``.so`` for shared libraries and
 
 The module SUNLinSol_SuperLUDIST provides the following user-callable routines:
 
+:.. warning:: Starting with SuperLU_DIST version 6.3.0, some structures were
+renamed to have a prefix for the floating point type. The double precision API
+functions have the prefix 'd'. To maintain backwards compatibility with the
+unprefixed types, SUNDIALS provides macros to these SuperLU_DIST types with an
+'x' prefix that expand to the correct prefix. E.g., the SUNDIALS macro
+``xLUstruct_t`` expands to ``dLUstruct_t`` or ``LUstruct_t`` based on the
+SuperLU_DIST version.
 
-.. c:function:: SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SuperMatrix *A, gridinfo_t *grid, LUstruct_t *lu, ScalePermstruct_t *scaleperm, SOLVEstruct_t *solve, SuperLUStat_t *stat, superlu_dist_options_t *options)
+
+.. c:function:: SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SuperMatrix *A, gridinfo_t *grid, xLUstruct_t *lu, xScalePermstruct_t *scaleperm, xSOLVEstruct_t *solve, SuperLUStat_t *stat, superlu_dist_options_t *options)
 
    This constructor function creates and allocates memory for a SUNLinSol_SuperLUDIST
    object. Its arguments are an ``N_Vector``, a ``SUNMatrix``, and SuperLU_DIST
-   ``gridinfo_t*``, ``LUstuct_t*``, ``ScalePermstruct_t*``, ``SOLVEstruct_t*``,
+   ``gridinfo_t*``, ``LUstuct_t*``, ``xScalePermstruct_t*``, ``xSOLVEstruct_t*``,
    ``SuperLUStat_t*``, and ``superlu_dist_options_t*`` pointers. This routine
    analyzes the input matrix and vector to determine the linear system size and
    to assess the compatibility with the SuperLU_DIST library.
@@ -77,7 +85,7 @@ The module SUNLinSol_SuperLUDIST provides the following user-callable routines:
    object.
 
 
-.. c:function:: LUstruct_t* SUNLinSol_SuperLUDIST_GetLUstruct(SUNLinearSolver LS)
+.. c:function:: xLUstruct_t* SUNLinSol_SuperLUDIST_GetLUstruct(SUNLinearSolver LS)
 
    This function returns a pointer to the SuperLU_DIST structure that contains
    the distributed ``L`` and ``U`` structures. It takes one argument, the
@@ -91,14 +99,14 @@ The module SUNLinSol_SuperLUDIST provides the following user-callable routines:
    one argument, the ``SUNLinearSolver`` object.
 
 
-.. c:function:: ScalePermstruct_t* SUNLinSol_SuperLUDIST_GetScalePermstruct(SUNLinearSolver LS)
+.. c:function:: xScalePermstruct_t* SUNLinSol_SuperLUDIST_GetScalePermstruct(SUNLinearSolver LS)
 
    This function returns a pointer to the SuperLU_DIST structure that contains
    the vectors that describe the transformations done to the matrix ``A``. It
    takes one argument, the ``SUNLinearSolver`` object.
 
 
-.. c:function:: SOLVEstruct_t* SUNLinSol_SuperLUDIST_GetSOLVEstruct(SUNLinearSolver LS)
+.. c:function:: xSOLVEstruct_t* SUNLinSol_SuperLUDIST_GetSOLVEstruct(SUNLinearSolver LS)
 
    This function returns a pointer to the SuperLU_DIST structure that contains
    information for communication during the solution phase. It takes one argument
@@ -127,10 +135,10 @@ The SUNLinSol_SuperLUDIST module defines the *content* field of a
      int                     last_flag;
      realtype                berr;
      gridinfo_t              *grid;
-     LUstruct_t              *lu;
+     xLUstruct_t             *lu;
      superlu_dist_options_t  *options;
-     ScalePermstruct_t       *scaleperm;
-     SOLVEstruct_t           *solve;
+     xScalePermstruct_t      *scaleperm;
+     xSOLVEstruct_t          *solve;
      SuperLUStat_t           *stat;
      sunindextype            N;
    };

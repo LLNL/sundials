@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -64,10 +64,12 @@ B598130 from `Lawrence Livermore National Laboratory
    MRIStep_c_interface/index.rst
    ARKode_f_interface/index.rst
    ARKodeButcherTable
+   ARKodeGpu
    nvectors/index.rst
    sunmatrix/index.rst
    sunlinsol/index.rst
    sunnonlinsol/index.rst
+   sunmemory/index.rst
    Install
    Constants
    Butcher

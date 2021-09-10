@@ -242,7 +242,7 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
    **Notes:** Users should exercise extreme caution when using this function,
    as altering values of *ycur* may lead to undesirable behavior, depending
    on the particular use case and on when this routine is called.
-   
+
 
 .. c:function:: int MRIStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
 
@@ -366,7 +366,7 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
 .. c:function:: int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfs_evals)
 
    Returns the number of calls to the user's outer (slow) right-hand side function,
-   :math:`fs` (so far). 
+   :math:`fs` (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
@@ -424,7 +424,7 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
 
    For more details see :ref:`MRIStepCoupling`.
 
-   
+
 ..
    .. c:function:: int MRIStepGetEstLocalErrors(void* arkode_mem, N_Vector ele)
 
@@ -485,7 +485,7 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
       * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
-        
+
 
 .. _MRIStep_CInterface.MRIStepImplicitSolverOutputs:
 
@@ -650,11 +650,11 @@ Name of constant associated with a return flag                     :c:func:`MRIS
 
 .. c:function:: int MRIStepGetNumJacEvals(void* arkode_mem, long int* njevals)
 
-   Returns the number of calls made to the Jacobian approximation routine.
+   Returns the number of Jacobian evaluations.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *njevals* -- number of calls to the Jacobian function.
+      * *njevals* -- number of Jacobian evaluations.
 
    **Return value:**
       * *ARKLS_SUCCESS* if successful
@@ -802,7 +802,7 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    solver object; the counter is reset whenever a new linear solver
    module is 'attached' to MRIStep, or when MRIStep is resized.
 
-   
+
 .. c:function:: int MRIStepGetLastLinFlag(void* arkode_mem, long int* lsflag)
 
    Returns the last return value from an ARKLS routine.
@@ -865,16 +865,16 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    ``SUNLINSOL_BAND`` modules, then if  1 :math:`\le` `lsflag`
    :math:`\le n` (LU factorization failed), this routine returns "NONE".
 
-      
-        
-        
+
+
+
 .. _MRIStep_CInterface.MRIStepExtraOutputs:
 
 General usability functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following optional routines may be called by a user to inquire
-about existing solver parameters or write the current MRI coupling table. While 
+about existing solver parameters or write the current MRI coupling table. While
 neither of these would typically be called during the course of solving an
 initial value problem, these may be useful for users wishing to better
 understand MRIStep.

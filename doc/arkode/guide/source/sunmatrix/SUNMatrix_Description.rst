@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2020, Lawrence Livermore National Security
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -21,7 +21,7 @@ Description of the SUNMATRIX Modules
 ======================================
 
 For problems that involve direct methods for solving linear systems,
-the SUNDIALS solvers not only operate on generic vectors, but also 
+the SUNDIALS solvers not only operate on generic vectors, but also
 on generic matrices (of type ``SUNMatrix``), through a set of
 operations defined by the particular SUNMATRIX implementation.
 Users can provide their own specific implementation of the
@@ -36,13 +36,15 @@ The generic ``SUNMatrix`` type has been modeled after the
 object-oriented style of the generic ``N_Vector`` type.
 Specifically, a generic ``SUNMatrix`` is a pointer to a structure
 that has an implementation-dependent *content* field containing
-the description and actual data of the matrix, and an *ops* field 
+the description and actual data of the matrix, and an *ops* field
 pointing to a structure with generic matrix operations.
 The type ``SUNMatrix`` is defined as:
 
-.. code-block:: c
+.. c:type:: typedef struct _generic_SUNMatrix *SUNMatrix
 
-   typedef struct _generic_SUNMatrix *SUNMatrix;
+and the generic structure is defined as
+
+.. code-block:: c
 
    struct _generic_SUNMatrix {
        void *content;
@@ -51,7 +53,7 @@ The type ``SUNMatrix`` is defined as:
 
 Here, the ``_generic_SUNMatrix_Ops`` structure is essentially a list of
 function pointers to the various actual matrix operations, and is
-defined as  
+defined as
 
 .. code-block:: c
 
@@ -77,7 +79,7 @@ implementation, which are accessed through the *ops* field of the
 implementation of a typical matrix operation from the generic
 SUNMATRIX module, namely ``SUNMatZero``, which sets all values of a
 matrix ``A`` to zero, returning a flag denoting a successful/failed
-operation: 
+operation:
 
 .. code-block:: c
 
@@ -96,7 +98,7 @@ particular implementation of the SUNMATRIX module must:
   See the documentation for each SUNDIALS solver to determine which
   SUNMATRIX operations they require.  The list of required
   operations for use with ARKode is given in the section
-  :reF:`SUNMatrix.ARKode`. 
+  :reF:`SUNMatrix.ARKode`.
 
   Note that the names of these routines should be unique to that
   implementation in order to permit using more than one SUNMATRIX
@@ -105,15 +107,15 @@ particular implementation of the SUNMATRIX module must:
 
 * Define and implement user-callable constructor and destructor
   routines to create and free a ``SUNMatrix`` with the new *content*
-  field and with *ops* pointing to the new matrix operations. 
+  field and with *ops* pointing to the new matrix operations.
 
 * Optionally, define and implement additional user-callable routines
   acting on the newly defined ``SUNMatrix`` (e.g., a routine to print the
-  *content* for debugging purposes). 
+  *content* for debugging purposes).
 
 * Optionally, provide accessor macros as needed for that particular
   implementation to be used to access different parts in the content
-  field of the newly defined ``SUNMatrix``. 
+  field of the newly defined ``SUNMatrix``.
 
 To aid in the creation of custom SUNMATRIX modules the generic SUNMATRIX module
 provides three utility functions :c:func:`SUNMatNewEmpty()`,  :c:func:`SUNMatCopyOps()`,
@@ -134,7 +136,7 @@ set and all operations are copied when cloning a matrix.
 .. c:function:: int SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
 
   This function copies the function pointers in the ``ops`` structure of ``A``
-  into the ``ops`` structure of ``B``. 
+  into the ``ops`` structure of ``B``.
 
    **Arguments:**
       * *A* -- the matrix to copy operations from.
@@ -148,15 +150,15 @@ set and all operations are copied when cloning a matrix.
 
   This routine frees the generic ``SUNMatrix`` object, under the assumption that any
   implementation-specific data that was allocated within the underlying content structure
-  has already been freed. It will additionally test whether the ops pointer is ``NULL``, 
+  has already been freed. It will additionally test whether the ops pointer is ``NULL``,
   and, if it is not, it will free it as well.
 
    **Arguments:**
       * *A* -- a SUNMatrix object
 
-  
-Each SUNMATRIX implementation included in SUNDIALS has a unique 
-identifier specified in enumeration and shown in the table below.  
+
+Each SUNMATRIX implementation included in SUNDIALS has a unique
+identifier specified in enumeration and shown in the table below.
 It is recommended that a user-supplied SUNMATRIX implementation use
 the ``SUNMATRIX_CUSTOM`` identifier.
 
@@ -168,13 +170,14 @@ Identifiers associated with matrix kernels supplied with SUNDIALS
 
 .. cssclass:: table-bordered
 
-======================  ==============================================  ==============
-Matrix ID               Matrix type                                     ID Value
-======================  ==============================================  ==============
-SUNMATRIX_DENSE         Dense :math:`M\times N` matrix                  0
-SUNMATRIX_BAND          Band :math:`M\times M` matrix                   1
-SUNMATRIX_SPARSE        Sparse (CSR or CSC) :math:`M\times N` matrix    2
-SUNMATRIX_SLUNRLOC      SUNMatrix wrapper for SuperLU_DIST SuperMatrix  3
-SUNMATRIX_CUSTOM        User-provided custom matrix                     4
-======================  ==============================================  ==============
-
+======================  =================================================  ========
+Matrix ID               Matrix type                                        ID Value
+======================  =================================================  ========
+SUNMATRIX_DENSE         Dense :math:`M \times N` matrix                    0
+SUNMATRIX_MAGMADENSE    Magma dense :math:`M \times N` matrix              1
+SUNMATRIX_BAND          Band :math:`M \times M` matrix                     2
+SUNMATRIX_SPARSE        Sparse (CSR or CSC) :math:`M\times N` matrix       3
+SUNMATRIX_SLUNRLOC      SUNMatrix wrapper for SuperLU_DIST SuperMatrix     4
+SUNMATRIX_CUSPARSE      CUDA sparse CSR matrix                             5
+SUNMATRIX_CUSTOM        User-provided custom matrix                        6
+======================  =================================================  ========

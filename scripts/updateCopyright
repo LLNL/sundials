@@ -12,6 +12,7 @@ use File::Compare;
 use Cwd;
 use Text::Wrap;
 use File::Copy;
+use File::stat;
 
 my $pwd = cwd;
 
@@ -26,11 +27,11 @@ my @allfiles = ();
 
 sub selectFile {
     if ( $File::Find::dir =~ m!$excludePattern! ) {
-	$File::Find::prune = 1;
+        $File::Find::prune = 1;
     }
-    elsif ( -f && m/$filePattern/ ) {
-	push @allfiles, $File::Find::name;
-	$allfiles[$#allfiles] =~ s|^\./||;
+    elsif ( ! -l && -f && m/$filePattern/ ) {
+        push @allfiles, $File::Find::name;
+        $allfiles[$#allfiles] =~ s|^\./||;
     }
     else {
     }
@@ -47,34 +48,41 @@ sub replaceInFiles {
     print "files=@allfiles" if ($debug > 2);
     foreach my $file (@allfiles) {
 
-	print "Working on $file\n";
-	my $filebasename = basename $file;
+        print "Working on $file\n";
+        my $filebasename = basename $file;
 
-	my $tempFile = $filebasename . ".replace.tmp";
+        my $tempFile = $filebasename . ".replace.tmp";
 
-	open FILE, "< $file" || die "Cannot open file $file";
-	my $str = do { local $/; <FILE> };
+        open FILE, "< $file" || die "Cannot open file $file";
+        my $str = do { local $/; <FILE> };
 
-	open TEMPFILE, "> $tempFile" || die "Cannot open temporary work file $tempFile";
+        open TEMPFILE, "> $tempFile" || die "Cannot open temporary work file $tempFile";
 
-	$str =~ s/$replacePattern/$newPattern/gs;
+        $str =~ s/$replacePattern/$newPattern/gs;
 
-	print TEMPFILE $str;
+        print TEMPFILE $str;
 
-	close FILE || die "Cannot close file $file";
-	close TEMPFILE || die "Cannot close file $tempFile";
+        close FILE || die "Cannot close file $file";
+        close TEMPFILE || die "Cannot close file $tempFile";
 
-	printf "Replacing original file\n" if ($debug > 2);
+        printf "Replacing original file\n" if ($debug > 2);
 
-	if(1) {
-	    # Only replace existing file if a replacement was done.
-	    if (compare($file,$tempFile) == 0) {
-		unlink($tempFile);
-	    } else {
-		unlink($file);
-		rename( $tempFile, $file);
-	    }
-	}
+        # Only replace existing file if a replacement was done.
+        if (compare($file,$tempFile) == 0) {
+            # remove temporary file
+            unlink($tempFile);
+        } else {
+            # get the permissions of the original file
+            my $info = stat($file);
+            my $ret_mode = $info->mode;
+
+            # replace the original file
+            unlink($file);
+            rename( $tempFile, $file);
+
+            # set the permissions for the new file
+            chmod $ret_mode, $file;
+        }
     }
 }
 
@@ -87,7 +95,7 @@ my $end_of_line = $/;
 
 my $newCopyright = <<END;
  # SUNDIALS Copyright Start
- # Copyright (c) 2002-2020, Lawrence Livermore National Security
+ # Copyright (c) 2002-2021, Lawrence Livermore National Security
  # and Southern Methodist University.
  # All rights reserved.
  #
@@ -97,14 +105,28 @@ my $newCopyright = <<END;
  # SUNDIALS Copyright End
 END
 
+# files to exclude
+my $fileExcludePattern=q!/(.git)$!;
+
+##############################################################################
+## Replace in LICENSE and doc files
+##############################################################################
+
+my $docFilePattern    = q!(LICENSE|\.tex|\.rst)$!;
+my $docReplacePattern = 'Copyright \(c\) (.*?),';
+my $docNewCopyright   = 'Copyright (c) 2002-2021,';
+
+replaceInFiles($docFilePattern,$fileExcludePattern,$docReplacePattern,$docNewCopyright);
+
 #############################################################################
 # Replace in C/C++/CUDA source files
 #############################################################################
-my $cFilePattern = q!(\.[chI]|\.cpp|\.hpp|\.cu|\.cuh)$!;
-my $fileExcludePattern=q!/(.git)$!;
-my $cReplacePattern=' \* (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
 
-my $cNewCopyright = $newCopyright;
+my $cFilePattern    = q!(\.[chI]|\.cpp|\.hpp|\.cu|\.cuh|\.in)$!;
+my $cReplacePattern = ' \* (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $cNewCopyright   = $newCopyright;
+
+# replace comment character(s) in new copyright
 $cNewCopyright =~ s/#/\*/g;
 
 replaceInFiles($cFilePattern,$fileExcludePattern,$cReplacePattern,$cNewCopyright);
@@ -113,28 +135,34 @@ replaceInFiles($cFilePattern,$fileExcludePattern,$cReplacePattern,$cNewCopyright
 # Replace in Fortran files
 #############################################################################
 
-my $fFilePattern = q!(\.f|\.f90)$!;
-my $fReplacePattern='! (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
-
+my $fFilePattern    = q!(\.f|\.f90|\.in)$!;
+my $fReplacePattern = '! (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
 my $fNewCopyright = $newCopyright;
+
+# replace comment character(s) in new copyright
 $fNewCopyright =~ s/ #/!/g;
 
 replaceInFiles($fFilePattern,$fileExcludePattern,$fReplacePattern,$fNewCopyright);
 
-$fNewCopyright = $newCopyright;
+my $fFilePattern    = q!(\.f)$!;
+my $fReplacePattern ='(C|c)     (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $fNewCopyright   = $newCopyright;
+
+# replace comment character(s) in new copyright
 $fNewCopyright =~ s/ # (\w)/C     $1/g;
 $fNewCopyright =~ s/ #/C/g;
-$fReplacePattern='C     (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+
 replaceInFiles($fFilePattern,$fileExcludePattern,$fReplacePattern,$fNewCopyright);
 
 #############################################################################
 # Replace in CMake/Make files
 #############################################################################
 
-my $cmakeFilePattern = q!(CMakeLists.txt|.cmake|Makefile|Makefile.in|\.in)$!;
-my $cmakeReplacePattern='# (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $cmakeFilePattern    = q!(CMakeLists.txt|\.cmake|\.cmake.template|Makefile|\.in)$!;
+my $cmakeReplacePattern = '# (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $cmakeNewCopyright   = $newCopyright;
 
-my $cmakeNewCopyright = $newCopyright;
+# replace comment character(s) in new copyright
 $cmakeNewCopyright =~ s/ #/#/g;
 
 replaceInFiles($cmakeFilePattern,$fileExcludePattern,$cmakeReplacePattern,$cmakeNewCopyright);
@@ -143,22 +171,55 @@ replaceInFiles($cmakeFilePattern,$fileExcludePattern,$cmakeReplacePattern,$cmake
 # Replace in Python/Shell files
 #############################################################################
 
-my $shFilePattern = q!(\.py|\.sh)$!;
-my $shReplacePattern='# (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $shFilePattern    = q!(\.py|\.sh|testRunner|updateGitHub|applyGithubPR)$!;
+my $shReplacePattern = '# (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $shNewCopyright   = $newCopyright;
 
-my $shNewCopyright = $newCopyright;
+# replace comment character(s) in new copyright
 $shNewCopyright =~ s/ #/#/g;
 
 replaceInFiles($shFilePattern,$fileExcludePattern,$shReplacePattern,$shNewCopyright);
+
+#############################################################################
+# Replace in Swig files
+#############################################################################
+
+my $sFilePattern    = q!(\.i)$!;
+my $sReplacePattern = '// (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*?)Copyright End\n';
+my $sNewCopyright   = $newCopyright;
+
+# replace comment character(s) in new copyright
+$sNewCopyright =~ s| #|//|g;
+
+replaceInFiles($sFilePattern,$fileExcludePattern,$sReplacePattern,$sNewCopyright);
+
+my $sFilePattern    = q!(\.i)$!;
+my $sReplacePattern = ' \* (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*?)Copyright End\n';
+my $sNewCopyright   = $newCopyright;
+
+# replace comment character(s) in new copyright
+$sNewCopyright =~ s/ #/ */g;
+
+replaceInFiles($sFilePattern,$fileExcludePattern,$sReplacePattern,$sNewCopyright);
+
+my $sFilePattern    = q!(\.i)$!;
+my $sReplacePattern = '! (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*?)Copyright End\n';
+my $sNewCopyright   = $newCopyright;
+
+# replace comment character(s) in new copyright
+$sNewCopyright =~ s/ #/!/g;
+
+replaceInFiles($sFilePattern,$fileExcludePattern,$sReplacePattern,$sNewCopyright);
 
 ##############################################################################
 ## Replace in rst files
 ##############################################################################
 
-my $rstFilePattern = q!(\.rst)$!;
-my $rstReplacePattern='   (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $rstFilePattern    = q!(\.rst)$!;
+my $rstReplacePattern = '   (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $rstNewCopyright   = $newCopyright;
 
-my $rstNewCopyright = $newCopyright;
+# replace comment character(s) in new copyright
 $rstNewCopyright =~ s/ # /   /g;
 $rstNewCopyright =~ s/ #//g;
 
@@ -168,10 +229,11 @@ replaceInFiles($rstFilePattern,$fileExcludePattern,$rstReplacePattern,$rstNewCop
 # Replace in Matlab files
 #############################################################################
 
-my $matlabFilePattern = q!(\.[m])$!;
-my $matlabReplacePattern='% (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $matlabFilePattern    = q!(\.[m]|\.in)$!;
+my $matlabReplacePattern = '% (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $matlabNewCopyright   = $newCopyright;
 
-my $matlabNewCopyright = $newCopyright;
+# replace comment character(s) in new copyright
 $matlabNewCopyright =~ s/ #/\%/g;
 
 replaceInFiles($matlabFilePattern,$fileExcludePattern,$matlabReplacePattern,$matlabNewCopyright);
