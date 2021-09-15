@@ -68,6 +68,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
     ark_mem->root_mem->rootdir   = NULL;
     ark_mem->root_mem->gfun      = NULL;
     ark_mem->root_mem->nrtfn     = 0;
+    ark_mem->root_mem->irfnd     = 0;
     ark_mem->root_mem->gactive   = NULL;
     ark_mem->root_mem->mxgnull   = 1;
     ark_mem->root_mem->root_data = ark_mem->user_data;
