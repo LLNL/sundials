@@ -257,7 +257,7 @@ if(NEED_FORTRAN_NAME_MANGLING)
       "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
       "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
       "ADD_EXECUTABLE(ctest2 ctest2.c)\n"
-      "FIND_LIBRARY(FLIB flib ${FortranTest_DIR})\n"
+      "FIND_LIBRARY(FLIB flib \"${FortranTest_DIR}\")\n"
       "TARGET_LINK_LIBRARIES(ctest2 \${FLIB})\n")
 
     set(options my_sub my_sub_ my_sub__ MY_SUB MY_SUB_ MY_SUB__)
