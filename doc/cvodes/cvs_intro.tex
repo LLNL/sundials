@@ -119,6 +119,12 @@ writing in C|)}
 
 \subsection*{Changes in v5.8.0}
 
+The RAJA {\nvector} implementation has been updated to support the SYCL backend
+in addition to the CUDA and HIP backend. Users can choose the backend when
+configuring SUNDIALS by using the \id{SUNDIALS\_RAJA\_BACKENDS} CMake variable.
+This module remains experimental and is subject to change from version to
+version.
+
 The installed SUNDIALSConfig.cmake file now supports the \id{COMPONENTS} option
 to \id{find\_package}.
 

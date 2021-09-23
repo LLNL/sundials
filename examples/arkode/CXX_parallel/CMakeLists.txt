@@ -66,7 +66,8 @@ if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
       "ark_brusselator1D_task_local_nls\;USE_HIP_NVEC\;--monitor\;1\;4\;exclude\;2")
   endif()
 
-  if(BUILD_NVECTOR_RAJA AND (RAJA_BACKENDS MATCHES "CUDA"))
+  if(BUILD_NVECTOR_RAJA AND (RAJA_BACKENDS MATCHES "CUDA") AND
+      (SUNDIALS_RAJA_BACKENDS MATCHES "CUDA"))
     list(APPEND raja_raja_examples
       "ark_brusselator1D_task_local_nls\;USE_RAJA_NVEC\;--monitor\;1\;4\;exclude\;2")
   endif()
@@ -81,13 +82,6 @@ if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
 
 endif()
 
-if(NOT hip_raja_examples)
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-  if(CMAKE_CUDA_HOST_COMPILER)
-    set(CMAKE_CUDA_HOST_COMPILER ${MPI_CXX_COMPILER})
-  endif()
-endif()
 
 # macro to loop through each set of examples and build/install them
 macro(build_examples examples_to_build lang)
@@ -125,12 +119,8 @@ macro(build_examples examples_to_build lang)
       set_target_properties(${example_target} PROPERTIES LINKER_LANGUAGE CXX)
 
       # libraries to link against
-      if(NOT (${CMAKE_${lang}_COMPILER} STREQUAL ${MPI_CXX_COMPILER}))
-        target_include_directories(${example_target} PRIVATE ${MPI_CXX_INCLUDE_DIRS})
-        target_link_libraries(${example_target} PRIVATE ${OTHER_LIBS} ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
-      else()
-        target_link_libraries(${example_target} PRIVATE ${OTHER_LIBS} ${SUNDIALS_LIBS})
-      endif()
+      target_include_directories(${example_target} PRIVATE ${MPI_CXX_INCLUDE_DIRS})
+      target_link_libraries(${example_target} PRIVATE ${OTHER_LIBS} ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
 
       # compile definitions
       if(NOT "${example_defines}" STREQUAL "")

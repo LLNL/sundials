@@ -22,7 +22,7 @@
 #include <sundials/sundials_types.h>
 #include <nvector/nvector_hip.h>
 
-#include "custom_memory_helper.h"
+#include "custom_memory_helper_gpu.h"
 #include "test_nvector.h"
 
 /* hip vector variants */

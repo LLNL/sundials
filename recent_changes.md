@@ -2,6 +2,11 @@
 
 ## Changes to SUNDIALS in release 5.8.0
 
+The RAJA NVECTOR implementation has been updated to support the SYCL backend
+in addition to the CUDA and HIP backend. Users can choose the backend when
+configuring SUNDIALS by using the `SUNDIALS_RAJA_BACKENDS` CMake variable. This
+module remains experimental and is subject to change from version to version.
+
 Support for user-defined inner (fast) integrators has been to the MRIStep module
 in ARKODE. See the "MRIStep Custom Inner Steppers" section in the user guide for
 more information on providing a user-defined integration method.

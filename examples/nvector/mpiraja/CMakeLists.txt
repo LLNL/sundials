@@ -34,17 +34,11 @@ set(nvector_examples_dependencies
 # Add source directory to include directories
 include_directories(. ..)
 
-# use MPI wrapper as the compiler
-set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-set(CMAKE_CUDA_HOST_COMPILER ${MPI_CXX_COMPILER})
-
-# Specify libraries to link against
-set(NVECS_LIB sundials_nvecmpiplusx sundials_nvecraja)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
+if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
+  set(_lang CUDA)
+else()
+  set(_lang CXX)
+endif()
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_raja_examples})
@@ -59,7 +53,8 @@ foreach(example_tuple ${nvector_raja_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
-    set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE CUDA)
+
+    set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE ${_lang})
 
     # example source files
     add_executable(${example} ${example}.cpp
@@ -68,7 +63,15 @@ foreach(example_tuple ${nvector_raja_examples})
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
+    target_include_directories(${example} PUBLIC ${MPI_CXX_INCLUDE_DIRS})
+
+    target_link_libraries(${example}
+      PRIVATE
+      sundials_nvecmpiplusx
+      sundials_nvecraja
+      ${MPI_CXX_LIBRARIES}
+      ${EXTRA_LINK_LIBS})
+
   endif()
 
   # check if example args are provided and set the test name

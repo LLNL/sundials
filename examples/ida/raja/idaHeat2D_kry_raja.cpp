@@ -44,6 +44,16 @@
 
 #include <RAJA/RAJA.hpp>
 
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
+#define MY_EXEC RAJA::cuda_exec< 256 >
+#elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+#define MY_EXEC RAJA::hip_exec< 512 >
+#elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+#define MY_EXEC RAJA::sycl_exec< 256 >
+#else
+#error "Unsupported RAJA backend"
+#endif
+
 /* Problem Constants */
 
 #define NOUT  11
@@ -108,6 +118,11 @@ int main(int argc, char *argv[])
   data = NULL;
   uu = up = constraints = res = NULL;
   LS = NULL;
+
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  camp::resources::Resource* sycl_res = new camp::resources::Resource{camp::resources::Sycl()};
+  ::RAJA::sycl::detail::setQueue(sycl_res);
+#endif
 
   /* Assign parameters in the user data structure. */
 
@@ -322,8 +337,8 @@ int resHeat(realtype tt,
   coeff = data->coeff;
   mm    = data->mm;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mm*mm),
-    [=] __device__(sunindextype loc) {
+  RAJA::forall< MY_EXEC >(RAJA::RangeSegment(zero, mm*mm),
+    [=] RAJA_DEVICE (sunindextype loc) {
       sunindextype i = loc % mm;
       sunindextype j = loc / mm;
       if (j==0 || j==mm-1 || i==0 || i==mm-1) {
@@ -372,8 +387,8 @@ int PsetupHeat(realtype tt,
   mm = data->mm;
   realtype coeff = data->coeff;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mm*mm),
-    [=] __device__(sunindextype loc) {
+  RAJA::forall< MY_EXEC >(RAJA::RangeSegment(zero, mm*mm),
+    [=] RAJA_DEVICE (sunindextype loc) {
       sunindextype i = loc % mm;
       sunindextype j = loc / mm;
       if (j==0 || j==mm-1 || i==0 || i==mm-1) {
@@ -452,8 +467,8 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   updata = N_VGetDeviceArrayPointer_Raja(up);
   mm1 = mm - 1;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mm*mm),
-    [=] __device__(sunindextype loc) {
+  RAJA::forall< MY_EXEC >(RAJA::RangeSegment(zero, mm*mm),
+    [=] RAJA_DEVICE (sunindextype loc) {
       sunindextype i = loc % mm;
       sunindextype j = loc / mm;
       if (j==0 || j==mm1 || i==0 || i==mm1) {

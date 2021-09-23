@@ -18,14 +18,18 @@ install(CODE "MESSAGE(\"\nInstall NVECTOR_RAJA with ${SUNDIALS_RAJA_BACKENDS} ba
 
 if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
   set(_sunmemlib sundials_sunmemcuda_obj)
-  # set(_compile_defs SUNDIALS_RAJA_BACKENDS_CUDA)
   set(_lib_output_name sundials_nveccudaraja)
   set_source_files_properties(nvector_raja.cpp PROPERTIES LANGUAGE CUDA)
+  set(_cxx_std cxx_std_11)
 elseif(SUNDIALS_RAJA_BACKENDS MATCHES "HIP")
   set(_sunmemlib sundials_sunmemhip_obj)
   set(_lib_output_name sundials_nvechipraja)
-  # set(_compile_defs SUNDIALS_RAJA_BACKENDS_HIP)
   set(_hip_lib_or_not hip::device)
+  set(_cxx_std cxx_std_11)
+elseif(SUNDIALS_RAJA_BACKENDS MATCHES "SYCL")
+  set(_sunmemlib sundials_sunmemsycl_obj)
+  set(_lib_output_name sundials_nvecsyclraja)
+  set(_cxx_std cxx_std_17)
 endif()
 
 # Create the library
@@ -46,7 +50,7 @@ sundials_add_library(sundials_nvecraja
   COMPILE_DEFINITIONS
     PRIVATE ${_compile_defs}
   COMPILE_FEATURES
-    PUBLIC cxx_std_11
+    PUBLIC ${_cxx_std}
   OUTPUT_NAME
     ${_lib_output_name}
   VERSION

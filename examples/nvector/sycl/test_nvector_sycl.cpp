@@ -23,7 +23,7 @@
 #include <nvector/nvector_serial.h>
 #include <nvector/nvector_sycl.h>
 
-#include "custom_memory_helper.h"
+#include "custom_memory_helper_sycl.h"
 #include "test_nvector.h"
 
 /* SYCL vector variants */

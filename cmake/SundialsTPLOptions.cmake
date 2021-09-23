@@ -193,8 +193,8 @@ sundials_option(ENABLE_RAJA BOOL "Enable RAJA support" OFF)
 sundials_option(RAJA_DIR PATH "Path to root of RAJA installation" "${RAJA_DIR}"
                 SHOW_IF ENABLE_RAJA)
 
-sundials_option(SUNDIALS_RAJA_BACKENDS STRING "Which RAJA backend under the SUNDIALS RAJA interfaces (CUDA, HIP)" "CUDA"
-                OPTIONS "CUDA;HIP"
+sundials_option(SUNDIALS_RAJA_BACKENDS STRING "Which RAJA backend under the SUNDIALS RAJA interfaces (CUDA, HIP, SYCL)" "CUDA"
+                OPTIONS "CUDA;HIP;SYCL"
                 SHOW_IF ENABLE_RAJA)
 
 # ---------------------------------------------------------------

@@ -45,6 +45,9 @@ if(EXAMPLES_ENABLE_CXX)
   if(ENABLE_MAGMA AND MAGMA_FOUND)
     add_subdirectory(magma)
   endif()
+  if(ENABLE_RAJA AND RAJA_FOUND)
+    add_subdirectory(raja)
+  endif()
   # MPI based examples
   if(ENABLE_MPI AND MPI_CXX_FOUND)
     add_subdirectory(CXX_parallel)
@@ -76,10 +79,6 @@ if(EXAMPLES_ENABLE_CUDA)
 
   if(ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
     add_subdirectory(cuda)
-  endif()
-
-  if(ENABLE_RAJA AND RAJA_FOUND)
-    add_subdirectory(raja)
   endif()
 
 endif()
