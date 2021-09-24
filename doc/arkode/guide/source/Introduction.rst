@@ -121,7 +121,7 @@ module. See :ref:`MRIStep.CustomInnerStepper` for more information on providing
 a user-defined integration method.
 
 The installed SUNDIALSConfig.cmake file now supports the ``COMPONENTS`` option
-to ``find_package``.
+to ``find_package``. The exported targets no longer have IMPORTED_GLOBAL set.
 
 A bug was fixed in the ARKODE stepper modules where the stop time may be passed
 after resetting the integrator.
