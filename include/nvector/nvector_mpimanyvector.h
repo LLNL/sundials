@@ -56,6 +56,7 @@ struct _N_VectorContent_MPIManyVector {
   sunindextype  global_length;   /* overall manyvector length       */
   N_Vector*     subvec_array;    /* pointer to N_Vector array       */
   booleantype   own_data;        /* flag indicating data ownership  */
+  N_Vector*     loc_vec_array;   /* workspace array for fused ops   */
 };
 
 typedef struct _N_VectorContent_MPIManyVector *N_VectorContent_MPIManyVector;

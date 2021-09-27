@@ -40,6 +40,7 @@
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 #define MANYVECTOR_CONTENT(v)     ( (N_VectorContent_MPIManyVector)(v->content) )
 #define MANYVECTOR_COMM(v)        ( MANYVECTOR_CONTENT(v)->comm )
+#define MANYVECTOR_WRKSPACE(v)    ( MANYVECTOR_CONTENT(v)->loc_vec_array )
 #else
 #define MANYVECTOR_CONTENT(v)     ( (N_VectorContent_ManyVector)(v->content) )
 #endif
@@ -195,6 +196,15 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
     if (retval != MPI_SUCCESS) { N_VDestroy(v); return(NULL); }
   } else {
     content->global_length = local_length;
+  }
+
+  /* Allocate workspace for fused operations */
+  content->loc_vec_array = NULL;
+  content->loc_vec_array = (N_Vector*) malloc(50 * sizeof(N_Vector));
+  if (!(content->loc_vec_array))
+  {
+    N_VDestroy(v);
+    return(NULL);
   }
 
   return(v);
@@ -493,6 +503,9 @@ void MVAPPEND(N_VDestroy)(N_Vector v)
     /* free communicator */
     if (MANYVECTOR_COMM(v) != MPI_COMM_NULL)  MPI_Comm_free(&(MANYVECTOR_COMM(v)));
     MANYVECTOR_COMM(v) = MPI_COMM_NULL;
+
+    /* free fused op workspace */
+    free(MANYVECTOR_WRKSPACE(v));
 #endif
 
     /* free content structure */
@@ -1345,15 +1358,30 @@ int MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y, realtype* dotpr
 {
   sunindextype i;
 
-  /* call N_VDotProdLocal for each <x,Y[i]> pair */
-  for (i=0; i<nvec; i++)  dotprods[i] = N_VDotProdLocal(x,Y[i]);
-
 #ifdef MANYVECTOR_BUILD_WITH_MPI
+  int retval;
+
+  /* extract the local vectors (assumes one subvector) */
+  N_Vector  x_loc = MANYVECTOR_SUBVEC(x, 0);
+  N_Vector* Y_loc = MANYVECTOR_WRKSPACE(x);
+
+  for (i=0; i<nvec; i++) Y_loc[i] = MANYVECTOR_SUBVEC(Y[i], 0);
+
+  retval = N_VDotProdMulti(nvec, x_loc, Y_loc, dotprods);
+  if (retval) return retval;
+
   /* accumulate totals and return */
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     return(MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE,
                          MPI_SUM, MANYVECTOR_COMM(x)));
+
+#else
+
+  /* call N_VDotProdLocal for each <x,Y[i]> pair */
+  for (i=0; i<nvec; i++)  dotprods[i] = N_VDotProdLocal(x,Y[i]);
+
 #endif
+
   /* return with success */
   return(0);
 }
