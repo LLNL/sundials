@@ -22,6 +22,7 @@ Coefficient in the nonlinear convergence test  :c:func:`MRIStepSetNonlinConvCoef
 Nonlinear convergence rate constant            :c:func:`MRIStepSetNonlinCRDown()`         0.3
 Nonlinear residual divergence ratio            :c:func:`MRIStepSetNonlinRDiv()`           2.3
 User-provided implicit stage predictor         :c:func:`MRIStepSetStagePredictFn()`       ``NULL``
+RHS function for nonlinear system evaluations  :c:func:`MRIStepSetNlsRhsFn()`             ``NULL``
 =============================================  =========================================  ============
 
 
@@ -202,7 +203,27 @@ User-provided implicit stage predictor         :c:func:`MRIStepSetStagePredictFn
    this user-supplied routine.
 
 
+.. c:function:: int MRIStepSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fs)
 
+   Specifies an alternative implicit slow right-hand side function for
+   evaluating :math:`f^S(t,y)` within nonlinear system function evaluations.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+      * *nls_fs* -- the alternative C function for computing the right-hand side
+        function :math:`f^S(t,y)` in the ODE.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful.
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``.
+
+   **Notes:** The default is to use the implicit slow right-hand side function
+   provided to :c:func:`MRIStepCreate()` in nonlinear system functions. If the
+   input implicit slow right-hand side function is ``NULL``, the default is
+   used.
+
+   When using a non-default nonlinear solver, this function must be called
+   *after* :c:func:`MRIStepSetNonlinearSolver()`.
 
 
 .. _MRIStep_CInterface.ARKLsInputs:

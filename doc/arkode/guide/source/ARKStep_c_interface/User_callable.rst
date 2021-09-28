@@ -1898,6 +1898,7 @@ Nonlinear convergence rate constant            :c:func:`ARKStepSetNonlinCRDown()
 Nonlinear residual divergence ratio            :c:func:`ARKStepSetNonlinRDiv()`           2.3
 Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()`         10
 User-provided implicit stage predictor         :c:func:`ARKStepSetStagePredictFn()`       ``NULL``
+RHS function for nonlinear system evaluations  :c:func:`ARKStepSetNlsRhsFn()`             ``NULL``
 =============================================  =========================================  ============
 
 
@@ -2111,7 +2112,26 @@ User-provided implicit stage predictor         :c:func:`ARKStepSetStagePredictFn
    this user-supplied routine.
 
 
+.. c:function:: int ARKStepSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fi)
 
+   Specifies an alternative implicit right-hand side function for evaluating
+   :math:`f^I(t,y)` within nonlinear system function evaluations.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *nls_fi* -- the alternative C function for computing the right-hand side
+        function :math:`f^I(t,y)` in the ODE.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful.
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``.
+
+   **Notes:** The default is to use the implicit right-hand side function
+   provided to :c:func:`ARKStepCreate()` in nonlinear system functions. If the
+   input implicit right-hand side function is ``NULL``, the default is used.
+
+   When using a non-default nonlinear solver, this function must be called
+   *after* :c:func:`ARKStepSetNonlinearSolver()`.
 
 
 .. _ARKStep_CInterface.ARKLsInputs:

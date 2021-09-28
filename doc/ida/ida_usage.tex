@@ -1281,6 +1281,7 @@ Maximum no. of error test failures & \id{IDASetMaxErrTestFails} & 10 \\
 Maximum no. of nonlinear iterations & \id{IDASetMaxNonlinIters} & 4 \\
 Maximum no. of convergence failures & \id{IDASetMaxConvFails} & 10 \\
 Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
+Residual function for nonlinear system evaluations & \id{IDASetNlsResFn} & \id{NULL} \\
 Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{SUNFALSE} \\
 Variable types (differential/algebraic) & \id{IDASetId} & \id{NULL} \\
 Inequality constraints on solution & \id{IDASetConstraints} & \id{NULL} \\
@@ -1724,6 +1725,41 @@ flag = IDASetNonlinConvCoef(ida\_mem, nlscoef);
 }
 {
   The default value is $0.33$.
+}
+%%
+\ucfunctionf{IDASetNlsResFn}
+{
+  flag = IDASetNlsResFn(ida\_mem, res);
+}
+{
+  The function \ID{IDASetNlsResFn} specifies an alternative residual function
+  for use in nonlinear system function evaluations.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[res] (\id{IDAResFn})
+    is the alternative {\CC} function which computes the DAE residual function
+    $F$ (for full details see \S\ref{ss:resFn}).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}]
+    The optional function has been successfully set.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The default is to use the residual function provided to \id{IDAInit} in
+  nonlinear system function evaluations. If the input residual function is
+  \id{NULL}, the default is used.
+
+  When using a non-default nonlinear solver, this function must be called after
+  \id{IDASetNonlinearSolver}.
 }
 %%
 %%
@@ -3749,8 +3785,8 @@ the name of an optional output from the main solver, a suffix \id{LS}
   The value \id{nrevalsLS} is incremented only if one of the default
   internal difference quotient functions is used.
 
-  The previous routines \Id{IDADlsGetNumRhsEvals} and
-  \Id{IDASpilsGetNumRhsEvals} are now wrappers for this routine, and may
+  The previous routines \Id{IDADlsGetNumResEvals} and
+  \Id{IDASpilsGetNumResEvals} are now wrappers for this routine, and may
   still be used for backward-compatibility.  However, these will be
   deprecated in future releases, so we recommend that users transition
   to the new routine name soon.

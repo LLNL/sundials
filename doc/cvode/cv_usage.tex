@@ -1295,6 +1295,7 @@ Maximum no. of error test failures & \id{CVodeSetMaxErrTestFails} & 7 \\
 Maximum no. of nonlinear iterations & \id{CVodeSetMaxNonlinIters} & 3 \\
 Maximum no. of convergence failures & \id{CVodeSetMaxConvFails} & 10 \\
 Coefficient in the nonlinear convergence test & \id{CVodeSetNonlinConvCoef} & 0.1 \\
+RHS function for nonlinear system evaluations & \id{CVodeSetNlsRhsFn} & \id{NULL} \\
 Inequality constraints on solution & \id{CVodeSetConstraints} & \id{NULL} \\
 Direction of zero-crossing & \id{CVodeSetRootDirection} & both \\
 Disable rootfinding warnings & \id{CVodeSetNoInactiveRootWarn} & none \\
@@ -1912,6 +1913,41 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
 }
 {
   The default value is $0.1$.
+}
+%%
+\ucfunctionf{CVodeSetNlsRhsFn}
+{
+  flag = CVodeSetNlsRhsFn(cvode\_mem, f);
+}
+{
+  The function \ID{CVodeSetNlsRhsFn} specifies an alternative right-hand side
+  function for use in nonlinear system function evaluations.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[f] (\id{CVRhsFn})
+    is the alternative {\CC} function which computes the right-hand side
+    function $f$ in the ODE (for full details see \S\ref{ss:rhsFn}).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}]
+    The optional function has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \end{args}
+}
+{
+  The default is to use the implicit right-hand side function provided to
+  \id{CVodeInit} in nonlinear system function evaluations. If the input
+  right-hand side function is \id{NULL}, the default is used.
+
+  When using a non-default nonlinear solver, this function must be called after
+  \id{CVodeSetNonlinearSolver}.
 }
 %%
 \ucfunctionf{CVodeSetConstraints}

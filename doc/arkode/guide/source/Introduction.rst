@@ -137,6 +137,10 @@ with the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the
 linear solver support general dense linear systems as well as block diagonal
 linear systems. See :ref:`SUNLinSol_OneMklDense` for more details.
 
+Added the functions :c:func:`ARKStepSetNlsRhsFn()` and
+:c:func:`MRIStepSetNlsRhsFn()` to supply an alternative implicit right-hand side
+function for use within nonlinear system function evaluations.
+
 
 Changes in 4.7.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

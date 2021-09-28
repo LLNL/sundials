@@ -81,6 +81,7 @@ typedef struct ARKodeMRIStepMemRec {
   int                istage;     /* current stage index                      */
   SUNNonlinearSolver NLS;        /* generic SUNNonlinearSolver object        */
   booleantype        ownNLS;     /* flag indicating ownership of NLS         */
+  ARKRhsFn           nls_fs;     /* fs(t,y) used in the nonlinear solver     */
   realtype           gamma;      /* gamma = h * A(i,i)                       */
   realtype           gammap;     /* gamma at the last setup call             */
   realtype           gamrat;     /* gamma / gammap                           */

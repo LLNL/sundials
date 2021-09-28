@@ -410,6 +410,16 @@ int IDAInit(void *ida_mem, IDAResFn res,
     return(IDA_MEM_FAIL);
   }
 
+  /* Input checks complete at this point and history array allocated */
+
+  /* Copy the input parameters into IDA memory block */
+  IDA_mem->ida_res = res;
+  IDA_mem->ida_tn  = t0;
+
+  /* Initialize the phi array */
+  N_VScale(ONE, yy0, IDA_mem->ida_phi[0]);
+  N_VScale(ONE, yp0, IDA_mem->ida_phi[1]);
+
   /* create a Newton nonlinear solver object by default */
   NLS = SUNNonlinSol_Newton(yy0);
 
@@ -437,11 +447,6 @@ int IDAInit(void *ida_mem, IDAResFn res,
 
   /* All error checking is complete at this point */
 
-  /* Copy the input parameters into IDA memory block */
-
-  IDA_mem->ida_res = res;
-  IDA_mem->ida_tn  = t0;
-
   /* Set the linear solver addresses to NULL */
 
   IDA_mem->ida_linit  = NULL;
@@ -450,11 +455,6 @@ int IDAInit(void *ida_mem, IDAResFn res,
   IDA_mem->ida_lperf  = NULL;
   IDA_mem->ida_lfree  = NULL;
   IDA_mem->ida_lmem   = NULL;
-
-  /* Initialize the phi array */
-
-  N_VScale(ONE, yy0, IDA_mem->ida_phi[0]);
-  N_VScale(ONE, yp0, IDA_mem->ida_phi[1]);
 
   /* Initialize all the counters and other optional output values */
 

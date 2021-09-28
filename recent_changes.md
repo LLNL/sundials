@@ -11,6 +11,10 @@ Support for user-defined inner (fast) integrators has been to the MRIStep module
 in ARKODE. See the "MRIStep Custom Inner Steppers" section in the user guide for
 more information on providing a user-defined integration method.
 
+Added functions to ARKODE and CVODE(S) for supplying an alternative right-hand
+side function and to IDA(S) for supplying an alternative residual for use within
+nonlinear system function evaluations.
+
 Added specialized fused HIP kernels to CVODE which may offer better
 performance on smaller problems when using CVODE with the `NVECTOR_HIP`
 module. See the optional input function `CVodeSetUseIntegratorFusedKernels`
@@ -34,6 +38,10 @@ A new SUNMatrix and SUNLinearSolver implementation were added to interface
 with the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the
 linear solver support general dense linear systems as well as block diagonal
 linear systems.
+
+Fixed a bug with `IDASetJacTimesResFn` where the supplied function was used in
+the dense finite difference Jacobian computation rather than the finite
+difference Jacobian-vector product approximation.
 
 ## Changes to SUNDIALS in release 5.7.0
 

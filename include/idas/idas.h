@@ -221,6 +221,7 @@ SUNDIALS_EXPORT int IDASetConstraints(void *ida_mem, N_Vector constraints);
 
 SUNDIALS_EXPORT int IDASetNonlinearSolver(void *ida_mem,
                                           SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int IDASetNlsResFn(void *IDA_mem, IDAResFn res);
 
 /* Rootfinding initialization function */
 SUNDIALS_EXPORT int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g);

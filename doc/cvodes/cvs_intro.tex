@@ -139,6 +139,9 @@ the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the linear
 solver support general dense linear systems as well as block diagonal linear
 systems. See Chapter \ref{ss:sunlinsol_onemkldense} for more details.
 
+Added the function \id{CVodeSetNlsRhsFn} to supply an alternative right-hand
+side function for use within nonlinear system function evaluations.
+
 \subsection*{Changes in v5.7.0}
 
 A new {\nvector} implementation based on the {\sycl} abstraction layer has been

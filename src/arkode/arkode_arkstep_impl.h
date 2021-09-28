@@ -91,6 +91,7 @@ typedef struct ARKodeARKStepMemRec {
   /* (Non)Linear solver parameters & data */
   SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
   booleantype     ownNLS;   /* flag indicating ownership of NLS      */
+  ARKRhsFn nls_fi;          /* fi(t,y) used in the nonlinear solver  */
   realtype gamma;        /* gamma = h * A(i,i)                       */
   realtype gammap;       /* gamma at the last setup call             */
   realtype gamrat;       /* gamma / gammap                           */

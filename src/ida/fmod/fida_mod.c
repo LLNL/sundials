@@ -669,6 +669,20 @@ SWIGEXPORT int _wrap_FIDASetNonlinearSolver(void *farg1, SUNNonlinearSolver farg
 }
 
 
+SWIGEXPORT int _wrap_FIDASetNlsResFn(void *farg1, IDAResFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  IDAResFn arg2 = (IDAResFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (IDAResFn)(farg2);
+  result = (int)IDASetNlsResFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FIDARootInit(void *farg1, int const *farg2, IDARootFn farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

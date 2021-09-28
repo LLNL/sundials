@@ -119,6 +119,7 @@ SUNDIALS_EXPORT int ARKStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int ARKStepSetDenseOrder(void *arkode_mem, int dord);
 SUNDIALS_EXPORT int ARKStepSetNonlinearSolver(void *arkode_mem,
                                               SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int ARKStepSetNlsRhsFn(void *arkode_mem, ARKRhsFn nls_fi);
 SUNDIALS_EXPORT int ARKStepSetLinear(void *arkode_mem, int timedepend);
 SUNDIALS_EXPORT int ARKStepSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetExplicit(void *arkode_mem);

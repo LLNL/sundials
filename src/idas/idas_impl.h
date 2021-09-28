@@ -415,6 +415,9 @@ typedef struct IDAMemRec {
   booleantype simMallocDone;
   booleantype stgMallocDone;
 
+  IDAResFn nls_res;          /* F(t,y(t),y'(t))=0; used in the nonlinear
+                                solver */
+
   /*------------------
     Linear Solver Data
     ------------------*/

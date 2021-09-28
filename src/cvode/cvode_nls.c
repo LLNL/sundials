@@ -127,6 +127,42 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
   /* Reset the acnrmcur flag to SUNFALSE */
   cv_mem->cv_acnrmcur = SUNFALSE;
 
+  /* Set the nonlinear system RHS function */
+  if (!(cv_mem->cv_f)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetNonlinearSolver",
+                   "The ODE RHS function is NULL");
+    return(CV_ILL_INPUT);
+  }
+  cv_mem->nls_f = cv_mem->cv_f;
+
+  return(CV_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  CVodeSetNlsRhsFn:
+
+  This routine sets an alternative user-supplied ODE right-hand
+  side function to use in the evaluation of nonlinear system
+  functions.
+  ---------------------------------------------------------------*/
+int CVodeSetNlsRhsFn(void *cvode_mem, CVRhsFn f)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetNlsRhsFn",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  if (f)
+    cv_mem->nls_f = f;
+  else
+    cv_mem->nls_f = cv_mem->cv_f;
+
   return(CV_SUCCESS);
 }
 
@@ -145,8 +181,9 @@ int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
 {
   CVodeMem cv_mem;
 
-  if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinearSystemData", MSGCV_NO_MEM);
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinearSystemData",
+                   MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
 
@@ -327,8 +364,8 @@ static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
   N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
 
   /* evaluate the rhs function */
-  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
-                        cv_mem->cv_user_data);
+  retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
+                         cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -365,8 +402,8 @@ static int cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem)
   N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
 
   /* evaluate the rhs function */
-  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, res,
-                        cv_mem->cv_user_data);
+  retval = cv_mem->nls_f(cv_mem->cv_tn, cv_mem->cv_y, res,
+                         cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
