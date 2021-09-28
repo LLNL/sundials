@@ -42,6 +42,7 @@ matrix objects and use them in the solution of linear systems.
    SUNMatrix_Compatibility
    SUNMatrix_Dense
    SUNMatrix_MagmaDense
+   SUNMatrix_OneMklDense
    SUNMatrix_Band
    SUNMatrix_cuSparse
    SUNMatrix_Sparse

@@ -631,6 +631,24 @@ illustration only.
       ``LD_LIBRARY_PATH`` prior to searching default system
       paths.
 
+:index:`ENABLE_MAGMA <ENABLE_MAGMA (CMake option)>`
+   Enable MAGMA support.
+
+   Default: ``OFF``
+
+   .. note:: Setting this option to ``ON`` will trigger additional options
+             related to MAGMA.
+
+:index:`MAGMA_DIR <MAGMA_DIR (CMake option)>`
+   Path to the root of a MAGMA installation.
+
+   Default: none
+
+:index:`SUNDIALS_MAGMA_BACKENDS <SUNDIALS_MAGMA_BACKENDS (CMake option)>`
+   Which MAGMA backend to use under the SUNDIALS MAGMA interface.
+
+   Default: ``CUDA``
+
 :index:`ENABLE_MPI <ENABLE_MPI (CMake option)>`
    Enable MPI support. This will build the parallel nvector
    and the MPI-aware version of the ManyVector library.
@@ -672,6 +690,11 @@ illustration only.
    Default: ``mpirun``
 
    .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
+
+:index:`ENABLE_ONEMKL <ENABLE_ONEMKL (CMake option)>`
+   Enable oneMKL support.
+
+   Default: ``OFF``
 
 :index:`ENABLE_OPENMP <ENABLE_OPENMP (CMake option)>`
    Enable OpenMP support (build the OpenMP NVector)

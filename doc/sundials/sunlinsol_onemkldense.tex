@@ -1,0 +1,77 @@
+\section{The SUNLinearSolver\_OneMklDense Implementation}
+\label{ss:sunlinsol_onemkldense}
+
+The \id{SUNLinearSolver\_OneMklDense} implementation of the {\sunlinsol} class
+interfaces to the direct linear solvers from the
+\href{https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html}{Intel oneAPI Math Kernel Library (oneMKL)}
+for solving dense systems of block-diagonal systems with dense blocks. This
+linear solver is best paired with the \id{SUNMatrix\_OneMklDense} matrix.
+
+The header file to include when using this class is
+\id{sunlinsol/sunlinsol\_onemkldense.h}. The installed library to link to is
+\id{libsundials\_sunlinsolonemkldense.\textit{lib}} where \id{\em.lib} is
+typically \id{.so} for shared libraries and \id{.a} for static libraries.
+\newline
+\newline
+{\warn}The \id{SUNLinearSolver\_OneMklDense} class is experimental and subject
+to change.
+
+
+% --------------------------------------------------------------------
+\subsection{SUNLinearSolver\_OneMklDense Functions}
+\label{ss:sunlinsol_onemkldense_functions}
+
+The \id{SUNLinearSolver\_OneMklDense} class defines implementations of
+all ``direct'' linear solver operations listed in
+Sections \ref{ss:sunlinsol_CoreFn}-\ref{ss:sunlinsol_GetFn}:
+%%
+%%
+\begin{itemize}
+\item \id{SUNLinSolGetType\_OneMklDense} -- returns \id{SUNLINEARSOLVER\_ONEMKLDENSE}
+\item \id{SUNLinSolInitialize\_OneMklDense}
+\item \id{SUNLinSolSetup\_OneMklDense}
+\item \id{SUNLinSolSolve\_OneMklDense}
+\item \id{SUNLinSolLastFlag\_OneMklDense}
+\item \id{SUNLinSolFree\_OneMklDense}
+\end{itemize}
+%%
+%%
+In addition, the class provides the following user-callable routines:
+%%
+%%
+\ucfunction{SUNLinSol\_OneMklDense}
+{
+  LS = SUNLinSol\_OneMklDense(y, A);
+}
+{
+  The function \ID{SUNLinSol\_OneMklDense} creates and allocates memory for a
+  {\sunlinsol} object.
+}
+{
+  \begin{args}[A]
+  \item[y] (\id{N\_Vector})
+    a vector for checking compatibility with the solver
+  \item[A] (\id{SUNMatrix})
+    a \id{SUNMATRIX\_ONEMKLDENSE} matrix for checking compatibility with the solver
+  \end{args}
+}
+{
+  This returns a \id{SUNLinearSolver} object.  If either \id{A} or
+  \id{y} are incompatible then this routine will return \id{NULL}.
+}
+{
+  This routine analyzes the input matrix and vector to determine the
+  linear system size and to assess compatibility with the solver.
+}
+
+% --------------------------------------------------------------------
+\subsection{SUNLinearSolver\_OneMklDense Usage Notes}
+\label{ss:sunmat_OneMkldense_notes}
+% ====================================================================
+
+The \id{SUNLinearSolver\_OneMklDense} class only supports 64-bit indexing, thus
+{\sundials} must be built for 64-bit indexing to use this class.
+
+When using the \id{SUNLinearSolver\_OneMklDense} class with a {\sundials}
+package (e.g. {\cvode}), the queue given to matrix is also used for the linear
+solver.

@@ -68,7 +68,7 @@ SUNMatrix SUNMatNewEmpty()
 void SUNMatFreeEmpty(SUNMatrix A)
 {
   if (A == NULL)  return;
-  
+
   /* free non-NULL ops structure */
   if (A->ops)  free(A->ops);
   A->ops = NULL;
@@ -161,7 +161,10 @@ int SUNMatScaleAddI(realtype c, SUNMatrix A)
 
 int SUNMatMatvecSetup(SUNMatrix A)
 {
-  return((int) A->ops->matvecsetup(A));
+  if (A->ops->matvecsetup)
+    return((int) A->ops->matvecsetup(A));
+  else
+    return(0);
 }
 
 int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)

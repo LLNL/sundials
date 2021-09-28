@@ -104,6 +104,11 @@ specified linear system at each linear solve call.  Any matrix-related data
 structures are held internally to the linear solver itself, and are not
 provided by the {\sundials} package.
 
+A new {\sunmatrix} and {\sunlinsol} implementation were added to interface with
+the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the linear
+solver support general dense linear systems as well as block diagonal linear
+systems. See Chapter \ref{ss:sunlinsol_onemkldense} for more details.
+
 \subsection*{Changes in v4.7.0}
 
 A new {\nvector} implementation based on the {\sycl} abstraction layer has been

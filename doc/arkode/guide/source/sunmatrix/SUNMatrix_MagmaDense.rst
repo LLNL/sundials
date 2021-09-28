@@ -3,8 +3,7 @@
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2021, Lawrence Livermore National Security
-   and Southern Methodist University.
-   All rights reserved.
+   and Southern Methodist University.  All rights reserved.
 
    See the top-level LICENSE and NOTICE files for details.
 
@@ -20,7 +19,7 @@
 The SUNMATRIX_MAGMADENSE Module
 ======================================
 
-The SUNMATRIX_MAGMA implementation of the SUNDIALS SUNMatrix module API
+The SUNMATRIX_MAGMADENSE implementation of the SUNDIALS SUNMatrix module API
 interfaces to the `MAGMA <https://icl.utk.edu/magma/index.html>`_ linear algebra
 library and can target NVIDIA's CUDA programming model or AMD's HIP programming
 model [MAGMA2010]_. All data stored by this matrix implementation resides on the GPU at all

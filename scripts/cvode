@@ -73,7 +73,8 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvsparse.c        || exit 1
 echo "   --- Add cvode F2003 interface to $tarfile"
 
 $tar $tarfile $distrobase/src/cvode/fmod/CMakeLists.txt     || exit 1
-$tar $tarfile $distrobase/src/cvode/fmod/fcvode_mod.{c,f90} || exit 1
+$tar $tarfile $distrobase/src/cvode/fmod/fcvode_mod.c       || exit 1
+$tar $tarfile $distrobase/src/cvode/fmod/fcvode_mod.f90     || exit 1
 
 echo "   --- Add cvode examples to $tarfile"
 
@@ -191,8 +192,10 @@ $tar $tarfile $distrobase/examples/cvode/parhyp/cvAdvDiff_non_ph.out || exit 1
 
 $tar $tarfile $distrobase/examples/cvode/petsc/README                  || exit 1
 $tar $tarfile $distrobase/examples/cvode/petsc/CMakeLists.txt          || exit 1
-$tar $tarfile $distrobase/examples/cvode/petsc/cv_petsc_ex7.{c,out}    || exit 1
-$tar $tarfile $distrobase/examples/cvode/petsc/cvAdvDiff_petsc.{c,out} || exit 1
+$tar $tarfile $distrobase/examples/cvode/petsc/cv_petsc_ex7.c          || exit 1
+$tar $tarfile $distrobase/examples/cvode/petsc/cv_petsc_ex7.out        || exit 1
+$tar $tarfile $distrobase/examples/cvode/petsc/cvAdvDiff_petsc.c       || exit 1
+$tar $tarfile $distrobase/examples/cvode/petsc/cvAdvDiff_petsc.out     || exit 1
 
 $tar $tarfile $distrobase/examples/cvode/C_mpimanyvector/README                       || exit 1
 $tar $tarfile $distrobase/examples/cvode/C_mpimanyvector/CMakeLists.txt               || exit 1
@@ -239,6 +242,11 @@ $tar $tarfile $distrobase/examples/cvode/raja/README                 || exit 1
 $tar $tarfile $distrobase/examples/cvode/raja/CMakeLists.txt         || exit 1
 $tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.cpp  || exit 1
 $tar $tarfile $distrobase/examples/cvode/raja/cvAdvDiff_kry_raja.out || exit 1
+
+$tar $tarfile $distrobase/examples/cvode/CXX_onemkl/CMakeLists.txt                  || exit 1
+$tar $tarfile $distrobase/examples/cvode/CXX_onemkl/README                          || exit 1
+$tar $tarfile $distrobase/examples/cvode/CXX_onemkl/cvRoberts_blockdiag_onemkl.cpp  || exit 1
+$tar $tarfile $distrobase/examples/cvode/CXX_onemkl/cvRoberts_blockdiag_onemkl.out  || exit 1
 
 $tar $tarfile $distrobase/examples/cvode/CXX_serial/CMakeLists.txt || exit 1
 $tar $tarfile $distrobase/examples/cvode/CXX_serial/README         || exit 1

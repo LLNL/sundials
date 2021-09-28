@@ -575,3 +575,9 @@ int csr_from_dense(SUNMatrix Ad, realtype droptol, realtype **matdata,
 
   return 0;
 }
+
+void sync_device(SUNMatrix A)
+{
+  /* not running on GPU, just return */
+  return;
+}

@@ -30,6 +30,11 @@ system at each linear solve call.  Any matrix-related data structures are held
 internally to the linear solver itself, and are not provided by the SUNDIALS
 package.
 
+A new SUNMatrix and SUNLinearSolver implementation were added to interface
+with the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the
+linear solver support general dense linear systems as well as block diagonal
+linear systems.
+
 ## Changes to SUNDIALS in release 5.7.0
 
 A new NVECTOR implementation based on the SYCL abstraction layer has been added

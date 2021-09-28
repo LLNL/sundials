@@ -69,6 +69,15 @@ if(ENABLE_MAGMA)
 endif()
 
 # ---------------------------------------------------------------
+# Find (and test) the oneMKL libraries
+# ---------------------------------------------------------------
+
+if(ENABLE_ONEMKL)
+  include(SundialsONEMKL)
+  list(APPEND SUNDIALS_TPL_LIST "ONEMKL")
+endif()
+
+# ---------------------------------------------------------------
 # Find (and test) the SuperLUDIST libraries
 # ---------------------------------------------------------------
 

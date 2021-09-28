@@ -478,6 +478,21 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
   to searching default system paths.
+\item[\id{ENABLE\_MAGMA}] -
+  Enable MAGMA support.
+  \\
+  Default: OFF
+  \\
+  Note: Setting this option to ON will trigger additional options
+  related to MAGMA.
+\item[\id{MAGMA\_DIR}] -
+  Path to the root of a MAGMA installation.
+  \\
+  Default: none
+\item[\id{SUNDIALS\_MAGMA\_BACKENDS}] -
+  Which MAGMA backend to use under the SUNDIALS MAGMA interface.
+  \\
+  Default: CUDA
 \item[\id{ENABLE\_MPI}] -
   Enable MPI support. This will build the parallel {\nvector} and the
   MPI-aware version of the ManyVector library.
@@ -520,6 +535,10 @@ a typical configuration on a Linux system and are provided as illustration only.
   %% Note: This can either be set to \id{mpirun} for OpenMPI or \id{srun} if jobs are
   %% managed by \id{SLURM} - Simple Linux Utility for Resource Management as exists on
   %% LLNL's high performance computing clusters.
+\item[\id{ENABLE\_ONEMKL}] -
+  Enable oneMKL support.
+  \\
+  Default: OFF
 \item[\id{ENABLE\_OPENMP}] -
   Enable {\openmp} support (build the {\openmp} {\nvector}).
   \\
