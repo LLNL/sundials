@@ -9,8 +9,8 @@ Analytic solution:
 Solution method: Anderson accelerated fixed point iteration.
     tolerance  = 1.49012e-06
     max iters  = 30
-    m_aa       = 0
-    delay_aa   = 0
+    m_aa       = 2
+    delay_aa   = 2
     damping_aa = 1
     damping_fp = 1
 
@@ -20,9 +20,9 @@ Number of function evaluations:      5
 Computed solution:
     x = 0.5
     y = 1
-    z = -0.523598
+    z = -0.523599
 Solution error:
-    ex = 6.91114e-12
-    ey = 4.48202e-07
-    ez = 3.07455e-07
+    ex = 1.86552e-10
+    ey = 9.36789e-10
+    ez = 2.67979e-09
 PASS

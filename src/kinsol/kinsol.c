@@ -169,8 +169,7 @@ static int  KINFullNewton(KINMem kin_mem, realtype *fnormp,
                           realtype *f1normp, booleantype *maxStepTaken);
 static int  KINLineSearch(KINMem kin_mem, realtype *fnormp,
                           realtype *f1normp, booleantype *maxStepTaken);
-static int  KINPicardAA(KINMem kin_mem, long int *iter, realtype *R,
-                        realtype *gamma, realtype *fmax);
+static int  KINPicardAA(KINMem kin_mem);
 static int  KINFP(KINMem kin_mem);
 
 static int  KINLinSolDrv(KINMem kinmem);
@@ -249,9 +248,10 @@ void *KINCreate(void)
   kin_mem->kin_cv               = NULL;
   kin_mem->kin_Xv               = NULL;
   kin_mem->kin_lmem             = NULL;
+  kin_mem->kin_beta             = ONE;
+  kin_mem->kin_damping          = SUNFALSE;
   kin_mem->kin_m_aa             = 0;
-  kin_mem->kin_aamem_aa         = 0;
-  kin_mem->kin_setstop_aa       = 0;
+  kin_mem->kin_delay_aa         = 0;
   kin_mem->kin_beta_aa          = ONE;
   kin_mem->kin_damping_aa       = SUNFALSE;
   kin_mem->kin_constraintsSet   = SUNFALSE;
@@ -262,6 +262,7 @@ void *KINCreate(void)
   kin_mem->kin_ih_data          = kin_mem;
   kin_mem->kin_infofp           = stdout;
   kin_mem->kin_printfl          = PRINTFL_DEFAULT;
+  kin_mem->kin_ret_newest       = SUNFALSE;
   kin_mem->kin_mxiter           = MXITER_DEFAULT;
   kin_mem->kin_noInitSetup      = SUNFALSE;
   kin_mem->kin_msbset           = MSBSET_DEFAULT;
@@ -405,7 +406,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 int KINSol(void *kinmem, N_Vector u, int strategy_in,
            N_Vector u_scale, N_Vector f_scale)
 {
-  realtype fnormp, f1normp, epsmin, fmax=ZERO;
+  realtype fnormp, f1normp, epsmin;
   KINMem kin_mem;
   int ret, sflag;
   booleantype maxStepTaken;
@@ -512,7 +513,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
       kin_mem->kin_liw += kin_mem->kin_liw1;
       kin_mem->kin_lrw += kin_mem->kin_lrw1;
     }
-    ret = KINPicardAA(kin_mem, &(kin_mem->kin_nni), kin_mem->kin_R_aa, kin_mem->kin_gamma_aa, &fmax);
+    ret = KINPicardAA(kin_mem);
 
     return(ret);
   }
@@ -2292,30 +2293,30 @@ void KINErrHandler(int error_code, const char *module,
  * acclerated fixed point.
  */
 
-static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R,
-                       realtype *gamma, realtype *fmaxptr)
+static int KINPicardAA(KINMem kin_mem)
 {
-  int retval, ret;
-  long int iter;
-  realtype fmax, epsmin, fnormp;
-  N_Vector delta, gval;
+  int retval;       /* return value from user func */
+  int ret;          /* iteration status            */
+  long int iter_aa; /* iteration count for AA      */
+  N_Vector delta;   /* temporary workspace vector  */
+  realtype epsmin;
+  realtype fnormp;
 
-  delta = kin_mem->kin_vtemp1;
-  gval = kin_mem->kin_gval;
-  ret = CONTINUE_ITERATIONS;
-  fmax = kin_mem->kin_fnormtol + ONE;
-  iter = 0;
+  delta  = kin_mem->kin_vtemp1;
+  ret    = CONTINUE_ITERATIONS;
   epsmin = ZERO;
   fnormp = -ONE;
 
-  N_VConst(ZERO, gval);
+  /* initialize iteration count */
+  kin_mem->kin_nni = 0;
 
   /* if eps is to be bounded from below, set the bound */
   if (kin_mem->kin_inexact_ls && !(kin_mem->kin_noMinEps)) epsmin = POINT01 * kin_mem->kin_fnormtol;
 
   while (ret == CONTINUE_ITERATIONS) {
 
-    iter++;
+    /* update iteration count */
+    kin_mem->kin_nni++;
 
     /* Update the forcing term for the inexact linear solves */
     if (kin_mem->kin_inexact_ls) {
@@ -2326,63 +2327,95 @@ static int KINPicardAA(KINMem kin_mem, long int *iterp, realtype *R,
     /* evaluate g = uu - L^{-1}func(uu) and return if failed.
        For Picard, assume that the fval vector has been filled
        with an eval of the nonlinear residual prior to this call. */
-    retval = KINPicardFcnEval(kin_mem, gval, kin_mem->kin_uu, kin_mem->kin_fval);
+    retval = KINPicardFcnEval(kin_mem, kin_mem->kin_gval, kin_mem->kin_uu,
+                              kin_mem->kin_fval);
 
     if (retval < 0) {
       ret = KIN_SYSFUNC_FAIL;
       break;
     }
 
-    if (kin_mem->kin_m_aa == 0) {
-      N_VScale(ONE, gval, kin_mem->kin_unew);
+    /* compute new solution */
+    if (kin_mem->kin_m_aa == 0 || kin_mem->kin_nni - 1 < kin_mem->kin_delay_aa)
+    {
+      if (kin_mem->kin_damping)
+      {
+        /* damped fixed point */
+        N_VLinearSum((ONE - kin_mem->kin_beta), kin_mem->kin_uu,
+                     kin_mem->kin_beta, kin_mem->kin_gval, kin_mem->kin_unew);
+      }
+      else
+      {
+        /* standard fixed point */
+        N_VScale(ONE, kin_mem->kin_gval, kin_mem->kin_unew);
+      }
     }
-    else {  /* use Anderson, if desired */
-      N_VScale(ONE, kin_mem->kin_uu, kin_mem->kin_unew);
-      AndersonAcc(kin_mem, gval, delta, kin_mem->kin_unew, kin_mem->kin_uu, iter-1, R, gamma);
+    else
+    {
+      /* compute iteration count for Anderson acceleration */
+      if (kin_mem->kin_delay_aa > 0)
+      {
+        iter_aa = kin_mem->kin_nni - 1 - kin_mem->kin_delay_aa;
+      }
+      else
+      {
+        iter_aa = kin_mem->kin_nni - 1;
+      }
+
+      AndersonAcc(kin_mem,                /* kinsol memory            */
+                  kin_mem->kin_gval,      /* G(u_cur)       in        */
+                  delta,                  /* F(u_cur)       in (temp) */
+                  kin_mem->kin_unew,      /* u_new output   out       */
+                  kin_mem->kin_uu,        /* u_cur input    in        */
+                  iter_aa,                /* AA iteration   in        */
+                  kin_mem->kin_R_aa,      /* R matrix       in/out    */
+                  kin_mem->kin_gamma_aa); /* gamma vector   in (temp) */
     }
 
     /* Fill the Newton residual based on the new solution iterate */
-    retval = kin_mem->kin_func(kin_mem->kin_unew, kin_mem->kin_fval, kin_mem->kin_user_data); kin_mem->kin_nfe++;
+    retval = kin_mem->kin_func(kin_mem->kin_unew, kin_mem->kin_fval,
+                               kin_mem->kin_user_data);
+    kin_mem->kin_nfe++;
 
     if (retval < 0) {
       ret = KIN_SYSFUNC_FAIL;
       break;
     }
 
-    /* Evaluate function norms */
-    fnormp = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
-    fmax = KINScFNorm(kin_mem, kin_mem->kin_fval, kin_mem->kin_fscale); /* measure  || F(x) ||_max */
-    kin_mem->kin_fnorm = fmax;
-    *fmaxptr = fmax;
+    /* Measure || F(x) ||_max */
+    kin_mem->kin_fnorm = KINScFNorm(kin_mem, kin_mem->kin_fval,
+                                    kin_mem->kin_fscale);
 
     if (kin_mem->kin_printfl > 1)
-      KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINPicardAA", INFO_FMAX, fmax);
+      KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINPicardAA", INFO_FMAX,
+                   kin_mem->kin_fnorm);
 
     /* print the current iter, fnorm, and nfe values if printfl > 0 */
     if (kin_mem->kin_printfl > 0)
-      KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINPicardAA", INFO_NNI, iter, kin_mem->kin_nfe, kin_mem->kin_fnorm);
+      KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINPicardAA", INFO_NNI,
+                   kin_mem->kin_nni, kin_mem->kin_nfe, kin_mem->kin_fnorm);
 
     /* Check if the maximum number of iterations is reached */
-    if (iter >= kin_mem->kin_mxiter) {
+    if (kin_mem->kin_nni >= kin_mem->kin_mxiter) {
       ret = KIN_MAXITER_REACHED;
     }
-    if (fmax <= kin_mem->kin_fnormtol) {
+    if (kin_mem->kin_fnorm <= kin_mem->kin_fnormtol) {
       ret = KIN_SUCCESS;
     }
 
-    /* Update with new iterate. */
+    /* Update the solution. Always return the newest iteration. Note this is
+       also consistent with last function evaluation. */
     N_VScale(ONE, kin_mem->kin_unew, kin_mem->kin_uu);
 
-    if (ret == CONTINUE_ITERATIONS) {
+    if (ret == CONTINUE_ITERATIONS && kin_mem->kin_callForcingTerm) {
       /* evaluate eta by calling the forcing term routine */
-      if (kin_mem->kin_callForcingTerm) KINForcingTerm(kin_mem, fnormp);
+      fnormp = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
+      KINForcingTerm(kin_mem, fnormp);
     }
 
     fflush(kin_mem->kin_errfp);
 
   }  /* end of loop; return */
-
-  *iterp = iter;
 
   if (kin_mem->kin_printfl > 0)
     KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", "KINPicardAA", INFO_RETVAL, ret);
@@ -2457,14 +2490,15 @@ static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval, N_Vect
 
 static int KINFP(KINMem kin_mem)
 {
-  int retval;     /* return value from user func */
-  int ret;        /* iteration status            */
-  realtype fmax;  /* max norm of residual func   */
-  N_Vector delta; /* temporary workspace vector  */
+  int retval;       /* return value from user func */
+  int ret;          /* iteration status            */
+  long int iter_aa; /* iteration count for AA      */
+  realtype tolfac;  /* tolerance adjustment factor */
+  N_Vector delta;   /* temporary workspace vector  */
 
-  delta = kin_mem->kin_vtemp1;
-  ret   = CONTINUE_ITERATIONS;
-  fmax  = kin_mem->kin_fnormtol + ONE;
+  delta  = kin_mem->kin_vtemp1;
+  ret    = CONTINUE_ITERATIONS;
+  tolfac = ONE;
 
   /* initialize iteration count */
   kin_mem->kin_nni = 0;
@@ -2485,25 +2519,64 @@ static int KINFP(KINMem kin_mem)
     }
 
     /* compute new solution */
-    if (kin_mem->kin_m_aa == 0) {
-      /* standard fixed point */
-      N_VScale(ONE, kin_mem->kin_fval, kin_mem->kin_unew);
-    } else {
+    if (kin_mem->kin_m_aa == 0 || kin_mem->kin_nni - 1 < kin_mem->kin_delay_aa)
+    {
+      if (kin_mem->kin_damping)
+      {
+        /* damped fixed point */
+        N_VLinearSum((ONE - kin_mem->kin_beta), kin_mem->kin_uu,
+                     kin_mem->kin_beta, kin_mem->kin_fval,
+                     kin_mem->kin_unew);
+
+        /* tolerance adjustment */
+        tolfac = kin_mem->kin_beta;
+      }
+      else
+      {
+        /* standard fixed point */
+        N_VScale(ONE, kin_mem->kin_fval, kin_mem->kin_unew);
+
+        /* tolerance adjustment */
+        tolfac = ONE;
+      }
+    }
+    else
+    {
+      /* compute iteration count for Anderson acceleration */
+      if (kin_mem->kin_delay_aa > 0)
+      {
+        iter_aa = kin_mem->kin_nni - 1 - kin_mem->kin_delay_aa;
+      }
+      else
+      {
+        iter_aa = kin_mem->kin_nni - 1;
+      }
+
       /* apply Anderson acceleration */
       AndersonAcc(kin_mem, kin_mem->kin_fval, delta, kin_mem->kin_unew,
-                  kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
+                  kin_mem->kin_uu, iter_aa, kin_mem->kin_R_aa,
                   kin_mem->kin_gamma_aa);
+
+      /* tolerance adjustment (first iteration is standard fixed point) */
+      if (iter_aa == 0 && kin_mem->kin_damping_aa)
+      {
+        tolfac = kin_mem->kin_beta;
+      }
+      else
+      {
+        tolfac = ONE;
+      }
     }
 
     /* compute change between iterations */
     N_VLinearSum(ONE, kin_mem->kin_unew, -ONE, kin_mem->kin_uu, delta);
 
-    fmax = KINScFNorm(kin_mem, delta, kin_mem->kin_fscale); /* measure  || g(x)-x || */
+    /* measure || g(x) - x || */
+    kin_mem->kin_fnorm = KINScFNorm(kin_mem, delta, kin_mem->kin_fscale);
 
     if (kin_mem->kin_printfl > 1)
-      KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINFP", INFO_FMAX, fmax);
-
-    kin_mem->kin_fnorm = fmax;
+      KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINFP", INFO_FMAX,
+                   kin_mem->kin_fnorm);
 
     /* print the current iter, fnorm, and nfe values if printfl > 0 */
     if (kin_mem->kin_printfl > 0)
@@ -2514,14 +2587,14 @@ static int KINFP(KINMem kin_mem)
     if (kin_mem->kin_nni >= kin_mem->kin_mxiter) {
       ret = KIN_MAXITER_REACHED;
     }
-    if (fmax <= kin_mem->kin_fnormtol) {
+    if (kin_mem->kin_fnorm <= (tolfac * kin_mem->kin_fnormtol)) {
       ret = KIN_SUCCESS;
     }
 
-    if (ret == CONTINUE_ITERATIONS) {
-      /* Only update solution if taking a next iteration.  */
-      /* CSW  Should put in a conditional to send back the newest iterate or
-         the one consistent with the fval */
+    /* Update the solution if taking another iteration or returning the newest
+       iterate. Otherwise return the solution consistent with the last function
+       evaluation. */
+    if (ret == CONTINUE_ITERATIONS || kin_mem->kin_ret_newest) {
       N_VScale(ONE, kin_mem->kin_unew, kin_mem->kin_uu);
     }
 
@@ -2534,12 +2607,6 @@ static int KINFP(KINMem kin_mem)
 
   return(ret);
 }
-
-
-/* -----------------------------------------------------------------
- * Stopping tests
- * -----------------------------------------------------------------
- */
 
 
 /*
@@ -2577,9 +2644,20 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   N_VScale(ONE, gval, kin_mem->kin_gold_aa);
   N_VScale(ONE, fv, kin_mem->kin_fold_aa);
 
-  /* on first iteration, just do basic fixed-point update */
-  if (iter == 0) {
-    N_VScale(ONE, gval, x);
+  /* on first iteration, do fixed point update */
+  if (iter == 0)
+  {
+    if (kin_mem->kin_damping_aa)
+    {
+      /* damped fixed point */
+      N_VLinearSum((ONE - kin_mem->kin_beta), xold, kin_mem->kin_beta_aa, gval,
+                   x);
+    }
+    else
+    {
+      /* standard fixed point */
+      N_VScale(ONE, gval, x);
+    }
     return(0);
   }
 

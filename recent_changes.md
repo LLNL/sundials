@@ -23,6 +23,13 @@ Support for user-defined inner (fast) integrators has been to the MRIStep module
 in ARKODE. See the "MRIStep Custom Inner Steppers" section in the user guide for
 more information on providing a user-defined integration method.
 
+New KINSOL options have been added to apply a constant damping in the fixed
+point and Picard iterations (see `KINSetDamping`), to delay the start of
+Anderson acceleration with the fixed point and Picard iterations (see
+`KINSetDelayAA`), and to return the newest solution with the fixed point
+iteration (see `KINSetReturnNewest`). A bug was fixed in the Picard iteration
+where the value of `KINSetMaxSetupCalls` would be ignored.
+
 Added functions to ARKODE and CVODE(S) for supplying an alternative right-hand
 side function and to IDA(S) for supplying an alternative residual for use within
 nonlinear system function evaluations.

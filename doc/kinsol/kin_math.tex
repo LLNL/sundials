@@ -359,14 +359,14 @@ The basic fixed-point iteration scheme implemented in {\kinsol} is given by:
    \item Set $u_0 = $ an initial guess
    \item For $n = 0, 1, 2,...$ until convergence do:
       \begin{itemize}
-          \item[(a)] Set $u_{n+1} = G(u_n)$.
+          \item[(a)] Set $u_{n+1} = (1 - \beta) u_n + \beta G(u_n)$.
           \item[(b)] Test for convergence.
       \end{itemize}
 \end{enumerate}
-Here, $u_n$ is the $n$th iterate to $u$.
-At each stage in the iteration process, function $G$ is applied to the current
-iterate to produce a new iterate, $u_{n+1}$.
-A test for convergence is made before the iteration continues.
+Here, $u_n$ is the $n$-th iterate to $u$.
+At each stage in the iteration process, the function $G$ is applied to the
+current iterate with the damping parameter $\beta$ to produce a new iterate,
+$u_{n+1}$. A test for convergence is made before the iteration continues.
 
 
 %% PICARD ITERATION
@@ -383,13 +383,14 @@ The Picard iteration is given by:
    \item Set $u_0 = $ an initial guess
    \item For $n = 0, 1, 2,...$ until convergence do:
       \begin{itemize}
-          \item[(a)] Set $u_{n+1} = G(u_n) = u_n - L^{-1}F(u_n)$.
-          \item[(b)] Test $F(u_{n+1})$ for convergence.
+      \item[(a)] Set $u_{n+1} = (1 - \beta) u_n + \beta G(u_n)$ where
+        $G(u_n) \equiv u_n - L^{-1}F(u_n)$.
+      \item[(b)] Test $F(u_{n+1})$ for convergence.
       \end{itemize}
 \end{enumerate}
-Here, $u_n$ is the $n$th iterate to $u$.
-Within each iteration, the Picard step is computed then added to $u_n$ to produce
-the new iterate.  Next, the nonlinear residual
+Here, $u_n$ is the $n$-th iterate to $u$.
+Within each iteration, the Picard step is computed then added to $u_n$ with the
+damping parameter $\beta$ to produce the new iterate. Next, the nonlinear residual
 function is evaluated at the new iterate, and convergence is checked.
 Noting that $L^{-1}N(u) = u - L^{-1}F(u)$, the above iteration can be written in the same form
 as a Newton iteration except that here, $L$ is in the role of the Jacobian.
@@ -448,11 +449,16 @@ The least-squares problem in (c) is solved by applying a QR factorization to
 $\Delta F_n = Q_n R_n$ and solving $R_n \gamma = Q_n^T f_n$. By default the
 damping is disabled i.e., $\beta = 1.0$.
 
+The Anderson acceleration implementation includes an option to delay the start
+of acceleration until after a given number of initial fixed-point or Picard
+iterations have been completed. This delay can be beneficial when the underlying
+method has strong global convergence properties as the initial iterations may
+help bring the iterates closer to a solution before starting the acceleration.
 
 \subsubsection*{Fixed-point - Anderson Acceleration Stopping Criterion}
 
 The default stopping criterion is
-\[ \|G(u_{n+1}) - u_{n+1} \|_{D_F,\infty} < \mbox{\sc gtol} \, , \]
+\[ \|u_{n+1} - u_{n} \|_{D_F,\infty} < \mbox{\sc gtol} \, , \]
 where $D_F$ is a user-defined diagonal matrix that can be the identity
 or a scaling matrix chosen so that the components of $D_F (G(u)-u)$ have
 roughly the same order of magnitude.

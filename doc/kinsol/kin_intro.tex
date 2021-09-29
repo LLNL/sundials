@@ -123,6 +123,13 @@ for the case where a non-zero initial guess and a solution scaling vector are
 provided. This fix only impacts codes using SPBCGS or SPTFQMR as standalone
 solvers as all {\sundials} packages utilize a zero initial guess.
 
+New {\kinsol} options have been added to apply a constant damping in the fixed
+point and Picard iterations (see \id{KINSetDamping}), to delay the start of
+Anderson acceleration with the fixed point and Picard iterations (see
+\id{KINSetDelayAA}), and to return the newest solution with the fixed point
+iteration (see \id{KINSetReturnNewest}). A bug was fixed in the Picard iteration
+where the value of \id{KINSetMaxSetupCalls} would be ignored.
+
 The RAJA {\nvector} implementation has been updated to support the SYCL backend
 in addition to the CUDA and HIP backend. Users can choose the backend when
 configuring SUNDIALS by using the \id{SUNDIALS\_RAJA\_BACKENDS} CMake variable.
