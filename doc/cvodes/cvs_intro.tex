@@ -119,6 +119,18 @@ writing in C|)}
 
 \subsection*{Changes in v5.8.0}
 
+Added a new \textit{optional} function to the SUNLinearSolver API,
+\id{SUNLinSolSetZeroGuess}, to indicate that the next call to
+\id{SUNlinSolSolve} will be made with a zero initial guess. SUNLinearSolver
+implementations that do not use the \id{SUNLinSolNewEmpty} constructor will, at
+a minimum, need set the \id{setzeroguess} function pointer in the linear solver
+\id{ops} structure to \id{NULL}. The SUNDIALS iterative linear solver
+implementations have been updated to leverage this new set function to remove
+one dot product per solve. A bug was fixed in the SPBCGS and SPTFQMR solvers
+for the case where a non-zero initial guess and a solution scaling vector are
+provided. This fix only impacts codes using SPBCGS or SPTFQMR as standalone
+solvers as all {\sundials} packages utilize a zero initial guess.
+
 The RAJA {\nvector} implementation has been updated to support the SYCL backend
 in addition to the CUDA and HIP backend. Users can choose the backend when
 configuring SUNDIALS by using the \id{SUNDIALS\_RAJA\_BACKENDS} CMake variable.
@@ -289,7 +301,7 @@ it is recommended to set \id{CMAKE\_Fortran\_COMPILER} to \id{f2003},
 \id{xlf2003}, or \id{xlf2003\_r}.
 
 Fixed a linkage bug affecting Windows users that stemmed from dllimport/dllexport
-attributes missing on some SUNDIALS API functions.
+attributes missing on some {\sundials} API functions.
 
 Fixed a memory leak from not deallocating the \id{atolSmin0} and \id{atolQSmin0}
 arrays.
@@ -858,7 +870,7 @@ The changes in this minor release include the following:
   the sum $I+\gamma J$ manually (with zero entries if needed).
 \item Added new example, \id{cvRoberts\_FSA\_dns\_Switch.c}, which demonstrates
   switching on/off forward sensitivity computations. This example came from
-  the usage notes page of the SUNDIALS website.
+  the usage notes page of the {\sundials} website.
 \item The misnamed function \id{CVSpilsSetJacTimesSetupFnBS} has been
   deprecated and replaced by \id{CVSpilsSetJacTimesBS}. The deprecated
   function \id{CVSpilsSetJacTimesSetupFnBS} will be removed in the next
@@ -917,13 +929,13 @@ with linear solver libraries.
 Specific changes include:
 \begin{itemize}
 \item Added generic SUNMATRIX module with three provided implementations:
-        dense, banded and sparse.  These replicate previous SUNDIALS Dls and
+        dense, banded and sparse.  These replicate previous {\sundials} Dls and
         Sls matrix structures in a single object-oriented API.
 \item Added example problems demonstrating use of generic SUNMATRIX modules.
 \item Added generic SUNLINEARSOLVER module with eleven provided
         implementations: dense, banded, LAPACK dense, LAPACK band, KLU,
         SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG.  These replicate
-        previous SUNDIALS generic linear solvers in a single object-oriented
+        previous {\sundials} generic linear solvers in a single object-oriented
         API.
 \item Added example problems demonstrating use of generic SUNLINEARSOLVER
         modules.
@@ -935,7 +947,7 @@ Specific changes include:
         is entirely replicated by the generic Dls/Spils interfaces and
         SUNLINEARSOLVER/SUNMATRIX modules.  The exception is CVDIAG, a
         diagonal approximate Jacobian solver available to CVODE and CVODES.
-\item Converted all SUNDIALS example problems to utilize new generic
+\item Converted all {\sundials} example problems to utilize new generic
         SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
         Spils linear solver interfaces.
 \item Added Spils interface routines to ARKode, CVODE, CVODES, IDA and
@@ -1230,7 +1242,7 @@ The user interface has been further refined. Several functions used
 for setting optional inputs were combined into a single one.  An optional
 user-supplied routine for setting the error weight vector was added.
 Additionally, to resolve potential variable scope issues, all
-SUNDIALS solvers release user data right after its use. The build
+{\sundials} solvers release user data right after its use. The build
 systems has been further improved to make it more robust.
 
 \subsection*{Changes in v2.1.2}

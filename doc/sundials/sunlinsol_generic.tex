@@ -448,6 +448,35 @@ instead of supplying a dummy routine.
 }
 {}
 % --------------------------------------------------------------------
+\ucfunctionf{SUNLinSolSetZeroGuess}
+{
+  retval = SUNLinSolSetZeroGuess(LS, onoff);
+}
+{
+  The \emph{optional} function \Id{SUNLinSolSetZeroGuess} indicates if the
+  next call to \id{SUNLinSolSolve} will be made with a zero initial guess.
+}
+{
+  \begin{args}[onoff]
+  \item[LS] (\id{SUNLinearSolver})
+    a {\sunlinsol} object.
+  \item[onoff] (\id{booleantype})
+    a flag indicating if the initial guess to linear solver is zero
+    (\id{SUNTRUE}) or non-zero (\id{SUNFALSE}).
+  \end{args}
+}
+{
+  This routine should return zero for a successful call, and a
+  negative value for a failure, ideally returning one of the generic
+  error codes listed in Table \ref{t:sunlinsolerr}.
+}
+{
+  Is is assumed that the initial guess status is not retained across calls to
+  \id{SUNLinSolSolve}. As such, the linear solver interfaces in each of the
+  {\sundials} packages call \id{SUNLinSolSetZeroGuess} prior to each call to
+  \id{SUNLinSolSolve}.
+}
+% --------------------------------------------------------------------
 
 
 %---------------------------------------------------------------------------
@@ -797,6 +826,7 @@ converge (and the residual was not reduced)
 \id{SUNLS\_LUFACT\_FAIL} & \id{808} & a singular matrix was encountered
   during a LU factorization ({\sunlinsoldense}/{\sunlinsolband})
 \\
+\hline
 \end{xtabular}
 \bigskip
 
@@ -835,6 +865,7 @@ struct _generic_SUNLinearSolver_Ops {
                                             PSetupFn, PSolveFn);
   int                  (*setscalingvectors)(SUNLinearSolver,
                                             N_Vector, N_Vector);
+  int                  (*setzeroguess)(SUNLinearSolver, booleantype);
   int                  (*initialize)(SUNLinearSolver);
   int                  (*setup)(SUNLinearSolver, SUNMatrix);
   int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector,
@@ -884,6 +915,7 @@ Their definition is given below.
   type(C_FUNPTR), public :: setatimes
   type(C_FUNPTR), public :: setpreconditioner
   type(C_FUNPTR), public :: setscalingvectors
+  type(C_FUNPTR), public :: setzeroguess
   type(C_FUNPTR), public :: initialize
   type(C_FUNPTR), public :: setup
   type(C_FUNPTR), public :: solve

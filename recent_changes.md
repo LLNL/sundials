@@ -2,6 +2,18 @@
 
 ## Changes to SUNDIALS in release 5.8.0
 
+Added a new *optional* function to the SUNLinearSolver API,
+`SUNLinSolSetZeroGuess`, to indicate that the next call to `SUNlinSolSolve` will
+be made with a zero initial guess. SUNLinearSolver implementations that do not
+use the `SUNLinSolNewEmpty` constructor will, at a minimum, need set the
+``setzeroguess`` function pointer in the linear solver ``ops`` structure to
+``NULL``. The SUNDIALS iterative linear solver implementations have been updated
+to leverage this new set function to remove one dot product per solve. A bug was
+fixed in the SPBCGS and SPTFQMR solvers for the case where a non-zero initial
+guess and a solution scaling vector are provided. This fix only impacts codes
+using SPBCGS or SPTFQMR as standalone solvers as all SUNDIALS packages utilize
+a zero initial guess.
+
 The RAJA NVECTOR implementation has been updated to support the SYCL backend
 in addition to the CUDA and HIP backend. Users can choose the backend when
 configuring SUNDIALS by using the `SUNDIALS_RAJA_BACKENDS` CMake variable. This

@@ -111,6 +111,18 @@ interfacing the solver to applications written in {\F}.
 
 \subsection*{Changes in v5.8.0}
 
+Added a new \textit{optional} function to the SUNLinearSolver API,
+\id{SUNLinSolSetZeroGuess}, to indicate that the next call to
+\id{SUNlinSolSolve} will be made with a zero initial guess. SUNLinearSolver
+implementations that do not use the \id{SUNLinSolNewEmpty} constructor will, at
+a minimum, need set the \id{setzeroguess} function pointer in the linear solver
+\id{ops} structure to \id{NULL}. The SUNDIALS iterative linear solver
+implementations have been updated to leverage this new set function to remove
+one dot product per solve. A bug was fixed in the SPBCGS and SPTFQMR solvers
+for the case where a non-zero initial guess and a solution scaling vector are
+provided. This fix only impacts codes using SPBCGS or SPTFQMR as standalone
+solvers as all {\sundials} packages utilize a zero initial guess.
+
 The RAJA {\nvector} implementation has been updated to support the SYCL backend
 in addition to the CUDA and HIP backend. Users can choose the backend when
 configuring SUNDIALS by using the \id{SUNDIALS\_RAJA\_BACKENDS} CMake variable.
@@ -231,7 +243,7 @@ it is recommended to set \id{CMAKE\_Fortran\_COMPILER} to \id{f2003},
 \id{xlf2003}, or \id{xlf2003\_r}.
 
 Fixed a linkage bug affecting Windows users that stemmed from dllimport/dllexport
-attributes missing on some SUNDIALS API functions.
+attributes missing on some {\sundials} API functions.
 
 Added a new \id{SUNMatrix} implementation, \id{SUNMATRIX\_CUSPARSE}, that interfaces
 to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
@@ -497,7 +509,7 @@ If an {\nvector} implementation defines any of the local operations as
 to complete the computation.
 
 A new {\sunmatrix} and {\sunlinsol} implementation was added to facilitate
-the use of the {\superludist} library with SUNDIALS.
+the use of the {\superludist} library with {\sundials}.
 
 A new operation, \id{SUNMatMatvecSetup}, was added to the {\sunmatrix} API. Users
 who have implemented custom {\sunmatrix} modules will need to at least update
@@ -771,14 +783,14 @@ with linear solver libraries.
 Specific changes include:
 \begin{itemize}
 \item Added generic SUNMATRIX module with three provided implementations:
-        dense, banded and sparse.  These replicate previous SUNDIALS Dls and
+        dense, banded and sparse.  These replicate previous {\sundials} Dls and
         Sls matrix structures in a single object-oriented API.
 \item Added example problems demonstrating use of generic SUNMATRIX modules.
 \item Added generic \id{SUNLinearSolver} module with eleven provided
         implementations: {\sundials} native dense, {\sundials} native banded,
         LAPACK dense, LAPACK band, KLU,
         SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, and PCG.  These replicate
-        previous SUNDIALS generic linear solvers in a single object-oriented
+        previous {\sundials} generic linear solvers in a single object-oriented
         API.
 \item Added example problems demonstrating use of generic SUNLINEARSOLVER
         modules.
@@ -790,7 +802,7 @@ Specific changes include:
         is entirely replicated by the generic Dls/Spils interfaces and
         SUNLINEARSOLVER/SUNMATRIX modules.  The exception is CVDIAG, a
         diagonal approximate Jacobian solver available to CVODE and CVODES.
-\item Converted all SUNDIALS example problems to utilize new generic
+\item Converted all {\sundials} example problems to utilize new generic
         SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
         Spils linear solver interfaces.
 \item Added Spils interface routines to ARKode, CVODE, CVODES, IDA and
@@ -1053,7 +1065,7 @@ details see Appendix \ref{c:install}.
 The user interface has been further refined. Several functions used
 for setting optional inputs were combined into a single one.
 Additionally, to resolve potential variable scope issues, all
-SUNDIALS solvers release user data right after its use. The build
+{\sundials} solvers release user data right after its use. The build
 system has been further improved to make it more robust.
 
 \subsection*{Changes in v2.2.1}

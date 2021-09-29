@@ -180,6 +180,7 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup, PSolve, 0);
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s1, ProbData.s2, 0);
+  fails += Test_SUNLinSolSetZeroGuess(LS, 0);
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSpace(LS, 0);
   fails += SUNLinSol_SPGMRSetGSType(LS, gstype);
@@ -207,7 +208,8 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPGMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -238,7 +240,8 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPGMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -271,7 +274,8 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPGMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -304,7 +308,8 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPGMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -337,7 +342,8 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPGMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -370,7 +376,8 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPGMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);

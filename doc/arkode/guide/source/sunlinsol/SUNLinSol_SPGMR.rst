@@ -310,6 +310,7 @@ The SUNLinSol_SPGMR module defines the *content* field of a
      int pretype;
      int gstype;
      int max_restarts;
+     booleantype zeroguess;
      int numiters;
      realtype resnorm;
      int last_flag;
@@ -451,6 +452,10 @@ The SUNLinSol_SPGMR module defines implementations of all
 * ``SUNLinSolSetPreconditioner_SPGMR``
 
 * ``SUNLinSolSetScalingVectors_SPGMR``
+
+* ``SUNLinSolSetZeroGuess_SPGMR`` -- note the solver assumes a non-zero guess by
+  default and the zero guess flag is reset to ``SUNFALSE`` after each call to
+  :c:func:`SUNLinSolSolve_SPGMR`.
 
 * ``SUNLinSolSetup_SPGMR``
 

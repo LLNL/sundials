@@ -72,6 +72,7 @@ module fsundials_linearsolver_mod
   type(C_FUNPTR), public :: setatimes
   type(C_FUNPTR), public :: setpreconditioner
   type(C_FUNPTR), public :: setscalingvectors
+  type(C_FUNPTR), public :: setzeroguess
   type(C_FUNPTR), public :: initialize
   type(C_FUNPTR), public :: setup
   type(C_FUNPTR), public :: solve
@@ -94,6 +95,7 @@ module fsundials_linearsolver_mod
  public :: FSUNLinSolSetATimes
  public :: FSUNLinSolSetPreconditioner
  public :: FSUNLinSolSetScalingVectors
+ public :: FSUNLinSolSetZeroGuess
  public :: FSUNLinSolInitialize
  public :: FSUNLinSolSetup
  public :: FSUNLinSolSolve
@@ -232,6 +234,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNLinSolSetZeroGuess(farg1, farg2) &
+bind(C, name="_wrap_FSUNLinSolSetZeroGuess") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -521,6 +532,22 @@ farg1 = c_loc(s)
 farg2 = c_loc(s1)
 farg3 = c_loc(s2)
 fresult = swigc_FSUNLinSolSetScalingVectors(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNLinSolSetZeroGuess(s, onoff) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+integer(C_INT), intent(in) :: onoff
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = c_loc(s)
+farg2 = onoff
+fresult = swigc_FSUNLinSolSetZeroGuess(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -72,6 +72,11 @@ The module SUNLinSol_SPTFQMR provides the following user-callable routines:
    preconditioning options with these solvers, this use mode is not
    supported and may result in inferior performance.
 
+.. note::
+
+   With ``PREC_RIGHT`` or ``PREC_BOTH`` the initial guess must be zero (use
+   :c:func:`SUNLinSolSetZeroGuess` to indicate the initial guess is zero).
+
 
 .. c:function:: int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
 
@@ -271,6 +276,7 @@ The SUNLinSol_SPTFQMR module defines the *content* field of a
    struct _SUNLinearSolverContent_SPTFQMR {
      int maxl;
      int pretype;
+     booleantype zeroguess;
      int numiters;
      realtype resnorm;
      int last_flag;
@@ -380,6 +386,10 @@ The SUNLinSol_SPTFQMR module defines implementations of all
 * ``SUNLinSolSetPreconditioner_SPTFQMR``
 
 * ``SUNLinSolSetScalingVectors_SPTFQMR``
+
+* ``SUNLinSolSetZeroGuess_SPTFQMR`` -- note the solver assumes a non-zero guess
+  by default and the zero guess flag is reset to ``SUNFALSE`` after each call to
+  :c:func:`SUNLinSolSolve_SPTFQMR`.
 
 * ``SUNLinSolSetup_SPTFQMR``
 

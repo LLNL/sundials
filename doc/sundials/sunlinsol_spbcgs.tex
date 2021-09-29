@@ -102,6 +102,9 @@ for creating a \newline \id{SUNLinearSolver} object.
   a {\sunlinsolspbcgs} object to use any of the preconditioning options
   with these solvers, this use mode is not supported and may result in
   inferior performance.
+
+  With \id{PREC\_RIGHT} or \id{PREC\_BOTH} the initial guess must be zero (use
+  \id{SUNLinSolSetZeroGuess} to indicate the initial guess is zero).
 }
 {SUNSPBCGS}
 %
@@ -116,6 +119,9 @@ The {\sunlinsolspbcgs} module defines implementations of all
 \item \id{SUNLinSolSetATimes\_SPBCGS}
 \item \id{SUNLinSolSetPreconditioner\_SPBCGS}
 \item \id{SUNLinSolSetScalingVectors\_SPBCGS}
+\item \id{SUNLinSolSetZeroGuess\_SPBCGS}  -- note the solver assumes a non-zero
+  guess by default and the zero guess flag is reset to \id{SUNFALSE} after each
+  call to \id{SUNLinSolSolve\_SPBCGS}.
 \item \id{SUNLinSolSetup\_SPBCGS}
 \item \id{SUNLinSolSolve\_SPBCGS}
 \item \id{SUNLinSolNumIters\_SPBCGS}
@@ -491,6 +497,7 @@ The {\sunlinsolspbcgs} module defines the \textit{content} field of a
 struct _SUNLinearSolverContent_SPBCGS {
   int maxl;
   int pretype;
+  booleantype zeroguess;
   int numiters;
   realtype resnorm;
   int last_flag;

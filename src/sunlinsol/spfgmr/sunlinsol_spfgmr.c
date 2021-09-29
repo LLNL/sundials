@@ -97,6 +97,7 @@ SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl)
   S->ops->setatimes         = SUNLinSolSetATimes_SPFGMR;
   S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPFGMR;
   S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPFGMR;
+  S->ops->setzeroguess      = SUNLinSolSetZeroGuess_SPFGMR;
   S->ops->initialize        = SUNLinSolInitialize_SPFGMR;
   S->ops->setup             = SUNLinSolSetup_SPFGMR;
   S->ops->solve             = SUNLinSolSolve_SPFGMR;
@@ -121,6 +122,7 @@ SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl)
   content->pretype      = pretype;
   content->gstype       = SUNSPFGMR_GSTYPE_DEFAULT;
   content->max_restarts = SUNSPFGMR_MAXRS_DEFAULT;
+  content->zeroguess    = SUNFALSE;
   content->numiters     = 0;
   content->resnorm      = ZERO;
   content->xcor         = NULL;
@@ -380,6 +382,16 @@ int SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S, N_Vector s1,
 }
 
 
+int SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S, booleantype onoff)
+{
+  /* set flag indicating a zero initial guess */
+  if (S == NULL) return(SUNLS_MEM_NULL);
+  SPFGMR_CONTENT(S)->zeroguess = onoff;
+  LASTFLAG(S) = SUNLS_SUCCESS;
+  return(LASTFLAG(S));
+}
+
+
 int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 {
   int ier;
@@ -397,7 +409,7 @@ int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
     ier = Psetup(PData);
     if (ier != 0) {
       LASTFLAG(S) = (ier < 0) ?
-	SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
+        SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
       return(LASTFLAG(S));
     }
   }
@@ -415,6 +427,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype **Hes, *givens, *yg, *res_norm;
   realtype beta, rotation_product, r_norm, s_product, rho;
   booleantype preOnRight, scale1, scale2, converged;
+  booleantype *zeroguess;
   int i, j, k, l, l_max, krydim, ier, ntries, max_restarts, gstype;
   int *nli;
   void *A_data, *P_data;
@@ -446,6 +459,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   P_data       = SPFGMR_CONTENT(S)->PData;
   atimes       = SPFGMR_CONTENT(S)->ATimes;
   psolve       = SPFGMR_CONTENT(S)->Psolve;
+  zeroguess    = &(SPFGMR_CONTENT(S)->zeroguess);
   nli          = &(SPFGMR_CONTENT(S)->numiters);
   res_norm     = &(SPFGMR_CONTENT(S)->resnorm);
   cv           = SPFGMR_CONTENT(S)->cv;
@@ -469,22 +483,25 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Check if Atimes function has been set */
   if (atimes == NULL) {
+    *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_ATIMES_NULL;
     return(LASTFLAG(S));
   }
 
   /* If preconditioning, check if psolve has been set */
   if (preOnRight && psolve == NULL) {
+    *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_PSOLVE_NULL;
     return(LASTFLAG(S));
   }
 
   /* Set vtemp and V[0] to initial (unscaled) residual r_0 = b - A*x_0 */
-  if (N_VDotProd(x, x) == ZERO) {
+  if (*zeroguess) {
     N_VScale(ONE, b, vtemp);
   } else {
     ier = atimes(A_data, x, vtemp);
     if (ier != 0) {
+      *zeroguess  = SUNFALSE;
       LASTFLAG(S) = (ier < 0) ?
           SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
       return(LASTFLAG(S));
@@ -513,6 +530,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 #endif
 
   if (r_norm <= delta) {
+    *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_SUCCESS;
     return(LASTFLAG(S));
   }
@@ -552,6 +570,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
         N_VScale(ONE, vtemp, V[l+1]);
         ier = psolve(P_data, V[l+1], vtemp, delta, PREC_RIGHT);
         if (ier != 0) {
+          *zeroguess  = SUNFALSE;
           LASTFLAG(S) = (ier < 0) ?
             SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
           return(LASTFLAG(S));
@@ -562,6 +581,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       /*   Apply A: V[l+1] = A P_inv s2_inv V[l]. */
       ier = atimes(A_data, vtemp, V[l+1]);
       if (ier != 0) {
+        *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
         return(LASTFLAG(S));
@@ -573,11 +593,13 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       /* Orthogonalize V[l+1] against previous V[i]: V[l+1] = w_tilde. */
       if (gstype == CLASSICAL_GS) {
         if (ClassicalGS(V, Hes, l+1, l_max, &(Hes[l+1][l]), cv, Xv) != 0) {
+          *zeroguess  = SUNFALSE;
           LASTFLAG(S) = SUNLS_GS_FAIL;
           return(LASTFLAG(S));
         }
       } else {
         if (ModifiedGS(V, Hes, l+1, l_max, &(Hes[l+1][l])) != 0) {
+          *zeroguess  = SUNFALSE;
           LASTFLAG(S) = SUNLS_GS_FAIL;
           return(LASTFLAG(S));
         }
@@ -585,6 +607,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
       /* Update the QR factorization of Hes. */
       if(QRfact(krydim, Hes, givens, l) != 0 ) {
+        *zeroguess  = SUNFALSE;
         LASTFLAG(S) = SUNLS_QRFACT_FAIL;
         return(LASTFLAG(S));
       }
@@ -615,6 +638,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     yg[0] = r_norm;
     for (i=1; i<=krydim; i++)  yg[i]=ZERO;
     if (QRsol(krydim, Hes, givens, yg) != 0) {
+      *zeroguess  = SUNFALSE;
       LASTFLAG(S) = SUNLS_QRSOL_FAIL;
       return(LASTFLAG(S));
     }
@@ -628,14 +652,21 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       Xv[k+1] = Z[k];
     }
     ier = N_VLinearCombination(krydim+1, cv, Xv, xcor);
-    if (ier != SUNLS_SUCCESS) return(SUNLS_VECTOROP_ERR);
+    if (ier != SUNLS_SUCCESS) {
+      *zeroguess  = SUNFALSE;
+      LASTFLAG(S) = SUNLS_VECTOROP_ERR;
+      return(SUNLS_VECTOROP_ERR);
+    }
 
     /* If converged, construct the final solution vector x and return. */
     if (converged) {
-      N_VLinearSum(ONE, x, ONE, xcor, x); {
-        LASTFLAG(S) = SUNLS_SUCCESS;
-        return(LASTFLAG(S));
-      }
+      if (*zeroguess)
+        N_VScale(ONE, xcor, x);
+      else
+        N_VLinearSum(ONE, x, ONE, xcor, x);
+      *zeroguess  = SUNFALSE;
+      LASTFLAG(S) = SUNLS_SUCCESS;
+      return(LASTFLAG(S));
     }
 
     /* Not yet converged; if allowed, prepare for restart. */
@@ -661,7 +692,11 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       Xv[k] = V[k];
     }
     ier = N_VLinearCombination(krydim+1, cv, Xv, V[0]);
-    if (ier != SUNLS_SUCCESS) return(SUNLS_VECTOROP_ERR);
+    if (ier != SUNLS_SUCCESS) {
+      *zeroguess  = SUNFALSE;
+      LASTFLAG(S) = SUNLS_VECTOROP_ERR;
+      return(SUNLS_VECTOROP_ERR);
+    }
 
   }
 
@@ -669,12 +704,16 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
      If the residual norm was reduced below its initial value, compute
      and return x anyway.  Otherwise return failure flag. */
   if (rho < beta) {
-    N_VLinearSum(ONE, x, ONE, xcor, x); {
-      LASTFLAG(S) = SUNLS_RES_REDUCED;
-      return(LASTFLAG(S));
-    }
+    if (*zeroguess)
+      N_VScale(ONE, xcor, x);
+    else
+      N_VLinearSum(ONE, x, ONE, xcor, x);
+    *zeroguess  = SUNFALSE;
+    LASTFLAG(S) = SUNLS_RES_REDUCED;
+    return(LASTFLAG(S));
   }
 
+  *zeroguess  = SUNFALSE;
   LASTFLAG(S) = SUNLS_CONV_FAIL;
   return(LASTFLAG(S));
 }
