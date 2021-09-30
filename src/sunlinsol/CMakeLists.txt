@@ -14,7 +14,7 @@
 # linear solver level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# required modules
+# required native linear solvers
 add_subdirectory(band)
 add_subdirectory(dense)
 add_subdirectory(pcg)
@@ -23,6 +23,7 @@ add_subdirectory(spfgmr)
 add_subdirectory(spgmr)
 add_subdirectory(sptfqmr)
 
+# optional TPL linear solvers
 if(BUILD_SUNLINSOL_CUSOLVERSP)
   add_subdirectory(cusolversp)
 endif()
@@ -41,6 +42,10 @@ endif()
 
 if(BUILD_SUNLINSOL_MAGMADENSE)
   add_subdirectory(magmadense)
+endif()
+
+if(BUILD_SUNLINSOL_ONEMKLDENSE)
+  add_subdirectory(onemkldense)
 endif()
 
 if(BUILD_SUNLINSOL_SUPERLUDIST)

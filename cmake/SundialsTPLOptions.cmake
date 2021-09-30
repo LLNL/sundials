@@ -81,7 +81,7 @@ sundials_option(ENABLE_MAGMA BOOL "Enable MAGMA support" OFF)
 sundials_option(MAGMA_DIR PATH "Path to the root of a MAGMA installation" "${MAGMA_DIR}"
                 SHOW_IF ENABLE_MAGMA)
 
-sundials_option(SUNDIALS_MAGMA_BACKENDS STRING "Which MAGMA backend under the SUNDIALS MAGMA interfaces (CUDA, HIP)" "CUDA"
+sundials_option(SUNDIALS_MAGMA_BACKENDS STRING "Which MAGMA backend to use under the SUNDIALS MAGMA interfaces (CUDA, HIP)" "CUDA"
                 OPTIONS "CUDA;HIP"
                 SHOW_IF ENABLE_MAGMA)
 
@@ -193,8 +193,8 @@ sundials_option(ENABLE_RAJA BOOL "Enable RAJA support" OFF)
 sundials_option(RAJA_DIR PATH "Path to root of RAJA installation" "${RAJA_DIR}"
                 SHOW_IF ENABLE_RAJA)
 
-sundials_option(SUNDIALS_RAJA_BACKENDS STRING "Which RAJA backend under the SUNDIALS RAJA interfaces (CUDA, HIP)" "CUDA"
-                OPTIONS "CUDA;HIP"
+sundials_option(SUNDIALS_RAJA_BACKENDS STRING "Which RAJA backend under the SUNDIALS RAJA interfaces (CUDA, HIP, SYCL)" "CUDA"
+                OPTIONS "CUDA;HIP;SYCL"
                 SHOW_IF ENABLE_RAJA)
 
 # ---------------------------------------------------------------
@@ -252,5 +252,15 @@ sundials_option(XBRAID_INCLUDES STRING "Semi-colon separated list of XBraid incl
                 ADVANCED)
 
 sundials_option(XBRAID_WORKS BOOL "Set to ON to force CMake to accept a given XBraid configuration" OFF
-                DEPENDS_ON ENABLE_XBRAID
+                SHOW_IF ENABLE_XBRAID
+                ADVANCED)
+
+# -------------------------------------------------------------
+# Enable oneMKL support?
+# -------------------------------------------------------------
+
+sundials_option(ENABLE_ONEMKL BOOL "Enable oneMKL support" OFF)
+
+sundials_option(ONEMKL_WORKS BOOL "Set to ON to force CMake to accept a given oneMKL configuration" OFF
+                SHOW_IF ENABLE_ONEMKL
                 ADVANCED)

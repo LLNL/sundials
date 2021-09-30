@@ -231,6 +231,8 @@ typedef struct IDAMemRec {
 
   SUNNonlinearSolver NLS;    /* nonlinear solver object */
   booleantype ownNLS;        /* flag indicating NLS ownership */
+  IDAResFn nls_res;          /* F(t,y(t),y'(t))=0; used in the nonlinear
+                                solver */
 
   /*------------------
     Linear Solver Data

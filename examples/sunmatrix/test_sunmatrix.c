@@ -51,7 +51,8 @@ int Test_SUNMatGetID(SUNMatrix A, SUNMatrix_ID sunid, int myid)
   SUNMatrix_ID mysunid;
 
   start_time = get_time();
-  mysunid    = SUNMatGetID(A);
+  mysunid = SUNMatGetID(A);
+  sync_device(A);
   stop_time  = get_time();
 
   if (sunid != mysunid) {
@@ -84,6 +85,7 @@ int Test_SUNMatClone(SUNMatrix A, int myid)
   /* clone matrix */
   start_time = get_time();
   B = SUNMatClone(A);
+  sync_device(A);
   stop_time = get_time();
 
   /* check cloned matrix */
@@ -143,6 +145,7 @@ int Test_SUNMatZero(SUNMatrix A, int myid)
   /* set matrix data to zero */
   start_time = get_time();
   failure = SUNMatZero(B);
+  sync_device(B);
   stop_time = get_time();
 
   if (failure) {
@@ -187,6 +190,7 @@ int Test_SUNMatCopy(SUNMatrix A, int myid)
   /* copy matrix data */
   start_time = get_time();
   failure = SUNMatCopy(A, B);
+  sync_device(A);
   stop_time = get_time();
 
   if (failure) {
@@ -246,6 +250,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
   /* fill vector data */
   start_time = get_time();
   failure = SUNMatScaleAdd(NEG_ONE, B, B);
+  sync_device(B);
   stop_time = get_time();
 
   if (failure) {
@@ -314,6 +319,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
       SUNMatDestroy(D);
       return(1);
     }
+    sync_device(A);
     stop_time = get_time();
 
     failure = check_matrix(D, C, tol);
@@ -368,6 +374,7 @@ int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
   /* perform operation */
   start_time = get_time();
   failure = SUNMatScaleAddI(NEG_ONE, B);
+  sync_device(B);
   stop_time = get_time();
 
   if (failure) {
@@ -411,6 +418,7 @@ int Test_SUNMatMatvecSetup(SUNMatrix A, int myid)
 
   start_time = get_time();
   failure = SUNMatMatvecSetup(A);
+  sync_device(A);
   stop_time = get_time();
 
   if (failure) {
@@ -477,7 +485,8 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
     }
 
     start_time = get_time();
-    failure = SUNMatMatvec(B,x,z); /* z = (3A+I)x */
+    failure = SUNMatMatvec(B,x,z); /* z = (3A+I)x = 3y + x */
+    sync_device(B);
     stop_time = get_time();
 
     if (failure) {
@@ -486,7 +495,7 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
       return(1);
     }
 
-    N_VLinearSum(THREE,y,ONE,x,w); /* w = 3x + x */
+    N_VLinearSum(THREE,y,ONE,x,w); /* w = 3y + x */
 
     failure = check_vector(w,z,tol);
 
@@ -500,6 +509,7 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
 
     start_time = get_time();
     failure = SUNMatMatvec(A,x,z); /* z = Ax */
+    sync_device(A);
     stop_time = get_time();
 
     if (failure) {
@@ -541,6 +551,7 @@ int Test_SUNMatSpace(SUNMatrix A, int myid)
 
   start_time = get_time();
   failure = SUNMatSpace(A, &lenrw, &leniw);
+  sync_device(A);
   stop_time = get_time();
 
   if (failure) {

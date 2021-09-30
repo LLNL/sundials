@@ -14,19 +14,24 @@
 # matrix level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# required modules
+# required native matrices
 add_subdirectory(band)
 add_subdirectory(dense)
 add_subdirectory(sparse)
 
-if(BUILD_SUNMATRIX_SLUNRLOC)
-  add_subdirectory(slunrloc)
-endif()
-
+# optional TPL matrices
 if(BUILD_SUNMATRIX_CUSPARSE)
   add_subdirectory(cusparse)
 endif()
 
 if(BUILD_SUNMATRIX_MAGMADENSE)
   add_subdirectory(magmadense)
+endif()
+
+if(BUILD_SUNMATRIX_ONEMKLDENSE)
+  add_subdirectory(onemkldense)
+endif()
+
+if(BUILD_SUNMATRIX_SLUNRLOC)
+  add_subdirectory(slunrloc)
 endif()

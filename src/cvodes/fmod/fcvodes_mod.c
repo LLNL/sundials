@@ -658,6 +658,20 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinearSolver(void *farg1, SUNNonlinearSolver fa
 }
 
 
+SWIGEXPORT int _wrap_FCVodeSetNlsRhsFn(void *farg1, CVRhsFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  CVRhsFn arg2 = (CVRhsFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (CVRhsFn)(farg2);
+  result = (int)CVodeSetNlsRhsFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeRootInit(void *farg1, int const *farg2, CVRootFn farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -720,24 +734,6 @@ SWIGEXPORT int _wrap_FCVode(void *farg1, double const *farg2, N_Vector farg3, do
 }
 
 
-SWIGEXPORT int _wrap_FCVodeGetDky(void *farg1, double const *farg2, int const *farg3, N_Vector farg4) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  int arg3 ;
-  N_Vector arg4 = (N_Vector) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (int)(*farg3);
-  arg4 = (N_Vector)(farg4);
-  result = (int)CVodeGetDky(arg1,arg2,arg3,arg4);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FCVodeComputeState(void *farg1, N_Vector farg2, N_Vector farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -783,6 +779,24 @@ SWIGEXPORT int _wrap_FCVodeComputeStateSens1(void *farg1, int const *farg2, N_Ve
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector)(farg4);
   result = (int)CVodeComputeStateSens1(arg1,arg2,arg3,arg4);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FCVodeGetDky(void *farg1, double const *farg2, int const *farg3, N_Vector farg4) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  realtype arg2 ;
+  int arg3 ;
+  N_Vector arg4 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (realtype)(*farg2);
+  arg3 = (int)(*farg3);
+  arg4 = (N_Vector)(farg4);
+  result = (int)CVodeGetDky(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
 }

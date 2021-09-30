@@ -1437,6 +1437,10 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   /* Set initial guess x = 0 to LS */
   N_VConst(ZERO, idals_mem->x);
 
+  /* Set zero initial guess flag */
+  retval = SUNLinSolSetZeroGuess(idals_mem->LS, SUNTRUE);
+  if (retval != SUNLS_SUCCESS) return(-1);
+
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (idals_mem->jtsetup) {
     idals_mem->last_flag = idals_mem->jtsetup(IDA_mem->ida_tn, ycur, ypcur, rescur,

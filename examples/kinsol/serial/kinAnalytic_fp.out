@@ -7,10 +7,12 @@ Analytic solution:
     y = 1
     z = -0.523599
 Solution method: Anderson accelerated fixed point iteration.
-    tolerance = 1.49012e-06
-    max iters = 10
-    accel vec = 0
-    damping   = 1
+    tolerance  = 1.49012e-06
+    max iters  = 30
+    m_aa       = 0
+    delay_aa   = 0
+    damping_aa = 1
+    damping_fp = 1
 
 Final Statistics:
 Number of nonlinear iterations:      5

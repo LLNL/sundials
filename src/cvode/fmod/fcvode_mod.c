@@ -612,6 +612,20 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinearSolver(void *farg1, SUNNonlinearSolver fa
 }
 
 
+SWIGEXPORT int _wrap_FCVodeSetNlsRhsFn(void *farg1, CVRhsFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  CVRhsFn arg2 = (CVRhsFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (CVRhsFn)(farg2);
+  result = (int)CVodeSetNlsRhsFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FCVodeSetUseIntegratorFusedKernels(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

@@ -47,6 +47,7 @@ extern "C" {
 struct _SUNLinearSolverContent_SPBCGS {
   int maxl;
   int pretype;
+  booleantype zeroguess;
   int numiters;
   realtype resnorm;
   int last_flag;
@@ -102,6 +103,8 @@ SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_SPBCGS(SUNLinearSolver S,
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S,
                                                       N_Vector s1,
                                                       N_Vector s2);
+SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S,
+                                                 booleantype onoff);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A,
                                           N_Vector x, N_Vector b, realtype tol);

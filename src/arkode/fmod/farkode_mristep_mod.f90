@@ -108,6 +108,7 @@ module farkode_mristep_mod
  public :: FMRIStepSetInterpolantDegree
  public :: FMRIStepSetDenseOrder
  public :: FMRIStepSetNonlinearSolver
+ public :: FMRIStepSetNlsRhsFn
  public :: FMRIStepSetLinear
  public :: FMRIStepSetNonlinear
  public :: FMRIStepSetCoupling
@@ -555,6 +556,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetNlsRhsFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetNlsRhsFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1929,6 +1939,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(nls)
 fresult = swigc_FMRIStepSetNonlinearSolver(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepSetNlsRhsFn(arkode_mem, nls_fs) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: nls_fs
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nls_fs
+fresult = swigc_FMRIStepSetNlsRhsFn(farg1, farg2)
 swig_result = fresult
 end function
 

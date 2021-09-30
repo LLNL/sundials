@@ -828,6 +828,15 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
     return(CV_MEM_FAIL);
   }
 
+  /* Input checks complete at this point and history array allocated */
+
+  /* Copy the input parameters into CVODE state */
+  cv_mem->cv_f  = f;
+  cv_mem->cv_tn = t0;
+
+  /* Initialize zn[0] in the history array */
+  N_VScale(ONE, y0, cv_mem->cv_zn[0]);
+
   /* create a Newton nonlinear solver object by default */
   NLS = SUNNonlinSol_Newton(y0);
 
@@ -855,11 +864,6 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 
   /* All error checking is complete at this point */
 
-  /* Copy the input parameters into CVODES state */
-
-  cv_mem->cv_f  = f;
-  cv_mem->cv_tn = t0;
-
   /* Set step parameters */
 
   cv_mem->cv_q      = 1;
@@ -883,10 +887,6 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   /* Set forceSetup to SUNFALSE */
 
   cv_mem->cv_forceSetup = SUNFALSE;
-
-  /* Initialize zn[0] in the history array */
-
-  N_VScale(ONE, y0, cv_mem->cv_zn[0]);
 
   /* Initialize all the counters */
 

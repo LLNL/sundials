@@ -23,7 +23,7 @@
 #include <nvector/nvector_serial.h>
 #include <nvector/nvector_cuda.h>
 
-#include "custom_memory_helper.h"
+#include "custom_memory_helper_gpu.h"
 #include "test_nvector.h"
 
 /* Private custom allocator functions */

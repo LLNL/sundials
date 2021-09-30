@@ -13,7 +13,7 @@
 # -----------------------------------------------------------------
 
 # Set the minimum required cmake version
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION @CMAKE_VERSION@)
 
 # Set cache variables for compilers and flags
 set(CMAKE_C_COMPILER
@@ -49,18 +49,15 @@ set(SUNDIALS_DIR
 find_package(SUNDIALS REQUIRED NO_DEFAULT_PATH)
 
 # Set additional libraries
-set(SUNDIALS_EXTRA_LIBS @LIBS@ CACHE STRING "Additional libraries")
+set(EXTRA_LIBS @LIBS@ CACHE STRING "Additional libraries")
 
 # Set SUNDIALS targets needed
-set(SUNDIALS_TARGETS_NEEDED "")
-foreach(tgt "@EXAMPLES_CMAKE_TARGETS@")
-  list(APPEND SUNDIALS_TARGETS_NEEDED SUNDIALS::${tgt})
-endforeach()
+set(TARGETS_NEEDED @EXAMPLES_CMAKE_TARGETS@)
 
 # List of SUNDIALS libraries
-set(SUNDIALS_LIBRARIES
-    ${SUNDIALS_TARGETS_NEEDED}
-    ${SUNDIALS_EXTRA_LIBS})
+set(LIBRARIES
+  ${TARGETS_NEEDED}
+  ${EXTRA_LIBS})
 
 # Need HIP
 set(CMAKE_PREFIX_PATH "@CMAKE_PREFIX_PATH@")
@@ -94,9 +91,9 @@ foreach(example ${examples})
   target_include_directories(${example_target} PRIVATE ${SUNDIALS_INCLUDE_DIR})
 
   # libraries to link against
-  target_link_libraries(${example_target} ${SUNDIALS_LIBRARIES})
+  target_link_libraries(${example_target} ${LIBRARIES})
 
   # add the example to ctest
-  add_test(NAME ${example_target} COMMAND ${example})
+  add_test(NAME ${example_target} COMMAND ${example_target})
 
 endforeach()

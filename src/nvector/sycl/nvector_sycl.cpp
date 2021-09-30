@@ -19,10 +19,14 @@
 #include <stdlib.h>
 
 #include <CL/sycl.hpp>
+
+/* SUNDIALS public headers */
 #include <nvector/nvector_sycl.h>
 #include <sunmemory/sunmemory_sycl.h>
 
+/* SUNDIALS private headers */
 #include "sundials_debug.h"
+#include "sundials_sycl.h"
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -33,9 +37,11 @@ extern "C" {
 
 using namespace sundials;
 
+
 /* --------------------------------------------------------------------------
  * Helpful macros
  * -------------------------------------------------------------------------- */
+
 
 /* Macros to access vector content */
 #define NVEC_SYCL_CONTENT(x)  ((N_VectorContent_Sycl)(x->content))
@@ -44,53 +50,12 @@ using namespace sundials;
 #define NVEC_SYCL_MEMSIZE(x)  (NVEC_SYCL_CONTENT(x)->length * sizeof(realtype))
 #define NVEC_SYCL_HDATAp(x)   ((realtype*) NVEC_SYCL_CONTENT(x)->host_data->ptr)
 #define NVEC_SYCL_DDATAp(x)   ((realtype*) NVEC_SYCL_CONTENT(x)->device_data->ptr)
-#define NVEC_SYCL_QUEUE(x)    ((sycl::queue*) NVEC_SYCL_CONTENT(x)->queue)
+#define NVEC_SYCL_QUEUE(x)    (NVEC_SYCL_CONTENT(x)->queue)
 
 /* Macros to access vector private content */
 #define NVEC_SYCL_PRIVATE(x)      ((N_PrivateVectorContent_Sycl)(NVEC_SYCL_CONTENT(x)->priv))
 #define NVEC_SYCL_HBUFFERp(x)     ((realtype*) NVEC_SYCL_PRIVATE(x)->reduce_buffer_host->ptr)
 #define NVEC_SYCL_DBUFFERp(x)     ((realtype*) NVEC_SYCL_PRIVATE(x)->reduce_buffer_dev->ptr)
-
-/* Get the maximum work group size (block size) for a queue */
-#define SYCL_BLOCKDIM(q)  (q->get_device().get_info<sycl::info::device::max_work_group_size>())
-
-/* Grid (work group) stride loop */
-#define GRID_STRIDE_XLOOP(item, iter, max)        \
-  for (sunindextype iter = item.get_global_id(0); \
-       iter < max;                                \
-       iter += item.get_global_range(0))
-
-/* Sycl parallel for loop */
-#define SYCL_FOR(q, total, block, item, loop)        \
-  q->submit([&](sycl::handler& h) {                  \
-      h.parallel_for(sycl::nd_range<1>{total,block}, \
-                     [=](sycl::nd_item<1> item)      \
-                     { loop }); });
-
-/* Sycl parallel for loop with stream for ouput */
-#define SYCL_FOR_DEBUG(q, total, block, item, loop)        \
-  q->submit([&](sycl::handler& h) {                        \
-      sycl::stream out(1024, 256, h);                      \
-      h.parallel_for(sycl::nd_range<1>{total,block},       \
-                     [=](sycl::nd_item<1> item)            \
-                     { loop }); });
-
-/* Sycl parallel for loop with reduction */
-#define SYCL_FOR_REDUCE(q, total, block, item, rvar, rop, loop)  \
-  q->submit([&](sycl::handler& h) {                              \
-      h.parallel_for(sycl::nd_range<1>{total,block},             \
-                     sycl::ONEAPI::reduction(rvar, rop),         \
-                     [=](sycl::nd_item<1> item, auto& rvar)      \
-                     { loop }); });
-
-/* Sycl parallel for loop with reduction and stream for ouput */
-#define SYCL_FOR_REDUCE_DEBUG(q, total, block, item, rvar, rop, loop)  \
-  q->submit([&](sycl::handler& h) {                                    \
-      sycl::stream out(1024, 256, h);                                  \
-      h.parallel_for(sycl::nd_range<1>{total,block},                   \
-                     sycl::ONEAPI::reduction(rvar, rop),               \
-                     [=](sycl::nd_item<1> item, auto& rvar)            \
-                     { loop }); });
 
 
 /* --------------------------------------------------------------------------
@@ -2420,9 +2385,7 @@ static int GetKernelParameters(N_Vector v, booleantype reduction,
 
   if (exec_policy == NULL)
   {
-#ifdef SUNDIALS_DEBUG
-    throw std::runtime_error("the execution policy is NULL");
-#endif
+    SUNDIALS_DEBUG_ERROR("The execution policy is NULL\n");
     return -1;
   }
 
@@ -2433,17 +2396,13 @@ static int GetKernelParameters(N_Vector v, booleantype reduction,
 
   if (nthreads_per_block == 0)
   {
-#ifdef SUNDIALS_DEBUG
-    throw std::runtime_error("the number of threads per block must be > 0");
-#endif
+    SUNDIALS_DEBUG_ERROR("The number of threads per block must be > 0\n");
     return -1;
   }
 
   if (nthreads_total == 0)
   {
-#ifdef SUNDIALS_DEBUG
-    throw std::runtime_error("the total number of threads must be > 0");
-#endif
+    SUNDIALS_DEBUG_ERROR("the total number of threads must be > 0\n");
     return -1;
   }
 
