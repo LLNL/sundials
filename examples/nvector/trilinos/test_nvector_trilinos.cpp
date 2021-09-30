@@ -221,7 +221,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
   /* check Tpetra vector */
   for (i = 0; i < local_length; ++i){
-    failure += FNEQ(x_1d(i), ans);
+    failure += SUNRCompare(x_1d(i), ans);
   }
 
   return (failure > ZERO) ? 1 : 0;

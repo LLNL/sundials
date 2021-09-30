@@ -79,13 +79,21 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 
   /* Set flags based on LS type */
   iterative   = (LSType != SUNLINEARSOLVER_DIRECT);
-  matrixbased = (LSType != SUNLINEARSOLVER_ITERATIVE);
+  matrixbased = ((LSType != SUNLINEARSOLVER_ITERATIVE) &&
+                 (LSType != SUNLINEARSOLVER_MATRIX_EMBEDDED));
 
   /* Test if vector is compatible with LS interface */
   if (IDA_mem->ida_tempv1->ops->nvconst == NULL ||
       IDA_mem->ida_tempv1->ops->nvwrmsnorm == NULL) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
                     "IDASetLinearSolver", MSG_LS_BAD_NVECTOR);
+    return(IDALS_ILL_INPUT);
+  }
+
+  /* Ensure that A is NULL when LS is matrix-embedded */
+  if ((LSType == SUNLINEARSOLVER_MATRIX_EMBEDDED) && (A != NULL)) {
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
+                    "Incompatible inputs: matrix-embedded LS requires NULL matrix");
     return(IDALS_ILL_INPUT);
   }
 
@@ -98,19 +106,22 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
       return(IDALS_ILL_INPUT);
     }
 
-    if (LS->ops->resid == NULL || LS->ops->numiters == NULL) {
-      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
-                      "Iterative LS object requires 'resid' and 'numiters' routines");
-      return(IDALS_ILL_INPUT);
+    if (LSType != SUNLINEARSOLVER_MATRIX_EMBEDDED) {
+      if (LS->ops->resid == NULL || LS->ops->numiters == NULL) {
+        IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
+                        "Iterative LS object requires 'resid' and 'numiters' routines");
+        return(IDALS_ILL_INPUT);
+      }
     }
 
-    if (!matrixbased && LS->ops->setatimes == NULL) {
+    if (!matrixbased && (LSType != SUNLINEARSOLVER_MATRIX_EMBEDDED) &&
+        (LS->ops->setatimes == NULL)) {
       IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
                       "Incompatible inputs: iterative LS must support ATimes routine");
       return(IDALS_ILL_INPUT);
     }
 
-    if (matrixbased && A == NULL) {
+    if (matrixbased && (A == NULL)) {
       IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
                       "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
       return(IDALS_ILL_INPUT);
@@ -1265,6 +1276,12 @@ int idaLsInitialize(IDAMem IDA_mem)
   if ( (idals_mem->J == NULL) && (idals_mem->pset == NULL) )
     IDA_mem->ida_lsetup = NULL;
 
+  /* When using a matrix-embedded linear solver disable lsetup call */
+  if (SUNLinSolGetType(idals_mem->LS) == SUNLINEARSOLVER_MATRIX_EMBEDDED) {
+    IDA_mem->ida_lsetup = NULL;
+    idals_mem->scalesol = SUNFALSE;
+  }
+
   /* Call LS initialize routine */
   idals_mem->last_flag = SUNLinSolInitialize(idals_mem->LS);
   return(idals_mem->last_flag);
@@ -1291,6 +1308,12 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
     return(IDALS_LMEM_NULL);
   }
   idals_mem = (IDALsMem) IDA_mem->ida_lmem;
+
+  /* Immediately return when using matrix-embedded linear solver */
+  if (SUNLinSolGetType(idals_mem->LS) == SUNLINEARSOLVER_MATRIX_EMBEDDED) {
+    idals_mem->last_flag = IDALS_SUCCESS;
+    return(idals_mem->last_flag);
+  }
 
   /* Set IDALs N_Vector pointers to inputs */
   idals_mem->ycur  = y;
@@ -1414,6 +1437,10 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
   /* Set initial guess x = 0 to LS */
   N_VConst(ZERO, idals_mem->x);
 
+  /* Set zero initial guess flag */
+  retval = SUNLinSolSetZeroGuess(idals_mem->LS, SUNTRUE);
+  if (retval != SUNLS_SUCCESS) return(-1);
+
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (idals_mem->jtsetup) {
     idals_mem->last_flag = idals_mem->jtsetup(IDA_mem->ida_tn, ycur, ypcur, rescur,
@@ -1437,7 +1464,8 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
     nli_inc = SUNLinSolNumIters(idals_mem->LS);
 
     /* Copy x (or preconditioned residual vector if no iterations required) to b */
-    if (nli_inc == 0) N_VScale(ONE, SUNLinSolResid(idals_mem->LS), b);
+    if ((nli_inc == 0) && (SUNLinSolGetType(idals_mem->LS) != SUNLINEARSOLVER_MATRIX_EMBEDDED))
+      N_VScale(ONE, SUNLinSolResid(idals_mem->LS), b);
     else N_VScale(ONE, idals_mem->x, b);
 
     /* Increment nli counter */

@@ -71,8 +71,11 @@ module fkinsol_mod
  public :: FKINSetInfoFile
  public :: FKINSetUserData
  public :: FKINSetPrintLevel
+ public :: FKINSetDamping
  public :: FKINSetMAA
+ public :: FKINSetDelayAA
  public :: FKINSetDampingAA
+ public :: FKINSetReturnNewest
  public :: FKINSetNumMaxIters
  public :: FKINSetNoInitSetup
  public :: FKINSetNoResMon
@@ -222,8 +225,26 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FKINSetDamping(farg1, farg2) &
+bind(C, name="_wrap_FKINSetDamping") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FKINSetMAA(farg1, farg2) &
 bind(C, name="_wrap_FKINSetMAA") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FKINSetDelayAA(farg1, farg2) &
+bind(C, name="_wrap_FKINSetDelayAA") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -237,6 +258,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FKINSetReturnNewest(farg1, farg2) &
+bind(C, name="_wrap_FKINSetReturnNewest") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -806,19 +836,35 @@ fresult = swigc_FKINSetUserData(farg1, farg2)
 swig_result = fresult
 end function
 
-function FKINSetPrintLevel(kinmemm, printfl) &
+function FKINSetPrintLevel(kinmem, printfl) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR) :: kinmemm
+type(C_PTR) :: kinmem
 integer(C_INT), intent(in) :: printfl
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = kinmemm
+farg1 = kinmem
 farg2 = printfl
 fresult = swigc_FKINSetPrintLevel(farg1, farg2)
+swig_result = fresult
+end function
+
+function FKINSetDamping(kinmem, beta) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: kinmem
+real(C_DOUBLE), intent(in) :: beta
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = kinmem
+farg2 = beta
+fresult = swigc_FKINSetDamping(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -838,6 +884,22 @@ fresult = swigc_FKINSetMAA(farg1, farg2)
 swig_result = fresult
 end function
 
+function FKINSetDelayAA(kinmem, delay) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: kinmem
+integer(C_LONG), intent(in) :: delay
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = kinmem
+farg2 = delay
+fresult = swigc_FKINSetDelayAA(farg1, farg2)
+swig_result = fresult
+end function
+
 function FKINSetDampingAA(kinmem, beta) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -851,6 +913,22 @@ real(C_DOUBLE) :: farg2
 farg1 = kinmem
 farg2 = beta
 fresult = swigc_FKINSetDampingAA(farg1, farg2)
+swig_result = fresult
+end function
+
+function FKINSetReturnNewest(kinmem, ret_newest) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: kinmem
+integer(C_INT), intent(in) :: ret_newest
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = kinmem
+farg2 = ret_newest
+fresult = swigc_FKINSetReturnNewest(farg1, farg2)
 swig_result = fresult
 end function
 

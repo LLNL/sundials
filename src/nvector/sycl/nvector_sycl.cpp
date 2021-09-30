@@ -19,10 +19,14 @@
 #include <stdlib.h>
 
 #include <CL/sycl.hpp>
+
+/* SUNDIALS public headers */
 #include <nvector/nvector_sycl.h>
 #include <sunmemory/sunmemory_sycl.h>
 
+/* SUNDIALS private headers */
 #include "sundials_debug.h"
+#include "sundials_sycl.h"
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -33,9 +37,11 @@ extern "C" {
 
 using namespace sundials;
 
+
 /* --------------------------------------------------------------------------
  * Helpful macros
  * -------------------------------------------------------------------------- */
+
 
 /* Macros to access vector content */
 #define NVEC_SYCL_CONTENT(x)  ((N_VectorContent_Sycl)(x->content))
@@ -44,56 +50,12 @@ using namespace sundials;
 #define NVEC_SYCL_MEMSIZE(x)  (NVEC_SYCL_CONTENT(x)->length * sizeof(realtype))
 #define NVEC_SYCL_HDATAp(x)   ((realtype*) NVEC_SYCL_CONTENT(x)->host_data->ptr)
 #define NVEC_SYCL_DDATAp(x)   ((realtype*) NVEC_SYCL_CONTENT(x)->device_data->ptr)
-#define NVEC_SYCL_QUEUE(x)    ((sycl::queue*) NVEC_SYCL_CONTENT(x)->queue)
+#define NVEC_SYCL_QUEUE(x)    (NVEC_SYCL_CONTENT(x)->queue)
 
 /* Macros to access vector private content */
 #define NVEC_SYCL_PRIVATE(x)      ((N_PrivateVectorContent_Sycl)(NVEC_SYCL_CONTENT(x)->priv))
 #define NVEC_SYCL_HBUFFERp(x)     ((realtype*) NVEC_SYCL_PRIVATE(x)->reduce_buffer_host->ptr)
 #define NVEC_SYCL_DBUFFERp(x)     ((realtype*) NVEC_SYCL_PRIVATE(x)->reduce_buffer_dev->ptr)
-#define NVEC_SYCL_FSCALARSp(x)    ((realtype*) NVEC_SYCL_PRIVATE(x)->fused_scalars_dev->ptr)
-#define NVEC_SYCL_FDPTRS1Dp(x,i)  ((realtype**) NVEC_SYCL_PRIVATE(x)->fused_dptrs_1d_dev[i]->ptr)
-#define NVEC_SYCL_FDPTRS2Dp(x,i)  ((realtype**) NVEC_SYCL_PRIVATE(x)->fused_dptrs_2d_dev[i]->ptr)
-
-/* Get the maximum work group size (block size) for a queue */
-#define SYCL_BLOCKDIM(q)  (q->get_device().get_info<sycl::info::device::max_work_group_size>())
-
-/* Grid (work group) stride loop */
-#define GRID_STRIDE_XLOOP(item, iter, max)        \
-  for (sunindextype iter = item.get_global_id(0); \
-       iter < max;                                \
-       iter += item.get_global_range(0))
-
-/* Sycl parallel for loop */
-#define SYCL_FOR(q, total, block, item, loop)        \
-  q->submit([&](sycl::handler& h) {                  \
-      h.parallel_for(sycl::nd_range<1>{total,block}, \
-                     [=](sycl::nd_item<1> item)      \
-                     { loop }); });
-
-/* Sycl parallel for loop with stream for ouput */
-#define SYCL_FOR_DEBUG(q, total, block, item, loop)        \
-  q->submit([&](sycl::handler& h) {                        \
-      sycl::stream out(1024, 256, h);                      \
-      h.parallel_for(sycl::nd_range<1>{total,block},       \
-                     [=](sycl::nd_item<1> item)            \
-                     { loop }); });
-
-/* Sycl parallel for loop with reduction */
-#define SYCL_FOR_REDUCE(q, total, block, item, rvar, rop, loop)  \
-  q->submit([&](sycl::handler& h) {                              \
-      h.parallel_for(sycl::nd_range<1>{total,block},             \
-                     sycl::ONEAPI::reduction(rvar, rop),         \
-                     [=](sycl::nd_item<1> item, auto& rvar)      \
-                     { loop }); });
-
-/* Sycl parallel for loop with reduction and stream for ouput */
-#define SYCL_FOR_REDUCE_DEBUG(q, total, block, item, rvar, rop, loop)  \
-  q->submit([&](sycl::handler& h) {                                    \
-      sycl::stream out(1024, 256, h);                                  \
-      h.parallel_for(sycl::nd_range<1>{total,block},                   \
-                     sycl::ONEAPI::reduction(rvar, rop),               \
-                     [=](sycl::nd_item<1> item, auto& rvar)            \
-                     { loop }); });
 
 
 /* --------------------------------------------------------------------------
@@ -111,16 +73,10 @@ struct _N_PrivateVectorContent_Sycl
   size_t    reduce_buffer_bytes; /* current size of reduction buffers */
 
   /* fused op workspace */
-  SUNMemory fused_scalars_dev;   /* device mem for fused op scalars  */
-  size_t    fused_scalars_bytes; /* current size of 1D array buffer  */
-
-  SUNMemory fused_dptrs_1d_host[3];  /* host mem for 1D array of data ptrs   */
-  SUNMemory fused_dptrs_1d_dev[3];   /* device mem for 1D array of data ptrs */
-  size_t    fused_dptrs_1d_bytes[3]; /* current size of 1D array buffer      */
-
-  SUNMemory fused_dptrs_2d_host[2];  /* host mem for 2D array of data ptrs   */
-  SUNMemory fused_dptrs_2d_dev[2];   /* device mem for 2D array of data ptrs */
-  size_t    fused_dptrs_2d_bytes[2]; /* current size of 2D array buffer      */
+  SUNMemory fused_buffer_dev;    /* device memory for fused ops    */
+  SUNMemory fused_buffer_host;   /* host memory for fused ops      */
+  size_t    fused_buffer_bytes;  /* current size of the buffers    */
+  size_t    fused_buffer_offset; /* current offset into the buffer */
 };
 
 typedef struct _N_PrivateVectorContent_Sycl *N_PrivateVectorContent_Sycl;
@@ -131,19 +87,27 @@ typedef struct _N_PrivateVectorContent_Sycl *N_PrivateVectorContent_Sycl;
  * -------------------------------------------------------------------------- */
 
 
+/* Allocate vector data */
 static int AllocateData(N_Vector v);
+
+/* Reduction buffer functions */
 static int InitializeReductionBuffer(N_Vector v, const realtype value,
                                      size_t n = 1);
 static void FreeReductionBuffer(N_Vector v);
 static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
-static int InitializeFusedScalarArray(N_Vector v, realtype* c_data, int nvals);
-static void FreeFusedScalarArray(N_Vector v);
-static int InitializeFusedDataPtrArray1D(N_Vector v, N_Vector *X, int nvecs,
-                                         int idx);
-static void FreeFusedDataPtrArray1D(N_Vector v, int idx);
-static int InitializeFusedDataPtrArray2D(N_Vector v, N_Vector **X, int nvec,
-                                         int nsum, int idx);
-static void FreeFusedDataPtrArray2D(N_Vector v, int idx);
+
+/* Fused operation buffer functions */
+static int FusedBuffer_Init(N_Vector v, int nreal, int nptr);
+static int FusedBuffer_CopyRealArray(N_Vector v, realtype *r_data, int nval,
+                                     realtype **shortcut);
+static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,
+                                      realtype ***shortcut);
+static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,
+                                      int nsum, realtype ***shortcut);
+static int FusedBuffer_CopyToDevice(N_Vector v);
+static int FusedBuffer_Free(N_Vector v);
+
+/* Kernel launch parameters */
 static int GetKernelParameters(N_Vector v, booleantype reduction,
                                size_t& nthreads_total,
                                size_t& nthreads_per_block);
@@ -255,20 +219,10 @@ N_Vector N_VNewEmpty_Sycl()
   NVEC_SYCL_PRIVATE(v)->reduce_buffer_dev    = NULL;
   NVEC_SYCL_PRIVATE(v)->reduce_buffer_host   = NULL;
   NVEC_SYCL_PRIVATE(v)->reduce_buffer_bytes  = 0;
-  NVEC_SYCL_PRIVATE(v)->fused_scalars_dev    = NULL;
-  NVEC_SYCL_PRIVATE(v)->fused_scalars_bytes  = 0;
-  for (int i = 0; i < 3; i++)
-  {
-    NVEC_SYCL_PRIVATE(v)->fused_dptrs_1d_host[i]  = NULL;
-    NVEC_SYCL_PRIVATE(v)->fused_dptrs_1d_dev[i]   = NULL;
-    NVEC_SYCL_PRIVATE(v)->fused_dptrs_1d_bytes[i] = 0;
-  }
-  for (int i = 0; i < 2; i++)
-  {
-    NVEC_SYCL_PRIVATE(v)->fused_dptrs_2d_host[i]  = NULL;
-    NVEC_SYCL_PRIVATE(v)->fused_dptrs_2d_dev[i]   = NULL;
-    NVEC_SYCL_PRIVATE(v)->fused_dptrs_2d_bytes[i] = 0;
-  }
+  NVEC_SYCL_PRIVATE(v)->fused_buffer_dev     = NULL;
+  NVEC_SYCL_PRIVATE(v)->fused_buffer_host    = NULL;
+  NVEC_SYCL_PRIVATE(v)->fused_buffer_bytes   = 0;
+  NVEC_SYCL_PRIVATE(v)->fused_buffer_offset  = 0;
 
   return v;
 }
@@ -845,15 +799,7 @@ void N_VDestroy_Sycl(N_Vector v)
   {
     /* free items in private content */
     FreeReductionBuffer(v);
-    FreeFusedScalarArray(v);
-    for (int i = 0; i < 3; i++)
-    {
-      FreeFusedDataPtrArray1D(v, i);
-    }
-    for (int i = 0; i < 2; i++)
-    {
-      FreeFusedDataPtrArray2D(v, i);
-    }
+    FusedBuffer_Free(v);
     free(vcp);
     vc->priv = NULL;
   }
@@ -1458,16 +1404,32 @@ int N_VLinearCombination_Sycl(int nvec, realtype* c, N_Vector* X, N_Vector z)
   sycl::queue        *Q     = NVEC_SYCL_QUEUE(z);
   size_t             nthreads_total, nthreads_per_block;
 
+  /* Fused op workspace shortcuts */
+  realtype*  cdata = NULL;
+  realtype** xdata = NULL;
+
   /* Setup the fused op workspace */
-  if (InitializeFusedScalarArray(z, c, nvec))
+  if (FusedBuffer_Init(z, nvec, nvec))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Sycl: InitializeFusedScalarArray returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Sycl: FusedBuffer_Init returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray1D(z, X, nvec, 0))
+  if (FusedBuffer_CopyRealArray(z, c, nvec, &cdata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Sycl: FusedBuffer_CopyRealArray returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(z, X, nvec, &xdata))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(z))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Sycl: FusedBuffer_CopyToDevice returned nonzero\n");
     return -1;
   }
 
@@ -1476,10 +1438,6 @@ int N_VLinearCombination_Sycl(int nvec, realtype* c, N_Vector* X, N_Vector z)
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Sycl: GetKernelParameters returned nonzero\n");
     return -1;
   }
-
-  /* Shortcuts to the fused op workspace arrays */
-  realtype*  cdata = NVEC_SYCL_FSCALARSp(z);
-  realtype** xdata = NVEC_SYCL_FDPTRS1Dp(z,0);
 
   SYCL_FOR(Q, nthreads_total, nthreads_per_block, item,
            GRID_STRIDE_XLOOP(item, i, N)
@@ -1503,22 +1461,39 @@ int N_VScaleAddMulti_Sycl(int nvec, realtype* c, N_Vector x, N_Vector* Y,
   sycl::queue        *Q     = NVEC_SYCL_QUEUE(x);
   size_t             nthreads_total, nthreads_per_block;
 
+  /* Shortcuts to the fused op workspace */
+  realtype*  cdata = NULL;
+  realtype** ydata = NULL;
+  realtype** zdata = NULL;
+
   /* Setup the fused op workspace */
-  if (InitializeFusedScalarArray(x, c, nvec))
+  if (FusedBuffer_Init(x, nvec, 2 * nvec))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Sycl: InitializeFusedScalarArray returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Sycl: FusedBuffer_Init returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray1D(x, Y, nvec, 0))
+  if (FusedBuffer_CopyRealArray(x, c, nvec, &cdata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Sycl: FusedBuffer_CopyRealArray returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray1D(x, Z, nvec, 1))
+  if (FusedBuffer_CopyPtrArray1D(x, Y, nvec, &ydata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(x, Z, nvec, &zdata))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(x))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Sycl: FusedBuffer_CopyToDevice returned nonzero\n");
     return -1;
   }
 
@@ -1527,11 +1502,6 @@ int N_VScaleAddMulti_Sycl(int nvec, realtype* c, N_Vector x, N_Vector* Y,
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Sycl: GetKernelParameters returned nonzero\n");
     return -1;
   }
-
-  /* Shortcuts to the fused op workspace arrays */
-  realtype*  cdata = NVEC_SYCL_FSCALARSp(x);
-  realtype** ydata = NVEC_SYCL_FDPTRS1Dp(x,0);
-  realtype** zdata = NVEC_SYCL_FDPTRS1Dp(x,1);
 
   SYCL_FOR(Q, nthreads_total, nthreads_per_block, item,
            GRID_STRIDE_XLOOP(item, i, N)
@@ -1560,22 +1530,39 @@ int N_VLinearSumVectorArray_Sycl(int nvec,
   sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
+  /* Shortcuts to the fused op workspace */
+  realtype** xdata = NULL;
+  realtype** ydata = NULL;
+  realtype** zdata = NULL;
+
   /* Setup the fused op workspace */
-  if (InitializeFusedDataPtrArray1D(Z[0], X, nvec, 0))
+  if (FusedBuffer_Init(Z[0], 0, 3 * nvec))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: FusedBuffer_Init returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray1D(Z[0], Y, nvec, 1))
+  if (FusedBuffer_CopyPtrArray1D(Z[0], X, nvec, &xdata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray1D(Z[0], Z, nvec, 2))
+  if (FusedBuffer_CopyPtrArray1D(Z[0], Y, nvec, &ydata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(Z[0]))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinaerSumVectorArray_Sycl: FusedBuffer_CopyToDevice returned nonzero\n");
     return -1;
   }
 
@@ -1584,11 +1571,6 @@ int N_VLinearSumVectorArray_Sycl(int nvec,
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinaerSumVectorArray_Sycl: GetKernelParameters returned nonzero\n");
     return -1;
   }
-
-  /* Shortcuts to the fused op workspace arrays */
-  realtype** xdata = NVEC_SYCL_FDPTRS1Dp(Z[0],0);
-  realtype** ydata = NVEC_SYCL_FDPTRS1Dp(Z[0],1);
-  realtype** zdata = NVEC_SYCL_FDPTRS1Dp(Z[0],2);
 
   SYCL_FOR(Q, nthreads_total, nthreads_per_block, item,
            GRID_STRIDE_XLOOP(item, i, N)
@@ -1609,35 +1591,47 @@ int N_VScaleVectorArray_Sycl(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
+  /* Shortcuts to the fused op workspace arrays */
+  realtype*  cdata = NULL;
+  realtype** xdata = NULL;
+  realtype** zdata = NULL;
+
   /* Setup the fused op workspace */
-  if (InitializeFusedScalarArray(Z[0], c, nvec))
+  if (FusedBuffer_Init(Z[0], nvec, 2 * nvec))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: InitializeFusedScalarArray returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: FusedBuffer_Init returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray1D(Z[0], X, nvec, 0))
+  if (FusedBuffer_CopyRealArray(Z[0], c, nvec, &cdata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: FusedBuffer_CopyReadArray returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray1D(Z[0], Z, nvec, 1))
+  if (FusedBuffer_CopyPtrArray1D(Z[0], X, nvec, &xdata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(Z[0]))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: FusedBuffer_CopyToDevice returned nonzero\n");
     return -1;
   }
 
   if (GetKernelParameters(Z[0], SUNFALSE, nthreads_total, nthreads_per_block))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
     return -1;
   }
-
-  /* Shortcuts to the fused op workspace arrays */
-  realtype*  cdata = NVEC_SYCL_FSCALARSp(Z[0]);
-  realtype** xdata = NVEC_SYCL_FDPTRS1Dp(Z[0],0);
-  realtype** zdata = NVEC_SYCL_FDPTRS1Dp(Z[0],1);
 
   SYCL_FOR(Q, nthreads_total, nthreads_per_block, item,
            GRID_STRIDE_XLOOP(item, i, N)
@@ -1658,10 +1652,25 @@ int N_VConstVectorArray_Sycl(int nvec, realtype c, N_Vector* Z)
   sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
+  /* Shortcuts to the fused op workspace arrays */
+  realtype** zdata = NULL;
+
   /* Setup the fused op workspace */
-  if (InitializeFusedDataPtrArray1D(Z[0], Z, nvec, 0))
+  if (FusedBuffer_Init(Z[0], 0, nvec))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Sycl: FusedBuffer_Init returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(Z[0]))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Sycl: FusedBuffer_CopyToDevice returned nonzero\n");
     return -1;
   }
 
@@ -1670,9 +1679,6 @@ int N_VConstVectorArray_Sycl(int nvec, realtype c, N_Vector* Z)
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Sycl: GetKernelParameters returned nonzero\n");
     return -1;
   }
-
-  /* Shortcuts to the fused op workspace arrays */
-  realtype** zdata = NVEC_SYCL_FDPTRS1Dp(Z[0],0);
 
   SYCL_FOR(Q, nthreads_total, nthreads_per_block, item,
            GRID_STRIDE_XLOOP(item, i, N)
@@ -1694,28 +1700,46 @@ int N_VScaleAddMultiVectorArray_Sycl(int nvec, int nsum, realtype* c,
   sycl::queue        *Q = NVEC_SYCL_QUEUE(X[0]);
   size_t             nthreads_total, nthreads_per_block;
 
+  /* Shortcuts to the fused op workspace */
+  realtype*  cdata = NULL;
+  realtype** xdata = NULL;
+  realtype** ydata = NULL;
+  realtype** zdata = NULL;
+
   /* Setup the fused op workspace */
-  if (InitializeFusedScalarArray(X[0], c, nsum))
+  if (FusedBuffer_Init(X[0], nsum, nvec + 2 * nvec * nsum))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiArray_Sycl: InitializeFusedScalarArray returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiArray_Sycl: FusedBuffer_Init returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray1D(X[0], X, nvec, 0))
+  if (FusedBuffer_CopyRealArray(X[0], c, nsum, &cdata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiArray_Sycl: FusedBuffer_CopyRealArray returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray2D(X[0], Y, nvec, nsum, 0))
+  if (FusedBuffer_CopyPtrArray1D(X[0], X, nvec, &xdata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Sycl: InitializeFusedDataPtrArray2D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray2D(X[0], Z, nvec, nsum, 1))
+  if (FusedBuffer_CopyPtrArray2D(X[0], Y, nvec, nsum, &ydata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Sycl: InitializeFusedDataPtrArray2D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Sycl: FusedBuffer_CopyPtrArray2D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray2D(X[0], Z, nvec, nsum, &zdata))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Sycl: FusedBuffer_CopyPtrArray2D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(X[0]))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: FusedBuffer_CopyToDevice returned nonzero\n");
     return -1;
   }
 
@@ -1724,12 +1748,6 @@ int N_VScaleAddMultiVectorArray_Sycl(int nvec, int nsum, realtype* c,
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Sycl: GetKernelParameters returned nonzero\n");
     return -1;
   }
-
-  /* Shortcuts to the fused op workspace arrays */
-  realtype*  cdata = NVEC_SYCL_FSCALARSp(X[0]);
-  realtype** xdata = NVEC_SYCL_FDPTRS1Dp(X[0],0);
-  realtype** ydata = NVEC_SYCL_FDPTRS2Dp(X[0],0);
-  realtype** zdata = NVEC_SYCL_FDPTRS2Dp(X[0],1);
 
   SYCL_FOR(Q, nthreads_total, nthreads_per_block, item,
            GRID_STRIDE_XLOOP(item, i, N)
@@ -1755,22 +1773,39 @@ int N_VLinearCombinationVectorArray_Sycl(int nvec, int nsum, realtype* c,
   sycl::queue        *Q = NVEC_SYCL_QUEUE(Z[0]);
   size_t             nthreads_total, nthreads_per_block;
 
+  /* Shortcuts to the fused op workspace arrays */
+  realtype*  cdata = NULL;
+  realtype** xdata = NULL;
+  realtype** zdata = NULL;
+
   /* Setup the fused op workspace */
-  if (InitializeFusedScalarArray(Z[0], c, nsum))
+  if (FusedBuffer_Init(Z[0], nsum, nvec + nvec * nsum))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: InitializeFusedScalarArray returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: FusedBuffer_Init returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray2D(Z[0], X, nvec, nsum, 0))
+  if (FusedBuffer_CopyRealArray(Z[0], c, nsum, &cdata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: InitializeFusedDataPtrArray2D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: FusedBuffer_CopyRealArray returned nonzero\n");
     return -1;
   }
 
-  if (InitializeFusedDataPtrArray1D(Z[0], Z, nvec, 0))
+  if (FusedBuffer_CopyPtrArray2D(Z[0], X, nvec, nsum, &xdata))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: InitializeFusedDataPtrArray1D returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: FusedBuffer_CopyPtrArray2D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+    return -1;
+  }
+
+  if (FusedBuffer_CopyToDevice(Z[0]))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: FusedBuffer_CopyToDevice returned nonzero\n");
     return -1;
   }
 
@@ -1779,11 +1814,6 @@ int N_VLinearCombinationVectorArray_Sycl(int nvec, int nsum, realtype* c,
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: GetKernelParameters returned nonzero\n");
     return -1;
   }
-
-  /* Shortcuts to the fused op workspace arrays */
-  realtype*  cdata = NVEC_SYCL_FSCALARSp(Z[0]);
-  realtype** xdata = NVEC_SYCL_FDPTRS2Dp(Z[0],0);
-  realtype** zdata = NVEC_SYCL_FDPTRS1Dp(Z[0],0);
 
   SYCL_FOR(Q, nthreads_total, nthreads_per_block, item,
            GRID_STRIDE_XLOOP(item, i, N)
@@ -2138,227 +2168,175 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
 }
 
 
-static int InitializeFusedScalarArray(N_Vector v, realtype* c_data, int nvals)
+static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
 {
   int         alloc_fail = 0;
-  int         copy_fail  = 0;
   booleantype alloc_mem  = SUNFALSE;
-  size_t      bytes      = nvals * sizeof(realtype);
-
-  /* get the vector private memory structure */
-  N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
-
-  /* create a wrapper for the host array */
-  SUNMemory c_mem = SUNMemoryHelper_Wrap(c_data, SUNMEMTYPE_HOST);
-
-  /* check if the existing memory is not large enough */
-  if (vcp->fused_scalars_bytes < bytes)
-  {
-    FreeFusedScalarArray(v);
-    alloc_mem = SUNTRUE;
-  }
-
-  if (alloc_mem)
-  {
-    alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
-                                       &(vcp->fused_scalars_dev), bytes,
-                                       SUNMEMTYPE_DEVICE);
-    if (alloc_fail)
-    {
-      SUNDIALS_DEBUG_PRINT("ERROR in InitializeFusedScalarArra: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
-    }
-  }
-
-  if (!alloc_fail)
-  {
-    /* store the size of the fused op scalar array */
-    vcp->fused_scalars_bytes = bytes;
-
-    /* copy array of sclars to the device */
-    copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(v),
-                                     vcp->fused_scalars_dev, c_mem, bytes);
-
-    if (copy_fail)
-    {
-      SUNDIALS_DEBUG_PRINT("ERROR in InitializeFusedScalarArra: SUNMemoryHelper_Copy failed\n");
-    }
-  }
-
-  /* deallocate the wrapper */
-  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), c_mem);
-
-  return ((alloc_fail || copy_fail) ? -1 : 0);
-}
-
-
-/* Free the fused scalar array */
-static void FreeFusedScalarArray(N_Vector v)
-{
-  N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
-
-  if (vcp == NULL) return;
-
-  if (vcp->fused_scalars_dev)
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v),
-                            vcp->fused_scalars_dev);
-  vcp->fused_scalars_dev   = NULL;
-  vcp->reduce_buffer_bytes = 0;
-}
-
-
-static int InitializeFusedDataPtrArray1D(N_Vector v, N_Vector *X, int nvec,
-                                         int idx)
-{
-  int         alloc_fail = 0;
-  int         copy_fail  = 0;
-  booleantype alloc_mem  = SUNFALSE;
-  size_t      bytes      = nvec * sizeof(realtype*);
+  size_t      bytes      = nreal * sizeof(realtype) + nptr * sizeof(realtype*);
 
   /* Get the vector private memory structure */
   N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
 
   /* Check if the existing memory is not large enough */
-  if (vcp->fused_dptrs_1d_bytes[idx] < bytes)
+  if (vcp->fused_buffer_bytes < bytes)
   {
-    FreeFusedDataPtrArray1D(v, idx);
+    FusedBuffer_Free(v);
     alloc_mem = SUNTRUE;
   }
 
   if (alloc_mem)
   {
+    /* allocate pinned memory on the host */
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
-                                       &(vcp->fused_dptrs_1d_host[idx]),
-                                       bytes,
-                                       SUNMEMTYPE_HOST);
+                                       &(vcp->fused_buffer_host), bytes,
+                                       SUNMEMTYPE_PINNED);
     if (alloc_fail)
     {
-      SUNDIALS_DEBUG_PRINT("ERROR in InitializeFusedDataPtrArray1D: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
-      return -1;
+      SUNDIALS_DEBUG_PRINT("WARNING in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
+
+      /* if pinned alloc failed, allocate plain host memory */
+      alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
+                                         &(vcp->fused_buffer_host), bytes,
+                                         SUNMEMTYPE_HOST);
+      if (alloc_fail)
+      {
+        SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
+        return -1;
+      }
     }
 
+    /* allocate device memory */
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
-                                       &(vcp->fused_dptrs_1d_dev[idx]),
-                                       bytes,
+                                       &(vcp->fused_buffer_dev), bytes,
                                        SUNMEMTYPE_DEVICE);
     if (alloc_fail)
     {
-      SUNDIALS_DEBUG_PRINT("ERROR in InitializeFusedDataPtrArray1D: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
+      SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
       return -1;
     }
+
+    /* Store the size of the fused op buffer */
+    vcp->fused_buffer_bytes = bytes;
   }
 
-  /* Store the size of the fused op data ptr array */
-  vcp->fused_dptrs_1d_bytes[idx] = bytes;
-
-  /* Fill the host memory with the pointers */
-  realtype** h_array = (realtype**) vcp->fused_dptrs_1d_host[idx]->ptr;
-
-  for (int j = 0; j < nvec; j++)
-  {
-    h_array[j] = NVEC_SYCL_DDATAp(X[j]);
-  }
-
-  /* Copy the host memory to the device */
-  copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(v),
-                                   vcp->fused_dptrs_1d_dev[idx],
-                                   vcp->fused_dptrs_1d_host[idx],
-                                   bytes);
-
-  if (copy_fail)
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in InitializeFusedDataPtrArray1D: SUNMemoryHelper_Copy failed\n");
-    return -1;
-  }
+  /* Reset the buffer offset */
+  vcp->fused_buffer_offset = 0;
 
   return 0;
 }
 
 
-/* Free the fused 1D datat pointer array */
-static void FreeFusedDataPtrArray1D(N_Vector v, int idx)
+static int FusedBuffer_CopyRealArray(N_Vector v, realtype *rdata, int nval,
+                                     realtype **shortcut)
 {
-  N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
-
-  if (vcp == NULL) return;
-
-  if (vcp->fused_dptrs_1d_host[idx])
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v),
-                            vcp->fused_dptrs_1d_host[idx]);
-  vcp->fused_dptrs_1d_host[idx] = NULL;
-
-  if (vcp->fused_dptrs_1d_dev[idx])
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v),
-                            vcp->fused_dptrs_1d_dev[idx]);
-  vcp->fused_dptrs_1d_dev[idx] = NULL;
-
-  vcp->fused_dptrs_1d_bytes[idx] = 0;
-}
-
-
-static int InitializeFusedDataPtrArray2D(N_Vector v, N_Vector **X, int nvec,
-                                         int nsum, int idx)
-{
-  int         alloc_fail = 0;
-  int         copy_fail  = 0;
-  booleantype alloc_mem  = SUNFALSE;
-  size_t      bytes      = nvec * nsum * sizeof(realtype*);
-
   /* Get the vector private memory structure */
   N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
 
-  /* Check if the existing memory is not large enough */
-  if (vcp->fused_dptrs_2d_bytes[idx] < bytes)
+  /* Check buffer space and fill the host buffer */
+  if (vcp->fused_buffer_offset >= vcp->fused_buffer_bytes)
   {
-    FreeFusedDataPtrArray2D(v, idx);
-    alloc_mem = SUNTRUE;
+    SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyRealArray: Buffer offset is exceedes the buffer size\n");
+    return -1;
   }
 
-  if (alloc_mem)
-  {
-    alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
-                                       &(vcp->fused_dptrs_2d_host[idx]),
-                                       bytes,
-                                       SUNMEMTYPE_HOST);
-    if (alloc_fail)
-    {
-      SUNDIALS_DEBUG_PRINT("ERROR in InitializeFusedDataPtrArray2D: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
-      return -1;
-    }
+  realtype* h_buffer = (realtype*) ((char*)(vcp->fused_buffer_host->ptr) +
+                                    vcp->fused_buffer_offset);
 
-    alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
-                                       &(vcp->fused_dptrs_2d_dev[idx]),
-                                       bytes,
-                                       SUNMEMTYPE_DEVICE);
-    if (alloc_fail)
-    {
-      SUNDIALS_DEBUG_PRINT("ERROR in InitializeFusedDataPtrArray2D: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
-      return -1;
-    }
+  for (int j = 0; j < nval; j++)
+  {
+    h_buffer[j] = rdata[j];
   }
 
-  /* Store the size of the fused op data ptr array */
-  vcp->fused_dptrs_2d_bytes[idx] = bytes;
+  /* Set shortcut to the device buffer and update offset*/
+  *shortcut = (realtype*) ((char*)(vcp->fused_buffer_dev->ptr) +
+                           vcp->fused_buffer_offset);
 
-  /* Fill the host memory with the pointers */
-  realtype** h_array = (realtype**) vcp->fused_dptrs_2d_host[idx]->ptr;
+  vcp->fused_buffer_offset += nval * sizeof(realtype);
+
+  return 0;
+}
+
+
+static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,
+                                      realtype ***shortcut)
+{
+  /* Get the vector private memory structure */
+  N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
+
+  /* Check buffer space and fill the host buffer */
+  if (vcp->fused_buffer_offset >= vcp->fused_buffer_bytes)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyPtrArray1D: Buffer offset is exceedes the buffer size\n");    return -1;
+    return -1;
+  }
+
+  realtype** h_buffer = (realtype**) ((char*)(vcp->fused_buffer_host->ptr) +
+                                      vcp->fused_buffer_offset);
+
+  for (int j = 0; j < nvec; j++)
+  {
+    h_buffer[j] = NVEC_SYCL_DDATAp(X[j]);
+  }
+
+  /* Set shortcut to the device buffer and update offset*/
+  *shortcut = (realtype**) ((char*)(vcp->fused_buffer_dev->ptr) +
+                            vcp->fused_buffer_offset);
+
+  vcp->fused_buffer_offset += nvec * sizeof(realtype*);
+
+  return 0;
+}
+
+
+static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,
+                                      int nsum, realtype ***shortcut)
+{
+  /* Get the vector private memory structure */
+  N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
+
+  /* Check buffer space and fill the host buffer */
+  if (vcp->fused_buffer_offset >= vcp->fused_buffer_bytes)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyPtrArray2D: Buffer offset is exceedes the buffer size\n");
+    return -1;
+  }
+
+  realtype** h_buffer = (realtype**) ((char*)(vcp->fused_buffer_host->ptr) +
+                                      vcp->fused_buffer_offset);
 
   for (int j = 0; j < nvec; j++)
   {
     for (int k = 0; k < nsum; k++)
     {
-      h_array[j * nsum + k] = NVEC_SYCL_DDATAp(X[k][j]);
+      h_buffer[j * nsum + k] = NVEC_SYCL_DDATAp(X[k][j]);
     }
   }
 
-  /* Copy the host memory to the device */
-  copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(v),
-                                   vcp->fused_dptrs_2d_dev[idx],
-                                   vcp->fused_dptrs_2d_host[idx],
-                                   bytes);
+  /* Set shortcut to the device buffer and update offset*/
+  *shortcut = (realtype**) ((char*)(vcp->fused_buffer_dev->ptr) +
+                            vcp->fused_buffer_offset);
 
+  /* Update the offset */
+  vcp->fused_buffer_offset += nvec * nsum * sizeof(realtype*);
+
+  return 0;
+}
+
+
+static int FusedBuffer_CopyToDevice(N_Vector v)
+{
+  /* Get the vector private memory structure */
+  N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
+
+  /* Copy the fused buffer to the device */
+  int copy_fail = SUNMemoryHelper_CopyAsync(NVEC_SYCL_MEMHELP(v),
+                                            vcp->fused_buffer_dev,
+                                            vcp->fused_buffer_host,
+                                            vcp->fused_buffer_offset,
+                                            (void*) NVEC_SYCL_QUEUE(v));
   if (copy_fail)
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in InitializeFusedDataPtrArray2D: SUNMemoryHelper_Copy failed\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyToDevice: SUNMemoryHelper_CopyAsync failed\n");
     return -1;
   }
 
@@ -2366,24 +2344,30 @@ static int InitializeFusedDataPtrArray2D(N_Vector v, N_Vector **X, int nvec,
 }
 
 
-/* Free the fused 2D data pointer array */
-static void FreeFusedDataPtrArray2D(N_Vector v, int idx)
+static int FusedBuffer_Free(N_Vector v)
 {
   N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
 
-  if (vcp == NULL) return;
+  if (vcp == NULL) return 0;
 
-  if (vcp->fused_dptrs_2d_host[idx])
+  if (vcp->fused_buffer_host)
+  {
     SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v),
-                            vcp->fused_dptrs_2d_host[idx]);
-  vcp->fused_dptrs_2d_host[idx] = NULL;
+                            vcp->fused_buffer_host);
+    vcp->fused_buffer_host = NULL;
+  }
 
-  if (vcp->fused_dptrs_2d_dev[idx])
+  if (vcp->fused_buffer_dev)
+  {
     SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v),
-                            vcp->fused_dptrs_2d_dev[idx]);
-  vcp->fused_dptrs_2d_dev[idx] = NULL;
+                            vcp->fused_buffer_dev);
+    vcp->fused_buffer_dev = NULL;
+  }
 
-  vcp->fused_dptrs_2d_bytes[idx] = 0;
+  vcp->fused_buffer_bytes  = 0;
+  vcp->fused_buffer_offset = 0;
+
+  return 0;
 }
 
 
@@ -2401,9 +2385,7 @@ static int GetKernelParameters(N_Vector v, booleantype reduction,
 
   if (exec_policy == NULL)
   {
-#ifdef SUNDIALS_DEBUG
-    throw std::runtime_error("the execution policy is NULL");
-#endif
+    SUNDIALS_DEBUG_ERROR("The execution policy is NULL\n");
     return -1;
   }
 
@@ -2414,17 +2396,13 @@ static int GetKernelParameters(N_Vector v, booleantype reduction,
 
   if (nthreads_per_block == 0)
   {
-#ifdef SUNDIALS_DEBUG
-    throw std::runtime_error("the number of threads per block must be > 0");
-#endif
+    SUNDIALS_DEBUG_ERROR("The number of threads per block must be > 0\n");
     return -1;
   }
 
   if (nthreads_total == 0)
   {
-#ifdef SUNDIALS_DEBUG
-    throw std::runtime_error("the total number of threads must be > 0");
-#endif
+    SUNDIALS_DEBUG_ERROR("the total number of threads must be > 0\n");
     return -1;
   }
 

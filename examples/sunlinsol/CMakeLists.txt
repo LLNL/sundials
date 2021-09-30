@@ -14,7 +14,7 @@
 # examples/sunlinsol level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
-# Always add the serial sunlinearsolver dense/band/spils examples
+# Always add the serial sunlinearsolver dense and band examples
 add_subdirectory(band)
 add_subdirectory(dense)
 
@@ -31,7 +31,6 @@ if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(spbcgs/parallel)
   add_subdirectory(sptfqmr/parallel)
 endif()
-
 
 if(BUILD_SUNMATRIX_CUSPARSE)
   if(SUNDIALS_INDEX_SIZE MATCHES "32")
@@ -55,6 +54,10 @@ if(BUILD_SUNLINSOL_MAGMADENSE)
   add_subdirectory(magmadense)
 endif()
 
+if(BUILD_SUNLINSOL_ONEMKLDENSE)
+  add_subdirectory(onemkldense)
+endif()
+
 if(BUILD_SUNLINSOL_SUPERLUMT)
   add_subdirectory(superlumt)
 endif()
@@ -62,4 +65,3 @@ endif()
 if(BUILD_SUNLINSOL_SUPERLUDIST)
   add_subdirectory(superludist)
 endif()
-

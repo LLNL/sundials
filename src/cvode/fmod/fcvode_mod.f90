@@ -98,6 +98,7 @@ module fcvode_mod
  public :: FCVodeSetLSetupFrequency
  public :: FCVodeSetConstraints
  public :: FCVodeSetNonlinearSolver
+ public :: FCVodeSetNlsRhsFn
  public :: FCVodeSetUseIntegratorFusedKernels
  public :: FCVodeRootInit
  public :: FCVodeSetRootDirection
@@ -435,6 +436,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetNlsRhsFn(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetNlsRhsFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1605,6 +1615,22 @@ type(C_PTR) :: farg2
 farg1 = cvode_mem
 farg2 = c_loc(nls)
 fresult = swigc_FCVodeSetNonlinearSolver(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetNlsRhsFn(cvode_mem, f) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+type(C_FUNPTR), intent(in), value :: f
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = cvode_mem
+farg2 = f
+fresult = swigc_FCVodeSetNlsRhsFn(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -23,10 +23,10 @@
 
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
-#include "arkode_arkstep_impl.h"   /* need to improve API for user-supplied
-                                      inner stepper, so that direct access to
-                                      arkStep_SetInnerForcing and arkStep_FullRHS
-                                      are no longer needed, then remove this line */
+
+/* Access ARKStepCreateMRIStepInnerStepper. TODO(DJG): remove when MRIStepCreate
+   is updated to take an MRIStepInnerStepper */
+#include "arkode/arkode_arkstep.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -47,21 +47,6 @@ extern "C" {
 #define RDIV      RCONST(2.3)    /* declare divergence if ratio del/delp > RDIV */
 #define MSBP      20             /* max no. of steps between lsetup calls */
 #define NLSCOEF   RCONST(0.1)
-
-
-/*===============================================================
-  MRI function types
-  ===============================================================*/
-
-typedef int (*MRIStepSetInnerForcingFn)(void* inner_arkode_mem, realtype tshift,
-                                        realtype tscale, N_Vector *f,
-                                        int nvecs);
-
-typedef int (*MRIStepInnerEvolveFn)(void* inner_arkode_mem, realtype t0,
-                                    N_Vector y0, realtype tout);
-
-typedef int (*MRIStepInnerResetFn)(void* inner_arkode_mem, realtype tR,
-                                   N_Vector yR);
 
 /*===============================================================
   MRI time step module data structure
@@ -96,6 +81,7 @@ typedef struct ARKodeMRIStepMemRec {
   int                istage;     /* current stage index                      */
   SUNNonlinearSolver NLS;        /* generic SUNNonlinearSolver object        */
   booleantype        ownNLS;     /* flag indicating ownership of NLS         */
+  ARKRhsFn           nls_fs;     /* fs(t,y) used in the nonlinear solver     */
   realtype           gamma;      /* gamma = h * A(i,i)                       */
   realtype           gammap;     /* gamma at the last setup call             */
   realtype           gamrat;     /* gamma / gammap                           */
@@ -126,18 +112,10 @@ typedef struct ARKodeMRIStepMemRec {
   ARKLinsolFreeFn    lfree;
   void              *lmem;
 
-  /* Inner stepper data */
-  void              *inner_mem;         /* inner stepper memory            */
-  N_Vector          *inner_forcing;     /* RHS forcing vectors             */
-  int                inner_num_forcing; /* number of RHS forcing vectors   */
-  int                inner_retval;      /* last inner stepper return value */
-  MRISTEP_ID         inner_stepper_id;  /* inner stepper identifier        */
-
-  /* Inner-stepper-supplied functions */
-  MRIStepSetInnerForcingFn inner_setforcing; /* set inner forcing data  */
-  MRIStepInnerEvolveFn     inner_evolve;     /* inner evolve function   */
-  ARKTimestepFullRHSFn     inner_fullrhs;    /* inner full RHS function */
-  MRIStepInnerResetFn      inner_reset;      /* inner reset function    */
+  /* Inner stepper TODO(DJG): remove id when MRIStepCreate is updated to take an
+     MRIStepInnerStepper as input */
+  MRIStepInnerStepper stepper;
+  MRISTEP_ID          id;
 
   /* User-supplied pre and post inner evolve functions */
   MRIStepPreInnerFn  pre_inner_evolve;
@@ -153,6 +131,43 @@ typedef struct ARKodeMRIStepMemRec {
   N_Vector* Xvecs;
 
 } *ARKodeMRIStepMem;
+
+
+/*===============================================================
+  MRI innter time stepper data structure
+  ===============================================================*/
+
+typedef struct _MRIStepInnerStepper_Ops *MRIStepInnerStepper_Ops;
+
+struct _MRIStepInnerStepper_Ops
+{
+  MRIStepInnerEvolveFn  evolve;
+  MRIStepInnerFullRhsFn fullrhs;
+  MRIStepInnerResetFn   reset;
+};
+
+struct _MRIStepInnerStepper
+{
+  /* stepper specific content and operations */
+  void*                   content;
+  MRIStepInnerStepper_Ops ops;
+
+  /* base class data */
+  N_Vector*  forcing;    /* array of forcing vectors   */
+  int        nforcing;   /* number of forcing vectors  */
+  int        last_flag;  /* last stepper return flag   */
+  realtype   tshift;     /* time normalization shift   */
+  realtype   tscale;     /* time normalization scaling */
+
+  /* Pointer to outer memory structure. TODO(DJG): this can be removed when the
+     alloc, free, and resize utility functions and the error handler don't need
+     ark_mem as an input. */
+  ARKodeMem outer_mem;
+
+  /* fused op workspace */
+  realtype* vals;
+  N_Vector* vecs;
+};
 
 
 /*===============================================================
@@ -205,16 +220,30 @@ int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         realtype tol, N_Vector ewt, void* arkode_mem);
 
 
-/* Attach ARKStep inner stepper */
-int mriStep_AttachARK(void* arkode_mem, void* inner_arkode_mem);
+/* ARKStep inner stepper functions */
+int mriStepInnerStepper_ARKStep(void *inner_arkode_mem,
+                                MRIStepInnerStepper *stepper);
+int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper);
+int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper,
+                               realtype t0, realtype tout, N_Vector y);
+int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper,
+                                realtype t, N_Vector y, N_Vector f,
+                                int mode);
+int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper,
+                              realtype tR, N_Vector yR);
+int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
+                                  N_Vector tmpl);
+int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper,
+                               ARKVecResizeFn resize, void* resize_data,
+                               sunindextype lrw_diff, sunindextype liw_diff,
+                               N_Vector tmpl);
+int mriStepInnerStepper_FreeVecs(MRIStepInnerStepper stepper);
+void mriStepInnerStepper_PrintMem(MRIStepInnerStepper stepper,
+                                  FILE* outfile);
 
 /* Compute forcing for inner stepper */
 int mriStep_ComputeInnerForcing(ARKodeMRIStepMem step_mem, int stage,
                                 realtype cdiff);
-
-/* Evolve ARKStep inner stepper */
-int mriStep_EvolveInnerARK(void* inner_arkode_mem, realtype t0,
-                           N_Vector y0, realtype tout);
 
 /* Return stage type (implicit/explicit + fast/nofast) */
 int mriStep_StageType(MRIStepCoupling MRIC, int is);

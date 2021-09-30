@@ -70,7 +70,8 @@ extern "C" {
 typedef enum {
   SUNLINEARSOLVER_DIRECT,
   SUNLINEARSOLVER_ITERATIVE,
-  SUNLINEARSOLVER_MATRIX_ITERATIVE
+  SUNLINEARSOLVER_MATRIX_ITERATIVE,
+  SUNLINEARSOLVER_MATRIX_EMBEDDED
 } SUNLinearSolver_Type;
 
 typedef enum {
@@ -88,6 +89,7 @@ typedef enum {
   SUNLINEARSOLVER_SUPERLUMT,
   SUNLINEARSOLVER_CUSOLVERSP_BATCHQR,
   SUNLINEARSOLVER_MAGMADENSE,
+  SUNLINEARSOLVER_ONEMKLDENSE,
   SUNLINEARSOLVER_CUSTOM
 } SUNLinearSolver_ID;
 
@@ -111,6 +113,7 @@ struct _generic_SUNLinearSolver_Ops {
                                             PSetupFn, PSolveFn);
   int                  (*setscalingvectors)(SUNLinearSolver,
                                             N_Vector, N_Vector);
+  int                  (*setzeroguess)(SUNLinearSolver, booleantype);
   int                  (*initialize)(SUNLinearSolver);
   int                  (*setup)(SUNLinearSolver, SUNMatrix);
   int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector,
@@ -152,6 +155,8 @@ SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
 
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1,
                                                N_Vector s2);
+
+SUNDIALS_EXPORT int SUNLinSolSetZeroGuess(SUNLinearSolver S, booleantype onoff);
 
 SUNDIALS_EXPORT int SUNLinSolInitialize(SUNLinearSolver S);
 

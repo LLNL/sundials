@@ -22,6 +22,9 @@
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
 
+/* access to MRIStepInnerStepper_Create */
+#include "arkode/arkode_mristep.h"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -88,6 +91,7 @@ typedef struct ARKodeARKStepMemRec {
   /* (Non)Linear solver parameters & data */
   SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
   booleantype     ownNLS;   /* flag indicating ownership of NLS      */
+  ARKRhsFn nls_fi;          /* fi(t,y) used in the nonlinear solver  */
   realtype gamma;        /* gamma = h * A(i,i)                       */
   realtype gammap;       /* gamma at the last setup call             */
   realtype gamrat;       /* gamma / gammap                           */
@@ -212,9 +216,16 @@ int arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         realtype tol, N_Vector ewt, void* arkode_mem);
 
-/* private functions used by MRIStep */
+/* private functions for interfacing with MRIStep */
 int arkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,
                             N_Vector *f, int nvecs);
+int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
+                               realtype t0, realtype tout, N_Vector y);
+int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, realtype t,
+                                N_Vector y, N_Vector f, int mode);
+int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, realtype tR,
+                              N_Vector yR);
+
 
 /*===============================================================
   Reusable ARKStep Error Messages

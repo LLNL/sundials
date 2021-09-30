@@ -65,7 +65,7 @@ macro(print_warning message action)
   message(${_mode} ${MSG})
 endmacro()
 
-# Macro to print error messages. Takes
+# Macro to print error messages.
 
 macro(print_error message)
   set(options )
@@ -111,7 +111,26 @@ macro(EXAMPLES2STRING example_list example_string)
   list2string(tmp_list ${example_string})
 endmacro(EXAMPLES2STRING)
 
+# Sets the SUNDIALS_GIT_VERSION variable
+
+function(sundials_git_version)
+  find_package(Git QUIET)
+
+  set(_tmp "")
+
+  if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/.git AND ${GIT_FOUND})
+    execute_process(COMMAND git describe --abbrev=12 --dirty --always --tags
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+        OUTPUT_VARIABLE _tmp)
+    string(STRIP "${_tmp}" _tmp)
+  endif()
+
+  set(SUNDIALS_GIT_VERSION "${_tmp}" CACHE INTERNAL "")
+  unset(_tmp)
+endfunction()
+
 # Macros from other files
+
 include(SundialsAddLibrary)
 include(SundialsAddTest)
 include(SundialsAddTestInstall)

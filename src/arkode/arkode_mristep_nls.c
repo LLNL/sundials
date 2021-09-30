@@ -118,6 +118,42 @@ int MRIStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
     return(ARK_ILL_INPUT);
   }
 
+  /* set the nonlinear system RHS function */
+  if (!(step_mem->fs)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
+                    "MRIStepSetNonlinearSolver",
+                    "The implicit slow ODE RHS function is NULL");
+    return(ARK_ILL_INPUT);
+  }
+  step_mem->nls_fs = step_mem->fs;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  MRIStepSetNlsRhsFn:
+
+  This routine sets an alternative user-supplied slow ODE
+  right-hand side function to use in the evaluation of nonlinear
+  system functions.
+  ---------------------------------------------------------------*/
+int MRIStepSetNlsRhsFn(void *arkode_mem, ARKRhsFn nls_fs)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepSetNlsRhsFn",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  if (nls_fs)
+    step_mem->nls_fs = nls_fs;
+  else
+    step_mem->nls_fs = step_mem->fs;
+
   return(ARK_SUCCESS);
 }
 
@@ -285,6 +321,11 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor,
                              ark_mem->ewt, step_mem->nlscoef, callLSetup, ark_mem);
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  printf("    MRIStep nonlinear solution zcor:\n");
+  N_VPrint(step_mem->zcor);
+#endif
+
   /* apply the correction to construct ycur */
   N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
 
@@ -422,9 +463,9 @@ int mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
   /* compute slow RHS and save for later */
-  retval = step_mem->fs(ark_mem->tcur, ark_mem->ycur,
-                        step_mem->F[step_mem->istage],
-                        ark_mem->user_data);
+  retval = step_mem->nls_fs(ark_mem->tcur, ark_mem->ycur,
+                            step_mem->F[step_mem->istage],
+                            ark_mem->user_data);
   step_mem->nfs++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -479,9 +520,9 @@ int mriStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
   /* compute slow RHS and save for later */
-  retval = step_mem->fs(ark_mem->tcur, ark_mem->ycur,
-                        step_mem->F[step_mem->istage],
-                        ark_mem->user_data);
+  retval = step_mem->nls_fs(ark_mem->tcur, ark_mem->ycur,
+                            step_mem->F[step_mem->istage],
+                            ark_mem->user_data);
   step_mem->nfs++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);

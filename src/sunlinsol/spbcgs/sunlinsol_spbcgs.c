@@ -93,6 +93,7 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl)
   S->ops->setatimes         = SUNLinSolSetATimes_SPBCGS;
   S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPBCGS;
   S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPBCGS;
+  S->ops->setzeroguess      = SUNLinSolSetZeroGuess_SPBCGS;
   S->ops->initialize        = SUNLinSolInitialize_SPBCGS;
   S->ops->setup             = SUNLinSolSetup_SPBCGS;
   S->ops->solve             = SUNLinSolSolve_SPBCGS;
@@ -115,6 +116,7 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl)
   content->last_flag   = 0;
   content->maxl        = maxl;
   content->pretype     = pretype;
+  content->zeroguess   = SUNFALSE;
   content->numiters    = 0;
   content->resnorm     = ZERO;
   content->r_star      = NULL;
@@ -289,6 +291,16 @@ int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S, N_Vector s1,
 }
 
 
+int SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S, booleantype onoff)
+{
+  /* set flag indicating a zero initial guess */
+  if (S == NULL) return(SUNLS_MEM_NULL);
+  SPBCGS_CONTENT(S)->zeroguess = onoff;
+  LASTFLAG(S) = SUNLS_SUCCESS;
+  return(LASTFLAG(S));
+}
+
+
 int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
 {
   int ier;
@@ -306,7 +318,7 @@ int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
     ier = Psetup(PData);
     if (ier != 0) {
       LASTFLAG(S) = (ier < 0) ?
-	SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
+        SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
       return(LASTFLAG(S));
     }
   }
@@ -324,6 +336,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
   N_Vector r_star, r, p, q, u, Ap, vtemp;
   booleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
+  booleantype *zeroguess;
   int l, l_max, ier;
   void *A_data, *P_data;
   N_Vector sx, sb;
@@ -352,6 +365,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   P_data       = SPBCGS_CONTENT(S)->PData;
   atimes       = SPBCGS_CONTENT(S)->ATimes;
   psolve       = SPBCGS_CONTENT(S)->Psolve;
+  zeroguess    = &(SPBCGS_CONTENT(S)->zeroguess);
   nli          = &(SPBCGS_CONTENT(S)->numiters);
   res_norm     = &(SPBCGS_CONTENT(S)->resnorm);
 
@@ -367,6 +381,13 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   scale_x = (sx != NULL);
   scale_b = (sb != NULL);
 
+  /* Check for unsupported use case */
+  if (preOnRight && !(*zeroguess)) {
+    *zeroguess  = SUNFALSE;
+    LASTFLAG(S) = SUNLS_ILL_INPUT;
+    return(SUNLS_ILL_INPUT);
+  }
+
 #ifdef SUNDIALS_BUILD_WITH_MONITORING
   if (SPBCGS_CONTENT(S)->print_level && SPBCGS_CONTENT(S)->info_file)
     fprintf(SPBCGS_CONTENT(S)->info_file, "SUNLINSOL_SPBCGS:\n");
@@ -374,22 +395,26 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   /* Check if Atimes function has been set */
   if (atimes == NULL) {
+    *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_ATIMES_NULL;
     return(LASTFLAG(S));
   }
 
   /* If preconditioning, check if psolve has been set */
   if ((preOnLeft || preOnRight) && psolve == NULL) {
+    *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_PSOLVE_NULL;
     return(LASTFLAG(S));
   }
 
   /* Set r_star to initial (unscaled) residual r_0 = b - A*x_0 */
 
-  if (N_VDotProd(x, x) == ZERO) N_VScale(ONE, b, r_star);
-  else {
+  if (*zeroguess) {
+    N_VScale(ONE, b, r_star);
+  } else {
     ier = atimes(A_data, x, r_star);
     if (ier != 0) {
+      *zeroguess  = SUNFALSE;
       LASTFLAG(S) = (ier < 0) ?
         SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
       return(LASTFLAG(S));
@@ -402,6 +427,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (preOnLeft) {
     ier = psolve(P_data, r_star, r, delta, PREC_LEFT);
     if (ier != 0) {
+      *zeroguess  = SUNFALSE;
       LASTFLAG(S) = (ier < 0) ?
         SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
       return(LASTFLAG(S));
@@ -432,6 +458,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 #endif
 
   if (r_norm <= delta) {
+    *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_SUCCESS;
     return(LASTFLAG(S));
   }
@@ -440,6 +467,9 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   N_VScale(ONE, r_star, r);
   N_VScale(ONE, r_star, p);
+
+  /* Set x = sx x if non-zero guess */
+  if (scale_x && !(*zeroguess)) N_VProd(sx, x, x);
 
   /* Begin main iteration loop */
 
@@ -460,6 +490,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       N_VScale(ONE, vtemp, Ap);
       ier = psolve(P_data, Ap, vtemp, delta, PREC_RIGHT);
       if (ier != 0) {
+        *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
         return(LASTFLAG(S));
@@ -470,6 +501,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     ier = atimes(A_data, vtemp, Ap );
     if (ier != 0) {
+      *zeroguess  = SUNFALSE;
       LASTFLAG(S) = (ier < 0) ?
         SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
       return(LASTFLAG(S));
@@ -480,6 +512,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     if (preOnLeft) {
       ier = psolve(P_data, Ap, vtemp, delta, PREC_LEFT);
       if (ier != 0) {
+        *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
         return(LASTFLAG(S));
@@ -514,6 +547,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       N_VScale(ONE, vtemp, u);
       ier = psolve(P_data, u, vtemp, delta, PREC_RIGHT);
       if (ier != 0) {
+        *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
         return(LASTFLAG(S));
@@ -524,6 +558,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     ier = atimes(A_data, vtemp, u );
     if (ier != 0) {
+      *zeroguess  = SUNFALSE;
       LASTFLAG(S) = (ier < 0) ?
         SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
       return(LASTFLAG(S));
@@ -534,6 +569,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     if (preOnLeft) {
       ier = psolve(P_data, u, vtemp, delta, PREC_LEFT);
       if (ier != 0) {
+        *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
         return(LASTFLAG(S));
@@ -554,17 +590,26 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     omega = (N_VDotProd(u, q) / omega_denom);
 
     /* Update x = x + alpha*p + omega*q */
-    cv[0] = ONE;
-    Xv[0] = x;
+    if (l == 0 && *zeroguess) {
+      N_VLinearSum(alpha, p, omega, q, x);
+    } else {
+      cv[0] = ONE;
+      Xv[0] = x;
 
-    cv[1] = alpha;
-    Xv[1] = p;
+      cv[1] = alpha;
+      Xv[1] = p;
 
-    cv[2] = omega;
-    Xv[2] = q;
+      cv[2] = omega;
+      Xv[2] = q;
 
-    ier = N_VLinearCombination(3, cv, Xv, x);
-    if (ier != SUNLS_SUCCESS) return(SUNLS_VECTOROP_ERR);
+      ier = N_VLinearCombination(3, cv, Xv, x);
+      if (ier != SUNLS_SUCCESS) {
+        *zeroguess  = SUNFALSE;
+        LASTFLAG(S) = SUNLS_VECTOROP_ERR;
+        return(SUNLS_VECTOROP_ERR);
+      }
+
+    }
 
     /* Update the residual r = q - omega*u */
 
@@ -606,7 +651,11 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     Xv[2] = r;
 
     ier = N_VLinearCombination(3, cv, Xv, p);
-    if (ier != SUNLS_SUCCESS) return(SUNLS_VECTOROP_ERR);
+    if (ier != SUNLS_SUCCESS) {
+      *zeroguess  = SUNFALSE;
+      LASTFLAG(S) = SUNLS_VECTOROP_ERR;
+      return(SUNLS_VECTOROP_ERR);
+    }
 
     /* udpate beta_denom for next iteration */
     beta_denom = beta_num;
@@ -622,6 +671,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     if (preOnRight) {
       ier = psolve(P_data, x, vtemp, delta, PREC_RIGHT);
       if (ier != 0) {
+        *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
         return(LASTFLAG(S));
@@ -629,6 +679,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       N_VScale(ONE, vtemp, x);
     }
 
+    *zeroguess = SUNFALSE;
     if (converged == SUNTRUE)
       LASTFLAG(S) = SUNLS_SUCCESS;
     else
@@ -637,6 +688,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   }
   else {
+    *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_CONV_FAIL;
     return(LASTFLAG(S));
   }

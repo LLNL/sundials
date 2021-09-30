@@ -181,7 +181,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 
   /* compare data */
   for(i=0; i < Aldata; i++){
-    failure += FNEQ(Adata[i], Bdata[i], tol);
+    failure += SUNRCompareTol(Adata[i], Bdata[i], tol);
   }
 
   if (failure > ZERO)
@@ -203,13 +203,13 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
   /* compare data */
   Aldata = SUNDenseMatrix_LData(A);
   for(i=0; i < Aldata; i++){
-    failure += FNEQ(Adata[i], val, tol);
+    failure += SUNRCompareTol(Adata[i], val, tol);
   }
 
   if (failure > ZERO) {
     printf("Check_matrix_entry failures:\n");
     for(i=0; i < Aldata; i++)
-      if (FNEQ(Adata[i], val, tol) != 0)
+      if (SUNRCompareTol(Adata[i], val, tol) != 0)
         printf("  Adata[%ld] = %"GSYM" != %"GSYM" (err = %"GSYM")\n", (long int) i,
                Adata[i], val, SUNRabs(Adata[i]-val));
   }
@@ -242,12 +242,12 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
 
   /* check vector data */
   for(i=0; i < xldata; i++)
-    failure += FNEQ(xdata[i], ydata[i], tol);
+    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
 
   if (failure > ZERO) {
     printf("Check_vector failures:\n");
     for(i=0; i < xldata; i++)
-      if (FNEQ(xdata[i], ydata[i], tol) != 0)
+      if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0)
         printf("  xdata[%ld] = %"GSYM" != %"GSYM" (err = %"GSYM")\n", (long int) i,
                xdata[i], ydata[i], SUNRabs(xdata[i]-ydata[i]));
   }
@@ -273,4 +273,10 @@ booleantype is_square(SUNMatrix A)
     return SUNTRUE;
   else
     return SUNFALSE;
+}
+
+void sync_device(SUNMatrix A)
+{
+  /* not running on GPU, just return */
+  return;
 }

@@ -25,13 +25,11 @@ set(IDA_examples
 # Add source directory to include directories
 include_directories(.)
 
-# Specify libraries to link against
-set(IDA_LIB sundials_ida)
-set(NVECS_LIB sundials_nvecraja)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
+if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
+  set(_lang CUDA)
+else()
+  set(_lang CXX)
+endif()
 
 # Add the build and install targets for each IDA example
 foreach(example_tuple ${IDA_examples})
@@ -40,12 +38,19 @@ foreach(example_tuple ${IDA_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_type)
 
-  set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE CUDA)
+  set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE ${_lang})
 
   # add example source files
   add_executable(${example} ${example}.cpp)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+  # libraries to link against
+  target_link_libraries(${example}
+    PRIVATE
+    sundials_ida
+    sundials_nvecraja
+    ${EXTRA_LINK_LIBS})
 
   # add example to regression tests
   sundials_add_test(${example} ${example}
@@ -53,8 +58,6 @@ foreach(example_tuple ${IDA_examples})
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.cpp ${example}.out

@@ -36,7 +36,8 @@ extern "C" {
 
 /* Inner stepper module identifiers */
 typedef enum {
-  MRISTEP_ARKSTEP
+  MRISTEP_ARKSTEP,
+  MRISTEP_CUSTOM
 } MRISTEP_ID;
 
 /* MRI coupling table table accessor IDs:
@@ -58,6 +59,19 @@ typedef enum {
 #define DEFAULT_EXPL_MRI_TABLE_4      MRI_GARK_ERK45a
 #define DEFAULT_IMPL_SD_MRI_TABLE_4   MRI_GARK_ESDIRK34a
 
+/* ------------------------------------
+ * MRIStep Inner Stepper Function Types
+ * ------------------------------------ */
+
+typedef int (*MRIStepInnerEvolveFn)(MRIStepInnerStepper stepper,
+                                    realtype t0, realtype tout, N_Vector y);
+
+typedef int (*MRIStepInnerFullRhsFn)(MRIStepInnerStepper stepper,
+                                     realtype t, N_Vector y, N_Vector f,
+                                     int mode);
+
+typedef int (*MRIStepInnerResetFn)(MRIStepInnerStepper stepper,
+                                   realtype tR, N_Vector yR);
 
 /*---------------------------------------------------------------
   MRI coupling data structure and associated utility routines
@@ -159,6 +173,7 @@ SUNDIALS_EXPORT int MRIStepSetInterpolantDegree(void *arkode_mem, int degree);
 SUNDIALS_EXPORT int MRIStepSetDenseOrder(void *arkode_mem, int dord);
 SUNDIALS_EXPORT int MRIStepSetNonlinearSolver(void *arkode_mem,
                                               SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int MRIStepSetNlsRhsFn(void *arkode_mem, ARKRhsFn nls_fs);
 SUNDIALS_EXPORT int MRIStepSetLinear(void *arkode_mem, int timedepend);
 SUNDIALS_EXPORT int MRIStepSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int MRIStepSetCoupling(void *arkode_mem,
@@ -330,6 +345,34 @@ SUNDIALS_EXPORT void MRIStepFree(void **arkode_mem);
 /* Output the MRIStep memory structure (useful when debugging) */
 SUNDIALS_EXPORT void MRIStepPrintMem(void* arkode_mem, FILE* outfile);
 
+/* Custom inner stepper functions */
+SUNDIALS_EXPORT int MRIStepInnerStepper_Create(MRIStepInnerStepper *stepper);
+
+SUNDIALS_EXPORT int MRIStepInnerStepper_Free(MRIStepInnerStepper *stepper);
+
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetContent(MRIStepInnerStepper stepper,
+                                                   void *content);
+
+SUNDIALS_EXPORT int MRIStepInnerStepper_GetContent(MRIStepInnerStepper stepper,
+                                                   void **content);
+
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetEvolveFn(MRIStepInnerStepper stepper,
+                                                    MRIStepInnerEvolveFn fn);
+
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetFullRhsFn(MRIStepInnerStepper stepper,
+                                                     MRIStepInnerFullRhsFn fn);
+
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetResetFn(MRIStepInnerStepper stepper,
+                                                   MRIStepInnerResetFn fn);
+
+SUNDIALS_EXPORT int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper,
+                                                   realtype t, N_Vector f);
+
+SUNDIALS_EXPORT int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper,
+                                                       realtype *tshift,
+                                                       realtype *tscale,
+                                                       N_Vector **forcing,
+                                                       int *nforcing);
 
 #ifdef __cplusplus
 }

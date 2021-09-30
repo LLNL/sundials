@@ -36,6 +36,18 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
+if((SUNDIALS_RAJA_BACKENDS MATCHES "CUDA") AND (NOT ENABLE_CUDA))
+  message(FATAL_ERROR "RAJA with a CUDA backend requires ENABLE_CUDA = ON")
+endif()
+
+if((SUNDIALS_RAJA_BACKENDS MATCHES "HIP") AND (NOT ENABLE_HIP))
+  message(FATAL_ERROR "RAJA with a HIP backend requires ENABLE_HIP = ON")
+endif()
+
+if((SUNDIALS_RAJA_BACKENDS MATCHES "SYCL") AND (NOT ENABLE_SYCL))
+  message(FATAL_ERROR "RAJA with a SYCL backend requires ENABLE_SYCL = ON")
+endif()
+
 # -----------------------------------------------------------------------------
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
@@ -54,7 +66,7 @@ find_package(RAJA CONFIG
              REQUIRED)
 
 # determine the backends
-foreach(_backend CUDA HIP OPENMP TARGET_OPENMP)
+foreach(_backend CUDA HIP OPENMP TARGET_OPENMP SYCL)
   file(STRINGS "${RAJA_CONFIGHPP_PATH}" _raja_has_backend REGEX "^#define RAJA_ENABLE_${_backend}\$")
   if(_raja_has_backend)
     set(RAJA_BACKENDS "${_backend};${RAJA_BACKENDS}")
@@ -84,4 +96,9 @@ endif()
 
 if(NOT ENABLE_OPENMP_DEVICE AND RAJA_BACKENDS MATCHES "TARGET_OPENMP")
   print_error("RAJA was built with OpenMP device offloading, but OpenMP with device offloading is not enabled. Set ENABLE_OPENMP_DEVICE to ON.")
+endif()
+
+if((SUNDIALS_RAJA_BACKENDS MATCHES "SYCL") AND
+    (NOT RAJA_BACKENDS MATCHES "SYCL"))
+  print_error("Requested that SUNDIALS uses the SYCL RAJA backend, but RAJA was not built with the SYCL backend.")
 endif()

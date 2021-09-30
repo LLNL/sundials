@@ -47,12 +47,22 @@
 #include <math.h>
 
 #include <cvode/cvode.h>
-#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver        */
+#include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_raja.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
 #include <RAJA/RAJA.hpp>
+
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
+#define MY_EXEC RAJA::cuda_exec< 256 >
+#elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+#define MY_EXEC RAJA::hip_exec< 512 >
+#elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+#define MY_EXEC RAJA::sycl_exec< 256 >
+#else
+#error "Unsupported RAJA backend"
+#endif
 
 /* Real Constants */
 
@@ -118,6 +128,11 @@ int main(int argc, char** argv)
   LS = NULL;
   cvode_mem = NULL;
 
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  camp::resources::Resource* sycl_res = new camp::resources::Resource{camp::resources::Sycl()};
+  ::RAJA::sycl::detail::setQueue(sycl_res);
+#endif
+
   /* Set model parameters */
   data = SetUserData(argc, argv);
   if(check_retval((void *)data, "malloc", 2)) return(1);
@@ -132,7 +147,7 @@ int main(int argc, char** argv)
 
   SetIC(u, data);  /* Initialize u vector */
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -282,8 +297,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   const sunindextype zero = 0;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, NEQ),
-    [=] __device__(sunindextype index) {
+  RAJA::forall< MY_EXEC >(RAJA::RangeSegment(zero, NEQ),
+    [=] RAJA_DEVICE (sunindextype index) {
       sunindextype i = index/MY;
       sunindextype j = index%MY;
 
@@ -332,8 +347,8 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
   N_VConst(ZERO, Jv);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, NEQ),
-    [=] __device__(sunindextype index) {
+  RAJA::forall< MY_EXEC >(RAJA::RangeSegment(zero, NEQ),
+    [=] RAJA_DEVICE (sunindextype index) {
       sunindextype i = index/MY;
       sunindextype j = index%MY;
 

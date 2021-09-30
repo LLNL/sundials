@@ -475,6 +475,15 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
     return(CV_MEM_FAIL);
   }
 
+  /* Input checks complete at this point and history array allocated */
+
+  /* Copy the input parameters into CVODE state */
+  cv_mem->cv_f  = f;
+  cv_mem->cv_tn = t0;
+
+  /* Initialize zn[0] in the history array */
+  N_VScale(ONE, y0, cv_mem->cv_zn[0]);
+
   /* create a Newton nonlinear solver object by default */
   NLS = SUNNonlinSol_Newton(y0);
 
@@ -502,11 +511,6 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 
   /* All error checking is complete at this point */
 
-  /* Copy the input parameters into CVODE state */
-
-  cv_mem->cv_f  = f;
-  cv_mem->cv_tn = t0;
-
   /* Set step parameters */
 
   cv_mem->cv_q      = 1;
@@ -526,10 +530,6 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   cv_mem->cv_lsolve = NULL;
   cv_mem->cv_lfree  = NULL;
   cv_mem->cv_lmem   = NULL;
-
-  /* Initialize zn[0] in the history array */
-
-  N_VScale(ONE, y0, cv_mem->cv_zn[0]);
 
   /* Initialize all the counters */
 
@@ -1358,6 +1358,14 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     }
 
     nstloc++;
+
+    /* If tstop is set and was reached, reset tn = tstop */
+    if ( cv_mem->cv_tstopset ) {
+      troundoff = FUZZ_FACTOR * cv_mem->cv_uround *
+        (SUNRabs(cv_mem->cv_tn) + SUNRabs(cv_mem->cv_h));
+      if ( SUNRabs(cv_mem->cv_tn - cv_mem->cv_tstop) <= troundoff)
+        cv_mem->cv_tn = cv_mem->cv_tstop;
+    }
 
     /* Check for root in last step taken. */
     if (cv_mem->cv_nrtfn > 0) {

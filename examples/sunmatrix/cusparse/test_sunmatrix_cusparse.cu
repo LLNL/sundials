@@ -595,7 +595,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 
    /* compare matrix values */
    for(i=0; i<Annz; i++)
-     failure += FNEQ(Adata[i], Bdata[i], tol);
+     failure += SUNRCompareTol(Adata[i], Bdata[i], tol);
    if (failure > ZERO) {
      printf(">>> ERROR: check_matrix: Different entries \n");
      SUNMatDestroy(A); SUNMatDestroy(B);
@@ -620,7 +620,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 
    /* compare data */
    for(i=0; i < SUNMatrix_cuSparse_NNZ(dA); i++) {
-     failure += FNEQ(Adata[i], val, tol);
+     failure += SUNRCompareTol(Adata[i], val, tol);
    }
 
    free(Adata);
@@ -658,7 +658,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 
    /* check vector data */
    for(i=0; i < xldata; i++){
-     failure += FNEQ(xdata[i], ydata[i], tol);
+     failure += SUNRCompareTol(xdata[i], ydata[i], tol);
    }
 
    if (failure > ZERO)
@@ -683,3 +683,8 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
    else
      return SUNFALSE;
  }
+
+void sync_device(SUNMatrix A)
+{
+  cudaDeviceSynchronize();
+}

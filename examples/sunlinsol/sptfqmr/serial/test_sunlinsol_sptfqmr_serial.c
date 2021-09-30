@@ -61,7 +61,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 /*    uniform random number generator in [0,1] */
 static realtype urand();
 
-/* global copy of problem size (for check_vector routine) */
+/* global copy of the problem size (for check_vector routine) */
 sunindextype problem_size;
 
 /* ----------------------------------------------------------------------
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
   if (argc < 6) {
     printf("ERROR: FIVE (5) Inputs required:\n");
     printf("  Problem size should be >0\n");
-    printf("  Preconditioning type should be 1 or 2\n");
+    printf("  Preconditioning type should be 1 (LEFT) or 2 (RIGHT)\n");
     printf("  Maximum Krylov subspace dimension should be >0\n");
     printf("  Solver tolerance should be >0\n");
     printf("  timing output flag should be 0 or 1 \n");
@@ -123,7 +123,11 @@ int main(int argc, char *argv[])
     return 1;
   }
   pretype = atoi(argv[2]);
-  if ((pretype < 1) || (pretype > 2)) {
+  if (pretype == 1) {
+    pretype = PREC_LEFT;
+  } else if (pretype == 2) {
+    pretype = PREC_RIGHT;
+  } else {
     printf("ERROR: Preconditioning type must be either 1 or 2\n");
     return 1;
   }
@@ -176,6 +180,7 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup, PSolve, 0);
   fails += Test_SUNLinSolSetScalingVectors(LS, ProbData.s1, ProbData.s2, 0);
+  fails += Test_SUNLinSolSetZeroGuess(LS, 0);
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSpace(LS, 0);
   if (fails) {
@@ -202,7 +207,8 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -233,7 +239,11 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  if (pretype == PREC_LEFT) {
+    /* note a non-zero guess with right preconditioning is not supported */
+    fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
+  }
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -266,7 +276,8 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -299,7 +310,11 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  if (pretype == PREC_LEFT) {
+    /* note a non-zero guess with right preconditioning is not supported */
+    fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
+  }
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -332,7 +347,8 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -365,7 +381,11 @@ int main(int argc, char *argv[])
   /* Run tests with this setup */
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
-  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
+  fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
+  if (pretype == PREC_LEFT) {
+    /* note a non-zero guess with right preconditioning is not supported */
+    fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
+  }
   fails += Test_SUNLinSolLastFlag(LS, 0);
   fails += Test_SUNLinSolNumIters(LS, 0);
   fails += Test_SUNLinSolResNorm(LS, 0);
@@ -420,7 +440,7 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   /* perform product at the left domain boundary (note: v is zero at the boundary)*/
   z[0] = (FIVE*v[0]*s2[0] - v[1]*s2[1])/s1[0];
 
-  /* iterate through interior of local domain, performing product */
+  /* iterate through interior of the domain, performing product */
   for (i=1; i<N-1; i++)
     z[i] = (-v[i-1]*s2[i-1] + FIVE*v[i]*s2[i] - v[i+1]*s2[i+1])/s1[i];
 
@@ -504,14 +524,14 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   /* check vector data */
   for(i=0; i<problem_size; i++)
-    failure += FNEQ(Xdata[i], Ydata[i], FIVE*tol*SUNRabs(Xdata[i]));
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
   if (failure > ZERO) {
     maxerr = ZERO;
     for(i=0; i < problem_size; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i])/SUNRabs(Xdata[i]), maxerr);
     printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
-	   maxerr, FIVE*tol);
+	   maxerr, tol);
     return(1);
   }
   else

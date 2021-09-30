@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
                    N_VNew_Cuda(cols*nblocks); )
   y = N_VClone(x);
   b = N_VClone(x);
-  
+
   /* Allocate host data */
   Adata = (realtype*) malloc(sizeof(realtype)*SUNMatrix_MagmaDense_LData(A));
   Idata = (realtype*) malloc(sizeof(realtype)*SUNMatrix_MagmaDense_LData(I));
@@ -102,26 +102,26 @@ int main(int argc, char *argv[])
   for (k=0; k<nblocks; k++)
     for (j=0; j<cols; j++)
       for (i=0; i<rows; i++)
-        Adata[k*cols*rows + j*rows + i] = 
+        Adata[k*cols*rows + j*rows + i] =
             (realtype) rand() / (realtype) RAND_MAX / cols;
 
   /* Create anti-identity matrix */
   for (k=0; k<nblocks; k++)
     for(j=0; j<cols; j++)
       for (i=0; i<rows; i++)
-        Idata[k*cols*rows + j*rows + i] = 
+        Idata[k*cols*rows + j*rows + i] =
             ((rows-1-i) == j) ? RCONST(1.0) : RCONST(0.0);
 
   /* Add anti-identity to ensure the solver needs to do row-swapping */
   for (k=0; k<nblocks; k++)
     for (i=0; i<rows; i++)
       for(j=0; j<cols; j++)
-        Adata[k*cols*rows + j*rows + i] += 
+        Adata[k*cols*rows + j*rows + i] +=
             Idata[k*cols*rows + j*rows + i];
 
   SUNMatrix_MagmaDense_CopyToDevice(A, Adata);
   SUNMatrix_MagmaDense_CopyToDevice(I, Idata);
-    
+
   /* Fill x vector with uniform random data in [0,1] */
   xdata = N_VGetArrayPointer(x);
   for (j=0; j<cols*nblocks; j++)
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
     N_VDestroy(x);
     N_VDestroy(y);
     N_VDestroy(b);
-    
+
     free(Adata);
     free(Idata);
 
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, RCONST(1e-10), 0);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, RCONST(1e-10), SUNTRUE, 0);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_MAGMADENSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
   N_VDestroy(x);
   N_VDestroy(y);
   N_VDestroy(b);
-  
+
   free(Adata);
   free(Idata);
 
@@ -229,7 +229,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   /* check vector data */
   for(i=0; i < local_length; i++)
-    failure += FNEQ(Xdata[i], Ydata[i], tol);
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
   if (failure > ZERO) {
     maxerr = ZERO;

@@ -20,10 +20,10 @@
 # Currently only available in CVODE.
 # ---------------------------------------------------------------
 
-sundials_option(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS BOOL "Build specialized fused CUDA kernels" OFF
-                DEPENDS_ON ENABLE_CUDA CMAKE_CUDA_COMPILER BUILD_CVODE
+sundials_option(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS BOOL "Build specialized fused GPU kernels" OFF
+                DEPENDS_ON BUILD_CVODE
                 DEPENDS_ON_THROW_ERROR
-                SHOW_IF ENABLE_CUDA CMAKE_CUDA_COMPILER BUILD_CVODE)
+                SHOW_IF BUILD_CVODE)
 
 # ---------------------------------------------------------------
 # Options to enable/disable build for NVECTOR modules.
@@ -124,15 +124,20 @@ sundials_option(BUILD_SUNMATRIX_CUSPARSE BOOL "Build the SUNMATRIX_CUSPARSE modu
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNMATRIX_CUSPARSE")
 
-sundials_option(BUILD_SUNMATRIX_SLUNRLOC BOOL "Build the SUNMATRIX_SLUNRLOC module (requires SuperLU_DIST)" ON
-                DEPENDS_ON ENABLE_SUPERLUDIST SUPERLUDIST_WORKS
-                ADVANCED)
-list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNMATRIX_SLUNRLOC")
-
 sundials_option(BUILD_SUNMATRIX_MAGMADENSE BOOL "Build the SUNMATRIX_MAGMADENSE module (requires MAGMA)" ON
                 DEPENDS_ON ENABLE_MAGMA MAGMA_WORKS
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNMATRIX_MAGMADENSE")
+
+sundials_option(BUILD_SUNMATRIX_ONEMKLDENSE BOOL "Build the SUNMATRIX_ONEMKLDENSE module (requires oneMKL)" ON
+                DEPENDS_ON ENABLE_ONEMKL ONEMKL_WORKS
+                ADVANCED)
+list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNMATRIX_ONEMKLDENSE")
+
+sundials_option(BUILD_SUNMATRIX_SLUNRLOC BOOL "Build the SUNMATRIX_SLUNRLOC module (requires SuperLU_DIST)" ON
+                DEPENDS_ON ENABLE_SUPERLUDIST SUPERLUDIST_WORKS
+                ADVANCED)
+list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNMATRIX_SLUNRLOC")
 
 # ---------------------------------------------------------------
 # Options to enable/disable build for SUNLINSOL modules.
@@ -178,6 +183,11 @@ sundials_option(BUILD_SUNLINSOL_MAGMADENSE BOOL "Build the SUNLINSOL_MAGMADENSE 
                 DEPENDS_ON ENABLE_MAGMA MAGMA_WORKS
                 ADVANCED)
 list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNLINSOL_MAGMADENSE")
+
+sundials_option(BUILD_SUNLINSOL_ONEMKLDENSE BOOL "Build the SUNLINSOL_ONEMKLDENSE module (requires oneMKL)" ON
+                DEPENDS_ON ENABLE_ONEMKL ONEMKL_WORKS
+                ADVANCED)
+list(APPEND SUNDIALS_BUILD_LIST "BUILD_SUNLINSOL_ONEMKLDENSE")
 
 sundials_option(BUILD_SUNLINSOL_SUPERLUDIST BOOL "Build the SUNLINSOL_SUPERLUDIST module (requires SUPERLUDIST)" ON
                 DEPENDS_ON ENABLE_SUPERLUDIST SUPERLUDIST_WORKS BUILD_SUNMATRIX_SLUNRLOC

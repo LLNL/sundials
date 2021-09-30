@@ -434,8 +434,8 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 
   /* compare matrix values */
   for(i=0; i<Annz; i++) {
-    failure += FNEQ(Adata[i], Bdata[i], tol);
-    if (FNEQ(Adata[i], Bdata[i], tol)) {
+    failure += SUNRCompareTol(Adata[i], Bdata[i], tol);
+    if (SUNRCompareTol(Adata[i], Bdata[i], tol)) {
       TEST_STATUS3("Adata[%ld] != Bdata[%ld] \n", (long int) i, (long int) i,
                    grid->iam);
     }
@@ -464,7 +464,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
   /* compare data */
   nnz_loc = Astore->nnz_loc;
   for(i=0; i < nnz_loc; i++) {
-    if (FNEQ(Adata[i],val,tol) != 0) {
+    if (SUNRCompareTol(Adata[i],val,tol) != 0) {
       printf("rhs=%g\n", std::abs(val)*tol);
       printf("  Adata[%ld] = %g != %g (err = %g)\n", (long int) i, Adata[i],
              val, std::abs(Adata[i]-val));
@@ -500,7 +500,7 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
 
   /* check vector data */
   for(i=0; i < xldata; i++)
-    failure += FNEQ(xdata[i], ydata[i], tol);
+    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
 
   if (failure > ZERO)
     return(1);
@@ -574,4 +574,10 @@ int csr_from_dense(SUNMatrix Ad, realtype droptol, realtype **matdata,
   (*rowptrs)[M] = nnz;
 
   return 0;
+}
+
+void sync_device(SUNMatrix A)
+{
+  /* not running on GPU, just return */
+  return;
 }

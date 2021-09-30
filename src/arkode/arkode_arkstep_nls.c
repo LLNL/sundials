@@ -86,7 +86,7 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
                                      (void*) ark_mem);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
-                    "arkStep_NlsInit",
+                    "ARKStepSetNonlinearSolver",
                     "Setting convergence test function failed");
     return(ARK_ILL_INPUT);
   }
@@ -95,10 +95,46 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
-                    "arkStep_NlsInit",
+                    "ARKStepSetNonlinearSolver",
                     "Setting maximum number of nonlinear iterations failed");
     return(ARK_ILL_INPUT);
   }
+
+  /* set the nonlinear system RHS function */
+  if (!(step_mem->fi)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetNonlinearSolver",
+                    "The implicit ODE RHS function is NULL");
+    return(ARK_ILL_INPUT);
+  }
+  step_mem->nls_fi = step_mem->fi;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  ARKStepSetNlsRhsFn:
+
+  This routine sets an alternative user-supplied implicit ODE
+  right-hand side function to use in the evaluation of nonlinear
+  system functions.
+  ---------------------------------------------------------------*/
+int ARKStepSetNlsRhsFn(void *arkode_mem, ARKRhsFn nls_fi)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetNlsRhsFn",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  if (nls_fi)
+    step_mem->nls_fi = nls_fi;
+  else
+    step_mem->nls_fi = step_mem->fi;
 
   return(ARK_SUCCESS);
 }
@@ -307,6 +343,11 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor,
                              ark_mem->ewt, step_mem->nlscoef, callLSetup, ark_mem);
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  printf("    ARKStep nonlinear solution zcor:\n");
+  N_VPrint(step_mem->zcor);
+#endif
+
   /* apply the correction to construct ycur */
   N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
 
@@ -452,9 +493,9 @@ int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
   /* compute implicit RHS */
-  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                        step_mem->Fi[step_mem->istage],
-                        ark_mem->user_data);
+  retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
+                            step_mem->Fi[step_mem->istage],
+                            ark_mem->user_data);
   step_mem->nfi++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -517,9 +558,9 @@ int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
   /* compute implicit RHS */
-  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                        step_mem->Fi[step_mem->istage],
-                        ark_mem->user_data);
+  retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
+                            step_mem->Fi[step_mem->istage],
+                            ark_mem->user_data);
   step_mem->nfi++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -593,9 +634,9 @@ int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem)
   if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
 
   /* compute implicit RHS */
-  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                        step_mem->Fi[step_mem->istage],
-                        ark_mem->user_data);
+  retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
+                            step_mem->Fi[step_mem->istage],
+                            ark_mem->user_data);
   step_mem->nfi++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -656,9 +697,9 @@ int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem)
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
   /* compute implicit RHS and save for later */
-  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                        step_mem->Fi[step_mem->istage],
-                        ark_mem->user_data);
+  retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
+                            step_mem->Fi[step_mem->istage],
+                            ark_mem->user_data);
   step_mem->nfi++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -722,9 +763,9 @@ int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem)
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
   /* compute implicit RHS and save for later */
-  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                        step_mem->Fi[step_mem->istage],
-                        ark_mem->user_data);
+  retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
+                            step_mem->Fi[step_mem->istage],
+                            ark_mem->user_data);
   step_mem->nfi++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
@@ -794,9 +835,9 @@ int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem)
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
   /* compute implicit RHS and save for later */
-  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                        step_mem->Fi[step_mem->istage],
-                        ark_mem->user_data);
+  retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
+                            step_mem->Fi[step_mem->istage],
+                            ark_mem->user_data);
   step_mem->nfi++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);

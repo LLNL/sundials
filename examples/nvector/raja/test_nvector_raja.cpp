@@ -15,8 +15,8 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include <sundials/sundials_types.h>
 #include <nvector/nvector_raja.h>
@@ -24,7 +24,14 @@
 
 #include <RAJA/RAJA.hpp>
 
-#include "custom_memory_helper.h"
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA) || defined(SUNDIALS_RAJA_BACKENDS_HIP)
+#include "custom_memory_helper_gpu.h"
+#elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+#include "custom_memory_helper_sycl.h"
+#else
+#error "Unknown RAJA backend"
+#endif
+
 #include "test_nvector.h"
 
 /* Managed or unmanaged memory options */
@@ -58,6 +65,12 @@ int main(int argc, char *argv[])
   print_timing = atoi(argv[2]);
   SetTiming(print_timing, 0);
 
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  camp::resources::Resource* sycl_res = new camp::resources::Resource{camp::resources::Sycl()};
+  ::RAJA::sycl::detail::setQueue(sycl_res);
+  sycl::queue* myQueue = ::RAJA::sycl::detail::getQueue();
+#endif
+
   /* test with both memory variants */
   for (memtype=UNMANAGED; memtype<=SUNMEMORY; ++memtype) {
     SUNMemoryHelper mem_helper = NULL;
@@ -70,7 +83,11 @@ int main(int argc, char *argv[])
       printf("Testing RAJA N_Vector with managed memory\n");
     } else if (memtype==SUNMEMORY) {
       printf("Testing RAJA N_Vector with custom allocator\n");
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+      mem_helper = MyMemoryHelper(myQueue);
+#else
       mem_helper = MyMemoryHelper();
+#endif
     }
     printf("Vector length: %ld \n", (long int) length);
     /* Create new vectors */
@@ -285,7 +302,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
   /* check vector data */
   for (i = 0; i < local_length; i++) {
-    failure += FNEQ(Xdata[i], ans);
+    failure += SUNRCompare(Xdata[i], ans);
   }
 
   return (failure > ZERO) ? (1) : (0);
@@ -335,11 +352,14 @@ double max_time(N_Vector X, double time)
 void sync_device(N_Vector x)
 {
   /* sync with GPU */
-  #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
-    cudaDeviceSynchronize();
-  #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
-    hipDeviceSynchronize();
-  #endif
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
+  cudaDeviceSynchronize();
+#elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+  hipDeviceSynchronize();
+#elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  sycl::queue* myQueue = ::RAJA::sycl::detail::getQueue();
+  myQueue->wait_and_throw();
+#endif
 
   return;
 }

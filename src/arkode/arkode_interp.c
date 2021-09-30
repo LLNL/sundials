@@ -602,7 +602,8 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
 
     /* second, evaluate RHS at tau=-1/3, storing the result in fa */
     tval = HINT_TNEW(interp) - h/THREE;
-    retval = ark_mem->step_fullrhs(ark_mem, tval, yout, HINT_FA(interp), 2);
+    retval = ark_mem->step_fullrhs(ark_mem, tval, yout, HINT_FA(interp),
+                                   ARK_FULLRHS_OTHER);
     if (retval != 0)  return(ARK_RHSFUNC_FAIL);
 
     /* evaluate desired function */
@@ -655,7 +656,8 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
 
     /* second, evaluate RHS at tau=-1/3, storing the result in fa */
     tval = HINT_TNEW(interp) - h/THREE;
-    retval = ark_mem->step_fullrhs(ark_mem, tval, yout, HINT_FA(interp), 2);
+    retval = ark_mem->step_fullrhs(ark_mem, tval, yout, HINT_FA(interp),
+                                   ARK_FULLRHS_OTHER);
     if (retval != 0)  return(ARK_RHSFUNC_FAIL);
 
     /* third, evaluate quartic interpolant at tau=-2/3 */
@@ -665,7 +667,8 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
 
     /* fourth, evaluate RHS at tau=-2/3, storing the result in fb */
     tval = HINT_TNEW(interp) - h*TWO/THREE;
-    retval = ark_mem->step_fullrhs(ark_mem, tval, yout, HINT_FB(interp), 2);
+    retval = ark_mem->step_fullrhs(ark_mem, tval, yout, HINT_FB(interp),
+                                   ARK_FULLRHS_OTHER);
     if (retval != 0)  return(ARK_RHSFUNC_FAIL);
 
     /* evaluate desired function */

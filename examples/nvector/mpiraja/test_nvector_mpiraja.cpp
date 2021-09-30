@@ -15,8 +15,8 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include <sundials/sundials_types.h>
 #include <nvector/nvector_mpiplusx.h>
@@ -24,6 +24,7 @@
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
 
+#include <RAJA/RAJA.hpp>
 #include <mpi.h>
 
 /* RAJA vector can use unmanaged or managed memory */
@@ -68,11 +69,16 @@ int main(int argc, char *argv[])
     MPI_Abort(comm, -1);
   }
 
+  /* global length */
+  global_length = nprocs * local_length;
+
   print_timing = atoi(argv[2]);
   SetTiming(print_timing, myid);
 
-  /* global length */
-  global_length = nprocs*local_length;
+#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  camp::resources::Resource* sycl_res = new camp::resources::Resource{camp::resources::Sycl()};
+  ::RAJA::sycl::detail::setQueue(sycl_res);
+#endif
 
   for (i=UNMANAGED; i<=MANAGED; ++i) {
 
@@ -306,7 +312,7 @@ int check_ans(realtype ans, N_Vector plusX, sunindextype local_length)
 
   /* check vector data */
   for (i = 0; i < local_length; i++) {
-    failure += FNEQ(Xdata[i], ans);
+    failure += SUNRCompare(Xdata[i], ans);
   }
 
   return (failure > ZERO) ? (1) : (0);
@@ -368,6 +374,14 @@ double max_time(N_Vector plusX, double time)
 void sync_device(N_Vector x)
 {
   /* sync with GPU */
+#if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
   cudaDeviceSynchronize();
+#elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
+  hipDeviceSynchronize();
+#elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
+  sycl::queue* myQueue = ::RAJA::sycl::detail::getQueue();
+  myQueue->wait_and_throw();
+#endif
+
   return;
 }

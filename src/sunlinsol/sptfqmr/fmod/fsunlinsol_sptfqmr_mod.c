@@ -382,6 +382,20 @@ SWIGEXPORT int _wrap_FSUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver farg1, 
 }
 
 
+SWIGEXPORT int _wrap_FSUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver farg1, int const *farg2) {
+  int fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)SUNLinSolSetZeroGuess_SPTFQMR(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNLinSolSetup_SPTFQMR(SUNLinearSolver farg1, SUNMatrix farg2) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;

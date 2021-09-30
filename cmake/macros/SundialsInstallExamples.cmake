@@ -40,6 +40,8 @@
 #
 # The SUNDIALS_TARGETS option is a list of CMake targets in the SUNDIALS:: namespace that the examples need to be linked to.
 #
+# The OTHER_TARGETS option is a list of CMake targets that the examples need to be linked to.
+#
 # The EXAMPLE_DEPENDENCIES option is a list of additional source files that the examples are dependent on.
 #
 # The EXTRA_FILES option is a list of files to install that are not example source code.
@@ -51,7 +53,7 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
 
   set(options )
   set(oneValueArgs SOLVER_LIBRARY DESTINATION CMAKE_TEMPLATE MAKE_TEMPLATE TEST_INSTALL)
-  set(multiValueArgs SUNDIALS_TARGETS EXAMPLES_DEPENDENCIES EXTRA_FILES EXTRA_INCLUDES)
+  set(multiValueArgs SUNDIALS_TARGETS OTHER_TARGETS EXAMPLES_DEPENDENCIES EXTRA_FILES EXTRA_INCLUDES)
 
   # Parse keyword arguments/options
   cmake_parse_arguments(sundials_install_examples
@@ -81,9 +83,17 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
   string(TOUPPER "${MODULE}" SOLVER)
   set(SOLVER_LIB "${sundials_install_examples_SOLVER_LIBRARY}")
   set(EXAMPLES_DEPENDENCIES "${sundials_install_examples_EXAMPLES_DEPENDENCIES}")
-  set(EXAMPLES_CMAKE_TARGETS "${sundials_install_examples_SUNDIALS_TARGETS}")
   set(EXTRA_INCLUDES "${sundials_install_examples_EXTRA_INCLUDES}")
   examples2string(${EXAMPLES_VAR} EXAMPLES)
+
+  set(target_list "")
+  foreach(target ${sundials_install_examples_SUNDIALS_TARGETS})
+    list(APPEND target_list SUNDIALS::${target})
+  endforeach()
+  foreach(target ${sundials_install_examples_OTHER_TARGETS})
+    list(APPEND target_list ${target})
+  endforeach()
+  list2string(target_list EXAMPLES_CMAKE_TARGETS)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then

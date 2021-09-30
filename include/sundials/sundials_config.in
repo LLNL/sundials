@@ -26,6 +26,7 @@
 #define SUNDIALS_VERSION_MINOR @PACKAGE_VERSION_MINOR@
 #define SUNDIALS_VERSION_PATCH @PACKAGE_VERSION_PATCH@
 #define SUNDIALS_VERSION_LABEL "@PACKAGE_VERSION_LABEL@"
+#define SUNDIALS_GIT_VERSION "@SUNDIALS_GIT_VERSION@"
 
 
 /* ------------------------------------------------------------------
@@ -85,8 +86,8 @@
 @SUNDIALS_CONFIGH_TPLS@
 
 /* MAGMA backends */
-#cmakedefine SUNDIALS_MAGMA_BACKENDS_HIP
 #cmakedefine SUNDIALS_MAGMA_BACKENDS_CUDA
+#cmakedefine SUNDIALS_MAGMA_BACKENDS_HIP
 
 /* Set if SUNDIALS is built with MPI support, then
  *     #define SUNDIALS_MPI_ENABLED 1
@@ -104,8 +105,9 @@
 #cmakedefine SUNDIALS_TRILINOS_HAVE_MPI
 
 /* RAJA backends */
-#cmakedefine SUNDIALS_RAJA_BACKENDS_HIP
 #cmakedefine SUNDIALS_RAJA_BACKENDS_CUDA
+#cmakedefine SUNDIALS_RAJA_BACKENDS_HIP
+#cmakedefine SUNDIALS_RAJA_BACKENDS_SYCL
 
 /* ------------------------------------------------------------------
  * SUNDIALS modules enabled

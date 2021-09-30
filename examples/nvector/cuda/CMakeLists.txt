@@ -88,7 +88,7 @@ foreach(example_tuple ${nvector_cuda_examples})
     install(FILES ${example}.cu
       ../test_nvector.c
       ../test_nvector.h
-      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper.h
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_gpu.h
       ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
   endif()

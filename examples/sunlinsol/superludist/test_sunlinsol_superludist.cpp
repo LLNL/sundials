@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, grid.iam);
   fails += Test_SUNLinSolSetup(LS, A, grid.iam);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, grid.iam);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, SUNTRUE, grid.iam);
 
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, grid.iam);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SUPERLUDIST, grid.iam);
@@ -436,7 +436,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   /* check vector data */
   for(i=0; i < local_length; i++)
-    failure += FNEQ(Xdata[i], Ydata[i], tol);
+    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
 
   if (failure > ZERO) {
     maxerr = ZERO;

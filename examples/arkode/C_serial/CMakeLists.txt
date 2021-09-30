@@ -21,6 +21,7 @@
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
   "ark_analytic\;\;"
+  "ark_analytic_mels\;\;develop"
   "ark_analytic_nonlin\;\;develop"
   "ark_brusselator\;\;develop"
   "ark_brusselator_fp\;\;develop"

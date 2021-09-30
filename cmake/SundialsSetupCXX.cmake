@@ -28,4 +28,9 @@ set(DOCSTR "The C++ standard to use if C++ is enabled (98, 11, 14, 17, 20)")
 sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "11"
                 OPTIONS "98;11;14;17;20")
 
+# SYCL requries C++17
+if(ENABLE_SYCL AND (CMAKE_CXX_STANDARD LESS "17"))
+  set(CMAKE_CXX_STANDARD "17" CACHE STRING "${DOCSTR}" FORCE)
+endif()
+
 message(STATUS "CXX standard set to ${CMAKE_CXX_STANDARD}")

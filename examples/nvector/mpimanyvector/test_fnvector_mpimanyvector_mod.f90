@@ -55,7 +55,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VNew_MPIManyVector(int(nsubvecs,8), subvecs)
+    x => FN_VMake_MPIManyVector(MPI_COMM_WORLD, int(nsubvecs,8), subvecs)
     call FN_VConst(ONE, x)
     y => FN_VClone_MPIManyVector(x)
     call FN_VConst(ONE, y)
@@ -153,7 +153,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VNew_MPIManyVector(int(nsubvecs,8), subvecs)
+    x => FN_VMake_MPIManyVector(MPI_COMM_WORLD, int(nsubvecs,8), subvecs)
     call FN_VConst(ONE, x)
 
     !==== tests ====

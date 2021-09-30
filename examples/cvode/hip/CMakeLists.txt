@@ -20,12 +20,19 @@
 # Examples using SUNDIALS linear solvers
 set(all_examples
   "cvAdvDiff_kry_hip\;\;develop"
+  "cvAdvDiff_diag_hip\;0 0\;develop"
+  "cvAdvDiff_diag_hip\;0 1\;develop"
+  "cvAdvDiff_diag_hip\;1 1\;develop"
   )
 
 # Specify libraries to link against
 set(SUNDIALS_LIBS
   sundials_cvode
   sundials_nvechip)
+
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  set(SUNDIALS_LIBS ${SUNDIALS_LIBS} sundials_cvode_fused_hip)
+endif()
 
 # Add source directory to include directories
 include_directories(.)
@@ -80,7 +87,11 @@ if(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "CVODE")
   set(SOLVER_LIB "sundials_cvode")
-  set(EXAMPLES_CMAKE_TARGETS "cvode;nvechip")
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(EXAMPLES_CMAKE_TARGETS "cvode;nvechip;cvode_fused_hip")
+  else()
+    set(EXAMPLES_CMAKE_TARGETS "cvode;nvechip;")
+  endif()
 
   examples2string(all_examples EXAMPLES)
 

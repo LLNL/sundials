@@ -208,7 +208,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 
   /* compare data */
   for(i=0; i < Aldata; i++) {
-    failure += FNEQ(Adata[i], Bdata[i], tol);
+    failure += SUNRCompareTol(Adata[i], Bdata[i], tol);
   }
 
   free(Adata);
@@ -232,7 +232,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 
   /* compare data */
   for(i=0; i < Aldata; i++) {
-    int check = FNEQ(Adata[i], val, tol);
+    int check = SUNRCompareTol(Adata[i], val, tol);
     if (check) {
       printf("failed at %d\n", i);
       failure += check;
@@ -276,12 +276,12 @@ int check_vector(N_Vector actual, N_Vector expected, realtype tol)
 
   /* check vector data */
   for(i=0; i < xldata; i++)
-    failure += FNEQ(xdata[i], ydata[i], tol);
+    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
 
   if (failure > ZERO) {
     printf("Check_vector failures:\n");
     for(i=0; i < xldata; i++)
-      if (FNEQ(xdata[i], ydata[i], tol) != 0)
+      if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0)
         printf("  actual[%ld] = %g != %e (err = %g)\n", (long int) i,
                xdata[i], ydata[i], SUNRabs(xdata[i]-ydata[i]));
   }
@@ -309,7 +309,7 @@ booleantype is_square(SUNMatrix A)
     return SUNFALSE;
 }
 
-void sync_device()
+void sync_device(SUNMatrix A)
 {
   HIP_OR_CUDA( hipDeviceSynchronize();,
                cudaDeviceSynchronize(); )

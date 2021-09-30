@@ -85,6 +85,7 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl)
   S->ops->setatimes         = SUNLinSolSetATimes_PCG;
   S->ops->setpreconditioner = SUNLinSolSetPreconditioner_PCG;
   S->ops->setscalingvectors = SUNLinSolSetScalingVectors_PCG;
+  S->ops->setzeroguess      = SUNLinSolSetZeroGuess_PCG;
   S->ops->initialize        = SUNLinSolInitialize_PCG;
   S->ops->setup             = SUNLinSolSetup_PCG;
   S->ops->solve             = SUNLinSolSolve_PCG;
@@ -107,6 +108,7 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl)
   content->last_flag   = 0;
   content->maxl        = maxl;
   content->pretype     = pretype;
+  content->zeroguess   = SUNFALSE;
   content->numiters    = 0;
   content->resnorm     = ZERO;
   content->r           = NULL;
@@ -267,6 +269,16 @@ int SUNLinSolSetScalingVectors_PCG(SUNLinearSolver S, N_Vector s,
 }
 
 
+int SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, booleantype onoff)
+{
+  /* set flag indicating a zero initial guess */
+  if (S == NULL) return(SUNLS_MEM_NULL);
+  PCG_CONTENT(S)->zeroguess = onoff;
+  LASTFLAG(S) = SUNLS_SUCCESS;
+  return(LASTFLAG(S));
+}
+
+
 int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
 {
   int ier;
@@ -302,6 +314,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   realtype alpha, beta, r0_norm, rho, rz, rz_old;
   N_Vector r, p, z, Ap, w;
   booleantype UsePrec, UseScaling, converged;
+  booleantype *zeroguess;
   int l, l_max, pretype, ier;
   void *A_data, *P_data;
   ATimesFn atimes;
@@ -322,6 +335,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   atimes       = PCG_CONTENT(S)->ATimes;
   psolve       = PCG_CONTENT(S)->Psolve;
   pretype      = PCG_CONTENT(S)->pretype;
+  zeroguess    = &(PCG_CONTENT(S)->zeroguess);
   nli          = &(PCG_CONTENT(S)->numiters);
   res_norm     = &(PCG_CONTENT(S)->resnorm);
 
@@ -342,21 +356,25 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
 
   /* Check if Atimes function has been set */
   if (atimes == NULL) {
+    *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_ATIMES_NULL;
     return(LASTFLAG(S));
   }
 
   /* If preconditioning, check if psolve has been set */
   if (UsePrec && psolve == NULL) {
+    *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_PSOLVE_NULL;
     return(LASTFLAG(S));
   }
 
   /* Set r to initial residual r_0 = b - A*x_0 */
-  if (N_VDotProd(x, x) == ZERO)  N_VScale(ONE, b, r);
-  else {
+  if (*zeroguess) {
+    N_VScale(ONE, b, r);
+  } else {
     ier = atimes(A_data, x, r);
     if (ier != 0) {
+      *zeroguess  = SUNFALSE;
       LASTFLAG(S) = (ier < 0) ?
         SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
       return(LASTFLAG(S));
@@ -380,6 +398,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
 #endif
 
   if (rho <= delta) {
+    *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_SUCCESS;
     return(LASTFLAG(S));
   }
@@ -388,6 +407,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   if (UsePrec) {
     ier = psolve(P_data, r, z, delta, PREC_LEFT);   /* z = P^{-1}r */
     if (ier != 0) {
+      *zeroguess  = SUNFALSE;
       LASTFLAG(S) = (ier < 0) ?
         SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
       return(LASTFLAG(S));
@@ -410,6 +430,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
     /* Generate Ap = A*p */
     ier = atimes(A_data, p, Ap);
     if (ier != 0) {
+      *zeroguess  = SUNFALSE;
       LASTFLAG(S) = (ier < 0) ?
         SUNLS_ATIMES_FAIL_UNREC : SUNLS_ATIMES_FAIL_REC;
       return(LASTFLAG(S));
@@ -419,7 +440,10 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
     alpha = rz / N_VDotProd(Ap, p);
 
     /* Update x = x + alpha*p */
-    N_VLinearSum(ONE, x, alpha, p, x);
+    if (l == 0 && *zeroguess)
+      N_VScale(alpha, p, x);
+    else
+      N_VLinearSum(ONE, x, alpha, p, x);
 
     /* Update r = r - alpha*Ap */
     N_VLinearSum(ONE, r, -alpha, Ap, r);
@@ -451,6 +475,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
     if (UsePrec) {
       ier = psolve(P_data, r, z, delta, PREC_LEFT);
       if (ier != 0) {
+        *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (ier < 0) ?
           SUNLS_PSOLVE_FAIL_UNREC : SUNLS_PSOLVE_FAIL_REC;
         return(LASTFLAG(S));
@@ -470,6 +495,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   }
 
   /* Main loop finished, return with result */
+  *zeroguess = SUNFALSE;
   if (converged == SUNTRUE) {
     LASTFLAG(S) = SUNLS_SUCCESS;
   } else if (rho < r0_norm) {

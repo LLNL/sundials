@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VLinearCombinationVectorArray(V, local_length, myid);
 
   /* local reduction operations */
-  printf("\nTesting local reduction operations:\n\n");
+  if (myid == 0) printf("\nTesting local reduction operations:\n\n");
 
   fails += Test_N_VDotProdLocal(X, Y, local_length, myid);
   fails += Test_N_VMaxNormLocal(X, local_length, myid);
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VMinQuotientLocal(X, Y, local_length, myid);
 
   /* XBraid interface operations */
-  printf("\nTesting XBraid interface operations:\n\n");
+  if (myid == 0) printf("\nTesting XBraid interface operations:\n\n");
 
   fails += Test_N_VBufSize(X, local_length, myid);
   fails += Test_N_VBufPack(X, local_length, myid);
@@ -261,7 +261,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
   /* check vector data */
   for (i = 0; i < local_length; i++) {
-    failure += FNEQ(Xdata[i], ans);
+    failure += SUNRCompare(Xdata[i], ans);
   }
 
   return (failure > ZERO) ? (1) : (0);

@@ -541,6 +541,20 @@ SWIGEXPORT int _wrap_FARKStepSetNonlinearSolver(void *farg1, SUNNonlinearSolver 
 }
 
 
+SWIGEXPORT int _wrap_FARKStepSetNlsRhsFn(void *farg1, ARKRhsFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKRhsFn arg2 = (ARKRhsFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKRhsFn)(farg2);
+  result = (int)ARKStepSetNlsRhsFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetLinear(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -2284,6 +2298,20 @@ SWIGEXPORT void _wrap_FARKStepPrintMem(void *farg1, void *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   ARKStepPrintMem(arg1,arg2);
+}
+
+
+SWIGEXPORT int _wrap_FARKStepCreateMRIStepInnerStepper(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  MRIStepInnerStepper *arg2 = (MRIStepInnerStepper *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (MRIStepInnerStepper *)(farg2);
+  result = (int)ARKStepCreateMRIStepInnerStepper(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
 }
 
 

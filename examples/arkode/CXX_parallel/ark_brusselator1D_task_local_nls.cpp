@@ -1072,6 +1072,7 @@ int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS,
 
 SUNNonlinearSolver TaskLocalNewton(N_Vector y, FILE* DFID)
 {
+  void* tmp_comm;
   SUNNonlinearSolver NLS;
   TaskLocalNewton_Content content;
 
@@ -1108,8 +1109,11 @@ SUNNonlinearSolver TaskLocalNewton(N_Vector y, FILE* DFID)
   NLS->content = content;
 
   /* Fill general content */
-  content->comm = *((MPI_Comm*) N_VGetCommunicator(y));
-  if (content->comm == NULL) { SUNNonlinSolFree(NLS); return NULL; }
+  tmp_comm = N_VGetCommunicator(y);
+  if (tmp_comm == NULL) { SUNNonlinSolFree(NLS); return NULL; }
+
+  content->comm = *((MPI_Comm*) tmp_comm);
+  if (content->comm == MPI_COMM_NULL) { SUNNonlinSolFree(NLS); return NULL; }
 
   content->local_nls = SUNNonlinSol_Newton(N_VGetLocalVector_MPIPlusX(y));
   if (content->local_nls == NULL) { SUNNonlinSolFree(NLS); return NULL; }

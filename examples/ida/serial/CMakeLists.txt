@@ -20,7 +20,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaRoberts_dns\;\;"
+  "idaAnalytic_mels\;\;develop"
   "idaFoodWeb_bnd\;\;develop"
   "idaFoodWeb_kry\;\;develop"
   "idaHeat2D_bnd\;\;develop"
@@ -28,6 +28,7 @@ set(IDA_examples
   "idaKrylovDemo_ls\;\;develop"
   "idaKrylovDemo_ls\;1\;develop"
   "idaKrylovDemo_ls\;2\;develop"
+  "idaRoberts_dns\;\;"
   "idaSlCrank_dns\;\;develop"
   )
 
@@ -37,8 +38,8 @@ set(IDA_examples_BL
 
 # Examples using KLU linear solver
 set(IDA_examples_KLU
-  "idaRoberts_klu\;\;develop"
   "idaHeat2D_klu\;\;develop"
+  "idaRoberts_klu\;\;develop"
   )
 
 # Examples using SuperLU_MT linear solver

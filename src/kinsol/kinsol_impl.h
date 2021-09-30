@@ -150,22 +150,26 @@ typedef struct KINMemRec {
   N_Vector kin_vtemp1;      /* scratch vector #1                               */
   N_Vector kin_vtemp2;      /* scratch vector #2                               */
 
+  /* fixed point and Picard options */
+  booleantype kin_ret_newest; /* return the newest FP iteration     */
+  booleantype kin_damping;    /* flag to apply damping in FP/Picard */
+  realtype    kin_beta;       /* damping parameter for FP/Picard    */
+
   /* space requirements for AA, Broyden and NLEN */
-  N_Vector kin_fold_aa;     /* vector needed for AA, Broyden, and NLEN */
-  N_Vector kin_gold_aa;     /* vector needed for AA, Broyden, and NLEN */
-  N_Vector *kin_df_aa;      /* vector array needed for AA, Broyden, and NLEN */
-  N_Vector *kin_dg_aa;      /* vector array needed for AA, Broyden and NLEN */
-  N_Vector *kin_q_aa;       /* vector array needed for AA */
-  realtype kin_beta_aa;     /* beta damping parameter for AA */
-  realtype *kin_gamma_aa;   /* array of size maa used in AA */
-  realtype *kin_R_aa;       /* array of size maa*maa used in AA */
-  long int *kin_ipt_map;    /* array of size maa used in AA */
-  long int  kin_m_aa;       /* parameter for AA, Broyden or NLEN */
-  booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
-  booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
+  N_Vector kin_fold_aa;       /* vector needed for AA, Broyden, and NLEN */
+  N_Vector kin_gold_aa;       /* vector needed for AA, Broyden, and NLEN */
+  N_Vector *kin_df_aa;        /* vector array needed for AA, Broyden, and NLEN */
+  N_Vector *kin_dg_aa;        /* vector array needed for AA, Broyden and NLEN */
+  N_Vector *kin_q_aa;         /* vector array needed for AA */
+  realtype kin_beta_aa;       /* beta damping parameter for AA */
+  realtype *kin_gamma_aa;     /* array of size maa used in AA */
+  realtype *kin_R_aa;         /* array of size maa*maa used in AA */
+  long int *kin_ipt_map;      /* array of size maa used in AA */
+  long int kin_m_aa;          /* parameter for AA, Broyden or NLEN */
+  long int kin_delay_aa;      /* number of iterations to delay AA */
   booleantype kin_damping_aa; /* flag to apply damping in AA */
-  realtype *kin_cv;         /* scalar array for fused vector operations */
-  N_Vector *kin_Xv;         /* vector array for fused vector operations */
+  realtype *kin_cv;           /* scalar array for fused vector operations */
+  N_Vector *kin_Xv;           /* vector array for fused vector operations */
 
   /* space requirements for vector storage */
 
@@ -437,11 +441,14 @@ void KINInfoHandler(const char *module, const char *function,
  * =================================================================
  */
 
+#define INFO_IVAR      "%s = %d"
+#define INFO_LIVAR     "%s = %ld"
 #define INFO_RETVAL    "Return value: %d"
 #define INFO_ADJ       "no. of lambda adjustments = %ld"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 
+#define INFO_RVAR      "%s = %26.16Lg"
 #define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16Lg"
 #define INFO_TOL       "scsteptol = %12.3Lg  fnormtol = %12.3Lg"
 #define INFO_FMAX      "scaled f norm (for stopping) = %12.3Lg"
@@ -455,6 +462,7 @@ void KINInfoHandler(const char *module, const char *function,
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
+#define INFO_RVAR      "%s = %26.16lg"
 #define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16lg"
 #define INFO_TOL       "scsteptol = %12.3lg  fnormtol = %12.3lg"
 #define INFO_FMAX      "scaled f norm (for stopping) = %12.3lg"
@@ -468,6 +476,7 @@ void KINInfoHandler(const char *module, const char *function,
 
 #else
 
+#define INFO_RVAR      "%s = %26.16g"
 #define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16g"
 #define INFO_TOL       "scsteptol = %12.3g  fnormtol = %12.3g"
 #define INFO_FMAX      "scaled f norm (for stopping) = %12.3g"

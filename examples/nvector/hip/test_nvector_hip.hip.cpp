@@ -22,7 +22,7 @@
 #include <sundials/sundials_types.h>
 #include <nvector/nvector_hip.h>
 
-#include "custom_memory_helper.h"
+#include "custom_memory_helper_gpu.h"
 #include "test_nvector.h"
 
 /* hip vector variants */
@@ -358,7 +358,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype length)
 
   /* check vector data */
   for (i = 0; i < length; i++) {
-    if (failure += FNEQ(Xdata[i], ans)) {
+    if (failure += SUNRCompare(Xdata[i], ans)) {
       printf("check_ans fail: Xdata[%ld] = %f, expected Xdata[%ld] = %f\n", (long int) i, Xdata[i], (long int) i, ans);
     }
   }

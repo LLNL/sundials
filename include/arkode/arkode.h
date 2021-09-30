@@ -53,6 +53,11 @@ extern "C" {
 #define ARK_ADAPT_IMP_GUS   4
 #define ARK_ADAPT_IMEX_GUS  5
 
+/* Constants for evaluating the full RHS */
+#define ARK_FULLRHS_START 0
+#define ARK_FULLRHS_END   1
+#define ARK_FULLRHS_OTHER 2
+
 /* interpolation module flags */
 
 /*    max allowed degree */
@@ -123,7 +128,7 @@ extern "C" {
 #define ARK_INTERP_FAIL            -40
 
 #define ARK_INVALID_TABLE          -41
-  
+
 #define ARK_UNRECOGNIZED_ERROR     -99
 
 /* ------------------------------
@@ -161,11 +166,17 @@ typedef int (*ARKPostProcessFn)(realtype t, N_Vector y,
 
 typedef int (*ARKStagePredictFn)(realtype t, N_Vector zpred,
                                  void *user_data);
-  
+
 /* ARKPostProcessStepFn is now deprecated and will be removed in future
    releases. It has be replaced with ARKPostProcessFn. */
 typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y,
                                     void *user_data);
+
+/* --------------------------
+ * MRIStep Inner Stepper Type
+ * -------------------------- */
+
+typedef _SUNDIALS_STRUCT_ _MRIStepInnerStepper *MRIStepInnerStepper;
 
 #ifdef __cplusplus
 }

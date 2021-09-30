@@ -20,11 +20,9 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDAS_examples
-  "idasRoberts_dns\;\;"
-  "idasRoberts_FSA_dns\;-sensi stg t\;develop"
-  "idasRoberts_ASAi_dns\;\;develop"
-  "idasAkzoNob_dns\;\;develop"
   "idasAkzoNob_ASAi_dns\;\;develop"
+  "idasAkzoNob_dns\;\;develop"
+  "idasAnalytic_mels\;\;develop"
   "idasFoodWeb_bnd\;\;develop"
   "idasHeat2D_bnd\;\;develop"
   "idasHeat2D_kry\;\;develop"
@@ -32,6 +30,9 @@ set(IDAS_examples
   "idasKrylovDemo_ls\;\;develop"
   "idasKrylovDemo_ls\;1\;develop"
   "idasKrylovDemo_ls\;2\;develop"
+  "idasRoberts_ASAi_dns\;\;develop"
+  "idasRoberts_FSA_dns\;-sensi stg t\;develop"
+  "idasRoberts_dns\;\;"
   "idasSlCrank_dns\;\;develop"
   "idasSlCrank_FSA_dns\;\;develop"
   )
@@ -42,16 +43,16 @@ set(IDAS_examples_BL
 
 # Examples using KLU linear solver
 set(IDAS_examples_KLU
-  "idasRoberts_klu\;\;develop"
   "idasRoberts_ASAi_klu\;\;develop"
   "idasRoberts_FSA_klu\;-sensi stg t\;develop"
+  "idasRoberts_klu\;\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(IDAS_examples_SUPERLUMT
-  "idasRoberts_sps\;\;develop"
   "idasRoberts_ASAi_sps\;\;develop"
   "idasRoberts_FSA_sps\;-sensi stg t\;develop"
+  "idasRoberts_sps\;\;develop"
   )
 
 # Specify libraries to link against
