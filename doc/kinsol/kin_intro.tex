@@ -111,6 +111,18 @@ interfacing the solver to applications written in {\F}.
 
 \subsection*{Changes in v5.8.0}
 
+The RAJA {\nvector} implementation has been updated to support the SYCL backend
+in addition to the CUDA and HIP backend. Users can choose the backend when
+configuring SUNDIALS by using the \id{SUNDIALS\_RAJA\_BACKENDS} CMake variable.
+This module remains experimental and is subject to change from version to
+version.
+
+A new {\sunmatrix} and {\sunlinsol} implementation were added to interface with
+the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the linear
+solver support general dense linear systems as well as block diagonal linear
+systems. See Chapter \ref{ss:sunlinsol_onemkldense} for more details. This
+module is experimental and is subject to change from version to version.
+
 Added a new \textit{optional} function to the SUNLinearSolver API,
 \id{SUNLinSolSetZeroGuess}, to indicate that the next call to
 \id{SUNlinSolSolve} will be made with a zero initial guess. SUNLinearSolver
@@ -118,31 +130,29 @@ implementations that do not use the \id{SUNLinSolNewEmpty} constructor will, at
 a minimum, need set the \id{setzeroguess} function pointer in the linear solver
 \id{ops} structure to \id{NULL}. The SUNDIALS iterative linear solver
 implementations have been updated to leverage this new set function to remove
-one dot product per solve. A bug was fixed in the SPBCGS and SPTFQMR solvers
-for the case where a non-zero initial guess and a solution scaling vector are
-provided. This fix only impacts codes using SPBCGS or SPTFQMR as standalone
-solvers as all {\sundials} packages utilize a zero initial guess.
+one dot product per solve.
 
 New {\kinsol} options have been added to apply a constant damping in the fixed
 point and Picard iterations (see \id{KINSetDamping}), to delay the start of
 Anderson acceleration with the fixed point and Picard iterations (see
 \id{KINSetDelayAA}), and to return the newest solution with the fixed point
-iteration (see \id{KINSetReturnNewest}). A bug was fixed in the Picard iteration
-where the value of \id{KINSetMaxSetupCalls} would be ignored.
-
-The RAJA {\nvector} implementation has been updated to support the SYCL backend
-in addition to the CUDA and HIP backend. Users can choose the backend when
-configuring SUNDIALS by using the \id{SUNDIALS\_RAJA\_BACKENDS} CMake variable.
-This module remains experimental and is subject to change from version to
-version.
+iteration (see \id{KINSetReturnNewest}).
 
 The installed SUNDIALSConfig.cmake file now supports the \id{COMPONENTS} option
-to \id{find\_package}. The exported targets no longer have \id{IMPORTED\_GLOBAL} set.
+to \id{find\_package}. The exported targets no longer have \id{IMPORTED\_GLOBAL}
+set.
 
-A new {\sunmatrix} and {\sunlinsol} implementation were added to interface with
-the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the linear
-solver support general dense linear systems as well as block diagonal linear
-systems. See Chapter \ref{ss:sunlinsol_onemkldense} for more details.
+A bug was fixed in \id{SUNMatCopyOps} where the matrix-vector product setup
+function pointer was not copied.
+
+A bug was fixed in the SPBCGS and SPTFQMR solvers for the case where a non-zero
+initial guess and a solution scaling vector are provided. This fix only impacts
+codes using SPBCGS or SPTFQMR as standalone solvers as all {\sundials} packages
+utilize a zero initial guess.
+
+A bug was fixed in the Picard iteration where the value of
+\id{KINSetMaxSetupCalls} would be ignored.
+
 
 \subsection*{Changes in v5.7.0}
 

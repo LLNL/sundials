@@ -2,49 +2,24 @@
 
 ## Changes to SUNDIALS in release 5.8.0
 
+The RAJA NVECTOR implementation has been updated to support the SYCL backend
+in addition to the CUDA and HIP backend. Users can choose the backend when
+configuring SUNDIALS by using the `SUNDIALS_RAJA_BACKENDS` CMake variable. This
+module remains experimental and is subject to change from version to version.
+
+A new SUNMatrix and SUNLinearSolver implementation were added to interface
+with the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the
+linear solver support general dense linear systems as well as block diagonal
+linear systems. This module is experimental and is subject to change from
+version to version.
+
 Added a new *optional* function to the SUNLinearSolver API,
 `SUNLinSolSetZeroGuess`, to indicate that the next call to `SUNlinSolSolve` will
 be made with a zero initial guess. SUNLinearSolver implementations that do not
 use the `SUNLinSolNewEmpty` constructor will, at a minimum, need set the
 ``setzeroguess`` function pointer in the linear solver ``ops`` structure to
 ``NULL``. The SUNDIALS iterative linear solver implementations have been updated
-to leverage this new set function to remove one dot product per solve. A bug was
-fixed in the SPBCGS and SPTFQMR solvers for the case where a non-zero initial
-guess and a solution scaling vector are provided. This fix only impacts codes
-using SPBCGS or SPTFQMR as standalone solvers as all SUNDIALS packages utilize
-a zero initial guess.
-
-The RAJA NVECTOR implementation has been updated to support the SYCL backend
-in addition to the CUDA and HIP backend. Users can choose the backend when
-configuring SUNDIALS by using the `SUNDIALS_RAJA_BACKENDS` CMake variable. This
-module remains experimental and is subject to change from version to version.
-
-Support for user-defined inner (fast) integrators has been to the MRIStep module
-in ARKODE. See the "MRIStep Custom Inner Steppers" section in the user guide for
-more information on providing a user-defined integration method.
-
-New KINSOL options have been added to apply a constant damping in the fixed
-point and Picard iterations (see `KINSetDamping`), to delay the start of
-Anderson acceleration with the fixed point and Picard iterations (see
-`KINSetDelayAA`), and to return the newest solution with the fixed point
-iteration (see `KINSetReturnNewest`). A bug was fixed in the Picard iteration
-where the value of `KINSetMaxSetupCalls` would be ignored.
-
-Added functions to ARKODE and CVODE(S) for supplying an alternative right-hand
-side function and to IDA(S) for supplying an alternative residual for use within
-nonlinear system function evaluations.
-
-Added specialized fused HIP kernels to CVODE which may offer better
-performance on smaller problems when using CVODE with the `NVECTOR_HIP`
-module. See the optional input function `CVodeSetUseIntegratorFusedKernels`
-for more information. As with other SUNDIALS HIP features, this is
-feature is experimental and may change from version to version.
-
-The installed SUNDIALSConfig.cmake file now supports the `COMPONENTS` option
-to `find_package`. The exported targets no longer have IMPORTED_GLOBAL set.
-
-A bug was fixed in the ARKODE stepper modules where the stop time may be passed
-after resetting the integrator.
+to leverage this new set function to remove one dot product per solve.
 
 The time integrator packages (ARKODE, CVODE(S), and IDA(S)) all now support a
 new "matrix-embedded" SUNLinearSolver type.  This type supports user-supplied
@@ -53,14 +28,47 @@ system at each linear solve call.  Any matrix-related data structures are held
 internally to the linear solver itself, and are not provided by the SUNDIALS
 package.
 
-A new SUNMatrix and SUNLinearSolver implementation were added to interface
-with the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the
-linear solver support general dense linear systems as well as block diagonal
-linear systems.
+Added functions to ARKODE and CVODE(S) for supplying an alternative right-hand
+side function and to IDA(S) for supplying an alternative residual for use within
+nonlinear system function evaluations.
 
-Fixed a bug with `IDASetJacTimesResFn` where the supplied function was used in
-the dense finite difference Jacobian computation rather than the finite
+Support for user-defined inner (fast) integrators has been to the MRIStep module
+in ARKODE. See the "MRIStep Custom Inner Steppers" section in the user guide for
+more information on providing a user-defined integration method.
+
+Added specialized fused HIP kernels to CVODE which may offer better
+performance on smaller problems when using CVODE with the `NVECTOR_HIP`
+module. See the optional input function `CVodeSetUseIntegratorFusedKernels`
+for more information. As with other SUNDIALS HIP features, this is
+feature is experimental and may change from version to version.
+
+New KINSOL options have been added to apply a constant damping factor in the
+fixed point and Picard iterations (see `KINSetDamping`), to delay the start of
+Anderson acceleration with the fixed point and Picard iterations (see
+`KINSetDelayAA`), and to return the newest solution with the fixed point
+iteration (see `KINSetReturnNewest`).
+
+The installed SUNDIALSConfig.cmake file now supports the `COMPONENTS` option
+to `find_package`. The exported targets no longer have IMPORTED_GLOBAL set.
+
+A bug was fixed in ``SUNMatCopyOps`` where the matrix-vector product setup
+function pointer was not copied.
+
+A bug was fixed in the SPBCGS and SPTFQMR solvers for the case where a non-zero
+initial guess and a solution scaling vector are provided. This fix only impacts
+codes using SPBCGS or SPTFQMR as standalone solvers as all SUNDIALS packages
+utilize a zero initial guess.
+
+A bug was fixed in the ARKODE stepper modules where the stop time may be passed
+after resetting the integrator.
+
+A bug was fixed in `IDASetJacTimesResFn` in IDAS where the supplied function was
+used in the dense finite difference Jacobian computation rather than the finite
 difference Jacobian-vector product approximation.
+
+A bug was fixed in the KINSOL Picard iteration where the value of
+`KINSetMaxSetupCalls` would be ignored.
+
 
 ## Changes to SUNDIALS in release 5.7.0
 
