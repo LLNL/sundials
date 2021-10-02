@@ -16,7 +16,7 @@
  * The following test implements the expectation-maximazation algorithm
  * for mixture densities.
  * Here, we consider a mixture density composed of 3 univariate normal
- * densities. 
+ * densities.
  *
  * .... MORE PROBLEM INFO ...
  *
@@ -27,24 +27,26 @@
 #include "kin_nonlin_mpicuda.hpp"     // header file containing UserData
                                       //   and function declartions
 
+//#define SERIALIZE
+
 // -----------------------------------------------------------------------------
-// Cuda Kernels 
+// Cuda Kernels
 // -----------------------------------------------------------------------------
 
 __global__
-void PxKernel(realtype *mu, realtype *Px, realtype *x, 
+void PxKernel(realtype *mu, realtype *Px, realtype *x,
               realtype a1, realtype a2, realtype a3, realtype scale,
-              sunindextype localn, sunindextype N)
+              sunindextype N)
 {
-  // Calculate all P(x_k) for each x value 
+  // Calculate all P(x_k) for each x value
   sunindextype tid;
   realtype val1, val2, val3;
 
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
   if (tid < N) {
-    val1 = x[tid] - mu[0]; 
-    val2 = x[tid] - mu[1]; 
+    val1 = x[tid] - mu[0];
+    val2 = x[tid] - mu[1];
     val3 = x[tid] - mu[2];
 
     Px[tid] = a1 * scale * exp( -(val1 * val1)/TWO );
@@ -57,7 +59,7 @@ __global__
 void EMKernel(realtype *mu, realtype *mu_top, realtype *mu_bottom,
               realtype *x, realtype *Px,
               realtype a1, realtype a2, realtype a3, realtype scale,
-              sunindextype localn, sunindextype N)
+              sunindextype N)
 {
   sunindextype tid;
   realtype val1, val2, val3;
@@ -66,8 +68,8 @@ void EMKernel(realtype *mu, realtype *mu_top, realtype *mu_bottom,
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
   if (tid < N) {
-    val1 = x[tid] - mu[0]; 
-    val2 = x[tid] - mu[1]; 
+    val1 = x[tid] - mu[0];
+    val2 = x[tid] - mu[1];
     val3 = x[tid] - mu[2];
 
     frac1 = a1 * scale * exp( -(val1 * val1)/TWO ) / Px[tid];
@@ -75,12 +77,12 @@ void EMKernel(realtype *mu, realtype *mu_top, realtype *mu_bottom,
     frac3 = a3 * scale * exp( -(val3 * val3)/TWO ) / Px[tid];
 
     // MAKE ALL OF THESE ATOMIC ADDS
-    atomicAdd(mu_top, x[tid] * frac1);
+    atomicAdd(mu_top,     x[tid] * frac1);
     atomicAdd(mu_top + 1, x[tid] * frac2);
     atomicAdd(mu_top + 2, x[tid] * frac3);
-    
-    atomicAdd(mu_bottom, frac1);
-    atomicAdd(mu_bottom + 1, frac2); 
+
+    atomicAdd(mu_bottom,     frac1);
+    atomicAdd(mu_bottom + 1, frac2);
     atomicAdd(mu_bottom + 2, frac3);
   }
 }
@@ -164,7 +166,7 @@ int main(int argc, char* argv[])
   if (check_flag((void *) u, "N_VMake_MPIPlusX", 0)) return 1;
 
   // Enable fused vector operations for low sync orthogonalization routines
-  // Turned off by default 
+  // Turned off by default
   if (udata->fusedops)
   {
     flag = N_VEnableFusedOps_Cuda(ulocal, SUNTRUE);
@@ -186,15 +188,22 @@ int main(int argc, char* argv[])
   flag = RandomVec(u, udata);
   if (check_flag(&flag, "RandomVec", 1)) return 1;
 
-  // Create vector for error
-  udata->e = N_VClone(u);
-  if (check_flag((void *) (udata->e), "N_VClone", 0)) return 1;
+  // Create vector true mu values
+  udata->mu_true = N_VClone(u);
+  if (check_flag((void *) (udata->mu_true), "N_VClone", 0)) return 1;
+
+  // Create temporary vector for residual and error output
+  udata->vtemp = N_VClone(u);
+  if (check_flag((void *) (udata->vtemp), "N_VClone", 0)) return 1;
 
   // Clone ulocal for temporary vector
   udata->mu_bottom = N_VNew_Cuda(3);
   if (check_flag((void *) (udata->mu_bottom), "N_VNewCuda", 0)) return 1;
-  
-  // Create vector for samples 
+
+  udata->mu_top = N_VNew_Cuda(3);
+  if (check_flag((void *) (udata->mu_top), "N_VNewCuda", 0)) return 1;
+
+  // Create vector for samples
   udata->samples_local = N_VNew_Cuda(udata->num_samples);
   if (check_flag((void *) udata->samples_local, "N_VNew_Cuda", 0)) return 1;
   // Clone samples for temporary vector
@@ -248,14 +257,26 @@ int main(int argc, char* argv[])
   // Attach user data
   flag = KINSetUserData(kin_mem, (void *) udata);
   if (check_flag(&flag, "KINSetUserData", 1)) return 1;
-  
+
+  // Set debugging output file
+  FILE* debugfp;
+  if (udata->debug)
+  {
+    char fname[MXSTR];
+    snprintf(fname, MXSTR, "kinsol_output_%06d.txt", myid);
+    debugfp = fopen(fname,"w");
+
+    flag = KINSetDebugFile(kin_mem, debugfp);
+    if (check_flag(&flag, "KINSetDebugFile", 1)) return 1;
+  }
+
   // ----------------------------
   // Call KINSol to solve problem
   // ----------------------------
 
   // No scaling used
   N_VConst(ONE, scale);
-  
+
   if (udata->output > 1)
   {
     flag = OpenOutput(udata);
@@ -298,10 +319,10 @@ int main(int argc, char* argv[])
   // Calculate solution error
   // ------------------------
   // Output final error
-  flag = SolutionError(u, udata->e, udata);
+  flag = SolutionError(udata->mu_true, u, udata->vtemp, udata);
   if (check_flag(&flag, "SolutionError", 1)) return 1;
 
-  realtype maxerr = N_VMaxNorm(udata->e);
+  realtype maxerr = N_VMaxNorm(udata->vtemp);
 
   if (outproc)
   {
@@ -324,6 +345,7 @@ int main(int argc, char* argv[])
   // Free memory
   // ------------------------------
 
+  if (udata->debug) fclose(debugfp);
   KINFree(&kin_mem);         // Free solver memory
   N_VDestroy(u);             // Free vectors
   N_VDestroy(scale);
@@ -342,10 +364,10 @@ int main(int argc, char* argv[])
 static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 {
   int          flag;
-  
+
   // Access problem data
   UserData *udata = (UserData *) user_data;
-  
+
   // Start timer
   double t1 = MPI_Wtime();
 
@@ -358,14 +380,14 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 
   // Update timer
   udata->fevaltime += t2 - t1;
-  
+
   // Calculate and output residual and error history
   if (udata->output > 1)
   {
     flag = WriteOutput(u, f, udata);
     if (check_flag(&flag, "WriteOutput", 1)) return 1;
   }
-  
+
   // Return success
   return 0;
 }
@@ -379,20 +401,20 @@ static int SetupSamples(UserData *udata)
   // Access problem data
   realtype *samples_local = N_VGetHostArrayPointer_Cuda(udata->samples_local);
   if (check_flag((void *) samples_local, "N_VGetHostArrayPointer_Cuda", 0)) return 1;
-  realtype *mu_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(udata->e));
+  realtype *mu_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(udata->mu_true));
   if (check_flag((void *) mu_host, "N_VGetHostArrayPointer_Cuda", 0)) return 1;
-  
+
   realtype std_dev = ONE;
 
   for (i = 0; i < 3; i++) {
     // Set number of samples with this mean
     if (i == 0 || i == 1) {
       end = udata->num_samples * PTTHREE;
-      start = i * end; 
+      start = i * end;
       end += start;
     }
     else {
-      end = udata->num_samples * PTFOUR; 
+      end = udata->num_samples * PTFOUR;
       start = 2 * udata->num_samples * PTTHREE;
       end += start;
     }
@@ -405,7 +427,7 @@ static int SetupSamples(UserData *udata)
     // Get samples
     for (j = start; j < end; j++) {
       val = distribution(generator);
-      samples_local[j] = val; 
+      samples_local[j] = val;
     }
   }
 
@@ -413,15 +435,15 @@ static int SetupSamples(UserData *udata)
 
   // Return success
   return 0;
-} 
+}
 
 // Fill the vector u with random data
 static int SetMus(UserData *udata)
 {
   sunindextype i;
   realtype increment1, increment2;
- 
-  realtype *mu_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(udata->e));
+
+  realtype *mu_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(udata->mu_true));
   if (check_flag((void *) mu_host, "N_VGetHostArrayPointer_Cuda", 0)) return 1;
 
   increment1 = (FIVE - HALF)/udata->nodes_loc;
@@ -442,7 +464,7 @@ static int SetMus(UserData *udata)
     mu_host[3*i+2] = TEN;
   }
 
-  N_VCopyToDevice_Cuda(N_VGetLocalVector_MPIPlusX(udata->e));
+  N_VCopyToDevice_Cuda(N_VGetLocalVector_MPIPlusX(udata->mu_true));
 
   // Return success
   return 0;
@@ -451,7 +473,7 @@ static int SetMus(UserData *udata)
 static int SetStartGuess(N_Vector u, UserData* udata)
 {
   sunindextype i;
- 
+
   realtype *u_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
   if (check_flag((void *) u_host, "N_VGetHostArrayPointer_Cuda", 0)) return 1;
 
@@ -473,10 +495,10 @@ static int RandomVec(N_Vector u, void *user_data)
 {
   int flag;
   sunindextype i;
-  
+
   // Access problem data
   UserData *udata = (UserData *) user_data;
- 
+
   realtype *uarray_local = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
   if (check_flag((void *) uarray_local, "N_VGetHostArrayPointer_Cuda", 0)) return -1;
 
@@ -500,101 +522,108 @@ static int EM(N_Vector u, N_Vector f, void *user_data)
   // Access problem data
   UserData *udata = (UserData *) user_data;
 
-  // Set temporary vectors to zero
-  N_VConst(ZERO, udata->px);
-  N_VConst(ZERO, udata->mu_bottom);
-  N_VConst(ZERO, N_VGetLocalVector_MPIPlusX(f));
-
-  // Get device pointers 
-  realtype *ulocal    = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
-  realtype *f_local   = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(f));
-  realtype *x_dev     = N_VGetDeviceArrayPointer_Cuda(udata->samples_local);
-  realtype *Px_dev    = N_VGetDeviceArrayPointer_Cuda(udata->px);
-  realtype *mu_bottom = N_VGetDeviceArrayPointer_Cuda(udata->mu_bottom);
-  
   // Set grid and block sizes for kernel launch
   unsigned block = 256;
   unsigned grid1 = (udata->num_samples + block - 1) / block;
-  unsigned grid2 = (udata->num_samples*udata->nodes_loc + block -1) / block;
-  unsigned grid3 = (udata->nodes_loc + block -1) / block;
-  
+  unsigned grid2 = (udata->nodes_loc + block - 1) / block;
+
+  // ---------
+  // PX KERNEL
+  // ---------
+
   // Scale value for functions
   realtype scale = ONE / sqrt(TWO * PI);
-  
-  /*N_VCopyFromDevice_Cuda(N_VGetLocalVector_MPIPlusX(u));
-  realtype *start = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
-  printf("Start ----------------\n");
-  for (int i = 0; i < udata->nodes_loc; i++) {
-    printf("{%e %e %e}\n", start[3*i], start[3*i+1], start[3*i+2]);
-  }
-  printf("----------------------\n");*/
 
-  // PX KERNEL
-  // want nodes_loc*num_samples threads
-  PxKernel<<<grid1, block>>>(ulocal, Px_dev, x_dev, 
+  // Get input device pointers
+  realtype *u_dev  = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
+  realtype *x_dev  = N_VGetDeviceArrayPointer_Cuda(udata->samples_local);
+
+  // Get output device pointer
+  realtype *Px_dev = N_VGetDeviceArrayPointer_Cuda(udata->px);
+
+  // Compute Px
+  PxKernel<<<grid1, block>>>(u_dev, Px_dev, x_dev,
                              udata->alpha1, udata->alpha2, udata->alpha3, scale,
-                             udata->nodes_loc, udata->num_samples);
+                             udata->num_samples);
 
+  // ---------
   // EM KERNEL
-  /*EMKernel<<<grid2, block>>>(ulocal, f_local, mu_bottom, x_dev, Px_dev,
-                             udata->alpha1, udata->alpha2, udata->alpha3, scale,
-                             udata->nodes_loc, udata->num_samples);*/
-  
+  // ---------
+
+  // Get output device pointers
+  realtype *mu_bottom_dev = N_VGetDeviceArrayPointer_Cuda(udata->mu_bottom);
+  realtype *mu_top_dev    = N_VGetDeviceArrayPointer_Cuda(udata->mu_top);
+
+#ifdef SERIALIZE
+  // Get input host pointers
+  N_VCopyFromDevice_Cuda(N_VGetLocalVector_MPIPlusX(u));
   N_VCopyFromDevice_Cuda(udata->samples_local);
   N_VCopyFromDevice_Cuda(udata->px);
-  N_VCopyFromDevice_Cuda(N_VGetLocalVector_MPIPlusX(u));
 
-  realtype *x_host   = N_VGetHostArrayPointer_Cuda(udata->samples_local);
-  realtype *px_host  = N_VGetHostArrayPointer_Cuda(udata->px);
-  realtype *f_host   = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(f));
-  realtype *u_host   = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
-  realtype *mub_host = N_VGetHostArrayPointer_Cuda(udata->mu_bottom);
+  realtype *u_host  = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
+  realtype *x_host  = N_VGetHostArrayPointer_Cuda(udata->samples_local);
+  realtype *px_host = N_VGetHostArrayPointer_Cuda(udata->px);
 
-  realtype frac1, frac2, frac3, val1, val2, val3;
-  realtype a1 = udata->alpha1;
-  realtype a2 = udata->alpha2;
-  realtype a3 = udata->alpha3;
-    
-  f_host[0] = ZERO;
-  f_host[1] = ZERO;
-  f_host[2] = ZERO;
-
+  // Initilaize output vectors to zero (for sum reduction)
   mub_host[0] = ZERO;
   mub_host[1] = ZERO;
   mub_host[2] = ZERO;
 
+  mut_host[0] = ZERO;
+  mut_host[1] = ZERO;
+  mut_host[2] = ZERO;
+
+  // Get output host pointers
+  realtype *mub_host = N_VGetHostArrayPointer_Cuda(udata->mu_bottom);
+  realtype *mut_host = N_VGetHostArrayPointer_Cuda(udata->mu_top);
+
+  // Serial EM kernel calculation
+  realtype frac1, frac2, frac3;
+  realtype val1, val2, val3;
+  realtype a1 = udata->alpha1;
+  realtype a2 = udata->alpha2;
+  realtype a3 = udata->alpha3;
+
   for (int i = 0; i < udata->num_samples; i++)
   {
-    val1 = x_host[i] - u_host[0]; 
-    val2 = x_host[i] - u_host[1]; 
+    val1 = x_host[i] - u_host[0];
+    val2 = x_host[i] - u_host[1];
     val3 = x_host[i] - u_host[2];
-    
+
     frac1 = a1 * scale * exp( -(val1 * val1)/TWO ) / px_host[i];
     frac2 = a2 * scale * exp( -(val2 * val2)/TWO ) / px_host[i];
     frac3 = a3 * scale * exp( -(val3 * val3)/TWO ) / px_host[i];
-  
-    f_host[0] += x_host[i] * frac1;
-    f_host[1] += x_host[i] * frac2;
-    f_host[2] += x_host[i] * frac3;
-      
+
+    mut_host[0] += x_host[i] * frac1;
+    mut_host[1] += x_host[i] * frac2;
+    mut_host[2] += x_host[i] * frac3;
+
     mub_host[0] += frac1;
     mub_host[1] += frac2;
     mub_host[2] += frac3;
   }
-  N_VCopyToDevice_Cuda(N_VGetLocalVector_MPIPlusX(f));
-  N_VCopyToDevice_Cuda(udata->mu_bottom);
 
-  // EM KERNELFIN
-  EMKernelFin<<<grid3, block>>>(f_local, f_local, mu_bottom,
+  // Copy output vectors to the device
+  N_VCopyToDevice_Cuda(udata->mu_bottom);
+  N_VCopyToDevice_Cuda(udata->mu_top);
+#else
+  // Initilaize output vectors to zero (for sum reduction)
+  N_VConst(ZERO, udata->mu_bottom);
+  N_VConst(ZERO, udata->mu_top);
+
+  EMKernel<<<grid1, block>>>(u_dev, mu_top_dev, mu_bottom_dev, x_dev, Px_dev,
+                             udata->alpha1, udata->alpha2, udata->alpha3, scale,
+                             udata->num_samples);
+#endif
+
+  // ------------------
+  // EM FINALIZE KERNEL
+  // ------------------
+
+  realtype *f_dev = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(f));
+
+  EMKernelFin<<<grid2, block>>>(f_dev, mu_top_dev, mu_bottom_dev,
                                 udata->nodes_loc);
-  
-  /*N_VCopyFromDevice_Cuda(N_VGetLocalVector_MPIPlusX(f));
-  realtype *final = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(f));
-  printf("Final ----------------\n");
-  for (int i = 0; i < udata->nodes_loc; i++) {
-    printf("{%e %e %e}\n", final[3*i], final[3*i+1], final[3*i+2]);
-  }
-  printf("----------------------\n");*/
 
   // Return success
   return 0;
@@ -611,14 +640,14 @@ static int InitUserData(UserData *udata)
 
   // Sigmas
   udata->sigma = ONE;
- 
+
   // Alphas - mixture proportions
   udata->alpha1 = PTTHREE;
-  udata->alpha2 = PTTHREE; 
+  udata->alpha2 = PTTHREE;
   udata->alpha3 = PTFOUR;
 
   // MPI variables
-  udata->comm = MPI_COMM_WORLD; 
+  udata->comm = MPI_COMM_WORLD;
 
   // Get the number of processes
   flag = MPI_Comm_size(udata->comm, &(udata->nprocs_w));
@@ -628,7 +657,7 @@ static int InitUserData(UserData *udata)
     return -1;
   }
 
-  // Get my rank 
+  // Get my rank
   flag = MPI_Comm_rank(udata->comm, &(udata->myid));
   if (flag != MPI_SUCCESS)
   {
@@ -653,13 +682,15 @@ static int InitUserData(UserData *udata)
   udata->samples_local = NULL;
   udata->px            = NULL;
   udata->mu_bottom     = NULL;
-  
+  udata->mu_top        = NULL;
+  udata->mu_true       = NULL;
+
   // Number samples
   udata->num_samples = 100000;
 
   // Output variables
   udata->output = 1;   // 0 = no output, 1 = stats output, 2 = output to disk
-  udata->e      = NULL;
+  udata->vtemp  = NULL;
 
   // Timing variables
   udata->timing       = false;
@@ -668,6 +699,8 @@ static int InitUserData(UserData *udata)
 
   // Fused operations
   udata->fusedops = false;
+
+  udata->debug = false;
 
   // Return success
   return 0;
@@ -695,14 +728,24 @@ static int FreeUserData(UserData *udata)
     N_VDestroy(udata->mu_bottom);
     udata->mu_bottom = NULL;
   }
+  if (udata->mu_top)
+  {
+    N_VDestroy(udata->mu_top);
+    udata->mu_top = NULL;
+  }
+  if (udata->mu_true)
+  {
+    N_VDestroy(udata->mu_true);
+    udata->mu_true = NULL;
+  }
 
   // Free error vector
-  if (udata->e)
+  if (udata->vtemp)
   {
-    N_VDestroy(udata->e);
-    udata->e = NULL;
+    N_VDestroy(udata->vtemp);
+    udata->vtemp = NULL;
   }
-  
+
   // Free MPI communicator
   udata->comm = MPI_COMM_NULL;
 
@@ -759,6 +802,10 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->fusedops = true;
     }
+    else if (arg == "--debug")
+    {
+      udata->debug = true;
+    }
     // Help
     else if (arg == "--help")
     {
@@ -778,7 +825,7 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
   }
 
   // Recompute local number of nodes
-  udata->nodes = udata->nodes_loc * udata->nprocs_w; 
+  udata->nodes = udata->nodes_loc * udata->nprocs_w;
 
   // Return success
   return 0;
@@ -789,18 +836,15 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
 // -----------------------------------------------------------------------------
 
 // Compute the solution error
-static int SolutionError(N_Vector u, N_Vector e, UserData *udata)
+static int SolutionError(N_Vector u_true, N_Vector u, N_Vector err,
+                         UserData *udata)
 {
   // Put true solution in error vector
   SetMus(udata);
 
-  // Check absolute error between output mu and G(mu)
-  N_Vector ulocal = N_VGetLocalVector_MPIPlusX(u);
-  N_Vector elocal = N_VGetLocalVector_MPIPlusX(e);
-
   // Compute absolute error
-  N_VLinearSum(ONE, ulocal, -ONE, elocal, elocal);
-  N_VAbs(elocal, elocal);
+  N_VLinearSum(ONE, u_true, -ONE, u, err);
+  N_VAbs(err, err);
 
   return 0;
 }
@@ -832,10 +876,10 @@ static int PrintUserData(UserData *udata)
   cout << "  nodes              = " << udata->nodes                   << endl;
   cout << "  nodes_loc (proc 0) = " << udata->nodes_loc               << endl;
   cout << " ------------------------------------------------------- " << endl;
-  cout << "  sigma              = {"  
-             << udata->sigma << ", " << udata->sigma << ", " 
+  cout << "  sigma              = {"
+             << udata->sigma << ", " << udata->sigma << ", "
              << udata->sigma << "}" << endl;
-  cout << "  alpha              = {"  
+  cout << "  alpha              = {"
              << udata->alpha1 << ", " << udata->alpha2 << ", "
              << udata->alpha3 << "}" << endl;
   cout << " ------------------------------------------------------- " << endl;
@@ -903,28 +947,30 @@ static int OutputTiming(UserData *udata)
   return 0;
 }
 
-// Open residual and error output 
+// Open residual and error output
 static int OpenOutput(UserData *udata)
 {
   bool outproc = (udata->myid == 0);
- 
+
   if (outproc)
-  { 
+  {
     stringstream fname;
 
     // Open output stream for residual
     fname.str("");
     fname.clear();
-    fname << "EM_res_m" << udata->maa << "_orth" << udata->orthaa << ".txt";
+    fname << "EM_res_m" << udata->maa << "_orth" << udata->orthaa
+          << "_len" << udata->nodes_loc << ".txt";
     udata->rout.open(fname.str());
 
     udata->rout << scientific;
     udata->rout << setprecision(numeric_limits<realtype>::digits10);
-    
-    // Open output stream for error 
+
+    // Open output stream for error
     fname.str("");
     fname.clear();
-    fname << "EM_err_m" << udata->maa << "_orth" << udata->orthaa << ".txt";
+    fname << "EM_err_m" << udata->maa << "_orth" << udata->orthaa
+          << "_len" << udata->nodes_loc << ".txt";
     udata->eout.open(fname.str());
 
     udata->eout << scientific;
@@ -941,20 +987,20 @@ static int WriteOutput(N_Vector u, N_Vector f, UserData *udata)
   bool outproc = (udata->myid == 0);
 
   // r = \|G(u) - u\|_inf
-  N_VLinearSum(ONE, f, -ONE, u, udata->e);
-  realtype res = N_VMaxNorm(udata->e);
+  N_VLinearSum(ONE, f, -ONE, u, udata->vtemp);
+  realtype res = N_VMaxNorm(udata->vtemp);
 
   // e = \|u_exact - u\|_inf
-  flag = SolutionError(u, udata->e, udata);
+  flag = SolutionError(udata->mu_true, u, udata->vtemp, udata);
   if (check_flag(&flag, "SolutionError", 1)) return 1;
-  realtype err = N_VMaxNorm(udata->e);
+  realtype err = N_VMaxNorm(udata->vtemp);
 
   if (outproc)
   {
-    // Output residual 
+    // Output residual
     udata->rout << res;
     udata->rout << endl;
-    
+
     // Output error
     udata->eout << err;
     udata->eout << endl;

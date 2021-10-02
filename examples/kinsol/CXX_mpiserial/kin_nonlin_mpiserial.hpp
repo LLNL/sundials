@@ -41,6 +41,9 @@
 #define FIVE    RCONST(5.0)
 #define TEN     RCONST(10.0)
 
+// Maximum size of output directory string
+#define MXSTR 2048
+
 // Macro to access (x,mu) location in 1D NVector array
 #define IDX(x,mu) ((3)*(x)+(mu))
 
@@ -54,7 +57,7 @@ struct UserData
 {
   // Sigmas
   realtype sigma;
- 
+
   // Alphas - mixture proportions
   realtype alpha1;
   realtype alpha2;
@@ -79,17 +82,17 @@ struct UserData
   int      maxits;      // max number of fixed point iterations
 
   // Vectors to help with FPFunction definition and execution
-  N_Vector samples;       // vector containing distribution samples 
-  N_Vector samples_local; // vector containing distribution samples 
-  N_Vector px;            // temporary vector 
-  N_Vector mu_bottom;     // temporary vector 
-  N_Vector vtemp;         // temporary vector
-  N_Vector ones;
+  N_Vector samples_local; // vector containing distribution samples
+  N_Vector px;            // temporary vector
+  N_Vector mu_bottom;     // temporary vector
+  N_Vector mu_top;
+  N_Vector mu_true;       // vector of true means
+
   int num_samples;
 
   // Ouput variables
   int      output; // output level
-  N_Vector e;      // error vector
+  N_Vector vtemp;  // error vector
   ofstream uout;   // output file stream
   ofstream rout;   // output residual file stream
   ofstream eout;   // error file stream
@@ -101,13 +104,15 @@ struct UserData
 
   // Fused operations variable
   bool fusedops;
+
+  bool debug;
 };
 
 // -----------------------------------------------------------------------------
 // Functions provided to the SUNDIALS integrator
 // -----------------------------------------------------------------------------
 
-// Nonlinear fixed point function 
+// Nonlinear fixed point function
 static int FPFunction(N_Vector u, N_Vector f, void *user_data);
 
 // Expectation Maximization Algorithm
@@ -146,7 +151,8 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc);
 static int Solution(N_Vector u, UserData *udata);
 
 // Compute the solution error solution
-static int SolutionError(N_Vector u,  N_Vector e, UserData *udata);
+static int SolutionError(N_Vector u_true, N_Vector u, N_Vector e,
+                         UserData *udata);
 
 // Print the command line options
 static void InputHelp();

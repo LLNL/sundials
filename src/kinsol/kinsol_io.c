@@ -158,6 +158,40 @@ int KINSetInfoFile(void *kinmem, FILE *infofp)
   return(KIN_SUCCESS);
 }
 
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetDebugFile
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDebugFile(void *kinmem, FILE *debugfp)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDebugFile",
+                    MSG_NO_MEM);
+    return(KIN_MEM_NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+#if defined(SUNDIALS_DEBUG)
+  if (debugfp)
+    kin_mem->kin_debugfp = debugfp;
+  else
+    kin_mem->kin_debugfp = stdout;
+
+  return(KIN_SUCCESS);
+#else
+  KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSetDebugFile",
+                  "SUNDIALS was not built with debugging enabled");
+  return(KIN_ILL_INPUT);
+#endif
+}
+
+
 /*
  * -----------------------------------------------------------------
  * Function : KINSetUserData

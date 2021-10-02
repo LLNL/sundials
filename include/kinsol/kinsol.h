@@ -152,6 +152,9 @@ SUNDIALS_EXPORT void KINFree(void **kinmem);
 /* KINLS interface function that depends on KINSysFn */
 SUNDIALS_EXPORT int KINSetJacTimesVecSysFn(void *kinmem, KINSysFn jtimesSysFn);
 
+/* Debugging output file */
+SUNDIALS_EXPORT int KINSetDebugFile(void *kinmem, FILE *debugfp);
+
 #ifdef __cplusplus
 }
 #endif

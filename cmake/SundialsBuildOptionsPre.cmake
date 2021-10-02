@@ -177,3 +177,44 @@ endif()
 set(DOCSTR "Path to SUNDIALS cmake files")
 sundials_option(SUNDIALS_INSTALL_CMAKEDIR STRING "${DOCSTR}"
                 "${CMAKE_INSTALL_LIBDIR}/cmake/sundials")
+
+
+# ---------------------------------------------------------------
+# Options to enable SUNDIALS debugging
+# ---------------------------------------------------------------
+
+# List of debugging options (used to add preprocessor directives)
+set(_SUNDIALS_DEBUG_OPTIONS
+  SUNDIALS_DEBUG
+  SUNDIALS_DEBUG_ASSERT
+  SUNDIALS_DEBUG_CUDA_LASTERROR
+  SUNDIALS_DEBUG_HIP_LASTERROR
+  SUNDIALS_DEBUG_PRINTVEC)
+
+sundials_option(SUNDIALS_DEBUG BOOL
+  "Enable additional debugging output and options" OFF
+  ADVANCED)
+
+sundials_option(SUNDIALS_DEBUG_ASSERT BOOL
+  "Enable assert when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG
+  SHOW_IF SUNDIALS_DEBUG
+  ADVANCED)
+
+sundials_option(SUNDIALS_DEBUG_CUDA_LASTERROR BOOL
+  "Enable assert when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG ENABLE_CUDA
+  SHOW_IF SUNDIALS_DEBUG ENABLE_CUDA
+  ADVANCED)
+
+sundials_option(SUNDIALS_DEBUG_HIP_LASTERROR BOOL
+  "Enable assert when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG ENABLE_HIP
+  SHOW_IF SUNDIALS_DEBUG ENABLE_HIP
+  ADVANCED)
+
+sundials_option(SUNDIALS_DEBUG_PRINTVEC BOOL
+  "Enable vector debugging output" OFF
+  DEPENDS_ON SUNDIALS_DEBUG
+  SHOW_IF SUNDIALS_DEBUG
+  ADVANCED)
