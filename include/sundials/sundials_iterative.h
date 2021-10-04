@@ -381,6 +381,18 @@ SUNDIALS_EXPORT int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
 
 /*
  * -----------------------------------------------------------------
+ * Function: SUNQRAdd_ICWY_SB
+ * -----------------------------------------------------------------
+ *  The same function as SUNQRAdd_ICWY but using a single buffer
+ *  for global reductions.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int SUNQRAdd_ICWY_SB(N_Vector *Q, realtype *R, N_Vector df,
+                                     int m, int mMax, void *QRdata);
+
+/*
+ * -----------------------------------------------------------------
  * Function: SUNQRAdd_CGS2
  * -----------------------------------------------------------------
  * SUNQRAdd_CGS2 uses a Classical Gram Schmidt with Reorthogonalization
@@ -448,6 +460,18 @@ SUNDIALS_EXPORT int SUNQRAdd_CGS2(N_Vector *Q, realtype *R, N_Vector df,
 
 SUNDIALS_EXPORT int SUNQRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df,
                                    int m, int mMax, void *QRdata);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: SUNQRAdd_DCGS2_SB
+ * -----------------------------------------------------------------
+ *  The same function as SUNQRAdd_DCGS2 but using a single buffer
+ *  for global reductions.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int SUNQRAdd_DCGS2_SB(N_Vector *Q, realtype *R, N_Vector df,
+                                      int m, int mMax, void *QRdata);
 
 #ifdef __cplusplus
 }

@@ -370,6 +370,54 @@ int SUNQRAdd_ICWY(N_Vector *Q, realtype *R, N_Vector df,
     return 0;
 }
 
+int SUNQRAdd_ICWY_SB(N_Vector *Q, realtype *R, N_Vector df,
+                     int m, int mMax, void *QRdata)
+{
+    sunindextype j, k;
+    SUNQRData qrdata = (SUNQRData) QRdata;
+
+    N_VScale(ONE, df, qrdata->vtemp); /* stores d_fi in temp */
+
+    if (m > 0) {
+      /* T(1:k-1,k-1)^T = Q(:,1:k-1)^T * Q(:,k-1) */
+      N_VDotProdMultiSB(m, Q[m-1], Q, qrdata->temp_array + (m-1) * mMax);
+      
+      /* R(1:k-1,k) = Q_k-1^T * df */
+      /* Put R values at end of temp_array */
+      N_VDotProdMultiSB(m, qrdata->vtemp, Q, qrdata->temp_array + (m-1) * mMax + m );
+      N_VDotProdMultiSBFin(m+m, qrdata->vtemp, qrdata->temp_array + (m-1) * mMax);
+
+      /* Move the last values from temp array into R */
+      for (k = 0; k < m; k++) {
+        R[m*mMax + k] = qrdata->temp_array[(m-1)*mMax + m + k];
+      }
+
+      /* T(k-1,k-1) = 1.0 */
+      qrdata->temp_array[(m-1) * mMax + (m-1)] = 1.0;
+
+      /* Solve T^T * R(1:k-1,k) = R(1:k-1,k) */
+      for (k = 0; k < m; k++) {
+        /* Skip setting the diagonal element because it doesn't change */
+        for (j = k+1; j < m; j++) {
+          R[m * mMax + j] -= R[m * mMax + k] * qrdata->temp_array[j * mMax + k];
+        }
+      }
+      /* end */
+
+      /* Q(:,k-1) = df - Q_k-1 R(1:k-1,k) */
+      N_VLinearCombination(m, R + m * mMax, Q, qrdata->vtemp2);
+      N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp);
+    }
+
+    /* R(k,k) = \| df \| */
+    R[m * mMax + m] = SUNRsqrt(N_VDotProd(qrdata->vtemp, qrdata->vtemp));
+    /* Q(:,k) = df / \| df \| */
+    N_VScale((1/R[m * mMax + m]), qrdata->vtemp, Q[m]);
+
+    /* Return success */
+    return 0;
+}
+
 /*
  * -----------------------------------------------------------------
  * Function : SUNQRAdd_CGS2
@@ -452,7 +500,59 @@ int SUNQRAdd_DCGS2(N_Vector *Q, realtype *R, N_Vector df,
           }
       }
 
-      /* df = df - Q(:,k-1) s */
+      /* df = df - Q(:,k-1) R(1:k-1,k) */
+      N_VLinearCombination(m, R + m * mMax, Q, qrdata->vtemp2);
+      N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp);
+    }
+
+    /* R(k,k) = \| df \| */
+    R[m * mMax + m] = SUNRsqrt(N_VDotProd(qrdata->vtemp, qrdata->vtemp));
+    /* Q(:,k) = df / R(k,k) */
+    N_VScale((1/R[m * mMax + m]), qrdata->vtemp, Q[m]);
+
+    /* Return success */
+    return 0;
+}
+
+int SUNQRAdd_DCGS2_SB(N_Vector *Q, realtype *R, N_Vector df,
+                   int m, int mMax, void *QRdata)
+{
+    sunindextype j;
+    SUNQRData qrdata = (SUNQRData) QRdata;
+
+    N_VScale(ONE, df, qrdata->vtemp); /* temp = df */
+
+    if (m > 0) {
+      if (m == 1) {
+        /* R(1:k-1,k) = Q_k-1^T df_aa */
+        N_VDotProdMulti(m, qrdata->vtemp, Q, R + m*mMax);
+      }
+      /* Delayed reorthogonalization */
+      else if (m > 1) {
+        /* R(1:k-1,k) = Q_k-1^T df_aa */
+        /* Put R values at beginning of temp array */
+        N_VDotProdMultiSB(m, qrdata->vtemp, Q, qrdata->temp_array);
+
+        /* s = Q_k-2^T Q(:,k-1) */
+        N_VDotProdMultiSB(m-1, Q[m-1], Q, qrdata->temp_array + m);
+        N_VDotProdMultiSBFin(m + m-1, qrdata->vtemp, qrdata->temp_array);
+
+        /* Move R values to R */
+        for (j = 0; j < m; j++) {
+          R[m*mMax + j] = qrdata->temp_array[j];
+        }
+
+        /* Q(:,k-1) = Q(:,k-1) - Q_k-2 s */
+        N_VLinearCombination(m-1, qrdata->temp_array + m, Q, qrdata->vtemp2);
+        N_VLinearSum(ONE, Q[m-1], -ONE, qrdata->vtemp2, Q[m-1]);
+
+        /* R(1:k-2,k-1) = R(1:k-2,k-1) + s */
+        for (j = 0; j < m-1; j++) {
+          R[(m-1) * mMax + j] = R[(m-1) * mMax + j] + qrdata->temp_array[m + j];
+        }
+      }
+
+      /* df = df - Q(:,k-1) R(1:k-1,k) */
       N_VLinearCombination(m, R + m * mMax, Q, qrdata->vtemp2);
       N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp);
     }
