@@ -261,6 +261,12 @@ typedef struct KINMemRec {
   void *kin_ih_data;           /* dats pointer passed to ihfun                 */
   FILE *kin_infofp;            /* where KINSol info messages are sent          */
 
+  /*---------
+    Debugging
+    ---------*/
+
+  FILE *kin_debugfp; /* debugging output file */
+
 } *KINMem;
 
 /*

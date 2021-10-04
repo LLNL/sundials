@@ -291,6 +291,12 @@ void *KINCreate(void)
   kin_mem->kin_omega_min        = OMEGA_MIN;
   kin_mem->kin_omega_max        = OMEGA_MAX;
 
+#ifdef SUNDIALS_DEBUG
+  kin_mem->kin_debugfp = stdout;
+#else
+  kin_mem->kin_debugfp = NULL;
+#endif
+
   /* initialize lrw and liw */
 
   kin_mem->kin_lrw = 17;
@@ -2613,6 +2619,11 @@ static int KINFP(KINMem kin_mem)
   ret   = CONTINUE_ITERATIONS;
   fmax  = kin_mem->kin_fnormtol + ONE;
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  fprintf(kin_mem->kin_debugfp, "KINSOL u_0:\n");
+  N_VPrintFile(kin_mem->kin_uu, kin_mem->kin_debugfp);
+#endif
+
   /* initialize iteration count */
   kin_mem->kin_nni = 0;
 
@@ -2625,6 +2636,11 @@ static int KINFP(KINMem kin_mem)
     retval = kin_mem->kin_func(kin_mem->kin_uu, kin_mem->kin_fval,
                                kin_mem->kin_user_data);
     kin_mem->kin_nfe++;
+
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+    fprintf(kin_mem->kin_debugfp, "KINSOL G_%ld:\n", kin_mem->kin_nni - 1);
+    N_VPrintFile(kin_mem->kin_fval, kin_mem->kin_debugfp);
+#endif
 
     if (retval < 0) {
       ret = KIN_SYSFUNC_FAIL;
@@ -2641,6 +2657,11 @@ static int KINFP(KINMem kin_mem)
                   kin_mem->kin_uu, kin_mem->kin_nni - 1, kin_mem->kin_R_aa,
                   kin_mem->kin_gamma_aa);
     }
+
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+    fprintf(kin_mem->kin_debugfp, "KINSOL u_%ld:\n", kin_mem->kin_nni);
+    N_VPrintFile(kin_mem->kin_unew, kin_mem->kin_debugfp);
+#endif
 
     /* compute change between iterations */
     N_VLinearSum(ONE, kin_mem->kin_unew, -ONE, kin_mem->kin_uu, delta);
