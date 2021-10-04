@@ -120,6 +120,8 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
   v->ops->nvlinearcombination = N_VLinearCombination_MPIManyVector;
   v->ops->nvscaleaddmulti     = N_VScaleAddMulti_MPIManyVector;
   v->ops->nvdotprodmulti      = N_VDotProdMulti_MPIManyVector;
+  v->ops->nvdotprodmultisb    = N_VDotProdMultiSB_MPIManyVector;
+  v->ops->nvdotprodmultisbfin = N_VDotProdMultiSBFin_MPIManyVector;
 
   /* vector array operations */
   v->ops->nvwrmsnormvectorarray     = N_VWrmsNormVectorArray_MPIManyVector;
@@ -312,6 +314,8 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
   v->ops->nvlinearcombination = N_VLinearCombination_ManyVector;
   v->ops->nvscaleaddmulti     = N_VScaleAddMulti_ManyVector;
   v->ops->nvdotprodmulti      = N_VDotProdMulti_ManyVector;
+  v->ops->nvdotprodmultisb    = N_VDotProdMulti_ManyVector;
+  v->ops->nvdotprodmultisbfin = NULL;
 
   /* vector array operations */
   v->ops->nvwrmsnormvectorarray     = N_VWrmsNormVectorArray_ManyVector;
@@ -1354,6 +1358,30 @@ int MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y, realtype* dotpr
     return(MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE,
                          MPI_SUM, MANYVECTOR_COMM(x)));
 #endif
+
+  /* return with success */
+  return(0);
+}
+
+int MVAPPEND(N_VDotProdMultiSB)(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
+{
+  sunindextype i;
+
+  /* call N_VDotProdLocal for each <x,Y[i]> pair */
+  for (i=0; i<nvec; i++)  dotprods[i] = N_VDotProdLocal(x,Y[i]);
+
+  /* return with success */
+  return(0);
+}
+
+int MVAPPEND(N_VDotProdMultiSBFin)(int nvec_total, N_Vector x, realtype* dotprods)
+{
+#ifdef MANYVECTOR_BUILD_WITH_MPI
+  /* accumulate totals and return */
+  if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
+    return(MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec_total, MPI_SUNREALTYPE,
+                         MPI_SUM, MANYVECTOR_COMM(x)));
+#endif
   /* return with success */
   return(0);
 }
@@ -1697,6 +1725,8 @@ int MVAPPEND(N_VEnableFusedOps)(N_Vector v, booleantype tf)
     v->ops->nvlinearcombination = MVAPPEND(N_VLinearCombination);
     v->ops->nvscaleaddmulti     = MVAPPEND(N_VScaleAddMulti);
     v->ops->nvdotprodmulti      = MVAPPEND(N_VDotProdMulti);
+    v->ops->nvdotprodmultisb    = MVAPPEND(N_VDotProdMultiSB);
+    v->ops->nvdotprodmultisbfin = MVAPPEND(N_VDotProdMultiSBFin);
     /* enable all vector array operations */
     v->ops->nvlinearsumvectorarray         = MVAPPEND(N_VLinearSumVectorArray);
     v->ops->nvscalevectorarray             = MVAPPEND(N_VScaleVectorArray);
@@ -1710,6 +1740,8 @@ int MVAPPEND(N_VEnableFusedOps)(N_Vector v, booleantype tf)
     v->ops->nvlinearcombination = NULL;
     v->ops->nvscaleaddmulti     = NULL;
     v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultisb    = NULL;
+    v->ops->nvdotprodmultisbfin = NULL;
     /* disable all vector array operations */
     v->ops->nvlinearsumvectorarray         = NULL;
     v->ops->nvscalevectorarray             = NULL;
@@ -1770,10 +1802,16 @@ int MVAPPEND(N_VEnableDotProdMulti)(N_Vector v, booleantype tf)
   if (v->ops == NULL) return(-1);
 
   /* enable/disable operation */
-  if (tf)
-    v->ops->nvdotprodmulti = MVAPPEND(N_VDotProdMulti);
-  else
-    v->ops->nvdotprodmulti = NULL;
+  if (tf) {
+    v->ops->nvdotprodmulti      = MVAPPEND(N_VDotProdMulti);
+    v->ops->nvdotprodmultisb    = MVAPPEND(N_VDotProdMultiSB);
+    v->ops->nvdotprodmultisbfin = MVAPPEND(N_VDotProdMultiSBFin);
+  }
+  else {
+    v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultisb    = NULL;
+    v->ops->nvdotprodmultisbfin = NULL;
+  }
 
   /* return success */
   return(0);
