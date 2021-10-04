@@ -1144,6 +1144,49 @@ int N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y, realtype* dotpro
   return retval == MPI_SUCCESS ? 0 : -1;
 }
 
+int N_VDotProdMultiSB_Parallel(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* get vector length and data array */
+  N    = NV_LOCLENGTH_P(x);
+  xd   = NV_DATA_P(x);
+
+  /* compute multiple dot products */
+  for (i=0; i<nvec; i++) {
+    yd = NV_DATA_P(Y[i]);
+    dotprods[i] = ZERO;
+    for (j=0; j<N; j++) {
+      dotprods[i] += xd[j] * yd[j];
+    }
+  }
+
+  return 0;
+}
+
+int N_VDotProdMultiSBFin_Parallel(int nvec_total, N_Vector x, realtype* dotprods)
+{
+  int          retval;
+  MPI_Comm     comm;
+
+  /* invalid number of vectors */
+  if (nvec_total < 1) return(-1);
+
+  /* get communicator */
+  comm = NV_COMM_P(x);
+
+  /* perform reduction */
+  retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec_total, MPI_SUNREALTYPE, MPI_SUM, comm);
+
+  return retval == MPI_SUCCESS ? 0 : -1;
+}
+
 
 /*
  * -----------------------------------------------------------------
@@ -2080,6 +2123,8 @@ int N_VEnableFusedOps_Parallel(N_Vector v, booleantype tf)
     v->ops->nvlinearcombination = N_VLinearCombination_Parallel;
     v->ops->nvscaleaddmulti     = N_VScaleAddMulti_Parallel;
     v->ops->nvdotprodmulti      = N_VDotProdMulti_Parallel;
+    v->ops->nvdotprodmultisb    = N_VDotProdMultiSB_Parallel;
+    v->ops->nvdotprodmultisbfin = N_VDotProdMultiSBFin_Parallel;
     /* enable all vector array operations */
     v->ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Parallel;
     v->ops->nvscalevectorarray             = N_VScaleVectorArray_Parallel;
@@ -2093,6 +2138,8 @@ int N_VEnableFusedOps_Parallel(N_Vector v, booleantype tf)
     v->ops->nvlinearcombination = NULL;
     v->ops->nvscaleaddmulti     = NULL;
     v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultisb    = NULL;
+    v->ops->nvdotprodmultisbfin = NULL;
     /* disable all vector array operations */
     v->ops->nvlinearsumvectorarray         = NULL;
     v->ops->nvscalevectorarray             = NULL;
@@ -2153,10 +2200,16 @@ int N_VEnableDotProdMulti_Parallel(N_Vector v, booleantype tf)
   if (v->ops == NULL) return(-1);
 
   /* enable/disable operation */
-  if (tf)
-    v->ops->nvdotprodmulti = N_VDotProdMulti_Parallel;
-  else
-    v->ops->nvdotprodmulti = NULL;
+  if (tf) {
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_Parallel;
+    v->ops->nvdotprodmultisb    = N_VDotProdMultiSB_Parallel;
+    v->ops->nvdotprodmultisbfin = N_VDotProdMultiSBFin_Parallel;
+  }
+  else {
+    v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultisb    = NULL;
+    v->ops->nvdotprodmultisbfin = NULL;
+  }
 
   /* return success */
   return(0);
