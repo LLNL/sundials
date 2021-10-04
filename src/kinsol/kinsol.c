@@ -152,6 +152,7 @@
 #define PRNT_ALPHABETA 11
 #define PRNT_ADJ       12
 
+
 /*
  * =================================================================
  * PRIVATE FUNCTION PROTOTYPES
@@ -380,7 +381,10 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
       kin_mem->kin_qr_data->vtemp = kin_mem->kin_vtemp2;
     }
     else if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY) {
-      kin_mem->kin_qr_func = (SUNQRAddFn) SUNQRAdd_ICWY;
+      if (kin_mem->kin_vtemp2->ops->nvdotprodmultisb)
+        kin_mem->kin_qr_func = (SUNQRAddFn) SUNQRAdd_ICWY_SB;
+      else
+        kin_mem->kin_qr_func = (SUNQRAddFn) SUNQRAdd_ICWY;
       kin_mem->kin_qr_data->vtemp      = kin_mem->kin_vtemp2;
       kin_mem->kin_qr_data->vtemp2     = kin_mem->kin_vtemp3;
       kin_mem->kin_qr_data->temp_array = kin_mem->kin_T_aa;
@@ -392,13 +396,16 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
       kin_mem->kin_qr_data->temp_array = kin_mem->kin_cv;
     }
     else if (kin_mem->kin_orth_aa == KIN_ORTH_DCGS2) {
-      kin_mem->kin_qr_func = (SUNQRAddFn) SUNQRAdd_DCGS2;
+      if (kin_mem->kin_vtemp2->ops->nvdotprodmultisb)
+        kin_mem->kin_qr_func = (SUNQRAddFn) SUNQRAdd_DCGS2_SB;
+      else
+        kin_mem->kin_qr_func = (SUNQRAddFn) SUNQRAdd_DCGS2;
       kin_mem->kin_qr_data->vtemp      = kin_mem->kin_vtemp2;
       kin_mem->kin_qr_data->vtemp2     = kin_mem->kin_vtemp3;
       kin_mem->kin_qr_data->temp_array = kin_mem->kin_cv;
     }
   }
-
+  
   /* problem memory has been successfully allocated */
 
   kin_mem->kin_MallocDone = SUNTRUE;
@@ -2703,7 +2710,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   int       nvec=0;
   realtype* cv=kin_mem->kin_cv;
   N_Vector* Xv=kin_mem->kin_Xv;
-
+  
   ipt_map = kin_mem->kin_ipt_map;
   i_pt = iter-1 - ((iter-1) / kin_mem->kin_m_aa) * kin_mem->kin_m_aa;
   N_VLinearSum(ONE, gval, -ONE, xold, fv);
@@ -2783,9 +2790,23 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
 
     /* If ICWY orthogonalization, then update T */
     if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY) {
-      for (i = 1; i < kin_mem->kin_m_aa; i++) {
-        N_VDotProdMulti((int) i, kin_mem->kin_q_aa[i-1], kin_mem->kin_q_aa, kin_mem->kin_T_aa + (i-1)*kin_mem->kin_m_aa);
-        kin_mem->kin_T_aa[(i-1) * kin_mem->kin_m_aa + (i-1)] = 1.0;
+      if (kin_mem->kin_vtemp2->ops->nvdotprodmultisb) {
+        if (i > 1) {
+          for (i = 2; i < kin_mem->kin_m_aa; i++) {
+            N_VDotProdMultiSB((int) i, kin_mem->kin_q_aa[i-1], kin_mem->kin_q_aa, kin_mem->kin_T_aa + (i-1)*kin_mem->kin_m_aa);
+          }
+          N_VDotProdMultiSBFin((int) kin_mem->kin_m_aa * kin_mem->kin_m_aa, kin_mem->kin_q_aa[i-1], kin_mem->kin_T_aa);
+        }
+        for (i = 1; i < kin_mem->kin_m_aa; i++) {
+          kin_mem->kin_T_aa[(i-1) * kin_mem->kin_m_aa + (i-1)] = 1.0;
+        }
+      }
+      else {
+        kin_mem->kin_T_aa[0] = 1.0;
+        for (i = 2; i < kin_mem->kin_m_aa; i++) {
+            N_VDotProdMulti((int) i-1, kin_mem->kin_q_aa[i-1], kin_mem->kin_q_aa, kin_mem->kin_T_aa + (i-1)*kin_mem->kin_m_aa);
+            kin_mem->kin_T_aa[(i-1) * kin_mem->kin_m_aa + (i-1)] = 1.0;
+        }
       }
     }
 
