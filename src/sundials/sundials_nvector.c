@@ -81,6 +81,8 @@ N_Vector N_VNewEmpty()
   ops->nvlinearcombination = NULL;
   ops->nvscaleaddmulti     = NULL;
   ops->nvdotprodmulti      = NULL;
+  ops->nvdotprodmultisb    = NULL;
+  ops->nvdotprodmultisbfin = NULL;
 
   /* vector array operations (optional) */
   ops->nvlinearsumvectorarray         = NULL;
@@ -186,6 +188,8 @@ int N_VCopyOps(N_Vector w, N_Vector v)
   v->ops->nvlinearcombination = w->ops->nvlinearcombination;
   v->ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
   v->ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
+  v->ops->nvdotprodmultisb    = w->ops->nvdotprodmultisb;
+  v->ops->nvdotprodmultisbfin = w->ops->nvdotprodmultisbfin;
 
   /* vector array operations */
   v->ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
@@ -457,6 +461,37 @@ int N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
     for (i=0; i<nvec; i++) {
       dotprods[i] = x->ops->nvdotprod(x, Y[i]);
     }
+    return(0);
+
+  }
+}
+
+int N_VDotProdMultiSB(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
+{
+  int i;
+
+  if (x->ops->nvdotprodmultisb != NULL) {
+
+    return(x->ops->nvdotprodmultisb(nvec, x, Y, dotprods));
+
+  } else {
+
+    for (i=0; i<nvec; i++) {
+      dotprods[i] = x->ops->nvdotprod(x, Y[i]);
+    }
+    return(0);
+
+  }
+}
+
+int N_VDotProdMultiSBFin(int nvec, N_Vector x, realtype* dotprods)
+{
+  if (x->ops->nvdotprodmultisbfin != NULL) {
+
+    return(x->ops->nvdotprodmultisbfin(nvec, x, dotprods));
+
+  } else {
+
     return(0);
 
   }

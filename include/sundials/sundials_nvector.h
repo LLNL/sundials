@@ -130,6 +130,8 @@ struct _generic_N_Vector_Ops {
   int (*nvlinearcombination)(int, realtype*, N_Vector*, N_Vector);
   int (*nvscaleaddmulti)(int, realtype*, N_Vector, N_Vector*, N_Vector*);
   int (*nvdotprodmulti)(int, N_Vector, N_Vector*, realtype*);
+  int (*nvdotprodmultisb)(int, N_Vector, N_Vector*, realtype*);
+  int (*nvdotprodmultisbfin)(int, N_Vector, realtype*);
 
   /* vector array operations */
   int (*nvlinearsumvectorarray)(int, realtype, N_Vector*, realtype, N_Vector*,
@@ -221,6 +223,12 @@ SUNDIALS_EXPORT int N_VScaleAddMulti(int nvec, realtype* a, N_Vector x,
 
 SUNDIALS_EXPORT int N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y,
                                     realtype* dotprods);
+
+SUNDIALS_EXPORT int N_VDotProdMultiSB(int nvec, N_Vector x, N_Vector* Y,
+                                      realtype* dotprods);
+
+SUNDIALS_EXPORT int N_VDotProdMultiSBFin(int nvec_total, N_Vector x,
+                                         realtype* dotprods);
 
 /* OPTIONAL vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray(int nvec,
