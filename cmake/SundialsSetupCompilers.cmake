@@ -27,7 +27,7 @@ include(SundialsIndexSize)
 if(WIN32)
   # Under Windows, add compiler directive to inhibit warnings
   # about use of unsecure functions.
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
 if(APPLE)
@@ -228,9 +228,11 @@ set(CMAKE_Fortran_FLAGS_DEVSTRICT "${CMAKE_Fortran_FLAGS_DEV}")
 # Configure presentation of language options
 # ===============================================================
 
+# List of possible build types
 set(build_types DEBUG RELEASE RELWITHDEBINFO MINSIZEREL DEV DEVSTRICT)
-set(_SUNDIALS_ENABLED_LANGS "C")
 
+# List of enabled languages
+set(_SUNDIALS_ENABLED_LANGS "C")
 if(CXX_FOUND)
   list(APPEND _SUNDIALS_ENABLED_LANGS "CXX")
 endif()
@@ -241,11 +243,13 @@ if(CUDA_FOUND)
   list(APPEND _SUNDIALS_ENABLED_LANGS "CUDA")
 endif()
 
+# Upper case version of build type
+string(TOUPPER "${CMAKE_BUILD_TYPE}" _cmake_build_type)
+
 # Make build type specific flag options ADVANCED,
 # except for the one corresponding to the current build type
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   foreach(build_type ${build_types})
-    string(TOUPPER "${CMAKE_BUILD_TYPE}" _cmake_build_type)
     if(${_cmake_build_type} MATCHES "${build_type}")
       message("Appending ${lang} ${build_type} flags")
       mark_as_advanced(CLEAR CMAKE_${lang}_FLAGS_${build_type})
@@ -256,3 +260,12 @@ foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   # show the language compiler and flags
   mark_as_advanced(CLEAR CMAKE_${lang}_COMPILER CMAKE_${lang}_FLAGS)
 endforeach()
+
+# Add preprocessor definitions for debugging
+if(SUNDIALS_DEBUG)
+  foreach(debug ${_SUNDIALS_DEBUG_OPTIONS})
+    if (${debug})
+      add_compile_definitions(${debug})
+    endif()
+  endforeach()
+endif()

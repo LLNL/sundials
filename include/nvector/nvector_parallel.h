@@ -155,6 +155,10 @@ SUNDIALS_EXPORT int N_VScaleAddMulti_Parallel(int nvec, realtype* a, N_Vector x,
                                               N_Vector* Y, N_Vector* Z);
 SUNDIALS_EXPORT int N_VDotProdMulti_Parallel(int nvec, N_Vector x,
                                              N_Vector* Y, realtype* dotprods);
+SUNDIALS_EXPORT int N_VDotProdMultiSB_Parallel(int nvec, N_Vector x,
+                                               N_Vector* Y, realtype* dotprods);
+SUNDIALS_EXPORT int N_VDotProdMultiSBFin_Parallel(int nvec_total, N_Vector x,
+                                                  realtype* dotprods);
 
 /* vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_Parallel(int nvec,

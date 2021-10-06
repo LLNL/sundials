@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <limits>
+#include <iostream>
 
 #include <nvector/nvector_cuda.h>
 #include "VectorArrayKernels.cuh"
@@ -714,13 +715,17 @@ void N_VPrintFile_Cuda(N_Vector x, FILE *outfile)
 {
   sunindextype i;
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  N_VCopyFromDevice_Cuda(x);
+#endif
+
   for (i = 0; i < NVEC_CUDA_CONTENT(x)->length; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Lg\n", NVEC_CUDA_HDATAp(x)[i]);
+    fprintf(outfile, "%35.32Le\n", NVEC_CUDA_HDATAp(x)[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16g\n", NVEC_CUDA_HDATAp(x)[i]);
+    fprintf(outfile, "%19.16e\n", NVEC_CUDA_HDATAp(x)[i]);
 #else
-    fprintf(outfile, "%11.8g\n", NVEC_CUDA_HDATAp(x)[i]);
+    fprintf(outfile, "%11.8e\n", NVEC_CUDA_HDATAp(x)[i]);
 #endif
   }
   fprintf(outfile, "\n");
