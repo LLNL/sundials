@@ -79,25 +79,43 @@ scaleAddMultiKernel(int nv, T* c, T* xd, T** yd, T** zd, I n)
  * Dot product of one vector with nv other vectors.
  *
  */
+// template <typename T, typename I>
+// __global__ void
+// dotProdMultiKernel(int nv, const T* xd, T** yd, T* out, I n)
+// {
+//   // REQUIRES nv blocks (i.e. gridDim.x == nv)
+//   const I k = blockIdx.x;
+
+//   // Initialize to zero.
+//   T sum = 0.0;
+//   for (I i = threadIdx.x; i < n; i += blockDim.x)
+//   { // each thread computes n/blockDim.x elements
+//     sum += xd[i] * yd[k][i];
+//   }
+//   sum = blockReduce<T, RSUM>(sum, 0.0); 
+
+//   // Copy reduction result for each block to global memory
+//   if (threadIdx.x == 0) atomicAdd(&out[k], sum);
+// }
+
 template <typename T, typename I>
 __global__ void
 dotProdMultiKernel(int nv, const T* xd, T** yd, T* out, I n)
 {
-  // REQUIRES nv blocks (i.e. gridDim.x == nv)
-  const I k = blockIdx.x;
+  for (int k = 0; k < nv; k++)
+  {
+    // Initialize to zero.
+    T sum = 0.0;
+    GRID_STRIDE_XLOOP(I, i, n)
+    {
+      sum += xd[i] * yd[k][i];
+    }
+    sum = blockReduce<T, RSUM>(sum, 0.0); 
 
-  // Initialize to zero.
-  T sum = 0.0;
-  for (I i = threadIdx.x; i < n; i += blockDim.x)
-  { // each thread computes n/blockDim.x elements
-    sum += xd[i] * yd[k][i];
+    // Copy reduction result for each block to global memory
+    if (threadIdx.x == 0) atomicAdd(&out[k], sum);
   }
-  sum = blockReduce<T, RSUM>(sum, 0.0); 
-
-  // Copy reduction result for each block to global memory
-  if (threadIdx.x == 0) atomicAdd(&out[k], sum);
 }
-
 
 /*
  * -----------------------------------------------------------------------------
