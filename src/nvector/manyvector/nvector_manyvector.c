@@ -34,6 +34,8 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
+#define WRKSIZE 20
+
 /* -----------------------------------------------------------------
    ManyVector content accessor macros
    -----------------------------------------------------------------*/
@@ -202,7 +204,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
 
   /* Allocate workspace for fused operations */
   content->loc_vec_array = NULL;
-  content->loc_vec_array = (N_Vector*) malloc(50 * sizeof(N_Vector));
+  content->loc_vec_array = (N_Vector*) malloc(WRKSIZE * sizeof(N_Vector));
   if (!(content->loc_vec_array))
   {
     N_VDestroy(v);
@@ -2020,6 +2022,15 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
       N_VDestroy(v);
       return(NULL);
     }
+  }
+
+  /* Allocate workspace for fused operations */
+  content->loc_vec_array = NULL;
+  content->loc_vec_array = (N_Vector*) malloc(WRKSIZE * sizeof(N_Vector));
+  if (!(content->loc_vec_array))
+  {
+    N_VDestroy(v);
+    return(NULL);
   }
 
   return(v);
