@@ -2024,6 +2024,7 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
     }
   }
 
+#ifdef MANYVECTOR_BUILD_WITH_MPI
   /* Allocate workspace for fused operations */
   content->loc_vec_array = NULL;
   content->loc_vec_array = (N_Vector*) malloc(WRKSIZE * sizeof(N_Vector));
@@ -2032,6 +2033,7 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
     N_VDestroy(v);
     return(NULL);
   }
+#endif
 
   return(v);
 }
