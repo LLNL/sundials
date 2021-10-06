@@ -2406,9 +2406,9 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
 
   // pad buffer with single precision data
 #if defined(SUNDIALS_SINGLE_PRECISION)
-  size_t bytes = 5 * (nreal * 2 * sizeof(realtype) + nptr * sizeof(realtype*));
+  size_t bytes = 10 * (nreal * 2 * sizeof(realtype) + nptr * sizeof(realtype*));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  size_t bytes = 5 * (nreal * sizeof(realtype) + nptr * sizeof(realtype*));
+  size_t bytes = 10 * (nreal * sizeof(realtype) + nptr * sizeof(realtype*));
 #else
 #error Incompatible precision for CUDA
 #endif
