@@ -1394,8 +1394,24 @@ int MVAPPEND(N_VDotProdMultiSB)(int nvec, N_Vector x, N_Vector* Y, realtype* dot
 {
   sunindextype i;
 
+#ifdef MANYVECTOR_BUILD_WITH_MPI
+  int retval;
+
+  /* extract the local vectors (assumes one subvector) */
+  N_Vector  x_loc = MANYVECTOR_SUBVEC(x, 0);
+  N_Vector* Y_loc = MANYVECTOR_WRKSPACE(x);
+
+  for (i=0; i<nvec; i++) Y_loc[i] = MANYVECTOR_SUBVEC(Y[i], 0);
+
+  retval = N_VDotProdMulti(nvec, x_loc, Y_loc, dotprods);
+  if (retval) return retval;
+
+#else
+
   /* call N_VDotProdLocal for each <x,Y[i]> pair */
   for (i=0; i<nvec; i++)  dotprods[i] = N_VDotProdLocal(x,Y[i]);
+
+#endif
 
   /* return with success */
   return(0);
