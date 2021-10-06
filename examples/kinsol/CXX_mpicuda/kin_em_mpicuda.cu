@@ -451,17 +451,17 @@ static int SetMus(UserData *udata)
 
   // Fill vectors with uniform random data in [-1,1]
   for (i = 0; i < udata->nodes_loc; i++) {
-    /*mu_host[3*i]   = ZERO;
-    mu_host[3*i+1] = HALF + i * increment1;
-    mu_host[3*i+2] = ONE + i * increment2;*/
-
-    /*mu_host[3*i]   = ZERO;
-    mu_host[3*i+1] = HALF;
-    mu_host[3*i+2] = ONE;*/
+    // mu_host[3*i]   = ZERO;
+    // mu_host[3*i+1] = HALF + i * increment1;
+    // mu_host[3*i+2] = ONE + i * increment2;
 
     mu_host[3*i]   = ZERO;
-    mu_host[3*i+1] = FIVE;
-    mu_host[3*i+2] = TEN;
+    mu_host[3*i+1] = HALF;
+    mu_host[3*i+2] = ONE;
+
+    // mu_host[3*i]   = ZERO;
+    // mu_host[3*i+1] = FIVE;
+    // mu_host[3*i+2] = TEN;
   }
 
   N_VCopyToDevice_Cuda(N_VGetLocalVector_MPIPlusX(udata->mu_true));
