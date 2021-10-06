@@ -185,7 +185,8 @@ int main(int argc, char* argv[])
   N_VConst(ONE, scale);
 
   // Set initial condition
-  flag = RandomVec(u, udata);
+  //flag = RandomVec(u, udata);
+  flag = SetStartGuess(u, udata);
   if (check_flag(&flag, "RandomVec", 1)) return 1;
 
   // Create vector true mu values
