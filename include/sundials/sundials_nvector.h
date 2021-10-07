@@ -133,6 +133,8 @@ struct _generic_N_Vector_Ops {
   int (*nvdotprodmultisb)(int, N_Vector, N_Vector*, realtype*);
   int (*nvdotprodmultisbfin)(int, N_Vector, realtype*);
 
+  int (*nvsetupfusedwrkspace)(int, N_Vector*);
+
   /* vector array operations */
   int (*nvlinearsumvectorarray)(int, realtype, N_Vector*, realtype, N_Vector*,
                                 N_Vector*);
@@ -229,6 +231,8 @@ SUNDIALS_EXPORT int N_VDotProdMultiSB(int nvec, N_Vector x, N_Vector* Y,
 
 SUNDIALS_EXPORT int N_VDotProdMultiSBFin(int nvec_total, N_Vector x,
                                          realtype* dotprods);
+
+SUNDIALS_EXPORT int N_VSetupFusedWorkSpace(int nvec_total, N_Vector* X);
 
 /* OPTIONAL vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray(int nvec,

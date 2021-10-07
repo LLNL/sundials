@@ -126,6 +126,8 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
   v->ops->nvdotprodmultisb    = N_VDotProdMultiSB_MPIManyVector;
   v->ops->nvdotprodmultisbfin = N_VDotProdMultiSBFin_MPIManyVector;
 
+  v->ops->nvsetupfusedwrkspace = N_VSetupFusedWorkSpace_MPIManyVector;
+
   /* vector array operations */
   v->ops->nvwrmsnormvectorarray     = N_VWrmsNormVectorArray_MPIManyVector;
   v->ops->nvwrmsnormmaskvectorarray = N_VWrmsNormMaskVectorArray_MPIManyVector;
@@ -328,6 +330,8 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
   v->ops->nvdotprodmulti      = N_VDotProdMulti_ManyVector;
   v->ops->nvdotprodmultisb    = N_VDotProdMulti_ManyVector;
   v->ops->nvdotprodmultisbfin = NULL;
+
+  v->ops->nvsetupfusedwrkspace = NULL;
 
   /* vector array operations */
   v->ops->nvwrmsnormvectorarray     = N_VWrmsNormVectorArray_ManyVector;
@@ -1431,6 +1435,27 @@ int MVAPPEND(N_VDotProdMultiSBFin)(int nvec_total, N_Vector x, realtype* dotprod
   return(0);
 }
 
+int MVAPPEND(N_VSetupFusedWorkSpace)(int nvec, N_Vector* X)
+{
+  sunindextype i;
+
+#ifdef MANYVECTOR_BUILD_WITH_MPI
+  int retval;
+
+  /* extract the local vectors (assumes one subvector) */
+  N_Vector  x_loc = MANYVECTOR_SUBVEC(X[0], 0);
+  N_Vector* Y_loc = MANYVECTOR_WRKSPACE(X[0]);
+
+  for (i=0; i<nvec; i++) Y_loc[i] = MANYVECTOR_SUBVEC(X[i], 0);
+
+  retval = N_VSetupFusedWorkSpace(nvec, Y_loc);
+  if (retval) return retval;
+
+#endif
+
+  /* return with success */
+  return(0);
+}
 
 /* -----------------------------------------------------------------
    Vector array operations

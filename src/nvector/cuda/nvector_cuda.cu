@@ -71,6 +71,9 @@ struct _N_PrivateVectorContent_Cuda
   SUNMemory fused_buffer_host;   // host memory for fused ops
   size_t    fused_buffer_bytes;  // current size of the buffers
   size_t    fused_buffer_offset; // current offset into the buffer
+
+  SUNMemory fixed_fused_buffer_dev;
+  SUNMemory fixed_fused_buffer_host;
 };
 
 typedef struct _N_PrivateVectorContent_Cuda *N_PrivateVectorContent_Cuda;
@@ -256,6 +259,8 @@ N_Vector N_VNewEmpty_Cuda()
   v->ops->nvcompare      = N_VCompare_Cuda;
 
   /* fused and vector array operations are disabled (NULL) by default */
+
+  v->ops->nvsetupfusedwrkspace = N_VSetupFusedWorkSpace_Cuda;
 
   /* local reduction operations */
   v->ops->nvdotprodlocal     = N_VDotProd_Cuda;
@@ -1486,27 +1491,30 @@ int N_VScaleAddMulti_Cuda(int nvec, realtype* c, N_Vector x, N_Vector* Y,
 
 int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dots)
 {
+  // Get the vector private memory structure
+  N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(Y[0]);
+
   // Fused op workspace shortcuts
   realtype** ydata = NULL;
 
   // Setup the fused op workspace
-  if (FusedBuffer_Init(x, 0, nvec))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_Init returned nonzero\n");
-    return -1;
-  }
+  // if (FusedBuffer_Init(x, 0, nvec))
+  // {
+  //   SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_Init returned nonzero\n");
+  //   return -1;
+  // }
 
-  if (FusedBuffer_CopyPtrArray1D(x, Y, nvec, &ydata))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
-  }
+  // if (FusedBuffer_CopyPtrArray1D(x, Y, nvec, &ydata))
+  // {
+  //   SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_CopyPtrArray1D returned nonzero\n");
+  //   return -1;
+  // }
 
-  if (FusedBuffer_CopyToDevice(x))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
-  }
+  // if (FusedBuffer_CopyToDevice(x))
+  // {
+  //   SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: FusedBuffer_CopyToDevice returned nonzero\n");
+  //   return -1;
+  // }
 
   // Setup the reduction buffer
   for (int i = 0; i < nvec; ++i)
@@ -1523,12 +1531,13 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dots)
   size_t grid, block, shMemSize;
   cudaStream_t stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, true, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: GetKernelParameters returned nonzero\n");
     return -1;
   }
-  grid = nvec;
+
+  ydata = (realtype**) vcp->fixed_fused_buffer_dev->ptr;
 
   dotProdMultiKernel<realtype, sunindextype><<<grid, block, shMemSize, stream>>>
   (
@@ -1549,6 +1558,68 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dots)
 
   return 0;
 }
+
+int N_VSetupFusedWorkSpace_Cuda(int nvec, N_Vector* X)
+{
+  int alloc_fail, copy_fail;
+
+  // Store the buffer in the first vector
+  N_Vector v = X[0];
+
+  // Get the vector private memory structure
+  N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
+
+  size_t bytes = nvec * sizeof(realtype*);
+
+  // Allocate pinned memory on the host
+  alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
+                                     &(vcp->fixed_fused_buffer_host), bytes,
+                                     SUNMEMTYPE_PINNED);
+
+  if (alloc_fail)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR: SUNMemoryHelper_CopyAsync failed\n");
+    return -1;
+  }
+
+
+  // Allocate device memory
+  alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
+                                     &(vcp->fixed_fused_buffer_dev), bytes,
+                                     SUNMEMTYPE_DEVICE);
+
+  if (alloc_fail)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR: SUNMemoryHelper_CopyAsync failed\n");
+    return -1;
+  }
+
+
+  realtype** h_buffer = (realtype**) vcp->fixed_fused_buffer_host->ptr;
+
+  for (int j = 0; j < nvec; j++)
+  {
+    h_buffer[j] = NVEC_CUDA_DDATAp(X[j]);
+  }
+
+  // Copy the fused buffer to the device
+  copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(v),
+                                        vcp->fixed_fused_buffer_dev,
+                                        vcp->fixed_fused_buffer_host,
+                                        bytes,
+                                        (void*) NVEC_CUDA_STREAM(v));
+  if (copy_fail)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR: SUNMemoryHelper_CopyAsync failed\n");
+    return -1;
+  }
+
+  // Synchronize with respect to the host, but only in this stream
+  SUNDIALS_CUDA_VERIFY(cudaStreamSynchronize(*NVEC_CUDA_STREAM(v)));
+
+  return 0;
+}
+
 
 
 /*

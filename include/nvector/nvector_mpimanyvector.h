@@ -135,6 +135,9 @@ SUNDIALS_EXPORT int N_VDotProdMultiSB_MPIManyVector(int nvec, N_Vector x,
 SUNDIALS_EXPORT int N_VDotProdMultiSBFin_MPIManyVector(int nvec_total, N_Vector x,
                                                        realtype* dotprods);
 
+SUNDIALS_EXPORT int N_VSetupFusedWorkSpace_MPIManyVector(int nvec_total,
+                                                         N_Vector* x);
+
 /* vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_MPIManyVector(int nvec,
                                                           realtype a, N_Vector* X,

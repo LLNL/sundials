@@ -84,6 +84,8 @@ N_Vector N_VNewEmpty()
   ops->nvdotprodmultisb    = NULL;
   ops->nvdotprodmultisbfin = NULL;
 
+  ops->nvsetupfusedwrkspace = NULL;
+
   /* vector array operations (optional) */
   ops->nvlinearsumvectorarray         = NULL;
   ops->nvscalevectorarray             = NULL;
@@ -190,6 +192,8 @@ int N_VCopyOps(N_Vector w, N_Vector v)
   v->ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
   v->ops->nvdotprodmultisb    = w->ops->nvdotprodmultisb;
   v->ops->nvdotprodmultisbfin = w->ops->nvdotprodmultisbfin;
+
+  v->ops->nvsetupfusedwrkspace = w->ops->nvsetupfusedwrkspace;
 
   /* vector array operations */
   v->ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
@@ -489,6 +493,19 @@ int N_VDotProdMultiSBFin(int nvec, N_Vector x, realtype* dotprods)
   if (x->ops->nvdotprodmultisbfin != NULL) {
 
     return(x->ops->nvdotprodmultisbfin(nvec, x, dotprods));
+
+  } else {
+
+    return(0);
+
+  }
+}
+
+int N_VSetupFusedWorkSpace(int nvec, N_Vector* X)
+{
+  if (X[0]->ops->nvsetupfusedwrkspace) {
+
+    return(X[0]->ops->nvsetupfusedwrkspace(nvec, X));
 
   } else {
 

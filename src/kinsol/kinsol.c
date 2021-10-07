@@ -2627,6 +2627,10 @@ static int KINFP(KINMem kin_mem)
   /* initialize iteration count */
   kin_mem->kin_nni = 0;
 
+  /* initialize fused operation buffer */
+  retval = N_VSetupFusedWorkSpace(kin_mem->kin_m_aa, kin_mem->kin_q_aa);
+  if (retval) return KIN_ILL_INPUT;
+
   while (ret == CONTINUE_ITERATIONS) {
 
     /* update iteration count */

@@ -154,6 +154,8 @@ SUNDIALS_EXPORT int N_VScaleAddMulti_Cuda(int nvec, realtype* c, N_Vector X,
 SUNDIALS_EXPORT int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y,
                                          realtype* dotprods);
 
+SUNDIALS_EXPORT int N_VSetupFusedWorkSpace_Cuda(int nvec, N_Vector* Y);
+
 /* vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_Cuda(int nvec,
                                                  realtype a, N_Vector* X,
