@@ -3777,3 +3777,67 @@ factorizations, \id{nlinsetups} calls to \id{Gcomm}, \id{npsolves} banded
 backsolve calls, and \id{nfevalsLS} right-hand side function evaluations,
 where \id{nlinsetups} is an optional {\kinsol} output and \id{npsolves} and
 \id{nfevalsLS} are linear solver optional outputs (see \S\ref{ss:optional_output}).
+
+
+%%==============================================================================
+\section{Alternative to KINSOL for difficult systems}
+\label{sss:kinalternative}
+%%==============================================================================
+
+A nonlinear system $F(u) = 0$ may be difficult to solve with {\kinsol} (or any
+other nonlinear system solver) for a variety of reasons. The possible reasons
+include high nonlinearity, small region of convergence, and lack of a good
+initial guess. For systems with such difficulties, there is an alternative
+approach that may be more successful. This is an old idea, but deserves some
+new attention.
+
+If the nonlinear system is $F(u) = 0$, consider instead the ODE system $du/dt =
+- M^{-1} F(u)$, where $M$ is a nonsingular matrix that is an approximation (even
+a crude approximation) to the system Jacobian $F_u = dF/du$. Whatever $M$ is,
+if this ODE is solved until it reaches a steady state $u^*$, then $u^*$ is a
+zero of the right-hand side of the ODE, and hence a solution to $F(u) = 0$.
+There is no issue of having a close enough initial guess.
+
+A further basis for this choice of ODE is the following: If $M$ approximates
+$F_u$, then the Jacobian of the ODE system, $-M^{-1}F_u$, is approximately equal
+to $-I$ where $I$ is the identity matrix. This means that (in a local
+approximation sense) the solution modes of the ODE behave like $\exp(-t)$, and
+that asymptotically the approach to the steady state goes as $\exp(-t)$. Of
+course, the closer $M$ is to $F_u$, the better this basis applies.
+
+Using (say) CVODE to solve the above ODE system requires, in addition to the
+objective function $F(u)$, the calculation of a suitable matrix $M$ and its
+inverse, or at least a routine that solves linear systems $Mx = b$. This is
+similar to the {\kinsol} requirement of supplying the system Jacobian $J$ (or
+solutions to $Jx = b$), but differs in that $M$ may be simpler than $J$ and
+hence easier to deal with. Depending on the nature of $M$, this may be handled
+best with a direct solver, or with a preconditioned Krylov solver. The latter
+calls for the use of a preconditioner $P$ that may be a crude approximation to
+$M$, hence even easier to solve. Note if using ARKODE, the ODE system may be
+posed in the linearly implicit from $M du/dt = -F(u)$ where $M$ is the ``mass
+matrix'' for the system. This use case requires supplying ARKODE with a function
+to evaluate $M$ or to compute its action on a vector ($Mv = w$) and attaching a
+linear solver (direct or iterative) to solve the linear systems $Mx = b$.
+
+The solution of the ODE may be made easier by solving instead the equivalent
+DAE, $M du/dt + F(u) = 0$. Applying IDA to this system requires solutions to
+linear systems whose matrix is the DAE system Jacobian, $J = F_u + \alpha M$,
+where $\alpha$ is the scalar coefficient $c_j$ supplied to the user's Jacobian
+or preconditioner routine. Selecting a preconditioned Krylov method requires an
+approximation to this Jacobian as preconditioner $P$. Given that $M$
+approximates $F_u$ (possibly crudely), the appropriate approximation to $J$ is
+$P = M + \alpha M = (1 + \alpha)M$. Again the user must supply a routine that
+solves linear systems $Px = b$, or $M x = b/(1 + \alpha)$. If M is too
+difficult to solve, than an approximation $M'$ that is easier can be
+substituted, as long as it achieves convergence. As always, there is a trade-off
+between the expense of solving $M$ and the difficulty of achieving convergence
+in the linear solver.
+
+For the solution of either the ODE or DAE system above, the chances for
+convergence can be improved with a piecewise constant choice for $M$.
+Specifically, starting from an initial guess $u_0$, an initial choice for $M$
+might be $M_0 = F_u(u_0)$, or some approximation to this Jacobian. Then one
+could integrate $M_0 du/dt + F(u) = 0$ from $t = 0$ to $t = T$ for some sizable
+value $T$, evaluate $F_u(u(T))$, and take $M_1$ to be an approximation to that
+Jacobian. Then integrate using $M_1$ from $t = T$ to $t = 2T$, and repeat the
+process until it converges to a steady state.
