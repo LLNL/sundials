@@ -512,6 +512,49 @@ int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB)
  */
 
 /*
+ * CVodeGetUserDataB
+ *
+ * Return the user data pointer from most recent corresponding
+ * call to CVodeSetUserDataB.
+ */
+
+void *CVodeGetUserDataB(void *cvode_mem, int which)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+
+  /* Check if cvode_mem exists */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeGetUserDataB", MSGCV_NO_MEM);
+    return(NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Was ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeGetUserDataB", MSGCV_NO_ADJ);
+    return(NULL);
+  } 
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check which */
+  if ( which >= ca_mem->ca_nbckpbs ) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeGetUserDataB", MSGCV_BAD_WHICH);
+    return(NULL);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to which */
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index ) break;
+    cvB_mem = cvB_mem->cv_next;
+  }
+
+  return(cvB_mem->cv_user_data);
+}
+
+/*
  * CVodeGetAdjCVodeBmem
  *
  * This function returns a (void *) pointer to the CVODES     

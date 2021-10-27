@@ -921,6 +921,26 @@ int KINSetSysFunc(void *kinmem, KINSysFn func)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINGetUserData
+ * -----------------------------------------------------------------
+ */
+
+void *KINGetUserData(void *kinmem)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL) {
+    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINGetUserData", MSG_NO_MEM);
+    return(NULL);
+  }
+
+  kin_mem = (KINMem) kinmem;
+
+  return(kin_mem->kin_user_data);
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINGetWorkSpace
  * -----------------------------------------------------------------
  */

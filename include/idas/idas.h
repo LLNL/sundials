@@ -295,6 +295,7 @@ SUNDIALS_EXPORT int IDAGetNumNonlinSolvConvFails(void *ida_mem,
 SUNDIALS_EXPORT int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters,
                                           long int *nncfails);
 SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT void *IDAGetUserData(void *cvode_mem);
 
 /* Free function */
 SUNDIALS_EXPORT void IDAFree(void **ida_mem);
@@ -545,6 +546,8 @@ SUNDIALS_EXPORT int IDAGetQuadB(void *ida_mem, int which,
                                 realtype *tret, N_Vector qB);
 
 /* Optional Output Functions For Backward Problems */
+
+SUNDIALS_EXPORT void *IDAGetUserDataB(void *ida_mem, int which);
 
 SUNDIALS_EXPORT void *IDAGetAdjIDABmem(void *ida_mem, int which);
 

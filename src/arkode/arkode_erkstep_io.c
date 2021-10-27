@@ -365,6 +365,26 @@ int ERKStepSetTableNum(void *arkode_mem, int itable)
   ===============================================================*/
 
 /*---------------------------------------------------------------
+  ERKStepGetUserData:
+
+  Return the user data pointer from most recent call to
+  ERKStepSetUserData.
+  ---------------------------------------------------------------*/
+void *ERKStepGetUserData(void *arkode_mem)
+{
+  ARKodeMem ark_mem;
+  ARKodeERKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeERKStepMem structure */
+  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepGetUserData",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(NULL);
+
+  return(ark_mem->user_data);
+}
+
+/*---------------------------------------------------------------
   ERKStepGetNumRhsEvals:
 
   Returns the current number of calls to fe and fi

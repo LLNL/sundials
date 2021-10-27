@@ -868,6 +868,26 @@ int MRIStepSetStagePredictFn(void *arkode_mem,
   ===============================================================*/
 
 /*---------------------------------------------------------------
+  MRIStepGetUserData:
+
+  Return the user data pointer from most recent call to
+  MRIStepSetUserData.
+  ---------------------------------------------------------------*/
+void *MRIStepGetUserData(void *arkode_mem)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepGetUserData",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(NULL);
+
+  return(ark_mem->user_data);
+}
+
+/*---------------------------------------------------------------
   MRIStepGetLastInnerStepFlag:
 
   Returns the last return value from the inner stepper.

@@ -313,6 +313,7 @@ SUNDIALS_EXPORT int ARKStepGetRootInfo(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepGetNumConstrFails(void *arkode_mem,
                                              long int *nconstrfails);
 SUNDIALS_EXPORT char *ARKStepGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT void *ARKStepGetUserData(void *arkode_mem);
 
 SUNDIALS_EXPORT int ARKStepWriteParameters(void *arkode_mem, FILE *fp);
 

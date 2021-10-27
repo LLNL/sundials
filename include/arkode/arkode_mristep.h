@@ -291,6 +291,7 @@ SUNDIALS_EXPORT int MRIStepGetRootInfo(void *arkode_mem,
 SUNDIALS_EXPORT int MRIStepGetLastInnerStepFlag(void *arkode_mem, int *flag);
 
 SUNDIALS_EXPORT char *MRIStepGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT void *MRIStepGetUserData(void *arkode_mem);
 
 SUNDIALS_EXPORT int MRIStepWriteParameters(void *arkode_mem, FILE *fp);
 

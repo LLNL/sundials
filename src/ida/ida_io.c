@@ -639,6 +639,22 @@ int IDASetStepToleranceIC(void *ida_mem, realtype steptol)
  * =================================================================
  */
 
+void *IDAGetUserData(void *ida_mem)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetUserData", MSG_NO_MEM);
+    return(NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  return(IDA_mem->ida_user_data);
+}
+
+/*-----------------------------------------------------------------*/
+
 int IDAGetNumSteps(void *ida_mem, long int *nsteps)
 {
   IDAMem IDA_mem;

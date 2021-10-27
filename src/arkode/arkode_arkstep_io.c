@@ -1349,6 +1349,26 @@ int ARKStepSetStagePredictFn(void *arkode_mem,
   ===============================================================*/
 
 /*---------------------------------------------------------------
+  ARKStepGetUserData:
+
+  Return the user data pointer from most recent call to
+  ARKStepSetUserData.
+  ---------------------------------------------------------------*/
+void *ARKStepGetUserData(void *arkode_mem)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetUserData",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(NULL);
+
+  return(ark_mem->user_data);
+}
+
+/*---------------------------------------------------------------
   ARKStepGetCurrentGamma: Returns the current value of gamma
   ---------------------------------------------------------------*/
 int ARKStepGetCurrentGamma(void *arkode_mem, realtype *gamma)

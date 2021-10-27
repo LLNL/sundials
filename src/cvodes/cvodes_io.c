@@ -827,6 +827,27 @@ int CVodeSetQuadSensErrCon(void *cvode_mem, booleantype errconQS)
  */
 
 /*
+ * CVodeGetUserData
+ *
+ * Return the user data pointer from most recent call to
+ * CVodeSetUserData.
+ */
+
+void *CVodeGetUserData(void *cvode_mem)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeGetUserData", MSGCV_NO_MEM);
+    return(NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  return(cv_mem->cv_user_data);
+}
+
+/*
  * CVodeGetNumSteps
  *
  * Returns the current number of integration steps
