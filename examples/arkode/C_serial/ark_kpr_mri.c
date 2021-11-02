@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
     B->c[1] = RCONST(0.5);
     B->c[2] = ONE;
     B->q=3;
-    B->q=2;
+    B->p=2;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
     break;
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
     B->c[1] = RCONST(0.5);
     B->c[2] = ONE;
     B->q=3;
-    B->q=2;
+    B->p=2;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
     break;
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
     B->c[1] = RCONST(0.5);
     B->c[2] = ONE;
     B->q=3;
-    B->q=2;
+    B->p=2;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
   }
