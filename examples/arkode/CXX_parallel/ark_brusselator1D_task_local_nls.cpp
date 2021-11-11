@@ -1560,17 +1560,10 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt)
   udata->Erecv = (double *) omp_target_alloc(udata->nvar*sizeof(double), dev);
   if (check_retval((void *)udata->Erecv, "omp_target_alloc", 0)) return 1;
 #else
-  udata->Wsend = (double *) calloc(udata->nvar, sizeof(double));
-  if (check_retval((void *)udata->Wsend, "calloc", 0)) return 1;
-
-  udata->Wrecv = (double *) calloc(udata->nvar, sizeof(double));
-  if (check_retval((void *)udata->Wrecv, "calloc", 0)) return 1;
-
-  udata->Esend = (double *) calloc(udata->nvar, sizeof(double));
-  if (check_retval((void *)udata->Esend, "calloc", 0)) return 1;
-
-  udata->Erecv = (double *) calloc(udata->nvar, sizeof(double));
-  if (check_retval((void *)udata->Erecv, "calloc", 0)) return 1;
+  udata->Wsend = new double[udata->nvar];
+  udata->Wrecv = new double[udata->nvar];
+  udata->Esend = new double[udata->nvar];
+  udata->Erecv = new double[udata->nvar];
 #endif
 
   /* Create the solution masks */
@@ -1673,10 +1666,10 @@ UserData::~UserData()
   omp_target_free(Esend);
   omp_target_free(Erecv);
 #else
-  delete Wsend;
-  delete Wrecv;
-  delete Esend;
-  delete Erecv;
+  delete[] Wsend;
+  delete[] Wrecv;
+  delete[] Esend;
+  delete[] Erecv;
 #endif
 
   /* close output streams */

@@ -12,13 +12,11 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
-
 .. _NVectors:
 
-=======================
+######################
 Vector Data Structures
-=======================
+######################
 
 The SUNDIALS library comes packaged with a variety of NVECTOR
 implementations, designed for simulations in serial, shared-memory

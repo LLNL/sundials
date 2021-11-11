@@ -107,19 +107,25 @@ esac
 # set file permissions (rwxrwxr-x)
 umask 002
 
+# path to shared installs
+APPROOT=/usr/casc/sundials/share/
+
+# root directory for libraries not installed through spack
+APPDIR=${APPROOT}/sundials-tpls-v0.15.4/apps/${compilername}-${compilerversion}
+
+# setup the python environment
+source ${APPROOT}/python-venv/sundocs/bin/activate
+
 # if SPACK_ROOT is not set, check for the shared spack installation
 if [ -z "$SPACK_ROOT" ]; then
-    if [ -d "/usr/casc/sundials/share/sunenv/spack" ]; then
+    if [ -d "${APPROOT}/sundials-tpls-v0.15.4/spack" ]; then
         echo "Using shared spack install"
-        export SPACK_ROOT=/usr/casc/sundials/share/sundials-tpls-v0.15.4/spack
+        export SPACK_ROOT=${APPROOT}/sundials-tpls-v0.15.4/spack
         source ${SPACK_ROOT}/share/spack/setup-env.sh
     else
         echo "WARNING: Could not locate spack installation"
     fi
 fi
-
-# path to libraries not installed through spack
-APPDIR=/usr/casc/sundials/share/sundials-tpls-v0.15.4/apps/${compilername}-${compilerversion}
 
 # load CMake
 spack load cmake@3.12.1

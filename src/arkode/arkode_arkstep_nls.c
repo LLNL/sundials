@@ -23,16 +23,6 @@
 #include "arkode_arkstep_impl.h"
 #include <sundials/sundials_math.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
-/* constants */
-#define ZERO   RCONST(0.0)
-#define ONE    RCONST(1.0)
-
 
 /*===============================================================
   Exported functions

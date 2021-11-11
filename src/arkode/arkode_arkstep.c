@@ -25,16 +25,6 @@
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
-/* constants */
-#define ZERO   RCONST(0.0)
-#define ONE    RCONST(1.0)
-
 #define FIXED_LIN_TOL
 
 
@@ -1999,7 +1989,7 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
   int i, j;
   booleantype okay;
   ARKodeARKStepMem step_mem;
-  realtype tol = RCONST(1.0e-12);
+  const realtype tol = RCONST(100.0) * UNIT_ROUNDOFF;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {

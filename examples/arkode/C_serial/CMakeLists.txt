@@ -48,6 +48,15 @@ set(ARKODE_examples
   "ark_kpr_mri\;5 0.002\;develop"
   "ark_kpr_mri\;6 0.005\;develop"
   "ark_kpr_mri\;7 0.001\;develop"
+  "ark_kpr_mri\;8 0.001\;develop"
+  "ark_kpr_mri\;9 0.001\;develop"
+  "ark_brusselator1D_imexmri\;0 0.001\;develop"
+  "ark_brusselator1D_imexmri\;2 0.001\;develop"
+  "ark_brusselator1D_imexmri\;3 0.001\;develop"
+  "ark_brusselator1D_imexmri\;4 0.001\;develop"
+  "ark_brusselator1D_imexmri\;5 0.001\;develop"
+  "ark_brusselator1D_imexmri\;6 0.001\;develop"
+  "ark_brusselator1D_imexmri\;7 0.001\;develop"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
@@ -117,7 +126,7 @@ foreach(example_tuple ${ARKODE_examples})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
+    install(FILES ${example}.c ${test_name}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
   endif()
 

@@ -30,12 +30,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 
 /*===============================================================
   EXPORTED FUNCTIONS
@@ -796,7 +790,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       ark_mem->h = ark_mem->hin;
       ark_mem->next_h = ark_mem->h;
 
-      /* patch for 'fixedstep' + 'tstop' use case:
+      /* patch for 'fixedstep' + 'tstop' use case: 
          limit fixed step size if step would overtake tstop */
       if ( ark_mem->tstopset ) {
         if ( (ark_mem->tcur + ark_mem->h - ark_mem->tstop)*ark_mem->h > ZERO ) {
@@ -1493,18 +1487,15 @@ booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v)
 }
 
 
-booleantype arkAllocVecArray(ARKodeMem ark_mem, int count, N_Vector tmpl,
-                             N_Vector **v)
+booleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
+                             sunindextype lrw1, long int *lrw,
+                             sunindextype liw1, long int *liw)
 {
   if (*v == NULL) {
     *v = N_VCloneVectorArray(count, tmpl);
-    if (*v == NULL) {
-      arkFreeVectors(ark_mem);
-      return(SUNFALSE);
-    } else {
-      ark_mem->lrw += count * ark_mem->lrw1;
-      ark_mem->liw += count * ark_mem->liw1;
-    }
+    if (*v == NULL) return(SUNFALSE);
+    *lrw += count * lrw1;
+    *liw += count * liw1;
   }
   return (SUNTRUE);
 }
@@ -1529,13 +1520,15 @@ void arkFreeVec(ARKodeMem ark_mem, N_Vector *v)
 }
 
 
-void arkFreeVecArray(ARKodeMem ark_mem, int count, N_Vector **v)
+void arkFreeVecArray(int count, N_Vector **v,
+                     sunindextype lrw1, long int *lrw,
+                     sunindextype liw1, long int *liw)
 {
   if (*v != NULL) {
     N_VDestroyVectorArray(*v, count);
     *v = NULL;
-    ark_mem->lrw -= count * ark_mem->lrw1;
-    ark_mem->liw -= count * ark_mem->liw1;
+    *lrw -= count * lrw1;
+    *liw -= count * liw1;
   }
 }
 
@@ -1583,10 +1576,10 @@ booleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
 }
 
 
-booleantype arkResizeVecArray(ARKodeMem ark_mem, ARKVecResizeFn resize,
-                              void *resize_data, sunindextype lrw_diff,
-                              sunindextype liw_diff, int count, N_Vector tmpl,
-                              N_Vector **v)
+booleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
+                              int count, N_Vector tmpl, N_Vector **v,
+                              sunindextype lrw_diff, long int *lrw,
+                              sunindextype liw_diff, long int *liw)
 {
   int i;
 
@@ -1595,22 +1588,14 @@ booleantype arkResizeVecArray(ARKodeMem ark_mem, ARKVecResizeFn resize,
       N_VDestroyVectorArray(*v, count);
       *v = NULL;
       *v = N_VCloneVectorArray(count, tmpl);
-      if (*v == NULL) {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
-                        "arkResizeVecArray", "Unable to clone vector");
-        return(SUNFALSE);
-      }
+      if (*v == NULL) return(SUNFALSE);
     } else {
       for (i = 0; i < count; i++) {
-        if (resize((*v)[i], tmpl, resize_data)) {
-          arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
-                          "arkResizeVecArray", MSG_ARK_RESIZE_FAIL);
-          return(SUNFALSE);
-        }
+        if (resize((*v)[i], tmpl, resize_data)) return(SUNFALSE);
       }
     }
-    ark_mem->lrw += count * lrw_diff;
-    ark_mem->liw += count * liw_diff;
+    *lrw += count * lrw_diff;
+    *liw += count * liw_diff;
   }
   return(SUNTRUE);
 }

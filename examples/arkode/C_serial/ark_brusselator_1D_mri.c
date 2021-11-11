@@ -121,28 +121,29 @@ int main(int argc, char *argv[])
   realtype     abstol = RCONST(1.0e-10);
 
   /* general problem variables */
-  realtype hs;                       /* slow step size                  */
-  int retval;                        /* reusable error-checking returns */
-  N_Vector y = NULL;                 /* empty solution vector           */
-  N_Vector umask = NULL;             /* empty mask vectors              */
+  realtype hs;                              /* slow step size                 */
+  int retval;                               /* reusable return flag           */
+  N_Vector y = NULL;                        /* empty solution vector          */
+  N_Vector umask = NULL;                    /* empty mask vectors             */
   N_Vector vmask = NULL;
   N_Vector wmask = NULL;
-  SUNMatrix A = NULL;                /* empty matrix for linear solver  */
-  SUNLinearSolver LS = NULL;         /* empty linear solver structure   */
-  void *arkode_mem = NULL;           /* empty ARKode memory structure   */
-  void *inner_arkode_mem = NULL;     /* empty ARKode memory structure   */
-  realtype t, dTout, tout;           /* current/output time data        */
-  realtype u, v, w;                  /* temp data values                */
-  FILE *FID, *UFID, *VFID, *WFID;    /* output file pointers            */
-  int iout;                          /* output counter                  */
-  long int nsts, nstf, nstf_a, netf; /* step stats                      */
-  long int nfs, nffe, nffi;          /* RHS stats                       */
-  long int nsetups, nje, nfeLS;      /* linear solver stats             */
-  long int nni, ncfn;                /* nonlinear solver stats          */
-  sunindextype NEQ;                  /* number of equations             */
-  sunindextype i;                    /* counter                         */
-  UserData udata = NULL;             /* user data pointer               */
-  realtype* data  = NULL;            /* array for accessing vector data */
+  SUNMatrix A = NULL;                       /* empty matrix for linear solver */
+  SUNLinearSolver LS = NULL;                /* empty linear solver structure  */
+  void *arkode_mem = NULL;                  /* empty ARKode memory structure  */
+  void *inner_arkode_mem = NULL;            /* empty ARKode memory structure  */
+  MRIStepInnerStepper inner_stepper = NULL; /* inner stepper                  */
+  realtype t, dTout, tout;                  /* current/output time data       */
+  realtype u, v, w;                         /* temp data values               */
+  FILE *FID, *UFID, *VFID, *WFID;           /* output file pointers           */
+  int iout;                                 /* output counter                 */
+  long int nsts, nstf, nstf_a, netf;        /* step stats                     */
+  long int nfse, nfsi, nffe, nffi;          /* RHS stats                      */
+  long int nsetups, nje, nfeLS;             /* linear solver stats            */
+  long int nni, ncfn;                       /* nonlinear solver stats         */
+  sunindextype NEQ;                         /* number of equations            */
+  sunindextype i;                           /* counter                        */
+  UserData udata = NULL;                    /* user data pointer              */
+  realtype* data  = NULL;                   /* array for vector data          */
 
 
   /* allocate udata structure */
@@ -216,8 +217,8 @@ int main(int argc, char *argv[])
   LS = SUNLinSol_Band(y, A);
   if (check_retval((void *)LS, "SUNLinSol_Band", 0)) return 1;
 
-  /* Initialize the fast integrator. Specify the fast right-hand side
-     function in y'=fs(t,y)+ff(t,y), the inital time T0, and the
+  /* Initialize the fast integrator. Specify the implicit fast right-hand side
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
      initial dependent variable vector y. */
   inner_arkode_mem = ARKStepCreate(NULL, ff, T0, y);
   if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
@@ -242,14 +243,19 @@ int main(int argc, char *argv[])
   retval = ARKStepSetJacFn(inner_arkode_mem, Jf);
   if (check_retval(&retval, "ARKStepSetJacFn", 1)) return 1;
 
+  /* Create inner stepper */
+  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
+                                            &inner_stepper);
+  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+
   /*
    * Create the slow integrator and set options
    */
 
-  /* Initialize the slow integrator. Specify the slow right-hand side
-     function in y'=fs(t,y)+ff(t,y), the inital time T0, the
+  /* Initialize the slow integrator. Specify the explicit slow right-hand side
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
      initial dependent variable vector y, and the fast integrator. */
-  arkode_mem = MRIStepCreate(fs, T0, y, MRISTEP_ARKSTEP, inner_arkode_mem);
+  arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper);
   if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
 
   /* Pass udata to user functions */
@@ -333,7 +339,7 @@ int main(int argc, char *argv[])
   /* Get some slow integrator statistics */
   retval = MRIStepGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "MRIStepGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfs);
+  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
@@ -360,7 +366,7 @@ int main(int argc, char *argv[])
   printf("\nFinal Solver Statistics:\n");
   printf("   Slow Steps: nsts = %li\n", nsts);
   printf("   Fast Steps: nstf = %li (attempted = %li)\n", nstf, nstf_a);
-  printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfs, nffi);
+  printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nffi);
   printf("   Total number of fast error test failures = %li\n", netf);
   printf("   Total linear solver setups = %li\n", nsetups);
   printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
@@ -369,12 +375,13 @@ int main(int argc, char *argv[])
   printf("   Total number of nonlinear solver convergence failures = %li\n", ncfn);
 
   /* Clean up and return with successful completion */
-  free(udata);                     /* Free user data         */
-  ARKStepFree(&inner_arkode_mem);  /* Free integrator memory */
-  MRIStepFree(&arkode_mem);        /* Free integrator memory */
-  SUNLinSolFree(LS);               /* Free linear solver     */
-  SUNMatDestroy(A);                /* Free matrix            */
-  N_VDestroy(y);                   /* Free vectors           */
+  free(udata);                               /* Free user data         */
+  ARKStepFree(&inner_arkode_mem);            /* Free integrator memory */
+  MRIStepInnerStepper_Free(&inner_stepper);  /* Free inner stepper */
+  MRIStepFree(&arkode_mem);                  /* Free integrator memory */
+  SUNLinSolFree(LS);                         /* Free linear solver     */
+  SUNMatDestroy(A);                          /* Free matrix            */
+  N_VDestroy(y);                             /* Free vectors           */
   N_VDestroy(umask);
   N_VDestroy(vmask);
   N_VDestroy(wmask);

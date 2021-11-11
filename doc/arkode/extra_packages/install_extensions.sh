@@ -1,6 +1,6 @@
 #!/bin/bash
 # ----------------------------------------------------------------
-# Programmer(s): Daniel R. Reynolds @ SMU
+# Programmer(s): Daniel R. Reynolds @ SMU and Cody J. Balos @ LLNL
 # ----------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -13,19 +13,18 @@
 # SUNDIALS Copyright End
 # ----------------------------------------------------------------
 
-# Sphinx
 echo "installing Sphinx"
-pip install -U Sphinx==1.6.7
+
+# Sphinx
+pip install sphinx>=4.0.0
 
 # Sphinx fortran domain
-echo "installing Sphinx fortran domain"
 pip install sphinx-fortran
 
-# Sphinx bootstrap theme
-echo "installing Sphinx bootstrap theme"
-tar -zxf sphinx-bootstrap-theme.tgz
-cd sphinx-bootstrap-theme
-python ./setup.py install
-cd -
+# Sphinx readthedocs theme
+pip install sphinx_rtd_theme
+
+# Sphinx bibtex extension
+pip install sphinxcontrib.bibtex
 
 echo "finished"

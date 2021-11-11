@@ -188,8 +188,10 @@ rm -rf $tmpdir         || exit 1
 mkdir $tmpdir          || exit 1
 mkdir $tmpdir/include  || exit 1
 mkdir $tmpdir/src      || exit 1
-mkdir $tmpdir/doc      || exit 1
 mkdir $tmpdir/examples || exit 1
+if [ $doc = "T" ]; then
+    mkdir $tmpdir/doc  || exit 1
+fi
 
 #----------------------------------
 # Copy appropriate files in $tmpdir
@@ -200,7 +202,6 @@ cp $sundialsdir/LICENSE $tmpdir/             || exit 1
 cp $sundialsdir/NOTICE $tmpdir/              || exit 1
 cp $sundialsdir/README.md $tmpdir/           || exit 1
 cp $sundialsdir/CONTRIBUTING.md $tmpdir/     || exit 1
-cp $sundialsdir/doc/Makefile.in $tmpdir/doc/ || exit 1
 cp $sundialsdir/CMakeLists.txt $tmpdir/      || exit 1
 
 # Make install guide and copy to $tmpdir
@@ -211,7 +212,7 @@ if [ $doc = "T" ]; then
     # cleanup, make install guide, copy, and cleanup
     make QUIET= purge    || exit 1
     make QUIET= in_g_pdf || exit 1
-    cp $sundialsdir/doc/sundials/install_guide.pdf $tmpdir/INSTALL_GUIDE.pdf || exit 1
+    cp install_guide.pdf $tmpdir/INSTALL_GUIDE.pdf || exit 1
     make QUIET= purge    || exit 1
 
     cd -
@@ -219,8 +220,6 @@ fi
 
 cp -r $sundialsdir/cmake $tmpdir/ || exit 1
 cp -r $sundialsdir/test $tmpdir/   || exit 1
-
-cp -r $sundialsdir/doc/sundials $tmpdir/doc/ || exit 1
 
 cp -r $sundialsdir/include/sundials $tmpdir/include/     || exit 1
 cp -r $sundialsdir/include/nvector $tmpdir/include/      || exit 1
@@ -261,30 +260,36 @@ cp -r $sundialsdir/examples/templates $tmpdir/examples/              || exit 1
 if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
     cp -r $sundialsdir/include/arkode $tmpdir/include/   || exit 1
     cp -r $sundialsdir/src/arkode $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/arkode $tmpdir/doc/           || exit 1
     cp -r $sundialsdir/examples/arkode $tmpdir/examples/ || exit 1
     if [ $doc = "T" ]; then
         echo -e "--- ARKODE documentation"
-        cd $tmpdir/doc/arkode || exit 1
-        make QUIET= purge     || exit 1
-        make QUIET= ug_pdf    || exit 1
-        make QUIET= ex_pdf    || exit 1
+        mkdir $tmpdir/doc/arkode
+        cd $sundialsdir/doc/arkode/guide || exit 1
+        make clean     || exit 1
+        make latexpdf  || exit 1
+        cp build/latex/ark_guide.pdf $tmpdir/doc/arkode/. || exit 1
+        cd -
+        cd $sundialsdir/doc/arkode/examples || exit 1
+        make clean     || exit 1
+        make latexpdf  || exit 1
+        cp build/latex/ark_examples.pdf $tmpdir/doc/arkode/. || exit 1
         cd -
     fi
-    #doc="F"
 fi
 
 if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
     cp -r $sundialsdir/include/cvode $tmpdir/include/   || exit 1
     cp -r $sundialsdir/src/cvode $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/cvode $tmpdir/doc/           || exit 1
     cp -r $sundialsdir/examples/cvode $tmpdir/examples/ || exit 1
     if [ $doc = "T" ]; then
         echo -e "--- CVODE documentation"
-        cd $tmpdir/doc/cvode || exit 1
+        mkdir $tmpdir/doc/cvode
+        cd $sundialsdir/doc/cvode || exit 1
         make QUIET= purge    || exit 1
         make QUIET= ug_pdf   || exit 1
         make QUIET= ex_pdf   || exit 1
+        cp cv_guide.pdf $tmpdir/doc/cvode/.    || exit 1
+        cp cv_examples.pdf $tmpdir/doc/cvode/. || exit 1
         cd -
     fi
 fi
@@ -292,14 +297,16 @@ fi
 if [ $do_sundials = "T" -o $do_cvodes = "T" ]; then
     cp -r $sundialsdir/include/cvodes $tmpdir/include/   || exit 1
     cp -r $sundialsdir/src/cvodes $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/cvodes $tmpdir/doc/           || exit 1
     cp -r $sundialsdir/examples/cvodes $tmpdir/examples/ || exit 1
     if [ $doc = "T" ]; then
         echo -e "--- CVODES documentation"
-        cd $tmpdir/doc/cvodes || exit 1
+        mkdir $tmpdir/doc/cvodes
+        cd $sundialsdir/doc/cvodes || exit 1
         make QUIET= purge     || exit 1
         make QUIET= ug_pdf    || exit 1
         make QUIET= ex_pdf    || exit 1
+        cp cvs_guide.pdf $tmpdir/doc/cvodes/.    || exit 1
+        cp cvs_examples.pdf $tmpdir/doc/cvodes/. || exit 1
         cd -
     fi
 fi
@@ -307,14 +314,16 @@ fi
 if [ $do_sundials = "T" -o $do_ida = "T" ]; then
     cp -r $sundialsdir/include/ida $tmpdir/include/   || exit 1
     cp -r $sundialsdir/src/ida $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/ida $tmpdir/doc/           || exit 1
     cp -r $sundialsdir/examples/ida $tmpdir/examples/ || exit 1
     if [ $doc = "T" ]; then
         echo -e "--- IDA documentation"
-        cd $tmpdir/doc/ida || exit 1
+        mkdir $tmpdir/doc/ida
+        cd $sundialsdir/doc/ida || exit 1
         make QUIET= purge  || exit 1
         make QUIET= ug_pdf || exit 1
         make QUIET= ex_pdf || exit 1
+        cp ida_guide.pdf $tmpdir/doc/ida/.    || exit 1
+        cp ida_examples.pdf $tmpdir/doc/ida/. || exit 1
         cd -
     fi
 fi
@@ -322,14 +331,16 @@ fi
 if [ $do_sundials = "T" -o $do_idas = "T" ]; then
     cp -r $sundialsdir/include/idas $tmpdir/include/   || exit 1
     cp -r $sundialsdir/src/idas $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/idas $tmpdir/doc/           || exit 1
     cp -r $sundialsdir/examples/idas $tmpdir/examples/ || exit 1
     if [ $doc = "T" ]; then
         echo -e "--- IDAS documentation"
-        cd $tmpdir/doc/idas || exit 1
+        mkdir $tmpdir/doc/idas
+        cd $sundialsdir/doc/idas || exit 1
         make QUIET= purge   || exit 1
         make QUIET= ug_pdf  || exit 1
         make QUIET= ex_pdf  || exit 1
+        cp idas_guide.pdf $tmpdir/doc/idas/.    || exit 1
+        cp idas_examples.pdf $tmpdir/doc/idas/. || exit 1
         cd -
     fi
 fi
@@ -337,14 +348,16 @@ fi
 if [ $do_sundials = "T" -o $do_kinsol = "T" ]; then
     cp -r $sundialsdir/include/kinsol $tmpdir/include/   || exit 1
     cp -r $sundialsdir/src/kinsol $tmpdir/src/           || exit 1
-    cp -r $sundialsdir/doc/kinsol $tmpdir/doc/           || exit 1
     cp -r $sundialsdir/examples/kinsol $tmpdir/examples/ || exit 1
     if [ $doc = "T" ]; then
         echo -e "--- KINSOL documentation"
-        cd $tmpdir/doc/kinsol || exit 1
+        mkdir $tmpdir/doc/kinsol
+        cd $sundialsdir/doc/kinsol || exit 1
         make QUIET= purge     || exit 1
         make QUIET= ug_pdf    || exit 1
         make QUIET= ex_pdf    || exit 1
+        cp kin_guide.pdf $tmpdir/doc/kinsol/.    || exit 1
+        cp kin_examples.pdf $tmpdir/doc/kinsol/. || exit 1
         cd -
     fi
 fi

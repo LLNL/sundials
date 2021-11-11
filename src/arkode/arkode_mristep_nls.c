@@ -23,16 +23,6 @@
 #include "arkode_mristep_impl.h"
 #include <sundials/sundials_math.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
-/* constants */
-#define ZERO   RCONST(0.0)
-#define ONE    RCONST(1.0)
-
 
 /*===============================================================
   Exported functions
@@ -119,13 +109,17 @@ int MRIStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   }
 
   /* set the nonlinear system RHS function */
-  if (!(step_mem->fs)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
-                    "MRIStepSetNonlinearSolver",
-                    "The implicit slow ODE RHS function is NULL");
-    return(ARK_ILL_INPUT);
+  step_mem->nls_fsi = NULL;
+
+  if (step_mem->implicit_rhs) {
+    if (!(step_mem->fsi)) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
+                      "MRIStepSetNonlinearSolver",
+                      "The implicit slow ODE RHS function is NULL");
+      return(ARK_ILL_INPUT);
+    }
+    step_mem->nls_fsi = step_mem->fsi;
   }
-  step_mem->nls_fs = step_mem->fs;
 
   return(ARK_SUCCESS);
 }
@@ -138,7 +132,7 @@ int MRIStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   right-hand side function to use in the evaluation of nonlinear
   system functions.
   ---------------------------------------------------------------*/
-int MRIStepSetNlsRhsFn(void *arkode_mem, ARKRhsFn nls_fs)
+int MRIStepSetNlsRhsFn(void *arkode_mem, ARKRhsFn nls_fsi)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -149,10 +143,10 @@ int MRIStepSetNlsRhsFn(void *arkode_mem, ARKRhsFn nls_fs)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
-  if (nls_fs)
-    step_mem->nls_fs = nls_fs;
+  if (nls_fsi)
+    step_mem->nls_fsi = nls_fsi;
   else
-    step_mem->nls_fs = step_mem->fs;
+    step_mem->nls_fsi = step_mem->fsi;
 
   return(ARK_SUCCESS);
 }
@@ -181,7 +175,7 @@ int MRIStepGetNonlinearSystemData(void *arkode_mem, realtype *tcur,
   *tcur      = ark_mem->tcur;
   *zpred     = step_mem->zpred;
   *z         = ark_mem->ycur;
-  *F         = step_mem->F[step_mem->istage];
+  *F         = step_mem->Fsi[step_mem->stage_map[step_mem->istage]];
   *gamma     = step_mem->gamma;
   *sdata     = step_mem->sdata;
   *user_data = ark_mem->user_data;
@@ -372,7 +366,8 @@ int mriStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
      temporary vectors for the linear solver setup routine */
   step_mem->nsetups++;
   retval = step_mem->lsetup(ark_mem, step_mem->convfail, ark_mem->tcur,
-                            ark_mem->ycur, step_mem->F[step_mem->istage],
+                            ark_mem->ycur,
+                            step_mem->Fsi[step_mem->stage_map[step_mem->istage]],
                             &(step_mem->jcur), ark_mem->tempv1,
                             ark_mem->tempv2, ark_mem->tempv3);
 
@@ -416,7 +411,8 @@ int mriStep_NlsLSolve(N_Vector b, void* arkode_mem)
 
   /* call linear solver interface, and handle return value */
   retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur,
-                            ark_mem->ycur, step_mem->F[step_mem->istage],
+                            ark_mem->ycur,
+                            step_mem->Fsi[step_mem->stage_map[step_mem->istage]],
                             step_mem->eRNrm, nonlin_iter);
 
   if (retval < 0) return(ARK_LSOLVE_FAIL);
@@ -436,15 +432,15 @@ int mriStep_NlsLSolve(N_Vector b, void* arkode_mem)
   RHS vector to compute the nonlinear residual r.
 
   At the ith stage, we compute the residual vector:
-     r = zc - gamma*F(z) - sdata
+     r = zc - gamma*Fsi(z) - sdata
   where the current stage solution is z = zp + zc,
      gamma = h*A(i,i),
      zc is stored in the input, zcor, and
      sdata is the old solution/stage data stored in step_mem->sdata.
   Hence we really just compute:
      z = zp + zc (stored in ark_mem->ycur)
-     F(z) (stored step_mem->F[step_mem->istage])
-     r = zc - gamma*F(z) - step_mem->sdata
+     Fsi(z) (stored step_mem->Fsi[step_mem->istage])
+     r = zc - gamma*Fsi(z) - step_mem->sdata
   ---------------------------------------------------------------*/
 int mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
 {
@@ -462,21 +458,21 @@ int mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   /* update 'ycur' value as stored predictor + current corrector */
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
-  /* compute slow RHS and save for later */
-  retval = step_mem->nls_fs(ark_mem->tcur, ark_mem->ycur,
-                            step_mem->F[step_mem->istage],
-                            ark_mem->user_data);
-  step_mem->nfs++;
+  /* compute slow implicit RHS and save for later */
+  retval = step_mem->nls_fsi(ark_mem->tcur, ark_mem->ycur,
+                             step_mem->Fsi[step_mem->stage_map[step_mem->istage]],
+                             ark_mem->user_data);
+  step_mem->nfsi++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  /* compute residual: zcor - gamma*F - sdata */
+  /* compute residual: zcor - gamma*Fsi - sdata */
   c[0] = ONE;
   X[0] = zcor;
   c[1] = -ONE;
   X[1] = step_mem->sdata;
   c[2] = -step_mem->gamma;
-  X[2] = step_mem->F[step_mem->istage];
+  X[2] = step_mem->Fsi[step_mem->stage_map[step_mem->istage]];
   retval = N_VLinearCombination(3, c, X, r);
   if (retval != 0)  return(ARK_VECTOROP_ERR);
   return(ARK_SUCCESS);
@@ -493,7 +489,7 @@ int mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   current slow RHS vector to compute the iteration function g.
 
   At the ith stage, the new stage solution z=(zc+zp) should solve:
-     zc = g(zc) := gamma*F(z) + sdata
+     zc = g(zc) := gamma*Fsi(z) + sdata
   where
      gamma = h*A(i,i),
      zp is the predicted stage solution,
@@ -501,8 +497,8 @@ int mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
      sdata is the old solution/stage data stored in step_mem->sdata.
   So we really just compute:
      z = zp + zc (stored in ark_mem->ycur)
-     F(z) (store in step_mem->F[step_mem->istage])
-     g = gamma*F(z) + step_mem->sdata
+     Fsi(z) (store in step_mem->Fsi[step_mem->istage])
+     g = gamma*Fsi(z) + step_mem->sdata
   ---------------------------------------------------------------*/
 int mriStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
 {
@@ -519,16 +515,17 @@ int mriStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
   /* update 'ycur' value as stored predictor + current corrector */
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
-  /* compute slow RHS and save for later */
-  retval = step_mem->nls_fs(ark_mem->tcur, ark_mem->ycur,
-                            step_mem->F[step_mem->istage],
-                            ark_mem->user_data);
-  step_mem->nfs++;
+  /* compute slow implicit RHS and save for later */
+  retval = step_mem->nls_fsi(ark_mem->tcur, ark_mem->ycur,
+                             step_mem->Fsi[step_mem->stage_map[step_mem->istage]],
+                             ark_mem->user_data);
+  step_mem->nfsi++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  /* combine parts:  g = gamma*F(z) + sdata */
-  N_VLinearSum(step_mem->gamma, step_mem->F[step_mem->istage],
+  /* combine parts:  g = gamma*Fsi(z) + sdata */
+  N_VLinearSum(step_mem->gamma,
+               step_mem->Fsi[step_mem->stage_map[step_mem->istage]],
                ONE, step_mem->sdata, g);
 
   return(ARK_SUCCESS);

@@ -12,54 +12,47 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
 
+.. _SUNMatrix.ARKODE:
 
-
-.. _SUNMatrix.ARKode:
-
-SUNMATRIX functions required by ARKode
+SUNMATRIX functions required by ARKODE
 ==========================================
 
-In Table :ref:`SUNMatrix.ARKode_Use`, we list the matrix functions in
-the ``SUNMatrix`` module used within the ARKode package.  The table
+In Table :numref:`SUNMatrix.ARKODE.Table`, we list the matrix functions in
+the ``SUNMatrix`` module used within the ARKODE package.  The table
 also shows, for each function, which of the code modules uses the
-function.  The main ARKode time step modules, ARKStep and ERKStep, do
+function.  The main ARKODE time step modules, ARKStep and ERKStep, do
 not call any ``SUNMatrix`` functions directly, so the table columns
 are specific to the ARKLS interface and the ARKBANDPRE and ARKBBDPRE
 preconditioner modules.   We further note that the ARKLS interface
 only utilizes these routines when supplied with a *matrix-based*
-linear solver, i.e. the ``SUNMatrix`` object (*J* or *M*) passed to 
+linear solver, i.e. the ``SUNMatrix`` object (*J* or *M*) passed to
 :c:func:`ARKStepSetLinearSolver()` or
 :c:func:`ARKStepSetMassLinearSolver()` was not ``NULL``.
 
-At this point, we should emphasize that the ARKode user does not need
-to know anything about the usage of matrix functions by the ARKode
-code modules in order to use ARKode.  The information is presented as
+At this point, we should emphasize that the ARKODE user does not need
+to know anything about the usage of matrix functions by the ARKODE
+code modules in order to use ARKODE.  The information is presented as
 an implementation detail for the interested reader.
 
 
-.. _SUNMatrix.ARKode_Use:
+.. _SUNMatrix.ARKODE.Table:
+.. table:: List of matrix functions usage by ARKODE code modules
 
-List of matrix functions usage by ARKode code modules
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. cssclass:: table-bordered
-
-==================  ======  ==========  =========
-Routine             ARKLS   ARKBANDPRE  ARKBBDPRE
-==================  ======  ==========  =========
-SUNMatGetID         X
-SUNMatClone         X       
-SUNMatDestroy       X       X           X
-SUNMatZero          X       X           X
-SUNMatCopy          X       X           X
-SUNMatScaleAddI     X       X           X
-SUNMatScaleAdd      1
-SUNMatMatvec        1
-SUNMatMatvecSetup   1,2
-SUNMatSpace         2       2           2
-==================  ======  ==========  =========
+   ==================  ======  ==========  =========
+   Routine             ARKLS   ARKBANDPRE  ARKBBDPRE
+   ==================  ======  ==========  =========
+   SUNMatGetID         X
+   SUNMatClone         X
+   SUNMatDestroy       X       X           X
+   SUNMatZero          X       X           X
+   SUNMatCopy          X       X           X
+   SUNMatScaleAddI     X       X           X
+   SUNMatScaleAdd      1
+   SUNMatMatvec        1
+   SUNMatMatvecSetup   1,2
+   SUNMatSpace         2       2           2
+   ==================  ======  ==========  =========
 
 1. These matrix functions are only used for problems involving a
    non-identity mass matrix.
@@ -68,7 +61,7 @@ SUNMatSpace         2       2           2
    called if they are implemented in the ``SUNMatrix`` module that is
    being used (i.e. their function pointers are non-``NULL``).  If not
    supplied, these modules will assume that the matrix requires no
-   storage. 
+   storage.
 
 
 We note that both the ARKBANDPRE and ARKBBDPRE preconditioner modules

@@ -12,43 +12,39 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
+.. _NVectors.ARKODE:
 
-
-
-.. _NVectors.ARKode:
-
-NVECTOR functions required by ARKode
+NVECTOR functions required by ARKODE
 ==========================================
 
 In the table below, we list the vector functions in the ``N_Vector``
-module that are called within the ARKode package.  The table also
-shows, for each function, which ARKode module uses the function.
+module that are called within the ARKODE package.  The table also
+shows, for each function, which ARKODE module uses the function.
 The ARKSTEP and ERKSTEP columns show function usage within the main
-time-stepping modules and the shared ARKode infrastructure,  while the
+time-stepping modules and the shared ARKODE infrastructure,  while the
 remaining columns show function usage within the ARKLS linear solver
 interface, the ARKBANDPRE and ARKBBDPRE preconditioner modules, and
 the FARKODE module.
 
-Note that since FARKODE is built on top of ARKode, and therefore
+Note that since FARKODE is built on top of ARKODE, and therefore
 requires the same ``N_Vector`` routines, in the FARKODE column we only
 list the routines that the FARKODE interface directly utilizes.
 
 Note that for ARKLS we only list the ``N_Vector`` routines used
 directly by ARKLS, each ``SUNLinearSolver`` module may have additional
 requirements that are not listed here.  In addition, specific
-``SUNNonlinearSolver`` modules attached to ARKode may have additional
+``SUNNonlinearSolver`` modules attached to ARKODE may have additional
 ``N_Vector`` requirements.  For additional requirements by specific
 ``SUNLinearSolver`` and ``SUNNonlinearSolver`` modules, please see the
-accompanying sections :ref:`SUNLinSol` and :ref:`SUNNonlinSol`.
+accompanying sections :numref:`SUNLinSol` and :numref:`SUNNonlinSol`.
 
 At this point, we should emphasize that the user does not need to know
-anything about ARKode's usage of vector functions in order to use
-ARKode.  Instead, this information is provided primarily for users
+anything about ARKODE's usage of vector functions in order to use
+ARKODE.  Instead, this information is provided primarily for users
 interested in constructing a custom ``N_Vector`` module.  We note that
 a number of ``N_Vector`` functions from the section
-:ref:`NVectors.Description` are not listed in the above table.
-Therefore a user-supplied ``N_Vector`` module for ARKode could safely
+:numref:`NVectors.Description` are not listed in the above table.
+Therefore a user-supplied ``N_Vector`` module for ARKODE could safely
 omit these functions from their implementation (although
 some may be needed by ``SUNNonlinearSolver`` or ``SUNLinearSolver``
 modules).

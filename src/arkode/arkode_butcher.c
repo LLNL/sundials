@@ -21,11 +21,6 @@
 #include "arkode_impl.h"
 #include <sundials/sundials_math.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
 
 /* tolerance for checking order conditions */
 #define TOL  (SUNRsqrt(UNIT_ROUNDOFF))

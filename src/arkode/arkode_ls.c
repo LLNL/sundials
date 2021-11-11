@@ -24,12 +24,6 @@
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 /* constants */
 #define MIN_INC_MULT RCONST(1000.0)
 #define MAX_DQITERS  3  /* max. # of attempts to recover in DQ J*v */

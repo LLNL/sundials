@@ -19,6 +19,7 @@ if (NOT SUNDIALS_PRECISION MATCHES "SINGLE")
   set(ARKODE_unit_tests
     "ark_analytic_sys_mri\;0"
     "ark_analytic_sys_mri\;1"
+    "ark_dahlquist_mri\;"
     )
 endif()
 
@@ -67,3 +68,5 @@ foreach(test_tuple ${ARKODE_unit_tests})
   add_test(NAME ${test_name} COMMAND ${test} ${test_args})
 
 endforeach()
+
+message(STATUS "Added ARKODE CXX serial units tests")

@@ -12,19 +12,15 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
+.. _SUNLinSol.ARKODE:
 
-
-
-.. _SUNLinSol.ARKode:
-
-ARKode SUNLinearSolver interface
+ARKODE SUNLinearSolver interface
 ==============================================
 
 In the table below, we list the SUNLinSol module linear solver
 functions used within the ARKLS interface.  As with the SUNMATRIX module, we
-emphasize that the ARKode user does not need to know detailed usage of linear
-solver functions by the ARKode code modules in order to use ARKode. The
+emphasize that the ARKODE user does not need to know detailed usage of linear
+solver functions by the ARKODE code modules in order to use ARKODE. The
 information is presented as an implementation detail for the interested reader.
 
 The linear solver functions listed below are marked with "X" to
@@ -86,7 +82,7 @@ If the SUNLinSol identifies as having type
 then the SUNLinSol object solves a
 linear system *defined* by a SUNMATRIX object. ARKLS will update the
 matrix information infrequently according to the strategies outlined in
-the section :ref:`Mathematics.Linear.Setup`.  To this end, we
+the section :numref:`Mathematics.Linear.Setup`.  To this end, we
 differentiate between the *desired* linear system
 :math:`\mathcal A x = b` with :math:`\mathcal A = (M-\gamma J)`
 and the *actual* linear system
@@ -108,7 +104,7 @@ system solution :math:`x` via
 
 The motivation for this selection of the scaling factor
 :math:`c = 2/(1 + \gamma/\tilde{\gamma})` follows the derivation in
-[BBH1989]_ and [H2000]_.  In short, if we consider a stationary
+:cite:p:`BBH:89` and :cite:p:`Hin:00`.  In short, if we consider a stationary
 iteration for the linear system as consisting of a solve with
 :math:`\tilde{\mathcal A}` followed by scaling by :math:`c`,
 then for a linear constant-coefficient problem, the error in the
@@ -128,7 +124,7 @@ Iterative linear solver tolerance
 If the SUNLinSol object self-identifies as having type
 ``SUNLINEARSOLVER_ITERATIVE`` or ``SUNLINEARSOLVER_MATRIX_ITERATIVE``,
 then ARKLS will set the input tolerance ``delta`` as described in
-:ref:`Mathematics.Error.Linear`.  However, if the iterative linear
+:numref:`Mathematics.Error.Linear`.  However, if the iterative linear
 solver does not support scaling matrices (i.e., the
 :c:func:`SUNLinSolSetScalingVectors()` routine is ``NULL``), then
 ARKLS will attempt to adjust the linear solver tolerance to account
@@ -137,7 +133,7 @@ assumptions are made:
 
 * All solution components have similar magnitude; hence the residual
   weight vector :math:`w` used in the WRMS norm (see the section
-  :ref:`Mathematics.Error.Norm`), corresponding to the left scaling
+  :numref:`Mathematics.Error.Norm`), corresponding to the left scaling
   matrix :math:`S_1`, should satisfy the assumption
 
   .. math::
@@ -173,9 +169,9 @@ Providing a custom SUNLinearSolver
 -------------------------------------
 
 In certain instances, users may wish to provide a custom SUNLinearSolver
-implementation to ARKode in order to leverage the structure of a problem.  While
+implementation to ARKODE in order to leverage the structure of a problem.  While
 the 'standard' API for these routines is typically sufficient for most users,
-others may need additional ARKode-specific information on top of what is
+others may need additional ARKODE-specific information on top of what is
 provided.  For these purposes, we note the following advanced ouptut functions
 available in ARKStep and MRIStep:
 
@@ -206,7 +202,7 @@ equations in predictor-corrector form,
 equations in predictor-corrector form,
 
 .. math::
-   G(z_{cor}) \equiv z_{cor} - \gamma f^S\left(t^S_{n,i}, z_{i}\right) - \tilde{a}_i = 0
+   G(z_{cor}) \equiv z_{cor} - \gamma f^I\left(t^S_{n,i}, z_{i}\right) - \tilde{a}_i = 0
 
 * :c:func:`MRIStepGetCurrentTime()` -- when called within the computation of a
   step (i.e., within a solve) this returns :math:`t^S_{n,i}`. Otherwise the

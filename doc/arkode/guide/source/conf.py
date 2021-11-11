@@ -13,20 +13,24 @@
 
 import sys, os
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+# -- Create new object types --------------------------------------------------
 
-# -- General configuration -----------------------------------------------------
+from sphinx.application import Sphinx
+
+def setup(app: Sphinx):
+    app.add_object_type('cmakeoption', 'cmakeop', 'single: %s (CMake option)')
+
+# -- General configuration ----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '1.6'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.mathjax', 'sphinxfortran.fortran_domain']
+extensions = ['sphinx_rtd_theme', 'sphinx.ext.mathjax', 'sphinxfortran.fortran_domain', 'sphinxcontrib.bibtex']
 
+# References
+bibtex_bibfiles = ['sundials.bib']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -42,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'User Documentation for ARKODE'
-copyright = u'2012-2020, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082'
+copyright = u'2012-2021, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -80,84 +84,19 @@ highlight_language = "c"
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+# Number figures, tables, and code blocks (can reference by number with numref)
+numfig = True
+
+# Override format strings that numref/numfig uses
+numfig_format = {
+  'section': '§%s'
+}
 
 # -- Options for HTML output ---------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-
-##########
-# agogo theme and configuration
-# html_theme = 'agogo'
-# html_theme_options = {
-#  "bodyfont": "Arial",
-#  "headerfont": "Arial",
-#  "pagewidth": "70em",
-#  "documentwidth": "50em",
-#  "sidebarwidth": "20em",
-#  "bgcolor": "#ffffff",
-#  "headerbg": "#ffffff",
-#  "footerbg": "#ffffff",
-#  "linkcolor": "",
-#  "headercolor1": "",
-#  "headercolor2": "",
-#  "headerlinkcolor": "",
-#  "textalign": "justify"
-#}
-#html_theme_path = ["."]
-
-
-##########
-# custom bootstrap theme and configuration
-
-sys.path.append(os.path.abspath('_themes'))
-html_theme = 'bootstrap'
-html_theme_path = ['_themes']
-html_theme_options = {
-    # Global TOC depth for "site" navbar tab. (Default: 1)
-    # Switching to -1 shows all levels.
-    'globaltoc_depth': 1,
-
-    # HTML navbar class (Default: "navbar") to attach to <div>.
-    # For black navbar, do "navbar navbar-inverse"
-    'navbar_class': "navbar navbar-inverse",
-
-    # Fix navigation bar to top of page?
-    # Values: "true" (default) or "false"
-    'navbar_fixed_top': "true",
-
-    # Location of link to source.
-    # Options are "nav" (default), "footer".
-    'source_link_position': "nav",
-}
-
-
-##########
-# bootstrap theme and configuration
-
-# import sphinx_bootstrap_theme
-# html_theme = 'bootstrap'
-# html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-# html_theme_options = {
-#     # Global TOC depth for "site" navbar tab. (Default: 1)
-#     # Switching to -1 shows all levels.
-#     'globaltoc_depth': 1,
-
-#     # HTML navbar class (Default: "navbar") to attach to <div>.
-#     # For black navbar, do "navbar navbar-inverse"
-#     'navbar_class': "navbar navbar-inverse",
-
-#     # Fix navigation bar to top of page?
-#     # Values: "true" (default) or "false"
-#     'navbar_fixed_top': "true",
-
-#     # Location of link to source.
-#     # Options are "nav" (default), "footer".
-#     'source_link_position': "nav",
-# }
-
-
-#############
+html_theme = 'sphinx_rtd_theme'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -168,7 +107,7 @@ html_theme_options = {
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+html_logo = 'figs/sundials/sundials_logo_blue.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -178,7 +117,13 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['_static']
+html_static_path = ['_static']
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+  'css/custom.css'
+]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -268,7 +213,9 @@ latex_elements = {
     # background color for code-blocks
     'VerbatimColor={RGB}{240.0,240.0,240.0},'+
     # font used by heading
-    'HeaderFamily=\\rmfamily\\bfseries',
+    'HeaderFamily=\\rmfamily\\bfseries,' +
+    # line breaks are allowed inside inline literals
+    'inlineliteralwraps=true',
 # disable the fncychap package
 'fncychap':'',
 # figure alignment options
@@ -280,7 +227,11 @@ latex_elements = {
 % =====================================================
 
 % Use ragged-right for the whole document
-\usepackage[document]{ragged2e}
+% Commented out after adding hyphenat below to get better spacing
+% \usepackage[document]{ragged2e}
+
+% Hyphenate verbatim text e.g., text in double backticks, :c:func:, etc.
+\usepackage[htt]{hyphenat}
 
 % Specify depths for section numbering and table of contents
 \setcounter{tocdepth}{1}
@@ -288,6 +239,16 @@ latex_elements = {
 
 % Link a footnote to its location in the text
 \usepackage{footnotebackref}
+
+% Replace macro to use same header font and color for tables
+\makeatletter
+\protected\def\sphinxstyletheadfamily{\py@HeaderFamily \py@TitleColor}
+\makeatother
+
+% Replace macro to use same font in continued tables
+\makeatletter
+\protected\def\sphinxtablecontinued#1{\textrm{#1}}
+\makeatother
 
 % Add new command for SUNDIALS version
 '''
@@ -300,6 +261,8 @@ r'''
 % End custom preamble (see latex_elements in conf.py)
 % ===================================================
 ''',
+# extra class options
+'extraclassoptions': 'twoside,openright',
 # custom maketitle
 'maketitle': r'''
 % =======================================================
@@ -383,8 +346,9 @@ The SUNDIALS library has been developed over many years by a number of
 contributors. The current SUNDIALS team consists of Cody J. Balos,
 David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and
 Carol S. Woodward. We thank Radu Serban for significant and critical past
-contributions.\\
-\vskip 2em%
+contributions.
+
+\vskip0.5\baselineskip
 \noindent
 Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
 Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,

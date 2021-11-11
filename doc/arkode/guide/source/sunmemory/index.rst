@@ -11,13 +11,11 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
-
 .. _SUNMemory:
 
-===========================
+###########################
 Tools for Memory Management
-===========================
+###########################
 
 To support applications which leverage memory pools, or utilize a memory
 abstraction layer, sundials provides a set of utilities we will
@@ -25,7 +23,6 @@ collectively refer to as the SUNMemoryHelper API. The goal of this API
 is to allow users to leverage operations defined by native sundials
 data structures while allowing the user to have finer-grained control of
 the memory management.
-
 
 .. toctree::
    :maxdepth: 1

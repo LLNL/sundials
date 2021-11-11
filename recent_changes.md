@@ -1,5 +1,34 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.0.0
+
+The ARKODE MRIStep module has been extended to support implicit-explicit (IMEX)
+multirate infinitesimal generalized additive Runge-Kutta (MRI-GARK) methods. As
+such, ``MRIStepCreate`` has been updated to include arguments for the slow
+explicit and slow implicit ODE right-hand side functions. ``MRIStepCreate`` has
+also been updated to require attaching an MRIStepInnerStepper for evolving the
+fast time scale. ``MRIStepReInit`` has been similarly updated to take explicit
+and implicit right-hand side functions as input. Codes using explicit or
+implicit MRI methods will need to update ``MRIStepCreate`` and ``MRIStepReInit``
+calls to pass ``NULL`` for either the explicit or implicit right-hand side
+function as appropriate. If ARKStep is used as the fast time scale integrator,
+codes will need to call ``ARKStepCreateMRIStepInnerStepper`` to wrap the ARKStep
+memory as an MRIStepInnerStepper object. Additionally, ``MRIStepGetNumRhsEvals``
+has been updated to return the number of slow implicit and explicit function
+evaluations. The coupling table structure ``MRIStepCouplingMem`` and the
+functions ``MRIStepCoupling_Alloc`` and ``MRIStepCoupling_Create`` have also
+been updated to support IMEX-MRI-GARK methods.
+
+The deprecated functions ``MRIStepGetCurrentButcherTables`` and
+``MRIStepWriteButcher`` and the utility functions ``MRIStepSetTable`` and
+``MRIStepSetTableNum`` have been removed. Users wishing to create an MRI-GARK
+method from a Butcher table should use ``MRIStepCoupling_MIStoMRI`` to create
+the corresponding MRI coupling table and attach it with ``MRIStepSetCoupling``.
+
+The implementation of solve-decoupled implicit MRI-GARK methods has been updated
+to remove extraneous slow implicit function calls and reduce the memory
+requirements.
+
 ## Changes to SUNDIALS in release 5.8.0
 
 The RAJA NVECTOR implementation has been updated to support the SYCL backend

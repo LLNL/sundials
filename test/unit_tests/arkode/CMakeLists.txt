@@ -20,7 +20,7 @@ add_subdirectory(C_serial)
 # C++ unit tests
 if(CXX_FOUND)
   add_subdirectory(CXX_serial)
-  if(MPI_ENABLE AND MPI_CXX_FOUND)
+  if(ENABLE_MPI AND MPI_CXX_FOUND)
     add_subdirectory(CXX_parallel)
   endif()
 endif()

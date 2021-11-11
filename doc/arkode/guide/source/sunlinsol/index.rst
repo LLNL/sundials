@@ -12,17 +12,15 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
-
 .. _SUNLinSol:
 
-==========================================
-Description of the SUNLinearSolver module
-==========================================
+######################
+Solving Linear Systems
+######################
 
 For problems that require the solution of linear systems of equations,
 the SUNDIALS packages operate using generic linear solver modules
-defined through the SUNLinSol API.  This allows SUNDIALS
+defined through the ``SUNLinearSolver``, or ``SUNLinSol``, API.  This allows SUNDIALS
 packages to utilize any valid SUNLinSol implementation that provides
 a set of required functions.  These functions can be divided into
 three categories.  The first are the core linear solver functions.  The
@@ -92,7 +90,7 @@ prescribed tolerance
 When provided an iterative SUNLinSol implementation that does not
 support the scaling matrices :math:`S_1` and :math:`S_2`, SUNDIALS'
 packages will adjust the value of :math:`\text{tol}` accordingly
-(see the section :ref:`SUNLinSol.Iterative_Tolerance` for more details).  In
+(see the section :numref:`SUNLinSol.Iterative_Tolerance` for more details).  In
 this case, they instead request that iterative linear solvers stop
 based on the criteria
 
@@ -116,21 +114,21 @@ exceptions are described in the documentation for each
 For users interested in providing their own SUNLinSol module, the
 following section presents the SUNLinSol API and its implementation
 beginning with the definition of SUNLinSol functions in sections
-:ref:`SUNLinSol.CoreFn` -- :ref:`SUNLinSol.GetFn`. This is followed by
+:numref:`SUNLinSol.CoreFn` -- :numref:`SUNLinSol.GetFn`. This is followed by
 the definition of functions supplied to a linear solver implementation in
-section :ref:`SUNLinSol.SUNSuppliedFn`. The linear solver return
-codes are described in section :ref:`SUNLinSol.ErrorCodes`. The
+section :numref:`SUNLinSol.SUNSuppliedFn`. The linear solver return
+codes are described in section :numref:`SUNLinSol.ErrorCodes`. The
 ``SUNLinearSolver`` type and the generic SUNLinSol module are defined
-in section :ref:`SUNLininSol.Generic`.  The section
-:ref:`SUNLinSol.Compatibility` discusses compatibility between the
+in section :numref:`SUNLininSol.Generic`.  The section
+:numref:`SUNLinSol.Compatibility` discusses compatibility between the
 SUNDIALS-provided SUNLinSol modules and SUNMATRIX modules.  Section
-:ref:`SUNLinSol.Custom` lists the requirements for supplying a
+:numref:`SUNLinSol.API.Custom` lists the requirements for supplying a
 custom SUNLinSol module and discusses some intended use cases. Users wishing to
 supply their own SUNLinSol module are encouraged to use the SUNLinSol
 implementations provided with SUNDIALS as a template for supplying custom
 linear solver modules. The SUNLinSol functions required by this SUNDIALS
 package as well as other package specific details are given in
-section :ref:`SUNLinSol.ARKode`. The remaining sections of this chapter
+section :numref:`SUNLinSol.ARKODE`. The remaining sections of this chapter
 present the SUNLinSol modules provided with SUNDIALS.
 
 

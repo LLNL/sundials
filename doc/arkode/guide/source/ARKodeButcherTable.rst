@@ -21,7 +21,7 @@
 Butcher Table Data Structure
 ==============================
 
-To store the Butcher table defining a Runge Kutta method ARKode provides the
+To store the Butcher table defining a Runge Kutta method ARKODE provides the
 :c:type:`ARKodeButcherTable` type and several related utilitiy routines. We use
 the following Butcher table notation (shown for a 3-stage method):
 
@@ -49,7 +49,7 @@ values, but use their stages :math:`z_i` differently through the coefficients
 main method) and :math:`p` (the embedding, typically :math:`q = p+1`, though
 sometimes this is reversed). :c:type:`ARKodeButcherTable` is defined as
 
-.. c:type:: typedef ARKodeButcherTableMem* ARKodeButcherTable
+.. c:type:: ARKodeButcherTableMem* ARKodeButcherTable
 
 where ``ARKodeButcherTableMem`` is the structure
 
@@ -98,7 +98,7 @@ Function name                                Description
    Retrieves a specified explicit Butcher table. The prototype for this
    function, as well as the integer names for each provided method, are defined
    in the header file ``arkode/arkode_butcher_erk.h``.  For further information
-   on these tables and their corresponding identifiers, see :ref:`Butcher`.
+   on these tables and their corresponding identifiers, see :numref:`Butcher`.
 
    **Arguments:**
       * *emethod* -- integer input specifying the given Butcher table.
@@ -114,7 +114,7 @@ Function name                                Description
    this function, as well as the integer names for each provided method, are
    defined in the header file ``arkode/arkode_butcher_dirk.h``.  For further
    information on these tables and their corresponding identifiers, see
-   :ref:`Butcher`.
+   :numref:`Butcher`.
 
    **Arguments:**
       * *imethod* -- integer input specifying the given Butcher table.

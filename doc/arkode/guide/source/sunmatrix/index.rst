@@ -12,13 +12,11 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
-
 .. _SUNMatrix:
 
-=======================
+######################
 Matrix Data Structures
-=======================
+######################
 
 The SUNDIALS library comes packaged with a variety of ``SUNMatrix``
 implementations, designed for simulations requiring direct linear

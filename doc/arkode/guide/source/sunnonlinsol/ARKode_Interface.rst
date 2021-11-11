@@ -12,15 +12,13 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
-
-.. _SUNNonlinSol.ARKode:
+.. _SUNNonlinSol.ARKODE:
 
 ====================================
-ARKode SUNNonlinearSolver interface
+ARKODE SUNNonlinearSolver interface
 ====================================
 
-As discussed in :ref:`Mathematics` integration steps often require the
+As discussed in :numref:`Mathematics` integration steps often require the
 (approximate) solution of a nonlinear system. This system can be formulated as
 the rootfinding problem
 
@@ -42,7 +40,7 @@ where :math:`G(z_i)` is the variant of the rootfinding problem listed above, and
 :math:`M(t^I_{n,i})` may equal either :math:`M` or :math:`I`, as applicable.
 
 Rather than solving the above nonlinear systems for the stage value :math:`z_i`
-directly, ARKode modules solve for the correction :math:`z_{cor}` to the
+directly, ARKODE modules solve for the correction :math:`z_{cor}` to the
 predicted stage value :math:`z_{pred}` so that :math:`z_i = z_{pred} + z_{cor}`.
 Thus these nonlinear systems rewritten in terms of :math:`z_{cor}` are
 
@@ -64,7 +62,7 @@ Similarly, in MRIStep (that always assumes :math:`M=I`), we have the nonlinear
 residual in predictor-corrector form,
 
 .. math::
-   G(z_{cor}) \equiv z_{cor} - \gamma f^S\left(t^S_{n,i}, z_{i}\right) - \tilde{a}_i = 0,
+   G(z_{cor}) \equiv z_{cor} - \gamma f^I\left(t^S_{n,i}, z_{i}\right) - \tilde{a}_i = 0,
    :label: Residual_corrector_MRIStep
 
 and the corresponding fixed-point problem,
@@ -73,15 +71,15 @@ and the corresponding fixed-point problem,
    z_{cor} = z_{cor} - G(z_{i}).
    :label: FixedPt_corrector_MRIStep
 
-The nonlinear system functions provided by ARKode modules to the nonlinear
+The nonlinear system functions provided by ARKODE modules to the nonlinear
 solver module internally update the current value of the stage based on the
 input correction vector i.e., :math:`z_i = z_{pred} + z_{cor}`. The updated
 vector :math:`z_i` is used when calling the ODE right-hand side function and
 when setting up linear solves (e.g., updating the Jacobian or preconditioner).
 
-ARKode modules also provide several advanced functions that will not be needed
+ARKODE modules also provide several advanced functions that will not be needed
 by most users, but might be useful for users who choose to provide their own
-SUNNonlinearSolver implementation for use by ARKode. These routines provide
+SUNNonlinearSolver implementation for use by ARKODE. These routines provide
 access to the internal integrator data required to evaluate
 :eq:`Residual_corrector_ARKStep` or :eq:`FixedPt_corrector_ARKStep` for ARKStep
 and :eq:`Residual_corrector_MRIStep` or :eq:`FixedPt_corrector_MRIStep` for
@@ -265,7 +263,7 @@ MRIStep advanced output functions
       * *z* -- stage vector (:math:`z_{i}` above). This vector may be not
         current and may need to be filled (see the note below).
       * *F* -- memory available for evaluating the slow RHS
-        (:math:`f^S(t^S_{n,i}, z_{i})` above). This vector may be
+        (:math:`f^I(t^S_{n,i}, z_{i})` above). This vector may be
         not current and may need to be filled (see the note below).
       * *gamma* -- current :math:`\gamma` for slow stage calculation.
       * *sdata* -- accumulated data from previous solution and stages
@@ -300,7 +298,7 @@ MRIStep advanced output functions
 
       .. math::
          z &= z_{pred} + z_{cor}, \\
-         F &= f^S\left(t^S_{n,i}, z_{i}\right),
+         F &= f^I\left(t^S_{n,i}, z_{i}\right),
 
       where :math:`z_{cor}` was the first argument supplied to the
       :c:type:`SUNNonlinSolSysFn`.

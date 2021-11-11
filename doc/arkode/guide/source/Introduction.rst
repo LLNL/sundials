@@ -12,26 +12,24 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
-
 .. _Introduction:
 
 Introduction
 ============
 
-The ARKode infrastructure provides adaptive-step time integration
+The ARKODE infrastructure provides adaptive-step time integration
 modules for stiff, nonstiff and mixed stiff/nonstiff systems of
-ordinary differential equations (ODEs).  ARKode itself is structured
+ordinary differential equations (ODEs).  ARKODE itself is structured
 to support a wide range of one-step (but multi-stage) methods,
 allowing for rapid development of parallel implementations of
-state-of-the-art time integration methods.  At present, ARKode is
+state-of-the-art time integration methods.  At present, ARKODE is
 packaged with two time-stepping modules, *ARKStep* and *ERKStep*.
 
 
 *ARKStep* supports ODE systems posed in split, linearly-implicit form,
 
 .. math::
-   M \dot{y} = f^E(t,y) + f^I(t,y),  \qquad y(t_0) = y_0,
+   M(t)\, \dot{y} = f^E(t,y) + f^I(t,y),  \qquad y(t_0) = y_0,
    :label: ODE_split_linearly_implicit
 
 where :math:`t` is the independent variable, :math:`y` is the set of
@@ -62,7 +60,7 @@ the components in :math:`f^I(t,y)` must be solved implicitly, allowing
 for splittings tuned for use with optimal implicit solver algorithms.
 
 This framework allows for significant freedom over the constitutive
-methods used for each component, and ARKode is packaged with a wide
+methods used for each component, and ARKODE is packaged with a wide
 array of built-in methods for use.  These built-in Butcher tables
 include adaptive explicit methods of orders 2-8, adaptive implicit
 methods of orders 2-5, and adaptive ImEx methods of orders 3-5.
@@ -80,32 +78,79 @@ Runge Kutta methods.   As with ARKStep, the ERKStep module is packaged
 with adaptive explicit methods of orders 2-8.
 
 
-For problems that include nonzero implicit term :math:`f^I(t,y)`, the
-resulting implicit system (assumed nonlinear, unless specified
-otherwise) is solved approximately at each integration step, using a
-modified Newton method, inexact Newton method, or an
-accelerated fixed-point solver.  For the Newton-based methods and the
-serial or threaded NVECTOR modules in SUNDIALS, ARKode may use a
-variety of linear solvers provided with SUNDIALS, including both
-direct (dense, band, or sparse) and preconditioned Krylov iterative
-(GMRES [SS1986]_, BiCGStab [V1992]_, TFQMR [F1993]_, FGMRES [S1993]_,
-or PCG [HS1952]_) linear solvers.  When used with the MPI-based
-parallel, PETSc, *hypre*, CUDA, HIP, and Raja NVECTOR modules, or a
-user-provided vector data structure, only the Krylov solvers are
-available, although a user may supply their own linear solver for any
-data structures if desired.  For the serial or threaded vector
-structures, we provide a banded preconditioner module called ARKBANDPRE
-that may be used with the Krylov solvers, while for the MPI-based
-parallel vector structure there is a preconditioner module called
-ARKBBDPRE which provides a band-block-diagonal preconditioner.
-Additionally, a user may supply more optimal, problem-specific
-preconditioner routines.
+*MRIStep* focuses specifically on problems posed in additive form,
+
+.. math::
+   \dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y), \qquad y(t_0) = y_0.
+   :label: IVP_two_rate
+
+where here the right-hand side function is additively split into three
+components:
+
+* :math:`f^E(t,y)` contains the "slow-nonstiff" components of the system
+  (this will be integrated using an explicit method and a large time step
+  :math:`h^S`),
+
+* :math:`f^I(t,y)` contains the "slow-stiff" components of the system
+  (this will be integrated using an implicit method and a large time step
+  :math:`h^S`), and
+
+* :math:`f^F(t,y)` contains the "fast" components of the system (this will be
+  integrated using a possibly different method than the slow time scale and a
+  small time step :math:`h^F \ll h^S`).
+
+For such problems, MRIStep provides fixed-step slow step multirate infinitesimal
+step (MIS), multirate infinitesimal GARK (MRI-GARK), and implicit-explicit
+MRI-GARK (IMEX-MRI-GARK) methods, allowing for evolution of the problem
+:eq:`IVP_two_rate` using multirate methods having orders of accuracy 2-4.
+
+For ARKStep or MRIStep problems that include nonzero implicit term
+:math:`f^I(t,y)`, the resulting implicit system (assumed nonlinear, unless
+specified otherwise) is solved approximately at each integration step, using a
+SUNNonlinearSolver module, supplied either by the user or from the underlying
+SUNDIALS infrastructure.  For nonlinear solver algorithms that internally
+require a linear solver, ARKODE may use a variety of SUNLinearSolver modules
+provided with SUNDIALS, or again may utilize a user-supplied module.
 
 
 
 
 Changes from previous versions
 --------------------------------
+
+Changes in 5.0.0
+^^^^^^^^^^^^^^^^
+
+The MRIStep module has been extended to support implicit-explicit (IMEX)
+multirate infinitesimal generalized additive Runge-Kutta (MRI-GARK) methods. As
+such, :c:func:`MRIStepCreate` has been updated to include arguments for the slow
+explicit and slow implicit ODE right-hand side functions.
+:c:func:`MRIStepCreate` has also been updated to require attaching an
+MRIStepInnerStepper for evolving the fast time scale. :c:func:`MRIStepReInit`
+has been similarly updated to take explicit and implicit right-hand side
+functions as input. Codes using explicit or implicit MRI methods will need to
+update :c:func:`MRIStepCreate` and :c:func:`MRIStepReInit` calls to pass
+``NULL`` for either the explicit or implicit right-hand side function as
+appropriate. If ARKStep is used as the fast time scale integrator, codes will
+need to call :c:func:`ARKStepCreateMRIStepInnerStepper` to wrap the ARKStep
+memory as an MRIStepInnerStepper object. Additionally,
+:c:func:`MRIStepGetNumRhsEvals` has been updated to return the number of slow
+implicit and explicit function evaluations. The coupling table structure
+:c:type:`MRIStepCouplingMem` and the functions :c:func:`MRIStepCoupling_Alloc`
+and :c:func:`MRIStepCoupling_Create` have also been updated to support
+IMEX-MRI-GARK methods.
+
+The deprecated functions ``MRIStepGetCurrentButcherTables`` and
+``MRIStepWriteButcher`` and the utility functions ``MRIStepSetTable`` and
+``MRIStepSetTableNum`` have been removed. Users wishing to create an MRI-GARK
+method from a Butcher table should use :c:func:`MRIStepCoupling_MIStoMRI` to
+create the corresponding MRI coupling table and attach it with
+:c:func:`MRIStepSetCoupling`.
+
+The implementation of solve-decoupled implicit MRI-GARK methods has been updated
+to remove extraneous slow implicit function calls and reduce the memory
+requirements.
+
 
 Changes in 4.8.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -116,11 +161,11 @@ configuring SUNDIALS by using the ``SUNDIALS_RAJA_BACKENDS`` CMake variable.
 This module remains experimental and is subject to change from version to
 version.
 
-A new SUNMatrix and SUNLinearSolver implementation were added to interface
-with the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the
-linear solver support general dense linear systems as well as block diagonal
-linear systems. See :ref:`SUNLinSol_OneMklDense` for more details. This module
-is experimental and is subject to change from version to version.
+A new SUNMatrix and SUNLinearSolver implementation were added to interface with
+the Intel oneAPI Math Kernel Library (oneMKL). Both the matrix and the linear
+solver support general dense linear systems as well as block diagonal linear
+systems. See :numref:`SUNLinSol.OneMklDense` for more details. This module is
+experimental and is subject to change from version to version.
 
 Added a new *optional* function to the SUNLinearSolver API,
 :c:func:`SUNLinSolSetZeroGuess`, to indicate that the next call to
@@ -138,7 +183,7 @@ structures are held internally to the linear solver itself, and are not
 provided by the SUNDIALS package.
 
 Support for user-defined inner (fast) integrators has been to the MRIStep
-module. See :ref:`MRIStep.CustomInnerStepper` for more information on providing
+module. See :numref:`Usage.MRIStep.CustomInnerStepper` for more information on providing
 a user-defined integration method.
 
 Added the functions :c:func:`ARKStepSetNlsRhsFn()` and
@@ -165,14 +210,14 @@ Changes in 4.7.0
 
 A new NVECTOR implementation based on the SYCL abstraction layer has been added
 targeting Intel GPUs. At present the only SYCL compiler supported is the DPC++
-(Intel oneAPI) compiler. See :ref:`NVectors.SYCL` for more details. This module
+(Intel oneAPI) compiler. See :numref:`NVectors.SYCL` for more details. This module
 is considered experimental and is subject to major changes even in minor
 releases.
 
 A new SUNMatrix and SUNLinearSolver implementation were added to interface
 with the MAGMA linear algebra library. Both the matrix and the linear solver
 support general dense linear systems as well as block diagonal linear systems,
-and both are targeted at GPUs (AMD or NVIDIA). See :ref:`SUNLinSol_MagmaDense`
+and both are targeted at GPUs (AMD or NVIDIA). See :numref:`SUNLinSol.MagmaDense`
 for more details.
 
 Changes in 4.6.1
@@ -188,7 +233,7 @@ Changes in 4.6.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A new NVECTOR implementation based on the AMD ROCm HIP platform has been added.
-This vector can target NVIDIA or AMD GPUs. See :ref:`NVectors.HIP` for more
+This vector can target NVIDIA or AMD GPUs. See :numref:`NVectors.HIP` for more
 details. This module is considered experimental and is subject to change from
 version to version.
 
@@ -226,16 +271,16 @@ fixed point nonlinear solver. Fixed bug for ERK method integration with
 static mass matrices.
 
 An interface between ARKStep and the XBraid multigrid reduction in time (MGRIT)
-library [XBraid]_ has been added to enable parallel-in-time integration. See the
-:ref:`ARKStep_CInterface.XBraid` section for more information and the example
+library :cite:p:`xbraid` has been added to enable parallel-in-time integration. See the
+:numref:`Usage.ARKStep.XBraid` section for more information and the example
 codes in ``examples/arkode/CXX_xbraid``. This interface required the addition of
 three new N_Vector operations to exchange vector data between computational
 nodes, see :c:func:`N_VBufSize()`, :c:func:`N_VBufPack()`, and
 :c:func:`N_VBufUnpack()`.  These N_Vector operations are only used within the
 XBraid interface and need not be implemented for any other context.
 
-Updated the MRIStep time-stepping module in ARKode to support
-higher-order MRI-GARK methods [S2019]_, including methods that
+Updated the MRIStep time-stepping module in ARKODE to support
+higher-order MRI-GARK methods :cite:p:`Sandu:19`, including methods that
 involve solve-decoupled, diagonally-implicit treatment of the
 slow time scale.
 
@@ -294,7 +339,7 @@ Added support for CUDA v11.
 Changes in v4.3.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Fixed a bug in ARKode where the prototypes for :c:func:`ERKStepSetMinReduction()`
+Fixed a bug in ARKODE where the prototypes for :c:func:`ERKStepSetMinReduction()`
 and :c:func:`ARKStepSetMinReduction()` were not included in ``arkode_erkstep.h``
 and ``arkode_arkstep.h`` respectively.
 
@@ -335,13 +380,13 @@ IBM XL compiler. When building the Fortran 2003 interfaces with an XL compiler
 it is recommended to set ``CMAKE_Fortran_COMPILER`` to ``f2003``, ``xlf2003``,
 or ``xlf2003_r``.
 
-Fixed a bug in how ARKode interfaces with a user-supplied, iterative, unscaled linear solver.
-In this case, ARKode adjusts the linear solver tolerance in an attempt to account for the
-lack of support for left/right scaling matrices.  Previously, ARKode computed this scaling
+Fixed a bug in how ARKODE interfaces with a user-supplied, iterative, unscaled linear solver.
+In this case, ARKODE adjusts the linear solver tolerance in an attempt to account for the
+lack of support for left/right scaling matrices.  Previously, ARKODE computed this scaling
 factor using the error weight vector, ``ewt``; this fix changes that to the residual weight vector,
 ``rwt``, that can differ from ``ewt`` when solving problems with non-identity mass matrix.
 
-Fixed a similar bug in how ARKode interfaces with scaled linear solvers when solving problems
+Fixed a similar bug in how ARKODE interfaces with scaled linear solvers when solving problems
 with non-identity mass matrices.  Here, the left scaling matrix should correspond with ``rwt``
 and the right scaling matrix with ``ewt``; these were reversed but are now correct.
 
@@ -358,9 +403,9 @@ Added two new functions, :c:func:`ARKStepSetMinReduction()` and
 :c:func:`ERKStepSetMinReduction()`, to change the minimum allowed step size
 reduction factor after an error test failure.
 
-Added a new ``SUNMatrix`` implementation, :ref:`SUNMatrix_cuSparse`, that interfaces
+Added a new ``SUNMatrix`` implementation, :numref:`SUNMatrix.cuSparse`, that interfaces
 to the sparse matrix implementation from the NVIDIA cuSPARSE library. In addition,
-the :ref:`SUNLinSol_cuSolverSp` ``SUNLinearSolver`` has been updated to
+the :numref:`SUNLinSol.cuSolverSp` ``SUNLinearSolver`` has been updated to
 use this matrix, as such, users of this module will need to update their code.
 These modules are still considered to be experimental, thus they are subject to
 breaking changes even in minor releases.
@@ -368,7 +413,7 @@ breaking changes even in minor releases.
 Added a new "stiff" interpolation module, based on Lagrange polynomial interpolation,
 that is accessible to each of the ARKStep, ERKStep and MRIStep time-stepping modules.
 This module is designed to provide increased interpolation accuracy when integrating
-stiff problems, as opposed to the ARKode-standard Hermite interpolation module that
+stiff problems, as opposed to the ARKODE-standard Hermite interpolation module that
 can suffer when the IVP right-hand side has large Lipschitz constant.  While the
 Hermite module remains the default, the new Lagrange module may be enabled using one
 of the routines :c:func:`ARKStepSetInterpolantType()`, :c:func:`ERKStepSetInterpolantType()`,
@@ -396,7 +441,7 @@ variables ``PETSC_INCLUDES`` and ``PETSC_LIBRARIES`` instead of
 Added a new build system option, ``CUDA_ARCH``, that can be used to specify
 the CUDA architecture to compile for.
 
-Fixed a bug in the Fortran 2003 interfaces to the ARKode Butcher table routines and structure.
+Fixed a bug in the Fortran 2003 interfaces to the ARKODE Butcher table routines and structure.
 This includes changing the ``ARKodeButcherTable`` type to be a ``type(c_ptr)`` in Fortran.
 
 Added two utility functions, ``SUNDIALSFileOpen`` and ``SUNDIALSFileClose``
@@ -418,7 +463,7 @@ not set the pointer for both the inner and outer integrators. The MRIStep
 examples have been updated to reflect this change.
 
 Added support for constant damping to the ``SUNNonlinearSolver_FixedPoint``
-module when using Anderson acceleration. See :ref:`SUNNonlinSolFixedPoint.Math`
+module when using Anderson acceleration. See :numref:`SUNNonlinSol.FixedPoint.Math`
 and the :c:func:`SUNNonlinSolSetDamping_FixedPoint()` for more details.
 
 Changes in v4.0.0
@@ -509,7 +554,7 @@ custom allocate and free functions for the vector data array and internal
 reduction buffer.
 
 Added new Fortran 2003 interfaces for most NVECTOR modules. See the
-:ref:`FortranInterfaces` section for more details.
+:numref:`Usage.Fortran.Modules` section for more details.
 
 Added three new NVECTOR utility functions,
 :c:func:`N_VGetVecAtIndexVectorArray()`
@@ -552,7 +597,7 @@ A new SUNMATRIX (and SUNLINEARSOLVER) implementation was added to
 facilitate the use of the SuperLU_DIST library with SUNDIALS.
 
 Added new Fortran 2003 interfaces for most SUNMATRIX modules. See the
-:ref:`FortranInterfaces` section for more details.
+:numref:`Usage.Fortran.Modules` section for more details.
 
 **SUNLinearSolver module changes**
 
@@ -589,7 +634,7 @@ Added three new accessor functions to the SUNLinSol_KLU module,
 KLU solver structures.
 
 Added new Fortran 2003 interfaces for most SUNLINEARSOLVER modules. See the
-:ref:`FortranInterfaces` section for more details.
+:numref:`Usage.Fortran.Modules` section for more details.
 
 **SUNNonlinearSolver module changes**
 
@@ -618,9 +663,9 @@ Added a new ``SUNNonlinearSolver`` implementation, ``SUNNonlinsol_PetscSNES``,
 which interfaces to the PETSc SNES nonlinear solver API.
 
 Added new Fortran 2003 interfaces for most SUNNONLINEARSOLVER modules. See the
-:ref:`FortranInterfaces` section for more details.
+:numref:`Usage.Fortran.Modules` section for more details.
 
-**ARKode changes**
+**ARKODE changes**
 
 The MRIStep module has been updated to support explicit, implicit, or IMEX
 methods as the fast integrator using the ARKStep module. As a result some
@@ -651,7 +696,7 @@ rather than resetting them to the default values.
 Removed extraneous calls to :c:func:`N_VMin()` for simulations where
 the scalar valued absolute tolerance, or all entries of the
 vector-valued absolute tolerance array, are strictly positive.  In
-this scenario, ARKode will remove at least one global reduction per
+this scenario, ARKODE will remove at least one global reduction per
 time step.
 
 The ARKLS interface has been updated to only zero the Jacobian matrix before
@@ -661,15 +706,15 @@ solver has type ``SUNLINEARSOLVER_DIRECT``.
 A new linear solver interface function :c:func:`ARKLsLinSysFn` was added as an
 alternative method for evaluating the linear system :math:`A = M - \gamma J`.
 
-Added two new embedded ARK methods of orders 4 and 5 to ARKode (from [KC2019]_).
+Added two new embedded ARK methods of orders 4 and 5 to ARKODE (from :cite:p:`KenCarp:19`).
 
 Support for optional inequality constraints on individual components of the
-solution vector has been added the ARKode ERKStep and ARKStep modules. See
+solution vector has been added the ARKODE ERKStep and ARKStep modules. See
 the descriptions of :c:func:`ERKStepSetConstraints()` and
 :c:func:`ARKStepSetConstraints()` for more details. Note that enabling
 constraint handling requires the NVECTOR operations :c:func:`N_VMinQuotient()`,
 :c:func:`N_VConstrMask()`, and :c:func:`N_VCompare()` that were not previously
-required by ARKode.
+required by ARKODE.
 
 Added two new 'Get' functions to ARKStep, :c:func:`ARKStepGetCurrentGamma()`,
 and :c:func:`ARKStepGetCurrentState`, that may be useful to users who choose
@@ -679,9 +724,9 @@ Add two new 'Set' functions to MRIStep, :c:func:`MRIStepSetPreInnerFn()` and
 :c:func:`MRIStepSetPostInnerFn()` for performing communication or memory
 transfers needed before or after the inner integration.
 
-A new Fortran 2003 interface to ARKode was added. This includes Fortran 2003 interfaces
+A new Fortran 2003 interface to ARKODE was added. This includes Fortran 2003 interfaces
 to the ARKStep, ERKStep, and MRIStep time-stepping modules. See the
-:ref:`FortranInterfaces` section for more details.
+:numref:`Usage.Fortran.Modules` section for more details.
 
 
 
@@ -702,7 +747,7 @@ enables all examples that use CUDA including the RAJA examples with a CUDA back 
 
 The implementation header file `arkode_impl.h` is no longer installed. This means users
 who are directly manipulating the ``ARKodeMem`` structure will need to update their code
-to use ARKode's public API.
+to use ARKODE's public API.
 
 Python is no longer required to run ``make test`` and ``make test_install``.
 
@@ -717,13 +762,13 @@ Added information on how to contribute to SUNDIALS and a contributing agreement.
 Changes in v3.0.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A bug in ARKode where single precision builds would fail to compile has been fixed.
+A bug in ARKODE where single precision builds would fail to compile has been fixed.
 
 
 Changes in v3.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ARKode library has been entirely rewritten to support a modular
+The ARKODE library has been entirely rewritten to support a modular
 approach to one-step methods, which should allow rapid research and
 development of novel integration methods without affecting existing
 solver functionality.  To support this, the existing ARK-based methods
@@ -742,15 +787,15 @@ This restructure has resulted in numerous small changes to the user
 interface, particularly the suite of "Set" routines for user-provided
 solver parameters and "Get" routines to access solver statistics,
 that are now prefixed with the name of time-stepping module (e.g., ``ARKStep``
-or ``ERKStep``) instead of ``ARKode``.  Aside from affecting the names of these
+or ``ERKStep``) instead of ``ARKODE``.  Aside from affecting the names of these
 routines, user-level changes have been kept to a minimum.  However, we recommend
-that users consult both this documentation and the ARKode example programs for
+that users consult both this documentation and the ARKODE example programs for
 further details on the updated infrastructure.
 
-As part of the ARKode restructuring an :c:type:`ARKodeButcherTable` structure
+As part of the ARKODE restructuring an :c:type:`ARKodeButcherTable` structure
 has been added for storing Butcher tables. Functions for creating new Butcher
 tables and checking their analytic order are provided along with other utility
-routines. For more details see :ref:`ARKodeButcherTable`.
+routines. For more details see :numref:`ARKodeButcherTable`.
 
 Two changes were made in the initial step size algorithm:
 
@@ -761,17 +806,17 @@ Two changes were made in the initial step size algorithm:
   penultimate iteration. Now it will exit with the step size calculated
   on the final iteration.
 
-ARKode's dense output infrastructure has been improved to support
+ARKODE's dense output infrastructure has been improved to support
 higher-degree Hermite polynomial interpolants (up to degree 5) over
 the last successful time step.
 
-ARKode's previous direct and iterative linear solver interfaces, ARKDLS and
+ARKODE's previous direct and iterative linear solver interfaces, ARKDLS and
 ARKSPILS, have been merged into a single unified linear solver interface, ARKLS,
 to support any valid SUNLINSOL module. This includes ``DIRECT`` and
 ``ITERATIVE`` types as well as the new ``MATRIX_ITERATIVE`` type. Details
 regarding how ARKLS utilizes linear solvers of each type as well as discussion
 regarding intended use cases for user-supplied SUNLinSol implementations are
-included in the chapter :ref:`SUNLinSol`. All ARKode examples programs and the
+included in the chapter :numref:`SUNLinSol`. All ARKODE examples programs and the
 standalone linear solver examples have been updated to use the unified linear
 solver interface.
 
@@ -790,7 +835,7 @@ implementations have been updated to follow the naming convention
 routine names have been similarly standardized.  To minimize challenges in user
 migration to the new names, the previous routine names may still be used; these
 will be deprecated in future releases, so we recommend that users migrate to the
-new names soon. All ARKode example programs and the standalone linear solver
+new names soon. All ARKODE example programs and the standalone linear solver
 examples have been updated to use the new naming convention.
 
 The ``SUNBandMatrix`` constructor has been simplified to remove the
@@ -800,33 +845,33 @@ SUNDIALS integrators have been updated to utilize generic nonlinear solver
 modules defined through the SUNNONLINSOL API. This API will ease the addition of
 new nonlinear solver options and allow for external or user-supplied nonlinear
 solvers. The SUNNONLINSOL API and SUNDIALS provided modules are described in
-:ref:`SUNNonlinSol` and follow the same object oriented design and
+:numref:`SUNNonlinSol` and follow the same object oriented design and
 implementation used by the NVector, SUNMatrix, and SUNLinSol modules. Currently
 two SUNNONLINSOL implementations are provided, SUNNonlinSol_Newton and
 SUNNonlinSol_FixedPoint. These replicate the previous integrator specific
 implementations of a Newton iteration and an accelerated fixed-point iteration,
 respectively. Example programs using each of these nonlinear solver modules in a
-standalone manner have been added and all ARKode example programs have been
+standalone manner have been added and all ARKODE example programs have been
 updated to use generic SUNNonlinSol modules.
 
-As with previous versions, ARKode will use the Newton solver (now
+As with previous versions, ARKODE will use the Newton solver (now
 provided by SUNNonlinSol_Newton) by default.  Use of the
 :c:func:`ARKStepSetLinear()` routine (previously named
 ``ARKodeSetLinear``) will indicate that the problem is
 linearly-implicit, using only a single Newton iteration per implicit
 stage.  Users wishing to switch to the accelerated fixed-point solver
 are now required to create a SUNNonlinSol_FixedPoint object and attach
-that to ARKode, instead of calling the previous
+that to ARKODE, instead of calling the previous
 ``ARKodeSetFixedPoint`` routine.  See the documentation sections
-:ref:`ARKStep_CInterface.Skeleton`,
-:ref:`ARKStep_CInterface.NonlinearSolvers`, and
-:ref:`SUNNonlinSol_FixedPoint` for further details, or the serial C
+:numref:`Usage.ARKStep.Skeleton`,
+:numref:`Usage.ARKStep.NonlinearSolvers`, and
+:numref:`SUNNonlinSol.FixedPoint` for further details, or the serial C
 example program ``ark_brusselator_fp.c`` for an example.
 
 Three fused vector operations and seven vector array operations have been added
 to the NVECTOR API. These *optional* operations are disabled by default and may
 be activated by calling vector specific routines after creating an NVector (see
-:ref:`NVectors.Description` for more details). The new operations are intended
+:numref:`NVectors.Description` for more details). The new operations are intended
 to increase data reuse in vector operations, reduce parallel communication on
 distributed memory systems, and lower the number of kernel launches on systems
 with accelerators. The fused operations are ``N_VLinearCombination``,
@@ -870,7 +915,7 @@ Multiple changes to the RAJA NVECTOR were made:
 * Removed the accessor functions in the namespace ``sunrajavec``.
 
 A new NVECTOR implementation for leveraging OpenMP 4.5+ device offloading has
-been added, NVECTOR_OpenMPDEV. See :ref:`NVectors.OpenMPDEV` for more details.
+been added, NVECTOR_OpenMPDEV. See :numref:`NVectors.OpenMPDEV` for more details.
 
 
 Changes in v2.2.1
@@ -1055,7 +1100,7 @@ Specific changes include:
   SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
   Spils linear solver interfaces.
 
-* Added Spils interface routines to ARKode, CVODE, CVODES, IDA and
+* Added Spils interface routines to ARKODE, CVODE, CVODES, IDA and
   IDAS to allow specification of a user-provided "JTSetup" routine.
   This change supports users who wish to set up data structures for
   the user-provided Jacobian-times-vector ("JTimes") routine, and
@@ -1172,13 +1217,13 @@ The feature changes/enhancements include:
   to the interfaces to the sparse solvers KLU and SuperLU_MT,
   including support for CSR format when using KLU.
 
-* The ARKode implicit predictor algorithms were updated: methods 2 and
+* The ARKODE implicit predictor algorithms were updated: methods 2 and
   3 were improved slightly, a new predictor approach was added, and
   the default choice was modified.
 
 * The underlying sparse matrix structure was enhanced to allow both
   CSR and CSC matrices, with CSR supported by the KLU linear solver
-  interface.  ARKode interfaces to the KLU solver from both C and
+  interface.  ARKODE interfaces to the KLU solver from both C and
   Fortran were updated to enable selection of sparse matrix type, and a
   Fortran-90 CSR example program was added.
 
@@ -1186,10 +1231,10 @@ The feature changes/enhancements include:
   -- this had been included in the previous documentation but had not
   been implemented.
 
-* The handling of integer codes for specifying built-in ARKode Butcher
+* The handling of integer codes for specifying built-in ARKODE Butcher
   tables was enhanced.  While a global numbering system is still used,
   methods now have #defined names to simplify the user interface and to
-  streamline incorporation of new Butcher tables into ARKode.
+  streamline incorporation of new Butcher tables into ARKODE.
 
 * The maximum number of Butcher table stages was increased from 8 to
   15 to accommodate very high order methods, and an 8th-order adaptive
@@ -1222,35 +1267,38 @@ accommodate both styles.
 The structure of this document is as follows:
 
 * In the next section we provide a thorough presentation of the
-  underlying :ref:`mathematics <Mathematics>` used within the ARKode
-  family of solvers.
+  underlying :ref:`mathematical algorithms <Mathematics>` used within
+  the ARKODE family of solvers.
 
-* We follow this with an overview of how the source code for ARKode is
-  :ref:`organized <Organization>`.
+* We follow this with an overview of how the source code for both
+  SUNDIALS and ARKODE are :ref:`organized <Organization>`.
 
-* The largest section follows, providing a full account of the
-  ARKStep module user interface, including a description of all
-  user-accessible functions and outlines for usage in serial and
-  parallel applications. Since ARKode is written in C, we first
-  present a section on :ref:`using ARKStep for C and C++ applications
-  <ARKStep_CInterface>`, followed with a separate section on
-  :ref:`using ARKode within Fortran applications <FortranInterface>`.
+* The largest section follows, providing a full account of how to use
+  ARKODE's time-stepping modules, :ref:`ARKStep <Usage.ARKStep>`,
+  :ref:`ERKStep <Usage.ERKStep>`, and :ref:`MRIStep <Usage.MRIStep>`,
+  within C and C++ applications.  This section then includes additional
+  information on how to use ARKODE from applications written in
+  :ref:`Fortran <Usage.Fortran>`, as well as information on how to
+  leverage :ref:`GPU accelerators within ARKODE <Usage.GPU>`.
 
-* The much smaller section describing the ERKStep time-stepping
-  module, :ref:`using ERKStep for C and C++ applications
-  <ERKStep_CInterface>`, follows.
+* A much smaller section follows, describing ARKODE's
+  :ref:`Butcher table structure <ARKodeButcherTable>`, that is used by
+  both ARKStep and ERKStep.
 
-* Subsequent sections discuss shared features between ARKode
-  and the rest of the SUNDIALS library:
+* Subsequent sections discuss shared SUNDIALS features that are used
+  by ARKODE:
   :ref:`vector data structures <NVectors>`,
   :ref:`matrix data structures <SUNMatrix>`,
-  :ref:`linear solver data structures <SUNLinSol>`, and the
+  :ref:`linear solver data structures <SUNLinSol>`,
+  :ref:`nonlinear solver data structures <SUNNonlinSol>`,
+  :ref:`memory management utilities <SUNMemory>`,
+  and the
   :ref:`installation procedure <Installation>`.
 
-* The final sections catalog the full set of :ref:`ARKode constants
+* The final sections catalog the full set of :ref:`ARKODE constants
   <Constants>`, that are used for both input specifications and return
   codes, and the full set of :ref:`Butcher tables <Butcher>` that are
-  packaged with ARKode.
+  packaged with ARKODE.
 
 
 

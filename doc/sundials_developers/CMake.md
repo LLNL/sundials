@@ -1,2 +1,0 @@
-# SUNDIALS CMake Developer Guide
-

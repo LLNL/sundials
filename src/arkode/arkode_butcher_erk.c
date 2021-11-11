@@ -22,12 +22,6 @@
 #include <arkode/arkode_butcher_erk.h>
 #include <sundials/sundials_math.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 
 /*---------------------------------------------------------------
   Returns Butcher table structure for pre-set Runge Kutta methods.

@@ -26,12 +26,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 
 /*---------------------------------------------------------------
   Section I: generic ARKInterp functions provided by all

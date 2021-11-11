@@ -12,12 +12,10 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
-
 .. _Constants:
 
 ===========================
-Appendix: ARKode Constants
+Appendix: ARKODE Constants
 ===========================
 
 Below we list all input and output constants used by the main solver,
@@ -25,10 +23,10 @@ timestepper, and linear solver modules, together with their numerical
 values and a short description of their meaning.
 
 
-ARKode input constants
+ARKODE input constants
 ==========================
 
-Shared ARKode input constants
+Shared ARKODE input constants
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :index:`ARK_NORMAL` (1):
@@ -40,15 +38,15 @@ Shared ARKode input constants
 Full right-hand side evaluation constants
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. c:macro:: ARK_FULLRHS_START
+:index:`ARK_FULLRHS_START`
 
    Calling the full right-hand side function at the start of the integration.
 
-.. c:macro:: ARK_FULLRHS_END
+:index:`ARK_FULLRHS_END`
 
    Calling the full right-hand side function at the end of a step.
 
-.. c:macro:: ARK_FULLRHS_OTHER
+:index:`ARK_FULLRHS_OTHER`
 
    Calling the full right-hand side function at the some other point e.g., for
    dense output.
@@ -216,24 +214,24 @@ ImEx Butcher table specification
 
 
 
-ARKode output constants
+ARKODE output constants
 ==========================
 
-Shared ARKode output constants
+Shared ARKODE output constants
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :index:`ARK_SUCCESS`  (0):
    Successful function return.
 
 :index:`ARK_TSTOP_RETURN`  (1):
-   ARKode succeeded by reaching the specified
+   ARKODE succeeded by reaching the specified
    stopping point.
 
 :index:`ARK_ROOT_RETURN`  (2):
-   ARKode succeeded and found one more more roots.
+   ARKODE succeeded and found one more more roots.
 
 :index:`ARK_WARNING`  (99):
-   ARKode succeeded but an unusual situation occurred.
+   ARKODE succeeded but an unusual situation occurred.
 
 :index:`ARK_TOO_MUCH_WORK`  (-1):
    The solver took ``mxstep`` internal steps
@@ -318,8 +316,9 @@ Shared ARKode output constants
    One of the function inputs is illegal.
 
 :index:`ARK_NO_MALLOC`  (-23):
-   The ARKode memory block was not allocated by
-   a call to :c:func:`ARKodeMalloc()`.
+   The ARKODE memory block was not allocated by
+   a call to :c:func:`ARKStepCreate()`, :c:func:`ERKStepCreate()`, or
+   :c:func:`MRIStepCreate()`.
 
 :index:`ARK_BAD_K`  (-24):
    The derivative order :math:`k` is larger than allowed.
@@ -364,11 +363,11 @@ Shared ARKode output constants
    An error occurred in the MRIStep post inner integrator function.
 
 :index:`ARK_INTERP_FAIL`  (-40):
-   An error occurred in the ARKode polynomial interpolation module.
-       
+   An error occurred in the ARKODE polynomial interpolation module.
+
 :index:`ARK_INVALID_TABLE`  (-41):
    An invalid Butcher or MRI table was encountered.
-       
+
 :index:`ARK_UNRECOGNIZED_ERROR` (-99):
    An unknown error was encountered.
 

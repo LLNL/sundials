@@ -14,6 +14,8 @@
 # unit_tests level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
+message("Adding units tests")
+
 # Add ARKode unit tests
 if(BUILD_ARKODE)
   add_subdirectory(arkode)

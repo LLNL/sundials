@@ -85,12 +85,11 @@ int main(int argc, char* argv[])
   void *arkstep_mem = NULL;       // empty ARKStep memory structure
   void *mristep_mem = NULL;       // empty MRIStep memory structure
   void *inner_mem = NULL;         // empty inner ARKStep memory structure
-  ARKodeButcherTable B = NULL;
   int numfails;
   booleantype fixedpoint;
   realtype t, tcur;
   long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nje, ark_nfeLS, ark_nni, ark_ncfn;
-  long int mri_nst, mri_nfs, mri_nsetups, mri_nje, mri_nfeLS, mri_nni, mri_ncfn;
+  long int mri_nst, mri_nfse, mri_nfsi, mri_nsetups, mri_nje, mri_nfeLS, mri_nni, mri_ncfn;
 
   // if an argument supplied, set fixedpoint (otherwise use SUNFALSE)
   fixedpoint = SUNFALSE;
@@ -116,22 +115,42 @@ int main(int argc, char* argv[])
   /* Call ARKStepCreate and MRIStepCreate to initialize the timesteppers */
   arkstep_mem = ARKStepCreate(NULL, f, T0, y);
   if (check_flag((void *) arkstep_mem, "ARKStepCreate", 0)) return 1;
+
   inner_mem = ARKStepCreate(f0, NULL, T0, y);
   if (check_flag((void *) inner_mem, "ARKStepCreate", 0)) return 1;
-  mristep_mem = MRIStepCreate(f, T0, y, MRISTEP_ARKSTEP, inner_mem);
+
+  MRIStepInnerStepper inner_stepper = NULL;
+  flag = ARKStepCreateMRIStepInnerStepper(inner_mem, &inner_stepper);
+  if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+
+  mristep_mem = MRIStepCreate(NULL, f, T0, y, inner_stepper);
   if (check_flag((void *) mristep_mem, "MRIStepCreate", 0)) return 1;
 
-  // Create solve-decoupled DIRK2 (trapezoidal) Butcher table
-  B = ARKodeButcherTable_Alloc(3, SUNFALSE);
+  // Create DIRK2 (trapezoidal) Butcher table
+  ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
   if (check_flag((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-  B->A[1][0] = ONE;
-  B->A[2][0] = RCONST(0.5);
-  B->A[2][2] = RCONST(0.5);
+  B->A[1][0] = RCONST(0.5);
+  B->A[1][1] = RCONST(0.5);
   B->b[0] = RCONST(0.5);
-  B->b[2] = RCONST(0.5);
+  B->b[1] = RCONST(0.5);
   B->c[1] = ONE;
-  B->c[2] = ONE;
   B->q=2;
+
+  // Create solve-decoupled DIRK2 (trapezoidal) Butcher table
+  ARKodeButcherTable Bc = ARKodeButcherTable_Alloc(3, SUNFALSE);
+  if (check_flag((void *)Bc, "ARKodeButcherTable_Alloc", 0)) return 1;
+  Bc->A[1][0] = ONE;
+  Bc->A[2][0] = RCONST(0.5);
+  Bc->A[2][2] = RCONST(0.5);
+  Bc->b[0] = RCONST(0.5);
+  Bc->b[2] = RCONST(0.5);
+  Bc->c[1] = ONE;
+  Bc->c[2] = ONE;
+  Bc->q=2;
+
+  // Create the MIS coupling table
+  MRIStepCoupling C = MRIStepCoupling_MIStoMRI(Bc, 2, 0);
+  if (check_flag((void *)C, "MRIStepCoupling_MIStoMRI", 0)) return 1;
 
   // Set routines
   flag = ARKStepSetUserData(arkstep_mem, (void *) &lamda);   // Pass lamda to user functions
@@ -144,6 +163,7 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKStepSetTables", 1)) return 1;
   flag = ARKStepSetMaxNumSteps(arkstep_mem, 2*Nt);           // Increase num internal steps
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+
   flag = MRIStepSetUserData(mristep_mem, (void *) &lamda);   // Pass lamda to user functions
   if (check_flag(&flag, "MRIStepSetUserData", 1)) return 1;
   flag = MRIStepSStolerances(mristep_mem, reltol, abstol);   // Specify tolerances
@@ -152,8 +172,8 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "MRIStepSetFixedStep", 1)) return 1;
   flag = ARKStepSetFixedStep(inner_mem, Tf/Nt/10);
   if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
-  flag = MRIStepSetTable(mristep_mem, 2, B);                 // Specify Butcher table
-  if (check_flag(&flag, "MRIStepSetTable", 1)) return 1;
+  flag = MRIStepSetCoupling(mristep_mem, C);                 // Specify Butcher table
+  if (check_flag(&flag, "MRIStepSetCoupling", 1)) return 1;
   flag = MRIStepSetMaxNumSteps(mristep_mem, 2*Nt);           // Increase num internal steps
   if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) return 1;
 
@@ -165,6 +185,7 @@ int main(int argc, char* argv[])
     if (check_flag((void *)NLSa, "SUNNonlinSol_FixedPoint", 0)) return 1;
     flag = ARKStepSetNonlinearSolver(arkstep_mem, NLSa);
     if (check_flag(&flag, "ARKStepSetNonlinearSolver", 1)) return 1;
+
     NLSm = SUNNonlinSol_FixedPoint(y, 50);
     if (check_flag((void *)NLSm, "SUNNonlinSol_FixedPoint", 0)) return 1;
     flag = MRIStepSetNonlinearSolver(mristep_mem, NLSm);
@@ -177,6 +198,7 @@ int main(int argc, char* argv[])
     if (check_flag((void *)Aa, "SUNDenseMatrix", 0)) return 1;
     LSa = SUNLinSol_Dense(y, Aa);
     if (check_flag((void *)LSa, "SUNLinSol_Dense", 0)) return 1;
+
     Am = SUNDenseMatrix(NEQ, NEQ);
     if (check_flag((void *)Am, "SUNDenseMatrix", 0)) return 1;
     LSm = SUNLinSol_Dense(y, Am);
@@ -187,6 +209,7 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
     flag = ARKStepSetJacFn(arkstep_mem, Jac);
     if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
+
     flag = MRIStepSetLinearSolver(mristep_mem, LSm, Am);
     if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) return 1;
     flag = MRIStepSetJacFn(mristep_mem, Jac);
@@ -195,9 +218,9 @@ int main(int argc, char* argv[])
     // Specify linearly implicit RHS, with non-time-dependent Jacobian
     flag = ARKStepSetLinear(arkstep_mem, 0);
     if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
+
     flag = MRIStepSetLinear(mristep_mem, 0);
     if (check_flag(&flag, "MRIStepSetLinear", 1)) return 1;
-
   }
 
 
@@ -247,7 +270,7 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "MRIStepGetCurrentTime", 1)) return 1;
   flag = MRIStepGetNumSteps(mristep_mem, &mri_nst);
   if (check_flag(&flag, "MRIStepGetNumSteps", 1)) return 1;
-  flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfs);
+  flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
   if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) return 1;
   flag = MRIStepGetNumNonlinSolvIters(mristep_mem, &mri_nni);
   if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) return 1;
@@ -265,7 +288,7 @@ int main(int argc, char* argv[])
   cout << "   Return time = " << t << "\n";
   cout << "   Internal final time = " << tcur << "\n";
   cout << "   Internal solver steps = " << mri_nst << "\n";
-  cout << "   Total RHS evals:  Fs = " << mri_nfs << "\n";
+  cout << "   Total RHS evals:  Fs = " << mri_nfsi << "\n";
   cout << "   Total number of nonlinear iterations = " << mri_nni << "\n";
   cout << "   Total number of nonlinear solver convergence failures = " << mri_ncfn << "\n";
   if (!fixedpoint) {
@@ -282,9 +305,9 @@ int main(int argc, char* argv[])
     numfails += 1;
     cout << "  Internal solver steps error: " << ark_nst << " vs " << mri_nst << "\n";
   }
-  if (ark_nfi != (mri_nfs+mri_nst)) {
+  if ((ark_nfi - ark_nst) != mri_nfsi) {
     numfails += 1;
-    cout << "  RHS evals error: " << ark_nfi << " vs " << mri_nfs << "\n";
+    cout << "  RHS evals error: " << ark_nfi << " vs " << mri_nfsi << "\n";
   }
   if (ark_nni != mri_nni) {
     numfails += 1;
@@ -316,9 +339,12 @@ int main(int argc, char* argv[])
 
   // Clean up and return with successful completion
   ARKodeButcherTable_Free(B);  // Free Butcher table
+  ARKodeButcherTable_Free(Bc); // Free Butcher table
+  MRIStepCoupling_Free(C);     // Free MRI coupling table
   ARKStepFree(&arkstep_mem);   // Free integrator memory
   MRIStepFree(&mristep_mem);
   ARKStepFree(&inner_mem);
+  MRIStepInnerStepper_Free(&inner_stepper);
   if (fixedpoint) {
     SUNNonlinSolFree(NLSa);    // Free nonlinear solvers
     SUNNonlinSolFree(NLSm);

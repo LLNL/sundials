@@ -164,6 +164,38 @@ case "$testtype" in
 esac
 
 # ------------------------------------------------------------------------------
+# Setup the test environment with first configuration
+# ------------------------------------------------------------------------------
+
+if [ -n "$SUNDIALS_ENV" ]; then
+    echo "Setting up environment with $SUNDIALS_ENV"
+    time source $SUNDIALS_ENV ${realtype[0]} ${indexsize[0]}
+elif [ -f env.sh ]; then
+    echo "Setting up environment with ./env.sh"
+    time source env.sh ${realtype[0]} ${indexsize[0]}
+elif [ -f ~/.sundials_config/env.sh ]; then
+    echo "Setting up environment with ~/.sundials_config/env.sh"
+    time source ~/.sundials_config/env.sh ${realtype[0]} ${indexsize[0]}
+elif [ -f env/env.${HOSTNAME}.sh ]; then
+    echo "Setting up environment with env/env.${HOSTNAME}.sh"
+    time source env/env.${HOSTNAME}.sh ${realtype[0]} ${indexsize[0]}
+elif [ -f env/env.${HOST}.sh ]; then
+    echo "Setting up environment with env/env.${HOST}.sh"
+    time source env/env.${HOST}.sh ${realtype[0]} ${indexsize[0]}
+elif [ -f env/env.default.sh ]; then
+    echo "Setting up environment with ./env.default.sh"
+    time source env/env.default.sh ${realtype[0]} ${indexsize[0]}
+else
+    echo "WARNING: No environment setup script found"
+fi
+
+# check return value
+if [ $? -ne 0 ]; then
+    echo "environment setup failed"
+    exit 1;
+fi
+
+# ------------------------------------------------------------------------------
 # Create tarballs
 # ------------------------------------------------------------------------------
 

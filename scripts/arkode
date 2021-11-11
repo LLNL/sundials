@@ -56,6 +56,7 @@ $tar $tarfile $distrobase/src/arkode/arkode_io.c           || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_ls.c           || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_ls_impl.h      || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_mri_tables.c   || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_mri_tables_impl.h || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_mristep.c      || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_impl.h || exit 1
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_io.c   || exit 1
@@ -172,6 +173,14 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.c          
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.out          || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_FEM_slu.c    || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_FEM_slu.out  || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_imexmri.c           || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_imexmri_0_0.001.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_imexmri_2_0.001.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_imexmri_3_0.001.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_imexmri_4_0.001.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_imexmri_5_0.001.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_imexmri_6_0.001.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_imexmri_7_0.001.out || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_klu.c        || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_klu.out      || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_fp.c           || exit 1
@@ -195,6 +204,8 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_4_0.002.out      
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_5_0.002.out        || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_6_0.005.out        || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_7_0.001.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_8_0.001.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_9_0.001.out        || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.c          || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.out        || exit 1
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec_1.out      || exit 1
@@ -245,6 +256,10 @@ $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_ls.cpp    
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_ls_--np_2_2.out   || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pfmg.cpp          || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pfmg_--np_2_2.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pfmg_imex.cpp          || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pfmg_imex_--np_2_2.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pfmg_mri.cpp           || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre_pfmg_mri_--np_2_2.out  || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_parhyp/plot_heat2D_p.py                   || exit 1
 
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/CMakeLists.txt              || exit 1
@@ -347,5 +362,6 @@ $tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_test_arkstepsetfor
 $tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_interp_check.c           || exit 1
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/CMakeLists.txt             || exit 1
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_analytic_sys_mri.cpp   || exit 1
+$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_dahlquist_mri.cpp      || exit 1
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_parallel/CMakeLists.txt           || exit 1
 $tar $tarfile $distrobase/test/unit_tests/arkode/CXX_parallel/ark_heat2D_mri.cpp       || exit 1

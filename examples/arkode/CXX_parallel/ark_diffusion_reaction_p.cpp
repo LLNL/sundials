@@ -724,7 +724,7 @@ int main(int argc, char* argv[])
       MRIStepInnerStepper_GetContent(stepper, &inner_content);
       InnerStepperContent* content = (InnerStepperContent *) inner_content;
       CVodeFree(&(content->cvode_mem));
-      free(inner_content);
+      delete content;
       MRIStepInnerStepper_Free(&stepper);
       SUNNonlinSolFree(NLS);
       MRIStepFree(&arkode_mem);
@@ -1092,8 +1092,7 @@ static int SetupMRI(UserData* udata, N_Vector y, SUNLinearSolver LS,
   // -------------------------
 
   // Create slow integrator for diffusion and attach fast integrator
-  *arkode_mem = MRIStepCreate(diffusion, ZERO, y, MRISTEP_CUSTOM,
-                              *stepper);
+  *arkode_mem = MRIStepCreate(NULL, diffusion, ZERO, y, *stepper);
   if (check_flag((void *)*arkode_mem, "MRIStepCreate", 0)) return 1;
 
   // Set method coupling table (solve-decoupled implicit method)
@@ -1253,8 +1252,7 @@ static int SetupMRICVODE(UserData *udata, N_Vector y, SUNLinearSolver LS,
   // -------------------------
 
   // Create slow integrator for diffusion and attach fast integrator
-  *arkode_mem = MRIStepCreate(diffusion, ZERO, y, MRISTEP_CUSTOM,
-                              *stepper);
+  *arkode_mem = MRIStepCreate(NULL, diffusion, ZERO, y, *stepper);
   if (check_flag((void *)*arkode_mem, "MRIStepCreate", 0)) return 1;
 
   // Set method coupling table (solve-decoupled implicit method)
@@ -2860,10 +2858,10 @@ static int OutputStatsMRI(void *arkode_mem, MRIStepInnerStepper stepper,
   int flag;
 
   // Get slow integrator and solver stats
-  long int nsts, nfs, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nsts, nfse, nfsi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = MRIStepGetNumSteps(arkode_mem, &nsts);
   if (check_flag(&flag, "MRIStepGetNumSteps", 1)) return -1;
-  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfs);
+  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) return -1;
   flag = MRIStepGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) return -1;
@@ -2886,7 +2884,7 @@ static int OutputStatsMRI(void *arkode_mem, MRIStepInnerStepper stepper,
   cout << endl << "Slow Integrator:" << endl;
 
   cout << "  Steps            = " << nsts    << endl;
-  cout << "  RHS diffusion    = " << nfs     << endl;
+  cout << "  RHS diffusion    = " << nfsi    << endl;
   cout << "  NLS iters        = " << nni     << endl;
   cout << "  NLS fails        = " << ncfn    << endl;
   cout << "  LS iters         = " << nli     << endl;
@@ -2950,10 +2948,10 @@ static int OutputStatsMRICVODE(void *arkode_mem,
   int flag;
 
   // Get slow integrator and solver stats
-  long int nsts, nfs, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nsts, nfse, nfsi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = MRIStepGetNumSteps(arkode_mem, &nsts);
   if (check_flag(&flag, "MRIStepGetNumSteps", 1)) return -1;
-  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfs);
+  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) return -1;
   flag = MRIStepGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) return -1;
@@ -2976,7 +2974,7 @@ static int OutputStatsMRICVODE(void *arkode_mem,
   cout << endl << "Slow Integrator:" << endl;
 
   cout << "  Steps            = " << nsts    << endl;
-  cout << "  RHS diffusion    = " << nfs     << endl;
+  cout << "  RHS diffusion    = " << nfsi    << endl;
   cout << "  NLS iters        = " << nni     << endl;
   cout << "  NLS fails        = " << ncfn    << endl;
   cout << "  LS iters         = " << nli     << endl;
