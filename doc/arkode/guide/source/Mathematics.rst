@@ -1708,8 +1708,8 @@ interpolant to use for prediction.  Denoting :math:`\tau = c_i^I
 
 .. _Mathematics.Predictors.Bootstrap:
 
-Bootstrap predictor (:math:`M=I` only)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Bootstrap predictor (:math:`M=I` only) -- **deprecated**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This predictor does not use any information from the preceding
 step, instead using information only within the current step
@@ -1747,12 +1747,15 @@ Although this approach could be used with non-identity mass matrix, support for
 that mode is not currently implemented, so selection of this predictor in the
 case of a non-identity mass matrix will result in use of the trivial predictor.
 
+.. note::
+   This predictor has been deprecated, and will be removed from a future release.
+
 
 
 .. _Mathematics.Predictors.MinimumCorrection:
 
-Minimum correction predictor (ARKStep, :math:`M=I` only)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Minimum correction predictor (ARKStep, :math:`M=I` only) -- **deprecated**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The final predictor is not interpolation based; instead it
 utilizes all existing stage information from the current step to
@@ -1777,6 +1780,9 @@ This prediction method merely computes the predictor :math:`z_i` as
 Again, although this approach could be used with non-identity mass matrix, support
 for that mode is not currently implemented, so selection of this predictor in the
 case of a non-identity mass matrix will result in use of the trivial predictor.
+
+.. note::
+   This predictor has been deprecated, and will be removed from a future release.
 
 
 

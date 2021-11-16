@@ -100,6 +100,7 @@ RHS function for nonlinear system evaluations  :c:func:`MRIStepSetNlsRhsFn()`   
 
         * 4 is the bootstrap predictor, that uses a second-order
           predictor based on only information within the current step.
+          **deprecated**
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -108,6 +109,9 @@ RHS function for nonlinear system evaluations  :c:func:`MRIStepSetNlsRhsFn()`   
 
    **Notes:** The default value is 0.  If *method* is set to an
    undefined value, this default predictor will be used.
+
+   **The "bootstrap" predictor (option 4 above) has been deprecated, and
+   will be removed from a future release.**
 
 
 

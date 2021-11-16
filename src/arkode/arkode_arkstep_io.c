@@ -1227,6 +1227,16 @@ int ARKStepSetPredictorMethod(void *arkode_mem, int pred_method)
     return(ARK_ILL_INPUT);
   }
 
+  /* Deprecate options 4 and 5 */
+  if (pred_method == 4) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", "ARKStepSetPredictorMethod",
+                    "Predictor option 4 is deprecated, and will be removed in an upcoming release");
+  }
+  if (pred_method == 5) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", "ARKStepSetPredictorMethod",
+                    "Predictor option 5 is deprecated, and will be removed in an upcoming release");
+  }
+
   /* set parameter */
   step_mem->predictor = pred_method;
 

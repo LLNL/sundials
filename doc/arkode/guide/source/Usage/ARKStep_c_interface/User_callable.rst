@@ -1959,10 +1959,12 @@ Maximum number of convergence failures            :c:func:`ARKStepSetMaxConvFail
 
         * 4 is the bootstrap predictor, that uses a second-order
           predictor based on only information within the current step.
+          **deprecated**
 
         * 5 is the minimum correction predictor, that uses all
           preceding stage information within the current step for
           prediction.
+          **deprecated**
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1974,7 +1976,8 @@ Maximum number of convergence failures            :c:func:`ARKStepSetMaxConvFail
 
    Options 4 and 5 are currently not supported when solving a problem involving
    a non-identity mass matrix.  In that case, selection of *method* as 4 or 5 will
-   instead default to the trivial predictor (*method* 0).
+   instead default to the trivial predictor (*method* 0).  **Both of these options
+   have been deprecated, and will be removed from a future release.**
 
 
 

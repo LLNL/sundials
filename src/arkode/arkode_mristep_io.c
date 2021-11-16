@@ -543,6 +543,12 @@ int MRIStepSetPredictorMethod(void *arkode_mem, int pred_method)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  /* Deprecate option 4 */
+  if (pred_method == 4) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep", "MRIStepSetPredictorMethod",
+                    "Predictor option 4 is deprecated, and will be removed in an upcoming release");
+  }
+
   /* set parameter */
   step_mem->predictor = pred_method;
 

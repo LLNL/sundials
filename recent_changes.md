@@ -29,6 +29,12 @@ The implementation of solve-decoupled implicit MRI-GARK methods has been updated
 to remove extraneous slow implicit function calls and reduce the memory
 requirements.
 
+Deprecated ARKODE nonlinear solver predictors: specification of the ARKStep
+"bootstrap" or "minimum correction" predictors (options 4 and 5 from
+`ARKStepSetPredictorMethod`), or MRIStep "bootstrap" predictor (option 4 from
+`MRIStepSetPredictorMethod`), will output a deprecation warning message.
+These options will be removed in a future release.
+
 ## Changes to SUNDIALS in release 5.8.0
 
 The RAJA NVECTOR implementation has been updated to support the SYCL backend
