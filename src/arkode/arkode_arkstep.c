@@ -1713,9 +1713,14 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* successful stage solve */
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {
-      retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                            step_mem->Fi[is], ark_mem->user_data);
-      step_mem->nfi++;
+      if (implicit_stage && ark_mem->ProcessStage == NULL && step_mem->mass_type == MASS_IDENTITY) {
+        N_VLinearSum(ONE / step_mem->gamma, step_mem->zcor,
+                     -ONE / step_mem->gamma, step_mem->sdata, step_mem->Fi[is]);
+      } else {
+        retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
+                              step_mem->Fi[is], ark_mem->user_data);
+        step_mem->nfi++;
+      }
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
       printf("    ARKStep implicit stage RHS Fi[%i]:\n",is);
