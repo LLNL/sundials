@@ -43,6 +43,11 @@ foreach(example_tuple ${FIDA_examples})
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
+  if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    # avoid linker errors like : '... libsundials_fcvode.a(fsunmatrix_sparse.c.o):(.bss+0x0): multiple definition of `F2C_CVODE_matrix' ...'
+    target_link_options(${example} PUBLIC "-Wl,--allow-multiple-definition")
+  endif()
+
   # add example to regression tests
   sundials_add_test(${example} ${example}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
