@@ -50,9 +50,9 @@ set(IDAS_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(IDAS_examples_SUPERLUMT
-  "idasRoberts_ASAi_sps\;\;develop"
-  "idasRoberts_FSA_sps\;-sensi stg t\;develop"
-  "idasRoberts_sps\;\;develop"
+  "idasRoberts_ASAi_spsmt\;\;develop"
+  "idasRoberts_FSA_spsmt\;-sensi stg t\;develop"
+  "idasRoberts_spsmt\;\;develop"
   )
 
 # Specify libraries to link against
@@ -320,7 +320,7 @@ if(EXAMPLES_INSTALL)
       set(THREAD_LIBRARY_SLUMT "")
     endif()
   else()
-    set(EXAMPLES_SLUMTU "")
+    set(EXAMPLES_SLUMT "")
     set(THREAD_LIBRARY_SLUMT "")
   endif()
 

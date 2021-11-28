@@ -56,7 +56,7 @@ set(CVODE_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(CVODE_examples_SUPERLUMT
-  "cvRoberts_sps\;\;develop"
+  "cvRoberts_spsmt\;\;develop"
   )
 
 # Auxiliary files to install

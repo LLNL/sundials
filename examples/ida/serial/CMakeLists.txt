@@ -44,7 +44,7 @@ set(IDA_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(IDA_examples_SUPERLUMT
-    "idaRoberts_sps\;\;develop"
+    "idaRoberts_spsmt\;\;develop"
     #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
     )
 

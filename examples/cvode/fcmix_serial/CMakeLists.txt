@@ -43,7 +43,7 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
 
   # Examples using SuperLU_MT linear solver
   set(FCVODE_examples_SUPERLUMT
-    "fcvRoberts_sps\;develop"
+    "fcvRoberts_spsmt\;develop"
     )
 
 endif()

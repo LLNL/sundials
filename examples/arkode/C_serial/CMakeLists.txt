@@ -61,7 +61,7 @@ set(ARKODE_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(ARKODE_examples_SUPERLUMT
-  "ark_brusselator1D_FEM_slu\;develop"
+  "ark_brusselator1D_FEM_slumt\;develop"
   )
 
 # Auxiliary files to install

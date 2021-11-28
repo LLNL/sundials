@@ -66,9 +66,9 @@ set(CVODES_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(CVODES_examples_SUPERLUMT
-  "cvsRoberts_ASAi_sps\;\;develop"
-  "cvsRoberts_FSA_sps\;-sensi stg1 t\;develop"
-  "cvsRoberts_sps\;\;develop"
+  "cvsRoberts_ASAi_spsmt\;\;develop"
+  "cvsRoberts_FSA_spsmt\;-sensi stg1 t\;develop"
+  "cvsRoberts_spsmt\;\;develop"
   )
 
 # Specify libraries to link against

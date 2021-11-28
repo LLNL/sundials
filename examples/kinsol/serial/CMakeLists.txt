@@ -46,7 +46,7 @@ set(KINSOL_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(KINSOL_examples_SUPERLUMT
-  "kinRoboKin_slu\;develop"
+  "kinRoboKin_slumt\;develop"
   )
 
 # Specify libraries to link against
