@@ -49,6 +49,11 @@ set(KINSOL_examples_SUPERLUMT
   "kinRoboKin_slumt\;develop"
   )
 
+# Examples using SuperLU linear solver
+set(KINSOL_examples_SUPERLU
+  "kinRoboKin_slu\;develop"
+  )
+
 # Specify libraries to link against
 set(KINSOL_LIB sundials_kinsol)
 set(NVECS_LIB sundials_nvecserial)
@@ -227,6 +232,46 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 endif()
 
 
+# Add the build and install targets for each SuperLU example (if needed)
+if(BUILD_SUNLINSOL_SUPERLU)
+
+  # Sundials SuperLU linear solver module
+  set(SUNLINSOLSLU_LIBS sundials_sunlinsolsuperlu)
+
+  # SuperLU libraries
+  list(APPEND SUNLINSOLSLU_LIBS ${SUPERLU_LIBRARIES})
+
+  foreach(example_tuple ${KINSOL_examples_SUPERLU})
+
+    # parse the example tuple
+    list(GET example_tuple 0 example)
+    list(GET example_tuple 1 example_type)
+
+    # example source files
+    add_executable(${example} ${example}.c)
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    # add example to regression tests
+    sundials_add_test(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLU_LIBS})
+
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.c ${example}.out
+        DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
+    endif()
+
+  endforeach(example_tuple ${KINSOL_examples_SUPERLU})
+
+endif()
+
+
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
@@ -261,6 +306,12 @@ if(EXAMPLES_INSTALL)
   else()
     set(EXAMPLES_SLUMT "")
     set(THREAD_LIBRARY_SLUMT "")
+  endif()
+
+  if(BUILD_SUNLINSOL_SUPERLU)
+    examples2string(KINSOL_examples_SUPERLU EXAMPLES_SLU)
+  else()
+    set(EXAMPLES_SLU "")
   endif()
 
   # Regardless of the platform we're on, we will generate and install

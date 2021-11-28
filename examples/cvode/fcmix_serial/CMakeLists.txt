@@ -48,6 +48,16 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
 
 endif()
 
+#superlu is 32-bit only
+if(SUNDIALS_INDEX_SIZE MATCHES "32")
+
+  # Examples using SuperLU linear solver
+  set(FCVODE_examples_SUPERLU
+    "fcvRoberts_sps\;develop"
+    )
+
+endif()
+
 # Specify libraries to link against
 set(FNVECS_LIB sundials_fnvecserial)
 
@@ -212,6 +222,50 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 
 endif()
 
+
+# Add the build and install targets for each SuperLU example (if needed)
+if(BUILD_SUNLINSOL_SUPERLU)
+
+  set(SUNLINSOLSLU_LIBS
+    sundials_sunlinsolsuperlu
+    sundials_fsunlinsolsuperlu)
+
+  foreach(example_tuple ${FCVODE_examples_SUPERLU})
+
+    # parse the example tuple
+    list(GET example_tuple 0 example)
+    list(GET example_tuple 1 example_type)
+
+    # example source files
+    add_executable(${example} ${example}.f)
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    # add example to regression tests
+    sundials_add_test(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLU_LIBS})
+
+    if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+        # avoid linker errors like : '... libsundials_fcvode.a(fsunmatrix_sparse.c.o):(.bss+0x0): multiple definition of `F2C_CVODE_matrix' ...'
+        target_link_options(${example} PUBLIC "-Wl,--allow-multiple-definition")
+    endif()
+
+     # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.f ${example}.out
+        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/fcmix_serial)
+    endif()
+
+  endforeach(example_tuple ${FCVODE_examples_SUPERLU})
+
+endif()
+
+
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
@@ -244,6 +298,12 @@ if(EXAMPLES_INSTALL)
     examples2string(FCVODE_examples_SUPERLUMT EXAMPLES_SLUMT)
   else()
     set(EXAMPLES_SLUMT "")
+  endif()
+
+  if(BUILD_SUNLINSOL_SUPERLU)
+    examples2string(FCVODE_examples_SUPERLU EXAMPLES_SLU)
+  else()
+    set(EXAMPLES_SLU "")
   endif()
 
   # Regardless of the platform we're on, we will generate and install

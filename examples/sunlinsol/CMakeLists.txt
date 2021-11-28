@@ -58,6 +58,10 @@ if(BUILD_SUNLINSOL_ONEMKLDENSE)
   add_subdirectory(onemkldense)
 endif()
 
+if(BUILD_SUNLINSOL_SUPERLU)
+  add_subdirectory(superlu)
+endif()
+
 if(BUILD_SUNLINSOL_SUPERLUMT)
   add_subdirectory(superlumt)
 endif()

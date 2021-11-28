@@ -132,6 +132,24 @@ sundials_option(SUPERLUMT_WORKS BOOL "Set to ON to force CMake to accept a given
                 ADVANCED)
 
 # ---------------------------------------------------------------
+# Enable SuperLU support?
+# ---------------------------------------------------------------
+sundials_option(ENABLE_SUPERLU BOOL "Enable SuperLU support" OFF)
+
+sundials_option(SUPERLU_INCLUDE_DIR PATH "SuperLU include directory" "${SUPERLU_INCLUDE_DIR}"
+                SHOW_IF ENABLE_SUPERLU)
+
+sundials_option(SUPERLU_LIBRARY_DIR PATH "SuperLU library directory" "${SUPERLU_LIBRARY_DIR}"
+                SHOW_IF ENABLE_SUPERLU)
+
+sundials_option(SUPERLU_LIBRARIES STRING "Semi-colon separated list of additional libraries needed for SuperLU." "${SUPERLU_LIBRARIES}"
+                SHOW_IF ENABLE_SUPERLU)
+
+sundials_option(SUPERLU_WORKS BOOL "Set to ON to force CMake to accept a given SUPERLU configuration" OFF
+                SHOW_IF ENABLE_SUPERLU
+                ADVANCED)
+
+# ---------------------------------------------------------------
 # Enable KLU support?
 # ---------------------------------------------------------------
 sundials_option(ENABLE_KLU BOOL "Enable KLU support" OFF)

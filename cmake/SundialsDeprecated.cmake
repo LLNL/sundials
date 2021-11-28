@@ -105,6 +105,13 @@ if(DEFINED SUPERLUMT_ENABLE)
   unset(SUPERLUMT_ENABLE CACHE)
 endif()
 
+if(DEFINED SUPERLU_ENABLE)
+  print_warning("The CMake option SUPERLU_ENABLE is deprecated" "Use ENABLE_SUPERLU instead"
+                MODE DEPRECATION)
+  set(ENABLE_SUPERLU ${SUPERLU_ENABLE} CACHE BOOL "Enable SuperLU support" FORCE)
+  unset(SUPERLU_ENABLE CACHE)
+endif()
+
 if(DEFINED KLU_ENABLE)
   print_warning("The CMake option KLU_ENABLE is deprecated" "Use ENABLE_KLU instead"
                 MODE DEPRECATION)
