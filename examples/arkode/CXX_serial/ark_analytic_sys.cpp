@@ -336,7 +336,7 @@ static int SUNDlsMat_dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
   for (i=0; i<m; i++)
     for (j=0; j<n; j++)
       for (k=0; k<l; k++)
-        cdata[i][j] += adata[i][k] * bdata[k][j];
+        cdata[j][i] += adata[k][i] * bdata[j][k];
 
   return 0;                       // Return with success
 }
