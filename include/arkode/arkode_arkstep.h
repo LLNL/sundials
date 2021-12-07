@@ -170,6 +170,7 @@ SUNDIALS_EXPORT int ARKStepSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetExplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImEx(void *arkode_mem);
+SUNDIALS_EXPORT int ARKStepSetImplicitReeval(void *arkode_mem, int reeval); 
 SUNDIALS_EXPORT int ARKStepSetTables(void *arkode_mem, int q, int p,
                                      ARKodeButcherTable Bi,
                                      ARKodeButcherTable Be);

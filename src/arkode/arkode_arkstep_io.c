@@ -326,6 +326,7 @@ int ARKStepSetDefaults(void* arkode_mem)
   step_mem->linear_timedep   = SUNTRUE;        /* dfi/dy depends on t */
   step_mem->explicit         = SUNTRUE;        /* fe(t,y) will be used */
   step_mem->implicit         = SUNTRUE;        /* fi(t,y) will be used */
+  step_mem->implicit_reeval  = SUNFALSE;       /* evaluate fi on result of NLS */
   step_mem->maxcor           = MAXCOR;         /* max nonlinear iters/stage */
   step_mem->nlscoef          = NLSCOEF;        /* nonlinear tolerance coefficient */
   step_mem->crdown           = CRDOWN;         /* nonlinear convergence estimate coeff. */
@@ -749,6 +750,34 @@ int ARKStepSetImEx(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
+  ARKStepSetImplicitReeval:
+
+  Specifies if an optimization is used to avoid an evaluation of
+  fi after a nonlinear solve for an implicit stage.  If stage
+  postprocessecing in enabled, this option is ignored, and fi is
+  always reevaluated.
+
+  The argument should be 1 or 0, where 1 indicates that fi is
+  evaluated to compute fi(z_i), and 0 indicates that fi(z_i) is
+  computed without an additional evaluation of fi.
+  ---------------------------------------------------------------*/
+int ARKStepSetImplicitReeval(void *arkode_mem, int reeval)
+{
+  ARKodeMem        ark_mem;
+  ARKodeARKStepMem step_mem;
+  int              retval;
+
+  /* access ARKodeARKStepMem structure and set function pointer */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetImplicitReeval",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  step_mem->implicit_reeval = (reeval == 1);
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   ARKStepSetTables:
 
   Specifies to use customized Butcher tables for the system.
@@ -1021,7 +1050,7 @@ int ARKStepSetTableNum(void *arkode_mem, ARKODE_DIRKTableID itable, ARKODE_ERKTa
     if (flag != ARK_SUCCESS) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "ARKStepSetTableNum",
-                      "Error in ARKStepSetIxplicit");
+                      "Error in ARKStepSetImplicit");
       return(flag);
     }
 
@@ -1334,7 +1363,6 @@ int ARKStepSetStagePredictFn(void *arkode_mem,
   step_mem->stage_predict = PredictStage;
   return(ARK_SUCCESS);
 }
-
 
 /*===============================================================
   ARKStep optional output functions -- stepper-specific
