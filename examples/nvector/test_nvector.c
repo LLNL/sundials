@@ -19,6 +19,18 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
+/* Minimum POSIX version needed for struct timespec and clock_monotonic */
+#if !defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE < 199309L)
+#define _POSIX_C_SOURCE 199309L
+#endif
+
+/* POSIX timers */
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
+#include <time.h>
+#include <stddef.h>
+#include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,11 +38,6 @@
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
 
-/* POSIX timers */
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
-#include <time.h>
-#include <unistd.h>
-#endif
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -39,8 +46,11 @@
 #else
 #define GSYM "g"
 #define ESYM "e"
-#define FSYM "f"
+#define FSYM ".17f"
 #endif
+
+/* all tests need a SUNContext */
+SUNContext sunctx = NULL;
 
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
@@ -59,6 +69,34 @@ static int print_time = 0;
 /* macro for printing timings */
 #define FMT "%s Time: %22.15e\n\n"
 #define PRINT_TIME(test, time) if (print_time) printf(FMT, test, time)
+
+int Test_Init(void* comm)
+{
+  if (sunctx == NULL) {
+    if (SUNContext_Create(comm, &sunctx)) {
+      printf("ERROR: SUNContext_Create failed\n");
+      return -1;
+    }
+  }
+  return 0;
+}
+
+int Test_Finalize()
+{
+  if (sunctx != NULL) {
+    if (SUNContext_Free(&sunctx)) {
+      printf("ERROR: SUNContext_Create failed\n");
+      return -1;
+    }
+  }
+  return 0;
+}
+
+void Test_Abort(int code)
+{
+  Test_Finalize();
+  abort();
+}
 
 /* ----------------------------------------------------------------------
  * N_VMake Test

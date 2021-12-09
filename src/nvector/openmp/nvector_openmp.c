@@ -73,14 +73,14 @@ N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v)
  * Function to create a new empty vector
  */
 
-N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
+N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads, SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_OpenMP content;
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -155,13 +155,13 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
  * Function to create a new vector
  */
 
-N_Vector N_VNew_OpenMP(sunindextype length, int num_threads)
+N_Vector N_VNew_OpenMP(sunindextype length, int num_threads, SUNContext sunctx)
 {
   N_Vector v;
   realtype *data;
 
   v = NULL;
-  v = N_VNewEmpty_OpenMP(length, num_threads);
+  v = N_VNewEmpty_OpenMP(length, num_threads, sunctx);
   if (v == NULL) return(NULL);
 
   /* Create data */
@@ -185,12 +185,12 @@ N_Vector N_VNew_OpenMP(sunindextype length, int num_threads)
  * Function to create a vector with user data component
  */
 
-N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads)
+N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_OpenMP(length, num_threads);
+  v = N_VNewEmpty_OpenMP(length, num_threads, sunctx);
   if (v == NULL) return(NULL);
 
   if (length > 0) {
@@ -208,25 +208,7 @@ N_Vector N_VMake_OpenMP(sunindextype length, realtype *v_data, int num_threads)
 
 N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_OpenMP(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_OpenMP(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -235,25 +217,7 @@ N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_OpenMP(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_OpenMP(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -262,12 +226,7 @@ N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
 
 void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_OpenMP(vs[j]);
-
-  free(vs); vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -335,7 +294,7 @@ N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

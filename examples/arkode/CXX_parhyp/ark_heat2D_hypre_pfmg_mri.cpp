@@ -318,7 +318,6 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 int main(int argc, char* argv[])
 {
   int flag;                                 // reusable error-checking flag
-  UserData *udata     = NULL;               // user data structure
   N_Vector u          = NULL;               // vector for storing solution
   SUNLinearSolver LS  = NULL;               // linear solver memory structure
   SUNLinearSolver LSf = NULL;               // linear solver memory structure
@@ -342,268 +341,276 @@ int main(int argc, char* argv[])
   flag = MPI_Comm_rank(comm_w, &myid);
   if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
 
-  // Set output process flag
-  bool outproc = (myid == 0);
-
-  // ------------------------------------------
-  // Setup UserData and parallel decomposition
-  // ------------------------------------------
-
-  // Allocate and initialize user data structure
-  udata = new UserData;
-  flag = InitUserData(udata);
-  if (check_flag(&flag, "InitUserData", 1)) return 1;
-
-  // Parse command line inputs
-  flag = ReadInputs(&argc, &argv, udata, outproc);
-  if (flag != 0) return 1;
-
-  // Setup parallel decomposition
-  flag = SetupDecomp(comm_w, udata);
-  if (check_flag(&flag, "SetupDecomp", 1)) return 1;
-
-  // Output problem setup/options
-  if (outproc)
+  // Add scope so objects object are destroyed before MPIFinalize
   {
-    flag = PrintUserData(udata);
-    if (check_flag(&flag, "PrintUserData", 1)) return 1;
-  }
+    // Set output process flag
+    bool outproc = (myid == 0);
 
-  // ------------------------
-  // Create parallel vectors
-  // ------------------------
+    // Create SUNDIALS context
+    sundials::Context sunctx(&comm_w);
 
-  // Create vector for solution
-  u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes);
-  if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
+    // ------------------------------------------
+    // Setup UserData and parallel decomposition
+    // ------------------------------------------
 
-  // Set initial condition
-  flag = InitSolution(ZERO, u, udata);
-  if (check_flag(&flag, "InitSolution", 1)) return 1;
+    // Allocate and initialize user data structure
+    UserData udata;
+    flag = InitUserData(&udata);
+    if (check_flag(&flag, "InitUserData", 1)) return 1;
 
-  // -----------------------------------------
-  // Create linear solvers and preconditioners
-  // -----------------------------------------
+    // Parse command line inputs
+    flag = ReadInputs(&argc, &argv, &udata, outproc);
+    if (flag != 0) return 1;
 
-  // Create linear solver for fast rhs
-  LSf = SUNLinSol_SPGMR(u, PREC_NONE, udata->liniters);
-  if (check_flag((void *) LSf, "SUNLinSol_SPGMR", 0)) return 1;
+    // Setup parallel decomposition
+    flag = SetupDecomp(comm_w, &udata);
+    if (check_flag(&flag, "SetupDecomp", 1)) return 1;
 
-  // Create linear solver for slow rhs
-  LS = SUNLinSol_PCG(u, udata->prectype, udata->liniters);
-  if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
+    // Output problem setup/options
+    if (outproc)
+    {
+      flag = PrintUserData(&udata);
+      if (check_flag(&flag, "PrintUserData", 1)) return 1;
+    }
 
-  // Create hypre objects for slow rhs
-  if (udata->prectype != PREC_NONE)
-  {
-    flag = HyprePFMG(udata);
-    if (check_flag(&flag, "HyprePFMG", 1)) return 1;
-  }
+    // ------------------------
+    // Create parallel vectors
+    // ------------------------
 
-  // ----------------------------------------------
-  // Setup ARKStep fast integrator and set options
-  // ----------------------------------------------
+    // Create vector for solution
+    u = N_VNew_Parallel(udata.comm_c, udata.nodes_loc, udata.nodes, sunctx);
+    if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
 
-  // Initialize the fast integrator. Specify the fast right-hand side
-  // function in y'=fs(t,y)+ff(t,y) = fe(t,y)+fi(t,y)+ff(t,y)
+    // Set initial condition
+    flag = InitSolution(ZERO, u, &udata);
+    if (check_flag(&flag, "InitSolution", 1)) return 1;
 
-  // Create fast integrator
-  inner_arkode_mem = ARKStepCreate(NULL, ff, ZERO, u);
-  if (check_flag((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+    // -----------------------------------------
+    // Create linear solvers and preconditioners
+    // -----------------------------------------
 
-  // Specify tolerances
-  flag = ARKStepSStolerances(inner_arkode_mem, udata->rtol, udata->atol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+    // Create linear solver for fast rhs
+    LSf = SUNLinSol_SPGMR(u, PREC_NONE, udata.liniters, sunctx);
+    if (check_flag((void *) LSf, "SUNLinSol_SPGMR", 0)) return 1;
 
-  // Attach linear solver
-  flag = ARKStepSetLinearSolver(inner_arkode_mem, LSf, NULL);
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+    // Create linear solver for slow rhs
+    LS = SUNLinSol_PCG(u, udata.prectype, udata.liniters, sunctx);
+    if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
 
-  // Set linear solver tolerance factor
-  flag = ARKStepSetEpsLin(inner_arkode_mem, udata->epslin);
-  if (check_flag(&flag, "ARKStepSetEpsLin", 1)) return 1;
+    // Create hypre objects for slow rhs
+    if (udata.prectype != PREC_NONE)
+    {
+      flag = HyprePFMG(&udata);
+      if (check_flag(&flag, "HyprePFMG", 1)) return 1;
+    }
 
-  // Use an ARKode provided table
-    flag = ARKStepSetOrder(inner_arkode_mem, udata->forder);
+    // ----------------------------------------------
+    // Setup ARKStep fast integrator and set options
+    // ----------------------------------------------
+
+    // Initialize the fast integrator. Specify the fast right-hand side
+    // function in y'=fs(t,y)+ff(t,y) = fe(t,y)+fi(t,y)+ff(t,y)
+
+    // Create fast integrator
+    inner_arkode_mem = ARKStepCreate(NULL, ff, ZERO, u, sunctx);
+    if (check_flag((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+
+    // Specify tolerances
+    flag = ARKStepSStolerances(inner_arkode_mem, udata.rtol, udata.atol);
+    if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+
+    // Attach linear solver
+    flag = ARKStepSetLinearSolver(inner_arkode_mem, LSf, NULL);
+    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+
+    // Set linear solver tolerance factor
+    flag = ARKStepSetEpsLin(inner_arkode_mem, udata.epslin);
+    if (check_flag(&flag, "ARKStepSetEpsLin", 1)) return 1;
+
+    // Use an ARKode provided table
+    flag = ARKStepSetOrder(inner_arkode_mem, udata.forder);
     if (check_flag(&flag, "ARKStepSetOrder", 1)) return 1;
 
-  // Set fixed step size or adaptivity method
-  if (udata->hf > ZERO)
-  {
-    flag = ARKStepSetFixedStep(inner_arkode_mem, udata->hf);
-    if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
-  }
-  else
-  {
-    flag = ARKStepSetAdaptivityMethod(inner_arkode_mem, udata->controller, SUNTRUE,
-                                      SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
-  }
+    // Set fixed step size or adaptivity method
+    if (udata.hf > ZERO)
+    {
+      flag = ARKStepSetFixedStep(inner_arkode_mem, udata.hf);
+      if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
+    }
+    else
+    {
+      flag = ARKStepSetAdaptivityMethod(inner_arkode_mem, udata.controller, SUNTRUE,
+                                        SUNFALSE, NULL);
+      if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    }
 
-  // Attach user data
-  flag = ARKStepSetUserData(inner_arkode_mem, (void *) udata);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+    // Attach user data
+    flag = ARKStepSetUserData(inner_arkode_mem, &udata);
+    if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
 
-  // Set max steps between outputs
-  flag = ARKStepSetMaxNumSteps(inner_arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+    // Set max steps between outputs
+    flag = ARKStepSetMaxNumSteps(inner_arkode_mem, udata.maxsteps);
+    if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
 
-  // Create inner stepper
-  flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+    // Create inner stepper
+    flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+    if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
 
-  // -----------------------------------------------
-  // Set up MRIStep slow integrator and set options
-  // -----------------------------------------------
+    // -----------------------------------------------
+    // Set up MRIStep slow integrator and set options
+    // -----------------------------------------------
 
-  // Initialize the slow integrator. Specify the slow right-hand side
-  // function in y'=fs(t,y)+ff(t,y) = fe(t,y)+fi(t,y)+ff(t,y).
+    // Initialize the slow integrator. Specify the slow right-hand side
+    // function in y'=fs(t,y)+ff(t,y) = fe(t,y)+fi(t,y)+ff(t,y).
 
-  // Create slow integrator
-  arkode_mem = MRIStepCreate(fe, fi, ZERO, u, inner_stepper);
-  if (check_flag((void *) arkode_mem, "MRIStepCreate", 0)) return 1;
+    // Create slow integrator
+    arkode_mem = MRIStepCreate(fe, fi, ZERO, u, inner_stepper, sunctx);
+    if (check_flag((void *) arkode_mem, "MRIStepCreate", 0)) return 1;
 
-  // Specify tolerances
-  flag = MRIStepSStolerances(arkode_mem, udata->rtol, udata->atol);
-  if (check_flag(&flag, "MRIStepSStolerances", 1)) return 1;
+    // Specify tolerances
+    flag = MRIStepSStolerances(arkode_mem, udata.rtol, udata.atol);
+    if (check_flag(&flag, "MRIStepSStolerances", 1)) return 1;
 
-  // Attach linear solver
-  flag = MRIStepSetLinearSolver(arkode_mem, LS, NULL);
-  if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) return 1;
+    // Attach linear solver
+    flag = MRIStepSetLinearSolver(arkode_mem, LS, NULL);
+    if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) return 1;
 
-  if (udata->prectype != PREC_NONE)
-  {
-    // Attach preconditioner
-    flag = MRIStepSetPreconditioner(arkode_mem, PSetup, PSolve);
-    if (check_flag(&flag, "MRIStepSetPreconditioner", 1)) return 1;
+    if (udata.prectype != PREC_NONE)
+    {
+      // Attach preconditioner
+      flag = MRIStepSetPreconditioner(arkode_mem, PSetup, PSolve);
+      if (check_flag(&flag, "MRIStepSetPreconditioner", 1)) return 1;
 
-    // Set max steps between linear solver (preconditioner) setup calls
-    flag = MRIStepSetLSetupFrequency(arkode_mem, udata->msbp);
-    if (check_flag(&flag, "MRIStepSetLSetupFrequency", 1)) return 1;
-  }
+      // Set max steps between linear solver (preconditioner) setup calls
+      flag = MRIStepSetLSetupFrequency(arkode_mem, udata.msbp);
+      if (check_flag(&flag, "MRIStepSetLSetupFrequency", 1)) return 1;
+    }
 
-  // Set linear solver tolerance factor
-  flag = MRIStepSetEpsLin(arkode_mem, udata->epslin);
-  if (check_flag(&flag, "MRIStepSetEpsLin", 1)) return 1;
+    // Set linear solver tolerance factor
+    flag = MRIStepSetEpsLin(arkode_mem, udata.epslin);
+    if (check_flag(&flag, "MRIStepSetEpsLin", 1)) return 1;
 
-  if (udata->sorder == 3)
-  {
-    C = MRIStepCoupling_LoadTable(IMEX_MRI_GARK3b);
-    if (check_flag((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
-  }
-  else if (udata->sorder == 4)
-  {
-    C = MRIStepCoupling_LoadTable(IMEX_MRI_GARK4);
-    if (check_flag((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
-  }
+    if (udata.sorder == 3)
+    {
+      C = MRIStepCoupling_LoadTable(IMEX_MRI_GARK3b);
+      if (check_flag((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
+    }
+    else if (udata.sorder == 4)
+    {
+      C = MRIStepCoupling_LoadTable(IMEX_MRI_GARK4);
+      if (check_flag((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
+    }
 
-  // Attach MRI-GARK table
-  flag = MRIStepSetCoupling(arkode_mem, C);
-  if (check_flag(&flag, "MRIStepSetCoupling", 1)) return 1;
+    // Attach MRI-GARK table
+    flag = MRIStepSetCoupling(arkode_mem, C);
+    if (check_flag(&flag, "MRIStepSetCoupling", 1)) return 1;
 
-  // Set fixed step size
-  flag = MRIStepSetFixedStep(arkode_mem, udata->hs);
-  if (check_flag(&flag, "MRIStepSetFixedStep", 1)) return 1;
+    // Set fixed step size
+    flag = MRIStepSetFixedStep(arkode_mem, udata.hs);
+    if (check_flag(&flag, "MRIStepSetFixedStep", 1)) return 1;
 
-  // Specify linearly implicit non-time-dependent RHS
-  if (udata->linear)
-  {
-    flag = MRIStepSetLinear(arkode_mem, 0);
-    if (check_flag(&flag, "MRIStepSetLinear", 1)) return 1;
-  }
+    // Specify linearly implicit non-time-dependent RHS
+    if (udata.linear)
+    {
+      flag = MRIStepSetLinear(arkode_mem, 0);
+      if (check_flag(&flag, "MRIStepSetLinear", 1)) return 1;
+    }
 
-  // Attach user data
-  flag = MRIStepSetUserData(arkode_mem, (void *) udata);
-  if (check_flag(&flag, "MRIStepSetUserData", 1)) return 1;
+    // Attach user data
+    flag = MRIStepSetUserData(arkode_mem, &udata);
+    if (check_flag(&flag, "MRIStepSetUserData", 1)) return 1;
 
-  // Set max steps between outputs
-  flag = MRIStepSetMaxNumSteps(arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) return 1;
+    // Set max steps between outputs
+    flag = MRIStepSetMaxNumSteps(arkode_mem, udata.maxsteps);
+    if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) return 1;
 
-  // Set stopping time
-  flag = MRIStepSetStopTime(arkode_mem, udata->tf);
-  if (check_flag(&flag, "MRIStepSetStopTime", 1)) return 1;
+    // Set stopping time
+    flag = MRIStepSetStopTime(arkode_mem, udata.tf);
+    if (check_flag(&flag, "MRIStepSetStopTime", 1)) return 1;
 
-  // -----------------------
-  // Loop over output times
-  // -----------------------
+    // -----------------------
+    // Loop over output times
+    // -----------------------
 
-  realtype t     = ZERO;
-  realtype dTout = udata->tf / udata->nout;
-  realtype tout  = dTout;
+    realtype t     = ZERO;
+    realtype dTout = udata.tf / udata.nout;
+    realtype tout  = dTout;
 
-  // Inital output
-  flag = OpenOutput(udata);
-  if (check_flag(&flag, "OpenOutput", 1)) return 1;
+    // Inital output
+    flag = OpenOutput(&udata);
+    if (check_flag(&flag, "OpenOutput", 1)) return 1;
 
-  flag = WriteOutput(t, u, udata);
-  if (check_flag(&flag, "WriteOutput", 1)) return 1;
-
-  for (int iout = 0; iout < udata->nout; iout++)
-  {
-    // Start timer
-    t1 = MPI_Wtime();
-
-    // Evolve in time
-    flag = MRIStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
-    if (check_flag(&flag, "MRIStepEvolve", 1)) break;
-
-    // Stop timer
-    t2 = MPI_Wtime();
-
-    // Update timer
-    udata->evolvetime += t2 - t1;
-
-    // Output solution and error
-    flag = WriteOutput(t, u, udata);
+    flag = WriteOutput(t, u, &udata);
     if (check_flag(&flag, "WriteOutput", 1)) return 1;
 
-    // Update output time
-    tout += dTout;
-    tout = (tout > udata->tf) ? udata->tf : tout;
+    for (int iout = 0; iout < udata.nout; iout++)
+    {
+      // Start timer
+      t1 = MPI_Wtime();
+
+      // Evolve in time
+      flag = MRIStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
+      if (check_flag(&flag, "MRIStepEvolve", 1)) break;
+
+      // Stop timer
+      t2 = MPI_Wtime();
+
+      // Update timer
+      udata.evolvetime += t2 - t1;
+
+      // Output solution and error
+      flag = WriteOutput(t, u, &udata);
+      if (check_flag(&flag, "WriteOutput", 1)) return 1;
+
+      // Update output time
+      tout += dTout;
+      tout = (tout > udata.tf) ? udata.tf : tout;
+    }
+
+    // Close output
+    flag = CloseOutput(&udata);
+    if (check_flag(&flag, "CloseOutput", 1)) return 1;
+
+    // --------------
+    // Final outputs
+    // --------------
+
+    // Print final integrator stats
+    if (udata.output > 0 && outproc)
+    {
+      cout << "Final slow integrator statistics:" << endl;
+      flag = OutputSlowStats(arkode_mem, &udata);
+      if (check_flag(&flag, "OutputSlowStats", 1)) return 1;
+
+      cout << "Final fast integrator statistics:" << endl;
+      flag = OutputFastStats(inner_arkode_mem, &udata);
+      if (check_flag(&flag, "OutputFastStats", 1)) return 1;
+    }
+
+    // Print timing
+    if (udata.timing)
+    {
+      flag = OutputTiming(&udata);
+      if (check_flag(&flag, "OutputTiming", 1)) return 1;
+    }
+
+    // --------------------
+    // Clean up and return
+    // --------------------
+
+    MRIStepFree(&arkode_mem);                  // Free slow integrator memory
+    ARKStepFree(&inner_arkode_mem);            // Free fast integrator memory
+    MRIStepInnerStepper_Free(&inner_stepper);  // Free inner stepper
+    MRIStepCoupling_Free(C);                   // Free coupling coefficients
+    SUNLinSolFree(LS);                         // Free linear solver
+    SUNLinSolFree(LSf);                        // Free linear solver
+    N_VDestroy(u);                             // Free vectors
+    FreeUserData(&udata);                      // Free user data
   }
 
-  // Close output
-  flag = CloseOutput(udata);
-  if (check_flag(&flag, "CloseOutput", 1)) return 1;
+  // Finalize MPI
+  MPI_Finalize();
 
-  // --------------
-  // Final outputs
-  // --------------
-
-  // Print final integrator stats
-  if (udata->output > 0 && outproc)
-  {
-    cout << "Final slow integrator statistics:" << endl;
-    flag = OutputSlowStats(arkode_mem, udata);
-    if (check_flag(&flag, "OutputSlowStats", 1)) return 1;
-
-    cout << "Final fast integrator statistics:" << endl;
-    flag = OutputFastStats(inner_arkode_mem, udata);
-    if (check_flag(&flag, "OutputFastStats", 1)) return 1;
-  }
-
-  // Print timing
-  if (udata->timing)
-  {
-    flag = OutputTiming(udata);
-    if (check_flag(&flag, "OutputTiming", 1)) return 1;
-  }
-
-  // --------------------
-  // Clean up and return
-  // --------------------
-
-  MRIStepFree(&arkode_mem);                  // Free slow integrator memory
-  ARKStepFree(&inner_arkode_mem);            // Free fast integrator memory
-  MRIStepInnerStepper_Free(&inner_stepper);  // Free inner stepper
-  MRIStepCoupling_Free(C);                   // Free coupling coefficients
-  SUNLinSolFree(LS);                         // Free linear solver
-  SUNLinSolFree(LSf);                        // Free linear solver
-  N_VDestroy(u);                             // Free vectors
-  FreeUserData(udata);                       // Free user data
-  delete udata;
-  flag = MPI_Finalize();                     // Finalize MPI
   return 0;
 }
 

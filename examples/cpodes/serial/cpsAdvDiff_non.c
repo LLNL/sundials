@@ -67,17 +67,17 @@ int main()
 
   yp = N_VNew_Serial(NEQ);
 
-  cpode_mem = CPodeCreate(CP_ADAMS, CP_FUNCTIONAL);      
-  
+  cpode_mem = CPodeCreate(CP_ADAMS, CP_FUNCTIONAL);
+
   flag = CPodeInitExpl(cpode_mem, f, T0, y);
 
   /*
   f(T0, y, yp, NULL);
   flag = CPodeInitimpl(cpode_mem, res, T0, y, yp);
   */
-  
+
   flag = CPodeSStolerances(cpode_mem, reltol, abstol);
-  
+
   printf("\n      t        max.err      qu     hu \n");
   for(iout=1, tout=T1; iout <= NOUT; iout++, tout*=TOUT_MULT) {
     flag = CPode(cpode_mem, tout, &t, y, yp, CP_NORMAL);
@@ -87,9 +87,9 @@ int main()
     flag = CPodeGetLastStep(cpode_mem, &hu);
     printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
   }
-  
+
   PrintFinalStats(cpode_mem);
-  
+
   CPodeFree(&cpode_mem);
   N_VDestroy_Serial(y);
   N_VDestroy_Serial(yp);
@@ -108,12 +108,12 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   long int i, j, k;
   realtype d, *ydata, *dydata;
-  
+
   ydata = N_VGetArrayPointer_Serial(y);
   dydata = N_VGetArrayPointer_Serial(ydot);
 
   /*
-     Excluding boundaries, 
+     Excluding boundaries,
 
      ydot    = f    = -2 y    + alpha1 * y      + alpha2 * y
          i,j    i,j       i,j             i-1,j             i,j-1
@@ -136,12 +136,12 @@ static realtype MaxError(N_Vector y, realtype t)
 {
   long int i, j, k;
   realtype *ydata, er, ex=ZERO, yt, maxError=ZERO, ifact_inv, jfact_inv=ONE;
-  
+
   if (t == ZERO) return(ZERO);
 
   ydata = N_VGetArrayPointer_Serial(y);
   if (t <= THIRTY) ex = SUNRexp(-TWO*t);
-  
+
   for (j = 0; j < MESHY; j++) {
     ifact_inv = ONE;
     for (i = 0; i < MESHX; i++) {
@@ -163,7 +163,7 @@ static void PrintFinalStats(void *cpode_mem)
   long int nst, nfe, nni, ncfn, netf;
   realtype h0u;
   int flag;
-  
+
   flag = CPodeGetActualInitStep(cpode_mem, &h0u);
   flag = CPodeGetNumSteps(cpode_mem, &nst);
   flag = CPodeGetNumFctEvals(cpode_mem, &nfe);

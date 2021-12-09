@@ -199,7 +199,7 @@ typedef struct {
 
 /* Private Helper Functions */
 
-static WebData AllocUserData(void);
+static WebData AllocUserData(SUNContext ctx);
 static void InitUserData(WebData wdata);
 static void SetGroups(int m, int ng, int jg[], int jig[], int jr[]);
 static void CInit(N_Vector c, WebData wdata);
@@ -242,29 +242,28 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main(int argc, char* argv[])
 {
   realtype abstol=ATOL, reltol=RTOL, t, tout;
-  N_Vector c;
-  WebData wdata;
-  SUNLinearSolver LS;
-  void *arkode_mem;
+  N_Vector c = NULL;
+  WebData wdata = NULL;
+  SUNLinearSolver LS = NULL;
+  void *arkode_mem = NULL;
   booleantype firstrun;
   int jpre, gstype, flag;
   int ns, mxns, iout;
-  int nrmfactor;   /* LS norm conversion factor flag */
-  realtype nrmfac; /* LS norm conversion factor      */
+  int nrmfactor = 0;   /* LS norm conversion factor flag */
+  realtype nrmfac;     /* LS norm conversion factor      */
 
-  c          = NULL;
-  wdata      = NULL;
-  LS         = NULL;
-  arkode_mem = NULL;
-  nrmfactor  = 0;
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   /* Retrieve the command-line options */
   if (argc > 1) nrmfactor = atoi(argv[1]);
 
   /* Initializations */
-  c = N_VNew_Serial(NEQ);
+  c = N_VNew_Serial(NEQ, ctx);
   if(check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
-  wdata = AllocUserData();
+  wdata = AllocUserData(ctx);
   if(check_flag((void *)wdata, "AllocUserData", 2)) return(1);
   InitUserData(wdata);
   ns = wdata->ns;
@@ -285,7 +284,7 @@ int main(int argc, char* argv[])
 
       firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
-        arkode_mem = ARKStepCreate(NULL, f, T0, c);
+        arkode_mem = ARKStepCreate(NULL, f, T0, c, ctx);
         if(check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return(1);
 
         wdata->arkode_mem = arkode_mem;
@@ -302,7 +301,7 @@ int main(int argc, char* argv[])
         flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-3);
         if(check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return(1);
 
-        LS = SUNLinSol_SPGMR(c, jpre, MAXL);
+        LS = SUNLinSol_SPGMR(c, jpre, MAXL, ctx);
         if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
         flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
@@ -374,11 +373,12 @@ int main(int argc, char* argv[])
   N_VDestroy(c);
   SUNLinSolFree(LS);
   FreeUserData(wdata);
+  SUNContext_Free(&ctx);
 
   return(0);
 }
 
-static WebData AllocUserData(void)
+static WebData AllocUserData(SUNContext ctx)
 {
   int i, ngrp = NGRP;
   sunindextype ns = NS;
@@ -389,8 +389,8 @@ static WebData AllocUserData(void)
     (wdata->P)[i] = newDenseMat(ns, ns);
     (wdata->pivot)[i] = newIndexArray(ns);
   }
-  wdata->rewt = N_VNew_Serial(NEQ);
-  wdata->tmp = N_VNew_Serial(NEQ);
+  wdata->rewt = N_VNew_Serial(NEQ, ctx);
+  wdata->tmp = N_VNew_Serial(NEQ, ctx);
   return(wdata);
 }
 

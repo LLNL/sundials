@@ -1012,7 +1012,7 @@ integration. Most steps are unchanged from the skeleton program presented in
 
 #. **Initialize the ARKBraid interface**
 
-   Call the initialization function :c:func:`ARKBraid_Braid()` to create the
+   Call the initialization function :c:func:`ARKBraid_BraidInit()` to create the
    XBraid core memory structure and attach the ARKBraid interface app and
    functions.
 

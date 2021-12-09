@@ -23,6 +23,7 @@
 #include <stdarg.h>
 
 #include <kinsol/kinsol.h>
+#include "sundials_context_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -57,6 +58,8 @@ extern "C" {
  */
 
 typedef struct KINMemRec {
+
+  SUNContext kin_sunctx;
 
   realtype kin_uround;        /* machine epsilon (or unit roundoff error)
                                  (defined in sundials_types.h)                */
@@ -390,6 +393,7 @@ void KINInfoHandler(const char *module, const char *function,
 
 #define MSG_MEM_FAIL           "A memory request failed."
 #define MSG_NO_MEM             "kinsol_mem = NULL illegal."
+#define MSG_NULL_SUNCTX        "sunctx = NULL illegal."
 #define MSG_BAD_NVECTOR        "A required vector operation is not implemented."
 #define MSG_FUNC_NULL          "func = NULL illegal."
 #define MSG_NO_MALLOC          "Attempt to call before KINMalloc illegal."

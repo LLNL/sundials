@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
   int globfails = 0;                        /* counter for test failures        */
   int nprocs, nprow, npcol, rank;           /* process grid size and rank       */
   MPI_Status mpistatus;                     /* MPI status                       */
+  MPI_Comm comm;                            /* MPI communicator                 */
   gridinfo_t grid;                          /* SuperLU-DIST process grid        */
 
   sunindextype M, N;                        /* matrix size                      */
@@ -68,8 +69,15 @@ int main(int argc, char *argv[])
   sunindextype i, j, k;                     /* just some iteration variables    */
 
   MPI_Init(&argc, &argv);
-  MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  comm = MPI_COMM_WORLD;
+  MPI_Comm_size(comm, &nprocs);
+  MPI_Comm_rank(comm, &rank);
+
+  if (SUNContext_Create(&comm, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   if (argc < 5) {
     if (rank == 0)
@@ -137,7 +145,7 @@ int main(int argc, char *argv[])
   if (grid.iam == 0) {
 
     /* Create the matrix as dense first */
-    D = SUNDenseMatrix(M, N);
+    D = SUNDenseMatrix(M, N, sunctx);
 
     /* Fill matrix with uniform random data in [0,1/N] */
     for (k=0; k<N; k++) {
@@ -155,8 +163,8 @@ int main(int argc, char *argv[])
     }
 
     /* create the global vectors */
-    gx = N_VNew_Serial(N);
-    gy = N_VNew_Serial(N);
+    gx = N_VNew_Serial(N, sunctx);
+    gy = N_VNew_Serial(N, sunctx);
     xdata = N_VGetArrayPointer(gx);
     ydata = N_VGetArrayPointer(gy);
 
@@ -218,7 +226,7 @@ int main(int argc, char *argv[])
     dCreate_CompRowLoc_Matrix_dist(Asuper, M, N, NNZ_local, M_local, fst_row,
                                    matdata, colind, rowptrs, SLU_NR_loc, SLU_D, SLU_GE);
 
-    A = SUNMatrix_SLUNRloc(Asuper, &grid);
+    A = SUNMatrix_SLUNRloc(Asuper, &grid, sunctx);
     if (A == NULL) {
       fails++;
       TEST_STATUS(">>> FAIL: Failed to create SUNMatrix_SLUNRloc\n", grid.iam);
@@ -230,8 +238,8 @@ int main(int argc, char *argv[])
     rowptrs[M_local] = NNZ_local;
 
     /* make the local NVectors */
-    x = N_VMake_Parallel(grid.comm, M_local, N, xdata);
-    y = N_VMake_Parallel(grid.comm, M_local, N, ydata);
+    x = N_VMake_Parallel(grid.comm, M_local, N, xdata, sunctx);
+    y = N_VMake_Parallel(grid.comm, M_local, N, ydata, sunctx);
 
   } else {
 
@@ -263,7 +271,7 @@ int main(int argc, char *argv[])
                                    matdata, colind, rowptrs, SLU_NR_loc, SLU_D, SLU_GE);
 
     /* Create local SuperLU-DIST SUNMatrix */
-    A = SUNMatrix_SLUNRloc(Asuper, &grid);
+    A = SUNMatrix_SLUNRloc(Asuper, &grid, sunctx);
     if (A == NULL) {
       fails++;
       TEST_STATUS(">>> FAIL: Failed to create SUNMatrix_SLUNRloc\n", grid.iam);
@@ -272,8 +280,8 @@ int main(int argc, char *argv[])
     }
 
     /* make the local NVectors */
-    x = N_VNew_Parallel(grid.comm, M_local, N);
-    y = N_VNew_Parallel(grid.comm, M_local, N);
+    x = N_VNew_Parallel(grid.comm, M_local, N, sunctx);
+    y = N_VNew_Parallel(grid.comm, M_local, N, sunctx);
     xdata = N_VGetArrayPointer(x);
     ydata = N_VGetArrayPointer(y);
 
@@ -346,8 +354,8 @@ int main(int argc, char *argv[])
   MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, grid.comm);
 
   superlu_gridexit(&grid);
+  SUNContext_Free(&sunctx);
   MPI_Finalize();
-
   return(globfails);
 }
 

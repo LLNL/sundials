@@ -139,7 +139,8 @@ typedef int (*MRIStepPostInnerFn)(realtype t, N_Vector y, void *user_data);
 
 /* Create, Resize, and Reinitialization functions */
 SUNDIALS_EXPORT void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0,
-                                    N_Vector y0, MRIStepInnerStepper stepper);
+                                    N_Vector y0, MRIStepInnerStepper stepper,
+                                    SUNContext sunctx);
 
 SUNDIALS_EXPORT int MRIStepResize(void *arkode_mem, N_Vector ynew,
                                   realtype t0, ARKVecResizeFn resize,
@@ -346,7 +347,8 @@ SUNDIALS_EXPORT void MRIStepFree(void **arkode_mem);
 SUNDIALS_EXPORT void MRIStepPrintMem(void* arkode_mem, FILE* outfile);
 
 /* Custom inner stepper functions */
-SUNDIALS_EXPORT int MRIStepInnerStepper_Create(MRIStepInnerStepper *stepper);
+SUNDIALS_EXPORT int MRIStepInnerStepper_Create(SUNContext sunctx,
+                                               MRIStepInnerStepper *stepper);
 
 SUNDIALS_EXPORT int MRIStepInnerStepper_Free(MRIStepInnerStepper *stepper);
 

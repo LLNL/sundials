@@ -120,6 +120,9 @@ static int ReadInputs(int *argc, char ***argv, realtype *rtol, realtype *atol,
 static void InputHelp();
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
+/* SUNDIALS context */
+static SUNContext sunctx = NULL;
+
 /* -----------------------------------------------------------------------------
  * Main Program
  * ---------------------------------------------------------------------------*/
@@ -141,18 +144,22 @@ int main(int argc, char* argv[])
   SUNMatrix        A         = NULL; /* Jacobian matrix           */
   SUNLinearSolver  LS        = NULL; /* linear solver             */
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Read command line inputs */
   retval = ReadInputs(&argc, &argv, &rtol, &atol, &tf, &nout, &projerr);
   if (check_retval(&retval, "ReadInputs", 1)) return(1);
 
   /* Compute reference solution */
-  yref = N_VNew_Serial(4);
+  yref = N_VNew_Serial(4, sunctx);
 
   retval = RefSol(tf, yref, nout);
   if (check_retval(&retval, "RefSol", 1)) return(1);
 
   /* Create serial vector to store the initial condition */
-  yy0 = N_VNew_Serial(4);
+  yy0 = N_VNew_Serial(4, sunctx);
   if (check_retval((void *)yy0, "N_VNew_Serial", 0)) return(1);
 
   /* Set the initial condition values */
@@ -164,7 +171,7 @@ int main(int argc, char* argv[])
   yy0data[3] = ZERO; /* yd */
 
   /* Create CVODE memory */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Initialize CVODE */
@@ -172,11 +179,11 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "CVodeInit", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(4, 4);
+  A = SUNDenseMatrix(4, 4, sunctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy0, A);
+  LS = SUNLinSol_Dense(yy0, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver to CVODE */
@@ -219,6 +226,7 @@ int main(int argc, char* argv[])
   SUNMatDestroy(A);
   SUNLinSolFree(LS);
   CVodeFree(&cvode_mem);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }
@@ -270,7 +278,7 @@ int GetSol(void *cvode_mem, N_Vector yy0, realtype rtol, realtype atol,
   }
 
   /* Create vector to store the solution */
-  yy = N_VNew_Serial(4);
+  yy = N_VNew_Serial(4, sunctx);
 
   /* Copy initial condition into solution vector */
   N_VScale(ONE, yy0, yy);
@@ -427,7 +435,7 @@ int RefSol(realtype tf, N_Vector yref, int nout)
   realtype tol = RCONST(1.0e-14); /* integration tolerance */
 
   /* Create the solution vector */
-  yy = N_VNew_Serial(2);
+  yy = N_VNew_Serial(2, sunctx);
   if (check_retval((void *)yy, "N_VNew_Serial", 0)) return(-1);
 
   /* Set the initial condition */
@@ -437,7 +445,7 @@ int RefSol(realtype tf, N_Vector yref, int nout)
   yydata[1] = ZERO; /* theta' */
 
   /* Create CVODE memory */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Initialize CVODE */
@@ -449,11 +457,11 @@ int RefSol(realtype tf, N_Vector yref, int nout)
   if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(2, 2);
+  A = SUNDenseMatrix(2, 2, sunctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(yy, A);
+  LS = SUNLinSol_Dense(yy, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver to CVODE */

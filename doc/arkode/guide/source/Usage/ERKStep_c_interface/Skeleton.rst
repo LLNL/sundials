@@ -26,13 +26,36 @@ referenced.
 
 .. index:: User main program
 
-1. Initialize parallel or multi-threaded environment, if appropriate.
+#. Initialize parallel or multi-threaded environment, if appropriate.
 
    For example, call ``MPI_Init`` to initialize MPI if used, or set
    ``num_threads``, the number of threads to use within the threaded
    vector functions, if used.
 
-2. Set problem dimensions, etc.
+#. Create the SUNDIALS simulation context object (optional, but recommended).
+
+   Call :c:func:`SUNContext_Create` to create a ``SUNContext`` object,
+   providing an MPI communicator if using MPI. See the section
+   :ref:`SUNDIALS.SUNContext`` for more information.
+
+   This step may look like
+
+   .. code-block:: c
+
+      SUNContext ctx;
+      SUNContext_Create(NULL, &ctx);
+
+   when not using MPI, or like
+
+   .. code-block:: c
+
+      MPI_Comm comm = MPI_COMM_WORLD;
+      SUNContext ctx;
+      SUNContext_Create((void*) &comm, &ctx);
+
+   when using MPI.
+
+#. Set problem dimensions, etc.
 
    This generally includes the problem size, ``N``, and may include
    the local vector length ``Nlocal``.
@@ -42,7 +65,7 @@ referenced.
       The variables ``N`` and ``Nlocal`` should be of type
       ``sunindextype``.
 
-3. Set vector of initial values
+#. Set vector of initial values
 
    To set the vector ``y0`` of initial values, use the appropriate
    functions defined by the particular NVECTOR implementation.
@@ -110,14 +133,14 @@ referenced.
    and device when instantiated.  See the sections
    :numref:`NVectors.CUDA` and :numref:`NVectors.RAJA` for details.
 
-4. Create ERKStep object
+#. Create ERKStep object
 
    Call ``arkode_mem = ERKStepCreate(...)`` to create the ERKStep memory
    block. :c:func:`ERKStepCreate()` returns a ``void*`` pointer to
    this memory structure. See the section
    :numref:`Usage.ERKStep.Initialization` for details.
 
-5. Specify integration tolerances
+#. Specify integration tolerances
 
    Call :c:func:`ERKStepSStolerances()` or
    :c:func:`ERKStepSVtolerances()` to specify either a scalar relative
@@ -128,13 +151,13 @@ referenced.
    evaluating WRMS vector norms. See the section
    :numref:`Usage.ERKStep.Tolerances` for details.
 
-6. Set optional inputs
+#. Set optional inputs
 
    Call ``ERKStepSet*`` functions to change any optional inputs that
    control the behavior of ERKStep from their default values. See the
    section :numref:`Usage.ERKStep.OptionalInputs` for details.
 
-7. Specify rootfinding problem
+#. Specify rootfinding problem
 
    Optionally, call :c:func:`ERKStepRootInit()` to initialize a rootfinding
    problem to be solved during the integration of the ODE system. See
@@ -142,7 +165,7 @@ referenced.
    the section :numref:`Usage.ERKStep.OptionalInputs` for relevant optional
    input calls.
 
-8. Advance solution in time
+#. Advance solution in time
 
    For each point at which output is desired, call
 
@@ -155,12 +178,12 @@ referenced.
    :math:`y(t_\text{out})`. See the section
    :numref:`Usage.ERKStep.Integration` for details.
 
-9. Get optional outputs
+#. Get optional outputs
 
    Call ``ERKStepGet*`` functions to obtain optional output. See
    the section :numref:`Usage.ERKStep.OptionalOutputs` for details.
 
-10. Deallocate memory for solution vector
+#. Deallocate memory for solution vector
 
     Upon completion of the integration, deallocate memory for the
     vector ``y`` (or ``yout``) by calling the NVECTOR destructor
@@ -170,11 +193,11 @@ referenced.
 
        N_VDestroy(y);
 
-11. Free solver memory
+#. Free solver memory
 
     Call ``ERKStepFree(&arkode_mem)`` to free the memory allocated for
     the ERKStep module.
 
-12. Finalize MPI, if used
+#. Finalize MPI, if used
 
     Call ``MPI_Finalize`` to terminate MPI.

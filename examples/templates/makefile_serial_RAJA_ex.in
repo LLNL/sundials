@@ -26,9 +26,9 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-CC      	  = @CMAKE_C_COMPILER@
+CC      	  = @_EXAMPLES_C_COMPILER@
 CFLAGS      = @CMAKE_C_FLAGS@
-CXX         = @CMAKE_CXX_COMPILER@
+CXX         = @_EXAMPLES_CXX_COMPILER@
 NVCC        = @CMAKE_CUDA_COMPILER@
 NVCCFLAGS   = $(subst ;, ,@CMAKE_CUDA_FLAGS@)
 LD          = ${NVCC}

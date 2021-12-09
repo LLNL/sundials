@@ -27,7 +27,7 @@ extern "C" {
 
 /* Implementation specific functions */
 
-SUNMemoryHelper SUNMemoryHelper_Hip();
+SUNMemoryHelper SUNMemoryHelper_Hip(SUNContext sunctx);
 
 /* SUNMemoryHelper functions */
 

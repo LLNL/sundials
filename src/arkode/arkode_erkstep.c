@@ -22,14 +22,21 @@
 #include "arkode_impl.h"
 #include "arkode_erkstep_impl.h"
 #include "arkode_interp_impl.h"
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_math.h>
 
+
+/*===============================================================
+  SHORTCUTS
+  ===============================================================*/
+
+#define ARK_PROFILER ark_mem->sunctx->profiler
 
 /*===============================================================
   ERKStep Exported functions -- Required
   ===============================================================*/
 
-void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
+void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0, SUNContext sunctx)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
@@ -50,6 +57,12 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
     return(NULL);
   }
 
+  if (!sunctx) {
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ERKStep",
+                    "ERKStepCreate", MSG_ARK_NULL_SUNCTX);
+    return(NULL);
+  }
+
   /* Test if all required vector operations are implemented */
   nvectorOK = erkStep_CheckNVector(y0);
   if (!nvectorOK) {
@@ -59,7 +72,7 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
   }
 
   /* Create ark_mem structure and set default values */
-  ark_mem = arkCreate();
+  ark_mem = arkCreate(sunctx);
   if (ark_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
                     "ERKStepCreate", MSG_ARK_NO_MEM);
@@ -325,6 +338,7 @@ int ERKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
                   realtype *tret, int itask)
 {
   /* unpack ark_mem, call arkEvolve, and return */
+  int retval;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
@@ -332,13 +346,17 @@ int ERKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  return(arkEvolve(ark_mem, tout, yout, tret, itask));
+  SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
+  retval = arkEvolve(ark_mem, tout, yout, tret, itask);
+  SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
+  return(retval);
 }
 
 
 int ERKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
 {
   /* unpack ark_mem, call arkGetDky, and return */
+  int retval;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
@@ -346,7 +364,10 @@ int ERKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  return(arkGetDky(ark_mem, t, k, dky));
+  SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
+  retval = arkGetDky(ark_mem, t, k, dky);
+  SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
+  return(retval);
 }
 
 

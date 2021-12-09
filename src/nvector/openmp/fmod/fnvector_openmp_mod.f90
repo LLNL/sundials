@@ -21,6 +21,7 @@
 module fnvector_openmp_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -29,9 +30,6 @@ module fnvector_openmp_mod
  public :: FN_VNew_OpenMP
  public :: FN_VNewEmpty_OpenMP
  public :: FN_VMake_OpenMP
- public :: FN_VCloneVectorArray_OpenMP
- public :: FN_VCloneVectorArrayEmpty_OpenMP
- public :: FN_VDestroyVectorArray_OpenMP
  public :: FN_VGetLength_OpenMP
  public :: FN_VPrint_OpenMP
  public :: FN_VPrintFile_OpenMP
@@ -83,61 +81,42 @@ module fnvector_openmp_mod
  public :: FN_VEnableConstVectorArray_OpenMP
  public :: FN_VEnableWrmsNormVectorArray_OpenMP
  public :: FN_VEnableWrmsNormMaskVectorArray_OpenMP
+ public :: FN_VCloneVectorArray_OpenMP
+ public :: FN_VCloneVectorArrayEmpty_OpenMP
+ public :: FN_VDestroyVectorArray_OpenMP
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FN_VNew_OpenMP(farg1, farg2) &
+function swigc_FN_VNew_OpenMP(farg1, farg2, farg3) &
 bind(C, name="_wrap_FN_VNew_OpenMP") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
 integer(C_INT), intent(in) :: farg2
+type(C_PTR), value :: farg3
 type(C_PTR) :: fresult
 end function
 
-function swigc_FN_VNewEmpty_OpenMP(farg1, farg2) &
+function swigc_FN_VNewEmpty_OpenMP(farg1, farg2, farg3) &
 bind(C, name="_wrap_FN_VNewEmpty_OpenMP") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
 integer(C_INT), intent(in) :: farg2
+type(C_PTR), value :: farg3
 type(C_PTR) :: fresult
 end function
 
-function swigc_FN_VMake_OpenMP(farg1, farg2, farg3) &
+function swigc_FN_VMake_OpenMP(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FN_VMake_OpenMP") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT), intent(in) :: farg3
+type(C_PTR), value :: farg4
 type(C_PTR) :: fresult
 end function
-
-function swigc_FN_VCloneVectorArray_OpenMP(farg1, farg2) &
-bind(C, name="_wrap_FN_VCloneVectorArray_OpenMP") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT), intent(in) :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR) :: fresult
-end function
-
-function swigc_FN_VCloneVectorArrayEmpty_OpenMP(farg1, farg2) &
-bind(C, name="_wrap_FN_VCloneVectorArrayEmpty_OpenMP") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT), intent(in) :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR) :: fresult
-end function
-
-subroutine swigc_FN_VDestroyVectorArray_OpenMP(farg1, farg2) &
-bind(C, name="_wrap_FN_VDestroyVectorArray_OpenMP")
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-end subroutine
 
 function swigc_FN_VGetLength_OpenMP(farg1) &
 bind(C, name="_wrap_FN_VGetLength_OpenMP") &
@@ -591,105 +570,95 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FN_VCloneVectorArray_OpenMP(farg1, farg2) &
+bind(C, name="_wrap_FN_VCloneVectorArray_OpenMP") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR) :: fresult
+end function
+
+function swigc_FN_VCloneVectorArrayEmpty_OpenMP(farg1, farg2) &
+bind(C, name="_wrap_FN_VCloneVectorArrayEmpty_OpenMP") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_FN_VDestroyVectorArray_OpenMP(farg1, farg2) &
+bind(C, name="_wrap_FN_VDestroyVectorArray_OpenMP")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+end subroutine
+
 end interface
 
 
 contains
  ! MODULE SUBPROGRAMS
-function FN_VNew_OpenMP(vec_length, num_threads) &
+function FN_VNew_OpenMP(vec_length, num_threads, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer(C_INT64_T), intent(in) :: vec_length
 integer(C_INT), intent(in) :: num_threads
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT64_T) :: farg1 
 integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = vec_length
 farg2 = num_threads
-fresult = swigc_FN_VNew_OpenMP(farg1, farg2)
+farg3 = sunctx
+fresult = swigc_FN_VNew_OpenMP(farg1, farg2, farg3)
 call c_f_pointer(fresult, swig_result)
 end function
 
-function FN_VNewEmpty_OpenMP(vec_length, num_threads) &
+function FN_VNewEmpty_OpenMP(vec_length, num_threads, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer(C_INT64_T), intent(in) :: vec_length
 integer(C_INT), intent(in) :: num_threads
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT64_T) :: farg1 
 integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = vec_length
 farg2 = num_threads
-fresult = swigc_FN_VNewEmpty_OpenMP(farg1, farg2)
+farg3 = sunctx
+fresult = swigc_FN_VNewEmpty_OpenMP(farg1, farg2, farg3)
 call c_f_pointer(fresult, swig_result)
 end function
 
-function FN_VMake_OpenMP(vec_length, v_data, num_threads) &
+function FN_VMake_OpenMP(vec_length, v_data, num_threads, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer(C_INT64_T), intent(in) :: vec_length
 real(C_DOUBLE), dimension(*), target, intent(inout) :: v_data
 integer(C_INT), intent(in) :: num_threads
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT64_T) :: farg1 
 type(C_PTR) :: farg2 
 integer(C_INT) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = vec_length
 farg2 = c_loc(v_data(1))
 farg3 = num_threads
-fresult = swigc_FN_VMake_OpenMP(farg1, farg2, farg3)
+farg4 = sunctx
+fresult = swigc_FN_VMake_OpenMP(farg1, farg2, farg3, farg4)
 call c_f_pointer(fresult, swig_result)
 end function
-
-function FN_VCloneVectorArray_OpenMP(count, w) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
-integer(C_INT), intent(in) :: count
-type(N_Vector), target, intent(inout) :: w
-type(C_PTR) :: fresult 
-integer(C_INT) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = count
-farg2 = c_loc(w)
-fresult = swigc_FN_VCloneVectorArray_OpenMP(farg1, farg2)
-swig_result = fresult
-end function
-
-function FN_VCloneVectorArrayEmpty_OpenMP(count, w) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
-integer(C_INT), intent(in) :: count
-type(N_Vector), target, intent(inout) :: w
-type(C_PTR) :: fresult 
-integer(C_INT) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = count
-farg2 = c_loc(w)
-fresult = swigc_FN_VCloneVectorArrayEmpty_OpenMP(farg1, farg2)
-swig_result = fresult
-end function
-
-subroutine FN_VDestroyVectorArray_OpenMP(vs, count)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: vs
-integer(C_INT), intent(in) :: count
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = vs
-farg2 = count
-call swigc_FN_VDestroyVectorArray_OpenMP(farg1, farg2)
-end subroutine
 
 function FN_VGetLength_OpenMP(v) &
 result(swig_result)
@@ -1513,6 +1482,50 @@ farg2 = tf
 fresult = swigc_FN_VEnableWrmsNormMaskVectorArray_OpenMP(farg1, farg2)
 swig_result = fresult
 end function
+
+function FN_VCloneVectorArray_OpenMP(count, w) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(C_INT), intent(in) :: count
+type(N_Vector), target, intent(inout) :: w
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = count
+farg2 = c_loc(w)
+fresult = swigc_FN_VCloneVectorArray_OpenMP(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VCloneVectorArrayEmpty_OpenMP(count, w) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(C_INT), intent(in) :: count
+type(N_Vector), target, intent(inout) :: w
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = count
+farg2 = c_loc(w)
+fresult = swigc_FN_VCloneVectorArrayEmpty_OpenMP(farg1, farg2)
+swig_result = fresult
+end function
+
+subroutine FN_VDestroyVectorArray_OpenMP(vs, count)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: vs
+integer(C_INT), intent(in) :: count
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = vs
+farg2 = count
+call swigc_FN_VDestroyVectorArray_OpenMP(farg1, farg2)
+end subroutine
 
 
 end module

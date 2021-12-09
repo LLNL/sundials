@@ -33,16 +33,6 @@
 #define PIVOTS(S)         ( DENSE_CONTENT(S)->pivots )
 #define LASTFLAG(S)       ( DENSE_CONTENT(S)->last_flag )
 
-
-/*
- * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
-{ return(SUNLinSol_Dense(y, A)); }
-
 /*
  * -----------------------------------------------------------------
  * exported functions
@@ -53,7 +43,7 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
  * Function to create a new dense linear solver
  */
 
-SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_Dense content;
@@ -74,7 +64,7 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

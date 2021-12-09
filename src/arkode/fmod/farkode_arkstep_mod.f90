@@ -22,13 +22,16 @@ module farkode_arkstep_mod
  use, intrinsic :: ISO_C_BINDING
  use farkode_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_linearsolver_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
  use fsundials_types_mod
@@ -203,7 +206,7 @@ module farkode_arkstep_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FARKStepCreate(farg1, farg2, farg3, farg4) &
+function swigc_FARKStepCreate(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FARKStepCreate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -211,6 +214,7 @@ type(C_FUNPTR), value :: farg1
 type(C_FUNPTR), value :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
 type(C_PTR) :: fresult
 end function
 
@@ -1557,7 +1561,7 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FARKStepCreate(fe, fi, t0, y0) &
+function FARKStepCreate(fe, fi, t0, y0, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
@@ -1565,17 +1569,20 @@ type(C_FUNPTR), intent(in), value :: fe
 type(C_FUNPTR), intent(in), value :: fi
 real(C_DOUBLE), intent(in) :: t0
 type(N_Vector), target, intent(inout) :: y0
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 type(C_FUNPTR) :: farg1 
 type(C_FUNPTR) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = fe
 farg2 = fi
 farg3 = t0
 farg4 = c_loc(y0)
-fresult = swigc_FARKStepCreate(farg1, farg2, farg3, farg4)
+farg5 = sunctx
+fresult = swigc_FARKStepCreate(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 

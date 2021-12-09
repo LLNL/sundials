@@ -221,6 +221,7 @@ int main(int argc, char *argv[])
   int maxl;
   realtype rtol, atol, t0, tout, tret;
   int num_threads;
+  SUNContext ctx;
 
   ida_mem = NULL;
   LS = NULL;
@@ -235,12 +236,16 @@ int main(int argc, char *argv[])
   if (argc > 1)      /* overwrithe with command line value, if supplied */
     num_threads = (int) strtol(argv[1], NULL, 0);
 
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Allocate and initialize user data block webdata. */
 
   webdata = (UserData) malloc(sizeof *webdata);
-  webdata->rates = N_VNew_OpenMP(NEQ, num_threads);
+  webdata->rates = N_VNew_OpenMP(NEQ, num_threads, ctx);
   webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-  webdata->ewt = N_VNew_OpenMP(NEQ, num_threads);
+  webdata->ewt = N_VNew_OpenMP(NEQ, num_threads, ctx);
   for (jx = 0; jx < MX; jx++) {
     for (jy = 0; jy < MY; jy++) {
       (webdata->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
@@ -253,13 +258,13 @@ int main(int argc, char *argv[])
 
   /* Allocate N-vectors and initialize cc, cp, and id. */
 
-  cc  = N_VNew_OpenMP(NEQ, num_threads);
+  cc  = N_VNew_OpenMP(NEQ, num_threads, ctx);
   if(check_retval((void *)cc, "N_VNew_OpenMP", 0)) return(1);
 
-  cp  = N_VNew_OpenMP(NEQ, num_threads);
+  cp  = N_VNew_OpenMP(NEQ, num_threads, ctx);
   if(check_retval((void *)cp, "N_VNew_OpenMP", 0)) return(1);
 
-  id  = N_VNew_OpenMP(NEQ, num_threads);
+  id  = N_VNew_OpenMP(NEQ, num_threads, ctx);
   if(check_retval((void *)id, "N_VNew_OpenMP", 0)) return(1);
 
   SetInitialProfiles(cc, cp, id, webdata);
@@ -272,7 +277,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize IDA. */
 
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if(check_retval((void *)ida_mem, "IDACreate", 0)) return(1);
 
   retval = IDASetUserData(ida_mem, webdata);
@@ -293,7 +298,7 @@ int main(int argc, char *argv[])
      preconditioning routines. */
 
   maxl = 16;                               /* max dimension of the Krylov subspace */
-  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
+  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl, ctx);      /* IDA only allows left preconditioning */
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
@@ -351,6 +356,8 @@ int main(int argc, char *argv[])
     }
   }
   free(webdata);
+
+  SUNContext_Free(&ctx);
 
   return(0);
 }

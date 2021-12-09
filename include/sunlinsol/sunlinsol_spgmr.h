@@ -88,19 +88,14 @@ typedef struct _SUNLinearSolverContent_SPGMR *SUNLinearSolverContent_SPGMR;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPGMR(N_Vector y,
                                                 int pretype,
-                                                int maxl);
+                                                int maxl,
+                                                SUNContext sunctx);
 SUNDIALS_EXPORT int SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S,
                                                int pretype);
 SUNDIALS_EXPORT int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S,
                                              int gstype);
 SUNDIALS_EXPORT int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S,
                                                   int maxrs);
-
-SUNDIALS_DEPRECATED_EXPORT SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl);
-SUNDIALS_DEPRECATED_EXPORT int SUNSPGMRSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_DEPRECATED_EXPORT int SUNSPGMRSetGSType(SUNLinearSolver S, int gstype);
-SUNDIALS_DEPRECATED_EXPORT int SUNSPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
-
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SPGMR(SUNLinearSolver S);

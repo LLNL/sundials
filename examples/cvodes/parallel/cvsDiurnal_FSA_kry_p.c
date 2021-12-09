@@ -212,6 +212,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
@@ -253,6 +254,10 @@ int main(int argc, char *argv[])
     return(1);
   }
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(&comm, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
   /* Process arguments */
   ProcessArgs(argc, argv, my_pe, &sensi, &sensi_meth, &err_con);
 
@@ -268,13 +273,13 @@ int main(int argc, char *argv[])
   InitUserData(my_pe, comm, data);
 
   /* Allocate u, and set initial values and tolerances */
-  u = N_VNew_Parallel(comm, local_N, neq);
+  u = N_VNew_Parallel(comm, local_N, neq, sunctx);
   if (check_retval((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
   /* Create CVODES object, set optional input, allocate memory */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -291,7 +296,7 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach linear solver */
@@ -386,6 +391,7 @@ int main(int argc, char *argv[])
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);
 
   MPI_Finalize();
 

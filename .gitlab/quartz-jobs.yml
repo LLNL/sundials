@@ -1,0 +1,83 @@
+# ---------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ---------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# Basic builds w/o TPLs
+# ------------------------------------------------------------------------------
+### Builds without TPLs
+# How to easily add +f2003 when int64 and double?
+
+# quartz_clang:
+#   parallel:
+#     matrix:
+#       - COMPILER_SPEC: clang@12.0.0
+#         INDEX_SPEC: [~int64, +int64]
+#         PRECISION_SPEC: [double]
+#   variables:
+#     SPEC: "%${COMPILER_SPEC} ${INDEX_SPEC} precision=${PRECISION_SPEC}"
+#   extends: .quartz_build_and_test
+
+# quartz_gcc:
+#   parallel:
+#     matrix:
+#       - COMPILER_SPEC: gcc@10.2.1
+#         INDEX_SPEC: [~int64, +int64]
+#         PRECISION_SPEC: [double]
+#   variables:
+#     SPEC: "%${COMPILER_SPEC} ${INDEX_SPEC} precision=${PRECISION_SPEC}"
+#   extends: .quartz_build_and_test
+
+# quartz_intel:
+#   parallel:
+#     matrix:
+#       - COMPILER_SPEC: intel@19.0.4.227
+#         INDEX_SPEC: [~int64, +int64]
+#         PRECISION_SPEC: [double]
+#   variables:
+#     SPEC: "%${COMPILER_SPEC} ${INDEX_SPEC} precision=${PRECISION_SPEC}"
+#   extends: .quartz_build_and_test
+
+# ------------------------------------------------------------------------------
+# Builds with TPLs
+# ------------------------------------------------------------------------------
+# +petsc ~hypre ~superlu-dist ~int64 ~hdf5
+# +superlu-dist == segfaults
+
+quartz_clang_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: clang@12.0.0
+        INDEX_SPEC: [~int64]
+        PRECISION_SPEC: [double]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=11 ${INDEX_SPEC} precision=${PRECISION_SPEC} +openmp +hypre +lapack +klu"
+  extends: .quartz_build_and_test
+
+quartz_gcc_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: gcc@10.2.1
+        INDEX_SPEC: [~int64]
+        PRECISION_SPEC: [double]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=11 ${INDEX_SPEC} precision=${PRECISION_SPEC} +openmp +hypre +lapack +klu"
+  extends: .quartz_build_and_test
+
+quartz_intel_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: intel@19.0.4.227
+        INDEX_SPEC: [~int64]
+        PRECISION_SPEC: [double]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=11 ${INDEX_SPEC} precision=${PRECISION_SPEC} +openmp +hypre +lapack +klu"
+  extends: .quartz_build_and_test

@@ -61,7 +61,12 @@ def main():
     else:
         # author of most recent commit
         cmd = "git log --format='%ae' -1"
-        recipient = runCommand(cmd)
+        recipient = runCommand(cmd).rstrip()
+
+        # check if the last commit was a CI merge
+        if (recipient == 'nobody@nowhere'):
+            cmd = "git log HEAD~1 --pretty=format:'%ae' -1"
+            recipient = runCommand(cmd).rstrip()
 
     # send notification if tests fail, log file not found, or fixed
     if (args.teststatus == 'failed'):

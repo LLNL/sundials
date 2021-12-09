@@ -42,7 +42,7 @@ module test_nvector_pthreads
     type(c_ptr)             :: xvecs, zvecs       ! C pointer to array of C pointers to N_Vectors
 
     !===== Setup ====
-    x => FN_VMake_Pthreads(N, 2, xdata)
+    x => FN_VMake_Pthreads(N, 2, xdata, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_Pthreads(x)
     call FN_VConst(ONE, y)
@@ -56,11 +56,11 @@ module test_nvector_pthreads
     !===== Test =====
 
     ! test constructors
-    tmp => FN_VNewEmpty_Pthreads(N, 2)
+    tmp => FN_VNewEmpty_Pthreads(N, 2, sunctx)
     call FN_VDestroy_Pthreads(tmp)
-    tmp => FN_VMake_Pthreads(N, 2, xdata)
+    tmp => FN_VMake_Pthreads(N, 2, xdata, sunctx)
     call FN_VDestroy_Pthreads(tmp)
-    tmp => FN_VNew_Pthreads(N, 2)
+    tmp => FN_VNew_Pthreads(N, 2, sunctx)
     call FN_VDestroy_Pthreads(tmp)
     tmp => FN_VCloneEmpty_Pthreads(x)
     call FN_VDestroy_Pthreads(tmp)
@@ -127,7 +127,7 @@ module test_nvector_pthreads
     !===== Setup ====
     fails = 0
 
-    x => FN_VMake_Pthreads(N, 2, xdata)
+    x => FN_VMake_Pthreads(N, 2, xdata, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -191,6 +191,8 @@ program main
   !============== Introduction =============
   print *, 'Pthreads N_Vector Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   fails = smoke_tests()
   if (fails /= 0) then
     print *, 'FAILURE: smoke tests failed'
@@ -206,4 +208,7 @@ program main
   else
     print *, 'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
+
 end program main

@@ -92,22 +92,19 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
 
 SUNDIALS_EXPORT N_Vector N_VNew_Parallel(MPI_Comm comm,
                                          sunindextype local_length,
-                                         sunindextype global_length);
+                                         sunindextype global_length,
+                                         SUNContext sunctx);
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
                                               sunindextype local_length,
-                                              sunindextype global_length);
+                                              sunindextype global_length,
+                                              SUNContext sunctx);
 
 SUNDIALS_EXPORT N_Vector N_VMake_Parallel(MPI_Comm comm,
                                           sunindextype local_length,
                                           sunindextype global_length,
-                                          realtype *v_data);
-
-SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w);
-
-SUNDIALS_EXPORT N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
-
-SUNDIALS_EXPORT void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count);
+                                          realtype *v_data,
+                                          SUNContext sunctx);
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_Parallel(N_Vector v);
 
@@ -218,6 +215,22 @@ SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Parallel(N_Vector v, booleantyp
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Parallel(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Parallel(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Parallel(N_Vector v, booleantype tf);
+
+/*
+ * -----------------------------------------------------------------
+ * Deprecated functions
+ * -----------------------------------------------------------------
+ */
+
+/* use N_VCloneVectorArray */
+SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w);
+
+/* use N_VCloneVectorArrayEmpty */
+SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
+
+/* use N_VDestroyVectorArray */
+SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count);
+
 
 #ifdef __cplusplus
 }

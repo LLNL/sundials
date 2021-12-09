@@ -155,6 +155,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_context_mod
   use fcvode_mod                 ! Fortran interface to CVODE
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
@@ -180,6 +181,7 @@ program main
 
   integer                        :: outstep      ! output loop counter
 
+  type(c_ptr)                    :: ctx          ! SUNDIALS context
   type(c_ptr)                    :: cvode_mem    ! CVODE memory
   type(N_Vector),        pointer :: sunvec_y     ! sundials vector
   type(SUNMatrix),       pointer :: sunmat_A     ! sundials matrix
@@ -203,29 +205,32 @@ program main
   yvec(2) = 1.1d0
   yvec(3) = 2.8d0
 
+  ! create SUNDIALS context
+  ierr = FSUNContext_Create(c_null_ptr, ctx)
+
   ! create SUNDIALS N_Vector
-  sunvec_y => FN_VMake_Serial(neq, yvec)
+  sunvec_y => FN_VMake_Serial(neq, yvec, ctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
   ! create a dense matrix
-  sunmat_A => FSUNDenseMatrix(neq, neq)
+  sunmat_A => FSUNDenseMatrix(neq, neq, ctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
   end if
 
   ! create a dense linear solver
-  sunlinsol_LS => FSUNDenseLinearSolver(sunvec_y, sunmat_A)
+  sunlinsol_LS => FSUNLinSol_Dense(sunvec_y, sunmat_A, ctx)
   if (.not. associated(sunlinsol_LS)) then
      print *, 'ERROR: sunlinsol = NULL'
      stop 1
   end if
 
   ! create CVode memory
-  cvode_mem = FCVodeCreate(CV_BDF)
+  cvode_mem = FCVodeCreate(CV_BDF, ctx)
   if (.not. c_associated(cvode_mem)) then
      print *, 'ERROR: cvode_mem = NULL'
      stop 1
@@ -292,6 +297,7 @@ program main
   ierr = FSUNLinSolFree(sunlinsol_LS)
   call FSUNMatDestroy(sunmat_A)
   call FN_VDestroy(sunvec_y)
+  ierr = FSUNContext_Free(ctx)
 
 end program Main
 

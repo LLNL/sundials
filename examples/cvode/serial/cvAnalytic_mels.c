@@ -61,6 +61,8 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
 /* Private function to check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
+/* SUNDIALS context */
+static SUNContext sunctx = NULL;
 
 /* Main Program */
 int main()
@@ -82,6 +84,10 @@ int main()
   realtype t, tout;
   long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf;
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
   printf("    lamda = %"GSYM"\n",    lamda);
@@ -89,13 +95,13 @@ int main()
   printf("   abstol = %.1"ESYM"\n\n",abstol);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ);          /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, sunctx);          /* Create serial vector for solution */
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
   N_VConst(RCONST(0.0), y);        /* Specify initial condition */
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -176,6 +182,7 @@ int main()
   N_VDestroy(y);            /* Free y vector */
   CVodeFree(&cvode_mem);    /* Free integrator memory */
   SUNLinSolFree(LS);        /* Free linear solver */
+  SUNContext_Free(&sunctx);
 
   return retval;
 }
@@ -206,7 +213,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 static SUNLinearSolver MatrixEmbeddedLS(void *cvode_mem)
 {
   /* Create an empty linear solver */
-  SUNLinearSolver LS = SUNLinSolNewEmpty();
+  SUNLinearSolver LS = SUNLinSolNewEmpty(sunctx);
   if (LS == NULL) return NULL;
 
   /* Attach operations */

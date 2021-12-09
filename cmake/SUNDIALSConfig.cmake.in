@@ -55,6 +55,10 @@ endforeach()
 
 ### ------- Create TPL imported targets
 
+if(@ENABLE_CALIPER@ AND NOT TARGET caliper)
+  find_package(CALIPER PATHS @CALIPER_DIR@)
+endif()
+
 if(@ENABLE_HYPRE@ AND NOT TARGET SUNDIALS::HYPRE)
   add_library(SUNDIALS::HYPRE INTERFACE IMPORTED)
   target_link_libraries(SUNDIALS::HYPRE INTERFACE "@HYPRE_LIBRARIES@")
@@ -68,8 +72,13 @@ if(@ENABLE_KLU@ AND NOT TARGET SUNDIALS::KLU)
 endif()
 
 if(@ENABLE_PETSC@)
-  set(PETSC_LIBRARY_SINGLE "@PETSC_LIBRARY_SINGLE@")
-  if(${PETSC_LIBRARY_SINGLE})
+  set(_petsc_library_single "@PETSC_LIBRARY_SINGLE@")
+  if("@PETSC_VERSION@" VERSION_LESS 3.1)
+    set(_petsc_definitions "-D__SDIR__=\"\"")
+  else()
+    set(_petsc_definitions "-D__INSDIR__=\"\"")
+  endif()
+  if(${_petsc_library_single})
     foreach(suffix SYS VEC MAT DM KSP SNES TS ALL)
       if(NOT TARGET SUNDIALS::PETSC_${suffix})
         add_library(SUNDIALS::PETSC_${suffix} UNKNOWN IMPORTED)
@@ -78,9 +87,9 @@ if(@ENABLE_PETSC@)
         set_target_properties(SUNDIALS::PETSC_${suffix} PROPERTIES
           INTERFACE_LINK_LIBRARIES "@PETSC_LIBRARIES_@")
         set_target_properties(SUNDIALS::PETSC_${suffix} PROPERTIES
-          INTERFACE_COMPILE_OPTIONS "@PETSC_DEFINITIONS@")
+          INTERFACE_COMPILE_OPTIONS ${_petsc_definitions})
         set_target_properties(SUNDIALS::PETSC_${suffix} PROPERTIES
-          IMPORTED_LOCATION "${PETSC_LIBRARY_SINGLE}")
+          IMPORTED_LOCATION "${_petsc_library_single}")
       endif()
     endforeach()
   else()
@@ -110,7 +119,7 @@ if(@ENABLE_PETSC@)
         set_target_properties (SUNDIALS::PETSC_${suffix} PROPERTIES
           INTERFACE_LINK_LIBRARIES "${PETSC_LIBRARIES_${suffix}}")
         set_target_properties (SUNDIALS::PETSC_${suffix} PROPERTIES
-          INTERFACE_COMPILE_OPTIONS "${PETSC_DEFINITIONS}")
+          INTERFACE_COMPILE_OPTIONS ${_petsc_definitions})
         set_target_properties (SUNDIALS::PETSC_${suffix} PROPERTIES
           IMPORTED_LOCATION "${PETSC_LIBRARY_${suffix}}")
       endif()

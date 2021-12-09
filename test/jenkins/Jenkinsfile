@@ -12,13 +12,14 @@ pipeline {
               echo "END JENKINS SETUP"
 
               // run regression tests
-              sh("cd test && ./test_driver.sh 4 ${env.BRANCH_NAME} ${env.CHANGE_BRANCH}")
+              sh("cd test && ./test_driver.sh --branchname ${env.BRANCH_NAME} --changebranch ${env.CHANGE_BRANCH}")
             }
         }
     }
     post {
          always {
                  echo 'Tests Complete'
+                 archiveArtifacts artifacts: 'test/**/build_*/Testing/Temporary/LastTest.log'
          }
          success {
                  sh("cd test && ./notify.py passed ${env.BRANCH_NAME} ${env.BUILD_URL}")

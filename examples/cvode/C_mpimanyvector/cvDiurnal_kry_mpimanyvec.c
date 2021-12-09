@@ -195,6 +195,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   realtype abstol, reltol, t, tout;
   N_Vector u, c[2];
   UserData data;
@@ -227,7 +228,7 @@ int main(int argc, char *argv[])
       fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
 	      npes,NPEX*NPEY);
     MPI_Finalize();
-    return(1);
+    MPI_Abort(comm, 1);
   }
 
   /* Allocate and load user data block; allocate preconditioner block */
@@ -238,19 +239,23 @@ int main(int argc, char *argv[])
   /* Set local length */
   local_N = MXSUB*MYSUB;
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(&comm, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
   /* Allocate c[0], c[1], u, and set initial values and tolerances */
-  c[0] = N_VNew_Parallel(comm, local_N, neq);
+  c[0] = N_VNew_Parallel(comm, local_N, neq, sunctx);
   if (check_retval((void *)c[0], "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
-  c[1] = N_VNew_Parallel(comm, local_N, neq);
+  c[1] = N_VNew_Parallel(comm, local_N, neq, sunctx);
   if (check_retval((void *)c[1], "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
-  u = N_VNew_MPIManyVector(2, c);
+  u = N_VNew_MPIManyVector(2, c, sunctx);
   if (check_retval((void *)u, "N_VNew_MPIManyVector", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL; reltol = RTOL;
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
@@ -261,16 +266,16 @@ int main(int argc, char *argv[])
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1, my_pe)) return(1);
+  if(check_retval(&retval, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Create SPGMR solver structure with left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach SPGMR solver structure to CVode interface */
@@ -304,6 +309,7 @@ int main(int argc, char *argv[])
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);
 
   MPI_Finalize();
 

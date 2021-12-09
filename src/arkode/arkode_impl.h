@@ -22,7 +22,9 @@
 #include <arkode/arkode_butcher.h>
 #include "arkode_adapt_impl.h"
 #include "arkode_root_impl.h"
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
+#include "sundials_context_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -261,6 +263,8 @@ typedef struct ARKodeMassMemRec {
   This structure contains fields to keep track of problem state.
   ---------------------------------------------------------------*/
 typedef struct ARKodeMemRec {
+
+  SUNContext sunctx;
 
   realtype uround;             /* machine unit roundoff */
 
@@ -913,7 +917,7 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My,
 int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My,
                 N_Vector weight);
 
-ARKodeMem arkCreate();
+ARKodeMem arkCreate(SUNContext sunctx);
 int arkResize(ARKodeMem ark_mem, N_Vector ynew, realtype hscale,
               realtype t0, ARKVecResizeFn resize, void *resize_data);
 int arkSStolerances(ARKodeMem ark_mem, realtype reltol, realtype abstol);
@@ -1108,6 +1112,8 @@ int arkGetLastKFlag(void *arkode_mem, int *last_kflag);
 #define MSG_ARK_INNERSTEP_FAILED  "At " MSG_TIME ", the inner stepper failed in an unrecoverable manner."
 #define MSG_ARK_POSTPROCESS_STEP_FAIL "At " MSG_TIME ", the step postprocessing routine failed in an unrecoverable manner."
 #define MSG_ARK_POSTPROCESS_STAGE_FAIL "At " MSG_TIME ", the stage postprocessing routine failed in an unrecoverable manner."
+#define MSG_ARK_NULL_SUNCTX "sunctx = NULL illegal."
+#define MSG_ARK_CONTEXT_MISMATCH "Outer and inner steppers have different contexts."
 
 #ifdef __cplusplus
 }

@@ -193,6 +193,11 @@ int main(int argc, char *argv[])
   realtype  gamma, beta;
   char ofname[50]="";
 
+  /* Create the SUNDIALS context object for this simulation. */
+  SUNContext ctx = NULL;
+  SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /*
    * Initialization
    */
@@ -313,7 +318,7 @@ int main(int argc, char *argv[])
   udata->dx = dx;
 
   /* Create solution vector */
-  y = N_VNew_Serial(NEQ);           /* Create vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);           /* Create vector for solution */
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
 
   /* Set initial condition */
@@ -321,13 +326,13 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "SetIC", 1)) return 1;
 
   /* Create vector masks  */
-  umask = N_VNew_Serial(NEQ);
+  umask = N_VClone(y);
   if (check_retval((void *)umask, "N_VNew_Serial", 0)) return 1;
 
-  vmask = N_VNew_Serial(NEQ);
+  vmask = N_VClone(y);
   if (check_retval((void *)vmask, "N_VNew_Serial", 0)) return 1;
 
-  wmask = N_VNew_Serial(NEQ);
+  wmask = N_VClone(y);
   if (check_retval((void *)wmask, "N_VNew_Serial", 0)) return 1;
 
   /* Set mask array values for each solution component */
@@ -357,7 +362,7 @@ int main(int argc, char *argv[])
   case(0):
   case(3):        /* esdirk-3-3 fast solver */
   case(5):
-    inner_arkode_mem = ARKStepCreate(NULL, ff, T0, y);
+    inner_arkode_mem = ARKStepCreate(NULL, ff, T0, y, ctx);
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(3, SUNFALSE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -378,10 +383,10 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
 
     /* Initialize matrix and linear solver data structures */
-    Af = SUNBandMatrix(NEQ, 4, 4);
+    Af = SUNBandMatrix(NEQ, 4, 4, ctx);
     if (check_retval((void *)Af, "SUNBandMatrix", 0)) return 1;
 
-    LSf = SUNLinSol_Band(y, Af);
+    LSf = SUNLinSol_Band(y, Af, ctx);
     if (check_retval((void *)LSf, "SUNLinSol_Band", 0)) return 1;
 
     /* Specify fast tolerances */
@@ -401,7 +406,7 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "ARKStepSetJacFn", 1)) return 1;
     break;
   case(1):        /*dirk 5th order fast solver (full problem) */
-    inner_arkode_mem = ARKStepCreate(NULL, f, T0, y);
+    inner_arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
 
     /* Set method order to use */
@@ -409,10 +414,10 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "ARKStepSetOrder",1)) return 1;
 
     /* Initialize matrix and linear solver data structures */
-    Af = SUNBandMatrix(NEQ, 4, 4);
+    Af = SUNBandMatrix(NEQ, 4, 4, ctx);
     if (check_retval((void *)Af, "SUNBandMatrix", 0)) return 1;
 
-    LSf = SUNLinSol_Band(y, Af);
+    LSf = SUNLinSol_Band(y, Af, ctx);
     if (check_retval((void *)LSf, "SUNLinSol_Band", 0)) return 1;
 
     /* Specify fast tolerances */
@@ -429,7 +434,7 @@ int main(int argc, char *argv[])
     break;
   case(2):           /* erk-3-3 fast solver */
   case(4):
-    inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y);
+    inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -448,7 +453,7 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
     break;
   case(6):                 /* erk-4-4 fast solver */
-    inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y);
+    inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(4, SUNFALSE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -467,7 +472,7 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
     break;
   case(7):                /* Cash(5,3,4)-SDIRK fast solver */
-    inner_arkode_mem = ARKStepCreate(NULL, ff, T0, y);
+    inner_arkode_mem = ARKStepCreate(NULL, ff, T0, y, ctx);
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
 
     /* Set fast method */
@@ -475,10 +480,10 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
 
     /* Initialize matrix and linear solver data structures */
-    Af = SUNBandMatrix(NEQ, 4, 4);
+    Af = SUNBandMatrix(NEQ, 4, 4, ctx);
     if (check_retval((void *)Af, "SUNBandMatrix", 0)) return 1;
 
-    LSf = SUNLinSol_Band(y, Af);
+    LSf = SUNLinSol_Band(y, Af, ctx);
     if (check_retval((void *)LSf, "SUNLinSol_Band", 0)) return 1;
 
     /* Specify fast tolerances */
@@ -521,11 +526,11 @@ int main(int argc, char *argv[])
      T0, the initial dependent variable vector y, and the fast integrator. */
   switch (solve_type) {
   case(0):                    /* use MIS outer integrator default for MRIStep */
-    arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper);
+    arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
     break;
   case(1):                    /* no slow dynamics (use ERK-2-2) */
-    arkode_mem = MRIStepCreate(f0, NULL, T0, y, inner_stepper);
+    arkode_mem = MRIStepCreate(f0, NULL, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(2, SUNFALSE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
@@ -541,7 +546,7 @@ int main(int argc, char *argv[])
     break;
   case(2):
   case(3): /* MRI-GARK-ESDIRK34a, solve-decoupled slow solver */
-    arkode_mem = MRIStepCreate(NULL, fs, T0, y, inner_stepper);
+    arkode_mem = MRIStepCreate(NULL, fs, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
 
     C = MRIStepCoupling_LoadTable(MRI_GARK_ESDIRK34a);
@@ -551,10 +556,10 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
 
     /* Initialize matrix and linear solver data structures */
-    As = SUNBandMatrix(NEQ, 4, 4);
+    As = SUNBandMatrix(NEQ, 4, 4, ctx);
     if (check_retval((void *)As, "SUNBandMatrix", 0)) return 1;
 
-    LSs = SUNLinSol_Band(y, As);
+    LSs = SUNLinSol_Band(y, As, ctx);
     if (check_retval((void *)LSs, "SUNLinSol_Band", 0)) return 1;
 
     /* Specify tolerances */
@@ -571,7 +576,7 @@ int main(int argc, char *argv[])
     break;
   case(4):
   case(5):        /* IMEX-MRI-GARK3b, solve-decoupled slow solver */
-    arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper);
+    arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
 
     C = MRIStepCoupling_LoadTable(IMEX_MRI_GARK3b);
@@ -581,10 +586,10 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
 
     /* Initialize matrix and linear solver data structures */
-    As = SUNBandMatrix(NEQ, 4, 4);
+    As = SUNBandMatrix(NEQ, 4, 4, ctx);
     if (check_retval((void *)As, "SUNBandMatrix", 0)) return 1;
 
-    LSs = SUNLinSol_Band(y, As);
+    LSs = SUNLinSol_Band(y, As, ctx);
     if (check_retval((void *)LSs, "SUNLinSol_Band", 0)) return 1;
 
     /* Specify tolerances */
@@ -601,7 +606,7 @@ int main(int argc, char *argv[])
     break;
   case(6):
   case(7):     /* IMEX-MRI-GARK4, solve-decoupled slow solver */
-    arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper);
+    arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
 
     C = MRIStepCoupling_LoadTable(IMEX_MRI_GARK4);
@@ -611,10 +616,10 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
 
     /* Initialize matrix and linear solver data structures */
-    As = SUNBandMatrix(NEQ, 4, 4);
+    As = SUNBandMatrix(NEQ, 4, 4, ctx);
     if (check_retval((void *)As, "SUNBandMatrix", 0)) return 1;
 
-    LSs = SUNLinSol_Band(y, As);
+    LSs = SUNLinSol_Band(y, As, ctx);
     if (check_retval((void *)LSs, "SUNLinSol_Band", 0)) return 1;
 
     /* Specify tolerances */
@@ -804,6 +809,7 @@ int main(int argc, char *argv[])
   N_VDestroy(umask);
   N_VDestroy(vmask);
   N_VDestroy(wmask);
+  SUNContext_Free(&ctx);
 
   return 0;
 }

@@ -186,6 +186,7 @@ echo -e "\n--- Create temporary directory ---"
 echo "copy $sundialsdir to $rootdir/$tmpdir"
 rm -rf $tmpdir         || exit 1
 mkdir $tmpdir          || exit 1
+mkdir $tmpdir/scripts  || exit 1
 mkdir $tmpdir/include  || exit 1
 mkdir $tmpdir/src      || exit 1
 mkdir $tmpdir/examples || exit 1
@@ -218,8 +219,9 @@ if [ $doc = "T" ]; then
     cd -
 fi
 
-cp -r $sundialsdir/cmake $tmpdir/ || exit 1
-cp -r $sundialsdir/test $tmpdir/   || exit 1
+cp -r $sundialsdir/benchmarks $tmpdir/ || exit 1
+cp -r $sundialsdir/cmake $tmpdir/      || exit 1
+cp -r $sundialsdir/test $tmpdir/       || exit 1
 
 cp -r $sundialsdir/include/sundials $tmpdir/include/     || exit 1
 cp -r $sundialsdir/include/nvector $tmpdir/include/      || exit 1

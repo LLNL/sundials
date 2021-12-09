@@ -66,7 +66,8 @@ typedef ARKStagePredictFn ARKStepStagePredictFn;
 
 /* Create, Resize, and Reinitialization functions */
 SUNDIALS_EXPORT void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi,
-                                    realtype t0, N_Vector y0);
+                                    realtype t0, N_Vector y0,
+                                    SUNContext sunctx);
 
 SUNDIALS_EXPORT int ARKStepResize(void *arkode_mem, N_Vector ynew,
                                   realtype hscale, realtype t0,

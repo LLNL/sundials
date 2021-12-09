@@ -83,9 +83,6 @@ if(EXAMPLES_INSTALL)
       cvode
       ${vector}
       sunlinsolmagmadense
-      MAGMA
-    EXTRA_INCLUDES
-      ${MAGMA_INCLUDE_DIR}
     DESTINATION
       cvode/magma
   )

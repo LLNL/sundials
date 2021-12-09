@@ -36,7 +36,7 @@
   Constructor to create a new Newton solver
   ============================================================================*/
 
-SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
+SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
 {
   SUNNonlinearSolver NLS;
   SUNNonlinearSolverContent_Newton content;
@@ -52,8 +52,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
     return(NULL);
 
   /* Create an empty nonlinear linear solver object */
-  NLS = NULL;
-  NLS = SUNNonlinSolNewEmpty();
+  NLS = SUNNonlinSolNewEmpty(sunctx);
   if (NLS == NULL) return(NULL);
 
   /* Attach operations */
@@ -107,7 +106,8 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   Constructor wrapper to create a new Newton solver for sensitivity solvers
   ============================================================================*/
 
-SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y)
+SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y,
+                                           SUNContext sunctx)
 {
   SUNNonlinearSolver NLS;
   N_Vector w;
@@ -116,7 +116,7 @@ SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y)
   w = N_VNew_SensWrapper(count, y);
 
   /* create nonlinear solver using sensitivity vector wrapper */
-  NLS = SUNNonlinSol_Newton(w);
+  NLS = SUNNonlinSol_Newton(w, sunctx);
 
   /* free sensitivity vector wrapper */
   N_VDestroy(w);

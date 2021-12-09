@@ -15,39 +15,30 @@
 # ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
-# Find MPI.
+# Find (and test) the Caliper libraries
 # ---------------------------------------------------------------
 
-if(ENABLE_MPI)
-  include(SundialsMPI)
-  list(APPEND SUNDIALS_TPL_LIST "MPI")
+if(ENABLE_CALIPER)
+  include(SundialsCaliper)
+  list(APPEND SUNDIALS_TPL_LIST "CALIPER")
 endif()
 
 # ---------------------------------------------------------------
-# Find OpenMP
+# Find (and test) the hypre libraries
 # ---------------------------------------------------------------
 
-if(ENABLE_OPENMP)
-  include(SundialsOpenMP)
-  list(APPEND SUNDIALS_TPL_LIST "OPENMP")
+if(ENABLE_HYPRE)
+  include(SundialsHypre)
+  list(APPEND SUNDIALS_TPL_LIST "HYPRE")
 endif()
 
 # ---------------------------------------------------------------
-# Find OpenMP with device offloading
-# --------------------------------------------------------------
-
-if(ENABLE_OPENMP_DEVICE)
-  include(SundialsOpenMP)
-  list(APPEND SUNDIALS_TPL_LIST "OPENMP_DEVICE")
-endif()
-
-# ---------------------------------------------------------------
-# Find PThreads
+# Find (and test) the KLU libraries
 # ---------------------------------------------------------------
 
-if(ENABLE_PTHREAD)
-  include(SundialsPthread)
-  list(APPEND SUNDIALS_TPL_LIST "PTHREAD")
+if(ENABLE_KLU)
+  include(SundialsKLU)
+  list(APPEND SUNDIALS_TPL_LIST "KLU")
 endif()
 
 # ---------------------------------------------------------------
@@ -69,12 +60,66 @@ if(ENABLE_MAGMA)
 endif()
 
 # ---------------------------------------------------------------
+# Find MPI.
+# ---------------------------------------------------------------
+
+if(ENABLE_MPI)
+  include(SundialsMPI)
+  list(APPEND SUNDIALS_TPL_LIST "MPI")
+endif()
+
+# ---------------------------------------------------------------
 # Find (and test) the oneMKL libraries
 # ---------------------------------------------------------------
 
 if(ENABLE_ONEMKL)
   include(SundialsONEMKL)
   list(APPEND SUNDIALS_TPL_LIST "ONEMKL")
+endif()
+
+# ---------------------------------------------------------------
+# Find OpenMP
+# ---------------------------------------------------------------
+
+if(ENABLE_OPENMP)
+  include(SundialsOpenMP)
+  list(APPEND SUNDIALS_TPL_LIST "OPENMP")
+endif()
+
+# ---------------------------------------------------------------
+# Find OpenMP with device offloading
+# --------------------------------------------------------------
+
+if(ENABLE_OPENMP_DEVICE)
+  include(SundialsOpenMP)
+  list(APPEND SUNDIALS_TPL_LIST "OPENMP_DEVICE")
+endif()
+
+# ---------------------------------------------------------------
+# Find (and test) the PETSc libraries
+# ---------------------------------------------------------------
+
+if(ENABLE_PETSC)
+  include(SundialsPETSC)
+  list(APPEND SUNDIALS_TPL_LIST "PETSC")
+endif()
+
+# ---------------------------------------------------------------
+# Find PThreads
+# ---------------------------------------------------------------
+
+if(ENABLE_PTHREAD)
+  include(SundialsPthread)
+  list(APPEND SUNDIALS_TPL_LIST "PTHREAD")
+endif()
+
+# -------------------------------------------------------------
+# Find (and test) RAJA
+# -------------------------------------------------------------
+
+if(ENABLE_RAJA)
+  include(SundialsRAJA)
+  list(APPEND SUNDIALS_TPL_LIST "RAJA")
 endif()
 
 # ---------------------------------------------------------------
@@ -95,42 +140,6 @@ if(ENABLE_SUPERLUMT)
   list(APPEND SUNDIALS_TPL_LIST "SUPERLUMT")
 endif()
 
-# ---------------------------------------------------------------
-# Find (and test) the KLU libraries
-# ---------------------------------------------------------------
-
-if(ENABLE_KLU)
-  include(SundialsKLU)
-  list(APPEND SUNDIALS_TPL_LIST "KLU")
-endif()
-
-# ---------------------------------------------------------------
-# Find (and test) the hypre libraries
-# ---------------------------------------------------------------
-
-if(ENABLE_HYPRE)
-  include(SundialsHypre)
-  list(APPEND SUNDIALS_TPL_LIST "HYPRE")
-endif()
-
-# ---------------------------------------------------------------
-# Find (and test) the PETSc libraries
-# ---------------------------------------------------------------
-
-if(ENABLE_PETSC)
-  include(SundialsPETSC)
-  list(APPEND SUNDIALS_TPL_LIST "PETSC")
-endif()
-
-# -------------------------------------------------------------
-# Find (and test) RAJA
-# -------------------------------------------------------------
-
-if(ENABLE_RAJA)
-  include(SundialsRAJA)
-  list(APPEND SUNDIALS_TPL_LIST "RAJA")
-endif()
-
 # -------------------------------------------------------------
 # Find (and test) Trilinos
 # -------------------------------------------------------------
@@ -148,9 +157,3 @@ if(ENABLE_XBRAID)
   include(SundialsXBRAID)
   list(APPEND SUNDIALS_TPL_LIST "XBRAID")
 endif()
-
-# ---------------------------------------------------------------
-# Check for POSIX timers
-# ---------------------------------------------------------------
-
-include(SundialsPOSIXTimers)

@@ -12,7 +12,7 @@
 /tarballs
 
 # custom test environment setup script
-/test/env.sh
+/test/env/env.sh
 
 # directories and files created by testing scripts
 /test/build_*
@@ -69,8 +69,12 @@
 /test/spack/.spack-env/view/.spack/*
 !/test/spack/.spack-env/view/.spack/projections.yaml
 
+# uberenv
+uberenv_libs
+
 # swig
 /swig/swig
 
 # editor files
 .vscode
+

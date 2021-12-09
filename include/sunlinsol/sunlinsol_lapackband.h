@@ -63,11 +63,8 @@ typedef struct _SUNLinearSolverContent_LapackBand *SUNLinearSolverContent_Lapack
  * -------------------------------------------- */
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackBand(N_Vector y,
-                                                     SUNMatrix A);
-
-/* deprecated */
-SUNDIALS_EXPORT SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A);
-
+                                                     SUNMatrix A,
+                                                     SUNContext sunctx);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_LapackBand(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_LapackBand(SUNLinearSolver S);

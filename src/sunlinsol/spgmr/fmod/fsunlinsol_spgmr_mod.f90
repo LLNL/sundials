@@ -22,10 +22,13 @@ module fsunlinsol_spgmr_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_linearsolver_mod
  use fsundials_types_mod
+ use fsundials_context_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -37,10 +40,6 @@ module fsunlinsol_spgmr_mod
  public :: FSUNLinSol_SPGMRSetPrecType
  public :: FSUNLinSol_SPGMRSetGSType
  public :: FSUNLinSol_SPGMRSetMaxRestarts
- public :: FSUNSPGMR
- public :: FSUNSPGMRSetPrecType
- public :: FSUNSPGMRSetGSType
- public :: FSUNSPGMRSetMaxRestarts
  public :: FSUNLinSolGetType_SPGMR
  public :: FSUNLinSolGetID_SPGMR
  public :: FSUNLinSolInitialize_SPGMR
@@ -61,13 +60,14 @@ module fsunlinsol_spgmr_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FSUNLinSol_SPGMR(farg1, farg2, farg3) &
+function swigc_FSUNLinSol_SPGMR(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNLinSol_SPGMR") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT), intent(in) :: farg3
+type(C_PTR), value :: farg4
 type(C_PTR) :: fresult
 end function
 
@@ -91,43 +91,6 @@ end function
 
 function swigc_FSUNLinSol_SPGMRSetMaxRestarts(farg1, farg2) &
 bind(C, name="_wrap_FSUNLinSol_SPGMRSetMaxRestarts") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNSPGMR(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNSPGMR") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT), intent(in) :: farg3
-type(C_PTR) :: fresult
-end function
-
-function swigc_FSUNSPGMRSetPrecType(farg1, farg2) &
-bind(C, name="_wrap_FSUNSPGMRSetPrecType") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNSPGMRSetGSType(farg1, farg2) &
-bind(C, name="_wrap_FSUNSPGMRSetGSType") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNSPGMRSetMaxRestarts(farg1, farg2) &
-bind(C, name="_wrap_FSUNSPGMRSetMaxRestarts") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -293,22 +256,25 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FSUNLinSol_SPGMR(y, pretype, maxl) &
+function FSUNLinSol_SPGMR(y, pretype, maxl, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNLinearSolver), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: y
 integer(C_INT), intent(in) :: pretype
 integer(C_INT), intent(in) :: maxl
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 integer(C_INT) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = c_loc(y)
 farg2 = pretype
 farg3 = maxl
-fresult = swigc_FSUNLinSol_SPGMR(farg1, farg2, farg3)
+farg4 = sunctx
+fresult = swigc_FSUNLinSol_SPGMR(farg1, farg2, farg3, farg4)
 call c_f_pointer(fresult, swig_result)
 end function
 
@@ -357,73 +323,6 @@ integer(C_INT) :: farg2
 farg1 = c_loc(s)
 farg2 = maxrs
 fresult = swigc_FSUNLinSol_SPGMRSetMaxRestarts(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNSPGMR(y, pretype, maxl) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(SUNLinearSolver), pointer :: swig_result
-type(N_Vector), target, intent(inout) :: y
-integer(C_INT), intent(in) :: pretype
-integer(C_INT), intent(in) :: maxl
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-integer(C_INT) :: farg3 
-
-farg1 = c_loc(y)
-farg2 = pretype
-farg3 = maxl
-fresult = swigc_FSUNSPGMR(farg1, farg2, farg3)
-call c_f_pointer(fresult, swig_result)
-end function
-
-function FSUNSPGMRSetPrecType(s, pretype) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT), intent(in) :: pretype
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = c_loc(s)
-farg2 = pretype
-fresult = swigc_FSUNSPGMRSetPrecType(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNSPGMRSetGSType(s, gstype) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT), intent(in) :: gstype
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = c_loc(s)
-farg2 = gstype
-fresult = swigc_FSUNSPGMRSetGSType(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNSPGMRSetMaxRestarts(s, maxrs) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT), intent(in) :: maxrs
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = c_loc(s)
-farg2 = maxrs
-fresult = swigc_FSUNSPGMRSetMaxRestarts(farg1, farg2)
 swig_result = fresult
 end function
 

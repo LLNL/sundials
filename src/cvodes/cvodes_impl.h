@@ -20,6 +20,7 @@
 #include <stdarg.h>
 
 #include "cvodes/cvodes.h"
+#include "sundials_context_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -90,6 +91,8 @@ typedef struct CVodeBMemRec *CVodeBMem;
  */
 
 typedef struct CVodeMemRec {
+
+  SUNContext cv_sunctx;
 
   realtype cv_uround;    /* machine unit roundoff */
 
@@ -1049,6 +1052,7 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
 #define MSGCV_CVMEM_FAIL "Allocation of cvode_mem failed."
 #define MSGCV_MEM_FAIL "A memory request failed."
 #define MSGCV_BAD_LMM  "Illegal value for lmm. The legal values are CV_ADAMS and CV_BDF."
+#define MSGCV_NULL_SUNCTX  "sunctx = NULL illegal."
 #define MSGCV_NO_MALLOC "Attempt to call before CVodeInit."
 #define MSGCV_NEG_MAXORD "maxord <= 0 illegal."
 #define MSGCV_BAD_MAXORD  "Illegal attempt to increase maximum method order."

@@ -37,15 +37,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
-{ return(SUNLinSol_Band(y, A)); }
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -54,7 +45,7 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
  * Function to create a new band linear solver
  */
 
-SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_Band content;
@@ -82,7 +73,7 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

@@ -18,6 +18,7 @@
 
 // Load the typedefs and generate a "use" statement in the module
 %import "../sundials/fsundials_types_mod.i"
+%import "../sundials/fsundials_context_mod.i"
 %import "../sundials/fsundials_nvector_mod.i"
 %import "../sundials/fsundials_matrix_mod.i"
 

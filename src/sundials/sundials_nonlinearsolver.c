@@ -18,15 +18,26 @@
 
 #include <stdlib.h>
 #include <sundials/sundials_nonlinearsolver.h>
+#include "sundials_context_impl.h"
+
+#if defined(SUNDIALS_BUILD_WITH_PROFILING)
+static SUNProfiler getSUNProfiler(SUNNonlinearSolver NLS)
+{
+  return(NLS->sunctx->profiler);
+}
+#endif
 
 /* -----------------------------------------------------------------------------
  * Create a new empty SUNLinearSolver object
  * ---------------------------------------------------------------------------*/
 
-SUNNonlinearSolver SUNNonlinSolNewEmpty()
+SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
 {
   SUNNonlinearSolver     NLS;
   SUNNonlinearSolver_Ops ops;
+
+  /* check input */
+  if (!sunctx) return(NULL);
 
   /* create nonlinear solver object */
   NLS = NULL;
@@ -53,7 +64,8 @@ SUNNonlinearSolver SUNNonlinSolNewEmpty()
   ops->getcuriter      = NULL;
   ops->getnumconvfails = NULL;
 
-  /* attach ops and initialize content to NULL */
+  /* attach context and ops, initialize content to NULL */
+  NLS->sunctx  = sunctx;
   NLS->ops     = ops;
   NLS->content = NULL;
 
@@ -88,18 +100,26 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS)
 
 int SUNNonlinSolInitialize(SUNNonlinearSolver NLS)
 {
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(NLS));
   if (NLS->ops->initialize)
-    return((int) NLS->ops->initialize(NLS));
+    ier = NLS->ops->initialize(NLS);
   else
-    return(SUN_NLS_SUCCESS);
+    ier = SUN_NLS_SUCCESS;
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(NLS));
+  return(ier);
 }
 
 int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 {
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(NLS));
   if (NLS->ops->setup)
-    return((int) NLS->ops->setup(NLS, y, mem));
+    ier = NLS->ops->setup(NLS, y, mem);
   else
-    return(SUN_NLS_SUCCESS);
+    ier = SUN_NLS_SUCCESS;
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(NLS));
+  return(ier);
 }
 
 int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
@@ -107,7 +127,11 @@ int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
                       N_Vector w, realtype tol,
                       booleantype callLSetup, void* mem)
 {
-  return((int) NLS->ops->solve(NLS, y0, y, w, tol, callLSetup, mem));
+  int ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(NLS));
+  ier = NLS->ops->solve(NLS, y0, y, w, tol, callLSetup, mem);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(NLS));
+  return(ier);
 }
 
 int SUNNonlinSolFree(SUNNonlinearSolver NLS)

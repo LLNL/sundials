@@ -88,7 +88,7 @@ void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
   FIDANullNonlinSol();
 
   /* Create IDA object */
-  IDA_idamem = IDACreate();
+  IDA_idamem = IDACreate(NULL);
   if (IDA_idamem == NULL) {
     *ier = -1;
     return;

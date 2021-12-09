@@ -39,21 +39,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNPCG(N_Vector y, int pretype, int maxl)
-{ return(SUNLinSol_PCG(y, pretype, maxl)); }
-
-int SUNPCGSetPrecType(SUNLinearSolver S, int pretype)
-{ return(SUNLinSol_PCGSetPrecType(S, pretype)); }
-
-int SUNPCGSetMaxl(SUNLinearSolver S, int maxl)
-{ return(SUNLinSol_PCGSetMaxl(S, maxl)); }
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -62,7 +47,7 @@ int SUNPCGSetMaxl(SUNLinearSolver S, int maxl)
  * Function to create a new PCG linear solver
  */
 
-SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl)
+SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_PCG content;
@@ -76,7 +61,7 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl)
 
   /* Create linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

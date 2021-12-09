@@ -19,7 +19,7 @@
 # -----------------------------------------------------------------
 
 # Set the minimum required cmake version
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION @CMAKE_VERSION@)
 
 # Set cache variables for compilers and flags
 set(CMAKE_CXX_COMPILER
@@ -29,6 +29,10 @@ set(CMAKE_CXX_COMPILER
 set(CMAKE_CXX_FLAGS
   "@CMAKE_CXX_FLAGS@"
   CACHE STRING "C++ compiler flags")
+
+set(CMAKE_CXX_STANDARD
+  @CMAKE_CXX_STANDARD@
+  CACHE STRING "C++ standard")
 
 # Specify project name and language
 project(@SOLVER@_CXX_parhyp_examples CXX)

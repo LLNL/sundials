@@ -22,13 +22,16 @@ module farkode_mristep_mod
  use, intrinsic :: ISO_C_BINDING
  use farkode_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_linearsolver_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
  use fsundials_types_mod
@@ -61,7 +64,7 @@ module farkode_mristep_mod
  integer(C_INT), parameter, public :: DEFAULT_IMPL_SD_MRI_TABLE_2 = 203_C_INT
  integer(C_INT), parameter, public :: DEFAULT_IMPL_SD_MRI_TABLE_3 = 204_C_INT
  integer(C_INT), parameter, public :: DEFAULT_IMPL_SD_MRI_TABLE_4 = 205_C_INT
- integer(C_INT), parameter, public :: DEFAULT_IMEX_SD_MRI_TABLE_3 = 206_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_IMEX_SD_MRI_TABLE_3 = 207_C_INT
  integer(C_INT), parameter, public :: DEFAULT_IMEX_SD_MRI_TABLE_4 = 208_C_INT
 
  integer, parameter :: swig_cmem_own_bit = 0
@@ -430,7 +433,7 @@ type(SwigClassWrapper) :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
-function swigc_FMRIStepCreate(farg1, farg2, farg3, farg4, farg5) &
+function swigc_FMRIStepCreate(farg1, farg2, farg3, farg4, farg5, farg6) &
 bind(C, name="_wrap_FMRIStepCreate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -440,6 +443,7 @@ type(C_FUNPTR), value :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
 type(SwigClassWrapper) :: farg5
+type(C_PTR), value :: farg6
 type(C_PTR) :: fresult
 end function
 
@@ -1236,11 +1240,12 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
-function swigc_FMRIStepInnerStepper_Create(farg1) &
+function swigc_FMRIStepInnerStepper_Create(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepInnerStepper_Create") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1674,7 +1679,7 @@ farg2 = outfile
 call swigc_FMRIStepCoupling_Write(farg1, farg2)
 end subroutine
 
-function FMRIStepCreate(fse, fsi, t0, y0, stepper) &
+function FMRIStepCreate(fse, fsi, t0, y0, stepper, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
@@ -1683,19 +1688,22 @@ type(C_FUNPTR), intent(in), value :: fsi
 real(C_DOUBLE), intent(in) :: t0
 type(N_Vector), target, intent(inout) :: y0
 class(SWIGTYPE_p__MRIStepInnerStepper), intent(in) :: stepper
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 type(C_FUNPTR) :: farg1 
 type(C_FUNPTR) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 type(SwigClassWrapper) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = fse
 farg2 = fsi
 farg3 = t0
 farg4 = c_loc(y0)
 farg5 = stepper%swigdata
-fresult = swigc_FMRIStepCreate(farg1, farg2, farg3, farg4, farg5)
+farg6 = sunctx
+fresult = swigc_FMRIStepCreate(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
@@ -3139,16 +3147,19 @@ farg2 = outfile
 call swigc_FMRIStepPrintMem(farg1, farg2)
 end subroutine
 
-function FMRIStepInnerStepper_Create(stepper) &
+function FMRIStepInnerStepper_Create(sunctx, stepper) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
+type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: stepper
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
-farg1 = c_loc(stepper)
-fresult = swigc_FMRIStepInnerStepper_Create(farg1)
+farg1 = sunctx
+farg2 = c_loc(stepper)
+fresult = swigc_FMRIStepInnerStepper_Create(farg1, farg2)
 swig_result = fresult
 end function
 

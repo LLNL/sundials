@@ -98,7 +98,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* Allocate memory for saved banded Jacobian approximation. */
   pdata->savedJ = NULL;
-  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup);
+  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup, ark_mem->sunctx);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE",
@@ -109,7 +109,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* Allocate memory for banded preconditioner. */
   storagemu = SUNMIN(N-1, mup+mlp);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu);
+  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu, ark_mem->sunctx);
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -120,7 +120,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNLinSol_Band(ark_mem->tempv1, pdata->savedP);
+  pdata->LS = SUNLinSol_Band(ark_mem->tempv1, pdata->savedP, ark_mem->sunctx);
   if (pdata->LS == NULL) {
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
@@ -132,8 +132,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* allocate memory for temporary N_Vectors */
   pdata->tmp1 = NULL;
-  pdata->tmp1 = N_VClone(ark_mem->tempv1);
-  if (pdata->tmp1 == NULL) {
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp1))) {
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
@@ -142,13 +141,13 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
                     "ARKBandPrecInit", MSG_BP_MEM_FAIL);
     return(ARKLS_MEM_FAIL);
   }
+
   pdata->tmp2 = NULL;
-  pdata->tmp2 = N_VClone(ark_mem->tempv1);
-  if (pdata->tmp2 == NULL) {
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp2))) {
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
-    N_VDestroy(pdata->tmp1);
+    arkFreeVec(ark_mem, &(pdata->tmp1));
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE",
                     "ARKBandPrecInit", MSG_BP_MEM_FAIL);
@@ -161,8 +160,8 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
-    N_VDestroy(pdata->tmp1);
-    N_VDestroy(pdata->tmp2);
+    arkFreeVec(ark_mem, &(pdata->tmp1));
+    arkFreeVec(ark_mem, &(pdata->tmp2));
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKBANDPRE",
                     "ARKBandPrecInit", MSG_BP_SUNLS_FAIL);
@@ -446,8 +445,8 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
   SUNLinSolFree(pdata->LS);
   SUNMatDestroy(pdata->savedP);
   SUNMatDestroy(pdata->savedJ);
-  N_VDestroy(pdata->tmp1);
-  N_VDestroy(pdata->tmp2);
+  arkFreeVec(ark_mem, &(pdata->tmp1));
+  arkFreeVec(ark_mem, &(pdata->tmp2));
 
   free(pdata);
   pdata = NULL;

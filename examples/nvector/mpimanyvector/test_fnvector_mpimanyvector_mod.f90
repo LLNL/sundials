@@ -29,7 +29,8 @@ module test_nvector_mpimanyvector
   integer(c_long), parameter :: N2       = 200        ! individual vector length
   integer(c_int),  parameter :: nv       = 3          ! length of vector arrays
   integer(c_long), parameter :: N        = N1 + N2    ! overall manyvector length
-  integer(c_int), parameter  :: comm = MPI_COMM_WORLD ! default MPI communicator
+  integer(c_int), target     :: comm = MPI_COMM_WORLD ! default MPI communicator
+  integer(c_int), pointer    :: commptr
   integer(c_int)             :: nprocs                ! number of MPI processes
 
 contains
@@ -50,12 +51,12 @@ contains
 
     !===== Setup ====
     subvecs = FN_VNewVectorArray(nsubvecs)
-    tmp  => FN_VMake_Serial(N1, x1data)
+    tmp  => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
-    tmp  => FN_VMake_Serial(N2, x2data)
+    tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VMake_MPIManyVector(MPI_COMM_WORLD, int(nsubvecs,8), subvecs)
+    x => FN_VMake_MPIManyVector(MPI_COMM_WORLD, int(nsubvecs,8), subvecs, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_MPIManyVector(x)
     call FN_VConst(ONE, y)
@@ -140,20 +141,20 @@ contains
 
     !===== Setup ====
     fails = 0
-    
+
     call MPI_Comm_rank(comm, myid, fails)
     if (fails /= 0) then
       print *, '   FAILURE - MPI_COMM_RANK returned nonzero'
       stop 1
     endif
-    
+
     subvecs = FN_VNewVectorArray(nsubvecs)
-    tmp  => FN_VMake_Serial(N1, x1data)
+    tmp  => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
-    tmp  => FN_VMake_Serial(N2, x2data)
+    tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VMake_MPIManyVector(MPI_COMM_WORLD, int(nsubvecs,8), subvecs)
+    x => FN_VMake_MPIManyVector(MPI_COMM_WORLD, int(nsubvecs,8), subvecs, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -194,12 +195,12 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   x1len = FN_VGetLength(X1)
   x0data => FN_VGetArrayPointer(X0)
   x1data => FN_VGetArrayPointer(X1)
-  
+
   if (local_length /= (x0len + x1len)) then
     failure = 1
     return
   endif
-  
+
   do i = 1, x0len
     if (FNEQ(x0data(i), ans) > 0) then
       failure = failure + 1
@@ -249,8 +250,12 @@ program main
     stop 1
   endif
 
+  commptr => comm
+
   !============== Introduction =============
   if (myid == 0) print *, 'MPIManyVector N_Vector Fortran 2003 interface test'
+
+  call Test_Init(c_loc(commptr))
 
   call MPI_Comm_size(comm, nprocs, fails)
   if (fails /= 0) then
@@ -279,6 +284,8 @@ program main
   else
     if (myid == 0) print *,'    SUCCESS - all unit tests passed'
   end if
+
+  call Test_Finalize()
 
   call MPI_Finalize(fails)
   if (fails /= 0) then

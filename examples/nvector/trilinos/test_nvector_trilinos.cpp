@@ -40,6 +40,8 @@ int main (int argc, char *argv[])
   typedef Sundials::TpetraVectorInterface::vector_type vector_type;
   typedef vector_type::map_type map_type;
 
+  Test_Init(NULL);
+
   /* Start an MPI session */
   Tpetra::ScopeGuard tpetraScope(&argc, &argv);
 
@@ -52,14 +54,14 @@ int main (int argc, char *argv[])
   if (argc < 3) {
     if (myRank == 0)
       printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    return -1;
+    Test_Abort(1);
   }
 
   const sunindextype local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myRank == 0)
       printf("ERROR: local vector length must be a positive integer \n");
-    return -1;
+    Test_Abort(1);
   }
 
   int print_timing = atoi(argv[2]);
@@ -90,13 +92,13 @@ int main (int argc, char *argv[])
   /* NVector Test */
 
   /* Create Trilinos (Tpetra) N_Vector wrapper and test */
-  N_Vector X = N_VMake_Trilinos(px);
+  N_Vector X = N_VMake_Trilinos(px, sunctx);
   fails += Test_N_VMake(X, local_length, myRank);
   if (fails != 0) {
     N_VDestroy(X);
     px = Teuchos::null;
     if (myRank == 0) printf("FAIL: Unable to create a new vector \n\n");
-    return -1;
+    Test_Abort(1);
   }
 
   /* Check vector ID */
@@ -125,7 +127,7 @@ int main (int argc, char *argv[])
     N_VDestroy(X);
     px = Teuchos::null;
     if (myRank == 0) printf("FAIL: Unable to create a new vector \n\n");
-    return -1;
+    Test_Abort(1);
   }
 
   N_Vector Z = N_VClone(X);
@@ -134,7 +136,7 @@ int main (int argc, char *argv[])
     N_VDestroy(Y);
     px = Teuchos::null;
     if (myRank == 0) printf("FAIL: Unable to create a new vector \n\n");
-    return -1;
+    Test_Abort(1);
   }
 
   /* Standard vector operation tests */

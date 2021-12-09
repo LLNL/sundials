@@ -229,6 +229,9 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
 
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
+/* SUNDIALS context */
+static SUNContext sunctx = NULL;
+
 /* Implementation */
 
 int main()
@@ -247,8 +250,12 @@ int main()
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Initializations */
-  c = N_VNew_Serial(NEQ);
+  c = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)c, "N_VNew_Serial", 0)) return(1);
   wdata = AllocUserData();
   if(check_retval((void *)wdata, "AllocUserData", 2)) return(1);
@@ -271,7 +278,7 @@ int main()
 
       firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
-        cvode_mem = CVodeCreate(CV_BDF);
+        cvode_mem = CVodeCreate(CV_BDF, sunctx);
         if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
         wdata->cvode_mem = cvode_mem;
@@ -285,7 +292,7 @@ int main()
         retval = CVodeSStolerances(cvode_mem, reltol, abstol);
         if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
-        LS = SUNLinSol_SPGMR(c, jpre, MAXL);
+        LS = SUNLinSol_SPGMR(c, jpre, MAXL, sunctx);
         if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
         retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
@@ -337,6 +344,8 @@ int main()
   SUNLinSolFree(LS);
   FreeUserData(wdata);
 
+  SUNContext_Free(&sunctx);
+
   return(0);
 }
 
@@ -351,8 +360,8 @@ static WebData AllocUserData(void)
     (wdata->P)[i] = newDenseMat(ns, ns);
     (wdata->pivot)[i] = newIndexArray(ns);
   }
-  wdata->rewt = N_VNew_Serial(NEQ);
-  wdata->tmp = N_VNew_Serial(NEQ);
+  wdata->rewt = N_VNew_Serial(NEQ, sunctx);
+  wdata->tmp = N_VNew_Serial(NEQ, sunctx);
   return(wdata);
 }
 

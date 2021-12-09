@@ -57,14 +57,16 @@ SUNDIALS_EXPORT
 SUNMatrix SUNMatrix_OneMklDense(sunindextype M, sunindextype N,
                                 SUNMemoryType mem_type,
                                 SUNMemoryHelper mem_helper,
-                                sycl::queue* queue);
+                                sycl::queue* queue,
+                                SUNContext sunctx);
 
 SUNDIALS_EXPORT
 SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M_block,
                                      sunindextype N_block,
                                      SUNMemoryType mem_type,
                                      SUNMemoryHelper mem_helper,
-                                     sycl::queue* queue);
+                                     sycl::queue* queue,
+                                     SUNContext sunctx);
 
 /* Get matrix dimensions */
 

@@ -19,6 +19,7 @@
 #define _KINSOL_H
 
 #include <stdio.h>
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_nvector.h>
 #include <kinsol/kinsol_ls.h>
 
@@ -57,6 +58,8 @@ extern "C" {
 
 #define KIN_VECTOROP_ERR        -16
 
+#define KIN_CONTEXT_ERR         -17
+
 /* Enumeration for eta choice */
 #define KIN_ETACHOICE1  1
 #define KIN_ETACHOICE2  2
@@ -86,7 +89,7 @@ typedef void (*KINInfoHandlerFn)(const char *module, const char *function,
  * ------------------- */
 
 /* Creation function */
-SUNDIALS_EXPORT void *KINCreate(void);
+SUNDIALS_EXPORT void *KINCreate(SUNContext sunctx);
 
 /* Initialization function */
 SUNDIALS_EXPORT int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl);

@@ -50,7 +50,7 @@
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Custom linear solver data structure, accessor macros, and routines */
-static SUNLinearSolver MatrixEmbeddedLS(void *arkode_mem);
+static SUNLinearSolver MatrixEmbeddedLS(void *arkode_mem, SUNContext ctx);
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S);
 static int MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                  N_Vector b, realtype tol);
@@ -82,6 +82,11 @@ int main()
   realtype t, tout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
   printf("    lamda = %"GSYM"\n",    lamda);
@@ -89,7 +94,7 @@ int main()
   printf("   abstol = %.1"ESYM"\n\n",abstol);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ);          /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);          /* Create serial vector for solution */
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
   N_VConst(RCONST(0.0), y);        /* Specify initial condition */
 
@@ -97,7 +102,7 @@ int main()
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_retval((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
@@ -107,7 +112,7 @@ int main()
   if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize custom matrix-embedded linear solver */
-  LS = MatrixEmbeddedLS(arkode_mem);
+  LS = MatrixEmbeddedLS(arkode_mem, ctx);
   if (check_retval((void *)LS, "MatrixEmbeddedLS", 0)) return 1;
   retval = ARKStepSetLinearSolver(arkode_mem, LS, NULL);     /* Attach linear solver */
   if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) return 1;
@@ -174,6 +179,7 @@ int main()
   N_VDestroy(y);            /* Free y vector */
   ARKStepFree(&arkode_mem); /* Free integrator memory */
   SUNLinSolFree(LS);        /* Free linear solver */
+  SUNContext_Free(&ctx);    /* Free the SUNContext */
 
   return retval;
 }
@@ -200,10 +206,10 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  *-------------------------------------*/
 
 /* constructor */
-static SUNLinearSolver MatrixEmbeddedLS(void *arkode_mem)
+static SUNLinearSolver MatrixEmbeddedLS(void *arkode_mem, SUNContext ctx)
 {
   /* Create an empty linear solver */
-  SUNLinearSolver LS = SUNLinSolNewEmpty();
+  SUNLinearSolver LS = SUNLinSolNewEmpty(ctx);
   if (LS == NULL) return NULL;
 
   /* Attach operations */

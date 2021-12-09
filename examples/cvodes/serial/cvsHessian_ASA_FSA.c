@@ -1,4 +1,4 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -59,18 +59,18 @@ static int fS(int Ns, realtype t,
               void *user_data,
               N_Vector tmp1, N_Vector tmp2);
 static int fQS(int Ns, realtype t,
-               N_Vector y, N_Vector *yS, 
+               N_Vector y, N_Vector *yS,
                N_Vector yQdot, N_Vector *yQSdot,
                void *user_data,
                N_Vector tmp, N_Vector tmpQ);
 
-static int fB1(realtype t, N_Vector y, N_Vector *yS, 
+static int fB1(realtype t, N_Vector y, N_Vector *yS,
                N_Vector yB, N_Vector yBdot, void *user_dataB);
-static int fQB1(realtype t, N_Vector y, N_Vector *yS, 
+static int fQB1(realtype t, N_Vector y, N_Vector *yS,
                 N_Vector yB, N_Vector qBdot, void *user_dataB);
 
 
-static int fB2(realtype t, N_Vector y, N_Vector *yS, 
+static int fB2(realtype t, N_Vector y, N_Vector *yS,
                N_Vector yB, N_Vector yBdot, void *user_dataB);
 static int fQB2(realtype t, N_Vector y, N_Vector *yS,
                 N_Vector yB, N_Vector qBdot, void *user_dataB);
@@ -90,6 +90,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   UserData data;
 
   SUNMatrix A, AB1, AB2;
@@ -151,13 +152,17 @@ int main(int argc, char *argv[])
   abstolB = 1.0e-8;
   abstolQB = 1.0e-8;
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Initializations for forward problem */
 
-  y = N_VNew_Serial(Neq);
+  y = N_VNew_Serial(Neq, sunctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
   N_VConst(ONE, y);
 
-  yQ = N_VNew_Serial(1);
+  yQ = N_VNew_Serial(1, sunctx);
   if (check_retval((void *)yQ, "N_VNew_Serial", 0)) return(1);
   N_VConst(ZERO, yQ);
 
@@ -173,7 +178,7 @@ int main(int argc, char *argv[])
 
   /* Create and initialize forward problem */
 
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   retval = CVodeInit(cvode_mem, f, t0, y);
@@ -186,11 +191,11 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
   /* Create a dense SUNMatrix */
-  A = SUNDenseMatrix(Neq, Neq);
+  A = SUNDenseMatrix(Neq, Neq, sunctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver for the forward problem */
-  LS = SUNLinSol_Dense(y, A);
+  LS = SUNLinSol_Dense(y, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -278,19 +283,19 @@ int main(int argc, char *argv[])
 
   /* Initializations for backward problems */
 
-  yB1 = N_VNew_Serial(2*Neq);
+  yB1 = N_VNew_Serial(2*Neq, sunctx);
   if (check_retval((void *)yB1, "N_VNew_Serial", 0)) return(1);
   N_VConst(ZERO, yB1);
 
-  yQB1 = N_VNew_Serial(Np2);
+  yQB1 = N_VNew_Serial(Np2, sunctx);
   if (check_retval((void *)yQB1, "N_VNew_Serial", 0)) return(1);
   N_VConst(ZERO, yQB1);
 
-  yB2 = N_VNew_Serial(2*Neq);
+  yB2 = N_VNew_Serial(2*Neq, sunctx);
   if (check_retval((void *)yB2, "N_VNew_Serial", 0)) return(1);
   N_VConst(ZERO, yB2);
 
-  yQB2 = N_VNew_Serial(Np2);
+  yQB2 = N_VNew_Serial(Np2, sunctx);
   if (check_retval((void *)yQB2, "N_VNew_Serial", 0)) return(1);
   N_VConst(ZERO, yQB2);
 
@@ -322,11 +327,11 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Create a dense SUNMatrix */
-  AB1 = SUNDenseMatrix(2*Neq, 2*Neq);
+  AB1 = SUNDenseMatrix(2*Neq, 2*Neq, sunctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver for the forward problem */
-  LSB1 = SUNLinSol_Dense(yB1, AB1);
+  LSB1 = SUNLinSol_Dense(yB1, AB1, sunctx);
   if(check_retval((void *)LSB1, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -359,11 +364,11 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Create a dense SUNMatrix */
-  AB2 = SUNDenseMatrix(2*Neq, 2*Neq);
+  AB2 = SUNDenseMatrix(2*Neq, 2*Neq, sunctx);
   if(check_retval((void *)AB2, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver for the forward problem */
-  LSB2 = SUNLinSol_Dense(yB2, AB2);
+  LSB2 = SUNLinSol_Dense(yB2, AB2, sunctx);
   if(check_retval((void *)LSB2, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -397,7 +402,7 @@ int main(int argc, char *argv[])
 #else
   printf("   dG/dp:  %12.4e %12.4e   (from backward pb. 1)\n", -Ith(yQB1,1), -Ith(yQB1,2));
   printf("           %12.4e %12.4e   (from backward pb. 2)\n", -Ith(yQB2,1), -Ith(yQB2,2));
-#endif  
+#endif
   printf("\n");
   printf("   H = d2G/dp2:\n");
   printf("        (1)            (2)\n");
@@ -414,7 +419,7 @@ int main(int argc, char *argv[])
   printf("-----------------------------------\n");
   retval = PrintBckStats(cvode_mem, indexB1);
   if (check_retval(&retval, "PrintBckStats", 1)) return(1);
-  
+
   printf("Final Statistics for backward pb. 2\n");
   printf("-----------------------------------\n");
   retval = PrintBckStats(cvode_mem, indexB2);
@@ -444,7 +449,7 @@ int main(int argc, char *argv[])
   printf("del_p = %g\n\n",dp);
 #endif
 
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
 
   N_VConst(ONE, y);
   N_VConst(ZERO, yQ);
@@ -459,11 +464,11 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
   /* Create a dense SUNMatrix */
-  A = SUNDenseMatrix(Neq, Neq);
+  A = SUNDenseMatrix(Neq, Neq, sunctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver for the forward problem */
-  LS = SUNLinSol_Dense(y, A);
+  LS = SUNLinSol_Dense(y, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -495,7 +500,7 @@ int main(int argc, char *argv[])
 #else
   printf("p1+  y:   %12.4e %12.4e %12.4e", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:   %12.4e\n",Ith(yQ,1));
-#endif  
+#endif
   data->p1 -= 2.0*dp;
 
   N_VConst(ONE, y);
@@ -568,7 +573,7 @@ int main(int argc, char *argv[])
 #else
   printf("p2-  y:   %12.4e %12.4e %12.4e", Ith(y,1), Ith(y,2), Ith(y,3));
   printf("     G:   %12.4e\n",Ith(yQ,1));
-#endif  
+#endif
   data->p2 += dp;
 
   grdG_fwd[1] = (Gp-G)/dp;
@@ -592,7 +597,7 @@ int main(int argc, char *argv[])
   printf("\n");
   printf("  H(1,1):  %12.4e\n", H11);
   printf("  H(2,2):  %12.4e\n", H22);
-#endif  
+#endif
 
   /* Free memory */
 
@@ -610,6 +615,8 @@ int main(int argc, char *argv[])
   N_VDestroy(yQB1);
   N_VDestroy(yB2);
   N_VDestroy(yQB2);
+
+  SUNContext_Free(&sunctx);
 
   free(data);
 
@@ -631,11 +638,11 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype p1, p2;
 
   data = (UserData) user_data;
-  p1 = data->p1; 
-  p2 = data->p2; 
+  p1 = data->p1;
+  p2 = data->p2;
 
-  y1 = Ith(y,1); 
-  y2 = Ith(y,2); 
+  y1 = Ith(y,1);
+  y2 = Ith(y,2);
   y3 = Ith(y,3);
 
   Ith(ydot,1) = -p1*y1*y1 - y3;
@@ -649,8 +656,8 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
 {
   realtype y1, y2, y3;
 
-  y1 = Ith(y,1); 
-  y2 = Ith(y,2); 
+  y1 = Ith(y,1);
+  y2 = Ith(y,2);
   y3 = Ith(y,3);
 
   Ith(qdot,1) = 0.5 * ( y1*y1 + y2*y2 + y3*y3 );
@@ -671,11 +678,11 @@ static int fS(int Ns, realtype t,
   realtype p1, p2;
 
   data = (UserData) user_data;
-  p1 = data->p1; 
-  p2 = data->p2; 
+  p1 = data->p1;
+  p2 = data->p2;
 
-  y1 = Ith(y,1); 
-  y2 = Ith(y,2); 
+  y1 = Ith(y,1);
+  y2 = Ith(y,2);
   y3 = Ith(y,3);
 
   /* 1st sensitivity RHS */
@@ -710,7 +717,7 @@ static int fS(int Ns, realtype t,
 }
 
 static int fQS(int Ns, realtype t,
-               N_Vector y, N_Vector *yS, 
+               N_Vector y, N_Vector *yS,
                N_Vector yQdot, N_Vector *yQSdot,
                void *user_data,
                N_Vector tmp, N_Vector tmpQ)
@@ -718,8 +725,8 @@ static int fQS(int Ns, realtype t,
   realtype y1, y2, y3;
   realtype s1, s2, s3;
 
-  y1 = Ith(y,1); 
-  y2 = Ith(y,2); 
+  y1 = Ith(y,1);
+  y2 = Ith(y,2);
   y3 = Ith(y,3);
 
 
@@ -743,7 +750,7 @@ static int fQS(int Ns, realtype t,
   return(0);
 }
 
-static int fB1(realtype t, N_Vector y, N_Vector *yS, 
+static int fB1(realtype t, N_Vector y, N_Vector *yS,
                N_Vector yB, N_Vector yBdot, void *user_dataB)
 {
   UserData data;
@@ -752,28 +759,28 @@ static int fB1(realtype t, N_Vector y, N_Vector *yS,
   realtype s1, s2, s3;  /* sensitivity 1 */
   realtype l1, l2, l3;  /* lambda */
   realtype m1, m2, m3;  /* mu */
-  
-  data = (UserData) user_dataB;
-  p1 = data->p1; 
-  p2 = data->p2; 
 
-  y1 = Ith(y,1); 
-  y2 = Ith(y,2); 
+  data = (UserData) user_dataB;
+  p1 = data->p1;
+  p2 = data->p2;
+
+  y1 = Ith(y,1);
+  y2 = Ith(y,2);
   y3 = Ith(y,3);
-  
-  s1 = Ith(yS[0],1); 
-  s2 = Ith(yS[0],2); 
+
+  s1 = Ith(yS[0],1);
+  s2 = Ith(yS[0],2);
   s3 = Ith(yS[0],3);
 
-  l1 = Ith(yB,1); 
-  l2 = Ith(yB,2); 
+  l1 = Ith(yB,1);
+  l2 = Ith(yB,2);
   l3 = Ith(yB,3);
 
-  m1 = Ith(yB,4); 
-  m2 = Ith(yB,5); 
+  m1 = Ith(yB,4);
+  m2 = Ith(yB,5);
   m3 = Ith(yB,6);
 
-  
+
   Ith(yBdot,1) = 2.0*p1*y1 * l1     - y1;
   Ith(yBdot,2) = l2 + p2*p2*y3 * l3 - y2;
   Ith(yBdot,3) = l1 + p2*p2*y2 * l3 - y3;
@@ -794,23 +801,23 @@ static int fQB1(realtype t, N_Vector y, N_Vector *yS,
   realtype s1, s2, s3;  /* sensitivity 1 */
   realtype l1, l3;      /* lambda */
   realtype m1, m3;      /* mu */
-  
+
   data = (UserData) user_dataB;
 
-  p2 = data->p2; 
+  p2 = data->p2;
 
-  y1 = Ith(y,1); 
-  y2 = Ith(y,2); 
+  y1 = Ith(y,1);
+  y2 = Ith(y,2);
   y3 = Ith(y,3);
-  
-  s1 = Ith(yS[0],1); 
-  s2 = Ith(yS[0],2); 
+
+  s1 = Ith(yS[0],1);
+  s2 = Ith(yS[0],2);
   s3 = Ith(yS[0],3);
-  
-  l1 = Ith(yB,1); 
+
+  l1 = Ith(yB,1);
   l3 = Ith(yB,3);
 
-  m1 = Ith(yB,4); 
+  m1 = Ith(yB,4);
   m3 = Ith(yB,6);
 
   Ith(qBdot,1) = -y1*y1 * l1;
@@ -825,7 +832,7 @@ static int fQB1(realtype t, N_Vector y, N_Vector *yS,
 
 
 
-static int fB2(realtype t, N_Vector y, N_Vector *yS, 
+static int fB2(realtype t, N_Vector y, N_Vector *yS,
                N_Vector yB, N_Vector yBdot, void *user_dataB)
 {
   UserData data;
@@ -836,23 +843,23 @@ static int fB2(realtype t, N_Vector y, N_Vector *yS,
   realtype m1, m2, m3;  /* mu */
 
   data = (UserData) user_dataB;
-  p1 = data->p1; 
-  p2 = data->p2; 
+  p1 = data->p1;
+  p2 = data->p2;
 
-  y1 = Ith(y,1); 
-  y2 = Ith(y,2); 
+  y1 = Ith(y,1);
+  y2 = Ith(y,2);
   y3 = Ith(y,3);
-  
-  s1 = Ith(yS[1],1); 
-  s2 = Ith(yS[1],2); 
+
+  s1 = Ith(yS[1],1);
+  s2 = Ith(yS[1],2);
   s3 = Ith(yS[1],3);
-  
-  l1 = Ith(yB,1); 
-  l2 = Ith(yB,2); 
+
+  l1 = Ith(yB,1);
+  l2 = Ith(yB,2);
   l3 = Ith(yB,3);
 
-  m1 = Ith(yB,4); 
-  m2 = Ith(yB,5); 
+  m1 = Ith(yB,4);
+  m2 = Ith(yB,5);
   m3 = Ith(yB,6);
 
   Ith(yBdot,1) = 2.0*p1*y1 * l1     - y1;
@@ -877,23 +884,23 @@ static int fQB2(realtype t, N_Vector y, N_Vector *yS,
   realtype s1, s2, s3;  /* sensitivity 2 */
   realtype l1, l3;  /* lambda */
   realtype m1, m3;  /* mu */
-  
+
   data = (UserData) user_dataB;
 
-  p2 = data->p2; 
+  p2 = data->p2;
 
-  y1 = Ith(y,1); 
-  y2 = Ith(y,2); 
+  y1 = Ith(y,1);
+  y2 = Ith(y,2);
   y3 = Ith(y,3);
 
-  s1 = Ith(yS[1],1); 
-  s2 = Ith(yS[1],2); 
+  s1 = Ith(yS[1],1);
+  s2 = Ith(yS[1],2);
   s3 = Ith(yS[1],3);
 
-  l1 = Ith(yB,1); 
+  l1 = Ith(yB,1);
   l3 = Ith(yB,3);
 
-  m1 = Ith(yB,4); 
+  m1 = Ith(yB,4);
   m3 = Ith(yB,6);
 
   Ith(qBdot,1) = -y1*y1 * l1;
@@ -925,7 +932,7 @@ int PrintFwdStats(void *cvode_mem)
   int retval;
 
 
-  retval = CVodeGetIntegratorStats(cvode_mem, &nst, &nfe, &nsetups, &netf, 
+  retval = CVodeGetIntegratorStats(cvode_mem, &nst, &nfe, &nsetups, &netf,
                                  &qlast, &qcur,
                                  &h0u, &hlast, &hcur,
                                  &tcur);
@@ -973,7 +980,7 @@ int PrintBckStats(void *cvode_mem, int idx)
 
   cvode_mem_bck = CVodeGetAdjCVodeBmem(cvode_mem, idx);
 
-  retval = CVodeGetIntegratorStats(cvode_mem_bck, &nst, &nfe, &nsetups, &netf, 
+  retval = CVodeGetIntegratorStats(cvode_mem_bck, &nst, &nfe, &nsetups, &netf,
                                  &qlast, &qcur,
                                  &h0u, &hlast, &hcur,
                                  &tcur);
@@ -1006,7 +1013,7 @@ int PrintBckStats(void *cvode_mem, int idx)
  *   opt == 1 means SUNDIALS function returns an integer value so check if
  *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
+ *            NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)

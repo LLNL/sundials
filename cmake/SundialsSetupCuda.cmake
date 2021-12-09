@@ -104,3 +104,14 @@ message(STATUS "CUDA Compile Flags:         ${CMAKE_CUDA_FLAGS}")
 message(STATUS "CUDA Link Flags:            ${CMAKE_CUDA_LINK_FLAGS}")
 message(STATUS "CUDA Link Executable:       ${CMAKE_CUDA_LINK_EXECUTABLE}")
 message(STATUS "CUDA Separable Compilation: ${CMAKE_CUDA_SEPARABLE_COMPILATION}")
+
+
+# ===============================================================
+# Configure compiler for installed examples
+# ===============================================================
+
+if(SUNDIALS_BUILD_WITH_PROFILING AND ENABLE_MPI)
+  set(_EXAMPLES_CUDA_HOST_COMPILER "${MPI_CXX_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
+else()
+  set(_EXAMPLES_CUDA_HOST_COMPILER "${CMAKE_CUDA_HOST_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
+endif()

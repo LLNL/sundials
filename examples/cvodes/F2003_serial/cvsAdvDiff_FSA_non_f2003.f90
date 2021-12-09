@@ -55,6 +55,9 @@ module ode_problem
   use, intrinsic :: iso_c_binding
   implicit none
 
+  ! SUNDIALS simulation context
+  type(c_ptr) :: ctx
+
   ! problem parameters
   real(c_double),  parameter :: XMAX  = 2.0d0
   real(c_double),  parameter :: T0    = 0.0d0
@@ -181,6 +184,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_context_mod         ! Fortran interface to SUNDIALS context
   use fcvodes_mod                   ! Fortran interface to CVODES
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector
   use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
@@ -209,13 +213,20 @@ program main
   ! Process arguments
   call ProcessArgs(sensi, sensi_meth, err_con)
 
+  ! Create SUNDIALS simulation context
+  retval = FSUNContext_Create(c_null_ptr, ctx)
+  if (retval /= 0) then
+     print *, "Error: FSUNContext_Create returned ",retval
+     stop 1
+  end if
+
   ! Set problem data
   dx   = XMAX/(MX+1)
   p(0) = 1.0d0
   p(1) = 0.5d0
 
   ! Allocate and set initial states
-  u => FN_VNew_Serial(NEQ)
+  u => FN_VNew_Serial(NEQ, ctx)
   if (.not. associated(u)) then
     write(*,*) 'ERROR: FN_VNew_Serial returned NULL'
     stop 1
@@ -227,7 +238,7 @@ program main
   abstol = ATOL
 
   ! Create CVODES object
-  cvodes_mem = FCVodeCreate(CV_ADAMS)
+  cvodes_mem = FCVodeCreate(CV_ADAMS, ctx)
   if (.not. c_associated(cvodes_mem)) then
     write(*,*) 'ERROR: cvodes_mem = NULL'
     stop 1
@@ -242,7 +253,7 @@ program main
   call check_retval(retval, "FCVodeSStolerances")
 
   ! Create fixed point nonlinear solver object
-  NLS => FSUNNonlinSol_FixedPoint(u, 0)
+  NLS => FSUNNonlinSol_FixedPoint(u, 0, ctx)
   if (.not. associated(NLS)) then
     write(*,*) 'ERROR: FSUNNonlinSol_FixedPoint returned NULL'
     stop 1
@@ -291,11 +302,11 @@ program main
 
     ! create sensitivity fixed point nonlinear solver object
     if (sensi_meth == CV_SIMULTANEOUS) then
-      NLSsens => FSUNNonlinSol_FixedPointSens(NS+1, u, 0)
+      NLSsens => FSUNNonlinSol_FixedPointSens(NS+1, u, 0, ctx)
     else if (sensi_meth == CV_STAGGERED) then
-      NLSsens => FSUNNonlinSol_FixedPointSens(NS, u, 0)
+      NLSsens => FSUNNonlinSol_FixedPointSens(NS, u, 0, ctx)
     else
-      NLSsens => FSUNNonlinSol_FixedPoint(u, 0)
+      NLSsens => FSUNNonlinSol_FixedPoint(u, 0, ctx)
     endif
 
     if (.not. associated(NLSsens)) then
@@ -377,6 +388,8 @@ program main
   if (sensi /= 0) then
     retval = FSUNNonlinSolFree(NLSsens)
   endif
+
+  retval = FSUNContext_Free(ctx)
 
 end program main
 

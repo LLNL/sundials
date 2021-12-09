@@ -297,6 +297,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_context_mod
   use fkinsol_mod                ! Fortran interface to KINSOL
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
@@ -314,6 +315,7 @@ program main
   integer(c_int)  :: ierr
   integer(c_long) :: mset
 
+  type(c_ptr)                    :: sunctx
   type(N_Vector),        pointer :: sunvec_y      ! sundials vectors
   type(N_Vector),        pointer :: sunvec_s
   type(N_Vector),        pointer :: sunvec_c
@@ -345,21 +347,25 @@ program main
   constraints(nvar+1:neq) = 1.d0
 
   ! -------------------------
+  ! Create the SUNDIALS context used for this simulation
+  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+
+  ! -------------------------
   ! Create SUNDIALS vectors for solution, scales, and constraints
 
-  sunvec_y => FN_VMake_Serial(neq, y)
+  sunvec_y => FN_VMake_Serial(neq, y, sunctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sunvec_s => FN_VMake_Serial(neq, scale)
+  sunvec_s => FN_VMake_Serial(neq, scale, sunctx)
   if (.not. associated(sunvec_s)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sunvec_c => FN_VMake_Serial(neq, constraints)
+  sunvec_c => FN_VMake_Serial(neq, constraints, sunctx)
   if (.not. associated(sunvec_c)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -368,7 +374,7 @@ program main
   ! -------------------------
   ! Initialize and allocate memory for KINSOL
 
-  kmem = FKINCreate()
+  kmem = FKINCreate(sunctx)
   if (.not. c_associated(kmem)) then
      print *, 'ERROR: kmem = NULL'
      stop 1
@@ -406,7 +412,7 @@ program main
   ! -------------------------
   ! Create dense SUNMatrix
 
-  sunmat_J => FSUNDenseMatrix(neq, neq)
+  sunmat_J => FSUNDenseMatrix(neq, neq, sunctx)
   if (.not. associated(sunmat_J)) then
      print *,'ERROR: sunmat = NULL'
      stop 1
@@ -415,7 +421,7 @@ program main
   ! -------------------------
   ! Create dense SUNLinearSolver object
 
-  sunlinsol_LS => FSUNDenseLinearSolver(sunvec_y, sunmat_J)
+  sunlinsol_LS => FSUNLinSol_Dense(sunvec_y, sunmat_J, sunctx)
   if (.not. associated(sunlinsol_LS)) then
      print *,'ERROR: sunlinsol = NULL'
      stop 1
@@ -482,6 +488,7 @@ program main
   call FN_VDestroy(sunvec_y)
   call FN_VDestroy(sunvec_s)
   call FN_VDestroy(sunvec_c)
+  ierr = FSUNContext_Free(sunctx)
 
 end program main
 

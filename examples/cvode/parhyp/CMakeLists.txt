@@ -19,27 +19,12 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvAdvDiff_non_ph\;2\;2\;develop"
+  "cvAdvDiff_non_ph.c\;2\;2\;develop"
   )
 
-if(MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-else()
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
-
-# Specify libraries to link against
-set(CVODE_LIB sundials_cvode)
-set(NVECP_LIB sundials_nvecparhyp)
-
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
+  set(_fused_stubs sundials_cvode_fused_stubs)
 endif()
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
@@ -50,86 +35,57 @@ foreach(example_tuple ${CVODE_examples})
   list(GET example_tuple 2 number_of_tasks)
   list(GET example_tuple 3 example_type)
 
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
+
   # example source files
-  add_executable(${example} ${example}.c)
+  add_executable(${example_target} ${example})
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-  # add example to regression tests
-  sundials_add_test(${example} ${example}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXTRA_LINK_LIBS})
+  target_link_libraries(${example_target}
+    PRIVATE
+    sundials_cvode
+    sundials_nvecparhyp
+    ${_fused_stubs}
+    ${EXTRA_LINK_LIBS})
 
-  if(NOT MPI_C_COMPILER)
-    target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  endif()
-
-  # install example
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp)
-    #INSTALL(FILES vis.c DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp)
-  endif()
+  # add example to regression tests
+  sundials_add_test(${example_target} ${example_target}
+    MPI_NPROCS ${number_of_tasks}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example_target}.out
+    EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${CVODE_examples})
 
 
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "CVODE")
-  set(SOLVER_LIB "sundials_cvode")
   if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(_fused_stubs_target cvode_fused_stubs)
     set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
   endif()
 
-  examples2string(CVODE_examples EXAMPLES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parhyp_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvode/parhyp/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvode/parhyp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parhyp_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvode/parhyp/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvode/parhyp/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parhyp
-      RENAME Makefile
-      )
-  endif()
-
-  # add test_install target
-  sundials_add_test_install(cvode parhyp)
+  sundials_install_examples(cvode CVODE_examples
+    CMAKE_TEMPLATE
+      cmakelists_C_MPI_ex.in
+    MAKE_TEMPLATE
+      makefile_parhyp_C_ex.in
+    SOLVER_LIBRARY
+      sundials_cvode
+    SUNDIALS_TARGETS
+      cvode
+      nvecparhyp
+      ${_fused_stubs_target}
+    DESTINATION
+      cvode/parhyp
+    EXTRA_FILES
+      README
+    TEST_INSTALL
+      parhyp
+  )
 
 endif()

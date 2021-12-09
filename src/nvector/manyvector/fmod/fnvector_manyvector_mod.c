@@ -208,15 +208,17 @@
 
 #include "nvector/nvector_manyvector.h"
 
-SWIGEXPORT N_Vector _wrap_FN_VNew_ManyVector(int64_t const *farg1, void *farg2) {
+SWIGEXPORT N_Vector _wrap_FN_VNew_ManyVector(int64_t const *farg1, void *farg2, void *farg3) {
   N_Vector fresult ;
   sunindextype arg1 ;
   N_Vector *arg2 = (N_Vector *) 0 ;
+  SUNContext arg3 = (SUNContext) 0 ;
   N_Vector result;
   
   arg1 = (sunindextype)(*farg1);
   arg2 = (N_Vector *)(farg2);
-  result = (N_Vector)N_VNew_ManyVector(arg1,arg2);
+  arg3 = (SUNContext)(farg3);
+  result = (N_Vector)N_VNew_ManyVector(arg1,arg2,arg3);
   fresult = result;
   return fresult;
 }

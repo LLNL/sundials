@@ -48,7 +48,7 @@
 int fres(realtype tres, N_Vector yy, N_Vector yp, N_Vector resval, void *user_data);
 
 /* Custom linear solver data structure, accessor macros, and routines */
-static SUNLinearSolver MatrixEmbeddedLS(void *ida_mem);
+static SUNLinearSolver MatrixEmbeddedLS(void *ida_mem, SUNContext ctx);
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S);
 static int MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                  N_Vector b, realtype tol);
@@ -64,6 +64,9 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
 /* Main Program */
 int main(void)
 {
+  /* SUNDIALS context object */
+  SUNContext ctx;
+
   /* general problem parameters */
   realtype T0 = RCONST(0.0);         /* initial time */
   realtype Tf = RCONST(1.0);         /* final time */
@@ -88,15 +91,19 @@ int main(void)
   printf("   reltol = %.1"ESYM"\n",  reltol);
   printf("   abstol = %.1"ESYM"\n\n",abstol);
 
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Initialize data structures */
-  yy = N_VNew_Serial(NEQ);         /* Create serial vector for solution */
+  yy = N_VNew_Serial(NEQ, ctx);         /* Create serial vector for solution */
   if (check_retval((void *)yy, "N_VNew_Serial", 0)) return 1;
   yp = N_VClone(yy);               /* Create serial vector for solution derivative */
   if (check_retval((void *)yp, "N_VClone", 0)) return 1;
   analytical_solution(T0, yy, yp); /* Specify initial conditions */
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
-  ida_mem = IDACreate();
+  ida_mem = IDACreate(ctx);
   if(check_retval((void *)ida_mem, "IDACreate", 0)) return(1);
   retval = IDAInit(ida_mem, fres, T0, yy, yp);
   if(check_retval(&retval, "IDAInit", 1)) return(1);
@@ -108,7 +115,7 @@ int main(void)
   if(check_retval(&retval, "IDASStolerances", 1)) return(1);
 
   /* Create custom matrix-embedded linear solver */
-  LS = MatrixEmbeddedLS(ida_mem);
+  LS = MatrixEmbeddedLS(ida_mem, ctx);
   if (check_retval((void *)LS, "MatrixEmbeddedLS", 0)) return 1;
 
   /* Attach the linear solver */
@@ -166,6 +173,7 @@ int main(void)
   SUNLinSolFree(LS);
   N_VDestroy(yy);
   N_VDestroy(yp);
+  SUNContext_Free(&ctx);
 
   return(retval);
 }
@@ -199,10 +207,10 @@ int fres(realtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
  *-------------------------------------*/
 
 /* constructor */
-static SUNLinearSolver MatrixEmbeddedLS(void *ida_mem)
+static SUNLinearSolver MatrixEmbeddedLS(void *ida_mem, SUNContext ctx)
 {
   /* Create an empty linear solver */
-  SUNLinearSolver LS = SUNLinSolNewEmpty();
+  SUNLinearSolver LS = SUNLinSolNewEmpty(ctx);
   if (LS == NULL) return NULL;
 
   /* Attach operations */

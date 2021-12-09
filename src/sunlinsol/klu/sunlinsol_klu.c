@@ -55,23 +55,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
-{ return(SUNLinSol_KLU(y, A)); }
-
-int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
-                 sunindextype nnz, int reinit_type)
-{ return(SUNLinSol_KLUReInit(S, A, nnz, reinit_type)); }
-
-int SUNKLUSetOrdering(SUNLinearSolver S,
-                      int ordering_choice)
-{ return(SUNLinSol_KLUSetOrdering(S, ordering_choice)); }
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -80,7 +63,7 @@ int SUNKLUSetOrdering(SUNLinearSolver S,
  * Function to create a new KLU linear solver
  */
 
-SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_KLU content;
@@ -100,7 +83,7 @@ SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

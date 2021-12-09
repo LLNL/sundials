@@ -85,7 +85,7 @@ typedef struct _N_VectorContent_Trilinos *N_VectorContent_Trilinos;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Trilinos();
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Trilinos(SUNContext sunctx);
 
 /*
  * -----------------------------------------------------------------
@@ -133,7 +133,7 @@ SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector x,
                                                         N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal_Trilinos(N_Vector num,
                                                       N_Vector denom);
-  
+
 #ifdef __cplusplus
 }
 #endif

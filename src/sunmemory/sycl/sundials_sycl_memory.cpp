@@ -21,7 +21,7 @@
 
 #define SYCL_QUEUE(h) (*((sycl::queue*)(h->content)))
 
-SUNMemoryHelper SUNMemoryHelper_Sycl(sycl::queue *Q)
+SUNMemoryHelper SUNMemoryHelper_Sycl(sycl::queue *Q, SUNContext sunctx)
 {
   // Check for non-NULL queue
   if (Q == NULL)
@@ -31,7 +31,7 @@ SUNMemoryHelper SUNMemoryHelper_Sycl(sycl::queue *Q)
   }
 
   // Allocate the helper
-  SUNMemoryHelper helper = SUNMemoryHelper_NewEmpty();
+  SUNMemoryHelper helper = SUNMemoryHelper_NewEmpty(sunctx);
   if (helper == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Sycl: SUNMemoryHelper_NewEmpty returned NULL\n");
@@ -62,7 +62,7 @@ SUNMemoryHelper SUNMemoryHelper_Clone_Sycl(SUNMemoryHelper helper)
   }
 
   // Allocate the helper
-  SUNMemoryHelper new_helper = SUNMemoryHelper_NewEmpty();
+  SUNMemoryHelper new_helper = SUNMemoryHelper_NewEmpty(helper->sunctx);
   if (helper == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Sycl: SUNMemoryHelper_NewEmpty returned NULL\n");

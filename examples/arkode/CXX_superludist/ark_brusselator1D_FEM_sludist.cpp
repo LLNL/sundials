@@ -194,6 +194,11 @@ int main(int argc, char *argv[]) {
   MPI_Comm_size(MPI_COMM_WORLD, &npes);
   MPI_Comm_rank(MPI_COMM_WORLD, &my_pe);
 
+  // Create the SUNDIALS context object for this simulation
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   /* This example only allows 1 MPI rank because we are demonstrating
    * SuperLU_DIST on one node. */
   if (npes != 1 && my_pe == 0) {
@@ -237,22 +242,22 @@ int main(int argc, char *argv[]) {
   printf("    reltol = %.1" ESYM ",  abstol = %.1" ESYM "\n\n", reltol, abstol);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);      /* Create serial vector for solution */
   if (check_retval((void *)y, "N_VNew_Serial", 0)) MPI_Abort(grid.comm, 1);
 
   data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
   if (check_retval((void *)data, "N_VGetArrayPointer", 0)) MPI_Abort(grid.comm, 1);
 
-  umask = N_VNew_Serial(NEQ);       /* Create serial vector masks */
+  umask = N_VClone(y);              /* Create serial vector masks */
   if (check_retval((void *)umask, "N_VNew_Serial", 0)) MPI_Abort(grid.comm, 1);
 
-  vmask = N_VNew_Serial(NEQ);
+  vmask = N_VClone(y);
   if (check_retval((void *)vmask, "N_VNew_Serial", 0)) MPI_Abort(grid.comm, 1);
 
-  wmask = N_VNew_Serial(NEQ);
+  wmask = N_VClone(y);
   if (check_retval((void *)wmask, "N_VNew_Serial", 0)) MPI_Abort(grid.comm, 1);
 
-  udata->tmp = N_VNew_Serial(NEQ);  /* temporary N_Vector inside udata */
+  udata->tmp = N_VClone(y);         /* temporary N_Vector inside udata */
   if (check_retval((void *) udata->tmp, "N_VNew_Serial", 0)) MPI_Abort(grid.comm, 1);
 
   /* allocate and set up spatial mesh; this [arbitrarily] clusters
@@ -294,7 +299,7 @@ int main(int argc, char *argv[]) {
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, NULL, ctx);
   if (check_retval((void *)arkode_mem, "ARKStepCreate", 0)) MPI_Abort(grid.comm, 1);
 
   /* Set routines */
@@ -371,19 +376,19 @@ int main(int argc, char *argv[]) {
                                  Rdata, Rcolind, Rrowptr, SLU_NR_loc, SLU_D, SLU_GE);
 
   /* SUNDIALS structures */
-  A = SUNMatrix_SLUNRloc(&Asuper, &grid);
+  A = SUNMatrix_SLUNRloc(&Asuper, &grid, ctx);
   if (check_retval((void *)A, "SUNMatrix_SLUNRloc", 0)) MPI_Abort(grid.comm, 1);
 
-  LS = SUNLinSol_SuperLUDIST(y, A, &grid, &Alu, &Ascaleperm, &Asolve, &Astat, &Aopts);
+  LS = SUNLinSol_SuperLUDIST(y, A, &grid, &Alu, &Ascaleperm, &Asolve, &Astat, &Aopts, ctx);
   if (check_retval((void *)LS, "SUNLinSol_SuperLUDIST", 0)) MPI_Abort(grid.comm, 1);
 
-  M = SUNMatrix_SLUNRloc(&Msuper, &grid);
+  M = SUNMatrix_SLUNRloc(&Msuper, &grid, ctx);
   if (check_retval((void *)M, "SUNMatrix_SLUNRloc", 0)) MPI_Abort(grid.comm, 1);
 
-  MLS = SUNLinSol_SuperLUDIST(y, M, &grid, &Mlu, &Mscaleperm, &Msolve, &Mstat, &Mopts);
+  MLS = SUNLinSol_SuperLUDIST(y, M, &grid, &Mlu, &Mscaleperm, &Msolve, &Mstat, &Mopts, ctx);
   if (check_retval((void *)MLS, "SUNLinSol_SuperLUDIST", 0)) MPI_Abort(grid.comm, 1);
 
-  udata->R = SUNMatrix_SLUNRloc(&Rsuper, &grid);
+  udata->R = SUNMatrix_SLUNRloc(&Rsuper, &grid, ctx);
   if (check_retval((void *)udata->R, "SUNMatrix_SLUNRloc", 0)) MPI_Abort(grid.comm, 1);
 
   /* Attach the matrix, linear solver, and Jacobian construction routine to ARKStep */
@@ -521,6 +526,8 @@ int main(int argc, char *argv[]) {
   Destroy_CompRowLoc_Matrix_dist(&Msuper);
   Destroy_CompRowLoc_Matrix_dist(&Rsuper);
   superlu_gridexit(&grid);
+
+  SUNContext_Free(&ctx); // Free context
 
   MPI_Finalize();
 

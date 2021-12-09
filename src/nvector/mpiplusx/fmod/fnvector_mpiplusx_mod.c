@@ -208,10 +208,11 @@
 
 #include "nvector/nvector_mpiplusx.h"
 
-SWIGEXPORT N_Vector _wrap_FN_VMake_MPIPlusX(int const *farg1, N_Vector farg2) {
+SWIGEXPORT N_Vector _wrap_FN_VMake_MPIPlusX(int const *farg1, N_Vector farg2, void *farg3) {
   N_Vector fresult ;
   MPI_Comm arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
+  SUNContext arg3 = (SUNContext) 0 ;
   N_Vector result;
   
 #ifdef SUNDIALS_MPI_ENABLED
@@ -220,7 +221,8 @@ SWIGEXPORT N_Vector _wrap_FN_VMake_MPIPlusX(int const *farg1, N_Vector farg2) {
   arg1 = *farg1;
 #endif
   arg2 = (N_Vector)(farg2);
-  result = (N_Vector)N_VMake_MPIPlusX(arg1,arg2);
+  arg3 = (SUNContext)(farg3);
+  result = (N_Vector)N_VMake_MPIPlusX(arg1,arg2,arg3);
   fresult = result;
   return fresult;
 }
@@ -257,6 +259,24 @@ SWIGEXPORT void _wrap_FN_VSetArrayPointer_MPIPlusX(double *farg1, N_Vector farg2
   arg1 = (realtype *)(farg1);
   arg2 = (N_Vector)(farg2);
   N_VSetArrayPointer_MPIPlusX(arg1,arg2);
+}
+
+
+SWIGEXPORT void _wrap_FN_VPrint_MPIPlusX(N_Vector farg1) {
+  N_Vector arg1 = (N_Vector) 0 ;
+  
+  arg1 = (N_Vector)(farg1);
+  N_VPrint_MPIPlusX(arg1);
+}
+
+
+SWIGEXPORT void _wrap_FN_VPrintFile_MPIPlusX(N_Vector farg1, void *farg2) {
+  N_Vector arg1 = (N_Vector) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (FILE *)(farg2);
+  N_VPrintFile_MPIPlusX(arg1,arg2);
 }
 
 

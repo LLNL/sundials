@@ -37,15 +37,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
-{ return(SUNLinSol_LapackDense(y, A)); }
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -54,7 +45,7 @@ SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
  * Function to create a new LAPACK dense linear solver
  */
 
-SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_LapackDense content;
@@ -75,7 +66,7 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A)
 
   /* Create linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

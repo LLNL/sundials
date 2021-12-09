@@ -21,12 +21,12 @@
 #include "sundials_cuda.h"
 
 
-SUNMemoryHelper SUNMemoryHelper_Cuda()
+SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
 {
   SUNMemoryHelper helper;
 
   /* Allocate the helper */
-  helper = SUNMemoryHelper_NewEmpty();
+  helper = SUNMemoryHelper_NewEmpty(sunctx);
 
   /* Set the ops */
   helper->ops->alloc     = SUNMemoryHelper_Alloc_Cuda;

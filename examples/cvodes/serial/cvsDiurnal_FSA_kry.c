@@ -177,6 +177,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   void *cvode_mem;
   SUNLinearSolver LS;
   UserData data;
@@ -206,8 +207,12 @@ int main(int argc, char *argv[])
   if(check_retval((void *)data, "AllocUserData", 2)) return(1);
   InitUserData(data);
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Initial states */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
   SetInitialProfiles(y, data->dx, data->dz);
 
@@ -216,7 +221,7 @@ int main(int argc, char *argv[])
   reltol=RTOL;
 
   /* Create CVODES object */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -234,7 +239,7 @@ int main(int argc, char *argv[])
 
   /* Create the SUNLinSol_SPGMR linear solver with left
      preconditioning and the default Krylov dimension */
-  LS = SUNLinSol_SPGMR(y, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(y, PREC_LEFT, 0, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear sovler */
@@ -327,6 +332,7 @@ int main(int argc, char *argv[])
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }

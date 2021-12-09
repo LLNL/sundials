@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_types.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -64,6 +65,7 @@ struct _SUNMemoryHelper
 {
   void*               content;
   SUNMemoryHelper_Ops ops;
+  SUNContext          sunctx;
 };
 
 struct _SUNMemoryHelper_Ops
@@ -129,7 +131,7 @@ SUNDIALS_EXPORT int SUNMemoryHelper_Destroy(SUNMemoryHelper);
  */
 
 /* Creates an empty SUNMemoryHelper object */
-SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_NewEmpty();
+SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx);
 
 /* Copyies the SUNMemoryHelper ops structure from src->ops to dst->ops. */
 SUNDIALS_EXPORT int SUNMemoryHelper_CopyOps(SUNMemoryHelper src,

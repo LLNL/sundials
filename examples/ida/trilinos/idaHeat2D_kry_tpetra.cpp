@@ -122,6 +122,11 @@ int main(int argc, char *argv[])
   using Teuchos::RCP;
   using Teuchos::rcp;
 
+  /* Create the SUNDIALS context object for this simulation. */
+  SUNContext ctx;
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return -1;
+
   /* Assign parameters in the user data structure. */
 
   UserData *data = new UserData();
@@ -162,7 +167,7 @@ int main(int argc, char *argv[])
 
   /* Allocate N-vectors and the user data structure objects. */
 
-  uu = N_VMake_Trilinos(rcpuu);
+  uu = N_VMake_Trilinos(rcpuu, ctx);
   if(check_retval((void *)uu, "N_VMake_Trilinos", 0)) return(1);
 
   up = N_VClone(uu);
@@ -194,7 +199,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
   retval = IDASetUserData(mem, data);
@@ -212,7 +217,7 @@ int main(int argc, char *argv[])
 
   /* Create the linear solver SUNSPGMR with left preconditioning
      and the default Krylov dimension */
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0, ctx);
   if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
@@ -281,7 +286,7 @@ int main(int argc, char *argv[])
   retval = IDAReInit(mem, t0, uu, up);
   if(check_retval(&retval, "IDAReInit", 1)) return(1);
 
-  retval = SUNSPGMRSetGSType(LS, CLASSICAL_GS);
+  retval = SUNLinSol_SPGMRSetGSType(LS, CLASSICAL_GS);
   if(check_retval(&retval, "SUNSPGMRSetGSType",1)) return(1);
 
   /* Print case number, output table heading, and initial line of table. */
@@ -328,6 +333,8 @@ int main(int argc, char *argv[])
 
   /* Free Tpetra vector */
   rcpuu = Teuchos::null;
+
+  SUNContext_Free(&ctx);
 
   return(0);
 }

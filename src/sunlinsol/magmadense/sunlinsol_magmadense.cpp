@@ -65,7 +65,7 @@
  * Constructor functions
  */
 
-SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat)
+SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunctx)
 {
   int retval = 0;
   SUNLinearSolver S;
@@ -106,7 +106,7 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat)
 
   /* Create the linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

@@ -119,6 +119,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_context_mod
   use fkinsol_mod                ! Fortran interface to KINSOL
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_band_mod        ! Fortran interface to band SUNMatrix
@@ -136,6 +137,7 @@ program main
   integer(c_int)  :: ierr
   integer(c_long) :: mset, msubset
 
+  type(c_ptr)                    :: sunctx        ! sundials context
   type(N_Vector),        pointer :: sunvec_u      ! sundials vectors
   type(N_Vector),        pointer :: sunvec_s
   type(SUNMatrix),       pointer :: sunmat_J      ! sundials matrix
@@ -160,6 +162,13 @@ program main
   print '(2(a,i2),a,i3)', "Problem size: ", nx, " x ", ny, " = ", neq
 
   ! -------------------------
+  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+  if (ierr /= 0) then
+    print *, 'ERROR in FSUNContext_Create'
+    stop 1
+  end if
+
+  ! -------------------------
   ! Set initial guess, and disable scaling
 
   u = 0.d0
@@ -168,13 +177,13 @@ program main
   ! -------------------------
   ! Create vectors for solution and scales
 
-  sunvec_u => FN_VMake_Serial(neq, u)
+  sunvec_u => FN_VMake_Serial(neq, u, sunctx)
   if (.not. associated(sunvec_u)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sunvec_s => FN_VMake_Serial(neq, scale)
+  sunvec_s => FN_VMake_Serial(neq, scale, sunctx)
   if (.not. associated(sunvec_s)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -183,7 +192,7 @@ program main
   ! -------------------------
   ! Initialize and allocate memory for KINSOL
 
-  kmem = FKINCreate()
+  kmem = FKINCreate(sunctx)
   if (.not. c_associated(kmem)) then
      print *, 'ERROR: kmem = NULL'
      stop 1
@@ -210,7 +219,7 @@ program main
   ! -------------------------
   ! Create a band matrix
 
-  sunmat_J => FSUNBandMatrix(neq, nx, nx)
+  sunmat_J => FSUNBandMatrix(neq, nx, nx, sunctx)
   if (.not. associated(sunmat_J)) then
      print *,'ERROR: sunmat = NULL'
      stop 1
@@ -219,7 +228,7 @@ program main
   ! -------------------------
   ! Create a band linear solver
 
-  sunlinsol_LS => FSUNLinSol_Band(sunvec_u, sunmat_J)
+  sunlinsol_LS => FSUNLinSol_Band(sunvec_u, sunmat_J, sunctx)
   if (.not. associated(sunlinsol_LS)) then
      print *,'ERROR: sunlinsol = NULL'
      stop 1
@@ -289,6 +298,7 @@ program main
   call FSUNMatDestroy(sunmat_J)
   call FN_VDestroy(sunvec_u)
   call FN_VDestroy(sunvec_s)
+  ierr = FSUNContext_Free(sunctx)
 
 end program main
 

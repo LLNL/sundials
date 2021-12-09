@@ -626,22 +626,24 @@ SWIGEXPORT void _wrap_FMRIStepCoupling_Write(SwigClassWrapper const *farg1, void
 }
 
 
-SWIGEXPORT void * _wrap_FMRIStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4, SwigClassWrapper const *farg5) {
+SWIGEXPORT void * _wrap_FMRIStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4, SwigClassWrapper const *farg5, void *farg6) {
   void * fresult ;
   ARKRhsFn arg1 = (ARKRhsFn) 0 ;
   ARKRhsFn arg2 = (ARKRhsFn) 0 ;
   realtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   MRIStepInnerStepper arg5 = (MRIStepInnerStepper) 0 ;
+  SUNContext arg6 = (SUNContext) 0 ;
   void *result = 0 ;
   
   arg1 = (ARKRhsFn)(farg1);
   arg2 = (ARKRhsFn)(farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (N_Vector)(farg4);
-  SWIG_check_mutable(*farg5, "MRIStepInnerStepper", "SWIGTYPE_p__MRIStepInnerStepper", "MRIStepCreate(ARKRhsFn,ARKRhsFn,realtype,N_Vector,MRIStepInnerStepper)", return 0);
+  SWIG_check_mutable(*farg5, "MRIStepInnerStepper", "SWIGTYPE_p__MRIStepInnerStepper", "MRIStepCreate(ARKRhsFn,ARKRhsFn,realtype,N_Vector,MRIStepInnerStepper,SUNContext)", return 0);
   arg5 = (MRIStepInnerStepper)(farg5->cptr);
-  result = (void *)MRIStepCreate(arg1,arg2,arg3,arg4,arg5);
+  arg6 = (SUNContext)(farg6);
+  result = (void *)MRIStepCreate(arg1,arg2,arg3,arg4,arg5,arg6);
   fresult = result;
   return fresult;
 }
@@ -1880,13 +1882,15 @@ SWIGEXPORT void _wrap_FMRIStepPrintMem(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepInnerStepper_Create(void *farg1) {
+SWIGEXPORT int _wrap_FMRIStepInnerStepper_Create(void *farg1, void *farg2) {
   int fresult ;
-  MRIStepInnerStepper *arg1 = (MRIStepInnerStepper *) 0 ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  MRIStepInnerStepper *arg2 = (MRIStepInnerStepper *) 0 ;
   int result;
   
-  arg1 = (MRIStepInnerStepper *)(farg1);
-  result = (int)MRIStepInnerStepper_Create(arg1);
+  arg1 = (SUNContext)(farg1);
+  arg2 = (MRIStepInnerStepper *)(farg2);
+  result = (int)MRIStepInnerStepper_Create(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

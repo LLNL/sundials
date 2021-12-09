@@ -66,10 +66,12 @@ typedef struct _N_VectorContent_MPIManyVector *N_VectorContent_MPIManyVector;
 
 SUNDIALS_EXPORT N_Vector N_VMake_MPIManyVector(MPI_Comm comm,
                                                sunindextype num_subvectors,
-                                               N_Vector *vec_array);
+                                               N_Vector *vec_array,
+                                               SUNContext sunctx);
 
 SUNDIALS_EXPORT N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
-                                              N_Vector *vec_array);
+                                              N_Vector *vec_array,
+                                              SUNContext sunctx);
 
 SUNDIALS_EXPORT N_Vector N_VGetSubvector_MPIManyVector(N_Vector v,
                                                        sunindextype vec_num);

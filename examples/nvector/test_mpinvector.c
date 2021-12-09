@@ -23,6 +23,12 @@
 
 #include "test_nvector.h"
 
+void Test_AbortMPI(void* comm, int code)
+{
+  Test_Finalize();
+  MPI_Abort(*((MPI_Comm*)comm), code);
+}
+
 /* ----------------------------------------------------------------------
  * Test_N_VGetCommunicator Test (with MPI dependency).
  * --------------------------------------------------------------------*/

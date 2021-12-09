@@ -165,6 +165,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 
 int main()
 {
+  SUNContext sunctx;
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
@@ -177,8 +178,12 @@ int main()
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Allocate memory, and set problem data, initial values, tolerances */
-  u = N_VNew_Serial(NEQ);
+  u = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
   data = AllocUserData();
   if(check_retval((void *)data, "AllocUserData", 2)) return(1);
@@ -189,7 +194,7 @@ int main()
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Set the pointer to user-defined data */
@@ -209,7 +214,7 @@ int main()
 
   /* Call SUNLinSol_SPGMR to specify the linear solver SUNLinSol_SPGMR
    * with left preconditioning and the default Krylov dimension */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the linear sovler to CVode */
@@ -239,6 +244,7 @@ int main()
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }

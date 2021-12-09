@@ -133,6 +133,11 @@ int main(int argc, char *argv[])
   int iout, num_threads;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
   if (check_flag((void *) udata, "malloc", 2)) return 1;
@@ -169,19 +174,26 @@ int main(int argc, char *argv[])
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
 
   /* Initialize vector data structures */
-  y = N_VNew_OpenMP(NEQ, num_threads);      /* Create vector for solution */
+
+  /* Create vector for solution */
+  y = N_VNew_OpenMP(NEQ, num_threads, ctx);
   if (check_flag((void *)y, "N_VNew_OpenMP", 0)) return 1;
-  udata->dx = RCONST(1.0)/(N-1);            /* set spatial mesh spacing */
-  data = N_VGetArrayPointer(y);             /* Access data array for new NVector y */
-  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  umask = N_VNew_OpenMP(NEQ, num_threads);  /* Create vector masks */
-  if (check_flag((void *)umask, "N_VNew_OpenMP", 0)) return 1;
-  vmask = N_VNew_OpenMP(NEQ, num_threads);
-  if (check_flag((void *)vmask, "N_VNew_OpenMP", 0)) return 1;
-  wmask = N_VNew_OpenMP(NEQ, num_threads);
-  if (check_flag((void *)wmask, "N_VNew_OpenMP", 0)) return 1;
+
+  /* Create vector masks */
+  umask = N_VClone(y);
+  if (check_flag((void *)umask, "N_VClone", 0)) return 1;
+
+  vmask = N_VClone(y);
+  if (check_flag((void *)vmask, "N_VClone", 0)) return 1;
+
+  wmask = N_VClone(y);
+  if (check_flag((void *)wmask, "N_VClone", 0)) return 1;
 
   /* Set initial conditions into y */
+  udata->dx = RCONST(1.0)/(N-1);     /* set spatial mesh spacing */
+  data = N_VGetArrayPointer(y);      /* Access data array for new NVector y */
+  if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
+
   pi = RCONST(4.0)*atan(RCONST(1.0));
   for (i=0; i<N; i++) {
     data[IDX(i,0)] =  a  + RCONST(0.1)*sin(pi*i*udata->dx);  /* u */
@@ -206,16 +218,16 @@ int main(int argc, char *argv[])
   for (i=0; i<N; i++)  data[IDX(i,2)] = RCONST(1.0);
 
   /* Initialize matrix and linear solver data structures */
-  A = SUNBandMatrix(NEQ, 4, 4);
+  A = SUNBandMatrix(NEQ, 4, 4, ctx);
   if (check_flag((void *)A, "SUNBandMatrix", 0)) return 1;
-  LS = SUNLinSol_Band(y, A);
+  LS = SUNLinSol_Band(y, A, ctx);
   if (check_flag((void *)LS, "SUNLinSol_Band", 0)) return 1;
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
@@ -328,6 +340,8 @@ int main(int argc, char *argv[])
   N_VDestroy(umask);
   N_VDestroy(vmask);
   N_VDestroy(wmask);
+  SUNContext_Free(&ctx);        /* Free context */
+
   return 0;
 }
 

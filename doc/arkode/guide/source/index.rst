@@ -73,6 +73,7 @@ subcontracts B598130 and B626484 from `Lawrence Livermore National Laboratory
    Introduction
    Mathematics
    Organization
+   sundials/index.rst
    Usage/index.rst
    ARKodeButcherTable
    nvectors/index.rst

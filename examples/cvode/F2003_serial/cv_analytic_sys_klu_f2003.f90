@@ -181,6 +181,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_context_mod      ! Fortran interface to SUNContext
   use fcvode_mod                 ! Fortran interface to CVODE
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_sparse_mod      ! Fortran interface to sparse SUNMatrix
@@ -195,6 +196,7 @@ program main
   implicit none
 
   ! local variables
+  type(c_ptr)    :: sunctx     ! SUNDIALS simulation context
   real(c_double) :: tstart     ! initial time
   real(c_double) :: tend       ! final time
   real(c_double) :: rtol, atol ! relative and absolute tolerance
@@ -211,6 +213,7 @@ program main
   type(SUNMatrix),       pointer :: sunmat_A      ! sundials matrix
   type(SUNLinearSolver), pointer :: sunlinsol_LS  ! sundials linear solver
 
+  type(c_ptr) :: ctx           ! SUNDIALS simulation context
   type(c_ptr) :: cvode_mem     ! CVODE memory
   type(c_ptr) :: cptr          ! c_ptr type variable for moving data
 
@@ -232,29 +235,35 @@ program main
   yvec(2) = 1.0d0
   yvec(3) = 1.0d0
 
+  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+  if (ierr /= 0) then
+     print *, 'ERROR: FSUNContext_Create returned non-zero'
+     stop 1
+  end if
+
   ! create a serial vector
-  sunvec_y => FN_VMake_Serial(neq, yvec)
+  sunvec_y => FN_VMake_Serial(neq, yvec, sunctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
   ! create a sparse matrix
-  sunmat_A => FSUNSparseMatrix(neq, neq, neq*neq, CSC_MAT)
+  sunmat_A => FSUNSparseMatrix(neq, neq, neq*neq, CSC_MAT, sunctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
   end if
 
   ! create a klu linear solver
-  sunlinsol_LS => FSUNKLU(sunvec_y, sunmat_A)
+  sunlinsol_LS => FSUNLinSol_KLU(sunvec_y, sunmat_A, sunctx)
   if (.not. associated(sunlinsol_LS)) then
      print *, 'ERROR: sunlinsol = NULL'
      stop 1
   end if
 
   ! create CVode memory
-  cvode_mem = FCVodeCreate(CV_BDF)
+  cvode_mem = FCVodeCreate(CV_BDF, sunctx)
   if (.not. c_associated(cvode_mem)) then
      print *, 'ERROR: cvode_mem = NULL'
      stop 1
@@ -321,6 +330,7 @@ program main
   ierr = FSUNLinSolFree(sunlinsol_LS)
   call FSUNMatDestroy(sunmat_A)
   call FN_VDestroy(sunvec_y)
+  ierr = FSUNContext_Free(sunctx)
 
 end program main
 

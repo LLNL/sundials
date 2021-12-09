@@ -36,13 +36,14 @@ namespace sundials
 namespace hip
 {
 
+typedef enum { RSUM, RMAX, RMIN } BinaryReductionOp;
+
 /* The atomic functions below are implemented using the atomic compare and swap
    function atomicCAS which performs an atomic version of
    (*address == assumed) ? (assumed + val) : *address. Since *address could change
    between when the value is loaded and the atomicCAS call the operation is repeated
    until *address does not change between the read and the compare and swap operation. */
 
-typedef enum { RSUM, RMAX, RMIN } BinaryReductionOp;
 
 #if defined(__CUDA_ARCH__) and __CUDA_ARCH__ < 600
 __forceinline__ __device__
@@ -244,7 +245,8 @@ T blockReduce(T val, T default_value)
   __syncthreads();
 
   // Read from shared memory only if that warp existed
-  val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : default_value;
+  bool existed = (threadIdx.x == 0) || (threadIdx.x < blockDim.x / warpSize);
+  val = existed ? shared[lane] : default_value;
 
   // Final reduce within first warp
   if (wid == 0)

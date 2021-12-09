@@ -17,6 +17,7 @@
 
 module test_fsunlinsol_dense
   use, intrinsic :: iso_c_binding
+  use test_utilities
   implicit none
 
   integer(C_LONG), private, parameter :: N = 100
@@ -46,10 +47,10 @@ contains
 
     fails = 0
 
-    A => FSUNDenseMatrix(N, N)
-    I => FSUNDenseMatrix(N, N)
-    x => FN_VNew_Serial(N)
-    b => FN_VNew_Serial(N)
+    A => FSUNDenseMatrix(N, N, sunctx)
+    I => FSUNDenseMatrix(N, N, sunctx)
+    x => FN_VNew_Serial(N, sunctx)
+    b => FN_VNew_Serial(N, sunctx)
 
     ! fill A matrix with uniform random data in [0, 1/N)
     do j=1, N
@@ -95,7 +96,7 @@ contains
     end if
 
     ! create dense linear solver
-    LS => FSUNLinSol_Dense(x, A)
+    LS => FSUNLinSol_Dense(x, A, sunctx)
 
     ! run tests
     fails = fails + Test_FSUNLinSolInitialize(LS, 0)
@@ -169,6 +170,8 @@ program main
   !============== Introduction =============
   print *, 'Dense SUNLinearSolver Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   fails = unit_tests()
   if (fails /= 0) then
     print *, 'FAILURE: n unit tests failed'
@@ -176,4 +179,7 @@ program main
   else
     print *,'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
+
 end program main

@@ -22,13 +22,16 @@ module fkinsol_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_linearsolver_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
  implicit none
@@ -55,6 +58,7 @@ module fkinsol_mod
  integer(C_INT), parameter, public :: KIN_FIRST_SYSFUNC_ERR = -14_C_INT
  integer(C_INT), parameter, public :: KIN_REPTD_SYSFUNC_ERR = -15_C_INT
  integer(C_INT), parameter, public :: KIN_VECTOROP_ERR = -16_C_INT
+ integer(C_INT), parameter, public :: KIN_CONTEXT_ERR = -17_C_INT
  integer(C_INT), parameter, public :: KIN_ETACHOICE1 = 1_C_INT
  integer(C_INT), parameter, public :: KIN_ETACHOICE2 = 2_C_INT
  integer(C_INT), parameter, public :: KIN_ETACONSTANT = 3_C_INT
@@ -140,10 +144,11 @@ module fkinsol_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FKINCreate() &
+function swigc_FKINCreate(farg1) &
 bind(C, name="_wrap_FKINCreate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
@@ -696,13 +701,16 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FKINCreate() &
+function FKINCreate(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
-fresult = swigc_FKINCreate()
+farg1 = sunctx
+fresult = swigc_FKINCreate(farg1)
 swig_result = fresult
 end function
 

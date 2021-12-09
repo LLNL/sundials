@@ -163,7 +163,7 @@ x = N_VNew_Serial(N);
 \noindent \emph{Fortran code}:
 \begin{verbatim}
 type(N_Vector), pointer :: x
-x => FN_VNew_Serial(N)
+x => FN_VNew_Serial(N, sunctx)
 \end{verbatim}
 
 Note that in the Fortran declaration, the vector is a \id{type(N\_Vector), pointer}, and
@@ -349,7 +349,7 @@ for creating a \id{FILE *} and destroying it. These functions are defined in the
   \begin{args}[filename]
   \item[filename] (\id{character(kind=C\_CHAR, len=*)}) - the path to the file to open
   \item[mode] (\id{character(kind=C\_CHAR, len=*)}) - the mode string given to \id{fopen}
-    It should begin with one of the following characters: 
+    It should begin with one of the following characters:
     \begin{itemize}
       \item[] ``r'' - open text file for reading
       \item[] ``r+'' - open text file for reading and writing

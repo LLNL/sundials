@@ -190,7 +190,7 @@ static int cfun(realtype t, N_Vector yy, N_Vector cout, void *c_data)
   UserData data;
   realtype Ks;
   realtype y1, y4, y6;
-  
+
 
   data = (UserData) c_data;
   Ks = data->Ks;

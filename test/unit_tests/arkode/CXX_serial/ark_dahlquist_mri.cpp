@@ -63,7 +63,7 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 // Test drivers
 static int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
                      realtype hs, realtype hf, realtype reltol, realtype abstol,
-                     UserData* udata);
+                     UserData* udata, SUNContext ctx);
 
 
 // -----------------------------------------------------------------------------
@@ -108,17 +108,20 @@ int main(int argc, char* argv[])
   cout << "   relative tol = " << reltol << "\n";
   cout << "   absolute tol = " << abstol << "\n";
 
+  // Create SUNDIALS context
+  sundials::Context sunctx;
+
   // Test methods
   int numfails = 0;
 
   numfails += run_tests(MRISTEP_EXPLICIT,
-                        t0, nsteps, hs, hf, reltol, abstol, &udata);
+                        t0, nsteps, hs, hf, reltol, abstol, &udata, sunctx);
 
   numfails += run_tests(MRISTEP_IMPLICIT,
-                        t0, nsteps, hs, hf, reltol, abstol, &udata);
+                        t0, nsteps, hs, hf, reltol, abstol, &udata, sunctx);
 
   numfails += run_tests(MRISTEP_IMEX,
-                        t0, nsteps, hs, hf, reltol, abstol, &udata);
+                        t0, nsteps, hs, hf, reltol, abstol, &udata, sunctx);
 
   if (numfails)
   {
@@ -139,8 +142,9 @@ int main(int argc, char* argv[])
 // -----------------------------------------------------------------------------
 
 
-int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps, realtype hs,
-              realtype hf, realtype reltol, realtype abstol, UserData* udata)
+int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
+              realtype hs, realtype hf, realtype reltol, realtype abstol,
+              UserData* udata, SUNContext sunctx)
 {
   // Reusable error-checking flag
   int flag;
@@ -149,7 +153,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps, realtype hs,
   int numfails = 0;
 
   // Create initial condition vector
-  N_Vector y = N_VNew_Serial(1);
+  N_Vector y = N_VNew_Serial(1, sunctx);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
 
   N_VConst(RCONST(1.0), y);
@@ -161,10 +165,10 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps, realtype hs,
   if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
   {
     // Initialize dense matrix data structures and solvers
-    A = SUNDenseMatrix(1, 1);
+    A = SUNDenseMatrix(1, 1, sunctx);
     if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
 
-    LS = SUNLinSol_Dense(y, A);
+    LS = SUNLinSol_Dense(y, A, sunctx);
     if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return 1;
   }
 
@@ -173,7 +177,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps, realtype hs,
   // ----------------------
 
   // Create explicit fast integrator
-  void* arkstep_mem = ARKStepCreate(ff, nullptr, t0, y);
+  void* arkstep_mem = ARKStepCreate(ff, nullptr, t0, y, sunctx);
   if (check_flag((void *) arkstep_mem, "ARKStepCreate", 0)) return 1;
 
   // Set user data
@@ -202,15 +206,15 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps, realtype hs,
 
   if (type == MRISTEP_EXPLICIT)
   {
-    mristep_mem = MRIStepCreate(fe, nullptr, t0, y, inner_stepper);
+    mristep_mem = MRIStepCreate(fe, nullptr, t0, y, inner_stepper, sunctx);
   }
   else if (type == MRISTEP_IMPLICIT)
   {
-    mristep_mem = MRIStepCreate(nullptr, fi, t0, y, inner_stepper);
+    mristep_mem = MRIStepCreate(nullptr, fi, t0, y, inner_stepper, sunctx);
   }
   else if (type == MRISTEP_IMEX)
   {
-    mristep_mem = MRIStepCreate(fe, fi, t0, y, inner_stepper);
+    mristep_mem = MRIStepCreate(fe, fi, t0, y, inner_stepper, sunctx);
   }
   else
   {

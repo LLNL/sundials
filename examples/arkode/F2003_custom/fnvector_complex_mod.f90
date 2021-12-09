@@ -32,16 +32,17 @@ module fnvector_complex_mod
 contains
 
   ! ----------------------------------------------------------------
-  function FN_VNew_Complex(n) result(sunvec_y)
+  function FN_VNew_Complex(n, sunctx) result(sunvec_y)
 
     implicit none
     integer(c_long),    value   :: n
+    type(c_ptr),        value   :: sunctx
     type(N_Vector),     pointer :: sunvec_y
     type(N_Vector_Ops), pointer :: ops
     type(FVec),         pointer :: content
 
     ! allocate output N_Vector structure
-    sunvec_y => FN_VNewEmpty()
+    sunvec_y => FN_VNewEmpty(sunctx)
 
     ! allocate and fill content structure
     allocate(content)
@@ -84,17 +85,18 @@ contains
   end function FN_VNew_Complex
 
   ! ----------------------------------------------------------------
-  function FN_VMake_Complex(n, data) result(sunvec_y)
+  function FN_VMake_Complex(n, data, sunctx) result(sunvec_y)
 
     implicit none
     integer(c_long),           value   :: n
+    type(c_ptr),               value   :: sunctx
     type(N_Vector),            pointer :: sunvec_y
     type(N_Vector_Ops),        pointer :: ops
     type(FVec),                pointer :: content
     complex(c_double_complex), target  :: data(:)
 
     ! allocate output N_Vector structure
-    sunvec_y => FN_VNewEmpty()
+    sunvec_y => FN_VNewEmpty(sunctx)
 
     ! allocate and fill content structure
     allocate(content)
@@ -233,7 +235,7 @@ contains
     x => FN_VGetFVec(sunvec_x)
 
     ! allocate output N_Vector structure
-    sunvec_y => FN_VNewEmpty()
+    sunvec_y => FN_VNewEmpty(sunvec_x%sunctx)
 
     ! copy operations from x into y
     retval = FN_VCopyOps(sunvec_x, sunvec_y)

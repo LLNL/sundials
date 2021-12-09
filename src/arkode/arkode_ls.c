@@ -233,19 +233,17 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for ytemp and x */
-  arkls_mem->ytemp = N_VClone(ark_mem->tempv1);
-  if (arkls_mem->ytemp == NULL) {
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(arkls_mem->ytemp))) {
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKLS",
                     "arkLSSetLinearSolver", MSG_LS_MEM_FAIL);
     free(arkls_mem); arkls_mem = NULL;
     return(ARKLS_MEM_FAIL);
   }
 
-  arkls_mem->x = N_VClone(ark_mem->tempv1);
-  if (arkls_mem->x == NULL) {
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(arkls_mem->x))) {
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKLS",
                     "arkLSSetLinearSolver", MSG_LS_MEM_FAIL);
-    N_VDestroy(arkls_mem->ytemp);
+    arkFreeVec(ark_mem, &(arkls_mem->ytemp));
     free(arkls_mem); arkls_mem = NULL;
     return(ARKLS_MEM_FAIL);
   }
@@ -460,8 +458,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for x */
-  arkls_mem->x = N_VClone(ark_mem->tempv1);
-  if (arkls_mem->x == NULL) {
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(arkls_mem->x))) {
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKLS",
                     "arkLSSetMassLinearSolver", MSG_LS_MEM_FAIL);
     if (!iterative) SUNMatDestroy(arkls_mem->M_lu);

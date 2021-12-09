@@ -233,19 +233,21 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 #include <string.h>
 
-SWIGEXPORT void * _wrap_FARKStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4) {
+SWIGEXPORT void * _wrap_FARKStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4, void *farg5) {
   void * fresult ;
   ARKRhsFn arg1 = (ARKRhsFn) 0 ;
   ARKRhsFn arg2 = (ARKRhsFn) 0 ;
   realtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
+  SUNContext arg5 = (SUNContext) 0 ;
   void *result = 0 ;
   
   arg1 = (ARKRhsFn)(farg1);
   arg2 = (ARKRhsFn)(farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (N_Vector)(farg4);
-  result = (void *)ARKStepCreate(arg1,arg2,arg3,arg4);
+  arg5 = (SUNContext)(farg5);
+  result = (void *)ARKStepCreate(arg1,arg2,arg3,arg4,arg5);
   fresult = result;
   return fresult;
 }

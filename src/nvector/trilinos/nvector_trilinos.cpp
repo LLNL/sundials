@@ -67,13 +67,13 @@ N_Vector_ID N_VGetVectorID_Trilinos(N_Vector v)
  * Function to create a new Trilinos vector with empty data array
  */
 
-N_Vector N_VNewEmpty_Trilinos()
+N_Vector N_VNewEmpty_Trilinos(SUNContext sunctx)
 {
   N_Vector v;
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -132,12 +132,12 @@ N_Vector N_VNewEmpty_Trilinos()
  *
  */
 
-N_Vector N_VMake_Trilinos(Teuchos::RCP<vector_type> vec)
+N_Vector N_VMake_Trilinos(Teuchos::RCP<vector_type> vec, SUNContext sunctx)
 {
   N_Vector v = NULL;
 
   // Create an N_Vector with operators attached and empty content
-  v = N_VNewEmpty_Trilinos();
+  v = N_VNewEmpty_Trilinos(sunctx);
   if (v == NULL) return(NULL);
 
   // Create vector content using a pointer to Tpetra vector
@@ -162,7 +162,7 @@ N_Vector N_VCloneEmpty_Trilinos(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

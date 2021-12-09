@@ -73,14 +73,14 @@ N_Vector_ID N_VGetVectorID_OpenMPDEV(N_Vector v)
  * Function to create a new empty vector
  */
 
-N_Vector N_VNewEmpty_OpenMPDEV(sunindextype length)
+N_Vector N_VNewEmpty_OpenMPDEV(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_OpenMPDEV content;
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -224,25 +224,7 @@ N_Vector N_VMake_OpenMPDEV(sunindextype length, realtype *h_vdata,
 
 N_Vector *N_VCloneVectorArray_OpenMPDEV(int count, N_Vector w)
 {
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_OpenMPDEV(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_OpenMPDEV(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -251,25 +233,7 @@ N_Vector *N_VCloneVectorArray_OpenMPDEV(int count, N_Vector w)
 
 N_Vector *N_VCloneVectorArrayEmpty_OpenMPDEV(int count, N_Vector w)
 {
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_OpenMPDEV(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_OpenMPDEV(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -278,12 +242,7 @@ N_Vector *N_VCloneVectorArrayEmpty_OpenMPDEV(int count, N_Vector w)
 
 void N_VDestroyVectorArray_OpenMPDEV(N_Vector *vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_OpenMPDEV(vs[j]);
-
-  free(vs); vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -421,12 +380,12 @@ N_Vector N_VCloneEmpty_OpenMPDEV(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
   if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
-  
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMPDEV) malloc(sizeof *content);

@@ -28,6 +28,12 @@
 
 
 /*===============================================================
+  SHORTCUTS
+  ===============================================================*/
+
+#define ARK_PROFILER ark_mem->sunctx->profiler
+
+/*===============================================================
   MRIStep Exported functions -- Required
   ===============================================================*/
 
@@ -35,7 +41,7 @@
   Create MRIStep integrator memory struct
   ---------------------------------------------------------------*/
 void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
-                    MRIStepInnerStepper stepper)
+                    MRIStepInnerStepper stepper, SUNContext sunctx)
 {
   ARKodeMem          ark_mem;         /* outer ARKode memory   */
   ARKodeMRIStepMem   step_mem;        /* outer stepper memory  */
@@ -65,6 +71,13 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
     return(NULL);
   }
 
+  /* Check that context is supplied */
+  if (!sunctx) {
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::MRIStep",
+                    "MRIStepCreate", MSG_ARK_NULL_SUNCTX);
+    return(NULL);
+  }
+
   /* Test if all required vector operations are implemented */
   nvectorOK = mriStep_CheckNVector(y0);
   if (!nvectorOK) {
@@ -74,7 +87,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
   }
 
   /* Create ark_mem structure and set default values */
-  ark_mem = arkCreate();
+  ark_mem = arkCreate(sunctx);
   if (ark_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
                     "MRIStepCreate", MSG_ARK_NO_MEM);
@@ -133,7 +146,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
   step_mem->ownNLS = SUNFALSE;
 
   if (step_mem->implicit_rhs) {
-    NLS = SUNNonlinSol_Newton(y0);
+    NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
     if (!NLS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::MRIStep",
                       "MRIStepCreate", "Error creating default Newton solver");
@@ -292,8 +305,7 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
     step_mem->ownNLS = SUNFALSE;
 
     /* create new Newton NLS object */
-    NLS = NULL;
-    NLS = SUNNonlinSol_Newton(y0);
+    NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
     if (NLS == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::MRIStep",
                       "MRIStepResize", "Error creating default Newton solver");
@@ -378,7 +390,7 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, realtype t0,
   /* Create a default Newton NLS object (just in case; will be deleted if
      the user attaches a nonlinear solver) */
   if (step_mem->implicit_rhs && !(step_mem->NLS)) {
-    NLS = SUNNonlinSol_Newton(y0);
+    NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
     if (!NLS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::MRIStep",
                       "MRIStepReInit", "Error creating default Newton solver");
@@ -523,6 +535,7 @@ int MRIStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
                   realtype *tret, int itask)
 {
   /* unpack ark_mem, call arkEvolve, and return */
+  int retval;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
@@ -530,7 +543,10 @@ int MRIStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  return(arkEvolve(ark_mem, tout, yout, tret, itask));
+  SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
+  retval = arkEvolve(ark_mem, tout, yout, tret, itask);
+  SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
+  return(retval);
 }
 
 
@@ -544,6 +560,7 @@ int MRIStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
 int MRIStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
 {
   /* unpack ark_mem, call arkGetDky, and return */
+  int retval;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::MRIStep",
@@ -551,7 +568,10 @@ int MRIStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  return(arkGetDky(ark_mem, t, k, dky));
+  SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
+  retval = arkGetDky(ark_mem, t, k, dky);
+  SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
+  return(retval);
 }
 
 /*---------------------------------------------------------------
@@ -2413,8 +2433,10 @@ int mriStep_StageSetup(ARKodeMem ark_mem)
   ---------------------------------------------------------------*/
 
 
-int MRIStepInnerStepper_Create(MRIStepInnerStepper *stepper)
+int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper *stepper)
 {
+  if (!sunctx) return ARK_ILL_INPUT;
+
   *stepper = NULL;
   *stepper = (MRIStepInnerStepper) malloc(sizeof(**stepper));
   if (*stepper == NULL) {
@@ -2431,12 +2453,14 @@ int MRIStepInnerStepper_Create(MRIStepInnerStepper *stepper)
     arkProcessError(NULL, ARK_MEM_FAIL, "ARKode::MRIStep",
                     "MRIStepInnerStepper_Create",
                     MSG_ARK_ARKMEM_FAIL);
+    free(*stepper);
     return(ARK_MEM_FAIL);
   }
   memset((*stepper)->ops, 0, sizeof(*((*stepper)->ops)));
 
   /* initialize stepper data */
   (*stepper)->last_flag = ARK_SUCCESS;
+  (*stepper)->sunctx    = sunctx;
 
   return(ARK_SUCCESS);
 }

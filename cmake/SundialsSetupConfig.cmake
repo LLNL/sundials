@@ -66,6 +66,11 @@ foreach(_item ${SUNDIALS_BUILD_LIST})
   endif()
 endforeach()
 
+# prepare substitution variable SUNDIALS_CALIPER_ENABLED for sundials_config.h
+if(ENABLE_CALIPER)
+  set(SUNDIALS_CALIPER_ENABLED TRUE)
+endif()
+
 # prepare substitution variable SUNDIALS_MPI_ENABLED for sundials_config.h
 if(ENABLE_MPI)
   set(SUNDIALS_MPI_ENABLED TRUE)
@@ -87,7 +92,7 @@ foreach(backend ${SUNDIALS_MAGMA_BACKENDS})
 endforeach()
 
 # prepare substitution variable SUNDIALS_HAVE_POSIX_TIMERS for sundials_config.h
-if(POSIX_TIMERS_TEST_OK) # set in SundialsPOSIXTimers.cmake
+if(SUNDIALS_POSIX_TIMERS) # set in SundialsPOSIXTimers.cmake
   set(SUNDIALS_HAVE_POSIX_TIMERS TRUE)
 endif()
 

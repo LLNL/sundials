@@ -130,7 +130,7 @@ function(sundials_git_version)
 endfunction()
 
 # Macros from other files
-
+include(SundialsAddExecutable)
 include(SundialsAddLibrary)
 include(SundialsAddTest)
 include(SundialsAddTestInstall)

@@ -43,7 +43,7 @@ static void FreeContent(SUNNonlinearSolver NLS);
   Constructor to create a new fixed point solver
   ============================================================================*/
 
-SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
+SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m, SUNContext sunctx)
 {
   SUNNonlinearSolver NLS;
   SUNNonlinearSolverContent_FixedPoint content;
@@ -61,8 +61,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
     return(NULL);
 
   /* Create nonlinear linear solver */
-  NLS = NULL;
-  NLS = SUNNonlinSolNewEmpty();
+  NLS = SUNNonlinSolNewEmpty(sunctx);
   if (NLS == NULL) return(NULL);
 
   /* Attach operations */
@@ -114,7 +113,8 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
   Constructor wrapper to create a new fixed point solver for sensitivity solvers
   ============================================================================*/
 
-SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m)
+SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m,
+                                               SUNContext sunctx)
 {
   SUNNonlinearSolver NLS;
   N_Vector w;
@@ -123,7 +123,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m)
   w = N_VNew_SensWrapper(count, y);
 
   /* create nonlinear solver using sensitivity vector wrapper */
-  NLS = SUNNonlinSol_FixedPoint(w, m);
+  NLS = SUNNonlinSol_FixedPoint(w, m, sunctx);
 
   /* free sensitivity vector wrapper */
   N_VDestroy(w);

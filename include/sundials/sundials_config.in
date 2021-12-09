@@ -67,23 +67,21 @@
  */
 #cmakedefine SUNDIALS_HAVE_POSIX_TIMERS
 
-/* CVODE should use fused kernels if utilizing
-  * the CUDA NVector.
-  */
+/* BUILD CVODE with fused kernel functionality */
 #cmakedefine SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
 
-
-/* BUILD SUNDIALS with monitoring functionalities
-  * the CUDA NVector.
-  */
+/* BUILD SUNDIALS with monitoring functionalities */
 #cmakedefine SUNDIALS_BUILD_WITH_MONITORING
+
+/* BUILD SUNDIALS with profiling functionalities */
+#cmakedefine SUNDIALS_BUILD_WITH_PROFILING
 
 /* ------------------------------------------------------------------
  * SUNDIALS TPL macros
  * -----------------------------------------------------------------*/
 
-
-@SUNDIALS_CONFIGH_TPLS@
+/* Caliper */
+#cmakedefine SUNDIALS_CALIPER_ENABLED
 
 /* MAGMA backends */
 #cmakedefine SUNDIALS_MAGMA_BACKENDS_CUDA
@@ -112,7 +110,6 @@
 /* ------------------------------------------------------------------
  * SUNDIALS modules enabled
  * -----------------------------------------------------------------*/
-
 
 @SUNDIALS_CONFIGH_BUILDS@
 
@@ -160,7 +157,11 @@
 #endif
 
 #ifndef SUNDIALS_C_INLINE
+#ifndef __STDC_VERSION__ /* must be c89 or c90 */
+#define SUNDIALS_C_INLINE
+#else
 #define SUNDIALS_C_INLINE inline
+#endif
 #endif
 
 #ifdef __cplusplus

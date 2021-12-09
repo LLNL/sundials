@@ -141,6 +141,11 @@ int main()
   int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn, netf;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
   if (check_flag((void *) udata, "malloc", 2)) return 1;
@@ -168,19 +173,23 @@ int main()
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);           /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
+
+  umask = N_VClone(y);
+  if (check_flag((void *)umask, "N_VClone", 0)) return 1;
+
+  vmask = N_VClone(y);
+  if (check_flag((void *)vmask, "N_VClone", 0)) return 1;
+
+  wmask = N_VClone(y);
+  if (check_flag((void *)wmask, "N_VClone", 0)) return 1;
+
+  /* Set initial conditions into y */
   udata->dx = RCONST(1.0)/(N-1);    /* set spatial mesh spacing */
   data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  umask = N_VNew_Serial(NEQ);       /* Create serial vector masks */
-  if (check_flag((void *)umask, "N_VNew_Serial", 0)) return 1;
-  vmask = N_VNew_Serial(NEQ);
-  if (check_flag((void *)vmask, "N_VNew_Serial", 0)) return 1;
-  wmask = N_VNew_Serial(NEQ);
-  if (check_flag((void *)wmask, "N_VNew_Serial", 0)) return 1;
 
-  /* Set initial conditions into y */
   pi = RCONST(4.0)*atan(ONE);
   for (i=0; i<N; i++) {
     data[IDX(i,0)] =  a  + RCONST(0.1)*sin(pi*i*udata->dx);  /* u */
@@ -209,7 +218,7 @@ int main()
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
@@ -220,9 +229,9 @@ int main()
 
   /* Initialize sparse matrix data structure and KLU solver */
   NNZ = 5*NEQ;
-  A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
+  A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT, ctx);
   if (check_flag((void *)A, "SUNSparseMatrix", 0)) return 1;
-  LS = SUNLinSol_KLU(y, A);
+  LS = SUNLinSol_KLU(y, A, ctx);
   if (check_flag((void *)LS, "SUNLinSol_KLU", 0)) return 1;
 
   /* Attach the matrix, linear solver, and Jacobian construction routine to ARKStep */
@@ -327,6 +336,8 @@ int main()
   ARKStepFree(&arkode_mem);     /* Free integrator memory */
   SUNLinSolFree(LS);            /* Free linear solver */
   SUNMatDestroy(A);             /* Free A matrix */
+  SUNContext_Free(&ctx);        /* Free context */
+
   return 0;
 }
 
@@ -411,7 +422,8 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   if (udata->R == NULL) {
     udata->R = SUNSparseMatrix(SUNSparseMatrix_Rows(J),
                                SUNSparseMatrix_Columns(J),
-                               SUNSparseMatrix_NNZ(J), CSC_MAT);
+                               SUNSparseMatrix_NNZ(J), CSC_MAT,
+                               J->sunctx);
     if (udata->R == NULL) {
       printf("Jacobian calculation error in allocating R matrix!\n");
       return 1;

@@ -100,7 +100,7 @@ SUNMemoryHelper MyMemoryHelper_Clone(SUNMemoryHelper helper)
 {
   if (helper == NULL) return NULL;
 
-  SUNMemoryHelper new_helper = SUNMemoryHelper_NewEmpty();
+  SUNMemoryHelper new_helper = SUNMemoryHelper_NewEmpty(helper->sunctx);
   if (helper == NULL) return NULL;
 
   if (SUNMemoryHelper_CopyOps(helper, new_helper)) return NULL;
@@ -118,9 +118,9 @@ int MyMemoryHelper_Destroy(SUNMemoryHelper helper)
   return 0;
 }
 
-SUNMemoryHelper MyMemoryHelper(sycl::queue *Q)
+SUNMemoryHelper MyMemoryHelper(sycl::queue *Q, SUNContext sunctx)
 {
-  SUNMemoryHelper helper = SUNMemoryHelper_NewEmpty();
+  SUNMemoryHelper helper = SUNMemoryHelper_NewEmpty(sunctx);
   if (helper == NULL) return NULL;
 
   /* Set the ops */

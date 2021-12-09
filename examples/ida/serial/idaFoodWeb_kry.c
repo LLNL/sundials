@@ -163,13 +163,13 @@ static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval,
                   void *user_data);
 
 static int Precond(realtype tt,
-		   N_Vector cc, N_Vector cp, N_Vector rr,
-		   realtype cj, void *user_data);
+                   N_Vector cc, N_Vector cp, N_Vector rr,
+                   realtype cj, void *user_data);
 
 static int PSolve(realtype tt,
-		  N_Vector cc, N_Vector cp, N_Vector rr,
-		  N_Vector rvec, N_Vector zvec,
-		  realtype cj, realtype delta, void *user_data);
+                  N_Vector cc, N_Vector cp, N_Vector rr,
+                  N_Vector rvec, N_Vector zvec,
+                  realtype cj, realtype delta, void *user_data);
 
 /* Prototypes for private Helper Functions. */
 
@@ -200,18 +200,24 @@ int main()
   int maxl;
   realtype rtol, atol, t0, tout, tret;
   SUNLinearSolver LS;
+  SUNContext ctx;
 
   mem = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
   LS = NULL;
 
+  /* Create the SUNDIALS context object for this simulation */
+
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Allocate and initialize user data block webdata. */
 
   webdata = (UserData) malloc(sizeof *webdata);
-  webdata->rates = N_VNew_Serial(NEQ);
+  webdata->rates = N_VNew_Serial(NEQ, ctx);
   webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-  webdata->ewt = N_VNew_Serial(NEQ);
+  webdata->ewt = N_VNew_Serial(NEQ, ctx);
   for (jx = 0; jx < MX; jx++) {
     for (jy = 0; jy < MY; jy++) {
       (webdata->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
@@ -223,13 +229,13 @@ int main()
 
   /* Allocate N-vectors and initialize cc, cp, and id. */
 
-  cc  = N_VNew_Serial(NEQ);
+  cc  = N_VNew_Serial(NEQ, ctx);
   if(check_retval((void *)cc, "N_VNew_Serial", 0)) return(1);
 
-  cp  = N_VNew_Serial(NEQ);
+  cp  = N_VClone(cc);
   if(check_retval((void *)cp, "N_VNew_Serial", 0)) return(1);
 
-  id  = N_VNew_Serial(NEQ);
+  id  = N_VClone(cc);
   if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
 
   SetInitialProfiles(cc, cp, id, webdata);
@@ -242,7 +248,7 @@ int main()
 
   /* Call IDACreate and IDAMalloc to initialize IDA. */
 
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
   retval = IDASetUserData(mem, webdata);
@@ -262,7 +268,7 @@ int main()
   /* Create the linear solver SUNLinSol_SPGMR with left preconditioning
      and maximum Krylov dimension maxl */
   maxl = 16;
-  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl);
+  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl, ctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
@@ -326,6 +332,8 @@ int main()
   }
   free(webdata);
 
+  SUNContext_Free(&ctx);
+
   return(0);
 }
 
@@ -387,8 +395,8 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
 
 
 static int Precond(realtype tt,
-		   N_Vector cc, N_Vector cp, N_Vector rr,
-		   realtype cj, void *user_data)
+                   N_Vector cc, N_Vector cp, N_Vector rr,
+                   realtype cj, void *user_data)
 {
   int retval;
   sunindextype ret;
@@ -427,21 +435,21 @@ static int Precond(realtype tt,
       ratesxy = IJ_Vptr((webdata->rates), jx, jy);
 
       for (js = 0; js < NUM_SPECIES; js++) {
-	inc = sqru*(MAX(fabs(cxy[js]), MAX(hh*fabs(cpxy[js]), ONE/ewtxy[js])));
-	cctmp = cxy[js];
-	cxy[js] += inc;
-	fac = -ONE/inc;
+        inc = sqru*(MAX(fabs(cxy[js]), MAX(hh*fabs(cpxy[js]), ONE/ewtxy[js])));
+        cctmp = cxy[js];
+        cxy[js] += inc;
+        fac = -ONE/inc;
 
-	WebRates(xx, yy, cxy, perturb_rates, webdata);
+        WebRates(xx, yy, cxy, perturb_rates, webdata);
 
-	Pxycol = Pxy[js];
+        Pxycol = Pxy[js];
 
-	for (is = 0; is < NUM_SPECIES; is++)
-	  Pxycol[is] = (perturb_rates[is] - ratesxy[is])*fac;
+        for (is = 0; is < NUM_SPECIES; is++)
+          Pxycol[is] = (perturb_rates[is] - ratesxy[is])*fac;
 
-	if (js < 1) Pxycol[js] += cj;
+        if (js < 1) Pxycol[js] += cj;
 
-	cxy[js] = cctmp;
+        cxy[js] = cctmp;
       }
 
       ret = denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (webdata->pivot)[jx][jy]);
@@ -456,10 +464,10 @@ static int Precond(realtype tt,
 
 
 static int PSolve(realtype tt,
-		  N_Vector cc, N_Vector cp, N_Vector rr,
-		  N_Vector rvec, N_Vector zvec,
-		  realtype cj, realtype dalta,
-		  void *user_data)
+                  N_Vector cc, N_Vector cp, N_Vector rr,
+                  N_Vector rvec, N_Vector zvec,
+                  realtype cj, realtype dalta,
+                  void *user_data)
 {
   realtype **Pxy, *zxy;
   sunindextype *pivot;
@@ -573,7 +581,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
           idv[loc+is] = ONE;
         }
         else {
-	  ccv[loc+is] = RCONST(1.0e5);
+          ccv[loc+is] = RCONST(1.0e5);
           idv[loc+is] = ZERO;
         }
       }

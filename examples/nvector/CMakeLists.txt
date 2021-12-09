@@ -15,6 +15,11 @@
 # examples/nvector level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
+if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
+  include_directories(${caliper_INCLUDE_DIR})
+  set(EXTRA_LINK_LIBS ${EXTRA_LINK_LIBS} caliper)
+endif()
+
 # Always add the nvector serial examples
 add_subdirectory(serial)
 

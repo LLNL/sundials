@@ -23,14 +23,14 @@ module test_nvector_parallel
   implicit none
   include "mpif.h"
 
-  integer(c_int), parameter  :: comm = MPI_COMM_WORLD ! default MPI communicator
   integer(c_long), parameter :: local_length = 100    ! vector local length
   integer(c_int),  parameter :: nv = 3                ! length of vector arrays
   integer(c_int),  parameter :: ns = 2                ! number of vector arrays
 
-  integer(c_long) :: global_length ! vector global_length
-  integer(c_int)  :: nprocs        ! number of MPI processes
-
+  integer(c_int), target  :: comm = MPI_COMM_WORLD ! default MPI communicator
+  integer(c_int), pointer :: commptr
+  integer(c_long)         :: global_length ! vector global_length
+  integer(c_int)          :: nprocs        ! number of MPI processes
   contains
 
   integer function smoke_tests() result(ret)
@@ -47,7 +47,7 @@ module test_nvector_parallel
     type(c_ptr)             :: xvecs, zvecs        ! C pointer to array of C pointers to N_Vectors
 
     !===== Setup ====
-    x => FN_VMake_Parallel(comm, local_length, global_length, xdata)
+    x => FN_VMake_Parallel(comm, local_length, global_length, xdata, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_Parallel(x)
     call FN_VConst(ONE, y)
@@ -61,11 +61,11 @@ module test_nvector_parallel
     !===== Test =====
 
     ! test constructors
-    tmp => FN_VNewEmpty_Parallel(comm, local_length, global_length)
+    tmp => FN_VNewEmpty_Parallel(comm, local_length, global_length, sunctx)
     call FN_VDestroy_Parallel(tmp)
-    tmp => FN_VMake_Parallel(comm, local_length, global_length, xdata)
+    tmp => FN_VMake_Parallel(comm, local_length, global_length, xdata, sunctx)
     call FN_VDestroy_Parallel(tmp)
-    tmp => FN_VNew_Parallel(comm, local_length, global_length)
+    tmp => FN_VNew_Parallel(comm, local_length, global_length, sunctx)
     call FN_VDestroy_Parallel(tmp)
     tmp => FN_VCloneEmpty_Parallel(x)
     call FN_VDestroy_Parallel(tmp)
@@ -140,7 +140,7 @@ module test_nvector_parallel
       stop 1
     endif
 
-    x => FN_VMake_Parallel(comm, local_length, global_length, xdata)
+    x => FN_VMake_Parallel(comm, local_length, global_length, xdata, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -215,8 +215,12 @@ program main
     stop 1
   endif
 
+  commptr => comm
+
   !============== Introduction =============
   if (myid == 0) print *, 'Parallel N_Vector Fortran 2003 interface test'
+
+  call Test_Init(c_loc(commptr))
 
   call MPI_Comm_size(comm, nprocs, fails)
   if (fails /= 0) then
@@ -246,6 +250,8 @@ program main
   else
     if (myid == 0) print *,'    SUCCESS - all unit tests passed'
   end if
+
+  call Test_Finalize()
 
   call MPI_Finalize(fails)
   if (fails /= 0) then

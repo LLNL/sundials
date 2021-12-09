@@ -67,7 +67,7 @@ static int SubvectorMPIRank(N_Vector w);
    N_Vector objects, along with a user-created MPI (inter/intra)communicator
    that couples all subvectors together. */
 N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
-                               N_Vector *vec_array)
+                               N_Vector *vec_array, SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_MPIManyVector content;
@@ -81,7 +81,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -206,11 +206,12 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
 /* This function creates an MPIManyVector from a set of existing
    N_Vector objects, under the requirement that all MPI-aware
    sub-vectors use the same MPI communicator (this is verified
-   internally).  If no sub-vector is MPI-aware, then this 
+   internally).  If no sub-vector is MPI-aware, then this
    function will return NULL. For single-node partitioning,
    the regular (not MPI aware) manyvector should be used. */
 N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
-                              N_Vector *vec_array)
+                              N_Vector *vec_array,
+                              SUNContext sunctx)
 {
   sunindextype i;
   booleantype nocommfound;
@@ -232,7 +233,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
 
     /* if this is the first communicator, create a copy */
     if (nocommfound) {
-    
+
       /* set comm to duplicate this first subvector communicator */
       retval = MPI_Comm_dup(*vcomm, &comm);
       if (retval != MPI_SUCCESS)  return(NULL);
@@ -247,10 +248,10 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
 
     }
   }
-    
+
   if (!nocommfound) {
     /* Create vector using "Make" routine and shared communicator (if non-NULL) */
-    v = N_VMake_MPIManyVector(comm, num_subvectors, vec_array);
+    v = N_VMake_MPIManyVector(comm, num_subvectors, vec_array, sunctx);
     if (comm != MPI_COMM_NULL)  MPI_Comm_free(&comm);
   }
 
@@ -261,7 +262,8 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
    N_Vector objects.  ManyVector objects created with this constructor
    may be used to describe data partitioning within a single node. */
 N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
-                           N_Vector *vec_array)
+                           N_Vector *vec_array,
+                           SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_ManyVector content;
@@ -274,7 +276,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -1887,7 +1889,7 @@ static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

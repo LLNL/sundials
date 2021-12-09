@@ -51,8 +51,8 @@ static void PrintFinalStats(void *cpode_mem);
 
 /* Functions Called by the Solver */
 static int f(realtype t, N_Vector u, N_Vector udot, void *f_data);
-static int Jac(int N, int mu, int ml, 
-               realtype t, N_Vector u, N_Vector fu, 
+static int Jac(int N, int mu, int ml,
+               realtype t, N_Vector u, N_Vector fu,
                DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 /*
@@ -163,15 +163,15 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *f_data)
 }
 
 /* Jacobian routine. Compute J(t,u). */
-static int Jac(int N, int mu, int ml, 
-               realtype t, N_Vector u, N_Vector fu, 
+static int Jac(int N, int mu, int ml,
+               realtype t, N_Vector u, N_Vector fu,
                DlsMat J, void *jac_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   long int i, j, k;
   realtype *kthCol, hordc, horac, verdc;
   UserData data;
-  
+
   /*
     The components of f = udot that depend on u(i,j) are
     f(i,j), f(i-1,j), f(i+1,j), f(i,j-1), f(i,j+1), with
@@ -186,7 +186,7 @@ static int Jac(int N, int mu, int ml,
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
-  
+
   for (j=1; j <= MY; j++) {
     for (i=1; i <= MX; i++) {
       k = j-1 + (i-1)*MY;
@@ -223,14 +223,14 @@ static void SetIC(N_Vector u, UserData data)
   udata = N_VGetArrayPointer_Serial(u);
 
   /* Load initial profile into u vector */
-  
+
   for (j=1; j <= MY; j++) {
     y = j*dy;
     for (i=1; i <= MX; i++) {
       x = i*dx;
       IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(FIVE*x*y);
     }
-  }  
+  }
 }
 
 /* Print first lines of output (problem description) */

@@ -61,9 +61,15 @@ static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C);
 // Private function to check function return values
 static int check_flag(void *flagvalue, const string funcname, int opt);
 
+// SUNContext for the simulation
+static SUNContext sunctx = NULL;
+
 // Main Program
 int main(int argc, char* argv[])
 {
+  // Create the SUNDIALS context object for this simulation.
+  SUNContext_Create(NULL, &sunctx);
+
   // general problem parameters
   realtype T0 = RCONST(0.0);         // initial time
   realtype Tf = RCONST(0.05);        // final time
@@ -108,22 +114,22 @@ int main(int argc, char* argv[])
   }
 
   // Initialize vector data structure and specify initial condition
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, sunctx);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   N_VConst(ONE, y);
 
   /* Call ARKStepCreate and MRIStepCreate to initialize the timesteppers */
-  arkstep_mem = ARKStepCreate(NULL, f, T0, y);
+  arkstep_mem = ARKStepCreate(NULL, f, T0, y, sunctx);
   if (check_flag((void *) arkstep_mem, "ARKStepCreate", 0)) return 1;
 
-  inner_mem = ARKStepCreate(f0, NULL, T0, y);
+  inner_mem = ARKStepCreate(f0, NULL, T0, y, sunctx);
   if (check_flag((void *) inner_mem, "ARKStepCreate", 0)) return 1;
 
   MRIStepInnerStepper inner_stepper = NULL;
   flag = ARKStepCreateMRIStepInnerStepper(inner_mem, &inner_stepper);
   if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
 
-  mristep_mem = MRIStepCreate(NULL, f, T0, y, inner_stepper);
+  mristep_mem = MRIStepCreate(NULL, f, T0, y, inner_stepper, sunctx);
   if (check_flag((void *) mristep_mem, "MRIStepCreate", 0)) return 1;
 
   // Create DIRK2 (trapezoidal) Butcher table
@@ -181,12 +187,12 @@ int main(int argc, char* argv[])
   if (fixedpoint) {
 
     // Initialize fixed-point solvers and attach to integrators
-    NLSa = SUNNonlinSol_FixedPoint(y, 50);
+    NLSa = SUNNonlinSol_FixedPoint(y, 50, sunctx);
     if (check_flag((void *)NLSa, "SUNNonlinSol_FixedPoint", 0)) return 1;
     flag = ARKStepSetNonlinearSolver(arkstep_mem, NLSa);
     if (check_flag(&flag, "ARKStepSetNonlinearSolver", 1)) return 1;
 
-    NLSm = SUNNonlinSol_FixedPoint(y, 50);
+    NLSm = SUNNonlinSol_FixedPoint(y, 50, sunctx);
     if (check_flag((void *)NLSm, "SUNNonlinSol_FixedPoint", 0)) return 1;
     flag = MRIStepSetNonlinearSolver(mristep_mem, NLSm);
     if (check_flag(&flag, "MRIStepSetNonlinearSolver", 1)) return 1;
@@ -194,14 +200,14 @@ int main(int argc, char* argv[])
   } else {
 
     // Initialize dense matrix data structures and solvers
-    Aa = SUNDenseMatrix(NEQ, NEQ);
+    Aa = SUNDenseMatrix(NEQ, NEQ, sunctx);
     if (check_flag((void *)Aa, "SUNDenseMatrix", 0)) return 1;
-    LSa = SUNLinSol_Dense(y, Aa);
+    LSa = SUNLinSol_Dense(y, Aa, sunctx);
     if (check_flag((void *)LSa, "SUNLinSol_Dense", 0)) return 1;
 
-    Am = SUNDenseMatrix(NEQ, NEQ);
+    Am = SUNDenseMatrix(NEQ, NEQ, sunctx);
     if (check_flag((void *)Am, "SUNDenseMatrix", 0)) return 1;
-    LSm = SUNLinSol_Dense(y, Am);
+    LSm = SUNLinSol_Dense(y, Am, sunctx);
     if (check_flag((void *)LSm, "SUNLinSol_Dense", 0)) return 1;
 
     // Linear solver interface
@@ -355,6 +361,8 @@ int main(int argc, char* argv[])
     SUNMatDestroy(Am);
   }
   N_VDestroy(y);               // Free y vector
+
+  SUNContext_Free(&sunctx);
   return (numfails);
 }
 
@@ -405,9 +413,9 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
 {
   realtype *rdata = (realtype *) user_data;   // cast user_data to realtype
   realtype lam = rdata[0];                    // set shortcut for stiffness parameter
-  SUNMatrix V  = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
-  SUNMatrix D  = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
-  SUNMatrix Vi = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
+  SUNMatrix V  = SUNDenseMatrix(3,3,sunctx);  // create temporary SUNMatrix objects
+  SUNMatrix D  = SUNDenseMatrix(3,3,sunctx);  // create temporary SUNMatrix objects
+  SUNMatrix Vi = SUNDenseMatrix(3,3,sunctx);  // create temporary SUNMatrix objects
 
   SUNMatZero(V);        // initialize temporary matrices to zero
   SUNMatZero(D);        // (not technically required)

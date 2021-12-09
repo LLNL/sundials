@@ -735,7 +735,6 @@ show :
 
 endif ()
 
-include (FindPackageHandleStandardArgs)
 find_package_handle_standard_args (PETSC
   REQUIRED_VARS PETSC_EXECUTABLE_RUNS
   VERSION_VAR PETSC_VERSION

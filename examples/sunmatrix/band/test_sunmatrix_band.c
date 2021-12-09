@@ -49,6 +49,12 @@ int main(int argc, char *argv[])
   int          print_timing;
   sunindextype i, j, k, kstart, kend, jstart, jend;
   realtype     *colj, *xdata, *ydata;
+  SUNContext   sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check input and set vector length */
   if (argc < 5){
@@ -87,10 +93,10 @@ int main(int argc, char *argv[])
   I = NULL;
 
   /* Create matrices and vectors */
-  A = SUNBandMatrix(cols, uband, lband);
-  I = SUNBandMatrix(cols, 0, 0);
-  x = N_VNew_Serial(cols);
-  y = N_VNew_Serial(cols);
+  A = SUNBandMatrix(cols, uband, lband, sunctx);
+  I = SUNBandMatrix(cols, 0, 0, sunctx);
+  x = N_VNew_Serial(cols, sunctx);
+  y = N_VNew_Serial(cols, sunctx);
 
   /* Fill matrices */
   xdata = N_VGetArrayPointer(x);
@@ -153,6 +159,7 @@ int main(int argc, char *argv[])
   SUNMatDestroy(I);
   N_VDestroy(x);
   N_VDestroy(y);
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }

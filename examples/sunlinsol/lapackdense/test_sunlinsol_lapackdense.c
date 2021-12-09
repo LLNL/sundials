@@ -40,6 +40,12 @@ int main(int argc, char *argv[])
   int             print_timing;
   sunindextype    j, k;
   realtype        *colj, *xdata, *colIj;
+  SUNContext      sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check input and set matrix dimensions */
   if (argc < 3){
@@ -62,12 +68,12 @@ int main(int argc, char *argv[])
          (long int) cols);
 
   /* Create matrices and vectors */
-  A = SUNDenseMatrix(rows, cols);
-  B = SUNDenseMatrix(rows, cols);
-  I = SUNDenseMatrix(rows, cols);
-  x = N_VNew_Serial(cols);
-  y = N_VNew_Serial(cols);
-  b = N_VNew_Serial(cols);
+  A = SUNDenseMatrix(rows, cols, sunctx);
+  B = SUNDenseMatrix(rows, cols, sunctx);
+  I = SUNDenseMatrix(rows, cols, sunctx);
+  x = N_VNew_Serial(cols, sunctx);
+  y = N_VNew_Serial(cols, sunctx);
+  b = N_VNew_Serial(cols, sunctx);
 
   /* Fill A matrix with uniform random data in [0,1/cols] */
   for (j=0; j<cols; j++) {
@@ -111,7 +117,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create dense linear solver */
-  LS = SUNLinSol_LapackDense(x, A);
+  LS = SUNLinSol_LapackDense(x, A, sunctx);
 
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
@@ -146,6 +152,8 @@ int main(int argc, char *argv[])
   N_VDestroy(x);
   N_VDestroy(y);
   N_VDestroy(b);
+
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }

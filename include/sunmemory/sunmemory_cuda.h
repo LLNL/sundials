@@ -27,7 +27,7 @@ extern "C" {
 
 /* Implementation specific functions */
 
-SUNMemoryHelper SUNMemoryHelper_Cuda();
+SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx);
 
 /* SUNMemoryHelper functions */
 

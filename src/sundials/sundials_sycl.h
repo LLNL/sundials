@@ -53,7 +53,7 @@ extern "C" {
 #define SYCL_FOR_REDUCE(q, total, block, item, rvar, rop, loop)  \
   q->submit([&](sycl::handler& h) {                              \
       h.parallel_for(sycl::nd_range<1>{total,block},             \
-                     sycl::ONEAPI::reduction(rvar, rop),         \
+                     sycl::reduction(rvar, rop),                 \
                      [=](sycl::nd_item<1> item, auto& rvar)      \
                      { loop }); });
 
@@ -62,7 +62,7 @@ extern "C" {
   q->submit([&](sycl::handler& h) {                                    \
       sycl::stream out(1024, 256, h);                                  \
       h.parallel_for(sycl::nd_range<1>{total,block},                   \
-                     sycl::ONEAPI::reduction(rvar, rop),               \
+                     sycl::reduction(rvar, rop),                       \
                      [=](sycl::nd_item<1> item, auto& rvar)            \
                      { loop }); });
 

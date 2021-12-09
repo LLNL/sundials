@@ -81,16 +81,12 @@ typedef struct _SUNLinearSolverContent_SPBCGS *SUNLinearSolverContent_SPBCGS;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y,
                                                  int pretype,
-                                                 int maxl);
+                                                 int maxl,
+                                                 SUNContext sunctx);
 SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S,
                                                 int pretype);
 SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S,
                                             int maxl);
-
-SUNDIALS_DEPRECATED_EXPORT SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl);
-SUNDIALS_DEPRECATED_EXPORT int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_DEPRECATED_EXPORT int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl);
-
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SPBCGS(SUNLinearSolver S);

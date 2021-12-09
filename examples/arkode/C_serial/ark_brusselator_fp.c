@@ -105,6 +105,11 @@ int main(int argc, char *argv[])
   int iout;
   long int nst, nst_a, nfe, nfi, nni, ncfn, netf;
 
+  /* Create SUNDIALS context */
+  SUNContext ctx = NULL;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   /* read inputs */
   if (argc == 2) {
     monitor = atoi(argv[1]);
@@ -148,7 +153,7 @@ int main(int argc, char *argv[])
   rdata[0] = a;    /* set user data  */
   rdata[1] = b;
   rdata[2] = ep;
-  y = N_VNew_Serial(NEQ);           /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);           /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = u0;               /* Set initial conditions */
   NV_Ith_S(y,1) = v0;
@@ -157,11 +162,11 @@ int main(int argc, char *argv[])
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side functions in y'=fe(t,y)+fi(t,y),
      the inital time T0, and the initial dependent variable vector y. */
-  arkode_mem = ARKStepCreate(fe, fi, T0, y);
+  arkode_mem = ARKStepCreate(fe, fi, T0, y, ctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Initialize fixed-point nonlinear solver and attach to ARKStep */
-  NLS = SUNNonlinSol_FixedPoint(y, fp_m);
+  NLS = SUNNonlinSol_FixedPoint(y, fp_m, ctx);
   if (check_flag((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return 1;
   if (monitor) {
     flag = SUNNonlinSolSetPrintLevel_FixedPoint(NLS, 1);
@@ -239,6 +244,8 @@ int main(int argc, char *argv[])
   N_VDestroy(y);               /* Free y vector */
   ARKStepFree(&arkode_mem);    /* Free integrator memory */
   SUNNonlinSolFree(NLS);       /* Free NLS object */
+  SUNContext_Free(&ctx);       /* Free context */
+
   return 0;
 }
 

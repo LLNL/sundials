@@ -208,11 +208,12 @@
 
 #include "nvector/nvector_mpimanyvector.h"
 
-SWIGEXPORT N_Vector _wrap_FN_VMake_MPIManyVector(int const *farg1, int64_t const *farg2, void *farg3) {
+SWIGEXPORT N_Vector _wrap_FN_VMake_MPIManyVector(int const *farg1, int64_t const *farg2, void *farg3, void *farg4) {
   N_Vector fresult ;
   MPI_Comm arg1 ;
   sunindextype arg2 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
+  SUNContext arg4 = (SUNContext) 0 ;
   N_Vector result;
   
 #ifdef SUNDIALS_MPI_ENABLED
@@ -222,21 +223,24 @@ SWIGEXPORT N_Vector _wrap_FN_VMake_MPIManyVector(int const *farg1, int64_t const
 #endif
   arg2 = (sunindextype)(*farg2);
   arg3 = (N_Vector *)(farg3);
-  result = (N_Vector)N_VMake_MPIManyVector(arg1,arg2,arg3);
+  arg4 = (SUNContext)(farg4);
+  result = (N_Vector)N_VMake_MPIManyVector(arg1,arg2,arg3,arg4);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT N_Vector _wrap_FN_VNew_MPIManyVector(int64_t const *farg1, void *farg2) {
+SWIGEXPORT N_Vector _wrap_FN_VNew_MPIManyVector(int64_t const *farg1, void *farg2, void *farg3) {
   N_Vector fresult ;
   sunindextype arg1 ;
   N_Vector *arg2 = (N_Vector *) 0 ;
+  SUNContext arg3 = (SUNContext) 0 ;
   N_Vector result;
   
   arg1 = (sunindextype)(*farg1);
   arg2 = (N_Vector *)(farg2);
-  result = (N_Vector)N_VNew_MPIManyVector(arg1,arg2);
+  arg3 = (SUNContext)(farg3);
+  result = (N_Vector)N_VNew_MPIManyVector(arg1,arg2,arg3);
   fresult = result;
   return fresult;
 }

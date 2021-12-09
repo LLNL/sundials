@@ -6,10 +6,13 @@
 module fsundials_linearsolver_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types_mod
+ use fsundials_context_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -87,6 +90,7 @@ module fsundials_linearsolver_mod
  type, bind(C), public :: SUNLinearSolver
   type(C_PTR), public :: content
   type(C_PTR), public :: ops
+  type(C_PTR), public :: sunctx
  end type SUNLinearSolver
  public :: FSUNLinSolNewEmpty
  public :: FSUNLinSolFreeEmpty
@@ -177,10 +181,11 @@ type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNLinSolNewEmpty() &
+function swigc_FSUNLinSolNewEmpty(farg1) &
 bind(C, name="_wrap_FSUNLinSolNewEmpty") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
@@ -430,13 +435,16 @@ fresult = swigc_FQRsol(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FSUNLinSolNewEmpty() &
+function FSUNLinSolNewEmpty(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNLinearSolver), pointer :: swig_result
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
-fresult = swigc_FSUNLinSolNewEmpty()
+farg1 = sunctx
+fresult = swigc_FSUNLinSolNewEmpty(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 

@@ -54,7 +54,7 @@
 SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A, gridinfo_t *grid,
                                       xLUstruct_t *lu, xScalePermstruct_t *scaleperm,
                                       xSOLVEstruct_t *solve, SuperLUStat_t *stat,
-                                      superlu_dist_options_t *options)
+                                      superlu_dist_options_t *options, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_SuperLUDIST content;
@@ -77,7 +77,7 @@ SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A, gridinfo_t *grid,
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

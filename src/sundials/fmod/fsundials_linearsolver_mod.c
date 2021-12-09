@@ -271,11 +271,13 @@ SWIGEXPORT int _wrap_FQRsol(int const *farg1, void *farg2, double *farg3, double
 }
 
 
-SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSolNewEmpty() {
+SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSolNewEmpty(void *farg1) {
   SUNLinearSolver fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
   SUNLinearSolver result;
   
-  result = (SUNLinearSolver)SUNLinSolNewEmpty();
+  arg1 = (SUNContext)(farg1);
+  result = (SUNLinearSolver)SUNLinSolNewEmpty(arg1);
   fresult = result;
   return fresult;
 }

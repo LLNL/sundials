@@ -141,12 +141,12 @@ int MyMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst,
   return(0);
 }
 
-SUNMemoryHelper MyMemoryHelper()
+SUNMemoryHelper MyMemoryHelper(SUNContext sunctx)
 {
   SUNMemoryHelper helper;
 
   /* Allocate helper */
-  helper = SUNMemoryHelper_NewEmpty();
+  helper = SUNMemoryHelper_NewEmpty(sunctx);
 
   /* Set the ops */
   helper->ops->alloc     = MyMemoryHelper_Alloc;

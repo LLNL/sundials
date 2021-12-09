@@ -115,7 +115,8 @@ N_Vector_ID N_VGetVectorID_Petsc(N_Vector v)
 
 N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
                            sunindextype local_length,
-                           sunindextype global_length)
+                           sunindextype global_length,
+                           SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_Petsc content;
@@ -133,7 +134,7 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -212,7 +213,7 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
  * Function to create an N_Vector wrapper for a PETSc vector.
  */
 
-N_Vector N_VMake_Petsc(Vec pvec)
+N_Vector N_VMake_Petsc(Vec pvec, SUNContext sunctx)
 {
   N_Vector v = NULL;
   MPI_Comm comm;
@@ -223,7 +224,7 @@ N_Vector N_VMake_Petsc(Vec pvec)
   VecGetSize(pvec, &global_length);
   PetscObjectGetComm((PetscObject) pvec, &comm);
 
-  v = N_VNewEmpty_Petsc(comm, local_length, global_length);
+  v = N_VNewEmpty_Petsc(comm, local_length, global_length, sunctx);
   if (v == NULL)
      return(NULL);
 
@@ -240,25 +241,7 @@ N_Vector N_VMake_Petsc(Vec pvec)
 
 N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w)
 {
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_Petsc(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Petsc(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------
@@ -268,25 +251,7 @@ N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w)
 
 N_Vector *N_VCloneVectorArrayEmpty_Petsc(int count, N_Vector w)
 {
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_Petsc(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Petsc(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------
@@ -295,13 +260,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Petsc(int count, N_Vector w)
 
 void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_Petsc(vs[j]);
-
-  free(vs);
-  vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -371,7 +330,7 @@ N_Vector N_VCloneEmpty_Petsc(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

@@ -98,7 +98,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
 
   /* Create CVODE object */
   lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
-  CV_cvodemem = CVodeCreate(lmm);
+  CV_cvodemem = CVodeCreate(lmm, NULL);
   if (CV_cvodemem == NULL) {
     *ier = -1;
     return;

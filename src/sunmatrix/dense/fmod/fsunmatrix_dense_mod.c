@@ -208,15 +208,17 @@
 
 #include "sunmatrix/sunmatrix_dense.h"
 
-SWIGEXPORT SUNMatrix _wrap_FSUNDenseMatrix(int64_t const *farg1, int64_t const *farg2) {
+SWIGEXPORT SUNMatrix _wrap_FSUNDenseMatrix(int64_t const *farg1, int64_t const *farg2, void *farg3) {
   SUNMatrix fresult ;
   sunindextype arg1 ;
   sunindextype arg2 ;
+  SUNContext arg3 = (SUNContext) 0 ;
   SUNMatrix result;
   
   arg1 = (sunindextype)(*farg1);
   arg2 = (sunindextype)(*farg2);
-  result = (SUNMatrix)SUNDenseMatrix(arg1,arg2);
+  arg3 = (SUNContext)(farg3);
+  result = (SUNMatrix)SUNDenseMatrix(arg1,arg2,arg3);
   fresult = result;
   return fresult;
 }

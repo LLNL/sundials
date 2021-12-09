@@ -193,6 +193,11 @@ if(_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
+# Add benchmarks to the build
+if(BUILD_BENCHMARKS)
+  add_subdirectory(benchmarks)
+endif()
+
 # ===============================================================
 # Install configuration header files and license file.
 # ===============================================================

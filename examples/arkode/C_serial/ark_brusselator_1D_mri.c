@@ -145,6 +145,10 @@ int main(int argc, char *argv[])
   UserData udata = NULL;                    /* user data pointer              */
   realtype* data  = NULL;                   /* array for vector data          */
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* allocate udata structure */
   udata = (UserData) malloc(sizeof(*udata));
@@ -173,7 +177,7 @@ int main(int argc, char *argv[])
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
 
   /* Create solution vector */
-  y = N_VNew_Serial(NEQ);      /* Create vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);      /* Create vector for solution */
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
 
   /* Set initial condition */
@@ -181,14 +185,14 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "SetIC", 1)) return 1;
 
   /* Create vector masks */
-  umask = N_VNew_Serial(NEQ);
-  if (check_retval((void *)umask, "N_VNew_Serial", 0)) return 1;
+  umask = N_VClone(y);
+  if (check_retval((void *)umask, "N_VClone", 0)) return 1;
 
-  vmask = N_VNew_Serial(NEQ);
-  if (check_retval((void *)vmask, "N_VNew_Serial", 0)) return 1;
+  vmask = N_VClone(y);
+  if (check_retval((void *)vmask, "N_VClone", 0)) return 1;
 
-  wmask = N_VNew_Serial(NEQ);
-  if (check_retval((void *)wmask, "N_VNew_Serial", 0)) return 1;
+  wmask = N_VClone(y);
+  if (check_retval((void *)wmask, "N_VClone", 0)) return 1;
 
   /* Set mask array values for each solution component */
   N_VConst(0.0, umask);
@@ -211,16 +215,16 @@ int main(int argc, char *argv[])
    */
 
   /* Initialize matrix and linear solver data structures */
-  A = SUNBandMatrix(NEQ, 4, 4);
+  A = SUNBandMatrix(NEQ, 4, 4, ctx);
   if (check_retval((void *)A, "SUNBandMatrix", 0)) return 1;
 
-  LS = SUNLinSol_Band(y, A);
+  LS = SUNLinSol_Band(y, A, ctx);
   if (check_retval((void *)LS, "SUNLinSol_Band", 0)) return 1;
 
   /* Initialize the fast integrator. Specify the implicit fast right-hand side
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
      initial dependent variable vector y. */
-  inner_arkode_mem = ARKStepCreate(NULL, ff, T0, y);
+  inner_arkode_mem = ARKStepCreate(NULL, ff, T0, y, ctx);
   if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Attach user data to fast integrator */
@@ -255,7 +259,7 @@ int main(int argc, char *argv[])
   /* Initialize the slow integrator. Specify the explicit slow right-hand side
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
      initial dependent variable vector y, and the fast integrator. */
-  arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper);
+  arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
   if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
 
   /* Pass udata to user functions */
@@ -385,6 +389,8 @@ int main(int argc, char *argv[])
   N_VDestroy(umask);
   N_VDestroy(vmask);
   N_VDestroy(wmask);
+  SUNContext_Free(&ctx);           /* Free context */
+
   return 0;
 }
 

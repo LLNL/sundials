@@ -22,7 +22,6 @@
 #include <limits>
 
 #include <nvector/nvector_hip.h>
-#include <sunmemory/sunmemory_hip.h>
 #include "VectorArrayKernels.hip.hpp"
 #include "VectorKernels.hip.hpp"
 #include "sundials_hip.h"
@@ -94,13 +93,13 @@ N_Vector_ID N_VGetVectorID_Hip(N_Vector v)
   return SUNDIALS_NVEC_HIP;
 }
 
-N_Vector N_VNewEmpty_Hip()
+N_Vector N_VNewEmpty_Hip(SUNContext sunctx)
 {
   N_Vector v;
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -191,18 +190,18 @@ N_Vector N_VNewEmpty_Hip()
   return(v);
 }
 
-N_Vector N_VNew_Hip(sunindextype length)
+N_Vector N_VNew_Hip(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_HIP_CONTENT(v)->length                        = length;
   NVEC_HIP_CONTENT(v)->host_data                     = NULL;
   NVEC_HIP_CONTENT(v)->device_data                   = NULL;
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip();
+  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
   NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
   NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
@@ -229,7 +228,7 @@ N_Vector N_VNew_Hip(sunindextype length)
   return(v);
 }
 
-N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper)
+N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
 {
   N_Vector v;
 
@@ -246,7 +245,7 @@ N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem,
   }
 
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_HIP_CONTENT(v)->length                        = length;
@@ -272,12 +271,12 @@ N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem,
   return(v);
 }
 
-N_Vector N_VNewManaged_Hip(sunindextype length)
+N_Vector N_VNewManaged_Hip(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_HIP_CONTENT(v)->length                        = length;
@@ -285,7 +284,7 @@ N_Vector N_VNewManaged_Hip(sunindextype length)
   NVEC_HIP_CONTENT(v)->device_data                   = NULL;
   NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip();
+  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
   NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
   NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
   NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNTRUE;
@@ -310,14 +309,14 @@ N_Vector N_VNewManaged_Hip(sunindextype length)
   return(v);
 }
 
-N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata)
+N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata, SUNContext sunctx)
 {
   N_Vector v;
 
   if (h_vdata == NULL || d_vdata == NULL) return(NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_HIP_CONTENT(v)->length                        = length;
@@ -325,7 +324,7 @@ N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata)
   NVEC_HIP_CONTENT(v)->device_data                   = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
   NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip();
+  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
   NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
   NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
   NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNFALSE;
@@ -351,14 +350,14 @@ N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata)
   return(v);
 }
 
-N_Vector N_VMakeManaged_Hip(sunindextype length, realtype *vdata)
+N_Vector N_VMakeManaged_Hip(sunindextype length, realtype *vdata, SUNContext sunctx)
 {
   N_Vector v;
 
   if (vdata == NULL) return(NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_HIP_CONTENT(v)->length                        = length;
@@ -366,7 +365,7 @@ N_Vector N_VMakeManaged_Hip(sunindextype length, realtype *vdata)
   NVEC_HIP_CONTENT(v)->device_data                   = SUNMemoryHelper_Alias(NVEC_HIP_CONTENT(v)->host_data);
   NVEC_HIP_CONTENT(v)->stream_exec_policy            = NVEC_HIP_DEFAULT_STREAM_POLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy            = NVEC_HIP_DEFAULT_REDUCE_POLICY.clone();
-  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip();
+  NVEC_HIP_CONTENT(v)->mem_helper                    = SUNMemoryHelper_Hip(sunctx);
   NVEC_HIP_CONTENT(v)->own_helper                    = SUNTRUE;
   NVEC_HIP_CONTENT(v)->own_exec                      = SUNTRUE;
   NVEC_HIP_PRIVATE(v)->use_managed_mem               = SUNTRUE;
@@ -520,13 +519,17 @@ void N_VPrintFile_Hip(N_Vector x, FILE *outfile)
 {
   sunindextype i;
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  N_VCopyFromDevice_Hip(x);
+#endif
+
   for (i = 0; i < NVEC_HIP_CONTENT(x)->length; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Lg\n", NVEC_HIP_HDATAp(x)[i]);
+    fprintf(outfile, "%35.32Le\n", NVEC_HIP_HDATAp(x)[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16g\n", NVEC_HIP_HDATAp(x)[i]);
+    fprintf(outfile, "%19.16e\n", NVEC_HIP_HDATAp(x)[i]);
 #else
-    fprintf(outfile, "%11.8g\n", NVEC_HIP_HDATAp(x)[i]);
+    fprintf(outfile, "%11.8e\n", NVEC_HIP_HDATAp(x)[i]);
 #endif
   }
   fprintf(outfile, "\n");
@@ -548,7 +551,7 @@ N_Vector N_VCloneEmpty_Hip(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty_Hip();
+  v = N_VNewEmpty_Hip(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

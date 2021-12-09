@@ -69,7 +69,7 @@ using namespace oneapi::mkl::lapack;
  * -------------------------------------------------------------------------- */
 
 
-SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat)
+SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sunctx)
 {
   int retval = 0;
 
@@ -123,7 +123,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat)
   }
 
   // Create the linear solver
-  SUNLinearSolver S = SUNLinSolNewEmpty();
+  SUNLinearSolver S = SUNLinSolNewEmpty(sunctx);
   if (!S)
   {
     SUNDIALS_DEBUG_ERROR("SUNLinSolNewEmpty returned NULL\n");

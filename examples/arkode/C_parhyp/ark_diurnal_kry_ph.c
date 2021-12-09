@@ -180,6 +180,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 /***************************** Main Program ******************************/
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   realtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
@@ -211,6 +212,10 @@ int main(int argc, char *argv[])
     return(1);
   }
 
+  /* Create the SUNDIALS context object for this simulation */
+  flag = SUNContext_Create(&comm, &sunctx);
+  if (check_flag(&flag, "SUNContext_Create", 1, my_pe)) return 1;
+
   /* Set local length */
   local_N = NVARS*MXSUB*MYSUB;
 
@@ -229,7 +234,7 @@ int main(int argc, char *argv[])
   HYPRE_IJVectorAssemble(Uij);
   HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
 
-  u = N_VMake_ParHyp(Upar);  /* Create wrapper u around hypre vector */
+  u = N_VMake_ParHyp(Upar, sunctx);  /* Create wrapper u around hypre vector */
   if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set tolerances */
@@ -237,13 +242,13 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0, sunctx);
   if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
      user's right hand side function in u'=fi(t,u) [here fe is NULL],
      the inital time T0, and the initial dependent variable vector u. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, u);
+  arkode_mem = ARKStepCreate(NULL, f, T0, u, sunctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
@@ -288,7 +293,9 @@ int main(int argc, char *argv[])
   FreeUserData(data);
   ARKStepFree(&arkode_mem);
   SUNLinSolFree(LS);
+  SUNContext_Free(&sunctx);      /* Free context */
   MPI_Finalize();
+
   return(0);
 }
 

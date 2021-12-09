@@ -42,7 +42,7 @@ int main()
   realtype reltol, abstol, t, tout, Tout;
   realtype x, y, xd, yd, g;
   int iout, Nout, flag;
-  
+
   yy = N_VNew_Serial(4);
   yp = N_VNew_Serial(4);
 
@@ -53,21 +53,21 @@ int main()
   Ith(yy,4) = 0.0;  /* yd */
 
   /* Set tolerances */
-  reltol = RTOL; 
+  reltol = RTOL;
   abstol = ATOL;
 
   Nout = 30;
   Tout = Nout*1.0;
 
   /* Initialize solver */
-  cpode_mem = CPodeCreate(CP_BDF, CP_NEWTON);  
+  cpode_mem = CPodeCreate(CP_BDF, CP_NEWTON);
   flag = CPodeInitExpl(cpode_mem, f, 0.0, yy);
   flag = CPodeSStolerances(cpode_mem, reltol, abstol);
   flag = CPodeSetMaxNumSteps(cpode_mem, 50000);
   flag = CPodeSetStopTime(cpode_mem, Tout);
   flag = CPLapackDense(cpode_mem, 4);
 
-  /* INTERNAL PROJECTION FUNCTION */  
+  /* INTERNAL PROJECTION FUNCTION */
   ctols = N_VNew_Serial(3);
   Ith(ctols,1) = 1.0e-8;
   Ith(ctols,2) = 1.0e-8;
@@ -75,7 +75,7 @@ int main()
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
   flag = CPodeSetProjTestCnstr(cpode_mem, SUNTRUE);
   flag = CPLapackDenseProj(cpode_mem, 3, 4, CPDLS_QRP);
- 
+
   /* COMPUTE CONSISTENT INITIAL CONDITIONS */
   flag = CPodeCalcIC(cpode_mem);
   flag = CPodeGetConsistentIC(cpode_mem, yy, NULL);
@@ -116,7 +116,7 @@ static int f(realtype t, N_Vector yy, N_Vector fy, void *f_data)
   y  = Ith(yy,2);
   xd = Ith(yy,3);
   yd = Ith(yy,4);
- 
+
   tmp = xd*xd + yd*yd - g*y;
 
   Ith(fy,1) = xd;

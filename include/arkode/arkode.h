@@ -29,6 +29,7 @@
 #define _ARKODE_H
 
 #include <stdio.h>
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_nvector.h>
 #include <arkode/arkode_butcher.h>
 
@@ -128,6 +129,8 @@ extern "C" {
 #define ARK_INTERP_FAIL            -40
 
 #define ARK_INVALID_TABLE          -41
+
+#define ARK_CONTEXT_ERR            -42
 
 #define ARK_UNRECOGNIZED_ERROR     -99
 

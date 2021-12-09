@@ -22,6 +22,7 @@
 #include <stdarg.h>
 
 #include "ida/ida.h"
+#include "sundials_context_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -60,6 +61,8 @@ extern "C" {
  */
 
 typedef struct IDAMemRec {
+
+  SUNContext ida_sunctx;
 
   realtype ida_uround;    /* machine unit roundoff */
 
@@ -451,6 +454,7 @@ int idaNlsInit(IDAMem IDA_mem);
 /* General errors */
 
 #define MSG_MEM_FAIL       "A memory request failed."
+#define MSG_NULL_SUNCTX    "sunctx = NULL illegal."
 #define MSG_NO_MEM         "ida_mem = NULL illegal."
 #define MSG_NO_MALLOC      "Attempt to call before IDAMalloc."
 #define MSG_BAD_NVECTOR    "A required vector operation is not implemented."

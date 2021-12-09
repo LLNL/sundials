@@ -129,6 +129,7 @@ int main(int argc, char* argv[])
   realtype ec       = ZERO; /* constraint error           */
   UserData udata    = NULL; /* user data structure        */
 
+  SUNContext      sunctx     = NULL; /* SUNDIALS context     */
   void            *cvode_mem = NULL; /* CVODE memory         */
   N_Vector         y         = NULL; /* solution vector      */
   realtype        *ydata     = NULL; /* solution vector data */
@@ -139,6 +140,10 @@ int main(int argc, char* argv[])
   FILE *YFID = NULL; /* solution output file */
   FILE *EFID = NULL; /* error output file    */
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Allocate and initialize user data structure */
   udata = (UserData) malloc(sizeof *udata);
   if (check_retval((void *)udata, "malloc", 0)) return(1);
@@ -147,7 +152,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "InitUserData", 1)) return(1);
 
   /* Create serial vector to store the solution */
-  y = N_VNew_Serial(2);
+  y = N_VNew_Serial(2, sunctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
 
   /* Set initial contion */
@@ -163,7 +168,7 @@ int main(int argc, char* argv[])
   N_VConst(ZERO, e);
 
   /* Create CVODE memory */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Initialize CVODE */
@@ -179,11 +184,11 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(2, 2);
+  A = SUNDenseMatrix(2, 2, sunctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNLinSol_Dense(y, A);
+  LS = SUNLinSol_Dense(y, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver to CVODE */
@@ -293,6 +298,7 @@ int main(int argc, char* argv[])
   SUNMatDestroy(A);
   SUNLinSolFree(LS);
   CVodeFree(&cvode_mem);
+  SUNContext_Free(&sunctx);
 
   return(0);
 }

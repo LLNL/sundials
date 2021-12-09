@@ -56,7 +56,8 @@ inline Teuchos::RCP<Sundials::TpetraVectorInterface::vector_type> N_VGetVector_T
  */
 
 SUNDIALS_EXPORT N_Vector
-N_VMake_Trilinos(Teuchos::RCP<Sundials::TpetraVectorInterface::vector_type> v);
+N_VMake_Trilinos(Teuchos::RCP<Sundials::TpetraVectorInterface::vector_type> v,
+                 SUNContext sunctx);
 
 
 

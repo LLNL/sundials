@@ -41,6 +41,12 @@ int main(int argc, char *argv[])
   int             print_timing;
   sunindextype    j, k, kstart, kend;
   realtype        *colj, *xdata;
+  SUNContext      sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check input and set matrix dimensions */
   if (argc < 5){
@@ -73,11 +79,11 @@ int main(int argc, char *argv[])
          (long int) cols, (long int) uband, (long int) lband);
 
   /* Create matrices and vectors */
-  A = SUNBandMatrix(cols, uband, lband);
-  B = SUNBandMatrix(cols, uband, lband);
-  x = N_VNew_Serial(cols);
-  y = N_VNew_Serial(cols);
-  b = N_VNew_Serial(cols);
+  A = SUNBandMatrix(cols, uband, lband, sunctx);
+  B = SUNBandMatrix(cols, uband, lband, sunctx);
+  x = N_VNew_Serial(cols, sunctx);
+  y = N_VNew_Serial(cols, sunctx);
+  b = N_VNew_Serial(cols, sunctx);
 
   /* Fill matrix and x vector with uniform random data in [0,1] */
   xdata = N_VGetArrayPointer(x);
@@ -114,7 +120,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create banded linear solver */
-  LS = SUNLinSol_LapackBand(x, A);
+  LS = SUNLinSol_LapackBand(x, A, sunctx);
 
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
@@ -148,6 +154,8 @@ int main(int argc, char *argv[])
   N_VDestroy(x);
   N_VDestroy(y);
   N_VDestroy(b);
+
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }

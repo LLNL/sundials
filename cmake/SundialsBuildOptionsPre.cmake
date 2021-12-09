@@ -58,11 +58,18 @@ set(DOCSTR "Integer type to use for indices in SUNDIALS")
 sundials_option(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "" ADVANCED)
 
 # ---------------------------------------------------------------
-# Option to specify monitoring
+# Option to enable monitoring
 # ---------------------------------------------------------------
 
 set(DOCSTR "Build with simulation monitoring capabilities enabled")
 sundials_option(SUNDIALS_BUILD_WITH_MONITORING BOOL "${DOCSTR}" OFF)
+
+# ---------------------------------------------------------------
+# Option to enable profiling
+# ---------------------------------------------------------------
+
+set(DOCSTR "Build with simulation profiling capabilities enabled")
+sundials_option(SUNDIALS_BUILD_WITH_PROFILING BOOL "${DOCSTR}" OFF)
 
 # ---------------------------------------------------------------
 # Option to use the generic math libraries (UNIX only)
@@ -173,6 +180,16 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
   set(DOCSTR "Directory where Fortran module files are installed")
   sundials_option(Fortran_INSTALL_MODDIR STRING "${DOCSTR}" "fortran")
 endif()
+
+# ---------------------------------------------------------------
+# Options for benchmark suite
+# ---------------------------------------------------------------
+
+sundials_option(BUILD_BENCHMARKS BOOL "Build the SUNDIALS benchmark suite" OFF)
+
+# ---------------------------------------------------------------
+# Options for CMake config installation
+# ---------------------------------------------------------------
 
 set(DOCSTR "Path to SUNDIALS cmake files")
 sundials_option(SUNDIALS_INSTALL_CMAKEDIR STRING "${DOCSTR}"

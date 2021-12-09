@@ -106,6 +106,9 @@ static int FreeUserData(UserData *udata);
 
 // Main Program
 int main(int argc, char* argv[]) {
+  /* Create the SUNDIALS context object for this simulation. */
+  SUNContext ctx = NULL;
+  SUNContext_Create(NULL, &ctx);
 
   // general problem parameters
   realtype T0 = RCONST(0.0);     // initial time
@@ -184,18 +187,18 @@ int main(int argc, char* argv[]) {
   // Initialize vector data structures
   N = (udata->nxl)*(udata->nyl);
   Ntot = nx*ny;
-  y = N_VNew_Parallel(udata->comm, N, Ntot);         // Create parallel vector for solution
+  y = N_VNew_Parallel(udata->comm, N, Ntot, ctx);    // Create parallel vector for solution
   if (check_flag((void *) y, "N_VNew_Parallel", 0)) return 1;
   N_VConst(ZERO, y);                                 // Set initial conditions
-  udata->h = N_VNew_Parallel(udata->comm, N, Ntot);  // Create vector for heat source
+  udata->h = N_VClone(y);  // Create vector for heat source
   if (check_flag((void *) udata->h, "N_VNew_Parallel", 0)) return 1;
-  udata->d = N_VNew_Parallel(udata->comm, N, Ntot);  // Create vector for Jacobian diagonal
+  udata->d = N_VClone(y);  // Create vector for Jacobian diagonal
   if (check_flag((void *) udata->d, "N_VNew_Parallel", 0)) return 1;
 
   // Initialize linear solver data structures
-  LSa = SUNLinSol_PCG(y, 1, 20);
+  LSa = SUNLinSol_PCG(y, 1, 20, ctx);
   if (check_flag((void *) LSa, "SUNLinSol_PCG", 0)) return 1;
-  LSm = SUNLinSol_PCG(y, 1, 20);
+  LSm = SUNLinSol_PCG(y, 1, 20, ctx);
   if (check_flag((void *) LSm, "SUNLinSol_PCG", 0)) return 1;
 
   // fill in the heat source array
@@ -206,17 +209,17 @@ int main(int argc, char* argv[]) {
                                 * sin(TWO*PI*(udata->js+j)*udata->dy);
 
   /* Call ARKStepCreate and MRIStepCreate to initialize the timesteppers */
-  arkstep_mem = ARKStepCreate(NULL, f, T0, y);
+  arkstep_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_flag((void *) arkstep_mem, "ARKStepCreate", 0)) return 1;
 
-  inner_mem = ARKStepCreate(f0, NULL, T0, y);
+  inner_mem = ARKStepCreate(f0, NULL, T0, y, ctx);
   if (check_flag((void *) inner_mem, "ARKStepCreate", 0)) return 1;
 
   MRIStepInnerStepper inner_stepper = NULL;
   flag = ARKStepCreateMRIStepInnerStepper(inner_mem, &inner_stepper);
   if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
 
-  mristep_mem = MRIStepCreate(NULL, f, T0, y, inner_stepper);
+  mristep_mem = MRIStepCreate(NULL, f, T0, y, inner_stepper, ctx);
   if (check_flag((void *) mristep_mem, "MRIStepCreate", 0)) return 1;
 
   // Create solve-decoupled DIRK2 (trapezoidal) Butcher table
@@ -446,7 +449,9 @@ int main(int argc, char* argv[]) {
   N_VDestroy(udata->d);
   FreeUserData(udata);                       // Free user data
   delete udata;
-  flag = MPI_Finalize();                     // Finalize MPI
+
+  SUNContext_Free(&ctx);
+  flag = MPI_Finalize();       // Finalize MPI
   return (numfails);
 }
 

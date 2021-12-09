@@ -27,7 +27,8 @@ extern "C" {
 
 /* Implementation specific functions */
 
-SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_Sycl(sycl::queue *Q);
+SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_Sycl(sycl::queue *Q,
+                                                     SUNContext sunctx);
 
 /* SUNMemoryHelper functions */
 

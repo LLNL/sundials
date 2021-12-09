@@ -37,7 +37,7 @@ using namespace sundials::sunmatrix_cusparse;
 
 /* Private function prototypes */
 static booleantype SMCompatible_cuSparse(SUNMatrix, SUNMatrix);
-static SUNMatrix SUNMatrix_cuSparse_NewEmpty();
+static SUNMatrix SUNMatrix_cuSparse_NewEmpty(SUNContext sunctx);
 #if CUDART_VERSION >= 11000
 static cusparseStatus_t CreateSpMatDescr(SUNMatrix, cusparseSpMatDescr_t*);
 #endif
@@ -130,7 +130,7 @@ private:
  * Constructors.
  * ------------------------------------------------------------------ */
 
-SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp)
+SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp, SUNContext sunctx)
 {
   SUNMemory d_colind, d_rowptr, d_values;
   int alloc_fail = 0;
@@ -142,14 +142,14 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
     return(NULL);
   }
 
-  SUNMatrix A = SUNMatrix_cuSparse_NewEmpty();
+  SUNMatrix A = SUNMatrix_cuSparse_NewEmpty(sunctx);
   if (A == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMatrix_NewCSR_cuSparse: SUNMatrix_cuSparse_NewEmpty returned NULL\n");
     return(NULL);
   }
 
-  SMCU_MEMHELP(A) = SUNMemoryHelper_Cuda();
+  SMCU_MEMHELP(A) = SUNMemoryHelper_Cuda(sunctx);
   if (SMCU_MEMHELP(A) == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMatrix_NewCSR_cuSparse: SUNMemoryHelper_Cuda returned NULL\n");
@@ -259,7 +259,7 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
 
 SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N, int NNZ,
                                      int *rowptrs , int *colind , realtype *data,
-                                     cusparseHandle_t cusp)
+                                     cusparseHandle_t cusp, SUNContext sunctx)
 {
   /* return with NULL matrix on illegal input */
   if ( (M <= 0) || (N <= 0) || (NNZ < 0) )
@@ -280,14 +280,14 @@ SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N,
     return(NULL);
   }
 
-  SUNMatrix A = SUNMatrix_cuSparse_NewEmpty();
+  SUNMatrix A = SUNMatrix_cuSparse_NewEmpty(sunctx);
   if (A == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMatrix_MakeCSR_cuSparse: SUNMatrix_cuSparse_NewEmpty returned NULL\n");
     return(NULL);
   }
 
-  SMCU_MEMHELP(A) = SUNMemoryHelper_Cuda();
+  SMCU_MEMHELP(A) = SUNMemoryHelper_Cuda(sunctx);
   if (SMCU_MEMHELP(A) == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMatrix_NewCSR_cuSparse: SUNMemoryHelper_Cuda returned NULL\n");
@@ -349,7 +349,7 @@ SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N,
 }
 
 
-SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockcols, int blocknnz, cusparseHandle_t cusp)
+SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockcols, int blocknnz, cusparseHandle_t cusp, SUNContext sunctx)
 {
   SUNMemory d_colind, d_rowptr, d_values;
   int M, N, NNZ;
@@ -374,14 +374,14 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
   }
 
   /* Allocate the SUNMatrix object */
-  SUNMatrix A = SUNMatrix_cuSparse_NewEmpty();
+  SUNMatrix A = SUNMatrix_cuSparse_NewEmpty(sunctx);
   if (A == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMatrix_cuSparse_NewBlockCSR: SUNMatrix_cuSparse_NewEmpty returned NULL\n");
     return(NULL);
   }
 
-  SMCU_MEMHELP(A) = SUNMemoryHelper_Cuda();
+  SMCU_MEMHELP(A) = SUNMemoryHelper_Cuda(sunctx);
   if (SMCU_MEMHELP(A) == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMatrix_NewCSR_cuSparse: SUNMemoryHelper_Cuda returned NULL\n");
@@ -786,11 +786,11 @@ SUNMatrix SUNMatClone_cuSparse(SUNMatrix A)
   {
     case SUNMAT_CUSPARSE_CSR:
       B = SUNMatrix_cuSparse_NewCSR(SMCU_ROWS(A), SMCU_COLUMNS(A), SMCU_NNZ(A),
-                                    SMCU_CUSPHANDLE(A));
+                                    SMCU_CUSPHANDLE(A), A->sunctx);
       break;
     case SUNMAT_CUSPARSE_BCSR:
       B = SUNMatrix_cuSparse_NewBlockCSR(SMCU_NBLOCKS(A), SMCU_BLOCKROWS(A), SMCU_BLOCKCOLS(A),
-                                         SMCU_BLOCKNNZ(A), SMCU_CUSPHANDLE(A));
+                                         SMCU_BLOCKNNZ(A), SMCU_CUSPHANDLE(A), A->sunctx);
       break;
     default:
       SUNDIALS_DEBUG_PRINT("ERROR in SUNMatClone_cuSparse: sparse type not recognized\n");
@@ -1200,11 +1200,11 @@ static booleantype SMCompatible_cuSparse(SUNMatrix A, SUNMatrix B)
  * Function to create empty SUNMatrix with ops attached and
  * the content structure allocated.
  */
-SUNMatrix SUNMatrix_cuSparse_NewEmpty()
+SUNMatrix SUNMatrix_cuSparse_NewEmpty(SUNContext sunctx)
 {
   /* Create an empty matrix object */
   SUNMatrix A = NULL;
-  A = SUNMatNewEmpty();
+  A = SUNMatNewEmpty(sunctx);
   if (A == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in SUNMatrix_cuSparse_NewEmpty: SUNMatNewEmpty failed\n");

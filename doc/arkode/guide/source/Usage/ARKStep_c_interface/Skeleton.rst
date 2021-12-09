@@ -33,6 +33,29 @@ the function to be called or macro to be referenced.
    ``num_threads``, the number of threads to use within the threaded
    vector functions, if used.
 
+#. Create the SUNDIALS simulation context object.
+
+   Call :c:func:`SUNContext_Create` to create a ``SUNContext`` object,
+   providing an MPI communicator if using MPI. See the section
+   :ref:`SUNDIALS.SUNContext`` for more information.
+
+   This step may look like
+
+   .. code-block:: c
+
+      SUNContext ctx;
+      SUNContext_Create(NULL, &ctx);
+
+   when not using MPI, or like
+
+   .. code-block:: c
+
+      MPI_Comm comm = MPI_COMM_WORLD;
+      SUNContext ctx;
+      SUNContext_Create((void*) &comm, &ctx);
+
+   when using MPI.
+
 #. Set problem dimensions, etc.
 
    This generally includes the problem size, ``N``, and may include

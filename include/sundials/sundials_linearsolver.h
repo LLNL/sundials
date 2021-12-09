@@ -132,6 +132,7 @@ struct _generic_SUNLinearSolver_Ops {
 struct _generic_SUNLinearSolver {
   void *content;
   SUNLinearSolver_Ops ops;
+  SUNContext sunctx;
 };
 
 
@@ -139,7 +140,7 @@ struct _generic_SUNLinearSolver {
  * Functions exported by SUNLinearSolver module
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSolNewEmpty();
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx);
 
 SUNDIALS_EXPORT void SUNLinSolFreeEmpty(SUNLinearSolver S);
 

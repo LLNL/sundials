@@ -95,17 +95,10 @@ typedef struct _SUNLinearSolverContent_SuperLUMT *SUNLinearSolverContent_SuperLU
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y,
                                                     SUNMatrix A,
-                                                    int num_threads);
+                                                    int num_threads,
+                                                    SUNContext sunctx);
 SUNDIALS_EXPORT int SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S,
                                                    int ordering_choice);
-
-/* deprecated */
-SUNDIALS_EXPORT SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A,
-                                             int num_threads);
-/* deprecated */
-SUNDIALS_EXPORT int SUNSuperLUMTSetOrdering(SUNLinearSolver S,
-                                            int ordering_choice);
-
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S);

@@ -91,6 +91,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char *argv[])
 {
+  sundials::Context sunctx;
   realtype dx, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
@@ -115,7 +116,7 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
   if(check_retval((void *)data, "malloc", 2)) return 1;
 
-  u = N_VNew_Hip(NEQ);  /* Allocate u vector */
+  u = N_VNew_Hip(NEQ, sunctx);  /* Allocate u vector */
   if(check_retval((void *)u, "N_VNew", 0)) return 1;
 
   reltol = ZERO;  /* Set the tolerances */
@@ -129,7 +130,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Adams-Moulton LMM */
-  cvode_mem = CVodeCreate(CV_ADAMS);
+  cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return 1;
 
   retval = CVodeSetUserData(cvode_mem, data);

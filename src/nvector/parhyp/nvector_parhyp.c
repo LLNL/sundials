@@ -144,14 +144,15 @@ N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v)
  */
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
                             sunindextype local_length,
-                            sunindextype global_length)
+                            sunindextype global_length,
+                            SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_ParHyp content;
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -230,7 +231,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
  * supplie HYPRE vector.
  */
 
-N_Vector N_VMake_ParHyp(HYPRE_ParVector x)
+N_Vector N_VMake_ParHyp(HYPRE_ParVector x, SUNContext sunctx)
 {
   N_Vector v;
   MPI_Comm comm = hypre_ParVectorComm(x);
@@ -240,7 +241,7 @@ N_Vector N_VMake_ParHyp(HYPRE_ParVector x)
   sunindextype local_length  = local_end - local_begin + 1;
 
   v = NULL;
-  v = N_VNewEmpty_ParHyp(comm, local_length, global_length);
+  v = N_VNewEmpty_ParHyp(comm, local_length, global_length, sunctx);
   if (v == NULL)
     return(NULL);
 
@@ -257,25 +258,7 @@ N_Vector N_VMake_ParHyp(HYPRE_ParVector x)
 
 N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w)
 {
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_ParHyp(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_ParHyp(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------
@@ -285,25 +268,7 @@ N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w)
 
 N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w)
 {
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_ParHyp(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_ParHyp(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------
@@ -312,14 +277,7 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w)
 
 void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++)
-    N_VDestroy_ParHyp(vs[j]);
-
-  free(vs);
-  vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -387,7 +345,7 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

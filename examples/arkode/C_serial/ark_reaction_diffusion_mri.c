@@ -106,6 +106,11 @@ int main() {
   int iout;
   long int nsts, nstf, nfse, nfsi, nff, tmp;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /*
    * Initialization
    */
@@ -123,7 +128,7 @@ int main() {
   printf("  diffusion coefficient:  k = %"GSYM"\n", udata->k);
 
   /* Create and initialize serial vector for the solution */
-  y = N_VNew_Serial(N);
+  y = N_VNew_Serial(N, ctx);
   if (check_retval((void *) y, "N_VNew_Serial", 0)) return 1;
 
   retval = SetInitialCondition(y, udata);
@@ -136,7 +141,7 @@ int main() {
   /* Initialize the fast integrator. Specify the explicit fast right-hand side
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
      initial dependent variable vector y. */
-  inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y);
+  inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
   if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Attach user data to fast integrator */
@@ -163,7 +168,7 @@ int main() {
   /* Initialize the slow integrator. Specify the explicit slow right-hand side
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
      initial dependent variable vector y, and the fast integrator. */
-  arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper);
+  arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
   if (check_retval((void *) arkode_mem, "MRIStepCreate", 0)) return 1;
 
   /* Pass udata to user functions */
@@ -244,6 +249,7 @@ int main() {
   MRIStepInnerStepper_Free(&inner_stepper);  /* Free inner stepper */
   MRIStepFree(&arkode_mem);                  /* Free integrator memory */
   free(udata);                               /* Free user data */
+  SUNContext_Free(&ctx);                     /* Free context */
 
   return 0;
 }

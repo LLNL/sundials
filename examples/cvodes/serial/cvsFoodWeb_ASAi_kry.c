@@ -233,6 +233,9 @@ static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[], 
 static void v_prod(realtype u[], realtype v[], realtype w[], int n);
 static void v_zero(realtype u[], int n);
 
+/* SUNDIALS context */
+static SUNContext sunctx;
+
 /*
  *--------------------------------------------------------------------
  * MAIN PROGRAM
@@ -260,6 +263,10 @@ int main(int argc, char *argv[])
   cvode_mem = NULL;
   LS = LSB = NULL;
 
+  /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Allocate and initialize user data */
 
   wdata = AllocUserData();
@@ -269,13 +276,13 @@ int main(int argc, char *argv[])
   /* Set-up forward problem */
 
   /* Initializations */
-  c = N_VNew_Serial(NEQ+1);
+  c = N_VNew_Serial(NEQ+1, sunctx);
   if(check_retval((void *)c, "N_VNew_Serial", 0)) return(1);
   CInit(c, wdata);
 
   /* Call CVodeCreate/CVodeInit for forward run */
   printf("\nCreate and allocate CVODES memory for forward run\n");
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   wdata->cvode_mem = cvode_mem; /* Used in Precond */
   retval = CVodeSetUserData(cvode_mem, wdata);
@@ -286,7 +293,7 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Create SUNLinSol_SPGMR linear solver for forward run */
-  LS = SUNLinSol_SPGMR(c, PREC_LEFT, 0);
+  LS = SUNLinSol_SPGMR(c, PREC_LEFT, 0, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear sovler */
@@ -329,7 +336,7 @@ int main(int argc, char *argv[])
   /* Set-up backward problem */
 
   /* Allocate cB */
-  cB = N_VNew_Serial(NEQ);
+  cB = N_VNew_Serial(NEQ, sunctx);
   if(check_retval((void *)cB, "N_VNew_Serial", 0)) return(1);
   /* Initialize cB = 0 */
   N_VConst(ZERO, cB);
@@ -350,7 +357,7 @@ int main(int argc, char *argv[])
   wdata->indexB = indexB;
 
   /* Create SUNLinSol_SPGMR linear solver for backward run */
-  LSB = SUNLinSol_SPGMR(cB, PREC_LEFT, 0);
+  LSB = SUNLinSol_SPGMR(cB, PREC_LEFT, 0, sunctx);
   if(check_retval((void *)LSB, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear sovler */
@@ -379,7 +386,7 @@ int main(int argc, char *argv[])
   N_VDestroy(cB);
   SUNLinSolFree(LS);
   SUNLinSolFree(LSB);
-
+  SUNContext_Free(&sunctx);
   FreeUserData(wdata);
 
   return(0);
@@ -834,8 +841,8 @@ static WebData AllocUserData(void)
     (wdata->P)[i] = newDenseMat(ns, ns);
     (wdata->pivot)[i] = newIndexArray(ns);
   }
-  wdata->rewt  = N_VNew_Serial(NEQ+1);
-  wdata->vtemp = N_VNew_Serial(NEQ+1);
+  wdata->rewt  = N_VNew_Serial(NEQ+1, sunctx);
+  wdata->vtemp = N_VNew_Serial(NEQ+1, sunctx);
 
   return(wdata);
 }

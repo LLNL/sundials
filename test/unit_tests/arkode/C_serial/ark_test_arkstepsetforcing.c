@@ -62,6 +62,8 @@ static int compute_error(N_Vector y, N_Vector ans, N_Vector tmp, realtype rtol,
 /* Main Program */
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx = NULL;
+
   /* default input values */
   sunindextype NEQ    = 1;           /* number of dependent vars.    */
   int          order  = 3;           /* order of polynomial forcing  */
@@ -143,8 +145,11 @@ int main(int argc, char *argv[])
   printf("   reltol = %.1"ESYM"\n",   reltol);
   printf("   abstol = %.1"ESYM"\n\n", abstol);
 
+  /* Create the SUNDIALS context object for this simulation. */
+  SUNContext_Create(NULL, &sunctx);
+
   /* Create solution vector and initialize to zero */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, sunctx);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
 
   ans = N_VClone(y);
@@ -154,10 +159,10 @@ int main(int argc, char *argv[])
   if (check_flag((void *)tmp, "N_VClone", 0)) return 1;
 
   /* Initialize dense matrix data structure and solver */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
 
-  LS = SUNLinSol_Dense(y, A);
+  LS = SUNLinSol_Dense(y, A, sunctx);
   if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return 1;
 
   /* allocate vector array for polynomial forcing */
@@ -191,7 +196,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "compute_ans", 1)) return 1;
 
   /* Create ARKode mem structure */
-  arkode_mem = ARKStepCreate(f, NULL, T0, y);
+  arkode_mem = ARKStepCreate(f, NULL, T0, y, sunctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Specify tolerances */
@@ -249,7 +254,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "compute_ans", 1)) return 1;
 
   /* Create ARKode mem structure */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, sunctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Specify tolerances */
@@ -319,7 +324,7 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "compute_ans", 1)) return 1;
 
   /* Create ARKode mem structure */
-  arkode_mem = ARKStepCreate(f, f, T0, y);
+  arkode_mem = ARKStepCreate(f, f, T0, y, sunctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Specify tolerances */
@@ -392,6 +397,7 @@ int main(int argc, char *argv[])
 
   N_VDestroyVectorArray(forcing, order + 1);
 
+  SUNContext_Free(&sunctx);
   return flag;
 }
 

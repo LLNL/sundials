@@ -51,6 +51,12 @@ int main(int argc, char *argv[])
   sunindextype *colptrs, *rowindices;
   sunindextype *rowptrs, *colindices;
   int          print_timing, square;
+  SUNContext   sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check input and set vector length */
   if (argc < 5){
@@ -95,7 +101,7 @@ int main(int argc, char *argv[])
   I = NULL;
 
   /* check creating sparse matrix from dense matrix */
-  B = SUNDenseMatrix(5,6);
+  B = SUNDenseMatrix(5,6, sunctx);
 
   matdata = SUNDenseMatrix_Data(B);
   matdata[2]  = RCONST(1.0);    /* [ 0 2 0 0 7 0 ] */
@@ -111,7 +117,7 @@ int main(int argc, char *argv[])
   if (mattype == CSR_MAT) {
 
     /* Check CSR */
-    C = SUNSparseMatrix(5, 6, 9, CSR_MAT);
+    C = SUNSparseMatrix(5, 6, 9, CSR_MAT, sunctx);
     rowptrs = SUNSparseMatrix_IndexPointers(C);
     colindices = SUNSparseMatrix_IndexValues(C);
     matdata = SUNSparseMatrix_Data(C);
@@ -145,7 +151,7 @@ int main(int argc, char *argv[])
   } else {
 
     /* Check CSC */
-    D = SUNSparseMatrix(5, 6, 9, CSC_MAT);
+    D = SUNSparseMatrix(5, 6, 9, CSC_MAT, sunctx);
     colptrs = SUNSparseMatrix_IndexPointers(D);
     rowindices = SUNSparseMatrix_IndexValues(D);
     matdata = SUNSparseMatrix_Data(D);
@@ -185,7 +191,7 @@ int main(int argc, char *argv[])
   N = 7;
   uband = 1;
   lband = 2;                                   /* B(i,j) = j + (j-i) */
-  B = SUNBandMatrix(N, uband, lband);          /* B = [  0  2  0  0  0  0  0 ] */
+  B = SUNBandMatrix(N, uband, lband, sunctx);  /* B = [  0  2  0  0  0  0  0 ] */
   for (j=0; j<N; j++) {                        /*     [ -1  1  3  0  0  0  0 ] */
     matdata = SUNBandMatrix_Column(B, j);      /*     [ -2  0  2  4  0  0  0 ] */
     kstart = (j<uband) ? -j : -uband;          /*     [  0 -1  1  3  5  0  0 ] */
@@ -197,7 +203,7 @@ int main(int argc, char *argv[])
   if (mattype == CSR_MAT) {
 
     /* CSR */
-    C = SUNSparseMatrix(7, 7, 21, CSR_MAT);
+    C = SUNSparseMatrix(7, 7, 21, CSR_MAT, sunctx);
     rowptrs = SUNSparseMatrix_IndexPointers(C);
     colindices = SUNSparseMatrix_IndexValues(C);
     matdata = SUNSparseMatrix_Data(C);
@@ -245,7 +251,7 @@ int main(int argc, char *argv[])
   } else {
 
     /* Check CSC */
-    D = SUNSparseMatrix(7, 7, 21, CSC_MAT);
+    D = SUNSparseMatrix(7, 7, 21, CSC_MAT, sunctx);
     colptrs = SUNSparseMatrix_IndexPointers(D);
     rowindices = SUNSparseMatrix_IndexValues(D);
     matdata = SUNSparseMatrix_Data(D);
@@ -297,7 +303,7 @@ int main(int argc, char *argv[])
   /* Create/fill I matrix */
   I = NULL;
   if (square) {
-    I = SUNSparseMatrix(matrows, matcols, matcols, mattype);
+    I = SUNSparseMatrix(matrows, matcols, matcols, mattype, sunctx);
     matdata    = SUNSparseMatrix_Data(I);
     colindices = SUNSparseMatrix_IndexValues(I);
     rowptrs    = SUNSparseMatrix_IndexPointers(I);
@@ -310,8 +316,8 @@ int main(int argc, char *argv[])
   }
 
   /* Create/fill random dense matrices, create sparse from them */
-  C = SUNDenseMatrix(matrows, matcols);
-  D = SUNDenseMatrix(matrows, matcols);
+  C = SUNDenseMatrix(matrows, matcols, sunctx);
+  D = SUNDenseMatrix(matrows, matcols, sunctx);
   for (k=0; k<3*matrows; k++) {
     i = rand() % matrows;
     j = rand() % matcols;
@@ -328,9 +334,9 @@ int main(int argc, char *argv[])
   B = SUNSparseFromDenseMatrix(D, ZERO, mattype);
 
   /* Create vectors and fill */
-  x = N_VNew_Serial(matcols);
-  y = N_VNew_Serial(matrows);
-  z = N_VNew_Serial(matrows);
+  x = N_VNew_Serial(matcols, sunctx);
+  y = N_VNew_Serial(matrows, sunctx);
+  z = N_VNew_Serial(matrows, sunctx);
   vecdata = N_VGetArrayPointer(x);
   for(i=0; i<matcols; i++)
     vecdata[i] = (realtype) rand() / (realtype) RAND_MAX;
@@ -403,6 +409,8 @@ int main(int argc, char *argv[])
   SUNMatDestroy(D);
   if (square)
     SUNMatDestroy(I);
+
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }

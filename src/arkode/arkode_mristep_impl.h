@@ -156,6 +156,9 @@ struct _MRIStepInnerStepper
   void*                   content;
   MRIStepInnerStepper_Ops ops;
 
+  /* stepper context */
+  SUNContext  sunctx;
+
   /* base class data */
   N_Vector*  forcing;    /* array of forcing vectors   */
   int        nforcing;   /* number of forcing vectors  */

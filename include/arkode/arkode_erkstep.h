@@ -45,7 +45,7 @@ extern "C" {
 
 /* Create, Resize, and Reinitialization functions */
 SUNDIALS_EXPORT void* ERKStepCreate(ARKRhsFn f, realtype t0,
-                                    N_Vector y0);
+                                    N_Vector y0, SUNContext sunctx);
 
 SUNDIALS_EXPORT int ERKStepResize(void *arkode_mem, N_Vector ynew,
                                   realtype hscale, realtype t0,

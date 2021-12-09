@@ -72,12 +72,14 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_context_mod
   use fsunlinsol_test_mod
 
   !======= Declarations =========
   implicit none
 
   ! local variables
+  type(c_ptr)                      :: sunctx
   integer(c_int)                   :: fails, retval, i, j, k
   integer(c_long),       parameter :: N = 1000
   integer(c_long),       parameter :: Nvar = 50
@@ -94,28 +96,31 @@ program main
   ! initialize failure total
   fails = 0
 
+   ! create SUNDIALS context
+  fails = FSUNContext_Create(c_null_ptr, sunctx)
+
   ! create new matrices and vectors
-  sX => FN_VNew_Fortran(Nvar, N)
+  sX => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sX)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   X => FN_VGetFVec(sX)
 
-  sY => FN_VNew_Fortran(Nvar, N)
+  sY => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sY)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
-  sB => FN_VNew_Fortran(Nvar, N)
+  sB => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sB)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   B => FN_VGetFVec(sB)
 
-  sA => FSUNMatNew_Fortran(Nvar, N)
+  sA => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sA)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
@@ -144,7 +149,7 @@ program main
   end if
 
   ! create custom linear solver
-  LS => FSUNLinSolNew_Fortran(Nvar, N)
+  LS => FSUNLinSolNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(LS)) then
      print *, 'ERROR: sunlinsol = NULL'
      stop 1
@@ -192,6 +197,9 @@ program main
   else
      print *, 'PASSED test -- FSUNLinSolFree'
   end if
+
+  ! free SUNDIALS context
+  retval = FSUNContext_Free(sunctx)
 
   ! print results
   if (fails > 0) then

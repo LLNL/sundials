@@ -50,6 +50,12 @@ int main(int argc, char *argv[])
   realtype     *Adata, *Idata;   /* pointers to matrix data    */
   int          print_timing, square;
   sunindextype i, j, m, n;
+  SUNContext   sunctx;
+
+  if (SUNContext_Create(NULL, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check input and set vector length */
   if (argc < 4){
@@ -83,12 +89,12 @@ int main(int argc, char *argv[])
   I = NULL;
 
   /* Create vectors and matrices */
-  x = N_VNew_Serial(matcols);
-  y = N_VNew_Serial(matrows);
-  A = SUNDenseMatrix(matrows, matcols);
+  x = N_VNew_Serial(matcols, sunctx);
+  y = N_VNew_Serial(matrows, sunctx);
+  A = SUNDenseMatrix(matrows, matcols, sunctx);
   I = NULL;
   if (square)
-    I = SUNDenseMatrix(matrows, matcols);
+    I = SUNDenseMatrix(matrows, matcols, sunctx);
 
   /* Fill matrices and vectors */
   Adata = SUNDenseMatrix_Data(A);
@@ -152,6 +158,7 @@ int main(int argc, char *argv[])
   SUNMatDestroy(A);
   if (square)
     SUNMatDestroy(I);
+  SUNContext_Free(&sunctx);
 
   return(fails);
 }

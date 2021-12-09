@@ -17,6 +17,7 @@
 
 module test_fsunlinsol_band
   use, intrinsic :: iso_c_binding
+  use test_utilities
   implicit none
 
   integer(C_LONG), parameter :: N = 10
@@ -50,10 +51,10 @@ contains
     fails = 0
     smu = 0
 
-    A => FSUNBandMatrix(N, mu, ml)
-    x => FN_VNew_Serial(N)
-    y => FN_VNew_Serial(N)
-    b => FN_VNew_Serial(N)
+    A => FSUNBandMatrix(N, mu, ml, sunctx)
+    x => FN_VNew_Serial(N, sunctx)
+    y => FN_VNew_Serial(N, sunctx)
+    b => FN_VNew_Serial(N, sunctx)
 
     ! fill A matrix with uniform random data in [0, 1/N)
     Adata => FSUNBandMatrix_Data(A)
@@ -98,7 +99,7 @@ contains
     end if
 
     ! create band linear solver
-    LS => FSUNLinSol_Band(x, A)
+    LS => FSUNLinSol_Band(x, A, sunctx)
 
     ! run tests
     fails = fails + Test_FSUNLinSolInitialize(LS, 0)
@@ -172,6 +173,8 @@ program main
   !============== Introduction =============
   print *, 'Band SUNLinearSolver Fortran 2003 interface test'
 
+  call Test_Init(c_null_ptr)
+
   fails = unit_tests()
   if (fails /= 0) then
     print *, 'FAILURE: n unit tests failed'
@@ -179,4 +182,7 @@ program main
   else
     print *,'SUCCESS: all unit tests passed'
   end if
+
+  call Test_Finalize()
+
 end program main

@@ -22,13 +22,16 @@ module farkode_erkstep_mod
  use, intrinsic :: ISO_C_BINDING
  use farkode_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_linearsolver_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
  use fsundials_types_mod
@@ -121,13 +124,14 @@ module farkode_erkstep_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FERKStepCreate(farg1, farg2, farg3) &
+function swigc_FERKStepCreate(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FERKStepCreate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_FUNPTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
 type(C_PTR) :: fresult
 end function
 
@@ -804,22 +808,25 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FERKStepCreate(f, t0, y0) &
+function FERKStepCreate(f, t0, y0, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 type(C_FUNPTR), intent(in), value :: f
 real(C_DOUBLE), intent(in) :: t0
 type(N_Vector), target, intent(inout) :: y0
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 type(C_FUNPTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = f
 farg2 = t0
 farg3 = c_loc(y0)
-fresult = swigc_FERKStepCreate(farg1, farg2, farg3)
+farg4 = sunctx
+fresult = swigc_FERKStepCreate(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 

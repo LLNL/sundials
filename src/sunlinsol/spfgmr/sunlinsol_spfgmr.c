@@ -39,24 +39,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl)
-{ return(SUNLinSol_SPFGMR(y, pretype, maxl)); }
-
-int SUNSPFGMRSetPrecType(SUNLinearSolver S, int pretype)
-{ return(SUNLinSol_SPFGMRSetPrecType(S, pretype)); }
-
-int SUNSPFGMRSetGSType(SUNLinearSolver S, int gstype)
-{ return(SUNLinSol_SPFGMRSetGSType(S, gstype)); }
-
-int SUNSPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
-{ return(SUNLinSol_SPFGMRSetMaxRestarts(S, maxrs)); }
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -65,7 +47,7 @@ int SUNSPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
  * Function to create a new SPFGMR linear solver
  */
 
-SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl)
+SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_SPFGMR content;
@@ -88,7 +70,7 @@ SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl)
 
   /* Create linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

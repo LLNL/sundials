@@ -4,7 +4,7 @@
  * -----------------------------------------------------------------
  * Modification of the CVODE example cvRoberts_dns to illustrate
  * the treatment of unphysical solution components through the RHS
- * function return flag.
+ * function return retval.
  *
  * Note that, to make possible negative solution components, the
  * absolute tolerances had to be loosened a bit from their values
@@ -61,7 +61,11 @@ static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *flagvalue, const char *funcname, int opt);
+
+/* SUNDIALS context */
+
+static SUNContext sunctx = NULL;
 
 /*
  *-------------------------------
@@ -76,7 +80,7 @@ int main()
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int flag, iout;
+  int retval, iout;
   booleantype check_negative;
 
   y = abstol = NULL;
@@ -84,11 +88,15 @@ int main()
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Create serial vector of length NEQ for I.C. and abstol */
-  y = N_VNew_Serial(NEQ);
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
-  abstol = N_VNew_Serial(NEQ);
-  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
+  y = N_VNew_Serial(NEQ, sunctx);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  abstol = N_VNew_Serial(NEQ, sunctx);
+  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize y */
   NV_Ith_S(y,0) = Y1;
@@ -104,35 +112,35 @@ int main()
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
-  if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the inital time T0, and
    * the initial dependent variable vector y. */
-  flag = CVodeInit(cvode_mem, f, T0, y);
-  if (check_flag(&flag, "CVodeInit", 1)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, y);
+  if (check_retval(&retval, "CVodeInit", 1)) return(1);
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
-  flag = CVodeSVtolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSVtolerances", 1)) return(1);
+  retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
 
-  /* Call CVodeSetUserData to pass the check negative flag as user data */
-  flag = CVodeSetUserData(cvode_mem, &check_negative);
-  if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
+  /* Call CVodeSetUserData to pass the check negative retval as user data */
+  retval = CVodeSetUserData(cvode_mem, &check_negative);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
-  A = SUNDenseMatrix(NEQ, NEQ);
-  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+  A = SUNDenseMatrix(NEQ, NEQ, sunctx);
+  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object for use by CVode */
-  LS = SUNLinSol_Dense(y, A);
-  if(check_flag((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  LS = SUNLinSol_Dense(y, A, sunctx);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
-  flag = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_flag(&flag, "CVodeSetLinearSolver", 1)) return(1);
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Case 1: ignore negative solution components */
   printf("Ignore negative solution components\n\n");
@@ -140,7 +148,7 @@ int main()
   /* In loop, call CVode in CV_NORMAL mode */
   iout = 0;  tout = T1;
   while(1) {
-    flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+    retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
     PrintOutput(t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     iout++;
     tout *= TMULT;
@@ -156,7 +164,7 @@ int main()
   NV_Ith_S(y,0) = Y1;
   NV_Ith_S(y,1) = Y2;
   NV_Ith_S(y,2) = Y3;
-  flag = CVodeReInit(cvode_mem, T0, y);
+  retval = CVodeReInit(cvode_mem, T0, y);
   /* In loop, call CVode in CV_NORMAL mode */
   iout = 0;  tout = T1;
   while(1) {
@@ -181,6 +189,8 @@ int main()
 
   /* Free the matrix memory */
   SUNMatDestroy(A);
+
+  SUNContext_Free(&sunctx);
 
   return(0);
 }
@@ -237,25 +247,25 @@ static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
 static void PrintFinalStats(void *cvode_mem)
 {
   long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf;
-  int flag;
+  int retval;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVodeGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVodeGetNumJacEvals", 1);
-  flag = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVodeGetNumLinRhsEvals", 1);
+  retval = CVodeGetNumJacEvals(cvode_mem, &nje);
+  check_retval(&retval, "CVodeGetNumJacEvals", 1);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
@@ -268,13 +278,13 @@ static void PrintFinalStats(void *cvode_mem)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns a retval so check if
+ *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 
@@ -284,11 +294,11 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 	    funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
 	      funcname, *errflag);
       return(1); }}
 

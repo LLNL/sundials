@@ -66,12 +66,17 @@ int main(int argc, char *argv[])
   N_Vector           y, y0, w;
   SUNNonlinearSolver NLS;
   long int           niters;
+  SUNContext         sunctx;
 
   SNES snes;
   Vec X, Y0, Y, W;
   Mat J;
 
   retval = PetscInitializeNoArguments();CHKERRQ(retval);
+
+  /* create SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* create vector */
   VecCreate(PETSC_COMM_WORLD, &X);
@@ -82,9 +87,9 @@ int main(int argc, char *argv[])
   VecDuplicate(X, &W);
 
   /* create nvector wrappers */
-  y0 = N_VMake_Petsc(Y0);
-  y  = N_VMake_Petsc(Y);
-  w  = N_VMake_Petsc(W);
+  y0 = N_VMake_Petsc(Y0, sunctx);
+  y  = N_VMake_Petsc(Y, sunctx);
+  w  = N_VMake_Petsc(W, sunctx);
 
   /* create Jacobian matrix */
   MatCreate(PETSC_COMM_WORLD, &J);
@@ -110,7 +115,7 @@ int main(int argc, char *argv[])
   SNESSetFromOptions(snes);
 
   /* create nonlinear solver */
-  NLS = SUNNonlinSol_PetscSNES(y, snes);
+  NLS = SUNNonlinSol_PetscSNES(y, snes, sunctx);
   if (check_retval((void *)NLS, "SUNNonlinSol_PetscSNES", 0)) return(1);
 
   /* set the nonlinear residual function */
@@ -155,6 +160,7 @@ int main(int argc, char *argv[])
   N_VDestroy(y0);
   N_VDestroy(w);
   SUNNonlinSolFree(NLS);
+  SUNContext_Free(&sunctx);
 
   /* Print result */
   if (retval) {

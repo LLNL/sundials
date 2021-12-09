@@ -22,7 +22,7 @@
  * For its solution with CPODES, the resulting index-3 DAE is reformulated
  * as an ODE with invariants, considering the underlying ODE (obtained by
  * eliminating the Lagrange multipliers from the differential EOM and
- * the acceleration-level constraints) together with the position and 
+ * the acceleration-level constraints) together with the position and
  * velocity constraints.
  *
  *  |                                  |
@@ -99,7 +99,7 @@ typedef struct {
 
 static int f(realtype t, N_Vector y, N_Vector yd, void *f_data);
 static int cfun(realtype t, N_Vector yy, N_Vector cout, void *c_data);
-static int cjac(int Nc, int Ny, 
+static int cjac(int Nc, int Ny,
                 realtype t, N_Vector y, N_Vector cy,
                 DlsMat Jac, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2);
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
   /* Use the CPODES dense direct linear solver with DQ Jacobian */
   flag = CPDense(cpode_mem, 2*NS);
 
-  /* Use the CPODES projection function using the CPODES 
+  /* Use the CPODES projection function using the CPODES
    * dense direct linear algebra module with user-provided
    * constraint Jacobian function */
   flag = CPodeProjInit(cpode_mem, CP_PROJ_L2NORM, CP_CNSTR_NONLIN, cfun, ctols);
@@ -228,7 +228,7 @@ void setIC(N_Vector yy, UserData data)
   J1 = data->J1;
   m2 = data->m2;
   J2 = data->J2;
-  
+
   q = pi/TWO;
   p = asin(-a);
   x = cos(p);
@@ -236,7 +236,7 @@ void setIC(N_Vector yy, UserData data)
   NV_Ith_S(yy,0) = q;
   NV_Ith_S(yy,1) = x;
   NV_Ith_S(yy,2) = p;
-  
+
 }
 
 
@@ -248,7 +248,7 @@ void get_acc(realtype *pos, realtype *vel, realtype *acc, UserData data)
   realtype a, a2, k, c, l0, F;
   realtype J1, m2, J2;
   realtype q, x, p;
-  realtype qd, xd, pd;  
+  realtype qd, xd, pd;
   realtype s1, c1, s2, c2, s21, c21;
   realtype l2, l, ld;
   realtype f, fl;
@@ -258,7 +258,7 @@ void get_acc(realtype *pos, realtype *vel, realtype *acc, UserData data)
 
   realtype Q1, Q2, Q3;
   realtype g1, g2;
-  
+
   realtype lam1, lam2;
 
   M = data->M;
@@ -315,7 +315,7 @@ void get_acc(realtype *pos, realtype *vel, realtype *acc, UserData data)
   det = M11*M22-M12*M12;
 
   b1 = g1-Q1*a*s1/J1-Q2/m2-Q3*s2/J2;
-  b2 = g2+Q1*a*c1/J1+Q3*c2/J2; 
+  b2 = g2+Q1*a*c1/J1+Q3*c2/J2;
 
   /* Solve M*lam = b */
   lam1 = (M22*b1-M12*b2)/det;
@@ -333,7 +333,7 @@ static int f(realtype t, N_Vector yy, N_Vector yd, void *f_data)
   UserData data;
   realtype *yyval, *ydval;
   realtype *pos, *vel, acc[3];
-  
+
   data = (UserData) f_data;
 
   /* Extract pos and vel */
@@ -369,14 +369,14 @@ static int cfun(realtype t, N_Vector yy, N_Vector cout, void *c_data)
   realtype a;
   realtype *yval, *cval;
   realtype q, x, p;
-  realtype qd, xd, pd;  
+  realtype qd, xd, pd;
   realtype s1, c1, s2, c2;
 
   data = (UserData) c_data;
 
   a  = data->a;
 
-  yval = N_VGetArrayPointer_Serial(yy); 
+  yval = N_VGetArrayPointer_Serial(yy);
   cval = N_VGetArrayPointer_Serial(cout);
 
   q = yval[0];
@@ -402,7 +402,7 @@ static int cfun(realtype t, N_Vector yy, N_Vector cout, void *c_data)
 }
 
 
-static int cjac(int Nc, int Ny, 
+static int cjac(int Nc, int Ny,
                 realtype t, N_Vector y, N_Vector cy,
                 DlsMat Jac, void *jac_data,
                 N_Vector tmp1, N_Vector tmp2)
@@ -410,14 +410,14 @@ static int cjac(int Nc, int Ny,
   UserData data;
   realtype *yval;
   realtype q, x, p;
-  realtype qd, xd, pd;    
+  realtype qd, xd, pd;
   realtype a, as1, ac1, s2, c2;
 
   data = (UserData) jac_data;
 
   a  = data->a;
 
-  yval = N_VGetArrayPointer_Serial(y); 
+  yval = N_VGetArrayPointer_Serial(y);
 
   q = yval[0];
   x = yval[1];

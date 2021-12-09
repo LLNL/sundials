@@ -123,6 +123,9 @@ latex_elements = {
 % Link a footnote to its location in the text
 \usepackage{footnotebackref}
 
+% Use bold serif text for table titles
+\protected\def\sphinxstyletheadfamily {\bfseries}
+
 % ===================================================
 % End custom preamble (see latex_elements in conf.py)
 % ===================================================

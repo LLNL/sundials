@@ -128,6 +128,7 @@ static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
 
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   realtype dx, dy, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
@@ -144,6 +145,10 @@ int main(int argc, char *argv[])
   LS = NULL;
   cvode_mem = NULL;
 
+  /* Create the SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* Set the number of threads to use */
   num_threads = 1;     /* default value */
 #ifdef _OPENMP
@@ -153,7 +158,7 @@ int main(int argc, char *argv[])
     num_threads = (int) strtol(argv[1], NULL, 0);
 
   /* Create an OpenMP vector */
-  u = N_VNew_OpenMP(NEQ, num_threads);  /* Allocate u vector */
+  u = N_VNew_OpenMP(NEQ, num_threads, sunctx);  /* Allocate u vector */
   if(check_retval((void*)u, "N_VNew_OpenMP", 0)) return(1);
 
   reltol = ZERO;  /* Set the tolerances */
@@ -172,7 +177,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -192,11 +197,11 @@ int main(int argc, char *argv[])
 
   /* Create banded SUNMatrix for use in linear solves -- since this will be factored,
      set the storage bandwidth to be the sum of upper and lower bandwidths */
-  A = SUNBandMatrix(NEQ, MY, MY);
+  A = SUNBandMatrix(NEQ, MY, MY, sunctx);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object for use by CVode */
-  LS = SUNLinSol_Band(u, A);
+  LS = SUNLinSol_Band(u, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
@@ -229,6 +234,8 @@ int main(int argc, char *argv[])
   SUNLinSolFree(LS);      /* Free the linear solver memory */
   SUNMatDestroy(A);       /* Free the matrix memory */
   free(data);             /* Free the user data */
+
+  SUNContext_Free(&sunctx);
 
   return(0);
 }

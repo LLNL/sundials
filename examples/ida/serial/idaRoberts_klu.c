@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This simple example problem for IDA, due to Robertson, 
- * is from chemical kinetics, and consists of the following three 
+ * This simple example problem for IDA, due to Robertson,
+ * is from chemical kinetics, and consists of the following three
  * equations:
  *
  *      dy1/dt = -.04*y1 + 1.e4*y2*y3
@@ -91,6 +91,7 @@ int main(void)
   SUNMatrix A;
   SUNLinearSolver LS;
   sunindextype nnz;
+  SUNContext ctx;
 
   mem = NULL;
   yy = yp = avtol = NULL;
@@ -98,12 +99,16 @@ int main(void)
   A = NULL;
   LS = NULL;
 
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &ctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+
   /* Allocate N-vectors. */
-  yy = N_VNew_Serial(NEQ);
+  yy = N_VNew_Serial(NEQ, ctx);
   if(check_retval((void *)yy, "N_VNew_Serial", 0)) return(1);
-  yp = N_VNew_Serial(NEQ);
+  yp = N_VClone(yy);
   if(check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
-  avtol = N_VNew_Serial(NEQ);
+  avtol = N_VClone(yy);
   if(check_retval((void *)avtol, "N_VNew_Serial", 0)) return(1);
 
   /* Create and initialize  y, y', and absolute tolerance vectors. */
@@ -131,7 +136,7 @@ int main(void)
   PrintHeader(rtol, avtol, yy);
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
-  mem = IDACreate();
+  mem = IDACreate(ctx);
   if(check_retval((void *)mem, "IDACreate", 0)) return(1);
   retval = IDAInit(mem, resrob, t0, yy, yp);
   if(check_retval(&retval, "IDAInit", 1)) return(1);
@@ -148,11 +153,11 @@ int main(void)
 
   /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ;
-  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSR_MAT);
+  A = SUNSparseMatrix(NEQ, NEQ, nnz, CSR_MAT, ctx);
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU SUNLinearSolver object */
-  LS = SUNLinSol_KLU(yy, A);
+  LS = SUNLinSol_KLU(yy, A, ctx);
   if(check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
 
   /* Attach the matrix and linear solver */
@@ -198,6 +203,7 @@ int main(void)
   SUNMatDestroy(A);
   N_VDestroy(yy);
   N_VDestroy(yp);
+  SUNContext_Free(&ctx);
 
   return(0);
 

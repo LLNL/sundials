@@ -78,6 +78,10 @@ int main(int argc, char *argv[])
   realtype d2yrate2[ARK_INTERP_MAX_DEGREE+1], yferr2[ARK_INTERP_MAX_DEGREE+1];
   realtype dyferr2[ARK_INTERP_MAX_DEGREE+1], d2yferr2[ARK_INTERP_MAX_DEGREE+1];
 
+  /* Create the SUNDIALS context object for this simulation. */
+  SUNContext sunctx = NULL;
+  SUNContext_Create(NULL, &sunctx);
+
   /* general problem parameters */
   T0 = RCONST(0.0);       /* initial time */
   Tf = RCONST(10.0);      /* final time */
@@ -119,38 +123,38 @@ int main(int argc, char *argv[])
   printf("\nARKode Interpolation module tester (rtype = %i):\n", rtype);
 
   /* Initialize vectors */
-  y = N_VNew_Serial(NEQ);
+  y = N_VNew_Serial(NEQ, sunctx);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
-  ytest = N_VNew_Serial(NEQ);
+  ytest = N_VClone(y);
   if (check_flag((void *)ytest, "N_VNew_Serial", 0)) return 1;
-  dytest = N_VNew_Serial(NEQ);
+  dytest = N_VClone(y);
   if (check_flag((void *)dytest, "N_VNew_Serial", 0)) return 1;
-  d2ytest = N_VNew_Serial(NEQ);
+  d2ytest = N_VClone(y);
   if (check_flag((void *)d2ytest, "N_VNew_Serial", 0)) return 1;
-  d3ytest = N_VNew_Serial(NEQ);
+  d3ytest = N_VClone(y);
   if (check_flag((void *)d3ytest, "N_VNew_Serial", 0)) return 1;
-  d4ytest = N_VNew_Serial(NEQ);
+  d4ytest = N_VClone(y);
   if (check_flag((void *)d4ytest, "N_VNew_Serial", 0)) return 1;
-  d5ytest = N_VNew_Serial(NEQ);
+  d5ytest = N_VClone(y);
   if (check_flag((void *)d5ytest, "N_VNew_Serial", 0)) return 1;
-  yerr = N_VNew_Serial(NEQ);
+  yerr = N_VClone(y);
   if (check_flag((void *)yerr, "N_VNew_Serial", 0)) return 1;
-  dyerr = N_VNew_Serial(NEQ);
+  dyerr = N_VClone(y);
   if (check_flag((void *)dyerr, "N_VNew_Serial", 0)) return 1;
-  d2yerr = N_VNew_Serial(NEQ);
+  d2yerr = N_VClone(y);
   if (check_flag((void *)d2yerr, "N_VNew_Serial", 0)) return 1;
-  d3yerr = N_VNew_Serial(NEQ);
+  d3yerr = N_VClone(y);
   if (check_flag((void *)d3yerr, "N_VNew_Serial", 0)) return 1;
-  d4yerr = N_VNew_Serial(NEQ);
+  d4yerr = N_VClone(y);
   if (check_flag((void *)d4yerr, "N_VNew_Serial", 0)) return 1;
-  d5yerr = N_VNew_Serial(NEQ);
+  d5yerr = N_VClone(y);
   if (check_flag((void *)d5yerr, "N_VNew_Serial", 0)) return 1;
 
   /* initialize algebraic solver structures */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if (check_flag((void *) A, "SUNDenseMatrix", 0)) return 1;
-  LS = SUNDenseLinearSolver(y, A);
-  if (check_flag((void *) LS, "SUNDenseLinearSolver", 0)) return 1;
+  LS = SUNLinSol_Dense(y, A, sunctx);
+  if (check_flag((void *) LS, "SUNLinSol_Dense", 0)) return 1;
 
   /* test parameters */
   nttest = 500;
@@ -183,7 +187,7 @@ int main(int argc, char *argv[])
       NV_Ith_S(y,1) = RCONST(1.0);
 
       /* Create/initialize ARKStep module */
-      arkode_mem = ARKStepCreate(NULL, f, T0, y);
+      arkode_mem = ARKStepCreate(NULL, f, T0, y, sunctx);
       if (check_flag(arkode_mem, "ARKStepCreate", 0)) return 1;
 
       /* pass lambda to RHS routine */
@@ -367,7 +371,7 @@ int main(int argc, char *argv[])
       NV_Ith_S(y,1) = RCONST(1.0);
 
       /* Create/initialize ARKStep module */
-      arkode_mem = ARKStepCreate(NULL, f, T0, y);
+      arkode_mem = ARKStepCreate(NULL, f, T0, y, sunctx);
       if (check_flag(arkode_mem, "ARKStepCreate", 0)) return 1;
 
       /* pass lambda to RHS routine */
@@ -527,6 +531,8 @@ int main(int argc, char *argv[])
   N_VDestroy(d5yerr);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
+
+  SUNContext_Free(&sunctx);
   return(flag);
 }
 

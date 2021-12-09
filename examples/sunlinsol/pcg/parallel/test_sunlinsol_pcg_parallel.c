@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
   sunindextype    i;
   realtype        *vecdata;
   double          tol;
+  SUNContext      sunctx;
 
   /* Set up MPI environment */
   fails = MPI_Init(&argc, &argv);
@@ -120,6 +121,11 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "MPI_Comm_size", 1)) return 1;
   fails = MPI_Comm_rank(ProbData.comm, &(ProbData.myid));
   if (check_flag(&fails, "MPI_Comm_rank", 1)) return 1;
+
+  if (SUNContext_Create(&ProbData.comm, &sunctx)) {
+    printf("ERROR: SUNContext_Create failed\n");
+    return(-1);
+  }
 
   /* check inputs: local problem size, timing flag */
   if (argc < 5) {
@@ -153,7 +159,7 @@ int main(int argc, char *argv[])
     printf("\nPCG linear solver test:\n");
     printf("  nprocs = %i\n", ProbData.nprocs);
     printf("  local/global problem sizes = %ld/%ld\n", ProbData.Nloc,
-           ProbData.nprocs * ProbData.Nloc);
+           ProbData.nprocs * ProbData.Nloc, sunctx);
     printf("  Maximum Krylov subspace dimension = %i\n", maxl);
     printf("  Solver Tolerance = %g\n", tol);
     printf("  timing output flag = %i\n\n", print_timing);
@@ -161,19 +167,19 @@ int main(int argc, char *argv[])
 
   /* Create vectors */
   x = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                      ProbData.nprocs * ProbData.Nloc);
+                      ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(x, "N_VNew_Parallel", 0)) return 1;
   xhat = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                         ProbData.nprocs * ProbData.Nloc);
+                         ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(xhat, "N_VNew_Parallel", 0)) return 1;
   b = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                      ProbData.nprocs * ProbData.Nloc);
+                      ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(b, "N_VNew_Parallel", 0)) return 1;
   ProbData.d = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                               ProbData.nprocs * ProbData.Nloc);
+                               ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(ProbData.d, "N_VNew_Parallel", 0)) return 1;
   ProbData.s = N_VNew_Parallel(ProbData.comm, ProbData.Nloc,
-                               ProbData.nprocs * ProbData.Nloc);
+                               ProbData.nprocs * ProbData.Nloc, sunctx);
   if (check_flag(ProbData.s, "N_VNew_Parallel", 0)) return 1;
 
   /* Fill xhat vector with uniform random data in [1,2] */
@@ -185,7 +191,7 @@ int main(int argc, char *argv[])
   N_VConst(FIVE, ProbData.d);
 
   /* Create PCG linear solver */
-  LS = SUNLinSol_PCG(x, PREC_RIGHT, maxl);
+  LS = SUNLinSol_PCG(x, PREC_RIGHT, maxl, sunctx);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE,
                                  ProbData.myid);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_PCG, ProbData.myid);
@@ -341,6 +347,7 @@ int main(int argc, char *argv[])
   N_VDestroy(b);
   N_VDestroy(ProbData.d);
   N_VDestroy(ProbData.s);
+  SUNContext_Free(&sunctx);
 
   MPI_Finalize();
   return(fails);

@@ -21,6 +21,7 @@
 module fnvector_mpimanyvector_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -92,22 +93,24 @@ module fnvector_mpimanyvector_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FN_VMake_MPIManyVector(farg1, farg2, farg3) &
+function swigc_FN_VMake_MPIManyVector(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FN_VMake_MPIManyVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
 integer(C_INT64_T), intent(in) :: farg2
 type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
 type(C_PTR) :: fresult
 end function
 
-function swigc_FN_VNew_MPIManyVector(farg1, farg2) &
+function swigc_FN_VNew_MPIManyVector(farg1, farg2, farg3) &
 bind(C, name="_wrap_FN_VNew_MPIManyVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
 type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
 type(C_PTR) :: fresult
 end function
 
@@ -658,38 +661,44 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FN_VMake_MPIManyVector(comm, num_subvectors, vec_array) &
+function FN_VMake_MPIManyVector(comm, num_subvectors, vec_array, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer :: comm
 integer(C_INT64_T), intent(in) :: num_subvectors
 type(C_PTR) :: vec_array
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT64_T) :: farg2 
 type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = int(comm, C_INT)
 farg2 = num_subvectors
 farg3 = vec_array
-fresult = swigc_FN_VMake_MPIManyVector(farg1, farg2, farg3)
+farg4 = sunctx
+fresult = swigc_FN_VMake_MPIManyVector(farg1, farg2, farg3, farg4)
 call c_f_pointer(fresult, swig_result)
 end function
 
-function FN_VNew_MPIManyVector(num_subvectors, vec_array) &
+function FN_VNew_MPIManyVector(num_subvectors, vec_array, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer(C_INT64_T), intent(in) :: num_subvectors
 type(C_PTR) :: vec_array
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT64_T) :: farg1 
 type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = num_subvectors
 farg2 = vec_array
-fresult = swigc_FN_VNew_MPIManyVector(farg1, farg2)
+farg3 = sunctx
+fresult = swigc_FN_VNew_MPIManyVector(farg1, farg2, farg3)
 call c_f_pointer(fresult, swig_result)
 end function
 

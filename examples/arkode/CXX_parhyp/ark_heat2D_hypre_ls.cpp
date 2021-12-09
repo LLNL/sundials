@@ -239,7 +239,7 @@ struct Hypre5ptMatrixContent
 #define H5PM_UDATA(A)    ( H5PM_CONTENT(A)->udata )
 
 // Matrix function prototypes
-SUNMatrix Hypre5ptMatrix(UserData *udata);
+SUNMatrix Hypre5ptMatrix(UserData *udata, SUNContext ctx);
 SUNMatrix_ID Hypre5ptMatrix_GetID(SUNMatrix A);
 SUNMatrix Hypre5ptMatrix_Clone(SUNMatrix A);
 void Hypre5ptMatrix_Destroy(SUNMatrix A);
@@ -275,7 +275,7 @@ struct HypreLSContent
 #define HLS_PCG(S)      ( HLS_CONTENT(S)->pcg )
 
 // Solver function prototypes
-SUNLinearSolver HypreLS(SUNMatrix A, UserData *udata);
+SUNLinearSolver HypreLS(SUNMatrix A, UserData *udata, SUNContext ctx);
 SUNLinearSolver_Type HypreLS_GetType(SUNLinearSolver S);
 int HypreLS_Initialize(SUNLinearSolver S);
 int HypreLS_Setup(SUNLinearSolver S, SUNMatrix A);
@@ -379,6 +379,11 @@ int main(int argc, char* argv[])
   flag = MPI_Comm_rank(comm_w, &myid);
   if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
 
+  // Create the SUNDIALS context object for this simulation
+  SUNContext ctx;
+  flag = SUNContext_Create(&comm_w, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   // Set output process flag
   bool outproc = (myid == 0);
 
@@ -419,7 +424,7 @@ int main(int argc, char* argv[])
   // ------------------------
 
   // Create vector for solution
-  u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes);
+  u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes, ctx);
   if (check_flag((void *) u, "N_VNew_Parallel", 0)) return 1;
 
   // Set initial condition
@@ -435,11 +440,11 @@ int main(int argc, char* argv[])
   // --------------------------------
 
   // Create custom matrix
-  A = Hypre5ptMatrix(udata);
+  A = Hypre5ptMatrix(udata, ctx);
   if (check_flag((void *) A, "Hypre5ptMatrix", 0)) return 1;
 
   // Create linear solver
-  LS = HypreLS(A, udata);
+  LS = HypreLS(A, udata, ctx);
   if (check_flag((void *) LS, "HypreLS", 0)) return 1;
 
   // --------------
@@ -447,7 +452,7 @@ int main(int argc, char* argv[])
   // --------------
 
   // Create integrator
-  arkode_mem = ARKStepCreate(NULL, f, ZERO, u);
+  arkode_mem = ARKStepCreate(NULL, f, ZERO, u, ctx);
   if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
   // Specify tolerances
@@ -625,6 +630,7 @@ int main(int argc, char* argv[])
   N_VDestroy(u);             // Free vectors
   FreeUserData(udata);       // Free user data
   delete udata;
+  SUNContext_Free(&ctx);     // Free context
   flag = MPI_Finalize();     // Finalize MPI
   return 0;
 }
@@ -2330,7 +2336,7 @@ static int check_flag(void *flagvalue, const string funcname, int opt)
 // SUNMatrix functions
 // -----------------------------------------------------------------------------
 
-SUNMatrix Hypre5ptMatrix(UserData *udata)
+SUNMatrix Hypre5ptMatrix(UserData *udata, SUNContext ctx)
 {
   int flag, result;
 
@@ -2345,7 +2351,7 @@ SUNMatrix Hypre5ptMatrix(UserData *udata)
   if ((flag != MPI_SUCCESS) || (result != 2))  return NULL;
 
   // Create an empty matrix object
-  SUNMatrix A = SUNMatNewEmpty();
+  SUNMatrix A = SUNMatNewEmpty(ctx);
   if (A == NULL) return NULL;
 
   // Attach operations
@@ -2438,7 +2444,7 @@ SUNMatrix_ID Hypre5ptMatrix_GetID(SUNMatrix A)
 
 SUNMatrix Hypre5ptMatrix_Clone(SUNMatrix A)
 {
-  return(Hypre5ptMatrix(H5PM_UDATA(A)));
+  return(Hypre5ptMatrix(H5PM_UDATA(A), A->sunctx));
 }
 
 void Hypre5ptMatrix_Destroy(SUNMatrix A)
@@ -2523,7 +2529,7 @@ int Hypre5ptMatrix_ScaleAddI(realtype c, SUNMatrix A)
 // -----------------------------------------------------------------------------
 
 // Create hypre linear solver
-SUNLinearSolver HypreLS(SUNMatrix A, UserData *udata)
+SUNLinearSolver HypreLS(SUNMatrix A, UserData *udata, SUNContext ctx)
 {
   int flag;
 
@@ -2531,7 +2537,7 @@ SUNLinearSolver HypreLS(SUNMatrix A, UserData *udata)
   if (udata == NULL) return NULL;
 
   // Create an empty linear solver
-  SUNLinearSolver LS = SUNLinSolNewEmpty();
+  SUNLinearSolver LS = SUNLinSolNewEmpty(ctx);
   if (LS == NULL) return NULL;
 
   // Attach operations

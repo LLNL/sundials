@@ -44,6 +44,10 @@ else()
   set(_custom_memhelper custom_memory_helper_gpu.h)
 endif()
 
+if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+  set(OTHER_LIBS OpenMP::OpenMP_CXX)
+endif()
+
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_raja_examples})
 
@@ -67,7 +71,8 @@ foreach(example_tuple ${nvector_raja_examples})
     target_link_libraries(${example}
       PRIVATE
       sundials_nvecraja
-      ${EXTRA_LINK_LIBS})
+      ${EXTRA_LINK_LIBS}
+      ${OTHER_LIBS})
 
   endif()
 

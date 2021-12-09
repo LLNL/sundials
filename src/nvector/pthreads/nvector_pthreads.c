@@ -140,14 +140,15 @@ N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v)
  * Function to create a new empty vector
  */
 
-N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads)
+N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads,
+                              SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_Pthreads content;
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -222,13 +223,14 @@ N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads)
  * Function to create a new vector
  */
 
-N_Vector N_VNew_Pthreads(sunindextype length, int num_threads)
+N_Vector N_VNew_Pthreads(sunindextype length, int num_threads,
+                         SUNContext sunctx)
 {
   N_Vector v;
   realtype *data;
 
   v = NULL;
-  v = N_VNewEmpty_Pthreads(length, num_threads);
+  v = N_VNewEmpty_Pthreads(length, num_threads, sunctx);
   if (v == NULL) return(NULL);
 
   /* Create data */
@@ -252,12 +254,13 @@ N_Vector N_VNew_Pthreads(sunindextype length, int num_threads)
  * Function to create a vector with user data component
  */
 
-N_Vector N_VMake_Pthreads(sunindextype length, int num_threads, realtype *v_data)
+N_Vector N_VMake_Pthreads(sunindextype length, int num_threads,
+                          realtype *v_data, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Pthreads(length, num_threads);
+  v = N_VNewEmpty_Pthreads(length, num_threads, sunctx);
   if (v == NULL) return(NULL);
 
   if (length > 0) {
@@ -275,25 +278,7 @@ N_Vector N_VMake_Pthreads(sunindextype length, int num_threads, realtype *v_data
 
 N_Vector* N_VCloneVectorArray_Pthreads(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_Pthreads(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Pthreads(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -302,25 +287,7 @@ N_Vector* N_VCloneVectorArray_Pthreads(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_Pthreads(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_Pthreads(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Pthreads(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -329,12 +296,7 @@ N_Vector* N_VCloneVectorArrayEmpty_Pthreads(int count, N_Vector w)
 
 void N_VDestroyVectorArray_Pthreads(N_Vector* vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_Pthreads(vs[j]);
-
-  free(vs); vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -402,7 +364,7 @@ N_Vector N_VCloneEmpty_Pthreads(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

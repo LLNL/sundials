@@ -62,6 +62,54 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # ===============================================================
+# C settings
+# ===============================================================
+
+# TODO(DJG): Set C standard by default once it does not break HIP builds
+if(CMAKE_C_STANDARD)
+  # set C standard here in order to check for vaild options
+  set(DOCSTR "The C standard to use (90, 99, 11, 17)")
+  sundials_option(CMAKE_C_STANDARD STRING "${DOCSTR}" "99"
+                  OPTIONS "90;99;11;17")
+  message(STATUS "C standard set to ${CMAKE_C_STANDARD}")
+else()
+  message(STATUS "C standard not set")
+endif()
+
+set(DOCSTR "Enable C compiler specific extensions")
+sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" OFF)
+message(STATUS "C extensions set to ${CMAKE_C_EXTENSIONS}")
+
+# Profiling generally requires ISO C99 or newer for __func__ though some
+# compilers define __func__ even with ISO C90.
+if(SUNDIALS_BUILD_WITH_PROFILING AND (CMAKE_C_STANDARD STREQUAL "90"))
+  message(WARNING "SUNDIALS_BUILD_WITH_PROFILING=ON requires __func__, compilation may fail with CMAKE_C_STANDARD=90")
+endif()
+
+# ---------------------------------------------------------------
+# Check for POSIX timers
+#
+# 199309L is the minimum POSIX version needed for struct timespec
+# and clock_monotonic()
+# ---------------------------------------------------------------
+include(SundialsPOSIXTimers)
+
+if(SUNDIALS_POSIX_TIMERS AND POSIX_TIMERS_NEED_POSIX_C_SOURCE)
+  set(DOCSTR "Value of _POSIX_C_SOURCE")
+  sundials_option(SUNDIALS_POSIX_C_SOURCE STRING "${DOCSTR}" "199309L"
+                  ADVANCED)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_POSIX_C_SOURCE=${SUNDIALS_POSIX_C_SOURCE}")
+endif()
+
+# Check if profiling is being built with no timers.
+if(SUNDIALS_BUILD_WITH_PROFILING AND
+   (NOT ENABLE_CALIPER) AND
+   (NOT ENABLE_MPI) AND
+   (NOT SUNDIALS_POSIX_TIMERS))
+  message(SEND_ERROR "The SUNDIALS native profiler requires POSIX timers or MPI_Wtime, but neither were found.")
+endif()
+
+# ===============================================================
 # Fortran settings
 # ===============================================================
 
@@ -173,17 +221,9 @@ endif()
 
 # ---------------------------------------------------------------
 # A C++ compiler is only needed if:
-# (a) C++ examples are enabled
-# (b) CUDA is enabled
-# (c) HIP is enabled
-# (d) SYCL is enabled
-# (e) RAJA is enabled
-# (f) Trilinos is enabled
-# (g) SuperLU_DIST is enabled
-# (e) MAGMA is enabled
 # ---------------------------------------------------------------
 
-if(EXAMPLES_ENABLE_CXX OR
+if(BUILD_BENCHMARKS OR EXAMPLES_ENABLE_CXX OR
     ENABLE_CUDA OR
     ENABLE_HIP OR
     ENABLE_SYCL OR
@@ -217,18 +257,25 @@ endif()
 # Default flags for build types
 # ===============================================================
 
-set(CMAKE_C_FLAGS_DEV "${CMAKE_C_FLAGS_DEV} -g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Werror")
-set(CMAKE_CXX_FLAGS_DEV "${CMAKE_CXX_FLAGS_DEV} -g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Werror")
-set(CMAKE_Fortran_FLAGS_DEV "${CMAKE_Fortran_FLAGS_DEV} -g -O0 -Wall -Wpedantic -ffpe-summary=none")
-set(CMAKE_C_FLAGS_DEVSTRICT "-std=c89 ${CMAKE_C_FLAGS_DEV}")
-set(CMAKE_CXX_FLAGS_DEVSTRICT "${CMAKE_CXX_FLAGS_DEV}")
-set(CMAKE_Fortran_FLAGS_DEVSTRICT "${CMAKE_Fortran_FLAGS_DEV}")
+set(CMAKE_C_FLAGS_DEV "-g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function" CACHE STRING "" FORCE)
+mark_as_advanced(CMAKE_C_FLAGS_DEV)
+set(CMAKE_CXX_FLAGS_DEV "-g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function" CACHE STRING "" FORCE)
+mark_as_advanced(CMAKE_CXX_FLAGS_DEV)
+set(CMAKE_Fortran_FLAGS_DEV "-g -O0 -Wall -Wpedantic -ffpe-summary=none" CACHE STRING "" FORCE)
+mark_as_advanced(CMAKE_Fortran_FLAGS_DEV)
+set(CMAKE_C_FLAGS_DEVSTRICT "-g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function -Werror" CACHE STRING "" FORCE)
+mark_as_advanced(CMAKE_C_FLAGS_DEVSTRICT)
+set(CMAKE_CXX_FLAGS_DEVSTRICT "-g -O0 -Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-deprecated-declarations -Wno-unused-function -Werror" CACHE STRING "" FORCE)
+mark_as_advanced(CMAKE_CXX_FLAGS_DEVSTRICT)
+set(CMAKE_Fortran_FLAGS_DEVSTRICT "-g -O0 -Wall -Wpedantic -ffpe-summary=none -Werror" CACHE STRING "" FORCE)
+mark_as_advanced(CMAKE_Fortran_FLAGS_DEVSTRICT)
 
 # ===============================================================
 # Configure presentation of language options
 # ===============================================================
 
-set(build_types DEBUG RELEASE RELWITHDEBINFO MINSIZEREL DEV DEVSTRICT)
+set(_SUNDIALS_EXTRA_CONFIG_TYPES "DEV;DEVSTRICT")
+set(CMAKE_CONFIGURATION_TYPES "DEBUG;RELEASE;RELWITHDEBINFO;MINSIZEREL;${_SUNDIALS_EXTRA_CONFIG_TYPES}")
 set(_SUNDIALS_ENABLED_LANGS "C")
 
 if(CXX_FOUND)
@@ -244,10 +291,10 @@ endif()
 # Make build type specific flag options ADVANCED,
 # except for the one corresponding to the current build type
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
-  foreach(build_type ${build_types})
+  foreach(build_type ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER "${CMAKE_BUILD_TYPE}" _cmake_build_type)
-    if(${_cmake_build_type} MATCHES "${build_type}")
-      message("Appending ${lang} ${build_type} flags")
+    if("${_cmake_build_type}" STREQUAL "${build_type}")
+      message(STATUS "Appending ${lang} ${build_type} flags")
       mark_as_advanced(CLEAR CMAKE_${lang}_FLAGS_${build_type})
     else()
       mark_as_advanced(FORCE CMAKE_${lang}_FLAGS_${build_type})
@@ -255,4 +302,18 @@ foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   endforeach()
   # show the language compiler and flags
   mark_as_advanced(CLEAR CMAKE_${lang}_COMPILER CMAKE_${lang}_FLAGS)
+endforeach()
+
+# ===============================================================
+# Configure compilers for installed examples
+# ===============================================================
+
+foreach(lang ${_SUNDIALS_ENABLED_LANGS})
+  if(SUNDIALS_BUILD_WITH_PROFILING AND ENABLE_MPI)
+    if(DEFINED MPI_${lang}_COMPILER)
+      set(_EXAMPLES_${lang}_COMPILER "${MPI_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
+    endif()
+  else()
+    set(_EXAMPLES_${lang}_COMPILER "${CMAKE_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
+  endif()
 endforeach()

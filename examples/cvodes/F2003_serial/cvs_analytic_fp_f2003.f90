@@ -93,6 +93,7 @@ program main
   use, intrinsic :: iso_c_binding
 
   use fcvodes_mod                   ! Fortran interface to CVODES
+  use fsundials_context_mod         ! Fortran interface to SUNContext
   use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector
   use fsundials_nonlinearsolver_mod ! Fortran interface to generic SUNNonlinearSolver
@@ -113,6 +114,7 @@ program main
   integer(c_int) :: nout        ! number of outputs
   integer(c_int) :: outstep     ! output loop counter
   type(c_ptr)    :: cvodes_mem  ! CVODES memory
+  type(c_ptr)    :: ctx         ! SUNDIALS simulation context
 
   type(N_Vector), pointer           :: sunvec_y ! sundials vector
   type(SUNNonlinearSolver), pointer :: sunnls   ! sundials fixed-point nonlinear solver
@@ -121,6 +123,8 @@ program main
   real(c_double) :: yvec(neq)
 
   !======= Internals ============
+
+  ierr = FSUNContext_Create(c_null_ptr, ctx)
 
   ! initialize ODE
   tstart = 0.0d0
@@ -134,14 +138,14 @@ program main
   yvec(1) = 0.0d0
 
   ! create SUNDIALS N_Vector
-  sunvec_y => FN_VMake_Serial(neq, yvec)
+  sunvec_y => FN_VMake_Serial(neq, yvec, ctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
 
   ! create CVode memory
-  cvodes_mem = FCVodeCreate(CV_ADAMS)
+  cvodes_mem = FCVodeCreate(CV_ADAMS, ctx)
   if (.not. c_associated(cvodes_mem)) then
      print *, 'ERROR: cvodes_mem = NULL'
      stop 1
@@ -165,7 +169,7 @@ program main
   end if
 
   ! create fixed point nonlinear solver object
-  sunnls => FSUNNonlinSol_FixedPoint(sunvec_y, 0)
+  sunnls => FSUNNonlinSol_FixedPoint(sunvec_y, 0, ctx)
   if (.not. associated(sunnls)) then
      print *,'ERROR: sunnls = NULL'
      stop 1
@@ -207,6 +211,7 @@ program main
   call FCVodeFree(cvodes_mem)
   ierr = FSUNNonLinSolFree(sunnls)
   call FN_VDestroy(sunvec_y)
+  ierr = FSUNContext_Free(ctx)
 
 end program main
 

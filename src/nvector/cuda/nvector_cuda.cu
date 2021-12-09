@@ -103,121 +103,13 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, 
                                size_t& shMemSize, cudaStream_t& stream, size_t n = 0);
 static void PostKernelLaunch();
 
-/*
- * Private functions needed for N_VMakeWithManagedAllocator_Cuda
- * backwards compatibility.
- */
-
-/* DEPRECATION NOTICE: The 4 functions below can be removed once
-   N_VMakeWithManagedAllocator_Cuda (deprecated) is removed in the
-   next major release. The UserAllocHelper struct can also be removed. */
-
-/* Struct that we use to pack up the user
-   provided alloc and free functions. */
-typedef struct _UserAllocHelper
-{
-  void*  (*userallocfn)(size_t);
-  void   (*userfreefn)(void*);
-} UserAllocHelper;
-
-static int UserAlloc(SUNMemoryHelper helper, SUNMemory* memptr,
-                     size_t memsize, SUNMemoryType mem_type)
-{
-  UserAllocHelper* ua = (UserAllocHelper*) helper->content;
-  SUNMemory mem = SUNMemoryNewEmpty();
-
-  mem->ptr = NULL;
-  mem->own = SUNTRUE;
-
-  if (mem_type == SUNMEMTYPE_HOST)
-  {
-    mem->ptr = malloc(memsize);
-    if (mem->ptr == NULL) { free(mem); return(-1); }
-    mem->type = SUNMEMTYPE_HOST;
-  }
-  else if (mem_type == SUNMEMTYPE_UVM ||
-           mem_type == SUNMEMTYPE_DEVICE)
-  {
-    mem->type = SUNMEMTYPE_UVM;
-    mem->ptr  = ua->userallocfn(memsize);
-    if (mem->ptr == NULL)
-    {
-      SUNDIALS_DEBUG_PRINT("ERROR in UserAlloc: user provided alloc failed\n");
-      free(mem);
-      return(-1);
-    }
-  }
-  else
-  {
-    free(mem);
-    return(-1);
-  }
-
-  *memptr = mem;
-  return(0);
-}
-
-static int UserDealloc(SUNMemoryHelper helper, SUNMemory mem)
-{
-  UserAllocHelper* ua = (UserAllocHelper*) helper->content;
-
-  if (mem != NULL)
-  {
-    if (mem->ptr != NULL && mem->own)
-    {
-      if (mem->type == SUNMEMTYPE_HOST)
-      {
-        free(mem->ptr);
-        mem->ptr = NULL;
-      }
-      else if (mem->type == SUNMEMTYPE_UVM)
-      {
-        ua->userfreefn(mem->ptr);
-        mem->ptr = NULL;
-      }
-      else
-      {
-        return(-1);
-      }
-    }
-    free(mem);
-  }
-  return(0);
-}
-
-static SUNMemoryHelper HelperClone(SUNMemoryHelper helper)
-{
-  UserAllocHelper* uaclone;
-  UserAllocHelper* ua = (UserAllocHelper*) helper->content;
-  SUNMemoryHelper hclone = SUNMemoryHelper_NewEmpty();
-
-  SUNMemoryHelper_CopyOps(helper, hclone);
-
-  uaclone = (UserAllocHelper*) malloc(sizeof(UserAllocHelper));
-  uaclone->userallocfn = ua->userallocfn;
-  uaclone->userfreefn  = ua->userfreefn;
-
-  hclone->content = uaclone;
-
-  return(hclone);
-}
-
-static int HelperDestroy(SUNMemoryHelper helper)
-{
-  free(helper->content);
-  helper->content = NULL;
-  free(helper->ops);
-  free(helper);
-  return(0);
-}
-
-N_Vector N_VNewEmpty_Cuda()
+N_Vector N_VNewEmpty_Cuda(SUNContext sunctx)
 {
   N_Vector v;
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -315,16 +207,16 @@ N_Vector N_VNewEmpty_Cuda()
   return(v);
 }
 
-N_Vector N_VNew_Cuda(sunindextype length)
+N_Vector N_VNew_Cuda(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Cuda();
+  v = N_VNewEmpty_Cuda(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_CUDA_CONTENT(v)->length             = length;
-  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda();
+  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
   NVEC_CUDA_CONTENT(v)->stream_exec_policy = new CudaThreadDirectExecPolicy(256);
   NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new CudaBlockReduceExecPolicy(256);
   NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
@@ -348,7 +240,7 @@ N_Vector N_VNew_Cuda(sunindextype length)
   return(v);
 }
 
-N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper)
+N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
 {
   N_Vector v;
 
@@ -365,7 +257,7 @@ N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem
   }
 
   v = NULL;
-  v = N_VNewEmpty_Cuda();
+  v = N_VNewEmpty_Cuda(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_CUDA_CONTENT(v)->length             = length;
@@ -386,18 +278,18 @@ N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem
   return(v);
 }
 
-N_Vector N_VNewManaged_Cuda(sunindextype length)
+N_Vector N_VNewManaged_Cuda(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Cuda();
+  v = N_VNewEmpty_Cuda(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_CUDA_CONTENT(v)->length             = length;
   NVEC_CUDA_CONTENT(v)->stream_exec_policy = new CudaThreadDirectExecPolicy(256);
   NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new CudaBlockReduceExecPolicy(256);
-  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda();
+  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
   NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_CUDA_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_CUDA_PRIVATE(v)->use_managed_mem    = SUNTRUE;
@@ -419,14 +311,14 @@ N_Vector N_VNewManaged_Cuda(sunindextype length)
   return(v);
 }
 
-N_Vector N_VMake_Cuda(sunindextype length, realtype *h_vdata, realtype *d_vdata)
+N_Vector N_VMake_Cuda(sunindextype length, realtype *h_vdata, realtype *d_vdata, SUNContext sunctx)
 {
   N_Vector v;
 
   if (h_vdata == NULL || d_vdata == NULL) return(NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Cuda();
+  v = N_VNewEmpty_Cuda(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_CUDA_CONTENT(v)->length             = length;
@@ -434,7 +326,7 @@ N_Vector N_VMake_Cuda(sunindextype length, realtype *h_vdata, realtype *d_vdata)
   NVEC_CUDA_CONTENT(v)->device_data        = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
   NVEC_CUDA_CONTENT(v)->stream_exec_policy = new CudaThreadDirectExecPolicy(256);
   NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new CudaBlockReduceExecPolicy(256);
-  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda();
+  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
   NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_CUDA_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_CUDA_PRIVATE(v)->use_managed_mem    = SUNFALSE;
@@ -457,14 +349,14 @@ N_Vector N_VMake_Cuda(sunindextype length, realtype *h_vdata, realtype *d_vdata)
   return(v);
 }
 
-N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata)
+N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata, SUNContext sunctx)
 {
   N_Vector v;
 
   if (vdata == NULL) return(NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Cuda();
+  v = N_VNewEmpty_Cuda(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_CUDA_CONTENT(v)->length             = length;
@@ -472,7 +364,7 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata)
   NVEC_CUDA_CONTENT(v)->device_data        = SUNMemoryHelper_Alias(NVEC_CUDA_CONTENT(v)->host_data);
   NVEC_CUDA_CONTENT(v)->stream_exec_policy = new CudaThreadDirectExecPolicy(256);
   NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new CudaBlockReduceExecPolicy(256);
-  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda();
+  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
   NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_CUDA_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_CUDA_PRIVATE(v)->use_managed_mem    = SUNTRUE;
@@ -488,53 +380,6 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata)
       NVEC_CUDA_CONTENT(v)->host_data == NULL)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMakeManaged_Cuda: SUNMemoryHelper_Wrap returned NULL\n");
-    N_VDestroy(v);
-    return(NULL);
-  }
-
-  return(v);
-}
-
-N_Vector N_VMakeWithManagedAllocator_Cuda(sunindextype length,
-                                          void* (*allocfn)(size_t),
-                                          void (*freefn)(void*))
-{
-  UserAllocHelper* ua;
-  N_Vector v;
-
-  v = NULL;
-  v = N_VNewEmpty_Cuda();
-  if (v == NULL) return(NULL);
-
-  NVEC_CUDA_CONTENT(v)->length             = length;
-  NVEC_CUDA_CONTENT(v)->host_data          = NULL;
-  NVEC_CUDA_CONTENT(v)->device_data        = NULL;
-  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new CudaThreadDirectExecPolicy(256);
-  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new CudaBlockReduceExecPolicy(256);
-  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda();
-  NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_CUDA_CONTENT(v)->own_exec           = SUNTRUE;
-  NVEC_CUDA_PRIVATE(v)->use_managed_mem    = SUNTRUE;
-
-  if (NVEC_CUDA_MEMHELP(v) == NULL)
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VMakeWithManagedAllocator_Cuda: memory helper is NULL\n");
-    N_VDestroy(v);
-    return(NULL);
-  }
-
-  ua = (UserAllocHelper*) malloc(sizeof(UserAllocHelper));
-  ua->userallocfn                    = allocfn;
-  ua->userfreefn                     = freefn;
-  NVEC_CUDA_MEMHELP(v)->content      = (void*) ua;
-  NVEC_CUDA_MEMHELP(v)->ops->alloc   = UserAlloc;
-  NVEC_CUDA_MEMHELP(v)->ops->dealloc = UserDealloc;
-  NVEC_CUDA_MEMHELP(v)->ops->clone   = HelperClone;
-  NVEC_CUDA_MEMHELP(v)->ops->destroy = HelperDestroy;
-
-  if (AllocateData(v))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VMakeWithManagedAllocator_Cuda: AllocateData returned nonzero\n");
     N_VDestroy(v);
     return(NULL);
   }
@@ -743,7 +588,7 @@ N_Vector N_VCloneEmpty_Cuda(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty_Cuda();
+  v = N_VNewEmpty_Cuda(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

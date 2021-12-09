@@ -109,6 +109,11 @@ int main(int argc, char *argv[])
   SUNMatrix A;
   SUNLinearSolver LS;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext sunctx = NULL;
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContextCreate", 1)) return(1);
+
   /* Allocate user data structure */
   data = (UserData) malloc(sizeof *data);
 
@@ -117,10 +122,16 @@ int main(int argc, char *argv[])
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
 
-  /* Allocate vectors */
-  y0 = N_VNew_Serial(NEQ);      /* initial conditions  */
-  y = N_VNew_Serial(NEQ);       /* solution vector     */
-  abstol = N_VNew_Serial(NEQ);  /* absolute tolerances */
+  /* Allocate initial condition vector and set context */
+  y0 = N_VNew_Serial(NEQ, sunctx);
+  if (check_retval((void *)y0, "N_VNew_Serial", 0)) return(1);
+
+  /* Create solution and absolute tolerance vectors */
+  y = N_VClone(y0);
+  if (check_retval((void *)y, "N_VClone", 0)) return(1);
+
+  abstol = N_VClone(y0);
+  if (check_retval((void *)abstol, "N_VClone", 0)) return(1);
 
   /* Set initial conditions */
   NV_Ith_S(y0,0) = RCONST(1.0);
@@ -135,7 +146,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF);
+  cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -160,11 +171,11 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solvers */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object for use by CVode */
-  LS = SUNLinSol_Dense(y, A);
+  LS = SUNLinSol_Dense(y, A, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
@@ -191,10 +202,10 @@ int main(int argc, char *argv[])
   plist = (int *) malloc(Ns * sizeof(int));
   for (is=0; is<Ns; is++) plist[is] = is;
 
-  yS0 = N_VCloneVectorArray_Serial(Ns, y);
+  yS0 = N_VCloneVectorArray(Ns, y);
   for (is=0;is<Ns;is++) N_VConst(ZERO, yS0[is]);
 
-  yS = N_VCloneVectorArray_Serial(Ns, y);
+  yS = N_VCloneVectorArray(Ns, y);
 
   retval = CVodeSensInit1(cvode_mem, Ns, data->meth, fS, yS0);
   if (check_retval(&retval, "CVodeSensInit1", 1)) return(1);
@@ -319,6 +330,7 @@ int main(int argc, char *argv[])
   SUNLinSolFree(LS);              /* Free solver memory     */
   SUNMatDestroy(A);               /* Free the matrix memory */
 
+  SUNContext_Free(&sunctx);
   return(0);
 
 }
@@ -338,7 +350,7 @@ static int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, UserData data)
   /* Call CVode in CV_NORMAL mode */
   retval = CVode(cvode_mem, T1, y, &t, CV_NORMAL);
   if (retval != 0) return(retval);
-  
+
   /* Print final statistics */
   retval = PrintFinalStats(cvode_mem, data);
   printf("\n");
@@ -555,7 +567,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   /* Check if retval < 0 */
@@ -563,13 +575,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     retval = (int *) returnvalue;
     if (*retval < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return(1); }
 
   return(0);

@@ -21,6 +21,7 @@
 module fnvector_manyvector_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_nvector_mod
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -83,12 +84,13 @@ module fnvector_manyvector_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FN_VNew_ManyVector(farg1, farg2) &
+function swigc_FN_VNew_ManyVector(farg1, farg2, farg3) &
 bind(C, name="_wrap_FN_VNew_ManyVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
 type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
 type(C_PTR) :: fresult
 end function
 
@@ -570,19 +572,22 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FN_VNew_ManyVector(num_subvectors, vec_array) &
+function FN_VNew_ManyVector(num_subvectors, vec_array, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 integer(C_INT64_T), intent(in) :: num_subvectors
 type(C_PTR) :: vec_array
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT64_T) :: farg1 
 type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = num_subvectors
 farg2 = vec_array
-fresult = swigc_FN_VNew_ManyVector(farg1, farg2)
+farg3 = sunctx
+fresult = swigc_FN_VNew_ManyVector(farg1, farg2, farg3)
 call c_f_pointer(fresult, swig_result)
 end function
 

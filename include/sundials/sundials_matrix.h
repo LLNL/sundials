@@ -44,6 +44,7 @@
 #ifndef _SUNMATRIX_H
 #define _SUNMATRIX_H
 
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_nvector.h>
 
@@ -98,6 +99,7 @@ struct _generic_SUNMatrix_Ops {
 struct _generic_SUNMatrix {
   void *content;
   SUNMatrix_Ops ops;
+  SUNContext sunctx;
 };
 
 
@@ -105,7 +107,7 @@ struct _generic_SUNMatrix {
  * Functions exported by SUNMatrix module
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatNewEmpty();
+SUNDIALS_EXPORT SUNMatrix SUNMatNewEmpty(SUNContext sunctx);
 SUNDIALS_EXPORT void SUNMatFreeEmpty(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopyOps(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);

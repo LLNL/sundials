@@ -188,13 +188,15 @@
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
-#include "sundials/sundials_nvector.h"  
+#include "sundials/sundials_nvector.h"
 
-SWIGEXPORT N_Vector _wrap_FN_VNewEmpty() {
+SWIGEXPORT N_Vector _wrap_FN_VNewEmpty(void *farg1) {
   N_Vector fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
   N_Vector result;
   
-  result = (N_Vector)N_VNewEmpty();
+  arg1 = (SUNContext)(farg1);
+  result = (N_Vector)N_VNewEmpty(arg1);
   fresult = result;
   return fresult;
 }

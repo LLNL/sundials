@@ -21,12 +21,12 @@
 #include "sundials_hip.h"
 
 
-SUNMemoryHelper SUNMemoryHelper_Hip()
+SUNMemoryHelper SUNMemoryHelper_Hip(SUNContext sunctx)
 {
   SUNMemoryHelper helper;
 
   /* Allocate the helper */
-  helper = SUNMemoryHelper_NewEmpty();
+  helper = SUNMemoryHelper_NewEmpty(sunctx);
 
   /* Set the ops */
   helper->ops->alloc     = SUNMemoryHelper_Alloc_Hip;

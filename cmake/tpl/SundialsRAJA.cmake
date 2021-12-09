@@ -76,6 +76,25 @@ endforeach()
 message(STATUS "RAJA Version:  ${RAJA_VERSION_MAJOR}.${RAJA_VERSION_MINOR}.${RAJA_VERSION_PATCHLEVEL}")
 message(STATUS "RAJA Backends: ${RAJA_BACKENDS}")
 
+# Check if RAJA uses the Threads::Threads target. Currently this target gets
+# created by find_package(CUDA). The example CMake files will need to call
+# find_package(Threads) to create this target.
+set(RAJA_NEEDS_THREADS OFF)
+set(_raja_target_list RAJA RAJA::cuda)
+foreach(_raja_target ${_raja_target_list})
+  if(TARGET ${_raja_target})
+    get_target_property(_raja_target_interface_link_libraries
+      ${_raja_target} INTERFACE_LINK_LIBRARIES)
+    if(_raja_target_interface_link_libraries MATCHES "Threads::Threads")
+      set(RAJA_NEEDS_THREADS ON)
+      if(NOT TARGET Threads::Threads)
+        find_package(Threads)
+      endif()
+      break()
+    endif()
+  endif()
+endforeach()
+
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------

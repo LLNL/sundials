@@ -1,0 +1,125 @@
+# ---------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ---------------------------------------------------------------
+
+###############################################################################
+# General GitLab pipelines configurations for supercomputers and Linux clusters
+# at Lawrence Livermore National Laboratory (LLNL).
+###############################################################################
+
+# We define the following GitLab pipeline variables (all of which can be
+# set from the GitLab CI "run pipeline" UI):
+#
+# GIT_SUBMODULE_STRATEGY:
+# Tells Gitlab to recursively update the submodules when cloning.
+#
+# ALLOC_NAME:
+# Allocation unique name.
+#
+# BUILD_ROOT:
+# The path to the shared resources between all jobs. The BUILD_ROOT is unique to
+# the pipeline, preventing any form of concurrency with other pipelines. This
+# also means that the BUILD_ROOT directory will never be cleaned.
+#
+# DEFAULT_TIME:
+# Default time to let the jobs run will be 30 minutes.
+#
+# BUILD_JOBS:
+# Number of threads to use for builds.
+#
+# NCPU:
+# Number of CPUs to alloc.
+#
+# VERBOSE_BUILD:
+# Sets CMAKE_VERBOSE_MAKEFILE to TRUE when "ON".
+#
+# VERBOSE_TEST:
+# Passes --verbose to CTest when "ON".
+#
+# ON_LASSEN:
+# Should the Lassen pipeline run? Set to "ON" or "OFF" to enable/disable.
+#
+# ON_QUARTZ:
+# Should the Quartz pipeline run? Set to  "ON" or "OFF" to enable/disable.
+#
+# SHARED_SPACK:
+# If "ON", then a shared spack install that has been pre-configured is utilized.
+# If "OFF", then a new spack instance is created for every build (meaning all TPLs have to be installed).
+# If "UPSTREAM" (the default), then the shared spack is used as an upstream for a build specific spack.
+#
+# BENCHMARK:
+# If "ON", then the SUNDIALS benchmark problems are run and generate profiles.
+#
+# BENCHMARK_NNODES:
+# Number of nodes to use for benchmarks. Default is 4.
+#
+# BENCHMARK_QUEUE:
+# What queue to submit the benchmarks too. Default is pbatch (for Livermore).
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  ALLOC_NAME: ${CI_PROJECT_NAME}_ci_${CI_PIPELINE_ID}
+  BUILD_ROOT: ${CI_PROJECT_DIR}
+  DEFAULT_TIME: 30
+  BUILD_JOBS: 32
+  NCPUS: 12
+  VERBOSE_BUILD: "OFF"
+  VERBOSE_TEST: "OFF"
+  ON_LASSEN: "ON"
+  ON_QUARTZ: "ON"
+  SHARED_SPACK: "UPSTREAM"
+  BENCHMARK: "OFF"
+  BENCHMARK_NNODES: 4
+  BENCHMARK_QUEUE: "pbatch"
+
+# Normally, stages are blocking in Gitlab. However, using the keyword "needs" we
+# can express dependencies between job that break the ordering of stages, in
+# favor of a DAG.
+# In practice q_*, l_* and c_* stages are independently run and start immediately.
+
+stages:
+  - q_build_and_test
+  - l_build_and_test
+  - l_build_and_bench
+  # - c_build_and_test
+
+# These are also templates (.name) that define project specific build commands.
+# If an allocation exist with the name defined in this pipeline, the job will
+# use it (slurm specific).
+.build_toss_3_x86_64_ib_script:
+  script:
+    - echo ${ALLOC_NAME}
+    - srun -p pdebug -N 1 -n ${NCPUS} --interactive -t ${DEFAULT_TIME}
+      --job-name=${ALLOC_NAME} scripts/gitlab/build_and_test.sh
+
+# Corona
+.build_toss_3_x86_64_ib_corona_script:
+  script:
+    - srun -p mi60 --interactive -t ${DEFAULT_TIME} -N 1 scripts/gitlab/build_and_test.sh
+
+# CORAL systems use spectrum LSF instead of SLURM
+.build_blueos_3_ppc64le_ib_script:
+  script:
+    - echo ${ALLOC_NAME}
+    - bsub -q pdebug -J ${ALLOC_NAME} -nnodes 1 -W ${DEFAULT_TIME} -Is scripts/gitlab/build_and_test.sh
+
+# Benchmark job for CORAL systems
+.build_blueos_3_ppc64le_ib_bench:
+  script:
+    - echo ${ALLOC_NAME}
+    - bsub -q ${BENCHMARK_QUEUE} -J ${ALLOC_NAME} -nnodes ${BENCHMARK_NNODES} -W ${DEFAULT_TIME} -Is scripts/gitlab/build_and_bench.sh
+
+# This is where jobs are included.
+include:
+  - local: .gitlab/quartz-templates.yml
+  - local: .gitlab/quartz-jobs.yml
+  - local: .gitlab/lassen-templates.yml
+  - local: .gitlab/lassen-jobs.yml

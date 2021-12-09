@@ -111,13 +111,13 @@ static int FusedBuffer_CopyToDevice(N_Vector v);
 static int FusedBuffer_Free(N_Vector v);
 
 
-N_Vector N_VNewEmpty_Raja()
+N_Vector N_VNewEmpty_Raja(SUNContext sunctx)
 {
   N_Vector v;
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -206,22 +206,22 @@ N_Vector N_VNewEmpty_Raja()
   return(v);
 }
 
-N_Vector N_VNew_Raja(sunindextype length)
+N_Vector N_VNew_Raja(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   sycl::queue* q = ::RAJA::sycl::detail::getQueue();
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q);
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q, sunctx);
 #endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_CONTENT(v)->host_data       = NULL;
@@ -245,7 +245,10 @@ N_Vector N_VNew_Raja(sunindextype length)
   return(v);
 }
 
-N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper)
+N_Vector N_VNewWithMemHelp_Raja(sunindextype length,
+                                booleantype use_managed_mem,
+                                SUNMemoryHelper helper,
+                                SUNContext sunctx)
 {
   N_Vector v;
 
@@ -262,7 +265,7 @@ N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem
   }
 
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
@@ -282,22 +285,22 @@ N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem
   return(v);
 }
 
-N_Vector N_VNewManaged_Raja(sunindextype length)
+N_Vector N_VNewManaged_Raja(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   sycl::queue* q = ::RAJA::sycl::detail::getQueue();
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q);
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q, sunctx);
 #endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_CONTENT(v)->host_data       = NULL;
@@ -321,26 +324,27 @@ N_Vector N_VNewManaged_Raja(sunindextype length)
   return(v);
 }
 
-N_Vector N_VMake_Raja(sunindextype length, realtype *h_vdata, realtype *d_vdata)
+N_Vector N_VMake_Raja(sunindextype length, realtype *h_vdata, realtype *d_vdata,
+                      SUNContext sunctx)
 {
   N_Vector v;
 
   if (h_vdata == NULL || d_vdata == NULL) return(NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
   NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(h_vdata, SUNMEMTYPE_HOST);
   NVEC_RAJA_CONTENT(v)->device_data     = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   sycl::queue* q = ::RAJA::sycl::detail::getQueue();
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q);
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q, sunctx);
 #endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = SUNFALSE;
@@ -364,26 +368,27 @@ N_Vector N_VMake_Raja(sunindextype length, realtype *h_vdata, realtype *d_vdata)
   return(v);
 }
 
-N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata)
+N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata,
+                             SUNContext sunctx)
 {
   N_Vector v;
 
   if (vdata == NULL) return(NULL);
 
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(sunctx);
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
   NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
   NVEC_RAJA_CONTENT(v)->device_data     = SUNMemoryHelper_Alias(NVEC_RAJA_CONTENT(v)->host_data);
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip();
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Hip(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   sycl::queue* q = ::RAJA::sycl::detail::getQueue();
-  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q);
+  NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(q, sunctx);
 #endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = SUNTRUE;
@@ -603,7 +608,7 @@ N_Vector N_VCloneEmpty_Raja(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty_Raja();
+  v = N_VNewEmpty_Raja(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

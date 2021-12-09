@@ -74,16 +74,17 @@ static int GetKernelParameters(SUNMatrix A, booleantype reduction,
 SUNMatrix SUNMatrix_OneMklDense(sunindextype M, sunindextype N,
                                 SUNMemoryType mem_type,
                                 SUNMemoryHelper mem_helper,
-                                sycl::queue* queue)
+                                sycl::queue* queue, SUNContext sunctx)
 {
-  return SUNMatrix_OneMklDenseBlock(1, M, N, mem_type, mem_helper, queue);
+  return SUNMatrix_OneMklDenseBlock(1, M, N, mem_type, mem_helper, queue,
+                                    sunctx);
 }
 
 
 SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
                                      sunindextype N, SUNMemoryType mem_type,
                                      SUNMemoryHelper mem_helper,
-                                     sycl::queue* queue)
+                                     sycl::queue* queue, SUNContext sunctx)
 {
   int retval;
 
@@ -96,7 +97,7 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
   }
 
   // Create an empty matrix object
-  SUNMatrix A = SUNMatNewEmpty();
+  SUNMatrix A = SUNMatNewEmpty(sunctx);
   if (!A)
   {
     SUNDIALS_DEBUG_ERROR("SUNMatNewEmpty returned NULL\n");
@@ -382,7 +383,8 @@ SUNMatrix SUNMatClone_OneMklDense(SUNMatrix A)
                                            MAT_BLOCK_COLS(A),
                                            MAT_DATA(A)->type,
                                            MAT_MEMHELPER(A),
-                                           MAT_QUEUE(A));
+                                           MAT_QUEUE(A),
+                                           A->sunctx);
 
   if (!B)
   {

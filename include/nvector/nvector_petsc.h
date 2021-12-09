@@ -70,17 +70,12 @@ typedef struct _N_VectorContent_Petsc *N_VectorContent_Petsc;
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
                                            sunindextype local_length,
-                                           sunindextype global_length);
+                                           sunindextype global_length,
+                                           SUNContext sunctx);
 
-SUNDIALS_EXPORT N_Vector N_VMake_Petsc(Vec v);
+SUNDIALS_EXPORT N_Vector N_VMake_Petsc(Vec v, SUNContext sunctx);
 
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Petsc(N_Vector v);
-
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w);
-
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Petsc(int count, N_Vector w);
-
-SUNDIALS_EXPORT void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count);
 
 SUNDIALS_EXPORT Vec N_VGetVector_Petsc(N_Vector v);
 
@@ -191,6 +186,21 @@ SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Petsc(N_Vector v, booleantype t
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Petsc(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Petsc(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, booleantype tf);
+
+/*
+ * -----------------------------------------------------------------
+ * Deprecated functions
+ * -----------------------------------------------------------------
+ */
+
+/* use N_VCloneVectorArray */
+SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w);
+
+/* use N_VCloneVectorArrayEmpty */
+SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Petsc(int count, N_Vector w);
+
+/* use N_VDestroyVectorArray */
+SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count);
 
 #ifdef __cplusplus
 }

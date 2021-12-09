@@ -208,17 +208,19 @@
 
 #include "sunlinsol/sunlinsol_spgmr.h"
 
-SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_SPGMR(N_Vector farg1, int const *farg2, int const *farg3) {
+SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_SPGMR(N_Vector farg1, int const *farg2, int const *farg3, void *farg4) {
   SUNLinearSolver fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   int arg3 ;
+  SUNContext arg4 = (SUNContext) 0 ;
   SUNLinearSolver result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
-  result = (SUNLinearSolver)SUNLinSol_SPGMR(arg1,arg2,arg3);
+  arg4 = (SUNContext)(farg4);
+  result = (SUNLinearSolver)SUNLinSol_SPGMR(arg1,arg2,arg3,arg4);
   fresult = result;
   return fresult;
 }
@@ -261,64 +263,6 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver farg1, int c
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNLinSol_SPGMRSetMaxRestarts(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT SUNLinearSolver _wrap_FSUNSPGMR(N_Vector farg1, int const *farg2, int const *farg3) {
-  SUNLinearSolver fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  int arg2 ;
-  int arg3 ;
-  SUNLinearSolver result;
-  
-  arg1 = (N_Vector)(farg1);
-  arg2 = (int)(*farg2);
-  arg3 = (int)(*farg3);
-  result = (SUNLinearSolver)SUNSPGMR(arg1,arg2,arg3);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNSPGMRSetPrecType(SUNLinearSolver farg1, int const *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNSPGMRSetPrecType(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNSPGMRSetGSType(SUNLinearSolver farg1, int const *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNSPGMRSetGSType(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNSPGMRSetMaxRestarts(SUNLinearSolver farg1, int const *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNSPGMRSetMaxRestarts(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

@@ -38,21 +38,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl)
-{ return(SUNLinSol_SPTFQMR(y, pretype, maxl)); }
-
-int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
-{ return(SUNLinSol_SPTFQMRSetPrecType(S, pretype)); }
-
-int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
-{ return(SUNLinSol_SPTFQMRSetMaxl(S, maxl)); }
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -61,7 +46,7 @@ int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
  * Function to create a new SPTFQMR linear solver
  */
 
-SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl)
+SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_SPTFQMR content;
@@ -82,7 +67,7 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl)
 
   /* Create linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

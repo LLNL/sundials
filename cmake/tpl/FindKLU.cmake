@@ -90,7 +90,6 @@ endif ()
 set(KLU_LIBRARIES ${KLU_LIBRARY} ${AMD_LIBRARY} ${COLAMD_LIBRARY} ${BTF_LIBRARY} ${SUITESPARSECONFIG_LIBRARY})
 
 # set package variables including KLU_FOUND
-include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(KLU
   REQUIRED_VARS
     KLU_LIBRARY

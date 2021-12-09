@@ -146,14 +146,14 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   /* create vector wrappers if necessary */
   if (cv_mem->simMallocDone == SUNFALSE) {
 
-    cv_mem->zn0Sim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1);
+    cv_mem->zn0Sim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, cv_mem->cv_sunctx);
     if (cv_mem->zn0Sim == NULL) {
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
                      "CVodeSetNonlinearSolverSensSim", MSGCV_MEM_FAIL);
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ycorSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1);
+    cv_mem->ycorSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, cv_mem->cv_sunctx);
     if (cv_mem->ycorSim == NULL) {
       N_VDestroy(cv_mem->zn0Sim);
       cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES",
@@ -161,7 +161,7 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
       return(CV_MEM_FAIL);
     }
 
-    cv_mem->ewtSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1);
+    cv_mem->ewtSim = N_VNewEmpty_SensWrapper(cv_mem->cv_Ns+1, cv_mem->cv_sunctx);
     if (cv_mem->ewtSim == NULL) {
       N_VDestroy(cv_mem->zn0Sim);
       N_VDestroy(cv_mem->ycorSim);

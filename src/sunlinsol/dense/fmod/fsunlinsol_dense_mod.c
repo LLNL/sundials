@@ -208,29 +208,17 @@
 
 #include "sunlinsol/sunlinsol_dense.h"
 
-SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_Dense(N_Vector farg1, SUNMatrix farg2) {
+SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_Dense(N_Vector farg1, SUNMatrix farg2, void *farg3) {
   SUNLinearSolver fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
+  SUNContext arg3 = (SUNContext) 0 ;
   SUNLinearSolver result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (SUNMatrix)(farg2);
-  result = (SUNLinearSolver)SUNLinSol_Dense(arg1,arg2);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT SUNLinearSolver _wrap_FSUNDenseLinearSolver(N_Vector farg1, SUNMatrix farg2) {
-  SUNLinearSolver fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  SUNMatrix arg2 = (SUNMatrix) 0 ;
-  SUNLinearSolver result;
-  
-  arg1 = (N_Vector)(farg1);
-  arg2 = (SUNMatrix)(farg2);
-  result = (SUNLinearSolver)SUNDenseLinearSolver(arg1,arg2);
+  arg3 = (SUNContext)(farg3);
+  result = (SUNLinearSolver)SUNLinSol_Dense(arg1,arg2,arg3);
   fresult = result;
   return fresult;
 }

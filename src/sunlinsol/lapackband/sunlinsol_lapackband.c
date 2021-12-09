@@ -37,15 +37,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
-{ return(SUNLinSol_LapackBand(y, A)); }
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -54,7 +45,7 @@ SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
  * Function to create a new LAPACK band linear solver
  */
 
-SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_LapackBand content;
@@ -75,7 +66,7 @@ SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A)
 
   /* Create an empty linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

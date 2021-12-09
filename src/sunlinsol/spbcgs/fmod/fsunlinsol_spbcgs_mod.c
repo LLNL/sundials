@@ -208,17 +208,19 @@
 
 #include "sunlinsol/sunlinsol_spbcgs.h"
 
-SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_SPBCGS(N_Vector farg1, int const *farg2, int const *farg3) {
+SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_SPBCGS(N_Vector farg1, int const *farg2, int const *farg3, void *farg4) {
   SUNLinearSolver fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   int arg3 ;
+  SUNContext arg4 = (SUNContext) 0 ;
   SUNLinearSolver result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
-  result = (SUNLinearSolver)SUNLinSol_SPBCGS(arg1,arg2,arg3);
+  arg4 = (SUNContext)(farg4);
+  result = (SUNLinearSolver)SUNLinSol_SPBCGS(arg1,arg2,arg3,arg4);
   fresult = result;
   return fresult;
 }
@@ -247,50 +249,6 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPBCGSSetMaxl(SUNLinearSolver farg1, int const *
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNLinSol_SPBCGSSetMaxl(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT SUNLinearSolver _wrap_FSUNSPBCGS(N_Vector farg1, int const *farg2, int const *farg3) {
-  SUNLinearSolver fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  int arg2 ;
-  int arg3 ;
-  SUNLinearSolver result;
-  
-  arg1 = (N_Vector)(farg1);
-  arg2 = (int)(*farg2);
-  arg3 = (int)(*farg3);
-  result = (SUNLinearSolver)SUNSPBCGS(arg1,arg2,arg3);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNSPBCGSSetPrecType(SUNLinearSolver farg1, int const *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNSPBCGSSetPrecType(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNSPBCGSSetMaxl(SUNLinearSolver farg1, int const *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNSPBCGSSetMaxl(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

@@ -63,11 +63,8 @@ typedef struct _SUNLinearSolverContent_LapackDense *SUNLinearSolverContent_Lapac
  * --------------------------------------------- */
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackDense(N_Vector y,
-                                                      SUNMatrix A);
-
-/* deprecated */
-SUNDIALS_EXPORT SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A);
-
+                                                      SUNMatrix A,
+                                                      SUNContext sunctx);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_LapackDense(SUNLinearSolver S);

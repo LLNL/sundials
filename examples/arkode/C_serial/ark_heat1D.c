@@ -94,6 +94,11 @@ int main() {
   int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   /* allocate and fill udata structure */
   udata = (UserData) malloc(sizeof(*udata));
   udata->N = N;
@@ -106,7 +111,7 @@ int main() {
   printf("  diffusion coefficient:  k = %"GSYM"\n", udata->k);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(N);            /* Create serial vector for solution */
+  y = N_VNew_Serial(N, ctx);            /* Create serial vector for solution */
   if (check_flag((void *) y, "N_VNew_Serial", 0)) return 1;
   N_VConst(0.0, y);                /* Set initial conditions */
 
@@ -114,7 +119,7 @@ int main() {
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
@@ -128,7 +133,7 @@ int main() {
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
-  LS = SUNLinSol_PCG(y, 0, (int) N);
+  LS = SUNLinSol_PCG(y, 0, (int) N, ctx);
   if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
@@ -220,6 +225,8 @@ int main() {
   free(udata);                 /* Free user data */
   ARKStepFree(&arkode_mem);    /* Free integrator memory */
   SUNLinSolFree(LS);           /* Free linear solver */
+  SUNContext_Free(&ctx);       /* Free context */
+
   return 0;
 }
 

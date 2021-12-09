@@ -67,14 +67,14 @@ N_Vector_ID N_VGetVectorID_Serial(N_Vector v)
  * Function to create a new empty serial vector
  */
 
-N_Vector N_VNewEmpty_Serial(sunindextype length)
+N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_Serial content;
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -152,13 +152,13 @@ N_Vector N_VNewEmpty_Serial(sunindextype length)
  * Function to create a new serial vector
  */
 
-N_Vector N_VNew_Serial(sunindextype length)
+N_Vector N_VNew_Serial(sunindextype length, SUNContext sunctx)
 {
   N_Vector v;
   realtype *data;
 
   v = NULL;
-  v = N_VNewEmpty_Serial(length);
+  v = N_VNewEmpty_Serial(length, sunctx);
   if (v == NULL) return(NULL);
 
   /* Create data */
@@ -182,12 +182,12 @@ N_Vector N_VNew_Serial(sunindextype length)
  * Function to create a serial N_Vector with user data component
  */
 
-N_Vector N_VMake_Serial(sunindextype length, realtype *v_data)
+N_Vector N_VMake_Serial(sunindextype length, realtype *v_data, SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Serial(length);
+  v = N_VNewEmpty_Serial(length, sunctx);
   if (v == NULL) return(NULL);
 
   if (length > 0) {
@@ -205,25 +205,7 @@ N_Vector N_VMake_Serial(sunindextype length, realtype *v_data)
 
 N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_Serial(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Serial(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -232,25 +214,7 @@ N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_Serial(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Serial(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------------------
@@ -259,12 +223,7 @@ N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
 
 void N_VDestroyVectorArray_Serial(N_Vector* vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_Serial(vs[j]);
-
-  free(vs); vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -328,7 +287,7 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

@@ -91,12 +91,17 @@ int main()
   realtype abstol = 1.e-11;
   realtype h0 = 1.e-4 * reltol;
 
+  /* Create the SUNDIALS context object for this simulation */
+  SUNContext ctx;
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
   /* Initial problem output */
   printf("\nRobertson ODE test problem:\n");
   printf("    initial conditions:  u0 = %"GSYM",  v0 = %"GSYM",  w0 = %"GSYM"\n",u0,v0,w0);
 
   /* Initialize data structures */
-  y = N_VNew_Serial(NEQ);         /* Create serial vector for solution */
+  y = N_VNew_Serial(NEQ, ctx);         /* Create serial vector for solution */
   if (check_flag((void *) y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = u0;             /* Set initial conditions into y */
   NV_Ith_S(y,1) = v0;
@@ -106,7 +111,7 @@ int main()
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
@@ -126,9 +131,9 @@ int main()
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize dense matrix data structure and solver */
-  A = SUNDenseMatrix(NEQ, NEQ);
+  A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
-  LS = SUNLinSol_Dense(y, A);
+  LS = SUNLinSol_Dense(y, A, ctx);
   if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return 1;
 
   /* Linear solver interface */
@@ -211,6 +216,7 @@ int main()
   ARKStepFree(&arkode_mem);    /* Free integrator memory */
   SUNLinSolFree(LS);           /* Free linear solver */
   SUNMatDestroy(A);            /* Free A matrix */
+  SUNContext_Free(&ctx);       /* Free context */
 
   return flag;
 }

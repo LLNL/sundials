@@ -2,6 +2,23 @@
 
 ## Changes to SUNDIALS in release 6.0.0
 
+SUNDIALS v6.0.0 introduces a new `SUNContext` object on which all other SUNDIALS
+objects depend. Users upgrading to SUNDIALS 6.0.0 will need to create a
+`SUNContext` object before calling any other SUNDIALS library function, and then
+provide this object to other SUNDIALS constructors. The `SUNContext` object has
+been introduced to allow SUNDIALS to provide new features, such as the
+profiling/instrumentation also introduced in this release, while maintaining
+thread-safety. See the documentation section on the `SUNContext` for more details.
+
+A capability to profile/instrument SUNDIALS library code has been added. This
+can be enabled with the CMake option `SUNDIALS_BUILD_WITH_PROFILING=TRUE`.
+A built-in profiler will be used by default, but the [Caliper](https://github.com/LLNL/Caliper)
+library can also be used instead with the CMake option `ENABLE_CALIPER=TRUE`.
+See the documentation section on profiling for more details.
+**WARNING**: Profiling will impact performance, and should be enabled judiciously.
+
+### ARKODE
+
 The ARKODE MRIStep module has been extended to support implicit-explicit (IMEX)
 multirate infinitesimal generalized additive Runge-Kutta (MRI-GARK) methods. As
 such, ``MRIStepCreate`` has been updated to include arguments for the slow
@@ -34,6 +51,17 @@ Deprecated ARKODE nonlinear solver predictors: specification of the ARKStep
 `ARKStepSetPredictorMethod`), or MRIStep "bootstrap" predictor (option 4 from
 `MRIStepSetPredictorMethod`), will output a deprecation warning message.
 These options will be removed in a future release.
+
+### Transitioning to SUNDIALS 6.0.0
+
+A script `upgrade-to-sundials-6-from-5.sh` has been provided with the release to
+help ease the transition to SUNDIALS v6.0.0. The script will add a
+`SUNCTX_PLACEHOLDER` argument to all of the calls to SUNDIALS constructors that
+now require a `SUNContext` object. It can be run like this:
+
+```
+> ./upgrade-to-sundials-6-from-5.sh <files to update>
+```
 
 ## Changes to SUNDIALS in release 5.8.0
 

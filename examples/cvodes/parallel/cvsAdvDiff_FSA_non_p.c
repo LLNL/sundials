@@ -132,6 +132,7 @@ int main(int argc, char *argv[])
   int sensi_meth;
 
   SUNNonlinearSolver NLS, NLSsens;
+  SUNContext sunctx;
 
   MPI_Comm comm;
 
@@ -153,6 +154,10 @@ int main(int argc, char *argv[])
   /* Process arguments */
   ProcessArgs(argc, argv, my_pe, &sensi, &sensi_meth, &err_con);
 
+  /* Create SUNDIALS context */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+
   /* Set local vector length. */
   nperpe = NEQ/npes;
   nrem = NEQ - npes*nperpe;
@@ -173,7 +178,7 @@ int main(int argc, char *argv[])
   data->p[1] = RCONST(0.5);
 
   /* INITIAL STATES */
-  u = N_VNew_Parallel(comm, local_N, NEQ);    /* Allocate u vector */
+  u = N_VNew_Parallel(comm, local_N, NEQ, sunctx);    /* Allocate u vector */
   if(check_retval((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetIC(u, dx, local_N, my_base);    /* Initialize u vector */
 
@@ -182,7 +187,7 @@ int main(int argc, char *argv[])
   abstol = ATOL;
 
   /* CVODE_CREATE & CVODE_MALLOC */
-  cvode_mem = CVodeCreate(CV_ADAMS);
+  cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -195,7 +200,7 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* create fixed point nonlinear solver object */
-  NLS = SUNNonlinSol_FixedPoint(u, 0);
+  NLS = SUNNonlinSol_FixedPoint(u, 0, sunctx);
   if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* attach nonlinear solver object to CVode */
@@ -218,8 +223,8 @@ int main(int argc, char *argv[])
     if(check_retval((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
 
-    uS = N_VCloneVectorArray_Parallel(NS, u);
-    if(check_retval((void *)uS, "N_VCloneVectorArray_Parallel", 0, my_pe))
+    uS = N_VCloneVectorArray(NS, u);
+    if(check_retval((void *)uS, "N_VCloneVectorArray", 0, my_pe))
       MPI_Abort(comm, 1);
     for(is=0;is<NS;is++)
       N_VConst(ZERO,uS[is]);
@@ -241,11 +246,11 @@ int main(int argc, char *argv[])
 
     /* create sensitivity fixed point nonlinear solver object */
     if (sensi_meth == CV_SIMULTANEOUS)
-      NLSsens = SUNNonlinSol_FixedPointSens(NS+1, u, 0);
+      NLSsens = SUNNonlinSol_FixedPointSens(NS+1, u, 0, sunctx);
     else if(sensi_meth == CV_STAGGERED)
-      NLSsens = SUNNonlinSol_FixedPointSens(NS, u, 0);
+      NLSsens = SUNNonlinSol_FixedPointSens(NS, u, 0, sunctx);
     else
-      NLSsens = SUNNonlinSol_FixedPoint(u, 0);
+      NLSsens = SUNNonlinSol_FixedPoint(u, 0, sunctx);
     if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) MPI_Abort(comm, 1);
 
     /* attach nonlinear solver object to CVode */
@@ -313,6 +318,7 @@ int main(int argc, char *argv[])
   free(pbar);
   if(sensi) free(plist);
   if(sensi) SUNNonlinSolFree(NLSsens);
+  SUNContext_Free(&sunctx);
 
   MPI_Finalize();
 

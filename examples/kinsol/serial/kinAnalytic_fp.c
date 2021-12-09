@@ -127,6 +127,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
  * ---------------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
+  SUNContext sunctx;
   int       retval = 0;     /* return value flag   */
   UserOpt   uopt   = NULL;  /* user options struct */
   N_Vector  u      = NULL;  /* solution vector     */
@@ -163,11 +164,15 @@ int main(int argc, char *argv[])
   printf("    damping_aa = %"GSYM"\n", uopt->damping_aa);
   printf("    damping_fp = %"GSYM"\n", uopt->damping_fp);
 
+  /* Create the SUNDIALS context that all SUNDIALS objects require */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+
   /* --------------------------------------
    * Create vectors for solution and scales
    * -------------------------------------- */
 
-  u = N_VNew_Serial(NEQ);
+  u = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
 
   scale = N_VClone(u);
@@ -177,7 +182,7 @@ int main(int argc, char *argv[])
    * Initialize and allocate memory for KINSOL
    * ----------------------------------------- */
 
-  kmem = KINCreate();
+  kmem = KINCreate(sunctx);
   if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
 
   /* Set number of prior residuals used in Anderson acceleration */
@@ -284,6 +289,7 @@ int main(int argc, char *argv[])
   N_VDestroy(scale);
   KINFree(&kmem);
   free(uopt);
+  SUNContext_Free(&sunctx);
 
   return(retval);
 }

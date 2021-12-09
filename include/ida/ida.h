@@ -19,6 +19,7 @@
 #define _IDA_H
 
 #include <stdio.h>
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_nonlinearsolver.h>
 #include <ida/ida_ls.h>
@@ -77,6 +78,8 @@ extern "C" {
 #define IDA_BAD_DKY         -27
 #define IDA_VECTOROP_ERR    -28
 
+#define IDA_CONTEXT_ERR     -29
+
 #define IDA_UNRECOGNIZED_ERROR -99
 
 
@@ -101,7 +104,7 @@ typedef void (*IDAErrHandlerFn)(int error_code,
  * ------------------- */
 
 /* Initialization functions */
-SUNDIALS_EXPORT void *IDACreate(void);
+SUNDIALS_EXPORT void *IDACreate(SUNContext sunctx);
 
 SUNDIALS_EXPORT int IDAInit(void *ida_mem, IDAResFn res, realtype t0,
                             N_Vector yy0, N_Vector yp0);

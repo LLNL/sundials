@@ -40,21 +40,6 @@
 
 /*
  * -----------------------------------------------------------------
- * deprecated wrapper functions
- * -----------------------------------------------------------------
- */
-
-SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
-{ return(SUNLinSol_SPBCGS(y, pretype, maxl)); }
-
-int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype)
-{ return(SUNLinSol_SPBCGSSetPrecType(S, pretype)); }
-
-int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl)
-{ return(SUNLinSol_SPBCGSSetMaxl(S, maxl)); }
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -63,7 +48,7 @@ int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl)
  * Function to create a new SPBCGS linear solver
  */
 
-SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl)
+SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl, SUNContext sunctx)
 {
   SUNLinearSolver S;
   SUNLinearSolverContent_SPBCGS content;
@@ -84,7 +69,7 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl)
 
   /* Create linear solver */
   S = NULL;
-  S = SUNLinSolNewEmpty();
+  S = SUNLinSolNewEmpty(sunctx);
   if (S == NULL) return(NULL);
 
   /* Attach operations */

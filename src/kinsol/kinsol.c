@@ -71,6 +71,7 @@
 #include <math.h>
 
 #include "kinsol_impl.h"
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_math.h>
 
 /*
@@ -152,6 +153,12 @@
 #define PRNT_ALPHABETA 11
 #define PRNT_ADJ       12
 
+/*=================================================================*/
+/* Shortcuts                                                       */
+/*=================================================================*/
+
+#define KIN_PROFILER kin_mem->kin_sunctx->profiler
+
 /*
  * =================================================================
  * PRIVATE FUNCTION PROTOTYPES
@@ -204,10 +211,16 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
  * an error message to standard error and returns NULL.
  */
 
-void *KINCreate(void)
+void *KINCreate(SUNContext sunctx)
 {
   KINMem kin_mem;
   realtype uround;
+
+  /* Test inputs */
+  if (sunctx == NULL) {
+    KINProcessError(NULL, 0, "KIN", "KINCreate", MSG_NULL_SUNCTX);
+    return(NULL);
+  }
 
   kin_mem = NULL;
   kin_mem = (KINMem) malloc(sizeof(struct KINMemRec));
@@ -218,6 +231,8 @@ void *KINCreate(void)
 
   /* Zero out kin_mem */
   memset(kin_mem, 0, sizeof(struct KINMemRec));
+
+  kin_mem->kin_sunctx = sunctx;
 
   /* set uround (unit roundoff) */
 
@@ -322,8 +337,11 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
   }
   kin_mem = (KINMem) kinmem;
 
+  SUNDIALS_MARK_FUNCTION_BEGIN(KIN_PROFILER);
+
   if (func == NULL) {
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINInit", MSG_FUNC_NULL);
+    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
     return(KIN_ILL_INPUT);
   }
 
@@ -332,6 +350,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
   nvectorOK = KINCheckNvector(tmpl);
   if (!nvectorOK) {
     KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINInit", MSG_BAD_NVECTOR);
+    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
     return(KIN_ILL_INPUT);
   }
 
@@ -353,6 +372,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
   if (!allocOK) {
     KINProcessError(kin_mem, KIN_MEM_FAIL, "KINSOL", "KINInit", MSG_MEM_FAIL);
     free(kin_mem); kin_mem = NULL;
+    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
     return(KIN_MEM_FAIL);
   }
 
@@ -372,6 +392,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 
   kin_mem->kin_MallocDone = SUNTRUE;
 
+  SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
   return(KIN_SUCCESS);
 }
 
@@ -428,8 +449,11 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
   }
   kin_mem = (KINMem) kinmem;
 
+  SUNDIALS_MARK_FUNCTION_BEGIN(KIN_PROFILER);
+
   if(kin_mem->kin_MallocDone == SUNFALSE) {
     KINProcessError(NULL, KIN_NO_MALLOC, "KINSOL", "KINSol", MSG_NO_MALLOC);
+    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
     return(KIN_NO_MALLOC);
   }
 
@@ -446,11 +470,13 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
   if ( kin_mem->kin_globalstrategy == KIN_FP ) {
     if (kin_mem->kin_uu == NULL) {
       KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSol", MSG_UU_NULL);
+      SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
       return(KIN_ILL_INPUT);
     }
 
     if (kin_mem->kin_constraintsSet != SUNFALSE) {
       KINProcessError(kin_mem, KIN_ILL_INPUT, "KINSOL", "KINSol", MSG_CONSTRAINTS_NOTOK);
+      SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
       return(KIN_ILL_INPUT);
     }
 
@@ -469,12 +495,16 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
       break;
     }
 
+    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
     return(ret);
   }
 
   /* initialize solver */
   ret = KINSolInit(kin_mem);
-  if (ret != KIN_SUCCESS) return(ret);
+  if (ret != KIN_SUCCESS) {
+    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
+    return(ret);
+  }
 
   kin_mem->kin_ncscmx = 0;
 
@@ -508,6 +538,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
       kin_mem->kin_gval = N_VClone(kin_mem->kin_unew);
       if (kin_mem->kin_gval == NULL) {
         KINProcessError(kin_mem, KIN_MEM_FAIL, "KINSOL", "KINSol", MSG_MEM_FAIL);
+        SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
         return(KIN_MEM_FAIL);
       }
       kin_mem->kin_liw += kin_mem->kin_liw1;
@@ -515,6 +546,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
     }
     ret = KINPicardAA(kin_mem);
 
+    SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
     return(ret);
   }
 
@@ -647,6 +679,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
     break;
   }
 
+  SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
   return(ret);
 }
 

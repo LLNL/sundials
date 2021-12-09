@@ -75,7 +75,8 @@ N_Vector_ID N_VGetVectorID_Parallel(N_Vector v)
 
 N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
                               sunindextype local_length,
-                              sunindextype global_length)
+                              sunindextype global_length,
+                              SUNContext sunctx)
 {
   N_Vector v;
   N_VectorContent_Parallel content;
@@ -91,7 +92,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
   /* Create an empty vector object */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
@@ -174,13 +175,14 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
 
 N_Vector N_VNew_Parallel(MPI_Comm comm,
                          sunindextype local_length,
-                         sunindextype global_length)
+                         sunindextype global_length,
+                         SUNContext sunctx)
 {
   N_Vector v;
   realtype *data;
 
   v = NULL;
-  v = N_VNewEmpty_Parallel(comm, local_length, global_length);
+  v = N_VNewEmpty_Parallel(comm, local_length, global_length, sunctx);
   if (v == NULL) return(NULL);
 
   /* Create data */
@@ -207,12 +209,13 @@ N_Vector N_VNew_Parallel(MPI_Comm comm,
 N_Vector N_VMake_Parallel(MPI_Comm comm,
                           sunindextype local_length,
                           sunindextype global_length,
-                          realtype *v_data)
+                          realtype *v_data,
+                          SUNContext sunctx)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Parallel(comm, local_length, global_length);
+  v = N_VNewEmpty_Parallel(comm, local_length, global_length, sunctx);
   if (v == NULL) return(NULL);
 
   if (local_length > 0) {
@@ -230,25 +233,7 @@ N_Vector N_VMake_Parallel(MPI_Comm comm,
 
 N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_Parallel(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Parallel(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------
@@ -258,25 +243,7 @@ N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
 {
-  N_Vector* vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector*) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_Parallel(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Parallel(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
+  return(N_VCloneEmptyVectorArray(count, w));
 }
 
 /* ----------------------------------------------------------------
@@ -285,12 +252,7 @@ N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
 
 void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count)
 {
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_Parallel(vs[j]);
-
-  free(vs); vs = NULL;
-
+  N_VDestroyVectorArray(vs, count);
   return;
 }
 
@@ -337,11 +299,11 @@ void N_VPrintFile_Parallel(N_Vector x, FILE* outfile)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%Lg\n", xd[i]);
+    fprintf(outfile, "%35.32Le\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%g\n", xd[i]);
+    fprintf(outfile, "%19.16e\n", xd[i]);
 #else
-    fprintf(outfile, "%g\n", xd[i]);
+    fprintf(outfile, "%11.8e\n", xd[i]);
 #endif
   }
   fprintf(outfile, "\n");
@@ -364,7 +326,7 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty();
+  v = N_VNewEmpty(w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */

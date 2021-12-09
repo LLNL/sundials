@@ -72,14 +72,14 @@ static booleantype SMCompatible2_MagmaDense(SUNMatrix A, N_Vector x, N_Vector y)
 
 SUNMatrix SUNMatrix_MagmaDense(sunindextype M, sunindextype N, SUNMemoryType memtype,
                                SUNMemoryHelper memhelper,
-                               void* queue)
+                               void* queue, SUNContext sunctx)
 {
-  return(SUNMatrix_MagmaDenseBlock(1, M, N, memtype, memhelper, queue));
+  return(SUNMatrix_MagmaDenseBlock(1, M, N, memtype, memhelper, queue, sunctx));
 }
 
 SUNMatrix SUNMatrix_MagmaDenseBlock(sunindextype nblocks, sunindextype M, sunindextype N,
                                     SUNMemoryType memtype, SUNMemoryHelper memhelper,
-                                    void* queue)
+                                    void* queue, SUNContext sunctx)
 {
   SUNMatrix Amat;
   SUNMatrixContent_MagmaDense A;
@@ -103,7 +103,7 @@ SUNMatrix SUNMatrix_MagmaDenseBlock(sunindextype nblocks, sunindextype M, sunind
 
   /* Create an empty matrix object */
   Amat = NULL;
-  Amat = SUNMatNewEmpty();
+  Amat = SUNMatNewEmpty(sunctx);
   if (Amat == NULL) return(NULL);
 
   /* Attach operations */
@@ -325,9 +325,11 @@ SUNMatrix SUNMatClone_MagmaDense(SUNMatrix Amat)
                         cudaStream_t stream = magma_queue_get_cuda_stream(A->q); )
 
   if (A->nblocks > 1)
-    B = SUNMatrix_MagmaDenseBlock(A->nblocks, A->M, A->N, A->data->type, A->memhelp, stream);
+    B = SUNMatrix_MagmaDenseBlock(A->nblocks, A->M, A->N, A->data->type,
+                                  A->memhelp, stream, Amat->sunctx);
   else
-    B = SUNMatrix_MagmaDense(A->M, A->N, A->data->type, A->memhelp, stream);
+    B = SUNMatrix_MagmaDense(A->M, A->N, A->data->type, A->memhelp, stream,
+                             Amat->sunctx);
 
   return(B);
 }

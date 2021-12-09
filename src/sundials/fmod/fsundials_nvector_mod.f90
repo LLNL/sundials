@@ -5,6 +5,7 @@
 ! the SWIG interface file instead.
 module fsundials_nvector_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_context_mod
  use fsundials_types_mod
  implicit none
  private
@@ -93,6 +94,7 @@ module fsundials_nvector_mod
  type, bind(C), public :: N_Vector
   type(C_PTR), public :: content
   type(C_PTR), public :: ops
+  type(C_PTR), public :: sunctx
  end type N_Vector
  public :: FN_VNewEmpty
  public :: FN_VFreeEmpty
@@ -157,10 +159,11 @@ module fsundials_nvector_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FN_VNewEmpty() &
+function swigc_FN_VNewEmpty(farg1) &
 bind(C, name="_wrap_FN_VNewEmpty") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
@@ -682,13 +685,16 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FN_VNewEmpty() &
+function FN_VNewEmpty(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
-fresult = swigc_FN_VNewEmpty()
+farg1 = sunctx
+fresult = swigc_FN_VNewEmpty(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
