@@ -191,14 +191,12 @@ export SUNDIALS_KINSOL=ON
 
 # Fortran interface status
 if [ "$compilername" == "gcc" ]; then
-    export SUNDIALS_F77_INTERFACE=OFF
     if [[ ("$SUNDIALS_PRECISION" == "double") && ("$SUNDIALS_INDEX_SIZE" == "64") ]]; then
         export SUNDIALS_FMOD_INTERFACE=ON
     else
         export SUNDIALS_FMOD_INTERFACE=OFF
     fi
 else
-    export SUNDIALS_F77_INTERFACE=OFF
     export SUNDIALS_FMOD_INTERFACE=OFF
 fi
 

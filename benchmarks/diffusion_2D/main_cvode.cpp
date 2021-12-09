@@ -66,7 +66,6 @@ int main(int argc, char* argv[])
   flag = SUNContext_GetProfiler(ctx, &prof);
   if (check_flag(&flag, "SUNContext_GetProfiler", 1)) return 1;
 
-
   // Add scope so objects are destroyed before MPI_Finalize
   {
     SUNDIALS_CXX_MARK_FUNCTION(prof);

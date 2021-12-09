@@ -41,22 +41,6 @@ patterns in the NVECTORS used.
 .. toctree::
    :maxdepth: 1
 
-   NVector_Description
-   NVector_Operations
-   NVector_Serial
-   NVector_Parallel
-   NVector_OpenMP
-   NVector_Pthreads
-   NVector_ParHyp
-   NVector_PETSc
-   NVector_CUDA
-   NVector_HIP
-   NVector_RAJA
-   NVector_SYCL
-   NVector_OpenMPDEV
-   NVector_Trilinos
-   NVector_ManyVector
-   NVector_MPIManyVector
-   NVector_MPIPlusX
-   NVector_Examples
-   ARKode_requirements
+   NVector_API_link.rst
+   ARKode_requirements.rst
+   NVector_links.rst

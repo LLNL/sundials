@@ -12,7 +12,6 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-
 #include <sundials/sundials_config.h>
 
 #if SUNDIALS_MPI_ENABLED

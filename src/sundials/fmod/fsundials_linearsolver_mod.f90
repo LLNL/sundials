@@ -130,6 +130,7 @@ module fsundials_linearsolver_mod
  integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_REC = 806_C_INT
  integer(C_INT), parameter, public :: SUNLS_QRFACT_FAIL = 807_C_INT
  integer(C_INT), parameter, public :: SUNLS_LUFACT_FAIL = 808_C_INT
+ integer(C_INT), parameter, public :: SUNLS_CONTEXT_ALREADY_SET = 809_C_INT
 
 ! WRAPPER DECLARATIONS
 interface

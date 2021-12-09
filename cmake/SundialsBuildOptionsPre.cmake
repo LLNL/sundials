@@ -146,21 +146,6 @@ endif()
 # Options to enable Fortran interfaces.
 # ---------------------------------------------------------------
 
-# Fortran interface is disabled by default
-set(DOCSTR "Enable Fortran 77 interfaces")
-sundials_option(BUILD_FORTRAN77_INTERFACE BOOL "${DOCSTR}" OFF)
-
-# Check that at least one solver with a Fortran 77 interface is built
-if(BUILD_FORTRAN77_INTERFACE)
-  if(NOT (BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA OR BUILD_KINSOL))
-    print_warning("Enabled packages do not support Fortran 77 interface" "Disabling F77 interface")
-    set(BUILD_FORTRAN77_INTERFACE OFF CACHE BOOL "${DOCSTR}" FORCE)
-  elseif(NOT BUILD_STATIC_LIBS)
-    print_error("Fortran 77 interfaces can only be built as static libraries" "Disabling F77 interface")
-    set(BUILD_FORTRAN77_INTERFACE OFF CACHE BOOL "${DOCSTR}" FORCE)
-  endif()
-endif()
-
 # Fortran 2003 interface is disabled by default
 set(DOCSTR "Enable Fortran 2003 modules")
 sundials_option(BUILD_FORTRAN_MODULE_INTERFACE BOOL "${DOCSTR}" OFF)

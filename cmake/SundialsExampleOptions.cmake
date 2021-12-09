@@ -33,38 +33,6 @@ endif()
 # Options for Fortran Examples
 # -----------------------------------------------------------------------------
 
-set(DOCSTR "Build SUNDIALS FORTRAN 77 examples")
-if(BUILD_FORTRAN77_INTERFACE)
-
-  sundials_option(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" ON)
-
-  # Fortran 77 examples do not support single or extended precision
-  if(EXAMPLES_ENABLE_F77 AND (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
-    print_warning("F77 examples are not compatible with ${SUNDIALS_PRECISION} precision. "
-                  "Setting EXAMPLES_ENABLE_F77 to OFF.")
-    force_variable(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
-  endif()
-
-  sundials_option(EXAMPLES_ENABLE_F90 BOOL "Build SUNDIALS FORTRAN 90 examples" ON)
-
-  # Fortran 90 examples do not support extended precision
-  if(EXAMPLES_ENABLE_F90 AND (SUNDIALS_PRECISION MATCHES "EXTENDED"))
-    print_warning("F90 examples are not compatible with ${SUNDIALS_PRECISION} precision. "
-                  "Setting EXAMPLES_ENABLE_F90 to OFF.")
-    force_variable(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
-  endif()
-
-else()
-
-  # set back to OFF (in case it was ON)
-  if(EXAMPLES_ENABLE_F77)
-    print_warning("EXAMPLES_ENABLE_F77 is ON but BUILD_FORTRAN77_INTERFACE is OFF. "
-                  "Setting EXAMPLES_ENABLE_F77 to OFF.")
-    force_variable(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
-  endif()
-
-endif()
-
 # F2003 examples (on by default) are an option only if the
 # Fortran 2003 interface is enabled.
 set(DOCSTR "Build SUNDIALS Fortran 2003 examples")
@@ -130,8 +98,6 @@ endif()
 if(EXAMPLES_ENABLE_C OR
    EXAMPLES_ENABLE_CXX OR
    EXAMPLES_ENABLE_CUDA OR
-   EXAMPLES_ENABLE_F77 OR
-   EXAMPLES_ENABLE_F90 OR
    EXAMPLES_ENABLE_F2003)
   set(_BUILD_EXAMPLES TRUE CACHE INTERNAL "")
 else()

@@ -36,21 +36,21 @@ typedef CVLsJacFn CVDlsJacFn;
   Exported Functions (wrappers for equivalent routines in cvode_ls.h)
   ===================================================================*/
 
-SUNDIALS_EXPORT int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
-                                         SUNMatrix A);
+SUNDIALS_DEPRECATED_EXPORT int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
+                                                    SUNMatrix A);
 
-SUNDIALS_EXPORT int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
+SUNDIALS_DEPRECATED_EXPORT int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
 
-SUNDIALS_EXPORT int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
-                                      long int *leniwLS);
+SUNDIALS_DEPRECATED_EXPORT int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
+                                                 long int *leniwLS);
 
-SUNDIALS_EXPORT int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
+SUNDIALS_DEPRECATED_EXPORT int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
 
-SUNDIALS_EXPORT int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
+SUNDIALS_DEPRECATED_EXPORT int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
 
-SUNDIALS_EXPORT int CVDlsGetLastFlag(void *cvode_mem, long int *flag);
+SUNDIALS_DEPRECATED_EXPORT int CVDlsGetLastFlag(void *cvode_mem, long int *flag);
 
-SUNDIALS_EXPORT char *CVDlsGetReturnFlagName(long int flag);
+SUNDIALS_DEPRECATED_EXPORT char *CVDlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

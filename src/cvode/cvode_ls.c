@@ -384,13 +384,6 @@ int CVodeSetJacEvalFrequency(void *cvode_mem, long int msbj)
   return(CVLS_SUCCESS);
 }
 
-/* Deprecated */
-int CVodeSetMaxStepsBetweenJac(void *cvode_mem, long int msbj)
-{
-  return(CVodeSetJacEvalFrequency(cvode_mem, msbj));
-}
-
-
 /* CVodeSetLinearSolutionScaling enables or disables scaling the
    linear solver solution to account for changes in gamma. */
 int CVodeSetLinearSolutionScaling(void *cvode_mem, booleantype onoff)

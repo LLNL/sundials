@@ -37,19 +37,19 @@ typedef KINLsJacFn KINDlsJacFn;
   Exported Functions (wrappers for equivalent routines in kinsol_ls.h)
   ===================================================================*/
 
-SUNDIALS_EXPORT int KINDlsSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A);
+SUNDIALS_DEPRECATED_EXPORT int KINDlsSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A);
 
-SUNDIALS_EXPORT int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
+SUNDIALS_DEPRECATED_EXPORT int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
 
-SUNDIALS_EXPORT int KINDlsGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
+SUNDIALS_DEPRECATED_EXPORT int KINDlsGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
 
-SUNDIALS_EXPORT int KINDlsGetNumJacEvals(void *kinmem, long int *njevals);
+SUNDIALS_DEPRECATED_EXPORT int KINDlsGetNumJacEvals(void *kinmem, long int *njevals);
 
-SUNDIALS_EXPORT int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals);
+SUNDIALS_DEPRECATED_EXPORT int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals);
 
-SUNDIALS_EXPORT int KINDlsGetLastFlag(void *kinmem, long int *flag);
+SUNDIALS_DEPRECATED_EXPORT int KINDlsGetLastFlag(void *kinmem, long int *flag);
 
-SUNDIALS_EXPORT char *KINDlsGetReturnFlagName(long int flag);
+SUNDIALS_DEPRECATED_EXPORT char *KINDlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

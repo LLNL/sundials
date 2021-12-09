@@ -23,15 +23,7 @@ if(DEFINED F2003_INTERFACE_ENABLE)
   set(BUILD_FORTRAN_MODULE_INTERFACE ${F2003_INTERFACE_ENABLE} CACHE BOOL "Enable Fortran 2003 module interfaces")
 endif()
 
-if(DEFINED F77_INTERFACE_ENABLE)
-  print_warning("The CMake option F77_INTERFACE_ENABLE is deprecated"
-                "Use BUILD_FORTRAN77_INTERFACE instead"
-                MODE DEPRECATION)
-  set(BUILD_FORTRAN77_INTERFACE ${F77_INTERFACE_ENABLE} CACHE BOOL "Enable Fortran 77 interfaces")
-endif()
-
 unset(F2003_INTERFACE_ENABLE CACHE)
-unset(F77_INTERFACE_ENABLE CACHE)
 
 #
 # Deprecated TPL options

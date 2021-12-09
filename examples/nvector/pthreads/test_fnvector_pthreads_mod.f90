@@ -49,8 +49,8 @@ module test_nvector_pthreads
     z => FN_VClone_Pthreads(x)
     call FN_VConst(ONE, z)
 
-    xvecs = FN_VCloneVectorArray_Pthreads(nv, x)
-    zvecs = FN_VCloneVectorArray_Pthreads(nv, z)
+    xvecs = FN_VCloneVectorArray(nv, x)
+    zvecs = FN_VCloneVectorArray(nv, z)
     nvarr = (/ ONE, ONE, ONE /)
 
     !===== Test =====
@@ -110,8 +110,8 @@ module test_nvector_pthreads
     call FN_VDestroy_Pthreads(x)
     call FN_VDestroy_Pthreads(y)
     call FN_VDestroy_Pthreads(z)
-    call FN_VDestroyVectorArray_Pthreads(xvecs, nv)
-    call FN_VDestroyVectorArray_Pthreads(zvecs, nv)
+    call FN_VDestroyVectorArray(xvecs, nv)
+    call FN_VDestroyVectorArray(zvecs, nv)
 
     ret = 0
 

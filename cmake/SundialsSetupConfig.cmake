@@ -11,8 +11,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# Configures the SUNDIALS config header files:
-#  sundials_config.h and sundials_fconfig.h
+# Configures the SUNDIALS config header file:
+#  sundials_config.h
 # ---------------------------------------------------------------
 
 # ============================================================================
@@ -96,25 +96,6 @@ if(SUNDIALS_POSIX_TIMERS) # set in SundialsPOSIXTimers.cmake
   set(SUNDIALS_HAVE_POSIX_TIMERS TRUE)
 endif()
 
-# ============================================================================
-# Generate macros and substitution variables for the FCMIX interface.
-# ============================================================================
-
-# prepare substitution variable FPRECISION_LEVEL for sundials_fconfig.h
-if(SUNDIALS_PRECISION MATCHES "SINGLE")
-  set(FPRECISION_LEVEL "4")
-endif(SUNDIALS_PRECISION MATCHES "SINGLE")
-if(SUNDIALS_PRECISION MATCHES "DOUBLE")
-  set(FPRECISION_LEVEL "8")
-endif(SUNDIALS_PRECISION MATCHES "DOUBLE")
-if(SUNDIALS_PRECISION MATCHES "EXTENDED")
-  set(FPRECISION_LEVEL "16")
-endif(SUNDIALS_PRECISION MATCHES "EXTENDED")
-
-# always define FMPI_COMM_F2C substitution variable in sundials_fconfig.h
-set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
-set(FMPI_COMM_F2C ".true.")
-
 # =============================================================================
 # All required substitution variables should be available at this point.
 # Generate the header file and place it in the binary dir.
@@ -123,8 +104,4 @@ set(FMPI_COMM_F2C ".true.")
 configure_file(
   ${PROJECT_SOURCE_DIR}/include/sundials/sundials_config.in
   ${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h
-  )
-configure_file(
-  ${PROJECT_SOURCE_DIR}/include/sundials/sundials_fconfig.in
-  ${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h
   )

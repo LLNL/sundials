@@ -149,11 +149,6 @@ int ARKStepSetMassTimes(void *arkode_mem, ARKLsMassTimesSetupFn msetup,
 int ARKStepSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys) {
   return(arkLSSetLinSysFn(arkode_mem, linsys)); }
 
-/* deprecated */
-int ARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj) {
-  return(arkLSSetJacEvalFrequency(arkode_mem, msbj)); }
-
-
 /*===============================================================
   ARKStep Optional output functions (wrappers for generic ARKode
   utility routines).  All are documented in arkode_io.c.
@@ -1193,13 +1188,6 @@ int ARKStepSetLSetupFrequency(void *arkode_mem, int msbp)
 
   return(ARK_SUCCESS);
 }
-
-/* Deprecated */
-int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
-{
-  return(ARKStepSetLSetupFrequency(arkode_mem, msbp));
-}
-
 
 /*---------------------------------------------------------------
   ARKStepSetPredictorMethod:

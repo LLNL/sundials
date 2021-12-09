@@ -190,10 +190,6 @@ def main():
                                       SUNDIALS Fortran interfaces.''')
 
     # Fortran interfaces
-    add_arg(group, '--f77-interface', 'SUNDIALS_F77_INTERFACE',
-            'BUILD_FORTRAN77_INTERFACE', 'OFF', 'BOOL',
-            'Fortran 77 interfaces')
-
     add_arg(group, '--fmod-interface', 'SUNDIALS_FMOD_INTERFACE',
             'BUILD_FORTRAN_MODULE_INTERFACE', 'OFF', 'BOOL',
             'Fortran module interface')
@@ -212,12 +208,6 @@ def main():
 
     add_arg(group, '--examples-cxx', 'SUNDIALS_EXAMPLES_CXX',
             'EXAMPLES_ENABLE_CXX', None, 'BOOL', 'C++ examples')
-
-    add_arg(group, '--examples-f77', 'SUNDIALS_EXAMPLES_F77',
-            'EXAMPLES_ENABLE_F77', None, 'BOOL', 'Fortran 77 examples')
-
-    add_arg(group, '--examples-f90', 'SUNDIALS_EXAMPLES_F90',
-            'EXAMPLES_ENABLE_F90', None, 'BOOL', 'Fortran 90 examples')
 
     add_arg(group, '--examples-f03', 'SUNDIALS_EXAMPLES_F03',
             'EXAMPLES_ENABLE_F2003', None, 'BOOL',

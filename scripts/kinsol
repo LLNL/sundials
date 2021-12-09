@@ -36,22 +36,6 @@ $tar $tarfile $distrobase/src/kinsol/kinsol_ls.c          || exit 1
 $tar $tarfile $distrobase/src/kinsol/kinsol_ls_impl.h     || exit 1
 $tar $tarfile $distrobase/src/kinsol/kinsol_spils.c       || exit 1
 
-echo "   --- Add fkinsol module to $tarfile"
-
-$tar $tarfile $distrobase/src/kinsol/fcmix/CMakeLists.txt || exit 1
-
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinband.c       || exit 1
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.c        || exit 1
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.h        || exit 1
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkindense.c      || exit 1
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c     || exit 1
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinnulllinsol.c || exit 1
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinnullmatrix.c || exit 1
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c      || exit 1
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c        || exit 1
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h        || exit 1
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsparse.c     || exit 1
-
 echo "   --- Add kinsol F2003 interface to $tarfile"
 
 $tar $tarfile $distrobase/src/kinsol/fmod/CMakeLists.txt      || exit 1
@@ -96,22 +80,12 @@ $tar $tarfile $distrobase/examples/kinsol/C_openmp/CMakeLists.txt         || exi
 $tar $tarfile $distrobase/examples/kinsol/C_openmp/kinFoodWeb_kry_omp.c   || exit 1
 $tar $tarfile $distrobase/examples/kinsol/C_openmp/kinFoodWeb_kry_omp.out || exit 1
 
-$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/README             || exit 1
-$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/CMakeLists.txt     || exit 1
-$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.f   || exit 1
-$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.out || exit 1
-
 $tar $tarfile $distrobase/examples/kinsol/parallel/README                   || exit 1
 $tar $tarfile $distrobase/examples/kinsol/parallel/CMakeLists.txt           || exit 1
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.c   || exit 1
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.out || exit 1
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.c       || exit 1
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.out     || exit 1
-
-$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/README               || exit 1
-$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt       || exit 1
-$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f   || exit 1
-$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out || exit 1
 
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/README                          || exit 1
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/CMakeLists.txt                  || exit 1

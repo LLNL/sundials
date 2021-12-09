@@ -68,35 +68,6 @@ $tar $tarfile $distrobase/src/arkode/xbraid/CMakeLists.txt       || exit 1
 $tar $tarfile $distrobase/src/arkode/xbraid/arkode_xbraid.c      || exit 1
 $tar $tarfile $distrobase/src/arkode/xbraid/arkode_xbraid_impl.h || exit 1
 
-echo "   --- Add farkode module to $tarfile"
-
-$tar $tarfile $distrobase/src/arkode/fcmix/CMakeLists.txt || exit 1
-
-$tar $tarfile $distrobase/src/arkode/fcmix/farkadapt.c         || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkband.c          || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkbandmass.c      || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkbbd.c           || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkbbd.h           || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkbp.c            || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkbp.h            || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkdense.c         || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkdensemass.c     || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkewt.c           || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkexpstab.c       || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkjtimes.c        || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkmasspreco.c     || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkmtimes.c        || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farknulllinsol.c    || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farknullmatrix.c    || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farknullnonlinsol.c || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkode.c           || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkode.h           || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkpreco.c         || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkroot.c          || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farkroot.h          || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farksparse.c        || exit 1
-$tar $tarfile $distrobase/src/arkode/fcmix/farksparsemass.c    || exit 1
-
 echo "   --- Add arkode F2003 interface to $tarfile"
 
 $tar $tarfile $distrobase/src/arkode/fmod/CMakeLists.txt          || exit 1
@@ -296,35 +267,6 @@ $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_p_xbraid_--np_2_
 $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_xbraid.cpp                                         || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/ark_heat2D_xbraid_--x_print_level_0.out                       || exit 1
 $tar $tarfile $distrobase/examples/arkode/CXX_xbraid/plot_heat2D.py                                                || exit 1
-
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/CMakeLists.txt          || exit 1
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/README                  || exit 1
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_kry_bbd_p.f   || exit 1
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_kry_bbd_p.out || exit 1
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_non_p.f       || exit 1
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_non_p.out     || exit 1
-
-$tar $tarfile $distrobase/examples/arkode/F77_serial/CMakeLists.txt          || exit 1
-$tar $tarfile $distrobase/examples/arkode/F77_serial/README                  || exit 1
-$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_diurnal_kry_bp.f   || exit 1
-$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_diurnal_kry_bp.out || exit 1
-$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_roberts_dnsL.f     || exit 1
-$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_roberts_dnsL.out   || exit 1
-
-$tar $tarfile $distrobase/examples/arkode/F90_parallel/CMakeLists.txt  || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_parallel/README          || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_parallel/fark_heat2D.f90 || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_parallel/fark_heat2D.out || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_parallel/plot_heat2D.py  || exit 1
-
-$tar $tarfile $distrobase/examples/arkode/F90_serial/CMakeLists.txt            || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_serial/README                    || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss.f90             || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss.out             || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.f90   || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.out   || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_serial/plot_brusselator1D_FEM.py || exit 1
-$tar $tarfile $distrobase/examples/arkode/F90_serial/plot_sol.py               || exit 1
 
 $tar $tarfile $distrobase/examples/arkode/F2003_custom/CMakeLists.txt                  || exit 1
 $tar $tarfile $distrobase/examples/arkode/F2003_custom/README                          || exit 1

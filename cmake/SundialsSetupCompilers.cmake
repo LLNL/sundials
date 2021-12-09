@@ -117,7 +117,6 @@ endif()
 # A Fortran compiler is needed to:
 # (a) Determine compiler the name-mangling scheme if the F77
 #     interfaces or LAPACK are enabled
-# (b) Compile example programs if F77 or F90 examples are enabled
 # ---------------------------------------------------------------
 
 # Do we need a Fortran name-mangling scheme?
@@ -134,9 +133,9 @@ endif()
 # or the user needs to override the inferred or default scheme, the following
 # options specify the case and number of appended underscores corresponding to
 # the Fortran name-mangling scheme of symbol names that do not themselves
-# contain underscores. This is all we really need for the FCMIX and LAPACK
-# interfaces. A working Fortran compiler is only necessary for building Fortran
-# example programs.
+# contain underscores. This is all we really need for the LAPACK interfaces. A
+# working Fortran compiler is only necessary for building Fortran example
+# programs.
 # ------------------------------------------------------------------------------
 
 # The case to use in the name-mangling scheme
@@ -209,8 +208,6 @@ endif()
 
 # Do we need a Fortran compiler?
 if(BUILD_FORTRAN_MODULE_INTERFACE OR
-    EXAMPLES_ENABLE_F77 OR
-    EXAMPLES_ENABLE_F90 OR
     NEED_FORTRAN_NAME_MANGLING)
   include(SundialsSetupFortran)
 endif()

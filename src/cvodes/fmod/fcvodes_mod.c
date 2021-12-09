@@ -3701,18 +3701,4 @@ SWIGEXPORT int _wrap_FCVodeSetLinSysFnBS(void *farg1, int const *farg2, CVLsLinS
 }
 
 
-SWIGEXPORT int _wrap_FCVodeSetMaxStepsBetweenJac(void *farg1, long const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long)(*farg2);
-  result = (int)CVodeSetMaxStepsBetweenJac(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 

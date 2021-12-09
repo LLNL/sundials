@@ -414,15 +414,6 @@ SUNDIALS_EXPORT void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
 SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void *arkode_mem,
                                                      MRIStepInnerStepper *stepper);
 
-
-/* Deprecated functions */
-SUNDIALS_DEPRECATED_EXPORT
-int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp);
-
-SUNDIALS_DEPRECATED_EXPORT
-int ARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj);
-
-
 #ifdef __cplusplus
 }
 #endif

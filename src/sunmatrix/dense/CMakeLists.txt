@@ -41,20 +41,3 @@ message(STATUS "Added SUNMATRIX_DENSE module")
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
-
-# If FCMIX is enabled, build and install the Fortran77 library
-if(BUILD_FORTRAN77_INTERFACE)
-  sundials_add_library(sundials_fsunmatrixdense
-    SOURCES
-      fsunmatrix_dense.c
-    LINK_LIBRARIES
-      PRIVATE sundials_fnvecserial sundials_sunmatrixdense
-    OUTPUT_NAME
-      sundials_fsunmatrixdense
-    VERSION
-      ${sunmatrixlib_VERSION}
-    SOVERSION
-      ${sunmatrixlib_SOVERSION}
-  )
-  message(STATUS "Added SUNMATRIX_DENSE F77 interface")
-endif()

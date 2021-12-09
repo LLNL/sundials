@@ -41,25 +41,6 @@ $tar $tarfile $distrobase/src/ida/ida_ls_impl.h      || exit 1
 $tar $tarfile $distrobase/src/ida/ida_nls.c          || exit 1
 $tar $tarfile $distrobase/src/ida/ida_spils.c        || exit 1
 
-echo "   --- Add fida module to $tarfile"
-
-$tar $tarfile $distrobase/src/ida/fcmix/CMakeLists.txt || exit 1
-
-$tar $tarfile $distrobase/src/ida/fcmix/fida.c              || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fida.h              || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidaband.c          || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidabbd.c           || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidabbd.h           || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidadense.c         || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidaewt.c           || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidajtimes.c        || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidanullmatrix.c    || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidanullnonlinsol.c || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidapreco.c         || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidaroot.c          || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidaroot.h          || exit 1
-$tar $tarfile $distrobase/src/ida/fcmix/fidasparse.c        || exit 1
-
 echo "   --- Add ida F2003 interface to $tarfile"
 
 $tar $tarfile $distrobase/src/ida/fmod/CMakeLists.txt  || exit 1
@@ -96,11 +77,6 @@ $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.c       || exit 1
 $tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.out     || exit 1
 $tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.c       || exit 1
 $tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.out     || exit 1
-
-$tar $tarfile $distrobase/examples/ida/fcmix_serial/README              || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_serial/CMakeLists.txt      || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_serial/fidaRoberts_dns.f   || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_serial/fidaRoberts_dns.out || exit 1
 
 $tar $tarfile $distrobase/examples/ida/C_openmp/README                 || exit 1
 $tar $tarfile $distrobase/examples/ida/C_openmp/CMakeLists.txt         || exit 1
@@ -156,21 +132,6 @@ $tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_p_tpetra.cpp || ex
 $tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_p_tpetra.out || exit 1
 $tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_tpetra.cpp   || exit 1
 $tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_tpetra.out   || exit 1
-
-$tar $tarfile $distrobase/examples/ida/fcmix_parallel/README                   || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_parallel/CMakeLists.txt           || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.f   || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.out || exit 1
-
-$tar $tarfile $distrobase/examples/ida/fcmix_openmp/README                     || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_openmp/CMakeLists.txt             || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_openmp/fidaRoberts_dns_openmp.f   || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_openmp/fidaRoberts_dns_openmp.out || exit 1
-
-$tar $tarfile $distrobase/examples/ida/fcmix_pthreads/README                       || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_pthreads/CMakeLists.txt               || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_pthreads/fidaRoberts_dns_pthreads.f   || exit 1
-$tar $tarfile $distrobase/examples/ida/fcmix_pthreads/fidaRoberts_dns_pthreads.out || exit 1
 
 $tar $tarfile $distrobase/examples/ida/F2003_serial/README                       || exit 1
 $tar $tarfile $distrobase/examples/ida/F2003_serial/CMakeLists.txt               || exit 1

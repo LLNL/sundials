@@ -42,20 +42,3 @@ message(STATUS "Added NVECTOR_OPENMP module")
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
-
-# If FCMIX is enabled, build and install the Fortran77 library
-if(BUILD_FORTRAN77_INTERFACE)
-  sundials_add_library(sundials_fnvecopenmp
-    SOURCES
-      fnvector_openmp.c
-    LINK_LIBRARIES
-      PRIVATE sundials_nvecopenmp
-    OUTPUT_NAME
-      sundials_fnvecopenmp
-    VERSION
-      ${nveclib_VERSION}
-    SOVERSION
-      ${nveclib_SOVERSION}
-  )
-  message(STATUS "Added NVECTOR_OPENMP F77 interface")
-endif()

@@ -1,1 +1,0 @@
-../../../../shared/nvectors/NVector_HIP.rst

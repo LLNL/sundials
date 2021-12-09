@@ -54,8 +54,8 @@ module test_nvector_parallel
     z => FN_VClone_Parallel(x)
     call FN_VConst(ONE, z)
 
-    xvecs = FN_VCloneVectorArray_Parallel(nv, x)
-    zvecs = FN_VCloneVectorArray_Parallel(nv, z)
+    xvecs = FN_VCloneVectorArray(nv, x)
+    zvecs = FN_VCloneVectorArray(nv, z)
     nvarr = (/ ONE, ONE, ONE /)
 
     !===== Test =====
@@ -115,8 +115,8 @@ module test_nvector_parallel
     call FN_VDestroy_Parallel(x)
     call FN_VDestroy_Parallel(y)
     call FN_VDestroy_Parallel(z)
-    call FN_VDestroyVectorArray_Parallel(xvecs, nv)
-    call FN_VDestroyVectorArray_Parallel(zvecs, nv)
+    call FN_VDestroyVectorArray(xvecs, nv)
+    call FN_VDestroyVectorArray(zvecs, nv)
 
     ret = 0
 

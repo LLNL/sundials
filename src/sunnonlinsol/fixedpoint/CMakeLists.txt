@@ -40,20 +40,3 @@ message(STATUS "Added SUNNONLINSOL_FIXEDPOINT module")
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
-
-# If FCMIX is enabled, build and install the F77 library
-if(BUILD_FORTRAN77_INTERFACE)
-  sundials_add_library(sundials_fsunnonlinsolfixedpoint
-    SOURCES
-      fsunnonlinsol_fixedpoint.c
-    LINK_LIBRARIES
-      PRIVATE sundials_fnvecserial sundials_sunnonlinsolfixedpoint
-    OUTPUT_NAME
-      sundials_fsunnonlinsolfixedpoint
-    VERSION
-      ${sunnonlinsol_VERSION}
-    SOVERSION
-      ${sunnonlinsol_SOVERSION}
-  )
-  message(STATUS "Added SUNNONLINSOL_FIXEDPOINT F77 interface")
-endif()

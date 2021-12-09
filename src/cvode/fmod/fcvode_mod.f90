@@ -192,7 +192,6 @@ module fcvode_mod
  public :: FCVodeGetLinSolveStats
  public :: FCVodeGetLastLinFlag
  public :: FCVodeGetLinReturnFlagName
- public :: FCVodeSetMaxStepsBetweenJac
  public :: FCVodeSetProjFn
  public :: FCVodeSetProjErrEst
  public :: FCVodeSetProjFrequency
@@ -1104,15 +1103,6 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 integer(C_LONG), intent(in) :: farg1
 type(SwigArrayWrapper) :: fresult
-end function
-
-function swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetMaxStepsBetweenJac") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_LONG), intent(in) :: farg2
-integer(C_INT) :: fresult
 end function
 
 function swigc_FCVodeSetProjFn(farg1, farg2) &
@@ -2857,22 +2847,6 @@ farg1 = flag
 fresult = swigc_FCVodeGetLinReturnFlagName(farg1)
 call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
-end function
-
-function FCVodeSetMaxStepsBetweenJac(cvode_mem, msbj) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-integer(C_LONG), intent(in) :: msbj
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_LONG) :: farg2 
-
-farg1 = cvode_mem
-farg2 = msbj
-fresult = swigc_FCVodeSetMaxStepsBetweenJac(farg1, farg2)
-swig_result = fresult
 end function
 
 function FCVodeSetProjFn(cvode_mem, pfun) &

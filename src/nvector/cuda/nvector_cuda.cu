@@ -479,23 +479,6 @@ int N_VSetKernelExecPolicy_Cuda(N_Vector x,
   return(0);
 }
 
-/*
- * ----------------------------------------------------------------------------
- * DEPRECATED: will be removed in SUNDIALS v6.
- * Sets the cudaStream_t to use for execution of the CUDA kernels.
- */
-void N_VSetCudaStream_Cuda(N_Vector x, cudaStream_t *stream)
-{
-  const CudaExecPolicy* xs = NVEC_CUDA_CONTENT(x)->stream_exec_policy;
-  const CudaExecPolicy* xr = NVEC_CUDA_CONTENT(x)->reduce_exec_policy;
-  CudaThreadDirectExecPolicy* s =
-    new CudaThreadDirectExecPolicy(xs->blockSize(), *stream);
-  CudaBlockReduceExecPolicy* r =
-    new CudaBlockReduceExecPolicy(xr->blockSize(), xr->gridSize(), *stream);
-  N_VSetKernelExecPolicy_Cuda(x, s, r);
-  NVEC_CUDA_CONTENT(x)->own_exec = SUNTRUE;
-}
-
 /* ----------------------------------------------------------------------------
  * Copy vector data to the device
  */

@@ -40,20 +40,3 @@ message(STATUS "Added SUNLINSOL_SPTFQMR module")
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
-
-# If FCMIX is enabled, build and install the Fortran77 library
-if(BUILD_FORTRAN77_INTERFACE)
-  sundials_add_library(sundials_fsunlinsolsptfqmr
-    SOURCES
-      fsunlinsol_sptfqmr.c
-    LINK_LIBRARIES
-      PRIVATE sundials_sunlinsolsptfqmr
-    OUTPUT_NAME
-      sundials_fsunlinsolsptfqmr
-    VERSION
-      ${sunlinsollib_VERSION}
-    SOVERSION
-      ${sunlinsollib_SOVERSION}
-  )
-  message(STATUS "Added SUNLINSOL_SPTFQMR F77 interface")
-endif()

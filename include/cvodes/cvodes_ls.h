@@ -256,10 +256,6 @@ SUNDIALS_EXPORT int CVodeSetLinSysFnB(void *cvode_mem, int which,
 SUNDIALS_EXPORT int CVodeSetLinSysFnBS(void *cvode_mem, int which,
                                        CVLsLinSysFnBS linsys);
 
-/* Deprecated functions */
-SUNDIALS_DEPRECATED_EXPORT
-int CVodeSetMaxStepsBetweenJac(void *cvode_mem, long int msbj);
-
 #ifdef __cplusplus
 }
 #endif

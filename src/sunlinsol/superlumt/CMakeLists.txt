@@ -47,21 +47,3 @@ sundials_add_library(sundials_sunlinsolsuperlumt
 )
 
 message(STATUS "Added SUNLINSOL_SUPERLUMT module")
-
-# If FCMIX is enabled, build and install the Fortran77 library
-if(BUILD_FORTRAN77_INTERFACE)
-  sundials_add_library(sundials_fsunlinsolsuperlumt
-    SOURCES
-      fsunlinsol_superlumt.c
-    LINK_LIBRARIES
-      PUBLIC sundials_sunlinsolsuperlumt
-      PRIVATE sundials_fnvecserial sundials_fsunmatrixsparse
-    OUTPUT_NAME
-      sundials_fsunlinsolsuperlumt
-    VERSION
-      ${sunlinsollib_VERSION}
-    SOVERSION
-      ${sunlinsollib_SOVERSION}
-  )
-  message(STATUS "Added SUNLINSOL_SUPERLUMT F77 interface")
-endif()

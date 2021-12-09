@@ -40,37 +40,37 @@ typedef IDALsJacTimesVecFn IDASpilsJacTimesVecFn;
   Exported Functions (wrappers for equivalent routines in ida_ls.h)
   ====================================================================*/
 
-SUNDIALS_EXPORT int IDASpilsSetLinearSolver(void *ida_mem, SUNLinearSolver LS);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsSetLinearSolver(void *ida_mem, SUNLinearSolver LS);
 
-SUNDIALS_EXPORT int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
-                                              IDASpilsPrecSolveFn psolve);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
+                                                         IDASpilsPrecSolveFn psolve);
 
-SUNDIALS_EXPORT int IDASpilsSetJacTimes(void *ida_mem, IDASpilsJacTimesSetupFn jtsetup,
-                                        IDASpilsJacTimesVecFn jtimes);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsSetJacTimes(void *ida_mem, IDASpilsJacTimesSetupFn jtsetup,
+                                                   IDASpilsJacTimesVecFn jtimes);
 
-SUNDIALS_EXPORT int IDASpilsSetEpsLin(void *ida_mem, realtype eplifac);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsSetEpsLin(void *ida_mem, realtype eplifac);
 
-SUNDIALS_EXPORT int IDASpilsSetIncrementFactor(void *ida_mem, realtype dqincfac);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsSetIncrementFactor(void *ida_mem, realtype dqincfac);
 
-SUNDIALS_EXPORT int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
 
-SUNDIALS_EXPORT int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals);
 
-SUNDIALS_EXPORT int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves);
 
-SUNDIALS_EXPORT int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters);
 
-SUNDIALS_EXPORT int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails);
 
-SUNDIALS_EXPORT int IDASpilsGetNumJTSetupEvals(void *ida_mem, long int *njtsetups);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsGetNumJTSetupEvals(void *ida_mem, long int *njtsetups);
 
-SUNDIALS_EXPORT int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals);
 
-SUNDIALS_EXPORT int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
 
-SUNDIALS_EXPORT int IDASpilsGetLastFlag(void *ida_mem, long int *flag);
+SUNDIALS_DEPRECATED_EXPORT int IDASpilsGetLastFlag(void *ida_mem, long int *flag);
 
-SUNDIALS_EXPORT char *IDASpilsGetReturnFlagName(long int flag);
+SUNDIALS_DEPRECATED_EXPORT char *IDASpilsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus

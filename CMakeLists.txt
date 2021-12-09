@@ -212,11 +212,6 @@ install(FILES "${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h"
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 
-# install configured header file for Fortran 90
-install(FILES "${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h"
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
-)
-
 # install shared Fortran 2003 modules
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   # While the .mod files get generated for static and shared

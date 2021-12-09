@@ -117,10 +117,6 @@ def main():
         cmd = cmd + "-DCMAKE_C_FLAGS='-Wall -std=c99 -pedantic' \ \n"
         # enable mpi
         cmd = cmd + "-DENABLE_MPI=ON \ \n"
-        # enable FCMIX
-        cmd = cmd + "-DFCMIX_ENABLE=TRUE \ \n"
-        # enable F90
-        cmd = cmd + "-DF90_ENABLE=TRUE \ \n"
         # enable C++
         cmd = cmd + "-DCXX_ENABLE=TRUE \ \n"
         # enable lapack   (NOTE: will find libraries in LD_LIBRARY_PATH)

@@ -38,7 +38,6 @@
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
 
-
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"

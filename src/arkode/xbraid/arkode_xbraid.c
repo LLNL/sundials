@@ -130,7 +130,7 @@ int ARKBraid_Free(braid_App *app)
 
     if (content->yout != NULL)
     {
-      N_VDestroy(content->yout);
+      arkFreeVec(content->ark_mem, &(content->yout));
       content->yout = NULL;
     }
     free((*app)->content);
@@ -388,8 +388,8 @@ int ARKBraid_Init(braid_App app, realtype t, braid_Vector *u_ptr)
 
   /* Create new NVector */
   y = NULL;
-  y = N_VClone(content->ark_mem->yn);
-  if (y == NULL) return SUNBRAID_ALLOCFAIL;
+  if (!arkAllocVec(content->ark_mem, content->ark_mem->yn, &y))
+    return SUNBRAID_ALLOCFAIL;
 
   /* Create new XBraid vector */
   flag = SUNBraidVector_New(y, u_ptr);
@@ -446,8 +446,9 @@ int ARKBraid_Access(braid_App app, braid_Vector u,
       /* Allocate yout if necessary */
       if (content->yout == NULL)
       {
-        content->yout = N_VClone(content->ark_mem->yn);
-        if (content->yout == NULL) return SUNBRAID_ALLOCFAIL;
+        if (!arkAllocVec(content->ark_mem, content->ark_mem->yn,
+                         &(content->yout)))
+          return SUNBRAID_ALLOCFAIL;
       }
 
       /* Save solution for output to user */

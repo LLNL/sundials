@@ -107,11 +107,6 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
 
-# Add FCMIX code if the F77 interface is enabled
-if(F77_FOUND AND BUILD_FORTRAN77_INTERFACE)
-  add_subdirectory(fcmix)
-endif()
-
 # Add ARKODE XBraid interface
 if(ENABLE_XBRAID)
   add_subdirectory(xbraid)

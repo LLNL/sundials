@@ -86,7 +86,3 @@ message(STATUS "Added KINSOL module")
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
-
-if(BUILD_FORTRAN77_INTERFACE)
-  add_subdirectory(fcmix)
-endif()

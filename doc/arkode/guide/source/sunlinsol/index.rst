@@ -135,21 +135,6 @@ present the SUNLinSol modules provided with SUNDIALS.
 .. toctree::
    :maxdepth: 1
 
-   SUNLinSol_API
+   SUNLinSol_API_link.rst
    ARKode_requirements
-   SUNLinSol_Dense
-   SUNLinSol_Band
-   SUNLinSol_LapackDense
-   SUNLinSol_LapackBand
-   SUNLinSol_KLU
-   SUNLinSol_SuperLUDIST
-   SUNLinSol_SuperLUMT
-   SUNLinSol_cuSolverSp
-   SUNLinSol_MagmaDense
-   SUNLinSol_OneMklDense
-   SUNLinSol_SPGMR
-   SUNLinSol_SPFGMR
-   SUNLinSol_SPBCGS
-   SUNLinSol_SPTFQMR
-   SUNLinSol_PCG
-   SUNLinSol_Examples
+   SUNLinSol_links.rst

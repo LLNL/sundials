@@ -15,8 +15,6 @@
 # compiler features for the current SUNDIALS configuration.
 # Will define the variables:
 #   Fortran_FOUND - TRUE if a Fortran compiler is found
-#   F77_FOUND     - equivalent to Fortran_FOUND
-#   F90_FOUND     - TRUE if the Fortran compiler supports Fortran 90
 #   F2003_FOUND   - TRUE if the Fortran compiler supports the
 #                   Fortran 2003 standard
 # ---------------------------------------------------------------
@@ -45,22 +43,11 @@ endif()
 # -----------------------------------------------------------------------------
 enable_language(Fortran)
 set(Fortran_FOUND TRUE)
-set(F77_FOUND TRUE)
 
 # Enable preprocessing Fortran code. With older versions of CMake is this
 # handled in SundialsAddLibrary.cmake by adding a compiler option.
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.18")
   set(CMAKE_Fortran_PREPROCESS ON)
-endif()
-
-# -----------------------------------------------------------------------------
-# Check if Fortran 90 is supported
-# -----------------------------------------------------------------------------
-if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
-  set(F90_FOUND TRUE)
-else()
-  set(F90_FOUND FALSE)
-  print_warning("Fortran compiler does not support F90" "F90 support will not be provided")
 endif()
 
 # -----------------------------------------------------------------------------
@@ -113,13 +100,6 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
   else()
     message(STATUS "Skipped F2003 tests, assuming ${CMAKE_Fortran_COMPILER} supports the f2003 standard. To rerun the F2003 tests, set F2003_FOUND to FALSE.")
   endif()
-endif()
-
-# Ensure that F90 compiler is found if F90 examples are enabled
-if (EXAMPLES_ENABLE_F90 AND (NOT F90_FOUND))
-  print_error("Compiler with F90 support not found" "Disabling F90 Examples")
-  set(DOCSTR "Build SUNDIALS F90 examples")
-  force_variable(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
 endif()
 
 # Put all F2003 modules into one build directory

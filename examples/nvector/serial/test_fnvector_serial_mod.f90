@@ -48,8 +48,8 @@ contains
     z => FN_VClone_Serial(x)
     call FN_VConst(ONE, z)
 
-    xvecs = FN_VCloneVectorArray_Serial(nv, x)
-    zvecs = FN_VCloneVectorArray_Serial(nv, z)
+    xvecs = FN_VCloneVectorArray(nv, x)
+    zvecs = FN_VCloneVectorArray(nv, z)
     nvarr = (/ ONE, ONE, ONE /)
 
     !===== Test =====
@@ -109,8 +109,8 @@ contains
     call FN_VDestroy_Serial(x)
     call FN_VDestroy_Serial(y)
     call FN_VDestroy_Serial(z)
-    call FN_VDestroyVectorArray_Serial(xvecs, nv)
-    call FN_VDestroyVectorArray_Serial(zvecs, nv)
+    call FN_VDestroyVectorArray(xvecs, nv)
+    call FN_VDestroyVectorArray(zvecs, nv)
 
     ret = 0
 

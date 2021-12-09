@@ -170,11 +170,6 @@ typedef int (*ARKPostProcessFn)(realtype t, N_Vector y,
 typedef int (*ARKStagePredictFn)(realtype t, N_Vector zpred,
                                  void *user_data);
 
-/* ARKPostProcessStepFn is now deprecated and will be removed in future
-   releases. It has be replaced with ARKPostProcessFn. */
-typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y,
-                                    void *user_data);
-
 /* --------------------------
  * MRIStep Inner Stepper Type
  * -------------------------- */

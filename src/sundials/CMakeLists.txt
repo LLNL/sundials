@@ -25,7 +25,6 @@ set(sundials_HEADERS
   sundials_context.h
   sundials_dense.h
   sundials_direct.h
-  sundials_fnvector.h
   sundials_iterative.h
   sundials_linearsolver.h
   sundials_math.h

@@ -49,8 +49,8 @@ module test_nvector_openmp
     z => FN_VClone_OpenMP(x)
     call FN_VConst(ONE, z)
 
-    xvecs = FN_VCloneVectorArray_OpenMP(nv, x)
-    zvecs = FN_VCloneVectorArray_OpenMP(nv, z)
+    xvecs = FN_VCloneVectorArray(nv, x)
+    zvecs = FN_VCloneVectorArray(nv, z)
     nvarr = (/ ONE, ONE, ONE /)
 
     !===== Test =====
@@ -110,8 +110,8 @@ module test_nvector_openmp
     call FN_VDestroy_OpenMP(x)
     call FN_VDestroy_OpenMP(y)
     call FN_VDestroy_OpenMP(z)
-    call FN_VDestroyVectorArray_OpenMP(xvecs, nv)
-    call FN_VDestroyVectorArray_OpenMP(zvecs, nv)
+    call FN_VDestroyVectorArray(xvecs, nv)
+    call FN_VDestroyVectorArray(zvecs, nv)
 
     ret = 0
 

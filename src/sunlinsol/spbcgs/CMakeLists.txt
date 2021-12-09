@@ -41,20 +41,3 @@ message(STATUS "Added SUNLINSOL_SPBCGS module")
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(fmod)
 endif()
-
-# If FCMIX is enabled, build and install the Fortran77 library
-if(BUILD_FORTRAN77_INTERFACE)
-  sundials_add_library(sundials_fsunlinsolspbcgs
-    SOURCES
-      fsunlinsol_spbcgs.c
-    LINK_LIBRARIES
-      PRIVATE sundials_sunlinsolspbcgs
-    OUTPUT_NAME
-      sundials_fsunlinsolspbcgs
-    VERSION
-      ${sunlinsollib_VERSION}
-    SOVERSION
-      ${sunlinsollib_SOVERSION}
-  )
-  message(STATUS "Added SUNLINSOL_SPBCGS F77 interface")
-endif()

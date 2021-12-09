@@ -81,10 +81,10 @@ subcontracts B598130 and B626484 from `Lawrence Livermore National Laboratory
    sunlinsol/index.rst
    sunnonlinsol/index.rst
    sunmemory/index.rst
-   Install
+   Install_link.rst
    Constants
    Butcher
-   History
+   History_link.rst
    References
 .. only:: html
 
