@@ -258,7 +258,7 @@ N_Vector N_VNew_Sycl(sunindextype length, sycl::queue *Q, SUNContext sunctx)
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q, sunctx);
+  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNFALSE;
 
@@ -370,7 +370,7 @@ N_Vector N_VNewManaged_Sycl(sunindextype length, sycl::queue *Q,
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q, sunctx);
+  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNTRUE;
 
@@ -430,7 +430,7 @@ N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata,
   NVEC_SYCL_CONTENT(v)->device_data        = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
   NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q, sunctx);
+  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNFALSE;
 
@@ -491,7 +491,7 @@ N_Vector N_VMakeManaged_Sycl(sunindextype length, realtype *vdata,
   NVEC_SYCL_CONTENT(v)->device_data        = SUNMemoryHelper_Alias(NVEC_SYCL_CONTENT(v)->host_data);
   NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q, sunctx);
+  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNTRUE;
 
@@ -633,7 +633,8 @@ void N_VCopyToDevice_Sycl(N_Vector x)
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x),
                                    NVEC_SYCL_CONTENT(x)->device_data,
                                    NVEC_SYCL_CONTENT(x)->host_data,
-                                   NVEC_SYCL_MEMSIZE(x));
+                                   NVEC_SYCL_MEMSIZE(x),
+                                   NVEC_SYCL_QUEUE(x));
 
   if (copy_fail)
   {
@@ -653,7 +654,8 @@ void N_VCopyFromDevice_Sycl(N_Vector x)
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x),
                                    NVEC_SYCL_CONTENT(x)->host_data,
                                    NVEC_SYCL_CONTENT(x)->device_data,
-                                   NVEC_SYCL_MEMSIZE(x));
+                                   NVEC_SYCL_MEMSIZE(x),
+                                   NVEC_SYCL_QUEUE(x));
 
   if (copy_fail)
   {
@@ -810,9 +812,11 @@ void N_VDestroy_Sycl(N_Vector v)
   /* free items in content */
   if (NVEC_SYCL_MEMHELP(v))
   {
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vc->host_data);
+    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vc->host_data,
+                            NVEC_SYCL_QUEUE(v));
     vc->host_data = NULL;
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vc->device_data);
+    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vc->device_data,
+                            NVEC_SYCL_QUEUE(v));
     vc->device_data = NULL;
     if (vc->own_helper) SUNMemoryHelper_Destroy(vc->mem_helper);
     vc->mem_helper = NULL;
@@ -1860,12 +1864,13 @@ int N_VBufPack_Sycl(N_Vector x, void *buf)
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x),
                                    buf_mem,
                                    NVEC_SYCL_CONTENT(x)->device_data,
-                                   NVEC_SYCL_MEMSIZE(x));
+                                   NVEC_SYCL_MEMSIZE(x),
+                                   NVEC_SYCL_QUEUE(x));
 
   /* synchronize with the host */
   NVEC_SYCL_QUEUE(x)->wait_and_throw();
 
-  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem, NVEC_SYCL_QUEUE(x));
 
   return (copy_fail ? -1 : 0);
 }
@@ -1883,12 +1888,13 @@ int N_VBufUnpack_Sycl(N_Vector x, void *buf)
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x),
                                    NVEC_SYCL_CONTENT(x)->device_data,
                                    buf_mem,
-                                   NVEC_SYCL_MEMSIZE(x));
+                                   NVEC_SYCL_MEMSIZE(x),
+                                   NVEC_SYCL_QUEUE(x));
 
   /* synchronize with the host */
   NVEC_SYCL_QUEUE(x)->wait_and_throw();
 
-  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem, NVEC_SYCL_QUEUE(x));
 
   return (copy_fail ? -1 : 0);
 }
@@ -2021,7 +2027,8 @@ static int AllocateData(N_Vector v)
   if (vcp->use_managed_mem)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v), &(vc->device_data),
-                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_UVM);
+                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_UVM,
+                                       NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed for SUNMEMTYPE_UVM\n");
@@ -2031,14 +2038,16 @@ static int AllocateData(N_Vector v)
   else
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v), &(vc->host_data),
-                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_HOST);
+                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_HOST,
+                                       NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
     }
 
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v), &(vc->device_data),
-                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_DEVICE);
+                                       NVEC_SYCL_MEMSIZE(v), SUNMEMTYPE_DEVICE,
+                                       NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2075,7 +2084,7 @@ static int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
     /* allocate pinned memory on the host */
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                        &(vcp->reduce_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED);
+                                       SUNMEMTYPE_PINNED, NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("WARNING in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
@@ -2083,7 +2092,7 @@ static int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
       /* if pinned alloc failed, allocate plain host memory */
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                          &(vcp->reduce_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST);
+                                         SUNMEMTYPE_HOST, NVEC_SYCL_QUEUE(v));
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
@@ -2093,7 +2102,7 @@ static int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
     /* allocate device memory */
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                        &(vcp->reduce_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE);
+                                       SUNMEMTYPE_DEVICE, NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2120,7 +2129,7 @@ static int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
   }
 
   /* deallocate the wrapper */
-  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), value_mem);
+  SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), value_mem, NVEC_SYCL_QUEUE(v));
 
   return ((alloc_fail || copy_fail) ? -1 : 0);
 }
@@ -2135,12 +2144,14 @@ static void FreeReductionBuffer(N_Vector v)
 
   /* free device mem */
   if (vcp->reduce_buffer_dev != NULL)
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vcp->reduce_buffer_dev);
+    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vcp->reduce_buffer_dev,
+                            NVEC_SYCL_QUEUE(v));
   vcp->reduce_buffer_dev = NULL;
 
   /* free host mem */
   if (vcp->reduce_buffer_host != NULL)
-    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vcp->reduce_buffer_host);
+    SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), vcp->reduce_buffer_host,
+                            NVEC_SYCL_QUEUE(v));
   vcp->reduce_buffer_host = NULL;
 
   /* reset allocated memory size */
@@ -2192,7 +2203,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     /* allocate pinned memory on the host */
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                        &(vcp->fused_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED);
+                                       SUNMEMTYPE_PINNED, NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("WARNING in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
@@ -2200,7 +2211,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
       /* if pinned alloc failed, allocate plain host memory */
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                          &(vcp->fused_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST);
+                                         SUNMEMTYPE_HOST, NVEC_SYCL_QUEUE(v));
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
@@ -2211,7 +2222,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     /* allocate device memory */
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_SYCL_MEMHELP(v),
                                        &(vcp->fused_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE);
+                                       SUNMEMTYPE_DEVICE, NVEC_SYCL_QUEUE(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2356,14 +2367,14 @@ static int FusedBuffer_Free(N_Vector v)
   if (vcp->fused_buffer_host)
   {
     SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v),
-                            vcp->fused_buffer_host);
+                            vcp->fused_buffer_host, NVEC_SYCL_QUEUE(v));
     vcp->fused_buffer_host = NULL;
   }
 
   if (vcp->fused_buffer_dev)
   {
     SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v),
-                            vcp->fused_buffer_dev);
+                            vcp->fused_buffer_dev, NVEC_SYCL_QUEUE(v));
     vcp->fused_buffer_dev = NULL;
   }
 

@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   std::cout << std::endl;
 
   // Create Sycl memory helper
-  SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(&myQueue, sunctx);
+  SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(sunctx);
   if (!memhelper)
   {
     printf("Memory helper creation failed\n");

@@ -26,17 +26,23 @@ extern "C" {
 
 /* Implementation specific functions */
 
+SUNDIALS_EXPORT
 SUNMemoryHelper SUNMemoryHelper_Sys(SUNContext sunctx);
 
 /* SUNMemoryHelper functions */
 
-SUNDIALS_EXPORT int SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
-                                              size_t memsize, SUNMemoryType mem_type);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
+                              size_t memsize, SUNMemoryType mem_type,
+                              void* queue);
 
-SUNDIALS_EXPORT int SUNMemoryHelper_Dealloc_Sys(SUNMemoryHelper helper, SUNMemory mem);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_Dealloc_Sys(SUNMemoryHelper helper, SUNMemory mem,
+                                void* queue);
 
-SUNDIALS_EXPORT int SUNMemoryHelper_Copy_Sys(SUNMemoryHelper helper, SUNMemory dst,
-                                             SUNMemory src, size_t memory_size);
+SUNDIALS_EXPORT
+int SUNMemoryHelper_Copy_Sys(SUNMemoryHelper helper, SUNMemory dst,
+                             SUNMemory src, size_t memory_size, void* queue);
 
 #ifdef __cplusplus
 }

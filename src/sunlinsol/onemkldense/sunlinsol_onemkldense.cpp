@@ -164,7 +164,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   // Allocate data
   retval = SUNMemoryHelper_Alloc(LS_MEM_HELPER(S), &(LS_PIVOTS(S)),
                                  A->rows * sizeof(sunindextype),
-                                 LS_MEM_TYPE(S));
+                                 LS_MEM_TYPE(S), A->queue);
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("Pivots allocation failed\n");
@@ -231,7 +231,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   // Allocate factorization scratchpad if necessary
   retval = SUNMemoryHelper_Alloc(LS_MEM_HELPER(S), &(LS_F_SCRATCH(S)),
                                  LS_F_SCRATCH_SIZE(S) * sizeof(realtype),
-                                 LS_MEM_TYPE(S));
+                                 LS_MEM_TYPE(S), queue);
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("Scratchpad allocation failed\n");
@@ -242,7 +242,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   // Allocate solve scratchpad if necessary
   retval = SUNMemoryHelper_Alloc(LS_MEM_HELPER(S), &(LS_S_SCRATCH(S)),
                                  LS_S_SCRATCH_SIZE(S) * sizeof(realtype),
-                                 LS_MEM_TYPE(S));
+                                 LS_MEM_TYPE(S), queue);
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("Scratchpad allocation failed\n");
@@ -592,20 +592,20 @@ int SUNLinSolFree_OneMklDense(SUNLinearSolver S)
     // Pivots memory
     if (LS_PIVOTS(S))
     {
-      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_PIVOTS(S));
+      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_PIVOTS(S), LS_QUEUE(S));
     }
 
     // Factorization scrach memory
     if (LS_F_SCRATCH(S))
     {
-      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_F_SCRATCH(S));
+      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_F_SCRATCH(S), LS_QUEUE(S));
     }
     LS_F_SCRATCH_SIZE(S) = 0;
 
     // Solve scratch memory
     if (LS_S_SCRATCH(S))
     {
-      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_S_SCRATCH(S));
+      SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_S_SCRATCH(S), LS_QUEUE(S));
     }
     LS_S_SCRATCH_SIZE(S) = 0;
   }

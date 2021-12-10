@@ -646,9 +646,9 @@ void N_VDestroy_Hip(N_Vector v)
 
   if (NVEC_HIP_MEMHELP(v))
   {
-    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->host_data);
+    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->host_data, nullptr);
     vc->host_data = NULL;
-    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->device_data);
+    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vc->device_data, nullptr);
     vc->device_data = NULL;
     if (vc->own_helper) SUNMemoryHelper_Destroy(vc->mem_helper);
     vc->mem_helper = NULL;
@@ -1738,7 +1738,7 @@ int N_VBufPack_Hip(N_Vector x, void *buf)
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = hipStreamSynchronize(*NVEC_HIP_STREAM(x));
 
-  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem, nullptr);
 
   return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
@@ -1763,7 +1763,7 @@ int N_VBufUnpack_Hip(N_Vector x, void *buf)
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = hipStreamSynchronize(*NVEC_HIP_STREAM(x));
 
-  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem, nullptr);
 
   return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
@@ -2013,7 +2013,8 @@ int AllocateData(N_Vector v)
   if (vcp->use_managed_mem)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->device_data),
-                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_UVM);
+                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_UVM,
+                                       nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed for SUNMEMTYPE_UVM\n");
@@ -2023,14 +2024,16 @@ int AllocateData(N_Vector v)
   else
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->host_data),
-                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_HOST);
+                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_HOST,
+                                       nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
     }
 
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->device_data),
-                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_DEVICE);
+                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_DEVICE,
+                                       nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2066,7 +2069,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                        &(vcp->reduce_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED);
+                                       SUNMEMTYPE_PINNED, nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("WARNING in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
@@ -2074,7 +2077,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
       /* try to allocate just plain host memory instead */
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                          &(vcp->reduce_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST);
+                                         SUNMEMTYPE_HOST, nullptr);
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
@@ -2082,7 +2085,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
     }
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                        &(vcp->reduce_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE);
+                                       SUNMEMTYPE_DEVICE, nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2105,7 +2108,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype value, size_t n)
     }
   }
 
-  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), value_mem);
+  SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), value_mem, nullptr);
   return((alloc_fail || copy_fail) ? -1 : 0);
 }
 
@@ -2118,10 +2121,12 @@ void FreeReductionBuffer(N_Vector v)
   if (vcp == NULL) return;
 
   if (vcp->reduce_buffer_dev != NULL)
-    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vcp->reduce_buffer_dev);
+    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vcp->reduce_buffer_dev,
+                            nullptr);
   vcp->reduce_buffer_dev  = NULL;
   if (vcp->reduce_buffer_host != NULL)
-    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vcp->reduce_buffer_host);
+    SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(v), vcp->reduce_buffer_host,
+                            nullptr);
   vcp->reduce_buffer_host = NULL;
 }
 

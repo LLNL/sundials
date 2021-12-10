@@ -40,7 +40,8 @@ SUNMemoryHelper SUNMemoryHelper_Sys(SUNContext sunctx)
 }
 
 int SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
-                               size_t mem_size, SUNMemoryType mem_type)
+                              size_t mem_size, SUNMemoryType mem_type,
+                              void* queue)
 {
   SUNMemory mem = SUNMemoryNewEmpty();
 
@@ -69,7 +70,8 @@ int SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
   return(0);
 }
 
-int SUNMemoryHelper_Dealloc_Sys(SUNMemoryHelper helper, SUNMemory mem)
+int SUNMemoryHelper_Dealloc_Sys(SUNMemoryHelper helper, SUNMemory mem,
+                                void* queue)
 {
   if (mem == NULL) return(0);
 
@@ -92,7 +94,7 @@ int SUNMemoryHelper_Dealloc_Sys(SUNMemoryHelper helper, SUNMemory mem)
 }
 
 int SUNMemoryHelper_Copy_Sys(SUNMemoryHelper helper, SUNMemory dst,
-                             SUNMemory src, size_t memory_size)
+                             SUNMemory src, size_t memory_size, void* queue)
 {
   int retval = 0;
   memcpy(dst->ptr, src->ptr, memory_size);

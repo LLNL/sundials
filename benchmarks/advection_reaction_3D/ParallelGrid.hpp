@@ -149,8 +149,10 @@ public:
     int retval = 0;
     int nbcoords[] = {0, 0, 0};
 
-    SUNMemoryHelper_Alloc(memhelp, &Wrecv_, sizeof(REAL)*dof*width*nyl*nzl, memoryType());
-    SUNMemoryHelper_Alloc(memhelp, &Wsend_, sizeof(REAL)*dof*width*nyl*nzl, memoryType());
+    SUNMemoryHelper_Alloc(memhelp, &Wrecv_, sizeof(REAL)*dof*width*nyl*nzl,
+                          memoryType(), nullptr);
+    SUNMemoryHelper_Alloc(memhelp, &Wsend_, sizeof(REAL)*dof*width*nyl*nzl,
+                          memoryType(), nullptr);
     ipW = MPI_PROC_NULL;
     if ((coords[0] > 0) || (bc == BoundaryType::PERIODIC)) {
       nbcoords[0] = coords[0]-1;
@@ -160,8 +162,10 @@ public:
       assert(retval == MPI_SUCCESS);
     }
 
-    SUNMemoryHelper_Alloc(memhelp, &Erecv_, sizeof(REAL)*dof*width*nyl*nzl, memoryType());
-    SUNMemoryHelper_Alloc(memhelp, &Esend_, sizeof(REAL)*dof*width*nyl*nzl, memoryType());
+    SUNMemoryHelper_Alloc(memhelp, &Erecv_, sizeof(REAL)*dof*width*nyl*nzl,
+                          memoryType(), nullptr);
+    SUNMemoryHelper_Alloc(memhelp, &Esend_, sizeof(REAL)*dof*width*nyl*nzl,
+                          memoryType(), nullptr);
     ipE = MPI_PROC_NULL;
     if ((coords[0] < dims[0]-1) || (bc == BoundaryType::PERIODIC)) {
       nbcoords[0] = coords[0]+1;
@@ -173,8 +177,10 @@ public:
 
     if (NDIMS >= 2)
     {
-      SUNMemoryHelper_Alloc(memhelp, &Srecv_, sizeof(REAL)*dof*width*nxl*nzl, memoryType());
-      SUNMemoryHelper_Alloc(memhelp, &Ssend_, sizeof(REAL)*dof*width*nxl*nzl, memoryType());
+      SUNMemoryHelper_Alloc(memhelp, &Srecv_, sizeof(REAL)*dof*width*nxl*nzl,
+                            memoryType(), nullptr);
+      SUNMemoryHelper_Alloc(memhelp, &Ssend_, sizeof(REAL)*dof*width*nxl*nzl,
+                            memoryType(), nullptr);
       ipS = MPI_PROC_NULL;
       if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC)) {
         nbcoords[0] = coords[0];
@@ -184,8 +190,10 @@ public:
         assert(retval == MPI_SUCCESS);
       }
 
-      SUNMemoryHelper_Alloc(memhelp, &Nrecv_, sizeof(REAL)*dof*width*nxl*nzl, memoryType());
-      SUNMemoryHelper_Alloc(memhelp, &Nsend_, sizeof(REAL)*dof*width*nxl*nzl, memoryType());
+      SUNMemoryHelper_Alloc(memhelp, &Nrecv_, sizeof(REAL)*dof*width*nxl*nzl,
+                            memoryType(), nullptr);
+      SUNMemoryHelper_Alloc(memhelp, &Nsend_, sizeof(REAL)*dof*width*nxl*nzl,
+                            memoryType(), nullptr);
       ipN = MPI_PROC_NULL;
       if ((coords[1] < dims[1]-1) || (bc == BoundaryType::PERIODIC)) {
         nbcoords[0] = coords[0];
@@ -198,8 +206,10 @@ public:
 
     if (NDIMS == 3)
     {
-      SUNMemoryHelper_Alloc(memhelp, &Brecv_, sizeof(REAL)*dof*width*nxl*nyl, memoryType());
-      SUNMemoryHelper_Alloc(memhelp, &Bsend_, sizeof(REAL)*dof*width*nxl*nyl, memoryType());
+      SUNMemoryHelper_Alloc(memhelp, &Brecv_, sizeof(REAL)*dof*width*nxl*nyl,
+                            memoryType(), nullptr);
+      SUNMemoryHelper_Alloc(memhelp, &Bsend_, sizeof(REAL)*dof*width*nxl*nyl,
+                            memoryType(), nullptr);
       ipB = MPI_PROC_NULL;
       if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC)) {
         nbcoords[0] = coords[0];
@@ -209,8 +219,10 @@ public:
         assert(retval == MPI_SUCCESS);
       }
 
-      SUNMemoryHelper_Alloc(memhelp, &Frecv_, sizeof(REAL)*dof*width*nxl*nyl, memoryType());
-      SUNMemoryHelper_Alloc(memhelp, &Fsend_, sizeof(REAL)*dof*width*nxl*nyl, memoryType());
+      SUNMemoryHelper_Alloc(memhelp, &Frecv_, sizeof(REAL)*dof*width*nxl*nyl,
+                            memoryType(), nullptr);
+      SUNMemoryHelper_Alloc(memhelp, &Fsend_, sizeof(REAL)*dof*width*nxl*nyl,
+                            memoryType(), nullptr);
       ipF = MPI_PROC_NULL;
       if ((coords[2] < dims[2]-1) || (bc == BoundaryType::PERIODIC)) {
         nbcoords[0] = coords[0];
@@ -478,18 +490,18 @@ public:
 
   ~ParallelGrid()
   {
-    SUNMemoryHelper_Dealloc(memhelp, Esend_);
-    SUNMemoryHelper_Dealloc(memhelp, Wsend_);
-    SUNMemoryHelper_Dealloc(memhelp, Nsend_);
-    SUNMemoryHelper_Dealloc(memhelp, Ssend_);
-    SUNMemoryHelper_Dealloc(memhelp, Fsend_);
-    SUNMemoryHelper_Dealloc(memhelp, Bsend_);
-    SUNMemoryHelper_Dealloc(memhelp, Erecv_);
-    SUNMemoryHelper_Dealloc(memhelp, Wrecv_);
-    SUNMemoryHelper_Dealloc(memhelp, Nrecv_);
-    SUNMemoryHelper_Dealloc(memhelp, Srecv_);
-    SUNMemoryHelper_Dealloc(memhelp, Frecv_);
-    SUNMemoryHelper_Dealloc(memhelp, Brecv_);
+    SUNMemoryHelper_Dealloc(memhelp, Esend_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Wsend_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Nsend_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Ssend_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Fsend_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Bsend_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Erecv_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Wrecv_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Nrecv_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Srecv_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Frecv_, nullptr);
+    SUNMemoryHelper_Dealloc(memhelp, Brecv_, nullptr);
   }
 
   GLOBALINT nx, ny, nz;    /* number of intervals globally       */
@@ -534,19 +546,22 @@ private:
   SUNMemoryType memoryType()
   {
     SUNMemory test;
-    if (SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_PINNED) == 0)
+    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_PINNED,
+                               nullptr))
     {
-      SUNMemoryHelper_Dealloc(memhelp, test);
+      SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
       return(SUNMEMTYPE_PINNED);
     }
-    if (SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_DEVICE) == 0)
+    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_DEVICE,
+                               nullptr))
     {
-      SUNMemoryHelper_Dealloc(memhelp, test);
+      SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
       return(SUNMEMTYPE_DEVICE);
     }
-    if (SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_UVM) == 0)
+    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_UVM,
+                               nullptr))
     {
-      SUNMemoryHelper_Dealloc(memhelp, test);
+      SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
       return(SUNMEMTYPE_UVM);
     }
     else

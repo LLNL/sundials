@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
   udata.neq     = neq;
 
   // Create the SYCL memory helper
-  SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(&myQueue, sunctx);
+  SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(sunctx);
   if (check_retval((void *)memhelper, "SUNMemoryHelper_Sycl", 0)) return 1;
 
   // Create SYCL vector for state and absolute tolerances

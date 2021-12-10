@@ -160,16 +160,19 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
 
   /* Allocate device memory for the matrix */
   alloc_fail += SUNMemoryHelper_Alloc(SMCU_MEMHELP(A), &d_colind,
-                                      sizeof(int)*NNZ, SUNMEMTYPE_DEVICE);
+                                      sizeof(int)*NNZ, SUNMEMTYPE_DEVICE,
+                                      nullptr);
   alloc_fail += SUNMemoryHelper_Alloc(SMCU_MEMHELP(A), &d_rowptr,
-                                      sizeof(int)*(M+1), SUNMEMTYPE_DEVICE);
+                                      sizeof(int)*(M+1), SUNMEMTYPE_DEVICE,
+                                      nullptr);
   alloc_fail += SUNMemoryHelper_Alloc(SMCU_MEMHELP(A), &d_values,
-                                      sizeof(realtype)*NNZ, SUNMEMTYPE_DEVICE);
+                                      sizeof(realtype)*NNZ, SUNMEMTYPE_DEVICE,
+                                      nullptr);
   if (alloc_fail)
   {
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values, nullptr);
     SUNMatDestroy(A);
     return(NULL);
   }
@@ -180,9 +183,9 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
   cusparse_status = cusparseCreateMatDescr(&mat_descr);
   if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status))
   {
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values, nullptr);
     SUNMatDestroy(A);
     return(NULL);
   }
@@ -190,9 +193,9 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
   cusparse_status = cusparseSetMatType(mat_descr, CUSPARSE_MATRIX_TYPE_GENERAL);
   if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status))
   {
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values, nullptr);
     cusparseDestroyMatDescr(mat_descr);
     SUNMatDestroy(A);
     return(NULL);
@@ -201,9 +204,9 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
   cusparse_status = cusparseSetMatIndexBase(mat_descr, CUSPARSE_INDEX_BASE_ZERO);
   if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status))
   {
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values, nullptr);
     cusparseDestroyMatDescr(mat_descr);
     SUNMatDestroy(A);
     return(NULL);
@@ -212,9 +215,9 @@ SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp
   cudaStream_t stream;
   if (!SUNDIALS_CUSPARSE_VERIFY(cusparseGetStream(cusp, &stream)))
   {
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values, nullptr);
     cusparseDestroyMatDescr(mat_descr);
     SUNMatDestroy(A);
     return(NULL);
@@ -392,18 +395,19 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
 
   /* Allocate device memory for the matrix */
   alloc_fail += SUNMemoryHelper_Alloc(SMCU_MEMHELP(A), &d_colind,
-                                      sizeof(int)*blocknnz, SUNMEMTYPE_DEVICE);
+                                      sizeof(int)*blocknnz, SUNMEMTYPE_DEVICE,
+                                      nullptr);
   alloc_fail += SUNMemoryHelper_Alloc(SMCU_MEMHELP(A), &d_rowptr,
                                       sizeof(int)*(blockrows + 1),
-                                      SUNMEMTYPE_DEVICE);
+                                      SUNMEMTYPE_DEVICE, nullptr);
   alloc_fail += SUNMemoryHelper_Alloc(SMCU_MEMHELP(A), &d_values,
                                       sizeof(realtype)*blocknnz*nblocks,
-                                      SUNMEMTYPE_DEVICE);
+                                      SUNMEMTYPE_DEVICE, nullptr);
   if (alloc_fail)
   {
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values, nullptr);
     SUNMatDestroy(A);
     return(NULL);
   }
@@ -414,9 +418,9 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
   cusparse_status = cusparseCreateMatDescr(&mat_descr);
   if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status))
   {
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values, nullptr);
     SUNMatDestroy(A);
     return(NULL);
   }
@@ -424,9 +428,9 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
   cusparse_status = cusparseSetMatType(mat_descr, CUSPARSE_MATRIX_TYPE_GENERAL);
   if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status))
   {
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values, nullptr);
     cusparseDestroyMatDescr(mat_descr);
     SUNMatDestroy(A);
     return(NULL);
@@ -435,9 +439,9 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
   cusparse_status = cusparseSetMatIndexBase(mat_descr, CUSPARSE_INDEX_BASE_ZERO);
   if (!SUNDIALS_CUSPARSE_VERIFY(cusparse_status))
   {
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values, nullptr);
     cusparseDestroyMatDescr(mat_descr);
     SUNMatDestroy(A);
     return(NULL);
@@ -446,9 +450,9 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockco
   cudaStream_t stream;
   if (!SUNDIALS_CUSPARSE_VERIFY(cusparseGetStream(cusp, &stream)))
   {
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_colind, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_rowptr, nullptr);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), d_values, nullptr);
     cusparseDestroyMatDescr(mat_descr);
     SUNMatDestroy(A);
     return(NULL);
@@ -654,7 +658,7 @@ int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, realtype* h_data,
                                         _h_data,
                                         SMCU_NNZ(dA)*sizeof(realtype),
                                         (void*) stream);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_data);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_data, nullptr);
     if (retval != 0) return(SUNMAT_OPERATION_FAIL);
   }
 
@@ -681,7 +685,7 @@ int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, realtype* h_data,
                                        _h_idxptrs,
                                        nidxptrs*sizeof(int),
                                        (void*) stream);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_idxptrs);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_idxptrs, nullptr);
     if (retval != 0) return(SUNMAT_OPERATION_FAIL);
   }
 
@@ -693,7 +697,7 @@ int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, realtype* h_data,
                                        _h_idxvals,
                                        nidxvals*sizeof(int),
                                        (void*) stream);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_idxvals);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_idxvals, nullptr);
     if (retval != 0) return(SUNMAT_OPERATION_FAIL);
   }
 
@@ -722,7 +726,7 @@ int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, realtype* h_data,
                                         SMCU_DATA(dA),
                                         SMCU_NNZ(dA)*sizeof(realtype),
                                         (void*) stream);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_data);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_data, nullptr);
     if (retval != 0) return(SUNMAT_OPERATION_FAIL);
   }
 
@@ -745,7 +749,7 @@ int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, realtype* h_data,
                                        SMCU_INDEXPTRS(dA),
                                        nidxptrs*sizeof(int),
                                        (void*) stream);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_idxptrs);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_idxptrs, nullptr);
     if (retval != 0) return(SUNMAT_OPERATION_FAIL);
   }
 
@@ -757,7 +761,7 @@ int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, realtype* h_data,
                                        SMCU_INDEXVALS(dA),
                                        nidxvals*sizeof(int),
                                        (void*) stream);
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_idxvals);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(dA), _h_idxvals, nullptr);
     if (retval != 0) return(SUNMAT_OPERATION_FAIL);
   }
 
@@ -816,9 +820,9 @@ void SUNMatDestroy_cuSparse(SUNMatrix A)
   {
     if (SMCU_MEMHELP(A))
     {
-      SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), SMCU_DATA(A));
-      SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), SMCU_INDEXPTRS(A));
-      SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), SMCU_INDEXVALS(A));
+      SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), SMCU_DATA(A), nullptr);
+      SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), SMCU_INDEXPTRS(A), nullptr);
+      SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), SMCU_INDEXVALS(A), nullptr);
     }
     else
     {
@@ -835,7 +839,8 @@ void SUNMatDestroy_cuSparse(SUNMatrix A)
     SUNDIALS_CUSPARSE_VERIFY( cusparseDestroyDnVec(SMCU_CONTENT(A)->vecX) );
     SUNDIALS_CUSPARSE_VERIFY( cusparseDestroyDnVec(SMCU_CONTENT(A)->vecY) );
     SUNDIALS_CUSPARSE_VERIFY( cusparseDestroySpMat(SMCU_CONTENT(A)->spmat_descr) );
-    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), SMCU_CONTENT(A)->dBufferMem);
+    SUNMemoryHelper_Dealloc(SMCU_MEMHELP(A), SMCU_CONTENT(A)->dBufferMem,
+                            nullptr);
 #endif
 
     if (SMCU_EXECPOLICY(A) && SMCU_OWNEXEC(A))
@@ -1074,7 +1079,8 @@ int SUNMatMatvecSetup_cuSparse(SUNMatrix A)
                               &SMCU_CONTENT(A)->bufferSize) );
 
     if ( SUNMemoryHelper_Alloc(SMCU_MEMHELP(A), &SMCU_CONTENT(A)->dBufferMem,
-                               SMCU_CONTENT(A)->bufferSize, SUNMEMTYPE_DEVICE) )
+                               SMCU_CONTENT(A)->bufferSize, SUNMEMTYPE_DEVICE,
+                               nullptr) )
       return(SUNMAT_OPERATION_FAIL);
   }
 #endif

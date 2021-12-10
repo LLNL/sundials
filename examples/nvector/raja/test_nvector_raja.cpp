@@ -84,11 +84,7 @@ int main(int argc, char *argv[])
       printf("Testing RAJA N_Vector with managed memory\n");
     } else if (memtype==SUNMEMORY) {
       printf("Testing RAJA N_Vector with custom allocator\n");
-#if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-      mem_helper = MyMemoryHelper(myQueue, sunctx);
-#else
       mem_helper = MyMemoryHelper(sunctx);
-#endif
     }
     printf("Vector length: %ld \n", (long int) length);
     /* Create new vectors */

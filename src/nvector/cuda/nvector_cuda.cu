@@ -661,9 +661,9 @@ void N_VDestroy_Cuda(N_Vector v)
 
   if (NVEC_CUDA_MEMHELP(v))
   {
-    SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v), vc->host_data);
+    SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v), vc->host_data, nullptr);
     vc->host_data = NULL;
-    SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v), vc->device_data);
+    SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v), vc->device_data, nullptr);
     vc->device_data = NULL;
     if (vc->own_helper) SUNMemoryHelper_Destroy(vc->mem_helper);
     vc->mem_helper = NULL;
@@ -1881,7 +1881,7 @@ int N_VBufPack_Cuda(N_Vector x, void *buf)
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = cudaStreamSynchronize(*NVEC_CUDA_STREAM(x));
 
-  SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(x), buf_mem, nullptr);
 
   return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
@@ -1906,7 +1906,7 @@ int N_VBufUnpack_Cuda(N_Vector x, void *buf)
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = cudaStreamSynchronize(*NVEC_CUDA_STREAM(x));
 
-  SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(x), buf_mem);
+  SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(x), buf_mem, nullptr);
 
   return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
@@ -2071,7 +2071,8 @@ int AllocateData(N_Vector v)
   if (vcp->use_managed_mem)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v), &(vc->device_data),
-                                       NVEC_CUDA_MEMSIZE(v), SUNMEMTYPE_UVM);
+                                       NVEC_CUDA_MEMSIZE(v), SUNMEMTYPE_UVM,
+                                       nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed for SUNMEMTYPE_UVM\n");
@@ -2081,14 +2082,16 @@ int AllocateData(N_Vector v)
   else
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v), &(vc->host_data),
-                                       NVEC_CUDA_MEMSIZE(v), SUNMEMTYPE_HOST);
+                                       NVEC_CUDA_MEMSIZE(v), SUNMEMTYPE_HOST,
+                                       nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
     }
 
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v), &(vc->device_data),
-                                       NVEC_CUDA_MEMSIZE(v), SUNMEMTYPE_DEVICE);
+                                       NVEC_CUDA_MEMSIZE(v), SUNMEMTYPE_DEVICE,
+                                       nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2130,7 +2133,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype* value, size_t n)
     // Allocate pinned memory on the host
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
                                        &(vcp->reduce_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED);
+                                       SUNMEMTYPE_PINNED, nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("WARNING in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
@@ -2138,7 +2141,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype* value, size_t n)
       // If pinned alloc failed, allocate plain host memory
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
                                          &(vcp->reduce_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST);
+                                         SUNMEMTYPE_HOST, nullptr);
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
@@ -2148,7 +2151,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype* value, size_t n)
     // Allocate device memory
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
                                        &(vcp->reduce_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE);
+                                       SUNMEMTYPE_DEVICE, nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2172,7 +2175,7 @@ int InitializeReductionBuffer(N_Vector v, const realtype* value, size_t n)
   }
 
   // Deallocate the wrapper
-  SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v), value_mem);
+  SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v), value_mem, nullptr);
 
   return((alloc_fail || copy_fail) ? -1 : 0);
 }
@@ -2187,12 +2190,14 @@ void FreeReductionBuffer(N_Vector v)
 
   // Free device mem
   if (vcp->reduce_buffer_dev != NULL)
-    SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v), vcp->reduce_buffer_dev);
+    SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v), vcp->reduce_buffer_dev,
+                            nullptr);
   vcp->reduce_buffer_dev  = NULL;
 
   // Free host mem
   if (vcp->reduce_buffer_host != NULL)
-    SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v), vcp->reduce_buffer_host);
+    SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v), vcp->reduce_buffer_host,
+                            nullptr);
   vcp->reduce_buffer_host = NULL;
 
   // Reset allocated memory size
@@ -2252,7 +2257,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     // Allocate pinned memory on the host
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
                                        &(vcp->fused_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED);
+                                       SUNMEMTYPE_PINNED, nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("WARNING in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
@@ -2260,7 +2265,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
       // If pinned alloc failed, allocate plain host memory
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
                                          &(vcp->fused_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST);
+                                         SUNMEMTYPE_HOST, nullptr);
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
@@ -2271,7 +2276,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     // Allocate device memory
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_CUDA_MEMHELP(v),
                                        &(vcp->fused_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE);
+                                       SUNMEMTYPE_DEVICE, nullptr);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
@@ -2426,14 +2431,14 @@ static int FusedBuffer_Free(N_Vector v)
   if (vcp->fused_buffer_host)
   {
     SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v),
-                            vcp->fused_buffer_host);
+                            vcp->fused_buffer_host, nullptr);
     vcp->fused_buffer_host = NULL;
   }
 
   if (vcp->fused_buffer_dev)
   {
     SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(v),
-                            vcp->fused_buffer_dev);
+                            vcp->fused_buffer_dev, nullptr);
     vcp->fused_buffer_dev = NULL;
   }
 

@@ -137,20 +137,20 @@ SUNMemory SUNMemoryHelper_Wrap(void* ptr, SUNMemoryType mem_type)
 
 
 int SUNMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
-                          size_t memsize, SUNMemoryType mem_type)
+                          size_t memsize, SUNMemoryType mem_type, void* queue)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
   if (helper->ops->alloc == NULL)
     ier = -1;
   else
-    ier = helper->ops->alloc(helper, memptr, memsize, mem_type);
+    ier = helper->ops->alloc(helper, memptr, memsize, mem_type, queue);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return(ier);
 }
 
 
-int SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem)
+int SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem, void* queue)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
@@ -160,7 +160,7 @@ int SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem)
   if (mem == NULL)
     ier = 0;
   else
-    ier = helper->ops->dealloc(helper, mem);
+    ier = helper->ops->dealloc(helper, mem, queue);
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return(ier);
@@ -168,7 +168,7 @@ int SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem)
 
 
 int SUNMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst,
-                         SUNMemory src, size_t memory_size)
+                         SUNMemory src, size_t memory_size, void* queue)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
@@ -179,7 +179,7 @@ int SUNMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst,
   }
   else
   {
-    ier = helper->ops->copy(helper, dst, src, memory_size);
+    ier = helper->ops->copy(helper, dst, src, memory_size, queue);
   }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return(ier);
@@ -188,14 +188,14 @@ int SUNMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst,
 
 int SUNMemoryHelper_CopyAsync(SUNMemoryHelper helper, SUNMemory dst,
                               SUNMemory src, size_t memory_size,
-                              void* ctx)
+                              void* queue)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
   if (helper->ops->copyasync == NULL)
-    ier = SUNMemoryHelper_Copy(helper, dst, src, memory_size);
+    ier = SUNMemoryHelper_Copy(helper, dst, src, memory_size, queue);
   else
-    ier = helper->ops->copyasync(helper, dst, src, memory_size, ctx);
+    ier = helper->ops->copyasync(helper, dst, src, memory_size, queue);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return(ier);
 }

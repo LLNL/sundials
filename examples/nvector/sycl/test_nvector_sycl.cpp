@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
       else if (memtype == SUNMEMORY)
       {
         printf("Testing SYCL N_Vector with SUNMemoryHelper, policy %d\n", policy);
-        mem_helper = MyMemoryHelper(&myQueue, sunctx);
+        mem_helper = MyMemoryHelper(sunctx);
         X = N_VNewWithMemHelp_Sycl(length, SUNFALSE, mem_helper, &myQueue, sunctx);
       }
       printf("Vector length: %ld \n", (long int) length);
