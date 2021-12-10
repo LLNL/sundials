@@ -103,4 +103,4 @@ sunnonlinsol: $(SUNNONLINSOL:%:sunnonlinsol/fsunnonlinsol_%_mod.i)
 	done
 
 clean:
-	rm ./**/*.c
+	rm ../src/**/fmod/*.c; rm ../src/**/fmod/*.f90

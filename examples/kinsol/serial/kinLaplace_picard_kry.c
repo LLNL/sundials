@@ -154,7 +154,7 @@ int main()
    * Create SUNLinearSolver
    * ---------------------- */
 
-  LS = SUNLinSol_SPGMR(y, PREC_NONE, 10, sunctx);
+  LS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 10, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* --------------------

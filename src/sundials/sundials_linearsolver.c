@@ -111,7 +111,7 @@ SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S)
 }
 
 int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
-                       ATimesFn ATimes)
+                       SUNATimesFn ATimes)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
@@ -125,7 +125,7 @@ int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,
 
 
 int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data,
-                               PSetupFn Pset, PSolveFn Psol)
+                               SUNPSetupFn Pset, SUNPSolveFn Psol)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));

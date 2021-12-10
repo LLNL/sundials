@@ -3,7 +3,7 @@ SPGMR solver; band preconditioner; mu = 2, ml = 2
 
 
 
-Preconditioner type is:  jpre = PREC_LEFT
+Preconditioner type is:  jpre = SUN_PREC_LEFT
 
 t = 7.20e+03   no. steps = 190   order = 5   stepsize = 1.61e+02
 c1 (bot.left/middle/top rt.) =    1.047e+04     2.964e+04     1.119e+04
@@ -72,7 +72,7 @@ ncfn    =     0     ncfl    =     0
 -------------------------------------------------------------------
 
 
-Preconditioner type is:  jpre = PREC_RIGHT
+Preconditioner type is:  jpre = SUN_PREC_RIGHT
 
 t = 7.20e+03   no. steps = 219   order = 5   stepsize = 1.55e+02
 c1 (bot.left/middle/top rt.) =    1.047e+04     2.964e+04     1.119e+04

@@ -314,7 +314,7 @@ program main
 
   ! Create the linear solver SUNLinSol_SPGMR with left preconditioning
   ! and the default Krylov dimension
-  sunlinsol_LS => FSUNLinSol_SPGMR(sunvec_u, PREC_LEFT, 0, sunctx)
+  sunlinsol_LS => FSUNLinSol_SPGMR(sunvec_u, SUN_PREC_LEFT, 0, sunctx)
   if (.not. associated(sunlinsol_LS)) then
      print *, 'ERROR: sunlinsol = NULL'
      stop 1
@@ -353,7 +353,7 @@ program main
 
   print *, " "
   print *, " "
-  print *, "Case 1: gsytpe = MODIFIED_GS"
+  print *, "Case 1: gsytpe = SUN_MODIFIED_GS"
   print *, " "
   print *, "   Output Summary (umax = max-norm of solution)"
   print *, " "
@@ -413,7 +413,7 @@ program main
      stop 1
   end if
 
-  retval = FSUNLinSol_SPGMRSetGSType(sunlinsol_LS, CLASSICAL_GS)
+  retval = FSUNLinSol_SPGMRSetGSType(sunlinsol_LS, SUN_CLASSICAL_GS)
   if (retval /= 0) then
      print *, 'Error in FSUNLinSol_SPGMRSetGSType, retval = ', retval, '; halting'
      stop 1
@@ -423,7 +423,7 @@ program main
 
   print *, " "
   print *, " "
-  print *, "Case 2: gsytpe = CLASSICAL_GS"
+  print *, "Case 2: gsytpe = SUN_CLASSICAL_GS"
   print *, " "
   print *, "   Output Summary (umax = max-norm of solution)"
   print *, " "

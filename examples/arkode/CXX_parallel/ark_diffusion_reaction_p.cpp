@@ -527,7 +527,7 @@ int main(int argc, char* argv[])
   }
 
   // Preconditioning type
-  int prectype = (udata.prec) ? PREC_RIGHT : PREC_NONE;
+  int prectype = (udata.prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
   // Linear solver memory structure
   SUNLinearSolver LS = NULL;
@@ -1105,7 +1105,7 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   if (check_flag((void *)*arkode_mem, "MRIStepCreate", 0)) return 1;
 
   // Set method coupling table (solve-decoupled implicit method)
-  MRIStepCoupling C = MRIStepCoupling_LoadTable(MRI_GARK_ESDIRK34a);
+  MRIStepCoupling C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
   if (check_flag((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
 
   flag = MRIStepSetCoupling(*arkode_mem, C);
@@ -1265,7 +1265,7 @@ static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector y,
   if (check_flag((void *)*arkode_mem, "MRIStepCreate", 0)) return 1;
 
   // Set method coupling table (solve-decoupled implicit method)
-  MRIStepCoupling C = MRIStepCoupling_LoadTable(MRI_GARK_ESDIRK34a);
+  MRIStepCoupling C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
   if (check_flag((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
 
   flag = MRIStepSetCoupling(*arkode_mem, C);

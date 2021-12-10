@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
 
   webdata = (UserData) malloc(sizeof *webdata);
   webdata->rates = N_VNew_OpenMP(NEQ, num_threads, ctx);
-  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  webdata->acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
   webdata->nthreads = num_threads;
 
   InitUserData(webdata);
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
   N_VDestroy_OpenMP(id);
 
 
-  destroyMat(webdata->acoef);
+  SUNDlsMat_destroyMat(webdata->acoef);
   N_VDestroy_OpenMP(webdata->rates);
   free(webdata);
 

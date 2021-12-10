@@ -161,8 +161,8 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
   }
 
   /* perform LU factorization of input matrix */
-  LASTFLAG(S) = bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
-                          SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
+  LASTFLAG(S) = SUNDlsMat_bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
+                                    SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
 
   /* store error flag (if nonzero, that row encountered zero-valued pivod) */
   if (LASTFLAG(S) > 0)
@@ -196,8 +196,8 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   }
 
   /* solve using LU factors */
-  bandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A),
-            SM_LBAND_B(A), pivots, xdata);
+  SUNDlsMat_bandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A),
+                      SM_LBAND_B(A), pivots, xdata);
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(SUNLS_SUCCESS);
 }

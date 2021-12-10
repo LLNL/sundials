@@ -335,7 +335,7 @@ int main(int argc, char* argv[])
   // ---------------------
 
   // Create linear solver
-  int prectype = (udata->prec) ? PREC_RIGHT : PREC_NONE;
+  int prectype = (udata->prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
   if (udata->pcg)
   {

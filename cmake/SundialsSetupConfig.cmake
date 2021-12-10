@@ -26,25 +26,10 @@ set(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 # prepare substitution variable INDEX_TYPE for sundials_config.h
 set(INDEX_TYPE "#define SUNDIALS_INT${SUNDIALS_INDEX_SIZE}_T 1")
 
-# Prepare substitution variable SUNDIALS_EXPORT for sundials_config.h
-# When building shared SUNDIALS libraries under Windows, use
-#      #define SUNDIALS_EXPORT __declspec(dllexport)
-# When linking to shared SUNDIALS libraries under Windows, use
-#      #define SUNDIALS_EXPORT __declspec(dllimport)
-# In all other cases (other platforms or static libraries
-# under Windows), the SUNDIALS_EXPORT macro is empty.
-# See https://gitlab.kitware.com/cmake/community/-/wikis/doc/tutorials/BuildingWinDLL
-if(BUILD_SHARED_LIBS)
-  set(SUNDIALS_EXPORT_MACRO
-"#if defined(_WIN32)
-  #if defined(SUNDIALS_EXPORT)
-    #define SUNDIALS_EXPORT __declspec(dllexport)
-  #else
-    #define SUNDIALS_EXPORT __declspec(dllimport)
-  #endif
-#else
-  #define SUNDIALS_EXPORT
-#endif")
+if(COMPILER_HAS_DEPRECATED_MSG)
+  set(SUNDIALS_DEPRECATED_MSG_MACRO "${COMPILER_DEPRECATED_MSG_ATTRIBUTE}")
+else()
+  set(SUNDIALS_DEPRECATED_MSG_MACRO "SUNDIALS_DEPRECATED")
 endif()
 
 # prepare substitution variable SUNDIALS_USE_GENERIC_MATH for sundials_config.h

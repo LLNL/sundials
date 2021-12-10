@@ -198,7 +198,7 @@ int main()
 
   webdata = (UserData) malloc(sizeof *webdata);
   webdata->rates = N_VNew_Serial(NEQ, ctx);
-  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  webdata->acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
 
   InitUserData(webdata);
 
@@ -290,7 +290,7 @@ int main()
   N_VDestroy(id);
 
 
-  destroyMat(webdata->acoef);
+  SUNDlsMat_destroyMat(webdata->acoef);
   N_VDestroy(webdata->rates);
   free(webdata);
 

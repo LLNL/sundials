@@ -345,7 +345,7 @@ int main(int argc, char *argv[])
      (Precondbd & PSolvebd).  maxl (Krylov subspace dim.) is set to 16. */
 
   maxl = 16;
-  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl, ctx);
+  LS = SUNLinSol_SPGMR(cc, SUN_PREC_LEFT, maxl, ctx);
   if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
@@ -429,12 +429,12 @@ static UserData AllocUserData(MPI_Comm comm, sunindextype local_N,
 
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      (webdata->PP)[ix][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (webdata->pivot)[ix][jy] = newIndexArray(NUM_SPECIES);
+      (webdata->PP)[ix][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (webdata->pivot)[ix][jy] = SUNDlsMat_newIndexArray(NUM_SPECIES);
     }
   }
 
-  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  webdata->acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
   webdata->ewt = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
   return(webdata);
 
@@ -510,12 +510,12 @@ static void FreeUserData(UserData webdata)
 
   for (ix = 0; ix < MXSUB; ix++) {
     for (jy = 0; jy < MYSUB; jy++) {
-      destroyMat((webdata->PP)[ix][jy]);
-      destroyArray((webdata->pivot)[ix][jy]);
+      SUNDlsMat_destroyMat((webdata->PP)[ix][jy]);
+      SUNDlsMat_destroyArray((webdata->pivot)[ix][jy]);
     }
   }
 
-  destroyMat(webdata->acoef);
+  SUNDlsMat_destroyMat(webdata->acoef);
   N_VDestroy(webdata->rates);
   N_VDestroy(webdata->ewt);
   free(webdata);
@@ -1205,7 +1205,7 @@ static int Precondbd(realtype tt, N_Vector cc, N_Vector cp,
       } /* End of js loop. */
 
       /* Do LU decomposition of matrix block for grid point (ix,jy). */
-      ret = denseGETRF(Pxy, ns, ns, (webdata->pivot)[ix][jy]);
+      ret = SUNDlsMat_denseGETRF(Pxy, ns, ns, (webdata->pivot)[ix][jy]);
 
       if (ret != 0) return(1);
 
@@ -1244,7 +1244,7 @@ static int PSolvebd(realtype tt, N_Vector cc, N_Vector cp,
       zxy = IJ_Vptr(zvec,ix,jy);
       Pxy = (webdata->PP)[ix][jy];
       pivot = (webdata->pivot)[ix][jy];
-      denseGETRS(Pxy, ns, pivot, zxy);
+      SUNDlsMat_denseGETRS(Pxy, ns, pivot, zxy);
 
     } /* End of jy loop. */
   } /* End of ix loop. */

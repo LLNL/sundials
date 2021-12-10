@@ -387,7 +387,7 @@ int main(int argc, char* argv[])
     if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
 
     // Create hypre objects
-    if (udata.prectype != PREC_NONE)
+    if (udata.prectype != SUN_PREC_NONE)
     {
       flag = HyprePFMG(&udata);
       if (check_flag(&flag, "HyprePFMG", 1)) return 1;
@@ -417,7 +417,7 @@ int main(int argc, char* argv[])
     flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
     if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
 
-    if (udata.prectype != PREC_NONE)
+    if (udata.prectype != SUN_PREC_NONE)
     {
       // Attach preconditioner
       flag = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
@@ -2216,7 +2216,7 @@ static int InitUserData(UserData *udata)
   // Linear solver and preconditioner options
   udata->liniters = 10;         // max linear iterations
   udata->epslin   = -ONE;       // use ARKode default (0.05)
-  udata->prectype = PREC_LEFT;  // no preconditioning
+  udata->prectype = SUN_PREC_LEFT;  // no preconditioning
   udata->msbp     = 0;          // use ARKode default (20 steps)
 
   // hypre objects
@@ -2381,7 +2381,7 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     // Preconditioner settings
     else if (arg == "--noprec")
     {
-      udata->prectype = PREC_NONE;
+      udata->prectype = SUN_PREC_NONE;
     }
     else if (arg == "--msbp")
     {
@@ -2733,7 +2733,7 @@ static int OutputStats(void *arkode_mem, UserData* udata)
   cout << endl;
 
   // Get preconditioner stats
-  if (udata->prectype != PREC_NONE)
+  if (udata->prectype != SUN_PREC_NONE)
   {
     long int npe, nps;
     flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
@@ -2798,7 +2798,7 @@ static int OutputTiming(UserData *udata)
     cout << endl;
   }
 
-  if (udata->prectype != PREC_NONE)
+  if (udata->prectype != SUN_PREC_NONE)
   {
     MPI_Reduce(&(udata->matfilltime), &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0,
                udata->comm_c);

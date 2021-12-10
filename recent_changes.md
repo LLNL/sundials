@@ -54,14 +54,651 @@ These options will be removed in a future release.
 
 ### Transitioning to SUNDIALS 6.0.0
 
-A script `upgrade-to-sundials-6-from-5.sh` has been provided with the release to
-help ease the transition to SUNDIALS v6.0.0. The script will add a
-`SUNCTX_PLACEHOLDER` argument to all of the calls to SUNDIALS constructors that
-now require a `SUNContext` object. It can be run like this:
+A script `upgrade-to-sundials-6-from-5.sh` has been provided with the release
+(obtainable from the GitHub release page) to help ease the transition to SUNDIALS
+v6.0.0. The script will add a `SUNCTX_PLACEHOLDER` argument to all of the calls
+to SUNDIALS constructors that now require a `SUNContext` object. It can also
+update deprecated SUNDIALS constants/types to the new names. It can be run like
+this:
 
 ```
 > ./upgrade-to-sundials-6-from-5.sh <files to update>
 ```
+
+### Deprecations and name changes
+
+In addition to the deprectations noted elsewhere, many constants, types, and
+functions have been renamed so that they are properly namespaced. The old names
+have been deprecated and will be removed in SUNDIALS v7.0.0.
+
+The following constants and typedefs are now deprecated:
+
+```
+include/sundials/sundials_iterative.h:/* DEPRECATED PREC_NONE: use SUN_PREC_NONE */
+include/sundials/sundials_iterative.h:/* DEPRECATED PREC_LEFT: use SUN_PREC_LEFT */
+include/sundials/sundials_iterative.h:/* DEPRECATED PREC_RIGHT: use SUN_PREC_RIGHT */
+include/sundials/sundials_iterative.h:/* DEPRECATED PREC_BOTH: use SUN_PREC_BOTH */
+include/sundials/sundials_iterative.h:/* DEPRECATED MODIFIED_GS: use SUN_MODIFIED_GS */
+include/sundials/sundials_iterative.h:/* DEPRECATED CLASSICAL_GS: use SUN_CLASSICAL_GS */
+include/sundials/sundials_iterative.h:/* DEPRECATED ATimesFn: use SUNATimesFn */
+include/sundials/sundials_iterative.h:/* DEPRECATED PSetupFn: use SUNPSetupFn */
+include/sundials/sundials_iterative.h:/* DEPRECATED PSolveFn: use SUNPSolveFn */
+include/sundials/sundials_direct.h:} *SUNDlsMat; /* DEPRECATED DlsMat: use SUNDlsMat instead */
+include/sundials/sundials_direct.h:/* DEPRECATED DENSE_COL: use SUNDLS_DENSE_COL instead */
+include/sundials/sundials_direct.h:/* DEPRECATED DENSE_ELEM: use SUNDLS_DENSE_ELEM instead */
+include/sundials/sundials_direct.h:/* DEPRECATED BAND_COL: use SUNDLS_BAND_COL */
+include/sundials/sundials_direct.h:/* DEPRECATED BAND_COL_ELEM: use SUNDLS_BAND_COL_ELEM */
+include/sundials/sundials_direct.h:/* DEPRECATED BAND_ELEM: use SUNDLS_BAND_ELEM */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED SDIRK_2_1_2: use ARKODE_SDIRK_2_1_2 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED BILLINGTON_3_3_2: use ARKODE_BILLINGTON_3_3_2 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED TRBDF2_3_3_2: use ARKODE_TRBDF2_3_3_2 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED KVAERNO_4_2_3: use ARKODE_KVAERNO_4_2_3 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED ARK324L2SA_DIRK_4_2_3: use ARKODE_ARK324L2SA_DIRK_4_2_3 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED CASH_5_2_4: use ARKODE_CASH_5_2_4 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED CASH_5_3_4: use ARKODE_CASH_5_3_4 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED SDIRK_5_3_4: use ARKODE_SDIRK_5_3_4 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED KVAERNO_5_3_4: use ARKODE_KVAERNO_5_3_4 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED ARK436L2SA_DIRK_6_3_4: use ARKODE_ARK436L2SA_DIRK_6_3_4 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED KVAERNO_7_4_5: use ARKODE_KVAERNO_7_4_5 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED ARK548L2SA_DIRK_8_4_5: use ARKODE_ARK548L2SA_DIRK_8_4_5 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED ARK437L2SA_DIRK_7_3_4: use ARKODE_ARK437L2SA_DIRK_7_3_4 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED ARK548L2SAb_DIRK_8_4_5: use ARKODE_ARK548L2SAb_DIRK_8_4_5 */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED MIN_DIRK_NUM: use ARKODE_MIN_DIRK_NUM */
+include/arkode/arkode_butcher_dirk.h:/* DEPRECATED MAX_DIRK_NUM: use ARKODE_MAX_DIRK_NUM */
+include/arkode/arkode_mristep.h:/* DEPRECATED MIS_KW3: use ARKODE_MIS_KW3 */
+include/arkode/arkode_mristep.h:/* DEPRECATED MRI_GARK_ERK33a: use ARKODE_MRI_GARK_ERK33a */
+include/arkode/arkode_mristep.h:/* DEPRECATED MRI_GARK_ERK45a: use ARKODE_MRI_GARK_ERK45a */
+include/arkode/arkode_mristep.h:/* DEPRECATED MRI_GARK_IRK21a: use ARKODE_MRI_GARK_IRK21a */
+include/arkode/arkode_mristep.h:/* DEPRECATED MRI_GARK_ESDIRK34a: use ARKODE_MRI_GARK_ESDIRK34a */
+include/arkode/arkode_mristep.h:/* DEPRECATED MRI_GARK_ESDIRK46a: use ARKODE_MRI_GARK_ESDIRK46a */
+include/arkode/arkode_mristep.h:/* DEPRECATED IMEX_MRI_GARK3a: use ARKODE_IMEX_MRI_GARK3a */
+include/arkode/arkode_mristep.h:/* DEPRECATED IMEX_MRI_GARK3b: use ARKODE_IMEX_MRI_GARK3b */
+include/arkode/arkode_mristep.h:/* DEPRECATED IMEX_MRI_GARK4: use ARKODE_IMEX_MRI_GARK4 */
+include/arkode/arkode_mristep.h:/* DEPRECATED MIN_MRI_NUM: use ARKODE_MIN_MRI_NUM */
+include/arkode/arkode_mristep.h:/* DEPRECATED MAX_MRI_NUM: use ARKODE_MAX_MRI_NUM */
+include/arkode/arkode_mristep.h:/* DEPRECATED DEFAULT_MRI_TABLE_3: use MRISTEP_DEFAULT_TABLE_3 */
+include/arkode/arkode_mristep.h:/* DEPRECATED DEFAULT_EXPL_MRI_TABLE_3: use MRISTEP_DEFAULT_EXPL_TABLE_3 */
+include/arkode/arkode_mristep.h:/* DEPRECATED DEFAULT_EXPL_MRI_TABLE_4: use MRISTEP_DEFAULT_EXPL_TABLE_4 */
+include/arkode/arkode_mristep.h:/* DEPRECATED DEFAULT_IMPL_SD_TABLE_2: use MRISTEP_DEFAULT_IMPL_SD_TABLE_2 */
+include/arkode/arkode_mristep.h:/* DEPRECATED DEFAULT_IMPL_SD_TABLE_3: use MRISTEP_DEFAULT_IMPL_SD_TABLE_3 */
+include/arkode/arkode_mristep.h:/* DEPRECATED DEFAULT_IMPL_SD_TABLE_4: use MRISTEP_DEFAULT_IMPL_SD_TABLE_4 */
+include/arkode/arkode_mristep.h:/* DEPRECATED DEFAULT_IMEX_SD_TABLE_3: use MRISTEP_DEFAULT_IMEX_SD_TABLE_3 */
+include/arkode/arkode_mristep.h:/* DEPRECATED DEFAULT_IMEX_SD_TABLE_4: use MRISTEP_DEFAULT_IMEX_SD_TABLE_4 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED HEUN_EULER_2_1_2: use ARKODE_HEUN_EULER_2_1_2 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED BOGACKI_SHAMPINE_4_2_3: use ARKODE_BOGACKI_SHAMPINE_4_2_3 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED ARK324L2SA_ERK_4_2_3: use ARKODE_ARK324L2SA_ERK_4_2_3 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED ZONNEVELD_5_3_4: use ARKODE_ZONNEVELD_5_3_4 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED ARK436L2SA_ERK_6_3_4: use ARKODE_ARK436L2SA_ERK_6_3_4 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED SAYFY_ABURUB_6_3_4: use ARKODE_SAYFY_ABURUB_6_3_4 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED CASH_KARP_6_4_5: use ARKODE_CASH_KARP_6_4_5 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED FEHLBERG_6_4_5: use ARKODE_FEHLBERG_6_4_5 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED DORMAND_PRINCE_7_4_5: use ARKODE_DORMAND_PRINCE_7_4_5 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED ARK548L2SA_ERK_8_4_5: use ARKODE_ARK548L2SA_ERK_8_4_5 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED VERNER_8_5_6: use ARKODE_VERNER_8_5_6 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED FEHLBERG_13_7_8: use ARKODE_FEHLBERG_13_7_8 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED KNOTH_WOLKE_3_3: use ARKODE_KNOTH_WOLKE_3_3 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED ARK437L2SA_ERK_7_3_4: use ARKODE_ARK437L2SA_ERK_7_3_4 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED ARK548L2SAb_ERK_8_4_5: use ARKODE_ARK548L2SAb_ERK_8_4_5 */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED MIN_ERK_NUM: use ARKODE_MIN_ERK_NUM */
+include/arkode/arkode_butcher_erk.h:/* DEPRECATED MAX_ERK_NUM: use ARKODE_MAX_ERK_NUM */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ERK_2: use ARKSTEP_DEFAULT_ERK_2 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ERK_3: use ARKSTEP_DEFAULT_ERK_3 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ERK_4: use ARKSTEP_DEFAULT_ERK_4 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ERK_5: use ARKSTEP_DEFAULT_ERK_5 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ERK_6: use ARKSTEP_DEFAULT_ERK_6 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ERK_8: use ARKSTEP_DEFAULT_ERK_8 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_DIRK_2: use ARKSTEP_DEFAULT_DIRK_2 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_DIRK_3: use ARKSTEP_DEFAULT_DIRK_3 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_DIRK_4: use ARKSTEP_DEFAULT_DIRK_4 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_DIRK_5: use ARKSTEP_DEFAULT_DIRK_5 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ARK_ETABLE_3: use ARKSTEP_DEFAULT_ARK_ETABLE_3 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ARK_ETABLE_4: use ARKSTEP_DEFAULT_ARK_ETABLE_4 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ARK_ETABLE_5: use ARKSTEP_DEFAULT_ARK_ETABLE_4 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ARK_ITABLE_3: use ARKSTEP_DEFAULT_ARK_ITABLE_3 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ARK_ITABLE_4: use ARKSTEP_DEFAULT_ARK_ITABLE_4 */
+include/arkode/arkode_arkstep.h:/* DEPRECATED DEFAULT_ARK_ITABLE_5: use ARKSTEP_DEFAULT_ARK_ITABLE_5 */
+include/arkode/arkode_erkstep.h:/* DEPRECATED DEFAULT_ERK_2: use ERKSTEP_DEFAULT_2 */
+include/arkode/arkode_erkstep.h:/* DEPRECATED DEFAULT_ERK_3: use ERKSTEP_DEFAULT_3 */
+include/arkode/arkode_erkstep.h:/* DEPRECATED DEFAULT_ERK_4: use ERKSTEP_DEFAULT_4 */
+include/arkode/arkode_erkstep.h:/* DEPRECATED DEFAULT_ERK_5: use ERKSTEP_DEFAULT_5 */
+include/arkode/arkode_erkstep.h:/* DEPRECATED DEFAULT_ERK_6: use ERKSTEP_DEFAULT_6 */
+include/arkode/arkode_erkstep.h:/* DEPRECATED DEFAULT_ERK_8: use ERKSTEP_DEFAULT_8 */
+```
+
+In addition, the following functions are now deprecated (compile-time warnings will be thrown
+if supported by the compiler):
+
+```
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetLinearSolver instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetEpsLin instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetPreconditioner instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset,
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacTimes instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsSetJacTimes(void *cvode_mem, CVSpilsJacTimesSetupFn jtsetup,
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLinWorkSpace instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumPrecEvals instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumPrecSolves instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumLinIters instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumConvFails instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumJTSetupEvals instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsGetNumJTSetupEvals(void *cvode_mem, long int *njtsetups);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumJtimesEvals instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumLinRhsEvals instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLastLinFlag instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsGetLastFlag(void *cvode_mem, long int *flag);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLinReturnFlagName instead")
+./include/cvodes/cvodes_spils.h-char *CVSpilsGetReturnFlagName(long int flag);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetLinearSolverB instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsSetLinearSolverB(void *cvode_mem, int which,
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetEpsLinB instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsSetEpsLinB(void *cvode_mem, int which, realtype eplifacB);
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetPreconditionerB instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsSetPreconditionerB(void *cvode_mem, int which,
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetPreconditionerBS instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsSetPreconditionerBS(void *cvode_mem, int which,
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacTimesB instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsSetJacTimesB(void *cvode_mem, int which,
+--
+./include/cvodes/cvodes_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacTimesBS instead")
+./include/cvodes/cvodes_spils.h-int CVSpilsSetJacTimesBS(void *cvode_mem, int which,
+--
+./include/cvodes/cvodes_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetLinearSolver instead")
+./include/cvodes/cvodes_direct.h-int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
+--
+./include/cvodes/cvodes_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacFn instead")
+./include/cvodes/cvodes_direct.h-int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
+--
+./include/cvodes/cvodes_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLinWorkSpace instead")
+./include/cvodes/cvodes_direct.h-int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
+--
+./include/cvodes/cvodes_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumJacEvals instead")
+./include/cvodes/cvodes_direct.h-int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
+--
+./include/cvodes/cvodes_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumLinRhsEvals instead")
+./include/cvodes/cvodes_direct.h-int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
+--
+./include/cvodes/cvodes_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLastLinFlag instead")
+./include/cvodes/cvodes_direct.h-int CVDlsGetLastFlag(void *cvode_mem, long int *flag);
+--
+./include/cvodes/cvodes_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLinReturnFlagName instead")
+./include/cvodes/cvodes_direct.h-char *CVDlsGetReturnFlagName(long int flag);
+--
+./include/cvodes/cvodes_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetLinearSolverB instead")
+./include/cvodes/cvodes_direct.h-int CVDlsSetLinearSolverB(void *cvode_mem, int which,
+--
+./include/cvodes/cvodes_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacFnB instead")
+./include/cvodes/cvodes_direct.h-int CVDlsSetJacFnB(void *cvode_mem, int which, CVDlsJacFnB jacB);
+--
+./include/cvodes/cvodes_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacFnBS instead")
+./include/cvodes/cvodes_direct.h-int CVDlsSetJacFnBS(void *cvode_mem, int which, CVDlsJacFnBS jacBS);
+--
+./include/cvode/cvode_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetLinearSolver instead")
+./include/cvode/cvode_direct.h-int CVDlsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
+--
+./include/cvode/cvode_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacFn instead")
+./include/cvode/cvode_direct.h-int CVDlsSetJacFn(void *cvode_mem, CVDlsJacFn jac);
+--
+./include/cvode/cvode_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLinWorkSpace instead")
+./include/cvode/cvode_direct.h-int CVDlsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
+--
+./include/cvode/cvode_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumJacEvals instead")
+./include/cvode/cvode_direct.h-int CVDlsGetNumJacEvals(void *cvode_mem, long int *njevals);
+--
+./include/cvode/cvode_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumLinRhsEvals instead")
+./include/cvode/cvode_direct.h-int CVDlsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
+--
+./include/cvode/cvode_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLastLinFlag instead")
+./include/cvode/cvode_direct.h-int CVDlsGetLastFlag(void *cvode_mem, long int *flag);
+--
+./include/cvode/cvode_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLinReturnFlagName instead")
+./include/cvode/cvode_direct.h-char *CVDlsGetReturnFlagName(long int flag);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetLinearSolver instead")
+./include/cvode/cvode_spils.h-int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetEpsLin instead")
+./include/cvode/cvode_spils.h-int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetPreconditioner instead")
+./include/cvode/cvode_spils.h-int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset,
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeSetJacTimes instead")
+./include/cvode/cvode_spils.h-int CVSpilsSetJacTimes(void *cvode_mem, CVSpilsJacTimesSetupFn jtsetup,
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLinWorkSpace instead")
+./include/cvode/cvode_spils.h-int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumPrecEvals instead")
+./include/cvode/cvode_spils.h-int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumPrecSolves instead")
+./include/cvode/cvode_spils.h-int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumLinIters instead")
+./include/cvode/cvode_spils.h-int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumConvFails instead")
+./include/cvode/cvode_spils.h-int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumJTSetupEvals instead")
+./include/cvode/cvode_spils.h-int CVSpilsGetNumJTSetupEvals(void *cvode_mem, long int *njtsetups);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumJtimesEvals instead")
+./include/cvode/cvode_spils.h-int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetNumLinRhsEvals instead")
+./include/cvode/cvode_spils.h-int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLastLinFlag instead")
+./include/cvode/cvode_spils.h-int CVSpilsGetLastFlag(void *cvode_mem, long int *flag);
+--
+./include/cvode/cvode_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use CVodeGetLinReturnFlagName instead")
+./include/cvode/cvode_spils.h-char *CVSpilsGetReturnFlagName(long int flag);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseGETRF instead")
+./include/sundials/sundials_dense.h-sunindextype DenseGETRF(DlsMat A, sunindextype *p);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseGETRS instead")
+./include/sundials/sundials_dense.h-void DenseGETRS(DlsMat A, sunindextype *p, realtype *b);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseGETRF instead")
+./include/sundials/sundials_dense.h-sunindextype denseGETRF(realtype **a, sunindextype m,
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseGETRS instead")
+./include/sundials/sundials_dense.h-void denseGETRS(realtype **a, sunindextype n, sunindextype *p,
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DensePOTRF instead")
+./include/sundials/sundials_dense.h-sunindextype DensePOTRF(DlsMat A);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DensePOTRS instead")
+./include/sundials/sundials_dense.h-void DensePOTRS(DlsMat A, realtype *b);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_densePOTRF instead")
+./include/sundials/sundials_dense.h-sunindextype densePOTRF(realtype **a, sunindextype m);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_densePOTRS instead")
+./include/sundials/sundials_dense.h-void densePOTRS(realtype **a, sunindextype m, realtype *b);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseGEQRF instead")
+./include/sundials/sundials_dense.h-int DenseGEQRF(DlsMat A, realtype *beta, realtype *wrk);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseORMQR instead")
+./include/sundials/sundials_dense.h-int DenseORMQR(DlsMat A, realtype *beta, realtype *vn,
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseGEQRF instead")
+./include/sundials/sundials_dense.h-int denseGEQRF(realtype **a, sunindextype m, sunindextype n,
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseORMQR instead")
+./include/sundials/sundials_dense.h-int denseORMQR(realtype **a, sunindextype m, sunindextype n,
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseCopy instead")
+./include/sundials/sundials_dense.h-void DenseCopy(DlsMat A, DlsMat B);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseCopy instead")
+./include/sundials/sundials_dense.h-void denseCopy(realtype **a, realtype **b, sunindextype m,
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsSUNDlsMat_DenseScale_denseCopy instead")
+./include/sundials/sundials_dense.h-void DenseScale(realtype c, DlsMat A);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseScale instead")
+./include/sundials/sundials_dense.h-void denseScale(realtype c, realtype **a, sunindextype m,
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseAddIdentity instead")
+./include/sundials/sundials_dense.h-void denseAddIdentity(realtype **a, sunindextype n);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseMatvec instead")
+./include/sundials/sundials_dense.h-void DenseMatvec(DlsMat A, realtype *x, realtype *y);
+--
+./include/sundials/sundials_dense.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseMatvec instead")
+./include/sundials/sundials_dense.h-void denseMatvec(realtype **a, realtype *x, realtype *y,
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_BandGBTRF instead")
+./include/sundials/sundials_band.h-sunindextype BandGBTRF(DlsMat A, sunindextype *p);
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandGBTRF instead")
+./include/sundials/sundials_band.h-sunindextype bandGBTRF(realtype **a, sunindextype n,
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_BandGBTRS instead")
+./include/sundials/sundials_band.h-void BandGBTRS(DlsMat A, sunindextype *p, realtype *b);
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandGBTRS instead")
+./include/sundials/sundials_band.h-void bandGBTRS(realtype **a, sunindextype n, sunindextype smu,
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_BandCopy instead")
+./include/sundials/sundials_band.h-void BandCopy(DlsMat A, DlsMat B, sunindextype copymu,
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandCopy instead")
+./include/sundials/sundials_band.h-void bandCopy(realtype **a, realtype **b, sunindextype n,
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_BandScale instead")
+./include/sundials/sundials_band.h-void BandScale(realtype c, DlsMat A);
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandScale instead")
+./include/sundials/sundials_band.h-void bandScale(realtype c, realtype **a, sunindextype n,
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandAddIdentity instead")
+./include/sundials/sundials_band.h-void bandAddIdentity(realtype **a, sunindextype n, sunindextype smu);
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_BandMatvec instead")
+./include/sundials/sundials_band.h-void BandMatvec(DlsMat A, realtype *x, realtype *y);
+--
+./include/sundials/sundials_band.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandMatvec instead")
+./include/sundials/sundials_band.h-void bandMatvec(realtype **a, realtype *x, realtype *y,
+--
+./include/sundials/sundials_iterative.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNModifiedGS instead")
+./include/sundials/sundials_iterative.h-int ModifiedGS(N_Vector* v, realtype **h, int k, int p,
+--
+./include/sundials/sundials_iterative.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNClassicalGS instead")
+./include/sundials/sundials_iterative.h-int ClassicalGS(N_Vector* v, realtype **h, int k, int p,
+--
+./include/sundials/sundials_iterative.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNQRFact instead")
+./include/sundials/sundials_iterative.h-int QRfact(int n, realtype **h, realtype *q, int job);
+--
+./include/sundials/sundials_iterative.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNQRsol instead")
+./include/sundials/sundials_iterative.h-int QRsol(int n, realtype **h, realtype *q, realtype *b);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewDenseMat instead")
+./include/sundials/sundials_direct.h-DlsMat NewDenseMat(sunindextype M, sunindextype N);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewBandMat instead")
+./include/sundials/sundials_direct.h-DlsMat NewBandMat(sunindextype N, sunindextype mu,
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DestroyMat instead")
+./include/sundials/sundials_direct.h-void DestroyMat(DlsMat A);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewIntArray instead")
+./include/sundials/sundials_direct.h-int* NewIntArray(int N);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewIndexArray instead")
+./include/sundials/sundials_direct.h-sunindextype* NewIndexArray(sunindextype N);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewRealArray instead")
+./include/sundials/sundials_direct.h-realtype* NewRealArray(sunindextype N);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DestroyArray instead")
+./include/sundials/sundials_direct.h-void DestroyArray(void *p);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_AddIdentity instead")
+./include/sundials/sundials_direct.h-void AddIdentity(DlsMat A);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_SetToZero instead")
+./include/sundials/sundials_direct.h-void SetToZero(DlsMat A);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_PrintMat")
+./include/sundials/sundials_direct.h-void PrintMat(DlsMat A, FILE *outfile);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newDenseMat instead")
+./include/sundials/sundials_direct.h-realtype** newDenseMat(sunindextype m, sunindextype n);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newBandMat instead")
+./include/sundials/sundials_direct.h-realtype** newBandMat(sunindextype n, sunindextype smu,
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_destroyMat instead")
+./include/sundials/sundials_direct.h-void destroyMat(realtype** a);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newIntArray instead")
+./include/sundials/sundials_direct.h-int* newIntArray(int n);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newIndexArray instead")
+./include/sundials/sundials_direct.h-sunindextype* newIndexArray(sunindextype n);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newRealArray instead")
+./include/sundials/sundials_direct.h-realtype* newRealArray(sunindextype m);
+--
+./include/sundials/sundials_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_destroyArray instead")
+./include/sundials/sundials_direct.h-void destroyArray(void* v);
+--
+./include/kinsol/kinsol_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetLinearSolver instead")
+./include/kinsol/kinsol_direct.h-int KINDlsSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A);
+--
+./include/kinsol/kinsol_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetJacFn instead")
+./include/kinsol/kinsol_direct.h-int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
+--
+./include/kinsol/kinsol_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinWorkSpace instead")
+./include/kinsol/kinsol_direct.h-int KINDlsGetWorkSpace(void *kinmem, long int *lenrw, long int *leniw);
+--
+./include/kinsol/kinsol_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumJacEvals instead")
+./include/kinsol/kinsol_direct.h-int KINDlsGetNumJacEvals(void *kinmem, long int *njevals);
+--
+./include/kinsol/kinsol_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinFuncEvals instead")
+./include/kinsol/kinsol_direct.h-int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals);
+--
+./include/kinsol/kinsol_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLastLinFlag instead")
+./include/kinsol/kinsol_direct.h-int KINDlsGetLastFlag(void *kinmem, long int *flag);
+--
+./include/kinsol/kinsol_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinReturnFlagName instead")
+./include/kinsol/kinsol_direct.h-char *KINDlsGetReturnFlagName(long int flag);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetLinearSolver instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsSetLinearSolver(void *kinmem, SUNLinearSolver LS);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetPreconditioner instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsSetPreconditioner(void *kinmem, KINSpilsPrecSetupFn psetup,
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINSetJacTimesVecFn instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinWorkSpace instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwLS, long int *leniwLS);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumPrecEvals instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsGetNumPrecEvals(void *kinmem, long int *npevals);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumPrecSolves instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsGetNumPrecSolves(void *kinmem, long int *npsolves);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinIters instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsGetNumLinIters(void *kinmem, long int *nliters);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinConvFails instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsGetNumConvFails(void *kinmem, long int *nlcfails);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumJtimesEvals instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsGetNumJtimesEvals(void *kinmem, long int *njvevals);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetNumLinFuncEvals instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsGetNumFuncEvals(void *kinmem, long int *nfevals);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLastLinFlag instead")
+./include/kinsol/kinsol_spils.h-int KINSpilsGetLastFlag(void *kinmem, long int *flag);
+--
+./include/kinsol/kinsol_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use KINGetLinReturnFlagName instead")
+./include/kinsol/kinsol_spils.h-char *KINSpilsGetReturnFlagName(long int flag);
+--
+./include/ida/ida_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetLinearSolver instead")
+./include/ida/ida_direct.h-int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS,
+--
+./include/ida/ida_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacFn instead")
+./include/ida/ida_direct.h-int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac);
+--
+./include/ida/ida_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinWorkSpace instead")
+./include/ida/ida_direct.h-int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
+--
+./include/ida/ida_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumJacEvals instead")
+./include/ida/ida_direct.h-int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
+--
+./include/ida/ida_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinResEvals instead")
+./include/ida/ida_direct.h-int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
+--
+./include/ida/ida_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLastLinFlag instead")
+./include/ida/ida_direct.h-int IDADlsGetLastFlag(void *ida_mem, long int *flag);
+--
+./include/ida/ida_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinReturnFlagName instead")
+./include/ida/ida_direct.h-char *IDADlsGetReturnFlagName(long int flag);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetLinearSolver instead")
+./include/ida/ida_spils.h-int IDASpilsSetLinearSolver(void *ida_mem, SUNLinearSolver LS);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetPreconditioner instead")
+./include/ida/ida_spils.h-int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacTimes instead")
+./include/ida/ida_spils.h-int IDASpilsSetJacTimes(void *ida_mem, IDASpilsJacTimesSetupFn jtsetup,
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetEpsLin instead")
+./include/ida/ida_spils.h-int IDASpilsSetEpsLin(void *ida_mem, realtype eplifac);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetIncrementFactor instead")
+./include/ida/ida_spils.h-int IDASpilsSetIncrementFactor(void *ida_mem, realtype dqincfac);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinWorkSpace instead")
+./include/ida/ida_spils.h-int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumPrecEvals instead")
+./include/ida/ida_spils.h-int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumPrecSolves instead")
+./include/ida/ida_spils.h-int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinIters instead")
+./include/ida/ida_spils.h-int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinConvFails instead")
+./include/ida/ida_spils.h-int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumJTSetupEvals instead")
+./include/ida/ida_spils.h-int IDASpilsGetNumJTSetupEvals(void *ida_mem, long int *njtsetups);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumJtimesEvals instead")
+./include/ida/ida_spils.h-int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinResEvals instead")
+./include/ida/ida_spils.h-int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLastLinFlag instead")
+./include/ida/ida_spils.h-int IDASpilsGetLastFlag(void *ida_mem, long int *flag);
+--
+./include/ida/ida_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinReturnFlagName instead")
+./include/ida/ida_spils.h-char *IDASpilsGetReturnFlagName(long int flag);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetLinearSolver instead")
+./include/idas/idas_spils.h-int IDASpilsSetLinearSolver(void *ida_mem, SUNLinearSolver LS);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetPreconditioner instead")
+./include/idas/idas_spils.h-int IDASpilsSetPreconditioner(void *ida_mem, IDASpilsPrecSetupFn pset,
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacTimes instead")
+./include/idas/idas_spils.h-int IDASpilsSetJacTimes(void *ida_mem, IDASpilsJacTimesSetupFn jtsetup,
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetEpsLin instead")
+./include/idas/idas_spils.h-int IDASpilsSetEpsLin(void *ida_mem, realtype eplifac);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetIncrementFactor instead")
+./include/idas/idas_spils.h-int IDASpilsSetIncrementFactor(void *ida_mem, realtype dqincfac);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinWorkSpace instead")
+./include/idas/idas_spils.h-int IDASpilsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumPrecEvals instead")
+./include/idas/idas_spils.h-int IDASpilsGetNumPrecEvals(void *ida_mem, long int *npevals);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumPrecSolves instead")
+./include/idas/idas_spils.h-int IDASpilsGetNumPrecSolves(void *ida_mem, long int *npsolves);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinIters instead")
+./include/idas/idas_spils.h-int IDASpilsGetNumLinIters(void *ida_mem, long int *nliters);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinConvFails instead")
+./include/idas/idas_spils.h-int IDASpilsGetNumConvFails(void *ida_mem, long int *nlcfails);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumJTSetupEvals instead")
+./include/idas/idas_spils.h-int IDASpilsGetNumJTSetupEvals(void *ida_mem, long int *njtsetups);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumJtimesEvals instead")
+./include/idas/idas_spils.h-int IDASpilsGetNumJtimesEvals(void *ida_mem, long int *njvevals);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinResEvals instead")
+./include/idas/idas_spils.h-int IDASpilsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLastLinFlag instead")
+./include/idas/idas_spils.h-int IDASpilsGetLastFlag(void *ida_mem, long int *flag);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinReturnFlagName instead")
+./include/idas/idas_spils.h-char *IDASpilsGetReturnFlagName(long int flag);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetLinearSolverB instead")
+./include/idas/idas_spils.h-int IDASpilsSetLinearSolverB(void *ida_mem, int which, SUNLinearSolver LS);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetEpsLinB instead")
+./include/idas/idas_spils.h-int IDASpilsSetEpsLinB(void *ida_mem, int which, realtype eplifacB);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetIncrementFactorB instead")
+./include/idas/idas_spils.h-int IDASpilsSetIncrementFactorB(void *ida_mem, int which, realtype dqincfacB);
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetPreconditionerB instead")
+./include/idas/idas_spils.h-int IDASpilsSetPreconditionerB(void *ida_mem, int which,
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetPreconditionerBS instead")
+./include/idas/idas_spils.h-int IDASpilsSetPreconditionerBS(void *ida_mem, int which,
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacTimesB instead")
+./include/idas/idas_spils.h-int IDASpilsSetJacTimesB(void *ida_mem, int which,
+--
+./include/idas/idas_spils.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacTimesBS instead")
+./include/idas/idas_spils.h-int IDASpilsSetJacTimesBS(void *ida_mem, int which,
+--
+./include/idas/idas_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetLinearSolver instead")
+./include/idas/idas_direct.h-int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS,
+--
+./include/idas/idas_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacFn instead")
+./include/idas/idas_direct.h-int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac);
+--
+./include/idas/idas_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinWorkSpace instead")
+./include/idas/idas_direct.h-int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
+--
+./include/idas/idas_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumJacEvals instead")
+./include/idas/idas_direct.h-int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
+--
+./include/idas/idas_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetNumLinResEvals instead")
+./include/idas/idas_direct.h-int IDADlsGetNumResEvals(void *ida_mem, long int *nrevalsLS);
+--
+./include/idas/idas_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLastLinFlag instead")
+./include/idas/idas_direct.h-int IDADlsGetLastFlag(void *ida_mem, long int *flag);
+--
+./include/idas/idas_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDAGetLinReturnFlagName instead")
+./include/idas/idas_direct.h-char *IDADlsGetReturnFlagName(long int flag);
+--
+./include/idas/idas_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetLinearSolverB instead")
+./include/idas/idas_direct.h-int IDADlsSetLinearSolverB(void *ida_mem, int which,
+--
+./include/idas/idas_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacFnB instead")
+./include/idas/idas_direct.h-int IDADlsSetJacFnB(void *ida_mem, int which, IDADlsJacFnB jacB);
+--
+./include/idas/idas_direct.h:SUNDIALS_DEPRECATED_EXPORT_MSG("use IDASetJacFnBS instead")
+./include/idas/idas_direct.h-int IDADlsSetJacFnBS(void *ida_mem, int which, IDADlsJacFnBS jacBS);
+```
+
+In addition, the entire "sundials_lapack.h" header file is now deprecated for
+removal in SUNDIALS v7.0.0. Note, this header file is not needed to use the
+SUNDIALS LAPACK linear solvers.
+
 
 ## Changes to SUNDIALS in release 5.8.0
 

@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
 
       /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0, ctx);
+      LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
       if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
       /* Attach the linear solver */
@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
 
       /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNLinSol_SPBCGS(uu, PREC_LEFT, 0, ctx);
+      LS = SUNLinSol_SPBCGS(uu, SUN_PREC_LEFT, 0, ctx);
       if(check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
 
       /* Attach the linear solver */
@@ -270,7 +270,7 @@ int main(int argc, char* argv[])
 
       /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNLinSol_SPTFQMR(uu, PREC_LEFT, 0, ctx);
+      LS = SUNLinSol_SPTFQMR(uu, SUN_PREC_LEFT, 0, ctx);
       if(check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
 
       /* Attach the linear solver */

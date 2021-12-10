@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 
   data = (UserData) malloc(sizeof *data);
 
-  data->M = newDenseMat(NS+NC, NS+NC);
+  data->M = SUNDlsMat_newDenseMat(NS+NC, NS+NC);
   data->b = newRealArray(NS+NC);
   data->piv = newIntArray(NS+NC);
 

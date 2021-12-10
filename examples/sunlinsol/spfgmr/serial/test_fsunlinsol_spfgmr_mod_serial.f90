@@ -121,7 +121,7 @@ contains
     fails = fails + ATimes(c_loc(probdata), x, b)
 
     ! Run tests with this setup
-    fails = fails + FSUNLinSol_SPFGMRSetPrecType(LS, PREC_NONE);
+    fails = fails + FSUNLinSol_SPFGMRSetPrecType(LS, SUN_PREC_NONE);
     fails = fails + Test_FSUNLinSolSetup(LS, A, 0);
     fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0);
     fails = fails + Test_FSUNLinSolLastFlag(LS, 0);
@@ -181,7 +181,7 @@ contains
     fails = fails + ATimes(c_loc(probdata), x, b)
 
     ! Run tests with this setup
-    fails = fails + FSUNLinSol_SPFGMRSetPrecType(LS, PREC_NONE);
+    fails = fails + FSUNLinSol_SPFGMRSetPrecType(LS, SUN_PREC_NONE);
     fails = fails + Test_FSUNLinSolSetup(LS, A, 0);
     fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0);
     fails = fails + Test_FSUNLinSolLastFlag(LS, 0);

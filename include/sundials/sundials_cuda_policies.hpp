@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This header files defines the CudaExecPolicy classes which
+ * This header files defines the ExecPolicy classes which
  * are utilized to determine CUDA kernel launch paramaters.
  * -----------------------------------------------------------------
  */
@@ -26,15 +26,17 @@
 
 namespace sundials
 {
+namespace cuda
+{
 
-class CudaExecPolicy
+class ExecPolicy
 {
 public:
   virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
   virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
   virtual const cudaStream_t* stream() const = 0;
-  virtual CudaExecPolicy* clone() const = 0;
-  virtual ~CudaExecPolicy() {}
+  virtual ExecPolicy* clone() const = 0;
+  virtual ~ExecPolicy() {}
 };
 
 
@@ -45,14 +47,14 @@ public:
  * thread per element. If a stream is provided, it will be used to
  * execute the kernel.
  */
-class CudaThreadDirectExecPolicy : public CudaExecPolicy
+class ThreadDirectExecPolicy : public ExecPolicy
 {
 public:
-  CudaThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
+  ThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
     : blockDim_(blockDim), stream_(stream)
   {}
 
-  CudaThreadDirectExecPolicy(const CudaThreadDirectExecPolicy& ex)
+  ThreadDirectExecPolicy(const ThreadDirectExecPolicy& ex)
     : blockDim_(ex.blockDim_), stream_(ex.stream_)
   {}
 
@@ -72,9 +74,9 @@ public:
     return &stream_;
   }
 
-  virtual CudaExecPolicy* clone() const
+  virtual ExecPolicy* clone() const
   {
-    return static_cast<CudaExecPolicy*>(new CudaThreadDirectExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new ThreadDirectExecPolicy(*this));
   }
 
 private:
@@ -88,14 +90,14 @@ private:
  * The number of blocks (gridSize) can be set to anything. If a stream
  * is provided, it will be used to execute the kernel.
  */
-class CudaGridStrideExecPolicy : public CudaExecPolicy
+class GridStrideExecPolicy : public ExecPolicy
 {
 public:
-  CudaGridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const cudaStream_t stream = 0)
+  GridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const cudaStream_t stream = 0)
     : blockDim_(blockDim), gridDim_(gridDim), stream_(stream)
   {}
 
-  CudaGridStrideExecPolicy(const CudaGridStrideExecPolicy& ex)
+  GridStrideExecPolicy(const GridStrideExecPolicy& ex)
     : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), stream_(ex.stream_)
   {}
 
@@ -114,9 +116,9 @@ public:
     return &stream_;
   }
 
-  virtual CudaExecPolicy* clone() const
+  virtual ExecPolicy* clone() const
   {
-    return static_cast<CudaExecPolicy*>(new CudaGridStrideExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new GridStrideExecPolicy(*this));
   }
 
 private:
@@ -134,10 +136,10 @@ private:
  * be chosen so that there are at most two work units per thread. If a stream is
  * provided, it will be used to execute the kernel.
  */
-class CudaBlockReduceExecPolicy : public CudaExecPolicy
+class BlockReduceExecPolicy : public ExecPolicy
 {
 public:
-  CudaBlockReduceExecPolicy(const size_t blockDim, const size_t gridDim = 0, const cudaStream_t stream = 0)
+  BlockReduceExecPolicy(const size_t blockDim, const size_t gridDim = 0, const cudaStream_t stream = 0)
     : blockDim_(blockDim), gridDim_(gridDim), stream_(stream)
   {
     if (blockDim < 1 || blockDim % 32)
@@ -146,7 +148,7 @@ public:
     }
   }
 
-  CudaBlockReduceExecPolicy(const CudaBlockReduceExecPolicy& ex)
+  BlockReduceExecPolicy(const BlockReduceExecPolicy& ex)
     : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_), stream_(ex.stream_)
   {}
 
@@ -169,9 +171,9 @@ public:
     return &stream_;
   }
 
-  virtual CudaExecPolicy* clone() const
+  virtual ExecPolicy* clone() const
   {
-    return static_cast<CudaExecPolicy*>(new CudaBlockReduceExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new BlockReduceExecPolicy(*this));
   }
 
 private:
@@ -180,11 +182,12 @@ private:
   const cudaStream_t stream_;
 };
 
+} // namespace cuda
 } // namespace sundials
 
-typedef sundials::CudaExecPolicy SUNCudaExecPolicy;
-typedef sundials::CudaThreadDirectExecPolicy SUNCudaThreadDirectExecPolicy;
-typedef sundials::CudaGridStrideExecPolicy SUNCudaGridStrideExecPolicy;
-typedef sundials::CudaBlockReduceExecPolicy SUNCudaBlockReduceExecPolicy;
+typedef sundials::cuda::ExecPolicy SUNCudaExecPolicy;
+typedef sundials::cuda::ThreadDirectExecPolicy SUNCudaThreadDirectExecPolicy;
+typedef sundials::cuda::GridStrideExecPolicy SUNCudaGridStrideExecPolicy;
+typedef sundials::cuda::BlockReduceExecPolicy SUNCudaBlockReduceExecPolicy;
 
 #endif

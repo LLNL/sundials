@@ -201,7 +201,7 @@ int main()
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize spgmr solver */
-  LS = SUNLinSol_SPGMR(y, PREC_NONE, 10, ctx);
+  LS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 10, ctx);
   if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return 1;
 
   /* Linear solver interface */

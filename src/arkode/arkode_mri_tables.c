@@ -46,19 +46,19 @@
 
      imeth                       order   type    QP
     ------------------------------------------------
-     MIS_KW3                     3       E       Y
-     MRI_GARK_ERK33a             3       E       Y
-     MRI_GARK_ERK45a             4       E       Y
-     MRI_GARK_IRK21a             2       ID      Y
-     MRI_GARK_ESDIRK34a          3       ID      Y
-     MRI_GARK_ESDIRK46a          4       ID      Y
-     IMEX_MRI_GARK3a             3       ID      Y
-     IMEX_MRI_GARK3b             3       ID      Y
-     IMEX_MRI_GARK4              4       ID      Y
+     ARKODE_MIS_KW3                     3       E       Y
+     ARKODE_MRI_GARK_ERK33a             3       E       Y
+     ARKODE_MRI_GARK_ERK45a             4       E       Y
+     ARKODE_MRI_GARK_IRK21a             2       ID      Y
+     ARKODE_MRI_GARK_ESDIRK34a          3       ID      Y
+     ARKODE_MRI_GARK_ESDIRK46a          4       ID      Y
+     ARKODE_IMEX_MRI_GARK3a             3       ID      Y
+     ARKODE_IMEX_MRI_GARK3b             3       ID      Y
+     ARKODE_IMEX_MRI_GARK4              4       ID      Y
     ------------------------------------------------
 
   ---------------------------------------------------------------*/
-MRIStepCoupling MRIStepCoupling_LoadTable(int imethod)
+MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID imethod)
 {
 
   MRIStepCoupling    C = NULL;
@@ -68,14 +68,14 @@ MRIStepCoupling MRIStepCoupling_LoadTable(int imethod)
   /* fill in coefficients based on method name */
   switch(imethod) {
 
-  case(MIS_KW3):
+  case(ARKODE_MIS_KW3):
     /* Schlegel et al., JCAM 226:345-357, 2009 */
-    B = ARKodeButcherTable_LoadERK(KNOTH_WOLKE_3_3);
+    B = ARKodeButcherTable_LoadERK(ARKODE_KNOTH_WOLKE_3_3);
     C = MRIStepCoupling_MIStoMRI(B, 3, 0);
     ARKodeButcherTable_Free(B);
     break;
 
-  case(MRI_GARK_ERK33a):
+  case(ARKODE_MRI_GARK_ERK33a):
     /* A. Sandu, SINUM 57:2300-2327, 2019 */
     C = MRIStepCoupling_Alloc(2, 4, MRISTEP_EXPLICIT);
 
@@ -97,7 +97,7 @@ MRIStepCoupling MRIStepCoupling_LoadTable(int imethod)
 
     break;
 
-  case(MRI_GARK_ERK45a):
+  case(ARKODE_MRI_GARK_ERK45a):
     /* A. Sandu, SINUM 57:2300-2327, 2019 */
     C = MRIStepCoupling_Alloc(2, 6, MRISTEP_EXPLICIT);
 
@@ -143,7 +143,7 @@ MRIStepCoupling MRIStepCoupling_LoadTable(int imethod)
 
     break;
 
-  case(MRI_GARK_IRK21a):
+  case(ARKODE_MRI_GARK_IRK21a):
     /* A. Sandu, SINUM 57:2300-2327, 2019 */
     B = ARKodeButcherTable_Alloc(3, SUNFALSE);
 
@@ -164,7 +164,7 @@ MRIStepCoupling MRIStepCoupling_LoadTable(int imethod)
 
     break;
 
-  case(MRI_GARK_ESDIRK34a):
+  case(ARKODE_MRI_GARK_ESDIRK34a):
     /* A. Sandu, SINUM 57:2300-2327, 2019 */
     C = MRIStepCoupling_Alloc(1, 7, MRISTEP_IMPLICIT);
 
@@ -196,7 +196,7 @@ MRIStepCoupling MRIStepCoupling_LoadTable(int imethod)
 
     break;
 
-  case(MRI_GARK_ESDIRK46a):
+  case(ARKODE_MRI_GARK_ESDIRK46a):
     /* A. Sandu, SINUM 57:2300-2327, 2019 */
     C = MRIStepCoupling_Alloc(2, 11, MRISTEP_IMPLICIT);
 
@@ -281,7 +281,7 @@ MRIStepCoupling MRIStepCoupling_LoadTable(int imethod)
 
     break;
 
-  case(IMEX_MRI_GARK3a):
+  case(ARKODE_IMEX_MRI_GARK3a):
     /* R. Chinomona & D. Reynolds SINUM 43(5):A3082-A3113, 2021 */
     C = MRIStepCoupling_Alloc(1, 8, MRISTEP_IMEX);
 
@@ -327,7 +327,7 @@ MRIStepCoupling MRIStepCoupling_LoadTable(int imethod)
 
     break;
 
-  case(IMEX_MRI_GARK3b):
+  case(ARKODE_IMEX_MRI_GARK3b):
     /* R. Chinomona & D. Reynolds SINUM 43(5):A3082-A3113, 2021 */
     C = MRIStepCoupling_Alloc(1, 8, MRISTEP_IMEX);
 
@@ -378,7 +378,7 @@ MRIStepCoupling MRIStepCoupling_LoadTable(int imethod)
 
     break;
 
-  case(IMEX_MRI_GARK4):
+  case(ARKODE_IMEX_MRI_GARK4):
     /* R. Chinomona & D. Reynolds SINUM 43(5):A3082-A3113, 2021 */
     C = MRIStepCoupling_Alloc(2, 12, MRISTEP_IMEX);
 

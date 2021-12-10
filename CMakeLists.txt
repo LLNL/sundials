@@ -34,8 +34,10 @@ set(CMAKE_MODULE_PATH
 
 # MACRO definitions
 include(SundialsCMakeMacros)
-include(FindPackageHandleStandardArgs)
 include(CMakePrintHelpers)
+include(CheckCSourceCompiles)
+include(FindPackageHandleStandardArgs)
+
 
 # Set some variables with info on the SUNDIALS project
 set(PACKAGE_BUGREPORT "sundials-users@llnl.gov")

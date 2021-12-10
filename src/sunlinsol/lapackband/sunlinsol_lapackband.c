@@ -22,6 +22,19 @@
 #include <sunlinsol/sunlinsol_lapackband.h>
 #include <sundials/sundials_math.h>
 
+#include "sundials_lapack_defs.h"
+
+/* Interfaces to match 'realtype' with the correct LAPACK functions */
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define xgbtrf_f77    dgbtrf_f77
+#define xgbtrs_f77    dgbtrs_f77
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define xgbtrf_f77    sgbtrf_f77
+#define xgbtrs_f77    sgbtrs_f77
+#else
+#error  Incompatible realtype for LAPACK; disable LAPACK and rebuild
+#endif
+
 #define ZERO  RCONST(0.0)
 #define ONE   RCONST(1.0)
 

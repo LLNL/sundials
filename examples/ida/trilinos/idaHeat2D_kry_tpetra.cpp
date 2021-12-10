@@ -68,7 +68,7 @@ struct UserData {
   N_Vector pp;  /* vector of prec. diag. elements */
 };
 
-typedef Sundials::TpetraVectorInterface::vector_type vector_type;
+typedef sundials::trilinos::nvector_tpetra::TpetraVectorInterface::vector_type vector_type;
 typedef vector_type::scalar_type scalar_type;
 typedef vector_type::mag_type mag_type;
 typedef vector_type::global_ordinal_type global_ordinal_type;
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
 
   /* Create the linear solver SUNSPGMR with left preconditioning
      and the default Krylov dimension */
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0, ctx);
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
   if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
 
   /* Print case number, output table heading, and initial line of table. */
 
-  printf("\n\nCase 1: gsytpe = MODIFIED_GS\n");
+  printf("\n\nCase 1: gsytpe = SUN_MODIFIED_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
@@ -286,12 +286,12 @@ int main(int argc, char *argv[])
   retval = IDAReInit(mem, t0, uu, up);
   if(check_retval(&retval, "IDAReInit", 1)) return(1);
 
-  retval = SUNLinSol_SPGMRSetGSType(LS, CLASSICAL_GS);
+  retval = SUNLinSol_SPGMRSetGSType(LS, SUN_CLASSICAL_GS);
   if(check_retval(&retval, "SUNSPGMRSetGSType",1)) return(1);
 
   /* Print case number, output table heading, and initial line of table. */
 
-  printf("\n\nCase 2: gstype = CLASSICAL_GS\n");
+  printf("\n\nCase 2: gstype = SUN_CLASSICAL_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");

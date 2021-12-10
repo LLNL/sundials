@@ -9,7 +9,7 @@ Tolerance parameters:  rtol = 0.000   atol = 0.001
  Linear solver: SPGMR, preconditioner using diagonal elements.
   
   
- Case 1: gsytpe = MODIFIED_GS
+ Case 1: gsytpe = SUN_MODIFIED_GS
   
     Output Summary (umax = max-norm of solution)
   
@@ -32,7 +32,7 @@ Nonlinear convergence failures = 0
 Linear convergence failures    = 0
   
   
- Case 2: gsytpe = CLASSICAL_GS
+ Case 2: gsytpe = SUN_CLASSICAL_GS
   
     Output Summary (umax = max-norm of solution)
   

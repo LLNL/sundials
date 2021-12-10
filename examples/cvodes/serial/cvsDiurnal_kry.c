@@ -214,7 +214,7 @@ int main()
 
   /* Call SUNLinSol_SPGMR to specify the linear solver SUNLinSol_SPGMR
    * with left preconditioning and the default Krylov dimension */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0, sunctx);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Call CVodeSetLinearSolver to attach the linear sovler to CVode */
@@ -266,9 +266,9 @@ static UserData AllocUserData(void)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->Jbd)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
+      (data->P)[jx][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->Jbd)[jx][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jy] = SUNDlsMat_newIndexArray(NUM_SPECIES);
     }
   }
 
@@ -295,9 +295,9 @@ static void FreeUserData(UserData data)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      destroyMat((data->P)[jx][jy]);
-      destroyMat((data->Jbd)[jx][jy]);
-      destroyArray((data->pivot)[jx][jy]);
+      SUNDlsMat_destroyMat((data->P)[jx][jy]);
+      SUNDlsMat_destroyMat((data->Jbd)[jx][jy]);
+      SUNDlsMat_destroyArray((data->pivot)[jx][jy]);
     }
   }
 
@@ -721,7 +721,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
     for (jy=0; jy < MY; jy++)
       for (jx=0; jx < MX; jx++)
-        denseCopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
+        SUNDlsMat_denseCopy(Jbd[jx][jy], P[jx][jy], NUM_SPECIES, NUM_SPECIES);
 
     *jcurPtr = SUNFALSE;
 
@@ -755,7 +755,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        denseCopy(j, a, NUM_SPECIES, NUM_SPECIES);
+        SUNDlsMat_denseCopy(j, a, NUM_SPECIES, NUM_SPECIES);
       }
     }
 
@@ -767,14 +767,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   for (jy=0; jy < MY; jy++)
     for (jx=0; jx < MX; jx++)
-      denseScale(-gamma, P[jx][jy], NUM_SPECIES, NUM_SPECIES);
+      SUNDlsMat_denseScale(-gamma, P[jx][jy], NUM_SPECIES, NUM_SPECIES);
 
   /* Add identity matrix and do LU decompositions on blocks in place. */
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      denseAddIdentity(P[jx][jy], NUM_SPECIES);
-      retval = denseGETRF(P[jx][jy], NUM_SPECIES, NUM_SPECIES, pivot[jx][jy]);
+      SUNDlsMat_denseAddIdentity(P[jx][jy], NUM_SPECIES);
+      retval = SUNDlsMat_denseGETRF(P[jx][jy], NUM_SPECIES, NUM_SPECIES, pivot[jx][jy]);
       if (retval != 0) return(1);
     }
   }
@@ -810,7 +810,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
       v = &(IJKth(zdata, 1, jx, jy));
-      denseGETRS(P[jx][jy], NUM_SPECIES, pivot[jx][jy], v);
+      SUNDlsMat_denseGETRS(P[jx][jy], NUM_SPECIES, pivot[jx][jy], v);
     }
   }
 

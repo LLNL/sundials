@@ -21,6 +21,8 @@
 
 #include <sundials/sundials_types.h>
 
+#warning "This header file is deprecated and will be removed in SUNDIALS v7.0.0"
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif

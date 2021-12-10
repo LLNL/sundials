@@ -25,24 +25,12 @@
 #define _SUNLINSOL_LAPDENSE_H
 
 #include <sundials/sundials_linearsolver.h>
-#include <sundials/sundials_lapack.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
-#endif
-
-/* Interfaces to match 'realtype' with the correct LAPACK functions */
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define xgetrf_f77    dgetrf_f77
-#define xgetrs_f77    dgetrs_f77
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define xgetrf_f77    sgetrf_f77
-#define xgetrs_f77    sgetrs_f77
-#else
-#error  Incompatible realtype for LAPACK; disable LAPACK and rebuild
 #endif
 
 /* -----------------------------------------------

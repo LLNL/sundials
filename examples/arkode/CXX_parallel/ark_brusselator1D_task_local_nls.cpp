@@ -262,7 +262,7 @@ int EvolveProblemIMEX(SUNContext ctx, N_Vector y, UserData* udata,
     if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1)) return 1;
 
     /* Create linear solver */
-    LS = SUNLinSol_SPGMR(y, PREC_LEFT, 0, ctx);
+    LS = SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, ctx);
     if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return 1;
 
     /* Attach linear solver */

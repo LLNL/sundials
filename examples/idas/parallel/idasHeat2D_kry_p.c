@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
 
   /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
 
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0, ctx);  /* use default maxl */
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);  /* use default maxl */
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetLinearSolver(ida_mem, LS, NULL);

@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0, sunctx);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
   if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach SPGMR solver structure to CVode interface */
@@ -263,12 +263,12 @@ int main(int argc, char *argv[])
   /* Print heading */
   if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
 
-  /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
-  for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
+  /* Loop over jpre (= SUN_PREC_LEFT, SUN_PREC_RIGHT), and solve the problem */
+  for (jpre = SUN_PREC_LEFT; jpre <= SUN_PREC_RIGHT; jpre++) {
 
   /* On second run, re-initialize u, the integrator, CVBBDPRE, and SPGMR */
 
-  if (jpre == PREC_RIGHT) {
+  if (jpre == SUN_PREC_RIGHT) {
 
     SetInitialProfiles(u, data);
 
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
     retval = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
     if(check_retval(&retval, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    retval = SUNLinSol_SPGMRSetPrecType(LS, PREC_RIGHT);
+    retval = SUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_RIGHT);
     if(check_retval(&retval, "SUNLinSol_SPGMRSetPrecType", 1, my_pe)) MPI_Abort(comm, 1);
 
     if (my_pe == 0) {
@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
 
   if (my_pe == 0) {
     printf("\n\nPreconditioner type is:  jpre = %s\n\n",
-	   (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
+	   (jpre == SUN_PREC_LEFT) ? "SUN_PREC_LEFT" : "SUN_PREC_RIGHT");
   }
 
   /* In loop over output points, call CVode, print results, test for error */

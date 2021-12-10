@@ -412,8 +412,8 @@ int IDASetPreconditioner(void *ida_mem,
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
-  PSetupFn idals_psetup;
-  PSolveFn idals_psolve;
+  SUNPSetupFn idals_psetup;
+  SUNPSolveFn idals_psolve;
   int      retval;
 
   /* access IDALsMem structure */

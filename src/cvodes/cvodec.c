@@ -360,17 +360,17 @@ void CVDenseCSJac(sunindextype N, DenseMat J, realtype t,
   N_VConst(ZERO, y_im);
   ydata_im = (realtype *) N_VGetData(y_im);
 
-  jthCol = N_VMake((void *)DENSE_COL(J,0), cv_mem->cv_nvspec);
+  jthCol = N_VMake((void *)SUNDLS_DENSE_COL(J,0), cv_mem->cv_nvspec);
 
   for (j=0; j < N; j++) {
-    N_VSetData((void *)DENSE_COL(J,j), jthCol);
+    N_VSetData((void *)SUNDLS_DENSE_COL(J,j), jthCol);
     ydata_im[j] = cvcs_mem->cvcs_del_cs;
     if (cvcs_mem->cvcs_type1)
       cvcs_mem->cvcs_f_cs1(t, 0.0, y_re, y_im, f_re, f_im, cv_mem->cv_f_data);
     else
       cvcs_mem->cvcs_f_cs2(t, 0.0, y_re, y_im, f_re, f_im, cv_mem->cv_f_data, cvcs_mem->cvcs_f_data_im);
     N_VScale(ONE/cvcs_mem->cvcs_del_cs, f_im, jthCol);
-    DENSE_COL(J,j) = (realtype *) N_VGetData(jthCol);
+    SUNDLS_DENSE_COL(J,j) = (realtype *) N_VGetData(jthCol);
     ydata_im[j] = ZERO;
   }
 
@@ -426,11 +426,11 @@ void CVBandCSJac(sunindextype N, sunindextype mupper,
 
     for (j=group-1; j < N; j+=width) {
       ydata_im[j] = ZERO;
-      col_j = BAND_COL(J,j);
+      col_j = SUNDLS_BAND_COL(J,j);
       i1 = SUNMAX(0, j-mupper);
       i2 = SUNMIN(j+mlower, N-1);
       for (i=i1; i <= i2; i++)
-        BAND_COL_ELEM(col_j,i,j) = fdata_im[i]/cvcs_mem->cvcs_del_cs;
+        SUNDLS_BAND_COL_ELEM(col_j,i,j) = fdata_im[i]/cvcs_mem->cvcs_del_cs;
     }
   }
 

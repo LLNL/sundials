@@ -109,6 +109,20 @@ if(SUNDIALS_BUILD_WITH_PROFILING AND
   message(SEND_ERROR "The SUNDIALS native profiler requires POSIX timers or MPI_Wtime, but neither were found.")
 endif()
 
+# ---------------------------------------------------------------
+# Check for deprecated attribute with message
+# ---------------------------------------------------------------
+if(WIN32)
+  set(COMPILER_DEPRECATED_MSG_ATTRIBUTE "__declspec(deprecated(msg))" CACHE INTERNAL "")
+else()
+  set(COMPILER_DEPRECATED_MSG_ATTRIBUTE "__attribute__ ((__deprecated__(msg)))" CACHE INTERNAL "")
+endif()
+check_c_source_compiles("
+  #define msg \"test\"
+  ${COMPILER_DEPRECATED_MSG_ATTRIBUTE} int somefunc() { return 0; }
+  int main() { return somefunc();}" COMPILER_HAS_DEPRECATED_MSG
+)
+
 # ===============================================================
 # Fortran settings
 # ===============================================================
@@ -120,7 +134,7 @@ endif()
 # ---------------------------------------------------------------
 
 # Do we need a Fortran name-mangling scheme?
-if(BUILD_FORTRAN77_INTERFACE OR ENABLE_LAPACK)
+if(ENABLE_LAPACK)
   set(NEED_FORTRAN_NAME_MANGLING TRUE)
 endif()
 

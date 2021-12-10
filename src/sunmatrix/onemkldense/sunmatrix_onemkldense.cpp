@@ -135,7 +135,7 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
   MAT_CONTENT(A)->blocks      = NULL;
   MAT_CONTENT(A)->mem_type    = mem_type;
   MAT_CONTENT(A)->mem_helper  = mem_helper;
-  MAT_CONTENT(A)->exec_policy = new sundials::SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(queue));
+  MAT_CONTENT(A)->exec_policy = new sundials::sycl::ThreadDirectExecPolicy(SYCL_BLOCKDIM(queue));
   MAT_CONTENT(A)->queue       = queue;
 
   // Allocate data

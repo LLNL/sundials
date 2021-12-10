@@ -174,7 +174,7 @@ int main(int argc, char** argv)
   if (check_retval(&retval, "CVodeSetUserData", 1)) return 1;
 
   // Create SPGMR solver without preconditioning and default Krylov dimension
-  SUNLinearSolver LS = SUNLinSol_SPGMR(u, PREC_NONE, 0, sunctx);
+  SUNLinearSolver LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
   if (check_retval(&retval, "SUNLinSol_SPGMR", 1)) return 1;
 
   // Attach the linear sovler to CVODE

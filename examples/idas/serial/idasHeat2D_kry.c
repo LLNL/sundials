@@ -174,7 +174,7 @@ int main()
 
   /* Create the linear solver SUNLinSol_SPGMR with left preconditioning
      and the default Krylov dimension */
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0, ctx);
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
@@ -200,7 +200,7 @@ int main()
 
   /* Print case number, output table heading, and initial line of table. */
 
-  printf("\n\nCase 1: gsytpe = MODIFIED_GS\n");
+  printf("\n\nCase 1: gsytpe = SUN_MODIFIED_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");
@@ -243,12 +243,12 @@ int main()
   retval = IDAReInit(mem, t0, uu, up);
   if(check_retval(&retval, "IDAReInit", 1)) return(1);
 
-  retval = SUNLinSol_SPGMRSetGSType(LS, CLASSICAL_GS);
+  retval = SUNLinSol_SPGMRSetGSType(LS, SUN_CLASSICAL_GS);
   if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType",1)) return(1);
 
   /* Print case number, output table heading, and initial line of table. */
 
-  printf("\n\nCase 2: gstype = CLASSICAL_GS\n");
+  printf("\n\nCase 2: gstype = SUN_CLASSICAL_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
   printf("----------------------------------------------------------------------\n");

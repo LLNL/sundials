@@ -419,7 +419,7 @@ int main(int argc, char *argv[])
   case(0):  /* KW3 slow solver */
     arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    C = MRIStepCoupling_LoadTable(MIS_KW3);
+    C = MRIStepCoupling_LoadTable(ARKODE_MIS_KW3);
     if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
@@ -427,7 +427,7 @@ int main(int argc, char *argv[])
   case(3):  /* KW3 slow solver (full problem) */
     arkode_mem = MRIStepCreate(fn, NULL, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    C = MRIStepCoupling_LoadTable(MIS_KW3);
+    C = MRIStepCoupling_LoadTable(ARKODE_MIS_KW3);
     if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
   case(6):
     arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    C = MRIStepCoupling_LoadTable(MRI_GARK_ERK45a);
+    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ERK45a);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
@@ -460,7 +460,7 @@ int main(int argc, char *argv[])
   case(4):  /* dirk-2 (trapezoidal), solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(NULL, fn, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    C = MRIStepCoupling_LoadTable(MRI_GARK_IRK21a);
+    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_IRK21a);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
   case(7):  /* MRI-GARK-ESDIRK34a, solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(NULL, fs, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    C = MRIStepCoupling_LoadTable(MRI_GARK_ESDIRK34a);
+    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
   case(8):  /* IMEX-MRI-GARK3b, solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    C = MRIStepCoupling_LoadTable(IMEX_MRI_GARK3b);
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK3b);
     if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
   case(9):  /* IMEX-MRI-GARK4, solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
-    C = MRIStepCoupling_LoadTable(IMEX_MRI_GARK4);
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK4);
     if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
     retval = MRIStepSetCoupling(arkode_mem, C);
     if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;

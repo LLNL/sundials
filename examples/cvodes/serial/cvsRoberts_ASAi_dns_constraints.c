@@ -247,12 +247,12 @@ int main(int argc, char *argv[])
   if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac */
-  retval = CVDlsSetJacFn(cvode_mem, Jac);
-  if (check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
+  retval = CVodeSetJacFn(cvode_mem, Jac);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* Call CVodeQuadInit to allocate initernal memory and initialize
      quadrature integration*/
@@ -394,12 +394,12 @@ int main(int argc, char *argv[])
   if (check_retval((void *)LSB, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);
-  if (check_retval(&retval, "CVDlsSetLinearSolverB", 1)) return(1);
+  retval = CVodeSetLinearSolverB(cvode_mem, indexB, LSB, AB);
+  if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine JacB */
-  retval = CVDlsSetJacFnB(cvode_mem, indexB, JacB);
-  if (check_retval(&retval, "CVDlsSetJacFnB", 1)) return(1);
+  retval = CVodeSetJacFnB(cvode_mem, indexB, JacB);
+  if (check_retval(&retval, "CVodeSetJacFnB", 1)) return(1);
 
   /* Call CVodeQuadInitB to allocate internal memory and initialize backward
      quadrature integration. */

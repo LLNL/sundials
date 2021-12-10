@@ -255,7 +255,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
 
   // Methods to test (order most stages to least since reinit does not realloc)
   int   num_methods;
-  int*  methods = nullptr;
+  ARKODE_MRITableID*  methods = nullptr;
   bool* stiffly_accurate = nullptr;
 
   if (type == MRISTEP_EXPLICIT)
@@ -265,11 +265,11 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     cout << "=========================\n";
 
     num_methods = 3;
-    methods = new int[num_methods];
+    methods = new ARKODE_MRITableID[num_methods];
 
-    methods[0] = MRI_GARK_ERK45a;
-    methods[1] = MRI_GARK_ERK33a;
-    methods[2] = MIS_KW3;
+    methods[0] = ARKODE_MRI_GARK_ERK45a;
+    methods[1] = ARKODE_MRI_GARK_ERK33a;
+    methods[2] = ARKODE_MIS_KW3;
   }
   else if (type == MRISTEP_IMPLICIT)
   {
@@ -278,16 +278,16 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     cout << "=========================\n";
 
     num_methods = 3;
-    methods = new int[num_methods];
+    methods = new ARKODE_MRITableID[num_methods];
     stiffly_accurate = new bool[num_methods];
 
-    methods[0] = MRI_GARK_ESDIRK46a;
+    methods[0] = ARKODE_MRI_GARK_ESDIRK46a;
     stiffly_accurate[0] = true;
 
-    methods[1] = MRI_GARK_ESDIRK34a;
+    methods[1] = ARKODE_MRI_GARK_ESDIRK34a;
     stiffly_accurate[1] = true;
 
-    methods[2] = MRI_GARK_IRK21a;
+    methods[2] = ARKODE_MRI_GARK_IRK21a;
     stiffly_accurate[2] = true;
   }
   else if (type == MRISTEP_IMEX)
@@ -297,16 +297,16 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     cout << "=====================\n";
 
     num_methods = 3;
-    methods = new int[num_methods];
+    methods = new ARKODE_MRITableID[num_methods];
     stiffly_accurate = new bool[num_methods];
 
-    methods[0] = IMEX_MRI_GARK4;
+    methods[0] = ARKODE_IMEX_MRI_GARK4;
     stiffly_accurate[0] = false;
 
-    methods[1] = IMEX_MRI_GARK3b;
+    methods[1] = ARKODE_IMEX_MRI_GARK3b;
     stiffly_accurate[1] = false;
 
-    methods[2] = IMEX_MRI_GARK3a;
+    methods[2] = ARKODE_IMEX_MRI_GARK3a;
     stiffly_accurate[2] = false;
   }
   else

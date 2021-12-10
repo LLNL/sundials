@@ -23,9 +23,9 @@ Preconditioning uses a product of:
 ----------------------------------------------------------------------------
 
 
-Preconditioner type is           jpre = PREC_LEFT
+Preconditioner type is           jpre = SUN_PREC_LEFT
 
-Gram-Schmidt method type is    gstype = MODIFIED_GS
+Gram-Schmidt method type is    gstype = SUN_MODIFIED_GS
 
 
 c values at t = 0:
@@ -441,9 +441,9 @@ Species 6
 ----------------------------------------------------------------------------
 
 
-Preconditioner type is           jpre = PREC_LEFT
+Preconditioner type is           jpre = SUN_PREC_LEFT
 
-Gram-Schmidt method type is    gstype = CLASSICAL_GS
+Gram-Schmidt method type is    gstype = SUN_CLASSICAL_GS
 
 
 t =   1.00e-08  nst = 3  nfe = 9  nni = 6  qu = 2  hu =    1.76e-08
@@ -509,9 +509,9 @@ t =   1.00e+01  nst = 339  nfe = 377  nni = 374  qu = 2  hu =    7.46e-01
 ----------------------------------------------------------------------------
 
 
-Preconditioner type is           jpre = PREC_RIGHT
+Preconditioner type is           jpre = SUN_PREC_RIGHT
 
-Gram-Schmidt method type is    gstype = MODIFIED_GS
+Gram-Schmidt method type is    gstype = SUN_MODIFIED_GS
 
 
 t =   1.00e-08  nst = 3  nfe = 9  nni = 6  qu = 2  hu =    1.76e-08
@@ -577,9 +577,9 @@ t =   1.00e+01  nst = 266  nfe = 312  nni = 309  qu = 5  hu =    1.83e-01
 ----------------------------------------------------------------------------
 
 
-Preconditioner type is           jpre = PREC_RIGHT
+Preconditioner type is           jpre = SUN_PREC_RIGHT
 
-Gram-Schmidt method type is    gstype = CLASSICAL_GS
+Gram-Schmidt method type is    gstype = SUN_CLASSICAL_GS
 
 
 t =   1.00e-08  nst = 3  nfe = 9  nni = 6  qu = 2  hu =    1.76e-08

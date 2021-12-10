@@ -244,12 +244,12 @@ int main(int argc, char *argv[])
 
   webdata = (UserData) malloc(sizeof *webdata);
   webdata->rates = N_VNew_OpenMP(NEQ, num_threads, ctx);
-  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  webdata->acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
   webdata->ewt = N_VNew_OpenMP(NEQ, num_threads, ctx);
   for (jx = 0; jx < MX; jx++) {
     for (jy = 0; jy < MY; jy++) {
-      (webdata->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
-      (webdata->PP)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (webdata->pivot)[jx][jy] = SUNDlsMat_newIndexArray(NUM_SPECIES);
+      (webdata->PP)[jx][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
     }
   }
   webdata->nthreads = num_threads;
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
      preconditioning routines. */
 
   maxl = 16;                               /* max dimension of the Krylov subspace */
-  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl, ctx);      /* IDA only allows left preconditioning */
+  LS = SUNLinSol_SPGMR(cc, SUN_PREC_LEFT, maxl, ctx);      /* IDA only allows left preconditioning */
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
@@ -346,13 +346,13 @@ int main(int argc, char *argv[])
   N_VDestroy(id);
 
 
-  destroyMat(webdata->acoef);
+  SUNDlsMat_destroyMat(webdata->acoef);
   N_VDestroy(webdata->rates);
   N_VDestroy(webdata->ewt);
   for (jx = 0; jx < MX; jx++) {
     for (jy = 0; jy < MY; jy ++) {
-      destroyArray((webdata->pivot)[jx][jy]);
-      destroyMat((webdata->PP)[jx][jy]);
+      SUNDlsMat_destroyArray((webdata->pivot)[jx][jy]);
+      SUNDlsMat_destroyMat((webdata->PP)[jx][jy]);
     }
   }
   free(webdata);
@@ -478,7 +478,7 @@ static int Precond(realtype tt, N_Vector cc, N_Vector cp,
 	cxy[js] = cctmp;
       }
 
-      ret = denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (webdata->pivot)[jx][jy]);
+      ret = SUNDlsMat_denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (webdata->pivot)[jx][jy]);
 
       if (ret != 0) return(1);
     }
@@ -511,7 +511,7 @@ static int PSolve(realtype tt, N_Vector cc, N_Vector cp,
       zxy = IJ_Vptr(zvec, jx, jy);
       Pxy = (webdata->PP)[jx][jy];
       pivot = (webdata->pivot)[jx][jy];
-      denseGETRS(Pxy, NUM_SPECIES, pivot, zxy);
+      SUNDlsMat_denseGETRS(Pxy, NUM_SPECIES, pivot, zxy);
     }
   }
 

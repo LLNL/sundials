@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 
   /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the IDAS linear solver */
   maxl = 16;                                      /* max dimension of the Krylov subspace */
-  LS = SUNLinSol_SPGMR(uv, PREC_LEFT, maxl, ctx);      /* IDA only allows left preconditioning */
+  LS = SUNLinSol_SPGMR(uv, SUN_PREC_LEFT, maxl, ctx);      /* IDA only allows left preconditioning */
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
 
   /* Call SUNLinSol_SPGMR and IDASetLinearSolverB to specify the IDAS linear solver */
   maxl = 16;
-  LS_B = SUNLinSol_SPGMR(uv, PREC_LEFT, maxl, ctx);
+  LS_B = SUNLinSol_SPGMR(uv, SUN_PREC_LEFT, maxl, ctx);
   if(check_retval((void *)LS_B, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASetLinearSolverB(ida_mem, indexB, LS_B, NULL);

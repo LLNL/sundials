@@ -920,7 +920,7 @@ int ARKStepSetTables(void *arkode_mem, int q, int p,
   If either argument is negative (illegal), then this disables the
   corresponding table (e.g. itable = -1  ->  explicit)
   ---------------------------------------------------------------*/
-int ARKStepSetTableNum(void *arkode_mem, int itable, int etable)
+int ARKStepSetTableNum(void *arkode_mem, ARKODE_DIRKTableID itable, ARKODE_ERKTableID etable)
 {
   int flag, retval;
   ARKodeMem ark_mem;
@@ -964,7 +964,7 @@ int ARKStepSetTableNum(void *arkode_mem, int itable, int etable)
   } else if (itable < 0) {
 
     /* check that argument specifies an explicit table */
-    if (etable<MIN_ERK_NUM || etable>MAX_ERK_NUM) {
+    if (etable<ARKODE_MIN_ERK_NUM || etable>ARKODE_MAX_ERK_NUM) {
       arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                       "ARKStepSetTableNum",
                       "Illegal ERK table number");
@@ -997,7 +997,7 @@ int ARKStepSetTableNum(void *arkode_mem, int itable, int etable)
   } else if (etable < 0) {
 
     /* check that argument specifies an implicit table */
-    if (itable<MIN_DIRK_NUM || itable>MAX_DIRK_NUM) {
+    if (itable<ARKODE_MIN_DIRK_NUM || itable>ARKODE_MAX_DIRK_NUM) {
       arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                       "ARKStepSetTableNum",
                       "Illegal IRK table number");
@@ -1030,11 +1030,11 @@ int ARKStepSetTableNum(void *arkode_mem, int itable, int etable)
   } else {
 
     /* ensure that tables match */
-    if ( !((etable == ARK324L2SA_ERK_4_2_3) && (itable == ARK324L2SA_DIRK_4_2_3)) &&
-         !((etable == ARK436L2SA_ERK_6_3_4) && (itable == ARK436L2SA_DIRK_6_3_4)) &&
-         !((etable == ARK437L2SA_ERK_7_3_4) && (itable == ARK437L2SA_DIRK_7_3_4)) &&
-         !((etable == ARK548L2SA_ERK_8_4_5) && (itable == ARK548L2SA_DIRK_8_4_5)) &&
-         !((etable == ARK548L2SAb_ERK_8_4_5) && (itable == ARK548L2SAb_DIRK_8_4_5)) ) {
+    if ( !((etable == ARKODE_ARK324L2SA_ERK_4_2_3) && (itable == ARKODE_ARK324L2SA_DIRK_4_2_3)) &&
+         !((etable == ARKODE_ARK436L2SA_ERK_6_3_4) && (itable == ARKODE_ARK436L2SA_DIRK_6_3_4)) &&
+         !((etable == ARKODE_ARK437L2SA_ERK_7_3_4) && (itable == ARKODE_ARK437L2SA_DIRK_7_3_4)) &&
+         !((etable == ARKODE_ARK548L2SA_ERK_8_4_5) && (itable == ARKODE_ARK548L2SA_DIRK_8_4_5)) &&
+         !((etable == ARKODE_ARK548L2SAb_ERK_8_4_5) && (itable == ARKODE_ARK548L2SAb_DIRK_8_4_5)) ) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "ARKStepSetTableNum",
                       "Incompatible Butcher tables for ARK method");

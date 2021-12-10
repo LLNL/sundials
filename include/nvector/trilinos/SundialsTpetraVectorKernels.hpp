@@ -12,14 +12,16 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#ifndef _TPETRA_SUNDIALS_VECTOR_KERNELS_HPP_
-#define _TPETRA_SUNDIALS_VECTOR_KERNELS_HPP_
+#ifndef _SUNDIALS_TPETRA_VECTOR_KERNELS_HPP_
+#define _SUNDIALS_TPETRA_VECTOR_KERNELS_HPP_
 
 #include <Tpetra_Vector.hpp>
 #include <Kokkos_Core.hpp>
 #include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
 
-namespace Sundials
+namespace sundials
+{
+namespace trilinos
 {
 
   /**
@@ -28,7 +30,7 @@ namespace Sundials
    * Kernels are inlined in case this file is included in more than one
    * translation unit.
    */
-  namespace TpetraVector
+  namespace nvector_tpetra
   {
     using Teuchos::outArg;
     using Teuchos::REDUCE_SUM;
@@ -36,7 +38,7 @@ namespace Sundials
     using Teuchos::REDUCE_MAX;
     using Teuchos::reduceAll;
 
-    typedef Sundials::TpetraVectorInterface::vector_type vector_type;
+    typedef sundials::trilinos::nvector_tpetra::TpetraVectorInterface::vector_type vector_type;
     typedef vector_type::scalar_type scalar_type;
     typedef vector_type::mag_type mag_type;
     typedef vector_type::global_ordinal_type global_ordinal_type;
@@ -668,8 +670,9 @@ namespace Sundials
     }
 
 
-  } // namespace TpetraVector
+  } // namespace nvector_tpetra
 
-} // namespace Sundials
+} // namespace trilinos
+} // namespace sundials
 
 #endif // _TPETRA_SUNDIALS_VECTOR_KERNELS_HPP_

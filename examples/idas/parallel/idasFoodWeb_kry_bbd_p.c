@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 
   webdata = (UserData) malloc(sizeof *webdata);
   webdata->rates = N_VNew_Parallel(comm, local_N, SystemSize, ctx);
-  webdata->acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  webdata->acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
 
   InitUserData(webdata, thispe, npes, comm);
 
@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
   /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver */
 
   maxl = 16;
-  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl, ctx);
+  LS = SUNLinSol_SPGMR(cc, SUN_PREC_LEFT, maxl, ctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
   if(check_retval(&retval, "IDASetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
 
-  destroyMat(webdata->acoef);
+  SUNDlsMat_destroyMat(webdata->acoef);
   N_VDestroy(webdata->rates);
   free(webdata);
 

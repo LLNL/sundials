@@ -1890,23 +1890,23 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
 
     case(2):
     case(3):
-      etable = DEFAULT_ARK_ETABLE_3;
-      itable = DEFAULT_ARK_ITABLE_3;
+      etable = ARKSTEP_DEFAULT_ARK_ETABLE_3;
+      itable = ARKSTEP_DEFAULT_ARK_ITABLE_3;
       break;
     case(4):
-      etable = DEFAULT_ARK_ETABLE_4;
-      itable = DEFAULT_ARK_ITABLE_4;
+      etable = ARKSTEP_DEFAULT_ARK_ETABLE_4;
+      itable = ARKSTEP_DEFAULT_ARK_ITABLE_4;
       break;
     case(5):
-      etable = DEFAULT_ARK_ETABLE_5;
-      itable = DEFAULT_ARK_ITABLE_5;
+      etable = ARKSTEP_DEFAULT_ARK_ETABLE_5;
+      itable = ARKSTEP_DEFAULT_ARK_ITABLE_5;
       break;
     default:    /* no available method, set default */
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "arkStep_SetButcherTables",
                       "No ImEx method at requested order, using q=5.");
-      etable = DEFAULT_ARK_ETABLE_5;
-      itable = DEFAULT_ARK_ITABLE_5;
+      etable = ARKSTEP_DEFAULT_ARK_ETABLE_5;
+      itable = ARKSTEP_DEFAULT_ARK_ITABLE_5;
       break;
     }
 
@@ -1915,22 +1915,22 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
 
     switch (step_mem->q) {
     case(2):
-      itable = DEFAULT_DIRK_2;
+      itable = ARKSTEP_DEFAULT_DIRK_2;
       break;
     case(3):
-      itable = DEFAULT_DIRK_3;
+      itable = ARKSTEP_DEFAULT_DIRK_3;
       break;
     case(4):
-      itable = DEFAULT_DIRK_4;
+      itable = ARKSTEP_DEFAULT_DIRK_4;
       break;
     case(5):
-      itable = DEFAULT_DIRK_5;
+      itable = ARKSTEP_DEFAULT_DIRK_5;
       break;
     default:    /* no available method, set default */
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "arkStep_SetButcherTables",
                       "No implicit method at requested order, using q=5.");
-      itable = DEFAULT_DIRK_5;
+      itable = ARKSTEP_DEFAULT_DIRK_5;
       break;
     }
 
@@ -1939,29 +1939,29 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
 
     switch (step_mem->q) {
     case(2):
-      etable = DEFAULT_ERK_2;
+      etable = ARKSTEP_DEFAULT_ERK_2;
       break;
     case(3):
-      etable = DEFAULT_ERK_3;
+      etable = ARKSTEP_DEFAULT_ERK_3;
       break;
     case(4):
-      etable = DEFAULT_ERK_4;
+      etable = ARKSTEP_DEFAULT_ERK_4;
       break;
     case(5):
-      etable = DEFAULT_ERK_5;
+      etable = ARKSTEP_DEFAULT_ERK_5;
       break;
     case(6):
-      etable = DEFAULT_ERK_6;
+      etable = ARKSTEP_DEFAULT_ERK_6;
       break;
     case(7):
     case(8):
-      etable = DEFAULT_ERK_8;
+      etable = ARKSTEP_DEFAULT_ERK_8;
       break;
     default:    /* no available method, set default */
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "arkStep_SetButcherTables",
                       "No explicit method at requested order, using q=6.");
-      etable = DEFAULT_ERK_6;
+      etable = ARKSTEP_DEFAULT_ERK_6;
       break;
     }
 

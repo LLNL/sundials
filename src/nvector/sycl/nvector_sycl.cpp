@@ -36,6 +36,7 @@
 extern "C" {
 
 using namespace sundials;
+using namespace sundials::sycl;
 
 
 /* --------------------------------------------------------------------------
@@ -255,8 +256,8 @@ N_Vector N_VNew_Sycl(sunindextype length, sycl::queue *Q, SUNContext sunctx)
   NVEC_SYCL_CONTENT(v)->length             = length;
   NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new SyclBlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q, sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNFALSE;
@@ -322,8 +323,8 @@ N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
   NVEC_SYCL_CONTENT(v)->length             = length;
   NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNFALSE;
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new SyclBlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->mem_helper         = helper;
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = use_managed_mem;
@@ -367,8 +368,8 @@ N_Vector N_VNewManaged_Sycl(sunindextype length, sycl::queue *Q,
   NVEC_SYCL_CONTENT(v)->length             = length;
   NVEC_SYCL_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new SyclBlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q, sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNTRUE;
@@ -427,8 +428,8 @@ N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata,
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(h_vdata, SUNMEMTYPE_HOST);
   NVEC_SYCL_CONTENT(v)->device_data        = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new SyclBlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q, sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNFALSE;
@@ -488,8 +489,8 @@ N_Vector N_VMakeManaged_Sycl(sunindextype length, realtype *vdata,
   NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_SYCL_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
   NVEC_SYCL_CONTENT(v)->device_data        = SUNMemoryHelper_Alias(NVEC_SYCL_CONTENT(v)->host_data);
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new SyclThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new SyclBlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
   NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(Q, sunctx);
   NVEC_SYCL_CONTENT(v)->queue              = Q;
   NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNTRUE;

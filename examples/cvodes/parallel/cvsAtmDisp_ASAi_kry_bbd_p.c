@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSStolerances", 1, myId)) MPI_Abort(comm, 1);
 
   /* create and attach linear solver */
-  LS = SUNLinSol_SPGMR(y, PREC_LEFT, 0, sunctx);
+  LS = SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, sunctx);
   if(check_retval(LS, "SUNLinSol_SPGMR", 0, myId)) MPI_Abort(comm, 1);
 
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);

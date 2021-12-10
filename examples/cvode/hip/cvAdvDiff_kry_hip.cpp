@@ -243,7 +243,7 @@ int main(int argc, char** argv)
 
   /* Create SPGMR solver structure without preconditioning
    * and the maximum Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_NONE, 0, sunctx);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
   if(check_retval(&retval, "SUNLinSol_SPGMR", 1)) return(1);
 
   /* Set CVode linear solver to LS */

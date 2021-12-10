@@ -476,7 +476,7 @@ int main(int argc, char *argv[])
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
 
     /* Set fast method */
-    retval = ARKStepSetTableNum(inner_arkode_mem, CASH_5_3_4, -1);
+    retval = ARKStepSetTableNum(inner_arkode_mem, ARKODE_CASH_5_3_4, -1);
     if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
 
     /* Initialize matrix and linear solver data structures */
@@ -549,7 +549,7 @@ int main(int argc, char *argv[])
     arkode_mem = MRIStepCreate(NULL, fs, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
 
-    C = MRIStepCoupling_LoadTable(MRI_GARK_ESDIRK34a);
+    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
     if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
 
     retval = MRIStepSetCoupling(arkode_mem, C);
@@ -579,7 +579,7 @@ int main(int argc, char *argv[])
     arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
 
-    C = MRIStepCoupling_LoadTable(IMEX_MRI_GARK3b);
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK3b);
     if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
 
     retval = MRIStepSetCoupling(arkode_mem, C);
@@ -609,7 +609,7 @@ int main(int argc, char *argv[])
     arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
 
-    C = MRIStepCoupling_LoadTable(IMEX_MRI_GARK4);
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK4);
     if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
 
     retval = MRIStepSetCoupling(arkode_mem, C);

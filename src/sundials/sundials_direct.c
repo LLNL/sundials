@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for operations to be used by a
  * generic direct linear solver.
- * -----------------------------------------------------------------*/ 
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,17 +24,22 @@
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 
-DlsMat NewDenseMat(sunindextype M, sunindextype N)
+SUNDlsMat NewDenseMat(sunindextype M, sunindextype N)
 {
-  DlsMat A;
+  return(SUNDlsMat_NewDenseMat(M, N));
+}
+
+SUNDlsMat SUNDlsMat_NewDenseMat(sunindextype M, sunindextype N)
+{
+  SUNDlsMat A;
   sunindextype j;
 
   if ( (M <= 0) || (N <= 0) ) return(NULL);
 
   A = NULL;
-  A = (DlsMat) malloc(sizeof *A);
+  A = (SUNDlsMat) malloc(sizeof *A);
   if (A==NULL) return (NULL);
-  
+
   A->data = (realtype *) malloc(M * N * sizeof(realtype));
   if (A->data == NULL) {
     free(A); A = NULL;
@@ -59,7 +64,12 @@ DlsMat NewDenseMat(sunindextype M, sunindextype N)
   return(A);
 }
 
-realtype **newDenseMat(sunindextype m, sunindextype n)
+realtype** newDenseMat(sunindextype m, sunindextype n)
+{
+  return(SUNDlsMat_newDenseMat(m, n));
+}
+
+realtype** SUNDlsMat_newDenseMat(sunindextype m, sunindextype n)
 {
   sunindextype j;
   realtype **a;
@@ -83,15 +93,20 @@ realtype **newDenseMat(sunindextype m, sunindextype n)
 }
 
 
-DlsMat NewBandMat(sunindextype N, sunindextype mu, sunindextype ml, sunindextype smu)
+SUNDlsMat NewBandMat(sunindextype N, sunindextype mu, sunindextype ml, sunindextype smu)
 {
-  DlsMat A;
+  return(SUNDlsMat_NewBandMat(N, mu, ml, smu));
+}
+
+SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu, sunindextype ml, sunindextype smu)
+{
+  SUNDlsMat A;
   sunindextype j, colSize;
 
   if (N <= 0) return(NULL);
-  
+
   A = NULL;
-  A = (DlsMat) malloc(sizeof *A);
+  A = (SUNDlsMat) malloc(sizeof *A);
   if (A == NULL) return (NULL);
 
   colSize = smu + ml + 1;
@@ -125,7 +140,12 @@ DlsMat NewBandMat(sunindextype N, sunindextype mu, sunindextype ml, sunindextype
   return(A);
 }
 
-realtype **newBandMat(sunindextype n, sunindextype smu, sunindextype ml)
+realtype** newBandMat(sunindextype n, sunindextype smu, sunindextype ml)
+{
+  return(SUNDlsMat_newBandMat(n, smu, ml));
+}
+
+realtype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu, sunindextype ml)
 {
   realtype **a;
   sunindextype j, colSize;
@@ -149,7 +169,12 @@ realtype **newBandMat(sunindextype n, sunindextype smu, sunindextype ml)
   return(a);
 }
 
-void DestroyMat(DlsMat A)
+void DestroyMat(SUNDlsMat A)
+{
+  SUNDlsMat_DestroyMat(A);
+}
+
+void SUNDlsMat_DestroyMat(SUNDlsMat A)
 {
   free(A->data);  A->data = NULL;
   free(A->cols);
@@ -158,11 +183,21 @@ void DestroyMat(DlsMat A)
 
 void destroyMat(realtype **a)
 {
+  SUNDlsMat_destroyMat(a);
+}
+
+void SUNDlsMat_destroyMat(realtype **a)
+{
   free(a[0]); a[0] = NULL;
   free(a); a = NULL;
 }
 
-int *NewIntArray(int N)
+int* NewIntArray(int N)
+{
+  return(SUNDlsMat_NewIntArray(N));
+}
+
+int* SUNDlsMat_NewIntArray(int N)
 {
   int *vec;
 
@@ -174,7 +209,12 @@ int *NewIntArray(int N)
   return(vec);
 }
 
-int *newIntArray(int n)
+int* newIntArray(int N)
+{
+  return(SUNDlsMat_newIntArray(N));
+}
+
+int* SUNDlsMat_newIntArray(int n)
 {
   int *v;
 
@@ -186,7 +226,12 @@ int *newIntArray(int n)
   return(v);
 }
 
-sunindextype *NewIndexArray(sunindextype N)
+sunindextype* NewIndexArray(sunindextype N)
+{
+  return(SUNDlsMat_NewIndexArray(N));
+}
+
+sunindextype* SUNDlsMat_NewIndexArray(sunindextype N)
 {
   sunindextype *vec;
 
@@ -198,7 +243,12 @@ sunindextype *NewIndexArray(sunindextype N)
   return(vec);
 }
 
-sunindextype *newIndexArray(sunindextype n)
+sunindextype* newIndexArray(sunindextype n)
+{
+  return(SUNDlsMat_newIndexArray(n));
+}
+
+sunindextype* SUNDlsMat_newIndexArray(sunindextype n)
 {
   sunindextype *v;
 
@@ -210,7 +260,12 @@ sunindextype *newIndexArray(sunindextype n)
   return(v);
 }
 
-realtype *NewRealArray(sunindextype N)
+realtype* NewRealArray(sunindextype N)
+{
+  return(SUNDlsMat_NewRealArray(N));
+}
+
+realtype* SUNDlsMat_NewRealArray(sunindextype N)
 {
   realtype *vec;
 
@@ -222,7 +277,12 @@ realtype *NewRealArray(sunindextype N)
   return(vec);
 }
 
-realtype *newRealArray(sunindextype m)
+realtype* newRealArray(sunindextype N)
+{
+  return(SUNDlsMat_newRealArray(N));
+}
+
+realtype* SUNDlsMat_newRealArray(sunindextype m)
 {
   realtype *v;
 
@@ -234,20 +294,34 @@ realtype *newRealArray(sunindextype m)
   return(v);
 }
 
-void DestroyArray(void *V)
-{ 
-  free(V); 
+void DestroyArray(void *p)
+{
+  SUNDlsMat_DestroyArray(p);
+}
+
+void SUNDlsMat_DestroyArray(void *V)
+{
+  free(V);
   V = NULL;
 }
 
-void destroyArray(void *v)
+void destroyArray(void *p)
 {
-  free(v); 
+  SUNDlsMat_destroyArray(p);
+}
+
+void SUNDlsMat_destroyArray(void *v)
+{
+  free(v);
   v = NULL;
 }
 
+void AddIdentity(SUNDlsMat A)
+{
+  SUNDlsMat_AddIdentity(A);
+}
 
-void AddIdentity(DlsMat A)
+void SUNDlsMat_AddIdentity(SUNDlsMat A)
 {
   sunindextype i;
 
@@ -265,8 +339,12 @@ void AddIdentity(DlsMat A)
 
 }
 
+void SetToZero(SUNDlsMat A)
+{
+  SUNDlsMat_SetToZero(A);
+}
 
-void SetToZero(DlsMat A)
+void SUNDlsMat_SetToZero(SUNDlsMat A)
 {
   sunindextype i, j, colSize;
   realtype *col_j;
@@ -274,7 +352,7 @@ void SetToZero(DlsMat A)
   switch (A->type) {
 
   case SUNDIALS_DENSE:
-    
+
     for (j=0; j<A->N; j++) {
       col_j = A->cols[j];
       for (i=0; i<A->M; i++)
@@ -298,8 +376,12 @@ void SetToZero(DlsMat A)
 
 }
 
+void PrintMat(SUNDlsMat A, FILE *outfile)
+{
+  SUNDlsMat_PrintMat(A, outfile);
+}
 
-void PrintMat(DlsMat A, FILE *outfile)
+void SUNDlsMat_PrintMat(SUNDlsMat A, FILE *outfile)
 {
   sunindextype i, j, start, finish;
   realtype **a;
@@ -312,17 +394,17 @@ void PrintMat(DlsMat A, FILE *outfile)
     for (i=0; i < A->M; i++) {
       for (j=0; j < A->N; j++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-        fprintf(outfile, "%12Lg  ", DENSE_ELEM(A,i,j));
+        fprintf(outfile, "%12Lg  ", SUNDLS_DENSE_ELEM(A,i,j));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-        fprintf(outfile, "%12g  ", DENSE_ELEM(A,i,j));
+        fprintf(outfile, "%12g  ", SUNDLS_DENSE_ELEM(A,i,j));
 #else
-        fprintf(outfile, "%12g  ", DENSE_ELEM(A,i,j));
+        fprintf(outfile, "%12g  ", SUNDLS_DENSE_ELEM(A,i,j));
 #endif
       }
       fprintf(outfile, "\n");
     }
     fprintf(outfile, "\n");
-    
+
     break;
 
   case SUNDIALS_BAND:
@@ -345,11 +427,9 @@ void PrintMat(DlsMat A, FILE *outfile)
       fprintf(outfile, "\n");
     }
     fprintf(outfile, "\n");
-    
+
     break;
 
   }
 
 }
-
-

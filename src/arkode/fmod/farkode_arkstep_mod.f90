@@ -39,22 +39,22 @@ module farkode_arkstep_mod
  private
 
  ! DECLARATION CONSTRUCTS
- integer(C_INT), parameter, public :: DEFAULT_ERK_2 = 0_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_3 = 1_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_4 = 3_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_5 = 6_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_6 = 10_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_8 = 11_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_2 = 100_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_3 = 104_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_4 = 107_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_5 = 111_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_3 = 2_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_4 = 4_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_5 = 9_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_3 = 104_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_4 = 109_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_5 = 111_C_INT
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_2 = ARKODE_HEUN_EULER_2_1_2
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_4 = ARKODE_ZONNEVELD_5_3_4
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_5 = ARKODE_CASH_KARP_6_4_5
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_6 = ARKODE_VERNER_8_5_6
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_8 = ARKODE_FEHLBERG_13_7_8
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_2 = ARKODE_SDIRK_2_1_2
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_3 = ARKODE_ARK324L2SA_DIRK_4_2_3
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_4 = ARKODE_SDIRK_5_3_4
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_5 = ARKODE_ARK548L2SA_DIRK_8_4_5
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_3 = ARKODE_ARK324L2SA_ERK_4_2_3
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_4 = ARKODE_ARK436L2SA_ERK_6_3_4
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_5 = ARKODE_ARK548L2SA_ERK_8_4_5
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5
  public :: FARKStepCreate
  public :: FARKStepResize
  public :: FARKStepReInit
@@ -2020,8 +2020,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: itable
-integer(C_INT), intent(in) :: etable
+integer(ARKODE_DIRKTableID), intent(in) :: itable
+integer(ARKODE_ERKTableID), intent(in) :: etable
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 

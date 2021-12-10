@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
   /* Create SUNLinSol_SPGMR object with right preconditioning and the
      maximum Krylov dimension maxl */
   maxl = 15;
-  LS = SUNLinSol_SPGMR(cc, PREC_RIGHT, maxl, sunctx);
+  LS = SUNLinSol_SPGMR(cc, SUN_PREC_RIGHT, maxl, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear solver to KINSOL */
@@ -460,7 +460,7 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
       } /* end of j loop */
 
       /* Do LU decomposition of size NUM_SPECIES preconditioner block */
-      ret = denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
+      ret = SUNDlsMat_denseGETRF(Pxy, NUM_SPECIES, NUM_SPECIES, (data->pivot)[jx][jy]);
       if (ret != 0) return(1);
 
     } /* end of jx loop */
@@ -498,7 +498,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
       vxy = IJ_Vptr(vv,jx,jy);
       Pxy = (data->P)[jx][jy];
       piv = (data->pivot)[jx][jy];
-      denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
+      SUNDlsMat_denseGETRS(Pxy, NUM_SPECIES, piv, vxy);
 
     } /* end of jy loop */
 
@@ -564,12 +564,12 @@ static UserData AllocUserData(void)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      (data->P)[jx][jy] = newDenseMat(NUM_SPECIES, NUM_SPECIES);
-      (data->pivot)[jx][jy] = newIndexArray(NUM_SPECIES);
+      (data->P)[jx][jy] = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
+      (data->pivot)[jx][jy] = SUNDlsMat_newIndexArray(NUM_SPECIES);
     }
   }
 
-  acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
@@ -641,12 +641,12 @@ static void FreeUserData(UserData data)
 
   for (jx=0; jx < MX; jx++) {
     for (jy=0; jy < MY; jy++) {
-      destroyMat((data->P)[jx][jy]);
-      destroyArray((data->pivot)[jx][jy]);
+      SUNDlsMat_destroyMat((data->P)[jx][jy]);
+      SUNDlsMat_destroyArray((data->pivot)[jx][jy]);
     }
   }
 
-  destroyMat(acoef);
+  SUNDlsMat_destroyMat(acoef);
   free(bcoef);
   free(cox);
   free(coy);

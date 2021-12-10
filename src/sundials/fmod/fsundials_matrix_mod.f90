@@ -60,7 +60,6 @@ module fsundials_matrix_mod
  public :: FSUNMatMatvecSetup
  public :: FSUNMatMatvec
  public :: FSUNMatSpace
- integer(C_INT), parameter, public :: SUNMAT_CONTEXT_ALREADY_SET = 701_C_INT
  integer(C_INT), parameter, public :: SUNMAT_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: SUNMAT_ILL_INPUT = -701_C_INT
  integer(C_INT), parameter, public :: SUNMAT_MEM_FAIL = -702_C_INT

@@ -315,7 +315,7 @@ program main
   ! -------------------------
   ! Create a linear solver
 
-  sunlinsol_LS => FSUNLinSol_SPGMR(sunvec_u, PREC_NONE, 10, sunctx)
+  sunlinsol_LS => FSUNLinSol_SPGMR(sunvec_u, SUN_PREC_NONE, 10, sunctx)
   if (.not. associated(sunlinsol_LS)) then
      print *,'ERROR: sunlinsol = NULL'
      stop 1

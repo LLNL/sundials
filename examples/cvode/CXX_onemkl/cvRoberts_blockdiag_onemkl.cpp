@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
   else
   {
     // Create SPGMR solver
-    LS = SUNLinSol_SPGMR(y, PREC_RIGHT, 10, sunctx);
+    LS = SUNLinSol_SPGMR(y, SUN_PREC_RIGHT, 10, sunctx);
     if (check_retval(&retval, "SUNLinSol_SPGMR", 1)) return 1;
 
     // Call CVodeSetLinearSolver to attach the linear solver to CVode

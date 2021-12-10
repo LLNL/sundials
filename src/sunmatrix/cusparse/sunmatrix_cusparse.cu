@@ -29,6 +29,7 @@
 
 
 /* Use the namespace for the kernels */
+using namespace sundials::cuda;
 using namespace sundials::sunmatrix_cusparse;
 
 /* Constants */
@@ -86,7 +87,7 @@ static cusparseStatus_t CreateSpMatDescr(SUNMatrix, cusparseSpMatDescr_t*);
  * covered.
  * ------------------------------------------------------------------ */
 
-class SUNCuSparseMatrixExecPolicy : public SUNCudaExecPolicy
+class SUNCuSparseMatrixExecPolicy : public ExecPolicy
 {
 public:
   SUNCuSparseMatrixExecPolicy(const cudaStream_t stream = 0)
@@ -112,9 +113,9 @@ public:
     return(&stream_);
   }
 
-  virtual CudaExecPolicy* clone() const
+  virtual ExecPolicy* clone() const
   {
-    return(static_cast<CudaExecPolicy*>(new SUNCuSparseMatrixExecPolicy(*this)));
+    return(static_cast<ExecPolicy*>(new SUNCuSparseMatrixExecPolicy(*this)));
   }
 
   static size_t max_block_size(int val)

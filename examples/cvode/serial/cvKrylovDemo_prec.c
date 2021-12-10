@@ -47,42 +47,45 @@
  *  d(i) = Dprey  (i <= np)
  *  d(i) = Dpred  (i > np)
  *
- * The spatial domain is the unit square. The final time is 10.
- * The boundary conditions are: normal derivative = 0.
- * A polynomial in x and y is used to set the initial conditions.
+ * The spatial domain is the unit square. The final time is 10. The
+ * boundary conditions are: normal derivative = 0. A polynomial in x
+ * and y is used to set the initial conditions.
  *
- * The PDEs are discretized by central differencing on an MX by MY mesh.
+ * The PDEs are discretized by central differencing on an MX by MY
+ * mesh.
  *
  * The resulting ODE system is stiff.
  *
- * The ODE system is solved using Newton iteration and the SUNLinSol_SPGMR
- * linear solver (scaled preconditioned GMRES).
+ * The ODE system is solved using Newton iteration and the
+ * SUNLinSol_SPGMR linear solver (scaled preconditioned GMRES).
  *
  * The preconditioner matrix used is the product of two matrices:
- * (1) A matrix, only defined implicitly, based on a fixed number
- * of Gauss-Seidel iterations using the diffusion terms only.
- * (2) A block-diagonal matrix based on the partial derivatives
- * of the interaction terms f only, using block-grouping (computing
- * only a subset of the ns by ns blocks).
+ * (1) A matrix, only defined implicitly, based on a fixed number of
+ * Gauss-Seidel iterations using the diffusion terms only. (2) A
+ * block-diagonal matrix based on the partial derivatives of the
+ * interaction terms f only, using block-grouping (computing only a
+ * subset of the ns by ns blocks).
  *
- * Four different runs are made for this problem.
- * The product preconditoner is applied on the left and on the
- * right. In each case, both the modified and classical Gram-Schmidt
- * options are tested.
- * In the series of runs, CVodeInit, SUNLinSol_SPGMR, and
+ * Four different runs are made for this problem. The product
+ * preconditoner is applied on the left and on the right. In each
+ * case, both the modified and classical Gram-Schmidt options are
+ * tested. In the series of runs, CVodeInit, SUNLinSol_SPGMR, and
  * CVSetLinearSolver are called only for the first run, whereas
- * CVodeReInit, SUNLinSol_SPGMRSetPrecType, and SUNLinSol_SPGMRSetGSType
- * are called for each of the remaining three runs.
+ * CVodeReInit, SUNLinSol_SPGMRSetPrecType, and
+ * SUNLinSol_SPGMRSetGSType are called for each of the remaining
+ * three runs.
  *
  * A problem description, performance statistics at selected output
- * times, and final statistics are written to standard output.
- * On the first run, solution values are also printed at output
- * times. Error and warning messages are written to standard error,
- * but there should be no such messages.
+ * times, and final statistics are written to standard output. On
+ * the first run, solution values are also printed at output times.
+ * Error and warning messages are written to standard error, but
+ * there should be no such messages.
  *
  * Note: This program requires the dense linear solver functions
- * newDenseMat, newIndexArray, denseAddIdentity, denseGETRF, denseGETRS,
- * destroyMat and destroyArray.
+ * SUNDlsMat_newDenseMat, SUNDlsMat_newIndexArray,
+ * SUNDlsMat_denseAddIdentity, SUNDlsMat_denseGETRF,
+ * SUNDlsMat_denseGETRS, SUNDlsMat_destroyMat and
+ * SUNDlsMat_destroyArray.
  *
  * Note: This program assumes the sequential implementation for the
  * type N_Vector and uses the N_VGetArrayPointer function to gain
@@ -267,8 +270,8 @@ int main()
   PrintIntro();
 
   /* Loop over jpre and gstype (four cases) */
-  for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
-    for (gstype = MODIFIED_GS; gstype <= CLASSICAL_GS; gstype++) {
+  for (jpre = SUN_PREC_LEFT; jpre <= SUN_PREC_RIGHT; jpre++) {
+    for (gstype = SUN_MODIFIED_GS; gstype <= SUN_CLASSICAL_GS; gstype++) {
 
       /* Initialize c and print heading */
       CInit(c, wdata);
@@ -276,7 +279,7 @@ int main()
 
       /* Call CVodeInit or CVodeReInit, then SUNLinSol_SPGMR to set up problem */
 
-      firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
+      firstrun = (jpre == SUN_PREC_LEFT) && (gstype == SUN_MODIFIED_GS);
       if (firstrun) {
         cvode_mem = CVodeCreate(CV_BDF, sunctx);
         if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -357,8 +360,8 @@ static WebData AllocUserData(void)
 
   wdata = (WebData) malloc(sizeof *wdata);
   for(i=0; i < ngrp; i++) {
-    (wdata->P)[i] = newDenseMat(ns, ns);
-    (wdata->pivot)[i] = newIndexArray(ns);
+    (wdata->P)[i] = SUNDlsMat_newDenseMat(ns, ns);
+    (wdata->pivot)[i] = SUNDlsMat_newIndexArray(ns);
   }
   wdata->rewt = N_VNew_Serial(NEQ, sunctx);
   wdata->tmp = N_VNew_Serial(NEQ, sunctx);
@@ -527,15 +530,15 @@ static void PrintIntro(void)
 
 static void PrintHeader(int jpre, int gstype)
 {
-  if(jpre == PREC_LEFT)
-    printf("\n\nPreconditioner type is           jpre = %s\n", "PREC_LEFT");
+  if(jpre == SUN_PREC_LEFT)
+    printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_LEFT");
   else
-    printf("\n\nPreconditioner type is           jpre = %s\n", "PREC_RIGHT");
+    printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_RIGHT");
 
-  if(gstype == MODIFIED_GS)
-    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "MODIFIED_GS");
+  if(gstype == SUN_MODIFIED_GS)
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_MODIFIED_GS");
   else
-    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "CLASSICAL_GS");
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_CLASSICAL_GS");
 }
 
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, realtype t)
@@ -670,8 +673,8 @@ static void FreeUserData(WebData wdata)
 
   ngrp = wdata->ngrp;
   for(i=0; i < ngrp; i++) {
-    destroyMat((wdata->P)[i]);
-    destroyArray((wdata->pivot)[i]);
+    SUNDlsMat_destroyMat((wdata->P)[i]);
+    SUNDlsMat_destroyArray((wdata->pivot)[i]);
   }
   N_VDestroy(wdata->rewt);
   N_VDestroy(wdata->tmp);
@@ -764,7 +767,7 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
 /*
  This routine generates the block-diagonal part of the Jacobian
  corresponding to the interaction rates, multiplies by -gamma, adds
- the identity matrix, and calls denseGETRF to do the LU decomposition of
+ the identity matrix, and calls SUNDlsMat_denseGETRF to do the LU decomposition of
  each diagonal block. The computation of the diagonal blocks uses
  the preset block and grouping information. One block per group is
  computed. The Jacobian elements are generated by difference
@@ -847,8 +850,8 @@ static int Precond(realtype t, N_Vector c, N_Vector fc, booleantype jok,
   /* Add identity matrix and do LU decompositions on blocks. */
 
   for (ig = 0; ig < ngrp; ig++) {
-    denseAddIdentity(P[ig], mp);
-    ier = denseGETRF(P[ig], mp, mp, pivot[ig]);
+    SUNDlsMat_denseAddIdentity(P[ig], mp);
+    ier = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
     if (ier != 0) return(1);
   }
 
@@ -917,7 +920,7 @@ static int PSolve(realtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
     for (jx = 0; jx < mx; jx++) {
       igx = jigx[jx];
       ig = igx + igy*ngx;
-      denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
+      SUNDlsMat_denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }

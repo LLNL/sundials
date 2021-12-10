@@ -16,6 +16,18 @@
 
 #include "sundials_export.h"
 
+#ifndef SUNDIALS_DEPRECATED_MSG
+#  define SUNDIALS_DEPRECATED_MSG(msg) @SUNDIALS_DEPRECATED_MSG_MACRO@
+#endif
+
+#ifndef SUNDIALS_DEPRECATED_EXPORT_MSG
+#  define SUNDIALS_DEPRECATED_EXPORT_MSG(msg) SUNDIALS_EXPORT SUNDIALS_DEPRECATED_MSG(msg)
+#endif
+
+#ifndef SUNDIALS_DEPRECATED_NO_EXPORT_MSG
+#  define SUNDIALS_DEPRECATED_NO_EXPORT_MSG(msg) SUNDIALS_NO_EXPORT SUNDIALS_DEPRECATED_MSG(msg)
+#endif
+
 /* ------------------------------------------------------------------
  * Define SUNDIALS version numbers
  * -----------------------------------------------------------------*/

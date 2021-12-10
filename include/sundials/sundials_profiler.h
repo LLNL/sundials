@@ -35,27 +35,6 @@ SUNDIALS_EXPORT int SUNProfiler_Begin(SUNProfiler p, const char* name);
 SUNDIALS_EXPORT int SUNProfiler_End(SUNProfiler p, const char* name);
 SUNDIALS_EXPORT int SUNProfiler_Print(SUNProfiler p, FILE* fp);
 
-#ifdef __cplusplus
-/* Convenience class for C++ codes.
-   Allows for simpler profiler statements using C++ scoping rules. */
-class SUNProfilerMarkScope
-{
-public:
-  SUNProfilerMarkScope(SUNProfiler prof, const char* name) {
-    prof_ = prof;
-    name_ = name;
-    SUNProfiler_Begin(prof_, name_);
-  }
-
-  ~SUNProfilerMarkScope() {
-    SUNProfiler_End(prof_, name_);
-  }
-private:
-  SUNProfiler prof_;
-  const char* name_;
-};
-#endif
-
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && defined(SUNDIALS_CALIPER_ENABLED)
 
 #define SUNDIALS_MARK_FUNCTION_BEGIN(profobj) CALI_MARK_FUNCTION_BEGIN
@@ -88,7 +67,7 @@ private:
 #define SUNDIALS_MARK_END(profobj, name) SUNProfiler_End(profobj, (name))
 
 #ifdef __cplusplus
-#define SUNDIALS_CXX_MARK_FUNCTION(profobj) SUNProfilerMarkScope SUNProfilerMarkScope(profobj, __func__)
+#define SUNDIALS_CXX_MARK_FUNCTION(profobj) sundials::ProfilerMarkScope __ProfilerMarkScope(profobj, __func__)
 #endif
 
 #else
@@ -109,8 +88,30 @@ private:
 
 #endif
 
-
 #ifdef __cplusplus
 }
+
+namespace sundials
+{
+/* Convenience class for C++ codes.
+   Allows for simpler profiler statements using C++ scoping rules. */
+class ProfilerMarkScope
+{
+public:
+  ProfilerMarkScope(SUNProfiler prof, const char* name) {
+    prof_ = prof;
+    name_ = name;
+    SUNProfiler_Begin(prof_, name_);
+  }
+
+  ~ProfilerMarkScope() {
+    SUNProfiler_End(prof_, name_);
+  }
+private:
+  SUNProfiler prof_;
+  const char* name_;
+};
+}
+
 #endif
 #endif /* SUNDIALS_PROFILER_H_ */

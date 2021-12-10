@@ -454,11 +454,11 @@ SWIGEXPORT int _wrap_FERKStepSetTable(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FERKStepSetTableNum(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  int arg2 ;
+  ARKODE_ERKTableID arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
+  arg2 = (ARKODE_ERKTableID)(*farg2);
   result = (int)ERKStepSetTableNum(arg1,arg2);
   fresult = (int)(result);
   return fresult;

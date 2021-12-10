@@ -642,13 +642,13 @@ SWIGEXPORT int _wrap_FARKStepSetTables(void *farg1, int const *farg2, int const 
 SWIGEXPORT int _wrap_FARKStepSetTableNum(void *farg1, int const *farg2, int const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int arg3 ;
+  ARKODE_DIRKTableID arg2 ;
+  ARKODE_ERKTableID arg3 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  arg3 = (int)(*farg3);
+  arg2 = (ARKODE_DIRKTableID)(*farg2);
+  arg3 = (ARKODE_ERKTableID)(*farg3);
   result = (int)ARKStepSetTableNum(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;

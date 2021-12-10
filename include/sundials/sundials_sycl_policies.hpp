@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This header files defines the SyclExecPolicy classes which
+ * This header files defines the ExecPolicy classes which
  * are utilized to determine SYCL kernel launch paramaters.
  * -----------------------------------------------------------------*/
 
@@ -24,14 +24,16 @@
 
 namespace sundials
 {
+namespace sycl
+{
 
-class SyclExecPolicy
+class ExecPolicy
 {
 public:
   virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
   virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
-  virtual SyclExecPolicy* clone() const = 0;
-  virtual ~SyclExecPolicy() {}
+  virtual ExecPolicy* clone() const = 0;
+  virtual ~ExecPolicy() {}
 };
 
 
@@ -41,14 +43,14 @@ public:
  * The grid size will be chosen so that there are enough threads for one
  * thread per element.
  */
-class SyclThreadDirectExecPolicy : public SyclExecPolicy
+class ThreadDirectExecPolicy : public ExecPolicy
 {
 public:
-  SyclThreadDirectExecPolicy(const size_t blockDim)
+  ThreadDirectExecPolicy(const size_t blockDim)
     : blockDim_(blockDim)
   {}
 
-  SyclThreadDirectExecPolicy(const SyclThreadDirectExecPolicy& ex)
+  ThreadDirectExecPolicy(const ThreadDirectExecPolicy& ex)
     : blockDim_(ex.blockDim_)
   {}
 
@@ -63,9 +65,9 @@ public:
     return blockDim_;
   }
 
-  virtual SyclExecPolicy* clone() const
+  virtual ExecPolicy* clone() const
   {
-    return static_cast<SyclExecPolicy*>(new SyclThreadDirectExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new ThreadDirectExecPolicy(*this));
   }
 
 private:
@@ -77,14 +79,14 @@ private:
  * The number of threads per block (blockSize) can be set to anything.
  * The number of blocks (gridSize) can be set to anything.
  */
-class SyclGridStrideExecPolicy : public SyclExecPolicy
+class GridStrideExecPolicy : public ExecPolicy
 {
 public:
-  SyclGridStrideExecPolicy(const size_t blockDim, const size_t gridDim)
+  GridStrideExecPolicy(const size_t blockDim, const size_t gridDim)
     : blockDim_(blockDim), gridDim_(gridDim)
   {}
 
-  SyclGridStrideExecPolicy(const SyclGridStrideExecPolicy& ex)
+  GridStrideExecPolicy(const GridStrideExecPolicy& ex)
     : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_)
   {}
 
@@ -98,9 +100,9 @@ public:
     return blockDim_;
   }
 
-  virtual SyclExecPolicy* clone() const
+  virtual ExecPolicy* clone() const
   {
-    return static_cast<SyclExecPolicy*>(new SyclGridStrideExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new GridStrideExecPolicy(*this));
   }
 
 private:
@@ -116,14 +118,14 @@ private:
  * to 0. If it is set to 0, then the grid size will be chosen so that there are
  * at most two work units per thread.
  */
-class SyclBlockReduceExecPolicy : public SyclExecPolicy
+class BlockReduceExecPolicy : public ExecPolicy
 {
 public:
-  SyclBlockReduceExecPolicy(const size_t blockDim, const size_t gridDim = 0)
+  BlockReduceExecPolicy(const size_t blockDim, const size_t gridDim = 0)
     : blockDim_(blockDim), gridDim_(gridDim)
   {}
 
-  SyclBlockReduceExecPolicy(const SyclBlockReduceExecPolicy& ex)
+  BlockReduceExecPolicy(const BlockReduceExecPolicy& ex)
     : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_)
   {}
 
@@ -141,9 +143,9 @@ public:
     return blockDim_;
   }
 
-  virtual SyclExecPolicy* clone() const
+  virtual ExecPolicy* clone() const
   {
-    return static_cast<SyclExecPolicy*>(new SyclBlockReduceExecPolicy(*this));
+    return static_cast<ExecPolicy*>(new BlockReduceExecPolicy(*this));
   }
 
 private:
@@ -151,11 +153,12 @@ private:
   const size_t gridDim_;
 };
 
+} // namespace sycl
 } // namespace sundials
 
-typedef sundials::SyclExecPolicy SUNSyclExecPolicy;
-typedef sundials::SyclThreadDirectExecPolicy SUNSyclThreadDirectExecPolicy;
-typedef sundials::SyclGridStrideExecPolicy SUNSyclGridStrideExecPolicy;
-typedef sundials::SyclBlockReduceExecPolicy SUNSyclBlockReduceExecPolicy;
+typedef sundials::sycl::ExecPolicy SUNSyclExecPolicy;
+typedef sundials::sycl::ThreadDirectExecPolicy SUNSyclThreadDirectExecPolicy;
+typedef sundials::sycl::GridStrideExecPolicy SUNSyclGridStrideExecPolicy;
+typedef sundials::sycl::BlockReduceExecPolicy SUNSyclBlockReduceExecPolicy;
 
 #endif

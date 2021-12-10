@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
   N_VConst(FIVE, ProbData.d);
 
   /* Create PCG linear solver */
-  LS = SUNLinSol_PCG(x, PREC_RIGHT, maxl, sunctx);
+  LS = SUNLinSol_PCG(x, SUN_PREC_RIGHT, maxl, sunctx);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_PCG, 0);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run test with this setup */
-  fails += SUNLinSol_PCGSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_PCGSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_PCGSetPrecType(LS, PREC_RIGHT);
+  fails += SUNLinSol_PCGSetPrecType(LS, SUN_PREC_RIGHT);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_PCGSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_PCGSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_PCGSetPrecType(LS, PREC_RIGHT);
+  fails += SUNLinSol_PCGSetPrecType(LS, SUN_PREC_RIGHT);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, 0);

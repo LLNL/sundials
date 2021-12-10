@@ -509,10 +509,10 @@ SWIGEXPORT void _wrap_MRIStepCouplingMem_op_assign__(SwigClassWrapper *farg1, Sw
 
 SWIGEXPORT SwigClassWrapper _wrap_FMRIStepCoupling_LoadTable(int const *farg1) {
   SwigClassWrapper fresult ;
-  int arg1 ;
+  ARKODE_MRITableID arg1 ;
   MRIStepCoupling result;
   
-  arg1 = (int)(*farg1);
+  arg1 = (ARKODE_MRITableID)(*farg1);
   result = (MRIStepCoupling)MRIStepCoupling_LoadTable(arg1);
   fresult.cptr = result;
   fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);

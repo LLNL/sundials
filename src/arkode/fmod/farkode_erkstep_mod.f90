@@ -39,12 +39,12 @@ module farkode_erkstep_mod
  private
 
  ! DECLARATION CONSTRUCTS
- integer(C_INT), parameter, public :: DEFAULT_ERK_2 = 0_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_3 = 1_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_4 = 3_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_5 = 6_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_6 = 10_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_8 = 11_C_INT
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_2 = ARKODE_HEUN_EULER_2_1_2
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_4 = ARKODE_ZONNEVELD_5_3_4
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_5 = ARKODE_CASH_KARP_6_4_5
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_6 = ARKODE_VERNER_8_5_6
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_8 = ARKODE_FEHLBERG_13_7_8
  public :: FERKStepCreate
  public :: FERKStepResize
  public :: FERKStepReInit
@@ -1070,7 +1070,7 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: itable
+integer(ARKODE_ERKTableID), intent(in) :: itable
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 

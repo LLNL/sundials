@@ -58,14 +58,33 @@ module farkode_mristep_mod
  integer(C_INT), parameter, public :: IMEX_MRI_GARK4 = 208_C_INT
  integer(C_INT), parameter, public :: MIN_MRI_NUM = 200_C_INT
  integer(C_INT), parameter, public :: MAX_MRI_NUM = 208_C_INT
- integer(C_INT), parameter, public :: DEFAULT_MRI_TABLE_3 = 200_C_INT
- integer(C_INT), parameter, public :: DEFAULT_EXPL_MRI_TABLE_3 = 200_C_INT
- integer(C_INT), parameter, public :: DEFAULT_EXPL_MRI_TABLE_4 = 202_C_INT
- integer(C_INT), parameter, public :: DEFAULT_IMPL_SD_MRI_TABLE_2 = 203_C_INT
- integer(C_INT), parameter, public :: DEFAULT_IMPL_SD_MRI_TABLE_3 = 204_C_INT
- integer(C_INT), parameter, public :: DEFAULT_IMPL_SD_MRI_TABLE_4 = 205_C_INT
- integer(C_INT), parameter, public :: DEFAULT_IMEX_SD_MRI_TABLE_3 = 207_C_INT
- integer(C_INT), parameter, public :: DEFAULT_IMEX_SD_MRI_TABLE_4 = 208_C_INT
+ ! typedef enum ARKODE_MRITableID
+ enum, bind(c)
+  enumerator :: ARKODE_MRI_NONE = -1
+  enumerator :: ARKODE_MIN_MRI_NUM = 200
+  enumerator :: ARKODE_MIS_KW3 = ARKODE_MIN_MRI_NUM
+  enumerator :: ARKODE_MRI_GARK_ERK33a
+  enumerator :: ARKODE_MRI_GARK_ERK45a
+  enumerator :: ARKODE_MRI_GARK_IRK21a
+  enumerator :: ARKODE_MRI_GARK_ESDIRK34a
+  enumerator :: ARKODE_MRI_GARK_ESDIRK46a
+  enumerator :: ARKODE_IMEX_MRI_GARK3a
+  enumerator :: ARKODE_IMEX_MRI_GARK3b
+  enumerator :: ARKODE_IMEX_MRI_GARK4
+  enumerator :: ARKODE_MAX_MRI_NUM = ARKODE_IMEX_MRI_GARK4
+ end enum
+ integer, parameter, public :: ARKODE_MRITableID = kind(ARKODE_MRI_NONE)
+ public :: ARKODE_MRI_NONE, ARKODE_MIN_MRI_NUM, ARKODE_MIS_KW3, ARKODE_MRI_GARK_ERK33a, ARKODE_MRI_GARK_ERK45a, &
+    ARKODE_MRI_GARK_IRK21a, ARKODE_MRI_GARK_ESDIRK34a, ARKODE_MRI_GARK_ESDIRK46a, ARKODE_IMEX_MRI_GARK3a, &
+    ARKODE_IMEX_MRI_GARK3b, ARKODE_IMEX_MRI_GARK4, ARKODE_MAX_MRI_NUM
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_3 = ARKODE_MIS_KW3
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_3 = ARKODE_MIS_KW3
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_4 = ARKODE_MRI_GARK_ERK45a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMPL_SD_2 = ARKODE_MRI_GARK_IRK21a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMPL_SD_3 = ARKODE_MRI_GARK_ESDIRK34a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMPL_SD_4 = ARKODE_MRI_GARK_ESDIRK46a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_3 = ARKODE_IMEX_MRI_GARK3b
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_GARK4
 
  integer, parameter :: swig_cmem_own_bit = 0
  integer, parameter :: swig_cmem_rvalue_bit = 1
@@ -1552,7 +1571,7 @@ function FMRIStepCoupling_LoadTable(imethod) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(MRIStepCouplingMem) :: swig_result
-integer(C_INT), intent(in) :: imethod
+integer(ARKODE_MRITableID), intent(in) :: imethod
 type(SwigClassWrapper) :: fresult 
 integer(C_INT) :: farg1 
 

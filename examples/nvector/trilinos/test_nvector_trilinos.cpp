@@ -28,6 +28,8 @@
 #include <nvector/nvector_trilinos.h>
 #include "test_nvector.h"
 
+using namespace sundials::trilinos::nvector_tpetra;
+
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
@@ -37,7 +39,7 @@ int main (int argc, char *argv[])
   using Teuchos::rcp;
 
   /* Define SUNDIALS compatible map and vector types */
-  typedef Sundials::TpetraVectorInterface::vector_type vector_type;
+  typedef TpetraVectorInterface::vector_type vector_type;
   typedef vector_type::map_type map_type;
 
   Test_Init(NULL);
@@ -210,7 +212,7 @@ int main (int argc, char *argv[])
  */
 int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
-  Teuchos::RCP<Sundials::TpetraVectorInterface::vector_type> xv =
+  Teuchos::RCP<TpetraVectorInterface::vector_type> xv =
     N_VGetVector_Trilinos(X);
 
   /* Sync the host with the device if needed */
@@ -256,7 +258,7 @@ void set_element(N_Vector X, sunindextype i, realtype val)
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
                        realtype val)
 {
-  typedef Sundials::TpetraVectorInterface::vector_type vector_type;
+  typedef TpetraVectorInterface::vector_type vector_type;
   typedef vector_type::node_type::memory_space memory_space;
 
   Teuchos::RCP<vector_type> xv = N_VGetVector_Trilinos(X);
@@ -280,7 +282,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
  */
 realtype get_element(N_Vector X, sunindextype i)
 {
-  Teuchos::RCP<Sundials::TpetraVectorInterface::vector_type> xv =
+  Teuchos::RCP<TpetraVectorInterface::vector_type> xv =
     N_VGetVector_Trilinos(X);
 
   /* Sync the host with the device if needed */
@@ -294,7 +296,7 @@ realtype get_element(N_Vector X, sunindextype i)
 double max_time(N_Vector X, double time)
 {
   double maxtime = 0.0;
-  Teuchos::RCP<Sundials::TpetraVectorInterface::vector_type> xv =
+  Teuchos::RCP<TpetraVectorInterface::vector_type> xv =
     N_VGetVector_Trilinos(X);
   auto comm = xv->getMap()->getComm();
   Teuchos::reduceAll<int, double> (*comm, Teuchos::REDUCE_SUM, time,

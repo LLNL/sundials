@@ -33,6 +33,7 @@
 extern "C" {
 
 using namespace sundials;
+using namespace sundials::cuda;
 using namespace sundials::nvector_cuda;
 
 /*
@@ -217,8 +218,8 @@ N_Vector N_VNew_Cuda(sunindextype length, SUNContext sunctx)
 
   NVEC_CUDA_CONTENT(v)->length             = length;
   NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
-  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new CudaThreadDirectExecPolicy(256);
-  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new CudaBlockReduceExecPolicy(256);
+  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(256);
+  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(256);
   NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_CUDA_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_CUDA_PRIVATE(v)->use_managed_mem    = SUNFALSE;
@@ -262,8 +263,8 @@ N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem
 
   NVEC_CUDA_CONTENT(v)->length             = length;
   NVEC_CUDA_CONTENT(v)->mem_helper         = helper;
-  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new CudaThreadDirectExecPolicy(256);
-  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new CudaBlockReduceExecPolicy(256);
+  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(256);
+  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(256);
   NVEC_CUDA_CONTENT(v)->own_helper         = SUNFALSE;
   NVEC_CUDA_CONTENT(v)->own_exec           = SUNTRUE;
   NVEC_CUDA_PRIVATE(v)->use_managed_mem    = use_managed_mem;
@@ -287,8 +288,8 @@ N_Vector N_VNewManaged_Cuda(sunindextype length, SUNContext sunctx)
   if (v == NULL) return(NULL);
 
   NVEC_CUDA_CONTENT(v)->length             = length;
-  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new CudaThreadDirectExecPolicy(256);
-  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new CudaBlockReduceExecPolicy(256);
+  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(256);
+  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(256);
   NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
   NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_CUDA_CONTENT(v)->own_exec           = SUNTRUE;
@@ -324,8 +325,8 @@ N_Vector N_VMake_Cuda(sunindextype length, realtype *h_vdata, realtype *d_vdata,
   NVEC_CUDA_CONTENT(v)->length             = length;
   NVEC_CUDA_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(h_vdata, SUNMEMTYPE_HOST);
   NVEC_CUDA_CONTENT(v)->device_data        = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
-  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new CudaThreadDirectExecPolicy(256);
-  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new CudaBlockReduceExecPolicy(256);
+  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(256);
+  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(256);
   NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
   NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_CUDA_CONTENT(v)->own_exec           = SUNTRUE;
@@ -362,8 +363,8 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata, SUNContext su
   NVEC_CUDA_CONTENT(v)->length             = length;
   NVEC_CUDA_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
   NVEC_CUDA_CONTENT(v)->device_data        = SUNMemoryHelper_Alias(NVEC_CUDA_CONTENT(v)->host_data);
-  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new CudaThreadDirectExecPolicy(256);
-  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new CudaBlockReduceExecPolicy(256);
+  NVEC_CUDA_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(256);
+  NVEC_CUDA_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(256);
   NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
   NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
   NVEC_CUDA_CONTENT(v)->own_exec           = SUNTRUE;

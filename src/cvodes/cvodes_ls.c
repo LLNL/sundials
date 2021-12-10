@@ -496,8 +496,8 @@ int CVodeSetPreconditioner(void *cvode_mem, CVLsPrecSetupFn psetup,
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
-  PSetupFn cvls_psetup;
-  PSolveFn cvls_psolve;
+  SUNPSetupFn cvls_psetup;
+  SUNPSolveFn cvls_psolve;
   int      retval;
 
   /* access CVLsMem structure */

@@ -674,8 +674,8 @@ int arkLSSetPreconditioner(void *arkode_mem,
 {
   ARKodeMem ark_mem;
   ARKLsMem  arkls_mem;
-  PSetupFn  arkls_psetup;
-  PSolveFn  arkls_psolve;
+  SUNPSetupFn  arkls_psetup;
+  SUNPSolveFn  arkls_psolve;
   int       retval;
 
   /* access ARKLsMem structure */
@@ -1223,8 +1223,8 @@ int arkLSSetMassPreconditioner(void *arkode_mem,
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
-  PSetupFn     arkls_mpsetup;
-  PSolveFn     arkls_mpsolve;
+  SUNPSetupFn     arkls_mpsetup;
+  SUNPSolveFn     arkls_mpsolve;
   int          retval;
 
   /* access ARKLsMassMem structure */

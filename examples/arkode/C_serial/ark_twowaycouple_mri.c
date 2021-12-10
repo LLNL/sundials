@@ -117,7 +117,7 @@ int main()
   if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set the fast method */
-  retval = ARKStepSetTableNum(inner_arkode_mem, -1, KNOTH_WOLKE_3_3);
+  retval = ARKStepSetTableNum(inner_arkode_mem, -1, ARKODE_KNOTH_WOLKE_3_3);
   if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
 
   /* Set the fast step size */

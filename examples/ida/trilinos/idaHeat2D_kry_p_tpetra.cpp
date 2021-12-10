@@ -70,7 +70,7 @@
 /* Global spatial mesh is MX x MY = (NPEX x MXSUB) x (NPEY x MYSUB) */
 
 /* type definitions */
-typedef Sundials::TpetraVectorInterface::vector_type vector_type;
+typedef sundials::trilinos::nvector_tpetra::TpetraVectorInterface::vector_type vector_type;
 typedef vector_type::scalar_type scalar_type;
 typedef vector_type::mag_type mag_type;
 typedef vector_type::global_ordinal_type global_ordinal_type;
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 
     /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
 
-    SUNLinearSolver LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0, ctx);  /* use default maxl */
+    SUNLinearSolver LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);  /* use default maxl */
     if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe))
       return -1;
 

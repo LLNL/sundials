@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
   /* Create SUNLinSol_SPGMR object with right preconditioning and the
      maximum Krylov dimension maxl */
   maxl = 20;
-  LS = SUNLinSol_SPGMR(cc, PREC_RIGHT, maxl, sunctx);
+  LS = SUNLinSol_SPGMR(cc, SUN_PREC_RIGHT, maxl, sunctx);
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach the linear solver to KINSOL */
@@ -580,7 +580,7 @@ static UserData AllocUserData(void)
 
   data = (UserData) malloc(sizeof *data);
 
-  acoef = newDenseMat(NUM_SPECIES, NUM_SPECIES);
+  acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
   bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
   coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
@@ -654,7 +654,7 @@ static void InitUserData(int my_pe, sunindextype Nlocal, MPI_Comm comm, UserData
 static void FreeUserData(UserData data)
 {
 
-  destroyMat(acoef);
+  SUNDlsMat_destroyMat(acoef);
   free(bcoef);
   free(cox); free(coy);
   N_VDestroy(data->rates);

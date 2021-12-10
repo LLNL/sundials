@@ -146,8 +146,8 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
   }
 
   /* perform LU factorization of input matrix */
-  LASTFLAG(S) = denseGETRF(A_cols, SUNDenseMatrix_Rows(A),
-                           SUNDenseMatrix_Columns(A), pivots);
+  LASTFLAG(S) = SUNDlsMat_denseGETRF(A_cols, SUNDenseMatrix_Rows(A),
+                                     SUNDenseMatrix_Columns(A), pivots);
 
   /* store error flag (if nonzero, this row encountered zero-valued pivod) */
   if (LASTFLAG(S) > 0)
@@ -180,7 +180,7 @@ int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   }
 
   /* solve using LU factors */
-  denseGETRS(A_cols, SUNDenseMatrix_Rows(A), pivots, xdata);
+  SUNDlsMat_denseGETRS(A_cols, SUNDenseMatrix_Rows(A), pivots, xdata);
   LASTFLAG(S) = SUNLS_SUCCESS;
   return(SUNLS_SUCCESS);
 }

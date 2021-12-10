@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
    */
 
   /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
-  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0, ctx);  /* IDA recommends left-preconditioning only;
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);  /* IDA recommends left-preconditioning only;
                                                    0 indicates to use default maxl value */
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 

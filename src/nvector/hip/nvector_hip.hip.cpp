@@ -33,6 +33,7 @@
 extern "C" {
 
 using namespace sundials;
+using namespace sundials::hip;
 using namespace sundials::nvector_hip;
 
 /*
@@ -80,8 +81,8 @@ static void PostKernelLaunch();
  * Defaults
  */
 
-static HipThreadDirectExecPolicy NVEC_HIP_DEFAULT_STREAM_POLICY(512);
-static HipBlockReduceExecPolicy NVEC_HIP_DEFAULT_REDUCE_POLICY(512);
+static ThreadDirectExecPolicy NVEC_HIP_DEFAULT_STREAM_POLICY(512);
+static BlockReduceExecPolicy NVEC_HIP_DEFAULT_REDUCE_POLICY(512);
 
 
 /* ----------------------------------------------------------------

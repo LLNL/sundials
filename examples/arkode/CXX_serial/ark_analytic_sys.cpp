@@ -69,7 +69,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Private function to perform matrix-matrix product
-static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C);
+static int SUNDlsMat_dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C);
 
 // Private function to check function return values
 static int check_flag(void *flagvalue, const string funcname, int opt);
@@ -291,11 +291,11 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
   SM_ELEMENT_D(D,2,2) = lam;
 
   // Compute J = V*D*Vi
-  if (dense_MM(D,Vi,J) != 0) {     // J = D*Vi
+  if (SUNDlsMat_dense_MM(D,Vi,J) != 0) {     // J = D*Vi
     cerr << "matmul error\n";
     return 1;
   }
-  if (dense_MM(V,J,D) != 0) {      // D = V*J [= V*D*Vi]
+  if (SUNDlsMat_dense_MM(V,J,D) != 0) {      // D = V*J [= V*D*Vi]
     cerr << "matmul error\n";
     return 1;
   }
@@ -313,7 +313,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
  *-------------------------------*/
 
 // SUNDenseMatrix matrix-multiply utility routine: C = A*B.
-static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
+static int SUNDlsMat_dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
 {
   // check for legal dimensions
   if ( (SUNDenseMatrix_Columns(A) != SUNDenseMatrix_Rows(B)) ||

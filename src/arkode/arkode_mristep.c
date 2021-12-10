@@ -1646,16 +1646,16 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
 
     switch (step_mem->q) {
     case 3:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(DEFAULT_IMEX_SD_MRI_TABLE_3);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3);
       break;
     case 4:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(DEFAULT_IMEX_SD_MRI_TABLE_4);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_4);
       break;
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
                       "mriStep_SetCoupling",
                       "No MRI method at requested order, using q=3.");
-      step_mem->MRIC = MRIStepCoupling_LoadTable(DEFAULT_IMEX_SD_MRI_TABLE_3);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3);
       break;
     }
 
@@ -1664,19 +1664,19 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
 
     switch (step_mem->q) {
     case 2:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(DEFAULT_IMPL_SD_MRI_TABLE_3);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_3);
       break;
     case 3:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(DEFAULT_IMPL_SD_MRI_TABLE_3);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_3);
       break;
     case 4:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(DEFAULT_IMPL_SD_MRI_TABLE_4);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_4);
       break;
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
                       "mriStep_SetCoupling",
                       "No MRI method at requested order, using q=3.");
-      step_mem->MRIC = MRIStepCoupling_LoadTable(DEFAULT_IMPL_SD_MRI_TABLE_3);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_3);
       break;
     }
 
@@ -1685,16 +1685,16 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
 
     switch (step_mem->q) {
     case 3:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(DEFAULT_EXPL_MRI_TABLE_3);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_3);
       break;
     case 4:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(DEFAULT_EXPL_MRI_TABLE_4);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_4);
       break;
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::MRIStep",
                       "mriStep_SetCoupling",
                       "No MRI method at requested order, using q=3.");
-      step_mem->MRIC = MRIStepCoupling_LoadTable(DEFAULT_EXPL_MRI_TABLE_3);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_3);
       break;
     }
 

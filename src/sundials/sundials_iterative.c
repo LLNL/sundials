@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -33,26 +30,32 @@
 
 /*
  * -----------------------------------------------------------------
- * Function : ModifiedGS
+ * Function : SUNModifiedGS
  * -----------------------------------------------------------------
- * This implementation of ModifiedGS is a slight modification of a
- * previous modified Gram-Schmidt routine (called mgs) written by
+ * This implementation of SUNModifiedGS is a slight modification of
+ * a previous modified Gram-Schmidt routine (called mgs) written by
  * Milo Dorr.
  * -----------------------------------------------------------------
  */
- 
-int ModifiedGS(N_Vector *v, realtype **h, int k, int p, 
+
+int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
                realtype *new_vk_norm)
+{
+  return(SUNModifiedGS(v, h, k, p, new_vk_norm));
+}
+
+int SUNModifiedGS(N_Vector *v, realtype **h, int k, int p,
+                  realtype *new_vk_norm)
 {
   int  i, k_minus_1, i0;
   realtype new_norm_2, new_product, vk_norm, temp;
-  
+
   vk_norm = SUNRsqrt(N_VDotProd(v[k],v[k]));
   k_minus_1 = k - 1;
   i0 = SUNMAX(k-p, 0);
-  
+
   /* Perform modified Gram-Schmidt */
-  
+
   for (i=i0; i < k; i++) {
     h[i][k_minus_1] = N_VDotProd(v[i], v[k]);
     N_VLinearSum(ONE, v[k], -h[i][k_minus_1], v[i], v[k]);
@@ -70,7 +73,7 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
 
   temp = FACTOR * vk_norm;
   if ((temp + (*new_vk_norm)) != temp) return(0);
-  
+
   new_norm_2 = ZERO;
 
   for (i=i0; i < k; i++) {
@@ -92,15 +95,21 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
 
 /*
  * -----------------------------------------------------------------
- * Function : ClassicalGS
+ * Function : SUNClassicalGS
  * -----------------------------------------------------------------
- * This implementation of ClassicalGS was contributed by Homer Walker
- * and Peter Brown.
+ * This implementation of SUNClassicalGS was contributed by Homer
+ * Walker and Peter Brown.
  * -----------------------------------------------------------------
  */
 
 int ClassicalGS(N_Vector *v, realtype **h, int k, int p, realtype *new_vk_norm,
                 realtype *stemp, N_Vector *vtemp)
+{
+  return(SUNClassicalGS(v, h, k, p, new_vk_norm, stemp, vtemp));
+}
+
+int SUNClassicalGS(N_Vector *v, realtype **h, int k, int p, realtype *new_vk_norm,
+                   realtype *stemp, N_Vector *vtemp)
 {
   int  i, i0, k_minus_1, retval;
   realtype vk_norm;
@@ -155,14 +164,19 @@ int ClassicalGS(N_Vector *v, realtype **h, int k, int p, realtype *new_vk_norm,
 
 /*
  * -----------------------------------------------------------------
- * Function : QRfact
+ * Function : SUNQRfact
  * -----------------------------------------------------------------
- * This implementation of QRfact is a slight modification of a
+ * This implementation of SUNQRfact is a slight modification of a
  * previous routine (called qrfact) written by Milo Dorr.
  * -----------------------------------------------------------------
  */
 
 int QRfact(int n, realtype **h, realtype *q, int job)
+{
+  return(SUNQRfact(n, h, q, job));
+}
+
+int SUNQRfact(int n, realtype **h, realtype *q, int job)
 {
   realtype c, s, temp1, temp2, temp3;
   int i, j, k, q_ptr, n_minus_1, code=0;
@@ -174,35 +188,35 @@ int QRfact(int n, realtype **h, realtype *q, int job)
 
     code = 0;
     for (k=0; k < n; k++) {
-      
+
       /* Multiply column k by the previous k-1 Givens rotations */
 
       for (j=0; j < k-1; j++) {
-	i = 2*j;
-	temp1 = h[j][k];
-	temp2 = h[j+1][k];
-	c = q[i];
-	s = q[i+1];
-	h[j][k] = c*temp1 - s*temp2;
-	h[j+1][k] = s*temp1 + c*temp2;
+        i = 2*j;
+        temp1 = h[j][k];
+        temp2 = h[j+1][k];
+        c = q[i];
+        s = q[i+1];
+        h[j][k] = c*temp1 - s*temp2;
+        h[j+1][k] = s*temp1 + c*temp2;
       }
-      
+
       /* Compute the Givens rotation components c and s */
 
       q_ptr = 2*k;
       temp1 = h[k][k];
       temp2 = h[k+1][k];
       if( temp2 == ZERO) {
-	c = ONE;
-	s = ZERO;
+        c = ONE;
+        s = ZERO;
       } else if (SUNRabs(temp2) >= SUNRabs(temp1)) {
-	temp3 = temp1/temp2;
-	s = -ONE/SUNRsqrt(ONE+SUNSQR(temp3));
-	c = -s*temp3;
+        temp3 = temp1/temp2;
+        s = -ONE/SUNRsqrt(ONE+SUNSQR(temp3));
+        c = -s*temp3;
       } else {
-	temp3 = temp2/temp1;
-	c = ONE/SUNRsqrt(ONE+SUNSQR(temp3));
-	s = -c*temp3;
+        temp3 = temp2/temp1;
+        c = ONE/SUNRsqrt(ONE+SUNSQR(temp3));
+        s = -c*temp3;
       }
       q[q_ptr] = c;
       q[q_ptr+1] = s;
@@ -216,7 +230,7 @@ int QRfact(int n, realtype **h, realtype *q, int job)
 
     n_minus_1 = n - 1;
     code = 0;
-    
+
     /* Multiply the new column by the previous n-1 Givens rotations */
 
     for (k=0; k < n_minus_1; k++) {
@@ -228,9 +242,9 @@ int QRfact(int n, realtype **h, realtype *q, int job)
       h[k][n_minus_1] = c*temp1 - s*temp2;
       h[k+1][n_minus_1] = s*temp1 + c*temp2;
     }
-    
+
     /* Compute new Givens rotation and multiply it times the last two
-       entries in the new column of H.  Note that the second entry of 
+       entries in the new column of H.  Note that the second entry of
        this product will be 0, so it is not necessary to compute it. */
 
     temp1 = h[n_minus_1][n_minus_1];
@@ -253,26 +267,31 @@ int QRfact(int n, realtype **h, realtype *q, int job)
     if ((h[n_minus_1][n_minus_1] = c*temp1 - s*temp2) == ZERO)
       code = n;
   }
-  
+
   return (code);
 }
 
 /*
  * -----------------------------------------------------------------
- * Function : QRsol
+ * Function : SUNQRsol
  * -----------------------------------------------------------------
- * This implementation of QRsol is a slight modification of a
+ * This implementation of SUNQRsol is a slight modification of a
  * previous routine (called qrsol) written by Milo Dorr.
  * -----------------------------------------------------------------
  */
 
 int QRsol(int n, realtype **h, realtype *q, realtype *b)
 {
+  return(SUNQRsol(n, h, q, b));
+}
+
+int SUNQRsol(int n, realtype **h, realtype *q, realtype *b)
+{
   realtype c, s, temp1, temp2;
   int i, k, q_ptr, code=0;
 
   /* Compute Q*b */
-  
+
   for (k=0; k < n; k++) {
     q_ptr = 2*k;
     c = q[q_ptr];
@@ -293,6 +312,6 @@ int QRsol(int n, realtype **h, realtype *q, realtype *b)
     b[k] /= h[k][k];
     for (i=0; i < k; i++) b[i] -= b[k]*h[i][k];
   }
-  
+
   return (code);
 }

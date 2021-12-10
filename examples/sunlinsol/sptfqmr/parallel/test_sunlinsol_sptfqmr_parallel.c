@@ -140,9 +140,9 @@ int main(int argc, char *argv[])
   }
   pretype = atoi(argv[2]);
   if (pretype == 1) {
-    pretype = PREC_LEFT;
+    pretype = SUN_PREC_LEFT;
   } else if (pretype == 2) {
-    pretype = PREC_RIGHT;
+    pretype = SUN_PREC_RIGHT;
   } else {
     printf("ERROR: Preconditioning type must be either 1 or 2\n");
     return 1;
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
-  if (pretype == PREC_LEFT) {
+  if (pretype == SUN_PREC_LEFT) {
     /* note a non-zero guess with right preconditioning is not supported */
     fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
   }
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
-  if (pretype == PREC_LEFT) {
+  if (pretype == SUN_PREC_LEFT) {
     /* note a non-zero guess with right preconditioning is not supported */
     fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
   }
@@ -374,7 +374,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNLinSol_SPTFQMRSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPTFQMRSetPrecType(LS, SUN_PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
@@ -411,7 +411,7 @@ int main(int argc, char *argv[])
   fails += SUNLinSol_SPTFQMRSetPrecType(LS, pretype);
   fails += Test_SUNLinSolSetup(LS, NULL, ProbData.myid);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNTRUE, ProbData.myid);
-  if (pretype == PREC_LEFT) {
+  if (pretype == SUN_PREC_LEFT) {
     /* note a non-zero guess with right preconditioning is not supported */
     fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, SUNFALSE, ProbData.myid);
   }

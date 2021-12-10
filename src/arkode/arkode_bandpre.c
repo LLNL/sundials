@@ -460,9 +460,9 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
 
  This routine generates a banded difference quotient approximation to
  the Jacobian of f(t,y). It assumes that a band matrix of type
- DlsMat is stored column-wise, and that elements within each column
+ SUNDlsMat is stored column-wise, and that elements within each column
  are contiguous. This makes it possible to get the address of a column
- of J via the macro BAND_COL and to write a simple for loop to set
+ of J via the macro SUNDLS_BAND_COL and to write a simple for loop to set
  each of the elements of a column in succession.
 ---------------------------------------------------------------*/
 static int ARKBandPDQJac(ARKBandPrecData pdata,

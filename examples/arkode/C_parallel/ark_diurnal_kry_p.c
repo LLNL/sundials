@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0, ctx);
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, ctx);
   if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
@@ -320,9 +320,9 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   /* Preconditioner-related fields */
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      (data->P)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->Jbd)[lx][ly] = newDenseMat(NVARS, NVARS);
-      (data->pivot)[lx][ly] = newIndexArray(NVARS);
+      (data->P)[lx][ly] = SUNDlsMat_newDenseMat(NVARS, NVARS);
+      (data->Jbd)[lx][ly] = SUNDlsMat_newDenseMat(NVARS, NVARS);
+      (data->pivot)[lx][ly] = SUNDlsMat_newIndexArray(NVARS);
     }
   }
 }
@@ -333,9 +333,9 @@ static void FreeUserData(UserData data)
   int lx, ly;
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      destroyMat((data->P)[lx][ly]);
-      destroyMat((data->Jbd)[lx][ly]);
-      destroyArray((data->pivot)[lx][ly]);
+      SUNDlsMat_destroyMat((data->P)[lx][ly]);
+      SUNDlsMat_destroyMat((data->Jbd)[lx][ly]);
+      SUNDlsMat_destroyArray((data->pivot)[lx][ly]);
     }
   }
   free(data);
@@ -885,8 +885,8 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* Add identity matrix and do LU decompositions on blocks in place */
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
-      denseAddIdentity(P[lx][ly], NVARS);
-      ier = denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
+      SUNDlsMat_denseAddIdentity(P[lx][ly], NVARS);
+      ier = SUNDlsMat_denseGETRF(P[lx][ly], NVARS, NVARS, pivot[lx][ly]);
       if (ier != 0) return(1);
     }
   }
@@ -923,7 +923,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
       v = &(zdata[lx*NVARS + ly*nvmxsub]);
-      denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
+      SUNDlsMat_denseGETRS(P[lx][ly], NVARS, pivot[lx][ly], v);
     }
   }
 

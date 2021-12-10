@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
 
   /* Set the fast method */
-  retval = ARKStepSetTableNum(inner_arkode_mem, ARK324L2SA_DIRK_4_2_3, -1);
+  retval = ARKStepSetTableNum(inner_arkode_mem, ARKODE_ARK324L2SA_DIRK_4_2_3, -1);
   if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
 
   /* Specify fast tolerances */

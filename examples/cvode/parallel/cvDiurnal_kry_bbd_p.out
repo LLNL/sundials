@@ -5,7 +5,7 @@
     Difference-quotient half-bandwidths are mudq = 10,  mldq = 10
     Retained band block half-bandwidths are mukeep = 2,  mlkeep = 2
 
-Preconditioner type is:  jpre = PREC_LEFT
+Preconditioner type is:  jpre = SUN_PREC_LEFT
 
 t = 7.20e+03   no. steps = 190   order = 5   stepsize = 1.61e+02
 At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
@@ -74,7 +74,7 @@ In CVBBDPRE: real/integer local work space sizes = 1300, 192
 -------------------------------------------------------------------
 
 
-Preconditioner type is:  jpre = PREC_RIGHT
+Preconditioner type is:  jpre = SUN_PREC_RIGHT
 
 t = 7.20e+03   no. steps = 191   order = 5   stepsize = 1.22e+02
 At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
