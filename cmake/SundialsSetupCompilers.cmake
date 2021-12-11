@@ -285,8 +285,7 @@ mark_as_advanced(CMAKE_Fortran_FLAGS_DEVSTRICT)
 # Configure presentation of language options
 # ===============================================================
 
-set(_SUNDIALS_EXTRA_CONFIG_TYPES "DEV;DEVSTRICT")
-set(CMAKE_CONFIGURATION_TYPES "DEBUG;RELEASE;RELWITHDEBINFO;MINSIZEREL;${_SUNDIALS_EXTRA_CONFIG_TYPES}")
+set(_SUNDIALS_EXTRA_BUILD_TYPES "DEV;DEVSTRICT")
 set(_SUNDIALS_ENABLED_LANGS "C")
 
 if(CXX_FOUND)
@@ -302,7 +301,7 @@ endif()
 # Make build type specific flag options ADVANCED,
 # except for the one corresponding to the current build type
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
-  foreach(build_type ${CMAKE_CONFIGURATION_TYPES})
+  foreach(build_type DEBUG;RELEASE;RELWITHDEBINFO;MINSIZEREL;${_SUNDIALS_EXTRA_BUILD_TYPES})
     string(TOUPPER "${CMAKE_BUILD_TYPE}" _cmake_build_type)
     if("${_cmake_build_type}" STREQUAL "${build_type}")
       message(STATUS "Appending ${lang} ${build_type} flags")
@@ -314,6 +313,11 @@ foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   # show the language compiler and flags
   mark_as_advanced(CLEAR CMAKE_${lang}_COMPILER CMAKE_${lang}_FLAGS)
 endforeach()
+
+# Update build type doc string
+set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
+    CACHE STRING "Choose the type of build, options are: DEBUG;RELEASE;RELWITHDEBINFO;MINSIZEREL;${_SUNDIALS_EXTRA_BUILD_TYPES}"
+    FORCE)
 
 # ===============================================================
 # Configure compilers for installed examples
