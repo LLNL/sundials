@@ -27,7 +27,7 @@ include(SundialsIndexSize)
 if(WIN32)
   # Under Windows, add compiler directive to inhibit warnings
   # about use of unsecure functions.
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
 if(APPLE)
@@ -286,8 +286,9 @@ mark_as_advanced(CMAKE_Fortran_FLAGS_DEVSTRICT)
 # ===============================================================
 
 set(_SUNDIALS_EXTRA_BUILD_TYPES "DEV;DEVSTRICT")
-set(_SUNDIALS_ENABLED_LANGS "C")
 
+# List of enabled languages
+set(_SUNDIALS_ENABLED_LANGS "C")
 if(CXX_FOUND)
   list(APPEND _SUNDIALS_ENABLED_LANGS "CXX")
 endif()
@@ -298,11 +299,13 @@ if(CUDA_FOUND)
   list(APPEND _SUNDIALS_ENABLED_LANGS "CUDA")
 endif()
 
+# Upper case version of build type
+string(TOUPPER "${CMAKE_BUILD_TYPE}" _cmake_build_type)
+
 # Make build type specific flag options ADVANCED,
 # except for the one corresponding to the current build type
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   foreach(build_type DEBUG;RELEASE;RELWITHDEBINFO;MINSIZEREL;${_SUNDIALS_EXTRA_BUILD_TYPES})
-    string(TOUPPER "${CMAKE_BUILD_TYPE}" _cmake_build_type)
     if("${_cmake_build_type}" STREQUAL "${build_type}")
       message(STATUS "Appending ${lang} ${build_type} flags")
       mark_as_advanced(CLEAR CMAKE_${lang}_FLAGS_${build_type})
@@ -319,6 +322,15 @@ set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
     CACHE STRING "Choose the type of build, options are: DEBUG;RELEASE;RELWITHDEBINFO;MINSIZEREL;${_SUNDIALS_EXTRA_BUILD_TYPES}"
     FORCE)
 
+# Add preprocessor definitions for debugging
+if(SUNDIALS_DEBUG)
+  foreach(debug ${_SUNDIALS_DEBUG_OPTIONS})
+    if (${${debug}})
+      add_compile_definitions(${debug})
+    endif()
+  endforeach()
+endif()
+
 # ===============================================================
 # Configure compilers for installed examples
 # ===============================================================
@@ -332,3 +344,4 @@ foreach(lang ${_SUNDIALS_ENABLED_LANGS})
     set(_EXAMPLES_${lang}_COMPILER "${CMAKE_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
   endif()
 endforeach()
+

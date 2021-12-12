@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Allan Taylor, Alan Hindmarsh, Radu Serban, and
- *                Aaron Collier @ LLNL
+ *                Aaron Collier, Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2021, Lawrence Livermore National Security
@@ -60,6 +60,12 @@ extern "C" {
 
 #define KIN_CONTEXT_ERR         -17
 
+/* Anderson Acceleration Orthogonalization Choice */
+#define KIN_ORTH_MGS    0
+#define KIN_ORTH_ICWY   1
+#define KIN_ORTH_CGS2   2
+#define KIN_ORTH_DCGS2  3
+
 /* Enumeration for eta choice */
 #define KIN_ETACHOICE1  1
 #define KIN_ETACHOICE2  2
@@ -109,6 +115,7 @@ SUNDIALS_EXPORT int KINSetUserData(void *kinmem, void *user_data);
 SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmem, int printfl);
 SUNDIALS_EXPORT int KINSetDamping(void *kinmem, realtype beta);
 SUNDIALS_EXPORT int KINSetMAA(void *kinmem, long int maa);
+SUNDIALS_EXPORT int KINSetOrthAA(void *kinmem, int orthaa);
 SUNDIALS_EXPORT int KINSetDelayAA(void *kinmem, long int delay);
 SUNDIALS_EXPORT int KINSetDampingAA(void *kinmem, realtype beta);
 SUNDIALS_EXPORT int KINSetReturnNewest(void *kinmem, booleantype ret_newest);
@@ -150,6 +157,9 @@ SUNDIALS_EXPORT void KINFree(void **kinmem);
 
 /* KINLS interface function that depends on KINSysFn */
 SUNDIALS_EXPORT int KINSetJacTimesVecSysFn(void *kinmem, KINSysFn jtimesSysFn);
+
+/* Debugging output file */
+SUNDIALS_EXPORT int KINSetDebugFile(void *kinmem, FILE *debugfp);
 
 #ifdef __cplusplus
 }

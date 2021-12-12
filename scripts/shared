@@ -196,6 +196,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_futils.c                        
 $tar $tarfile $distrobase/src/sundials/sundials_hashmap.h                         || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_hip.h                             || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_hip_kernels.hip.hpp               || exit 1
+$tar $tarfile $distrobase/src/sundials/sundials_iterative_impl.h                  || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_iterative.c                       || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_lapack_defs.h                     || exit 1
 $tar $tarfile $distrobase/src/sundials/sundials_linearsolver.c                    || exit 1

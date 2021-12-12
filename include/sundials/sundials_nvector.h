@@ -171,6 +171,10 @@ struct _generic_N_Vector_Ops {
   realtype (*nvwsqrsumlocal)(N_Vector, N_Vector);
   realtype (*nvwsqrsummasklocal)(N_Vector, N_Vector, N_Vector);
 
+  /* Single buffer reduction operations */
+  int (*nvdotprodmultilocal)(int, N_Vector, N_Vector*, realtype*);
+  int (*nvdotprodmultiallreduce)(int, N_Vector, realtype*);
+
   /* XBraid interface operations */
   int (*nvbufsize)(N_Vector, sunindextype*);
   int (*nvbufpack)(N_Vector, void*);
@@ -291,7 +295,13 @@ SUNDIALS_EXPORT booleantype N_VInvTestLocal(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom);
 
-/*  XBraid interface operations */
+/* single buffer reduction operations */
+SUNDIALS_EXPORT int N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y,
+                                         realtype* dotprods);
+SUNDIALS_EXPORT int N_VDotProdMultiAllReduce(int nvec_total, N_Vector x,
+                                             realtype* sum);
+
+/* XBraid interface operations */
 SUNDIALS_EXPORT int N_VBufSize(N_Vector x, sunindextype *size);
 SUNDIALS_EXPORT int N_VBufPack(N_Vector x, void *buf);
 SUNDIALS_EXPORT int N_VBufUnpack(N_Vector x, void *buf);

@@ -162,6 +162,12 @@ SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_Petsc(N_Vector c, N_Vector x,
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal_Petsc(N_Vector num,
                                                    N_Vector denom);
 
+/* OPTIONAL single buffer reduction operations */
+SUNDIALS_EXPORT int N_VDotProdMultiLocal_Petsc(int nvec, N_Vector x,
+                                               N_Vector* Y, realtype* dotprods);
+SUNDIALS_EXPORT int N_VDotProdMultiAllReduce_Petsc(int nvec, N_Vector x,
+                                                   realtype* sum);
+
 /* OPTIONAL XBraid interface operations */
 SUNDIALS_EXPORT int N_VBufSize_Petsc(N_Vector x, sunindextype *size);
 SUNDIALS_EXPORT int N_VBufPack_Petsc(N_Vector x, void *buf);
@@ -186,6 +192,8 @@ SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Petsc(N_Vector v, booleantype t
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Petsc(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Petsc(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_Petsc(N_Vector v, booleantype tf);
 
 /*
  * -----------------------------------------------------------------

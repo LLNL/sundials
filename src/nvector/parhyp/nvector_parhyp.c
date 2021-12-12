@@ -202,6 +202,10 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ParHyp;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ParHyp;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal     = N_VDotProdMultiLocal_ParHyp;
+  v->ops->nvdotprodmultiallreduce = N_VDotProdMultiAllReduce_ParHyp;
+
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_ParHyp;
   v->ops->nvbufpack   = N_VBufPack_ParHyp;
@@ -1090,7 +1094,8 @@ int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
 }
 
 
-int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
+int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
+                           realtype* dotprods)
 {
   int          i, retval;
   sunindextype j, N;
@@ -1122,6 +1127,50 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods
   }
   retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
 
+  return retval == MPI_SUCCESS ? 0 : -1;
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * single buffer reduction operations
+ * -----------------------------------------------------------------
+ */
+
+
+int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
+                                realtype* dotprods)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* get vector length, data array, and communicator */
+  N  = NV_LOCLENGTH_PH(x);
+  xd = NV_DATA_PH(x);
+
+  /* compute multiple dot products */
+  for (i=0; i<nvec; i++) {
+    yd = NV_DATA_PH(Y[i]);
+    dotprods[i] = ZERO;
+    for (j=0; j<N; j++) {
+      dotprods[i] += xd[j] * yd[j];
+    }
+  }
+
+  return 0;
+}
+
+
+int N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x, realtype* sum)
+{
+  int retval;
+  retval = MPI_Allreduce(MPI_IN_PLACE, sum, nvec, MPI_SUNREALTYPE, MPI_SUM,
+                         NV_COMM_PH(x));
   return retval == MPI_SUCCESS ? 0 : -1;
 }
 
@@ -1759,6 +1808,8 @@ int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_ParHyp;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_ParHyp;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_ParHyp;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_ParHyp;
   } else {
     /* disable all fused vector operations */
     v->ops->nvlinearcombination = NULL;
@@ -1772,6 +1823,8 @@ int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -1954,6 +2007,24 @@ int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, booleantype tf)
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_ParHyp;
   else
     v->ops->nvlinearcombinationvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_ParHyp;
+  else
+    v->ops->nvdotprodmultilocal = NULL;
 
   /* return success */
   return(0);

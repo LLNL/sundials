@@ -150,6 +150,9 @@ N_Vector N_VNewEmpty_Hip(SUNContext sunctx)
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Hip;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Hip;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal = N_VDotProdMulti_Hip;
+
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_Hip;
   v->ops->nvbufpack   = N_VBufPack_Hip;
@@ -1797,6 +1800,8 @@ int N_VEnableFusedOps_Hip(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Hip;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Hip;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Hip;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_Hip;
   }
   else
   {
@@ -1812,6 +1817,8 @@ int N_VEnableFusedOps_Hip(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -1863,10 +1870,13 @@ int N_VEnableDotProdMulti_Hip(N_Vector v, booleantype tf)
   if (v->ops == NULL) return(-1);
 
   /* enable/disable operation */
-  if (tf)
-    v->ops->nvdotprodmulti = N_VDotProdMulti_Hip;
-  else
-    v->ops->nvdotprodmulti = NULL;
+  if (tf) {
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_Hip;
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_Hip;
+  } else {
+    v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultilocal = NULL;
+  }
 
   /* return success */
   return(0);

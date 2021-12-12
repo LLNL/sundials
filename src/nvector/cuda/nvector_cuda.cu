@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <limits>
+#include <iostream>
 
 #include <nvector/nvector_cuda.h>
 #include "VectorArrayKernels.cuh"
@@ -159,6 +160,9 @@ N_Vector N_VNewEmpty_Cuda(SUNContext sunctx)
   v->ops->nvminquotientlocal = N_VMinQuotient_Cuda;
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Cuda;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Cuda;
+
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal = N_VDotProdMulti_Cuda;
 
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_Cuda;
@@ -543,13 +547,17 @@ void N_VPrintFile_Cuda(N_Vector x, FILE *outfile)
 {
   sunindextype i;
 
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  N_VCopyFromDevice_Cuda(x);
+#endif
+
   for (i = 0; i < NVEC_CUDA_CONTENT(x)->length; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Lg\n", NVEC_CUDA_HDATAp(x)[i]);
+    fprintf(outfile, "%35.32Le\n", NVEC_CUDA_HDATAp(x)[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16g\n", NVEC_CUDA_HDATAp(x)[i]);
+    fprintf(outfile, "%19.16e\n", NVEC_CUDA_HDATAp(x)[i]);
 #else
-    fprintf(outfile, "%11.8g\n", NVEC_CUDA_HDATAp(x)[i]);
+    fprintf(outfile, "%11.8e\n", NVEC_CUDA_HDATAp(x)[i]);
 #endif
   }
   fprintf(outfile, "\n");
@@ -1941,6 +1949,8 @@ int N_VEnableFusedOps_Cuda(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Cuda;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Cuda;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Cuda;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_Cuda;
   }
   else
   {
@@ -1956,6 +1966,8 @@ int N_VEnableFusedOps_Cuda(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -1984,7 +1996,8 @@ int N_VEnableDotProdMulti_Cuda(N_Vector v, booleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
-  v->ops->nvdotprodmulti = tf ? N_VDotProdMulti_Cuda : NULL;
+  v->ops->nvdotprodmulti      = tf ? N_VDotProdMulti_Cuda : NULL;
+  v->ops->nvdotprodmultilocal = tf ? N_VDotProdMulti_Cuda : NULL;
   return 0;
 }
 

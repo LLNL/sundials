@@ -700,6 +700,40 @@ SWIGEXPORT int _wrap_FN_VDotProdMulti_MPIManyVector(int const *farg1, N_Vector f
 }
 
 
+SWIGEXPORT int _wrap_FN_VDotProdMultiLocal_MPIManyVector(int const *farg1, N_Vector farg2, void *farg3, double *farg4) {
+  int fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector *arg3 = (N_Vector *) 0 ;
+  realtype *arg4 = (realtype *) 0 ;
+  int result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (N_Vector *)(farg3);
+  arg4 = (realtype *)(farg4);
+  result = (int)N_VDotProdMultiLocal_MPIManyVector(arg1,arg2,arg3,arg4);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VDotProdMultiAllReduce_MPIManyVector(int const *farg1, N_Vector farg2, double *farg3) {
+  int fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  realtype *arg3 = (realtype *) 0 ;
+  int result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (realtype *)(farg3);
+  result = (int)N_VDotProdMultiAllReduce_MPIManyVector(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FN_VLinearSumVectorArray_MPIManyVector(int const *farg1, double const *farg2, void *farg3, double const *farg4, void *farg5, void *farg6) {
   int fresult ;
   int arg1 ;
@@ -1081,6 +1115,20 @@ SWIGEXPORT int _wrap_FN_VEnableWrmsNormMaskVectorArray_MPIManyVector(N_Vector fa
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (int)N_VEnableWrmsNormMaskVectorArray_MPIManyVector(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VEnableDotProdMultiLocal_MPIManyVector(N_Vector farg1, int const *farg2) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)N_VEnableDotProdMultiLocal_MPIManyVector(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

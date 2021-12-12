@@ -123,6 +123,9 @@ N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Serial;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Serial;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal = N_VDotProdMulti_Serial;
+
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_Serial;
   v->ops->nvbufpack   = N_VBufPack_Serial;
@@ -260,11 +263,11 @@ void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Lg\n", xd[i]);
+    fprintf(outfile, "%35.32Le\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16g\n", xd[i]);
+    fprintf(outfile, "%19.16e\n", xd[i]);
 #else
-    fprintf(outfile, "%11.8g\n", xd[i]);
+    fprintf(outfile, "%11.8e\n", xd[i]);
 #endif
   }
   fprintf(outfile, "\n");
@@ -1937,6 +1940,8 @@ int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Serial;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Serial;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Serial;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_Serial;
   } else {
     /* disable all fused vector operations */
     v->ops->nvlinearcombination = NULL;
@@ -1950,6 +1955,8 @@ int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -2002,10 +2009,13 @@ int N_VEnableDotProdMulti_Serial(N_Vector v, booleantype tf)
   if (v->ops == NULL) return(-1);
 
   /* enable/disable operation */
-  if (tf)
-    v->ops->nvdotprodmulti = N_VDotProdMulti_Serial;
-  else
-    v->ops->nvdotprodmulti = NULL;
+  if (tf) {
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_Serial;
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_Serial;
+  } else {
+    v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultilocal = NULL;
+  }
 
   /* return success */
   return(0);

@@ -184,6 +184,10 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Petsc;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Petsc;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal     = N_VDotProdMultiLocal_Petsc;
+  v->ops->nvdotprodmultiallreduce = N_VDotProdMultiAllReduce_Petsc;
+
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_Petsc;
   v->ops->nvbufpack   = N_VBufPack_Petsc;
@@ -1034,6 +1038,45 @@ int N_VDotProdMulti_Petsc(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
   return(0);
 }
 
+/*
+ * -----------------------------------------------------------------------------
+ * single buffer reduction operations
+ * -----------------------------------------------------------------------------
+ */
+
+int N_VDotProdMultiLocal_Petsc(int nvec, N_Vector x, N_Vector* Y,
+                               realtype* dotprods)
+{
+  int j;
+  sunindextype i;
+  sunindextype N = NV_LOCLENGTH_PTC(x);
+  Vec xv = NV_PVEC_PTC(x);
+  Vec yv;
+  PetscScalar *xd;
+  PetscScalar *yd;
+
+  VecGetArray(xv, &xd);
+  for (j = 0; j < nvec; j++) {
+    yv = NV_PVEC_PTC(Y[j]);
+    VecGetArray(yv, &yd);
+    dotprods[j] = ZERO;
+    for (i = 0; i < N; i++) {
+      dotprods[j] += xd[i] * yd[i];
+    }
+    VecRestoreArray(yv, &yd);
+  }
+  VecRestoreArray(xv, &xd);
+
+  return (0);
+}
+
+int N_VDotProdMultiAllReduce_Petsc(int nvec, N_Vector x, realtype* dotprods)
+{
+  int retval;
+  retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE,
+                         MPI_SUM, NV_COMM_PTC(x));
+  return retval == MPI_SUCCESS ? 0 : -1;
+}
 
 /*
  * -----------------------------------------------------------------------------
@@ -1574,6 +1617,8 @@ int N_VEnableFusedOps_Petsc(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Petsc;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Petsc;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Petsc;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_Petsc;
   } else {
     /* disable all fused vector operations */
     v->ops->nvlinearcombination = NULL;
@@ -1587,6 +1632,8 @@ int N_VEnableFusedOps_Petsc(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -1769,6 +1816,24 @@ int N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, booleantype tf)
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Petsc;
   else
     v->ops->nvlinearcombinationvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableDotProdMultiLocal_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_Petsc;
+  else
+    v->ops->nvdotprodmultilocal = NULL;
 
   /* return success */
   return(0);

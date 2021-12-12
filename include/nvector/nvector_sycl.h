@@ -158,8 +158,6 @@ SUNDIALS_EXPORT int N_VLinearCombination_Sycl(int nvec, realtype* c, N_Vector* X
                                               N_Vector Z);
 SUNDIALS_EXPORT int N_VScaleAddMulti_Sycl(int nvec, realtype* c, N_Vector X,
                                           N_Vector* Y, N_Vector* Z);
-SUNDIALS_EXPORT int N_VDotProdMulti_Sycl(int nvec, N_Vector x, N_Vector* Y,
-                                         realtype* dotprods);
 
 /* vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_Sycl(int nvec,

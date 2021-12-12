@@ -54,6 +54,9 @@ $tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp_--damping_fp_0.5
 $tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp_--m_aa_2.out                  || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp_--m_aa_2_--damping_aa_0.5.out || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp_--m_aa_2_--delay_aa_2.out     || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp_--m_aa_2_--orth_aa_1.out      || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp_--m_aa_2_--orth_aa_2.out      || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinAnalytic_fp_--m_aa_2_--orth_aa_3.out      || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.c                             || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.out                           || exit 1
 $tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_klu.c                             || exit 1
@@ -86,6 +89,30 @@ $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.c   || e
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.out || exit 1
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.c       || exit 1
 $tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.out     || exit 1
+
+$tar $tarfile $distrobase/examples/kinsol/CUDA_mpi/README             || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CUDA_mpi/CMakeLists.txt     || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CUDA_mpi/kin_em_mpicuda.cu  || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CUDA_mpi/kin_em_mpicuda.hpp || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CUDA_mpi/kin_em_mpicuda.out || exit 1
+
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/README                           || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/CMakeLists.txt                   || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/kin_em_p.cpp                     || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/kin_em_p.hpp                     || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/kin_em_p.out                     || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/kin_heat2D_nonlin_p.hpp          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/kin_heat2D_nonlin_p.cpp          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parallel/kin_heat2D_nonlin_p_--np_2_2.out || exit 1
+
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/README                                    || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/CMakeLists.txt                            || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_bratu2D_hypre_pfmg.hpp                || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_bratu2D_hypre_pfmg.cpp                || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_bratu2D_hypre_pfmg_--np_2_2.out       || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_heat2D_nonlin_hypre_pfmg.hpp          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_heat2D_nonlin_hypre_pfmg.cpp          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_heat2D_nonlin_hypre_pfmg_--np_2_2.out || exit 1
 
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/README                          || exit 1
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/CMakeLists.txt                  || exit 1

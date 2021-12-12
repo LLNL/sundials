@@ -856,6 +856,40 @@ SWIGEXPORT double _wrap_FN_VMinQuotientLocal(N_Vector farg1, N_Vector farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FN_VDotProdMultiLocal(int const *farg1, N_Vector farg2, void *farg3, double *farg4) {
+  int fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector *arg3 = (N_Vector *) 0 ;
+  realtype *arg4 = (realtype *) 0 ;
+  int result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (N_Vector *)(farg3);
+  arg4 = (realtype *)(farg4);
+  result = (int)N_VDotProdMultiLocal(arg1,arg2,arg3,arg4);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VDotProdMultiAllReduce(int const *farg1, N_Vector farg2, double *farg3) {
+  int fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  realtype *arg3 = (realtype *) 0 ;
+  int result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (realtype *)(farg3);
+  result = (int)N_VDotProdMultiAllReduce(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FN_VBufSize(N_Vector farg1, int64_t *farg2) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;

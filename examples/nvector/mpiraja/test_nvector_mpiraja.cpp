@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
     fails += Test_N_VLinearCombinationVectorArray(plusV, local_length, myid);
 
     /* local reduction operations */
-    printf("\nTesting local reduction operations:\n\n");
+    if (myid == 0) printf("\nTesting local reduction operations:\n\n");
 
     fails += Test_N_VDotProdLocal(plusX, plusY, local_length, myid);
     fails += Test_N_VMaxNormLocal(plusX, local_length, myid);
@@ -264,8 +264,13 @@ int main(int argc, char *argv[])
     fails += Test_N_VConstrMaskLocal(plusX, plusY, plusZ, local_length, myid);
     fails += Test_N_VMinQuotientLocal(plusX, plusY, local_length, myid);
 
+    /* local fused reduction operations */
+    if (myid == 0) printf("\nTesting local fused reduction operations:\n\n");
+    fails += Test_N_VDotProdMultiLocal(plusV, local_length, myid);
+    fails += Test_N_VDotProdMultiAllReduce(plusV, local_length, myid);
+
     /* XBraid interface operations */
-    printf("\nTesting XBraid interface operations:\n\n");
+    if (myid == 0) printf("\nTesting XBraid interface operations:\n\n");
 
     fails += Test_N_VBufSize(plusX, local_length, myid);
     fails += Test_N_VBufPack(plusX, local_length, myid);

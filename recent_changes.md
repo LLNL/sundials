@@ -52,6 +52,11 @@ Deprecated ARKODE nonlinear solver predictors: specification of the ARKStep
 `MRIStepSetPredictorMethod`), will output a deprecation warning message.
 These options will be removed in a future release.
 
+New orthogonalization methods were added for use within Anderson acceleration
+in KINSOL. See the "Anderson Acceleration QR Factorization" subsection within
+the mathematical considerations chapter of the user guide and the
+`KINSetOrthAA` function documentation for more details.
+
 ### Transitioning to SUNDIALS 6.0.0
 
 A script `upgrade-to-sundials-6-from-5.sh` has been provided with the release

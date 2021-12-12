@@ -171,6 +171,13 @@ SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x,
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal_ParHyp(N_Vector num,
                                                     N_Vector denom);
 
+/* OPTIONAL single buffer reduction operations */
+SUNDIALS_EXPORT int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x,
+                                                N_Vector* Y,
+                                                realtype* dotprods);
+SUNDIALS_EXPORT int N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x,
+                                                    realtype* sum);
+
 /* OPTIONAL XBraid interface operations */
 SUNDIALS_EXPORT int N_VBufSize_ParHyp(N_Vector x, sunindextype *size);
 SUNDIALS_EXPORT int N_VBufPack_ParHyp(N_Vector x, void *buf);
@@ -221,6 +228,8 @@ SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count,
 /* use N_VDestroyVectorArray */
 SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_ParHyp(N_Vector *vs,
                                                              int count);
+
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

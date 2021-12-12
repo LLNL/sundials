@@ -119,15 +119,19 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
    */
 
   /* local reduction operations (optional) */
-  ops->nvdotprodlocal     = NULL;
-  ops->nvmaxnormlocal     = NULL;
-  ops->nvminlocal         = NULL;
-  ops->nvl1normlocal      = NULL;
-  ops->nvinvtestlocal     = NULL;
-  ops->nvconstrmasklocal  = NULL;
-  ops->nvminquotientlocal = NULL;
-  ops->nvwsqrsumlocal     = NULL;
-  ops->nvwsqrsummasklocal = NULL;
+  ops->nvdotprodlocal      = NULL;
+  ops->nvmaxnormlocal      = NULL;
+  ops->nvminlocal          = NULL;
+  ops->nvl1normlocal       = NULL;
+  ops->nvinvtestlocal      = NULL;
+  ops->nvconstrmasklocal   = NULL;
+  ops->nvminquotientlocal  = NULL;
+  ops->nvwsqrsumlocal      = NULL;
+  ops->nvwsqrsummasklocal  = NULL;
+
+  /* single buffer reduction operations */
+  ops->nvdotprodmultilocal     = NULL;
+  ops->nvdotprodmultiallreduce = NULL;
 
   /* XBraid interface operations */
   ops->nvbufsize   = NULL;
@@ -235,15 +239,19 @@ int N_VCopyOps(N_Vector w, N_Vector v)
    */
 
   /* local reduction operations */
-  v->ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
-  v->ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
-  v->ops->nvminlocal         = w->ops->nvminlocal;
-  v->ops->nvl1normlocal      = w->ops->nvl1normlocal;
-  v->ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
-  v->ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
-  v->ops->nvminquotientlocal = w->ops->nvminquotientlocal;
-  v->ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
-  v->ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  v->ops->nvdotprodlocal      = w->ops->nvdotprodlocal;
+  v->ops->nvmaxnormlocal      = w->ops->nvmaxnormlocal;
+  v->ops->nvminlocal          = w->ops->nvminlocal;
+  v->ops->nvl1normlocal       = w->ops->nvl1normlocal;
+  v->ops->nvinvtestlocal      = w->ops->nvinvtestlocal;
+  v->ops->nvconstrmasklocal   = w->ops->nvconstrmasklocal;
+  v->ops->nvminquotientlocal  = w->ops->nvminquotientlocal;
+  v->ops->nvwsqrsumlocal      = w->ops->nvwsqrsumlocal;
+  v->ops->nvwsqrsummasklocal  = w->ops->nvwsqrsummasklocal;
+
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal     = w->ops->nvdotprodmultilocal;
+  v->ops->nvdotprodmultiallreduce = w->ops->nvdotprodmultiallreduce;
 
   /* XBraid interface operations */
   v->ops->nvbufsize   = w->ops->nvbufsize;
@@ -870,6 +878,38 @@ realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
   result = ((realtype) num->ops->nvminquotientlocal(num,denom));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(num));
   return(result);
+}
+
+/* -------------------------------------------
+ * OPTIONAL single buffer reduction operations
+ * -------------------------------------------*/
+
+int N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
+{
+  int i;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
+
+  if (x->ops->nvdotprodmultilocal)
+    return((int) x->ops->nvdotprodmultilocal(nvec, x, Y, dotprods));
+
+  if (x->ops->nvdotprodlocal) {
+    for (i = 0; i < nvec; i++) {
+      dotprods[i] = x->ops->nvdotprodlocal(x, Y[i]);
+    }
+    return(0);
+  }
+
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
+  return(-1);
+}
+
+int N_VDotProdMultiAllReduce(int nvec, N_Vector x, realtype* sum)
+{
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
+  if (x->ops->nvdotprodmultiallreduce)
+    return(x->ops->nvdotprodmultiallreduce(nvec, x, sum));
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
+  return(-1);
 }
 
 /* ------------------------------------

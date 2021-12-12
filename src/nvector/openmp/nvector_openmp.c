@@ -129,6 +129,9 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads, SUNContext sun
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_OpenMP;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_OpenMP;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal = N_VDotProdMulti_OpenMP;
+
   /* XBraid interface operations */
   v->ops->nvbufsize   = N_VBufSize_OpenMP;
   v->ops->nvbufpack   = N_VBufPack_OpenMP;
@@ -2464,6 +2467,8 @@ int N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_OpenMP;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_OpenMP;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_OpenMP;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_OpenMP;
   } else {
     /* disable all fused vector operations */
     v->ops->nvlinearcombination = NULL;
@@ -2477,6 +2482,8 @@ int N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -2529,10 +2536,13 @@ int N_VEnableDotProdMulti_OpenMP(N_Vector v, booleantype tf)
   if (v->ops == NULL) return(-1);
 
   /* enable/disable operation */
-  if (tf)
-    v->ops->nvdotprodmulti = N_VDotProdMulti_OpenMP;
-  else
-    v->ops->nvdotprodmulti = NULL;
+  if (tf) {
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_OpenMP;
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_OpenMP;
+  } else {
+    v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultilocal = NULL;
+  }
 
   /* return success */
   return(0);

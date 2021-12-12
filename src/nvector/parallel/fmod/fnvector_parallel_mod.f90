@@ -78,6 +78,8 @@ module fnvector_parallel_mod
  public :: FN_VInvTestLocal_Parallel
  public :: FN_VConstrMaskLocal_Parallel
  public :: FN_VMinQuotientLocal_Parallel
+ public :: FN_VDotProdMultiLocal_Parallel
+ public :: FN_VDotProdMultiAllReduce_Parallel
  public :: FN_VBufSize_Parallel
  public :: FN_VBufPack_Parallel
  public :: FN_VBufUnpack_Parallel
@@ -90,6 +92,7 @@ module fnvector_parallel_mod
  public :: FN_VEnableConstVectorArray_Parallel
  public :: FN_VEnableWrmsNormVectorArray_Parallel
  public :: FN_VEnableWrmsNormMaskVectorArray_Parallel
+ public :: FN_VEnableDotProdMultiLocal_Parallel
  public :: FN_VCloneVectorArray_Parallel
  public :: FN_VCloneVectorArrayEmpty_Parallel
  public :: FN_VDestroyVectorArray_Parallel
@@ -551,6 +554,27 @@ type(C_PTR), value :: farg2
 real(C_DOUBLE) :: fresult
 end function
 
+function swigc_FN_VDotProdMultiLocal_Parallel(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FN_VDotProdMultiLocal_Parallel") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VDotProdMultiAllReduce_Parallel(farg1, farg2, farg3) &
+bind(C, name="_wrap_FN_VDotProdMultiAllReduce_Parallel") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FN_VBufSize_Parallel(farg1, farg2) &
 bind(C, name="_wrap_FN_VBufSize_Parallel") &
 result(fresult)
@@ -652,6 +676,15 @@ end function
 
 function swigc_FN_VEnableWrmsNormMaskVectorArray_Parallel(farg1, farg2) &
 bind(C, name="_wrap_FN_VEnableWrmsNormMaskVectorArray_Parallel") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VEnableDotProdMultiLocal_Parallel(farg1, farg2) &
+bind(C, name="_wrap_FN_VEnableDotProdMultiLocal_Parallel") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1521,6 +1554,47 @@ fresult = swigc_FN_VMinQuotientLocal_Parallel(farg1, farg2)
 swig_result = fresult
 end function
 
+function FN_VDotProdMultiLocal_Parallel(nvec, x, y, dotprods) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+integer(C_INT), intent(in) :: nvec
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: y
+real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+
+farg1 = nvec
+farg2 = c_loc(x)
+farg3 = y
+farg4 = c_loc(dotprods(1))
+fresult = swigc_FN_VDotProdMultiLocal_Parallel(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
+function FN_VDotProdMultiAllReduce_Parallel(nvec_total, x, dotprods) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+integer(C_INT), intent(in) :: nvec_total
+type(N_Vector), target, intent(inout) :: x
+real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = nvec_total
+farg2 = c_loc(x)
+farg3 = c_loc(dotprods(1))
+fresult = swigc_FN_VDotProdMultiAllReduce_Parallel(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
 function FN_VBufSize_Parallel(x, size) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1710,6 +1784,22 @@ integer(C_INT) :: farg2
 farg1 = c_loc(v)
 farg2 = tf
 fresult = swigc_FN_VEnableWrmsNormMaskVectorArray_Parallel(farg1, farg2)
+swig_result = fresult
+end function
+
+function FN_VEnableDotProdMultiLocal_Parallel(v, tf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: v
+integer(C_INT), intent(in) :: tf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = c_loc(v)
+farg2 = tf
+fresult = swigc_FN_VEnableDotProdMultiLocal_Parallel(farg1, farg2)
 swig_result = fresult
 end function
 

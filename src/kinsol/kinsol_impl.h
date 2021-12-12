@@ -24,6 +24,7 @@
 
 #include <kinsol/kinsol.h>
 #include "sundials_context_impl.h"
+#include "sundials_iterative_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -152,6 +153,7 @@ typedef struct KINMemRec {
   N_Vector kin_constraints; /* constraints vector                              */
   N_Vector kin_vtemp1;      /* scratch vector #1                               */
   N_Vector kin_vtemp2;      /* scratch vector #2                               */
+  N_Vector kin_vtemp3;      /* scratch vector #3                               */
 
   /* fixed point and Picard options */
   booleantype kin_ret_newest; /* return the newest FP iteration     */
@@ -159,20 +161,30 @@ typedef struct KINMemRec {
   realtype    kin_beta;       /* damping parameter for FP/Picard    */
 
   /* space requirements for AA, Broyden and NLEN */
-  N_Vector kin_fold_aa;       /* vector needed for AA, Broyden, and NLEN */
-  N_Vector kin_gold_aa;       /* vector needed for AA, Broyden, and NLEN */
-  N_Vector *kin_df_aa;        /* vector array needed for AA, Broyden, and NLEN */
-  N_Vector *kin_dg_aa;        /* vector array needed for AA, Broyden and NLEN */
-  N_Vector *kin_q_aa;         /* vector array needed for AA */
-  realtype kin_beta_aa;       /* beta damping parameter for AA */
-  realtype *kin_gamma_aa;     /* array of size maa used in AA */
-  realtype *kin_R_aa;         /* array of size maa*maa used in AA */
-  long int *kin_ipt_map;      /* array of size maa used in AA */
-  long int kin_m_aa;          /* parameter for AA, Broyden or NLEN */
+  N_Vector kin_fold_aa;       /* vector needed for AA, Broyden, and NLEN         */
+  N_Vector kin_gold_aa;       /* vector needed for AA, Broyden, and NLEN         */
+  N_Vector *kin_df_aa;        /* vector array needed for AA, Broyden, and NLEN   */
+  N_Vector *kin_dg_aa;        /* vector array needed for AA, Broyden and NLEN    */
+  N_Vector *kin_q_aa;         /* vector array needed for AA                      */
+  realtype kin_beta_aa;       /* beta damping parameter for AA                   */
+  realtype *kin_gamma_aa;     /* array of size maa used in AA                    */
+  realtype *kin_R_aa;         /* array of size maa*maa used in AA                */
+  realtype *kin_T_aa;         /* array of size maa*maa used in AA with ICWY MGS  */
+  long int *kin_ipt_map;      /* array of size maa*maa/2 used in AA              */
+  long int kin_m_aa;          /* parameter for AA, Broyden or NLEN               */
   long int kin_delay_aa;      /* number of iterations to delay AA */
-  booleantype kin_damping_aa; /* flag to apply damping in AA */
-  realtype *kin_cv;           /* scalar array for fused vector operations */
-  N_Vector *kin_Xv;           /* vector array for fused vector operations */
+  int kin_orth_aa;            /* parameter for AA determining orthogonalization
+                                 routine
+                                 0 - Modified Gram Schmidt (standard)
+                                 1 - ICWY Modified Gram Schmidt (Bjorck)
+                                 2 - CGS2 (Hernandez)
+                                 3 - Delayed CGS2 (Hernandez)                    */
+  SUNQRAddFn kin_qr_func;     /* QRAdd function for AA orthogonalization         */
+  SUNQRData  kin_qr_data;     /* Additional parameters required for QRAdd routine
+                                 set for AA                                      */
+  booleantype kin_damping_aa; /* flag to apply damping in AA                     */
+  realtype *kin_cv;           /* scalar array for fused vector operations        */
+  N_Vector *kin_Xv;           /* vector array for fused vector operations        */
 
   /* space requirements for vector storage */
 
@@ -254,6 +266,12 @@ typedef struct KINMemRec {
   KINInfoHandlerFn kin_ihfun;  /* Info messages are handled by ihfun           */
   void *kin_ih_data;           /* dats pointer passed to ihfun                 */
   FILE *kin_infofp;            /* where KINSol info messages are sent          */
+
+  /*---------
+    Debugging
+    ---------*/
+
+  FILE *kin_debugfp; /* debugging output file */
 
 } *KINMem;
 
@@ -414,6 +432,7 @@ void KINInfoHandler(const char *module, const char *function,
 #define MSG_BAD_CONSTRAINTS    "Illegal values in constraints vector."
 #define MSG_BAD_OMEGA          "scalars < 0 illegal."
 #define MSG_BAD_MAA            "maa < 0 illegal."
+#define MSG_BAD_ORTHAA         "Illegal value for orthaa."
 #define MSG_ZERO_MAA           "maa = 0 illegal."
 
 #define MSG_LSOLV_NO_MEM       "The linear solver memory pointer is NULL."

@@ -790,6 +790,24 @@ SWIGEXPORT double _wrap_FN_VMinQuotientLocal_ManyVector(N_Vector farg1, N_Vector
 }
 
 
+SWIGEXPORT int _wrap_FN_VDotProdMultiLocal_ManyVector(int const *farg1, N_Vector farg2, void *farg3, double *farg4) {
+  int fresult ;
+  int arg1 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector *arg3 = (N_Vector *) 0 ;
+  realtype *arg4 = (realtype *) 0 ;
+  int result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (N_Vector *)(farg3);
+  arg4 = (realtype *)(farg4);
+  result = (int)N_VDotProdMultiLocal_ManyVector(arg1,arg2,arg3,arg4);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FN_VBufSize_ManyVector(N_Vector farg1, int64_t *farg2) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
@@ -953,6 +971,20 @@ SWIGEXPORT int _wrap_FN_VEnableWrmsNormMaskVectorArray_ManyVector(N_Vector farg1
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (int)N_VEnableWrmsNormMaskVectorArray_ManyVector(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FN_VEnableDotProdMultiLocal_ManyVector(N_Vector farg1, int const *farg2) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)N_VEnableDotProdMultiLocal_ManyVector(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

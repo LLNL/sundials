@@ -131,6 +131,9 @@ N_Vector N_VNewEmpty_OpenMPDEV(sunindextype length, SUNContext sunctx)
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_OpenMPDEV;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_OpenMPDEV;
 
+  /* single buffer reduction operations */
+  v->ops->nvdotprodmultilocal = N_VDotProdMulti_OpenMPDEV;
+
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMPDEV) malloc(sizeof *content);
@@ -2806,6 +2809,8 @@ int N_VEnableFusedOps_OpenMPDEV(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_OpenMPDEV;
     v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_OpenMPDEV;
     v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_OpenMPDEV;
+    /* enable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_OpenMPDEV;
   } else {
     /* disable all fused vector operations */
     v->ops->nvlinearcombination = NULL;
@@ -2819,6 +2824,8 @@ int N_VEnableFusedOps_OpenMPDEV(N_Vector v, booleantype tf)
     v->ops->nvwrmsnormmaskvectorarray      = NULL;
     v->ops->nvscaleaddmultivectorarray     = NULL;
     v->ops->nvlinearcombinationvectorarray = NULL;
+    /* disable single buffer reduction operations */
+    v->ops->nvdotprodmultilocal = NULL;
   }
 
   /* return success */
@@ -2871,10 +2878,13 @@ int N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, booleantype tf)
   if (v->ops == NULL) return(-1);
 
   /* enable/disable operation */
-  if (tf)
-    v->ops->nvdotprodmulti = N_VDotProdMulti_OpenMPDEV;
-  else
-    v->ops->nvdotprodmulti = NULL;
+  if (tf) {
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_OpenMPDEV;
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_OpenMPDEV;
+  } else {
+    v->ops->nvdotprodmulti      = NULL;
+    v->ops->nvdotprodmultilocal = NULL;
+  }
 
   /* return success */
   return(0);

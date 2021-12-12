@@ -138,6 +138,11 @@ int Test_N_VConstrMaskLocal(N_Vector C, N_Vector X, N_Vector M,
 int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
                              sunindextype local_length, int myid);
 
+/* Single buffer reduction tests */
+int Test_N_VDotProdMultiLocal(N_Vector X, sunindextype local_length, int myid);
+int Test_N_VDotProdMultiAllReduce(N_Vector X, sunindextype local_length,
+                                  int myid);
+
 /* XBraid interface operations */
 int Test_N_VBufSize(N_Vector x, sunindextype local_length, int myid);
 int Test_N_VBufPack(N_Vector x, sunindextype local_length, int myid);

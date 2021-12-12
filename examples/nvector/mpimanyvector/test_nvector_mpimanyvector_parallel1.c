@@ -285,8 +285,13 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMaskLocal(X, Y, Z, local_length, myid);
   fails += Test_N_VMinQuotientLocal(X, Y, local_length, myid);
 
+  /* local fused reduction operations */
+  if (myid == 0) printf("\nTesting local fused reduction operations:\n\n");
+  fails += Test_N_VDotProdMultiLocal(V, local_length, myid);
+  fails += Test_N_VDotProdMultiAllReduce(V, local_length, myid);
+
   /* XBraid interface operations */
-  printf("\nTesting XBraid interface operations:\n\n");
+  if (myid == 0) printf("\nTesting XBraid interface operations:\n\n");
 
   fails += Test_N_VBufSize(X, local_length, myid);
   fails += Test_N_VBufPack(X, local_length, myid);
