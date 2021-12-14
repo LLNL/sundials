@@ -17,9 +17,8 @@
 The SUNMATRIX_DENSE Module
 ======================================
 
-The dense implementation of the ``SUNMatrix`` module provided with
-SUNDIALS, SUNMATRIX_DENSE, defines the *content* field of
-``SUNMatrix`` to be the following structure:
+The dense implementation of the ``SUNMatrix`` module, SUNMATRIX_DENSE,
+defines the *content* field of ``SUNMatrix`` to be the following structure:
 
 .. code-block:: c
 
@@ -39,15 +38,15 @@ These entries of the *content* field contain the following information:
 
 * ``data`` - pointer to a contiguous block of ``realtype`` variables.
   The elements of the dense matrix are stored columnwise, i.e. the
-  :math:`A_{i,j}` element of a dense ``SUNMatrix A``
+  :math:`(i,j)` element of a dense ``SUNMatrix`` object
   (with :math:`0 \le i < M` and :math:`0 \le j < N`) may be accessed
   via ``data[j*M+i]``.
 
-* ``ldata`` - length of the data array (:math:`= M \cdot N`).
+* ``ldata`` - length of the data array (:math:`= M\, N`).
 
 * ``cols`` - array of pointers. ``cols[j]`` points to the first
   element of the j-th column of the matrix in the array ``data``.
-  The :math:`A_{i,j}` element of a dense ``SUNMatrix A``
+  The :math:`(i,j)` element of a dense ``SUNMatrix``
   (with :math:`0 \le i < M` and :math:`0 \le j < N`) may be accessed
   may be accessed via ``cols[j][i]``.
 
@@ -200,13 +199,13 @@ these macros are for *SUNMatrix* implementations, and the suffix
 
 
 The SUNMATRIX_DENSE module defines dense implementations of all matrix
-operations listed in the section :numref:`SUNMatrix.Ops`. Their names are obtained
+operations listed in :numref:`SUNMatrix.Ops`. Their names are obtained
 from those in that section by appending the suffix ``_Dense``
 (e.g. ``SUNMatCopy_Dense``).  The module SUNMATRIX_DENSE provides the
 following additional user-callable routines:
 
 
-.. c:function:: SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N)
+.. c:function:: SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a dense
    ``SUNMatrix``.  Its arguments are the number of rows, ``M``, and
@@ -259,13 +258,13 @@ following additional user-callable routines:
 * When looping over the components of a dense ``SUNMatrix A``,
   the most efficient approaches are to:
 
-  * First obtain the component array via ``A_data = SM_DATA_D(A)`` or
-    ``A_data = SUNDenseMatrix_Data(A)`` and then access ``A_data[i]``
+  * First obtain the component array via ``A_data = SUNDenseMatrix_Data(A)``,
+    or equivalently ``A_data = SM_DATA_D(A)``, and then access ``A_data[i]``
     within the loop.
 
-  * First obtain the array of column pointers via ``A_cols = SM_COLS_D(A)`` or
-    ``A_cols = SUNDenseMatrix_Cols(A)``, and then access
-    ``A_cols[j][i]`` within the loop.
+  * First obtain the array of column pointers via
+    ``A_cols = SUNDenseMatrix_Cols(A)``, or equivalently
+    ``A_cols = SM_COLS_D(A)``, and then access ``A_cols[j][i]`` within the loop.
 
   * Within a loop over the columns, access the column pointer via
     ``A_colj = SUNDenseMatrix_Column(A,j)`` and then to access the
@@ -280,35 +279,3 @@ following additional user-callable routines:
   limited to: NVECTOR_SERIAL, NVECTOR_OPENMP, and NVECTOR_PTHREADS.
   As additional compatible vector implementations are added to
   SUNDIALS, these will be included within this compatibility check.
-
-
-For solvers that include a Fortran interface module, the SUNMATRIX_DENSE
-module also includes the Fortran-callable function
-:f:func:`FSUNDenseMatInit()` to initialize this SUNMATRIX_DENSE module
-for a given SUNDIALS solver.
-
-.. f:subroutine:: FSUNDenseMatInit(CODE, M, N, IER)
-
-   Initializes a dense ``SUNMatrix`` structure for use in a SUNDIALS solver.
-
-   **Arguments:**
-      * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
-        this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKODE=4.
-      * *M* (``long int``, input) -- number of matrix rows.
-      * *N* (``long int``, input) -- number of matrix columns.
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-
-Additionally, when using ARKODE with a non-identity mass matrix, the
-Fortran-callable function :f:func:`FSUNDenseMassMatInit()` initializes
-this SUNMATRIX_DENSE module for storing the mass matrix.
-
-.. f:subroutine:: FSUNDenseMassMatInit(M, N, IER)
-
-   Initializes a dense ``SUNMatrix`` structure for use as a mass
-   matrix in ARKODE.
-
-   **Arguments:**
-      * *M* (``long int``, input) -- number of matrix rows.
-      * *N* (``long int``, input) -- number of matrix columns.
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-

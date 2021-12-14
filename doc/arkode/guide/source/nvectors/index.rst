@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -42,5 +42,5 @@ patterns in the NVECTORS used.
    :maxdepth: 1
 
    NVector_API_link.rst
-   ARKode_requirements.rst
+   ARKODE_requirements.rst
    NVector_links.rst

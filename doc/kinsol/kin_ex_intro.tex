@@ -11,11 +11,11 @@ The {\kinsol} distribution contains examples of types: serial
 {\CC} examples, parallel {\CC} examples, serial and parallel {\F}
 examples, and an OpenMP example.
 %%
-With the exception of ''demo''-type example files, the names of all the examples 
+With the exception of ''demo''-type example files, the names of all the examples
 distributed with {\sundials} are of the form
 \verb![slv][PbName]_[strat]_[ls]_[prec]_[p]!, where
 \begin{description}
-\item [{[slv]}] identifies the solver (for {\kinsol} examples this is \id{kin}, 
+\item [{[slv]}] identifies the solver (for {\kinsol} examples this is \id{kin},
   while for {\fkinsol} examples, this is \id{fkin});
 \item [{[PbName]}] identifies the problem;
 \item [{[strat]}] identifies the strategy (absent if ``none'' or ``linesearch'');
@@ -93,7 +93,7 @@ the following parallel examples (using the {\nvecp} module):
 \end{itemize}
 
 \vspace{0.2in}\noindent
-As part of the {\fkinsol} module, in the directories 
+As part of the {\fkinsol} module, in the directories
 {\em srcdir}\id{/examples/kinsol/fcmix\_serial} and
 {\em srcdir}\id{/examples/kinsol/fcmix\_parallel}, respectively, are the
 following examples for the {\F}-{\CC} interface:
@@ -111,8 +111,36 @@ is an example using the OpenMP NVECTOR module.
 \id{kin\_FoodWeb\_kry\_omp} solves the same problem as
 \id{kin\_FoodWeb\_kry} but uses the OpenMP module.
 
+\vspace{0.2in}\noindent
+Supplied in directory {\em srcdir}\id{/examples/kinsol/CXX\_parallel}
+is an example using the {\nvecp} module.
+\id{kin\_heat2D\_nonlin\_p} solves a steady-state 2D heat
+equation with an additional nonlinear term.
+This problem is solved via fixed point iteration with
+Anderson acceleration. This example highlights the availability
+of various orthogonalization methods for use within Anderson
+acceleration.
 
-\vspace{0.2in}\noindent 
+\vspace{0.2in}\noindent
+Supplied in directory {\em srcdir}\id{/examples/kinsol/CXX\_parhyp}
+are examples using the {\nvecp} module and incorporating use
+of {\hypre} preconditioners and solvers.
+These example problems are solved via fixed point iteration with
+Anderson acceleration. They highlight the availability
+of various orthogonalization methods for use within
+Anderson acceleration.
+\begin{itemize}
+\item \id{kin\_heat2D\_nonlin\_hypre\_pfmg}
+  solves the same problem as \id{kin\_heat2D\_nonlin\_p}
+  but with a different fixed point iteration setup requiring
+  a linear solve that uses {\hypre}'s PFMG preconditioner.
+\item \id{kin\_bratu2D\_hypre\_pfmg}
+  solves a 2D Bratu equation \cite{Frank-Kam:55} requiring a linear solve
+  that uses {\hypre}'s PFMG preconditioner.
+\end{itemize}
+
+
+\vspace{0.2in}\noindent
 In the following sections, we give detailed descriptions of some (but
 not all) of these examples.  We also give our output files for
 each of these examples, but users should be cautioned that their
@@ -126,12 +154,12 @@ User Document \cite{kinsol_ug}.  All citations to specific sections
 (e.g. \S\ref{s:types}) are references to parts of that User Document, unless
 explicitly stated otherwise.
 
-\vspace{0.2in}\noindent {\bf Note}. 
+\vspace{0.2in}\noindent {\bf Note}.
 The examples in the {\kinsol} distribution are written in such a way as
 to compile and run for any combination of configuration options used during
 the installation of {\sundials} (see Appendix \ref{c:install} in the User Guide).
 As a consequence, they contain portions of code that will not be typically present in a
 user program. For example, all {\CC} example programs make use of the
 variables \id{SUNDIALS\_EXTENDED\_PRECISION} and \id{SUNDIALS\_DOUBLE\_PRECISION}
-to test if the solver libraries were built in extended or double precision, 
+to test if the solver libraries were built in extended or double precision,
 and use the appropriate conversion specifiers in \id{printf} functions.

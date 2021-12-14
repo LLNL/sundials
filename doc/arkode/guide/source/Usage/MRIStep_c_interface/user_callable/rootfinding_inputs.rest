@@ -1,11 +1,23 @@
-.. _Usage.MRIStep.MRIStepRootfindingInputTable:
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
+
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _ARKODE.Usage.MRIStep.MRIStepRootfindingInput:
 
 Rootfinding optional input functions
 ------------------------------------
 
 The following functions can be called to set optional inputs to
 control the rootfinding algorithm, the mathematics of which are
-described in the section :numref:`Mathematics.Rootfinding`.
+described in the section :numref:`ARKODE.Mathematics.Rootfinding`.
 
 
 .. cssclass:: table-bordered
@@ -29,9 +41,9 @@ Disable inactive root warnings          :c:func:`MRIStepSetNoInactiveRootWarn()`
         functions :math:`g_i`  (the value of *nrtfn* was supplied in
         the call to :c:func:`MRIStepRootInit()`).  If ``rootdir[i] ==
         0`` then crossing in either direction for :math:`g_i` should be
-	reported.  A value of +1 or -1 indicates that the solver
-	should report only zero-crossings where :math:`g_i` is
-	increasing or decreasing, respectively.
+        reported.  A value of +1 or -1 indicates that the solver
+        should report only zero-crossings where :math:`g_i` is
+        increasing or decreasing, respectively.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

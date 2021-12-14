@@ -1,13 +1,27 @@
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
+
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
 .. _Usage.CC.DataTypes:
 
 Data Types
 ----------
 
-The ``sundials_types.h`` file contains the definition of the type ``realtype``,
-which is used by the SUNDIALS solvers for all floating-point data, the
-definition of the integer type ``sunindextype``, which is used for vector and
-matrix indices, and ``booleantype``, which is used for certain logic operations
-within SUNDIALS.
+The header file ``sundials_types.h`` contains the definition of the types:
+
+* :c:type:`realtype` -- the floating-point type used by the SUNDIALS packages
+
+* :c:type:`sunindextype` -- the integer type used for vector and matrix indices
+
+* :c:type:`booleantype` -- the type used for logic operations within SUNDIALS
 
 Floating point types
 ~~~~~~~~~~~~~~~~~~~~
@@ -16,7 +30,7 @@ Floating point types
 
    The type ``realtype`` can be ``float``, ``double``, or ``long double``, with
    the default being ``double``. The user can change the precision of the
-   SUNDIALS solvers arithmetic at the configuration stage (see
+   arithmetic used in the SUNDIALS solvers at the configuration stage (see
    :cmakeop:`SUNDIALS_PRECISION`).
 
 Additionally, based on the current precision, ``sundials_types.h`` defines
@@ -26,7 +40,7 @@ Additionally, based on the current precision, ``sundials_types.h`` defines
 ``realtype`` greater than :math:`1.0`.
 
 Within SUNDIALS, real constants are set by way of a macro called ``RCONST``. It
-is this macro that needs the ability to branch on the definition
+is this macro that needs the ability to branch on the definition of
 ``realtype``. In ANSI C, a floating-point constant with no suffix is stored as a
 ``double``. Placing the suffix "``F``" at the end of a floating point constant
 makes it a ``float``, whereas using the suffix "``L``" makes it a ``long
@@ -60,8 +74,8 @@ type ``double``, ``float``, or ``long double`` in their code (assuming that this
 usage is consistent with the typedef for ``realtype``) and call the appropriate
 math library functions directly. Thus, a previously existing piece of C or C++
 code can use SUNDIALS without modifying the code to use ``realtype``,
-``RCONST``, or the ``SUNR`` macros so long as the SUNDIALS libraries use the
-correct precision (:numref:`Installation.CMake.Options`).
+``RCONST``, or the ``SUNR`` macros so long as the SUNDIALS libraries are built
+to use the corresponding precision (see :numref:`Installation.CMake.Options`).
 
 Integer types used for indexing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,7 +83,7 @@ Integer types used for indexing
 .. c:type:: sunindextype
 
    The type ``sunindextype`` is used for indexing array entries in SUNDIALS
-   modules as well as for storing the total problem size (*e.g.*, vectors
+   modules as well as for storing the total problem size (*e.g.*, vector
    lengths and matrix sizes). During configuration ``sunindextype`` may be
    selected to be either a 32- or 64-bit *signed* integer with the default being
    64-bit (see :cmakeop:`SUNDIALS_INDEX_SIZE`).
@@ -96,8 +110,8 @@ Boolean type
 
 .. c:type:: booleantype
 
-   As ANSI C89 (ISO C90) does not have a built-in boolean data type the type
-   ``booleantype`` is defined as an ``int``.
+   As ANSI C89 (ISO C90) does not have a built-in boolean data type, SUNDIALS
+   defines the type ``booleantype`` as an ``int``.
 
 The advantage of using the name booleantype (instead of int) is an increase in
 code readability. It also allows the programmer to make a distinction between

@@ -1,4 +1,16 @@
-.. _Usage.MRIStep.Reinitialization:
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
+
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _ARKODE.Usage.MRIStep.Reinitialization:
 
 MRIStep re-initialization function
 -------------------------------------
@@ -17,7 +29,7 @@ integration.  Following a successful call to
 :c:func:`MRIStepReInit()`, call :c:func:`MRIStepEvolve()` again for the
 solution of the new problem.
 
-The use of :c:func:`MRIStepReInit()` requires that the number of Runge Kutta
+The use of :c:func:`MRIStepReInit()` requires that the number of Runge--Kutta
 stages for both the slow and fast methods be no larger for the new problem than
 for the previous problem.
 
@@ -46,21 +58,30 @@ vector.
    MRIStep outer (slow) stepper.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *fse* -- the name of the function (of type :c:func:`ARKRhsFn()`)
-        defining the explicit slow portion of the right-hand side function in
-        :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
-      * *fsi* -- the name of the function (of type :c:func:`ARKRhsFn()`)
-        defining the implicit slow portion of the right-hand side function in
-        :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
-      * *t0* -- the initial value of :math:`t`.
-      * *y0* -- the initial condition vector :math:`y(t_0)`.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *fse* -- the name of the function (of type :c:func:`ARKRhsFn()`)
+     defining the explicit slow portion of the right-hand side function in
+     :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
+
+   * *fsi* -- the name of the function (of type :c:func:`ARKRhsFn()`)
+     defining the implicit slow portion of the right-hand side function in
+     :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
+
+   * *t0* -- the initial value of :math:`t`.
+
+   * *y0* -- the initial condition vector :math:`y(t_0)`.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
-      * *ARK_MEM_FAIL*  if a memory allocation failed
-      * *ARK_ILL_INPUT* if an argument has an illegal value.
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
+
+   * *ARK_MEM_FAIL*  if a memory allocation failed
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value.
 
    **Notes:**
    If the inner (fast) stepper also needs to be reinitialized, its

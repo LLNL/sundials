@@ -1,4 +1,16 @@
-.. _Usage.MRIStep.OptionalOutputs:
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
+
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _ARKODE.Usage.MRIStep.OptionalOutputs:
 
 Optional output functions
 ------------------------------
@@ -6,19 +18,21 @@ Optional output functions
 MRIStep provides an extensive set of functions that can be used to
 obtain solver performance information.  We organize these into groups:
 
-1. SUNDIALS version information accessor routines are in the subsection
-   :numref:`Usage.MRIStep.SUNVersionInfo`,
-2. General MRIStep output routines are in the subsection
-   :numref:`Usage.MRIStep.MRIStepMainOutputs`,
-3. MRIStep implicit solver output routines are in the subsection
-   :numref:`Usage.MRIStep.MRIStepImplicitSolverOutputs`,
-4. Linear solver output routines are in the subsection
-   :numref:`Usage.MRIStep.ARKLsOutputs` and
-5. General usability routines (e.g. to print the current MRIStep
-   parameters, or output the current coupling table) are in the
-   subsection :numref:`Usage.MRIStep.MRIStepExtraOutputs`.
-6. Output routines regarding root-finding results are in the subsection
-   :numref:`Usage.MRIStep.MRIStepRootOutputs`,
+#. General MRIStep output routines are in
+   :numref:`ARKODE.Usage.MRIStep.MRIStepMainOutputs`,
+
+#. MRIStep implicit solver output routines are in
+   :numref:`ARKODE.Usage.MRIStep.MRIStepImplicitSolverOutputs`,
+
+#. Linear solver output routines are in
+   :numref:`ARKODE.Usage.MRIStep.ARKLsOutputs` and
+
+#. General usability routines (e.g. to print the current MRIStep
+   parameters, or output the current coupling table) are in
+   :numref:`ARKODE.Usage.MRIStep.MRIStepExtraOutputs`.
+
+#. Output routines regarding root-finding results are in
+   :numref:`ARKODE.Usage.MRIStep.MRIStepRootOutputs`,
 
 Following each table, we elaborate on each function.
 
@@ -38,13 +52,6 @@ MRIStep.  For example:
   range from 1.1 to 1.8.
 
 * When using a Newton nonlinear solver, the ratio *njevals/nniters*
-  (in the case of a direct linear solver), and the ratio
-  *npevals/nniters* (in the case of an iterative linear solver)
-  can measure the overall degree of nonlinearity in the problem,
-  since these are updated infrequently, unless the Newton method
-  convergence slows.
-
-* When using a Newton nonlinear solver, the ratio *njevals/nniters*
   (when using a direct linear solver), and the ratio
   *nliters/nniters* (when using an iterative linear solver) can
   indicate the quality of the approximate Jacobian or preconditioner being
@@ -60,77 +67,42 @@ particular problem of interest.
 
 
 
-.. _Usage.MRIStep.SUNVersionInfo:
-
-SUNDIALS version information
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following functions provide a way to get SUNDIALS version
-information at runtime.
-
-
-.. c:function:: int SUNDIALSGetVersion(char *version, int len)
-
-   This routine fills a string with SUNDIALS version information.
-
-   **Arguments:**
-      * *version* -- character array to hold the SUNDIALS version information.
-      * *len* -- allocated length of the *version* character array.
-
-   **Return value:**
-      * 0 if successful
-      * -1 if the input string is too short to store the SUNDIALS version
-
-   **Notes:** An array of 25 characters should be sufficient to hold
-   the version information.
-
-
-
-.. c:function:: int SUNDIALSGetVersionNumber(int *major, int *minor, int *patch, char *label, int len)
-
-   This routine sets integers for the SUNDIALS major,
-   minor, and patch release numbers and fills a string with the
-   release label if applicable.
-
-   **Arguments:**
-      * *major* -- SUNDIALS release major version number.
-      * *minor* -- SUNDIALS release minor version number.
-      * *patch* -- SUNDIALS release patch version number.
-      * *label* -- string to hold the SUNDIALS release label.
-      * *len* -- allocated length of the *label* character array.
-
-   **Return value:**
-      * 0 if successful
-      * -1 if the input string is too short to store the SUNDIALS label
-
-   **Notes:** An array of 10 characters should be sufficient to hold
-   the label information. If a label is not used in the release
-   version, no information is copied to *label*.
-
-
-.. _Usage.MRIStep.MRIStepMainOutputs:
+.. _ARKODE.Usage.MRIStep.MRIStepMainOutputs:
 
 Main solver optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cssclass:: table-bordered
 
-===================================================  ============================================
-Optional output                                      Function name
-===================================================  ============================================
-Size of MRIStep real and integer workspaces          :c:func:`MRIStepGetWorkSpace()`
-Cumulative number of internal steps                  :c:func:`MRIStepGetNumSteps()`
-Step size used for the last successful step          :c:func:`MRIStepGetLastStep()`
-Current internal time reached by the solver          :c:func:`MRIStepGetCurrentTime()`
-Current internal solution reached by the solver      :c:func:`MRIStepGetCurrentState()`
-Current :math:`\gamma` value used by the solver      :c:func:`MRIStepGetCurrentGamma()`
-Error weight vector for state variables              :c:func:`MRIStepGetErrWeights()`
-Suggested factor for tolerance scaling               :c:func:`MRIStepGetTolScaleFactor()`
-Name of constant associated with a return flag       :c:func:`MRIStepGetReturnFlagName()`
-No. of calls to :math:`f^E` and :math:`f^I`          :c:func:`MRIStepGetNumRhsEvals()`
-Current MRI coupling tables                          :c:func:`MRIStepGetCurrentCoupling()`
-Last inner stepper return value                      :c:func:`MRIStepGetLastInnerStepFlag()`
-===================================================  ============================================
+.. _ARKODE.Usage.MRIStep.MRIStepMainOutputs.Table:
+.. table:: Main solver optional output functions
+
+   +------------------------------------------------------+-------------------------------------------+
+   | Optional output                                      | Function name                             |
+   +------------------------------------------------------+-------------------------------------------+
+   | Size of MRIStep real and integer workspaces          | :c:func:`MRIStepGetWorkSpace()`           |
+   +------------------------------------------------------+-------------------------------------------+
+   | Cumulative number of internal steps                  | :c:func:`MRIStepGetNumSteps()`            |
+   +------------------------------------------------------+-------------------------------------------+
+   | Step size used for the last successful step          | :c:func:`MRIStepGetLastStep()`            |
+   +------------------------------------------------------+-------------------------------------------+
+   | Current internal time reached by the solver          | :c:func:`MRIStepGetCurrentTime()`         |
+   +------------------------------------------------------+-------------------------------------------+
+   | Current internal solution reached by the solver      | :c:func:`MRIStepGetCurrentState()`        |
+   +------------------------------------------------------+-------------------------------------------+
+   | Current :math:`\gamma` value used by the solver      | :c:func:`MRIStepGetCurrentGamma()`        |
+   +------------------------------------------------------+-------------------------------------------+
+   | Error weight vector for state variables              | :c:func:`MRIStepGetErrWeights()`          |
+   +------------------------------------------------------+-------------------------------------------+
+   | Suggested factor for tolerance scaling               | :c:func:`MRIStepGetTolScaleFactor()`      |
+   +------------------------------------------------------+-------------------------------------------+
+   | Name of constant associated with a return flag       | :c:func:`MRIStepGetReturnFlagName()`      |
+   +------------------------------------------------------+-------------------------------------------+
+   | No. of calls to the :math:`f^E` and :math:`f^I`      | :c:func:`MRIStepGetNumRhsEvals()`         |
+   +------------------------------------------------------+-------------------------------------------+
+   | Current MRI coupling tables                          | :c:func:`MRIStepGetCurrentCoupling()`     |
+   +------------------------------------------------------+-------------------------------------------+
+   | Last inner stepper return value                      | :c:func:`MRIStepGetLastInnerStepFlag()`   |
+   +------------------------------------------------------+-------------------------------------------+
 
 .. Functions not currently provided by MRIStep
 .. No. of explicit stability-limited steps              :c:func:`MRIStepGetNumExpSteps()`
@@ -143,18 +115,24 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
 .. Step size to be attempted on the next step           :c:func:`MRIStepGetCurrentStep()`
 .. Single accessor to many statistics at once           :c:func:`MRIStepGetStepStats()`
 
+
 .. c:function:: int MRIStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
 
    Returns the MRIStep real and integer workspace sizes.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *lenrw* -- the number of ``realtype`` values in the MRIStep workspace.
-      * *leniw* -- the number of integer values in the MRIStep workspace.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *lenrw* -- the number of ``realtype`` values in the MRIStep workspace.
+
+   * *leniw* -- the number of integer values in the MRIStep workspace.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 .. c:function:: int MRIStepGetNumSteps(void* arkode_mem, long int* nssteps, long int* nfsteps)
@@ -163,13 +141,18 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
    the solver (so far).
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nssteps* -- number of slow steps taken in the solver.
-      * *nfsteps* -- number of fast steps taken in the solver.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *nssteps* -- number of slow steps taken in the solver.
+
+   * *nfsteps* -- number of fast steps taken in the solver.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 ..
@@ -178,12 +161,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
       Returns the value of the integration step size used on the first step.
 
       **Arguments:**
-         * *arkode_mem* -- pointer to the MRIStep memory block.
-         * *hinused* -- actual value of initial step size.
+
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+      * *hinused* -- actual value of initial step size.
 
       **Return value:**
-         * *ARK_SUCCESS* if successful
-         * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+      * *ARK_SUCCESS* if successful
+
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 .. c:function:: int MRIStepGetLastStep(void* arkode_mem, realtype* hlast)
@@ -192,12 +179,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
    internal step.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *hlast* -- step size taken on the last internal step.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *hlast* -- step size taken on the last internal step.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 ..
@@ -206,12 +197,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
       Returns the integration step size to be attempted on the next internal step.
 
       **Arguments:**
-         * *arkode_mem* -- pointer to the MRIStep memory block.
-         * *hcur* -- step size to be attempted on the next internal step.
+
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+      * *hcur* -- step size to be attempted on the next internal step.
 
       **Return value:**
-         * *ARK_SUCCESS* if successful
-         * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+      * *ARK_SUCCESS* if successful
+
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 .. c:function:: int MRIStepGetCurrentTime(void* arkode_mem, realtype* tcur)
@@ -219,12 +214,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
    Returns the current internal time reached by the solver.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *tcur* -- current internal time reached.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *tcur* -- current internal time reached.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 .. c:function:: int MRIStepGetCurrentState(void *arkode_mem, N_Vector *ycur)
@@ -232,12 +231,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
    Returns the current internal solution reached by the solver.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *ycur* -- current internal solution.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *ycur* -- current internal solution.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
    **Notes:** Users should exercise extreme caution when using this function,
    as altering values of *ycur* may lead to undesirable behavior, depending
@@ -247,15 +250,19 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
 .. c:function:: int MRIStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
 
    Returns the current internal value of :math:`\gamma` used in the implicit
-   solver Newton matrix (see equation :eq:`NewtonMatrix`).
+   solver Newton matrix (see equation :eq:`ARKODE_NewtonMatrix`).
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *gamma* -- current step size scaling factor in the Newton system.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *gamma* -- current step size scaling factor in the Newton system.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 
@@ -266,12 +273,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
    requested for some internal step.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *tolsfac* -- suggested scaling factor for user-supplied tolerances.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *tolsfac* -- suggested scaling factor for user-supplied tolerances.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 .. c:function:: int MRIStepGetErrWeights(void* arkode_mem, N_Vector eweight)
@@ -279,12 +290,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
    Returns the current error weight vector.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *eweight* -- solution error weights at the current time.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *eweight* -- solution error weights at the current time.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
    **Notes:** The user must allocate space for *eweight*, that will be
    filled in by this function.
@@ -296,15 +311,22 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
       Returns many of the most useful optional outputs in a single call.
 
       **Arguments:**
-         * *arkode_mem* -- pointer to the MRIStep memory block.
-         * *nssteps* -- number of slow steps taken in the solver.
-         * *nfsteps* -- number of fast steps taken in the solver.
-         * *hlast* -- step size taken on the last internal step.
-         * *tcur* -- current internal time reached.
+
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+      * *nssteps* -- number of slow steps taken in the solver.
+
+      * *nfsteps* -- number of fast steps taken in the solver.
+
+      * *hlast* -- step size taken on the last internal step.
+
+      * *tcur* -- current internal time reached.
 
       **Return value:**
-         * *ARK_SUCCESS* if successful
-         * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+      * *ARK_SUCCESS* if successful
+
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 .. c:function:: char *MRIStepGetReturnFlagName(long int flag)
@@ -312,7 +334,8 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
    Returns the name of the MRIStep constant corresponding to *flag*.
 
    **Arguments:**
-      * *flag* -- a return flag from an MRIStep function.
+
+   * *flag* -- a return flag from an MRIStep function.
 
    **Return value:**
    The return value is a string containing the name of
@@ -326,12 +349,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
       taken by the solver (so far).
 
       **Arguments:**
-         * *arkode_mem* -- pointer to the MRIStep memory block.
-         * *expsteps* -- number of stability-limited steps taken in the solver.
+
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+      * *expsteps* -- number of stability-limited steps taken in the solver.
 
       **Return value:**
-         * *ARK_SUCCESS* if successful
-         * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+      * *ARK_SUCCESS* if successful
+
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 ..
@@ -341,12 +368,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
       taken by the solver (so far).
 
       **Arguments:**
-         * *arkode_mem* -- pointer to the MRIStep memory block.
-         * *accsteps* -- number of accuracy-limited steps taken in the solver.
+
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+      * *accsteps* -- number of accuracy-limited steps taken in the solver.
 
       **Return value:**
-         * *ARK_SUCCESS* if successful
-         * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+      * *ARK_SUCCESS* if successful
+
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 ..
@@ -355,28 +386,35 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
       Returns the cumulative number of steps attempted by the solver (so far).
 
       **Arguments:**
-         * *arkode_mem* -- pointer to the MRIStep memory block.
-         * *step_attempts* -- number of steps attempted by solver.
+
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+      * *step_attempts* -- number of steps attempted by solver.
 
       **Return value:**
-         * *ARK_SUCCESS* if successful
-         * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+      * *ARK_SUCCESS* if successful
+
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 .. c:function:: int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals, long int* nfsi_evals)
 
-   Returns the number of calls to the user's outer (slow) right-hand
-   side functions, :math:`f^E` and :math:`f^I`, so far.
+   Returns the number of calls to the user's outer (slow) right-hand side
+   functions, :math:`f^E` and :math:`f^I`, so far.
 
    **Arguments:**
 
    * *arkode_mem* -- pointer to the MRIStep memory block.
+
    * *nfse_evals* -- number of calls to the user's :math:`f^E(t,y)` function.
+
    * *nfsi_evals* -- number of calls to the user's :math:`f^I(t,y)` function.
 
    **Return value:**
 
    * *ARK_SUCCESS* if successful
+
    * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
@@ -387,12 +425,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
       have occurred (so far).
 
       **Arguments:**
-         * *arkode_mem* -- pointer to the MRIStep memory block.
-         * *netfails* -- number of error test failures.
+
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+      * *netfails* -- number of error test failures.
 
       **Return value:**
-         * *ARK_SUCCESS* if successful
-         * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+      * *ARK_SUCCESS* if successful
+
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 .. c:function:: int MRIStepGetCurrentCoupling(void* arkode_mem, MRIStepCoupling *C)
@@ -400,12 +442,16 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
    Returns the MRI coupling table currently in use by the solver.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *C* -- pointer to slow-to-fast MRI coupling structure.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *C* -- pointer to slow-to-fast MRI coupling structure.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
    **Notes:**  The *MRIStepCoupling* data structure is defined in
    the header file ``arkode/arkode_mristep.h``.  It is defined as a
@@ -420,12 +466,12 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
          int q;           /* method order of accuracy                    */
          int p;           /* embedding order of accuracy                 */
          realtype ***G;   /* coupling matrices [nmat][stages][stages]    */
-         realtype *c;     /* abscissae                                    */
+         realtype *c;     /* abscissae                                   */
 
        };
        typedef MRIStepCouplingMem *MRIStepCoupling;
 
-   For more details see :numref:`Usage.MRIStep.MRIStepCoupling`.
+   For more details see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling`.
 
 
 ..
@@ -435,18 +481,22 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
       for the current step.
 
       **Arguments:**
-         * *arkode_mem* -- pointer to the MRIStep memory block.
-         * *ele* -- vector of estimated local truncation errors.
+
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+      * *ele* -- vector of estimated local truncation errors.
 
       **Return value:**
-         * *ARK_SUCCESS* if successful
-         * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+      * *ARK_SUCCESS* if successful
+
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
       **Notes:**  The user must allocate space for *ele*, that will be
       filled in by this function.
 
       The values returned in *ele* are valid only after a successful call
-      to :c:func:`MRIStepEvolve()` (i.e. it returned a non-negative value).
+      to :c:func:`MRIStepEvolve()` (i.e., it returned a non-negative value).
 
       The *ele* vector, together with the *eweight* vector from
       :c:func:`MRIStepGetErrWeights()`, can be used to determine how the
@@ -464,47 +514,63 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
       Returns many of the most useful time-stepper statistics in a single call.
 
       **Arguments:**
-         * *arkode_mem* -- pointer to the MRIStep memory block.
-         * *expsteps* -- number of stability-limited steps taken in the solver.
-         * *accsteps* -- number of accuracy-limited steps taken in the solver.
-         * *step_attempts* -- number of steps attempted by the solver.
-         * *nf_evals* -- number of calls to the user's :math:`f(t,y)` function.
-         * *netfails* -- number of error test failures.
+
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+      * *expsteps* -- number of stability-limited steps taken in the solver.
+
+      * *accsteps* -- number of accuracy-limited steps taken in the solver.
+
+      * *step_attempts* -- number of steps attempted by the solver.
+
+      * *nf_evals* -- number of calls to the user's :math:`f(t,y)` function.
+
+      * *netfails* -- number of error test failures.
 
       **Return value:**
-         * *ARK_SUCCESS* if successful
-         * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+      * *ARK_SUCCESS* if successful
+
+      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 .. c:function:: int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag)
 
    Returns the last return value from the inner stepper.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *flag* -- inner stepper return value.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *flag* -- inner stepper return value.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 
 
-.. _Usage.MRIStep.MRIStepImplicitSolverOutputs:
+.. _ARKODE.Usage.MRIStep.MRIStepImplicitSolverOutputs:
 
 Implicit solver optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cssclass:: table-bordered
+.. _ARKODE.Usage.MRIStep.MRIStepImplicitSolverOutputs.Table:
+.. table:: Implicit solver optional output functions
 
-===================================================  ============================================
-Optional output                                      Function name
-===================================================  ============================================
-No. of calls to linear solver setup function         :c:func:`MRIStepGetNumLinSolvSetups()`
-No. of nonlinear solver iterations                   :c:func:`MRIStepGetNumNonlinSolvIters()`
-No. of nonlinear solver convergence failures         :c:func:`MRIStepGetNumNonlinSolvConvFails()`
-Single accessor to all nonlinear solver statistics   :c:func:`MRIStepGetNonlinSolvStats()`
-===================================================  ============================================
+   +------------------------------------------------------+----------------------------------------------+
+   | Optional output                                      | Function name                                |
+   +------------------------------------------------------+----------------------------------------------+
+   | No. of calls to linear solver setup function         | :c:func:`MRIStepGetNumLinSolvSetups()`       |
+   +------------------------------------------------------+----------------------------------------------+
+   | No. of nonlinear solver iterations                   | :c:func:`MRIStepGetNumNonlinSolvIters()`     |
+   +------------------------------------------------------+----------------------------------------------+
+   | No. of nonlinear solver convergence failures         | :c:func:`MRIStepGetNumNonlinSolvConvFails()` |
+   +------------------------------------------------------+----------------------------------------------+
+   | Single accessor to all nonlinear solver statistics   | :c:func:`MRIStepGetNonlinSolvStats()`        |
+   +------------------------------------------------------+----------------------------------------------+
 
 
 
@@ -515,16 +581,20 @@ Single accessor to all nonlinear solver statistics   :c:func:`MRIStepGetNonlinSo
    setup routine (so far).
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nlinsetups* -- number of linear solver setup calls made.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *nlinsetups* -- number of linear solver setup calls made.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
-   **Notes:** This is only accumulated for the 'life' of the nonlinear
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   **Notes:** This is only accumulated for the "life" of the nonlinear
    solver object; the counter is reset whenever a new nonlinear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 .. c:function:: int MRIStepGetNumNonlinSolvIters(void* arkode_mem, long int* nniters)
@@ -532,17 +602,22 @@ Single accessor to all nonlinear solver statistics   :c:func:`MRIStepGetNonlinSo
    Returns the number of nonlinear solver iterations performed (so far).
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nniters* -- number of nonlinear iterations performed.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *nniters* -- number of nonlinear iterations performed.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
 
-   **Notes:** This is only accumulated for the 'life' of the nonlinear
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
+
+   **Notes:** This is only accumulated for the "life" of the nonlinear
    solver object; the counter is reset whenever a new nonlinear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 
@@ -552,16 +627,20 @@ Single accessor to all nonlinear solver statistics   :c:func:`MRIStepGetNonlinSo
    failures that have occurred (so far).
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nncfails* -- number of nonlinear convergence failures.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *nncfails* -- number of nonlinear convergence failures.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
-   **Notes:** This is only accumulated for the 'life' of the nonlinear
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   **Notes:** This is only accumulated for the "life" of the nonlinear
    solver object; the counter is reset whenever a new nonlinear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 
@@ -570,60 +649,68 @@ Single accessor to all nonlinear solver statistics   :c:func:`MRIStepGetNonlinSo
    Returns all of the nonlinear solver statistics in a single call.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nniters* -- number of nonlinear iterations performed.
-      * *nncfails* -- number of nonlinear convergence failures.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *nniters* -- number of nonlinear iterations performed.
+
+   * *nncfails* -- number of nonlinear convergence failures.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
 
-   **Notes:** These are only accumulated for the 'life' of the
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
+
+   **Notes:** These are only accumulated for the "life" of the
    nonlinear solver object; the counters are reset whenever a new
-   nonlinear solver module is 'attached' to MRIStep, or when MRIStep is resized.
+   nonlinear solver module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 
 
-.. _Usage.MRIStep.ARKLsOutputs:
+.. _ARKODE.Usage.MRIStep.ARKLsOutputs:
 
 Linear solver interface optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following optional outputs are available from the ARKLS
-modules:
-workspace requirements,
-number of calls to the Jacobian routine,
-number of calls to the implicit right-hand side routine for finite-difference Jacobian approximation or Jacobian-vector product approximation,
-number of linear iterations,
-number of linear convergence failures,
-number of calls to the preconditioner setup and solve routines,
-number of calls to the Jacobian-vector setup and product routines,
-and last return value from an ARKLS function.
-Note that, where the name of an output would otherwise conflict with the
+A variety of optional outputs are available from the ARKLS interface, as
+listed in the following table and elaborated below.  We note that where the
+name of an output would otherwise conflict with the
 name of an optional output from the main solver, a suffix LS (for
 Linear Solver) has been added here (e.g. *lenrwLS*).
 
 
+.. _ARKODE.Usage.MRIStep.ARKLsOutputs.Table:
+.. table:: Linear solver interface optional output functions
 
-.. cssclass:: table-bordered
-
-=================================================================  ========================================
-Optional output                                                    Function name
-=================================================================  ========================================
-Size of real and integer workspaces                                :c:func:`MRIStepGetLinWorkSpace()`
-No. of Jacobian evaluations                                        :c:func:`MRIStepGetNumJacEvals()`
-No. of preconditioner evaluations                                  :c:func:`MRIStepGetNumPrecEvals()`
-No. of preconditioner solves                                       :c:func:`MRIStepGetNumPrecSolves()`
-No. of linear iterations                                           :c:func:`MRIStepGetNumLinIters()`
-No. of linear convergence failures                                 :c:func:`MRIStepGetNumLinConvFails()`
-No. of Jacobian-vector setup evaluations                           :c:func:`MRIStepGetNumJTSetupEvals()`
-No. of Jacobian-vector product evaluations                         :c:func:`MRIStepGetNumJtimesEvals()`
-No. of *fs* calls for finite diff. :math:`J` or :math:`Jv` evals.  :c:func:`MRIStepGetNumLinRhsEvals()`
-Last return from a linear solver function                          :c:func:`MRIStepGetLastLinFlag()`
-Name of constant associated with a return flag                     :c:func:`MRIStepGetLinReturnFlagName()`
-=================================================================  ========================================
+   +--------------------------------------------------------------------+------------------------------------------+
+   | Optional output                                                    | Function name                            |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | Size of real and integer workspaces                                | :c:func:`MRIStepGetLinWorkSpace()`       |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | No. of Jacobian evaluations                                        | :c:func:`MRIStepGetNumJacEvals()`        |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | No. of preconditioner evaluations                                  | :c:func:`MRIStepGetNumPrecEvals()`       |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | No. of preconditioner solves                                       | :c:func:`MRIStepGetNumPrecSolves()`      |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | No. of linear iterations                                           | :c:func:`MRIStepGetNumLinIters()`        |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | No. of linear convergence failures                                 | :c:func:`MRIStepGetNumLinConvFails()`    |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | No. of Jacobian-vector setup evaluations                           | :c:func:`MRIStepGetNumJTSetupEvals()`    |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | No. of Jacobian-vector product evaluations                         | :c:func:`MRIStepGetNumJtimesEvals()`     |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | No. of *fs* calls for finite diff. :math:`J` or :math:`Jv` evals.  | :c:func:`MRIStepGetNumLinRhsEvals()`     |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | Last return from a linear solver function                          | :c:func:`MRIStepGetLastLinFlag()`        |
+   +--------------------------------------------------------------------+------------------------------------------+
+   | Name of constant associated with a return flag                     | :c:func:`MRIStepGetLinReturnFlagName()`  |
+   +--------------------------------------------------------------------+------------------------------------------+
 
 
 
@@ -632,14 +719,20 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    Returns the real and integer workspace used by the ARKLS linear solver interface.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *lenrwLS* -- the number of ``realtype`` values in the ARKLS workspace.
-      * *leniwLS* -- the number of integer values in the ARKLS workspace.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *lenrwLS* -- the number of ``realtype`` values in the ARKLS workspace.
+
+   * *leniwLS* -- the number of integer values in the ARKLS workspace.
 
    **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   * *ARKLS_SUCCESS* if successful
+
+   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
    **Notes:** The workspace requirements reported by this routine
    correspond only to memory allocated within this interface and to
@@ -647,7 +740,7 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    to it.  The template Jacobian matrix allocated by the user outside
    of ARKLS is not included in this report.
 
-   In a parallel setting, the above values are global (i.e. summed over all
+   In a parallel setting, the above values are global (i.e., summed over all
    processors).
 
 
@@ -656,37 +749,47 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    Returns the number of Jacobian evaluations.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *njevals* -- number of Jacobian evaluations.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *njevals* -- number of Jacobian evaluations.
 
    **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
-   **Notes:** This is only accumulated for the 'life' of the linear
+   * *ARKLS_SUCCESS* if successful
+
+   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the "life" of the linear
    solver object; the counter is reset whenever a new linear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 .. c:function:: int MRIStepGetNumPrecEvals(void* arkode_mem, long int* npevals)
 
    Returns the total number of preconditioner evaluations,
-   i.e. the number of calls made to *psetup* with ``jok`` = ``SUNFALSE`` and
+   i.e., the number of calls made to *psetup* with ``jok`` = ``SUNFALSE`` and
    that returned ``*jcurPtr`` = ``SUNTRUE``.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *npevals* -- the current number of calls to *psetup*.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *npevals* -- the current number of calls to *psetup*.
 
    **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
-   **Notes:** This is only accumulated for the 'life' of the linear
+   * *ARKLS_SUCCESS* if successful
+
+   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the "life" of the linear
    solver object; the counter is reset whenever a new linear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 .. c:function:: int MRIStepGetNumPrecSolves(void* arkode_mem, long int* npsolves)
@@ -695,17 +798,22 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    solve function, *psolve*.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *npsolves* -- the number of calls to *psolve*.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *npsolves* -- the number of calls to *psolve*.
 
    **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
-   **Notes:** This is only accumulated for the 'life' of the linear
+   * *ARKLS_SUCCESS* if successful
+
+   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the "life" of the linear
    solver object; the counter is reset whenever a new linear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 .. c:function:: int MRIStepGetNumLinIters(void* arkode_mem, long int* nliters)
@@ -713,17 +821,22 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    Returns the cumulative number of linear iterations.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nliters* -- the current number of linear iterations.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *nliters* -- the current number of linear iterations.
 
    **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
-   **Notes:** This is only accumulated for the 'life' of the linear
+   * *ARKLS_SUCCESS* if successful
+
+   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the "life" of the linear
    solver object; the counter is reset whenever a new linear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 .. c:function:: int MRIStepGetNumLinConvFails(void* arkode_mem, long int* nlcfails)
@@ -731,17 +844,22 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    Returns the cumulative number of linear convergence failures.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nlcfails* -- the current number of linear convergence failures.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *nlcfails* -- the current number of linear convergence failures.
 
    **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
-   **Notes:** This is only accumulated for the 'life' of the linear
+   * *ARKLS_SUCCESS* if successful
+
+   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the "life" of the linear
    solver object; the counter is reset whenever a new linear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 .. c:function:: int MRIStepGetNumJTSetupEvals(void* arkode_mem, long int* njtsetup)
@@ -750,17 +868,22 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    Jacobian-vector setup function, *jtsetup*.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *njtsetup* -- the current number of calls to *jtsetup*.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *njtsetup* -- the current number of calls to *jtsetup*.
 
    **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
-   **Notes:** This is only accumulated for the 'life' of the linear
+   * *ARKLS_SUCCESS* if successful
+
+   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the "life" of the linear
    solver object; the counter is reset whenever a new linear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 .. c:function:: int MRIStepGetNumJtimesEvals(void* arkode_mem, long int* njvevals)
@@ -769,17 +892,22 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    Jacobian-vector product function, *jtimes*.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *njvevals* -- the current number of calls to *jtimes*.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *njvevals* -- the current number of calls to *jtimes*.
 
    **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
-   **Notes:** This is only accumulated for the 'life' of the linear
+   * *ARKLS_SUCCESS* if successful
+
+   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This is only accumulated for the "life" of the linear
    solver object; the counter is reset whenever a new linear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 .. c:function:: int MRIStepGetNumLinRhsEvals(void* arkode_mem, long int* nfevalsLS)
@@ -789,21 +917,26 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    Jacobian or Jacobian-vector product approximation.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nfevalsLS* -- the number of calls to the user implicit
-        right-hand side function.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *nfevalsLS* -- the number of calls to the user implicit
+     right-hand side function.
 
    **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   * *ARKLS_SUCCESS* if successful
+
+   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
    **Notes:** The value *nfevalsLS* is incremented only if the default
    internal difference quotient function is used.
 
-   This is only accumulated for the 'life' of the linear
+   This is only accumulated for the "life" of the linear
    solver object; the counter is reset whenever a new linear solver
-   module is 'attached' to MRIStep, or when MRIStep is resized.
+   module is "attached" to MRIStep, or when MRIStep is resized.
 
 
 .. c:function:: int MRIStepGetLastLinFlag(void* arkode_mem, long int* lsflag)
@@ -811,14 +944,19 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    Returns the last return value from an ARKLS routine.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *lsflag* -- the value of the last return flag from an
-        ARKLS function.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *lsflag* -- the value of the last return flag from an
+     ARKLS function.
 
    **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   * *ARKLS_SUCCESS* if successful
+
+   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
    **Notes:** If the ARKLS setup function failed when using the
    ``SUNLINSOL_DENSE`` or ``SUNLINSOL_BAND`` modules, then the value
@@ -861,7 +999,8 @@ Name of constant associated with a return flag                     :c:func:`MRIS
    Returns the name of the ARKLS constant corresponding to *lsflag*.
 
    **Arguments:**
-      * *lsflag* -- a return flag from an ARKLS function.
+
+   * *lsflag* -- a return flag from an ARKLS function.
 
    **Return value:**  The return value is a string containing the name of
    the corresponding constant. If using the ``SUNLINSOL_DENSE`` or
@@ -871,7 +1010,7 @@ Name of constant associated with a return flag                     :c:func:`MRIS
 
 
 
-.. _Usage.MRIStep.MRIStepExtraOutputs:
+.. _ARKODE.Usage.MRIStep.MRIStepExtraOutputs:
 
 General usability functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -883,14 +1022,16 @@ initial value problem, these may be useful for users wishing to better
 understand MRIStep.
 
 
-.. cssclass:: table-bordered
+.. _ARKODE.Usage.MRIStep.MRIStepExtraOutputs.Table:
+.. table:: General usability functions
 
-===========================================================  ========================================
-Optional routine                                             Function name
-===========================================================  ========================================
-Output all MRIStep solver parameters                         :c:func:`MRIStepWriteParameters()`
-Output the current MRI coupling table                        :c:func:`MRIStepWriteCoupling()`
-===========================================================  ========================================
+   +-----------------------------------------------+-------------------------------------------+
+   | Optional routine                              | Function name                             |
+   +-----------------------------------------------+-------------------------------------------+
+   | Output all MRIStep solver parameters          | :c:func:`MRIStepWriteParameters()`        |
+   +-----------------------------------------------+-------------------------------------------+
+   | Output the current MRI coupling table         | :c:func:`MRIStepWriteCoupling()`          |
+   +-----------------------------------------------+-------------------------------------------+
 
 
 .. c:function:: int MRIStepWriteParameters(void* arkode_mem, FILE *fp)
@@ -898,12 +1039,16 @@ Output the current MRI coupling table                        :c:func:`MRIStepWri
    Outputs all MRIStep solver parameters to the provided file pointer.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *fp* -- pointer to use for printing the solver parameters.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *fp* -- pointer to use for printing the solver parameters.
 
    **Return value:**
-      * *ARKS_SUCCESS* if successful
-      * *ARKS_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARKS_SUCCESS* if successful
+
+   * *ARKS_MEM_NULL* if the MRIStep memory was ``NULL``
 
    **Notes:** The *fp* argument can be ``stdout`` or ``stderr``, or it
    may point to a specific file created using ``fopen``.
@@ -918,12 +1063,16 @@ Output the current MRI coupling table                        :c:func:`MRIStepWri
    Outputs the current MRI coupling table to the provided file pointer.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *fp* -- pointer to use for printing the Butcher tables.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *fp* -- pointer to use for printing the Butcher tables.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
    **Notes:** The *fp* argument can be ``stdout`` or ``stderr``, or it
    may point to a specific file created using ``fopen``.

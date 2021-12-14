@@ -476,6 +476,12 @@ typedef struct CVodeMemRec {
   void *cv_eh_data;           /* data pointer passed to ehfun                 */
   FILE *cv_errfp;             /* CVODE error messages are sent to errfp       */
 
+  /*-------------------------------------------
+    User access function
+    -------------------------------------------*/
+  CVMonitorFn cv_monitorfun;     /* func called with CVODE mem and user data  */
+  long int cv_monitor_interval;  /* step interval to call cv_monitorfun       */
+
   /*-------------------------
     Stability Limit Detection
     -------------------------*/

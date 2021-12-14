@@ -1,4 +1,16 @@
-.. _Usage.MRIStep.Resizing:
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
+
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _ARKODE.Usage.MRIStep.Resizing:
 
 MRIStep system resize function
 -------------------------------------
@@ -14,31 +26,40 @@ To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
 the new size.  If this function (of type :c:func:`ARKVecResizeFn()`)
-is not supplied (i.e. is set to ``NULL``), then all existing vectors
+is not supplied (i.e., is set to ``NULL``), then all existing vectors
 internal to MRIStep will be destroyed and re-cloned from the new input
 vector.
 
 
-.. c:function:: int MRIStepResize(void* arkode_mem, N_Vector ynew, realtype t0, ARKVecResizeFn resize, void* resize_data)
+.. c:function:: int MRIStepResize(void* arkode_mem, N_Vector yR, realtype tR, ARKVecResizeFn resize, void* resize_data)
 
    Re-initializes MRIStep with a different state vector.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *ynew* -- the newly-sized solution vector, holding the current
-        dependent variable values :math:`y(t_0)`.
-      * *t0* -- the current value of the independent variable
-        :math:`t_0` (this must be consistent with *ynew*).
-      * *resize* -- the user-supplied vector resize function (of type
-        :c:func:`ARKVecResizeFn()`.
-      * *resize_data* -- the user-supplied data structure to be passed
-        to *resize* when modifying internal MRIStep vectors.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *yR* -- the newly-sized solution vector, holding the current
+     dependent variable values :math:`y(t_R)`.
+
+   * *tR* -- the current value of the independent variable
+     :math:`t_R` (this must be consistent with *yR*).
+
+   * *resize* -- the user-supplied vector resize function (of type
+     :c:func:`ARKVecResizeFn()`.
+
+   * *resize_data* -- the user-supplied data structure to be passed
+     to *resize* when modifying internal MRIStep vectors.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
-      * *ARK_NO_MALLOC* if *arkode_mem* was not allocated.
-      * *ARK_ILL_INPUT* if an argument has an illegal value.
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
+
+   * *ARK_NO_MALLOC* if *arkode_mem* was not allocated.
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value.
 
    **Notes:** If an error occurred, :c:func:`MRIStepResize()` also sends an error
    message to the error handler function.

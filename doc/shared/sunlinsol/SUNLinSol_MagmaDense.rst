@@ -17,7 +17,7 @@
 The SUNLinSol_MagmaDense Module
 ======================================
 
-The SUNLinearSolver_MagmaDense implementation of the SUNLinearSolver API is
+The SUNLinearSolver_MagmaDense implementation of the ``SUNLinearSolver`` class is
 designed to be used with the SUNMATRIX_MAGMADENSE matrix, and a GPU-enabled
 vector. The header file to include when using this module is
 ``sunlinsol/sunlinsol_magmadense.h``. The installed library to link to is
@@ -66,20 +66,18 @@ linear solver operations listed in :numref:`SUNLinSol.API`:
 In addition, the module provides the following user-callable routines:
 
 
-.. c:function:: SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix A)
+.. c:function:: SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix A, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a
    ``SUNLinearSolver`` object.
 
    **Arguments:**
-
-      * *y* -- a vector for checking compatibility with the solver
-
+      * *y* -- a vector for checking compatibility with the solver.
       * *A* -- a SUNMATRIX_MAGMADENSE matrix for checking compatibility with the
-        solver
+        solver.
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
-
       If successful, a ``SUNLinearSolver`` object. If either *A* or *y* are
       incompatible then this routine will return ``NULL``. This routine analyzes
       the input matrix and vector to determine the linear system size and to
@@ -93,15 +91,11 @@ In addition, the module provides the following user-callable routines:
    the host and GPU device are synchronized prior to the operation returning.
 
    **Arguments:**
-
       * *LS* -- a SUNLinSol_MagmaDense object
-
       * *onoff* -- 0 for synchronous mode or 1 for asynchronous mode (default 1)
 
    **Return value:**
-
       * ``SUNLS_SUCCESS`` if successful
-
       * ``SUNLS_MEM_NULL`` if *LS* is ``NULL``
 
 

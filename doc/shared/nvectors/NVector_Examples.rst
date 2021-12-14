@@ -17,9 +17,8 @@
 NVECTOR Examples
 ================
 
-There are NVECTOR examples that may be installed for each
-implementation: serial, parallel, OpenMP, and Pthreads.  Each
-implementation makes use of the functions in ``test_nvector.c``.
+There are NVECTOR examples that may be installed for eac himplementation.
+Each implementation makes use of the functions in ``test_nvector.c``.
 These example functions show simple usage of the NVECTOR family
 of functions. The input to the examples are the vector length, number
 of threads (if threaded implementation), and a print timing flag.
@@ -90,7 +89,9 @@ The following is a list of the example functions in ``test_nvector.c``:
 
 * ``Test_N_VAbs``: Create absolute value of vector.
 
-* ``Test_N_VAddConst``: add constant vector: z = c + x
+* ``Test_N_VInv``: Compute z[i] = 1 / x[i]
+
+** ``Test_N_VAddConst``: add constant vector: z = c + x
 
 * ``Test_N_VDotProd``: Calculate dot product of two vectors.
 
@@ -156,9 +157,9 @@ The following is a list of the example functions in ``test_nvector.c``:
 
 * ``Test_N_VScaleVectorArray``: Case 2b: Z[i] = c[i] Y[i]
 
-* ``Test_N_VScaleVectorArray``: Case 1a: z = c
+* ``Test_N_VConstVectorArray``: Case 1a: z = c
 
-* ``Test_N_VScaleVectorArray``: Case 1b: Z[i] = c
+* ``Test_N_VConstVectorArray``: Case 1b: Z[i] = c
 
 * ``Test_N_VWrmsNormVectorArray``: Case 1a: Create a vector of know values, find and validate the weighted root mean square norm.
 
@@ -227,3 +228,9 @@ The following is a list of the example functions in ``test_nvector.c``:
 * ``Test_N_VConstrMaskLocal``: Test the MPI task-local portion of the mask of vector x with vector c.
 
 * ``Test_N_VMinQuotientLocal``: Fill two vectors with known values. Calculate and validate the MPI task-local minimum quotient.
+
+* ``Test_N_VMBufSize``: Tests for accuracy in the reported buffer size.
+
+* ``Test_N_VMBufPack``: Tests for accuracy in the buffer packing routine.
+
+* ``Test_N_VMBufUnpack``: Tests for accuracy in the buffer unpacking routine.

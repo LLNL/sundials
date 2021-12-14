@@ -38,7 +38,7 @@ issuing
 This will extract source files under a directory ``SOLVER-X.Y.Z``.
 
 Starting with version 2.6.0 of SUNDIALS, CMake is the only supported method of
-installation.  The explanations of the installation procedure begins with a few
+installation.  The explanations of the installation procedure begin with a few
 common observations:
 
 #. The remainder of this chapter will follow these conventions:
@@ -93,12 +93,12 @@ generate Unix and Linux Makefiles, as well as KDevelop, Visual Studio, and
 CMake also provides a GUI front end and which allows an interactive build and
 installation process.
 
-The SUNDIALS build process requires CMake version 3.0.2 or higher and a working
+The SUNDIALS build process requires CMake version 3.12.0 or higher and a working
 C compiler.  On Unix-like operating systems, it also requires Make (and
 ``curses``, including its development libraries, for the GUI front end to CMake,
 ``ccmake`` or ``cmake-gui``), while on Windows it requires Visual Studio.  While
 many Linux distributions offer CMake, the version included may be out of date.
-Many new CMake features have been added recently, and you should download the
+CMake adds new features regularly, and you should download the
 latest version from http://www.cmake.org.  Build instructions for CMake (only
 necessary for Unix-like systems) can be found on the CMake website.  Once CMake
 is installed, Linux/Unix users will be able to use ``ccmake`` or ``cmake-gui``
@@ -167,11 +167,10 @@ Using CMake with the ``ccmake`` GUI follows the general process:
 #. Repeat until all values are set as desired and the generate option
    is available (``g`` key)
 
-#. Some variables (advanced variables) are not visible right away
+#. Some variables (advanced variables) are not visible right away; to
+   see advanced variables, toggle to advanced mode (``t`` key)
 
-#. To see advanced variables, toggle to advanced mode (``t`` key)
-
-#. To search for a variable press ``/`` key, and to repeat the search,
+#. To search for a variable press the ``/`` key, and to repeat the search,
    press the ``n`` key
 
 Using CMake with the ``cmake-gui`` GUI follows a similar process:
@@ -179,7 +178,7 @@ Using CMake with the ``cmake-gui`` GUI follows a similar process:
 #. Select and modify values, click ``Configure``
 
 #. The first time you click ``Configure``, make sure to pick the
-   appropriate generator (the following will ssume generation of Unix
+   appropriate generator (the following will assume generation of Unix
    Makfiles).
 
 #. New values are highlighted in red
@@ -200,9 +199,8 @@ Using CMake with the ``cmake-gui`` GUI follows a similar process:
 #. Repeat until all values are set as desired and click the
    ``Generate`` button
 
-#. Some variables (advanced variables) are not visible right away
-
-#. To see advanced variables, click the ``advanced`` button
+#. Some variables (advanced variables) are not visible right away; to see
+   advanced variables, click the ``advanced`` button
 
 
 To build the default configuration using the curses GUI, from the ``BUILDDIR``
@@ -213,7 +211,7 @@ enter the ``ccmake`` command and point to the ``SOLVERDIR``:
    $ ccmake (...)/SOLVERDIR
 
 Similarly, to build the default configuration using the wxWidgets GUI, from the
-BUILDDIR enter the ``cmake-gui`` command and point to the ``SOLVERDIR``:
+``BUILDDIR`` enter the ``cmake-gui`` command and point to the ``SOLVERDIR``:
 
 .. code-block:: bash
 
@@ -223,26 +221,26 @@ The default curses configuration screen is shown in the following figure.
 
 .. _ccmakedefault:
 
-.. figure:: figs/sundials/cmake/ccmakedefault.png
+.. figure:: /figs/cmake/ccmakedefault.png
    :align: center
 
    Default configuration screen. Note: Initial screen is empty.  To get this
    default configuration, press 'c' repeatedly (accepting default values denoted
    with asterisk) until the 'g' option is available.
 
-The default INSTDIR for both SUNDIALS and corresponding examples can be changed
+The default INSTDIR for both SUNDIALS and the corresponding examples can be changed
 by setting the ``CMAKE_INSTALL_PREFIX`` and the ``EXAMPLES_INSTALL_PATH`` as
 shown in the following figure.
 
 .. _ccmakeprefix:
 
-.. figure:: figs/sundials/cmake/ccmakeprefix.png
+.. figure:: /figs/cmake/ccmakeprefix.png
    :align: center
 
    Changing the INSTDIR for SUNDIALS and corresponding EXAMPLES.
 
 
-Pressing the ``g`` key or clicking ``generate`` will generate makefiles
+Pressing the ``g`` key or clicking ``generate`` will generate Makefiles
 including all dependencies and all rules to build SUNDIALS on this system.  Back
 at the command prompt, you can now run:
 
@@ -581,9 +579,10 @@ illustration only.
    Default: ``OFF``
 
    .. note:: See additional information on building with *hypre*
-             enabled in  :ref:`Installation.CMake.ExternalLibraries`.
+             enabled in  :numref:`Installation.CMake.ExternalLibraries`.
 
-.. cmakeoption:: HYPRE_INCLUDE_DIR <HYPRE_INCLUDE_DIR (CMake option)>`
+.. cmakeoption:: HYPRE_INCLUDE_DIR
+
    Path to *hypre* header files
 
    Default: none
@@ -601,7 +600,7 @@ illustration only.
    Default: ``OFF``
 
    .. note:: See additional information on building with KLU
-             enabled in :ref:`Installation.CMake.ExternalLibraries`.
+             enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
 .. cmakeoption:: KLU_INCLUDE_DIR
 
@@ -623,7 +622,7 @@ illustration only.
 
    .. note:: Setting this option to ``ON`` will trigger additional CMake
              options. See additional information on building with
-             LAPACK enabled in :ref:`Installation.CMake.ExternalLibraries`.
+             LAPACK enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
 .. cmakeoption:: LAPACK_LIBRARIES
 
@@ -722,7 +721,7 @@ illustration only.
    Default: ``OFF``
 
    .. note:: See additional information on building with
-             PETSc enabled in :ref:`Installation.CMake.ExternalLibraries`.
+             PETSc enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
 .. cmakeoption:: PETSC_DIR
 
@@ -775,7 +774,7 @@ illustration only.
    Default: ``OFF``
 
    .. note:: See additional information on building wtih
-             SuperLU_DIST enabled in :ref:`Installation.CMake.ExternalLibraries`.
+             SuperLU_DIST enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
 .. cmakeoption:: SUPERLUDIST_INCLUDE_DIR
 
@@ -813,7 +812,7 @@ illustration only.
    Default: ``OFF``
 
    .. note:: See additional information on building with
-             SuperLU_MT enabled in :ref:`Installation.CMake.ExternalLibraries`.
+             SuperLU_MT enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
 .. cmakeoption:: SUPERLUMT_INCLUDE_DIR
 
@@ -856,6 +855,33 @@ illustration only.
 
    Note: Building with monitoring may result in minor performance degradation
    even if monitoring is not utilized.
+
+.. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
+
+   Build SUNDIALS with capabilties for fine-grained profiling.
+
+   Default: OFF
+
+   .. warning::
+
+      Profiling will impact performance, and should be enabled judiciously.
+
+.. cmakeoption:: ENABLE_CALIPER
+
+   Enable CALIPER support
+
+   Default: OFF
+
+   .. note::
+
+      Using Caliper requires setting :cmakeop:`SUNDIALS_BUILD_WITH_PROFILING` to
+      ``ON``.
+
+.. cmakeoption:: CALIPER_DIR
+
+   Path to the root of a Caliper installation
+
+   Default: None
 
 .. cmakeoption:: SUNDIALS_F77_FUNC_CASE
 
@@ -925,7 +951,7 @@ illustration only.
 
    Default: ``CMAKE_INSTALL_PREFIX/cmake/sundials``
 
-.. cmakeoption:: USE_GENERIC_MATH <USE_GENERIC_MATH (CMake option)>`
+.. cmakeoption:: USE_GENERIC_MATH
 
    Use generic (``stdc``) math libraries
 
@@ -1125,9 +1151,9 @@ The PETSc libraries are available for download from the Argonne
 National Laboratory website:
 http://www.mcs.anl.gov/petsc .
 
-SUNDIALS has been tested with PETSc version 3.10.0 - 3.14.0. To enable PETSc,
+SUNDIALS has been tested with PETSc versions 3.10.0 -- 3.14.0. To enable PETSc,
 set ``ENABLE_PETSC`` to ``ON``, and set ``PETSC_DIR`` to the path of the PETSc
-installation. Alternatively, a user can provide a list of inlcude paths in
+installation. Alternatively, a user can provide a list of include paths in
 ``PETSC_INCLUDES`` and a list of complete paths to the PETSc libraries in
 ``PETSC_LIBRARIES``.
 
@@ -1148,6 +1174,26 @@ to the ``include`` path of the *hypre* installation, and set the variable
 Note: SUNDIALS must be configured so that ``SUNDIALS_INDEX_SIZE`` (or
 equivalently, ``XSDK_INDEX_SIZE``) equals the precision of
 ``HYPRE_BigInt`` in the corresponding *hypre* installation.
+
+
+.. _Installation.CMake.ExternalLibraries.Magma:
+
+Building with Magma
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Magma libraries are ....
+
+SUNDIALS has been tested with Magma version ...
+
+
+.. _Installation.CMake.ExternalLibraries.OneMKL:
+
+Building with OneMKL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The OneMKL libraries are ....
+
+SUNDIALS has been tested with OneMKL version ...
 
 
 .. _Installation.CMake.ExternalLibraries.CUDA:
@@ -1320,7 +1366,7 @@ reside under ``LIBDIR/lib``, the public header files are further organized into
 subdirectories under ``INCLUDEDIR/include``.
 
 The installed libraries and exported header files are listed for reference in
-:numref:`Installation.Table`.  The file extension ``.LIB`` is typically
+the table below.  The file extension ``.LIB`` is typically
 ``.so`` for shared libraries and ``.a`` for static libraries. Note that, in this
 table names are relative to ``LIBDIR`` for libraries and to ``INCLUDEDIR`` for
 header files.
@@ -1328,7 +1374,7 @@ header files.
 A typical user program need not explicitly include any of the shared SUNDIALS
 header files from under the ``INCLUDEDIR/include/sundials`` directory since they
 are explicitly included by the appropriate solver header files (e.g.,
-``cvode_dense.h`` includes ``sundials_dense.h``). However, it is both legal and
+``sunlinsol_dense.h`` includes ``sundials_dense.h``). However, it is both legal and
 safe to do so, and would be useful, for example, if the functions declared in
 ``sundials_dense.h`` are to be used in building a preconditioner.
 
@@ -1371,10 +1417,8 @@ configuration file to build against SUNDIALS in their own CMake project.
 
 .. _Installation.Table:
 
-Libraries and Header Files
---------------------------
-
 .. tabularcolumns:: |\Y{0.3}|\Y{0.2}|\Y{0.5}|
+
 .. table:: SUNDIALS shared libraries and header files
 
    +------------------------------+--------------+----------------------------------------------+
@@ -1382,21 +1426,29 @@ Libraries and Header Files
    |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_config.h``               |
    |                              |              +----------------------------------------------+
+   |                              |              | ``sundials/sundials_context.h``              |
+   |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_cuda_policies.hpp``      |
    |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_dense.h``                |
    |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_direct.h``               |
    |                              |              +----------------------------------------------+
+   |                              |              | ``sundials/sundials_hip_policies.hpp``       |
+   |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_iterative.h``            |
    |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_linearsolver.h``         |
    |                              |              +----------------------------------------------+
-   |                              |              | ``sundials/sundials_nonlinearsolver.h``      |
+   |                              |              | ``sundials/sundials_math.h``                 |
    |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_matrix.h``               |
    |                              |              +----------------------------------------------+
-   |                              |              | ``sundials/sundials_math.h``                 |
+   |                              |              | ``sundials/sundials_memory.h``               |
+   |                              |              +----------------------------------------------+
+   |                              |              | ``sundials/sundials_mpi_types.h``            |
+   |                              |              +----------------------------------------------+
+   |                              |              | ``sundials/sundials_nonlinearsolver.h``      |
    |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_nvector.h``              |
    |                              |              +----------------------------------------------+
@@ -1407,7 +1459,7 @@ Libraries and Header Files
    |                              |              | ``sundials/sundials_xbraid.h``               |
    +------------------------------+--------------+----------------------------------------------+
    |                                                                                            |
-   | NVECTOR Modules                                                                            |
+   | **NVECTOR Modules**                                                                        |
    |                                                                                            |
    +------------------------------+--------------+----------------------------------------------+
    | SERIAL                       | Libraries    | ``libsundials_nvecserial.LIB``               |
@@ -1465,16 +1517,28 @@ Libraries and Header Files
    |                              | Headers      | ``nvector/nvector_mpiplusx.h``               |
    +------------------------------+--------------+----------------------------------------------+
    |                                                                                            |
-   | SUNMATRIX Modules                                                                          |
+   | **SUNMATRIX Modules**                                                                      |
    |                                                                                            |
    +------------------------------+--------------+----------------------------------------------+
    | BAND                         | Libraries    | ``libsundials_sunmatrixband.LIB``            |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmatrix/sunmatrix_band.h``               |
    +------------------------------+--------------+----------------------------------------------+
+   | CUSPARSE                     | Libraries    | ``libsundials_sunmatrixcusparse.LIB``        |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sunmatrix/sunmatrix_cusparse.h``           |
+   +------------------------------+--------------+----------------------------------------------+
    | DENSE                        | Libraries    | ``libsundials_sunmatrixdense.LIB``           |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmatrix/sunmatrix_dense.h``              |
+   +------------------------------+--------------+----------------------------------------------+
+   | MAGMADENSE                   | Libraries    | ``libsundials_sunmatrixmagmadense.LIB``      |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sunmatrix/sunmatrix_magmadense.h``         |
+   +------------------------------+--------------+----------------------------------------------+
+   | ONEMKLDENSE                  | Libraries    | ``libsundials_sunmatrixonemkldense.LIB``     |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sunmatrix/sunmatrix_onemkldense.h``        |
    +------------------------------+--------------+----------------------------------------------+
    | SPARSE                       | Libraries    | ``libsundials_sunmatrixsparse.LIB``          |
    |                              +--------------+----------------------------------------------+
@@ -1484,17 +1548,17 @@ Libraries and Header Files
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunmatrix/sunmatrix_slunrloc.h``           |
    +------------------------------+--------------+----------------------------------------------+
-   | CUSPARSE                     | Libraries    | ``libsundials_sunmatrixcusparse.LIB``        |
-   |                              +--------------+----------------------------------------------+
-   |                              | Headers      | ``sunmatrix/sunmatrix_cusparse.h``           |
-   +------------------------------+--------------+----------------------------------------------+
    |                                                                                            |
-   | SUNLINSOL Modules                                                                          |
+   | **SUNLINSOL Modules**                                                                      |
    |                                                                                            |
    +------------------------------+--------------+----------------------------------------------+
    | BAND                         | Libraries    | ``libsundials_sunlinsolband.LIB``            |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunlinsol/sunlinsol_band.h``               |
+   +------------------------------+--------------+----------------------------------------------+
+   | CUSOLVERSP_BATCHQR           | Libraries    | ``libsundials_sunlinsolcusolversp.LIB``      |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sunlinsol/sunlinsol_cusolversp_batchqr.h`` |
    +------------------------------+--------------+----------------------------------------------+
    | DENSE                        | Libraries    | ``libsundials_sunlinsoldense.LIB``           |
    |                              +--------------+----------------------------------------------+
@@ -1511,6 +1575,14 @@ Libraries and Header Files
    | LAPACKDENSE                  | Libraries    | ``libsundials_sunlinsollapackdense.LIB``     |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunlinsol/sunlinsol_lapackdense.h``        |
+   +------------------------------+--------------+----------------------------------------------+
+   | MAGMADENSE                   | Libraries    | ``libsundials_sunlinsolmagmadense.LIB``      |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sunlinsol/sunlinsol_magmadense.h``         |
+   +------------------------------+--------------+----------------------------------------------+
+   | ONEMKLDENSE                  | Libraries    | ``libsundials_sunlinsolonemkldense.LIB``     |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sunlinsol/sunlinsol_onemkldense.h``        |
    +------------------------------+--------------+----------------------------------------------+
    | PCG                          | Libraries    | ``libsundials_sunlinsolpcg.LIB``             |
    |                              +--------------+----------------------------------------------+
@@ -1532,20 +1604,16 @@ Libraries and Header Files
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunlinsol/sunlinsol_sptfqmr.h``            |
    +------------------------------+--------------+----------------------------------------------+
-   | SUPERLUMT                    | Libraries    | ``libsundials_sunlinsolsuperlumt.LIB``       |
-   |                              +--------------+----------------------------------------------+
-   |                              | Headers      | ``sunlinsol/sunlinsol_superlumt.h``          |
-   +------------------------------+--------------+----------------------------------------------+
    | SUPERLUDIST                  | Libraries    | ``libsundials_sunlinsolsuperludist.LIB``     |
    |                              +--------------+----------------------------------------------+
    |                              | Headers      | ``sunlinsol/sunlinsol_superludist.h``        |
    +------------------------------+--------------+----------------------------------------------+
-   | CUSOLVERSP_BATCHQR           | Libraries    | ``libsundials_sunlinsolcusolversp.LIB``      |
+   | SUPERLUMT                    | Libraries    | ``libsundials_sunlinsolsuperlumt.LIB``       |
    |                              +--------------+----------------------------------------------+
-   |                              | Headers      | ``sunlinsol/sunlinsol_cusolversp_batchqr.h`` |
+   |                              | Headers      | ``sunlinsol/sunlinsol_superlumt.h``          |
    +------------------------------+--------------+----------------------------------------------+
    |                                                                                            |
-   | SUNNONLINSOL Modules                                                                       |
+   | **SUNNONLINSOL Modules**                                                                   |
    |                                                                                            |
    +------------------------------+--------------+----------------------------------------------+
    | NEWTON                       | Libraries    | ``libsundials_sunnonlinsolnewton.LIB``       |
@@ -1561,7 +1629,27 @@ Libraries and Header Files
    |                              | Headers      | ``sunnonlinsol/sunnonlinsol_petscsnes.h``    |
    +------------------------------+--------------+----------------------------------------------+
    |                                                                                            |
-   | SUNDIALS Packages                                                                          |
+   | **SUNMEMORY Modules**                                                                      |
+   |                                                                                            |
+   +------------------------------+--------------+----------------------------------------------+
+   | SYSTEM                       | Libraries    | ??                                           |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sunmemory/sunmemory_system.h``             |
+   +------------------------------+--------------+----------------------------------------------+
+   | CUDA                         | Libraries    | ??                                           |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sunmemory/sunmemory_cuda.h``               |
+   +------------------------------+--------------+----------------------------------------------+
+   | HIP                          | Libraries    | ??                                           |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sunmemory/sunmemory_hip.h``                |
+   +------------------------------+--------------+----------------------------------------------+
+   | SYCL                         | Libraries    | ??                                           |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sunmemory/sunmemory_sycl.h``               |
+   +------------------------------+--------------+----------------------------------------------+
+   |                                                                                            |
+   | **SUNDIALS Packages**                                                                      |
    |                                                                                            |
    +------------------------------+--------------+----------------------------------------------+
    | CVODE                        | Libraries    | ``libsundials_cvode.LIB``                    |
@@ -1580,6 +1668,8 @@ Libraries and Header Files
    |                              |              +----------------------------------------------+
    |                              |              | ``cvode/cvode_ls.h``                         |
    |                              |              +----------------------------------------------+
+   |                              |              | ``cvode/cvode_proj.h``                       |
+   |                              |              +----------------------------------------------+
    |                              |              | ``cvode/cvode_spils.h``                      |
    +------------------------------+--------------+----------------------------------------------+
    | CVODES                       | Libraries    | ``libsundials_cvodes.LIB``                   |
@@ -1595,6 +1685,8 @@ Libraries and Header Files
    |                              |              | ``cvodes/cvodes_direct.h``                   |
    |                              |              +----------------------------------------------+
    |                              |              | ``cvodes/cvodes_impl.h``                     |
+   |                              |              +----------------------------------------------+
+   |                              |              | ``cvodes/cvodes_ls.h``                       |
    |                              |              +----------------------------------------------+
    |                              |              | ``cvodes/cvodes_spils.h``                    |
    +------------------------------+--------------+----------------------------------------------+
@@ -1621,6 +1713,8 @@ Libraries and Header Files
    |                              |              | ``arkode/arkode_impl.h``                     |
    |                              |              +----------------------------------------------+
    |                              |              | ``arkode/arkode_ls.h``                       |
+   |                              |              +----------------------------------------------+
+   |                              |              | ``arkode/arkode_mristep.h``                  |
    |                              |              +----------------------------------------------+
    |                              |              | ``arkode/arkode_xbraid.h``                   |
    +------------------------------+--------------+----------------------------------------------+

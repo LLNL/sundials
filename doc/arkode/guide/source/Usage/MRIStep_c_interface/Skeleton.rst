@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): David J. Gardner @ LLNL
                   Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
@@ -15,7 +15,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Usage.MRIStep.Skeleton:
+.. _ARKODE.Usage.MRIStep.Skeleton:
 
 A skeleton of the user's main program
 ============================================
@@ -23,10 +23,9 @@ A skeleton of the user's main program
 The following is a skeleton of the user's main program (or calling program) for
 the integration of an ODE IVP using the MRIStep module.  Most of the steps are
 independent of the NVECTOR, SUNMATRIX, SUNLINSOL and SUNNONLINSOL
-implementations used.  For the steps that are not, refer to the sections
-:numref:`NVectors`, :numref:`SUNMatrix`, :numref:`SUNLinSol`, and
-:numref:`SUNNonlinSol` for the specific name of the function to be called or
-macro to be referenced.
+implementations used.  For the steps that are not, refer to :numref:`NVectors`,
+:numref:`SUNMatrix`, :numref:`SUNLinSol`, and :numref:`SUNNonlinSol` for the
+specific name of the function to be called or macro to be referenced.
 
 .. index:: User main program
 
@@ -35,6 +34,10 @@ macro to be referenced.
    For example, call ``MPI_Init`` to initialize MPI if used, or set
    ``num_threads``, the number of threads to use within the threaded
    vector functions, if used.
+
+#. Create the SUNDIALS context object
+
+   Call :c:func:`SUNContext_Create` to allocate the ``SUNContext`` object.
 
 #. Set problem dimensions, etc.
 
@@ -73,38 +76,15 @@ macro to be referenced.
 
       ydata = N_VGetArrayPointer_***(y0);
 
-   See the sections :numref:`NVectors.NVSerial` through
-   :numref:`NVectors.Pthreads` for details.
-
-   For the HYPRE and PETSc vector wrappers, first create and initialize
-   the underlying vector, and then create the NVECTOR wrapper with a call
-   of the form
-
-   .. code-block:: c
-
-      y0 = N_VMake_***(yvec);
-
-   where ``yvec`` is a HYPRE or PETSc vector.  Note that calls like
-   ``N_VNew_***(...)`` and ``N_VGetArrayPointer_***(...)`` are not
-   available for these vector wrappers.  See the sections
-   :numref:`NVectors.ParHyp` and :numref:`NVectors.NVPETSc` for details.
-
-   If using either the CUDA- or RAJA-based vector implementations use
-   calls to the module-specific routines
-
-   .. code-block:: c
-
-      y0 = N_VMake_***(...);
-
-   as applicable.  See the sections
-   :numref:`NVectors.CUDA` and :numref:`NVectors.RAJA` for details.
+   For details on each of SUNDIALS' provided vector implementations, see
+   the corresponding sections in :numref:`NVectors` for details.
 
 #. Create an inner stepper object to solve the fast (inner) IVP
 
    * If using ARKStep as the fast (inner) integrator, create the ARKStep object
      with :c:func:`ARKStepCreate` and configure the integrator as desired for
-     evolving the fast time scale. See sections :numref:`Usage.ARKStep.Skeleton`
-     and :numref:`Usage.ARKStep.OptionalInputs` for details on configuring
+     evolving the fast time scale. See sections :numref:`ARKODE.Usage.ARKStep.Skeleton`
+     and :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for details on configuring
      ARKStep.
 
      Once the ARKStep object is setup, create an ``MRIStepInnerStepper`` object
@@ -112,7 +92,7 @@ macro to be referenced.
 
    * If supplying a user-defined fast (inner) integrator, create the
      ``MRIStepInnerStepper`` object as described in section
-     :numref:`Usage.MRIStep.CustomInnerStepper`.
+     :numref:`ARKODE.Usage.MRIStep.CustomInnerStepper`.
 
    .. note::
 
@@ -120,7 +100,7 @@ macro to be referenced.
       responsibility to create, configure, and attach the integrator to the
       MRIStep module. User-specified options regarding how this fast integration
       should be performed (e.g., adaptive vs. fixed time step,
-      explicit/implicit/IMEX partitioning, algebraic solvers, etc.) will be
+      explicit/implicit/ImEx partitioning, algebraic solvers, etc.) will be
       respected during evolution of the fast time scale during MRIStep
       integration.
 
@@ -166,17 +146,17 @@ macro to be referenced.
       or a scalar relative tolerance and a vector of absolute tolerances,
       respectively.  Alternatively, call :c:func:`MRIStepWFtolerances()`
       to specify a function which sets directly the weights used in
-      evaluating WRMS vector norms. See the section
-      :numref:`Usage.MRIStep.Tolerances` for details.
+      evaluating WRMS vector norms. See :numref:`ARKODE.Usage.MRIStep.Tolerances` for
+      details.
 
    #. Create nonlinear solver object
 
       If a non-default nonlinear solver object is desired for implicit
-      MRI stage solves (see the section :numref:`Usage.MRIStep.NonlinearSolvers`),
+      MRI stage solves (see :numref:`ARKODE.Usage.MRIStep.NonlinearSolvers`),
       then that nonlinear solver object must be created by using
       the appropriate functions defined by the particular SUNNONLINSOL
       implementation (e.g., ``NLS = SUNNonlinSol_***(...);`` where
-      ``***`` is the name of the nonlinear solver (see the section
+      ``***`` is the name of the nonlinear solver (see
       :numref:`SUNNonlinSol` for details).
 
       For the SUNDIALS-supplied SUNNONLINSOL implementations, the
@@ -188,7 +168,7 @@ macro to be referenced.
 
       where ``*`` can be replaced with "Newton", "FixedPoint", or other
       options, as discussed in the sections
-      :numref:`Usage.ARKStep.NonlinearSolvers` and :numref:`SUNNonlinSol`.
+      :numref:`ARKODE.Usage.ARKStep.NonlinearSolvers` and :numref:`SUNNonlinSol`.
 
       Note: by default, MRIStep will use the Newton nonlinear solver
       (see section :numref:`SUNNonlinSol.Newton`), so a custom nonlinear solver
@@ -198,8 +178,8 @@ macro to be referenced.
    #. Attach nonlinear solver module
 
       If a nonlinear solver object was created above, then it must be
-      attached to MRIStep using the call (for details see the
-      section :numref:`Usage.MRIStep.NonlinearSolvers`):
+      attached to MRIStep using the call (for details see
+      :numref:`ARKODE.Usage.MRIStep.NonlinearSolvers`):
 
       .. code-block:: c
 
@@ -211,8 +191,8 @@ macro to be referenced.
       solver module to change optional inputs specific to that nonlinear
       solver.  These *must* be called after attaching the nonlinear
       solver to MRIStep, otherwise the optional inputs will be
-      overridden by MRIStep defaults.  See the section
-      :numref:`SUNNonlinSol` for more information on optional inputs.
+      overridden by MRIStep defaults.  See :numref:`SUNNonlinSol` for more
+      information on optional inputs.
 
    #. Create matrix object
 
@@ -229,24 +209,8 @@ macro to be referenced.
 
          SUNMatrix A = SUNBandMatrix(...);
 
-      or
-
-      .. code-block:: c
-
-         SUNMatrix A = SUNDenseMatrix(...);
-
-      or
-
-      .. code-block:: c
-
-         SUNMatrix A = SUNSparseMatrix(...);
-
-      or similarly for the CUDA and SuperLU_DIST matrix modules (see the
-      sections `SUNMatrix.cuSparse` or `SUNMatrix.SLUNRloc` for
+      or similar for other matrix modules (see :numref:`SUNMatrix` for
       further information).
-
-      NOTE: The dense, banded, and sparse matrix objects are usable only in a
-      serial or threaded environment.
 
    #. Create linear solver object
 
@@ -263,23 +227,20 @@ macro to be referenced.
          SUNLinearSolver LS = SUNLinSol_*(...);
 
       where ``*`` can be replaced with "Dense", "SPGMR", or other
-      options, as discussed in the sections
-      :numref:`Usage.MRIStep.LinearSolvers` and :numref:`SUNLinSol`.
+      options, as discussed in :numref:`SUNLinSol`.
 
    #. Set linear solver optional inputs
 
       Call ``*Set*`` functions from the selected linear solver module
       to change optional inputs specific to that linear solver.  See the
-      documentation for each SUNLINSOL module in the section
-      :numref:`SUNLinSol` for details.
+      documentation for each SUNLINSOL module in :numref:`SUNLinSol` for details.
 
    #. Attach linear solver module
 
       If a linear solver was created above for implicit MRI stage solves,
       initialize the ARKLS linear solver interface by attaching the
       linear solver object (and Jacobian matrix object, if applicable)
-      with the call (for details see the section
-      :numref:`Usage.MRIStep.LinearSolvers`):
+      with the call (for details see :numref:`ARKODE.Usage.MRIStep.LinearSolvers`):
 
       .. code-block:: c
 
@@ -288,16 +249,15 @@ macro to be referenced.
 #. Set optional inputs
 
    Call ``MRIStepSet*`` functions to change any optional inputs that
-   control the behavior of MRIStep from their default values. See the
-   section :numref:`Usage.MRIStep.OptionalInputs` for details.
+   control the behavior of MRIStep from their default values. See
+   :numref:`ARKODE.Usage.MRIStep.OptionalInputs` for details.
 
 #. Specify rootfinding problem
 
    Optionally, call :c:func:`MRIStepRootInit()` to initialize a rootfinding
    problem to be solved during the integration of the ODE system. See
-   the section :numref:`Usage.MRIStep.RootFinding` for general details, and
-   the section :numref:`Usage.MRIStep.OptionalInputs` for relevant optional
-   input calls.
+   :numref:`ARKODE.Usage.MRIStep.RootFinding` for general details, and
+   :numref:`ARKODE.Usage.MRIStep.OptionalInputs` for relevant optional input calls.
 
 #. Advance solution in time
 
@@ -309,15 +269,14 @@ macro to be referenced.
 
    Here, ``itask`` specifies the return mode. The vector ``yout``
    (which can be the same as the vector ``y0`` above) will contain
-   :math:`y(t_\text{out})`. See the section
-   :numref:`Usage.MRIStep.Integration` for details.
+   :math:`y(t_\text{out})`. See :numref:`ARKODE.Usage.MRIStep.Integration` for details.
 
 #. Get optional outputs
 
    Call ``MRIStepGet*`` and/or ``ARKStepGet*`` functions to obtain optional
    output from the slow or fast integrators respectively. See
-   the section :numref:`Usage.MRIStep.OptionalOutputs` and
-   :numref:`Usage.ARKStep.OptionalOutputs` for details.
+   :numref:`ARKODE.Usage.MRIStep.OptionalOutputs` and
+   :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` for details.
 
 #. Deallocate memory for solution vector
 
@@ -355,6 +314,9 @@ macro to be referenced.
    then call :c:func:`SUNNonlinSolFree()` to free any memory allocated
    for the nonlinear solver object created above.
 
-#. Finalize MPI, if used
+#. **Free the SUNContext object**
+   Call :c:func:`SUNContext_Free` to free the memory allocated for the ``SUNContext`` object.
+
+ #. Finalize MPI, if used
 
     Call ``MPI_Finalize`` to terminate MPI.

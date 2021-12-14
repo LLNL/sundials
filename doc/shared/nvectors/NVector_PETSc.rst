@@ -46,24 +46,21 @@ requires SUNDIALS to be built with MPI support.
 NVECTOR_PETSC functions
 -----------------------------------
 
-The NVECTOR_PETSC module defines implementations of all vector
-operations listed in the sections :numref:`NVectors.Ops`,
-:numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
-:numref:`NVectors.Ops.Local`, except for
-``N_VGetArrayPointer`` and ``N_VSetArrayPointer``.  As such, this
-vector cannot be used with SUNDIALS Fortran interfaces.  When access
-to raw vector data is needed, it is recommended to extract the PETSc
-vector first, and then use PETSc methods to access the data.  Usage
-examples of NVECTOR_PETSC is provided in example programs for IDA.
+The NVECTOR_PETSC module defines implementations of all vector operations listed
+in :numref:`NVectors.Ops` except for :c:func:`N_VGetArrayPointer` and
+:c:func:`N_VSetArrayPointer`.  As such, this vector cannot be used with SUNDIALS
+Fortran interfaces.  When access to raw vector data is needed, it is recommended
+to extract the PETSc vector first, and then use PETSc methods to access the
+data.  Usage examples of NVECTOR_PETSC is provided in example programs for IDA.
 
-The names of vector operations are obtained from those in the sections
+The names of vector operations are obtained from those in
 :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
 :numref:`NVectors.Ops.Local` by appending the suffice ``_Petsc``
 (e.g. ``N_VDestroy_Petsc``).  The module NVECTOR_PETSC provides the
 following additional user-callable routines:
 
 
-.. c:function:: N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, sunindextype local_length, sunindextype global_length)
+.. c:function:: N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, sunindextype local_length, sunindextype global_length, SUNContext sunctx)
 
    This function creates a new PETSC ``N_Vector`` with the pointer to
    the wrapped PETSc vector set to ``NULL``. It is used by the
@@ -71,7 +68,7 @@ following additional user-callable routines:
    should be used only with great caution.
 
 
-.. c:function:: N_Vector N_VMake_Petsc(Vec* pvec)
+.. c:function:: N_Vector N_VMake_Petsc(Vec* pvec, SUNContext sunctx)
 
    This function creates and allocates memory for an NVECTOR_PETSC
    wrapper with a user-provided PETSc vector.  It does *not* allocate
@@ -81,26 +78,6 @@ following additional user-callable routines:
 .. c:function:: Vec *N_VGetVector_Petsc(N_Vector v)
 
    This function returns a pointer to the underlying PETSc vector.
-
-
-.. c:function:: N_Vector* N_VCloneVectorArray_Petsc(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count*
-   NVECTOR_PETSC vectors.
-
-
-.. c:function:: N_Vector* N_VCloneVectorArrayEmpty_Petsc(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count*
-   NVECTOR_PETSC vectors, each with pointers to PETSc vectors set to ``NULL``.
-
-
-.. c:function:: void N_VDestroyVectorArray_Petsc(N_Vector* vs, int count)
-
-   This function frees memory allocated for the array of *count*
-   variables of type ``N_Vector`` created with
-   :c:func:`N_VCloneVectorArray_Petsc()` or with
-   :c:func:`N_VCloneVectorArrayEmpty_Petsc()`.
 
 
 .. c:function:: void N_VPrint_Petsc(N_Vector v)
@@ -199,13 +176,10 @@ options as the vector they are cloned from while vectors created with
 **Notes**
 
 * When there is a need to access components of an ``N_Vector_Petsc v``, it
-  is recommeded to extract the PETSc vector via
-
-  ``x_vec = N_VGetVector_Petsc(v);``
-
+  is recommeded to extract the PETSc vector via ``x_vec = N_VGetVector_Petsc(v);``
   and then access components using appropriate PETSc functions.
 
-* The functions :c:func:`N_VNewEmpty_Petsc()`, :c:func:`N_VMake_Petsc()`,
+* The functions :c:func:`N_VNewEmpty_Petsc`, :c:func:`N_VMake_Petsc`,
   and :c:func:`N_VCloneVectorArrayEmpty_Petsc()` set the field
   *own_data* to ``SUNFALSE``. The routines :c:func:`N_VDestroy_Petsc()` and
   :c:func:`N_VDestroyVectorArray_Petsc()` will not attempt to free the

@@ -18,7 +18,7 @@ The NVECTOR_SERIAL Module
 =========================
 
 The serial implementation of the NVECTOR module provided with
-SUNDIALS, NVECTOR_SERIAL, defines the *content* field of a
+SUNDIALS, NVECTOR_SERIAL, defines the *content* field of an
 ``N_Vector`` to be a structure containing the length of the vector, a
 pointer to the beginning of a contiguous data array, and a boolean
 flag *own_data* which specifies the ownership of data.
@@ -130,56 +130,36 @@ NVECTOR_SERIAL functions
 ------------------------
 
 The NVECTOR_SERIAL module defines serial implementations of all vector
-operations listed in the sections :numref:`NVectors.Ops.Standard`,
+operations listed in :numref:`NVectors.Ops.Standard`,
 :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
 :numref:`NVectors.Ops.Local`.  Their names are obtained from those in
 those sections by appending the suffix ``_Serial``
 (e.g. ``N_VDestroy_Serial``).  All the standard vector operations
-listed in the section :numref:`NVectors.Ops.Standard` with the suffix ``_Serial``
+listed in :numref:`NVectors.Ops.Standard` with the suffix ``_Serial``
 appended are callable via the Fortran 2003 interface by prepending an
 ``F`` (e.g. ``FN_VDestroy_Serial``).
 
 The module NVECTOR_SERIAL provides the following additional
 user-callable routines:
 
-.. c:function:: N_Vector N_VNew_Serial(sunindextype vec_length)
+.. c:function:: N_Vector N_VNew_Serial(sunindextype vec_length, SUNContext sunctx)
 
    This function creates and allocates memory for a serial
    ``N_Vector``. Its only argument is the vector length.
 
 
-.. c:function:: N_Vector N_VNewEmpty_Serial(sunindextype vec_length)
+.. c:function:: N_Vector N_VNewEmpty_Serial(sunindextype vec_length, SUNContext sunctx)
 
    This function creates a new serial ``N_Vector`` with an empty
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_Serial(sunindextype vec_length, realtype* v_data)
+.. c:function:: N_Vector N_VMake_Serial(sunindextype vec_length, realtype* v_data, SUNContext sunctx)
 
    This function creates and allocates memory for a serial vector with
    user-provided data array, *v_data*.
 
    (This function does *not* allocate memory for ``v_data`` itself.)
-
-
-.. c:function:: N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count* serial
-   vectors.
-
-
-.. c:function:: N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count* serial
-   vectors, each with an empty (```NULL``) data array.
-
-
-.. c:function:: void N_VDestroyVectorArray_Serial(N_Vector* vs, int count)
-
-   This function frees memory allocated for the array of *count*
-   variables of type ``N_Vector`` created with
-   :c:func:`N_VCloneVectorArray_Serial()` or with
-   :c:func:`N_VCloneVectorArrayEmpty_Serial()`.
 
 
 .. c:function:: void N_VPrint_Serial(N_Vector v)
@@ -198,9 +178,9 @@ enable or disable fused and vector array operations for a specific vector. To
 ensure consistency across vectors it is recommended to first create a vector
 with :c:func:`N_VNew_Serial`, enable/disable the desired operations for that vector
 with the functions below, and create any additional vectors from that vector
-using :c:func:`N_VClone`. This guarantees the new vectors will have the same
+using :c:func:`N_VClone`. This guarantees that the new vectors will have the same
 operations enabled/disabled as cloned vectors inherit the same enable/disable
-options as the vector they are cloned from while vectors created with
+options as the vector they are cloned, from while vectors created with
 :c:func:`N_VNew_Serial` will have the default settings for the NVECTOR_SERIAL module.
 
 .. c:function:: int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf)
@@ -279,10 +259,11 @@ options as the vector they are cloned from while vectors created with
 
 * When looping over the components of an ``N_Vector v``, it is more
   efficient to first obtain the component array via ``v_data =
-  NV_DATA_S(v)`` and then access ``v_data[i]`` within the loop than it
+  NV_DATA_S(v)``, or equivalently ``v_data = N_VGetArrayPointer(v)``,
+  and then access ``v_data[i]`` within the loop than it
   is to use ``NV_Ith_S(v,i)`` within the loop.
 
-* :c:func:`N_VNewEmpty_Serial()`, :c:func:`N_VMake_Serial()`, and
+* :c:func:`N_VNewEmpty_Serial`, :c:func:`N_VMake_Serial`, and
   :c:func:`N_VCloneVectorArrayEmpty_Serial()` set the field *own_data*
   to ``SUNFALSE``.  The functions :c:func:`N_VDestroy_Serial()` and
   :c:func:`N_VDestroyVectorArray_Serial()` will not attempt to free the
@@ -300,16 +281,10 @@ options as the vector they are cloned from while vectors created with
 
 .. _NVectors.NVSerial.Fortran:
 
-NVECTOR_SERIAL Fortran Interfaces
+NVECTOR_SERIAL Fortran Interface
 ------------------------------------
 
-The NVECTOR_SERIAL module provides a Fortran 2003 module as well as
-Fortran 77 style interface functions for use from Fortran applications.
-
-.. _NVectors.NVSerial.Fortran.2003:
-
-FORTRAN 2003 interface module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The NVECTOR_SERIAL module provides a Fortran 2003 module for use from Fortran applications.
 
 The ``fnvector_serial_mod`` Fortran module defines interfaces to all
 NVECTOR_SERIAL C functions using the intrinsic ``iso_c_binding``
@@ -323,18 +298,6 @@ The Fortran 2003 NVECTOR_SERIAL interface module can be accessed with the ``use`
 statement, i.e. ``use fnvector_serial_mod``, and linking to the library
 ``libsundials_fnvectorserial_mod.lib`` in addition to the C library.
 For details on where the library and module file
-``fnvector_serial_mod.mod`` are installed see the section :numref:`Installation`.
+``fnvector_serial_mod.mod`` are installed see :numref:`Installation`.
 We note that the module is accessible from the Fortran 2003 SUNDIALS integrators
 *without* separately linking to the ``libsundials_fnvectorserial_mod`` library.
-
-.. _NVectors.NVSerial.Fortran.77:
-
-FORTRAN 77 interface functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-For solvers that include a Fortran 77 interface module, the NVECTOR_SERIAL module
-also includes a Fortran-callable function ``FNVINITS(code, NEQ, IER)``,
-to initialize this module.  Here ``code`` is an input solver id
-(1 for CVODE, 2 for IDA, 3 for KINSOL, 4 for ARKODE); ``NEQ`` is
-the problem size (declared so as to match C type ``long int``); and
-``IER`` is an error return flag equal 0 for success and -1 for failure.

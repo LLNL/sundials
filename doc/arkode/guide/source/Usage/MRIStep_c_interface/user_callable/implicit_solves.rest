@@ -1,4 +1,16 @@
-.. _Usage.MRIStep.MRIStepSolverInputTable:
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
+
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _ARKODE.Usage.MRIStep.MRIStepSolverInput:
 
 ===========================================
  Optional inputs for implicit stage solves
@@ -6,7 +18,7 @@
 
 The mathematical explanation for the nonlinear solver strategies used
 by MRIStep, including how each of the parameters below is used within
-the code, is provided in the section :numref:`Mathematics.Nonlinear`.
+the code, is provided in :numref:`ARKODE.Mathematics.Nonlinear`.
 
 
 .. cssclass:: table-bordered
@@ -203,7 +215,7 @@ RHS function for nonlinear system evaluations  :c:func:`MRIStepSetNlsRhsFn()`   
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-   **Notes:** See the section :numref:`Usage.MRIStep.StagePredictFn` for more information on
+   **Notes:** See :numref:`ARKODE.Usage.StagePredictFn` for more information on
    this user-supplied routine.
 
 
@@ -230,7 +242,7 @@ RHS function for nonlinear system evaluations  :c:func:`MRIStepSetNlsRhsFn()`   
    *after* :c:func:`MRIStepSetNonlinearSolver()`.
 
 
-.. _Usage.MRIStep.ARKLsInputs:
+.. _ARKODE.Usage.MRIStep.ARKLsInputs:
 
 
 ==================================================
@@ -238,8 +250,8 @@ RHS function for nonlinear system evaluations  :c:func:`MRIStepSetNlsRhsFn()`   
 ==================================================
 
 The mathematical explanation of the linear solver methods
-available to MRIStep is provided in the section
-:numref:`Mathematics.Linear`.  We group the user-callable routines into
+available to MRIStep is provided in :numref:`ARKODE.Mathematics.Linear`.  We
+group the user-callable routines into
 four categories: general routines concerning the update frequency for
 matrices and/or preconditioners, optional inputs for matrix-based
 linear solvers, optional inputs for matrix-free linear solvers, and
@@ -249,7 +261,7 @@ matrix-based and matrix-free groups are mutually exclusive, whereas the
 
 
 
-.. _Usage.MRIStep.ARKLsInputs.General:
+.. _ARKODE.Usage.MRIStep.ARKLsInputs.General:
 
 .. index::
    single: optional input; generic linear solver interface (MRIStep)
@@ -257,7 +269,7 @@ matrix-based and matrix-free groups are mutually exclusive, whereas the
 Optional inputs for the ARKLS linear solver interface
 =====================================================
 
-As discussed in the section :numref:`Mathematics.Linear.Setup`, ARKODE
+As discussed in :numref:`ARKODE.Mathematics.Linear.Setup`, ARKODE
 strives to reuse matrix and preconditioner data for as many solves as
 possible to amortize the high costs of matrix construction and
 factorization.  To that end, MRIStep provides user-callable
@@ -376,7 +388,7 @@ Jacobian / preconditioner update frequency     :c:func:`MRIStepSetJacEvalFrequen
    The Jacobian update frequency is only checked *within* calls to the linear
    solver setup routine, as such values of *msbj* :math:`<` *msbp* will result
    in recomputing the Jacobian every *msbp* steps. See
-   :c:func:`MRIStepSetLSetupFrequency()` for setting the linear solver steup
+   :c:func:`MRIStepSetLSetupFrequency()` for setting the linear solver setup
    frequency *msbp*.
 
    Passing a value *msbj* :math:`\le 0` indicates to use the
@@ -391,7 +403,7 @@ Jacobian / preconditioner update frequency     :c:func:`MRIStepSetJacEvalFrequen
 
 
 
-.. _Usage.MRIStep.ARKLsInputs.MatrixBased:
+.. _ARKODE.Usage.MRIStep.ARKLsInputs.MatrixBased:
 
 Optional inputs for matrix-based ``SUNLinearSolver`` modules
 ============================================================
@@ -461,8 +473,8 @@ program. The user data pointer may be specified through
    default is used. An error will occur if no *jac* is supplied when
    using other matrix types.
 
-   The function type :c:func:`ARKLsJacFn()` is described in the section
-   :numref:`Usage.MRIStep.UserSupplied`.
+   The function type :c:func:`ARKLsJacFn()` is described in
+   :numref:`ARKODE.Usage.UserSupplied`.
 
 
 .. c:function:: int MRIStepSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys)
@@ -487,8 +499,8 @@ program. The user data pointer may be specified through
    SUNMATRIX API to form the system :math:`I - \gamma J`.  If ``NULL`` is passed
    in for *linsys*, this default is used.
 
-   The function type :c:func:`ARKLsLinSysFn()` is described in the section
-   :numref:`Usage.MRIStep.UserSupplied`.
+   The function type :c:func:`ARKLsLinSysFn()` is described in
+   :numref:`ARKODE.Usage.UserSupplied`.
 
 
 .. c:function:: int MRIStepSetLinearSolutionScaling(void* arkode_mem, booleantype onoff)
@@ -511,7 +523,7 @@ program. The user data pointer may be specified through
    linear solver is attached.
 
 
-.. _Usage.MRIStep.ARKLsInputs.MatrixFree:
+.. _ARKODE.Usage.MRIStep.ARKLsInputs.MatrixFree:
 
 Optional inputs for matrix-free ``SUNLinearSolver`` modules
 ===========================================================
@@ -526,7 +538,7 @@ Optional input                                      Function name               
 ==================================================  =========================================  ==================
 
 
-As described in the section :numref:`Mathematics.Linear`, when solving
+As described in :numref:`ARKODE.Mathematics.Linear`, when solving
 the Newton linear systems with matrix-free methods, the ARKLS
 interface requires a *jtimes* function to compute an approximation to
 the product between the Jacobian matrix
@@ -537,13 +549,13 @@ interface.
 
 A user-defined Jacobian-vector function must be of type
 :c:type:`ARKLsJacTimesVecFn` and can be specified through a call
-to :c:func:`MRIStepSetJacTimes()` (see the section
-:numref:`Usage.MRIStep.UserSupplied` for specification details).  As with the
+to :c:func:`MRIStepSetJacTimes()` (see
+:numref:`ARKODE.Usage.UserSupplied` for specification details).  As with the
 user-supplied preconditioner functions, the evaluation and
 processing of any Jacobian-related data needed by the user's
 Jacobian-times-vector function is done in the optional user-supplied
-function of type :c:type:`ARKLsJacTimesSetupFn` (see the section
-:numref:`Usage.MRIStep.UserSupplied` for specification details).  As with
+function of type :c:type:`ARKLsJacTimesSetupFn` (see
+:numref:`ARKODE.Usage.UserSupplied` for specification details).  As with
 the preconditioner functions, a pointer to the user-defined
 data structure, *user_data*, specified through
 :c:func:`MRIStepSetUserData()` (or a ``NULL`` pointer otherwise) is
@@ -580,8 +592,8 @@ time they are called.
    :c:func:`MRIStepSetLinearSolver()`.
 
    The function types :c:type:`ARKLsJacTimesSetupFn` and
-   :c:type:`ARKLsJacTimesVecFn` are described in the section
-   :numref:`Usage.MRIStep.UserSupplied`.
+   :c:type:`ARKLsJacTimesVecFn` are described in
+   :numref:`ARKODE.Usage.UserSupplied`.
 
 
 When using the internal difference quotient the user may optionally supply
@@ -621,7 +633,7 @@ avoid differencing a potentially non-differentiable factor.
 
 
 
-.. _Usage.MRIStep.ARKLsInputs.Iterative:
+.. _ARKODE.Usage.MRIStep.ARKLsInputs.Iterative:
 
 Optional inputs for iterative ``SUNLinearSolver`` modules
 =========================================================
@@ -637,7 +649,7 @@ Newton linear solve tolerance conversion factor  :c:func:`MRIStepSetLSNormFactor
 ===============================================  =========================================  ==================
 
 
-As described in the section :numref:`Mathematics.Linear`, when using
+As described in :numref:`ARKODE.Mathematics.Linear`, when using
 an iterative linear solver the user may supply a preconditioning
 operator to aid in solution of the system.  This operator consists of
 two user-supplied functions, *psetup* and *psolve*, that are supplied
@@ -653,7 +665,7 @@ structure with relevant problem data and access it during the
 execution of the user-supplied preconditioner functions without using
 global data in the program.
 
-Also, as described in the section :numref:`Mathematics.Error.Linear`, the
+Also, as described in :numref:`ARKODE.Mathematics.Error.Linear`, the
 ARKLS interface requires that iterative linear solvers stop when
 the norm of the preconditioned residual satisfies
 
@@ -691,8 +703,8 @@ the user through the :c:func:`MRIStepSetEpsLin()` function.
    :c:func:`MRIStepSetLinearSolver()`.
 
    Both of the function types :c:func:`ARKLsPrecSetupFn()` and
-   :c:func:`ARKLsPrecSolveFn()` are described in the section
-   :numref:`Usage.MRIStep.UserSupplied`.
+   :c:func:`ARKLsPrecSolveFn()` are described in
+   :numref:`ARKODE.Usage.UserSupplied`.
 
 
 .. c:function:: int MRIStepSetEpsLin(void* arkode_mem, realtype eplifac)

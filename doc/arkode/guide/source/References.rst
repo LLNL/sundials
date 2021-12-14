@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,13 +12,13 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _References:
+.. _ARKODE.References:
 
 .. only:: html
 
-   ############
+   ************
    Bibliography
-   ############
+   ************
 
 .. bibliography::
    :cited:

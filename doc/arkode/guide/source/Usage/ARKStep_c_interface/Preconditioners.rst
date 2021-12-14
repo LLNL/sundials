@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Usage.ARKStep.PreconditionerModules:
+.. _ARKODE.Usage.ARKStep.PreconditionerModules:
 
 Preconditioner modules
 ============================
@@ -26,18 +26,17 @@ threaded problems (ARKBANDPRE) and a band-block-diagonal
 preconditioner for parallel problems (ARKBBDPRE).
 
 
-.. _Usage.ARKStep.BandPre:
+.. _ARKODE.Usage.ARKStep.BandPre:
 
 A serial banded preconditioner module
 -------------------------------------------
 
 This preconditioner provides a band matrix preconditioner for use with
-iterative SUNLINSOL modules through the ARKLS linear solver interface,
-in a serial or threaded setting. It requires that the problem be set
-up using either the
+iterative SUNLINSOL modules in a serial or threaded setting. It requires
+that the problem be set up using either the
 NVECTOR_SERIAL, NVECTOR_OPENMP or NVECTOR_PTHREADS module, due to data
 access patterns.  It also currently requires that the problem involve
-an identity mass matrix, i.e. :math:`M = I`.
+an identity mass matrix, i.e., :math:`M = I`.
 
 This module uses difference quotients of the ODE right-hand
 side function :math:`f^I` to generate a band matrix of bandwidth
@@ -46,7 +45,7 @@ upper half-bandwidth) and sub-diagonals (``ml``, the lower
 half-bandwidth) are specified by the user.  This band matrix is used
 to to form a preconditioner the Krylov linear solver.  Although this
 matrix is intended to approximate the Jacobian
-:math:`J = \frac{\partial f^I}{\partial y}`, it may be a very crude
+:math:`J = \dfrac{\partial f^I}{\partial y}`, it may be a very crude
 approximation, since the true Jacobian may not be banded, or its true
 bandwidth may be larger than ``ml + mu + 1``.  However, as long as the
 banded approximation generated for the preconditioner is sufficiently
@@ -59,12 +58,12 @@ ARKBANDPRE usage
 
 In order to use the ARKBANDPRE module, the user need not define
 any additional functions.  In addition to the header files required
-for the integration of the ODE problem (see the section
-:numref:`Usage.ARKStep.Headers`), to use the ARKBANDPRE module, the user's
+for the integration of the ODE problem (see
+:numref:`ARKODE.Usage.Headers`), to use the ARKBANDPRE module, the user's
 program must include the header file ``arkode_bandpre.h`` which
 declares the needed function prototypes.  The following is a summary
 of the usage of this module.  Steps that are unchanged from the
-skeleton program presented in :numref:`Usage.ARKStep.Skeleton` are
+skeleton program presented in :numref:`ARKODE.Usage.ARKStep.Skeleton` are
 *italicized*.
 
 1. *Initialize multi-threaded environment (if appropriate)*
@@ -80,7 +79,7 @@ skeleton program presented in :numref:`Usage.ARKStep.Skeleton` are
 6. Create iterative linear solver object
 
    When creating the iterative linear solver object, specify the type
-   of preconditioning (``PREC_LEFT`` or ``PREC_RIGHT``) to use.
+   of preconditioning (``SUN_PREC_LEFT`` or ``SUN_PREC_RIGHT``) to use.
 
 7. *Set linear solver optional inputs*
 
@@ -155,8 +154,9 @@ by calling the following function:
       * *ARKLS_ILL_INPUT* if an input has an illegal value
       * *ARKLS_MEM_FAIL* if a memory allocation request failed
 
-   **Notes:** The banded approximate Jacobian will have nonzero elements
-   only in locations :math:`(i,j)` with *ml* :math:`\le j-i \le` *mu*.
+   **Notes:**
+      The banded approximate Jacobian will have nonzero elements
+      only in locations :math:`(i,j)` with *ml* :math:`\le j-i \le` *mu*.
 
 
 
@@ -182,13 +182,14 @@ the ARKBANDPRE module:
       * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKLS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
-   **Notes:** The workspace requirements reported by this routine
-   correspond only to memory allocated within the ARKBANDPRE module
-   (the banded matrix approximation, banded ``SUNLinearSolver``
-   object, and temporary vectors).
+   **Notes:**
+      The workspace requirements reported by this routine
+      correspond only to memory allocated within the ARKBANDPRE module
+      (the banded matrix approximation, banded ``SUNLinearSolver``
+      object, and temporary vectors).
 
-   The workspaces referred to here exist in addition to those given by
-   the corresponding function :c:func:`ARKStepGetLSWorkspace()`.
+      The workspaces referred to here exist in addition to those given by
+      the corresponding function :c:func:`ARKStepGetLSWorkspace()`.
 
 
 
@@ -209,19 +210,20 @@ the ARKBANDPRE module:
       * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKLS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
-   **Notes:**  The counter *nfevalsBP* is distinct from the counter
-   *nfevalsLS* returned by the corresponding function
-   :c:func:`ARKStepGetNumLSRhsEvals()` and also from *nfi_evals* returned by
-   :c:func:`ARKStepGetNumRhsEvals()`.  The total number of right-hand
-   side function evaluations is the sum of all three of these
-   counters, plus the *nfe_evals* counter for :math:`f^E` calls
-   returned by :c:func:`ARKStepGetNumRhsEvals()`.
+   **Notes:**
+      The counter *nfevalsBP* is distinct from the counter
+      *nfevalsLS* returned by the corresponding function
+      :c:func:`ARKStepGetNumLSRhsEvals()` and also from *nfi_evals* returned by
+      :c:func:`ARKStepGetNumRhsEvals()`.  The total number of right-hand
+      side function evaluations is the sum of all three of these
+      counters, plus the *nfe_evals* counter for :math:`f^E` calls
+      returned by :c:func:`ARKStepGetNumRhsEvals()`.
 
 
 
 
 
-.. _Usage.ARKStep.BBDPre:
+.. _ARKODE.Usage.ARKStep.BBDPre:
 
 A parallel band-block-diagonal preconditioner module
 ---------------------------------------------------------
@@ -288,7 +290,7 @@ and each of the blocks :math:`g_q(t,\bar{y}_q)` is decoupled from one another.
 The preconditioner associated with this decomposition has the form
 
 .. math::
-   P = \text{diag}[P_1, P_2, \ldots, P_Q]
+   P = \begin{bmatrix} P_1 & & & \\ & P_2 & & \\ & & \ddots &\\ & & & P_Q \end{bmatrix}
 
 where
 
@@ -296,7 +298,7 @@ where
    P_q \approx I - \gamma J_q
 
 and where :math:`J_q` is a difference quotient approximation to
-:math:`\frac{\partial g_q}{\partial \bar{y}_q}`.  This matrix is taken
+:math:`\dfrac{\partial g_q}{\partial \bar{y}_q}`.  This matrix is taken
 to be banded, with upper and lower half-bandwidths *mudq* and
 *mldq* defined as the number of non-zero diagonals above and below
 the main diagonal, respectively.  The difference quotient
@@ -359,18 +361,19 @@ communicated between processes by *cfn*, and that are then used by
         *user_data* parameter passed to :c:func:`ARKStepSetUserData()`.
 
    **Return value:**
-   An *ARKLocalFn* should return 0 if successful, a positive value if
-   a recoverable error occurred (in which case ARKStep will attempt to
-   correct), or a negative value if it failed unrecoverably (in which
-   case the integration is halted and :c:func:`ARKStepEvolve()` will return
-   *ARK_LSETUP_FAIL*).
+      An *ARKLocalFn* should return 0 if successful, a positive value if
+      a recoverable error occurred (in which case ARKStep will attempt to
+      correct), or a negative value if it failed unrecoverably (in which
+      case the integration is halted and :c:func:`ARKStepEvolve()` will return
+      *ARK_LSETUP_FAIL*).
 
-   **Notes:**  This function should assume that all inter-process
-   communication of data needed to calculate *glocal* has already been
-   done, and that this data is accessible within user data.
+   **Notes:**
+      This function should assume that all inter-process
+      communication of data needed to calculate *glocal* has already been
+      done, and that this data is accessible within user data.
 
-   The case where :math:`g` is mathematically identical to :math:`f^I`
-   is allowed.
+      The case where :math:`g` is mathematically identical to :math:`f^I`
+      is allowed.
 
 
 
@@ -381,29 +384,30 @@ communicated between processes by *cfn*, and that are then used by
    above, using the input vector *y*.
 
    **Arguments:**
-      *  *Nlocal* -- the local vector length.
+      * *Nlocal* -- the local vector length.
       * *t* -- the value of the independent variable.
       * *y* -- the value of the dependent variable vector on this process.
       * *user_data* -- a pointer to user data, the same as the
         *user_data* parameter passed to :c:func:`ARKStepSetUserData()`.
 
    **Return value:**
-   An *ARKCommFn* should return 0 if successful, a positive value if a
-   recoverable error occurred (in which case ARKStep will attempt to
-   correct), or a negative value if it failed unrecoverably (in which
-   case the integration is halted and :c:func:`ARKStepEvolve()` will return
-   *ARK_LSETUP_FAIL*).
+      An *ARKCommFn* should return 0 if successful, a positive value if a
+      recoverable error occurred (in which case ARKStep will attempt to
+      correct), or a negative value if it failed unrecoverably (in which
+      case the integration is halted and :c:func:`ARKStepEvolve()` will return
+      *ARK_LSETUP_FAIL*).
 
-   **Notes:**  The *cfn* function is expected to save communicated data in
-   space defined within the data structure *user_data*.
+   **Notes:**
+      The *cfn* function is expected to save communicated data in
+      space defined within the data structure *user_data*.
 
-   Each call to the *cfn* function is preceded by a call to the
-   right-hand side function :math:`f^I` with the same :math:`(t,y)`
-   arguments. Thus, *cfn* can omit any communication done by
-   :math:`f^I` if relevant to the evaluation of *glocal*. If all
-   necessary communication was done in :math:`f^I`, then *cfn* =
-   ``NULL`` can be passed in the call to :c:func:`ARKBBDPrecInit()`
-   (see below).
+      Each call to the *cfn* function is preceded by a call to the
+      right-hand side function :math:`f^I` with the same :math:`(t,y)`
+      arguments. Thus, *cfn* can omit any communication done by
+      :math:`f^I` if relevant to the evaluation of *glocal*. If all
+      necessary communication was done in :math:`f^I`, then *cfn* =
+      ``NULL`` can be passed in the call to :c:func:`ARKBBDPrecInit()`
+      (see below).
 
 
 
@@ -412,13 +416,13 @@ ARKBBDPRE usage
 """""""""""""""""""""
 
 In addition to the header files required for the integration of the
-ODE problem (see the section :numref:`Usage.ARKStep.Headers`), to use the
+ODE problem (see :numref:`ARKODE.Usage.Headers`), to use the
 ARKBBDPRE module, the user's program must include the header file
 ``arkode_bbdpre.h`` which declares the needed function prototypes.
 
 The following is a summary of the proper usage of this module. Steps
 that are unchanged from the skeleton program presented in
-:numref:`Usage.ARKStep.Skeleton` are *italicized*.
+:numref:`ARKODE.Usage.ARKStep.Skeleton` are *italicized*.
 
 1. *Initialize MPI*
 
@@ -433,7 +437,7 @@ that are unchanged from the skeleton program presented in
 6. Create iterative linear solver object
 
    When creating the iterative linear solver object, specify the type
-   of preconditioning (``PREC_LEFT`` or ``PREC_RIGHT``) to use.
+   of preconditioning (``SUN_PREC_LEFT`` or ``SUN_PREC_RIGHT``) to use.
 
 7. *Set linear solver optional inputs*
 
@@ -526,22 +530,23 @@ and attached to the integrator by calling the following functions:
       * *ARKLS_ILL_INPUT* if an input has an illegal value
       * *ARKLS_MEM_FAIL* if a memory allocation request failed
 
-   **Notes:**  If one of the half-bandwidths *mudq* or *mldq* to be used
-   in the difference quotient calculation of the approximate Jacobian is
-   negative or exceeds the value *Nlocal*-1, it is replaced by 0 or
-   *Nlocal*-1 accordingly.
+   **Notes:**
+      If one of the half-bandwidths *mudq* or *mldq* to be used
+      in the difference quotient calculation of the approximate Jacobian is
+      negative or exceeds the value *Nlocal*-1, it is replaced by 0 or
+      *Nlocal*-1 accordingly.
 
-   The half-bandwidths *mudq* and *mldq* need not be the true
-   half-bandwidths of the Jacobian of the local block of :math:`g`
-   when smaller values may provide a greater efficiency.
+      The half-bandwidths *mudq* and *mldq* need not be the true
+      half-bandwidths of the Jacobian of the local block of :math:`g`
+      when smaller values may provide a greater efficiency.
 
-   Also, the half-bandwidths *mukeep* and *mlkeep* of the retained
-   banded approximate Jacobian block may be even smaller than
-   *mudq* and *mldq*, to reduce storage and computational costs
-   further.
+      Also, the half-bandwidths *mukeep* and *mlkeep* of the retained
+      banded approximate Jacobian block may be even smaller than
+      *mudq* and *mldq*, to reduce storage and computational costs
+      further.
 
-   For all four half-bandwidths, the values need not be the same on
-   every processor.
+      For all four half-bandwidths, the values need not be the same on
+      every processor.
 
 
 
@@ -581,9 +586,10 @@ SUNLINSOL module, and/or one or more of the corresponding
       * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKLS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
-   **Notes:**  If one of the half-bandwidths *mudq* or *mldq* is
-   negative or exceeds the value *Nlocal*-1, it is replaced by 0 or
-   *Nlocal*-1 accordingly.
+   **Notes:**
+      If one of the half-bandwidths *mudq* or *mldq* is
+      negative or exceeds the value *Nlocal*-1, it is replaced by 0 or
+      *Nlocal*-1 accordingly.
 
 
 The following two optional output functions are available for use with
@@ -607,13 +613,14 @@ the ARKBBDPRE module:
       * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKLS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
-   **Notes:**  The workspace requirements reported by this routine
-   correspond only to memory allocated within the ARKBBDPRE module
-   (the banded matrix approximation, banded ``SUNLinearSolver``
-   object, temporary vectors). These values are local to each process.
+   **Notes:**
+      The workspace requirements reported by this routine
+      correspond only to memory allocated within the ARKBBDPRE module
+      (the banded matrix approximation, banded ``SUNLinearSolver``
+      object, temporary vectors). These values are local to each process.
 
-   The workspaces referred to here exist in addition to those given by
-   the corresponding function :c:func:`ARKStepGetLSWorkSpace()`.
+      The workspaces referred to here exist in addition to those given by
+      the corresponding function :c:func:`ARKStepGetLSWorkSpace()`.
 
 
 
@@ -642,4 +649,4 @@ factorizations, *nlinsetups* calls to *cfn*, *npsolves* banded
 backsolve calls, and *nfevalsLS* right-hand side function
 evaluations, where *nlinsetups* is an optional ARKStep output and
 *npsolves* and *nfevalsLS* are linear solver optional outputs (see
-the table :numref:`Usage.ARKStep.ARKLsOutputs`).
+the table :numref:`ARKODE.Usage.ARKStep.ARKLsOutputs`).

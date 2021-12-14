@@ -17,11 +17,12 @@
 The NVECTOR_TRILINOS Module
 ===========================
 
-The NVECTOR_TRILINOS module is an NVECTOR wrapper around the Trilinos
-`Tpetra <https://github.com/trilinos/Trilinos>`_ vector. The interface
-to Tpetra is implemented in the ``Sundials::TpetraVectorInterface``
-class. This class simply stores a reference counting pointer to a
-Tpetra vector and inherits from an empty structure
+The NVECTOR_TRILINOS module is an NVECTOR wrapper around the
+`Trilinos <https://github.com/trilinos/Trilinos>`_ Tpetra vector.
+The interface to Tpetra is implemented in the
+``sundials::trilinos::nvector_tpetra::TpetraVectorInterface`` class. This class simply stores
+a reference counting pointer to a Tpetra vector and inherits from
+an empty structure
 
 .. code-block:: c
 
@@ -32,17 +33,15 @@ A pointer to an instance of this class is kept in the *content* field
 of the ``N_Vector`` object, to ensure that the Tpetra vector
 is not deleted for as long as the ``N_Vector`` object exists.
 
-The Tpetra vector type in the ``Sundials::TpetraVectorInterface``
+The Tpetra vector type in the ``sundials::trilinos::nvector_tpetra::TpetraVectorInterface``
 class is defined as:
 
-.. code-block:: cpp
-
-   typedef Tpetra::Vector<realtype, int, sunindextype> vector_type;
+.. cpp:type:: Tpetra::Vector<realtype, int, sunindextype> vector_type;
 
 The Tpetra vector will use the SUNDIALS-specified ``realtype`` as its scalar
 type, ``int`` as the local ordinal type, and ``sunindextype`` as the global ordinal type.
 This type definition will use Tpetra's default node type. Available Kokkos node
-types in Trilinos 12.14 release are serial (single thread), OpenMP, Pthread,
+types as of the Trilinos 12.14 release are serial (single thread), OpenMP, Pthread,
 and CUDA. The default node type is selected when building the Kokkos package.
 For example, the Tpetra vector will use a CUDA node if Tpetra was built with
 CUDA support and the CUDA node was selected as the default when Tpetra was
@@ -58,24 +57,23 @@ NVECTOR_TRILINOS functions
 -----------------------------------
 
 The NVECTOR_TRILINOS module defines implementations of all vector
-operations listed in the sections :numref:`NVectors.Ops`,
+operations listed in :numref:`NVectors.Ops`,
 :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
 :numref:`NVectors.Ops.Local`, except for
-``N_VGetArrayPointer`` and ``N_VSetArrayPointer``.  As such, this
-vector cannot be used with SUNDIALS Fortran interfaces, nor with the
-SUNDIALS direct solvers and preconditioners.  When access to raw
+:c:func:`N_VGetArrayPointer` and :c:func:`N_VSetArrayPointer`.  As
+such, this vector cannot be used with the SUNDIALS direct solvers
+and preconditioners.  When access to raw
 vector data is needed, it is recommended to extract the Trilinos
 Tpetra vector first, and then use Tpetra vector methods to access the
 data.  Usage examples of NVECTOR_TRILINOS are provided in example
 programs for IDA.
 
-The names of vector operations are obtained from those in the sections
-:numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
-:numref:`NVectors.Ops.Local` by appending the suffice ``_Trilinos``
+The names of vector operations are obtained from those in
+:numref:`NVectors.Ops` by appending the suffice ``_Trilinos``
 (e.g. ``N_VDestroy_Trilinos``).  Vector operations call existing
 ``Tpetra::Vector`` methods when available. Vector operations specific
 to SUNDIALS are implemented as standalone functions in the namespace
-``Sundials::TpetraVector``, located in the file ``SundialsTpetraVectorKernels.hpp``.
+``sundials::trilinos::nvector_tpetra::TpetraVector``, located in the file ``SundialsTpetraVectorKernels.hpp``.
 The module NVECTOR_TRILINOS provides the following additional user-callable routines:
 
 
@@ -100,12 +98,12 @@ The module NVECTOR_TRILINOS provides the following additional user-callable rout
 
   .. code-block:: cpp
 
-     typedef Sundials::TpetraVectorInterface::vector_type vector_type
+     typedef sundials::trilinos::nvector_tpetra::TpetraVectorInterface::vector_type vector_type
 
   This will ensure that data types used in Tpetra vector match those
   in SUNDIALS.
 
-* When there is a need to access components of an ``N_Vector_Trilinos``, ``v``,
+* When there is a need to access components of an ``N_Vector_Trilinos v``,
   it is recommeded to extract the Trilinos vector object via ``x_vec =
   N_VGetVector_Trilinos(v)`` and then access components using the
   appropriate Trilinos functions.

@@ -1,1 +1,0 @@
-../../../../shared/sunmemory/SUNMemory_CUDA.rst

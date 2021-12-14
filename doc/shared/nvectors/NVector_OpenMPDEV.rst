@@ -52,7 +52,7 @@ vector.
 .. c:macro:: NV_CONTENT_OMPDEV(v)
 
    This macro gives access to the contents of the NVECTOR_OPENMPDEV
-   vector ``N_Vector``.
+   ``N_Vector v``.
 
    The assignment ``v_cont = NV_CONTENT_S(v)`` sets ``v_cont`` to be a
    pointer to the NVECTOR_OPENMPDEV  content structure.
@@ -66,10 +66,10 @@ vector.
 
 .. c:macro:: NV_OWN_DATA_OMPDEV(v)
 
-   Access the *own_data* component of the OpenMPDEV ``N_Vector`` *v*.
+   Access the *own_data* component of the OpenMPDEV ``N_Vector v``.
 
    The assignment ``v_data = NV_DATA_HOST_OMPDEV(v)`` sets ``v_data`` to be
-   a pointer to the first component of the data on the host for the ``N_Vector`` ``v``.
+   a pointer to the first component of the data on the host for the ``N_Vector v``.
 
    Implementation:
 
@@ -93,7 +93,7 @@ vector.
 .. c:macro:: NV_DATA_DEV_OMPDEV(v)
 
    The assignment ``v_dev_data = NV_DATA_DEV_OMPDEV(v)`` sets ``v_dev_data`` to be
-   a pointer to the first component of the data on the device for the ``N_Vector`` ``v``.
+   a pointer to the first component of the data on the device for the ``N_Vector v``.
    The assignment ``NV_DATA_DEV_OMPDEV(v) = v_dev_data`` sets the device component
    array of ``v`` to be ``v_dev_data`` by storing the pointer ``v_dev_data``.
 
@@ -104,9 +104,9 @@ vector.
       #define NV_DATA_DEV_OMPDEV(v) ( NV_CONTENT_OMPDEV(v)->dev_data )
 
 
-.. c:macro:: NV_LENGTH_OMPDEV
+.. c:macro:: NV_LENGTH_OMPDEV(V)
 
-   Access the *length* component of the OpenMPDEV ``N_Vector`` *v*.
+   Access the *length* component of the OpenMPDEV ``N_Vector v``.
 
    The assignment ``v_len = NV_LENGTH_OMPDEV(v)`` sets ``v_len`` to be
    the length of ``v``. On the other hand, the call ``NV_LENGTH_OMPDEV(v) = len_v``
@@ -121,51 +121,34 @@ NVECTOR_OPENMPDEV functions
 -----------------------------------
 
 The NVECTOR_OPENMPDEV module defines OpenMP device offloading implementations of all vector
-operations listed in Tables :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
-:numref:`NVectors.Ops.Local`, except for ``N_VGetArrayPointer`` and ``N_VSetArrayPointer``.
-As such, this vector cannot be used with the SUNDIALS FORTRAN interfaces, nor with the
-SUNDIALS direct solvers and preconditioners. It also provides methods for copying from
-the host to the device and vice versa.
+operations listed in :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
+:numref:`NVectors.Ops.Array`, and :numref:`NVectors.Ops.Local`, except for
+:c:func:`N_VSetArrayPointer`.
+As such, this vector cannot be used with the SUNDIALS direct solvers and preconditioners.
+It also provides methods for copying from the host to the device and vice versa.
 
-The names of the vector operations are obtained from those in tables
+The names of the vector operations are obtained from those in
 :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
-:numref:`NVectors.Ops.Local` by appending the suffix ``_OpenMPDEV`` (e.g. ``N_VDestroy_OpenMPDEV``).
-The module NVECTOR_OPENMPDEV provides the following additional user-callable routines:
+:numref:`NVectors.Ops.Local` by appending the suffix ``_OpenMPDEV`` (e.g.
+``N_VDestroy_OpenMPDEV``).  The module NVECTOR_OPENMPDEV provides the following additional
+user-callable routines:
 
-.. c:function:: N_Vector N_VNew_OpenMPDEV(sunindextype vec_length)
+.. c:function:: N_Vector N_VNew_OpenMPDEV(sunindextype vec_length, SUNContext sunctx)
 
    This function creates and allocates memory for an NVECTOR_OPENMPDEV ``N_Vector``.
 
 
-.. c:function:: N_Vector N_VNewEmpty_OpenMPDEV(sunindextype vec_length)
+.. c:function:: N_Vector N_VNewEmpty_OpenMPDEV(sunindextype vec_length, SUNContext sunctx)
 
    This function creates a new NVECTOR_OPENMPDEV ``N_Vector`` with an empty
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_OpenMPDEV(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata)
+.. c:function:: N_Vector N_VMake_OpenMPDEV(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata, SUNContext sunctx)
 
    This function creates an NVECTOR_OPENMPDEV vector with user-supplied vector data
-   arrays ``h_vdata} and ``d_vdata``. This function does not allocate memory for
+   arrays ``h_vdata`` and ``d_vdata``. This function does not allocate memory for
    data itself.
-
-
-.. c:function:: N_Vector *N_VCloneVectorArray_OpenMPDEV(int count, N_Vector w)
-
-   This function creates (by cloning) an array of ``count`` NVECTOR_OPENMPDEV vectors.
-
-
-.. c:function:: N_Vector *N_VCloneVectorArrayEmpty_OpenMPDEV(int count, N_Vector w)
-
-   This function creates (by cloning) an array of ``count`` NVECTOR_OPENMPDEV vectors,
-   each with an empty (``NULL``) data array.
-
-
-.. c:function:: void N_VDestroyVectorArray_OpenMPDEV(N_Vector *vs, int count)
-
-   This function frees memory allocated for the array of ``count`` variables of type
-   ``N_Vector`` created with ``N_VCloneVectorArray_OpenMPDEV`` or with
-   ``N_VCloneVectorArrayEmpty_OpenMPDEV``.
 
 
 .. c:function:: realtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
@@ -294,18 +277,21 @@ options as the vector they are cloned from while vectors created with
 
 **Notes**
 
-* When looping over the components of an ``N_Vector`` ``v``, it is
+* When looping over the components of an ``N_Vector v``, it is
   most efficient to first obtain the component array via
-  ``h_data = NV_DATA_HOST_OMPDEV(v)`` for the host arry or
-  ``v_data = NV_DATA_DEV_OMPDEV(v)`` for the device array and then
-  access ``v_data[i]`` within the loop.
+  ``h_data = N_VGetArrayPointer(v)`` for the host array or
+  ``v_data = N_VGetDeviceArrayPointer(v)`` for the device array,
+  or equivalently to use the macros
+  ``h_data = NV_DATA_HOST_OMPDEV(v)`` for the host array or
+  ``v_data = NV_DATA_DEV_OMPDEV(v)`` for the device array, and then
+  access ``h_data[i]`` or ``v_data[i]`` within the loop.
 
-* When accessing individual components of an ``N_Vector`` ``v`` on
+* When accessing individual components of an ``N_Vector v`` on
   the host remember to first copy the array
   back from the device with ``N_VCopyFromDevice_OpenMPDEV(v)``
   to ensure the array is up to date.
 
-* :c:func:`N_VNewEmpty_OpenMPDEV()`, :c:func:`N_VMake_OpenMPDEV()`, and
+* :c:func:`N_VNewEmpty_OpenMPDEV`, :c:func:`N_VMake_OpenMPDEV`, and
   :c:func:`N_VCloneVectorArrayEmpty_OpenMPDEV()` set the field *own_data*
   to ``SUNFALSE``.  The functions :c:func:`N_VDestroy_OpenMPDEV()` and
   :c:func:`N_VDestroyVectorArray_OpenMPDEV()` will not attempt to free the

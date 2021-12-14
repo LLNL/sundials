@@ -17,11 +17,10 @@
 The SUNLinSol_KLU Module
 ======================================
 
-The KLU implementation of the ``SUNLinearSolver`` module provided with
-SUNDIALS, SUNLinSol_KLU, is designed to be used with the
-corresponding SUNMATRIX_SPARSE matrix type, and one of the serial or
-shared-memory ``N_Vector`` implementations (NVECTOR_SERIAL, NVECTOR_OPENMP, or
-NVECTOR_PTHREADS).
+The SUNLinSol_KLU implementation of the ``SUNLinearSolver`` class
+is designed to be used with the corresponding SUNMATRIX_SPARSE matrix type,
+and one of the serial or shared-memory ``N_Vector`` implementations
+(NVECTOR_SERIAL, NVECTOR_OPENMP, or NVECTOR_PTHREADS).
 
 .. _SUNLinSol.KLU.Usage:
 
@@ -38,24 +37,28 @@ The module SUNLinSol_KLU provides the following additional
 user-callable routines:
 
 
-.. c:function:: SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A)
+.. c:function:: SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a SUNLinSol_KLU
-   object.  Its arguments are an ``N_Vector`` and ``SUNMatrix``, that it
-   uses to determine the linear system size and to assess compatibility
-   with the linear solver implementation.
+   object.
 
-   This routine will perform consistency checks to ensure that it is
-   called with consistent ``N_Vector`` and ``SUNMatrix`` implementations.
-   These are currently limited to the SUNMATRIX_SPARSE matrix type
-   (using either CSR or CSC storage formats) and the NVECTOR_SERIAL,
-   NVECTOR_OPENMP, and NVECTOR_PTHREADS vector types.  As additional
-   compatible matrix and vector implementations are added to
-   SUNDIALS, these will be included within this compatibility
-   check.
+   **Arguments:**
+      * *y* -- vector used to determine the linear system size.
+      * *A* -- matrix used to assess compatibility.
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
-   If either ``A`` or ``y`` are incompatible then this routine will
-   return ``NULL``.
+   **Return value:**
+      New SUNLinSol_KLU object, or ``NULL`` if either ``A`` or ``y`` are incompatible.
+
+   **Notes:**
+      This routine will perform consistency checks to ensure that it is
+      called with consistent ``N_Vector`` and ``SUNMatrix`` implementations.
+      These are currently limited to the SUNMATRIX_SPARSE matrix type
+      (using either CSR or CSC storage formats) and the NVECTOR_SERIAL,
+      NVECTOR_OPENMP, and NVECTOR_PTHREADS vector types.  As additional
+      compatible matrix and vector implementations are added to
+      SUNDIALS, these will be included within this compatibility
+      check.
 
 
 .. c:function:: int SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz, int reinit_type)
@@ -67,44 +70,55 @@ user-callable routines:
    changed which would require a new symbolic (and numeric
    factorization).
 
-   The ``reinit_type`` argument governs the level of
-   reinitialization.  The allowed values are:
+   **Arguments:**
+      * *S* -- existing SUNLinSol_KLU object to reinitialize.
+      * *A* -- sparse ``SUNMatrix`` matrix (with updated structure)
+        to use for reinitialization.
+      * *nnz* -- maximum number of nonzeros expected for Jacobian matrix.
+      * *reinit_type* -- governs the level of reinitialization.  The allowed values are:
 
-   1. The Jacobian matrix will be destroyed and a new one will be
-      allocated based on the ``nnz`` value passed to this call.  New
-      symbolic and numeric factorizations will be completed at the next
-      solver setup.
+         1. The Jacobian matrix will be destroyed and a new one will be
+            allocated based on the ``nnz`` value passed to this call.  New
+            symbolic and numeric factorizations will be completed at the next
+            solver setup.
 
-   2. Only symbolic and numeric factorizations will be completed.
-      It is assumed that the Jacobian size has not exceeded the size of
-      ``nnz`` given in the sparse matrix provided to the original
-      constructor routine (or the previous ``SUNKLUReInit`` call).
+         2. Only symbolic and numeric factorizations will be completed.
+            It is assumed that the Jacobian size has not exceeded the size of
+            ``nnz`` given in the sparse matrix provided to the original
+            constructor routine (or the previous ``SUNKLUReInit`` call).
 
-   This routine assumes no other changes to solver use are necessary.
+   **Return value:**
+      * ``SUNLS_SUCCESS`` -- reinitialization successful.
+      * ``SUNLS_MEM_NULL`` -- either ``S`` or ``A`` are ``NULL``.
+      * ``SUNLS_ILL_INPUT`` -- ``A`` does not have type ``SUNMATRIX_SPARSE`` or
+         ``reinit_type`` is invalid.
+      * ``SUNLS_MEM_FAIL`` reallocation of the sparse matrix failed.
 
-   The return values from this function are ``SUNLS_MEM_NULL``
-   (either ``S`` or ``A`` are ``NULL``), ``SUNLS_ILL_INPUT``
-   (``A`` does not have type ``SUNMATRIX_SPARSE`` or
-   ``reinit_type`` is invalid), ``SUNLS_MEM_FAIL`` (reallocation
-   of the sparse matrix failed) or ``SUNLS_SUCCESS``.
+   **Notes:**
+      This routine assumes no other changes to solver use are necessary.
 
 
 .. c:function:: int SUNLinSol_KLUSetOrdering(SUNLinearSolver S, int ordering_choice)
 
    This function sets the ordering used by KLU for reducing fill in
-   the linear solve.  Options for ``ordering_choice`` are:
+   the linear solve.
 
-   0. AMD,
+   **Arguments:**
+      * *S* -- existing SUNLinSol_KLU object to update.
+      * *ordering_choice* -- type of ordering to use, options are:
 
-   1. COLAMD, and
+         0. AMD,
 
-   2. the natural ordering.
+         1. COLAMD, and
 
-   The default is 1 for COLAMD.
+         2. the natural ordering.
 
-   The return values from this function are ``SUNLS_MEM_NULL``
-   (``S`` is ``NULL``), ``SUNLS_ILL_INPUT``
-   (invalid ``ordering_choice``), or ``SUNLS_SUCCESS``.
+         The default is 1 for COLAMD.
+
+   **Return value:**
+      * ``SUNLS_SUCCESS`` -- ordering choice successfully updated.
+      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``.
+      * ``SUNLS_ILL_INPUT`` -- ``ordering_choice``.
 
 
 .. c:function:: sun_klu_symbolic* SUNLinSol_KLUGetSymbolic(SUNLinearSolver S)
@@ -140,13 +154,13 @@ user-callable routines:
    mapped to the KLU type ``klu_l_common``.
 
 
-For backwards compatibility, we also provide the wrapper functions,
+For backwards compatibility, we also provide the following wrapper functions,
 each with identical input and output arguments to the routines that
 they wrap:
 
 .. c:function:: SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
 
-   Wrapper function for :c:func:`SUNLinSol_KLU()`
+   Wrapper function for :c:func:`SUNLinSol_KLU`
 
 .. c:function:: int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz, int reinit_type)
 
@@ -155,94 +169,6 @@ they wrap:
 .. c:function:: int SUNKLUSetOrdering(SUNLinearSolver S, int ordering_choice)
 
    Wrapper function for :c:func:`SUNLinSol_KLUSetOrdering()`
-
-
-
-For solvers that include a Fortran interface module, the
-SUNLinSol_KLU module also includes the Fortran-callable
-function :f:func:`FSUNKLUInit()` to initialize this SUNLinSol_KLU
-module for a given SUNDIALS solver.
-
-.. f:subroutine:: FSUNKLUInit(CODE, IER)
-
-   Initializes a KLU sparse ``SUNLinearSolver`` structure for
-   use in a SUNDIALS package.
-
-   This routine must be called *after* both the ``N_Vector`` and
-   ``SUNMatrix`` objects have been initialized.
-
-   **Arguments:**
-      * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
-        this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKODE=4.
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-
-
-Additionally, when using ARKODE with a non-identity mass matrix, the
-Fortran-callable function :f:func:`FSUNMassKLUInit()` initializes this
-SUNLinSol_KLU module for solving mass matrix linear systems.
-
-.. f:subroutine:: FSUNMassKLUInit(IER)
-
-   Initializes a KLU sparse ``SUNLinearSolver`` structure for
-   use in solving mass matrix systems in ARKODE.
-
-   This routine must be called *after* both the ``N_Vector`` and
-   ``SUNMatrix`` objects have been initialized.
-
-   **Arguments:**
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-
-The :c:func:`SUNLinSol_KLUReInit()` and :c:func:`SUNLinSol_KLUSetOrdering()`
-routines also support Fortran interfaces for the system and mass
-matrix solvers:
-
-.. f:subroutine:: FSUNKLUReInit(CODE, NNZ, REINIT_TYPE, IER)
-
-   Fortran interface to :c:func:`SUNLinSol_KLUReInit()` for system
-   linear solvers.
-
-   This routine must be called *after*
-   :f:func:`FSUNKLUInit()` has been called.
-
-   **Arguments:** *NNZ* should have type ``long int``, all others
-   should have type ``int``; all arguments have meanings identical to
-   those listed above.
-
-
-.. f:subroutine:: FSUNMassKLUReInit(NNZ, REINIT_TYPE, IER)
-
-   Fortran interface to :c:func:`SUNLinSol_KLUReInit()` for mass matrix
-   linear solvers in ARKODE.
-
-   This routine must be called *after*
-   :f:func:`FSUNMassKLUInit()` has been called.
-
-   **Arguments:** *NNZ* should have type ``long int``, all others
-   should have type ``int``; all arguments have meanings identical to
-   those listed above.
-
-.. f:subroutine:: FSUNKLUSetOrdering(CODE, ORDERING, IER)
-
-   Fortran interface to :c:func:`SUNLinSol_KLUSetOrdering()` for system
-   linear solvers.
-
-   This routine must be called *after* :f:func:`FSUNKLUInit()` has
-   been called.
-
-   **Arguments:** all should have type ``int``, and have meanings
-   identical to those listed above.
-
-.. f:subroutine:: FSUNMassKLUSetOrdering(ORDERING, IER)
-
-   Fortran interface to :c:func:`SUNLinSol_KLUSetOrdering()` for mass matrix
-   linear solvers in ARKODE.
-
-   This routine must be called *after* :f:func:`FSUNMassKLUInit()` has
-   been called.
-
-   **Arguments:** all should have type ``int``, and have meanings
-   identical to those listed above.
-
 
 
 
@@ -278,17 +204,17 @@ information:
 * ``first_factorize`` - flag indicating whether the factorization
   has ever been performed,
 
-* ``Symbolic`` - KLU storage structure for symbolic
+* ``symbolic`` - KLU storage structure for symbolic
   factorization components, with underlying type ``klu_symbolic``
   or ``klu_l_symbolic``, depending on whether SUNDIALS was
   installed with 32-bit versus 64-bit indices, respectively,
 
-* ``Numeric`` - KLU storage structure for numeric factorization
+* ``numeric`` - KLU storage structure for numeric factorization
   components, with underlying type ``klu_numeric``
   or ``klu_l_numeric``, depending on whether SUNDIALS was
   installed with 32-bit versus 64-bit indices, respectively,
 
-* ``Common`` - storage structure for common KLU solver
+* ``common`` - storage structure for common KLU solver
   components, with underlying type ``klu_common``
   or ``klu_l_common``, depending on whether SUNDIALS was
   installed with 32-bit versus 64-bit indices, respectively,
@@ -300,17 +226,18 @@ information:
 
 The SUNLinSol_KLU module is a ``SUNLinearSolver`` wrapper for
 the KLU sparse matrix factorization and solver library written by Tim
-Davis (:cite:p:`KLU_site`, :cite:p:`DaPa:10`).  In order to use the
+Davis and collaborators (:cite:p:`KLU_site,DaPa:10`).  In order to use the
 SUNLinSol_KLU interface to KLU, it is assumed that KLU has
 been installed on the system prior to installation of SUNDIALS, and
 that SUNDIALS has been configured appropriately to link with KLU
-(see section :numref:`Installation.CMake.ExternalLibraries` for details).
+(see :numref:`Installation.CMake.ExternalLibraries` for details).
 Additionally, this wrapper only supports double-precision
 calculations, and therefore cannot be compiled if SUNDIALS is
-configured to have ``realtype`` set to either ``extended`` or
-``single``. Since the KLU library supports both 32-bit and 64-bit
+configured to have :c:type:`realtype` set to either ``extended`` or
+``single`` (see :ref:`Usage.CC.DataTypes` for
+details). Since the KLU library supports both 32-bit and 64-bit
 integers, this interface will be compiled for either of the available
-``sunindextype`` options.
+:c:type:`sunindextype` options.
 
 The KLU library has a symbolic factorization routine that computes
 the permutation of the linear system matrix to block triangular form
@@ -358,7 +285,7 @@ following operations:
 
 
 The SUNLinSol_KLU module defines implementations of all
-"direct" linear solver operations listed in the section
+"direct" linear solver operations listed in
 :numref:`SUNLinSol.API`:
 
 * ``SUNLinSolGetType_KLU``

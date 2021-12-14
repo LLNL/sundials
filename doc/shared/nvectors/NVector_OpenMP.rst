@@ -156,56 +156,36 @@ NVECTOR_OPENMP functions
 -----------------------------------
 
 The NVECTOR_OPENMP module defines OpenMP implementations of all vector
-operations listed in the sections :numref:`NVectors.Ops`,
+operations listed in :numref:`NVectors.Ops`,
 :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
 :numref:`NVectors.Ops.Local`.  Their names are obtained from those in
 those sections by appending the suffix ``_OpenMP``
 (e.g. ``N_VDestroy_OpenMP``).  All the standard vector operations
-listed in the section :numref:`NVectors.Ops` with the suffix ``_OpenMP``
+listed in :numref:`NVectors.Ops` with the suffix ``_OpenMP``
 appended are callable via the Fortran 2003 interface by prepending an
 `F' (e.g. ``FN_VDestroy_OpenMP``).
 
 The module NVECTOR_OPENMP provides the following additional user-callable routines:
 
 
-.. c:function:: N_Vector N_VNew_OpenMP(sunindextype vec_length, int num_threads)
+.. c:function:: N_Vector N_VNew_OpenMP(sunindextype vec_length, int num_threads, SUNContext sunctx)
 
    This function creates and allocates memory for a OpenMP
    ``N_Vector``. Arguments are the vector length and number of threads.
 
 
-.. c:function:: N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_threads)
+.. c:function:: N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_threads, SUNContext sunctx)
 
    This function creates a new OpenMP ``N_Vector`` with an empty
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype* v_data, int num_threads)
+.. c:function:: N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype* v_data, int num_threads, SUNContext sunctx)
 
    This function creates and allocates memory for a OpenMP vector with
    user-provided data array, *v_data*.
 
    (This function does *not* allocate memory for ``v_data`` itself.)
-
-
-.. c:function:: N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count* OpenMP
-   vectors.
-
-
-.. c:function:: N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count* OpenMP
-   vectors, each with an empty (```NULL``) data array.
-
-
-.. c:function:: void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count)
-
-   This function frees memory allocated for the array of *count*
-   variables of type ``N_Vector`` created with
-   :c:func:`N_VCloneVectorArray_OpenMP()` or with
-   :c:func:`N_VCloneVectorArrayEmpty_OpenMP()`.
 
 
 .. c:function:: void N_VPrint_OpenMP(N_Vector v)
@@ -304,11 +284,12 @@ options as the vector they are cloned from while vectors created with
 **Notes**
 
 * When looping over the components of an ``N_Vector v``, it is more
-  efficient to first obtain the component array via ``v_data =
-  NV_DATA_OMP(v)`` and then access ``v_data[i]`` within the loop than it
-  is to use ``NV_Ith_OMP(v,i)`` within the loop.
+  efficient to first obtain the component array via
+  ``v_data = N_VGetArrayPointer(v)``, or equivalently
+  ``v_data = NV_DATA_OMP(v)`` and then access ``v_data[i]`` within the
+  loop than it is to use ``NV_Ith_OMP(v,i)`` within the loop.
 
-* :c:func:`N_VNewEmpty_OpenMP()`, :c:func:`N_VMake_OpenMP()`, and
+* :c:func:`N_VNewEmpty_OpenMP`, :c:func:`N_VMake_OpenMP`, and
   :c:func:`N_VCloneVectorArrayEmpty_OpenMP()` set the field *own_data*
   to ``SUNFALSE``.  The functions :c:func:`N_VDestroy_OpenMP()` and
   :c:func:`N_VDestroyVectorArray_OpenMP()` will not attempt to free the
@@ -324,14 +305,10 @@ options as the vector they are cloned from while vectors created with
   internal representations.
 
 
-NVECTOR_OPENMP Fortran Interfaces
+NVECTOR_OPENMP Fortran Interface
 ------------------------------------
 
-The NVECTOR_OPENMP module provides a Fortran 2003 module as well as
-Fortran 77 style interface functions for use from Fortran applications.
-
-FORTRAN 2003 interface module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The NVECTOR_OPENMP module provides a Fortran 2003 module for use from Fortran applications.
 
 The ``fnvector_openmp_mod`` Fortran module defines interfaces to all
 NVECTOR_OPENMP C functions using the intrinsic ``iso_c_binding``
@@ -345,17 +322,4 @@ The Fortran 2003 NVECTOR_OPENMP interface module can be accessed with the ``use`
 statement, i.e. ``use fnvector_openmp_mod``, and linking to the library
 ``libsundials_fnvectoropenmp_mod.lib`` in addition to the C library.
 For details on where the library and module file
-``fnvector_openmp_mod.mod`` are installed see the section :numref:`Installation`.
-
-
-FORTRAN 77 interface functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-For solvers that include a Fortran 77 interface module, the
-NVECTOR_OPENMP module also includes a Fortran-callable function
-``FNVINITOMP(code, NEQ, NUMTHREADS, IER)``, to initialize this
-module.  Here ``code`` is an input solver id (1 for CVODE, 2 for IDA,
-3 for KINSOL, 4 for ARKODE); ``NEQ`` is the problem size (declared so
-as to match C type ``long int``); ``NUMTHREADS`` is the number of
-threads; and ``IER`` is an error return flag equal 0 for success
-and -1 for failure.
+``fnvector_openmp_mod.mod`` are installed see :numref:`Installation`.

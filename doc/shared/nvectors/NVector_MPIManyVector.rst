@@ -17,50 +17,46 @@
 The NVECTOR_MPIMANYVECTOR Module
 ================================
 
-The NVECTOR_MPIMANYVECTOR implementation of the NVECTOR module provided with
-SUNDIALS is designed to facilitate problems with an inherent
-data partitioning for the solution vector, and when using
-distributed-memory parallel architectures.  As such, the MPIManyVector
-implementation supports all use cases allowed by the MPI-unaware
-NVECTOR_MANYVECTOR implementation, as well as partitioning data
-between nodes in a parallel environment.  These data partitions are
-entirely user-defined, through construction of distinct NVECTOR
-modules for each component, that are then combined together to form
-the NVECTOR_MPIMANYVECTOR.  We envision three generic use cases for this
-implementation:
+The NVECTOR_MPIMANYVECTOR module is designed to facilitate problems with an
+inherent data partitioning for the solution vector, and when using
+distributed-memory parallel architectures.  As such, this implementation
+supports all use cases allowed by the MPI-unaware NVECTOR_MANYVECTOR
+implementation, as well as partitioning data between nodes in a parallel
+environment.  These data partitions are entirely user-defined, through
+construction of distinct NVECTOR modules for each component, that are then
+combined together to form the NVECTOR_MPIMANYVECTOR.  Three potential
+use cases for this module include:
 
 A. *Heterogenous computational architectures (single-node or multi-node)*:
-   for users who wish to partition data on a node between different
-   computing resources, they may create architecture-specific
-   subvectors for each partition.  For example, a user could create
-   one MPI-parallel component based on NVECTOR_PARALLEL, another
-   single-node component for GPU accelerators based on NVECTOR_CUDA,
-   and another threaded single-node component based on
-   NVECTOR_OPENMP.
+   for data partitioning between different computing resources on a node,
+   architecture-specific subvectors may be created for each partition.
+   For example, a user could create one MPI-parallel component based on
+   :ref:`NVECTOR_PARALLEL <NVectors.NVParallel>`, another GPU-accelerated
+   component based on :ref:`NVECTOR_CUDA <NVectors.CUDA>`.
 
-B. *Process-based multiphysics decompositions (multi-node)*: for users
-   who wish to combine separate simulations together, e.g., where
-   one subvector resides on one subset of MPI processes, while
-   another subvector resides on a different subset of MPI processes,
-   and where the user has created a MPI *intercommunicator* to
-   connect these distinct process sets together.
+B. *Process-based multiphysics decompositions (multi-node)*:
+   for computations that combine separate MPI-based simulations together,
+   each subvector may reside on a different MPI communicator, and the
+   MPIManyVector combines these via an MPI *intercommunicator* that
+   connects these distinct simulations together.
 
 C. *Structure of arrays (SOA) data layouts (single-node or multi-node)*:
-   for users who wish to create separate subvectors for each
-   solution component, e.g., in a Navier-Stokes simulation they
-   could have separate subvectors for density, velocities and
-   pressure, which are combined together into a single
-   NVECTOR_MPIMANYVECTOR for the overall "solution".
+   for problems that require
+   separate subvectors for each solution component.  For example, in an
+   incompressible Navier-Stokes simulation, separate subvectors may be
+   used for velocities and pressure, which are combined together into a
+   single MPIManyVector for the overall "solution".
 
-We note that the above use cases are not mutually exclusive, and the
-NVECTOR_MPIMANYVECTOR implementation should support arbitrary combinations
-of these cases.
+The above use cases are neither exhaustive nor mutually exclusive, and
+the NVECTOR_MANYVECTOR implementation should support arbitrary
+combinations of these cases.
 
 The NVECTOR_MPIMANYVECTOR implementation is designed to work with any
-NVECTOR subvectors that implement the minimum *required* set
-of operations, however significant performance benefits may be
-obtained when subvectors additionally implement the optional local
-reduction operations listed in the section :numref:`NVectors.Ops.Local`.
+NVECTOR subvectors that implement the minimum "standard" set
+of operations in :numref:`NVectors.Ops.Standard`, however significant
+performance benefits may be obtained when subvectors additionally
+implement the optional local reduction operations listed in
+:numref:`NVectors.Ops.Local`.
 
 Additionally, NVECTOR_MPIMANYVECTOR sets no limit on the number of
 subvectors that may be attached (aside from the limitations of using
@@ -77,8 +73,9 @@ As a final note, in the coming years we plan to introduce additional
 algebraic solvers and time integration modules that will leverage the
 problem partitioning enabled by NVECTOR_MPIMANYVECTOR.  However, even at
 present we anticipate that users will be able to leverage such data
-partitioning in their problem-defining ODE right-hand side, DAE
-residual, or nonlinear solver residual functions.
+partitioning in their problem-defining ODE right-hand side function, DAE
+or nonlinear solver residual function, preconditioners, or custom
+:c:type:`SUNLinearSolver` or :c:type:`SUNNonlinearSolver` modules.
 
 
 .. _NVectors.MPIManyVector.structure:
@@ -90,7 +87,7 @@ The NVECTOR_MPIMANYVECTOR implementation defines the *content* field
 of ``N_Vector`` to be a structure containing the MPI communicator
 (or ``MPI_COMM_NULL`` if running on a single-node), the number of
 subvectors comprising the MPIManyVector, the global length of the
-MPIManyVector (including all subvectors on all MPI tasks), a pointer to
+MPIManyVector (including all subvectors on all MPI ranks), a pointer to
 the beginning of the array of subvectors, and a boolean flag
 ``own_data`` indicating ownership of the subvectors that populate
 ``subvec_array``.
@@ -110,37 +107,34 @@ The header file to include when using this module is
 ``libsundials_nvecmpimanyvector.lib`` where ``.lib`` is typically ``.so`` for
 shared libraries and ``.a`` for static libraries.
 
-*Note:* If SUNDIALS is configured with MPI disabled, then the
-MPIManyVector library will not be built.  Furthermore, any user codes
-that include ``nvector_mpimanyvector.h`` *must* be compiled using an
-MPI-aware compiler (whether the specific user code utilizes MPI or
-not).  We note that the NVECTOR_MANYVECTOR implementation is designed
-for ManyVector use cases in an MPI-unaware environment.
+.. note::
+
+   If SUNDIALS is configured with MPI disabled, then the MPIManyVector
+   library will not be built.  Furthermore, any user codes that include
+   ``nvector_mpimanyvector.h`` *must* be compiled using an MPI-aware
+   compiler (whether the specific user code utilizes MPI or not).  We
+   note that the NVECTOR_MANYVECTOR implementation is designed for
+   ManyVector use cases in an MPI-unaware environment.
 
 
 NVECTOR_MPIMANYVECTOR functions
 -------------------------------
 
 The NVECTOR_MPIMANYVECTOR module implements all vector operations listed
-in the sections :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
-:numref:`NVectors.Ops.Array`, and :numref:`NVectors.Ops.Local`, except for
-:c:func:`N_VGetArrayPointer()`, :c:func:`N_VSetArrayPointer()`,
-:c:func:`N_VScaleAddMultiVectorArray()`, and
-:c:func:`N_VLinearCombinationVectorArray()`.  As such, this vector
-cannot be used with the SUNDIALS Fortran-77 interfaces, nor with the
-SUNDIALS direct solvers and preconditioners. Instead, the
-NVECTOR_MPIMANYVECTOR module provides functions to access subvectors,
-whose data may in turn be accessed according to their NVECTOR
-implementations.
+in :numref:`NVectors.Ops`, except for :c:func:`N_VGetArrayPointer()`,
+:c:func:`N_VSetArrayPointer()`, :c:func:`N_VScaleAddMultiVectorArray()`,
+and :c:func:`N_VLinearCombinationVectorArray()`.  As such, this vector
+cannot be used with the SUNDIALS direct solvers and preconditioners.
+Instead, the NVECTOR_MPIMANYVECTOR module provides functions to access
+subvectors, whose data may in turn be accessed according to their
+NVECTOR implementations.
 
-The names of vector operations are obtained from those in the sections
-:numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
-:numref:`NVectors.Ops.Array`, and :numref:`NVectors.Ops.Local` by
-appending the suffix ``_MPIManyVector`` (e.g. ``N_VDestroy_MPIManyVector``).
-The module NVECTOR_MPIMANYVECTOR provides the following additional
-user-callable routines:
+The names of vector operations are obtained from those in
+:numref:`NVectors.Ops` by appending the suffix ``_MPIManyVector`` (e.g.
+``N_VDestroy_MPIManyVector``).  The module NVECTOR_MPIMANYVECTOR provides
+the following additional user-callable routines:
 
-.. c:function:: N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors, N_Vector *vec_array)
+.. c:function:: N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors, N_Vector *vec_array, SUNContext sunctx)
 
    This function creates a MPIManyVector from a set of existing
    NVECTOR objects, under the requirement that all MPI-aware
@@ -162,13 +156,13 @@ user-callable routines:
    subvectors use different MPI communicators).
 
    Users of the Fortran 2003 interface to this function will first need to use
-   the generic ``N_Vector`` utility functions ``N_VNewVectorArray``, and
-   ``N_VSetVecAtIndexVectorArray`` to create the ``N_Vector*`` argument.  This is
-   further explained in Chapter :numref:`Usage.Fortran.Modules.Differences.NVectorArrays`,
-   and the functions are documented in Chapter :numref:`NVectors.Description.utilities`.
+   the generic ``N_Vector`` utility functions :c:func:`N_VNewVectorArray`, and
+   :c:func:`N_VSetVecAtIndexVectorArray` to create the ``N_Vector*`` argument.  This is
+   further explained in :numref:`SUNDIALS.Fortran.Differences.NVectorArrays`,
+   and the functions are documented in :numref:`NVectors.Description.utilities`.
 
 
-.. c:function:: N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors, N_Vector *vec_array)
+.. c:function:: N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors, N_Vector *vec_array, SUNContext sunctx)
 
    This function creates a MPIManyVector from a set of existing NVECTOR
    objects, and a user-created MPI communicator that "connects" these
@@ -180,11 +174,11 @@ user-callable routines:
    This routine will internally call ``MPI_Comm_dup`` to create a
    copy of the input ``comm``, so the user-supplied ``comm`` argument
    need not be retained after the call to
-   :c:func:`N_VMake_MPIManyVector()`.
+   :c:func:`N_VMake_MPIManyVector`.
 
    If all subvectors are MPI-unaware, then the input *comm* argument
    should be ``MPI_COMM_NULL``, although in this case, it would be
-   simpler to call :c:func:`N_VNew_MPIManyVector()` instead, or to just
+   simpler to call :c:func:`N_VNew_MPIManyVector` instead, or to just
    use the NVECTOR_MANYVECTOR module.
 
    This routine will copy all ``N_Vector`` pointers from the input
@@ -229,25 +223,25 @@ user-callable routines:
    This function returns the overall number of subvectors in the MPIManyVector object.
 
 
-By default all fused and vector array operations are disabled in the NVECTOR_MPIMANYVECTOR
-module, except for :c:func:`N_VWrmsNormVectorArray()` and
-:c:func:`N_VWrmsNormMaskVectorArray()`, that are enabled by default. The
-following additional user-callable routines are provided to enable or
+By default all fused and vector array operations are disabled in the
+NVECTOR_MPIMANYVECTOR module, except for :c:func:`N_VWrmsNormVectorArray()`
+and :c:func:`N_VWrmsNormMaskVectorArray()`, that are enabled by default.
+The following additional user-callable routines are provided to enable or
 disable fused and vector array operations for a specific vector. To
 ensure consistency across vectors it is recommended to first create a
-vector with :c:func:`N_VNew_MPIManyVector()` or
-:c:func:`N_VMake_MPIManyVector()`, enable/disable the desired operations
+vector with :c:func:`N_VNew_MPIManyVector` or
+:c:func:`N_VMake_MPIManyVector`, enable/disable the desired operations
 for that vector with the functions below, and create any additional
 vectors from that vector using :c:func:`N_VClone()`. This guarantees
 that the new vectors will have the same operations enabled/disabled,
 since cloned vectors inherit those configuration options from the
 vector they are cloned from, while vectors created with
-:c:func:`N_VNew_MPIManyVector()` and :c:func:`N_VMake_MPIManyVector()` will
+:c:func:`N_VNew_MPIManyVector` and :c:func:`N_VMake_MPIManyVector` will
 have the default settings for the NVECTOR_MPIMANYVECTOR module.  We note
 that these routines *do not* call the corresponding routines on
 subvectors, so those should be set up as desired *before* attaching
-them to the MPIManyVector in :c:func:`N_VNew_MPIManyVector()` or
-:c:func:`N_VMake_MPIManyVector()`.
+them to the MPIManyVector in :c:func:`N_VNew_MPIManyVector` or
+:c:func:`N_VMake_MPIManyVector`.
 
 .. c:function:: int N_VEnableFusedOps_MPIManyVector(N_Vector v, booleantype tf)
 
@@ -309,7 +303,7 @@ them to the MPIManyVector in :c:func:`N_VNew_MPIManyVector()` or
 
 **Notes**
 
-* :c:func:`N_VNew_MPIManyVector()` and :c:func:`N_VMake_MPIManyVector()` set
+* :c:func:`N_VNew_MPIManyVector` and :c:func:`N_VMake_MPIManyVector` set
   the field ``own_data = SUNFALSE``.
   :c:func:`N_VDestroy_MPIManyVector()` will not attempt to call
   :c:func:`N_VDestroy()` on any subvectors contained in the

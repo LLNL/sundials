@@ -1,1 +1,0 @@
-../../../../shared/sunnonlinsol/SUNNonlinSol_Newton.rst

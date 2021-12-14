@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): David J. Gardner @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Usage.MRIStep.CustomInnerStepper:
+.. _ARKODE.Usage.MRIStep.CustomInnerStepper:
 
 MRIStep Custom Inner Steppers
 =============================
@@ -21,11 +21,11 @@ Recall, MIS and MRI-GARK methods require solving the auxiliary IVP
 
 .. math::
    \dot{v}(t) = f^F(t, v) + r_i(t), \qquad v(t_{n,i-1}^S) = z_{i-1}
-   :label: MRI_IVP
+   :label: ARKODE_MRI_IVP
 
 for :math:`i \geq 2` on the interval :math:`t \in [t_{n,i-1}^S, t_{n,i}^S]`
 where :math:`t_{n,i-1}^S = t_{n-1} + c_{i-1}^S h^S`. The forcing term
-:math:`r_i(t)` presented in :numref:`Mathematics.MRIStep` can be equivalently
+:math:`r_i(t)` presented in :numref:`ARKODE.Mathematics.MRIStep` can be equivalently
 written as
 
 .. math::
@@ -33,7 +33,7 @@ written as
    \sum\limits_{k \geq 0} \hat{\omega}^{\{k\}}_i \tau^k
    +
    \sum\limits_{k \geq 0} \hat{\gamma}^{\{k\}}_i \tau^k
-   :label: MRI_forcing_poly
+   :label: ARKODE_MRI_forcing_poly
 
 where :math:`\tau = (t - t_{n,i-1}^S)/(h^S \Delta c_i^S)` is the normalized time
 with :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)` and the polynomial
@@ -45,9 +45,9 @@ coefficient vectors are
    \quad\text{and}\quad
    \hat{\gamma}^{\{k\}}_i = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i
    \gamma^{\{k\}}_{i,j}  f^I(t_{n,j}^S, z_j).
-   :label: MRI_forcing_coefficients
+   :label: ARKODE_MRI_forcing_coefficients
 
-To evolve the IVP :eq:`MRI_IVP` MRIStep utilizes a generic time integrator
+To evolve the IVP :eq:`ARKODE_MRI_IVP` MRIStep utilizes a generic time integrator
 interface defined by the :c:type:`MRIStepInnerStepper` base class. This section
 presents the :c:type:`MRIStepInnerStepper` base class and methods that define
 the integrator interface as well as detailing the steps for creating an

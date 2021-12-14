@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Usage.ARKStep.Skeleton:
+.. _ARKODE.Usage.ARKStep.Skeleton:
 
 A skeleton of the user's main program
 ============================================
@@ -21,7 +21,7 @@ The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP using the ARKStep module.
 Most of the steps are independent of the NVECTOR, SUNMATRIX, SUNLINSOL
 and SUNNONLINSOL implementations used.  For the steps that are not,
-refer to sections :numref:`NVectors`, :numref:`SUNMatrix`,
+refer to :numref:`NVectors`, :numref:`SUNMatrix`,
 :numref:`SUNLinSol`, and  :numref:`SUNNonlinSol` for the specific name of
 the function to be called or macro to be referenced.
 
@@ -35,26 +35,7 @@ the function to be called or macro to be referenced.
 
 #. Create the SUNDIALS simulation context object.
 
-   Call :c:func:`SUNContext_Create` to create a ``SUNContext`` object,
-   providing an MPI communicator if using MPI. See the section
-   :ref:`SUNDIALS.SUNContext`` for more information.
-
-   This step may look like
-
-   .. code-block:: c
-
-      SUNContext ctx;
-      SUNContext_Create(NULL, &ctx);
-
-   when not using MPI, or like
-
-   .. code-block:: c
-
-      MPI_Comm comm = MPI_COMM_WORLD;
-      SUNContext ctx;
-      SUNContext_Create((void*) &comm, &ctx);
-
-   when using MPI.
+   Call :c:func:`SUNContext_Create` to allocate the ``SUNContext`` object.
 
 #. Set problem dimensions, etc.
 
@@ -93,38 +74,15 @@ the function to be called or macro to be referenced.
 
       ydata = N_VGetArrayPointer_***(y0);
 
-   See sections :numref:`NVectors.NVSerial` through
-   :numref:`NVectors.Pthreads` for details.
-
-   For the HYPRE and PETSc vector wrappers, first create and initialize
-   the underlying vector, and then create the NVECTOR wrapper with a call
-   of the form
-
-   .. code-block:: c
-
-      y0 = N_VMake_***(yvec);
-
-   where ``yvec`` is a HYPRE or PETSc vector.  Note that calls like
-   ``N_VNew_***(...)`` and ``N_VGetArrayPointer_***(...)`` are not
-   available for these vector wrappers.  See sections
-   :numref:`NVectors.ParHyp` and :numref:`NVectors.NVPETSc` for details.
-
-   If using either the CUDA- or RAJA-based vector implementations use
-   calls to the module-specific routines
-
-   .. code-block:: c
-
-      y0 = N_VMake_***(...);
-
-   as applicable.  See sections
-   :numref:`NVectors.CUDA` and :numref:`NVectors.RAJA` for details.
+   For details on each of SUNDIALS' provided vector implementations, see
+   the corresponding sections in :numref:`NVectors` for details.
 
 #. Create ARKStep object
 
-   Call ``arkode_mem = ARKStepCreate(...)`` to create the ARKStep memory
-   block. :c:func:`ARKStepCreate()` returns a ``void*`` pointer to
-   this memory structure. See section
-   :numref:`Usage.ARKStep.Initialization` for details.
+   Call ``arkode_mem = ARKStepCreate(...)`` to create the
+   ARKStep memory block. :c:func:`ARKStepCreate` returns a ``void*`` pointer to
+   this memory structure. See :numref:`ARKODE.Usage.ARKStep.Initialization` for
+   details.
 
 #. Specify integration tolerances
 
@@ -134,8 +92,8 @@ the function to be called or macro to be referenced.
    tolerance and a vector of absolute tolerances,
    respectively.  Alternatively, call :c:func:`ARKStepWFtolerances()`
    to specify a function which sets directly the weights used in
-   evaluating WRMS vector norms. See section
-   :numref:`Usage.ARKStep.Tolerances` for details.
+   evaluating WRMS vector norms. See
+   :numref:`ARKODE.Usage.ARKStep.Tolerances` for details.
 
    If a problem with non-identity mass matrix is used, and the
    solution units differ considerably from the equation units,
@@ -157,9 +115,9 @@ the function to be called or macro to be referenced.
 
    .. code-block:: c
 
-      SUNMatrix A = SUNBandMatrix(...);
+      SUNMatrix A = SUNBandMatrix(..., sunctx);
 
-   or similar for the other matrix modules (see section :numref:`SUNMatrix` for
+   or similar for the other matrix modules (see :numref:`SUNMatrix` for
    further information).
 
    Similarly, if the problem involves a non-identity mass matrix, and
@@ -167,12 +125,6 @@ the function to be called or macro to be referenced.
    solver, then a template mass matrix must be created by using the
    appropriate functions defined by the particular SUNMATRIX
    implementation.
-
-   .. note::
-
-      The dense, banded, and sparse matrix objects are usable only in a
-      serial or threaded environment..
-
 
 #. Create linear solver object
 
@@ -190,13 +142,13 @@ the function to be called or macro to be referenced.
       SUNLinearSolver LS = SUNLinSol_*(...);
 
    where ``*`` can be replaced with "Dense", "SPGMR", or other
-   options, as discussed in section :numref:`SUNLinSol`.
+   options, as discussed in :numref:`SUNLinSol`.
 
 #. Set linear solver optional inputs
 
    Call ``*Set*`` functions from the selected linear solver module
    to change optional inputs specific to that linear solver.  See the
-   documentation for each SUNLINSOL module in section
+   documentation for each SUNLINSOL module in
    :numref:`SUNLinSol` for details.
 
 #. Attach linear solver module
@@ -204,7 +156,7 @@ the function to be called or macro to be referenced.
    If a linear solver was created above for implicit stage solves,
    initialize the ARKLS linear solver interface by attaching the
    linear solver object (and Jacobian matrix object, if applicable)
-   with the call (for details see section :numref:`Usage.ARKStep.LinearSolvers`):
+   with the call (for details see :numref:`ARKODE.Usage.ARKStep.LinearSolvers`):
 
    .. code-block:: c
 
@@ -213,8 +165,8 @@ the function to be called or macro to be referenced.
    Similarly, if the problem involves a non-identity mass matrix,
    initialize the ARKLS mass matrix linear solver interface by
    attaching the mass linear solver object (and mass matrix object,
-   if applicable) with the call (for details see section
-   :numref:`Usage.ARKStep.LinearSolvers`):
+   if applicable) with the call (for details see
+   :numref:`ARKODE.Usage.ARKStep.LinearSolvers`):
 
    .. code-block:: c
 
@@ -224,11 +176,11 @@ the function to be called or macro to be referenced.
 
    If the problem involves an implicit component, and if a non-default
    nonlinear solver object will be used for implicit stage solves
-   (see section :numref:`Usage.ARKStep.NonlinearSolvers`),
+   (see :numref:`ARKODE.Usage.ARKStep.NonlinearSolvers`),
    then the desired nonlinear solver object must be created by using
    the appropriate functions defined by the particular SUNNONLINSOL
    implementation (e.g., ``NLS = SUNNonlinSol_***(...);`` where
-   ``***`` is the name of the nonlinear solver (see section
+   ``***`` is the name of the nonlinear solver (see
    :numref:`SUNNonlinSol` for details).
 
    For the SUNDIALS-supplied SUNNONLINSOL implementations, the
@@ -239,13 +191,13 @@ the function to be called or macro to be referenced.
       SUNNonlinearSolver NLS = SUNNonlinSol_*(...);
 
    where ``*`` can be replaced with "Newton", "FixedPoint", or other
-   options, as discussed in section :numref:`SUNNonlinSol`.
+   options, as discussed in :numref:`SUNNonlinSol`.
 
 #. Attach nonlinear solver module
 
    If a nonlinear solver object was created above, then it must be
-   attached to ARKStep using the call (for details see section
-   :numref:`Usage.ARKStep.NonlinearSolvers`):
+   attached to ARKStep using the call (for details see
+   :numref:`ARKODE.Usage.ARKStep.NonlinearSolvers`):
 
    .. code-block:: c
 
@@ -257,21 +209,21 @@ the function to be called or macro to be referenced.
    solver module to change optional inputs specific to that nonlinear
    solver.  These *must* be called after attaching the nonlinear
    solver to ARKStep, otherwise the optional inputs will be
-   overridden by ARKStep defaults.  See section
+   overridden by ARKStep defaults.  See
    :numref:`SUNNonlinSol` for more information on optional inputs.
 
 #. Set optional inputs
 
    Call ``ARKStepSet*`` functions to change any optional inputs that
    control the behavior of ARKStep from their default values. See
-   section :numref:`Usage.ARKStep.OptionalInputs` for details.
+   :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for details.
 
 #. Specify rootfinding problem
 
    Optionally, call :c:func:`ARKStepRootInit()` to initialize a rootfinding
    problem to be solved during the integration of the ODE system. See
-   section :numref:`Usage.ARKStep.RootFinding` for general details, and
-   section :numref:`Usage.ARKStep.OptionalInputs` for relevant optional
+   :numref:`ARKODE.Usage.ARKStep.RootFinding` for general details, and
+   :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for relevant optional
    input calls.
 
 #. Advance solution in time
@@ -284,13 +236,13 @@ the function to be called or macro to be referenced.
 
    Here, ``itask`` specifies the return mode. The vector ``yout``
    (which can be the same as the vector ``y0`` above) will contain
-   :math:`y(t_\text{out})`. See section
-   :numref:`Usage.ARKStep.Integration` for details.
+   :math:`y(t_\text{out})`. See
+   :numref:`ARKODE.Usage.ARKStep.Integration` for details.
 
 #. Get optional outputs
 
    Call ``ARKStepGet*`` functions to obtain optional output. See
-   section :numref:`Usage.ARKStep.OptionalOutputs` for details.
+   :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` for details.
 
 #. Deallocate memory for solution vector
 

@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): David J. Gardner @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Usage.ARKStep.XBraid:
+.. _ARKODE.Usage.ARKStep.XBraid:
 
 Multigrid Reduction in Time with XBraid
 =======================================
@@ -52,15 +52,15 @@ next finer scale. In the two level case the MGRIT algorithm is as follows:
 Applying this algorithm recursively for the solve step above leads to the
 multilevel algorithm.
 
-The XBraid library :cite:p:`xbraid` implements in the MGRIT algorithm in a
+The XBraid library :cite:p:`xbraid` implements the MGRIT algorithm in a
 non-intrusive manner, enabling the reuse of existing software for sequential
 time integration. The following sections describe the ARKStep + XBraid interface
-and the steps necessary to modify an existing code using ARKStep to also use
-XBraid.
+and the steps necessary to modify an existing code that already uses ARKStep to
+also use XBraid.
 
 
 
-.. _Usage.ARKStep.SUNBraidInterface:
+.. _ARKODE.Usage.ARKStep.SUNBraidInterface:
 
 SUNBraid Interface
 ------------------
@@ -80,12 +80,12 @@ initialize the problem state, access the current solution, and take a time step.
 
 The ARKBraid interface, built on the SUNBraidApp and SUNBraidVector structures,
 provides all the functionaly needed combine ARKStep and XBraid for
-parallel-in-time integration. As such only a minimal number of changes are
+parallel-in-time integration. As such, only a minimal number of changes are
 necessary to update an exsting code that uses ARKStep to also use XBraid.
 
 
 
-.. _Usage.ARKStep.SUNBraidApp:
+.. _ARKODE.Usage.ARKStep.SUNBraidApp:
 
 SUNBraidApp
 ^^^^^^^^^^^
@@ -138,11 +138,11 @@ illustrate this point we show below the implementation of the
    }
 
 The SUNBraidApp operations are define below in
-:numref:`Usage.ARKStep.SUNBraidOps`.
+:numref:`ARKODE.Usage.ARKStep.SUNBraidOps`.
 
 
 
-.. _Usage.ARKStep.SUNBraidOps:
+.. _ARKODE.Usage.ARKStep.SUNBraidOps:
 
 SUNBraidOps
 ^^^^^^^^^^^
@@ -157,18 +157,16 @@ example usage of the function.
    with :c:func:`N_VClone()`.
 
    **Arguments:**
-
-   * *app* -- input, a SUNBraidApp instance (XBraid app structure).
-   * *y* -- output, the template vector.
+      * *app* -- input, a SUNBraidApp instance (XBraid app structure).
+      * *y* -- output, the template vector.
 
    **Return value:**
-
      If this function is not implemented by the SUNBraidApp
      implementation (i.e., the function pointer is ``NULL``) then this function
      will return *SUNBRAID_OPNULL*. Otherwise the return value depends on the
      particular SUNBraidApp implementation. Users are encouraged to utilize the
      return codes  defined in ``sundials/sundials_xbraid.h`` and listed in
-     :numref:`Usage.ARKStep.SUNBraidReturnCodes.Table`.
+     :numref:`ARKODE.Usage.ARKStep.SUNBraidReturnCodes.Table`.
 
    **Usage:**
 
@@ -180,7 +178,7 @@ example usage of the function.
 
 
 
-.. _Usage.ARKStep.SUNBraidApp_Utilities:
+.. _ARKODE.Usage.ARKStep.SUNBraidApp_Utilities:
 
 SUNBraidApp Utility Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -195,13 +193,11 @@ instance.
    operations initialized to ``NULL``.
 
    **Arguments:**
-
-   * *app* -- output, an empty SUNBraidApp instance (XBraid app structure).
+      * *app* -- output, an empty SUNBraidApp instance (XBraid app structure).
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ALLOCFAIL* if a memory allocation failed.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ALLOCFAIL* if a memory allocation failed.
 
    **Usage:**
 
@@ -218,12 +214,10 @@ instance.
    This function destroys an empty SUNBraidApp instance.
 
    **Arguments:**
-
-   * *app* -- input, an empty SUNBraidApp instance (XBraid app structure).
+      * *app* -- input, an empty SUNBraidApp instance (XBraid app structure).
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_SUCCESS* if successful.
 
    **Usage:**
 
@@ -242,7 +236,7 @@ instance.
 
 
 
-.. _Usage.ARKStep.SUNBraidVector:
+.. _ARKODE.Usage.ARKStep.SUNBraidVector:
 
 SUNBraidVector
 ^^^^^^^^^^^^^^
@@ -270,15 +264,13 @@ utility functions are provided.
    This function creates a new SUNBraidVector wrapping the N_Vector y.
 
    **Arguments:**
-
-   * *y* -- input, the N_Vector to wrap.
-   * *u* -- output, the SUNBraidVector wrapping *y*.
+      * *y* -- input, the N_Vector to wrap.
+      * *u* -- output, the SUNBraidVector wrapping *y*.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *y* is ``NULL``.
-   * *SUNBRAID_ALLOCFAIL* if a memory allocation fails.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *y* is ``NULL``.
+      * *SUNBRAID_ALLOCFAIL* if a memory allocation fails.
 
    **Usage:**
 
@@ -301,15 +293,13 @@ utility functions are provided.
    This function retrieves the wrapped N_Vector from the SUNBraidVector.
 
    **Arguments:**
-
-   * *u* -- input, the SUNBraidVector wrapping *y*.
-   * *y* -- output, the wrapped N_Vector.
+      * *u* -- input, the SUNBraidVector wrapping *y*.
+      * *y* -- output, the wrapped N_Vector.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *u* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if *y* is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *u* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if *y* is ``NULL``.
 
    **Usage:**
 
@@ -322,7 +312,7 @@ utility functions are provided.
 
 
 Finally, the SUNBraid interface defines the following vector operations acting
-on SUNBraidVectors, that consist of then wrappers to compatible SUNDIALS
+on SUNBraidVectors, that consist of thin wrappers to compatible SUNDIALS
 N_Vector operations.
 
 .. c:function:: int SUNBraidVector_Clone(braid_App app, braid_Vector u, braid_Vector *v_ptr)
@@ -332,17 +322,15 @@ N_Vector operations.
    :c:func:`N_VClone()` and :c:func:`N_VScale()`.
 
    **Arguments:**
-
-   * *app* -- input, a SUNBraidApp instance (XBraid app structure).
-   * *u* -- input, the SUNBraidVector to clone.
-   * *v_ptr* -- output, the new SUNBraidVector.
+      * *app* -- input, a SUNBraidApp instance (XBraid app structure).
+      * *u* -- input, the SUNBraidVector to clone.
+      * *v_ptr* -- output, the new SUNBraidVector.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *u* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the N_Vector *y* wrapped by *u* is ``NULL``.
-   * *SUNBRAID_ALLOCFAIL* if a memory allocation fails.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *u* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the N_Vector *y* wrapped by *u* is ``NULL``.
+      * *SUNBRAID_ALLOCFAIL* if a memory allocation fails.
 
 
 
@@ -352,13 +340,11 @@ N_Vector operations.
    using :c:func:`N_VDestroy()`.
 
    **Arguments:**
-
-   * *app* -- input, a SUNBraidApp instance (XBraid app structure).
-   * *u* -- input, the SUNBraidVector to destroy.
+      * *app* -- input, a SUNBraidApp instance (XBraid app structure).
+      * *u* -- input, the SUNBraidVector to destroy.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_SUCCESS* if successful.
 
 
 
@@ -368,37 +354,33 @@ N_Vector operations.
    :math:`\alpha x + \beta y \rightarrow y` using :c:func:`N_VLinearSum()`.
 
    **Arguments:**
-
-   * *app* -- input, a SUNBraidApp instance (XBraid app structure).
-   * *alpha* -- input, the constant :math:`\alpha`.
-   * *x* -- input, the vector :math:`x`.
-   * *beta* -- input, the constant :math:`\beta`.
-   * *y* -- input/output, the vector :math:`y`.
+      * *app* -- input, a SUNBraidApp instance (XBraid app structure).
+      * *alpha* -- input, the constant :math:`\alpha`.
+      * *x* -- input, the vector :math:`x`.
+      * *beta* -- input, the constant :math:`\beta`.
+      * *y* -- input/output, the vector :math:`y`.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *x* or *y* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if either of the wrapped N_Vectors are ``NULL``.
-
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *x* or *y* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if either of the wrapped N_Vectors are ``NULL``.
 
 
-.. c:function:: int SUNBraidVector_SpatialNorm(braid_App, braid_Vector u, braid_Real *norm_ptr)
+
+.. c:function:: int SUNBraidVector_SpatialNorm(braid_App app, braid_Vector u, braid_Real *norm_ptr)
 
    This function computes the 2-norm of the vector *u* using
    :c:func:`N_VDotProd()`.
 
    **Arguments:**
-
-   * *app* -- input, a SUNBraidApp instance (XBraid app structure).
-   * *u* -- input, the vector *u*.
-   * *norm_ptr* -- output, the L2 norm of *u*.
+      * *app* -- input, a SUNBraidApp instance (XBraid app structure).
+      * *u* -- input, the vector *u*.
+      * *norm_ptr* -- output, the L2 norm of *u*.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *u* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the wrapped N_Vector is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *u* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the wrapped N_Vector is ``NULL``.
 
 
 
@@ -408,17 +390,15 @@ N_Vector operations.
    using :c:func:`SUNBraidApp_GetVecTmpl` and :c:func:`N_VBufSize()`.
 
    **Arguments:**
-
-   * *app* -- input, a SUNBraidApp instance (XBraid app structure).
-   * *size_ptr* -- output, the buffer size.
-   * *bstatus* -- input, a status object to query for information on the message
-     type.
+      * *app* -- input, a SUNBraidApp instance (XBraid app structure).
+      * *size_ptr* -- output, the buffer size.
+      * *bstatus* -- input, a status object to query for information on the message
+        type.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * An error flag from :c:func:`SUNBraidApp_GetVecTmpl` or
-     :c:func:`N_VBufSize()`.
+      * *SUNBRAID_SUCCESS* if successful.
+      * An error flag from :c:func:`SUNBraidApp_GetVecTmpl` or
+        :c:func:`N_VBufSize()`.
 
 
 
@@ -428,18 +408,16 @@ N_Vector operations.
    :c:func:`N_VBufPack()`.
 
    **Arguments:**
-
-   * *app* -- input, a SUNBraidApp instance (XBraid app structure).
-   * *u* -- input, the vector to pack into the exchange buffer.
-   * *buffer* -- output, the packed exchange buffer to pack.
-   * *bstatus* -- input, a status object to query for information on the message
-     type.
+      * *app* -- input, a SUNBraidApp instance (XBraid app structure).
+      * *u* -- input, the vector to pack into the exchange buffer.
+      * *buffer* -- output, the packed exchange buffer to pack.
+      * *bstatus* -- input, a status object to query for information on the message
+        type.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *u* is ``NULL``.
-   * An error flag from :c:func:`N_VBufPack()`.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *u* is ``NULL``.
+      * An error flag from :c:func:`N_VBufPack()`.
 
 
 
@@ -450,32 +428,30 @@ N_Vector operations.
    :c:func:`SUNBraidApp_GetVecTmpl`, and :c:func:`N_VClone()`.
 
    **Arguments:**
-
-   * *app* -- input, a SUNBraidApp instance (XBraid app structure).
-   * *buffer* -- input, the exchange buffer to unpack.
-   * *u_ptr* -- output, a new SUNBraidVector containing the buffer data.
-   * *bstatus* -- input, a status object to query for information on the message
-     type.
+      * *app* -- input, a SUNBraidApp instance (XBraid app structure).
+      * *buffer* -- input, the exchange buffer to unpack.
+      * *u_ptr* -- output, a new SUNBraidVector containing the buffer data.
+      * *bstatus* -- input, a status object to query for information on the message
+        type.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *buffer* is ``NULL``.
-   * *SUNBRAID_ALLOCFAIL* if a memory allocation fails.
-   * An error flag from :c:func:`SUNBraidApp_GetVecTmpl` and
-     :c:func:`N_VBufUnpack()`.
-
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *buffer* is ``NULL``.
+      * *SUNBRAID_ALLOCFAIL* if a memory allocation fails.
+      * An error flag from :c:func:`SUNBraidApp_GetVecTmpl` and
+        :c:func:`N_VBufUnpack()`.
 
 
-.. _Usage.ARKStep.SUNBraidReturnCodes:
+
+.. _ARKODE.Usage.ARKStep.SUNBraidReturnCodes:
 
 SUNBraid Return Codes
 ^^^^^^^^^^^^^^^^^^^^^
 
 The SUNBraid interface return values are given in
-:numref:`Usage.ARKStep.SUNBraidReturnCodes.Table`.
+:numref:`ARKODE.Usage.ARKStep.SUNBraidReturnCodes.Table`.
 
-.. _Usage.ARKStep.SUNBraidReturnCodes.Table:
+.. _ARKODE.Usage.ARKStep.SUNBraidReturnCodes.Table:
 .. table:: SUNBraid Return Codes
 
    +--------------------------+------------+-------------------------------------+
@@ -498,31 +474,29 @@ The SUNBraid interface return values are given in
 
 
 
-.. _Usage.ARKStep.ARKBraid:
+.. _ARKODE.Usage.ARKStep.ARKBraid:
 
 ARKBraid Interface
 ------------------
 
 This section describes the ARKBraid implementation of a SUNBraidApp for using
-the ARKStep integration module with XBraid. The following section describes
-:numref:`Usage.ARKStep.ARKBraid_InitDealloc` for creating, initializing, and
-destroying the ARKStep + XBraid interface,
-:numref:`Usage.ARKStep.ARKBraid_Set` for setting optional inputs, and
-:numref:`Usage.ARKStep.ARKBraid_Get` for retrieving data from an ARKBraid
+the ARKStep integration module with XBraid. The following section
+:numref:`ARKODE.Usage.ARKStep.ARKBraid_InitDealloc` describes routines for creating,
+initializing, and destroying the ARKStep + XBraid interface, routines for
+setting optional inputs, and routines for retrieving data from an ARKBraid
 instance. As noted above, interfacing with XBraid requires providing functions
 to initialize the problem state, access the current solution, and take a time
-step. The default ARKBraid functions for each of these actions are defined in
-:numref:`Usage.ARKStep.ARKBraid_Interface` and may be overridden by
+step. The default ARKBraid functions for each of these actions are defined in :numref:`ARKODE.Usage.ARKStep.ARKBraid_Interface`  and may be overridden by
 user-defined if desired. A skeleton of the user's main or calling program for
 using the ARKBraid interface is given in
-:numref:`Usage.ARKStep.ARKBraid_Skeleton`. Finally, for advanced users that
-wish to create their own SUNBraidApp implementation using ARKStep the
-:numref:`Usage.ARKStep.ARKBraid_Utility` section describes some helpful
+:numref:`ARKODE.Usage.ARKStep.ARKBraid_Skeleton`. Finally, for advanced users that
+wish to create their own SUNBraidApp implementation using ARKStep,
+:numref:`ARKODE.Usage.ARKStep.ARKBraid_Utility` describes some helpful
 functions available to the user.
 
 
 
-.. _Usage.ARKStep.ARKBraid_InitDealloc:
+.. _ARKODE.Usage.ARKStep.ARKBraid_InitDealloc:
 
 ARKBraid Initialization and Deallocation Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -531,7 +505,7 @@ This section describes the functions that are called by the user to create,
 initialize, and destroy an ARKBraid instance. Each user-callable function
 returns ``SUNBRAID_SUCCESS`` (i.e., 0) on a successful call and a negative value
 if an error occurred. The possible return codes are given in
-:numref:`Usage.ARKStep.SUNBraidReturnCodes.Table`.
+:numref:`ARKODE.Usage.ARKStep.SUNBraidReturnCodes.Table`.
 
 
 
@@ -542,15 +516,13 @@ if an error occurred. The possible return codes are given in
    implementations.
 
    **Arguments:**
-
-   * *arkode_mem* -- input, a pointer to an ARKStep memory structure.
-   * *app* -- output, an ARKBraid instance (XBraid app structure).
+      * *arkode_mem* -- input, a pointer to an ARKStep memory structure.
+      * *app* -- output, an ARKBraid instance (XBraid app structure).
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* *arkode_mem* is ``NULL``.
-   * *SUNBRAID_ALLOCFAIL* if a memory allocation failed.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* *arkode_mem* is ``NULL``.
+      * *SUNBRAID_ALLOCFAIL* if a memory allocation failed.
 
    .. warning::
 
@@ -567,29 +539,27 @@ if an error occurred. The possible return codes are given in
    SUNBraidVector interface functions.
 
    **Arguments:**
-
-   * *comm_w* -- input,  the global MPI communicator for space and time.
-   * *comm_t* -- input,  the MPI communicator for the time dimension.
-   * *tstart* -- input,  the initial time value.
-   * *tstop*  -- input,  the final time value.
-   * *ntime*  -- input,  the initial number of grid points in time.
-   * *app*    -- input,  an ARKBraid instance.
-   * *core*   -- output, the XBraid core memory structure.
+      * *comm_w* -- input,  the global MPI communicator for space and time.
+      * *comm_t* -- input,  the MPI communicator for the time dimension.
+      * *tstart* -- input,  the initial time value.
+      * *tstop*  -- input,  the final time value.
+      * *ntime*  -- input,  the initial number of grid points in time.
+      * *app*    -- input,  an ARKBraid instance.
+      * *core*   -- output, the XBraid core memory structure.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if either MPI communicator is ``MPI_COMM_NULL``,
-     if *ntime* < 2, or if *app* or its content is ``NULL``.
-   * *SUNBRAID_BRAIDFAIL* if the ``braid_Init()`` call fails. The XBraid return
-     value can be retrieved with :c:func:`ARKBraid_GetLastBraidFlag()`.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if either MPI communicator is ``MPI_COMM_NULL``,
+        if *ntime* < 2, or if *app* or its content is ``NULL``.
+      * *SUNBRAID_BRAIDFAIL* if the ``braid_Init()`` call fails. The XBraid return
+        value can be retrieved with :c:func:`ARKBraid_GetLastBraidFlag()`.
 
    .. note::
 
       If desired, the default functions for vector initialization, accessing the
       solution, taking a time step, and computing the spatial norm should be
       overridden before calling this function.
-      See :numref:`Usage.ARKStep.ARKBraid_Set` for more details.
+      See :numref:`ARKODE.Usage.ARKStep.ARKBraid_Set` for more details.
 
    .. warning::
 
@@ -603,16 +573,14 @@ if an error occurred. The possible return codes are given in
    This function deallocates an ARKBraid instance.
 
    **Arguments:**
-
-   * *app* -- input, a pointer to an ARKBraid instance.
+      * *app* -- input, a pointer to an ARKBraid instance.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-
+      * *SUNBRAID_SUCCESS* if successful.
 
 
-.. _Usage.ARKStep.ARKBraid_Set:
+
+.. _ARKODE.Usage.ARKStep.ARKBraid_Set:
 
 ARKBraid Set Functions
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -622,7 +590,7 @@ inputs to control the behavior of an ARKBraid instance or to provide alternative
 XBraid interface functions. Each user-callable function returns
 ``SUNBRAID_SUCCESS`` (i.e., 0) on a successful call and a negative value if an
 error occurred. The possible return codes are given in
-:numref:`Usage.ARKStep.SUNBraidReturnCodes.Table`.
+:numref:`ARKODE.Usage.ARKStep.SUNBraidReturnCodes.Table`.
 
 
 
@@ -632,16 +600,14 @@ error occurred. The possible return codes are given in
    :c:func:`ARKBraid_Step()`).
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *step* -- input, an XBraid step function. If *step* is ``NULL``, the
-     default function will be used.
+      * *app* -- input, an ARKBraid instance.
+      * *step* -- input, an XBraid step function. If *step* is ``NULL``, the
+        default function will be used.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
 
    .. note::
 
@@ -655,16 +621,14 @@ error occurred. The possible return codes are given in
    (default :c:func:`ARKBraid_Init()`).
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *init* -- input, an XBraid vector initialization function. If *init* is
-     ``NULL``, the default function will be used.
+      * *app* -- input, an ARKBraid instance.
+      * *init* -- input, an XBraid vector initialization function. If *init* is
+        ``NULL``, the default function will be used.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
 
    .. note::
 
@@ -678,16 +642,14 @@ error occurred. The possible return codes are given in
    :c:func:`SUNBraid_SpatialNorm()`).
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *snorm* -- input, an XBraid spatial norm function. If *snorm* is ``NULL``,
-     the default function will be used.
+      * *app* -- input, an ARKBraid instance.
+      * *snorm* -- input, an XBraid spatial norm function. If *snorm* is ``NULL``,
+        the default function will be used.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
 
    .. note::
 
@@ -701,16 +663,14 @@ error occurred. The possible return codes are given in
    :c:func:`ARKBraid_Access()`).
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *init* -- input, an XBraid user access function. If *access* is ``NULL``,
-     the default function will be used.
+      * *app* -- input, an ARKBraid instance.
+      * *init* -- input, an XBraid user access function. If *access* is ``NULL``,
+        the default function will be used.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
 
    .. note::
 
@@ -718,7 +678,7 @@ error occurred. The possible return codes are given in
 
 
 
-.. _Usage.ARKStep.ARKBraid_Get:
+.. _ARKODE.Usage.ARKStep.ARKBraid_Get:
 
 ARKBraid Get Functions
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -727,7 +687,7 @@ This section describes the functions that are called by the user to retrieve
 data from an ARKBraid instance. Each user-callable function returns
 ``SUNBRAID_SUCCESS`` (i.e., 0) on a successful call and a negative value if an
 error occurred. The possible return codes are given in
-:numref:`Usage.ARKStep.SUNBraidReturnCodes.Table`.
+:numref:`ARKODE.Usage.ARKStep.SUNBraidReturnCodes.Table`.
 
 
 
@@ -738,15 +698,13 @@ error occurred. The possible return codes are given in
    implementation of :c:func:`SUNBraidVector_GetVecTmpl()`.
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *tmpl* -- output, a template vector.
+      * *app* -- input, an ARKBraid instance.
+      * *tmpl* -- output, a template vector.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content or ARKStep memory is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content or ARKStep memory is ``NULL``.
 
 
 
@@ -756,15 +714,13 @@ error occurred. The possible return codes are given in
    :c:func:`ARKBraid_Create()`.
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *arkode_mem* -- output, a pointer to the ARKStep memory structure.
+      * *app* -- input, an ARKBraid instance.
+      * *arkode_mem* -- output, a pointer to the ARKStep memory structure.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content or ARKStep memory is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content or ARKStep memory is ``NULL``.
 
 
 
@@ -774,15 +730,13 @@ error occurred. The possible return codes are given in
    :c:func:`ARKStepSetUserData()`.
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *user_data* -- output, a pointer to the user data structure.
+      * *app* -- input, an ARKBraid instance.
+      * *user_data* -- output, a pointer to the user data structure.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content or ARKStep memory is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content or ARKStep memory is ``NULL``.
 
 
 
@@ -792,15 +746,13 @@ error occurred. The possible return codes are given in
    call.
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *last_flag* -- output, the XBraid return value.
+      * *app* -- input, an ARKBraid instance.
+      * *last_flag* -- output, the XBraid return value.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
 
 
 
@@ -810,15 +762,13 @@ error occurred. The possible return codes are given in
    call.
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *last_flag* -- output, the ARKStep return value.
+      * *app* -- input, an ARKBraid instance.
+      * *last_flag* -- output, the ARKStep return value.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
 
 
 .. c:function:: int ARKBraid_GetSolution(braid_App app, realtype *tout, N_Vector yout)
@@ -827,15 +777,13 @@ error occurred. The possible return codes are given in
    function :c:func:`ARKBraid_Access()`.
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *last_flag* -- output, the ARKStep return value.
+      * *app* -- input, an ARKBraid instance.
+      * *last_flag* -- output, the ARKStep return value.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content or the stored vector is ``NULL``.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content or the stored vector is ``NULL``.
 
    .. warning::
 
@@ -849,18 +797,18 @@ error occurred. The possible return codes are given in
 
 
 
-.. _Usage.ARKStep.ARKBraid_Interface:
+.. _ARKODE.Usage.ARKStep.ARKBraid_Interface:
 
 ARKBraid Interface Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This section describes the default XBraid interface functions provided by
-ARKBraid and called by XBraid to preform certain actions. Any or all of these
+ARKBraid and called by XBraid to perform certain actions. Any or all of these
 functions may be overridden by supplying a user-defined function through the set
-functions defined in :numref:`Usage.ARKStep.ARKBraid_Set`. Each default
+functions defined in :numref:`ARKODE.Usage.ARKStep.ARKBraid_Set`. Each default
 interface function returns ``SUNBRAID_SUCCESS`` (i.e., 0) on a successful call
 and a negative value if an error occurred. The possible return codes are given
-in :numref:`Usage.ARKStep.SUNBraidReturnCodes.Table`.
+in :numref:`ARKODE.Usage.ARKStep.SUNBraidReturnCodes.Table`.
 
 
 
@@ -872,28 +820,26 @@ in :numref:`Usage.ARKStep.SUNBraidReturnCodes.Table`.
    user-defined step function may be set with :c:func:`ARKBraid_SetStepFn()`.
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *ustop* -- input, *u* vector at the new time *tstop*.
-   * *fstop* -- input, the right-hand side vector at the new time *tstop*.
-   * *u* - input/output, on input the vector at the start time and on return the
-     vector at the new time.
-   * *status* -- input, a status object to query for information about *u* and
-     to steer XBraid e.g., for temporal refinement.
+      * *app* -- input, an ARKBraid instance.
+      * *ustop* -- input, *u* vector at the new time *tstop*.
+      * *fstop* -- input, the right-hand side vector at the new time *tstop*.
+      * *u* - input/output, on input the vector at the start time and on return the
+        vector at the new time.
+      * *status* -- input, a status object to query for information about *u* and
+        to steer XBraid e.g., for temporal refinement.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content or ARKStep memory is ``NULL``.
-   * *SUNBRAID_BRAIDFAIL* if an XBraid function fails. The return value can be
-     retrieved with :c:func:`ARKBraid_GetLastBraidFlag()`.
-   * *SUNBRAID_SUNFAIL* if a SUNDIALS function fails. The return value can be
-     retrieved with :c:func:`ARKBraid_GetLastARKStepFlag()`.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content or ARKStep memory is ``NULL``.
+      * *SUNBRAID_BRAIDFAIL* if an XBraid function fails. The return value can be
+        retrieved with :c:func:`ARKBraid_GetLastBraidFlag()`.
+      * *SUNBRAID_SUNFAIL* if a SUNDIALS function fails. The return value can be
+        retrieved with :c:func:`ARKBraid_GetLastARKStepFlag()`.
 
    .. note::
 
-      If providing a non-default implemenation of the step function the utility
+      If providing a non-default implementation of the step function the utility
       function :c:func:`ARKBraid_TakeStep()` should be used to advance the input
       vector *u* to the new time.
 
@@ -905,21 +851,19 @@ in :numref:`Usage.ARKStep.SUNBraidReturnCodes.Table`.
    initialization function is called by XBraid to create a new vector and set
    the initial guess for the solution at time :math:`t`. When using this default
    function the initial guess at all time values is the initial condition
-   provided to :c:func:`ARKStepCreate()`. A user-defined init function may be
+   provided to :c:func:`ARKStepCreate`. A user-defined init function may be
    set with :c:func:`ARKBraid_SetInitFn()`.
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *t* -- input, the initialization time for the output vector.
-   * *u_ptr* -- output, the new and initialized SUNBraidVector.
+      * *app* -- input, an ARKBraid instance.
+      * *t* -- input, the initialization time for the output vector.
+      * *u_ptr* -- output, the new and initialized SUNBraidVector.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content or ARKStep memory is ``NULL``.
-   * *SUNBRAID_ALLOCFAIL* if a memory allocation failed.
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if *app* is ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content or ARKStep memory is ``NULL``.
+      * *SUNBRAID_ALLOCFAIL* if a memory allocation failed.
 
    .. note::
 
@@ -940,37 +884,35 @@ in :numref:`Usage.ARKStep.SUNBraidReturnCodes.Table`.
    set with :c:func:`ARKBraid_SetAccessFn()`.
 
    **Arguments:**
-
-   * *app* -- input, an ARKBraid instance.
-   * *u* -- input, the vector to be accessed.
-   * *status* -- input, a status object to query for information about *u*.
+      * *app* -- input, an ARKBraid instance.
+      * *u* -- input, the vector to be accessed.
+      * *status* -- input, a status object to query for information about *u*.
 
    **Return value:**
-
-   * *SUNBRAID_SUCCESS* if successful.
-   * *SUNBRAID_ILLINPUT* if any of the inputs are ``NULL``.
-   * *SUNBRAID_MEMFAIL* if the *app* content, the wrapped N_Vector, or the
-     ARKStep memory is ``NULL``.
-   * *SUNBRAID_ALLOCFAIL* if allocating storage for the final solution fails.
-   * *SUNBRAID_BRAIDFAIL* if an XBraid function fails. The return value can be
-     retrieved with :c:func:`ARKBraid_GetLastBraidFlag()`.
-
+      * *SUNBRAID_SUCCESS* if successful.
+      * *SUNBRAID_ILLINPUT* if any of the inputs are ``NULL``.
+      * *SUNBRAID_MEMFAIL* if the *app* content, the wrapped N_Vector, or the
+        ARKStep memory is ``NULL``.
+      * *SUNBRAID_ALLOCFAIL* if allocating storage for the final solution fails.
+      * *SUNBRAID_BRAIDFAIL* if an XBraid function fails. The return value can be
+        retrieved with :c:func:`ARKBraid_GetLastBraidFlag()`.
 
 
-.. _Usage.ARKStep.ARKBraid_Skeleton:
+
+.. _ARKODE.Usage.ARKStep.ARKBraid_Skeleton:
 
 A skeleton of the user's main program with XBraid
 -------------------------------------------------
 
 In addition to the header files required for the integration of the ODE problem
-(see the section :numref:`Usage.ARKStep.Headers`), to use the ARKBraid
+(see the section :numref:`ARKODE.Usage.Headers`), to use the ARKBraid
 interace, the user's program must include the header file
 ``arkode/arkode_xbraid.h`` which declares the needed function prototypes.
 
 The following is a skeleton of the user's main program (or calling program) for
 the integration of an ODE IVP using ARKStep with XBraid for parallel-in-time
 integration. Most steps are unchanged from the skeleton program presented in
-:numref:`Usage.ARKStep.Skeleton`. New or updated steps are **bold**.
+:numref:`ARKODE.Usage.ARKStep.Skeleton`. New or updated steps are **bold**.
 
 #. **Initialize MPI**
 
@@ -1008,7 +950,7 @@ integration. Most steps are unchanged from the skeleton program presented in
 
 #. **Set optional ARKBraid inputs**
 
-   See :numref:`Usage.ARKStep.ARKBraid_Set` for ARKBraid inputs.
+   See :numref:`ARKODE.Usage.ARKStep.ARKBraid_Set` for ARKBraid inputs.
 
 #. **Initialize the ARKBraid interface**
 
@@ -1026,7 +968,7 @@ integration. Most steps are unchanged from the skeleton program presented in
 
 #. **Get optional outputs**
 
-   See :numref:`Usage.ARKStep.ARKBraid_Get` for ARKBraid outputs.
+   See :numref:`ARKODE.Usage.ARKStep.ARKBraid_Get` for ARKBraid outputs.
 
 #. *Deallocate memory for solution vector*
 
@@ -1037,14 +979,14 @@ integration. Most steps are unchanged from the skeleton program presented in
 #. **Free ARKBraid and XBraid memory**
 
    Call :c:func:`ARKBraid_Free()` and ``braid_Destroy`` to deallocate the
-   ARKBraid interface and and XBraid core memory structures respectively.
+   ARKBraid interface and and XBraid core memory structures, respectively.
 
 #. *Finalize MPI*
 
 
 
 
-.. _Usage.ARKStep.ARKBraid_Utility:
+.. _ARKODE.Usage.ARKStep.ARKBraid_Utility:
 
 Advanced ARKBraid Utility Functions
 -----------------------------------
@@ -1062,26 +1004,24 @@ ARKODE and XBraid that requries defining a custom SUNBraidApp implementation.
    single ARKStep time step with step size *h = tstop - start*.
 
    **Arguments:**
+      * *arkode_mem* -- input, the ARKStep memory structure pointer.
+      * *tstart* -- input, the step start time.
+      * *tstop* -- input, the step stop time.
+      * *y* -- input/output, on input the solution a *tstop* and on return, the
+        solution at time *tstop* if the step was successful (*ark_flag*
+        :math:`\geq 0`) or the solution at time *tstart* if the step failed
+        (*ark_flag* < 0).
+      * *ark_flag* -- output, the step status flag. If *ark_flag* is:
 
-   * *arkode_mem* -- input, the ARKStep memory structure pointer.
-   * *tstart* -- input, the step start time.
-   * *tstop* -- input, the step stop time.
-   * *y* -- input/output, on input the solution a *tstop* and on return, the
-     solution at time *tstop* if the step was successful (*ark_flag*
-     :math:`\geq 0`) or the solution at time *tstart* if the step failed
-     (*ark_flag* < 0).
-   * *ark_flag* -- output, the step status flag. If *ark_flag* is:
+        :math:`= 0` then the step succeeded and, if applicable, met the
+        requested temporal accuracy.
 
-     :math:`= 0` then the step succeeded and, if applicable, met the
-     requested temporal accuracy.
+        :math:`> 0` then the step succeeded but failed to meet the requested
+        temporal accuracy.
 
-     :math:`> 0` then the step succeeded but failed to meet the requested
-     temporal accuracy.
-
-     :math:`< 0` then the step failed e.g., a solver failure occurred.
+        :math:`< 0` then the step failed e.g., a solver failure occurred.
 
    **Return value:**
-
      If all ARKStep function calls are successful the return
      value is *ARK_SUCCESS*, otherwise the return value is the error flag
      returned from the function that failed.

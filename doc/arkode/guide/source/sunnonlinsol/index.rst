@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -14,19 +14,19 @@
 
 .. _SUNNonlinSol:
 
-#########################
-Solving Nonlinear Systems
-#########################
+***************************
+Nonlinear Algebraic Solvers
+***************************
 
 SUNDIALS time integration packages are written in terms of generic nonlinear
 solver operations defined by the SUNNonlinSol API and implemented by a
 particular SUNNonlinSol module of type ``SUNNonlinearSolver``.
 Users can supply their own SUNNonlinSol module, or use one of the modules
 provided with SUNDIALS. Depending on the package, nonlinear solver modules
-can either target system presented in a rootfinding (:math:`F(y) = 0`) or
+can either target systems presented in a rootfinding (:math:`F(y) = 0`) or
 fixed-point (:math:`G(y) = y`) formulation. For more information on the
-formulation of the nonlinear system(s) see the :numref:`SUNNonlinSol.ARKODE`
-section.
+formulation of the nonlinear system(s) in ARKODE, see
+:numref:`SUNNonlinSol.ARKODE`.
 
 
 The time integrators in SUNDIALS specify a default nonlinear solver module
@@ -51,7 +51,7 @@ in the section :numref:`SUNNonlinSol.API.Generic`. Finally, the section
 :numref:`SUNNonlinSol.API.Custom` lists the requirements for supplying a custom
 SUNNonlinSol module. Users wishing to supply their own SUNNonlinSol module
 are encouraged to use the SUNNonlinSol implementations provided with
-SUNDIALS as a template for supplying custom nonlinear solver modules.
+SUNDIALS as templates for supplying custom nonlinear solver modules.
 
 
 
@@ -59,8 +59,6 @@ SUNDIALS as a template for supplying custom nonlinear solver modules.
 .. toctree::
    :maxdepth: 1
 
-   SUNNonlinSol_API
-   ARKode_Interface
-   SUNNonlinSol_Newton
-   SUNNonlinSol_FixedPoint
-   SUNNonlinSol_PetscSNES
+   SUNNonlinSol_API_link.rst
+   ARKODE_interface
+   SUNNonlinSol_links.rst

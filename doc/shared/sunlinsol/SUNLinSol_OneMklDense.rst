@@ -17,7 +17,7 @@
 The SUNLinSol_OneMklDense Module
 ================================
 
-The SUNLinearSolver_OneMklDense implementation of the SUNLinearSolver class
+The SUNLinearSolver_OneMklDense implementation of the ``SUNLinearSolver`` class
 interfaces to the direct linear solvers from the
 `Intel oneAPI Math Kernel Library (oneMKL) <https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html>`_
 for solving dense systems or block-diagonal systems with dense blocks. This
@@ -49,20 +49,18 @@ linear solver operations listed in :numref:`SUNLinSol.API`:
 In addition, the class provides the following user-callable routines:
 
 
-.. c:function:: SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix A)
+.. c:function:: SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix A, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a
    ``SUNLinearSolver`` object.
 
    **Arguments:**
-
-      * *y* -- a vector for checking compatibility with the solver
-
+      * *y* -- a vector for checking compatibility with the solver.
       * *A* -- a SUNMatrix_OneMklDense matrix for checking compatibility with
-        the solver
+        the solver.
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
-
       If successful, a ``SUNLinearSolver`` object. If either *A* or *y* are
       incompatible then this routine will return ``NULL``. This routine analyzes
       the input matrix and vector to determine the linear system size and to
@@ -78,4 +76,4 @@ SUNLinearSolver_OneMklDense Usage Notes
    SUNDIALS must be built for 64-bit indexing to use this class.
 
    When using the SUNLinearSolver_OneMklDense class with a SUNDIALS package
-   (e.g. CVODE), the queue given to matrix is also used for the linear solver.
+   (e.g. CVODE), the queue given to the matrix is also used for the linear solver.

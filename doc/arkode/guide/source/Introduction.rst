@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Introduction:
+.. _ARKODE.Introduction:
 
 Introduction
 ============
@@ -30,7 +30,7 @@ packaged with two time-stepping modules, *ARKStep* and *ERKStep*.
 
 .. math::
    M(t)\, \dot{y} = f^E(t,y) + f^I(t,y),  \qquad y(t_0) = y_0,
-   :label: ODE_split_linearly_implicit
+   :label: ARKODE_ODE_split_linearly_implicit
 
 where :math:`t` is the independent variable, :math:`y` is the set of
 dependent variables (in :math:`\mathbb{R}^N`), :math:`M` is a
@@ -48,11 +48,11 @@ explicit, fully implicit, or combination implicit-explicit (ImEx) time
 integration.
 
 The algorithms used in ARKStep are adaptive- and fixed-step additive
-Runge Kutta methods. Such methods are defined through combining two
-complementary Runge-Kutta methods: one explicit (ERK) and the other
+Runge--Kutta methods. Such methods are defined through combining two
+complementary Runge--Kutta methods: one explicit (ERK) and the other
 diagonally implicit (DIRK).  Through appropriately partitioning the
 ODE right-hand side into explicit and implicit components
-:eq:`ODE_split_linearly_implicit`, such methods have the potential to
+:eq:`ARKODE_ODE_split_linearly_implicit`, such methods have the potential to
 enable accurate and efficient time integration of stiff, nonstiff, and
 mixed stiff/nonstiff systems of ordinary differential equations.  A
 key feature allowing for high efficiency of these methods is that only
@@ -70,11 +70,11 @@ methods of orders 2-5, and adaptive ImEx methods of orders 3-5.
 
 .. math::
    \dot{y} = f(t,y),  \qquad y(t_0) = y_0.
-   :label: ODE_explicit
+   :label: ARKODE_ODE_explicit
 
 allowing for increased computational efficiency and memory savings.
 The algorithms used in ERKStep are adaptive- and fixed-step explicit
-Runge Kutta methods.   As with ARKStep, the ERKStep module is packaged
+Runge--Kutta methods.   As with ARKStep, the ERKStep module is packaged
 with adaptive explicit methods of orders 2-8.
 
 
@@ -82,7 +82,7 @@ with adaptive explicit methods of orders 2-8.
 
 .. math::
    \dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y), \qquad y(t_0) = y_0.
-   :label: IVP_two_rate
+   :label: ARKODE_ODE_two_rate
 
 where here the right-hand side function is additively split into three
 components:
@@ -102,7 +102,7 @@ components:
 For such problems, MRIStep provides fixed-step slow step multirate infinitesimal
 step (MIS), multirate infinitesimal GARK (MRI-GARK), and implicit-explicit
 MRI-GARK (IMEX-MRI-GARK) methods, allowing for evolution of the problem
-:eq:`IVP_two_rate` using multirate methods having orders of accuracy 2-4.
+:eq:`ARKODE_ODE_two_rate` using multirate methods having orders of accuracy 2-4.
 
 For ARKStep or MRIStep problems that include nonzero implicit term
 :math:`f^I(t,y)`, the resulting implicit system (assumed nonlinear, unless
@@ -121,8 +121,19 @@ Changes from previous versions
 Changes in 5.0.0
 ^^^^^^^^^^^^^^^^
 
-The MRIStep module has been extended to support implicit-explicit (IMEX)
-multirate infinitesimal generalized additive Runge-Kutta (MRI-GARK) methods. As
+The :c:type:`SUNMemoryHelper` functions :c:func:`SUNMemoryHelper_Alloc`,
+:c:func:`SUNMemoryHelper_Dealloc`, and :c:func:`SUNMemoryHelper_Copy` have been
+updated to accept an opaque handle as the last input. At a minimum, user-defined
+:c:type:`SUNMemoryHelper` implementations will need to update these functions to
+accept the additional argument. Typically, this handle is the execution stream
+(e.g., a CUDA/HIP stream or SYCL queue) for the operation. The :ref:`CUDA
+<SUNMemory.CUDA>`, :ref:`HIP <SUNMemory.HIP>`, and :ref:`SYCL <SUNMemory.SYCL>`
+implementations have been updated accordingly. Additionally, the constructor
+:c:func:`SUNMemoryHelper_Sycl` has been update to remove the SYCL queue as an
+input.
+
+The MRIStep module has been extended to support implicit-explicit (ImEx)
+multirate infinitesimal generalized additive Runge--Kutta (MRI-GARK) methods. As
 such, :c:func:`MRIStepCreate` has been updated to include arguments for the slow
 explicit and slow implicit ODE right-hand side functions.
 :c:func:`MRIStepCreate` has also been updated to require attaching an
@@ -183,7 +194,7 @@ structures are held internally to the linear solver itself, and are not
 provided by the SUNDIALS package.
 
 Support for user-defined inner (fast) integrators has been to the MRIStep
-module. See :numref:`Usage.MRIStep.CustomInnerStepper` for more information on providing
+module. See :numref:`ARKODE.Usage.MRIStep.CustomInnerStepper` for more information on providing
 a user-defined integration method.
 
 Added the functions :c:func:`ARKStepSetNlsRhsFn()` and
@@ -272,7 +283,7 @@ static mass matrices.
 
 An interface between ARKStep and the XBraid multigrid reduction in time (MGRIT)
 library :cite:p:`xbraid` has been added to enable parallel-in-time integration. See the
-:numref:`Usage.ARKStep.XBraid` section for more information and the example
+:numref:`ARKODE.Usage.ARKStep.XBraid` section for more information and the example
 codes in ``examples/arkode/CXX_xbraid``. This interface required the addition of
 three new N_Vector operations to exchange vector data between computational
 nodes, see :c:func:`N_VBufSize()`, :c:func:`N_VBufPack()`, and
@@ -486,7 +497,7 @@ being built.
 **NVECTOR module changes**
 
 Two new functions were added to aid in creating custom NVECTOR objects. The
-constructor :c:func:`N_VNewEmpty()` allocates an "empty" generic NVECTOR with
+constructor :c:func:`N_VNewEmpty` allocates an "empty" generic NVECTOR with
 the object's content pointer and the function pointers in the operations
 structure initialized to ``NULL``. When used in the constructor for custom
 objects this function will ease the introduction of any new optional operations
@@ -554,7 +565,7 @@ custom allocate and free functions for the vector data array and internal
 reduction buffer.
 
 Added new Fortran 2003 interfaces for most NVECTOR modules. See the
-:numref:`Usage.Fortran.Modules` section for more details.
+:numref:`SUNDIALS.Fortran` section for more details.
 
 Added three new NVECTOR utility functions,
 :c:func:`N_VGetVecAtIndexVectorArray()`
@@ -565,7 +576,7 @@ for working with ``N_Vector`` arrays when using the Fortran 2003 interfaces.
 **SUNMatrix module changes**
 
 Two new functions were added to aid in creating custom SUNMATRIX objects. The
-constructor :c:func:`SUNMatNewEmpty()` allocates an "empty" generic SUNMATRIX with
+constructor :c:func:`SUNMatNewEmpty` allocates an "empty" generic SUNMATRIX with
 the object's content pointer and the function pointers in the operations
 structure initialized to ``NULL``. When used in the constructor for custom
 objects this function will ease the introduction of any new optional operations
@@ -597,12 +608,12 @@ A new SUNMATRIX (and SUNLINEARSOLVER) implementation was added to
 facilitate the use of the SuperLU_DIST library with SUNDIALS.
 
 Added new Fortran 2003 interfaces for most SUNMATRIX modules. See the
-:numref:`Usage.Fortran.Modules` section for more details.
+:numref:`SUNDIALS.Fortran` section for more details.
 
 **SUNLinearSolver module changes**
 
 A new function was added to aid in creating custom SUNLINEARSOLVER objects.
-The constructor :c:func:`SUNLinSolNewEmpty()` allocates an "empty" generic
+The constructor :c:func:`SUNLinSolNewEmpty` allocates an "empty" generic
 SUNLINEARSOLVER with the object's content pointer and the function pointers
 in the operations structure initialized to ``NULL``. When used in the
 constructor for custom objects this function will ease the introduction of any
@@ -634,12 +645,12 @@ Added three new accessor functions to the SUNLinSol_KLU module,
 KLU solver structures.
 
 Added new Fortran 2003 interfaces for most SUNLINEARSOLVER modules. See the
-:numref:`Usage.Fortran.Modules` section for more details.
+:numref:`SUNDIALS.Fortran` section for more details.
 
 **SUNNonlinearSolver module changes**
 
 A new function was added to aid in creating custom SUNNONLINEARSOLVER
-objects. The constructor :c:func:`SUNNonlinSolNewEmpty()` allocates an "empty"
+objects. The constructor :c:func:`SUNNonlinSolNewEmpty` allocates an "empty"
 generic SUNNONLINEARSOLVER with the object's content pointer and the function
 pointers in the operations structure initialized to ``NULL``. When used in the
 constructor for custom objects this function will ease the introduction of any
@@ -663,11 +674,11 @@ Added a new ``SUNNonlinearSolver`` implementation, ``SUNNonlinsol_PetscSNES``,
 which interfaces to the PETSc SNES nonlinear solver API.
 
 Added new Fortran 2003 interfaces for most SUNNONLINEARSOLVER modules. See the
-:numref:`Usage.Fortran.Modules` section for more details.
+:numref:`SUNDIALS.Fortran` section for more details.
 
 **ARKODE changes**
 
-The MRIStep module has been updated to support explicit, implicit, or IMEX
+The MRIStep module has been updated to support explicit, implicit, or ImEx
 methods as the fast integrator using the ARKStep module. As a result some
 function signatures have been changed including :c:func:`MRIStepCreate` which
 now takes an ARKStep memory structure for the fast integration as an input.
@@ -726,7 +737,7 @@ transfers needed before or after the inner integration.
 
 A new Fortran 2003 interface to ARKODE was added. This includes Fortran 2003 interfaces
 to the ARKStep, ERKStep, and MRIStep time-stepping modules. See the
-:numref:`Usage.Fortran.Modules` section for more details.
+:numref:`SUNDIALS.Fortran` section for more details.
 
 
 
@@ -776,7 +787,7 @@ have been encapsulated inside the new ``ARKStep`` time-stepping
 module. Two new time-stepping modules have been added:
 
 * The ``ERKStep`` module provides an optimized implementation for explicit
-  Runge-Kutta methods with reduced storage and number of calls to the ODE
+  Runge--Kutta methods with reduced storage and number of calls to the ODE
   right-hand side function.
 
 * The ``MRIStep`` module implements two-rate explicit-explicit multirate
@@ -863,8 +874,8 @@ stage.  Users wishing to switch to the accelerated fixed-point solver
 are now required to create a SUNNonlinSol_FixedPoint object and attach
 that to ARKODE, instead of calling the previous
 ``ARKodeSetFixedPoint`` routine.  See the documentation sections
-:numref:`Usage.ARKStep.Skeleton`,
-:numref:`Usage.ARKStep.NonlinearSolvers`, and
+:numref:`ARKODE.Usage.ARKStep.Skeleton`,
+:numref:`ARKODE.Usage.ARKStep.NonlinearSolvers`, and
 :numref:`SUNNonlinSol.FixedPoint` for further details, or the serial C
 example program ``ark_brusselator_fp.c`` for an example.
 
@@ -1181,7 +1192,7 @@ The bugfixes include:
   at the beginning of the problem solution.
 
 * The choice of the method vs embedding the Billington and TRBDF2
-  explicit Runge-Kutta methods were swapped, since in those the
+  explicit Runge--Kutta methods were swapped, since in those the
   lower-order coefficients result in an A-stable method, while the
   higher-order coefficients do not.  This change results in
   significantly improved robustness when using those methods.
@@ -1241,18 +1252,13 @@ The feature changes/enhancements include:
   ERK method was added.
 
 * Support was added for the explicit and implicit methods in an
-  additive Runge-Kutta method to utilize different stage times,
+  additive Runge--Kutta method to utilize different stage times,
   solution and embedding coefficients, to support new SSP-ARK
   methods.
 
 * The FARKODE interface was extended to include a routine to set
   scalar/array-valued residual tolerances, to support Fortran
   applications with non-identity mass-matrices.
-
-
-
-
-
 
 
 Reading this User Guide
@@ -1267,19 +1273,19 @@ accommodate both styles.
 The structure of this document is as follows:
 
 * In the next section we provide a thorough presentation of the
-  underlying :ref:`mathematical algorithms <Mathematics>` used within
+  underlying :ref:`mathematical algorithms <ARKODE.Mathematics>` used within
   the ARKODE family of solvers.
 
 * We follow this with an overview of how the source code for both
-  SUNDIALS and ARKODE are :ref:`organized <Organization>`.
+  SUNDIALS and ARKODE are :ref:`organized <ARKODE.Organization>`.
 
 * The largest section follows, providing a full account of how to use
-  ARKODE's time-stepping modules, :ref:`ARKStep <Usage.ARKStep>`,
-  :ref:`ERKStep <Usage.ERKStep>`, and :ref:`MRIStep <Usage.MRIStep>`,
+  ARKODE's time-stepping modules, :ref:`ARKStep <ARKODE.Usage.ARKStep>`,
+  :ref:`ERKStep <ARKODE.Usage.ERKStep>`, and :ref:`MRIStep <ARKODE.Usage.MRIStep>`,
   within C and C++ applications.  This section then includes additional
   information on how to use ARKODE from applications written in
-  :ref:`Fortran <Usage.Fortran>`, as well as information on how to
-  leverage :ref:`GPU accelerators within ARKODE <Usage.GPU>`.
+  :ref:`Fortran <SUNDIALS.Fortran>`, as well as information on how to
+  leverage :ref:`GPU accelerators within ARKODE <SUNDIALS.GPU>`.
 
 * A much smaller section follows, describing ARKODE's
   :ref:`Butcher table structure <ARKodeButcherTable>`, that is used by
@@ -1296,99 +1302,20 @@ The structure of this document is as follows:
   :ref:`installation procedure <Installation>`.
 
 * The final sections catalog the full set of :ref:`ARKODE constants
-  <Constants>`, that are used for both input specifications and return
+  <ARKODE.Constants>`, that are used for both input specifications and return
   codes, and the full set of :ref:`Butcher tables <Butcher>` that are
   packaged with ARKODE.
 
 
-
-SUNDIALS Release License
+SUNDIALS License and Notices
 ----------------------------
 
-All SUNDIALS packages are released open source, under the BSD 3-Clause
-license. The only requirements of the license are preservation of copyright and
-a standard disclaimer of liability. The full text of the license and an
-additional notice are provided below and may also be found in the LICENSE and
-NOTICE files provided with all SUNDIALS packages.
+.. ifconfig:: package_name != 'super'
 
-**PLEASE NOTE**  If you are using SUNDIALS with any third party
-libraries linked in (e.g., LAPACK, KLU, SuperLU_MT, PETSc, or
-*hypre*), be sure to review the respective license of the package as
-that license may have more restrictive terms than the SUNDIALS
-license.  For example, if someone builds SUNDIALS with a statically
-linked KLU, the build is subject to terms of the more-restrictive LGPL
-license (which is what KLU is released with) and *not* the SUNDIALS
-BSD license anymore.
+   .. include:: ../../../shared/LicenseReleaseNumbers.rst
 
+.. ifconfig:: package_name == 'super'
 
-BSD 3-Clause License
-^^^^^^^^^^^^^^^^^^^^
-
-Copyright (c) 2002-2021, Lawrence Livermore National Security and Southern
-Methodist University.
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of the copyright holder nor the names of its
-  contributors may be used to endorse or promote products derived from
-  this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ''AS IS''
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-Additional Notice
-^^^^^^^^^^^^^^^^^
-
-This work was produced under the auspices of the U.S. Department of
-Energy by Lawrence Livermore National Laboratory under Contract
-DE-AC52-07NA27344.
-
-This work was prepared as an account of work sponsored by an agency of
-the United States Government. Neither the United States Government nor
-Lawrence Livermore National Security, LLC, nor any of their employees
-makes any warranty, expressed or implied, or assumes any legal liability
-or responsibility for the accuracy, completeness, or usefulness of any
-information, apparatus, product, or process disclosed, or represents that
-its use would not infringe privately owned rights.
-
-Reference herein to any specific commercial product, process, or service
-by trade name, trademark, manufacturer, or otherwise does not necessarily
-constitute or imply its endorsement, recommendation, or favoring by the
-United States Government or Lawrence Livermore National Security, LLC.
-
-The views and opinions of authors expressed herein do not necessarily
-state or reflect those of the United States Government or Lawrence
-Livermore National Security, LLC, and shall not be used for advertising
-or product endorsement purposes.
-
-SUNDIALS Release Numbers
-^^^^^^^^^^^^^^^^^^^^^^^^
-LLNL-CODE-667205  (ARKODE)
-
-UCRL-CODE-155951  (CVODE)
-
-UCRL-CODE-155950  (CVODES)
-
-UCRL-CODE-155952  (IDA)
-
-UCRL-CODE-237203  (IDAS)
-
-LLNL-CODE-665877  (KINSOL)
+   All SUNDIALS packages are released open source, under the BSD 3-Clause
+   license for more details see the LICENSE and NOTICE files provided with all
+   SUNDIALS packages.

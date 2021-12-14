@@ -153,55 +153,35 @@ NVECTOR_PTHREADS functions
 -----------------------------------
 
 The NVECTOR_PTHREADS module defines Pthreads implementations of all vector
-operations listed in the sections :numref:`NVectors.Ops`,
+operations listed in :numref:`NVectors.Ops`,
 :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
 :numref:`NVectors.Ops.Local`.  Their names
 are obtained from those in those sections by appending the suffix
 ``_Pthreads`` (e.g. N_VDestroy_Pthreads).  All the standard vector
-operations listed in the section :numref:`NVectors.Ops` are callable via
+operations listed in :numref:`NVectors.Ops` are callable via
 the Fortran 2003 interface by prepending an `F' (e.g. ``FN_VDestroy_Pthreads``).
 The module NVECTOR_PTHREADS provides the following additional
 user-callable routines:
 
 
-.. c:function:: N_Vector N_VNew_Pthreads(sunindextype vec_length, int num_threads)
+.. c:function:: N_Vector N_VNew_Pthreads(sunindextype vec_length, int num_threads, SUNContext sunctx)
 
    This function creates and allocates memory for a Pthreads
    ``N_Vector``. Arguments are the vector length and number of threads.
 
 
-.. c:function:: N_Vector N_VNewEmpty_Pthreads(sunindextype vec_length, int num_threads)
+.. c:function:: N_Vector N_VNewEmpty_Pthreads(sunindextype vec_length, int num_threads, SUNContext sunctx)
 
    This function creates a new Pthreads ``N_Vector`` with an empty
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_Pthreads(sunindextype vec_length, realtype* v_data, int num_threads)
+.. c:function:: N_Vector N_VMake_Pthreads(sunindextype vec_length, realtype* v_data, int num_threads, SUNContext sunctx)
 
    This function creates and allocates memory for a Pthreads vector with
    user-provided data array, *v_data*.
 
    (This function does *not* allocate memory for ``v_data`` itself.)
-
-
-.. c:function:: N_Vector* N_VCloneVectorArray_Pthreads(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count* Pthreads
-   vectors.
-
-
-.. c:function:: N_Vector* N_VCloneVectorArrayEmpty_Pthreads(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count* Pthreads
-   vectors, each with an empty (```NULL``) data array.
-
-
-.. c:function:: void N_VDestroyVectorArray_Pthreads(N_Vector* vs, int count)
-
-   This function frees memory allocated for the array of *count*
-   variables of type ``N_Vector`` created with
-   :c:func:`N_VCloneVectorArray_Pthreads()` or with
-   :c:func:`N_VCloneVectorArrayEmpty_Pthreads()`.
 
 
 .. c:function:: void N_VPrint_Pthreads(N_Vector v)
@@ -300,11 +280,12 @@ options as the vector they are cloned from while vectors created with
 **Notes**
 
 * When looping over the components of an ``N_Vector v``, it is more
-  efficient to first obtain the component array via ``v_data =
+  efficient to first obtain the component array via
+  ``v_data = N_VGetArrayPointer(v)``, or equivalently ``v_data =
   NV_DATA_PT(v)`` and then access ``v_data[i]`` within the loop than it
   is to use ``NV_Ith_S(v,i)`` within the loop.
 
-* :c:func:`N_VNewEmpty_Pthreads()`, :c:func:`N_VMake_Pthreads()`, and
+* :c:func:`N_VNewEmpty_Pthreads`, :c:func:`N_VMake_Pthreads`, and
   :c:func:`N_VCloneVectorArrayEmpty_Pthreads()` set the field *own_data*
   to ``SUNFALSE``.  The functions :c:func:`N_VDestroy_Pthreads()` and
   :c:func:`N_VDestroyVectorArray_Pthreads()` will not attempt to free the
@@ -320,14 +301,10 @@ options as the vector they are cloned from while vectors created with
   internal representations.
 
 
-NVECTOR_PTHREADS Fortran Interfaces
+NVECTOR_PTHREADS Fortran Interface
 ------------------------------------
 
-The NVECTOR_PTHREADS module provides a Fortran 2003 module as well as
-Fortran 77 style interface functions for use from Fortran applications.
-
-FORTRAN 2003 interface module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The NVECTOR_PTHREADS module provides a Fortran 2003 module for use from Fortran applications.
 
 The ``fnvector_pthreads_mod`` Fortran module defines interfaces to all
 NVECTOR_PTHREADS C functions using the intrinsic ``iso_c_binding``
@@ -341,17 +318,4 @@ The Fortran 2003 NVECTOR_PTHREADS interface module can be accessed with the ``us
 statement, i.e. ``use fnvector_pthreads_mod``, and linking to the library
 ``libsundials_fnvectorpthreads_mod.lib`` in addition to the C library.
 For details on where the library and module file
-``fnvector_pthreads_mod.mod`` are installed see the section :numref:`Installation`.
-
-
-FORTRAN 77 interface functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-For solvers that include a Fortran interface module, the
-NVECTOR_PTHREADS module slso includes a Fortran-callable function
-``FNVINITPTS(code, NEQ, NUMTHREADS, IER)``, to initialize this
-module.  Here ``code`` is an input solver id
-(1 for CVODE, 2 for IDA, 3 for KINSOL, 4 for ARKODE); ``NEQ`` is
-the problem size (declared so as to match C type ``long int``);
-``NUMTHREADS`` is the number of threads; and ``IER`` is an error
-return flag equal 0 for success and -1 for failure.
+``fnvector_pthreads_mod.mod`` are installed see :numref:`Installation`.

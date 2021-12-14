@@ -28,7 +28,7 @@ below.
    matrix implementation type (e.g. dense, banded, sparse,...) from the abstract
    ``SUNMatrix`` interface.  This is used to assess compatibility with
    SUNDIALS-provided linear solver implementations.  Returned values
-   are given in the Table :numref:`SUNMatrix.Description.matrixIDs`
+   are given in :numref:`SUNMatrix.Description.matrixIDs`
 
    Usage:
 
@@ -40,7 +40,7 @@ below.
 .. c:function:: SUNMatrix SUNMatClone(SUNMatrix A)
 
    Creates a new ``SUNMatrix`` of the same type as an existing
-   matrix *A* and sets the *ops* field.  It does not copy the matrix,
+   matrix *A* and sets the *ops* field.  It does not copy the matrix values,
    but rather allocates storage for the new matrix.
 
    Usage:
@@ -77,7 +77,7 @@ below.
 
    .. code-block:: c
 
-      ier = SUNMatSpace(A, &lrw, &liw);
+      retval = SUNMatSpace(A, &lrw, &liw);
 
 
 .. c:function:: int SUNMatZero(SUNMatrix A)
@@ -92,12 +92,12 @@ below.
 
    .. code-block:: c
 
-      ier = SUNMatZero(A);
+      retval = SUNMatZero(A);
 
 
 .. c:function:: int SUNMatCopy(SUNMatrix A, SUNMatrix B)
 
-   Performs the operation *B = A* for all entries of the matrices *A*
+   Performs the operation *B \gets A* for all entries of the matrices *A*
    and *B*.  The return value is an integer flag denoting success/failure of
    the operation:
 
@@ -108,12 +108,12 @@ below.
 
    .. code-block:: c
 
-      ier = SUNMatCopy(A,B);
+      retval = SUNMatCopy(A,B);
 
 
 .. c:function:: int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B)
 
-   Performs the operation *A = cA + B*.  The return value is an integer
+   Performs the operation *A \gets cA + B*.  The return value is an integer
    flag denoting success/failure of the operation:
 
    .. math::
@@ -123,12 +123,12 @@ below.
 
    .. code-block:: c
 
-      ier = SUNMatScaleAdd(c, A, B);
+      retval = SUNMatScaleAdd(c, A, B);
 
 
 .. c:function:: int SUNMatScaleAddI(realtype c, SUNMatrix A)
 
-   Performs the operation *A = cA + I*.  The return value is an integer
+   Performs the operation *A \gets cA + I*.  The return value is an integer
    flag denoting success/failure of the operation:
 
    .. math::
@@ -138,7 +138,7 @@ below.
 
    .. code-block:: c
 
-      ier = SUNMatScaleAddI(c, A);
+      retval = SUNMatScaleAddI(c, A);
 
 
 .. c:function:: int SUNMatMatvecSetup(SUNMatrix A)
@@ -153,11 +153,11 @@ below.
 
    .. code-block:: c
 
-      ier = SUNMatMatvecSetup(A);
+      retval = SUNMatMatvecSetup(A);
 
 .. c:function:: int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 
-   Performs the matrix-vector product *y = Ax*.  It should
+   Performs the matrix-vector product *y \gets Ax*.  It should
    only be called with vectors *x* and *y* that are compatible with
    the matrix *A* -- both in storage type and dimensions.  The return
    value is an integer flag denoting success/failure of the operation:
@@ -169,7 +169,7 @@ below.
 
    .. code-block:: c
 
-      ier = SUNMatMatvec(A, x, y);
+      retval = SUNMatMatvec(A, x, y);
 
 
 .. _SUNMatrix.Ops.errorCodes:
@@ -177,9 +177,12 @@ below.
 SUNMatrix return codes
 ----------------------
 
-The functions provided to SUNMatrix modules within the SUNDIALS-provided SUNMatrix implementations utilize a common set of return codes, listed below. These adhere to a
-common pattern: 0 indicates success, a negative value indicates a failure. Aside
-from this pattern, the actual values of each error code are primarily to provide additional information to the user in case of a SUNMatrix failure.
+The functions provided to SUNMatrix modules within the SUNDIALS-provided
+SUNMatrix implementations utilize a common set of return codes, listed below.
+These adhere to a common pattern: 0 indicates success, a negative value
+indicates a failure. Aside from this pattern, the actual values of each error
+code are primarily to provide additional information to the user in case of a
+SUNMatrix failure.
 
 * ``SUNMAT_SUCCESS`` (0) -- successful call
 
@@ -189,6 +192,5 @@ from this pattern, the actual values of each error code are primarily to provide
 
 * ``SUNMAT_OPERATION_FAIL`` (-3) -- a SUNMatrix operation returned nonzero
 
-* ``SUNMAT_MATVEC_SETUP_REQUIRED`` (-4) -- the ``SUNMatMatvecSetup`` routine needs to be
-  called prior to calling ``SUNMatMatvec``
-
+* ``SUNMAT_MATVEC_SETUP_REQUIRED`` (-4) -- the :c:func:`SUNMatMatvecSetup` routine needs to be
+  called prior to calling :c:func:`SUNMatMatvec`

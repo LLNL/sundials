@@ -17,10 +17,12 @@
 The SUNLinSol_SuperLUDIST Module
 ======================================
 
-The SuperLU_DIST implementation of the SUNLinearSolver module provided with SUNDIALS,
-SUNLinsol_SuperLUDIST, is designed to be used with the SUNMatrix_SLUNRloc SUNMatrix,
-and one of the serial, threaded or parallel N_Vector implementations (NVECTOR_SERIAL,
-NVECTOR_OPENMP, NVECTOR_PTHREADS, NVECTOR_PARALLEL, NVECTOR_PARHYP).
+The SUNLinsol_SuperLUDIST implementation of the ``SUNLinearSolver`` class interfaces
+with the SuperLU_DIST library.  This is designed to be used with the
+SUNMatrix_SLUNRloc :c:type:`SUNMatrix`, and one of the serial, threaded or parallel
+N_Vector implementations (NVECTOR_SERIAL, NVECTOR_OPENMP, NVECTOR_PTHREADS,
+NVECTOR_PARALLEL, NVECTOR_PARHYP).
+
 
 .. _SUNLinSol.SuperLUDIST.Usage:
 
@@ -46,34 +48,43 @@ The module SUNLinSol_SuperLUDIST provides the following user-callable routines:
   SuperLU_DIST version.
 
 
-.. c:function:: SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SuperMatrix *A, gridinfo_t *grid, xLUstruct_t *lu, xScalePermstruct_t *scaleperm, xSOLVEstruct_t *solve, SuperLUStat_t *stat, superlu_dist_options_t *options)
+.. c:function:: SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SuperMatrix *A, gridinfo_t *grid, xLUstruct_t *lu, xScalePermstruct_t *scaleperm, xSOLVEstruct_t *solve, SuperLUStat_t *stat, superlu_dist_options_t *options, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a SUNLinSol_SuperLUDIST
-   object. Its arguments are an ``N_Vector``, a ``SUNMatrix``, and SuperLU_DIST
-   ``gridinfo_t*``, ``LUstuct_t*``, ``xScalePermstruct_t*``, ``xSOLVEstruct_t*``,
-   ``SuperLUStat_t*``, and ``superlu_dist_options_t*`` pointers. This routine
-   analyzes the input matrix and vector to determine the linear system size and
-   to assess the compatibility with the SuperLU_DIST library.
+   object.
 
-   This routine will perform consistency checks to ensure that it is called with
-   consistent N_Vector and SUNMatrix implementations. These are currently limited
-   to the SUNMatrix_SLUNRloc matrix type and the NVECTOR_SERIAL, NVECTOR_OPENMP,
-   NVECTOR_PTHREADS, NVECTOR_PARALLEL, and NVECTOR_PARHYP vector types. As
-   additional compatible matrix and vector implementations are added to SUNDIALS,
-   these will be included within this compatibility check.
+   **Arguments:**
+      * *y* -- a template vector.
+      * *A* -- a template matrix
+      * *grid*, *lu*, *scaleperm*, *solve*, *stat*, *options* -- SuperLU_DIST object pointers.
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
-   The ``grid``, ``lu``, ``scaleperm``, ``solve``, and ``options`` arguments are
-   not checked and are passed directly to SuperLU_DIST routines.
+   **Return value:**
+      If successful, a ``SUNLinearSolver`` object; otherwise this routine will return ``NULL``.
 
-   Some struct members of the ``options`` argument are modified internally by
-   the SUNLinSol_SuperLUDIST solver. Specifically, the member ``Fact``
-   is modified in the setup and solve routines.
+   **Notes:**
+      This routine analyzes the input matrix and vector to determine the linear
+      system size and to assess the compatibility with the SuperLU_DIST library.
+
+      This routine will perform consistency checks to ensure that it is called with
+      consistent N_Vector and SUNMatrix implementations. These are currently limited
+      to the SUNMatrix_SLUNRloc matrix type and the NVECTOR_SERIAL, NVECTOR_OPENMP,
+      NVECTOR_PTHREADS, NVECTOR_PARALLEL, and NVECTOR_PARHYP vector types. As
+      additional compatible matrix and vector implementations are added to SUNDIALS,
+      these will be included within this compatibility check.
+
+      The ``grid``, ``lu``, ``scaleperm``, ``solve``, and ``options`` arguments are
+      not checked and are passed directly to SuperLU_DIST routines.
+
+      Some struct members of the ``options`` argument are modified internally by
+      the SUNLinSol_SuperLUDIST solver. Specifically, the member ``Fact``
+      is modified in the setup and solve routines.
 
 
 .. c:function:: realtype SUNLinSol_SuperLUDIST_GetBerr(SUNLinearSolver LS)
 
    This function returns the componentwise relative backward error of the
-   computed solution. It takes one argument, the ``SUNLinearSolver`` object.
+   computed solution.   It takes one argument, the ``SUNLinearSolver`` object.
    The return type is ``realtype``.
 
 
@@ -174,7 +185,7 @@ information:
 
 The SUNLinSol_SuperLUDIST module is a SUNLinearSolver adapter for the
 SuperLU_DIST sparse matrix factorization and solver library written by
-X. Sherry Li (:cite:p:`SuperLUDIST_site`, :cite:p:`GDL:07`, :cite:p:`LD:03`, :cite:p`SLUUG:99`).
+X. Sherry Li and collaborators :cite:p:`SuperLUDIST_site,GDL:07,LD:03,SLUUG:99`.
 The package uses a SPMD parallel programming model and multithreading
 to enhance efficiency in distributed-memory parallel environments with
 multicore nodes and possibly GPU accelerators. It uses MPI for communication,
@@ -182,7 +193,7 @@ OpenMP for threading, and CUDA for GPU support. In order to use the
 SUNLinSol_SuperLUDIST interface to SuperLU_DIST, it is assumed that SuperLU_DIST
 has been installed on the system prior to installation of SUNDIALS, and
 that SUNDIALS has been configured appropriately to link with SuperLU_DIST
-(see Appendix :numref:`Installation.CMake.ExternalLibraries` for details).
+(see :numref:`Installation.CMake.ExternalLibraries` for details).
 Additionally, the wrapper only
 supports double-precision calculations, and therefore cannot be compiled if SUNDIALS
 is configured to use single or extended precision. Moreover, since the SuperLU_DIST
@@ -223,7 +234,7 @@ constructed to perform the following operations:
 
 
 The SUNLinSol_SuperLUDIST module defines implementations of all
-"direct" linear solver operations listed in the section
+"direct" linear solver operations listed in
 :numref:`SUNLinSol.API`:
 
 * ``SUNLinSolGetType_SuperLUDIST``

@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,11 +12,11 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Usage.ERKStep:
+.. _ARKODE.Usage.ERKStep:
 
-==========================================
-Using ERKStep for C and C++ Applications
-==========================================
+======================================
+Using the ERKStep time-stepping module
+======================================
 
 This chapter is concerned with the use of the ERKStep time-stepping
 module for the solution of nonstiff initial value problems (IVPs) in a
@@ -31,8 +31,8 @@ included in the ARKODE package ``examples`` subdirectory.
 
 ERKStep uses the input and output constants from the shared ARKODE
 infrastructure. These are defined as needed in this chapter, but for
-convenience the full list is provided separately in the section
-:numref:`Constants`.
+convenience the full list is provided separately in
+:numref:`ARKODE.Constants`.
 
 The relevant information on using ERKStep's C and C++ interfaces is
 detailed in the following sub-sections.
@@ -40,7 +40,5 @@ detailed in the following sub-sections.
 .. toctree::
    :maxdepth: 1
 
-   General
    Skeleton
    User_callable
-   User_supplied

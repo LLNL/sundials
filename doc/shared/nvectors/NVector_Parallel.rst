@@ -18,7 +18,7 @@ The NVECTOR_PARALLEL Module
 ===========================
 
 The NVECTOR_PARALLEL implementation of the NVECTOR module provided with
-SUNDIALS is based on MPI.  It defines the *content* field of a
+SUNDIALS is based on MPI.  It defines the *content* field of an
 ``N_Vector`` to be a structure containing the global and local lengths
 of the vector, a pointer to the beginning of a contiguous local data
 array, an MPI communicator, an a boolean flag *own_data* indicating
@@ -154,52 +154,31 @@ NVECTOR_PARALLEL functions
 -----------------------------------
 
 The NVECTOR_PARALLEL module defines parallel implementations of all
-vector operations listed in the sections :numref:`NVectors.Ops`,
-:numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
-:numref:`NVectors.Ops.Local`.  Their names are obtained from those in
-those sections by appending the suffix ``_Parallel``
+vector operations listed in :numref:`NVectors.Ops`.  Their names are
+obtained from the generic names by appending the suffix ``_Parallel``
 (e.g. ``N_VDestroy_Parallel``).   The module NVECTOR_PARALLEL provides
 the following additional user-callable routines:
 
 
-.. c:function:: N_Vector N_VNew_Parallel(MPI_Comm comm, sunindextype local_length, sunindextype global_length)
+.. c:function:: N_Vector N_VNew_Parallel(MPI_Comm comm, sunindextype local_length, sunindextype global_length, SUNContext sunctx)
 
    This function creates and allocates memory for a parallel vector
    having global length *global_length*, having processor-local length
    *local_length*, and using the MPI communicator *comm*.
 
 
-.. c:function:: N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, sunindextype local_length, sunindextype global_length)
+.. c:function:: N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, sunindextype local_length, sunindextype global_length, SUNContext sunctx)
 
    This function creates a new parallel ``N_Vector`` with an empty
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_Parallel(MPI_Comm comm, sunindextype local_length, sunindextype global_length, realtype* v_data)
+.. c:function:: N_Vector N_VMake_Parallel(MPI_Comm comm, sunindextype local_length, sunindextype global_length, realtype* v_data, SUNContext sunctx)
 
    This function creates and allocates memory for a parallel vector
    with user-provided data array.
 
    (This function does *not* allocate memory for ``v_data`` itself.)
-
-
-.. c:function:: N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
-
-  This function creates (by cloning) an array of *count* parallel vectors.
-
-
-.. c:function:: N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count* parallel
-   vectors, each with an empty (``NULL``) data array.
-
-
-.. c:function:: void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count)
-
-   This function frees memory allocated for the array of *count*
-   variables of type ``N_Vector`` created with
-   :c:func:`N_VCloneVectorArray_Parallel()` or with
-   :c:func:`N_VCloneVectorArrayEmpty_Parallel()`.
 
 
 .. c:function:: sunindextype N_VGetLocalLength_Parallel(N_Vector v)
@@ -223,9 +202,9 @@ enable or disable fused and vector array operations for a specific vector. To
 ensure consistency across vectors it is recommended to first create a vector
 with :c:func:`N_VNew_Parallel`, enable/disable the desired operations for that vector
 with the functions below, and create any additional vectors from that vector
-using :c:func:`N_VClone`. This guarantees the new vectors will have the same
+using :c:func:`N_VClone`. This guarantees that the new vectors will have the same
 operations enabled/disabled as cloned vectors inherit the same enable/disable
-options as the vector they are cloned from while vectors created with
+options as the vector they are cloned from, while vectors created with
 :c:func:`N_VNew_Parallel` will have the default settings for the NVECTOR_PARALLEL module.
 
 .. c:function:: int N_VEnableFusedOps_Parallel(N_Vector v, booleantype tf)
@@ -303,11 +282,12 @@ options as the vector they are cloned from while vectors created with
 **Notes**
 
 * When looping over the components of an ``N_Vector v``, it is
-  more efficient to first obtain the local component array via ``v_data
-  = NV_DATA_P(v)`` and then access ``v_data[i]`` within the loop than it
-  is to use ``NV_Ith_P(v,i)`` within the loop.
+  more efficient to first obtain the local component array via
+  ``v_data = N_VGetArrayPointer(v)``, or equivalently
+  ``v_data = NV_DATA_P(v)``, and then access ``v_data[i]`` within the loop
+  than it is to use ``NV_Ith_P(v,i)`` within the loop.
 
-* :c:func:`N_VNewEmpty_Parallel()`, :c:func:`N_VMake_Parallel()`, and
+* :c:func:`N_VNewEmpty_Parallel`, :c:func:`N_VMake_Parallel`, and
   :c:func:`N_VCloneVectorArrayEmpty_Parallel()` set the field *own_data* to
   ``SUNFALSE``. The routines :c:func:`N_VDestroy_Parallel()` and
   :c:func:`N_VDestroyVectorArray_Parallel()` will not attempt to free the
@@ -324,25 +304,23 @@ options as the vector they are cloned from while vectors created with
 
 
 
-NVECTOR_PARALLEL Fortran Interfaces
+NVECTOR_PARALLEL Fortran Interface
 ------------------------------------
 
-For solvers that include a Fortran interface module, the
-NVECTOR_PARALLEL module also includes a Fortran-callable function
-``FNVINITP(COMM, code, NLOCAL, NGLOBAL, IER)``, to initialize this
-NVECTOR_PARALLEL module.  Here ``COMM`` is the MPI communicator,
-``code`` is an input solver id (1 for CVODE, 2 for IDA, 3 for KINSOL,
-4 for ARKODE); ``NLOCAL`` and ``NGLOBAL`` are the local and global
-vector sizes, respectively (declared so as to match C type ``long
-int``); and ``IER`` is an error return flag equal 0 for success and -1
-for failure.
+The NVECTOR_PARALLEL module provides a Fortran 2003 module for use from Fortran applications.
 
+The ``fnvector_parallel_mod`` Fortran module defines interfaces to all
+NVECTOR_PARALLEL C functions using the intrinsic ``iso_c_binding``
+module which provides a standardized mechanism for interoperating with C. As
+noted in the C function descriptions above, the interface functions are
+named after the corresponding C function, but with a leading ``F``. For
+example, the function ``N_VNew_Parallel`` is interfaced as
+``FN_VNew_Parallel``.
 
-.. note::
-
-   If the header file ``sundials_config.h`` defines
-   ``SUNDIALS_MPI_COMM_F2C`` to be 1 (meaning the MPI implementation
-   used to build SUNDIALS includes the ``MPI_Comm_f2c`` function),
-   then ``COMM`` can be any valid MPI communicator. Otherwise,
-   ``MPI_COMM_WORLD`` will be used, so just pass an integer value as a
-   placeholder.
+The Fortran 2003 NVECTOR_PARALLEL interface module can be accessed with the ``use``
+statement, i.e. ``use fnvector_parallel_mod``, and linking to the library
+``libsundials_fnvectorparallel_mod.lib`` in addition to the C library.
+For details on where the library and module file
+``fnvector_parallel_mod.mod`` are installed see :numref:`Installation`.
+We note that the module is accessible from the Fortran 2003 SUNDIALS integrators
+*without* separately linking to the ``libsundials_fnvectorparallel_mod`` library.

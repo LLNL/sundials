@@ -12,6 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
+
 .. _NVectors.RAJA:
 
 The NVECTOR_RAJA Module
@@ -60,7 +61,7 @@ are provided below.
 The header file to include when using this is ``nvector_raja.h``. The installed
 module library to link to is ``libsundials_nveccudaraja.lib`` when using the
 CUDA backend, ``libsundials_nvechipraja.lib`` when using the HIP backend, and
-``libsundials_nvecsyclraja.lib`` when using the HIP backend. The extension
+``libsundials_nvecsyclraja.lib`` when using the SYCL backend. The extension
 ``.lib`` is typically ``.so`` for shared libraries ``.a`` for static libraries.
 
 
@@ -89,55 +90,54 @@ accessor functions:
 
 
 The NVECTOR_RAJA module defines the implementations of all vector
-operations listed in the sections :ref:`NVectors.Ops`,
-:ref:`NVectors.Ops.Fused`, :ref:`NVectors.Ops.Array`, and
-:ref:`NVectors.Ops.Local`, except for
-``N_VDotProdMulti``, ``N_VWrmsNormVectorArray``,
-``N_VWrmsNormMaskVectorArray`` as support for arrays of reduction
+operations listed in :numref:`NVectors.Ops`,
+:numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
+:numref:`NVectors.Ops.Local`, except for
+:c:func:`N_VDotProdMulti`, :c:func:`N_VWrmsNormVectorArray`, and
+:c:func:`N_VWrmsNormMaskVectorArray` as support for arrays of reduction
 vectors is not yet supported in RAJA.  These functions will be added
 to the NVECTOR_RAJA implementation in the future.  Additionally, the
-operations ``N_VGetArrayPointer`` and ``N_VSetArrayPointer`` are not
-implemented by the RAJA vector.  As such, this
-vector cannot be used with SUNDIALS Fortran interfaces, nor with
-SUNDIALS direct solvers and preconditioners. The NVECTOR_RAJA module
-provides separate functions to access data on the host and on the
-device. It also provides methods for copying from the host to the
-device and vice versa. Usage examples of NVECTOR_RAJA are provided in
-some example programs for CVODE :cite:p:`cvode_ex`.
+operations :c:func:`N_VGetArrayPointer` and :c:func:`N_VSetArrayPointer`
+are not implemented by the RAJA vector.  As such, this
+vector cannot be used with SUNDIALS direct solvers and preconditioners.
+The NVECTOR_RAJA module provides separate functions to access data on
+the host and on the device. It also provides methods for copying from
+the host to the device and vice versa. Usage examples of NVECTOR_RAJA
+are provided in some example programs for CVODE :cite:p:`cvode_ex`.
 
-The names of vector operations are obtained from those in the sections
-:ref:`NVectors.Ops`, :ref:`NVectors.Ops.Fused`, :ref:`NVectors.Ops.Array`, and
-:ref:`NVectors.Ops.Local` by appending the suffix ``_Raja``
-(e.g. ``N_VDestroy_Raja``).  The module NVECTOR_RAJA
-provides the following additional user-callable routines:
+The names of vector operations are obtained from those in
+:numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
+:numref:`NVectors.Ops.Array`, and :numref:`NVectors.Ops.Local` by
+appending the suffix ``_Raja`` (e.g. ``N_VDestroy_Raja``).  The module
+NVECTOR_RAJA provides the following additional user-callable routines:
 
 
-.. c:function:: N_Vector N_VNew_Raja(sunindextype vec_length)
+.. c:function:: N_Vector N_VNew_Raja(sunindextype vec_length, SUNContext sunctx)
 
    This function creates and allocates memory for a RAJA
    ``N_Vector``. The memory is allocated on both the host and the
    device. Its only argument is the vector length.
 
 
-.. c:function:: N_Vector N_VNewManaged_Raja(sunindextype vec_length)
+.. c:function:: N_Vector N_VNewManaged_Raja(sunindextype vec_length, SUNContext sunctx)
 
    This function creates and allocates memory for a RAJA ``N_Vector``.
    The vector data array is allocated in managed memory.
 
 
-.. c:function:: N_Vector N_VMake_Raja(sunindextype length, realtype *h_data, realtype *v_data)
+.. c:function:: N_Vector N_VMake_Raja(sunindextype length, realtype *h_data, realtype *v_data, SUNContext sunctx)
 
    This function creates an NVECTOR_RAJA with user-supplied host and device
    data arrays. This function does not allocate memory for data itself.
 
 
-.. c:function:: N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata)
+.. c:function:: N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata, SUNContext sunctx)
 
    This function creates an NVECTOR_RAJA with a user-supplied managed
    memory data array. This function does not allocate memory for data itself.
 
 
-.. c:function:: N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper)
+.. c:function:: N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
 
    This function creates an NVECTOR_RAJA with a user-supplied SUNMemoryHelper
    for allocating/freeing memory.
@@ -256,6 +256,11 @@ options as the vector they are cloned from while vectors created with
 
 
 **Notes**
+
+* When there is a need to access components of an NVECTOR_RAJA vector,
+  it is recommended to use functions :c:func:`N_VGetDeviceArrayPointer_Raja()` or
+  :c:func:`N_VGetHostArrayPointer_Raja()`. However, when using managed memory,
+  the function :c:func:`N_VGetArrayPointer` may also be used.
 
 * To maximize efficiency, vector operations in the NVECTOR_RAJA implementation
   that have more than one ``N_Vector`` argument do not check for

@@ -1,3 +1,15 @@
+% ----------------------------------------------------------------
+% SUNDIALS Copyright Start
+% Copyright (c) 2002-2021, Lawrence Livermore National Security
+% and Southern Methodist University.
+% All rights reserved.
+%
+% See the top-level LICENSE and NOTICE files for details.
+%
+% SPDX-License-Identifier: BSD-3-Clause
+% SUNDIALS Copyright End
+% ----------------------------------------------------------------
+
 % Extensive bib file for SUNDIALS
 %
 % Label convention:
@@ -193,6 +205,18 @@ journal = {ACM Trans. Math. Softw.},
 number  = {31},
 pages   = {363--396},
 year    = 2005
+}
+%
+% SUNDIALS PARCO GPU paper
+%
+@article{balos2021enabling,
+title     = {{Enabling GPU accelerated computing in the SUNDIALS time integration library}},
+author    = {Balos, Cody J and Gardner, David J and Woodward, Carol S and Reynolds, Daniel R},
+journal   = {Parallel Computing},
+volume    = {108},
+pages     = {102836},
+year      = {2021},
+publisher = {Elsevier}
 }
 %
 % CVODES ASME article
@@ -1336,6 +1360,13 @@ address   = {Dordrecht},
 year      = {1999}
 }
 
+@book{Frank-Kam:55,
+ author = {D. A. Frank-Kamenetskii and N. Thon},
+ publisher = {Princeton University Press},
+ title = {Diffusion and Heat Exchange in Chemical Kinetics},
+ year = {1955}
+}
+
 %
 % Citations for Picard, Anderson, Broyden
 %
@@ -1397,6 +1428,26 @@ year      = {1999}
   publisher = {SIAM},
   address   = {Philadelphia},
   note      = {Originally published in 1970 by Academic Press}
+}
+
+%
+% Low synchronization orthogonalization routines
+%
+
+@article{lowSyncGMRES,
+  title = {Low synchronization Gram-Schmidt and GMRES algorithms},
+  author = {Swirydowicz, Kasia and Langou, Julien and Ananthan, Shreyas and Yang, Ulrike and Thomas, Stephen},
+  journal = {Numerical Linear Algebra with Applications},
+  year = {2020},
+  month = {02}
+}
+
+@inproceedings{hernandez2005parallel,
+  title={A Parallel Variant of the Gram-Schmidt Process with Reorthogonalization.},
+  author={Hern{\'a}ndez, Vicente and Rom{\'a}n, Jos{\'e} E and Tom{\'a}s, Andr{\'e}s},
+  booktitle={PARCO},
+  pages={221--228},
+  year={2005}
 }
 
 %
@@ -1596,6 +1647,20 @@ bibsource     = {dblp computer science bibliography, https://dblp.org}
   year      = {2010},
   publisher = {Elsevier}
 }
+
+%
+% Caliper
+%
+
+@inproceedings{Caliper:2016,
+  title        = {Caliper: performance introspection for HPC software stacks},
+  author       = {Boehme, David and Gamblin, Todd and Beckingsale, David and Bremer, Peer-Timo and Gimenez, Alfredo and LeGendre, Matthew and Pearce, Olga and Schulz, Martin},
+  booktitle    = {SC'16: Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis},
+  pages        = {550--560},
+  year         = {2016},
+  organization = {IEEE}
+}
+
 
 %---------------------------------------------------------
 % FROM ARKODE

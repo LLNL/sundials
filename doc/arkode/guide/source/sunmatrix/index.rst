@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -14,11 +14,11 @@
 
 .. _SUNMatrix:
 
-######################
+**********************
 Matrix Data Structures
-######################
+**********************
 
-The SUNDIALS library comes packaged with a variety of ``SUNMatrix``
+The SUNDIALS library comes packaged with a variety of :c:type:`SUNMatrix`
 implementations, designed for simulations requiring direct linear
 solvers for problems in serial or shared-memory parallel
 environments.  SUNDIALS additionally provides a simple interface for
@@ -26,8 +26,8 @@ generic matrices (akin to a C++ *abstract base class*).  All of the
 major SUNDIALS packages (CVODE(s), IDA(s), KINSOL, ARKODE), are
 constructed to only depend on these generic matrix operations, making
 them immediately extensible to new user-defined matrix objects.  For
-each of the SUNDIALS-provided matrix types, SUNDIALS also provides at
-least two ``SUNLinearSolver`` implementations that factor these
+each of the SUNDIALS-provided matrix types, SUNDIALS also provides
+:c:type:`SUNLinearSolver` implementations that factor these
 matrix objects and use them in the solution of linear systems.
 
 
@@ -35,15 +35,5 @@ matrix objects and use them in the solution of linear systems.
 .. toctree::
    :maxdepth: 1
 
-   SUNMatrix_Description
-   SUNMatrix_Operations
-   SUNMatrix_Compatibility
-   SUNMatrix_Dense
-   SUNMatrix_MagmaDense
-   SUNMatrix_OneMklDense
-   SUNMatrix_Band
-   SUNMatrix_cuSparse
-   SUNMatrix_Sparse
-   SUNMatrix_SLUNRloc
-   SUNMatrix_Examples
-   ARKode_requirements
+   SUNMatrix_links.rst
+   ARKODE_requirements

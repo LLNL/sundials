@@ -17,11 +17,10 @@
 The SUNLinSol_LapackDense Module
 ======================================
 
-The LAPACK dense implementation of the ``SUNLinearSolver`` module provided
-with SUNDIALS, SUNLinSol_LapackDense, is designed to be used with the
-corresponding SUNMATRIX_DENSE matrix type, and one of the serial or
-shared-memory ``N_Vector`` implementations (NVECTOR_SERIAL, NVECTOR_OPENMP, or
-NVECTOR_PTHREADS).
+The SUNLinSol_LapackDense implementation of the ``SUNLinearSolver`` class
+is designed to be used with the corresponding SUNMATRIX_DENSE matrix type,
+and one of the serial or shared-memory ``N_Vector`` implementations
+(NVECTOR_SERIAL, NVECTOR_OPENMP, or NVECTOR_PTHREADS).
 
 
 .. _SUNLinSol_LapackDense.Usage:
@@ -39,65 +38,36 @@ The module SUNLinSol_LapackDense provides the following additional
 user-callable constructor routine:
 
 
-.. c:function:: SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A)
+.. c:function:: SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A, SUNContext sunctx)
 
    This function creates and allocates memory for a LAPACK dense
-   ``SUNLinearSolver``.  Its arguments are an ``N_Vector`` and
-   ``SUNMatrix``, that it uses to determine the linear system size and
-   to assess compatibility with the linear solver implementation.
+   ``SUNLinearSolver``.
 
-   This routine will perform consistency checks to ensure that it is
-   called with consistent ``N_Vector`` and ``SUNMatrix`` implementations.
-   These are currently limited to the SUNMATRIX_DENSE matrix type and
-   the NVECTOR_SERIAL, NVECTOR_OPENMP, and NVECTOR_PTHREADS vector
-   types.  As additional compatible matrix and vector implementations
-   are added to SUNDIALS, these will be included within this
-   compatibility check.
+   **Arguments:**
+      * *y* -- vector used to determine the linear system size.
+      * *A* -- matrix used to assess compatibility.
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
-   If either ``A`` or ``y`` are incompatible then this routine will
-   return ``NULL``.
+   **Return value:**
+      New SUNLinSol_LapackDense object, or ``NULL`` if either ``A``
+      or ``y`` are incompatible.
 
-For backwards compatibility, we also provide the wrapper function,
+   **Notes:**
+      This routine will perform consistency checks to ensure that it is
+      called with consistent ``N_Vector`` and ``SUNMatrix`` implementations.
+      These are currently limited to the SUNMATRIX_DENSE matrix type and
+      the NVECTOR_SERIAL, NVECTOR_OPENMP, and NVECTOR_PTHREADS vector
+      types.  As additional compatible matrix and vector implementations
+      are added to SUNDIALS, these will be included within this
+      compatibility check.
+
+
+For backwards compatibility, we also provide the following wrapper function:
 
 .. c:function:: SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
 
-   Wrapper function for :c:func:`SUNLinSol_LapackDense()`, with
+   Wrapper function for :c:func:`SUNLinSol_LapackDense`, with
    identical input and output arguments.
-
-
-For solvers that include a Fortran interface module, the
-SUNLinSol_LapackDense module also includes the Fortran-callable
-function :f:func:`FSUNLapackDenseInit()` to initialize
-this SUNLinSol_LapackDense module for a given SUNDIALS solver.
-
-.. f:subroutine:: FSUNLapackDenseInit(CODE, IER)
-
-   Initializes a dense LAPACK ``SUNLinearSolver`` structure for
-   use in a SUNDIALS package.
-
-   This routine must be called *after* both the ``N_Vector`` and
-   ``SUNMatrix`` objects have been initialized.
-
-   **Arguments:**
-      * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
-        this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKODE=4.
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-
-Additionally, when using ARKODE with a non-identity mass matrix, the
-Fortran-callable function :f:func:`FSUNMassLapackDenseInit()`
-initializes this SUNLinSol_LapackDense module for solving mass matrix
-linear systems.
-
-.. f:subroutine:: FSUNMassLapackDenseInit(IER)
-
-   Initializes a dense LAPACK ``SUNLinearSolver`` structure for
-   use in solving mass matrix systems in ARKODE.
-
-   This routine must be called *after* both the ``N_Vector`` and
-   ``SUNMatrix`` objects have been initialized.
-
-   **Arguments:**
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
 
 
 
@@ -134,23 +104,24 @@ information:
 The SUNLinSol_LapackDense module is a ``SUNLinearSolver`` wrapper for
 the LAPACK dense matrix factorization and solve routines, ``*GETRF``
 and ``*GETRS``, where ``*`` is either ``D`` or ``S``, depending on
-whether SUNDIALS was configured to have ``realtype`` set to
-``double`` or ``single``, respectively.  In order to use the
+whether SUNDIALS was configured to have :c:type:`realtype` set to
+``double`` or ``single``, respectively (see
+:numref:`Usage.CC.DataTypes` for details).  In order to use the
 SUNLinSol_LapackDense module it is assumed that LAPACK has been
 installed on the system prior to installation of
 SUNDIALS, and that SUNDIALS has been configured appropriately to
-link with LAPACK (see section
+link with LAPACK (see
 :numref:`Installation.CMake.ExternalLibraries` for details).
 We note that since there do not exist 128-bit floating-point
 factorization and solve routines in LAPACK, this interface cannot be
-compiled when using ``extended`` precision for ``realtype``.
+compiled when using ``extended`` precision for :c:type:`realtype`.
 Similarly, since there do not exist 64-bit integer LAPACK routines,
 the SUNLinSol_LapackDense module also cannot be compiled when using
-``int64_t`` for the ``sunindextype``.
+``int64_t`` for the :c:type:`sunindextype`.
 
 This solver is constructed to perform the following operations:
 
-* The "setup" call performs a :math:`LU` factorization with
+* The "setup" call performs an :math:`LU` factorization with
   partial (row) pivoting (:math:`\mathcal O(N^3)` cost),
   :math:`PA=LU`, where :math:`P` is a permutation matrix, :math:`L` is
   a lower triangular matrix with 1's on the diagonal, and :math:`U` is
@@ -164,7 +135,7 @@ This solver is constructed to perform the following operations:
   (:math:`\mathcal O(N^2)` cost).
 
 The SUNLinSol_LapackDense module defines dense implementations of all
-"direct" linear solver operations listed in the section
+"direct" linear solver operations listed in
 :numref:`SUNLinSol.API`:
 
 * ``SUNLinSolGetType_LapackDense``

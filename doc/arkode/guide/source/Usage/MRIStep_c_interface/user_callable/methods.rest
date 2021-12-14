@@ -1,19 +1,32 @@
-.. _Usage.MRIStep.MRIStepMethodInputTable:
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
+
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _ARKODE.Usage.MRIStep.MRIStepMethodInput:
 
 Optional inputs for IVP method selection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cssclass:: table-bordered
+.. _ARKODE.Usage.MRIStep.MRIStepMethodInputTable:
+.. table:: Optional inputs for IVP method selection
 
-=================================  =================================  ==============
-Optional input                     Function name                      Default
-=================================  =================================  ==============
-Set MRI coupling coefficients      :c:func:`MRIStepSetCoupling()`     internal
-Set MRI outer RK table             :c:func:`MRIStepSetTable()`        internal
-Specify MRI outer table number     :c:func:`MRIStepSetTableNum()`     internal
-=================================  =================================  ==============
-
-.. Set integrator method order        :c:func:`MRIStepSetOrder()`        3
+   +--------------------------------+-------------------------------------+----------+
+   | Optional input                 | Function name                       | Default  |
+   +--------------------------------+-------------------------------------+----------+
+   | Set MRI coupling coefficients  | :c:func:`MRIStepSetCoupling()`      | internal |
+   +--------------------------------+-------------------------------------+----------+
+   | Set MRI outer RK table         | :c:func:`MRIStepSetTable()`         | internal |
+   +--------------------------------+-------------------------------------+----------+
+   | Specify MRI outer table number | :c:func:`MRIStepSetTableNum()`      | internal |
+   +--------------------------------+-------------------------------------+----------+
 
 
 ..
@@ -22,13 +35,18 @@ Specify MRI outer table number     :c:func:`MRIStepSetTableNum()`     internal
       Specifies the order of accuracy for the ERK integration method.
 
       **Arguments:**
-         * *arkode_mem* -- pointer to the MRIStep memory block.
-         * *ord* -- requested order of accuracy.
+
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+
+      * *ord* -- requested order of accuracy.
 
       **Return value:**
-         * *ARK_SUCCESS* if successful
-         * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-         * *ARK_ILL_INPUT* if an argument has an illegal value
+
+      * *ARK_SUCCESS* if successful
+
+      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+      * *ARK_ILL_INPUT* if an argument has an illegal value
 
       **Notes:** The allowed values are :math:`2 \le` *ord* :math:`\le
       8`.  Any illegal input will result in the default value of 4.
@@ -44,18 +62,23 @@ Specify MRI outer table number     :c:func:`MRIStepSetTableNum()`     internal
    Specifies a customized set of slow-to-fast coupling coefficients for the MRI method.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *C* -- the table of coupling coefficients for the MRI method.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *C* -- the table of coupling coefficients for the MRI method.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:**
 
    For a description of the :c:type:`MRIStepCoupling` type and related
-   functions for creating Butcher tables see the Section :numref:`Usage.MRIStep.MRIStepCoupling`.
+   functions for creating Butcher tables see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling`.
 
 
 .. c:function:: int MRIStepSetTable(void* arkode_mem, int q, ARKodeButcherTable B)
@@ -63,14 +86,20 @@ Specify MRI outer table number     :c:func:`MRIStepSetTableNum()`     internal
    Specifies a customized slow Butcher table for a traditional MIS method.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *q* -- global order of accuracy for the MRI method.
-      * *B* -- the Butcher table for the outer (slow) RK method.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *q* -- global order of accuracy for the MRI method.
+
+   * *B* -- the Butcher table for the outer (slow) RK method.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:**
 
@@ -86,7 +115,7 @@ Specify MRI outer table number     :c:func:`MRIStepSetTableNum()`     internal
 
    The input value of *q* is used rather than the order encoded in the Butcher
    table since the overall order of the MRI method may differ from the order of
-   the outer table (see equation :eq:`MIS_order3` and surrounding discussion).
+   the outer table (see equation :eq:`ARKODE_MIS_order3` and surrounding discussion).
    No error checking is performed to ensure that *q* correctly describes the
    order of the overall MRI method.
 
@@ -97,13 +126,18 @@ Specify MRI outer table number     :c:func:`MRIStepSetTableNum()`     internal
    for the MRI outer (slow) method.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *itable* -- index of the outer (slow) Butcher or MRI table.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *itable* -- index of the outer (slow) Butcher or MRI table.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** Depending on the value of *itable*, this routine will do one of two
    things.
@@ -113,8 +147,8 @@ Specify MRI outer table number     :c:func:`MRIStepSetTableNum()`     internal
    *itable* argument, and then immediately call the utility routine
    :c:func:`MRIStepSetTable()` to convert this to an MRI coupling table and store
    the result within MRIStep.  In this case, *itable* should match one of the
-   methods from the section :numref:`Butcher.explicit` or the section
-   :numref:`Butcher.implicit`.  Error-checking is performed to ensure that this
+   methods from :numref:`Butcher.explicit` or :numref:`Butcher.implicit`.
+   Error-checking is performed to ensure that this
    table exists and satisfies the restrictions listed above for
    :c:func:`MRIStepSetTable()`.  This approach assumes that the overall
    MRI method order equals :math:`min(q,2)`, where :math:`q` is the order of
@@ -126,5 +160,5 @@ Specify MRI outer table number     :c:func:`MRIStepSetTableNum()`     internal
    If *itable* instead specifies a built-in MRI coupling table, then this will
    internally retrieve the :c:type:`MRIStepCoupling` table via the routine
    :c:func:`MRIStepCoupling_LoadTable()`, and store the result in MRIStep.  In
-   this case, *itable* should match one of the methods from the section
-   :numref:`Usage.MRIStep.MRIStepCoupling.Tables`.
+   this case, *itable* should match one of the methods from
+   :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`.

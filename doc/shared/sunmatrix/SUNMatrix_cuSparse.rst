@@ -17,9 +17,9 @@
 The SUNMATRIX_CUSPARSE Module
 ======================================
 
-The SUNMATRIX_CUSPARSE implementation of the ``SUNMatrix`` module provided with
-SUNDIALS, is an interface to the NVIDIA cuSPARSE matrix for use on NVIDIA GPUs :cite:p:`cuSPARSE_site`.
-All data stored by this matrix implementation resides on the GPU at all times.
+The SUNMATRIX_CUSPARSE module is an interface to the NVIDIA cuSPARSE matrix for
+use on NVIDIA GPUs :cite:p:`cuSPARSE_site`.  All data stored by this matrix
+implementation resides on the GPU at all times.
 
 The header file to be included when using this module is ``sunmatrix/sunmatrix_cusparse.h``.
 The installed library to link to is ``libsundials_sunmatrixcusparse.lib`` where ``.lib`` is
@@ -31,7 +31,7 @@ SUNMATRIX_CUSPARSE Description
 ------------------------------
 
 The implementation currently supports the cuSPARSE CSR matrix format described
-in the cuSPARSE documentation as well as a unique low-storage format for
+in the cuSPARSE documentation, as well as a unique low-storage format for
 block-diagonal matrices of the form
 
 .. math::
@@ -42,15 +42,16 @@ block-diagonal matrices of the form
       0 & \mathbf{A_2} & \cdots & 0\\
       \vdots & \vdots & \ddots & \vdots\\
       0 & 0 & \cdots & \mathbf{A_{n-1}}\\
-   \end{bmatrix}
+   \end{bmatrix},
 
-where all the block matrices :math:`\mathbf{A_j}` share the same sparsisty pattern.
+where all the block matrices :math:`\mathbf{A_j}` share the same sparsity pattern.
 We will refer to this format as BCSR (not to be confused with the canonical BSR format where
 each block is stored as dense). In this format, the CSR column indices and row pointers
 are only stored for the first block and are computed only as necessary for other blocks.
 This can drastically reduce the amount of storage required compared to the regular CSR
-format when there is a large number of blocks. This format is well-suited for, and
-intended to be used with the :numref:`SUNLinSol.cuSolverSp`.
+format when the number of blocks is large. This format is well-suited for, and
+intended to be used with, the ``SUNLinearSolver_cuSolverSp_batchQR`` linear solver
+(see :numref:`SUNLinSol.cuSolverSp`).
 
 **The SUNMATRIX_CUSPARSE module is experimental and subject to change.**
 
@@ -60,8 +61,8 @@ SUNMATRIX_CUSPARSE Functions
 ----------------------------------
 
 The SUNMATRIX_CUSPARSE module defines GPU-enabled sparse implementations of all matrix
-operations listed in the section :numref:`SUNMatrix.Ops` except for the ``SUNMatSpace``
-and ``SUNMatMatvecSetup`` operations:
+operations listed in :numref:`SUNMatrix.Ops` except for the :c:func:`SUNMatSpace`
+and :c:func:`SUNMatMatvecSetup` operations:
 
 * ``SUNMatGetID_cuSparse`` -- returns ``SUNMATRIX_CUSPARSE``
 
@@ -85,7 +86,7 @@ and ``SUNMatMatvecSetup`` operations:
 In addition, the SUNMATRIX_CUSPARSE module defines the following implementation specific
 functions:
 
-.. c:function:: SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp)
+.. c:function:: SUNMatrix SUNMatrix_cuSparse_NewCSR(int M, int N, int NNZ, cusparseHandle_t cusp, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a SUNMATRIX_CUSPARSE
    ``SUNMatrix`` that uses the CSR storage format. Its arguments are the
@@ -93,20 +94,23 @@ functions:
    nonzeros to be stored in the matrix, ``NNZ``, and a valid ``cusparseHandle_t``.
 
 
-.. c:function:: SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockcols, int blocknnz, cusparseHandle_t cusp)
+.. c:function:: SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows, int blockcols, int blocknnz, cusparseHandle_t cusp, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a SUNMATRIX_CUSPARSE
    ``SUNMatrix`` object that leverages the ``SUNMAT_CUSPARSE_BCSR`` storage
    format to store a block diagonal matrix where each block shares the same
    sparsity pattern. The blocks must be square. The function arguments are the
-   number of blocks,``nblocks``, the number of rows, ``blockrows``, the number of
+   number of blocks, ``nblocks``, the number of rows, ``blockrows``, the number of
    columns, ``blockcols``, the number of nonzeros in each each block, ``blocknnz``,
-   and a valid cuSPARSE handle.
+   and a valid ``cusparseHandle_t``.
 
-   **The ``SUNMAT_CUSPARSE_BCSR`` format currently only supports square matrices.**.
+   .. warning::
+
+      The ``SUNMAT_CUSPARSE_BCSR`` format currently only supports square matrices, i.e.,
+      ``blockrows == blockcols``.
 
 
-.. c:function:: SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N, int NNZ, int *rowptrs , int *colind , realtype *data, cusparseHandle_t cusp)
+.. c:function:: SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N, int NNZ, int *rowptrs , int *colind , realtype *data, cusparseHandle_t cusp, SUNContext sunctx)
 
    This constructor function creates a SUNMATRIX_CUSPARSE ``SUNMatrix``
    object from user provided pointers. Its arguments are a ``cusparseMatDescr_t``
@@ -146,7 +150,7 @@ functions:
 .. c:function:: int* SUNMatrix_cuSparse_IndexValues(SUNMatrix A)
 
    This function returns a pointer to the index value array for the sparse
-   ``SUNMatrix``: for the CSR format this is an array of column indices for
+   ``SUNMatrix`` -- for the CSR format this is an array of column indices for
    each nonzero entry. For the BCSR format this is an array of the column indices
    for each nonzero entry in the first block only.
 
@@ -154,7 +158,7 @@ functions:
 .. c:function:: int* SUNMatrix_cuSparse_IndexPointers(SUNMatrix A)
 
    This function returns a pointer to the index pointer array for the
-   sparse ``SUNMatrix``: for the CSR format this is an array of the locations
+   sparse ``SUNMatrix`` -- for the CSR format this is an array of the locations
    of the first entry of each row in the ``data`` and ``indexvalues`` arrays,
    for the BCSR format this is an array of the locations of each row in the
    ``data`` and ``indexvalues`` arrays in the first block only.
@@ -212,11 +216,12 @@ functions:
 
    * The ``h_data`` array must be at least ``SUNMatrix_cuSparse_NNZ(A)*sizeof(realtype)``
      bytes.
-   * The ``h_idxptrs`` array must be at least
-      ``(SUNMatrix_cuSparse_BlockDim(A)+1)*sizeof(int)`` bytes.
-   * The ``h_idxvals`` array must be at least
-      ``(SUNMatrix_cuSparse_BlockNNZ(A))*sizeof(int)`` bytes.
 
+   * The ``h_idxptrs`` array must be at least
+     ``(SUNMatrix_cuSparse_BlockDim(A)+1)*sizeof(int)`` bytes.
+
+   * The ``h_idxvals`` array must be at least
+     ``(SUNMatrix_cuSparse_BlockNNZ(A))*sizeof(int)`` bytes.
 
    The function returns ``SUNMAT_SUCCESS`` if the copy operation(s) were successful,
    or a nonzero error code otherwise.
@@ -237,8 +242,9 @@ functions:
 
    This function sets the execution policies which control the kernel parameters
    utilized when launching the CUDA kernels. By default the matrix is setup to use
-   a policy which tries to leverage the structure of the matrix. See section
-   :numref:`NVectors.CUDA.SUNCudaExecPolicy` for more information about the ``SUNCudaExecPolicy`` class.
+   a policy which tries to leverage the structure of the matrix. See
+   :numref:`NVectors.CUDA.SUNCudaExecPolicy` for more information about the
+   :cpp:type:`SUNCudaExecPolicy` class.
 
 
 .. _SUNMatrix.cuSparse.Notes:
@@ -250,7 +256,7 @@ The SUNMATRIX_CUSPARSE module only supports 32-bit indexing, thus SUNDIALS must 
 for 32-bit indexing to use this module.
 
 The SUNMATRIX_CUSPARSE module can be used with CUDA streams by calling the cuSPARSE
-function ``cusparseSetStream`` on the the ``cusparseHandle_t`` that is provided to the
+function ``cusparseSetStream`` on the ``cusparseHandle_t`` that is provided to the
 SUNMATRIX_CUSPARSE constructor.
 
 .. warning::

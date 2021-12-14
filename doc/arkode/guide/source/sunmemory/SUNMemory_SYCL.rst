@@ -1,1 +1,0 @@
-../../../../shared/sunmemory/SUNMemory_SYCL.rst

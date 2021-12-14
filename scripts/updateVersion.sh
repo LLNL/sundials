@@ -18,8 +18,8 @@
 # Set the SUNDIALS major, minor, and patch numbers and the label string. For
 # development releases the label string is of the form "-dev.#" and for full
 # releases the label string is "".
-sun_major=${1:-5}
-sun_minor=${2:-8}
+sun_major=${1:-6}
+sun_minor=${2:-0}
 sun_patch=${3:-0}
 sun_label=${4:-""}
 month=${5:-$(date +"%b")}
@@ -294,86 +294,59 @@ sedi "s/idasrelease.*/idasrelease}{v${idas_ver}}/" $fn
 sedi "s/kinrelease.*/kinrelease}{v${kin_ver}}/"    $fn
 sedi "s/arkrelease.*/arkrelease}{v${ark_ver}}/"    $fn
 
-# update titles for user guides and example docs
-fn="../doc/sundials/biblio.bib"
-sedi "/User Documentation for ARKODE v/ s/v.*/v${ark_ver}}},/" $fn
-sedi "/Example Programs for ARKODE v/ s/v.*/v${ark_ver}}},/"   $fn
+# update reference titles for user guides and example docs
+for fn in "../doc/sundials/biblio.bib" "../doc/shared/sundials.bib";
+do
+    sedi "/User Documentation for ARKODE v/ s/v.*/v${ark_ver}}},/" $fn
+    sedi "/Example Programs for ARKODE v/ s/v.*/v${ark_ver}}},/"   $fn
+    sedi "/User Documentation for CVODE v/ s/v.*/v${cv_ver}}},/" $fn
+    sedi "/Example Programs for CVODE v/ s/v.*/v${cv_ver}}},/"   $fn
+    sedi "/User Documentation for CVODES v/ s/v.*/v${cvs_ver}}},/" $fn
+    sedi "/Example Programs for CVODES v/ s/v.*/v${cvs_ver}}},/"   $fn
+    sedi "/User Documentation for IDA v/ s/v.*/v${ida_ver}}},/" $fn
+    sedi "/Example Programs for IDA v/ s/v.*/v${ida_ver}}},/"   $fn
+    sedi "/User Documentation for IDAS v/ s/v.*/v${idas_ver}}},/" $fn
+    sedi "/Example Programs for IDAS v/ s/v.*/v${idas_ver}}},/"   $fn
+    sedi "/User Documentation for KINSOL v/ s/v.*/v${kin_ver}}},/" $fn
+    sedi "/Example Programs for KINSOL v/ s/v.*/v${kin_ver}}},/"   $fn
+    # update dates for user guides and example doc by checking lines between the
+    # first and second latex comment patterns
+    sedi "/% CURRENT.*/,/% ORIGINAL.*/ s/year=.*/year=${year}/" $fn
+done
 
-sedi "/User Documentation for CVODE v/ s/v.*/v${cv_ver}}},/" $fn
-sedi "/Example Programs for CVODE v/ s/v.*/v${cv_ver}}},/"   $fn
-
-sedi "/User Documentation for CVODES v/ s/v.*/v${cvs_ver}}},/" $fn
-sedi "/Example Programs for CVODES v/ s/v.*/v${cvs_ver}}},/"   $fn
-
-sedi "/User Documentation for IDA v/ s/v.*/v${ida_ver}}},/" $fn
-sedi "/Example Programs for IDA v/ s/v.*/v${ida_ver}}},/"   $fn
-
-sedi "/User Documentation for IDAS v/ s/v.*/v${idas_ver}}},/" $fn
-sedi "/Example Programs for IDAS v/ s/v.*/v${idas_ver}}},/"   $fn
-
-sedi "/User Documentation for KINSOL v/ s/v.*/v${kin_ver}}},/" $fn
-sedi "/Example Programs for KINSOL v/ s/v.*/v${kin_ver}}},/"   $fn
-
-# update dates for user guides and example doc by checking lines between the
-# first and second latex comment patterns
-sedi "/% CURRENT.*/,/% ORIGINAL.*/ s/year=.*/year=${year}/" $fn
-
-# insert new line in release table
-sedi '/%% Version Table/ a\
-'${month}' & '${year}' & '\
-${sun_ver}' & '\
-${ark_ver}' & '\
-${cv_ver}' & '\
-${cvs_ver}' & '\
-${ida_ver}' & '\
-${idas_ver}' & '\
-${kin_ver}' \\\\'$'\n' ../doc/sundials/sundials_release_history.tex
+# # insert new line in release table
+# sedi '/%% Version Table/ a\
+# '${month}' & '${year}' & '\
+# ${sun_ver}' & '\
+# ${ark_ver}' & '\
+# ${cv_ver}' & '\
+# ${cvs_ver}' & '\
+# ${ida_ver}' & '\
+# ${idas_ver}' & '\
+# ${kin_ver}' \\\\'$'\n' ../doc/sundials/sundials_release_history.tex
 
 # ------------------------------------------------------------------------------
 # Update rst documentation
 # ------------------------------------------------------------------------------
 
 # user guide
-fn="../doc/arkode/guide/source/conf.py"
-sedi "s/version =.*/version = \'v${ark_ver}\'/" $fn
-sedi "s/sun_version =.*/sun_version = \'v${sun_ver}\'/" $fn
+fn="../doc/shared/versions.py"
+sedi "s/arkode_version =.*/arkode_version = \'v${ark_ver}\'/" $fn
+sedi "s/cvode_version =.*/cvode_version = \'v${cv_ver}\'/" $fn
+sedi "s/cvodes_version =.*/cvodes_version = \'v${cvs_ver}\'/" $fn
+sedi "s/ida_version =.*/ida_version = \'v${ida_ver}\'/" $fn
+sedi "s/idas_version =.*/idas_version = \'v${idas_ver}\'/" $fn
+sedi "s/kinsol_version =.*/kinsol_version = \'v${kin_ver}\'/" $fn
+sedi "s/sundials_version =.*/sundials_version = \'v${sun_ver}\'/" $fn
 
-fn="../doc/arkode/guide/source/References.rst"
-sedi "/UCRL-SM-208108/ s/.*/            v${cv_ver}. Technical Report UCRL-SM-208108, LLNL, ${year}./" $fn
-sedi "/Programs for CVODE/ s/.*/             Programs for CVODE v${cv_ver}. Technical Report/" $fn
-sedi "/UCRL-SM-208110/ s/.*/             UCRL-SM-208110, LLNL, ${year}./" $fn
-sedi "/Computation,/ s/.*/           Computation, ${year}./" $fn
-
-# insert new release history row after line 25
-fn="../doc/arkode/guide/source/History.rst"
+# insert new release history row after line 23
+fn="../doc/shared/History.rst"
+new_entry=""
 if [ "${sun_label}" == "" ]; then
-sedi '25 a\
-'${month}' '${year}'  '\
-${sun_ver}'        '\
-${ark_ver}'        '\
-${cv_ver}'        '\
-${cvs_ver}'        '\
-${ida_ver}'        '\
-${idas_ver}'        '\
-${kin_ver}$'\n' $fn
+    new_entry="| ${month} ${year} | ${sun_ver}    | ${ark_ver}  | ${cv_ver}            | ${cvs_ver}  | ${ida_ver}            | ${idas_ver} | ${kin_ver}            |"
 else
-sedi '25 a\
-'${month}' '${year}'  '\
-${sun_ver}'  '\
-${ark_ver}'  '\
-${cv_ver}'  '\
-${cvs_ver}'  '\
-${ida_ver}'  '\
-${idas_ver}'  '\
-${kin_ver}$'\n' $fn
+    new_entry="| ${month} ${year} | ${sun_ver}-${sun_label} | ${ark_ver}  | ${cv_ver}            | ${cvs_ver}  | ${ida_ver}            | ${idas_ver} | ${kin_ver}            |"
 fi
-
-# example doc
-fn="../doc/arkode/examples/source/conf.py"
-sedi "s/version =.*/version = \'v${ark_ver}\'/" $fn
-sedi "s/sun_version =.*/sun_version = \'v${sun_ver}\'/" $fn
-
-fn="../doc/arkode/examples/source/References.rst"
-sedi "/Programs for CVODE/ s/.*/             Programs for CVODE v${cv_ver}. Technical Report/" $fn
-sedi "/UCRL-SM-208110/ s/.*/             UCRL-SM-208110, LLNL, ${year}./" $fn
-sedi "/LLNL-CODE-667205/ s/.*/           v${ark_ver}. Technical Report LLNL-CODE-667205, LLNL, ${year}./" $fn
+divider="+----------+----------+--------+------------------+--------+------------------+-------+------------------+"
+sedi "23 a ${divider}" $fn
+sedi "23 a ${new_entry}" $fn

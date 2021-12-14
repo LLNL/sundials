@@ -17,14 +17,17 @@
 The SUNLinSol_cuSolverSp_batchQR Module
 =======================================
 
-The ``SUNLinearSolver_cuSolverSp_batchQR`` implementation of the SUNLinearSolver API is
-designed to be used with the SUNMATRIX_CUSPARSE matrix, and the NVECTOR_CUDA vector.
+The SUNLinSol_cuSolverSp_batchQR implementation of the ``SUNLinearSolver`` class
+is designed to be used with the SUNMATRIX_CUSPARSE matrix, and the NVECTOR_CUDA vector.
 The header file to include when using this module is
 ``sunlinsol/sunlinsol_cusolversp_batchqr.h``. The installed library to link to
 is ``libsundials_sunlinsolcusolversp.lib`` where ``.lib`` is typically
 ``.so`` for shared libraries and ``.a`` for static libraries.
 
-**The SUNLinearSolver_cuSolverSp_batchQR module is experimental and subject to change.**
+.. warning::
+
+   The SUNLinearSolver_cuSolverSp_batchQR module is experimental and subject to change.
+
 
 .. _SUNLinSol.cuSolverSp.description:
 
@@ -47,8 +50,9 @@ The module is designed for solving block diagonal linear systems of the form
    =
    b_j
 
-where all block matrices :math:`\mathbf{A_j}` share the same sparsisty pattern. The matrix
-must be the `SUNMatrix.cuSparse`.
+where all block matrices :math:`\mathbf{A_j}` share the same sparsity pattern. The matrix
+must be the ``SUNMatrix.cuSparse``.
+
 
 .. _SUNLinSol.cuSolverSp.functions:
 
@@ -74,27 +78,34 @@ all "direct" linear solver operations listed in :numref:`SUNLinSol.API`:
 
 * ``SUNLinSolFree_cuSolverSp_batchQR``
 
+
 In addition, the module provides the following user-callable routines:
 
-.. c:function:: SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverHandle_t cusol)
+.. c:function:: SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverHandle_t cusol, SUNContext sunctx)
 
    The function ``SUNLinSol_cuSolverSp_batchQR`` creates and allocates
    memory for a SUNLinearSolver object.
 
-   This returns a SUNLinearSolver object.  If either ``A`` or
-   ``y`` are incompatible then this routine will return ``NULL``.
+   **Arguments:**
+      * *y* -- a vector for checking compatibility with the solver.
+      * *A* -- a SUNMATRIX_cuSparse matrix for checking compatibility with the
+        solver.
+      * *cusol* -- cuSolverSp object to use.
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
-   This routine analyzes the input matrix and vector to determine the
-   linear system size and to assess compatibility with the solver.
+   **Return value:**
+      If successful, a ``SUNLinearSolver`` object. If either *A* or *y* are
+      incompatible then this routine will return ``NULL``.
 
-   This routine will perform consistency checks to ensure that it is
-   called with consistent ``N_Vector``  and ``SUNMatrix``  implementations.
-   These are currently limited to the SUNMATRIX_CUSPARSE matrix type
-   and the NVECTOR_CUDA vector type. Since the SUNMATRIX_CUSPARSE matrix
-   type is only compatible with the NVECTOR_CUDA the restriction is also
-   in place for the linear solver. As additional compatible matrix and
-   vector implementations are added to SUNDIALS, these will be included
-   within this compatibility check.
+   **Notes:**
+      This routine will perform consistency checks to ensure that it is
+      called with consistent ``N_Vector``  and ``SUNMatrix``  implementations.
+      These are currently limited to the SUNMATRIX_CUSPARSE matrix type
+      and the NVECTOR_CUDA vector type. Since the SUNMATRIX_CUSPARSE matrix
+      type is only compatible with the NVECTOR_CUDA the restriction is also
+      in place for the linear solver. As additional compatible matrix and
+      vector implementations are added to SUNDIALS, these will be included
+      within this compatibility check.
 
 
 .. c:function:: void SUNLinSol_cuSolverSp_batchQR_GetDescription(SUNLinearSolver LS, char **desc)
@@ -107,6 +118,7 @@ In addition, the module provides the following user-callable routines:
 
    The function ``SUNLinSol_cuSolverSp_batchQR_SetDescription``
    sets the string description of the object (empty by default).
+
 
 .. c:function:: void SUNLinSol_cuSolverSp_batchQR_GetDeviceSpace(SUNLinearSolver S, size_t* cuSolverInternal, size_t* cuSolverWorkspace)
 

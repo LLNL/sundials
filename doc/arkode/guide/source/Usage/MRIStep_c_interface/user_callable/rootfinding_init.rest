@@ -1,9 +1,21 @@
-.. _Usage.MRIStep.RootFinding:
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
+
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _ARKODE.Usage.MRIStep.RootFinding:
 
 Rootfinding initialization function
 --------------------------------------
 
-As described in the section :numref:`Mathematics.Rootfinding`, while
+As described in the section :numref:`ARKODE.Mathematics.Rootfinding`, while
 solving the IVP, ARKODE's time-stepping modules have the capability to
 find the roots of a set of user-defined functions.  In the MRIStep module root
 finding is performed between slow solution time steps only (i.e., it is not

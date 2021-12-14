@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): David J. Gardner @ LLNL
                   Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
@@ -13,36 +13,34 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Usage.MRIStep:
+.. _ARKODE.Usage.MRIStep:
 
 ==========================================
-Using MRIStep for C and C++ Applications
+Using the MRIStep time-stepping module
 ==========================================
 
 This chapter is concerned with the use of the MRIStep time-stepping module for
 the solution of multirate initial value problems (IVPs) of the form
-:eq:`IVP_two_rate` in a C or C++ language setting. The following sections
+:eq:`ARKODE_IVP_two_rate` in a C or C++ language setting. The following sections
 discuss the header files and the layout of the user's main program, and provide
 descriptions of the MRIStep user-callable functions and user-supplied functions.
 
-The example programs described in the companion document :cite:p:`arkode_ex` may
-be helpful. Those codes may be used as templates for new codes and are
-included in the ARKODE package ``examples`` subdirectory.
+The example programs located in the source code ``examples/arkode``
+folder, including those described in the companion document :cite:p:`arkode_ex`,
+may be helpful as templates for new codes.
 
 MRIStep uses the input and output constants from the shared ARKODE
 infrastructure. These are defined as needed in this chapter, but for
-convenience the full list is provided separately in the section
-:numref:`Constants`.
+convenience the full list is provided separately in
+:numref:`ARKODE.Constants`.
 
 The relevant information on using MRIStep's C and C++ interfaces is
-detailed in the following sub-sections.
+detailed in the following subsections.
 
 .. toctree::
    :maxdepth: 1
 
-   General
    Skeleton
    User_callable
-   User_supplied
    MRIStepCoupling
    Custom_Inner_Stepper/index

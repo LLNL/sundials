@@ -33,7 +33,7 @@ operations below.
    Returns the vector type identifier for the vector ``w``.  It is
    used to determine the vector implementation type (e.g. serial,
    parallel, ...) from the abstract ``N_Vector`` interface.  Returned
-   values are given in the table, :numref:`NVectors.Description.vectorIDs`
+   values are given in :numref:`NVectors.Description.vectorIDs`.
 
    Usage:
 
@@ -82,9 +82,12 @@ operations below.
 
 .. c:function:: void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw)
 
-   Returns storage requirements for the ``N_Vector`` *v*: *lrw* contains
-   the number of ``realtype`` words and *liw* contains the number of
-   integer words.  This function is advisory only, for use in
+   Returns storage requirements for the ``N_Vector`` *v*:
+
+   * *lrw* contains the number of ``realtype`` words
+   * *liw* contains the number of integer words.
+
+   This function is advisory only, for use in
    determining a user's total space requirements; it could be a dummy
    function in a user-supplied NVECTOR module if that information is
    not of interest.
@@ -164,7 +167,7 @@ operations below.
 
 .. c:function:: sunindextype N_VGetLength(N_Vector v)
 
-   Returns the global length (number of 'active' entries) in the
+   Returns the global length (number of "active" entries) in the
    NVECTOR *v*.  This value should be cumulative across all processes
    if the vector is used in a parallel environment.  If *v*
    contains additional storage, e.g., for parallel communication, those
@@ -278,7 +281,7 @@ operations below.
    the components of the ``N_Vector`` *x*:
 
    .. math::
-      z_i = 1.0/x_i, \quad i=0,\ldots,n-1.
+      z_i = \frac{1}{x_i}, \quad i=0,\ldots,n-1.
 
    This routine may not check for division by 0.  It should be called
    only with an *x* which is guaranteed to have all nonzero components.
@@ -325,7 +328,7 @@ operations below.
    ``N_Vector`` *x*:
 
    .. math::
-      m = \max_{0\le i\le n-1} |x_i|.
+      m = \max_{0\le i< n} |x_i|.
 
    Usage:
 
@@ -372,7 +375,7 @@ operations below.
    Returns the smallest element of the ``N_Vector`` *x*:
 
    .. math::
-      m = \min_{0\le i\le n-1} x_i.
+      m = \min_{0\le i< n} x_i.
 
    Usage:
 
@@ -412,7 +415,7 @@ operations below.
 
    Compares the components of the ``N_Vector`` *x* to the ``realtype``
    scalar *c* and returns an ``N_Vector`` *z* such that for all
-   :math:`0\le i\le n-1`,
+   :math:`0\le i< n`,
 
    .. math::
       z_i = \begin{cases} 1.0 &\quad\text{if}\; |x_i| \ge c,\\
@@ -431,7 +434,7 @@ operations below.
    zero values:
 
    .. math::
-      z_i = 1.0/x_i, \quad i=0,\ldots,n-1.
+      z_i = \frac{1}{x_i}, \quad i=0,\ldots,n-1.
 
    This routine returns a boolean assigned to ``SUNTRUE`` if all
    components of *x* are nonzero (successful inversion) and returns
@@ -449,10 +452,12 @@ operations below.
    :math:`c_i`:
 
    .. math::
-      x_i > 0 \;\text{if}\; c_i = 2, \\
-      x_i \ge 0 \;\text{if}\; c_i = 1, \\
-      x_i < 0 \;\text{if}\; c_i = -2, \\
-      x_i \le 0 \;\text{if}\; c_i = -1.
+      \begin{array}{rllll}
+      x_i &>& 0 \;&\text{if}\; &c_i = 2, \\
+      x_i &\ge& 0 \;&\text{if}\; &c_i = 1, \\
+      x_i &<& 0 \;&\text{if}\; &c_i = -2, \\
+      x_i &\le& 0 \;&\text{if}\; &c_i = -1.
+      \end{array}
 
    There is no constraint on :math:`x_i` if :math:`c_i = 0`. This
    routine returns a boolean assigned to ``SUNFALSE`` if any element
@@ -473,7 +478,7 @@ operations below.
    termwise dividing the elements of *n* by the elements in *d*:
 
    .. math::
-      \min_{i=0,\ldots,n-1} \frac{\text{num}_i}{\text{denom}_i}.
+      \min_{0\le i< n} \frac{\text{num}_i}{\text{denom}_i}.
 
    A zero element in *denom* will be skipped.  If no such quotients
    are found, then the large value ``BIG_REAL`` (defined in the header
@@ -520,7 +525,7 @@ operations below.
 
    .. code-block:: c
 
-      ier = N_VLinearCombination(nv, c, X, z);
+      retval = N_VLinearCombination(nv, c, X, z);
 
 
 .. c:function:: int N_VScaleAddMulti(int nv, realtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
@@ -539,7 +544,7 @@ operations below.
 
    .. code-block:: c
 
-      ier = N_VScaleAddMulti(nv, c, x, Y, Z);
+      retval = N_VScaleAddMulti(nv, c, x, Y, Z);
 
 
 .. c:function:: int N_VDotProdMulti(int nv, N_Vector x, N_Vector* Y, realtype* d)
@@ -559,7 +564,7 @@ operations below.
 
    .. code-block:: c
 
-      ier = N_VDotProdMulti(nv, x, Y, d);
+      retval = N_VDotProdMulti(nv, x, Y, d);
 
 
 .. _NVectors.Ops.Array:
@@ -594,7 +599,7 @@ of its mathematical operations below.
 
    .. code-block:: c
 
-      ier = N_VLinearSumVectorArray(nv, a, X, b, Y, Z);
+      retval = N_VLinearSumVectorArray(nv, a, X, b, Y, Z);
 
 
 .. c:function:: int N_VScaleVectorArray(int nv, realtype* c, N_Vector* X, N_Vector* Z)
@@ -613,7 +618,7 @@ of its mathematical operations below.
 
    .. code-block:: c
 
-      ier = N_VScaleVectorArray(nv, c, X, Z);
+      retval = N_VScaleVectorArray(nv, c, X, Z);
 
 
 .. c:function:: int N_VConstVectorArray(int nv, realtype c, N_Vector* Z)
@@ -631,7 +636,7 @@ of its mathematical operations below.
 
    .. code-block:: c
 
-      ier = N_VConstVectorArray(nv, c, Z);
+      retval = N_VConstVectorArray(nv, c, Z);
 
 
 .. c:function:: int N_VWrmsNormVectorArray(int nv, N_Vector* X, N_Vector* W, realtype* m)
@@ -651,7 +656,7 @@ of its mathematical operations below.
 
    .. code-block:: c
 
-      ier = N_VWrmsNormVectorArray(nv, X, W, m);
+      retval = N_VWrmsNormVectorArray(nv, X, W, m);
 
 
 .. c:function:: int N_VWrmsNormMaskVectorArray(int nv, N_Vector* X, N_Vector* W, N_Vector id, realtype* m)
@@ -662,7 +667,7 @@ of its mathematical operations below.
    .. math::
       m_j = \left( \frac1n \sum_{i=0}^{n-1} \left(x_{j,i} w_{j,i} H(id_i)\right)^2 \right)^{1/2}, \quad j=0,\ldots,nv-1,
 
-   where :math:`H(id_i)=1` for :math:`id_i > 0` and is zero otherwise,
+   where :math:`H(id_i)=1` if :math:`id_i > 0` and is zero otherwise,
    :math:`x_j` is a vector in the vector array *X*, :math:`w_j` is a
    weight vector in the vector array *W*, *id* is the mask vector, and
    *m* is the output array of scalars containing the computed
@@ -673,7 +678,7 @@ of its mathematical operations below.
 
    .. code-block:: c
 
-      ier = N_VWrmsNormMaskVectorArray(nv, X, W, id, m);
+      retval = N_VWrmsNormMaskVectorArray(nv, X, W, id, m);
 
 
 .. c:function:: int N_VScaleAddMultiVectorArray(int nv, int nsum, realtype* c, N_Vector* X, N_Vector** YY, N_Vector** ZZ)
@@ -694,7 +699,7 @@ of its mathematical operations below.
 
    .. code-block:: c
 
-      ier = N_VScaleAddMultiVectorArray(nv, nsum, c, x, YY, ZZ);
+      retval = N_VScaleAddMultiVectorArray(nv, nsum, c, x, YY, ZZ);
 
 
 .. c:function:: int N_VLinearCombinationVectorArray(int nv, int nsum, realtype* c, N_Vector** XX, N_Vector* Z)
@@ -716,7 +721,7 @@ of its mathematical operations below.
 
    .. code-block:: c
 
-      ier = N_VLinearCombinationVectorArray(nv, nsum, c, XX, Z);
+      retval = N_VLinearCombinationVectorArray(nv, nsum, c, XX, Z);
 
 
 .. _NVectors.Ops.Local:
@@ -861,7 +866,7 @@ operations below.
    *x*, with prior testing for zero values:
 
    .. math::
-      z_i = 1.0 /  x_i  , \: i=0,\ldots,n_{local}-1
+      z_i = \frac{1}{x_i}, \: i=0,\ldots,n_{local}-1
 
    where :math:`n_{local}` corresponds to the number of components in
    the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
@@ -878,12 +883,17 @@ operations below.
 
 .. c:function:: booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
 
-   This routine performs the following constraint tests:
-   :math:`x_i > 0` if :math:`c_i=2`,
-   :math:`x_i \ge 0` if :math:`c_i=1`,
-   :math:`x_i \le 0` if :math:`c_i=-1`,
-   :math:`x_i < 0` if :math:`c_i=-2`, and
-   :math:`x_i =` anything if :math:`c_i=0`,
+   Performs the following constraint tests based on the values in
+   :math:`c_i`:
+
+   .. math::
+      \begin{array}{rllll}
+      x_i &>& 0 \;&\text{if}\; &c_i = 2, \\
+      x_i &\ge& 0 \;&\text{if}\; &c_i = 1, \\
+      x_i &<& 0 \;&\text{if}\; &c_i = -2, \\
+      x_i &\le& 0 \;&\text{if}\; &c_i = -1.
+      \end{array}
+
    for all MPI task-local components of the vectors.
    This routine returns a boolean assigned to ``SUNFALSE`` if any
    task-local element failed the constraint test and assigned to
@@ -914,6 +924,58 @@ operations below.
 
       minq = N_VMinQuotientLocal(num, denom);
 
+
+.. _NVectors.Ops.SingleBufferReduction:
+
+Single Buffer Reduction Operations
+----------------------------------
+
+The following *optional* operations are used to combine separate reductions into
+a single MPI call by splitting the local computation and communication into
+separate functions. These operations are used in low-synchronization
+orthogonalization methods to reduce the number of MPI ``Allreduce`` calls. If a
+particular NVECTOR implementation does not define these operations additional
+communication will be required.
+
+.. c:function:: int N_VDotProdMultiLocal(int nv, N_Vector x, N_Vector* Y, realtype* d)
+
+   This routine computes the MPI task-local portion of the dot product of a
+   vector :math:`x` with *nv* vectors :math:`y_j`:
+
+   .. math::
+      d_j = \sum_{i=0}^{n_{local}-1} x_i y_{j,i}, \quad j=0,\ldots,nv-1,
+
+   where :math:`d` is an array of scalars containing the computed dot products,
+   :math:`x` is a vector, :math:`y_j` is a vector in the vector array *Y*, and
+   :math:`n_{local}` corresponds to the number of components in the vector on
+   this MPI task. The operation returns 0 for success and a non-zero value
+   otherwise.
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = N_VDotProdMultiLocal(nv, x, Y, d);
+
+
+.. c:function:: int N_VDotProdMultiAllReduce(int nv, N_Vector x, realtype* d)
+
+   This routine combines the MPI task-local portions of the dot product of a
+   vector :math:`x` with *nv* vectors:
+
+   .. code-block:: c
+
+      retval = MPI_Allreduce(MPI_IN_PLACE, d, nv, MPI_SUNREALTYPE, MPI_SUM, comm)
+
+   where *d* is an array of *nv* scalars containing the local contributions to
+   the dot product and *comm* is the MPI communicator associated with the vector
+   *x*. The operation returns 0 for success and a non-zero value otherwise.
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = N_VDotProdMultiAllReduce(nv, x, d);
 
 
 .. _NVectors.Ops.Exchange:

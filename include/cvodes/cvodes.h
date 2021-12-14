@@ -138,6 +138,8 @@ typedef void (*CVErrHandlerFn)(int error_code,
                                const char *module, const char *function,
                                char *msg, void *user_data);
 
+typedef int (*CVMonitorFn)(void *cvode_mem, void *user_data);
+
 typedef int (*CVQuadRhsFn)(realtype t, N_Vector y,
                            N_Vector yQdot, void *user_data);
 
@@ -206,6 +208,8 @@ SUNDIALS_EXPORT int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 SUNDIALS_EXPORT int CVodeSetMaxOrd(void *cvode_mem, int maxord);
 SUNDIALS_EXPORT int CVodeSetMaxStep(void *cvode_mem, realtype hmax);
 SUNDIALS_EXPORT int CVodeSetMinStep(void *cvode_mem, realtype hmin);
+SUNDIALS_EXPORT int CVodeSetMonitorFn(void *cvode_mem, CVMonitorFn fn);
+SUNDIALS_EXPORT int CVodeSetMonitorFrequency(void *cvode_mem, long int nst);
 SUNDIALS_EXPORT int CVodeSetNlsRhsFn(void *cvode_mem, CVRhsFn f);
 SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
 SUNDIALS_EXPORT int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS);

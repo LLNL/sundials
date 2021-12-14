@@ -29,6 +29,9 @@ The following is a list of the example functions in ``test_sunlinsol.c``:
 * ``Test_SUNLinSolGetType``: Verifies the returned solver type against
   the value that should be returned.
 
+* ``Test_SUNLinSolGetID``: Verifies the returned solver identifier against
+  the value that should be returned.
+
 * ``Test_SUNLinSolInitialize``: Verifies that ``SUNLinSolInitialize``
   can be called and returns successfully.
 
@@ -55,6 +58,9 @@ The following is a list of the example functions in ``test_sunlinsol.c``:
 * ``Test_SUNLinSolSetScalingVectors`` (iterative solvers only):
   Verifies that ``SUNLinSolSetScalingVectors`` can be called and
   returns successfully.
+
+* ``Test_SUNLinSolSetZeroGuess`` (iterative solvers only): Verifies that
+  ``SUNLinSolSetZeroGuess`` can be called and returns successfully.
 
 * ``Test_SUNLinSolLastFlag``: Verifies that ``SUNLinSolLastFlag`` can
   be called, and outputs the result to ``stdout``.

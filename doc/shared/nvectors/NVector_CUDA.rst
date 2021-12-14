@@ -43,25 +43,27 @@ is as follows:
 
 The content members are the vector length (size), boolean flags that indicate
 if the vector owns the execution policies and memory helper objects (i.e., it is
-in change of freeing the objects), ``SUNMemory`` objects for the vector data on
+in change of freeing the objects), :c:type:`SUNMemory` objects for the vector data on
 the host and device, pointers to execution policies that control how streaming
-and reduction kernels are launched, a ``SUNMemoryHelper`` for performing memory
+and reduction kernels are launched, a :c:type:`SUNMemoryHelper` for performing memory
 operations, and a private data structure which holds additonal members that
 should not be accessed directly.
 
-When instantiated with :c:func:`N_VNew_Cuda()`, the underlying data will be
+When instantiated with :c:func:`N_VNew_Cuda`, the underlying data will be
 allocated on both the host and the device. Alternatively, a user can provide
-host and device data arrays by using the :c:func:`N_VMake_Cuda()` constructor.
-To use CUDA managed memory, the constructors :c:func:`N_VNewManaged_Cuda()` and
-:c:func:`N_VMakeManaged_Cuda()` are provided. Additionally, a user-defined
+host and device data arrays by using the :c:func:`N_VMake_Cuda` constructor.
+To use CUDA managed memory, the constructors :c:func:`N_VNewManaged_Cuda` and
+:c:func:`N_VMakeManaged_Cuda` are provided. Additionally, a user-defined
 ``SUNMemoryHelper`` for allocating/freeing data can be provided with the
-constructor :c:func:`N_VNewWithMemHelp_Cuda()`. Details on each of these
+constructor :c:func:`N_VNewWithMemHelp_Cuda`. Details on each of these
 constructors are provided below.
 
 To use the NVECTOR_CUDA module, include ``nvector_cuda.h`` and link to
 the library ``libsundials_nveccuda.lib``. The extension, ``.lib``, is
 typically ``.so`` for shared libraries and ``.a`` for static libraries.
 
+
+.. _NVectors.CUDA.Functions:
 
 NVECTOR_CUDA functions
 -----------------------------------
@@ -88,17 +90,17 @@ accessor functions:
 
 
 The NVECTOR_CUDA module defines implementations of all standard vector
-operations defined in the sections :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
+operations defined in :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
 :numref:`NVectors.Ops.Array`, and :numref:`NVectors.Ops.Local`, except for
-``N_VSetArrayPointer``, and, if using unmanaged memory, ``N_VGetArrayPointer``.
-As such, this vector can only be used with SUNDIALS Fortran interfaces, and the
+:c:func:`N_VSetArrayPointer`, and, if using unmanaged memory,
+:c:func:`N_VGetArrayPointer`.  As such, this vector can only be used with
 SUNDIALS direct solvers and preconditioners when using managed memory.
 The NVECTOR_CUDA module provides separate functions to access data on the host
 and on the device for the unmanaged memory use case. It also provides methods for
 copying from the host to the device and vice versa. Usage examples of NVECTOR_CUDA
 are provided in example programs for CVODE :cite:p:`cvode_ex`.
 
-The names of vector operations are obtained from those in the sections
+The names of vector operations are obtained from those in
 :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
 :numref:`NVectors.Ops.Local` by appending the suffix ``_Cuda``
 (e.g. ``N_VDestroy_Cuda``).  The module NVECTOR_CUDA provides the
@@ -106,39 +108,39 @@ following additional user-callable routines:
 
 
 
-.. c:function:: N_Vector N_VNew_Cuda(sunindextype length)
+.. c:function:: N_Vector N_VNew_Cuda(sunindextype length, SUNContext sunctx)
 
    This function creates and allocates memory for a CUDA ``N_Vector``.
    The vector data array is allocated on both the host and device.
 
 
-.. c:function:: N_Vector N_VNewManaged_Cuda(sunindextype vec_length)
+.. c:function:: N_Vector N_VNewManaged_Cuda(sunindextype vec_length, SUNContext sunctx)
 
    This function creates and allocates memory for a CUDA
    ``N_Vector``. The vector data array is allocated in managed memory.
 
 
-.. c:function:: N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper)
+.. c:function:: N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
 
    This function creates a new CUDA ``N_Vector`` with a user-supplied
    SUNMemoryHelper for allocating/freeing memory.
 
 
-.. c:function:: N_Vector N_VNewEmpty_Cuda(sunindextype vec_length)
+.. c:function:: N_Vector N_VNewEmpty_Cuda(sunindextype vec_length, SUNContext sunctx)
 
    This function creates a new CUDA ``N_Vector`` where the members of the
    content structure have not been allocated. This utility function is used by
    the other constructors to create a new vector.
 
 
-.. c:function:: N_Vector N_VMake_Cuda(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata)
+.. c:function:: N_Vector N_VMake_Cuda(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata, SUNContext sunctx)
 
 
    This function creates a CUDA ``N_Vector`` with user-supplied vector data arrays
    for the host and the device.
 
 
-.. c:function:: N_Vector N_VMakeManaged_Cuda(sunindextype vec_length, realtype *vdata)
+.. c:function:: N_Vector N_VMakeManaged_Cuda(sunindextype vec_length, realtype *vdata, SUNContext sunctx)
 
    This function creates a CUDA ``N_Vector`` with a user-supplied
    managed memory data array.
@@ -158,11 +160,11 @@ The module NVECTOR_CUDA also provides the following user-callable routines:
 
    This function sets the execution policies which control the kernel parameters
    utilized when launching the streaming and reduction CUDA kernels. By default
-   the vector is setup to use the ``SUNCudaThreadDirectExecPolicy`` and
-   ``SUNCudaBlockReduceExecPolicy``. Any custom execution policy for reductions
+   the vector is setup to use the :cpp:func:`SUNCudaThreadDirectExecPolicy` and
+   :cpp:func:`SUNCudaBlockReduceExecPolicy`. Any custom execution policy for reductions
    must ensure that the grid dimensions (number of thread blocks) is a multiple of
-   the CUDA warp size (32). See section :numref:`NVectors.CUDA.SUNCudaExecPolicy`
-   below for more information about the ``SUNCudaExecPolicy`` class.
+   the CUDA warp size (32). See :numref:`NVectors.CUDA.SUNCudaExecPolicy`
+   below for more information about the :cpp:type:`SUNCudaExecPolicy` class.
 
    .. note::
 
@@ -171,23 +173,6 @@ The module NVECTOR_CUDA also provides the following user-callable routines:
       function is called immediately after constructing the vector, and any
       subsequent vector be created by cloning to ensure consistent execution
       policies across vectors
-
-
-.. c:function:: void N_VSetCudaStream_Cuda(N_Vector v, cudaStream_t *stream)
-
-   **DEPRECATED** This function will be removed in the next major release,
-   user should utilize the ``N_VSetKernelExecPolicy_Cuda`` function instead.
-
-   This function sets the CUDA stream that all vector kernels will be launched on.
-   By default an NVECTOR_CUDA uses the default CUDA stream.
-
-   .. note::
-
-      All vectors used in a single instance of a SUNDIALS solver must  use the
-      same CUDA stream. It is **strongly recommended** that this function is
-      called immediately after constructing the vector, and any subsequent
-      vector be created by cloning to ensure consistent execution policies
-      across vectors
 
 
 .. c:function:: realtype* N_VCopyToDevice_Cuda(N_Vector v)
@@ -314,41 +299,45 @@ The ``SUNCudaExecPolicy`` Class
 
 
 In order to provide maximum flexibility to users, the CUDA kernel execution parameters used
-by kernels within SUNDIALS are defined by objects of the ``sundials::CudaExecPolicy``
+by kernels within SUNDIALS are defined by objects of the ``sundials::cuda::ExecPolicy``
 abstract class type (this class can be accessed in the global namespace as ``SUNCudaExecPolicy``).
 Thus, users may provide custom execution policies that fit the needs of their problem. The
-``sundials::CudaExecPolicy`` is defined in the header file ``sundials_cuda_policies.hpp``,
-as follows:
+``SUNCudaExecPolicy`` class is defined as
+
+.. cpp:type:: sundials::cuda::ExecPolicy SUNCudaExecPolicy
+
+where the ``sundials::cuda::ExecPolicy`` class is defined in the header file
+``sundials_cuda_policies.hpp``, as follows:
 
 .. code-block:: c++
 
-   class CudaExecPolicy
+   class ExecPolicy
    {
    public:
       virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
       virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
       virtual cudaStream_t stream() const = 0;
-      virtual CudaExecPolicy* clone() const = 0;
-      virtual ~CudaExecPolicy() {}
+      virtual ExecPolicy* clone() const = 0;
+      virtual ~ExecPolicy() {}
    };
 
 
 To define a custom execution policy, a user simply needs to create a class that inherits from
 the abstract class and implements the methods. The SUNDIALS provided
-``sundials::CudaThreadDirectExecPolicy`` (aka in the global namespace as
+``sundials::cuda::ThreadDirectExecPolicy`` (aka in the global namespace as
 ``SUNCudaThreadDirectExecPolicy``) class is a good example of a what a custom execution policy
 may look like:
 
 .. code-block:: c++
 
-   class CudaThreadDirectExecPolicy : public CudaExecPolicy
+   class ThreadDirectExecPolicy : public ExecPolicy
    {
    public:
-      CudaThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
+      ThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
          : blockDim_(blockDim), stream_(stream)
       {}
 
-      CudaThreadDirectExecPolicy(const CudaThreadDirectExecPolicy& ex)
+      ThreadDirectExecPolicy(const ThreadDirectExecPolicy& ex)
          : blockDim_(ex.blockDim_), stream_(ex.stream_)
       {}
 
@@ -367,9 +356,9 @@ may look like:
          return stream_;
       }
 
-      virtual CudaExecPolicy* clone() const
+      virtual ExecPolicy* clone() const
       {
-         return static_cast<CudaExecPolicy*>(new CudaThreadDirectExecPolicy(*this));
+         return static_cast<ExecPolicy*>(new ThreadDirectExecPolicy(*this));
       }
 
    private:
@@ -380,23 +369,25 @@ may look like:
 
 In total, SUNDIALS provides 3 execution policies:
 
+   .. cpp:function:: SUNCudaThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
 
-1. ``SUNCudaThreadDirectExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)``
-   maps each CUDA thread to a work unit. The number of threads per block (blockDim) can be set
-   to anything. The grid size will be calculated so that there are enough threads for one
-   thread per element. If a CUDA stream is provided, it will be used to execute the kernel.
+      Maps each CUDA thread to a work unit. The number of threads per block (blockDim) can be set
+      to anything. The grid size will be calculated so that there are enough threads for one
+      thread per element. If a CUDA stream is provided, it will be used to execute the kernel.
 
-2. ``SUNCudaGridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const cudaStream_t stream = 0)``
-   is for kernels that use grid stride loops. The number of threads per block (blockDim)
-   can be set to anything. The number of blocks (gridDim) can be set to anything. If a
-   CUDA stream is provided, it will be used to execute the kernel.
+   .. cpp:function:: SUNCudaGridStrideExecPolicy(const size_t blockDim, const size_t gridDim, const cudaStream_t stream = 0)
 
-3. ``SUNCudaBlockReduceExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)``
-   is for kernels performing a reduction across indvidual thread blocks. The number of threads
-   per block (blockDim) can be set to any valid multiple of the CUDA warp size. The grid size
-   (gridDim) can be set to any value greater than 0. If it is set to 0, then the grid size
-   will be chosen so that there is enough threads for one thread per work unit. If a
-   CUDA stream is provided, it will be used to execute the kernel.
+      Is for kernels that use grid stride loops. The number of threads per block (blockDim)
+      can be set to anything. The number of blocks (gridDim) can be set to anything. If a
+      CUDA stream is provided, it will be used to execute the kernel.
+
+   .. cpp:function:: SUNCudaBlockReduceExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
+
+      Is for kernels performing a reduction across indvidual thread blocks. The number of threads
+      per block (blockDim) can be set to any valid multiple of the CUDA warp size. The grid size
+      (gridDim) can be set to any value greater than 0. If it is set to 0, then the grid size
+      will be chosen so that there is enough threads for one thread per work unit. If a
+      CUDA stream is provided, it will be used to execute the kernel.
 
 
 For example, a policy that uses 128 threads per block and a user provided stream can be
@@ -410,5 +401,5 @@ created like so:
 
 
 These default policy objects can be reused for multiple SUNDIALS data structures
-(e.g. a ``SUNMatrix`` and an ``N_Vector``) since they do not hold any modifiable
-state information.
+(e.g. a :c:type:`SUNMatrix` and an :c:type:`N_Vector`) since they do not hold any
+modifiable state information.

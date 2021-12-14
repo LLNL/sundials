@@ -17,11 +17,11 @@
 The SUNMATRIX_SPARSE Module
 ======================================
 
-The sparse implementation of the ``SUNMatrix`` module provided with
-SUNDIALS, SUNMATRIX_SPARSE, is designed to work with either
-*compressed-sparse-column* (CSC) or *compressed-sparse-row*
-(CSR) sparse matrix formats.  To this end, it defines the *content*
-field of ``SUNMatrix`` to be the following structure:
+The sparse implementation of the ``SUNMatrix`` module, SUNMATRIX_SPARSE,
+is designed to work with either *compressed-sparse-column* (CSC) or
+*compressed-sparse-row* (CSR) sparse matrix formats.  To this end, it
+defines the *content* field of ``SUNMatrix`` to be the following
+structure:
 
 .. code-block:: c
 
@@ -155,8 +155,7 @@ Similarly, in CSR format, the same matrix could be stored as
 
 
 .. _SUNSparseMatrix:
-
-.. figure:: figs/cscmat.png
+.. figure:: /figs/cscmat.png
 
    Diagram of the storage for a compressed-sparse-column matrix of
    type SUNMATRIX_SPARSE: Here ``A`` is an :math:`M \times N` sparse
@@ -321,13 +320,13 @@ the *sparse* version.
 
 
 The SUNMATRIX_SPARSE module defines sparse implementations of all matrix
-operations listed in the section :numref:`SUNMatrix.Ops`. Their names are
+operations listed in :numref:`SUNMatrix.Ops`. Their names are
 obtained from those in that section by appending the suffix ``_Sparse``
 (e.g. ``SUNMatCopy_Sparse``).  The module SUNMATRIX_SPARSE provides the
 following additional user-callable routines:
 
 
-.. c:function:: SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N, sunindextype NNZ, int sparsetype)
+.. c:function:: SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N, sunindextype NNZ, int sparsetype, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a sparse
    ``SUNMatrix``.  Its arguments are the number of rows and columns of
@@ -432,17 +431,16 @@ following additional user-callable routines:
 .. c:function:: sunindextype* SUNSparseMatrix_IndexValues(SUNMatrix A)
 
    This function returns a pointer to index value array for the sparse
-   ``SUNMatrix``: for CSR format this is the column index for each nonzero
+   ``SUNMatrix`` -- for CSR format this is the column index for each nonzero
    entry, for CSC format this is the row index for each nonzero entry.
 
 
 .. c:function:: sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A)
 
    This function returns a pointer to the index pointer array for the
-   sparse ``SUNMatrix``: for CSR format this is the location of the first
+   sparse ``SUNMatrix`` -- for CSR format this is the location of the first
    entry of each row in the ``data`` and ``indexvalues`` arrays, for
    CSC format this is the location of the first entry of each column.
-
 
 
 .. note:: Within the ``SUNMatMatvec_Sparse`` routine, internal
@@ -453,41 +451,3 @@ following additional user-callable routines:
           managed memory. As additional compatible vector implementations
           are added to SUNDIALS, these will be included within this
           compatibility check.
-
-
-For solvers that include a Fortran interface module, the SUNMATRIX_SPARSE
-module also includes the Fortran-callable function
-:f:func:`FSUNSparseMatInit()` to initialize this SUNMATRIX_SPARSE module
-for a given SUNDIALS solver.
-
-.. f:subroutine:: FSUNSparseMatInit(CODE, M, N, NNZ, SPARSETYPE, IER)
-
-   Initializes a sparse ``SUNMatrix`` structure for use in a SUNDIALS solver.
-
-   **Arguments:**
-      * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
-        this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKODE=4.
-      * *M* (``long int``, input) -- number of matrix rows.
-      * *N* (``long int``, input) -- number of matrix columns.
-      * *NNZ* (``long int``, input) -- amount of nonzero storage to allocate.
-      * *SPARSETYPE* (``int``, input) -- matrix sparsity type
-        (``CSC_MAT`` or ``CSR_MAT``)
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-
-Additionally, when using ARKODE with a non-identity mass matrix, the
-Fortran-callable function :f:func:`FSUNSparseMassMatInit()` initializes
-this SUNMATRIX_SPARSE module for storing the mass matrix.
-
-.. f:subroutine:: FSUNSparseMassMatInit(M, N, NNZ, SPARSETYPE, IER)
-
-   Initializes a sparse ``SUNMatrix`` structure for use as a mass
-   matrix in ARKODE.
-
-   **Arguments:**
-      * *M* (``long int``, input) -- number of matrix rows.
-      * *N* (``long int``, input) -- number of matrix columns.
-      * *NNZ* (``long int``, input) -- amount of nonzero storage to allocate.
-      * *SPARSETYPE* (``int``, input) -- matrix sparsity type
-        (``CSC_MAT`` or ``CSR_MAT``)
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-

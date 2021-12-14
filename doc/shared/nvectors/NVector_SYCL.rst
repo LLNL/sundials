@@ -46,19 +46,19 @@ The vector content layout is as follows:
 
 The content members are the vector length (size), boolean flags that indicate
 if the vector owns the execution policies and memory helper objects (i.e., it is
-in charge of freeing the objects), ``SUNMemory`` objects for the vector data on
+in charge of freeing the objects), :c:type:`SUNMemory` objects for the vector data on
 the host and device, pointers to execution policies that control how streaming
-and reduction kernels are launched, a ``SUNMemoryHelper`` for performing memory
+and reduction kernels are launched, a :c:type:`SUNMemoryHelper` for performing memory
 operations, the SYCL queue, and a private data structure which holds additional
 members that should not be accessed directly.
 
-When instantiated with :cpp:func:`N_VNew_Sycl()`, the underlying data will be
+When instantiated with :cpp:func:`N_VNew_Sycl`, the underlying data will be
 allocated on both the host and the device. Alternatively, a user can provide
-host and device data arrays by using the :cpp:func:`N_VMake_Sycl()` constructor.
-To use managed (shared) memory, the constructors :cpp:func:`N_VNewManaged_Sycl()`
-and :cpp:func:`N_VMakeManaged_Sycl()` are provided. Additionally, a user-defined
+host and device data arrays by using the :cpp:func:`N_VMake_Sycl` constructor.
+To use managed (shared) memory, the constructors :cpp:func:`N_VNewManaged_Sycl`
+and :cpp:func:`N_VMakeManaged_Sycl` are provided. Additionally, a user-defined
 ``SUNMemoryHelper`` for allocating/freeing data can be provided with the
-constructor :cpp:func:`N_VNewWithMemHelp_Sycl()`. Details on each of these
+constructor :cpp:func:`N_VNewWithMemHelp_Sycl`. Details on each of these
 constructors are provided below.
 
 The header file to include when using this is ``nvector_sycl.h``. The installed
@@ -69,11 +69,11 @@ module library to link to is ``libsundials_nvecsycl.lib``. The extension
 NVECTOR_SYCL functions
 -----------------------------------
 
-The NVECTOR_SYCL module implementations of all vector operations listed in the
-sections :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
+The NVECTOR_SYCL module implementations of all vector operations listed in
+:numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
 :numref:`NVectors.Ops.Array`, and :numref:`NVectors.Ops.Local`, except for
-:cpp:func:`N_VDotProdMulti()`, :cpp:func:`N_VWrmsNormVectorArray()`,
-:cpp:func:`N_VWrmsNormMaskVectorArray()` as support for arrays of reduction
+:c:func:`N_VDotProdMulti()`, :c:func:`N_VWrmsNormVectorArray()`,
+:c:func:`N_VWrmsNormMaskVectorArray()` as support for arrays of reduction
 vectors is not yet supported.  These functions will be added to the NVECTOR_SYCL
 implementation in the future. The names of vector operations are obtained from
 those in the aforementioned sections by appending the suffix ``_Sycl`` (e.g.,
@@ -83,35 +83,35 @@ Additionally, the NVECTOR_SYCL module provides the following user-callable
 constructors for creating a new NVECTOR_SYCL:
 
 
-.. cpp:function:: N_Vector N_VNew_Sycl(sunindextype vec_length, sycl::queue* Q)
+.. cpp:function:: N_Vector N_VNew_Sycl(sunindextype vec_length, sycl::queue* Q, SUNContext sunctx)
 
    This function creates and allocates memory for an NVECTOR_SYCL. Vector data
    arrays are allocated on both the host and the device associated with the
    input queue. All operation are launched in the provided queue.
 
 
-.. cpp:function:: N_Vector N_VNewManaged_Sycl(sunindextype vec_length, sycl::queue* Q)
+.. cpp:function:: N_Vector N_VNewManaged_Sycl(sunindextype vec_length, sycl::queue* Q, SUNContext sunctx)
 
    This function creates and allocates memory for a NVECTOR_SYCL. The vector
    data array is allocated in managed (shared) memory using the input queue. All
    operation are launched in the provided queue.
 
 
-.. cpp:function:: N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata, sycl::queue* Q)
+.. cpp:function:: N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata, sycl::queue* Q, SUNContext sunctx)
 
    This function creates an NVECTOR_SYCL with user-supplied host and device
    data arrays. This function does not allocate memory for data itself. All
    operation are launched in the provided queue.
 
 
-.. cpp:function:: N_Vector N_VMakeManaged_Sycl(sunindextype length, realtype *vdata, sycl::queue *Q)
+.. cpp:function:: N_Vector N_VMakeManaged_Sycl(sunindextype length, realtype *vdata, sycl::queue *Q, SUNContext sunctx)
 
    This function creates an NVECTOR_SYCL with a user-supplied managed (shared)
    data array. This function does not allocate memory for data itself. All
    operation are launched in the provided queue.
 
 
-.. cpp:function:: N_Vector N_VNewWithMemHelp_Sycl(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, sycl::queue *Q)
+.. cpp:function:: N_Vector N_VNewWithMemHelp_Sycl(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, sycl::queue *Q, SUNContext sunctx)
 
    This function creates an NVECTOR_SYCL with a user-supplied SUNMemoryHelper
    for allocating/freeing memory. All operation are launched in the provided
@@ -127,8 +127,8 @@ constructors for creating a new NVECTOR_SYCL:
 
 The following user-callable functions are provided for accessing the vector data
 arrays on the host and device and copying data between the two memory spaces.
-Note the generic NVECTOR operations :cpp:func:`N_VGetArrayPointer()` and
-:cpp:func:`N_VSetArrayPointer()` are mapped to the corresponding ``HostArray``
+Note the generic NVECTOR operations :c:func:`N_VGetArrayPointer()` and
+:c:func:`N_VSetArrayPointer()` are mapped to the corresponding ``HostArray``
 functions given below. To ensure memory coherency, a user will need to call the
 ``CopyTo`` or ``CopyFrom`` functions as necessary to transfer data between the
 host and device, unless managed (shared) memory is used.
@@ -178,10 +178,10 @@ for how SYCL kernels are launched on a device.
 
    This function sets the execution policies which control the kernel parameters
    utilized when launching the streaming and reduction kernels. By default the
-   vector is setup to use the ``SUNSyclThreadDirectExecPolicy`` and
-   ``SUNSyclBlockReduceExecPolicy``. See the section
+   vector is setup to use the :cpp:func:`SUNSyclThreadDirectExecPolicy` and
+   :cpp:func:`SUNSyclBlockReduceExecPolicy`. See
    :numref:`NVectors.SYCL.SUNSyclExecPolicy` below for more information about the
-   ``SUNSyclExecPolicy`` class.
+   :cpp:type:`SUNSyclExecPolicy` class.
 
    .. note::
 
@@ -214,7 +214,7 @@ provided to enable or disable fused and vector array operations for a specific
 vector. To ensure consistency across vectors it is recommended to first create a
 vector with one of the above constructors, enable/disable the desired operations
 on that vector with the functions below, and then use this vector in conjunction
-with :cpp:func:`N_VClone()` to create any additional vectors. This guarantees the
+with :c:func:`N_VClone()` to create any additional vectors. This guarantees the
 new vectors will have the same operations enabled/disabled as cloned vectors
 inherit the same enable/disable options as the vector they are cloned from while
 vectors created by any of the constructors above will have the default settings
@@ -298,8 +298,8 @@ for the NVECTOR_SYCL module.
 **Notes**
 
 * When there is a need to access components of an NVECTOR_SYCL, ``v``, it is
-  recommended to use :cpp:func:`N_VGetDeviceArrayPointer()` to access the device
-  array or :cpp:func:`N_VGetArrayPointer()` for the host array. When using managed
+  recommended to use :c:func:`N_VGetDeviceArrayPointer()` to access the device
+  array or :c:func:`N_VGetArrayPointer()` for the host array. When using managed
   (shared) memory, either function may be used. To ensure memory coherency, a
   user may need to call the ``CopyTo`` or ``CopyFrom`` functions as necessary to
   transfer data between the host and device, unless managed (shared) memory is
@@ -320,21 +320,25 @@ The ``SUNSyclExecPolicy`` Class
 
 In order to provide maximum flexibility to users, the SYCL kernel execution
 parameters used by kernels within SUNDIALS are defined by objects of the
-``sundials::SyclExecPolicy`` abstract class type (this class can be accessed in
+``sundials::sycl::ExecPolicy`` abstract class type (this class can be accessed in
 the global namespace as ``SUNSyclExecPolicy``). Thus, users may provide custom
-execution policies that fit the needs of their problem. The
-``sundials::SyclExecPolicy`` is defined in the header file
+execution policies that fit the needs of their problem. The ``SUNSyclExecPolicy``
+class is defined as
+
+.. cpp:type:: sundials::sycl::ExecPolicy SUNSyclExecPolicy
+
+where the ``sundials::sycl::ExecPolicy`` class is defined in the header file
 ``sundials_sycl_policies.hpp``, as follows:
 
 .. code-block:: c++
 
-   class SyclExecPolicy
+   class ExecPolicy
    {
    public:
       virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
       virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
-      virtual SyclExecPolicy* clone() const = 0;
-      virtual ~SyclExecPolicy() {}
+      virtual ExecPolicy* clone() const = 0;
+      virtual ~ExecPolicy() {}
    };
 
 For consistency the function names and behavior mirror the execution policies
@@ -349,20 +353,20 @@ value.
 
 To define a custom execution policy, a user simply needs to create a class that
 inherits from the abstract class and implements the methods. The SUNDIALS
-provided ``sundials::SyclThreadDirectExecPolicy`` (aka in the global namespace
+provided ``sundials::sycl::ThreadDirectExecPolicy`` (aka in the global namespace
 as ``SUNSyclThreadDirectExecPolicy``) class is a good example of a what a custom
 execution policy may look like:
 
 .. code-block:: c++
 
-   class SyclThreadDirectExecPolicy : public SyclExecPolicy
+   class ThreadDirectExecPolicy : public ExecPolicy
    {
    public:
-      SyclThreadDirectExecPolicy(const size_t blockDim)
+      ThreadDirectExecPolicy(const size_t blockDim)
          : blockDim_(blockDim)
       {}
 
-      SyclThreadDirectExecPolicy(const SyclThreadDirectExecPolicy& ex)
+      ThreadDirectExecPolicy(const ThreadDirectExecPolicy& ex)
          : blockDim_(ex.blockDim_)
       {}
 
@@ -376,9 +380,9 @@ execution policy may look like:
          return blockDim_;
       }
 
-      virtual SyclExecPolicy* clone() const
+      virtual ExecPolicy* clone() const
       {
-         return static_cast<SyclExecPolicy*>(new SyclThreadDirectExecPolicy(*this));
+         return static_cast<ExecPolicy*>(new ThreadDirectExecPolicy(*this));
       }
 
    private:
@@ -388,30 +392,32 @@ execution policy may look like:
 
 SUNDIALS provides the following execution policies:
 
+   .. cpp:function:: SUNSyclThreadDirectExecPolicy(const size_t blockDim)
 
-#. ``SUNSyclThreadDirectExecPolicy(const size_t blockDim)``
-   is for kernels performing streaming operations and maps each work unit
-   (vector element) to a work-item (thread). Based on the local work-group range
-   (number of threads per group, ``blockSize``) the number of local work-groups
-   (``gridSize``) is computed so there are enough work-items in the global
-   work-group range ( total number of threads, ``blockSize * gridSize``) for one
-   work unit per work-item (thread).
+      Is for kernels performing streaming operations and maps each work unit
+      (vector element) to a work-item (thread). Based on the local work-group range
+      (number of threads per group, ``blockSize``) the number of local work-groups
+      (``gridSize``) is computed so there are enough work-items in the global
+      work-group range ( total number of threads, ``blockSize * gridSize``) for one
+      work unit per work-item (thread).
 
-#. ``SUNSyclGridStrideExecPolicy(const size_t blockDim, const size_t gridDim)``
-   is for kernels performing streaming operations and maps each work unit
-   (vector element) to a work-item (thread) in a round-robin manner so the local
-   work-group range (number of threads per group, ``blockSize``) and the number
-   of local work-groups (``gridSize``) can be set to any positive value. In this
-   case the global work-group range (total number of threads,
-   ``blockSize * gridSize``) may be less than the number of work units (vector
-   elements).
+   .. cpp:function:: SUNSyclGridStrideExecPolicy(const size_t blockDim, const size_t gridDim)
 
-#. ``SUNSyclBlockReduceExecPolicy(const size_t blockDim)``
-   is for kernels performing a reduction, the local work-group range (number
-   of threads per group, ``blockSize``) and the number of local work-groups
-   (``gridSize``) can be set to any positive value or the ``gridSize`` may be
-   set to ``0`` in which case the global range is chosen so that there are
-   enough threads for at most two work units per work-item.
+      Is for kernels performing streaming operations and maps each work unit
+      (vector element) to a work-item (thread) in a round-robin manner so the local
+      work-group range (number of threads per group, ``blockSize``) and the number
+      of local work-groups (``gridSize``) can be set to any positive value. In this
+      case the global work-group range (total number of threads,
+      ``blockSize * gridSize``) may be less than the number of work units (vector
+      elements).
+
+   .. cpp:function:: SUNSyclBlockReduceExecPolicy(const size_t blockDim)
+
+      Is for kernels performing a reduction, the local work-group range (number
+      of threads per group, ``blockSize``) and the number of local work-groups
+      (``gridSize``) can be set to any positive value or the ``gridSize`` may be
+      set to ``0`` in which case the global range is chosen so that there are
+      enough threads for at most two work units per work-item.
 
 By default the NVECTOR_SYCL module uses the ``SUNSyclThreadDirectExecPolicy``
 and ``SUNSyclBlockReduceExecPolicy`` where the default ``blockDim`` is
@@ -423,12 +429,12 @@ so:
 
 .. code-block:: c++
 
-   N_Vector v = N_VNew_Sycl(length);
+   N_Vector v = N_VNew_Sycl(length, SUNContext sunctx);
    SUNSyclThreadDirectExecPolicy thread_direct(128);
    SUNSyclBlockReduceExecPolicy  block_reduce(128);
    flag = N_VSetKernelExecPolicy_Sycl(v, &thread_direct, &block_reduce);
 
 
 These default policy objects can be reused for multiple SUNDIALS data structures
-(e.g. a ``SUNMatrix`` and an ``N_Vector``) since they do not hold any modifiable
+(e.g. a :c:type:`SUNMatrix` and an :c:type:`N_Vector`) since they do not hold any modifiable
 state information.

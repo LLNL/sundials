@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Usage.ERKStep.Skeleton:
+.. _ARKODE.Usage.ERKStep.Skeleton:
 
 A skeleton of the user's main program
 ============================================
@@ -20,7 +20,7 @@ A skeleton of the user's main program
 The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP using the ERKStep module.
 Most of the steps are independent of the NVECTOR implementation used.
-For the steps that are not, refer to the section :numref:`NVectors` for
+For the steps that are not, refer to :numref:`NVectors` for
 the specific name of the function to be called or macro to be
 referenced.
 
@@ -32,28 +32,9 @@ referenced.
    ``num_threads``, the number of threads to use within the threaded
    vector functions, if used.
 
-#. Create the SUNDIALS simulation context object (optional, but recommended).
+#. Create the SUNDIALS simulation context object.
 
-   Call :c:func:`SUNContext_Create` to create a ``SUNContext`` object,
-   providing an MPI communicator if using MPI. See the section
-   :ref:`SUNDIALS.SUNContext`` for more information.
-
-   This step may look like
-
-   .. code-block:: c
-
-      SUNContext ctx;
-      SUNContext_Create(NULL, &ctx);
-
-   when not using MPI, or like
-
-   .. code-block:: c
-
-      MPI_Comm comm = MPI_COMM_WORLD;
-      SUNContext ctx;
-      SUNContext_Create((void*) &comm, &ctx);
-
-   when using MPI.
+   Call :c:func:`SUNContext_Create` to allocate the ``SUNContext`` object.
 
 #. Set problem dimensions, etc.
 
@@ -92,53 +73,15 @@ referenced.
 
       ydata = N_VGetArrayPointer_***(y0);
 
-   See the sections :numref:`NVectors.NVSerial` through
-   :numref:`NVectors.Pthreads` for details.
-
-   For the HYPRE and PETSc vector wrappers, first create and initialize
-   the underlying vector, and then create the NVECTOR wrapper with a call
-   of the form
-
-   .. code-block:: c
-
-      y0 = N_VMake_***(yvec);
-
-   where ``yvec`` is a HYPRE or PETSc vector.  Note that calls like
-   ``N_VNew_***(...)`` and ``N_VGetArrayPointer_***(...)`` are not
-   available for these vector wrappers.  See the sections
-   :numref:`NVectors.ParHyp` and :numref:`NVectors.NVPETSc` for details.
-
-   If using either the CUDA- or RAJA-based vector implementations use
-   a call of the form
-
-   .. code-block:: c
-
-      y0 = N_VMake_***(..., c);
-
-   where ``c`` is a pointer to a ``suncudavec`` or ``sunrajavec``
-   vector class if this class already exists.  Otherwise, create a new
-   vector by making a call of the form
-
-   .. code-block:: c
-
-      N_VGetDeviceArrayPointer_***
-
-   or
-
-   .. code-block:: c
-
-      N_VGetHostArrayPointer_***
-
-   Note that the vector class will allocate memory on both the host
-   and device when instantiated.  See the sections
-   :numref:`NVectors.CUDA` and :numref:`NVectors.RAJA` for details.
+   For details on each of SUNDIALS' provided vector implementations, see
+   the corresponding sections in :numref:`NVectors` for details.
 
 #. Create ERKStep object
 
    Call ``arkode_mem = ERKStepCreate(...)`` to create the ERKStep memory
-   block. :c:func:`ERKStepCreate()` returns a ``void*`` pointer to
-   this memory structure. See the section
-   :numref:`Usage.ERKStep.Initialization` for details.
+   block. :c:func:`ERKStepCreate` returns a ``void*`` pointer to
+   this memory structure. See :numref:`ARKODE.Usage.ERKStep.Initialization` for
+   details.
 
 #. Specify integration tolerances
 
@@ -148,21 +91,21 @@ referenced.
    tolerance and a vector of absolute tolerances,
    respectively.  Alternatively, call :c:func:`ERKStepWFtolerances()`
    to specify a function which sets directly the weights used in
-   evaluating WRMS vector norms. See the section
-   :numref:`Usage.ERKStep.Tolerances` for details.
+   evaluating WRMS vector norms. See :numref:`ARKODE.Usage.ERKStep.Tolerances`
+   for details.
 
 #. Set optional inputs
 
    Call ``ERKStepSet*`` functions to change any optional inputs that
-   control the behavior of ERKStep from their default values. See the
-   section :numref:`Usage.ERKStep.OptionalInputs` for details.
+   control the behavior of ERKStep from their default values. See
+   :numref:`ARKODE.Usage.ERKStep.OptionalInputs` for details.
 
 #. Specify rootfinding problem
 
    Optionally, call :c:func:`ERKStepRootInit()` to initialize a rootfinding
    problem to be solved during the integration of the ODE system. See
-   the section :numref:`Usage.ERKStep.RootFinding` for general details, and
-   the section :numref:`Usage.ERKStep.OptionalInputs` for relevant optional
+   :numref:`ARKODE.Usage.ERKStep.RootFinding` for general details, and
+   :numref:`ARKODE.Usage.ERKStep.OptionalInputs` for relevant optional
    input calls.
 
 #. Advance solution in time
@@ -175,13 +118,13 @@ referenced.
 
    Here, ``itask`` specifies the return mode. The vector ``yout``
    (which can be the same as the vector ``y0`` above) will contain
-   :math:`y(t_\text{out})`. See the section
-   :numref:`Usage.ERKStep.Integration` for details.
+   :math:`y(t_\text{out})`. See :numref:`ARKODE.Usage.ERKStep.Integration`
+   for details.
 
 #. Get optional outputs
 
    Call ``ERKStepGet*`` functions to obtain optional output. See
-   the section :numref:`Usage.ERKStep.OptionalOutputs` for details.
+   :numref:`ARKODE.Usage.ERKStep.OptionalOutputs` for details.
 
 #. Deallocate memory for solution vector
 
@@ -195,7 +138,7 @@ referenced.
 
 #. Free solver memory
 
-    Call ``ERKStepFree(&arkode_mem)`` to free the memory allocated for
+    Call :c:func:`ERKStepFree()` to free the memory allocated for
     the ERKStep module.
 
 #. Finalize MPI, if used

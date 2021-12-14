@@ -54,33 +54,30 @@ Note that NVECTOR_PARHYP requires SUNDIALS to be built with MPI support.
 NVECTOR_PARHYP functions
 -----------------------------------
 
-The NVECTOR_PARHYP module defines implementations of all vector
-operations listed in the sections :numref:`NVectors.Ops`,
-:numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
-:numref:`NVectors.Ops.Local`, except for ``N_VSetArrayPointer`` and
-``N_VGetArrayPointer``, because accessing raw vector data is handled
-by low-level HYPRE functions.  As such, this vector is not available
-for use with SUNDIALS Fortran interfaces.  When access to raw vector
-data is needed, one should extract the HYPRE vector first, and
-then use HYPRE methods to access the data.  Usage examples of
-NVECTOR_PARHYP are provided in the ``cvAdvDiff_non_ph.c`` example
-programs for CVODE and the ``ark_diurnal_kry_ph.c`` example program
-for ARKODE.
+The NVECTOR_PARHYP module defines implementations of all vector operations
+listed in :numref:`NVectors.Ops` except for :c:func:`N_VSetArrayPointer` and
+:c:func:`N_VGetArrayPointer` because accessing raw vector data is handled by
+low-level HYPRE functions.  As such, this vector is not available for use with
+SUNDIALS Fortran interfaces.  When access to raw vector data is needed, one
+should extract the HYPRE vector first, and then use HYPRE methods to access the
+data.  Usage examples of NVECTOR_PARHYP are provided in the
+``cvAdvDiff_non_ph.c`` example programs for CVODE and the
+``ark_diurnal_kry_ph.c`` example program for ARKODE.
 
-The names of parhyp methods are obtained from those in the sections
+The names of parhyp methods are obtained from those in
 :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
 :numref:`NVectors.Ops.Local` by appending the suffix ``_ParHyp``
 (e.g. ``N_VDestroy_ParHyp``).  The module NVECTOR_PARHYP provides the
 following additional user-callable routines:
 
 
-.. c:function:: N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length, sunindextype global_length)
+.. c:function:: N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length, sunindextype global_length, SUNContext sunctx)
 
    This function creates a new parhyp ``N_Vector`` with the pointer to the
    HYPRE vector set to ``NULL``.
 
 
-.. c:function:: N_Vector N_VMake_ParHyp(hypre_ParVector *x)
+.. c:function:: N_Vector N_VMake_ParHyp(hypre_ParVector *x, SUNContext sunctx)
 
    This function creates an ``N_Vector`` wrapper around an existing
    HYPRE parallel vector.  It does *not* allocate memory for ``x`` itself.
@@ -89,26 +86,6 @@ following additional user-callable routines:
 .. c:function:: hypre_ParVector *N_VGetVector_ParHyp(N_Vector v)
 
    This function returns a pointer to the underlying HYPRE vector.
-
-
-.. c:function:: N_Vector* N_VCloneVectorArray_ParHyp(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count* parhyp
-   vectors.
-
-
-.. c:function:: N_Vector* N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w)
-
-   This function creates (by cloning) an array of *count* parhyp
-   vectors, each with an empty (```NULL``) data array.
-
-
-.. c:function:: void N_VDestroyVectorArray_ParHyp(N_Vector* vs, int count)
-
-   This function frees memory allocated for the array of *count*
-   variables of type ``N_Vector`` created with
-   :c:func:`N_VCloneVectorArray_ParHyp()` or with
-   :c:func:`N_VCloneVectorArrayEmpty_ParHyp()`.
 
 
 .. c:function:: void N_VPrint_ParHyp(N_Vector v)
@@ -211,7 +188,7 @@ options as the vector they are cloned from while vectors created with
   ``x_vec = N_VGetVector_ParHyp(v)`` and then access components using
   appropriate HYPRE functions.
 
-* :c:func:`N_VNewEmpty_ParHyp()`, :c:func:`N_VMake_ParHyp()`, and
+* :c:func:`N_VNewEmpty_ParHyp`, :c:func:`N_VMake_ParHyp`, and
   :c:func:`N_VCloneVectorArrayEmpty_ParHyp()` set the field *own_parvector*
   to ``SUNFALSE``.  The functions :c:func:`N_VDestroy_ParHyp()` and
   :c:func:`N_VDestroyVectorArray_ParHyp()` will not attempt to delete an

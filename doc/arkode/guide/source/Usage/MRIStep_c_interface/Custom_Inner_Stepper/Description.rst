@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): David J. Gardner @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Usage.MRIStep.CustomInnerStepper.Description:
+.. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description:
 
 The MRIStepInnerStepper Class
 -----------------------------
@@ -28,11 +28,11 @@ type is defined in ``include/arkode/arkode.h`` as
 The actual definitions of the ``_MRIStepInnerStepper`` structure and the
 corresponding operations structure are kept private to allow for the object
 internals to change without impacting user code. The following sections describe
-the :numref:`Usage.MRIStep.CustomInnerStepper.Description.BaseMethods` and the virtual
-:numref:`Usage.MRIStep.CustomInnerStepper.Description.ImplMethods` that a must be
+the :numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods` and the virtual
+:numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.ImplMethods` that a must be
 provided by a derived class.
 
-.. _Usage.MRIStep.CustomInnerStepper.Description.BaseMethods:
+.. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods:
 
 Base Class Methods
 ^^^^^^^^^^^^^^^^^^
@@ -42,26 +42,25 @@ abstract base class that aid the user in implementing derived classes. This
 includes functions for creating and destroying a generic base class object,
 attaching and retrieving the derived class ``content`` pointer, setting function
 pointers to derived class method implementations, and accessing base class data
-e.g., for computing the forcing term :eq:`MRI_forcing_poly`.
+e.g., for computing the forcing term :eq:`ARKODE_MRI_forcing_poly`.
 
-.. _Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.CreateDestroy:
+.. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.CreateDestroy:
 
 Creating and Destroying an Object
 """""""""""""""""""""""""""""""""
 
-.. c:function:: int MRIStepInnerStepper_Create(MRIStepInnerStepper *stepper)
+.. c:function:: int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper *stepper)
 
    This function creates an :c:type:`MRIStepInnerStepper` object to which a user
    should attach the member data (content) pointer and method function pointers.
 
    **Arguments:**
-
-   * *stepper* -- a pointer to an inner stepper object.
+      * ``sunctx`` -- the SUNDIALS simulation context.
+      * ``stepper`` -- a pointer to an inner stepper object.
 
    **Return value:**
-
-   * ARK_SUCCESS if successful
-   * ARK_MEM_FAIL if a memory allocation error occurs
+      * ARK_SUCCESS if successful
+      * ARK_MEM_FAIL if a memory allocation error occurs
 
    **Example usage:**
 
@@ -72,13 +71,12 @@ Creating and Destroying an Object
       flag = MRIStepInnerStepper_Create(&inner_stepper);
 
    **Example codes:**
-
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
    .. note::
 
-      See :numref:`Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.Content` and
-      :numref:`Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.AttachFunctions`
+      See :numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.Content` and
+      :numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.AttachFunctions`
       for details on how to attach member data and method function pointers.
 
 
@@ -87,12 +85,10 @@ Creating and Destroying an Object
    This function destroys an :c:type:`MRIStepInnerStepper` object.
 
    **Arguments:**
-
-   * *stepper* -- a pointer to an inner stepper object.
+      * *stepper* -- a pointer to an inner stepper object.
 
    **Return value:**
-
-   * ARK_SUCCESS if successful
+      * ARK_SUCCESS if successful
 
    **Example usage:**
 
@@ -102,8 +98,7 @@ Creating and Destroying an Object
       flag = MRIStepInnerStepper_Free(&inner_stepper);
 
    **Example codes:**
-
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
    .. note::
 
@@ -111,7 +106,7 @@ Creating and Destroying an Object
       base class structure itself. The user is responsible for freeing any
       memory allocated for the member data (content).
 
-.. _Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.Content:
+.. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.Content:
 
 Attaching and Accessing the Content Pointer
 """""""""""""""""""""""""""""""""""""""""""
@@ -122,14 +117,12 @@ Attaching and Accessing the Content Pointer
    :c:type:`MRIStepInnerStepper` object.
 
    **Arguments:**
-
-   * *stepper* -- an inner stepper object.
-   * *content* -- a pointer to the stepper member data.
+      * *stepper* -- an inner stepper object.
+      * *content* -- a pointer to the stepper member data.
 
    **Return value:**
-
-   * ARK_SUCCESS if successful
-   * ARK_ILL_INPUT if the stepper is ``NULL``
+      * ARK_SUCCESS if successful
+      * ARK_ILL_INPUT if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -140,8 +133,7 @@ Attaching and Accessing the Content Pointer
       flag = MRIStepInnerStepper_SetContent(inner_stepper, &my_object_data);
 
    **Example codes:**
-
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 
 .. c:function:: int MRIStepInnerStepper_GetContent(MRIStepInnerStepper stepper, void **content)
@@ -150,14 +142,12 @@ Attaching and Accessing the Content Pointer
    :c:type:`MRIStepInnerStepper` object.
 
    **Arguments:**
-
-   * *stepper* -- an inner stepper object.
-   * *content* -- a pointer to set to the stepper member data pointer.
+      * *stepper* -- an inner stepper object.
+      * *content* -- a pointer to set to the stepper member data pointer.
 
    **Return value:**
-
-   * ARK_SUCCESS if successful
-   * ARK_ILL_INPUT if the stepper is ``NULL``
+      * ARK_SUCCESS if successful
+      * ARK_ILL_INPUT if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -171,11 +161,10 @@ Attaching and Accessing the Content Pointer
       my_object_data = (MyStepperContent*) content;
 
    **Example codes:**
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
-
-.. _Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.AttachFunctions:
+.. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.AttachFunctions:
 
 Setting Member Functions
 """"""""""""""""""""""""
@@ -186,14 +175,12 @@ Setting Member Functions
    :c:type:`MRIStepInnerStepper` object.
 
    **Arguments:**
-
-   * *stepper* -- an inner stepper object.
-   * *fn* -- the :c:type:`MRIStepInnerStepper` function to attach.
+      * *stepper* -- an inner stepper object.
+      * *fn* -- the :c:type:`MRIStepInnerStepper` function to attach.
 
    **Return value:**
-
-   * ARK_SUCCESS if successful
-   * ARK_ILL_INPUT if the stepper is ``NULL``
+      * ARK_SUCCESS if successful
+      * ARK_ILL_INPUT if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -203,8 +190,7 @@ Setting Member Functions
       flag = MRIStepInnerStepper_SetEvolveFn(inner_stepper, MyEvolve);
 
    **Example codes:**
-
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 
 .. c:function:: int MRIStepInnerStepper_SetFullRhsFn(MRIStepInnerStepper stepper, MRIStepInnerFullRhsFn fn)
@@ -213,14 +199,12 @@ Setting Member Functions
    :c:type:`MRIStepInnerStepper` object.
 
    **Arguments:**
-
-   * *stepper* -- an inner stepper object.
-   * *fn* -- the :c:type:`MRIStepInnerFullRhsFn` function to attach.
+      * *stepper* -- an inner stepper object.
+      * *fn* -- the :c:type:`MRIStepInnerFullRhsFn` function to attach.
 
    **Return value:**
-
-   * ARK_SUCCESS if successful
-   * ARK_ILL_INPUT if the stepper is ``NULL``
+      * ARK_SUCCESS if successful
+      * ARK_ILL_INPUT if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -230,8 +214,7 @@ Setting Member Functions
       flag = MRIStepInnerStepper_SetFullRhsFn(inner_stepper, MyFullRHS);
 
    **Example codes:**
-
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 
 .. c:function:: int MRIStepInnerStepper_SetResetFn(MRIStepInnerStepper stepper, MRIStepInnerResetFn fn)
@@ -240,14 +223,12 @@ Setting Member Functions
    :c:type:`MRIStepInnerStepper` object.
 
    **Arguments:**
-
-   * *stepper* -- an inner stepper object.
-   * *fn* -- the :c:type:`MRIStepInnerResetFn` function to attach.
+      * *stepper* -- an inner stepper object.
+      * *fn* -- the :c:type:`MRIStepInnerResetFn` function to attach.
 
    **Return value:**
-
-   * ARK_SUCCESS if successful
-   * ARK_ILL_INPUT if the stepper is ``NULL``
+      * ARK_SUCCESS if successful
+      * ARK_ILL_INPUT if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -257,38 +238,35 @@ Setting Member Functions
       flag = MRIStepInnerStepper_SetResetFn(inner_stepper, MyReset);
 
    **Example codes:**
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
-
-.. _Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.Forcing:
+.. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.Forcing:
 
 Applying and Accessing Forcing Data
 """""""""""""""""""""""""""""""""""
 
-When integrating the ODE :eq:`MRI_IVP` the :c:type:`MRIStepInnerStepper` is
+When integrating the ODE :eq:`ARKODE_MRI_IVP` the :c:type:`MRIStepInnerStepper` is
 responsible for evaluating ODE right-hand side function :math:`f^F(t,v)` as well
-as computing and applying the forcing term :eq:`MRI_forcing_poly` to obtain the
-full right-hand side of the inner (fast) ODE :eq:`MRI_IVP`. The functions in
+as computing and applying the forcing term :eq:`ARKODE_MRI_forcing_poly` to obtain the
+full right-hand side of the inner (fast) ODE :eq:`ARKODE_MRI_IVP`. The functions in
 this section can be used to either apply the inner (fast) forcing or access the
 data necessary to construct the inner (fast) forcing polynomial.
 
 
 .. c:function:: int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper, realtype t, N_Vector ff)
 
-   This function computes the forcing term :eq:`MRI_forcing_poly` at the input
+   This function computes the forcing term :eq:`ARKODE_MRI_forcing_poly` at the input
    time *t* and adds it to input vector *ff*, i.e., the inner (fast) right-hand
    side vector.
 
    **Arguments:**
-
-   * *stepper* -- an inner stepper object.
-   * *t* -- the time at which the forcing should be evaluated.
-   * *f* -- the vector to which the forcing should be applied.
+      * *stepper* -- an inner stepper object.
+      * *t* -- the time at which the forcing should be evaluated.
+      * *f* -- the vector to which the forcing should be applied.
 
    **Return value:**
-
-   * ARK_SUCCESS if successful
-   * ARK_ILL_INPUT if the stepper is ``NULL``
+      * ARK_SUCCESS if successful
+      * ARK_ILL_INPUT if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -298,32 +276,29 @@ data necessary to construct the inner (fast) forcing polynomial.
       flag = MRIStepInnerStepper_AddForcing(inner_stepper, t, f_fast);
 
    **Example codes:**
-
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 
 .. c:function:: int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper, realtype *tshift, realtype *tscale, N_Vector **forcing, int *nforcing)
 
    This function provides access to data necessary to compute the forcing term
-   :eq:`MRI_forcing_poly`. This includes the shift and scaling factors for the
+   :eq:`ARKODE_MRI_forcing_poly`. This includes the shift and scaling factors for the
    normalized time :math:`\tau = (t - t_{n,i-1}^S)/(h^S \Delta c_i^S)` and the
    array of polynomial coefficient vectors :math:`\hat{\gamma}^{\{k\}}_i`.
 
    **Arguments:**
-
-   * *stepper* -- an inner stepper object.
-   * *tshift* -- the time shift to apply to the current time when computing the
-     forcing, :math:`t_{n,i-1}^S`.
-   * *tscale* -- the time scaling to apply to the current time when computing
-     the forcing, :math:`h^S \Delta c_i^S`.
-   * *forcing* -- a pointer to an array of forcing vectors,
-     :math:`\hat{\gamma}^{\{k\}}_i`.
-   * *nforcing* -- the number of forcing vectors.
+      * *stepper* -- an inner stepper object.
+      * *tshift* -- the time shift to apply to the current time when computing the
+        forcing, :math:`t_{n,i-1}^S`.
+      * *tscale* -- the time scaling to apply to the current time when computing
+        the forcing, :math:`h^S \Delta c_i^S`.
+      * *forcing* -- a pointer to an array of forcing vectors,
+        :math:`\hat{\gamma}^{\{k\}}_i`.
+      * *nforcing* -- the number of forcing vectors.
 
    **Return value:**
-
-   * ARK_SUCCESS if successful
-   * ARK_ILL_INPUT if the stepper is ``NULL``
+      * ARK_SUCCESS if successful
+      * ARK_ILL_INPUT if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -352,11 +327,10 @@ data necessary to construct the inner (fast) forcing polynomial.
       }
 
    **Example codes:**
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
-
-.. _Usage.MRIStep.CustomInnerStepper.Description.ImplMethods:
+.. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.ImplMethods:
 
 Implementation Specific Methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -377,53 +351,47 @@ member functions:
    from time *t0* to time *tout*.
 
    **Arguments:**
-
-   * *stepper* -- the inner stepper object.
-   * *t0* -- the initial time for the inner (fast) integration.
-   * *tout* -- the final time for the inner (fast) integration.
-   * *v* -- on input the state at time *t0* and, on output, the state at time
-     *tout*.
+      * *stepper* -- the inner stepper object.
+      * *t0* -- the initial time for the inner (fast) integration.
+      * *tout* -- the final time for the inner (fast) integration.
+      * *v* -- on input the state at time *t0* and, on output, the state at time
+        *tout*.
 
    **Return value:**
-
-   An :c:type:`MRIStepInnerEvolveFn` should return 0 if successful, a positive
-   value if a recoverable error occurred, or a negative value if it failed
-   unrecoverably.
+      An :c:type:`MRIStepInnerEvolveFn` should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if it failed
+      unrecoverably.
 
    **Example codes:**
-
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 
 .. c:type:: int (*MRIStepInnerFullRhsFn)(MRIStepInnerStepper stepper, realtype t, N_Vector v, N_Vector f, int mode)
 
    This function computes the full right-hand side function of the inner (fast)
-   ODE, :math:`f^F(t,v)` in :eq:`MRI_IVP` for a given value of the independent
+   ODE, :math:`f^F(t,v)` in :eq:`ARKODE_MRI_IVP` for a given value of the independent
    variable *t* and state vector *y*.
 
    **Arguments:**
+      * *stepper* -- the inner stepper object.
+      * *t* -- the current value of the independent variable.
+      * *y* -- the current value of the dependent variable vector.
+      * *f* -- the output vector that forms a portion the ODE right-hand side,
+        :math:`f^F(t,y)` in :eq:`ARKODE_IVP_two_rate`.
+      * *mode* -- a flag indicating the purpose for which the right-hand side
+        function evaluation is called.
 
-   * *stepper* -- the inner stepper object.
-   * *t* -- the current value of the independent variable.
-   * *y* -- the current value of the dependent variable vector.
-   * *f* -- the output vector that forms a portion the ODE right-hand side,
-     :math:`f^F(t,y)` in :eq:`IVP_two_rate`.
-   * *mode* -- a flag indicating the purpose for which the right-hand side
-     function evaluation is called.
-
-     * ``ARK_FULLRHS_START`` -- called at the beginning of the simulation
-     * ``ARK_FULLRHS_END``   -- called at the end of a successful step
-     * ``ARK_FULLRHS_OTHER`` -- called elsewhere e.g., for dense output
+        * ``ARK_FULLRHS_START`` -- called at the beginning of the simulation
+        * ``ARK_FULLRHS_END``   -- called at the end of a successful step
+        * ``ARK_FULLRHS_OTHER`` -- called elsewhere e.g., for dense output
 
    **Return value:**
-
-   An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, a positive
-   value if a recoverable error occurred, or a negative value if it failed
-   unrecoverably.
+      An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if it failed
+      unrecoverably.
 
    **Example codes:**
-
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 Optional Member Functions
 """""""""""""""""""""""""
@@ -437,17 +405,14 @@ following member functions:
    independent variable value and dependent variable vector.
 
    **Arguments:**
-
-   * *stepper* -- the inner stepper object.
-   * *tR* -- the value of the independent variable :math:`t_R`.
-   * *vR* -- the value of the dependent variable vector :math:`v(t_R)`.
+      * *stepper* -- the inner stepper object.
+      * *tR* -- the value of the independent variable :math:`t_R`.
+      * *vR* -- the value of the dependent variable vector :math:`v(t_R)`.
 
    **Return value:**
-
-   An :c:type:`MRIStepInnerResetFn` should return 0 if successful, a positive
-   value if a recoverable error occurred, or a negative value if it failed
-   unrecoverably.
+      An :c:type:`MRIStepInnerResetFn` should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if it failed
+      unrecoverably.
 
    **Example codes:**
-
-   * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``

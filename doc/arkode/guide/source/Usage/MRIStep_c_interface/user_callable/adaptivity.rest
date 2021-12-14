@@ -1,12 +1,23 @@
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
 
-.. _Usage.MRIStep.MRIStepAdaptivityInputTable:
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _ARKODE.Usage.MRIStep.MRIStepAdaptivityInputTable:
 
 Optional inputs for time step adaptivity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The mathematical explanation of ARKODE's time step adaptivity
 algorithm, including how each of the parameters below is used within
-the code, is provided in the section :numref:`Mathematics.Adaptivity`.
+the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 .. cssclass:: table-bordered
@@ -34,15 +45,21 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    Sets a user-supplied time-step adaptivity function.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *hfun* -- name of user-supplied adaptivity function.
-      * *h_data* -- pointer to user data passed to *hfun* every time
-        it is called.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *hfun* -- name of user-supplied adaptivity function.
+
+   * *h_data* -- pointer to user data passed to *hfun* every time
+     it is called.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** This function should focus on accuracy-based time step
    estimation; for stability based time steps the function
@@ -55,25 +72,35 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    Specifies the method (and associated parameters) used for time step adaptivity.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *imethod* -- accuracy-based adaptivity method choice
-        (0 :math:`\le` `imethod` :math:`\le` 5):
-        0 is PID, 1 is PI, 2 is I, 3 is explicit Gustafsson, 4 is
-        implicit Gustafsson, and 5 is the ImEx Gustafsson.
-      * *idefault* -- flag denoting whether to use default adaptivity
-        parameters (1), or that they will be supplied in the
-        *adapt_params* argument (0).
-      * *pq* -- flag denoting whether to use the embedding order of
-        accuracy *p* (0) or the method order of accuracy *q* (1)
-        within the adaptivity algorithm.  *p* is the default.
-      * *adapt_params[0]* -- :math:`k_1` parameter within accuracy-based adaptivity algorithms.
-      * *adapt_params[1]* -- :math:`k_2` parameter within accuracy-based adaptivity algorithms.
-      * *adapt_params[2]* -- :math:`k_3` parameter within accuracy-based adaptivity algorithms.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *imethod* -- accuracy-based adaptivity method choice
+     (0 :math:`\le` `imethod` :math:`\le` 5):
+     0 is PID, 1 is PI, 2 is I, 3 is explicit Gustafsson, 4 is
+     implicit Gustafsson, and 5 is the ImEx Gustafsson.
+
+   * *idefault* -- flag denoting whether to use default adaptivity
+     parameters (1), or that they will be supplied in the
+     *adapt_params* argument (0).
+
+   * *pq* -- flag denoting whether to use the embedding order of
+     accuracy *p* (0) or the method order of accuracy *q* (1)
+     within the adaptivity algorithm.  *p* is the default.
+
+   * *adapt_params[0]* -- :math:`k_1` parameter within accuracy-based adaptivity algorithms.
+
+   * *adapt_params[1]* -- :math:`k_2` parameter within accuracy-based adaptivity algorithms.
+
+   * *adapt_params[2]* -- :math:`k_3` parameter within accuracy-based adaptivity algorithms.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** If custom parameters are supplied, they will be checked
    for validity against published stability intervals.  If other
@@ -87,13 +114,18 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    Specifies the fraction of the estimated explicitly stable step to use.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *cfl_frac* -- maximum allowed fraction of explicitly stable step (default is 0.5).
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *cfl_frac* -- maximum allowed fraction of explicitly stable step (default is 0.5).
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** Any non-positive parameter will imply a reset to the default
    value.
@@ -106,14 +138,19 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    accuracy-based adaptivity strategies.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *bias* -- bias applied to error in accuracy-based time
-        step estimation (default is 1.5).
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *bias* -- bias applied to error in accuracy-based time
+     step estimation (default is 1.5).
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** Any value below 1.0 will imply a reset to the default value.
 
@@ -124,14 +161,20 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    Specifies the step growth interval in which the step size will remain unchanged.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *lb* -- lower bound on window to leave step size fixed (default is 1.0).
-      * *ub* -- upper bound on window to leave step size fixed (default is 1.5).
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *lb* -- lower bound on window to leave step size fixed (default is 1.0).
+
+   * *ub* -- upper bound on window to leave step size fixed (default is 1.5).
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** Any interval *not* containing 1.0 will imply a reset to the default values.
 
@@ -143,13 +186,18 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    accuracy-based error failures in the solver.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *etamxf* -- time step reduction factor on multiple error fails (default is 0.3).
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *etamxf* -- time step reduction factor on multiple error fails (default is 0.3).
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
@@ -161,14 +209,19 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    first integration step.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *etamx1* -- maximum allowed growth factor after the first time
-        step (default is 10000.0).
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *etamx1* -- maximum allowed growth factor after the first time
+     step (default is 10000.0).
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** Any value :math:`\le 1.0` will imply a reset to the default value.
 
@@ -180,13 +233,18 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    steps in the integration process.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *growth* -- maximum allowed growth factor between consecutive time steps (default is 20.0).
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *growth* -- maximum allowed growth factor between consecutive time steps (default is 20.0).
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** Any value :math:`\le 1.0` will imply a reset to the default
    value.
@@ -199,13 +257,18 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    estimated step.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *safety* -- safety factor applied to accuracy-based time step (default is 0.96).
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *safety* -- safety factor applied to accuracy-based time step (default is 0.96).
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** Any non-positive parameter will imply a reset to the default
    value.
@@ -219,13 +282,18 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    :c:func:`MRIStepSetMaxEFailGrowth()` is applied.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *small_nef* -- bound to determine 'multiple' for *etamxf* (default is 2).
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *small_nef* -- bound to determine 'multiple' for *etamxf* (default is 2).
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** Any non-positive parameter will imply a reset to the default value.
 
@@ -237,15 +305,21 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    time step size for the explicit portion of the ODE system.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *EStab* -- name of user-supplied stability function.
-      * *estab_data* -- pointer to user data passed to *EStab* every time
-        it is called.
+
+   * *arkode_mem* -- pointer to the MRIStep memory block.
+
+   * *EStab* -- name of user-supplied stability function.
+
+   * *estab_data* -- pointer to user data passed to *EStab* every time
+     it is called.
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** This function should return an estimate of the absolute
    value of the maximum stable time step for the the ODE system.  It
@@ -253,9 +327,4 @@ Explicit stability function                     :c:func:`MRIStepSetStabilityFn()
    for retaining stability, but this can be quite useful for problems
    where the right-hand side function :math:`f(t,y)` may contain stiff
    terms.
-
-
-
-
-
 

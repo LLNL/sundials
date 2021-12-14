@@ -23,8 +23,8 @@
    ==========
 
 .. [HSR2017] A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-             Programs for CVODE v5.8.0. Technical Report
+             Programs for CVODE |CVODE_VERSION|. Technical Report
              UCRL-SM-208110, LLNL, 2021.
 
-.. [R2018] D.R. Reynolds. User Documentation for ARKode
-           v4.8.0. Technical Report LLNL-CODE-667205, LLNL, 2021.
+.. [R2018] D.R. Reynolds. User Documentation for ARKODE
+           |ARKODE_VERSION|. Technical Report LLNL-CODE-667205, LLNL, 2021.

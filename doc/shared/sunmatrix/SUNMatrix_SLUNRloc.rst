@@ -17,13 +17,14 @@
 The SUNMATRIX_SLUNRLOC Module
 ======================================
 
-The SUNMATRIX_SLUNRLOC implementation of the SUNMatrix module provided
-with SUNDIALS is an adapter for the ``SuperMatrix`` structure provided by
-the SuperLU_DIST sparse matrix factorization and solver library written
-by X. Sherry Li (:cite:p:`SuperLUDIST_site`, :cite:p:`GDL:07`, :cite:p:`LD:03`, :cite:p:`SLUUG:99`).
+The SUNMATRIX_SLUNRLOC module is an interface to the ``SuperMatrix``
+structure provided by the SuperLU_DIST sparse matrix factorization and
+solver library written by X. Sherry Li and collaborators
+:cite:p:`SuperLUDIST_site,GDL:07,LD:03,SLUUG:99`.
 It is designed to be used with the SuperLU_DIST ``SUNLinearSolver``
-discussed in Section :numref:`SUNLinSol.SuperLUDIST`. To this end, it defines
-the ``content`` field of ``SUNMatrix`` to be the following structure:
+module discussed in :numref:`SUNLinSol.SuperLUDIST`. To this end, it
+defines the ``content`` field of ``SUNMatrix`` to be the following
+structure:
 
 .. code-block:: c
 
@@ -72,13 +73,13 @@ SUNMATRIX_SLUNRLOC Functions
 The SUNMATRIX_SLUNRLOC module provides the following user-callable routines:
 
 
-.. c:function:: SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix *Asuper, gridinfo_t *grid)
+.. c:function:: SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix *Asuper, gridinfo_t *grid, SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a SUNMatrix_SLUNRloc
+   This constructor function creates and allocates memory for a SUNMATRIX_SLUNRLOC
    object. Its arguments are a fully-allocated SuperLU_DIST ``SuperMatrix`` with
    ``Stype = SLU_NR_loc, Dtype = SLU_D, Mtype = SLU_GE`` and an initialized SuperLU_DIST
-   2D process grid structure. It returns a SUNMatrix object if ``Asuper`` is compatible
-   else it returns ``NULL``.
+   2D process grid structure. It returns a ``SUNMatrix`` object if ``Asuper`` is
+   compatible else it returns ``NULL``.
 
 
 .. c:function:: void SUNMatrix_SLUNRloc_Print(SUNMatrix A, FILE *fp)
@@ -108,7 +109,7 @@ The SUNMATRIX_SLUNRLOC module provides the following user-callable routines:
 
 
 The SUNMATRIX_SLUNRLOC module also defines implementations of all generic
-``SUNMatrix`` operations listed in Table :numref:`SUNMatrix.ops`:
+``SUNMatrix`` operations listed in :numref:`SUNMatrix.ops`:
 
 * ``SUNMatGetID_SLUNRloc`` -- returns ``SUNMATRIX_SLUNRLOC``
 
@@ -131,6 +132,6 @@ The SUNMATRIX_SLUNRLOC module also defines implementations of all generic
 
 * ``SUNMatMatvecSetup_SLUNRloc`` -- initializes the SuperLU_DIST parallel communication
   structures needed to perform a matrix-vector product; only needs to be called before
-  the first call to ``SUNMatMatvec`` or if the matrix changed since the last setup
+  the first call to :c:func:`SUNMatMatvec` or if the matrix changed since the last setup
 
 * ``SUNMatMatvec_SLUNRloc``

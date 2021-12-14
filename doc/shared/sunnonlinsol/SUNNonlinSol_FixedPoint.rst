@@ -15,7 +15,7 @@
 .. _SUNNonlinSol.FixedPoint:
 
 ==================================================
-The SUNNonlinearSolver_FixedPoint implementation
+The SUNNonlinSol_FixedPoint implementation
 ==================================================
 
 This section describes the SUNNonlinSol implementation of a fixed point
@@ -29,7 +29,7 @@ SUNNonlinSol_FixedPoint module is accessible from SUNDIALS integrators
 
 .. _SUNNonlinSol.FixedPoint.Math:
 
-SUNNonlinearSolver_FixedPoint description
+SUNNonlinSol_FixedPoint description
 -----------------------------------------------
 
 To find the solution to
@@ -46,10 +46,10 @@ computes a series of approximate solutions
    :label: e:fixed_point_iteration
 
 where :math:`n` is the iteration index. The convergence of this
-iteration may be accelerated using Anderson's method :cite:p:`Anderson65`, :cite:p:`Walker-Ni09`,
-:cite:p:`Fang-Saad09`, :cite:p:`LWWY11`.  With Anderson acceleration using subspace
-size :math:`m`, the series of approximate solutions can be formulated
-as the linear combination
+iteration may be accelerated using Anderson's method
+:cite:p:`Anderson65,Walker-Ni09,Fang-Saad09,LWWY11`.  With Anderson
+acceleration using subspace size :math:`m`, the series of approximate
+solutions can be formulated as the linear combination
 
 .. math::
    y^{(n+1)} = \beta \sum_{i=0}^{m_n} \alpha_i^{(n)} G(y^{(n-m_n+i)}) + (1 - \beta) \sum_{i=0}^{m_n} \alpha_i^{(n)} y_{n-m_n+i}
@@ -60,8 +60,8 @@ where :math:`m_n = \min{\{m,n\}}` and the factors
 .. math::
    \alpha^{(n)} =(\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})
 
-solve the minimization problem :math:`\min_\alpha  \| F_n \alpha^T
-\|_2` under the constraint that :math:`\sum_{i=0}^{m_n} \alpha_i = 1` where
+solve the minimization problem :math:`\min\limits_\alpha  \| F_n \alpha^T
+\|_2` under the constraint that :math:`\sum\limits_{i=0}^{m_n} \alpha_i = 1` where
 
 .. math::
    F_{n} = (f_{n-m_n}, \ldots, f_{n})
@@ -86,7 +86,7 @@ factors
    \gamma^{(n)} =(\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})
 
 solve the unconstrained minimization problem
-:math:`\min_\gamma \| f_n - \Delta F_n \gamma^T \|_2` where
+:math:`\min\limits_\gamma \| f_n - \Delta F_n \gamma^T \|_2` where
 
 .. math::
    \Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1}),
@@ -101,14 +101,14 @@ iterations and the stopping criteria for the fixed point iteration are
 supplied by the SUNDIALS integrator when SUNNonlinSol_FixedPoint
 is attached to it.  Both the maximum number of iterations and the
 convergence test function may be modified by the user by calling
-:c:func:`SUNNonlinSolSetMaxIters()` and
-:c:func:`SUNNonlinSolSetConvTestFn()` functions after attaching the
+:c:func:`SUNNonlinSolSetMaxIters` and
+:c:func:`SUNNonlinSolSetConvTestFn` after attaching the
 SUNNonlinSol_FixedPoint object to the integrator.
 
 
 .. _SUNNonlinSol.FixedPoint.Functions:
 
-SUNNonlinearSolver_FixedPoint functions
+SUNNonlinSol_FixedPoint functions
 --------------------------------------------
 
 The SUNNonlinSol_FixedPoint module provides the following constructor
@@ -116,131 +116,139 @@ for creating the ``SUNNonlinearSolver`` object.
 
 
 
-.. c:function:: SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
+.. c:function:: SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m, SUNContext sunctx)
 
-   The function :c:func:`SUNNonlinSol_FixedPoint()` creates a
-   ``SUNNonlinearSolver`` object for use with SUNDIALS integrators to
-   solve nonlinear systems of the form :math:`G(y) = y`.
+   This creates a ``SUNNonlinearSolver`` object for use with SUNDIALS
+   integrators to solve nonlinear systems of the form :math:`G(y) = y`.
 
    **Arguments:**
       * *y* -- a template for cloning vectors needed within the solver.
       * *m* -- the number of acceleration vectors to use.
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
-   **Return value:**  a SUNNonlinSol object if the constructor exits
-   successfully, otherwise it will be ``NULL``.
+   **Return value:**
+      A SUNNonlinSol object if the constructor exits successfully,
+      otherwise it will be ``NULL``.
 
 
 Since the accelerated fixed point iteration
 :eq:`e:fixed_point_iteration` does not require the setup or solution
 of any linear systems, the SUNNonlinSol_FixedPoint module implements
-all of the functions defined in sections :numref:`SUNNonlinSol.API.CoreFn`
-through :numref:`SUNNonlinSol.API.GetFn` except for the
-:c:func:`SUNNonlinSolSetup()`, :c:func:`SUNNonlinSolSetLSetupFn()`,
-and :c:func:`SUNNonlinSolSetLSolveFn()` functions, that are set to
-``NULL``. The SUNNonlinSol_FixedPoint functions have the same names as
-those defined by the generic SUNNonlinSol API with ``_FixedPoint``
-appended to the function name.  Unless using the
-SUNNonlinSol_FixedPoint module as a standalone nonlinear solver the
-generic functions defined in sections :numref:`SUNNonlinSol.API.CoreFn`
-through :numref:`SUNNonlinSol.API.GetFn` should be called in favor of the
-SUNNonlinSol_FixedPoint-specific implementations.
+all of the functions defined in
+:numref:`SUNNonlinSol.API.CoreFn`--:numref:`SUNNonlinSol.API.GetFn`
+except for the :c:func:`SUNNonlinSolSetup`,
+:c:func:`SUNNonlinSolSetLSetupFn`, and :c:func:`SUNNonlinSolSetLSolveFn`
+functions, that are set to ``NULL``. The SUNNonlinSol_FixedPoint
+functions have the same names as those defined by the generic
+SUNNonlinSol API with ``_FixedPoint`` appended to the function name.
+Unless using the SUNNonlinSol_FixedPoint module as a standalone
+nonlinear solver the generic functions defined in
+:numref:`SUNNonlinSol.API.CoreFn`--:numref:`SUNNonlinSol.API.GetFn`
+should be called in favor of the SUNNonlinSol_FixedPoint-specific
+implementations.
 
-The SUNNonlinSol_FixedPoint module also defines the following additional
+The SUNNonlinSol_FixedPoint module also defines the following
 user-callable functions.
 
 
 
 .. c:function:: int SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
 
-   The function :c:func:`SUNNonlinSolGetSysFn_FixedPoint()` returns
-   the fixed-point function that defines the nonlinear system.
+   This returns the fixed-point function that defines the nonlinear system.
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object.
       * *SysFn* -- the function defining the nonlinear system.
 
-   **Return value:**  The return value is zero for a
-   successful call, and a negative value for a failure.
+   **Return value:**
+      The return value is zero for a successful call, and a
+      negative value for a failure.
 
-   **Notes:** This function is intended for users that wish to
-   evaluate the fixed-point function in a custom convergence test
-   function for the SUNNonlinSol_FixedPoint module. We note that
-   SUNNonlinSol_FixedPoint will not leverage the results from any user
-   calls to *SysFn*.
+   **Notes:**
+      This function is intended for users that wish to evaluate the
+      fixed-point function in a custom convergence test function for
+      the SUNNonlinSol_FixedPoint module. We note that
+      SUNNonlinSol_FixedPoint will not leverage the results from any user
+      calls to *SysFn*.
+
 
 .. c:function:: int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, realtype beta)
 
-   The function :c:func:`SUNNonlinSolSetDamping_FixedPoint()` sets the damping
-   parameter :math:`\beta` to use with Anderson acceleration. By default damping
-   is disabled i.e., :math:`\beta = 1.0`.
+   This sets the damping parameter :math:`\beta` to use with Anderson
+   acceleration. By default damping is disabled i.e., :math:`\beta = 1.0`.
 
    **Arguments:**
      * *NLS* -- a SUNNonlinSol object.
      * *beta* -- the damping parameter :math:`0 < \beta \leq 1`.
 
-   **Return value:** The return value is zero for a successful call,
-   ``SUN_NLS_MEM_NULL`` if ``NLS`` is ``NULL``, or ``SUN_NLS_ILL_INPUT`` if
-   ``beta`` is negative.
+   **Return value:**
+      * ``SUN_NLS_SUCCESS`` if successful.
+      * ``SUN_NLS_MEM_NULL`` if ``NLS`` was ``NULL``.
+      * ``SUN_NLS_ILL_INPUT`` if ``beta`` was negative.
 
-   **Notes:** A ``beta`` value should be great than zero and less than one if
-   damping is to be used. A value of one or more will disable damping.
+   **Notes:**
+      A ``beta`` value should satisfy :math:`0 < \beta < 1` if
+      damping is to be used. A value of one or more will disable damping.
 
 
 .. c:function:: int SUNNonlinSolSetInfoFile_FixedPoint(SUNNonlinearSolver NLS, FILE* info_file)
 
-   The function :c:func:`SUNNonlinSolSetInfoFile_FixedPoint()` sets the
-   output file where all informative (non-error) messages should be directed.
+   Thissets the output file where all informative (non-error)
+   messages should be directed.
 
    **Arguments:**
-      * *NLS* -- a SUNNonlinSol object
+      * *NLS* -- a SUNNonlinSol object.
       * *info_file* -- pointer to output file (``stdout`` by default);
-         a ``NULL`` input will disable output
+         a ``NULL`` input will disable output.
 
    **Return value:**
-      * *SUN_NLS_SUCCESS* if successful
-      * *SUN_NLS_MEM_NULL* if the SUNNonlinearSolver memory was ``NULL``
-      * *SUN_NLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled
+      * ``SUN_NLS_SUCCESS`` if successful.
+      * ``SUN_NLS_MEM_NULL`` if ``NLS`` was ``NULL``.
+      * ``SUN_NLS_ILL_INPUT`` if SUNDIALS was not built with monitoring enabled.
 
    **Notes:**
-   This function is intended for users that wish to monitor the nonlinear
-   solver progress. By default, the file pointer is set to ``stdout``.
+      This function is intended for users that wish to monitor the nonlinear
+      solver progress. By default, the file pointer is set to ``stdout``.
 
-   **SUNDIALS must be built with the CMake option
-   ``SUNDIALS_BUILD_WITH_MONITORING``, to utilize this function.**
-   See section :numref:`Installation.CMake.Options` for more information.
+   .. warning::
+
+      SUNDIALS must be built with the CMake option
+      ``SUNDIALS_BUILD_WITH_MONITORING`` to utilize this function.
+      See :numref:`Installation.CMake.Options` for more information.
 
 
 .. c:function:: int SUNNonlinSolSetPrintLevel_FixedPoint(SUNNonlinearSolver NLS, int print_level)
 
-   The function :c:func:`SUNNonlinSolSetPrintLevel_FixedPoint()` specifies
-   the level of verbosity of the output.
+   This specifies the level of verbosity of the output.
 
    **Arguments:**
-      * *NLS* -- a SUNNonlinSol object
+      * *NLS* -- a SUNNonlinSol object.
       * *print_level* -- flag indicating level of verbosity;
         must be one of:
 
-         * 0, no information is printed (default)
-         * 1, for each nonlinear iteration the residual norm is printed
+         * 0, no information is printed (default).
+         * 1, for each nonlinear iteration the residual norm is printed.
 
    **Return value:**
-      * *SUN_NLS_SUCCESS* if successful
-      * *SUN_NLS_MEM_NULL* if the SUNNonlinearSolver memory was ``NULL``
-      * *SUN_NLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled,
-        or the print level value was invalid
+      * ``SUN_NLS_SUCCESS`` if successful.
+      * ``SUN_NLS_MEM_NULL`` if ``NLS`` was ``NULL``.
+      * ``SUN_NLS_ILL_INPUT`` if SUNDIALS was not built with monitoring enabled,
+        or the print level value was invalid.
 
    **Notes:**
-   This function is intended for users that wish to monitor the nonlinear
-   solver progress. By default, the print level is 0.
+      This function is intended for users that wish to monitor the nonlinear
+      solver progress. By default, the print level is 0.
 
-   **SUNDIALS must be built with the CMake option
-   ``SUNDIALS_BUILD_WITH_MONITORING``, to utilize this function.**
-   See section :numref:`Installation.CMake.Options` for more information.
+   .. warning::
+
+      SUNDIALS must be built with the CMake option
+      ``SUNDIALS_BUILD_WITH_MONITORING`` to utilize this function.
+      See :numref:`Installation.CMake.Options` for more information.
 
 
 .. _SUNNonlinSol.FixedPoint.Content:
 
-SUNNonlinearSolver_FixedPoint content
+SUNNonlinSol_FixedPoint content
 ----------------------------------------
 
 The *content* field of the SUNNonlinSol_FixedPoint module is the
@@ -292,13 +300,13 @@ allocated:
 * ``niters``     -- the total number of nonlinear iterations across all
   solves,
 * ``nconvfails`` -- the total number of nonlinear convergence failures across all solves,
-* ``ctest_data`` -- the data pointer passed to the convergence test function, and
-* ``m``          -- number of acceleration vectors.
-* ``print_level`` - controls the amount of information to be printed to the info file
-* ``info_file``   - the file where all informative (non-error) messages will be directed
+* ``ctest_data`` -- the data pointer passed to the convergence test function,
+* ``m``          -- number of acceleration vectors,
+* ``print_level`` - controls the amount of information to be printed to the info file, and
+* ``info_file``   - the file where all informative (non-error) messages will be directed.
 
 If Anderson acceleration is requested (i.e., :math:`m>0` in the call
-to :c:func:`SUNNonlinSol_FixedPoint()`), then the following items are also
+to :c:func:`SUNNonlinSol_FixedPoint`), then the following items are also
 allocated within the *content* field:
 
 * ``imap``    -- index array used in acceleration algorithm (length ``m``),
@@ -313,33 +321,3 @@ allocated within the *content* field:
 * ``Xvecs``   -- ``N_Vector`` pointer array used in acceleration algorithm (length ``m+1``),
 * ``fold``    -- ``N_Vector`` used in acceleration algorithm, and
 * ``gold``    -- ``N_Vector`` used in acceleration algorithm.
-
-
-
-.. _SUNNonlinSol.FixedPoint.Fortran:
-
-SUNNonlinearSolver_FixedPoint Fortran interface
---------------------------------------------------
-
-For SUNDIALS integrators that include a Fortran interface, the
-SUNNonlinSol_FixedPoint module also includes a Fortran-callable
-function for creating a ``SUNNonlinearSolver`` object.
-
-
-.. f:subroutine:: FSUNFixedPointInit(CODE, M, IER)
-
-   The function :f:func:`FSUNFixedPointInit()` can be called for
-   Fortran programs to create a ``SUNNonlinearSolver`` object for use
-   with SUNDIALS integrators to solve nonlinear systems of the form
-   :math:`G(y) = y`.
-
-   This routine must be called *after* the ``N_Vector`` object has
-   been initialized.
-
-   **Arguments:**
-      * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
-        this matrix will be used for: CVODE=1, IDA=2, ARKODE=4.
-      * *M* (``int``, input) -- the number of acceleration vectors.
-      * *IER* (``int``, output) -- return flag (0 success, -1 for
-        failure).  See printed message for details in case
-        of failure.

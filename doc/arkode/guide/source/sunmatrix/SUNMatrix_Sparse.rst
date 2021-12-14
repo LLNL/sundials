@@ -1,1 +1,0 @@
-../../../../shared/sunmatrix/SUNMatrix_Sparse.rst

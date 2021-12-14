@@ -17,9 +17,8 @@
 The SUNMATRIX_BAND Module
 =========================
 
-The banded implementation of the ``SUNMatrix`` module provided with
-SUNDIALS, SUNMATRIX_BAND, defines the *content* field of
-``SUNMatrix`` to be the following structure:
+The banded implementation of the ``SUNMatrix`` module, SUNMATRIX_BAND,
+defines the *content* field of ``SUNMatrix`` to be the following structure:
 
 .. code-block:: c
 
@@ -36,7 +35,7 @@ SUNDIALS, SUNMATRIX_BAND, defines the *content* field of
    };
 
 A diagram of the underlying data representation in a banded matrix is
-shown in Figure :ref:`SUNBandMatrix Diagram <SUNBandMatrix>`.  A more
+shown in :numref:`SUNBandMatrix`.  A more
 complete description of the parts of this *content* field is given below:
 
 * ``M`` - number of rows
@@ -48,12 +47,13 @@ complete description of the parts of this *content* field is given below:
 * ``ml`` - lower half-bandwidth, :math:`0 \le \text{ml} < N`
 
 * ``smu`` - storage upper bandwidth, :math:`\text{mu} \le \text{smu} < N`.
-  The LU decomposition routines in the associated SUNLINSOL_BAND
-  and SUNLINSOL_LAPACKBAND modules write the LU factors into the
-  existing storage for the band matrix. The upper triangular factor
-  U, however, may have an upper bandwidth as big as
-  ``min(N-1, mu+ml)`` because of partial pivoting. The ``smu`` field
-  holds the upper half-bandwidth allocated for the band matrix.
+  The LU decomposition routines in the associated
+  :ref:`SUNLINSOL_BAND <SUNLinSol_Band>` and
+  :ref:`SUNLINSOL_LAPACKBAND <SUNLinSol_LapackBand>` modules write the
+  LU factors into the existing storage for the band matrix. The upper
+  triangular factor :math:`U`, however, may have an upper bandwidth as
+  big as ``min(N-1, mu+ml)`` because of partial pivoting. The ``smu``
+  field holds the upper half-bandwidth allocated for the band matrix.
 
 * ``ldim`` - leading dimension (:math:`\text{ldim} \ge smu + ml + 1`)
 
@@ -64,7 +64,7 @@ complete description of the parts of this *content* field is given below:
   is a pointer to ``ldata`` contiguous locations which hold the
   elements within the banded matrix.
 
-* ``ldata`` - length of the data array (:math:`= \text{ldim} \cdot N`)
+* ``ldata`` - length of the data array (:math:`= \text{ldim}\, N`)
 
 * ``cols`` - array of pointers. ``cols[j]`` is a pointer to the
   uppermost element within the band in the j-th column. This pointer
@@ -78,8 +78,7 @@ complete description of the parts of this *content* field is given below:
 
 
 .. _SUNBandMatrix:
-
-.. figure:: figs/bandmat.png
+.. figure:: /figs/bandmat.png
 
    Diagram of the storage for the SUNMATRIX_BAND module. Here ``A`` is an
    :math:`N \times N` band matrix with upper and lower half-bandwidths ``mu``
@@ -302,13 +301,13 @@ the *banded* version.
 
 
 The SUNMATRIX_BAND module defines banded implementations of all matrix
-operations listed in the section :numref:`SUNMatrix.Ops`. Their names are
+operations listed in :numref:`SUNMatrix.Ops`. Their names are
 obtained from those in that section by appending the suffix ``_Band``
 (e.g. ``SUNMatCopy_Band``).  The module SUNMATRIX_BAND provides the
 following additional user-callable routines:
 
 
-.. c:function:: SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu, sunindextype ml)
+.. c:function:: SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu, sunindextype ml, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a banded ``SUNMatrix``.
    Its arguments are the matrix size, ``N``, and the upper and lower
@@ -317,7 +316,7 @@ following additional user-callable routines:
    factorization in the SUNLINSOL_BAND and SUNLINSOL_LAPACKBAND
    modules.
 
-.. c:function:: SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu, sunindextype ml, sunindextype smu)
+.. c:function:: SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu, sunindextype ml, sunindextype smu, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a banded ``SUNMatrix``.
    Its arguments are the matrix size, ``N``, the upper and lower
@@ -333,11 +332,13 @@ following additional user-callable routines:
 
    * at least ``mu`` if used in some other manner.
 
-   *Note: it is strongly recommended that users call the default
-   constructor, :c:func:`SUNBandMatrix()`, in all standard use cases.
-   This advanced constructor is used internally within SUNDIALS
-   solvers, and is provided to users who require banded matrices for
-   non-default purposes.*
+   .. note::
+
+      It is strongly recommended that users call the default
+      constructor, :c:func:`SUNBandMatrix`, in all standard use cases.
+      This advanced constructor is used internally within SUNDIALS
+      solvers, and is provided to users who require banded matrices for
+      non-default purposes.
 
 .. c:function:: void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile)
 
@@ -400,13 +401,14 @@ following additional user-callable routines:
 * When looping over the components of a banded ``SUNMatrix A``,
   the most efficient approaches are to:
 
-  * First obtain the component array via ``A_data = SM_DATA_B(A)`` or
-    ``A_data = SUNBandMatrix_Data(A)`` and then
-    access ``A_data[i]`` within the loop.
+  * First obtain the component array via ``A_data = SUNBandMatrix_Data(A)``,
+    or equivalently ``A_data = SM_DATA_B(A)``, and then access ``A_data[i]``
+    within the loop.
 
-  * First obtain the array of column pointers via ``A_cols = SM_COLS_B(A)`` or
-    ``A_cols = SUNBandMatrix_Cols(A)``, and then
-    access ``A_cols[j][i]`` within the loop.
+  * First obtain the array of column pointers via
+    ``A_cols = SUNBandMatrix_Cols(A)``, or equivalently
+    ``A_cols = SM_COLS_B(A)``, and then access ``A_cols[j][i]``
+    within the loop.
 
   * Within a loop over the columns, access the column pointer via
     ``A_colj = SUNBandMatrix_Column(A,j)`` and then to access the
@@ -421,36 +423,3 @@ following additional user-callable routines:
   limited to: NVECTOR_SERIAL, NVECTOR_OPENMP, and NVECTOR_PTHREADS.
   As additional compatible vector implementations are added to
   SUNDIALS, these will be included within this compatibility check.
-
-
-For solvers that include a Fortran interface module, the SUNMATRIX_BAND
-module also includes the Fortran-callable function
-:f:func:`FSUNBandMatInit()` to initialize this SUNMATRIX_BAND module
-for a given SUNDIALS solver.
-
-.. f:subroutine:: FSUNBandMatInit(CODE, N, MU, ML, IER)
-
-   Initializes a band ``SUNMatrix`` structure for use in a SUNDIALS solver.
-
-   **Arguments:**
-      * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
-        this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKODE=4.
-      * *N* (``long int``, input) -- number of matrix rows (and columns).
-      * *MU* (``long int``, input) -- upper half-bandwidth.
-      * *ML* (``long int``, input) -- lower half-bandwidth.
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-
-Additionally, when using ARKODE with a non-identity mass matrix, the
-Fortran-callable function :f:func:`FSUNBandMassMatInit()` initializes
-this SUNMATRIX_BAND module for storing the mass matrix.
-
-.. f:subroutine:: FSUNBandMassMatInit(N, MU, ML, IER)
-
-   Initializes a band ``SUNMatrix`` structure for use as a mass
-   matrix in ARKODE.
-
-   **Arguments:**
-      * *N* (``long int``, input) -- number of matrix rows (and columns).
-      * *MU* (``long int``, input) -- upper half-bandwidth.
-      * *ML* (``long int``, input) -- lower half-bandwidth.
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).

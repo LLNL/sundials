@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Mathematics:
+.. _ARKODE.Mathematics:
 
 ===========================
 Mathematical Considerations
@@ -23,11 +23,11 @@ posed in the form
 
 .. math::
    M(t)\, \dot{y} = f(t,y), \qquad y(t_0) = y_0.
-   :label: IVP
+   :label: ARKODE_IVP
 
 Here, :math:`t` is the independent variable (e.g. time), and the
 dependent variables are given by :math:`y \in \mathbb{R}^N`, where we
-use the notation :math:`\dot{y}` to denote :math:`dy/dt`.
+use the notation :math:`\dot{y}` to denote :math:`\mathrm dy/\mathrm dt`.
 
 For each value of :math:`t`, :math:`M(t)` is a user-specified linear
 operator from :math:`\mathbb{R}^N \to \mathbb{R}^N`.  This operator
@@ -42,7 +42,7 @@ well-conditioned mass matrix that is fixed throughout a simulation
 (or at least fixed between spatial rediscretization events).
 
 The ODE right-hand side is given by the function :math:`f(t,y)` --
-in general we make no assumption that the problem :eq:`IVP` is
+in general we make no assumption that the problem :eq:`ARKODE_IVP` is
 autonomous (i.e., :math:`f=f(y)`) or linear (:math:`f=Ay`).
 In general, the time integration methods within ARKODE support
 additive splittings of this right-hand side function, as described
@@ -59,36 +59,36 @@ methods utilized in ARKODE.  We first discuss the "single-step" nature
 of the ARKODE infrastructure, including its usage modes and approaches
 for interpolated solution output.  We then discuss the current suite
 of time-stepping modules supplied with ARKODE, including the ARKStep
-module for :ref:`additive Runge-Kutta methods <Mathematics.ARK>`,
-the ERKStep module that is optimized for :ref:`explicit Runge-Kutta
-methods <Mathematics.ERK>`, and the MRIStep module for :ref:`multirate
+module for :ref:`additive Runge--Kutta methods <ARKODE.Mathematics.ARK>`,
+the ERKStep module that is optimized for :ref:`explicit Runge--Kutta
+methods <ARKODE.Mathematics.ERK>`, and the MRIStep module for :ref:`multirate
 infinitesimal step (MIS), multirate infinitesimal GARK (MRI-GARK), and
-implicit-explicit MRI-GARK (IMEX-MRI-GARK) methods <Mathematics.MRIStep>`.
+implicit-explicit MRI-GARK (IMEX-MRI-GARK) methods <ARKODE.Mathematics.MRIStep>`.
 We then discuss the :ref:`adaptive temporal error controllers
-<Mathematics.Adaptivity>` shared by the time-stepping modules, including
+<ARKODE.Mathematics.Adaptivity>` shared by the time-stepping modules, including
 discussion of our choice of norms for measuring errors within various components
 of the solver.
 
 We then discuss the nonlinear and linear solver strategies used by
 ARKODE's time-stepping modules for solving implicit algebraic systems
 that arise in computing each stage and/or step:
-:ref:`nonlinear solvers <Mathematics.Nonlinear>`,
-:ref:`linear solvers <Mathematics.Linear>`,
-:ref:`preconditioners <Mathematics.Preconditioning>`,
-:ref:`error control <Mathematics.Error>` within iterative nonlinear
+:ref:`nonlinear solvers <ARKODE.Mathematics.Nonlinear>`,
+:ref:`linear solvers <ARKODE.Mathematics.Linear>`,
+:ref:`preconditioners <ARKODE.Mathematics.Preconditioning>`,
+:ref:`error control <ARKODE.Mathematics.Error>` within iterative nonlinear
 and linear solvers, algorithms for
-:ref:`initial predictors <Mathematics.Predictors>` for implicit stage
+:ref:`initial predictors <ARKODE.Mathematics.Predictors>` for implicit stage
 solutions, and approaches for handling
-:ref:`non-identity mass-matrices <Mathematics.MassSolve>`.
+:ref:`non-identity mass-matrices <ARKODE.Mathematics.MassSolve>`.
 
 We conclude with a section describing ARKODE's :ref:`rootfinding
-capabilities <Mathematics.Rootfinding>`, that may be used to stop
+capabilities <ARKODE.Mathematics.Rootfinding>`, that may be used to stop
 integration of a problem prematurely based on traversal of roots in
 user-specified functions.
 
 
 
-.. _Mathematics.SingleStep:
+.. _ARKODE.Mathematics.SingleStep:
 
 Adaptive single-step methods
 ===============================
@@ -118,7 +118,7 @@ ARKODE's time stepping modules may be run in a variety of "modes":
   t_{n-1}` for backward integration.  It will then compute an
   approximation to the solution :math:`y(t_\text{out})` by
   interpolation (using one of the dense output routines described in
-  the section :numref:`Mathematics.Interpolation`).
+  the section :numref:`ARKODE.Mathematics.Interpolation`).
 
 * **ONE-STEP** -- The solver will only take a single internal step
   :math:`y_{n-1} \to y_{n}` and then return control back to the
@@ -146,7 +146,7 @@ may be used.
 
 
 
-.. _Mathematics.Interpolation:
+.. _ARKODE.Mathematics.Interpolation:
 
 Interpolation
 ===============
@@ -171,13 +171,13 @@ designed to provide increased accuracy when integrating stiff problems.
 Both are described in detail below.
 
 
-.. _Mathematics.Interpolation.Hermite:
+.. _ARKODE.Mathematics.Interpolation.Hermite:
 
 Hermite interpolation module
 -----------------------------
 
 For non-stiff problems, polynomial interpolants of Hermite form are provided.
-Rewriting the IVP :eq:`IVP` in standard form,
+Rewriting the IVP :eq:`ARKODE_IVP` in standard form,
 
 .. math::
    \dot{y} = \hat{f}(t,y), \qquad y(t_0) = y_0.
@@ -258,7 +258,7 @@ not currently implemented due to their increased computing and storage costs.
 
 
 
-.. _Mathematics.Interpolation.Lagrange:
+.. _ARKODE.Mathematics.Interpolation.Lagrange:
 
 Lagrange interpolation module
 -----------------------------
@@ -298,9 +298,9 @@ these initial steps have completed.
 
 
 
-.. _Mathematics.ARK:
+.. _ARKODE.Mathematics.ARK:
 
-ARKStep -- Additive Runge-Kutta methods
+ARKStep -- Additive Runge--Kutta methods
 =========================================
 
 The ARKStep time-stepping module in ARKODE is designed for IVPs of the
@@ -308,7 +308,7 @@ form
 
 .. math::
    M(t)\, \dot{y} = f^E(t,y) + f^I(t,y), \qquad y(t_0) = y_0,
-   :label: IMEX_IVP
+   :label: ARKODE_IMEX_IVP
 
 i.e. the right-hand side function is additively split into two
 components:
@@ -322,16 +322,16 @@ components:
 and the left-hand side may include a nonsingular, possibly
 time-dependent,  matrix :math:`M(t)`.
 
-In solving the IVP :eq:`IMEX_IVP`, we first consider the corresponding
+In solving the IVP :eq:`ARKODE_IMEX_IVP`, we first consider the corresponding
 problem in standard form,
 
 .. math::
    \dot{y} = \hat{f}^E(t,y) + \hat{f}^I(t,y), \qquad y(t_0) = y_0,
-   :label: IMEX_IVP_standard
+   :label: ARKODE_IMEX_IVP_standard
 
 where :math:`\hat{f}^E(t,y) = M(t)^{-1}\,f^E(t,y)` and
 :math:`\hat{f}^I(t,y) = M(t)^{-1}\,f^I(t,y)`.  ARKStep then utilizes variable-step,
-embedded, :index:`additive Runge-Kutta methods` (ARK), corresponding
+embedded, :index:`additive Runge--Kutta methods` (ARK), corresponding
 to algorithms of the form
 
 .. math::
@@ -343,7 +343,7 @@ to algorithms of the form
    \tilde{y}_n &= y_{n-1} + h_n \sum_{i=1}^{s} \left(
                   \tilde{b}^E_i \hat{f}^E(t^E_{n,i}, z_i) +
                   \tilde{b}^I_i \hat{f}^I(t^I_{n,i}, z_i)\right).
-   :label: ARK
+   :label: ARKODE_ARK
 
 Here :math:`\tilde{y}_n` are embedded solutions that approximate
 :math:`y(t_n)` and are used for error estimation; these typically
@@ -381,15 +381,15 @@ the tables for these methods are given in section :numref:`Butcher.additive`.
 Additionally, user-defined ARK tables are supported.
 
 For nonstiff problems, a user may specify that :math:`f^I = 0`,
-i.e. the equation :eq:`IMEX_IVP` reduces to the non-split IVP
+i.e. the equation :eq:`ARKODE_IMEX_IVP` reduces to the non-split IVP
 
 .. math::
    M(t)\, \dot{y} = f^E(t,y), \qquad y(t_0) = y_0.
-   :label: IVP_explicit
+   :label: ARKODE_IVP_explicit
 
 In this scenario, the coefficients :math:`A^I=0`, :math:`c^I=0`,
-:math:`b^I=0` and :math:`\tilde{b}^I=0` in :eq:`ARK`, and the ARK
-methods reduce to classical :index:`explicit Runge-Kutta methods`
+:math:`b^I=0` and :math:`\tilde{b}^I=0` in :eq:`ARKODE_ARK`, and the ARK
+methods reduce to classical :index:`explicit Runge--Kutta methods`
 (ERK).  For these classes of methods, ARKODE provides coefficients
 with orders of accuracy :math:`q = \{2,3,4,5,6,8\}`, with embeddings
 of orders :math:`p = \{1,2,3,4,5,7\}`.  These default to the methods in
@@ -401,16 +401,16 @@ sections
 methods, user-defined ERK tables are supported.
 
 Alternately, for stiff problems the user may specify that :math:`f^E = 0`,
-so the equation :eq:`IMEX_IVP` reduces to the non-split IVP
+so the equation :eq:`ARKODE_IMEX_IVP` reduces to the non-split IVP
 
 .. math::
    M(t)\, \dot{y} = f^I(t,y), \qquad y(t_0) = y_0.
-   :label: IVP_implicit
+   :label: ARKODE_IVP_implicit
 
 Similarly to ERK methods, in this scenario the coefficients
 :math:`A^E=0`, :math:`c^E=0`, :math:`b^E=0` and :math:`\tilde{b}^E=0`
-in :eq:`ARK`, and the ARK methods reduce to classical
-:index:`diagonally-implicit Runge-Kutta methods` (DIRK).  For these
+in :eq:`ARKODE_ARK`, and the ARK methods reduce to classical
+:index:`diagonally-implicit Runge--Kutta methods` (DIRK).  For these
 classes of methods, ARKODE provides tables with orders of accuracy
 :math:`q = \{2,3,4,5\}`, with embeddings of orders
 :math:`p = \{1,2,3,4\}`. These default to the methods
@@ -420,9 +420,9 @@ respectively.  Again, user-defined DIRK tables are supported.
 
 
 
-.. _Mathematics.ERK:
+.. _ARKODE.Mathematics.ERK:
 
-ERKStep -- Explicit Runge-Kutta methods
+ERKStep -- Explicit Runge--Kutta methods
 ===========================================
 
 The ERKStep time-stepping module in ARKODE is designed for IVP
@@ -430,15 +430,15 @@ of the form
 
 .. math::
    \dot{y} = f(t,y), \qquad y(t_0) = y_0,
-   :label: IVP_simple_explicit
+   :label: ARKODE_IVP_simple_explicit
 
-i.e., unlike the more general problem form :eq:`IMEX_IVP`, ERKStep
+i.e., unlike the more general problem form :eq:`ARKODE_IMEX_IVP`, ERKStep
 requires that problems have an identity mass matrix (i.e., :math:`M(t)=I`)
 and that the right-hand side function is not split into separate
 components.
 
 For such problems, ERKStep provides variable-step, embedded,
-:index:`explicit Runge-Kutta methods` (ERK), corresponding to
+:index:`explicit Runge--Kutta methods` (ERK), corresponding to
 algorithms of the form
 
 .. math::
@@ -446,21 +446,21 @@ algorithms of the form
    \quad i=1,\ldots,s, \\
    y_n &= y_{n-1} + h_n \sum_{i=1}^{s} b_i f(t_{n,i}, z_i), \\
    \tilde{y}_n &= y_{n-1} + h_n \sum_{i=1}^{s} \tilde{b}_i f(t_{n,i}, z_i),
-   :label: ERK
+   :label: ARKODE_ERK
 
 where the variables have the same meanings as in the previous section.
 
-Clearly, the problem :eq:`IVP_simple_explicit` is fully encapsulated
-in the more general problem :eq:`IVP_explicit`, and the algorithm
-:eq:`ERK` is similarly encapsulated in the more general algorithm :eq:`ARK`.
+Clearly, the problem :eq:`ARKODE_IVP_simple_explicit` is fully encapsulated
+in the more general problem :eq:`ARKODE_IVP_explicit`, and the algorithm
+:eq:`ARKODE_ERK` is similarly encapsulated in the more general algorithm :eq:`ARKODE_ARK`.
 While it therefore follows that ARKStep can be used to solve every
 problem solvable by ERKStep, using the same set of methods, we
 include ERKStep as a distinct time-stepping module since this
 simplified form admits a more efficient and memory-friendly implementation
-than the more general form :eq:`IVP_simple_explicit`.
+than the more general form :eq:`ARKODE_IVP_simple_explicit`.
 
 
-.. _Mathematics.MRIStep:
+.. _ARKODE.Mathematics.MRIStep:
 
 MRIStep -- Multirate infinitesimal step methods
 ================================================
@@ -470,7 +470,7 @@ of the form
 
 .. math::
    \dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y), \qquad y(t_0) = y_0.
-   :label: IVP_two_rate
+   :label: ARKODE_IVP_two_rate
 
 i.e., the right-hand side function is additively split into three
 components:
@@ -499,7 +499,7 @@ Schlegel:12b` and multirate infinitesimal GARK (MRI-GARK) :cite:p:`Sandu:19`
 methods. For problems with an additively split slow right-hand side MRIStep
 provides fixed-slow-step implicit-explicit MRI-GARK (IMEX-MRI-GARK)
 :cite:p:`ChiRen:21` methods.  The slow (outer) method derives from an :math:`s`
-stage Runge-Kutta method for MIS and MRI-GARK methods or an additive Runge-Kutta
+stage Runge--Kutta method for MIS and MRI-GARK methods or an additive Runge--Kutta
 method for IMEX-MRI-GARK methods. In either case, the stage values and the new
 solution are computed by solving an auxiliary ODE with a fast (inner) time
 integration method. This corresponds to the following algorithm for a single
@@ -528,9 +528,9 @@ step:
 #. Set :math:`y_{n} = z_{s+1}`.
 
 The fast (inner) IVP solve can be carried out using either the ARKStep module
-(allowing for explicit, implicit, or IMEX treatments of the fast time scale with
+(allowing for explicit, implicit, or ImEx treatments of the fast time scale with
 fixed or adaptive steps), or a user-defined integration method (see section
-:numref:`Usage.MRIStep.CustomInnerStepper`).
+:numref:`ARKODE.Usage.MRIStep.CustomInnerStepper`).
 
 The final abscissa is :math:`c^S_{s+1}=1` and the coefficients
 :math:`\omega_{i,j}` and :math:`\gamma_{i,j}` are polynomials in time that
@@ -541,7 +541,7 @@ expressed as in :cite:p:`ChiRen:21` and :cite:p:`Sandu:19` as
    \omega_{i,j}(\tau) = \sum_{k\geq 0} \omega_{i,j}^{\{k\}} \tau^k
    \quad\text{and}\quad
    \gamma_{i,j}(\tau) = \sum_{k\geq 0} \gamma_{i,j}^{\{k\}} \tau^k,
-   :label: MRI_coupling
+   :label: ARKODE_MRI_coupling
 
 and where the tables :math:`\Omega^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` and
 :math:`\Gamma^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` define the slow-to-fast
@@ -560,7 +560,7 @@ coupling coefficients for an explicit-slow method are given as
    A^S_{i,j} - A^S_{i-1,j}, & \text{if}\; 2\le i\le s,\\
    b^S_j - A^S_{s,j}, & \text{if}\; i=s+1.
    \end{cases}
-   :label: MIS_to_MRI
+   :label: ARKODE_MIS_to_MRI
 
 For general slow tables :math:`(A^S,b^S,c^S)` with at least second-order
 accuracy, the corresponding MIS method will be second order. However, if this
@@ -571,7 +571,7 @@ slow table is at least third order and satisfies the additional condition
    \left(\mathbf{e}_i+\mathbf{e}_{i-1}\right)^T A^S c^S
    + \left(1-c_{s}^S\right) \left( \frac12+\mathbf{e}_{s}^T A^S c^S \right)
    = \frac13,
-   :label: MIS_order3
+   :label: ARKODE_MIS_order3
 
 where :math:`\mathbf{e}_j` corresponds to the :math:`j`-th column from the
 :math:`s \times s` identity matrix, then the overall MIS method will be third
@@ -587,7 +587,7 @@ rescaled and integrated analytically. In this case the stage is computed as
      \frac{\omega_{i,j}^{\{k\}}}{k+1}\right) f^E(t_{n,j}^S, z_j)
    + h^S \sum_{j=1}^i \left(\sum_{k\geq 0}
      \frac{\gamma_{i,j}^{\{k\}}}{k+1}\right) f^I(t_{n,j}^S, z_j),
-   :label: MRI_delta_c_zero
+   :label: ARKODE_MRI_delta_c_zero
 
 which corresponds to a standard ARK, DIRK, or ERK stage computation depending on
 whether the summations over :math:`k` are zero or nonzero.
@@ -612,12 +612,12 @@ slow-stiff term (:math:`f^E \equiv 0`), MRIStep supplies second, third, and
 fourth order implicit solve-decoupled MRI-GARK methods. For applications
 with both stiff and nonstiff slow terms, MRIStep implements third and fourth
 order IMEX-MRI-GARK methods. For a complete list of the methods available in
-MRIStep see :numref:`Usage.MRIStep.MRIStepCoupling.Tables`. Additionally, users
+MRIStep see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`. Additionally, users
 may supply their own method by defining and attaching a coupling table, see
-:numref:`Usage.MRIStep.MRIStepCoupling` for more information.
+:numref:`ARKODE.Usage.MRIStep.MRIStepCoupling` for more information.
 
 
-.. _Mathematics.Error.Norm:
+.. _ARKODE.Mathematics.Error.Norm:
 
 Error norms
 ============================
@@ -630,7 +630,7 @@ ARKODE use a :index:`weighted root-mean-square norm`, denoted
 .. math::
    \|v\|_\text{WRMS} = \left( \frac{1}{N} \sum_{i=1}^N \left(v_i\,
    w_i\right)^2\right)^{1/2}.
-   :label: WRMS_NORM
+   :label: ARKODE_WRMS_NORM
 
 The utility of this norm arises in the specification of the weighting
 vector :math:`w`, that combines the units of the problem with
@@ -641,7 +641,7 @@ absolute tolerances, namely
 
 .. math::
    w_i = \big(RTOL\cdot |y_{n-1,i}| + ATOL_i\big)^{-1}.
-   :label: EWT
+   :label: ARKODE_EWT
 
 Since :math:`1/w_i` represents a tolerance in the :math:`i`-th component of the
 solution vector :math:`y`, a vector whose WRMS norm is 1 is regarded
@@ -649,26 +649,26 @@ as "small."  For brevity, unless specified otherwise we will drop the
 subscript WRMS on norms in the remainder of this section.
 
 Additionally, for problems involving a non-identity mass matrix,
-:math:`M\ne I`, the units of equation :eq:`IMEX_IVP` may differ from the
+:math:`M\ne I`, the units of equation :eq:`ARKODE_IMEX_IVP` may differ from the
 units of the solution :math:`y`.  In this case, we may additionally
 construct a :index:`residual weight vector`,
 
 .. math::
    w_i = \Big(RTOL\cdot \left| \big(M(t_{n-1})\, y_{n-1}\big)_i \right| + ATOL'_i\Big)^{-1},
-   :label: RWT
+   :label: ARKODE_RWT
 
 where the user may specify a separate absolute residual tolerance
 value or array, :math:`ATOL'`.  The choice of weighting vector used
 in any given norm is determined by the quantity being measured: values
-having "solution" units use :eq:`EWT`, whereas values having "equation"
-units use :eq:`RWT`.  Obviously, for problems with :math:`M=I`, the
+having "solution" units use :eq:`ARKODE_EWT`, whereas values having "equation"
+units use :eq:`ARKODE_RWT`.  Obviously, for problems with :math:`M=I`, the
 solution and equation units are identical, in which case the solvers in
-ARKODE will use :eq:`EWT` when computing all error norms.
+ARKODE will use :eq:`ARKODE_EWT` when computing all error norms.
 
 
 
 
-.. _Mathematics.Adaptivity:
+.. _ARKODE.Mathematics.Adaptivity:
 
 Time step adaptivity
 =======================
@@ -678,9 +678,9 @@ time-steppers) is their adaptive control of local truncation error (LTE).
 At every step, we estimate the local error, and ensure that it
 satisfies tolerance conditions.  If this local error test fails, then
 the step is recomputed with a reduced step size.  To this end, the
-Runge-Kutta methods packaged within both the ARKStep and ERKStep
+Runge--Kutta methods packaged within both the ARKStep and ERKStep
 modules admit an embedded solution :math:`\tilde{y}_n`, as shown in
-equations :eq:`ARK` and :eq:`ERK`.  Generally, these embedded
+equations :eq:`ARKODE_ARK` and :eq:`ARKODE_ERK`.  Generally, these embedded
 solutions attain a slightly lower order of accuracy than the computed
 solution :math:`y_n`.  Denoting the order of accuracy for :math:`y_n`
 as :math:`q` and for :math:`\tilde{y}_n` as :math:`p`, most of these
@@ -692,7 +692,7 @@ satisfying :cite:p:`HWN:87`
 .. math::
    \| y_n - y(t_n) \| = C h_n^{q+1} + \mathcal O(h_n^{q+2}), \\
    \| \tilde{y}_n - y(t_n) \| = D h_n^{p+1} + \mathcal O(h_n^{p+2}),
-   :label: AsymptoticErrors
+   :label: ARKODE_AsymptoticErrors
 
 where :math:`C` and :math:`D` are constants independent of
 :math:`h_n`, and where we have assumed exact initial conditions for
@@ -712,7 +712,7 @@ We therefore use the norm of the difference between :math:`y_n` and
    \beta h_n \sum_{i=1}^{s} \left[
    \left(b^E_i - \tilde{b}^E_i\right) \hat{f}^E(t^E_{n,i}, z_i) +
    \left(b^I_i - \tilde{b}^I_i\right) \hat{f}^I(t^I_{n,i}, z_i) \right]
-   :label: LTE
+   :label: ARKODE_LTE
 
 for ARK methods, and similarly for ERK methods.  Here, :math:`\beta>0`
 is an error *bias* to help account for the error constant :math:`D`;
@@ -723,8 +723,8 @@ With this LTE estimate, the local error test is simply
 :math:`\|T_n\| < 1` since this norm includes the user-specified
 tolerances.  If this error test passes, the step is considered
 successful, and the estimate is subsequently used to determine the next
-step size, the algorithms used for this purpose are described below in
-section :numref:`Mathematics.Adaptivity.ErrorControl`.  If the error
+step size, the algorithms used for this purpose are described in
+:numref:`ARKODE.Mathematics.Adaptivity`.  If the error
 test fails, the step is rejected and a new step size :math:`h'` is
 then computed using the same error controller as for successful steps.
 A new attempt at the step is made, and the error test is repeated.  If
@@ -755,7 +755,7 @@ the error adaptivity function **arkAdapt** is supplied by one of the
 error control algorithms discussed in the subsections below.
 
 .. _adaptivity_figure:
-.. figure:: figs/time_adaptivity.png
+.. figure:: /figs/arkode/time_adaptivity.png
    :width: 50%
    :align: center
 
@@ -779,16 +779,11 @@ to adhere to a user-provided "TSTOP" stopping point,
 
 
 
-.. _Mathematics.Adaptivity.ErrorControl:
-
-Asymptotic error control
----------------------------
-
-As mentioned above, the time-stepping modules in ARKODE adapt the step
+The time-stepping modules in ARKODE adapt the step
 size in order to attain local errors within desired tolerances of the
 true solution.  These adaptivity algorithms estimate the prospective
 step size :math:`h'` based on the asymptotic local error estimates
-:eq:`AsymptoticErrors`.  We define the values :math:`\varepsilon_n`,
+:eq:`ARKODE_AsymptoticErrors`.  We define the values :math:`\varepsilon_n`,
 :math:`\varepsilon_{n-1}` and :math:`\varepsilon_{n-2}` as
 
 .. math::
@@ -803,10 +798,10 @@ computed.  With these estimates, ARKODE supports a variety of error
 control algorithms, as specified in the subsections below.
 
 
-.. _Mathematics.Adaptivity.ErrorControl.PID:
+.. _ARKODE.Mathematics.Adaptivity.ErrorControl.PID:
 
 PID controller
-^^^^^^^^^^^^^^^^^^
+-----------------
 
 This is the default time adaptivity controller used by the ARKStep and
 ERKStep modules.  It derives from those found in :cite:p:`KenCarp:03`, :cite:p:`Sod:98`, :cite:p:`Sod:03` and
@@ -819,16 +814,16 @@ ERKStep modules.  It derives from those found in :cite:p:`KenCarp:03`, :cite:p:`
         \varepsilon_{n-2}^{-k_3/p},
 
 where the constants :math:`k_1`, :math:`k_2` and :math:`k_3` default
-to 0.58, 0.21 and 0.1, respectively, and may be modied by the user.
+to 0.58, 0.21 and 0.1, respectively, and may be modified by the user.
 In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is
 enforced to avoid division-by-zero errors.
 
 
 
-.. _Mathematics.Adaptivity.ErrorControl.PI:
+.. _ARKODE.Mathematics.Adaptivity.ErrorControl.PI:
 
 PI controller
-^^^^^^^^^^^^^^^^^
+----------------------
 
 Like with the previous method, the PI controller derives from those
 found in :cite:p:`KenCarp:03`, :cite:p:`Sod:98`, :cite:p:`Sod:03` and :cite:p:`Sod:06`, but it differs in
@@ -843,10 +838,10 @@ to 0.8 and 0.31, respectively, though they may be changed by the user.
 
 
 
-.. _Mathematics.Adaptivity.ErrorControl.I:
+.. _ARKODE.Mathematics.Adaptivity.ErrorControl.I:
 
 I controller
-^^^^^^^^^^^^^^^^
+----------------------
 
 This is the standard time adaptivity control algorithm in use by most
 publicly-available ODE solver codes.  It bases the prospective time step
@@ -860,13 +855,13 @@ By default, :math:`k_1=1`, but that may be modified by the user.
 
 
 
-.. _Mathematics.Adaptivity.ErrorControl.eGus:
+.. _ARKODE.Mathematics.Adaptivity.ErrorControl.eGus:
 
 Explicit Gustafsson controller
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
 
 This step adaptivity algorithm was proposed in :cite:p:`Gust:91`, and
-is primarily useful with explicit Runge-Kutta methods.
+is primarily useful with explicit Runge--Kutta methods.
 In the notation of our earlier controllers, it has the form
 
 .. math::
@@ -876,7 +871,7 @@ In the notation of our earlier controllers, it has the form
         \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/p}, &
       \quad\text{on subsequent steps}.
    \end{cases}
-   :label: expGus
+   :label: ARKODE_expGus
 
 The default values of :math:`k_1` and :math:`k_2` are 0.367 and 0.268,
 respectively, and may be modified by the user.
@@ -884,12 +879,12 @@ respectively, and may be modified by the user.
 
 
 
-.. _Mathematics.Adaptivity.ErrorControl.iGus:
+.. _ARKODE.Mathematics.Adaptivity.ErrorControl.iGus:
 
 Implicit Gustafsson controller
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
 
-A version of the above controller suitable for implicit Runge-Kutta
+A version of the above controller suitable for implicit Runge--Kutta
 methods was introduced in :cite:p:`Gust:94`, and has the form
 
 .. math::
@@ -899,7 +894,7 @@ methods was introduced in :cite:p:`Gust:94`, and has the form
         \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-k_2/p}, &
       \quad\text{on subsequent steps}.
    \end{cases}
-   :label: impGus
+   :label: ARKODE_impGus
 
 The algorithm parameters default to :math:`k_1 = 0.98` and
 :math:`k_2 = 0.95`, but may be modified by the user.
@@ -907,30 +902,30 @@ The algorithm parameters default to :math:`k_1 = 0.98` and
 
 
 
-.. _Mathematics.Adaptivity.ErrorControl.ieGus:
+.. _ARKODE.Mathematics.Adaptivity.ErrorControl.ieGus:
 
 ImEx Gustafsson controller
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
 
 An ImEx version of these two preceding controllers is also available.
 This approach computes the estimates :math:`h'_1` arising from
-equation :eq:`expGus` and the estimate :math:`h'_2` arising from
-equation :eq:`impGus`, and selects
+equation :eq:`ARKODE_expGus` and the estimate :math:`h'_2` arising from
+equation :eq:`ARKODE_impGus`, and selects
 
 .. math::
    h' = \frac{h}{|h|}\min\left\{|h'_1|, |h'_2|\right\}.
 
-Here, equation :eq:`expGus` uses :math:`k_1` and
+Here, equation :eq:`ARKODE_expGus` uses :math:`k_1` and
 :math:`k_2` with default values of 0.367 and 0.268, while equation
-:eq:`impGus` sets both parameters to the input :math:`k_3` that
+:eq:`ARKODE_impGus` sets both parameters to the input :math:`k_3` that
 defaults to 0.95.  All of these values may be modified by the user.
 
 
 
-.. _Mathematics.Adaptivity.ErrorControl.User:
+.. _ARKODE.Mathematics.Adaptivity.ErrorControl.User:
 
 User-supplied controller
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
 
 Finally, ARKODE's time-stepping modules allow the user to define their
 own time step adaptivity function,
@@ -945,14 +940,14 @@ experimentation with temporal error controllers.
 
 
 
-.. _Mathematics.Stability:
+.. _ARKODE.Mathematics.Stability:
 
 Explicit stability
 ======================
 
 For problems that involve a nonzero explicit component,
 i.e. :math:`f^E(t,y) \ne 0` in ARKStep or for any problem in
-ERKStep, explicit and ImEx Runge-Kutta methods may benefit from
+ERKStep, explicit and ImEx Runge--Kutta methods may benefit from
 additional user-supplied information regarding the explicit stability
 region.  All ARKODE adaptivity methods utilize estimates of the local
 error, and it is often the case that such local error control will be
@@ -1002,7 +997,7 @@ Here the explicit stability step factor :math:`c>0` (often called the
 
 
 
-.. _Mathematics.FixedStep:
+.. _ARKODE.Mathematics.FixedStep:
 
 Fixed time stepping
 ===================
@@ -1012,7 +1007,7 @@ for tolerance-based time step adaptivity, they additionally support a
 "fixed-step" mode (*note: fixed-step mode is currently required for
 the slow time scale in the MRIStep module*).  This mode is typically
 used for debugging purposes, for verification against hand-coded
-Runge-Kutta methods, or for problems where the time steps should be
+Runge--Kutta methods, or for problems where the time steps should be
 chosen based on other problem-specific information.  In this mode,
 all internal time step adaptivity is disabled:
 
@@ -1025,15 +1020,15 @@ all internal time step adaptivity is disabled:
 
 
 Additional information on this mode is provided in the sections
-:ref:`ARKStep Optional Inputs <Usage.ARKStep.OptionalInputs>`,
-:ref:`ERKStep Optional Inputs <Usage.ERKStep.OptionalInputs>`, and
-:ref:`MRIStep Optional Inputs <Usage.MRIStep.OptionalInputs>`.
+:ref:`ARKStep Optional Inputs <ARKODE.Usage.ARKStep.OptionalInputs>`,
+:ref:`ERKStep Optional Inputs <ARKODE.Usage.ERKStep.OptionalInputs>`, and
+:ref:`MRIStep Optional Inputs <ARKODE.Usage.MRIStep.OptionalInputs>`.
 
 
 
 
 
-.. _Mathematics.AlgebraicSolvers:
+.. _ARKODE.Mathematics.AlgebraicSolvers:
 
 Algebraic solvers
 ===============================
@@ -1045,30 +1040,30 @@ ARKStep), systems of linear or nonlinear algebraic equations must be solved
 at each stage and/or step of the method.  This section therefore focuses on
 the variety of mathematical methods provided in the ARKODE infrastructure
 for such problems, including
-:ref:`nonlinear solvers <Mathematics.Nonlinear>`,
-:ref:`linear solvers <Mathematics.Linear>`,
-:ref:`preconditioners <Mathematics.Preconditioning>`,
-:ref:`iterative solver error control <Mathematics.Error>`,
-:ref:`implicit predictors <Mathematics.Predictors>`, and techniques
+:ref:`nonlinear solvers <ARKODE.Mathematics.Nonlinear>`,
+:ref:`linear solvers <ARKODE.Mathematics.Linear>`,
+:ref:`preconditioners <ARKODE.Mathematics.Preconditioning>`,
+:ref:`iterative solver error control <ARKODE.Mathematics.Error>`,
+:ref:`implicit predictors <ARKODE.Mathematics.Predictors>`, and techniques
 used for simplifying the above solves when using different classes of
-:ref:`mass-matrices <Mathematics.MassSolve>`.
+:ref:`mass-matrices <ARKODE.Mathematics.MassSolve>`.
 
 
 
 
-.. _Mathematics.Nonlinear:
+.. _ARKODE.Mathematics.Nonlinear:
 
 Nonlinear solver methods
 ------------------------------------
 
 
-For the DIRK and ARK methods corresponding to :eq:`IMEX_IVP` and
-:eq:`IVP_implicit` in ARKStep, and the solve-decoupled implicit slow
-stages :eq:`MRI_delta_c_zero` in MRIStep, an implicit system
+For the DIRK and ARK methods corresponding to :eq:`ARKODE_IMEX_IVP` and
+:eq:`ARKODE_IVP_implicit` in ARKStep, and the solve-decoupled implicit slow
+stages :eq:`ARKODE_MRI_delta_c_zero` in MRIStep, an implicit system
 
 .. math::
    G(z_i) = 0
-   :label: Residual
+   :label: ARKODE_Residual
 
 must be solved for each implicit stage :math:`z_i`.  In order to
 maximize solver efficiency, we define this root-finding problem differently
@@ -1078,7 +1073,7 @@ based on the type of mass-matrix supplied by the user.
 
   .. math::
      G(z_i) \equiv z_i - h_n A^I_{i,i} f^I(t^I_{n,i}, z_i) - a_i,
-     :label: Residual_MeqI
+     :label: ARKODE_Residual_MeqI
 
   where we have the data
 
@@ -1092,7 +1087,7 @@ based on the type of mass-matrix supplied by the user.
 
   .. math::
      G(z_i) \equiv M z_i - h_n A^I_{i,i} f^I(t^I_{n,i}, z_i) - a_i,
-     :label: Residual_Mfixed
+     :label: ARKODE_Residual_Mfixed
 
   where we have the data
 
@@ -1114,7 +1109,7 @@ based on the type of mass-matrix supplied by the user.
 
   .. math::
      G(z_i) \equiv M(t^I_{n,i}) (z_i - a_i) - h_n A^I_{i,i} f^I(t^I_{n,i}, z_i)
-     :label: Residual_MTimeDep
+     :label: ARKODE_Residual_MTimeDep
 
   where we have the data
 
@@ -1133,7 +1128,7 @@ based on the type of mass-matrix supplied by the user.
   .. math::
      G(z_i) \equiv z_i - h^S \left(\sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}\right)
      f^I(t_{n,i}^S, z_i) - a_i = 0
-     :label: MRIStep_Residual
+     :label: ARKODE_MRIStep_Residual
 
   where
 
@@ -1143,7 +1138,7 @@ based on the type of mass-matrix supplied by the user.
 
 
 In each of the above nonlinear residual functions, if :math:`f^I(t,y)` depends
-nonlinearly on :math:`y` then :eq:`Residual` corresponds to a nonlinear system
+nonlinearly on :math:`y` then :eq:`ARKODE_Residual` corresponds to a nonlinear system
 of equations; if instead :math:`f^I(t,y)` depends linearly on :math:`y` then
 this is a linear system of equations.
 
@@ -1153,7 +1148,7 @@ By default, ARKODE selects a variant of :index:`Newton's method`,
 
 .. math::
    z_i^{(m+1)} = z_i^{(m)} + \delta^{(m+1)},
-   :label: Newton_iteration
+   :label: ARKODE_Newton_iteration
 
 where :math:`m` is the Newton iteration index, and the :index:`Newton
 update` :math:`\delta^{(m+1)}` in turn requires the solution of the
@@ -1162,7 +1157,7 @@ update` :math:`\delta^{(m+1)}` in turn requires the solution of the
 .. math::
    {\mathcal A}\left(t^I_{n,i}, z_i^{(m)}\right)\, \delta^{(m+1)} =
    -G\left(z_i^{(m)}\right),
-   :label: Newton_system
+   :label: ARKODE_Newton_system
 
 in which
 
@@ -1170,7 +1165,7 @@ in which
    {\mathcal A}(t,z) \approx M(t) - \gamma J(t,z), \quad
    J(t,z) = \frac{\partial f^I(t,z)}{\partial z}, \quad\text{and}\quad
    \gamma = h_n A^I_{i,i}
-   :label: NewtonMatrix
+   :label: ARKODE_NewtonMatrix
 
 within ARKStep, or
 
@@ -1178,7 +1173,7 @@ within ARKStep, or
    {\mathcal A}(t,z) \approx I - \gamma J(t,z), \quad
    J(t,z) = \frac{\partial f^I(t,z)}{\partial z}, \quad\text{and}\quad
    \gamma = h^S \sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}
-   :label: NewtonMatrix_MRIStep
+   :label: ARKODE_NewtonMatrix_MRIStep
 
 within MRIStep.
 
@@ -1190,7 +1185,7 @@ implicit stage :math:`z_i`,
 .. math::
    z_i^{(m+1)} = \Phi\left(z_i^{(m)}\right) \equiv z_i^{(m)} -
    M(t^I_{n,i})^{-1}\,G\left(z_i^{(m)}\right), \quad m=0,1,\ldots.
-   :label: AAFP_iteration
+   :label: ARKODE_AAFP_iteration
 
 Unlike with Newton-based nonlinear solvers, fixed-point iterations
 generally *do not* require the solution of a linear system
@@ -1198,7 +1193,7 @@ involving the Jacobian of :math:`f` at each iteration.
 
 Finally, if the user specifies that :math:`f^I(t,y)` depends linearly on
 :math:`y` in ARKStep or MRIStep and if the Newton-based SUNNonlinearSolver
-module is used, then the problem :eq:`Residual` will be solved using only a
+module is used, then the problem :eq:`ARKODE_Residual` will be solved using only a
 single Newton iteration.  In this case, an additional user-supplied argument
 indicates whether this Jacobian is time-dependent or not, signaling whether the
 Jacobian or preconditioner needs to be recomputed at each stage or time step, or
@@ -1222,11 +1217,11 @@ for these solvers is a prediction :math:`z_i^{(0)}` that is computed
 explicitly from previously-computed data (e.g. :math:`y_{n-2}`,
 :math:`y_{n-1}`, and :math:`z_j` where :math:`j<i`).  Additional
 information on the specific predictor algorithms
-is provided in section :numref:`Mathematics.Predictors`.
+is provided in section :numref:`ARKODE.Mathematics.Predictors`.
 
 
 
-.. _Mathematics.Linear:
+.. _ARKODE.Mathematics.Linear:
 
 Linear solver methods
 ------------------------------------
@@ -1243,7 +1238,7 @@ these types are described in the subsections below.
 
 .. index:: modified Newton iteration
 
-.. _Mathematics.Linear.Direct:
+.. _ARKODE.Mathematics.Linear.Direct:
 
 Matrix-based linear solvers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1257,7 +1252,7 @@ equation
 .. math::
    \tilde{\mathcal A}\left(\tilde{t},\tilde{z}\right)\, \delta^{(m+1)}
    = -G\left(z_i^{(m)}\right),
-   :label: modified_Newton_system
+   :label: ARKODE_modified_Newton_system
 
 in which
 
@@ -1265,7 +1260,7 @@ in which
    \tilde{\mathcal A}(\tilde{t},\tilde{z}) \approx M(\tilde{t}) - \tilde{\gamma} J(\tilde{t},\tilde{z}),
    \quad\text{and}\quad
    \tilde{\gamma} = \tilde{h} A^I_{i,i} \quad\text{(ARKStep)}\\
-   :label: modified_NewtonMatrix_ARK
+   :label: ARKODE_modified_NewtonMatrix_ARK
 
 or
 
@@ -1273,19 +1268,19 @@ or
    \tilde{\mathcal A}(\tilde{t},\tilde{z}) \approx I - \tilde{\gamma} J(\tilde{t},\tilde{z}),
    \quad\text{and}\quad
    \tilde{\gamma} = \tilde{h} \sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}\quad\text{(MRIStep)}.
-   :label: modified_NewtonMatrix_MRI
+   :label: ARKODE_modified_NewtonMatrix_MRI
 
 Here, the solution :math:`\tilde{z}`, time :math:`\tilde{t}`, and step
 size :math:`\tilde{h}` upon which the modified equation rely, are
 merely values of these quantities from a previous iteration.  In other
 words, the matrix :math:`\tilde{\mathcal A}` is only computed rarely,
 and reused for repeated solves.  As described below in section
-:numref:`Mathematics.Linear.Setup`, the frequency at which
+:numref:`ARKODE.Mathematics.Linear.Setup`, the frequency at which
 :math:`\tilde{\mathcal A}` is recomputed defaults to 20 time steps,
 but may be modified by the user.
 
 When using the dense and band SUNMatrix objects for the linear systems
-:eq:`modified_Newton_system`, the Jacobian :math:`J` may be supplied
+:eq:`ARKODE_modified_Newton_system`, the Jacobian :math:`J` may be supplied
 by a user routine, or approximated internally by finite-differences.
 In the case of differencing, we use the standard approximation
 
@@ -1300,7 +1295,7 @@ where :math:`e_j` is the :math:`j`-th unit vector, and the increments
 
 Here :math:`U` is the unit roundoff, :math:`\sigma_0` is a small
 dimensionless value, and :math:`w_j` is the error weight defined in
-:eq:`EWT`.  In the dense case, this approach requires :math:`N`
+:eq:`ARKODE_EWT`.  In the dense case, this approach requires :math:`N`
 evaluations of :math:`f^I`, one for each column of :math:`J`.  In the
 band case, the columns of :math:`J` are computed in groups, using the
 Curtis-Powell-Reid algorithm, with the number of :math:`f^I`
@@ -1313,7 +1308,7 @@ Jacobian *must* be supplied by a user routine.
 
 .. index:: inexact Newton iteration
 
-.. _Mathematics.Linear.Iterative:
+.. _ARKODE.Mathematics.Linear.Iterative:
 
 Matrix-free iterative linear solvers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1322,7 +1317,7 @@ In the case that a matrix-free iterative linear solver is chosen,
 an *inexact Newton iteration* is utilized.  Here, the
 matrix :math:`{\mathcal A}` is not itself constructed since the
 algorithms only require the product of this matrix with a given
-vector.  Additionally, each Newton system :eq:`Newton_system` is not
+vector.  Additionally, each Newton system :eq:`ARKODE_Newton_system` is not
 solved completely, since these linear solvers are iterative (hence the
 "inexact" in the name). As a result. for these linear solvers
 :math:`{\mathcal A}` is applied in a matrix-free manner,
@@ -1352,7 +1347,7 @@ convergence rate that may result from a stale preconditioner.
 
 .. index:: linear solver setup
 
-.. _Mathematics.Linear.Setup:
+.. _ARKODE.Mathematics.Linear.Setup:
 
 Updating the linear solver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1401,7 +1396,7 @@ additional cost of Jacobian/preconditioner construction.  To this end,
 a user may specify that the system matrix :math:`{\mathcal A}` and/or
 preconditioner :math:`P` should be recomputed more frequently.
 
-As will be further discussed in section :numref:`Mathematics.Preconditioning`,
+As will be further discussed in section :numref:`ARKODE.Mathematics.Preconditioning`,
 in the case of most Krylov methods, preconditioning may be applied on the
 left, right, or on both sides of :math:`{\mathcal A}`, with user-supplied
 routines for the preconditioner setup and solve operations.
@@ -1409,23 +1404,23 @@ routines for the preconditioner setup and solve operations.
 
 
 
-.. _Mathematics.Error:
+.. _ARKODE.Mathematics.Error:
 
 Iteration Error Control
 ------------------------------------
 
 
-.. _Mathematics.Error.Nonlinear:
+.. _ARKODE.Mathematics.Error.Nonlinear:
 
 Nonlinear iteration error control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ARKODE provides a customized stopping test to the SUNNonlinearSolver
-module used for solving equation :eq:`Residual`.  This test is related
+module used for solving equation :eq:`ARKODE_Residual`.  This test is related
 to the temporal local error test, with the goal of keeping the
 nonlinear iteration errors from interfering with local error control.
 Denoting the final computed value of each stage solution as
-:math:`z_i^{(m)}`, and the true stage solution solving :eq:`Residual`
+:math:`z_i^{(m)}`, and the true stage solution solving :eq:`ARKODE_Residual`
 as :math:`z_i`, we want to ensure that the iteration error
 :math:`z_i - z_i^{(m)}` is "small" (recall that a norm less than 1 is
 already considered within an acceptable tolerance).
@@ -1438,7 +1433,7 @@ z_i^{(m)} - z_i^{(m-1)}`, if :math:`m>0` we update :math:`R_i` as
 
 .. math::
    R_i \leftarrow \max\left\{ c_r R_i, \left\|\delta^{(m)}\right\| / \left\|\delta^{(m-1)}\right\| \right\}.
-   :label: NonlinearCRate
+   :label: ARKODE_NonlinearCRate
 
 where the default factor :math:`c_r=0.3` is user-modifiable.
 
@@ -1459,7 +1454,7 @@ for each stage is
 
 .. math::
    R_i \left\|\delta^{(m)} \right\| < \epsilon,
-   :label: NonlinearTolerance
+   :label: ARKODE_NonlinearTolerance
 
 where the factor :math:`\epsilon` has default value 0.1.  We default
 to a maximum of 3 nonlinear iterations.  We also declare the
@@ -1467,7 +1462,7 @@ nonlinear iteration to be divergent if any of the ratios
 
 .. math::
    `\|\delta^{(m)}\| / \|\delta^{(m-1)}\| > r_{div}`
-   :label: NonlinearDivergence
+   :label: ARKODE_NonlinearDivergence
 
 with :math:`m>0`, where :math:`r_{div}` defaults to 2.3.
 If convergence fails in the nonlinear solver with :math:`{\mathcal A}`
@@ -1475,18 +1470,18 @@ current (i.e., not lagged), we reduce the step size :math:`h_n` by a
 factor of :math:`\eta_{cf}=0.25`.  The integration will be halted after
 :math:`max_{ncf}=10` convergence failures, or if a convergence failure
 occurs with :math:`h_n = h_\text{min}`.  However, since the nonlinearity
-of :eq:`Residual` may vary significantly based on the problem under
+of :eq:`ARKODE_Residual` may vary significantly based on the problem under
 consideration, these default constants may all be modified by the user.
 
 
 
-.. _Mathematics.Error.Linear:
+.. _ARKODE.Mathematics.Error.Linear:
 
 Linear iteration error control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When a Krylov method is used to solve the linear Newton systems
-:eq:`Newton_system`, its errors must also be controlled.  To this end,
+:eq:`ARKODE_Newton_system`, its errors must also be controlled.  To this end,
 we approximate the linear iteration error in the solution vector
 :math:`\delta^{(m)}` using the preconditioned residual vector,
 e.g. :math:`r = P{\mathcal A}\delta^{(m)} + PG` for the case of left
@@ -1498,7 +1493,7 @@ the preconditioned linear residual satisfies
 
 .. math::
    \|r\| \le \frac{\epsilon_L \epsilon}{10}.
-   :label: LinearTolerance
+   :label: ARKODE_LinearTolerance
 
 Here :math:`\epsilon` is the same value as that is used above for the
 nonlinear error control.  The factor of 10 is used to ensure that the
@@ -1508,19 +1503,19 @@ typically useful for strongly nonlinear or very stiff ODE systems,
 while easier ODE systems may benefit from a value closer to 1.  The
 default value is :math:`\epsilon_L = 0.05`, which may be modified by
 the user.  We note that for linearly
-implicit problems the tolerance :eq:`LinearTolerance` is similarly
+implicit problems the tolerance :eq:`ARKODE_LinearTolerance` is similarly
 used for the single Newton iteration.
 
 
 
 
-.. _Mathematics.Preconditioning:
+.. _ARKODE.Mathematics.Preconditioning:
 
 Preconditioning
 ------------------------------------
 
 When using an inexact Newton method to solve the nonlinear system
-:eq:`Residual`, an iterative method is used repeatedly to solve
+:eq:`ARKODE_Residual`, an iterative method is used repeatedly to solve
 linear systems of the form :math:`{\mathcal A}x = b`, where :math:`x` is a
 correction vector and :math:`b` is a residual vector.  If this
 iterative method is one of the scaled preconditioned iterative linear
@@ -1585,14 +1580,14 @@ the Newton-Krylov method with no preconditioning.
 
 
 
-.. _Mathematics.Predictors:
+.. _ARKODE.Mathematics.Predictors:
 
 Implicit predictors
 ------------------------------------
 
 For problems with implicit components, a prediction algorithm is
 employed for constructing the initial guesses for each implicit
-Runge-Kutta stage, :math:`z_i^{(0)}`.  As is well-known with nonlinear
+Runge--Kutta stage, :math:`z_i^{(0)}`.  As is well-known with nonlinear
 solvers, the selection of a good initial guess can have dramatic
 effects on both the speed and robustness of the solve, making the
 difference between rapid quadratic convergence versus divergence of
@@ -1605,7 +1600,7 @@ cases, prediction is performed by constructing an interpolating
 polynomial through existing data, which is then evaluated at the
 desired stage time to provide an inexpensive but (hopefully)
 reasonable prediction of the stage solution.  Specifically, for most
-Runge-Kutta methods each stage solution satisfies
+Runge--Kutta methods each stage solution satisfies
 
 .. math::
    z_i \approx y(t^I_{n,i}),
@@ -1617,13 +1612,13 @@ approximated as
 
 .. math::
    z_i^{(0)} = p_q(t^I_{n,i}).
-   :label: extrapolant
+   :label: ARKODE_extrapolant
 
 As the stage times for MRI stages and implicit ARK and DIRK stages usually
 have non-negative abscissae (i.e., :math:`c_j^I > 0`), it is typically the
 case that :math:`t^I_{n,j}` (resp., :math:`t^S_{n,j}`) is outside of the
 time interval containing the data used to construct :math:`p_q(t)`, hence
-:eq:`extrapolant` will correspond to an extrapolant instead of an
+:eq:`ARKODE_extrapolant` will correspond to an extrapolant instead of an
 interpolant.  The dangers of using a polynomial interpolant to extrapolate
 values outside the interpolation interval are well-known, with higher-order
 polynomials and predictions further outside the interval resulting in the
@@ -1639,7 +1634,7 @@ in MRIStep, we use the ARKStep notation throughout the remainder of this
 section, but each statement equally applies to MRIStep (unless otherwise noted).
 
 
-.. _Mathematics.Predictors.Trivial:
+.. _ARKODE.Mathematics.Predictors.Trivial:
 
 Trivial predictor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1657,20 +1652,20 @@ problems with implicit constraints whose violation may cause illegal
 solution values (e.g. a negative density or temperature).
 
 
-.. _Mathematics.Predictors.Max:
+.. _ARKODE.Mathematics.Predictors.Max:
 
 Maximum order predictor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 At the opposite end of the spectrum, ARKODE's interpolation modules
-discussed in section :numref:`Mathematics.Interpolation`
+discussed in section :numref:`ARKODE.Mathematics.Interpolation`
 can be used to construct a higher-order polynomial interpolant, :math:`p_q(t)`.
-The implicit stage predictor is computed through evaulating the
+The implicit stage predictor is computed through evaluating the
 highest-degree-available interpolant at each stage time :math:`t^I_{n,i}`.
 
 
 
-.. _Mathematics.Predictors.Decreasing:
+.. _ARKODE.Mathematics.Predictors.Decreasing:
 
 Variable order predictor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1688,7 +1683,7 @@ stage times are increasing, i.e. :math:`c^I_j < c^I_k` for
 
 
 
-.. _Mathematics.Predictors.Cutoff:
+.. _ARKODE.Mathematics.Predictors.Cutoff:
 
 Cutoff order predictor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1706,7 +1701,7 @@ interpolant to use for prediction.  Denoting :math:`\tau = c_i^I
 
 
 
-.. _Mathematics.Predictors.Bootstrap:
+.. _ARKODE.Mathematics.Predictors.Bootstrap:
 
 Bootstrap predictor (:math:`M=I` only) -- **deprecated**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1737,7 +1732,7 @@ used in the prediction.
 We note that in general, each stage solution :math:`z_j` has
 significantly worse accuracy than the time step solutions
 :math:`y_{n-1}`, due to the difference between the *stage order* and
-the *method order* in Runge-Kutta methods.  As a result, the accuracy
+the *method order* in Runge--Kutta methods.  As a result, the accuracy
 of this predictor will generally be rather limited, but it is
 provided for problems in which this increased stage error is better
 than the effects of extrapolation far outside of the previous time
@@ -1752,7 +1747,7 @@ case of a non-identity mass matrix will result in use of the trivial predictor.
 
 
 
-.. _Mathematics.Predictors.MinimumCorrection:
+.. _ARKODE.Mathematics.Predictors.MinimumCorrection:
 
 Minimum correction predictor (ARKStep, :math:`M=I` only) -- **deprecated**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1760,7 +1755,7 @@ Minimum correction predictor (ARKStep, :math:`M=I` only) -- **deprecated**
 The final predictor is not interpolation based; instead it
 utilizes all existing stage information from the current step to
 create a predictor containing all but the current stage solution.
-Specifically, as discussed in equations :eq:`ARK` and :eq:`Residual`,
+Specifically, as discussed in equations :eq:`ARKODE_ARK` and :eq:`ARKODE_Residual`,
 each stage solves a nonlinear equation
 
 .. math::
@@ -1788,7 +1783,7 @@ case of a non-identity mass matrix will result in use of the trivial predictor.
 
 
 
-.. _Mathematics.MassSolve:
+.. _ARKODE.Mathematics.MassSolve:
 
 Mass matrix solver (ARKStep only)
 ------------------------------------
@@ -1798,21 +1793,21 @@ locations where a matrix-vector product
 
 .. math::
    b = M v
-   :label: mass_multiply
+   :label: ARKODE_mass_multiply
 
 or a linear solve
 
 .. math::
    x = M^{-1} b
-   :label: mass_solve
+   :label: ARKODE_mass_solve
 
 is required.
 
 Of course, for problems in which :math:`M=I` both of these operators
 are trivial.  However for problems with non-identity mass matrix,
-these linear solves :eq:`mass_solve` may be handled using
+these linear solves :eq:`ARKODE_mass_solve` may be handled using
 any valid SUNLinearSolver module, in the same manner as described in the
-section :numref:`Mathematics.Linear` for solving the linear Newton
+section :numref:`ARKODE.Mathematics.Linear` for solving the linear Newton
 systems.
 
 For ERK methods involving non-identity mass matrix, even though
@@ -1833,34 +1828,34 @@ methods are employed, the user must supply a routine to compute
 :math:`M(t)` in the appropriate form to match the structure of
 :math:`{\mathcal A}`, with a user-supplied routine of type
 :c:func:`ARKLsMassFn()`.  This matrix structure is used internally to
-perform any requisite mass matrix-vector products :eq:`mass_multiply`.
+perform any requisite mass matrix-vector products :eq:`ARKODE_mass_multiply`.
 
 When matrix-free methods are selected, a routine must be supplied to
 perform the mass-matrix-vector product, :math:`Mv`.  As with iterative
 solvers for the Newton systems, preconditioning may be applied to aid
-in solution of the mass matrix systems :eq:`mass_solve`.  When using an
+in solution of the mass matrix systems :eq:`ARKODE_mass_solve`.  When using an
 iterative mass matrix linear solver, we require that the norm of the
 preconditioned linear residual satisfies
 
 .. math::
    \|r\| \le \epsilon_L \epsilon,
-   :label: MassLinearTolerance
+   :label: ARKODE_MassLinearTolerance
 
 where again, :math:`\epsilon` is the nonlinear solver tolerance
-parameter from :eq:`NonlinearTolerance`.  When using iterative system
+parameter from :eq:`ARKODE_NonlinearTolerance`.  When using iterative system
 and mass matrix linear solvers, :math:`\epsilon_L` may be specified
-separately for both tolerances :eq:`LinearTolerance` and
-:eq:`MassLinearTolerance`.
+separately for both tolerances :eq:`ARKODE_LinearTolerance` and
+:eq:`ARKODE_MassLinearTolerance`.
 
 
 In the algorithmic descriptions above there are five locations
-where a linear solve of the form :eq:`mass_solve` is required: (a) at each
+where a linear solve of the form :eq:`ARKODE_mass_solve` is required: (a) at each
 iteration of a fixed-point nonlinear solve, (b) in computing the
-Runge-Kutta right-hand side vectors :math:`\hat{f}^E_i` and
+Runge--Kutta right-hand side vectors :math:`\hat{f}^E_i` and
 :math:`\hat{f}^I_i`, (c) in constructing the time-evolved solution
 :math:`y_n`, (d) in estimating the local temporal truncation error, and (e)
 in constructing predictors for the implicit solver iteration (see section
-:numref:`Mathematics.Predictors.Max`).  We note that different nonlinear
+:numref:`ARKODE.Mathematics.Predictors.Max`).  We note that different nonlinear
 solver approaches (i.e., Newton vs fixed-point) and different types of
 mass matrices (i.e., time-dependent versus fixed) result in different
 subsets of the above operations.  We discuss each of these in the bullets below.
@@ -1873,7 +1868,7 @@ subsets of the above operations.  We discuss each of these in the bullets below.
 
   for the new fixed-point iterate, :math:`z_i^{(m+1)}`.
 
-* In the case of a time-dependent mass matrix, to construct the Runge-Kutta
+* In the case of a time-dependent mass matrix, to construct the Runge--Kutta
   right-hand side vectors we must solve
 
   .. math::
@@ -1884,7 +1879,7 @@ subsets of the above operations.  We discuss each of these in the bullets below.
   for the vectors :math:`\hat{f}^{E}_i` and :math:`\hat{f}^{I}_i`.
 
 * For fixed mass matrices, we construct the time-evolved solution :math:`y_n`
-  from equation :eq:`ARK` by solving
+  from equation :eq:`ARKODE_ARK` by solving
 
   .. math::
      &M y_n \ = \ M y_{n-1} + h_n \sum_{i=1}^{s} \left( b^E_i f^E(t^E_{n,i}, z_i)
@@ -1899,49 +1894,49 @@ subsets of the above operations.  We discuss each of these in the bullets below.
   for the update :math:`\nu = y_n - y_{n-1}`.
 
   Similarly, we compute the local temporal error
-  estimate :math:`T_n` from equation :eq:`LTE` by solving systems of the form
+  estimate :math:`T_n` from equation :eq:`ARKODE_LTE` by solving systems of the form
 
   .. math::
      M\, T_n = h \sum_{i=1}^{s} \left[
      \left(b^E_i - \tilde{b}^E_i\right) f^E(t^E_{n,i}, z_i) +
      \left(b^I_i - \tilde{b}^I_i\right) f^I(t^I_{n,i}, z_i) \right].
-     :label: mass_solve_LTE
+     :label: ARKODE_mass_solve_LTE
 
 * For problems with either form of non-identity mass matrix, in constructing
   dense output and implicit predictors of degree 2 or higher (see the
-  section :numref:`Mathematics.Predictors.Max` above), we compute the derivative
+  section :numref:`ARKODE.Mathematics.Predictors.Max` above), we compute the derivative
   information :math:`\hat{f}_k` from the equation
 
   .. math::
      M(t_n) \hat{f}_n = f^E(t_n, y_n) + f^I(t_n, y_n).
 
 In total, for problems with fixed mass matrix, we require only
-two mass-matrix linear solves :eq:`mass_solve` per attempted time step,
+two mass-matrix linear solves :eq:`ARKODE_mass_solve` per attempted time step,
 with one more upon completion of a time step that meets the solution accuracy
 requirements.  When fixed time-stepping is used (:math:`h_n=h`), the
-solve :eq:`mass_solve_LTE` is not performed at each attempted step.
+solve :eq:`ARKODE_mass_solve_LTE` is not performed at each attempted step.
 
 Similarly, for problems with time-dependent mass matrix, we require
-:math:`2s` mass-matrix linear solves :eq:`mass_solve` per attempted step,
+:math:`2s` mass-matrix linear solves :eq:`ARKODE_mass_solve` per attempted step,
 where :math:`s` is the number of stages in the ARK method (only half of
 these are required for purely explicit or purely implicit problems,
-:eq:`IVP_explicit` or :eq:`IVP_implicit`), with one more upon completion of
+:eq:`ARKODE_IVP_explicit` or :eq:`ARKODE_IVP_implicit`), with one more upon completion of
 a time step that meets the solution accuracy requirements.
 
 In addition to the above totals, when using a fixed-point nonlinear solver
 (assumed to require :math:`m` iterations), we will need an additional
-:math:`ms` mass-matrix linear solves :eq:`mass_solve` per attempted time
+:math:`ms` mass-matrix linear solves :eq:`ARKODE_mass_solve` per attempted time
 step (but zero linear solves with the system Jacobian).
 
 
 
-.. _Mathematics.Rootfinding:
+.. _ARKODE.Mathematics.Rootfinding:
 
 Rootfinding
 ===============
 
 All of the time-stepping modules in ARKODE also support a rootfinding
-feature.  This means that, while integrating the IVP :eq:`IVP`, these
+feature.  This means that, while integrating the IVP :eq:`ARKODE_IVP`, these
 can also find the roots of a set of user-defined functions
 :math:`g_i(t,y)` that depend on :math:`t` and the solution vector
 :math:`y = y(t)`. The number of these root functions is arbitrary, and
@@ -2039,7 +2034,7 @@ user's responsibility to perform any necessary communication to ensure
 that :math:`g_i(t,y)` is identical on each rank.
 
 
-.. _Mathematics.InequalityConstraints:
+.. _ARKODE.Mathematics.InequalityConstraints:
 
 Inequality Constraints
 =======================
@@ -2057,5 +2052,5 @@ factor of 0.9 to cover the strict inequality case). If a step fails to satisfy
 the constraints 10 times (a value which may be modified by the user) within a
 step attempt, or fails with the minimum step size, then the integration is halted
 and an error is returned. In this case the user may need to employ other
-strategies as discussed in :numref:`Usage.ARKStep.Tolerances` and
-:numref:`Usage.ERKStep.Tolerances` to satisfy the inequality constraints.
+strategies as discussed in :numref:`ARKODE.Usage.ARKStep.Tolerances` and
+:numref:`ARKODE.Usage.ERKStep.Tolerances` to satisfy the inequality constraints.

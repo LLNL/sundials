@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,47 +12,45 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Organization:
+.. _ARKODE.Organization:
 
-=================
+*****************
 Code Organization
-=================
+*****************
 
-.. _Organization.SUNDIALS:
+.. ifconfig:: package_name != 'super'
 
-SUNDIALS organization
----------------------
+   .. include:: ../../../shared/SundialsOrganization.rst
 
-.. include:: ../../../shared/SundialsOrganization.rst
 
-.. _Organization.ARKODE:
+.. _ARKODE.Organization.ARKODE:
 
 ARKODE organization
--------------------
+===================
 
 The ARKODE package is written in the ANSI C language.  The
 following summarizes the basic structure of the package, although
 knowledge of this structure is not necessary for its use.
 
-The overall organization of the ARKODE package is shown in :numref:`Organization.ARKODE.Figure`.  The central integration modules,
-implemented in the files ``arkode.h``, ``arkode_impl.h``,
-``arkode_butcher.h``, ``arkode.c``, ``arkode_arkstep.c`` ,
-``arkode_erkstep.c``, ``arkode_mristep.h``, and ``arkode_butcher.c``, deal with
-the evaluation of integration stages, the nonlinear solvers, estimation of
-the local truncation error, selection of step size, and interpolation
-to user output points, among other issues.  ARKODE supports SUNNonlinearSolver
-modules in either root-finding or fixed-point form (see section :numref:`SUNNonlinSol`)
-for any nonlinearly implicit problems that arise in computing each internal stage.
-When using Newton-based nonlinear solvers, or when using a non-identity mass matrix
-:math:`M\ne I`, ARKODE has flexibility in the choice of method used to
-solve the linear sub-systems that arise.  Therefore, for any user
-problem invoking the Newton solvers, or any user problem with
-:math:`M\ne I`, one (or more) of the linear system solver modules
-should be specified by the user; this/these are then invoked as needed
-during the integration process.
+The overall organization of the ARKODE package is shown in
+:numref:`ARKODE.Organization.ARKODE.Figure`.  The central integration modules,
+implemented in the files ``arkode.h``, ``arkode_impl.h``, ``arkode_butcher.h``,
+``arkode.c``, ``arkode_arkstep.c`` , ``arkode_erkstep.c``, ``arkode_mristep.h``,
+and ``arkode_butcher.c``, deal with the evaluation of integration stages, the
+nonlinear solvers, estimation of the local truncation error, selection of step
+size, and interpolation to user output points, among other issues.  ARKODE
+supports SUNNonlinearSolver modules in either root-finding or fixed-point form
+(see section :numref:`SUNNonlinSol`) for any nonlinearly implicit problems that
+arise in computing each internal stage. When using Newton-based nonlinear
+solvers, or when using a non-identity mass matrix :math:`M\ne I`, ARKODE has
+flexibility in the choice of method used to solve the linear sub-systems that
+arise.  Therefore, for any user problem invoking the Newton solvers, or any user
+problem with :math:`M\ne I`, one (or more) of the linear system solver modules
+should be specified by the user; this/these are then invoked as needed during
+the integration process.
 
-.. _Organization.ARKODE.Figure:
-.. figure:: figs/arkorg.png
+.. _ARKODE.Organization.ARKODE.Figure:
+.. figure:: /figs/arkode/arkorg.png
    :align: center
 
    *ARKODE organization*: Overall structure of the ARKODE package.
@@ -90,7 +88,7 @@ block being a band matrix owned by a single processor.
 
 All state information used by ARKODE to solve a given problem is
 saved in a single opaque memory structure, and a pointer to that
-structure is returned to the user.  For C, C++ and Fortran2003
+structure is returned to the user.  For C, C++ and Fortran 2003
 applications there is no global data in the ARKODE package, and so in
 this respect it is reentrant.  State information specific to the
 linear solver interface is saved in a separate data structure, a
@@ -98,7 +96,4 @@ pointer to which resides in the ARKODE memory structure.  State
 information specific to the linear solver implementation (and matrix
 implementation, if applicable) are stored in their own data
 structures, that are returned to the user upon construction, and
-subsequently provided to ARKODE for use.  We note that the ARKODE
-Fortran77 interface, however, requires global variables, so at most
-one of each of these objects may be created per memory space
-(i.e. one per MPI task in distributed memory computations).
+subsequently provided to ARKODE for use.

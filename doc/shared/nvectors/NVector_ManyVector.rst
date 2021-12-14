@@ -17,36 +17,34 @@
 The NVECTOR_MANYVECTOR Module
 =============================
 
-The NVECTOR_MANYVECTOR implementation of the NVECTOR module provided with
-SUNDIALS is designed to facilitate problems with an inherent
-data partitioning for the solution vector within a computational node.
-These data partitions are entirely user-defined, through construction
-of distinct NVECTOR modules for each component, that are then combined
-together to form the NVECTOR_MANYVECTOR.  We envision two generic use
-cases for this implementation:
+The NVECTOR_MANYVECTOR module is designed to facilitate problems with an
+inherent data partitioning within a computational node for the solution
+vector. These data partitions are entirely user-defined, through
+construction of distinct NVECTOR modules for each component, that are
+then combined together to form the NVECTOR_MANYVECTOR.  Two potential
+use cases for this flexibility include:
 
 A. *Heterogenous computational architectures*:
-   for users who wish to partition data on a node between different
-   computing resources, they may create architecture-specific
-   subvectors for each partition.  For example, a user could create
-   one serial component based on NVECTOR_SERIAL, another component for
-   GPU accelerators based on NVECTOR_CUDA, and another threaded
-   component based on NVECTOR_OPENMP.
+   for data partitioning between different computing resources on a node,
+   architecture-specific subvectors may be created for each partition.
+   For example, a user could create one GPU-accelerated component based
+   on :ref:`NVECTOR_CUDA <NVectors.CUDA>`, and another CPU threaded
+   component based on :ref:`NVECTOR_OPENMP <NVectors.OpenMP>`.
 
-B. *Structure of arrays (SOA) data layouts*:
-   for users who wish to create separate subvectors for each
-   solution component, e.g., in a Navier-Stokes simulation they
-   could have separate subvectors for density, velocities and
-   pressure, which are combined together into a single
-   NVECTOR_MANYVECTOR for the overall "solution".
+B. *Structure of arrays (SOA) data layouts*: for problems that require
+   separate subvectors for each solution component.  For example, in an
+   incompressible Navier-Stokes simulation, separate subvectors may be
+   used for velocities and pressure, which are combined together into a
+   single NVECTOR_MANYVECTOR for the overall "solution".
 
-We note that the above use cases are not mutually exclusive, and the
-NVECTOR_MANYVECTOR implementation should support arbitrary combinations
-of these cases.
+The above use cases are neither exhaustive nor mutually exclusive, and
+the NVECTOR_MANYVECTOR implementation should support arbitrary
+combinations of these cases.
 
 The NVECTOR_MANYVECTOR implementation is designed to work with any
-NVECTOR subvectors that implement the minimum *required* set
-of operations.  Additionally, NVECTOR_MANYVECTOR sets no limit on the
+NVECTOR subvectors that implement the minimum "standard" set
+of operations in :numref:`NVectors.Ops.Standard`.  Additionally,
+NVECTOR_MANYVECTOR sets no limit on the
 number of subvectors that may be attached (aside from the limitations
 of using ``sunindextype`` for indexing, and standard per-node memory
 limitations).  However, while this ostensibly supports subvectors
@@ -61,8 +59,9 @@ As a final note, in the coming years we plan to introduce additional
 algebraic solvers and time integration modules that will leverage the
 problem partitioning enabled by NVECTOR_MANYVECTOR.  However, even at
 present we anticipate that users will be able to leverage such data
-partitioning in their problem-defining ODE right-hand side, DAE
-residual, or nonlinear solver residual functions.
+partitioning in their problem-defining ODE right-hand side function, DAE
+or nonlinear solver residual function, preconditioners, or custom
+:c:type:`SUNLinearSolver` or :c:type:`SUNNonlinearSolver` modules.
 
 
 
@@ -97,25 +96,21 @@ NVECTOR_MANYVECTOR functions
 -------------------------------
 
 The NVECTOR_MANYVECTOR module implements all vector operations listed
-in the sections :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
-:numref:`NVectors.Ops.Array`, and :numref:`NVectors.Ops.Local`, except for
+in :numref:`NVectors.Ops` except for
 :c:func:`N_VGetArrayPointer()`, :c:func:`N_VSetArrayPointer()`,
 :c:func:`N_VScaleAddMultiVectorArray()`, and
 :c:func:`N_VLinearCombinationVectorArray()`.  As such, this vector
-cannot be used with the SUNDIALS Fortran-77 interfaces, nor with the
-SUNDIALS direct solvers and preconditioners. Instead, the
-NVECTOR_MANYVECTOR module provides functions to access subvectors,
-whose data may in turn be accessed according to their NVECTOR
-implementations.
+cannot be used with the SUNDIALS direct solvers and preconditioners.
+Instead, the NVECTOR_MANYVECTOR module provides functions to access
+subvectors, whose data may in turn be accessed according to their
+NVECTOR implementations.
 
-The names of vector operations are obtained from those in the sections
-:numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
-:numref:`NVectors.Ops.Array`, and :numref:`NVectors.Ops.Local` by
-appending the suffix ``_ManyVector`` (e.g. ``N_VDestroy_ManyVector``).
-The module NVECTOR_MANYVECTOR provides the following additional
-user-callable routines:
+The names of vector operations are obtained from those in
+:numref:`NVectors.Ops` by appending the suffix ``_ManyVector`` (e.g.
+``N_VDestroy_ManyVector``).  The module NVECTOR_MANYVECTOR provides
+the following additional user-callable routines:
 
-.. c:function:: N_Vector N_VNew_ManyVector(sunindextype num_subvectors, N_Vector *vec_array)
+.. c:function:: N_Vector N_VNew_ManyVector(sunindextype num_subvectors, N_Vector *vec_array, SUNContext sunctx)
 
    This function creates a ManyVector from a set of existing
    NVECTOR objects.
@@ -132,10 +127,10 @@ user-callable routines:
    failure occurred).
 
    Users of the Fortran 2003 interface to this function will first need to use
-   the generic ``N_Vector`` utility functions ``N_VNewVectorArray``, and
-   ``N_VSetVecAtIndexVectorArray`` to create the ``N_Vector*`` argument.  This is
-   further explained in Chapter :numref:`Usage.Fortran.Modules.Differences.NVectorArrays`,
-   and the functions are documented in Chapter :numref:`NVectors.Description.utilities`.
+   the generic ``N_Vector`` utility functions :c:func:`N_VNewVectorArray`, and
+   :c:func:`N_VSetVecAtIndexVectorArray` to create the ``N_Vector*`` argument.  This is
+   further explained in :numref:`SUNDIALS.Fortran.Differences.NVectorArrays`,
+   and the functions are documented in :numref:`NVectors.Description.utilities`.
 
 
 .. c:function:: N_Vector N_VGetSubvector_ManyVector(N_Vector v, sunindextype vec_num)
@@ -174,18 +169,18 @@ and :c:func:`N_VWrmsNormMaskVectorArray()`, that are enabled by
 default. The following additional user-callable routines are provided
 to enable or disable fused and vector array operations for a specific
 vector. To ensure consistency across vectors it is recommended to
-first create a vector with :c:func:`N_VNew_ManyVector()`,
+first create a vector with :c:func:`N_VNew_ManyVector`,
 enable/disable the desired operations
 for that vector with the functions below, and create any additional
 vectors from that vector using :c:func:`N_VClone()`. This guarantees
 that the new vectors will have the same operations enabled/disabled,
 since cloned vectors inherit those configuration options from the
 vector they are cloned from, while vectors created with
-:c:func:`N_VNew_ManyVector()` will
+:c:func:`N_VNew_ManyVector` will
 have the default settings for the NVECTOR_MANYVECTOR module.  We note
 that these routines *do not* call the corresponding routines on
 subvectors, so those should be set up as desired *before* attaching
-them to the ManyVector in :c:func:`N_VNew_ManyVector()`.
+them to the ManyVector in :c:func:`N_VNew_ManyVector`.
 
 .. c:function:: int N_VEnableFusedOps_ManyVector(N_Vector v, booleantype tf)
 
@@ -247,7 +242,7 @@ them to the ManyVector in :c:func:`N_VNew_ManyVector()`.
 
 **Notes**
 
-* :c:func:`N_VNew_ManyVector()` sets
+* :c:func:`N_VNew_ManyVector` sets
   the field ``own_data = SUNFALSE``.
   :c:func:`N_VDestroy_ManyVector()` will not attempt to call
   :c:func:`N_VDestroy()` on any subvectors contained in the

@@ -1,4 +1,16 @@
-.. _Usage.MRIStep.LinearSolvers:
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2021, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
+
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _ARKODE.Usage.MRIStep.LinearSolvers:
 
 Linear solver interface functions
 -------------------------------------------
@@ -8,37 +20,37 @@ implicit systems within MRIStep require the solution of linear
 systems of the form
 
 .. math::
-   {\mathcal A}\left(z_i^{(m)}\right) \delta^{(m+1)} = -G\left(z_i^{(m)}\right)
+   \mathcal{A}\left(z_i^{(m)}\right) \delta^{(m+1)} = -G\left(z_i^{(m)}\right)
 
 where
 
 .. math::
-   {\mathcal A} \approx I - \gamma J, \qquad J = \frac{\partial f^I}{\partial y}.
+   \mathcal{A} \approx I - \gamma J, \qquad J = \frac{\partial f^I}{\partial y}.
 
 ARKODE's ARKLS linear solver interface supports all valid
 ``SUNLinearSolver`` modules for this task.
 
 Matrix-based ``SUNLinearSolver`` modules utilize ``SUNMatrix`` objects
 to store the approximate Jacobian matrix :math:`J`, the Newton matrix
-:math:`{\mathcal A}`, and, when using direct solvers, the factorizations
+:math:`\mathcal{A}`, and, when using direct solvers, the factorizations
 used throughout the solution process.
 
 Matrix-free ``SUNLinearSolver`` modules instead use iterative methods
 to solve the Newton systems of equations, and only require the
-*action* of the matrix on a vector, :math:`{\mathcal A}v`.  With most
+*action* of the matrix on a vector, :math:`\mathcal{A}v`.  With most
 of these methods, preconditioning can be done on the left only, on the
 right only, on both the left and the right, or not at all.  The
 exceptions to this rule are SPFGMR that supports right preconditioning
 only and PCG that performs symmetric preconditioning.  For the
 specification of a preconditioner, see the iterative linear solver
-portions of the sections :numref:`Usage.MRIStep.OptionalInputs` and
-:numref:`Usage.MRIStep.UserSupplied`.
+portions of :numref:`ARKODE.Usage.MRIStep.OptionalInputs` and
+:numref:`ARKODE.Usage.UserSupplied`.
 
 If preconditioning is done, user-supplied functions should be used to
 define left and right preconditioner matrices :math:`P_1` and
 :math:`P_2` (either of which could be the identity matrix), such that
 the product :math:`P_{1}P_{2}` approximates the Newton matrix
-:math:`{\mathcal A} = I - \gamma J`.
+:math:`\mathcal{A} = I - \gamma J`.
 
 To specify a generic linear solver for MRIStep to use for the Newton
 systems, after the call to :c:func:`MRIStepCreate()` but before any
@@ -53,29 +65,11 @@ the form
 
    SUNLinearSolver LS = SUNLinSol_*(...);
 
-The current list of such constructor routines includes
-:c:func:`SUNLinSol_Dense()`,
-:c:func:`SUNLinSol_Band()`,
-:c:func:`SUNLinSol_LapackDense()`,
-:c:func:`SUNLinSol_LapackBand()`,
-:c:func:`SUNLinSol_KLU()`,
-:c:func:`SUNLinSol_SuperLUMT()`,
-:c:func:`SUNLinSol_SuperLUDIST()`,
-:c:func:`SUNLinSol_cuSolverSp_batchQR()`,
-:c:func:`SUNLinSol_SPGMR()`,
-:c:func:`SUNLinSol_SPFGMR()`,
-:c:func:`SUNLinSol_SPBCGS()`,
-:c:func:`SUNLinSol_SPTFQMR()`, and
-:c:func:`SUNLinSol_PCG()`.
-
-Alternately, a user-supplied
-``SUNLinearSolver`` module may be created and used instead.  The use
-of each of the generic linear solvers involves certain constants,
-functions and possibly some macros, that are likely to be needed in
-the user code.  These are available in the corresponding header file
-associated with the specific ``SUNMatrix`` or ``SUNLinearSolver``
-module in question, as described in the sections :numref:`SUNMatrix` and
-:numref:`SUNLinSol`.
+The current list of SUNDIALS-packaged SUNLinSol modules, and their
+constructor routines, may be found in chapter :numref:`SUNLinSol`.
+Alternately, a user-supplied ``SUNLinearSolver`` module may be created
+and used.  Specific information on how to create such user-provided
+modules may be found in :numref:`SUNLinSol.API.Custom`.
 
 Once this solver object has been constructed, the user should attach
 it to MRIStep via a call to :c:func:`MRIStepSetLinearSolver()`. The
@@ -117,17 +111,17 @@ pertinent to their choice of linear solver.
    storage is required within the ``SUNMatrix`` object (e.g. for
    factorization of a banded matrix), ensure that the input object is
    allocated with sufficient size (see the documentation of
-   the particular SUNMATRIX type in the section :numref:`SUNMatrix` for
+   the particular SUNMATRIX type in :numref:`SUNMatrix` for
    further information).
 
    When using sparse linear solvers, it is typically much more
    efficient to supply *J* so that it includes the full sparsity
-   pattern of the Newton system matrices :math:`{\mathcal A} =
+   pattern of the Newton system matrices :math:`\mathcal{A} =
    I-\gamma J`, even if *J* itself has zeros in nonzero
    locations of :math:`I`.  The reasoning for this is
-   that :math:`{\mathcal A}` is constructed in-place, on top of the
+   that :math:`\mathcal{A}` is constructed in-place, on top of the
    user-specified values of *J*, so if the sparsity pattern in *J* is
-   insufficient to store :math:`{\mathcal A}` then it will need to be
+   insufficient to store :math:`\mathcal{A}` then it will need to be
    resized internally by MRIStep.
 
 
@@ -135,7 +129,7 @@ pertinent to their choice of linear solver.
 
 
 
-.. _Usage.MRIStep.NonlinearSolvers:
+.. _ARKODE.Usage.MRIStep.NonlinearSolvers:
 
 Nonlinear solver interface functions
 -------------------------------------------
@@ -153,9 +147,9 @@ subsequent calls to :c:func:`MRIStepEvolve()`.
 The first argument passed to the routine
 :c:func:`MRIStepSetNonlinearSolver()` is the MRIStep memory pointer
 returned by :c:func:`MRIStepCreate()`; the second argument passed
-to this function is the desired SUNNonlinSol object to use for solving
-the nonlinear system for each implicit stage. A call to this function
-attaches the nonlinear solver to the main MRIStep integrator.
+to this function is the desired ``SUNNonlinearSolver`` object to use for
+solving the nonlinear system for each implicit stage. A call to this
+function attaches the nonlinear solver to the main MRIStep integrator.
 
 
 .. c:function:: int MRIStepSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS)
@@ -174,6 +168,6 @@ attaches the nonlinear solver to the main MRIStep integrator.
       * *ARK_ILL_INPUT* if MRIStep is incompatible with the
         provided *NLS* input object.
 
-   **Notes:**  MRIStep will use the Newton SUNNonlinSol module by
+   **Notes:**  MRIStep will use the Newton ``SUNNonlinearSolver`` module by
    default; a call to this routine replaces that module with the
    supplied *NLS* object.

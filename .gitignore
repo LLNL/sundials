@@ -47,14 +47,12 @@
 /doc/*/*.out
 /doc/*/*.log
 
-# directories for extra Sphinx packages
-/doc/arkode/extra_packages/sphinx-bootstrap-theme
-/doc/arkode/extra_packages/sphinx-fortran
-
 # directories created by Sphinx documentation
 /doc/*/guide/build/
 /doc/*/examples/build/
+/doc/build/
 /doc/*/build/
+/doc/shared/__pycache__
 
 # PDFs of user guides and example docs
 /doc/*/*_guide.pdf
@@ -77,4 +75,3 @@ uberenv_libs
 
 # editor files
 .vscode
-
