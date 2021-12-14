@@ -30,9 +30,10 @@ set(CMAKE_C_FLAGS
   "@Trilinos_C_COMPILER_FLAGS@"
   CACHE STRING "Trilinos C compiler flags")
 
-set(CMAKE_C_STANDARD
-  @CMAKE_C_STANDARD@
-  CACHE STRING "C standard")
+if("@CMAKE_C_STANDARD@")
+  set(CMAKE_C_STANDARD "@CMAKE_C_STANDARD@"
+    CACHE STRING "C standard")
+endif()
 
 set(CMAKE_CXX_COMPILER
   @Trilinos_CXX_COMPILER@
