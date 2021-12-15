@@ -111,10 +111,16 @@ In addition to the deprecations noted elsewhere, many constants, types, and
 functions have been renamed so that they are properly namespaced. The old names
 have been deprecated and will be removed in SUNDIALS v7.0.0.
 
-The following constants and typedefs are now deprecated:
+The following constants, macros, and  typedefs are now deprecated:
 
 | Deprecated Name            | New Name                          |
 |:---------------------------|:----------------------------------|
+| `realtype`                 | `sunrealtype`                     |
+| `booleantype`              | `sunbooleantype`                  |
+| `RCONST`                   | `SUN_RCONST`                      |
+| `BIG_REAL`                 | `SUN_BIG_REAL`                    |
+| `SMALL_REAL`               | `SUN_SMALL_REAL`                  |
+| `UNIT_ROUNDOFF`            | `SUN_UNIT_ROUNDOFF`               |
 | `PREC_NONE`                | `SUN_PREC_NONE`                   |
 | `PREC_LEFT`                | `SUN_PREC_LEFT`                   |
 | `PREC_RIGHT`               | `SUN_PREC_RIGHT`                  |
